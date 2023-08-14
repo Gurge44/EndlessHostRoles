@@ -96,6 +96,11 @@ class GameEndChecker
                         .Where(pc => (pc.Is(CustomRoles.Spiritcaller) || pc.Is(CustomRoles.EvilSpirit)))
                         .Do(pc => CustomWinnerHolder.WinnerIds.Add(pc.PlayerId));
                     break;
+                case CustomWinner.RuthlessRomantic:
+                    Main.AllPlayerControls
+                        .Where(pc => (pc.Is(CustomRoles.RuthlessRomantic) || (Romantic.BetPlayer.TryGetValue(pc.PlayerId, out var RomanticPartner)) && pc.PlayerId == RomanticPartner))
+                        .Do(pc => CustomWinnerHolder.WinnerIds.Add(pc.PlayerId));
+                    break;
             }
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw and not CustomWinner.None and not CustomWinner.Error)
             {
@@ -267,7 +272,7 @@ class GameEndChecker
                         }
                     }
                 }
-                
+                //Follower win condition
                 foreach (var pc in Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Totocalcio)))
                 {
                     if (Totocalcio.BetPlayer.TryGetValue(pc.PlayerId, out var betTarget) && (
@@ -279,7 +284,30 @@ class GameEndChecker
                         CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Totocalcio);
                     }
                 }
-                //Lawyer win cond
+                //Romantic win condition
+                foreach (var pc in Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Romantic)))
+                {
+                    if (Romantic.BetPlayer.TryGetValue(pc.PlayerId, out var betTarget) && (
+                        CustomWinnerHolder.WinnerIds.Contains(betTarget) ||
+                        (Main.PlayerStates.TryGetValue(betTarget, out var ps) && CustomWinnerHolder.WinnerRoles.Contains(ps.MainRole)
+                        )))
+                    {
+                        CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                        CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Romantic);
+                    }
+                }
+                //Vengeful Romantic win condition
+                foreach (var pc in Main.AllPlayerControls.Where(x => x.Is(CustomRoles.VengefulRomantic)))
+                {
+                    if (VengefulRomantic.hasKilledKiller)
+                    {
+                        CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                        if ((Romantic.BetPlayer.TryGetValue(pc.PlayerId, out var RomanticPartner)) && pc.PlayerId == RomanticPartner)
+                            CustomWinnerHolder.WinnerIds.Add(RomanticPartner);
+                        CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.VengefulRomantic);
+                    }
+                }
+                //Lawyer win condition
                 foreach (var pc in Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Lawyer)))
                 {
                     if (Lawyer.Target.TryGetValue(pc.PlayerId, out var lawyertarget) && (
@@ -444,6 +472,7 @@ class GameEndChecker
             int Pestilence = Utils.AlivePlayersCount(CountTypes.Pestilence);
             int PB = Utils.AlivePlayersCount(CountTypes.PlagueBearer);
             int SK = Utils.AlivePlayersCount(CountTypes.NSerialKiller);
+            int RR = Utils.AlivePlayersCount(CountTypes.RuthlessRomantic);
             int Witch = Utils.AlivePlayersCount(CountTypes.NWitch);
             int Juggy = Utils.AlivePlayersCount(CountTypes.Juggernaut);
             int Vamp = Utils.AlivePlayersCount(CountTypes.Infectious);
@@ -550,6 +579,12 @@ class GameEndChecker
                 reason = GameOverReason.ImpostorByKill;
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SerialKiller);
                 CustomWinnerHolder.WinnerRoles.Add(CustomRoles.NSerialKiller);
+            }
+            else if (Imp == 0 && Jackal == 0 && PP == 0 && Traitor == 0 && Med == 0 && Pel == 0 && Vamp == 0 && DH == 0 && Rogue == 0 && Rit == 0 && Jinx == 0 && Juggy == 0 && Arso == 0 && Glitch == 0 && Hex == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && Pois == 0 && Virus == 0 && SC == 0 && BK == 0 && Gam == 0 && CM == 0 && Crew <= RR) //嗜血骑士胜利
+            {
+                reason = GameOverReason.ImpostorByKill;
+                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.RuthlessRomantic);
+                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.RuthlessRomantic);
             }
             else if (Imp == 0 && Jackal == 0 && PP == 0 && Traitor == 0 && Med == 0 && Arso == 0 && Pel == 0 && Vamp == 0 && DH == 0 && Rogue == 0 && Glitch == 0 && SK == 0 && Rit == 0 && Jinx == 0 && Hex == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && Pois == 0 && Virus == 0 && SC == 0 && BK == 0 && Gam == 0 && CM == 0 && Crew <= Juggy) //嗜血骑士胜利
             {

@@ -96,6 +96,9 @@ class CheckForEndVotingPatch
                             case CustomRoles.Eraser:
                                 Eraser.OnVote(pc, voteTarget);
                                 break;
+                            case CustomRoles.NiceEraser:
+                                NiceEraser.OnVote(pc, voteTarget);
+                                break;
                             case CustomRoles.Tracker:
                                 Tracker.OnVote(pc, voteTarget);
                                 break;
@@ -673,11 +676,12 @@ class MeetingHudStartPatch
         new LateTask(() => { msgToSend.Do(x => Utils.SendMessage(x.Item1, x.Item2, x.Item3)); }, 3f, "Skill Notice OnMeeting Start");
 
         Main.CyberStarDead.Clear();
+        Main.DemolitionistDead.Clear();
         Main.DetectiveNotify.Clear();
         Main.VirusNotify.Clear();
         Mortician.msgToSend.Clear();
         Tracker.msgToSend.Clear();
-        Pirate.OnMeetingStart();
+        //Pirate.OnMeetingStart();
     }
     public static void Prefix(MeetingHud __instance)
     {
@@ -733,6 +737,7 @@ class MeetingHudStartPatch
                 (pc.Is(CustomRoles.Mayor) && Options.MayorRevealWhenDoneTasks.GetBool() && pc.GetPlayerTaskState().IsTaskFinished) ||
                 (pc.Is(CustomRoles.Marshall) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && pc.GetPlayerTaskState().IsTaskFinished) ||
                 (Totocalcio.KnowRole(PlayerControl.LocalPlayer, pc)) ||
+                (Romantic.KnowRole(PlayerControl.LocalPlayer, pc)) ||
                 (EvilDiviner.IsShowTargetRole(PlayerControl.LocalPlayer, pc)) ||
                 (Ritualist.IsShowTargetRole(PlayerControl.LocalPlayer, pc)) ||
                 (Lawyer.KnowRole(PlayerControl.LocalPlayer, pc)) ||
@@ -892,6 +897,7 @@ class MeetingHudStartPatch
              //   case CustomRoles.Sidekick:
                 case CustomRoles.Poisoner:
                 case CustomRoles.NSerialKiller:
+                case CustomRoles.RuthlessRomantic:
                 case CustomRoles.Pelican:
                 case CustomRoles.DarkHide:
                 case CustomRoles.BloodKnight:
@@ -1028,6 +1034,7 @@ class MeetingHudStartPatch
 
             //赌徒提示
             sb.Append(Totocalcio.TargetMark(seer, target));
+            sb.Append(Romantic.TargetMark(seer, target));
             sb.Append(Lawyer.LawyerMark(seer, target));
 
             //会議画面ではインポスター自身の名前にSnitchマークはつけません。

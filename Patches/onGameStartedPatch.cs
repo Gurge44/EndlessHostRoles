@@ -62,6 +62,7 @@ internal class ChangeRoleSettings
             Main.ForCrusade = new();
             Main.KillGhoul = new();
             Main.CyberStarDead = new();
+            Main.DemolitionistDead = new();
             Main.KilledDiseased = new();
             Main.KilledAntidote = new();
             Main.WorkaholicAlive = new();
@@ -91,7 +92,12 @@ internal class ChangeRoleSettings
             Main.MarioVentCount = new();
             Main.VeteranInProtect = new();
             Main.VeteranNumOfUsed = new();
+            Main.AllKillers = new();
+            Main.GrenadierNumOfUsed = new();
+            Main.LighterNumOfUsed = new();
+            Main.TimeMasterNumOfUsed = new();
             Main.GrenadierBlinding = new();
+            Main.Lighter = new();
             Main.MadGrenadierBlinding = new();
             Main.CursedWolfSpellCount = new();
             Main.JinxSpellCount = new();
@@ -230,6 +236,9 @@ internal class ChangeRoleSettings
             Wraith.Init();
             BloodKnight.Init();
             Totocalcio.Init();
+            Romantic.Init();
+            VengefulRomantic.Init();
+            RuthlessRomantic.Init();
             Succubus.Init();
             CursedSoul.Init();
             Admirer.Init();
@@ -264,7 +273,7 @@ internal class ChangeRoleSettings
             PlagueBearer.Init();
             Reverie.Init();
             Doomsayer.Init();
-            Pirate.Init();
+            //Pirate.Init();
 
 
             SoloKombatManager.Init();
@@ -529,6 +538,7 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.TimeMaster:
                         Main.TimeMasterNum[pc.PlayerId] = 0;
+                        Main.TimeMasterNumOfUsed.Add(pc.PlayerId, Options.TimeMasterMaxUses.GetInt());
                         break;
                     case CustomRoles.Masochist:
                         Main.MasochistKillMax[pc.PlayerId] = 0;
@@ -642,6 +652,12 @@ internal class SelectRolesPatch
                     case CustomRoles.Veteran:
                         Main.VeteranNumOfUsed.Add(pc.PlayerId, Options.VeteranSkillMaxOfUseage.GetInt());
                         break;
+                    case CustomRoles.Grenadier:
+                        Main.GrenadierNumOfUsed.Add(pc.PlayerId, Options.GrenadierSkillMaxOfUseage.GetInt());
+                        break;
+                    case CustomRoles.Lighter:
+                        Main.LighterNumOfUsed.Add(pc.PlayerId, Options.LighterSkillMaxOfUseage.GetInt());
+                        break;
                     case CustomRoles.Swooper:
                         Swooper.Add(pc.PlayerId);
                         break;
@@ -656,6 +672,15 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Totocalcio:
                         Totocalcio.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Romantic:
+                        Romantic.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.VengefulRomantic:
+                        VengefulRomantic.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.RuthlessRomantic:
+                        RuthlessRomantic.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Succubus:
                         Succubus.Add(pc.PlayerId);
@@ -744,9 +769,9 @@ internal class SelectRolesPatch
                     case CustomRoles.Doomsayer:
                         Doomsayer.Add(pc.PlayerId);
                         break;
-                    case CustomRoles.Pirate:
-                        Pirate.Add(pc.PlayerId);
-                        break;
+                    //case CustomRoles.Pirate:
+                    //    Pirate.Add(pc.PlayerId);
+                    //    break;
                 }
                 foreach (var subRole in pc.GetCustomSubRoles())
                 {

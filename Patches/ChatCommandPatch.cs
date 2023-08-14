@@ -48,7 +48,7 @@ internal class ChatCommands
         if (GuessManager.GuesserMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (Judge.TrialMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (ParityCop.ParityCheckMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-        if (Pirate.DuelCheckMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
+        //if (Pirate.DuelCheckMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (Councillor.MurderMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (Mediumshiper.MsMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (MafiaRevengeManager.MafiaMsgCheck(PlayerControl.LocalPlayer, text)) goto Canceled;
@@ -508,6 +508,7 @@ internal class ChatCommands
             "幸運兒" or "幸运" => GetString("Luckey"),
             "大明星" or "明星" => GetString("SuperStar"),
             "網紅" => GetString("CyberStar"),
+            "demo" => GetString("Demolitionist"),
             "俠客" => GetString("SwordsMan"),
             "正義賭怪" or "正义的赌怪" or "好赌" or "正义赌" => GetString("NiceGuesser"),
             "邪惡賭怪" or "邪恶的赌怪" or "坏赌" or "恶赌" or "邪恶赌" or "赌怪" => GetString("EvilGuesser"),
@@ -534,7 +535,7 @@ internal class ChatCommands
             "閃電俠" or "闪电" => GetString("Flashman"),
             "靈媒" => GetString("Seer"),
             "破平者" or "破平" => GetString("Brakar"),
-            "執燈人" or "执灯" or "灯人" => GetString("Lighter"),
+            "執燈人" or "执灯" or "灯人" => GetString("Torch"),
             "膽小" or "胆小" => GetString("Oblivious"),
             "迷惑者" or "迷幻" => GetString("Bewilder"),
             "sun" => GetString("Sunglasses"),
@@ -671,7 +672,7 @@ internal class ChatCommands
                     if (isUp) return;
                 }
                 var sb = new StringBuilder();
-                sb.Append(devMark + roleName + Utils.GetRoleMode(rl) + GetString($"{rl}InfoLong"));
+                sb.Append(devMark + "<b>" + roleName + "</b>" + Utils.GetRoleMode(rl) + GetString($"{rl}InfoLong"));
                 if (Options.CustomRoleSpawnChances.ContainsKey(rl))
                 {
                     Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[rl], ref sb, command: true);
@@ -699,7 +700,7 @@ internal class ChatCommands
         if (GuessManager.GuesserMsg(player, text)) { canceled = true; return; }
         if (Judge.TrialMsg(player, text)) { canceled = true; return; }
         if (ParityCop.ParityCheckMsg(player, text)) { canceled = true; return; }
-        if (Pirate.DuelCheckMsg(player, text)) { canceled = true; return; }
+        //if (Pirate.DuelCheckMsg(player, text)) { canceled = true; return; }
         if (Councillor.MurderMsg(player, text)) { canceled = true; return; }
         if (Mediumshiper.MsMsg(player, text)) return;
         if (MafiaRevengeManager.MafiaMsgCheck(player, text)) return;

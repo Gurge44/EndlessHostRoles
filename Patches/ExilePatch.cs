@@ -128,6 +128,26 @@ class ExileControllerWrapUpPatch
                 CustomRoles.Dazzler or
                 CustomRoles.Devourer or
                 CustomRoles.Nuker or
+                CustomRoles.Assassin or
+                CustomRoles.Camouflager or
+                CustomRoles.Disperser or
+                CustomRoles.Escapee or
+                CustomRoles.Hacker or
+                CustomRoles.Hangman or
+                CustomRoles.ImperiusCurse or
+                CustomRoles.Miner or
+                CustomRoles.Morphling or
+                CustomRoles.Sniper or
+                CustomRoles.Warlock or
+                CustomRoles.Workaholic or
+                CustomRoles.Chameleon or
+                CustomRoles.Engineer or
+                CustomRoles.Grenadier or
+                CustomRoles.Lighter or
+                CustomRoles.Scientist or
+                CustomRoles.ScientistTOHE or
+                CustomRoles.Tracefinder or
+                CustomRoles.Doctor or
                 CustomRoles.Bomber
                 ) pc.RpcResetAbilityCooldown();
         }

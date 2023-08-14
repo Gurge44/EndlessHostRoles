@@ -3,6 +3,7 @@ using HarmonyLib;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Translator;
 
@@ -179,6 +180,8 @@ class BeginCrewmatePatch
                 break;
 
             case CustomRoles.Workaholic:
+            case CustomRoles.Snitch:
+            case CustomRoles.TaskManager:
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = DestroyableSingleton<HudManager>.Instance.TaskCompleteSound;
                 break;
 
@@ -204,6 +207,31 @@ class BeginCrewmatePatch
                 __instance.BackgroundBar.material.color = Utils.GetRoleColor(role);
                 __instance.ImpostorText.gameObject.SetActive(false);
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = DestroyableSingleton<HudManager>.Instance.TaskCompleteSound;
+                break;
+            case CustomRoles.Sheriff:
+            case CustomRoles.Veteran:
+            case CustomRoles.SwordsMan:
+            case CustomRoles.Reverie:
+            case CustomRoles.NiceGuesser:
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = PlayerControl.LocalPlayer.KillSfx;
+                break;
+            case CustomRoles.Swooper:
+            case CustomRoles.Wraith:
+            case CustomRoles.Chameleon:
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = PlayerControl.LocalPlayer.MyPhysics.ImpostorDiscoveredSound;
+                break;
+            case CustomRoles.Addict:
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = ShipStatus.Instance.VentEnterSound;
+                break;
+            case CustomRoles.ParityCop:
+            case CustomRoles.Mediumshiper:
+            case CustomRoles.Mayor:
+            case CustomRoles.NiceEraser:
+            case CustomRoles.Dictator:
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = HudManager.Instance.Chat.messageSound;
+                break;
+            case CustomRoles.Minimalism:
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = PlayerControl.LocalPlayer.KillSfx;
                 break;
         }
 
@@ -319,7 +347,7 @@ class BeginImpostorPatch
             __instance.overlayHandle.color = Palette.ImpostorRed;
             return true;
         }
-        else if (role is CustomRoles.Sheriff or CustomRoles.SwordsMan or CustomRoles.Medic or CustomRoles.Counterfeiter or CustomRoles.Monarch or CustomRoles.Farseer or CustomRoles.Admirer or CustomRoles.Deputy)
+        else if (role is CustomRoles.Sheriff or CustomRoles.SwordsMan or CustomRoles.Medic or CustomRoles.Counterfeiter or CustomRoles.Witness or CustomRoles.Monarch or CustomRoles.Farseer or CustomRoles.Admirer or CustomRoles.Deputy)
         {
             yourTeam = new Il2CppSystem.Collections.Generic.List<PlayerControl>();
             yourTeam.Add(PlayerControl.LocalPlayer);
@@ -354,6 +382,12 @@ class IntroCutsceneDestroyPatch
                         Main.AllPlayerControls.Do(x => x.ResetKillCooldown());
                         Main.AllPlayerControls.Where(x => (Main.AllPlayerKillCooldown[x.PlayerId] - 2f) > 0f).Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 2f));
                     }, 2f, "FixKillCooldownTask");
+                else if (Options.StartingKillCooldown.GetInt() != 10)
+                    new LateTask(() =>
+                    {
+                        Main.AllPlayerControls.Do(x => x.ResetKillCooldown());
+                        Main.AllPlayerControls.Where(x => Options.StartingKillCooldown.GetInt() > 0f).Do(pc => pc.SetKillCooldown(Options.StartingKillCooldown.GetInt()));
+                    }, 0.01f, "FixKillCooldownTask");
             }
             new LateTask(() => Main.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
             if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))
@@ -372,6 +406,10 @@ class IntroCutsceneDestroyPatch
                         break;
                     case 1:
                         map = new RandomSpawn.MiraHQSpawnMap();
+                        Main.AllPlayerControls.Do(map.RandomTeleport);
+                        break;
+                    case 2:
+                        map = new RandomSpawn.PolusSpawnMap();
                         Main.AllPlayerControls.Do(map.RandomTeleport);
                         break;
                 }

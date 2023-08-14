@@ -52,6 +52,28 @@ public static class HudSpritePatch
                         newAbilityButton = CustomButton.Get("Assassinate");
                 }
                 break;
+            case CustomRoles.Disperser:
+                if (!shapeshifting)
+                {
+                    newAbilityButton = CustomButton.Get("Disperse");
+                }
+                break;
+            case CustomRoles.BountyHunter:
+                if (!shapeshifting)
+                {
+                    newAbilityButton = CustomButton.Get("Swap");
+                }
+                break;
+            case CustomRoles.ImperiusCurse:
+            case CustomRoles.Twister:
+                if (!shapeshifting)
+                {
+                    newAbilityButton = CustomButton.Get("Transport");
+                }
+                break;
+            case CustomRoles.Deputy:
+                newKillButton = CustomButton.Get("Handcuff");
+                break;
             case CustomRoles.Bomber:
             case CustomRoles.Nuker:
                 newAbilityButton = CustomButton.Get("Bomb");
@@ -78,6 +100,9 @@ public static class HudSpritePatch
             case CustomRoles.Paranoia:
                 newAbilityButton = CustomButton.Get("Paranoid");
                 break;
+            case CustomRoles.Mayor:
+                newAbilityButton = CustomButton.Get("Button");
+                break;
             case CustomRoles.Puppeteer:
                 newKillButton = CustomButton.Get("Puttpuer");
                 break;
@@ -101,6 +126,9 @@ public static class HudSpritePatch
                 break;
             case CustomRoles.Veteran:
                 newAbilityButton = CustomButton.Get("Veteran");
+                break;
+            case CustomRoles.Lighter:
+                newAbilityButton = CustomButton.Get("Lighter");
                 break;
             case CustomRoles.Pelican:
                 newKillButton = CustomButton.Get("Vulture");

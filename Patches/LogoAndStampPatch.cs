@@ -47,6 +47,7 @@ public static class CredentialsPatch
             DevsData += $"\nCommandf1 - <size=75%>{GetString("RoleDev")}&{GetString("FeatureDev")}</size>";
             DevsData += $"\n喜 - <size=75%>{GetString("RoleDev")}</size>";
             DevsData += $"\nSHAAARKY - <size=75%>{GetString("RoleDev")}</size>";
+            DevsData += $"\nGurge44 - <size=75%>{GetString("FeatureDev")}</size>";
 
             TransData += $"Tommy-XL - <size=75%>{GetString("TranEN")}&{GetString("TranRU")}</size>";
             TransData += $"\nTem - <size=75%>{GetString("TranEN")}&{GetString("TranRU")}</size>";
