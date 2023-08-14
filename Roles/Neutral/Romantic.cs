@@ -87,7 +87,7 @@ public static class Romantic
         if (Target != byte.MaxValue)
             BetPlayer.Add(PlayerId, Target);
     }
-    public static bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && (!BetTimes.TryGetValue(player.PlayerId, out var times) || times >= 1);
+    public static bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead;
     public static void SetKillCooldown(byte id)
     {
         if (BetTimes.TryGetValue(id, out var times) && times < 1)
@@ -163,7 +163,7 @@ public static class Romantic
     {
         var player = Utils.GetPlayerById(playerId);
         if (player == null) return null;
-        return Utils.ColorString(CanUseKillButton(player) ? Color.white : Utils.GetRoleColor(CustomRoles.Romantic), $"<color=#777777>-</color> {(CanUseKillButton(player) ? "PICK PARTNER" : "PROTECT PARTNER")}");
+        return Utils.ColorString(BetTimes.TryGetValue(playerId, out var times) && times >= 1 ? Color.white : Utils.GetRoleColor(CustomRoles.Romantic), $"<color=#777777>-</color> {(CanUseKillButton(player) ? "PICK PARTNER" : "PROTECT PARTNER")}");
     }
     public static void ChangeRole(byte playerId)
     {
