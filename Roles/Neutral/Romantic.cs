@@ -95,6 +95,7 @@ public static class Romantic
             Main.AllPlayerKillCooldown[id] = ProtectCooldown.GetFloat();
             return;
         }
+        else Main.AllPlayerKillCooldown[id] = BetCooldown.GetFloat();
         //float cd = BetCooldown.GetFloat();
         //cd += Main.AllPlayerControls.Count(x => !x.IsAlive()) * BetCooldownIncrese.GetFloat();
         //cd = Math.Min(cd, MaxBetCooldown.GetFloat());
@@ -162,7 +163,7 @@ public static class Romantic
     {
         var player = Utils.GetPlayerById(playerId);
         if (player == null) return null;
-        return Utils.ColorString(CanUseKillButton(player) ? Color.white : Utils.GetRoleColor(CustomRoles.Romantic), $"<color=#777777>-</color> {(BetTimes.TryGetValue(playerId, out _) ? "PICK PARTNER" : "PROTECT PARTNER")})");
+        return Utils.ColorString(CanUseKillButton(player) ? Color.white : Utils.GetRoleColor(CustomRoles.Romantic), $"<color=#777777>-</color> {(CanUseKillButton(player) ? "PICK PARTNER" : "PROTECT PARTNER")}");
     }
     public static void ChangeRole(byte playerId)
     {
@@ -223,7 +224,7 @@ public static class VengefulRomantic
     {
         var player = Utils.GetPlayerById(playerId);
         if (player == null) return null;
-        return Utils.ColorString(CanUseKillButton(player) ? Utils.GetRoleColor(CustomRoles.VengefulRomantic) : Color.green, $"<color=#777777>-</color> {((hasKilledKiller) ? "AVEGNGE SUCCESSFUL" : "AVENGE YOUR PARTNER")})");
+        return Utils.ColorString(CanUseKillButton(player) ? Utils.GetRoleColor(CustomRoles.VengefulRomantic) : Color.green, $"<color=#777777>-</color> {((hasKilledKiller) ? "AVEGNGE SUCCESSFUL" : "AVENGE YOUR PARTNER")}");
     }
 }
 
