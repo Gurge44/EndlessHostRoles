@@ -1,0 +1,2 @@
+welcome:★ Welcome! This lobby has mod TOHE v{{ModVersion}}\n○ Check website for more info：tohe-r-doc.vercel.app\n● /help → Show all commands
+OnMeeting:● Discord: discord.gg/hkk2p9ggv4\n○ Website：tohe-r-doc.vercel.app\n————————————————————\n★ Send：/r → Shows rolelist\n★ Send：/r [role] → Show role description \n★ Send：/m → Check your role
