@@ -90,6 +90,7 @@ enum CustomRPC
     SetWraithTimer,
     SetBKTimer,
     SyncTotocalcioTargetAndTimes,
+    SyncRomanticTarget,
     SetSuccubusCharmLimit,
     SetInfectiousBiteLimit,
     SetCursedSoulCurseLimit,
@@ -515,6 +516,9 @@ internal class RPCHandlerPatch
             case CustomRPC.SyncTotocalcioTargetAndTimes:
                 Totocalcio.ReceiveRPC(reader);
                 break;
+            case CustomRPC.SyncRomanticTarget:
+                Romantic.ReceiveRPC(reader);
+                break;
             case CustomRPC.SetSuccubusCharmLimit:
                 Succubus.ReceiveRPC(reader);
                 break;
@@ -901,6 +905,15 @@ internal static class RPC
             case CustomRoles.Veteran:
                 Main.VeteranNumOfUsed.Add(targetId, Options.VeteranSkillMaxOfUseage.GetInt());
                 break;
+            case CustomRoles.Grenadier:
+                Main.GrenadierNumOfUsed.Add(targetId, Options.GrenadierSkillMaxOfUseage.GetInt());
+                break;
+            case CustomRoles.Lighter:
+                Main.LighterNumOfUsed.Add(targetId, Options.LighterSkillMaxOfUseage.GetInt());
+                break;
+            case CustomRoles.TimeMaster:
+                Main.TimeMasterNumOfUsed.Add(targetId, Options.TimeMasterMaxUses.GetInt());
+                break;
             case CustomRoles.Swooper:
                 Swooper.Add(targetId);
                 break;
@@ -915,6 +928,15 @@ internal static class RPC
                 break;
             case CustomRoles.Totocalcio:
                 Totocalcio.Add(targetId);
+                break;
+            case CustomRoles.Romantic:
+                Romantic.Add(targetId);
+                break;
+            case CustomRoles.VengefulRomantic:
+                VengefulRomantic.Add(targetId);
+                break;
+            case CustomRoles.RuthlessRomantic:
+                RuthlessRomantic.Add(targetId);
                 break;
             case CustomRoles.Succubus:
                 Succubus.Add(targetId);
@@ -1000,9 +1022,9 @@ internal static class RPC
             case CustomRoles.Doomsayer:
                 Doomsayer.Add(targetId);
                 break;
-            case CustomRoles.Pirate:
-                Pirate.Add(targetId);
-                break;
+            //case CustomRoles.Pirate:
+            //    Pirate.Add(targetId);
+            //    break;
         }
         HudManager.Instance.SetHudActive(true);
         if (PlayerControl.LocalPlayer.PlayerId == targetId) RemoveDisableDevicesPatch.UpdateDisableDevices();

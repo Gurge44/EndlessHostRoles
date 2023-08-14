@@ -1,5 +1,6 @@
 ﻿using Hazel;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace TOHE;
 
@@ -8,11 +9,12 @@ public static class NameNotifyManager
     private static Dictionary<byte, (string, long)> Notice = new();
     public static void Reset() => Notice = new();
     public static bool Notifying(this PlayerControl pc) => Notice.ContainsKey(pc.PlayerId);
-    public static void Notify(this PlayerControl pc, string text, float time = 4f)
+    public static void Notify(this PlayerControl pc, string text, float time = 5f)
     {
         if (!AmongUsClient.Instance.AmHost || pc == null) return;
         if (!GameStates.IsInTask) return;
-        if (!text.Contains("<color=#")) text = Utils.ColorString(Utils.GetRoleColor(pc.GetCustomRole()), text);
+        //if (!text.Contains("<color=#")) text = Utils.ColorString(Utils.GetRoleColor(pc.GetCustomRole()), text);
+        if (!text.Contains("<color=#")) text = Utils.ColorString(Color.white, text);
         Notice.Remove(pc.PlayerId);
         Notice.Add(pc.PlayerId, new(text, Utils.GetTimeStamp() + (long)time));
         SendRPC(pc.PlayerId);

@@ -29,12 +29,12 @@ public static class AntiBlackout
         || Ritualist.IsEnable || Virus.IsEnable
         || Wraith.IsEnable || HexMaster.IsEnable
         || Traitor.IsEnable || Pickpocket.IsEnable
-        || NSerialKiller.IsEnable || NWitch.IsEnable
+        || NSerialKiller.IsEnable || NWitch.IsEnable || RuthlessRomantic.IsEnable
         || Maverick.IsEnable || Jinx.IsEnable
         || Medusa.IsEnable || Spiritcaller.IsEnable
         || PlagueBearer.IsEnable || CustomRoles.Sidekick.RoleExist()
-        || CustomRoles.Pestilence.RoleExist() || CustomRoles.Arsonist.RoleExist()
-        || Pirate.IsEnable;
+        || CustomRoles.Pestilence.RoleExist() || CustomRoles.Arsonist.RoleExist();
+        //|| Pirate.IsEnable;
     ///<summary>
     ///インポスター以外の人数とインポスターの人数の差
     ///</summary>

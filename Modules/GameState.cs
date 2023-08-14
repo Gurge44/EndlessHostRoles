@@ -279,6 +279,7 @@ public class PlayerState
         Trialed,
         Infected,
         Jinx,
+        Demolished,
         Hack,
 
         etc = -1,
@@ -418,6 +419,58 @@ public class TaskState
 
                 }
             }
+            if (player.Is(CustomRoles.Divinator) && player.IsAlive())
+            {
+                Divinator.CheckLimit[player.PlayerId] += Divinator.AbilityUseGainWithEachTaskCompleted.GetFloat();
+            }
+            if (player.Is(CustomRoles.Veteran) && player.IsAlive())
+            {
+                Main.VeteranNumOfUsed[player.PlayerId] += Options.VeteranAbilityUseGainWithEachTaskCompleted.GetFloat();
+            }
+            if (player.Is(CustomRoles.Grenadier) && player.IsAlive())
+            {
+                Main.GrenadierNumOfUsed[player.PlayerId] += Options.GrenadierAbilityUseGainWithEachTaskCompleted.GetFloat();
+            }
+            if (player.Is(CustomRoles.Lighter) && player.IsAlive())
+            {
+                Main.LighterNumOfUsed[player.PlayerId] += Options.LighterAbilityUseGainWithEachTaskCompleted.GetFloat();
+            }
+            if (player.Is(CustomRoles.DovesOfNeace) && player.IsAlive())
+            {
+                Main.DovesOfNeaceNumOfUsed[player.PlayerId] += Options.DovesOfNeaceAbilityUseGainWithEachTaskCompleted.GetFloat();
+            }
+            if (player.Is(CustomRoles.TimeMaster) && player.IsAlive())
+            {
+                Main.TimeMasterNumOfUsed[player.PlayerId] += Options.TimeMasterAbilityUseGainWithEachTaskCompleted.GetFloat();
+            }
+            if (player.Is(CustomRoles.Mediumshiper) && player.IsAlive())
+            {
+                Mediumshiper.ContactLimit[player.PlayerId] += Mediumshiper.MediumAbilityUseGainWithEachTaskCompleted.GetFloat();
+            }
+            if (player.Is(CustomRoles.ParityCop) && player.IsAlive())
+            {
+                ParityCop.MaxCheckLimit[player.PlayerId] += ParityCop.ParityAbilityUseGainWithEachTaskCompleted.GetFloat();
+            }
+            if (player.Is(CustomRoles.Oracle) && player.IsAlive())
+            {
+                Oracle.CheckLimit[player.PlayerId] += Oracle.OracleAbilityUseGainWithEachTaskCompleted.GetFloat();
+            }
+            if (player.Is(CustomRoles.SabotageMaster) && player.IsAlive())
+            {
+                SabotageMaster.UsedSkillCount -= SabotageMaster.SMAbilityUseGainWithEachTaskCompleted.GetFloat();
+            }
+            if (player.Is(CustomRoles.Tracker) && player.IsAlive())
+            {
+                Tracker.TrackLimit[player.PlayerId] += Tracker.TrackerAbilityUseGainWithEachTaskCompleted.GetFloat();
+            }
+            if (player.Is(CustomRoles.Bloodhound) && player.IsAlive())
+            {
+                Bloodhound.UseLimit[player.PlayerId] += Bloodhound.BloodhoundAbilityUseGainWithEachTaskCompleted.GetFloat();
+            }
+            if (player.Is(CustomRoles.Chameleon) && player.IsAlive())
+            {
+                Chameleon.UseLimit[player.PlayerId] += Chameleon.ChameleonAbilityUseGainWithEachTaskCompleted.GetFloat();
+            }
 
             if (player.Is(CustomRoles.Ghoul) && (CompletedTasksCount + 1) >= AllTasksCount && player.IsAlive())
             new LateTask(() =>
@@ -490,7 +543,7 @@ public class TaskState
                         {
                             target.SetRealKiller(player);
                             target.RpcMurderPlayerV3(player);
-                            player.RpcGuardAndKill();
+                            //player.RpcGuardAndKill();
                             Logger.Info($"船鬼完成任务击杀：{target.GetNameWithRole()} => {player.GetNameWithRole()}", "Pestilence Reflect");
                         }
                     }

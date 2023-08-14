@@ -22,7 +22,7 @@ namespace TOHE;
 public class Main : BasePlugin
 {
     // == プログラム設定 / Program Config ==
-    public static readonly string ModName = "Town of Host Re-Edited";
+    public static readonly string ModName = "TOHE+";
     public static readonly string ModColor = "#ffc0cb";
     public static readonly bool AllowPublicRoom = true;
     public static readonly string ForkId = "TOHE";
@@ -34,7 +34,7 @@ public class Main : BasePlugin
     public static readonly string MainMenuText = " ";
     public const string PluginGuid = "com.karped1em.townofhostedited";
     public const string PluginVersion = "2.5.1.22";
-    public const string PluginDisplayVersion = "2.5.1_10";
+    public const string PluginDisplayVersion = "1.0";
     public const int PluginCreate = 3;
     public const bool Canary = false;
 
@@ -109,6 +109,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, long> TimeMasterInProtect = new();
     //public static Dictionary<byte, long> FlashbangInProtect = new();
     public static List<byte> CyberStarDead = new();
+    public static List<byte> DemolitionistDead = new();
     public static List<byte> WorkaholicAlive = new();
     public static List<byte> BaitAlive = new();
     public static List<byte> BoobyTrapBody = new();
@@ -158,8 +159,13 @@ public class Main : BasePlugin
     public static Dictionary<byte, int> ParaUsedButtonCount = new();
     public static Dictionary<byte, int> MarioVentCount = new();
     public static Dictionary<byte, long> VeteranInProtect = new();
-    public static Dictionary<byte, int> VeteranNumOfUsed = new();
+    public static Dictionary<byte, float> VeteranNumOfUsed = new();
+    public static Dictionary<byte, byte> AllKillers = new();
+    public static Dictionary<byte, float> GrenadierNumOfUsed = new();
+    public static Dictionary<byte, float> LighterNumOfUsed = new();
+    public static Dictionary<byte, float> TimeMasterNumOfUsed = new();
     public static Dictionary<byte, long> GrenadierBlinding = new();
+    public static Dictionary<byte, long> Lighter = new();
     public static Dictionary<byte, long> MadGrenadierBlinding = new();
     public static Dictionary<byte, int> CursedWolfSpellCount = new();
     public static Dictionary<byte, int> JinxSpellCount = new();
@@ -187,7 +193,7 @@ public class Main : BasePlugin
     public static int MadmateNum = 0;
     public static int BardCreations = 0;
     public static Dictionary<byte, byte> Provoked = new();
-    public static Dictionary<byte, int> DovesOfNeaceNumOfUsed = new();
+    public static Dictionary<byte, float> DovesOfNeaceNumOfUsed = new();
 
     public static Dictionary<byte, CustomRoles> DevRole = new();
     public static byte GodfatherTarget = byte.MaxValue;
@@ -302,6 +308,9 @@ public class Main : BasePlugin
                 {CustomRoles.CopyCat, "#ffb2ab"},
                 {CustomRoles.SuperStar, "#f6f657"},
                 {CustomRoles.CyberStar, "#ee4a55" },
+                {CustomRoles.Demolitionist, "#5e2801" },
+                {CustomRoles.NiceEraser, "#00a5ff" },
+                {CustomRoles.TaskManager, "#00ffa5" },
                 {CustomRoles.SpeedBooster, "#00ffff"},
                 {CustomRoles.Doctor, "#80ffdd"},
                 {CustomRoles.Dictator, "#df9b00"},
@@ -313,7 +322,9 @@ public class Main : BasePlugin
                 {CustomRoles.Veteran, "#a77738"},
                 {CustomRoles.Bodyguard, "#185abd"},
                 {CustomRoles.Counterfeiter, "#BE29EC"},
+                {CustomRoles.Witness, "#4B0082"},
                 {CustomRoles.Grenadier, "#3c4a16"},
+                {CustomRoles.Lighter, "#eee5be"},
                 {CustomRoles.Medic, "#00ff97"},
                 {CustomRoles.Divinator, "#882c83"},
                 {CustomRoles.Glitch, "#39FF14"},
@@ -321,7 +332,7 @@ public class Main : BasePlugin
                 {CustomRoles.Mortician, "#333c49"},
                 {CustomRoles.Mediumshiper, "#a200ff"},
                 {CustomRoles.Observer, "#a8e0fa"},
-                {CustomRoles.DovesOfNeace, "#007FFF"},
+                {CustomRoles.DovesOfNeace, "#ffffff"},
                 {CustomRoles.Monarch, "#FFA500"},
                 {CustomRoles.Bloodhound, "#8B0000"},
                 {CustomRoles.Tracker, "#3CB371"},
@@ -363,9 +374,12 @@ public class Main : BasePlugin
                 {CustomRoles.Collector, "#9d8892"},
                 {CustomRoles.Provocateur, "#74ba43"},
                 {CustomRoles.Sunnyboy, "#ff9902"},
-                {CustomRoles.Poisoner, "#478800"},
+                {CustomRoles.Poisoner, "#e70052"},
                 {CustomRoles.NWitch, "#BF5FFF"},
                 {CustomRoles.Totocalcio, "#ff9409"},
+                {CustomRoles.Romantic, "#FF1493"},
+                {CustomRoles.VengefulRomantic, "#8B0000"},
+                {CustomRoles.RuthlessRomantic, "#D2691E"},
                 {CustomRoles.Succubus, "#cf6acd"},
                 {CustomRoles.HexMaster, "#ff00ff"},
                 {CustomRoles.Wraith, "#4B0082"},
@@ -396,7 +410,7 @@ public class Main : BasePlugin
                 {CustomRoles.Amnesiac, "#7FBFFF"},
                 {CustomRoles.Doomsayer, "#14f786"},
                 {CustomRoles.Masochist, "#684405"},
-                {CustomRoles.Pirate,"#EDC240"},
+                //{CustomRoles.Pirate,"#EDC240"},
                 // GM
                 {CustomRoles.GM, "#ff5b70"},
                 //サブ役職
@@ -407,7 +421,7 @@ public class Main : BasePlugin
                 {CustomRoles.Madmate, "#ff1919"},
                 {CustomRoles.Watcher, "#800080"},
                 {CustomRoles.Flashman, "#ff8400"},
-                {CustomRoles.Lighter, "#eee5be"},
+                {CustomRoles.Torch, "#eee5be"},
                 {CustomRoles.Seer, "#61b26c"},
                 {CustomRoles.Brakar, "#1447af"},
                 {CustomRoles.Oblivious, "#424242"},
@@ -597,6 +611,9 @@ public enum CustomRoles
     Needy,
     SuperStar,
     CyberStar,
+    Demolitionist,
+    NiceEraser,
+    TaskManager,
     Mayor,
     Paranoia,
     Psychic,
@@ -615,7 +632,9 @@ public enum CustomRoles
     Veteran,
     Bodyguard,
     Counterfeiter,
+    Witness,
     Grenadier,
+    Lighter,
     Medic,
     Divinator,
     Glitch,
@@ -673,6 +692,9 @@ public enum CustomRoles
     BloodKnight,
     Wraith,
     Totocalcio,
+    Romantic,
+    VengefulRomantic,
+    RuthlessRomantic,
     Succubus,
     Virus,
     Pursuer,
@@ -680,7 +702,7 @@ public enum CustomRoles
     Jinx,
     Maverick,
     CursedSoul,
-    Pirate,
+    //Pirate,
     Ritualist,
     Pickpocket,
     Traitor,
@@ -711,7 +733,7 @@ public enum CustomRoles
     Madmate,
     Watcher,
     Flashman,
-    Lighter,
+    Torch,
     Seer,
     Brakar,
     Oblivious,
@@ -791,7 +813,7 @@ public enum CustomWinner
     HexMaster = CustomRoles.HexMaster,
     Succubus = CustomRoles.Succubus,
     Wraith = CustomRoles.Wraith,
-    Pirate = CustomRoles.Pirate,
+    //Pirate = CustomRoles.Pirate,
     SerialKiller = CustomRoles.NSerialKiller,
     Witch = CustomRoles.NWitch,
     Juggernaut = CustomRoles.Juggernaut,
@@ -813,6 +835,7 @@ public enum CustomWinner
     Plaguebearer = CustomRoles.PlagueBearer,
     Masochist = CustomRoles.Masochist,
     Doomsayer = CustomRoles.Doomsayer,
+    RuthlessRomantic = CustomRoles.RuthlessRomantic
 }
 public enum AdditionalWinners
 {
@@ -826,6 +849,8 @@ public enum AdditionalWinners
     Sunnyboy = CustomRoles.Sunnyboy,
     Witch = CustomRoles.NWitch,
     Totocalcio = CustomRoles.Totocalcio,
+    Romantic = CustomRoles.Romantic,
+    VengefulRomantic = CustomRoles.VengefulRomantic,
     Jackal = CustomRoles.Jackal,
     Sidekick = CustomRoles.Sidekick,
     Pursuer = CustomRoles.Pursuer,

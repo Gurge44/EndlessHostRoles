@@ -232,7 +232,7 @@ internal static class SoloKombatManager
 
         LastHurt[target.PlayerId] = Utils.GetTimeStamp();
 
-        killer.SetKillCooldownV2(1f, target);
+        killer.SetKillCooldown(1f, target);
         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
         RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);
         if (!target.IsModClient() && !target.AmOwner)
