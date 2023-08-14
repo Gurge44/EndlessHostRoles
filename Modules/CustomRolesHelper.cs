@@ -149,6 +149,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Merchant => CustomRoles.Crewmate,
                 CustomRoles.Retributionist => CustomRoles.Crewmate,
                 CustomRoles.Guardian => CustomRoles.Crewmate,
+                CustomRoles.Witness => CustomRoles.Impostor,
                 CustomRoles.Addict => CustomRoles.Engineer,
                 CustomRoles.Chameleon => CustomRoles.Engineer,
                 CustomRoles.Spiritcaller => CustomRoles.Impostor,
