@@ -209,7 +209,7 @@ public class GameStartRandomMap
     public static bool Prefix(GameStartManager __instance)
     {
         var invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId);
-        if (invalidColor.Count() != 0)
+        if (invalidColor.Any())
         {
             Logger.SendInGame(GetString("Error.InvalidColorPreventStart"));
             var msg = GetString("Error.InvalidColor");

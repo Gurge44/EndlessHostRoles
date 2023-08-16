@@ -2638,6 +2638,7 @@ class EnterVentPatch
         {
             if (Main.TimeMasterNumOfUsed[pc.PlayerId] >= 1)
             {
+                Main.TimeMasterNumOfUsed[pc.PlayerId] -= 1;
                 Main.TimeMasterInProtect.Remove(pc.PlayerId);
                 Main.TimeMasterNumOfUsed[pc.PlayerId] -= 1;
                 Main.TimeMasterInProtect.Add(pc.PlayerId, Utils.GetTimeStamp());
