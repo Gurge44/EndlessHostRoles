@@ -108,7 +108,7 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 break;
             case CustomRoles.Chameleon:
                 AURoleOptions.EngineerCooldown = Chameleon.ChameleonCooldown.GetFloat();
-                AURoleOptions.EngineerInVentMaxTime = 1f;
+                AURoleOptions.EngineerInVentMaxTime = 0f;
                 break;
             case CustomRoles.ShapeMaster:
                 AURoleOptions.ShapeshifterCooldown = 1f;
@@ -391,13 +391,13 @@ public class PlayerGameOptionsSender : GameOptionsSender
         }
 
         // Ϊ�Ի��ߵ�����
-        if (Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Bewilder) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == player.PlayerId && !x.Is(CustomRoles.Hangman)).Count() > 0)
+        if (Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Bewilder) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == player.PlayerId && !x.Is(CustomRoles.Hangman)).Any())
         {
             opt.SetVision(false);
             opt.SetFloat(FloatOptionNames.CrewLightMod, Options.BewilderVision.GetFloat());
             opt.SetFloat(FloatOptionNames.ImpostorLightMod, Options.BewilderVision.GetFloat());
         }
-        if (Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Ghoul) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == player.PlayerId).Count() > 0)
+        if (Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Ghoul) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == player.PlayerId).Any())
         {
             Main.KillGhoul.Add(player.PlayerId);
         }

@@ -287,6 +287,10 @@ public static class Options
     public static OptionItem LighterSkillDuration;
     public static OptionItem LighterSkillMaxOfUseage;
     public static OptionItem LighterAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem EscapeeSSDuration;
+    public static OptionItem EscapeeSSCD;
+    public static OptionItem MinerSSDuration;
+    public static OptionItem MinerSSCD;
     public static OptionItem RevolutionistDrawTime;
     public static OptionItem RevolutionistCooldown;
     public static OptionItem RevolutionistDrawCount;
@@ -1079,14 +1083,26 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 25, 25, byte.MaxValue));//CONCEALING
         SetupRoleOptions(3600, TabGroup.ImpostorRoles, CustomRoles.Escapee);
+        EscapeeSSDuration = FloatOptionItem.Create(3610, "ShapeshiftDuration", new(1f, 180f, 1f), 1, TabGroup.ImpostorRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Escapee])
+            .SetValueFormat(OptionFormat.Seconds);
+        EscapeeSSCD = FloatOptionItem.Create(3611, "ShapeshiftCooldown", new(1f, 180f, 1f), 5f, TabGroup.ImpostorRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Escapee])
+            .SetValueFormat(OptionFormat.Seconds);
         SetupRoleOptions(3700, TabGroup.ImpostorRoles, CustomRoles.ImperiusCurse);
-        ShapeImperiusCurseShapeshiftDuration = FloatOptionItem.Create(3710, "ShapeshiftDuration", new(2.5f, 180f, 2.5f), 300, TabGroup.ImpostorRoles, false)
+        ShapeImperiusCurseShapeshiftDuration = FloatOptionItem.Create(3710, "ShapeshiftDuration", new(2.5f, 300f, 2.5f), 300f, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.ImperiusCurse])
             .SetValueFormat(OptionFormat.Seconds);
         ImperiusCurseShapeshiftCooldown = FloatOptionItem.Create(3711, "ShapeshiftCooldown", new(1f, 180f, 1f), 15f, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.ImperiusCurse])
             .SetValueFormat(OptionFormat.Seconds);
         SetupRoleOptions(3800, TabGroup.ImpostorRoles, CustomRoles.Miner);
+        MinerSSDuration = FloatOptionItem.Create(3610, "ShapeshiftDuration", new(1f, 180f, 1f), 1, TabGroup.ImpostorRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Miner])
+            .SetValueFormat(OptionFormat.Seconds);
+        MinerSSCD = FloatOptionItem.Create(3611, "ShapeshiftCooldown", new(1f, 180f, 1f), 15f, TabGroup.ImpostorRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Miner])
+            .SetValueFormat(OptionFormat.Seconds);
         SetupRoleOptions(3900, TabGroup.ImpostorRoles, CustomRoles.Puppeteer);
         SetupRoleOptions(4000, TabGroup.ImpostorRoles, CustomRoles.Scavenger);
         ScavengerKillCooldown = FloatOptionItem.Create(4010, "KillCooldown", new(5f, 180f, 2.5f), 40f, TabGroup.ImpostorRoles, false)

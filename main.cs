@@ -322,7 +322,7 @@ public class Main : BasePlugin
                 {CustomRoles.Veteran, "#a77738"},
                 {CustomRoles.Bodyguard, "#185abd"},
                 {CustomRoles.Counterfeiter, "#BE29EC"},
-                {CustomRoles.Witness, "#4B0082"},
+                {CustomRoles.Witness, "#e70052"},
                 {CustomRoles.Grenadier, "#3c4a16"},
                 {CustomRoles.Lighter, "#eee5be"},
                 {CustomRoles.Medic, "#00ff97"},
