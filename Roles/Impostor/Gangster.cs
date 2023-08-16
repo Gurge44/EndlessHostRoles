@@ -25,9 +25,9 @@ public static class Gangster
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Gangster);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "GangsterRecruitCooldown", new(0f, 180f, 2.5f), 20f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster])
+        KillCooldown = FloatOptionItem.Create(Id + 10, "GangsterRecruitCooldown", new(0f, 60f, 2.5f), 7.5f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster])
             .SetValueFormat(OptionFormat.Seconds);
-        RecruitLimitOpt = IntegerOptionItem.Create(Id + 12, "GangsterRecruitLimit", new(1, 15, 1), 2, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster])
+        RecruitLimitOpt = IntegerOptionItem.Create(Id + 12, "GangsterRecruitLimit", new(1, 5, 1), 1, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster])
             .SetValueFormat(OptionFormat.Times);
 
         SheriffCanBeMadmate = BooleanOptionItem.Create(Id + 14, "GanSheriffCanBeMadmate", false, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
@@ -90,7 +90,7 @@ public static class Gangster
 
                 killer.ResetKillCooldown();
                 killer.SetKillCooldown();
-                killer.RpcGuardAndKill(target);
+                //killer.RpcGuardAndKill(target);
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
 
@@ -112,7 +112,7 @@ public static class Gangster
 
                 killer.ResetKillCooldown();
                 killer.SetKillCooldown();
-                killer.RpcGuardAndKill(target);
+                //killer.RpcGuardAndKill(target);
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
 
@@ -134,7 +134,7 @@ public static class Gangster
 
                 killer.ResetKillCooldown();
                 killer.SetKillCooldown();
-                killer.RpcGuardAndKill(target);
+                //killer.RpcGuardAndKill(target);
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
 
@@ -156,7 +156,7 @@ public static class Gangster
 
                 killer.ResetKillCooldown();
                 killer.SetKillCooldown();
-                killer.RpcGuardAndKill(target);
+                //killer.RpcGuardAndKill(target);
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
 
@@ -178,7 +178,7 @@ public static class Gangster
 
                 killer.ResetKillCooldown();
                 killer.SetKillCooldown();
-                killer.RpcGuardAndKill(target);
+                //killer.RpcGuardAndKill(target);
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
 
@@ -200,7 +200,7 @@ public static class Gangster
 
                 killer.ResetKillCooldown();
                 killer.SetKillCooldown();
-                killer.RpcGuardAndKill(target);
+                //killer.RpcGuardAndKill(target);
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
 
@@ -235,6 +235,9 @@ public static class Gangster
             pc.Is(CustomRoles.Lazy) ||
             pc.Is(CustomRoles.Loyal) ||
             pc.Is(CustomRoles.CyberStar) ||
+            pc.Is(CustomRoles.Demolitionist) ||
+            pc.Is(CustomRoles.NiceEraser) ||
+            pc.Is(CustomRoles.TaskManager) ||
             pc.Is(CustomRoles.Egoist)
             );
     }

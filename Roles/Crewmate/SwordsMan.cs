@@ -22,7 +22,7 @@ public static class SwordsMan
         killed = new();
         playerIdList = new();
     }
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = IsKilled(id) ? 300f : 1f;
+    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = IsKilled(id) ? 300f : 15f;
     public static string GetKillLimit(byte id) => Utils.ColorString(!IsKilled(id) ? Utils.GetRoleColor(CustomRoles.SwordsMan).ShadeColor(0.25f) : Color.gray, !IsKilled(id) ? "(1)" : "(0)");
     public static bool CanUseKillButton(byte playerId)
         => !Main.PlayerStates[playerId].IsDead

@@ -17,7 +17,7 @@ public static class Pursuer
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Pursuer);
-        PursuerSkillCooldown = FloatOptionItem.Create(Id + 10, "PursuerSkillCooldown", new(2.5f, 900f, 2.5f), 20f, TabGroup.NeutralRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pursuer])
+        PursuerSkillCooldown = FloatOptionItem.Create(Id + 10, "PursuerSkillCooldown", new(2.5f, 60f, 2.5f), 20f, TabGroup.NeutralRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pursuer])
             .SetValueFormat(OptionFormat.Seconds);
         PursuerSkillLimitTimes = IntegerOptionItem.Create(Id + 11, "PursuerSkillLimitTimes", new(1, 99, 1), 2, TabGroup.NeutralRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pursuer])
             .SetValueFormat(OptionFormat.Times);
@@ -76,9 +76,9 @@ public static class Pursuer
         SendRPC(pc.PlayerId);
         if (!clientList.ContainsKey(pc.PlayerId)) clientList.Add(pc.PlayerId, new());
         clientList[pc.PlayerId].Add(target.PlayerId);
-        pc.RpcGuardAndKill(pc);
+        //pc.RpcGuardAndKill(pc);
         notActiveList.Add(pc.PlayerId);
-        pc.SetKillCooldownV2();
+        pc.SetKillCooldown();
         pc.RPCPlayCustomSound("Bet");
         Utils.NotifyRoles(SpecifySeer: pc);
         Logger.Info($"赝品商 {pc.GetRealName()} 将赝品卖给了 {target.GetRealName()}", "Pursuer");

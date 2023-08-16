@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static TOHE.Options;
 
@@ -40,7 +41,7 @@ public static class Workhorse
     {
         playerIdList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
     public static bool IsThisRole(byte playerId) => playerIdList.Contains(playerId);
     public static (bool, int, int) TaskData => (false, NumLongTasks, NumShortTasks);
     private static bool IsAssignTarget(PlayerControl pc)
@@ -69,7 +70,7 @@ public static class Workhorse
         if (AmongUsClient.Instance.AmHost)
         {
             Add(pc.PlayerId);
-            GameData.Instance.RpcSetTasks(pc.PlayerId, new byte[0]); //タスクを再配布
+            GameData.Instance.RpcSetTasks(pc.PlayerId, System.Array.Empty<byte>()); //タスクを再配布
             pc.SyncSettings();
             Utils.NotifyRoles();
         }

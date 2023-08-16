@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using AmongUs.GameOptions;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AmongUs.GameOptions;
-using Epic.OnlineServices;
-using Il2CppSystem.Collections.Generic;
-using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
 using UnityEngine;
@@ -33,6 +26,9 @@ namespace TOHE.Roles.Crewmate
             CustomRoles.Needy,
             CustomRoles.SuperStar,
             CustomRoles.CyberStar,
+            CustomRoles.Demolitionist,
+            CustomRoles.NiceEraser,
+            CustomRoles.TaskManager,
             CustomRoles.Mayor,
             CustomRoles.Paranoia,
             CustomRoles.Psychic,
@@ -50,6 +46,7 @@ namespace TOHE.Roles.Crewmate
             CustomRoles.Veteran,
             CustomRoles.Bodyguard,
             CustomRoles.Grenadier,
+            CustomRoles.Lighter,
             CustomRoles.Divinator,
             CustomRoles.Oracle,
             CustomRoles.Tracefinder,
@@ -71,19 +68,19 @@ namespace TOHE.Roles.Crewmate
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Farseer);
-            FarseerCooldown = FloatOptionItem.Create(Id + 10, "FarseerRevealCooldown", new(0f, 990f, 2.5f), 25f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Farseer])
+            FarseerCooldown = FloatOptionItem.Create(Id + 10, "FarseerRevealCooldown", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Farseer])
                 .SetValueFormat(OptionFormat.Seconds);
-            FarseerRevealTime = FloatOptionItem.Create(Id + 11, "FarseerRevealTime", new(0f, 60f, 1f), 10f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Farseer])
+            FarseerRevealTime = FloatOptionItem.Create(Id + 11, "FarseerRevealTime", new(0f, 30f, 1f), 10f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Farseer])
                 .SetValueFormat(OptionFormat.Seconds);
-            Vision = FloatOptionItem.Create(Id + 12, "FarseerVision", new(0f, 5f, 0.05f), 0.25f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Farseer])
+            Vision = FloatOptionItem.Create(Id + 12, "FarseerVision", new(0f, 1f, 0.05f), 0.25f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Farseer])
                 .SetValueFormat(OptionFormat.Multiplier);
         }
         public static void Add(byte playerId)
         {
 
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
+            if (!AmongUsClient.Instance.AmHost) return;
+            if (!Main.ResetCamPlayerList.Contains(playerId))
+                Main.ResetCamPlayerList.Add(playerId);
         }
 
 

@@ -88,7 +88,7 @@ public static class BallLightning
                 GhostPlayer.Add(target.PlayerId);
                 SendRPC(target.PlayerId);
                 RealKiller.TryAdd(target.PlayerId, killer);
-                if (!killer.inVent) killer.RpcGuardAndKill(killer);
+                if (!killer.inVent) killer.SetKillCooldown();
                 Utils.NotifyRoles();
                 Logger.Info($"{target.GetNameWithRole()} 转化为量子幽灵", "BallLightning");
             }

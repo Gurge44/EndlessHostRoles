@@ -1,29 +1,16 @@
 ﻿using Hazel;
 using System.Collections.Generic;
-using TOHE.Roles.Crewmate;
 using UnityEngine;
 using static TOHE.Translator;
 
-namespace TOHE.Roles.Impostor;
+namespace TOHE.Roles.Crewmate;
 
-internal static class Eraser
+internal static class NiceEraser
 {
-    private static readonly int Id = 16800;
+    private static readonly int Id = 5580;
     public static List<byte> playerIdList = new();
 
-    public static readonly string[] EraseMode =
-    {
-        "Kill", "Vote"
-    };
-
-    public static readonly string[] WhenTargetIsNeutralAction =
-    {
-        "Block", "Kill"
-    };
-
     private static OptionItem EraseLimitOpt;
-    private static OptionItem EraseMethod;
-    private static OptionItem WhenTargetIsNeutral;
     public static OptionItem HideVote;
 
     private static List<byte> didVote = new();
@@ -32,12 +19,10 @@ internal static class Eraser
 
     public static void SetupCustomOption()
     {
-        Options.SetupRoleOptions(Id, TabGroup.OtherRoles, CustomRoles.Eraser);
-        EraseMethod = StringOptionItem.Create(Id + 10, "EraseMethod", EraseMode, 0, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
-        WhenTargetIsNeutral = StringOptionItem.Create(Id + 11, "WhenTargetIsNeutral", EraseMode, 0, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
-        EraseLimitOpt = IntegerOptionItem.Create(Id + 12, "EraseLimit", new(1, 15, 1), 1, TabGroup.OtherRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser])
+        Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.NiceEraser, 1);
+        EraseLimitOpt = IntegerOptionItem.Create(Id + 12, "EraseLimit", new(1, 15, 1), 1, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceEraser])
             .SetValueFormat(OptionFormat.Times);
-        HideVote = BooleanOptionItem.Create(Id + 13, "EraserHideVote", false, TabGroup.OtherRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
+        HideVote = BooleanOptionItem.Create(Id + 13, "NiceEraserHideVote", false, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceEraser]);
     }
     public static void Init()
     {
@@ -48,7 +33,7 @@ internal static class Eraser
     {
         playerIdList.Add(playerId);
         EraseLimit.TryAdd(playerId, EraseLimitOpt.GetInt());
-        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole()} : 剩余{EraseLimit[playerId]}次", "Eraser");
+        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole()} : 剩余{EraseLimit[playerId]}次", "NiceEraser");
     }
     public static bool IsEnable => playerIdList.Count > 0;
     private static void SendRPC(byte playerId)
@@ -69,33 +54,9 @@ internal static class Eraser
     }
     public static string GetProgressText(byte playerId) => Utils.ColorString(EraseLimit[playerId] > 0 ? Utils.GetRoleColor(CustomRoles.Eraser) : Color.gray, EraseLimit.TryGetValue(playerId, out var x) ? $"({x})" : "Invalid");
 
-    public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
-    {
-        if (Medic.ProtectList.Contains(target.PlayerId)) return false;
-        if (EraseLimit[target.PlayerId] < 1) return true;
-        if (target.PlayerId == killer.PlayerId) return true;
-        if (target.GetCustomRole().IsNeutral())
-        {
-            killer.Notify(GetString("EraserEraseNeutralNotice"));
-            if (WhenTargetIsNeutral.GetString() == "Kill") return true;
-            else return false;
-        }
-
-        if (EraseMethod.GetString() == "Kill")
-        {
-            return killer.CheckDoubleTrigger(target, () => {
-                EraseLimit[killer.PlayerId]--;
-                killer.Notify(GetString("TargetErasedInRound"));
-                if (!PlayerToErase.Contains(target.PlayerId))
-                    PlayerToErase.Add(target.PlayerId);
-            });
-        }
-        return false;
-    }
-
     public static void OnVote(PlayerControl player, PlayerControl target)
     {
-        if (player == null || target == null || EraseMethod.GetString() != "Vote") return;
+        if (player == null || target == null) return;
         if (didVote.Contains(player.PlayerId)) return;
         didVote.Add(player.PlayerId);
 
@@ -125,7 +86,7 @@ internal static class Eraser
     }
     public static void OnReportDeadBody()
     {
-        //PlayerToErase = new();
+        PlayerToErase = new();
         didVote = new();
     }
     public static void AfterMeetingTasks()
@@ -135,10 +96,9 @@ internal static class Eraser
             var player = Utils.GetPlayerById(pc);
             if (player == null) continue;
             player.RpcSetCustomRole(CustomRolesHelper.GetErasedRole(player.GetCustomRole()));
-            NameNotifyManager.Notify(player, GetString("LostRoleByEraser"));
-            Logger.Info($"{player.GetNameWithRole()} 被擦除了", "Eraser");
+            NameNotifyManager.Notify(player, GetString("LostRoleByNiceEraser"));
+            Logger.Info($"{player.GetNameWithRole()} 被擦除了", "NiceEraser");
         }
         Utils.MarkEveryoneDirtySettings();
-        PlayerToErase = new();
     }
 }

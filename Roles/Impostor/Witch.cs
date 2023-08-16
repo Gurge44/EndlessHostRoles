@@ -189,7 +189,7 @@ public static class Witch
         foreach (var pc in Main.AllAlivePlayerControls)
         {
             var dic = SpelledPlayer.Where(x => x.Value.Contains(pc.PlayerId));
-            if (dic.Count() == 0) continue;
+            if (!dic.Any()) continue;
             var whichId = dic.FirstOrDefault().Key;
             var witch = Utils.GetPlayerById(whichId);
             if (witch != null && witch.IsAlive())

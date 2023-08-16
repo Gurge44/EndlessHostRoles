@@ -16,6 +16,7 @@ public static class Wraith
 
     private static OptionItem WraithCooldown;
     private static OptionItem WraithDuration;
+    private static OptionItem WraithVentNormallyOnCooldown;
 
     private static Dictionary<byte, long> InvisTime = new();
     private static Dictionary<byte, long> lastTime = new();
@@ -23,11 +24,12 @@ public static class Wraith
 
     public static void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Wraith, 1, zeroOne: false);        
-        WraithCooldown = FloatOptionItem.Create(Id + 2, "WraithCooldown", new(1f, 999f, 1f), 30f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Wraith])
+        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Wraith, 1, zeroOne: false);
+        WraithCooldown = FloatOptionItem.Create(Id + 2, "WraithCooldown", new(1f, 60f, 1f), 20f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Wraith])
             .SetValueFormat(OptionFormat.Seconds);
-        WraithDuration = FloatOptionItem.Create(Id + 4, "WraithDuration", new(1f, 999f, 1f), 15f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Wraith])
+        WraithDuration = FloatOptionItem.Create(Id + 3, "WraithDuration", new(1f, 30f, 1f), 10f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Wraith])
             .SetValueFormat(OptionFormat.Seconds);
+        WraithVentNormallyOnCooldown = BooleanOptionItem.Create(Id + 4, "WraithVentNormallyOnCooldown", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Wraith]);
     }
     public static void Init()
     {
@@ -111,7 +113,7 @@ public static class Wraith
                 }
                 else if (remainTime <= 10)
                 {
-                    if (!pc.IsModClient()) pc.Notify(string.Format(GetString("WraithInvisStateCountdown"), remainTime));
+                    if (!pc.IsModClient()) pc.Notify(string.Format(GetString("WraithInvisStateCountdown"), remainTime + 1));
                 }
                 newList.Add(it.Key, it.Value);
             }
@@ -141,8 +143,11 @@ public static class Wraith
             }
             else
             {
-                __instance.myPlayer.MyPhysics.RpcBootFromVent(ventId);
-                NameNotifyManager.Notify(pc, GetString("WraithInvisInCooldown"));
+                if (!WraithVentNormallyOnCooldown.GetBool())
+                {
+                    __instance.myPlayer.MyPhysics.RpcBootFromVent(ventId);
+                    NameNotifyManager.Notify(pc, GetString("WraithInvisInCooldown"));
+                }
             }
         }, 0.5f, "Wraith Vent");
     }
@@ -164,12 +169,12 @@ public static class Wraith
         if (IsInvis(pc.PlayerId))
         {
             var remainTime = InvisTime[pc.PlayerId] + (long)WraithDuration.GetFloat() - Utils.GetTimeStamp();
-            str.Append(string.Format(GetString("WraithInvisStateCountdown"), remainTime));
+            str.Append(string.Format(GetString("WraithInvisStateCountdown"), remainTime + 1));
         }
         else if (lastTime.TryGetValue(pc.PlayerId, out var time))
         {
             var cooldown = time + (long)WraithCooldown.GetFloat() - Utils.GetTimeStamp();
-            str.Append(string.Format(GetString("WraithInvisCooldownRemain"), cooldown));
+            str.Append(string.Format(GetString("WraithInvisCooldownRemain"), cooldown + 2));
         }
         else
         {

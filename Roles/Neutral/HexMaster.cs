@@ -198,7 +198,7 @@ public static class HexMaster
         foreach (var pc in Main.AllAlivePlayerControls)
         {
             var dic = HexedPlayer.Where(x => x.Value.Contains(pc.PlayerId));
-            if (dic.Count() == 0) continue;
+            if (!dic.Any()) continue;
             var whichId = dic.FirstOrDefault().Key;
             var hexmaster = Utils.GetPlayerById(whichId);
             if (hexmaster != null && hexmaster.IsAlive())

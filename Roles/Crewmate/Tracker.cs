@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using static TOHE.Options;
 using static TOHE.Translator;
+using System.Linq;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -15,10 +16,11 @@ namespace TOHE.Roles.Crewmate
         private static OptionItem TrackLimitOpt;
         private static OptionItem OptionCanSeeLastRoomInMeeting;
         public static OptionItem HideVote;
+        public static OptionItem TrackerAbilityUseGainWithEachTaskCompleted;
 
         public static bool CanSeeLastRoomInMeeting;
 
-        private static Dictionary<byte, int> TrackLimit = new();
+        public static Dictionary<byte, float> TrackLimit = new();
         public static Dictionary<byte, byte> TrackerTarget = new();
 
         public static Dictionary<byte, string> msgToSend = new();
@@ -26,11 +28,14 @@ namespace TOHE.Roles.Crewmate
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Tracker);
-            TrackLimitOpt = IntegerOptionItem.Create(Id + 10, "DivinatorSkillLimit", new(1, 990, 1), 5, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Tracker])
+            TrackLimitOpt = IntegerOptionItem.Create(Id + 10, "DivinatorSkillLimit", new(1, 20, 1), 1, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Tracker])
                 .SetValueFormat(OptionFormat.Times);
-            OptionCanSeeLastRoomInMeeting = BooleanOptionItem.Create(Id + 11, "EvilTrackerCanSeeLastRoomInMeeting", true, TabGroup.CrewmateRoles, false)
+            OptionCanSeeLastRoomInMeeting = BooleanOptionItem.Create(Id + 11, "EvilTrackerCanSeeLastRoomInMeeting", false, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Tracker]);
             HideVote = BooleanOptionItem.Create(Id + 12, "TrackerHideVote", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Tracker]);
+            TrackerAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 13, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.4f, TabGroup.CrewmateRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Tracker])
+            .SetValueFormat(OptionFormat.Times);
         }
         public static void Init()
         {
@@ -67,7 +72,7 @@ namespace TOHE.Roles.Crewmate
             TargetArrow.Add(trackerId, targetId);
 
         }
-        public static bool IsEnable => playerIdList.Count > 0;
+        public static bool IsEnable => playerIdList.Any();
 
         public static string GetTargetMark(PlayerControl seer, PlayerControl target) => TrackerTarget.ContainsKey(seer.PlayerId) && TrackerTarget[seer.PlayerId] == target.PlayerId ? Utils.ColorString(seer.GetRoleColor(), "◀") : "";
 
@@ -107,7 +112,7 @@ namespace TOHE.Roles.Crewmate
             if (player.PlayerId == target.PlayerId) return;
             if (target.PlayerId == TrackerTarget[player.PlayerId]) return;
 
-            TrackLimit[player.PlayerId]--;
+            TrackLimit[player.PlayerId] -= 1;
 
             if (TrackerTarget[player.PlayerId] != byte.MaxValue)
             {

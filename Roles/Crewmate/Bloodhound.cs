@@ -1,11 +1,10 @@
 ﻿namespace TOHE.Roles.Crewmate
 {
-    using System.Collections.Generic;
     using Hazel;
-    using Sentry.Protocol;
+    using System.Collections.Generic;
+    using System.Linq;
     using UnityEngine;
     using static TOHE.Options;
-    using static UnityEngine.GraphicsBuffer;
     using static TOHE.Translator;
 
     public static class Bloodhound
@@ -15,29 +14,39 @@
 
         public static List<byte> UnreportablePlayers = new();
         public static Dictionary<byte, List<byte>> BloodhoundTargets = new();
+        public static Dictionary<byte, float> UseLimit = new();
 
         public static OptionItem ArrowsPointingToDeadBody;
+        public static OptionItem UseLimitOpt;
         public static OptionItem LeaveDeadBodyUnreportable;
+        public static OptionItem BloodhoundAbilityUseGainWithEachTaskCompleted;
 
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Bloodhound);
-            ArrowsPointingToDeadBody = BooleanOptionItem.Create(Id + 10, "BloodhoundArrowsPointingToDeadBody", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Bloodhound]);
-            LeaveDeadBodyUnreportable = BooleanOptionItem.Create(Id + 11, "BloodhoundLeaveDeadBodyUnreportable", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Bloodhound]);
+            ArrowsPointingToDeadBody = BooleanOptionItem.Create(Id + 10, "BloodhoundArrowsPointingToDeadBody", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound]);
+            LeaveDeadBodyUnreportable = BooleanOptionItem.Create(Id + 11, "BloodhoundLeaveDeadBodyUnreportable", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound]);
+            UseLimitOpt = IntegerOptionItem.Create(Id + 12, "AbilityUseLimit", new(1, 20, 1), 1, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound])
+            .SetValueFormat(OptionFormat.Times);
+            BloodhoundAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 13, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound])
+            .SetValueFormat(OptionFormat.Times);
         }
         public static void Init()
         {
             playerIdList = new();
+            UseLimit = new();
             UnreportablePlayers = new List<byte>();
             BloodhoundTargets = new Dictionary<byte, List<byte>>();
         }
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
+            UseLimit.Add(playerId, UseLimitOpt.GetInt());
             BloodhoundTargets.Add(playerId, new List<byte>());
 
         }
-        public static bool IsEnable => playerIdList.Count > 0;
+        public static bool IsEnable => playerIdList.Any();
 
         private static void SendRPC(byte playerId, bool add, Vector3 loc = new())
         {
@@ -84,7 +93,7 @@
 
         public static void OnPlayerDead(PlayerControl target)
         {
-            if (!ArrowsPointingToDeadBody.GetBool()) return; 
+            if (!ArrowsPointingToDeadBody.GetBool()) return;
 
             foreach (var pc in playerIdList)
             {
@@ -105,14 +114,22 @@
             LocateArrow.Remove(pc.PlayerId, target.Object.transform.position);
             SendRPC(pc.PlayerId, false);
 
-            BloodhoundTargets[pc.PlayerId].Add(killer.PlayerId);
-            TargetArrow.Add(pc.PlayerId, killer.PlayerId);
-
-            pc.Notify(GetString("BloodhoundTrackRecorded"));
-
-            if (LeaveDeadBodyUnreportable.GetBool())
+            if (UseLimit[pc.PlayerId] >= 1)
             {
-                UnreportablePlayers.Add(target.PlayerId);
+                BloodhoundTargets[pc.PlayerId].Add(killer.PlayerId);
+                TargetArrow.Add(pc.PlayerId, killer.PlayerId);
+
+                pc.Notify(GetString("BloodhoundTrackRecorded"));
+                UseLimit[pc.PlayerId] -= 1;
+
+                if (LeaveDeadBodyUnreportable.GetBool())
+                {
+                    UnreportablePlayers.Add(target.PlayerId);
+                }
+            }
+            else
+            {
+                pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
             }
         }
 

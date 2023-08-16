@@ -57,10 +57,10 @@ public static class Medic
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
         ShieldDeactivationIsVisible = StringOptionItem.Create(Id + 25, "MedicShielDeactivationIsVisible", ShieldDeactivationIsVisibleOption, 0, TabGroup.CrewmateRoles, false)
             .SetParent(ShieldDeactivatesWhenMedicDies);
-        ResetCooldown = FloatOptionItem.Create(Id + 30, "MedicResetCooldown", new(0f, 120f, 1f), 10f, TabGroup.CrewmateRoles, false)
+        ResetCooldown = FloatOptionItem.Create(Id + 30, "MedicResetCooldown", new(0f, 120f, 1f), 15f, TabGroup.CrewmateRoles, false)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic])
             .SetValueFormat(OptionFormat.Seconds);
-        GuesserIgnoreShield = BooleanOptionItem.Create(Id + 32, "MedicShieldedCanBeGuessed", false, TabGroup.CrewmateRoles, false)
+        GuesserIgnoreShield = BooleanOptionItem.Create(Id + 32, "MedicShieldedCanBeGuessed", true, TabGroup.CrewmateRoles, false)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
     }
     public static void Init()
@@ -134,17 +134,17 @@ public static class Medic
         TempMarkProtected = target.PlayerId;
         SendRPCForProtectList();
 
-        killer.RpcGuardAndKill();
+        killer.SetKillCooldown();
 
         switch (WhoCanSeeProtect.GetInt())
         {
             case 0:
-                killer.RpcGuardAndKill(target);
+                //killer.RpcGuardAndKill(target);
                 killer.RPCPlayCustomSound("Shield");
                 target.RPCPlayCustomSound("Shield");
                 break;
             case 1:
-                killer.RpcGuardAndKill(target);
+                //killer.RpcGuardAndKill(target);
                 killer.RPCPlayCustomSound("Shield");
                 break;
             case 2:
@@ -164,7 +164,7 @@ public static class Medic
 
         SendRPCForProtectList();
 
-        killer.RpcGuardAndKill(target);
+        //killer.RpcGuardAndKill(target);
         killer.SetKillCooldown(ResetCooldown.GetFloat());
 
         Utils.NotifyRoles(SpecifySeer: target);

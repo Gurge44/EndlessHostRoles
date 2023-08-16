@@ -1,5 +1,6 @@
 ﻿using Hazel;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static TOHE.Options;
 
@@ -9,12 +10,15 @@ public static class Mortician
     private static readonly int Id = 7400;
     private static List<byte> playerIdList = new();
 
+    private static OptionItem ShowArrows;
+
     private static Dictionary<byte, string> lastPlayerName = new();
     public static Dictionary<byte, string> msgToSend = new();
 
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mortician);
+        ShowArrows = BooleanOptionItem.Create(Id + 2, "ShowArrows", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Mortician]);
     }
     public static void Init()
     {
@@ -26,7 +30,7 @@ public static class Mortician
     {
         playerIdList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
     private static void SendRPC(byte playerId, bool add, Vector3 loc = new())
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMorticianArrow, SendOption.Reliable, -1);
@@ -90,9 +94,13 @@ public static class Mortician
     }
     public static string GetTargetArrow(PlayerControl seer, PlayerControl target = null)
     {
-        if (!seer.Is(CustomRoles.Mortician)) return "";
-        if (target != null && seer.PlayerId != target.PlayerId) return "";
-        if (GameStates.IsMeeting) return "";
-        return Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
+        if (ShowArrows.GetBool())
+        {
+            if (!seer.Is(CustomRoles.Mortician)) return "";
+            if (target != null && seer.PlayerId != target.PlayerId) return "";
+            if (GameStates.IsMeeting) return "";
+            return Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
+        }
+        else return "";
     }
 }

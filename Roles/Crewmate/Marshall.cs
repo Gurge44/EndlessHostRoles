@@ -124,7 +124,7 @@ public static class Marshall
         if (target != null && seer.PlayerId != target.PlayerId) return "";
 
         var exposedMarshall = playerIdList.Where(s => !Main.PlayerStates[s].IsDead && IsExposed[s]);
-        if (exposedMarshall.Count() == 0) return "";
+        if (!exposedMarshall.Any()) return "";
 
         var warning = "★";
         

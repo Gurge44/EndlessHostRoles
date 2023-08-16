@@ -30,7 +30,7 @@ public static class Amnesiac
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Amnesiac);
-        RememberCooldown = FloatOptionItem.Create(Id + 10, "RememberCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac])
+        RememberCooldown = FloatOptionItem.Create(Id + 10, "RememberCooldown", new(0f, 180f, 2.5f), 5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac])
             .SetValueFormat(OptionFormat.Seconds);
         RefugeeKillCD = FloatOptionItem.Create(Id + 11, "RefugeeKillCD", new(0f, 180f, 2.5f), 25f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac])
             .SetValueFormat(OptionFormat.Seconds);
@@ -79,7 +79,7 @@ public static class Amnesiac
 
             killer.ResetKillCooldown();
             killer.SetKillCooldown();
-            killer.RpcGuardAndKill(target);
+            //killer.RpcGuardAndKill(target);
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 
@@ -102,7 +102,7 @@ public static class Amnesiac
 
             killer.ResetKillCooldown();
             killer.SetKillCooldown();
-            killer.RpcGuardAndKill(target);
+            //killer.RpcGuardAndKill(target);
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 
@@ -129,7 +129,7 @@ public static class Amnesiac
 
                 killer.ResetKillCooldown();
                 killer.SetKillCooldown();
-                killer.RpcGuardAndKill(target);
+                //killer.RpcGuardAndKill(target);
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
     
@@ -149,7 +149,7 @@ public static class Amnesiac
 
                 killer.ResetKillCooldown();
                 killer.SetKillCooldown();
-                killer.RpcGuardAndKill(target);
+                //killer.RpcGuardAndKill(target);
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
     
@@ -171,7 +171,7 @@ public static class Amnesiac
 
                 killer.ResetKillCooldown();
                 killer.SetKillCooldown();
-                killer.RpcGuardAndKill(target);
+                //killer.RpcGuardAndKill(target);
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
     
@@ -193,7 +193,7 @@ public static class Amnesiac
 
                 killer.ResetKillCooldown();
                 killer.SetKillCooldown();
-                killer.RpcGuardAndKill(target);
+                //killer.RpcGuardAndKill(target);
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
     
@@ -214,7 +214,7 @@ public static class Amnesiac
 
                 killer.ResetKillCooldown();
                 killer.SetKillCooldown();
-                killer.RpcGuardAndKill(target);
+                //killer.RpcGuardAndKill(target);
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
     
@@ -237,7 +237,7 @@ public static class Amnesiac
 
             killer.ResetKillCooldown();
             killer.SetKillCooldown();
-            killer.RpcGuardAndKill(target);
+            //killer.RpcGuardAndKill(target);
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 
@@ -261,7 +261,7 @@ public static class Amnesiac
 
             killer.ResetKillCooldown();
             killer.SetKillCooldown();
-            killer.RpcGuardAndKill(target);
+            //killer.RpcGuardAndKill(target);
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 
@@ -285,7 +285,7 @@ public static class Amnesiac
 
             killer.ResetKillCooldown();
             killer.SetKillCooldown();
-            killer.RpcGuardAndKill(target);
+            //killer.RpcGuardAndKill(target);
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 
@@ -309,7 +309,7 @@ public static class Amnesiac
 
             killer.ResetKillCooldown();
             killer.SetKillCooldown();
-            killer.RpcGuardAndKill(target);
+            //killer.RpcGuardAndKill(target);
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 
@@ -333,7 +333,7 @@ public static class Amnesiac
 
             killer.ResetKillCooldown();
             killer.SetKillCooldown();
-            killer.RpcGuardAndKill(target);
+            //killer.RpcGuardAndKill(target);
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 
@@ -357,7 +357,7 @@ public static class Amnesiac
 
             killer.ResetKillCooldown();
             killer.SetKillCooldown();
-            killer.RpcGuardAndKill(target);
+            //killer.RpcGuardAndKill(target);
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 

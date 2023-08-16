@@ -29,7 +29,7 @@ public static class Vampire
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Vampire);
-        OptionKillDelay = FloatOptionItem.Create(Id + 10, "VampireKillDelay", new(1f, 999f, 1f), 10f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Vampire])
+        OptionKillDelay = FloatOptionItem.Create(Id + 10, "VampireKillDelay", new(1f, 30f, 1f), 3f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Vampire])
             .SetValueFormat(OptionFormat.Seconds);
     }
     public static void Init()
@@ -62,6 +62,7 @@ public static class Vampire
         if (Medic.ProtectList.Contains(target.PlayerId)) return false;
 
         killer.SetKillCooldown();
+        new LateTask(() => { killer.SetKillCooldown(); }, OptionKillDelay.GetFloat());
         killer.RPCPlayCustomSound("Bite");
 
         //誰かに噛まれていなければ登録

@@ -25,7 +25,7 @@ public static class CopyCat
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.CopyCat);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "CopyCatCopyCooldown", new(0f, 999f, 1f), 15f, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.CopyCat])
+        KillCooldown = FloatOptionItem.Create(Id + 10, "CopyCatCopyCooldown", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.CopyCat])
             .SetValueFormat(OptionFormat.Seconds);
         CanKill = BooleanOptionItem.Create(Id + 11, "CopyCatCanKill", false, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.CopyCat]);
         MiscopyLimitOpt = IntegerOptionItem.Create(Id + 12, "CopyCatMiscopyLimit", new(0, 14, 1), 2, TabGroup.CrewmateRoles, false).SetParent(CanKill)
@@ -139,6 +139,15 @@ public static class CopyCat
                 case CustomRoles.Veteran:
                     Main.VeteranNumOfUsed.Remove(player);
                     break;
+                case CustomRoles.Grenadier:
+                    Main.GrenadierNumOfUsed.Remove(player);
+                    break;
+                case CustomRoles.Lighter:
+                    Main.LighterNumOfUsed.Remove(player);
+                    break;
+                case CustomRoles.TimeMaster:
+                    Main.TimeMasterNumOfUsed.Remove(player);
+                    break;
                 case CustomRoles.Judge:
                     Judge.TrialLimit.Remove(player);
                     break;
@@ -159,6 +168,7 @@ public static class CopyCat
         return role is CustomRoles.CopyCat or
             //bcoz of vent cd
             CustomRoles.Grenadier or
+            CustomRoles.Lighter or
             CustomRoles.DovesOfNeace or
             CustomRoles.Veteran or
             CustomRoles.Addict or
@@ -238,6 +248,11 @@ public static class CopyCat
                     if (!Main.ResetCamPlayerList.Contains(pc.PlayerId))
                         Main.ResetCamPlayerList.Add(pc.PlayerId);
                     break;
+                case CustomRoles.Witness:
+                    if (!AmongUsClient.Instance.AmHost) break;
+                    if (!Main.ResetCamPlayerList.Contains(pc.PlayerId))
+                        Main.ResetCamPlayerList.Add(pc.PlayerId);
+                    break;
                 case CustomRoles.SwordsMan:
                     if (!AmongUsClient.Instance.AmHost) break;
                     if (!Main.ResetCamPlayerList.Contains(pc.PlayerId))
@@ -277,7 +292,7 @@ public static class CopyCat
 
             pc.RpcSetCustomRole(role);
 
-            pc.RpcGuardAndKill(pc);
+            pc.SetKillCooldown();
             pc.Notify(string.Format(GetString("CopyCatRoleChange"), Utils.GetRoleName(role)));
             return false;
         }

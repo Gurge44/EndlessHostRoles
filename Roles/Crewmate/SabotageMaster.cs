@@ -13,20 +13,32 @@ public static class SabotageMaster
     public static OptionItem FixesOxygens;
     public static OptionItem FixesComms;
     public static OptionItem FixesElectrical;
-    public static int UsedSkillCount;
+    public static OptionItem SMAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem UsesUsedWhenFixingReactorOrO2;
+    public static OptionItem UsesUsedWhenFixingLightsOrComms;
+    public static float UsedSkillCount;
 
     private static bool DoorsProgressing = false;
 
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.SabotageMaster);
-        SkillLimit = IntegerOptionItem.Create(Id + 10, "SabotageMasterSkillLimit", new(0, 99, 1), 10, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster])
+        SkillLimit = IntegerOptionItem.Create(Id + 10, "SabotageMasterSkillLimit", new(0, 80, 1), 2, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster])
             .SetValueFormat(OptionFormat.Times);
         FixesDoors = BooleanOptionItem.Create(Id + 11, "SabotageMasterFixesDoors", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
         FixesReactors = BooleanOptionItem.Create(Id + 12, "SabotageMasterFixesReactors", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
         FixesOxygens = BooleanOptionItem.Create(Id + 13, "SabotageMasterFixesOxygens", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
         FixesComms = BooleanOptionItem.Create(Id + 14, "SabotageMasterFixesCommunications", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
         FixesElectrical = BooleanOptionItem.Create(Id + 15, "SabotageMasterFixesElectrical", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
+        SMAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 16, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 3f, TabGroup.CrewmateRoles, false)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster])
+            .SetValueFormat(OptionFormat.Times);
+        UsesUsedWhenFixingReactorOrO2 = FloatOptionItem.Create(Id + 17, "SMUsesUsedWhenFixingReactorOrO2", new(0f, 5f, 0.1f), 4f, TabGroup.CrewmateRoles, false)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster])
+            .SetValueFormat(OptionFormat.Times);
+        UsesUsedWhenFixingLightsOrComms = FloatOptionItem.Create(Id + 18, "SMUsesUsedWhenFixingLightsOrComms", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles, false)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster])
+            .SetValueFormat(OptionFormat.Times);
     }
     public static void Init()
     {
@@ -49,7 +61,7 @@ public static class SabotageMaster
                 {
                     ShipStatus.Instance.RpcRepairSystem(SystemTypes.Reactor, 16);
                     ShipStatus.Instance.RpcRepairSystem(SystemTypes.Reactor, 17);
-                    UsedSkillCount++;
+                    UsedSkillCount += UsesUsedWhenFixingReactorOrO2.GetFloat();
                 }
                 break;
             case SystemTypes.Laboratory:
@@ -59,7 +71,7 @@ public static class SabotageMaster
                 {
                     ShipStatus.Instance.RpcRepairSystem(SystemTypes.Laboratory, 67);
                     ShipStatus.Instance.RpcRepairSystem(SystemTypes.Laboratory, 66);
-                    UsedSkillCount++;
+                    UsedSkillCount += UsesUsedWhenFixingReactorOrO2.GetFloat();
                 }
                 break;
             case SystemTypes.LifeSupp:
@@ -69,7 +81,7 @@ public static class SabotageMaster
                 {
                     ShipStatus.Instance.RpcRepairSystem(SystemTypes.LifeSupp, 67);
                     ShipStatus.Instance.RpcRepairSystem(SystemTypes.LifeSupp, 66);
-                    UsedSkillCount++;
+                    UsedSkillCount += UsesUsedWhenFixingReactorOrO2.GetFloat();
                 }
                 break;
             case SystemTypes.Comms:
@@ -79,7 +91,7 @@ public static class SabotageMaster
                 {
                     ShipStatus.Instance.RpcRepairSystem(SystemTypes.Comms, 16);
                     ShipStatus.Instance.RpcRepairSystem(SystemTypes.Comms, 17);
-                    UsedSkillCount++;
+                    UsedSkillCount += UsesUsedWhenFixingLightsOrComms.GetFloat();
                 }
                 break;
             case SystemTypes.Doors:
@@ -123,7 +135,7 @@ public static class SabotageMaster
         {
             __instance.ActualSwitches = 0;
             __instance.ExpectedSwitches = 0;
-            UsedSkillCount++;
+            UsedSkillCount += UsesUsedWhenFixingLightsOrComms.GetFloat();
         }
     }
 }

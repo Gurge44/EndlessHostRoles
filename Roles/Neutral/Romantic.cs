@@ -1,14 +1,10 @@
-using Hazel;
 using HarmonyLib;
-using Il2CppSystem;
+using Hazel;
 using System.Collections.Generic;
-using System.Linq;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
-using static UnityEngine.GraphicsBuffer;
-using AmongUs.GameOptions;
 
 namespace TOHE.Roles.Neutral;
 
@@ -112,7 +108,8 @@ public static class Romantic
         if (BetPlayer.TryGetValue(killer.PlayerId, out var tar) && tar == target.PlayerId) return false;
         if (!BetTimes.TryGetValue(killer.PlayerId, out var times) || times < 1) isProtect = true;
 
-        if (!isProtect) {
+        if (!isProtect)
+        {
             BetTimes[killer.PlayerId]--;
             if (BetPlayer.TryGetValue(killer.PlayerId, out var originalTarget) && Utils.GetPlayerById(originalTarget) != null)
                 Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(originalTarget));
@@ -138,14 +135,15 @@ public static class Romantic
             killer.RPCPlayCustomSound("Shield");
             killer.Notify(GetString("RomanticProtectPartner"));
             target.Notify(GetString("RomanticIsProtectingYou"));
-            new LateTask(() => {
+            new LateTask(() =>
+            {
                 isPartnerProtected = false;
                 killer.Notify("ProtectingOver");
                 target.Notify("ProtectingOver");
                 killer.SetKillCooldown();
             }, ProtectDuration.GetFloat());
         }
-        
+
         return false;
     }
     public static string TargetMark(PlayerControl seer, PlayerControl target)
@@ -163,7 +161,7 @@ public static class Romantic
     {
         var player = Utils.GetPlayerById(playerId);
         if (player == null) return null;
-        return Utils.ColorString(BetTimes.TryGetValue(playerId, out var times) && times >= 1 ? Color.white : Utils.GetRoleColor(CustomRoles.Romantic), $"<color=#777777>-</color> {(CanUseKillButton(player) ? "PICK PARTNER" : "PROTECT PARTNER")}");
+        return Utils.ColorString(BetTimes.TryGetValue(playerId, out var timesV1) && timesV1 >= 1 ? Color.white : Utils.GetRoleColor(CustomRoles.Romantic), $"<color=#777777>-</color> {(BetTimes.TryGetValue(playerId, out var timesV2) && timesV2 >= 1 && timesV2 >= 1 ? "PICK PARTNER" : "PROTECT PARTNER")}");
     }
     public static void ChangeRole(byte playerId)
     {
@@ -176,9 +174,25 @@ public static class Romantic
                 Romantic = x.Key;
         });
 
-        if (player.IsNeutralKiller()) Utils.GetPlayerById(Romantic).RpcSetCustomRole(player.GetCustomRole());
-        if (player.GetCustomRole().IsImpostor()) Utils.GetPlayerById(Romantic).RpcSetCustomRole(CustomRoles.RuthlessRomantic);
-        else Utils.GetPlayerById(Romantic).RpcSetCustomRole(CustomRoles.VengefulRomantic);
+        if (player.IsNeutralKiller())
+        {
+            Utils.GetPlayerById(Romantic).RpcSetCustomRole(CustomRoles.RuthlessRomantic);
+            RuthlessRomantic.Add(playerId);
+        }
+        else if (player.GetCustomRole().IsImpostor())
+        {
+            Utils.GetPlayerById(Romantic).RpcSetCustomRole(CustomRoles.Refugee);
+        }
+        else
+        {
+            Utils.GetPlayerById(Romantic).RpcSetCustomRole(CustomRoles.VengefulRomantic);
+            VengefulRomantic.Add(playerId);
+        }
+
+        Utils.NotifyRoles();
+
+        Utils.GetPlayerById(Romantic).ResetKillCooldown();
+        Utils.GetPlayerById(Romantic).SetKillCooldown();
     }
 }
 
@@ -224,7 +238,7 @@ public static class VengefulRomantic
     {
         var player = Utils.GetPlayerById(playerId);
         if (player == null) return null;
-        return Utils.ColorString(CanUseKillButton(player) ? Utils.GetRoleColor(CustomRoles.VengefulRomantic) : Color.green, $"<color=#777777>-</color> {((hasKilledKiller) ? "AVEGNGE SUCCESSFUL" : "AVENGE YOUR PARTNER")}");
+        return Utils.ColorString(hasKilledKiller ? Color.green : Utils.GetRoleColor(CustomRoles.VengefulRomantic), $"<color=#777777>-</color> {((hasKilledKiller) ? "AVEGNGE SUCCESSFUL" : "AVENGE YOUR PARTNER")}");
     }
 }
 

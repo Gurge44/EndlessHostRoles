@@ -27,16 +27,16 @@ public static class Totocalcio
     public static void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Totocalcio, 1, zeroOne: false);
-        MaxBetTimes = IntegerOptionItem.Create(Id + 10, "TotocalcioMaxBetTimes", new(1, 99, 1), 3, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Totocalcio])
+        MaxBetTimes = IntegerOptionItem.Create(Id + 10, "TotocalcioMaxBetTimes", new(1, 5, 1), 3, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Totocalcio])
             .SetValueFormat(OptionFormat.Times);
-        BetCooldown = FloatOptionItem.Create(Id + 12, "TotocalcioBetCooldown", new(0f, 990f, 2.5f), 10f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Totocalcio])
+        BetCooldown = FloatOptionItem.Create(Id + 12, "TotocalcioBetCooldown", new(0f, 60f, 2.5f), 10f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Totocalcio])
             .SetValueFormat(OptionFormat.Seconds);
-        BetCooldownIncrese = FloatOptionItem.Create(Id + 14, "TotocalcioBetCooldownIncrese", new(0f, 60f, 1f), 4f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Totocalcio])
+        BetCooldownIncrese = FloatOptionItem.Create(Id + 14, "TotocalcioBetCooldownIncrese", new(0f, 60f, 1f), 10f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Totocalcio])
             .SetValueFormat(OptionFormat.Seconds);
-        MaxBetCooldown = FloatOptionItem.Create(Id + 16, "TotocalcioMaxBetCooldown", new(0f, 990f, 2.5f), 50f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Totocalcio])
+        MaxBetCooldown = FloatOptionItem.Create(Id + 16, "TotocalcioMaxBetCooldown", new(0f, 180f, 2.5f), 70f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Totocalcio])
             .SetValueFormat(OptionFormat.Seconds);
-        KnowTargetRole = BooleanOptionItem.Create(Id + 18, "TotocalcioKnowTargetRole", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Totocalcio]);
-        BetTargetKnowTotocalcio = BooleanOptionItem.Create(Id + 20, "TotocalcioBetTargetKnowTotocalcio", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Totocalcio]);
+        KnowTargetRole = BooleanOptionItem.Create(Id + 18, "TotocalcioKnowTargetRole", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Totocalcio]);
+        BetTargetKnowTotocalcio = BooleanOptionItem.Create(Id + 20, "TotocalcioBetTargetKnowTotocalcio", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Totocalcio]);
     }
     public static void Init()
     {

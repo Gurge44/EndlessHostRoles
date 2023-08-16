@@ -16,6 +16,7 @@ public static class Swooper
 
     private static OptionItem SwooperCooldown;
     private static OptionItem SwooperDuration;
+    private static OptionItem SwooperVentNormallyOnCooldown;
 
     private static Dictionary<byte, long> InvisTime = new();
     private static Dictionary<byte, long> lastTime = new();
@@ -24,10 +25,11 @@ public static class Swooper
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Swooper);
-        SwooperCooldown = FloatOptionItem.Create(Id + 2, "SwooperCooldown", new(1f, 999f, 1f), 30f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
+        SwooperCooldown = FloatOptionItem.Create(Id + 2, "SwooperCooldown", new(1f, 60f, 1f), 20f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
             .SetValueFormat(OptionFormat.Seconds);
-        SwooperDuration = FloatOptionItem.Create(Id + 4, "SwooperDuration", new(1f, 999f, 1f), 15f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
+        SwooperDuration = FloatOptionItem.Create(Id + 3, "SwooperDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
             .SetValueFormat(OptionFormat.Seconds);
+        SwooperVentNormallyOnCooldown = BooleanOptionItem.Create(Id + 4, "SwooperVentNormallyOnCooldown", true, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper]);
     }
     public static void Init()
     {
@@ -106,7 +108,7 @@ public static class Swooper
                 }
                 else if (remainTime <= 10)
                 {
-                    if (!pc.IsModClient()) pc.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime));
+                    if (!pc.IsModClient()) pc.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1));
                 }
                 newList.Add(it.Key, it.Value);
             }
@@ -136,8 +138,11 @@ public static class Swooper
             }
             else
             {
-                __instance.myPlayer.MyPhysics.RpcBootFromVent(ventId);
-                NameNotifyManager.Notify(pc, GetString("SwooperInvisInCooldown"));
+                if (!SwooperVentNormallyOnCooldown.GetBool())
+                {
+                    __instance.myPlayer.MyPhysics.RpcBootFromVent(ventId);
+                    NameNotifyManager.Notify(pc, GetString("SwooperInvisInCooldown"));
+                }
             }
         }, 0.5f, "Swooper Vent");
     }
@@ -159,12 +164,12 @@ public static class Swooper
         if (IsInvis(pc.PlayerId))
         {
             var remainTime = InvisTime[pc.PlayerId] + (long)SwooperDuration.GetFloat() - Utils.GetTimeStamp();
-            str.Append(string.Format(GetString("SwooperInvisStateCountdown"), remainTime));
+            str.Append(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1));
         }
         else if (lastTime.TryGetValue(pc.PlayerId, out var time))
         {
             var cooldown = time + (long)SwooperCooldown.GetFloat() - Utils.GetTimeStamp();
-            str.Append(string.Format(GetString("SwooperInvisCooldownRemain"), cooldown));
+            str.Append(string.Format(GetString("SwooperInvisCooldownRemain"), cooldown + 2));
         }
         else
         {

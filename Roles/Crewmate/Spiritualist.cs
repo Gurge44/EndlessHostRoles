@@ -94,6 +94,8 @@ namespace TOHE.Roles.Crewmate
                     continue;
                 }
 
+                target.Notify("<color=#ffff00>The Spiritualist has an arrow pointing toward you</color>");
+
                 TargetArrow.Add(spiritualist, target.PlayerId);
 
                 var writer = CustomRpcSender.Create("SpiritualistSendMessage", SendOption.None);

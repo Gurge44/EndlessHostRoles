@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
+using System.Linq;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -12,18 +13,23 @@ public static class Divinator
     public static OptionItem CheckLimitOpt;
     public static OptionItem AccurateCheckMode;
     public static OptionItem HideVote;
+    public static OptionItem ShowSpecificRole;
+    public static OptionItem AbilityUseGainWithEachTaskCompleted;
 
     public static List<byte> didVote = new();
-    public static Dictionary<byte, int> CheckLimit = new();
+    public static Dictionary<byte, float> CheckLimit = new();
 
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Divinator);
-        CheckLimitOpt = IntegerOptionItem.Create(Id + 10, "DivinatorSkillLimit", new(1, 990, 1), 5, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator])
+        CheckLimitOpt = IntegerOptionItem.Create(Id + 10, "DivinatorSkillLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator])
             .SetValueFormat(OptionFormat.Times);
         AccurateCheckMode = BooleanOptionItem.Create(Id + 12, "AccurateCheckMode", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
+        ShowSpecificRole = BooleanOptionItem.Create(Id + 13, "ShowSpecificRole", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
         HideVote = BooleanOptionItem.Create(Id + 14, "DivinatorHideVote", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
-        OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.Divinator);
+        AbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 15, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator])
+            .SetValueFormat(OptionFormat.Times);
+        OverrideTasksData.Create(Id + 21, TabGroup.CrewmateRoles, CustomRoles.Divinator);
     }
     public static void Init()
     {
@@ -35,7 +41,7 @@ public static class Divinator
         playerIdList.Add(playerId);
         CheckLimit.TryAdd(playerId, CheckLimitOpt.GetInt());
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
     public static void OnVote(PlayerControl player, PlayerControl target)
     {
         if (player == null || target == null) return;
@@ -48,7 +54,7 @@ public static class Divinator
             return;
         }
 
-        CheckLimit[player.PlayerId]--;
+        CheckLimit[player.PlayerId] -= 1;
 
         if (player.PlayerId == target.PlayerId)
         {
@@ -58,7 +64,7 @@ public static class Divinator
 
         string msg;
 
-        if (player.AllTasksCompleted() || AccurateCheckMode.GetBool())
+        if ((player.AllTasksCompleted() || AccurateCheckMode.GetBool()) && ShowSpecificRole.GetBool())
         {
             msg = string.Format(GetString("DivinatorCheck.TaskDone"), target.GetRealName(), GetString(target.GetCustomRole().ToString()));
         }
@@ -67,7 +73,7 @@ public static class Divinator
         {
             string text = target.GetCustomRole() switch
             {
-                
+
                 CustomRoles.CrewmateTOHE or
                 CustomRoles.EngineerTOHE or
                 CustomRoles.ScientistTOHE or
@@ -81,7 +87,8 @@ public static class Divinator
                 CustomRoles.Refugee or
                 CustomRoles.AntiAdminer or
                 CustomRoles.Dazzler or
-                CustomRoles.Grenadier
+                CustomRoles.Grenadier or
+                CustomRoles.Lighter
                 => "Result1",
 
                 CustomRoles.Crusader or
@@ -94,6 +101,7 @@ public static class Divinator
 
                 CustomRoles.Capitalism or
                 CustomRoles.Counterfeiter or
+                CustomRoles.Witness or
                 CustomRoles.Greedier or
                 CustomRoles.Merchant or
                 CustomRoles.Trickster
@@ -119,6 +127,7 @@ public static class Divinator
                 CustomRoles.EvilTracker or
                 CustomRoles.Mortician or
                 CustomRoles.Tracefinder or
+                CustomRoles.Romantic or
                 CustomRoles.Tracker
                 => "Result6",
 
@@ -126,6 +135,8 @@ public static class Divinator
                 CustomRoles.Bodyguard or
                 CustomRoles.Bomber or
                 CustomRoles.FireWorks or
+                CustomRoles.RuthlessRomantic or
+                CustomRoles.VengefulRomantic or
                 CustomRoles.Nuker
                 => "Result7",
 
@@ -155,6 +166,7 @@ public static class Divinator
                 CustomRoles.Addict or
                 CustomRoles.Escapee or
                 CustomRoles.Miner or
+                CustomRoles.Demolitionist or
                 CustomRoles.Morphling
                 => "Result11",
 
@@ -169,6 +181,7 @@ public static class Divinator
                 CustomRoles.God or
                 CustomRoles.Oracle or
                 CustomRoles.Visionary or
+                CustomRoles.NiceEraser or
                 CustomRoles.ParityCop
                 => "Result13",
 
@@ -211,7 +224,7 @@ public static class Divinator
                 CustomRoles.EvilGuesser or
                 CustomRoles.NiceGuesser or
                 CustomRoles.DarkHide or
-         //       CustomRoles.Mare or
+                //       CustomRoles.Mare or
                 CustomRoles.Camouflager or
                 CustomRoles.Chameleon
                 => "Result19",
@@ -256,6 +269,7 @@ public static class Divinator
                 CustomRoles.Jinx or
                 CustomRoles.SwordsMan or
                 CustomRoles.Veteran or
+                CustomRoles.TaskManager or
                 CustomRoles.Hangman
                 => "Result25",
 
@@ -296,152 +310,156 @@ public static class Divinator
             msg = string.Format(GetString("DivinatorCheck." + text), target.GetRealName());
         }
         // Fortune Teller
-     /*   {
-            string text = target.GetCustomRole() switch
-            {
-                CustomRoles.TimeThief or
-                CustomRoles.AntiAdminer or
-                CustomRoles.SuperStar or
-                CustomRoles.Mayor or
-                CustomRoles.Vindicator or
-                CustomRoles.Snitch or
-                CustomRoles.Marshall or
-                CustomRoles.Counterfeiter or
-                CustomRoles.God or
-                CustomRoles.Judge or
-                CustomRoles.Observer or
-                CustomRoles.DovesOfNeace or
-                CustomRoles.Virus
-                => "HideMsg",
+        /*   {
+               string text = target.GetCustomRole() switch
+               {
+                   CustomRoles.TimeThief or
+                   CustomRoles.AntiAdminer or
+                   CustomRoles.SuperStar or
+                   CustomRoles.Mayor or
+                   CustomRoles.Vindicator or
+                   CustomRoles.Snitch or
+                   CustomRoles.Marshall or
+                   CustomRoles.Counterfeiter or
+                   CustomRoles.God or
+                   CustomRoles.Judge or
+                   CustomRoles.Observer or
+                   CustomRoles.DovesOfNeace or
+                   CustomRoles.Virus
+                   => "HideMsg",
 
-                CustomRoles.Miner or
-                CustomRoles.Scavenger or
-                CustomRoles.Luckey or
-                CustomRoles.Trickster or
-                CustomRoles.Needy or
-                CustomRoles.SabotageMaster or
-                CustomRoles.EngineerTOHE or
-                CustomRoles.Jackal or
-                CustomRoles.Parasite or
-                CustomRoles.Impostor or
-            //    CustomRoles.Sidekick or
-                CustomRoles.Mario or
-                CustomRoles.Cleaner or
-                CustomRoles.Crewpostor or
-                CustomRoles.Disperser
-                => "Honest",
+                   CustomRoles.Miner or
+                   CustomRoles.Scavenger or
+                   CustomRoles.Luckey or
+                   CustomRoles.Trickster or
+                   CustomRoles.Needy or
+                   CustomRoles.SabotageMaster or
+                   CustomRoles.EngineerTOHE or
+                   CustomRoles.Jackal or
+                   CustomRoles.Parasite or
+                   CustomRoles.Impostor or
+               //    CustomRoles.Sidekick or
+                   CustomRoles.Mario or
+                   CustomRoles.Cleaner or
+                   CustomRoles.Crewpostor or
+                   CustomRoles.Disperser
+                   => "Honest",
 
-                CustomRoles.SerialKiller or
-                CustomRoles.BountyHunter or
-                CustomRoles.Minimalism or
-                CustomRoles.Sans or
-                CustomRoles.Juggernaut or
-                CustomRoles.SpeedBooster or
-                CustomRoles.Sheriff or
-                CustomRoles.Arsonist or
-                CustomRoles.Innocent or
-                CustomRoles.FFF or
-                CustomRoles.Greedier or
-                CustomRoles.Tracker
-                => "Impulse",
+                   CustomRoles.SerialKiller or
+                   CustomRoles.BountyHunter or
+                   CustomRoles.Minimalism or
+                   CustomRoles.Sans or
+                   CustomRoles.Juggernaut or
+                   CustomRoles.SpeedBooster or
+                   CustomRoles.Sheriff or
+                   CustomRoles.Arsonist or
+                   CustomRoles.Innocent or
+                   CustomRoles.FFF or
+                   CustomRoles.Greedier or
+                   CustomRoles.Tracker
+                   => "Impulse",
 
-                CustomRoles.Vampire or
-                CustomRoles.Poisoner or
-                CustomRoles.Assassin or
-                CustomRoles.Escapee or
-                CustomRoles.Sniper or
-                CustomRoles.NSerialKiller or
-                CustomRoles.SwordsMan or
-                CustomRoles.Bodyguard or
-                CustomRoles.Opportunist or
-                CustomRoles.Pelican or
-                CustomRoles.ImperiusCurse
-                => "Weirdo",
+                   CustomRoles.Vampire or
+                   CustomRoles.Poisoner or
+                   CustomRoles.Assassin or
+                   CustomRoles.Escapee or
+                   CustomRoles.Sniper or
+                   CustomRoles.NSerialKiller or
+                   CustomRoles.SwordsMan or
+                   CustomRoles.Bodyguard or
+                   CustomRoles.Opportunist or
+                   CustomRoles.Pelican or
+                   CustomRoles.ImperiusCurse
+                   => "Weirdo",
 
-                CustomRoles.EvilGuesser or
-                CustomRoles.Bomber or
-                CustomRoles.Capitalism or
-                CustomRoles.NiceGuesser or
-                CustomRoles.Grenadier or
-                CustomRoles.Terrorist or
-                CustomRoles.Revolutionist or
-                CustomRoles.Gamer or
-                CustomRoles.Eraser or
-                CustomRoles.Farseer
-                => "Blockbuster",
+                   CustomRoles.EvilGuesser or
+                   CustomRoles.Bomber or
+                   CustomRoles.Capitalism or
+                   CustomRoles.NiceGuesser or
+                   CustomRoles.Grenadier or
+                   CustomRoles.Lighter or
+                   CustomRoles.Terrorist or
+                   CustomRoles.Revolutionist or
+                   CustomRoles.Gamer or
+                   CustomRoles.Eraser or
+                   CustomRoles.Farseer
+                   => "Blockbuster",
 
-                CustomRoles.Warlock or
-                CustomRoles.Hacker or
-                CustomRoles.Mafia or
-                CustomRoles.Retributionist or
-                CustomRoles.Doctor or
-                CustomRoles.ScientistTOHE or
-                CustomRoles.Transporter or
-                CustomRoles.Veteran or
-                CustomRoles.Divinator or
-                CustomRoles.QuickShooter or
-                CustomRoles.Mediumshiper or
-                CustomRoles.Judge or
-                CustomRoles.Wildling or
-                CustomRoles.BloodKnight
-                => "Strong",
+                   CustomRoles.Warlock or
+                   CustomRoles.Hacker or
+                   CustomRoles.Mafia or
+                   CustomRoles.Retributionist or
+                   CustomRoles.Doctor or
+                   CustomRoles.ScientistTOHE or
+                   CustomRoles.Transporter or
+                   CustomRoles.Veteran or
+                   CustomRoles.Divinator or
+                   CustomRoles.QuickShooter or
+                   CustomRoles.Mediumshiper or
+                   CustomRoles.Judge or
+                   CustomRoles.Wildling or
+                   CustomRoles.BloodKnight
+                   => "Strong",
 
-                CustomRoles.Witch or
-                CustomRoles.HexMaster or
-                CustomRoles.Puppeteer or
-                CustomRoles.NWitch or
-                CustomRoles.ShapeMaster or
-                CustomRoles.ShapeshifterTOHE or
-                CustomRoles.Paranoia or
-                CustomRoles.Psychic or
-                CustomRoles.Executioner or
-                CustomRoles.Lawyer or
-                CustomRoles.BallLightning or
-                CustomRoles.Workaholic or
-                CustomRoles.Provocateur
-                => "Incomprehensible",
+                   CustomRoles.Witch or
+                   CustomRoles.HexMaster or
+                   CustomRoles.Puppeteer or
+                   CustomRoles.NWitch or
+                   CustomRoles.ShapeMaster or
+                   CustomRoles.ShapeshifterTOHE or
+                   CustomRoles.Paranoia or
+                   CustomRoles.Psychic or
+                   CustomRoles.Executioner or
+                   CustomRoles.Lawyer or
+                   CustomRoles.BallLightning or
+                   CustomRoles.Workaholic or
+                   CustomRoles.Provocateur
+                   => "Incomprehensible",
 
-                CustomRoles.FireWorks or
-                CustomRoles.EvilTracker or
-                CustomRoles.Gangster or
-                CustomRoles.Dictator or
-                CustomRoles.CyberStar or
-                CustomRoles.Collector or
-                CustomRoles.Sunnyboy or
-                CustomRoles.Bard or
-                CustomRoles.Totocalcio or
-                CustomRoles.Bloodhound
-                => "Enthusiasm",
+                   CustomRoles.FireWorks or
+                   CustomRoles.EvilTracker or
+                   CustomRoles.Gangster or
+                   CustomRoles.Dictator or
+                   CustomRoles.CyberStar or
+                   CustomRoles.Demolitionist or
+                   CustomRoles.NiceEraser or
+                   CustomRoles.TaskManager or
+                   CustomRoles.Collector or
+                   CustomRoles.Sunnyboy or
+                   CustomRoles.Bard or
+                   CustomRoles.Totocalcio or
+                   CustomRoles.Bloodhound
+                   => "Enthusiasm",
 
-                CustomRoles.BoobyTrap or
-                CustomRoles.Zombie or
-                CustomRoles.Mare or
-                CustomRoles.Detective or
-                CustomRoles.TimeManager or
-                CustomRoles.Jester or
-                CustomRoles.Medicaler or
-                CustomRoles.GuardianAngelTOHE or
-                CustomRoles.DarkHide or
-                CustomRoles.CursedWolf or
-                CustomRoles.OverKiller or
-                CustomRoles.Hangman or
-                CustomRoles.Mortician or
-                CustomRoles.Spiritcaller
-                => "Disturbed",
+                   CustomRoles.BoobyTrap or
+                   CustomRoles.Zombie or
+                   CustomRoles.Mare or
+                   CustomRoles.Detective or
+                   CustomRoles.TimeManager or
+                   CustomRoles.Jester or
+                   CustomRoles.Medicaler or
+                   CustomRoles.GuardianAngelTOHE or
+                   CustomRoles.DarkHide or
+                   CustomRoles.CursedWolf or
+                   CustomRoles.OverKiller or
+                   CustomRoles.Hangman or
+                   CustomRoles.Mortician or
+                   CustomRoles.Spiritcaller
+                   => "Disturbed",
 
-                CustomRoles.Glitch or
-                CustomRoles.Camouflager or
-                CustomRoles.Wraith or
-                CustomRoles.Swooper
-                => "Glitch",
+                   CustomRoles.Glitch or
+                   CustomRoles.Camouflager or
+                   CustomRoles.Wraith or
+                   CustomRoles.Swooper
+                   => "Glitch",
 
-                CustomRoles.Succubus
-                => "Love",
+                   CustomRoles.Succubus
+                   => "Love",
 
-                _ => "None",
-            };
-            msg = string.Format(GetString("DivinatorCheck." + text), target.GetRealName());
-        }*/
+                   _ => "None",
+               };
+               msg = string.Format(GetString("DivinatorCheck." + text), target.GetRealName());
+           }*/
 
         Utils.SendMessage(GetString("DivinatorCheck") + "\n" + msg + "\n\n" + string.Format(GetString("DivinatorCheckLimit"), CheckLimit[player.PlayerId]), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Divinator), GetString("DivinatorCheckMsgTitle")));
     }
