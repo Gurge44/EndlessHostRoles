@@ -17,6 +17,7 @@ public static class Romantic
     public static bool isProtect = false;
     public static bool isRomanticAlive = true;
     public static bool isPartnerProtected = false;
+
     public static OptionItem BetCooldown;
     private static OptionItem ProtectCooldown;
     private static OptionItem ProtectDuration;
@@ -53,6 +54,8 @@ public static class Romantic
         playerIdList = new();
         BetTimes = new();
         BetPlayer = new();
+        isProtect = false;
+        isPartnerProtected = false;
     }
     public static void Add(byte playerId)
     {
@@ -105,7 +108,7 @@ public static class Romantic
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer.PlayerId == target.PlayerId) return true;
-        if (BetPlayer.TryGetValue(killer.PlayerId, out var tar) && tar == target.PlayerId) return false;
+        //if (BetPlayer.TryGetValue(killer.PlayerId, out var tar) && tar == target.PlayerId) return false;
         if (!BetTimes.TryGetValue(killer.PlayerId, out var times) || times < 1) isProtect = true;
 
         if (!isProtect)
@@ -129,19 +132,24 @@ public static class Romantic
         }
         else
         {
-            isPartnerProtected = true;
-            killer.ResetKillCooldown();
-            killer.SetKillCooldown();
-            killer.RPCPlayCustomSound("Shield");
-            killer.Notify(GetString("RomanticProtectPartner"));
-            target.Notify(GetString("RomanticIsProtectingYou"));
-            new LateTask(() =>
+            if (BetPlayer.TryGetValue(killer.PlayerId, out var originalTarget))
             {
-                isPartnerProtected = false;
-                killer.Notify("ProtectingOver");
-                target.Notify("ProtectingOver");
+                var tpc = Utils.GetPlayerById(originalTarget);
+                isPartnerProtected = true;
+                killer.ResetKillCooldown();
                 killer.SetKillCooldown();
-            }, ProtectDuration.GetFloat());
+                killer.RPCPlayCustomSound("Shield");
+                killer.Notify(GetString("RomanticProtectPartner"));
+                tpc.Notify(GetString("RomanticIsProtectingYou"));
+                new LateTask(() =>
+                {
+                    if (!GameStates.IsInTask || !tpc.IsAlive()) return;
+                    isPartnerProtected = false;
+                    killer.Notify("ProtectingOver");
+                    tpc.Notify("ProtectingOver");
+                    killer.SetKillCooldown();
+                }, ProtectDuration.GetFloat());
+            }
         }
 
         return false;
@@ -163,6 +171,10 @@ public static class Romantic
         if (player == null) return null;
         return Utils.ColorString(BetTimes.TryGetValue(playerId, out var timesV1) && timesV1 >= 1 ? Color.white : Utils.GetRoleColor(CustomRoles.Romantic), $"<color=#777777>-</color> {(BetTimes.TryGetValue(playerId, out var timesV2) && timesV2 >= 1 && timesV2 >= 1 ? "PICK PARTNER" : "PROTECT PARTNER")}");
     }
+    public static void OnReportDeadBody()
+    {
+        isPartnerProtected = false;
+    }
     public static void ChangeRole(byte playerId)
     {
         var player = Utils.GetPlayerById(playerId);
@@ -173,20 +185,31 @@ public static class Romantic
             if (x.Value == playerId)
                 Romantic = x.Key;
         });
-
+        var pc = Utils.GetPlayerById(Romantic);
         if (player.IsNeutralKiller())
         {
-            Utils.GetPlayerById(Romantic).RpcSetCustomRole(CustomRoles.RuthlessRomantic);
+            Logger.Info($"Neutral Romantic Partner Died changing {pc.GetNameWithRole()} to Ruthless Romantic", "Romantic");
+            pc.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
             RuthlessRomantic.Add(playerId);
         }
-        else if (player.GetCustomRole().IsImpostor())
+        else if (player.GetCustomRole().IsImpostorTeamV3())
         {
-            Utils.GetPlayerById(Romantic).RpcSetCustomRole(CustomRoles.Refugee);
+            Logger.Info($"Impostor Romantic Partner Died changing {pc.GetNameWithRole()} to Refugee", "Romantic");
+            pc.RpcSetCustomRole(CustomRoles.Refugee);
         }
         else
         {
-            Utils.GetPlayerById(Romantic).RpcSetCustomRole(CustomRoles.VengefulRomantic);
-            VengefulRomantic.Add(playerId);
+            new LateTask(() =>
+            {
+                Logger.Info($"Crew/nnk Romantic Partner Died changing {pc.GetNameWithRole()} to Vengeful romantic", "Romantic");
+
+                pc.RpcSetCustomRole(CustomRoles.VengefulRomantic);
+                Logger.Warn($"player is alive? => {player.IsAlive()}", "VRomantic");
+                var killerId = player.GetRealKiller().PlayerId;
+                Logger.Warn($"killer playerId? => {killerId}", "VRomantic");
+                VengefulRomantic.Add(pc.PlayerId, killerId);
+                VengefulRomantic.SendRPC(playerId);
+            }, 0.2f, "Convert to Vengeful Romantic");
         }
 
         Utils.NotifyRoles();
@@ -201,15 +224,18 @@ public static class VengefulRomantic
     public static List<byte> playerIdList = new();
 
     public static bool hasKilledKiller = false;
-    public static Dictionary<byte, byte> PartnerKiller = new();
+    public static Dictionary<byte, byte> VengefulTarget = new();
 
     public static void Init()
     {
         playerIdList = new();
+        VengefulTarget = new();
+        hasKilledKiller = false;
     }
-    public static void Add(byte playerId)
+    public static void Add(byte playerId, byte killerId = byte.MaxValue)
     {
         playerIdList.Add(playerId);
+        VengefulTarget.Add(playerId, killerId);
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
@@ -221,9 +247,9 @@ public static class VengefulRomantic
 
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer.PlayerId == target.PlayerId) return false;
+        if (killer.PlayerId == target.PlayerId) return true; //set it to true coz shaman can do this, and killer shd die
 
-        if (PartnerKiller.TryGetValue(target.PlayerId, out var RomanticPartner) && target.PlayerId == RomanticPartner)
+        if (VengefulTarget.TryGetValue(killer.PlayerId, out var PartnerKiller) && target.PlayerId == PartnerKiller)
         {
             hasKilledKiller = true;
             return true;
@@ -239,6 +265,22 @@ public static class VengefulRomantic
         var player = Utils.GetPlayerById(playerId);
         if (player == null) return null;
         return Utils.ColorString(hasKilledKiller ? Color.green : Utils.GetRoleColor(CustomRoles.VengefulRomantic), $"<color=#777777>-</color> {((hasKilledKiller) ? "AVEGNGE SUCCESSFUL" : "AVENGE YOUR PARTNER")}");
+    }
+    public static void SendRPC(byte playerId)
+    {
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncVengefulRomanticTarget, SendOption.Reliable, -1);
+        writer.Write(playerId);
+        //writer.Write(BetTimes.TryGetValue(playerId, out var times) ? times : MaxBetTimes);
+        writer.Write(VengefulTarget.TryGetValue(playerId, out var player) ? player : byte.MaxValue);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+    public static void ReceiveRPC(MessageReader reader)
+    {
+        byte PlayerId = reader.ReadByte();
+        byte Target = reader.ReadByte();
+        VengefulTarget.Remove(PlayerId);
+        if (Target != byte.MaxValue)
+            VengefulTarget.Add(PlayerId, Target);
     }
 }
 

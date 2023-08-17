@@ -410,6 +410,8 @@ internal static class CustomRolesHelper
        //     CustomRoles.Juggernaut or
             CustomRoles.Jinx or
             CustomRoles.Romantic or
+            CustomRoles.Romantic or
+            CustomRoles.VengefulRomantic or
             //     CustomRoles.Poisoner or
             //     CustomRoles.HexMaster or
             CustomRoles.Totocalcio;

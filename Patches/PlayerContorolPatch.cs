@@ -369,8 +369,11 @@ class CheckMurderPatch
                     Totocalcio.OnCheckMurder(killer, target);
                     return false;
                 case CustomRoles.Romantic:
-                    Romantic.OnCheckMurder(killer, target);
-                    return false;
+                    if (!Romantic.OnCheckMurder(killer, target)) return false;
+                    break;
+                case CustomRoles.VengefulRomantic:
+                    if (!VengefulRomantic.OnCheckMurder(killer, target)) return false;
+                    break;
                 case CustomRoles.Succubus:
                     Succubus.OnCheckMurder(killer, target);
                     return false;
@@ -571,8 +574,10 @@ class CheckMurderPatch
         if (target.Is(CustomRoles.Guardian) && target.AllTasksCompleted())
             return false;
 
-        if ((Romantic.BetPlayer.TryGetValue(target.PlayerId, out var RomanticPartner) && target.PlayerId == RomanticPartner && Romantic.isPartnerProtected))
-            return false;
+        //if ((Romantic.BetPlayer.TryGetValue(target.PlayerId, out var RomanticPartner) && target.PlayerId == RomanticPartner && Romantic.isPartnerProtected))
+        //    return false;
+        // Romantic partner is protected
+        if (Romantic.BetPlayer.ContainsValue(target.PlayerId) && Romantic.isPartnerProtected) return false;
 
         if (Options.OppoImmuneToAttacksWhenTasksDone.GetBool())
         {
@@ -943,8 +948,8 @@ class MurderPlayerPatch
         if (target.Is(CustomRoles.Trapper) && killer != target)
             killer.TrapperKilled(target);
 
-        if ((Romantic.BetPlayer.TryGetValue(target.PlayerId, out var RomanticPartner) && target.PlayerId == RomanticPartner) && target.PlayerId != killer.PlayerId)
-            VengefulRomantic.PartnerKiller.Add(killer.PlayerId, 1);
+        //if ((Romantic.BetPlayer.TryGetValue(target.PlayerId, out var RomanticPartner) && target.PlayerId == RomanticPartner) && target.PlayerId != killer.PlayerId)
+        //    VengefulRomantic.PartnerKiller.Add(killer.PlayerId, 1);
 
         Main.AllKillers.Add(killer.PlayerId, 1);
         new LateTask(() => { Main.AllKillers.Remove(killer.PlayerId); }, Options.WitnessTime.GetInt());
@@ -1566,6 +1571,7 @@ class ReportDeadBodyPatch
         ParityCop.OnReportDeadBody();
         Doomsayer.OnReportDeadBody();
         BallLightning.OnReportDeadBody();
+        Romantic.OnReportDeadBody();
 
         Mortician.OnReportDeadBody(player, target);
         Tracefinder.OnReportDeadBody(player, target);
