@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <Import Project="$(NuGetPackageRoot)devlooped.sponsorlink\0.11.0\buildTransitive\Devlooped.SponsorLink.targets" Condition="Exists('$(NuGetPackageRoot)devlooped.sponsorlink\0.11.0\buildTransitive\Devlooped.SponsorLink.targets')" />
+    <Import Project="$(NuGetPackageRoot)thisassembly.constants\1.2.15\build\netstandard2.0\ThisAssembly.Constants.targets" Condition="Exists('$(NuGetPackageRoot)thisassembly.constants\1.2.15\build\netstandard2.0\ThisAssembly.Constants.targets')" />
+    <Import Project="$(NuGetPackageRoot)system.text.json\6.0.7\buildTransitive\netcoreapp3.1\System.Text.Json.targets" Condition="Exists('$(NuGetPackageRoot)system.text.json\6.0.7\buildTransitive\netcoreapp3.1\System.Text.Json.targets')" />
+    <Import Project="$(NuGetPackageRoot)gitinfo\3.1.2\buildTransitive\GitInfo.targets" Condition="Exists('$(NuGetPackageRoot)gitinfo\3.1.2\buildTransitive\GitInfo.targets')" />
+    <Import Project="$(NuGetPackageRoot)fody\6.5.5\build\Fody.targets" Condition="Exists('$(NuGetPackageRoot)fody\6.5.5\build\Fody.targets')" />
+    <Import Project="$(NuGetPackageRoot)costura.fody\5.7.0\build\Costura.Fody.targets" Condition="Exists('$(NuGetPackageRoot)costura.fody\5.7.0\build\Costura.Fody.targets')" />
+  </ImportGroup>
+</Project>

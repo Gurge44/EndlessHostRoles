@@ -1,0 +1,190 @@
+is_global = true
+build_property.DesignTimeBuild = 
+build_property.MSBuildProjectFullPath = C:\Users\Nehal\OneDrive\Desktop\among us self build\tohe_plus gurge\TOHE.csproj
+build_property.DebugSponsorLink = 
+build_property.ThisAssemblyNamespace = 
+build_property.TargetFramework = net6.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = TOHE
+build_property.ProjectDir = C:\Users\Nehal\OneDrive\Desktop\among us self build\tohe_plus gurge\
+build_property.GitIsDirty = 1
+
+[C:/Users/Nehal/.nuget/packages/gitinfo/3.1.2/analyzers/dotnet/roslyn4.0/GitInfo.CodeAnalysis.dll]
+build_metadata.AdditionalFiles.SourceItemType = Analyzer
+build_metadata.AdditionalFiles.SourceIdentity = 
+build_metadata.AdditionalFiles.NuGetPackageId = GitInfo
+build_metadata.AdditionalFiles.ParentPackage = 
+
+[C:/Users/Nehal/OneDrive/Desktop/among us self build/tohe_plus gurge/GitInfo/3.1.2]
+build_metadata.AdditionalFiles.SourceItemType = PackageDependencies
+build_metadata.AdditionalFiles.SourceIdentity = GitInfo
+build_metadata.AdditionalFiles.NuGetPackageId = 
+build_metadata.AdditionalFiles.ParentPackage = 
+
+[C:/Users/Nehal/OneDrive/Desktop/among us self build/tohe_plus gurge/IsDirtyString]
+build_metadata.AdditionalFiles.SourceItemType = Constant
+build_metadata.AdditionalFiles.SourceIdentity = 
+build_metadata.AdditionalFiles.NuGetPackageId = 
+build_metadata.AdditionalFiles.ParentPackage = 
+build_metadata.Constant.Comment = 
+build_metadata.Constant.Value = true
+build_metadata.Constant.Root = Git
+
+[C:/Users/Nehal/OneDrive/Desktop/among us self build/tohe_plus gurge/RepositoryUrl]
+build_metadata.AdditionalFiles.SourceItemType = Constant
+build_metadata.AdditionalFiles.SourceIdentity = 
+build_metadata.AdditionalFiles.NuGetPackageId = 
+build_metadata.AdditionalFiles.ParentPackage = 
+build_metadata.Constant.Comment = 
+build_metadata.Constant.Value = https://github.com/ryuk201198/TOHE_PLUS_
+build_metadata.Constant.Root = Git
+
+[C:/Users/Nehal/OneDrive/Desktop/among us self build/tohe_plus gurge/Branch]
+build_metadata.AdditionalFiles.SourceItemType = Constant
+build_metadata.AdditionalFiles.SourceIdentity = 
+build_metadata.AdditionalFiles.NuGetPackageId = 
+build_metadata.AdditionalFiles.ParentPackage = 
+build_metadata.Constant.Comment = 
+build_metadata.Constant.Value = main
+build_metadata.Constant.Root = Git
+
+[C:/Users/Nehal/OneDrive/Desktop/among us self build/tohe_plus gurge/Commit]
+build_metadata.AdditionalFiles.SourceItemType = Constant
+build_metadata.AdditionalFiles.SourceIdentity = 
+build_metadata.AdditionalFiles.NuGetPackageId = 
+build_metadata.AdditionalFiles.ParentPackage = 
+build_metadata.Constant.Comment = 
+build_metadata.Constant.Value = 5ab040b
+build_metadata.Constant.Root = Git
+
+[C:/Users/Nehal/OneDrive/Desktop/among us self build/tohe_plus gurge/Sha]
+build_metadata.AdditionalFiles.SourceItemType = Constant
+build_metadata.AdditionalFiles.SourceIdentity = 
+build_metadata.AdditionalFiles.NuGetPackageId = 
+build_metadata.AdditionalFiles.ParentPackage = 
+build_metadata.Constant.Comment = 
+build_metadata.Constant.Value = 5ab040b1cc0e599ac502565478612fb88887cd0f
+build_metadata.Constant.Root = Git
+
+[C:/Users/Nehal/OneDrive/Desktop/among us self build/tohe_plus gurge/CommitDate]
+build_metadata.AdditionalFiles.SourceItemType = Constant
+build_metadata.AdditionalFiles.SourceIdentity = 
+build_metadata.AdditionalFiles.NuGetPackageId = 
+build_metadata.AdditionalFiles.ParentPackage = 
+build_metadata.Constant.Comment = 
+build_metadata.Constant.Value = 2023-08-16T20:03:14+02:00
+build_metadata.Constant.Root = Git
+
+[C:/Users/Nehal/OneDrive/Desktop/among us self build/tohe_plus gurge/Commits]
+build_metadata.AdditionalFiles.SourceItemType = Constant
+build_metadata.AdditionalFiles.SourceIdentity = 
+build_metadata.AdditionalFiles.NuGetPackageId = 
+build_metadata.AdditionalFiles.ParentPackage = 
+build_metadata.Constant.Comment = 
+build_metadata.Constant.Value = 22
+build_metadata.Constant.Root = Git
+
+[C:/Users/Nehal/OneDrive/Desktop/among us self build/tohe_plus gurge/Tag]
+build_metadata.AdditionalFiles.SourceItemType = Constant
+build_metadata.AdditionalFiles.SourceIdentity = 
+build_metadata.AdditionalFiles.NuGetPackageId = 
+build_metadata.AdditionalFiles.ParentPackage = 
+build_metadata.Constant.Comment = 
+build_metadata.Constant.Value = 
+build_metadata.Constant.Root = Git
+
+[C:/Users/Nehal/OneDrive/Desktop/among us self build/tohe_plus gurge/BaseTag]
+build_metadata.AdditionalFiles.SourceItemType = Constant
+build_metadata.AdditionalFiles.SourceIdentity = 
+build_metadata.AdditionalFiles.NuGetPackageId = 
+build_metadata.AdditionalFiles.ParentPackage = 
+build_metadata.Constant.Comment = 
+build_metadata.Constant.Value = 
+build_metadata.Constant.Root = Git
+
+[C:/Users/Nehal/OneDrive/Desktop/among us self build/tohe_plus gurge/BaseVersion.Major]
+build_metadata.AdditionalFiles.SourceItemType = Constant
+build_metadata.AdditionalFiles.SourceIdentity = 
+build_metadata.AdditionalFiles.NuGetPackageId = 
+build_metadata.AdditionalFiles.ParentPackage = 
+build_metadata.Constant.Comment = 
+build_metadata.Constant.Value = 0
+build_metadata.Constant.Root = Git
+
+[C:/Users/Nehal/OneDrive/Desktop/among us self build/tohe_plus gurge/BaseVersion.Minor]
+build_metadata.AdditionalFiles.SourceItemType = Constant
+build_metadata.AdditionalFiles.SourceIdentity = 
+build_metadata.AdditionalFiles.NuGetPackageId = 
+build_metadata.AdditionalFiles.ParentPackage = 
+build_metadata.Constant.Comment = 
+build_metadata.Constant.Value = 0
+build_metadata.Constant.Root = Git
+
+[C:/Users/Nehal/OneDrive/Desktop/among us self build/tohe_plus gurge/BaseVersion.Patch]
+build_metadata.AdditionalFiles.SourceItemType = Constant
+build_metadata.AdditionalFiles.SourceIdentity = 
+build_metadata.AdditionalFiles.NuGetPackageId = 
+build_metadata.AdditionalFiles.ParentPackage = 
+build_metadata.Constant.Comment = 
+build_metadata.Constant.Value = 0
+build_metadata.Constant.Root = Git
+
+[C:/Users/Nehal/OneDrive/Desktop/among us self build/tohe_plus gurge/SemVer.Major]
+build_metadata.AdditionalFiles.SourceItemType = Constant
+build_metadata.AdditionalFiles.SourceIdentity = 
+build_metadata.AdditionalFiles.NuGetPackageId = 
+build_metadata.AdditionalFiles.ParentPackage = 
+build_metadata.Constant.Comment = 
+build_metadata.Constant.Value = 0
+build_metadata.Constant.Root = Git
+
+[C:/Users/Nehal/OneDrive/Desktop/among us self build/tohe_plus gurge/SemVer.Minor]
+build_metadata.AdditionalFiles.SourceItemType = Constant
+build_metadata.AdditionalFiles.SourceIdentity = 
+build_metadata.AdditionalFiles.NuGetPackageId = 
+build_metadata.AdditionalFiles.ParentPackage = 
+build_metadata.Constant.Comment = 
+build_metadata.Constant.Value = 0
+build_metadata.Constant.Root = Git
+
+[C:/Users/Nehal/OneDrive/Desktop/among us self build/tohe_plus gurge/SemVer.Patch]
+build_metadata.AdditionalFiles.SourceItemType = Constant
+build_metadata.AdditionalFiles.SourceIdentity = 
+build_metadata.AdditionalFiles.NuGetPackageId = 
+build_metadata.AdditionalFiles.ParentPackage = 
+build_metadata.Constant.Comment = 
+build_metadata.Constant.Value = 22
+build_metadata.Constant.Root = Git
+
+[C:/Users/Nehal/OneDrive/Desktop/among us self build/tohe_plus gurge/SemVer.Label]
+build_metadata.AdditionalFiles.SourceItemType = Constant
+build_metadata.AdditionalFiles.SourceIdentity = 
+build_metadata.AdditionalFiles.NuGetPackageId = 
+build_metadata.AdditionalFiles.ParentPackage = 
+build_metadata.Constant.Comment = 
+build_metadata.Constant.Value = 
+build_metadata.Constant.Root = Git
+
+[C:/Users/Nehal/OneDrive/Desktop/among us self build/tohe_plus gurge/SemVer.DashLabel]
+build_metadata.AdditionalFiles.SourceItemType = Constant
+build_metadata.AdditionalFiles.SourceIdentity = 
+build_metadata.AdditionalFiles.NuGetPackageId = 
+build_metadata.AdditionalFiles.ParentPackage = 
+build_metadata.Constant.Comment = 
+build_metadata.Constant.Value = 
+build_metadata.Constant.Root = Git
+
+[C:/Users/Nehal/OneDrive/Desktop/among us self build/tohe_plus gurge/SemVer.Source]
+build_metadata.AdditionalFiles.SourceItemType = Constant
+build_metadata.AdditionalFiles.SourceIdentity = 
+build_metadata.AdditionalFiles.NuGetPackageId = 
+build_metadata.AdditionalFiles.ParentPackage = 
+build_metadata.Constant.Comment = 
+build_metadata.Constant.Value = Default
+build_metadata.Constant.Root = Git

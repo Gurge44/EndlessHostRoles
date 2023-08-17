@@ -91,6 +91,7 @@ enum CustomRPC
     SetBKTimer,
     SyncTotocalcioTargetAndTimes,
     SyncRomanticTarget,
+    SyncVengefulRomanticTarget,
     SetSuccubusCharmLimit,
     SetInfectiousBiteLimit,
     SetCursedSoulCurseLimit,
@@ -518,6 +519,9 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SyncRomanticTarget:
                 Romantic.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncVengefulRomanticTarget:
+                VengefulRomantic.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetSuccubusCharmLimit:
                 Succubus.ReceiveRPC(reader);

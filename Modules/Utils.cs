@@ -890,6 +890,9 @@ public static class Utils
             case CustomRoles.Romantic:
                 ProgressText.Append(Romantic.GetProgressText(playerId));
                 break;
+            case CustomRoles.VengefulRomantic:
+                ProgressText.Append(VengefulRomantic.GetProgressText(playerId));
+                break;
             case CustomRoles.Succubus:
                 ProgressText.Append(Succubus.GetCharmLimit());
                 break;
@@ -2212,8 +2215,8 @@ public static class Utils
                 break;
         }
 
-        if (Romantic.BetPlayer.TryGetValue(target.PlayerId, out var bet))
-            Romantic.ChangeRole(bet);
+        if (Romantic.BetPlayer.ContainsValue(target.PlayerId))
+            Romantic.ChangeRole(target.PlayerId);
 
         if (Executioner.Target.ContainsValue(target.PlayerId))
             Executioner.ChangeRoleByTarget(target);
