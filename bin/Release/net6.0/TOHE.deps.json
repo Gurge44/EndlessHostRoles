@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v6.0": {
-      "TOHE/0.0.22+main.5ab040b": {
+      "TOHE/0.0.24+main.893bab4": {
         "dependencies": {
           "AmongUs.GameLibs.Steam": "2023.7.11",
           "BepInEx.IL2CPP.MSBuild": "2.0.1",
@@ -1015,7 +1015,7 @@
     }
   },
   "libraries": {
-    "TOHE/0.0.22+main.5ab040b": {
+    "TOHE/0.0.24+main.893bab4": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
