@@ -1,8 +1,8 @@
 using AmongUs.GameOptions;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using TOHE.Roles.Crewmate;
+using UnityEngine;
 using static TOHE.Translator;
 
 namespace TOHE.Roles.Neutral;
@@ -54,7 +54,7 @@ public static class Poisoner
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
     public static bool IsThisRole(byte playerId) => playerIdList.Contains(playerId);
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
 

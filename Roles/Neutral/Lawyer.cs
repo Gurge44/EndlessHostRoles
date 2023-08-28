@@ -47,8 +47,8 @@ public static class Lawyer
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Lawyer);
-    //    LawyerVision = FloatOptionItem.Create(Id + 14, "LawyerVision", new(0f, 5f, 0.05f), 1.25f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer])
-    //        .SetValueFormat(OptionFormat.Multiplier);
+        //    LawyerVision = FloatOptionItem.Create(Id + 14, "LawyerVision", new(0f, 5f, 0.05f), 1.25f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer])
+        //        .SetValueFormat(OptionFormat.Multiplier);
         CanTargetImpostor = BooleanOptionItem.Create(Id + 10, "LawyerCanTargetImpostor", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
         CanTargetNeutralKiller = BooleanOptionItem.Create(Id + 11, "LawyerCanTargetNeutralKiller", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
         CanTargetCrewmate = BooleanOptionItem.Create(Id + 12, "LawyerCanTargetCrewmate", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
@@ -90,7 +90,7 @@ public static class Lawyer
             Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole()}:{SelectedTarget.GetNameWithRole()}", "Lawyer");
         }
     }
-    public static bool IsEnable() => playerIdList.Count > 0;
+    public static bool IsEnable() => playerIdList.Any();
     public static void SendRPC(byte lawyerId, byte targetId = 0x73, string Progress = "")
     {
         MessageWriter writer;
@@ -108,7 +108,7 @@ public static class Lawyer
                 writer.Write(lawyerId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
                 break;
-            
+
         }
     }
     public static void ReceiveRPC(MessageReader reader, bool SetTarget)

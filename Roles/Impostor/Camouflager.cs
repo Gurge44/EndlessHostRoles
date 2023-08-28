@@ -1,4 +1,6 @@
-﻿namespace TOHE.Roles.Impostor
+﻿using System.Collections.Generic;
+
+namespace TOHE.Roles.Impostor
 {
     public static class Camouflager
     {
@@ -6,16 +8,24 @@
 
         private static OptionItem CamouflageCooldown;
         private static OptionItem CamouflageDuration;
+        private static OptionItem CamoLimitOpt;
+        public static OptionItem CamoAbilityUseGainWithEachKill;
 
         public static bool IsActive;
+        public static Dictionary<byte, float> CamoLimit = new();
 
         public static void SetupCustomOption()
         {
-            Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Camouflager);
-            CamouflageCooldown = FloatOptionItem.Create(Id + 2, "CamouflageCooldown", new(1f, 60f, 1f), 40f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
+            Options.SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Camouflager, 1);
+            CamouflageCooldown = FloatOptionItem.Create(Id + 2, "CamouflageCooldown", new(1f, 60f, 1f), 25f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
                 .SetValueFormat(OptionFormat.Seconds);
-            CamouflageDuration = FloatOptionItem.Create(Id + 4, "CamouflageDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
+            CamouflageDuration = FloatOptionItem.Create(Id + 3, "CamouflageDuration", new(1f, 30f, 1f), 12f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
                 .SetValueFormat(OptionFormat.Seconds);
+            CamoLimitOpt = IntegerOptionItem.Create(Id + 4, "AbilityUseLimit", new(1, 5, 1), 1, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
+                .SetValueFormat(OptionFormat.Times);
+            CamoAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 5, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.3f, TabGroup.ImpostorRoles, false)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
+                .SetValueFormat(OptionFormat.Times);
         }
         public static void ApplyGameOptions()
         {
@@ -25,9 +35,19 @@
         public static void Init()
         {
             IsActive = false;
+            CamoLimit = new();
         }
-        public static void OnShapeshift()
+        public static void Add(byte playerId)
         {
+            CamoLimit.Add(playerId, CamoLimitOpt.GetInt());
+        }
+        public static void OnShapeshift(PlayerControl pc, bool shapeshifting)
+        {
+            if (shapeshifting && CamoLimit[pc.PlayerId] < 1)
+            {
+                pc.SetKillCooldown(CamouflageDuration.GetFloat() + 1f);
+            };
+            if (shapeshifting) CamoLimit[pc.PlayerId] -= 1;
             IsActive = true;
             Camouflage.CheckCamouflage();
         }
@@ -40,7 +60,7 @@
         {
             if (!target.Data.IsDead || GameStates.IsMeeting) return;
 
-            if(target.Is(CustomRoles.Camouflager) && target.Data.IsDead)
+            if (target.Is(CustomRoles.Camouflager) && target.Data.IsDead)
             {
                 IsActive = false;
                 Camouflage.CheckCamouflage();

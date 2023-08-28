@@ -1,5 +1,6 @@
 using Hazel;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -44,7 +45,7 @@ public static class CursedSoul
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
 
     private static void SendRPC()
     {
@@ -87,14 +88,14 @@ public static class CursedSoul
     }
     public static bool KnowRole(PlayerControl player, PlayerControl target)
     {
-       // if (player.Is(CustomRoles.Soulless) && target.Is(CustomRoles.CursedSoul)) return true;
+        // if (player.Is(CustomRoles.Soulless) && target.Is(CustomRoles.CursedSoul)) return true;
         if (KnowTargetRole.GetBool() && player.Is(CustomRoles.CursedSoul) && target.Is(CustomRoles.Soulless)) return true;
         return false;
     }
     public static string GetCurseLimit() => Utils.ColorString(CurseLimit >= 1 ? Utils.GetRoleColor(CustomRoles.CursedSoul) : Color.gray, $"({CurseLimit})");
     public static bool CanBeSoulless(this PlayerControl pc)
     {
-        return pc != null && (pc.GetCustomRole().IsCrewmate() || pc.GetCustomRole().IsImpostor() || 
+        return pc != null && (pc.GetCustomRole().IsCrewmate() || pc.GetCustomRole().IsImpostor() ||
             (CanCurseNeutral.GetBool() && (pc.GetCustomRole().IsNeutral() || pc.GetCustomRole().IsNeutralKilling()))) && !pc.Is(CustomRoles.Soulless) && !pc.Is(CustomRoles.Admired) && !pc.Is(CustomRoles.Loyal);
     }
 }

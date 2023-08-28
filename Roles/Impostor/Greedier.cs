@@ -33,7 +33,7 @@ public static class Greedier
         playerIdList.Add(playerId);
         IsOdd.Add(playerId, true);
     }
-    public static bool IsEnable() => playerIdList.Count > 0;
+    public static bool IsEnable() => playerIdList.Any();
 
     private static void SendRPC(byte playerId)
     {

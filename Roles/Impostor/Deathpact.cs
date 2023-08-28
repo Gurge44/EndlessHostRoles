@@ -1,6 +1,6 @@
+using AmongUs.GameOptions;
 using System.Collections.Generic;
 using System.Linq;
-using AmongUs.GameOptions;
 using TOHE.Roles.Neutral;
 using UnityEngine;
 using static TOHE.Options;
@@ -21,7 +21,7 @@ namespace TOHE.Roles.Impostor
 
         private static OptionItem KillCooldown;
         private static OptionItem ShapeshiftCooldown;
-  //      private static OptionItem ShapeshiftDuration;
+        //      private static OptionItem ShapeshiftDuration;
         private static OptionItem DeathpactDuration;
         private static OptionItem NumberOfPlayersInPact;
         private static OptionItem ShowArrowsToOtherPlayersInPact;
@@ -36,14 +36,14 @@ namespace TOHE.Roles.Impostor
                 .SetValueFormat(OptionFormat.Seconds);
             ShapeshiftCooldown = FloatOptionItem.Create(Id + 11, "DeathPactCooldown", new(0f, 180f, 2.5f), 15f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact])
                 .SetValueFormat(OptionFormat.Seconds);
-         //   ShapeshiftDuration = FloatOptionItem.Create(Id + 12, "ShapeshiftDuration", new(0f, 180f, 2.5f), 20f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact])
-          //      .SetValueFormat(OptionFormat.Seconds);
-            DeathpactDuration = FloatOptionItem.Create(Id + 13, "DeathpactDuration", new(0f, 180f, 2.5f), 20f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact])
+            //   ShapeshiftDuration = FloatOptionItem.Create(Id + 12, "ShapeshiftDuration", new(0f, 180f, 2.5f), 20f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact])
+            //      .SetValueFormat(OptionFormat.Seconds);
+            DeathpactDuration = FloatOptionItem.Create(Id + 13, "DeathpactDuration", new(0f, 180f, 2.5f), 17.5f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact])
                 .SetValueFormat(OptionFormat.Seconds);
             NumberOfPlayersInPact = IntegerOptionItem.Create(Id + 14, "DeathpactNumberOfPlayersInPact", new(2, 5, 1), 2, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact])
                 .SetValueFormat(OptionFormat.Times);
             ShowArrowsToOtherPlayersInPact = BooleanOptionItem.Create(Id + 15, "DeathpactShowArrowsToOtherPlayersInPact", true, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact]);
-            ReduceVisionWhileInPact = BooleanOptionItem.Create(Id + 16, "DeathpactReduceVisionWhileInPact", true, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact]);
+            ReduceVisionWhileInPact = BooleanOptionItem.Create(Id + 16, "DeathpactReduceVisionWhileInPact", false, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact]);
             VisionWhileInPact = FloatOptionItem.Create(Id + 17, "DeathpactVisionWhileInPact", new(0f, 5f, 0.05f), 0.4f, TabGroup.ImpostorRoles, false).SetParent(ReduceVisionWhileInPact)
                 .SetValueFormat(OptionFormat.Multiplier);
             KillDeathpactPlayersOnMeeting = BooleanOptionItem.Create(Id + 18, "DeathpactKillPlayersInDeathpactOnMeeting", false, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact]);
@@ -69,7 +69,7 @@ namespace TOHE.Roles.Impostor
             AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
             AURoleOptions.ShapeshifterDuration = 1f;
         }
-        public static bool IsEnable => playerIdList.Count > 0;
+        public static bool IsEnable => playerIdList.Any();
 
         public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
 
@@ -99,7 +99,7 @@ namespace TOHE.Roles.Impostor
             }
 
             pc.Notify(GetString("DeathpactComplete"));
-            DeathpactTime[pc.PlayerId] = Utils.GetTimeStamp() + (long)DeathpactDuration.GetInt();
+            DeathpactTime[pc.PlayerId] = GetTimeStamp() + (long)DeathpactDuration.GetInt();
             ActiveDeathpacts.Add(pc.PlayerId);
 
             foreach (var player in PlayersInDeathpact[pc.PlayerId])
@@ -123,7 +123,7 @@ namespace TOHE.Roles.Impostor
                 return;
             }
 
-            if (PlayersInDeathpact.Any(a => a.Value.Any(b => b.PlayerId == player.PlayerId) && a.Value.Count == NumberOfPlayersInPact.GetInt() ))
+            if (PlayersInDeathpact.Any(a => a.Value.Any(b => b.PlayerId == player.PlayerId) && a.Value.Count == NumberOfPlayersInPact.GetInt()))
             {
                 opt.SetVision(false);
                 opt.SetFloat(FloatOptionNames.CrewLightMod, VisionWhileInPact.GetFloat());
@@ -136,7 +136,7 @@ namespace TOHE.Roles.Impostor
             if (!IsEnable || !GameStates.IsInTask || !player.Is(CustomRoles.Deathpact)) return;
             if (!ActiveDeathpacts.Contains(player.PlayerId)) return;
             if (CheckCancelDeathpact(player)) return;
-            if (DeathpactTime[player.PlayerId] < Utils.GetTimeStamp() && DeathpactTime[player.PlayerId] != 0)
+            if (DeathpactTime[player.PlayerId] < GetTimeStamp() && DeathpactTime[player.PlayerId] != 0)
             {
                 foreach (var playerInDeathpact in PlayersInDeathpact[player.PlayerId])
                 {
@@ -144,7 +144,7 @@ namespace TOHE.Roles.Impostor
                 }
 
                 ClearDeathpact(player.PlayerId);
-                player.Notify(Translator.GetString("DeathpactExecuted"));
+                player.Notify(GetString("DeathpactExecuted"));
             }
         }
 
@@ -153,7 +153,7 @@ namespace TOHE.Roles.Impostor
             if (PlayersInDeathpact[deathpact.PlayerId].Any(a => a.Data.Disconnected || a.Data.IsDead))
             {
                 ClearDeathpact(deathpact.PlayerId);
-                deathpact.Notify(Translator.GetString("DeathpactAverted"));
+                deathpact.Notify(GetString("DeathpactAverted"));
                 return true;
             }
 
@@ -172,7 +172,7 @@ namespace TOHE.Roles.Impostor
             if (cancelDeathpact)
             {
                 ClearDeathpact(deathpact.PlayerId);
-                deathpact.Notify(Translator.GetString("DeathpactAverted"));
+                deathpact.Notify(GetString("DeathpactAverted"));
             }
 
             return cancelDeathpact;
@@ -182,7 +182,7 @@ namespace TOHE.Roles.Impostor
         {
             if (deathpact == null || target == null || target.Data.Disconnected) return;
             if (!target.IsAlive()) return;
-            
+
             Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
             target.SetRealKiller(deathpact);
             target.RpcMurderPlayerV3(target);
@@ -202,7 +202,7 @@ namespace TOHE.Roles.Impostor
                 foreach (var otherPlayerInPact in deathpact.Value.Where(a => a.PlayerId != seer.PlayerId))
                 {
                     var arrow = TargetArrow.GetArrows(seer, otherPlayerInPact.PlayerId);
-                    arrows += Utils.ColorString(Utils.GetRoleColor(CustomRoles.Crewmate), arrow); 
+                    arrows += ColorString(GetRoleColor(CustomRoles.Crewmate), arrow);
                 }
             }
 
@@ -211,8 +211,8 @@ namespace TOHE.Roles.Impostor
 
         public static string GetDeathpactMark(PlayerControl seer, PlayerControl target)
         {
-            if (!seer.Is(CustomRoles.Deathpact) || !Deathpact.IsInDeathpact(seer.PlayerId, target)) return string.Empty;
-            return Utils.ColorString(Palette.ImpostorRed, "◀");
+            if (!seer.Is(CustomRoles.Deathpact) || !IsInDeathpact(seer.PlayerId, target)) return string.Empty;
+            return ColorString(Palette.ImpostorRed, "◀");
         }
 
         public static bool IsInActiveDeathpact(PlayerControl player)
@@ -242,7 +242,7 @@ namespace TOHE.Roles.Impostor
 
                 otherPlayerNames = otherPlayerNames.Remove(otherPlayerNames.Length - 1);
 
-                int countdown = (int)(DeathpactTime[deathpact.Key] - Utils.GetTimeStamp());
+                int countdown = (int)(DeathpactTime[deathpact.Key] - GetTimeStamp());
 
                 result +=
                     $"{ColorString(GetRoleColor(CustomRoles.Impostor), string.Format(GetString("DeathpactActiveDeathpact"), otherPlayerNames, countdown))}";

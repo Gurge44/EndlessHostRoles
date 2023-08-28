@@ -1,6 +1,7 @@
 ﻿using Hazel;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -26,7 +27,7 @@ public static class Hacker
             .SetValueFormat(OptionFormat.Seconds);
         HackLimitOpt = IntegerOptionItem.Create(Id + 3, "HackLimit", new(1, 5, 1), 0, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
             .SetValueFormat(OptionFormat.Times);
-        HackerAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 4, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
+        HackerAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 4, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.2f, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
             .SetValueFormat(OptionFormat.Times);
     }
@@ -41,7 +42,7 @@ public static class Hacker
         playerIdList.Add(playerId);
         HackLimit.TryAdd(playerId, HackLimitOpt.GetInt());
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
     private static void SendRPC(byte playerId)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetHackerHackLimit, SendOption.Reliable, -1);
@@ -94,7 +95,7 @@ public static class Hacker
         }
 
         // 未找到骇客击杀的尸体，寻找其他尸体
-        if (targetId == byte.MaxValue && DeadBodyList.Count >= 1)
+        if (targetId == byte.MaxValue && DeadBodyList.Any())
             targetId = DeadBodyList[IRandom.Instance.Next(0, DeadBodyList.Count)];
 
         if (targetId == byte.MaxValue)

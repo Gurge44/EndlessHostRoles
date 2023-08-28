@@ -38,7 +38,7 @@ public static class BallLightning
     {
         playerIdList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
     private static void SendRPC(byte playerId)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGhostPlayer, SendOption.Reliable, -1);
@@ -129,7 +129,7 @@ public static class BallLightning
                 break;
             }
         }
-        if (deList.Count > 0)
+        if (deList.Any())
         {
             GhostPlayer.RemoveAll(deList.Contains);
             foreach (var gs in deList) SendRPC(gs);

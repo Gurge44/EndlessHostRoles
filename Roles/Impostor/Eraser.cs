@@ -1,5 +1,6 @@
 ﻿using Hazel;
 using System.Collections.Generic;
+using System.Linq;
 using TOHE.Roles.Crewmate;
 using UnityEngine;
 using static TOHE.Translator;
@@ -13,12 +14,12 @@ internal static class Eraser
 
     public static readonly string[] EraseMode =
     {
-        "Kill", "Vote"
+        "EKill", "EVote"
     };
 
     public static readonly string[] WhenTargetIsNeutralAction =
     {
-        "Block", "Kill"
+        "E2Block", "E2Kill"
     };
 
     private static OptionItem EraseLimitOpt;
@@ -33,8 +34,8 @@ internal static class Eraser
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.OtherRoles, CustomRoles.Eraser);
-        EraseMethod = StringOptionItem.Create(Id + 10, "EraseMethod", EraseMode, 0, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
-        WhenTargetIsNeutral = StringOptionItem.Create(Id + 11, "WhenTargetIsNeutral", EraseMode, 0, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
+        EraseMethod = StringOptionItem.Create(Id + 10, "EraseMethod", EraseMode, 0, TabGroup.OtherRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
+        WhenTargetIsNeutral = StringOptionItem.Create(Id + 11, "WhenTargetIsNeutral", WhenTargetIsNeutralAction, 0, TabGroup.OtherRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
         EraseLimitOpt = IntegerOptionItem.Create(Id + 12, "EraseLimit", new(1, 15, 1), 1, TabGroup.OtherRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser])
             .SetValueFormat(OptionFormat.Times);
         HideVote = BooleanOptionItem.Create(Id + 13, "EraserHideVote", false, TabGroup.OtherRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
@@ -50,7 +51,7 @@ internal static class Eraser
         EraseLimit.TryAdd(playerId, EraseLimitOpt.GetInt());
         Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole()} : 剩余{EraseLimit[playerId]}次", "Eraser");
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
     private static void SendRPC(byte playerId)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetEraseLimit, SendOption.Reliable, -1);
@@ -74,17 +75,20 @@ internal static class Eraser
         if (Medic.ProtectList.Contains(target.PlayerId)) return false;
         if (EraseLimit[target.PlayerId] < 1) return true;
         if (target.PlayerId == killer.PlayerId) return true;
-        if (target.GetCustomRole().IsNeutral())
+        if (target.GetCustomRole().IsNeutral() && EraseMethod.GetString() == "EKill")
         {
             killer.Notify(GetString("EraserEraseNeutralNotice"));
-            if (WhenTargetIsNeutral.GetString() == "Kill") return true;
+            if (WhenTargetIsNeutral.GetString() == "E2Kill") return true;
             else return false;
         }
 
-        if (EraseMethod.GetString() == "Kill")
+        if (EraseMethod.GetString() == "EKill")
         {
-            return killer.CheckDoubleTrigger(target, () => {
+            if (EraseLimit[killer.PlayerId] <= 0) return true;
+            return killer.CheckDoubleTrigger(target, () =>
+            {
                 EraseLimit[killer.PlayerId]--;
+                killer.SetKillCooldown();
                 killer.Notify(GetString("TargetErasedInRound"));
                 if (!PlayerToErase.Contains(target.PlayerId))
                     PlayerToErase.Add(target.PlayerId);
@@ -95,11 +99,11 @@ internal static class Eraser
 
     public static void OnVote(PlayerControl player, PlayerControl target)
     {
-        if (player == null || target == null || EraseMethod.GetString() != "Vote") return;
+        if (player == null || target == null || EraseMethod.GetString() != "EVote") return;
         if (didVote.Contains(player.PlayerId)) return;
         didVote.Add(player.PlayerId);
 
-        if (EraseLimit[player.PlayerId] < 1) return;
+        if (EraseLimit.ContainsKey(player.PlayerId) && EraseLimit[player.PlayerId] < 1) return;
 
         if (target.PlayerId == player.PlayerId)
         {
@@ -113,7 +117,7 @@ internal static class Eraser
             return;
         }
 
-        EraseLimit[player.PlayerId]--;
+        if (EraseLimit.ContainsKey(player.PlayerId)) EraseLimit[player.PlayerId]--;
         SendRPC(player.PlayerId);
 
         if (!PlayerToErase.Contains(target.PlayerId))

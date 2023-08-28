@@ -1,6 +1,7 @@
 ﻿using Hazel;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace TOHE.Roles.Impostor;
@@ -35,7 +36,7 @@ internal static class QuickShooter
         playerIdList.Add(playerId);
         ShotLimit.TryAdd(playerId, 0);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
     private static void SendRPC(byte playerId)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetQuickShooterShotLimit, SendOption.Reliable, -1);
@@ -54,20 +55,20 @@ internal static class QuickShooter
     {
         if (pc.killTimer == 0 && shapeshifting)
         {
-            pc.ResetKillCooldown();
             ShotLimit[pc.PlayerId]++;
             SendRPC(pc.PlayerId);
-            Storaging = true;
+            //Storaging = true;
+            pc.ResetKillCooldown();
             pc.SetKillCooldown();
             pc.Notify(Translator.GetString("QuickShooterStoraging"));
             Logger.Info($"{Utils.GetPlayerById(pc.PlayerId)?.GetNameWithRole()} : 残り{ShotLimit[pc.PlayerId]}発", "QuickShooter");
         }
     }
-    private static bool Storaging;
+    //private static bool Storaging;
     public static void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = (Storaging || ShotLimit[id] < 1) ? KillCooldown.GetFloat() : 0.01f;
-        Storaging = false;
+        Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        //Storaging = false;
     }
     public static void OnReportDeadBody()
     {
@@ -83,6 +84,7 @@ internal static class QuickShooter
     public static void QuickShooterKill(PlayerControl killer)
     {
         ShotLimit.TryAdd(killer.PlayerId, 0);
+        if (ShotLimit[killer.PlayerId] > 0) killer.SetKillCooldown(0.01f);
         ShotLimit[killer.PlayerId]--;
         ShotLimit[killer.PlayerId] = Math.Max(ShotLimit[killer.PlayerId], 0);
         SendRPC(killer.PlayerId);

@@ -63,7 +63,7 @@ public static class FireWorks
     public static void SendRPC(byte playerId)
     {
         Logger.Info($"Player{playerId}:SendRPC", "FireWorks");
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SendFireWorksState, Hazel.SendOption.Reliable, -1);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SendFireWorksState, SendOption.Reliable, -1);
         writer.Write(playerId);
         writer.Write(nowFireWorksCount[playerId]);
         writer.Write((int)state[playerId]);

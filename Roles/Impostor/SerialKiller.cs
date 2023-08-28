@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-using static TOHE.Translator;
 
 namespace TOHE.Roles.Impostor;
 
@@ -10,17 +10,19 @@ public static class SerialKiller
     public static List<byte> playerIdList = new();
 
     private static OptionItem KillCooldown;
-    private static OptionItem TimeLimit;
+    public static OptionItem TimeLimit;
+    public static OptionItem WaitFor1Kill;
 
-    private static Dictionary<byte, float> SuicideTimer = new();
+    public static Dictionary<byte, float> SuicideTimer = new();
 
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.SerialKiller);
         KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SerialKiller])
             .SetValueFormat(OptionFormat.Seconds);
-        TimeLimit = FloatOptionItem.Create(Id + 11, "SerialKillerLimit", new(5f, 999f, 5f), 80f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SerialKiller])
+        TimeLimit = FloatOptionItem.Create(Id + 11, "SerialKillerLimit", new(5f, 180f, 5f), 80f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SerialKiller])
             .SetValueFormat(OptionFormat.Seconds);
+        WaitFor1Kill = BooleanOptionItem.Create(Id + 12, "WaitFor1Kill", true, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SerialKiller]);
     }
     public static void Init()
     {
@@ -31,18 +33,18 @@ public static class SerialKiller
     {
         playerIdList.Add(serial);
     }
-    public static bool IsEnable() => playerIdList.Count > 0;
+    public static bool IsEnable() => playerIdList.Any();
     public static void ApplyKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-    public static void ApplyGameOptions(PlayerControl pc)
-    {
-        AURoleOptions.ShapeshifterCooldown = HasKilled(pc) ? TimeLimit.GetFloat() : 255f;
-        AURoleOptions.ShapeshifterDuration = 1f;
-    }
+    //public static void ApplyGameOptions(PlayerControl pc)
+    //{
+    //    AURoleOptions.ShapeshifterCooldown = HasKilled(pc) ? TimeLimit.GetFloat() : 255f;
+    //    AURoleOptions.ShapeshifterDuration = 1f;
+    //}
     ///<summary>
     ///シリアルキラー＋生存＋一人以上キルしている
     ///</summary>
     public static bool HasKilled(PlayerControl pc)
-        => pc != null && pc.Is(CustomRoles.SerialKiller) && pc.IsAlive() && Main.PlayerStates[pc.PlayerId].GetKillCount(true) > 0;
+        => pc != null && pc.Is(CustomRoles.SerialKiller) && pc.IsAlive() && (Main.PlayerStates[pc.PlayerId].GetKillCount(true) > 0 || !WaitFor1Kill.GetBool());
     public static void OnCheckMurder(PlayerControl killer, bool CanMurder = true)
     {
         if (!killer.Is(CustomRoles.SerialKiller)) return;
@@ -65,7 +67,7 @@ public static class SerialKiller
         if (!SuicideTimer.ContainsKey(player.PlayerId)) //タイマーがない
         {
             SuicideTimer[player.PlayerId] = 0f;
-            player.RpcResetAbilityCooldown();
+            //player.RpcResetAbilityCooldown();
         }
         else if (SuicideTimer[player.PlayerId] >= TimeLimit.GetFloat())
         {
@@ -77,11 +79,11 @@ public static class SerialKiller
         else
             SuicideTimer[player.PlayerId] += Time.fixedDeltaTime;//時間をカウント
     }
-    public static void GetAbilityButtonText(HudManager __instance, PlayerControl pc)
-    {
-        __instance.AbilityButton.ToggleVisible(pc.IsAlive() && HasKilled(pc));
-        __instance.AbilityButton.OverrideText(GetString("SerialKillerSuicideButtonText"));
-    }
+    //public static void GetAbilityButtonText(HudManager __instance, PlayerControl pc)
+    //{
+    //    __instance.AbilityButton.ToggleVisible(pc.IsAlive() && HasKilled(pc));
+    //    __instance.AbilityButton.OverrideText(GetString("SerialKillerSuicideButtonText"));
+    //}
     public static void AfterMeetingTasks()
     {
         foreach (var id in playerIdList)
@@ -89,7 +91,7 @@ public static class SerialKiller
             if (!Main.PlayerStates[id].IsDead)
             {
                 var pc = Utils.GetPlayerById(id);
-                pc?.RpcResetAbilityCooldown();
+                //pc?.RpcResetAbilityCooldown();
                 if (HasKilled(pc))
                     SuicideTimer[id] = 0f;
             }

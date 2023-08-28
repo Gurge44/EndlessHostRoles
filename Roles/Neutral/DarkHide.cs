@@ -2,6 +2,7 @@
 using Hazel;
 using InnerNet;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace TOHE;
 
@@ -47,7 +48,7 @@ public static class DarkHide
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
 
     public static void ReceiveRPC(MessageReader msg)
     {
@@ -62,7 +63,7 @@ public static class DarkHide
     public static void DRpcSetKillCount(this PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDarkHiderKillCount, Hazel.SendOption.Reliable, -1);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDarkHiderKillCount, SendOption.Reliable, -1);
         writer.Write(player.PlayerId);
         writer.Write(IsWinKill[player.PlayerId]);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

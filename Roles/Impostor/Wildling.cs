@@ -1,7 +1,7 @@
-using AmongUs.GameOptions;
 using Hazel;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using static TOHE.Options;
 
@@ -25,8 +25,8 @@ public static class Wildling
         SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Wildling, 1, zeroOne: false);
         ProtectDuration = FloatOptionItem.Create(Id + 14, "BKProtectDuration", new(1f, 30f, 1f), 15f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Wildling])
             .SetValueFormat(OptionFormat.Seconds);
-        CanVent = BooleanOptionItem.Create(Id + 15, "CanVent", true, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Wildling]);
-        CanShapeshift = BooleanOptionItem.Create(Id + 16, "CanShapeshift", false, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Wildling]);
+        CanVent = BooleanOptionItem.Create(Id + 15, "CanVent", true, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Wildling]);
+        CanShapeshift = BooleanOptionItem.Create(Id + 16, "CanShapeshift", false, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Wildling]);
         ShapeshiftCD = FloatOptionItem.Create(Id + 17, "ShapeshiftCooldown", new(1f, 60f, 1f), 30f, TabGroup.ImpostorRoles, false).SetParent(CanShapeshift)
             .SetValueFormat(OptionFormat.Seconds);
         ShapeshiftDur = FloatOptionItem.Create(Id + 18, "ShapeshiftDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles, false).SetParent(CanShapeshift)
@@ -42,9 +42,9 @@ public static class Wildling
         playerIdList.Add(playerId);
         TimeStamp.TryAdd(playerId, 0);
 
-        
+
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
     private static void SendRPC(byte playerId)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBKTimer, SendOption.Reliable, -1);

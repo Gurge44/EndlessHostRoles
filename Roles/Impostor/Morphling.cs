@@ -1,8 +1,5 @@
-using AmongUs.GameOptions;
-using Hazel;
-using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor;
@@ -36,21 +33,21 @@ public static class Morphling
     {
         playerIdList.Add(playerId);
 
-        
+
     }
     public static bool CanUseKillButton(byte playerId)
         => !Main.PlayerStates[playerId].IsDead
         && Main.CheckShapeshift[playerId];
 
     public static void ApplyGameOptions()
-        {
-            AURoleOptions.ShapeshifterCooldown = ShapeshiftCD.GetFloat();
-            AURoleOptions.ShapeshifterDuration = ShapeshiftDur.GetFloat();
-        }
+    {
+        AURoleOptions.ShapeshifterCooldown = ShapeshiftCD.GetFloat();
+        AURoleOptions.ShapeshifterDuration = ShapeshiftDur.GetFloat();
+    }
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
 
 
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
 
 
 }

@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using Hazel;
+﻿using Hazel;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace TOHE.Roles.Neutral;
@@ -71,7 +72,7 @@ public static class Doomsayer
         playerIdList.Add(playerId);
         GuessingToWin.TryAdd(playerId, GuessesCount);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
     public static void SendRPC(PlayerControl player)
     {
         MessageWriter writer;

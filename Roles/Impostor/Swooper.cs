@@ -14,13 +14,16 @@ public static class Swooper
     private static readonly int Id = 4200;
     private static List<byte> playerIdList = new();
 
-    private static OptionItem SwooperCooldown;
+    public static OptionItem SwooperCooldown;
     private static OptionItem SwooperDuration;
     private static OptionItem SwooperVentNormallyOnCooldown;
+    private static OptionItem SwooperLimitOpt;
+    public static OptionItem SwooperAbilityUseGainWithEachKill;
 
     private static Dictionary<byte, long> InvisTime = new();
-    private static Dictionary<byte, long> lastTime = new();
+    public static Dictionary<byte, long> lastTime = new();
     private static Dictionary<byte, int> ventedId = new();
+    public static Dictionary<byte, float> SwoopLimit = new();
 
     public static void SetupCustomOption()
     {
@@ -30,6 +33,11 @@ public static class Swooper
         SwooperDuration = FloatOptionItem.Create(Id + 3, "SwooperDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
             .SetValueFormat(OptionFormat.Seconds);
         SwooperVentNormallyOnCooldown = BooleanOptionItem.Create(Id + 4, "SwooperVentNormallyOnCooldown", true, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper]);
+        SwooperLimitOpt = IntegerOptionItem.Create(Id + 5, "AbilityUseLimit", new(1, 5, 1), 1, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
+            .SetValueFormat(OptionFormat.Times);
+        SwooperAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 6, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.5f, TabGroup.ImpostorRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
+            .SetValueFormat(OptionFormat.Times);
     }
     public static void Init()
     {
@@ -37,12 +45,14 @@ public static class Swooper
         InvisTime = new();
         lastTime = new();
         ventedId = new();
+        SwoopLimit = new();
     }
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
+        SwoopLimit.Add(playerId, SwooperLimitOpt.GetInt());
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
     private static void SendRPC(PlayerControl pc)
     {
         if (pc.AmOwner) return;
@@ -123,7 +133,7 @@ public static class Swooper
         if (!AmongUsClient.Instance.AmHost || IsInvis(pc.PlayerId)) return;
         new LateTask(() =>
         {
-            if (CanGoInvis(pc.PlayerId))
+            if (CanGoInvis(pc.PlayerId) && SwoopLimit[pc.PlayerId] >= 1)
             {
                 ventedId.Remove(pc.PlayerId);
                 ventedId.Add(pc.PlayerId, ventId);
@@ -133,6 +143,7 @@ public static class Swooper
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
 
                 InvisTime.Add(pc.PlayerId, Utils.GetTimeStamp());
+                SwoopLimit[pc.PlayerId] -= 1;
                 SendRPC(pc);
                 NameNotifyManager.Notify(pc, GetString("SwooperInvisState"), SwooperDuration.GetFloat());
             }

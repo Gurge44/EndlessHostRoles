@@ -1,6 +1,7 @@
 using HarmonyLib;
 using Hazel;
 using System.Collections.Generic;
+using System.Linq;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Options;
@@ -42,10 +43,10 @@ public static class Romantic
             .SetValueFormat(OptionFormat.Seconds);
         KnowTargetRole = BooleanOptionItem.Create(Id + 13, "RomanticKnowTargetRole", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
         BetTargetKnowRomantic = BooleanOptionItem.Create(Id + 14, "RomanticBetTargetKnowRomantic", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
-        VengefulKCD = FloatOptionItem.Create(Id + 15, "VengefulKCD", new(0f, 60f, 22.5f), 22.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
+        VengefulKCD = FloatOptionItem.Create(Id + 15, "VengefulKCD", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
             .SetValueFormat(OptionFormat.Seconds);
         VengefulCanVent = BooleanOptionItem.Create(Id + 16, "VengefulCanVent", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
-        RuthlessKCD = FloatOptionItem.Create(Id + 17, "RuthlessKCD", new(0f, 60f, 22.5f), 22.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
+        RuthlessKCD = FloatOptionItem.Create(Id + 17, "RuthlessKCD", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
             .SetValueFormat(OptionFormat.Seconds);
         RuthlessCanVent = BooleanOptionItem.Create(Id + 18, "RuthlessCanVent", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
     }
@@ -66,7 +67,7 @@ public static class Romantic
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
     private static void SendRPC(byte playerId)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncRomanticTarget, SendOption.Reliable, -1);
@@ -185,6 +186,7 @@ public static class Romantic
             if (x.Value == playerId)
                 Romantic = x.Key;
         });
+        if (Romantic == 0x73) return;
         var pc = Utils.GetPlayerById(Romantic);
         if (player.IsNeutralKiller())
         {
@@ -203,12 +205,10 @@ public static class Romantic
             {
                 Logger.Info($"Crew/nnk Romantic Partner Died changing {pc.GetNameWithRole()} to Vengeful romantic", "Romantic");
 
-                pc.RpcSetCustomRole(CustomRoles.VengefulRomantic);
-                Logger.Warn($"player is alive? => {player.IsAlive()}", "VRomantic");
                 var killerId = player.GetRealKiller().PlayerId;
-                Logger.Warn($"killer playerId? => {killerId}", "VRomantic");
                 VengefulRomantic.Add(pc.PlayerId, killerId);
-                VengefulRomantic.SendRPC(playerId);
+                VengefulRomantic.SendRPC(pc.PlayerId);
+                pc.RpcSetCustomRole(CustomRoles.VengefulRomantic);
             }, 0.2f, "Convert to Vengeful Romantic");
         }
 
@@ -241,7 +241,7 @@ public static class VengefulRomantic
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
 
     public static bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && !hasKilledKiller;
 
@@ -299,5 +299,5 @@ public static class RuthlessRomantic
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
 }

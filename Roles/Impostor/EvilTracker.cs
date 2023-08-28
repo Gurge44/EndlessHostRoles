@@ -2,6 +2,7 @@ using AmongUs.GameOptions;
 using Hazel;
 using Il2CppSystem.Text;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -79,7 +80,7 @@ public static class EvilTracker
             }
         }
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
     public static void ApplyGameOptions(byte playerId)
     {
         AURoleOptions.ShapeshifterCooldown = CanTarget(playerId) ? 1f : 255f;
@@ -182,7 +183,7 @@ public static class EvilTracker
         ImpostorsId[trackerId].RemoveWhere(id => Main.PlayerStates[id].IsDead);
 
         var sb = new StringBuilder(80);
-        if (ImpostorsId[trackerId].Count > 0)
+        if (ImpostorsId[trackerId].Any())
         {
             sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Impostor)}>");
             foreach (var impostorId in ImpostorsId[trackerId])

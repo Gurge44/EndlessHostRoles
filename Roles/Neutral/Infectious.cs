@@ -1,5 +1,6 @@
 ﻿using Hazel;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -12,14 +13,14 @@ public static class Infectious
     private static List<byte> playerIdList = new();
 
     public static OptionItem BiteCooldown;
-   // public static OptionItem BiteCooldownIncrese;
+    // public static OptionItem BiteCooldownIncrese;
     public static OptionItem BiteMax;
     public static OptionItem KnowTargetRole;
     public static OptionItem TargetKnowOtherTarget;
     public static OptionItem HasImpostorVision;
     public static OptionItem CanVent;
     public static OptionItem HideBittenRolesOnEject;
-    
+
 
     private static int BiteLimit = new();
 
@@ -28,15 +29,15 @@ public static class Infectious
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Infectious, 1, zeroOne: false);
         BiteCooldown = FloatOptionItem.Create(Id + 10, "InfectiousBiteCooldown", new(0f, 60f, 2.5f), 30f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Infectious])
             .SetValueFormat(OptionFormat.Seconds);
-     //   BiteCooldownIncrese = FloatOptionItem.Create(Id + 11, "InfectiousBiteCooldownIncrese", new(0f, 180f, 2.5f), 0f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Infectious])
-    //        .SetValueFormat(OptionFormat.Seconds);
+        //   BiteCooldownIncrese = FloatOptionItem.Create(Id + 11, "InfectiousBiteCooldownIncrese", new(0f, 180f, 2.5f), 0f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Infectious])
+        //        .SetValueFormat(OptionFormat.Seconds);
         BiteMax = IntegerOptionItem.Create(Id + 12, "InfectiousBiteMax", new(1, 15, 1), 15, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Infectious])
             .SetValueFormat(OptionFormat.Times);
         KnowTargetRole = BooleanOptionItem.Create(Id + 13, "InfectiousKnowTargetRole", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Infectious]);
         TargetKnowOtherTarget = BooleanOptionItem.Create(Id + 14, "InfectiousTargetKnowOtherTarget", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Infectious]);
         HasImpostorVision = BooleanOptionItem.Create(Id + 15, "ImpostorVision", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Infectious]);
         CanVent = BooleanOptionItem.Create(Id + 16, "CanVent", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Infectious]);
-     //   HideBittenRolesOnEject = BooleanOptionItem.Create(Id + 17, "HideBittenRolesOnEject", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Infectious]);        
+        //   HideBittenRolesOnEject = BooleanOptionItem.Create(Id + 17, "HideBittenRolesOnEject", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Infectious]);        
     }
     public static void Init()
     {
@@ -52,7 +53,7 @@ public static class Infectious
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
     private static void SendRPC()
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetInfectiousBiteLimit, SendOption.Reliable, -1);

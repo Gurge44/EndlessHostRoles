@@ -14,12 +14,12 @@ public static class Wraith
     private static readonly int Id = 13300;
     private static List<byte> playerIdList = new();
 
-    private static OptionItem WraithCooldown;
+    public static OptionItem WraithCooldown;
     private static OptionItem WraithDuration;
     private static OptionItem WraithVentNormallyOnCooldown;
 
     private static Dictionary<byte, long> InvisTime = new();
-    private static Dictionary<byte, long> lastTime = new();
+    public static Dictionary<byte, long> lastTime = new();
     private static Dictionary<byte, int> ventedId = new();
 
     public static void SetupCustomOption()
@@ -42,12 +42,12 @@ public static class Wraith
     {
         playerIdList.Add(playerId);
 
-                    if (!AmongUsClient.Instance.AmHost) return;
-                if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
+        if (!AmongUsClient.Instance.AmHost) return;
+        if (!Main.ResetCamPlayerList.Contains(playerId))
+            Main.ResetCamPlayerList.Add(playerId);
 
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
     private static void SendRPC(PlayerControl pc)
     {
         if (pc.AmOwner) return;

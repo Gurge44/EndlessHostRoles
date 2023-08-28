@@ -13,24 +13,44 @@ namespace TOHE.Roles.Impostor
         private static readonly int Id = 4400;
 
         private static OptionItem ShapeshiftCooldown;
-    //    private static OptionItem ShapeshiftDuration;
+        private static OptionItem TwisterLimitOpt;
+        public static OptionItem TwisterAbilityUseGainWithEachKill;
+        public static Dictionary<byte, float> TwistLimit = new();
+        //    private static OptionItem ShapeshiftDuration;
 
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Twister);
-            ShapeshiftCooldown = FloatOptionItem.Create(Id + 10, "TwisterCooldown", new(1f, 60f, 1f), 40f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
+            ShapeshiftCooldown = FloatOptionItem.Create(Id + 10, "TwisterCooldown", new(1f, 60f, 1f), 30f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
                 .SetValueFormat(OptionFormat.Seconds);
-        //    ShapeshiftDuration = FloatOptionItem.Create(Id + 11, "ShapeshiftDuration", new(1f, 999f, 1f), 15f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
-          //      .SetValueFormat(OptionFormat.Seconds);
+            TwisterLimitOpt = IntegerOptionItem.Create(Id + 11, "AbilityUseLimit", new(1, 5, 1), 0, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Camouflager])
+                .SetValueFormat(OptionFormat.Times);
+            TwisterAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 12, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.4f, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Camouflager])
+                .SetValueFormat(OptionFormat.Times);
+            //    ShapeshiftDuration = FloatOptionItem.Create(Id + 13, "ShapeshiftDuration", new(1f, 999f, 1f), 15f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
+            //      .SetValueFormat(OptionFormat.Seconds);
+        }
+        public static void Init()
+        {
+            TwistLimit = new();
+        }
+        public static void Add(byte playerId)
+        {
+            TwistLimit.Add(playerId, TwisterLimitOpt.GetInt());
         }
         public static void ApplyGameOptions()
         {
             AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
             AURoleOptions.ShapeshifterDuration = 1f;
         }
-        public static void TwistPlayers(PlayerControl shapeshifter)
+        public static void TwistPlayers(PlayerControl shapeshifter, bool shapeshifting)
         {
-            List<byte> changePositionPlayers = new List<byte> { shapeshifter.PlayerId };
+            if (shapeshifter == null) return;
+            if (TwistLimit[shapeshifter.PlayerId] < 1) return;
+
+            List<byte> changePositionPlayers = new() { shapeshifter.PlayerId };
+            TwistLimit[shapeshifter.PlayerId] -= 1;
 
             var rd = new System.Random();
             foreach (var pc in Main.AllAlivePlayerControls)

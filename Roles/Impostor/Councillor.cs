@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using Hazel;
-using Rewired.UI.ControlMapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,41 +15,45 @@ public static class Councillor
     private static readonly int Id = 900;
     private static List<byte> playerIdList = new();
     private static OptionItem MurderLimitPerMeeting;
-  //  private static OptionItem MurderLimitPerGame;
+    //  private static OptionItem MurderLimitPerGame;
     private static OptionItem TryHideMsg;
     private static OptionItem CanMurderMadmate;
     private static OptionItem CanMurderImpostor;
     public static OptionItem KillCooldown;
-    private static Dictionary<byte, int> MurderLimit;
-   // private static Dictionary<byte, int> MurderLimitGame;
+    public static Dictionary<byte, float> MurderLimit;
+    public static OptionItem CouncillorAbilityUseGainWithEachKill;
+    // private static Dictionary<byte, int> MurderLimitGame;
 
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Councillor);
-            KillCooldown = FloatOptionItem.Create(Id + 15, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
-                .SetValueFormat(OptionFormat.Seconds);
-        MurderLimitPerMeeting = IntegerOptionItem.Create(Id + 10, "MurderLimitPerMeeting", new(1, 5, 1), 1, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
+        KillCooldown = FloatOptionItem.Create(Id + 15, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
+            .SetValueFormat(OptionFormat.Seconds);
+        MurderLimitPerMeeting = IntegerOptionItem.Create(Id + 10, "MurderLimitPerMeeting", new(1, 5, 1), 0, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
             .SetValueFormat(OptionFormat.Times);
-     //   MurderLimitPerGame = IntegerOptionItem.Create(Id + 13, "MurderLimitPerGame", new(1, 99, 1), 2, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
-       //     .SetValueFormat(OptionFormat.Times);
+        //   MurderLimitPerGame = IntegerOptionItem.Create(Id + 13, "MurderLimitPerGame", new(1, 99, 1), 2, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
+        //     .SetValueFormat(OptionFormat.Times);
         CanMurderMadmate = BooleanOptionItem.Create(Id + 12, "CouncillorCanMurderMadmate", true, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor]);
         CanMurderImpostor = BooleanOptionItem.Create(Id + 16, "CouncillorCanMurderImpostor", true, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor]);
         TryHideMsg = BooleanOptionItem.Create(Id + 11, "CouncillorTryHideMsg", true, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
             .SetColor(Color.green);
+        CouncillorAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 17, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.2f, TabGroup.ImpostorRoles, false)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
+            .SetValueFormat(OptionFormat.Times);
     }
     public static void Init()
     {
         playerIdList = new();
         MurderLimit = new();
-      //  MurderLimitGame = new();
+        //  MurderLimitGame = new();
     }
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         MurderLimit.Add(playerId, MurderLimitPerMeeting.GetInt());
-     //   MurderLimitGame.Add(playerId, MurderLimitPerGame.GetInt());
+        //   MurderLimitGame.Add(playerId, MurderLimitPerGame.GetInt());
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
     public static void OnReportDeadBody()
     {
         MurderLimit.Clear();
@@ -130,7 +133,7 @@ public static class Councillor
 
                 string Name = dp.GetRealName();
 
-                MurderLimit[pc.PlayerId]--;
+                MurderLimit[pc.PlayerId] -= 1;
 
                 new LateTask(() =>
                 {
@@ -188,14 +191,14 @@ public static class Councillor
         return true;
     }
     public static void SetKillCooldown(byte id)
-        {
-            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        }
+    {
+        Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+    }
 
     public static bool CheckCommond(ref string msg, string command, bool exact = true)
     {
         var comList = command.Split('|');
-        for (int i = 0; i < comList.Count(); i++)
+        for (int i = 0; i < comList.Length; i++)
         {
             if (exact)
             {

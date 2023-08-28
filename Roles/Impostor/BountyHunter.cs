@@ -16,7 +16,7 @@ public static class BountyHunter
     private static OptionItem OptionFailureKillCooldown;
     private static OptionItem OptionShowTargetArrow;
 
-    private static float TargetChangeTime;
+    public static float TargetChangeTime;
     private static float SuccessKillCooldown;
     private static float FailureKillCooldown;
     private static bool ShowTargetArrow;
@@ -132,7 +132,7 @@ public static class BountyHunter
     public static byte GetTarget(PlayerControl player)
     {
         if (player == null) return 0xff;
-        if (Targets == null) Targets = new();
+        Targets ??= new();
 
         if (!Targets.TryGetValue(player.PlayerId, out var targetId))
             targetId = ResetTarget(player);
@@ -156,7 +156,7 @@ public static class BountyHunter
 
         var cTargets = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(pc => !pc.Is(CustomRoleTypes.Impostor)));
 
-        if (cTargets.Count() >= 2 && Targets.TryGetValue(player.PlayerId, out var nowTarget))
+        if (cTargets.Count >= 2 && Targets.TryGetValue(player.PlayerId, out var nowTarget))
             cTargets.RemoveAll(x => x.PlayerId == nowTarget); //前回のターゲットは除外
 
         if (cTargets.Count <= 0)

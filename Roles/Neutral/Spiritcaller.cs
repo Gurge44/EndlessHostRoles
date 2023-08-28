@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using Hazel;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -67,7 +67,7 @@ namespace TOHE.Roles.Neutral
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
-        public static bool IsEnable => playerIdList.Count > 0;
+        public static bool IsEnable => playerIdList.Any();
         public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         public static bool InProtect(PlayerControl player) => player.Is(CustomRoles.Spiritcaller) && ProtectTimeStamp > Utils.GetTimeStamp();
 
@@ -87,26 +87,26 @@ namespace TOHE.Roles.Neutral
         {
             if (!target.GetCustomRole().IsAbleToBeSidekicked() && !target.GetCustomRole().IsImpostor())
             {
-            if (SpiritLimit < 1) return;
+                if (SpiritLimit < 1) return;
 
-            SpiritLimit--;
-            SendRPC();
+                SpiritLimit--;
+                SendRPC();
 
-            target.RpcSetCustomRole(CustomRoles.EvilSpirit);
+                target.RpcSetCustomRole(CustomRoles.EvilSpirit);
 
-            var writer = CustomRpcSender.Create("SpiritCallerSendMessage", SendOption.None);
-            writer.StartMessage(target.GetClientId());
-            writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
-                .Write(GetString("SpiritcallerNoticeTitle"))
-                .EndRpc();
-            writer.StartRpc(target.NetId, (byte)RpcCalls.SendChat)
-                .Write(GetString("SpiritcallerNoticeMessage"))
-                .EndRpc();
-            writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
-                .Write(target.Data.PlayerName)
-                .EndRpc();
-            writer.EndMessage();
-            writer.SendMessage();
+                var writer = CustomRpcSender.Create("SpiritCallerSendMessage", SendOption.None);
+                writer.StartMessage(target.GetClientId());
+                writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
+                    .Write(GetString("SpiritcallerNoticeTitle"))
+                    .EndRpc();
+                writer.StartRpc(target.NetId, (byte)RpcCalls.SendChat)
+                    .Write(GetString("SpiritcallerNoticeMessage"))
+                    .EndRpc();
+                writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
+                    .Write(target.Data.PlayerName)
+                    .EndRpc();
+                writer.EndMessage();
+                writer.SendMessage();
             }
         }
 

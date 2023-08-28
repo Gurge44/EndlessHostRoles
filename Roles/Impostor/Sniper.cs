@@ -17,11 +17,12 @@ public static class Sniper
     private static OptionItem SniperPrecisionShooting;
     private static OptionItem SniperAimAssist;
     private static OptionItem SniperAimAssistOnshot;
+    public static OptionItem ShapeshiftDuration;
     public static OptionItem CanKillWithBullets;
     public static Dictionary<byte, byte> snipeTarget = new();
     private static Dictionary<byte, Vector3> snipeBasePosition = new();
     private static Dictionary<byte, Vector3> LastPosition = new();
-    private static Dictionary<byte, int> bulletCount = new();
+    public static Dictionary<byte, int> bulletCount = new();
     private static Dictionary<byte, List<byte>> shotNotify = new();
     private static Dictionary<byte, bool> IsAim = new();
     private static Dictionary<byte, float> AimTime = new();
@@ -39,6 +40,8 @@ public static class Sniper
         SniperAimAssist = BooleanOptionItem.Create(Id + 12, "SniperAimAssist", true, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper]);
         SniperAimAssistOnshot = BooleanOptionItem.Create(Id + 13, "SniperAimAssistOneshot", false, TabGroup.ImpostorRoles, false).SetParent(SniperAimAssist);
         CanKillWithBullets = BooleanOptionItem.Create(Id + 14, "SniperCanKill", true, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper]);
+        ShapeshiftDuration = FloatOptionItem.Create(Id + 15, "ShapeshiftDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper])
+            .SetValueFormat(OptionFormat.Seconds);
     }
     public static void Init()
     {
@@ -79,10 +82,10 @@ public static class Sniper
     public static void SendRPC(byte playerId)
     {
         Logger.Info($"Player{playerId}:SendRPC", "Sniper");
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SniperSync, Hazel.SendOption.Reliable, -1);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SniperSync, SendOption.Reliable, -1);
         writer.Write(playerId);
         var snList = shotNotify[playerId];
-        writer.Write(snList.Count());
+        writer.Write(snList.Count);
         foreach (var sn in snList)
         {
             writer.Write(sn);
@@ -183,7 +186,12 @@ public static class Sniper
         var sniper = pc;
         var sniperId = sniper.PlayerId;
 
-        if (bulletCount[sniperId] <= 0) return;
+        if (bulletCount[sniperId] <= 0)
+        {
+            float CD = ShapeshiftDuration.GetFloat() + 1f;
+            if (sniper.killTimer < CD) sniper.SetKillCooldown(time: CD);
+            return;
+        };
 
         //スナイパーで弾が残ってたら
         if (shapeshifting)
@@ -313,7 +321,7 @@ public static class Sniper
             //エイムアシスト中のスナイパー
             if (0.5f < AimTime[seerId] && (!AimAssistOneshot || AimTime[seerId] < 1.0f))
             {
-                if (GetSnipeTargets(Utils.GetPlayerById(seerId)).Count > 0)
+                if (GetSnipeTargets(Utils.GetPlayerById(seerId)).Any())
                 {
                     return $"<size=200%>{Utils.ColorString(Palette.ImpostorRed, "◎")}</size>";
                 }
@@ -325,7 +333,7 @@ public static class Sniper
             foreach (var sniperId in PlayerIdList)
             {
                 var snList = shotNotify[sniperId];
-                if (snList.Count() > 0 && snList.Contains(seerId))
+                if (snList.Any() && snList.Contains(seerId))
                 {
                     return $"<size=200%>{Utils.ColorString(Palette.ImpostorRed, "!")}</size>";
                 }
@@ -336,6 +344,7 @@ public static class Sniper
     public static void OverrideShapeText(byte id)
     {
         if (IsThisRole(id))
-            HudManager.Instance.AbilityButton.OverrideText(GetString(bulletCount[id] <= 0 ? "DefaultShapeshiftText" : "SniperSnipeButtonText"));
+            HudManager.Instance.AbilityButton.SetUsesRemaining(bulletCount[id]);
+        HudManager.Instance.AbilityButton.OverrideText(GetString(bulletCount[id] <= 0 ? "DefaultShapeshiftText" : "SniperSnipeButtonText"));
     }
 }

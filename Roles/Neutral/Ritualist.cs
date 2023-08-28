@@ -1,9 +1,9 @@
-using System.Collections.Generic;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-
 using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral
@@ -29,8 +29,8 @@ namespace TOHE.Roles.Neutral
                 .SetValueFormat(OptionFormat.Seconds);
             RitualMaxCount = IntegerOptionItem.Create(Id + 11, "RitualMaxCount", new(0, 15, 1), 1, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Ritualist])
                 .SetValueFormat(OptionFormat.Times);
-        CanVent = BooleanOptionItem.Create(Id + 12, "CanVent", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Ritualist]);
-        HasImpostorVision = BooleanOptionItem.Create(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Ritualist]);
+            CanVent = BooleanOptionItem.Create(Id + 12, "CanVent", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Ritualist]);
+            HasImpostorVision = BooleanOptionItem.Create(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Ritualist]);
         }
         public static void Init()
         {
@@ -47,7 +47,7 @@ namespace TOHE.Roles.Neutral
             pc.AddDoubleTrigger();
 
             if (!AmongUsClient.Instance.AmHost) return;
-                if (!Main.ResetCamPlayerList.Contains(playerId))
+            if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
@@ -67,14 +67,15 @@ namespace TOHE.Roles.Neutral
                     RitualCount[playerId] = reader.ReadInt32();
                 else
                     RitualCount.Add(playerId, RitualMaxCount.GetInt());
-            }{
+            }
+            {
                 if (RitualCount.ContainsKey(playerId))
                     RitualTarget[playerId].Add(reader.ReadByte());
                 else
                     RitualTarget.Add(playerId, new());
             }
         }
-        public static bool IsEnable => playerIdList.Count > 0;
+        public static bool IsEnable => playerIdList.Any();
 
         public static void SetKillCooldown(byte id)
         {
@@ -86,7 +87,7 @@ namespace TOHE.Roles.Neutral
             {
                 return killer.CheckDoubleTrigger(target, () => { SetRitual(killer, target); });
             }
-            else return true;  
+            else return true;
         }
 
         public static bool IsRitual(byte seer, byte target)

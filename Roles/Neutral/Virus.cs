@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Hazel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Hazel;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -61,7 +61,7 @@ namespace TOHE.Roles.Neutral
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
-        public static bool IsEnable => playerIdList.Count > 0;
+        public static bool IsEnable => playerIdList.Any();
         public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
 
         private static void SendRPC()
@@ -123,11 +123,11 @@ namespace TOHE.Roles.Neutral
                 Main.AllAlivePlayerControls.FirstOrDefault(a => a.GetCustomRole() == CustomRoles.Virus);
             if (virus == null || deathReason != PlayerState.DeathReason.Vote) return;
 
-            if (exileIds.Contains(virus.PlayerId)) 
+            if (exileIds.Contains(virus.PlayerId))
             {
                 InfectedPlayer.Clear();
                 return;
-            } 
+            }
 
             var infectedIdList = new List<byte>();
             foreach (var pc in Main.AllAlivePlayerControls)

@@ -1,8 +1,8 @@
-using System.Collections.Generic;
 using Hazel;
-
-using static TOHE.Translator;
+using System.Collections.Generic;
+using System.Linq;
 using static TOHE.Options;
+using static TOHE.Translator;
 
 namespace TOHE.Roles.Neutral
 {
@@ -12,36 +12,36 @@ namespace TOHE.Roles.Neutral
         public static List<byte> playerIdList = new();
         public static List<byte> NplayerIdList = new();
 
-    //    public static Dictionary<byte, PlayerControl> PoisonPlayer = new();
-     //   public static OptionItem BakerChangeChances;
-     public static OverrideTasksData BakerTasks;
+        //    public static Dictionary<byte, PlayerControl> PoisonPlayer = new();
+        //   public static OptionItem BakerChangeChances;
+        public static OverrideTasksData BakerTasks;
 
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Baker);
             BakerTasks = OverrideTasksData.Create(Id + 12, TabGroup.NeutralRoles, CustomRoles.Baker);
 
-          /*  BakerChangeChances = IntegerOptionItem.Create(Id + 10, "BakerChangeChances", new(0, 50, 1), 10, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Baker])
-                .SetValueFormat(OptionFormat.Percent); */
+            /*  BakerChangeChances = IntegerOptionItem.Create(Id + 10, "BakerChangeChances", new(0, 50, 1), 10, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Baker])
+                  .SetValueFormat(OptionFormat.Percent); */
         }
         public static void Init()
         {
             playerIdList = new();
             NplayerIdList = new();
-     //       PoisonPlayer = new();
+            //       PoisonPlayer = new();
         }
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-       //     PoisonPlayer.Add(playerId, null);
+            //     PoisonPlayer.Add(playerId, null);
         }
         public static bool IsEnable()
         {
-            return playerIdList.Count > 0;
+            return playerIdList.Any();
         }
         public static bool IsNEnable()
         {
-            return NplayerIdList.Count > 0;
+            return NplayerIdList.Any();
         }
         public static bool IsNAlive()
         {
@@ -63,32 +63,32 @@ namespace TOHE.Roles.Neutral
         {
             var BakerId = reader.ReadByte();
             var targetId = reader.ReadByte();
-      /*      if (targetId != byte.MaxValue)
-            {
-                PoisonPlayer[BakerId].PlayerId = targetId;
-            }
-            else
-            {
-                PoisonPlayer[BakerId] = null;
-            } */
+            /*      if (targetId != byte.MaxValue)
+                  {
+                      PoisonPlayer[BakerId].PlayerId = targetId;
+                  }
+                  else
+                  {
+                      PoisonPlayer[BakerId] = null;
+                  } */
         }
 
-    /*    public static bool HavePoisonedPlayer()
-        {
-            foreach (var BakerId in NplayerIdList)
+        /*    public static bool HavePoisonedPlayer()
             {
-                if (PoisonPlayer[BakerId] != null)
+                foreach (var BakerId in NplayerIdList)
                 {
-                    return true;
+                    if (PoisonPlayer[BakerId] != null)
+                    {
+                        return true;
+                    }
                 }
-            }
-            return false;
-        } */
+                return false;
+            } */
         public static bool IsPoisoned(PlayerControl target)
         {
             foreach (var BakerId in NplayerIdList)
             {
-              //  if (PoisonPlayer[BakerId] == target)
+                //  if (PoisonPlayer[BakerId] == target)
                 {
                     return true;
                 }
@@ -96,27 +96,27 @@ namespace TOHE.Roles.Neutral
             return false;
         }
 
-   /*     public static void OnCheckForEndVoting(byte exiled)
-        {
-            foreach (var BakerId in NplayerIdList)
-            {
-                var BakerPc = Utils.GetPlayerById(BakerId);
-                var target = PoisonPlayer[BakerId];
-                var targetId = target.PlayerId;
-                if (BakerId != exiled)
-                {
-                    if (!Main.PlayerStates[targetId].IsDead)
-                    {
-                        target.SetRealKiller(BakerPc);
-                        CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Poison, targetId);
-                    }
-                }
-                target = null;
-                SendRPC(BakerId);
+        /*     public static void OnCheckForEndVoting(byte exiled)
+             {
+                 foreach (var BakerId in NplayerIdList)
+                 {
+                     var BakerPc = Utils.GetPlayerById(BakerId);
+                     var target = PoisonPlayer[BakerId];
+                     var targetId = target.PlayerId;
+                     if (BakerId != exiled)
+                     {
+                         if (!Main.PlayerStates[targetId].IsDead)
+                         {
+                             target.SetRealKiller(BakerPc);
+                             CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Poison, targetId);
+                         }
+                     }
+                     target = null;
+                     SendRPC(BakerId);
 
-                if (!BakerPc.IsAlive()) NplayerIdList.Remove(BakerId);
-            }
-        } */
+                     if (!BakerPc.IsAlive()) NplayerIdList.Remove(BakerId);
+                 }
+             } */
         public static void AfterMeetingTasks()
         {
             if (!IsNAlive()) return;
@@ -132,33 +132,33 @@ namespace TOHE.Roles.Neutral
             foreach (var BakerId in NplayerIdList)
             {
                 var PoisonedPlayer = targetList[rand.Next(targetList.Count)];
-          //      PoisonPlayer[BakerId] = PoisonedPlayer;
+                //      PoisonPlayer[BakerId] = PoisonedPlayer;
                 SendRPC(BakerId, PoisonedPlayer.PlayerId);
-           //     Logger.Info($"{Utils.GetPlayerById(BakerId).GetNameWithRole()}の次ターン配布先：{PoisonedPlayer.GetNameWithRole()}", "Famine");
+                //     Logger.Info($"{Utils.GetPlayerById(BakerId).GetNameWithRole()}の次ターン配布先：{PoisonedPlayer.GetNameWithRole()}", "Famine");
             }
         }
 
         public static void FamineKilledTasks(byte BakerId)
         {
-       //     PoisonPlayer[BakerId] = null;
+            //     PoisonPlayer[BakerId] = null;
             SendRPC(BakerId);
             Logger.Info($"{Utils.GetPlayerById(BakerId).GetNameWithRole()}の配布毒パン回収", "Famine");
         }
 
-   /*     public static string GetPoisonMark(PlayerControl target, bool isMeeting)
-        {
-            if (isMeeting && IsNAlive() && IsPoisoned(target))
-            {
-                if(target.IsAlive())
-                    return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Famine), "θ");
-            }
-            return "";
-        } */
+        /*     public static string GetPoisonMark(PlayerControl target, bool isMeeting)
+             {
+                 if (isMeeting && IsNAlive() && IsPoisoned(target))
+                 {
+                     if(target.IsAlive())
+                         return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Famine), "θ");
+                 }
+                 return "";
+             } */
         public static void SendAliveMessage(PlayerControl pc)
         {
             if (pc.Is(CustomRoles.Famine) && !pc.Data.IsDead && !pc.Data.Disconnected)
             {
-             //   if (PoisonPlayer[pc.PlayerId].IsAlive())
+                //   if (PoisonPlayer[pc.PlayerId].IsAlive())
                 {
                     Utils.SendMessage(GetString("BakerChangeNow"), title: $"<color={Utils.GetRoleColorCode(CustomRoles.Baker)}>{GetString("PanAliveMessageTitle")}</color>");
                 }
@@ -196,7 +196,7 @@ namespace TOHE.Roles.Neutral
                         targetList.Add(p);
                     }
                     var TargetPlayer = targetList[rand.Next(targetList.Count)];
-                    panMessage = string.Format(Translator.GetString("PanAlive"), TargetPlayer.GetRealName());
+                    panMessage = string.Format(GetString("PanAlive"), TargetPlayer.GetRealName());
                 }
                 else if (chance <= 100)
                 {
@@ -208,7 +208,7 @@ namespace TOHE.Roles.Neutral
                         targetList.Add(p);
                     }
                     var TargetPlayer = targetList[rand.Next(targetList.Count)];
-                    panMessage = string.Format(Translator.GetString("PanAlive"), TargetPlayer.GetRealName());
+                    panMessage = string.Format(GetString("PanAlive"), TargetPlayer.GetRealName());
                 }
 
                 Utils.SendMessage(panMessage, title: $"<color={Utils.GetRoleColorCode(CustomRoles.Baker)}>{GetString("PanAliveMessageTitle")}</color>");

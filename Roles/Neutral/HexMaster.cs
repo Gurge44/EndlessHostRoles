@@ -1,11 +1,11 @@
 using Hazel;
-using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TOHE.Roles.Crewmate;
+using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
-using TOHE.Roles.Crewmate;
 namespace TOHE.Roles.Neutral;
 
 public static class HexMaster
@@ -35,9 +35,9 @@ public static class HexMaster
     public static SwitchTrigger NowSwitchTrigger;
     public static void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.HexMaster, 1, zeroOne: false);        
+        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.HexMaster, 1, zeroOne: false);
         ModeSwitchAction = StringOptionItem.Create(Id + 10, "WitchModeSwitchAction", SwitchTriggerText, 2, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.HexMaster]);
-        HexesLookLikeSpells = BooleanOptionItem.Create(Id + 11, "HexesLookLikeSpells",  false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.HexMaster]);
+        HexesLookLikeSpells = BooleanOptionItem.Create(Id + 11, "HexesLookLikeSpells", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.HexMaster]);
     }
     public static void Init()
     {
@@ -54,13 +54,13 @@ public static class HexMaster
         var pc = Utils.GetPlayerById(playerId);
         pc.AddDoubleTrigger();
 
-            if (!AmongUsClient.Instance.AmHost) return;
-                if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
+        if (!AmongUsClient.Instance.AmHost) return;
+        if (!Main.ResetCamPlayerList.Contains(playerId))
+            Main.ResetCamPlayerList.Add(playerId);
 
 
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
     private static void SendRPC(bool doHex, byte hexId, byte target = 255)
     {
         if (doHex)
@@ -219,20 +219,20 @@ public static class HexMaster
     }
     public static string GetHexedMark(byte target, bool isMeeting)
     {
-        
+
         if (isMeeting && IsEnable && IsHexed(target))
         {
             if (!HexesLookLikeSpells.GetBool())
             {
-            return Utils.ColorString(RoleColorHex, "乂");
+                return Utils.ColorString(RoleColorHex, "乂");
             }
             if (HexesLookLikeSpells.GetBool())
             {
-            return Utils.ColorString(RoleColorSpell, "†");
+                return Utils.ColorString(RoleColorSpell, "†");
             }
         }
         return "";
-        
+
     }
     public static string GetHexModeText(PlayerControl hexmaster, bool hud, bool isMeeting = false)
     {

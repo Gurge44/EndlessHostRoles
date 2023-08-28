@@ -51,7 +51,7 @@ public static class Witch
         pc.AddDoubleTrigger();
 
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
     private static void SendRPC(bool doSpell, byte witchId, byte target = 255)
     {
         if (doSpell)
