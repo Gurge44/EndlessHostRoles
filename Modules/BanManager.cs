@@ -15,7 +15,9 @@ public static class BanManager
     private static readonly string DENY_NAME_LIST_PATH = @"./TOHE_DATA/DenyName.txt";
     private static readonly string BAN_LIST_PATH = @"./TOHE_DATA/BanList.txt";
     private static readonly string MODERATOR_LIST_PATH = @"./TOHE_DATA/Moderators.txt";
+#pragma warning disable IDE0044 // Add readonly modifier
     private static List<string> EACList = new();
+#pragma warning restore IDE0044 // Add readonly modifier
     public static void Init()
     {
         try
@@ -34,11 +36,11 @@ public static class BanManager
                 File.WriteAllText(DENY_NAME_LIST_PATH, GetResourcesTxt("TOHE.Resources.Config.DenyName.txt"));
             }
             if (!File.Exists(MODERATOR_LIST_PATH))
-                            {
+            {
                 Logger.Warn("Creating a new Moderators.txt file", "BanManager");
                 File.Create(MODERATOR_LIST_PATH).Close();
                 File.WriteAllText(MODERATOR_LIST_PATH, GetResourcesTxt("TOHE.Resources.Config.Moderators.txt"));
-                            }
+            }
 
             //读取EAC名单
             var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("TOHE.Resources.Config.EACList.txt");
@@ -48,8 +50,8 @@ public static class BanManager
             while ((line = sr.ReadLine()) != null)
             {
                 if (line == "" || line.StartsWith("#")) continue;
-      //          if (line.Contains("actorour#0029")) continue;
-                if (line.Contains("gnuedaphic#7196")) continue;
+                //          if (line.Contains("actorour#0029")) continue;
+                //if (line.Contains("gnuedaphic#7196")) continue;
                 EACList.Add(line);
             }
 
@@ -87,8 +89,8 @@ public static class BanManager
             while ((line = sr.ReadLine()) != null)
             {
                 if (line == "") continue;
-           //     if (line.Contains("actorour#0029")) continue;
-                if (line.Contains("gnuedaphic#7196")) continue;
+                //     if (line.Contains("actorour#0029")) continue;
+                //if (line.Contains("gnuedaphic#7196")) continue;
                 if (line.Contains("Amogus"))
                 {
                     AmongUsClient.Instance.KickPlayer(player.Id, false);
@@ -148,8 +150,8 @@ public static class BanManager
             while ((line = sr.ReadLine()) != null)
             {
                 if (line == "") continue;
-           //     if (line.Contains("actorour#0029")) continue;
-                if (line.Contains("gnuedaphic#7196")) continue;
+                //     if (line.Contains("actorour#0029")) continue;
+                //if (line.Contains("gnuedaphic#7196")) continue;
                 if (line.Contains(code)) return true;
             }
         }

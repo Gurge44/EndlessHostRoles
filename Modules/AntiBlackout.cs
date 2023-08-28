@@ -34,7 +34,7 @@ public static class AntiBlackout
         || Medusa.IsEnable || Spiritcaller.IsEnable
         || PlagueBearer.IsEnable || CustomRoles.Sidekick.RoleExist()
         || CustomRoles.Pestilence.RoleExist() || CustomRoles.Arsonist.RoleExist();
-        //|| Pirate.IsEnable;
+    //|| Pirate.IsEnable;
     ///<summary>
     ///インポスター以外の人数とインポスターの人数の差
     ///</summary>
@@ -151,7 +151,7 @@ public static class AntiBlackout
     public static void Reset()
     {
         logger.Info("==Reset==");
-        if (isDeadCache == null) isDeadCache = new();
+        isDeadCache ??= new();
         isDeadCache.Clear();
         IsCached = false;
     }

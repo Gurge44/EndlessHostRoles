@@ -36,7 +36,7 @@ public static class TemplateManager
         ["NumShortTasks"] = () => Main.NormalOptions.NumShortTasks.ToString(),
         ["Date"] = () => DateTime.Now.ToShortDateString(),
         ["Time"] = () => DateTime.Now.ToShortTimeString(),
-        
+
     };
 
     public static void Init()
@@ -56,7 +56,7 @@ public static class TemplateManager
                 {
                     string fileName;
                     string[] name = CultureInfo.CurrentCulture.Name.Split("-");
-                    if (name.Count() >= 2)
+                    if (name.Length >= 2)
                         fileName = name[0] switch
                         {
                             "zh" => "SChinese",
@@ -93,7 +93,7 @@ public static class TemplateManager
         CreateIfNotExists();
         using StreamReader sr = new(TEMPLATE_FILE_PATH, Encoding.GetEncoding("UTF-8"));
         string text;
-        string[] tmp = { };
+        string[] tmp = Array.Empty<string>();
         List<string> sendList = new();
         HashSet<string> tags = new();
         while ((text = sr.ReadLine()) != null)

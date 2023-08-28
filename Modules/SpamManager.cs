@@ -30,7 +30,7 @@ public static class SpamManager
                 {
                     string fileName;
                     string[] name = CultureInfo.CurrentCulture.Name.Split("-");
-                    if (name.Count() >= 2)
+                    if (name.Length >= 2)
                         fileName = name[0] switch
                         {
                             "zh" => "SChinese",

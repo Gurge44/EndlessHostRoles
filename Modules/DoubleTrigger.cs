@@ -28,7 +28,7 @@ static class DoubleTrigger
     }
 
     ///     一回目アクション時 false、2回目アクション時true
-    public static bool CheckDoubleTrigger(this PlayerControl killer, PlayerControl target, Action firstAction)
+    public static bool CheckDoubleTrigger(this PlayerControl killer, PlayerControl target, Action firstAction, bool doAction = true)
     {
         if (FirstTriggerTimer.ContainsKey(killer.PlayerId))
         {
@@ -40,14 +40,14 @@ static class DoubleTrigger
             Logger.Info($"{killer.name} DoDoubleAction", "DoubleTrigger");
             FirstTriggerTimer.Remove(killer.PlayerId);
             FirstTriggerTarget.Remove(killer.PlayerId);
-            FirstTriggerAction.Remove(killer.PlayerId);
+            if (doAction) FirstTriggerAction.Remove(killer.PlayerId);
             return true;
         }
         //シングルアクション時はキル間隔を無視
         CheckMurderPatch.TimeSinceLastKill.Remove(killer.PlayerId);
         FirstTriggerTimer.Add(killer.PlayerId, 1f);
         FirstTriggerTarget.Add(killer.PlayerId, target.PlayerId);
-        FirstTriggerAction.Add(killer.PlayerId, firstAction);
+        if (doAction) FirstTriggerAction.Add(killer.PlayerId, firstAction);
         return false;
     }
     public static void OnFixedUpdate(PlayerControl player)

@@ -34,7 +34,7 @@ public static class ServerAddManager
     public static IRegionInfo CreateHttp(string ip, string name, ushort port, bool ishttps)
     {
         string serverIp = (ishttps ? "https://" : "http://") + ip;
-        ServerInfo serverInfo = new ServerInfo(name, serverIp, port, false);
+        ServerInfo serverInfo = new(name, serverIp, port, false);
         ServerInfo[] ServerInfo = new ServerInfo[] { serverInfo };
         return new StaticHttpRegionInfo(name, (StringNames)1003, ip, ServerInfo).CastFast<IRegionInfo>();
     }

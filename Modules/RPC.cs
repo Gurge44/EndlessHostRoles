@@ -75,6 +75,7 @@ enum CustomRPC
     SetEraseLimit,
     GuessKill,
     SetMarkedPlayer,
+    SetMarkedPlayerV2,
     SetConcealerTimer,
     SetMedicalerProtectList,
     SetHackerHackLimit,
@@ -106,6 +107,7 @@ enum CustomRPC
     SetSpiritcallerSpiritLimit,
     SetDoomsayerProgress,
     SetTrackerTarget,
+    SetAlchemistTimer,
 
     //SoloKombat
     SyncKBPlayer,
@@ -450,6 +452,9 @@ internal class RPCHandlerPatch
             case CustomRPC.SetMarkedPlayer:
                 Assassin.ReceiveRPC(reader);
                 break;
+            case CustomRPC.SetMarkedPlayerV2:
+                Undertaker.ReceiveRPC(reader);
+                break;
             case CustomRPC.SetMedicalerProtectList:
                 Medic.ReceiveRPCForProtectList(reader);
                 break;
@@ -510,6 +515,9 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SetChameleonTimer:
                 Chameleon.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SetAlchemistTimer:
+                Alchemist.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetBKTimer:
                 BloodKnight.ReceiveRPC(reader);
@@ -615,7 +623,7 @@ internal static class RPC
     {
         if (AmongUsClient.Instance.AmHost)
             PlaySound(PlayerID, sound);
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlaySound, Hazel.SendOption.Reliable, -1);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlaySound, SendOption.Reliable, -1);
         writer.Write(PlayerID);
         writer.Write((byte)sound);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -749,9 +757,9 @@ internal static class RPC
             case CustomRoles.Crusader:
                 Crusader.Add(targetId);
                 break;
-        /*    case CustomRoles.Mare:
-                Mare.Add(targetId);
-                break; */
+            /*    case CustomRoles.Mare:
+                    Mare.Add(targetId);
+                    break; */
             case CustomRoles.EvilTracker:
                 EvilTracker.Add(targetId);
                 break;
@@ -867,6 +875,9 @@ internal static class RPC
             case CustomRoles.Assassin:
                 Assassin.Add(targetId);
                 break;
+            case CustomRoles.Undertaker:
+                Undertaker.Add(targetId);
+                break;
             case CustomRoles.Sans:
                 Sans.Add(targetId);
                 break;
@@ -970,10 +981,10 @@ internal static class RPC
                 Virus.Add(targetId);
                 break;
             case CustomRoles.Bloodhound:
-                Bloodhound.Add(targetId); 
+                Bloodhound.Add(targetId);
                 break;
             case CustomRoles.Vulture:
-                Vulture.Add(targetId); 
+                Vulture.Add(targetId);
                 break;
             case CustomRoles.PlagueBearer:
                 PlagueBearer.Add(targetId);
@@ -1002,6 +1013,9 @@ internal static class RPC
             case CustomRoles.Addict:
                 Addict.Add(targetId);
                 break;
+            case CustomRoles.Alchemist:
+                Alchemist.Add(targetId);
+                break;
             case CustomRoles.Deathpact:
                 Deathpact.Add(targetId);
                 break;
@@ -1026,16 +1040,16 @@ internal static class RPC
             case CustomRoles.Doomsayer:
                 Doomsayer.Add(targetId);
                 break;
-            //case CustomRoles.Pirate:
-            //    Pirate.Add(targetId);
-            //    break;
+                //case CustomRoles.Pirate:
+                //    Pirate.Add(targetId);
+                //    break;
         }
         HudManager.Instance.SetHudActive(true);
         if (PlayerControl.LocalPlayer.PlayerId == targetId) RemoveDisableDevicesPatch.UpdateDisableDevices();
     }
     public static void RpcDoSpell(byte targetId, byte killerId)
     {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DoSpell, Hazel.SendOption.Reliable, -1);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DoSpell, SendOption.Reliable, -1);
         writer.Write(targetId);
         writer.Write(killerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -1043,7 +1057,7 @@ internal static class RPC
     public static void SyncLoversPlayers()
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetLoversPlayers, Hazel.SendOption.Reliable, -1);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetLoversPlayers, SendOption.Reliable, -1);
         writer.Write(Main.LoversPlayers.Count);
         foreach (var lp in Main.LoversPlayers)
         {
@@ -1081,7 +1095,7 @@ internal static class RPC
         }
         else
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCurrentDousingTarget, Hazel.SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCurrentDousingTarget, SendOption.Reliable, -1);
             writer.Write(arsonistId);
             writer.Write(targetId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -1095,7 +1109,7 @@ internal static class RPC
         }
         else
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCurrentDrawTarget, Hazel.SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCurrentDrawTarget, SendOption.Reliable, -1);
             writer.Write(arsonistId);
             writer.Write(targetId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -1109,7 +1123,7 @@ internal static class RPC
         }
         else
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCurrentRevealTarget, Hazel.SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCurrentRevealTarget, SendOption.Reliable, -1);
             writer.Write(arsonistId);
             writer.Write(targetId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -1139,7 +1153,7 @@ internal static class RPC
         state.RealKiller.Item2 = killerId;
 
         if (!AmongUsClient.Instance.AmHost) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRealKiller, Hazel.SendOption.Reliable, -1);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRealKiller, SendOption.Reliable, -1);
         writer.Write(targetId);
         writer.Write(killerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

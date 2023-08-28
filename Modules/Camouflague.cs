@@ -44,7 +44,7 @@ public static class Camouflage
         PlayerSkins.Clear();
 
         switch (Options.KPDCamouflageMode.GetValue())
-        { 
+        {
             case 0: // Default
                 CamouflageOutfit = new GameData.PlayerOutfit()
                     .Set("", 15, "", "", "", "");

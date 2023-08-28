@@ -138,7 +138,7 @@ public static class Translator
             Logger.Info($"加载自定义翻译文件：{filename}", "LoadCustomTranslation");
             using StreamReader sr = new(path, Encoding.GetEncoding("UTF-8"));
             string text;
-            string[] tmp = { };
+            string[] tmp = Array.Empty<string>();
             while ((text = sr.ReadLine()) != null)
             {
                 tmp = text.Split(":");

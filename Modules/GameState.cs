@@ -149,7 +149,7 @@ public class PlayerState
             SubRoles.Remove(CustomRoles.Loyal);
             SubRoles.Remove(CustomRoles.Loyal);
             SubRoles.Remove(CustomRoles.Admired);
-        } 
+        }
         if (role == CustomRoles.Infected)
         {
             countTypes = CountTypes.Infectious;
@@ -360,7 +360,7 @@ public class TaskState
                 foreach (SystemTypes sys in Enum.GetValues(typeof(SystemTypes)))
                     if (Utils.IsActive(sys)) SysList.Add(sys);
 
-                if (SysList.Count > 0)
+                if (SysList.Any())
                 {
                     var SbSys = SysList[IRandom.Instance.Next(0, SysList.Count)];
 
@@ -471,13 +471,14 @@ public class TaskState
             {
                 Chameleon.UseLimit[player.PlayerId] += Chameleon.ChameleonAbilityUseGainWithEachTaskCompleted.GetFloat();
             }
+            if (player.Is(CustomRoles.Alchemist) && player.IsAlive()) Alchemist.OnTaskComplete(player);
 
             if (player.Is(CustomRoles.Ghoul) && (CompletedTasksCount + 1) >= AllTasksCount && player.IsAlive())
-            new LateTask(() =>
-            {
-                player.RpcMurderPlayerV3(player);
-                Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
-            }, 0.2f, "Ghoul Suicide");
+                new LateTask(() =>
+                {
+                    player.RpcMurderPlayerV3(player);
+                    Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
+                }, 0.2f, "Ghoul Suicide");
             if (player.Is(CustomRoles.Ghoul) && (CompletedTasksCount + 1) >= AllTasksCount && !player.IsAlive())
             {
                 foreach (var pc in Main.AllPlayerControls)
@@ -487,7 +488,7 @@ public class TaskState
                         if (Main.KillGhoul.Contains(pc.PlayerId) && player.PlayerId != pc.PlayerId && pc.IsAlive())
                         {
                             player.RpcMurderPlayerV3(pc);
-                            Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Kill;                        
+                            Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Kill;
                         }
                     }
 
@@ -516,6 +517,24 @@ public class TaskState
                 CustomWinnerHolder.WinnerIds.Add(player.PlayerId);
             }
 
+            if (player.Is(CustomRoles.Speedrunner) && (CompletedTasksCount + 1) >= AllTasksCount && player.IsAlive())
+            {
+                Logger.Info("工作狂任务做完了", "Speedrunner");
+                RPC.PlaySoundRPC(player.PlayerId, Sounds.KillSound);
+                foreach (var pc in Main.AllAlivePlayerControls)
+                {
+                    if (pc.PlayerId != player.PlayerId)
+                    {
+                        Main.PlayerStates[pc.PlayerId].deathReason = pc.PlayerId == player.PlayerId ?
+                            PlayerState.DeathReason.Overtired : PlayerState.DeathReason.Ashamed;
+                        pc.RpcMurderPlayerV3(pc);
+                        Main.PlayerStates[pc.PlayerId].SetDead();
+                        pc.SetRealKiller(player);
+                    }
+                }
+                GameData.Instance.CompletedTasks = GameData.Instance.TotalTasks;
+            }
+
             Merchant.OnTaskFinished(player);
 
             //船鬼要抽奖啦
@@ -531,7 +550,7 @@ public class TaskState
                 {
                     {
                         list = list.OrderBy(x => Vector2.Distance(player.GetTruePosition(), x.GetTruePosition())).ToList();
-                            var target = list[0];
+                        var target = list[0];
                         if (!target.Is(CustomRoles.Pestilence))
                         {
                             target.SetRealKiller(player);
@@ -548,7 +567,7 @@ public class TaskState
                         }
                     }
                 }
-            } 
+            }
 
         }
 
@@ -587,10 +606,10 @@ public static class GameStates
     public static bool InGame = false;
     public static bool AlreadyDied = false;
     public static bool IsModHost => PlayerControl.AllPlayerControls.ToArray().FirstOrDefault(x => x.PlayerId == 0 && x.IsModClient());
-    public static bool IsLobby => AmongUsClient.Instance.GameState == AmongUsClient.GameStates.Joined;
+    public static bool IsLobby => AmongUsClient.Instance.GameState == InnerNet.InnerNetClient.GameStates.Joined;
     public static bool IsInGame => InGame;
-    public static bool IsEnded => AmongUsClient.Instance.GameState == AmongUsClient.GameStates.Ended;
-    public static bool IsNotJoined => AmongUsClient.Instance.GameState == AmongUsClient.GameStates.NotJoined;
+    public static bool IsEnded => AmongUsClient.Instance.GameState == InnerNet.InnerNetClient.GameStates.Ended;
+    public static bool IsNotJoined => AmongUsClient.Instance.GameState == InnerNet.InnerNetClient.GameStates.NotJoined;
     public static bool IsOnlineGame => AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame;
     public static bool IsLocalGame => AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame;
     public static bool IsFreePlay => AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay;

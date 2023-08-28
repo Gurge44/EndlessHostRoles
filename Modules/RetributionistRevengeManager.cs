@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using Hazel;
-using Rewired.UI.ControlMapper;
 using System;
 using System.Linq;
 using TOHE.Modules;
@@ -28,14 +27,14 @@ public static class RetributionistRevengeManager
         {
             if (playerCount <= Options.MinimumPlayersAliveToRetri.GetInt())
             {
-            if (pc.Data.IsDead)
+                if (pc.Data.IsDead)
                 {
                     if (!isUI) Utils.SendMessage(GetString("RetributionistKillTooManyDead"), pc.PlayerId);
                     else pc.ShowPopUp(GetString("RetributionistKillTooManyDead"));
                     return true;
                 }
             }
-         
+
         }
         if (Options.CanOnlyRetributeWithTasksDone.GetBool())
         {

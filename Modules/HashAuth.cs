@@ -22,7 +22,7 @@ public class HashAuth
         return HashValue == hash;
     }
     public string CalculateHash(string source)
-        => HashAuth.CalculateHash(source, salt, algorithm);
+        => CalculateHash(source, salt, algorithm);
 
     public static string CalculateHash(string source, string salt = null, HashAlgorithm algorithm = null)
     {

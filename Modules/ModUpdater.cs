@@ -57,7 +57,7 @@ public class ModUpdater
             Logger.Info("downloadUrl: " + downloadUrl, "CheckRelease");
             Logger.Info("latestVersionl: " + latestVersion, "CheckRelease");
         }*/
-        
+
     }
 
     public static string UrlSetId(string url) => url + "?id=6C5A46D1420E476ABD560271FC8040D7";
@@ -68,7 +68,7 @@ public class ModUpdater
     public static string Get(string url)
     {
         string result = "";
-        HttpClient req = new HttpClient();
+        HttpClient req = new();
         var res = req.GetAsync(url).Result;
         Stream stream = res.Content.ReadAsStreamAsync().Result;
         try
@@ -287,7 +287,7 @@ public class ModUpdater
             HttpResponseMessage? response = null;
 #nullable disable
             var downloadCallBack = DownloadCallBack;
-            using (HttpClient client = new HttpClient())
+            using (HttpClient client = new())
                 response = await client.GetAsync(url);
             if (response == null)
                 throw new Exception("文件获取失败");

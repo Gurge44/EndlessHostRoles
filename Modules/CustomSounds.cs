@@ -3,7 +3,6 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using static UnityEngine.ParticleSystem.PlaybackState;
 
 namespace TOHE.Modules;
 
@@ -17,14 +16,14 @@ public static class CustomSoundsManager
             Play(sound);
             return;
         }
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, Hazel.SendOption.Reliable, pc.GetClientId());
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.Reliable, pc.GetClientId());
         writer.Write(sound);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
     public static void RPCPlayCustomSoundAll(string sound)
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, Hazel.SendOption.Reliable, -1);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.Reliable, -1);
         writer.Write(sound);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
         Play(sound);
