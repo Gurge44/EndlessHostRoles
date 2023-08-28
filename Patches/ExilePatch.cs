@@ -58,7 +58,7 @@ class ExileControllerWrapUpPatch
 
             exiled.IsDead = true;
             Main.PlayerStates[exiled.PlayerId].deathReason = PlayerState.DeathReason.Vote;
-                        var role = exiled.GetCustomRole();
+            var role = exiled.GetCustomRole();
 
             //判断冤罪师胜利
             if (Main.AllPlayerControls.Any(x => x.Is(CustomRoles.Innocent) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == exiled.PlayerId))
@@ -121,6 +121,7 @@ class ExileControllerWrapUpPatch
                 CustomRoles.DovesOfNeace or
                 CustomRoles.QuickShooter or
                 CustomRoles.Addict or
+                CustomRoles.Alchemist or
                 CustomRoles.ShapeshifterTOHE or
                 CustomRoles.Wildling or
                 CustomRoles.Twister or
@@ -129,6 +130,7 @@ class ExileControllerWrapUpPatch
                 CustomRoles.Devourer or
                 CustomRoles.Nuker or
                 CustomRoles.Assassin or
+                CustomRoles.Undertaker or
                 CustomRoles.Camouflager or
                 CustomRoles.Disperser or
                 CustomRoles.Escapee or

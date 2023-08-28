@@ -73,9 +73,9 @@ class HudManagerPatch
                         else
                             __instance.AbilityButton.OverrideText(GetString("FireWorksInstallAtionButtonText"));
                         break;
-                    case CustomRoles.SerialKiller:
-                        SerialKiller.GetAbilityButtonText(__instance, player);
-                        break;
+                    //case CustomRoles.SerialKiller:
+                    //    SerialKiller.GetAbilityButtonText(__instance, player);
+                    //    break;
                     case CustomRoles.Warlock:
                         bool curse = Main.isCurseAndKill.TryGetValue(player.PlayerId, out bool wcs) && wcs;
                         if (!shapeshifting && !curse)
@@ -187,6 +187,7 @@ class HudManagerPatch
                         break;
                     case CustomRoles.Twister:
                         __instance.AbilityButton.OverrideText(GetString("TwisterButtonText"));
+                        __instance.AbilityButton.SetUsesRemaining((int)Twister.TwistLimit[player.PlayerId]);
                         break;
                     case CustomRoles.ImperiusCurse:
                         __instance.AbilityButton.OverrideText(GetString("ImperiusCurseButtonText"));
@@ -200,6 +201,7 @@ class HudManagerPatch
                         break;
                     case CustomRoles.Camouflager:
                         __instance.AbilityButton.OverrideText(GetString("CamouflagerShapeshiftText"));
+                        if (Camouflager.CamoLimit.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var x)) __instance.AbilityButton.SetUsesRemaining((int)x);
                         break;
                     case CustomRoles.OverKiller:
                         __instance.KillButton.OverrideText(GetString("OverKillerButtonText"));
@@ -207,6 +209,10 @@ class HudManagerPatch
                     case CustomRoles.Assassin:
                         Assassin.SetKillButtonText(player.PlayerId);
                         Assassin.GetAbilityButtonText(__instance, player.PlayerId);
+                        break;
+                    case CustomRoles.Undertaker:
+                        Undertaker.SetKillButtonText(player.PlayerId);
+                        Undertaker.GetAbilityButtonText(__instance, player.PlayerId);
                         break;
                     case CustomRoles.Hacker:
                         Hacker.GetAbilityButtonText(__instance, player.PlayerId);
@@ -226,6 +232,7 @@ class HudManagerPatch
                         break;
                     case CustomRoles.Disperser:
                         __instance.AbilityButton.OverrideText(GetString("DisperserVentButtonText"));
+                        __instance.AbilityButton.SetUsesRemaining((int)Disperser.DisperserLimit[player.PlayerId]);
                         break;
                     case CustomRoles.Swooper:
                         __instance.ImpostorVentButton.OverrideText(GetString(Swooper.IsInvis(PlayerControl.LocalPlayer.PlayerId) ? "SwooperRevertVentButtonText" : "SwooperVentButtonText"));
@@ -300,6 +307,10 @@ class HudManagerPatch
                     case CustomRoles.Deputy:
                         __instance.KillButton.OverrideText(GetString("DeputyHandcuffText"));
                         break;
+                    case CustomRoles.Hangman:
+                        if (shapeshifting) __instance.KillButton.OverrideText(GetString("HangmanKillButtonTextDuringSS"));
+                        __instance.AbilityButton.SetUsesRemaining((int)Hangman.HangLimit[player.PlayerId]);
+                        break;
                     case CustomRoles.Sidekick:
                         __instance.KillButton.OverrideText(GetString("KillButtonText"));
                         __instance.ImpostorVentButton.OverrideText(GetString("ReportButtonText"));
@@ -308,8 +319,12 @@ class HudManagerPatch
                     case CustomRoles.Addict:
                         __instance.AbilityButton.OverrideText(GetString("AddictVentButtonText"));
                         break;
+                    case CustomRoles.Alchemist:
+                        __instance.AbilityButton.OverrideText(GetString("AlchemistVentButtonText"));
+                        break;
                     case CustomRoles.Dazzler:
                         __instance.AbilityButton.OverrideText(GetString("DazzleButtonText"));
+                        if (Dazzler.DazzleLimit.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var y)) __instance.AbilityButton.SetUsesRemaining((int)y);
                         break;
                     case CustomRoles.Deathpact:
                         __instance.AbilityButton.OverrideText(GetString("DeathpactButtonText"));
@@ -536,7 +551,7 @@ class SetHudActivePatch
             case CustomRoles.Glitch:
                 Glitch.SetHudActive(__instance, isActive);
                 break;
-            
+
         }
 
         foreach (var subRole in Main.PlayerStates[player.PlayerId].SubRoles)
@@ -546,10 +561,10 @@ class SetHudActivePatch
                 case CustomRoles.Oblivious:
                     __instance.ReportButton.ToggleVisible(false);
                     break;
-                case CustomRoles.Mare:
-                    if (!Utils.IsActive(SystemTypes.Electrical))
-                    __instance.KillButton.ToggleVisible(false);
-                    break;
+                    //case CustomRoles.Mare:
+                    //    if (!Utils.IsActive(SystemTypes.Electrical))
+                    //        __instance.KillButton.ToggleVisible(false);
+                    //    break;
             }
         }
         __instance.KillButton.ToggleVisible(player.CanUseKillButton());
@@ -622,14 +637,14 @@ class TaskPanelBehaviourPatch
                     {
                         var text = sb.ToString().TrimEnd('\n').TrimEnd('\r');
                         if (!Utils.HasTasks(player.Data, false) && sb.ToString().Count(s => (s == '\n')) >= 2)
-                            text = $"{ Utils.ColorString(Utils.GetRoleColor(player.GetCustomRole()).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}";
-                        AllText += $"\r\n\r\n<size=85%>{text}</size>";
+                            text = $"{Utils.ColorString(Utils.GetRoleColor(player.GetCustomRole()).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}";
+                        AllText += $"\r\n\r\n<size=70%>{text}</size>";
                     }
 
                     if (MeetingStates.FirstMeeting)
                     {
-                        AllText += $"\r\n\r\n</color><size=70%>{GetString("PressF1ShowMainRoleDes")}";
-                        if (Main.PlayerStates.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var ps) && ps.SubRoles.Count >= 1)
+                        AllText += $"\r\n\r\n</color><size=60%>{GetString("PressF1ShowMainRoleDes")}";
+                        if (Main.PlayerStates.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var ps) && ps.SubRoles.Any())
                             AllText += $"\r\n{GetString("PressF2ShowAddRoleDes")}";
                         AllText += "</size>";
                     }

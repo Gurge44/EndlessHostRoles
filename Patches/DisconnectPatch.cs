@@ -1,5 +1,4 @@
 using HarmonyLib;
-using static TOHE.Translator;
 
 namespace TOHE;
 

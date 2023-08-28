@@ -88,7 +88,7 @@ internal class BanMenuSetVisiblePatch
         return false;
     }
 }
-[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNet.InnerNetClient.CanBan))]
+[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.CanBan))]
 internal class InnerNetClientCanBanPatch
 {
     public static bool Prefix(InnerNet.InnerNetClient __instance, ref bool __result)
@@ -97,7 +97,7 @@ internal class InnerNetClientCanBanPatch
         return false;
     }
 }
-[HarmonyPatch(typeof(InnerNet.InnerNetClient), nameof(InnerNet.InnerNetClient.KickPlayer))]
+[HarmonyPatch(typeof(InnerNet.InnerNetClient), nameof(InnerNetClient.KickPlayer))]
 internal class KickPlayerPatch
 {
     public static void Prefix(InnerNet.InnerNetClient __instance, int clientId, bool ban)

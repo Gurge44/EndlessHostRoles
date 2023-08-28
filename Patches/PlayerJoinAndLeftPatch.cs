@@ -176,15 +176,15 @@ class OnPlayerLeftPatch
                 Logger.SendInGame(string.Format(GetString("PlayerLeftByAU-Anticheat"), data?.PlayerName));
                 break;
             case DisconnectReasons.Error:
-            Logger.SendInGame(string.Format(GetString("PlayerLeftByError"), data?.PlayerName));
-            new LateTask(() =>
-            {
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Error);
-            GameManager.Instance.enabled = false;
-            GameManager.Instance.RpcEndGame(GameOverReason.ImpostorDisconnect, false);
-            }, 3f, "Disconnect Error Auto-end");
+                Logger.SendInGame(string.Format(GetString("PlayerLeftByError"), data?.PlayerName));
+                new LateTask(() =>
+                {
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Error);
+                    GameManager.Instance.enabled = false;
+                    GameManager.Instance.RpcEndGame(GameOverReason.ImpostorDisconnect, false);
+                }, 3f, "Disconnect Error Auto-end");
 
-            break;
+                break;
         }
 
         Logger.Info($"{data?.PlayerName}(ClientID:{data?.Id}/FriendCode:{data?.FriendCode})断开连接(理由:{reason}，Ping:{AmongUsClient.Instance.Ping})", "Session");
@@ -279,7 +279,7 @@ class CreatePlayerPatch
                     if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
                     {
                         Main.isChatCommand = true;
-                   //     Utils.SendMessage($"{GetString("Message.YTPlanNotice")} {PlayerControl.LocalPlayer.FriendCode.GetDevUser().UpName}", client.Character.PlayerId);
+                        //     Utils.SendMessage($"{GetString("Message.YTPlanNotice")} {PlayerControl.LocalPlayer.FriendCode.GetDevUser().UpName}", client.Character.PlayerId);
                     }
                 }, 3.3f, "DisplayUpWarnning");
             }

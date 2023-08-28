@@ -52,7 +52,7 @@ class RepairSystemPatch
         if (Options.DisableCloseDoor.GetBool() && systemType == SystemTypes.Doors) return false;
 
         //Note: "SystemTypes.Laboratory" сauses bugs in the Host, it is better not to use
-        if (player.Is(CustomRoles.Fool) && 
+        if (player.Is(CustomRoles.Fool) &&
             (systemType is
             SystemTypes.Reactor or
             SystemTypes.LifeSupp or
@@ -60,30 +60,31 @@ class RepairSystemPatch
             SystemTypes.Electrical))
         { return false; }
 
-        if (player.Is(CustomRoles.Unlucky) && player.IsAlive() && 
+        if (player.Is(CustomRoles.Unlucky) && player.IsAlive() &&
             (systemType is
             SystemTypes.Doors))
-                {
-                    var Ue = IRandom.Instance;
-                    if (Ue.Next(0, 100) < Options.UnluckySabotageSuicideChance.GetInt())
-                    {
-                        player.RpcMurderPlayerV3(player);
-                        Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
-                        return false;
-                    }
-                }
+        {
+            var Ue = IRandom.Instance;
+            if (Ue.Next(0, 100) < Options.UnluckySabotageSuicideChance.GetInt())
+            {
+                player.RpcMurderPlayerV3(player);
+                Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
+                return false;
+            }
+        }
 
-      /*if (player.Is(CustomRoles.Madmate) && !Options.MadmateCanFixSabotage.GetBool() && 
-            (systemType is
-            SystemTypes.Reactor or
-            SystemTypes.LifeSupp or
-            SystemTypes.Comms or
-            SystemTypes.Electrical))
-        { return false; }*/
+        /*if (player.Is(CustomRoles.Madmate) && !Options.MadmateCanFixSabotage.GetBool() && 
+              (systemType is
+              SystemTypes.Reactor or
+              SystemTypes.LifeSupp or
+              SystemTypes.Comms or
+              SystemTypes.Electrical))
+          { return false; }*/
 
         //SabotageMaster
         if (player.Is(CustomRoles.SabotageMaster))
             SabotageMaster.RepairSystem(__instance, systemType, amount);
+        if (player.Is(CustomRoles.Alchemist) && Alchemist.FixNextSabo) Alchemist.RepairSystem(systemType, amount);
 
         if (systemType == SystemTypes.Electrical && 0 <= amount && amount <= 4)
         {
@@ -108,13 +109,13 @@ class RepairSystemPatch
             if (player.Is(CustomRoles.Glitch) && (player.IsAlive())) return true;
             return false;
         }
-      /*if (systemType == SystemTypes.Doors && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay)
-        {
-            if (player.Is(CustomRoleTypes.Impostor) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool())) return true;
-            if (player.Is(CustomRoles.Jackal) && Jackal.CanUseSabotage.GetBool()) return true;
-            if (player.Is(CustomRoles.Parasite) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool())) return true;
-            return false;
-        }*/
+        /*if (systemType == SystemTypes.Doors && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay)
+          {
+              if (player.Is(CustomRoleTypes.Impostor) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool())) return true;
+              if (player.Is(CustomRoles.Jackal) && Jackal.CanUseSabotage.GetBool()) return true;
+              if (player.Is(CustomRoles.Parasite) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool())) return true;
+              return false;
+          }*/
 
         if (systemType == SystemTypes.Security && amount == 1)
         {
@@ -166,6 +167,7 @@ class SwitchSystemRepairPatch
     {
         if (player.Is(CustomRoles.SabotageMaster))
             SabotageMaster.SwitchSystemRepair(__instance, amount);
+        if (player.Is(CustomRoles.Alchemist) && Alchemist.FixNextSabo) Alchemist.SwitchSystemRepair(__instance, amount);
     }
 }
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Start))]

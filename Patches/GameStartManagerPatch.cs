@@ -6,10 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
-using UnityEngine;
 using TOHE.Roles.Neutral;
-using Object = UnityEngine.Object;
+using UnityEngine;
 using static TOHE.Translator;
+using Object = UnityEngine.Object;
 
 namespace TOHE;
 
@@ -36,7 +36,7 @@ public class GameStartManagerPatch
             // Reset lobby countdown timer
             timer = 600f;
 
-            HideName = UnityEngine.Object.Instantiate(__instance.GameRoomNameCode, __instance.GameRoomNameCode.transform);
+            HideName = Object.Instantiate(__instance.GameRoomNameCode, __instance.GameRoomNameCode.transform);
             HideName.text = ColorUtility.TryParseHtmlString(Main.HideColor.Value, out _)
                     ? $"<color={Main.HideColor.Value}>{Main.HideName.Value}</color>"
                     : $"<color={Main.ModColor}>{Main.HideName.Value}</color>";
@@ -217,7 +217,7 @@ public class GameStartRandomMap
             Utils.SendMessage(msg);
             return false;
         }
-        
+
 
         Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
         Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;

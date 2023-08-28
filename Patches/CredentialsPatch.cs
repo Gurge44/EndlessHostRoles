@@ -1,9 +1,7 @@
 using HarmonyLib;
-using Il2CppMono.Security;
 using System;
 using System.Linq;
 using System.Text;
-using TMPro;
 using UnityEngine;
 
 using static TOHE.Translator;
@@ -55,12 +53,12 @@ internal class VersionShowerStartPatch
 
     private static void Postfix(VersionShower __instance)
     {
-        Main.credentialsText = $"\r<size=2><color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginDisplayVersion} by <color=#ffff00>Gurge44</color>";
-    //    Main.credentialsText = $"\r\n<color=#de56fd>TOHE SolarLoonieEdit</color> v{Main.PluginDisplayVersion}";
+        Main.credentialsText = $"\r<size=1.5><color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginDisplayVersion} by <color=#ffff00>Gurge44</color>";
+        //    Main.credentialsText = $"\r\n<color=#de56fd>TOHE SolarLoonieEdit</color> v{Main.PluginDisplayVersion}";
         if (Main.IsAprilFools) Main.credentialsText = $"\r\n<color=#00bfff>Town Of Host</color> v11.45.14";
 #if DEBUG
-      //  Main.credentialsText += $"\r\n<color=#a54aff>Modified by </color><color=#ff3b6f>Loonie</color>";
-        Main.credentialsText += $"\r\n<color=#a54aff>By <color=#ffc0cb>KARPED1EM</color> & </color><color=#f34c50>Loonie</color>";
+        //  Main.credentialsText += $"\r\n<color=#a54aff>Modified by </color><color=#ff3b6f>Loonie</color>";
+        //Main.credentialsText += $"\r\n<color=#a54aff>By <color=#ffc0cb>KARPED1EM</color> & </color><color=#f34c50>Loonie</color>";
 #endif
 
 #if RELEASE
@@ -95,33 +93,33 @@ internal class VersionShowerStartPatch
         //    ColorUtility.TryParseHtmlString(Main.ModColor, out var col);
         //    SpecialEventText.color = col;
         //}
-      /*else if (!Main.IsAprilFools)
-        {
-            SpecialEventText.text = $"{Main.MainMenuText}";
-            SpecialEventText.fontSize = 0.9f;
-            SpecialEventText.color = Color.white;
-            SpecialEventText.alignment = TextAlignmentOptions.TopRight;
-            SpecialEventText.transform.position = new Vector3(4.6f, 2.725f, 0);
-        }
+        /*else if (!Main.IsAprilFools)
+          {
+              SpecialEventText.text = $"{Main.MainMenuText}";
+              SpecialEventText.fontSize = 0.9f;
+              SpecialEventText.color = Color.white;
+              SpecialEventText.alignment = TextAlignmentOptions.TopRight;
+              SpecialEventText.transform.position = new Vector3(4.6f, 2.725f, 0);
+          }
 
-        if ((OVersionShower = GameObject.Find("VersionShower")) != null && !Main.IsAprilFools)
-        {
-            OVersionShower.transform.localScale = new Vector3(0.6f, 0.6f, 1f);
-            OVersionShower.transform.position = new Vector3(-7.3f, 3.9f, 0f);
-            if (TitleLogoPatch.amongUsLogo != null)
-            {
-                if (VisitText == null && ModUpdater.visit > 0)
-                {
-                    VisitText = Object.Instantiate(__instance.text);
-                    VisitText.text = string.Format(GetString("TOHEVisitorCount"), Main.ModColor, ModUpdater.visit);
-                    VisitText.color = Color.white;
-                    VisitText.fontSize = 1.2f;
-                    //VisitText.alignment = TMPro.TextAlignmentOptions.Top;
-                    OVersionShower.transform.localScale = new Vector3(0.6f, 0.6f, 1f);
-                    VisitText.transform.position = new Vector3(-5.3f, 2.75f, 0f);
-                }
-            }
-        }*/
+          if ((OVersionShower = GameObject.Find("VersionShower")) != null && !Main.IsAprilFools)
+          {
+              OVersionShower.transform.localScale = new Vector3(0.6f, 0.6f, 1f);
+              OVersionShower.transform.position = new Vector3(-7.3f, 3.9f, 0f);
+              if (TitleLogoPatch.amongUsLogo != null)
+              {
+                  if (VisitText == null && ModUpdater.visit > 0)
+                  {
+                      VisitText = Object.Instantiate(__instance.text);
+                      VisitText.text = string.Format(GetString("TOHEVisitorCount"), Main.ModColor, ModUpdater.visit);
+                      VisitText.color = Color.white;
+                      VisitText.fontSize = 1.2f;
+                      //VisitText.alignment = TMPro.TextAlignmentOptions.Top;
+                      OVersionShower.transform.localScale = new Vector3(0.6f, 0.6f, 1f);
+                      VisitText.transform.position = new Vector3(-5.3f, 2.75f, 0f);
+                  }
+              }
+          }*/
     }
 }
 
@@ -138,22 +136,22 @@ internal class TitleLogoPatch
 
     private static void Postfix(MainMenuManager __instance)
     {
-      /*if (Main.IsAprilFools)
-        {
-            if ((amongUsLogo = GameObject.Find("bannerLogo_AmongUs")) != null)
-            {
-                amongUsLogo.transform.localScale *= 0.4f;
-                amongUsLogo.transform.position += Vector3.up * 0.25f;
-            }
+        /*if (Main.IsAprilFools)
+          {
+              if ((amongUsLogo = GameObject.Find("bannerLogo_AmongUs")) != null)
+              {
+                  amongUsLogo.transform.localScale *= 0.4f;
+                  amongUsLogo.transform.position += Vector3.up * 0.25f;
+              }
 
-            var tohLogo = new GameObject("titleLogo_TOH");
-            tohLogo.transform.position = Vector3.up;
-            tohLogo.transform.localScale *= 1.2f;
-            var renderer = tohLogo.AddComponent<SpriteRenderer>();
-            renderer.sprite = Utils.LoadSprite("TOHE.Resources.Images.TownOfHost-Logo.png", 300f);
+              var tohLogo = new GameObject("titleLogo_TOH");
+              tohLogo.transform.position = Vector3.up;
+              tohLogo.transform.localScale *= 1.2f;
+              var renderer = tohLogo.AddComponent<SpriteRenderer>();
+              renderer.sprite = Utils.LoadSprite("TOHE.Resources.Images.TownOfHost-Logo.png", 300f);
 
-            return;
-        }*/
+              return;
+          }*/
 
         //if ((amongUsLogo = GameObject.Find("bannerLogo_AmongUs")) != null)
         //{
@@ -191,60 +189,60 @@ internal class TitleLogoPatch
             BottomButtons.transform.position = new Vector3(0f, -2.71f, 0f);
         }*/
 
-     /*   if ((Ambience = GameObject.Find("Ambience")) != null)
-        {
-            Ambience.SetActive(false);
-            var CustomBG = new GameObject("CustomBG");
-            CustomBG.transform.position = new Vector3(2.095f, -0.25f, 520f);
-            var bgRenderer = CustomBG.AddComponent<SpriteRenderer>();
-            bgRenderer.sprite = Utils.LoadSprite("TOHE.Resources.Images.TOHE-BG.jpg", 245f);
-        } */
+        /*   if ((Ambience = GameObject.Find("Ambience")) != null)
+           {
+               Ambience.SetActive(false);
+               var CustomBG = new GameObject("CustomBG");
+               CustomBG.transform.position = new Vector3(2.095f, -0.25f, 520f);
+               var bgRenderer = CustomBG.AddComponent<SpriteRenderer>();
+               bgRenderer.sprite = Utils.LoadSprite("TOHE.Resources.Images.TOHE-BG.jpg", 245f);
+           } */
         if ((Ambience = GameObject.Find("Ambience")) != null)
         {
             try
             {
                 SpriteRenderer activeSpriteRender = __instance.playButton.activeSprites.GetComponent<SpriteRenderer>();
-                activeSpriteRender.color = new Color(1f, 0f, 0.62f);
+                activeSpriteRender.color = new Color(0.99f, 0.55f, 0.56f);
 
                 SpriteRenderer inactiveSpriteRender = __instance.playButton.inactiveSprites.GetComponent<SpriteRenderer>();
-                inactiveSpriteRender.color = new Color(1f, 0f, 0.35f);
+                inactiveSpriteRender.color = new Color(1f, 0.31f, 0.09f);
                 inactiveSpriteRender.sprite = activeSpriteRender.sprite;
 
-                __instance.playButton.activeTextColor = Color.white;
-                __instance.playButton.inactiveTextColor = Color.white;
+                __instance.playButton.activeTextColor = new Color(0.08f, 0.03f, 0.12f);
+                __instance.playButton.inactiveTextColor = new Color(0.08f, 0.03f, 0.12f);
 
-                __instance.inventoryButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new Color(0.95f, 0f, 1f);
-                __instance.inventoryButton.activeSprites.GetComponent<SpriteRenderer>().color = new Color(1f, 0f, 0.85f);
+                __instance.inventoryButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new Color(0.11f, 0.13f, 0.59f);
+                __instance.inventoryButton.activeSprites.GetComponent<SpriteRenderer>().color = new Color(0.63f, 0.53f, 0.89f);
                 __instance.inventoryButton.activeTextColor = Color.white;
                 __instance.inventoryButton.inactiveTextColor = Color.white;
 
-                __instance.shopButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new Color(1f, 0f, 0.85f);
-                __instance.shopButton.activeSprites.GetComponent<SpriteRenderer>().color = new Color(1f, 0f, 0.85f);
+                __instance.shopButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new Color(0.11f, 0.13f, 0.59f);
+                __instance.shopButton.activeSprites.GetComponent<SpriteRenderer>().color = new Color(0.63f, 0.53f, 0.89f);
                 __instance.shopButton.activeTextColor = Color.white;
                 __instance.shopButton.inactiveTextColor = Color.white;
 
-                __instance.newsButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new Color(0.82f, 0f, 1f);
-                __instance.newsButton.activeSprites.GetComponent<SpriteRenderer>().color = new Color(1f, 0f, 0.85f);
+                __instance.newsButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new Color(0.69f, 0.2f, 0.65f);
+                __instance.newsButton.activeSprites.GetComponent<SpriteRenderer>().color = new Color(0.97f, 0.41f, 0.61f);
                 __instance.newsButton.activeTextColor = Color.white;
                 __instance.newsButton.inactiveTextColor = Color.white;
 
-                __instance.myAccountButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new Color(0.95f, 0f, 1f);
-                __instance.myAccountButton.activeSprites.GetComponent<SpriteRenderer>().color = new Color(1f, 0f, 0.85f);
+                __instance.myAccountButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new Color(0.69f, 0.2f, 0.65f);
+                __instance.myAccountButton.activeSprites.GetComponent<SpriteRenderer>().color = new Color(0.97f, 0.41f, 0.61f);
                 __instance.myAccountButton.activeTextColor = Color.white;
                 __instance.myAccountButton.inactiveTextColor = Color.white;
 
-                __instance.settingsButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new Color(1f, 0f, 0.85f);
-                __instance.settingsButton.activeSprites.GetComponent<SpriteRenderer>().color = new Color(1f, 0f, 0.85f);
+                __instance.settingsButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new Color(0.69f, 0.2f, 0.65f);
+                __instance.settingsButton.activeSprites.GetComponent<SpriteRenderer>().color = new Color(0.97f, 0.41f, 0.61f);
                 __instance.settingsButton.activeTextColor = Color.white;
                 __instance.settingsButton.inactiveTextColor = Color.white;
 
-                __instance.quitButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new Color(1f, 0f, 0.35f);
-                __instance.quitButton.activeSprites.GetComponent<SpriteRenderer>().color = new Color(1f, 0f, 0.62f);
+                __instance.quitButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new Color(0.27f, 0.21f, 0.7f);
+                __instance.quitButton.activeSprites.GetComponent<SpriteRenderer>().color = new Color(0.42f, 0.3f, 0.8f);
                 __instance.quitButton.activeTextColor = Color.white;
                 __instance.quitButton.inactiveTextColor = Color.white;
 
-                __instance.creditsButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new Color(0.5f, 0f, 0.85f);
-                __instance.creditsButton.activeSprites.GetComponent<SpriteRenderer>().color = new Color(1f, 0f, 0.85f);
+                __instance.creditsButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new Color(0.18f, 0.2f, 0.59f);
+                __instance.creditsButton.activeSprites.GetComponent<SpriteRenderer>().color = new Color(0.96f, 0.88f, 0.86f);
                 __instance.creditsButton.activeTextColor = Color.white;
                 __instance.creditsButton.inactiveTextColor = Color.white;
 
@@ -256,7 +254,7 @@ internal class TitleLogoPatch
                 var CustomBG = new GameObject("CustomBG");
                 CustomBG.transform.position = new Vector3(0f, 0f, 520f);
                 var bgRenderer = CustomBG.AddComponent<SpriteRenderer>();
-                bgRenderer.sprite = Utils.LoadSprite("TOHE.Resources.Images.PL.png", 245f);
+                bgRenderer.sprite = Utils.LoadSprite("TOHE.Resources.Images.bg.png", 180f);
 
                 __instance.screenTint.gameObject.transform.localPosition += new Vector3(1000f, 0f);
                 __instance.screenTint.enabled = false;
@@ -272,7 +270,7 @@ internal class TitleLogoPatch
 
                 GameObject.Find("Shine").transform.gameObject.SetActive(false);
 
-                leftPanel.GetComponentsInChildren<SpriteRenderer>(true).Where(r => r.name == "Shine").Do(r => r.color = new Color(1f, 0f, 0.35f, 0.2f));
+                leftPanel.GetComponentsInChildren<SpriteRenderer>(true).Where(r => r.name == "Shine").Do(r => r.color = new Color(0f, 0f, 1f, 0.1f));
                 //leftPanel.GetComponents<SpriteRenderer>().Where(r => r.name == "Shine").Do(r => r.color = new Color(1f, 0f, 0f));
 
                 leftPanel.gameObject.GetComponent<SpriteRenderer>().enabled = false;

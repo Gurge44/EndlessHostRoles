@@ -28,7 +28,7 @@ public static class HeliSabotageSystemPatch
     {
         if (!__instance.IsActive || !Options.SabotageTimeControl.GetBool())
             return;
-        if (AirshipStatus.Instance != null)
+        if (ShipStatus.Instance != null)
             if (__instance.Countdown >= Options.AirshipReactorTimeLimit.GetFloat())
                 __instance.Countdown = Options.AirshipReactorTimeLimit.GetFloat();
     }

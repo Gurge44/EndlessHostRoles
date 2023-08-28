@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using TOHE.Modules;
 using TOHE.Roles.Impostor;
 using UnityEngine;
 
@@ -45,6 +44,14 @@ public static class HudSpritePatch
         switch (player.GetCustomRole())
         {
             case CustomRoles.Assassin:
+                if (!shapeshifting)
+                {
+                    newKillButton = CustomButton.Get("Mark");
+                    if (Assassin.MarkedPlayer.ContainsKey(player.PlayerId))
+                        newAbilityButton = CustomButton.Get("Assassinate");
+                }
+                break;
+            case CustomRoles.Undertaker:
                 if (!shapeshifting)
                 {
                     newKillButton = CustomButton.Get("Mark");
@@ -135,6 +142,30 @@ public static class HudSpritePatch
                 break;
             case CustomRoles.CursedSoul:
                 newKillButton = CustomButton.Get("Soul");
+                break;
+            case CustomRoles.TimeMaster:
+                newAbilityButton = CustomButton.Get("Time Master");
+                break;
+            case CustomRoles.Mario:
+                newAbilityButton = CustomButton.Get("Happy");
+                break;
+            case CustomRoles.Sheriff:
+                newKillButton = CustomButton.Get("Kill");
+                break;
+            case CustomRoles.Swooper:
+                newAbilityButton = CustomButton.Get("invisible");
+                break;
+            case CustomRoles.Chameleon:
+                newAbilityButton = CustomButton.Get("invisible");
+                break;
+            case CustomRoles.Wraith:
+                newAbilityButton = CustomButton.Get("invisible");
+                break;
+            case CustomRoles.Escapee:
+                newAbilityButton = CustomButton.Get("abscond");
+                break;
+            case CustomRoles.Farseer:
+                newKillButton = CustomButton.Get("prophecies");
                 break;
             case CustomRoles.Warlock:
                 if (!shapeshifting)

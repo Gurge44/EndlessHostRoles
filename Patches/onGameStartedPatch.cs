@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TOHE.Modules;
+using TOHE.Roles.AddOns.Common;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
-using TOHE.Roles.AddOns.Common;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
@@ -40,6 +40,7 @@ internal class ChangeRoleSettings
             Main.AllPlayerCustomRoles = new Dictionary<byte, CustomRoles>();
             Main.WarlockTimer = new();
             Main.AssassinTimer = new();
+            Main.UndertakerTimer = new();
             Main.isDoused = new();
             Main.isDraw = new();
             Main.isRevealed = new();
@@ -66,6 +67,7 @@ internal class ChangeRoleSettings
             Main.KilledDiseased = new();
             Main.KilledAntidote = new();
             Main.WorkaholicAlive = new();
+            Main.SpeedrunnerAlive = new();
             Main.BaitAlive = new();
             Main.BoobyTrapBody = new();
             Main.KillerOfBoobyTrapBody = new();
@@ -185,7 +187,7 @@ internal class ChangeRoleSettings
             FireWorks.Init();
             Sniper.Init();
             TimeThief.Init();
-        //    Mare.Init();
+            //    Mare.Init();
             Witch.Init();
             HexMaster.Init();
             SabotageMaster.Init();
@@ -222,7 +224,9 @@ internal class ChangeRoleSettings
             Divinator.Init();
             Oracle.Init();
             Eraser.Init();
+            NiceEraser.Init();
             Assassin.Init();
+            Undertaker.Init();
             Sans.Init();
             Juggernaut.Init();
             Hacker.Init();
@@ -255,6 +259,7 @@ internal class ChangeRoleSettings
             DoubleShot.Init();
             Dazzler.Init();
             Addict.Init();
+            Alchemist.Init();
             Deathpact.Init();
             Tracefinder.Init();
             Devourer.Init();
@@ -273,6 +278,8 @@ internal class ChangeRoleSettings
             PlagueBearer.Init();
             Reverie.Init();
             Doomsayer.Init();
+            Disperser.Init();
+            Twister.Init();
             //Pirate.Init();
 
 
@@ -318,7 +325,7 @@ internal class SelectRolesPatch
                 PlayerControl.LocalPlayer.Data.IsDead = true;
                 Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SetDead();
             }
-                   
+
 
             SelectCustomRoles();
             SelectAddonRoles();
@@ -481,9 +488,9 @@ internal class SelectRolesPatch
                     case CustomRoles.Sniper:
                         Sniper.Add(pc.PlayerId);
                         break;
-               /*     case CustomRoles.Mare:
-                        Mare.Add(pc.PlayerId);
-                        break; */
+                    /*     case CustomRoles.Mare:
+                             Mare.Add(pc.PlayerId);
+                             break; */
                     case CustomRoles.Vampire:
                         Vampire.Add(pc.PlayerId);
                         break;
@@ -500,7 +507,7 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Farseer:
                         foreach (var ar in Main.AllPlayerControls)
-                        { 
+                        {
                             Main.isRevealed.Add((pc.PlayerId, ar.PlayerId), false);
                         }
                         Farseer.RandomRole.Add(pc.PlayerId, Farseer.GetRandomCrewRoleString());
@@ -616,8 +623,14 @@ internal class SelectRolesPatch
                     case CustomRoles.Eraser:
                         Eraser.Add(pc.PlayerId);
                         break;
+                    case CustomRoles.NiceEraser:
+                        NiceEraser.Add(pc.PlayerId);
+                        break;
                     case CustomRoles.Assassin:
                         Assassin.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Undertaker:
+                        Undertaker.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Sans:
                         Sans.Add(pc.PlayerId);
@@ -639,6 +652,12 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Councillor:
                         Councillor.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Camouflager:
+                        Camouflager.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Twister:
+                        Twister.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Mortician:
                         Mortician.Add(pc.PlayerId);
@@ -739,6 +758,9 @@ internal class SelectRolesPatch
                     case CustomRoles.Addict:
                         Addict.Add(pc.PlayerId);
                         break;
+                    case CustomRoles.Alchemist:
+                        Alchemist.Add(pc.PlayerId);
+                        break;
                     case CustomRoles.Deathpact:
                         Deathpact.Add(pc.PlayerId);
                         break;
@@ -769,9 +791,12 @@ internal class SelectRolesPatch
                     case CustomRoles.Doomsayer:
                         Doomsayer.Add(pc.PlayerId);
                         break;
-                    //case CustomRoles.Pirate:
-                    //    Pirate.Add(pc.PlayerId);
-                    //    break;
+                    case CustomRoles.Disperser:
+                        Disperser.Add(pc.PlayerId);
+                        break;
+                        //case CustomRoles.Pirate:
+                        //    Pirate.Add(pc.PlayerId);
+                        //    break;
                 }
                 foreach (var subRole in pc.GetCustomSubRoles())
                 {
@@ -886,47 +911,47 @@ internal class SelectRolesPatch
         SetColorPatch.IsAntiGlitchDisabled = false;
     }
     private static void ForceAssignRole(CustomRoles role, List<PlayerControl> AllPlayers, CustomRpcSender sender, RoleTypes BaseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate, bool skip = false, int Count = -1)
-        {
-            var count = 1;
+    {
+        var count = 1;
 
-            if (Count != -1)
-                count = Count;
-            for (var i = 0; i < count; i++)
+        if (Count != -1)
+            count = Count;
+        for (var i = 0; i < count; i++)
+        {
+            if (AllPlayers.Count <= 0) break;
+            var rand = new System.Random();
+            var player = AllPlayers[rand.Next(0, AllPlayers.Count)];
+            AllPlayers.Remove(player);
+            Main.AllPlayerCustomRoles[player.PlayerId] = role;
+            if (!skip)
             {
-                if (AllPlayers.Count <= 0) break;
-                var rand = new System.Random();
-                var player = AllPlayers[rand.Next(0, AllPlayers.Count)];
-                AllPlayers.Remove(player);
-                Main.AllPlayerCustomRoles[player.PlayerId] = role;
-                if (!skip)
+                if (!player.IsModClient())
                 {
-                    if (!player.IsModClient())
+                    int playerCID = player.GetClientId();
+                    sender.RpcSetRole(player, BaseRole, playerCID);
+                    //Desyncする人視点で他プレイヤーを科学者にするループ
+                    foreach (var pc in PlayerControl.AllPlayerControls)
                     {
-                        int playerCID = player.GetClientId();
-                        sender.RpcSetRole(player, BaseRole, playerCID);
-                        //Desyncする人視点で他プレイヤーを科学者にするループ
-                        foreach (var pc in PlayerControl.AllPlayerControls)
-                        {
-                            if (pc == player) continue;
-                            sender.RpcSetRole(pc, RoleTypes.Scientist, playerCID);
-                        }
-                        //他視点でDesyncする人の役職を科学者にするループ
-                        foreach (var pc in PlayerControl.AllPlayerControls)
-                        {
-                            if (pc == player) continue;
-                            if (pc.PlayerId == 0) player.SetRole(RoleTypes.Scientist); //ホスト視点用
-                            else sender.RpcSetRole(player, RoleTypes.Scientist, pc.GetClientId());
-                        }
+                        if (pc == player) continue;
+                        sender.RpcSetRole(pc, RoleTypes.Scientist, playerCID);
                     }
-                    else
+                    //他視点でDesyncする人の役職を科学者にするループ
+                    foreach (var pc in PlayerControl.AllPlayerControls)
                     {
-                        //ホストは別の役職にする
-                        player.SetRole(hostBaseRole); //ホスト視点用
-                        sender.RpcSetRole(player, hostBaseRole);
+                        if (pc == player) continue;
+                        if (pc.PlayerId == 0) player.SetRole(RoleTypes.Scientist); //ホスト視点用
+                        else sender.RpcSetRole(player, RoleTypes.Scientist, pc.GetClientId());
                     }
+                }
+                else
+                {
+                    //ホストは別の役職にする
+                    player.SetRole(hostBaseRole); //ホスト視点用
+                    sender.RpcSetRole(player, hostBaseRole);
                 }
             }
         }
+    }
 
     private static void AssignLoversRolesFromList()
     {
@@ -944,14 +969,14 @@ internal class SelectRolesPatch
         var allPlayers = new List<PlayerControl>();
         foreach (var pc in Main.AllPlayerControls)
         {
-            if (pc.Is(CustomRoles.GM) 
-                || (pc.HasSubRole() && pc.GetCustomSubRoles().Count >= Options.NoLimitAddonsNumMax.GetInt()) 
-                || pc.Is(CustomRoles.Ntr) 
-                || pc.Is(CustomRoles.Dictator) 
-                || pc.Is(CustomRoles.God) 
-                || pc.Is(CustomRoles.FFF) 
+            if (pc.Is(CustomRoles.GM)
+                || (pc.HasSubRole() && pc.GetCustomSubRoles().Count >= Options.NoLimitAddonsNumMax.GetInt())
+                || pc.Is(CustomRoles.Ntr)
+                || pc.Is(CustomRoles.Dictator)
+                || pc.Is(CustomRoles.God)
+                || pc.Is(CustomRoles.FFF)
                 || pc.Is(CustomRoles.Bomber)
-                || pc.Is(CustomRoles.Nuker) 
+                || pc.Is(CustomRoles.Nuker)
                 || pc.Is(CustomRoles.Provocateur)
                 || (pc.GetCustomRole().IsCrewmate() && !Options.CrewCanBeInLove.GetBool())
                 || (pc.GetCustomRole().IsNeutral() && !Options.NeutralCanBeInLove.GetBool())
