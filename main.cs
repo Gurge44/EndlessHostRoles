@@ -111,6 +111,7 @@ public class Main : BasePlugin
     public static List<byte> CyberStarDead = new();
     public static List<byte> DemolitionistDead = new();
     public static List<byte> WorkaholicAlive = new();
+    public static List<byte> SpeedrunnerAlive = new();
     public static List<byte> BaitAlive = new();
     public static List<byte> BoobyTrapBody = new();
     public static List<byte> BoobyTrapKiller = new();
@@ -136,6 +137,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, (byte, float)> BitPlayers = new();
     public static Dictionary<byte, float> WarlockTimer = new();
     public static Dictionary<byte, float> AssassinTimer = new();
+    public static Dictionary<byte, float> UndertakerTimer = new();
     public static Dictionary<byte, PlayerControl> CursedPlayers = new();
     public static Dictionary<byte, bool> isCurseAndKill = new();
     public static Dictionary<byte, int> MafiaRevenged = new();
@@ -160,7 +162,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, int> MarioVentCount = new();
     public static Dictionary<byte, long> VeteranInProtect = new();
     public static Dictionary<byte, float> VeteranNumOfUsed = new();
-    public static Dictionary<byte, byte> AllKillers = new();
+    public static Dictionary<byte, long> AllKillers = new();
     public static Dictionary<byte, float> GrenadierNumOfUsed = new();
     public static Dictionary<byte, float> LighterNumOfUsed = new();
     public static Dictionary<byte, float> TimeMasterNumOfUsed = new();
@@ -323,6 +325,7 @@ public class Main : BasePlugin
                 {CustomRoles.Bodyguard, "#185abd"},
                 {CustomRoles.Counterfeiter, "#BE29EC"},
                 {CustomRoles.Witness, "#e70052"},
+                {CustomRoles.Lookout, "#2a52be"},
                 {CustomRoles.Grenadier, "#3c4a16"},
                 {CustomRoles.Lighter, "#eee5be"},
                 {CustomRoles.Medic, "#00ff97"},
@@ -341,6 +344,7 @@ public class Main : BasePlugin
                 {CustomRoles.Deputy, "#df9026"},
                 {CustomRoles.Guardian, "#2E8B57"},
                 {CustomRoles.Addict, "#008000"},
+                {CustomRoles.Alchemist, "#e6d798"},
                 {CustomRoles.Tracefinder, "#0066CC"},
                 {CustomRoles.Oracle, "#6666FF"},
                 {CustomRoles.Spiritualist, "#669999"},
@@ -371,6 +375,7 @@ public class Main : BasePlugin
                 {CustomRoles.Gamer, "#68bc71"},
                 {CustomRoles.DarkHide, "#483d8b"},
                 {CustomRoles.Workaholic, "#008b8b"},
+                {CustomRoles.Speedrunner, "#800080"},
                 {CustomRoles.Collector, "#9d8892"},
                 {CustomRoles.Provocateur, "#74ba43"},
                 {CustomRoles.Sunnyboy, "#ff9902"},
@@ -551,6 +556,7 @@ public enum CustomRoles
     Witch,
     Warlock,
     Assassin,
+    Undertaker,
     Vindicator,
     Hacker,
     Miner,
@@ -595,8 +601,8 @@ public enum CustomRoles
     Convict,
     Visionary,
     Refugee,
-    Underdog,   
-   // Flashbang,
+    Underdog,
+    // Flashbang,
     //Crewmate(Vanilla)
     Engineer,
     GuardianAngel,
@@ -622,6 +628,7 @@ public enum CustomRoles
     Snitch,
     Marshall,
     SpeedBooster,
+    Lookout,
     Dictator,
     Doctor,
     Detective,
@@ -653,6 +660,7 @@ public enum CustomRoles
     Deputy,
     Guardian,
     Addict,
+    Alchemist,
     Tracefinder,
     Oracle,
     Spiritualist,
@@ -686,6 +694,7 @@ public enum CustomRoles
     Gamer,
     DarkHide,
     Workaholic,
+    Speedrunner,
     Collector,
     Provocateur,
     Sunnyboy,
@@ -717,8 +726,8 @@ public enum CustomRoles
     Amnesiac,
     Doomsayer,
     Masochist,
-   // Flux,
-    
+    // Flux,
+
     //SoloKombat
     KB_Normal,
 
@@ -762,7 +771,7 @@ public enum CustomRoles
     Lucky,
     Unlucky,
     DoubleShot,
-   // Reflective,
+    // Reflective,
     Rascal,
     Soulless,
     Gravestone,
@@ -807,6 +816,7 @@ public enum CustomWinner
     Gamer = CustomRoles.Gamer,
     DarkHide = CustomRoles.DarkHide,
     Workaholic = CustomRoles.Workaholic,
+    Speedrunner = CustomRoles.Speedrunner,
     Collector = CustomRoles.Collector,
     BloodKnight = CustomRoles.BloodKnight,
     Poisoner = CustomRoles.Poisoner,
@@ -851,12 +861,13 @@ public enum AdditionalWinners
     Totocalcio = CustomRoles.Totocalcio,
     Romantic = CustomRoles.Romantic,
     VengefulRomantic = CustomRoles.VengefulRomantic,
+    RuthlessRomantic = CustomRoles.RuthlessRomantic,
     Jackal = CustomRoles.Jackal,
     Sidekick = CustomRoles.Sidekick,
     Pursuer = CustomRoles.Pursuer,
     Phantom = CustomRoles.Phantom,
     Maverick = CustomRoles.Maverick,
- //   Baker = CustomRoles.Baker,
+    //   Baker = CustomRoles.Baker,
 }
 public enum SuffixModes
 {
