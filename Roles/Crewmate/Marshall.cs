@@ -25,7 +25,7 @@ public static class Marshall
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Marshall);
-    //    OptionMadmateCanFindMarshall = BooleanOptionItem.Create(Id + 14, "MadmateCanFindMarshall", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Marshall]);
+        //    OptionMadmateCanFindMarshall = BooleanOptionItem.Create(Id + 14, "MadmateCanFindMarshall", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Marshall]);
         OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.Marshall);
     }
     public static void Init()
@@ -72,31 +72,31 @@ public static class Marshall
         {
             foreach (var target in Main.AllAlivePlayerControls)
             {
-           //     if (!IsMarshallTarget(target)) continue;
+                //     if (!IsMarshallTarget(target)) continue;
 
-           //     TargetArrow.Add(target.PlayerId, snitchId);
+                //     TargetArrow.Add(target.PlayerId, snitchId);
             }
             IsExposed[marshallId] = true;
         }
 
-    /*    if (IsComplete[marshallId] || !marshallTask.IsTaskFinished) return;
+        /*    if (IsComplete[marshallId] || !marshallTask.IsTaskFinished) return;
 
-        foreach (var target in Main.AllAlivePlayerControls)
-        {
-            if (!IsMarshallTarget(target)) continue;
-
-            var targetId = target.PlayerId;
-            NameColorManager.Add(marshallId, targetId);
-
-            
-            //ターゲットは共通なので2回登録する必要はない
-            if (!TargetList.Contains(targetId))
+            foreach (var target in Main.AllAlivePlayerControls)
             {
-                TargetList.Add(targetId);
+                if (!IsMarshallTarget(target)) continue;
 
-                
-            }
-        } */
+                var targetId = target.PlayerId;
+                NameColorManager.Add(marshallId, targetId);
+
+
+                //ターゲットは共通なので2回登録する必要はない
+                if (!TargetList.Contains(targetId))
+                {
+                    TargetList.Add(targetId);
+
+
+                }
+            } */
 
         NameNotifyManager.Notify(marshall, Translator.GetString("MarshallDoneTasks"));
 
@@ -127,7 +127,7 @@ public static class Marshall
         if (!exposedMarshall.Any()) return "";
 
         var warning = "★";
-        
+
 
         return Utils.ColorString(RoleColor, warning);
     }
@@ -137,7 +137,7 @@ public static class Marshall
     /// <param name="seer">スニッチの場合有効</param>
     /// <param name="target">スニッチの場合有効</param>
     /// <returns></returns>
-    
+
     public static void OnCompleteTask(PlayerControl player)
     {
         if (!IsThisRole(player.PlayerId) /*|| player.Is(CustomRoles.Madmate)*/) return;

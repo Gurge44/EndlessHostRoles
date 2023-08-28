@@ -1,13 +1,8 @@
-﻿using System.Collections.Generic;
-using Hazel;
-using Sentry.Protocol;
-using UnityEngine;
-using static TOHE.Options;
-using static UnityEngine.GraphicsBuffer;
-using static TOHE.Translator;
-using System.Diagnostics;
-using Hazel.Dtls;
+﻿using Hazel;
+using System.Collections.Generic;
 using System.Linq;
+using static TOHE.Options;
+using static TOHE.Translator;
 
 namespace TOHE.Roles.Crewmate;
 
@@ -25,9 +20,9 @@ public static class CopyCat
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.CopyCat);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "CopyCatCopyCooldown", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.CopyCat])
+        KillCooldown = FloatOptionItem.Create(Id + 10, "CopyCatCopyCooldown", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.CopyCat])
             .SetValueFormat(OptionFormat.Seconds);
-        CanKill = BooleanOptionItem.Create(Id + 11, "CopyCatCanKill", false, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.CopyCat]);
+        CanKill = BooleanOptionItem.Create(Id + 11, "CopyCatCanKill", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.CopyCat]);
         MiscopyLimitOpt = IntegerOptionItem.Create(Id + 12, "CopyCatMiscopyLimit", new(0, 14, 1), 2, TabGroup.CrewmateRoles, false).SetParent(CanKill)
             .SetValueFormat(OptionFormat.Times);
     }
@@ -49,7 +44,7 @@ public static class CopyCat
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public static bool IsEnable() => playerIdList.Count > 0;
+    public static bool IsEnable() => playerIdList.Any();
 
     private static void SendRPC(byte playerId)
     {
@@ -156,7 +151,7 @@ public static class CopyCat
                     break;
                 case CustomRoles.Divinator:
                     Divinator.CheckLimit.Remove(pc.PlayerId);
-                break;
+                    break;
             }
             pc.RpcSetCustomRole(CustomRoles.CopyCat);
             SetKillCooldown(player);
@@ -172,6 +167,7 @@ public static class CopyCat
             CustomRoles.DovesOfNeace or
             CustomRoles.Veteran or
             CustomRoles.Addict or
+            CustomRoles.Alchemist or
             CustomRoles.Chameleon or
             //bcoz of arrows
             CustomRoles.Mortician or

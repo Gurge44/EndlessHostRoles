@@ -1,10 +1,7 @@
-using Hazel;
 using System;
 using System.Collections.Generic;
-using static TOHE.Options;
 using System.Linq;
-using TOHE.Roles.Impostor;
-using UnityEngine;
+using static TOHE.Options;
 
 namespace TOHE;
 
@@ -39,11 +36,11 @@ public static class Reverie
         playerIdList.Add(playerId);
         NowCooldown.TryAdd(playerId, DefaultKillCooldown.GetFloat());
 
-            if (!AmongUsClient.Instance.AmHost) return;
-                if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
+        if (!AmongUsClient.Instance.AmHost) return;
+        if (!Main.ResetCamPlayerList.Contains(playerId))
+            Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = NowCooldown[id];
     public static void OnCheckMurder(PlayerControl killer)
     {

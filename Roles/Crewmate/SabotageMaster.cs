@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace TOHE.Roles.Crewmate;
 
@@ -49,14 +50,14 @@ public static class SabotageMaster
     {
         playerIdList.Add(playerId);
     }
-    public static bool IsEnable() => playerIdList.Count > 0;
+    public static bool IsEnable() => playerIdList.Any();
     public static void RepairSystem(ShipStatus __instance, SystemTypes systemType, byte amount)
     {
         switch (systemType)
         {
             case SystemTypes.Reactor:
                 if (!FixesReactors.GetBool()) break;
-                if (SkillLimit.GetFloat() > 0 && UsedSkillCount >= SkillLimit.GetFloat()) break;
+                if (SkillLimit.GetFloat() > 0 && UsedSkillCount + UsesUsedWhenFixingReactorOrO2.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
                 if (amount is 64 or 65)
                 {
                     ShipStatus.Instance.RpcRepairSystem(SystemTypes.Reactor, 16);
@@ -66,7 +67,7 @@ public static class SabotageMaster
                 break;
             case SystemTypes.Laboratory:
                 if (!FixesReactors.GetBool()) break;
-                if (SkillLimit.GetFloat() > 0 && UsedSkillCount >= SkillLimit.GetFloat()) break;
+                if (SkillLimit.GetFloat() > 0 && UsedSkillCount + UsesUsedWhenFixingReactorOrO2.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
                 if (amount is 64 or 65)
                 {
                     ShipStatus.Instance.RpcRepairSystem(SystemTypes.Laboratory, 67);
@@ -76,7 +77,7 @@ public static class SabotageMaster
                 break;
             case SystemTypes.LifeSupp:
                 if (!FixesOxygens.GetBool()) break;
-                if (SkillLimit.GetFloat() > 0 && UsedSkillCount >= SkillLimit.GetFloat()) break;
+                if (SkillLimit.GetFloat() > 0 && UsedSkillCount + UsesUsedWhenFixingReactorOrO2.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
                 if (amount is 64 or 65)
                 {
                     ShipStatus.Instance.RpcRepairSystem(SystemTypes.LifeSupp, 67);
@@ -86,7 +87,7 @@ public static class SabotageMaster
                 break;
             case SystemTypes.Comms:
                 if (!FixesComms.GetBool()) break;
-                if (SkillLimit.GetFloat() > 0 && UsedSkillCount >= SkillLimit.GetFloat()) break;
+                if (SkillLimit.GetFloat() > 0 && UsedSkillCount + UsesUsedWhenFixingLightsOrComms.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
                 if (amount is 64 or 65)
                 {
                     ShipStatus.Instance.RpcRepairSystem(SystemTypes.Comms, 16);
@@ -128,7 +129,7 @@ public static class SabotageMaster
     {
         if (!FixesElectrical.GetBool()) return;
         if (SkillLimit.GetFloat() > 0 &&
-            UsedSkillCount >= SkillLimit.GetFloat())
+            UsedSkillCount + UsesUsedWhenFixingLightsOrComms.GetFloat() - 1 >= SkillLimit.GetFloat())
             return;
 
         if (amount is >= 0 and <= 4)

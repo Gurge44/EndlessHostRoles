@@ -1,6 +1,6 @@
 using Hazel;
 using System.Collections.Generic;
-using TOHE.Modules;
+using System.Linq;
 using UnityEngine;
 
 namespace TOHE.Roles.Crewmate;
@@ -48,7 +48,7 @@ public static class Crusader
         if (Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Remove(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
     public static void ReceiveRPC(MessageReader reader)
     {
         byte PlayerId = reader.ReadByte();

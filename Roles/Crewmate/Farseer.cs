@@ -19,7 +19,7 @@ namespace TOHE.Roles.Crewmate
         public static OptionItem FarseerRevealTime;
         public static OptionItem Vision;
 
-        private static System.Collections.Generic.List<CustomRoles> randomRolesForTrickster = new System.Collections.Generic.List<CustomRoles>
+        private static System.Collections.Generic.List<CustomRoles> randomRolesForTrickster = new()
         {
             CustomRoles.Snitch,
             CustomRoles.Luckey,
@@ -32,6 +32,7 @@ namespace TOHE.Roles.Crewmate
             CustomRoles.Mayor,
             CustomRoles.Paranoia,
             CustomRoles.Psychic,
+            CustomRoles.Lookout,
             CustomRoles.SabotageMaster,
             CustomRoles.Snitch,
             CustomRoles.Marshall,
@@ -63,11 +64,11 @@ namespace TOHE.Roles.Crewmate
             CustomRoles.Tracker,
         };
 
-        public static System.Collections.Generic.Dictionary<int, string> RandomRole = new System.Collections.Generic.Dictionary<int, string>();
+        public static System.Collections.Generic.Dictionary<int, string> RandomRole = new();
 
         public static void SetupCustomOption()
         {
-            Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Farseer);
+            SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Farseer);
             FarseerCooldown = FloatOptionItem.Create(Id + 10, "FarseerRevealCooldown", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Farseer])
                 .SetValueFormat(OptionFormat.Seconds);
             FarseerRevealTime = FloatOptionItem.Create(Id + 11, "FarseerRevealTime", new(0f, 30f, 1f), 10f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Farseer])
@@ -104,7 +105,7 @@ namespace TOHE.Roles.Crewmate
                     {
                         Main.FarseerTimer.Remove(player.PlayerId);
                     }
-                    else if (ar_time >= Farseer.FarseerRevealTime.GetFloat())//時間以上一緒にいて塗れた時
+                    else if (ar_time >= FarseerRevealTime.GetFloat())//時間以上一緒にいて塗れた時
                     {
                         player.SetKillCooldown();
                         Main.FarseerTimer.Remove(player.PlayerId);//塗が完了したのでDictionaryから削除

@@ -1,6 +1,7 @@
 using Hazel;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static TOHE.Options;
 
@@ -38,7 +39,7 @@ public static class Tracefinder
     {
         playerIdList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
     private static void SendRPC(byte playerId, bool add, Vector3 loc = new())
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTracefinderArrow, SendOption.Reliable, -1);
@@ -97,7 +98,8 @@ public static class Tracefinder
         else delay = IRandom.Instance.Next((int)ArrowDelayMin.GetFloat(), (int)ArrowDelayMax.GetFloat() + 1);
         delay = Math.Max(delay, 0.15f);
 
-        new LateTask(() => {
+        new LateTask(() =>
+        {
             foreach (var pc in playerIdList)
             {
                 var player = Utils.GetPlayerById(pc);

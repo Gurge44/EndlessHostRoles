@@ -1,9 +1,9 @@
 ﻿using Hazel;
-using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
-using System.Linq;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -101,14 +101,14 @@ namespace TOHE.Roles.Crewmate
                     msgToSend.Add(pc, string.Format(GetString("TrackerLastRoomMessage"), room));
                 }
 
-                
+
             }
         }
 
         public static void OnVote(PlayerControl player, PlayerControl target)
         {
             if (player == null || target == null) return;
-            if (TrackLimit[player.PlayerId] < 1) return; 
+            if (TrackLimit[player.PlayerId] < 1) return;
             if (player.PlayerId == target.PlayerId) return;
             if (target.PlayerId == TrackerTarget[player.PlayerId]) return;
 

@@ -1,6 +1,6 @@
+using Hazel;
 using System.Collections.Generic;
 using System.Linq;
-using Hazel;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -42,7 +42,7 @@ namespace TOHE.Roles.Crewmate
             LastGhostArrowShowTime.Add(playerId, 0);
             ShowGhostArrowUntil.Add(playerId, 0);
         }
-        public static bool IsEnable => playerIdList.Count > 0;
+        public static bool IsEnable => playerIdList.Any();
 
         private static bool ShowArrow(byte playerId)
         {
@@ -121,7 +121,7 @@ namespace TOHE.Roles.Crewmate
             if (GameStates.IsMeeting) return "";
             if (SpiritualistTarget != byte.MaxValue && ShowArrow(seer.PlayerId))
             {
-                return Utils.ColorString(seer.GetRoleColor(), TargetArrow.GetArrows(seer, SpiritualistTarget)); 
+                return Utils.ColorString(seer.GetRoleColor(), TargetArrow.GetArrows(seer, SpiritualistTarget));
             }
             return "";
         }

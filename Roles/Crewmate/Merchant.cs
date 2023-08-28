@@ -16,7 +16,7 @@ namespace TOHE.Roles.Crewmate
 
         private static List<CustomRoles> addons = new();
 
-        private static readonly List<CustomRoles> helpfulAddons = new List<CustomRoles>
+        private static readonly List<CustomRoles> helpfulAddons = new()
         {
             CustomRoles.Bait,
             CustomRoles.Trapper,
@@ -28,7 +28,7 @@ namespace TOHE.Roles.Crewmate
             CustomRoles.DualPersonality // Schizophrenic
         };
 
-        private static readonly List<CustomRoles> balancedAddons = new List<CustomRoles>
+        private static readonly List<CustomRoles> balancedAddons = new()
         {
             CustomRoles.Watcher,
             CustomRoles.Seer,
@@ -38,7 +38,7 @@ namespace TOHE.Roles.Crewmate
             CustomRoles.Autopsy,
         };
 
-        private static readonly List<CustomRoles> harmfulAddons = new List<CustomRoles>
+        private static readonly List<CustomRoles> harmfulAddons = new()
         {
             CustomRoles.Oblivious,
             CustomRoles.Bewilder,
@@ -48,12 +48,12 @@ namespace TOHE.Roles.Crewmate
             CustomRoles.Unlucky
         };
 
-        private static readonly List<CustomRoles> neutralAddons = new List<CustomRoles>
+        private static readonly List<CustomRoles> neutralAddons = new()
         {
            CustomRoles.Soulless
         };
 
-        private static readonly List<CustomRoles> experimentalAddons = new List<CustomRoles>
+        private static readonly List<CustomRoles> experimentalAddons = new()
         {
         //    CustomRoles.Flashman,
             CustomRoles.Egoist,
@@ -162,7 +162,7 @@ namespace TOHE.Roles.Crewmate
                     !CustomRolesHelper.CheckAddonConfilct(addon, x)
                     &&
                     (
-                        (OptionCanTargetCrew.GetBool() && CustomRolesHelper.IsCrewmate(x.GetCustomRole())) 
+                        (OptionCanTargetCrew.GetBool() && CustomRolesHelper.IsCrewmate(x.GetCustomRole()))
                         ||
                         (OptionCanTargetImpostor.GetBool() && CustomRolesHelper.IsImpostor(x.GetCustomRole()))
                         ||
@@ -170,7 +170,7 @@ namespace TOHE.Roles.Crewmate
                     )
                 ).ToList();
 
-            if (AllAlivePlayer.Count >= 1)
+            if (AllAlivePlayer.Any())
             {
                 bool helpfulAddon = helpfulAddons.Contains(addon);
                 bool harmfulAddon = !helpfulAddon;

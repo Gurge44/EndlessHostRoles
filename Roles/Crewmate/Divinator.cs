@@ -95,6 +95,7 @@ public static class Divinator
                 CustomRoles.Farseer or
                 CustomRoles.Arsonist or
                 CustomRoles.Assassin or
+                CustomRoles.Undertaker or
                 CustomRoles.BallLightning or
                 CustomRoles.Collector
                 => "Result2",
@@ -135,6 +136,7 @@ public static class Divinator
                 CustomRoles.Bodyguard or
                 CustomRoles.Bomber or
                 CustomRoles.FireWorks or
+                CustomRoles.Lookout or
                 CustomRoles.RuthlessRomantic or
                 CustomRoles.VengefulRomantic or
                 CustomRoles.Nuker
@@ -164,6 +166,7 @@ public static class Divinator
                 => "Result10",
 
                 CustomRoles.Addict or
+                CustomRoles.Alchemist or
                 CustomRoles.Escapee or
                 CustomRoles.Miner or
                 CustomRoles.Demolitionist or

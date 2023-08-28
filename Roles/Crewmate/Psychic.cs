@@ -39,7 +39,7 @@ public static class Psychic
     {
         playerIdList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Any();
     private static void SendRPC()
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncPsychicRedList, SendOption.Reliable, -1);
@@ -71,7 +71,7 @@ public static class Psychic
         if (!IsEnable || !AmongUsClient.Instance.AmHost) return;
 
         List<PlayerControl> BadListPc = Main.AllAlivePlayerControls.Where(x =>
-        x.Is(CustomRoleTypes.Impostor)  && !x.Is(CustomRoles.Trickster) || x.Is(CustomRoles.Madmate) || x.Is(CustomRoles.Rascal) || x.Is(CustomRoles.Recruit) || x.Is(CustomRoles.Charmed) || x.Is(CustomRoles.Infected) || x.Is(CustomRoles.Contagious) ||
+        x.Is(CustomRoleTypes.Impostor) && !x.Is(CustomRoles.Trickster) || x.Is(CustomRoles.Madmate) || x.Is(CustomRoles.Rascal) || x.Is(CustomRoles.Recruit) || x.Is(CustomRoles.Charmed) || x.Is(CustomRoles.Infected) || x.Is(CustomRoles.Contagious) ||
         (x.GetCustomRole().IsCK() && CkshowEvil.GetBool()) ||
         (x.GetCustomRole().IsNE() && NEshowEvil.GetBool()) ||
         (x.GetCustomRole().IsNB() && NBshowEvil.GetBool())
@@ -92,14 +92,14 @@ public static class Psychic
         if (ENum < 1) goto EndOfSelect;
 
         RedPlayer = new();
-        for (int i = 0; i < ENum && BadList.Count >= 1; i++)
+        for (int i = 0; i < ENum && BadList.Any(); i++)
         {
             RedPlayer.Add(BadList[IRandom.Instance.Next(0, BadList.Count)]);
             BadList.RemoveAll(RedPlayer.Contains);
         }
 
         AllList.RemoveAll(RedPlayer.Contains);
-        for (int i = 0; i < BNum && AllList.Count >= 1; i++)
+        for (int i = 0; i < BNum && AllList.Any(); i++)
         {
             RedPlayer.Add(AllList[IRandom.Instance.Next(0, AllList.Count)]);
             AllList.RemoveAll(RedPlayer.Contains);
