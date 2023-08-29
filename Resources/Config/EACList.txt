@@ -53,3 +53,6 @@ overtfeast#5802,黑影
 
 ## 冒充开发者
 polkaoval#0453,自作Modな橋本環奈
+
+## Other
+tenthrole#3476,Dronecool
