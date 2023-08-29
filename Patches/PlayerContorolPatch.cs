@@ -167,7 +167,11 @@ class CheckMurderPatch
         if (Counterfeiter.OnClientMurder(killer)) return false;
         if (Pursuer.OnClientMurder(killer)) return false;
         if (Addict.IsImmortal(target)) return false;
-        if (Alchemist.IsProtected) return false;
+        if (Alchemist.IsProtected && target.Is(CustomRoles.Alchemist))
+        {
+            killer.SetKillCooldown(time: 5f);
+            return false;
+        };
 
         //判定凶手技能
         if (killer.PlayerId != target.PlayerId)
@@ -184,6 +188,10 @@ class CheckMurderPatch
                     break;
                 case CustomRoles.Vampire:
                     if (!Vampire.OnCheckMurder(killer, target)) return false;
+                    break;
+                case CustomRoles.Jailor:
+                    if (!Jailor.OnCheckMurder(killer, target))
+                        return false;
                     break;
                 case CustomRoles.Poisoner:
                     if (!Poisoner.OnCheckMurder(killer, target)) return false;
@@ -290,6 +298,9 @@ class CheckMurderPatch
                     break;
                 case CustomRoles.Wraith:
                     if (!Wraith.OnCheckMurder(killer, target)) return false;
+                    break;
+                case CustomRoles.Werewolf:
+                    Werewolf.OnCheckMurder(killer, target);
                     break;
                 case CustomRoles.Lurker:
                     Lurker.OnCheckMurder(killer);
@@ -1050,11 +1061,11 @@ class MurderPlayerPatch
             Executioner.ChangeRoleByTarget(target);
         if (Lawyer.Target.ContainsValue(target.PlayerId))
             Lawyer.ChangeRoleByTarget(target);
-        Hacker.AddDeadBody(target);
-        Mortician.OnPlayerDead(target);
-        Bloodhound.OnPlayerDead(target);
-        Tracefinder.OnPlayerDead(target);
-        Vulture.OnPlayerDead(target);
+        if (Hacker.IsEnable) Hacker.AddDeadBody(target);
+        if (Mortician.IsEnable) Mortician.OnPlayerDead(target);
+        if (Bloodhound.IsEnable) Bloodhound.OnPlayerDead(target);
+        if (Tracefinder.IsEnable) Tracefinder.OnPlayerDead(target);
+        if (Vulture.IsEnable) Vulture.OnPlayerDead(target);
 
         Utils.AfterPlayerDeathTasks(target);
 
@@ -1069,8 +1080,8 @@ class MurderPlayerPatch
         {
             __instance.MarkDirtySettings();
             target.MarkDirtySettings();
-            Utils.NotifyRoles(killer);
-            Utils.NotifyRoles(target);
+            Utils.NotifyRoles(SpecifySeer: killer);
+            Utils.NotifyRoles(SpecifySeer: target);
         }
         else
         {
@@ -1098,7 +1109,7 @@ class ShapeshiftPatch
         Main.CheckShapeshift[shapeshifter.PlayerId] = shapeshifting;
         Main.ShapeshiftTarget[shapeshifter.PlayerId] = target.PlayerId;
 
-        Sniper.OnShapeshift(shapeshifter, shapeshifting);
+        if (Sniper.IsEnable) Sniper.OnShapeshift(shapeshifter, shapeshifting);
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!shapeshifting) Camouflage.RpcSetSkin(__instance);
@@ -1576,7 +1587,7 @@ class ReportDeadBodyPatch
         Main.LastVotedPlayerInfo = null;
         Main.AllKillers.Clear();
         Main.ArsonistTimer.Clear();
-        Main.FarseerTimer.Clear();
+        if (Farseer.isEnable) Main.FarseerTimer.Clear();
         Main.PuppeteerList.Clear();
         Main.TaglockedList.Clear();
         Main.GuesserGuessed.Clear();
@@ -1584,39 +1595,40 @@ class ReportDeadBodyPatch
         Main.GrenadierBlinding.Clear();
         Main.Lighter.Clear();
         Main.MadGrenadierBlinding.Clear();
-        Divinator.didVote.Clear();
-        Oracle.didVote.Clear();
-        Bloodhound.Clear();
-        Vulture.Clear();
+        if (Divinator.IsEnable) Divinator.didVote.Clear();
+        if (Oracle.IsEnable) Oracle.didVote.Clear();
+        if (Bloodhound.IsEnable) Bloodhound.Clear();
+        if (Vulture.IsEnable) Vulture.Clear();
 
         Camouflager.OnReportDeadBody();
-        Psychic.OnReportDeadBody();
-        BountyHunter.OnReportDeadBody();
-        SerialKiller.OnReportDeadBody();
-        Sniper.OnReportDeadBody();
-        Vampire.OnStartMeeting();
-        Poisoner.OnStartMeeting();
-        Pelican.OnReportDeadBody();
-        Counterfeiter.OnReportDeadBody();
-        QuickShooter.OnReportDeadBody();
-        Eraser.OnReportDeadBody();
-        NiceEraser.OnReportDeadBody();
-        Hacker.OnReportDeadBody();
-        Judge.OnReportDeadBody();
+        if (Psychic.IsEnable) Psychic.OnReportDeadBody();
+        if (BountyHunter.IsEnable) BountyHunter.OnReportDeadBody();
+        if (SerialKiller.IsEnable()) SerialKiller.OnReportDeadBody();
+        if (Sniper.IsEnable) Sniper.OnReportDeadBody();
+        if (Vampire.IsEnable) Vampire.OnStartMeeting();
+        if (Poisoner.IsEnable) Poisoner.OnStartMeeting();
+        if (Pelican.IsEnable) Pelican.OnReportDeadBody();
+        if (Counterfeiter.IsEnable) Counterfeiter.OnReportDeadBody();
+        if (QuickShooter.IsEnable) QuickShooter.OnReportDeadBody();
+        if (Eraser.IsEnable) Eraser.OnReportDeadBody();
+        if (NiceEraser.IsEnable) NiceEraser.OnReportDeadBody();
+        if (Hacker.IsEnable) Hacker.OnReportDeadBody();
+        if (Judge.IsEnable) Judge.OnReportDeadBody();
         //    Councillor.OnReportDeadBody();
-        Greedier.OnReportDeadBody();
-        Tracker.OnReportDeadBody();
-        Addict.OnReportDeadBody();
-        Deathpact.OnReportDeadBody();
-        ParityCop.OnReportDeadBody();
-        Doomsayer.OnReportDeadBody();
-        BallLightning.OnReportDeadBody();
-        Romantic.OnReportDeadBody();
+        if (Greedier.IsEnable()) Greedier.OnReportDeadBody();
+        if (Tracker.IsEnable) Tracker.OnReportDeadBody();
+        if (Addict.IsEnable) Addict.OnReportDeadBody();
+        if (Deathpact.IsEnable) Deathpact.OnReportDeadBody();
+        if (ParityCop.IsEnable) ParityCop.OnReportDeadBody();
+        if (Doomsayer.IsEnable) Doomsayer.OnReportDeadBody();
+        if (BallLightning.IsEnable) BallLightning.OnReportDeadBody();
+        if (Romantic.IsEnable) Romantic.OnReportDeadBody();
+        if (Jailor.IsEnable) Jailor.OnReportDeadBody();
 
-        Mortician.OnReportDeadBody(player, target);
-        Tracefinder.OnReportDeadBody(player, target);
-        Mediumshiper.OnReportDeadBody(target);
-        Spiritualist.OnReportDeadBody(target);
+        if (Mortician.IsEnable) Mortician.OnReportDeadBody(player, target);
+        if (Tracefinder.IsEnable) Tracefinder.OnReportDeadBody(player, target);
+        if (Mediumshiper.IsEnable) Mediumshiper.OnReportDeadBody(target);
+        if (Spiritualist.IsEnable) Spiritualist.OnReportDeadBody(target);
 
         foreach (var x in Main.RevolutionistStart)
         {
@@ -1640,7 +1652,7 @@ class ReportDeadBodyPatch
 
         Utils.NotifyRoles(isForMeeting: true, NoCache: true, CamouflageIsForMeeting: true, GuesserIsForMeeting: true);
 
-        Utils.SyncAllSettings();
+        new LateTask(Utils.SyncAllSettings, 0.1f);
     }
     public static async void ChangeLocalNameAndRevert(string name, int time)
     {
@@ -1673,7 +1685,7 @@ class FixedUpdatePatch
             else BufferTime[player.PlayerId] = 10;
         }
 
-        Sniper.OnFixedUpdate(player);
+        if (Sniper.IsEnable) Sniper.OnFixedUpdate(player);
         Zoom.OnFixedUpdate();
         if (!lowLoad)
         {
@@ -1714,10 +1726,10 @@ class FixedUpdatePatch
             }
 
             DoubleTrigger.OnFixedUpdate(player);
-            Vampire.OnFixedUpdate(player);
-            Poisoner.OnFixedUpdate(player);
-            BountyHunter.FixedUpdate(player);
-            SerialKiller.FixedUpdate(player);
+            if (Vampire.IsEnable) Vampire.OnFixedUpdate(player);
+            if (Poisoner.IsEnable) Poisoner.OnFixedUpdate(player);
+            if (BountyHunter.IsEnable) BountyHunter.FixedUpdate(player);
+            if (SerialKiller.IsEnable()) SerialKiller.FixedUpdate(player);
             if (GameStates.IsInTask)
                 if (player.Is(CustomRoles.PlagueBearer) && PlagueBearer.IsPlaguedAll(player))
                 {
@@ -1898,9 +1910,9 @@ class FixedUpdatePatch
             }
             #endregion
 
-            Farseer.OnPostFix(player);
-            Addict.FixedUpdate(player);
-            Deathpact.OnFixedUpdate(player);
+            if (Farseer.isEnable) Farseer.OnPostFix(player);
+            if (Addict.IsEnable) Addict.FixedUpdate(player);
+            if (Deathpact.IsEnable) Deathpact.OnFixedUpdate(player);
 
             if (!lowLoad)
             {
@@ -1965,14 +1977,15 @@ class FixedUpdatePatch
 
                 if (Main.AllKillers.TryGetValue(player.PlayerId, out var ktime) && ktime + Options.WitnessTime.GetInt() < Utils.GetTimeStamp()) Main.AllKillers.Remove(player.PlayerId);
 
-                Pelican.OnFixedUpdate();
-                BallLightning.OnFixedUpdate();
-                Swooper.OnFixedUpdate(player);
-                Wraith.OnFixedUpdate(player);
-                Chameleon.OnFixedUpdate(player);
-                Alchemist.OnFixedUpdate(player);
-                BloodKnight.OnFixedUpdate(player);
-                Spiritcaller.OnFixedUpdate(player);
+                if (Pelican.IsEnable) Pelican.OnFixedUpdate();
+                if (BallLightning.IsEnable) BallLightning.OnFixedUpdate();
+                if (Swooper.IsEnable) Swooper.OnFixedUpdate(player);
+                if (Wraith.IsEnable) Wraith.OnFixedUpdate(player);
+                if (Werewolf.IsEnable) Werewolf.OnFixedUpdate(player);
+                if (Chameleon.IsEnable) Chameleon.OnFixedUpdate(player);
+                if (Alchemist.IsEnable) Alchemist.OnFixedUpdate(player);
+                if (BloodKnight.IsEnable) BloodKnight.OnFixedUpdate(player);
+                if (Spiritcaller.IsEnable) Spiritcaller.OnFixedUpdate(player);
 
                 if (GameStates.IsInTask && player.IsAlive() && Options.LadderDeath.GetBool()) FallFromLadder.FixedUpdate(player);
 
@@ -2067,9 +2080,11 @@ class FixedUpdatePatch
                 #endregion
 
                 if (GameStates.IsInTask && player == PlayerControl.LocalPlayer)
+                {
                     DisableDevice.FixedUpdate();
-                if (GameStates.IsInTask && player == PlayerControl.LocalPlayer)
                     AntiAdminer.FixedUpdate();
+                    if (Monitor.IsEnable) Monitor.FixedUpdate();
+                }
 
                 if (GameStates.IsInGame && Main.RefixCooldownDelay <= 0)
                     foreach (var pc in Main.AllPlayerControls)
@@ -2415,6 +2430,17 @@ class FixedUpdatePatch
                         if (AntiAdminer.IsCameraWatch) Suffix.Append(GetString("AntiAdminerCA"));
                     }
                 }
+                if (GameStates.IsInTask && seer.Is(CustomRoles.Monitor))
+                {
+                    Monitor.FixedUpdate();
+                    if (target.AmOwner)
+                    {
+                        if (Monitor.IsAdminWatch) Suffix.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monitor), GetString("AdminWarning")));
+                        if (Monitor.IsVitalWatch) Suffix.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monitor), GetString("VitalsWarning")));
+                        if (Monitor.IsDoorLogWatch) Suffix.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monitor), GetString("DoorlogWarning")));
+                        if (Monitor.IsCameraWatch) Suffix.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monitor), GetString("CameraWarning")));
+                    }
+                }
                 if (GameStates.IsInTask && player.Is(CustomRoles.TimeMaster))
                 {
                     if (Main.TimeMasterInProtect.TryGetValue(player.PlayerId, out var vtime) && vtime + Options.TimeMasterSkillDuration.GetInt() < Utils.GetTimeStamp())
@@ -2436,9 +2462,14 @@ class FixedUpdatePatch
                 if ((Utils.IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool()) || Camouflager.IsActive)
                     RealName = $"<size=0>{RealName}</size> ";
 
+                //Devourer
                 bool targetDevoured = Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerSkinsCosumed.Any(a => a.Value.Contains(target.PlayerId));
                 if (targetDevoured)
                     RealName = GetString("DevouredName");
+
+                // Camouflage
+                if ((Utils.IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool()) || Camouflager.IsActive)
+                    RealName = $"<size=0>{RealName}</size> ";
 
                 string DeathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doctor), Utils.GetVitalText(target.PlayerId))})" : "";
                 //Mark・Suffixの適用
@@ -2530,8 +2561,8 @@ class EnterVentPatch
     public static void Postfix(Vent __instance, [HarmonyArgument(0)] PlayerControl pc)
     {
 
-        Witch.OnEnterVent(pc);
-        HexMaster.OnEnterVent(pc);
+        if (Witch.IsEnable) Witch.OnEnterVent(pc);
+        if (HexMaster.IsEnable) HexMaster.OnEnterVent(pc);
 
         if (pc.Is(CustomRoles.Mayor))
         {
@@ -2587,12 +2618,13 @@ class EnterVentPatch
         Main.LastEnteredVentLocation.Remove(pc.PlayerId);
         Main.LastEnteredVentLocation.Add(pc.PlayerId, pc.GetTruePosition());
 
-        Swooper.OnEnterVent(pc, __instance);
-        Wraith.OnEnterVent(pc, __instance);
-        Addict.OnEnterVent(pc, __instance);
-        Alchemist.OnEnterVent(pc, __instance.Id);
-        Chameleon.OnEnterVent(pc, __instance);
-        Lurker.OnEnterVent(pc);
+        if (Swooper.IsEnable) Swooper.OnEnterVent(pc, __instance);
+        if (Wraith.IsEnable) Wraith.OnEnterVent(pc, __instance);
+        if (Addict.IsEnable) Addict.OnEnterVent(pc, __instance);
+        if (Alchemist.IsEnable) Alchemist.OnEnterVent(pc, __instance.Id);
+        if (Chameleon.IsEnable) Chameleon.OnEnterVent(pc, __instance);
+        if (Werewolf.IsEnable) Werewolf.OnEnterVent(pc);
+        if (Lurker.IsEnable()) Lurker.OnEnterVent(pc);
 
         if (pc.Is(CustomRoles.Veteran))
         {
@@ -2676,7 +2708,7 @@ class EnterVentPatch
                 Main.AllAlivePlayerControls.Where(x =>
                 pc.Is(CustomRoles.Madmate) ?
                 (x.CanUseKillButton() && x.GetCustomRole().IsCrewmate()) :
-                (x.CanUseKillButton())
+                x.CanUseKillButton()
                 ).Do(x =>
                 {
                     x.RPCPlayCustomSound("Dove");
@@ -2903,7 +2935,7 @@ class PlayerControlSetRolePatch
                 {
                     ghostRoles[seer] = RoleTypes.GuardianAngel;
                 }
-                else if ((self && targetIsKiller) || (!seerIsKiller && (target.Is(CustomRoleTypes.Impostor) || Main.ResetCamPlayerList.Contains(target.PlayerId) || (target.Is(CustomRoles.Pickpocket)) || (target.Is(CustomRoles.Medusa)) || (target.Is(CustomRoles.Amnesiac)) || (target.Is(CustomRoles.Refugee)))))
+                else if ((self && targetIsKiller) || (!seerIsKiller && target.Is(CustomRoleTypes.Impostor)))
                 {
                     ghostRoles[seer] = RoleTypes.ImpostorGhost;
                 }

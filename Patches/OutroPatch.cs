@@ -92,9 +92,9 @@ class SetEverythingUpPatch
         //          ==勝利陣営表示==
         //#######################################
 
-        __instance.WinText.alignment = TMPro.TextAlignmentOptions.Right;
+        __instance.WinText.alignment = TMPro.TextAlignmentOptions.Center;
         var WinnerTextObject = UnityEngine.Object.Instantiate(__instance.WinText.gameObject);
-        WinnerTextObject.transform.position = new(__instance.WinText.transform.position.x + 2.4f, __instance.WinText.transform.position.y - 0.5f, __instance.WinText.transform.position.z);
+        WinnerTextObject.transform.position = new(__instance.WinText.transform.position.x, __instance.WinText.transform.position.y - 0.5f, __instance.WinText.transform.position.z);
         WinnerTextObject.transform.localScale = new(0.6f, 0.6f, 0.6f);
         var WinnerText = WinnerTextObject.GetComponent<TMPro.TextMeshPro>(); //WinTextと同じ型のコンポーネントを取得
         WinnerText.fontSizeMin = 3f;
@@ -231,12 +231,12 @@ class SetEverythingUpPatch
         RoleSummaryObject.transform.position = new Vector3(__instance.Navigation.ExitButton.transform.position.x + 0.1f, Pos.y - 0.1f, -15f);
         RoleSummaryObject.transform.localScale = new Vector3(1f, 1f, 1f);
 
-        StringBuilder sb = new($"{GetString("RoleSummaryText")}");
+        StringBuilder sb = new($"{GetString("RoleSummaryText")}\n");
         List<byte> cloneRoles = new(Main.PlayerStates.Keys);
         foreach (var id in Main.winnerList)
         {
             if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
-            sb.Append($"\n<color={CustomWinnerColor}>★</color> ").Append(EndGamePatch.SummaryText[id]);
+            sb.Append($"\n<b>").Append(EndGamePatch.SummaryText[id]);
             cloneRoles.Remove(id);
         }
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
@@ -249,10 +249,11 @@ class SetEverythingUpPatch
         }
         else
         {
+            sb.Append($"</b>\n");
             foreach (var id in cloneRoles)
             {
                 if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
-                sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id]);
+                sb.Append($"\n").Append(EndGamePatch.SummaryText[id]);
             }
         }
         var RoleSummary = RoleSummaryObject.GetComponent<TMPro.TextMeshPro>();

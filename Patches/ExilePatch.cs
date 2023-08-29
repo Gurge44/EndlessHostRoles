@@ -200,9 +200,10 @@ class ExileControllerWrapUpPatch
                 Main.AfterMeetingDeathPlayers.Do(x =>
                 {
                     var player = Utils.GetPlayerById(x.Key);
-                    Logger.Info($"{player.GetNameWithRole()}を{x.Value}で死亡させました", "AfterMeetingDeath");
-                    Main.PlayerStates[x.Key].deathReason = x.Value;
-                    Main.PlayerStates[x.Key].SetDead();
+                    var state = Main.PlayerStates[x.Key];
+                    Logger.Info($"{player.GetNameWithRole()} died with {x.Value}", "AfterMeetingDeath");
+                    state.deathReason = x.Value;
+                    state.SetDead();
                     player?.RpcExileV2();
                     if (x.Value == PlayerState.DeathReason.Suicide)
                         player?.SetRealKiller(player, true);

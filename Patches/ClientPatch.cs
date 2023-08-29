@@ -56,11 +56,11 @@ internal class SplashLogoAnimatorPatch
 {
     public static void Prefix(SplashManager __instance)
     {
-        if (DebugModeManager.AmDebugger)
-        {
+        //if (DebugModeManager.AmDebugger)
+        //{
             __instance.sceneChanger.AllowFinishLoadingScene();
             __instance.startedSceneLoad = true;
-        }
+        //}
     }
 }
 [HarmonyPatch(typeof(EOSManager), nameof(EOSManager.IsAllowedOnline))]

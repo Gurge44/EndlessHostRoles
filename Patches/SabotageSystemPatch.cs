@@ -38,9 +38,9 @@ public static class ElectricTaskInitializePatch
 {
     public static void Postfix()
     {
-        Utils.MarkEveryoneDirtySettings();
+        new LateTask(() => { if (Utils.IsActive(SystemTypes.Electrical)) Utils.MarkEveryoneDirtySettingsV2(); }, 0.1f);
         if (!GameStates.IsMeeting)
-            Utils.NotifyRoles(ForceLoop: true);
+            Utils.NotifyRoles();
     }
 }
 [HarmonyPatch(typeof(ElectricTask), nameof(ElectricTask.Complete))]
@@ -48,8 +48,8 @@ public static class ElectricTaskCompletePatch
 {
     public static void Postfix()
     {
-        Utils.MarkEveryoneDirtySettings();
+        new LateTask(() => { if (!Utils.IsActive(SystemTypes.Electrical)) Utils.MarkEveryoneDirtySettingsV2(); }, 0.1f);
         if (!GameStates.IsMeeting)
-            Utils.NotifyRoles(ForceLoop: true);
+            Utils.NotifyRoles();
     }
 }

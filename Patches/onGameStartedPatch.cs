@@ -185,7 +185,11 @@ internal class ChangeRoleSettings
             SerialKiller.Init();
             EvilDiviner.Init();
             FireWorks.Init();
+            Pickpocket.Init();
             Sniper.Init();
+            Jailor.Init();
+            Monitor.Init();
+            Cleanser.Init();
             TimeThief.Init();
             //    Mare.Init();
             Witch.Init();
@@ -254,6 +258,7 @@ internal class ChangeRoleSettings
             Tracker.Init();
             Merchant.Init();
             NSerialKiller.Init();
+            Werewolf.Init();
             Maverick.Init();
             Jinx.Init();
             DoubleShot.Init();
@@ -528,6 +533,18 @@ internal class SelectRolesPatch
                     case CustomRoles.Baker:
                         Baker.Add(pc.PlayerId);
                         break;
+                    case CustomRoles.Cleanser:
+                        Cleanser.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Pickpocket:
+                        Pickpocket.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Jailor:
+                        Jailor.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Monitor:
+                        Monitor.Add(pc.PlayerId);
+                        break;
                     case CustomRoles.Poisoner:
                         Poisoner.Add(pc.PlayerId);
                         break;
@@ -743,6 +760,9 @@ internal class SelectRolesPatch
                     case CustomRoles.NSerialKiller:
                         NSerialKiller.Add(pc.PlayerId);
                         break;
+                    case CustomRoles.Werewolf:
+                        Werewolf.Add(pc.PlayerId);
+                        break;
                     case CustomRoles.Traitor:
                         Traitor.Add(pc.PlayerId);
                         break;
@@ -848,7 +868,7 @@ internal class SelectRolesPatch
             }
 
             // ResetCamが必要なプレイヤーのリストにクラス化が済んでいない役職のプレイヤーを追加
-            Main.ResetCamPlayerList.AddRange(Main.AllPlayerControls.Where(p => p.GetCustomRole() is CustomRoles.Arsonist or CustomRoles.NWitch or CustomRoles.Revolutionist or CustomRoles.Farseer or CustomRoles.Sidekick or CustomRoles.KB_Normal).Select(p => p.PlayerId));
+            Main.ResetCamPlayerList.AddRange(Main.AllPlayerControls.Where(p => p.GetCustomRole() is CustomRoles.Arsonist or CustomRoles.Revolutionist or CustomRoles.Sidekick or CustomRoles.KB_Normal).Select(p => p.PlayerId));
             Utils.CountAlivePlayers(true);
             Utils.SyncAllSettings();
             SetColorPatch.IsAntiGlitchDisabled = false;

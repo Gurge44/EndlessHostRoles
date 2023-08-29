@@ -123,9 +123,9 @@ class HudManagerPatch
                     case CustomRoles.NWitch:
                         __instance.KillButton.OverrideText($"{GetString("WitchControlButtonText")}");
                         break;
-                    case CustomRoles.BountyHunter:
-                        BountyHunter.SetAbilityButtonText(__instance);
-                        break;
+                    //case CustomRoles.BountyHunter:
+                    //    BountyHunter.SetAbilityButtonText(__instance);
+                    //    break;
                     case CustomRoles.EvilTracker:
                         EvilTracker.GetAbilityButtonText(__instance, player.PlayerId);
                         break;
@@ -151,6 +151,7 @@ class HudManagerPatch
                         Gangster.SetKillButtonText(player.PlayerId);
                         break;
                     case CustomRoles.NSerialKiller:
+                    case CustomRoles.Werewolf:
                     case CustomRoles.RuthlessRomantic:
                     case CustomRoles.Juggernaut:
                     case CustomRoles.Jackal:
@@ -377,9 +378,17 @@ class HudManagerPatch
                 {
                     LowerInfoText.text = Wraith.GetHudText(player);
                 }
+                else if (player.Is(CustomRoles.Alchemist))
+                {
+                    LowerInfoText.text = Alchemist.GetHudText(player);
+                }
                 else if (player.Is(CustomRoles.Chameleon))
                 {
                     LowerInfoText.text = Chameleon.GetHudText(player);
+                }
+                else if (player.Is(CustomRoles.Werewolf))
+                {
+                    LowerInfoText.text = Werewolf.GetHudText(player);
                 }
                 else if (player.Is(CustomRoles.BloodKnight))
                 {
@@ -594,7 +603,7 @@ class MapBehaviourShowPatch
         if (opts.Mode is MapOptions.Modes.Normal or MapOptions.Modes.Sabotage)
         {
             var player = PlayerControl.LocalPlayer;
-            if (player.Is(CustomRoleTypes.Impostor) || (player.Is(CustomRoles.Parasite)) || (player.Is(CustomRoles.Glitch)) || (player.Is(CustomRoles.Refugee)) || (player.Is(CustomRoles.Jackal) && Jackal.CanUseSabotage.GetBool()) || (player.Is(CustomRoles.Traitor) && Traitor.CanUseSabotage.GetBool()))
+            if (player.Is(CustomRoleTypes.Impostor) || player.Is(CustomRoles.Parasite) || player.Is(CustomRoles.Glitch) || player.Is(CustomRoles.Refugee) || (player.Is(CustomRoles.Jackal) && Jackal.CanUseSabotage.GetBool()) || (player.Is(CustomRoles.Traitor) && Traitor.CanUseSabotage.GetBool()))
                 opts.Mode = MapOptions.Modes.Sabotage;
             else
                 opts.Mode = MapOptions.Modes.Normal;
@@ -636,7 +645,7 @@ class TaskPanelBehaviourPatch
                     if (sb.Length > 1)
                     {
                         var text = sb.ToString().TrimEnd('\n').TrimEnd('\r');
-                        if (!Utils.HasTasks(player.Data, false) && sb.ToString().Count(s => (s == '\n')) >= 2)
+                        if (!Utils.HasTasks(player.Data, false) && sb.ToString().Count(s => s == '\n') >= 2)
                             text = $"{Utils.ColorString(Utils.GetRoleColor(player.GetCustomRole()).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}";
                         AllText += $"\r\n\r\n<size=70%>{text}</size>";
                     }

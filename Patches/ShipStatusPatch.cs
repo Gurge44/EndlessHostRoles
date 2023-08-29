@@ -84,7 +84,7 @@ class RepairSystemPatch
         //SabotageMaster
         if (player.Is(CustomRoles.SabotageMaster))
             SabotageMaster.RepairSystem(__instance, systemType, amount);
-        if (player.Is(CustomRoles.Alchemist) && Alchemist.FixNextSabo) Alchemist.RepairSystem(systemType, amount);
+        if (player.Is(CustomRoles.Alchemist) && Alchemist.PotionID == 5) Alchemist.RepairSystem(systemType, amount);
 
         if (systemType == SystemTypes.Electrical && 0 <= amount && amount <= 4)
         {
@@ -104,9 +104,9 @@ class RepairSystemPatch
             if (player.Is(CustomRoles.Jackal) && Jackal.CanUseSabotage.GetBool()) return true;
             if (player.Is(CustomRoles.Sidekick) && Jackal.CanUseSabotageSK.GetBool()) return true;
             if (player.Is(CustomRoles.Traitor) && Traitor.CanUseSabotage.GetBool()) return true;
-            if (player.Is(CustomRoles.Parasite) && (player.IsAlive())) return true;
-            if (player.Is(CustomRoles.Refugee) && (player.IsAlive())) return true;
-            if (player.Is(CustomRoles.Glitch) && (player.IsAlive())) return true;
+            if (player.Is(CustomRoles.Parasite) && player.IsAlive()) return true;
+            if (player.Is(CustomRoles.Refugee) && player.IsAlive()) return true;
+            if (player.Is(CustomRoles.Glitch) && player.IsAlive()) return true;
             return false;
         }
         /*if (systemType == SystemTypes.Doors && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay)
@@ -167,7 +167,7 @@ class SwitchSystemRepairPatch
     {
         if (player.Is(CustomRoles.SabotageMaster))
             SabotageMaster.SwitchSystemRepair(__instance, amount);
-        if (player.Is(CustomRoles.Alchemist) && Alchemist.FixNextSabo) Alchemist.SwitchSystemRepair(__instance, amount);
+        if (player.Is(CustomRoles.Alchemist) && Alchemist.PotionID == 5) Alchemist.SwitchSystemRepair(__instance, amount);
     }
 }
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Start))]

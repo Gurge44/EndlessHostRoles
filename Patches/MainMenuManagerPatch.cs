@@ -15,6 +15,13 @@ public class MainMenuManagerPatch
     //public static GameObject discordButton;
     public static GameObject updateButton;
 
+    [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.LateUpdate)), HarmonyPostfix]
+    public static void Postfix(MainMenuManager __instance)
+    {
+        __instance.playButton.transform.gameObject.SetActive(Options.IsLoaded);
+        TitleLogoPatch.LoadingHint?.SetActive(!Options.IsLoaded);
+    }
+
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPrefix]
     public static void Start_Prefix(MainMenuManager __instance)
     {

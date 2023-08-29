@@ -2,6 +2,7 @@ using HarmonyLib;
 using System;
 using System.Linq;
 using System.Text;
+using TMPro;
 using UnityEngine;
 
 using static TOHE.Translator;
@@ -15,7 +16,7 @@ internal class PingTrackerUpdatePatch
 
     private static void Postfix(PingTracker __instance)
     {
-        __instance.text.alignment = TMPro.TextAlignmentOptions.TopRight;
+        __instance.text.alignment = TextAlignmentOptions.TopRight;
 
         sb.Clear();
 
@@ -133,6 +134,8 @@ internal class TitleLogoPatch
     //public static GameObject HowToPlayButton;
     //public static GameObject FreePlayButton;
     //public static GameObject BottomButtons;
+    public static GameObject LoadingHint;
+
 
     private static void Postfix(MainMenuManager __instance)
     {
@@ -197,16 +200,45 @@ internal class TitleLogoPatch
                var bgRenderer = CustomBG.AddComponent<SpriteRenderer>();
                bgRenderer.sprite = Utils.LoadSprite("TOHE.Resources.Images.TOHE-BG.jpg", 245f);
            } */
+
+        if (!Options.IsLoaded)
+        {
+            LoadingHint = new GameObject("LoadingHint");
+            LoadingHint.transform.position = Vector3.down;
+            var LoadingHintText = LoadingHint.AddComponent<TextMeshPro>();
+            LoadingHintText.text = GetString("Loading");
+            LoadingHintText.alignment = TextAlignmentOptions.Center;
+            LoadingHintText.fontSize = 5f;
+            __instance.playButton.transform.gameObject.SetActive(false);
+        }
         if ((Ambience = GameObject.Find("Ambience")) != null)
         {
             try
             {
+                if (Options.IsLoaded) __instance.playButton.transform.gameObject.SetActive(true);
+
                 SpriteRenderer activeSpriteRender = __instance.playButton.activeSprites.GetComponent<SpriteRenderer>();
                 activeSpriteRender.color = new Color(0.99f, 0.55f, 0.56f);
 
                 SpriteRenderer inactiveSpriteRender = __instance.playButton.inactiveSprites.GetComponent<SpriteRenderer>();
                 inactiveSpriteRender.color = new Color(1f, 0.31f, 0.09f);
                 inactiveSpriteRender.sprite = activeSpriteRender.sprite;
+
+                __instance.playLocalButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.yellow;
+                //__instance.playLocalButton.inactiveSprites.GetComponent<SpriteRenderer>().color = Color.blue;
+                //__instance.playLocalButton.activeTextColor = Color.white;
+                //__instance.playLocalButton.inactiveTextColor = Color.white;
+                __instance.PlayOnlineButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.yellow;
+                //__instance.PlayOnlineButton.inactiveSprites.GetComponent<SpriteRenderer>().color = Color.blue;
+
+                __instance.howToPlayButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.magenta;
+                __instance.howToPlayButton.inactiveSprites.GetComponent<SpriteRenderer>().color = Color.blue;
+                __instance.howToPlayButton.activeTextColor = Color.white;
+                __instance.howToPlayButton.inactiveTextColor = Color.white;
+                __instance.accountCTAButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.yellow;
+                //__instance.accountCTAButton.inactiveSprites.GetComponent<SpriteRenderer>().color = Color.blue;
+                //__instance.accountCTAButton.activeTextColor = Color.white;
+                //__instance.accountCTAButton.inactiveTextColor = Color.white;
 
                 __instance.playButton.activeTextColor = new Color(0.08f, 0.03f, 0.12f);
                 __instance.playButton.inactiveTextColor = new Color(0.08f, 0.03f, 0.12f);

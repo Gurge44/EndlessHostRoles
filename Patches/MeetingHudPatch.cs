@@ -64,10 +64,10 @@ class CheckForEndVotingPatch
                     states = statesList.ToArray();
                     if (AntiBlackout.OverrideExiledPlayer)
                     {
-                        __instance.RpcVotingComplete(states, null, true);
+                        __instance.RpcVotingComplete(states.ToArray(), null, true);
                         ExileControllerWrapUpPatch.AntiBlackout_LastExiled = voteTarget.Data;
                     }
-                    else __instance.RpcVotingComplete(states, voteTarget.Data, false); //通常処理
+                    else __instance.RpcVotingComplete(states.ToArray(), voteTarget.Data, false); //通常処理
 
                     Logger.Info($"{voteTarget.GetNameWithRole()} 被独裁者驱逐", "Dictator");
                     CheckForDeathOnExile(PlayerState.DeathReason.Vote, pva.VotedFor);
@@ -95,6 +95,12 @@ class CheckForEndVotingPatch
                             case CustomRoles.Eraser:
                                 Eraser.OnVote(pc, voteTarget);
                                 break;
+                            case CustomRoles.Cleanser:
+                                Cleanser.OnVote(pc, voteTarget);
+                                break;
+                            //case CustomRoles.Jailor:
+                            //    Jailor.OnVote(pc, voteTarget);
+                            //    break;
                             case CustomRoles.NiceEraser:
                                 NiceEraser.OnVote(pc, voteTarget);
                                 break;
@@ -295,10 +301,10 @@ class CheckForEndVotingPatch
             //RPC
             if (AntiBlackout.OverrideExiledPlayer)
             {
-                __instance.RpcVotingComplete(states, null, true);
+                __instance.RpcVotingComplete(states.ToArray(), null, true);
                 ExileControllerWrapUpPatch.AntiBlackout_LastExiled = exiledPlayer;
             }
-            else __instance.RpcVotingComplete(states, exiledPlayer, tie); //通常処理
+            else __instance.RpcVotingComplete(states.ToArray(), exiledPlayer, tie); //通常処理
 
             CheckForDeathOnExile(PlayerState.DeathReason.Vote, exileId);
 
@@ -736,18 +742,18 @@ class MeetingHudStartPatch
                 (pc.Is(CustomRoles.Doctor) && !pc.GetCustomRole().IsEvilAddons() && Options.DoctorVisibleToEveryone.GetBool()) ||
                 (pc.Is(CustomRoles.Mayor) && Options.MayorRevealWhenDoneTasks.GetBool() && pc.GetPlayerTaskState().IsTaskFinished) ||
                 (pc.Is(CustomRoles.Marshall) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && pc.GetPlayerTaskState().IsTaskFinished) ||
-                (Totocalcio.KnowRole(PlayerControl.LocalPlayer, pc)) ||
-                (Romantic.KnowRole(PlayerControl.LocalPlayer, pc)) ||
-                (EvilDiviner.IsShowTargetRole(PlayerControl.LocalPlayer, pc)) ||
-                (Ritualist.IsShowTargetRole(PlayerControl.LocalPlayer, pc)) ||
-                (Lawyer.KnowRole(PlayerControl.LocalPlayer, pc)) ||
-                (Executioner.KnowRole(PlayerControl.LocalPlayer, pc)) ||
-                (Succubus.KnowRole(PlayerControl.LocalPlayer, pc)) ||
-                (CursedSoul.KnowRole(PlayerControl.LocalPlayer, pc)) ||
-                (Admirer.KnowRole(PlayerControl.LocalPlayer, pc)) ||
-                (Amnesiac.KnowRole(PlayerControl.LocalPlayer, pc)) ||
-                (Infectious.KnowRole(PlayerControl.LocalPlayer, pc)) ||
-                (Virus.KnowRole(PlayerControl.LocalPlayer, pc)) ||
+                Totocalcio.KnowRole(PlayerControl.LocalPlayer, pc) ||
+                Romantic.KnowRole(PlayerControl.LocalPlayer, pc) ||
+                EvilDiviner.IsShowTargetRole(PlayerControl.LocalPlayer, pc) ||
+                Ritualist.IsShowTargetRole(PlayerControl.LocalPlayer, pc) ||
+                Lawyer.KnowRole(PlayerControl.LocalPlayer, pc) ||
+                Executioner.KnowRole(PlayerControl.LocalPlayer, pc) ||
+                Succubus.KnowRole(PlayerControl.LocalPlayer, pc) ||
+                CursedSoul.KnowRole(PlayerControl.LocalPlayer, pc) ||
+                Admirer.KnowRole(PlayerControl.LocalPlayer, pc) ||
+                Amnesiac.KnowRole(PlayerControl.LocalPlayer, pc) ||
+                Infectious.KnowRole(PlayerControl.LocalPlayer, pc) ||
+                Virus.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 PlayerControl.LocalPlayer.IsRevealedPlayer(pc) ||
                 PlayerControl.LocalPlayer.Is(CustomRoles.God) ||
                 PlayerControl.LocalPlayer.Is(CustomRoles.GM) ||
@@ -897,6 +903,7 @@ class MeetingHudStartPatch
                 //   case CustomRoles.Sidekick:
                 case CustomRoles.Poisoner:
                 case CustomRoles.NSerialKiller:
+                case CustomRoles.Werewolf:
                 case CustomRoles.RuthlessRomantic:
                 case CustomRoles.Pelican:
                 case CustomRoles.DarkHide:
@@ -1067,7 +1074,7 @@ class MeetingHudUpdatePatch
 {
     private static int bufferTime = 10;
     private static void ClearShootButton(MeetingHud __instance, bool forceAll = false)
-     => __instance.playerStates.ToList().ForEach(x => { if ((forceAll || (!Main.PlayerStates.TryGetValue(x.TargetPlayerId, out var ps) || ps.IsDead)) && x.transform.FindChild("ShootButton") != null) UnityEngine.Object.Destroy(x.transform.FindChild("ShootButton").gameObject); });
+     => __instance.playerStates.ToList().ForEach(x => { if ((forceAll || !Main.PlayerStates.TryGetValue(x.TargetPlayerId, out var ps) || ps.IsDead) && x.transform.FindChild("ShootButton") != null) UnityEngine.Object.Destroy(x.transform.FindChild("ShootButton").gameObject); });
 
     public static void Postfix(MeetingHud __instance)
     {
