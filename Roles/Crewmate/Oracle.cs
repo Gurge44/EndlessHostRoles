@@ -159,6 +159,7 @@ public static class Oracle
                     CustomRoles.Pursuer or
                     CustomRoles.Poisoner or
                     CustomRoles.NSerialKiller or
+                    CustomRoles.Werewolf or
                     CustomRoles.Ritualist or
                     CustomRoles.Pelican or
                     CustomRoles.Revolutionist or

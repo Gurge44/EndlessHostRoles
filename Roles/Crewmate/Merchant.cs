@@ -155,11 +155,13 @@ namespace TOHE.Roles.Crewmate
 
             List<PlayerControl> AllAlivePlayer =
                 Main.AllAlivePlayerControls.Where(x =>
-                    (x.PlayerId != player.PlayerId && !Pelican.IsEaten(x.PlayerId))
+                    x.PlayerId != player.PlayerId && !Pelican.IsEaten(x.PlayerId)
                     &&
                     !x.Is(addon)
                     &&
                     !CustomRolesHelper.CheckAddonConfilct(addon, x)
+                    &&
+                    (Cleanser.CleansedCanGetAddon.GetBool() || (!Cleanser.CleansedCanGetAddon.GetBool() && !x.Is(CustomRoles.Cleansed)))
                     &&
                     (
                         (OptionCanTargetCrew.GetBool() && CustomRolesHelper.IsCrewmate(x.GetCustomRole()))

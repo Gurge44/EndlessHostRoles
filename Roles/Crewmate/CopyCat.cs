@@ -15,6 +15,7 @@ public static class CopyCat
 
     public static OptionItem KillCooldown;
     public static OptionItem CanKill;
+    public static OptionItem CopyCrewVar;
     public static OptionItem MiscopyLimitOpt;
 
     public static void SetupCustomOption()
@@ -23,6 +24,7 @@ public static class CopyCat
         KillCooldown = FloatOptionItem.Create(Id + 10, "CopyCatCopyCooldown", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.CopyCat])
             .SetValueFormat(OptionFormat.Seconds);
         CanKill = BooleanOptionItem.Create(Id + 11, "CopyCatCanKill", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.CopyCat]);
+        CopyCrewVar = BooleanOptionItem.Create(Id + 13, "CopyCrewVar", true, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.CopyCat]);
         MiscopyLimitOpt = IntegerOptionItem.Create(Id + 12, "CopyCatMiscopyLimit", new(0, 14, 1), 2, TabGroup.CrewmateRoles, false).SetParent(CanKill)
             .SetValueFormat(OptionFormat.Times);
     }
@@ -83,6 +85,17 @@ public static class CopyCat
                 case CustomRoles.ParityCop:
                     ParityCop.MaxCheckLimit.Remove(player);
                     ParityCop.RoundCheckLimit.Remove(player);
+                    break;
+                case CustomRoles.Cleanser:
+                    Cleanser.CleanserTarget.Remove(pc.PlayerId);
+                    Cleanser.CleanserUses.Remove(pc.PlayerId);
+                    Cleanser.DidVote.Remove(pc.PlayerId);
+                    break;
+                case CustomRoles.Jailor:
+                    Jailor.JailorExeLimit.Remove(pc.PlayerId);
+                    Jailor.JailorTarget.Remove(pc.PlayerId);
+                    Jailor.JailorHasExe.Remove(pc.PlayerId);
+                    Jailor.JailorDidVote.Remove(pc.PlayerId);
                     break;
                 case CustomRoles.Medic:
                     Medic.ProtectLimit.Remove(player);
@@ -187,6 +200,18 @@ public static class CopyCat
             SetKillCooldown(pc.PlayerId);
             return false;
         }
+        if (CopyCrewVar.GetBool())
+        {
+            if (role == CustomRoles.Eraser) role = CustomRoles.Cleanser;
+            if (role == CustomRoles.Mafia) role = CustomRoles.Retributionist;
+            if (role == CustomRoles.Visionary) role = CustomRoles.Oracle;
+            if (role == CustomRoles.Workaholic) role = CustomRoles.Snitch;
+            if (role == CustomRoles.Sunnyboy) role = CustomRoles.Doctor;
+            if (role == CustomRoles.Vindicator || role == CustomRoles.Pickpocket) role = CustomRoles.Mayor;
+            else if (role == CustomRoles.Councillor) role = CustomRoles.Judge;
+            else if (role == CustomRoles.Sans || role == CustomRoles.Juggernaut) role = CustomRoles.Reverie;
+            else if (role == CustomRoles.EvilGuesser || role == CustomRoles.Doomsayer || role == CustomRoles.Ritualist) role = CustomRoles.NiceGuesser;
+        }
         if (role.IsCrewmate() && (!tpc.GetCustomSubRoles().Any(x => x == CustomRoles.Rascal)))
         {
             ////////////           /*add the settings for new role*/            ////////////
@@ -202,6 +227,21 @@ public static class CopyCat
                 //    break;
                 case CustomRoles.Deputy:
                     Deputy.SetKillCooldown(pc.PlayerId);
+                    break;
+                case CustomRoles.Cleanser:
+                    Cleanser.CleanserTarget.Add(pc.PlayerId, byte.MaxValue);
+                    Cleanser.CleanserUses.Add(pc.PlayerId, 0);
+                    Cleanser.DidVote.Add(pc.PlayerId, false);
+                    break;
+                case CustomRoles.Jailor:
+                    Jailor.JailorExeLimit.Add(pc.PlayerId, Jailor.MaxExecution.GetInt());
+                    Jailor.JailorTarget.Add(pc.PlayerId, byte.MaxValue);
+                    Jailor.JailorHasExe.Add(pc.PlayerId, false);
+                    Jailor.JailorDidVote.Add(pc.PlayerId, false);
+
+                    if (!AmongUsClient.Instance.AmHost) break;
+                    if (!Main.ResetCamPlayerList.Contains(pc.PlayerId))
+                        Main.ResetCamPlayerList.Add(pc.PlayerId);
                     break;
                 case CustomRoles.ParityCop:
                     ParityCop.MaxCheckLimit.Add(pc.PlayerId, ParityCop.ParityCheckLimitMax.GetInt());

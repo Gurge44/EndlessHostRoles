@@ -108,6 +108,12 @@ public static class Judge
                     else pc.ShowPopUp(GetString("JudgeTrialMax"));
                     return true;
                 }
+                if (Jailor.JailorTarget.ContainsValue(target.PlayerId))
+                {
+                    if (!isUI) Utils.SendMessage(GetString("CanNotTrialJailed"), pc.PlayerId, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
+                    else pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")) + "\n" + GetString("CanNotTrialJailed"));
+                    return true;
+                }
                 if (pc.PlayerId == target.PlayerId)
                 {
                     if (!isUI) Utils.SendMessage(GetString("LaughToWhoTrialSelf"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromKPD")));

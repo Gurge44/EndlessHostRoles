@@ -165,7 +165,7 @@ public static class ParityCop
 
                     if (((target1.GetCustomRole().IsImpostorTeamV2() || target1.GetCustomSubRoles().Any(role => role.IsImpostorTeamV2())) && (target2.GetCustomRole().IsImpostorTeamV2() || target2.GetCustomSubRoles().Any(role => role.IsImpostorTeamV2()))) ||
                     ((target1.GetCustomRole().IsNeutralTeamV2() || target1.GetCustomSubRoles().Any(role => role.IsNeutralTeamV2())) && (target2.GetCustomRole().IsNeutralTeamV2() || target2.GetCustomSubRoles().Any(role => role.IsNeutralTeamV2()))) ||
-                    ((target1.GetCustomRole().IsCrewmateTeamV2() && (target1.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || (target1.GetCustomSubRoles().Count == 0))) && (target2.GetCustomRole().IsCrewmateTeamV2() && (target2.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || target2.GetCustomSubRoles().Count == 0))))
+                    (target1.GetCustomRole().IsCrewmateTeamV2() && (target1.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || (target1.GetCustomSubRoles().Count == 0)) && target2.GetCustomRole().IsCrewmateTeamV2() && (target2.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || target2.GetCustomSubRoles().Count == 0)))
                     {
                         new LateTask(() =>
                         {
@@ -212,7 +212,7 @@ public static class ParityCop
 
                                 if (target2.GetCustomRole().IsImpostorTeamV2() || target2.GetCustomSubRoles().Any(role => role.IsImpostorTeamV2())) roleT2 = "Impostor";
                                 else if (target2.GetCustomRole().IsNeutralTeamV2() || target2.GetCustomSubRoles().Any(role => role.IsNeutralTeamV2())) roleT2 = "Neutral";
-                                else if ((target2.GetCustomRole().IsCrewmateTeamV2() && (target2.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || target2.GetCustomSubRoles().Count == 0))) roleT2 = "Crewmate";
+                                else if (target2.GetCustomRole().IsCrewmateTeamV2() && (target2.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || target2.GetCustomSubRoles().Count == 0)) roleT2 = "Crewmate";
 
                             new LateTask(() =>
                             {

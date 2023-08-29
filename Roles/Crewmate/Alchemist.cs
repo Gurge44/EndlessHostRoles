@@ -1,13 +1,11 @@
 namespace TOHE.Roles.Crewmate
 {
-    using AmongUs.GameOptions;
     using HarmonyLib;
     using Hazel;
-    using InnerNet;
-    using Microsoft.Extensions.Logging;
+    using MS.Internal.Xml.XPath;
     using System.Collections.Generic;
     using System.Linq;
-    using TMPro;
+    using System.Text;
     using TOHE.Modules;
     using TOHE.Roles.Neutral;
     using static TOHE.Options;
@@ -21,9 +19,7 @@ namespace TOHE.Roles.Crewmate
         private static Dictionary<byte, int> ventedId = new();
         public static int PotionID = 10;
         public static string PlayerName = "";
-        public static bool FixNextSabo = false;
         private static Dictionary<byte, long> InvisTime = new();
-        private static Dictionary<byte, long> lastTime = new();
         public static bool VisionPotionActive = false;
 
         public static OptionItem VentCooldown;
@@ -61,10 +57,8 @@ namespace TOHE.Roles.Crewmate
             playerIdList = new();
             PotionID = 10;
             PlayerName = "";
-            FixNextSabo = false;
             ventedId = new();
             InvisTime = new();
-            lastTime = new();
             VisionPotionActive = false;
         }
         public static void Add(byte playerId)
@@ -76,31 +70,30 @@ namespace TOHE.Roles.Crewmate
 
         public static void OnTaskComplete(PlayerControl pc)
         {
-            PotionID = HashRandom.Next(1, 7);
+            PotionID = HashRandom.Next(1, 8);
 
             switch (PotionID)
             {
                 case 1: // Shield
-                    pc.RpcSetName(GetString("AlchemistGotShieldPotion"));
+                    pc.Notify(GetString("AlchemistGotShieldPotion"), 100f);
                     break;
                 case 2: // Suicide
-                    pc.RpcSetName(GetString("AlchemistGotSuicidePotion"));
+                    pc.Notify(GetString("AlchemistGotSuicidePotion"), 100f);
                     break;
                 case 3: // TP to random player
-                    pc.RpcSetName(GetString("AlchemistGotTPPotion"));
+                    pc.Notify(GetString("AlchemistGotTPPotion"), 100f);
                     break;
                 case 4: // Increased speed
-                    pc.RpcSetName(GetString("AlchemistGotSpeedPotion"));
+                    pc.Notify(GetString("AlchemistGotSpeedPotion"), 100f);
                     break;
                 case 5: // Quick fix next sabo
-                    FixNextSabo = true;
-                    pc.Notify(GetString("AlchemistGotQFPotion"), 10f);
+                    pc.Notify(GetString("AlchemistGotQFPotion"), 15f);
                     break;
                 case 6: // Invisibility
-                    pc.RpcSetName(GetString("AlchemistGotInvisPotion"));
+                    pc.Notify(GetString("AlchemistGotInvisPotion"), 100f);
                     break;
                 case 7: // Increased vision
-                    pc.RpcSetName(GetString("AlchemistGotSightPotion"));
+                    pc.Notify(GetString("AlchemistGotSightPotion"), 100f);
                     break;
                 default: // just in case
                     break;
@@ -115,13 +108,16 @@ namespace TOHE.Roles.Crewmate
             {
                 case 1: // Shield
                     IsProtected = true;
-                    new LateTask(() => { IsProtected = false; }, ShieldDuration.GetInt());
+                    player.Notify(GetString("AlchemistShielded"), ShieldDuration.GetInt());
+                    new LateTask(() => { IsProtected = false; player.Notify(GetString("AlchemistShieldOut")); }, ShieldDuration.GetInt());
                     break;
                 case 2: // Suicide
                     player.MyPhysics.RpcBootFromVent(ventId);
-                    new LateTask(() => {
+                    new LateTask(() =>
+                    {
                         player.SetRealKiller(player);
                         player.RpcMurderPlayerV3(player);
+                        Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Poison;
                     }, 1f);
                     break;
                 case 3: // TP to random player
@@ -138,8 +134,16 @@ namespace TOHE.Roles.Crewmate
                     }, 2f);
                     break;
                 case 4: // Increased speed
+                    player.Notify(GetString("AlchemistHasSpeed"));
+                    player.MarkDirtySettings();
+                    var tmpSpeed = Main.AllPlayerSpeed[player.PlayerId];
                     Main.AllPlayerSpeed[player.PlayerId] = Speed.GetFloat();
-                    new LateTask(() => { Main.AllPlayerSpeed[player.PlayerId] = AURoleOptions.PlayerSpeedMod; }, SpeedDuration.GetInt());
+                    new LateTask(() =>
+                    { 
+                        Main.AllPlayerSpeed[player.PlayerId] = Main.AllPlayerSpeed[player.PlayerId] - Speed.GetFloat() + tmpSpeed;
+                        player.MarkDirtySettings();
+                        player.Notify(GetString("AlchemistSpeedOut"));
+                    }, SpeedDuration.GetInt());
                     break;
                 case 5: // Quick fix next sabo
                     // Done when making the potion
@@ -149,9 +153,13 @@ namespace TOHE.Roles.Crewmate
                     break;
                 case 7: // Increased vision
                     VisionPotionActive = true;
-                    new LateTask(() => { VisionPotionActive = false; }, VisionDuration.GetFloat());
+                    player.MarkDirtySettings();
+                    player.Notify(GetString("AlchemistHasVision"), VisionDuration.GetFloat());
+                    new LateTask(() => { VisionPotionActive = false; player.MarkDirtySettings(); player.Notify(GetString("AlchemistVisionOut")); }, VisionDuration.GetFloat());
                     break;
                 case 10:
+                    player.MyPhysics.RpcBootFromVent(ventId);
+                    player.Notify("NoPotion");
                     break;
                 default: // just in case
                     break;
@@ -159,31 +167,29 @@ namespace TOHE.Roles.Crewmate
 
             PotionID = 10;
 
-            player.RpcSetName(PlayerName);
-            player.MarkDirtySettings();
+            NameNotifyManager.Notice.Remove(player.PlayerId);
         }
         private static long lastFixedTime = 0;
+        public static bool IsInvis(byte id) => InvisTime.ContainsKey(id);
         private static void SendRPC(PlayerControl pc)
         {
             if (pc.AmOwner) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAlchemistTimer, SendOption.Reliable, pc.GetClientId());
             writer.Write((InvisTime.TryGetValue(pc.PlayerId, out var x) ? x : -1).ToString());
-            writer.Write((lastTime.TryGetValue(pc.PlayerId, out var y) ? y : -1).ToString());
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         public static void ReceiveRPC(MessageReader reader)
         {
             InvisTime = new();
-            lastTime = new();
             long invis = long.Parse(reader.ReadString());
             long last = long.Parse(reader.ReadString());
             if (invis > 0) InvisTime.Add(PlayerControl.LocalPlayer.PlayerId, invis);
-            if (last > 0) lastTime.Add(PlayerControl.LocalPlayer.PlayerId, last);
         }
         public static void OnCoEnterVent(PlayerPhysics __instance, int ventId)
         {
             PotionID = 10;
             var pc = __instance.myPlayer;
+            NameNotifyManager.Notice.Remove(pc.PlayerId);
             if (!AmongUsClient.Instance.AmHost) return;
             new LateTask(() =>
             {
@@ -201,7 +207,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static void OnFixedUpdate(PlayerControl player)
         {
-            if (!TOHE.GameStates.IsInTask || !IsEnable) return;
+            if (!GameStates.IsInTask || !IsEnable) return;
 
             var now = Utils.GetTimeStamp();
 
@@ -217,7 +223,6 @@ namespace TOHE.Roles.Crewmate
                     var remainTime = it.Value + (long)InvisDuration.GetFloat() - now;
                     if (remainTime < 0)
                     {
-                        lastTime.Add(pc.PlayerId, now);
                         pc?.MyPhysics?.RpcBootFromVent(ventedId.TryGetValue(pc.PlayerId, out var id) ? id : Main.LastEnteredVent[pc.PlayerId].Id);
                         NameNotifyManager.Notify(pc, GetString("ChameleonInvisStateOut"));
                         pc.RpcResetAbilityCooldown();
@@ -235,9 +240,19 @@ namespace TOHE.Roles.Crewmate
                 refreshList.Do(x => SendRPC(Utils.GetPlayerById(x)));
             }
         }
+        public static string GetHudText(PlayerControl pc)
+        {
+            if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return "";
+            var str = new StringBuilder();
+            if (IsInvis(pc.PlayerId))
+            {
+                var remainTime = InvisTime[pc.PlayerId] + (long)InvisDuration.GetFloat() - Utils.GetTimeStamp();
+                str.Append(string.Format(GetString("ChameleonInvisStateCountdown"), remainTime + 1));
+            }
+            return str.ToString();
+        }
         public static void RepairSystem(SystemTypes systemType, byte amount)
         {
-            FixNextSabo = false;
             PotionID = 10;
             switch (systemType)
             {
@@ -273,7 +288,6 @@ namespace TOHE.Roles.Crewmate
         }
         public static void SwitchSystemRepair(SwitchSystem __instance, byte amount)
         {
-            FixNextSabo = false;
             PotionID = 10;
             if (amount is >= 0 and <= 4)
             {

@@ -36,6 +36,7 @@ namespace TOHE.Roles.Crewmate
             CustomRoles.SabotageMaster,
             CustomRoles.Snitch,
             CustomRoles.Marshall,
+            CustomRoles.Monitor,
             CustomRoles.ParityCop,
        //     CustomRoles.SpeedBooster,
             CustomRoles.Dictator,
@@ -78,12 +79,12 @@ namespace TOHE.Roles.Crewmate
         }
         public static void Add(byte playerId)
         {
-
+            isEnable = true;
             if (!AmongUsClient.Instance.AmHost) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
-
+        public static bool isEnable = false;
 
         public static void SetCooldown(byte id) => Main.AllPlayerKillCooldown[id] = FarseerCooldown.GetFloat();
 

@@ -86,6 +86,7 @@ public static class Divinator
                 CustomRoles.Eraser or
                 CustomRoles.Refugee or
                 CustomRoles.AntiAdminer or
+                CustomRoles.Monitor or
                 CustomRoles.Dazzler or
                 CustomRoles.Grenadier or
                 CustomRoles.Lighter
@@ -162,6 +163,7 @@ public static class Divinator
                 CustomRoles.Dictator or
                 CustomRoles.Judge or
                 CustomRoles.CursedSoul or
+                CustomRoles.Cleanser or
                 CustomRoles.CursedWolf
                 => "Result10",
 
@@ -250,6 +252,7 @@ public static class Divinator
                 CustomRoles.BoobyTrap or
                 CustomRoles.QuickShooter or
                 CustomRoles.NSerialKiller or
+                CustomRoles.Werewolf or
                 CustomRoles.Sheriff or
                 CustomRoles.Admirer or
                 CustomRoles.Warlock

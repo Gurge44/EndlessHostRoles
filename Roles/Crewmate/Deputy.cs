@@ -67,15 +67,16 @@ public static class Deputy
             HandcuffLimit--;
 
             killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("DeputyHandcuffedPlayer")));
-            target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("HandcuffedByDeputy")));
-            Utils.NotifyRoles();
 
             //  target.ResetKillCooldown();
             new LateTask(() => 
             {
                 if (GameStates.IsInTask) target.SetKillCooldown(DeputyHandcuffCDForTarget.GetFloat());
+                target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("HandcuffedByDeputy")));
+                Utils.NotifyRoles();
             }, DeputyHandcuffDelay.GetInt());
-            
+            Utils.NotifyRoles();
+
             killer.SetKillCooldown();
             if (target.IsModClient()) target.RpcResetAbilityCooldown();
             //killer.RpcGuardAndKill(target);
@@ -98,8 +99,8 @@ public static class Deputy
     public static bool CanBeHandcuffed(this PlayerControl pc)
     {
         return pc != null && !pc.Is(CustomRoles.Deputy)
-        && !(
+        && !
             false
-            );
+            ;
     }
 }
