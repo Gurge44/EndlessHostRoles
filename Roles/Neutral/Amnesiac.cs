@@ -371,11 +371,11 @@ public static class Amnesiac
     public static string GetRememberLimit() => Utils.ColorString(RememberLimit >= 1 ? Utils.GetRoleColor(CustomRoles.Amnesiac) : Color.gray, $"({RememberLimit})");
     public static bool CanBeRememberedNeutralKiller(this PlayerControl pc)
     {
-        return pc != null && ((pc.GetCustomRole().IsAmneNK()));
+        return pc != null && pc.GetCustomRole().IsAmneNK();
     }
     public static bool CanBeRememberedNeutral(this PlayerControl pc)
     {
-        return pc != null && ((pc.GetCustomRole().IsAmneMaverick()));
+        return pc != null && pc.GetCustomRole().IsAmneMaverick();
     }
     public static bool CanBeRememberedImpostor(this PlayerControl pc)
     {
@@ -383,27 +383,27 @@ public static class Amnesiac
     }
     public static bool CanBeRememberedCrewmate(this PlayerControl pc)
     {
-        return pc != null && (pc.GetCustomRole().IsCrewmate() && !pc.Is(CustomRoles.Madmate));
+        return pc != null && pc.GetCustomRole().IsCrewmate() && !pc.Is(CustomRoles.Madmate);
     }
     public static bool CanBeRememberedJackal(this PlayerControl pc)
     {
-        return pc != null && (pc.Is(CustomRoles.Jackal));
+        return pc != null && pc.Is(CustomRoles.Jackal);
     }
     public static bool CanBeRememberedHexMaster(this PlayerControl pc)
     {
-        return pc != null && (pc.Is(CustomRoles.HexMaster));
+        return pc != null && pc.Is(CustomRoles.HexMaster);
     }
     public static bool CanBeRememberedPoisoner(this PlayerControl pc)
     {
-        return pc != null && (pc.Is(CustomRoles.Poisoner));
+        return pc != null && pc.Is(CustomRoles.Poisoner);
     }
     public static bool CanBeRememberedJuggernaut(this PlayerControl pc)
     {
-        return pc != null && (pc.Is(CustomRoles.Juggernaut));
+        return pc != null && pc.Is(CustomRoles.Juggernaut);
     }
     public static bool CanBeRememberedBloodKnight(this PlayerControl pc)
     {
-        return pc != null && (pc.Is(CustomRoles.BloodKnight));
+        return pc != null && pc.Is(CustomRoles.BloodKnight);
     }
     public static bool KnowRole(PlayerControl player, PlayerControl target)
     {
@@ -415,6 +415,7 @@ public static class Amnesiac
         if (player.Is(CustomRoles.Refugee) && target.Is(CustomRoles.Refugee)) return true;
         if (player.Is(CustomRoles.Parasite) && target.Is(CustomRoles.Parasite)) return true;
         if (player.Is(CustomRoles.NSerialKiller) && target.Is(CustomRoles.NSerialKiller)) return true;
+        if (player.Is(CustomRoles.Werewolf) && target.Is(CustomRoles.Werewolf)) return true;
         if (player.Is(CustomRoles.Pickpocket) && target.Is(CustomRoles.Pickpocket)) return true;
         if (player.Is(CustomRoles.Traitor) && target.Is(CustomRoles.Traitor)) return true;
         if (player.Is(CustomRoles.Virus) && target.Is(CustomRoles.Virus)) return true;

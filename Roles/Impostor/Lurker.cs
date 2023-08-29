@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor
@@ -27,6 +28,7 @@ namespace TOHE.Roles.Impostor
         {
             playerIdList.Add(playerId);
         }
+        public static bool IsEnable() => playerIdList.Any();
 
         public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = DefaultKillCooldown.GetFloat();
 

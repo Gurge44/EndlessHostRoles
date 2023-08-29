@@ -74,11 +74,11 @@ public static class BountyHunter
         if (ShowTargetArrow) TargetArrow.Add(bountyId, targetId);
     }
     //public static void SetKillCooldown(byte id, float amount) => Main.AllPlayerKillCooldown[id] = amount;
-    public static void ApplyGameOptions()
-    {
-        AURoleOptions.ShapeshifterCooldown = TargetChangeTime;
-        AURoleOptions.ShapeshifterDuration = 1f;
-    }
+    //public static void ApplyGameOptions()
+    //{
+    //    AURoleOptions.ShapeshifterCooldown = TargetChangeTime;
+    //    AURoleOptions.ShapeshifterDuration = 1f;
+    //}
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
@@ -152,7 +152,7 @@ public static class BountyHunter
         ChangeTimer[playerId] = 0f;
 
         Logger.Info($"{player.GetNameWithRole()}:ターゲットリセット", "BountyHunter");
-        player.RpcResetAbilityCooldown(); ;//タイマー（変身クールダウン）のリセットと
+        //player.RpcResetAbilityCooldown(); ;//タイマー（変身クールダウン）のリセットと
 
         var cTargets = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(pc => !pc.Is(CustomRoleTypes.Impostor)));
 
@@ -176,14 +176,14 @@ public static class BountyHunter
         SendRPC(player.PlayerId, targetId);
         return targetId;
     }
-    public static void SetAbilityButtonText(HudManager __instance) => __instance.AbilityButton.OverrideText(GetString("BountyHunterChangeButtonText"));
+    //public static void SetAbilityButtonText(HudManager __instance) => __instance.AbilityButton.OverrideText(GetString("BountyHunterChangeButtonText"));
     public static void AfterMeetingTasks()
     {
         foreach (var id in playerIdList)
         {
             if (!Main.PlayerStates[id].IsDead)
             {
-                Utils.GetPlayerById(id)?.RpcResetAbilityCooldown();
+                //Utils.GetPlayerById(id)?.RpcResetAbilityCooldown();
                 ChangeTimer[id] = 0f;
             }
         }
@@ -203,6 +203,6 @@ public static class BountyHunter
         //seerがtarget自身でBountyHunterのとき、
         //矢印オプションがありミーティング以外で矢印表示
         var targetId = GetTarget(seer);
-        return TargetArrow.GetArrows(seer, targetId);
+        return $"<color=#ffffff> {TargetArrow.GetArrows(seer, targetId)}</color>";
     }
 }

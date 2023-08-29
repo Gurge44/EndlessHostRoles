@@ -144,6 +144,9 @@ public static class Jackal
                 SendRPC(killer.PlayerId);
                 target.RpcSetCustomRole(CustomRoles.Sidekick);
 
+                if (!Main.ResetCamPlayerList.Contains(target.PlayerId))
+                    Main.ResetCamPlayerList.Add(target.PlayerId);
+
                 killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), GetString("GangsterSuccessfullyRecruited")));
                 target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), GetString("BeRecruitedByJackal")));
                 Utils.NotifyRoles();

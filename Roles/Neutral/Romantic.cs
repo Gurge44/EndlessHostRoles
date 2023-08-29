@@ -264,7 +264,7 @@ public static class VengefulRomantic
     {
         var player = Utils.GetPlayerById(playerId);
         if (player == null) return null;
-        return Utils.ColorString(hasKilledKiller ? Color.green : Utils.GetRoleColor(CustomRoles.VengefulRomantic), $"<color=#777777>-</color> {((hasKilledKiller) ? "AVEGNGE SUCCESSFUL" : "AVENGE YOUR PARTNER")}");
+        return Utils.ColorString(hasKilledKiller ? Color.green : Utils.GetRoleColor(CustomRoles.VengefulRomantic), $"<color=#777777>-</color> {(hasKilledKiller ? "AVEGNGE SUCCESSFUL" : "AVENGE YOUR PARTNER")}");
     }
     public static void SendRPC(byte playerId)
     {

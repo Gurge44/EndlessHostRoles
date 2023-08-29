@@ -185,7 +185,7 @@ public static class Wraith
 
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (Medic.ProtectList.Contains(target.PlayerId)) return true;
+        if (Medic.ProtectList.Contains(target.PlayerId)) return false;
         if (target.Is(CustomRoles.Bait)) return true;
         if (!IsInvis(killer.PlayerId)) return true;
         killer.SetKillCooldown();
