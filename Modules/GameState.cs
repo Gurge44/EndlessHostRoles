@@ -82,6 +82,8 @@ public class PlayerState
     }
     public void SetSubRole(CustomRoles role, bool AllReplace = false)
     {
+        if (role == CustomRoles.Cleansed)
+            AllReplace = true;
         if (AllReplace)
             SubRoles.ToArray().Do(role => SubRoles.Remove(role));
 
@@ -521,17 +523,17 @@ public class TaskState
             {
                 Logger.Info("工作狂任务做完了", "Speedrunner");
                 RPC.PlaySoundRPC(player.PlayerId, Sounds.KillSound);
-                foreach (var pc in Main.AllAlivePlayerControls)
-                {
-                    if (pc.PlayerId != player.PlayerId)
-                    {
-                        Main.PlayerStates[pc.PlayerId].deathReason = pc.PlayerId == player.PlayerId ?
-                            PlayerState.DeathReason.Overtired : PlayerState.DeathReason.Ashamed;
-                        pc.RpcMurderPlayerV3(pc);
-                        Main.PlayerStates[pc.PlayerId].SetDead();
-                        pc.SetRealKiller(player);
-                    }
-                }
+                //foreach (var pc in Main.AllAlivePlayerControls)
+                //{
+                //    if (pc.PlayerId != player.PlayerId)
+                //    {
+                //        Main.PlayerStates[pc.PlayerId].deathReason = pc.PlayerId == player.PlayerId ?
+                //            PlayerState.DeathReason.Overtired : PlayerState.DeathReason.Ashamed;
+                //        pc.RpcMurderPlayerV3(pc);
+                //        Main.PlayerStates[pc.PlayerId].SetDead();
+                //        pc.SetRealKiller(player);
+                //    }
+                //}
                 GameData.Instance.CompletedTasks = GameData.Instance.TotalTasks;
             }
 

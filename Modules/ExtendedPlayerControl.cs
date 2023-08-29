@@ -26,6 +26,7 @@ static class ExtendedPlayerControl
         }
         else if (role >= CustomRoles.NotAssigned)   //500:NoSubRole 501~:SubRole
         {
+            if (!Cleanser.CleansedCanGetAddon.GetBool() && player.Is(CustomRoles.Cleansed)) return;
             Main.PlayerStates[player.PlayerId].SetSubRole(role);
         }
         if (AmongUsClient.Instance.AmHost)
@@ -372,7 +373,7 @@ static class ExtendedPlayerControl
     public static string GetNameWithRole(this PlayerControl player, bool forUser = false)
     {
         var ret = $"{player?.Data?.PlayerName}" + (GameStates.IsInGame ? $"({player?.GetAllRoleName(forUser)})" : "");
-        return (forUser ? ret : ret);
+        return forUser ? ret : ret;
     }
     public static string GetRoleColorCode(this PlayerControl player)
     {
@@ -451,6 +452,7 @@ static class ExtendedPlayerControl
             CustomRoles.Sheriff => Sheriff.CanUseKillButton(pc.PlayerId),
             CustomRoles.Crusader => Crusader.CanUseKillButton(pc.PlayerId),
             CustomRoles.CopyCat => pc.IsAlive(),
+            CustomRoles.Jailor => pc.IsAlive(),
             CustomRoles.Pelican => pc.IsAlive(),
             CustomRoles.Arsonist => !pc.IsDouseDone(),
             CustomRoles.Revolutionist => !pc.IsDrawDone(),
@@ -463,6 +465,7 @@ static class ExtendedPlayerControl
             CustomRoles.Reverie => pc.IsAlive(),
             CustomRoles.Ritualist => pc.IsAlive(),
             CustomRoles.NSerialKiller => pc.IsAlive(),
+            CustomRoles.Werewolf => Werewolf.IsRampaging(pc.PlayerId) && pc.IsAlive(),
             CustomRoles.Medusa => pc.IsAlive(),
             CustomRoles.Traitor => pc.IsAlive(),
             CustomRoles.Glitch => pc.IsAlive(),
@@ -473,8 +476,8 @@ static class ExtendedPlayerControl
             CustomRoles.Refugee => pc.IsAlive(),
             CustomRoles.NWitch => pc.IsAlive(),
             CustomRoles.Wraith => pc.IsAlive(),
-            CustomRoles.Bomber => (Options.BomberCanKill.GetBool() && pc.IsAlive()),
-            CustomRoles.Nuker => (Options.BomberCanKill.GetBool() && pc.IsAlive()),
+            CustomRoles.Bomber => Options.BomberCanKill.GetBool() && pc.IsAlive(),
+            CustomRoles.Nuker => Options.BomberCanKill.GetBool() && pc.IsAlive(),
             CustomRoles.Innocent => pc.IsAlive(),
             CustomRoles.Counterfeiter => Counterfeiter.CanUseKillButton(pc.PlayerId),
             CustomRoles.Witness => pc.IsAlive(),
@@ -546,6 +549,7 @@ static class ExtendedPlayerControl
             CustomRoles.Sidekick => Jackal.CanVentSK.GetBool(),
             CustomRoles.Poisoner => Poisoner.CanVent.GetBool(),
             CustomRoles.NSerialKiller => NSerialKiller.CanVent.GetBool(),
+            CustomRoles.Werewolf => true,
             CustomRoles.Pestilence => PlagueBearer.PestilenceCanVent.GetBool(),
             CustomRoles.Medusa => Medusa.CanVent.GetBool(),
             CustomRoles.Traitor => Traitor.CanVent.GetBool(),
@@ -637,6 +641,9 @@ static class ExtendedPlayerControl
             case CustomRoles.EvilDiviner:
                 EvilDiviner.SetKillCooldown(player.PlayerId);
                 break;
+            case CustomRoles.Jailor:
+                Jailor.SetKillCooldown(player.PlayerId); //シリアルキラーはシリアルキラーのキルクールに。
+                break;
             case CustomRoles.Morphling:
                 Morphling.SetKillCooldown(player.PlayerId);
                 break;
@@ -687,6 +694,9 @@ static class ExtendedPlayerControl
                 break;
             case CustomRoles.NSerialKiller:
                 NSerialKiller.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.Werewolf:
+                Werewolf.SetKillCooldown(player.PlayerId);
                 break;
             case CustomRoles.Traitor:
                 Traitor.SetKillCooldown(player.PlayerId);
@@ -989,11 +999,11 @@ static class ExtendedPlayerControl
         || (seer.Data.IsDead && Options.GhostCanSeeDeathReason.GetBool()))
         && target.Data.IsDead || target.Is(CustomRoles.Gravestone) && target.Data.IsDead;
     public static bool KnowDeadTeam(this PlayerControl seer, PlayerControl target)
-        => (seer.Is(CustomRoles.Necroview))
+        => seer.Is(CustomRoles.Necroview)
         && target.Data.IsDead;
 
     public static bool KnowLivingTeam(this PlayerControl seer, PlayerControl target)
-        => (seer.Is(CustomRoles.Visionary))
+        => seer.Is(CustomRoles.Visionary)
         && !target.Data.IsDead;
     public static string GetRoleInfo(this PlayerControl player, bool InfoLong = false)
     {

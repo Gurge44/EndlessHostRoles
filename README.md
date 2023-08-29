@@ -15,7 +15,7 @@
 </p>
 <p align="center">
   
-<a href="https://toher.vercel.app/" target="_blank"><img src="https://img.shields.io/badge/Website%20-%231DA1F2.svg?&style=for-the-badge&logo=vuedotjs&logoColor=white&color=3aa675"/></a>
+<a href="https://toher.dev/" target="_blank"><img src="https://img.shields.io/badge/Website%20-%231DA1F2.svg?&style=for-the-badge&logo=vuedotjs&logoColor=white&color=3aa675"/></a>
 <a href="https://discord.gg/hkk2p9ggv4" target="_blank"><img src="https://img.shields.io/badge/Discord%20-%231DA1F2.svg?&style=for-the-badge&logo=discord&logoColor=white&color=5662f6"/></a>
 <a href="https://github.com/Gurge44/TOHE_PLUS_/releases/latest" target="_blank"><img src="https://img.shields.io/badge/Latest Version%20-%231DA1F2.svg?&style=for-the-badge&logo=github&logoColor=white&color=181717"/></a>
 
@@ -47,6 +47,7 @@
 - More customizable settings; More reasonable default settings
 - Starting Kill Cooldown setting
 - Additional ejection confirmation message when crewmates win
+- Better role summary
 
 ### Role specific Improvements
 #### Crewmates
@@ -85,17 +86,20 @@
 - Lighter (Crewmate)
 - Demolitionist (Crewmate)
 - Witness (Crewmate)
+- Alchemist (Crewmate)
 - Task Manager (Crewmate)
 - Speedrunner (Crewmate)
 - Romantic (Neutral)
+- Werewolf (Neutral)
 - Undertaker (Impostor)
 
 <br>
 
-**Credit to these mods and their developers for the code and help:**
+## Credit to these mods and their developers for the code and help:
 ### :star: [TOHE](https://github.com/KARPED1EM/TownOfHostEdited) :
 > 
 > - Our repo is forked from TOHE
+> 
 ### :star: [TOH](https://github.com/tukasa0001/TownOfHost) :
 > 
 > - Our repo is based initially on TOH
@@ -130,10 +134,12 @@
 
 ### :star: [TOH+](https://github.com/SkullCreeper/TownOfHostPlus)
 >
-> - Provided roles: Shapeshifter, Engineer, Scientist, Marshall, Poisoner, Necroview, Sidekick
+> - Provided roles: Marshall, Poisoner, Necroview, Sidekick
 > - Bait and Beartrap as add-ons
 >
 
-### :star: [Project Lotus](https://github.com/ImaMapleTree/Lotus)
+### :star: [PL](https://github.com/ImaMapleTree/Lotus)
 >
-> - Ideas for some roles (such as Crusader)
+> - Ideas for some roles
+> - Customize Main Menu
+> - Reference: Auto Play Again

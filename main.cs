@@ -33,7 +33,7 @@ public class Main : BasePlugin
     public static ConfigEntry<string> DebugKeyInput { get; private set; }
     public static readonly string MainMenuText = " ";
     public const string PluginGuid = "com.karped1em.townofhostedited";
-    public const string PluginVersion = "2.5.1.22";
+    public const string PluginVersion = "1.0.22";
     public const string PluginDisplayVersion = "1.0";
     public const int PluginCreate = 3;
     public const bool Canary = false;
@@ -336,12 +336,15 @@ public class Main : BasePlugin
                 {CustomRoles.Mediumshiper, "#a200ff"},
                 {CustomRoles.Observer, "#a8e0fa"},
                 {CustomRoles.DovesOfNeace, "#ffffff"},
+                {CustomRoles.Jailor,"#aa900d"},
                 {CustomRoles.Monarch, "#FFA500"},
                 {CustomRoles.Bloodhound, "#8B0000"},
                 {CustomRoles.Tracker, "#3CB371"},
                 {CustomRoles.Merchant, "#D27D2D"},
                 {CustomRoles.Retributionist, "#228B22"},
+                {CustomRoles.Monitor, "#7223DA"},
                 {CustomRoles.Deputy, "#df9026"},
+                {CustomRoles.Cleanser,"#98FF98" },
                 {CustomRoles.Guardian, "#2E8B57"},
                 {CustomRoles.Addict, "#008000"},
                 {CustomRoles.Alchemist, "#e6d798"},
@@ -389,6 +392,7 @@ public class Main : BasePlugin
                 {CustomRoles.HexMaster, "#ff00ff"},
                 {CustomRoles.Wraith, "#4B0082"},
                 {CustomRoles.NSerialKiller, "#233fcc"},
+                {CustomRoles.Werewolf, "#964B00"},
                 {CustomRoles.BloodKnight, "#630000"},
                 {CustomRoles.Juggernaut, "#A41342"},
                 {CustomRoles.Parasite, "#ff1919"},
@@ -433,6 +437,7 @@ public class Main : BasePlugin
                 {CustomRoles.Bewilder, "#c894f5"},
                 {CustomRoles.Sunglasses, "#E7C12B"},
                 {CustomRoles.Workhorse, "#00ffff"},
+                {CustomRoles.Cleansed,"#98FF98"},
                 {CustomRoles.Fool, "#e6e7ff"},
                 {CustomRoles.Avanger, "#ffab1c"},
                 {CustomRoles.Youtuber, "#fb749b"},
@@ -621,6 +626,7 @@ public enum CustomRoles
     NiceEraser,
     TaskManager,
     Mayor,
+    Jailor,
     Paranoia,
     Psychic,
     SabotageMaster,
@@ -668,7 +674,9 @@ public enum CustomRoles
     ParityCop,
     Admirer,
     TimeMaster,
+    Monitor,
     Crusader,
+    Cleanser,
     Reverie,
     //Neutral
     Arsonist,
@@ -687,6 +695,7 @@ public enum CustomRoles
     Pelican,
     Revolutionist,
     NSerialKiller,
+    Werewolf,
     Juggernaut,
     Infectious,
     FFF,
@@ -766,6 +775,7 @@ public enum CustomRoles
     Onbound,
     Knighted,
     Contagious,
+    Cleansed,
     Unreportable,
     Rogue,
     Lucky,
@@ -825,6 +835,7 @@ public enum CustomWinner
     Wraith = CustomRoles.Wraith,
     //Pirate = CustomRoles.Pirate,
     SerialKiller = CustomRoles.NSerialKiller,
+    Werewolf = CustomRoles.Werewolf,
     Witch = CustomRoles.NWitch,
     Juggernaut = CustomRoles.Juggernaut,
     Infectious = CustomRoles.Infectious,

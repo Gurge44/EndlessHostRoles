@@ -171,7 +171,7 @@ internal static class SoloKombatManager
     {
         var x = (int)(pc.HP() / pc.HPMAX() * 10 * 50);
         int R = 255; int G = 255; int B = 0;
-        if (x > 255) R -= (x - 255); else G = x;
+        if (x > 255) R -= x - 255; else G = x;
         return new Color32((byte)R, (byte)G, (byte)B, byte.MaxValue);
     }
     public static Dictionary<byte, (string, long)> NameNotify = new();

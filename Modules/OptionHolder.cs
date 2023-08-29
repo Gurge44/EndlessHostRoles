@@ -29,12 +29,14 @@ public static class Options
     {
         Logger.Info("Options.Load Start", "Options");
         taskOptionsLoad = Task.Run(Load);
+        taskOptionsLoad.ContinueWith(t => { Logger.Msg("模组选项加载线程结束", "Load Options"); });
     }
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPostfix]
     public static void WaitOptionsLoad()
     {
-        taskOptionsLoad.Wait();
-        Logger.Info("Options.Load End", "Options");
+        return;
+        //taskOptionsLoad.Wait();
+        //Logger.Info("Options.Load End", "Options");
     }
     // オプションId
     public const int PresetId = 0;
@@ -1180,6 +1182,7 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.CyberStar]);
         NeutralKnowCyberStarDead = BooleanOptionItem.Create(5500, "NeutralKnowCyberStarDead", false, TabGroup.CrewmateRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.CyberStar]);
+        Cleanser.SetupCustomOption();
         SetupSingleRoleOptions(5550, TabGroup.CrewmateRoles, CustomRoles.Demolitionist, 1);
         DemolitionistVentTime = FloatOptionItem.Create(5552, "DemolitionistVentTime", new(1f, 30f, 1f), 5f, TabGroup.CrewmateRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Demolitionist])
@@ -1312,6 +1315,7 @@ public static class Options
         CopyCat.SetupCustomOption();
         Crusader.SetupCustomOption();
         Counterfeiter.SetupCustomOption();
+        Jailor.SetupCustomOption();
         SetupSingleRoleOptions(8550, TabGroup.CrewmateRoles, CustomRoles.Witness, 1);
         WitnessCD = FloatOptionItem.Create(8552, "AbilityCD", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Witness])
@@ -1320,7 +1324,7 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Witness])
             .SetValueFormat(OptionFormat.Seconds);
         SwordsMan.SetupCustomOption();
-        Reverie.SetupCustomOption();
+        //Reverie.SetupCustomOption();
 
         SetupRoleOptions(8700, TabGroup.CrewmateRoles, CustomRoles.Retributionist);
         RetributionistCanKillNum = IntegerOptionItem.Create(8710, "RetributionistCanKillNum", new(1, 15, 1), 1, TabGroup.CrewmateRoles, false)
@@ -1385,6 +1389,7 @@ public static class Options
         MayorTasks = OverrideTasksData.Create(9515, TabGroup.CrewmateRoles, CustomRoles.Mayor);
         Monarch.SetupCustomOption();
         Farseer.SetupCustomOption();
+        Monitor.SetupCustomOption();
 
         // Neutral
         TextOptionItem.Create(100069, "RoleType.NeutralBenign", TabGroup.NeutralRoles)
@@ -1498,6 +1503,7 @@ public static class Options
         PlagueBearer.SetupCustomOption();
         Poisoner.SetupCustomOption();
         NSerialKiller.SetupCustomOption();
+        Werewolf.SetupCustomOption();
         DarkHide.SetupCustomOption(); //TOH_Y
         Ritualist.SetupCustomOption();
         Traitor.SetupCustomOption();

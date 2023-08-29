@@ -82,6 +82,10 @@ enum CustomRPC
     SyncPsychicRedList,
     SetMorticianArrow,
     SetTracefinderArrow,
+    SetCleanserCleanLimit,
+    SetJailorTarget,
+    SetJailorExeLimit,
+    SetWWTimer,
     Judge,
     Guess,
     MeetingKill,
@@ -568,6 +572,18 @@ internal class RPCHandlerPatch
             case CustomRPC.DoPoison:
                 Baker.ReceiveRPC(reader);
                 break;
+            case CustomRPC.SetCleanserCleanLimit:
+                Cleanser.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SetJailorExeLimit:
+                Jailor.ReceiveRPC(reader, setTarget: false);
+                break;
+            case CustomRPC.SetJailorTarget:
+                Jailor.ReceiveRPC(reader, setTarget: true);
+                break;
+            case CustomRPC.SetWWTimer:
+                Werewolf.ReceiveRPC(reader);
+                break;
             case CustomRPC.SetSpiritcallerSpiritLimit:
                 Spiritcaller.ReceiveRPC(reader);
                 break;
@@ -805,6 +821,15 @@ internal static class RPC
             case CustomRoles.SabotageMaster:
                 SabotageMaster.Add(targetId);
                 break;
+            case CustomRoles.Cleanser:
+                Cleanser.Add(targetId);
+                break;
+            case CustomRoles.Jailor:
+                Jailor.Add(targetId);
+                break;
+            case CustomRoles.Monitor:
+                Monitor.Add(targetId);
+                break;
             case CustomRoles.Snitch:
                 Snitch.Add(targetId);
                 break;
@@ -998,6 +1023,9 @@ internal static class RPC
             case CustomRoles.NSerialKiller:
                 NSerialKiller.Add(targetId);
                 break;
+            case CustomRoles.Werewolf:
+                Werewolf.Add(targetId);
+                break;
             case CustomRoles.Traitor:
                 Traitor.Add(targetId);
                 break;
@@ -1024,6 +1052,9 @@ internal static class RPC
                 break;
             case CustomRoles.Morphling:
                 Morphling.Add(targetId);
+                break;
+            case CustomRoles.Pickpocket:
+                Pickpocket.Add(targetId);
                 break;
             case CustomRoles.Devourer:
                 Devourer.Add(targetId);

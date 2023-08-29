@@ -17,7 +17,7 @@ public static class AntiBlackout
     ///<summary>
     ///インポスターが一人しか存在しない設定かどうか
     ///</summary>
-    public static bool IsSingleImpostor => (Main.RealOptionsData != null ? Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors) : Main.NormalOptions.NumImpostors) <= 1;
+    public static bool IsSingleImpostor => Main.RealOptionsData != null ? Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors) <= 1 : Main.NormalOptions.NumImpostors <= 1;
     ///<summary>
     ///AntiBlackout内の処理が必要であるかどうか
     ///</summary>
@@ -28,12 +28,12 @@ public static class AntiBlackout
         || Infectious.IsEnable || Juggernaut.IsEnable
         || Ritualist.IsEnable || Virus.IsEnable
         || Wraith.IsEnable || HexMaster.IsEnable
-        || Traitor.IsEnable || Pickpocket.IsEnable
+        || Traitor.IsEnable || Pickpocket.IsEnable || Werewolf.IsEnable
         || NSerialKiller.IsEnable || NWitch.IsEnable || RuthlessRomantic.IsEnable
         || Maverick.IsEnable || Jinx.IsEnable
         || Medusa.IsEnable || Spiritcaller.IsEnable
-        || PlagueBearer.IsEnable || CustomRoles.Sidekick.RoleExist()
-        || CustomRoles.Pestilence.RoleExist() || CustomRoles.Arsonist.RoleExist();
+        || PlagueBearer.IsEnable || CustomRoles.Sidekick.RoleExist(true)
+        || CustomRoles.Pestilence.RoleExist(true);
     //|| Pirate.IsEnable;
     ///<summary>
     ///インポスター以外の人数とインポスターの人数の差

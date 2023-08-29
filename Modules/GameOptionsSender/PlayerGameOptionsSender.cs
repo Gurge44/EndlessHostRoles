@@ -21,6 +21,10 @@ public class PlayerGameOptionsSender : GameOptionsSender
     public static void SetDirtyToAll() =>
         AllSenders.OfType<PlayerGameOptionsSender>()
         .ToList().ForEach(sender => sender.SetDirty());
+    public static void SetDirtyToAllV2() =>
+        AllSenders.OfType<PlayerGameOptionsSender>()
+        .Where(sender => !sender.IsDirty && sender.player.IsAlive() && CustomRolesHelper.NeedUpdateOnLights(sender.player.GetCustomRole()))
+        .ToList().ForEach(sender => sender.SetDirty());
 
     public override IGameOptions BasedGameOptions =>
         Main.RealOptionsData.Restore(new NormalGameOptionsV07(new UnityLogger().Cast<ILogger>()).Cast<IGameOptions>());
@@ -133,9 +137,9 @@ public class PlayerGameOptionsSender : GameOptionsSender
             case CustomRoles.Tracefinder:
                 Tracefinder.ApplyGameOptions();
                 break;
-            case CustomRoles.BountyHunter:
-                BountyHunter.ApplyGameOptions();
-                break;
+            //case CustomRoles.BountyHunter:
+            //    BountyHunter.ApplyGameOptions();
+            //    break;
             case CustomRoles.Sheriff:
             case CustomRoles.SwordsMan:
             case CustomRoles.Arsonist:
@@ -147,6 +151,7 @@ public class PlayerGameOptionsSender : GameOptionsSender
             case CustomRoles.Crusader:
             case CustomRoles.Provocateur:
             case CustomRoles.Monarch:
+            case CustomRoles.Jailor:
             case CustomRoles.Deputy:
             case CustomRoles.Counterfeiter:
             case CustomRoles.Witness:
@@ -164,6 +169,10 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 break;
             case CustomRoles.Refugee:
                 opt.SetVision(true);
+                break;
+            case CustomRoles.Monitor:
+                AURoleOptions.EngineerCooldown = 0f;
+                AURoleOptions.EngineerInVentMaxTime = 0f;
                 break;
             case CustomRoles.Virus:
                 opt.SetVision(Virus.ImpostorVision.GetBool());
@@ -262,6 +271,9 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 break;
             case CustomRoles.NSerialKiller:
                 NSerialKiller.ApplyGameOptions(opt);
+                break;
+            case CustomRoles.Werewolf:
+                Werewolf.ApplyGameOptions(opt);
                 break;
             case CustomRoles.Morphling:
                 Morphling.ApplyGameOptions();

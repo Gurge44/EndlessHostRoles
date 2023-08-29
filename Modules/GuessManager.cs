@@ -148,7 +148,7 @@ public static class GuessManager
             (pc.Is(CustomRoles.NiceGuesser) && Options.GGTryHideMsg.GetBool()) ||
             (pc.Is(CustomRoles.EvilGuesser) && Options.EGTryHideMsg.GetBool()) ||
             (pc.Is(CustomRoles.Doomsayer) && Doomsayer.DoomsayerTryHideMsg.GetBool()) ||
-            (pc.Is(CustomRoles.Guesser) && Options.GTryHideMsg.GetBool() || Options.GuesserMode.GetBool() && Options.HideGuesserCommands.GetBool())
+            pc.Is(CustomRoles.Guesser) && Options.GTryHideMsg.GetBool() || Options.GuesserMode.GetBool() && Options.HideGuesserCommands.GetBool()
             ) TryHideMsg();
             else if (pc.AmOwner && !isUI) Utils.SendMessage(originMsg, 255, pc.GetRealName());
 
@@ -275,6 +275,18 @@ public static class GuessManager
                     else pc.ShowPopUp(GetString("GuessOnbound"));
                     return true;
                 }
+                if (Jailor.JailorTarget.ContainsValue(target.PlayerId))
+                {
+                    if (!isUI) Utils.SendMessage(GetString("CantGuessJailed"), pc.PlayerId, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
+                    else pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")) + "\n" + GetString("CantGuessJailed"));
+                    return true;
+                }
+                if (Jailor.JailorTarget.ContainsValue(pc.PlayerId) && role != CustomRoles.Jailor)
+                {
+                    if (!isUI) Utils.SendMessage(GetString("JailedCanOnlyGuessJailor"), pc.PlayerId, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
+                    else pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")) + "\n" + GetString("JailedCanOnlyGuessJailor"));
+                    return true;
+                }
                 if (target.Is(CustomRoles.Pestilence))
                 {
                     if (!isUI) Utils.SendMessage(GetString("GuessPestilence"), pc.PlayerId);
@@ -323,18 +335,18 @@ public static class GuessManager
                     else pc.ShowPopUp(GetString("EGGuessSnitchTaskDone"));
                     return true;
                 }
-                if (target.Is(CustomRoles.Marshall) && target.GetPlayerTaskState().IsTaskFinished)
-                {
-                    if (!isUI) Utils.SendMessage(GetString("GuessMarshallTask"), pc.PlayerId);
-                    else pc.ShowPopUp(GetString("GuessMarshallTask"));
-                    return true;
-                }
-                if (role == CustomRoles.Guardian && target.Is(CustomRoles.Guardian) && target.GetPlayerTaskState().IsTaskFinished)
-                {
-                    if (!isUI) Utils.SendMessage(GetString("GuessGuardianTask"), pc.PlayerId);
-                    else pc.ShowPopUp(GetString("GuessGuardianTask"));
-                    return true;
-                }
+                //if (target.Is(CustomRoles.Marshall) && target.GetPlayerTaskState().IsTaskFinished)
+                //{
+                //    if (!isUI) Utils.SendMessage(GetString("GuessMarshallTask"), pc.PlayerId);
+                //    else pc.ShowPopUp(GetString("GuessMarshallTask"));
+                //    return true;
+                //}
+                //if (role == CustomRoles.Guardian && target.Is(CustomRoles.Guardian) && target.GetPlayerTaskState().IsTaskFinished)
+                //{
+                //    if (!isUI) Utils.SendMessage(GetString("GuessGuardianTask"), pc.PlayerId);
+                //    else pc.ShowPopUp(GetString("GuessGuardianTask"));
+                //    return true;
+                //}
                 if (pc.Is(CustomRoles.Doomsayer))
                 {
                     if (Doomsayer.CantGuess)
@@ -374,7 +386,7 @@ public static class GuessManager
                 if (Options.GuesserMode.GetBool())
                 {
                     // Impostors Cant Guess Addons
-                    if (role.IsAdditionRole() && !Options.CanGuessAddons.GetBool() && (Options.ImpostorsCanGuess.GetBool() && pc.Is(CustomRoleTypes.Impostor)))
+                    if (role.IsAdditionRole() && !Options.CanGuessAddons.GetBool() && Options.ImpostorsCanGuess.GetBool() && pc.Is(CustomRoleTypes.Impostor))
                     {
                         if (!isUI) Utils.SendMessage(GetString("GuessAdtRole"), pc.PlayerId);
                         else pc.ShowPopUp(GetString("GuessAdtRole"));
@@ -382,7 +394,7 @@ public static class GuessManager
                     }
 
                     // Crewmates Cant Guess Addons
-                    if (role.IsAdditionRole() && !Options.CanGuessAddons.GetBool() && (Options.CrewmatesCanGuess.GetBool() && pc.Is(CustomRoleTypes.Crewmate)))
+                    if (role.IsAdditionRole() && !Options.CanGuessAddons.GetBool() && Options.CrewmatesCanGuess.GetBool() && pc.Is(CustomRoleTypes.Crewmate))
                     {
                         if (!isUI) Utils.SendMessage(GetString("GuessAdtRole"), pc.PlayerId);
                         else pc.ShowPopUp(GetString("GuessAdtRole"));
@@ -401,7 +413,7 @@ public static class GuessManager
                     if (Options.CanGuessAddons.GetBool() && (pc.Is(CustomRoles.EvilGuesser) || pc.Is(CustomRoles.NiceGuesser) || pc.Is(CustomRoles.Guesser)))
                     {
                         // Assassin Cant Guess Addons
-                        if (role.IsAdditionRole() && (pc.Is(CustomRoles.EvilGuesser) && !Options.EGCanGuessAdt.GetBool()))
+                        if (role.IsAdditionRole() && pc.Is(CustomRoles.EvilGuesser) && !Options.EGCanGuessAdt.GetBool())
                         {
                             if (!isUI) Utils.SendMessage(GetString("GuessAdtRole"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessAdtRole"));
@@ -409,7 +421,7 @@ public static class GuessManager
                         }
 
                         // Nice Guesser Cant Guess Addons
-                        if (role.IsAdditionRole() && (pc.Is(CustomRoles.NiceGuesser) && !Options.GGCanGuessAdt.GetBool()))
+                        if (role.IsAdditionRole() && pc.Is(CustomRoles.NiceGuesser) && !Options.GGCanGuessAdt.GetBool())
                         {
                             if (!isUI) Utils.SendMessage(GetString("GuessAdtRole"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessAdtRole"));
@@ -417,7 +429,7 @@ public static class GuessManager
                         }
 
                         // Guesser (add-on) Cant Guess Addons
-                        if (role.IsAdditionRole() && (pc.Is(CustomRoles.Guesser) && !Options.GCanGuessAdt.GetBool()))
+                        if (role.IsAdditionRole() && pc.Is(CustomRoles.Guesser) && !Options.GCanGuessAdt.GetBool())
                         {
                             if (!isUI) Utils.SendMessage(GetString("GuessAdtRole"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessAdtRole"));
