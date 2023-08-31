@@ -1,8 +1,11 @@
 using HarmonyLib;
 using System;
+using System.Text;
+using TMPro;
 using TOHE.Modules;
 using UnityEngine;
 using static UnityEngine.UI.Button;
+using static TOHE.Translator;
 using Object = UnityEngine.Object;
 
 namespace TOHE;
@@ -18,8 +21,13 @@ public class MainMenuManagerPatch
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.LateUpdate)), HarmonyPostfix]
     public static void Postfix(MainMenuManager __instance)
     {
-        __instance.playButton.transform.gameObject.SetActive(Options.IsLoaded);
-        TitleLogoPatch.LoadingHint?.SetActive(!Options.IsLoaded);
+        try
+        {
+            __instance.playButton.transform.gameObject.SetActive(Options.IsLoaded);
+            TitleLogoPatch.LoadingHint?.SetActive(!Options.IsLoaded);
+            TitleLogoPatch.LoadingHint.GetComponent<TextMeshPro>().text = string.Format(GetString("LoadingWithPercentage"), Options.LoadingPercentage, Options.MainLoadingText, Options.RoleLoadingText);
+        }
+        catch { }
     }
 
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPrefix]

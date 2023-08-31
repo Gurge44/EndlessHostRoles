@@ -46,6 +46,7 @@ internal class ChatCommands
         if (text.Length >= 4) if (text[..3] == "/up") args[0] = "/up";
         if (GuessManager.GuesserMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (Judge.TrialMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
+        if (NiceSwapper.SwapMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (ParityCop.ParityCheckMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         //if (Pirate.DuelCheckMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (Councillor.MurderMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
@@ -394,7 +395,7 @@ internal class ChatCommands
                 */
 
                 case "/changerole":
-                    if (!DebugModeManager.AmDebugger) break;
+                    //if (!DebugModeManager.AmDebugger) break;
                     canceled = true;
                     subArgs = text.Remove(0, 8);
                     var setRole = FixRoleNameInput(subArgs.Trim());
@@ -614,8 +615,9 @@ internal class ChatCommands
         foreach (CustomRoles rl in Enum.GetValues(typeof(CustomRoles)))
         {
             if (rl.IsVanilla()) continue;
-            var roleName = GetString(rl.ToString()).ToLower().Trim();
-            if (name.Contains(roleName))
+            var roleName = GetString(rl.ToString()).ToLower().Trim().Replace(" ", "");
+            string nameWithoutId = Regex.Replace(name.Replace(" ", ""), @"^\d+", "");
+            if (nameWithoutId == roleName)
             {
                 role = rl;
                 return true;
@@ -698,6 +700,7 @@ internal class ChatCommands
         //   if (SpamManager.CheckSpam(player, text)) return;
         if (GuessManager.GuesserMsg(player, text)) { canceled = true; return; }
         if (Judge.TrialMsg(player, text)) { canceled = true; return; }
+        if (NiceSwapper.SwapMsg(player, text)) { canceled = true; return; }
         if (ParityCop.ParityCheckMsg(player, text)) { canceled = true; return; }
         //if (Pirate.DuelCheckMsg(player, text)) { canceled = true; return; }
         if (Councillor.MurderMsg(player, text)) { canceled = true; return; }

@@ -1,6 +1,7 @@
 using AmongUs.Data;
 using HarmonyLib;
 using System.Linq;
+using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
 
@@ -103,6 +104,21 @@ class ExileControllerWrapUpPatch
         Witch.RemoveSpelledPlayer();
         HexMaster.RemoveHexedPlayer();
 
+
+        if (NiceSwapper.Vote.Count > 0 && NiceSwapper.VoteTwo.Count > 0)
+        {
+            foreach (var swapper in Main.AllAlivePlayerControls)
+            {
+                if (swapper.Is(CustomRoles.NiceSwapper))
+                {
+                    NiceSwapper.NiceSwappermax[swapper.PlayerId]--;
+                    NiceSwapper.Vote.Clear();
+                    NiceSwapper.VoteTwo.Clear();
+                    Main.NiceSwapSend = false;
+                }
+            }
+        }
+
         foreach (var pc in Main.AllPlayerControls)
         {
             pc.ResetKillCooldown();
@@ -117,7 +133,6 @@ class ExileControllerWrapUpPatch
             if (pc.GetCustomRole() is
                 CustomRoles.Paranoia or
                 CustomRoles.Veteran or
-                CustomRoles.Greedier or
                 CustomRoles.DovesOfNeace or
                 CustomRoles.QuickShooter or
                 CustomRoles.Addict or

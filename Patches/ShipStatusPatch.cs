@@ -167,7 +167,15 @@ class SwitchSystemRepairPatch
     {
         if (player.Is(CustomRoles.SabotageMaster))
             SabotageMaster.SwitchSystemRepair(__instance, amount);
-        if (player.Is(CustomRoles.Alchemist) && Alchemist.PotionID == 5) Alchemist.SwitchSystemRepair(__instance, amount);
+        if (player.Is(CustomRoles.Alchemist) && Alchemist.FixNextSabo == true)
+        {
+            if (amount is >= 0 and <= 4)
+            {
+                __instance.ActualSwitches = 0;
+                __instance.ExpectedSwitches = 0;
+            }
+            Alchemist.FixNextSabo = false;
+        }
     }
 }
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Start))]

@@ -140,7 +140,7 @@ internal class ControllerManagerUpdatePatch
             else PlayerControl.LocalPlayer.NoCheckStartMeeting(null, true);
         }
         //立即开始
-        if (Input.GetKeyDown(KeyCode.LeftShift) && GameStates.IsCountDown)
+        if (Input.GetKeyDown(KeyCode.LeftShift) && GameStates.IsCountDown && !HudManager.Instance.Chat.IsOpenOrOpening)
         {
             Logger.Info("倒计时修改为0", "KeyCommand");
             GameStartManager.Instance.countDownTimer = 0;

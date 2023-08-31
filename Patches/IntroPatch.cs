@@ -173,16 +173,77 @@ class BeginCrewmatePatch
         switch (role)
         {
             case CustomRoles.Terrorist:
-                var sound = ShipStatus.Instance.CommonTasks.Where(task => task.TaskType == TaskTypes.FixWiring).FirstOrDefault()
-                .MinigamePrefab.OpenSound;
+            case CustomRoles.Bomber:
+            case CustomRoles.Nuker:
+                var sound = ShipStatus.Instance.CommonTasks.Where(task => task.TaskType == TaskTypes.FixWiring).FirstOrDefault().MinigamePrefab.OpenSound;
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = sound;
+                break;
+
+            case CustomRoles.Sheriff:
+            case CustomRoles.Veteran:
+                var sound2 = ShipStatus.Instance.CommonTasks.Where(task => task.TaskType == TaskTypes.PutAwayPistols).FirstOrDefault().MinigamePrefab.OpenSound;
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = sound2;
+                break;
+
+            case CustomRoles.Cleaner:
+            case CustomRoles.Cleanser:
+                var sound3 = ShipStatus.Instance.CommonTasks.Where(task => task.TaskType == TaskTypes.PolishRuby).FirstOrDefault().MinigamePrefab.OpenSound;
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = sound3;
+                break;
+
+            case CustomRoles.Dictator:
+            case CustomRoles.Lawyer:
+            case CustomRoles.Judge:
+            case CustomRoles.Mayor:
+                var sound4 = ShipStatus.Instance.CommonTasks.Where(task => task.TaskType == TaskTypes.FixShower).FirstOrDefault().MinigamePrefab.OpenSound;
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = sound4;
+                break;
+
+            case CustomRoles.Monitor:
+            case CustomRoles.AntiAdminer:
+                var sound5 = ShipStatus.Instance.CommonTasks.Where(task => task.TaskType == TaskTypes.FixComms).FirstOrDefault().MinigamePrefab.OpenSound;
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = sound5;
+                break;
+
+            case CustomRoles.EvilTracker:
+            case CustomRoles.Tracefinder:
+            case CustomRoles.Tracker:
+            case CustomRoles.Bloodhound:
+            case CustomRoles.Mortician:
+            case CustomRoles.Lighter:
+                var sound8 = ShipStatus.Instance.CommonTasks.Where(task => task.TaskType == TaskTypes.DivertPower).FirstOrDefault().MinigamePrefab.OpenSound;
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = sound8;
+                break;
+
+            case CustomRoles.Oracle:
+            case CustomRoles.Divinator:
+            case CustomRoles.Mediumshiper:
+            case CustomRoles.DovesOfNeace:
+            case CustomRoles.Spiritualist:
+            case CustomRoles.Spiritcaller:
+            case CustomRoles.Farseer:
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.GuardianAngel);
+                break;
+
+            case CustomRoles.Alchemist:
+                var sound7 = ShipStatus.Instance.CommonTasks.Where(task => task.TaskType == TaskTypes.DevelopPhotos).FirstOrDefault().MinigamePrefab.OpenSound;
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = sound7;
+                break;
+
+            case CustomRoles.Deputy:
+            case CustomRoles.Jailor:
+                var sound6 = ShipStatus.Instance.CommonTasks.Where(task => task.TaskType == TaskTypes.UnlockSafe).FirstOrDefault().MinigamePrefab.OpenSound;
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = sound6;
                 break;
 
             case CustomRoles.Workaholic:
             case CustomRoles.Speedrunner:
             case CustomRoles.Snitch:
-            case CustomRoles.TaskManager:
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = DestroyableSingleton<HudManager>.Instance.TaskCompleteSound;
+                break;
+
+            case CustomRoles.TaskManager:
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = DestroyableSingleton<HudManager>.Instance.TaskUpdateSound;
                 break;
 
             case CustomRoles.Opportunist:
@@ -192,6 +253,10 @@ class BeginCrewmatePatch
                 break;
 
             case CustomRoles.SabotageMaster:
+            case CustomRoles.Engineer:
+            case CustomRoles.EngineerTOHE:
+            case CustomRoles.Inhibitor:
+            case CustomRoles.Saboteur:
             case CustomRoles.Provocateur:
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = ShipStatus.Instance.SabotageSound;
                 break;
@@ -208,11 +273,9 @@ class BeginCrewmatePatch
                 __instance.ImpostorText.gameObject.SetActive(false);
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = DestroyableSingleton<HudManager>.Instance.TaskCompleteSound;
                 break;
-            case CustomRoles.Sheriff:
-            case CustomRoles.Veteran:
             case CustomRoles.SwordsMan:
             case CustomRoles.Minimalism:
-            case CustomRoles.Reverie:
+            //case CustomRoles.Reverie:
             case CustomRoles.NiceGuesser:
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = PlayerControl.LocalPlayer.KillSfx;
                 break;
@@ -225,11 +288,16 @@ class BeginCrewmatePatch
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = ShipStatus.Instance.VentEnterSound;
                 break;
             case CustomRoles.ParityCop:
-            case CustomRoles.Mediumshiper:
-            case CustomRoles.Mayor:
             case CustomRoles.NiceEraser:
-            case CustomRoles.Dictator:
+            case CustomRoles.TimeManager:
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = HudManager.Instance.Chat.messageSound;
+                break;
+            case CustomRoles.Demolitionist:
+            case CustomRoles.TimeMaster:
+            case CustomRoles.Grenadier:
+            case CustomRoles.Miner:
+            case CustomRoles.Disperser:
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = ShipStatus.Instance.VentMoveSounds.FirstOrDefault();
                 break;
         }
 
@@ -345,7 +413,7 @@ class BeginImpostorPatch
             __instance.overlayHandle.color = Palette.ImpostorRed;
             return true;
         }
-        else if (role is CustomRoles.Sheriff or CustomRoles.Jailor or CustomRoles.SwordsMan or CustomRoles.Medic or CustomRoles.Counterfeiter or CustomRoles.Witness or CustomRoles.Monarch or CustomRoles.Farseer or CustomRoles.Admirer or CustomRoles.Deputy)
+        else if (role is CustomRoles.Sheriff or CustomRoles.Jailor or CustomRoles.SwordsMan or CustomRoles.Medic/* or CustomRoles.Counterfeiter*/ or CustomRoles.Witness or CustomRoles.Monarch or CustomRoles.Farseer or CustomRoles.Admirer or CustomRoles.Deputy)
         {
             yourTeam = new Il2CppSystem.Collections.Generic.List<PlayerControl>();
             yourTeam.Add(PlayerControl.LocalPlayer);
@@ -354,7 +422,7 @@ class BeginImpostorPatch
             __instance.overlayHandle.color = Palette.CrewmateBlue;
             return false;
         }
-        else if (role is CustomRoles.Romantic or CustomRoles.RuthlessRomantic or CustomRoles.VengefulRomantic or CustomRoles.NSerialKiller or CustomRoles.Werewolf or CustomRoles.Jackal or CustomRoles.CursedSoul or CustomRoles.Amnesiac or CustomRoles.Arsonist or CustomRoles.Sidekick or CustomRoles.Innocent or CustomRoles.Pelican or CustomRoles.Pursuer or CustomRoles.Revolutionist or CustomRoles.FFF or CustomRoles.Gamer or CustomRoles.Glitch or CustomRoles.Juggernaut or CustomRoles.DarkHide or CustomRoles.Provocateur or CustomRoles.BloodKnight or CustomRoles.NSerialKiller or CustomRoles.Maverick or CustomRoles.NWitch or CustomRoles.Totocalcio or CustomRoles.Succubus or CustomRoles.Pelican or CustomRoles.Infectious or CustomRoles.Virus or CustomRoles.Pickpocket or CustomRoles.Traitor or CustomRoles.PlagueBearer or CustomRoles.Pestilence or CustomRoles.Spiritcaller)
+        else if (role is CustomRoles.Romantic or CustomRoles.RuthlessRomantic or CustomRoles.VengefulRomantic or CustomRoles.NSerialKiller or CustomRoles.Imitator or CustomRoles.Werewolf or CustomRoles.Jackal or CustomRoles.CursedSoul or CustomRoles.Amnesiac or CustomRoles.Arsonist or CustomRoles.Sidekick or CustomRoles.Innocent or CustomRoles.Pelican or CustomRoles.Pursuer or CustomRoles.Revolutionist or CustomRoles.FFF or CustomRoles.Gamer or CustomRoles.Glitch or CustomRoles.Juggernaut or CustomRoles.DarkHide or CustomRoles.Provocateur or CustomRoles.BloodKnight or CustomRoles.NSerialKiller or CustomRoles.Maverick/* or CustomRoles.NWitch*/ or CustomRoles.Totocalcio or CustomRoles.Succubus or CustomRoles.Pelican or CustomRoles.Infectious or CustomRoles.Virus or CustomRoles.Pickpocket or CustomRoles.Traitor or CustomRoles.PlagueBearer or CustomRoles.Pestilence or CustomRoles.Spiritcaller)
         {
             yourTeam = new Il2CppSystem.Collections.Generic.List<PlayerControl>();
             yourTeam.Add(PlayerControl.LocalPlayer);
@@ -383,18 +451,18 @@ class IntroCutsceneDestroyPatch
             if (Main.NormalOptions.MapId != 4)
             {
                 Main.AllPlayerControls.Do(pc => pc.RpcResetAbilityCooldown());
-                if (Options.FixFirstKillCooldown.GetBool() && Options.CurrentGameMode != CustomGameMode.SoloKombat)
-                    new LateTask(() =>
-                    {
-                        Main.AllPlayerControls.Do(x => x.ResetKillCooldown());
-                        Main.AllPlayerControls.Where(x => (Main.AllPlayerKillCooldown[x.PlayerId] - 2f) > 0f).Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 2f));
-                    }, 2f, "FixKillCooldownTask");
-                else if (Options.StartingKillCooldown.GetInt() != 10)
+                if (Options.StartingKillCooldown.GetInt() != 10)
                     new LateTask(() =>
                     {
                         Main.AllPlayerControls.Do(x => x.ResetKillCooldown());
                         Main.AllPlayerControls.Where(x => Options.StartingKillCooldown.GetInt() > 0f).Do(pc => pc.SetKillCooldown(Options.StartingKillCooldown.GetInt()));
                     }, 0.01f, "FixKillCooldownTask");
+                else if (Options.FixFirstKillCooldown.GetBool() && Options.CurrentGameMode != CustomGameMode.SoloKombat)
+                    new LateTask(() =>
+                    {
+                        Main.AllPlayerControls.Do(x => x.ResetKillCooldown());
+                        Main.AllPlayerControls.Where(x => (Main.AllPlayerKillCooldown[x.PlayerId] - 2f) > 0f).Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 2f));
+                    }, 2f, "FixKillCooldownTask");
             }
             new LateTask(() => Main.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
             if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))

@@ -58,8 +58,8 @@ internal class SplashLogoAnimatorPatch
     {
         //if (DebugModeManager.AmDebugger)
         //{
-            __instance.sceneChanger.AllowFinishLoadingScene();
-            __instance.startedSceneLoad = true;
+        __instance.sceneChanger.AllowFinishLoadingScene();
+        __instance.startedSceneLoad = true;
         //}
     }
 }

@@ -197,6 +197,63 @@ class CheckForEndVotingPatch
                     VotedForId = ps.VotedFor
                 });
 
+                if (NiceSwapper.Vote.Count > 0 && NiceSwapper.VoteTwo.Count > 0)
+                {
+                    List<byte> NiceList1 = new();
+                    List<byte> NiceList2 = new();
+                    PlayerVoteArea pva = new();
+                    var meetingHud = MeetingHud.Instance;
+                    PlayerControl swap1 = null;
+                    foreach (var playerId in NiceSwapper.Vote)
+                    {
+                        var player = Utils.GetPlayerById(playerId);
+                        if (player != null)
+                        {
+                            swap1 = player;
+                            break;
+                        }
+                    }
+                    PlayerControl swap2 = null;
+                    foreach (var playerId in NiceSwapper.VoteTwo)
+                    {
+                        var player = Utils.GetPlayerById(playerId);
+                        if (player != null)
+                        {
+                            swap2 = player;
+                            break;
+                        }
+                    }
+                    if (swap1 != null && swap2 != null)
+                    {
+                        foreach (var playerVoteArea in meetingHud.playerStates)
+                        {
+                            if (playerVoteArea.VotedFor != swap1.PlayerId) continue;
+                            var voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
+                            playerVoteArea.UnsetVote();
+                            meetingHud.CastVote(voteAreaPlayer.PlayerId, swap2.PlayerId);
+                            playerVoteArea.VotedFor = swap2.PlayerId;
+                            NiceList1.Add(voteAreaPlayer.PlayerId);
+                        }
+                        foreach (var playerVoteArea in meetingHud.playerStates)
+                        {
+                            if (playerVoteArea.VotedFor != swap2.PlayerId) continue;
+                            var voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
+                            if (NiceList1.Contains(voteAreaPlayer.PlayerId)) continue;
+                            playerVoteArea.UnsetVote();
+                            playerVoteArea.VotedFor = swap1.PlayerId;
+                            meetingHud.CastVote(voteAreaPlayer.PlayerId, swap1.PlayerId);
+                        }
+                        if (Main.NiceSwapSend == false)
+                        {
+                            Utils.SendMessage(string.Format(GetString("SwapVote"), swap1.GetRealName(), swap2.GetRealName()), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceSwapper), GetString("SwapTitle")));
+                            Main.NiceSwapSend = true;
+                            NiceList1.Clear();
+                        }
+                        NiceSwapper.Vote.Clear();
+                        NiceSwapper.VoteTwo.Clear();
+                    }
+                }
+
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Mayor) && !Options.MayorHideVote.GetBool()) //Mayorの投票数
                 {
                     for (var i2 = 0; i2 < Options.MayorAdditionalVote.GetFloat(); i2++)
@@ -416,18 +473,30 @@ class CheckForEndVotingPatch
         }
 
         if (DecidedWinner) name += "<size=0>";
-        else if (Options.ShowImpRemainOnEject.GetBool() && !DecidedWinner)
+        else if (Options.ShowImpRemainOnEject.GetBool())
         {
             name += "\n";
-            string comma = neutralnum > 0 ? "，" : "";
             if (impnum == 0 && neutralnum == 0) name += GetString("GG");
-            else if (impnum == 0) name += GetString("NoImpRemain") + comma;
-            else if (impnum == 1) name += GetString("OneImpRemain") + comma;
-            else if (impnum == 2) name += GetString("TwoImpRemain") + comma;
-            else if (impnum == 3) name += GetString("ThreeImpRemain") + comma;
-            //    else name += string.Format(GetString("ImpRemain"), impnum) + comma;
-            else if (Options.ShowNKRemainOnEject.GetBool() && neutralnum > 0)
-                name += string.Format(GetString("NeutralRemain"), neutralnum);
+            else if (impnum > 0 && neutralnum > 0 && Options.ShowNKRemainOnEject.GetBool())
+            {
+                if (impnum == 1) name += "1 <color=#ff1919>Impostor</color> <color=#777777>and</color> ";
+                else if (impnum == 2) name += "2 <color=#ff1919>Impostors</color> <color=#777777>and</color> ";
+                else if (impnum == 3) name += "3 <color=#ff1919>Impostors</color> <color=#777777>and</color> ";
+                if (neutralnum == 1) name += "1 <color=#7f8c8d>Neutral</color> <color=#777777>remains.</color>";
+                else name += "2 <color=#7f8c8d>Neutrals</color> <color=#777777>remain.</color>";
+            }
+            else if (impnum > 0 && (neutralnum == 0 || !Options.ShowNKRemainOnEject.GetBool()))
+            {
+                if (impnum == 0) name += GetString("NoImpRemain");
+                else if (impnum == 1) name += GetString("OneImpRemain");
+                else if (impnum == 2) name += GetString("TwoImpRemain");
+                else if (impnum == 3) name += GetString("ThreeImpRemain");
+            }
+            else if (neutralnum > 0 && impnum == 0)
+            {
+                if (neutralnum == 1) name += GetString("OneNeutralRemain");
+                else name += string.Format(GetString("NeutralRemain"), neutralnum);
+            }
         }
 
     EndOfSession:
@@ -683,6 +752,7 @@ class MeetingHudStartPatch
 
         Main.CyberStarDead.Clear();
         Main.DemolitionistDead.Clear();
+        Main.ExpressSpeedUp.Clear();
         Main.DetectiveNotify.Clear();
         Main.VirusNotify.Clear();
         Mortician.msgToSend.Clear();
@@ -827,7 +897,7 @@ class MeetingHudStartPatch
             // Guesser Mode //
             if (Options.GuesserMode.GetBool())
             {
-                if (Options.CrewmatesCanGuess.GetBool() && seer.GetCustomRole().IsCrewmate() && !seer.Is(CustomRoles.Judge) && !seer.Is(CustomRoles.Lookout) && !seer.Is(CustomRoles.ParityCop))
+                if (Options.CrewmatesCanGuess.GetBool() && seer.GetCustomRole().IsCrewmate() && !seer.Is(CustomRoles.Judge) && !seer.Is(CustomRoles.NiceSwapper) && !seer.Is(CustomRoles.Lookout) && !seer.Is(CustomRoles.ParityCop))
                     if (!seer.Data.IsDead && !target.Data.IsDead)
                         pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(seer.GetCustomRole()), target.PlayerId.ToString()) + " " + pva.NameText.text;
                 if (Options.ImpostorsCanGuess.GetBool() && seer.GetCustomRole().IsImpostor() && !seer.Is(CustomRoles.Councillor))
@@ -903,6 +973,7 @@ class MeetingHudStartPatch
                 //   case CustomRoles.Sidekick:
                 case CustomRoles.Poisoner:
                 case CustomRoles.NSerialKiller:
+                case CustomRoles.Imitator:
                 case CustomRoles.Werewolf:
                 case CustomRoles.RuthlessRomantic:
                 case CustomRoles.Pelican:
@@ -959,6 +1030,10 @@ class MeetingHudStartPatch
                 case CustomRoles.Judge:
                     if (!seer.Data.IsDead && !target.Data.IsDead)
                         pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Judge), target.PlayerId.ToString()) + " " + pva.NameText.text;
+                    break;
+                case CustomRoles.NiceSwapper:
+                    if (!seer.Data.IsDead && !target.Data.IsDead)
+                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceSwapper), target.PlayerId.ToString()) + " " + pva.NameText.text;
                     break;
                 case CustomRoles.Lookout:
                     if (!seer.Data.IsDead && !target.Data.IsDead)
@@ -1120,7 +1195,7 @@ class MeetingHudUpdatePatch
             __instance.playerStates.Where(x => (!Main.PlayerStates.TryGetValue(x.TargetPlayerId, out var ps) || ps.IsDead) && !x.AmDead).Do(x => x.SetDead(x.DidReport, true));
 
             //若玩家死亡则销毁技能按钮
-            if (myRole is CustomRoles.NiceGuesser or CustomRoles.EvilGuesser or CustomRoles.Judge or CustomRoles.Councillor or CustomRoles.Guesser && !PlayerControl.LocalPlayer.IsAlive())
+            if (myRole is CustomRoles.NiceGuesser or CustomRoles.EvilGuesser or CustomRoles.Judge or CustomRoles.NiceSwapper or CustomRoles.Councillor or CustomRoles.Guesser && !PlayerControl.LocalPlayer.IsAlive())
                 ClearShootButton(__instance, true);
 
             //若黑手党死亡则创建技能按钮
@@ -1128,6 +1203,8 @@ class MeetingHudUpdatePatch
                 MafiaRevengeManager.CreateJudgeButton(__instance);
             if (myRole is CustomRoles.Retributionist && !PlayerControl.LocalPlayer.IsAlive() && GameObject.Find("ShootButton") == null)
                 RetributionistRevengeManager.CreateJudgeButton(__instance);
+            //if (myRole is CustomRoles.NiceSwapper && PlayerControl.LocalPlayer.IsAlive())
+            //    NiceSwapper.CreateSwapperButton(__instance);
 
             //销毁死亡玩家身上的技能按钮
             ClearShootButton(__instance);

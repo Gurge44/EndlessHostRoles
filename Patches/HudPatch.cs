@@ -120,9 +120,9 @@ class HudManagerPatch
                     case CustomRoles.Puppeteer:
                         __instance.KillButton.OverrideText(GetString("PuppeteerOperateButtonText"));
                         break;
-                    case CustomRoles.NWitch:
-                        __instance.KillButton.OverrideText($"{GetString("WitchControlButtonText")}");
-                        break;
+                    //case CustomRoles.NWitch:
+                    //    __instance.KillButton.OverrideText($"{GetString("WitchControlButtonText")}");
+                    //    break;
                     //case CustomRoles.BountyHunter:
                     //    BountyHunter.SetAbilityButtonText(__instance);
                     //    break;
@@ -138,9 +138,9 @@ class HudManagerPatch
                     case CustomRoles.Pelican:
                         __instance.KillButton.OverrideText(GetString("PelicanButtonText"));
                         break;
-                    case CustomRoles.Counterfeiter:
-                        __instance.KillButton.OverrideText(GetString("CounterfeiterButtonText"));
-                        break;
+                    //case CustomRoles.Counterfeiter:
+                    //    __instance.KillButton.OverrideText(GetString("CounterfeiterButtonText"));
+                    //    break;
                     case CustomRoles.Witness:
                         __instance.KillButton.OverrideText(GetString("WitnessButtonText"));
                         break;
@@ -151,6 +151,7 @@ class HudManagerPatch
                         Gangster.SetKillButtonText(player.PlayerId);
                         break;
                     case CustomRoles.NSerialKiller:
+                    case CustomRoles.Imitator:
                     case CustomRoles.Werewolf:
                     case CustomRoles.RuthlessRomantic:
                     case CustomRoles.Juggernaut:
@@ -517,13 +518,13 @@ class SetHudActivePatch
         switch (player.GetCustomRole())
         {
             case CustomRoles.Sheriff:
+            case CustomRoles.Arsonist:
             case CustomRoles.SwordsMan:
             case CustomRoles.Deputy:
             case CustomRoles.Monarch:
-            case CustomRoles.Arsonist:
-            case CustomRoles.NWitch:
+            //case CustomRoles.NWitch:
             case CustomRoles.Innocent:
-            case CustomRoles.Reverie:
+            //case CustomRoles.Reverie:
             case CustomRoles.Pelican:
             case CustomRoles.Revolutionist:
             case CustomRoles.FFF:
@@ -578,6 +579,7 @@ class SetHudActivePatch
         }
         __instance.KillButton.ToggleVisible(player.CanUseKillButton());
         __instance.ImpostorVentButton.ToggleVisible(player.CanUseImpostorVentButton());
+        __instance.SabotageButton.ToggleVisible(player.CanUseSabotage() && isActive);
     }
 }
 [HarmonyPatch(typeof(VentButton), nameof(VentButton.DoClick))]
@@ -652,7 +654,7 @@ class TaskPanelBehaviourPatch
 
                     if (MeetingStates.FirstMeeting)
                     {
-                        AllText += $"\r\n\r\n</color><size=60%>{GetString("PressF1ShowMainRoleDes")}";
+                        AllText += $"\r\n\r\n</color><size=65%>{GetString("PressF1ShowMainRoleDes")}";
                         if (Main.PlayerStates.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var ps) && ps.SubRoles.Any())
                             AllText += $"\r\n{GetString("PressF2ShowAddRoleDes")}";
                         AllText += "</size>";
