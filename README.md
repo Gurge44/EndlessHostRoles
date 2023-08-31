@@ -85,13 +85,16 @@
 ### Now, some new roles as well
 - Lighter (Crewmate)
 - Demolitionist (Crewmate)
+- Express (Crewmate)
 - Witness (Crewmate)
 - Alchemist (Crewmate)
 - Task Manager (Crewmate)
 - Speedrunner (Crewmate)
 - Romantic (Neutral)
 - Werewolf (Neutral)
+- Imitator (Neutral)
 - Undertaker (Impostor)
+- Deadly Quota (Impostor-only Add-on)
 
 <br>
 

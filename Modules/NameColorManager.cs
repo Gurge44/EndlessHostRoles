@@ -59,8 +59,9 @@ public static class NameColorManager
         if (seer.Is(CustomRoles.Jackal) && target.Is(CustomRoles.Jackal)) color = Main.roleColors[CustomRoles.Jackal];
         if (seer.Is(CustomRoles.Juggernaut) && target.Is(CustomRoles.Juggernaut)) color = Main.roleColors[CustomRoles.Juggernaut];
         if (seer.Is(CustomRoles.NSerialKiller) && target.Is(CustomRoles.NSerialKiller)) color = Main.roleColors[CustomRoles.NSerialKiller];
+        if (seer.Is(CustomRoles.Imitator) && target.Is(CustomRoles.Imitator)) color = Main.roleColors[CustomRoles.Imitator];
         if (seer.Is(CustomRoles.Werewolf) && target.Is(CustomRoles.Werewolf)) color = Main.roleColors[CustomRoles.Werewolf];
-        if (seer.Is(CustomRoles.NWitch) && target.Is(CustomRoles.NWitch)) color = Main.roleColors[CustomRoles.NWitch];
+        //if (seer.Is(CustomRoles.NWitch) && target.Is(CustomRoles.NWitch)) color = Main.roleColors[CustomRoles.NWitch];
         if (seer.Is(CustomRoles.Jinx) && target.Is(CustomRoles.Jinx)) color = Main.roleColors[CustomRoles.Jinx];
         if (seer.Is(CustomRoles.Wraith) && target.Is(CustomRoles.Wraith)) color = Main.roleColors[CustomRoles.Wraith];
         if (seer.Is(CustomRoles.HexMaster) && target.Is(CustomRoles.HexMaster)) color = Main.roleColors[CustomRoles.HexMaster];

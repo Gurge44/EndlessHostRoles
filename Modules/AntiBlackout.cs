@@ -27,9 +27,9 @@ public static class AntiBlackout
         || Succubus.IsEnable || Poisoner.IsEnable
         || Infectious.IsEnable || Juggernaut.IsEnable
         || Ritualist.IsEnable || Virus.IsEnable
-        || Wraith.IsEnable || HexMaster.IsEnable
+        || Wraith.IsEnable || HexMaster.IsEnable || Imitator.IsEnable()
         || Traitor.IsEnable || Pickpocket.IsEnable || Werewolf.IsEnable
-        || NSerialKiller.IsEnable || NWitch.IsEnable || RuthlessRomantic.IsEnable
+        || NSerialKiller.IsEnable || /*NWitch.IsEnable || */RuthlessRomantic.IsEnable
         || Maverick.IsEnable || Jinx.IsEnable
         || Medusa.IsEnable || Spiritcaller.IsEnable
         || PlagueBearer.IsEnable || CustomRoles.Sidekick.RoleExist(true)

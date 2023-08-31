@@ -88,7 +88,7 @@ public static class GuessManager
 
         if (!AmongUsClient.Instance.AmHost) return false;
         if (!GameStates.IsVoting || pc == null) return false;
-        if (!pc.Is(CustomRoles.NiceGuesser) && !pc.Is(CustomRoles.EvilGuesser) && !pc.Is(CustomRoles.Doomsayer) && !pc.Is(CustomRoles.Judge) && !pc.Is(CustomRoles.Councillor) && !pc.Is(CustomRoles.Guesser) && !Options.GuesserMode.GetBool()) return false;
+        if (!pc.Is(CustomRoles.NiceGuesser) && !pc.Is(CustomRoles.EvilGuesser) && !pc.Is(CustomRoles.Doomsayer) && !pc.Is(CustomRoles.Judge) && !pc.Is(CustomRoles.NiceSwapper) && !pc.Is(CustomRoles.Councillor) && !pc.Is(CustomRoles.Guesser) && !Options.GuesserMode.GetBool()) return false;
 
         int operate = 0; // 1:ID 2:猜测
         msg = msg.ToLower().TrimStart().TrimEnd();
@@ -107,7 +107,7 @@ public static class GuessManager
         }
         if (!pc.Is(CustomRoles.NiceGuesser))
         {
-            if (pc.GetCustomRole().IsCrewmate() && !Options.CrewmatesCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Judge))
+            if (pc.GetCustomRole().IsCrewmate() && !Options.CrewmatesCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Judge) && !pc.Is(CustomRoles.NiceSwapper))
             {
                 if (!isUI) Utils.SendMessage(GetString("GuessNotAllowed"), pc.PlayerId);
                 else pc.ShowPopUp(GetString("GuessNotAllowed"));
@@ -218,12 +218,12 @@ public static class GuessManager
                     else pc.ShowPopUp(GetString("GuessKnighted"));
                     return true;
                 }
-                if (pc.Is(CustomRoles.Masochist))
-                {
-                    if (!isUI) Utils.SendMessage(GetString("GuessMasochistBlocked"), pc.PlayerId);
-                    else pc.ShowPopUp(GetString("GuessMasochistBlocked"));
-                    return true;
-                }
+                //if (pc.Is(CustomRoles.Masochist))
+                //{
+                //    if (!isUI) Utils.SendMessage(GetString("GuessMasochistBlocked"), pc.PlayerId);
+                //    else pc.ShowPopUp(GetString("GuessMasochistBlocked"));
+                //    return true;
+                //}
                 if (Options.MayorRevealWhenDoneTasks.GetBool())
                 {
                     if (target.Is(CustomRoles.Mayor) && target.GetPlayerTaskState().IsTaskFinished)
@@ -299,25 +299,25 @@ public static class GuessManager
                     else pc.ShowPopUp(GetString("GuessPhantom"));
                     return true;
                 }
-                if (target.Is(CustomRoles.Masochist))
-                {
-                    if (!isUI) Utils.SendMessage(GetString("GuessMasochist"), pc.PlayerId);
-                    else pc.ShowPopUp(GetString("GuessMasochist"));
-                    Main.MasochistKillMax[target.PlayerId]++;
+                //if (target.Is(CustomRoles.Masochist))
+                //{
+                //    if (!isUI) Utils.SendMessage(GetString("GuessMasochist"), pc.PlayerId);
+                //    else pc.ShowPopUp(GetString("GuessMasochist"));
+                //    Main.MasochistKillMax[target.PlayerId]++;
 
-                    if (Main.MasochistKillMax[target.PlayerId] >= Options.MasochistKillMax.GetInt())
-                    {
-                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Masochist);
-                        CustomWinnerHolder.WinnerIds.Add(target.PlayerId);
-                    }
-                    return true;
-                }
-                if (pc.Is(CustomRoles.Masochist) && target.PlayerId == pc.PlayerId)
-                {
-                    if (!isUI) Utils.SendMessage(GetString("SelfGuessMasochist"), pc.PlayerId);
-                    else pc.ShowPopUp(GetString("SelfGuessMasochist"));
-                    guesserSuicide = true;
-                }
+                //    if (Main.MasochistKillMax[target.PlayerId] >= Options.MasochistKillMax.GetInt())
+                //    {
+                //        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Masochist);
+                //        CustomWinnerHolder.WinnerIds.Add(target.PlayerId);
+                //    }
+                //    return true;
+                //}
+                //if (pc.Is(CustomRoles.Masochist) && target.PlayerId == pc.PlayerId)
+                //{
+                //    if (!isUI) Utils.SendMessage(GetString("SelfGuessMasochist"), pc.PlayerId);
+                //    else pc.ShowPopUp(GetString("SelfGuessMasochist"));
+                //    guesserSuicide = true;
+                //}
 
                 if (role == CustomRoles.GM || target.Is(CustomRoles.GM))
                 {
@@ -854,24 +854,6 @@ public static class GuessManager
     {
         public static void Postfix(MeetingHud __instance)
         {
-
-            /*if (!Options.GuesserMode.GetBool())
-            {
-                foreach (var subRole in PlayerControl.LocalPlayer.GetCustomSubRoles())
-                {
-                    switch (subRole)
-                    {
-
-                        case CustomRoles.Guesser:
-                        {
-                            if (PlayerControl.LocalPlayer.IsAlive())
-                                CreateGuesserButton(__instance);
-                        }
-                        break;   
-                    }
-                }
-            }*/
-
             if (Options.GuesserMode.GetBool())
             {
                 if (PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.GetCustomRole().IsImpostor() && Options.ImpostorsCanGuess.GetBool())
@@ -905,6 +887,8 @@ public static class GuessManager
                 if (PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.Is(CustomRoles.Guesser))
                     CreateGuesserButton(__instance);
             }
+            //if (PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.Is(CustomRoles.NiceSwapper))
+            //    NiceSwapper.CreateSwapperButton(__instance);
         }
     }
     public static void CreateGuesserButton(MeetingHud __instance)

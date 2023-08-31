@@ -25,6 +25,10 @@ public class PlayerGameOptionsSender : GameOptionsSender
         AllSenders.OfType<PlayerGameOptionsSender>()
         .Where(sender => !sender.IsDirty && sender.player.IsAlive() && CustomRolesHelper.NeedUpdateOnLights(sender.player.GetCustomRole()))
         .ToList().ForEach(sender => sender.SetDirty());
+    public static void SetDirtyToAllV3() =>
+        AllSenders.OfType<PlayerGameOptionsSender>()
+        .Where(sender => !sender.IsDirty && sender.player.IsAlive() && ((Main.GrenadierBlinding.Any() && (sender.player.GetCustomRole().IsImpostor() || (sender.player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))) || (Main.MadGrenadierBlinding.Any() && !sender.player.GetCustomRole().IsImpostorTeam() && !sender.player.Is(CustomRoles.Madmate))))
+        .ToList().ForEach(sender => sender.SetDirty());
 
     public override IGameOptions BasedGameOptions =>
         Main.RealOptionsData.Restore(new NormalGameOptionsV07(new UnityLogger().Cast<ILogger>()).Cast<IGameOptions>());
@@ -153,7 +157,7 @@ public class PlayerGameOptionsSender : GameOptionsSender
             case CustomRoles.Monarch:
             case CustomRoles.Jailor:
             case CustomRoles.Deputy:
-            case CustomRoles.Counterfeiter:
+            //case CustomRoles.Counterfeiter:
             case CustomRoles.Witness:
             case CustomRoles.Succubus:
             case CustomRoles.CursedSoul:
@@ -272,6 +276,12 @@ public class PlayerGameOptionsSender : GameOptionsSender
             case CustomRoles.NSerialKiller:
                 NSerialKiller.ApplyGameOptions(opt);
                 break;
+            case CustomRoles.Imitator:
+                Imitator.ApplyGameOptions(opt);
+                break;
+            case CustomRoles.Ignitor:
+                Ignitor.ApplyGameOptions(opt);
+                break;
             case CustomRoles.Werewolf:
                 Werewolf.ApplyGameOptions(opt);
                 break;
@@ -284,9 +294,9 @@ public class PlayerGameOptionsSender : GameOptionsSender
             case CustomRoles.Glitch:
                 Glitch.ApplyGameOptions(opt);
                 break;
-            case CustomRoles.NWitch:
-                NWitch.ApplyGameOptions(opt);
-                break;
+            //case CustomRoles.NWitch:
+            //    NWitch.ApplyGameOptions(opt);
+            //    break;
             case CustomRoles.Maverick:
                 Maverick.ApplyGameOptions(opt);
                 break;
@@ -305,8 +315,11 @@ public class PlayerGameOptionsSender : GameOptionsSender
             case CustomRoles.Juggernaut:
                 opt.SetVision(Juggernaut.HasImpostorVision.GetBool());
                 break;
-            case CustomRoles.Reverie:
-                opt.SetVision(false);
+            //case CustomRoles.Reverie:
+            //    opt.SetVision(false);
+            //    break;
+            case CustomRoles.Capitalism:
+                AURoleOptions.KillCooldown = Options.CapitalismKillCooldown.GetFloat();
                 break;
             case CustomRoles.Jester:
                 AURoleOptions.EngineerCooldown = 0f;

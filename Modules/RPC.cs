@@ -60,7 +60,7 @@ enum CustomRPC
     SetGamerHealth,
     SetPelicanEtenNum,
     SwordsManKill,
-    SetCounterfeiterSellLimit,
+    //SetCounterfeiterSellLimit,
     SetPursuerSellLimit,
     SetMedicalerProtectLimit,
     SetGangsterRecruitLimit,
@@ -68,6 +68,7 @@ enum CustomRPC
     SetDarkHiderKillCount,
     SetEvilDiviner,
     SetGreedierOE,
+    SetImitatorOE,
     SetCursedWolfSpellCount,
     SetJinxSpellCount,
     SetCollectorVotes,
@@ -86,6 +87,7 @@ enum CustomRPC
     SetJailorTarget,
     SetJailorExeLimit,
     SetWWTimer,
+    SetNiceSwapperVotes,
     Judge,
     Guess,
     MeetingKill,
@@ -136,7 +138,7 @@ public enum Sounds
 internal class RPCHandlerPatch
 {
     public static bool TrustedRpc(byte id)
-    => (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.Judge or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.RetributionistRevenge;
+    => (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.RetributionistRevenge;
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
     {
         var rpcType = (RpcCalls)callId;
@@ -388,9 +390,9 @@ internal class RPCHandlerPatch
             case CustomRPC.SwordsManKill:
                 SwordsMan.ReceiveRPC(reader);
                 break;
-            case CustomRPC.SetCounterfeiterSellLimit:
-                Counterfeiter.ReceiveRPC(reader);
-                break;
+            //case CustomRPC.SetCounterfeiterSellLimit:
+            //    Counterfeiter.ReceiveRPC(reader);
+            //    break;
             case CustomRPC.SetPursuerSellLimit:
                 Pursuer.ReceiveRPC(reader);
                 break;
@@ -583,6 +585,12 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SetWWTimer:
                 Werewolf.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SetNiceSwapperVotes:
+                NiceSwapper.ReceiveRPC(reader, __instance);
+                break;
+            case CustomRPC.SetImitatorOE:
+                Imitator.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetSpiritcallerSpiritLimit:
                 Spiritcaller.ReceiveRPC(reader);
@@ -830,6 +838,9 @@ internal static class RPC
             case CustomRoles.Monitor:
                 Monitor.Add(targetId);
                 break;
+            case CustomRoles.NiceSwapper:
+                NiceSwapper.Add(targetId);
+                break;
             case CustomRoles.Snitch:
                 Snitch.Add(targetId);
                 break;
@@ -851,9 +862,9 @@ internal static class RPC
             case CustomRoles.Pelican:
                 Pelican.Add(targetId);
                 break;
-            case CustomRoles.Counterfeiter:
-                Counterfeiter.Add(targetId);
-                break;
+            //case CustomRoles.Counterfeiter:
+            //    Counterfeiter.Add(targetId);
+            //    break;
             case CustomRoles.Pursuer:
                 Pursuer.Add(targetId);
                 break;
@@ -909,9 +920,9 @@ internal static class RPC
             case CustomRoles.Juggernaut:
                 Juggernaut.Add(targetId);
                 break;
-            case CustomRoles.Reverie:
-                Reverie.Add(targetId);
-                break;
+            //case CustomRoles.Reverie:
+            //    Reverie.Add(targetId);
+            //    break;
             case CustomRoles.Hacker:
                 Hacker.Add(targetId);
                 break;
@@ -1023,15 +1034,21 @@ internal static class RPC
             case CustomRoles.NSerialKiller:
                 NSerialKiller.Add(targetId);
                 break;
+            case CustomRoles.Imitator:
+                Imitator.Add(targetId);
+                break;
+            case CustomRoles.Ignitor:
+                Ignitor.Add(targetId);
+                break;
             case CustomRoles.Werewolf:
                 Werewolf.Add(targetId);
                 break;
             case CustomRoles.Traitor:
                 Traitor.Add(targetId);
                 break;
-            case CustomRoles.NWitch:
-                NWitch.Add(targetId);
-                break;
+            //case CustomRoles.NWitch:
+            //    NWitch.Add(targetId);
+            //    break;
             case CustomRoles.Maverick:
                 Maverick.Add(targetId);
                 break;

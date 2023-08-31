@@ -473,6 +473,17 @@ public class TaskState
             {
                 Chameleon.UseLimit[player.PlayerId] += Chameleon.ChameleonAbilityUseGainWithEachTaskCompleted.GetFloat();
             }
+            if (player.Is(CustomRoles.NiceSwapper) && player.IsAlive())
+            {
+                NiceSwapper.NiceSwappermax[player.PlayerId] += NiceSwapper.NiceSwapperAbilityUseGainWithEachTaskCompleted.GetFloat();
+            }
+            if (player.Is(CustomRoles.Express) && player.IsAlive())
+            {
+                if (!Main.ExpressSpeedUp.ContainsKey(player.PlayerId)) Main.ExpressSpeedNormal = Main.AllPlayerSpeed[player.PlayerId];
+                Main.AllPlayerSpeed[player.PlayerId] = Options.ExpressSpeed.GetFloat();
+                Main.ExpressSpeedUp.Remove(player.PlayerId);
+                Main.ExpressSpeedUp.TryAdd(player.PlayerId, Utils.GetTimeStamp());
+            }
             if (player.Is(CustomRoles.Alchemist) && player.IsAlive()) Alchemist.OnTaskComplete(player);
 
             if (player.Is(CustomRoles.Ghoul) && (CompletedTasksCount + 1) >= AllTasksCount && player.IsAlive())
@@ -538,6 +549,7 @@ public class TaskState
             }
 
             Merchant.OnTaskFinished(player);
+            if (player.Is(CustomRoles.Ignitor) && (CompletedTasksCount + 1) >= AllTasksCount && player.IsAlive()) Ignitor.OnCompleteTask(player);
 
             //船鬼要抽奖啦
             if (player.Is(CustomRoles.Crewpostor))

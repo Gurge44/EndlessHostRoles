@@ -462,9 +462,10 @@ static class ExtendedPlayerControl
             CustomRoles.HexMaster => pc.IsAlive(),
             CustomRoles.Poisoner => pc.IsAlive(),
             CustomRoles.Juggernaut => pc.IsAlive(),
-            CustomRoles.Reverie => pc.IsAlive(),
+            //CustomRoles.Reverie => pc.IsAlive(),
             CustomRoles.Ritualist => pc.IsAlive(),
             CustomRoles.NSerialKiller => pc.IsAlive(),
+            CustomRoles.Imitator => pc.IsAlive(),
             CustomRoles.Werewolf => Werewolf.IsRampaging(pc.PlayerId) && pc.IsAlive(),
             CustomRoles.Medusa => pc.IsAlive(),
             CustomRoles.Traitor => pc.IsAlive(),
@@ -474,12 +475,12 @@ static class ExtendedPlayerControl
             CustomRoles.Jinx => pc.IsAlive(),
             CustomRoles.Parasite => pc.IsAlive(),
             CustomRoles.Refugee => pc.IsAlive(),
-            CustomRoles.NWitch => pc.IsAlive(),
+            //CustomRoles.NWitch => pc.IsAlive(),
             CustomRoles.Wraith => pc.IsAlive(),
             CustomRoles.Bomber => Options.BomberCanKill.GetBool() && pc.IsAlive(),
             CustomRoles.Nuker => Options.BomberCanKill.GetBool() && pc.IsAlive(),
             CustomRoles.Innocent => pc.IsAlive(),
-            CustomRoles.Counterfeiter => Counterfeiter.CanUseKillButton(pc.PlayerId),
+            //CustomRoles.Counterfeiter => Counterfeiter.CanUseKillButton(pc.PlayerId),
             CustomRoles.Witness => pc.IsAlive(),
             CustomRoles.Pursuer => Pursuer.CanUseKillButton(pc.PlayerId),
             CustomRoles.Morphling => Morphling.CanUseKillButton(pc.PlayerId),
@@ -549,11 +550,12 @@ static class ExtendedPlayerControl
             CustomRoles.Sidekick => Jackal.CanVentSK.GetBool(),
             CustomRoles.Poisoner => Poisoner.CanVent.GetBool(),
             CustomRoles.NSerialKiller => NSerialKiller.CanVent.GetBool(),
+            CustomRoles.Imitator => Imitator.CanVent.GetBool(),
             CustomRoles.Werewolf => true,
             CustomRoles.Pestilence => PlagueBearer.PestilenceCanVent.GetBool(),
             CustomRoles.Medusa => Medusa.CanVent.GetBool(),
             CustomRoles.Traitor => Traitor.CanVent.GetBool(),
-            CustomRoles.NWitch => NWitch.CanVent.GetBool(),
+            //CustomRoles.NWitch => NWitch.CanVent.GetBool(),
             CustomRoles.Maverick => Maverick.CanVent.GetBool(),
             CustomRoles.Jinx => Jinx.CanVent.GetBool(),
             CustomRoles.Pelican => Pelican.CanVent.GetBool(),
@@ -578,6 +580,71 @@ static class ExtendedPlayerControl
 
             //SoloKombat
             CustomRoles.KB_Normal => true,
+
+            _ => pc.Is(CustomRoleTypes.Impostor),
+        };
+    }
+    public static bool CanUseSabotage(this PlayerControl pc) // NOTE: THIS IS FOR THE HUD FOR MODDED CLIENTS, THIS DOES NOT DETERMINE WHETHER A ROLE CAN SABOTAGE
+    {
+        if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
+
+        return pc.GetCustomRole() switch
+        {
+            CustomRoles.Sheriff or
+            CustomRoles.Crusader or
+            CustomRoles.CopyCat or
+            CustomRoles.CursedSoul or
+            CustomRoles.Admirer or
+            CustomRoles.Amnesiac or
+            CustomRoles.Monarch or
+            CustomRoles.Deputy or
+            CustomRoles.Arsonist or
+            CustomRoles.Medusa or
+            CustomRoles.SwordsMan or
+            //CustomRoles.Reverie or
+            CustomRoles.Innocent or
+            CustomRoles.Pelican or
+            //CustomRoles.Counterfeiter or
+            CustomRoles.Pursuer or
+            CustomRoles.Revolutionist or
+            CustomRoles.FFF or
+            CustomRoles.Medic or
+            CustomRoles.Gamer or
+            CustomRoles.HexMaster or
+            CustomRoles.Wraith or
+            CustomRoles.Juggernaut or
+            CustomRoles.Jinx or
+            CustomRoles.DarkHide or
+            CustomRoles.Provocateur or
+            CustomRoles.BloodKnight or
+            CustomRoles.Poisoner or
+            CustomRoles.NSerialKiller or
+            CustomRoles.Imitator or
+            CustomRoles.Maverick or
+            //CustomRoles.NWitch or
+            CustomRoles.Ritualist or
+            CustomRoles.Totocalcio or
+            CustomRoles.Succubus or
+            CustomRoles.Infectious or
+            CustomRoles.Virus or
+            CustomRoles.Farseer or
+            CustomRoles.Pickpocket or
+            CustomRoles.PlagueBearer or
+            CustomRoles.Pestilence or
+            CustomRoles.Romantic or
+            CustomRoles.VengefulRomantic or
+            CustomRoles.RuthlessRomantic or
+            CustomRoles.Werewolf or
+            CustomRoles.Spiritcaller
+            => false,
+
+            CustomRoles.Jackal => Jackal.CanUseSabotage.GetBool(),
+            CustomRoles.Sidekick => Jackal.CanUseSabotageSK.GetBool(),
+            CustomRoles.Traitor => Traitor.CanUseSabotage.GetBool(),
+            CustomRoles.Parasite => true,
+            CustomRoles.Glitch => true,
+            CustomRoles.Refugee => true,
+
 
             _ => pc.Is(CustomRoleTypes.Impostor),
         };
@@ -695,6 +762,9 @@ static class ExtendedPlayerControl
             case CustomRoles.NSerialKiller:
                 NSerialKiller.SetKillCooldown(player.PlayerId);
                 break;
+            case CustomRoles.Imitator:
+                Imitator.SetKillCooldown(player.PlayerId);
+                break;
             case CustomRoles.Werewolf:
                 Werewolf.SetKillCooldown(player.PlayerId);
                 break;
@@ -704,9 +774,9 @@ static class ExtendedPlayerControl
             case CustomRoles.Glitch:
                 Glitch.SetKillCooldown(player.PlayerId);
                 break;
-            case CustomRoles.NWitch:
-                NWitch.SetKillCooldown(player.PlayerId);
-                break;
+            //case CustomRoles.NWitch:
+            //    NWitch.SetKillCooldown(player.PlayerId);
+            //    break;
             case CustomRoles.Maverick:
                 Maverick.SetKillCooldown(player.PlayerId);
                 break;
@@ -751,9 +821,9 @@ static class ExtendedPlayerControl
             case CustomRoles.Pelican:
                 Main.AllPlayerKillCooldown[player.PlayerId] = Pelican.KillCooldown.GetFloat();
                 break;
-            case CustomRoles.Counterfeiter:
-                Counterfeiter.SetKillCooldown(player.PlayerId);
-                break;
+            //case CustomRoles.Counterfeiter:
+            //    Counterfeiter.SetKillCooldown(player.PlayerId);
+            //    break;
             case CustomRoles.Witness:
                 Main.AllPlayerKillCooldown[player.PlayerId] = Options.WitnessCD.GetFloat();
                 break;
@@ -789,7 +859,7 @@ static class ExtendedPlayerControl
                 QuickShooter.SetKillCooldown(player.PlayerId);
                 break;
             case CustomRoles.Provocateur:
-                Main.AllPlayerKillCooldown[player.PlayerId] = 0f;
+                Main.AllPlayerKillCooldown[player.PlayerId] = 15f;
                 break;
             case CustomRoles.Assassin:
                 Assassin.SetKillCooldown(player.PlayerId);
@@ -803,9 +873,9 @@ static class ExtendedPlayerControl
             case CustomRoles.Juggernaut:
                 Juggernaut.SetKillCooldown(player.PlayerId);
                 break;
-            case CustomRoles.Reverie:
-                Reverie.SetKillCooldown(player.PlayerId);
-                break;
+            //case CustomRoles.Reverie:
+            //    Reverie.SetKillCooldown(player.PlayerId);
+            //    break;
             case CustomRoles.Hacker:
                 Hacker.SetKillCooldown(player.PlayerId);
                 break;

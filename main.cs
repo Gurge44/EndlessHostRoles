@@ -33,7 +33,7 @@ public class Main : BasePlugin
     public static ConfigEntry<string> DebugKeyInput { get; private set; }
     public static readonly string MainMenuText = " ";
     public const string PluginGuid = "com.karped1em.townofhostedited";
-    public const string PluginVersion = "1.0.22";
+    public const string PluginVersion = "1.0.0";
     public const string PluginDisplayVersion = "1.0";
     public const int PluginCreate = 3;
     public const bool Canary = false;
@@ -104,12 +104,14 @@ public class Main : BasePlugin
     public static Dictionary<byte, Vent> LastEnteredVent = new();
     public static Dictionary<byte, Vector2> LastEnteredVentLocation = new();
     public static Dictionary<byte, Vector2> TimeMasterBackTrack = new();
-    public static Dictionary<byte, int> MasochistKillMax = new();
+    //public static Dictionary<byte, int> MasochistKillMax = new();
     public static Dictionary<byte, int> TimeMasterNum = new();
     public static Dictionary<byte, long> TimeMasterInProtect = new();
     //public static Dictionary<byte, long> FlashbangInProtect = new();
     public static List<byte> CyberStarDead = new();
     public static List<byte> DemolitionistDead = new();
+    public static Dictionary<byte, long> ExpressSpeedUp = new();
+    public static float ExpressSpeedNormal;
     public static List<byte> WorkaholicAlive = new();
     public static List<byte> SpeedrunnerAlive = new();
     public static List<byte> BaitAlive = new();
@@ -173,6 +175,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, int> JinxSpellCount = new();
     public static int AliveImpostorCount;
     public static bool isCursed;
+    public static bool NiceSwapSend;
     public static Dictionary<byte, bool> CheckShapeshift = new();
     public static Dictionary<byte, byte> ShapeshiftTarget = new();
     public static Dictionary<(byte, byte), string> targetArrows = new();
@@ -311,6 +314,7 @@ public class Main : BasePlugin
                 {CustomRoles.SuperStar, "#f6f657"},
                 {CustomRoles.CyberStar, "#ee4a55" },
                 {CustomRoles.Demolitionist, "#5e2801" },
+                {CustomRoles.Express, "#00ffff" },
                 {CustomRoles.NiceEraser, "#00a5ff" },
                 {CustomRoles.TaskManager, "#00ffa5" },
                 {CustomRoles.SpeedBooster, "#00ffff"},
@@ -323,7 +327,7 @@ public class Main : BasePlugin
                 {CustomRoles.TimeManager, "#6495ed"},
                 {CustomRoles.Veteran, "#a77738"},
                 {CustomRoles.Bodyguard, "#185abd"},
-                {CustomRoles.Counterfeiter, "#BE29EC"},
+                //{CustomRoles.Counterfeiter, "#BE29EC"},
                 {CustomRoles.Witness, "#e70052"},
                 {CustomRoles.Lookout, "#2a52be"},
                 {CustomRoles.Grenadier, "#3c4a16"},
@@ -345,6 +349,8 @@ public class Main : BasePlugin
                 {CustomRoles.Monitor, "#7223DA"},
                 {CustomRoles.Deputy, "#df9026"},
                 {CustomRoles.Cleanser,"#98FF98" },
+                {CustomRoles.NiceSwapper, "#922348"},
+                {CustomRoles.Ignitor, "#a5ffff"},
                 {CustomRoles.Guardian, "#2E8B57"},
                 {CustomRoles.Addict, "#008000"},
                 {CustomRoles.Alchemist, "#e6d798"},
@@ -356,7 +362,7 @@ public class Main : BasePlugin
                 {CustomRoles.Admirer, "#ee43c3"},
                 {CustomRoles.TimeMaster, "#44baff"},
                 {CustomRoles.Crusader, "#C65C39"},
-                {CustomRoles.Reverie, "#00BFFF"},
+                //{CustomRoles.Reverie, "#00BFFF"},
                 //第三陣営役職
                 {CustomRoles.Arsonist, "#ff6633"},
                 {CustomRoles.PlagueBearer,"#e5f6b4"},
@@ -383,7 +389,7 @@ public class Main : BasePlugin
                 {CustomRoles.Provocateur, "#74ba43"},
                 {CustomRoles.Sunnyboy, "#ff9902"},
                 {CustomRoles.Poisoner, "#e70052"},
-                {CustomRoles.NWitch, "#BF5FFF"},
+                //{CustomRoles.NWitch, "#BF5FFF"},
                 {CustomRoles.Totocalcio, "#ff9409"},
                 {CustomRoles.Romantic, "#FF1493"},
                 {CustomRoles.VengefulRomantic, "#8B0000"},
@@ -392,6 +398,7 @@ public class Main : BasePlugin
                 {CustomRoles.HexMaster, "#ff00ff"},
                 {CustomRoles.Wraith, "#4B0082"},
                 {CustomRoles.NSerialKiller, "#233fcc"},
+                {CustomRoles.Imitator, "#ff00a5"},
                 {CustomRoles.Werewolf, "#964B00"},
                 {CustomRoles.BloodKnight, "#630000"},
                 {CustomRoles.Juggernaut, "#A41342"},
@@ -418,7 +425,7 @@ public class Main : BasePlugin
                 {CustomRoles.Convict, "#ff1919"},
                 {CustomRoles.Amnesiac, "#7FBFFF"},
                 {CustomRoles.Doomsayer, "#14f786"},
-                {CustomRoles.Masochist, "#684405"},
+                //{CustomRoles.Masochist, "#684405"},
                 //{CustomRoles.Pirate,"#EDC240"},
                 // GM
                 {CustomRoles.GM, "#ff5b70"},
@@ -448,6 +455,7 @@ public class Main : BasePlugin
                 {CustomRoles.Guesser, "#f8cd46"},
                 {CustomRoles.Necroview, "#663399"},
                 {CustomRoles.Reach, "#74ba43"},
+                {CustomRoles.DeadlyQuota, "#ff1919"},
                 {CustomRoles.Charmed, "#cf6acd"},
                 {CustomRoles.Bait, "#00f7ff"},
                 {CustomRoles.Trapper, "#5a8fd0"},
@@ -623,6 +631,7 @@ public enum CustomRoles
     SuperStar,
     CyberStar,
     Demolitionist,
+    Express,
     NiceEraser,
     TaskManager,
     Mayor,
@@ -644,7 +653,7 @@ public enum CustomRoles
     TimeManager,
     Veteran,
     Bodyguard,
-    Counterfeiter,
+    //Counterfeiter,
     Witness,
     Grenadier,
     Lighter,
@@ -668,6 +677,7 @@ public enum CustomRoles
     Addict,
     Alchemist,
     Tracefinder,
+    Ignitor,
     Oracle,
     Spiritualist,
     Chameleon,
@@ -677,7 +687,7 @@ public enum CustomRoles
     Monitor,
     Crusader,
     Cleanser,
-    Reverie,
+    //Reverie,
     //Neutral
     Arsonist,
     HexMaster,
@@ -690,11 +700,12 @@ public enum CustomRoles
     Lawyer,
     Jackal,
     Poisoner,
-    NWitch,
+    //NWitch,
     Innocent,
     Pelican,
     Revolutionist,
     NSerialKiller,
+    Imitator,
     Werewolf,
     Juggernaut,
     Infectious,
@@ -734,7 +745,7 @@ public enum CustomRoles
     Spiritcaller,
     Amnesiac,
     Doomsayer,
-    Masochist,
+    //Masochist,
     // Flux,
 
     //SoloKombat
@@ -776,7 +787,9 @@ public enum CustomRoles
     Knighted,
     Contagious,
     Cleansed,
+    NiceSwapper,
     Unreportable,
+    DeadlyQuota,
     Rogue,
     Lucky,
     Unlucky,
@@ -836,7 +849,7 @@ public enum CustomWinner
     //Pirate = CustomRoles.Pirate,
     SerialKiller = CustomRoles.NSerialKiller,
     Werewolf = CustomRoles.Werewolf,
-    Witch = CustomRoles.NWitch,
+    //Witch = CustomRoles.NWitch,
     Juggernaut = CustomRoles.Juggernaut,
     Infectious = CustomRoles.Infectious,
     Virus = CustomRoles.Virus,
@@ -854,9 +867,10 @@ public enum CustomWinner
     Spiritcaller = CustomRoles.Spiritcaller,
     Glitch = CustomRoles.Glitch,
     Plaguebearer = CustomRoles.PlagueBearer,
-    Masochist = CustomRoles.Masochist,
+    //Masochist = CustomRoles.Masochist,
     Doomsayer = CustomRoles.Doomsayer,
-    RuthlessRomantic = CustomRoles.RuthlessRomantic
+    RuthlessRomantic = CustomRoles.RuthlessRomantic,
+    Imitator = CustomRoles.Imitator
 }
 public enum AdditionalWinners
 {
@@ -868,7 +882,7 @@ public enum AdditionalWinners
     FFF = CustomRoles.FFF,
     Provocateur = CustomRoles.Provocateur,
     Sunnyboy = CustomRoles.Sunnyboy,
-    Witch = CustomRoles.NWitch,
+    //Witch = CustomRoles.NWitch,
     Totocalcio = CustomRoles.Totocalcio,
     Romantic = CustomRoles.Romantic,
     VengefulRomantic = CustomRoles.VengefulRomantic,
