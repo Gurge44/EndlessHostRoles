@@ -137,26 +137,26 @@ public static class Amnesiac
                 Logger.Info($"{killer.GetNameWithRole()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
                 return;
             }
-            if (IncompatibleNeutralMode.GetValue() == 1)
-            {
-                RememberLimit--;
-                SendRPC();
-                killer.RpcSetCustomRole(CustomRoles.NWitch);
+            //if (IncompatibleNeutralMode.GetValue() == 1)
+            //{
+            //    RememberLimit--;
+            //    SendRPC();
+            //    killer.RpcSetCustomRole(CustomRoles.NWitch);
 
-                killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedWitch")));
-                target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
-                Utils.NotifyRoles();
+            //    killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedWitch")));
+            //    target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
+            //    Utils.NotifyRoles();
 
-                killer.ResetKillCooldown();
-                killer.SetKillCooldown();
-                //killer.RpcGuardAndKill(target);
-                target.RpcGuardAndKill(killer);
-                target.RpcGuardAndKill(target);
+            //    killer.ResetKillCooldown();
+            //    killer.SetKillCooldown();
+            //    //killer.RpcGuardAndKill(target);
+            //    target.RpcGuardAndKill(killer);
+            //    target.RpcGuardAndKill(target);
 
-                Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Soulless.ToString(), "Assign " + CustomRoles.Soulless.ToString());
-                Logger.Info($"{killer.GetNameWithRole()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
-                return;
-            }
+            //    Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Soulless.ToString(), "Assign " + CustomRoles.Soulless.ToString());
+            //    Logger.Info($"{killer.GetNameWithRole()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
+            //    return;
+            //}
             if (IncompatibleNeutralMode.GetValue() == 2)
             {
                 RememberLimit--;
@@ -415,6 +415,7 @@ public static class Amnesiac
         if (player.Is(CustomRoles.Refugee) && target.Is(CustomRoles.Refugee)) return true;
         if (player.Is(CustomRoles.Parasite) && target.Is(CustomRoles.Parasite)) return true;
         if (player.Is(CustomRoles.NSerialKiller) && target.Is(CustomRoles.NSerialKiller)) return true;
+        if (player.Is(CustomRoles.Imitator) && target.Is(CustomRoles.Imitator)) return true;
         if (player.Is(CustomRoles.Werewolf) && target.Is(CustomRoles.Werewolf)) return true;
         if (player.Is(CustomRoles.Pickpocket) && target.Is(CustomRoles.Pickpocket)) return true;
         if (player.Is(CustomRoles.Traitor) && target.Is(CustomRoles.Traitor)) return true;

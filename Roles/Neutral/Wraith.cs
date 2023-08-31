@@ -21,6 +21,7 @@ public static class Wraith
     private static Dictionary<byte, long> InvisTime = new();
     public static Dictionary<byte, long> lastTime = new();
     private static Dictionary<byte, int> ventedId = new();
+    private static int CD = 0;
 
     public static void SetupCustomOption()
     {
@@ -37,6 +38,7 @@ public static class Wraith
         InvisTime = new();
         lastTime = new();
         ventedId = new();
+        CD = 0;
     }
     public static void Add(byte playerId)
     {
@@ -86,11 +88,19 @@ public static class Wraith
 
         var now = Utils.GetTimeStamp();
 
+        if (lastTime.TryGetValue(player.PlayerId, out var WWtime)/* && !player.IsModClient()*/)
+        {
+            var cooldown = WWtime + (long)WraithCooldown.GetFloat() - now;
+            if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f);
+            CD = (int)cooldown;
+        }
+
         if (lastTime.TryGetValue(player.PlayerId, out var time) && time + (long)WraithCooldown.GetFloat() < now)
         {
             lastTime.Remove(player.PlayerId);
             if (!player.IsModClient()) player.Notify(GetString("WraithCanVent"));
             SendRPC(player);
+            CD = 0;
         }
 
         if (lastFixedTime != now)

@@ -73,18 +73,22 @@ internal static class Eraser
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (Medic.ProtectList.Contains(target.PlayerId)) return false;
-        if (EraseLimit[target.PlayerId] < 1) return true;
+        if (EraseLimit[killer.PlayerId] < 1) return true;
         if (target.PlayerId == killer.PlayerId) return true;
-        if (target.GetCustomRole().IsNeutral() && EraseMethod.GetString() == "EKill")
+        if (CustomRolesHelper.IsNeutral(target.GetCustomRole()) && EraseMethod.GetInt() == 0)
         {
             killer.Notify(GetString("EraserEraseNeutralNotice"));
-            if (WhenTargetIsNeutral.GetString() == "E2Kill") return true;
-            else return false;
+            if (WhenTargetIsNeutral.GetInt() == 1) return true;
+            else
+            {
+                killer.SetKillCooldown(5f);
+                return false;
+            }
         }
 
-        if (EraseMethod.GetString() == "EKill")
+        if (EraseMethod.GetInt() == 0)
         {
-            if (EraseLimit[killer.PlayerId] <= 0) return true;
+            if (EraseLimit[killer.PlayerId] < 1) return true;
             return killer.CheckDoubleTrigger(target, () =>
             {
                 EraseLimit[killer.PlayerId]--;
@@ -99,7 +103,7 @@ internal static class Eraser
 
     public static void OnVote(PlayerControl player, PlayerControl target)
     {
-        if (player == null || target == null || EraseMethod.GetString() != "EVote") return;
+        if (player == null || target == null || EraseMethod.GetInt() == 0) return;
         if (didVote.Contains(player.PlayerId)) return;
         didVote.Add(player.PlayerId);
 

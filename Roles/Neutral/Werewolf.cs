@@ -1,7 +1,6 @@
 using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
-using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +22,7 @@ public static class Werewolf
 
     private static Dictionary<byte, long> RampageTime = new();
     public static Dictionary<byte, long> lastTime = new();
+    private static int CD = 0;
 
     public static void SetupCustomOption()
     {
@@ -33,12 +33,13 @@ public static class Werewolf
         HasImpostorVision = BooleanOptionItem.Create(Id + 11, "ImpostorVision", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Werewolf]);
         RampageCD = FloatOptionItem.Create(Id + 12, "WWRampageCD", new(0f, 180f, 2.5f), 35f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Werewolf])
             .SetValueFormat(OptionFormat.Seconds);
-        RampageDur = FloatOptionItem.Create(Id + 10, "WWRampageDur", new(0f, 180f, 1f), 12f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Werewolf])
+        RampageDur = FloatOptionItem.Create(Id + 13, "WWRampageDur", new(0f, 180f, 1f), 12f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Werewolf])
             .SetValueFormat(OptionFormat.Seconds);
     }
     public static void Init()
     {
         playerIdList = new();
+        CD = 0;
     }
     public static void Add(byte playerId)
     {
@@ -86,14 +87,24 @@ public static class Werewolf
     public static void OnFixedUpdate(PlayerControl player)
     {
         if (!GameStates.IsInTask || !IsEnable) return;
+        if (player == null) return;
+        if (!player.Is(CustomRoles.Werewolf)) return;
 
         var now = Utils.GetTimeStamp();
+
+        if (lastTime.TryGetValue(player.PlayerId, out var WWtime)/* && !player.IsModClient()*/)
+        {
+            var cooldown = WWtime + (long)RampageCD.GetFloat() - now;
+            if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f);
+            CD = (int)cooldown;
+        }
 
         if (lastTime.TryGetValue(player.PlayerId, out var time) && time + (long)RampageCD.GetFloat() < now)
         {
             lastTime.Remove(player.PlayerId);
             if (!player.IsModClient()) player.Notify(GetString("WWCanRampage"));
             SendRPC(player);
+            CD = 0;
         }
 
         if (lastFixedTime != now)
@@ -128,6 +139,7 @@ public static class Werewolf
     public static void OnEnterVent(PlayerControl pc)
     {
         if (pc == null) return;
+        if (!pc.Is(CustomRoles.Werewolf)) return;
 
         if (!AmongUsClient.Instance.AmHost || IsRampaging(pc.PlayerId)) return;
         new LateTask(() =>
@@ -139,11 +151,11 @@ public static class Werewolf
                 NameNotifyManager.Notify(pc, GetString("WWRampaging"), RampageDur.GetFloat());
             }
             else return;
-        }, 0.5f, "Wraith Vent");
+        }, 0.5f, "Werewolf Vent");
     }
     public static string GetHudText(PlayerControl pc)
     {
-        if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return "";
+        if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive() || !pc.Is(CustomRoles.Werewolf)) return "";
         var str = new StringBuilder();
         if (IsRampaging(pc.PlayerId))
         {
@@ -157,7 +169,7 @@ public static class Werewolf
         }
         else
         {
-            str.Append(GetString("WraithCanVent"));
+            str.Append(GetString("WWCanRampage"));
         }
         return str.ToString();
     }

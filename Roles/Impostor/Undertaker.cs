@@ -57,7 +57,7 @@ internal static class Undertaker
     private static bool Shapeshifting(this PlayerControl pc) => pc.PlayerId.Shapeshifting();
     private static bool Shapeshifting(this byte id) => Main.CheckShapeshift.TryGetValue(id, out bool shapeshifting) && shapeshifting;
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = id.Shapeshifting() ? DefaultKillCooldown : MarkCooldown.GetFloat();
-    public static void ApplyGameOptions() 
+    public static void ApplyGameOptions()
     {
         AURoleOptions.ShapeshifterCooldown = AssassinateCooldown.GetFloat();
         AURoleOptions.ShapeshifterDuration = 1f;
