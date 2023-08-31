@@ -128,9 +128,9 @@ public static class CopyCat
                 //    Tracker.TrackLimit.Remove(player);
                 //    Tracker.TrackerTarget.Remove(player);
                 //    break;
-                case CustomRoles.Counterfeiter:
-                    Counterfeiter.SeelLimit.Remove(player);
-                    break;
+                //case CustomRoles.Counterfeiter:
+                //    Counterfeiter.SeelLimit.Remove(player);
+                //    break;
                 //case CustomRoles.SwordsMan:
                 //    if (!AmongUsClient.Instance.AmHost) break;
                 //    if (!Main.ResetCamPlayerList.Contains(player))
@@ -158,6 +158,9 @@ public static class CopyCat
                     break;
                 case CustomRoles.Judge:
                     Judge.TrialLimit.Remove(player);
+                    break;
+                case CustomRoles.NiceSwapper:
+                    NiceSwapper.NiceSwappermax.Remove(player);
                     break;
                 case CustomRoles.Mayor:
                     Main.MayorUsedButtonCount.Remove(player);
@@ -209,7 +212,7 @@ public static class CopyCat
             if (role == CustomRoles.Sunnyboy) role = CustomRoles.Doctor;
             if (role == CustomRoles.Vindicator || role == CustomRoles.Pickpocket) role = CustomRoles.Mayor;
             else if (role == CustomRoles.Councillor) role = CustomRoles.Judge;
-            else if (role == CustomRoles.Sans || role == CustomRoles.Juggernaut) role = CustomRoles.Reverie;
+            //else if (role == CustomRoles.Sans || role == CustomRoles.Juggernaut) role = CustomRoles.Reverie;
             else if (role == CustomRoles.EvilGuesser || role == CustomRoles.Doomsayer || role == CustomRoles.Ritualist) role = CustomRoles.NiceGuesser;
         }
         if (role.IsCrewmate() && (!tpc.GetCustomSubRoles().Any(x => x == CustomRoles.Rascal)))
@@ -278,12 +281,12 @@ public static class CopyCat
                 //    Tracker.TrackLimit.TryAdd(pc.PlayerId, Tracker.TrackLimitOpt.GetInt());
                 //    Tracker.TrackerTarget.Add(pc.PlayerId, byte.MaxValue);
                 //    break;
-                case CustomRoles.Counterfeiter:
-                    Counterfeiter.SeelLimit.Add(pc.PlayerId, Counterfeiter.CounterfeiterSkillLimitTimes.GetInt());
-                    if (!AmongUsClient.Instance.AmHost) break;
-                    if (!Main.ResetCamPlayerList.Contains(pc.PlayerId))
-                        Main.ResetCamPlayerList.Add(pc.PlayerId);
-                    break;
+                //case CustomRoles.Counterfeiter:
+                //    Counterfeiter.SeelLimit.Add(pc.PlayerId, Counterfeiter.CounterfeiterSkillLimitTimes.GetInt());
+                //    if (!AmongUsClient.Instance.AmHost) break;
+                //    if (!Main.ResetCamPlayerList.Contains(pc.PlayerId))
+                //        Main.ResetCamPlayerList.Add(pc.PlayerId);
+                //    break;
                 case CustomRoles.Witness:
                     if (!AmongUsClient.Instance.AmHost) break;
                     if (!Main.ResetCamPlayerList.Contains(pc.PlayerId))
@@ -317,6 +320,9 @@ public static class CopyCat
                 //    break;
                 case CustomRoles.Judge:
                     Judge.TrialLimit.Add(pc.PlayerId, Judge.TrialLimitPerMeeting.GetInt());
+                    break;
+                case CustomRoles.NiceSwapper:
+                    NiceSwapper.NiceSwappermax.Add(pc.PlayerId, NiceSwapper.SwapMax.GetInt());
                     break;
                 case CustomRoles.Mayor:
                     Main.MayorUsedButtonCount[pc.PlayerId] = 0;

@@ -69,19 +69,17 @@ public static class Deputy
             killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("DeputyHandcuffedPlayer")));
 
             //  target.ResetKillCooldown();
-            new LateTask(() => 
+            new LateTask(() =>
             {
                 if (GameStates.IsInTask) target.SetKillCooldown(DeputyHandcuffCDForTarget.GetFloat());
                 target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("HandcuffedByDeputy")));
+                if (target.IsModClient()) target.RpcResetAbilityCooldown();
+                if (!target.IsModClient()) target.RpcGuardAndKill(target);
                 Utils.NotifyRoles();
             }, DeputyHandcuffDelay.GetInt());
             Utils.NotifyRoles();
 
             killer.SetKillCooldown();
-            if (target.IsModClient()) target.RpcResetAbilityCooldown();
-            //killer.RpcGuardAndKill(target);
-            //target.RpcGuardAndKill(killer);
-            if (!target.IsModClient()) target.RpcGuardAndKill(target);
 
             if (HandcuffLimit < 0)
                 HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");

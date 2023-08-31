@@ -84,7 +84,6 @@ public static class Divinator
                 CustomRoles.Amnesiac or
                 CustomRoles.CopyCat or
                 CustomRoles.Eraser or
-                CustomRoles.Refugee or
                 CustomRoles.AntiAdminer or
                 CustomRoles.Monitor or
                 CustomRoles.Dazzler or
@@ -102,7 +101,7 @@ public static class Divinator
                 => "Result2",
 
                 CustomRoles.Capitalism or
-                CustomRoles.Counterfeiter or
+                //CustomRoles.Counterfeiter or
                 CustomRoles.Witness or
                 CustomRoles.Greedier or
                 CustomRoles.Merchant or
@@ -119,7 +118,7 @@ public static class Divinator
 
                 CustomRoles.Bard or
                 CustomRoles.Juggernaut or
-                CustomRoles.Reverie or
+                //CustomRoles.Reverie or
                 CustomRoles.Sans or
                 CustomRoles.Minimalism or
                 CustomRoles.OverKiller
@@ -185,6 +184,7 @@ public static class Divinator
 
                 CustomRoles.God or
                 CustomRoles.Oracle or
+                CustomRoles.NiceSwapper or
                 CustomRoles.Visionary or
                 CustomRoles.NiceEraser or
                 CustomRoles.ParityCop
@@ -201,11 +201,13 @@ public static class Divinator
                 CustomRoles.Virus or
                 CustomRoles.Monarch or
                 CustomRoles.Revolutionist or
+                CustomRoles.Express or
                 CustomRoles.Succubus
                 => "Result15",
 
                 CustomRoles.Innocent or
-                CustomRoles.Masochist or
+                //CustomRoles.Masochist or
+                CustomRoles.Refugee or
                 CustomRoles.Inhibitor or
                 CustomRoles.SabotageMaster or
                 CustomRoles.Saboteur
@@ -261,6 +263,7 @@ public static class Divinator
                 CustomRoles.Divinator or
                 CustomRoles.EvilDiviner or
                 CustomRoles.Ritualist or
+                CustomRoles.Imitator or
                 CustomRoles.HexMaster or
                 CustomRoles.Witch
                 => "Result23",
@@ -295,7 +298,7 @@ public static class Divinator
                 => "Result27",
 
                 CustomRoles.Puppeteer or
-                CustomRoles.NWitch or
+                //CustomRoles.NWitch or
                 CustomRoles.Deputy or
                 CustomRoles.Transporter or
                 CustomRoles.Twister or
@@ -306,6 +309,7 @@ public static class Divinator
                 CustomRoles.Marshall or
                 CustomRoles.Workaholic or
                 CustomRoles.Phantom or
+                CustomRoles.Speedrunner or
                 CustomRoles.Terrorist
                 => "Result29",
 

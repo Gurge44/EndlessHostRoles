@@ -137,7 +137,7 @@ public static class Oracle
                     CustomRoles.Mario or
                     CustomRoles.HexMaster or
                     CustomRoles.Crewpostor or
-                    CustomRoles.NWitch or
+                    //CustomRoles.NWitch or
                     CustomRoles.Wraith or
                     CustomRoles.Parasite or
                     CustomRoles.Refugee or
@@ -154,11 +154,12 @@ public static class Oracle
                     CustomRoles.God or
                     CustomRoles.PlagueBearer or
                     CustomRoles.Pestilence or
-                    CustomRoles.Masochist or
+                    //CustomRoles.Masochist or
                     CustomRoles.Innocent or
                     CustomRoles.Pursuer or
                     CustomRoles.Poisoner or
                     CustomRoles.NSerialKiller or
+                    CustomRoles.Imitator or
                     CustomRoles.Werewolf or
                     CustomRoles.Ritualist or
                     CustomRoles.Pelican or

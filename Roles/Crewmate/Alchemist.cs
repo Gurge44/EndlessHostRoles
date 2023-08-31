@@ -2,7 +2,6 @@ namespace TOHE.Roles.Crewmate
 {
     using HarmonyLib;
     using Hazel;
-    using MS.Internal.Xml.XPath;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
@@ -21,6 +20,7 @@ namespace TOHE.Roles.Crewmate
         public static string PlayerName = "";
         private static Dictionary<byte, long> InvisTime = new();
         public static bool VisionPotionActive = false;
+        public static bool FixNextSabo = false;
 
         public static OptionItem VentCooldown;
         public static OptionItem ShieldDuration;
@@ -59,6 +59,7 @@ namespace TOHE.Roles.Crewmate
             PlayerName = "";
             ventedId = new();
             InvisTime = new();
+            FixNextSabo = false;
             VisionPotionActive = false;
         }
         public static void Add(byte playerId)
@@ -87,6 +88,8 @@ namespace TOHE.Roles.Crewmate
                     pc.Notify(GetString("AlchemistGotSpeedPotion"), 100f);
                     break;
                 case 5: // Quick fix next sabo
+                    FixNextSabo = true;
+                    PotionID = 10;
                     pc.Notify(GetString("AlchemistGotQFPotion"), 15f);
                     break;
                 case 6: // Invisibility
@@ -139,7 +142,7 @@ namespace TOHE.Roles.Crewmate
                     var tmpSpeed = Main.AllPlayerSpeed[player.PlayerId];
                     Main.AllPlayerSpeed[player.PlayerId] = Speed.GetFloat();
                     new LateTask(() =>
-                    { 
+                    {
                         Main.AllPlayerSpeed[player.PlayerId] = Main.AllPlayerSpeed[player.PlayerId] - Speed.GetFloat() + tmpSpeed;
                         player.MarkDirtySettings();
                         player.Notify(GetString("AlchemistSpeedOut"));
@@ -253,7 +256,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static void RepairSystem(SystemTypes systemType, byte amount)
         {
-            PotionID = 10;
+            FixNextSabo = false;
             switch (systemType)
             {
                 case SystemTypes.Reactor:
@@ -284,15 +287,6 @@ namespace TOHE.Roles.Crewmate
                         ShipStatus.Instance.RpcRepairSystem(SystemTypes.Comms, 17);
                     }
                     break;
-            }
-        }
-        public static void SwitchSystemRepair(SwitchSystem __instance, byte amount)
-        {
-            PotionID = 10;
-            if (amount is >= 0 and <= 4)
-            {
-                __instance.ActualSwitches = 0;
-                __instance.ExpectedSwitches = 0;
             }
         }
     }

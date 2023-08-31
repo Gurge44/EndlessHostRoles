@@ -1,7 +1,7 @@
 ﻿using Hazel;
-using UnityEngine;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -10,7 +10,7 @@ public static class Cleanser
 {
     private static readonly int Id = 23420;
     public static List<byte> playerIdList = new();
-    public static Dictionary<byte,byte> CleanserTarget = new();
+    public static Dictionary<byte, byte> CleanserTarget = new();
     public static Dictionary<byte, int> CleanserUses = new();
     public static List<byte> CleansedPlayers = new();
     public static Dictionary<byte, bool> DidVote = new();
@@ -90,13 +90,13 @@ public static class Cleanser
         CleanserTarget[voter.PlayerId] = target.PlayerId;
         Logger.Info($"{voter.GetNameWithRole()} cleansed {target.GetNameWithRole()}", "Cleansed");
         CleansedPlayers.Add(target.PlayerId);
-        Utils.SendMessage(string.Format(GetString("CleanserRemovedRole"), target.GetRealName()), voter.PlayerId, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Cleanser),GetString("CleanserTitle")));
+        Utils.SendMessage(string.Format(GetString("CleanserRemovedRole"), target.GetRealName()), voter.PlayerId, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Cleanser), GetString("CleanserTitle")));
         SendRPC(voter.PlayerId);
     }
 
     public static void AfterMeetingTasks()
     {
-        foreach(var pid in CleanserTarget.Keys)
+        foreach (var pid in CleanserTarget.Keys)
         {
             DidVote[pid] = false;
             if (pid == byte.MaxValue) continue;
