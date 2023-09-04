@@ -46,6 +46,8 @@ solidhay#2143,ILoveYou
 homelysofa#7210,Nagva
 moviebulky#3847,le ghoste
 cosapt#6243,卡斯特
+splaytale#9633,Roadfecund
+socialfee#5455,原神忠诚玩家
 
 ## Griefer
 setmolar#4374,藏族顶针
@@ -56,4 +58,3 @@ polkaoval#0453,自作Modな橋本環奈
 
 ## Other
 tenthrope#3476,Dronecool
-splaytale#9633,Roadfecund
