@@ -117,9 +117,10 @@ public static class Witch
     }
     public static bool HaveSpelledPlayer()
     {
-        foreach (var witch in playerIdList)
+        for (int i = 0; i < playerIdList.Count; i++)
         {
-            if (SpelledPlayer[witch].Count != 0)
+            byte witch = playerIdList[i];
+            if (SpelledPlayer[witch].Any())
             {
                 return true;
             }
@@ -129,8 +130,9 @@ public static class Witch
     }
     public static bool IsSpelled(byte target)
     {
-        foreach (var witch in playerIdList)
+        for (int i = 0; i < playerIdList.Count; i++)
         {
+            byte witch = playerIdList[i];
             if (SpelledPlayer[witch].Contains(target))
             {
                 return true;
@@ -150,8 +152,9 @@ public static class Witch
     }
     public static void RemoveSpelledPlayer()
     {
-        foreach (var witch in playerIdList)
+        for (int i = 0; i < playerIdList.Count; i++)
         {
+            byte witch = playerIdList[i];
             SpelledPlayer[witch].Clear();
             SendRPC(true, witch);
         }
@@ -180,8 +183,9 @@ public static class Witch
     public static void OnCheckForEndVoting(PlayerState.DeathReason deathReason, params byte[] exileIds)
     {
         if (!IsEnable || deathReason != PlayerState.DeathReason.Vote) return;
-        foreach (var id in exileIds)
+        for (int i = 0; i < exileIds.Length; i++)
         {
+            byte id = exileIds[i];
             if (SpelledPlayer.ContainsKey(id))
                 SpelledPlayer[id].Clear();
         }
@@ -214,16 +218,16 @@ public static class Witch
         {
             return Utils.ColorString(Palette.ImpostorRed, "†");
         }
-        return "";
+        return string.Empty;
     }
     public static string GetSpellModeText(PlayerControl witch, bool hud, bool isMeeting = false)
     {
-        if (witch == null || isMeeting) return "";
+        if (witch == null || isMeeting) return string.Empty;
 
         var str = new StringBuilder();
         if (hud)
         {
-            str.Append($"{GetString("WitchCurrentMode")}: ");
+            str.Append($"<color=#00ffa5>{GetString("WitchCurrentMode")}:</color> <b>");
         }
         else
         {

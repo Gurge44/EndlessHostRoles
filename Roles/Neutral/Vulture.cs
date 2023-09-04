@@ -91,16 +91,18 @@ public static class Vulture
 
     public static void Clear()
     {
-        foreach (var apc in playerIdList)
+        for (int i = 0; i < playerIdList.Count; i++)
         {
+            byte apc = playerIdList[i];
             LocateArrow.RemoveAllTarget(apc);
             SendRPC(apc, false);
         }
     }
     public static void AfterMeetingTasks()
     {
-        foreach (var apc in playerIdList)
+        for (int i = 0; i < playerIdList.Count; i++)
         {
+            byte apc = playerIdList[i];
             var player = Utils.GetPlayerById(apc);
             if (player.IsAlive())
             {
@@ -126,7 +128,7 @@ public static class Vulture
 
         var pos = target.GetTruePosition();
         float minDis = float.MaxValue;
-        string minName = "";
+        string minName = string.Empty;
         foreach (var pc in Main.AllAlivePlayerControls)
         {
             if (pc.PlayerId == target.PlayerId) continue;
@@ -138,8 +140,9 @@ public static class Vulture
             }
         }
 
-        foreach (var pc in playerIdList)
+        for (int i = 0; i < playerIdList.Count; i++)
         {
+            byte pc = playerIdList[i];
             var player = Utils.GetPlayerById(pc);
             if (player == null || !player.IsAlive()) continue;
             LocateArrow.Add(pc, target.transform.position);
@@ -154,8 +157,9 @@ public static class Vulture
         Logger.Msg($"target.object {target.Object}, is null? {target.Object == null}", "VultureNull");
         if (target.Object != null)
         {
-            foreach (var apc in playerIdList)
+            for (int i = 0; i < playerIdList.Count; i++)
             {
+                byte apc = playerIdList[i];
                 LocateArrow.Remove(apc, target.Object.transform.position);
                 SendRPC(apc, false);
             }
@@ -169,9 +173,9 @@ public static class Vulture
 
     public static string GetTargetArrow(PlayerControl seer, PlayerControl target = null)
     {
-        if (!seer.Is(CustomRoles.Vulture)) return "";
-        if (target != null && seer.PlayerId != target.PlayerId) return "";
-        if (GameStates.IsMeeting) return "";
+        if (!seer.Is(CustomRoles.Vulture)) return string.Empty;
+        if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
+        if (GameStates.IsMeeting) return string.Empty;
         return Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
     }
 }

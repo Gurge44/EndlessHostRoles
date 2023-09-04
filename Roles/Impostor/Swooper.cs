@@ -28,7 +28,7 @@ public static class Swooper
 
     public static void SetupCustomOption()
     {
-        SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Swooper);
+        SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Swooper, 1);
         SwooperCooldown = FloatOptionItem.Create(Id + 2, "SwooperCooldown", new(1f, 60f, 1f), 20f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
             .SetValueFormat(OptionFormat.Seconds);
         SwooperDuration = FloatOptionItem.Create(Id + 3, "SwooperDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
@@ -93,7 +93,7 @@ public static class Swooper
 
         var now = Utils.GetTimeStamp();
 
-        if (lastTime.TryGetValue(player.PlayerId, out var WWtime)/* && !player.IsModClient()*/)
+        if (lastTime.TryGetValue(player.PlayerId, out var WWtime) && !player.IsModClient())
         {
             var cooldown = WWtime + (long)SwooperCooldown.GetFloat() - now;
             if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f);
@@ -180,7 +180,7 @@ public static class Swooper
     }
     public static string GetHudText(PlayerControl pc)
     {
-        if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return "";
+        if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
         var str = new StringBuilder();
         if (IsInvis(pc.PlayerId))
         {

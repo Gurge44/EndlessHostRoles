@@ -45,8 +45,9 @@ namespace TOHE.Roles.Neutral
         }
         public static bool IsNAlive()
         {
-            foreach (var BakerId in NplayerIdList)
+            for (int i = 0; i < NplayerIdList.Count; i++)
             {
+                byte BakerId = NplayerIdList[i];
                 if (Utils.GetPlayerById(BakerId).IsAlive())
                     return true;
             }
@@ -86,8 +87,9 @@ namespace TOHE.Roles.Neutral
             } */
         public static bool IsPoisoned(PlayerControl target)
         {
-            foreach (var BakerId in NplayerIdList)
+            for (int i = 0; i < NplayerIdList.Count; i++)
             {
+                byte BakerId = NplayerIdList[i];
                 //  if (PoisonPlayer[BakerId] == target)
                 {
                     return true;
@@ -129,8 +131,9 @@ namespace TOHE.Roles.Neutral
                 if (p.Is(CustomRoles.Famine)) continue;
                 targetList.Add(p);
             }
-            foreach (var BakerId in NplayerIdList)
+            for (int i = 0; i < NplayerIdList.Count; i++)
             {
+                byte BakerId = NplayerIdList[i];
                 var PoisonedPlayer = targetList[rand.Next(targetList.Count)];
                 //      PoisonPlayer[BakerId] = PoisonedPlayer;
                 SendRPC(BakerId, PoisonedPlayer.PlayerId);
@@ -165,7 +168,7 @@ namespace TOHE.Roles.Neutral
             }
             if (pc.Is(CustomRoles.Baker) && !pc.Data.IsDead && !pc.Data.Disconnected)
             {
-                string panMessage = "";
+                string panMessage = string.Empty;
                 int chance = UnityEngine.Random.Range(1, 101);
                 if (pc.AllTasksCompleted())
                 {

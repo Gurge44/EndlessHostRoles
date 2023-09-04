@@ -88,7 +88,7 @@ public static class Wraith
 
         var now = Utils.GetTimeStamp();
 
-        if (lastTime.TryGetValue(player.PlayerId, out var WWtime)/* && !player.IsModClient()*/)
+        if (lastTime.TryGetValue(player.PlayerId, out var WWtime) && !player.IsModClient())
         {
             var cooldown = WWtime + (long)WraithCooldown.GetFloat() - now;
             if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f);
@@ -174,7 +174,7 @@ public static class Wraith
     }
     public static string GetHudText(PlayerControl pc)
     {
-        if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return "";
+        if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
         var str = new StringBuilder();
         if (IsInvis(pc.PlayerId))
         {

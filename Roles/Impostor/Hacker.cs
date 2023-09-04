@@ -87,8 +87,9 @@ public static class Hacker
         var targetId = byte.MaxValue;
 
         // 寻找骇客击杀的尸体
-        foreach (var db in DeadBodyList)
+        for (int i = 0; i < DeadBodyList.Count; i++)
         {
+            byte db = DeadBodyList[i];
             var dp = Utils.GetPlayerById(db);
             if (dp == null || dp.GetRealKiller() == null) continue;
             if (dp.GetRealKiller().PlayerId == pc.PlayerId) targetId = db;

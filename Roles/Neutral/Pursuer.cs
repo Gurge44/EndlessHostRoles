@@ -106,8 +106,9 @@ public static class Pursuer
     {
         notActiveList.Clear();
         foreach (var cl in clientList)
-            foreach (var pc in cl.Value)
+            for (int i = 0; i < cl.Value.Count; i++)
             {
+                byte pc = cl.Value[i];
                 var target = Utils.GetPlayerById(pc);
                 if (target == null || !target.IsAlive()) continue;
                 var role = target.GetCustomRole();

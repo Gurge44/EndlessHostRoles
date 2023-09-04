@@ -90,8 +90,9 @@ namespace TOHE.Roles.Impostor
 
         public static void OnDevourerDied(byte Devourer)
         {
-            foreach (byte player in PlayerSkinsCosumed[Devourer])
+            for (int i = 0; i < PlayerSkinsCosumed[Devourer].Count; i++)
             {
+                byte player = PlayerSkinsCosumed[Devourer][i];
                 Camouflage.PlayerSkins[player] = OriginalPlayerSkins[player];
 
                 if (!Camouflage.IsCamouflage)

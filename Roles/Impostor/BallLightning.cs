@@ -105,8 +105,9 @@ public static class BallLightning
     {
         if (!IsEnable || !GameStates.IsInTask) return;
         List<byte> deList = new();
-        foreach (var ghost in GhostPlayer)
+        for (int i = 0; i < GhostPlayer.Count; i++)
         {
+            byte ghost = GhostPlayer[i];
             var gs = Utils.GetPlayerById(ghost);
             if (gs == null || !gs.IsAlive() || gs.Data.Disconnected)
             {
@@ -132,7 +133,12 @@ public static class BallLightning
         if (deList.Any())
         {
             GhostPlayer.RemoveAll(deList.Contains);
-            foreach (var gs in deList) SendRPC(gs);
+            for (int i = 0; i < deList.Count; i++)
+            {
+                byte gs = deList[i];
+                SendRPC(gs);
+            }
+
             Utils.NotifyRoles();
         }
     }
@@ -140,8 +146,9 @@ public static class BallLightning
     {
         if (!(IsEnable || CustomRoles.BallLightning.IsEnable())) return;
 
-        foreach (var ghost in GhostPlayer)
+        for (int i = 0; i < GhostPlayer.Count; i++)
         {
+            byte ghost = GhostPlayer[i];
             var gs = Utils.GetPlayerById(ghost);
             if (gs == null) continue;
             CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Quantization, gs.PlayerId);

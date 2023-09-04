@@ -57,7 +57,11 @@ public static class Councillor
     public static void OnReportDeadBody()
     {
         MurderLimit.Clear();
-        foreach (var pc in playerIdList) MurderLimit.Add(pc, MurderLimitPerMeeting.GetInt());
+        for (int i = 0; i < playerIdList.Count; i++)
+        {
+            byte pc = playerIdList[i];
+            MurderLimit.Add(pc, MurderLimitPerMeeting.GetInt());
+        }
     }
     public static bool MurderMsg(PlayerControl pc, string msg, bool isUI = false)
     {
@@ -254,8 +258,9 @@ public static class Councillor
     }
     public static void CreateCouncillorButton(MeetingHud __instance)
     {
-        foreach (var pva in __instance.playerStates)
+        for (int i = 0; i < __instance.playerStates.Count; i++)
         {
+            PlayerVoteArea pva = __instance.playerStates[i];
             var pc = Utils.GetPlayerById(pva.TargetPlayerId);
             if (pc == null || !pc.IsAlive()) continue;
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;

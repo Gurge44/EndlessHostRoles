@@ -115,8 +115,9 @@ public static class FireWorks
                 bool suicide = false;
                 foreach (var target in Main.AllAlivePlayerControls)
                 {
-                    foreach (var pos in fireWorksPosition[pc.PlayerId])
+                    for (int i = 0; i < fireWorksPosition[pc.PlayerId].Count; i++)
                     {
+                        Vector3 pos = fireWorksPosition[pc.PlayerId][i];
                         var dis = Vector2.Distance(pos, target.transform.position);
                         if (dis > fireWorksRadius) continue;
 
@@ -155,7 +156,7 @@ public static class FireWorks
 
     public static string GetStateText(PlayerControl pc, bool isLocal = true)
     {
-        string retText = "";
+        string retText = string.Empty;
         if (pc == null || pc.Data.IsDead) return retText;
 
         if (state[pc.PlayerId] == FireWorksState.WaitTime && Main.AliveImpostorCount <= 1)

@@ -127,8 +127,9 @@ public static class EvilTracker
             SetTarget();
             Utils.MarkEveryoneDirtySettings();
         }
-        foreach (var playerId in playerIdList)
+        for (int i = 0; i < playerIdList.Count; i++)
         {
+            byte playerId = playerIdList[i];
             var pc = Utils.GetPlayerById(playerId);
             var target = Utils.GetPlayerById(GetTargetId(playerId));
             if (!pc.IsAlive() || !target.IsAlive())
@@ -145,8 +146,11 @@ public static class EvilTracker
     public static void SetTarget(byte trackerId = byte.MaxValue, byte targetId = byte.MaxValue)
     {
         if (trackerId == byte.MaxValue) // ターゲット再設定可能に
-            foreach (var playerId in playerIdList)
+            for (int i = 0; i < playerIdList.Count; i++)
+            {
+                byte playerId = playerIdList[i];
                 CanSetTarget[playerId] = true;
+            }
         else if (targetId == byte.MaxValue) // ターゲット削除
             Target[trackerId] = byte.MaxValue;
         else
@@ -171,14 +175,14 @@ public static class EvilTracker
     }
 
     // 表示系の関数
-    public static string GetMarker(byte playerId) => CanTarget(playerId) ? Utils.ColorString(Palette.ImpostorRed.ShadeColor(0.5f), "◁") : "";
-    public static string GetTargetMark(PlayerControl seer, PlayerControl target) => GetTargetId(seer.PlayerId) == target.PlayerId ? Utils.ColorString(Palette.ImpostorRed, "◀") : "";
+    public static string GetMarker(byte playerId) => CanTarget(playerId) ? Utils.ColorString(Palette.ImpostorRed.ShadeColor(0.5f), "◁") : string.Empty;
+    public static string GetTargetMark(PlayerControl seer, PlayerControl target) => GetTargetId(seer.PlayerId) == target.PlayerId ? Utils.ColorString(Palette.ImpostorRed, "◀") : string.Empty;
     public static string GetTargetArrow(PlayerControl seer, PlayerControl target)
     {
-        if (!GameStates.IsInTask || !target.Is(CustomRoles.EvilTracker)) return "";
+        if (!GameStates.IsInTask || !target.Is(CustomRoles.EvilTracker)) return string.Empty;
 
         var trackerId = target.PlayerId;
-        if (seer.PlayerId != trackerId) return "";
+        if (seer.PlayerId != trackerId) return string.Empty;
 
         ImpostorsId[trackerId].RemoveWhere(id => Main.PlayerStates[id].IsDead);
 

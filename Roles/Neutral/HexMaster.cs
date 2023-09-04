@@ -126,9 +126,10 @@ public static class HexMaster
     }
     public static bool HaveHexedPlayer()
     {
-        foreach (var hexmaster in playerIdList)
+        for (int i = 0; i < playerIdList.Count; i++)
         {
-            if (HexedPlayer[hexmaster].Count != 0)
+            byte hexmaster = playerIdList[i];
+            if (HexedPlayer[hexmaster].Any())
             {
                 return true;
             }
@@ -138,8 +139,9 @@ public static class HexMaster
     }
     public static bool IsHexed(byte target)
     {
-        foreach (var hexmaster in playerIdList)
+        for (int i = 0; i < playerIdList.Count; i++)
         {
+            byte hexmaster = playerIdList[i];
             if (HexedPlayer[hexmaster].Contains(target))
             {
                 return true;
@@ -159,8 +161,9 @@ public static class HexMaster
     }
     public static void RemoveHexedPlayer()
     {
-        foreach (var hexmaster in playerIdList)
+        for (int i = 0; i < playerIdList.Count; i++)
         {
+            byte hexmaster = playerIdList[i];
             HexedPlayer[hexmaster].Clear();
             SendRPC(true, hexmaster);
         }
@@ -189,8 +192,9 @@ public static class HexMaster
     public static void OnCheckForEndVoting(PlayerState.DeathReason deathReason, params byte[] exileIds)
     {
         if (!IsEnable || deathReason != PlayerState.DeathReason.Vote) return;
-        foreach (var id in exileIds)
+        for (int i = 0; i < exileIds.Length; i++)
         {
+            byte id = exileIds[i];
             if (HexedPlayer.ContainsKey(id))
                 HexedPlayer[id].Clear();
         }
@@ -231,17 +235,17 @@ public static class HexMaster
                 return Utils.ColorString(RoleColorSpell, "†");
             }
         }
-        return "";
+        return string.Empty;
 
     }
     public static string GetHexModeText(PlayerControl hexmaster, bool hud, bool isMeeting = false)
     {
-        if (hexmaster == null || isMeeting) return "";
+        if (hexmaster == null || isMeeting) return string.Empty;
 
         var str = new StringBuilder();
         if (hud)
         {
-            str.Append(GetString("WitchCurrentMode"));
+            str.Append($"<color=#00ffa5>{GetString("WitchCurrentMode")}:</color> <b>");
         }
         else
         {

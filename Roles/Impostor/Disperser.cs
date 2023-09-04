@@ -54,7 +54,7 @@ public static class Disperser
             return;
         }
 
-        var rd = new System.Random();
+        var rd = IRandom.Instance;
         var vents = Object.FindObjectsOfType<Vent>();
         DisperserLimit[shapeshifter.PlayerId] -= 1;
 

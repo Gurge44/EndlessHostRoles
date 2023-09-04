@@ -138,8 +138,9 @@ internal static class Eraser
     }
     public static void AfterMeetingTasks()
     {
-        foreach (var pc in PlayerToErase)
+        for (int i = 0; i < PlayerToErase.Count; i++)
         {
+            byte pc = PlayerToErase[i];
             var player = Utils.GetPlayerById(pc);
             if (player == null) continue;
             player.RpcSetCustomRole(CustomRolesHelper.GetErasedRole(player.GetCustomRole()));

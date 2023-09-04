@@ -41,11 +41,15 @@ public static class TimeThief
     public static int TotalDecreasedMeetingTime()
     {
         int sec = 0;
-        foreach (var playerId in playerIdList)
+        for (int i = 0; i < playerIdList.Count; i++)
+        {
+            byte playerId = playerIdList[i];
             sec -= StolenTime(playerId);
+        }
+
         Logger.Info($"{sec}second", "TimeThief.TotalDecreasedMeetingTime");
         return sec;
     }
     public static string GetProgressText(byte playerId)
-        => StolenTime(playerId) > 0 ? Utils.ColorString(Palette.ImpostorRed.ShadeColor(0.5f), $"{-StolenTime(playerId)}s") : "";
+        => StolenTime(playerId) > 0 ? Utils.ColorString(Palette.ImpostorRed.ShadeColor(0.5f), $"{-StolenTime(playerId)}s") : string.Empty;
 }

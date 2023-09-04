@@ -159,12 +159,12 @@ public static class Romantic
     {
         if (!seer.Is(CustomRoles.Romantic))
         {
-            if (!BetTargetKnowRomantic.GetBool()) return "";
+            if (!BetTargetKnowRomantic.GetBool()) return string.Empty;
             return (BetPlayer.TryGetValue(target.PlayerId, out var x) && seer.PlayerId == x) ?
-                Utils.ColorString(Utils.GetRoleColor(CustomRoles.Romantic), "♥") : "";
+                Utils.ColorString(Utils.GetRoleColor(CustomRoles.Romantic), "♥") : string.Empty;
         }
         var GetValue = BetPlayer.TryGetValue(seer.PlayerId, out var targetId);
-        return GetValue && targetId == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Romantic), "♥") : "";
+        return GetValue && targetId == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Romantic), "♥") : string.Empty;
     }
     public static string GetProgressText(byte playerId)
     {

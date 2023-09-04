@@ -92,7 +92,7 @@ public static class Werewolf
 
         var now = Utils.GetTimeStamp();
 
-        if (lastTime.TryGetValue(player.PlayerId, out var WWtime)/* && !player.IsModClient()*/)
+        if (lastTime.TryGetValue(player.PlayerId, out var WWtime) && !player.IsModClient())
         {
             var cooldown = WWtime + (long)RampageCD.GetFloat() - now;
             if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f);
@@ -155,7 +155,7 @@ public static class Werewolf
     }
     public static string GetHudText(PlayerControl pc)
     {
-        if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive() || !pc.Is(CustomRoles.Werewolf)) return "";
+        if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive() || !pc.Is(CustomRoles.Werewolf)) return string.Empty;
         var str = new StringBuilder();
         if (IsRampaging(pc.PlayerId))
         {

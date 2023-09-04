@@ -86,8 +86,9 @@ public static class Sniper
         writer.Write(playerId);
         var snList = shotNotify[playerId];
         writer.Write(snList.Count);
-        foreach (var sn in snList)
+        for (int i = 0; i < snList.Count; i++)
         {
+            byte sn = snList[i];
             writer.Write(sn);
         }
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -230,7 +231,7 @@ public static class Sniper
 
         var targets = GetSnipeTargets(sniper);
 
-        if (targets.Count != 0)
+        if (targets.Any())
         {
             //一番正確な対象がターゲット
             var snipedTarget = targets.OrderBy(c => c.Value).First().Key;
@@ -300,7 +301,7 @@ public static class Sniper
     }
     public static string GetBulletCount(byte playerId)
     {
-        return IsThisRole(playerId) ? Utils.ColorString(Color.yellow, $"({bulletCount[playerId]})") : "";
+        return IsThisRole(playerId) ? Utils.ColorString(Color.yellow, $"({bulletCount[playerId]})") : string.Empty;
     }
     public static bool TryGetSniper(byte targetId, ref PlayerControl sniper)
     {
@@ -330,8 +331,9 @@ public static class Sniper
         else
         {
             //射撃音が聞こえるプレイヤー
-            foreach (var sniperId in PlayerIdList)
+            for (int i = 0; i < PlayerIdList.Count; i++)
             {
+                byte sniperId = PlayerIdList[i];
                 var snList = shotNotify[sniperId];
                 if (snList.Any() && snList.Contains(seerId))
                 {
@@ -339,7 +341,7 @@ public static class Sniper
                 }
             }
         }
-        return "";
+        return string.Empty;
     }
     public static void OverrideShapeText(byte id)
     {

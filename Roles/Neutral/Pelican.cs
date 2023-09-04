@@ -47,8 +47,11 @@ public static class Pelican
         if (playerId != byte.MaxValue)
         {
             writer.Write(eatenList[playerId].Count);
-            foreach (var el in eatenList[playerId])
+            for (int i = 0; i < eatenList[playerId].Count; i++)
+            {
+                byte el = eatenList[playerId][i];
                 writer.Write(el);
+            }
         }
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
@@ -128,8 +131,9 @@ public static class Pelican
     {
         foreach (var pc in eatenList)
         {
-            foreach (var tar in pc.Value)
+            for (int i = 0; i < pc.Value.Count; i++)
             {
+                byte tar = pc.Value[i];
                 var target = Utils.GetPlayerById(tar);
                 var killer = Utils.GetPlayerById(pc.Key);
                 if (killer == null || target == null) continue;
@@ -150,8 +154,9 @@ public static class Pelican
     public static void OnPelicanDied(byte pc)
     {
         if (!eatenList.ContainsKey(pc)) return;
-        foreach (var tar in eatenList[pc])
+        for (int i = 0; i < eatenList[pc].Count; i++)
         {
+            byte tar = eatenList[pc][i];
             var target = Utils.GetPlayerById(tar);
             var palyer = Utils.GetPlayerById(pc);
             if (palyer == null || target == null) continue;
@@ -184,8 +189,9 @@ public static class Pelican
 
         foreach (var pc in eatenList)
         {
-            foreach (var tar in pc.Value)
+            for (int i = 0; i < pc.Value.Count; i++)
             {
+                byte tar = pc.Value[i];
                 var target = Utils.GetPlayerById(tar);
                 if (target == null) continue;
                 var pos = GetBlackRoomPS();

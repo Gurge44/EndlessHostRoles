@@ -144,12 +144,12 @@ public static class Lawyer
     {
         if (!seer.Is(CustomRoles.Lawyer))
         {
-            if (!TargetKnowsLawyer.GetBool()) return "";
+            if (!TargetKnowsLawyer.GetBool()) return string.Empty;
             return (Target.TryGetValue(target.PlayerId, out var x) && seer.PlayerId == x) ?
-                Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lawyer), "♦") : "";
+                Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lawyer), "♦") : string.Empty;
         }
         var GetValue = Target.TryGetValue(seer.PlayerId, out var targetId);
-        return GetValue && targetId == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lawyer), "♦") : "";
+        return GetValue && targetId == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lawyer), "♦") : string.Empty;
     }
 
     public static void ChangeRole(PlayerControl lawyer)
@@ -163,10 +163,10 @@ public static class Lawyer
     }
     public static string TargetMark(PlayerControl seer, PlayerControl target)
     {
-        if (!seer.Is(CustomRoles.Lawyer)) return ""; //エクスキューショナー以外処理しない
+        if (!seer.Is(CustomRoles.Lawyer)) return string.Empty; //エクスキューショナー以外処理しない
 
         var GetValue = Target.TryGetValue(seer.PlayerId, out var targetId);
-        return GetValue && targetId == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lawyer), "♦") : "";
+        return GetValue && targetId == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lawyer), "♦") : string.Empty;
     }
     public static bool CheckExileTarget(GameData.PlayerInfo exiled, bool DecidedWinner, bool Check = false)
     {

@@ -78,7 +78,7 @@ public static class Wildling
     }
     public static string GetHudText(PlayerControl pc)
     {
-        if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return "";
+        if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
         var str = new StringBuilder();
         if (InProtect(pc.PlayerId))
         {
