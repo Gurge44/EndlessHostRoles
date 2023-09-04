@@ -40,8 +40,11 @@ public class HashAuth
 
         // 4.hashBytesを文字列化
         var sb = new StringBuilder();
-        foreach (var b in hashBytes)
+        for (int i = 0; i < hashBytes.Length; i++)
+        {
+            byte b = hashBytes[i];
             sb.Append(b.ToString("x2")); //1byteずつ2桁の16進法表記に変換する
+        }
 
         return sb.ToString();
     }
@@ -57,7 +60,7 @@ public class HashAuth
         // 2.ハッシュ値のログ出力
         //  salt有: ハッシュ値算出結果:<value> => <hashValue> (salt: <saltValue>)
         //  salt無: ハッシュ値算出結果:<value> => <hashValue>
-        Logger.Info($"ハッシュ値算出結果: {value} => {hashValue} {(salt == null ? "" : $"(salt: {salt})")}", "HashAuth");
+        Logger.Info($"ハッシュ値算出結果: {value} => {hashValue} {(salt == null ? string.Empty : $"(salt: {salt})")}", "HashAuth");
         Logger.Warn("以上の値をソースコード上にペーストしてください。", "HashAuth");
 
         // 3.HashAuthインスタンスの生成・リターン

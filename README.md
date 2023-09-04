@@ -46,8 +46,10 @@
 - Improved strings and their appearance
 - More customizable settings; More reasonable default settings
 - Starting Kill Cooldown setting
-- Additional ejection confirmation message when crewmates win
+- Better confirm ejections text
+- Brand new HUD text
 - Better role summary
+- Smaller mod version text and smaller credentials text (imo it was annoying that it covered a quarter of the screen)
 
 ### Role specific Improvements
 #### Crewmates
@@ -85,14 +87,18 @@
 ### Now, some new roles as well
 - Lighter (Crewmate)
 - Demolitionist (Crewmate)
+- Ventguard (Crewmate)
 - Express (Crewmate)
 - Witness (Crewmate)
 - Alchemist (Crewmate)
 - Task Manager (Crewmate)
 - Speedrunner (Crewmate)
+- Ignitor (Crewmate)
 - Romantic (Neutral)
 - Werewolf (Neutral)
 - Imitator (Neutral)
+- Head Hunter (Neutral)
+- Vengeance (Neutral)
 - Undertaker (Impostor)
 - Deadly Quota (Impostor-only Add-on)
 

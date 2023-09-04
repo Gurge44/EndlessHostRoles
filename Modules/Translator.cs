@@ -58,8 +58,10 @@ public static class Translator
 
         // 翻訳テンプレートの作成
         CreateTemplateFile();
-        foreach (var lang in Enum.GetValues(typeof(SupportedLangs)))
+        System.Collections.IList list = Enum.GetValues(typeof(SupportedLangs));
+        for (int i = 0; i < list.Count; i++)
         {
+            object lang = list[i];
             if (File.Exists(@$"./{LANGUAGE_FOLDER_NAME}/{lang}.dat"))
                 LoadCustomTranslation($"{lang}.dat", (SupportedLangs)lang);
         }

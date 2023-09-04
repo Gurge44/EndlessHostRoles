@@ -63,8 +63,9 @@ static class LocateArrow
     {
         var arrowInfo = new ArrowInfo(seer, locate);
         var removeList = new List<ArrowInfo>(LocateArrows.Keys.Where(k => k.Equals(arrowInfo)));
-        foreach (var a in removeList)
+        for (int i = 0; i < removeList.Count; i++)
         {
+            ArrowInfo a = removeList[i];
             LocateArrows.Remove(a);
         }
     }
@@ -75,8 +76,9 @@ static class LocateArrow
     public static void RemoveAllTarget(byte seer)
     {
         var removeList = new List<ArrowInfo>(LocateArrows.Keys.Where(k => k.From == seer));
-        foreach (var arrowInfo in removeList)
+        for (int i = 0; i < removeList.Count; i++)
         {
+            ArrowInfo arrowInfo = removeList[i];
             LocateArrows.Remove(arrowInfo);
         }
     }
@@ -87,7 +89,7 @@ static class LocateArrow
     /// <returns></returns>
     public static string GetArrows(PlayerControl seer)
     {
-        var arrows = "";
+        var arrows = string.Empty;
         foreach (var arrowInfo in LocateArrows.Keys.Where(ai => ai.From == seer.PlayerId))
         {
             arrows += LocateArrows[arrowInfo];
@@ -107,11 +109,12 @@ static class LocateArrow
         var seerIsDead = !seer.IsAlive();
 
         var arrowList = new List<ArrowInfo>(LocateArrows.Keys.Where(a => a.From == seer.PlayerId));
-        if (arrowList.Count == 0) return;
+        if (!arrowList.Any()) return;
 
         var update = false;
-        foreach (var arrowInfo in arrowList)
+        for (int i = 0; i < arrowList.Count; i++)
         {
+            ArrowInfo arrowInfo = arrowList[i];
             var loc = arrowInfo.To;
             if (seerIsDead)
             {

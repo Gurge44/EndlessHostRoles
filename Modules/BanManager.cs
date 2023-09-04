@@ -49,7 +49,7 @@ public static class BanManager
             string line;
             while ((line = sr.ReadLine()) != null)
             {
-                if (line == "" || line.StartsWith("#")) continue;
+                if (line == string.Empty || line.StartsWith("#")) continue;
                 //          if (line.Contains("actorour#0029")) continue;
                 //if (line.Contains("gnuedaphic#7196")) continue;
                 EACList.Add(line);
@@ -71,7 +71,7 @@ public static class BanManager
     public static void AddBanPlayer(InnerNet.ClientData player)
     {
         if (!AmongUsClient.Instance.AmHost || player == null) return;
-        if (!CheckBanList(player?.FriendCode) && player.FriendCode != "")
+        if (!CheckBanList(player?.FriendCode) && player.FriendCode != string.Empty)
         {
             File.AppendAllText(BAN_LIST_PATH, $"{player.FriendCode},{player.PlayerName}\n");
             Logger.SendInGame(string.Format(GetString("Message.AddedPlayerToBanList"), player.PlayerName));
@@ -88,7 +88,7 @@ public static class BanManager
             string line;
             while ((line = sr.ReadLine()) != null)
             {
-                if (line == "") continue;
+                if (line == string.Empty) continue;
                 //     if (line.Contains("actorour#0029")) continue;
                 //if (line.Contains("gnuedaphic#7196")) continue;
                 if (line.Contains("Amogus"))
@@ -140,7 +140,7 @@ public static class BanManager
     }
     public static bool CheckBanList(string code)
     {
-        if (code == "") return false;
+        if (code == string.Empty) return false;
         try
         {
             Directory.CreateDirectory("TOHE_DATA");
@@ -149,7 +149,7 @@ public static class BanManager
             string line;
             while ((line = sr.ReadLine()) != null)
             {
-                if (line == "") continue;
+                if (line == string.Empty) continue;
                 //     if (line.Contains("actorour#0029")) continue;
                 //if (line.Contains("gnuedaphic#7196")) continue;
                 if (line.Contains(code)) return true;
@@ -163,7 +163,7 @@ public static class BanManager
     }
     public static bool CheckEACList(string code)
     {
-        if (code == "") return false;
+        if (code == string.Empty) return false;
         return EACList.Any(x => x.Contains(code));
     }
 }

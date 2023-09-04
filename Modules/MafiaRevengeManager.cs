@@ -99,7 +99,7 @@ public static class MafiaRevengeManager
                 //死者检查
                 Utils.AfterPlayerDeathTasks(target, true);
 
-                Utils.NotifyRoles(isForMeeting: false, NoCache: true);
+                Utils.NotifyRoles(isForMeeting: GameStates.IsMeeting, NoCache: true);
             }
             else
             {
@@ -145,8 +145,9 @@ public static class MafiaRevengeManager
     }
     public static void CreateJudgeButton(MeetingHud __instance)
     {
-        foreach (var pva in __instance.playerStates)
+        for (int i = 0; i < __instance.playerStates.Count; i++)
         {
+            PlayerVoteArea pva = __instance.playerStates[i];
             var pc = Utils.GetPlayerById(pva.TargetPlayerId);
             if (pc == null || !pc.IsAlive()) continue;
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;

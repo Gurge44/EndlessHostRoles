@@ -73,6 +73,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Luckey => CustomRoles.Crewmate,
                 CustomRoles.CyberStar => CustomRoles.Crewmate,
                 CustomRoles.Demolitionist => CustomRoles.Crewmate,
+                CustomRoles.Ventguard => CustomRoles.Crewmate,
                 CustomRoles.Express => CustomRoles.Crewmate,
                 CustomRoles.NiceEraser => CustomRoles.Crewmate,
                 CustomRoles.TaskManager => CustomRoles.Crewmate,
@@ -176,6 +177,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Lookout => CustomRoles.CrewmateTOHE,
                 CustomRoles.CyberStar => CustomRoles.CrewmateTOHE,
                 CustomRoles.Demolitionist => CustomRoles.CrewmateTOHE,
+                CustomRoles.Ventguard => CustomRoles.CrewmateTOHE,
                 CustomRoles.Express => CustomRoles.CrewmateTOHE,
                 CustomRoles.NiceEraser => CustomRoles.CrewmateTOHE,
                 CustomRoles.TaskManager => CustomRoles.CrewmateTOHE,
@@ -247,6 +249,8 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.NSerialKiller => RoleTypes.Impostor,
+            CustomRoles.Vengeance => RoleTypes.Impostor,
+            CustomRoles.HeadHunter => RoleTypes.Impostor,
             CustomRoles.Imitator => RoleTypes.Impostor,
             CustomRoles.Werewolf => RoleTypes.Impostor,
             CustomRoles.Maverick => RoleTypes.Impostor,
@@ -416,6 +420,8 @@ internal static class CustomRolesHelper
             CustomRoles.Refugee or
             CustomRoles.Parasite or
             CustomRoles.NSerialKiller or
+            CustomRoles.HeadHunter or
+            CustomRoles.Vengeance or
             CustomRoles.Imitator or
             CustomRoles.Werewolf or
             CustomRoles.Pickpocket or
@@ -444,6 +450,8 @@ internal static class CustomRolesHelper
             CustomRoles.Refugee or
             CustomRoles.Parasite or
             CustomRoles.NSerialKiller or
+            CustomRoles.Vengeance or
+            CustomRoles.HeadHunter or
             CustomRoles.Imitator or
             CustomRoles.Werewolf or
             CustomRoles.Ritualist or
@@ -473,6 +481,8 @@ internal static class CustomRolesHelper
             CustomRoles.Poisoner or
             CustomRoles.Parasite or
             CustomRoles.NSerialKiller or
+            CustomRoles.Vengeance or
+            CustomRoles.HeadHunter or
             CustomRoles.Imitator or
             CustomRoles.Werewolf or
             CustomRoles.Ritualist or
@@ -558,6 +568,8 @@ internal static class CustomRolesHelper
             CustomRoles.Traitor or
             CustomRoles.Poisoner or
             CustomRoles.NSerialKiller or
+            CustomRoles.Vengeance or
+            CustomRoles.HeadHunter or
             CustomRoles.Imitator or
             CustomRoles.Werewolf or
             CustomRoles.Ritualist or
@@ -692,6 +704,8 @@ internal static class CustomRolesHelper
             //    CustomRoles.Sidekick or
             CustomRoles.Poisoner or
             CustomRoles.NSerialKiller or
+            CustomRoles.Vengeance or
+            CustomRoles.HeadHunter or
             CustomRoles.Imitator or
             CustomRoles.Werewolf or
             CustomRoles.Ritualist or
@@ -729,6 +743,8 @@ internal static class CustomRolesHelper
         CustomRoles.Virus or
         CustomRoles.Medusa or
         CustomRoles.NSerialKiller or
+        CustomRoles.Vengeance or
+        CustomRoles.HeadHunter or
         CustomRoles.Imitator or
         CustomRoles.Werewolf or
         CustomRoles.Traitor or
@@ -803,6 +819,8 @@ internal static class CustomRolesHelper
         //    CustomRoles.Sidekick or
             CustomRoles.Poisoner or
             CustomRoles.NSerialKiller or
+            CustomRoles.Vengeance or
+            CustomRoles.HeadHunter or
             CustomRoles.Imitator or
             CustomRoles.Werewolf or
             CustomRoles.Pelican or
@@ -904,6 +922,8 @@ internal static class CustomRolesHelper
         CustomRoles.Pestilence or
         CustomRoles.Poisoner or
         CustomRoles.NSerialKiller or
+        CustomRoles.Vengeance or
+        CustomRoles.HeadHunter or
         CustomRoles.Imitator or
         CustomRoles.Werewolf or
         CustomRoles.Ritualist or
@@ -1230,6 +1250,8 @@ internal static class CustomRolesHelper
            CustomRoles.PlagueBearer => CountTypes.PlagueBearer,
            CustomRoles.Parasite => CountTypes.Impostor,
            CustomRoles.NSerialKiller => CountTypes.NSerialKiller,
+           CustomRoles.Vengeance => CountTypes.Vengeance,
+           CustomRoles.HeadHunter => CountTypes.HeadHunter,
            CustomRoles.Imitator => CountTypes.Imitator,
            CustomRoles.Werewolf => CountTypes.Werewolf,
            CustomRoles.Juggernaut => CountTypes.Juggernaut,
@@ -1277,6 +1299,8 @@ public enum CountTypes
     NWitch,
     Wraith,
     NSerialKiller,
+    Vengeance,
+    HeadHunter,
     Imitator,
     Werewolf,
     Juggernaut,

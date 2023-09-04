@@ -667,7 +667,7 @@ public static class GuessManager
                 //死者检查
                 Utils.AfterPlayerDeathTasks(dp, true);
 
-                Utils.NotifyRoles(isForMeeting: true, NoCache: true);
+                Utils.NotifyRoles(isForMeeting: GameStates.IsMeeting, NoCache: true);
 
                 new LateTask(() => { Utils.SendMessage(string.Format(GetString("GuessKill"), Name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("GuessKillTitle"))); }, 0.6f, "Guess Msg");
 
@@ -717,8 +717,9 @@ public static class GuessManager
         voteArea.Overlay.color = Color.white;
         voteArea.XMark.gameObject.SetActive(true);
         voteArea.XMark.transform.localScale = Vector3.one;
-        foreach (var playerVoteArea in meetingHud.playerStates)
+        for (int i = 0; i < meetingHud.playerStates.Count; i++)
         {
+            PlayerVoteArea playerVoteArea = meetingHud.playerStates[i];
             if (playerVoteArea.VotedFor != pc.PlayerId) continue;
             playerVoteArea.UnsetVote();
             var voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
@@ -735,7 +736,7 @@ public static class GuessManager
         var meetingHud = MeetingHud.Instance;
         var hudManager = DestroyableSingleton<HudManager>.Instance;
         SoundManager.Instance.PlaySound(pc.KillSfx, false, 0.8f);
-        hudManager.KillOverlay.ShowKillAnimation(pc.Data, pc.Data);
+        if (!Options.DisableKillAnimationOnGuess.GetBool()) hudManager.KillOverlay.ShowKillAnimation(pc.Data, pc.Data);
         if (amOwner)
         {
             hudManager.ShadowQuad.gameObject.SetActive(false);
@@ -756,8 +757,9 @@ public static class GuessManager
         voteArea.Overlay.color = Color.white;
         voteArea.XMark.gameObject.SetActive(true);
         voteArea.XMark.transform.localScale = Vector3.one;
-        foreach (var playerVoteArea in meetingHud.playerStates)
+        for (int i = 0; i < meetingHud.playerStates.Count; i++)
         {
+            PlayerVoteArea playerVoteArea = meetingHud.playerStates[i];
             if (playerVoteArea.VotedFor != pc.PlayerId) continue;
             playerVoteArea.UnsetVote();
             var voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
@@ -820,21 +822,21 @@ public static class GuessManager
         string[] command = new string[] { "bet", "bt", "guess", "gs", "shoot", "st", "赌", "猜", "审判", "tl", "判", "审" };
         for (int i = 0; i < 20; i++)
         {
-            msg = "/";
-            if (rd.Next(1, 100) < 20)
-            {
-                msg += "id";
-            }
-            else
-            {
-                msg += command[rd.Next(0, command.Length - 1)];
-                msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
-                msg += rd.Next(0, 15).ToString();
-                msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
-                CustomRoles role = roles[rd.Next(0, roles.Count)];
-                msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
-                msg += Utils.GetRoleName(role);
-            }
+            //msg = "/";
+            //if (rd.Next(1, 100) < 20)
+            //{
+            //    msg += "id";
+            //}
+            //else
+            //{
+            //    msg += command[rd.Next(0, command.Length - 1)];
+            //    msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
+            //    msg += rd.Next(0, 15).ToString();
+            //    msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
+            //    CustomRoles role = roles[rd.Next(0, roles.Count)];
+            //    msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
+            //    msg += Utils.GetRoleName(role);
+            //}
             msg = "<size=0>.</size>";
             var player = Main.AllAlivePlayerControls.ToArray()[rd.Next(0, Main.AllAlivePlayerControls.Count())];
             DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
@@ -887,15 +889,13 @@ public static class GuessManager
                 if (PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.Is(CustomRoles.Guesser))
                     CreateGuesserButton(__instance);
             }
-            //if (PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.Is(CustomRoles.NiceSwapper))
-            //    NiceSwapper.CreateSwapperButton(__instance);
         }
     }
     public static void CreateGuesserButton(MeetingHud __instance)
     {
-
-        foreach (var pva in __instance.playerStates)
+        for (int i = 0; i < __instance.playerStates.Count; i++)
         {
+            PlayerVoteArea pva = __instance.playerStates[i];
             var pc = Utils.GetPlayerById(pva.TargetPlayerId);
             if (pc == null || !pc.IsAlive()) continue;
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
@@ -925,8 +925,9 @@ public static class GuessManager
         foreach (var RoleButton in RoleButtons)
         {
             int index = 0;
-            foreach (var RoleBtn in RoleButton.Value)
+            for (int i = 0; i < RoleButton.Value.Count; i++)
             {
+                Transform RoleBtn = RoleButton.Value[i];
                 if (RoleBtn == null) continue;
                 index++;
                 if (index <= (Page - 1) * 40) { RoleBtn.gameObject.SetActive(false); continue; }
@@ -1115,8 +1116,10 @@ public static class GuessManager
                 CreatePage(true, __instance, container);
             }
             int ind = 0;
-            foreach (CustomRoles role in Enum.GetValues(typeof(CustomRoles)))
+            System.Collections.IList list = Enum.GetValues(typeof(CustomRoles));
+            for (int i1 = 0; i1 < list.Count; i1++)
             {
+                CustomRoles role = (CustomRoles)list[i1];
                 if (role is CustomRoles.GM
                     or CustomRoles.SpeedBooster
                     or CustomRoles.Engineer

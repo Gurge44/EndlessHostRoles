@@ -13,23 +13,31 @@ public class OptionBackupData
     {
         AllValues = new(32);
 
-        foreach (ByteOptionNames name in Enum.GetValues(typeof(ByteOptionNames)))
+        System.Collections.IList list = Enum.GetValues(typeof(ByteOptionNames));
+        for (int i = 0; i < list.Count; i++)
         {
+            ByteOptionNames name = (ByteOptionNames)list[i];
             if (option.TryGetByte(name, out var value))
                 AllValues.Add(new ByteOptionBackupValue(name, value));
         }
-        foreach (BoolOptionNames name in Enum.GetValues(typeof(BoolOptionNames)))
+        System.Collections.IList list1 = Enum.GetValues(typeof(BoolOptionNames));
+        for (int i = 0; i < list1.Count; i++)
         {
+            BoolOptionNames name = (BoolOptionNames)list1[i];
             if (option.TryGetBool(name, out var value))
                 AllValues.Add(new BoolOptionBackupValue(name, value));
         }
-        foreach (FloatOptionNames name in Enum.GetValues(typeof(FloatOptionNames)))
+        System.Collections.IList list2 = Enum.GetValues(typeof(FloatOptionNames));
+        for (int i = 0; i < list2.Count; i++)
         {
+            FloatOptionNames name = (FloatOptionNames)list2[i];
             if (option.TryGetFloat(name, out var value))
                 AllValues.Add(new FloatOptionBackupValue(name, value));
         }
-        foreach (Int32OptionNames name in Enum.GetValues(typeof(Int32OptionNames)))
+        System.Collections.IList list3 = Enum.GetValues(typeof(Int32OptionNames));
+        for (int i = 0; i < list3.Count; i++)
         {
+            Int32OptionNames name = (Int32OptionNames)list3[i];
             if (option.TryGetInt(name, out var value))
                 AllValues.Add(new IntOptionBackupValue(name, value));
         }
@@ -38,16 +46,19 @@ public class OptionBackupData
         // TryGetUIntが実装されていないため、別で取得する
         AllValues.Add(new UIntOptionBackupValue(UInt32OptionNames.Keywords, (uint)option.Keywords));
 
-        foreach (RoleTypes role in new RoleTypes[] { RoleTypes.Scientist, RoleTypes.Engineer, RoleTypes.GuardianAngel, RoleTypes.Shapeshifter })
+        RoleTypes[] array = new RoleTypes[] { RoleTypes.Scientist, RoleTypes.Engineer, RoleTypes.GuardianAngel, RoleTypes.Shapeshifter };
+        for (int i = 0; i < array.Length; i++)
         {
+            RoleTypes role = array[i];
             AllValues.Add(new RoleRateBackupValue(role, option.RoleOptions.GetNumPerGame(role), option.RoleOptions.GetChancePerGame(role)));
         }
     }
 
     public IGameOptions Restore(IGameOptions option)
     {
-        foreach (var value in AllValues)
+        for (int i = 0; i < AllValues.Count; i++)
         {
+            OptionBackupValue value = AllValues[i];
             value.Restore(option);
         }
         return option;

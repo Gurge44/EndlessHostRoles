@@ -265,6 +265,10 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 AURoleOptions.EngineerInVentMaxTime = 1;
                 AURoleOptions.EngineerCooldown = Options.LighterSkillCooldown.GetFloat();
                 break;
+            case CustomRoles.Ventguard:
+                AURoleOptions.EngineerInVentMaxTime = 1;
+                AURoleOptions.EngineerCooldown = 15;
+                break;
             case CustomRoles.TimeMaster:
                 AURoleOptions.EngineerCooldown = Options.TimeMasterSkillCooldown.GetFloat();
                 AURoleOptions.EngineerInVentMaxTime = 1;
@@ -275,6 +279,12 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 break;
             case CustomRoles.NSerialKiller:
                 NSerialKiller.ApplyGameOptions(opt);
+                break;
+            case CustomRoles.Vengeance:
+                Vengeance.ApplyGameOptions(opt);
+                break;
+            case CustomRoles.HeadHunter:
+                HeadHunter.ApplyGameOptions(opt);
                 break;
             case CustomRoles.Imitator:
                 Imitator.ApplyGameOptions(opt);
@@ -484,8 +494,9 @@ public class PlayerGameOptionsSender : GameOptionsSender
 
         Spiritcaller.ReduceVision(opt, player);
 
-        foreach (var subRole in Main.PlayerStates[player.PlayerId].SubRoles)
+        for (int i = 0; i < Main.PlayerStates[player.PlayerId].SubRoles.Count; i++)
         {
+            CustomRoles subRole = Main.PlayerStates[player.PlayerId].SubRoles[i];
             switch (subRole)
             {
                 case CustomRoles.Watcher:

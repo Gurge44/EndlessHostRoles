@@ -1,6 +1,7 @@
 using Hazel;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
+using UnityEngine;
 
 namespace TOHE;
 
@@ -59,6 +60,8 @@ public static class NameColorManager
         if (seer.Is(CustomRoles.Jackal) && target.Is(CustomRoles.Jackal)) color = Main.roleColors[CustomRoles.Jackal];
         if (seer.Is(CustomRoles.Juggernaut) && target.Is(CustomRoles.Juggernaut)) color = Main.roleColors[CustomRoles.Juggernaut];
         if (seer.Is(CustomRoles.NSerialKiller) && target.Is(CustomRoles.NSerialKiller)) color = Main.roleColors[CustomRoles.NSerialKiller];
+        if (seer.Is(CustomRoles.Vengeance) && target.Is(CustomRoles.Vengeance)) color = Main.roleColors[CustomRoles.Vengeance];
+        if (seer.Is(CustomRoles.HeadHunter) && target.Is(CustomRoles.HeadHunter)) color = Main.roleColors[CustomRoles.HeadHunter];
         if (seer.Is(CustomRoles.Imitator) && target.Is(CustomRoles.Imitator)) color = Main.roleColors[CustomRoles.Imitator];
         if (seer.Is(CustomRoles.Werewolf) && target.Is(CustomRoles.Werewolf)) color = Main.roleColors[CustomRoles.Werewolf];
         //if (seer.Is(CustomRoles.NWitch) && target.Is(CustomRoles.NWitch)) color = Main.roleColors[CustomRoles.NWitch];
@@ -79,6 +82,9 @@ public static class NameColorManager
         if (seer.Is(CustomRoles.Ritualist) && target.Is(CustomRoles.Ritualist)) color = Main.roleColors[CustomRoles.Ritualist];
         if (seer.Is(CustomRoles.Glitch) && target.Is(CustomRoles.Glitch)) color = Main.roleColors[CustomRoles.Glitch];
         if (seer.Is(CustomRoles.Succubus) && target.Is(CustomRoles.Succubus)) color = Main.roleColors[CustomRoles.Succubus];
+
+        if (seer.Is(CustomRoles.HeadHunter) && HeadHunter.Targets.Contains(target.PlayerId)) color = Color.black.ToString();
+        if (seer.Is(CustomRoles.BountyHunter) && BountyHunter.GetTarget(seer) == target.PlayerId) color = Color.black.ToString();
 
         if (seer.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor)) color = Main.roleColors[CustomRoles.ImpostorTOHE];
         if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Refugee)) color = Main.roleColors[CustomRoles.Refugee];

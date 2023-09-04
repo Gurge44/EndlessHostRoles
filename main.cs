@@ -112,6 +112,8 @@ public class Main : BasePlugin
     public static List<byte> DemolitionistDead = new();
     public static Dictionary<byte, long> ExpressSpeedUp = new();
     public static float ExpressSpeedNormal;
+    public static List<Vent> BlockedVents = new();
+    public static float VentguardNumberOfAbilityUses = 0;
     public static List<byte> WorkaholicAlive = new();
     public static List<byte> SpeedrunnerAlive = new();
     public static List<byte> BaitAlive = new();
@@ -211,7 +213,7 @@ public class Main : BasePlugin
 
     //一些很新的东东
 
-    public static string OverrideWelcomeMsg = "";
+    public static string OverrideWelcomeMsg = string.Empty;
     public static int HostClientId;
 
     public static List<string> TName_Snacks_CN = new() { "冰激凌", "奶茶", "巧克力", "蛋糕", "甜甜圈", "可乐", "柠檬水", "冰糖葫芦", "果冻", "糖果", "牛奶", "抹茶", "烧仙草", "菠萝包", "布丁", "椰子冻", "曲奇", "红豆土司", "三彩团子", "艾草团子", "泡芙", "可丽饼", "桃酥", "麻薯", "鸡蛋仔", "马卡龙", "雪梅娘", "炒酸奶", "蛋挞", "松饼", "西米露", "奶冻", "奶酥", "可颂", "奶糖" };
@@ -227,7 +229,7 @@ public class Main : BasePlugin
         //Client Options
         HideName = Config.Bind("Client Options", "Hide Game Code Name", "TOHE");
         HideColor = Config.Bind("Client Options", "Hide Game Code Color", $"{ModColor}");
-        DebugKeyInput = Config.Bind("Authentication", "Debug Key", "");
+        DebugKeyInput = Config.Bind("Authentication", "Debug Key", string.Empty);
         AutoStart = Config.Bind("Client Options", "AutoStart", false);
         UnlockFPS = Config.Bind("Client Options", "UnlockFPS", false);
         AutoStart = Config.Bind("Client Options", "AutoStart", false);
@@ -279,13 +281,13 @@ public class Main : BasePlugin
         Preset4 = Config.Bind("Preset Name Options", "Preset4", "Preset_4");
         Preset5 = Config.Bind("Preset Name Options", "Preset5", "Preset_5");
         WebhookURL = Config.Bind("Other", "WebhookURL", "none");
-        BetaBuildURL = Config.Bind("Other", "BetaBuildURL", "");
+        BetaBuildURL = Config.Bind("Other", "BetaBuildURL", string.Empty);
         MessageWait = Config.Bind("Other", "MessageWait", 1);
         LastKillCooldown = Config.Bind("Other", "LastKillCooldown", (float)30);
         LastShapeshifterCooldown = Config.Bind("Other", "LastShapeshifterCooldown", (float)30);
 
         hasArgumentException = false;
-        ExceptionMessage = "";
+        ExceptionMessage = string.Empty;
         try
         {
             roleColors = new Dictionary<CustomRoles, string>()
@@ -312,11 +314,12 @@ public class Main : BasePlugin
                 {CustomRoles.Sheriff, "#ffb347"},
                 {CustomRoles.CopyCat, "#ffb2ab"},
                 {CustomRoles.SuperStar, "#f6f657"},
-                {CustomRoles.CyberStar, "#ee4a55" },
-                {CustomRoles.Demolitionist, "#5e2801" },
-                {CustomRoles.Express, "#00ffff" },
-                {CustomRoles.NiceEraser, "#00a5ff" },
-                {CustomRoles.TaskManager, "#00ffa5" },
+                {CustomRoles.CyberStar, "#ee4a55"},
+                {CustomRoles.Ventguard, "#ffa5ff"},
+                {CustomRoles.Demolitionist, "#5e2801"},
+                {CustomRoles.Express, "#00ffff"},
+                {CustomRoles.NiceEraser, "#00a5ff"},
+                {CustomRoles.TaskManager, "#00ffa5"},
                 {CustomRoles.SpeedBooster, "#00ffff"},
                 {CustomRoles.Doctor, "#80ffdd"},
                 {CustomRoles.Dictator, "#df9b00"},
@@ -350,7 +353,7 @@ public class Main : BasePlugin
                 {CustomRoles.Deputy, "#df9026"},
                 {CustomRoles.Cleanser,"#98FF98" },
                 {CustomRoles.NiceSwapper, "#922348"},
-                {CustomRoles.Ignitor, "#a5ffff"},
+                {CustomRoles.Ignitor, "#ffffa5"},
                 {CustomRoles.Guardian, "#2E8B57"},
                 {CustomRoles.Addict, "#008000"},
                 {CustomRoles.Alchemist, "#e6d798"},
@@ -398,6 +401,8 @@ public class Main : BasePlugin
                 {CustomRoles.HexMaster, "#ff00ff"},
                 {CustomRoles.Wraith, "#4B0082"},
                 {CustomRoles.NSerialKiller, "#233fcc"},
+                {CustomRoles.Vengeance, "#33cccc"},
+                {CustomRoles.HeadHunter, "#ffcc66"},
                 {CustomRoles.Imitator, "#ff00a5"},
                 {CustomRoles.Werewolf, "#964B00"},
                 {CustomRoles.BloodKnight, "#630000"},
@@ -631,6 +636,7 @@ public enum CustomRoles
     SuperStar,
     CyberStar,
     Demolitionist,
+    Ventguard,
     Express,
     NiceEraser,
     TaskManager,
@@ -650,6 +656,7 @@ public enum CustomRoles
     SwordsMan,
     NiceGuesser,
     Transporter,
+    NiceSwapper,
     TimeManager,
     Veteran,
     Bodyguard,
@@ -705,6 +712,8 @@ public enum CustomRoles
     Pelican,
     Revolutionist,
     NSerialKiller,
+    Vengeance,
+    HeadHunter,
     Imitator,
     Werewolf,
     Juggernaut,
@@ -787,7 +796,6 @@ public enum CustomRoles
     Knighted,
     Contagious,
     Cleansed,
-    NiceSwapper,
     Unreportable,
     DeadlyQuota,
     Rogue,
@@ -848,6 +856,8 @@ public enum CustomWinner
     Wraith = CustomRoles.Wraith,
     //Pirate = CustomRoles.Pirate,
     SerialKiller = CustomRoles.NSerialKiller,
+    HeadHunter = CustomRoles.HeadHunter,
+    Vengeance = CustomRoles.Vengeance,
     Werewolf = CustomRoles.Werewolf,
     //Witch = CustomRoles.NWitch,
     Juggernaut = CustomRoles.Juggernaut,

@@ -340,16 +340,14 @@ internal static class SoloKombatManager
 
             if (AmongUsClient.Instance.AmHost)
             {
-                foreach (var pc in Main.AllPlayerControls)
+                foreach (var pc in Main.AllPlayerControls.Where(
+                // 锁定死亡玩家在小黑屋
+                pc => !pc.SoloAlive()))
                 {
-                    // 锁定死亡玩家在小黑屋
-                    if (!pc.SoloAlive())
-                    {
-                        if (pc.inVent && KB_BootVentWhenDead.GetBool()) pc.MyPhysics.RpcExitVent(2);
-                        var pos = Pelican.GetBlackRoomPS();
-                        var dis = Vector2.Distance(pos, pc.GetTruePosition());
-                        if (dis > 1f) Utils.TP(pc.NetTransform, pos);
-                    }
+                    if (pc.inVent && KB_BootVentWhenDead.GetBool()) pc.MyPhysics.RpcExitVent(2);
+                    var pos = Pelican.GetBlackRoomPS();
+                    var dis = Vector2.Distance(pos, pc.GetTruePosition());
+                    if (dis > 1f) Utils.TP(pc.NetTransform, pos);
                 }
 
                 if (LastFixedUpdate == Utils.GetTimeStamp()) return;

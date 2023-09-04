@@ -70,7 +70,7 @@ public static class SpamManager
         if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId) return false;
         string name = player.GetRealName();
         bool kick = false;
-        string msg = "";
+        string msg = string.Empty;
 
         if (Options.AutoKickStart.GetBool())
         {
@@ -88,7 +88,7 @@ public static class SpamManager
                         kick = true;
                     }
                 }
-                if (msg != "") Utils.SendMessage(msg);
+                if (msg != string.Empty && msg != "") Utils.SendMessage(msg);
                 if (kick) AmongUsClient.Instance.KickPlayer(player.GetClientId(), Options.AutoKickStartAsBan.GetBool());
                 return true;
             }
@@ -111,7 +111,7 @@ public static class SpamManager
             }
         }
 
-        if (msg != "")
+        if (msg != string.Empty && msg != "")
         {
             if (kick || !GameStates.IsInGame) Utils.SendMessage(msg);
             else

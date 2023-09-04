@@ -353,10 +353,11 @@ static class ExtendedPlayerControl
     public static string GetSubRoleName(this PlayerControl player, bool forUser = false)
     {
         var SubRoles = Main.PlayerStates[player.PlayerId].SubRoles;
-        if (SubRoles.Count == 0) return "";
+        if (!SubRoles.Any()) return string.Empty;
         var sb = new StringBuilder();
-        foreach (var role in SubRoles)
+        for (int i = 0; i < SubRoles.Count; i++)
         {
+            CustomRoles role = SubRoles[i];
             if (role == CustomRoles.NotAssigned) continue;
             sb.Append($"{Utils.ColorString(Color.white, "\n<size=1>")}{Utils.GetRoleName(role, forUser)}");
         }
@@ -372,8 +373,8 @@ static class ExtendedPlayerControl
     }
     public static string GetNameWithRole(this PlayerControl player, bool forUser = false)
     {
-        var ret = $"{player?.Data?.PlayerName}" + (GameStates.IsInGame ? $"({player?.GetAllRoleName(forUser)})" : "");
-        return forUser ? ret : ret;
+        var ret = $"{player?.Data?.PlayerName}" + (GameStates.IsInGame ? $"({player?.GetAllRoleName(forUser)})" : string.Empty);
+        return ret;
     }
     public static string GetRoleColorCode(this PlayerControl player)
     {
@@ -465,6 +466,8 @@ static class ExtendedPlayerControl
             //CustomRoles.Reverie => pc.IsAlive(),
             CustomRoles.Ritualist => pc.IsAlive(),
             CustomRoles.NSerialKiller => pc.IsAlive(),
+            CustomRoles.Vengeance => pc.IsAlive(),
+            CustomRoles.HeadHunter => pc.IsAlive(),
             CustomRoles.Imitator => pc.IsAlive(),
             CustomRoles.Werewolf => Werewolf.IsRampaging(pc.PlayerId) && pc.IsAlive(),
             CustomRoles.Medusa => pc.IsAlive(),
@@ -550,6 +553,8 @@ static class ExtendedPlayerControl
             CustomRoles.Sidekick => Jackal.CanVentSK.GetBool(),
             CustomRoles.Poisoner => Poisoner.CanVent.GetBool(),
             CustomRoles.NSerialKiller => NSerialKiller.CanVent.GetBool(),
+            CustomRoles.Vengeance => Vengeance.CanVent.GetBool(),
+            CustomRoles.HeadHunter => HeadHunter.CanVent.GetBool(),
             CustomRoles.Imitator => Imitator.CanVent.GetBool(),
             CustomRoles.Werewolf => true,
             CustomRoles.Pestilence => PlagueBearer.PestilenceCanVent.GetBool(),
@@ -619,6 +624,8 @@ static class ExtendedPlayerControl
             CustomRoles.BloodKnight or
             CustomRoles.Poisoner or
             CustomRoles.NSerialKiller or
+            CustomRoles.Vengeance or
+            CustomRoles.HeadHunter or
             CustomRoles.Imitator or
             CustomRoles.Maverick or
             //CustomRoles.NWitch or
@@ -761,6 +768,12 @@ static class ExtendedPlayerControl
                 break;
             case CustomRoles.NSerialKiller:
                 NSerialKiller.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.HeadHunter:
+                HeadHunter.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.Vengeance:
+                Vengeance.SetKillCooldown(player.PlayerId);
                 break;
             case CustomRoles.Imitator:
                 Imitator.SetKillCooldown(player.PlayerId);
@@ -1083,7 +1096,7 @@ static class ExtendedPlayerControl
 
         var text = role.ToString();
 
-        var Prefix = "";
+        var Prefix = string.Empty;
         if (!InfoLong)
             switch (role)
             {
@@ -1091,7 +1104,7 @@ static class ExtendedPlayerControl
                     Prefix = Utils.CanMafiaKill() ? "After" : "Before";
                     break;
             };
-        var Info = (role.IsVanilla() ? "Blurb" : "Info") + (InfoLong ? "Long" : "");
+        var Info = (role.IsVanilla() ? "Blurb" : "Info") + (InfoLong ? "Long" : string.Empty);
         return GetString($"{Prefix}{text}{Info}");
     }
     public static void SetRealKiller(this PlayerControl target, PlayerControl killer, bool NotOverRide = false)
@@ -1116,8 +1129,9 @@ static class ExtendedPlayerControl
         if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return null;
         var Rooms = ShipStatus.Instance.AllRooms;
         if (Rooms == null) return null;
-        foreach (var room in Rooms)
+        for (int i = 0; i < Rooms.Count; i++)
         {
+            PlainShipRoom room = Rooms[i];
             if (!room.roomArea) continue;
             if (pc.Collider.IsTouching(room.roomArea))
                 return room;

@@ -219,8 +219,11 @@ public abstract class OptionItem
     {
         CurrentPreset = Math.Clamp(newPreset, 0, 4);
 
-        foreach (var op in AllOptions)
+        for (int i = 0; i < AllOptions.Count; i++)
+        {
+            OptionItem op = AllOptions[i];
             op.Refresh();
+        }
 
         SyncAllOptions();
     }

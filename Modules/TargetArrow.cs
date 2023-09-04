@@ -64,8 +64,9 @@ static class TargetArrow
     {
         var arrowInfo = new ArrowInfo(seer, target);
         var removeList = new List<ArrowInfo>(TargetArrows.Keys.Where(k => k.Equals(arrowInfo)));
-        foreach (var a in removeList)
+        for (int i = 0; i < removeList.Count; i++)
         {
+            ArrowInfo a = removeList[i];
             TargetArrows.Remove(a);
         }
     }
@@ -76,8 +77,9 @@ static class TargetArrow
     public static void RemoveAllTarget(byte seer)
     {
         var removeList = new List<ArrowInfo>(TargetArrows.Keys.Where(k => k.From == seer));
-        foreach (var arrowInfo in removeList)
+        for (int i = 0; i < removeList.Count; i++)
         {
+            ArrowInfo arrowInfo = removeList[i];
             TargetArrows.Remove(arrowInfo);
         }
     }
@@ -88,7 +90,7 @@ static class TargetArrow
     /// <returns></returns>
     public static string GetArrows(PlayerControl seer, params byte[] targets)
     {
-        var arrows = "";
+        var arrows = string.Empty;
         foreach (var arrowInfo in TargetArrows.Keys.Where(ai => ai.From == seer.PlayerId && targets.Contains(ai.To)))
         {
             arrows += TargetArrows[arrowInfo];
@@ -108,11 +110,12 @@ static class TargetArrow
         var seerIsDead = !seer.IsAlive();
 
         var arrowList = new List<ArrowInfo>(TargetArrows.Keys.Where(a => a.From == seer.PlayerId));
-        if (arrowList.Count == 0) return;
+        if (!arrowList.Any()) return;
 
         var update = false;
-        foreach (var arrowInfo in arrowList)
+        for (int i = 0; i < arrowList.Count; i++)
         {
+            ArrowInfo arrowInfo = arrowList[i];
             var targetId = arrowInfo.To;
             var target = Utils.GetPlayerById(targetId);
             if (seerIsDead || !target.IsAlive() && !seer.Is(CustomRoles.Spiritualist))

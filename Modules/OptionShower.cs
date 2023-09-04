@@ -42,9 +42,12 @@ public static class OptionShower
                 //有効な役職一覧
                 sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GM)}>{Utils.GetRoleName(CustomRoles.GM)}:</color> {Options.EnableGM.GetString()}\n\n");
                 sb.Append(GetString("ActiveRolesList")).Append('\n');
-                foreach (var kvp in Options.CustomRoleSpawnChances)
-                    if (kvp.Value.GameMode is CustomGameMode.Standard or CustomGameMode.All && kvp.Value.GetBool()) //スタンダードか全てのゲームモードで表示する役職
-                        sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}\n");
+                foreach (var kvp in Options.CustomRoleSpawnChances.Where(kvp => kvp.Value.GameMode is CustomGameMode.Standard or CustomGameMode.All && kvp.Value.GetBool()//スタンダードか全てのゲームモードで表示する役職
+                ))
+                {
+                    sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}\n");
+                }
+
                 pages.Add(sb.ToString() + "\n\n");
                 sb.Clear();
             }

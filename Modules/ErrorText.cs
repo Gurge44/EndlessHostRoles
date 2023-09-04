@@ -85,10 +85,11 @@ public class ErrorText : MonoBehaviour
     }
     public void UpdateText()
     {
-        string text = "";
+        string text = string.Empty;
         int maxLevel = 0;
-        foreach (var err in AllErrors)
+        for (int i = 0; i < AllErrors.Count; i++)
         {
+            ErrorData err = AllErrors[i];
             text += $"{err}: {err.Message}\n";
             if (maxLevel < err.ErrorLevel) maxLevel = err.ErrorLevel;
         }

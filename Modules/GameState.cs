@@ -290,11 +290,7 @@ public class PlayerState
         => IsDead && RealKiller.Item1 != DateTime.MinValue ? RealKiller.Item2 : byte.MaxValue;
     public int GetKillCount(bool ExcludeSelfKill = false)
     {
-        int count = 0;
-        foreach (var state in Main.PlayerStates.Values)
-            if (!(ExcludeSelfKill && state.PlayerId == PlayerId) && state.GetRealKiller() == PlayerId)
-                count++;
-        return count;
+        return Main.PlayerStates.Values.Where(state => !(ExcludeSelfKill && state.PlayerId == PlayerId) && state.GetRealKiller() == PlayerId).Count();
     }
 }
 public class TaskState
@@ -392,7 +388,7 @@ public class TaskState
                 Logger.Info("传送师触发传送:" + player.GetNameWithRole(), "Transporter");
                 var rd = IRandom.Instance;
                 List<PlayerControl> AllAlivePlayer = new();
-                foreach (var pc in Main.AllAlivePlayerControls.Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder)) AllAlivePlayer.Add(pc);
+                AllAlivePlayer.AddRange(Main.AllAlivePlayerControls.Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder));
                 if (AllAlivePlayer.Count >= 2)
                 {
                     var tar1 = AllAlivePlayer[rd.Next(0, AllAlivePlayer.Count)];
@@ -436,6 +432,10 @@ public class TaskState
             if (player.Is(CustomRoles.Lighter) && player.IsAlive())
             {
                 Main.LighterNumOfUsed[player.PlayerId] += Options.LighterAbilityUseGainWithEachTaskCompleted.GetFloat();
+            }
+            if (player.Is(CustomRoles.Ventguard) && player.IsAlive())
+            {
+                Main.VentguardNumberOfAbilityUses += Options.VentguardAbilityUseGainWithEachTaskCompleted.GetFloat();
             }
             if (player.Is(CustomRoles.DovesOfNeace) && player.IsAlive())
             {
@@ -483,6 +483,7 @@ public class TaskState
                 Main.AllPlayerSpeed[player.PlayerId] = Options.ExpressSpeed.GetFloat();
                 Main.ExpressSpeedUp.Remove(player.PlayerId);
                 Main.ExpressSpeedUp.TryAdd(player.PlayerId, Utils.GetTimeStamp());
+                player.SyncSettings();
             }
             if (player.Is(CustomRoles.Alchemist) && player.IsAlive()) Alchemist.OnTaskComplete(player);
 
@@ -494,19 +495,11 @@ public class TaskState
                 }, 0.2f, "Ghoul Suicide");
             if (player.Is(CustomRoles.Ghoul) && (CompletedTasksCount + 1) >= AllTasksCount && !player.IsAlive())
             {
-                foreach (var pc in Main.AllPlayerControls)
+                foreach (var pc in Main.AllPlayerControls.Where(pc => !pc.Is(CustomRoles.Pestilence)).Where(pc => Main.KillGhoul.Contains(pc.PlayerId) && player.PlayerId != pc.PlayerId && pc.IsAlive()))
                 {
-                    if (!pc.Is(CustomRoles.Pestilence))
-                    {
-                        if (Main.KillGhoul.Contains(pc.PlayerId) && player.PlayerId != pc.PlayerId && pc.IsAlive())
-                        {
-                            player.RpcMurderPlayerV3(pc);
-                            Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Kill;
-                        }
-                    }
-
+                    player.RpcMurderPlayerV3(pc);
+                    Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Kill;
                 }
-
             }
 
             //工作狂做完了
@@ -515,70 +508,56 @@ public class TaskState
             {
                 Logger.Info("工作狂任务做完了", "Workaholic");
                 RPC.PlaySoundRPC(player.PlayerId, Sounds.KillSound);
-                foreach (var pc in Main.AllAlivePlayerControls)
+                foreach (var pc in Main.AllAlivePlayerControls.Where(pc => pc.PlayerId != player.PlayerId))
                 {
-                    if (pc.PlayerId != player.PlayerId)
-                    {
-                        Main.PlayerStates[pc.PlayerId].deathReason = pc.PlayerId == player.PlayerId ?
-                            PlayerState.DeathReason.Overtired : PlayerState.DeathReason.Ashamed;
-                        pc.RpcMurderPlayerV3(pc);
-                        Main.PlayerStates[pc.PlayerId].SetDead();
-                        pc.SetRealKiller(player);
-                    }
+                    Main.PlayerStates[pc.PlayerId].deathReason = pc.PlayerId == player.PlayerId ?
+                                            PlayerState.DeathReason.Overtired : PlayerState.DeathReason.Ashamed;
+                    pc.RpcMurderPlayerV3(pc);
+                    Main.PlayerStates[pc.PlayerId].SetDead();
+                    pc.SetRealKiller(player);
                 }
+
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Workaholic); //爆破で勝利した人も勝利させる
                 CustomWinnerHolder.WinnerIds.Add(player.PlayerId);
             }
 
             if (player.Is(CustomRoles.Speedrunner) && (CompletedTasksCount + 1) >= AllTasksCount && player.IsAlive())
             {
-                Logger.Info("工作狂任务做完了", "Speedrunner");
-                RPC.PlaySoundRPC(player.PlayerId, Sounds.KillSound);
-                //foreach (var pc in Main.AllAlivePlayerControls)
-                //{
-                //    if (pc.PlayerId != player.PlayerId)
-                //    {
-                //        Main.PlayerStates[pc.PlayerId].deathReason = pc.PlayerId == player.PlayerId ?
-                //            PlayerState.DeathReason.Overtired : PlayerState.DeathReason.Ashamed;
-                //        pc.RpcMurderPlayerV3(pc);
-                //        Main.PlayerStates[pc.PlayerId].SetDead();
-                //        pc.SetRealKiller(player);
-                //    }
-                //}
+                Logger.Info("Speedrunner finished tasks", "Speedrunner");
+                player.RPCPlayCustomSound("Congrats");
                 GameData.Instance.CompletedTasks = GameData.Instance.TotalTasks;
             }
 
             Merchant.OnTaskFinished(player);
-            if (player.Is(CustomRoles.Ignitor) && (CompletedTasksCount + 1) >= AllTasksCount && player.IsAlive()) Ignitor.OnCompleteTask(player);
+            if (player.Is(CustomRoles.Ignitor) && player.IsAlive()) Ignitor.OnCompleteTask(player);
+            if (player.Is(CustomRoles.Ignitor) && (CompletedTasksCount + 1) >= AllTasksCount && player.IsAlive()) Ignitor.OnTasksFinished(player);
 
             //船鬼要抽奖啦
             if (player.Is(CustomRoles.Crewpostor))
             {
 
                 List<PlayerControl> list = Main.AllAlivePlayerControls.Where(x => x.PlayerId != player.PlayerId && (Options.CrewpostorCanKillAllies.GetBool() || !x.GetCustomRole().IsImpostorTeam())).ToList();
-                if (list.Count < 1)
+                if (!list.Any())
                 {
                     Logger.Info($"船鬼没有可击杀目标", "Crewpostor");
                 }
                 else
                 {
+                    list = list.OrderBy(x => Vector2.Distance(player.GetTruePosition(), x.GetTruePosition())).ToList();
+                    var target = list[0];
+                    if (!target.Is(CustomRoles.Pestilence))
                     {
-                        list = list.OrderBy(x => Vector2.Distance(player.GetTruePosition(), x.GetTruePosition())).ToList();
-                        var target = list[0];
-                        if (!target.Is(CustomRoles.Pestilence))
-                        {
-                            target.SetRealKiller(player);
-                            target.RpcCheckAndMurder(target);
-                            player.RpcGuardAndKill();
-                            Logger.Info($"船鬼完成任务击杀：{player.GetNameWithRole()} => {target.GetNameWithRole()}", "Crewpostor");
-                        }
-                        if (target.Is(CustomRoles.Pestilence))
-                        {
-                            target.SetRealKiller(player);
-                            target.RpcMurderPlayerV3(player);
-                            //player.RpcGuardAndKill();
-                            Logger.Info($"船鬼完成任务击杀：{target.GetNameWithRole()} => {player.GetNameWithRole()}", "Pestilence Reflect");
-                        }
+                        target.SetRealKiller(player);
+                        target.RpcCheckAndMurder(target);
+                        player.RpcGuardAndKill();
+                        Logger.Info($"船鬼完成任务击杀：{player.GetNameWithRole()} => {target.GetNameWithRole()}", "Crewpostor");
+                    }
+                    if (target.Is(CustomRoles.Pestilence))
+                    {
+                        target.SetRealKiller(player);
+                        target.RpcMurderPlayerV3(player);
+                        //player.RpcGuardAndKill();
+                        Logger.Info($"船鬼完成任务击杀：{target.GetNameWithRole()} => {player.GetNameWithRole()}", "Pestilence Reflect");
                     }
                 }
             }
@@ -601,8 +580,8 @@ public class PlayerVersion
     public readonly Version version;
     public readonly string tag;
     public readonly string forkId;
-    [Obsolete] public PlayerVersion(string ver, string tag_str) : this(Version.Parse(ver), tag_str, "") { }
-    [Obsolete] public PlayerVersion(Version ver, string tag_str) : this(ver, tag_str, "") { }
+    [Obsolete] public PlayerVersion(string ver, string tag_str) : this(Version.Parse(ver), tag_str, string.Empty) { }
+    [Obsolete] public PlayerVersion(Version ver, string tag_str) : this(ver, tag_str, string.Empty) { }
     public PlayerVersion(string ver, string tag_str, string forkId) : this(Version.Parse(ver), tag_str, forkId) { }
     public PlayerVersion(Version ver, string tag_str, string forkId)
     {

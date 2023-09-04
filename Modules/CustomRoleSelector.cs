@@ -65,8 +65,10 @@ internal class CustomRoleSelector
             return;
         }
 
-        foreach (var cr in Enum.GetValues(typeof(CustomRoles)))
+        System.Collections.IList list = Enum.GetValues(typeof(CustomRoles));
+        for (int i1 = 0; i1 < list.Count; i1++)
         {
+            object cr = list[i1];
             CustomRoles role = (CustomRoles)Enum.Parse(typeof(CustomRoles), cr.ToString());
             if (role.IsVanilla() || role.IsAdditionRole()) continue;
             if (role is CustomRoles.GM or CustomRoles.NotAssigned) continue;
@@ -75,7 +77,10 @@ internal class CustomRoleSelector
         }
 
         // 职业设置为：优先
-        foreach (var role in roleList) if (role.GetMode() == 2)
+        for (int i2 = 0; i2 < roleList.Count; i2++)
+        {
+            CustomRoles role = roleList[i2];
+            if (role.GetMode() == 2)
             {
                 if (role.IsImpostor()) ImpOnList.Add(role);
                 else if (role.IsNonNK()) NonNeutralKillingOnList.Add(role);
@@ -83,8 +88,12 @@ internal class CustomRoleSelector
                 // else if (role.IsCoven()) CovenOnList.Add(role);
                 else roleOnList.Add(role);
             }
+        }
         // 职业设置为：启用
-        foreach (var role in roleList) if (role.GetMode() == 1)
+        for (int i3 = 0; i3 < roleList.Count; i3++)
+        {
+            CustomRoles role = roleList[i3];
+            if (role.GetMode() == 1)
             {
                 if (role.IsImpostor()) ImpRateList.Add(role);
                 else if (role.IsNonNK()) NonNeutralKillingRateList.Add(role);
@@ -92,6 +101,7 @@ internal class CustomRoleSelector
                 // else if (role.IsCoven()) CovenRateList.Add(role);
                 else roleRateList.Add(role);
             }
+        }
 
         // 抽取优先职业（内鬼）
         while (ImpOnList.Any())
@@ -280,7 +290,7 @@ internal class CustomRoleSelector
             if (rolesToAssign.Contains(dr.Value))
             {
                 rolesToAssign.Remove(dr.Value);
-                rolesToAssign.Insert(0, dr.Value);
+                rolesToAssign.Insert(dr.Key, dr.Value);
                 Logger.Info("职业列表提高优先：" + dr.Value, "Dev Role");
                 continue;
             }
@@ -296,7 +306,7 @@ internal class CustomRoleSelector
                     )
                 {
                     rolesToAssign.RemoveAt(i);
-                    rolesToAssign.Insert(0, dr.Value);
+                    rolesToAssign.Insert(dr.Key, dr.Value);
                     Logger.Info("覆盖职业列表：" + i + " " + role.ToString() + " => " + dr.Value, "Dev Role");
                     break;
                 }
@@ -308,7 +318,9 @@ internal class CustomRoleSelector
         while (AllPlayer.Any() && rolesToAssign.Any())
         {
             PlayerControl delPc = null;
-            foreach (var pc in AllPlayer)
+            for (int i = 0; i < AllPlayer.Count; i++)
+            {
+                PlayerControl pc = AllPlayer[i];
                 foreach (var dr in Main.DevRole.Where(x => pc.PlayerId == x.Key))
                 {
                     if (dr.Key == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()) continue;
@@ -320,6 +332,7 @@ internal class CustomRoleSelector
                     rolesToAssign.RemoveAt(id);
                     goto EndOfWhile;
                 }
+            }
 
             var roleId = rd.Next(0, rolesToAssign.Count);
             RoleResult.Add(AllPlayer[0], rolesToAssign[roleId]);
@@ -351,8 +364,9 @@ internal class CustomRoleSelector
         addEngineerNum = 0;
         addScientistNum = 0;
         addShapeshifterNum = 0;
-        foreach (var role in AllRoles)
+        for (int i = 0; i < AllRoles.Count; i++)
         {
+            CustomRoles role = AllRoles[i];
             switch (CustomRolesHelper.GetVNRole(role))
             {
                 case CustomRoles.Scientist: addScientistNum++; break;
@@ -368,8 +382,10 @@ internal class CustomRoleSelector
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat) return;
 
         AddonRolesList = new();
-        foreach (var cr in Enum.GetValues(typeof(CustomRoles)))
+        System.Collections.IList list = Enum.GetValues(typeof(CustomRoles));
+        for (int i = 0; i < list.Count; i++)
         {
+            object cr = list[i];
             CustomRoles role = (CustomRoles)Enum.Parse(typeof(CustomRoles), cr.ToString());
             if (!role.IsAdditionRole()) continue;
             if (role is CustomRoles.Madmate && Options.MadmateSpawnMode.GetInt() != 0) continue;

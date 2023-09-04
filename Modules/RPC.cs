@@ -24,6 +24,7 @@ enum CustomRPC
     PlaySound,
     SetCustomRole,
     SetBountyTarget,
+    SetHHTarget,
     SetKillOrSpell,
     SetKillOrHex,
     SetSheriffShotLimit,
@@ -265,7 +266,12 @@ internal class RPCHandlerPatch
                 for (var i = startAmount; i < OptionItem.AllOptions.Count && i <= lastAmount; i++)
                     list.Add(OptionItem.AllOptions[i]);
                 Logger.Info($"{startAmount}-{lastAmount}:{list.Count}/{OptionItem.AllOptions.Count}", "SyncCustomSettings");
-                foreach (var co in list) co.SetValue(reader.ReadInt32());
+                for (int i1 = 0; i1 < list.Count; i1++)
+                {
+                    OptionItem co = list[i1];
+                    co.SetValue(reader.ReadInt32());
+                }
+
                 OptionShower.GetText();
                 break;
             case CustomRPC.SetDeathReason:
@@ -640,7 +646,12 @@ internal static class RPC
         for (var i = startAmount; i < OptionItem.AllOptions.Count && i <= lastAmount; i++)
             list.Add(OptionItem.AllOptions[i]);
         Logger.Info($"{startAmount}-{lastAmount}:{list.Count}/{OptionItem.AllOptions.Count}", "SyncCustomSettings");
-        foreach (var co in list) writer.Write(co.GetValue());
+        for (int i1 = 0; i1 < list.Count; i1++)
+        {
+            OptionItem co = list[i1];
+            writer.Write(co.GetValue());
+        }
+
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
     public static void PlaySoundRPC(byte PlayerID, Sounds sound)
@@ -962,6 +973,9 @@ internal static class RPC
             case CustomRoles.Lighter:
                 Main.LighterNumOfUsed.Add(targetId, Options.LighterSkillMaxOfUseage.GetInt());
                 break;
+            case CustomRoles.Ventguard:
+                Main.VentguardNumberOfAbilityUses = Options.VentguardMaxGuards.GetInt();
+                break;
             case CustomRoles.TimeMaster:
                 Main.TimeMasterNumOfUsed.Add(targetId, Options.TimeMasterMaxUses.GetInt());
                 break;
@@ -1033,6 +1047,12 @@ internal static class RPC
                 break;
             case CustomRoles.NSerialKiller:
                 NSerialKiller.Add(targetId);
+                break;
+            case CustomRoles.Vengeance:
+                Vengeance.Add(targetId);
+                break;
+            case CustomRoles.HeadHunter:
+                HeadHunter.Add(targetId);
                 break;
             case CustomRoles.Imitator:
                 Imitator.Add(targetId);
@@ -1107,8 +1127,9 @@ internal static class RPC
         if (!AmongUsClient.Instance.AmHost) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetLoversPlayers, SendOption.Reliable, -1);
         writer.Write(Main.LoversPlayers.Count);
-        foreach (var lp in Main.LoversPlayers)
+        for (int i = 0; i < Main.LoversPlayers.Count; i++)
         {
+            PlayerControl lp = Main.LoversPlayers[i];
             writer.Write(lp.PlayerId);
         }
         AmongUsClient.Instance.FinishRpcImmediately(writer);

@@ -38,7 +38,7 @@ class LateTask
             {
                 if (task.Run(deltaTime))
                 {
-                    if (task.name != "")
+                    if (task.name != string.Empty)
                         Logger.Info($"\"{task.name}\" is finished", "LateTask");
                     TasksToRemove.Add(task);
                 }

@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TMPro;
-using static TOHE.Translator;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
 using TOHE.Roles.Crewmate;
@@ -238,6 +236,9 @@ public static class Options
     public static OptionItem TimeMasterAbilityUseGainWithEachTaskCompleted;
     public static OptionItem VeteranSkillMaxOfUseage;
     public static OptionItem VeteranAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem VentguardAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem VentguardMaxGuards;
+    public static OptionItem VentguardBlockDoesNotAffectCrew;
     public static OptionItem BodyguardProtectRadius;
     public static OptionItem WitnessCD;
     public static OptionItem WitnessTime;
@@ -743,6 +744,7 @@ public static class Options
     public static OptionItem ApplyModeratorList;
     public static OptionItem ApplyAllowList;
     public static OptionItem AutoWarnStopWords;
+    public static OptionItem RemovePetsAtDeadPlayers;
 
     public static OptionItem AllowSayCommand;
     public static OptionItem ApplyReminderMsg;
@@ -1298,6 +1300,13 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.CyberStar]);
         RoleLoadingText = "Crewmate roles\nCleanser";
         Cleanser.SetupCustomOption();
+        RoleLoadingText = "Crewmate roles\nVentguard";
+        SetupSingleRoleOptions(5525, TabGroup.CrewmateRoles, CustomRoles.Ventguard, 1);
+        VentguardAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(5527, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
+            .SetValueFormat(OptionFormat.Times);
+        VentguardMaxGuards = IntegerOptionItem.Create(5528, "VentguardMaxGuards", new(1, 20, 1), 3, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard]);
+        VentguardBlockDoesNotAffectCrew = BooleanOptionItem.Create(5529, "VentguardBlockDoesNotAffectCrew", true, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard]);
         RoleLoadingText = "Crewmate roles\nDemolitionist";
         SetupSingleRoleOptions(5550, TabGroup.CrewmateRoles, CustomRoles.Demolitionist, 1);
         DemolitionistVentTime = FloatOptionItem.Create(5552, "DemolitionistVentTime", new(1f, 30f, 1f), 5f, TabGroup.CrewmateRoles, false)
@@ -1769,6 +1778,10 @@ public static class Options
         RoleLoadingText = "Neutral roles\nSerial Killer";
 
         NSerialKiller.SetupCustomOption();
+        RoleLoadingText = "Neutral roles\nHead Hunter";
+        HeadHunter.SetupCustomOption();
+        RoleLoadingText = "Neutral roles\nVengeance";
+        Vengeance.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nImitator";
         Imitator.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nWerewolf";
@@ -1924,11 +1937,6 @@ public static class Options
         SetupAdtRoleOptions(14600, CustomRoles.Reach, canSetNum: true);
 
         LoadingPercentage = 40;
-        RoleLoadingText = "Add-ons\nDeadly Quota";
-
-        SetupAdtRoleOptions(14650, CustomRoles.DeadlyQuota, canSetNum: true);
-        DQNumOfKillsNeeded = IntegerOptionItem.Create(14660, "DQNumOfKillsNeeded", new(1, 14, 1), 3, TabGroup.Addons, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.DeadlyQuota]);
         RoleLoadingText = "Add-ons\nSchizophrenic";
         SetupAdtRoleOptions(14700, CustomRoles.DualPersonality, canSetNum: true);
         ImpCanBeDualPersonality = BooleanOptionItem.Create(14710, "ImpCanBeDualPersonality", true, TabGroup.Addons, false)
@@ -2140,6 +2148,10 @@ public static class Options
         TicketsPerKill = FloatOptionItem.Create(16110, "TicketsPerKill", new(0.1f, 10f, 0.1f), 0.5f, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.TicketsStealer]);
         SetupAdtRoleOptions(16050, CustomRoles.Swift, canSetNum: true, tab: TabGroup.Addons);
+        RoleLoadingText = "Add-ons\nDeadly Quota";
+        SetupAdtRoleOptions(14650, CustomRoles.DeadlyQuota, canSetNum: true);
+        DQNumOfKillsNeeded = IntegerOptionItem.Create(14660, "DQNumOfKillsNeeded", new(1, 14, 1), 3, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.DeadlyQuota]);
         //    SetupAdtRoleOptions(16300, CustomRoles.Minimalism, canSetNum: true, tab: TabGroup.Addons);
 
 
@@ -2415,6 +2427,9 @@ public static class Options
         EndWhenPlayerBug = BooleanOptionItem.Create(19318, "EndWhenPlayerBug", true, TabGroup.SystemSettings, false)
             .SetHeader(true)
             .SetColor(Color.blue);
+
+        RemovePetsAtDeadPlayers = BooleanOptionItem.Create(44450, "RemovePetsAtDeadPlayers", false, TabGroup.SystemSettings, false)
+            .SetColor(Color.magenta);
 
         CheatResponses = StringOptionItem.Create(19319, "CheatResponses", CheatResponsesName, 0, TabGroup.SystemSettings, false)
             .SetHeader(true);
@@ -3099,11 +3114,11 @@ public static class Options
 
 
         // 修正首刀时间
-        FixFirstKillCooldown = BooleanOptionItem.Create(23900, "FixFirstKillCooldown", true, TabGroup.GameSettings, false)
+        FixFirstKillCooldown = BooleanOptionItem.Create(23900, "FixFirstKillCooldown", false, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.Standard)
            .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
-        StartingKillCooldown = FloatOptionItem.Create(23950, "StartingKillCooldown", new(1, 60, 1), 10, TabGroup.GameSettings, false)
+        StartingKillCooldown = FloatOptionItem.Create(23950, "StartingKillCooldown", new(1, 60, 1), 18, TabGroup.GameSettings, false)
            .SetColor(new Color32(193, 255, 209, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(CustomGameMode.Standard);

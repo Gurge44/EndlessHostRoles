@@ -67,7 +67,7 @@ public class ModUpdater
 
     public static string Get(string url)
     {
-        string result = "";
+        string result = string.Empty;
         HttpClient req = new();
         var res = req.GetAsync(url).Result;
         Stream stream = res.Content.ReadAsStreamAsync().Result;
