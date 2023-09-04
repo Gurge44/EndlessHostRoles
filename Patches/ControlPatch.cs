@@ -64,7 +64,7 @@ internal class ControllerManagerUpdatePatch
             {
                 var role = PlayerControl.LocalPlayer.GetCustomRole();
                 var lp = PlayerControl.LocalPlayer;
-                if (Main.PlayerStates[lp.PlayerId].SubRoles.Count < 1) return;
+                if (!Main.PlayerStates[lp.PlayerId].SubRoles.Any()) return;
 
                 addDes = new();
                 foreach (var subRole in Main.PlayerStates[lp.PlayerId].SubRoles.Where(x => x is not CustomRoles.Charmed))
@@ -210,7 +210,7 @@ internal class ControllerManagerUpdatePatch
         }
 
         //实名投票
-        if (GetKeysDown(KeyCode.Return, KeyCode.V, KeyCode.LeftShift) && GameStates.IsMeeting && !GameStates.IsOnlineGame)
+        if (GetKeysDown(KeyCode.Return, KeyCode.V, KeyCode.LeftShift) && GameStates.IsMeeting)
         {
             MeetingHud.Instance.RpcClearVote(AmongUsClient.Instance.ClientId);
         }
@@ -228,6 +228,7 @@ internal class ControllerManagerUpdatePatch
         if (GetKeysDown(KeyCode.Return, KeyCode.K, KeyCode.LeftShift) && GameStates.IsInGame)
         {
             PlayerControl.LocalPlayer.Data.Object.SetKillTimer(0f);
+            PlayerControl.LocalPlayer.SetKillCooldown(0f);
         }
 
         //完成你的所有任务

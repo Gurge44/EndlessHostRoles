@@ -1,5 +1,6 @@
 using HarmonyLib;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace TOHE;
 
@@ -16,7 +17,7 @@ public class AirshipElectricalDoors
     public static byte[] GetClosedDoors()
     {
         List<byte> DoorsArray = new();
-        if (Instance.Doors == null || Instance.Doors.Count == 0) return DoorsArray.ToArray();
+        if (Instance.Doors == null || !Instance.Doors.Any()) return DoorsArray.ToArray();
         for (byte i = 0; i < Instance.Doors.Count; i++)
         {
             var door = Instance.Doors[i];
@@ -44,10 +45,12 @@ class ElectricalDoorsInitializePatch
     public static void Postfix(ElectricalDoors __instance)
     {
         if (!GameStates.IsInGame) return;
-        var closedoors = "";
+        var closedoors = string.Empty;
         bool isFirst = true;
-        foreach (var num in AirshipElectricalDoors.GetClosedDoors())
+        byte[] array = AirshipElectricalDoors.GetClosedDoors();
+        for (int i = 0; i < array.Length; i++)
         {
+            byte num = array[i];
             if (isFirst)
             {
                 isFirst = false;

@@ -28,17 +28,17 @@ public static class CredentialsPatch
                 break;
             }
         }
-        public static string BoosterData = "";
-        public static string SponsersData = "";
-        public static string DevsData = "";
-        public static string TransData = "";
+        public static string BoosterData = string.Empty;
+        public static string SponsersData = string.Empty;
+        public static string DevsData = string.Empty;
+        public static string TransData = string.Empty;
 
         public static void InitCredentialsData()
         {
-            BoosterData = "";
-            SponsersData = "";
-            DevsData = "";
-            TransData = "";
+            BoosterData = string.Empty;
+            SponsersData = string.Empty;
+            DevsData = string.Empty;
+            TransData = string.Empty;
 
             DevsData += $"<color={Main.ModColor}>♥咔皮呆</color> - <size=75%>{GetString("MainDev")}</size>";
             DevsData += $"\n<color={Main.ModColor}>♥IRIDESCENT</color> - <size=75%>{GetString("Art")}</size>";

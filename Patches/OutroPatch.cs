@@ -14,7 +14,7 @@ namespace TOHE;
 class EndGamePatch
 {
     public static Dictionary<byte, string> SummaryText = new();
-    public static string KillLog = "";
+    public static string KillLog = string.Empty;
     public static void Postfix(AmongUsClient __instance, [HarmonyArgument(0)] ref EndGameResult endGameResult)
     {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,7 +38,7 @@ class EndGamePatch
                 sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]}({Utils.GetDisplayRoleName(killerId, true)}{Utils.GetSubRolesText(killerId, summary: true)})");
         }
         KillLog = sb.ToString();
-        if (!KillLog.Contains("\n")) KillLog = "";
+        if (!KillLog.Contains("\n")) KillLog = string.Empty;
 
         Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
         //winnerListリセット
@@ -55,8 +55,9 @@ class EndGamePatch
 
         Main.winnerNameList = new();
         Main.winnerList = new();
-        foreach (var pc in winner)
+        for (int i = 0; i < winner.Count; i++)
         {
+            PlayerControl pc = winner[i];
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw && pc.Is(CustomRoles.GM)) continue;
 
             TempData.winners.Add(new WinningPlayerData(pc.Data));
@@ -82,8 +83,8 @@ class EndGamePatch
 [HarmonyPatch(typeof(EndGameManager), nameof(EndGameManager.SetEverythingUp))]
 class SetEverythingUpPatch
 {
-    public static string LastWinsText = "";
-    public static string LastWinsReason = "";
+    public static string LastWinsText = string.Empty;
+    public static string LastWinsReason = string.Empty;
 
     public static void Postfix(EndGameManager __instance)
     {
@@ -98,10 +99,10 @@ class SetEverythingUpPatch
         WinnerTextObject.transform.localScale = new(0.6f, 0.6f, 0.6f);
         var WinnerText = WinnerTextObject.GetComponent<TMPro.TextMeshPro>(); //WinTextと同じ型のコンポーネントを取得
         WinnerText.fontSizeMin = 3f;
-        WinnerText.text = "";
+        WinnerText.text = string.Empty;
 
-        string CustomWinnerText = "";
-        string AdditionalWinnerText = "";
+        string CustomWinnerText = string.Empty;
+        string AdditionalWinnerText = string.Empty;
         string CustomWinnerColor = Utils.GetRoleColorCode(CustomRoles.Crewmate);
 
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
@@ -177,7 +178,7 @@ class SetEverythingUpPatch
                 break;
             //全滅
             case CustomWinner.None:
-                __instance.WinText.text = "";
+                __instance.WinText.text = string.Empty;
                 __instance.WinText.color = Color.black;
                 __instance.BackgroundBar.material.color = Color.gray;
                 WinnerText.text = GetString("EveryoneDied");
@@ -199,20 +200,20 @@ class SetEverythingUpPatch
         }
         if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw and not CustomWinner.None and not CustomWinner.Error)
         {
-            if (AdditionalWinnerText == "") WinnerText.text = $"<size=100%><color={CustomWinnerColor}>{CustomWinnerText}</color></size>";
+            if (AdditionalWinnerText == string.Empty) WinnerText.text = $"<size=100%><color={CustomWinnerColor}>{CustomWinnerText}</color></size>";
             else WinnerText.text = $"<size=100%><color={CustomWinnerColor}>{CustomWinnerText}</color></size>\n<size=75%>{AdditionalWinnerText}</size>";
         }
 
         static string GetWinnerRoleName(CustomRoles role)
         {
             var name = GetString($"WinnerRoleText.{Enum.GetName(typeof(CustomRoles), role)}");
-            if (name == "" || name.StartsWith("*") || name.StartsWith("<INVALID")) name = Utils.GetRoleName(role);
+            if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID")) name = Utils.GetRoleName(role);
             return name;
         }
         static string GetAdditionalWinnerRoleName(CustomRoles role)
         {
             var name = GetString($"AdditionalWinnerRoleText.{Enum.GetName(typeof(CustomRoles), role)}");
-            if (name == "" || name.StartsWith("*") || name.StartsWith("<INVALID")) name = Utils.GetRoleName(role);
+            if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID")) name = Utils.GetRoleName(role);
             return name;
         }
 
@@ -233,8 +234,9 @@ class SetEverythingUpPatch
 
         StringBuilder sb = new($"{GetString("RoleSummaryText")}\n");
         List<byte> cloneRoles = new(Main.PlayerStates.Keys);
-        foreach (var id in Main.winnerList)
+        for (int i = 0; i < Main.winnerList.Count; i++)
         {
+            byte id = Main.winnerList[i];
             if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
             sb.Append($"\n<b>").Append(EndGamePatch.SummaryText[id]);
             cloneRoles.Remove(id);
@@ -242,7 +244,12 @@ class SetEverythingUpPatch
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
         {
             List<(int, byte)> list = new();
-            foreach (var id in cloneRoles) list.Add((SoloKombatManager.GetRankOfScore(id), id));
+            for (int i = 0; i < cloneRoles.Count; i++)
+            {
+                byte id = cloneRoles[i];
+                list.Add((SoloKombatManager.GetRankOfScore(id), id));
+            }
+
             list.Sort();
             foreach (var id in list.Where(x => EndGamePatch.SummaryText.ContainsKey(x.Item2)))
                 sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id.Item2]);
@@ -250,8 +257,9 @@ class SetEverythingUpPatch
         else
         {
             sb.Append($"</b>\n");
-            foreach (var id in cloneRoles)
+            for (int i = 0; i < cloneRoles.Count; i++)
             {
+                byte id = cloneRoles[i];
                 if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
                 sb.Append($"\n").Append(EndGamePatch.SummaryText[id]);
             }

@@ -78,7 +78,7 @@ public class GameStartManagerPatch
     public class GameStartManagerUpdatePatch
     {
         private static bool update = false;
-        private static string currentText = "";
+        private static string currentText = string.Empty;
         public static float exitTimer = -1f;
         private static float minWait, maxWait;
         private static int minPlayer;
@@ -139,13 +139,15 @@ public class GameStartManagerPatch
         {
             if (!AmongUsClient.Instance) return;
 
-            string warningMessage = "";
+            string warningMessage = string.Empty;
             if (AmongUsClient.Instance.AmHost)
             {
                 bool canStartGame = true;
                 List<string> mismatchedPlayerNameList = new();
-                foreach (var client in AmongUsClient.Instance.allClients.ToArray())
+                Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppArrayBase<ClientData> list = AmongUsClient.Instance.allClients.ToArray();
+                for (int i = 0; i < list.Count; i++)
                 {
+                    ClientData client = list[i];
                     if (client.Character == null) continue;
                     var dummyComponent = client.Character.GetComponent<DummyBehaviour>();
                     if (dummyComponent != null && dummyComponent.enabled)
@@ -180,7 +182,7 @@ public class GameStartManagerPatch
                         warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.AutoExitAtMismatchedVersion"), $"<color={Main.ModColor}>{Main.ModName}</color>", Math.Round(5 - exitTimer).ToString()));
                 }
             }
-            if (warningMessage != "")
+            if (warningMessage != string.Empty)
             {
                 __instance.GameStartText.text = warningMessage;
                 __instance.GameStartText.transform.localPosition = __instance.StartButton.transform.localPosition + Vector3.up * 2;
@@ -269,7 +271,7 @@ public class GameStartRandomMap
             // if (Options.AddedDleks.GetBool()) RandomMaps.Add(3);
             if (Options.AddedTheAirship.GetBool()) RandomMaps.Add(4);
 
-            if (RandomMaps.Count <= 0) return true;
+            if (!RandomMaps.Any()) return true;
             var MapsId = RandomMaps[rand.Next(RandomMaps.Count)];
             Main.NormalOptions.MapId = MapsId;
 

@@ -278,9 +278,9 @@ internal class TitleLogoPatch
                 __instance.creditsButton.activeTextColor = Color.white;
                 __instance.creditsButton.inactiveTextColor = Color.white;
 
-                GameObject.Find("WindowShine").transform.gameObject.SetActive(false);
-                GameObject.Find("ScreenCover").transform.gameObject.SetActive(false);
-                GameObject.Find("BackgroundTexture").transform.gameObject.SetActive(false);
+                GameObject.Find("WindowShine")?.transform.gameObject.SetActive(false);
+                GameObject.Find("ScreenCover")?.transform.gameObject.SetActive(false);
+                GameObject.Find("BackgroundTexture")?.transform.gameObject.SetActive(false);
 
                 Ambience.SetActive(false);
                 var CustomBG = new GameObject("CustomBG");
@@ -288,25 +288,31 @@ internal class TitleLogoPatch
                 var bgRenderer = CustomBG.AddComponent<SpriteRenderer>();
                 bgRenderer.sprite = Utils.LoadSprite("TOHE.Resources.Images.bg.png", 180f);
 
-                __instance.screenTint.gameObject.transform.localPosition += new Vector3(1000f, 0f);
-                __instance.screenTint.enabled = false;
-                __instance.rightPanelMask.SetActive(true);
+                if (__instance.screenTint != null)
+                {
+                    __instance.screenTint.gameObject.transform.localPosition += new Vector3(1000f, 0f);
+                    __instance.screenTint.enabled = false;
+                }
+                __instance.rightPanelMask?.SetActive(true);
 
-                GameObject leftPanel = GameObject.Find("LeftPanel").transform.gameObject;
-                GameObject rightPanel = GameObject.Find("RightPanel").transform.gameObject;
+                GameObject leftPanel = GameObject.Find("LeftPanel")?.transform.gameObject;
+                GameObject rightPanel = GameObject.Find("RightPanel")?.transform.gameObject;
                 rightPanel.gameObject.GetComponent<SpriteRenderer>().enabled = false;
-                GameObject maskedBlackScreen = GameObject.Find("MaskedBlackScreen").transform.gameObject;
-                maskedBlackScreen.GetComponent<SpriteRenderer>().enabled = false;
-                maskedBlackScreen.transform.localPosition = new Vector3(-2.5f, 0.6f);
-                maskedBlackScreen.transform.localScale = new Vector3(7.35f, 4.5f, 4f);
+                GameObject maskedBlackScreen = GameObject.Find("MaskedBlackScreen")?.transform.gameObject;
+                if (maskedBlackScreen != null)
+                {
+                    maskedBlackScreen.GetComponent<SpriteRenderer>().enabled = false;
+                    maskedBlackScreen.transform.localPosition = new Vector3(-2.5f, 0.6f);
+                    maskedBlackScreen.transform.localScale = new Vector3(7.35f, 4.5f, 4f);
+                }
 
-                GameObject.Find("Shine").transform.gameObject.SetActive(false);
+                GameObject.Find("Shine")?.transform.gameObject.SetActive(false);
 
-                leftPanel.GetComponentsInChildren<SpriteRenderer>(true).Where(r => r.name == "Shine").Do(r => r.color = new Color(0f, 0f, 1f, 0.1f));
+                leftPanel?.GetComponentsInChildren<SpriteRenderer>(true).Where(r => r.name == "Shine").Do(r => r.color = new Color(0f, 0f, 1f, 0.1f));
                 //leftPanel.GetComponents<SpriteRenderer>().Where(r => r.name == "Shine").Do(r => r.color = new Color(1f, 0f, 0f));
 
-                leftPanel.gameObject.GetComponent<SpriteRenderer>().enabled = false;
-                GameObject.Find("LeftPanel").transform.Find("Divider").gameObject.SetActive(false);
+                if (leftPanel != null) leftPanel.gameObject.GetComponent<SpriteRenderer>().enabled = false;
+                GameObject.Find("LeftPanel")?.transform.Find("Divider")?.gameObject.SetActive(false);
 
                 //__instance.playButton.OnClick = __instance.PlayOnlineButton.OnClick;
                 //new LateTask(() => __instance.playButton.buttonText.text = "Play Online", 0.001f);
@@ -322,11 +328,11 @@ internal class TitleLogoPatch
                 //new LateTask(() => playLocalButton.buttonText.text = "Play Local", 0.001f);
 
                 PlayerParticles particles = UnityEngine.Object.FindObjectOfType<PlayerParticles>();
-                particles.gameObject.SetActive(false);
+                particles?.gameObject.SetActive(false);
             }
             catch (Exception ex)
             {
-                Logger.Exception(ex, "Platform");
+                Logger.Warn(ex.ToString(), "MainMenuLoader");
             }
         }
     }

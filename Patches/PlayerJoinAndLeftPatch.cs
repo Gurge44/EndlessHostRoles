@@ -4,6 +4,7 @@ using HarmonyLib;
 using Hazel;
 using InnerNet;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
@@ -18,7 +19,7 @@ class OnGameJoinedPatch
     public static void Postfix(AmongUsClient __instance)
     {
         while (!Options.IsLoaded) System.Threading.Tasks.Task.Delay(1);
-        Logger.Info($"{__instance.GameId} 加入房间", "OnGameJoined");
+        Logger.Info($"{__instance.GameId} joined lobby", "OnGameJoined");
         Main.playerVersion = new Dictionary<byte, PlayerVersion>();
         if (!Main.VersionCheat.Value) RPC.RpcVersionCheck();
         SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
@@ -67,8 +68,8 @@ class OnPlayerJoinedPatch
 {
     public static void Postfix(AmongUsClient __instance, [HarmonyArgument(0)] ClientData client)
     {
-        Logger.Info($"{client.PlayerName}(ClientID:{client.Id}/FriendCode:{client.FriendCode}) 加入房间", "Session");
-        if (AmongUsClient.Instance.AmHost && client.FriendCode == "" && Options.KickPlayerFriendCodeNotExist.GetBool())
+        Logger.Info($"{client.PlayerName}(ClientID:{client.Id}/FriendCode:{client.FriendCode}) joined the lobby", "Session");
+        if (AmongUsClient.Instance.AmHost && client.FriendCode == string.Empty && Options.KickPlayerFriendCodeNotExist.GetBool())
         {
             AmongUsClient.Instance.KickPlayer(client.Id, false);
             Logger.SendInGame(string.Format(GetString("Message.KickedByNoFriendCode"), client.PlayerName));
@@ -141,7 +142,7 @@ class OnPlayerLeftPatch
             var player = PlayerControl.LocalPlayer;
             var title = "<color=#aaaaff>" + GetString("DefaultSystemMessageTitle") + "</color>";
             var name = player?.Data?.PlayerName;
-            var msg = "";
+            var msg = string.Empty;
             if (GameStates.IsInGame)
             {
                 Utils.ErrorEnd("房主退出游戏");
@@ -234,12 +235,12 @@ class CreatePlayerPatch
         new LateTask(() =>
         {
             if (client.Character == null) return;
-            if (Main.OverrideWelcomeMsg != "") Utils.SendMessage(Main.OverrideWelcomeMsg, client.Character.PlayerId);
+            if (Main.OverrideWelcomeMsg != string.Empty) Utils.SendMessage(Main.OverrideWelcomeMsg, client.Character.PlayerId);
             else TemplateManager.SendTemplate("welcome", client.Character.PlayerId, true);
         }, 3f, "Welcome Message");
-        if (Main.OverrideWelcomeMsg == "" && Main.PlayerStates.Count != 0 && Main.clientIdList.Contains(client.Id))
+        if (Main.OverrideWelcomeMsg == string.Empty && Main.PlayerStates.Any() && Main.clientIdList.Contains(client.Id))
         {
-            if (Options.AutoDisplayKillLog.GetBool() && Main.PlayerStates.Count != 0 && Main.clientIdList.Contains(client.Id))
+            if (Options.AutoDisplayKillLog.GetBool() && Main.PlayerStates.Any() && Main.clientIdList.Contains(client.Id))
             {
                 new LateTask(() =>
                 {

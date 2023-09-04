@@ -105,7 +105,7 @@ class ExileControllerWrapUpPatch
         HexMaster.RemoveHexedPlayer();
 
 
-        if (NiceSwapper.Vote.Count > 0 && NiceSwapper.VoteTwo.Count > 0)
+        if (NiceSwapper.Vote.Any() && NiceSwapper.VoteTwo.Any())
         {
             foreach (var swapper in Main.AllAlivePlayerControls)
             {
@@ -161,12 +161,17 @@ class ExileControllerWrapUpPatch
                 CustomRoles.Engineer or
                 CustomRoles.Grenadier or
                 CustomRoles.Lighter or
+                CustomRoles.Ventguard or
                 CustomRoles.Scientist or
                 CustomRoles.ScientistTOHE or
                 CustomRoles.Tracefinder or
                 CustomRoles.Doctor or
                 CustomRoles.Bomber
                 ) pc.RpcResetAbilityCooldown();
+
+            if (Options.RemovePetsAtDeadPlayers.GetBool())
+                if (pc.Data.IsDead && Camouflage.PlayerSkins[pc.PlayerId].PetId != string.Empty)
+                    pc.RpcSetPet(string.Empty);
         }
         if (Options.RandomSpawn.GetBool() || Options.CurrentGameMode == CustomGameMode.SoloKombat)
         {
@@ -187,6 +192,7 @@ class ExileControllerWrapUpPatch
                     break;
             }
         }
+
         FallFromLadder.Reset();
         Utils.CountAlivePlayers(true);
         Utils.AfterMeetingTasks();

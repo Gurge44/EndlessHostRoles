@@ -55,7 +55,7 @@ public static class HudSpritePatch
                 if (!shapeshifting)
                 {
                     newKillButton = CustomButton.Get("Mark");
-                    if (Assassin.MarkedPlayer.ContainsKey(player.PlayerId))
+                    if (Undertaker.MarkedPlayer.ContainsKey(player.PlayerId))
                         newAbilityButton = CustomButton.Get("Assassinate");
                 }
                 break;
@@ -63,12 +63,6 @@ public static class HudSpritePatch
                 if (!shapeshifting)
                 {
                     newAbilityButton = CustomButton.Get("Disperse");
-                }
-                break;
-            case CustomRoles.BountyHunter:
-                if (!shapeshifting)
-                {
-                    newAbilityButton = CustomButton.Get("Swap");
                 }
                 break;
             case CustomRoles.ImperiusCurse:
@@ -142,6 +136,9 @@ public static class HudSpritePatch
                 break;
             case CustomRoles.Lighter:
                 newAbilityButton = CustomButton.Get("Lighter");
+                break;
+            case CustomRoles.Ventguard:
+                newAbilityButton = CustomButton.Get("Block");
                 break;
             case CustomRoles.Pelican:
                 newKillButton = CustomButton.Get("Vulture");

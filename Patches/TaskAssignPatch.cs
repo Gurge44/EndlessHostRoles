@@ -1,6 +1,7 @@
 using AmongUs.GameOptions;
 using HarmonyLib;
 using System.Collections.Generic;
+using System.Linq;
 using TOHE.Roles.AddOns.Crewmate;
 
 namespace TOHE;
@@ -73,8 +74,9 @@ class AddTasksFromListPatch
             if (task.TaskType == TaskTypes.DivertPower && Options.DisableDivertPower.GetBool()) disabledTasks.Add(task);//DivertPower task v1.0a
             if (task.TaskType == TaskTypes.FixWeatherNode && Options.DisableActivateWeatherNodes.GetBool()) disabledTasks.Add(task);//ActivateWeatherNodes task
         }
-        foreach (var task in disabledTasks)
+        for (int i = 0; i < disabledTasks.Count; i++)
         {
+            NormalPlayerTask task = disabledTasks[i];
             Logger.Msg("削除: " + task.TaskType.ToString(), "AddTask");
             unusedTasks.Remove(task);
         }
@@ -143,15 +145,18 @@ class RpcSetTasksPatch
             Main.CapitalismAssignTask.Remove(playerId);
         }
 
-        if (taskTypeIds.Count == 0) hasCommonTasks = false; //タスク再配布時はコモンを0に
+        if (!taskTypeIds.Any()) hasCommonTasks = false; //タスク再配布時はコモンを0に
         if (!hasCommonTasks && NumLongTasks == 0 && NumShortTasks == 0) NumShortTasks = 1; //タスク0対策
         if (hasCommonTasks && NumLongTasks == Main.NormalOptions.NumLongTasks && NumShortTasks == Main.NormalOptions.NumShortTasks) return; //変更点がない場合
 
         //割り当て可能なタスクのIDが入ったリスト
         //本来のRpcSetTasksの第二引数のクローン
         Il2CppSystem.Collections.Generic.List<byte> TasksList = new();
-        foreach (var num in taskTypeIds)
+        for (int i1 = 0; i1 < taskTypeIds.Count; i1++)
+        {
+            byte num = taskTypeIds[i1];
             TasksList.Add(num);
+        }
 
         //参考:ShipStatus.Begin
         //不要な割り当て済みのタスクを削除する処理

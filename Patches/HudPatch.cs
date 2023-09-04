@@ -2,6 +2,7 @@ using HarmonyLib;
 using Il2CppSystem.Text;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
@@ -21,6 +22,7 @@ class HudManagerPatch
     public static int NowFrameCount = 0;
     public static float FrameRateTimer = 0.0f;
     public static TMPro.TextMeshPro LowerInfoText;
+    public static GameObject TempLowerInfoText;
     public static void Postfix(HudManager __instance)
     {
         if (!GameStates.IsModHost) return;
@@ -46,7 +48,7 @@ class HudManagerPatch
         if (GameStates.IsLobby)
         {
             var POM = GameObject.Find("PlayerOptionsMenu(Clone)");
-            __instance.GameSettings.text = POM != null ? "" : OptionShower.GetTextNoFresh();
+            __instance.GameSettings.text = POM != null ? string.Empty : OptionShower.GetTextNoFresh();
             __instance.GameSettings.fontSizeMin =
             __instance.GameSettings.fontSizeMax = 1f;
         }
@@ -151,6 +153,8 @@ class HudManagerPatch
                         Gangster.SetKillButtonText(player.PlayerId);
                         break;
                     case CustomRoles.NSerialKiller:
+                    case CustomRoles.Vengeance:
+                    case CustomRoles.HeadHunter:
                     case CustomRoles.Imitator:
                     case CustomRoles.Werewolf:
                     case CustomRoles.RuthlessRomantic:
@@ -264,6 +268,9 @@ class HudManagerPatch
                     case CustomRoles.Lighter:
                         __instance.AbilityButton.buttonLabelText.text = GetString("LighterVentButtonText");
                         break;
+                    case CustomRoles.Ventguard:
+                        __instance.AbilityButton.buttonLabelText.text = GetString("VentguardVentButtonText");
+                        break;
                     case CustomRoles.Mayor:
                         __instance.AbilityButton.buttonLabelText.text = GetString("MayorVentButtonText");
                         break;
@@ -339,15 +346,20 @@ class HudManagerPatch
                 //バウンティハンターのターゲットテキスト
                 if (LowerInfoText == null)
                 {
-                    LowerInfoText = Object.Instantiate(__instance.KillButton.buttonLabelText);
+                    TempLowerInfoText = new GameObject("CountdownText");
+                    TempLowerInfoText.transform.position = new Vector3(0f, -2f, 1f);
+                    LowerInfoText = TempLowerInfoText.AddComponent<TextMeshPro>();
+                    //LowerInfoText.text = string.Format(GetString("CountdownText"));
+                    LowerInfoText.alignment = TextAlignmentOptions.Center;
+                    //LowerInfoText = Object.Instantiate(__instance.KillButton.buttonLabelText);
                     LowerInfoText.transform.parent = __instance.transform;
                     LowerInfoText.transform.localPosition = new Vector3(0, -2f, 0);
-                    LowerInfoText.alignment = TMPro.TextAlignmentOptions.Center;
-                    LowerInfoText.overflowMode = TMPro.TextOverflowModes.Overflow;
+                    LowerInfoText.overflowMode = TextOverflowModes.Overflow;
                     LowerInfoText.enableWordWrapping = false;
-                    LowerInfoText.color = Palette.EnabledColor;
-                    LowerInfoText.fontSizeMin = 2.0f;
-                    LowerInfoText.fontSizeMax = 2.0f;
+                    LowerInfoText.color = Color.white;
+                    LowerInfoText.outlineColor = Color.black;
+                    LowerInfoText.outlineWidth = 20000000f;
+                    LowerInfoText.fontSize = 2f;
                 }
 
                 if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
@@ -379,6 +391,10 @@ class HudManagerPatch
                 {
                     LowerInfoText.text = Wraith.GetHudText(player);
                 }
+                else if (player.Is(CustomRoles.HeadHunter))
+                {
+                    LowerInfoText.text = HeadHunter.GetHudText(player);
+                }
                 else if (player.Is(CustomRoles.Alchemist))
                 {
                     LowerInfoText.text = Alchemist.GetHudText(player);
@@ -401,9 +417,9 @@ class HudManagerPatch
                 }
                 else
                 {
-                    LowerInfoText.text = "";
+                    LowerInfoText.text = string.Empty;
                 }
-                LowerInfoText.enabled = LowerInfoText.text != "";
+                LowerInfoText.enabled = LowerInfoText.text != string.Empty;
 
                 if ((!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay) || GameStates.IsMeeting)
                 {
@@ -421,7 +437,7 @@ class HudManagerPatch
                     __instance.KillButton.ToggleVisible(false);
                 }
 
-                bool CanUseVent = player.CanUseImpostorVentButton();
+                bool CanUseVent = player.CanUseImpostorVentButton() && GameStates.IsInTask;
                 __instance.ImpostorVentButton.ToggleVisible(CanUseVent);
                 player.Data.Role.CanVent = CanUseVent;
             }
@@ -491,7 +507,6 @@ class SetVentOutlinePatch
 {
     public static void Postfix(Vent __instance, [HarmonyArgument(1)] ref bool mainTarget)
     {
-        var player = PlayerControl.LocalPlayer;
         Color color = PlayerControl.LocalPlayer.GetRoleColor();
         __instance.myRend.material.SetColor("_OutlineColor", color);
         __instance.myRend.material.SetColor("_AddColor", mainTarget ? color : Color.clear);
@@ -564,8 +579,9 @@ class SetHudActivePatch
 
         }
 
-        foreach (var subRole in Main.PlayerStates[player.PlayerId].SubRoles)
+        for (int i = 0; i < Main.PlayerStates[player.PlayerId].SubRoles.Count; i++)
         {
+            CustomRoles subRole = Main.PlayerStates[player.PlayerId].SubRoles[i];
             switch (subRole)
             {
                 case CustomRoles.Oblivious:
@@ -627,8 +643,9 @@ class TaskPanelBehaviourPatch
         // 役職説明表示
         if (!player.GetCustomRole().IsVanilla())
         {
-            var RoleWithInfo = $"{player.GetDisplayRoleName()}:\r\n";
+            var RoleWithInfo = $"<size=80%>{player.GetDisplayRoleName()}:\r\n";
             RoleWithInfo += player.GetRoleInfo();
+            RoleWithInfo += "</size>";
 
             var AllText = Utils.ColorString(player.GetRoleColor(), RoleWithInfo);
 
@@ -638,8 +655,9 @@ class TaskPanelBehaviourPatch
 
                     var lines = taskText.Split("\r\n</color>\n")[0].Split("\r\n\n")[0].Split("\r\n");
                     StringBuilder sb = new();
-                    foreach (var eachLine in lines)
+                    for (int i = 0; i < lines.Length; i++)
                     {
+                        string eachLine = lines[i];
                         var line = eachLine.Trim();
                         if ((line.StartsWith("<color=#FF1919FF>") || line.StartsWith("<color=#FF0000FF>")) && sb.Length < 1 && !line.Contains('(')) continue;
                         sb.Append(line + "\r\n");
@@ -677,7 +695,7 @@ class TaskPanelBehaviourPatch
                     {
                         string name = Main.AllPlayerNames[id].RemoveHtmlTags().Replace("\r\n", string.Empty);
                         string summary = $"{Utils.GetProgressText(id)}  {Utils.ColorString(Main.PlayerColors[id], name)}";
-                        if (Utils.GetProgressText(id).Trim() == "") continue;
+                        if (Utils.GetProgressText(id).Trim() == string.Empty) continue;
                         SummaryText[id] = summary;
                     }
 

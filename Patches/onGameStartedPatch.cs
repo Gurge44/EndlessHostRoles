@@ -21,7 +21,7 @@ internal class ChangeRoleSettings
 {
     public static void Postfix(AmongUsClient __instance)
     {
-        Main.OverrideWelcomeMsg = "";
+        Main.OverrideWelcomeMsg = string.Empty;
         try
         {
             //注:この時点では役職は設定されていません。
@@ -101,6 +101,7 @@ internal class ChangeRoleSettings
             Main.TimeMasterNumOfUsed = new();
             Main.GrenadierBlinding = new();
             Main.Lighter = new();
+            Main.BlockedVents = new();
             Main.MadGrenadierBlinding = new();
             Main.CursedWolfSpellCount = new();
             Main.JinxSpellCount = new();
@@ -190,6 +191,7 @@ internal class ChangeRoleSettings
             NiceSwapper.Init();
             Pickpocket.Init();
             Sniper.Init();
+            Farseer.Init();
             Jailor.Init();
             Monitor.Init();
             Cleanser.Init();
@@ -261,6 +263,8 @@ internal class ChangeRoleSettings
             Tracker.Init();
             Merchant.Init();
             NSerialKiller.Init();
+            Vengeance.Init();
+            HeadHunter.Init();
             Imitator.Init();
             Ignitor.Init();
             Werewolf.Init();
@@ -375,8 +379,9 @@ internal class SelectRolesPatch
         try
         {
             List<(PlayerControl, RoleTypes)> newList = new();
-            foreach (var sd in RpcSetRoleReplacer.StoragedData)
+            for (int i = 0; i < RpcSetRoleReplacer.StoragedData.Count; i++)
             {
+                (PlayerControl, RoleTypes) sd = RpcSetRoleReplacer.StoragedData[i];
                 var kp = RoleResult.Where(x => x.Key.PlayerId == sd.Item1.PlayerId).FirstOrDefault();
                 newList.Add((sd.Item1, kp.Value.GetRoleTypes()));
                 if (sd.Item2 == kp.Value.GetRoleTypes())
@@ -446,8 +451,9 @@ internal class SelectRolesPatch
             }
 
             if (CustomRoles.Lovers.IsEnable() && (CustomRoles.FFF.IsEnable() ? -1 : rd.Next(1, 100)) <= Options.LoverSpawnChances.GetInt()) AssignLoversRolesFromList();
-            foreach (var role in AddonRolesList)
+            for (int i = 0; i < AddonRolesList.Count; i++)
             {
+                CustomRoles role = AddonRolesList[i];
                 if (rd.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(role, out var sc) ? sc.GetFloat() : 0))
                     if (role.IsEnable()) AssignSubRoles(role);
             }
@@ -708,6 +714,9 @@ internal class SelectRolesPatch
                     case CustomRoles.Lighter:
                         Main.LighterNumOfUsed.Add(pc.PlayerId, Options.LighterSkillMaxOfUseage.GetInt());
                         break;
+                    case CustomRoles.Ventguard:
+                        Main.VentguardNumberOfAbilityUses = Options.VentguardMaxGuards.GetInt();
+                        break;
                     case CustomRoles.Swooper:
                         Swooper.Add(pc.PlayerId);
                         break;
@@ -774,6 +783,12 @@ internal class SelectRolesPatch
                     case CustomRoles.NSerialKiller:
                         NSerialKiller.Add(pc.PlayerId);
                         break;
+                    case CustomRoles.Vengeance:
+                        Vengeance.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.HeadHunter:
+                        HeadHunter.Add(pc.PlayerId);
+                        break;
                     case CustomRoles.Werewolf:
                         Werewolf.Add(pc.PlayerId);
                         break;
@@ -832,8 +847,10 @@ internal class SelectRolesPatch
                         //    Pirate.Add(pc.PlayerId);
                         //    break;
                 }
-                foreach (var subRole in pc.GetCustomSubRoles())
+                List<CustomRoles> list = pc.GetCustomSubRoles();
+                for (int i = 0; i < list.Count; i++)
                 {
+                    CustomRoles subRole = list[i];
                     switch (subRole)
                     {
                         // ここに属性のAddを追加
@@ -952,8 +969,8 @@ internal class SelectRolesPatch
             count = Count;
         for (var i = 0; i < count; i++)
         {
-            if (AllPlayers.Count <= 0) break;
-            var rand = new System.Random();
+            if (!AllPlayers.Any()) break;
+            var rand = IRandom.Instance;
             var player = AllPlayers[rand.Next(0, AllPlayers.Count)];
             AllPlayers.Remove(player);
             Main.AllPlayerCustomRoles[player.PlayerId] = role;
@@ -1072,8 +1089,9 @@ internal class SelectRolesPatch
                 if (sender.Value.CurrentState != CustomRpcSender.State.InRootMessage)
                     throw new InvalidOperationException("A CustomRpcSender had Invalid State.");
 
-                foreach (var pair in StoragedData)
+                for (int i = 0; i < StoragedData.Count; i++)
                 {
+                    (PlayerControl, RoleTypes) pair = StoragedData[i];
                     pair.Item1.SetRole(pair.Item2);
                     sender.Value.AutoStartRpc(pair.Item1.NetId, (byte)RpcCalls.SetRole, Utils.GetPlayerById(sender.Key).GetClientId())
                         .Write((ushort)pair.Item2)

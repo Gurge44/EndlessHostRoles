@@ -21,7 +21,7 @@ internal class MakePublicPatch
         }
         if (ModUpdater.isBroken || (ModUpdater.hasUpdate && ModUpdater.forceUpdate))
         {
-            var message = "";
+            var message = string.Empty;
             if (ModUpdater.isBroken) message = GetString("ModBrokenMessage");
             if (ModUpdater.hasUpdate) message = GetString("CanNotJoinPublicRoomNoLatest");
             Logger.Info(message, "MakePublicPatch");
