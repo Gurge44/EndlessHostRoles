@@ -99,8 +99,8 @@ public static class NiceSwapper
                 target = dp;
 
 
-                if (Vote.Count < 1 && !Vote.Contains(dp.PlayerId) && !VoteTwo.Contains(dp.PlayerId) && CanSwapSelf.GetBool()
-            || Vote.Count < 1 && !Vote.Contains(dp.PlayerId) && !VoteTwo.Contains(dp.PlayerId) && dp != pc && !CanSwapSelf.GetBool())
+                if (!Vote.Any() && !Vote.Contains(dp.PlayerId) && !VoteTwo.Contains(dp.PlayerId) && CanSwapSelf.GetBool()
+            || !Vote.Any() && !Vote.Contains(dp.PlayerId) && !VoteTwo.Contains(dp.PlayerId) && dp != pc && !CanSwapSelf.GetBool())
                 {
                     Vote.Add(dp.PlayerId);
                     if (HideMsg.GetBool() && !isUI)
@@ -111,8 +111,8 @@ public static class NiceSwapper
                     //else pc.ShowPopUp(GetString("Swap1"));
                     Logger.Info($"{pc.GetNameWithRole()} 选择 {target.GetNameWithRole()}", "Swapper");
                 }
-                else if (Vote.Count == 1 && VoteTwo.Count < 1 && !Vote.Contains(dp.PlayerId) && !VoteTwo.Contains(dp.PlayerId) && CanSwapSelf.GetBool()
-                || Vote.Count == 1 && VoteTwo.Count < 1 && !Vote.Contains(dp.PlayerId) && !VoteTwo.Contains(dp.PlayerId) && dp != pc && !CanSwapSelf.GetBool())
+                else if (Vote.Count == 1 && !VoteTwo.Any() && !Vote.Contains(dp.PlayerId) && !VoteTwo.Contains(dp.PlayerId) && CanSwapSelf.GetBool()
+                || Vote.Count == 1 && !VoteTwo.Any() && !Vote.Contains(dp.PlayerId) && !VoteTwo.Contains(dp.PlayerId) && dp != pc && !CanSwapSelf.GetBool())
                 {
                     VoteTwo.Add(dp.PlayerId);
                     if (HideMsg.GetBool() && !isUI)
@@ -123,7 +123,7 @@ public static class NiceSwapper
                     //else pc.ShowPopUp(GetString("Swap2"));
                     Logger.Info($"{pc.GetNameWithRole()} 选择 {target.GetNameWithRole()}", "Swapper");
                 }
-                else if (Vote.Count >= 1 && Vote.Contains(dp.PlayerId))
+                else if (Vote.Any() && Vote.Contains(dp.PlayerId))
                 {
                     Vote.Remove(dp.PlayerId);
                     if (HideMsg.GetBool() && !isUI)
@@ -134,7 +134,7 @@ public static class NiceSwapper
                     //else pc.ShowPopUp(GetString("CancelSwap1"));
                     Logger.Info($"{pc.GetNameWithRole()} 取消选择 {target.GetNameWithRole()}", "Swapper");
                 }
-                else if (VoteTwo.Contains(dp.PlayerId) && VoteTwo.Count >= 1)
+                else if (VoteTwo.Contains(dp.PlayerId) && VoteTwo.Any())
                 {
                     VoteTwo.Remove(dp.PlayerId);
                     if (HideMsg.GetBool() && !isUI)
@@ -160,12 +160,14 @@ public static class NiceSwapper
                     {
                         PlayerControl player1 = new();
                         PlayerControl player2 = new();
-                        foreach (var swap1 in Vote)
+                        for (int i = 0; i < Vote.Count; i++)
                         {
+                            byte swap1 = Vote[i];
                             player1.PlayerId = swap1;
                         }
-                        foreach (var swap2 in Vote)
+                        for (int i = 0; i < Vote.Count; i++)
                         {
+                            byte swap2 = Vote[i];
                             player2.PlayerId = swap2;
                         }
                     }
@@ -272,8 +274,9 @@ public static class NiceSwapper
     }
     public static void CreateSwapperButton(MeetingHud __instance)
     {
-        foreach (var pva in __instance.playerStates)
+        for (int i = 0; i < __instance.playerStates.Count; i++)
         {
+            PlayerVoteArea pva = __instance.playerStates[i];
             var pc = Utils.GetPlayerById(pva.TargetPlayerId);
             if (pc == null || !pc.IsAlive()) continue;
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;

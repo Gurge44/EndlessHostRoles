@@ -173,7 +173,7 @@ public static class Chameleon
     }
     public static string GetHudText(PlayerControl pc)
     {
-        if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return "";
+        if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
         var str = new StringBuilder();
         if (IsInvis(pc.PlayerId))
         {

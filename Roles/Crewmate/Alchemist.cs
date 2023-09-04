@@ -17,7 +17,7 @@ namespace TOHE.Roles.Crewmate
         private static List<byte> playerIdList = new();
         private static Dictionary<byte, int> ventedId = new();
         public static int PotionID = 10;
-        public static string PlayerName = "";
+        public static string PlayerName = string.Empty;
         private static Dictionary<byte, long> InvisTime = new();
         public static bool VisionPotionActive = false;
         public static bool FixNextSabo = false;
@@ -56,7 +56,7 @@ namespace TOHE.Roles.Crewmate
         {
             playerIdList = new();
             PotionID = 10;
-            PlayerName = "";
+            PlayerName = string.Empty;
             ventedId = new();
             InvisTime = new();
             FixNextSabo = false;
@@ -76,16 +76,16 @@ namespace TOHE.Roles.Crewmate
             switch (PotionID)
             {
                 case 1: // Shield
-                    pc.Notify(GetString("AlchemistGotShieldPotion"), 100f);
+                    pc.Notify(GetString("AlchemistGotShieldPotion"), 15f);
                     break;
                 case 2: // Suicide
-                    pc.Notify(GetString("AlchemistGotSuicidePotion"), 100f);
+                    pc.Notify(GetString("AlchemistGotSuicidePotion"), 15f);
                     break;
                 case 3: // TP to random player
-                    pc.Notify(GetString("AlchemistGotTPPotion"), 100f);
+                    pc.Notify(GetString("AlchemistGotTPPotion"), 15f);
                     break;
                 case 4: // Increased speed
-                    pc.Notify(GetString("AlchemistGotSpeedPotion"), 100f);
+                    pc.Notify(GetString("AlchemistGotSpeedPotion"), 15f);
                     break;
                 case 5: // Quick fix next sabo
                     FixNextSabo = true;
@@ -93,10 +93,10 @@ namespace TOHE.Roles.Crewmate
                     pc.Notify(GetString("AlchemistGotQFPotion"), 15f);
                     break;
                 case 6: // Invisibility
-                    pc.Notify(GetString("AlchemistGotInvisPotion"), 100f);
+                    pc.Notify(GetString("AlchemistGotInvisPotion"), 15f);
                     break;
                 case 7: // Increased vision
-                    pc.Notify(GetString("AlchemistGotSightPotion"), 100f);
+                    pc.Notify(GetString("AlchemistGotSightPotion"), 15f);
                     break;
                 default: // just in case
                     break;
@@ -245,13 +245,79 @@ namespace TOHE.Roles.Crewmate
         }
         public static string GetHudText(PlayerControl pc)
         {
-            if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return "";
+            if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
             var str = new StringBuilder();
             if (IsInvis(pc.PlayerId))
             {
                 var remainTime = InvisTime[pc.PlayerId] + (long)InvisDuration.GetFloat() - Utils.GetTimeStamp();
                 str.Append(string.Format(GetString("ChameleonInvisStateCountdown"), remainTime + 1));
             }
+            else
+            {
+                switch (PotionID)
+                {
+                    case 1: // Shield
+                        str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#00ff97>Shield Potion</color></b>");
+                        break;
+                    case 2: // Suicide
+                        str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#ff0000>Awkward Potion</color></b>");
+                        break;
+                    case 3: // TP to random player
+                        str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#42d1ff>Teleport Potion</color></b>");
+                        break;
+                    case 4: // Increased speed
+                        str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#ff8400>Speed Potion</color></b>");
+                        break;
+                    case 5: // Quick fix next sabo
+                        str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#3333ff>Quick Fix Potion</color></b>");
+                        break;
+                    case 6: // Invisibility
+                        str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#01c834>Invisibility Potion</color></b>");
+                        break;
+                    case 7: // Increased vision
+                        str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#eee5be>Sight Potion</color></b>");
+                        break;
+                    case 10:
+                        str.Append("<color=#00ffa5>Potion in store:</color> <color=#888888>None</color>");
+                        break;
+                    default: // just in case
+                        break;
+                }
+                if (FixNextSabo) str.Append("\n<b><color=#3333ff>Quick Fix Potion</color></b> waiting for use");
+            }
+            return str.ToString();
+        }
+        public static string GetProgressText(int playerId)
+        {
+            if (Utils.GetPlayerById(playerId) == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
+            var str = new StringBuilder();
+            switch (PotionID)
+            {
+                case 1: // Shield
+                    str.Append("<color=#00ffa5>Stored:</color> <color=#00ff97>Shield Potion</color>");
+                    break;
+                case 2: // Suicide
+                    str.Append("<color=#00ffa5>Stored:</color> <color=#ff0000>Awkward Potion</color>");
+                    break;
+                case 3: // TP to random player
+                    str.Append("<color=#00ffa5>Stored:</color> <color=#42d1ff>Teleport Potion</color>");
+                    break;
+                case 4: // Increased speed
+                    str.Append("<color=#00ffa5>Stored:</color> <color=#ff8400>Speed Potion</color>");
+                    break;
+                case 5: // Quick fix next sabo
+                    str.Append("<color=#00ffa5>Stored:</color> <color=#3333ff>Quick Fix Potion</color>");
+                    break;
+                case 6: // Invisibility
+                    str.Append("<color=#00ffa5>Stored:</color> <color=#01c834>Invisibility Potion</color>");
+                    break;
+                case 7: // Increased vision
+                    str.Append("<color=#00ffa5>Stored:</color> <color=#eee5be>Sight Potion</color>");
+                    break;
+                default:
+                    break;
+            }
+            if (FixNextSabo) str.Append(" <color=#777777>(<color=#3333ff>Quick Fix</color>)</color>");
             return str.ToString();
         }
         public static void RepairSystem(SystemTypes systemType, byte amount)

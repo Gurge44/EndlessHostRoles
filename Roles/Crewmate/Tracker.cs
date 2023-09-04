@@ -74,14 +74,15 @@ namespace TOHE.Roles.Crewmate
         }
         public static bool IsEnable => playerIdList.Any();
 
-        public static string GetTargetMark(PlayerControl seer, PlayerControl target) => TrackerTarget.ContainsKey(seer.PlayerId) && TrackerTarget[seer.PlayerId] == target.PlayerId ? Utils.ColorString(seer.GetRoleColor(), "◀") : "";
+        public static string GetTargetMark(PlayerControl seer, PlayerControl target) => TrackerTarget.ContainsKey(seer.PlayerId) && TrackerTarget[seer.PlayerId] == target.PlayerId ? Utils.ColorString(seer.GetRoleColor(), "◀") : string.Empty;
 
         public static void OnReportDeadBody()
         {
             if (!OptionCanSeeLastRoomInMeeting.GetBool()) return;
 
-            foreach (var pc in playerIdList)
+            for (int i = 0; i < playerIdList.Count; i++)
             {
+                byte pc = playerIdList[i];
                 if (TrackerTarget[pc] == byte.MaxValue)
                 {
                     continue;
@@ -127,10 +128,10 @@ namespace TOHE.Roles.Crewmate
 
         public static string GetTrackerArrow(PlayerControl seer, PlayerControl target = null)
         {
-            if (!seer.Is(CustomRoles.Tracker)) return "";
-            if (target != null && seer.PlayerId != target.PlayerId) return "";
-            if (GameStates.IsMeeting) return "";
-            if (!TrackerTarget.ContainsKey(seer.PlayerId)) return "";
+            if (!seer.Is(CustomRoles.Tracker)) return string.Empty;
+            if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
+            if (GameStates.IsMeeting) return string.Empty;
+            if (!TrackerTarget.ContainsKey(seer.PlayerId)) return string.Empty;
             return Utils.ColorString(Color.white, TargetArrow.GetArrows(seer, TrackerTarget[seer.PlayerId]));
         }
 

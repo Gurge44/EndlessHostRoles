@@ -59,7 +59,11 @@ public static class Judge
     public static void OnReportDeadBody()
     {
         TrialLimit.Clear();
-        foreach (var pc in playerIdList) TrialLimit.Add(pc, TrialLimitPerMeeting.GetInt());
+        for (int i = 0; i < playerIdList.Count; i++)
+        {
+            byte pc = playerIdList[i];
+            TrialLimit.Add(pc, TrialLimitPerMeeting.GetInt());
+        }
     }
     public static bool TrialMsg(PlayerControl pc, string msg, bool isUI = false)
     {

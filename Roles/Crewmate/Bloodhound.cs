@@ -74,16 +74,18 @@
 
         public static void Clear()
         {
-            foreach (var apc in playerIdList)
+            for (int i = 0; i < playerIdList.Count; i++)
             {
+                byte apc = playerIdList[i];
                 LocateArrow.RemoveAllTarget(apc);
                 SendRPC(apc, false);
             }
 
             foreach (var bloodhound in BloodhoundTargets)
             {
-                foreach (var target in bloodhound.Value)
+                for (int i = 0; i < bloodhound.Value.Count; i++)
                 {
+                    byte target = bloodhound.Value[i];
                     TargetArrow.Remove(bloodhound.Key, target);
                 }
 
@@ -95,8 +97,9 @@
         {
             if (!ArrowsPointingToDeadBody.GetBool()) return;
 
-            foreach (var pc in playerIdList)
+            for (int i = 0; i < playerIdList.Count; i++)
             {
+                byte pc = playerIdList[i];
                 var player = Utils.GetPlayerById(pc);
                 if (player == null || !player.IsAlive()) continue;
                 LocateArrow.Add(pc, target.transform.position);
@@ -135,14 +138,15 @@
 
         public static string GetTargetArrow(PlayerControl seer, PlayerControl target = null)
         {
-            if (!seer.Is(CustomRoles.Bloodhound)) return "";
-            if (target != null && seer.PlayerId != target.PlayerId) return "";
-            if (GameStates.IsMeeting) return "";
+            if (!seer.Is(CustomRoles.Bloodhound)) return string.Empty;
+            if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
+            if (GameStates.IsMeeting) return string.Empty;
             if (BloodhoundTargets.ContainsKey(seer.PlayerId) && BloodhoundTargets[seer.PlayerId].Any())
             {
-                var arrows = "";
-                foreach (var targetId in BloodhoundTargets[seer.PlayerId])
+                var arrows = string.Empty;
+                for (int i = 0; i < BloodhoundTargets[seer.PlayerId].Count; i++)
                 {
+                    byte targetId = BloodhoundTargets[seer.PlayerId][i];
                     var arrow = TargetArrow.GetArrows(seer, targetId);
                     arrows += Utils.ColorString(seer.GetRoleColor(), arrow);
                 }

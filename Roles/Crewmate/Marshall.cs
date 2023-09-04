@@ -110,7 +110,7 @@ public static class Marshall
     /// <param name="target">スニッチの場合有効</param>
     /// <returns></returns>
     public static string GetWarningMark(PlayerControl seer, PlayerControl target)
-        => IsMarshallTarget(seer) && GetExpose(target) ? Utils.ColorString(RoleColor, "★") : "";
+        => IsMarshallTarget(seer) && GetExpose(target) ? Utils.ColorString(RoleColor, "★") : string.Empty;
 
     /// <summary>
     /// キラーからスニッチに対する矢印
@@ -120,11 +120,11 @@ public static class Marshall
     /// <returns></returns>
     public static string GetWarningArrow(PlayerControl seer, PlayerControl target = null)
     {
-        if (GameStates.IsMeeting || !IsMarshallTarget(seer)) return "";
-        if (target != null && seer.PlayerId != target.PlayerId) return "";
+        if (GameStates.IsMeeting || !IsMarshallTarget(seer)) return string.Empty;
+        if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
 
         var exposedMarshall = playerIdList.Where(s => !Main.PlayerStates[s].IsDead && IsExposed[s]);
-        if (!exposedMarshall.Any()) return "";
+        if (!exposedMarshall.Any()) return string.Empty;
 
         var warning = "★";
 

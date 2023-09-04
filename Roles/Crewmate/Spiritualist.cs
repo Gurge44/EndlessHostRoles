@@ -77,8 +77,9 @@ namespace TOHE.Roles.Crewmate
 
         public static void AfterMeetingTasks()
         {
-            foreach (var spiritualist in playerIdList)
+            for (int i = 0; i < playerIdList.Count; i++)
             {
+                byte spiritualist = playerIdList[i];
                 PlayerControl player = Main.AllPlayerControls.FirstOrDefault(a => a.PlayerId == spiritualist);
                 if (!player.IsAlive())
                 {
@@ -116,20 +117,21 @@ namespace TOHE.Roles.Crewmate
 
         public static string GetSpiritualistArrow(PlayerControl seer, PlayerControl target = null)
         {
-            if (!seer.Is(CustomRoles.Spiritualist) || !seer.IsAlive()) return "";
-            if (target != null && seer.PlayerId != target.PlayerId) return "";
-            if (GameStates.IsMeeting) return "";
+            if (!seer.Is(CustomRoles.Spiritualist) || !seer.IsAlive()) return string.Empty;
+            if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
+            if (GameStates.IsMeeting) return string.Empty;
             if (SpiritualistTarget != byte.MaxValue && ShowArrow(seer.PlayerId))
             {
                 return Utils.ColorString(seer.GetRoleColor(), TargetArrow.GetArrows(seer, SpiritualistTarget));
             }
-            return "";
+            return string.Empty;
         }
 
         public static void RemoveTarget()
         {
-            foreach (var spiritualist in playerIdList)
+            for (int i = 0; i < playerIdList.Count; i++)
             {
+                byte spiritualist = playerIdList[i];
                 TargetArrow.Remove(spiritualist, SpiritualistTarget);
             }
 

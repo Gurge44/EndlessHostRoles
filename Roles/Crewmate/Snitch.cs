@@ -130,7 +130,7 @@ public static class Snitch
     /// <param name="target">スニッチの場合有効</param>
     /// <returns></returns>
     public static string GetWarningMark(PlayerControl seer, PlayerControl target)
-        => IsSnitchTarget(seer) && GetExpose(target) ? Utils.ColorString(RoleColor, "★") : "";
+        => IsSnitchTarget(seer) && GetExpose(target) ? Utils.ColorString(RoleColor, "★") : string.Empty;
 
     /// <summary>
     /// キラーからスニッチに対する矢印
@@ -140,11 +140,11 @@ public static class Snitch
     /// <returns></returns>
     public static string GetWarningArrow(PlayerControl seer, PlayerControl target = null)
     {
-        if (GameStates.IsMeeting || !IsSnitchTarget(seer)) return "";
-        if (target != null && seer.PlayerId != target.PlayerId) return "";
+        if (GameStates.IsMeeting || !IsSnitchTarget(seer)) return string.Empty;
+        if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
 
         var exposedSnitch = playerIdList.Where(s => !Main.PlayerStates[s].IsDead && IsExposed[s]);
-        if (!exposedSnitch.Any()) return "";
+        if (!exposedSnitch.Any()) return string.Empty;
 
         var warning = "\nSnitch ";
         if (EnableTargetArrow)
@@ -160,10 +160,10 @@ public static class Snitch
     /// <returns></returns>
     public static string GetSnitchArrow(PlayerControl seer, PlayerControl target = null)
     {
-        if (!IsThisRole(seer.PlayerId) || seer.Is(CustomRoles.Madmate)) return "";
-        if (!EnableTargetArrow || GameStates.IsMeeting) return "";
-        if (target != null && seer.PlayerId != target.PlayerId) return "";
-        var arrows = "";
+        if (!IsThisRole(seer.PlayerId) || seer.Is(CustomRoles.Madmate)) return string.Empty;
+        if (!EnableTargetArrow || GameStates.IsMeeting) return string.Empty;
+        if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
+        var arrows = string.Empty;
         foreach (var targetId in TargetList)
         {
             var arrow = TargetArrow.GetArrows(seer, targetId);

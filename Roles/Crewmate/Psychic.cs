@@ -44,8 +44,12 @@ public static class Psychic
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncPsychicRedList, SendOption.Reliable, -1);
         writer.Write(RedPlayer.Count);
-        foreach (var pc in RedPlayer)
+        for (int i = 0; i < RedPlayer.Count; i++)
+        {
+            byte pc = RedPlayer[i];
             writer.Write(pc);
+        }
+
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
     public static void ReceiveRPC(MessageReader reader)
@@ -63,7 +67,7 @@ public static class Psychic
     }
     public static void OnReportDeadBody()
     {
-        if (Fresh.GetBool() || RedPlayer == null || RedPlayer.Count < 1)
+        if (Fresh.GetBool() || RedPlayer == null || !RedPlayer.Any())
             GetRedName();
     }
     public static void GetRedName()

@@ -193,7 +193,7 @@ namespace TOHE.Roles.Crewmate
                     ).ToList();
                 }
 
-                if (AllAlivePlayer.Count == 0)
+                if (!AllAlivePlayer.Any())
                 {
                     player.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Merchant), GetString("MerchantAddonSellFail")));
                     return;

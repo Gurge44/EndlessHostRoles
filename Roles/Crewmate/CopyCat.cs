@@ -68,8 +68,9 @@ public static class CopyCat
 
     public static void AfterMeetingTasks()
     {
-        foreach (var player in playerIdList)
+        for (int i = 0; i < playerIdList.Count; i++)
         {
+            byte player = playerIdList[i];
             var pc = Utils.GetPlayerById(player);
             var role = pc.GetCustomRole();
             ////////////           /*remove the settings for current role*/             /////////////////////
@@ -153,6 +154,9 @@ public static class CopyCat
                 case CustomRoles.Lighter:
                     Main.LighterNumOfUsed.Remove(player);
                     break;
+                case CustomRoles.Ventguard:
+                    Main.VentguardNumberOfAbilityUses = 0;
+                    break;
                 case CustomRoles.TimeMaster:
                     Main.TimeMasterNumOfUsed.Remove(player);
                     break;
@@ -180,6 +184,7 @@ public static class CopyCat
             //bcoz of vent cd
             CustomRoles.Grenadier or
             CustomRoles.Lighter or
+            CustomRoles.Ventguard or
             CustomRoles.DovesOfNeace or
             CustomRoles.Veteran or
             CustomRoles.Addict or

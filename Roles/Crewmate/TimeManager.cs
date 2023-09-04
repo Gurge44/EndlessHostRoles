@@ -39,8 +39,9 @@ public static class TimeManager
     public static int TotalIncreasedMeetingTime()
     {
         int sec = 0;
-        foreach (var playerId in playerIdList)
+        for (int i = 0; i < playerIdList.Count; i++)
         {
+            byte playerId = playerIdList[i];
             if (Utils.GetPlayerById(playerId).Is(CustomRoles.Madmate)) sec -= AdditionalTime(playerId);
             else sec += AdditionalTime(playerId);
         }

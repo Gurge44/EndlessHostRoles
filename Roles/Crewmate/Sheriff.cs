@@ -150,8 +150,9 @@ public static class Sheriff
         var cRole = player.GetCustomRole();
         var subRole = player.GetCustomSubRoles();
         bool CanKill = false;
-        foreach (var SubRoleTarget in subRole)
+        for (int i = 0; i < subRole.Count; i++)
         {
+            CustomRoles SubRoleTarget = subRole[i];
             if (SubRoleTarget == CustomRoles.Madmate)
                 CanKill = CanKillMadmate.GetBool();
             if (SubRoleTarget == CustomRoles.Charmed)

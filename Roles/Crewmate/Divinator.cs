@@ -104,6 +104,7 @@ public static class Divinator
                 //CustomRoles.Counterfeiter or
                 CustomRoles.Witness or
                 CustomRoles.Greedier or
+                CustomRoles.Ventguard or
                 CustomRoles.Merchant or
                 CustomRoles.Trickster
                 => "Result3",
@@ -171,6 +172,7 @@ public static class Divinator
                 CustomRoles.Escapee or
                 CustomRoles.Miner or
                 CustomRoles.Demolitionist or
+                CustomRoles.Ventguard or
                 CustomRoles.Morphling
                 => "Result11",
 
@@ -248,6 +250,7 @@ public static class Divinator
                 CustomRoles.Vampire or
                 CustomRoles.DovesOfNeace or
                 CustomRoles.ImperiusCurse or
+                CustomRoles.HeadHunter or
                 CustomRoles.Traitor
                 => "Result21",
 
@@ -272,6 +275,7 @@ public static class Divinator
                 CustomRoles.Totocalcio or
                 CustomRoles.Pelican or
                 CustomRoles.Scavenger or
+                CustomRoles.Vengeance or
                 CustomRoles.Vulture
                 => "Result24",
 

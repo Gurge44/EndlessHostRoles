@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using Epic.OnlineServices;
 using System.Linq;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
@@ -27,6 +28,7 @@ namespace TOHE.Roles.Crewmate
             CustomRoles.SuperStar,
             CustomRoles.CyberStar,
             CustomRoles.Demolitionist,
+            CustomRoles.Ventguard,
             CustomRoles.Express,
             CustomRoles.NiceEraser,
             CustomRoles.TaskManager,
@@ -50,6 +52,7 @@ namespace TOHE.Roles.Crewmate
             CustomRoles.Bodyguard,
             CustomRoles.Grenadier,
             CustomRoles.Lighter,
+            CustomRoles.Ventguard,
             CustomRoles.Divinator,
             CustomRoles.Oracle,
             CustomRoles.Tracefinder,
@@ -78,6 +81,10 @@ namespace TOHE.Roles.Crewmate
                 .SetValueFormat(OptionFormat.Seconds);
             Vision = FloatOptionItem.Create(Id + 12, "FarseerVision", new(0f, 1f, 0.05f), 0.25f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Farseer])
                 .SetValueFormat(OptionFormat.Multiplier);
+        }
+        public static void Init()
+        {
+            isEnable = false;
         }
         public static void Add(byte playerId)
         {

@@ -58,7 +58,7 @@ public static class Mortician
     {
         var pos = target.GetTruePosition();
         float minDis = float.MaxValue;
-        string minName = "";
+        string minName = string.Empty;
         foreach (var pc in Main.AllAlivePlayerControls)
         {
             if (pc.PlayerId == target.PlayerId) continue;
@@ -71,8 +71,9 @@ public static class Mortician
         }
 
         lastPlayerName.TryAdd(target.PlayerId, minName);
-        foreach (var pc in playerIdList)
+        for (int i = 0; i < playerIdList.Count; i++)
         {
+            byte pc = playerIdList[i];
             var player = Utils.GetPlayerById(pc);
             if (player == null || !player.IsAlive()) continue;
             LocateArrow.Add(pc, target.transform.position);
@@ -81,8 +82,9 @@ public static class Mortician
     }
     public static void OnReportDeadBody(PlayerControl pc, GameData.PlayerInfo target)
     {
-        foreach (var apc in playerIdList)
+        for (int i = 0; i < playerIdList.Count; i++)
         {
+            byte apc = playerIdList[i];
             LocateArrow.RemoveAllTarget(apc);
             SendRPC(apc, false);
         }
@@ -96,11 +98,11 @@ public static class Mortician
     {
         if (ShowArrows.GetBool())
         {
-            if (!seer.Is(CustomRoles.Mortician)) return "";
-            if (target != null && seer.PlayerId != target.PlayerId) return "";
-            if (GameStates.IsMeeting) return "";
+            if (!seer.Is(CustomRoles.Mortician)) return string.Empty;
+            if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
+            if (GameStates.IsMeeting) return string.Empty;
             return Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
         }
-        else return "";
+        else return string.Empty;
     }
 }
