@@ -125,15 +125,23 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 AURoleOptions.ShapeshifterDuration = Options.WarlockShiftDuration.GetFloat();
                 break;
             case CustomRoles.Escapee:
-                AURoleOptions.ShapeshifterCooldown = 5f;
-                AURoleOptions.ShapeshifterDuration = 1f;
+                AURoleOptions.ShapeshifterCooldown = Options.EscapeeSSCD.GetFloat();
+                AURoleOptions.ShapeshifterDuration = Options.EscapeeSSDuration.GetFloat();
                 break;
             case CustomRoles.Sniper:
-                AURoleOptions.ShapeshifterDuration = Sniper.bulletCount[player.PlayerId] > 0 ? Sniper.ShapeshiftDuration.GetFloat() : 255f;
+                if (Sniper.bulletCount[player.PlayerId] > 0)
+                {
+                    AURoleOptions.ShapeshifterDuration = Sniper.ShapeshiftDuration.GetFloat();
+                }
+                else
+                {
+                    AURoleOptions.ShapeshifterDuration = 1f;
+                    AURoleOptions.ShapeshifterCooldown = 255f;
+                }
                 break;
             case CustomRoles.Miner:
-                AURoleOptions.ShapeshifterCooldown = 15f;
-                AURoleOptions.ShapeshifterDuration = 1f;
+                AURoleOptions.ShapeshifterCooldown = Options.MinerSSCD.GetFloat();
+                AURoleOptions.ShapeshifterDuration = Options.MinerSSDuration.GetFloat();
                 break;
             //case CustomRoles.SerialKiller:
             //    SerialKiller.ApplyGameOptions(player);

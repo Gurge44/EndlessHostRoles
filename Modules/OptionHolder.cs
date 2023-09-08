@@ -242,6 +242,7 @@ public static class Options
     public static OptionItem VentguardMaxGuards;
     public static OptionItem VentguardBlockDoesNotAffectCrew;
     public static OptionItem BodyguardProtectRadius;
+    public static OptionItem BodyguardKillsKiller;
     public static OptionItem WitnessCD;
     public static OptionItem WitnessTime;
     public static OptionItem DQNumOfKillsNeeded;
@@ -1512,6 +1513,8 @@ public static class Options
         BodyguardProtectRadius = FloatOptionItem.Create(8410, "BodyguardProtectRadius", new(0.5f, 5f, 0.5f), 1.5f, TabGroup.CrewmateRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Bodyguard])
             .SetValueFormat(OptionFormat.Multiplier);
+        BodyguardKillsKiller = BooleanOptionItem.Create(8411, "BodyguardKillsKiller", false, TabGroup.CrewmateRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Bodyguard]);
         RoleLoadingText = "Crewmate roles\nCopycat";
         CopyCat.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nCrusader";
