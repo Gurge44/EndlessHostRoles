@@ -83,8 +83,8 @@ public static class NameColorManager
         if (seer.Is(CustomRoles.Glitch) && target.Is(CustomRoles.Glitch)) color = Main.roleColors[CustomRoles.Glitch];
         if (seer.Is(CustomRoles.Succubus) && target.Is(CustomRoles.Succubus)) color = Main.roleColors[CustomRoles.Succubus];
 
-        if (seer.Is(CustomRoles.HeadHunter) && HeadHunter.Targets.Contains(target.PlayerId)) color = Color.black.ToString();
-        if (seer.Is(CustomRoles.BountyHunter) && BountyHunter.GetTarget(seer) == target.PlayerId) color = Color.black.ToString();
+        if (seer.Is(CustomRoles.HeadHunter) && HeadHunter.Targets.Contains(target.PlayerId)) color = "000000";
+        if (seer.Is(CustomRoles.BountyHunter) && BountyHunter.GetTarget(seer) == target.PlayerId) color = "000000";
 
         if (seer.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor)) color = Main.roleColors[CustomRoles.ImpostorTOHE];
         if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Refugee)) color = Main.roleColors[CustomRoles.Refugee];

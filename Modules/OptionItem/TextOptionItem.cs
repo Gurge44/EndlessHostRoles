@@ -28,12 +28,4 @@ public class TextOptionItem : OptionItem
     {
         return Translator.GetString(Name);
     }
-
-    // Setter
-    public override void SetValue(int value)
-    {
-    }
-    public override void SetValueNoRpc(int value)
-    {
-    }
 }

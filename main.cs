@@ -112,7 +112,7 @@ public class Main : BasePlugin
     public static List<byte> DemolitionistDead = new();
     public static Dictionary<byte, long> ExpressSpeedUp = new();
     public static float ExpressSpeedNormal;
-    public static List<Vent> BlockedVents = new();
+    public static List<int> BlockedVents = new();
     public static float VentguardNumberOfAbilityUses = 0;
     public static List<byte> WorkaholicAlive = new();
     public static List<byte> SpeedrunnerAlive = new();
@@ -423,8 +423,8 @@ public class Main : BasePlugin
                 {CustomRoles.Traitor, "#BA2E05"},
                 {CustomRoles.Vulture, "#556B2F"},
                 {CustomRoles.Medusa, "#9900CC"},
-                {CustomRoles.Baker, "#b58428"},
-                {CustomRoles.Famine, "#cb4d4d"},
+                //{CustomRoles.Baker, "#b58428"},
+                //{CustomRoles.Famine, "#cb4d4d"},
                 {CustomRoles.Spiritcaller, "#003366"},
                 {CustomRoles.EvilSpirit, "#003366"},
                 {CustomRoles.Convict, "#ff1919"},
@@ -749,8 +749,8 @@ public enum CustomRoles
     Pestilence,
     Medusa,
     Sidekick,
-    Baker,
-    Famine,
+    //Baker,
+    //Famine,
     Spiritcaller,
     Amnesiac,
     Doomsayer,
@@ -873,7 +873,7 @@ public enum CustomWinner
     Vulture = CustomRoles.Vulture,
     Pestilence = CustomRoles.Pestilence,
     Medusa = CustomRoles.Medusa,
-    Famine = CustomRoles.Famine,
+    //Famine = CustomRoles.Famine,
     Spiritcaller = CustomRoles.Spiritcaller,
     Glitch = CustomRoles.Glitch,
     Plaguebearer = CustomRoles.PlagueBearer,

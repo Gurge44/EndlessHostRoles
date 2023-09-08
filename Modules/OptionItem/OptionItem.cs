@@ -1,7 +1,7 @@
-using BepInEx.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TOHE.Modules;
 using UnityEngine;
 
 namespace TOHE;
@@ -10,7 +10,9 @@ public abstract class OptionItem
 {
     #region static
     public static IReadOnlyList<OptionItem> AllOptions => _allOptions;
-    private static List<OptionItem> _allOptions = new();
+    private static List<OptionItem> _allOptions = new(1024);
+    public static IReadOnlyDictionary<int, OptionItem> FastOptions => _fastOptions;
+    private static Dictionary<int, OptionItem> _fastOptions = new(1024);
     public static int CurrentPreset { get; set; }
     #endregion
 
@@ -39,23 +41,17 @@ public abstract class OptionItem
     }
     private Dictionary<string, string> _replacementDictionary;
 
-    // 設定値情報 (オプションの値に関わる情報)
+    public int[] AllValues { get; private set; } = new int[NumPresets];
     public int CurrentValue
     {
         get => GetValue();
         set => SetValue(value);
     }
+    public int SingleValue { get; private set; }
 
     // 親子情報
     public OptionItem Parent { get; private set; }
     public List<OptionItem> Children;
-
-    // 内部情報 (外部から参照することを想定していない情報)
-    public ConfigEntry<int> CurrentEntry =>
-        IsSingleValue ? singleEntry : AllConfigEntries[CurrentPreset];
-    private ConfigEntry<int>[] AllConfigEntries;
-    private ConfigEntry<int> singleEntry;
-
 
     public OptionBehaviour OptionBehaviour;
 
@@ -86,30 +82,32 @@ public abstract class OptionItem
         // オブジェクト初期化
         Children = new();
 
-        // ConfigEntry初期化
-        AllConfigEntries = new ConfigEntry<int>[5];
-        if (Id == 0)
+        // デフォルト値に設定
+        if (Id == PresetId)
         {
-            singleEntry = Main.Instance.Config.Bind("Current Preset", id.ToString(), DefaultValue);
-            CurrentPreset = singleEntry.Value;
+            SingleValue = DefaultValue;
+            CurrentPreset = SingleValue;
         }
         else if (IsSingleValue)
         {
-            singleEntry = Main.Instance.Config.Bind("SingleEntryOptions", id.ToString(), DefaultValue);
+            SingleValue = DefaultValue;
         }
         else
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < NumPresets; i++)
             {
-                AllConfigEntries[i] = Main.Instance.Config.Bind($"Preset{i + 1}", id.ToString(), DefaultValue);
+                AllValues[i] = DefaultValue;
             }
         }
 
-        if (AllOptions.Any(op => op.Id == id))
+        if (_fastOptions.TryAdd(id, this))
         {
-            Logger.Error($"Repeat option ID:{id}", "OptionItem");
+            _allOptions.Add(this);
         }
-        _allOptions.Add(this);
+        else
+        {
+            Logger.Error($"Duplicate ID: {id}", "OptionItem");
+        }
     }
 
     // Setter
@@ -166,7 +164,7 @@ public abstract class OptionItem
     {
         return ApplyFormat(CurrentValue.ToString());
     }
-    public virtual int GetValue() => CurrentEntry.Value;
+    public virtual int GetValue() => IsSingleValue ? SingleValue : AllValues[CurrentPreset];
 
     // 旧IsHidden関数
     public virtual bool IsHiddenOn(CustomGameMode mode)
@@ -190,22 +188,36 @@ public abstract class OptionItem
             opt.oldValue = opt.Value = CurrentValue;
         }
     }
-    public virtual void SetValue(int value)
+    public void SetValue(int afterValue, bool doSave, bool doSync = true)
     {
-        int beforeValue = CurrentEntry.Value;
-        int afterValue = CurrentEntry.Value = value;
+        int beforeValue = CurrentValue;
+        if (IsSingleValue)
+        {
+            SingleValue = afterValue;
+        }
+        else
+        {
+            AllValues[CurrentPreset] = afterValue;
+        }
 
         CallUpdateValueEvent(beforeValue, afterValue);
         Refresh();
-        RPC.SyncCustomSettingsRPCforOneOption(this);
+        if (doSync)
+        {
+            SyncAllOptions();
+        }
+        if (doSave)
+        {
+            OptionSaver.Save();
+        }
     }
-    public virtual void SetValueNoRpc(int value)
+    public virtual void SetValue(int afterValue, bool doSync = true)
     {
-        int beforeValue = CurrentEntry.Value;
-        int afterValue = CurrentEntry.Value = value;
-
-        CallUpdateValueEvent(beforeValue, afterValue);
-        Refresh();
+        SetValue(afterValue, true, doSync);
+    }
+    public void SetAllValues(int[] values)
+    {
+        AllValues = values;
     }
 
     // 演算子オーバーロード
@@ -217,7 +229,7 @@ public abstract class OptionItem
     // 全体操作用
     public static void SwitchPreset(int newPreset)
     {
-        CurrentPreset = Math.Clamp(newPreset, 0, 4);
+        CurrentPreset = Math.Clamp(newPreset, 0, NumPresets - 1);
 
         for (int i = 0; i < AllOptions.Count; i++)
         {
@@ -227,7 +239,7 @@ public abstract class OptionItem
 
         SyncAllOptions();
     }
-    public static void SyncAllOptions(int targetId = -1)
+    public static void SyncAllOptions()
     {
         if (
             Main.AllPlayerControls.Count() <= 1 ||
@@ -235,7 +247,7 @@ public abstract class OptionItem
             PlayerControl.LocalPlayer == null
         ) return;
 
-        RPC.SyncCustomSettingsRPC(targetId);
+        RPC.SyncCustomSettingsRPC();
     }
 
 
@@ -249,7 +261,7 @@ public abstract class OptionItem
         }
         catch (Exception ex)
         {
-            Logger.Error($"[{Name}] UpdateValueEventの呼び出し時に例外が発生しました", "OptionItem.UpdateValueEvent");
+            Logger.Error($"[{Name}] - Exception occurred when calling UpdateValueEvent", "OptionItem.UpdateValueEvent");
             Logger.Exception(ex, "OptionItem.UpdateValueEvent");
         }
     }
@@ -264,6 +276,9 @@ public abstract class OptionItem
             BeforeValue = beforeValue;
         }
     }
+
+    public const int NumPresets = 5;
+    public const int PresetId = 0;
 }
 
 public enum TabGroup

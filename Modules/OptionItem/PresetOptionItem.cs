@@ -9,7 +9,7 @@ public class PresetOptionItem : OptionItem
     public PresetOptionItem(int defaultValue, TabGroup tab)
     : base(0, "Preset", defaultValue, tab, true)
     {
-        Rule = (0, 4, 1);
+        Rule = (0, NumPresets - 1, 1);
     }
     public static PresetOptionItem Create(int defaultValue, TabGroup tab)
     {
@@ -35,9 +35,9 @@ public class PresetOptionItem : OptionItem
         => Rule.RepeatIndex(base.GetValue());
 
     // Setter
-    public override void SetValue(int value)
+    public override void SetValue(int value, bool doSync = true)
     {
-        base.SetValue(Rule.RepeatIndex(value));
+        base.SetValue(Rule.RepeatIndex(value), doSync);
         SwitchPreset(Rule.RepeatIndex(value));
     }
 }

@@ -152,3 +152,15 @@
 > - Ideas for some roles
 > - Customize Main Menu
 > - Reference: Auto Play Again
+>
+
+### :star: [Stellar Roles](https://github.com/Mr-Fluuff/StellarRolesAU)
+>
+> - Many role ideas (this mod is seriously amazing)
+> - Reference: Some custom sounds and button images
+> 
+
+### :star: [TOHEX](https://github.com/TOHEX-Official/TownOfHostEdited-Xi)
+>
+> - Provided role: Swapper
+> 

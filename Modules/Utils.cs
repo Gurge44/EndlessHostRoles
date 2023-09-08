@@ -467,7 +467,7 @@ public static class Utils
             case CustomRoles.Jester:
             //case CustomRoles.Pirate:
             //   case CustomRoles.Baker:
-            case CustomRoles.Famine:
+            //case CustomRoles.Famine:
             //case CustomRoles.NWitch:
             case CustomRoles.Mario:
             case CustomRoles.Vulture:
@@ -521,7 +521,7 @@ public static class Utils
             case CustomRoles.Convict:
             case CustomRoles.Opportunist:
             case CustomRoles.Phantom:
-            case CustomRoles.Baker:
+            //case CustomRoles.Baker:
                 //   case CustomRoles.Famine:
                 if (ForRecompute)
                     hasTasks = false;
@@ -1326,14 +1326,31 @@ public static class Utils
         var sb = new StringBuilder();
         if (intro)
         {
-            sb.Append("<size=40%>");
+            sb.Append("<size=15%>");
             for (int i = 0; i < SubRoles.Count; i++)
             {
                 CustomRoles role = SubRoles[i];
-                if (role is CustomRoles.NotAssigned or CustomRoles.LastImpostor) continue;
+                if (role is CustomRoles.NotAssigned or CustomRoles.LastImpostor) SubRoles.Remove(SubRoles[i]);
+            }
+            if (SubRoles.Count == 1)
+            {
+                CustomRoles role = SubRoles[0];
 
                 var RoleText = ColorString(GetRoleColor(role), GetRoleName(role));
                 sb.Append($"{ColorString(Color.gray, "\nModifier: ")}{RoleText}");
+            }
+            else
+            {
+                sb.Append($"{ColorString(Color.gray, "\nModifiers: ")}");
+                for (int i = 0; i < SubRoles.Count; i++)
+                {
+                    if (i != 0) sb.Append(", ");
+                    CustomRoles role = SubRoles[i];
+                    if (role is CustomRoles.NotAssigned or CustomRoles.LastImpostor) continue;
+
+                    var RoleText = ColorString(GetRoleColor(role), GetRoleName(role));
+                    sb.Append($"{RoleText}");
+                }
             }
             sb.Append("</size>");
         }
@@ -1747,8 +1764,8 @@ public static class Utils
             //呪われている場合
             SelfMark.Append(Witch.GetSpelledMark(seer.PlayerId, isForMeeting));
             SelfMark.Append(HexMaster.GetHexedMark(seer.PlayerId, isForMeeting));
-            if (Baker.IsPoisoned(seer) && isForMeeting && seer.IsAlive())
-                SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Famine), "θ"));
+            //if (Baker.IsPoisoned(seer) && isForMeeting && seer.IsAlive())
+            //    SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Famine), "θ"));
 
 
             //如果是大明星
@@ -2065,6 +2082,7 @@ public static class Utils
                     (target.Is(CustomRoles.Doctor) && !target.GetCustomRole().IsEvilAddons() && Options.DoctorVisibleToEveryone.GetBool()) ||
                     (target.Is(CustomRoles.Mayor) && Options.MayorRevealWhenDoneTasks.GetBool() && target.GetPlayerTaskState().IsTaskFinished) ||
                     (seer.Is(CustomRoleTypes.Crewmate) && target.Is(CustomRoles.Marshall) && target.GetPlayerTaskState().IsTaskFinished) ||
+                    (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Vote && Options.SeeEjectedRolesInMeeting.GetBool()) ||
                     Totocalcio.KnowRole(seer, target) ||
                     Romantic.KnowRole(seer, target) ||
                     Lawyer.KnowRole(seer, target) ||
@@ -2358,11 +2376,8 @@ public static class Utils
 
         if (Options.AirshipVariableElectrical.GetBool())
             AirshipElectricalDoors.Initialize();
-        /*   if (Options.DiseasedCDReset.GetBool())
-               Main.KilledDiseased.Clear();
-           if (Options.AntidoteCDReset.GetBool())
-               Main.KilledAntidote.Clear(); */
 
+        DoorsReset.ResetDoors();
     }
     public static void AfterPlayerDeathTasks(PlayerControl target, bool onMeeting = false)
     {

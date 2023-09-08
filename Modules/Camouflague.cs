@@ -1,7 +1,5 @@
 using AmongUs.Data;
-using HarmonyLib;
 using System.Collections.Generic;
-using System.Linq;
 using TOHE.Roles.Impostor;
 
 namespace TOHE;
@@ -87,13 +85,14 @@ public static class Camouflage
 
         if (oldIsCamouflage != IsCamouflage)
         {
-            Main.AllPlayerControls.Do(pc => RpcSetSkin(pc));
-            if (Options.RemovePetsAtDeadPlayers.GetBool())
+            foreach (var pc in Main.AllPlayerControls)
             {
-                Main.AllPlayerControls
-                    .Where(pc => PlayerSkins[pc.PlayerId].PetId != string.Empty && pc.Data.IsDead && !pc.IsAlive())
-                    .Where(pc => pc.Data.IsDead && !pc.IsAlive() && PlayerSkins[pc.PlayerId].PetId != string.Empty)
-                    .Do(pc => pc.RpcSetPet(string.Empty));
+                RpcSetSkin(pc);
+
+                if (!IsCamouflage)
+                {
+                    pc.RpcRemovePet();
+                }
             }
             Utils.NotifyRoles();
         }

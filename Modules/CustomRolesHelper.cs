@@ -73,7 +73,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Luckey => CustomRoles.Crewmate,
                 CustomRoles.CyberStar => CustomRoles.Crewmate,
                 CustomRoles.Demolitionist => CustomRoles.Crewmate,
-                CustomRoles.Ventguard => CustomRoles.Crewmate,
+                CustomRoles.Ventguard => CustomRoles.Engineer,
                 CustomRoles.Express => CustomRoles.Crewmate,
                 CustomRoles.NiceEraser => CustomRoles.Crewmate,
                 CustomRoles.TaskManager => CustomRoles.Crewmate,
@@ -177,7 +177,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Lookout => CustomRoles.CrewmateTOHE,
                 CustomRoles.CyberStar => CustomRoles.CrewmateTOHE,
                 CustomRoles.Demolitionist => CustomRoles.CrewmateTOHE,
-                CustomRoles.Ventguard => CustomRoles.CrewmateTOHE,
+                CustomRoles.Ventguard => CustomRoles.EngineerTOHE,
                 CustomRoles.Express => CustomRoles.CrewmateTOHE,
                 CustomRoles.NiceEraser => CustomRoles.CrewmateTOHE,
                 CustomRoles.TaskManager => CustomRoles.CrewmateTOHE,
@@ -534,8 +534,8 @@ internal static class CustomRolesHelper
             //CustomRoles.Pirate or
             CustomRoles.Revolutionist or
             CustomRoles.Vulture or
-            CustomRoles.Famine or
-            CustomRoles.Baker or
+            //CustomRoles.Famine or
+            //CustomRoles.Baker or
             CustomRoles.CursedSoul or
             CustomRoles.Phantom or
             CustomRoles.Workaholic or
@@ -676,8 +676,8 @@ internal static class CustomRolesHelper
             //CustomRoles.Masochist or
             CustomRoles.Amnesiac or
             CustomRoles.Medusa or
-            CustomRoles.Famine or
-            CustomRoles.Baker or
+            //CustomRoles.Famine or
+            //CustomRoles.Baker or
             CustomRoles.HexMaster or
             CustomRoles.Glitch or
             CustomRoles.Crewpostor or
