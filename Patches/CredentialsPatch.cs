@@ -317,7 +317,7 @@ internal class TitleLogoPatch
                 //__instance.playButton.OnClick = __instance.PlayOnlineButton.OnClick;
                 //new LateTask(() => __instance.playButton.buttonText.text = "Play Online", 0.001f);
 
-                __instance.playButton.transform.localPosition -= new Vector3(0f, 1.4f);
+                //__instance.playButton.transform.localPosition -= new Vector3(0f, 1.4f);
 
                 //PassiveButton playLocalButton = UnityEngine.Object.Instantiate(__instance.playButton, __instance.transform);
                 //playLocalButton.transform.localPosition -= new Vector3(3.4f, 1.5f);

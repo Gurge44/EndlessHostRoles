@@ -198,7 +198,26 @@ internal class ChatCommands
                     canceled = true;
                     Utils.ShowHelp(PlayerControl.LocalPlayer.PlayerId);
                     break;
-
+                case "/kcount":
+                    canceled = true;
+                    if (!GameStates.IsLobby && Options.EnableKillerLeftCommand.GetBool()) break;
+                    int impnum = 0;
+                    int neutralnum = 0;
+                    foreach (var players in Main.AllAlivePlayerControls)
+                    {
+                        if (Options.ShowImpRemainOnEject.GetBool())
+                        {
+                            if (players.GetCustomRole().IsImpostor())
+                                impnum++;
+                        }
+                        if (Options.ShowNKRemainOnEject.GetBool())
+                        {
+                            if (players.GetCustomRole().IsNK())
+                                neutralnum++;
+                        }
+                    }
+                    Utils.SendMessage($"There {(impnum == 1 ? "is" : "are")}\n<b>{impnum}</b> <color=#ff1919>{(impnum == 1 ? "Impostor" : "Impostors")}</color> and <b>{neutralnum}</b> <color=#7f8c8d>{(neutralnum == 1 ? "Neutral Killer" : "Neutral Killers")}</color> left.", PlayerControl.LocalPlayer.PlayerId);
+                    break;
                 case "/m":
                 case "/myrole":
                     canceled = true;
@@ -909,6 +928,26 @@ internal class ChatCommands
                     if (args.Length > 1)
                         Utils.SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<color=#4bc9b0>{GetString("MessageFromSponsor")}</color>");
                 }
+                break;
+
+            case "/kcount":
+                if (!GameStates.IsLobby && Options.EnableKillerLeftCommand.GetBool()) break;
+                int impnum = 0;
+                int neutralnum = 0;
+                foreach (var players in Main.AllAlivePlayerControls)
+                {
+                    if (Options.ShowImpRemainOnEject.GetBool())
+                    {
+                        if (players.GetCustomRole().IsImpostor())
+                            impnum++;
+                    }
+                    if (Options.ShowNKRemainOnEject.GetBool())
+                    {
+                        if (players.GetCustomRole().IsNK())
+                            neutralnum++;
+                    }
+                }
+                Utils.SendMessage($"There {(impnum == 1 ? "is" : "are")}\n<b>{impnum}</b> <color=#ff1919>{(impnum == 1 ? "Impostor" : "Impostors")}</color> and <b>{neutralnum}</b> <color=#7f8c8d>{(neutralnum == 1 ? "Neutral Killer" : "Neutral Killers")}</color> left.", PlayerControl.LocalPlayer.PlayerId);
                 break;
 
             default:

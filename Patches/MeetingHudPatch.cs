@@ -841,6 +841,7 @@ class MeetingHudStartPatch
                 (pc.Is(CustomRoles.Doctor) && !pc.GetCustomRole().IsEvilAddons() && Options.DoctorVisibleToEveryone.GetBool()) ||
                 (pc.Is(CustomRoles.Mayor) && Options.MayorRevealWhenDoneTasks.GetBool() && pc.GetPlayerTaskState().IsTaskFinished) ||
                 (pc.Is(CustomRoles.Marshall) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && pc.GetPlayerTaskState().IsTaskFinished) ||
+                (Main.PlayerStates[pc.PlayerId].deathReason == PlayerState.DeathReason.Vote && Options.SeeEjectedRolesInMeeting.GetBool()) ||
                 Totocalcio.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Romantic.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 EvilDiviner.IsShowTargetRole(PlayerControl.LocalPlayer, pc) ||
@@ -858,7 +859,7 @@ class MeetingHudStartPatch
                 PlayerControl.LocalPlayer.Is(CustomRoles.GM) ||
                 Main.GodMode.Value;
 
-            Baker.SendAliveMessage(pc);
+            //Baker.SendAliveMessage(pc);
 
             if (!PlayerControl.LocalPlayer.Data.IsDead && PlayerControl.LocalPlayer.IsRevealedPlayer(pc) && pc.Is(CustomRoles.Trickster))
             {
@@ -1146,8 +1147,8 @@ class MeetingHudStartPatch
             //呪われている場合
             sb.Append(Witch.GetSpelledMark(target.PlayerId, true));
             sb.Append(HexMaster.GetHexedMark(target.PlayerId, true));
-            if (Baker.IsPoisoned(target))
-                sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Famine), "θ"));
+            //if (Baker.IsPoisoned(target))
+            //    sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Famine), "θ"));
 
 
             //如果是大明星

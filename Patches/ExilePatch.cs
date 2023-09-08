@@ -169,9 +169,9 @@ class ExileControllerWrapUpPatch
                 CustomRoles.Bomber
                 ) pc.RpcResetAbilityCooldown();
 
-            if (Options.RemovePetsAtDeadPlayers.GetBool())
-                if (pc.Data.IsDead && Camouflage.PlayerSkins[pc.PlayerId].PetId != string.Empty)
-                    pc.RpcSetPet(string.Empty);
+
+            pc.RpcRemovePet();
+
         }
         if (Options.RandomSpawn.GetBool() || Options.CurrentGameMode == CustomGameMode.SoloKombat)
         {

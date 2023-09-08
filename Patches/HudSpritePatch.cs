@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using TOHE.Roles.Impostor;
+using TOHE.Roles.Neutral;
 using UnityEngine;
 
 namespace TOHE;
@@ -139,6 +140,18 @@ public static class HudSpritePatch
                 break;
             case CustomRoles.Ventguard:
                 newAbilityButton = CustomButton.Get("Block");
+                break;
+            case CustomRoles.Romantic:
+                newKillButton = CustomButton.Get(Romantic.BetTimes.TryGetValue(player.PlayerId, out var times) && times >= 1 ? "Romance" : "RomanticProtect");
+                break;
+            case CustomRoles.VengefulRomantic:
+                newKillButton = CustomButton.Get("RomanticKill");
+                break;
+            case CustomRoles.Miner:
+                newAbilityButton = CustomButton.Get("Mine");
+                break;
+            case CustomRoles.Witness:
+                newAbilityButton = CustomButton.Get("Examine");
                 break;
             case CustomRoles.Pelican:
                 newKillButton = CustomButton.Get("Vulture");

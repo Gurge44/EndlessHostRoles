@@ -286,7 +286,7 @@ internal class ChangeRoleSettings
             Wildling.Init();
             Morphling.Init();
             ParityCop.Init(); // *giggle* party cop
-            Baker.Init();
+            //Baker.Init();
             Spiritcaller.Init();
             Lurker.Init();
             PlagueBearer.Init();
@@ -301,6 +301,9 @@ internal class ChangeRoleSettings
             CustomWinnerHolder.Reset();
             AntiBlackout.Reset();
             NameNotifyManager.Reset();
+            SabotageSystemTypeRepairDamagePatch.Initialize();
+            DoorsReset.Initialize();
+
             IRandom.SetInstanceById(Options.RoleAssigningAlgorithm.GetValue());
 
             MeetingStates.MeetingCalled = false;
@@ -544,9 +547,9 @@ internal class SelectRolesPatch
                     case CustomRoles.Sidekick:
                         Sidekick.Add(pc.PlayerId);
                         break;
-                    case CustomRoles.Baker:
-                        Baker.Add(pc.PlayerId);
-                        break;
+                    //case CustomRoles.Baker:
+                    //    Baker.Add(pc.PlayerId);
+                    //    break;
                     case CustomRoles.Cleanser:
                         Cleanser.Add(pc.PlayerId);
                         break;

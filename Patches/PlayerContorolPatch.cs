@@ -239,9 +239,9 @@ class CheckMurderPatch
                 case CustomRoles.Undertaker:
                     if (!Undertaker.OnCheckMurder(killer, target)) return false;
                     break;
-                case CustomRoles.Famine:
-                    Baker.FamineKilledTasks(target.PlayerId);
-                    break;
+                //case CustomRoles.Famine:
+                //    Baker.FamineKilledTasks(target.PlayerId);
+                //    break;
 
                 case CustomRoles.Witch:
                     if (!Witch.OnCheckMurder(killer, target)) return false;
@@ -883,7 +883,8 @@ class CheckMurderPatch
         if (Main.ShieldPlayer != byte.MaxValue && Main.ShieldPlayer == target.PlayerId && Utils.IsAllAlive)
         {
             Main.ShieldPlayer = byte.MaxValue;
-            killer.SetKillCooldown();
+            killer.SetKillCooldown(15f);
+            killer.Notify(GetString("TriedToKillLastGameFirstKill"), 10f);
             //killer.RpcGuardAndKill(target);
             //target.RpcGuardAndKill();
             return false;
@@ -2009,8 +2010,8 @@ class FixedUpdatePatch
                 if (Ignitor.IsEnable) Ignitor.OnFixedUpdate(player);
                 if (Swooper.IsEnable) Swooper.OnFixedUpdate(player);
                 if (Wraith.IsEnable) Wraith.OnFixedUpdate(player);
-                if (Werewolf.IsEnable) Werewolf.OnFixedUpdate(player);
                 if (Chameleon.IsEnable) Chameleon.OnFixedUpdate(player);
+                if (Werewolf.IsEnable) Werewolf.OnFixedUpdate(player);
                 if (Alchemist.IsEnable) Alchemist.OnFixedUpdate(player);
                 if (BloodKnight.IsEnable) BloodKnight.OnFixedUpdate(player);
                 if (Spiritcaller.IsEnable) Spiritcaller.OnFixedUpdate(player);
@@ -2590,17 +2591,6 @@ class EnterVentPatch
 {
     public static void Postfix(Vent __instance, [HarmonyArgument(0)] PlayerControl pc)
     {
-        if (Main.BlockedVents.Contains(__instance) && (!Options.VentguardBlockDoesNotAffectCrew.GetBool() || !pc.GetCustomRole().IsCrewmateTeamV2()))
-        {
-            pc?.Notify(GetString("EnteredBlockedVent"));
-            pc?.MyPhysics?.RpcBootFromVent(__instance.Id);
-            foreach (var ventguard in Main.AllAlivePlayerControls.Where(ventguard => ventguard.GetCustomRole() == CustomRoles.Ventguard))
-            {
-                ventguard.Notify(GetString("VentguardNotify"));
-            }
-            return;
-        }
-
         if (Witch.IsEnable) Witch.OnEnterVent(pc);
         if (HexMaster.IsEnable) HexMaster.OnEnterVent(pc);
 
@@ -2667,7 +2657,7 @@ class EnterVentPatch
             if (Main.VentguardNumberOfAbilityUses >= 1)
             {
                 Main.VentguardNumberOfAbilityUses -= 1;
-                if (!Main.BlockedVents.Contains(__instance)) Main.BlockedVents.Add(__instance);
+                if (!Main.BlockedVents.Contains(__instance.Id)) Main.BlockedVents.Add(__instance.Id);
                 pc.Notify(GetString("VentBlockSuccess"));
             }
             else
@@ -2811,6 +2801,25 @@ class CoEnterVentPatch
     public static bool Prefix(PlayerPhysics __instance, [HarmonyArgument(0)] int id)
     {
         if (!AmongUsClient.Instance.AmHost) return true;
+
+        if (Main.BlockedVents.Contains(id))
+        {
+            var pc = __instance.myPlayer;
+            if (Options.VentguardBlockDoesNotAffectCrew.GetBool() && pc.GetCustomRole().IsCrewmate()) { }
+            else
+            {
+                new LateTask(() =>
+                {
+                    pc?.Notify(GetString("EnteredBlockedVent"));
+                    pc?.MyPhysics?.RpcBootFromVent(id);
+                }, 0.5f);
+                foreach (var ventguard in Main.AllAlivePlayerControls.Where(ventguard => ventguard.GetCustomRole() == CustomRoles.Ventguard))
+                {
+                    ventguard.Notify(GetString("VentguardNotify"));
+                }
+                return true;
+            }
+        }
 
         if (AmongUsClient.Instance.IsGameStarted &&
             __instance.myPlayer.IsDouseDone())
@@ -2976,10 +2985,7 @@ public static class PlayerControlDiePatch
     public static void Postfix(PlayerControl __instance)
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        if (!GameStates.IsInGame) return;
-        if (!Options.RemovePetsAtDeadPlayers.GetBool()) return;
-
-        __instance.RpcSetPet("");
+        __instance.RpcRemovePet();
     }
 }
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcSetRole))]

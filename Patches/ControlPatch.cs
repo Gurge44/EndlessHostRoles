@@ -166,17 +166,17 @@ internal class ControllerManagerUpdatePatch
             Utils.ShowActiveSettings();
         }
         //将 TOHE 选项设置为默认值
-        if (GetKeysDown(KeyCode.Delete, KeyCode.LeftControl))
-        {
-            OptionItem.AllOptions.ToArray().Where(x => x.Id > 0).Do(x => x.SetValueNoRpc(x.DefaultValue));
-            Logger.SendInGame(GetString("RestTOHESetting"));
-            if (!(!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1 || (AmongUsClient.Instance.AmHost == false && PlayerControl.LocalPlayer == null)))
-            {
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RestTOHESetting, SendOption.Reliable, -1);
-                AmongUsClient.Instance.FinishRpcImmediately(writer);
-            }
-            OptionShower.GetText();
-        }
+        //if (GetKeysDown(KeyCode.Delete, KeyCode.LeftControl))
+        //{
+        //    OptionItem.AllOptions.ToArray().Where(x => x.Id > 0).Do(x => x.SetValueNoRpc(x.DefaultValue));
+        //    Logger.SendInGame(GetString("RestTOHESetting"));
+        //    if (!(!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1 || (AmongUsClient.Instance.AmHost == false && PlayerControl.LocalPlayer == null)))
+        //    {
+        //        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RestTOHESetting, SendOption.Reliable, -1);
+        //        AmongUsClient.Instance.FinishRpcImmediately(writer);
+        //    }
+        //    OptionShower.GetText();
+        //}
         //放逐自己
         if (GetKeysDown(KeyCode.Return, KeyCode.E, KeyCode.LeftShift) && GameStates.IsInGame)
         {
