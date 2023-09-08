@@ -21,7 +21,6 @@ public static class Jailor
     public static OptionItem NCCanBeExe;
     public static OptionItem NECanBeExe;
     public static OptionItem NKCanBeExe;
-    public static OptionItem CovenCanBeExe;
     public static OptionItem CKCanBeExe;
     public static OptionItem notifyJailedOnMeeting;
 
