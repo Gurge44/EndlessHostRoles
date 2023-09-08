@@ -23,10 +23,10 @@ namespace TOHE.Roles.Impostor
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Twister);
             ShapeshiftCooldown = FloatOptionItem.Create(Id + 10, "TwisterCooldown", new(1f, 60f, 1f), 30f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
                 .SetValueFormat(OptionFormat.Seconds);
-            TwisterLimitOpt = IntegerOptionItem.Create(Id + 11, "AbilityUseLimit", new(1, 5, 1), 0, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Camouflager])
+            TwisterLimitOpt = IntegerOptionItem.Create(Id + 11, "AbilityUseLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
                 .SetValueFormat(OptionFormat.Times);
             TwisterAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 12, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.4f, TabGroup.ImpostorRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Camouflager])
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
                 .SetValueFormat(OptionFormat.Times);
             //    ShapeshiftDuration = FloatOptionItem.Create(Id + 13, "ShapeshiftDuration", new(1f, 999f, 1f), 15f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
             //      .SetValueFormat(OptionFormat.Seconds);

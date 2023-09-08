@@ -26,7 +26,7 @@ public static class Hangman
             .SetValueFormat(OptionFormat.Seconds);
         KCD = FloatOptionItem.Create(Id + 4, "KillCooldownOnStrangle", new(1f, 90f, 1f), 40f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Hangman])
             .SetValueFormat(OptionFormat.Seconds);
-        HangmanLimitOpt = IntegerOptionItem.Create(Id + 5, "AbilityUseLimit", new(1, 5, 1), 0, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Hangman])
+        HangmanLimitOpt = IntegerOptionItem.Create(Id + 5, "AbilityUseLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Hangman])
             .SetValueFormat(OptionFormat.Times);
         HangmanAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 6, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.3f, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Hangman])

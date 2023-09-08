@@ -1,4 +1,5 @@
 using AmongUs.GameOptions;
+using Rewired.Utils;
 using System.Collections.Generic;
 using System.Linq;
 using static TOHE.Options;
@@ -22,7 +23,7 @@ public static class HeadHunter
     public static void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.HeadHunter, 1, zeroOne: false);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
+        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 27.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
             .SetValueFormat(OptionFormat.Seconds);
         SuccessKillCooldown = FloatOptionItem.Create(Id + 11, "HHSuccessKCDDecrease", new(0f, 180f, 0.5f), 3f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
             .SetValueFormat(OptionFormat.Seconds);
@@ -42,7 +43,7 @@ public static class HeadHunter
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        ResetTargets();
+        new LateTask(() => { ResetTargets(); }, 8f);
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
@@ -70,7 +71,9 @@ public static class HeadHunter
     public static string GetHudText(PlayerControl player)
     {
         var targetId = player.PlayerId;
-        return targetId != 0xff ? $"<color=#00ffa5>{"Targets"}:</color> <b>{Targets.ToString().RemoveHtmlTags().Replace("\r\n", string.Empty)}</b>" : string.Empty;
+        string output = string.Empty;
+        for (int i = 0; i < Targets.Count; i++) { byte playerId = Targets[i]; if (i != 0) output += ", "; output += Utils.GetPlayerById(playerId).GetRealName(); }
+        return targetId != 0xff ? $"<color=#00ffa5>{"Targets"}:</color> <b>{output}</b>" : string.Empty;
     }
     public static void ResetTargets()
     {
@@ -85,17 +88,8 @@ public static class HeadHunter
             Targets.Add(targetId);
         }
 
-        if (Targets.Count <= NumOfTargets.GetInt()) { Logger.Warn("Not enough targets", "HeadHunter"); }
-    }
-    //public static void SetAbilityButtonText(HudManager __instance) => __instance.AbilityButton.OverrideText(GetString("BountyHunterChangeButtonText"));
-    //public static void AfterMeetingTasks()
-    //{
-    //    foreach (var id in playerIdList)
-    //    {
-    //        if (!Main.PlayerStates[id].IsDead)
-    //        {
+        if (Targets.Count < NumOfTargets.GetInt()) { Logger.Warn("Not enough targets", "HeadHunter"); }
 
-    //        }
-    //    }
-    //}
+        Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById((int)playerIdList[0]));
+    }
 }

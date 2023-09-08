@@ -29,7 +29,7 @@ public static class Romantic
     public static OptionItem RuthlessKCD;
     public static OptionItem RuthlessCanVent;
 
-    private static Dictionary<byte, int> BetTimes = new();
+    public static Dictionary<byte, int> BetTimes = new();
     public static Dictionary<byte, byte> BetPlayer = new();
 
     public static void SetupCustomOption()
