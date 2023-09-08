@@ -869,7 +869,7 @@ class CheckMurderPatch
                     else
                     {
                         Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
-                        pc.RpcMurderPlayerV3(killer);
+                        if (Options.BodyguardKillsKiller.GetBool()) pc.RpcMurderPlayerV3(killer);
                         pc.SetRealKiller(killer);
                         pc.RpcMurderPlayerV3(pc);
                         Logger.Info($"{pc.GetRealName()} 挺身而出与歹徒 {killer.GetRealName()} 同归于尽", "Bodyguard");
