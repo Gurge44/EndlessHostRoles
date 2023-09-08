@@ -81,7 +81,7 @@ public static class HeadHunter
         Targets.Clear();
         for (var i = 0; i < NumOfTargets.GetInt(); i++)
         {
-            var cTargets = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(pc => !Targets.Contains(pc.PlayerId)));
+            var cTargets = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(pc => !Targets.Contains(pc.PlayerId) && pc.GetCustomRole() != CustomRoles.HeadHunter));
             var rand = IRandom.Instance;
             var target = cTargets[rand.Next(0, cTargets.Count)];
             var targetId = target.PlayerId;
