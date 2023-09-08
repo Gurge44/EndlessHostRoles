@@ -1401,6 +1401,7 @@
 "VeteranSkillCooldown","发动戒备冷却时间","Alert Cooldown","Откат навыка","發動戒備冷卻時間","发动戒备冷却时间"
 "VeteranSkillDuration","戒备状态持续时间","Alert Duration","Продолжительность навыка","戒備狀態持續時間","戒备状态持续时间"
 "BodyguardProtectRadius","保护范围","Protect Radius","Радиус Защиты","保護範圍","保护范围"
+"BodyguardKillsKiller","","Bodyguard kills murderer","","",""
 "AbilityCD","","Ability Cooldown","","",""
 "ImpCanBeEgoist","<color=#ff1919>内鬼</color>可以成为利己主义者","An <color=#ff1919>Impostor</color> can become Egoist","<color=#ff1919>Предатель</color> может стать <color=#5600ff>Эгоистом</color>","<color=#ff1919>偽裝者</color>可以成為利己主義者","<color=#ff1919>内鬼</color>可以成为利己主义者"
 "CrewCanBeEgoist","<color=#8cffff>船员</color>可以成为利己主义者","<color=#8cffff>Crewmates</color> can become <color=#5600ff>Egoist</color>","<color=#8cffff>Член Экипажа</color> может стать <color=#5600ff>Эгоистом</color>","<color=#8cffff>船員</color>可以成為利己主義者","<color=#8cffff>船员</color>可以成为利己主义者"
