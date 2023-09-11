@@ -141,26 +141,26 @@
 > - Reference: Modify settings menu
 > 
 
-### :star: [TOH+](https://github.com/SkullCreeper/TownOfHostPlus)
+### :star: [TOH+](https://github.com/SkullCreeper/TownOfHostPlus) :
 >
 > - Provided roles: Marshall, Poisoner, Necroview, Sidekick
 > - Bait and Beartrap as add-ons
 >
 
-### :star: [PL](https://github.com/ImaMapleTree/Lotus)
+### :star: [PL](https://github.com/ImaMapleTree/Lotus) :
 >
 > - Ideas for some roles
 > - Customize Main Menu
 > - Reference: Auto Play Again
 >
 
-### :star: [Stellar Roles](https://github.com/Mr-Fluuff/StellarRolesAU)
+### :star: [Stellar Roles](https://github.com/Mr-Fluuff/StellarRolesAU) :
 >
 > - Many role ideas (this mod is seriously amazing)
 > - Reference: Some custom sounds and button images
 > 
 
-### :star: [TOHEX](https://github.com/TOHEX-Official/TownOfHostEdited-Xi)
+### :star: [TOHEX](https://github.com/TOHEX-Official/TownOfHostEdited-Xi) :
 >
 > - Provided role: Swapper
 > 
