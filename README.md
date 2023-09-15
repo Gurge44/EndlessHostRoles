@@ -29,7 +29,7 @@
 <br>
 
 ## Installation
-1. Download and install the latest version of [TOHRE](https://github.com/Loonie-Toons/TownOfHost-ReEdited)
+1. Download and install the latest version of [TOHRE](https://github.com/Loonie-Toons/TownOfHost-ReEdited/releases/latest)
 2. Download the dll file provided in the latest release of TOHE+ (disable your anti-cheat temporarily if it prevents you from downloading because it thinks it's a virus)
 3. Replace the TOHE.dll file you see in Among Us/BepInEx/plugins with the one you downloaded from the TOHE+ release
 4. Start Among Us (from Steam/Epic Games) (Note: The first startup may take a while due to the mass amount of files it needs to create)
