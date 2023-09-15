@@ -142,7 +142,7 @@ public static class Werewolf
         if (!pc.Is(CustomRoles.Werewolf)) return;
 
         if (!AmongUsClient.Instance.AmHost || IsRampaging(pc.PlayerId)) return;
-        new LateTask(() =>
+        _ = new LateTask(() =>
         {
             if (CanRampage(pc.PlayerId))
             {

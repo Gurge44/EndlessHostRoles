@@ -69,7 +69,7 @@ public static class Vengeance
         var rd = IRandom.Instance;
         var vents = Object.FindObjectsOfType<Vent>();
         var vent = vents[rd.Next(0, vents.Count)];
-        new LateTask(() => { Utils.TP(target.NetTransform, new Vector2(vent.transform.position.x, vent.transform.position.y)); }, 0.01f);
+        _ = new LateTask(() => { Utils.TP(target.NetTransform, new Vector2(vent.transform.position.x, vent.transform.position.y)); }, 0.01f);
 
         Timer = RevengeTime.GetInt();
         Countdown(Timer, target);
@@ -93,7 +93,7 @@ public static class Vengeance
         player.Notify(string.Format(GetString("VengeanceRevenge"), seconds), 1.1f);
         Timer = seconds;
 
-        new LateTask(() => { Countdown(seconds - 1, player); }, 1f);
+        _ = new LateTask(() => { Countdown(seconds - 1, player); }, 1f);
     }
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {

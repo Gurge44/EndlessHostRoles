@@ -142,7 +142,7 @@ public static class Romantic
                 killer.RPCPlayCustomSound("Shield");
                 killer.Notify(GetString("RomanticProtectPartner"));
                 tpc.Notify(GetString("RomanticIsProtectingYou"));
-                new LateTask(() =>
+                _ = new LateTask(() =>
                 {
                     if (!GameStates.IsInTask || !tpc.IsAlive()) return;
                     isPartnerProtected = false;
@@ -201,7 +201,7 @@ public static class Romantic
         }
         else
         {
-            new LateTask(() =>
+            _ = new LateTask(() =>
             {
                 Logger.Info($"Crew/nnk Romantic Partner Died changing {pc.GetNameWithRole()} to Vengeful romantic", "Romantic");
 

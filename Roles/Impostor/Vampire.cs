@@ -62,7 +62,7 @@ public static class Vampire
         if (Medic.ProtectList.Contains(target.PlayerId)) return false;
 
         killer.SetKillCooldown();
-        new LateTask(() => { killer.SetKillCooldown(); }, OptionKillDelay.GetFloat());
+        _ = new LateTask(() => { killer.SetKillCooldown(); }, OptionKillDelay.GetFloat());
         killer.RPCPlayCustomSound("Bite");
 
         //誰かに噛まれていなければ登録

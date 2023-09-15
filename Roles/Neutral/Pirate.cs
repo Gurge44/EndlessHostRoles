@@ -152,7 +152,7 @@
 
 //            if (DuelDone[pc.PlayerId])
 //            {
-//                new LateTask(() =>
+//                _ = new LateTask(() =>
 //                {
 //                    if (!isUI) Utils.SendMessage(GetString("DuelAlreadyDone"), pc.PlayerId);
 //                    else pc.ShowPopUp(GetString("DuelAlreadyDone"));
@@ -171,7 +171,7 @@
 //                else
 //                {
 //                    targetChose = rpsOption;
-//                    //new LateTask(() =>
+//                    //_ = new LateTask(() =>
 //                    //{
 //                    //    if (!isUI) Utils.SendMessage(String.Format(GetString("TargetDuelDone"), OptionList[pirateChose]), pc.PlayerId);
 //                    //    else pc.ShowPopUp(String.Format(GetString("TargetDuelDone"), OptionList[pirateChose]));
@@ -180,7 +180,7 @@
 //                    //DuelDone[pc.PlayerId] = true;
 //                    //return true;
 //                }
-//                new LateTask(() =>
+//                _ = new LateTask(() =>
 //                {
 //                    if (!isUI) Utils.SendMessage(String.Format(GetString("DuelDone"), OptionList[rpsOption]), pc.PlayerId);
 //                    else pc.ShowPopUp(String.Format(GetString("DuelDone"), OptionList[rpsOption]));

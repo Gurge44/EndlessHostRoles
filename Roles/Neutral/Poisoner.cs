@@ -70,7 +70,7 @@ public static class Poisoner
         if (Medic.ProtectList.Contains(target.PlayerId)) return false;
 
         killer.SetKillCooldown();
-        new LateTask(() => { killer.SetKillCooldown(); }, OptionKillDelay.GetFloat());
+        _ = new LateTask(() => { killer.SetKillCooldown(); }, OptionKillDelay.GetFloat());
 
         //誰かに噛まれていなければ登録
         if (!PoisonedPlayers.ContainsKey(target.PlayerId))

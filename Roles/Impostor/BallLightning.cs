@@ -81,7 +81,7 @@ public static class BallLightning
     }
     private static void StartConvertCountDown(PlayerControl killer, PlayerControl target)
     {
-        new LateTask(() =>
+        _ = new LateTask(() =>
         {
             if (GameStates.IsInGame && GameStates.IsInTask && !GameStates.IsMeeting && target.IsAlive() && !Pelican.IsEaten(target.PlayerId))
             {

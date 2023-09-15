@@ -141,7 +141,7 @@ public static class Swooper
     {
         var pc = __instance.myPlayer;
         if (!AmongUsClient.Instance.AmHost || IsInvis(pc.PlayerId)) return;
-        new LateTask(() =>
+        _ = new LateTask(() =>
         {
             if (CanGoInvis(pc.PlayerId) && SwoopLimit[pc.PlayerId] >= 1)
             {
