@@ -606,7 +606,7 @@ public static class GuessManager
 
                         if (Doomsayer.GuessedRoles.Contains(role))
                         {
-                            new LateTask(() =>
+                            _ = new LateTask(() =>
                             {
                                 Utils.SendMessage(GetString("DoomsayerGuessSameRoleAgainMsg"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doomsayer), GetString("DoomsayerGuessCountTitle")));
                             }, 0.7f, "Doomsayer Guess Same Role Again Msg");
@@ -617,7 +617,7 @@ public static class GuessManager
                             Doomsayer.SendRPC(pc);
                             Doomsayer.GuessedRoles.Add(role);
 
-                            new LateTask(() =>
+                            _ = new LateTask(() =>
                             {
                                 Utils.SendMessage(string.Format(GetString("DoomsayerGuessCountMsg"), Doomsayer.GuessesCount), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doomsayer), GetString("DoomsayerGuessCountTitle")));
                             }, 0.7f, "Doomsayer Guess Msg 1");
@@ -644,7 +644,7 @@ public static class GuessManager
                 string Name = dp.GetRealName();
                 if (!Options.DisableKillAnimationOnGuess.GetBool()) CustomSoundsManager.RPCPlayCustomSoundAll("Gunfire");
 
-                new LateTask(() =>
+                _ = new LateTask(() =>
             {
                 Main.PlayerStates[dp.PlayerId].deathReason = PlayerState.DeathReason.Gambled;
                 dp.SetRealKiller(pc);
@@ -669,11 +669,11 @@ public static class GuessManager
 
                 Utils.NotifyRoles(isForMeeting: GameStates.IsMeeting, NoCache: true);
 
-                new LateTask(() => { Utils.SendMessage(string.Format(GetString("GuessKill"), Name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("GuessKillTitle"))); }, 0.6f, "Guess Msg");
+                _ = new LateTask(() => { Utils.SendMessage(string.Format(GetString("GuessKill"), Name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("GuessKillTitle"))); }, 0.6f, "Guess Msg");
 
                 if (pc.Is(CustomRoles.Doomsayer) && pc.PlayerId != dp.PlayerId)
                 {
-                    new LateTask(() =>
+                    _ = new LateTask(() =>
                     {
                         Utils.SendMessage(string.Format(GetString("DoomsayerGuessCountMsg"), Doomsayer.GuessingToWin[pc.PlayerId]), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doomsayer), GetString("DoomsayerGuessCountTitle")));
                     }, 0.7f, "Doomsayer Guess Msg 2");

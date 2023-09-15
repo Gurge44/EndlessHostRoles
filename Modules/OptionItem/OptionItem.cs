@@ -239,7 +239,7 @@ public abstract class OptionItem
 
         SyncAllOptions();
     }
-    public static void SyncAllOptions()
+    public static void SyncAllOptions(int targetId = -1)
     {
         if (
             Main.AllPlayerControls.Count() <= 1 ||
@@ -247,7 +247,7 @@ public abstract class OptionItem
             PlayerControl.LocalPlayer == null
         ) return;
 
-        RPC.SyncCustomSettingsRPC();
+        RPC.SyncCustomSettingsRPC(targetId);
     }
 
 

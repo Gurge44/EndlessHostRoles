@@ -64,6 +64,13 @@ internal class CustomRoleSelector
                 RoleResult.Add(pc, CustomRoles.KB_Normal);
             return;
         }
+        if (Options.CurrentGameMode == CustomGameMode.FFA)
+        {
+            RoleResult = new();
+            foreach (var pc in Main.AllAlivePlayerControls)
+                RoleResult.Add(pc, CustomRoles.Killer);
+            return;
+        }
 
         System.Collections.IList list = Enum.GetValues(typeof(CustomRoles));
         for (int i1 = 0; i1 < list.Count; i1++)
@@ -379,7 +386,7 @@ internal class CustomRoleSelector
     public static List<CustomRoles> AddonRolesList = new();
     public static void SelectAddonRoles()
     {
-        if (Options.CurrentGameMode == CustomGameMode.SoloKombat) return;
+        if (Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA) return;
 
         AddonRolesList = new();
         System.Collections.IList list = Enum.GetValues(typeof(CustomRoles));

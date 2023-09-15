@@ -201,7 +201,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Guardian => CustomRoles.CrewmateTOHE,
                 CustomRoles.Addict => CustomRoles.EngineerTOHE,
                 CustomRoles.Alchemist => CustomRoles.EngineerTOHE,
-                CustomRoles.Oracle => CustomRoles.EngineerTOHE,
+                CustomRoles.Oracle => CustomRoles.CrewmateTOHE,
                 CustomRoles.Chameleon => CustomRoles.EngineerTOHE,
                 _ => role.IsImpostor() ? CustomRoles.ImpostorTOHE : CustomRoles.CrewmateTOHE,
             };
@@ -213,6 +213,8 @@ internal static class CustomRolesHelper
         {
             //SoloKombat
             CustomRoles.KB_Normal => RoleTypes.Impostor,
+            //FFA
+            CustomRoles.Killer => RoleTypes.Impostor,
             //Standard
             CustomRoles.Sheriff => RoleTypes.Impostor,
             CustomRoles.Crusader => RoleTypes.Impostor,
@@ -313,6 +315,7 @@ internal static class CustomRolesHelper
             CustomRoles.Mimic or
             CustomRoles.Reach or
             CustomRoles.DeadlyQuota or
+            CustomRoles.Cleansed or
             CustomRoles.Charmed or
             CustomRoles.Infected or
             CustomRoles.Onbound or
@@ -669,6 +672,8 @@ internal static class CustomRolesHelper
         return role is
             //SoloKombat
             CustomRoles.KB_Normal or
+            //FFA
+            CustomRoles.Killer or
             //Standard
             CustomRoles.Jester or
             CustomRoles.Opportunist or
@@ -794,6 +799,8 @@ internal static class CustomRolesHelper
         return role is
             //SoloKombat
             CustomRoles.KB_Normal or
+            //FFA
+            CustomRoles.Killer or
             //Standard
             CustomRoles.Jester or
             CustomRoles.Opportunist or
@@ -1120,7 +1127,7 @@ internal static class CustomRolesHelper
         if (role is CustomRoles.Fool && ((pc.GetCustomRole().IsCrewmate() && !Options.CrewCanBeFool.GetBool()) || (pc.GetCustomRole().IsNeutral() && !Options.NeutralCanBeFool.GetBool()) || (pc.GetCustomRole().IsImpostor() && !Options.ImpCanBeFool.GetBool()) || pc.Is(CustomRoles.SabotageMaster) || pc.Is(CustomRoles.GuardianAngelTOHE))) return false;
         if (role is CustomRoles.Bloodhound && pc.Is(CustomRoles.Oblivious)) return false;
         if (role is CustomRoles.DoubleShot && ((pc.Is(CustomRoleTypes.Impostor) && !Options.ImpCanBeDoubleShot.GetBool()) || (pc.Is(CustomRoleTypes.Crewmate) && !Options.CrewCanBeDoubleShot.GetBool()) || (pc.Is(CustomRoleTypes.Neutral) && !Options.NeutralCanBeDoubleShot.GetBool()))) return false;
-        if (role is CustomRoles.DoubleShot && !pc.Is(CustomRoles.EvilGuesser) && !pc.Is(CustomRoles.NiceGuesser) && !pc.Is(CustomRoles.Guesser) && !Options.GuesserMode.GetBool()) return false;
+        if (role is CustomRoles.DoubleShot && !pc.Is(CustomRoles.EvilGuesser) && !pc.Is(CustomRoles.NiceGuesser) && !Options.GuesserMode.GetBool()) return false;
         if (role is CustomRoles.DoubleShot && Options.ImpCanBeDoubleShot.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.EvilGuesser) && pc.Is(CustomRoleTypes.Impostor) && !Options.ImpostorsCanGuess.GetBool()) return false;
         if (role is CustomRoles.DoubleShot && Options.CrewCanBeDoubleShot.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.NiceGuesser) && pc.Is(CustomRoleTypes.Crewmate) && !Options.CrewmatesCanGuess.GetBool()) return false;
         if (role is CustomRoles.DoubleShot && Options.NeutralCanBeDoubleShot.GetBool() && !pc.Is(CustomRoles.Guesser) && ((pc.GetCustomRole().IsNonNK() && !Options.PassiveNeutralsCanGuess.GetBool()) || (pc.GetCustomRole().IsNK() && !Options.NeutralKillersCanGuess.GetBool()))) return false;

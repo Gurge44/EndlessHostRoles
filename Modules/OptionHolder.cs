@@ -3,14 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TOHE.Modules;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
-using TOHE.Modules;
 using UnityEngine;
-using Il2CppSystem.Diagnostics.Tracing;
 
 namespace TOHE;
 
@@ -19,6 +18,7 @@ public enum CustomGameMode
 {
     Standard = 0x01,
     SoloKombat = 0x02,
+    FFA = 0x03,
     All = int.MaxValue
 }
 
@@ -54,12 +54,13 @@ public static class Options
         => GameMode.GetInt() switch
         {
             1 => CustomGameMode.SoloKombat,
+            2 => CustomGameMode.FFA,
             _ => CustomGameMode.Standard
         };
 
     public static readonly string[] gameModes =
     {
-        "Standard", "SoloKombat"
+        "Standard", "SoloKombat", "FFA"
     };
 
     // MapActive
@@ -111,7 +112,6 @@ public static class Options
     // 各役職の詳細設定
     public static OptionItem EnableGM;
     public static float DefaultKillCooldown = Main.NormalOptions?.KillCooldown ?? 25;
-    public static OptionItem GhostsDoTasks;
 
     public static OptionItem DisableMeeting;
     public static OptionItem DisableCloseDoor;
@@ -979,7 +979,8 @@ public static class Options
         NameDisplayAddons = BooleanOptionItem.Create(210, "NameDisplayAddons", true, TabGroup.Addons, false)
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true);
-        NoLimitAddonsNumMax = IntegerOptionItem.Create(211, "NoLimitAddonsNumMax", new(1, 15, 1), 1, TabGroup.Addons, false);
+        NoLimitAddonsNumMax = IntegerOptionItem.Create(211, "NoLimitAddonsNumMax", new(1, 15, 1), 1, TabGroup.Addons, false)
+            .SetGameMode(CustomGameMode.Standard);
 
         //==================================================================================================================================//
 
@@ -2493,10 +2494,12 @@ public static class Options
 
         #region 游戏设置
 
-        MainLoadingText = "Building SoloKombat settings";
+        MainLoadingText = "Building Settings for Other Gamemodes";
 
         //SoloKombat
         SoloKombatManager.SetupCustomOption();
+        //FFA
+        FFAManager.SetupCustomOption();
 
 
         LoadingPercentage = 65;
@@ -2547,34 +2550,30 @@ public static class Options
         RandomMapsMode = BooleanOptionItem.Create(19900, "RandomMapsMode", false, TabGroup.GameSettings, false)
             .SetHeader(true)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
-        AddedTheSkeld = BooleanOptionItem.Create(19910, "AddedTheSkeld", false, TabGroup.GameSettings, false)
-            .SetParent(RandomMapsMode);
-        AddedMiraHQ = BooleanOptionItem.Create(19911, "AddedMIRAHQ", false, TabGroup.GameSettings, false)
-            .SetParent(RandomMapsMode);
+        //AddedTheSkeld = BooleanOptionItem.Create(19910, "AddedTheSkeld", false, TabGroup.GameSettings, false)
+        //    .SetParent(RandomMapsMode);
+        //AddedMiraHQ = BooleanOptionItem.Create(19911, "AddedMIRAHQ", false, TabGroup.GameSettings, false)
+        //    .SetParent(RandomMapsMode);
 
         LoadingPercentage = 68;
 
-        AddedPolus = BooleanOptionItem.Create(19912, "AddedPolus", false, TabGroup.GameSettings, false)
-            .SetParent(RandomMapsMode);
-        AddedTheAirship = BooleanOptionItem.Create(19913, "AddedTheAirship", false, TabGroup.GameSettings, false)
-            .SetParent(RandomMapsMode);
+        //AddedPolus = BooleanOptionItem.Create(19912, "AddedPolus", false, TabGroup.GameSettings, false)
+        //    .SetParent(RandomMapsMode);
+        //AddedTheAirship = BooleanOptionItem.Create(19913, "AddedTheAirship", false, TabGroup.GameSettings, false)
+        //    .SetParent(RandomMapsMode);
         // MapDleks = CustomOption.Create(19914, Color.white, "AddedDleks", false, RandomMapMode);
-
-        /*
-                SkeldChance = IntegerOptionItem.Create(19910, "SkeldChance", new(0, 100, 5), 0, TabGroup.GameSettings, false)
-                    .SetParent(RandomMapsMode)
-                    .SetValueFormat(OptionFormat.Percent);
-                MiraChance = IntegerOptionItem.Create(19911, "MiraChance", new(0, 100, 5), 0, TabGroup.GameSettings, false)
-                    .SetParent(RandomMapsMode)
-                    .SetValueFormat(OptionFormat.Percent);
-                PolusChance = IntegerOptionItem.Create(19912, "PolusChance", new(0, 100, 5), 0, TabGroup.GameSettings, false)
-                    .SetParent(RandomMapsMode)
-                    .SetValueFormat(OptionFormat.Percent);
-                AirshipChance = IntegerOptionItem.Create(19913, "AirshipChance", new(0, 100, 5), 0, TabGroup.GameSettings, false)
-                    .SetParent(RandomMapsMode)
-                    .SetValueFormat(OptionFormat.Percent);
-
-        */
+        SkeldChance = IntegerOptionItem.Create(19910, "SkeldChance", new(0, 100, 5), 0, TabGroup.GameSettings, false)
+            .SetParent(RandomMapsMode)
+            .SetValueFormat(OptionFormat.Percent);
+        MiraChance = IntegerOptionItem.Create(19911, "MiraChance", new(0, 100, 5), 0, TabGroup.GameSettings, false)
+            .SetParent(RandomMapsMode)
+            .SetValueFormat(OptionFormat.Percent);
+        PolusChance = IntegerOptionItem.Create(19912, "PolusChance", new(0, 100, 5), 0, TabGroup.GameSettings, false)
+            .SetParent(RandomMapsMode)
+            .SetValueFormat(OptionFormat.Percent);
+        AirshipChance = IntegerOptionItem.Create(19913, "AirshipChance", new(0, 100, 5), 0, TabGroup.GameSettings, false)
+            .SetParent(RandomMapsMode)
+            .SetValueFormat(OptionFormat.Percent);
 
         LoadingPercentage = 69;
 
@@ -2593,15 +2592,16 @@ public static class Options
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
         //Disable Airship Moving Platform
         DisableAirshipMovingPlatform = BooleanOptionItem.Create(22110, "DisableAirshipMovingPlatform", false, TabGroup.GameSettings, false)
-            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
         // Reset Doors After Meeting
         ResetDoorsEveryTurns = BooleanOptionItem.Create(22120, "ResetDoorsEveryTurns", false, TabGroup.GameSettings, false)
+            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
         // Reset Doors Mode
         DoorsResetMode = StringOptionItem.Create(22122, "DoorsResetMode", EnumHelper.GetAllNames<DoorsReset.ResetMode>(), 2, TabGroup.GameSettings, false)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue))
+            .SetGameMode(CustomGameMode.Standard)
             .SetParent(ResetDoorsEveryTurns);
 
         LoadingPercentage = 70;
@@ -2721,71 +2721,51 @@ public static class Options
 
         //禁用设备
         DisableDevices = BooleanOptionItem.Create(22900, "DisableDevices", false, TabGroup.GameSettings, false)
-            .SetColor(new Color32(255, 153, 153, byte.MaxValue))
-            .SetGameMode(CustomGameMode.Standard);
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
         DisableSkeldDevices = BooleanOptionItem.Create(22905, "DisableSkeldDevices", false, TabGroup.GameSettings, false)
-            .SetParent(DisableDevices)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetParent(DisableDevices);
         DisableSkeldAdmin = BooleanOptionItem.Create(22906, "DisableSkeldAdmin", false, TabGroup.GameSettings, false)
-            .SetParent(DisableSkeldDevices)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetParent(DisableSkeldDevices);
         DisableSkeldCamera = BooleanOptionItem.Create(22907, "DisableSkeldCamera", false, TabGroup.GameSettings, false)
-            .SetParent(DisableSkeldDevices)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetParent(DisableSkeldDevices);
 
         LoadingPercentage = 76;
 
         DisableMiraHQDevices = BooleanOptionItem.Create(22908, "DisableMiraHQDevices", false, TabGroup.GameSettings, false)
-            .SetParent(DisableDevices)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetParent(DisableDevices);
         DisableMiraHQAdmin = BooleanOptionItem.Create(22909, "DisableMiraHQAdmin", false, TabGroup.GameSettings, false)
-            .SetParent(DisableMiraHQDevices)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetParent(DisableMiraHQDevices);
         DisableMiraHQDoorLog = BooleanOptionItem.Create(22910, "DisableMiraHQDoorLog", false, TabGroup.GameSettings, false)
-            .SetParent(DisableMiraHQDevices)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetParent(DisableMiraHQDevices);
         DisablePolusDevices = BooleanOptionItem.Create(22911, "DisablePolusDevices", false, TabGroup.GameSettings, false)
-            .SetParent(DisableDevices)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetParent(DisableDevices);
         DisablePolusAdmin = BooleanOptionItem.Create(22912, "DisablePolusAdmin", false, TabGroup.GameSettings, false)
-            .SetParent(DisablePolusDevices)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetParent(DisablePolusDevices);
         DisablePolusCamera = BooleanOptionItem.Create(22913, "DisablePolusCamera", false, TabGroup.GameSettings, false)
-            .SetParent(DisablePolusDevices)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetParent(DisablePolusDevices);
         DisablePolusVital = BooleanOptionItem.Create(22914, "DisablePolusVital", false, TabGroup.GameSettings, false)
-            .SetParent(DisablePolusDevices)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetParent(DisablePolusDevices);
         DisableAirshipDevices = BooleanOptionItem.Create(22915, "DisableAirshipDevices", false, TabGroup.GameSettings, false)
-            .SetParent(DisableDevices)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetParent(DisableDevices);
         DisableAirshipCockpitAdmin = BooleanOptionItem.Create(22916, "DisableAirshipCockpitAdmin", false, TabGroup.GameSettings, false)
-            .SetParent(DisableAirshipDevices)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetParent(DisableAirshipDevices);
 
         LoadingPercentage = 77;
 
         DisableAirshipRecordsAdmin = BooleanOptionItem.Create(22917, "DisableAirshipRecordsAdmin", false, TabGroup.GameSettings, false)
-            .SetParent(DisableAirshipDevices)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetParent(DisableAirshipDevices);
         DisableAirshipCamera = BooleanOptionItem.Create(22918, "DisableAirshipCamera", false, TabGroup.GameSettings, false)
-            .SetParent(DisableAirshipDevices)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetParent(DisableAirshipDevices);
         DisableAirshipVital = BooleanOptionItem.Create(22919, "DisableAirshipVital", false, TabGroup.GameSettings, false)
-            .SetParent(DisableAirshipDevices)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetParent(DisableAirshipDevices);
         DisableDevicesIgnoreConditions = BooleanOptionItem.Create(22920, "IgnoreConditions", false, TabGroup.GameSettings, false)
-            .SetParent(DisableDevices)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetParent(DisableDevices);
         DisableDevicesIgnoreImpostors = BooleanOptionItem.Create(22921, "IgnoreImpostors", false, TabGroup.GameSettings, false)
-            .SetParent(DisableDevicesIgnoreConditions)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetParent(DisableDevicesIgnoreConditions);
         DisableDevicesIgnoreNeutrals = BooleanOptionItem.Create(22922, "IgnoreNeutrals", false, TabGroup.GameSettings, false)
-            .SetParent(DisableDevicesIgnoreConditions)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetParent(DisableDevicesIgnoreConditions);
         DisableDevicesIgnoreCrewmates = BooleanOptionItem.Create(22923, "IgnoreCrewmates", false, TabGroup.GameSettings, false)
-            .SetParent(DisableDevicesIgnoreConditions)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetParent(DisableDevicesIgnoreConditions);
         DisableDevicesIgnoreAfterAnyoneDied = BooleanOptionItem.Create(22924, "IgnoreAfterAnyoneDied", false, TabGroup.GameSettings, false)
             .SetParent(DisableDevicesIgnoreConditions)
             .SetGameMode(CustomGameMode.Standard);
@@ -3044,9 +3024,9 @@ public static class Options
 
 
         TextOptionItem.Create(100050, "MenuTitle.GuesserModeRoles", TabGroup.TaskSettings)
-    .SetGameMode(CustomGameMode.Standard)
-    .SetColor(Color.yellow)
-    .SetHeader(true);
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(Color.yellow)
+            .SetHeader(true);
         SetupAdtRoleOptions(14500, CustomRoles.Onbound, canSetNum: true, tab: TabGroup.TaskSettings);
         ImpCanBeOnbound = BooleanOptionItem.Create(14510, "ImpCanBeOnbound", true, TabGroup.TaskSettings, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Onbound]);
@@ -3135,11 +3115,9 @@ public static class Options
 
         // 梯子摔死
         LadderDeath = BooleanOptionItem.Create(23800, "LadderDeath", false, TabGroup.GameSettings, false)
-            .SetGameMode(CustomGameMode.Standard)
-           .SetColor(new Color32(193, 255, 209, byte.MaxValue));
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue));
         LadderDeathChance = StringOptionItem.Create(23810, "LadderDeathChance", rates[1..], 0, TabGroup.GameSettings, false)
-        .SetParent(LadderDeath)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetParent(LadderDeath);
 
         LoadingPercentage = 97;
 
@@ -3151,12 +3129,10 @@ public static class Options
 
         StartingKillCooldown = FloatOptionItem.Create(23950, "StartingKillCooldown", new(1, 60, 1), 18, TabGroup.GameSettings, false)
            .SetColor(new Color32(193, 255, 209, byte.MaxValue))
-            .SetValueFormat(OptionFormat.Seconds)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetValueFormat(OptionFormat.Seconds);
 
         // 首刀保护
         ShieldPersonDiedFirst = BooleanOptionItem.Create(24000, "ShieldPersonDiedFirst", false, TabGroup.GameSettings, false)
-            .SetGameMode(CustomGameMode.Standard)
            .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
         LoadingPercentage = 98;

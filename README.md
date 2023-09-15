@@ -30,6 +30,10 @@
 
 ## Additions, Changes, and improvements compared to TOHRE
 - Note: The goal with this branch is to improve the existing stuff over adding new roles. Some of the new stuff listed below are ported into TOHRE by me.
+### New gamemode
+- A brand new official gamemode, Basic FFA (Free For All)
+- This mode makes everyone a killer and the last player alive wins
+- Features: Random events, ranks and scoring, random ability gain for every kill, game timer, scoreboard (task list), unique end screen, fully customizable
 ### Overall improvements
 - Gain more ability uses for completing tasks as crewmate roles
 - Gain more ability uses for getting kills as impostor roles
@@ -62,6 +66,7 @@
 - Mechanic: Settings that determine how many uses it takes to fix Lights/Comms and Reactor/O2
 - Sheriff: Setting whether to display the shot limit next to the role name
 - Tracefinder: Settings that determine the delay in which the arrows show up
+- Bodyguard: Setting whether the murderer dies when the bodyguard protects the target
 #### Impostors
 - Assassin: Kill Cooldown no longer resets when unshifting
 - Bounty Hunter: Swap Timer is displayed next to the role name, not on the Shapeshift button => Changed the basis to regular Impostor
@@ -101,6 +106,10 @@
 - Vengeance (Neutral)
 - Undertaker (Impostor)
 - Deadly Quota (Impostor-only Add-on)
+
+## Note:
+- You can use parts of the code in here, but if you do, you'll have to credit me (Gurge44) or the mod by mentioning its name (TOHE+) and provoding a link to this github page.
+- Do not try to build the source code. It will give you errors. This is intentional, so copying the mod is not so easy. To play the mod, use the given dll in the release section.
 
 <br>
 
@@ -150,14 +159,15 @@
 ### :star: [PL](https://github.com/ImaMapleTree/Lotus) :
 >
 > - Ideas for some roles
-> - Customize Main Menu
+> - Reference: Customize Main Menu
 > - Reference: Auto Play Again
+> - Reference: Some TabIcons
 >
 
 ### :star: [Stellar Roles](https://github.com/Mr-Fluuff/StellarRolesAU) :
 >
 > - Many role ideas (this mod is seriously amazing)
-> - Reference: Some custom sounds and button images
+> - Reference: Some custom button images
 > 
 
 ### :star: [TOHEX](https://github.com/TOHEX-Official/TownOfHostEdited-Xi) :

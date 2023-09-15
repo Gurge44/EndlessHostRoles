@@ -240,6 +240,8 @@ public static class SpamManager
 
         //if (text.Length >= 3) return false;
         if (text.Contains("start")) return true;
+        if (text.Contains("Start")) return true;
+        if (text.Contains("STart")) return true;
         if (text.Contains("s t a r t")) return true;
         if (text.Contains("begin")) return true;
 

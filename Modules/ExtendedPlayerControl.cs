@@ -391,17 +391,17 @@ static class ExtendedPlayerControl
         var systemtypes = SystemTypes.Reactor;
         if (Main.NormalOptions.MapId == 2) systemtypes = SystemTypes.Laboratory;
 
-        new LateTask(() =>
+        _ = new LateTask(() =>
         {
             pc.RpcDesyncRepairSystem(systemtypes, 128);
         }, 0f + delay, "Reactor Desync");
 
-        new LateTask(() =>
+        _ = new LateTask(() =>
         {
             pc.RpcSpecificMurderPlayer();
         }, 0.2f + delay, "Murder To Reset Cam");
 
-        new LateTask(() =>
+        _ = new LateTask(() =>
         {
             pc.RpcDesyncRepairSystem(systemtypes, 16);
             if (Main.NormalOptions.MapId == 4) //Airship用
@@ -419,7 +419,7 @@ static class ExtendedPlayerControl
 
         pc.RpcDesyncRepairSystem(systemtypes, 128);
 
-        new LateTask(() =>
+        _ = new LateTask(() =>
         {
             pc.RpcDesyncRepairSystem(systemtypes, 16);
 
@@ -441,6 +441,8 @@ static class ExtendedPlayerControl
         {
             //SoloKombat
             CustomRoles.KB_Normal => pc.SoloAlive(),
+            //FFA
+            CustomRoles.Killer => pc.IsAlive(),
             //Standard
             CustomRoles.FireWorks => FireWorks.CanUseKillButton(pc),
             CustomRoles.Mafia => Utils.CanMafiaKill(),
@@ -585,6 +587,8 @@ static class ExtendedPlayerControl
 
             //SoloKombat
             CustomRoles.KB_Normal => true,
+            //FFA
+            CustomRoles.Killer => true,
 
             _ => pc.Is(CustomRoleTypes.Impostor),
         };
@@ -895,6 +899,9 @@ static class ExtendedPlayerControl
             case CustomRoles.KB_Normal:
                 Main.AllPlayerKillCooldown[player.PlayerId] = SoloKombatManager.KB_ATKCooldown.GetFloat();
                 break;
+            case CustomRoles.Killer:
+                Main.AllPlayerKillCooldown[player.PlayerId] = FFAManager.FFA_KCD.GetFloat();
+                break;
             case CustomRoles.BloodKnight:
                 BloodKnight.SetKillCooldown(player.PlayerId);
                 break;
@@ -985,7 +992,7 @@ static class ExtendedPlayerControl
         Main.AllPlayerSpeed[killer.PlayerId] = Main.MinSpeed;    //tmpSpeedで後ほど値を戻すので代入しています。
         ReportDeadBodyPatch.CanReport[killer.PlayerId] = false;
         killer.MarkDirtySettings();
-        new LateTask(() =>
+        _ = new LateTask(() =>
         {
             Main.AllPlayerSpeed[killer.PlayerId] = Main.AllPlayerSpeed[killer.PlayerId] - Main.MinSpeed + tmpSpeed;
             ReportDeadBodyPatch.CanReport[killer.PlayerId] = true;
@@ -1019,7 +1026,7 @@ static class ExtendedPlayerControl
 
         if (killer.PlayerId == target.PlayerId && killer.shapeshifting)
         {
-            new LateTask(() => { killer.RpcMurderPlayer(target); }, 1.5f, "Shapeshifting Suicide Delay");
+            _ = new LateTask(() => { killer.RpcMurderPlayer(target); }, 1.5f, "Shapeshifting Suicide Delay");
             return;
         }
 

@@ -32,7 +32,7 @@ public class Main : BasePlugin
     public const string DebugKeySalt = "59687b";
     public static ConfigEntry<string> DebugKeyInput { get; private set; }
     public static readonly string MainMenuText = " ";
-    public const string PluginGuid = "com.karped1em.townofhostedited";
+    public const string PluginGuid = "com.gurge44.toheplus";
     public const string PluginVersion = "1.0.0";
     public const string PluginDisplayVersion = "1.0";
     public const int PluginCreate = 3;
@@ -282,7 +282,7 @@ public class Main : BasePlugin
         Preset5 = Config.Bind("Preset Name Options", "Preset5", "Preset_5");
         WebhookURL = Config.Bind("Other", "WebhookURL", "none");
         BetaBuildURL = Config.Bind("Other", "BetaBuildURL", string.Empty);
-        MessageWait = Config.Bind("Other", "MessageWait", 1);
+        MessageWait = Config.Bind("Other", "MessageWait", 0);
         LastKillCooldown = Config.Bind("Other", "LastKillCooldown", (float)30);
         LastShapeshifterCooldown = Config.Bind("Other", "LastShapeshifterCooldown", (float)30);
 
@@ -494,7 +494,9 @@ public class Main : BasePlugin
 
 
                 //SoloKombat
-                {CustomRoles.KB_Normal, "#f55252"}
+                {CustomRoles.KB_Normal, "#f55252"},
+                //FFA
+                {CustomRoles.Killer, "#00ffff"}
             };
             foreach (var role in Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>())
             {
@@ -759,6 +761,8 @@ public enum CustomRoles
 
     //SoloKombat
     KB_Normal,
+    //FFA
+    Killer,
 
     //GM
     GM,

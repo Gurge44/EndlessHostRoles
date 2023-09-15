@@ -33,11 +33,11 @@ public static class Utils
             Logger.Fatal($"{text} 错误，触发防黑屏措施", "Anti-black");
             ChatUpdatePatch.DoBlockChat = true;
             Main.OverrideWelcomeMsg = GetString("AntiBlackOutNotifyInLobby");
-            new LateTask(() =>
+            _ = new LateTask(() =>
             {
                 Logger.SendInGame(GetString("AntiBlackOutLoggerSendInGame"), true);
             }, 3f, "Anti-Black Msg SendInGame");
-            new LateTask(() =>
+            _ = new LateTask(() =>
             {
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Error);
                 GameManager.Instance.LogicFlow.CheckEndCriteria();
@@ -51,18 +51,18 @@ public static class Utils
             writer.EndMessage();
             if (Options.EndWhenPlayerBug.GetBool())
             {
-                new LateTask(() =>
+                _ = new LateTask(() =>
                 {
                     Logger.SendInGame(GetString("AntiBlackOutRequestHostToForceEnd"), true);
                 }, 3f, "Anti-Black Msg SendInGame");
             }
             else
             {
-                new LateTask(() =>
+                _ = new LateTask(() =>
                 {
                     Logger.SendInGame(GetString("AntiBlackOutHostRejectForceEnd"), true);
                 }, 3f, "Anti-Black Msg SendInGame");
-                new LateTask(() =>
+                _ = new LateTask(() =>
                 {
                     AmongUsClient.Instance.ExitGame(DisconnectReasons.Custom);
                     Logger.Fatal($"{text} 错误，已断开游戏", "Anti-black");
@@ -211,7 +211,7 @@ public static class Utils
             else if (target.Is(CustomRoles.Demolitionist))
             {
                 killer.Notify(ColorString(GetRoleColor(CustomRoles.Demolitionist), GetString("OnDemolitionistDead")));
-                new LateTask(() =>
+                _ = new LateTask(() =>
                 {
                     if (!killer.inVent && (killer.PlayerId != target.PlayerId))
                     {
@@ -267,7 +267,7 @@ public static class Utils
         }
         else if (!ReactorCheck) player.ReactorFlash(0f); //リアクターフラッシュ
         player.MarkDirtySettings();
-        new LateTask(() =>
+        _ = new LateTask(() =>
         {
             Main.PlayerStates[player.PlayerId].IsBlackOut = false; //ブラックアウト解除
             player.MarkDirtySettings();
@@ -439,7 +439,7 @@ public static class Utils
         if (p.Disconnected) return false;
         if (p.Role.IsImpostor)
             hasTasks = false; //タスクはCustomRoleを元に判定する
-        if (Options.CurrentGameMode == CustomGameMode.SoloKombat) return false;
+        if (Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA) return false;
         if (p.IsDead && Options.GhostIgnoreTasks.GetBool()) hasTasks = false;
         var role = States.MainRole;
         switch (role)
@@ -521,7 +521,7 @@ public static class Utils
             case CustomRoles.Convict:
             case CustomRoles.Opportunist:
             case CustomRoles.Phantom:
-            //case CustomRoles.Baker:
+                //case CustomRoles.Baker:
                 //   case CustomRoles.Famine:
                 if (ForRecompute)
                     hasTasks = false;
@@ -988,6 +988,9 @@ public static class Utils
             case CustomRoles.KB_Normal:
                 ProgressText.Append(SoloKombatManager.GetDisplayScore(playerId));
                 break;
+            case CustomRoles.Killer:
+                ProgressText.Append(FFAManager.GetDisplayScore(playerId));
+                break;
             case CustomRoles.Totocalcio:
                 ProgressText.Append(Totocalcio.GetProgressText(playerId));
                 break;
@@ -1287,6 +1290,22 @@ public static class Utils
                 sb.Append($"\n　").Append(EndGamePatch.SummaryText[id.Item2]);
             }
         }
+        else if (Options.CurrentGameMode == CustomGameMode.FFA)
+        {
+            List<(int, byte)> list = new();
+            for (int i = 0; i < cloneRoles.Count; i++)
+            {
+                byte id = cloneRoles[i];
+                list.Add((FFAManager.GetRankOfScore(id), id));
+            }
+
+            list.Sort();
+            for (int i1 = 0; i1 < list.Count; i1++)
+            {
+                (int, byte) id = list[i1];
+                sb.Append($"\n　").Append(EndGamePatch.SummaryText[id.Item2]);
+            }
+        }
         else
         {
             for (int i = 0; i < cloneRoles.Count; i++)
@@ -1317,7 +1336,7 @@ public static class Utils
         var sb = new StringBuilder();
         if (SetEverythingUpPatch.LastWinsText != string.Empty) sb.Append($"{GetString("LastResult")}: {SetEverythingUpPatch.LastWinsText}");
         if (SetEverythingUpPatch.LastWinsReason != string.Empty) sb.Append($"\n{GetString("LastEndReason")}: {SetEverythingUpPatch.LastWinsReason}");
-        if (sb.Length > 0 && Options.CurrentGameMode != CustomGameMode.SoloKombat) SendMessage(sb.ToString(), PlayerId);
+        if (sb.Length > 0 && Options.CurrentGameMode != CustomGameMode.SoloKombat && Options.CurrentGameMode != CustomGameMode.FFA) SendMessage(sb.ToString(), PlayerId);
     }
     public static string GetSubRolesText(byte id, bool disableColor = false, bool intro = false, bool summary = false)
     {
@@ -1683,6 +1702,8 @@ public static class Utils
 
                 if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
                     name = $"<color=#f55252><size=1.7>{GetString("ModeSoloKombat")}</size></color>\r\n" + name;
+                if (Options.CurrentGameMode == CustomGameMode.FFA)
+                    name = $"<color=#00ffff><size=1.7>{GetString("ModeFFA")}</size></color>\r\n" + name;
             }
             if (!name.Contains('\r') && player.FriendCode.GetDevUser().HasTag())
                 name = player.FriendCode.GetDevUser().GetTag() + name;
@@ -1931,6 +1952,11 @@ public static class Utils
                 SoloKombatManager.GetNameNotify(seer, ref SelfName);
                 SelfName = $"<size={fontSize}>{SelfTaskText}</size>\r\n{SelfName}";
             }
+            else if (Options.CurrentGameMode == CustomGameMode.FFA)
+            {
+                FFAManager.GetNameNotify(seer, ref SelfName);
+                SelfName = $"<size={fontSize}>{SelfTaskText}</size>\r\n{SelfName}";
+            }
             else SelfName = SelfRoleName + "\r\n" + SelfName;
             SelfName += SelfSuffix.ToString() == string.Empty ? string.Empty : "\r\n " + SelfSuffix.ToString();
             if (!isForMeeting) SelfName += "\r\n";
@@ -2095,6 +2121,7 @@ public static class Utils
                     Amnesiac.KnowRole(seer, target) ||
                     Infectious.KnowRole(seer, target) ||
                     Virus.KnowRole(seer, target) ||
+                    Options.CurrentGameMode == CustomGameMode.FFA ||
                     (seer.IsRevealedPlayer(target) && !target.Is(CustomRoles.Trickster)) ||
                     seer.Is(CustomRoles.God) ||
                     target.Is(CustomRoles.GM)
@@ -2570,7 +2597,11 @@ public static class Utils
             if (TranslationController.Instance.currentLanguage.languageID is SupportedLangs.SChinese or SupportedLangs.TChinese)
                 summary = $"{GetProgressText(id)}\t<pos=22%>{ColorString(Main.PlayerColors[id], name)}</pos>";
             else summary = $"{ColorString(Main.PlayerColors[id], name)}<pos=30%>{GetProgressText(id)}</pos>";
-            if (GetProgressText(id).Trim() == string.Empty) return "INVALID";
+            if (GetProgressText(id).Trim() == string.Empty) return string.Empty;
+        }
+        if (Options.CurrentGameMode == CustomGameMode.FFA)
+        {
+            summary = $"{ColorString(Main.PlayerColors[id], name)} {GetKillCountText(id)}";
         }
         return check && GetDisplayRoleName(id, true).RemoveHtmlTags().Contains("INVALID:NotAssigned")
             ? "INVALID"
