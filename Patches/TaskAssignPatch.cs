@@ -127,7 +127,7 @@ class RpcSetTasksPatch
         }
 
         //管理员和摆烂人没有任务
-        if (pc.Is(CustomRoles.GM) || pc.Is(CustomRoles.Needy) || Options.CurrentGameMode == CustomGameMode.SoloKombat || pc.Is(CustomRoles.Lazy))
+        if (pc.Is(CustomRoles.GM) || pc.Is(CustomRoles.Needy) || Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA || pc.Is(CustomRoles.Lazy))
         {
             hasCommonTasks = false;
             NumShortTasks = 0;
@@ -176,13 +176,13 @@ class RpcSetTasksPatch
         Il2CppSystem.Collections.Generic.List<NormalPlayerTask> LongTasks = new();
         foreach (var task in ShipStatus.Instance.LongTasks)
             LongTasks.Add(task);
-        Shuffle<NormalPlayerTask>(LongTasks);
+        Shuffle(LongTasks);
 
         //割り当て可能なショートタスクのリスト
         Il2CppSystem.Collections.Generic.List<NormalPlayerTask> ShortTasks = new();
         foreach (var task in ShipStatus.Instance.NormalTasks)
             ShortTasks.Add(task);
-        Shuffle<NormalPlayerTask>(ShortTasks);
+        Shuffle(ShortTasks);
 
         //実際にAmong Us側で使われているタスクを割り当てる関数を使う。
         ShipStatus.Instance.AddTasksFromList(

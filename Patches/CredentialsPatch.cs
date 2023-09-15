@@ -315,7 +315,7 @@ internal class TitleLogoPatch
                 GameObject.Find("LeftPanel")?.transform.Find("Divider")?.gameObject.SetActive(false);
 
                 //__instance.playButton.OnClick = __instance.PlayOnlineButton.OnClick;
-                //new LateTask(() => __instance.playButton.buttonText.text = "Play Online", 0.001f);
+                //_ = new LateTask(() => __instance.playButton.buttonText.text = "Play Online", 0.001f);
 
                 //__instance.playButton.transform.localPosition -= new Vector3(0f, 1.4f);
 
@@ -325,7 +325,7 @@ internal class TitleLogoPatch
                 //playLocalButton.activeSprites.GetComponent<SpriteRenderer>().color = activeSpriteRender.color;
 
                 //playLocalButton.OnClick = __instance.playLocalButton.OnClick;
-                //new LateTask(() => playLocalButton.buttonText.text = "Play Local", 0.001f);
+                //_ = new LateTask(() => playLocalButton.buttonText.text = "Play Local", 0.001f);
 
                 PlayerParticles particles = UnityEngine.Object.FindObjectOfType<PlayerParticles>();
                 particles?.gameObject.SetActive(false);

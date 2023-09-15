@@ -21,7 +21,7 @@ class HudManagerPatch
     public static int LastFPS = 0;
     public static int NowFrameCount = 0;
     public static float FrameRateTimer = 0.0f;
-    public static TMPro.TextMeshPro LowerInfoText;
+    public static TextMeshPro LowerInfoText;
     public static GameObject TempLowerInfoText;
     public static void Postfix(HudManager __instance)
     {
@@ -366,6 +366,10 @@ class HudManagerPatch
                 {
                     LowerInfoText.text = SoloKombatManager.GetHudText();
                 }
+                else if (Options.CurrentGameMode == CustomGameMode.FFA)
+                {
+                    LowerInfoText.text = FFAManager.GetHudText();
+                }
                 else if (player.Is(CustomRoles.BountyHunter))
                 {
                     LowerInfoText.text = BountyHunter.GetTargetText(player, true);
@@ -704,7 +708,27 @@ class TaskPanelBehaviourPatch
                     list.Sort();
                     foreach (var id in list.Where(x => SummaryText.ContainsKey(x.Item2))) AllText += "\r\n" + SummaryText[id.Item2];
 
-                    AllText = $"<size=80%>{AllText}</size>";
+                    AllText = $"<size=70%>{AllText}</size>";
+
+                    break;
+
+                case CustomGameMode.FFA:
+
+                    Dictionary<byte, string> SummaryText2 = new();
+                    foreach (var id in Main.PlayerStates.Keys)
+                    {
+                        string name = Main.AllPlayerNames[id].RemoveHtmlTags().Replace("\r\n", string.Empty);
+                        string summary = $"{Utils.GetProgressText(id)}  {Utils.ColorString(Main.PlayerColors[id], name)}";
+                        if (Utils.GetProgressText(id).Trim() == string.Empty) continue;
+                        SummaryText2[id] = summary;
+                    }
+
+                    List<(int, byte)> list2 = new();
+                    foreach (var id in Main.PlayerStates.Keys) list2.Add((FFAManager.GetRankOfScore(id), id));
+                    list2.Sort();
+                    foreach (var id in list2.Where(x => SummaryText2.ContainsKey(x.Item2))) AllText += "\r\n" + SummaryText2[id.Item2];
+
+                    AllText = $"<size=70%>{AllText}</size>";
 
                     break;
             }

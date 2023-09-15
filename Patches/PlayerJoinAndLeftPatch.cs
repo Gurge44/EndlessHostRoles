@@ -22,14 +22,14 @@ class OnGameJoinedPatch
         Logger.Info($"{__instance.GameId} joined lobby", "OnGameJoined");
         Main.playerVersion = new Dictionary<byte, PlayerVersion>();
         if (!Main.VersionCheat.Value) RPC.RpcVersionCheck();
-        SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
+        SoundManager.Instance?.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
 
         if (GameStates.IsModHost)
             Main.HostClientId = Utils.GetPlayerById(0)?.GetClientId() ?? -1;
 
         ChatUpdatePatch.DoBlockChat = false;
         GameStates.InGame = false;
-        ErrorText.Instance.Clear();
+        ErrorText.Instance?.Clear();
 
         if (AmongUsClient.Instance.AmHost) //以下、ホストのみ実行
         {
@@ -40,12 +40,21 @@ class OnGameJoinedPatch
             EAC.DeNum = new();
             Main.AllPlayerNames = new();
 
-            if (Main.NormalOptions.KillCooldown == 0f)
+            if (Main.NormalOptions?.KillCooldown == 0f)
                 Main.NormalOptions.KillCooldown = Main.LastKillCooldown.Value;
 
-            AURoleOptions.SetOpt(Main.NormalOptions.Cast<IGameOptions>());
+            AURoleOptions.SetOpt(Main.NormalOptions?.Cast<IGameOptions>());
             if (AURoleOptions.ShapeshifterCooldown == 0f)
                 AURoleOptions.ShapeshifterCooldown = Main.LastShapeshifterCooldown.Value;
+
+            _ = new LateTask(() =>
+            {
+                if (BanManager.CheckEACList(PlayerControl.LocalPlayer.FriendCode) && GameStates.IsOnlineGame)
+                {
+                    AmongUsClient.Instance.ExitGame(DisconnectReasons.Banned);
+                    SceneChanger.ChangeScene("MainMenu");
+                }
+            }, 1f, "OnGameJoinedPatch");
         }
     }
 }
@@ -71,20 +80,20 @@ class OnPlayerJoinedPatch
         Logger.Info($"{client.PlayerName}(ClientID:{client.Id}/FriendCode:{client.FriendCode}) joined the lobby", "Session");
         if (AmongUsClient.Instance.AmHost && client.FriendCode == string.Empty && Options.KickPlayerFriendCodeNotExist.GetBool())
         {
-            AmongUsClient.Instance.KickPlayer(client.Id, false);
+            AmongUsClient.Instance?.KickPlayer(client.Id, false);
             Logger.SendInGame(string.Format(GetString("Message.KickedByNoFriendCode"), client.PlayerName));
             Logger.Info($"フレンドコードがないプレイヤーを{client?.PlayerName}をキックしました。", "Kick");
         }
         if (AmongUsClient.Instance.AmHost && client.PlatformData.Platform == (Platforms.Android | Platforms.IPhone) && Options.KickAndroidPlayer.GetBool())
         {
-            AmongUsClient.Instance.KickPlayer(client.Id, false);
+            AmongUsClient.Instance?.KickPlayer(client.Id, false);
             string msg = string.Format(GetString("KickAndriodPlayer"), client?.PlayerName);
             Logger.SendInGame(msg);
             Logger.Info(msg, "Android Kick");
         }
         if (DestroyableSingleton<FriendsListManager>.Instance.IsPlayerBlockedUsername(client.FriendCode) && AmongUsClient.Instance.AmHost)
         {
-            AmongUsClient.Instance.KickPlayer(client.Id, true);
+            AmongUsClient.Instance?.KickPlayer(client.Id, true);
             Logger.Info($"ブロック済みのプレイヤー{client?.PlayerName}({client.FriendCode})をBANしました。", "BAN");
         }
         BanManager.CheckBanPlayer(client);
@@ -178,11 +187,11 @@ class OnPlayerLeftPatch
                 break;
             case DisconnectReasons.Error:
                 Logger.SendInGame(string.Format(GetString("PlayerLeftByError"), data?.PlayerName));
-                new LateTask(() =>
+                _ = new LateTask(() =>
                 {
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Error);
                     GameManager.Instance.enabled = false;
-                    GameManager.Instance.RpcEndGame(GameOverReason.ImpostorDisconnect, false);
+                    GameManager.Instance?.RpcEndGame(GameOverReason.ImpostorDisconnect, false);
                 }, 3f, "Disconnect Error Auto-end");
 
                 break;
@@ -222,7 +231,7 @@ class CreatePlayerPatch
         Main.AllPlayerNames.TryAdd(client.Character.PlayerId, name);
         if (!name.Equals(client.PlayerName))
         {
-            new LateTask(() =>
+            _ = new LateTask(() =>
             {
                 if (client.Character == null) return;
                 Logger.Warn($"规范昵称：{client.PlayerName} => {name}", "Name Format");
@@ -230,9 +239,9 @@ class CreatePlayerPatch
             }, 1f, "Name Format");
         }
 
-        new LateTask(() => { OptionItem.SyncAllOptions(); }, 2f, "Sync All Options For New Player");
+        _ = new LateTask(() => { if (client.Character == null || !GameStates.IsLobby) return; OptionItem.SyncAllOptions(client.Id); }, 3f, "Sync All Options For New Player");
 
-        new LateTask(() =>
+        _ = new LateTask(() =>
         {
             if (client.Character == null) return;
             if (Main.OverrideWelcomeMsg != string.Empty) Utils.SendMessage(Main.OverrideWelcomeMsg, client.Character.PlayerId);
@@ -242,47 +251,47 @@ class CreatePlayerPatch
         {
             if (Options.AutoDisplayKillLog.GetBool() && Main.PlayerStates.Any() && Main.clientIdList.Contains(client.Id))
             {
-                new LateTask(() =>
+                _ = new LateTask(() =>
                 {
                     if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
                     {
                         Main.isChatCommand = true;
                         Utils.ShowKillLog(client.Character.PlayerId);
                     }
-                }, 3f, "DisplayKillLog");
+                }, 1f, "DisplayKillLog");
             }
             if (Options.AutoDisplayLastRoles.GetBool())
             {
-                new LateTask(() =>
+                _ = new LateTask(() =>
                 {
                     if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
                     {
                         Main.isChatCommand = true;
                         Utils.ShowLastRoles(client.Character.PlayerId);
                     }
-                }, 3.1f, "DisplayLastRoles");
+                }, 1.1f, "DisplayLastRoles");
             }
             if (Options.AutoDisplayLastResult.GetBool())
             {
-                new LateTask(() =>
+                _ = new LateTask(() =>
                 {
                     if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
                     {
                         Main.isChatCommand = true;
                         Utils.ShowLastResult(client.Character.PlayerId);
                     }
-                }, 3.2f, "DisplayLastResult");
+                }, 1.2f, "DisplayLastResult");
             }
             if (PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp && Options.EnableUpMode.GetBool())
             {
-                new LateTask(() =>
+                _ = new LateTask(() =>
                 {
                     if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
                     {
                         Main.isChatCommand = true;
                         //     Utils.SendMessage($"{GetString("Message.YTPlanNotice")} {PlayerControl.LocalPlayer.FriendCode.GetDevUser().UpName}", client.Character.PlayerId);
                     }
-                }, 3.3f, "DisplayUpWarnning");
+                }, 1.3f, "DisplayUpWarnning");
             }
         }
     }

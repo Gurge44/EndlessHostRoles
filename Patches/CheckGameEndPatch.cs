@@ -29,7 +29,7 @@ class GameEndChecker
         predicate.CheckForEndGame(out reason);
 
         // SoloKombat
-        if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
+        if (Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA)
         {
             if (CustomWinnerHolder.WinnerIds.Any() || CustomWinnerHolder.WinnerTeam != CustomWinner.Default)
             {
@@ -454,6 +454,7 @@ class GameEndChecker
 
     public static void SetPredicateToNormal() => predicate = new NormalGameEndPredicate();
     public static void SetPredicateToSoloKombat() => predicate = new SoloKombatGameEndPredicate();
+    public static void SetPredicateToFFA() => predicate = new FFAGameEndPredicate();
 
     // ===== ゲーム終了条件 =====
     // 通常ゲーム用
@@ -753,65 +754,114 @@ class GameEndChecker
             return true;
         }
     }
-}
-
-public abstract class GameEndPredicate
-{
-    /// <summary>ゲームの終了条件をチェックし、CustomWinnerHolderに値を格納します。</summary>
-    /// <params name="reason">バニラのゲーム終了処理に使用するGameOverReason</params>
-    /// <returns>ゲーム終了の条件を満たしているかどうか</returns>
-    public abstract bool CheckForEndGame(out GameOverReason reason);
-
-    /// <summary>GameData.TotalTasksとCompletedTasksをもとにタスク勝利が可能かを判定します。</summary>
-    public virtual bool CheckGameEndByTask(out GameOverReason reason)
+    class FFAGameEndPredicate : GameEndPredicate
     {
-        reason = GameOverReason.ImpostorByKill;
-        if (Options.DisableTaskWin.GetBool() || TaskState.InitialTotalTasks == 0) return false;
-
-        if (GameData.Instance.TotalTasks <= GameData.Instance.CompletedTasks)
+        public override bool CheckForEndGame(out GameOverReason reason)
         {
-            reason = GameOverReason.HumansByTask;
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Crewmate);
-            return true;
+            reason = GameOverReason.ImpostorByKill;
+            if (CustomWinnerHolder.WinnerIds.Any()) return false;
+            if (CheckGameEndByLivingPlayers(out reason)) return true;
+            return false;
         }
-        return false;
+
+        public static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorByKill;
+
+            if (FFAManager.RoundTime <= 0)
+            {
+                var list = Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && FFAManager.GetRankOfScore(x.PlayerId) == 1);
+                var winner = list.FirstOrDefault();
+
+                CustomWinnerHolder.WinnerIds = new()
+                {
+                    winner.PlayerId
+                };
+
+                Main.DoBlockNameChange = true;
+
+                return true;
+            }
+            else if (Main.AllAlivePlayerControls.Count() == 1)
+            {
+                var winner = Main.AllAlivePlayerControls.FirstOrDefault();
+
+                CustomWinnerHolder.WinnerIds = new()
+                {
+                    winner.PlayerId
+                };
+
+                Main.DoBlockNameChange = true;
+
+                return true;
+            }
+            else if (!Main.AllAlivePlayerControls.Any())
+            {
+                FFAManager.RoundTime = 0;
+                return true;
+            }
+            else return false;
+        }
     }
-    /// <summary>ShipStatus.Systems内の要素をもとにサボタージュ勝利が可能かを判定します。</summary>
-    public virtual bool CheckGameEndBySabotage(out GameOverReason reason)
+
+    public abstract class GameEndPredicate
     {
-        reason = GameOverReason.ImpostorByKill;
-        if (ShipStatus.Instance.Systems == null) return false;
+        /// <summary>ゲームの終了条件をチェックし、CustomWinnerHolderに値を格納します。</summary>
+        /// <params name="reason">バニラのゲーム終了処理に使用するGameOverReason</params>
+        /// <returns>ゲーム終了の条件を満たしているかどうか</returns>
+        public abstract bool CheckForEndGame(out GameOverReason reason);
 
-        // TryGetValueは使用不可
-        var systems = ShipStatus.Instance.Systems;
-        LifeSuppSystemType LifeSupp;
-        if (systems.ContainsKey(SystemTypes.LifeSupp) && // サボタージュ存在確認
-            (LifeSupp = systems[SystemTypes.LifeSupp].TryCast<LifeSuppSystemType>()) != null && // キャスト可能確認
-            LifeSupp.Countdown < 0f) // タイムアップ確認
+        /// <summary>GameData.TotalTasksとCompletedTasksをもとにタスク勝利が可能かを判定します。</summary>
+        public virtual bool CheckGameEndByTask(out GameOverReason reason)
         {
-            // 酸素サボタージュ
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Impostor);
-            reason = GameOverReason.ImpostorBySabotage;
-            LifeSupp.Countdown = 10000f;
-            return true;
+            reason = GameOverReason.ImpostorByKill;
+            if (Options.DisableTaskWin.GetBool() || TaskState.InitialTotalTasks == 0) return false;
+
+            if (GameData.Instance.TotalTasks <= GameData.Instance.CompletedTasks)
+            {
+                reason = GameOverReason.HumansByTask;
+                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Crewmate);
+                return true;
+            }
+            return false;
         }
-
-        ISystemType sys = null;
-        if (systems.ContainsKey(SystemTypes.Reactor)) sys = systems[SystemTypes.Reactor];
-        else if (systems.ContainsKey(SystemTypes.Laboratory)) sys = systems[SystemTypes.Laboratory];
-
-        ICriticalSabotage critical;
-        if (sys != null && // サボタージュ存在確認
-            (critical = sys.TryCast<ICriticalSabotage>()) != null && // キャスト可能確認
-            critical.Countdown < 0f) // タイムアップ確認
+        /// <summary>ShipStatus.Systems内の要素をもとにサボタージュ勝利が可能かを判定します。</summary>
+        public virtual bool CheckGameEndBySabotage(out GameOverReason reason)
         {
-            // リアクターサボタージュ
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Impostor);
-            reason = GameOverReason.ImpostorBySabotage;
-            critical.ClearSabotage();
-            return true;
-        }
+            reason = GameOverReason.ImpostorByKill;
+            if (ShipStatus.Instance.Systems == null) return false;
 
-        return false;
+            // TryGetValueは使用不可
+            var systems = ShipStatus.Instance.Systems;
+            LifeSuppSystemType LifeSupp;
+            if (systems.ContainsKey(SystemTypes.LifeSupp) && // サボタージュ存在確認
+                (LifeSupp = systems[SystemTypes.LifeSupp].TryCast<LifeSuppSystemType>()) != null && // キャスト可能確認
+                LifeSupp.Countdown < 0f) // タイムアップ確認
+            {
+                // 酸素サボタージュ
+                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Impostor);
+                reason = GameOverReason.ImpostorBySabotage;
+                LifeSupp.Countdown = 10000f;
+                return true;
+            }
+
+            ISystemType sys = null;
+            if (systems.ContainsKey(SystemTypes.Reactor)) sys = systems[SystemTypes.Reactor];
+            else if (systems.ContainsKey(SystemTypes.Laboratory)) sys = systems[SystemTypes.Laboratory];
+
+            ICriticalSabotage critical;
+            if (sys != null && // サボタージュ存在確認
+                (critical = sys.TryCast<ICriticalSabotage>()) != null && // キャスト可能確認
+                critical.Countdown < 0f) // タイムアップ確認
+            {
+                // リアクターサボタージュ
+                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Impostor);
+                reason = GameOverReason.ImpostorBySabotage;
+                critical.ClearSabotage();
+                return true;
+            }
+
+            return false;
+        }
     }
 }

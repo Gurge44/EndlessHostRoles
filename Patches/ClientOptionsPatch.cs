@@ -91,9 +91,6 @@ public static class OptionsMenuBehaviourClosePatch
 {
     public static void Postfix()
     {
-        if (ClientOptionItem.CustomBackground != null)
-        {
-            ClientOptionItem.CustomBackground.gameObject.SetActive(false);
-        }
+        ClientOptionItem.CustomBackground?.gameObject.SetActive(false);
     }
 }

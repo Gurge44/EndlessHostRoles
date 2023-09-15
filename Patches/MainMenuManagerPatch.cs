@@ -80,7 +80,7 @@ public class MainMenuManagerPatch
         updateButton.transform.position = template.transform.position + new Vector3(0.25f, 0.75f);
         updateButton.transform.GetChild(0).GetComponent<RectTransform>().localScale *= 1.5f;
 
-        var updateText = updateButton.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
+        var updateText = updateButton.transform.GetChild(0).GetComponent<TMP_Text>();
         Color updateColor = new Color32(247, 56, 23, byte.MaxValue);
         PassiveButton updatePassiveButton = updateButton.GetComponent<PassiveButton>();
         SpriteRenderer updateButtonSprite = updateButton.GetComponent<SpriteRenderer>();
@@ -98,12 +98,12 @@ public class MainMenuManagerPatch
 #if RELEASE
         //フリープレイの無効化
         var freeplayButton = GameObject.Find("/MainUI/FreePlayButton");
-            if (freeplayButton != null)
-            {
-                freeplayButton.GetComponent<PassiveButton>().OnClick = new();
-                freeplayButton.GetComponent<PassiveButton>().OnClick.AddListener((Action)(() => Application.OpenURL("https://tohe.cc")));
-                __instance.StartCoroutine(Effects.Lerp(0.01f, new Action<float>((p) => freeplayButton.transform.GetChild(0).GetComponent<TMPro.TMP_Text>().SetText(Translator.GetString("Website")))));
-            }
+        if (freeplayButton != null)
+        {
+            freeplayButton.GetComponent<PassiveButton>().OnClick = new();
+            freeplayButton.GetComponent<PassiveButton>().OnClick.AddListener((Action)(() => Application.OpenURL("https://tohe.cc")));
+            __instance.StartCoroutine(Effects.Lerp(0.01f, new Action<float>((p) => freeplayButton.transform.GetChild(0).GetComponent<TMPro.TMP_Text>().SetText(Translator.GetString("Website")))));
+        }
 #endif
 
         if (Main.IsAprilFools) return;

@@ -47,7 +47,7 @@ internal class MMOnlineManagerStartPatch
             textObj.name = "CanNotJoinPublic";
             var message = ModUpdater.isBroken ? $"<size=2>{Utils.ColorString(Color.red, GetString("ModBrokenMessage"))}</size>"
                 : $"<size=2>{Utils.ColorString(Color.red, GetString("CanNotJoinPublicRoomNoLatest"))}</size>";
-            new LateTask(() => { textObj.text = message; }, 0.01f, "CanNotJoinPublic");
+            _ = new LateTask(() => { textObj.text = message; }, 0.01f, "CanNotJoinPublic");
         }
     }
 }
@@ -91,16 +91,16 @@ internal class BanMenuSetVisiblePatch
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.CanBan))]
 internal class InnerNetClientCanBanPatch
 {
-    public static bool Prefix(InnerNet.InnerNetClient __instance, ref bool __result)
+    public static bool Prefix(InnerNetClient __instance, ref bool __result)
     {
         __result = __instance.AmHost;
         return false;
     }
 }
-[HarmonyPatch(typeof(InnerNet.InnerNetClient), nameof(InnerNetClient.KickPlayer))]
+[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.KickPlayer))]
 internal class KickPlayerPatch
 {
-    public static void Prefix(InnerNet.InnerNetClient __instance, int clientId, bool ban)
+    public static void Prefix(InnerNetClient __instance, int clientId, bool ban)
     {
         if (!AmongUsClient.Instance.AmHost) return;
         if (ban) BanManager.AddBanPlayer(AmongUsClient.Instance.GetRecentClient(clientId));

@@ -18,7 +18,7 @@ internal class ShowDisconnectPopupPatch
     public static string StringReason;
     public static void Postfix(DisconnectPopup __instance)
     {
-        new LateTask(() =>
+        _ = new LateTask(() =>
         {
             if (__instance != null)
             {

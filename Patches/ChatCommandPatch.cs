@@ -657,6 +657,11 @@ internal class ChatCommands
             Utils.SendMessage(GetString("ModeDescribe.SoloKombat"), playerId);
             return;
         }
+        if (Options.CurrentGameMode == CustomGameMode.FFA)
+        {
+            Utils.SendMessage(GetString("ModeDescribe.FFA"), playerId);
+            return;
+        }
 
         role = role.Trim().ToLower();
         if (role.StartsWith("/r")) role.Replace("/r", string.Empty);

@@ -29,14 +29,14 @@ public class GameStartManagerPatch
     [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.Start))]
     public class GameStartManagerStartPatch
     {
-        public static TMPro.TextMeshPro HideName;
+        public static TextMeshPro HideName;
         public static void Postfix(GameStartManager __instance)
         {
             __instance.GameRoomNameCode.text = GameCode.IntToGameName(AmongUsClient.Instance.GameId);
             // Reset lobby countdown timer
             timer = 600f;
 
-            HideName = Object.Instantiate(__instance.GameRoomNameCode, __instance.GameRoomNameCode.transform);
+            HideName = UnityEngine.Object.Instantiate(__instance.GameRoomNameCode, __instance.GameRoomNameCode.transform);
             HideName.text = ColorUtility.TryParseHtmlString(Main.HideColor.Value, out _)
                     ? $"<color={Main.HideColor.Value}>{Main.HideName.Value}</color>"
                     : $"<color={Main.ModColor}>{Main.HideName.Value}</color>";
@@ -78,7 +78,7 @@ public class GameStartManagerPatch
     public class GameStartManagerUpdatePatch
     {
         private static bool update = false;
-        private static string currentText = string.Empty;
+        private static string currentText = "";
         public static float exitTimer = -1f;
         private static float minWait, maxWait;
         private static int minPlayer;
@@ -88,7 +88,7 @@ public class GameStartManagerPatch
             maxWait = Options.MaxWaitAutoStart.GetFloat();
             minPlayer = Options.PlayerAutoStart.GetInt();
             minWait = 600f - minWait * 60f;
-            maxWait = maxWait * 60f;
+            maxWait *= 60f;
             // Lobby code
             if (DataManager.Settings.Gameplay.StreamerMode)
             {
@@ -124,13 +124,13 @@ public class GameStartManagerPatch
                             msg += "\n" + string.Join(",", invalidColor.Select(p => $"{p.GetRealName()}"));
                             Utils.SendMessage(msg);
                         }
-
+                        if (Options.RandomMapsMode.GetBool())
+                        {
+                            Main.NormalOptions.MapId = GameStartRandomMap.SelectRandomMap();
+                        }
                         GameStartManager.Instance.startState = GameStartManager.StartingStates.Countdown;
                         GameStartManager.Instance.countDownTimer = Options.AutoStartTimer.GetInt();
-
-                        __instance.StartButton.transform.gameObject.SetActive(false);
-                        __instance.StartButtonGlyph.transform.gameObject.SetActive(false);
-                        __instance.StartButtonGlyphContainer.transform.gameObject.SetActive(false);
+                        __instance.StartButton.gameObject.SetActive(false);
                     }
                 }
             }
@@ -139,15 +139,13 @@ public class GameStartManagerPatch
         {
             if (!AmongUsClient.Instance) return;
 
-            string warningMessage = string.Empty;
+            string warningMessage = "";
             if (AmongUsClient.Instance.AmHost)
             {
                 bool canStartGame = true;
                 List<string> mismatchedPlayerNameList = new();
-                Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppArrayBase<ClientData> list = AmongUsClient.Instance.allClients.ToArray();
-                for (int i = 0; i < list.Count; i++)
+                foreach (var client in AmongUsClient.Instance.allClients.ToArray())
                 {
-                    ClientData client = list[i];
                     if (client.Character == null) continue;
                     var dummyComponent = client.Character.GetComponent<DummyBehaviour>();
                     if (dummyComponent != null && dummyComponent.enabled)
@@ -182,7 +180,7 @@ public class GameStartManagerPatch
                         warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.AutoExitAtMismatchedVersion"), $"<color={Main.ModColor}>{Main.ModName}</color>", Math.Round(5 - exitTimer).ToString()));
                 }
             }
-            if (warningMessage != string.Empty)
+            if (warningMessage != "")
             {
                 __instance.GameStartText.text = warningMessage;
                 __instance.GameStartText.transform.localPosition = __instance.StartButton.transform.localPosition + Vector3.up * 2;
@@ -258,25 +256,42 @@ public class GameStartRandomMap
         bool continueStart = true;
         if (Options.RandomMapsMode.GetBool())
         {
-            var rand = IRandom.Instance;
-            List<byte> RandomMaps = new();
-            /*TheSkeld   = 0
-            MIRAHQ     = 1
-            Polus      = 2
-            Dleks      = 3
-            TheAirship = 4*/
-            if (Options.AddedTheSkeld.GetBool()) RandomMaps.Add(0);
-            if (Options.AddedMiraHQ.GetBool()) RandomMaps.Add(1);
-            if (Options.AddedPolus.GetBool()) RandomMaps.Add(2);
-            // if (Options.AddedDleks.GetBool()) RandomMaps.Add(3);
-            if (Options.AddedTheAirship.GetBool()) RandomMaps.Add(4);
-
-            if (!RandomMaps.Any()) return true;
-            var MapsId = RandomMaps[rand.Next(RandomMaps.Count)];
-            Main.NormalOptions.MapId = MapsId;
-
+            Main.NormalOptions.MapId = SelectRandomMap();
         }
         return continueStart;
+    }
+    public static byte SelectRandomMap()
+    {
+        var rand = IRandom.Instance;
+        List<byte> randomMaps = new();
+
+        var tempRand = rand.Next(1, 100);
+
+        if (tempRand <= Options.SkeldChance.GetInt()) randomMaps.Add(0);
+        if (tempRand <= Options.MiraChance.GetInt()) randomMaps.Add(1);
+        if (tempRand <= Options.PolusChance.GetInt()) randomMaps.Add(2);
+        if (tempRand <= Options.AirshipChance.GetInt()) randomMaps.Add(4);
+
+        if (randomMaps.Any())
+        {
+            var mapsId = randomMaps[0];
+
+            Logger.Info($"{mapsId}", "Chance Select MapId");
+            return mapsId;
+        }
+        else
+        {
+            if (Options.SkeldChance.GetInt() > 0) randomMaps.Add(0);
+            if (Options.MiraChance.GetInt() > 0) randomMaps.Add(1);
+            if (Options.PolusChance.GetInt() > 0) randomMaps.Add(2);
+            if (Options.AirshipChance.GetInt() > 0) randomMaps.Add(4);
+            //if (Options.Map5Chance.GetInt() > 0) randomMaps.Add(5);
+
+            var mapsId = randomMaps[rand.Next(randomMaps.Count)];
+
+            Logger.Info($"{mapsId}", "Random Select MapId");
+            return mapsId;
+        }
     }
 }
 [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.ResetStartState))]

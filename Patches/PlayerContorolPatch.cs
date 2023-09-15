@@ -100,7 +100,7 @@ class CheckMurderPatch
             return false;
         }
 
-        var divice = Options.CurrentGameMode == CustomGameMode.SoloKombat ? 3000f : 2000f;
+        var divice = Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA ? 3000f : 2000f;
         float minTime = Mathf.Max(0.02f, AmongUsClient.Instance.Ping / divice * 6f); //※AmongUsClient.Instance.Pingの値はミリ秒(ms)なので÷1000
         //TimeSinceLastKillに値が保存されていない || 保存されている時間がminTime以上 => キルを許可
         //↓許可されない場合
@@ -151,6 +151,12 @@ class CheckMurderPatch
         {
             SoloKombatManager.OnPlayerAttack(killer, target);
             return false;
+        }
+
+        if (Options.CurrentGameMode == CustomGameMode.FFA)
+        {
+            FFAManager.OnPlayerAttack(killer, target);
+            return true;
         }
 
         //実際のキラーとkillerが違う場合の入れ替え処理
@@ -540,7 +546,7 @@ class CheckMurderPatch
         if (killer.Is(CustomRoles.OverKiller) && killer.PlayerId != target.PlayerId)
         {
             Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Dismembered;
-            new LateTask(() =>
+            _ = new LateTask(() =>
             {
                 if (!Main.OverDeadPlayerList.Contains(target.PlayerId)) Main.OverDeadPlayerList.Add(target.PlayerId);
                 var ops = target.GetTruePosition();
@@ -974,7 +980,7 @@ class MurderPlayerPatch
                 delay = Math.Max(delay, 0.15f);
                 if (delay > 0.15f && Options.BaitDelayNotify.GetBool()) killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Bait), string.Format(GetString("KillBaitNotify"), (int)delay)), delay);
                 Logger.Info($"{killer.GetNameWithRole()} 击杀诱饵 => {target.GetNameWithRole()}", "MurderPlayer");
-                new LateTask(() => { if (GameStates.IsInTask) killer.CmdReportDeadBody(target.Data); }, delay, "Bait Self Report");
+                _ = new LateTask(() => { if (GameStates.IsInTask) killer.CmdReportDeadBody(target.Data); }, delay, "Bait Self Report");
             }
         }
 
@@ -1230,7 +1236,7 @@ class ShapeshiftPatch
                         tg.RpcMurderPlayerV3(tg);
                         Medic.IsDead(tg);
                     }
-                    new LateTask(() =>
+                    _ = new LateTask(() =>
                     {
                         var totalAlive = Main.AllAlivePlayerControls.Count();
                         //自分が最後の生き残りの場合は勝利のために死なない
@@ -1266,7 +1272,7 @@ class ShapeshiftPatch
                         tg.RpcMurderPlayerV3(tg);
                         Medic.IsDead(tg);
                     }
-                    new LateTask(() =>
+                    _ = new LateTask(() =>
                     {
                         var totalAlive = Main.AllAlivePlayerControls.Count();
                         //自分が最後の生き残りの場合は勝利のために死なない
@@ -1291,7 +1297,7 @@ class ShapeshiftPatch
             case CustomRoles.ImperiusCurse:
                 if (shapeshifting)
                 {
-                    new LateTask(() =>
+                    _ = new LateTask(() =>
                     {
                         if (!(!GameStates.IsInTask || !shapeshifter.IsAlive() || !target.IsAlive() || shapeshifter.inVent || target.inVent))
                         {
@@ -1343,7 +1349,7 @@ class ShapeshiftPatch
         //変身解除のタイミングがずれて名前が直せなかった時のために強制書き換え
         if (!shapeshifting)
         {
-            new LateTask(() =>
+            _ = new LateTask(() =>
             {
                 Utils.NotifyRoles(NoCache: true);
             },
@@ -1360,7 +1366,7 @@ class ReportDeadBodyPatch
     {
         if (GameStates.IsMeeting) return false;
         if (Options.DisableMeeting.GetBool()) return false;
-        if (Options.CurrentGameMode == CustomGameMode.SoloKombat) return false;
+        if (Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA) return false;
         if (!CanReport[__instance.PlayerId])
         {
             WaitReport[__instance.PlayerId].Add(target);
@@ -1431,7 +1437,7 @@ class ReportDeadBodyPatch
                         __instance.Notify(GetString("VultureReportBody"));
                         if (Vulture.AbilityLeftInRound[__instance.PlayerId] > 0)
                         {
-                            new LateTask(() =>
+                            _ = new LateTask(() =>
                             {
                                 if (GameStates.IsInTask)
                                 {
@@ -1762,7 +1768,7 @@ class FixedUpdatePatch
 
 
             #region 女巫处理
-            if (CustomRoles.Warlock.RoleExist() && GameStates.IsInTask && Main.WarlockTimer.ContainsKey(player.PlayerId))//処理を1秒遅らせる
+            if (GameStates.IsInTask && Main.WarlockTimer.ContainsKey(player.PlayerId))//処理を1秒遅らせる
             {
                 if (player.IsAlive())
                 {
@@ -1832,7 +1838,7 @@ class FixedUpdatePatch
             #endregion
 
             #region 革命家拉人处理
-            if (CustomRoles.Revolutionist.RoleExist() && GameStates.IsInTask && Main.RevolutionistTimer.ContainsKey(player.PlayerId))//当革命家拉拢一个玩家时
+            if (GameStates.IsInTask && Main.RevolutionistTimer.ContainsKey(player.PlayerId))//当革命家拉拢一个玩家时
             {
                 if (!player.IsAlive() || Pelican.IsEaten(player.PlayerId))
                 {
@@ -2021,7 +2027,7 @@ class FixedUpdatePatch
                 if (GameStates.IsInGame) LoversSuicide();
 
                 #region 傀儡师处理
-                if (CustomRoles.Puppeteer.RoleExist(true) && GameStates.IsInTask && Main.PuppeteerList.ContainsKey(player.PlayerId))
+                if (GameStates.IsInTask && Main.PuppeteerList.ContainsKey(player.PlayerId))
                 {
                     if (!player.IsAlive() || Pelican.IsEaten(player.PlayerId))
                     {
@@ -2169,10 +2175,10 @@ class FixedUpdatePatch
                 //    if (hasRole) RoleTextData = Utils.GetRoleTextHideAndSeek(__instance.Data.Role.Role, role);
                 //}
                 RoleText.text = RoleTextData.Item1;
-                if (Options.CurrentGameMode == CustomGameMode.SoloKombat) RoleText.text = string.Empty;
+                if (Options.CurrentGameMode == CustomGameMode.FFA || Options.CurrentGameMode == CustomGameMode.SoloKombat) RoleText.text = string.Empty;
                 RoleText.color = RoleTextData.Item2;
                 if (__instance.AmOwner) RoleText.enabled = true; //自分ならロールを表示
-                else if (Options.CurrentGameMode == CustomGameMode.SoloKombat) RoleText.enabled = true;
+                else if (Options.CurrentGameMode == CustomGameMode.FFA || Options.CurrentGameMode == CustomGameMode.SoloKombat) RoleText.enabled = true;
                 else if (Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool()) RoleText.enabled = true; //他プレイヤーでVisibleTasksCountが有効なおかつ自分が死んでいるならロールを表示
                 else if (PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) RoleText.enabled = true; //他プレイヤーでVisibleTasksCountが有効なおかつ自分が死んでいるならロールを表示
                 else if (__instance.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead) RoleText.enabled = true; //他プレイヤーでVisibleTasksCountが有効なおかつ自分が死んでいるならロールを表示
@@ -2214,6 +2220,7 @@ class FixedUpdatePatch
                 else if (Ritualist.IsShowTargetRole(PlayerControl.LocalPlayer, __instance)) RoleText.enabled = true;
                 else if (Executioner.KnowRole(PlayerControl.LocalPlayer, __instance)) RoleText.enabled = true;
                 else if (Main.GodMode.Value) RoleText.enabled = true;
+                else if (Options.CurrentGameMode == CustomGameMode.FFA) RoleText.enabled = true;
                 else RoleText.enabled = false; //そうでなければロールを非表示
                 if (!PlayerControl.LocalPlayer.Data.IsDead && PlayerControl.LocalPlayer.IsRevealedPlayer(__instance) && __instance.Is(CustomRoles.Trickster))
                 {
@@ -2256,6 +2263,8 @@ class FixedUpdatePatch
 
                     if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
                         SoloKombatManager.GetNameNotify(target, ref RealName);
+                    if (Options.CurrentGameMode == CustomGameMode.FFA)
+                        FFAManager.GetNameNotify(target, ref RealName);
                     if (Deathpact.IsInActiveDeathpact(seer))
                         RealName = Deathpact.GetDeathpactString(seer);
                     if (NameNotifyManager.GetNameNotify(target, out var name))
@@ -2610,7 +2619,7 @@ class EnterVentPatch
                 Main.ParaUsedButtonCount[pc.PlayerId] += 1;
                 if (AmongUsClient.Instance.AmHost)
                 {
-                    new LateTask(() =>
+                    _ = new LateTask(() =>
                     {
                         Utils.SendMessage(GetString("SkillUsedLeft") + (Options.ParanoiaNumOfUseButton.GetInt() - Main.ParaUsedButtonCount[pc.PlayerId]).ToString(), pc.PlayerId);
                     }, 4.0f, "Skill Remain Message");
@@ -2712,7 +2721,7 @@ class EnterVentPatch
                 pc.RPCPlayCustomSound("FlashBang");
                 pc.Notify(GetString("GrenadierSkillInUse"), Options.GrenadierSkillDuration.GetFloat());
                 Main.GrenadierNumOfUsed[pc.PlayerId] -= 1;
-                Utils.MarkEveryoneDirtySettings();
+                Utils.MarkEveryoneDirtySettingsV3();
             }
             else
             {
@@ -2802,13 +2811,36 @@ class CoEnterVentPatch
     {
         if (!AmongUsClient.Instance.AmHost) return true;
 
+        if (Options.CurrentGameMode == CustomGameMode.FFA && FFAManager.FFA_DisableVentingWhenTwoPlayersAlive.GetBool() && Main.AllAlivePlayerControls.Count() <= 2)
+        {
+            var pc = __instance.myPlayer;
+            if (pc.killTimer <= 0)
+            {
+                _ = new LateTask(() =>
+                {
+                    pc?.Notify(GetString("FFA-NoVentingBecauseTwoPlayers"), 7f);
+                    pc?.MyPhysics?.RpcBootFromVent(id);
+                }, 0.5f);
+                return true;
+            }
+        }
+        if (Options.CurrentGameMode == CustomGameMode.FFA && FFAManager.FFA_DisableVentingWhenKCDIsUp.GetBool() && __instance.myPlayer.killTimer <= 0)
+        {
+            _ = new LateTask(() =>
+            {
+                __instance.myPlayer?.Notify(GetString("FFA-NoVentingBecauseKCDIsUP"), 7f);
+                __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id);
+            }, 0.5f);
+            return true;
+        }
+
         if (Main.BlockedVents.Contains(id))
         {
             var pc = __instance.myPlayer;
             if (Options.VentguardBlockDoesNotAffectCrew.GetBool() && pc.GetCustomRole().IsCrewmate()) { }
             else
             {
-                new LateTask(() =>
+                _ = new LateTask(() =>
                 {
                     pc?.Notify(GetString("EnteredBlockedVent"));
                     pc?.MyPhysics?.RpcBootFromVent(id);
@@ -2869,7 +2901,7 @@ class CoEnterVentPatch
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.BootFromVent, SendOption.Reliable, -1);
             writer.WritePacked(127);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
-            new LateTask(() =>
+            _ = new LateTask(() =>
             {
                 int clientId = __instance.myPlayer.GetClientId();
                 MessageWriter writer2 = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.BootFromVent, SendOption.Reliable, clientId);

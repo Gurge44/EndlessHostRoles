@@ -339,16 +339,16 @@ public static class SetRecommendationsPatch
     {
         numPlayers = Mathf.Clamp(numPlayers, 4, 15);
         __instance.PlayerSpeedMod = __instance.MapId == 4 ? 1.5f : 1.25f;
-        __instance.CrewLightMod = 1.0f;
-        __instance.ImpostorLightMod = 1.75f;
+        __instance.CrewLightMod = 0.5f;
+        __instance.ImpostorLightMod = 1.25f;
         __instance.KillCooldown = 27.5f;
-        __instance.NumCommonTasks = 2;
-        __instance.NumLongTasks = 1;
-        __instance.NumShortTasks = 2;
-        __instance.NumEmergencyMeetings = 3;
+        __instance.NumCommonTasks = 1;
+        __instance.NumLongTasks = 3;
+        __instance.NumShortTasks = 4;
+        __instance.NumEmergencyMeetings = 1;
         if (!isOnline)
             __instance.NumImpostors = NormalGameOptionsV07.RecommendedImpostors[numPlayers];
-        __instance.KillDistance = 0;
+        __instance.KillDistance = 1;
         __instance.DiscussionTime = 0;
         __instance.VotingTime = 120;
         __instance.IsDefaults = true;
@@ -364,11 +364,9 @@ public static class SetRecommendationsPatch
         __instance.roleOptions.SetRoleRecommended(RoleTypes.GuardianAngel);
         __instance.roleOptions.SetRoleRecommended(RoleTypes.Engineer);
 
-        if (Options.CurrentGameMode == CustomGameMode.SoloKombat) //SoloKombat
+        if (Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA) //SoloKombat & FFA
         {
-            __instance.PlayerSpeedMod = 1.75f;
-            __instance.CrewLightMod = 1f;
-            __instance.ImpostorLightMod = 1f;
+            __instance.CrewLightMod = __instance.ImpostorLightMod = 1.25f;
             __instance.NumImpostors = 3;
             __instance.NumCommonTasks = 0;
             __instance.NumLongTasks = 0;

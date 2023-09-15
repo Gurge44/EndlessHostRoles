@@ -298,6 +298,7 @@ internal class ChangeRoleSettings
 
 
             SoloKombatManager.Init();
+            FFAManager.Init();
             CustomWinnerHolder.Reset();
             AntiBlackout.Reset();
             NameNotifyManager.Reset();
@@ -438,7 +439,7 @@ internal class SelectRolesPatch
             }
 
             // 个人竞技模式用
-            if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
+            if (Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA)
             {
                 foreach (var pair in Main.PlayerStates)
                     ExtendedPlayerControl.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
@@ -890,6 +891,9 @@ internal class SelectRolesPatch
                     break;
                 case CustomGameMode.SoloKombat:
                     GameEndChecker.SetPredicateToSoloKombat();
+                    break;
+                case CustomGameMode.FFA:
+                    GameEndChecker.SetPredicateToFFA();
                     break;
             }
 

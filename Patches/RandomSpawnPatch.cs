@@ -25,17 +25,17 @@ class RandomSpawn
                     Logger.Warn("プレイヤーがnullです", "RandomSpawn");
                     return;
                 }
-                if (player.Is(CustomRoles.GM)) return; //GMは対象外に
+                if (player.Is(CustomRoles.GM)) return;
 
                 NumOfTP[player.PlayerId]++;
 
                 if (NumOfTP[player.PlayerId] == 2)
                 {
-                    if (Main.NormalOptions.MapId != 4) return; //マップがエアシップじゃなかったらreturn
+                    if (Main.NormalOptions.MapId != 4) return;
                     player.RpcResetAbilityCooldown();
                     if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled) player.SetKillCooldown(Main.AllPlayerKillCooldown[player.PlayerId]);
                     else if (Options.StartingKillCooldown.GetInt() != 10) player.SetKillCooldown(Options.StartingKillCooldown.GetInt());
-                    if (!Options.RandomSpawn.GetBool() && Options.CurrentGameMode != CustomGameMode.SoloKombat) return; //ランダムスポーンが無効ならreturn
+                    if (!Options.RandomSpawn.GetBool() && Options.CurrentGameMode != CustomGameMode.SoloKombat) return;
                     new AirshipSpawnMap().RandomTeleport(player);
                 }
             }

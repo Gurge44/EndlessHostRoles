@@ -7,7 +7,7 @@ public static class PetsPatch
         if (pc == null || !pc.Data.IsDead) return;
         if (!GameStates.IsInGame) return;
         if (!Options.RemovePetsAtDeadPlayers.GetBool()) return;
-        
+
         pc.RpcSetPet(string.Empty);
     }
 }

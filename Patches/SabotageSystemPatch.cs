@@ -38,7 +38,7 @@ public static class ElectricTaskInitializePatch
 {
     public static void Postfix()
     {
-        new LateTask(() => { if (Utils.IsActive(SystemTypes.Electrical)) Utils.MarkEveryoneDirtySettingsV2(); }, 0.1f);
+        _ = new LateTask(() => { if (Utils.IsActive(SystemTypes.Electrical)) Utils.MarkEveryoneDirtySettingsV2(); }, 0.1f);
         if (!GameStates.IsMeeting)
             Utils.NotifyRoles();
     }
@@ -48,7 +48,7 @@ public static class ElectricTaskCompletePatch
 {
     public static void Postfix()
     {
-        new LateTask(() => { if (!Utils.IsActive(SystemTypes.Electrical)) Utils.MarkEveryoneDirtySettingsV2(); }, 0.1f);
+        _ = new LateTask(() => { if (!Utils.IsActive(SystemTypes.Electrical)) Utils.MarkEveryoneDirtySettingsV2(); }, 0.1f);
         if (!GameStates.IsMeeting)
             Utils.NotifyRoles();
     }

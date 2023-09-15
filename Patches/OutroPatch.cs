@@ -116,6 +116,14 @@ class SetEverythingUpPatch
             WinnerText.color = Color.red;
             goto EndOfText;
         }
+        if (Options.CurrentGameMode == CustomGameMode.FFA)
+        {
+            var winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
+            __instance.BackgroundBar.material.color = new Color32(0, 255, 255, 255);
+            WinnerText.text = Main.AllPlayerNames[winnerId] + " wins!";
+            WinnerText.color = Main.PlayerColors[winnerId];
+            goto EndOfText;
+        }
 
         var winnerRole = (CustomRoles)CustomWinnerHolder.WinnerTeam;
         if (winnerRole >= 0)
@@ -196,12 +204,13 @@ class SetEverythingUpPatch
         foreach (var additionalWinners in CustomWinnerHolder.AdditionalWinnerTeams)
         {
             var addWinnerRole = (CustomRoles)additionalWinners;
-            AdditionalWinnerText += "+" + Utils.ColorString(Utils.GetRoleColor(addWinnerRole), GetAdditionalWinnerRoleName(addWinnerRole));
+            if (addWinnerRole == CustomRoles.Sidekick) continue;
+            AdditionalWinnerText += "\n" + Utils.ColorString(Utils.GetRoleColor(addWinnerRole), GetAdditionalWinnerRoleName(addWinnerRole));
         }
         if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw and not CustomWinner.None and not CustomWinner.Error)
         {
             if (AdditionalWinnerText == string.Empty) WinnerText.text = $"<size=100%><color={CustomWinnerColor}>{CustomWinnerText}</color></size>";
-            else WinnerText.text = $"<size=100%><color={CustomWinnerColor}>{CustomWinnerText}</color></size>\n<size=75%>{AdditionalWinnerText}</size>";
+            else WinnerText.text = $"<size=100%><color={CustomWinnerColor}>{CustomWinnerText}</color></size><size=50%>{AdditionalWinnerText}</size>";
         }
 
         static string GetWinnerRoleName(CustomRoles role)
@@ -248,6 +257,19 @@ class SetEverythingUpPatch
             {
                 byte id = cloneRoles[i];
                 list.Add((SoloKombatManager.GetRankOfScore(id), id));
+            }
+
+            list.Sort();
+            foreach (var id in list.Where(x => EndGamePatch.SummaryText.ContainsKey(x.Item2)))
+                sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id.Item2]);
+        }
+        else if (Options.CurrentGameMode == CustomGameMode.FFA)
+        {
+            List<(int, byte)> list = new();
+            for (int i = 0; i < cloneRoles.Count; i++)
+            {
+                byte id = cloneRoles[i];
+                list.Add((FFAManager.GetRankOfScore(id), id));
             }
 
             list.Sort();

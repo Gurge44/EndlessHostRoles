@@ -513,12 +513,12 @@ class CheckForEndVotingPatch
 
 
         name += "<size=0>";
-        new LateTask(() =>
+        _ = new LateTask(() =>
         {
             Main.DoBlockNameChange = true;
             if (GameStates.IsInGame) player.RpcSetName(name);
         }, 3.0f, "Change Exiled Player Name");
-        new LateTask(() =>
+        _ = new LateTask(() =>
         {
             if (GameStates.IsInGame && !player.Data.Disconnected)
             {
@@ -688,7 +688,7 @@ class MeetingHudStartPatch
         if (msgToSend.Any())
         {
             var msgTemp = msgToSend.ToList();
-            new LateTask(() => { msgTemp.Do(x => Utils.SendMessage(x.Item1, x.Item2, x.Item3)); }, 3f, "Skill Description First Meeting");
+            _ = new LateTask(() => { msgTemp.Do(x => Utils.SendMessage(x.Item1, x.Item2, x.Item3)); }, 3f, "Skill Description First Meeting");
         }
         msgToSend = new();
 
@@ -776,7 +776,7 @@ class MeetingHudStartPatch
         msgToSend.Do(x => Logger.Info($"To:{x.Item2} {x.Item3} => {x.Item1}", "Skill Notice OnMeeting Start"));
 
         //总体延迟发送
-        new LateTask(() => { msgToSend.Do(x => Utils.SendMessage(x.Item1, x.Item2, x.Item3)); }, 3f, "Skill Notice OnMeeting Start");
+        _ = new LateTask(() => { msgToSend.Do(x => Utils.SendMessage(x.Item1, x.Item2, x.Item3)); }, 3f, "Skill Notice OnMeeting Start");
 
         Main.CyberStarDead.Clear();
         Main.DemolitionistDead.Clear();
@@ -886,7 +886,7 @@ class MeetingHudStartPatch
         }
         if (AntiBlackout.OverrideExiledPlayer)
         {
-            new LateTask(() =>
+            _ = new LateTask(() =>
             {
                 Utils.SendMessage(GetString("Warning.OverrideExiledPlayer"), 255, Utils.ColorString(Color.red, GetString("DefaultSystemMessageTitle")));
             }, 5f, "Warning OverrideExiledPlayer");
@@ -899,7 +899,7 @@ class MeetingHudStartPatch
 
         if (AmongUsClient.Instance.AmHost)
         {
-            _ = new LateTask(() =>
+            _ = _ = new LateTask(() =>
             {
                 foreach (var pc in Main.AllPlayerControls)
                 {
