@@ -99,7 +99,7 @@ public static class Tracefinder
         else delay = IRandom.Instance.Next((int)ArrowDelayMin.GetFloat(), (int)ArrowDelayMax.GetFloat() + 1);
         delay = Math.Max(delay, 0.15f);
 
-        new LateTask(() =>
+        _ = new LateTask(() =>
         {
             for (int i = 0; i < playerIdList.Count; i++)
             {

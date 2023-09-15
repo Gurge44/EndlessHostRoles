@@ -154,7 +154,7 @@ public static class NiceSwapper
                     if (!isUI) Utils.SendMessage(GetString("CantSwapSelf"), pc.PlayerId);
                     else pc.ShowPopUp(GetString("CantSwapSelf"));
                 }
-                new LateTask(() =>
+                _ = new LateTask(() =>
                 {
                     if (Vote.Any() && VoteTwo.Any())
                     {

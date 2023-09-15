@@ -69,7 +69,7 @@ public static class Deputy
             killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("DeputyHandcuffedPlayer")));
 
             //  target.ResetKillCooldown();
-            new LateTask(() =>
+            _ = new LateTask(() =>
             {
                 if (GameStates.IsInTask) target.SetKillCooldown(DeputyHandcuffCDForTarget.GetFloat());
                 target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("HandcuffedByDeputy")));

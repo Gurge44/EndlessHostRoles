@@ -16,7 +16,7 @@ namespace TOHE.Roles.Crewmate
         public static bool IsProtected = false;
         private static List<byte> playerIdList = new();
         private static Dictionary<byte, int> ventedId = new();
-        public static int PotionID = 10;
+        public static byte PotionID = 10;
         public static string PlayerName = string.Empty;
         private static Dictionary<byte, long> InvisTime = new();
         public static bool VisionPotionActive = false;
@@ -71,7 +71,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void OnTaskComplete(PlayerControl pc)
         {
-            PotionID = HashRandom.Next(1, 8);
+            PotionID = (byte)HashRandom.Next(1, 8);
 
             switch (PotionID)
             {
@@ -112,11 +112,11 @@ namespace TOHE.Roles.Crewmate
                 case 1: // Shield
                     IsProtected = true;
                     player.Notify(GetString("AlchemistShielded"), ShieldDuration.GetInt());
-                    new LateTask(() => { IsProtected = false; player.Notify(GetString("AlchemistShieldOut")); }, ShieldDuration.GetInt());
+                    _ = new LateTask(() => { IsProtected = false; player.Notify(GetString("AlchemistShieldOut")); }, ShieldDuration.GetInt());
                     break;
                 case 2: // Suicide
                     player.MyPhysics.RpcBootFromVent(ventId);
-                    new LateTask(() =>
+                    _ = new LateTask(() =>
                     {
                         player.SetRealKiller(player);
                         player.RpcMurderPlayerV3(player);
@@ -124,7 +124,7 @@ namespace TOHE.Roles.Crewmate
                     }, 1f);
                     break;
                 case 3: // TP to random player
-                    new LateTask(() =>
+                    _ = new LateTask(() =>
                     {
                         var rd = IRandom.Instance;
                         List<PlayerControl> AllAlivePlayer = new();
@@ -141,7 +141,7 @@ namespace TOHE.Roles.Crewmate
                     player.MarkDirtySettings();
                     var tmpSpeed = Main.AllPlayerSpeed[player.PlayerId];
                     Main.AllPlayerSpeed[player.PlayerId] = Speed.GetFloat();
-                    new LateTask(() =>
+                    _ = new LateTask(() =>
                     {
                         Main.AllPlayerSpeed[player.PlayerId] = Main.AllPlayerSpeed[player.PlayerId] - Speed.GetFloat() + tmpSpeed;
                         player.MarkDirtySettings();
@@ -158,7 +158,7 @@ namespace TOHE.Roles.Crewmate
                     VisionPotionActive = true;
                     player.MarkDirtySettings();
                     player.Notify(GetString("AlchemistHasVision"), VisionDuration.GetFloat());
-                    new LateTask(() => { VisionPotionActive = false; player.MarkDirtySettings(); player.Notify(GetString("AlchemistVisionOut")); }, VisionDuration.GetFloat());
+                    _ = new LateTask(() => { VisionPotionActive = false; player.MarkDirtySettings(); player.Notify(GetString("AlchemistVisionOut")); }, VisionDuration.GetFloat());
                     break;
                 case 10:
                     player.MyPhysics.RpcBootFromVent(ventId);
@@ -194,7 +194,7 @@ namespace TOHE.Roles.Crewmate
             var pc = __instance.myPlayer;
             NameNotifyManager.Notice.Remove(pc.PlayerId);
             if (!AmongUsClient.Instance.AmHost) return;
-            new LateTask(() =>
+            _ = new LateTask(() =>
             {
                 ventedId.Remove(pc.PlayerId);
                 ventedId.Add(pc.PlayerId, ventId);
