@@ -144,8 +144,9 @@ public static class Romantic
                 tpc.Notify(GetString("RomanticIsProtectingYou"));
                 _ = new LateTask(() =>
                 {
-                    if (!GameStates.IsInTask || !tpc.IsAlive()) return;
+                    if (!tpc.IsAlive()) return;
                     isPartnerProtected = false;
+                    if (!GameStates.IsInTask) return;
                     killer.Notify("ProtectingOver");
                     tpc.Notify("ProtectingOver");
                     killer.SetKillCooldown();
@@ -212,10 +213,11 @@ public static class Romantic
             }, 0.2f, "Convert to Vengeful Romantic");
         }
 
-        Utils.NotifyRoles();
+        Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(Romantic));
 
         Utils.GetPlayerById(Romantic).ResetKillCooldown();
         Utils.GetPlayerById(Romantic).SetKillCooldown();
+        Utils.GetPlayerById(Romantic).MarkDirtySettings();
     }
 }
 
