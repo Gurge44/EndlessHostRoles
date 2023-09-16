@@ -1,8 +1,8 @@
 
 #Number:100060
-#Title:TOHE PLUS v1.0.1
+#Title:TOHE PLUS v1.0.0
 #SubTitle:★★★★The first release★★★★
-#ShortTitle:★TOHE+ v1.0.1
+#ShortTitle:★TOHE+ v1.0.0
 #Date:2023-9-15T00:00:00Z
 #-----------------------------
 
