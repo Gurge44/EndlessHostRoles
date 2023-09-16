@@ -983,6 +983,9 @@ internal static class RPC
             case CustomRoles.Lighter:
                 Main.LighterNumOfUsed.Add(targetId, Options.LighterSkillMaxOfUseage.GetInt());
                 break;
+            case CustomRoles.SecurityGuard:
+                Main.SecurityGuardNumOfUsed.Add(targetId, Options.SecurityGuardSkillMaxOfUseage.GetInt());
+                break;
             case CustomRoles.Ventguard:
                 Main.VentguardNumberOfAbilityUses = Options.VentguardMaxGuards.GetInt();
                 break;

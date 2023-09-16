@@ -97,6 +97,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Bodyguard => CustomRoles.Crewmate,
                 CustomRoles.Grenadier => CustomRoles.Engineer,
                 CustomRoles.Lighter => CustomRoles.Engineer,
+                CustomRoles.SecurityGuard => CustomRoles.Engineer,
                 CustomRoles.Gangster => CustomRoles.Impostor,
                 CustomRoles.Cleaner => CustomRoles.Impostor,
                 CustomRoles.Konan => CustomRoles.Crewmate,
@@ -165,6 +166,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Bodyguard => CustomRoles.CrewmateTOHE,
                 CustomRoles.ParityCop => CustomRoles.CrewmateTOHE,
                 CustomRoles.Grenadier => CustomRoles.EngineerTOHE,
+                CustomRoles.SecurityGuard => CustomRoles.EngineerTOHE,
                 CustomRoles.Lighter => CustomRoles.EngineerTOHE,
                 CustomRoles.Ignitor => CustomRoles.EngineerTOHE,
                 CustomRoles.Transporter => CustomRoles.CrewmateTOHE,
@@ -956,6 +958,7 @@ internal static class CustomRolesHelper
         CustomRoles.Refugee or
         CustomRoles.Parasite or
         CustomRoles.Lighter or
+        CustomRoles.SecurityGuard or
         CustomRoles.Ignitor or
         CustomRoles.Saboteur or
         CustomRoles.Inhibitor or

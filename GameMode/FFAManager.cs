@@ -172,10 +172,6 @@ internal static class FFAManager
 
         OnPlayerKill(killer);
 
-        RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);
-        if (!target.IsModClient() && !target.AmOwner)
-            target.RpcGuardAndKill(colorId: 5);
-
         SendRPCSyncFFAPlayer(target.PlayerId);
 
         if (Main.AllAlivePlayerControls.Count() <= 3)
@@ -188,17 +184,19 @@ internal static class FFAManager
 
         if (FFA_EnableRandomAbilities.GetBool())
         {
-            byte EffectType = (byte)HashRandom.Next(0, 10);
+            byte EffectType;
+            if (Main.NormalOptions.MapId != 4) EffectType = (byte)HashRandom.Next(0, 10);
+            else EffectType = (byte)HashRandom.Next(4, 10);
             if (EffectType <= 7) // Buff
             {
                 byte EffectID = (byte)HashRandom.Next(0, 3);
+                if (Main.NormalOptions.MapId == 4) EffectID = 2;
                 switch (EffectID)
                 {
                     case 0:
                         FFAShieldedList.TryAdd(killer.PlayerId, Utils.GetTimeStamp());
                         killer.Notify(GetString("FFA-Event-GetShield"), FFA_ShieldDuration.GetFloat());
                         Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
-                        if (Main.NormalOptions.MapId == 4) _ = new LateTask(() => { FFAShieldedList.Remove(killer.PlayerId); killer.SyncSettings(); }, FFA_ShieldDuration.GetFloat());
                         break;
                     case 1:
                         if (FFAIncreasedSpeedList.ContainsKey(killer.PlayerId))
@@ -214,7 +212,6 @@ internal static class FFAManager
                         }
                         killer.Notify(GetString("FFA-Event-GetIncreasedSpeed"), FFA_ModifiedSpeedDuration.GetFloat());
                         Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
-                        if (Main.NormalOptions.MapId == 4) _ = new LateTask(() => { FFAIncreasedSpeedList.Remove(killer.PlayerId); killer.SyncSettings(); }, FFA_ModifiedSpeedDuration.GetFloat());
                         break;
                     case 2:
                         Main.AllPlayerKillCooldown[killer.PlayerId] = System.Math.Clamp(FFA_KCD.GetFloat() - 3f, 1f, 60f);
@@ -228,6 +225,7 @@ internal static class FFAManager
             else if (EffectType == 8) // De-Buff
             {
                 byte EffectID = (byte)HashRandom.Next(0, 3);
+                if (Main.NormalOptions.MapId == 4) EffectID = 1;
                 switch (EffectID)
                 {
                     case 0:
@@ -244,7 +242,6 @@ internal static class FFAManager
                         }
                         killer.Notify(GetString("FFA-Event-GetDecreasedSpeed"), FFA_ModifiedSpeedDuration.GetFloat());
                         Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
-                        if (Main.NormalOptions.MapId == 4) _ = new LateTask(() => { FFADecreasedSpeedList.Remove(killer.PlayerId); killer.SyncSettings(); }, FFA_ModifiedSpeedDuration.GetFloat());
                         break;
                     case 1:
                         Main.AllPlayerKillCooldown[killer.PlayerId] = System.Math.Clamp(FFA_KCD.GetFloat() + 3f, 1f, 60f);
@@ -254,7 +251,6 @@ internal static class FFAManager
                         FFALowerVisionList.TryAdd(killer.PlayerId, Utils.GetTimeStamp());
                         Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
                         killer.Notify(GetString("FFA-Event-GetLowVision"));
-                        if (Main.NormalOptions.MapId == 4) _ = new LateTask(() => { FFALowerVisionList.Remove(killer.PlayerId); killer.SyncSettings(); }, FFA_ModifiedVisionDuration.GetFloat());
                         break;
                     default:
                         Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
@@ -283,6 +279,27 @@ internal static class FFAManager
             PlayerControl.LocalPlayer.KillFlash();
 
         KBScore[killer.PlayerId]++;
+    }
+
+    public static string GetPlayerArrow(PlayerControl seer, PlayerControl target = null)
+    {
+        if (GameStates.IsMeeting) return string.Empty;
+        if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
+        if (Main.AllAlivePlayerControls.Count() != 2) return string.Empty;
+
+        string arrows = string.Empty;
+        PlayerControl otherPlayer = null;
+        foreach (var pc in Main.AllAlivePlayerControls.Where(pc => pc.IsAlive() && pc.PlayerId != seer.PlayerId))
+        {
+            otherPlayer = pc;
+            break;
+        }
+        if (otherPlayer == null) return string.Empty;
+
+        var arrow = TargetArrow.GetArrows(seer, otherPlayer.PlayerId);
+        arrows += Utils.ColorString(Utils.GetRoleColor(CustomRoles.Killer), arrow);
+
+        return arrows;
     }
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
@@ -348,6 +365,9 @@ internal static class FFAManager
 
                     changePositionPlayers.Clear();
                 }
+
+                if (Main.NormalOptions.MapId == 4) return;
+
                 if (FFADecreasedSpeedList.TryGetValue(__instance.PlayerId, out var dstime) && dstime + FFA_ModifiedSpeedDuration.GetInt() < Utils.GetTimeStamp())
                 {
                     FFADecreasedSpeedList.Remove(__instance.PlayerId);

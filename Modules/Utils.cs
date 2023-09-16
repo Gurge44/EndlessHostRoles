@@ -892,6 +892,21 @@ public static class Utils
                 ProgressText.Append(ColorString(TextColor15, $"<color=#777777>-</color> {Completed15}/{taskState15.AllTasksCount}"));
                 ProgressText.Append(ColorString(TextColor151, $" <color=#777777>-</color> {Math.Round(Main.VentguardNumberOfAbilityUses, 1)}"));
                 break;
+            case CustomRoles.SecurityGuard:
+                var taskState16 = Main.PlayerStates?[playerId].GetTaskState();
+                Color TextColor16;
+                var TaskCompleteColor16 = Color.green;
+                var NonCompleteColor16 = Color.yellow;
+                var NormalColor16 = taskState16.IsTaskFinished ? TaskCompleteColor16 : NonCompleteColor16;
+                TextColor16 = comms ? Color.gray : NormalColor16;
+                string Completed16 = comms ? "?" : $"{taskState16.CompletedTasksCount}";
+                Color TextColor161;
+                if (Main.SecurityGuardNumOfUsed[playerId] < 1) TextColor161 = Color.red;
+                else if (Main.BlockSabo.ContainsKey(playerId)) TextColor161 = Color.green;
+                else TextColor161 = Color.white;
+                ProgressText.Append(ColorString(TextColor16, $"<color=#777777>-</color> {Completed16}/{taskState16.AllTasksCount}"));
+                ProgressText.Append(ColorString(TextColor161, $" <color=#777777>-</color> {Math.Round(Main.SecurityGuardNumOfUsed[playerId], 1)}"));
+                break;
             //case CustomRoles.Pirate:
             //    ProgressText.Append(ColorString(GetRoleColor(CustomRoles.Pirate).ShadeColor(0.25f), $"({Pirate.NumWin}/{Pirate.SuccessfulDuelsToWin.GetInt()})"));
             //    break;
@@ -1766,7 +1781,7 @@ public static class Utils
             if (seer == null || seer.Data.Disconnected) continue;
 
             if (seer.IsModClient()) continue;
-            string fontSize = "1.5";
+            string fontSize = "1.6";
             if (isForMeeting && (seer.GetClient().PlatformData.Platform == Platforms.Playstation || seer.GetClient().PlatformData.Platform == Platforms.Switch)) fontSize = "70%";
             logger.Info("NotifyRoles-Loop1-" + seer.GetNameWithRole() + ":START");
 
@@ -1877,6 +1892,11 @@ public static class Utils
             }
 
             SelfSuffix.Append(Deathpact.GetDeathpactPlayerArrow(seer));
+
+            //FFA
+
+            if (Options.CurrentGameMode == CustomGameMode.FFA)
+                SelfSuffix.Append(FFAManager.GetPlayerArrow(seer));
 
 
 
@@ -2591,7 +2611,7 @@ public static class Utils
             TaskCount = ColorString(TextColor, $" ({Completed}/{taskState.AllTasksCount})");
         }
         else { TaskCount = string.Empty; }
-        string summary = $"{ColorString(Main.PlayerColors[id], name)} - {GetDisplayRoleName(id, true)}{GetSubRolesText(id, summary: true)}{TaskCount}{GetKillCountText(id)} ({GetVitalText(id, true)})";
+        string summary = $"{ColorString(Main.PlayerColors[id], name)} - {GetDisplayRoleName(id, true)}{TaskCount}{GetKillCountText(id)} ({GetVitalText(id, true)})";
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
         {
             if (TranslationController.Instance.currentLanguage.languageID is SupportedLangs.SChinese or SupportedLangs.TChinese)

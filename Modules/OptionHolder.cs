@@ -299,6 +299,10 @@ public static class Options
     public static OptionItem LighterSkillDuration;
     public static OptionItem LighterSkillMaxOfUseage;
     public static OptionItem LighterAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem SecurityGuardSkillCooldown;
+    public static OptionItem SecurityGuardSkillDuration;
+    public static OptionItem SecurityGuardSkillMaxOfUseage;
+    public static OptionItem SecurityGuardAbilityUseGainWithEachTaskCompleted;
     public static OptionItem EscapeeSSDuration;
     public static OptionItem EscapeeSSCD;
     public static OptionItem MinerSSDuration;
@@ -1428,6 +1432,22 @@ public static class Options
             .SetValueFormat(OptionFormat.Times);
         LighterAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(6857, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1.5f, TabGroup.CrewmateRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
+            .SetValueFormat(OptionFormat.Times);
+
+        RoleLoadingText = "Crewmate roles\nSecurity Guard";
+
+        SetupRoleOptions(6860, TabGroup.CrewmateRoles, CustomRoles.SecurityGuard);
+        SecurityGuardSkillCooldown = FloatOptionItem.Create(6862, "SecurityGuardSkillCooldown", new(1f, 180f, 1f), 15f, TabGroup.CrewmateRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.SecurityGuard])
+            .SetValueFormat(OptionFormat.Seconds);
+        SecurityGuardSkillDuration = FloatOptionItem.Create(6863, "SecurityGuardSkillDuration", new(1f, 180f, 1f), 10f, TabGroup.CrewmateRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.SecurityGuard])
+            .SetValueFormat(OptionFormat.Seconds);
+        SecurityGuardSkillMaxOfUseage = IntegerOptionItem.Create(6866, "AbilityUseLimit", new(0, 180, 1), 1, TabGroup.CrewmateRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.SecurityGuard])
+            .SetValueFormat(OptionFormat.Times);
+        SecurityGuardAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(6867, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.4f, TabGroup.CrewmateRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.SecurityGuard])
             .SetValueFormat(OptionFormat.Times);
 
         LoadingPercentage = 20;

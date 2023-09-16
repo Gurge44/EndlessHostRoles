@@ -433,6 +433,10 @@ public class TaskState
             {
                 Main.LighterNumOfUsed[player.PlayerId] += Options.LighterAbilityUseGainWithEachTaskCompleted.GetFloat();
             }
+            if (player.Is(CustomRoles.SecurityGuard) && player.IsAlive())
+            {
+                Main.SecurityGuardNumOfUsed[player.PlayerId] += Options.SecurityGuardAbilityUseGainWithEachTaskCompleted.GetFloat();
+            }
             if (player.Is(CustomRoles.Ventguard) && player.IsAlive())
             {
                 Main.VentguardNumberOfAbilityUses += Options.VentguardAbilityUseGainWithEachTaskCompleted.GetFloat();

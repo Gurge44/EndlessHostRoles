@@ -290,6 +290,10 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 AURoleOptions.EngineerInVentMaxTime = 1;
                 AURoleOptions.EngineerCooldown = Options.LighterSkillCooldown.GetFloat();
                 break;
+            case CustomRoles.SecurityGuard:
+                AURoleOptions.EngineerInVentMaxTime = 1;
+                AURoleOptions.EngineerCooldown = Options.SecurityGuardSkillCooldown.GetFloat();
+                break;
             case CustomRoles.Ventguard:
                 AURoleOptions.EngineerInVentMaxTime = 1;
                 AURoleOptions.EngineerCooldown = 15;

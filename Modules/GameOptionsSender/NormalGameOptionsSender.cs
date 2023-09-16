@@ -1,4 +1,5 @@
 using AmongUs.GameOptions;
+using System;
 
 namespace TOHE.Modules;
 
@@ -10,13 +11,21 @@ public class NormalGameOptionsSender : GameOptionsSender
     {
         get
         {
-            if (_logicOptions == null || !GameManager.Instance.LogicComponents.Contains(_logicOptions))
+            try
             {
-                foreach (var glc in GameManager.Instance.LogicComponents)
-                    if (glc.TryCast<LogicOptions>(out var lo))
-                        _logicOptions = lo;
+                if (_logicOptions == null || !GameManager.Instance.LogicComponents.Contains(_logicOptions))
+                {
+                    foreach (var glc in GameManager.Instance?.LogicComponents)
+                        if (glc.TryCast<LogicOptions>(out var lo))
+                            _logicOptions = lo;
+                }
+                return _logicOptions != null && _logicOptions.IsDirty;
             }
-            return _logicOptions != null && _logicOptions.IsDirty;
+            catch (Exception ex)
+            {
+                Logger.Fatal(ex.ToString(), "NormalGameOptionsSender.IsDirty.Get");
+                return false;
+            }
         }
         protected set
         {

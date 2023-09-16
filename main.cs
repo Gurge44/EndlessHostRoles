@@ -25,7 +25,7 @@ public class Main : BasePlugin
     public static readonly string ModName = "TOHE+";
     public static readonly string ModColor = "#ffc0cb";
     public static readonly bool AllowPublicRoom = true;
-    public static readonly string ForkId = "TOHE";
+    public static readonly string ForkId = "TOHE+";
     public const string OriginalForkId = "OriginalTOH";
     public static HashAuth DebugKeyAuth { get; private set; }
     public const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
@@ -33,8 +33,8 @@ public class Main : BasePlugin
     public static ConfigEntry<string> DebugKeyInput { get; private set; }
     public static readonly string MainMenuText = " ";
     public const string PluginGuid = "com.gurge44.toheplus";
-    public const string PluginVersion = "1.0.0";
-    public const string PluginDisplayVersion = "1.0";
+    public const string PluginVersion = "1.0.1";
+    public const string PluginDisplayVersion = "1.0.1";
     public const int PluginCreate = 3;
     public const bool Canary = false;
 
@@ -169,9 +169,11 @@ public class Main : BasePlugin
     public static Dictionary<byte, long> AllKillers = new();
     public static Dictionary<byte, float> GrenadierNumOfUsed = new();
     public static Dictionary<byte, float> LighterNumOfUsed = new();
+    public static Dictionary<byte, float> SecurityGuardNumOfUsed = new();
     public static Dictionary<byte, float> TimeMasterNumOfUsed = new();
     public static Dictionary<byte, long> GrenadierBlinding = new();
     public static Dictionary<byte, long> Lighter = new();
+    public static Dictionary<byte, long> BlockSabo = new();
     public static Dictionary<byte, long> MadGrenadierBlinding = new();
     public static Dictionary<byte, int> CursedWolfSpellCount = new();
     public static Dictionary<byte, int> JinxSpellCount = new();
@@ -335,6 +337,7 @@ public class Main : BasePlugin
                 {CustomRoles.Lookout, "#2a52be"},
                 {CustomRoles.Grenadier, "#3c4a16"},
                 {CustomRoles.Lighter, "#eee5be"},
+                {CustomRoles.SecurityGuard, "#c3b25f"},
                 {CustomRoles.Medic, "#00ff97"},
                 {CustomRoles.Divinator, "#882c83"},
                 {CustomRoles.Glitch, "#39FF14"},
@@ -666,6 +669,7 @@ public enum CustomRoles
     Witness,
     Grenadier,
     Lighter,
+    SecurityGuard,
     Medic,
     Divinator,
     Glitch,

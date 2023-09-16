@@ -1,5 +1,5 @@
 
-<h1 align="center">Town of Host Edited PLUS</h1>
+<h1 align="center">Town of Host Re-Edited</h1>
 
 <br>
 
