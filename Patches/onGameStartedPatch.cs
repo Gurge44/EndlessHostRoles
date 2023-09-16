@@ -99,8 +99,10 @@ internal class ChangeRoleSettings
             Main.GrenadierNumOfUsed = new();
             Main.LighterNumOfUsed = new();
             Main.TimeMasterNumOfUsed = new();
+            Main.SecurityGuardNumOfUsed = new();
             Main.GrenadierBlinding = new();
             Main.Lighter = new();
+            Main.BlockSabo = new();
             Main.BlockedVents = new();
             Main.MadGrenadierBlinding = new();
             Main.CursedWolfSpellCount = new();
@@ -717,6 +719,9 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Lighter:
                         Main.LighterNumOfUsed.Add(pc.PlayerId, Options.LighterSkillMaxOfUseage.GetInt());
+                        break;
+                    case CustomRoles.SecurityGuard:
+                        Main.SecurityGuardNumOfUsed.Add(pc.PlayerId, Options.SecurityGuardSkillMaxOfUseage.GetInt());
                         break;
                     case CustomRoles.Ventguard:
                         Main.VentguardNumberOfAbilityUses = Options.VentguardMaxGuards.GetInt();

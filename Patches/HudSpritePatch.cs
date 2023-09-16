@@ -138,6 +138,9 @@ public static class HudSpritePatch
             case CustomRoles.Lighter:
                 newAbilityButton = CustomButton.Get("Lighter");
                 break;
+            case CustomRoles.SecurityGuard:
+                newAbilityButton = CustomButton.Get("BlockSabo");
+                break;
             case CustomRoles.Ventguard:
                 newAbilityButton = CustomButton.Get("Block");
                 break;

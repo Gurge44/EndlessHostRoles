@@ -268,6 +268,9 @@ class HudManagerPatch
                     case CustomRoles.Lighter:
                         __instance.AbilityButton.buttonLabelText.text = GetString("LighterVentButtonText");
                         break;
+                    case CustomRoles.SecurityGuard:
+                        __instance.AbilityButton.buttonLabelText.text = GetString("SecurityGuardVentButtonText");
+                        break;
                     case CustomRoles.Ventguard:
                         __instance.AbilityButton.buttonLabelText.text = GetString("VentguardVentButtonText");
                         break;

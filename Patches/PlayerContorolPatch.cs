@@ -1615,6 +1615,7 @@ class ReportDeadBodyPatch
         Main.VeteranInProtect.Clear();
         Main.GrenadierBlinding.Clear();
         Main.Lighter.Clear();
+        Main.BlockSabo.Clear();
         Main.BlockedVents.Clear();
         Main.MadGrenadierBlinding.Clear();
         if (Divinator.IsEnable) Divinator.didVote.Clear();
@@ -1703,10 +1704,10 @@ class FixedUpdatePatch
         bool lowLoad = false;
         if (Options.LowLoadMode.GetBool())
         {
-            BufferTime.TryAdd(player.PlayerId, 10);
+            BufferTime.TryAdd(player.PlayerId, IRandom.Instance.Next(10, 20));
             BufferTime[player.PlayerId]--;
             if (BufferTime[player.PlayerId] > 0) lowLoad = true;
-            else BufferTime[player.PlayerId] = 10;
+            else BufferTime[player.PlayerId] = IRandom.Instance.Next(10, 20);
         }
 
         if (Sniper.IsEnable) Sniper.OnFixedUpdate(player);
@@ -1752,9 +1753,9 @@ class FixedUpdatePatch
             DoubleTrigger.OnFixedUpdate(player);
             if (Vampire.IsEnable) Vampire.OnFixedUpdate(player);
             if (Poisoner.IsEnable) Poisoner.OnFixedUpdate(player);
-            if (BountyHunter.IsEnable) BountyHunter.FixedUpdate(player);
+            if (BountyHunter.IsEnable && !lowLoad) BountyHunter.FixedUpdate(player);
             if (SerialKiller.IsEnable()) SerialKiller.FixedUpdate(player);
-            if (GameStates.IsInTask)
+            if (GameStates.IsInTask && PlagueBearer.IsEnable)
                 if (player.Is(CustomRoles.PlagueBearer) && PlagueBearer.IsPlaguedAll(player))
                 {
                     player.RpcSetCustomRole(CustomRoles.Pestilence);
@@ -1995,6 +1996,17 @@ class FixedUpdatePatch
                     }
                 }
 
+                if (GameStates.IsInTask && player.Is(CustomRoles.SecurityGuard))
+                {
+                    if (Main.BlockSabo.TryGetValue(player.PlayerId, out var ltime) && ltime + Options.SecurityGuardSkillDuration.GetInt() < Utils.GetTimeStamp())
+                    {
+                        Main.BlockSabo.Remove(player.PlayerId);
+                        //player.RpcGuardAndKill();
+                        player.RpcResetAbilityCooldown();
+                        player.Notify(GetString("SecurityGuardSkillStop"));
+                    }
+                }
+
                 //检查马里奥是否完成
                 if (GameStates.IsInTask && player.Is(CustomRoles.Mario) && Main.MarioVentCount[player.PlayerId] > Options.MarioVentNumWin.GetInt())
                 {
@@ -2117,7 +2129,7 @@ class FixedUpdatePatch
                 if (GameStates.IsInTask && player == PlayerControl.LocalPlayer)
                 {
                     DisableDevice.FixedUpdate();
-                    AntiAdminer.FixedUpdate();
+                    if (AntiAdminer.IsEnable()) AntiAdminer.FixedUpdate();
                     if (Monitor.IsEnable) Monitor.FixedUpdate();
                 }
 
@@ -2220,7 +2232,6 @@ class FixedUpdatePatch
                 else if (Ritualist.IsShowTargetRole(PlayerControl.LocalPlayer, __instance)) RoleText.enabled = true;
                 else if (Executioner.KnowRole(PlayerControl.LocalPlayer, __instance)) RoleText.enabled = true;
                 else if (Main.GodMode.Value) RoleText.enabled = true;
-                else if (Options.CurrentGameMode == CustomGameMode.FFA) RoleText.enabled = true;
                 else RoleText.enabled = false; //そうでなければロールを非表示
                 if (!PlayerControl.LocalPlayer.Data.IsDead && PlayerControl.LocalPlayer.IsRevealedPlayer(__instance) && __instance.Is(CustomRoles.Trickster))
                 {
@@ -2451,6 +2462,8 @@ class FixedUpdatePatch
                 Suffix.Append(Deathpact.GetDeathpactPlayerArrow(seer, target));
                 Suffix.Append(Deathpact.GetDeathpactMark(seer, target));
                 Suffix.Append(Spiritualist.GetSpiritualistArrow(seer, target));
+
+                if (Options.CurrentGameMode == CustomGameMode.FFA) Suffix.Append(FFAManager.GetPlayerArrow(seer, target));
 
                 if (Vulture.ArrowsPointingToDeadBody.GetBool())
                     Suffix.Append(Vulture.GetTargetArrow(seer, target));
@@ -2737,6 +2750,20 @@ class EnterVentPatch
                 pc.Notify(GetString("LighterSkillInUse"), Options.LighterSkillDuration.GetFloat());
                 Main.LighterNumOfUsed[pc.PlayerId] -= 1;
                 pc.MarkDirtySettings();
+            }
+            else
+            {
+                pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
+            }
+        }
+        if (pc.Is(CustomRoles.SecurityGuard))
+        {
+            if (Main.SecurityGuardNumOfUsed[pc.PlayerId] >= 1)
+            {
+                Main.BlockSabo.Remove(pc.PlayerId);
+                Main.BlockSabo.Add(pc.PlayerId, Utils.GetTimeStamp());
+                pc.Notify(GetString("SecurityGuardSkillInUse"), Options.SecurityGuardSkillDuration.GetFloat());
+                Main.SecurityGuardNumOfUsed[pc.PlayerId] -= 1;
             }
             else
             {

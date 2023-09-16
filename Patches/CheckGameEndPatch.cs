@@ -277,7 +277,7 @@ class GameEndChecker
                     }
                 }
                 //Follower win condition
-                foreach (var pc in Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Totocalcio)))
+                if (Totocalcio.IsEnable) foreach (var pc in Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Totocalcio)))
                 {
                     if (Totocalcio.BetPlayer.TryGetValue(pc.PlayerId, out var betTarget) && (
                         CustomWinnerHolder.WinnerIds.Contains(betTarget) ||
@@ -289,7 +289,7 @@ class GameEndChecker
                     }
                 }
                 //Romantic win condition
-                foreach (var pc in Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Romantic)))
+                if (Romantic.IsEnable) foreach (var pc in Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Romantic)))
                 {
                     if (Romantic.BetPlayer.TryGetValue(pc.PlayerId, out var betTarget) && (
                         CustomWinnerHolder.WinnerIds.Contains(betTarget) ||
@@ -300,20 +300,17 @@ class GameEndChecker
                         CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Romantic);
                     }
                 }
-                //Ruthless Romantic
-                foreach (var pc in Main.AllPlayerControls.Where(x => x.Is(CustomRoles.RuthlessRomantic)))
+                //Ruthless Romantic win condition
+                if (RuthlessRomantic.IsEnable && (CustomWinnerHolder.WinnerIds.Contains(RuthlessRomantic.playerIdList[0]) || (Main.PlayerStates.TryGetValue(RuthlessRomantic.playerIdList[0], out var pz) && CustomWinnerHolder.WinnerRoles.Contains(pz.MainRole))))
+                foreach (var pc in Main.AllPlayerControls)
                 {
-                    if (Romantic.BetPlayer.TryGetValue(pc.PlayerId, out var betTarget) && (
-                        CustomWinnerHolder.WinnerIds.Contains(betTarget) ||
-                        (Main.PlayerStates.TryGetValue(betTarget, out var ps) && CustomWinnerHolder.WinnerRoles.Contains(ps.MainRole)
-                        )))
+                    if (Romantic.BetPlayer.TryGetValue(pc.PlayerId, out var betTarget))
                     {
-                        CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
-                        CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.RuthlessRomantic);
+                        CustomWinnerHolder.WinnerIds.Add(betTarget);
                     }
                 }
                 //Vengeful Romantic win condition
-                foreach (var pc in Main.AllPlayerControls.Where(x => x.Is(CustomRoles.VengefulRomantic)))
+                if (Romantic.IsEnable || VengefulRomantic.IsEnable) foreach (var pc in Main.AllPlayerControls.Where(x => x.Is(CustomRoles.VengefulRomantic)))
                 {
                     if (VengefulRomantic.hasKilledKiller)
                     {
