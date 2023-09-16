@@ -154,6 +154,9 @@ public static class CopyCat
                 case CustomRoles.Lighter:
                     Main.LighterNumOfUsed.Remove(player);
                     break;
+                case CustomRoles.SecurityGuard:
+                    Main.SecurityGuardNumOfUsed.Remove(player);
+                    break;
                 case CustomRoles.Ventguard:
                     Main.VentguardNumberOfAbilityUses = 0;
                     break;
@@ -184,6 +187,7 @@ public static class CopyCat
             //bcoz of vent cd
             CustomRoles.Grenadier or
             CustomRoles.Lighter or
+            CustomRoles.SecurityGuard or
             CustomRoles.Ventguard or
             CustomRoles.DovesOfNeace or
             CustomRoles.Veteran or
@@ -242,7 +246,6 @@ public static class CopyCat
                     Cleanser.DidVote.Add(pc.PlayerId, false);
                     break;
                 case CustomRoles.Jailor:
-                    Jailor.JailorExeLimit.Add(pc.PlayerId, Jailor.MaxExecution.GetInt());
                     Jailor.JailorTarget.Add(pc.PlayerId, byte.MaxValue);
                     Jailor.JailorHasExe.Add(pc.PlayerId, false);
                     Jailor.JailorDidVote.Add(pc.PlayerId, false);

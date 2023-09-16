@@ -13,7 +13,7 @@ namespace TOHE.Roles.Crewmate
     {
         private static readonly int Id = 9700;
 
-        private static readonly string fontSize = "1.5";
+        private static readonly string fontSize = "1.6";
 
         public static OptionItem FarseerCooldown;
         public static OptionItem FarseerRevealTime;
@@ -51,6 +51,7 @@ namespace TOHE.Roles.Crewmate
             CustomRoles.Bodyguard,
             CustomRoles.Grenadier,
             CustomRoles.Lighter,
+            CustomRoles.SecurityGuard,
             CustomRoles.Ventguard,
             CustomRoles.Divinator,
             CustomRoles.Oracle,

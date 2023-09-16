@@ -120,6 +120,7 @@ public static class Divinator
                 CustomRoles.Bard or
                 CustomRoles.Juggernaut or
                 //CustomRoles.Reverie or
+                CustomRoles.SecurityGuard or
                 CustomRoles.Sans or
                 CustomRoles.Minimalism or
                 CustomRoles.OverKiller

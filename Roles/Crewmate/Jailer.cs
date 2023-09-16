@@ -16,12 +16,6 @@ public static class Jailor
     public static Dictionary<byte, bool> JailorDidVote = new();
 
     public static OptionItem JailCooldown;
-    public static OptionItem MaxExecution;
-    public static OptionItem NBCanBeExe;
-    public static OptionItem NCCanBeExe;
-    public static OptionItem NECanBeExe;
-    public static OptionItem NKCanBeExe;
-    public static OptionItem CKCanBeExe;
     public static OptionItem notifyJailedOnMeeting;
 
 
@@ -30,14 +24,6 @@ public static class Jailor
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Jailor);
         JailCooldown = FloatOptionItem.Create(Id + 10, "JailorJailCooldown", new(0f, 999f, 1f), 15f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jailor])
             .SetValueFormat(OptionFormat.Seconds);
-        //MaxExecution = IntegerOptionItem.Create(Id + 11, "JailorMaxExecution", new(1, 14, 1), 3, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Jailor])
-        //    .SetValueFormat(OptionFormat.Times);
-        //NBCanBeExe = BooleanOptionItem.Create(Id + 12, "JailorNBCanBeExe", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Jailor]);
-        //NCCanBeExe = BooleanOptionItem.Create(Id + 13, "JailorNCCanBeExe", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Jailor]);
-        //NECanBeExe = BooleanOptionItem.Create(Id + 14, "JailorNECanBeExe", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Jailor]);
-        //NKCanBeExe = BooleanOptionItem.Create(Id + 15, "JailorNKCanBeExe", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Jailor]);
-        //CKCanBeExe = BooleanOptionItem.Create(Id + 16, "JailorCKCanBeExe", false, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Jailor]);
-        //CovenCanBeExe = BooleanOptionItem.Create(Id + 17, "JailorCovenCanBeExe", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Jailor]);
         notifyJailedOnMeeting = BooleanOptionItem.Create(Id + 18, "notifyJailedOnMeeting", true, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jailor]);
     }
 
@@ -52,7 +38,6 @@ public static class Jailor
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        JailorExeLimit.Add(playerId, MaxExecution.GetInt());
         JailorTarget.Add(playerId, byte.MaxValue);
         JailorHasExe.Add(playerId, false);
         JailorDidVote.Add(playerId, false);
@@ -91,8 +76,8 @@ public static class Jailor
         if (!setTarget)
         {
             int points = reader.ReadInt32();
-            if (JailorExeLimit.ContainsKey(jailerId)) JailorExeLimit[jailerId] = points;
-            else JailorExeLimit.Add(jailerId, MaxExecution.GetInt());
+            //if (JailorExeLimit.ContainsKey(jailerId)) JailorExeLimit[jailerId] = points;
+            //else JailorExeLimit.Add(jailerId, MaxExecution.GetInt());
 
             bool executed = reader.ReadBoolean();
             if (JailorHasExe.ContainsKey(jailerId)) JailorHasExe[jailerId] = executed;
@@ -162,12 +147,7 @@ public static class Jailor
 
     public static bool CanBeExecuted(this CustomRoles role)
     {
-        return (role.IsNB() && NBCanBeExe.GetBool()) ||
-                (role.IsNC() && NCCanBeExe.GetBool()) ||
-                (role.IsNE() && NCCanBeExe.GetBool()) ||
-                (role.IsNK() && NKCanBeExe.GetBool()) ||
-                (role.IsCK() && CKCanBeExe.GetBool()) ||
-                role.IsImpostorTeamV3();
+        return false;
     }
 
     public static void AfterMeetingTasks()
