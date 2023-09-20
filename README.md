@@ -1,5 +1,5 @@
 
-<h1 align="center">Town of Host Plus</h1>
+<h1 align="center">Town of Host Edited Plus</h1>
 
 <br>
 
@@ -16,7 +16,7 @@
 <p align="center">
   
 <a href="https://toher.dev/" target="_blank"><img src="https://img.shields.io/badge/Website%20-%231DA1F2.svg?&style=for-the-badge&logo=vuedotjs&logoColor=white&color=3aa675"/></a>
-<a href="https://discord.gg/hkk2p9ggv4" target="_blank"><img src="https://img.shields.io/badge/Discord%20-%231DA1F2.svg?&style=for-the-badge&logo=discord&logoColor=white&color=5662f6"/></a>
+<a href="https://discord.gg/m3ayxfumC8" target="_blank"><img src="https://img.shields.io/badge/Discord%20-%231DA1F2.svg?&style=for-the-badge&logo=discord&logoColor=white&color=5662f6"/></a>
 <a href="https://github.com/Gurge44/TOHE_PLUS_/releases/latest" target="_blank"><img src="https://img.shields.io/badge/Latest Version%20-%231DA1F2.svg?&style=for-the-badge&logo=github&logoColor=white&color=181717"/></a>
 
 
@@ -99,6 +99,7 @@
 - Task Manager (Crewmate)
 - Speedrunner (Crewmate)
 - Ignitor (Crewmate)
+- Security Guard (Crewmate)
 - Romantic (Neutral)
 - Werewolf (Neutral)
 - Imitator (Neutral)
@@ -108,7 +109,7 @@
 - Deadly Quota (Impostor-only Add-on)
 
 ## Note:
-- You can use parts of the code in here, but if you do, you'll have to credit me (Gurge44) or the mod by mentioning its name (TOHE+) and provoding a link to this github page.
+- You can use parts of the code in here, but if you do, you'll have to credit me (Gurge44) or the mod by mentioning its name (TOHE+) and providing a link to this github page.
 - Do not try to build the source code. It will give you errors. This is intentional, so copying the mod is not so easy. To play the mod, use the given dll in the release section.
 
 <br>
