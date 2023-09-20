@@ -489,11 +489,11 @@ class CheckForEndVotingPatch
             if (impnum == 0 && neutralnum == 0) name += GetString("GG");
             else if (impnum > 0 && neutralnum > 0 && Options.ShowNKRemainOnEject.GetBool())
             {
-                if (impnum == 1) name += "1 <color=#ff1919>Impostor</color> <color=#777777>and</color> ";
-                else if (impnum == 2) name += "2 <color=#ff1919>Impostors</color> <color=#777777>and</color> ";
-                else if (impnum == 3) name += "3 <color=#ff1919>Impostors</color> <color=#777777>and</color> ";
-                if (neutralnum == 1) name += "1 <color=#7f8c8d>Neutral</color> <color=#777777>remains.</color>";
-                else name += "2 <color=#7f8c8d>Neutrals</color> <color=#777777>remain.</color>";
+                if (impnum == 1) name += "1 <color=#ff1919>Impostor</color> <color=#777777>&</color> ";
+                else if (impnum == 2) name += "2 <color=#ff1919>Impostors</color> <color=#777777>&</color> ";
+                else if (impnum == 3) name += "3 <color=#ff1919>Impostors</color> <color=#777777>&</color> ";
+                if (neutralnum == 1) name += "1 <color=#ffab1b>Neutral</color> <color=#777777>remains.</color>";
+                else name += "2 <color=#ffab1b>Neutrals</color> <color=#777777>remain.</color>";
             }
             else if (impnum > 0 && (neutralnum == 0 || !Options.ShowNKRemainOnEject.GetBool()))
             {
@@ -1004,6 +1004,8 @@ class MeetingHudStartPatch
                 //   case CustomRoles.Sidekick:
                 case CustomRoles.Poisoner:
                 case CustomRoles.NSerialKiller:
+                case CustomRoles.Pyromaniac:
+                case CustomRoles.Eclipse:
                 case CustomRoles.Vengeance:
                 case CustomRoles.HeadHunter:
                 case CustomRoles.Imitator:

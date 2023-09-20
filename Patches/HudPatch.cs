@@ -153,6 +153,8 @@ class HudManagerPatch
                         Gangster.SetKillButtonText(player.PlayerId);
                         break;
                     case CustomRoles.NSerialKiller:
+                    case CustomRoles.Pyromaniac:
+                    case CustomRoles.Eclipse:
                     case CustomRoles.Vengeance:
                     case CustomRoles.HeadHunter:
                     case CustomRoles.Imitator:
@@ -731,7 +733,7 @@ class TaskPanelBehaviourPatch
                     list2.Sort();
                     foreach (var id in list2.Where(x => SummaryText2.ContainsKey(x.Item2))) AllText += "\r\n" + SummaryText2[id.Item2];
 
-                    AllText = $"<size=70%>{AllText}</size>";
+                    AllText = $"\n<size=70%>{AllText}</size>";
 
                     break;
             }

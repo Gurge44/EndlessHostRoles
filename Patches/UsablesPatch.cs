@@ -50,7 +50,7 @@ class CanUseVentPatch
         switch (pc.GetCustomRole())
         {
             case CustomRoles.Arsonist:
-                if (pc.Object.IsDouseDone())
+                if (pc.Object.IsDouseDone() && !Options.ArsonistCanIgniteAnytime.GetBool())
                     VentForTrigger = true;
                 break;
             case CustomRoles.Revolutionist://跳管解锁

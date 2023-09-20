@@ -265,6 +265,8 @@ internal class ChangeRoleSettings
             Tracker.Init();
             Merchant.Init();
             NSerialKiller.Init();
+            Pyromaniac.Init();
+            Eclipse.Init();
             Vengeance.Init();
             HeadHunter.Init();
             Imitator.Init();
@@ -791,6 +793,12 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.NSerialKiller:
                         NSerialKiller.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Eclipse:
+                        Eclipse.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Pyromaniac:
+                        Pyromaniac.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Vengeance:
                         Vengeance.Add(pc.PlayerId);

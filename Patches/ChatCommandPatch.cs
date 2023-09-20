@@ -200,7 +200,7 @@ internal class ChatCommands
                     break;
                 case "/kcount":
                     canceled = true;
-                    if (!GameStates.IsLobby && Options.EnableKillerLeftCommand.GetBool()) break;
+                    if (GameStates.IsLobby && Options.EnableKillerLeftCommand.GetBool()) break;
                     int impnum = 0;
                     int neutralnum = 0;
                     foreach (var players in Main.AllAlivePlayerControls)
@@ -936,7 +936,7 @@ internal class ChatCommands
                 break;
 
             case "/kcount":
-                if (!GameStates.IsLobby && Options.EnableKillerLeftCommand.GetBool()) break;
+                if (GameStates.IsLobby && Options.EnableKillerLeftCommand.GetBool()) break;
                 int impnum = 0;
                 int neutralnum = 0;
                 foreach (var players in Main.AllAlivePlayerControls)
