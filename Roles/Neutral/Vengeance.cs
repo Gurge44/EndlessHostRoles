@@ -53,12 +53,6 @@ public static class Vengeance
     public static bool IsEnable => playerIdList.Any();
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
-    public static void CanUseVent(PlayerControl player)
-    {
-        bool NSerialKiller_canUse = CanVent.GetBool();
-        DestroyableSingleton<HudManager>.Instance.ImpostorVentButton.ToggleVisible(NSerialKiller_canUse && !player.Data.IsDead);
-        player.Data.Role.CanVent = NSerialKiller_canUse;
-    }
     public static bool OnKillAttempt(PlayerControl killer, PlayerControl target)
     {
         if (killer.PlayerId == target.PlayerId) return true;
@@ -76,7 +70,7 @@ public static class Vengeance
         IsRevenge = true;
         killer.SetKillCooldown();
         tempKillTimer = target.killTimer;
-        target.SetKillCooldown(1f);
+        target.SetKillCooldown(time: 1f);
         Killer = killer;
 
         return false;
@@ -93,7 +87,7 @@ public static class Vengeance
         player.Notify(string.Format(GetString("VengeanceRevenge"), seconds), 1.1f);
         Timer = seconds;
 
-        _ = new LateTask(() => { Countdown(seconds - 1, player); }, 1f);
+        _ = new LateTask(() => { Countdown(seconds - 1, player); }, 1.01f);
     }
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {

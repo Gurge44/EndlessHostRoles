@@ -18,6 +18,7 @@ public static class HeadHunter
     private static OptionItem NumOfTargets;
 
     public static List<byte> Targets = new();
+    public static float KCD = 25;
 
     public static void SetupCustomOption()
     {
@@ -42,29 +43,24 @@ public static class HeadHunter
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        _ = new LateTask(() => { ResetTargets(); }, 8f);
+        _ = new LateTask(() => { ResetTargets(); Utils.GetPlayerById(playerId).SyncSettings(); }, 8f);
+        KCD = KillCooldown.GetFloat();
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
     public static bool IsEnable => playerIdList.Any();
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
-    public static void CanUseVent(PlayerControl player)
-    {
-        bool NSerialKiller_canUse = CanVent.GetBool();
-        DestroyableSingleton<HudManager>.Instance.ImpostorVentButton.ToggleVisible(NSerialKiller_canUse && !player.Data.IsDead);
-        player.Data.Role.CanVent = NSerialKiller_canUse;
-    }
     public static void OnReportDeadBody()
     {
         ResetTargets();
     }
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (Targets.Contains(target.PlayerId)) Main.AllPlayerKillCooldown[killer.PlayerId] -= SuccessKillCooldown.GetFloat();
-        else Main.AllPlayerKillCooldown[killer.PlayerId] += FailureKillCooldown.GetFloat();
+        if (Targets.Contains(target.PlayerId)) KCD -= SuccessKillCooldown.GetFloat();
+        else KCD += FailureKillCooldown.GetFloat();
+        killer.ResetKillCooldown();
         killer.SyncSettings();
     }
     public static string GetHudText(PlayerControl player)

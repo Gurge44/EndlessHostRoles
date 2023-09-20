@@ -56,7 +56,7 @@ namespace TOHE.Roles.Impostor
             IsActive = false;
             Camouflage.CheckCamouflage();
         }
-        public static void isDead(PlayerControl target)
+        public static void IsDead(PlayerControl target)
         {
             if (!target.Data.IsDead || GameStates.IsMeeting) return;
 
