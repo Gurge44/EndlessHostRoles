@@ -1,0 +1,20 @@
+
+#Number:100061
+#Title:TOHE PLUS v1.0.2
+#SubTitle:★★★★Fixes and New Roles★★★★
+#ShortTitle:★TOHE+ v1.0.2
+#Date:2023-9-20T00:00:00Z
+#-----------------------------
+
+## Thank you for using TOHE+!
+
+## Fixes
+- Fixed various bugs with Head Hunter
+- Other minor fixes and a small improvement on performance
+- Nuker is now the old Bomber, Bomber settings only apply to Bomber and not Nuker
+
+## New Roles and Settings
+- Security Guard (Crewmate)
+- Pyromaniac (Neutral)
+- Eclipse (Neutral)
+- Setting for Arsonist: Can Ignite Anytime; Min/Max Doused Players needed to ignite
