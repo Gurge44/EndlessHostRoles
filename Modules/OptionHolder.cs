@@ -224,6 +224,9 @@ public static class Options
     public static OptionItem ArsonistDouseTime;
     public static OptionItem ArsonistCooldown;
     public static OptionItem ArsonistKeepsGameGoing;
+    public static OptionItem ArsonistCanIgniteAnytime;
+    public static OptionItem ArsonistMinPlayersToIgnite;
+    public static OptionItem ArsonistMaxPlayersToIgnite;
     public static OptionItem JesterCanUseButton;
     public static OptionItem JesterCanVent;
     public static OptionItem LegacyMafia;
@@ -1062,7 +1065,7 @@ public static class Options
         NukeCooldown = FloatOptionItem.Create(2035, "NukeCooldown", new(5f, 180f, 2.5f), 60f, TabGroup.ImpostorRoles, false)
             .SetParent(NukerChance)
             .SetValueFormat(OptionFormat.Seconds);
-        NukeRadius = FloatOptionItem.Create(2034, "NukeRadius", new(10f, 100f, 1f), 25f, TabGroup.ImpostorRoles, false)
+        NukeRadius = FloatOptionItem.Create(2034, "NukeRadius", new(5f, 100f, 1f), 25f, TabGroup.ImpostorRoles, false)
             .SetParent(NukerChance)
             .SetValueFormat(OptionFormat.Multiplier);
         RoleLoadingText = "Impostor roles\nBounty Hunter";
@@ -1775,6 +1778,12 @@ public static class Options
         ArsonistCooldown = FloatOptionItem.Create(10411, "Cooldown", new(0f, 60f, 1f), 10f, TabGroup.NeutralRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Arsonist])
             .SetValueFormat(OptionFormat.Seconds);
+        ArsonistCanIgniteAnytime = BooleanOptionItem.Create(10413, "ArsonistCanIgniteAnytime", false, TabGroup.NeutralRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Arsonist]);
+        ArsonistMinPlayersToIgnite = IntegerOptionItem.Create(10414, "ArsonistMinPlayersToIgnite", new(1, 14, 1), 1, TabGroup.NeutralRoles, false)
+            .SetParent(ArsonistCanIgniteAnytime);
+        ArsonistMaxPlayersToIgnite = IntegerOptionItem.Create(10415, "ArsonistMaxPlayersToIgnite", new(1, 14, 1), 3, TabGroup.NeutralRoles, false)
+            .SetParent(ArsonistCanIgniteAnytime);
         ArsonistKeepsGameGoing = BooleanOptionItem.Create(10412, "ArsonistKeepsGameGoing", false, TabGroup.NeutralRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Arsonist]);
         RoleLoadingText = "Neutral roles\nBlood Knight";
@@ -1809,6 +1818,10 @@ public static class Options
         RoleLoadingText = "Neutral roles\nSerial Killer";
 
         NSerialKiller.SetupCustomOption();
+        RoleLoadingText = "Neutral roles\nPyromaniac";
+        Pyromaniac.SetupCustomOption();
+        RoleLoadingText = "Neutral roles\nEclipse";
+        Eclipse.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nHead Hunter";
         HeadHunter.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nVengeance";

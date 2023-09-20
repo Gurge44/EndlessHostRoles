@@ -30,8 +30,8 @@ public static class AntiBlackout
         || Wraith.IsEnable || HexMaster.IsEnable || Imitator.IsEnable()
         || Traitor.IsEnable || Pickpocket.IsEnable || Werewolf.IsEnable
         || NSerialKiller.IsEnable || /*NWitch.IsEnable || */RuthlessRomantic.IsEnable
-        || Maverick.IsEnable || Jinx.IsEnable
-        || Medusa.IsEnable || Spiritcaller.IsEnable
+        || Maverick.IsEnable || Jinx.IsEnable || Eclipse.IsEnable
+        || Medusa.IsEnable || Spiritcaller.IsEnable || Pyromaniac.IsEnable
         || PlagueBearer.IsEnable || CustomRoles.Sidekick.RoleExist(true)
         || CustomRoles.Pestilence.RoleExist(true);
     //|| Pirate.IsEnable;

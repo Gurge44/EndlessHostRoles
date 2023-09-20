@@ -59,6 +59,8 @@ public static class NameColorManager
         if (seer.Is(CustomRoles.Jackal) && target.Is(CustomRoles.Jackal)) color = Main.roleColors[CustomRoles.Jackal];
         if (seer.Is(CustomRoles.Juggernaut) && target.Is(CustomRoles.Juggernaut)) color = Main.roleColors[CustomRoles.Juggernaut];
         if (seer.Is(CustomRoles.NSerialKiller) && target.Is(CustomRoles.NSerialKiller)) color = Main.roleColors[CustomRoles.NSerialKiller];
+        if (seer.Is(CustomRoles.Pyromaniac) && target.Is(CustomRoles.Pyromaniac)) color = Main.roleColors[CustomRoles.Pyromaniac];
+        if (seer.Is(CustomRoles.Eclipse) && target.Is(CustomRoles.Eclipse)) color = Main.roleColors[CustomRoles.Eclipse];
         if (seer.Is(CustomRoles.Vengeance) && target.Is(CustomRoles.Vengeance)) color = Main.roleColors[CustomRoles.Vengeance];
         if (seer.Is(CustomRoles.HeadHunter) && target.Is(CustomRoles.HeadHunter)) color = Main.roleColors[CustomRoles.HeadHunter];
         if (seer.Is(CustomRoles.Imitator) && target.Is(CustomRoles.Imitator)) color = Main.roleColors[CustomRoles.Imitator];
@@ -84,6 +86,8 @@ public static class NameColorManager
 
         if (seer.Is(CustomRoles.HeadHunter) && HeadHunter.Targets.Contains(target.PlayerId)) color = "000000";
         if (seer.Is(CustomRoles.BountyHunter) && BountyHunter.GetTarget(seer) == target.PlayerId) color = "000000";
+
+        if (seer.Is(CustomRoles.Pyromaniac) && Pyromaniac.DousedList.Contains(target.PlayerId)) color = "#BA4A00";
 
         if (seer.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor)) color = Main.roleColors[CustomRoles.ImpostorTOHE];
         if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Refugee)) color = Main.roleColors[CustomRoles.Refugee];

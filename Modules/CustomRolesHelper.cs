@@ -253,6 +253,8 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.NSerialKiller => RoleTypes.Impostor,
+            CustomRoles.Pyromaniac => RoleTypes.Impostor,
+            CustomRoles.Eclipse => RoleTypes.Impostor,
             CustomRoles.Vengeance => RoleTypes.Impostor,
             CustomRoles.HeadHunter => RoleTypes.Impostor,
             CustomRoles.Imitator => RoleTypes.Impostor,
@@ -425,6 +427,8 @@ internal static class CustomRolesHelper
             CustomRoles.Refugee or
             CustomRoles.Parasite or
             CustomRoles.NSerialKiller or
+            CustomRoles.Pyromaniac or
+            CustomRoles.Eclipse or
             CustomRoles.HeadHunter or
             CustomRoles.Vengeance or
             CustomRoles.Imitator or
@@ -455,6 +459,8 @@ internal static class CustomRolesHelper
             CustomRoles.Refugee or
             CustomRoles.Parasite or
             CustomRoles.NSerialKiller or
+            CustomRoles.Eclipse or
+            CustomRoles.Pyromaniac or
             CustomRoles.Vengeance or
             CustomRoles.HeadHunter or
             CustomRoles.Imitator or
@@ -486,6 +492,8 @@ internal static class CustomRolesHelper
             CustomRoles.Poisoner or
             CustomRoles.Parasite or
             CustomRoles.NSerialKiller or
+            CustomRoles.Pyromaniac or
+            CustomRoles.Eclipse or
             CustomRoles.Vengeance or
             CustomRoles.HeadHunter or
             CustomRoles.Imitator or
@@ -573,6 +581,8 @@ internal static class CustomRolesHelper
             CustomRoles.Traitor or
             CustomRoles.Poisoner or
             CustomRoles.NSerialKiller or
+            CustomRoles.Eclipse or
+            CustomRoles.Pyromaniac or
             CustomRoles.Vengeance or
             CustomRoles.HeadHunter or
             CustomRoles.Imitator or
@@ -711,6 +721,8 @@ internal static class CustomRolesHelper
             //    CustomRoles.Sidekick or
             CustomRoles.Poisoner or
             CustomRoles.NSerialKiller or
+            CustomRoles.Eclipse or
+            CustomRoles.Pyromaniac or
             CustomRoles.Vengeance or
             CustomRoles.HeadHunter or
             CustomRoles.Imitator or
@@ -750,6 +762,8 @@ internal static class CustomRolesHelper
         CustomRoles.Virus or
         CustomRoles.Medusa or
         CustomRoles.NSerialKiller or
+        CustomRoles.Eclipse or
+        CustomRoles.Pyromaniac or
         CustomRoles.Vengeance or
         CustomRoles.HeadHunter or
         CustomRoles.Imitator or
@@ -828,6 +842,8 @@ internal static class CustomRolesHelper
         //    CustomRoles.Sidekick or
             CustomRoles.Poisoner or
             CustomRoles.NSerialKiller or
+            CustomRoles.Eclipse or
+            CustomRoles.Pyromaniac or
             CustomRoles.Vengeance or
             CustomRoles.HeadHunter or
             CustomRoles.Imitator or
@@ -931,6 +947,8 @@ internal static class CustomRolesHelper
         CustomRoles.Pestilence or
         CustomRoles.Poisoner or
         CustomRoles.NSerialKiller or
+        CustomRoles.Eclipse or
+        CustomRoles.Pyromaniac or
         CustomRoles.Vengeance or
         CustomRoles.HeadHunter or
         CustomRoles.Imitator or
@@ -1260,6 +1278,8 @@ internal static class CustomRolesHelper
            CustomRoles.PlagueBearer => CountTypes.PlagueBearer,
            CustomRoles.Parasite => CountTypes.Impostor,
            CustomRoles.NSerialKiller => CountTypes.NSerialKiller,
+           CustomRoles.Eclipse => CountTypes.Eclipse,
+           CustomRoles.Pyromaniac => CountTypes.Pyromaniac,
            CustomRoles.Vengeance => CountTypes.Vengeance,
            CustomRoles.HeadHunter => CountTypes.HeadHunter,
            CustomRoles.Imitator => CountTypes.Imitator,
@@ -1309,6 +1329,8 @@ public enum CountTypes
     NWitch,
     Wraith,
     NSerialKiller,
+    Pyromaniac,
+    Eclipse,
     Vengeance,
     HeadHunter,
     Imitator,

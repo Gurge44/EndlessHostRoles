@@ -457,7 +457,7 @@ static class ExtendedPlayerControl
             CustomRoles.CopyCat => pc.IsAlive(),
             CustomRoles.Jailor => pc.IsAlive(),
             CustomRoles.Pelican => pc.IsAlive(),
-            CustomRoles.Arsonist => !pc.IsDouseDone(),
+            CustomRoles.Arsonist => Options.ArsonistCanIgniteAnytime.GetBool() ? Utils.GetDousedPlayerCount(pc.PlayerId).Item1 < Options.ArsonistMaxPlayersToIgnite.GetInt() : !pc.IsDouseDone(),
             CustomRoles.Revolutionist => !pc.IsDrawDone(),
             CustomRoles.SwordsMan => pc.IsAlive(),
             CustomRoles.Jackal => pc.IsAlive(),
@@ -467,6 +467,8 @@ static class ExtendedPlayerControl
             CustomRoles.Juggernaut => pc.IsAlive(),
             //CustomRoles.Reverie => pc.IsAlive(),
             CustomRoles.Ritualist => pc.IsAlive(),
+            CustomRoles.Pyromaniac => pc.IsAlive(),
+            CustomRoles.Eclipse => pc.IsAlive(),
             CustomRoles.NSerialKiller => pc.IsAlive(),
             CustomRoles.Vengeance => pc.IsAlive(),
             CustomRoles.HeadHunter => pc.IsAlive(),
@@ -483,7 +485,7 @@ static class ExtendedPlayerControl
             //CustomRoles.NWitch => pc.IsAlive(),
             CustomRoles.Wraith => pc.IsAlive(),
             CustomRoles.Bomber => Options.BomberCanKill.GetBool() && pc.IsAlive(),
-            CustomRoles.Nuker => Options.BomberCanKill.GetBool() && pc.IsAlive(),
+            CustomRoles.Nuker => false,
             CustomRoles.Innocent => pc.IsAlive(),
             //CustomRoles.Counterfeiter => Counterfeiter.CanUseKillButton(pc.PlayerId),
             CustomRoles.Witness => pc.IsAlive(),
@@ -555,6 +557,8 @@ static class ExtendedPlayerControl
             CustomRoles.Sidekick => Jackal.CanVentSK.GetBool(),
             CustomRoles.Poisoner => Poisoner.CanVent.GetBool(),
             CustomRoles.NSerialKiller => NSerialKiller.CanVent.GetBool(),
+            CustomRoles.Pyromaniac => Pyromaniac.CanVent.GetBool(),
+            CustomRoles.Eclipse => Eclipse.CanVent.GetBool(),
             CustomRoles.Vengeance => Vengeance.CanVent.GetBool(),
             CustomRoles.HeadHunter => HeadHunter.CanVent.GetBool(),
             CustomRoles.Imitator => Imitator.CanVent.GetBool(),
@@ -582,7 +586,7 @@ static class ExtendedPlayerControl
             CustomRoles.Wildling => Wildling.CanVent.GetBool(),
             CustomRoles.Spiritcaller => Spiritcaller.CanVent.GetBool(),
 
-            CustomRoles.Arsonist => pc.IsDouseDone(),
+            CustomRoles.Arsonist => pc.IsDouseDone() || (Options.ArsonistCanIgniteAnytime.GetBool() && (Utils.GetDousedPlayerCount(pc.PlayerId).Item1 >= Options.ArsonistMinPlayersToIgnite.GetInt() || pc.inVent)),
             CustomRoles.Revolutionist => pc.IsDrawDone(),
 
             //SoloKombat
@@ -627,6 +631,8 @@ static class ExtendedPlayerControl
             CustomRoles.Provocateur or
             CustomRoles.BloodKnight or
             CustomRoles.Poisoner or
+            CustomRoles.Pyromaniac or
+            CustomRoles.Eclipse or
             CustomRoles.NSerialKiller or
             CustomRoles.Vengeance or
             CustomRoles.HeadHunter or
@@ -774,7 +780,13 @@ static class ExtendedPlayerControl
                 NSerialKiller.SetKillCooldown(player.PlayerId);
                 break;
             case CustomRoles.HeadHunter:
-                HeadHunter.SetKillCooldown(player.PlayerId);
+                Main.AllPlayerKillCooldown[player.PlayerId] = HeadHunter.KCD;
+                break;
+            case CustomRoles.Pyromaniac:
+                Pyromaniac.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.Eclipse:
+                Eclipse.SetKillCooldown(player.PlayerId);
                 break;
             case CustomRoles.Vengeance:
                 Vengeance.SetKillCooldown(player.PlayerId);
@@ -826,11 +838,13 @@ static class ExtendedPlayerControl
                 Main.AllPlayerKillCooldown[player.PlayerId] = Options.ScavengerKillCooldown.GetFloat();
                 break;
             case CustomRoles.Bomber:
-            case CustomRoles.Nuker:
                 if (Options.BomberCanKill.GetBool())
                     Main.AllPlayerKillCooldown[player.PlayerId] = Options.BomberKillCD.GetFloat();
                 else
                     Main.AllPlayerKillCooldown[player.PlayerId] = 300f;
+                break;
+            case CustomRoles.Nuker:
+                Main.AllPlayerKillCooldown[player.PlayerId] = 300f;
                 break;
             case CustomRoles.Capitalism:
                 Main.AllPlayerKillCooldown[player.PlayerId] = Options.CapitalismKillCooldown.GetFloat();

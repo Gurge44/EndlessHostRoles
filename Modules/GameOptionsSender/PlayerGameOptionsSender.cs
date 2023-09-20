@@ -309,6 +309,12 @@ public class PlayerGameOptionsSender : GameOptionsSender
             case CustomRoles.NSerialKiller:
                 NSerialKiller.ApplyGameOptions(opt);
                 break;
+            case CustomRoles.Pyromaniac:
+                Pyromaniac.ApplyGameOptions(opt);
+                break;
+            case CustomRoles.Eclipse:
+                Eclipse.ApplyGameOptions(opt);
+                break;
             case CustomRoles.Vengeance:
                 Vengeance.ApplyGameOptions(opt);
                 break;

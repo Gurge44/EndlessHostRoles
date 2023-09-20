@@ -1061,6 +1061,12 @@ internal static class RPC
             case CustomRoles.NSerialKiller:
                 NSerialKiller.Add(targetId);
                 break;
+            case CustomRoles.Pyromaniac:
+                Pyromaniac.Add(targetId);
+                break;
+            case CustomRoles.Eclipse:
+                Eclipse.Add(targetId);
+                break;
             case CustomRoles.Vengeance:
                 Vengeance.Add(targetId);
                 break;

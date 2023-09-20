@@ -33,8 +33,8 @@ public class Main : BasePlugin
     public static ConfigEntry<string> DebugKeyInput { get; private set; }
     public static readonly string MainMenuText = " ";
     public const string PluginGuid = "com.gurge44.toheplus";
-    public const string PluginVersion = "1.0.1";
-    public const string PluginDisplayVersion = "1.0.1";
+    public const string PluginVersion = "1.0.2";
+    public const string PluginDisplayVersion = "1.0.2";
     public const int PluginCreate = 3;
     public const bool Canary = false;
 
@@ -371,6 +371,7 @@ public class Main : BasePlugin
                 //{CustomRoles.Reverie, "#00BFFF"},
                 //第三陣営役職
                 {CustomRoles.Arsonist, "#ff6633"},
+                {CustomRoles.Pyromaniac, "#ff6633"},
                 {CustomRoles.PlagueBearer,"#e5f6b4"},
                 {CustomRoles.Pestilence,"#343136"},
                 {CustomRoles.Jester, "#ec62a5"},
@@ -404,6 +405,7 @@ public class Main : BasePlugin
                 {CustomRoles.HexMaster, "#ff00ff"},
                 {CustomRoles.Wraith, "#4B0082"},
                 {CustomRoles.NSerialKiller, "#233fcc"},
+                {CustomRoles.Eclipse, "#0E6655"},
                 {CustomRoles.Vengeance, "#33cccc"},
                 {CustomRoles.HeadHunter, "#ffcc66"},
                 {CustomRoles.Imitator, "#ff00a5"},
@@ -718,6 +720,8 @@ public enum CustomRoles
     Pelican,
     Revolutionist,
     NSerialKiller,
+    Eclipse,
+    Pyromaniac,
     Vengeance,
     HeadHunter,
     Imitator,
@@ -864,6 +868,8 @@ public enum CustomWinner
     Wraith = CustomRoles.Wraith,
     //Pirate = CustomRoles.Pirate,
     SerialKiller = CustomRoles.NSerialKiller,
+    Pyromaniac = CustomRoles.Pyromaniac,
+    Eclipse = CustomRoles.Eclipse,
     HeadHunter = CustomRoles.HeadHunter,
     Vengeance = CustomRoles.Vengeance,
     Werewolf = CustomRoles.Werewolf,

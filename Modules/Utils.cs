@@ -450,6 +450,8 @@ public static class Utils
             case CustomRoles.Jackal:
             case CustomRoles.Sidekick:
             case CustomRoles.Poisoner:
+            case CustomRoles.Eclipse:
+            case CustomRoles.Pyromaniac:
             case CustomRoles.NSerialKiller:
             case CustomRoles.Vengeance:
             case CustomRoles.HeadHunter:
@@ -617,7 +619,8 @@ public static class Utils
         {
             case CustomRoles.Arsonist:
                 var doused = GetDousedPlayerCount(playerId);
-                ProgressText.Append(ColorString(GetRoleColor(CustomRoles.Arsonist).ShadeColor(0.25f), $"<color=#777777>-</color> {doused.Item1}/{doused.Item2}"));
+                if (!Options.ArsonistCanIgniteAnytime.GetBool()) ProgressText.Append(ColorString(GetRoleColor(CustomRoles.Arsonist).ShadeColor(0.25f), $"<color=#777777>-</color> {doused.Item1}/{doused.Item2}"));
+                else ProgressText.Append(ColorString(GetRoleColor(CustomRoles.Arsonist).ShadeColor(0.25f), $"<color=#777777>-</color> {doused.Item1}/{Options.ArsonistMaxPlayersToIgnite.GetInt()}"));
                 break;
             case CustomRoles.Sheriff:
                 if (Sheriff.ShowShotLimit.GetBool()) ProgressText.Append(Sheriff.GetShotLimit(playerId));
@@ -1358,7 +1361,7 @@ public static class Utils
         var SubRoles = Main.PlayerStates[id].SubRoles;
         if (!SubRoles.Any() && intro == false) return string.Empty;
         var sb = new StringBuilder();
-        if (intro)
+        if (intro && SubRoles.Any())
         {
             sb.Append("<size=15%>");
             for (int i = 0; i < SubRoles.Count; i++)
