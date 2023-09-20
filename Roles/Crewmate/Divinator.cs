@@ -236,6 +236,7 @@ public static class Divinator
                 CustomRoles.DarkHide or
                 //       CustomRoles.Mare or
                 CustomRoles.Camouflager or
+                CustomRoles.Eclipse or
                 CustomRoles.Chameleon
                 => "Result19",
 
@@ -284,6 +285,7 @@ public static class Divinator
                 CustomRoles.SwordsMan or
                 CustomRoles.Veteran or
                 CustomRoles.TaskManager or
+                CustomRoles.Pyromaniac or
                 CustomRoles.Hangman
                 => "Result25",
 
