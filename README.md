@@ -105,6 +105,8 @@
 - Imitator (Neutral)
 - Head Hunter (Neutral)
 - Vengeance (Neutral)
+- Eclipse (Neutral)
+- Pyromaniac (Neutral)
 - Undertaker (Impostor)
 - Deadly Quota (Impostor-only Add-on)
 
