@@ -3,7 +3,7 @@
 
 <br>
 
-<img align="left" alt="Cover" src="Resources/Images/TOHE-BG.jpg" width="50%" height="300" /> 
+<img align="left" alt="Cover" src="Resources/Images/TOHE-BG.jpg" width="50%" height="250" /> 
 
 <p align="right">
   
@@ -20,10 +20,10 @@
 <a href="https://github.com/Gurge44/TOHE_PLUS_/releases/latest" target="_blank"><img src="https://img.shields.io/badge/Latest Version%20-%231DA1F2.svg?&style=for-the-badge&logo=github&logoColor=white&color=181717"/></a>
 
 </p>
-<br>
 
 ---
 
+<br>
 
 ## Additions, Changes, and improvements compared to TOHRE
 - Note: The goal with this branch is to improve the existing stuff over adding new roles. Some of the new stuff listed below are ported into TOHRE by me.
