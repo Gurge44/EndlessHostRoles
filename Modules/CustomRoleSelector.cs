@@ -265,8 +265,8 @@ internal class CustomRoleSelector
             {
                 if (rolesToAssign.Contains(CustomRoles.Lovers))
                     rolesToAssign.Remove(CustomRoles.Lovers);
-                if (rolesToAssign.Contains(CustomRoles.Ntr))
-                    rolesToAssign.Remove(CustomRoles.Ntr);
+                //if (rolesToAssign.Contains(CustomRoles.Ntr))
+                //    rolesToAssign.Remove(CustomRoles.Ntr);
             }
         }
 

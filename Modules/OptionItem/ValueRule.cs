@@ -36,7 +36,7 @@ public class IntegerValueRule : ValueRule<int>
     public override int RepeatIndex(int value)
     {
         int MaxIndex = (MaxValue - MinValue) / Step;
-        value %= (MaxIndex + 1);
+        value %= MaxIndex + 1;
         if (value < 0) value = MaxIndex;
         return value;
     }
@@ -63,7 +63,7 @@ public class FloatValueRule : ValueRule<float>
     public override int RepeatIndex(int value)
     {
         int MaxIndex = (int)((MaxValue - MinValue) / Step);
-        value %= (MaxIndex + 1);
+        value %= MaxIndex + 1;
         if (value < 0) value = MaxIndex;
         return value;
     }

@@ -38,7 +38,7 @@ public class CustomRpcSender
         this.name = name;
         this.sendOption = sendOption;
         this.isUnsafe = isUnsafe;
-        this.currentRpcTarget = -2;
+        currentRpcTarget = -2;
         onSendDelegate = () => Logger.Info($"{this.name}'s onSendDelegate =>", "CustomRpcSender");
 
         currentState = State.Ready;
@@ -172,16 +172,16 @@ public class CustomRpcSender
         if (currentRpcTarget != targetClientId)
         {
             //StartMessage処理
-            if (currentState == State.InRootMessage) this.EndMessage();
-            this.StartMessage(targetClientId);
+            if (currentState == State.InRootMessage) EndMessage();
+            StartMessage(targetClientId);
         }
-        this.StartRpc(targetNetId, callId);
+        StartRpc(targetNetId, callId);
 
         return this;
     }
     public void SendMessage()
     {
-        if (currentState == State.InRootMessage) this.EndMessage();
+        if (currentState == State.InRootMessage) EndMessage();
         if (currentState != State.Ready)
         {
             string errorMsg = $"RPCを送信しようとしましたが、StateがReadyではありません (in: \"{name}\")";

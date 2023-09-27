@@ -22,7 +22,7 @@ class LateTask
     public LateTask(Action action, float time, string name = "No Name Task")
     {
         this.action = action;
-        this.timer = time;
+        timer = time;
         this.name = name;
         Tasks.Add(this);
         if (name != "")

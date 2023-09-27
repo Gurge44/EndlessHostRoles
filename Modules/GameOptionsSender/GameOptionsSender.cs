@@ -4,6 +4,7 @@ using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using Il2CppSystem;
 using InnerNet;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace TOHE.Modules;
 
@@ -12,7 +13,13 @@ public abstract class GameOptionsSender
     #region Static
     public readonly static List<GameOptionsSender> AllSenders = new(15) { new NormalGameOptionsSender() };
 
-    public static void SendAllGameOptions()
+    public static async void SendAllGameOptions()
+    {
+        if (Options.DeepLowLoad.GetBool()) await Task.Run(() => { DoSend(); });
+        else await DoSend();
+    }
+
+    private static Task DoSend()
     {
         AllSenders.RemoveAll(s => !s.AmValid());
         for (int i = 0; i < AllSenders.Count; i++)
@@ -21,7 +28,9 @@ public abstract class GameOptionsSender
             if (sender.IsDirty) sender.SendGameOptions();
             sender.IsDirty = false;
         }
+        return Task.CompletedTask;
     }
+
     #endregion
 
     public abstract IGameOptions BasedGameOptions { get; }
@@ -44,7 +53,7 @@ public abstract class GameOptionsSender
         else
         {
             writer.Recycle();
-            Logger.Error("オプションのキャストに失敗しました", this.ToString());
+            Logger.Error("オプションのキャストに失敗しました", ToString());
         }
         writer.EndMessage();
 

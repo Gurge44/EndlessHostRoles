@@ -35,12 +35,12 @@ public static class OptionSaver
             {
                 if (!singleOptions.TryAdd(option.Id, option.SingleValue))
                 {
-                    logger.Warn($"Duplicate SingleOption ID: {option.Id}");
+                    Logger.Warn($"Duplicate SingleOption ID: {option.Id}", "Options Load");
                 }
             }
             else if (!presetOptions.TryAdd(option.Id, option.AllValues))
             {
-                logger.Warn($"Duplicate preset option ID: {option.Id}");
+                Logger.Warn($"Duplicate preset option ID: {option.Id}", "Options Load");
             }
         }
         return new SerializableOptionsData

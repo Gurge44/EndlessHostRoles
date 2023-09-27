@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using TOHE.Modules;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
@@ -440,7 +441,7 @@ public static class Utils
         if (p.Role.IsImpostor)
             hasTasks = false; //タスクはCustomRoleを元に判定する
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA) return false;
-        if (p.IsDead && Options.GhostIgnoreTasks.GetBool()) hasTasks = false;
+        //if (p.IsDead && Options.GhostIgnoreTasks.GetBool()) hasTasks = false;
         var role = States.MainRole;
         switch (role)
         {
@@ -457,6 +458,7 @@ public static class Utils
             case CustomRoles.HeadHunter:
             case CustomRoles.Imitator:
             case CustomRoles.Werewolf:
+            case CustomRoles.Bandit:
             case CustomRoles.Jailor:
             case CustomRoles.Traitor:
             case CustomRoles.Glitch:
@@ -464,6 +466,7 @@ public static class Utils
             case CustomRoles.Maverick:
             case CustomRoles.Jinx:
             case CustomRoles.Parasite:
+            case CustomRoles.Agitater:
             case CustomRoles.Crusader:
             case CustomRoles.Refugee:
             case CustomRoles.Jester:
@@ -522,6 +525,8 @@ public static class Utils
             case CustomRoles.Sunnyboy:
             case CustomRoles.Convict:
             case CustomRoles.Opportunist:
+            case CustomRoles.Executioner:
+            case CustomRoles.Lawyer:
             case CustomRoles.Phantom:
                 //case CustomRoles.Baker:
                 //   case CustomRoles.Famine:
@@ -533,16 +538,6 @@ public static class Utils
                     hasTasks = false;
                 if (p.IsDead)
                     hasTasks = false;
-                break;
-            case CustomRoles.Executioner:
-                if (Executioner.ChangeRolesAfterTargetKilled.GetValue() != 1)
-                    hasTasks = !ForRecompute;
-                else hasTasks = false;
-                break;
-            case CustomRoles.Lawyer:
-                if (Lawyer.ChangeRolesAfterTargetKilled.GetValue() != 1)
-                    hasTasks = !ForRecompute;
-                else hasTasks = false;
                 break;
             default:
                 if (role.IsImpostor()) hasTasks = false;
@@ -628,17 +623,26 @@ public static class Utils
             case CustomRoles.Alchemist:
                 ProgressText.Append(Alchemist.GetProgressText(playerId));
                 break;
+            case CustomRoles.Bandit:
+                ProgressText.Append(Bandit.GetStealLimit(playerId));
+                break;
             case CustomRoles.Cleanser:
                 ProgressText.Append(Cleanser.GetProgressText(playerId));
                 break;
             case CustomRoles.SerialKiller:
-                int SKTime = SerialKiller.TimeLimit.GetInt() - (int)SerialKiller.SuicideTimer[playerId];
-                Color SKColor = SKTime < 10 ? SKTime % 2 == 1 ? Color.yellow : Color.red : Color.white;
-                if (SerialKiller.HasKilled(GetPlayerById(playerId)) && SKTime <= 20) ProgressText.Append(ColorString(SKColor, $"<color=#777777>-</color> {SKTime}s"));
+                if (SerialKiller.SuicideTimer.ContainsKey(playerId))
+                {
+                    int SKTime = SerialKiller.TimeLimit.GetInt() - (int)SerialKiller.SuicideTimer[playerId];
+                    Color SKColor = SKTime < 10 ? SKTime % 2 == 1 ? Color.yellow : Color.red : Color.white;
+                    if (SKTime <= 20) ProgressText.Append(ColorString(SKColor, $"<color=#777777>-</color> {SKTime}s"));
+                }
                 break;
             case CustomRoles.BountyHunter:
-                int BHTime = (int)(BountyHunter.TargetChangeTime - (float)BountyHunter.ChangeTimer[playerId]);
-                if (BHTime <= 15) ProgressText.Append(ColorString(Color.white, $"<color=#777777>-</color> <color=#00ffa5>SWAP:</color> {BHTime}s"));
+                if (BountyHunter.ChangeTimer.ContainsKey(playerId))
+                {
+                    int BHTime = (int)(BountyHunter.TargetChangeTime - (float)BountyHunter.ChangeTimer[playerId]);
+                    if (BHTime <= 15) ProgressText.Append(ColorString(Color.white, $"<color=#777777>-</color> <color=#00ffa5>SWAP:</color> {BHTime}s"));
+                }
                 break;
             case CustomRoles.Camouflager:
                 Color TextColorCamo;
@@ -1359,16 +1363,29 @@ public static class Utils
     public static string GetSubRolesText(byte id, bool disableColor = false, bool intro = false, bool summary = false)
     {
         var SubRoles = Main.PlayerStates[id].SubRoles;
-        if (!SubRoles.Any() && intro == false) return string.Empty;
+        if (!SubRoles.Any()) return string.Empty;
         var sb = new StringBuilder();
-        if (intro && SubRoles.Any())
+        bool isLovers = false;
+        if (intro)
         {
-            sb.Append("<size=15%>");
             for (int i = 0; i < SubRoles.Count; i++)
             {
                 CustomRoles role = SubRoles[i];
                 if (role is CustomRoles.NotAssigned or CustomRoles.LastImpostor) SubRoles.Remove(SubRoles[i]);
+                if (role is CustomRoles.Lovers)
+                {
+                    SubRoles.Remove(SubRoles[i]);
+                    isLovers = true;
+                }
             }
+
+            if (intro && isLovers)
+            {
+                //var RoleText = disableColor ? GetRoleName(CustomRoles.Lovers) : ColorString(GetRoleColor(CustomRoles.Lovers), GetRoleName(CustomRoles.Lovers));
+                sb.Append($"{ColorString(GetRoleColor(CustomRoles.Lovers), " ♥")}");
+            }
+
+            sb.Append("<size=15%>");
             if (SubRoles.Count == 1)
             {
                 CustomRoles role = SubRoles[0];
@@ -1404,12 +1421,6 @@ public static class Utils
             }
         }
 
-        if (intro && !SubRoles.Contains(CustomRoles.Lovers) && !SubRoles.Contains(CustomRoles.Ntr) && CustomRolesHelper.RoleExist(CustomRoles.Ntr))
-        {
-            var RoleText = disableColor ? GetRoleName(CustomRoles.Lovers) : ColorString(GetRoleColor(CustomRoles.Lovers), GetRoleName(CustomRoles.Lovers));
-            sb.Append($"{ColorString(Color.gray, " + ")}{RoleText}");
-        }
-
         return sb.ToString();
     }
 
@@ -1417,7 +1428,7 @@ public static class Utils
     {
         text = text.ToLowerInvariant();
         text = text.Replace("色", string.Empty);
-        int color = -1;
+        int color;
         try { color = int.Parse(text); } catch { color = -1; }
         switch (text)
         {
@@ -1752,13 +1763,20 @@ public static class Utils
     private static StringBuilder SelfMark = new(20);
     private static StringBuilder TargetSuffix = new();
     private static StringBuilder TargetMark = new(20);
-    public static void NotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false)
+
+    public static async void NotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false)
     {
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (Main.AllPlayerControls == null) return;
+        //if (Options.DeepLowLoad.GetBool()) await Task.Run(() => { DoNotifyRoles(isForMeeting, SpecifySeer, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting); });
+        /*else */await DoNotifyRoles(isForMeeting, SpecifySeer, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting);
+    }
+
+    public static Task DoNotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false)
+    {
+        if (!AmongUsClient.Instance.AmHost) return Task.CompletedTask;
+        if (Main.AllPlayerControls == null) return Task.CompletedTask;
 
         //ミーティング中の呼び出しは不正
-        if (GameStates.IsMeeting) return;
+        if (GameStates.IsMeeting) return Task.CompletedTask;
 
         var caller = new System.Diagnostics.StackFrame(1, false);
         var callerMethod = caller.GetMethod();
@@ -1798,7 +1816,7 @@ public static class Utils
             SelfMark.Append(Snitch.GetWarningArrow(seer));
 
             //ハートマークを付ける(自分に)
-            if (seer.Is(CustomRoles.Lovers) || CustomRolesHelper.RoleExist(CustomRoles.Ntr)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lovers), "♥"));
+            if (seer.Is(CustomRoles.Lovers)/* || CustomRolesHelper.RoleExist(CustomRoles.Ntr)*/) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lovers), "♥"));
 
             //呪われている場合
             SelfMark.Append(Witch.GetSpelledMark(seer.PlayerId, isForMeeting));
@@ -1998,8 +2016,8 @@ public static class Utils
                 TargetMark.Clear();
 
                 //呪われている人
-                TargetMark.Append(Witch.GetSpelledMark(target.PlayerId, isForMeeting));
-                TargetMark.Append(HexMaster.GetHexedMark(target.PlayerId, isForMeeting));
+                if (Witch.IsEnable) TargetMark.Append(Witch.GetSpelledMark(target.PlayerId, isForMeeting));
+                if (HexMaster.IsEnable) TargetMark.Append(HexMaster.GetHexedMark(target.PlayerId, isForMeeting));
                 //   TargetMark.Append(Baker.GetPoisonMark(target, isForMeeting));
 
 
@@ -2035,11 +2053,11 @@ public static class Utils
 
 
                 //球状闪电提示
-                if (BallLightning.IsGhost(target))
+                if (BallLightning.IsGhost(target) && BallLightning.IsEnable)
                     TargetMark.Append(ColorString(GetRoleColor(CustomRoles.BallLightning), "■"));
 
                 //タスク完了直前のSnitchにマークを表示
-                TargetMark.Append(Snitch.GetWarningMark(seer, target));
+                if (Snitch.IsEnable) TargetMark.Append(Snitch.GetWarningMark(seer, target));
 
                 //ハートマークを付ける(相手に)
                 if (seer.Is(CustomRoles.Lovers) && target.Is(CustomRoles.Lovers))
@@ -2051,10 +2069,10 @@ public static class Utils
                 {
                     TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}>♥</color>");
                 }
-                else if (target.Is(CustomRoles.Ntr) || seer.Is(CustomRoles.Ntr))
-                {
-                    TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}>♥</color>");
-                }
+                //else if (target.Is(CustomRoles.Ntr) || seer.Is(CustomRoles.Ntr))
+                //{
+                //    TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}>♥</color>");
+                //}
 
                 if (seer.Is(CustomRoles.PlagueBearer))
                 {
@@ -2115,7 +2133,7 @@ public static class Utils
                     (seer.Is(CustomRoles.Mimic) && target.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) ||
                     (target.Is(CustomRoles.Gravestone) && target.Data.IsDead) ||
                     (seer.Is(CustomRoles.Lovers) && target.Is(CustomRoles.Lovers) && Options.LoverKnowRoles.GetBool()) ||
-                    (target.Is(CustomRoles.Ntr) && Options.LoverKnowRoles.GetBool()) ||
+                    //(target.Is(CustomRoles.Ntr) && Options.LoverKnowRoles.GetBool()) ||
                     (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool()) ||
                     (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoleTypes.Impostor) && Options.MadmateKnowWhosImp.GetBool()) ||
                     (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Madmate) && Options.ImpKnowWhosMadmate.GetBool()) ||
@@ -2367,6 +2385,7 @@ public static class Utils
             }
             logger.Info("NotifyRoles-Loop1-" + seer.GetNameWithRole() + ":END");
         }
+        return Task.CompletedTask;
     }
     public static void MarkEveryoneDirtySettings()
     {
@@ -2379,6 +2398,10 @@ public static class Utils
     public static void MarkEveryoneDirtySettingsV3()
     {
         PlayerGameOptionsSender.SetDirtyToAllV3();
+    }
+    public static void MarkEveryoneDirtySettingsV4()
+    {
+        PlayerGameOptionsSender.SetDirtyToAllV4();
     }
     public static void SyncAllSettings()
     {
@@ -2406,6 +2429,12 @@ public static class Utils
             }
             Main.KilledAntidote.Clear();
         }
+        if (Glitch.IsEnable)
+        {
+            Glitch.LastHack = GetTimeStamp();
+            Glitch.HackCDTimer = (byte)Glitch.HackCooldown.GetInt();
+        }
+
         if (Swooper.IsEnable) Swooper.AfterMeetingTasks();
         if (Wraith.IsEnable) Wraith.AfterMeetingTasks();
         if (Werewolf.IsEnable) Werewolf.AfterMeetingTasks();

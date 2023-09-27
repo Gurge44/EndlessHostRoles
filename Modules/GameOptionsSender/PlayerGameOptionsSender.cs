@@ -29,6 +29,10 @@ public class PlayerGameOptionsSender : GameOptionsSender
         AllSenders.OfType<PlayerGameOptionsSender>()
         .Where(sender => !sender.IsDirty && sender.player.IsAlive() && ((Main.GrenadierBlinding.Any() && (sender.player.GetCustomRole().IsImpostor() || (sender.player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))) || (Main.MadGrenadierBlinding.Any() && !sender.player.GetCustomRole().IsImpostorTeam() && !sender.player.Is(CustomRoles.Madmate))))
         .ToList().ForEach(sender => sender.SetDirty());
+    public static void SetDirtyToAllV4() =>
+        AllSenders.OfType<PlayerGameOptionsSender>()
+        .Where(sender => !sender.IsDirty && sender.player.IsAlive() && sender.player.CanUseKillButton())
+        .ToList().ForEach(sender => sender.SetDirty());
 
     public override IGameOptions BasedGameOptions =>
         Main.RealOptionsData.Restore(new NormalGameOptionsV07(new UnityLogger().Cast<ILogger>()).Cast<IGameOptions>());
@@ -47,7 +51,7 @@ public class PlayerGameOptionsSender : GameOptionsSender
         if (player.AmOwner)
         {
             var opt = BuildGameOptions();
-            foreach (var com in GameManager.Instance.LogicComponents)
+            foreach (var com in GameManager.Instance?.LogicComponents)
             {
                 if (com.TryCast<LogicOptions>(out var lo))
                     lo.SetGameOptions(opt);
@@ -191,6 +195,7 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 opt.SetVision(false);
                 break;
             case CustomRoles.Minimalism:
+            case CustomRoles.Agitater:
                 opt.SetVision(true);
                 break;
             case CustomRoles.Pestilence:
@@ -236,6 +241,9 @@ public class PlayerGameOptionsSender : GameOptionsSender
             case CustomRoles.ShapeshifterTOHE:
                 AURoleOptions.ShapeshifterCooldown = Options.ShapeshiftCD.GetFloat();
                 AURoleOptions.ShapeshifterDuration = Options.ShapeshiftDur.GetFloat();
+                break;
+            case CustomRoles.Bandit:
+                Bandit.ApplyGameOptions(opt);
                 break;
             case CustomRoles.Bomber:
                 AURoleOptions.ShapeshifterCooldown = Options.BombCooldown.GetFloat();

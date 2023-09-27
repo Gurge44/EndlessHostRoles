@@ -304,9 +304,9 @@ public class TaskState
     public bool IsTaskFinished => RemainingTasksCount <= 0 && hasTasks;
     public TaskState()
     {
-        this.AllTasksCount = -1;
-        this.CompletedTasksCount = 0;
-        this.hasTasks = false;
+        AllTasksCount = -1;
+        CompletedTasksCount = 0;
+        hasTasks = false;
     }
 
     public void Init(PlayerControl player)
@@ -504,6 +504,11 @@ public class TaskState
                     player.RpcMurderPlayerV3(pc);
                     Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Kill;
                 }
+            }
+
+            foreach (var taskmanager in Main.AllAlivePlayerControls.Where(pc => pc.Is(CustomRoles.TaskManager)))
+            {
+                Utils.NotifyRoles(SpecifySeer: taskmanager);
             }
 
             //工作狂做完了

@@ -16,14 +16,14 @@ using UnityEngine;
 [assembly: AssemblyVersion(TOHE.Main.PluginVersion)]
 namespace TOHE;
 
-[BepInPlugin(PluginGuid, "TOHE", PluginVersion)]
+[BepInPlugin(PluginGuid, "TOHE+", PluginVersion)]
 [BepInIncompatibility("jp.ykundesu.supernewroles")]
 [BepInProcess("Among Us.exe")]
 public class Main : BasePlugin
 {
     // == プログラム設定 / Program Config ==
     public static readonly string ModName = "TOHE+";
-    public static readonly string ModColor = "#ffc0cb";
+    public static readonly string ModColor = "#00ffff";
     public static readonly bool AllowPublicRoom = true;
     public static readonly string ForkId = "TOHE+";
     public const string OriginalForkId = "OriginalTOH";
@@ -33,8 +33,8 @@ public class Main : BasePlugin
     public static ConfigEntry<string> DebugKeyInput { get; private set; }
     public static readonly string MainMenuText = " ";
     public const string PluginGuid = "com.gurge44.toheplus";
-    public const string PluginVersion = "1.0.2";
-    public const string PluginDisplayVersion = "1.0.2";
+    public const string PluginVersion = "1.0.3";
+    public const string PluginDisplayVersion = "1.0.3";
     public const int PluginCreate = 3;
     public const bool Canary = false;
 
@@ -410,6 +410,8 @@ public class Main : BasePlugin
                 {CustomRoles.HeadHunter, "#ffcc66"},
                 {CustomRoles.Imitator, "#ff00a5"},
                 {CustomRoles.Werewolf, "#964B00"},
+                {CustomRoles.Bandit, "#8B008B"},
+                {CustomRoles.Agitater, "#F4A460"},
                 {CustomRoles.BloodKnight, "#630000"},
                 {CustomRoles.Juggernaut, "#A41342"},
                 {CustomRoles.Parasite, "#ff1919"},
@@ -712,6 +714,7 @@ public enum CustomRoles
     Mario,
     Terrorist,
     Executioner,
+    Bandit,
     Lawyer,
     Jackal,
     Poisoner,
@@ -735,6 +738,7 @@ public enum CustomRoles
     Workaholic,
     Speedrunner,
     Collector,
+    Agitater,
     Provocateur,
     Sunnyboy,
     BloodKnight,
@@ -871,10 +875,12 @@ public enum CustomWinner
     Pyromaniac = CustomRoles.Pyromaniac,
     Eclipse = CustomRoles.Eclipse,
     HeadHunter = CustomRoles.HeadHunter,
+    Agitater = CustomRoles.Agitater,
     Vengeance = CustomRoles.Vengeance,
     Werewolf = CustomRoles.Werewolf,
     //Witch = CustomRoles.NWitch,
     Juggernaut = CustomRoles.Juggernaut,
+    Bandit = CustomRoles.Bandit,
     Infectious = CustomRoles.Infectious,
     Virus = CustomRoles.Virus,
     Rogue = CustomRoles.Rogue,

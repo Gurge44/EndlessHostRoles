@@ -120,7 +120,7 @@ internal class Cloud
     {
         public static void Postfix()
         {
-            if (LastRepotTimeStamp != 0 && LastRepotTimeStamp + 8 < Utils.GetTimeStamp())
+            if (LastRepotTimeStamp != 0 && LastRepotTimeStamp + 8 < Utils.GetTimeStamp() && !GameStates.IsInTask)
             {
                 LastRepotTimeStamp = 0;
                 StopConnect();

@@ -95,6 +95,7 @@ enum CustomRPC
     MafiaRevenge,
     RetributionistRevenge,
     SetSwooperTimer,
+    SetBanditStealLimit,
     SetWraithTimer,
     SetBKTimer,
     SyncTotocalcioTargetAndTimes,
@@ -114,6 +115,7 @@ enum CustomRPC
     SetSpiritcallerSpiritLimit,
     SetDoomsayerProgress,
     SetTrackerTarget,
+    RpcPassBomb,
     SetAlchemistTimer,
 
     //SoloKombat
@@ -337,11 +339,17 @@ internal class RPCHandlerPatch
             case CustomRPC.SetNameColorData:
                 NameColorManager.ReceiveRPC(reader);
                 break;
+            case CustomRPC.RpcPassBomb:
+                Agitater.ReceiveRPC(reader);
+                break;
             case CustomRPC.DoSpell:
                 Witch.ReceiveRPC(reader, true);
                 break;
             case CustomRPC.DoHex:
                 HexMaster.ReceiveRPC(reader, true);
+                break;
+            case CustomRPC.SetBanditStealLimit:
+                Bandit.ReceiveRPC(reader);
                 break;
             case CustomRPC.SniperSync:
                 Sniper.ReceiveRPC(reader);
@@ -820,6 +828,9 @@ internal static class RPC
             case CustomRoles.Farseer:
                 Farseer.Add(targetId);
                 break;
+            case CustomRoles.Bandit:
+                Bandit.Add(targetId);
+                break;
             case CustomRoles.Lawyer:
                 Lawyer.Add(targetId);
                 break;
@@ -831,6 +842,9 @@ internal static class RPC
                 break;
             case CustomRoles.Sidekick:
                 Sidekick.Add(targetId);
+                break;
+            case CustomRoles.Agitater:
+                Agitater.Add(targetId);
                 break;
             case CustomRoles.Poisoner:
                 Poisoner.Add(targetId);
@@ -915,6 +929,9 @@ internal static class RPC
                 break;
             case CustomRoles.Greedier:
                 Greedier.Add(targetId);
+                break;
+            case CustomRoles.Glitch:
+                Glitch.Add(targetId);
                 break;
             case CustomRoles.Collector:
                 Collector.Add(targetId);
