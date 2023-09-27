@@ -89,6 +89,9 @@ public static class HudSpritePatch
             case CustomRoles.Camouflager:
                 newAbilityButton = CustomButton.Get("Camo");
                 break;
+            case CustomRoles.Agitater:
+                newKillButton = CustomButton.Get("Pass");
+                break;
             case CustomRoles.Arsonist:
                 newKillButton = CustomButton.Get("Douse");
                 if (player.IsDouseDone() || (Options.ArsonistCanIgniteAnytime.GetBool() && Utils.GetDousedPlayerCount(player.PlayerId).Item1 >= Options.ArsonistMinPlayersToIgnite.GetInt())) newVentButton = CustomButton.Get("Ignite");

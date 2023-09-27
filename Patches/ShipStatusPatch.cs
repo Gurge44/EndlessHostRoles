@@ -22,7 +22,7 @@ class ShipFixedUpdatePatch
         }
         else if (!float.IsNaN(Main.RefixCooldownDelay))
         {
-            Utils.MarkEveryoneDirtySettings();
+            Utils.MarkEveryoneDirtySettingsV4();
             Main.RefixCooldownDelay = float.NaN;
             Logger.Info("Refix Cooldown", "CoolDown");
         }
@@ -107,7 +107,6 @@ class RepairSystemPatch
             if (player.Is(CustomRoles.Traitor) && Traitor.CanUseSabotage.GetBool()) return true;
             if (player.Is(CustomRoles.Parasite) && player.IsAlive()) return true;
             if (player.Is(CustomRoles.Refugee) && player.IsAlive()) return true;
-            if (player.Is(CustomRoles.Glitch) && player.IsAlive()) return true;
             return false;
         }
         /*if (systemType == SystemTypes.Doors && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay)

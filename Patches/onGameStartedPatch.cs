@@ -206,6 +206,7 @@ internal class ChangeRoleSettings
             Lawyer.Init();
             Jackal.Init();
             Sidekick.Init();
+            Bandit.Init();
             Sheriff.Init();
             CopyCat.Init();
             SwordsMan.Init();
@@ -229,6 +230,7 @@ internal class ChangeRoleSettings
             BallLightning.Init();
             DarkHide.Init();
             Greedier.Init();
+            Glitch.Init();
             Collector.Init();
             QuickShooter.Init();
             Camouflager.Init();
@@ -298,6 +300,7 @@ internal class ChangeRoleSettings
             Doomsayer.Init();
             Disperser.Init();
             Twister.Init();
+            Agitater.Init();
             //Pirate.Init();
 
 
@@ -489,6 +492,9 @@ internal class SelectRolesPatch
                     case CustomRoles.SerialKiller:
                         SerialKiller.Add(pc.PlayerId);
                         break;
+                    case CustomRoles.Bandit:
+                        Bandit.Add(pc.PlayerId);
+                        break;
                     case CustomRoles.Witch:
                         Witch.Add(pc.PlayerId);
                         break;
@@ -508,6 +514,9 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.FireWorks:
                         FireWorks.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Agitater:
+                        Agitater.Add(pc.PlayerId);
                         break;
                     case CustomRoles.TimeThief:
                         TimeThief.Add(pc.PlayerId);
@@ -648,6 +657,9 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Greedier:
                         Greedier.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Glitch:
+                        Glitch.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Imitator:
                         Imitator.Add(pc.PlayerId);
@@ -1042,7 +1054,7 @@ internal class SelectRolesPatch
         {
             if (pc.Is(CustomRoles.GM)
                 || (pc.HasSubRole() && pc.GetCustomSubRoles().Count >= Options.NoLimitAddonsNumMax.GetInt())
-                || pc.Is(CustomRoles.Ntr)
+                //|| pc.Is(CustomRoles.Ntr)
                 || pc.Is(CustomRoles.Dictator)
                 || pc.Is(CustomRoles.God)
                 || pc.Is(CustomRoles.FFF)

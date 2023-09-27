@@ -200,7 +200,7 @@ internal class ChatCommands
                     break;
                 case "/kcount":
                     canceled = true;
-                    if (GameStates.IsLobby && Options.EnableKillerLeftCommand.GetBool()) break;
+                    if (GameStates.IsLobby || !Options.EnableKillerLeftCommand.GetBool()) break;
                     int impnum = 0;
                     int neutralnum = 0;
                     foreach (var players in Main.AllAlivePlayerControls)
@@ -236,9 +236,6 @@ internal class ChatCommands
                             CustomRoles subRole = Main.PlayerStates[lp.PlayerId].SubRoles[i];
                             sb.Append($"\n\n" + GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
                         }
-
-                        if (CustomRolesHelper.RoleExist(CustomRoles.Ntr) && (role is not CustomRoles.GM and not CustomRoles.Ntr))
-                            sb.Append($"\n\n" + GetString($"Lovers") + Utils.GetRoleMode(CustomRoles.Lovers) + GetString($"LoversInfoLong"));
                         Utils.SendMessage(sb.ToString(), lp.PlayerId);
                     }
                     else
@@ -430,8 +427,8 @@ internal class ChatCommands
                         {
                             PlayerControl.LocalPlayer.RpcSetRole(rl.GetRoleTypes());
                             PlayerControl.LocalPlayer.RpcSetCustomRole(rl);
-                            Utils.NotifyRoles();
-                            Utils.MarkEveryoneDirtySettings();
+                            Utils.NotifyRoles(SpecifySeer: PlayerControl.LocalPlayer);
+                            PlayerControl.LocalPlayer.MarkDirtySettings();
                         }
                     }
                     break;
@@ -793,9 +790,6 @@ internal class ChatCommands
                         CustomRoles subRole = Main.PlayerStates[player.PlayerId].SubRoles[i];
                         sb.Append($"\n\n" + GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
                     }
-
-                    if (CustomRolesHelper.RoleExist(CustomRoles.Ntr) && (role is not CustomRoles.GM and not CustomRoles.Ntr))
-                        sb.Append($"\n\n" + GetString($"Lovers") + Utils.GetRoleMode(CustomRoles.Lovers) + GetString($"LoversInfoLong"));
                     Utils.SendMessage(sb.ToString(), player.PlayerId);
                 }
                 else
@@ -936,7 +930,7 @@ internal class ChatCommands
                 break;
 
             case "/kcount":
-                if (GameStates.IsLobby && Options.EnableKillerLeftCommand.GetBool()) break;
+                if (GameStates.IsLobby || !Options.EnableKillerLeftCommand.GetBool()) break;
                 int impnum = 0;
                 int neutralnum = 0;
                 foreach (var players in Main.AllAlivePlayerControls)
