@@ -1,0 +1,25 @@
+
+#Number:100062
+#Title:TOHE PLUS v1.0.3
+#SubTitle:★★★★Giant Bug Fix Update★★★★
+#ShortTitle:★TOHE+ v1.0.3
+#Date:2023-9-27T00:00:00Z
+#-----------------------------
+
+## Thank you for using TOHE+!
+
+## Fixes
+- Fixed fatal error with Mercenary
+- Fixed most of the random disconnects due to code failure (TOHRE bug)
+- Fixed Head Hunder Kill Cooldown going below 0s
+- Fixed the /kcount command
+- Deleted role subcategories (they were causing issues in the settings panel)
+- Fixed some roles' descriptions to match what the role actually does, with the changes in TOHE+
+- Other minor bug fixes (there's a lot)
+- Major overall performance improvement (now the only thing causing noticable lag is a vanilla issue)
+
+## New Roles and Settings
+- The Glitch from TOU-R, replacing the Glitch role from TOHRE
+- Kill Cooldown after meetings setting for Greedy, Inhibitor and Saboteur
+- Improved HUD
+- Head Hunter settings: Minimum and Maximum Kill Cooldown
