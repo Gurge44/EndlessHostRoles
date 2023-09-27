@@ -71,13 +71,18 @@ public static class Deputy
             //  target.ResetKillCooldown();
             _ = new LateTask(() =>
             {
-                if (GameStates.IsInTask) target.SetKillCooldown(DeputyHandcuffCDForTarget.GetFloat());
-                target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("HandcuffedByDeputy")));
-                if (target.IsModClient()) target.RpcResetAbilityCooldown();
-                if (!target.IsModClient()) target.RpcGuardAndKill(target);
-                Utils.NotifyRoles();
+                if (GameStates.IsInTask)
+                {
+                    target.SetKillCooldown(DeputyHandcuffCDForTarget.GetFloat());
+                    target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("HandcuffedByDeputy")));
+                    if (target.IsModClient()) target.RpcResetAbilityCooldown();
+                    if (!target.IsModClient()) target.RpcGuardAndKill(target);
+                    Utils.NotifyRoles(SpecifySeer: killer);
+                    Utils.NotifyRoles(SpecifySeer: target);
+                }
             }, DeputyHandcuffDelay.GetInt());
-            Utils.NotifyRoles();
+            Utils.NotifyRoles(SpecifySeer: killer);
+            Utils.NotifyRoles(SpecifySeer: target);
 
             killer.SetKillCooldown();
 

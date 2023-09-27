@@ -184,7 +184,7 @@ public static class Medic
                 Main.AllPlayerControls.Where(x => ProtectList.Contains(x.PlayerId)).Do(x => x.Notify(Translator.GetString("MedicKillerTryBrokenShieldTargetForTarget")));
                 break;
             default:
-                Utils.NotifyRoles();
+                Utils.NotifyRoles(); // What is this?? Why is this here??
                 break;
         }
 
@@ -198,13 +198,29 @@ public static class Medic
         if (ShieldDeactivationIsVisible.GetInt() == 1)
         {
             TempMarkProtected = byte.MaxValue;
-            Utils.NotifyRoles();
+            for (int i = 0; i < playerIdList.Count; i++)
+            {
+                byte pc = playerIdList[i];
+                Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc));
+            }
+            for (int i = 0; i < ProtectList.Count; i++)
+            {
+                byte pc = ProtectList[i];
+                Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc));
+            }
         }
     }
     public static void IsDead(PlayerControl target)
     {
         if (!target.Is(CustomRoles.Medic)) return;
         if (!ShieldDeactivatesWhenMedicDies.GetBool()) return;
+
+        for (int i = 0; i < ProtectList.Count; i++)
+        {
+            byte pc = ProtectList[i];
+            Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc));
+        }
+        Utils.NotifyRoles(SpecifySeer: target);
 
         ProtectList.Clear();
         Logger.Info($"{target.GetNameWithRole()} : Medic is dead", "Medic");
@@ -213,6 +229,5 @@ public static class Medic
         {
             TempMarkProtected = byte.MaxValue;
         }
-        Utils.NotifyRoles();
     }
 }

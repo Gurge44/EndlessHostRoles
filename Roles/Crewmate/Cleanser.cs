@@ -107,18 +107,11 @@ public static class Cleanser
             //var allAddons = targetpc.GetCustomSubRoles();
             targetpc.RpcSetCustomRole(CustomRoles.Cleansed);
             Logger.Info($"Removed all the add ons of {targetpc.GetNameWithRole()}", "Cleanser");
-            //foreach (var role in allAddons)
-            //{
-            //    Main.PlayerStates[targetid].RemoveSubRole(role);
-
-            //}
             CleanserTarget[pid] = byte.MaxValue;
             targetpc.Notify(GetString("LostAddonByCleanser"));
-
+            targetpc.MarkDirtySettings();
         }
-        Utils.MarkEveryoneDirtySettings();
-
-
+        //Utils.MarkEveryoneDirtySettings();
     }
 
 }

@@ -100,7 +100,7 @@ internal static class NiceEraser
             player.RpcSetCustomRole(CustomRolesHelper.GetErasedRole(player.GetCustomRole()));
             NameNotifyManager.Notify(player, GetString("LostRoleByNiceEraser"));
             Logger.Info($"{player.GetNameWithRole()} 被擦除了", "NiceEraser");
+            player.MarkDirtySettings();
         }
-        Utils.MarkEveryoneDirtySettings();
     }
 }

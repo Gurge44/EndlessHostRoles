@@ -204,6 +204,7 @@ public static class Divinator
                 CustomRoles.Virus or
                 CustomRoles.Monarch or
                 CustomRoles.Revolutionist or
+                CustomRoles.Agitater or
                 CustomRoles.Express or
                 CustomRoles.Succubus
                 => "Result15",
@@ -213,6 +214,7 @@ public static class Divinator
                 CustomRoles.Refugee or
                 CustomRoles.Inhibitor or
                 CustomRoles.SabotageMaster or
+                CustomRoles.Bandit or
                 CustomRoles.Saboteur
                 => "Result16",
 

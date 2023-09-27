@@ -114,7 +114,11 @@ internal class Monitor
 
         if (isChange)
         {
-            Utils.NotifyRoles();
+            for (int i = 0; i < playerIdList.Count; i++)
+            {
+                byte pc = playerIdList[i];
+                Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc));
+            }
             foreach (PlayerControl pc in Main.AllPlayerControls)
                 FixedUpdatePatch.Postfix(pc);
         }

@@ -108,10 +108,9 @@ public static class Tracefinder
                 if (player == null || !player.IsAlive()) continue;
                 LocateArrow.Add(pc, target.transform.position);
                 SendRPC(pc, true, target.transform.position);
+                Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc));
             }
         }, delay);
-
-        Utils.NotifyRoles();
     }
     public static string GetTargetArrow(PlayerControl seer, PlayerControl target = null)
     {
