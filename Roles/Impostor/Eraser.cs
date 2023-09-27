@@ -146,8 +146,8 @@ internal static class Eraser
             player.RpcSetCustomRole(CustomRolesHelper.GetErasedRole(player.GetCustomRole()));
             NameNotifyManager.Notify(player, GetString("LostRoleByEraser"));
             Logger.Info($"{player.GetNameWithRole()} 被擦除了", "Eraser");
+            player.MarkDirtySettings();
         }
-        Utils.MarkEveryoneDirtySettings();
         PlayerToErase = new();
     }
 }

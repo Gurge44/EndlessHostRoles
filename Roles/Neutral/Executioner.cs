@@ -1,5 +1,6 @@
 using HarmonyLib;
 using Hazel;
+using MS.Internal.Xml.XPath;
 using System.Collections.Generic;
 using System.Linq;
 using static TOHE.Options;
@@ -134,7 +135,8 @@ public static class Executioner
         Utils.GetPlayerById(Executioner).RpcSetCustomRole(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()]);
         Target.Remove(Executioner);
         SendRPC(Executioner);
-        Utils.NotifyRoles();
+        Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(Executioner));
+        Utils.NotifyRoles(SpecifySeer: target);
     }
     public static void ChangeRole(PlayerControl executioner)
     {

@@ -118,14 +118,14 @@ public static class EvilTracker
         SetTarget(shapeshifter.PlayerId, target.PlayerId);
         Logger.Info($"{shapeshifter.GetNameWithRole()}のターゲットを{target.GetNameWithRole()}に設定", "EvilTrackerTarget");
         shapeshifter.MarkDirtySettings();
-        Utils.NotifyRoles();
+        Utils.NotifyRoles(SpecifySeer: shapeshifter);
+        Utils.NotifyRoles(SpecifySeer: target);
     }
     public static void AfterMeetingTasks()
     {
         if (CurrentTargetMode == TargetMode.EveryMeeting)
         {
             SetTarget();
-            Utils.MarkEveryoneDirtySettings();
         }
         for (int i = 0; i < playerIdList.Count; i++)
         {
@@ -136,6 +136,7 @@ public static class EvilTracker
                 SetTarget(playerId);
             pc?.SyncSettings();
             pc?.RpcResetAbilityCooldown();
+            target.MarkDirtySettings();
         }
     }
     ///<summary>

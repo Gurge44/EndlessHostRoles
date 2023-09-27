@@ -89,7 +89,8 @@ public static class BallLightning
                 SendRPC(target.PlayerId);
                 RealKiller.TryAdd(target.PlayerId, killer);
                 if (!killer.inVent) killer.SetKillCooldown();
-                Utils.NotifyRoles();
+                Utils.NotifyRoles(SpecifySeer: killer);
+                Utils.NotifyRoles(SpecifySeer: target);
                 Logger.Info($"{target.GetNameWithRole()} 转化为量子幽灵", "BallLightning");
             }
         }, ConvertTime.GetFloat(), "BallLightning Convert Player To Ghost");
@@ -137,9 +138,8 @@ public static class BallLightning
             {
                 byte gs = deList[i];
                 SendRPC(gs);
+                Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(gs));
             }
-
-            Utils.NotifyRoles();
         }
     }
     public static void OnReportDeadBody()
@@ -154,9 +154,9 @@ public static class BallLightning
             CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Quantization, gs.PlayerId);
             gs.SetRealKiller(RealKiller[gs.PlayerId]);
             Logger.Info($"{gs.GetNameWithRole()} 作为量子幽灵参与会议，将在会议后死亡", "BallLightning");
+            Utils.NotifyRoles(SpecifySeer: gs);
         }
         GhostPlayer = new();
         SendRPC(byte.MaxValue);
-        Utils.NotifyRoles();
     }
 }

@@ -76,7 +76,8 @@ namespace TOHE.Roles.Impostor
                 PlayerSkinsCosumed[pc.PlayerId].Add(target.PlayerId);
                 pc.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Devourer), GetString("DevourerEatenSkin")));
                 target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Devourer), GetString("EatenByDevourer")));
-                Utils.NotifyRoles();
+                Utils.NotifyRoles(SpecifySeer: pc);
+                Utils.NotifyRoles(SpecifySeer: target);
 
                 OriginalPlayerSkins.Add(target.PlayerId, Camouflage.PlayerSkins[target.PlayerId]);
                 Camouflage.PlayerSkins[target.PlayerId] = ConsumedOutfit;

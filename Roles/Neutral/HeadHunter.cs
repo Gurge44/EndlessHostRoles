@@ -16,6 +16,8 @@ public static class HeadHunter
     private static OptionItem SuccessKillCooldown;
     private static OptionItem FailureKillCooldown;
     private static OptionItem NumOfTargets;
+    private static OptionItem MinKCD;
+    private static OptionItem MaxKCD;
 
     public static List<byte> Targets = new();
     public static float KCD = 25;
@@ -34,6 +36,10 @@ public static class HeadHunter
         NumOfTargets = IntegerOptionItem.Create(Id + 15, "HHNumOfTargets", new(0, 10, 1), 3, TabGroup.NeutralRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
             .SetValueFormat(OptionFormat.Times);
+        MaxKCD = FloatOptionItem.Create(Id + 16, "HHMaxKCD", new(0f, 180f, 2.5f), 40f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
+            .SetValueFormat(OptionFormat.Seconds);
+        MinKCD = FloatOptionItem.Create(Id + 17, "HHMinKCD", new(0f, 180f, 2.5f), 10f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
+            .SetValueFormat(OptionFormat.Seconds);
     }
     public static void Init()
     {
@@ -43,7 +49,7 @@ public static class HeadHunter
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        _ = new LateTask(() => { ResetTargets(); Utils.GetPlayerById(playerId).SyncSettings(); }, 8f);
+        _ = new LateTask(ResetTargets, 8f);
         KCD = KillCooldown.GetFloat();
 
         if (!AmongUsClient.Instance.AmHost) return;
@@ -58,10 +64,14 @@ public static class HeadHunter
     }
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (Targets.Contains(target.PlayerId)) KCD -= SuccessKillCooldown.GetFloat();
-        else KCD += FailureKillCooldown.GetFloat();
-        killer.ResetKillCooldown();
-        killer.SyncSettings();
+        float tempkcd = KCD;
+        if (Targets.Contains(target.PlayerId)) System.Math.Clamp(KCD -= SuccessKillCooldown.GetFloat(), MinKCD.GetFloat(), MaxKCD.GetFloat());
+        else System.Math.Clamp(KCD += FailureKillCooldown.GetFloat(), MinKCD.GetFloat(), MaxKCD.GetFloat());
+        if (KCD != tempkcd)
+        {
+            killer.ResetKillCooldown();
+            killer.SyncSettings();
+        }
     }
     public static string GetHudText(PlayerControl player)
     {

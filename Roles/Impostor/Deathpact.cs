@@ -95,24 +95,33 @@ namespace TOHE.Roles.Impostor
 
             if (ReduceVisionWhileInPact.GetBool())
             {
-                MarkEveryoneDirtySettings();
+                for (int i = 0; i < PlayersInDeathpact[pc.PlayerId].Count; i++)
+                {
+                    PlayerControl player = PlayersInDeathpact[pc.PlayerId][i];
+
+                    foreach (var otherPlayerInPact in PlayersInDeathpact[pc.PlayerId].Where(a => a.PlayerId != player.PlayerId))
+                    {
+                        otherPlayerInPact.MarkDirtySettings();
+                        player.MarkDirtySettings();
+                    }
+                }
             }
 
             pc.Notify(GetString("DeathpactComplete"));
-            DeathpactTime[pc.PlayerId] = GetTimeStamp() + (long)DeathpactDuration.GetInt();
+            DeathpactTime[pc.PlayerId] = GetTimeStamp() + DeathpactDuration.GetInt();
             ActiveDeathpacts.Add(pc.PlayerId);
 
-            for (int i = 0; i < PlayersInDeathpact[pc.PlayerId].Count; i++)
+            if (ShowArrowsToOtherPlayersInPact.GetBool())
             {
-                PlayerControl player = PlayersInDeathpact[pc.PlayerId][i];
-                if (!ShowArrowsToOtherPlayersInPact.GetBool())
+                for (int i = 0; i < PlayersInDeathpact[pc.PlayerId].Count; i++)
                 {
-                    continue;
-                }
+                    PlayerControl player = PlayersInDeathpact[pc.PlayerId][i];
 
-                foreach (var otherPlayerInPact in PlayersInDeathpact[pc.PlayerId].Where(a => a.PlayerId != player.PlayerId))
-                {
-                    TargetArrow.Add(player.PlayerId, otherPlayerInPact.PlayerId);
+                    foreach (var otherPlayerInPact in PlayersInDeathpact[pc.PlayerId].Where(a => a.PlayerId != player.PlayerId))
+                    {
+                        TargetArrow.Add(player.PlayerId, otherPlayerInPact.PlayerId);
+                        otherPlayerInPact.MarkDirtySettings();
+                    }
                 }
             }
         }
@@ -274,7 +283,16 @@ namespace TOHE.Roles.Impostor
 
             if (ReduceVisionWhileInPact.GetBool())
             {
-                MarkEveryoneDirtySettings();
+                for (int i = 0; i < PlayersInDeathpact[deathpact].Count; i++)
+                {
+                    PlayerControl player = PlayersInDeathpact[deathpact][i];
+
+                    foreach (var otherPlayerInPact in PlayersInDeathpact[deathpact].Where(a => a.PlayerId != player.PlayerId))
+                    {
+                        otherPlayerInPact.MarkDirtySettings();
+                        player.MarkDirtySettings();
+                    }
+                }
             }
         }
 

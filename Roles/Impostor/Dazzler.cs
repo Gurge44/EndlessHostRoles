@@ -74,7 +74,7 @@ namespace TOHE.Roles.Impostor
             {
                 target.Notify(ColorString(GetRoleColor(CustomRoles.Dazzler), GetString("DazzlerDazzled")));
                 PlayersDazzled[pc.PlayerId].Add(target.PlayerId);
-                MarkEveryoneDirtySettings();
+                target.MarkDirtySettings();
             }
         }
 
