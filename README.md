@@ -35,7 +35,7 @@
 - Gain more ability uses for completing tasks as crewmate roles
 - Gain more ability uses for getting kills as impostor roles
 - Prevent kills while shifted when no abiltiy uses are left for some roles (Sniper, Twister, Disperser, Hangman, Camouflager, etc.)
-- Code cleanup and small performance improvement
+- Code cleanup and major performance improvement
 - Improved EAC
 - Better intro sounds
 - Better custom button images
@@ -85,6 +85,7 @@
 - Medusa: Can only clean bodies if their kill cooldown is up
 - Wraith: Setting whether it can vent normally when invis is on cooldown; Invis Cooldown is visualized next to the role name
 - Poisoner: Kill Cooldown is reset when the poisoned target dies
+- Glitch is now The Glitch from TOU-R, it was completely rewritten and I worked really hard on it
 
 ### Now, some new roles as well
 - Lighter (Crewmate)
