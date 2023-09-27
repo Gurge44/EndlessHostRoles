@@ -2,7 +2,6 @@ using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
-using MS.Internal.Xml.XPath;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -1782,7 +1781,8 @@ class FixedUpdatePatch
         }
 
         //if (Options.DeepLowLoad.GetBool()) await Task.Run(() => { DoPostfix(__instance); });
-        /*else */await DoPostfix(__instance);
+        /*else */
+        await DoPostfix(__instance);
     }
 
     public static Task DoPostfix(PlayerControl __instance)
@@ -1831,7 +1831,7 @@ class FixedUpdatePatch
             if (player.Is(CustomRoles.Vampire)) Vampire.OnFixedUpdate(player);
             if (player.Is(CustomRoles.Poisoner)) Poisoner.OnFixedUpdate(player);
             if (player.Is(CustomRoles.BountyHunter) && !lowLoad) BountyHunter.FixedUpdate(player);
-            if (player.Is(CustomRoles.Glitch) && !lowLoad) Glitch.UpdateHackCooldown(player); 
+            if (player.Is(CustomRoles.Glitch) && !lowLoad) Glitch.UpdateHackCooldown(player);
             if (player.Is(CustomRoles.SerialKiller)) SerialKiller.FixedUpdate(player);
             if (GameStates.IsInTask && PlagueBearer.IsEnable)
                 if (player.Is(CustomRoles.PlagueBearer) && PlagueBearer.IsPlaguedAll(player))

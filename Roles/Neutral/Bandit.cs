@@ -1,9 +1,9 @@
-﻿using Hazel;
-using System.Linq;
+﻿using AmongUs.GameOptions;
+using Hazel;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static TOHE.Options;
-using AmongUs.GameOptions;
 
 namespace TOHE.Roles.Neutral;
 public static class Bandit
@@ -95,9 +95,9 @@ public static class Bandit
                 role == CustomRoles.Lovers || // Causes issues involving Lovers Suicide
                 (role.IsImpOnlyAddon() && !CanStealImpOnlyAddon.GetBool()) ||
                 (role.IsBetrayalAddon() && !CanStealBetrayalAddon.GetBool()))
-            { 
-                    Logger.Info($"Removed {role} from stealable addons", "Bandit");
-                    AllSubRoles.Remove(role);
+            {
+                Logger.Info($"Removed {role} from stealable addons", "Bandit");
+                AllSubRoles.Remove(role);
             }
         }
 
@@ -124,7 +124,7 @@ public static class Bandit
         var SelectedAddOn = SelectRandomAddon(target);
         if (SelectedAddOn == null) return true; // no stealable addons found on the target.
         if (StealMode.GetValue() == 1)
-        {    
+        {
             Main.PlayerStates[target.PlayerId].RemoveSubRole((CustomRoles)SelectedAddOn);
             Logger.Info($"Successfully removed {SelectedAddOn} addon from {target.GetNameWithRole()}", "Bandit");
             killer.RpcSetCustomRole((CustomRoles)SelectedAddOn);

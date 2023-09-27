@@ -62,7 +62,7 @@ public static class Eclipse
         float currentVision = Vision;
         Vision += VisionIncrease.GetFloat();
         if (Vision > MaxVision.GetFloat()) Vision = MaxVision.GetFloat();
-        
+
         if (Vision != currentVision) pc.SyncSettings();
     }
 }
