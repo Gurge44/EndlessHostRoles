@@ -2,6 +2,7 @@ using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
+using LibCpp2IL.Elf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -207,7 +208,12 @@ static class ExtendedPlayerControl
         if (target == null) target = player;
         if (time >= 0f) Main.AllPlayerKillCooldown[player.PlayerId] = time * 2;
         else Main.AllPlayerKillCooldown[player.PlayerId] *= 2;
-        if (forceAnime || !player.IsModClient() || !Options.DisableShieldAnimations.GetBool())
+        if (player.Is(CustomRoles.Glitch))
+        {
+            Glitch.LastKill = Utils.GetTimeStamp() + ((int)(time / 2) - Glitch.KillCooldown.GetInt());
+            Glitch.KCDTimer = (int)(time / 2) - Glitch.KillCooldown.GetInt();
+        }
+        else if (forceAnime || !player.IsModClient() || !Options.DisableShieldAnimations.GetBool())
         {
             player.SyncSettings();
             player.RpcGuardAndKill(target, 11);
@@ -282,7 +288,14 @@ static class ExtendedPlayerControl
     {
         if (!AmongUsClient.Instance.AmHost) return; //ホスト以外が実行しても何も起こさない
         Logger.Info($"アビリティクールダウンのリセット:{target.name}({target.PlayerId})", "RpcResetAbilityCooldown");
-        if (PlayerControl.LocalPlayer == target)
+        if (target.Is(CustomRoles.Glitch))
+        {
+            Glitch.LastHack = Utils.GetTimeStamp();
+            Glitch.LastMimic = Utils.GetTimeStamp();
+            Glitch.MimicCDTimer = 10;
+            Glitch.HackCDTimer = 10;
+        }
+        else if (PlayerControl.LocalPlayer == target)
         {
             //targetがホストだった場合
             PlayerControl.LocalPlayer.Data.Role.SetCooldown();
@@ -662,7 +675,7 @@ static class ExtendedPlayerControl
             CustomRoles.Sidekick => Jackal.CanUseSabotageSK.GetBool(),
             CustomRoles.Traitor => Traitor.CanUseSabotage.GetBool(),
             CustomRoles.Parasite => true,
-            CustomRoles.Glitch => false,
+            CustomRoles.Glitch => true,
             CustomRoles.Refugee => true,
 
 

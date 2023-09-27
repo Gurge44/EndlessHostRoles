@@ -289,30 +289,30 @@ namespace TOHE.Roles.Crewmate
         }
         public static string GetProgressText(int playerId)
         {
-            if (Utils.GetPlayerById(playerId) == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
+            if (Utils.GetPlayerById(playerId) == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive() || Utils.GetPlayerById(playerId).IsModClient()) return string.Empty;
             var str = new StringBuilder();
             switch (PotionID)
             {
                 case 1: // Shield
-                    str.Append("<color=#00ffa5>Stored:</color> <color=#00ff97>Shield Potion</color>");
+                    str.Append(" <color=#00ffa5>Stored:</color> <color=#00ff97>Shield Potion</color>");
                     break;
                 case 2: // Suicide
-                    str.Append("<color=#00ffa5>Stored:</color> <color=#ff0000>Awkward Potion</color>");
+                    str.Append(" <color=#00ffa5>Stored:</color> <color=#ff0000>Awkward Potion</color>");
                     break;
                 case 3: // TP to random player
-                    str.Append("<color=#00ffa5>Stored:</color> <color=#42d1ff>Teleport Potion</color>");
+                    str.Append(" <color=#00ffa5>Stored:</color> <color=#42d1ff>Teleport Potion</color>");
                     break;
                 case 4: // Increased speed
-                    str.Append("<color=#00ffa5>Stored:</color> <color=#ff8400>Speed Potion</color>");
+                    str.Append(" <color=#00ffa5>Stored:</color> <color=#ff8400>Speed Potion</color>");
                     break;
                 case 5: // Quick fix next sabo
-                    str.Append("<color=#00ffa5>Stored:</color> <color=#3333ff>Quick Fix Potion</color>");
+                    str.Append(" <color=#00ffa5>Stored:</color> <color=#3333ff>Quick Fix Potion</color>");
                     break;
                 case 6: // Invisibility
-                    str.Append("<color=#00ffa5>Stored:</color> <color=#01c834>Invisibility Potion</color>");
+                    str.Append(" <color=#00ffa5>Stored:</color> <color=#01c834>Invisibility Potion</color>");
                     break;
                 case 7: // Increased vision
-                    str.Append("<color=#00ffa5>Stored:</color> <color=#eee5be>Sight Potion</color>");
+                    str.Append(" <color=#00ffa5>Stored:</color> <color=#eee5be>Sight Potion</color>");
                     break;
                 default:
                     break;

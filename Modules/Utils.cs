@@ -2429,12 +2429,9 @@ public static class Utils
             }
             Main.KilledAntidote.Clear();
         }
-        if (Glitch.IsEnable)
-        {
-            Glitch.LastHack = GetTimeStamp();
-            Glitch.HackCDTimer = (byte)Glitch.HackCooldown.GetInt();
-        }
 
+
+        if (Glitch.IsEnable) Glitch.AfterMeetingTasks();
         if (Swooper.IsEnable) Swooper.AfterMeetingTasks();
         if (Wraith.IsEnable) Wraith.AfterMeetingTasks();
         if (Werewolf.IsEnable) Werewolf.AfterMeetingTasks();

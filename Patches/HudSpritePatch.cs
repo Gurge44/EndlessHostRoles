@@ -17,6 +17,7 @@ public static class HudSpritePatch
     private static Sprite Kill;
     private static Sprite Ability;
     private static Sprite Vent;
+    private static Sprite Sabotage;
     public static void Postfix(HudManager __instance)
     {
         var player = PlayerControl.LocalPlayer;
@@ -27,6 +28,7 @@ public static class HudSpritePatch
             Kill = null;
             Ability = null;
             Vent = null;
+            Sabotage = null;
             return;
         }
 
@@ -35,10 +37,12 @@ public static class HudSpritePatch
         if (!Kill) Kill = __instance.KillButton.graphic.sprite;
         if (!Ability) Ability = __instance.AbilityButton.graphic.sprite;
         if (!Vent) Vent = __instance.ImpostorVentButton.graphic.sprite;
+        if (!Sabotage) Sabotage = __instance.SabotageButton.graphic.sprite;
 
         Sprite newKillButton = Kill;
         Sprite newAbilityButton = Ability;
         Sprite newVentButton = Vent;
+        Sprite newSabotageButton = Sabotage;
 
         if (!Main.EnableCustomButton.Value) goto EndOfSelectImg;
 
@@ -59,6 +63,13 @@ public static class HudSpritePatch
                     if (Undertaker.MarkedPlayer.ContainsKey(player.PlayerId))
                         newAbilityButton = CustomButton.Get("Assassinate");
                 }
+                break;
+            case CustomRoles.Glitch:
+                if (Glitch.KCDTimer > 0 && Glitch.HackCDTimer <= 0) newKillButton = CustomButton.Get("GlitchHack");
+                newSabotageButton = CustomButton.Get("GlitchMimic");
+                break;
+            case CustomRoles.Jester:
+                newAbilityButton = CustomButton.Get("JesterVent");
                 break;
             case CustomRoles.Disperser:
                 if (!shapeshifting)
@@ -207,6 +218,7 @@ public static class HudSpritePatch
         __instance.KillButton.graphic.sprite = newKillButton;
         __instance.AbilityButton.graphic.sprite = newAbilityButton;
         __instance.ImpostorVentButton.graphic.sprite = newVentButton;
+        __instance.SabotageButton.graphic.sprite = newSabotageButton;
 
     }
 }

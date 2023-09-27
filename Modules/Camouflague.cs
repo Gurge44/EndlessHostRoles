@@ -104,13 +104,7 @@ public static class Camouflage
 
         var id = target.PlayerId;
 
-        if (IsCamouflage)
-        {
-            //コミュサボ中
-
-            //死んでいたら処理しない
-            if (Main.PlayerStates[id].IsDead) return;
-        }
+        if (IsCamouflage && Main.PlayerStates[id].IsDead) return;
 
         var newOutfit = CamouflageOutfit;
 
