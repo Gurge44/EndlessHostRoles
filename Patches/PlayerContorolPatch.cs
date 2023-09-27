@@ -1371,7 +1371,7 @@ class ShapeshiftPatch
     End:
 
         //変身解除のタイミングがずれて名前が直せなかった時のために強制書き換え
-        if (!shapeshifting)
+        if (!shapeshifting && !shapeshifter.Is(CustomRoles.Glitch))
         {
             _ = new LateTask(() =>
             {

@@ -65,9 +65,9 @@ public static class Glitch
 
         isShifted = false;
 
-        LastKill = Utils.GetTimeStamp() - 13 + StartingKillCooldown.GetInt(); // Starting Kill Cooldown is synced with the setting
-        LastHack = Utils.GetTimeStamp() - 10 + 7; // Starting Hack Cooldown is 7s
-        LastMimic = Utils.GetTimeStamp() - 18 + 25; // Starting Mimic Cooldown is 25s
+        LastKill = Utils.GetTimeStamp() + StartingKillCooldown.GetInt() - 10; // Starting Kill Cooldown is synced with the setting
+        LastHack = Utils.GetTimeStamp() + HackCooldown.GetInt();
+        LastMimic = Utils.GetTimeStamp() + MimicCooldown.GetInt();
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
@@ -91,12 +91,16 @@ public static class Glitch
 
         var playerlist = Main.AllAlivePlayerControls.Where(a => a.PlayerId != pc.PlayerId).ToList();
 
-        pc.RpcShapeshift(playerlist[IRandom.Instance.Next(0, playerlist.Count)], false);
+        try
+        {
+            pc.RpcShapeshift(playerlist[IRandom.Instance.Next(0, playerlist.Count)], false);
 
-        isShifted = true;
-        LastMimic = Utils.GetTimeStamp();
-        MimicCDTimer = MimicCooldown.GetInt();
-        MimicDurTimer = MimicDuration.GetInt();
+            isShifted = true;
+            LastMimic = Utils.GetTimeStamp();
+            MimicCDTimer = MimicCooldown.GetInt();
+            MimicDurTimer = MimicDuration.GetInt();
+        }
+        catch { }
     }
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
@@ -162,8 +166,12 @@ public static class Glitch
         }
         if (MimicDurTimer <= 0 && isShifted)
         {
-            player.RpcRevertShapeshift(false);
-            isShifted = false;
+            try
+            {
+                player.RpcRevertShapeshift(false);
+                isShifted = false;
+            }
+            catch { }
         }
 
         if (HackCDTimer <= 0 && KCDTimer <= 0 && MimicCDTimer <= 0 && MimicDurTimer <= 0) return;
