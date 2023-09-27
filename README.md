@@ -109,8 +109,8 @@
 - Deadly Quota (Impostor-only Add-on)
 
 ## Note:
-- You can use parts of the code in here, but if you do, you'll have to credit me (Gurge44) or the mod by mentioning its name (TOHE+) and providing a link to this github page.
-- Do not try to build the source code. It will give you errors. This is intentional, so copying the mod is not so easy. To play the mod, use the given dll in the release section.
+- You can use parts of the code in here, but if you do, you'll have to credit me (Gurge44) or the mod by mentioning its name (TOHE+) and providing a link to this github page. (Or leaving the in-game credits as they are are also fine!)
+- To play the mod, use the given dll in the release section.
 
 <br>
 
