@@ -77,13 +77,14 @@ public static class Vengeance
     }
     public static void Countdown(int seconds, PlayerControl player)
     {
+        if (!player.IsAlive()) return;
         if (Success)
         {
             Timer = RevengeTime.GetInt();
             Success = false;
             return;
         }
-        if (seconds <= 0 || GameStates.IsMeeting) { player.RpcMurderPlayerV3(player); return; }
+        if ((seconds <= 0 || GameStates.IsMeeting) && player.IsAlive()) { player.RpcMurderPlayerV3(player); return; }
         player.Notify(string.Format(GetString("VengeanceRevenge"), seconds), 1.1f);
         Timer = seconds;
 
