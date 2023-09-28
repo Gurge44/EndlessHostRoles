@@ -626,6 +626,7 @@ static class ExtendedMeetingHud
                     ) VoteNum += 1;
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Glitch)
                     && ps.TargetPlayerId != ps.VotedFor
+                    && !Glitch.CanVote.GetBool()
                     ) VoteNum = 0;
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Vindicator)
                     && ps.TargetPlayerId != ps.VotedFor
