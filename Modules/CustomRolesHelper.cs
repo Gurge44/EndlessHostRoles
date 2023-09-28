@@ -78,6 +78,11 @@ internal static class CustomRolesHelper
                 CustomRoles.Express => CustomRoles.Crewmate,
                 CustomRoles.NiceEraser => CustomRoles.Crewmate,
                 CustomRoles.TaskManager => CustomRoles.Crewmate,
+                CustomRoles.Spy => CustomRoles.Crewmate,
+                CustomRoles.Ricochet => CustomRoles.Crewmate,
+                CustomRoles.Tether => CustomRoles.Engineer,
+                CustomRoles.Doormaster => CustomRoles.Engineer,
+                CustomRoles.Aid => CustomRoles.Impostor,
                 CustomRoles.Escapee => CustomRoles.Shapeshifter,
                 CustomRoles.NiceGuesser => CustomRoles.Crewmate,
                 CustomRoles.EvilGuesser => CustomRoles.Impostor,
@@ -184,6 +189,11 @@ internal static class CustomRolesHelper
                 CustomRoles.Express => CustomRoles.CrewmateTOHE,
                 CustomRoles.NiceEraser => CustomRoles.CrewmateTOHE,
                 CustomRoles.TaskManager => CustomRoles.CrewmateTOHE,
+                CustomRoles.Spy => CustomRoles.CrewmateTOHE,
+                CustomRoles.Ricochet => CustomRoles.CrewmateTOHE,
+                CustomRoles.Aid => CustomRoles.CrewmateTOHE,
+                CustomRoles.Doormaster => CustomRoles.EngineerTOHE,
+                CustomRoles.Tether => CustomRoles.EngineerTOHE,
                 CustomRoles.Psychic => CustomRoles.CrewmateTOHE,
                 CustomRoles.Needy => CustomRoles.CrewmateTOHE,
                 CustomRoles.SuperStar => CustomRoles.CrewmateTOHE,
@@ -238,6 +248,7 @@ internal static class CustomRolesHelper
             CustomRoles.Innocent => RoleTypes.Impostor,
             CustomRoles.Pelican => RoleTypes.Impostor,
             //CustomRoles.Counterfeiter => RoleTypes.Impostor,
+            CustomRoles.Aid => RoleTypes.Impostor,
             CustomRoles.Witness => RoleTypes.Impostor,
             CustomRoles.Pursuer => RoleTypes.Impostor,
             CustomRoles.Revolutionist => RoleTypes.Impostor,
@@ -384,6 +395,7 @@ internal static class CustomRolesHelper
             CustomRoles.Executioner or
             CustomRoles.Mario or
             CustomRoles.Crewpostor or
+            CustomRoles.Glitch or
             CustomRoles.Lawyer or
             CustomRoles.Agitater or
             CustomRoles.God or
@@ -809,6 +821,7 @@ internal static class CustomRolesHelper
         CustomRoles.Jinx or
         //CustomRoles.Counterfeiter or
         CustomRoles.Witness or
+        CustomRoles.Aid or
         CustomRoles.Totocalcio or
         CustomRoles.Farseer or
         CustomRoles.FFF or
@@ -921,6 +934,7 @@ internal static class CustomRolesHelper
         //CustomRoles.Reverie or
         CustomRoles.Crusader or
         //CustomRoles.Counterfeiter or
+        CustomRoles.Aid or
         CustomRoles.Witness or
         CustomRoles.Monarch or
         CustomRoles.Jailor or
@@ -937,6 +951,7 @@ internal static class CustomRolesHelper
         //CustomRoles.Reverie or
         CustomRoles.Crusader or
         //CustomRoles.Counterfeiter or
+        CustomRoles.Aid or
         CustomRoles.Witness or
         CustomRoles.Monarch or
         CustomRoles.Jailor or

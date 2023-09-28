@@ -1,0 +1,29 @@
+Self-notes:
+- New Fortune Teller hints
+- Add Ying Yanger?
+- Controller (PL Mastermind)
+- Somehow make Crewpostor playable (less OP)
+- Spy (Crew) => Caly's idea
+- Background music? (factorio soundtrack)
+- UI for Inspector
+- Aid (Crew) => Temporarily shield a player for X seconds via kill button
+
+!important
+- Spy: Can see who tried to use the kill button on them a limited times (base: Crewmate)
+- Aid: Protect someone via kill button temporary + ability use limit (base: Impostor)
+- Ricochet: Protect yourself against someone specific by voting (base: Crewmate)
+- Doormaster: Vent to open all closed doors (base: Engineer)
+- Tether: Mark target by voting, vent to TP to them (base: Engineer)
+
+Completed:
+- fix HH KCD going below 0s
+- fix /kcount
+- Delete role subcategories
+- KCD after meetings for Inhibitor and Saboteur
+- Added Agitater and Bandit
+- fix fatal error with Mercenary progress text
+
+Map 5 is coming, motivation is lost - 2023.09.14.
+
+Strings to add:
+()

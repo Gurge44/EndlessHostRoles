@@ -152,11 +152,14 @@ class RepairSystemPatch
     }
     private static void CheckAndOpenDoors(ShipStatus __instance, int amount, params int[] DoorIds)
     {
-        if (DoorIds.Contains(amount)) for (int i = 0; i < DoorIds.Length; i++)
+        if (DoorIds.Contains(amount))
+        {
+            for (int i = 0; i < DoorIds.Length; i++)
             {
                 int id = DoorIds[i];
                 __instance.RpcRepairSystem(SystemTypes.Doors, id);
             }
+        }
     }
 }
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.CloseDoorsOfType))]
@@ -164,6 +167,7 @@ class CloseDoorsPatch
 {
     public static bool Prefix(ShipStatus __instance)
     {
+        Logger.Warn(Utils.GetPlayerById(__instance.OwnerId).GetCustomRole().ToString() + " - " + Utils.GetPlayerById(__instance.OwnerId).GetRealName(), "DoorClose");
         return !(Options.DisableSabotage.GetBool() || Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA);
     }
 }

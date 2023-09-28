@@ -417,69 +417,66 @@ public class TaskState
 
                 }
             }
-            if (player.Is(CustomRoles.Divinator) && player.IsAlive())
+            // Ability Use Gain with this task completed
+            if (player.IsAlive())
             {
-                Divinator.CheckLimit[player.PlayerId] += Divinator.AbilityUseGainWithEachTaskCompleted.GetFloat();
-            }
-            if (player.Is(CustomRoles.Veteran) && player.IsAlive())
-            {
-                Main.VeteranNumOfUsed[player.PlayerId] += Options.VeteranAbilityUseGainWithEachTaskCompleted.GetFloat();
-            }
-            if (player.Is(CustomRoles.Grenadier) && player.IsAlive())
-            {
-                Main.GrenadierNumOfUsed[player.PlayerId] += Options.GrenadierAbilityUseGainWithEachTaskCompleted.GetFloat();
-            }
-            if (player.Is(CustomRoles.Lighter) && player.IsAlive())
-            {
-                Main.LighterNumOfUsed[player.PlayerId] += Options.LighterAbilityUseGainWithEachTaskCompleted.GetFloat();
-            }
-            if (player.Is(CustomRoles.SecurityGuard) && player.IsAlive())
-            {
-                Main.SecurityGuardNumOfUsed[player.PlayerId] += Options.SecurityGuardAbilityUseGainWithEachTaskCompleted.GetFloat();
-            }
-            if (player.Is(CustomRoles.Ventguard) && player.IsAlive())
-            {
-                Main.VentguardNumberOfAbilityUses += Options.VentguardAbilityUseGainWithEachTaskCompleted.GetFloat();
-            }
-            if (player.Is(CustomRoles.DovesOfNeace) && player.IsAlive())
-            {
-                Main.DovesOfNeaceNumOfUsed[player.PlayerId] += Options.DovesOfNeaceAbilityUseGainWithEachTaskCompleted.GetFloat();
-            }
-            if (player.Is(CustomRoles.TimeMaster) && player.IsAlive())
-            {
-                Main.TimeMasterNumOfUsed[player.PlayerId] += Options.TimeMasterAbilityUseGainWithEachTaskCompleted.GetFloat();
-            }
-            if (player.Is(CustomRoles.Mediumshiper) && player.IsAlive())
-            {
-                Mediumshiper.ContactLimit[player.PlayerId] += Mediumshiper.MediumAbilityUseGainWithEachTaskCompleted.GetFloat();
-            }
-            if (player.Is(CustomRoles.ParityCop) && player.IsAlive())
-            {
-                ParityCop.MaxCheckLimit[player.PlayerId] += ParityCop.ParityAbilityUseGainWithEachTaskCompleted.GetFloat();
-            }
-            if (player.Is(CustomRoles.Oracle) && player.IsAlive())
-            {
-                Oracle.CheckLimit[player.PlayerId] += Oracle.OracleAbilityUseGainWithEachTaskCompleted.GetFloat();
-            }
-            if (player.Is(CustomRoles.SabotageMaster) && player.IsAlive())
-            {
-                SabotageMaster.UsedSkillCount -= SabotageMaster.SMAbilityUseGainWithEachTaskCompleted.GetFloat();
-            }
-            if (player.Is(CustomRoles.Tracker) && player.IsAlive())
-            {
-                Tracker.TrackLimit[player.PlayerId] += Tracker.TrackerAbilityUseGainWithEachTaskCompleted.GetFloat();
-            }
-            if (player.Is(CustomRoles.Bloodhound) && player.IsAlive())
-            {
-                Bloodhound.UseLimit[player.PlayerId] += Bloodhound.BloodhoundAbilityUseGainWithEachTaskCompleted.GetFloat();
-            }
-            if (player.Is(CustomRoles.Chameleon) && player.IsAlive())
-            {
-                Chameleon.UseLimit[player.PlayerId] += Chameleon.ChameleonAbilityUseGainWithEachTaskCompleted.GetFloat();
-            }
-            if (player.Is(CustomRoles.NiceSwapper) && player.IsAlive())
-            {
-                NiceSwapper.NiceSwappermax[player.PlayerId] += NiceSwapper.NiceSwapperAbilityUseGainWithEachTaskCompleted.GetFloat();
+                switch (player.GetCustomRole())
+                {
+                    case CustomRoles.Divinator:
+                        Divinator.CheckLimit[player.PlayerId] += Divinator.AbilityUseGainWithEachTaskCompleted.GetFloat();
+                        break;
+                    case CustomRoles.Veteran:
+                        Main.VeteranNumOfUsed[player.PlayerId] += Options.VeteranAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        break;
+                    case CustomRoles.Grenadier:
+                        Main.GrenadierNumOfUsed[player.PlayerId] += Options.GrenadierAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        break;
+                    case CustomRoles.Lighter:
+                        Main.LighterNumOfUsed[player.PlayerId] += Options.LighterAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        break;
+                    case CustomRoles.SecurityGuard:
+                        Main.SecurityGuardNumOfUsed[player.PlayerId] += Options.SecurityGuardAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        break;
+                    case CustomRoles.Ventguard:
+                        Main.VentguardNumberOfAbilityUses += Options.VentguardAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        break;
+                    case CustomRoles.DovesOfNeace:
+                        Main.DovesOfNeaceNumOfUsed[player.PlayerId] += Options.DovesOfNeaceAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        break;
+                    case CustomRoles.TimeMaster:
+                        Main.TimeMasterNumOfUsed[player.PlayerId] += Options.TimeMasterAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        break;
+                    case CustomRoles.Mediumshiper:
+                        Mediumshiper.ContactLimit[player.PlayerId] += Mediumshiper.MediumAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        break;
+                    case CustomRoles.ParityCop:
+                        ParityCop.MaxCheckLimit[player.PlayerId] += ParityCop.ParityAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        break;
+                    case CustomRoles.Oracle:
+                        Oracle.CheckLimit[player.PlayerId] += Oracle.OracleAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        break;
+                    case CustomRoles.SabotageMaster:
+                        SabotageMaster.UsedSkillCount -= SabotageMaster.SMAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        break;
+                    case CustomRoles.Tracker:
+                        Tracker.TrackLimit[player.PlayerId] += Tracker.TrackerAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        break;
+                    case CustomRoles.Bloodhound:
+                        Bloodhound.UseLimit[player.PlayerId] += Bloodhound.BloodhoundAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        break;
+                    case CustomRoles.Chameleon:
+                        Chameleon.UseLimit[player.PlayerId] += Chameleon.ChameleonAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        break;
+                    case CustomRoles.NiceSwapper:
+                        NiceSwapper.NiceSwappermax[player.PlayerId] += NiceSwapper.NiceSwapperAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        break;
+                    case CustomRoles.Doormaster:
+                        Doormaster.UseLimit[player.PlayerId] += Doormaster.DoormasterAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        break;
+                    case CustomRoles.Ricochet:
+                        Ricochet.UseLimit[player.PlayerId] += Ricochet.RicochetAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        break;
+                }
             }
             if (player.Is(CustomRoles.Express) && player.IsAlive())
             {

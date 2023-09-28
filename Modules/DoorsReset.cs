@@ -38,7 +38,7 @@ public static class DoorsReset
         }
     }
     /// <summary>マップ上の全ドアを開放</summary>
-    private static void OpenAllDoors()
+    public static void OpenAllDoors()
     {
         foreach (var door in ShipStatus.Instance.AllDoors)
         {
