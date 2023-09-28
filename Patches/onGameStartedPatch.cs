@@ -223,6 +223,8 @@ internal class ChangeRoleSettings
             Workhorse.Init();
             Pelican.Init();
             //Counterfeiter.Init();
+            Tether.Init();
+            Aid.Init();
             Pursuer.Init();
             Gangster.Init();
             Medic.Init();
@@ -235,8 +237,11 @@ internal class ChangeRoleSettings
             QuickShooter.Init();
             Camouflager.Init();
             Divinator.Init();
+            Doormaster.Init();
+            Ricochet.Init();
             Oracle.Init();
             Eraser.Init();
+            Spy.Init();
             NiceEraser.Init();
             Assassin.Init();
             Undertaker.Init();
@@ -622,9 +627,15 @@ internal class SelectRolesPatch
                     case CustomRoles.Pelican:
                         Pelican.Add(pc.PlayerId);
                         break;
+                    case CustomRoles.Tether:
+                        Tether.Add(pc.PlayerId);
+                        break;
                     //case CustomRoles.Counterfeiter:
                     //    Counterfeiter.Add(pc.PlayerId);
                     //    break;
+                    case CustomRoles.Aid:
+                        Aid.Add(pc.PlayerId);
+                        break;
                     case CustomRoles.Pursuer:
                         Pursuer.Add(pc.PlayerId);
                         break;
@@ -642,6 +653,12 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Divinator:
                         Divinator.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Ricochet:
+                        Ricochet.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Doormaster:
+                        Doormaster.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Oracle:
                         Oracle.Add(pc.PlayerId);
@@ -679,6 +696,9 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Eraser:
                         Eraser.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Spy:
+                        Spy.Add(pc.PlayerId);
                         break;
                     case CustomRoles.NiceEraser:
                         NiceEraser.Add(pc.PlayerId);

@@ -96,6 +96,12 @@ class CheckForEndVotingPatch
                             case CustomRoles.Eraser:
                                 Eraser.OnVote(pc, voteTarget);
                                 break;
+                            case CustomRoles.Tether:
+                                Tether.OnVote(pc, voteTarget);
+                                break;
+                            case CustomRoles.Ricochet:
+                                Ricochet.OnVote(pc, voteTarget);
+                                break;
                             case CustomRoles.Cleanser:
                                 Cleanser.OnVote(pc, voteTarget);
                                 break;

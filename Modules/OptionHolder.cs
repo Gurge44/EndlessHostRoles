@@ -1317,6 +1317,12 @@ public static class Options
         Doormaster.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nRicochet";
         Ricochet.SetupCustomOption();
+        RoleLoadingText = "Crewmate roles\nAid";
+        Aid.SetupCustomOption();
+        RoleLoadingText = "Crewmate roles\nTether";
+        Tether.SetupCustomOption();
+        RoleLoadingText = "Crewmate roles\nSpy";
+        Spy.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nExpress";
         SetupRoleOptions(5585, TabGroup.CrewmateRoles, CustomRoles.Express);
         ExpressSpeed = FloatOptionItem.Create(5587, "ExpressSpeed", new(0.25f, 5f, 0.25f), 1.5f, TabGroup.CrewmateRoles, false)

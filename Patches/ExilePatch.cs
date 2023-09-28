@@ -160,6 +160,8 @@ class ExileControllerWrapUpPatch
                 CustomRoles.Chameleon or
                 CustomRoles.Engineer or
                 CustomRoles.Grenadier or
+                CustomRoles.Doormaster or
+                CustomRoles.Tether or
                 CustomRoles.Lighter or
                 CustomRoles.SecurityGuard or
                 CustomRoles.Ventguard or

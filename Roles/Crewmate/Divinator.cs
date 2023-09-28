@@ -122,6 +122,7 @@ public static class Divinator
                 //CustomRoles.Reverie or
                 CustomRoles.SecurityGuard or
                 CustomRoles.Sans or
+                CustomRoles.Ricochet or
                 CustomRoles.Minimalism or
                 CustomRoles.OverKiller
                 => "Result5",
@@ -181,6 +182,7 @@ public static class Divinator
                 CustomRoles.Zombie or
                 CustomRoles.CyberStar or
                 CustomRoles.SuperStar or
+                CustomRoles.Doormaster or
                 CustomRoles.Deathpact or
                 CustomRoles.Devourer
                 => "Result12",
@@ -197,6 +199,7 @@ public static class Divinator
                 CustomRoles.Mayor or
                 CustomRoles.Paranoia or
                 CustomRoles.Pickpocket or
+                CustomRoles.Spy or
                 CustomRoles.Vindicator
                 => "Result14",
 
@@ -304,6 +307,7 @@ public static class Divinator
                 CustomRoles.TimeMaster or
                 CustomRoles.TimeThief or
                 CustomRoles.ShapeMaster or
+                CustomRoles.Tether or
                 CustomRoles.Sniper
                 => "Result27",
 
@@ -312,6 +316,7 @@ public static class Divinator
                 CustomRoles.Deputy or
                 CustomRoles.Transporter or
                 CustomRoles.Twister or
+                CustomRoles.Aid or
                 CustomRoles.SerialKiller
                 => "Result28",
 

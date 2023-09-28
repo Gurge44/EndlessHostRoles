@@ -180,6 +180,7 @@ class HudManagerPatch
                     case CustomRoles.FFF:
                         __instance.KillButton.OverrideText(GetString("FFFButtonText"));
                         break;
+                    case CustomRoles.Aid:
                     case CustomRoles.Medic:
                         __instance.KillButton.OverrideText(GetString("MedicalerButtonText"));
                         break;

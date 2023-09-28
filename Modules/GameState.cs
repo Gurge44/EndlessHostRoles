@@ -476,6 +476,12 @@ public class TaskState
                     case CustomRoles.Ricochet:
                         Ricochet.UseLimit[player.PlayerId] += Ricochet.RicochetAbilityUseGainWithEachTaskCompleted.GetFloat();
                         break;
+                    case CustomRoles.Tether:
+                        Tether.UseLimit[player.PlayerId] += Tether.TetherAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        break;
+                    case CustomRoles.Spy:
+                        Spy.UseLimit[player.PlayerId] += Spy.SpyAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        break;
                 }
             }
             if (player.Is(CustomRoles.Express) && player.IsAlive())

@@ -511,6 +511,7 @@ public static class Utils
             case CustomRoles.Virus:
             case CustomRoles.Farseer:
             //case CustomRoles.Counterfeiter:
+            case CustomRoles.Aid:
             case CustomRoles.Witness:
             case CustomRoles.Pursuer:
             case CustomRoles.Spiritcaller:
@@ -980,6 +981,15 @@ public static class Utils
             //case CustomRoles.Counterfeiter:
             //    ProgressText.Append(Counterfeiter.GetSeelLimit(playerId));
             //    break;
+            case CustomRoles.Tether:
+                ProgressText.Append(Tether.GetProgressText(playerId, comms));
+                break;
+            case CustomRoles.Spy:
+                ProgressText.Append(Spy.GetProgressText(playerId, comms));
+                break;
+            case CustomRoles.Aid:
+                ProgressText.Append(Aid.GetProgressText(playerId, comms));
+                break;
             case CustomRoles.Pursuer:
                 ProgressText.Append(Pursuer.GetSeelLimit(playerId));
                 break;

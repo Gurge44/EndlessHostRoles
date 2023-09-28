@@ -900,6 +900,12 @@ internal static class RPC
             //case CustomRoles.Counterfeiter:
             //    Counterfeiter.Add(targetId);
             //    break;
+            case CustomRoles.Tether:
+                Tether.Add(targetId);
+                break;
+            case CustomRoles.Aid:
+                Aid.Add(targetId);
+                break;
             case CustomRoles.Pursuer:
                 Pursuer.Add(targetId);
                 break;
@@ -914,6 +920,12 @@ internal static class RPC
                 break;
             case CustomRoles.Divinator:
                 Divinator.Add(targetId);
+                break;
+            case CustomRoles.Doormaster:
+                Doormaster.Add(targetId);
+                break;
+            case CustomRoles.Ricochet:
+                Ricochet.Add(targetId);
                 break;
             case CustomRoles.Oracle:
                 Oracle.Add(targetId);
@@ -945,6 +957,9 @@ internal static class RPC
                 break;
             case CustomRoles.Eraser:
                 Eraser.Add(targetId);
+                break;
+            case CustomRoles.Spy:
+                Spy.Add(targetId);
                 break;
             case CustomRoles.Assassin:
                 Assassin.Add(targetId);

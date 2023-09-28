@@ -187,6 +187,7 @@ public class PlayerGameOptionsSender : GameOptionsSender
             case CustomRoles.Jailor:
             case CustomRoles.Deputy:
             //case CustomRoles.Counterfeiter:
+            case CustomRoles.Aid:
             case CustomRoles.Witness:
             case CustomRoles.Succubus:
             case CustomRoles.CursedSoul:
@@ -203,6 +204,14 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 break;
             case CustomRoles.Refugee:
                 opt.SetVision(true);
+                break;
+            case CustomRoles.Doormaster:
+                AURoleOptions.EngineerCooldown = Doormaster.VentCooldown.GetFloat();
+                AURoleOptions.EngineerInVentMaxTime = 1f;
+                break;
+            case CustomRoles.Tether:
+                AURoleOptions.EngineerCooldown = Tether.VentCooldown.GetFloat();
+                AURoleOptions.EngineerInVentMaxTime = 1f;
                 break;
             case CustomRoles.Monitor:
                 AURoleOptions.EngineerCooldown = 0f;

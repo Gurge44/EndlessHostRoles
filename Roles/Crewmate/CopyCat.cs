@@ -117,6 +117,9 @@ public static class CopyCat
                 case CustomRoles.Paranoia:
                     Main.ParaUsedButtonCount.Remove(player);
                     break;
+                case CustomRoles.Aid:
+                    Aid.UseLimit.Remove(player);
+                    break;
                 case CustomRoles.Snitch:
                     Snitch.IsExposed.Remove(player);
                     Snitch.IsComplete.Remove(player);
@@ -267,6 +270,9 @@ public static class CopyCat
                 case CustomRoles.Merchant:
                     Merchant.addonsSold.Add(pc.PlayerId, 0);
                     Merchant.bribedKiller.Add(pc.PlayerId, new List<byte>());
+                    break;
+                case CustomRoles.Aid:
+                    Aid.UseLimit.Add(pc.PlayerId, Aid.UseLimitOpt.GetInt());
                     break;
                 case CustomRoles.Oracle:
                     Oracle.CheckLimit.TryAdd(pc.PlayerId, Oracle.CheckLimitOpt.GetInt());

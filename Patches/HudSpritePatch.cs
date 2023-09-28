@@ -131,6 +131,7 @@ public static class HudSpritePatch
             case CustomRoles.Puppeteer:
                 newKillButton = CustomButton.Get("Puttpuer");
                 break;
+            case CustomRoles.Aid:
             case CustomRoles.Medic:
                 newKillButton = CustomButton.Get("Shield");
                 break;

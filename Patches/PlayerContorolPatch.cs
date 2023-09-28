@@ -159,6 +159,8 @@ class CheckMurderPatch
             return true;
         }
 
+        if (target.Is(CustomRoles.Spy)) Spy.OnKillAttempt(killer, target);
+
         //実際のキラーとkillerが違う場合の入れ替え処理
         if (Sniper.IsEnable) Sniper.TryGetSniper(target.PlayerId, ref killer);
         if (killer != __instance) Logger.Info($"Real Killer={killer.GetNameWithRole()}", "CheckMurder");
@@ -178,7 +180,9 @@ class CheckMurderPatch
         }
         if (Pursuer.IsEnable && Pursuer.OnClientMurder(killer)) return false;
         if (Addict.IsEnable && Addict.IsImmortal(target)) return false;
+        if (Aid.ShieldedPlayers.ContainsKey(target.PlayerId)) return false;
         if (target.Is(CustomRoles.Vengeance) && !Vengeance.OnKillAttempt(killer, target)) return false;
+        if (target.Is(CustomRoles.Ricochet) && !Ricochet.OnKillAttempt(killer, target)) return false;
         if (Alchemist.IsProtected && target.Is(CustomRoles.Alchemist))
         {
             killer.SetKillCooldown(time: 5f);
@@ -195,7 +199,7 @@ class CheckMurderPatch
                 case CustomRoles.BountyHunter: //必须在击杀发生前处理
                     BountyHunter.OnCheckMurder(killer, target);
                     break;
-                case CustomRoles.Vengeance: //必须在击杀发生前处理
+                case CustomRoles.Vengeance:
                     if (!Vengeance.OnCheckMurder(killer, target)) return false;
                     break;
                 case CustomRoles.Inhibitor:
@@ -211,6 +215,9 @@ class CheckMurderPatch
                         Main.AllPlayerKillCooldown[killer.PlayerId] = Options.SaboteurCD.GetFloat();
                         killer.SyncSettings();
                     }
+                    break;
+                case CustomRoles.Aid:
+                    if (!Aid.OnCheckMurder(killer, target)) return false;
                     break;
                 case CustomRoles.HeadHunter:
                     HeadHunter.OnCheckMurder(killer, target);
@@ -1659,6 +1666,7 @@ class ReportDeadBodyPatch
         if (Pelican.IsEnable) Pelican.OnReportDeadBody();
         if (Agitater.IsEnable) Agitater.OnReportDeadBody();
         //if (Counterfeiter.IsEnable) Counterfeiter.OnReportDeadBody();
+        if (Tether.IsEnable) Tether.OnReportDeadBody();
         if (QuickShooter.IsEnable) QuickShooter.OnReportDeadBody();
         if (Eraser.IsEnable) Eraser.OnReportDeadBody();
         if (NiceEraser.IsEnable) NiceEraser.OnReportDeadBody();
@@ -1675,6 +1683,7 @@ class ReportDeadBodyPatch
         if (BallLightning.IsEnable) BallLightning.OnReportDeadBody();
         if (Romantic.IsEnable) Romantic.OnReportDeadBody();
         if (Jailor.IsEnable) Jailor.OnReportDeadBody();
+        if (Ricochet.IsEnable) Ricochet.OnReportDeadBody();
 
         if (Mortician.IsEnable) Mortician.OnReportDeadBody(player, target);
         if (Tracefinder.IsEnable) Tracefinder.OnReportDeadBody(player, target);
@@ -1832,6 +1841,8 @@ class FixedUpdatePatch
             if (player.Is(CustomRoles.Poisoner)) Poisoner.OnFixedUpdate(player);
             if (player.Is(CustomRoles.BountyHunter) && !lowLoad) BountyHunter.FixedUpdate(player);
             if (player.Is(CustomRoles.Glitch) && !lowLoad) Glitch.UpdateHackCooldown(player);
+            if (player.Is(CustomRoles.Aid) && !lowLoad) Aid.OnFixedUpdate(player);
+            if (player.Is(CustomRoles.Spy) && !lowLoad) Spy.OnFixedUpdate(player);
             if (player.Is(CustomRoles.SerialKiller)) SerialKiller.FixedUpdate(player);
             if (GameStates.IsInTask && PlagueBearer.IsEnable)
                 if (player.Is(CustomRoles.PlagueBearer) && PlagueBearer.IsPlaguedAll(player))
@@ -2796,8 +2807,10 @@ class EnterVentPatch
         if (Addict.IsEnable) Addict.OnEnterVent(pc, __instance);
         if (Alchemist.IsEnable) Alchemist.OnEnterVent(pc, __instance.Id);
         if (Chameleon.IsEnable) Chameleon.OnEnterVent(pc, __instance);
+        if (Tether.IsEnable) Tether.OnEnterVent(pc, __instance.Id);
         if (Werewolf.IsEnable) Werewolf.OnEnterVent(pc);
         if (Lurker.IsEnable()) Lurker.OnEnterVent(pc);
+        if (Doormaster.IsEnable) Doormaster.OnEnterVent(pc);
 
         if (pc.GetCustomRole() == CustomRoles.Ventguard)
         {

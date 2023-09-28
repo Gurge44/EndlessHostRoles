@@ -1,17 +1,17 @@
 namespace TOHE.Roles.Crewmate
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text;
     using TOHE.Modules;
     using UnityEngine;
-    using System;
     using static TOHE.Options;
     using static TOHE.Utils;
-    using System.Text;
 
     public static class Doormaster
     {
-        private static readonly int Id = 6400;
+        private static readonly int Id = 640000;
         private static List<byte> playerIdList = new();
         public static Dictionary<byte, float> UseLimit = new();
 
@@ -22,11 +22,11 @@ namespace TOHE.Roles.Crewmate
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Doormaster);
-            VentCooldown = FloatOptionItem.Create(Id + 11, "VentCooldown", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Doormaster])
+            VentCooldown = FloatOptionItem.Create(Id + 10, "VentCooldown", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Doormaster])
                 .SetValueFormat(OptionFormat.Seconds);
-            UseLimitOpt = IntegerOptionItem.Create(Id + 12, "AbilityUseLimit", new(1, 20, 1), 1, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Doormaster])
+            UseLimitOpt = IntegerOptionItem.Create(Id + 11, "AbilityUseLimit", new(1, 20, 1), 1, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Doormaster])
             .SetValueFormat(OptionFormat.Times);
-            DoormasterAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 13, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
+            DoormasterAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Doormaster])
             .SetValueFormat(OptionFormat.Times);
         }
@@ -44,9 +44,17 @@ namespace TOHE.Roles.Crewmate
         public static void OnEnterVent(PlayerControl pc)
         {
             if (pc == null) return;
+            if (!pc.Is(CustomRoles.Doormaster)) return;
 
-            DoorsReset.OpenAllDoors();
-            UseLimit[pc.PlayerId] -= 1;
+            if (UseLimit[pc.PlayerId] >= 1)
+            {
+                UseLimit[pc.PlayerId] -= 1;
+                DoorsReset.OpenAllDoors();
+            }
+            else
+            {
+                pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
+            }
         }
         public static string GetProgressText(byte playerId, bool comms)
         {
@@ -59,9 +67,11 @@ namespace TOHE.Roles.Crewmate
             var NormalColor = taskState.IsTaskFinished ? TaskCompleteColor : NonCompleteColor;
             TextColor = comms ? Color.gray : NormalColor;
             string Completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
+
             Color TextColor1;
             if (UseLimit[playerId] < 1) TextColor1 = Color.red;
             else TextColor1 = Color.white;
+
             sb.Append(ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
             sb.Append(ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));
 

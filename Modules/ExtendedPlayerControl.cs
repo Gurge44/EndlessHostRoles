@@ -471,7 +471,7 @@ static class ExtendedPlayerControl
             CustomRoles.Pelican => pc.IsAlive(),
             CustomRoles.Arsonist => Options.ArsonistCanIgniteAnytime.GetBool() ? Utils.GetDousedPlayerCount(pc.PlayerId).Item1 < Options.ArsonistMaxPlayersToIgnite.GetInt() : !pc.IsDouseDone(),
             CustomRoles.Revolutionist => !pc.IsDrawDone(),
-            CustomRoles.SwordsMan => pc.IsAlive(),
+            CustomRoles.SwordsMan => pc.IsAlive() && !SwordsMan.IsKilled(pc.PlayerId),
             CustomRoles.Jackal => pc.IsAlive(),
             CustomRoles.Sidekick => pc.IsAlive(),
             CustomRoles.HexMaster => pc.IsAlive(),
@@ -502,6 +502,7 @@ static class ExtendedPlayerControl
             CustomRoles.Nuker => false,
             CustomRoles.Innocent => pc.IsAlive(),
             //CustomRoles.Counterfeiter => Counterfeiter.CanUseKillButton(pc.PlayerId),
+            CustomRoles.Aid => pc.IsAlive() && Aid.UseLimit[pc.PlayerId] >= 1,
             CustomRoles.Witness => pc.IsAlive(),
             CustomRoles.Pursuer => Pursuer.CanUseKillButton(pc.PlayerId),
             CustomRoles.Morphling => Morphling.CanUseKillButton(pc.PlayerId),
@@ -509,7 +510,7 @@ static class ExtendedPlayerControl
             CustomRoles.Medic => Medic.CanUseKillButton(pc.PlayerId),
             CustomRoles.Gamer => pc.IsAlive(),
             CustomRoles.DarkHide => DarkHide.CanUseKillButton(pc),
-            CustomRoles.Provocateur => pc.IsAlive(),
+            CustomRoles.Provocateur => pc.IsAlive() && !Main.Provoked.ContainsKey(pc.PlayerId),
             CustomRoles.Assassin => Assassin.CanUseKillButton(pc),
             CustomRoles.Undertaker => Undertaker.CanUseKillButton(pc),
             CustomRoles.BloodKnight => pc.IsAlive(),
@@ -633,6 +634,7 @@ static class ExtendedPlayerControl
             CustomRoles.Innocent or
             CustomRoles.Pelican or
             //CustomRoles.Counterfeiter or
+            CustomRoles.Aid or
             CustomRoles.Pursuer or
             CustomRoles.Revolutionist or
             CustomRoles.FFF or
@@ -878,6 +880,9 @@ static class ExtendedPlayerControl
             //case CustomRoles.Counterfeiter:
             //    Counterfeiter.SetKillCooldown(player.PlayerId);
             //    break;
+            case CustomRoles.Aid:
+                Aid.SetKillCooldown(player.PlayerId);
+                break;
             case CustomRoles.Witness:
                 Main.AllPlayerKillCooldown[player.PlayerId] = Options.WitnessCD.GetFloat();
                 break;
