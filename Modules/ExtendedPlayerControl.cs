@@ -209,7 +209,7 @@ static class ExtendedPlayerControl
         else Main.AllPlayerKillCooldown[player.PlayerId] *= 2;
         if (player.Is(CustomRoles.Glitch))
         {
-            Glitch.LastKill = Utils.GetTimeStamp() - ((int)(time / 2) - Glitch.KillCooldown.GetInt());
+            Glitch.LastKill = Utils.GetTimeStamp() + ((int)(time / 2) - Glitch.KillCooldown.GetInt());
             Glitch.KCDTimer = (int)(time / 2);
         }
         else if (forceAnime || !player.IsModClient() || !Options.DisableShieldAnimations.GetBool())

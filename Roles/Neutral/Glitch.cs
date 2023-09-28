@@ -67,13 +67,15 @@ public static class Glitch
 
         isShifted = false;
 
-        LastKill = Utils.GetTimeStamp() + StartingKillCooldown.GetInt() - 10; // Starting Kill Cooldown is synced with the setting
-        LastHack = Utils.GetTimeStamp() + HackCooldown.GetInt();
-        LastMimic = Utils.GetTimeStamp() + MimicCooldown.GetInt();
+        var ts = Utils.GetTimeStamp();
 
-        _ = new LateTask(() => { LastKill = Utils.GetTimeStamp() - KillCooldown.GetInt() + StartingKillCooldown.GetInt(); }, 8f, "GlitchStartingKCD");
-        _ = new LateTask(() => { LastHack = Utils.GetTimeStamp(); }, 8f, "GlitchStartingHackCD");
-        _ = new LateTask(() => { LastMimic = Utils.GetTimeStamp(); }, 8f, "GlitchStartingMimicCD");
+        LastKill = ts; // Starting Kill Cooldown is synced with the setting
+        LastHack = ts;
+        LastMimic = ts;
+
+        _ = new LateTask(() => { LastKill = ts - KillCooldown.GetInt() + StartingKillCooldown.GetInt(); }, 8f, "GlitchStartingKCD");
+        _ = new LateTask(() => { LastHack = ts; }, 8f, "GlitchStartingHackCD");
+        _ = new LateTask(() => { LastMimic = ts; }, 8f, "GlitchStartingMimicCD");
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
