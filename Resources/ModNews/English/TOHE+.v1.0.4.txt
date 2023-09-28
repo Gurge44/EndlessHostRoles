@@ -1,0 +1,16 @@
+
+#Number:100063
+#Title:TOHE PLUS v1.0.4
+#SubTitle:★★★★Urgent Protocol Update★★★★
+#ShortTitle:★TOHE+ v1.0.4
+#Date:2023-9-28T00:00:00Z
+#-----------------------------
+
+## Thank you for using TOHE+!
+
+## Fixes
+- Server Protocol Updated for Map 5
+- Optimized The Glitch's code
+
+## New Roles and Settings
+- Setting: The Glitch Can Vote
