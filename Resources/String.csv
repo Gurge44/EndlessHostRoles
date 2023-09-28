@@ -1394,6 +1394,7 @@
 "MimicDur","","<color=#ffff00>Mimic Duration:</color> <color=#ffffff><b>{0}</b>s</color>","","",""
 "KCD","","<color=#ff1919>Kill CD:</color> <color=#ffffff><b>{0}</b>s</color>","","",""
 "AfterMeetingKillCooldown","","Kill Cooldown after meetings","","",""
+"CanVote","","Can Vote","","",""
 "WaitFor1Kill","","Suicide Timer starts after First Kill","","",""
 "TriggerVent","通风管","Vent","Вентиляция","通風口","通风管"
 "TriggerDouble","双击模式","Double Click","Двойное нажатие","連點兩下","双击模式"
