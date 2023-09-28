@@ -69,13 +69,9 @@ public static class Glitch
 
         var ts = Utils.GetTimeStamp();
 
-        LastKill = ts; // Starting Kill Cooldown is synced with the setting
+        LastKill = ts;
         LastHack = ts;
         LastMimic = ts;
-
-        _ = new LateTask(() => { LastKill = ts - KillCooldown.GetInt() + StartingKillCooldown.GetInt(); }, 8f, "GlitchStartingKCD");
-        _ = new LateTask(() => { LastHack = ts; }, 8f, "GlitchStartingHackCD");
-        _ = new LateTask(() => { LastMimic = ts; }, 8f, "GlitchStartingMimicCD");
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
@@ -228,10 +224,10 @@ public static class Glitch
 
         var sb = new StringBuilder();
 
-        if (MimicDurTimer > 0) sb.Append($"\n{string.Format(Translator.GetString("MimicDur"), MimicDurTimer)}");
-        if (MimicCDTimer > 0 && MimicDurTimer <= 0) sb.Append($"\n{string.Format(Translator.GetString("MimicCD"), MimicCDTimer)}");
-        if (HackCDTimer > 0) sb.Append($"\n{string.Format(Translator.GetString("HackCD"), HackCDTimer)}");
-        if (KCDTimer > 0) sb.Append($"\n{string.Format(Translator.GetString("KCD"), KCDTimer)}");
+        if (MimicDurTimer > 0) sb.Append($"{string.Format(Translator.GetString("MimicDur"), MimicDurTimer)}\n");
+        if (MimicCDTimer > 0 && MimicDurTimer <= 0) sb.Append($"{string.Format(Translator.GetString("MimicCD"), MimicCDTimer)}\n");
+        if (HackCDTimer > 0) sb.Append($"{string.Format(Translator.GetString("HackCD"), HackCDTimer)}\n");
+        if (KCDTimer > 0) sb.Append($"{string.Format(Translator.GetString("KCD"), KCDTimer)}\n");
 
         return sb.ToString();
     }

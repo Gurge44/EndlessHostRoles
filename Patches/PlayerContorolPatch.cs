@@ -1775,7 +1775,7 @@ class FixedUpdatePatch
 
         if (Options.LowLoadMode.GetBool())
         {
-            BufferTime.TryAdd(player.PlayerId, IRandom.Instance.Next(5, 15));
+            BufferTime.TryAdd(player.PlayerId, 10);
             BufferTime[player.PlayerId]--;
             if (BufferTime[player.PlayerId] % 2 == 1 && Options.DeepLowLoad.GetBool()) return;
         }
@@ -1793,7 +1793,7 @@ class FixedUpdatePatch
         if (Options.LowLoadMode.GetBool())
         {
             if (BufferTime[player.PlayerId] > 0) lowLoad = true;
-            else BufferTime[player.PlayerId] = IRandom.Instance.Next(5, 15);
+            else BufferTime[player.PlayerId] = 10;
         }
 
         if (Sniper.IsEnable) Sniper.OnFixedUpdate(player);
