@@ -54,8 +54,6 @@ class RepairSystemPatch
         //Note: "SystemTypes.Laboratory" сauses bugs in the Host, it is better not to use
         if (player.Is(CustomRoles.Fool) &&
             (systemType is
-            SystemTypes.Reactor or
-            SystemTypes.LifeSupp or
             SystemTypes.Comms or
             SystemTypes.Electrical))
         { return false; }
@@ -100,7 +98,7 @@ class RepairSystemPatch
 
         if (systemType == SystemTypes.Sabotage && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay)
         {
-            if (Main.BlockSabo.Any() && player.Is(CustomRoleTypes.Impostor)) return false;
+            if (Main.BlockSabo.Any()) return false;
             if (player.Is(CustomRoles.Glitch))
             {
                 Glitch.Mimic(player);
@@ -165,31 +163,21 @@ class RepairSystemPatch
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.CloseDoorsOfType))]
 class CloseDoorsPatch
 {
-    public static bool Prefix(ShipStatus __instance, object[] __args)
+    public static bool Prefix(ShipStatus __instance, SystemTypes room)
     {
-        Logger.Warn(__args[0].ToString(), "DoorClose");
+        if (Main.BlockSabo.Any()) return false;
 
-        if (!(Options.DisableSabotage.GetBool() || Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA))
-            return false;
-
-        var pc = PlayerControl.LocalPlayer;
-
-        if (pc == null) return false;
-
-        if (pc.Is(CustomRoles.Glitch))
-        {
-            Glitch.Mimic(pc);
-            return false;
-        }
-
-        if (pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoles.Parasite) || pc.Is(CustomRoles.Refugee) || (pc.Is(CustomRoles.Jackal) && Jackal.CanUseSabotage.GetBool()) || (pc.Is(CustomRoles.Traitor) && Traitor.CanUseSabotage.GetBool()))
-            return true;
-        else return false;
+        return !Options.DisableSabotage.GetBool() && Options.CurrentGameMode != CustomGameMode.SoloKombat && Options.CurrentGameMode != CustomGameMode.FFA;
     }
 }
 [HarmonyPatch(typeof(SwitchSystem), nameof(SwitchSystem.RepairDamage))]
 class SwitchSystemRepairPatch
 {
+    public static bool Prefix(SwitchSystem __instance, [HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] byte amount)
+    {
+        if (player.Is(CustomRoles.Fool)) return false;
+        else return true;
+    }
     public static void Postfix(SwitchSystem __instance, [HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] byte amount)
     {
         if (player.Is(CustomRoles.SabotageMaster))

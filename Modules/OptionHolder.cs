@@ -1181,9 +1181,9 @@ public static class Options
         RoleLoadingText = "Impostor roles\nEscapist";
 
         SetupRoleOptions(3600, TabGroup.ImpostorRoles, CustomRoles.Escapee);
-        EscapeeSSDuration = FloatOptionItem.Create(3610, "ShapeshiftDuration", new(1f, 180f, 1f), 1, TabGroup.ImpostorRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Escapee])
-            .SetValueFormat(OptionFormat.Seconds);
+        //EscapeeSSDuration = FloatOptionItem.Create(3610, "ShapeshiftDuration", new(1f, 180f, 1f), 1, TabGroup.ImpostorRoles, false)
+        //    .SetParent(CustomRoleSpawnChances[CustomRoles.Escapee])
+        //    .SetValueFormat(OptionFormat.Seconds);
         EscapeeSSCD = FloatOptionItem.Create(3611, "ShapeshiftCooldown", new(1f, 180f, 1f), 5f, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Escapee])
             .SetValueFormat(OptionFormat.Seconds);
@@ -1197,9 +1197,9 @@ public static class Options
             .SetValueFormat(OptionFormat.Seconds);
         RoleLoadingText = "Impostor roles\nMiner";
         SetupRoleOptions(3800, TabGroup.ImpostorRoles, CustomRoles.Miner);
-        MinerSSDuration = FloatOptionItem.Create(3810, "ShapeshiftDuration", new(1f, 180f, 1f), 1, TabGroup.ImpostorRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Miner])
-            .SetValueFormat(OptionFormat.Seconds);
+        //MinerSSDuration = FloatOptionItem.Create(3810, "ShapeshiftDuration", new(1f, 180f, 1f), 1, TabGroup.ImpostorRoles, false)
+        //    .SetParent(CustomRoleSpawnChances[CustomRoles.Miner])
+        //    .SetValueFormat(OptionFormat.Seconds);
         MinerSSCD = FloatOptionItem.Create(3811, "ShapeshiftCooldown", new(1f, 180f, 1f), 15f, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Miner])
             .SetValueFormat(OptionFormat.Seconds);
@@ -1230,9 +1230,9 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock]);
         WarlockCanKillSelf = BooleanOptionItem.Create(4611, "CanKillSelf", false, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock]);
-        WarlockShiftDuration = FloatOptionItem.Create(4612, "ShapeshiftDuration", new(1, 180, 1), 1, TabGroup.ImpostorRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock])
-            .SetValueFormat(OptionFormat.Seconds);
+        //WarlockShiftDuration = FloatOptionItem.Create(4612, "ShapeshiftDuration", new(1, 180, 1), 1, TabGroup.ImpostorRoles, false)
+        //    .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock])
+        //    .SetValueFormat(OptionFormat.Seconds);
         RoleLoadingText = "Impostor roles\nWildling";
         Wildling.SetupCustomOption();
 

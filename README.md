@@ -26,7 +26,7 @@
 <br>
 
 ## Additions, Changes, and improvements compared to TOHRE
-- Note: The goal with this branch is to improve the existing stuff over adding new roles. Some of the new stuff listed below are ported into TOHRE by me.
+- Note: The goal with this branch is to improve the existing stuff over adding new roles. If some of the stuff you see below are in TOHRE, they were originally coded by me.
 ### New gamemode
 - A brand new official gamemode, Basic FFA (Free For All)
 - This mode makes everyone a killer and the last player alive wins
@@ -34,6 +34,7 @@
 ### Overall improvements
 - Gain more ability uses for completing tasks as crewmate roles
 - Gain more ability uses for getting kills as impostor roles
+- Most shapeshifting roles that only used shapeshifting as an ability trigger or a target selector, now no longer actually shapeshift! It is canceled after selecting the target, but the effect is still applied!
 - Prevent kills while shifted when no abiltiy uses are left for some roles (Sniper, Twister, Disperser, Hangman, Camouflager, etc.)
 - Code cleanup and major performance improvement
 - Improved EAC
@@ -65,7 +66,7 @@
 - Tracefinder: Settings that determine the delay in which the arrows show up
 - Bodyguard: Setting whether the murderer dies when the bodyguard protects the target
 #### Impostors
-- Assassin: Kill Cooldown no longer resets when unshifting
+- Ninja: Kill Cooldown no longer resets when unshifting
 - Bounty Hunter: Target's name is displayed in black for the Bounty Hunter; Swap Timer is displayed next to the role name, not on the Shapeshift button => Changed the basis to regular Impostor
 - Eraser: Erase by Voting or by Kill Button & What to do when target is neutral
 - Hangman: Kill Cooldown after strangling
@@ -98,6 +99,11 @@
 - Speedrunner (Crewmate)
 - Ignitor (Crewmate)
 - Security Guard (Crewmate)
+- Aid (Crewmate)
+- Spy (Crewmate)
+- Tether (Crewmate)
+- Ricochet (Crewmate)
+- Door Master (Crewmate)
 - Romantic (Neutral)
 - Werewolf (Neutral)
 - Imitator (Neutral)
@@ -115,9 +121,13 @@
 <br>
 
 ## Credit to these mods and their developers for the code and help:
+### :star: [TOHRE](https://github.com/Loonie-Toons/Re-Edited) :
+> 
+> - Our repo is forked from TOHRE
+> 
 ### :star: [TOHE](https://github.com/KARPED1EM/TownOfHostEdited) :
 > 
-> - Our repo is forked from TOHE
+> - Our repo is a continuation of TOHE
 > 
 ### :star: [TOH](https://github.com/tukasa0001/TownOfHost) :
 > 

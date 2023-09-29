@@ -84,13 +84,14 @@ internal static class Assassin
         }
     }
 
-    public static void OnShapeshift(PlayerControl pc, bool shapeshifting)
+    public static bool OnShapeshift(PlayerControl pc, PlayerControl ssTarget, bool shapeshifting)
     {
-        if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId) || Medic.ProtectList.Contains(pc.PlayerId)) return;
+        if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId) || Medic.ProtectList.Contains(pc.PlayerId)) return false;
         if (!shapeshifting)
         {
-            //pc.SetKillCooldown();
-            return;
+            pc.RpcRevertShapeshift(false);
+            pc.RpcResetAbilityCooldown();
+            return false;
         }
         if (MarkedPlayer.ContainsKey(pc.PlayerId))
         {
@@ -107,7 +108,14 @@ internal static class Assassin
                     pc.SetKillCooldown();
                     pc.RpcCheckAndMurder(target);
                 }
-            }, 1.5f, "Assassin Assassinate");
+            }, 0.25f, "Assassin Assassinate");
+            pc.RpcShapeshift(ssTarget, false);
+            return false;
+        }
+        else
+        {
+            pc.RpcShapeshift(ssTarget, false);
+            return false;
         }
     }
     public static void SetKillButtonText(byte playerId)

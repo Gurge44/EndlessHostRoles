@@ -1327,7 +1327,7 @@ class ShapeshiftPatch
                 isSSneeded = false;
                 break;
             case CustomRoles.Assassin:
-                Assassin.OnShapeshift(shapeshifter, shapeshifting);
+                isSSneeded = Assassin.OnShapeshift(shapeshifter, target, shapeshifting);
                 break;
             case CustomRoles.Undertaker:
                 Undertaker.OnShapeshift(shapeshifter, shapeshifting);
@@ -1386,6 +1386,7 @@ class ShapeshiftPatch
                 break;
             case CustomRoles.Twister:
                 Twister.TwistPlayers(shapeshifter, shapeshifting);
+                isSSneeded = false;
                 break;
         }
 
@@ -1401,7 +1402,7 @@ class ShapeshiftPatch
 
         if (!isSSneeded) shapeshifter.RpcResetAbilityCooldown();
 
-        if (!shapeshifting) return true;
+        if (!shapeshifting && !shapeshifter.Is(CustomRoles.Assassin) && !shapeshifter.Is(CustomRoles.Twister)) return true;
 
         return isSSneeded;
     }

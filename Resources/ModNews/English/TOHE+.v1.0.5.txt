@@ -1,0 +1,21 @@
+
+#Number:100064
+#Title:TOHE PLUS v1.0.5
+#SubTitle:★★★★Major improvements and New Roles★★★★
+#ShortTitle:★TOHE+ v1.0.5
+#Date:2023-9-29T00:00:00Z
+#-----------------------------
+
+## Thank you for using TOHE+!
+
+## Fixes
+- Added missing strings and fixed some minor bugs
+- Security Guard now prevents door closes while using the ability
+- Most shapeshifting roles that only used shapeshifting as an ability trigger or a target selector now no longer actually shapeshift! It is canceled after selecting the target, but the effect is still applied!
+
+## New Roles and Settings
+- New Role: Aid (Crewmate)
+- New Role: Tether (Crewmate)
+- New Role: Door Master (Crewmate)
+- New Role: Ricochet (Crewmate)
+- New Role: Spy (Crewmate)
