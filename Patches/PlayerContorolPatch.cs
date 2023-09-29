@@ -1150,7 +1150,7 @@ class MurderPlayerPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Shapeshift))]
 class ShapeshiftPatch
 {
-    public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
+    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
         Logger.Info($"{__instance?.GetNameWithRole()} => {target?.GetNameWithRole()}", "Shapeshift");
 
@@ -1160,7 +1160,7 @@ class ShapeshiftPatch
         if (Main.CheckShapeshift.TryGetValue(shapeshifter.PlayerId, out var last) && last == shapeshifting)
         {
             Logger.Info($"{__instance?.GetNameWithRole()}:Cancel Shapeshift.Prefix", "Shapeshift");
-            return;
+            return false;
         }
 
         Main.CheckShapeshift[shapeshifter.PlayerId] = shapeshifting;
@@ -1168,19 +1168,21 @@ class ShapeshiftPatch
 
         if (Sniper.IsEnable) Sniper.OnShapeshift(shapeshifter, shapeshifting);
 
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost) return true;
         if (!shapeshifting) Camouflage.RpcSetSkin(__instance);
 
-        if (Pelican.IsEaten(shapeshifter.PlayerId) || GameStates.IsVoting)
-            goto End;
+        bool isSSneeded = true;
 
+        if (!Pelican.IsEaten(shapeshifter.PlayerId) && !GameStates.IsVoting)
         switch (shapeshifter.GetCustomRole())
         {
             case CustomRoles.EvilTracker:
                 EvilTracker.OnShapeshift(shapeshifter, target, shapeshifting);
+                isSSneeded = false;
                 break;
             case CustomRoles.FireWorks:
                 FireWorks.ShapeShiftState(shapeshifter, shapeshifting);
+                isSSneeded = false;
                 break;
             case CustomRoles.Warlock:
                 if (Main.CursedPlayers[shapeshifter.PlayerId] != null)//呪われた人がいるか確認
@@ -1224,6 +1226,7 @@ class ShapeshiftPatch
                     }
                     Main.CursedPlayers[shapeshifter.PlayerId] = null;
                 }
+                isSSneeded = false;
                 break;
             case CustomRoles.Escapee:
                 if (shapeshifting)
@@ -1241,6 +1244,7 @@ class ShapeshiftPatch
                         Main.EscapeeLocation.Add(shapeshifter.PlayerId, shapeshifter.GetTruePosition());
                     }
                 }
+                isSSneeded = false;
                 break;
             case CustomRoles.Miner:
                 if (Main.LastEnteredVent.ContainsKey(shapeshifter.PlayerId))
@@ -1251,6 +1255,7 @@ class ShapeshiftPatch
                     Logger.Msg($"{shapeshifter.GetNameWithRole()}:{position}", "MinerTeleport");
                     Utils.TP(shapeshifter.NetTransform, new Vector2(position.x, position.y));
                 }
+                isSSneeded = false;
                 break;
             case CustomRoles.Bomber:
                 if (shapeshifting)
@@ -1286,6 +1291,7 @@ class ShapeshiftPatch
                         Utils.NotifyRoles();
                     }, 1.5f, "Bomber Suiscide");
                 }
+                isSSneeded = false;
                 break;
             case CustomRoles.Nuker:
                 if (shapeshifting)
@@ -1318,12 +1324,14 @@ class ShapeshiftPatch
                         Utils.NotifyRoles();
                     }, 1.5f, "Nuke");
                 }
+                isSSneeded = false;
                 break;
             case CustomRoles.Assassin:
                 Assassin.OnShapeshift(shapeshifter, shapeshifting);
                 break;
             case CustomRoles.Undertaker:
                 Undertaker.OnShapeshift(shapeshifter, shapeshifting);
+                isSSneeded = false;
                 break;
             case CustomRoles.ImperiusCurse:
                 if (shapeshifting)
@@ -1341,6 +1349,7 @@ class ShapeshiftPatch
                 break;
             case CustomRoles.QuickShooter:
                 QuickShooter.OnShapeshift(shapeshifter, shapeshifting);
+                isSSneeded = false;
                 break;
             case CustomRoles.Camouflager:
                 if (shapeshifting)
@@ -1353,29 +1362,32 @@ class ShapeshiftPatch
                 break;
             case CustomRoles.Hacker:
                 Hacker.OnShapeshift(shapeshifter, shapeshifting, target);
+                isSSneeded = false;
                 break;
             case CustomRoles.Disperser:
                 if (shapeshifting)
                     Disperser.DispersePlayers(shapeshifter);
+                isSSneeded = false;
                 break;
             case CustomRoles.Dazzler:
                 if (shapeshifting)
                     Dazzler.OnShapeshift(shapeshifter, target);
+                isSSneeded = false;
                 break;
             case CustomRoles.Deathpact:
                 if (shapeshifting)
                     Deathpact.OnShapeshift(shapeshifter, target);
+                isSSneeded = false;
                 break;
             case CustomRoles.Devourer:
                 if (shapeshifting)
                     Devourer.OnShapeshift(shapeshifter, target);
+                isSSneeded = false;
                 break;
             case CustomRoles.Twister:
                 Twister.TwistPlayers(shapeshifter, shapeshifting);
                 break;
         }
-
-    End:
 
         //変身解除のタイミングがずれて名前が直せなかった時のために強制書き換え
         if (!shapeshifting && !shapeshifter.Is(CustomRoles.Glitch))
@@ -1386,6 +1398,12 @@ class ShapeshiftPatch
             },
             1.2f, "ShapeShiftNotify");
         }
+
+        if (!isSSneeded) shapeshifter.RpcResetAbilityCooldown();
+
+        if (!shapeshifting) return true;
+
+        return isSSneeded;
     }
 }
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ReportDeadBody))]

@@ -165,8 +165,10 @@ class RepairSystemPatch
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.CloseDoorsOfType))]
 class CloseDoorsPatch
 {
-    public static bool Prefix(ShipStatus __instance)
+    public static bool Prefix(ShipStatus __instance, object[] __args)
     {
+        Logger.Warn(__args[0].ToString(), "DoorClose");
+
         if (!(Options.DisableSabotage.GetBool() || Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA))
             return false;
 
