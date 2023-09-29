@@ -167,8 +167,22 @@ class CloseDoorsPatch
 {
     public static bool Prefix(ShipStatus __instance)
     {
-        Logger.Warn(Utils.GetPlayerById(__instance.OwnerId).GetCustomRole().ToString() + " - " + Utils.GetPlayerById(__instance.OwnerId).GetRealName(), "DoorClose");
-        return !(Options.DisableSabotage.GetBool() || Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA);
+        if (!(Options.DisableSabotage.GetBool() || Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA))
+            return false;
+
+        var pc = PlayerControl.LocalPlayer;
+
+        if (pc == null) return false;
+
+        if (pc.Is(CustomRoles.Glitch))
+        {
+            Glitch.Mimic(pc);
+            return false;
+        }
+
+        if (pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoles.Parasite) || pc.Is(CustomRoles.Refugee) || (pc.Is(CustomRoles.Jackal) && Jackal.CanUseSabotage.GetBool()) || (pc.Is(CustomRoles.Traitor) && Traitor.CanUseSabotage.GetBool()))
+            return true;
+        else return false;
     }
 }
 [HarmonyPatch(typeof(SwitchSystem), nameof(SwitchSystem.RepairDamage))]
