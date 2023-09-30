@@ -34,7 +34,7 @@
 ### Overall improvements
 - Gain more ability uses for completing tasks as crewmate roles
 - Gain more ability uses for getting kills as impostor roles
-- Most shapeshifting roles that only used shapeshifting as an ability trigger or a target selector, now no longer actually shapeshift! It is canceled after selecting the target, but the effect is still applied!
+- Most shapeshifting roles that only used shapeshifting as an ability trigger or a target selector now auto-unshift without the egg animation after completing the transformation
 - Prevent kills while shifted when no abiltiy uses are left for some roles (Sniper, Twister, Disperser, Hangman, Camouflager, etc.)
 - Code cleanup and major performance improvement
 - Improved EAC

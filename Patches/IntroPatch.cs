@@ -324,6 +324,18 @@ class BeginCrewmatePatch
         }
         catch (Exception ex)
         {
+            switch (role.GetCustomRoleTypes())
+            {
+                case CustomRoleTypes.Impostor:
+                    PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Impostor);
+                    break;
+                case CustomRoleTypes.Crewmate:
+                    PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Crewmate);
+                    break;
+                case CustomRoleTypes.Neutral:
+                    PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
+                    break;
+            }
             Logger.Warn($"Could not set intro sound\n{ex}", "IntroSound");
         }
 
@@ -490,7 +502,7 @@ class IntroCutsceneDestroyPatch
                     {
                         Main.AllPlayerControls.Do(x => x.ResetKillCooldown());
                         Main.AllPlayerControls.Where(x => Main.AllPlayerKillCooldown[x.PlayerId] != 7f && Main.AllPlayerKillCooldown[x.PlayerId] != 7.5f).Do(pc => pc.SetKillCooldown(Options.StartingKillCooldown.GetInt()));
-                    }, 0.1f, "FixKillCooldownTask");
+                    }, 0.5f, "FixKillCooldownTask");
                 else if (Options.FixFirstKillCooldown.GetBool() && Options.CurrentGameMode != CustomGameMode.SoloKombat && Options.CurrentGameMode != CustomGameMode.FFA)
                     _ = new LateTask(() =>
                     {

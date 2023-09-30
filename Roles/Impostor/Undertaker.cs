@@ -110,7 +110,7 @@ internal static class Undertaker
                     pc.SetKillCooldown();
                     pc.RpcCheckAndMurder(target);
                 }
-            }, 0.25f, "Undertaker Assassinate");
+            }, 1.5f, "Undertaker Assassinate");
         }
     }
     public static void SetKillButtonText(byte playerId)

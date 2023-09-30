@@ -147,7 +147,6 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 break;
             case CustomRoles.Escapee:
                 AURoleOptions.ShapeshifterCooldown = Options.EscapeeSSCD.GetFloat();
-                AURoleOptions.ShapeshifterDuration = Options.EscapeeSSDuration.GetFloat();
                 break;
             case CustomRoles.Sniper:
                 if (Sniper.bulletCount[player.PlayerId] > 0)
@@ -162,7 +161,6 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 break;
             case CustomRoles.Miner:
                 AURoleOptions.ShapeshifterCooldown = Options.MinerSSCD.GetFloat();
-                AURoleOptions.ShapeshifterDuration = Options.MinerSSDuration.GetFloat();
                 break;
             //case CustomRoles.SerialKiller:
             //    SerialKiller.ApplyGameOptions(player);

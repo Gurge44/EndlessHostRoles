@@ -15,8 +15,20 @@ public abstract class GameOptionsSender
 
     public static async void SendAllGameOptions()
     {
-        if (Options.DeepLowLoad.GetBool()) await Task.Run(() => { DoSend(); });
-        else await DoSend();
+        if (Options.DeepLowLoad.GetBool())
+        {
+            await Task.Run(() => { DoSend(); });
+        }
+        else
+        {
+            AllSenders.RemoveAll(s => !s.AmValid());
+            for (int i = 0; i < AllSenders.Count; i++)
+            {
+                GameOptionsSender sender = AllSenders[i];
+                if (sender.IsDirty) sender.SendGameOptions();
+                sender.IsDirty = false;
+            }
+        }
     }
 
     private static Task DoSend()

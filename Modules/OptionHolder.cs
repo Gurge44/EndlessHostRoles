@@ -1230,9 +1230,9 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock]);
         WarlockCanKillSelf = BooleanOptionItem.Create(4611, "CanKillSelf", false, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock]);
-        //WarlockShiftDuration = FloatOptionItem.Create(4612, "ShapeshiftDuration", new(1, 180, 1), 1, TabGroup.ImpostorRoles, false)
-        //    .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock])
-        //    .SetValueFormat(OptionFormat.Seconds);
+        WarlockShiftDuration = FloatOptionItem.Create(4612, "ShapeshiftDuration", new(1, 180, 1), 1, TabGroup.ImpostorRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock])
+            .SetValueFormat(OptionFormat.Seconds);
         RoleLoadingText = "Impostor roles\nWildling";
         Wildling.SetupCustomOption();
 
