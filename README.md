@@ -25,6 +25,10 @@
 
 <br>
 
+# This mod supports public lobbies from v1.0.4 and up!
+
+<br>
+
 ## Additions, Changes, and improvements compared to TOHRE
 - Note: The goal with this branch is to improve the existing stuff over adding new roles. If some of the stuff you see below are in TOHRE, they were originally coded by me.
 ### New gamemode
