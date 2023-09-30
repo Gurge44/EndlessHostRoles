@@ -271,6 +271,7 @@ internal class ChangeRoleSettings
             Bloodhound.Init();
             Tracker.Init();
             Merchant.Init();
+            Mastermind.Init();
             NSerialKiller.Init();
             Pyromaniac.Init();
             Eclipse.Init();
@@ -852,6 +853,9 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Dazzler:
                         Dazzler.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Mastermind:
+                        Mastermind.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Addict:
                         Addict.Add(pc.PlayerId);

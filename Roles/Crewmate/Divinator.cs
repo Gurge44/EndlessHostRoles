@@ -191,6 +191,7 @@ public static class Divinator
                 CustomRoles.Oracle or
                 CustomRoles.NiceSwapper or
                 CustomRoles.Visionary or
+                CustomRoles.Gambler or
                 CustomRoles.NiceEraser or
                 CustomRoles.ParityCop
                 => "Result13",
@@ -199,6 +200,7 @@ public static class Divinator
                 CustomRoles.Mayor or
                 CustomRoles.Paranoia or
                 CustomRoles.Pickpocket or
+                CustomRoles.Mastermind or
                 CustomRoles.Spy or
                 CustomRoles.Vindicator
                 => "Result14",
@@ -224,6 +226,7 @@ public static class Divinator
                 CustomRoles.Medic or
                 CustomRoles.Mario or
                 CustomRoles.Jester or
+                CustomRoles.RiftMaker or
                 CustomRoles.Lurker or
                 CustomRoles.Glitch or
                 CustomRoles.Sunnyboy
@@ -233,6 +236,7 @@ public static class Divinator
                 CustomRoles.Retributionist or
                 CustomRoles.Gangster or
                 CustomRoles.Glitch or
+                CustomRoles.Hitman or
                 CustomRoles.Luckey or
                 CustomRoles.Underdog
                 => "Result18",

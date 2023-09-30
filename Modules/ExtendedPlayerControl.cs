@@ -444,10 +444,96 @@ static class ExtendedPlayerControl
     {
         return isMeeting ? player?.Data?.PlayerName : player?.name;
     }
+    public static bool HasKillButton(this PlayerControl pc)
+    {
+        if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel || Pelican.IsEaten(pc.PlayerId)) return false;
+
+        return pc.GetCustomRole() switch
+        {
+            CustomRoles.FireWorks => true,
+            CustomRoles.Mafia => true,
+            CustomRoles.Underdog => true,
+            CustomRoles.Mastermind => true,
+            CustomRoles.Gambler => true,
+            CustomRoles.RiftMaker => true,
+            CustomRoles.Hitman => true,
+            CustomRoles.Inhibitor => true,
+            CustomRoles.Saboteur => true,
+            CustomRoles.Sniper => true,
+            CustomRoles.Sheriff => true,
+            CustomRoles.Crusader => true,
+            CustomRoles.CopyCat => true,
+            CustomRoles.Jailor => true,
+            CustomRoles.Pelican => true,
+            CustomRoles.Arsonist => true,
+            CustomRoles.Revolutionist => true,
+            CustomRoles.SwordsMan => true,
+            CustomRoles.Jackal => true,
+            CustomRoles.Sidekick => true,
+            CustomRoles.HexMaster => true,
+            CustomRoles.Bandit => true,
+            CustomRoles.Agitater => true,
+            CustomRoles.Poisoner => true,
+            CustomRoles.Juggernaut => true,
+            CustomRoles.Ritualist => true,
+            CustomRoles.Pyromaniac => true,
+            CustomRoles.Eclipse => true,
+            CustomRoles.NSerialKiller => true,
+            CustomRoles.Vengeance => true,
+            CustomRoles.HeadHunter => true,
+            CustomRoles.Imitator => true,
+            CustomRoles.Werewolf => true,
+            CustomRoles.Medusa => true,
+            CustomRoles.Traitor => true,
+            CustomRoles.Glitch => true,
+            CustomRoles.Pickpocket => true,
+            CustomRoles.Maverick => true,
+            CustomRoles.Jinx => true,
+            CustomRoles.Parasite => true,
+            CustomRoles.Refugee => true,
+            CustomRoles.Wraith => true,
+            CustomRoles.Bomber => true,
+            CustomRoles.Nuker => false,
+            CustomRoles.Innocent => true,
+            CustomRoles.Aid => true,
+            CustomRoles.Witness => true,
+            CustomRoles.Pursuer => true,
+            CustomRoles.Morphling => true,
+            CustomRoles.FFF => true,
+            CustomRoles.Medic => true,
+            CustomRoles.Gamer => true,
+            CustomRoles.DarkHide => true,
+            CustomRoles.Provocateur => true,
+            CustomRoles.Assassin => true,
+            CustomRoles.Undertaker => true,
+            CustomRoles.BloodKnight => true,
+            CustomRoles.Crewpostor => false,
+            CustomRoles.Totocalcio => true,
+            CustomRoles.Romantic => true,
+            CustomRoles.RuthlessRomantic => true,
+            CustomRoles.VengefulRomantic => true,
+            CustomRoles.Succubus => true,
+            CustomRoles.CursedSoul => true,
+            CustomRoles.Admirer => true,
+            CustomRoles.Amnesiac => true,
+            CustomRoles.Infectious => true,
+            CustomRoles.Monarch => true,
+            CustomRoles.Deputy => true,
+            CustomRoles.Virus => true,
+            CustomRoles.Farseer => true,
+            CustomRoles.Spiritcaller => true,
+            CustomRoles.PlagueBearer => true,
+            CustomRoles.Pestilence => true,
+
+            _ => pc.Is(CustomRoleTypes.Impostor),
+        };
+    }
     public static bool CanUseKillButton(this PlayerControl pc)
     {
         //int playerCount = Main.AllAlivePlayerControls.Count();
         if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel || Pelican.IsEaten(pc.PlayerId)) return false;
+
+        if (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId)) return true;
 
         return pc.GetCustomRole() switch
         {
@@ -461,6 +547,10 @@ static class ExtendedPlayerControl
             //       CustomRoles.Mare => pc.IsAlive(),
             //CustomRoles.Underdog => playerCount <= Options.UnderdogMaximumPlayersNeededToKill.GetInt(),
             CustomRoles.Underdog => pc.IsAlive(),
+            CustomRoles.Mastermind => pc.IsAlive(),
+            CustomRoles.Gambler => pc.IsAlive(),
+            CustomRoles.RiftMaker => pc.IsAlive(),
+            CustomRoles.Hitman => pc.IsAlive(),
             CustomRoles.Inhibitor => !Utils.IsActive(SystemTypes.Electrical) && !Utils.IsActive(SystemTypes.Laboratory) && !Utils.IsActive(SystemTypes.Comms) && !Utils.IsActive(SystemTypes.LifeSupp) && !Utils.IsActive(SystemTypes.Reactor),
             CustomRoles.Saboteur => Utils.IsActive(SystemTypes.Electrical) || Utils.IsActive(SystemTypes.Laboratory) || Utils.IsActive(SystemTypes.Comms) || Utils.IsActive(SystemTypes.LifeSupp) || Utils.IsActive(SystemTypes.Reactor),
             CustomRoles.Sniper => Sniper.CanUseKillButton(pc),
@@ -762,6 +852,18 @@ static class ExtendedPlayerControl
                 break;
             case CustomRoles.Inhibitor:
                 Main.AllPlayerKillCooldown[player.PlayerId] = Options.InhibitorCDAfterMeetings.GetFloat();
+                break;
+            case CustomRoles.Hitman:
+                Main.AllPlayerKillCooldown[player.PlayerId] = Hitman.KillCooldown.GetFloat();
+                break;
+            case CustomRoles.Mastermind:
+                Main.AllPlayerKillCooldown[player.PlayerId] = Mastermind.KillCooldown.GetFloat();
+                break;
+            case CustomRoles.Gambler:
+                Main.AllPlayerKillCooldown[player.PlayerId] = Gambler.KillCooldown.GetFloat();
+                break;
+            case CustomRoles.RiftMaker:
+                Main.AllPlayerKillCooldown[player.PlayerId] = RiftMaker.KillCooldown.GetFloat();
                 break;
             case CustomRoles.Saboteur:
                 Main.AllPlayerKillCooldown[player.PlayerId] = Options.SaboteurCDAfterMeetings.GetFloat();

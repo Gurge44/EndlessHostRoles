@@ -50,6 +50,10 @@ internal static class CustomRolesHelper
                 CustomRoles.SpeedBooster => CustomRoles.Crewmate,
                 CustomRoles.Dictator => CustomRoles.Crewmate,
                 CustomRoles.Inhibitor => CustomRoles.Impostor,
+                CustomRoles.Mastermind => CustomRoles.Impostor,
+                CustomRoles.RiftMaker => CustomRoles.Shapeshifter,
+                CustomRoles.Gambler => CustomRoles.Impostor,
+                CustomRoles.Hitman => CustomRoles.Shapeshifter,
                 CustomRoles.Saboteur => CustomRoles.Impostor,
                 CustomRoles.Doctor => CustomRoles.Scientist,
                 CustomRoles.ScientistTOHE => CustomRoles.Scientist,
@@ -664,6 +668,10 @@ internal static class CustomRolesHelper
             CustomRoles.SerialKiller or
             CustomRoles.Underdog or
             CustomRoles.Inhibitor or
+            CustomRoles.Hitman or
+            CustomRoles.RiftMaker or
+            CustomRoles.Mastermind or
+            CustomRoles.Gambler or
             CustomRoles.Councillor or
             CustomRoles.Saboteur or
             CustomRoles.Puppeteer or
@@ -1010,6 +1018,7 @@ internal static class CustomRolesHelper
         CustomRoles.Ignitor or
         CustomRoles.Saboteur or
         CustomRoles.Inhibitor or
+        CustomRoles.Gambler or
         CustomRoles.Mare or
         CustomRoles.Bandit or
         CustomRoles.Agitater or

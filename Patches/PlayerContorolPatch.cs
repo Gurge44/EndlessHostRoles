@@ -159,6 +159,11 @@ class CheckMurderPatch
             return true;
         }
 
+        if (Mastermind.ManipulatedPlayers.ContainsKey(killer.PlayerId))
+        {
+            return Mastermind.ForceKillForManipulatedPlayer(killer, target);
+        }
+
         if (target.Is(CustomRoles.Spy)) Spy.OnKillAttempt(killer, target);
 
         //実際のキラーとkillerが違う場合の入れ替え処理
@@ -215,6 +220,18 @@ class CheckMurderPatch
                         Main.AllPlayerKillCooldown[killer.PlayerId] = Options.SaboteurCD.GetFloat();
                         killer.SyncSettings();
                     }
+                    break;
+                case CustomRoles.Gambler:
+                    if (!Gambler.OnCheckMurder(killer, target)) return false;
+                    break;
+                case CustomRoles.Mastermind:
+                    if (!Mastermind.OnCheckMurder(killer, target)) return false;
+                    break;
+                case CustomRoles.Hitman:
+                    if (!Hitman.OnCheckMurder(killer, target)) return false;
+                    break;
+                case CustomRoles.RiftMaker:
+                    if (!RiftMaker.OnCheckMurder(killer, target)) return false;
                     break;
                 case CustomRoles.Aid:
                     if (!Aid.OnCheckMurder(killer, target)) return false;
@@ -1734,6 +1751,7 @@ class ReportDeadBodyPatch
         if (Romantic.IsEnable) Romantic.OnReportDeadBody();
         if (Jailor.IsEnable) Jailor.OnReportDeadBody();
         if (Ricochet.IsEnable) Ricochet.OnReportDeadBody();
+        if (Mastermind.IsEnable) Mastermind.OnReportDeadBody();
 
         if (Mortician.IsEnable) Mortician.OnReportDeadBody(player, target);
         if (Tracefinder.IsEnable) Tracefinder.OnReportDeadBody(player, target);
@@ -1893,6 +1911,7 @@ class FixedUpdatePatch
             if (player.Is(CustomRoles.Glitch) && !lowLoad) Glitch.UpdateHackCooldown(player);
             if (player.Is(CustomRoles.Aid) && !lowLoad) Aid.OnFixedUpdate(player);
             if (player.Is(CustomRoles.Spy) && !lowLoad) Spy.OnFixedUpdate(player);
+            if (player.Is(CustomRoles.Mastermind) && !lowLoad) Mastermind.OnFixedUpdate();
             if (player.Is(CustomRoles.SerialKiller)) SerialKiller.FixedUpdate(player);
             if (GameStates.IsInTask && PlagueBearer.IsEnable)
                 if (player.Is(CustomRoles.PlagueBearer) && PlagueBearer.IsPlaguedAll(player))
@@ -3203,7 +3222,7 @@ class SetNamePatch
 [HarmonyPatch(typeof(GameData), nameof(GameData.CompleteTask))]
 class GameDataCompleteTaskPatch
 {
-    public static void Postfix(PlayerControl pc)
+    public static void Postfix(PlayerControl pc, uint taskId)
     {
         Logger.Info($"TaskComplete:{pc.GetNameWithRole()}", "CompleteTask");
         Main.PlayerStates[pc.PlayerId].UpdateTask(pc);
@@ -3213,7 +3232,7 @@ class GameDataCompleteTaskPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CompleteTask))]
 class PlayerControlCompleteTaskPatch
 {
-    public static bool Prefix(PlayerControl __instance)
+    public static bool Prefix(PlayerControl __instance, uint idx)
     {
         var player = __instance;
 
