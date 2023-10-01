@@ -1126,6 +1126,9 @@ internal static class RPC
             case CustomRoles.Dazzler:
                 Dazzler.Add(targetId);
                 break;
+            case CustomRoles.RiftMaker:
+                RiftMaker.Add(targetId);
+                break;
             case CustomRoles.Mastermind:
                 Mastermind.Add(targetId);
                 break;

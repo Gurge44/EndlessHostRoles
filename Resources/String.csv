@@ -2540,6 +2540,7 @@
 "MastermindTimeLimit","","Time Limit to Kill Someone","","",""
 "MastermindDelay","","Manipulation Notify Delay","","",""
 "ManipulateNotify","","\n<color=#ff1919>You were manipulated by the Mastermind!\nYou must kill someone within </color>{0}s<color=#ffff00> or you die!</color>","","",""
+"ManipulatedKilled","","The player you manipulated has killed someone","","",""
 
 "## Gambler"
 "Gambler","","Gambler","","",""
@@ -2565,6 +2566,9 @@
 "RiftMaker","","Rift Maker","","",""
 "RiftMakerInfo","","Teleport between 2 places","","",""
 "RiftMakerInfoLong","","(Impostors):\nAs the Rift Maker, you may shapeshift twice to mark two points on the ship. After you've marked both places, whenever you go near a marked place, you will automatically teleport to the other mark point.\nVenting discards both marked places.\n\nYou cannot vent normally.","","",""
+"IncorrectMarks","","\n<color=#ffff00>Your 2 marks are too close to each other, they won't work</color>\nVent to discard your marks","","",""
+"MarkDone","","Position Marked","","",""
+"MarksCleared","","Marks cleared","","",""
 
 "## Ignitor (Candle Lighter)"
 "Ignitor","","Ignitor","","",""

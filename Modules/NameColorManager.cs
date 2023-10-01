@@ -92,6 +92,9 @@ public static class NameColorManager
         if (seer.Is(CustomRoles.Glitch) && Glitch.hackedIdList.ContainsKey(target.PlayerId)) color = Main.roleColors[CustomRoles.Glitch];
         if (seer.Is(CustomRoles.Aid) && Aid.ShieldedPlayers.ContainsKey(target.PlayerId)) color = Main.roleColors[CustomRoles.Aid];
         if (seer.Is(CustomRoles.Spy) && Spy.SpyRedNameList.ContainsKey(target.PlayerId)) color = "#BA4A00";
+        if (seer.Is(CustomRoles.Mastermind) && Mastermind.ManipulateDelays.ContainsKey(target.PlayerId)) color = "#00ffa5";
+        if (seer.Is(CustomRoles.Mastermind) && Mastermind.ManipulatedPlayers.ContainsKey(target.PlayerId)) color = Main.roleColors[CustomRoles.Arsonist];
+        if (seer.Is(CustomRoles.Hitman) && Hitman.targetId == target.PlayerId) color = "000000";
 
         if (seer.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor)) color = Main.roleColors[CustomRoles.ImpostorTOHE];
         if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Refugee)) color = Main.roleColors[CustomRoles.Refugee];

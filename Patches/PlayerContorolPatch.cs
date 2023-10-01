@@ -230,9 +230,6 @@ class CheckMurderPatch
                 case CustomRoles.Hitman:
                     if (!Hitman.OnCheckMurder(killer, target)) return false;
                     break;
-                case CustomRoles.RiftMaker:
-                    if (!RiftMaker.OnCheckMurder(killer, target)) return false;
-                    break;
                 case CustomRoles.Aid:
                     if (!Aid.OnCheckMurder(killer, target)) return false;
                     break;
@@ -1200,6 +1197,9 @@ class ShapeshiftPatch
                         _ = new LateTask(() => { shapeshifter.RpcRevertShapeshift(false); }, 1.5f, "Evil Tracker RpcRevertShapeshift");
                     }
                     break;
+                case CustomRoles.RiftMaker:
+                    RiftMaker.OnShapeshift(shapeshifter, shapeshifting);
+                    break;
                 case CustomRoles.FireWorks:
                     FireWorks.ShapeShiftState(shapeshifter, shapeshifting);
                     if (shapeshifting)
@@ -1752,6 +1752,7 @@ class ReportDeadBodyPatch
         if (Jailor.IsEnable) Jailor.OnReportDeadBody();
         if (Ricochet.IsEnable) Ricochet.OnReportDeadBody();
         if (Mastermind.IsEnable) Mastermind.OnReportDeadBody();
+        if (RiftMaker.IsEnable) RiftMaker.OnReportDeadBody();
 
         if (Mortician.IsEnable) Mortician.OnReportDeadBody(player, target);
         if (Tracefinder.IsEnable) Tracefinder.OnReportDeadBody(player, target);
@@ -1911,6 +1912,7 @@ class FixedUpdatePatch
             if (player.Is(CustomRoles.Glitch) && !lowLoad) Glitch.UpdateHackCooldown(player);
             if (player.Is(CustomRoles.Aid) && !lowLoad) Aid.OnFixedUpdate(player);
             if (player.Is(CustomRoles.Spy) && !lowLoad) Spy.OnFixedUpdate(player);
+            if (player.Is(CustomRoles.RiftMaker) && !lowLoad) RiftMaker.OnFixedUpdate(player);
             if (player.Is(CustomRoles.Mastermind) && !lowLoad) Mastermind.OnFixedUpdate();
             if (player.Is(CustomRoles.SerialKiller)) SerialKiller.FixedUpdate(player);
             if (GameStates.IsInTask && PlagueBearer.IsEnable)
@@ -3203,6 +3205,9 @@ class CoEnterVentPatch
 
         if (__instance.myPlayer.Is(CustomRoles.Alchemist) && Alchemist.PotionID == 6)
             Alchemist.OnCoEnterVent(__instance, id);
+
+        if (__instance.myPlayer.Is(CustomRoles.RiftMaker))
+            RiftMaker.OnEnterVent(__instance.myPlayer, id);
 
         //if (__instance.myPlayer.Is(CustomRoles.DovesOfNeace)) __instance.myPlayer.Notify(GetString("DovesOfNeaceMaxUsage"));
         //if (__instance.myPlayer.Is(CustomRoles.Veteran)) __instance.myPlayer.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));

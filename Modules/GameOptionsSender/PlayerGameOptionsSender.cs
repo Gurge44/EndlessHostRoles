@@ -141,6 +141,11 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 AURoleOptions.ShapeshifterLeaveSkin = false;
                 AURoleOptions.ShapeshifterDuration = Options.ShapeMasterShapeshiftDuration.GetFloat();
                 break;
+            case CustomRoles.RiftMaker:
+                AURoleOptions.ShapeshifterDuration = 1f;
+                AURoleOptions.ShapeshifterCooldown = RiftMaker.ShapeshiftCooldown.GetFloat();
+                AURoleOptions.ShapeshifterLeaveSkin = true;
+                break;
             case CustomRoles.Warlock:
                 AURoleOptions.ShapeshifterCooldown = Main.isCursed ? 1f : Options.DefaultKillCooldown;
                 AURoleOptions.ShapeshifterDuration = Options.WarlockShiftDuration.GetFloat();

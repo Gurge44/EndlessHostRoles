@@ -933,6 +933,12 @@ public static class Utils
                 ProgressText.Append(ColorString(TextColor1, $"<color=#777777>-</color> {Completed1}/{taskState1.AllTasksCount}"));
                 ProgressText.Append($" <color=#777777>-</color> <color=#00ffa5>{totalCompleted1}</color><color=#ffffff>/{GameData.Instance.TotalTasks}</color>");
                 break;
+            case CustomRoles.RiftMaker:
+                ProgressText.Append(RiftMaker.GetProgressText());
+                break;
+            case CustomRoles.Hitman:
+                ProgressText.Append(Hitman.GetProgressText());
+                break;
             case CustomRoles.Ricochet:
                 ProgressText.Append(Ricochet.GetProgressText(playerId, comms));
                 break;
