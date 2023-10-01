@@ -2555,6 +2555,13 @@
 "GamblerLowKCD","","Lower Kill Cooldown","","",""
 "GamblerSpeedup","","Increased Speed","","",""
 "GamblerSpeedupDur","","Increased Speed Duration","","",""
+"GamblerWhatToIgnore","","What to Ignore when the Unstoppable effect is applied","","",""
+"GamblerIgnoreMedicShield","","Ignore <color=#00ff97>Medic</color> <color=#8cffff>Shield</color>","","",""
+"GamblerIgnoreVeteranAlert","","Ignore <color=#a77738>Veteran</color> Alert","","",""
+"GamblerIgnoreCursedWolfAndJinx","","Kill <color=#ff1919>Cursed Wolf</color> and <color=#ed2f91>Jinx</color>","","",""
+"GamblerIgnoreCursedWolfAndJinx","","Kill <color=#343136>Pestilence</color>","","",""
+"GamblerPositiveEffectChance","","Positive Effect Chance","","",""
+
 
 "## Hitman"
 "Hitman","","Hitman","","",""

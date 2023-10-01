@@ -183,6 +183,11 @@ class CheckMurderPatch
             killer.Notify(string.Format(GetString("HackedByGlitch"), "Kill"));
             return false;
         }
+        if (target.Is(CustomRoles.Gambler) && Gambler.isShielded.ContainsKey(target.PlayerId))
+        {
+            killer.SetKillCooldown(time: 5f);
+            return false;
+        }
         if (Pursuer.IsEnable && Pursuer.OnClientMurder(killer)) return false;
         if (Addict.IsEnable && Addict.IsImmortal(target)) return false;
         if (Aid.ShieldedPlayers.ContainsKey(target.PlayerId)) return false;
@@ -1753,6 +1758,8 @@ class ReportDeadBodyPatch
         if (Ricochet.IsEnable) Ricochet.OnReportDeadBody();
         if (Mastermind.IsEnable) Mastermind.OnReportDeadBody();
         if (RiftMaker.IsEnable) RiftMaker.OnReportDeadBody();
+        if (Gambler.IsEnable) Gambler.OnReportDeadBody();
+        if (Tracker.IsEnable) Tracker.OnReportDeadBody();
 
         if (Mortician.IsEnable) Mortician.OnReportDeadBody(player, target);
         if (Tracefinder.IsEnable) Tracefinder.OnReportDeadBody(player, target);
@@ -1915,17 +1922,17 @@ class FixedUpdatePatch
             if (player.Is(CustomRoles.RiftMaker) && !lowLoad) RiftMaker.OnFixedUpdate(player);
             if (player.Is(CustomRoles.Mastermind) && !lowLoad) Mastermind.OnFixedUpdate();
             if (player.Is(CustomRoles.SerialKiller)) SerialKiller.FixedUpdate(player);
-            if (GameStates.IsInTask && PlagueBearer.IsEnable)
-                if (player.Is(CustomRoles.PlagueBearer) && PlagueBearer.IsPlaguedAll(player))
-                {
-                    player.RpcSetCustomRole(CustomRoles.Pestilence);
-                    player.Notify(GetString("PlagueBearerToPestilence"));
-                    player.RpcGuardAndKill(player);
-                    if (!PlagueBearer.PestilenceList.Contains(player.PlayerId))
-                        PlagueBearer.PestilenceList.Add(player.PlayerId);
-                    PlagueBearer.SetKillCooldownPestilence(player.PlayerId);
-                    PlagueBearer.playerIdList.Remove(player.PlayerId);
-                }
+            if (player.Is(CustomRoles.Gambler) && !lowLoad) Gambler.OnFixedUpdate(player);
+            if (GameStates.IsInTask && player.Is(CustomRoles.PlagueBearer) && PlagueBearer.IsPlaguedAll(player))
+            {
+                player.RpcSetCustomRole(CustomRoles.Pestilence);
+                player.Notify(GetString("PlagueBearerToPestilence"));
+                player.RpcGuardAndKill(player);
+                if (!PlagueBearer.PestilenceList.Contains(player.PlayerId))
+                    PlagueBearer.PestilenceList.Add(player.PlayerId);
+                PlagueBearer.SetKillCooldownPestilence(player.PlayerId);
+                PlagueBearer.playerIdList.Remove(player.PlayerId);
+            }
 
 
             if (GameStates.IsInTask && Agitater.IsEnable && Agitater.AgitaterHasBombed && Agitater.CurrentBombedPlayer == player.PlayerId)

@@ -1532,8 +1532,6 @@ public static class Options
             .SetValueFormat(OptionFormat.Multiplier);
         BodyguardKillsKiller = BooleanOptionItem.Create(8411, "BodyguardKillsKiller", false, TabGroup.CrewmateRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Bodyguard]);
-        RoleLoadingText = "Crewmate roles\nCopycat";
-        CopyCat.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nCrusader";
         Crusader.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nJailor";
@@ -2235,7 +2233,7 @@ public static class Options
         SetupRoleOptions(16900, TabGroup.OtherRoles, CustomRoles.OverKiller);
         RoleLoadingText = "Experimental roles\nDisperser";
         Disperser.SetupCustomOption();
-        RoleLoadingText = "Experimental roles\nGod";
+        RoleLoadingText = "Experimental roles\nCopyCat";
 
         /*   SetupRoleOptions(18000, TabGroup.OtherRoles, CustomRoles.SpeedBooster);
            SpeedBoosterUpSpeed = FloatOptionItem.Create(18010, "SpeedBoosterUpSpeed", new(0.1f, 1.0f, 0.1f), 0.2f, TabGroup.OtherRoles, false)
@@ -2250,7 +2248,11 @@ public static class Options
         //     Divinator.SetupCustomOption();
         // 中立
 
+
+        CopyCat.SetupCustomOption();
+
         LoadingPercentage = 53;
+        RoleLoadingText = "Experimental roles\nGod";
 
         SetupRoleOptions(18200, TabGroup.OtherRoles, CustomRoles.God);
         NotifyGodAlive = BooleanOptionItem.Create(18210, "NotifyGodAlive", true, TabGroup.OtherRoles, false)

@@ -146,6 +146,13 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 AURoleOptions.ShapeshifterCooldown = RiftMaker.ShapeshiftCooldown.GetFloat();
                 AURoleOptions.ShapeshifterLeaveSkin = true;
                 break;
+            case CustomRoles.Gambler:
+                if (Gambler.isVisionChange.ContainsKey(player.PlayerId))
+                {
+                    opt.SetFloat(FloatOptionNames.CrewLightMod, Gambler.LowVision.GetFloat());
+                    opt.SetFloat(FloatOptionNames.ImpostorLightMod, Gambler.LowVision.GetFloat());
+                }
+                break;
             case CustomRoles.Warlock:
                 AURoleOptions.ShapeshifterCooldown = Main.isCursed ? 1f : Options.DefaultKillCooldown;
                 AURoleOptions.ShapeshifterDuration = Options.WarlockShiftDuration.GetFloat();
