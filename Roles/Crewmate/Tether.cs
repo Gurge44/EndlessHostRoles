@@ -42,7 +42,7 @@ namespace TOHE.Roles.Crewmate
             UseLimit.Add(playerId, UseLimitOpt.GetInt());
         }
         public static bool IsEnable => playerIdList.Any();
-        public static void OnEnterVent(PlayerControl pc, int ventId)
+        public static void OnEnterVent(PlayerControl pc, int ventId, bool isPet = false)
         {
             if (pc == null) return;
             if (!pc.Is(CustomRoles.Tether)) return;
@@ -58,9 +58,9 @@ namespace TOHE.Roles.Crewmate
                             UseLimit[pc.PlayerId] -= 1;
                             TP(pc.NetTransform, GetPlayerById(Target).GetTruePosition());
                         }
-                    }, 2f, "Tether TP");
+                    }, isPet ? 0.1f : 2f, "Tether TP");
                 }
-                else
+                else if (!isPet)
                 {
                     _ = new LateTask(() =>
                     {
@@ -72,9 +72,9 @@ namespace TOHE.Roles.Crewmate
             {
                 _ = new LateTask(() =>
                 {
-                    pc.MyPhysics?.RpcBootFromVent(ventId);
+                    if (!isPet) pc.MyPhysics?.RpcBootFromVent(ventId);
                     pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
-                }, 0.5f, "Tether No Uses Left Boot From Vent");
+                }, isPet ? 0.1f : 0.5f, "Tether No Uses Left Boot From Vent");
             }
         }
         public static void OnVote(PlayerControl pc, PlayerControl target)

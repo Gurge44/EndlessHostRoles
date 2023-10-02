@@ -950,6 +950,21 @@ internal static class CustomRolesHelper
         CustomRoles.SwordsMan or
         CustomRoles.Deputy;
     }
+    public static bool PetActivatedAbility(this CustomRoles role)
+    {
+        return role is
+            CustomRoles.Doormaster or
+            CustomRoles.Tether or
+            CustomRoles.Mayor or
+            CustomRoles.Paranoia or
+            CustomRoles.Grenadier or
+            CustomRoles.Lighter or
+            CustomRoles.SecurityGuard or
+            CustomRoles.DovesOfNeace or
+            CustomRoles.Alchemist or
+            CustomRoles.TimeMaster or
+            CustomRoles.Veteran;
+    }
     public static bool NeedUpdateOnLights(this CustomRoles role)
     {
         return role is

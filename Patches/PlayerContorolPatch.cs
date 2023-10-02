@@ -1171,6 +1171,8 @@ class ShapeshiftPatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
+        if (!Main.ProcessShapeshifts) return true;
+
         Logger.Info($"{__instance?.GetNameWithRole()} => {target?.GetNameWithRole()}", "Shapeshift");
 
         var shapeshifter = __instance;

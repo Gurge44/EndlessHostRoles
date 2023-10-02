@@ -742,6 +742,7 @@ public static class Options
     public static OptionItem RoleAssigningAlgorithm;
     public static OptionItem EndWhenPlayerBug;
 
+    public static OptionItem UsePets;
     public static OptionItem EnableUpMode;
     public static OptionItem AutoKickStart;
     public static OptionItem AutoKickStartAsBan;
@@ -3107,6 +3108,9 @@ public static class Options
         TextOptionItem.Create(100028, "MenuTitle.Other", TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
+
+        UsePets = BooleanOptionItem.Create(23850, "UsePets", false, TabGroup.GameSettings, false)
+            .SetColor(Color.yellow);
 
         // 梯子摔死
         LadderDeath = BooleanOptionItem.Create(23800, "LadderDeath", false, TabGroup.GameSettings, false)

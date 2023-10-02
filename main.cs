@@ -88,6 +88,7 @@ public class Main : BasePlugin
     public static Dictionary<CustomRoles, string> roleColors;
     public static bool IsFixedCooldown => CustomRoles.Vampire.IsEnable() || CustomRoles.Poisoner.IsEnable();
     public static float RefixCooldownDelay = 0f;
+    public static bool ProcessShapeshifts = true;
     public static GameData.PlayerInfo LastVotedPlayerInfo;
     public static string LastVotedPlayer;
     public static List<byte> ResetCamPlayerList = new();

@@ -16,7 +16,7 @@ namespace TOHE.Roles.Impostor
         public static Dictionary<byte, float> TempKCDs = new();
 
         public static OptionItem KillCooldown;
-        public static OptionItem ManipulateCDOpt;
+        //public static OptionItem ManipulateCDOpt;
         public static OptionItem TimeLimit;
         public static OptionItem Delay;
 

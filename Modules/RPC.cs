@@ -171,6 +171,9 @@ internal class RPCHandlerPatch
                 var p = Utils.GetPlayerById(subReader.ReadByte());
                 Logger.Info($"{__instance.GetNameWithRole()} => {p?.GetNameWithRole() ?? "null"}", "StartMeeting");
                 break;
+            case RpcCalls.Pet:
+                Logger.Info($"{__instance.GetNameWithRole()} petted their pet", "RpcHandlerPatch");
+                break;
         }
         if (__instance.PlayerId != 0
             && Enum.IsDefined(typeof(CustomRPC), (int)callId)
@@ -692,6 +695,26 @@ internal static class RPC
             writer.Write(name.Value);
         }
         AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+    public static void SendGameData(int clientId = -1)
+    {
+        MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+        writer.StartMessage((byte)(clientId == -1 ? 5 : 6)); //0x05 GameData
+        {
+            writer.Write(AmongUsClient.Instance.GameId);
+            if (clientId != -1)
+                writer.WritePacked(clientId);
+            writer.StartMessage(1); //0x01 Data
+            {
+                writer.WritePacked(GameData.Instance.NetId);
+                GameData.Instance.Serialize(writer, true);
+            }
+            writer.EndMessage();
+        }
+        writer.EndMessage();
+
+        AmongUsClient.Instance.SendOrDisconnect(writer);
+        writer.Recycle();
     }
     public static void ShowPopUp(this PlayerControl pc, string msg)
     {

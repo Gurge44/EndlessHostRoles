@@ -516,6 +516,13 @@ class IntroCutsceneDestroyPatch
                     }, 2f, "FixKillCooldownTask");
             }
             _ = new LateTask(() => Main.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
+            if (Options.UsePets.GetBool())
+            {
+                Main.ProcessShapeshifts = false;
+                _ = new LateTask(() => PlayerControl.AllPlayerControls.ToArray().Do(pc => PetsPatch.SetPet(pc, "pet_Pusheen", true)), 0.3f, "Grant Pet For Everyone");
+                _ = new LateTask(() => PlayerControl.AllPlayerControls.ToArray().Do(pc => pc.RpcShapeshift(pc, false)), 0.4f, "Show Pet For Everyone");
+                _ = new LateTask(() => Main.ProcessShapeshifts = true, 1f, "Enable SS Processing");
+            }
             if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))
             {
                 PlayerControl.LocalPlayer.RpcExile();

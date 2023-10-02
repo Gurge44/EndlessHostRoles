@@ -103,9 +103,11 @@ namespace TOHE.Roles.Crewmate
             }
         }
 
-        public static void OnEnterVent(PlayerControl player, int ventId)
+        public static void OnEnterVent(PlayerControl player, int ventId, bool isPet = false)
         {
             if (!player.Is(CustomRoles.Alchemist)) return;
+
+            NameNotifyManager.Notice.Remove(player.PlayerId);
 
             switch (PotionID)
             {
@@ -115,13 +117,13 @@ namespace TOHE.Roles.Crewmate
                     _ = new LateTask(() => { IsProtected = false; player.Notify(GetString("AlchemistShieldOut")); }, ShieldDuration.GetInt());
                     break;
                 case 2: // Suicide
-                    player.MyPhysics.RpcBootFromVent(ventId);
+                    if (!isPet) player.MyPhysics.RpcBootFromVent(ventId);
                     _ = new LateTask(() =>
                     {
                         player.SetRealKiller(player);
                         player.RpcMurderPlayerV3(player);
                         Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Poison;
-                    }, 1f);
+                    }, !isPet ? 1f : 0.1f);
                     break;
                 case 3: // TP to random player
                     _ = new LateTask(() =>
@@ -134,7 +136,7 @@ namespace TOHE.Roles.Crewmate
                         var tar2 = AllAlivePlayer[rd.Next(0, AllAlivePlayer.Count)];
                         Utils.TP(tar1.NetTransform, tar2.GetTruePosition());
                         tar1.RPCPlayCustomSound("Teleport");
-                    }, 2f);
+                    }, !isPet ? 2f : 0.1f);
                     break;
                 case 4: // Increased speed
                     player.Notify(GetString("AlchemistHasSpeed"));
@@ -161,7 +163,7 @@ namespace TOHE.Roles.Crewmate
                     _ = new LateTask(() => { VisionPotionActive = false; player.MarkDirtySettings(); player.Notify(GetString("AlchemistVisionOut")); }, VisionDuration.GetFloat());
                     break;
                 case 10:
-                    player.MyPhysics.RpcBootFromVent(ventId);
+                    if (!isPet) player.MyPhysics.RpcBootFromVent(ventId);
                     player.Notify("NoPotion");
                     break;
                 default: // just in case
@@ -169,8 +171,6 @@ namespace TOHE.Roles.Crewmate
             }
 
             PotionID = 10;
-
-            NameNotifyManager.Notice.Remove(player.PlayerId);
         }
         private static long lastFixedTime = 0;
         public static bool IsInvis(byte id) => InvisTime.ContainsKey(id);
