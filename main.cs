@@ -89,6 +89,17 @@ public class Main : BasePlugin
     public static bool IsFixedCooldown => CustomRoles.Vampire.IsEnable() || CustomRoles.Poisoner.IsEnable();
     public static float RefixCooldownDelay = 0f;
     public static bool ProcessShapeshifts = true;
+    public static Dictionary<byte, long> DoormasterCD = new();
+    public static Dictionary<byte, long> TetherCD = new();
+    public static Dictionary<byte, long> MayorCD = new();
+    public static Dictionary<byte, long> ParanoiaCD = new();
+    public static Dictionary<byte, long> VeteranCD = new();
+    public static Dictionary<byte, long> GrenadierCD = new();
+    public static Dictionary<byte, long> LighterCD = new();
+    public static Dictionary<byte, long> SecurityGuardCD = new();
+    public static Dictionary<byte, long> DovesOfNeaceCD = new();
+    public static Dictionary<byte, long> AlchemistCD = new();
+    public static Dictionary<byte, long> TimeMasterCD = new();
     public static GameData.PlayerInfo LastVotedPlayerInfo;
     public static string LastVotedPlayer;
     public static List<byte> ResetCamPlayerList = new();

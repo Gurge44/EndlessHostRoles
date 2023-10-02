@@ -50,6 +50,7 @@ namespace TOHE.Roles.Crewmate
             {
                 UseLimit[pc.PlayerId] -= 1;
                 DoorsReset.OpenAllDoors();
+                Main.DoormasterCD.TryAdd(pc.PlayerId, GetTimeStamp());
             }
             else
             {

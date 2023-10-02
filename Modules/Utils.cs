@@ -2472,6 +2472,47 @@ public static class Utils
         if (CopyCat.IsEnable()) CopyCat.AfterMeetingTasks();
         //Pirate.AfterMeetingTask();
 
+        if (Options.UsePets.GetBool())
+            foreach (var pc in Main.AllAlivePlayerControls)
+            {
+                switch (pc.GetCustomRole())
+                {
+                    case CustomRoles.Doormaster:
+                        Main.DoormasterCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                        break;
+                    case CustomRoles.Tether:
+                        Main.TetherCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                        break;
+                    case CustomRoles.Mayor:
+                        Main.MayorCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                        break;
+                    case CustomRoles.Paranoia:
+                        Main.ParanoiaCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                        break;
+                    case CustomRoles.Grenadier:
+                        Main.GrenadierCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                        break;
+                    case CustomRoles.Lighter:
+                        Main.LighterCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                        break;
+                    case CustomRoles.SecurityGuard:
+                        Main.SecurityGuardCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                        break;
+                    case CustomRoles.DovesOfNeace:
+                        Main.DovesOfNeaceCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                        break;
+                    case CustomRoles.Alchemist:
+                        Main.AlchemistCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                        break;
+                    case CustomRoles.TimeMaster:
+                        Main.TimeMasterCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                        break;
+                    case CustomRoles.Veteran:
+                        Main.VeteranCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                        break;
+                }
+            }
+
 
         if (Options.AirshipVariableElectrical.GetBool())
             AirshipElectricalDoors.Initialize();

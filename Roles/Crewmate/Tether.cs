@@ -51,6 +51,7 @@ namespace TOHE.Roles.Crewmate
             {
                 if (Target != byte.MaxValue)
                 {
+                    Main.TetherCD.TryAdd(pc.PlayerId, GetTimeStamp());
                     _ = new LateTask(() =>
                     {
                         if (GameStates.IsInTask)

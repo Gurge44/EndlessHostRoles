@@ -170,6 +170,8 @@ namespace TOHE.Roles.Crewmate
                     break;
             }
 
+            Main.AlchemistCD.TryAdd(player.PlayerId, Utils.GetTimeStamp());
+
             PotionID = 10;
         }
         private static long lastFixedTime = 0;

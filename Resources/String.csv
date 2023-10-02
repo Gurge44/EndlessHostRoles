@@ -1388,6 +1388,7 @@
 "TransporterTeleportMax","传送次数上限","Max number of teleports","Максимальное колличество телепортов","傳送次數上限","传送次数上限"
 "TriggerKill","击杀","Kill","Убийство","殺死","击杀"
 "UsePets","","Crewmates use Pet button to activate their ability when possible","","",""
+"AbilityOnCooldown","","<color=#ffff00>Ability on cooldown!</color>","","",""
 "KillCooldownOnStrangle","","Kill Cooldown after Strangling","","",""
 "CDPT","","<color=#00ffa5>CD:</color> <color=#ffffff><b>{0}</b>s</color>","","",""
 "HackCD","","<color=#39FF14>Hack CD:</color> <color=#ffffff><b>{0}</b>s</color>","","",""

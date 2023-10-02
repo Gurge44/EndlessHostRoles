@@ -21,6 +21,7 @@ class LocalPetPatch
 {
     public static void Prefix(PlayerControl __instance)
     {
+        if (!Options.UsePets.GetBool()) return;
         if (!(AmongUsClient.Instance.AmHost && AmongUsClient.Instance.AmClient)) return;
         __instance.petting = true;
         if (GameStates.IsLobby) return;
@@ -29,6 +30,7 @@ class LocalPetPatch
 
     public static void Postfix(PlayerControl __instance)
     {
+        if (!Options.UsePets.GetBool()) return;
         if (!(AmongUsClient.Instance.AmHost && AmongUsClient.Instance.AmClient)) return;
         __instance.petting = false;
     }
@@ -66,19 +68,31 @@ class ExternalRpcPetPatch
         switch (pc.GetCustomRole())
         {
             case CustomRoles.Doormaster:
+                if (Main.DoormasterCD.ContainsKey(pc.PlayerId))
+                {
+                    pc.Notify(GetString("AbilityOnCooldown"));
+                    break;
+                }
                 Doormaster.OnEnterVent(pc);
+                pc.RpcResetAbilityCooldown();
                 break;
             case CustomRoles.Tether:
+                if (Main.TetherCD.ContainsKey(pc.PlayerId))
+                {
+                    pc.Notify(GetString("AbilityOnCooldown"));
+                    break;
+                }
                 Tether.OnEnterVent(pc, 0, true);
+                pc.RpcResetAbilityCooldown();
                 break;
             case CustomRoles.Mayor:
-                if (Main.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count) && count < Options.MayorNumOfUseButton.GetInt())
+                if (Main.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count) && count < Options.MayorNumOfUseButton.GetInt() && !Main.MayorCD.ContainsKey(pc.PlayerId))
                 {
                     pc?.ReportDeadBody(null);
                 }
                 break;
             case CustomRoles.Paranoia:
-                if (Main.ParaUsedButtonCount.TryGetValue(pc.PlayerId, out var count2) && count2 < Options.ParanoiaNumOfUseButton.GetInt())
+                if (Main.ParaUsedButtonCount.TryGetValue(pc.PlayerId, out var count2) && count2 < Options.ParanoiaNumOfUseButton.GetInt() && !Main.ParanoiaCD.ContainsKey(pc.PlayerId))
                 {
                     Main.ParaUsedButtonCount[pc.PlayerId] += 1;
                     if (AmongUsClient.Instance.AmHost)
@@ -94,12 +108,19 @@ class ExternalRpcPetPatch
             case CustomRoles.Veteran:
                 if (Main.VeteranNumOfUsed[pc.PlayerId] >= 1)
                 {
+                    if (Main.VeteranCD.ContainsKey(pc.PlayerId))
+                    {
+                        pc.Notify(GetString("AbilityOnCooldown"));
+                        break;
+                    }
                     Main.VeteranInProtect.Remove(pc.PlayerId);
                     Main.VeteranInProtect.Add(pc.PlayerId, Utils.GetTimeStamp(DateTime.Now));
                     Main.VeteranNumOfUsed[pc.PlayerId] -= 1;
                     //pc.RpcGuardAndKill(pc);
                     pc.RPCPlayCustomSound("Gunload");
                     pc.Notify(GetString("VeteranOnGuard"), Options.VeteranSkillDuration.GetFloat());
+                    Main.VeteranCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                    pc.RpcResetAbilityCooldown();
                     pc.MarkDirtySettings();
                 }
                 else
@@ -110,6 +131,11 @@ class ExternalRpcPetPatch
             case CustomRoles.Grenadier:
                 if (Main.GrenadierNumOfUsed[pc.PlayerId] >= 1)
                 {
+                    if (Main.GrenadierCD.ContainsKey(pc.PlayerId))
+                    {
+                        pc.Notify(GetString("AbilityOnCooldown"));
+                        break;
+                    }
                     if (pc.Is(CustomRoles.Madmate))
                     {
                         Main.MadGrenadierBlinding.Remove(pc.PlayerId);
@@ -125,6 +151,8 @@ class ExternalRpcPetPatch
                     //pc.RpcGuardAndKill(pc);
                     pc.RPCPlayCustomSound("FlashBang");
                     pc.Notify(GetString("GrenadierSkillInUse"), Options.GrenadierSkillDuration.GetFloat());
+                    Main.GrenadierCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                    pc.RpcResetAbilityCooldown();
                     Main.GrenadierNumOfUsed[pc.PlayerId] -= 1;
                     Utils.MarkEveryoneDirtySettingsV3();
                 }
@@ -136,9 +164,16 @@ class ExternalRpcPetPatch
             case CustomRoles.Lighter:
                 if (Main.LighterNumOfUsed[pc.PlayerId] >= 1)
                 {
+                    if (Main.LighterCD.ContainsKey(pc.PlayerId))
+                    {
+                        pc.Notify(GetString("AbilityOnCooldown"));
+                        break;
+                    }
                     Main.Lighter.Remove(pc.PlayerId);
                     Main.Lighter.Add(pc.PlayerId, Utils.GetTimeStamp());
                     pc.Notify(GetString("LighterSkillInUse"), Options.LighterSkillDuration.GetFloat());
+                    Main.LighterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                    pc.RpcResetAbilityCooldown();
                     Main.LighterNumOfUsed[pc.PlayerId] -= 1;
                     pc.MarkDirtySettings();
                 }
@@ -150,9 +185,16 @@ class ExternalRpcPetPatch
             case CustomRoles.SecurityGuard:
                 if (Main.SecurityGuardNumOfUsed[pc.PlayerId] >= 1)
                 {
+                    if (Main.SecurityGuardCD.ContainsKey(pc.PlayerId))
+                    {
+                        pc.Notify(GetString("AbilityOnCooldown"));
+                        break;
+                    }
                     Main.BlockSabo.Remove(pc.PlayerId);
                     Main.BlockSabo.Add(pc.PlayerId, Utils.GetTimeStamp());
                     pc.Notify(GetString("SecurityGuardSkillInUse"), Options.SecurityGuardSkillDuration.GetFloat());
+                    Main.SecurityGuardCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                    pc.RpcResetAbilityCooldown();
                     Main.SecurityGuardNumOfUsed[pc.PlayerId] -= 1;
                 }
                 else
@@ -164,6 +206,10 @@ class ExternalRpcPetPatch
                 if (Main.DovesOfNeaceNumOfUsed[pc.PlayerId] < 1)
                 {
                     pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
+                }
+                else if (Main.DovesOfNeaceCD.ContainsKey(pc.PlayerId))
+                {
+                    pc.Notify(GetString("AbilityOnCooldown"));
                 }
                 else
                 {
@@ -184,20 +230,30 @@ class ExternalRpcPetPatch
                     });
                     pc.RPCPlayCustomSound("Dove");
                     pc.Notify(string.Format(GetString("DovesOfNeaceOnGuard"), Main.DovesOfNeaceNumOfUsed[pc.PlayerId]));
+                    Main.DovesOfNeaceCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                    pc.RpcResetAbilityCooldown();
                 }
                 break;
             case CustomRoles.Alchemist:
                 Alchemist.OnEnterVent(pc, 0, true);
+                pc.RpcResetAbilityCooldown();
                 break;
             case CustomRoles.TimeMaster:
                 if (Main.TimeMasterNumOfUsed[pc.PlayerId] >= 1)
                 {
+                    if (Main.TimeMasterCD.ContainsKey(pc.PlayerId))
+                    {
+                        pc.Notify(GetString("AbilityOnCooldown"));
+                        break;
+                    }
                     Main.TimeMasterNumOfUsed[pc.PlayerId] -= 1;
                     Main.TimeMasterInProtect.Remove(pc.PlayerId);
                     Main.TimeMasterNumOfUsed[pc.PlayerId] -= 1;
                     Main.TimeMasterInProtect.Add(pc.PlayerId, Utils.GetTimeStamp());
                     //if (!pc.IsModClient()) pc.RpcGuardAndKill(pc);
                     pc.Notify(GetString("TimeMasterOnGuard"), Options.TimeMasterSkillDuration.GetFloat());
+                    Main.TimeMasterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                    pc.RpcResetAbilityCooldown();
                     foreach (var player in Main.AllPlayerControls)
                     {
                         if (Main.TimeMasterBackTrack.ContainsKey(player.PlayerId))

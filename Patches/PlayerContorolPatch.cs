@@ -14,6 +14,7 @@ using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
 using UnityEngine;
 using static TOHE.Translator;
+using static UnityEngine.ParticleSystem.PlaybackState;
 
 namespace TOHE;
 
@@ -1936,6 +1937,79 @@ class FixedUpdatePatch
                 PlagueBearer.playerIdList.Remove(player.PlayerId);
             }
 
+            if (!lowLoad)
+            {
+                switch (player.GetCustomRole())
+                {
+                    case CustomRoles.Doormaster:
+                        if (Main.DoormasterCD.TryGetValue(player.PlayerId, out var dm) && dm + Doormaster.VentCooldown.GetInt() < Utils.GetTimeStamp())
+                        {
+                            Main.DoormasterCD.Remove(player.PlayerId);
+                        }
+                        break;
+                    case CustomRoles.Tether:
+                        if (Main.TetherCD.TryGetValue(player.PlayerId, out var th) && th + Tether.VentCooldown.GetInt() < Utils.GetTimeStamp())
+                        {
+                            Main.TetherCD.Remove(player.PlayerId);
+                        }
+                        break;
+                    case CustomRoles.Mayor:
+                        if (Main.MayorCD.TryGetValue(player.PlayerId, out var my) && my + Options.DefaultKillCooldown < Utils.GetTimeStamp())
+                        {
+                            Main.MayorCD.Remove(player.PlayerId);
+                        }
+                        break;
+                    case CustomRoles.Paranoia:
+                        if (Main.ParanoiaCD.TryGetValue(player.PlayerId, out var pn) && pn + Options.ParanoiaVentCooldown.GetInt() < Utils.GetTimeStamp())
+                        {
+                            Main.ParanoiaCD.Remove(player.PlayerId);
+                        }
+                        break;
+                    case CustomRoles.Grenadier:
+                        if (Main.GrenadierCD.TryGetValue(player.PlayerId, out var gd) && gd + Options.GrenadierSkillCooldown.GetInt() + Options.GrenadierSkillDuration.GetInt() < Utils.GetTimeStamp())
+                        {
+                            Main.GrenadierCD.Remove(player.PlayerId);
+                        }
+                        break;
+                    case CustomRoles.Lighter:
+                        if (Main.LighterCD.TryGetValue(player.PlayerId, out var lt) && lt + Options.LighterSkillCooldown.GetInt() + Options.LighterSkillDuration.GetInt() < Utils.GetTimeStamp())
+                        {
+                            Main.LighterCD.Remove(player.PlayerId);
+                        }
+                        break;
+                    case CustomRoles.SecurityGuard:
+                        if (Main.SecurityGuardCD.TryGetValue(player.PlayerId, out var sg) && sg + Options.SecurityGuardSkillCooldown.GetInt() + Options.SecurityGuardSkillDuration.GetInt() < Utils.GetTimeStamp())
+                        {
+                            Main.SecurityGuardCD.Remove(player.PlayerId);
+                        }
+                        break;
+                    case CustomRoles.DovesOfNeace:
+                        if (Main.DovesOfNeaceCD.TryGetValue(player.PlayerId, out var don) && don + Options.DovesOfNeaceCooldown.GetInt() < Utils.GetTimeStamp())
+                        {
+                            Main.DovesOfNeaceCD.Remove(player.PlayerId);
+                        }
+                        break;
+                    case CustomRoles.Alchemist:
+                        if (Main.AlchemistCD.TryGetValue(player.PlayerId, out var ac) && ac + Alchemist.VentCooldown.GetInt() < Utils.GetTimeStamp())
+                        {
+                            Main.AlchemistCD.Remove(player.PlayerId);
+                        }
+                        break;
+                    case CustomRoles.TimeMaster:
+                        if (Main.TimeMasterCD.TryGetValue(player.PlayerId, out var tm) && tm + Options.TimeMasterSkillCooldown.GetInt() + Options.TimeMasterSkillDuration.GetInt() < Utils.GetTimeStamp())
+                        {
+                            Main.TimeMasterCD.Remove(player.PlayerId);
+                        }
+                        break;
+                    case CustomRoles.Veteran:
+                        if (Main.VeteranCD.TryGetValue(player.PlayerId, out var vr) && vr + Options.VeteranSkillCooldown.GetInt() + Options.VeteranSkillDuration.GetInt() < Utils.GetTimeStamp())
+                        {
+                            Main.VeteranCD.Remove(player.PlayerId);
+                        }
+                        break;
+                }
+            }
+
 
             if (GameStates.IsInTask && Agitater.IsEnable && Agitater.AgitaterHasBombed && Agitater.CurrentBombedPlayer == player.PlayerId)
             {
@@ -2916,6 +2990,7 @@ class EnterVentPatch
                 //pc.RpcGuardAndKill(pc);
                 pc.RPCPlayCustomSound("Gunload");
                 pc.Notify(GetString("VeteranOnGuard"), Options.VeteranSkillDuration.GetFloat());
+                Main.VeteranCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 pc.MarkDirtySettings();
             }
             else
@@ -2951,6 +3026,7 @@ class EnterVentPatch
                 //pc.RpcGuardAndKill(pc);
                 pc.RPCPlayCustomSound("FlashBang");
                 pc.Notify(GetString("GrenadierSkillInUse"), Options.GrenadierSkillDuration.GetFloat());
+                Main.GrenadierCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 Main.GrenadierNumOfUsed[pc.PlayerId] -= 1;
                 Utils.MarkEveryoneDirtySettingsV3();
             }
@@ -2966,6 +3042,7 @@ class EnterVentPatch
                 Main.Lighter.Remove(pc.PlayerId);
                 Main.Lighter.Add(pc.PlayerId, Utils.GetTimeStamp());
                 pc.Notify(GetString("LighterSkillInUse"), Options.LighterSkillDuration.GetFloat());
+                Main.LighterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 Main.LighterNumOfUsed[pc.PlayerId] -= 1;
                 pc.MarkDirtySettings();
             }
@@ -2981,6 +3058,7 @@ class EnterVentPatch
                 Main.BlockSabo.Remove(pc.PlayerId);
                 Main.BlockSabo.Add(pc.PlayerId, Utils.GetTimeStamp());
                 pc.Notify(GetString("SecurityGuardSkillInUse"), Options.SecurityGuardSkillDuration.GetFloat());
+                Main.SecurityGuardCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 Main.SecurityGuardNumOfUsed[pc.PlayerId] -= 1;
             }
             else
@@ -3014,6 +3092,7 @@ class EnterVentPatch
                 });
                 pc.RPCPlayCustomSound("Dove");
                 pc.Notify(string.Format(GetString("DovesOfNeaceOnGuard"), Main.DovesOfNeaceNumOfUsed[pc.PlayerId]));
+                Main.DovesOfNeaceCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
             }
         }
         if (pc.Is(CustomRoles.TimeMaster))
@@ -3026,6 +3105,7 @@ class EnterVentPatch
                 Main.TimeMasterInProtect.Add(pc.PlayerId, Utils.GetTimeStamp());
                 //if (!pc.IsModClient()) pc.RpcGuardAndKill(pc);
                 pc.Notify(GetString("TimeMasterOnGuard"), Options.TimeMasterSkillDuration.GetFloat());
+                Main.TimeMasterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 foreach (var player in Main.AllPlayerControls)
                 {
                     if (Main.TimeMasterBackTrack.ContainsKey(player.PlayerId))
