@@ -33,8 +33,8 @@ public class Main : BasePlugin
     public static ConfigEntry<string> DebugKeyInput { get; private set; }
     public static readonly string MainMenuText = " ";
     public const string PluginGuid = "com.gurge44.toheplus";
-    public const string PluginVersion = "1.0.6";
-    public const string PluginDisplayVersion = "1.0.6";
+    public const string PluginVersion = "1.0.7";
+    public const string PluginDisplayVersion = "1.0.7";
     public const int PluginCreate = 3;
     public const bool Canary = false;
 
