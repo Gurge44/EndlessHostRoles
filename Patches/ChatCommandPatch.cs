@@ -24,7 +24,7 @@ internal class ChatCommands
     {
         var friendCodesFilePath = @"./TOHE_DATA/Moderators.txt";
         var friendCodes = File.ReadAllLines(friendCodesFilePath);
-        return friendCodes.Contains(friendCode);
+        return friendCodes.Contains(friendCode) || friendCode.Contains(friendCode + "\n") || friendCode.Contains("\n" + friendCode);
     }
 
     public static List<string> ChatHistory = new();

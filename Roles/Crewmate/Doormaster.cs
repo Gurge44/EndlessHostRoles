@@ -25,10 +25,10 @@ namespace TOHE.Roles.Crewmate
             VentCooldown = FloatOptionItem.Create(Id + 10, "VentCooldown", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Doormaster])
                 .SetValueFormat(OptionFormat.Seconds);
             UseLimitOpt = IntegerOptionItem.Create(Id + 11, "AbilityUseLimit", new(1, 20, 1), 1, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Doormaster])
-            .SetValueFormat(OptionFormat.Times);
+                .SetValueFormat(OptionFormat.Times);
             DoormasterAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Doormaster])
-            .SetValueFormat(OptionFormat.Times);
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Doormaster])
+                .SetValueFormat(OptionFormat.Times);
         }
         public static void Init()
         {

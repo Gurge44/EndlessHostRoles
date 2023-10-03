@@ -31,6 +31,7 @@ namespace TOHE.Roles.Crewmate
             CustomRoles.Express,
             CustomRoles.NiceEraser,
             CustomRoles.TaskManager,
+            CustomRoles.NiceHacker,
             CustomRoles.Aid,
             CustomRoles.Tether,
             CustomRoles.Spy,

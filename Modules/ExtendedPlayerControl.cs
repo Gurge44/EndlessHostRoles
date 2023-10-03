@@ -2,6 +2,7 @@ using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
+using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -1289,6 +1290,28 @@ static class ExtendedPlayerControl
                 return room;
         }
         return null;
+    }
+    public static Dictionary<PlainShipRoom, int> GetAllPlayerLocationsCount()
+    {
+        Dictionary<PlainShipRoom, int> playerRooms = new();
+        foreach (var pc in Main.AllAlivePlayerControls)
+        {
+            if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return null;
+            var Rooms = ShipStatus.Instance.AllRooms;
+            if (Rooms == null) return null;
+            for (int i = 0; i < Rooms.Count; i++)
+            {
+                PlainShipRoom room = Rooms[i];
+                if (!room.roomArea) continue;
+                if (pc.Collider.IsTouching(room.roomArea))
+                {
+                    if (playerRooms.ContainsKey(room)) playerRooms[room]++;
+                    else playerRooms.Add(room, 1);
+                }
+            }
+        }
+        if (playerRooms.Any()) return playerRooms;
+        else return null;
     }
 
     //汎用

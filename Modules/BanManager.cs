@@ -63,7 +63,12 @@ public static class BanManager
     }
     private static string GetResourcesTxt(string path)
     {
-        var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
+        var stream = Assembly.GetExecutingAssembly()?.GetManifestResourceStream(path);
+        if (stream == null)
+        {
+            Logger.Error("Assembly.GetExecutingAssembly()?.GetManifestResourceStream(path) ended up being null", "BanManager.GetResourcesTxt");
+            return string.Empty;
+        }
         stream.Position = 0;
         using StreamReader reader = new(stream, Encoding.UTF8);
         return reader.ReadToEnd();

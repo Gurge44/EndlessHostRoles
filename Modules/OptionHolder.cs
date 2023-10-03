@@ -1322,6 +1322,8 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Demolitionist]);
         RoleLoadingText = "Crewmate roles\nTask Manager";
         SetupSingleRoleOptions(5575, TabGroup.CrewmateRoles, CustomRoles.TaskManager, 1);
+        RoleLoadingText = "Crewmate roles\nHacker";
+        NiceHacker.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nDoormaster";
         Doormaster.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nRicochet";

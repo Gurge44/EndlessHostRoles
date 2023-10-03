@@ -142,6 +142,7 @@ public enum Sounds
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.HandleRpc))]
 internal class RPCHandlerPatch
 {
+    public static int ReportDeadBodyRPCs = 0;
     public static bool TrustedRpc(byte id)
     => (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.RetributionistRevenge;
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
@@ -150,6 +151,7 @@ internal class RPCHandlerPatch
         MessageReader subReader = MessageReader.Get(reader);
         if (EAC.ReceiveRpc(__instance, callId, reader)) return false;
         Logger.Info($"{__instance?.Data?.PlayerId}({(__instance?.Data?.PlayerId == 0 ? "Host" : __instance?.Data?.PlayerName)}):{callId}({RPC.GetRpcName(callId)})", "ReceiveRPC");
+        if (callId == 11) ReportDeadBodyRPCs++;
         switch (rpcType)
         {
             case RpcCalls.SetName: //SetNameRPC
@@ -187,6 +189,12 @@ internal class RPCHandlerPatch
                 Logger.Warn($"收到来自 {__instance?.Data?.PlayerName} 的不受信用的RPC，因此将其踢出。", "Kick");
                 Logger.SendInGame(string.Format(GetString("Warning.InvalidRpc"), __instance?.Data?.PlayerName));
             }
+            return false;
+        }
+        if (ReportDeadBodyRPCs > 4)
+        {
+            AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), true);
+            Logger.SendInGame(string.Format(GetString("Warning.ReportDeadBodyHack"), __instance?.Data?.PlayerName));
             return false;
         }
         return true;
@@ -1148,6 +1156,9 @@ internal static class RPC
                 break;
             case CustomRoles.Dazzler:
                 Dazzler.Add(targetId);
+                break;
+            case CustomRoles.NiceHacker:
+                NiceHacker.Add(targetId);
                 break;
             case CustomRoles.Gambler:
                 Gambler.Add(targetId);

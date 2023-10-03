@@ -2030,8 +2030,9 @@
 
 "## 警告 / Warnings"
 "Warning.OverrideExiledPlayer","警告：由于设置内鬼数量为1（船鬼计算为船员），为了避免黑屏错误，将会将驱逐动画显示为平票或跳过（只会影响视觉，不会影响投票结果）。请设置更多的内鬼人数或禁用船鬼以避免该问题。","Warning: Since the number of Impostors is set to 1, in order to avoid black screen, the voting screen will always show as a tied vote or a skip vote (only affects the visual, not the voting results). Please set more number of Impostors to avoid this problem.","Предупреждение: Поскольку Предатель остался один (Предатель считается как Член Экипажа), во избежание черного экрана, анимация выбрасывания считается как ничьей или пропущено (только визуально, выбрасывание все ещё происходит)\n Пожалуйста, установите больше предателей или отключите Предателей чтобы избежать этой проблемы.","警告：由于设置内鬼数量为1（船鬼计算为船员），为了避免黑屏错误，将会将驱逐动画显示为平票或跳过（只会影响视觉，不会影响投票结果）。请设置更多的内鬼人数或禁用船鬼以避免该问题。","设置内鬼人数为一个时，放逐动画会显示为平票"
-"Warning.InvalidRpc","{0} 被踢出，因其 RPC 无效，请确保没有 TOHE 以外的模组。","Kicked <b>{0}</b> because an invalid RPC was received.\nPlease check that no mods other than TOHE installed.","{0} был кикнут так как получен недопустимый RPC. \nУбедитесь что в системе нет других модов кроме TOHE.","{0} 被踢出，因其 RPC 無效，請確保沒有 TOHE 以外的模組。","{0} 被踢出，因其 RPC 无效，请确保没有 TOHE 以外的模组。"
-"Warning.NoModHost","非TOHE房","TOHE is not installed on the host","У Хоста Лобби не установлен TOHE","非TOHE房","非TOHE房"
+"Warning.InvalidRpc","{0} 被踢出，因其 RPC 无效，请确保没有 TOHE 以外的模组。","Kicked <b>{0}</b> because an invalid RPC was received.\nPlease check that no mods other than TOHE+ are installed.","{0} был кикнут так как получен недопустимый RPC. \nУбедитесь что в системе нет других модов кроме TOHE.","{0} 被踢出，因其 RPC 無效，請確保沒有 TOHE 以外的模組。","{0} 被踢出，因其 RPC 无效，请确保没有 TOHE 以外的模组。"
+"Warning.ReportDeadBodyHack","","Banned hacker <b>{0}</b> for sending too many ReportDeadBody RPCs.\nUse SHIFT + L + ENTER to end the game or SHIFT + M + ENTER to end the meeting.\nSorry for the inconvenience.","","",""
+"Warning.NoModHost","非TOHE房","TOHE+ is not installed on the host","У Хоста Лобби не установлен TOHE","非TOHE房","非TOHE房"
 "Warning.MismatchedVersion","{0}\n安装了其它版本的 {1}","<b>{0}</b> has a different version than <b>{1}</b>","{0} Версия \nне соответствует версии Хоста лобби {1}","{0}\n安裝了其他版本的 {1}","{0}\n安装了其它版本的 {1}"
 "Warning.AutoExitAtMismatchedVersion","您的 {0} 版本与房主不同\n您将在 {1} 秒内被踢出","The host has no or a different version of {0}\nYou will be kicked in {1}","Версия {0} не соответствует Хосту лобби. \nВы будете исключены через {1} секунды","您的 {0} 版本與房主不同\n您將在 {1} 秒後被踢出","您的 {0} 版本与房主不同\n您将在 {1} 秒内被踢出"
 
@@ -2426,7 +2427,7 @@
 "DivinatorCheck.Result21","<b>{0}</b>是投毒者、吸血鬼、和平之鸽、灵魂论者或背叛者其中之一","<b>{0}</b> is either Poisoner, Vampire, Pacifist, Head Hunter, Soul Catcher, or Traitor","","",""
 "DivinatorCheck.Result22","<b>{0}</b>是诡雷、快枪手、连环杀手、警长、仰慕者或术士其中之一","<b>{0}</b> is either Trapster, Quick Shooter, Serial Killer, Sheriff, Werewolf, Admirer, or Warlock","","",""
 "DivinatorCheck.Result23","<b>{0}</b>是调查员、军师、祭祀者、巫师或女巫其中之一","<b>{0}</b> is either Fortune Teller, Consigliere, Ritualist, Imitator, Hex Master, or Witch","","",""
-"DivinatorCheck.Result24","<b>{0}</b>是懒人、跟随者、鹈鹕、清道夫或秃鹫其中之一","<b>{0}</b> is either Lazy Guy, Follower, Pelican, Vengeance, Scavenger, or Vulture","","",""
+"DivinatorCheck.Result24","<b>{0}</b>是懒人、跟随者、鹈鹕、清道夫或秃鹫其中之一","<b>{0}</b> is either Lazy Guy, Hacker, Follower, Pelican, Vengeance, Scavenger, or Vulture","","",""
 "DivinatorCheck.Result25","<b>{0}</b>是扫把星、骑士、老兵或刽子手其中之一","<b>{0}</b> is either Jinx, Vigilante, Veteran, Task Manager, Pyromaniac, or Hangman","","",""
 "DivinatorCheck.Result26","<b>{0}</b>是通灵师、灵魂召唤师、灵魂论者、寄生虫、隐匿者或魅影其中之一","<b>{0}</b> is either Medium, Spiritcaller, Spiritualist, Parasite, Swooper, or Wraith","","",""
 "DivinatorCheck.Result27","<b>{0}</b>可能是时间操控者, 时间之主, 蚀时者, 千面鬼, 或者狙击手其中之一","<b>{0}</b> is either Time Manager, Time Master, Time Thief, Tether, Shapemaster, or Sniper"
@@ -2500,6 +2501,17 @@
 "VentguardMaxGuards","","Max number of Vent Blocks","","",""
 "VentguardBlockDoesNotAffectCrew","","<color=#8cffff>Crewmates</color> can use blocked vents","","",""
 "VentBlockSuccess","","This vent is now blocked","","",""
+
+"## Hacker"
+"Hacker","","Hacker","","",""
+"HackerInfo","","Watch Admin Table from anywhere","","",""
+"HackerInfoLong","","(Hacker):\nThis role is different for modded clients and vanilla clients.\n\nAs a modded client, whenever you open the map (and have ability uses left), the admin map will show up. You may be able to move while having the map open depending on settings.\n\nAs a vanilla client, you may enter a vent to get a notification saying how many people are in different rooms on the ship (essentially admin map).","","",""
+"HackerModdedClientAbilityUseSecondsMultiplier","","Modded clients, for 1 ability use, can view Admin map for","","",""
+"HackerModdedClientCanMoveWhileViewingMap","","Modded clients can move while looking at Admin map","","",""
+"HackerVanillaClientSeesInfoFor","","Vanilla clients see admin info notify for","","",""
+
+
+"AbilityChargesWhenFinishedTasks","","<color=#00ffff>Ability <color=#7FFFD2>Use Gains</color> <color=#ffa500>every 5s</color> when tasks are done</color>","","",""
 
 "## Vengeance"
 "Vengeance","","Vengeance","","",""

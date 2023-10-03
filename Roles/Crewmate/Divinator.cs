@@ -287,6 +287,7 @@ public static class Divinator
                 CustomRoles.Totocalcio or
                 CustomRoles.Pelican or
                 CustomRoles.Scavenger or
+                CustomRoles.NiceHacker or
                 CustomRoles.Vengeance or
                 CustomRoles.Vulture
                 => "Result24",

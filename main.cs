@@ -90,6 +90,7 @@ public class Main : BasePlugin
     public static float RefixCooldownDelay = 0f;
     public static bool ProcessShapeshifts = true;
     public static Dictionary<byte, long> DoormasterCD = new();
+    public static Dictionary<byte, long> HackerCD = new();
     public static Dictionary<byte, long> TetherCD = new();
     public static Dictionary<byte, long> MayorCD = new();
     public static Dictionary<byte, long> ParanoiaCD = new();
@@ -334,6 +335,7 @@ public class Main : BasePlugin
                 {CustomRoles.Express, "#00ffff"},
                 {CustomRoles.NiceEraser, "#00a5ff"},
                 {CustomRoles.TaskManager, "#00ffa5"},
+                {CustomRoles.NiceHacker, "#75fa4c"},
                 {CustomRoles.Aid, "#D7BDE2"},
                 {CustomRoles.Spy, "#34495E"},
                 {CustomRoles.Doormaster, "#7FB3D5"},
@@ -670,6 +672,7 @@ public enum CustomRoles
     Express,
     NiceEraser,
     TaskManager,
+    NiceHacker,
     Spy,
     Ricochet,
     Doormaster,

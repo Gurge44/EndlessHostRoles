@@ -82,6 +82,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Express => CustomRoles.Crewmate,
                 CustomRoles.NiceEraser => CustomRoles.Crewmate,
                 CustomRoles.TaskManager => CustomRoles.Crewmate,
+                CustomRoles.NiceHacker => CustomRoles.Engineer,
                 CustomRoles.Spy => CustomRoles.Crewmate,
                 CustomRoles.Ricochet => CustomRoles.Crewmate,
                 CustomRoles.Tether => CustomRoles.Engineer,
@@ -192,7 +193,8 @@ internal static class CustomRolesHelper
                 CustomRoles.Ventguard => CustomRoles.EngineerTOHE,
                 CustomRoles.Express => CustomRoles.CrewmateTOHE,
                 CustomRoles.NiceEraser => CustomRoles.CrewmateTOHE,
-                CustomRoles.TaskManager => CustomRoles.CrewmateTOHE,
+                CustomRoles.TaskManager => CustomRoles.EngineerTOHE, // can't check if player is modded or not
+                CustomRoles.NiceHacker => CustomRoles.CrewmateTOHE,
                 CustomRoles.Spy => CustomRoles.CrewmateTOHE,
                 CustomRoles.Ricochet => CustomRoles.CrewmateTOHE,
                 CustomRoles.Aid => CustomRoles.CrewmateTOHE,

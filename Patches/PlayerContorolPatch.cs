@@ -1470,9 +1470,18 @@ class ReportDeadBodyPatch
     public static Dictionary<byte, List<GameData.PlayerInfo>> WaitReport = new();
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] GameData.PlayerInfo target)
     {
+        if (RPCHandlerPatch.ReportDeadBodyRPCs > 4)
+        {
+            Logger.Warn("Ignoring ReportDeadBodyRPC due to a hacker", "ReportDeadBodyPatch.Prefix");
+            return false;
+        }
         if (GameStates.IsMeeting) return false;
         if (Options.DisableMeeting.GetBool()) return false;
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA) return false;
+        if (__instance == null)
+        {
+            Logger.Fatal("PlayerControl __instance ended up being null", "ReportDeadBodyPatch.Prefix");
+        }
         if (!CanReport[__instance.PlayerId])
         {
             WaitReport[__instance.PlayerId].Add(target);
@@ -1891,6 +1900,7 @@ class FixedUpdatePatch
             NameNotifyManager.OnFixedUpdate(player);
             TargetArrow.OnFixedUpdate(player);
             LocateArrow.OnFixedUpdate(player);
+            RPCHandlerPatch.ReportDeadBodyRPCs = 0;
         }
 
         if (AmongUsClient.Instance.AmHost)

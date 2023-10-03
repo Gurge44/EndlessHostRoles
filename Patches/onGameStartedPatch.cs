@@ -1,6 +1,7 @@
 using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
+using Il2CppSystem.CodeDom;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -284,6 +285,7 @@ internal class ChangeRoleSettings
             Jinx.Init();
             DoubleShot.Init();
             Dazzler.Init();
+            NiceHacker.Init();
             Gambler.Init();
             RiftMaker.Init();
             Addict.Init();
@@ -855,6 +857,9 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Dazzler:
                         Dazzler.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.NiceHacker:
+                        NiceHacker.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Gambler:
                         Gambler.Add(pc.PlayerId);

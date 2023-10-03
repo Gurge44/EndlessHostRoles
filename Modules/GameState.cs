@@ -482,6 +482,9 @@ public class TaskState
                     case CustomRoles.Spy:
                         Spy.UseLimit[player.PlayerId] += Spy.SpyAbilityUseGainWithEachTaskCompleted.GetFloat();
                         break;
+                    case CustomRoles.NiceHacker:
+                        NiceHacker.UseLimit[player.PlayerId] += NiceHacker.NiceHackerAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        break;
                 }
             }
             if (player.Is(CustomRoles.Express) && player.IsAlive())
