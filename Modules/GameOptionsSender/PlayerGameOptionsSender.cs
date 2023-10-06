@@ -153,6 +153,10 @@ public class PlayerGameOptionsSender : GameOptionsSender
                     opt.SetFloat(FloatOptionNames.ImpostorLightMod, Gambler.LowVision.GetFloat());
                 }
                 break;
+            case CustomRoles.NiceHacker:
+                AURoleOptions.EngineerCooldown = NiceHacker.AbilityCD.GetFloat();
+                AURoleOptions.EngineerInVentMaxTime = 1f;
+                break;
             case CustomRoles.Warlock:
                 AURoleOptions.ShapeshifterCooldown = Main.isCursed ? 1f : Options.DefaultKillCooldown;
                 AURoleOptions.ShapeshifterDuration = Options.WarlockShiftDuration.GetFloat();

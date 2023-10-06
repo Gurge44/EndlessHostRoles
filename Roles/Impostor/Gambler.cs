@@ -112,11 +112,11 @@ namespace TOHE.Roles.Impostor
                 switch (EffectID)
                 {
                     case 1: // Delayed kill
-                        killer.Notify(GetString("GamblerGet.DelayedKill"));
+                        killer.Notify(string.Format(GetString("GamblerGet.DelayedKill"), KillDelay.GetInt()));
                         waitingDelayedKills.TryAdd(target.PlayerId, GetTimeStamp());
                         return false;
                     case 2: // Shield
-                        killer.Notify(GetString("GamblerGet.Shield"));
+                        killer.Notify(string.Format(GetString("GamblerGet.Shield"), ShieldDur.GetInt()));
                         isShielded.TryAdd(killer.PlayerId, GetTimeStamp());
                         break;
                     case 3: // No lunge (Swift kill)
@@ -157,14 +157,14 @@ namespace TOHE.Roles.Impostor
                             return false;
                         }
                     case 6: // Low KCD
-                        killer.Notify(GetString("GamblerGet.LowKCD"));
+                        killer.Notify(string.Format(GetString("GamblerGet.LowKCD"), LowKCD.GetFloat()));
                         _ = new LateTask(() =>
                         {
                             killer.SetKillCooldown(LowKCD.GetFloat());
                         }, 0.1f, "Gambler SetLowKCD");
                         break;
                     case 7: // Speed
-                        killer.Notify(GetString("GamblerGet.Speedup"));
+                        killer.Notify(string.Format(GetString("GamblerGet.Speedup"), SpeedDur.GetInt(), Speed.GetFloat()));
                         isSpeedChange.TryAdd(killer.PlayerId, (Main.AllPlayerSpeed[killer.PlayerId], GetTimeStamp()));
                         Main.AllPlayerSpeed[killer.PlayerId] = Speed.GetFloat();
                         killer.SyncSettings();
@@ -183,23 +183,23 @@ namespace TOHE.Roles.Impostor
                         var delay = Math.Max(0.15f, BSRDelay.GetFloat());
                         if (delay >= 1f)
                         {
-                            killer.Notify(GetString("GamblerGet.BSR"));
+                            killer.Notify(string.Format(GetString("GamblerGet.BSR"), BSRDelay.GetInt()));
                         }
                         _ = new LateTask(() => { if (GameStates.IsInTask) killer.CmdReportDeadBody(target.Data); }, delay, "Gambler Self Report");
                         break;
                     case 2: // Freeze
-                        killer.Notify(GetString("GamblerGet.Freeze"));
+                        killer.Notify(string.Format(GetString("GamblerGet.Freeze"), FreezeDur.GetInt()));
                         isSpeedChange.TryAdd(killer.PlayerId, (Main.AllPlayerSpeed[killer.PlayerId], GetTimeStamp()));
                         Main.AllPlayerSpeed[killer.PlayerId] = Main.MinSpeed;
                         killer.SyncSettings();
                         break;
                     case 3: // Low vision
-                        killer.Notify(GetString("GamblerGet.LowVision"));
+                        killer.Notify(string.Format(GetString("GamblerGet.LowVision"), LowVisionDur.GetInt(), LowVision.GetFloat()));
                         isVisionChange.TryAdd(killer.PlayerId, GetTimeStamp());
                         killer.SyncSettings();
                         break;
                     case 4: // High KCD
-                        killer.Notify(GetString("GamblerGet.HighKCD"));
+                        killer.Notify(string.Format(GetString("GamblerGet.HighKCD"), HighKCD.GetFloat()));
                         _ = new LateTask(() =>
                         {
                             killer.SetKillCooldown(HighKCD.GetFloat());

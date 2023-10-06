@@ -1387,7 +1387,7 @@
 "NotifyGodAlive","如果神存活则在会议上通知所有人","Inform players at meetings that God is still alive","Сообщать игрокам на встрече что Дьявол ещё жив","若神存活則在會議上通知所有人","如果神存活则在会议上通知所有人"
 "TransporterTeleportMax","传送次数上限","Max number of teleports","Максимальное колличество телепортов","傳送次數上限","传送次数上限"
 "TriggerKill","击杀","Kill","Убийство","殺死","击杀"
-"UsePets","","Crewmates use Pet button to activate their ability when possible","","",""
+"UsePets","","Crewmates Use Pet button instead of Vent","","",""
 "AbilityOnCooldown","","<color=#ffff00>Ability on cooldown!</color>","","",""
 "KillCooldownOnStrangle","","Kill Cooldown after Strangling","","",""
 "CDPT","","<color=#00ffa5>CD:</color> <color=#ffffff><b>{0}</b>s</color>","","",""
@@ -2503,13 +2503,13 @@
 "VentBlockSuccess","","This vent is now blocked","","",""
 
 "## Hacker"
-"Hacker","","Hacker","","",""
-"HackerInfo","","Watch Admin Table from anywhere","","",""
-"HackerInfoLong","","(Hacker):\nThis role is different for modded clients and vanilla clients.\n\nAs a modded client, whenever you open the map (and have ability uses left), the admin map will show up. You may be able to move while having the map open depending on settings.\n\nAs a vanilla client, you may enter a vent to get a notification saying how many people are in different rooms on the ship (essentially admin map).","","",""
-"HackerModdedClientAbilityUseSecondsMultiplier","","Modded clients, for 1 ability use, can view Admin map for","","",""
-"HackerModdedClientCanMoveWhileViewingMap","","Modded clients can move while looking at Admin map","","",""
-"HackerVanillaClientSeesInfoFor","","Vanilla clients see admin info notify for","","",""
-
+"NiceHacker","","Hacker","","",""
+"NiceHackerInfo","","Watch Admin Table from anywhere","","",""
+"NiceHackerInfoLong","","(Hacker):\nThis role is different for modded clients and vanilla clients.\n\nAs a modded client, whenever you open the map (and have ability uses left), the admin map will show up. You may be able to move while having the map open depending on settings.\n\nAs a vanilla client, you may enter a vent to get a notification saying how many people are in different rooms on the ship (essentially admin map).","","",""
+"NiceHackerModdedClientAbilityUseSecondsMultiplier","","Modded clients, for 1 ability use, can view Admin map for","","",""
+"NiceHackerModdedClientCanMoveWhileViewingMap","","Modded clients can move while looking at Admin map","","",""
+"NiceHackerVanillaClientSeesInfoFor","","Vanilla clients see admin info notify for","","",""
+"NiceHackerAbilitySecondsLeft","","Ability uses left in seconds","","",""
 
 "AbilityChargesWhenFinishedTasks","","<color=#00ffff>Ability <color=#7FFFD2>Use Gains</color> <color=#ffa500>every 5s</color> when tasks are done</color>","","",""
 
@@ -2576,7 +2576,17 @@
 "GamblerIgnoreCursedWolfAndJinx","","Kill <color=#ff1919>Cursed Wolf</color> and <color=#ed2f91>Jinx</color>","","",""
 "GamblerIgnoreCursedWolfAndJinx","","Kill <color=#343136>Pestilence</color>","","",""
 "GamblerPositiveEffectChance","","Positive Effect Chance","","",""
-
+"GamblerGet.DelayedKill","","<color=#00ffa5>Effect:</color> Delayed Kill (<color=#00ffa5>{0}s</color>)","","",""
+"GamblerGet.Shield","","<color=#00ffa5>Effect:</color> Temporary Shield (<color=#00ffa5>{0}s</color>)","","",""
+"GamblerGet.NoLunge","","<color=#00ffa5>Effect:</color> No Lunge","","",""
+"GamblerGet.Swap","","<color=#00ffa5>Effect:</color> Swap Places with Someone","","",""
+"GamblerGet.IgnoreDefense","","<color=#00ffa5>Effect:</color> Break Through Defense","","",""
+"GamblerGet.LowKCD","","<color=#00ffa5>Effect:</color> Lower Kill Cooldown (<color=#00ffa5>{0}s</color>)","","",""
+"GamblerGet.Speedup","","<color=#00ffa5>Effect:</color> Higher Speed (<color=#00ffa5>{1}x</color>, for <color=#00ffa5>{0}s</color>)","","",""
+"GamblerGet.BSR","","<color=#ffa500>Effect:</color> Self-Report (in <color=#ffa500>{0}s</color>)","","",""
+"GamblerGet.Freeze","","<color=#ffa500>Effect:</color> Freeze (for <color=#ffa500>{0}s</color>)","","",""
+"GamblerGet.LowVision","","<color=#ffa500>Effect:</color> Lower Vision (<color=#ffa500>{1}x</color>, for <color=#ffa500>{0}s</color>)","","",""
+"GamblerGet.HighKCD","","<color=#ffa500>Effect:</color> Higher Kill Cooldown (<color=#ffa500>{0}s</color>)","","",""
 
 "## Hitman"
 "Hitman","","Hitman","","",""

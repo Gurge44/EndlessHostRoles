@@ -8,12 +8,11 @@ using TOHE.Roles.Impostor;
 using static TOHE.Translator;
 
 namespace TOHE;
+
 /*
  * HUGE THANKS TO
- * ImaMapleTree / 단풍잎
+ * ImaMapleTree / 단풍잎 / Tealeaf
  * FOR THE CODE
- *
- * THIS IS JUST SMALL FOR NOW BUT MAY EVENTUALLY BE BIG
 */
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.TryPet))]
@@ -75,6 +74,7 @@ class ExternalRpcPetPatch
                 }
                 Doormaster.OnEnterVent(pc);
                 pc.RpcResetAbilityCooldown();
+                pc.MyPhysics.CancelPet();
                 break;
             case CustomRoles.Tether:
                 if (Main.TetherCD.ContainsKey(pc.PlayerId))
@@ -88,6 +88,7 @@ class ExternalRpcPetPatch
             case CustomRoles.Mayor:
                 if (Main.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count) && count < Options.MayorNumOfUseButton.GetInt() && !Main.MayorCD.ContainsKey(pc.PlayerId))
                 {
+                    pc.MyPhysics.CancelPet();
                     pc?.ReportDeadBody(null);
                 }
                 break;
@@ -102,6 +103,7 @@ class ExternalRpcPetPatch
                             Utils.SendMessage(GetString("SkillUsedLeft") + (Options.ParanoiaNumOfUseButton.GetInt() - Main.ParaUsedButtonCount[pc.PlayerId]).ToString(), pc.PlayerId);
                         }, 4.0f, "Skill Remain Message");
                     }
+                    pc.MyPhysics.CancelPet();
                     pc?.NoCheckStartMeeting(pc?.Data);
                 }
                 break;
@@ -122,6 +124,7 @@ class ExternalRpcPetPatch
                     Main.VeteranCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                     pc.RpcResetAbilityCooldown();
                     pc.MarkDirtySettings();
+                    pc.MyPhysics.CancelPet();
                 }
                 else
                 {
@@ -155,6 +158,7 @@ class ExternalRpcPetPatch
                     pc.RpcResetAbilityCooldown();
                     Main.GrenadierNumOfUsed[pc.PlayerId] -= 1;
                     Utils.MarkEveryoneDirtySettingsV3();
+                    pc.MyPhysics.CancelPet();
                 }
                 else
                 {
@@ -176,6 +180,7 @@ class ExternalRpcPetPatch
                     pc.RpcResetAbilityCooldown();
                     Main.LighterNumOfUsed[pc.PlayerId] -= 1;
                     pc.MarkDirtySettings();
+                    pc.MyPhysics.CancelPet();
                 }
                 else
                 {
@@ -196,6 +201,7 @@ class ExternalRpcPetPatch
                     Main.SecurityGuardCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                     pc.RpcResetAbilityCooldown();
                     Main.SecurityGuardNumOfUsed[pc.PlayerId] -= 1;
+                    pc.MyPhysics.CancelPet();
                 }
                 else
                 {
@@ -232,11 +238,13 @@ class ExternalRpcPetPatch
                     pc.Notify(string.Format(GetString("DovesOfNeaceOnGuard"), Main.DovesOfNeaceNumOfUsed[pc.PlayerId]));
                     Main.DovesOfNeaceCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                     pc.RpcResetAbilityCooldown();
+                    pc.MyPhysics.CancelPet();
                 }
                 break;
             case CustomRoles.Alchemist:
                 Alchemist.OnEnterVent(pc, 0, true);
                 pc.RpcResetAbilityCooldown();
+                pc.MyPhysics.CancelPet();
                 break;
             case CustomRoles.TimeMaster:
                 if (Main.TimeMasterNumOfUsed[pc.PlayerId] >= 1)
@@ -248,12 +256,12 @@ class ExternalRpcPetPatch
                     }
                     Main.TimeMasterNumOfUsed[pc.PlayerId] -= 1;
                     Main.TimeMasterInProtect.Remove(pc.PlayerId);
-                    Main.TimeMasterNumOfUsed[pc.PlayerId] -= 1;
                     Main.TimeMasterInProtect.Add(pc.PlayerId, Utils.GetTimeStamp());
                     //if (!pc.IsModClient()) pc.RpcGuardAndKill(pc);
                     pc.Notify(GetString("TimeMasterOnGuard"), Options.TimeMasterSkillDuration.GetFloat());
                     Main.TimeMasterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                     pc.RpcResetAbilityCooldown();
+                    pc.MyPhysics.CancelPet();
                     foreach (var player in Main.AllPlayerControls)
                     {
                         if (Main.TimeMasterBackTrack.ContainsKey(player.PlayerId))
@@ -274,6 +282,11 @@ class ExternalRpcPetPatch
                 {
                     pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
                 }
+                break;
+            case CustomRoles.NiceHacker:
+                NiceHacker.OnEnterVent(pc);
+                pc.RpcResetAbilityCooldown();
+                pc.MyPhysics.CancelPet();
                 break;
 
         }
