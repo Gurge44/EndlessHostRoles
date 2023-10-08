@@ -2996,7 +2996,7 @@
 "AlchemistGotSpeedPotion","","\n\n<color=#ffffff><size=1.7><color=#e6d798>Potion Name: </color><color=#ff8400>Speed Potion</color>\n<color=#e6d798>Description: </color>Increases your speed temporarily\nActivate by <color=#e6d798>Venting</color></size></color>","","",""
 "AlchemistGotTPPotion","","\n\n<color=#ffffff><size=1.7><color=#e6d798>Potion Name: </color><color=#42d1ff>Teleport Potion</color>\n<color=#e6d798>Description: </color>Teleports you to a random player\nActivate by <color=#e6d798>Venting</color></size></color>","","",""
 "AlchemistGotSuicidePotion","","\n\n\n<color=#ffffff><size=1.7><color=#ffff00>Awkward Potion</color>\nLooks like you've mixed the wrong ingredients!\n<color=#ff1919>Drinking this potion will kill you!</color>\nActivate by <color=#e6d798>Venting</color></size></color>","","",""
-"NoPotion","","You don't have any potions ready to drink","","",""
+"AlchemistNoPotion","","You don't have any potions ready to drink","","",""
 "AlchemistShielded","","Shield Potion active","","",""
 "AlchemistHasSpeed","","Speed Potion active","","",""
 "AlchemistHasVision","","Sight Potion active","","",""

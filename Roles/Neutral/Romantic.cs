@@ -147,8 +147,8 @@ public static class Romantic
                     if (!tpc.IsAlive()) return;
                     isPartnerProtected = false;
                     if (!GameStates.IsInTask) return;
-                    killer.Notify("ProtectingOver");
-                    tpc.Notify("ProtectingOver");
+                    killer.Notify(GetString("ProtectingOver"));
+                    tpc.Notify(GetString("ProtectingOver"));
                     killer.SetKillCooldown();
                 }, ProtectDuration.GetFloat());
             }

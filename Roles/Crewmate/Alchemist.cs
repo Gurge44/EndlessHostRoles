@@ -164,7 +164,7 @@ namespace TOHE.Roles.Crewmate
                     break;
                 case 10:
                     if (!isPet) player.MyPhysics.RpcBootFromVent(ventId);
-                    player.Notify("NoPotion");
+                    player.Notify(GetString("AlchemistNoPotion"));
                     break;
                 default: // just in case
                     break;
