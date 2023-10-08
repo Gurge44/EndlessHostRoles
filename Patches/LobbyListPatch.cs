@@ -1,26 +1,30 @@
-﻿//using UnityEngine;
+﻿using UnityEngine;
+using HarmonyLib;
+using System.Collections.Generic;
+using System;
+using InnerNet;
 
 namespace TOHE;
 
-//[HarmonyPatch(typeof(FindAGameManager), nameof(FindAGameManager.Update))]
-//public static class FindAGameManagerUpdatePatch
-//{
-//    private static int buffer = 80;
-//    private static GameObject RefreshButton;
-//    private static GameObject InputDisplayGlyph;
-//    public static void Postfix(FindAGameManager __instance)
-//    {
-//        if ((RefreshButton = GameObject.Find("RefreshButton")) != null)
-//            RefreshButton.transform.localPosition = new Vector3(100f, 100f, 100f);
-//        if ((InputDisplayGlyph = GameObject.Find("InputDisplayGlyph")) != null)
-//            InputDisplayGlyph.transform.localPosition = new Vector3(100f, 100f, 100f);
+[HarmonyPatch(typeof(FindAGameManager), nameof(FindAGameManager.Update))]
+public static class FindAGameManagerUpdatePatch
+{
+    private static int buffer = 80;
+    private static GameObject RefreshButton;
+    private static GameObject InputDisplayGlyph;
+    public static void Postfix(FindAGameManager __instance)
+    {
+        if ((RefreshButton = GameObject.Find("RefreshButton")) != null)
+            RefreshButton.transform.localPosition = new Vector3(100f, 100f, 100f);
+        if ((InputDisplayGlyph = GameObject.Find("InputDisplayGlyph")) != null)
+            InputDisplayGlyph.transform.localPosition = new Vector3(100f, 100f, 100f);
 
-//        buffer--; if (buffer > 0) return; buffer = 80;
-//        __instance.RefreshList();
-//    }
-//}
+        buffer--; if (buffer > 0) return; buffer = 80;
+        __instance.RefreshList();
+    }
+}
 
-/*[HarmonyPatch(typeof(FindAGameManager), nameof(FindAGameManager.HandleList))]
+[HarmonyPatch(typeof(FindAGameManager), nameof(FindAGameManager.HandleList))]
 public static class FindAGameManagerHandleListPatch
 {
     public static void Prefix(FindAGameManager __instance, [HarmonyArgument(0)] InnerNetClient.TotalGameData totalGames, [HarmonyArgument(1)] ref List<GameListing> games)
@@ -61,4 +65,4 @@ public static class FindAGameManagerHandleListPatch
         }
         games = newList;
     }
-}*/
+}
