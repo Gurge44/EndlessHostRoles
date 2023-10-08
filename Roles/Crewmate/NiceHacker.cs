@@ -63,12 +63,12 @@
         public static void OnEnterVent(PlayerControl pc)
         {
             if (pc == null) return;
-            if (!pc.Is(CustomRoles.Hacker)) return;
+            if (!pc.Is(CustomRoles.NiceHacker)) return;
             if (pc.IsModClient()) return;
 
             if (UseLimit[pc.PlayerId] >= 1)
             {
-                if (Main.HackerCD.ContainsKey(pc.PlayerId))
+                if (Main.HackerCD.ContainsKey(pc.PlayerId) && !NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
                 {
                     pc.Notify(GetString("AbilityOnCooldown"));
                 }
@@ -109,7 +109,7 @@
         }
         public static void MapHandle(PlayerControl pc, MapBehaviour map, MapOptions opts)
         {
-            if (pc.GetCustomRole() != CustomRoles.Hacker) return;
+            if (!pc.Is(CustomRoles.NiceHacker)) return;
 
             map.countOverlayAllowsMovement = ModdedClientCanMoveWhileViewingMap.GetBool();
 
@@ -148,7 +148,7 @@
             if (pc == null) return string.Empty;
             if (!pc.Is(CustomRoles.NiceHacker)) return string.Empty;
 
-            return $"<color=#00ffa5>{GetString("NiceHackerAbilitySecondsLeft")}:</color> <b>{Math.Round(UseLimitSeconds[pc.PlayerId])}</b>s";
+            return $"<color=#00ffa5>{GetString("NiceHackerAbilitySecondsLeft")}:</color> <b>{(int)UseLimitSeconds[pc.PlayerId]}</b>s";
         }
         public static string GetProgressText(byte playerId, bool comms)
         {

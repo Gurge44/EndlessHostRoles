@@ -1291,9 +1291,9 @@ static class ExtendedPlayerControl
         }
         return null;
     }
-    public static Dictionary<PlainShipRoom, int> GetAllPlayerLocationsCount()
+    public static Dictionary<string, int> GetAllPlayerLocationsCount()
     {
-        Dictionary<PlainShipRoom, int> playerRooms = new();
+        Dictionary<string, int> playerRooms = new();
         foreach (var pc in Main.AllAlivePlayerControls)
         {
             if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return null;
@@ -1305,8 +1305,8 @@ static class ExtendedPlayerControl
                 if (!room.roomArea) continue;
                 if (pc.Collider.IsTouching(room.roomArea))
                 {
-                    if (playerRooms.ContainsKey(room)) playerRooms[room]++;
-                    else playerRooms.Add(room, 1);
+                    if (playerRooms.ContainsKey(room.name)) playerRooms[room.name]++;
+                    else playerRooms.Add(room.name, 1);
                 }
             }
         }

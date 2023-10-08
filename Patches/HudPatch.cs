@@ -260,28 +260,49 @@ class HudManagerPatch
                         __instance.AbilityButton?.SetUsesRemaining(Options.MarioVentNumWin.GetInt() - (Main.MarioVentCount.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var mx) ? mx : 0));
                         break;
                     case CustomRoles.Veteran:
-                        __instance.AbilityButton.buttonLabelText.text = GetString("VeteranVentButtonText");
+                        if (Options.UsePets.GetBool())
+                            __instance.PetButton.buttonLabelText.text = GetString("VeteranVentButtonText");
+                        else
+                            __instance.AbilityButton.buttonLabelText.text = GetString("VeteranVentButtonText");
                         break;
                     case CustomRoles.TimeMaster:
-                        __instance.AbilityButton.buttonLabelText.text = GetString("TimeMasterVentButtonText");
+                        if (Options.UsePets.GetBool())
+                            __instance.PetButton.buttonLabelText.text = GetString("TimeMasterVentButtonText");
+                        else
+                            __instance.AbilityButton.buttonLabelText.text = GetString("TimeMasterVentButtonText");
                         break;
                     case CustomRoles.Grenadier:
-                        __instance.AbilityButton.buttonLabelText.text = GetString("GrenadierVentButtonText");
+                        if (Options.UsePets.GetBool())
+                            __instance.PetButton.buttonLabelText.text = GetString("GrenadierVentButtonText");
+                        else
+                            __instance.AbilityButton.buttonLabelText.text = GetString("GrenadierVentButtonText");
                         break;
                     case CustomRoles.Lighter:
-                        __instance.AbilityButton.buttonLabelText.text = GetString("LighterVentButtonText");
+                        if (Options.UsePets.GetBool())
+                            __instance.PetButton.buttonLabelText.text = GetString("LighterVentButtonText");
+                        else
+                            __instance.AbilityButton.buttonLabelText.text = GetString("LighterVentButtonText");
                         break;
                     case CustomRoles.SecurityGuard:
-                        __instance.AbilityButton.buttonLabelText.text = GetString("SecurityGuardVentButtonText");
+                        if (Options.UsePets.GetBool())
+                            __instance.PetButton.buttonLabelText.text = GetString("SecurityGuardVentButtonText");
+                        else
+                            __instance.AbilityButton.buttonLabelText.text = GetString("SecurityGuardVentButtonText");
                         break;
                     case CustomRoles.Ventguard:
                         __instance.AbilityButton.buttonLabelText.text = GetString("VentguardVentButtonText");
                         break;
                     case CustomRoles.Mayor:
-                        __instance.AbilityButton.buttonLabelText.text = GetString("MayorVentButtonText");
+                        if (Options.UsePets.GetBool())
+                            __instance.PetButton.buttonLabelText.text = GetString("MayorVentButtonText");
+                        else
+                            __instance.AbilityButton.buttonLabelText.text = GetString("MayorVentButtonText");
                         break;
                     case CustomRoles.Paranoia:
-                        __instance.AbilityButton.buttonLabelText.text = GetString("ParanoiaVentButtonText");
+                        if (Options.UsePets.GetBool())
+                            __instance.PetButton.buttonLabelText.text = GetString("ParanoiaVentButtonText");
+                        else
+                            __instance.AbilityButton.buttonLabelText.text = GetString("ParanoiaVentButtonText");
                         break;
                     case CustomRoles.Sheriff:
                         __instance.KillButton?.OverrideText(GetString("SheriffKillButtonText"));
@@ -311,7 +332,10 @@ class HudManagerPatch
                         __instance.KillButton?.OverrideText(GetString("RememberButtonText"));
                         break;
                     case CustomRoles.DovesOfNeace:
-                        __instance.AbilityButton.buttonLabelText.text = GetString("DovesOfNeaceVentButtonText");
+                        if (Options.UsePets.GetBool())
+                            __instance.PetButton.buttonLabelText.text = GetString("DovesOfNeaceVentButtonText");
+                        else
+                            __instance.AbilityButton.buttonLabelText.text = GetString("DovesOfNeaceVentButtonText");
                         break;
                     case CustomRoles.Infectious:
                         __instance.KillButton?.OverrideText(GetString("InfectiousKillButtonText"));
@@ -335,7 +359,10 @@ class HudManagerPatch
                         __instance.AbilityButton?.OverrideText(GetString("AddictVentButtonText"));
                         break;
                     case CustomRoles.Alchemist:
-                        __instance.AbilityButton?.OverrideText(GetString("AlchemistVentButtonText"));
+                        if (Options.UsePets.GetBool())
+                            __instance.PetButton?.OverrideText(GetString("AlchemistVentButtonText"));
+                        else
+                            __instance.AbilityButton?.OverrideText(GetString("AlchemistVentButtonText"));
                         break;
                     case CustomRoles.Dazzler:
                         __instance.AbilityButton?.OverrideText(GetString("DazzleButtonText"));
@@ -636,7 +663,7 @@ class MapBehaviourShowPatch
 
         if (player.GetCustomRole() == CustomRoles.NiceHacker && NiceHacker.playerIdList.ContainsKey(player.PlayerId))
         {
-            Logger.Info("Mod Client uses Map", "NiceHacker");
+            Logger.Info("Modded Client uses Map", "NiceHacker");
             NiceHacker.MapHandle(player, __instance, opts);
         }
         else if (opts.Mode is MapOptions.Modes.Normal or MapOptions.Modes.Sabotage)
