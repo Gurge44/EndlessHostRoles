@@ -49,8 +49,6 @@ class RepairSystemPatch
 
         if (Options.DisableSabotage.GetBool() && systemType == SystemTypes.Sabotage) return false;
 
-        if (Options.DisableCloseDoor.GetBool() && systemType == SystemTypes.Doors) return false;
-
         //Note: "SystemTypes.Laboratory" сauses bugs in the Host, it is better not to use
         if (player.Is(CustomRoles.Fool) &&
             (systemType is
@@ -166,6 +164,7 @@ class CloseDoorsPatch
     public static bool Prefix(ShipStatus __instance, SystemTypes room)
     {
         if (Main.BlockSabo.Any()) return false;
+        if (Options.DisableCloseDoor.GetBool()) return false;
 
         return !Options.DisableSabotage.GetBool() && Options.CurrentGameMode != CustomGameMode.SoloKombat && Options.CurrentGameMode != CustomGameMode.FFA;
     }
