@@ -18,6 +18,7 @@ public static class HudSpritePatch
     private static Sprite Ability;
     private static Sprite Vent;
     private static Sprite Sabotage;
+    private static Sprite Pet;
     public static void Postfix(HudManager __instance)
     {
         var player = PlayerControl.LocalPlayer;
@@ -29,6 +30,7 @@ public static class HudSpritePatch
             Ability = null;
             Vent = null;
             Sabotage = null;
+            Pet = null;
             return;
         }
 
@@ -38,11 +40,13 @@ public static class HudSpritePatch
         if (!Ability) Ability = __instance.AbilityButton.graphic.sprite;
         if (!Vent) Vent = __instance.ImpostorVentButton.graphic.sprite;
         if (!Sabotage) Sabotage = __instance.SabotageButton.graphic.sprite;
+        if (!Pet) Pet = __instance.PetButton.graphic.sprite;
 
         Sprite newKillButton = Kill;
         Sprite newAbilityButton = Ability;
         Sprite newVentButton = Vent;
         Sprite newSabotageButton = Sabotage;
+        Sprite newPetButton = Pet;
 
         if (!Main.EnableCustomButton.Value) goto EndOfSelectImg;
 
@@ -89,7 +93,10 @@ public static class HudSpritePatch
                     newKillButton = CustomButton.Get("Handcuff");
                     break;
                 case CustomRoles.Alchemist:
-                    newAbilityButton = CustomButton.Get("Drink");
+                    if (Options.UsePets.GetBool())
+                        newPetButton = CustomButton.Get("Drink");
+                    else
+                        newAbilityButton = CustomButton.Get("Drink");
                     break;
                 case CustomRoles.Jailor:
                     newKillButton = CustomButton.Get("Jail");
@@ -124,10 +131,16 @@ public static class HudSpritePatch
                     if (shapeshifting) newAbilityButton = CustomButton.Get("Hangman");
                     break;
                 case CustomRoles.Paranoia:
-                    newAbilityButton = CustomButton.Get("Paranoid");
+                    if (Options.UsePets.GetBool())
+                        newPetButton = CustomButton.Get("Paranoid");
+                    else
+                        newAbilityButton = CustomButton.Get("Paranoid");
                     break;
                 case CustomRoles.Mayor:
-                    newAbilityButton = CustomButton.Get("Button");
+                    if (Options.UsePets.GetBool())
+                        newPetButton = CustomButton.Get("Button");
+                    else
+                        newAbilityButton = CustomButton.Get("Button");
                     break;
                 case CustomRoles.Puppeteer:
                     newKillButton = CustomButton.Get("Puttpuer");
@@ -152,13 +165,22 @@ public static class HudSpritePatch
                     newKillButton = CustomButton.Get("Bite");
                     break;
                 case CustomRoles.Veteran:
-                    newAbilityButton = CustomButton.Get("Veteran");
+                    if (Options.UsePets.GetBool())
+                        newPetButton = CustomButton.Get("Veteran");
+                    else
+                        newAbilityButton = CustomButton.Get("Veteran");
                     break;
                 case CustomRoles.Lighter:
-                    newAbilityButton = CustomButton.Get("Lighter");
+                    if (Options.UsePets.GetBool())
+                        newPetButton = CustomButton.Get("Lighter");
+                    else
+                        newAbilityButton = CustomButton.Get("Lighter");
                     break;
                 case CustomRoles.SecurityGuard:
-                    newAbilityButton = CustomButton.Get("BlockSabo");
+                    if (Options.UsePets.GetBool())
+                        newPetButton = CustomButton.Get("BlockSabo");
+                    else
+                        newAbilityButton = CustomButton.Get("BlockSabo");
                     break;
                 case CustomRoles.Ventguard:
                     newAbilityButton = CustomButton.Get("Block");
@@ -182,7 +204,10 @@ public static class HudSpritePatch
                     newKillButton = CustomButton.Get("Soul");
                     break;
                 case CustomRoles.TimeMaster:
-                    newAbilityButton = CustomButton.Get("Time Master");
+                    if (Options.UsePets.GetBool())
+                        newPetButton = CustomButton.Get("Time Master");
+                    else
+                        newAbilityButton = CustomButton.Get("Time Master");
                     break;
                 case CustomRoles.Mario:
                     newAbilityButton = CustomButton.Get("Happy");
@@ -221,6 +246,7 @@ public static class HudSpritePatch
         __instance.AbilityButton.graphic.sprite = newAbilityButton;
         __instance.ImpostorVentButton.graphic.sprite = newVentButton;
         __instance.SabotageButton.graphic.sprite = newSabotageButton;
+        __instance.PetButton.graphic.sprite = newPetButton;
 
     }
 }
