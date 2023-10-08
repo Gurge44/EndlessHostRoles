@@ -523,229 +523,242 @@ class GameEndChecker
             Virus += (byte)Main.AllAlivePlayerControls.Count(x => x.Is(CustomRoles.Contagious) && x.Is(CustomRoles.DualPersonality));
             Imp += (byte)Main.AllAlivePlayerControls.Count(x => x.Is(CustomRoles.Madmate) && x.Is(CustomRoles.DualPersonality));
 
-            if (Imp == 0 && Crew == 0 && Rit == 0 && Traitor == 0 && Med == 0 && PP == 0 && Jackal == 0 && Vamp == 0 && DH == 0 && Rogue == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Jinx == 0 && SK == 0 && Hex == 0 && Pel == 0 && Gam == 0 && BK == 0 && Pois == 0 && Virus == 0 && SC == 0 && HH == 0 && VG == 0 && IM == 0 && PM == 0 && Bandit == 0 && Agi == 0 && EC == 0 && CM == 0 && WW == 0) //全灭
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
-            }
-            else if (Main.AllAlivePlayerControls.All(p => p.Is(CustomRoles.Lovers))) //恋人胜利
+            int totalNKAlive = new int[] { Jackal, Pel, Gam, BK, Pois, CM, Hex, Wraith, Pestilence, PB, SK, EC, PM, HH, VG, IM, WW, RR, Juggy, Vamp, Virus, Rogue, DH, Jinx, Rit, PP, Traitor, Med, SC, Glitch, Arso, Bandit, Agi }.Sum();
+
+            CustomWinner? winner = null;
+            CustomRoles? rl = null;
+
+            if (Main.AllAlivePlayerControls.All(p => p.Is(CustomRoles.Lovers)))
             {
                 reason = GameOverReason.ImpostorByKill;
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Lovers);
-            }
-            else if (Jackal == 0 && Pel == 0 && Traitor == 0 && Med == 0 && PP == 0 && Rit == 0 && Gam == 0 && Vamp == 0 && DH == 0 && Rogue == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Jinx == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && SK == 0 && Hex == 0 && BK == 0 && Pois == 0 && Virus == 0 && WW == 0 && SC == 0 && IM == 0 && HH == 0 && VG == 0 && PM == 0 && EC == 0 && Bandit == 0 && Agi == 0 && CM == 0 && Crew <= Imp) //内鬼胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Impostor);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Parasite);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Refugee);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Crewpostor);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Convict);
-            }
-            else if (Imp == 0 && Pel == 0 && Traitor == 0 && Med == 0 && Rit == 0 && PP == 0 && Gam == 0 && Vamp == 0 && DH == 0 && Rogue == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Jinx == 0 && SK == 0 && Hex == 0 && BK == 0 && Pois == 0 && Virus == 0 && SC == 0 && WW == 0 && IM == 0 && HH == 0 && VG == 0 && PM == 0 && EC == 0 && CM == 0 && Crew <= Jackal) //豺狼胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Jackal);
-                //   CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Jackal);
-                //   CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Sidekick);
-            }
-            else if (Imp == 0 && Jackal == 0 && Rit == 0 && Traitor == 0 && Med == 0 && PP == 0 && Gam == 0 && Vamp == 0 && DH == 0 && Rogue == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && SK == 0 && Jinx == 0 && Hex == 0 && Pois == 0 && Virus == 0 && SC == 0 && CM == 0 && WW == 0 && IM == 0 && HH == 0 && VG == 0 && PM == 0 && Bandit == 0 && Agi == 0 && EC == 0 && BK == 0 && Crew <= Pel) //鹈鹕胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Pelican);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Pelican);
-            }
-            else if (Imp == 0 && Jackal == 0 && PP == 0 && Traitor == 0 && Med == 0 && Rit == 0 && Pel == 0 && Vamp == 0 && DH == 0 && Rogue == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && SK == 0 && Hex == 0 && Jinx == 0 && Pois == 0 && Virus == 0 && SC == 0 && CM == 0 && WW == 0 && IM == 0 && HH == 0 && VG == 0 && PM == 0 && Bandit == 0 && Agi == 0 && EC == 0 && BK == 0 && Crew <= Gam) //玩家胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Gamer);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Gamer);
-            }
-            else if (Imp == 0 && Jackal == 0 && PP == 0 && Traitor == 0 && Med == 0 && Rit == 0 && Pel == 0 && Vamp == 0 && DH == 0 && Rogue == 0 && Jinx == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && SK == 0 && Hex == 0 && Pois == 0 && Virus == 0 && SC == 0 && CM == 0 && WW == 0 && IM == 0 && HH == 0 && VG == 0 && PM == 0 && Bandit == 0 && Agi == 0 && EC == 0 && Gam == 0 && Crew <= BK) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.BloodKnight);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.BloodKnight);
-            }
-            else if (Imp == 0 && Jackal == 0 && PP == 0 && Traitor == 0 && Med == 0 && Pel == 0 && Rit == 0 && Vamp == 0 && DH == 0 && Rogue == 0 && Jinx == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && SK == 0 && Hex == 0 && BK == 0 && Gam == 0 && Virus == 0 && SC == 0 && WW == 0 && IM == 0 && HH == 0 && VG == 0 && PM == 0 && Bandit == 0 && Agi == 0 && EC == 0 && CM == 0 && Crew <= Pois) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Poisoner);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Poisoner);
-            }
-            else if (Imp == 0 && Jackal == 0 && PP == 0 && Traitor == 0 && Med == 0 && Pel == 0 && Vamp == 0 && Rit == 0 && Jinx == 0 && DH == 0 && Rogue == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && SK == 0 && Pois == 0 && Virus == 0 && SC == 0 && BK == 0 && Gam == 0 && WW == 0 && IM == 0 && HH == 0 && PM == 0 && EC == 0 && Bandit == 0 && Agi == 0 && VG == 0 && CM == 0 && Crew <= Hex) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.HexMaster);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.HexMaster);
-            }
-            else if (Imp == 0 && Jackal == 0 && PP == 0 && Traitor == 0 && Med == 0 && Pel == 0 && Vamp == 0 && DH == 0 && Rit == 0 && Jinx == 0 && Rogue == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Hex == 0 && Pestilence == 0 && PB == 0 && SK == 0 && Pois == 0 && Virus == 0 && SC == 0 && BK == 0 && Gam == 0 && WW == 0 && IM == 0 && HH == 0 && VG == 0 && PM == 0 && EC == 0 && Bandit == 0 && Agi == 0 && CM == 0 && Crew <= Wraith) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Wraith);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Wraith);
-            }
-            else if (Imp == 0 && Jackal == 0 && PP == 0 && Traitor == 0 && Med == 0 && Pel == 0 && Vamp == 0 && DH == 0 && Rit == 0 && Jinx == 0 && Rogue == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Hex == 0 && Wraith == 0 && PB == 0 && SK == 0 && Pois == 0 && Virus == 0 && SC == 0 && BK == 0 && Gam == 0 && WW == 0 && CM == 0 && HH == 0 && VG == 0 && PM == 0 && EC == 0 && Bandit == 0 && Agi == 0 && IM == 0 && Crew <= Pestilence) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Pestilence);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Pestilence);
-            }
-            else if (Imp == 0 && Jackal == 0 && PP == 0 && Traitor == 0 && Med == 0 && Pel == 0 && Vamp == 0 && DH == 0 && Rit == 0 && Jinx == 0 && Rogue == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Hex == 0 && Wraith == 0 && Pestilence == 0 && SK == 0 && Pois == 0 && Virus == 0 && SC == 0 && BK == 0 && WW == 0 && Gam == 0 && IM == 0 && HH == 0 && PM == 0 && EC == 0 && Bandit == 0 && Agi == 0 && VG == 0 && CM == 0 && Crew <= PB) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Plaguebearer);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.PlagueBearer);
-            }
-            else if (Imp == 0 && Jackal == 0 && PP == 0 && Traitor == 0 && Med == 0 && Pel == 0 && Vamp == 0 && DH == 0 && Rogue == 0 && Rit == 0 && Jinx == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Hex == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && Pois == 0 && Virus == 0 && SC == 0 && BK == 0 && WW == 0 && Gam == 0 && IM == 0 && HH == 0 && PM == 0 && EC == 0 && Bandit == 0 && Agi == 0 && VG == 0 && CM == 0 && Crew <= SK) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SerialKiller);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.NSerialKiller);
-            }
-            else if (Imp == 0 && Jackal == 0 && PP == 0 && Traitor == 0 && Med == 0 && Pel == 0 && Vamp == 0 && DH == 0 && Rogue == 0 && Rit == 0 && Jinx == 0 && Juggy == 0 && Arso == 0 && Glitch == 0 && Hex == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && Pois == 0 && Virus == 0 && SC == 0 && BK == 0 && Gam == 0 && WW == 0 && SK == 0 && IM == 0 && HH == 0 && PM == 0 && EC == 0 && Bandit == 0 && Agi == 0 && VG == 0 && CM == 0 && Crew <= RR) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.RuthlessRomantic);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.RuthlessRomantic);
-            }
-            else if (Imp == 0 && Jackal == 0 && PP == 0 && Traitor == 0 && Med == 0 && Arso == 0 && Pel == 0 && Vamp == 0 && DH == 0 && Rogue == 0 && Glitch == 0 && SK == 0 && Rit == 0 && Jinx == 0 && Hex == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && Pois == 0 && Virus == 0 && RR == 0 && SC == 0 && BK == 0 && WW == 0 && Gam == 0 && IM == 0 && HH == 0 && VG == 0 && PM == 0 && EC == 0 && Bandit == 0 && Agi == 0 && CM == 0 && Crew <= Juggy) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Juggernaut);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Juggernaut);
-            }
-            else if (Imp == 0 && Jackal == 0 && PP == 0 && Traitor == 0 && Med == 0 && Juggy == 0 && RR == 0 && Pel == 0 && Vamp == 0 && DH == 0 && Rogue == 0 && Glitch == 0 && SK == 0 && Rit == 0 && Jinx == 0 && Hex == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && Pois == 0 && Virus == 0 && SC == 0 && BK == 0 && WW == 0 && Gam == 0 && IM == 0 && HH == 0 && PM == 0 && EC == 0 && VG == 0 && Bandit == 0 && Agi == 0 && CM == 0 && Crew <= Arso) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Arsonist);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Arsonist);
-            }
-            else if (Imp == 0 && Jackal == 0 && PP == 0 && Traitor == 0 && Med == 0 && Pel == 0 && Rit == 0 && Vamp == 0 && DH == 0 && Rogue == 0 && Jinx == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Hex == 0 && SK == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && BK == 0 && Gam == 0 && Pois == 0 && WW == 0 && Virus == 0 && IM == 0 && HH == 0 && PM == 0 && EC == 0 && VG == 0 && Bandit == 0 && Agi == 0 && SC == 0 && Crew <= CM) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Succubus);
-            }
-            else if (Imp == 0 && Jackal == 0 && PP == 0 && Traitor == 0 && Med == 0 && Pel == 0 && CM == 0 && Rit == 0 && DH == 0 && Rogue == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Hex == 0 && SK == 0 && Jinx == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && BK == 0 && Gam == 0 && Pois == 0 && Virus == 0 && WW == 0 && IM == 0 && HH == 0 && PM == 0 && EC == 0 && Bandit == 0 && Agi == 0 && VG == 0 && SC == 0 && Crew <= Vamp) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Infectious);
-            }
-            else if (Imp == 0 && Jackal == 0 && Pel == 0 && Traitor == 0 && Med == 0 && PP == 0 && Vamp == 0 && DH == 0 && Rit == 0 && Rogue == 0 && CM == 0 && Jinx == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Hex == 0 && SK == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && BK == 0 && Gam == 0 && Pois == 0 && WW == 0 && IM == 0 && HH == 0 && PM == 0 && EC == 0 && Bandit == 0 && Agi == 0 && VG == 0 && SC == 0 && Crew <= Virus) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Virus);
-            }
-            else if (Imp == 0 && Jackal == 0 && PP == 0 && Traitor == 0 && Med == 0 && Pel == 0 && Vamp == 0 && Virus == 0 && SC == 0 && Rit == 0 && Rogue == 0 && CM == 0 && Jinx == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Hex == 0 && SK == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && BK == 0 && Gam == 0 && WW == 0 && IM == 0 && HH == 0 && PM == 0 && EC == 0 && VG == 0 && Bandit == 0 && Agi == 0 && Pois == 0 && Crew <= DH) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.DarkHide);
-            }
-            else if (Imp == 0 && Jackal == 0 && Pel == 0 && Traitor == 0 && PP == 0 && Vamp == 0 && DH == 0 && Rit == 0 && Rogue == 0 && CM == 0 && Jinx == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Hex == 0 && SK == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && BK == 0 && Gam == 0 && Pois == 0 && Virus == 0 && WW == 0 && IM == 0 && HH == 0 && PM == 0 && EC == 0 && Bandit == 0 && Agi == 0 && VG == 0 && Med == 0 && Crew <= SC) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Spiritcaller);
-            }
-            else if (Jackal == 0 && Pel == 0 && PP == 0 && Traitor == 0 && Med == 0 && Vamp == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && DH == 0 && SK == 0 && Rit == 0 && Hex == 0 && Jinx == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && Pois == 0 && Virus == 0 && SC == 0 && BK == 0 && Gam == 0 && CM == 0 && WW == 0 && IM == 0 && HH == 0 && PM == 0 && EC == 0 && VG == 0 && Bandit == 0 && Agi == 0 && Imp == 0 && Crew <= Rogue) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Rogue);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Rogue);
-            }
-            else if (Imp == 0 && Jackal == 0 && PP == 0 && Traitor == 0 && Med == 0 && Pel == 0 && Vamp == 0 && Rit == 0 && DH == 0 && Rogue == 0 && Pois == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && SK == 0 && Hex == 0 && BK == 0 && Gam == 0 && Virus == 0 && SC == 0 && WW == 0 && IM == 0 && HH == 0 && PM == 0 && EC == 0 && Bandit == 0 && Agi == 0 && VG == 0 && CM == 0 && Crew <= Jinx) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Jinx);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Jinx);
-            }
-            else if (Imp == 0 && Jackal == 0 && PP == 0 && Traitor == 0 && Med == 0 && Pel == 0 && Vamp == 0 && Jinx == 0 && DH == 0 && Rogue == 0 && Pois == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && SK == 0 && Hex == 0 && BK == 0 && Gam == 0 && Virus == 0 && SC == 0 && WW == 0 && IM == 0 && HH == 0 && PM == 0 && EC == 0 && Bandit == 0 && Agi == 0 && VG == 0 && CM == 0 && Crew <= Rit) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Ritualist);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Ritualist);
-            }
-            else if (Imp == 0 && Jackal == 0 && Rit == 0 && Traitor == 0 && Med == 0 && Pel == 0 && Vamp == 0 && Jinx == 0 && DH == 0 && Rogue == 0 && Pois == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && SK == 0 && Hex == 0 && BK == 0 && Gam == 0 && Virus == 0 && SC == 0 && WW == 0 && IM == 0 && PM == 0 && EC == 0 && HH == 0 && Bandit == 0 && Agi == 0 && VG == 0 && CM == 0 && Crew <= PP) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Pickpocket);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Pickpocket);
-            }
-            else if (Imp == 0 && Jackal == 0 && Rit == 0 && Traitor == 0 && Med == 0 && Pel == 0 && Vamp == 0 && Jinx == 0 && DH == 0 && Rogue == 0 && Pois == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && SK == 0 && Hex == 0 && BK == 0 && Gam == 0 && Virus == 0 && SC == 0 && WW == 0 && IM == 0 && PM == 0 && PP == 0 && HH == 0 && Bandit == 0 && Agi == 0 && VG == 0 && CM == 0 && Crew <= EC) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Eclipse);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Eclipse);
-            }
-            else if (Imp == 0 && Jackal == 0 && Rit == 0 && Traitor == 0 && Med == 0 && Pel == 0 && Vamp == 0 && Jinx == 0 && DH == 0 && Rogue == 0 && Pois == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && SK == 0 && Hex == 0 && BK == 0 && Gam == 0 && Virus == 0 && SC == 0 && WW == 0 && IM == 0 && PP == 0 && EC == 0 && HH == 0 && Bandit == 0 && Agi == 0 && VG == 0 && CM == 0 && Crew <= PM) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Pyromaniac);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Pyromaniac);
-            }
-            else if (Imp == 0 && Jackal == 0 && Rit == 0 && Traitor == 0 && Med == 0 && Pel == 0 && Vamp == 0 && Jinx == 0 && DH == 0 && Rogue == 0 && Pois == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && SK == 0 && Hex == 0 && BK == 0 && Gam == 0 && Virus == 0 && SC == 0 && WW == 0 && IM == 0 && PM == 0 && EC == 0 && HH == 0 && Bandit == 0 && Agi == 0 && PP == 0 && CM == 0 && Crew <= VG) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Vengeance);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Vengeance);
-            }
-            else if (Imp == 0 && Jackal == 0 && Rit == 0 && Traitor == 0 && Med == 0 && Pel == 0 && Vamp == 0 && Jinx == 0 && DH == 0 && Rogue == 0 && Pois == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && SK == 0 && Hex == 0 && BK == 0 && Gam == 0 && Virus == 0 && SC == 0 && WW == 0 && IM == 0 && PM == 0 && EC == 0 && PP == 0 && Bandit == 0 && Agi == 0 && VG == 0 && CM == 0 && Crew <= HH) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.HeadHunter);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.HeadHunter);
-            }
-            else if (Imp == 0 && Jackal == 0 && Rit == 0 && Traitor == 0 && Med == 0 && Pel == 0 && Vamp == 0 && Jinx == 0 && DH == 0 && Rogue == 0 && Pois == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && SK == 0 && Hex == 0 && BK == 0 && Gam == 0 && Virus == 0 && PP == 0 && SC == 0 && IM == 0 && PM == 0 && EC == 0 && HH == 0 && Bandit == 0 && Agi == 0 && VG == 0 && CM == 0 && Crew <= WW) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Werewolf);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Werewolf);
-            }
-            else if (Imp == 0 && Jackal == 0 && Rit == 0 && Traitor == 0 && Med == 0 && Pel == 0 && Vamp == 0 && Jinx == 0 && DH == 0 && Rogue == 0 && Pois == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && SK == 0 && Hex == 0 && BK == 0 && Gam == 0 && Virus == 0 && PP == 0 && SC == 0 && HH == 0 && PM == 0 && EC == 0 && VG == 0 && Bandit == 0 && Agi == 0 && WW == 0 && CM == 0 && Crew <= IM) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Imitator);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Imitator);
-            }
-            else if (Imp == 0 && Jackal == 0 && Rit == 0 && Traitor == 0 && Med == 0 && Pel == 0 && Vamp == 0 && Jinx == 0 && DH == 0 && Rogue == 0 && Pois == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && SK == 0 && Hex == 0 && BK == 0 && Gam == 0 && Virus == 0 && PP == 0 && SC == 0 && HH == 0 && PM == 0 && EC == 0 && VG == 0 && IM == 0 && Agi == 0 && WW == 0 && CM == 0 && Crew <= Bandit) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Imitator);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Imitator);
-            }
-            else if (Imp == 0 && Jackal == 0 && Rit == 0 && Traitor == 0 && Med == 0 && Pel == 0 && Vamp == 0 && Jinx == 0 && DH == 0 && Rogue == 0 && Pois == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && SK == 0 && Hex == 0 && BK == 0 && Gam == 0 && Virus == 0 && PP == 0 && SC == 0 && HH == 0 && PM == 0 && EC == 0 && VG == 0 && IM == 0 && Bandit == 0 && WW == 0 && CM == 0 && Crew <= Agi) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Agitater);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Agitater);
-            }
-            else if (Imp == 0 && Jackal == 0 && Rit == 0 && PP == 0 && Med == 0 && Pel == 0 && Vamp == 0 && Jinx == 0 && DH == 0 && Rogue == 0 && Pois == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && SK == 0 && Hex == 0 && BK == 0 && Gam == 0 && Virus == 0 && SC == 0 && CM == 0 && HH == 0 && VG == 0 && PM == 0 && EC == 0 && Bandit == 0 && Agi == 0 && IM == 0 && WW == 0 && Crew <= Traitor) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Traitor);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Traitor);
-            }
-            else if (Imp == 0 && Jackal == 0 && Rit == 0 && PP == 0 && Traitor == 0 && Pel == 0 && Vamp == 0 && Jinx == 0 && DH == 0 && Rogue == 0 && Pois == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && SK == 0 && Hex == 0 && BK == 0 && Gam == 0 && Virus == 0 && SC == 0 && WW == 0 && IM == 0 && PM == 0 && EC == 0 && HH == 0 && Bandit == 0 && Agi == 0 && VG == 0 && CM == 0 && Crew <= Traitor) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Medusa);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Medusa);
-            }
-            else if (Imp == 0 && Jackal == 0 && Rit == 0 && PP == 0 && Traitor == 0 && Pel == 0 && Vamp == 0 && Jinx == 0 && DH == 0 && Rogue == 0 && Pois == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Med == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && SK == 0 && Hex == 0 && BK == 0 && Gam == 0 && Virus == 0 && SC == 0 && WW == 0 && HH == 0 && VG == 0 && PM == 0 && EC == 0 && Bandit == 0 && Agi == 0 && IM == 0 && CM == 0 && Crew == 0) //嗜血骑士胜利
-            {
-                reason = GameOverReason.ImpostorByKill;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Glitch);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Glitch);
-            }
-            else if (Jackal == 0 && Pel == 0 && PP == 0 && Traitor == 0 && Med == 0 && Imp == 0 && Vamp == 0 && DH == 0 && Rit == 0 && Rogue == 0 && Juggy == 0 && RR == 0 && Arso == 0 && Glitch == 0 && Jinx == 0 && Hex == 0 && SK == 0 && Wraith == 0 && Pestilence == 0 && PB == 0 && Pois == 0 && BK == 0 && Gam == 0 && CM == 0 && WW == 0 && HH == 0 && VG == 0 && PM == 0 && EC == 0 && Bandit == 0 && Agi == 0 && IM == 0 && Virus == 0 && SC == 0) //船员胜利
-            {
-                reason = GameOverReason.HumansByVote;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Crewmate);
-                //   CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Admired);
+                return true;
             }
 
-            else return false; //胜利条件未达成
+            else if (totalNKAlive == 0)
+            {
+                if (Crew == 0 && Imp == 0)
+                {
+                    reason = GameOverReason.ImpostorByKill;
+                    winner = CustomWinner.None;
+                }
+                else if (Crew <= Imp)
+                {
+                    reason = GameOverReason.ImpostorByKill;
+                    winner = CustomWinner.Impostor;
+                }
+                else if (Imp == 0)
+                {
+                    reason = GameOverReason.HumansByVote;
+                    winner = CustomWinner.Crewmate;
+                }
+                else return false;
+                if (winner != null)
+                    CustomWinnerHolder.ResetAndSetWinner((CustomWinner)winner);
+                return true;
+            }
 
-            return true;
+            else
+            {
+                if (Imp >= 1) return false; // both imps and NKs are alive, game must continue
+                else if (Crew > totalNKAlive) return false; // Imps are dead, but crew still outnumbers NKs (game must continue)
+                else // Imps dead, Crew <= NK, Checking if all NKs alive are in 1 team
+                {
+                    if (Rit == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Ritualist;
+                        rl = CustomRoles.Ritualist;
+                    }
+                    else if (Traitor == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Traitor;
+                        rl = CustomRoles.Traitor;
+                    }
+                    else if (Med == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Medusa;
+                        rl = CustomRoles.Medusa;
+                    }
+                    else if (PP == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Pickpocket;
+                        rl = CustomRoles.Pickpocket;
+                    }
+                    else if (Jackal == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Jackal;
+                    }
+                    else if (Vamp == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Infectious;
+                    }
+                    else if (DH == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.DarkHide;
+                    }
+                    else if (Rogue == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Rogue;
+                    }
+                    else if (Wraith == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Wraith;
+                        rl = CustomRoles.Wraith;
+                    }
+                    else if (Agi == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Agitater;
+                    }
+                    else if (Pestilence == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Pestilence;
+                        rl = CustomRoles.Pestilence;
+                    }
+                    else if (PB == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Plaguebearer;
+                        rl = CustomRoles.PlagueBearer;
+                    }
+                    else if (Juggy == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Juggernaut;
+                        rl = CustomRoles.Juggernaut;
+                    }
+                    else if (EC == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Eclipse;
+                        rl = CustomRoles.Eclipse;
+                    }
+                    else if (HH == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.HeadHunter;
+                        rl = CustomRoles.HeadHunter;
+                    }
+                    else if (VG == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Vengeance;
+                        rl = CustomRoles.Vengeance;
+                    }
+                    else if (PM == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Pyromaniac;
+                        rl = CustomRoles.Pyromaniac;
+                    }
+                    else if (Hex == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.HexMaster;
+                        rl = CustomRoles.HexMaster;
+                    }
+                    else if (Bandit == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Bandit;
+                        rl = CustomRoles.Bandit;
+                    }
+                    else if (RR == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.RuthlessRomantic;
+                    }
+                    else if (WW == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Werewolf;
+                        rl = CustomRoles.Werewolf;
+                    }
+                    else if (IM == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Imitator;
+                        rl = CustomRoles.Imitator;
+                    }
+                    else if (Arso == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Arsonist;
+                        rl = CustomRoles.Arsonist;
+                    }
+                    else if (Glitch == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Glitch;
+                        rl = CustomRoles.Glitch;
+                    }
+                    else if (Jinx == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Jinx;
+                        rl = CustomRoles.Jinx;
+                    }
+                    else if (SK == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.SerialKiller;
+                        rl = CustomRoles.NSerialKiller;
+                    }
+                    else if (Pel == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Pelican;
+                        rl = CustomRoles.Pelican;
+                    }
+                    else if (Gam == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Gamer;
+                        rl = CustomRoles.Gamer;
+                    }
+                    else if (BK == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.BloodKnight;
+                        rl = CustomRoles.BloodKnight;
+                    }
+                    else if (Pois == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Poisoner;
+                        rl = CustomRoles.Poisoner;
+                    }
+                    else if (Virus == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Virus;
+                    }
+                    else if (SC == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Spiritcaller;
+                    }
+                    else if (CM == totalNKAlive)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Succubus;
+                    }
+                    else return false;
+                    if (winner != null) CustomWinnerHolder.ResetAndSetWinner((CustomWinner)winner);
+                    if (rl != null) CustomWinnerHolder.WinnerRoles.Add((CustomRoles)rl);
+                    return true;
+                }
+            }
         }
     }
 
