@@ -24,7 +24,7 @@ public static class Sniper
     private static Dictionary<byte, Vector3> LastPosition = new();
     public static Dictionary<byte, int> bulletCount = new();
     private static Dictionary<byte, List<byte>> shotNotify = new();
-    private static Dictionary<byte, bool> IsAim = new();
+    public static Dictionary<byte, bool> IsAim = new();
     private static Dictionary<byte, float> AimTime = new();
     private static bool meetingReset;
     private static int maxBulletCount;
@@ -180,7 +180,7 @@ public static class Sniper
         return targets;
 
     }
-    public static void OnShapeshift(PlayerControl pc, bool shapeshifting)
+    public static void OnShapeshift(PlayerControl pc, bool shapeshifting, bool isPet = false)
     {
         if (!IsThisRole(pc.PlayerId) || !pc.IsAlive()) return;
 
@@ -190,7 +190,7 @@ public static class Sniper
         if (bulletCount[sniperId] <= 0)
         {
             float CD = ShapeshiftDuration.GetFloat() + 1f;
-            if (sniper.killTimer < CD) sniper.SetKillCooldown(time: CD);
+            if (sniper.killTimer < CD && !isPet) sniper.SetKillCooldown(time: CD);
             return;
         };
 

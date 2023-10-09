@@ -86,7 +86,7 @@ internal static class Assassin
         }
     }
 
-    public static void OnShapeshift(PlayerControl pc, PlayerControl ssTarget, bool shapeshifting)
+    public static void OnShapeshift(PlayerControl pc, bool shapeshifting)
     {
         if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId) || Medic.ProtectList.Contains(pc.PlayerId)) return;
         if (!shapeshifting)

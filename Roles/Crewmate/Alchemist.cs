@@ -107,6 +107,12 @@ namespace TOHE.Roles.Crewmate
         {
             if (!player.Is(CustomRoles.Alchemist)) return;
 
+            if (Main.AlchemistCD.ContainsKey(player.PlayerId))
+            {
+                if (!NameNotifyManager.Notice.ContainsKey(player.PlayerId)) player.Notify(GetString("AbilityOnCooldown"));
+                return;
+            }
+
             NameNotifyManager.Notice.Remove(player.PlayerId);
 
             switch (PotionID)

@@ -84,7 +84,7 @@ internal static class QuickShooter
     public static void QuickShooterKill(PlayerControl killer)
     {
         ShotLimit.TryAdd(killer.PlayerId, 0);
-        if (ShotLimit[killer.PlayerId] > 0) killer.SetKillCooldown(0.01f);
+        if (ShotLimit[killer.PlayerId] > 0) _ = new LateTask(() => { killer.SetKillCooldown(0.01f); }, 0.01f, "QuickShooterKill: Set KCD to 0s");
         ShotLimit[killer.PlayerId]--;
         ShotLimit[killer.PlayerId] = Math.Max(ShotLimit[killer.PlayerId], 0);
         SendRPC(killer.PlayerId);

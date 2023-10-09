@@ -92,7 +92,6 @@ internal static class Undertaker
         if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId) || Medic.ProtectList.Contains(pc.PlayerId)) return;
         if (!shapeshifting)
         {
-            //pc.SetKillCooldown();
             return;
         }
         if (MarkedPlayer.ContainsKey(pc.PlayerId))

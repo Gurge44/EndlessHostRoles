@@ -48,6 +48,7 @@ namespace TOHE.Roles.Impostor
         {
             if (shapeshifter == null) return;
             if (TwistLimit[shapeshifter.PlayerId] < 1) return;
+            if (!shapeshifting) return;
 
             List<byte> changePositionPlayers = new() { shapeshifter.PlayerId };
             TwistLimit[shapeshifter.PlayerId] -= 1;

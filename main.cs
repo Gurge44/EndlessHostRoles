@@ -101,6 +101,16 @@ public class Main : BasePlugin
     public static Dictionary<byte, long> DovesOfNeaceCD = new();
     public static Dictionary<byte, long> AlchemistCD = new();
     public static Dictionary<byte, long> TimeMasterCD = new();
+    public static Dictionary<byte, long> SniperCD = new();
+    public static Dictionary<byte, long> AssassinCD = new();
+    public static Dictionary<byte, long> UndertakerCD = new();
+    public static Dictionary<byte, long> MinerCD = new();
+    public static Dictionary<byte, long> EscapeeCD = new();
+    public static Dictionary<byte, long> BomberCD = new();
+    public static Dictionary<byte, long> NukerCD = new();
+    public static Dictionary<byte, long> QuickShooterCD = new();
+    public static Dictionary<byte, long> DisperserCD = new();
+    public static Dictionary<byte, long> TwisterCD = new();
     public static GameData.PlayerInfo LastVotedPlayerInfo;
     public static string LastVotedPlayer;
     public static List<byte> ResetCamPlayerList = new();

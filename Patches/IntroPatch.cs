@@ -520,8 +520,8 @@ class IntroCutsceneDestroyPatch
             {
                 Main.ProcessShapeshifts = false;
                 _ = new LateTask(() => PlayerControl.AllPlayerControls.ToArray().Do(pc => PetsPatch.SetPet(pc, "pet_Pusheen", true)), 0.3f, "Grant Pet For Everyone");
-                _ = new LateTask(() => PlayerControl.AllPlayerControls.ToArray().Do(pc => pc.RpcShapeshift(pc, false)), 0.4f, "Show Pet For Everyone");
-                _ = new LateTask(() => Utils.NotifyRoles(), 0.5f, "Show everyone's role texts");
+                try { _ = new LateTask(() => PlayerControl.AllPlayerControls.ToArray().Do(pc => pc.RpcShapeshift(pc, false)), 0.4f, "Show Pet For Everyone"); } catch { }
+                _ = new LateTask(() => Utils.NotifyRoles(), 0.7f, "Show everyone's role texts");
                 _ = new LateTask(() => Main.ProcessShapeshifts = true, 1f, "Enable SS Processing");
             }
             if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))

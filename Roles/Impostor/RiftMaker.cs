@@ -104,7 +104,7 @@ namespace TOHE.Roles.Impostor
             }, 0.5f, "RiftMaker-ResetMarks.RpcBootFromVent");
         }
 
-        public static void OnShapeshift(PlayerControl player, bool shapeshifting)
+        public static void OnShapeshift(PlayerControl player, bool shapeshifting, bool isPet = false)
         {
             if (player == null) return;
             if (!shapeshifting) return;
@@ -113,7 +113,7 @@ namespace TOHE.Roles.Impostor
             Marks.Add((Vector2)player.transform.position);
             player.Notify(GetString("MarkDone"));
 
-            _ = new LateTask(() => { player.RpcRevertShapeshift(false); }, 1.5f, "Rift Maker RpcRevertShapeshift");
+            if (!isPet) _ = new LateTask(() => { player.RpcRevertShapeshift(false); }, 1.5f, "Rift Maker RpcRevertShapeshift");
         }
 
         public static string GetProgressText()

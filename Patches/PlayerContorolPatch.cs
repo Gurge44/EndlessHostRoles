@@ -1368,7 +1368,7 @@ class ShapeshiftPatch
                     isSSneeded = false;
                     break;
                 case CustomRoles.Assassin:
-                    Assassin.OnShapeshift(shapeshifter, target, shapeshifting);
+                    Assassin.OnShapeshift(shapeshifter, shapeshifting);
                     break;
                 case CustomRoles.Undertaker:
                     Undertaker.OnShapeshift(shapeshifter, shapeshifting);

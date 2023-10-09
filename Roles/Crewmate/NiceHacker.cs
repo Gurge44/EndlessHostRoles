@@ -68,9 +68,9 @@
 
             if (UseLimit[pc.PlayerId] >= 1)
             {
-                if (Main.HackerCD.ContainsKey(pc.PlayerId) && !NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
+                if (Main.HackerCD.ContainsKey(pc.PlayerId))
                 {
-                    pc.Notify(GetString("AbilityOnCooldown"));
+                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
                 }
                 else
                 {
