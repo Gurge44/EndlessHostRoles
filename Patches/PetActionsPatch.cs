@@ -13,18 +13,28 @@ namespace TOHE;
  * HUGE THANKS TO
  * ImaMapleTree / 단풍잎 / Tealeaf
  * FOR THE CODE
-*/
+ */
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.TryPet))]
 class LocalPetPatch
 {
-    public static void Prefix(PlayerControl __instance)
+    private static System.Collections.Generic.Dictionary<byte, long> LastProcess = new();
+    public static bool Prefix(PlayerControl __instance)
     {
-        if (!Options.UsePets.GetBool()) return;
-        if (!(AmongUsClient.Instance.AmHost && AmongUsClient.Instance.AmClient)) return;
+        if (!Options.UsePets.GetBool()) return true;
+        if (!(AmongUsClient.Instance.AmHost && AmongUsClient.Instance.AmClient)) return true;
+        if (GameStates.IsLobby) return true;
+
+        if (__instance.petting) return true;
         __instance.petting = true;
-        if (GameStates.IsLobby) return;
+
+        if (!LastProcess.ContainsKey(__instance.PlayerId)) LastProcess.TryAdd(__instance.PlayerId, Utils.GetTimeStamp() - 2);
+        if (LastProcess[__instance.PlayerId] + 1 >= Utils.GetTimeStamp()) return true;
+
         ExternalRpcPetPatch.Prefix(__instance.MyPhysics, 51);
+
+        LastProcess[__instance.PlayerId] = Utils.GetTimeStamp();
+        return false;
     }
 
     public static void Postfix(PlayerControl __instance)
@@ -108,6 +118,7 @@ class ExternalRpcPetPatch
                 }
                 break;
             case CustomRoles.Veteran:
+                if (Main.VeteranInProtect.ContainsKey(pc.PlayerId)) break;
                 if (Main.VeteranNumOfUsed[pc.PlayerId] >= 1)
                 {
                     if (Main.VeteranCD.ContainsKey(pc.PlayerId) && !NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
@@ -132,6 +143,7 @@ class ExternalRpcPetPatch
                 }
                 break;
             case CustomRoles.Grenadier:
+                if (Main.GrenadierBlinding.ContainsKey(pc.PlayerId) || Main.MadGrenadierBlinding.ContainsKey(pc.PlayerId)) break;
                 if (Main.GrenadierNumOfUsed[pc.PlayerId] >= 1)
                 {
                     if (Main.GrenadierCD.ContainsKey(pc.PlayerId) && !NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
@@ -166,6 +178,7 @@ class ExternalRpcPetPatch
                 }
                 break;
             case CustomRoles.Lighter:
+                if (Main.Lighter.ContainsKey(pc.PlayerId)) break;
                 if (Main.LighterNumOfUsed[pc.PlayerId] >= 1)
                 {
                     if (Main.LighterCD.ContainsKey(pc.PlayerId) && !NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
@@ -188,6 +201,7 @@ class ExternalRpcPetPatch
                 }
                 break;
             case CustomRoles.SecurityGuard:
+                if (Main.BlockSabo.ContainsKey(pc.PlayerId)) break;
                 if (Main.SecurityGuardNumOfUsed[pc.PlayerId] >= 1)
                 {
                     if (Main.SecurityGuardCD.ContainsKey(pc.PlayerId) && !NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
@@ -247,6 +261,7 @@ class ExternalRpcPetPatch
                 pc.MyPhysics.CancelPet();
                 break;
             case CustomRoles.TimeMaster:
+                if (Main.TimeMasterInProtect.ContainsKey(pc.PlayerId)) break;
                 if (Main.TimeMasterNumOfUsed[pc.PlayerId] >= 1)
                 {
                     if (Main.TimeMasterCD.ContainsKey(pc.PlayerId) && !NameNotifyManager.Notice.ContainsKey(pc.PlayerId))

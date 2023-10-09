@@ -2645,7 +2645,7 @@
 "SecurityGuard","","Security Guard","","",""
 "SecurityGuardInfo","","Prevent Impostors from Sabotaging","","",""
 "SecurityGuardInfoLong","","(Crewmates):\nAs the Security Guard, you can vent to activate your ability, which prevents everyone from calling any sabotages and closing doors while your ability is active. This does not affect the doors sabotage and neutrals that can sabotage.","","",""
-"SecurityGuardVentButtonText","","","","",""
+"SecurityGuardVentButtonText","","<size=0>.</size>","","",""
 "SecurityGuardSkillCooldown","","Ability Cooldown","","",""
 "SecurityGuardSkillDuration","","Ability Duration","","",""
 "SecurityGuardSkillInUse","","Ability in use","","",""

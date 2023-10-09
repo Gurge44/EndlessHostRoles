@@ -716,7 +716,7 @@ public static class Utils
                 ProgressText.Append(ColorString(TextColor2, $"<color=#777777>-</color> {Completed2}/{taskState2.AllTasksCount}"));
                 ProgressText.Append(ColorString(TextColor21, $" <color=#777777>-</color> {Math.Round(Main.VeteranNumOfUsed[playerId], 1)}"));
                 if (Options.UsePets.GetBool() && Main.VeteranCD.TryGetValue(playerId, out var time2) && !GetPlayerById(playerId).IsModClient())
-                    ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.VeteranSkillCooldown.GetInt() - (GetTimeStamp() - time2) + 1));
+                    ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.VeteranSkillCooldown.GetInt() + Options.VeteranSkillDuration.GetInt() - (GetTimeStamp() - time2) + 1));
                 break;
             case CustomRoles.Grenadier:
                 var taskState3 = Main.PlayerStates?[playerId].GetTaskState();
@@ -733,7 +733,7 @@ public static class Utils
                 ProgressText.Append(ColorString(TextColor3, $"<color=#777777>-</color> {Completed3}/{taskState3.AllTasksCount}"));
                 ProgressText.Append(ColorString(TextColor31, $" <color=#777777>-</color> {Math.Round(Main.GrenadierNumOfUsed[playerId], 1)}"));
                 if (Options.UsePets.GetBool() && Main.GrenadierCD.TryGetValue(playerId, out var time3) && !GetPlayerById(playerId).IsModClient())
-                    ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.GrenadierSkillCooldown.GetInt() - (GetTimeStamp() - time3) + 1));
+                    ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.GrenadierSkillCooldown.GetInt() + Options.GrenadierSkillDuration.GetInt() - (GetTimeStamp() - time3) + 1));
                 break;
             case CustomRoles.Divinator:
                 var taskState4 = Main.PlayerStates?[playerId].GetTaskState();
@@ -780,7 +780,7 @@ public static class Utils
                 ProgressText.Append(ColorString(TextColor6, $"<color=#777777>-</color> {Completed6}/{taskState6.AllTasksCount}"));
                 ProgressText.Append(ColorString(TextColor61, $" <color=#777777>-</color> {Math.Round(Main.TimeMasterNumOfUsed[playerId], 1)}"));
                 if (Options.UsePets.GetBool() && Main.TimeMasterCD.TryGetValue(playerId, out var time5) && !GetPlayerById(playerId).IsModClient())
-                    ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.TimeMasterSkillCooldown.GetInt() - (GetTimeStamp() - time5) + 1));
+                    ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.TimeMasterSkillCooldown.GetInt() + Options.TimeMasterSkillDuration.GetInt() - (GetTimeStamp() - time5) + 1));
                 break;
             case CustomRoles.Mediumshiper:
                 var taskState7 = Main.PlayerStates?[playerId].GetTaskState();
@@ -896,7 +896,7 @@ public static class Utils
                 ProgressText.Append(ColorString(TextColor14, $"<color=#777777>-</color> {Completed14}/{taskState14.AllTasksCount}"));
                 ProgressText.Append(ColorString(TextColor141, $" <color=#777777>-</color> {Math.Round(Main.LighterNumOfUsed[playerId], 1)}"));
                 if (Options.UsePets.GetBool() && Main.LighterCD.TryGetValue(playerId, out var time6) && !GetPlayerById(playerId).IsModClient())
-                    ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.LighterSkillCooldown.GetInt() - (GetTimeStamp() - time6) + 1));
+                    ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.LighterSkillCooldown.GetInt() + Options.LighterSkillDuration.GetInt() - (GetTimeStamp() - time6) + 1));
                 break;
             case CustomRoles.Ventguard:
                 var taskState15 = Main.PlayerStates?[playerId].GetTaskState();
@@ -927,7 +927,7 @@ public static class Utils
                 ProgressText.Append(ColorString(TextColor16, $"<color=#777777>-</color> {Completed16}/{taskState16.AllTasksCount}"));
                 ProgressText.Append(ColorString(TextColor161, $" <color=#777777>-</color> {Math.Round(Main.SecurityGuardNumOfUsed[playerId], 1)}"));
                 if (Options.UsePets.GetBool() && Main.SecurityGuardCD.TryGetValue(playerId, out var time7) && !GetPlayerById(playerId).IsModClient())
-                    ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.SecurityGuardSkillCooldown.GetInt() - (GetTimeStamp() - time7) + 1));
+                    ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.SecurityGuardSkillCooldown.GetInt() + Options.SecurityGuardSkillDuration.GetInt() - (GetTimeStamp() - time7) + 1));
                 break;
             //case CustomRoles.Pirate:
             //    ProgressText.Append(ColorString(GetRoleColor(CustomRoles.Pirate).ShadeColor(0.25f), $"({Pirate.NumWin}/{Pirate.SuccessfulDuelsToWin.GetInt()})"));
