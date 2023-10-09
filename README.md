@@ -25,7 +25,7 @@
 
 <br>
 
-# This mod supports public lobbies from v1.0.4 and up!
+# This mod supports public lobbies!
 
 <br>
 
@@ -55,6 +55,7 @@
 - Better confirm ejections text
 - Brand new HUD text
 - Better role summary
+- Option to use Pet button instead of Vent (currently only for Crewmates, this will change in the future) (assigns the Pusheen pet to everyone at the start of the game)
 - Smaller mod version text and smaller credentials text (imo it was annoying that it covered a quarter of the screen)
 
 ### Role specific Improvements
@@ -108,6 +109,7 @@
 - Tether (Crewmate)
 - Ricochet (Crewmate)
 - Door Master (Crewmate)
+- Hacker (Crewmate)
 - Romantic (Neutral)
 - Werewolf (Neutral)
 - Imitator (Neutral)
@@ -116,6 +118,10 @@
 - Eclipse (Neutral)
 - Pyromaniac (Neutral)
 - Undertaker (Impostor)
+- Gambler (Impostor)
+- Mastermind (Impostor)
+- Rift Maker (Impostor)
+- Hitman (Impostor)
 - Deadly Quota (Impostor-only Add-on)
 
 ## Note:
@@ -125,11 +131,11 @@
 <br>
 
 ## Credit to these mods and their developers for the code and help:
-### :star: [TOHRE](https://github.com/Loonie-Toons/Re-Edited) :
+### :star: [TOH Enhanced](https://github.com/0xDrMoe/TownofHost-Enhanced) :
 > 
-> - Our repo is forked from TOHRE
+> - Our repo is forked from TOHE
 > 
-### :star: [TOHE](https://github.com/KARPED1EM/TownOfHostEdited) :
+### :star: [TOH Edited](https://github.com/KARPED1EM/TownOfHostEdited) :
 > 
 > - Our repo is a continuation of TOHE
 > 
