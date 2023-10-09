@@ -670,6 +670,8 @@ public static class Utils
                 if (Disperser.DisperserLimit[playerId] < 1) TextColorDisperser = Color.grey;
                 else TextColorDisperser = Color.white;
                 ProgressText.Append(ColorString(TextColorDisperser, $"<color=#777777>-</color> {Math.Round(Disperser.DisperserLimit[playerId], 1)}"));
+                if (Options.UsePets.GetBool() && Main.DisperserCD.TryGetValue(playerId, out var time11) && !GetPlayerById(playerId).IsModClient())
+                    ProgressText.Append(" " + string.Format(GetString("CDPT"), Disperser.DisperserShapeshiftCooldown.GetInt() - (GetTimeStamp() - time11) + 1));
                 break;
             case CustomRoles.Hangman:
                 Color TextColorHangman;
@@ -682,6 +684,8 @@ public static class Utils
                 if (Twister.TwistLimit[playerId] < 1) TextColorTwister = Color.grey;
                 else TextColorTwister = Color.white;
                 ProgressText.Append(ColorString(TextColorTwister, $"<color=#777777>-</color> {Math.Round(Twister.TwistLimit[playerId], 1)}"));
+                if (Options.UsePets.GetBool() && Main.TwisterCD.TryGetValue(playerId, out var time12) && !GetPlayerById(playerId).IsModClient())
+                    ProgressText.Append(" " + string.Format(GetString("CDPT"), Twister.ShapeshiftCooldown.GetInt() - (GetTimeStamp() - time12) + 1));
                 break;
             case CustomRoles.EvilDiviner:
                 Color TextColorED;
@@ -980,6 +984,8 @@ public static class Utils
 
             case CustomRoles.Sniper:
                 ProgressText.Append(Sniper.GetBulletCount(playerId));
+                if (Options.UsePets.GetBool() && Main.SniperCD.TryGetValue(playerId, out var time13) && !GetPlayerById(playerId).IsModClient())
+                    ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.DefaultShapeshiftCooldown.GetInt() - (GetTimeStamp() - time13) + 1));
                 break;
             case CustomRoles.EvilTracker:
                 ProgressText.Append(EvilTracker.GetMarker(playerId));
@@ -998,6 +1004,8 @@ public static class Utils
             //    break;
             case CustomRoles.QuickShooter:
                 ProgressText.Append(QuickShooter.GetShotLimit(playerId));
+                if (Options.UsePets.GetBool() && Main.QuickShooterCD.TryGetValue(playerId, out var time14) && !GetPlayerById(playerId).IsModClient())
+                    ProgressText.Append(" " + string.Format(GetString("CDPT"), QuickShooter.ShapeshiftCooldown.GetInt() - (GetTimeStamp() - time14) + 1));
                 break;
             case CustomRoles.SwordsMan:
                 ProgressText.Append(SwordsMan.GetKillLimit(playerId));
@@ -1054,6 +1062,30 @@ public static class Utils
                 break;
             case CustomRoles.KB_Normal:
                 ProgressText.Append(SoloKombatManager.GetDisplayScore(playerId));
+                break;
+            case CustomRoles.Bomber:
+                if (Options.UsePets.GetBool() && Main.BomberCD.TryGetValue(playerId, out var time15) && !GetPlayerById(playerId).IsModClient())
+                    ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.BombCooldown.GetInt() - (GetTimeStamp() - time15) + 1));
+                break;
+            case CustomRoles.Nuker:
+                if (Options.UsePets.GetBool() && Main.NukerCD.TryGetValue(playerId, out var time16) && !GetPlayerById(playerId).IsModClient())
+                    ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.NukeCooldown.GetInt() - (GetTimeStamp() - time16) + 1));
+                break;
+            case CustomRoles.Escapee:
+                if (Options.UsePets.GetBool() && Main.EscapeeCD.TryGetValue(playerId, out var time17) && !GetPlayerById(playerId).IsModClient())
+                    ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.EscapeeSSCD.GetInt() - (GetTimeStamp() - time17) + 1));
+                break;
+            case CustomRoles.Miner:
+                if (Options.UsePets.GetBool() && Main.MinerCD.TryGetValue(playerId, out var time18) && !GetPlayerById(playerId).IsModClient())
+                    ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.MinerSSCD.GetInt() - (GetTimeStamp() - time18) + 1));
+                break;
+            case CustomRoles.Assassin:
+                if (Options.UsePets.GetBool() && Main.AssassinCD.TryGetValue(playerId, out var time19) && !GetPlayerById(playerId).IsModClient())
+                    ProgressText.Append(" " + string.Format(GetString("CDPT"), Assassin.AssassinateCooldown.GetInt() - (GetTimeStamp() - time19) + 1));
+                break;
+            case CustomRoles.Undertaker:
+                if (Options.UsePets.GetBool() && Main.UndertakerCD.TryGetValue(playerId, out var time20) && !GetPlayerById(playerId).IsModClient())
+                    ProgressText.Append(" " + string.Format(GetString("CDPT"), Undertaker.AssassinateCooldown.GetInt() - (GetTimeStamp() - time20) + 1));
                 break;
             case CustomRoles.Killer:
                 ProgressText.Append(FFAManager.GetDisplayScore(playerId));
@@ -2535,6 +2567,36 @@ public static class Utils
                         break;
                     case CustomRoles.NiceHacker:
                         Main.HackerCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                        break;
+                    case CustomRoles.Sniper:
+                        Main.SniperCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                        break;
+                    case CustomRoles.Assassin:
+                        Main.AssassinCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                        break;
+                    case CustomRoles.Undertaker:
+                        Main.UndertakerCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                        break;
+                    case CustomRoles.Bomber:
+                        Main.BomberCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                        break;
+                    case CustomRoles.Nuker:
+                        Main.NukerCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                        break;
+                    case CustomRoles.Miner:
+                        Main.MinerCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                        break;
+                    case CustomRoles.Escapee:
+                        Main.EscapeeCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                        break;
+                    case CustomRoles.QuickShooter:
+                        Main.QuickShooterCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                        break;
+                    case CustomRoles.Disperser:
+                        Main.DisperserCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                        break;
+                    case CustomRoles.Twister:
+                        Main.TwisterCD.TryAdd(pc.PlayerId, GetTimeStamp());
                         break;
                 }
             }

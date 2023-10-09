@@ -15,7 +15,7 @@ internal static class Assassin
     public static List<byte> playerIdList = new();
 
     private static OptionItem MarkCooldown;
-    private static OptionItem AssassinateCooldown;
+    public static OptionItem AssassinateCooldown;
     private static OptionItem CanKillAfterAssassinate;
 
     public static Dictionary<byte, byte> MarkedPlayer = new();

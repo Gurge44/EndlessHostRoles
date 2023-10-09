@@ -11,7 +11,7 @@ public static class Disperser
 {
     private static readonly int Id = 17000;
 
-    private static OptionItem DisperserShapeshiftCooldown;
+    public static OptionItem DisperserShapeshiftCooldown;
     private static OptionItem DisperserShapeshiftDuration;
     private static OptionItem DisperserLimitOpt;
     public static OptionItem DisperserAbilityUseGainWithEachKill;

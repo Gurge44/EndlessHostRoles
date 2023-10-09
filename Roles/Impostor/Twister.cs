@@ -12,7 +12,7 @@ namespace TOHE.Roles.Impostor
     {
         private static readonly int Id = 4400;
 
-        private static OptionItem ShapeshiftCooldown;
+        public static OptionItem ShapeshiftCooldown;
         private static OptionItem TwisterLimitOpt;
         public static OptionItem TwisterAbilityUseGainWithEachKill;
         public static Dictionary<byte, float> TwistLimit = new();
