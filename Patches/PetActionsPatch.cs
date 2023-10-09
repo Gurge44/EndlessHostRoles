@@ -67,7 +67,7 @@ class ExternalRpcPetPatch
         switch (pc.GetCustomRole())
         {
             case CustomRoles.Doormaster:
-                if (Main.DoormasterCD.ContainsKey(pc.PlayerId))
+                if (Main.DoormasterCD.ContainsKey(pc.PlayerId) && !NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
                 {
                     pc.Notify(GetString("AbilityOnCooldown"));
                     break;
@@ -77,7 +77,7 @@ class ExternalRpcPetPatch
                 pc.MyPhysics.CancelPet();
                 break;
             case CustomRoles.Tether:
-                if (Main.TetherCD.ContainsKey(pc.PlayerId))
+                if (Main.TetherCD.ContainsKey(pc.PlayerId) && !NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
                 {
                     pc.Notify(GetString("AbilityOnCooldown"));
                     break;
@@ -110,7 +110,7 @@ class ExternalRpcPetPatch
             case CustomRoles.Veteran:
                 if (Main.VeteranNumOfUsed[pc.PlayerId] >= 1)
                 {
-                    if (Main.VeteranCD.ContainsKey(pc.PlayerId))
+                    if (Main.VeteranCD.ContainsKey(pc.PlayerId) && !NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
                     {
                         pc.Notify(GetString("AbilityOnCooldown"));
                         break;
@@ -134,7 +134,7 @@ class ExternalRpcPetPatch
             case CustomRoles.Grenadier:
                 if (Main.GrenadierNumOfUsed[pc.PlayerId] >= 1)
                 {
-                    if (Main.GrenadierCD.ContainsKey(pc.PlayerId))
+                    if (Main.GrenadierCD.ContainsKey(pc.PlayerId) && !NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
                     {
                         pc.Notify(GetString("AbilityOnCooldown"));
                         break;
@@ -168,7 +168,7 @@ class ExternalRpcPetPatch
             case CustomRoles.Lighter:
                 if (Main.LighterNumOfUsed[pc.PlayerId] >= 1)
                 {
-                    if (Main.LighterCD.ContainsKey(pc.PlayerId))
+                    if (Main.LighterCD.ContainsKey(pc.PlayerId) && !NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
                     {
                         pc.Notify(GetString("AbilityOnCooldown"));
                         break;
@@ -190,7 +190,7 @@ class ExternalRpcPetPatch
             case CustomRoles.SecurityGuard:
                 if (Main.SecurityGuardNumOfUsed[pc.PlayerId] >= 1)
                 {
-                    if (Main.SecurityGuardCD.ContainsKey(pc.PlayerId))
+                    if (Main.SecurityGuardCD.ContainsKey(pc.PlayerId) && !NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
                     {
                         pc.Notify(GetString("AbilityOnCooldown"));
                         break;
@@ -213,7 +213,7 @@ class ExternalRpcPetPatch
                 {
                     pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
                 }
-                else if (Main.DovesOfNeaceCD.ContainsKey(pc.PlayerId))
+                else if (Main.DovesOfNeaceCD.ContainsKey(pc.PlayerId) && !NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
                 {
                     pc.Notify(GetString("AbilityOnCooldown"));
                 }
@@ -249,7 +249,7 @@ class ExternalRpcPetPatch
             case CustomRoles.TimeMaster:
                 if (Main.TimeMasterNumOfUsed[pc.PlayerId] >= 1)
                 {
-                    if (Main.TimeMasterCD.ContainsKey(pc.PlayerId))
+                    if (Main.TimeMasterCD.ContainsKey(pc.PlayerId) && !NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
                     {
                         pc.Notify(GetString("AbilityOnCooldown"));
                         break;
