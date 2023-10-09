@@ -202,12 +202,8 @@ public static class CopyCat
             CustomRoles.Bloodhound or
             CustomRoles.Tracefinder or
             CustomRoles.Spiritualist or
-            CustomRoles.Tracker or
-            //bcoz of single role
-            CustomRoles.Spy or
-            CustomRoles.Tether or
-            CustomRoles.Doormaster or
-            CustomRoles.Ricochet;
+            CustomRoles.Tracker;
+
     }
 
     public static bool OnCheckMurder(PlayerControl pc, PlayerControl tpc)

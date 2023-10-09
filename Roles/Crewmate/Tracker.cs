@@ -1,6 +1,6 @@
 ﻿using Hazel;
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -93,7 +93,7 @@ namespace TOHE.Roles.Crewmate
         {
             if (!IsEnable) return;
 
-            foreach (var trackerId in playerIdList) 
+            foreach (var trackerId in playerIdList)
             {
                 TempTrackLimit[trackerId] = TrackLimit[trackerId];
             }
