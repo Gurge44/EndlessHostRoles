@@ -108,7 +108,7 @@ public static class ParityCop
         else if (operate == 2)
         {
 
-            if (TryHideMsg.GetBool()) TryHideMsgForCompare();
+            if (TryHideMsg.GetBool()) /*TryHideMsgForCompare();*/ ChatManager.SendPreviousMessagesToAll();
             else if (pc.AmOwner) Utils.SendMessage(originMsg, 255, pc.GetRealName());
 
             if (!MsgToPlayerAndRole(msg, out byte targetId1, out byte targetId2, out string error))

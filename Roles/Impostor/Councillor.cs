@@ -91,7 +91,7 @@ public static class Councillor
         else if (operate == 2)
         {
 
-            if (TryHideMsg.GetBool()) GuessManager.TryHideMsg();
+            if (TryHideMsg.GetBool()) ChatManager.SendPreviousMessagesToAll();
             else if (pc.AmOwner) Utils.SendMessage(originMsg, 255, pc.GetRealName());
 
             if (!MsgToPlayerAndRole(msg, out byte targetId, out string error))

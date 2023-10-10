@@ -93,7 +93,7 @@ public static class Judge
         else if (operate == 2)
         {
 
-            if (TryHideMsg.GetBool()) GuessManager.TryHideMsg();
+            if (TryHideMsg.GetBool()) /*GuessManager.TryHideMsg();*/ ChatManager.SendPreviousMessagesToAll();
             else if (pc.AmOwner) Utils.SendMessage(originMsg, 255, pc.GetRealName());
 
             if (!MsgToPlayerAndRole(msg, out byte targetId, out string error))

@@ -42,6 +42,7 @@ internal class ChatCommands
         var cancelVal = string.Empty;
         Main.isChatCommand = true;
         Logger.Info(text, "SendChat");
+        ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
         if (text.Length >= 3) if (text[..2] == "/r" && text[..3] != "/rn") args[0] = "/r";
         if (text.Length >= 4) if (text[..3] == "/up") args[0] = "/up";
         if (GuessManager.GuesserMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
@@ -116,7 +117,7 @@ internal class ChatCommands
                     canceled = true;
                     subArgs = args.Length < 2 ? string.Empty : args[1];
                     Utils.SendMessage(string.Format(GetString("Message.SetLevel"), subArgs), PlayerControl.LocalPlayer.PlayerId);
-                    int.TryParse(subArgs, out int input);
+                    _ = int.TryParse(subArgs, out int input);
                     if (input is < 1 or > 999)
                     {
                         Utils.SendMessage(GetString("Message.AllowLevelRange"), PlayerControl.LocalPlayer.PlayerId);
@@ -226,15 +227,15 @@ internal class ChatCommands
                     {
                         var lp = PlayerControl.LocalPlayer;
                         var sb = new StringBuilder();
-                        sb.Append(GetString(role.ToString()) + Utils.GetRoleMode(role) + lp.GetRoleInfo(true));
+                        _ = sb.Append(GetString(role.ToString()) + Utils.GetRoleMode(role) + lp.GetRoleInfo(true));
                         if (Options.CustomRoleSpawnChances.TryGetValue(role, out var opt))
                             Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[role], ref sb, command: true);
                         var txt = sb.ToString();
-                        sb.Clear().Append(txt.RemoveHtmlTags());
+                        _ = sb.Clear().Append(txt.RemoveHtmlTags());
                         for (int i = 0; i < Main.PlayerStates[lp.PlayerId].SubRoles.Count; i++)
                         {
                             CustomRoles subRole = Main.PlayerStates[lp.PlayerId].SubRoles[i];
-                            sb.Append($"\n\n" + GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
+                            _ = sb.Append($"\n\n" + GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
                         }
                         Utils.SendMessage(sb.ToString(), lp.PlayerId);
                     }
@@ -661,10 +662,10 @@ internal class ChatCommands
         }
 
         role = role.Trim().ToLower();
-        if (role.StartsWith("/r")) role.Replace("/r", string.Empty);
-        if (role.StartsWith("/up")) role.Replace("/up", string.Empty);
-        if (role.EndsWith("\r\n")) role.Replace("\r\n", string.Empty);
-        if (role.EndsWith("\n")) role.Replace("\n", string.Empty);
+        if (role.StartsWith("/r")) _ = role.Replace("/r", string.Empty);
+        if (role.StartsWith("/up")) _ = role.Replace("/up", string.Empty);
+        if (role.EndsWith("\r\n")) _ = role.Replace("\r\n", string.Empty);
+        if (role.EndsWith("\n")) _ = role.Replace("\n", string.Empty);
 
         if (role == "" || role == string.Empty)
         {
@@ -696,18 +697,18 @@ internal class ChatCommands
                     if (devMark == "▲")
                     {
                         byte pid = playerId == 255 ? (byte)0 : playerId; // rl contains the ID whose role we want to set, move that to pid
-                        Main.DevRole.Remove(pid);
+                        _ = Main.DevRole.Remove(pid);
                         Main.DevRole.Add(pid, rl);
                     }
                     if (isUp) return;
                 }
                 var sb = new StringBuilder();
-                sb.Append(devMark + "<b>" + roleName + "</b>" + Utils.GetRoleMode(rl) + GetString($"{rl}InfoLong"));
+                _ = sb.Append(devMark + "<b>" + roleName + "</b>" + Utils.GetRoleMode(rl) + GetString($"{rl}InfoLong"));
                 if (Options.CustomRoleSpawnChances.ContainsKey(rl))
                 {
                     Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[rl], ref sb, command: true);
                     var txt = sb.ToString();
-                    sb.Clear().Append(txt.RemoveHtmlTags());
+                    _ = sb.Clear().Append(txt.RemoveHtmlTags());
                 }
                 Utils.SendMessage(sb.ToString(), playerId);
                 return;
@@ -721,6 +722,7 @@ internal class ChatCommands
     {
         canceled = false;
         if (!AmongUsClient.Instance.AmHost) return;
+        if (player.PlayerId != 0) ChatManager.SendMessage(player, text);
         if (text.StartsWith("\n")) text = text[1..];
         //if (!text.StartsWith("/")) return;
         string[] args = text.Split(' ');
@@ -780,15 +782,15 @@ internal class ChatCommands
                 if (GameStates.IsInGame)
                 {
                     var sb = new StringBuilder();
-                    sb.Append(GetString(role.ToString()) + Utils.GetRoleMode(role) + player.GetRoleInfo(true));
-                    if (Options.CustomRoleSpawnChances.TryGetValue(role, out var opt))
+                    _ = sb.Append(GetString(role.ToString()) + Utils.GetRoleMode(role) + player.GetRoleInfo(true));
+                    if (Options.CustomRoleSpawnChances.TryGetValue(role, out _))
                         Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[role], ref sb, command: true);
                     var txt = sb.ToString();
-                    sb.Clear().Append(txt.RemoveHtmlTags());
+                    _ = sb.Clear().Append(txt.RemoveHtmlTags());
                     for (int i = 0; i < Main.PlayerStates[player.PlayerId].SubRoles.Count; i++)
                     {
                         CustomRoles subRole = Main.PlayerStates[player.PlayerId].SubRoles[i];
-                        sb.Append($"\n\n" + GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
+                        _ = sb.Append($"\n\n" + GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
                     }
                     Utils.SendMessage(sb.ToString(), player.PlayerId);
                 }
@@ -976,17 +978,17 @@ internal class ChatUpdatePatch
             player.SetName(name);
         }
         var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
-        writer.StartMessage(clientId);
-        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+        _ = writer.StartMessage(clientId);
+        _ = writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
             .Write(title)
             .EndRpc();
-        writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+        _ = writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
             .Write(msg)
             .EndRpc();
-        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+        _ = writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
             .Write(player.Data.PlayerName)
             .EndRpc();
-        writer.EndMessage();
+        _ = writer.EndMessage();
         writer.SendMessage();
         __instance.timeSinceLastMessage = 0f;
     }

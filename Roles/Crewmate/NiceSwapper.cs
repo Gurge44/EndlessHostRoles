@@ -77,7 +77,7 @@ public static class NiceSwapper
         }
         else if (operate == 2)
         {
-            if (HideMsg.GetBool() && !isUI) GuessManager.TryHideMsg();
+            if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
             else if (pc.AmOwner && !isUI) Utils.SendMessage(originMsg, 255, pc.GetRealName());
 
             if (!MsgToPlayerAndRole(msg, out byte targetId, out string error))
@@ -105,7 +105,7 @@ public static class NiceSwapper
                     Vote.Add(dp.PlayerId);
                     if (HideMsg.GetBool() && !isUI)
                     {
-                        GuessManager.TryHideMsg();
+                        ChatManager.SendPreviousMessagesToAll();
                     }
                     if (!isUI) Utils.SendMessage(GetString("Swap1"), pc.PlayerId);
                     //else pc.ShowPopUp(GetString("Swap1"));
@@ -117,7 +117,7 @@ public static class NiceSwapper
                     VoteTwo.Add(dp.PlayerId);
                     if (HideMsg.GetBool() && !isUI)
                     {
-                        GuessManager.TryHideMsg();
+                        ChatManager.SendPreviousMessagesToAll();
                     }
                     if (!isUI) Utils.SendMessage(GetString("Swap2"), pc.PlayerId);
                     //else pc.ShowPopUp(GetString("Swap2"));
@@ -128,7 +128,7 @@ public static class NiceSwapper
                     Vote.Remove(dp.PlayerId);
                     if (HideMsg.GetBool() && !isUI)
                     {
-                        GuessManager.TryHideMsg();
+                        ChatManager.SendPreviousMessagesToAll();
                     }
                     if (!isUI) Utils.SendMessage(GetString("CancelSwap1"), pc.PlayerId);
                     //else pc.ShowPopUp(GetString("CancelSwap1"));
@@ -139,7 +139,7 @@ public static class NiceSwapper
                     VoteTwo.Remove(dp.PlayerId);
                     if (HideMsg.GetBool() && !isUI)
                     {
-                        GuessManager.TryHideMsg();
+                        ChatManager.SendPreviousMessagesToAll();
                     }
                     if (!isUI) Utils.SendMessage(GetString("CancelSwap2"), pc.PlayerId);
                     //else pc.ShowPopUp(GetString("CancelSwap2"));
@@ -149,7 +149,7 @@ public static class NiceSwapper
                 {
                     if (HideMsg.GetBool() && !isUI)
                     {
-                        GuessManager.TryHideMsg();
+                        ChatManager.SendPreviousMessagesToAll();
                     }
                     if (!isUI) Utils.SendMessage(GetString("CantSwapSelf"), pc.PlayerId);
                     else pc.ShowPopUp(GetString("CantSwapSelf"));

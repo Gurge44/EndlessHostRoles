@@ -28,7 +28,7 @@ public static class GuessManager
         return text;
     }
 
-    public static bool CheckCommond(ref string msg, string command, bool exact = true)
+    public static bool CheckCommand(ref string msg, string command, bool exact = true)
     {
         var comList = command.Split('|');
         for (int i = 0; i < comList.Length; i++)
@@ -92,8 +92,8 @@ public static class GuessManager
 
         int operate = 0; // 1:ID 2:猜测
         msg = msg.ToLower().TrimStart().TrimEnd();
-        if (CheckCommond(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id")) operate = 1;
-        else if (CheckCommond(ref msg, "shoot|guess|bet|st|gs|bt|猜|赌", false)) operate = 2;
+        if (CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id")) operate = 1;
+        else if (CheckCommand(ref msg, "shoot|guess|bet|st|gs|bt|猜|赌", false)) operate = 2;
         else return false;
 
         Logger.Msg(msg, "Msg Guesser");
@@ -149,7 +149,7 @@ public static class GuessManager
             (pc.Is(CustomRoles.EvilGuesser) && Options.EGTryHideMsg.GetBool()) ||
             (pc.Is(CustomRoles.Doomsayer) && Doomsayer.DoomsayerTryHideMsg.GetBool()) ||
             pc.Is(CustomRoles.Guesser) && Options.GTryHideMsg.GetBool() || Options.GuesserMode.GetBool() && Options.HideGuesserCommands.GetBool()
-            ) TryHideMsg();
+            ) /*TryHideMsg();*/ ChatManager.SendPreviousMessagesToAll();
             else if (pc.AmOwner && !isUI) Utils.SendMessage(originMsg, 255, pc.GetRealName());
 
             if (!MsgToPlayerAndRole(msg, out byte targetId, out CustomRoles role, out string error))
