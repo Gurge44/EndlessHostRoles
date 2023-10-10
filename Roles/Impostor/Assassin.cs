@@ -80,6 +80,7 @@ internal static class Assassin
             killer.ResetKillCooldown();
             killer.SetKillCooldown();
             if (killer.IsModClient()) killer.RpcResetAbilityCooldown();
+            if (UsePets.GetBool()) Main.AssassinCD.TryAdd(killer.PlayerId, Utils.GetTimeStamp());
             killer.SyncSettings();
             killer.RPCPlayCustomSound("Clothe");
             return false;
@@ -108,7 +109,7 @@ internal static class Assassin
                     pc.SetKillCooldown();
                     pc.RpcCheckAndMurder(target);
                 }
-            }, 1.5f, "Assassin Assassinate");
+            }, UsePets.GetBool() ? 0.1f : 1.5f, "Assassin Assassinate");
             return;
         }
     }

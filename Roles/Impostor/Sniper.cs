@@ -251,7 +251,7 @@ public static class Sniper
                 Utils.NotifyRoles(SpecifySeer: otherPc);
             }
             SendRPC(sniperId);
-            new LateTask(
+            _ = new LateTask(
                 () =>
                 {
                     snList.Clear();

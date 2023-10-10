@@ -100,7 +100,6 @@ class ExternalRpcPetPatch
             case CustomRoles.Mayor:
                 if (Main.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count) && count < Options.MayorNumOfUseButton.GetInt() && !Main.MayorCD.ContainsKey(pc.PlayerId))
                 {
-
                     pc?.ReportDeadBody(null);
                 }
                 break;

@@ -82,6 +82,7 @@ internal static class Undertaker
             killer.ResetKillCooldown();
             killer.SetKillCooldown();
             if (killer.IsModClient()) killer.RpcResetAbilityCooldown();
+            if (UsePets.GetBool()) Main.UndertakerCD.TryAdd(killer.PlayerId, Utils.GetTimeStamp());
             killer.SyncSettings();
             killer.RPCPlayCustomSound("Clothe");
             return false;
@@ -109,7 +110,7 @@ internal static class Undertaker
                     pc.SetKillCooldown();
                     pc.RpcCheckAndMurder(target);
                 }
-            }, 1.5f, "Undertaker Assassinate");
+            }, UsePets.GetBool() ? 0.1f : 1.5f, "Undertaker Assassinate");
         }
     }
     public static void SetKillButtonText(byte playerId)

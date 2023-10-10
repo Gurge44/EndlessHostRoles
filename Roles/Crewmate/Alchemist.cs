@@ -293,6 +293,10 @@ namespace TOHE.Roles.Crewmate
                 }
                 if (FixNextSabo) str.Append("\n<b><color=#3333ff>Quick Fix Potion</color></b> waiting for use");
             }
+            if (UsePets.GetBool() && Main.AlchemistCD.TryGetValue(pc.PlayerId, out var cd))
+            {
+                str.Append($"\n<color=#00ffa5>CD:</color> <b>{cd}</b>s");
+            }
             return str.ToString();
         }
         public static string GetProgressText(int playerId)

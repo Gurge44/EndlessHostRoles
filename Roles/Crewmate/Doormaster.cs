@@ -78,5 +78,11 @@ namespace TOHE.Roles.Crewmate
 
             return sb.ToString();
         }
+        public static string GetHudText(PlayerControl pc)
+        {
+            return !UsePets.GetBool() || !Main.DoormasterCD.TryGetValue(pc.PlayerId, out var cd)
+                ? string.Empty
+                : string.Format(Translator.GetString("CDPT"), cd);
+        }
     }
 }

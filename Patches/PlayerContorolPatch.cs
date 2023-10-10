@@ -1000,7 +1000,11 @@ class MurderPlayerPatch
                 Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Sniped;
             }
         }
-        if (killer.Is(CustomRoles.Sniper)) killer.RpcResetAbilityCooldown();
+
+        if (killer.Is(CustomRoles.Sniper))
+            if (!Options.UsePets.GetBool()) killer.RpcResetAbilityCooldown();
+            else Main.SniperCD.TryAdd(killer.PlayerId, Utils.GetTimeStamp());
+
         if (killer != __instance)
         {
             Logger.Info($"Real Killer={killer.GetNameWithRole()}", "MurderPlayer");

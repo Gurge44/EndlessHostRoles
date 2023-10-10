@@ -436,55 +436,34 @@ class HudManagerPatch
                 }
 
 
-                switch (player.GetCustomRole())
+                LowerInfoText.text = player.GetCustomRole() switch
                 {
-                    case CustomRoles.BountyHunter:
-                        LowerInfoText.text = BountyHunter.GetTargetText(player, true);
-                        break;
-                    case CustomRoles.Witch:
-                        LowerInfoText.text = Witch.GetSpellModeText(player, true);
-                        break;
-                    case CustomRoles.HexMaster:
-                        LowerInfoText.text = HexMaster.GetHexModeText(player, true);
-                        break;
-                    case CustomRoles.FireWorks:
-                        LowerInfoText.text = FireWorks.GetStateText(player);
-                        break;
-                    case CustomRoles.Swooper:
-                        LowerInfoText.text = Swooper.GetHudText(player);
-                        break;
-                    case CustomRoles.Wraith:
-                        LowerInfoText.text = Wraith.GetHudText(player);
-                        break;
-                    case CustomRoles.HeadHunter:
-                        LowerInfoText.text = HeadHunter.GetHudText(player);
-                        break;
-                    case CustomRoles.Alchemist:
-                        LowerInfoText.text = Alchemist.GetHudText(player);
-                        break;
-                    case CustomRoles.Chameleon:
-                        LowerInfoText.text = Chameleon.GetHudText(player);
-                        break;
-                    case CustomRoles.Werewolf:
-                        LowerInfoText.text = Werewolf.GetHudText(player);
-                        break;
-                    case CustomRoles.BloodKnight:
-                        LowerInfoText.text = BloodKnight.GetHudText(player);
-                        break;
-                    case CustomRoles.Glitch:
-                        LowerInfoText.text = Glitch.GetHudText(player);
-                        break;
-                    case CustomRoles.NiceHacker:
-                        LowerInfoText.text = NiceHacker.GetHudText(player);
-                        break;
-                    case CustomRoles.Wildling:
-                        LowerInfoText.text = Wildling.GetHudText(player);
-                        break;
-                    default:
-                        LowerInfoText.text = string.Empty;
-                        break;
-                }
-
+                    CustomRoles.BountyHunter => BountyHunter.GetTargetText(player, true),
+                    CustomRoles.Witch => Witch.GetSpellModeText(player, true),
+                    CustomRoles.HexMaster => HexMaster.GetHexModeText(player, true),
+                    CustomRoles.FireWorks => FireWorks.GetStateText(player),
+                    CustomRoles.Swooper => Swooper.GetHudText(player),
+                    CustomRoles.Wraith => Wraith.GetHudText(player),
+                    CustomRoles.HeadHunter => HeadHunter.GetHudText(player),
+                    CustomRoles.Alchemist => Alchemist.GetHudText(player),
+                    CustomRoles.Chameleon => Chameleon.GetHudText(player),
+                    CustomRoles.Werewolf => Werewolf.GetHudText(player),
+                    CustomRoles.BloodKnight => BloodKnight.GetHudText(player),
+                    CustomRoles.Glitch => Glitch.GetHudText(player),
+                    CustomRoles.NiceHacker => NiceHacker.GetHudText(player),
+                    CustomRoles.Wildling => Wildling.GetHudText(player),
+                    CustomRoles.Doormaster => Doormaster.GetHudText(player),
+                    CustomRoles.Tether => Tether.GetHudText(player),
+                    CustomRoles.Mayor => !Options.UsePets.GetBool() || !Main.MayorCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), cd),
+                    CustomRoles.Paranoia => !Options.UsePets.GetBool() || !Main.ParanoiaCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), cd),
+                    CustomRoles.Veteran => !Options.UsePets.GetBool() || !Main.VeteranCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), cd),
+                    CustomRoles.Grenadier => !Options.UsePets.GetBool() || !Main.GrenadierCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), cd),
+                    CustomRoles.Lighter => !Options.UsePets.GetBool() || !Main.LighterCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), cd),
+                    CustomRoles.DovesOfNeace => !Options.UsePets.GetBool() || !Main.DovesOfNeaceCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), cd),
+                    CustomRoles.SecurityGuard => !Options.UsePets.GetBool() || !Main.SecurityGuardCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), cd),
+                    CustomRoles.TimeMaster => !Options.UsePets.GetBool() || !Main.TimeMasterCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), cd),
+                    _ => string.Empty,
+                };
                 LowerInfoText.enabled = LowerInfoText.text != string.Empty;
 
                 if ((!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay) || GameStates.IsMeeting)
