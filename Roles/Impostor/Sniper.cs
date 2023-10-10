@@ -347,8 +347,6 @@ public static class Sniper
     {
         if (Options.UsePets.GetBool())
         {
-            if (IsThisRole(id))
-                HudManager.Instance.PetButton.SetUsesRemaining(bulletCount[id]);
             HudManager.Instance.PetButton.OverrideText(GetString(bulletCount[id] <= 0 ? "DefaultShapeshiftText" : "SniperSnipeButtonText"));
         }
         else
