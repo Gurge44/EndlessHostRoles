@@ -122,7 +122,7 @@ namespace TOHE.Roles.Crewmate
         {
             return !UsePets.GetBool() || !Main.TetherCD.TryGetValue(pc.PlayerId, out var cd)
                 ? string.Empty
-                : string.Format(Translator.GetString("CDPT"), cd);
+                : string.Format(Translator.GetString("CDPT"), VentCooldown.GetInt() - (GetTimeStamp() - cd));
         }
     }
 }
