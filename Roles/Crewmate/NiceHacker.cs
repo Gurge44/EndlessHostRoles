@@ -141,7 +141,7 @@
                 return;
             }
             UseLimitSeconds[pc.PlayerId] -= 1;
-            new LateTask(() => { MapCountdown(pc, map, opts, seconds - 1); }, 1f, "NiceHackerAbilityCountdown");
+            _ = new LateTask(() => { MapCountdown(pc, map, opts, seconds - 1); }, 1f, "NiceHackerAbilityCountdown");
         }
         public static string GetHudText(PlayerControl pc)
         {
@@ -152,7 +152,7 @@
         }
         public static string GetProgressText(byte playerId, bool comms)
         {
-            if (GetPlayerById(playerId).IsModClient()) return string.Empty;
+            if (GetPlayerById(playerId).IsModClient() || !UseLimit.ContainsKey(playerId)) return string.Empty;
 
             var sb = new StringBuilder();
 
