@@ -1615,6 +1615,7 @@
 "NeutralCanBeTiebreaker","<color=#7f8c8d>中立</color>可以成为<color=#1447af>破平者</color>","<color=#7f8c8d>Neutrals</color> can become <color=#1447af>Tiebreaker</color>","<color=#7f8c8d>Нейтралы</color> могут стать <color=#1447af>Решающим</color>","",""
 "HexesLookLikeSpells","<color=#ff00ff>妖术</color>显示为<color=#ff1919>符咒</color>","<color=#ff00ff>Hexes</color> appear as <color=#ff1919>spells</color>","<color=#ff00ff>Мастер Проклятий</color> выглядят как <color=#ff1919>Заклинатель</color>","",""
 "HexButtonText","妖术","Hex","Порча","",""
+"EscapeeAbilityButtonText","","TP","","",""
 "ObliviousBaitImmune","报告对<color=#00f7ff>诱饵</color>免疫","Immune to <color=#00f7ff>Bait</color>","Может именть иммунитет к <color=#00f7ff>Байту</color>","",""
 "ImpCanBeOnbound","<color=#ff1919>内鬼</color>可以成为<color=#baaae9>防赌</color>","<color=#ff1919>Impostors</color> can become <color=#baaae9>Onbound</color>","<color=#ff1919>Предатели</color> могут стать <color=#baaae9>Непобедимым</color>","",""
 "CrewCanBeOnbound","<color=#8cffff>船员</color>可以成为<color=#baaae9>防赌</color>","<color=#8cffff>Crewmates</color> can become <color=#baaae9>Onbound</color>","<color=#8cffff>Члены Экипажа</color> могут стать <color=#baaae9>Непобедимым</color>","",""

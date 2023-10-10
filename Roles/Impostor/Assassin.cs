@@ -122,6 +122,7 @@ internal static class Assassin
     public static void GetAbilityButtonText(HudManager __instance, byte playerId)
     {
         if (MarkedPlayer.ContainsKey(playerId) && !playerId.Shapeshifting())
-            __instance.AbilityButton.OverrideText(GetString("AssassinShapeshiftText"));
+            if (!UsePets.GetBool()) __instance.AbilityButton.OverrideText(GetString("AssassinShapeshiftText"));
+            else __instance.PetButton.OverrideText(GetString("AssassinShapeshiftText"));
     }
 }

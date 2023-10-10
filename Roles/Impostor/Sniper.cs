@@ -345,8 +345,17 @@ public static class Sniper
     }
     public static void OverrideShapeText(byte id)
     {
-        if (IsThisRole(id))
-            HudManager.Instance.AbilityButton.SetUsesRemaining(bulletCount[id]);
-        HudManager.Instance.AbilityButton.OverrideText(GetString(bulletCount[id] <= 0 ? "DefaultShapeshiftText" : "SniperSnipeButtonText"));
+        if (Options.UsePets.GetBool())
+        {
+            if (IsThisRole(id))
+                HudManager.Instance.PetButton.SetUsesRemaining(bulletCount[id]);
+            HudManager.Instance.PetButton.OverrideText(GetString(bulletCount[id] <= 0 ? "DefaultShapeshiftText" : "SniperSnipeButtonText"));
+        }
+        else
+        {
+            if (IsThisRole(id))
+                HudManager.Instance.AbilityButton.SetUsesRemaining(bulletCount[id]);
+            HudManager.Instance.AbilityButton.OverrideText(GetString(bulletCount[id] <= 0 ? "DefaultShapeshiftText" : "SniperSnipeButtonText"));
+        }
     }
 }

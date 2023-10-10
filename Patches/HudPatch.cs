@@ -88,7 +88,12 @@ class HudManagerPatch
                             __instance.AbilityButton?.OverrideText(GetString("WarlockShapeshiftButtonText"));
                         break;
                     case CustomRoles.Miner:
-                        __instance.AbilityButton?.OverrideText(GetString("MinerTeleButtonText"));
+                        if (Options.UsePets.GetBool()) __instance.PetButton?.OverrideText(GetString("MinerTeleButtonText"));
+                        else __instance.AbilityButton?.OverrideText(GetString("MinerTeleButtonText"));
+                        break;
+                    case CustomRoles.Escapee:
+                        if (Options.UsePets.GetBool()) __instance.PetButton?.OverrideText(GetString("EscapeeAbilityButtonText"));
+                        else __instance.AbilityButton?.OverrideText(GetString("EscapeeAbilityButtonText"));
                         break;
                     case CustomRoles.Pestilence:
                         __instance.KillButton?.OverrideText(GetString("KillButtonText"));
@@ -192,18 +197,35 @@ class HudManagerPatch
                         break;
                     case CustomRoles.Bomber:
                     case CustomRoles.Nuker:
-                        __instance.AbilityButton?.OverrideText(GetString("BomberShapeshiftText"));
+                        if (Options.UsePets.GetBool()) __instance.PetButton?.OverrideText(GetString("BomberShapeshiftText"));
+                        else __instance.AbilityButton?.OverrideText(GetString("BomberShapeshiftText"));
                         break;
                     case CustomRoles.Twister:
-                        __instance.AbilityButton?.OverrideText(GetString("TwisterButtonText"));
-                        __instance.AbilityButton?.SetUsesRemaining((int)Twister.TwistLimit[player.PlayerId]);
+                        if (Options.UsePets.GetBool())
+                        {
+                            __instance.PetButton?.OverrideText(GetString("TwisterButtonText"));
+                            __instance.PetButton?.SetUsesRemaining((int)Twister.TwistLimit[player.PlayerId]);
+                        }
+                        else
+                        {
+                            __instance.AbilityButton?.OverrideText(GetString("TwisterButtonText"));
+                            __instance.AbilityButton?.SetUsesRemaining((int)Twister.TwistLimit[player.PlayerId]);
+                        }
                         break;
                     case CustomRoles.ImperiusCurse:
                         __instance.AbilityButton?.OverrideText(GetString("ImperiusCurseButtonText"));
                         break;
                     case CustomRoles.QuickShooter:
-                        __instance.AbilityButton?.OverrideText(GetString("QuickShooterShapeshiftText"));
-                        __instance.AbilityButton?.SetUsesRemaining(QuickShooter.ShotLimit.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var qx) ? qx : 0);
+                        if (Options.UsePets.GetBool())
+                        {
+                            __instance.PetButton?.OverrideText(GetString("QuickShooterShapeshiftText"));
+                            __instance.PetButton?.SetUsesRemaining(QuickShooter.ShotLimit.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var qx) ? qx : 0);
+                        }
+                        else
+                        {
+                            __instance.AbilityButton?.OverrideText(GetString("QuickShooterShapeshiftText"));
+                            __instance.AbilityButton?.SetUsesRemaining(QuickShooter.ShotLimit.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var qx) ? qx : 0);
+                        }
                         break;
                     case CustomRoles.Provocateur:
                         __instance.KillButton?.OverrideText(GetString("ProvocateurButtonText"));
@@ -240,8 +262,16 @@ class HudManagerPatch
                         __instance.ReportButton?.OverrideText(GetString("VultureEatButtonText"));
                         break;
                     case CustomRoles.Disperser:
-                        __instance.AbilityButton?.OverrideText(GetString("DisperserVentButtonText"));
-                        __instance.AbilityButton?.SetUsesRemaining((int)Disperser.DisperserLimit[player.PlayerId]);
+                        if (Options.UsePets.GetBool())
+                        {
+                            __instance.PetButton?.OverrideText(GetString("DisperserVentButtonText"));
+                            __instance.PetButton?.SetUsesRemaining((int)Disperser.DisperserLimit[player.PlayerId]);
+                        }
+                        else
+                        {
+                            __instance.AbilityButton?.OverrideText(GetString("DisperserVentButtonText"));
+                            __instance.AbilityButton?.SetUsesRemaining((int)Disperser.DisperserLimit[player.PlayerId]);
+                        }
                         break;
                     case CustomRoles.Swooper:
                         __instance.ImpostorVentButton?.OverrideText(GetString(Swooper.IsInvis(PlayerControl.LocalPlayer.PlayerId) ? "SwooperRevertVentButtonText" : "SwooperVentButtonText"));
