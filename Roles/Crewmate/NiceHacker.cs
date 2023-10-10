@@ -64,7 +64,7 @@
         {
             if (pc == null) return;
             if (!pc.Is(CustomRoles.NiceHacker)) return;
-            if (pc.IsModClient()) return;
+            if (pc.IsModClient() || !UseLimit.ContainsKey(pc.PlayerId)) return;
 
             if (UseLimit[pc.PlayerId] >= 1)
             {

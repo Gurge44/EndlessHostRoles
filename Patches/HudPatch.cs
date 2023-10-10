@@ -462,6 +462,16 @@ class HudManagerPatch
                     CustomRoles.DovesOfNeace => !Options.UsePets.GetBool() || !Main.DovesOfNeaceCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), cd),
                     CustomRoles.SecurityGuard => !Options.UsePets.GetBool() || !Main.SecurityGuardCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), cd),
                     CustomRoles.TimeMaster => !Options.UsePets.GetBool() || !Main.TimeMasterCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), cd),
+                    CustomRoles.Sniper => !Options.UsePets.GetBool() || !Main.SniperCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), cd),
+                    CustomRoles.Assassin => !Options.UsePets.GetBool() || !Main.AssassinCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), cd),
+                    CustomRoles.Undertaker => !Options.UsePets.GetBool() || !Main.UndertakerCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), cd),
+                    CustomRoles.Bomber => !Options.UsePets.GetBool() || !Main.BomberCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), cd),
+                    CustomRoles.Nuker => !Options.UsePets.GetBool() || !Main.NukerCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), cd),
+                    CustomRoles.QuickShooter => !Options.UsePets.GetBool() || !Main.QuickShooterCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), cd),
+                    CustomRoles.Miner => !Options.UsePets.GetBool() || !Main.MinerCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), cd),
+                    CustomRoles.Escapee => !Options.UsePets.GetBool() || !Main.EscapeeCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), cd),
+                    CustomRoles.Disperser => !Options.UsePets.GetBool() || !Main.DisperserCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), cd),
+                    CustomRoles.Twister => !Options.UsePets.GetBool() || !Main.TwisterCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), cd),
                     _ => string.Empty,
                 };
                 LowerInfoText.enabled = LowerInfoText.text != string.Empty;

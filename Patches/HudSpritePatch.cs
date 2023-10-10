@@ -48,7 +48,7 @@ public static class HudSpritePatch
         Sprite newSabotageButton = Sabotage;
         Sprite newPetButton = Pet;
 
-        if (!Main.EnableCustomButton.Value) goto EndOfSelectImg;
+        if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts) goto EndOfSelectImg;
 
         if (!Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId))
             switch (player.GetCustomRole())
