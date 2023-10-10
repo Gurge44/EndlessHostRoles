@@ -306,7 +306,7 @@ class ExternalRpcPetPatch
                     break;
                 }
                 Sniper.OnShapeshift(pc, !Sniper.IsAim[pc.PlayerId]);
-                Main.SniperCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                if (Sniper.IsAim[pc.PlayerId]) Main.SniperCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
             case CustomRoles.Warlock:
                 if (Main.CursedPlayers[pc.PlayerId] != null)//呪われた人がいるか確認

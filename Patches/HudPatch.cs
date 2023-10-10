@@ -204,7 +204,6 @@ class HudManagerPatch
                         if (Options.UsePets.GetBool())
                         {
                             __instance.PetButton?.OverrideText(GetString("TwisterButtonText"));
-                            __instance.PetButton?.SetUsesRemaining((int)Twister.TwistLimit[player.PlayerId]);
                         }
                         else
                         {
@@ -219,7 +218,6 @@ class HudManagerPatch
                         if (Options.UsePets.GetBool())
                         {
                             __instance.PetButton?.OverrideText(GetString("QuickShooterShapeshiftText"));
-                            __instance.PetButton?.SetUsesRemaining(QuickShooter.ShotLimit.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var qx) ? qx : 0);
                         }
                         else
                         {
@@ -265,7 +263,6 @@ class HudManagerPatch
                         if (Options.UsePets.GetBool())
                         {
                             __instance.PetButton?.OverrideText(GetString("DisperserVentButtonText"));
-                            __instance.PetButton?.SetUsesRemaining((int)Disperser.DisperserLimit[player.PlayerId]);
                         }
                         else
                         {
