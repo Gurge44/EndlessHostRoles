@@ -305,8 +305,8 @@ class ExternalRpcPetPatch
                     if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
                     break;
                 }
-                Sniper.OnShapeshift(pc, !Sniper.IsAim[pc.PlayerId]);
                 if (Sniper.IsAim[pc.PlayerId]) Main.SniperCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                Sniper.OnShapeshift(pc, !Sniper.IsAim[pc.PlayerId]);
                 break;
             case CustomRoles.Warlock:
                 if (Main.CursedPlayers[pc.PlayerId] != null)//呪われた人がいるか確認
