@@ -193,4 +193,5 @@
 ### :star: [TOHEX](https://github.com/TOHEX-Official/TownOfHostEdited-Xi) :
 >
 > - Provided role: Swapper
+> - Reference: Store message history
 > 
