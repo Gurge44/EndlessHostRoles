@@ -35,7 +35,7 @@ internal static class FFAManager
 
     public static void SetupCustomOption()
     {
-        FFA_GameTime = IntegerOptionItem.Create(67_223_001, "FFA_GameTime", new(30, 600, 5), 300, TabGroup.GameSettings, false)
+        FFA_GameTime = IntegerOptionItem.Create(67_223_001, "FFA_GameTime", new(30, 600, 10), 300, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.FFA)
             .SetColor(new Color32(0, 255, 165, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds)
@@ -168,17 +168,23 @@ internal static class FFAManager
     {
         if (killer == null || target == null || Options.CurrentGameMode != CustomGameMode.FFA) return;
         if (target.inVent) return;
-        if (FFAShieldedList.ContainsKey(target.PlayerId)) return;
+        var totalalive = Main.AllAlivePlayerControls.Count();
+        if (FFAShieldedList.ContainsKey(target.PlayerId))
+        {
+            killer.Notify(GetString("FFATargetIsShielded"));
+            return;
+        }
 
         OnPlayerKill(killer);
 
         SendRPCSyncFFAPlayer(target.PlayerId);
 
-        if (Main.AllAlivePlayerControls.Count() <= 3)
+        if (totalalive <= 3)
         {
             foreach (var pc in Main.AllAlivePlayerControls.Where(a => a.PlayerId != killer.PlayerId && a.PlayerId != target.PlayerId && a.IsAlive()))
             {
                 TargetArrow.Add(killer.PlayerId, pc.PlayerId);
+                TargetArrow.Add(pc.PlayerId, killer.PlayerId);
             }
         }
 
@@ -316,8 +322,6 @@ internal static class FFAManager
                 LastFixedUpdate = Utils.GetTimeStamp();
 
                 RoundTime--;
-
-                if (!AmongUsClient.Instance.AmHost) return;
 
                 foreach (var pc in Main.AllPlayerControls)
                 {

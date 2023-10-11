@@ -70,7 +70,7 @@
             {
                 if (Main.HackerCD.ContainsKey(pc.PlayerId))
                 {
-                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                    //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
                 }
                 else
                 {
@@ -87,7 +87,8 @@
             }
             else
             {
-                pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
+                if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
+                    pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
             }
         }
         public static void OnFixedUpdate(PlayerControl pc)

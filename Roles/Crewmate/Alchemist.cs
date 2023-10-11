@@ -109,7 +109,7 @@ namespace TOHE.Roles.Crewmate
 
             if (Main.AlchemistCD.ContainsKey(player.PlayerId))
             {
-                if (!NameNotifyManager.Notice.ContainsKey(player.PlayerId)) player.Notify(GetString("AbilityOnCooldown"));
+                //if (!NameNotifyManager.Notice.ContainsKey(player.PlayerId)) player.Notify(GetString("AbilityOnCooldown"));
                 return;
             }
 

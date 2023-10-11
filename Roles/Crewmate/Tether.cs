@@ -74,7 +74,7 @@ namespace TOHE.Roles.Crewmate
                 _ = new LateTask(() =>
                 {
                     if (!isPet) pc.MyPhysics?.RpcBootFromVent(ventId);
-                    pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
+                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
                 }, isPet ? 0.1f : 0.5f, "Tether No Uses Left Boot From Vent");
             }
         }

@@ -54,7 +54,7 @@ namespace TOHE.Roles.Crewmate
             }
             else
             {
-                pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
+                if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
             }
         }
         public static string GetProgressText(byte playerId, bool comms)

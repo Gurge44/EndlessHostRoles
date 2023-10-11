@@ -1976,6 +1976,14 @@ class FixedUpdatePatch
                         }
                         if (Main.ParanoiaCD.ContainsKey(player.PlayerId)) Utils.NotifyRoles(SpecifySeer: player);
                         break;
+                    case CustomRoles.NiceHacker:
+                        if (Main.HackerCD.TryGetValue(player.PlayerId, out var nh) && nh + NiceHacker.AbilityCD.GetInt() < Utils.GetTimeStamp())
+                        {
+                            Main.HackerCD.Remove(player.PlayerId);
+                            Utils.NotifyRoles(SpecifySeer: player);
+                        }
+                        if (Main.HackerCD.ContainsKey(player.PlayerId)) Utils.NotifyRoles(SpecifySeer: player);
+                        break;
                     case CustomRoles.Grenadier:
                         if (Main.GrenadierCD.TryGetValue(player.PlayerId, out var gd) && gd + Options.GrenadierSkillCooldown.GetInt() + Options.GrenadierSkillDuration.GetInt() < Utils.GetTimeStamp())
                         {

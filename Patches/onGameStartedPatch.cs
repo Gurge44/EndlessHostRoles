@@ -248,6 +248,7 @@ internal class ChangeRoleSettings
             Sans.Init();
             Juggernaut.Init();
             Hacker.Init();
+            NiceHacker.Init();
             Psychic.Init();
             Hangman.Init();
             Judge.Init();
@@ -721,6 +722,9 @@ internal class SelectRolesPatch
                     case CustomRoles.Hacker:
                         Hacker.Add(pc.PlayerId);
                         break;
+                    case CustomRoles.NiceHacker:
+                        NiceHacker.Add(pc.PlayerId);
+                        break;
                     case CustomRoles.Psychic:
                         Psychic.Add(pc.PlayerId);
                         break;
@@ -908,17 +912,17 @@ internal class SelectRolesPatch
                         //    Pirate.Add(pc.PlayerId);
                         //    break;
                 }
-                List<CustomRoles> list = pc.GetCustomSubRoles();
-                for (int i = 0; i < list.Count; i++)
-                {
-                    CustomRoles subRole = list[i];
-                    switch (subRole)
-                    {
-                        // ここに属性のAddを追加
-                        default:
-                            break;
-                    }
-                }
+                //List<CustomRoles> list = pc.GetCustomSubRoles();
+                //for (int i = 0; i < list.Count; i++)
+                //{
+                //    CustomRoles subRole = list[i];
+                //    switch (subRole)
+                //    {
+                //        // ここに属性のAddを追加
+                //        default:
+                //            break;
+                //    }
+                //}
             }
 
         EndOfSelectRolePatch:
