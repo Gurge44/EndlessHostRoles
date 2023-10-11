@@ -520,25 +520,32 @@ class IntroCutsceneDestroyPatch
             {
                 Main.ProcessShapeshifts = false;
                 _ = new LateTask(() => PlayerControl.AllPlayerControls.ToArray().Do(pc => PetsPatch.SetPet(pc, "pet_Pusheen", true)), 0.3f, "Grant Pet For Everyone");
-                try { _ = new LateTask(() => { try
+                try
+                {
+                    _ = new LateTask(() =>
                     {
-                        for (int i = 0; i < Main.AllPlayerControls.Count(); i++)
+                        try
                         {
-                            var pc = Main.AllPlayerControls.ElementAt(i);
-                            if (pc.PlayerId == 0) continue;
-                            if (pc != null)
+                            for (int i = 0; i < Main.AllPlayerControls.Count(); i++)
                             {
-                                try
+                                var pc = Main.AllPlayerControls.ElementAt(i);
+                                if (pc.PlayerId == 0) continue;
+                                if (pc != null)
                                 {
-                                    pc.RpcShapeshift(Utils.GetPlayerById(0), false);
-                                    pc.RpcRevertShapeshift(false);
-                                    pc.Notify("", 0.1f);
+                                    try
+                                    {
+                                        pc.RpcShapeshift(Utils.GetPlayerById(0), false);
+                                        pc.RpcRevertShapeshift(false);
+                                        pc.Notify("", 0.1f);
+                                    }
+                                    catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift"); }
                                 }
-                                catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift"); }
                             }
                         }
-                    }
-                    catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift.forCycle"); } }, 0.4f, "Show Pet For Everyone"); } catch { }
+                        catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift.forCycle"); }
+                    }, 0.4f, "Show Pet For Everyone");
+                }
+                catch { }
                 _ = new LateTask(() => Main.ProcessShapeshifts = true, 2f, "Enable SS Processing");
             }
             if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))

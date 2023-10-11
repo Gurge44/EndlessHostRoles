@@ -387,7 +387,7 @@ class ExternalRpcPetPatch
                     Logger.Msg($"{pc.GetNameWithRole()}:{position}", "MinerTeleport");
                     Utils.TP(pc.NetTransform, new UnityEngine.Vector2(position.x, position.y));
                 }
-                Main.MinerCD.TryAdd(pc.PlayerId , Utils.GetTimeStamp());
+                Main.MinerCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
             case CustomRoles.Escapee:
                 if (Main.EscapeeCD.ContainsKey(pc.PlayerId))

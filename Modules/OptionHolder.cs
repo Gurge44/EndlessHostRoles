@@ -3112,7 +3112,7 @@ public static class Options
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
         UsePets = BooleanOptionItem.Create(23850, "UsePets", false, TabGroup.GameSettings, false)
-            .SetColor(Color.yellow);
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
         // 梯子摔死
         LadderDeath = BooleanOptionItem.Create(23800, "LadderDeath", false, TabGroup.GameSettings, false)
