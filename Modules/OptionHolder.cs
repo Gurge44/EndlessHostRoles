@@ -2431,10 +2431,10 @@ public static class Options
             .SetHeader(true)
             .SetColor(Color.green);
 
-        DeepLowLoad = BooleanOptionItem.Create(193170, "DeepLowLoad", false, TabGroup.SystemSettings, false)
+        DeepLowLoad = BooleanOptionItem.Create(19325, "DeepLowLoad", false, TabGroup.SystemSettings, false)
             .SetColor(Color.red);
 
-        DontUpdateDeadPlayers = BooleanOptionItem.Create(193171, "DontUpdateDeadPlayers", true, TabGroup.SystemSettings, false)
+        DontUpdateDeadPlayers = BooleanOptionItem.Create(19326, "DontUpdateDeadPlayers", true, TabGroup.SystemSettings, false)
             .SetColor(Color.red);
 
         EndWhenPlayerBug = BooleanOptionItem.Create(19318, "EndWhenPlayerBug", true, TabGroup.SystemSettings, false)

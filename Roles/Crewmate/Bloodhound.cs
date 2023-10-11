@@ -19,6 +19,7 @@
         public static OptionItem ArrowsPointingToDeadBody;
         public static OptionItem UseLimitOpt;
         public static OptionItem LeaveDeadBodyUnreportable;
+        public static OptionItem NotifyKiller;
         public static OptionItem BloodhoundAbilityUseGainWithEachTaskCompleted;
 
         public static void SetupCustomOption()
@@ -26,6 +27,7 @@
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Bloodhound);
             ArrowsPointingToDeadBody = BooleanOptionItem.Create(Id + 10, "BloodhoundArrowsPointingToDeadBody", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound]);
             LeaveDeadBodyUnreportable = BooleanOptionItem.Create(Id + 11, "BloodhoundLeaveDeadBodyUnreportable", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound]);
+            NotifyKiller = BooleanOptionItem.Create(Id + 14, "BloodhoundNotifyKiller", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound]);
             UseLimitOpt = IntegerOptionItem.Create(Id + 12, "AbilityUseLimit", new(1, 20, 1), 1, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound])
             .SetValueFormat(OptionFormat.Times);
             BloodhoundAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 13, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
@@ -129,6 +131,8 @@
                 {
                     UnreportablePlayers.Add(target.PlayerId);
                 }
+
+                if (NotifyKiller.GetBool()) killer.Notify(GetString("BloodhoundKillerNotify"));
             }
             else
             {

@@ -157,6 +157,8 @@ namespace TOHE.Roles.Impostor
 
             killer.RpcMurderPlayerV3(target);
 
+            killer.Notify(GetString("MastermindTargetSurvived"));
+
             _ = new LateTask(() =>
             {
                 killer.SetKillCooldown(time: TempKCDs[killer.PlayerId] + Main.AllPlayerKillCooldown[killer.PlayerId]);

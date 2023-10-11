@@ -51,7 +51,9 @@ namespace TOHE.Roles.Impostor
             if (Marks.Count != 2) return;
             if (Vector2.Distance(Marks[0], Marks[1]) <= 4f)
             {
-                if (!NameNotifyManager.Notice.TryGetValue(player.PlayerId, out var s) || s.Item1 != GetString("IncorrectMarks")) player.Notify(GetString("IncorrectMarks"));
+                player.Notify(GetString("IncorrectMarks"));
+                Marks.Clear();
+                return;
             }
             if (LastTP + 5 > GetTimeStamp()) return;
 
@@ -111,6 +113,7 @@ namespace TOHE.Roles.Impostor
             if (Marks.Count >= 2) return;
 
             Marks.Add((Vector2)player.transform.position);
+            if (Marks.Count == 2) LastTP = GetTimeStamp();
             player.Notify(GetString("MarkDone"));
 
             if (!isPet) _ = new LateTask(() => { player.RpcRevertShapeshift(false); }, 1.5f, "Rift Maker RpcRevertShapeshift");

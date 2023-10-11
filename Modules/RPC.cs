@@ -1157,6 +1157,9 @@ internal static class RPC
             case CustomRoles.Dazzler:
                 Dazzler.Add(targetId);
                 break;
+            case CustomRoles.Hitman:
+                Hitman.Add(targetId);
+                break;
             case CustomRoles.NiceHacker:
                 NiceHacker.Add(targetId);
                 break;

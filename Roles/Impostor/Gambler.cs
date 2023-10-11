@@ -211,6 +211,8 @@ namespace TOHE.Roles.Impostor
                 }
             }
 
+            EffectID = byte.MaxValue;
+
             return true;
         }
 
@@ -263,6 +265,7 @@ namespace TOHE.Roles.Impostor
 
         public static void OnReportDeadBody()
         {
+            EffectID = byte.MaxValue;
             foreach (var playerId in waitingDelayedKills.Keys)
             {
                 var pc = GetPlayerById(playerId);

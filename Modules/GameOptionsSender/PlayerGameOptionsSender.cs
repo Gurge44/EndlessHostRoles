@@ -290,6 +290,10 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 AURoleOptions.ShapeshifterCooldown = Options.NukeCooldown.GetFloat();
                 AURoleOptions.ShapeshifterDuration = 2f;
                 break;
+            case CustomRoles.Hitman:
+                AURoleOptions.ShapeshifterCooldown = Hitman.ShapeshiftCooldown.GetFloat();
+                AURoleOptions.ShapeshifterDuration = 1f;
+                break;
             case CustomRoles.Mafia:
                 AURoleOptions.ShapeshifterCooldown = Options.MafiaShapeshiftCD.GetFloat();
                 AURoleOptions.ShapeshifterDuration = Options.MafiaShapeshiftDur.GetFloat();

@@ -285,6 +285,7 @@ internal class ChangeRoleSettings
             Jinx.Init();
             DoubleShot.Init();
             Dazzler.Init();
+            Hitman.Init();
             Gambler.Init();
             RiftMaker.Init();
             Addict.Init();
@@ -859,6 +860,9 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Dazzler:
                         Dazzler.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Hitman:
+                        Hitman.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Gambler:
                         Gambler.Add(pc.PlayerId);

@@ -1211,6 +1211,9 @@ class ShapeshiftPatch
                 case CustomRoles.RiftMaker:
                     RiftMaker.OnShapeshift(shapeshifter, shapeshifting);
                     break;
+                case CustomRoles.Hitman:
+                    Hitman.OnShapeshift(shapeshifter, target, shapeshifting);
+                    break;
                 case CustomRoles.FireWorks:
                     FireWorks.ShapeShiftState(shapeshifter, shapeshifting);
                     if (shapeshifting)
@@ -1764,6 +1767,7 @@ class ReportDeadBodyPatch
         if (Ricochet.IsEnable) Ricochet.OnReportDeadBody();
         if (Mastermind.IsEnable) Mastermind.OnReportDeadBody();
         if (RiftMaker.IsEnable) RiftMaker.OnReportDeadBody();
+        if (Hitman.IsEnable) Hitman.OnReportDeadBody();
         if (Gambler.IsEnable) Gambler.OnReportDeadBody();
         if (Tracker.IsEnable) Tracker.OnReportDeadBody();
 
