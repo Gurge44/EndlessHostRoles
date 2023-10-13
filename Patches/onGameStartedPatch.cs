@@ -285,6 +285,7 @@ internal class ChangeRoleSettings
             Jinx.Init();
             DoubleShot.Init();
             Dazzler.Init();
+            CameraMan.Init();
             Hitman.Init();
             Gambler.Init();
             RiftMaker.Init();
@@ -304,6 +305,7 @@ internal class ChangeRoleSettings
             ParityCop.Init(); // *giggle* party cop
             //Baker.Init();
             Spiritcaller.Init();
+            Enigma.Init();
             Lurker.Init();
             PlagueBearer.Init();
             //Reverie.Init();
@@ -861,8 +863,14 @@ internal class SelectRolesPatch
                     case CustomRoles.Dazzler:
                         Dazzler.Add(pc.PlayerId);
                         break;
+                    case CustomRoles.CameraMan:
+                        CameraMan.Add(pc.PlayerId);
+                        break;
                     case CustomRoles.Hitman:
                         Hitman.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Enigma:
+                        Enigma.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Gambler:
                         Gambler.Add(pc.PlayerId);

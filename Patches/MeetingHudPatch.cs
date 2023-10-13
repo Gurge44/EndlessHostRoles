@@ -564,20 +564,20 @@ class CheckForEndVotingPatch
             if (CustomRoles.Lovers.IsEnable() && !Main.isLoversDead && Main.LoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
                 FixedUpdatePatch.LoversSuicide(playerId, true);
             //道連れチェック
-            RevengeOnExile(playerId, deathReason);
+            RevengeOnExile(playerId/*, deathReason*/);
         }
     }
-    private static void RevengeOnExile(byte playerId, PlayerState.DeathReason deathReason)
+    private static void RevengeOnExile(byte playerId/*, PlayerState.DeathReason deathReason*/)
     {
         var player = Utils.GetPlayerById(playerId);
         if (player == null) return;
-        var target = PickRevengeTarget(player, deathReason);
+        var target = PickRevengeTarget(player/*, deathReason*/);
         if (target == null) return;
         TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Revenge, target.PlayerId);
         target.SetRealKiller(player);
         Logger.Info($"{player.GetNameWithRole()}の道連れ先:{target.GetNameWithRole()}", "RevengeOnExile");
     }
-    private static PlayerControl PickRevengeTarget(PlayerControl exiledplayer, PlayerState.DeathReason deathReason)//道連れ先選定
+    private static PlayerControl PickRevengeTarget(PlayerControl exiledplayer/*, PlayerState.DeathReason deathReason*/)//道連れ先選定
     {
         List<PlayerControl> TargetList = new();
         foreach (var candidate in Main.AllAlivePlayerControls)
@@ -769,6 +769,8 @@ class MeetingHudStartPatch
                 AddMsg(string.Format(GetString("MediumshipNotifyTarget"), Main.AllPlayerNames[Mediumshiper.ContactPlayer[pc.PlayerId]]), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mediumshiper), GetString("MediumshipTitle")));
             if (Main.VirusNotify.ContainsKey(pc.PlayerId))
                 AddMsg(Main.VirusNotify[pc.PlayerId], pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Virus), GetString("VirusNoticeTitle")));
+            if (Enigma.MsgToSend.ContainsKey(pc.PlayerId))
+                AddMsg(Enigma.MsgToSend[pc.PlayerId], pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Enigma), Enigma.MsgToSendTitle[pc.PlayerId]));
         }
         //宝箱怪的消息（合并）
         if (MimicMsg != string.Empty)
@@ -789,9 +791,10 @@ class MeetingHudStartPatch
         Main.DetectiveNotify.Clear();
         Main.VirusNotify.Clear();
         Mortician.msgToSend.Clear();
+        Enigma.MsgToSend.Clear();
         //Pirate.OnMeetingStart();
     }
-    public static void Prefix(MeetingHud __instance)
+    public static void Prefix(/*MeetingHud __instance*/)
     {
         Logger.Info("------------会议开始------------", "Phase");
         ChatUpdatePatch.DoBlockChat = true;

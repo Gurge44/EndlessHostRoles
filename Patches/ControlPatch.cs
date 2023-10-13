@@ -17,7 +17,7 @@ internal class ControllerManagerUpdatePatch
     public static List<string> addDes = new();
     public static int addonIndex = -1;
 
-    public static void Postfix(ControllerManager __instance)
+    public static void Postfix(/*ControllerManager __instance*/)
     {
         //切换自定义设置的页面
         if (GameStates.IsLobby)
@@ -35,7 +35,7 @@ internal class ControllerManagerUpdatePatch
         //捕捉全屏快捷键
         if (GetKeysDown(KeyCode.LeftAlt, KeyCode.Return))
         {
-            new LateTask(SetResolutionManager.Postfix, 0.01f, "Fix Button Position");
+            _ = new LateTask(SetResolutionManager.Postfix, 0.01f, "Fix Button Position");
         }
         //职业介绍
         if (Input.GetKeyDown(KeyCode.F1) && GameStates.InGame && Options.CurrentGameMode == CustomGameMode.Standard)

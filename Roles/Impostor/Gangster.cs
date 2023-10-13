@@ -244,7 +244,6 @@ public static class Gangster
             pc.Is(CustomRoles.CyberStar) ||
             pc.Is(CustomRoles.Demolitionist) ||
             pc.Is(CustomRoles.NiceEraser) ||
-            pc.Is(CustomRoles.TaskManager) ||
             pc.Is(CustomRoles.Egoist)
             );
     }

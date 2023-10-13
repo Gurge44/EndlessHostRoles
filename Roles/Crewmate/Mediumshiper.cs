@@ -61,8 +61,8 @@ public static class Mediumshiper
         if (!CheckCommond(ref msg, "通灵|ms|mediumship|medium", false)) return false;
 
         bool ans;
-        if (msg.Contains("n") || msg.Contains(GetString("No")) || msg.Contains("错") || msg.Contains("不是")) ans = false;
-        else if (msg.Contains("y") || msg.Contains(GetString("Yes")) || msg.Contains("对")) ans = true;
+        if (msg.Contains('n') || msg.Contains(GetString("No")) || msg.Contains('错') || msg.Contains("不是")) ans = false;
+        else if (msg.Contains('y') || msg.Contains(GetString("Yes")) || msg.Contains('对')) ans = true;
         else
         {
             Utils.SendMessage(GetString("MediumshipHelp"), pc.PlayerId);

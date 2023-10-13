@@ -1322,6 +1322,8 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Demolitionist]);
         RoleLoadingText = "Crewmate roles\nTask Manager";
         SetupSingleRoleOptions(5575, TabGroup.CrewmateRoles, CustomRoles.TaskManager, 1);
+        RoleLoadingText = "Crewmate roles\nCamera Man";
+        CameraMan.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nHacker";
         NiceHacker.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nDoormaster";
@@ -1334,6 +1336,8 @@ public static class Options
         Tether.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nSpy";
         Spy.SetupCustomOption();
+        RoleLoadingText = "Crewmate roles\nEnigma";
+        Enigma.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nExpress";
         SetupRoleOptions(5585, TabGroup.CrewmateRoles, CustomRoles.Express);
         ExpressSpeed = FloatOptionItem.Create(5587, "ExpressSpeed", new(0.25f, 5f, 0.25f), 1.5f, TabGroup.CrewmateRoles, false)

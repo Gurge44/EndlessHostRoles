@@ -91,12 +91,6 @@ internal static class FFAManager
 
         foreach (var pc in Main.AllAlivePlayerControls)
         {
-            //PlayerHPMax.TryAdd(pc.PlayerId, KB_HPMax.GetFloat());
-            //PlayerHP.TryAdd(pc.PlayerId, KB_HPMax.GetFloat());
-            //PlayerHPReco.TryAdd(pc.PlayerId, KB_RecoverPerSecond.GetFloat());
-            //PlayerATK.TryAdd(pc.PlayerId, KB_ATK.GetFloat());
-            //PlayerDF.TryAdd(pc.PlayerId, 0f);
-
             KBScore.TryAdd(pc.PlayerId, 0);
         }
     }
@@ -339,9 +333,11 @@ internal static class FFAManager
 
                 if (FFA_EnableRandomTwists.GetBool() && FFAdoTP)
                 {
-                    List<byte> changePositionPlayers = new();
+                    Logger.Info("Swap everyone with someone", "FFA");
 
+                    List<byte> changePositionPlayers = new();
                     var rd = IRandom.Instance;
+
                     foreach (var pc in Main.AllAlivePlayerControls)
                     {
                         if (changePositionPlayers.Contains(pc.PlayerId) || !pc.IsAlive() || pc.onLadder || pc.inVent) continue;
@@ -372,29 +368,37 @@ internal static class FFAManager
 
                 if (Main.NormalOptions.MapId == 4) return;
 
+                bool sync = false;
+
                 if (FFADecreasedSpeedList.TryGetValue(__instance.PlayerId, out var dstime) && dstime + FFA_ModifiedSpeedDuration.GetInt() < Utils.GetTimeStamp())
                 {
+                    Logger.Info(__instance.GetRealName() + "'s decreased speed expired", "FFA");
                     FFADecreasedSpeedList.Remove(__instance.PlayerId);
                     Main.AllPlayerSpeed[__instance.PlayerId] = originalSpeed[__instance.PlayerId];
                     originalSpeed.Remove(__instance.PlayerId);
-                    __instance.SyncSettings();
+                    sync = true;
                 }
                 if (FFAIncreasedSpeedList.TryGetValue(__instance.PlayerId, out var istime) && istime + FFA_ModifiedSpeedDuration.GetInt() < Utils.GetTimeStamp())
                 {
+                    Logger.Info(__instance.GetRealName() + "'s increased speed expired", "FFA");
                     FFAIncreasedSpeedList.Remove(__instance.PlayerId);
                     Main.AllPlayerSpeed[__instance.PlayerId] = originalSpeed[__instance.PlayerId];
                     originalSpeed.Remove(__instance.PlayerId);
-                    __instance.SyncSettings();
+                    sync = true;
                 }
                 if (FFALowerVisionList.TryGetValue(__instance.PlayerId, out var lvtime) && lvtime + FFA_ModifiedSpeedDuration.GetInt() < Utils.GetTimeStamp())
                 {
+                    Logger.Info(__instance.GetRealName() + "'s lower vision effect expired", "FFA");
                     FFALowerVisionList.Remove(__instance.PlayerId);
-                    __instance.SyncSettings();
+                    sync = true;
                 }
                 if (FFAShieldedList.TryGetValue(__instance.PlayerId, out var stime) && stime + FFA_ShieldDuration.GetInt() < Utils.GetTimeStamp())
                 {
+                    Logger.Info(__instance.GetRealName() + "'s shield expired", "FFA");
                     FFAShieldedList.Remove(__instance.PlayerId);
                 }
+
+                if (sync) __instance.SyncSettings();
             }
         }
     }

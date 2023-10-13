@@ -294,6 +294,10 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 AURoleOptions.ShapeshifterCooldown = Hitman.ShapeshiftCooldown.GetFloat();
                 AURoleOptions.ShapeshifterDuration = 1f;
                 break;
+            case CustomRoles.CameraMan:
+                AURoleOptions.EngineerCooldown = CameraMan.VentCooldown.GetFloat();
+                AURoleOptions.EngineerInVentMaxTime = 1f;
+                break;
             case CustomRoles.Mafia:
                 AURoleOptions.ShapeshifterCooldown = Options.MafiaShapeshiftCD.GetFloat();
                 AURoleOptions.ShapeshifterDuration = Options.MafiaShapeshiftDur.GetFloat();

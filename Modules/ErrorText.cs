@@ -15,19 +15,19 @@ public class ErrorText : MonoBehaviour
             return _instance;
         }
     }
-    private static ErrorText _instance;
-    private void Awake()
-    {
-        if (_instance != null)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            _instance = this;
-            DontDestroyOnLoad(this);
-        }
-    }
+    private static readonly ErrorText _instance;
+    //private void Awake()
+    //{
+    //    if (_instance != null)
+    //    {
+    //        Destroy(gameObject);
+    //    }
+    //    else
+    //    {
+    //        _instance = this;
+    //        DontDestroyOnLoad(this);
+    //    }
+    //}
     #endregion
     public static void Create(TMPro.TextMeshPro baseText)
     {

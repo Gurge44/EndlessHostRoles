@@ -12,12 +12,14 @@ namespace TOHE;
 
 public class PlayerState
 {
-    byte PlayerId;
+    readonly byte PlayerId;
     public CustomRoles MainRole;
     public List<CustomRoles> SubRoles;
     public CountTypes countTypes;
     public bool IsDead { get; set; }
+#pragma warning disable IDE1006 // Naming Styles
     public DeathReason deathReason { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
     public TaskState taskState;
     public bool IsBlackOut { get; set; }
     public (DateTime, byte) RealKiller;
@@ -486,6 +488,9 @@ public class TaskState
                         if (!player.IsModClient()) NiceHacker.UseLimit[player.PlayerId] += NiceHacker.NiceHackerAbilityUseGainWithEachTaskCompleted.GetFloat();
                         else NiceHacker.UseLimitSeconds[player.PlayerId] += NiceHacker.NiceHackerAbilityUseGainWithEachTaskCompleted.GetInt() * NiceHacker.ModdedClientAbilityUseSecondsMultiplier.GetInt();
                         break;
+                    case CustomRoles.CameraMan:
+                        CameraMan.UseLimit[player.PlayerId] += CameraMan.CameraManAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        break;
                 }
             }
             if (player.Is(CustomRoles.Express) && player.IsAlive())
@@ -596,8 +601,10 @@ public class PlayerVersion
     public readonly Version version;
     public readonly string tag;
     public readonly string forkId;
+#pragma warning disable CA1041 // Provide ObsoleteAttribute message
     [Obsolete] public PlayerVersion(string ver, string tag_str) : this(Version.Parse(ver), tag_str, string.Empty) { }
     [Obsolete] public PlayerVersion(Version ver, string tag_str) : this(ver, tag_str, string.Empty) { }
+#pragma warning restore CA1041 // Provide ObsoleteAttribute message
     public PlayerVersion(string ver, string tag_str, string forkId) : this(Version.Parse(ver), tag_str, forkId) { }
     public PlayerVersion(Version ver, string tag_str, string forkId)
     {
@@ -634,9 +641,12 @@ public static class GameStates
 public static class MeetingStates
 {
     public static DeadBody[] DeadBodies = null;
-    public static GameData.PlayerInfo ReportTarget = null;
+    private static GameData.PlayerInfo reportTarget = null;
     public static bool IsEmergencyMeeting => ReportTarget == null;
     public static bool IsExistDeadBody => DeadBodies.Length > 0;
+
+    public static GameData.PlayerInfo ReportTarget { get => reportTarget; set => reportTarget = value; }
+
     public static bool MeetingCalled = false;
     public static bool FirstMeeting = true;
 }

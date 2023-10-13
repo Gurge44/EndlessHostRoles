@@ -111,7 +111,8 @@ public class Main : BasePlugin
     public static Dictionary<byte, long> QuickShooterCD = new();
     public static Dictionary<byte, long> DisperserCD = new();
     public static Dictionary<byte, long> TwisterCD = new();
-    public static GameData.PlayerInfo LastVotedPlayerInfo;
+    public static Dictionary<byte, long> CameraManCD = new();
+    private static GameData.PlayerInfo lastVotedPlayerInfo;
     public static string LastVotedPlayer;
     public static List<byte> ResetCamPlayerList = new();
     public static List<byte> winnerList = new();
@@ -249,6 +250,8 @@ public class Main : BasePlugin
         TName_Snacks_CN[IRandom.Instance.Next(0, TName_Snacks_CN.Count)] :
         TName_Snacks_EN[IRandom.Instance.Next(0, TName_Snacks_EN.Count)];
 
+    public static GameData.PlayerInfo LastVotedPlayerInfo { get => lastVotedPlayerInfo; set => lastVotedPlayerInfo = value; }
+
     public override void Load()
     {
         Instance = this;
@@ -380,7 +383,9 @@ public class Main : BasePlugin
                 {CustomRoles.Jailor,"#aa900d"},
                 {CustomRoles.Monarch, "#FFA500"},
                 {CustomRoles.Bloodhound, "#8B0000"},
+                {CustomRoles.Enigma, "#676798"},
                 {CustomRoles.Tracker, "#3CB371"},
+                {CustomRoles.CameraMan, "#000930"},
                 {CustomRoles.Merchant, "#D27D2D"},
                 {CustomRoles.Retributionist, "#228B22"},
                 {CustomRoles.Monitor, "#7223DA"},
@@ -684,6 +689,7 @@ public enum CustomRoles
     Express,
     NiceEraser,
     TaskManager,
+    CameraMan,
     NiceHacker,
     Spy,
     Ricochet,
@@ -697,6 +703,7 @@ public enum CustomRoles
     SabotageMaster,
     Sheriff,
     Snitch,
+    Enigma,
     Marshall,
     SpeedBooster,
     Lookout,

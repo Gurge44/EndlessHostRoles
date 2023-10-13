@@ -67,7 +67,7 @@ public static class Tracefinder
         else
             LocateArrow.RemoveAllTarget(playerId);
     }
-    public static void OnReportDeadBody(PlayerControl pc, GameData.PlayerInfo target)
+    public static void OnReportDeadBody(/*PlayerControl pc, GameData.PlayerInfo target*/)
     {
         for (int i = 0; i < playerIdList.Count; i++)
         {

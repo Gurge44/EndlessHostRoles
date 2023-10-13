@@ -47,7 +47,7 @@ class ChatControllerUpdatePatch
 public class ChatManager
 {
     public static bool cancel = false;
-    private static List<string> chatHistory = new();
+    private static readonly List<string> chatHistory = new();
     private const int maxHistorySize = 20;
     public static bool CheckCommand(ref string msg, string command, bool exact = true)
     {
@@ -152,43 +152,72 @@ public class ChatManager
             var senderId = entryParts[0].Trim();
             var senderMessage = entryParts[1].Trim();
 
-            //foreach (var senderPlayer in Main.AllPlayerControls)
-            for (int j = 0; j < Main.AllPlayerControls.Count(); j++)
+            var senderPlayer = Utils.GetPlayerById(Convert.ToByte(senderId));
+
+            if (!senderPlayer.IsAlive())
             {
-                var senderPlayer = Main.AllPlayerControls.ElementAt(j);
-                if (senderPlayer.PlayerId.ToString() == senderId)
-                {
-                    if (!senderPlayer.IsAlive())
-                    {
-                        //var deathReason = (PlayerState.DeathReason)senderPlayer.PlayerId;
-                        senderPlayer.Revive();
+                senderPlayer.Revive();
 
+                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderPlayer, senderMessage);
 
-                        DestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderPlayer, senderMessage);
-
-                        var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
-                        writer.StartMessage(-1);
-                        writer.StartRpc(senderPlayer.NetId, (byte)RpcCalls.SendChat)
-                            .Write(senderMessage)
-                            .EndRpc();
-                        writer.EndMessage();
-                        writer.SendMessage();
-                        senderPlayer.Die(DeathReason.Kill, true);
-                        //Main.PlayerStates[senderPlayer.PlayerId].deathReason = deathReason;
-                    }
-                    else
-                    {
-                        DestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderPlayer, senderMessage);
-                        var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
-                        writer.StartMessage(-1);
-                        writer.StartRpc(senderPlayer.NetId, (byte)RpcCalls.SendChat)
-                            .Write(senderMessage)
-                            .EndRpc();
-                        writer.EndMessage();
-                        writer.SendMessage();
-                    }
-                }
+                var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
+                writer.StartMessage(-1);
+                writer.StartRpc(senderPlayer.NetId, (byte)RpcCalls.SendChat)
+                    .Write(senderMessage)
+                    .EndRpc();
+                writer.EndMessage();
+                writer.SendMessage();
+                senderPlayer.Die(DeathReason.Kill, true);
             }
+            else
+            {
+                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderPlayer, senderMessage);
+                var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
+                writer.StartMessage(-1);
+                writer.StartRpc(senderPlayer.NetId, (byte)RpcCalls.SendChat)
+                    .Write(senderMessage)
+                    .EndRpc();
+                writer.EndMessage();
+                writer.SendMessage();
+            }
+
+            //foreach (var senderPlayer in Main.AllPlayerControls)
+            //for (int j = 0; j < Main.AllPlayerControls.Count(); j++)
+            //{
+            //    var senderPlayer = Main.AllPlayerControls.ElementAt(j);
+            //    if (senderPlayer.PlayerId.ToString() == senderId)
+            //    {
+            //        if (!senderPlayer.IsAlive())
+            //        {
+            //            var deathReason = (PlayerState.DeathReason)senderPlayer.PlayerId;
+            //            senderPlayer.Revive();
+
+
+            //            DestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderPlayer, senderMessage);
+
+            //            var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
+            //            writer.StartMessage(-1);
+            //            writer.StartRpc(senderPlayer.NetId, (byte)RpcCalls.SendChat)
+            //                .Write(senderMessage)
+            //                .EndRpc();
+            //            writer.EndMessage();
+            //            writer.SendMessage();
+            //            senderPlayer.Die((DeathReason)deathReason, true);
+            //            //Main.PlayerStates[senderPlayer.PlayerId].deathReason = deathReason;
+            //        }
+            //        else
+            //        {
+            //            DestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderPlayer, senderMessage);
+            //            var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
+            //            writer.StartMessage(-1);
+            //            writer.StartRpc(senderPlayer.NetId, (byte)RpcCalls.SendChat)
+            //                .Write(senderMessage)
+            //                .EndRpc();
+            //            writer.EndMessage();
+            //            writer.SendMessage();
+            //        }
+            //    }
+            //}
         }
     }
 }

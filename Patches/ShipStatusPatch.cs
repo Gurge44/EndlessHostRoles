@@ -11,7 +11,7 @@ namespace TOHE;
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.FixedUpdate))]
 class ShipFixedUpdatePatch
 {
-    public static void Postfix(ShipStatus __instance)
+    public static void Postfix(/*ShipStatus __instance*/)
     {
         //ここより上、全員が実行する
         if (!AmongUsClient.Instance.AmHost) return;
@@ -133,7 +133,7 @@ class RepairSystemPatch
 
         return true;
     }
-    public static void Postfix(ShipStatus __instance)
+    public static void Postfix(/*ShipStatus __instance*/)
     {
         Camouflage.CheckCamouflage();
     }
@@ -161,7 +161,7 @@ class RepairSystemPatch
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.CloseDoorsOfType))]
 class CloseDoorsPatch
 {
-    public static bool Prefix(ShipStatus __instance, SystemTypes room)
+    public static bool Prefix(/*ShipStatus __instance, SystemTypes room*/)
     {
         if (Main.BlockSabo.Any()) return false;
         if (Options.DisableCloseDoor.GetBool()) return false;
@@ -172,7 +172,7 @@ class CloseDoorsPatch
 [HarmonyPatch(typeof(SwitchSystem), nameof(SwitchSystem.RepairDamage))]
 class SwitchSystemRepairPatch
 {
-    public static bool Prefix(SwitchSystem __instance, [HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] byte amount)
+    public static bool Prefix(/*SwitchSystem __instance,*/ [HarmonyArgument(0)] PlayerControl player/*, [HarmonyArgument(1)] byte amount*/)
     {
         if (player.Is(CustomRoles.Fool)) return false;
         else return true;
@@ -220,7 +220,7 @@ class StartPatch
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.StartMeeting))]
 class StartMeetingPatch
 {
-    public static void Prefix(ShipStatus __instance, PlayerControl reporter, GameData.PlayerInfo target)
+    public static void Prefix(/*ShipStatus __instance, PlayerControl reporter,*/ GameData.PlayerInfo target)
     {
         MeetingStates.ReportTarget = target;
         MeetingStates.DeadBodies = UnityEngine.Object.FindObjectsOfType<DeadBody>();

@@ -1737,6 +1737,7 @@ class ReportDeadBodyPatch
 
         Camouflager.OnReportDeadBody();
         if (Bandit.IsEnable) Bandit.OnReportDeadBody();
+        if (Enigma.IsEnable) Enigma.OnReportDeadBody(player, target);
         if (Psychic.IsEnable) Psychic.OnReportDeadBody();
         if (BountyHunter.IsEnable) BountyHunter.OnReportDeadBody();
         if (HeadHunter.IsEnable) HeadHunter.OnReportDeadBody();
@@ -1772,7 +1773,7 @@ class ReportDeadBodyPatch
         if (Tracker.IsEnable) Tracker.OnReportDeadBody();
 
         if (Mortician.IsEnable) Mortician.OnReportDeadBody(player, target);
-        if (Tracefinder.IsEnable) Tracefinder.OnReportDeadBody(player, target);
+        if (Tracefinder.IsEnable) Tracefinder.OnReportDeadBody(/*player, target*/);
         if (Mediumshiper.IsEnable) Mediumshiper.OnReportDeadBody(target);
         if (Spiritualist.IsEnable) Spiritualist.OnReportDeadBody(target);
 
@@ -1830,11 +1831,11 @@ class ReportDeadBodyPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
 class FixedUpdatePatch
 {
-    private static StringBuilder Mark = new(20);
-    private static StringBuilder Suffix = new(120);
+    private static readonly StringBuilder Mark = new(20);
+    private static readonly StringBuilder Suffix = new(120);
     private static int LevelKickBufferTime = 10;
-    private static Dictionary<byte, int> BufferTime = new();
-    private static Dictionary<byte, int> DeadBufferTime = new();
+    private static readonly Dictionary<byte, int> BufferTime = new();
+    private static readonly Dictionary<byte, int> DeadBufferTime = new();
 
     public static async void Postfix(PlayerControl __instance)
     {
@@ -1925,16 +1926,39 @@ class FixedUpdatePatch
             }
 
             if (DoubleTrigger.FirstTriggerTimer.Any()) DoubleTrigger.OnFixedUpdate(player);
-            if (player.Is(CustomRoles.Vampire)) Vampire.OnFixedUpdate(player);
-            if (player.Is(CustomRoles.Poisoner)) Poisoner.OnFixedUpdate(player);
-            if (player.Is(CustomRoles.BountyHunter) && !lowLoad) BountyHunter.FixedUpdate(player);
-            if (player.Is(CustomRoles.Glitch) && !lowLoad) Glitch.UpdateHackCooldown(player);
-            if (player.Is(CustomRoles.Aid) && !lowLoad) Aid.OnFixedUpdate(player);
-            if (player.Is(CustomRoles.Spy) && !lowLoad) Spy.OnFixedUpdate(player);
-            if (player.Is(CustomRoles.RiftMaker) && !lowLoad) RiftMaker.OnFixedUpdate(player);
-            if (player.Is(CustomRoles.Mastermind) && !lowLoad) Mastermind.OnFixedUpdate();
-            if (player.Is(CustomRoles.SerialKiller)) SerialKiller.FixedUpdate(player);
-            if (player.Is(CustomRoles.Gambler) && !lowLoad) Gambler.OnFixedUpdate(player);
+            switch (player.GetCustomRole())
+            {
+                case CustomRoles.Vampire:
+                    Vampire.OnFixedUpdate(player);
+                    break;
+                case CustomRoles.Poisoner:
+                    Poisoner.OnFixedUpdate(player);
+                    break;
+                case CustomRoles.BountyHunter when !lowLoad:
+                    BountyHunter.FixedUpdate(player);
+                    break;
+                case CustomRoles.Glitch when !lowLoad:
+                    Glitch.UpdateHackCooldown(player);
+                    break;
+                case CustomRoles.Aid when !lowLoad:
+                    Aid.OnFixedUpdate(player);
+                    break;
+                case CustomRoles.Spy when !lowLoad:
+                    Spy.OnFixedUpdate(player);
+                    break;
+                case CustomRoles.RiftMaker when !lowLoad:
+                    RiftMaker.OnFixedUpdate(player);
+                    break;
+                case CustomRoles.Mastermind when !lowLoad:
+                    Mastermind.OnFixedUpdate();
+                    break;
+                case CustomRoles.SerialKiller:
+                    SerialKiller.FixedUpdate(player);
+                    break;
+                case CustomRoles.Gambler when !lowLoad:
+                    Gambler.OnFixedUpdate(player);
+                    break;
+            }
             if (GameStates.IsInTask && player.Is(CustomRoles.PlagueBearer) && PlagueBearer.IsPlaguedAll(player))
             {
                 player.RpcSetCustomRole(CustomRoles.Pestilence);
@@ -1965,6 +1989,14 @@ class FixedUpdatePatch
                             Utils.NotifyRoles(SpecifySeer: player);
                         }
                         if (Main.TetherCD.ContainsKey(player.PlayerId)) Utils.NotifyRoles(SpecifySeer: player);
+                        break;
+                    case CustomRoles.CameraMan:
+                        if (Main.CameraManCD.TryGetValue(player.PlayerId, out var cm) && cm + CameraMan.VentCooldown.GetInt() < Utils.GetTimeStamp())
+                        {
+                            Main.CameraManCD.Remove(player.PlayerId);
+                            Utils.NotifyRoles(SpecifySeer: player);
+                        }
+                        if (Main.CameraManCD.ContainsKey(player.PlayerId)) Utils.NotifyRoles(SpecifySeer: player);
                         break;
                     case CustomRoles.Mayor:
                         if (Main.MayorCD.TryGetValue(player.PlayerId, out var my) && my + Options.DefaultKillCooldown < Utils.GetTimeStamp())
@@ -3428,14 +3460,14 @@ class CoEnterVentPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.SetName))]
 class SetNamePatch
 {
-    public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] string name)
+    public static void Postfix(/*PlayerControl __instance, [HarmonyArgument(0)] string name*/)
     {
     }
 }
 [HarmonyPatch(typeof(GameData), nameof(GameData.CompleteTask))]
 class GameDataCompleteTaskPatch
 {
-    public static void Postfix(PlayerControl pc, uint taskId)
+    public static void Postfix(PlayerControl pc/*, uint taskId*/)
     {
         Logger.Info($"TaskComplete:{pc.GetNameWithRole()}", "CompleteTask");
         Main.PlayerStates[pc.PlayerId].UpdateTask(pc);
@@ -3445,7 +3477,7 @@ class GameDataCompleteTaskPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CompleteTask))]
 class PlayerControlCompleteTaskPatch
 {
-    public static bool Prefix(PlayerControl __instance, uint idx)
+    public static bool Prefix(PlayerControl __instance/*, uint idx*/)
     {
         var player = __instance;
 

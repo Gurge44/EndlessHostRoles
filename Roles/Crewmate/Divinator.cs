@@ -295,6 +295,7 @@ public static class Divinator
                 CustomRoles.Jinx or
                 CustomRoles.SwordsMan or
                 CustomRoles.Veteran or
+                CustomRoles.Enigma or
                 CustomRoles.TaskManager or
                 CustomRoles.Pyromaniac or
                 CustomRoles.Hangman
@@ -304,6 +305,7 @@ public static class Divinator
                 CustomRoles.Spiritcaller or
                 CustomRoles.Spiritualist or
                 CustomRoles.Parasite or
+                CustomRoles.CameraMan or
                 CustomRoles.Swooper or
                 CustomRoles.Wraith
                 => "Result26",

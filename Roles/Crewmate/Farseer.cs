@@ -19,7 +19,7 @@ namespace TOHE.Roles.Crewmate
         public static OptionItem FarseerRevealTime;
         public static OptionItem Vision;
 
-        private static System.Collections.Generic.List<CustomRoles> randomRolesForTrickster = new()
+        private static readonly System.Collections.Generic.List<CustomRoles> randomRolesForTrickster = new()
         {
             CustomRoles.Snitch,
             CustomRoles.Luckey,
@@ -31,6 +31,7 @@ namespace TOHE.Roles.Crewmate
             CustomRoles.Express,
             CustomRoles.NiceEraser,
             CustomRoles.TaskManager,
+            CustomRoles.CameraMan,
             CustomRoles.NiceHacker,
             CustomRoles.Aid,
             CustomRoles.Tether,

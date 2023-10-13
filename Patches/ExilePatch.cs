@@ -9,7 +9,10 @@ namespace TOHE;
 
 class ExileControllerWrapUpPatch
 {
-    public static GameData.PlayerInfo AntiBlackout_LastExiled;
+    private static GameData.PlayerInfo antiBlackout_LastExiled;
+
+    public static GameData.PlayerInfo AntiBlackout_LastExiled { get => antiBlackout_LastExiled; set => antiBlackout_LastExiled = value; }
+
     [HarmonyPatch(typeof(ExileController), nameof(ExileController.WrapUp))]
     class BaseExileControllerPatch
     {
@@ -89,7 +92,7 @@ class ExileControllerWrapUpPatch
 
             //判断处刑人胜利
             if (Executioner.CheckExileTarget(exiled, DecidedWinner)) DecidedWinner = true;
-            if (Lawyer.CheckExileTarget(exiled, DecidedWinner)) DecidedWinner = false;
+            if (Lawyer.CheckExileTarget(exiled/*, DecidedWinner*/)) DecidedWinner = false;
 
             //判断恐怖分子胜利
             if (role == CustomRoles.Terrorist) Utils.CheckTerroristWin(exiled);

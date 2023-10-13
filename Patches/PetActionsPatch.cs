@@ -19,7 +19,7 @@ namespace TOHE;
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.TryPet))]
 class LocalPetPatch
 {
-    private static System.Collections.Generic.Dictionary<byte, long> LastProcess = new();
+    private static readonly System.Collections.Generic.Dictionary<byte, long> LastProcess = new();
     public static bool Prefix(PlayerControl __instance)
     {
         if (!Options.UsePets.GetBool()) return true;
@@ -86,7 +86,6 @@ class ExternalRpcPetPatch
                     break;
                 }
                 Doormaster.OnEnterVent(pc);
-                pc.RpcResetAbilityCooldown();
                 break;
             case CustomRoles.Tether:
                 if (Main.TetherCD.ContainsKey(pc.PlayerId))
@@ -95,7 +94,14 @@ class ExternalRpcPetPatch
                     break;
                 }
                 Tether.OnEnterVent(pc, 0, true);
-                pc.RpcResetAbilityCooldown();
+                break;
+            case CustomRoles.CameraMan:
+                if (Main.CameraManCD.ContainsKey(pc.PlayerId))
+                {
+                    //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                    break;
+                }
+                CameraMan.OnEnterVent(pc);
                 break;
             case CustomRoles.Mayor:
                 if (Main.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count) && count < Options.MayorNumOfUseButton.GetInt() && !Main.MayorCD.ContainsKey(pc.PlayerId))
@@ -134,7 +140,6 @@ class ExternalRpcPetPatch
                     pc.RPCPlayCustomSound("Gunload");
                     pc.Notify(GetString("VeteranOnGuard"), Options.VeteranSkillDuration.GetFloat());
                     Main.VeteranCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
-                    pc.RpcResetAbilityCooldown();
                     pc.MarkDirtySettings();
                 }
                 else
@@ -167,7 +172,6 @@ class ExternalRpcPetPatch
                     pc.RPCPlayCustomSound("FlashBang");
                     pc.Notify(GetString("GrenadierSkillInUse"), Options.GrenadierSkillDuration.GetFloat());
                     Main.GrenadierCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
-                    pc.RpcResetAbilityCooldown();
                     Main.GrenadierNumOfUsed[pc.PlayerId] -= 1;
                     Utils.MarkEveryoneDirtySettingsV3();
                 }
@@ -189,7 +193,6 @@ class ExternalRpcPetPatch
                     Main.Lighter.Add(pc.PlayerId, Utils.GetTimeStamp());
                     pc.Notify(GetString("LighterSkillInUse"), Options.LighterSkillDuration.GetFloat());
                     Main.LighterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
-                    pc.RpcResetAbilityCooldown();
                     Main.LighterNumOfUsed[pc.PlayerId] -= 1;
                     pc.MarkDirtySettings();
                 }
@@ -212,7 +215,6 @@ class ExternalRpcPetPatch
                     Main.BlockSabo.Add(pc.PlayerId, Utils.GetTimeStamp());
                     pc.Notify(GetString("SecurityGuardSkillInUse"), Options.SecurityGuardSkillDuration.GetFloat());
                     Main.SecurityGuardCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
-                    pc.RpcResetAbilityCooldown();
                     Main.SecurityGuardNumOfUsed[pc.PlayerId] -= 1;
                 }
                 else
@@ -251,12 +253,10 @@ class ExternalRpcPetPatch
                     pc.RPCPlayCustomSound("Dove");
                     pc.Notify(string.Format(GetString("DovesOfNeaceOnGuard"), Main.DovesOfNeaceNumOfUsed[pc.PlayerId]));
                     Main.DovesOfNeaceCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
-                    pc.RpcResetAbilityCooldown();
                 }
                 break;
             case CustomRoles.Alchemist:
                 Alchemist.OnEnterVent(pc, 0, true);
-                pc.RpcResetAbilityCooldown();
                 break;
             case CustomRoles.TimeMaster:
                 if (Main.TimeMasterInProtect.ContainsKey(pc.PlayerId)) break;
@@ -273,7 +273,6 @@ class ExternalRpcPetPatch
                     //if (!pc.IsModClient()) pc.RpcGuardAndKill(pc);
                     pc.Notify(GetString("TimeMasterOnGuard"), Options.TimeMasterSkillDuration.GetFloat());
                     Main.TimeMasterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
-                    pc.RpcResetAbilityCooldown();
                     foreach (var player in Main.AllPlayerControls)
                     {
                         if (Main.TimeMasterBackTrack.ContainsKey(player.PlayerId))
@@ -298,7 +297,6 @@ class ExternalRpcPetPatch
                 break;
             case CustomRoles.NiceHacker:
                 NiceHacker.OnEnterVent(pc);
-                pc.RpcResetAbilityCooldown();
                 break;
 
             // Impostors

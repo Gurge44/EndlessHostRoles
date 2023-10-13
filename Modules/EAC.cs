@@ -38,16 +38,16 @@ internal class EAC
                     string name = sr.ReadString();
                     if (sr.BytesRemaining > 0 && sr.ReadBoolean()) return false;
                     if (
-                        ((name.Contains("<size") || name.Contains("size>")) && name.Contains("?") && !name.Contains("color")) ||
+                        ((name.Contains("<size") || name.Contains("size>")) && name.Contains('?') && !name.Contains("color")) ||
                         name.Length > 160 ||
                         name.Count(f => f.Equals("\"\\n\"")) > 3 ||
                         name.Count(f => f.Equals("\n")) > 3 ||
                         name.Count(f => f.Equals("\r")) > 3 ||
-                        name.Contains("░") ||
-                        name.Contains("▄") ||
-                        name.Contains("█") ||
-                        name.Contains("▌") ||
-                        name.Contains("▒") ||
+                        name.Contains('░') ||
+                        name.Contains('▄') ||
+                        name.Contains('█') ||
+                        name.Contains('▌') ||
+                        name.Contains('▒') ||
                         name.Contains("习近平")
                         )
                     {
@@ -71,11 +71,11 @@ internal class EAC
                     var text = sr.ReadString();
                     if (text.StartsWith("/")) return false;
                     if (
-                        text.Contains("░") ||
-                        text.Contains("▄") ||
-                        text.Contains("█") ||
-                        text.Contains("▌") ||
-                        text.Contains("▒") ||
+                        text.Contains('░') ||
+                        text.Contains('▄') ||
+                        text.Contains('█') ||
+                        text.Contains('▌') ||
+                        text.Contains('▒') ||
                         text.Contains("习近平")
                         )
                     {

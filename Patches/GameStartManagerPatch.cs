@@ -251,7 +251,7 @@ public class GameStartRandomMap
         __instance.ReallyBegin(false);
         return false;
     }
-    public static bool Prefix(GameStartRandomMap __instance)
+    public static bool Prefix(/*GameStartRandomMap __instance*/)
     {
         bool continueStart = true;
         if (Options.RandomMapsMode.GetBool())

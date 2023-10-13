@@ -169,7 +169,7 @@ public static class Lawyer
         var GetValue = Target.TryGetValue(seer.PlayerId, out var targetId);
         return GetValue && targetId == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lawyer), "§") : string.Empty;
     }
-    public static bool CheckExileTarget(GameData.PlayerInfo exiled, bool DecidedWinner, bool Check = false)
+    public static bool CheckExileTarget(GameData.PlayerInfo exiled/*, bool DecidedWinner, bool Check = false*/)
     {
         foreach (var kvp in Target.Where(x => x.Value == exiled.PlayerId))
         {
