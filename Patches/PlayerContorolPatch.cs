@@ -1900,7 +1900,7 @@ class FixedUpdatePatch
             LocateArrow.OnFixedUpdate(player);
         }
 
-        if (!lowLoad) RPCHandlerPatch.ReportDeadBodyRPCs[player.PlayerId] = 0;
+        if (!lowLoad && RPCHandlerPatch.ReportDeadBodyRPCs.ContainsKey(player.PlayerId)) RPCHandlerPatch.ReportDeadBodyRPCs.Remove(player.PlayerId);
 
         if (AmongUsClient.Instance.AmHost)
         {//実行クライアントがホストの場合のみ実行
