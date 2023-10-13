@@ -2367,96 +2367,133 @@ class FixedUpdatePatch
 
             if (!lowLoad)
             {
-                //检查老兵技能是否失效
-                if (GameStates.IsInTask && player.Is(CustomRoles.Veteran))
+                switch (player.GetCustomRole())
                 {
-                    if (Main.VeteranInProtect.TryGetValue(player.PlayerId, out var vtime) && vtime + Options.VeteranSkillDuration.GetInt() < Utils.GetTimeStamp())
-                    {
-                        Main.VeteranInProtect.Remove(player.PlayerId);
-                        player.RpcResetAbilityCooldown();
-                        player.Notify(string.Format(GetString("VeteranOffGuard"), (int)Main.VeteranNumOfUsed[player.PlayerId]));
-                    }
-                }
+                    case CustomRoles.Veteran when GameStates.IsInTask:
+                        if (Main.VeteranInProtect.TryGetValue(player.PlayerId, out var vtime) && vtime + Options.VeteranSkillDuration.GetInt() < Utils.GetTimeStamp())
+                        {
+                            Main.VeteranInProtect.Remove(player.PlayerId);
+                            player.RpcResetAbilityCooldown();
+                            player.Notify(string.Format(GetString("VeteranOffGuard"), (int)Main.VeteranNumOfUsed[player.PlayerId]));
+                        }
 
-                if (GameStates.IsInTask && player.Is(CustomRoles.Express))
-                {
-                    if (Main.ExpressSpeedUp.TryGetValue(player.PlayerId, out var etime) && etime + Options.ExpressSpeedDur.GetInt() < Utils.GetTimeStamp())
-                    {
-                        Main.ExpressSpeedUp.Remove(player.PlayerId);
-                        Main.AllPlayerSpeed[player.PlayerId] = Main.ExpressSpeedNormal;
-                        player.SyncSettings();
-                    }
-                }
+                        break;
 
-                //检查掷雷兵技能是否生效
-                if (GameStates.IsInTask && player.Is(CustomRoles.Grenadier))
-                {
-                    if (Main.GrenadierBlinding.TryGetValue(player.PlayerId, out var gtime) && gtime + Options.GrenadierSkillDuration.GetInt() < Utils.GetTimeStamp())
-                    {
-                        Main.GrenadierBlinding.Remove(player.PlayerId);
-                        player.RpcResetAbilityCooldown();
-                        player.Notify(string.Format(GetString("GrenadierSkillStop"), (int)Main.GrenadierNumOfUsed[player.PlayerId]));
-                        Utils.MarkEveryoneDirtySettingsV3();
-                    }
-                    if (Main.MadGrenadierBlinding.TryGetValue(player.PlayerId, out var mgtime) && mgtime + Options.GrenadierSkillDuration.GetInt() < Utils.GetTimeStamp())
-                    {
-                        Main.MadGrenadierBlinding.Remove(player.PlayerId);
-                        player.RpcResetAbilityCooldown();
-                        player.Notify(string.Format(GetString("GrenadierSkillStop"), (int)Main.GrenadierNumOfUsed[player.PlayerId]));
-                        Utils.MarkEveryoneDirtySettingsV3();
-                    }
-                }
+                    case CustomRoles.Express when GameStates.IsInTask:
+                        if (Main.ExpressSpeedUp.TryGetValue(player.PlayerId, out var etime) && etime + Options.ExpressSpeedDur.GetInt() < Utils.GetTimeStamp())
+                        {
+                            Main.ExpressSpeedUp.Remove(player.PlayerId);
+                            Main.AllPlayerSpeed[player.PlayerId] = Main.ExpressSpeedNormal;
+                            player.SyncSettings();
+                        }
 
-                if (GameStates.IsInTask && player.Is(CustomRoles.Lighter))
-                {
-                    if (Main.Lighter.TryGetValue(player.PlayerId, out var ltime) && ltime + Options.LighterSkillDuration.GetInt() < Utils.GetTimeStamp())
-                    {
-                        Main.Lighter.Remove(player.PlayerId);
-                        player.RpcResetAbilityCooldown();
-                        player.Notify(GetString("LighterSkillStop"));
-                        player.MarkDirtySettings();
-                    }
-                }
+                        break;
 
-                if (GameStates.IsInTask && player.Is(CustomRoles.SecurityGuard))
-                {
-                    if (Main.BlockSabo.TryGetValue(player.PlayerId, out var ltime) && ltime + Options.SecurityGuardSkillDuration.GetInt() < Utils.GetTimeStamp())
-                    {
-                        Main.BlockSabo.Remove(player.PlayerId);
-                        player.RpcResetAbilityCooldown();
-                        player.Notify(GetString("SecurityGuardSkillStop"));
-                    }
-                }
+                    case CustomRoles.Grenadier when GameStates.IsInTask:
+                        if (Main.GrenadierBlinding.TryGetValue(player.PlayerId, out var gtime) && gtime + Options.GrenadierSkillDuration.GetInt() < Utils.GetTimeStamp())
+                        {
+                            Main.GrenadierBlinding.Remove(player.PlayerId);
+                            player.RpcResetAbilityCooldown();
+                            player.Notify(string.Format(GetString("GrenadierSkillStop"), (int)Main.GrenadierNumOfUsed[player.PlayerId]));
+                            Utils.MarkEveryoneDirtySettingsV3();
+                        }
+                        if (Main.MadGrenadierBlinding.TryGetValue(player.PlayerId, out var mgtime) && mgtime + Options.GrenadierSkillDuration.GetInt() < Utils.GetTimeStamp())
+                        {
+                            Main.MadGrenadierBlinding.Remove(player.PlayerId);
+                            player.RpcResetAbilityCooldown();
+                            player.Notify(string.Format(GetString("GrenadierSkillStop"), (int)Main.GrenadierNumOfUsed[player.PlayerId]));
+                            Utils.MarkEveryoneDirtySettingsV3();
+                        }
 
-                //检查马里奥是否完成
-                if (GameStates.IsInTask && player.Is(CustomRoles.Mario) && Main.MarioVentCount[player.PlayerId] > Options.MarioVentNumWin.GetInt())
-                {
-                    Main.MarioVentCount[player.PlayerId] = Options.MarioVentNumWin.GetInt();
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Mario); //马里奥这个多动症赢了
-                    CustomWinnerHolder.WinnerIds.Add(player.PlayerId);
-                }
-                if (GameStates.IsInTask && player.Is(CustomRoles.Vulture) && Vulture.BodyReportCount[player.PlayerId] >= Vulture.NumberOfReportsToWin.GetInt())
-                {
-                    Vulture.BodyReportCount[player.PlayerId] = Vulture.NumberOfReportsToWin.GetInt();
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Vulture);
-                    CustomWinnerHolder.WinnerIds.Add(player.PlayerId);
+                        break;
+
+                    case CustomRoles.Lighter when GameStates.IsInTask:
+                        if (Main.Lighter.TryGetValue(player.PlayerId, out var ltime) && ltime + Options.LighterSkillDuration.GetInt() < Utils.GetTimeStamp())
+                        {
+                            Main.Lighter.Remove(player.PlayerId);
+                            player.RpcResetAbilityCooldown();
+                            player.Notify(GetString("LighterSkillStop"));
+                            player.MarkDirtySettings();
+                        }
+
+                        break;
+
+                    case CustomRoles.SecurityGuard when GameStates.IsInTask:
+                        if (Main.BlockSabo.TryGetValue(player.PlayerId, out var stime) && stime + Options.SecurityGuardSkillDuration.GetInt() < Utils.GetTimeStamp())
+                        {
+                            Main.BlockSabo.Remove(player.PlayerId);
+                            player.RpcResetAbilityCooldown();
+                            player.Notify(GetString("SecurityGuardSkillStop"));
+                        }
+
+                        break;
+
+                    case CustomRoles.TimeMaster when GameStates.IsInTask:
+
+                        if (Main.TimeMasterInProtect.TryGetValue(player.PlayerId, out var ttime) && ttime + Options.TimeMasterSkillDuration.GetInt() < Utils.GetTimeStamp())
+                        {
+                            Main.TimeMasterInProtect.Remove(player.PlayerId);
+                            player.RpcResetAbilityCooldown();
+                            player.Notify(GetString("TimeMasterSkillStop"), (int)Main.TimeMasterNumOfUsed[player.PlayerId]);
+                        }
+
+                        break;
+
+                    case CustomRoles.Mario when Main.MarioVentCount[player.PlayerId] > Options.MarioVentNumWin.GetInt() && GameStates.IsInTask:
+                        Main.MarioVentCount[player.PlayerId] = Options.MarioVentNumWin.GetInt();
+                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Mario); //马里奥这个多动症赢了
+                        CustomWinnerHolder.WinnerIds.Add(player.PlayerId);
+                        break;
+
+                    case CustomRoles.Vulture when Vulture.BodyReportCount[player.PlayerId] >= Vulture.NumberOfReportsToWin.GetInt() && GameStates.IsInTask:
+                        Vulture.BodyReportCount[player.PlayerId] = Vulture.NumberOfReportsToWin.GetInt();
+                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Vulture);
+                        CustomWinnerHolder.WinnerIds.Add(player.PlayerId);
+                        break;
+
+                    case CustomRoles.Pelican:
+                        Pelican.OnFixedUpdate();
+                        break;
+
+                    case CustomRoles.BallLightning:
+                        BallLightning.OnFixedUpdate();
+                        break;
+
+                    case CustomRoles.Ignitor:
+                        Ignitor.OnFixedUpdate(player);
+                        break;
+
+                    case CustomRoles.Swooper:
+                        Swooper.OnFixedUpdate(player);
+                        break;
+
+                    case CustomRoles.Wraith:
+                        Wraith.OnFixedUpdate(player);
+                        break;
+
+                    case CustomRoles.Chameleon:
+                        Chameleon.OnFixedUpdate(player);
+                        break;
+
+                    case CustomRoles.Werewolf:
+                        Werewolf.OnFixedUpdate(player);
+                        break;
+
+                    case CustomRoles.Alchemist:
+                        Alchemist.OnFixedUpdate(player);
+                        break;
+
+                    case CustomRoles.BloodKnight:
+                        BloodKnight.OnFixedUpdate(player);
+                        break;
+
+                    case CustomRoles.Spiritcaller:
+                        Spiritcaller.OnFixedUpdate(player);
+                        break;
                 }
 
                 if (Main.AllKillers.TryGetValue(player.PlayerId, out var ktime) && ktime + Options.WitnessTime.GetInt() < Utils.GetTimeStamp()) Main.AllKillers.Remove(player.PlayerId);
-
-                if (player.Is(CustomRoles.Pelican)) Pelican.OnFixedUpdate();
-                if (player.Is(CustomRoles.BallLightning)) BallLightning.OnFixedUpdate();
-                if (player.Is(CustomRoles.Ignitor)) Ignitor.OnFixedUpdate(player);
-                if (player.Is(CustomRoles.Swooper)) Swooper.OnFixedUpdate(player);
-                if (player.Is(CustomRoles.Wraith)) Wraith.OnFixedUpdate(player);
-                if (player.Is(CustomRoles.Chameleon)) Chameleon.OnFixedUpdate(player);
-                if (player.Is(CustomRoles.Werewolf)) Werewolf.OnFixedUpdate(player);
-                if (player.Is(CustomRoles.Alchemist)) Alchemist.OnFixedUpdate(player);
-                if (player.Is(CustomRoles.BloodKnight)) BloodKnight.OnFixedUpdate(player);
-                if (player.Is(CustomRoles.Spiritcaller)) Spiritcaller.OnFixedUpdate(player);
-
                 if (GameStates.IsInTask && player.IsAlive() && Options.LadderDeath.GetBool()) FallFromLadder.FixedUpdate(player);
-
                 if (GameStates.IsInGame) LoversSuicide();
 
                 #region 傀儡师处理
@@ -2562,9 +2599,7 @@ class FixedUpdatePatch
                 if (GameStates.IsInGame && Main.RefixCooldownDelay <= 0)
                     foreach (var pc in Main.AllPlayerControls)
                     {
-                        if (pc.Is(CustomRoles.Vampire) || pc.Is(CustomRoles.Warlock) || pc.Is(CustomRoles.Assassin) || pc.Is(CustomRoles.Undertaker))
-                            Main.AllPlayerKillCooldown[pc.PlayerId] = Options.DefaultKillCooldown * 2;
-                        if (pc.Is(CustomRoles.Poisoner))
+                        if (pc.Is(CustomRoles.Vampire) || pc.Is(CustomRoles.Warlock) || pc.Is(CustomRoles.Assassin) || pc.Is(CustomRoles.Undertaker) || pc.Is(CustomRoles.Poisoner))
                             Main.AllPlayerKillCooldown[pc.PlayerId] = Options.DefaultKillCooldown * 2;
                     }
 
@@ -2615,28 +2650,58 @@ class FixedUpdatePatch
                 RoleText.text = RoleTextData.Item1;
                 if (Options.CurrentGameMode == CustomGameMode.FFA || Options.CurrentGameMode == CustomGameMode.SoloKombat) RoleText.text = string.Empty;
                 RoleText.color = RoleTextData.Item2;
-                if (__instance.AmOwner) RoleText.enabled = true; //自分ならロールを表示
-                else if (Options.CurrentGameMode == CustomGameMode.FFA || Options.CurrentGameMode == CustomGameMode.SoloKombat) RoleText.enabled = true;
+                if (__instance.AmOwner || Options.CurrentGameMode == CustomGameMode.FFA || Options.CurrentGameMode == CustomGameMode.SoloKombat) RoleText.enabled = true; //自分ならロールを表示
                 else if (Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool()) RoleText.enabled = true; //他プレイヤーでVisibleTasksCountが有効なおかつ自分が死んでいるならロールを表示
                 else if (PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) RoleText.enabled = true; //他プレイヤーでVisibleTasksCountが有効なおかつ自分が死んでいるならロールを表示
-                else if (__instance.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead) RoleText.enabled = true; //他プレイヤーでVisibleTasksCountが有効なおかつ自分が死んでいるならロールを表示
-                else if (__instance.Is(CustomRoles.Lovers) && PlayerControl.LocalPlayer.Is(CustomRoles.Lovers) && Options.LoverKnowRoles.GetBool()) RoleText.enabled = true;
-                //else if (__instance.Is(CustomRoles.Ntr) && Options.LoverKnowRoles.GetBool()) RoleText.enabled = true;
+                //else if (__instance.GetCustomRole() == (CustomRoles.Ntr) && Options.LoverKnowRoles.GetBool()) RoleText.enabled = true;
+                switch (__instance.GetCustomRole())
+                {
+                    case CustomRoles.Mimic when Main.VisibleTasksCount && __instance.Data.IsDead:
+                        RoleText.enabled = true; //他プレイヤーでVisibleTasksCountが有効なおかつ自分が死んでいるならロールを表示
+                        break;
+                    case CustomRoles.Lovers when PlayerControl.LocalPlayer.Is(CustomRoles.Lovers) && Options.LoverKnowRoles.GetBool():
+                        RoleText.enabled = true;
+                        break;
+                    case CustomRoles.Madmate when PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowWhosMadmate.GetBool():
+                        RoleText.enabled = true;
+                        break;
+                    case CustomRoles.Crewpostor when PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.CrewpostorKnowsAllies.GetBool():
+                        RoleText.enabled = true;
+                        break;
+                    case CustomRoles.Madmate when PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosMadmate.GetBool():
+                        RoleText.enabled = true;
+                        break;
+                    case CustomRoles.Rogue when PlayerControl.LocalPlayer.Is(CustomRoles.Rogue) && Options.RogueKnowEachOther.GetBool() && Options.RogueKnowEachOtherRoles.GetBool():
+                        RoleText.enabled = true;
+                        break;
+                    case CustomRoles.Sidekick when PlayerControl.LocalPlayer.Is(CustomRoles.Sidekick):
+                        RoleText.enabled = true;
+                        break;
+                    case CustomRoles.Jackal when PlayerControl.LocalPlayer.Is(CustomRoles.Sidekick):
+                        RoleText.enabled = true;
+                        break;
+                    case CustomRoles.Jackal when PlayerControl.LocalPlayer.Is(CustomRoles.Recruit):
+                        RoleText.enabled = true;
+                        break;
+                    case CustomRoles.Sidekick when PlayerControl.LocalPlayer.Is(CustomRoles.Jackal):
+                        RoleText.enabled = true;
+                        break;
+                    case CustomRoles.Workaholic when Options.WorkaholicVisibleToEveryone.GetBool():
+                        RoleText.enabled = true;
+                        break;
+                    case CustomRoles.Doctor when !__instance.GetCustomRole().IsEvilAddons() && Options.DoctorVisibleToEveryone.GetBool():
+                        RoleText.enabled = true;
+                        break;
+                    case CustomRoles.Mayor when Options.MayorRevealWhenDoneTasks.GetBool() && __instance.GetPlayerTaskState().IsTaskFinished:
+                        RoleText.enabled = true;
+                        break;
+                    case CustomRoles.Marshall when PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && __instance.GetPlayerTaskState().IsTaskFinished:
+                        RoleText.enabled = true;
+                        break;
+                }
+                if (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool()) RoleText.enabled = true;
                 else if (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool()) RoleText.enabled = true;
                 else if (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosImp.GetBool()) RoleText.enabled = true;
-                else if (__instance.Is(CustomRoles.Madmate) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowWhosMadmate.GetBool()) RoleText.enabled = true;
-                else if (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool()) RoleText.enabled = true;
-                else if (__instance.Is(CustomRoles.Crewpostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.CrewpostorKnowsAllies.GetBool()) RoleText.enabled = true;
-                else if (__instance.Is(CustomRoles.Madmate) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosMadmate.GetBool()) RoleText.enabled = true;
-                else if (__instance.Is(CustomRoles.Rogue) && PlayerControl.LocalPlayer.Is(CustomRoles.Rogue) && Options.RogueKnowEachOther.GetBool() && Options.RogueKnowEachOtherRoles.GetBool()) RoleText.enabled = true;
-                else if (__instance.Is(CustomRoles.Sidekick) && PlayerControl.LocalPlayer.Is(CustomRoles.Sidekick)) RoleText.enabled = true;
-                else if (__instance.Is(CustomRoles.Jackal) && PlayerControl.LocalPlayer.Is(CustomRoles.Sidekick)) RoleText.enabled = true;
-                else if (__instance.Is(CustomRoles.Jackal) && PlayerControl.LocalPlayer.Is(CustomRoles.Recruit)) RoleText.enabled = true;
-                else if (__instance.Is(CustomRoles.Sidekick) && PlayerControl.LocalPlayer.Is(CustomRoles.Jackal)) RoleText.enabled = true;
-                else if (__instance.Is(CustomRoles.Workaholic) && Options.WorkaholicVisibleToEveryone.GetBool()) RoleText.enabled = true;
-                else if (__instance.Is(CustomRoles.Doctor) && !__instance.GetCustomRole().IsEvilAddons() && Options.DoctorVisibleToEveryone.GetBool()) RoleText.enabled = true;
-                else if (__instance.Is(CustomRoles.Mayor) && Options.MayorRevealWhenDoneTasks.GetBool() && __instance.GetPlayerTaskState().IsTaskFinished) RoleText.enabled = true;
-                else if (__instance.Is(CustomRoles.Marshall) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && __instance.GetPlayerTaskState().IsTaskFinished) RoleText.enabled = true;
                 else if (Totocalcio.KnowRole(PlayerControl.LocalPlayer, __instance)) RoleText.enabled = true;
                 else if (Romantic.KnowRole(PlayerControl.LocalPlayer, __instance)) RoleText.enabled = true;
                 else if (Lawyer.KnowRole(PlayerControl.LocalPlayer, __instance)) RoleText.enabled = true;
@@ -2693,14 +2758,14 @@ class FixedUpdatePatch
                 { //targetが自分自身
                     if (target.Is(CustomRoles.Arsonist) && target.IsDouseDone())
                         RealName = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Arsonist), GetString("EnterVentToWin"));
-                    if (target.Is(CustomRoles.Revolutionist) && target.IsDrawDone())
+                    else if (target.Is(CustomRoles.Revolutionist) && target.IsDrawDone())
                         RealName = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Revolutionist), string.Format(GetString("EnterVentWinCountDown"), Main.RevolutionistCountdown.TryGetValue(seer.PlayerId, out var x) ? x : 10));
                     if (Pelican.IsEaten(seer.PlayerId))
                         RealName = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Pelican), GetString("EatenByPelican"));
 
                     if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
                         SoloKombatManager.GetNameNotify(target, ref RealName);
-                    if (Options.CurrentGameMode == CustomGameMode.FFA)
+                    else if (Options.CurrentGameMode == CustomGameMode.FFA)
                         FFAManager.GetNameNotify(target, ref RealName);
                     if (Deathpact.IsInActiveDeathpact(seer))
                         RealName = Deathpact.GetDeathpactString(seer);
@@ -2711,91 +2776,104 @@ class FixedUpdatePatch
                 //NameColorManager準拠の処理
                 RealName = RealName.ApplyNameColorData(seer, target, false);
 
-                if (seer.GetCustomRole().IsImpostor()) //seerがインポスター
+                switch (target.GetCustomRole()) //seerがインポスター
                 {
-                    if (target.Is(CustomRoles.Snitch) && target.Is(CustomRoles.Madmate) && target.GetPlayerTaskState().IsTaskFinished) //targetがタスクを終わらせたマッドスニッチ
+                    case CustomRoles.Snitch when seer.GetCustomRole().IsImpostor() && target.Is(CustomRoles.Madmate) && target.GetPlayerTaskState().IsTaskFinished:
                         Mark.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), "★")); //targetにマーク付与
-                }
-                if (seer.GetCustomRole().IsCrewmate()) //seerがインポスター
-                {
-                    if (target.Is(CustomRoles.Marshall) && target.GetPlayerTaskState().IsTaskFinished) //targetがタスクを終わらせたマッドスニッチ
+                        break;
+                    case CustomRoles.Marshall when seer.GetCustomRole().IsCrewmate() && target.GetPlayerTaskState().IsTaskFinished:
                         Mark.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Marshall), "★")); //targetにマーク付与
+                        break;
+                    case CustomRoles.SuperStar when Options.EveryOneKnowSuperStar.GetBool():
+                        Mark.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.SuperStar), "★"));
+                        break;
                 }
-                /*    if (seer.Is(CustomRoles.Jackal)) //seerがインポスター
-                    {
-                        if (target.Is(CustomRoles.Sidekick)) //targetがタスクを終わらせたマッドスニッチ
-                            Mark.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), " ♥")); //targetにマーク付与
-                    }
-              /*      if (seer.Is(CustomRoles.Monarch)) //seerがインポスター
-                    {
-                        if (target.Is(CustomRoles.Knighted)) //targetがタスクを終わらせたマッドスニッチ
-                            Mark.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Knighted), " 亗")); //targetにマーク付与
-                    } */
 
-                /*     if (seer.Is(CustomRoles.Sidekick)) //seerがインポスター
-                     {
-                         if (target.Is(CustomRoles.Sidekick) && Options.SidekickKnowOtherSidekick.GetBool()) //targetがタスクを終わらせたマッドスニッチ
-                             Mark.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), " ♥")); //targetにマーク付与
-                     } */
                 if (seer.GetCustomRole().IsCrewmate() && seer.Is(CustomRoles.Madmate) && Marshall.MadmateCanFindMarshall) //seerがインポスター
                 {
                     if (target.Is(CustomRoles.Marshall) && target.GetPlayerTaskState().IsTaskFinished) //targetがタスクを終わらせたマッドスニッチ
                         Mark.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Marshall), "★")); //targetにマーク付与
                 }
-                if (seer.Is(CustomRoles.Lookout))
-                {
-                    if (seer.IsAlive() && target.IsAlive())
-                    {
-                        Mark.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lookout), " " + target.PlayerId.ToString()) + " ");
-                    }
-                }
 
-                //インポスター/キル可能なニュートラルがタスクが終わりそうなSnitchを確認できる
-                if (Snitch.IsEnable) Mark.Append(Snitch.GetWarningMark(seer, target));
-                if (Marshall.IsEnable) Mark.Append(Marshall.GetWarningMark(seer, target));
-                if (seer.Is(CustomRoles.PlagueBearer) && PlagueBearer.isPlagued(seer.PlayerId, target.PlayerId))
+                switch (seer.GetCustomRole())
                 {
-                    Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.PlagueBearer)}>●</color>");
-                    //   PlagueBearer.SendRPC(seer, target);
-                }
-
-                if (seer.Is(CustomRoles.Arsonist))
-                {
-                    if (seer.IsDousedPlayer(target))
-                    {
-                        Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Arsonist)}>▲</color>");
-                    }
-                    else if (
-                        Main.currentDousingTarget != byte.MaxValue &&
-                        Main.currentDousingTarget == target.PlayerId
-                    )
-                    {
-                        Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Arsonist)}>△</color>");
-                    }
-                }
-                if (seer.Is(CustomRoles.Revolutionist))
-                {
-                    if (seer.IsDrawPlayer(target))
-                    {
-                        Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Revolutionist)}>●</color>");
-                    }
-                    else if (
-                        Main.currentDrawTarget != byte.MaxValue &&
-                        Main.currentDrawTarget == target.PlayerId
-                    )
-                    {
-                        Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Revolutionist)}>○</color>");
-                    }
-                }
-                if (seer.Is(CustomRoles.Farseer))
-                {
-                    if (
-                        Main.currentDrawTarget != byte.MaxValue &&
-                        Main.currentDrawTarget == target.PlayerId
-                    )
-                    {
-                        Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Farseer)}>○</color>");
-                    }
+                    case CustomRoles.Lookout:
+                        if (seer.IsAlive() && target.IsAlive())
+                        {
+                            Mark.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lookout), " " + target.PlayerId.ToString()) + " ");
+                        }
+                        break;
+                    case CustomRoles.PlagueBearer when PlagueBearer.isPlagued(seer.PlayerId, target.PlayerId):
+                        Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.PlagueBearer)}>●</color>");
+                        //   PlagueBearer.SendRPC(seer, target);
+                        break;
+                    case CustomRoles.Arsonist:
+                        if (seer.IsDousedPlayer(target))
+                        {
+                            Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Arsonist)}>▲</color>");
+                        }
+                        else if (
+                            Main.currentDousingTarget != byte.MaxValue &&
+                            Main.currentDousingTarget == target.PlayerId
+                        )
+                        {
+                            Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Arsonist)}>△</color>");
+                        }
+                        break;
+                    case CustomRoles.Revolutionist:
+                        if (seer.IsDrawPlayer(target))
+                        {
+                            Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Revolutionist)}>●</color>");
+                        }
+                        else if (
+                            Main.currentDrawTarget != byte.MaxValue &&
+                            Main.currentDrawTarget == target.PlayerId
+                        )
+                        {
+                            Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Revolutionist)}>○</color>");
+                        }
+                        break;
+                    case CustomRoles.Farseer:
+                        if (
+                                Main.currentDrawTarget != byte.MaxValue &&
+                                Main.currentDrawTarget == target.PlayerId
+                            )
+                        {
+                            Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Farseer)}>○</color>");
+                        }
+                        break;
+                    case CustomRoles.Puppeteer:
+                        if (Main.PuppeteerList.ContainsValue(seer.PlayerId) && Main.PuppeteerList.ContainsKey(target.PlayerId))
+                        {
+                            Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Impostor)}>◆</color>");
+                        }
+                        break;
+                    case CustomRoles.EvilTracker:
+                        Mark.Append(EvilTracker.GetTargetMark(seer, target));
+                        break;
+                    case CustomRoles.Tracker:
+                        Mark.Append(Tracker.GetTargetMark(seer, target));
+                        break;
+                    case CustomRoles.AntiAdminer when GameStates.IsInTask:
+                        AntiAdminer.FixedUpdate();
+                        if (target.AmOwner)
+                        {
+                            if (AntiAdminer.IsAdminWatch) Suffix.Append(GetString("AntiAdminerAD"));
+                            if (AntiAdminer.IsVitalWatch) Suffix.Append(GetString("AntiAdminerVI"));
+                            if (AntiAdminer.IsDoorLogWatch) Suffix.Append(GetString("AntiAdminerDL"));
+                            if (AntiAdminer.IsCameraWatch) Suffix.Append(GetString("AntiAdminerCA"));
+                        }
+                        break;
+                    case CustomRoles.Monitor when GameStates.IsInTask:
+                        Monitor.FixedUpdate();
+                        if (target.AmOwner)
+                        {
+                            if (Monitor.IsAdminWatch) Suffix.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monitor), GetString("AdminWarning")));
+                            if (Monitor.IsVitalWatch) Suffix.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monitor), GetString("VitalsWarning")));
+                            if (Monitor.IsDoorLogWatch) Suffix.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monitor), GetString("DoorlogWarning")));
+                            if (Monitor.IsCameraWatch) Suffix.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monitor), GetString("CameraWarning")));
+                        }
+                        break;
                 }
 
                 if (Executioner.IsEnable()) Mark.Append(Executioner.TargetMark(seer, target));
@@ -2821,38 +2899,23 @@ class FixedUpdatePatch
                 if (Romantic.IsEnable || VengefulRomantic.IsEnable || RuthlessRomantic.IsEnable) Mark.Append(Romantic.TargetMark(seer, target));
                 if (Lawyer.IsEnable()) Mark.Append(Lawyer.LawyerMark(seer, target));
 
-                if (seer.Is(CustomRoles.Puppeteer))
-                {
-                    if (seer.Is(CustomRoles.Puppeteer) &&
-                    Main.PuppeteerList.ContainsValue(seer.PlayerId) &&
-                    Main.PuppeteerList.ContainsKey(target.PlayerId))
-                        Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Impostor)}>◆</color>");
-                }
-                //if (seer.Is(CustomRoles.NWitch))
-                //{
-                //    if (seer.Is(CustomRoles.NWitch) &&
-                //    Main.TaglockedList.ContainsValue(seer.PlayerId) &&
-                //    Main.TaglockedList.ContainsKey(target.PlayerId))
-                //        Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.NWitch)}>◆</color>");
-                //}
                 if (Sniper.IsEnable && target.AmOwner)
                 {
                     //銃声が聞こえるかチェック
                     Mark.Append(Sniper.GetShotNotify(target.PlayerId));
 
                 }
-                if (seer.Is(CustomRoles.EvilTracker)) Mark.Append(EvilTracker.GetTargetMark(seer, target));
-                if (seer.Is(CustomRoles.Tracker)) Mark.Append(Tracker.GetTargetMark(seer, target));
-                //タスクが終わりそうなSnitchがいるとき、インポスター/キル可能なニュートラルに警告が表示される
-                if (Snitch.IsEnable)
-                    Mark.Append(Snitch.GetWarningArrow(seer, target));
-
-                if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
-                    Mark.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.SuperStar), "★"));
 
                 if (BallLightning.IsGhost(target) && BallLightning.IsEnable)
                     Mark.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.BallLightning), "■"));
 
+                //タスクが終わりそうなSnitchがいるとき、インポスター/キル可能なニュートラルに警告が表示される
+                if (Snitch.IsEnable)
+                    Mark.Append(Snitch.GetWarningArrow(seer, target));
+
+                //インポスター/キル可能なニュートラルがタスクが終わりそうなSnitchを確認できる
+                if (Snitch.IsEnable) Mark.Append(Snitch.GetWarningMark(seer, target));
+                if (Marshall.IsEnable) Mark.Append(Marshall.GetWarningMark(seer, target));
 
                 if (Main.LoversPlayers.Any())
                 {
@@ -2903,38 +2966,6 @@ class FixedUpdatePatch
                     Suffix.Append(Vulture.GetTargetArrow(seer, target));
 
                 if (Tracefinder.IsEnable) Suffix.Append(Tracefinder.GetTargetArrow(seer, target));
-
-                if (GameStates.IsInTask && seer.Is(CustomRoles.AntiAdminer))
-                {
-                    AntiAdminer.FixedUpdate();
-                    if (target.AmOwner)
-                    {
-                        if (AntiAdminer.IsAdminWatch) Suffix.Append(GetString("AntiAdminerAD"));
-                        if (AntiAdminer.IsVitalWatch) Suffix.Append(GetString("AntiAdminerVI"));
-                        if (AntiAdminer.IsDoorLogWatch) Suffix.Append(GetString("AntiAdminerDL"));
-                        if (AntiAdminer.IsCameraWatch) Suffix.Append(GetString("AntiAdminerCA"));
-                    }
-                }
-                if (GameStates.IsInTask && seer.Is(CustomRoles.Monitor))
-                {
-                    Monitor.FixedUpdate();
-                    if (target.AmOwner)
-                    {
-                        if (Monitor.IsAdminWatch) Suffix.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monitor), GetString("AdminWarning")));
-                        if (Monitor.IsVitalWatch) Suffix.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monitor), GetString("VitalsWarning")));
-                        if (Monitor.IsDoorLogWatch) Suffix.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monitor), GetString("DoorlogWarning")));
-                        if (Monitor.IsCameraWatch) Suffix.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monitor), GetString("CameraWarning")));
-                    }
-                }
-                if (GameStates.IsInTask && player.Is(CustomRoles.TimeMaster))
-                {
-                    if (Main.TimeMasterInProtect.TryGetValue(player.PlayerId, out var vtime) && vtime + Options.TimeMasterSkillDuration.GetInt() < Utils.GetTimeStamp())
-                    {
-                        Main.TimeMasterInProtect.Remove(player.PlayerId);
-                        player.RpcResetAbilityCooldown();
-                        player.Notify(GetString("TimeMasterSkillStop"), (int)Main.TimeMasterNumOfUsed[player.PlayerId]);
-                    }
-                }
 
                 if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
                     Suffix.Append(SoloKombatManager.GetDisplayHealth(target));
