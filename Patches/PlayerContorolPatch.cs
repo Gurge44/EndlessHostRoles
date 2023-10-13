@@ -1900,6 +1900,8 @@ class FixedUpdatePatch
             LocateArrow.OnFixedUpdate(player);
         }
 
+        if (!lowLoad) RPCHandlerPatch.ReportDeadBodyRPCs[player.PlayerId] = 0;
+
         if (AmongUsClient.Instance.AmHost)
         {//実行クライアントがホストの場合のみ実行
             if (GameStates.IsLobby && ((ModUpdater.hasUpdate && ModUpdater.forceUpdate) || ModUpdater.isBroken || !Main.AllowPublicRoom) && AmongUsClient.Instance.IsGamePublic)
