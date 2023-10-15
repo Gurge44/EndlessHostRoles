@@ -1804,6 +1804,14 @@ public static class Options
         RoleLoadingText = "Neutral roles\nSerial Killer";
 
         NSerialKiller.SetupCustomOption();
+        RoleLoadingText = "Neutral roles\nPostman";
+        Postman.SetupCustomOption();
+        RoleLoadingText = "Neutral roles\nReckless";
+        Reckless.SetupCustomOption();
+        RoleLoadingText = "Neutral roles\nMagician";
+        Magician.SetupCustomOption();
+        RoleLoadingText = "Neutral roles\nMafioso";
+        Mafioso.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nPyromaniac";
         Pyromaniac.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nEclipse";

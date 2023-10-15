@@ -158,6 +158,9 @@ class HudManagerPatch
                         Gangster.SetKillButtonText(player.PlayerId);
                         break;
                     case CustomRoles.NSerialKiller:
+                    case CustomRoles.Magician:
+                    case CustomRoles.Mafioso:
+                    case CustomRoles.Reckless:
                     case CustomRoles.Pyromaniac:
                     case CustomRoles.Eclipse:
                     case CustomRoles.Vengeance:
@@ -178,6 +181,9 @@ class HudManagerPatch
                     case CustomRoles.DarkHide:
                     case CustomRoles.Maverick:
                         __instance.KillButton?.OverrideText(GetString("KillButtonText"));
+                        break;
+                    case CustomRoles.Postman:
+                        __instance.KillButton?.OverrideText(GetString("PostmanKillButtonText"));
                         break;
                     case CustomRoles.Glitch:
                         __instance.SabotageButton?.OverrideText(GetString("HackButtonText"));

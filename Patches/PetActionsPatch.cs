@@ -507,6 +507,9 @@ class ExternalRpcPetPatch
                 Twister.TwistPlayers(pc, true);
                 Main.TwisterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
+            case CustomRoles.Glitch:
+                Glitch.Mimic(pc);
+                break;
         }
     }
 }

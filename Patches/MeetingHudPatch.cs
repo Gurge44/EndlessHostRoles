@@ -1011,6 +1011,9 @@ class MeetingHudStartPatch
                 //   case CustomRoles.Sidekick:
                 case CustomRoles.Poisoner:
                 case CustomRoles.NSerialKiller:
+                case CustomRoles.Reckless:
+                case CustomRoles.Magician:
+                case CustomRoles.Mafioso:
                 case CustomRoles.Pyromaniac:
                 case CustomRoles.Eclipse:
                 case CustomRoles.Vengeance:

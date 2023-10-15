@@ -57,10 +57,7 @@ public static class Amnesiac
         writer.Write(RememberLimit);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
-    public static void ReceiveRPC(MessageReader reader)
-    {
-        RememberLimit = reader.ReadInt32();
-    }
+    public static void ReceiveRPC(MessageReader reader) => RememberLimit = reader.ReadInt32();
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = RememberLimit >= 1 ? RememberCooldown.GetFloat() : 300f;
     public static bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && RememberLimit >= 1;
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -372,42 +369,15 @@ public static class Amnesiac
         Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
     }
     public static string GetRememberLimit() => Utils.ColorString(RememberLimit >= 1 ? Utils.GetRoleColor(CustomRoles.Amnesiac) : Color.gray, $"({RememberLimit})");
-    public static bool CanBeRememberedNeutralKiller(this PlayerControl pc)
-    {
-        return pc != null && pc.GetCustomRole().IsAmneNK();
-    }
-    public static bool CanBeRememberedNeutral(this PlayerControl pc)
-    {
-        return pc != null && pc.GetCustomRole().IsAmneMaverick();
-    }
-    public static bool CanBeRememberedImpostor(this PlayerControl pc)
-    {
-        return pc != null && (pc.GetCustomRole().IsImpostor() || pc.Is(CustomRoles.Madmate));
-    }
-    public static bool CanBeRememberedCrewmate(this PlayerControl pc)
-    {
-        return pc != null && pc.GetCustomRole().IsCrewmate() && !pc.Is(CustomRoles.Madmate);
-    }
-    public static bool CanBeRememberedJackal(this PlayerControl pc)
-    {
-        return pc != null && pc.Is(CustomRoles.Jackal);
-    }
-    public static bool CanBeRememberedHexMaster(this PlayerControl pc)
-    {
-        return pc != null && pc.Is(CustomRoles.HexMaster);
-    }
-    public static bool CanBeRememberedPoisoner(this PlayerControl pc)
-    {
-        return pc != null && pc.Is(CustomRoles.Poisoner);
-    }
-    public static bool CanBeRememberedJuggernaut(this PlayerControl pc)
-    {
-        return pc != null && pc.Is(CustomRoles.Juggernaut);
-    }
-    public static bool CanBeRememberedBloodKnight(this PlayerControl pc)
-    {
-        return pc != null && pc.Is(CustomRoles.BloodKnight);
-    }
+    public static bool CanBeRememberedNeutralKiller(this PlayerControl pc) => pc != null && pc.GetCustomRole().IsAmneNK();
+    public static bool CanBeRememberedNeutral(this PlayerControl pc) => pc != null && pc.GetCustomRole().IsAmneMaverick();
+    public static bool CanBeRememberedImpostor(this PlayerControl pc) => pc != null && (pc.GetCustomRole().IsImpostor() || pc.Is(CustomRoles.Madmate));
+    public static bool CanBeRememberedCrewmate(this PlayerControl pc) => pc != null && pc.GetCustomRole().IsCrewmate() && !pc.Is(CustomRoles.Madmate);
+    public static bool CanBeRememberedJackal(this PlayerControl pc) => pc != null && pc.Is(CustomRoles.Jackal);
+    public static bool CanBeRememberedHexMaster(this PlayerControl pc) => pc != null && pc.Is(CustomRoles.HexMaster);
+    public static bool CanBeRememberedPoisoner(this PlayerControl pc) => pc != null && pc.Is(CustomRoles.Poisoner);
+    public static bool CanBeRememberedJuggernaut(this PlayerControl pc) => pc != null && pc.Is(CustomRoles.Juggernaut);
+    public static bool CanBeRememberedBloodKnight(this PlayerControl pc) => pc != null && pc.Is(CustomRoles.BloodKnight);
     public static bool KnowRole(PlayerControl player, PlayerControl target)
     {
         if (player.Is(CustomRoles.Infectious) && target.Is(CustomRoles.Infectious)) return true;
@@ -418,6 +388,9 @@ public static class Amnesiac
         if (player.Is(CustomRoles.Refugee) && target.Is(CustomRoles.Refugee)) return true;
         if (player.Is(CustomRoles.Parasite) && target.Is(CustomRoles.Parasite)) return true;
         if (player.Is(CustomRoles.NSerialKiller) && target.Is(CustomRoles.NSerialKiller)) return true;
+        if (player.Is(CustomRoles.Magician) && target.Is(CustomRoles.Magician)) return true;
+        if (player.Is(CustomRoles.Mafioso) && target.Is(CustomRoles.Mafioso)) return true;
+        if (player.Is(CustomRoles.Reckless) && target.Is(CustomRoles.Reckless)) return true;
         if (player.Is(CustomRoles.Eclipse) && target.Is(CustomRoles.Eclipse)) return true;
         if (player.Is(CustomRoles.Pyromaniac) && target.Is(CustomRoles.Pyromaniac)) return true;
         if (player.Is(CustomRoles.Imitator) && target.Is(CustomRoles.Imitator)) return true;

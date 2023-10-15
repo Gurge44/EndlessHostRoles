@@ -274,6 +274,10 @@ internal class ChangeRoleSettings
             Merchant.Init();
             Mastermind.Init();
             NSerialKiller.Init();
+            Postman.Init();
+            Magician.Init();
+            Mafioso.Init();
+            Reckless.Init();
             Pyromaniac.Init();
             Eclipse.Init();
             Vengeance.Init();
@@ -835,6 +839,18 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.NSerialKiller:
                         NSerialKiller.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Postman:
+                        Postman.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Magician:
+                        Magician.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Mafioso:
+                        Mafioso.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Reckless:
+                        Reckless.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Eclipse:
                         Eclipse.Add(pc.PlayerId);

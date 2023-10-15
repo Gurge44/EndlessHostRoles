@@ -209,6 +209,9 @@ class CheckMurderPatch
                 case CustomRoles.BountyHunter: //必须在击杀发生前处理
                     BountyHunter.OnCheckMurder(killer, target);
                     break;
+                case CustomRoles.Reckless:
+                    Reckless.OnCheckMurder(killer);
+                    break;
                 case CustomRoles.Vengeance:
                     if (!Vengeance.OnCheckMurder(killer, target)) return false;
                     break;
@@ -1771,6 +1774,7 @@ class ReportDeadBodyPatch
         if (Hitman.IsEnable) Hitman.OnReportDeadBody();
         if (Gambler.IsEnable) Gambler.OnReportDeadBody();
         if (Tracker.IsEnable) Tracker.OnReportDeadBody();
+        if (Reckless.IsEnable) Reckless.OnReportDeadBody();
 
         if (Mortician.IsEnable) Mortician.OnReportDeadBody(player, target);
         if (Tracefinder.IsEnable) Tracefinder.OnReportDeadBody(/*player, target*/);

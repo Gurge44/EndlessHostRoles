@@ -479,6 +479,10 @@ static class ExtendedPlayerControl
             CustomRoles.Pyromaniac => true,
             CustomRoles.Eclipse => true,
             CustomRoles.NSerialKiller => true,
+            CustomRoles.Magician => true,
+            CustomRoles.Mafioso => true,
+            CustomRoles.Postman => true,
+            CustomRoles.Reckless => true,
             CustomRoles.Vengeance => true,
             CustomRoles.HeadHunter => true,
             CustomRoles.Imitator => true,
@@ -574,6 +578,10 @@ static class ExtendedPlayerControl
             CustomRoles.Pyromaniac => pc.IsAlive(),
             CustomRoles.Eclipse => pc.IsAlive(),
             CustomRoles.NSerialKiller => pc.IsAlive(),
+            CustomRoles.Postman => pc.IsAlive() && !Postman.IsFinished,
+            CustomRoles.Magician => pc.IsAlive(),
+            CustomRoles.Mafioso => pc.IsAlive() && Mafioso.CanKill,
+            CustomRoles.Reckless => pc.IsAlive(),
             CustomRoles.Vengeance => pc.IsAlive(),
             CustomRoles.HeadHunter => pc.IsAlive(),
             CustomRoles.Imitator => pc.IsAlive(),
@@ -661,6 +669,10 @@ static class ExtendedPlayerControl
             CustomRoles.Glitch => Glitch.CanVent.GetBool(),
             CustomRoles.Poisoner => Poisoner.CanVent.GetBool(),
             CustomRoles.NSerialKiller => NSerialKiller.CanVent.GetBool(),
+            CustomRoles.Magician => Magician.CanVent.GetBool(),
+            CustomRoles.Reckless => Reckless.CanVent.GetBool(),
+            CustomRoles.Mafioso => Mafioso.CanVent.GetBool(),
+            CustomRoles.Postman => Postman.CanVent.GetBool(),
             CustomRoles.Pyromaniac => Pyromaniac.CanVent.GetBool(),
             CustomRoles.Eclipse => Eclipse.CanVent.GetBool(),
             CustomRoles.Vengeance => Vengeance.CanVent.GetBool(),
@@ -741,6 +753,8 @@ static class ExtendedPlayerControl
             CustomRoles.Pyromaniac or
             CustomRoles.Eclipse or
             CustomRoles.NSerialKiller or
+            CustomRoles.Reckless or
+            CustomRoles.Postman or
             CustomRoles.Vengeance or
             CustomRoles.HeadHunter or
             CustomRoles.Imitator or
@@ -768,6 +782,8 @@ static class ExtendedPlayerControl
             CustomRoles.Parasite => true,
             CustomRoles.Glitch => true,
             CustomRoles.Refugee => true,
+            CustomRoles.Magician => true,
+            CustomRoles.Mafioso => true,
 
 
             _ => pc.Is(CustomRoleTypes.Impostor),
@@ -905,6 +921,18 @@ static class ExtendedPlayerControl
                 break;
             case CustomRoles.NSerialKiller:
                 NSerialKiller.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.Mafioso:
+                Mafioso.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.Magician:
+                Magician.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.Reckless:
+                Reckless.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.Postman:
+                Postman.SetKillCooldown(player.PlayerId);
                 break;
             case CustomRoles.HeadHunter:
                 Main.AllPlayerKillCooldown[player.PlayerId] = HeadHunter.KCD;

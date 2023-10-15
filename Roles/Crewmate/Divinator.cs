@@ -244,7 +244,7 @@ public static class Divinator
                 CustomRoles.EvilGuesser or
                 CustomRoles.NiceGuesser or
                 CustomRoles.DarkHide or
-                //       CustomRoles.Mare or
+                CustomRoles.Reckless or
                 CustomRoles.Camouflager or
                 CustomRoles.Eclipse or
                 CustomRoles.Chameleon
@@ -253,6 +253,7 @@ public static class Divinator
                 CustomRoles.Jackal or
                 CustomRoles.Sidekick or
                 CustomRoles.Maverick or
+                CustomRoles.Mafioso or
                 CustomRoles.Opportunist or
                 CustomRoles.Pursuer or
                 CustomRoles.Provocateur
@@ -262,6 +263,7 @@ public static class Divinator
                 CustomRoles.Vampire or
                 CustomRoles.DovesOfNeace or
                 CustomRoles.ImperiusCurse or
+                CustomRoles.Magician or
                 CustomRoles.HeadHunter or
                 CustomRoles.Traitor
                 => "Result21",
@@ -278,6 +280,7 @@ public static class Divinator
                 CustomRoles.Divinator or
                 CustomRoles.EvilDiviner or
                 CustomRoles.Ritualist or
+                CustomRoles.Postman or
                 CustomRoles.Imitator or
                 CustomRoles.HexMaster or
                 CustomRoles.Witch

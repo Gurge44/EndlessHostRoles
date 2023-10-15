@@ -274,6 +274,10 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.NSerialKiller => RoleTypes.Impostor,
+            CustomRoles.Postman => RoleTypes.Impostor,
+            CustomRoles.Reckless => RoleTypes.Impostor,
+            CustomRoles.Magician => RoleTypes.Impostor,
+            CustomRoles.Mafioso => RoleTypes.Impostor,
             CustomRoles.Pyromaniac => RoleTypes.Impostor,
             CustomRoles.Eclipse => RoleTypes.Impostor,
             CustomRoles.Vengeance => RoleTypes.Impostor,
@@ -452,6 +456,9 @@ internal static class CustomRolesHelper
             CustomRoles.Refugee or
             CustomRoles.Parasite or
             CustomRoles.NSerialKiller or
+            CustomRoles.Magician or
+            CustomRoles.Mafioso or
+            CustomRoles.Reckless or
             CustomRoles.Pyromaniac or
             CustomRoles.Eclipse or
             CustomRoles.HeadHunter or
@@ -486,6 +493,9 @@ internal static class CustomRolesHelper
             CustomRoles.Refugee or
             CustomRoles.Parasite or
             CustomRoles.NSerialKiller or
+            CustomRoles.Magician or
+            CustomRoles.Mafioso or
+            CustomRoles.Reckless or
             CustomRoles.Eclipse or
             CustomRoles.Pyromaniac or
             CustomRoles.Vengeance or
@@ -611,6 +621,9 @@ internal static class CustomRolesHelper
             CustomRoles.Traitor or
             CustomRoles.Poisoner or
             CustomRoles.NSerialKiller or
+            CustomRoles.Magician or
+            CustomRoles.Mafioso or
+            CustomRoles.Reckless or
             CustomRoles.Eclipse or
             CustomRoles.Pyromaniac or
             CustomRoles.Vengeance or
@@ -758,6 +771,10 @@ internal static class CustomRolesHelper
             //    CustomRoles.Sidekick or
             CustomRoles.Poisoner or
             CustomRoles.NSerialKiller or
+            CustomRoles.Magician or
+            CustomRoles.Mafioso or
+            CustomRoles.Reckless or
+            CustomRoles.Postman or
             CustomRoles.Eclipse or
             CustomRoles.Pyromaniac or
             CustomRoles.Vengeance or
@@ -800,6 +817,10 @@ internal static class CustomRolesHelper
         CustomRoles.Medusa or
         CustomRoles.NSerialKiller or
         CustomRoles.Eclipse or
+        CustomRoles.Magician or
+        CustomRoles.Mafioso or
+        CustomRoles.Reckless or
+        CustomRoles.Postman or
         CustomRoles.Pyromaniac or
         CustomRoles.Vengeance or
         CustomRoles.HeadHunter or
@@ -882,6 +903,10 @@ internal static class CustomRolesHelper
         //    CustomRoles.Sidekick or
             CustomRoles.Poisoner or
             CustomRoles.NSerialKiller or
+            CustomRoles.Magician or
+            CustomRoles.Mafioso or
+            CustomRoles.Reckless or
+            CustomRoles.Postman or
             CustomRoles.Eclipse or
             CustomRoles.Pyromaniac or
             CustomRoles.Vengeance or
@@ -1004,6 +1029,10 @@ internal static class CustomRolesHelper
         CustomRoles.Pestilence or
         CustomRoles.Poisoner or
         CustomRoles.NSerialKiller or
+        CustomRoles.Magician or
+        CustomRoles.Mafioso or
+        CustomRoles.Reckless or
+        CustomRoles.Postman or
         CustomRoles.Eclipse or
         CustomRoles.Pyromaniac or
         CustomRoles.Vengeance or
@@ -1362,6 +1391,9 @@ internal static class CustomRolesHelper
            CustomRoles.PlagueBearer => CountTypes.PlagueBearer,
            CustomRoles.Parasite => CountTypes.Impostor,
            CustomRoles.NSerialKiller => CountTypes.NSerialKiller,
+           CustomRoles.Magician => CountTypes.Magician,
+           CustomRoles.Mafioso => CountTypes.Mafioso,
+           CustomRoles.Reckless => CountTypes.Reckless,
            CustomRoles.Eclipse => CountTypes.Eclipse,
            CustomRoles.Pyromaniac => CountTypes.Pyromaniac,
            CustomRoles.Vengeance => CountTypes.Vengeance,
@@ -1414,6 +1446,9 @@ public enum CountTypes
     NWitch,
     Wraith,
     NSerialKiller,
+    Magician,
+    Mafioso,
+    Reckless,
     Pyromaniac,
     Eclipse,
     Vengeance,

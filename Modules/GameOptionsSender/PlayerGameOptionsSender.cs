@@ -367,6 +367,18 @@ public class PlayerGameOptionsSender : GameOptionsSender
             case CustomRoles.NSerialKiller:
                 NSerialKiller.ApplyGameOptions(opt);
                 break;
+            case CustomRoles.Magician:
+                Magician.ApplyGameOptions(opt);
+                break;
+            case CustomRoles.Reckless:
+                Reckless.ApplyGameOptions(opt);
+                break;
+            case CustomRoles.Mafioso:
+                Mafioso.ApplyGameOptions(opt);
+                break;
+            case CustomRoles.Postman:
+                Postman.ApplyGameOptions(opt);
+                break;
             case CustomRoles.Pyromaniac:
                 Pyromaniac.ApplyGameOptions(opt);
                 break;

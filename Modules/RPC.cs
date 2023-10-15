@@ -1132,6 +1132,18 @@ internal static class RPC
             case CustomRoles.NSerialKiller:
                 NSerialKiller.Add(targetId);
                 break;
+            case CustomRoles.Magician:
+                Magician.Add(targetId);
+                break;
+            case CustomRoles.Postman:
+                Postman.Add(targetId);
+                break;
+            case CustomRoles.Mafioso:
+                Mafioso.Add(targetId);
+                break;
+            case CustomRoles.Reckless:
+                Reckless.Add(targetId);
+                break;
             case CustomRoles.Pyromaniac:
                 Pyromaniac.Add(targetId);
                 break;

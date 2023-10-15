@@ -22,9 +22,9 @@ public static class AntiBlackout
     ///AntiBlackout内の処理が必要であるかどうか
     ///</summary>
     public static bool IsRequired => Options.NoGameEnd.GetBool()
-        || Jackal.IsEnable || Pelican.IsEnable
-        || Gamer.IsEnable || BloodKnight.IsEnable
-        || Succubus.IsEnable || Poisoner.IsEnable
+        || Jackal.IsEnable || Pelican.IsEnable || Magician.IsEnable
+        || Gamer.IsEnable || BloodKnight.IsEnable || Mafioso.IsEnable
+        || Succubus.IsEnable || Poisoner.IsEnable || Reckless.IsEnable
         || Infectious.IsEnable || Juggernaut.IsEnable || HeadHunter.IsEnable
         || Ritualist.IsEnable || Virus.IsEnable || Vengeance.IsEnable
         || Wraith.IsEnable || HexMaster.IsEnable || Imitator.IsEnable()
