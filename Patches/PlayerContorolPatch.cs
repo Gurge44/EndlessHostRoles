@@ -212,6 +212,9 @@ class CheckMurderPatch
                 case CustomRoles.Reckless:
                     Reckless.OnCheckMurder(killer);
                     break;
+                case CustomRoles.Magician:
+                    Magician.OnCheckMurder(killer);
+                    break;
                 case CustomRoles.Vengeance:
                     if (!Vengeance.OnCheckMurder(killer, target)) return false;
                     break;
@@ -1325,8 +1328,8 @@ class ShapeshiftPatch
                         }
                         _ = new LateTask(() =>
                         {
-                            bool totalAlive = Main.AllAlivePlayerControls.Any();
-                            if (Options.BomberDiesInExplosion.GetBool() && totalAlive && !GameStates.IsEnded)
+                            var totalAlive = Main.AllAlivePlayerControls.Count();
+                            if (Options.BomberDiesInExplosion.GetBool() && totalAlive > 1 && !GameStates.IsEnded)
                             {
                                 Main.PlayerStates[shapeshifter.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
                                 shapeshifter.RpcMurderPlayerV3(shapeshifter);
@@ -1362,8 +1365,8 @@ class ShapeshiftPatch
                         }
                         _ = new LateTask(() =>
                         {
-                            bool totalAlive = Main.AllAlivePlayerControls.Any();
-                            if (totalAlive && !GameStates.IsEnded)
+                            var totalAlive = Main.AllAlivePlayerControls.Count();
+                            if (totalAlive > 1 && !GameStates.IsEnded)
                             {
                                 Main.PlayerStates[shapeshifter.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
                                 shapeshifter.RpcMurderPlayerV3(shapeshifter);
@@ -1774,6 +1777,7 @@ class ReportDeadBodyPatch
         if (Hitman.IsEnable) Hitman.OnReportDeadBody();
         if (Gambler.IsEnable) Gambler.OnReportDeadBody();
         if (Tracker.IsEnable) Tracker.OnReportDeadBody();
+        if (Magician.IsEnable) Magician.OnReportDeadBody();
         if (Reckless.IsEnable) Reckless.OnReportDeadBody();
 
         if (Mortician.IsEnable) Mortician.OnReportDeadBody(player, target);
@@ -1955,6 +1959,9 @@ class FixedUpdatePatch
                     break;
                 case CustomRoles.Mastermind when !lowLoad:
                     Mastermind.OnFixedUpdate();
+                    break;
+                case CustomRoles.Magician when !lowLoad:
+                    Magician.OnFixedUpdate(player);
                     break;
                 case CustomRoles.SerialKiller:
                     SerialKiller.FixedUpdate(player);

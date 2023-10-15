@@ -42,12 +42,12 @@ public static class Monarch
     }
     public static bool IsEnable => playerIdList.Any();
 
-    private static void SendRPC()
-    {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMonarchKnightLimit, SendOption.Reliable, -1);
-        writer.Write(KnightLimit);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
+    //private static void SendRPC()
+    //{
+    //    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMonarchKnightLimit, SendOption.Reliable, -1);
+    //    writer.Write(KnightLimit);
+    //    AmongUsClient.Instance.FinishRpcImmediately(writer);
+    //}
     public static void ReceiveRPC(MessageReader reader)
     {
         KnightLimit = reader.ReadInt32();

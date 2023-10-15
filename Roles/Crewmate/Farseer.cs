@@ -158,10 +158,7 @@ namespace TOHE.Roles.Crewmate
             var rd = IRandom.Instance;
             var randomRole = randomRolesForTrickster[rd.Next(0, randomRolesForTrickster.Count)];
 
-            string roleName = GetRoleName(randomRole);
-            string RoleText = ColorString(GetRoleColor(randomRole), GetString(randomRole.ToString()));
-
-            return $"<size={fontSize}>{RoleText}</size>";
+            return $"<size={fontSize}>{ColorString(GetRoleColor(randomRole), GetString(randomRole.ToString()))}</size>";
         }
 
         public static string GetTaskState()

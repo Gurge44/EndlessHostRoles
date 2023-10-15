@@ -102,6 +102,11 @@ class RepairSystemPatch
                 Glitch.Mimic(player);
                 return false;
             }
+            if (player.Is(CustomRoles.Magician))
+            {
+                Magician.UseCard(player);
+                return false;
+            }
             if (player.Is(CustomRoleTypes.Impostor) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool())) return true;
             if (player.Is(CustomRoles.Jackal) && Jackal.CanUseSabotage.GetBool()) return true;
             if (player.Is(CustomRoles.Sidekick) && Jackal.CanUseSabotageSK.GetBool()) return true;

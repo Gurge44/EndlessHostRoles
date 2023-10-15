@@ -654,9 +654,9 @@ public static class GuessManager
         return true;
     }
 
-    public static TextMeshPro nameText(this PlayerControl p) => p.cosmetics.nameText;
+    public static TextMeshPro NameText(this PlayerControl p) => p.cosmetics.nameText;
     public static TextMeshPro NameText(this PoolablePlayer p) => p.cosmetics.nameText;
-    public static void RpcGuesserMurderPlayer(this PlayerControl pc, float delay = 0f) //ゲッサー用の殺し方
+    public static void RpcGuesserMurderPlayer(this PlayerControl pc/*, float delay = 0f*/) //ゲッサー用の殺し方
     {
         // DEATH STUFF //
         var amOwner = pc.AmOwner;
@@ -670,7 +670,7 @@ public static class GuessManager
         if (amOwner)
         {
             hudManager.ShadowQuad.gameObject.SetActive(false);
-            pc.nameText().GetComponent<MeshRenderer>().material.SetInt("_Mask", 0);
+            pc.NameText().GetComponent<MeshRenderer>().material.SetInt("_Mask", 0);
             pc.RpcSetScanner(false);
             ImportantTextTask importantTextTask = new GameObject("_Player").AddComponent<ImportantTextTask>();
             importantTextTask.transform.SetParent(AmongUsClient.Instance.transform, false);
@@ -709,7 +709,7 @@ public static class GuessManager
         if (amOwner)
         {
             hudManager.ShadowQuad.gameObject.SetActive(false);
-            pc.nameText().GetComponent<MeshRenderer>().material.SetInt("_Mask", 0);
+            pc.NameText().GetComponent<MeshRenderer>().material.SetInt("_Mask", 0);
             pc.RpcSetScanner(false);
             ImportantTextTask importantTextTask = new GameObject("_Player").AddComponent<ImportantTextTask>();
             importantTextTask.transform.SetParent(AmongUsClient.Instance.transform, false);

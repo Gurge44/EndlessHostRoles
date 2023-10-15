@@ -646,6 +646,13 @@ public class PlayerGameOptionsSender : GameOptionsSender
             }
         }
 
+        if (Magician.BlindPPL.ContainsKey(player.PlayerId))
+        {
+            opt.SetVision(false);
+            opt.SetFloat(FloatOptionNames.CrewLightMod, 0.01f);
+            opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0.01f);
+        }
+
         // ������������ȴΪ0ʱ�޷�������ʾͼ��
         AURoleOptions.EngineerCooldown = Mathf.Max(0.01f, AURoleOptions.EngineerCooldown);
 

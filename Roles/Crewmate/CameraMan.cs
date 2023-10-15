@@ -10,7 +10,7 @@ namespace TOHE.Roles.Crewmate
 
     public static class CameraMan
     {
-        private static readonly int Id = 640000;
+        private static readonly int Id = 641600;
         private static List<byte> playerIdList = new();
         public static Dictionary<byte, float> UseLimit = new();
 

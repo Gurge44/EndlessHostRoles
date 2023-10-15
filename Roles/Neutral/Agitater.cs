@@ -123,7 +123,7 @@ public static class Agitater
         Logger.Info($"{killer.GetRealName()} bombed {target.GetRealName()} on report", "Agitater");
     }
 
-    public static void PassBomb(PlayerControl player, PlayerControl target, bool IsAgitater = false)
+    public static void PassBomb(PlayerControl player, PlayerControl target/*, bool IsAgitater = false*/)
     {
         if (!IsEnable) return;
         if (!AgitaterHasBombed) return;

@@ -63,7 +63,7 @@ public static class Bandit
     }
     public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
 
-    private static void SendRPC(byte playerId, bool isTargetList = false)
+    private static void SendRPC(byte playerId/*, bool isTargetList = false*/)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBanditStealLimit, SendOption.Reliable, -1);
         writer.Write(playerId);

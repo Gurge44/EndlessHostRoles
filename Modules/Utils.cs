@@ -1,5 +1,6 @@
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using Epic.OnlineServices;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes;
 using InnerNet;
@@ -617,7 +618,6 @@ public static class Utils
         var role = Main.PlayerStates[playerId].MainRole;
         try
         {
-
             switch (role)
             {
                 case CustomRoles.Arsonist:
@@ -710,232 +710,128 @@ public static class Utils
                     ProgressText.Append(Jailor.GetProgressText(playerId));
                     break;
                 case CustomRoles.NiceSwapper:
+                    ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(NiceSwapper.GetNiceSwappermax(playerId));
                     break;
                 case CustomRoles.Veteran:
-                    var taskState2 = Main.PlayerStates?[playerId].GetTaskState();
-                    Color TextColor2;
-                    var TaskCompleteColor2 = Color.green;
-                    var NonCompleteColor2 = Color.yellow;
-                    var NormalColor2 = taskState2.IsTaskFinished ? TaskCompleteColor2 : NonCompleteColor2;
-                    TextColor2 = comms ? Color.gray : NormalColor2;
-                    string Completed2 = comms ? "?" : $"{taskState2.CompletedTasksCount}";
                     Color TextColor21;
                     if (Main.VeteranNumOfUsed[playerId] < 1) TextColor21 = Color.red;
                     else if (Main.VeteranInProtect.ContainsKey(playerId)) TextColor21 = Color.green;
                     else TextColor21 = Color.white;
-                    ProgressText.Append(ColorString(TextColor2, $"<color=#777777>-</color> {Completed2}/{taskState2.AllTasksCount}"));
+                    ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(ColorString(TextColor21, $" <color=#777777>-</color> {Math.Round(Main.VeteranNumOfUsed[playerId], 1)}"));
                     if (Options.UsePets.GetBool() && Main.VeteranCD.TryGetValue(playerId, out var time2) && !GetPlayerById(playerId).IsModClient())
                         ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.VeteranSkillCooldown.GetInt() + Options.VeteranSkillDuration.GetInt() - (GetTimeStamp() - time2) + 1));
                     break;
                 case CustomRoles.Grenadier:
-                    var taskState3 = Main.PlayerStates?[playerId].GetTaskState();
-                    Color TextColor3;
-                    var TaskCompleteColor3 = Color.green;
-                    var NonCompleteColor3 = Color.yellow;
-                    var NormalColor3 = taskState3.IsTaskFinished ? TaskCompleteColor3 : NonCompleteColor3;
-                    TextColor3 = comms ? Color.gray : NormalColor3;
-                    string Completed3 = comms ? "?" : $"{taskState3.CompletedTasksCount}";
                     Color TextColor31;
                     if (Main.GrenadierNumOfUsed[playerId] < 1) TextColor31 = Color.red;
                     else if (Main.GrenadierBlinding.ContainsKey(playerId)) TextColor31 = Color.green;
                     else TextColor31 = Color.white;
-                    ProgressText.Append(ColorString(TextColor3, $"<color=#777777>-</color> {Completed3}/{taskState3.AllTasksCount}"));
+                    ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(ColorString(TextColor31, $" <color=#777777>-</color> {Math.Round(Main.GrenadierNumOfUsed[playerId], 1)}"));
                     if (Options.UsePets.GetBool() && Main.GrenadierCD.TryGetValue(playerId, out var time3) && !GetPlayerById(playerId).IsModClient())
                         ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.GrenadierSkillCooldown.GetInt() + Options.GrenadierSkillDuration.GetInt() - (GetTimeStamp() - time3) + 1));
                     break;
                 case CustomRoles.Divinator:
-                    var taskState4 = Main.PlayerStates?[playerId].GetTaskState();
-                    Color TextColor4;
-                    var TaskCompleteColor4 = Color.green;
-                    var NonCompleteColor4 = Color.yellow;
-                    var NormalColor4 = taskState4.IsTaskFinished ? TaskCompleteColor4 : NonCompleteColor4;
-                    TextColor4 = comms ? Color.gray : NormalColor4;
-                    string Completed4 = comms ? "?" : $"{taskState4.CompletedTasksCount}";
                     Color TextColor41;
                     if (Divinator.CheckLimit[playerId] < 1) TextColor41 = Color.red;
                     else TextColor41 = Color.white;
-                    ProgressText.Append(ColorString(TextColor4, $"<color=#777777>-</color> {Completed4}/{taskState4.AllTasksCount}"));
+                    ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(ColorString(TextColor41, $" <color=#777777>-</color> {Math.Round(Divinator.CheckLimit[playerId])}"));
                     break;
                 case CustomRoles.DovesOfNeace:
-                    var taskState5 = Main.PlayerStates?[playerId].GetTaskState();
-                    Color TextColor5;
-                    var TaskCompleteColor5 = Color.green;
-                    var NonCompleteColor5 = Color.yellow;
-                    var NormalColor5 = taskState5.IsTaskFinished ? TaskCompleteColor5 : NonCompleteColor5;
-                    TextColor5 = comms ? Color.gray : NormalColor5;
-                    string Completed5 = comms ? "?" : $"{taskState5.CompletedTasksCount}";
                     Color TextColor51;
                     if (Main.DovesOfNeaceNumOfUsed[playerId] < 1) TextColor51 = Color.red;
                     else TextColor51 = Color.white;
-                    ProgressText.Append(ColorString(TextColor5, $"<color=#777777>-</color> {Completed5}/{taskState5.AllTasksCount}"));
+                    ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(ColorString(TextColor51, $" <color=#777777>-</color> {Math.Round(Main.DovesOfNeaceNumOfUsed[playerId], 1)}"));
                     if (Options.UsePets.GetBool() && Main.DovesOfNeaceCD.TryGetValue(playerId, out var time4) && !GetPlayerById(playerId).IsModClient())
                         ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.DovesOfNeaceCooldown.GetInt() - (GetTimeStamp() - time4) + 1));
                     break;
                 case CustomRoles.TimeMaster:
-                    var taskState6 = Main.PlayerStates?[playerId].GetTaskState();
-                    Color TextColor6;
-                    var TaskCompleteColor6 = Color.green;
-                    var NonCompleteColor6 = Color.yellow;
-                    var NormalColor6 = taskState6.IsTaskFinished ? TaskCompleteColor6 : NonCompleteColor6;
-                    TextColor6 = comms ? Color.gray : NormalColor6;
-                    string Completed6 = comms ? "?" : $"{taskState6.CompletedTasksCount}";
                     Color TextColor61;
                     if (Main.TimeMasterNumOfUsed[playerId] < 1) TextColor61 = Color.red;
                     else if (Main.TimeMasterInProtect.ContainsKey(playerId)) TextColor61 = Color.green;
                     else TextColor61 = Color.white;
-                    ProgressText.Append(ColorString(TextColor6, $"<color=#777777>-</color> {Completed6}/{taskState6.AllTasksCount}"));
+                    ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(ColorString(TextColor61, $" <color=#777777>-</color> {Math.Round(Main.TimeMasterNumOfUsed[playerId], 1)}"));
                     if (Options.UsePets.GetBool() && Main.TimeMasterCD.TryGetValue(playerId, out var time5) && !GetPlayerById(playerId).IsModClient())
                         ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.TimeMasterSkillCooldown.GetInt() + Options.TimeMasterSkillDuration.GetInt() - (GetTimeStamp() - time5) + 1));
                     break;
                 case CustomRoles.Mediumshiper:
-                    var taskState7 = Main.PlayerStates?[playerId].GetTaskState();
-                    Color TextColor7;
-                    var TaskCompleteColor7 = Color.green;
-                    var NonCompleteColor7 = Color.yellow;
-                    var NormalColor7 = taskState7.IsTaskFinished ? TaskCompleteColor7 : NonCompleteColor7;
-                    TextColor7 = comms ? Color.gray : NormalColor7;
-                    string Completed7 = comms ? "?" : $"{taskState7.CompletedTasksCount}";
                     Color TextColor71;
                     if (Mediumshiper.ContactLimit[playerId] < 1) TextColor71 = Color.red;
                     else TextColor71 = Color.white;
-                    ProgressText.Append(ColorString(TextColor7, $"<color=#777777>-</color> {Completed7}/{taskState7.AllTasksCount}"));
+                    ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(ColorString(TextColor71, $" <color=#777777>-</color> {Math.Round(Mediumshiper.ContactLimit[playerId], 1)}"));
                     break;
                 case CustomRoles.ParityCop:
-                    var taskState8 = Main.PlayerStates?[playerId].GetTaskState();
-                    Color TextColor8;
-                    var TaskCompleteColor8 = Color.green;
-                    var NonCompleteColor8 = Color.yellow;
-                    var NormalColor8 = taskState8.IsTaskFinished ? TaskCompleteColor8 : NonCompleteColor8;
-                    TextColor8 = comms ? Color.gray : NormalColor8;
-                    string Completed8 = comms ? "?" : $"{taskState8.CompletedTasksCount}";
                     Color TextColor81;
                     if (ParityCop.MaxCheckLimit[playerId] < 1) TextColor81 = Color.red;
                     else TextColor81 = Color.white;
-                    ProgressText.Append(ColorString(TextColor8, $"<color=#777777>-</color> {Completed8}/{taskState8.AllTasksCount}"));
+                    ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(ColorString(TextColor81, $" <color=#777777>-</color> {Math.Round(ParityCop.MaxCheckLimit[playerId], 1)}"));
                     break;
                 case CustomRoles.Oracle:
-                    var taskState9 = Main.PlayerStates?[playerId].GetTaskState();
-                    Color TextColor9;
-                    var TaskCompleteColor9 = Color.green;
-                    var NonCompleteColor9 = Color.yellow;
-                    var NormalColor9 = taskState9.IsTaskFinished ? TaskCompleteColor9 : NonCompleteColor9;
-                    TextColor9 = comms ? Color.gray : NormalColor9;
-                    string Completed9 = comms ? "?" : $"{taskState9.CompletedTasksCount}";
                     Color TextColor91;
                     if (Oracle.CheckLimit[playerId] < 1) TextColor91 = Color.red;
                     else TextColor91 = Color.white;
-                    ProgressText.Append(ColorString(TextColor9, $"<color=#777777>-</color> {Completed9}/{taskState9.AllTasksCount}"));
+                    ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(ColorString(TextColor91, $" <color=#777777>-</color> {Math.Round(Oracle.CheckLimit[playerId], 1)}"));
                     break;
                 case CustomRoles.SabotageMaster:
-                    var taskState10 = Main.PlayerStates?[playerId].GetTaskState();
-                    Color TextColor10;
-                    var TaskCompleteColor10 = Color.green;
-                    var NonCompleteColor10 = Color.yellow;
-                    var NormalColor10 = taskState10.IsTaskFinished ? TaskCompleteColor10 : NonCompleteColor10;
-                    TextColor10 = comms ? Color.gray : NormalColor10;
-                    string Completed10 = comms ? "?" : $"{taskState10.CompletedTasksCount}";
                     Color TextColor101;
                     if (SabotageMaster.SkillLimit.GetFloat() - SabotageMaster.UsedSkillCount > 1) TextColor101 = Color.red;
                     else TextColor101 = Color.white;
-                    ProgressText.Append(ColorString(TextColor10, $"<color=#777777>-</color> {Completed10}/{taskState10.AllTasksCount}"));
+                    ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(ColorString(TextColor101, $" <color=#777777>-</color> {Math.Round(SabotageMaster.SkillLimit.GetFloat() - SabotageMaster.UsedSkillCount, 1)}"));
                     break;
                 case CustomRoles.Tracker:
-                    var taskState11 = Main.PlayerStates?[playerId].GetTaskState();
-                    Color TextColor11;
-                    var TaskCompleteColor11 = Color.green;
-                    var NonCompleteColor11 = Color.yellow;
-                    var NormalColor11 = taskState11.IsTaskFinished ? TaskCompleteColor11 : NonCompleteColor11;
-                    TextColor11 = comms ? Color.gray : NormalColor11;
-                    string Completed11 = comms ? "?" : $"{taskState11.CompletedTasksCount}";
                     Color TextColor111;
                     if (Tracker.TrackLimit[playerId] < 1) TextColor111 = Color.red;
                     else TextColor111 = Color.white;
-                    ProgressText.Append(ColorString(TextColor11, $"<color=#777777>-</color> {Completed11}/{taskState11.AllTasksCount}"));
+                    ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(ColorString(TextColor111, $" <color=#777777>-</color> {Math.Round(Tracker.TrackLimit[playerId], 1)}"));
                     break;
                 case CustomRoles.Bloodhound:
-                    var taskState12 = Main.PlayerStates?[playerId].GetTaskState();
-                    Color TextColor12;
-                    var TaskCompleteColor12 = Color.green;
-                    var NonCompleteColor12 = Color.yellow;
-                    var NormalColor12 = taskState12.IsTaskFinished ? TaskCompleteColor12 : NonCompleteColor12;
-                    TextColor12 = comms ? Color.gray : NormalColor12;
-                    string Completed12 = comms ? "?" : $"{taskState12.CompletedTasksCount}";
                     Color TextColor121;
                     if (Bloodhound.UseLimit[playerId] < 1) TextColor121 = Color.red;
                     else TextColor121 = Color.white;
-                    ProgressText.Append(ColorString(TextColor12, $"<color=#777777>-</color> {Completed12}/{taskState12.AllTasksCount}"));
+                    ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(ColorString(TextColor121, $" <color=#777777>-</color> {Math.Round(Bloodhound.UseLimit[playerId], 1)}"));
                     break;
                 case CustomRoles.Chameleon:
-                    var taskState13 = Main.PlayerStates?[playerId].GetTaskState();
-                    Color TextColor13;
-                    var TaskCompleteColor13 = Color.green;
-                    var NonCompleteColor13 = Color.yellow;
-                    var NormalColor13 = taskState13.IsTaskFinished ? TaskCompleteColor13 : NonCompleteColor13;
-                    TextColor13 = comms ? Color.gray : NormalColor13;
-                    string Completed13 = comms ? "?" : $"{taskState13.CompletedTasksCount}";
                     Color TextColor131;
                     if (Chameleon.UseLimit[playerId] < 1) TextColor131 = Color.red;
                     else if (Chameleon.IsInvis(playerId)) TextColor131 = Color.green;
                     else TextColor131 = Color.white;
-                    ProgressText.Append(ColorString(TextColor13, $"<color=#777777>-</color> {Completed13}/{taskState13.AllTasksCount}"));
+                    ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(ColorString(TextColor131, $" <color=#777777>-</color> {Math.Round(Chameleon.UseLimit[playerId], 1)}"));
                     break;
                 case CustomRoles.Lighter:
-                    var taskState14 = Main.PlayerStates?[playerId].GetTaskState();
-                    Color TextColor14;
-                    var TaskCompleteColor14 = Color.green;
-                    var NonCompleteColor14 = Color.yellow;
-                    var NormalColor14 = taskState14.IsTaskFinished ? TaskCompleteColor14 : NonCompleteColor14;
-                    TextColor14 = comms ? Color.gray : NormalColor14;
-                    string Completed14 = comms ? "?" : $"{taskState14.CompletedTasksCount}";
                     Color TextColor141;
                     if (Main.LighterNumOfUsed[playerId] < 1) TextColor141 = Color.red;
                     else if (Main.Lighter.ContainsKey(playerId)) TextColor141 = Color.green;
                     else TextColor141 = Color.white;
-                    ProgressText.Append(ColorString(TextColor14, $"<color=#777777>-</color> {Completed14}/{taskState14.AllTasksCount}"));
+                    ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(ColorString(TextColor141, $" <color=#777777>-</color> {Math.Round(Main.LighterNumOfUsed[playerId], 1)}"));
                     if (Options.UsePets.GetBool() && Main.LighterCD.TryGetValue(playerId, out var time6) && !GetPlayerById(playerId).IsModClient())
                         ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.LighterSkillCooldown.GetInt() + Options.LighterSkillDuration.GetInt() - (GetTimeStamp() - time6) + 1));
                     break;
                 case CustomRoles.Ventguard:
-                    var taskState15 = Main.PlayerStates?[playerId].GetTaskState();
-                    Color TextColor15;
-                    var TaskCompleteColor15 = Color.green;
-                    var NonCompleteColor15 = Color.yellow;
-                    var NormalColor15 = taskState15.IsTaskFinished ? TaskCompleteColor15 : NonCompleteColor15;
-                    TextColor15 = comms ? Color.gray : NormalColor15;
-                    string Completed15 = comms ? "?" : $"{taskState15.CompletedTasksCount}";
                     Color TextColor151;
                     if (Main.VentguardNumberOfAbilityUses < 1) TextColor151 = Color.red;
                     else TextColor151 = Color.white;
-                    ProgressText.Append(ColorString(TextColor15, $"<color=#777777>-</color> {Completed15}/{taskState15.AllTasksCount}"));
+                    ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(ColorString(TextColor151, $" <color=#777777>-</color> {Math.Round(Main.VentguardNumberOfAbilityUses, 1)}"));
                     break;
                 case CustomRoles.SecurityGuard:
-                    var taskState16 = Main.PlayerStates?[playerId].GetTaskState();
-                    Color TextColor16;
-                    var TaskCompleteColor16 = Color.green;
-                    var NonCompleteColor16 = Color.yellow;
-                    var NormalColor16 = taskState16.IsTaskFinished ? TaskCompleteColor16 : NonCompleteColor16;
-                    TextColor16 = comms ? Color.gray : NormalColor16;
-                    string Completed16 = comms ? "?" : $"{taskState16.CompletedTasksCount}";
                     Color TextColor161;
                     if (Main.SecurityGuardNumOfUsed[playerId] < 1) TextColor161 = Color.red;
                     else if (Main.BlockSabo.ContainsKey(playerId)) TextColor161 = Color.green;
                     else TextColor161 = Color.white;
-                    ProgressText.Append(ColorString(TextColor16, $"<color=#777777>-</color> {Completed16}/{taskState16.AllTasksCount}"));
+                    ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(ColorString(TextColor161, $" <color=#777777>-</color> {Math.Round(Main.SecurityGuardNumOfUsed[playerId], 1)}"));
                     if (Options.UsePets.GetBool() && Main.SecurityGuardCD.TryGetValue(playerId, out var time7) && !GetPlayerById(playerId).IsModClient())
                         ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.SecurityGuardSkillCooldown.GetInt() + Options.SecurityGuardSkillDuration.GetInt() - (GetTimeStamp() - time7) + 1));
@@ -1144,36 +1040,44 @@ public static class Utils
                     break;
                 default:
                     //タスクテキスト
-                    var taskState = Main.PlayerStates?[playerId].GetTaskState();
-                    if (taskState.hasTasks)
-                    {
-                        Color TextColor;
-                        var info = GetPlayerInfoById(playerId);
-                        var TaskCompleteColor = HasTasks(info) ? Color.green : GetRoleColor(role).ShadeColor(0.5f); //タスク完了後の色
-                        var NonCompleteColor = HasTasks(info) ? Color.yellow : Color.white; //カウントされない人外は白色
-
-                        if (Workhorse.IsThisRole(playerId))
-                            NonCompleteColor = Workhorse.RoleColor;
-
-                        var NormalColor = taskState.IsTaskFinished ? TaskCompleteColor : NonCompleteColor;
-                        if (Main.PlayerStates.TryGetValue(playerId, out var ps) && ps.MainRole == CustomRoles.Crewpostor)
-                            NormalColor = Color.red;
-
-                        TextColor = comms ? Color.gray : NormalColor;
-                        string Completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
-                        ProgressText.Append(ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
-                    }
+                    ProgressText.Append(GetTaskCount(playerId, comms));
                     break;
             }
         }
         catch (Exception ex)
         {
-            Logger.Error(ex.ToString(), "Utils.GetProgressText");
+            Logger.Error($"For {GetPlayerById(playerId).GetNameWithRole().RemoveHtmlTags()}, failed to get progress text:  " + ex.ToString(), "Utils.GetProgressText");
         }
-        if (ProgressText.Length != 0)
+        if (ProgressText.Length != 0 && !ProgressText.ToString().StartsWith(' '))
             ProgressText.Insert(0, " "); //空じゃなければ空白を追加
 
         return ProgressText.ToString();
+    }
+    public static string GetTaskCount(byte playerId, bool comms)
+    {
+        var taskState = Main.PlayerStates?[playerId].GetTaskState();
+        if (taskState.hasTasks)
+        {
+            Color TextColor;
+            var info = GetPlayerInfoById(playerId);
+            var TaskCompleteColor = HasTasks(info) ? Color.green : GetRoleColor(Main.PlayerStates[playerId].MainRole).ShadeColor(0.5f); //タスク完了後の色
+            var NonCompleteColor = HasTasks(info) ? Color.yellow : Color.white; //カウントされない人外は白色
+
+            if (Workhorse.IsThisRole(playerId))
+                NonCompleteColor = Workhorse.RoleColor;
+
+            var NormalColor = taskState.IsTaskFinished ? TaskCompleteColor : NonCompleteColor;
+            if (Main.PlayerStates.TryGetValue(playerId, out var ps) && ps.MainRole == CustomRoles.Crewpostor)
+                NormalColor = Color.red;
+
+            TextColor = comms ? Color.gray : NormalColor;
+            string Completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
+            return ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}");
+        }
+        else
+        {
+            return string.Empty;
+        }
     }
     public static void ShowActiveSettingsHelp(byte PlayerId = byte.MaxValue)
     {
@@ -1191,6 +1095,20 @@ public static class Utils
         }
 
         if (Options.NoGameEnd.GetBool()) { SendMessage(GetString("NoGameEndInfo"), PlayerId); }
+    }
+    public static List<PlayerControl> GetPlayersInRadius(float radius, Vector2 from)
+    {
+        var list = new List<PlayerControl>();
+        foreach (var tg in Main.AllAlivePlayerControls)
+        {
+            var dis = Vector2.Distance(from, tg.transform.position);
+
+            if (Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || tg.inVent) continue;
+            if (dis > radius) continue;
+
+            list.Add(tg);
+        }
+        return list;
     }
     public static void ShowActiveSettings(byte PlayerId = byte.MaxValue)
     {
@@ -1858,9 +1776,7 @@ public static class Utils
     private static readonly StringBuilder TargetSuffix = new();
     private static readonly StringBuilder TargetMark = new(20);
 
-#pragma warning disable IDE0060 // Remove unused parameter
     public static async void NotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false)
-#pragma warning restore IDE0060 // Remove unused parameter
     {
         //if (Options.DeepLowLoad.GetBool()) await Task.Run(() => { DoNotifyRoles(isForMeeting, SpecifySeer, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting); });
         /*else */

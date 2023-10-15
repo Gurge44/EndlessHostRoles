@@ -196,7 +196,7 @@ internal class RPCHandlerPatch
             }
             return false;
         }
-        if (ReportDeadBodyRPCs[__instance.PlayerId] > 4)
+        if (ReportDeadBodyRPCs.TryGetValue(__instance.PlayerId, out var times) && times > 4)
         {
             AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), true);
             Logger.SendInGame(string.Format(GetString("Warning.ReportDeadBodyHack"), __instance?.Data?.PlayerName));

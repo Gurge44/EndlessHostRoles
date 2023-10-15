@@ -54,12 +54,12 @@ public static class Infectious
             Main.ResetCamPlayerList.Add(playerId);
     }
     public static bool IsEnable => playerIdList.Any();
-    private static void SendRPC()
-    {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetInfectiousBiteLimit, SendOption.Reliable, -1);
-        writer.Write(BiteLimit);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
+    //private static void SendRPC()
+    //{
+    //    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetInfectiousBiteLimit, SendOption.Reliable, -1);
+    //    writer.Write(BiteLimit);
+    //    AmongUsClient.Instance.FinishRpcImmediately(writer);
+    //}
     public static void ReceiveRPC(MessageReader reader)
     {
         BiteLimit = reader.ReadInt32();

@@ -67,7 +67,7 @@ class ExternalRpcPetPatch
                 AmongUsClient.Instance.FinishRpcImmediately(AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, 50, SendOption.None, player.GetClientId()));
         }
 
-        Logger.Info($"Player {pc.GetNameWithRole().RemoveHtmlTags()} has Pet", "RPCDEBUG");
+        Logger.Info($"Player {pc.GetNameWithRole().RemoveHtmlTags()} petted their pet", "PetActionTrigger");
 
         OnPetUse(pc);
     }
@@ -509,6 +509,9 @@ class ExternalRpcPetPatch
                 break;
             case CustomRoles.Glitch:
                 Glitch.Mimic(pc);
+                break;
+            case CustomRoles.Magician:
+                Magician.UseCard(pc);
                 break;
         }
     }
