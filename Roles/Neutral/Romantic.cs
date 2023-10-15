@@ -129,7 +129,7 @@ public static class Romantic
             if (BetTargetKnowRomantic.GetBool())
                 target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Romantic), GetString("RomanticBetOnYou")));
 
-            Logger.Info($"赌徒下注：{killer.GetNameWithRole()} => {target.GetNameWithRole()}", "Romantic");
+            Logger.Info($"赌徒下注：{killer.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "Romantic");
         }
         else
         {
@@ -191,20 +191,20 @@ public static class Romantic
         var pc = Utils.GetPlayerById(Romantic);
         if (player.IsNeutralKiller())
         {
-            Logger.Info($"Neutral Romantic Partner Died changing {pc.GetNameWithRole()} to Ruthless Romantic", "Romantic");
+            Logger.Info($"Neutral Romantic Partner Died changing {pc.GetNameWithRole().RemoveHtmlTags()} to Ruthless Romantic", "Romantic");
             pc.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
             RuthlessRomantic.Add(playerId);
         }
         else if (player.GetCustomRole().IsImpostorTeamV3())
         {
-            Logger.Info($"Impostor Romantic Partner Died changing {pc.GetNameWithRole()} to Refugee", "Romantic");
+            Logger.Info($"Impostor Romantic Partner Died changing {pc.GetNameWithRole().RemoveHtmlTags()} to Refugee", "Romantic");
             pc.RpcSetCustomRole(CustomRoles.Refugee);
         }
         else
         {
             _ = new LateTask(() =>
             {
-                Logger.Info($"Crew/nnk Romantic Partner Died changing {pc.GetNameWithRole()} to Vengeful romantic", "Romantic");
+                Logger.Info($"Crew/nnk Romantic Partner Died changing {pc.GetNameWithRole().RemoveHtmlTags()} to Vengeful romantic", "Romantic");
 
                 var killerId = player.GetRealKiller().PlayerId;
                 VengefulRomantic.Add(pc.PlayerId, killerId);

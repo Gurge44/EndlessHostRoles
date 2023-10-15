@@ -314,7 +314,7 @@ public static class CopyCat
                 case CustomRoles.Sheriff:
                     Sheriff.CurrentKillCooldown.Add(pc.PlayerId, KillCooldown.GetFloat());
                     Sheriff.ShotLimit.TryAdd(pc.PlayerId, Sheriff.ShotLimitOpt.GetInt());
-                    Logger.Info($"{Utils.GetPlayerById(pc.PlayerId)?.GetNameWithRole()} : 残り{Sheriff.ShotLimit[pc.PlayerId]}発", "Sheriff");
+                    Logger.Info($"{Utils.GetPlayerById(pc.PlayerId)?.GetNameWithRole().RemoveHtmlTags()} : 残り{Sheriff.ShotLimit[pc.PlayerId]}発", "Sheriff");
 
                     if (!AmongUsClient.Instance.AmHost) break;
                     if (!Main.ResetCamPlayerList.Contains(pc.PlayerId))
@@ -323,7 +323,7 @@ public static class CopyCat
                 case CustomRoles.Crusader:
                     Crusader.CurrentKillCooldown.Add(pc.PlayerId, KillCooldown.GetFloat());
                     Crusader.CrusaderLimit.TryAdd(pc.PlayerId, Sheriff.ShotLimitOpt.GetInt());
-                    Logger.Info($"{Utils.GetPlayerById(pc.PlayerId)?.GetNameWithRole()} : 残り{Crusader.CrusaderLimit[pc.PlayerId]}発", "Crusader");
+                    Logger.Info($"{Utils.GetPlayerById(pc.PlayerId)?.GetNameWithRole().RemoveHtmlTags()} : 残り{Crusader.CrusaderLimit[pc.PlayerId]}発", "Crusader");
 
                     if (!AmongUsClient.Instance.AmHost) break;
                     if (!Main.ResetCamPlayerList.Contains(pc.PlayerId))

@@ -120,7 +120,7 @@ public static class ParityCop
             var target2 = Utils.GetPlayerById(targetId2);
             if (target1 != null && target2 != null)
             {
-                Logger.Info($"{pc.GetNameWithRole()} checked {target1.GetNameWithRole()} and {target2.GetNameWithRole()}", "ParityCop");
+                Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} checked {target1.GetNameWithRole().RemoveHtmlTags()} and {target2.GetNameWithRole().RemoveHtmlTags()}", "ParityCop");
 
                 if (MaxCheckLimit[pc.PlayerId] < 1 || RoundCheckLimit[pc.PlayerId] < 1)
                 {

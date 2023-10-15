@@ -1897,7 +1897,7 @@ public static class Utils
             if (seer.IsModClient()) continue;
             string fontSize = "1.6";
             if (isForMeeting && (seer.GetClient().PlatformData.Platform == Platforms.Playstation || seer.GetClient().PlatformData.Platform == Platforms.Switch)) fontSize = "70%";
-            logger.Info("NotifyRoles-Loop1-" + seer.GetNameWithRole() + ":START");
+            logger.Info("NotifyRoles-Loop1-" + seer.GetNameWithRole().RemoveHtmlTags() + ":START");
 
             //タスクなど進行状況を含むテキスト
             string SelfTaskText = GetProgressText(seer);
@@ -2103,7 +2103,7 @@ public static class Utils
             {
                 //targetがseer自身の場合は何もしない
                 if (target.PlayerId == seer.PlayerId) continue;
-                logger.Info("NotifyRoles-Loop2-" + target.GetNameWithRole() + ":START");
+                logger.Info("NotifyRoles-Loop2-" + target.GetNameWithRole().RemoveHtmlTags() + ":START");
 
                 //名前の後ろに付けるマーカー
                 TargetMark.Clear();
@@ -2474,9 +2474,9 @@ public static class Utils
                 //else target.RpcSetNamePrivate(TargetName, false, seer, force: NoCache);
                 target.RpcSetNamePrivate(TargetName, true, seer, force: NoCache);
 
-                logger.Info("NotifyRoles-Loop2-" + target.GetNameWithRole() + ":END");
+                logger.Info("NotifyRoles-Loop2-" + target.GetNameWithRole().RemoveHtmlTags() + ":END");
             }
-            logger.Info("NotifyRoles-Loop1-" + seer.GetNameWithRole() + ":END");
+            logger.Info("NotifyRoles-Loop1-" + seer.GetNameWithRole().RemoveHtmlTags() + ":END");
         }
         return Task.CompletedTask;
     }
@@ -2718,7 +2718,7 @@ public static class Utils
     {
         string name = "invalid";
         var player = GetPlayerById(num);
-        if (num < 15 && player != null) name = player?.GetNameWithRole();
+        if (num < 15 && player != null) name = player?.GetNameWithRole().RemoveHtmlTags();
         if (num == 253) name = "Skip";
         if (num == 254) name = "None";
         if (num == 255) name = "Dead";

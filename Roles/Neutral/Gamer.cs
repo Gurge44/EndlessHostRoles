@@ -102,7 +102,7 @@ public static class Gamer
         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
         Utils.NotifyRoles(SpecifySeer: killer);
 
-        Logger.Info($"{killer.GetNameWithRole()} 对玩家 {target.GetNameWithRole()} 造成了 {Damage.GetInt()} 点伤害", "Gamer");
+        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} 对玩家 {target.GetNameWithRole().RemoveHtmlTags()} 造成了 {Damage.GetInt()} 点伤害", "Gamer");
         return true;
     }
     public static bool CheckMurder(PlayerControl killer, PlayerControl target)
@@ -124,7 +124,7 @@ public static class Gamer
         //killer.RpcGuardAndKill(target);
         Utils.NotifyRoles(SpecifySeer: target);
 
-        Logger.Info($"{killer.GetNameWithRole()} 对玩家 {target.GetNameWithRole()} 造成了 {SelfDamage.GetInt()} 点伤害", "Gamer");
+        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} 对玩家 {target.GetNameWithRole().RemoveHtmlTags()} 造成了 {SelfDamage.GetInt()} 点伤害", "Gamer");
         return false;
     }
     public static string TargetMark(PlayerControl seer, PlayerControl target)

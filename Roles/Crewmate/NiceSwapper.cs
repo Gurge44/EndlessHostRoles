@@ -109,7 +109,7 @@ public static class NiceSwapper
                     }
                     if (!isUI) Utils.SendMessage(GetString("Swap1"), pc.PlayerId);
                     //else pc.ShowPopUp(GetString("Swap1"));
-                    Logger.Info($"{pc.GetNameWithRole()} 选择 {target.GetNameWithRole()}", "Swapper");
+                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} 选择 {target.GetNameWithRole()}", "Swapper");
                 }
                 else if (Vote.Count == 1 && !VoteTwo.Any() && !Vote.Contains(dp.PlayerId) && !VoteTwo.Contains(dp.PlayerId) && CanSwapSelf.GetBool()
                 || Vote.Count == 1 && !VoteTwo.Any() && !Vote.Contains(dp.PlayerId) && !VoteTwo.Contains(dp.PlayerId) && dp != pc && !CanSwapSelf.GetBool())
@@ -121,7 +121,7 @@ public static class NiceSwapper
                     }
                     if (!isUI) Utils.SendMessage(GetString("Swap2"), pc.PlayerId);
                     //else pc.ShowPopUp(GetString("Swap2"));
-                    Logger.Info($"{pc.GetNameWithRole()} 选择 {target.GetNameWithRole()}", "Swapper");
+                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} 选择 {target.GetNameWithRole()}", "Swapper");
                 }
                 else if (Vote.Any() && Vote.Contains(dp.PlayerId))
                 {
@@ -132,7 +132,7 @@ public static class NiceSwapper
                     }
                     if (!isUI) Utils.SendMessage(GetString("CancelSwap1"), pc.PlayerId);
                     //else pc.ShowPopUp(GetString("CancelSwap1"));
-                    Logger.Info($"{pc.GetNameWithRole()} 取消选择 {target.GetNameWithRole()}", "Swapper");
+                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} 取消选择 {target.GetNameWithRole()}", "Swapper");
                 }
                 else if (VoteTwo.Contains(dp.PlayerId) && VoteTwo.Any())
                 {
@@ -143,7 +143,7 @@ public static class NiceSwapper
                     }
                     if (!isUI) Utils.SendMessage(GetString("CancelSwap2"), pc.PlayerId);
                     //else pc.ShowPopUp(GetString("CancelSwap2"));
-                    Logger.Info($"{pc.GetNameWithRole()} 取消选择 {target.GetNameWithRole()}", "Swapper");
+                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} 取消选择 {target.GetNameWithRole()}", "Swapper");
                 }
                 else if (pc == dp && !CanSwapSelf.GetBool())
                 {

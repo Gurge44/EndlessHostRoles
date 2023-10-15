@@ -84,7 +84,7 @@ public static class Executioner
             var SelectedTarget = targetList[rand.Next(targetList.Count)];
             Target.Add(playerId, SelectedTarget.PlayerId);
             SendRPC(playerId, SelectedTarget.PlayerId, "SetTarget");
-            Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole()}:{SelectedTarget.GetNameWithRole()}", "Executioner");
+            Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}:{SelectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Executioner");
         }
     }
     public static bool IsEnable() => playerIdList.Any();

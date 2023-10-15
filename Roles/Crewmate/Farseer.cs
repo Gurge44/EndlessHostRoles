@@ -146,7 +146,7 @@ namespace TOHE.Roles.Crewmate
                             NotifyRoles(SpecifySeer: player);
                             RPC.ResetCurrentRevealTarget(player.PlayerId);
 
-                            Logger.Info($"Canceled: {player.GetNameWithRole()}", "Arsonist");
+                            Logger.Info($"Canceled: {player.GetNameWithRole().RemoveHtmlTags()}", "Arsonist");
                         }
                     }
                 }

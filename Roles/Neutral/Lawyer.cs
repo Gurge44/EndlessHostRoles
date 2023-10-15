@@ -87,7 +87,7 @@ public static class Lawyer
             var SelectedTarget = targetList[rand.Next(targetList.Count)];
             Target.Add(playerId, SelectedTarget.PlayerId);
             SendRPC(playerId, SelectedTarget.PlayerId, "SetTarget");
-            Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole()}:{SelectedTarget.GetNameWithRole()}", "Lawyer");
+            Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}:{SelectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Lawyer");
         }
     }
     public static bool IsEnable() => playerIdList.Any();

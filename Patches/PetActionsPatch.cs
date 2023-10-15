@@ -67,7 +67,7 @@ class ExternalRpcPetPatch
                 AmongUsClient.Instance.FinishRpcImmediately(AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, 50, SendOption.None, player.GetClientId()));
         }
 
-        Logger.Info($"Player {pc.GetNameWithRole()} has Pet", "RPCDEBUG");
+        Logger.Info($"Player {pc.GetNameWithRole().RemoveHtmlTags()} has Pet", "RPCDEBUG");
 
         OnPetUse(pc);
     }
@@ -337,7 +337,7 @@ class ExternalRpcPetPatch
                             if (cp.RpcCheckAndMurder(targetw, true))
                             {
                                 targetw.SetRealKiller(pc);
-                                Logger.Info($"{targetw.GetNameWithRole()}was killed", "Warlock");
+                                Logger.Info($"{targetw.GetNameWithRole().RemoveHtmlTags()}was killed", "Warlock");
                                 cp.RpcMurderPlayerV3(targetw);
                                 pc.SetKillCooldown();
                                 pc.Notify(GetString("WarlockControlKill"));
@@ -382,7 +382,7 @@ class ExternalRpcPetPatch
                     int ventId = Main.LastEnteredVent[pc.PlayerId].Id;
                     var vent = Main.LastEnteredVent[pc.PlayerId];
                     var position = Main.LastEnteredVentLocation[pc.PlayerId];
-                    Logger.Msg($"{pc.GetNameWithRole()}:{position}", "MinerTeleport");
+                    Logger.Msg($"{pc.GetNameWithRole().RemoveHtmlTags()}:{position}", "MinerTeleport");
                     Utils.TP(pc.NetTransform, new UnityEngine.Vector2(position.x, position.y));
                 }
                 Main.MinerCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
@@ -397,7 +397,7 @@ class ExternalRpcPetPatch
                 {
                     var position = Main.EscapeeLocation[pc.PlayerId];
                     Main.EscapeeLocation.Remove(pc.PlayerId);
-                    Logger.Msg($"{pc.GetNameWithRole()}:{position}", "EscapeeTeleport");
+                    Logger.Msg($"{pc.GetNameWithRole().RemoveHtmlTags()}:{position}", "EscapeeTeleport");
                     Utils.TP(pc.NetTransform, position);
                     pc.RPCPlayCustomSound("Teleport");
                 }

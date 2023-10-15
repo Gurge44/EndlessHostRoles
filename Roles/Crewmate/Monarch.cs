@@ -76,14 +76,14 @@ public static class Monarch
             Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Knighted.ToString(), "Assign " + CustomRoles.Knighted.ToString());
             if (KnightLimit < 0)
                 HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
-            Logger.Info($"{killer.GetNameWithRole()} : 剩余{KnightLimit}次招募机会", "Monarch");
+            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{KnightLimit}次招募机会", "Monarch");
             return true;
         }
 
         if (KnightLimit < 0)
             HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("MonarchInvalidTarget")));
-        Logger.Info($"{killer.GetNameWithRole()} : 剩余{KnightLimit}次招募机会", "Monarch");
+        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{KnightLimit}次招募机会", "Monarch");
         return false;
     }
     public static string GetKnightLimit() => Utils.ColorString(KnightLimit >= 1 ? Utils.GetRoleColor(CustomRoles.Monarch).ShadeColor(0.25f) : Color.gray, $"({KnightLimit})");

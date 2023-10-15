@@ -70,7 +70,7 @@ class CheckForEndVotingPatch
                     }
                     else __instance.RpcVotingComplete(states.ToArray(), voteTarget.Data, false); //通常処理
 
-                    Logger.Info($"{voteTarget.GetNameWithRole()} 被独裁者驱逐", "Dictator");
+                    Logger.Info($"{voteTarget.GetNameWithRole().RemoveHtmlTags()} 被独裁者驱逐", "Dictator");
                     CheckForDeathOnExile(PlayerState.DeathReason.Vote, pva.VotedFor);
                     Logger.Info("独裁投票，会议强制结束", "Special Phase");
                     voteTarget.SetRealKiller(pc);
@@ -154,11 +154,11 @@ class CheckForEndVotingPatch
                         {
                             case VoteMode.Suicide:
                                 TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Suicide, ps.TargetPlayerId);
-                                voteLog.Info($"{voter.GetNameWithRole()}因跳过投票自杀");
+                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()}因跳过投票自杀");
                                 break;
                             case VoteMode.SelfVote:
                                 ps.VotedFor = ps.TargetPlayerId;
-                                voteLog.Info($"{voter.GetNameWithRole()}因跳过投票自票");
+                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()}因跳过投票自票");
                                 break;
                             default:
                                 break;
@@ -170,15 +170,15 @@ class CheckForEndVotingPatch
                         {
                             case VoteMode.Suicide:
                                 TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Suicide, ps.TargetPlayerId);
-                                voteLog.Info($"{voter.GetNameWithRole()}因未投票自杀");
+                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()}因未投票自杀");
                                 break;
                             case VoteMode.SelfVote:
                                 ps.VotedFor = ps.TargetPlayerId;
-                                voteLog.Info($"{voter.GetNameWithRole()}因未投票自票");
+                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()}因未投票自票");
                                 break;
                             case VoteMode.Skip:
                                 ps.VotedFor = 253;
-                                voteLog.Info($"{voter.GetNameWithRole()}因未投票跳过");
+                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()}因未投票跳过");
                                 break;
                             default:
                                 break;
@@ -575,7 +575,7 @@ class CheckForEndVotingPatch
         if (target == null) return;
         TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Revenge, target.PlayerId);
         target.SetRealKiller(player);
-        Logger.Info($"{player.GetNameWithRole()}の道連れ先:{target.GetNameWithRole()}", "RevengeOnExile");
+        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}の道連れ先:{target.GetNameWithRole().RemoveHtmlTags()}", "RevengeOnExile");
     }
     private static PlayerControl PickRevengeTarget(PlayerControl exiledplayer/*, PlayerState.DeathReason deathReason*/)//道連れ先選定
     {
@@ -1215,7 +1215,7 @@ class MeetingHudUpdatePatch
                     player.RpcExileV2();
                     Main.PlayerStates[player.PlayerId].SetDead();
                     Utils.SendMessage(string.Format(GetString("Message.Executed"), player.Data.PlayerName));
-                    Logger.Info($"{player.GetNameWithRole()}を処刑しました", "Execution");
+                    Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}を処刑しました", "Execution");
                     __instance.CheckForEndVoting();
                 }
             });

@@ -23,7 +23,7 @@ class CheckProtectPatch
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
         if (!AmongUsClient.Instance.AmHost) return false;
-        Logger.Info("CheckProtect発生: " + __instance.GetNameWithRole() + "=>" + target.GetNameWithRole(), "CheckProtect");
+        Logger.Info("CheckProtect発生: " + __instance.GetNameWithRole().RemoveHtmlTags() + "=>" + target.GetNameWithRole().RemoveHtmlTags(), "CheckProtect");
 
         if (__instance.Is(CustomRoles.EvilSpirit))
         {
@@ -72,12 +72,12 @@ class CheckMurderPatch
 
         var killer = __instance; //読み替え変数
 
-        Logger.Info($"{killer.GetNameWithRole()} => {target.GetNameWithRole()}", "CheckMurder");
+        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
 
         //死人はキルできない
         if (killer.Data.IsDead)
         {
-            Logger.Info($"{killer.GetNameWithRole()}は死亡しているためキャンセルされました。", "CheckMurder");
+            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()}は死亡しているためキャンセルされました。", "CheckMurder");
             return false;
         }
 
@@ -143,7 +143,7 @@ class CheckMurderPatch
         //キル可能判定
         if (killer.PlayerId != target.PlayerId && !killer.CanUseKillButton())
         {
-            Logger.Info(killer.GetNameWithRole() + "击杀者不被允许使用击杀键，击杀被取消", "CheckMurder");
+            Logger.Info(killer.GetNameWithRole().RemoveHtmlTags() + "击杀者不被允许使用击杀键，击杀被取消", "CheckMurder");
             return false;
         }
 
@@ -168,7 +168,7 @@ class CheckMurderPatch
 
         //実際のキラーとkillerが違う場合の入れ替え処理
         if (Sniper.IsEnable) Sniper.TryGetSniper(target.PlayerId, ref killer);
-        if (killer != __instance) Logger.Info($"Real Killer={killer.GetNameWithRole()}", "CheckMurder");
+        if (killer != __instance) Logger.Info($"Real Killer={killer.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
 
         //鹈鹕肚子里的人无法击杀
         if (Pelican.IsEaten(target.PlayerId))
@@ -799,7 +799,7 @@ class CheckMurderPatch
                 Main.CursedWolfSpellCount[target.PlayerId] -= 1;
                 killer.SetRealKiller(target);
                 RPC.SendRPCCursedWolfSpellCount(target.PlayerId);
-                Logger.Info($"{target.GetNameWithRole()} : {Main.CursedWolfSpellCount[target.PlayerId]}回目", "CursedWolf");
+                Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} : {Main.CursedWolfSpellCount[target.PlayerId]}回目", "CursedWolf");
                 Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Curse;
                 killer.SetRealKiller(target);
                 target.RpcMurderPlayerV3(killer);
@@ -814,7 +814,7 @@ class CheckMurderPatch
                 Main.JinxSpellCount[target.PlayerId] -= 1;
                 killer.SetRealKiller(target);
                 RPC.SendRPCJinxSpellCount(target.PlayerId);
-                Logger.Info($"{target.GetNameWithRole()} : {Main.JinxSpellCount[target.PlayerId]}回目", "Jinx");
+                Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} : {Main.JinxSpellCount[target.PlayerId]}回目", "Jinx");
                 Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Jinx;
                 killer.SetRealKiller(target);
                 target.RpcMurderPlayerV3(killer);
@@ -975,7 +975,7 @@ class MurderPlayerPatch
 {
     public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
-        Logger.Info($"{__instance.GetNameWithRole()} => {target.GetNameWithRole()}{(target.protectedByGuardian ? "(Protected)" : string.Empty)}", "MurderPlayer");
+        Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}{(target.protectedByGuardian ? "(Protected)" : string.Empty)}", "MurderPlayer");
 
         if (RandomSpawn.CustomNetworkTransformPatch.NumOfTP.TryGetValue(__instance.PlayerId, out var num) && num > 2) RandomSpawn.CustomNetworkTransformPatch.NumOfTP[__instance.PlayerId] = 3;
         if (!target.protectedByGuardian)
@@ -1007,7 +1007,7 @@ class MurderPlayerPatch
 
         if (killer != __instance)
         {
-            Logger.Info($"Real Killer={killer.GetNameWithRole()}", "MurderPlayer");
+            Logger.Info($"Real Killer={killer.GetNameWithRole().RemoveHtmlTags()}", "MurderPlayer");
 
         }
         if (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.etc)
@@ -1039,7 +1039,7 @@ class MurderPlayerPatch
                 else delay = IRandom.Instance.Next((int)Options.BaitDelayMin.GetFloat(), (int)Options.BaitDelayMax.GetFloat() + 1);
                 delay = Math.Max(delay, 0.15f);
                 if (delay > 0.15f && Options.BaitDelayNotify.GetBool()) killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Bait), string.Format(GetString("KillBaitNotify"), (int)delay)), delay);
-                Logger.Info($"{killer.GetNameWithRole()} 击杀诱饵 => {target.GetNameWithRole()}", "MurderPlayer");
+                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} 击杀诱饵 => {target.GetNameWithRole().RemoveHtmlTags()}", "MurderPlayer");
                 _ = new LateTask(() => { if (GameStates.IsInTask) killer.CmdReportDeadBody(target.Data); }, delay, "Bait Self Report");
             }
         }
@@ -1248,7 +1248,7 @@ class ShapeshiftPatch
                                 if (cp.RpcCheckAndMurder(targetw, true))
                                 {
                                     targetw.SetRealKiller(shapeshifter);
-                                    Logger.Info($"{targetw.GetNameWithRole()}was killed", "Warlock");
+                                    Logger.Info($"{targetw.GetNameWithRole().RemoveHtmlTags()}was killed", "Warlock");
                                     cp.RpcMurderPlayerV3(targetw);//殺す
                                                                   //shapeshifter.RpcGuardAndKill(shapeshifter);
                                     shapeshifter.SetKillCooldown();
@@ -1272,7 +1272,7 @@ class ShapeshiftPatch
                         {
                             var position = Main.EscapeeLocation[shapeshifter.PlayerId];
                             Main.EscapeeLocation.Remove(shapeshifter.PlayerId);
-                            Logger.Msg($"{shapeshifter.GetNameWithRole()}:{position}", "EscapeeTeleport");
+                            Logger.Msg($"{shapeshifter.GetNameWithRole().RemoveHtmlTags()}:{position}", "EscapeeTeleport");
                             Utils.TP(shapeshifter.NetTransform, position);
                             shapeshifter.RPCPlayCustomSound("Teleport");
                         }
@@ -1292,7 +1292,7 @@ class ShapeshiftPatch
                         int ventId = Main.LastEnteredVent[shapeshifter.PlayerId].Id;
                         var vent = Main.LastEnteredVent[shapeshifter.PlayerId];
                         var position = Main.LastEnteredVentLocation[shapeshifter.PlayerId];
-                        Logger.Msg($"{shapeshifter.GetNameWithRole()}:{position}", "MinerTeleport");
+                        Logger.Msg($"{shapeshifter.GetNameWithRole().RemoveHtmlTags()}:{position}", "MinerTeleport");
                         Utils.TP(shapeshifter.NetTransform, new Vector2(position.x, position.y));
                     }
                     if (shapeshifting)
@@ -1482,11 +1482,11 @@ class ReportDeadBodyPatch
         if (!CanReport[__instance.PlayerId])
         {
             WaitReport[__instance.PlayerId].Add(target);
-            Logger.Warn($"{__instance.GetNameWithRole()}:通報禁止中のため可能になるまで待機します", "ReportDeadBody");
+            Logger.Warn($"{__instance.GetNameWithRole().RemoveHtmlTags()}:通報禁止中のため可能になるまで待機します", "ReportDeadBody");
             return false;
         }
 
-        Logger.Info($"{__instance.GetNameWithRole()} => {target?.Object?.GetNameWithRole() ?? "null"}", "ReportDeadBody");
+        Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target?.Object?.GetNameWithRole() ?? "null"}", "ReportDeadBody");
 
         foreach (var kvp in Main.PlayerStates)
         {
@@ -1854,7 +1854,7 @@ class FixedUpdatePatch
             {
                 var info = ReportDeadBodyPatch.WaitReport[__instance.PlayerId][0];
                 ReportDeadBodyPatch.WaitReport[__instance.PlayerId].Clear();
-                Logger.Info($"{__instance.GetNameWithRole()}:通報可能になったため通報処理を行います", "ReportDeadbody");
+                Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}:通報可能になったため通報処理を行います", "ReportDeadbody");
                 __instance.ReportDeadBody(info);
             }
         }
@@ -2257,7 +2257,7 @@ class FixedUpdatePatch
                             Utils.NotifyRoles(SpecifySeer: player);
                             RPC.ResetCurrentDousingTarget(player.PlayerId);
 
-                            Logger.Info($"Canceled: {player.GetNameWithRole()}", "Arsonist");
+                            Logger.Info($"Canceled: {player.GetNameWithRole().RemoveHtmlTags()}", "Arsonist");
                         }
                     }
                 }
@@ -2295,7 +2295,7 @@ class FixedUpdatePatch
                             Main.PlayerStates[rv_target.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
                             player.RpcMurderPlayerV3(rv_target);
                             Main.PlayerStates[rv_target.PlayerId].SetDead();
-                            Logger.Info($"Revolutionist: {player.GetNameWithRole()} killed {rv_target.GetNameWithRole()}", "Revolutionist");
+                            Logger.Info($"Revolutionist: {player.GetNameWithRole().RemoveHtmlTags()} killed {rv_target.GetNameWithRole().RemoveHtmlTags()}", "Revolutionist");
                         }
                     }
                     else
@@ -2312,7 +2312,7 @@ class FixedUpdatePatch
                             Utils.NotifyRoles(SpecifySeer: __instance);
                             RPC.ResetCurrentDrawTarget(player.PlayerId);
 
-                            Logger.Info($"Canceled: {__instance.GetNameWithRole()}", "Revolutionist");
+                            Logger.Info($"Canceled: {__instance.GetNameWithRole().RemoveHtmlTags()}", "Revolutionist");
                         }
                     }
                 }
@@ -3500,7 +3500,7 @@ class GameDataCompleteTaskPatch
 {
     public static void Postfix(PlayerControl pc/*, uint taskId*/)
     {
-        Logger.Info($"TaskComplete:{pc.GetNameWithRole()}", "CompleteTask");
+        Logger.Info($"TaskComplete:{pc.GetNameWithRole().RemoveHtmlTags()}", "CompleteTask");
         Main.PlayerStates[pc.PlayerId].UpdateTask(pc);
         Utils.NotifyRoles(SpecifySeer: pc);
     }
@@ -3556,7 +3556,7 @@ class PlayerControlProtectPlayerPatch
 {
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
-        Logger.Info($"{__instance.GetNameWithRole()} => {target.GetNameWithRole()}", "ProtectPlayer");
+        Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "ProtectPlayer");
     }
 }
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RemoveProtection))]
@@ -3564,7 +3564,7 @@ class PlayerControlRemoveProtectionPatch
 {
     public static void Postfix(PlayerControl __instance)
     {
-        Logger.Info($"{__instance.GetNameWithRole()}", "RemoveProtection");
+        Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}", "RemoveProtection");
     }
 }
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Die))]
@@ -3623,7 +3623,7 @@ class PlayerControlSetRolePatch
             {
                 foreach ((var seer, var role) in ghostRoles)
                 {
-                    Logger.Info($"Desync {targetName} =>{role} for{seer.GetNameWithRole()}", "PlayerControl.RpcSetRole");
+                    Logger.Info($"Desync {targetName} =>{role} for{seer.GetNameWithRole().RemoveHtmlTags()}", "PlayerControl.RpcSetRole");
                     target.RpcSetRoleDesync(role, seer.GetClientId());
                 }
                 return false;

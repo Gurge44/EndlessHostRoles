@@ -313,7 +313,7 @@ public class TaskState
 
     public void Init(PlayerControl player)
     {
-        Logger.Info($"{player.GetNameWithRole()}: InitTask", "TaskState.Init");
+        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags().RemoveHtmlTags()}: InitTask", "TaskState.Init");
         if (player == null || player.Data == null || player.Data.Tasks == null) return;
         if (!Utils.HasTasks(player.Data, false))
         {
@@ -322,11 +322,11 @@ public class TaskState
         }
         hasTasks = true;
         AllTasksCount = player.Data.Tasks.Count;
-        Logger.Info($"{player.GetNameWithRole()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Init");
+        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags().RemoveHtmlTags()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Init");
     }
     public void Update(PlayerControl player)
     {
-        Logger.Info($"{player.GetNameWithRole()}: UpdateTask", "TaskState.Update");
+        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags().RemoveHtmlTags()}: UpdateTask", "TaskState.Update");
         GameData.Instance.RecomputeTaskCounts();
         Logger.Info($"TotalTaskCounts = {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}", "TaskState.Update");
 
@@ -342,7 +342,7 @@ public class TaskState
             && player.Is(CustomRoles.SpeedBooster)
             && ((CompletedTasksCount + 1) <= Options.SpeedBoosterTimes.GetInt()))
             {
-                Logger.Info("增速者触发加速:" + player.GetNameWithRole(), "SpeedBooster");
+                Logger.Info("增速者触发加速:" + player.GetNameWithRole().RemoveHtmlTags(), "SpeedBooster");
                 Main.AllPlayerSpeed[player.PlayerId] += Options.SpeedBoosterUpSpeed.GetFloat();
                 if (Main.AllPlayerSpeed[player.PlayerId] > 3) player.Notify(Translator.GetString("SpeedBoosterSpeedLimit"));
                 else player.Notify(string.Format(Translator.GetString("SpeedBoosterTaskDone"), Main.AllPlayerSpeed[player.PlayerId].ToString("0.0#####")));
@@ -387,7 +387,7 @@ public class TaskState
             && player.Is(CustomRoles.Transporter)
             && ((CompletedTasksCount + 1) <= Options.TransporterTeleportMax.GetInt()))
             {
-                Logger.Info("传送师触发传送:" + player.GetNameWithRole(), "Transporter");
+                Logger.Info("传送师触发传送:" + player.GetNameWithRole().RemoveHtmlTags(), "Transporter");
                 var rd = IRandom.Instance;
                 List<PlayerControl> AllAlivePlayer = new();
                 AllAlivePlayer.AddRange(Main.AllAlivePlayerControls.Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder));
@@ -571,14 +571,14 @@ public class TaskState
                         target.SetRealKiller(player);
                         target.RpcCheckAndMurder(target);
                         player.RpcGuardAndKill();
-                        Logger.Info($"船鬼完成任务击杀：{player.GetNameWithRole()} => {target.GetNameWithRole()}", "Crewpostor");
+                        Logger.Info($"船鬼完成任务击杀：{player.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole()}", "Crewpostor");
                     }
                     if (target.Is(CustomRoles.Pestilence))
                     {
                         target.SetRealKiller(player);
                         target.RpcMurderPlayerV3(player);
                         //player.RpcGuardAndKill();
-                        Logger.Info($"船鬼完成任务击杀：{target.GetNameWithRole()} => {player.GetNameWithRole()}", "Pestilence Reflect");
+                        Logger.Info($"船鬼完成任务击杀：{target.GetNameWithRole()} => {player.GetNameWithRole().RemoveHtmlTags()}", "Pestilence Reflect");
                     }
                 }
             }
@@ -592,7 +592,7 @@ public class TaskState
 
         //調整後のタスク量までしか表示しない
         CompletedTasksCount = Math.Min(AllTasksCount, CompletedTasksCount);
-        Logger.Info($"{player.GetNameWithRole()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Update");
+        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Update");
 
     }
 }

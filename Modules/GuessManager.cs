@@ -543,12 +543,12 @@ public static class GuessManager
                     }
                 }
 
-                Logger.Info($"{pc.GetNameWithRole()} guessed {target.GetNameWithRole()}", "Guesser");
+                Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} guessed {target.GetNameWithRole().RemoveHtmlTags()}", "Guesser");
 
                 var dp = guesserSuicide ? pc : target;
                 target = dp;
 
-                Logger.Info($"Player：{target.GetNameWithRole()} was guessed", "Guesser");
+                Logger.Info($"Player：{target.GetNameWithRole().RemoveHtmlTags()} was guessed", "Guesser");
 
                 Main.GuesserGuessed[pc.PlayerId]++;
 
@@ -1155,7 +1155,7 @@ public static class GuessManager
                     {
                         if (!(__instance.state == MeetingHud.VoteStates.Voted || __instance.state == MeetingHud.VoteStates.NotVoted) || !PlayerControl.LocalPlayer.IsAlive()) return;
 
-                        Logger.Msg($"Click: {pc.GetNameWithRole()} => {role}", "Guesser UI");
+                        Logger.Msg($"Click: {pc.GetNameWithRole().RemoveHtmlTags()} => {role}", "Guesser UI");
 
                         if (AmongUsClient.Instance.AmHost) GuesserMsg(PlayerControl.LocalPlayer, $"/bt {playerId} {GetString(role.ToString())}", true);
                         else SendRPC(playerId, role);

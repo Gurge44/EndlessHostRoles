@@ -47,7 +47,7 @@ public static class Mediumshiper
             if (ContactLimit[pc.PlayerId] < 1) continue;
             ContactLimit[pc.PlayerId] -= 1;
             ContactPlayer.TryAdd(target.PlayerId, pc.PlayerId);
-            Logger.Info($"通灵师建立联系：{pc.GetNameWithRole()} => {target.PlayerName}", "Mediumshiper");
+            Logger.Info($"通灵师建立联系：{pc.GetNameWithRole().RemoveHtmlTags()} => {target.PlayerName}", "Mediumshiper");
         }
     }
     public static bool MsMsg(PlayerControl pc, string msg)

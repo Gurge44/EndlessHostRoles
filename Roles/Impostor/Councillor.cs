@@ -102,7 +102,7 @@ public static class Councillor
             var target = Utils.GetPlayerById(targetId);
             if (target != null)
             {
-                Logger.Info($"{pc.GetNameWithRole()} 审判了 {target.GetNameWithRole()}", "Councillor");
+                Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} 审判了 {target.GetNameWithRole().RemoveHtmlTags()}", "Councillor");
                 bool CouncillorSuicide = true;
                 if (MurderLimit[pc.PlayerId] < 1)
                 {

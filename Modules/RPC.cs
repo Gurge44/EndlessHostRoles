@@ -162,7 +162,7 @@ internal class RPCHandlerPatch
             case RpcCalls.SetName: //SetNameRPC
                 string name = subReader.ReadString();
                 if (subReader.BytesRemaining > 0 && subReader.ReadBoolean()) return false;
-                Logger.Info("RPC名称修改:" + __instance.GetNameWithRole() + " => " + name, "SetName");
+                Logger.Info("RPC名称修改:" + __instance.GetNameWithRole().RemoveHtmlTags() + " => " + name, "SetName");
                 break;
             case RpcCalls.SetRole: //SetNameRPC
                 var role = (RoleTypes)subReader.ReadUInt16();
@@ -170,16 +170,16 @@ internal class RPCHandlerPatch
                 break;
             case RpcCalls.SendChat:
                 var text = subReader.ReadString();
-                Logger.Info($"{__instance.GetNameWithRole()}:{text}", "ReceiveChat");
+                Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}:{text}", "ReceiveChat");
                 ChatCommands.OnReceiveChat(__instance, text, out var canceled);
                 if (canceled) return false;
                 break;
             case RpcCalls.StartMeeting:
                 var p = Utils.GetPlayerById(subReader.ReadByte());
-                Logger.Info($"{__instance.GetNameWithRole()} => {p?.GetNameWithRole() ?? "null"}", "StartMeeting");
+                Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {p?.GetNameWithRole() ?? "null"}", "StartMeeting");
                 break;
             case RpcCalls.Pet:
-                Logger.Info($"{__instance.GetNameWithRole()} petted their pet", "RpcHandlerPatch");
+                Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} petted their pet", "RpcHandlerPatch");
                 break;
         }
         if (__instance.PlayerId != 0

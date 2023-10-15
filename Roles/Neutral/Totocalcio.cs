@@ -112,7 +112,7 @@ public static class Totocalcio
         if (BetTargetKnowTotocalcio.GetBool())
             target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Totocalcio), GetString("TotocalcioBetOnYou")));
 
-        Logger.Info($"赌徒下注：{killer.GetNameWithRole()} => {target.GetNameWithRole()}", "Totocalcio");
+        Logger.Info($"赌徒下注：{killer.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "Totocalcio");
         return false;
     }
     public static string TargetMark(PlayerControl seer, PlayerControl target)

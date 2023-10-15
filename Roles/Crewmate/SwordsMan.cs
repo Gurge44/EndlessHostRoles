@@ -53,7 +53,7 @@ public static class SwordsMan
     {
         SendRPC(killer.PlayerId);
         killed.Add(killer.PlayerId);
-        Logger.Info($"{killer.GetNameWithRole()} : " + (IsKilled(killer.PlayerId) ? "已使用击杀机会" : "未使用击杀机会"), "SwordsMan");
+        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : " + (IsKilled(killer.PlayerId) ? "已使用击杀机会" : "未使用击杀机会"), "SwordsMan");
         SetKillCooldown(killer.PlayerId);
         Utils.NotifyRoles(SpecifySeer: killer);
     }

@@ -79,7 +79,7 @@ public static class MafiaRevengeManager
             return true;
         }
 
-        Logger.Info($"{pc.GetNameWithRole()} 复仇了 {target.GetNameWithRole()}", "Mafia");
+        Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} 复仇了 {target.GetNameWithRole().RemoveHtmlTags()}", "Mafia");
 
         string Name = target.GetRealName();
 

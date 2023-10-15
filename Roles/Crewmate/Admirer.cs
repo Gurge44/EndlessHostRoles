@@ -75,7 +75,7 @@ public static class Admirer
                 target.RpcGuardAndKill(target);
 
                 Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Admirer.ToString(), "Assign " + CustomRoles.Admirer.ToString());
-                Logger.Info($"{killer.GetNameWithRole()} : 剩余{AdmireLimit}次魅惑机会", "Admirer");
+                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{AdmireLimit}次魅惑机会", "Admirer");
                 return;
             }
             if (killer.Is(CustomRoles.Madmate))
@@ -96,7 +96,7 @@ public static class Admirer
                 target.RpcGuardAndKill(target);
 
                 Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Madmate.ToString(), "Assign " + CustomRoles.Madmate.ToString());
-                Logger.Info($"{killer.GetNameWithRole()} : 剩余{AdmireLimit}次魅惑机会", "Admirer");
+                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{AdmireLimit}次魅惑机会", "Admirer");
                 return;
             }
             if (killer.Is(CustomRoles.Recruit))
@@ -117,7 +117,7 @@ public static class Admirer
                 target.RpcGuardAndKill(target);
 
                 Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Recruit.ToString(), "Assign " + CustomRoles.Recruit.ToString());
-                Logger.Info($"{killer.GetNameWithRole()} : 剩余{AdmireLimit}次魅惑机会", "Admirer");
+                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{AdmireLimit}次魅惑机会", "Admirer");
                 return;
             }
             if (killer.Is(CustomRoles.Charmed))
@@ -138,7 +138,7 @@ public static class Admirer
                 target.RpcGuardAndKill(target);
 
                 Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Charmed.ToString(), "Assign " + CustomRoles.Charmed.ToString());
-                Logger.Info($"{killer.GetNameWithRole()} : 剩余{AdmireLimit}次魅惑机会", "Admirer");
+                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{AdmireLimit}次魅惑机会", "Admirer");
                 return;
             }
             if (killer.Is(CustomRoles.Infected))
@@ -159,7 +159,7 @@ public static class Admirer
                 target.RpcGuardAndKill(target);
 
                 Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Infected.ToString(), "Assign " + CustomRoles.Infected.ToString());
-                Logger.Info($"{killer.GetNameWithRole()} : 剩余{AdmireLimit}次魅惑机会", "Admirer");
+                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{AdmireLimit}次魅惑机会", "Admirer");
                 return;
             }
             if (killer.Is(CustomRoles.Contagious))
@@ -180,12 +180,12 @@ public static class Admirer
                 target.RpcGuardAndKill(target);
 
                 Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Contagious.ToString(), "Assign " + CustomRoles.Contagious.ToString());
-                Logger.Info($"{killer.GetNameWithRole()} : 剩余{AdmireLimit}次魅惑机会", "Admirer");
+                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{AdmireLimit}次魅惑机会", "Admirer");
                 return;
             }
         }
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Admirer), GetString("AdmirerInvalidTarget")));
-        Logger.Info($"{killer.GetNameWithRole()} : 剩余{AdmireLimit}次魅惑机会", "Admirer");
+        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{AdmireLimit}次魅惑机会", "Admirer");
         return;
     }
     public static bool KnowRole(PlayerControl player, PlayerControl target)

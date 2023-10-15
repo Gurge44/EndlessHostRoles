@@ -42,7 +42,9 @@ class Logger
         else sendToGameList.Remove(tag);
     }
     public static void Disable(string tag) { if (!disableList.Contains(tag)) disableList.Add(tag); }
+#pragma warning disable IDE0060 // Remove unused parameter
     public static void SendInGame(string text, bool isAlways = false)
+#pragma warning restore IDE0060 // Remove unused parameter
     {
         if (!isEnable) return;
         if (DestroyableSingleton<HudManager>._instance) DestroyableSingleton<HudManager>.Instance.Notifier.AddItem(text);

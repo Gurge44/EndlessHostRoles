@@ -101,7 +101,7 @@ public static class RetributionistRevengeManager
             return true;
         }
 
-        Logger.Info($"{pc.GetNameWithRole()} 复仇了 {target.GetNameWithRole()}", "Retributionist");
+        Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} 复仇了 {target.GetNameWithRole().RemoveHtmlTags()}", "Retributionist");
 
         string Name = target.GetRealName();
 

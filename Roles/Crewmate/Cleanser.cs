@@ -88,7 +88,7 @@ public static class Cleanser
 
         CleanserUses[voter.PlayerId]++;
         CleanserTarget[voter.PlayerId] = target.PlayerId;
-        Logger.Info($"{voter.GetNameWithRole()} cleansed {target.GetNameWithRole()}", "Cleansed");
+        Logger.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} cleansed {target.GetNameWithRole().RemoveHtmlTags()}", "Cleansed");
         CleansedPlayers.Add(target.PlayerId);
         Utils.SendMessage(string.Format(GetString("CleanserRemovedRole"), target.GetRealName()), voter.PlayerId, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Cleanser), GetString("CleanserTitle")));
         SendRPC(voter.PlayerId);
@@ -106,7 +106,7 @@ public static class Cleanser
             if (targetpc == null) continue;
             //var allAddons = targetpc.GetCustomSubRoles();
             targetpc.RpcSetCustomRole(CustomRoles.Cleansed);
-            Logger.Info($"Removed all the add ons of {targetpc.GetNameWithRole()}", "Cleanser");
+            Logger.Info($"Removed all the add ons of {targetpc.GetNameWithRole().RemoveHtmlTags()}", "Cleanser");
             CleanserTarget[pid] = byte.MaxValue;
             targetpc.Notify(GetString("LostAddonByCleanser"));
             targetpc.MarkDirtySettings();

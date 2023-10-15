@@ -34,7 +34,7 @@ internal static class NiceEraser
     {
         playerIdList.Add(playerId);
         EraseLimit.TryAdd(playerId, EraseLimitOpt.GetInt());
-        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole()} : 剩余{EraseLimit[playerId]}次", "NiceEraser");
+        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : 剩余{EraseLimit[playerId]}次", "NiceEraser");
     }
     public static bool IsEnable => playerIdList.Any();
     private static void SendRPC(byte playerId)
@@ -99,7 +99,7 @@ internal static class NiceEraser
             if (player == null) continue;
             player.RpcSetCustomRole(CustomRolesHelper.GetErasedRole(player.GetCustomRole()));
             NameNotifyManager.Notify(player, GetString("LostRoleByNiceEraser"));
-            Logger.Info($"{player.GetNameWithRole()} 被擦除了", "NiceEraser");
+            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} 被擦除了", "NiceEraser");
             player.MarkDirtySettings();
         }
     }

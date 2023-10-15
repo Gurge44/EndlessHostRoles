@@ -87,7 +87,7 @@ public static class Infectious
             Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Infected.ToString(), "Assign " + CustomRoles.Infected.ToString());
             if (BiteLimit < 0)
                 HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
-            Logger.Info($"{killer.GetNameWithRole()} : 剩余{BiteLimit}次招募机会", "Infectious");
+            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{BiteLimit}次招募机会", "Infectious");
             return true;
         }
         if (!CanBeBitten(target) && !target.Is(CustomRoles.Infected))
@@ -97,7 +97,7 @@ public static class Infectious
         if (BiteLimit < 0)
             HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Infectious), GetString("InfectiousInvalidTarget")));
-        Logger.Info($"{killer.GetNameWithRole()} : 剩余{BiteLimit}次招募机会", "Infectious");
+        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{BiteLimit}次招募机会", "Infectious");
         return false;
     }
     public static bool KnowRole(PlayerControl player, PlayerControl target)

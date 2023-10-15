@@ -133,7 +133,7 @@ public static class BountyHunter
                 if (Main.PlayerStates[targetId].IsDead)
                 {
                     ResetTarget(player);
-                    Logger.Info($"{player.GetNameWithRole()}のターゲットが無効だったため、ターゲットを更新しました", "BountyHunter");
+                    Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}のターゲットが無効だったため、ターゲットを更新しました", "BountyHunter");
                     Utils.NotifyRoles(SpecifySeer: player);
                 }
             }
@@ -162,7 +162,7 @@ public static class BountyHunter
         ChangeTimer[playerId] = 0f;
         Timer = (int)TargetChangeTime;
 
-        Logger.Info($"{player.GetNameWithRole()}:ターゲットリセット", "BountyHunter");
+        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}:ターゲットリセット", "BountyHunter");
         //player.RpcResetAbilityCooldown(); ;//タイマー（変身クールダウン）のリセットと
 
         var cTargets = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(pc => !pc.Is(CustomRoleTypes.Impostor)));
@@ -181,7 +181,7 @@ public static class BountyHunter
         var targetId = target.PlayerId;
         Targets[playerId] = targetId;
         if (ShowTargetArrow) TargetArrow.Add(playerId, targetId);
-        Logger.Info($"{player.GetNameWithRole()}のターゲットを{target.GetNameWithRole()}に変更", "BountyHunter");
+        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}のターゲットを{target.GetNameWithRole().RemoveHtmlTags()}に変更", "BountyHunter");
 
         //RPCによる同期
         SendRPC(player.PlayerId, targetId);

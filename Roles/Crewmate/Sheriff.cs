@@ -91,7 +91,7 @@ public static class Sheriff
         CurrentKillCooldown.Add(playerId, KillCooldown.GetFloat());
 
         ShotLimit.TryAdd(playerId, ShotLimitOpt.GetInt());
-        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole()} : 残り{ShotLimit[playerId]}発", "Sheriff");
+        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : 残り{ShotLimit[playerId]}発", "Sheriff");
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
@@ -123,7 +123,7 @@ public static class Sheriff
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         ShotLimit[killer.PlayerId]--;
-        Logger.Info($"{killer.GetNameWithRole()} : Number of kills left: {ShotLimit[killer.PlayerId]}", "Sheriff");
+        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : Number of kills left: {ShotLimit[killer.PlayerId]}", "Sheriff");
         SendRPC(killer.PlayerId);
         if (target.CanBeKilledBySheriff()
             || (killer.Is(CustomRoles.Recruit) && SidekickSheriffCanGoBerserk.GetBool())

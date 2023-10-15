@@ -104,7 +104,7 @@ public static class Judge
             var target = Utils.GetPlayerById(targetId);
             if (target != null)
             {
-                Logger.Info($"{pc.GetNameWithRole()} 审判了 {target.GetNameWithRole()}", "Judge");
+                Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} 审判了 {target.GetNameWithRole().RemoveHtmlTags()}", "Judge");
                 bool judgeSuicide = true;
                 if (TrialLimit[pc.PlayerId] < 1)
                 {

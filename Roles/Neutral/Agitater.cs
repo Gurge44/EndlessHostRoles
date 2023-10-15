@@ -98,7 +98,7 @@ public static class Agitater
                     pc.RpcMurderPlayerV3(pc);
                     Main.PlayerStates[CurrentBombedPlayer].deathReason = PlayerState.DeathReason.Bombed;
                     pc.SetRealKiller(Utils.GetPlayerById(playerIdList[0]));
-                    Logger.Info($"{killer.GetNameWithRole()}  bombed {pc.GetNameWithRole()} bomb cd complete", "Agitater");
+                    Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} bombed {pc.GetNameWithRole().RemoveHtmlTags()}, bomb cd complete", "Agitater");
                     ResetBomb();
                 }
 
@@ -152,7 +152,7 @@ public static class Agitater
         target.Notify(GetString("AgitaterTargetNotify"));
 
         SendRPC(CurrentBombedPlayer, LastBombedPlayer);
-        Logger.Msg($"{player.GetNameWithRole()} passed bomb to {target.GetNameWithRole()}", "Agitater Pass");
+        Logger.Msg($"{player.GetNameWithRole().RemoveHtmlTags()} passed bomb to {target.GetNameWithRole().RemoveHtmlTags()}", "Agitater Pass");
     }
 
     public static void SendRPC(byte newbomb, byte oldbomb)

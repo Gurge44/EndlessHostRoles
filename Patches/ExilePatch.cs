@@ -228,7 +228,7 @@ class ExileControllerWrapUpPatch
                 {
                     var player = Utils.GetPlayerById(x.Key);
                     var state = Main.PlayerStates[x.Key];
-                    Logger.Info($"{player.GetNameWithRole()} died with {x.Value}", "AfterMeetingDeath");
+                    Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} died with {x.Value}", "AfterMeetingDeath");
                     state.deathReason = x.Value;
                     state.SetDead();
                     player?.RpcExileV2();
