@@ -227,7 +227,10 @@ public static class HudSpritePatch
                         newPetButton = CustomButton.Get("Mine");
                     break;
                 case CustomRoles.Witness:
-                    newAbilityButton = CustomButton.Get("Examine");
+                    newKillButton = CustomButton.Get("Examine");
+                    break;
+                case CustomRoles.Postman:
+                    newKillButton = CustomButton.Get("Deliver");
                     break;
                 case CustomRoles.Pelican:
                     newKillButton = CustomButton.Get("Vulture");

@@ -2708,6 +2708,18 @@
 "MagicianBombExlodesIn","","Bomb explodes in {0}s","","",""
 "MagicianCardUsed","","Card used","","",""
 
+"## Postman"
+"Postman","","Postman","","",""
+"PostmanInfo","","Deliver Mail to Everyone!","","",""
+"PostmanInfoLong","","(Neutral):\nAs the Postman, your job is to deliver mail to everyone. You'll always have a target, and you need to click your kill button on that target to deliver the mail to them. When you've delivered mail to everyone, your win condition is satisfied. You'll win with the winning team, no matter what happens.","","",""
+"PostmanKillButtonText","","Deliver","","",""
+"PostmanDiesWhenTargetDies","","<color=#00b893>Postman</color> dies when the current target dies","","",""
+
+"## Reckless"
+"Reckless","","Reckless","","",""
+"RecklessInfo","","Avoid Meetings at all cost","","",""
+"RecklessInfoLong","","(Neutral):\nAs the Reckless, your cooldown decreases with each kill you get. However, this isn't permanent. Your kill cooldown resets back to its default value at every meeting.","","",""
+
 "## Ignitor (Candle Lighter)"
 "Ignitor","","Ignitor","","",""
 "IgnitorInfo","","Light Candles for High Vision","","",""
