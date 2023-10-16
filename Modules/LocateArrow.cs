@@ -66,7 +66,7 @@ static class LocateArrow
         for (int i = 0; i < removeList.Count; i++)
         {
             ArrowInfo a = removeList[i];
-            LocateArrows.Remove(a);
+            _ = LocateArrows.Remove(a);
         }
     }
     /// <summary>
@@ -79,7 +79,7 @@ static class LocateArrow
         for (int i = 0; i < removeList.Count; i++)
         {
             ArrowInfo arrowInfo = removeList[i];
-            LocateArrows.Remove(arrowInfo);
+            _ = LocateArrows.Remove(arrowInfo);
         }
     }
     /// <summary>
@@ -118,7 +118,7 @@ static class LocateArrow
             var loc = arrowInfo.To;
             if (seerIsDead)
             {
-                LocateArrows.Remove(arrowInfo);
+                _ = LocateArrows.Remove(arrowInfo);
                 update = true;
                 continue;
             }

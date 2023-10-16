@@ -70,7 +70,7 @@ public static class Mortician
             }
         }
 
-        lastPlayerName.TryAdd(target.PlayerId, minName);
+        _ = lastPlayerName.TryAdd(target.PlayerId, minName);
         for (int i = 0; i < playerIdList.Count; i++)
         {
             byte pc = playerIdList[i];
@@ -90,7 +90,7 @@ public static class Mortician
         }
 
         if (!pc.Is(CustomRoles.Mortician) || target == null || pc.PlayerId == target.PlayerId) return;
-        lastPlayerName.TryGetValue(target.PlayerId, out var name);
+        _ = lastPlayerName.TryGetValue(target.PlayerId, out var name);
         if (name == "") msgToSend.Add(pc.PlayerId, string.Format(Translator.GetString("MorticianGetNoInfo"), target.PlayerName));
         else msgToSend.Add(pc.PlayerId, string.Format(Translator.GetString("MorticianGetInfo"), target.PlayerName, name));
     }

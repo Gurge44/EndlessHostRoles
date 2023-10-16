@@ -101,7 +101,7 @@ public static class RetributionistRevengeManager
             return true;
         }
 
-        Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} 复仇了 {target.GetNameWithRole().RemoveHtmlTags()}", "Retributionist");
+        Logger.Info($"{pc.GetNameWithRole()} 复仇了 {target.GetNameWithRole()}", "Retributionist");
 
         string Name = target.GetRealName();
 
@@ -144,7 +144,7 @@ public static class RetributionistRevengeManager
     public static void ReceiveRPC(MessageReader reader, PlayerControl pc)
     {
         int PlayerId = reader.ReadByte();
-        RetributionistMsgCheck(pc, $"/ret {PlayerId}", true);
+        _ = RetributionistMsgCheck(pc, $"/ret {PlayerId}", true);
     }
 
     private static void RetributionistOnClick(byte playerId, MeetingHud __instance)
@@ -152,7 +152,7 @@ public static class RetributionistRevengeManager
         Logger.Msg($"Click: ID {playerId}", "Retributionist UI");
         var pc = Utils.GetPlayerById(playerId);
         if (pc == null || !pc.IsAlive() || !GameStates.IsVoting) return;
-        if (AmongUsClient.Instance.AmHost) RetributionistMsgCheck(PlayerControl.LocalPlayer, $"/ret {playerId}", true);
+        if (AmongUsClient.Instance.AmHost) _ = RetributionistMsgCheck(PlayerControl.LocalPlayer, $"/ret {playerId}", true);
         else SendRPC(playerId);
     }
 

@@ -42,7 +42,7 @@ internal class ChatCommands
         var cancelVal = string.Empty;
         Main.isChatCommand = true;
         Logger.Info(text, "SendChat");
-        ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
+        ChatManager.GetMessage(PlayerControl.LocalPlayer, text);
         if (text.Length >= 3) if (text[..2] == "/r" && text[..3] != "/rn") args[0] = "/r";
         if (text.Length >= 4) if (text[..3] == "/up") args[0] = "/up";
         if (GuessManager.GuesserMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
@@ -470,60 +470,6 @@ internal class ChatCommands
                     RPC.PlaySoundRPC(PlayerControl.LocalPlayer.PlayerId, (Sounds)sound1);
                     break;
 
-                case "/gno":
-                    canceled = true;
-                    if (!GameStates.IsLobby && PlayerControl.LocalPlayer.IsAlive())
-                    {
-                        Utils.SendMessage(GetString("GNoCommandInfo"), PlayerControl.LocalPlayer.PlayerId);
-                        break;
-                    }
-                    subArgs = args.Length != 2 ? "" : args[1];
-                    if (subArgs == "" || !int.TryParse(subArgs, out int guessedNo))
-                    {
-                        Utils.SendMessage(GetString("GNoCommandInfo"), PlayerControl.LocalPlayer.PlayerId);
-                        break;
-                    }
-                    else if (guessedNo < 0 || guessedNo > 99)
-                    {
-                        Utils.SendMessage(GetString("GNoCommandInfo"), PlayerControl.LocalPlayer.PlayerId);
-                        break;
-                    }
-                    else
-                    {
-                        int targetNumber = Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][0];
-                        if (Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][0] == -1)
-                        {
-                            var rand = IRandom.Instance;
-                            Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][0] = rand.Next(0, 100);
-                            targetNumber = Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][0];
-                        }
-                        Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][1]--;
-                        if (Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][1] == 0)
-                        {
-                            Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][0] = -1;
-                            Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][1] = 7;
-                            //targetNumber = Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][0];
-                            Utils.SendMessage(string.Format(GetString("GNoLost"), targetNumber), PlayerControl.LocalPlayer.PlayerId);
-                            break;
-                        }
-                        else if (guessedNo < targetNumber)
-                        {
-                            Utils.SendMessage(string.Format(GetString("GNoLow"), Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][1]), PlayerControl.LocalPlayer.PlayerId);
-                            break;
-                        }
-                        else if (guessedNo > targetNumber)
-                        {
-                            Utils.SendMessage(string.Format(GetString("GNoHigh"), Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][1]), PlayerControl.LocalPlayer.PlayerId);
-                            break;
-                        }
-                        else
-                        {
-                            Utils.SendMessage(string.Format(GetString("GNoWon"), Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][1]), PlayerControl.LocalPlayer.PlayerId);
-                            break;
-                        }
-
-                    }
-
                 default:
                     Main.isChatCommand = false;
                     break;
@@ -776,7 +722,7 @@ internal class ChatCommands
     {
         canceled = false;
         if (!AmongUsClient.Instance.AmHost) return;
-        if (player.PlayerId != 0) ChatManager.SendMessage(player, text);
+        ChatManager.GetMessage(player, text);
         if (text.StartsWith("\n")) text = text[1..];
         //if (!text.StartsWith("/")) return;
         string[] args = text.Split(' ');
@@ -837,7 +783,7 @@ internal class ChatCommands
                 {
                     var sb = new StringBuilder();
                     _ = sb.Append(GetString(role.ToString()) + Utils.GetRoleMode(role) + player.GetRoleInfo(true));
-                    if (Options.CustomRoleSpawnChances.TryGetValue(role, out _))
+                    if (Options.CustomRoleSpawnChances.TryGetValue(role, out var opt))
                         Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[role], ref sb, command: true);
                     var txt = sb.ToString();
                     _ = sb.Clear().Append(txt.RemoveHtmlTags());
@@ -1005,59 +951,6 @@ internal class ChatCommands
                 Utils.SendMessage($"There {(impnum == 1 ? "is" : "are")}\n<b>{impnum}</b> <color=#ff1919>{(impnum == 1 ? "Impostor" : "Impostors")}</color> and <b>{neutralnum}</b> <color=#7f8c8d>{(neutralnum == 1 ? "Neutral Killer" : "Neutral Killers")}</color> left.", PlayerControl.LocalPlayer.PlayerId);
                 break;
 
-            case "/gno":
-                canceled = true;
-                if (!GameStates.IsLobby && player.IsAlive())
-                {
-                    Utils.SendMessage(GetString("GNoCommandInfo"), player.PlayerId);
-                    break;
-                }
-                subArgs = args.Length != 2 ? "" : args[1];
-                if (subArgs == "" || !int.TryParse(subArgs, out int guessedNo))
-                {
-                    Utils.SendMessage(GetString("GNoCommandInfo"), player.PlayerId);
-                    break;
-                }
-                else if (guessedNo < 0 || guessedNo > 99)
-                {
-                    Utils.SendMessage(GetString("GNoCommandInfo"), player.PlayerId);
-                    break;
-                }
-                else
-                {
-                    int targetNumber = Main.GuessNumber[player.PlayerId][0];
-                    if (Main.GuessNumber[player.PlayerId][0] == -1)
-                    {
-                        var rand = IRandom.Instance;
-                        Main.GuessNumber[player.PlayerId][0] = rand.Next(0, 100);
-                        targetNumber = Main.GuessNumber[player.PlayerId][0];
-                    }
-                    Main.GuessNumber[player.PlayerId][1]--;
-                    if (Main.GuessNumber[player.PlayerId][1] == 0)
-                    {
-                        Main.GuessNumber[player.PlayerId][0] = -1;
-                        Main.GuessNumber[player.PlayerId][1] = 7;
-                        //targetNumber = Main.GuessNumber[player.PlayerId][0];
-                        Utils.SendMessage(string.Format(GetString("GNoLost"), targetNumber), player.PlayerId);
-                        break;
-                    }
-                    else if (guessedNo < targetNumber)
-                    {
-                        Utils.SendMessage(string.Format(GetString("GNoLow"), Main.GuessNumber[player.PlayerId][1]), player.PlayerId);
-                        break;
-                    }
-                    else if (guessedNo > targetNumber)
-                    {
-                        Utils.SendMessage(string.Format(GetString("GNoHigh"), Main.GuessNumber[player.PlayerId][1]), player.PlayerId);
-                        break;
-                    }
-                    else
-                    {
-                        Utils.SendMessage(string.Format(GetString("GNoWon"), 7 - Main.GuessNumber[player.PlayerId][1]), player.PlayerId);
-                        break;
-                    }
-                }
-
             default:
                 break;
         }
@@ -1067,7 +960,7 @@ internal class ChatCommands
 [HarmonyPatch(typeof(ChatController), nameof(ChatController.Update))]
 internal class ChatUpdatePatch
 {
-    public static bool DoBlockChat = false;
+    public static bool DoBlockChat;
     public static void Postfix(ChatController __instance)
     {
         if (!AmongUsClient.Instance.AmHost || !Main.MessagesToSend.Any() || (Main.MessagesToSend[0].Item2 == byte.MaxValue && Main.MessageWait.Value > __instance.timeSinceLastMessage)) return;

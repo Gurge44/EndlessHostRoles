@@ -16,7 +16,7 @@ public static class Monarch
     public static OptionItem KnightMax;
 
 
-    private static int KnightLimit = new();
+    private static int KnightLimit;
 
     public static void SetupCustomOption()
     {
@@ -42,12 +42,12 @@ public static class Monarch
     }
     public static bool IsEnable => playerIdList.Any();
 
-    //private static void SendRPC()
-    //{
-    //    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMonarchKnightLimit, SendOption.Reliable, -1);
-    //    writer.Write(KnightLimit);
-    //    AmongUsClient.Instance.FinishRpcImmediately(writer);
-    //}
+    private static void SendRPC()
+    {
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMonarchKnightLimit, SendOption.Reliable, -1);
+        writer.Write(KnightLimit);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
     public static void ReceiveRPC(MessageReader reader)
     {
         KnightLimit = reader.ReadInt32();
@@ -76,14 +76,14 @@ public static class Monarch
             Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Knighted.ToString(), "Assign " + CustomRoles.Knighted.ToString());
             if (KnightLimit < 0)
                 HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
-            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{KnightLimit}次招募机会", "Monarch");
+            Logger.Info($"{killer.GetNameWithRole()} : 剩余{KnightLimit}次招募机会", "Monarch");
             return true;
         }
 
         if (KnightLimit < 0)
             HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("MonarchInvalidTarget")));
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{KnightLimit}次招募机会", "Monarch");
+        Logger.Info($"{killer.GetNameWithRole()} : 剩余{KnightLimit}次招募机会", "Monarch");
         return false;
     }
     public static string GetKnightLimit() => Utils.ColorString(KnightLimit >= 1 ? Utils.GetRoleColor(CustomRoles.Monarch).ShadeColor(0.25f) : Color.gray, $"({KnightLimit})");

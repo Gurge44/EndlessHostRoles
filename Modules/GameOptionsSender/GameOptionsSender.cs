@@ -17,11 +17,11 @@ public abstract class GameOptionsSender
     {
         if (Options.DeepLowLoad.GetBool())
         {
-            await Task.Run(() => { DoSend(); });
+            await Task.Run(() => { _ = DoSend(); });
         }
         else
         {
-            AllSenders.RemoveAll(s => !s.AmValid());
+            _ = AllSenders.RemoveAll(s => !s.AmValid());
             for (int i = 0; i < AllSenders.Count; i++)
             {
                 GameOptionsSender sender = AllSenders[i];
@@ -33,7 +33,7 @@ public abstract class GameOptionsSender
 
     private static Task DoSend()
     {
-        AllSenders.RemoveAll(s => !s.AmValid());
+        _ = AllSenders.RemoveAll(s => !s.AmValid());
         for (int i = 0; i < AllSenders.Count; i++)
         {
             GameOptionsSender sender = AllSenders[i];

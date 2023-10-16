@@ -10,7 +10,7 @@ namespace TOHE;
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
 public static class Zoom
 {
-    private static bool ResetButtons = false;
+    private static bool ResetButtons;
     public static void Postfix()
     {
         //if (PlayerControl.LocalPlayer.Is(RoleType.Impostor) && Options.OperateVisibilityImpostor.GetBool()) return;
@@ -87,7 +87,7 @@ public static class Flag
         if (OneTimeList.Contains(type) || (firstrun && !FirstRunList.Contains(type)))
         {
             if (!FirstRunList.Contains(type)) FirstRunList.Add(type);
-            OneTimeList.Remove(type);
+            _ = OneTimeList.Remove(type);
             action();
         }
 
@@ -99,6 +99,6 @@ public static class Flag
 
     public static void DeleteFlag(string type)
     {
-        if (OneTimeList.Contains(type)) OneTimeList.Remove(type);
+        if (OneTimeList.Contains(type)) _ = OneTimeList.Remove(type);
     }
 }

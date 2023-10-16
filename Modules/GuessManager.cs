@@ -470,7 +470,7 @@ public static class GuessManager
                     else
                     {
                         if (pc.Is(CustomRoles.DoubleShot) && DoubleShot.IsActive.Contains(pc.PlayerId))
-                            DoubleShot.IsActive.Remove(pc.PlayerId);
+                            _ = DoubleShot.IsActive.Remove(pc.PlayerId);
 
                         if (!isUI) Utils.SendMessage(GetString("LaughToWhoGuessSelf"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromKPD")));
                         else pc.ShowPopUp(Utils.ColorString(Color.cyan, GetString("MessageFromKPD")) + "\n" + GetString("LaughToWhoGuessSelf"));
@@ -492,7 +492,7 @@ public static class GuessManager
                     else
                     {
                         if (pc.Is(CustomRoles.DoubleShot) && DoubleShot.IsActive.Contains(pc.PlayerId))
-                            DoubleShot.IsActive.Remove(pc.PlayerId);
+                            _ = DoubleShot.IsActive.Remove(pc.PlayerId);
 
                         guesserSuicide = true;
                         Logger.Msg($"{guesserSuicide}", "guesserSuicide1");
@@ -513,7 +513,7 @@ public static class GuessManager
                     else
                     {
                         if (pc.Is(CustomRoles.DoubleShot) && DoubleShot.IsActive.Contains(pc.PlayerId))
-                            DoubleShot.IsActive.Remove(pc.PlayerId);
+                            _ = DoubleShot.IsActive.Remove(pc.PlayerId);
 
                         guesserSuicide = true;
                         Logger.Msg($"{guesserSuicide}", "guesserSuicide2");
@@ -536,7 +536,7 @@ public static class GuessManager
                     else
                     {
                         if (pc.Is(CustomRoles.DoubleShot) && DoubleShot.IsActive.Contains(pc.PlayerId))
-                            DoubleShot.IsActive.Remove(pc.PlayerId);
+                            _ = DoubleShot.IsActive.Remove(pc.PlayerId);
 
                         guesserSuicide = true;
                         Logger.Msg($"{guesserSuicide}", "guesserSuicide3");
@@ -665,7 +665,7 @@ public static class GuessManager
         Main.PlayerStates[pc.PlayerId].SetDead();
         var meetingHud = MeetingHud.Instance;
         var hudManager = DestroyableSingleton<HudManager>.Instance;
-        SoundManager.Instance.PlaySound(pc.KillSfx, false, 0.8f);
+        _ = SoundManager.Instance.PlaySound(pc.KillSfx, false, 0.8f);
         if (!Options.DisableKillAnimationOnGuess.GetBool()) hudManager.KillOverlay.ShowKillAnimation(pc.Data, pc.Data);
         if (amOwner)
         {
@@ -704,7 +704,7 @@ public static class GuessManager
         var amOwner = pc.AmOwner;
         var meetingHud = MeetingHud.Instance;
         var hudManager = DestroyableSingleton<HudManager>.Instance;
-        SoundManager.Instance.PlaySound(pc.KillSfx, false, 0.8f);
+        _ = SoundManager.Instance.PlaySound(pc.KillSfx, false, 0.8f);
         if (!Options.DisableKillAnimationOnGuess.GetBool()) hudManager.KillOverlay.ShowKillAnimation(pc.Data, pc.Data);
         if (amOwner)
         {
@@ -810,11 +810,11 @@ public static class GuessManager
             var player = Main.AllAlivePlayerControls.ToArray()[rd.Next(0, Main.AllAlivePlayerControls.Count())];
             DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
             var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
-            writer.StartMessage(-1);
-            writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+            _ = writer.StartMessage(-1);
+            _ = writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
                 .Write(msg)
                 .EndRpc();
-            writer.EndMessage();
+            _ = writer.EndMessage();
             writer.SendMessage();
         }
         ChatUpdatePatch.DoBlockChat = false;
@@ -1157,7 +1157,7 @@ public static class GuessManager
 
                         Logger.Msg($"Click: {pc.GetNameWithRole().RemoveHtmlTags()} => {role}", "Guesser UI");
 
-                        if (AmongUsClient.Instance.AmHost) GuesserMsg(PlayerControl.LocalPlayer, $"/bt {playerId} {GetString(role.ToString())}", true);
+                        if (AmongUsClient.Instance.AmHost) _ = GuesserMsg(PlayerControl.LocalPlayer, $"/bt {playerId} {GetString(role.ToString())}", true);
                         else SendRPC(playerId, role);
 
                         // Reset the GUI
@@ -1213,6 +1213,6 @@ public static class GuessManager
         Logger.Msg($"{role}", "Role Int32");
         Logger.Msg($"{GetString(role.ToString())}", "Role String");
 
-        GuesserMsg(pc, $"/bt {PlayerId} {GetString(role.ToString())}", true);
+        _ = GuesserMsg(pc, $"/bt {PlayerId} {GetString(role.ToString())}", true);
     }
 }

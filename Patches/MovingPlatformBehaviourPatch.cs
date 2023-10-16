@@ -7,7 +7,7 @@ namespace TOHE;
 [HarmonyPatch(typeof(MovingPlatformBehaviour))]
 public static class MovingPlatformBehaviourPatch
 {
-    private static bool isDisabled = false;
+    private static bool isDisabled;
 
     [HarmonyPatch(nameof(MovingPlatformBehaviour.Start)), HarmonyPrefix]
     public static void StartPrefix(MovingPlatformBehaviour __instance)

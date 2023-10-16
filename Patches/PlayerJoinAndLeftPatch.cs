@@ -18,7 +18,7 @@ class OnGameJoinedPatch
 {
     public static void Postfix(AmongUsClient __instance)
     {
-        while (!Options.IsLoaded) System.Threading.Tasks.Task.Delay(1);
+        while (!Options.IsLoaded) _ = System.Threading.Tasks.Task.Delay(1);
         Logger.Info($"{__instance.GameId} joined lobby", "OnGameJoined");
         Main.playerVersion = new Dictionary<byte, PlayerVersion>();
         if (!Main.VersionCheat.Value) RPC.RpcVersionCheck();
@@ -102,8 +102,8 @@ class OnPlayerJoinedPatch
 
         if (AmongUsClient.Instance.AmHost)
         {
-            if (Main.SayStartTimes.ContainsKey(client.Id)) Main.SayStartTimes.Remove(client.Id);
-            if (Main.SayBanwordsTimes.ContainsKey(client.Id)) Main.SayBanwordsTimes.Remove(client.Id);
+            if (Main.SayStartTimes.ContainsKey(client.Id)) _ = Main.SayStartTimes.Remove(client.Id);
+            if (Main.SayBanwordsTimes.ContainsKey(client.Id)) _ = Main.SayBanwordsTimes.Remove(client.Id);
             //if (Main.newLobby && Options.ShareLobby.GetBool()) Cloud.ShareLobby();
         }
     }
@@ -121,7 +121,7 @@ class OnPlayerLeftPatch
                 foreach (var lovers in Main.LoversPlayers.ToArray())
                 {
                     Main.isLoversDead = true;
-                    Main.LoversPlayers.Remove(lovers);
+                    _ = Main.LoversPlayers.Remove(lovers);
                     Main.PlayerStates[lovers.PlayerId].RemoveSubRole(CustomRoles.Lovers);
                 }
             if (data.Character.Is(CustomRoles.Executioner) && Executioner.Target.ContainsKey(data.Character.PlayerId))
@@ -165,17 +165,17 @@ class OnPlayerLeftPatch
             player.SetName(name);
 
             var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
-            writer.StartMessage(clientId);
-            writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+            _ = writer.StartMessage(clientId);
+            _ = writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
                 .Write(title)
                 .EndRpc();
-            writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+            _ = writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
                 .Write(msg)
                 .EndRpc();
-            writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+            _ = writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
                 .Write(player.Data.PlayerName)
                 .EndRpc();
-            writer.EndMessage();
+            _ = writer.EndMessage();
             writer.SendMessage();
         }
 
@@ -201,9 +201,9 @@ class OnPlayerLeftPatch
 
         if (AmongUsClient.Instance.AmHost)
         {
-            Main.SayStartTimes.Remove(__instance.ClientId);
-            Main.SayBanwordsTimes.Remove(__instance.ClientId);
-            Main.playerVersion.Remove(data?.Character?.PlayerId ?? byte.MaxValue);
+            _ = Main.SayStartTimes.Remove(__instance.ClientId);
+            _ = Main.SayBanwordsTimes.Remove(__instance.ClientId);
+            _ = Main.playerVersion.Remove(data?.Character?.PlayerId ?? byte.MaxValue);
         }
     }
 }
@@ -227,8 +227,8 @@ class CreatePlayerPatch
             if (Options.DisableEmojiName.GetBool()) name = Regex.Replace(name, @"\p{Cs}", string.Empty);
             if (Regex.Replace(Regex.Replace(name, @"\s", string.Empty), @"[\x01-\x1F,\x7F]", string.Empty).Length < 1) name = Main.Get_TName_Snacks;
         }
-        Main.AllPlayerNames.Remove(client.Character.PlayerId);
-        Main.AllPlayerNames.TryAdd(client.Character.PlayerId, name);
+        _ = Main.AllPlayerNames.Remove(client.Character.PlayerId);
+        _ = Main.AllPlayerNames.TryAdd(client.Character.PlayerId, name);
         if (!name.Equals(client.PlayerName))
         {
             _ = new LateTask(() =>
@@ -240,8 +240,6 @@ class CreatePlayerPatch
         }
 
         _ = new LateTask(() => { if (client.Character == null || !GameStates.IsLobby) return; OptionItem.SyncAllOptions(client.Id); }, 3f, "Sync All Options For New Player");
-
-        Main.GuessNumber[client.Character.PlayerId] = new List<int> { -1, 7 };
 
         _ = new LateTask(() =>
         {

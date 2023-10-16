@@ -37,7 +37,7 @@ public static class BloodKnight
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        TimeStamp.TryAdd(playerId, 0);
+        _ = TimeStamp.TryAdd(playerId, 0);
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
@@ -55,7 +55,7 @@ public static class BloodKnight
     {
         byte PlayerId = reader.ReadByte();
         string Time = reader.ReadString();
-        TimeStamp.TryAdd(PlayerId, long.Parse(Time));
+        _ = TimeStamp.TryAdd(PlayerId, long.Parse(Time));
         TimeStamp[PlayerId] = long.Parse(Time);
     }
     public static bool InProtect(byte playerId) => TimeStamp.TryGetValue(playerId, out var time) && time > Utils.GetTimeStamp();
@@ -82,11 +82,11 @@ public static class BloodKnight
         if (InProtect(pc.PlayerId))
         {
             var remainTime = TimeStamp[pc.PlayerId] - Utils.GetTimeStamp();
-            str.Append(string.Format(Translator.GetString("BKSkillTimeRemain"), remainTime));
+            _ = str.Append(string.Format(Translator.GetString("BKSkillTimeRemain"), remainTime));
         }
         else
         {
-            str.Append(Translator.GetString("BKSkillNotice"));
+            _ = str.Append(Translator.GetString("BKSkillNotice"));
         }
         return str.ToString();
     }

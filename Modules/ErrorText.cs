@@ -53,7 +53,7 @@ public class ErrorText : MonoBehaviour
         var ToRemove = AllErrors.Where(err => err.ErrorLevel <= 1 && 30f < err.Timer);
         if (ToRemove.Any())
         {
-            AllErrors.RemoveAll(err => ToRemove.Contains(err));
+            _ = AllErrors.RemoveAll(err => ToRemove.Contains(err));
             UpdateText();
             if (HnSFlag)
                 Destroy(gameObject);
@@ -111,7 +111,7 @@ public class ErrorText : MonoBehaviour
     }
     public void Clear()
     {
-        AllErrors.RemoveAll(err => err.ErrorLevel != 3);
+        _ = AllErrors.RemoveAll(err => err.ErrorLevel != 3);
         UpdateText();
     }
 

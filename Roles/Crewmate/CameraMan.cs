@@ -48,7 +48,7 @@ namespace TOHE.Roles.Crewmate
             if (UseLimit[pc.PlayerId] >= 1)
             {
                 UseLimit[pc.PlayerId] -= 1;
-                Main.CameraManCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                _ = Main.CameraManCD.TryAdd(pc.PlayerId, GetTimeStamp());
 
                 Vector2 pos;
 
@@ -94,8 +94,8 @@ namespace TOHE.Roles.Crewmate
             if (UseLimit[playerId] < 1) TextColor1 = Color.red;
             else TextColor1 = Color.white;
 
-            sb.Append(ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
-            sb.Append(ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));
+            _ = sb.Append(ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
+            _ = sb.Append(ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));
 
             return sb.ToString();
         }

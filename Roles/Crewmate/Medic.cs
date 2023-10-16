@@ -74,9 +74,9 @@ public static class Medic
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        ProtectLimit.TryAdd(playerId, SkillLimit);
+        _ = ProtectLimit.TryAdd(playerId, SkillLimit);
 
-        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : {ProtectLimit[playerId]} shields left", "Medicaler");
+        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole()} : {ProtectLimit[playerId]} shields left", "Medicaler");
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
@@ -155,7 +155,7 @@ public static class Medic
         Utils.NotifyRoles(SpecifySeer: killer);
         Utils.NotifyRoles(SpecifySeer: target);
 
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : {ProtectLimit[killer.PlayerId]} shields left", "Medic");
+        Logger.Info($"{killer.GetNameWithRole()} : {ProtectLimit[killer.PlayerId]} shields left", "Medic");
     }
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
@@ -188,7 +188,7 @@ public static class Medic
                 break;
         }
 
-        Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} : Shield Shatter from the Medic", "Medic");
+        Logger.Info($"{target.GetNameWithRole()} : Shield Shatter from the Medic", "Medic");
         return true;
     }
     public static void OnCheckMark()
@@ -223,7 +223,7 @@ public static class Medic
         Utils.NotifyRoles(SpecifySeer: target);
 
         ProtectList.Clear();
-        Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} : Medic is dead", "Medic");
+        Logger.Info($"{target.GetNameWithRole()} : Medic is dead", "Medic");
 
         if (ShieldDeactivationIsVisible.GetInt() == 0)
         {

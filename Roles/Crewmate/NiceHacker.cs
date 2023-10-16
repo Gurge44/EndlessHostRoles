@@ -55,7 +55,7 @@
         }
         public static void Add(byte playerId)
         {
-            playerIdList.TryAdd(playerId, GetPlayerById(playerId).IsModClient());
+            _ = playerIdList.TryAdd(playerId, GetPlayerById(playerId).IsModClient());
             if (!GetPlayerById(playerId).IsModClient()) UseLimit.Add(playerId, UseLimitOpt.GetInt());
             else UseLimitSeconds.Add(playerId, UseLimitOpt.GetInt() * ModdedClientAbilityUseSecondsMultiplier.GetInt());
         }
@@ -64,31 +64,30 @@
         {
             if (pc == null) return;
             if (!pc.Is(CustomRoles.NiceHacker)) return;
-            if (pc.IsModClient() || !UseLimit.ContainsKey(pc.PlayerId)) return;
+            if (pc.IsModClient()) return;
 
             if (UseLimit[pc.PlayerId] >= 1)
             {
                 if (Main.HackerCD.ContainsKey(pc.PlayerId))
                 {
-                    //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
                 }
                 else
                 {
                     UseLimit[pc.PlayerId] -= 1;
-                    Main.HackerCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                    _ = Main.HackerCD.TryAdd(pc.PlayerId, GetTimeStamp());
                     var list = ExtendedPlayerControl.GetAllPlayerLocationsCount();
                     var sb = new StringBuilder();
                     foreach (var location in list)
                     {
-                        sb.Append($"\n<color=#00ffa5>{location.Key}:</color> {location.Value}");
+                        _ = sb.Append($"\n<color=#00ffa5>{location.Key}:</color> {location.Value}");
                     }
                     pc.Notify(sb.ToString(), VanillaClientSeesInfoFor.GetFloat());
                 }
             }
             else
             {
-                if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
-                    pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
+                pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
             }
         }
         public static void OnFixedUpdate(PlayerControl pc)
@@ -99,7 +98,7 @@
 
             if (Main.PlayerStates[pc.PlayerId].GetTaskState().IsTaskFinished)
             {
-                LastUpdate.TryAdd(pc.PlayerId, GetTimeStamp());
+                _ = LastUpdate.TryAdd(pc.PlayerId, GetTimeStamp());
                 if (LastUpdate[pc.PlayerId] + 5 < GetTimeStamp())
                 {
                     if (pc.IsModClient()) UseLimitSeconds[pc.PlayerId] += AbilityChargesWhenFinishedTasks.GetFloat() * ModdedClientAbilityUseSecondsMultiplier.GetInt();
@@ -153,7 +152,7 @@
         }
         public static string GetProgressText(byte playerId, bool comms)
         {
-            if (GetPlayerById(playerId).IsModClient() || !UseLimit.ContainsKey(playerId)) return string.Empty;
+            if (GetPlayerById(playerId).IsModClient()) return string.Empty;
 
             var sb = new StringBuilder();
 
@@ -169,8 +168,8 @@
             if (UseLimit[playerId] < 1) TextColor1 = UnityEngine.Color.red;
             else TextColor1 = UnityEngine.Color.white;
 
-            sb.Append(ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
-            sb.Append(ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));
+            _ = sb.Append(ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
+            _ = sb.Append(ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));
 
             return sb.ToString();
         }

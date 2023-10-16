@@ -30,7 +30,7 @@ public static class Crusader
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        CrusaderLimit.TryAdd(playerId, SkillLimitOpt.GetInt());
+        _ = CrusaderLimit.TryAdd(playerId, SkillLimitOpt.GetInt());
         CurrentKillCooldown.Add(playerId, SkillCooldown.GetFloat());
 
 
@@ -41,12 +41,12 @@ public static class Crusader
 
     public static void Remove(byte playerId)
     {
-        playerIdList.Remove(playerId);
-        CrusaderLimit.Remove(playerId);
+        _ = playerIdList.Remove(playerId);
+        _ = CrusaderLimit.Remove(playerId);
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Remove(playerId);
+            _ = Main.ResetCamPlayerList.Remove(playerId);
     }
     public static bool IsEnable => playerIdList.Any();
     public static void ReceiveRPC(MessageReader reader)
@@ -66,7 +66,7 @@ public static class Crusader
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (CrusaderLimit[killer.PlayerId] <= 0) return false;
-        Main.ForCrusade.Remove(target.PlayerId);
+        _ = Main.ForCrusade.Remove(target.PlayerId);
         Main.ForCrusade.Add(target.PlayerId);
         CrusaderLimit[killer.PlayerId]--;
         killer.ResetKillCooldown();

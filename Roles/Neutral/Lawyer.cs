@@ -87,7 +87,7 @@ public static class Lawyer
             var SelectedTarget = targetList[rand.Next(targetList.Count)];
             Target.Add(playerId, SelectedTarget.PlayerId);
             SendRPC(playerId, SelectedTarget.PlayerId, "SetTarget");
-            Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}:{SelectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Lawyer");
+            Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole()}:{SelectedTarget.GetNameWithRole()}", "Lawyer");
         }
     }
     public static bool IsEnable() => playerIdList.Any();
@@ -120,7 +120,7 @@ public static class Lawyer
             Target[LawyerId] = TargetId;
         }
         else
-            Target.Remove(reader.ReadByte());
+            _ = Target.Remove(reader.ReadByte());
     }
     public static void ChangeRoleByTarget(PlayerControl target)
     {
@@ -131,7 +131,7 @@ public static class Lawyer
                 Lawyer = x.Key;
         });
         Utils.GetPlayerById(Lawyer).RpcSetCustomRole(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()]);
-        Target.Remove(Lawyer);
+        _ = Target.Remove(Lawyer);
         SendRPC(Lawyer);
         Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(Lawyer));
         Utils.NotifyRoles(SpecifySeer: target);
@@ -156,7 +156,7 @@ public static class Lawyer
     public static void ChangeRole(PlayerControl lawyer)
     {
         lawyer.RpcSetCustomRole(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()]);
-        Target.Remove(lawyer.PlayerId);
+        _ = Target.Remove(lawyer.PlayerId);
         SendRPC(lawyer.PlayerId);
         var text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lawyer), Translator.GetString(""));
         text = string.Format(text, Utils.ColorString(Utils.GetRoleColor(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()]), Translator.GetString(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()].ToString())));
@@ -169,7 +169,7 @@ public static class Lawyer
         var GetValue = Target.TryGetValue(seer.PlayerId, out var targetId);
         return GetValue && targetId == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lawyer), "§") : string.Empty;
     }
-    public static bool CheckExileTarget(GameData.PlayerInfo exiled/*, bool DecidedWinner, bool Check = false*/)
+    public static bool CheckExileTarget(GameData.PlayerInfo exiled, bool DecidedWinner, bool Check = false)
     {
         foreach (var kvp in Target.Where(x => x.Value == exiled.PlayerId))
         {

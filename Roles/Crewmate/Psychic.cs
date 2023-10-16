@@ -99,14 +99,14 @@ public static class Psychic
         for (int i = 0; i < ENum && BadList.Any(); i++)
         {
             RedPlayer.Add(BadList[IRandom.Instance.Next(0, BadList.Count)]);
-            BadList.RemoveAll(RedPlayer.Contains);
+            _ = BadList.RemoveAll(RedPlayer.Contains);
         }
 
-        AllList.RemoveAll(RedPlayer.Contains);
+        _ = AllList.RemoveAll(RedPlayer.Contains);
         for (int i = 0; i < BNum && AllList.Any(); i++)
         {
             RedPlayer.Add(AllList[IRandom.Instance.Next(0, AllList.Count)]);
-            AllList.RemoveAll(RedPlayer.Contains);
+            _ = AllList.RemoveAll(RedPlayer.Contains);
         }
 
     EndOfSelect:

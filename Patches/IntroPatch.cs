@@ -473,7 +473,7 @@ class BeginImpostorPatch
             __instance.overlayHandle.color = Palette.CrewmateBlue;
             return false;
         }
-        else if (role is CustomRoles.Romantic or CustomRoles.RuthlessRomantic or CustomRoles.VengefulRomantic or CustomRoles.Agitater or CustomRoles.NSerialKiller or CustomRoles.Postman or CustomRoles.Magician or CustomRoles.Mafioso or CustomRoles.Reckless or CustomRoles.Eclipse or CustomRoles.Pyromaniac or CustomRoles.HeadHunter or CustomRoles.Vengeance or CustomRoles.Imitator or CustomRoles.Werewolf or CustomRoles.Jackal or CustomRoles.CursedSoul or CustomRoles.Amnesiac or CustomRoles.Arsonist or CustomRoles.Sidekick or CustomRoles.Innocent or CustomRoles.Pelican or CustomRoles.Pursuer or CustomRoles.Revolutionist or CustomRoles.FFF or CustomRoles.Gamer or CustomRoles.Glitch or CustomRoles.Juggernaut or CustomRoles.DarkHide or CustomRoles.Provocateur or CustomRoles.BloodKnight or CustomRoles.NSerialKiller or CustomRoles.Maverick/* or CustomRoles.NWitch*/ or CustomRoles.Totocalcio or CustomRoles.Succubus or CustomRoles.Pelican or CustomRoles.Infectious or CustomRoles.Virus or CustomRoles.Pickpocket or CustomRoles.Traitor or CustomRoles.PlagueBearer or CustomRoles.Pestilence or CustomRoles.Spiritcaller)
+        else if (role is CustomRoles.Romantic or CustomRoles.RuthlessRomantic or CustomRoles.VengefulRomantic or CustomRoles.Agitater or CustomRoles.NSerialKiller or CustomRoles.Eclipse or CustomRoles.Pyromaniac or CustomRoles.HeadHunter or CustomRoles.Vengeance or CustomRoles.Imitator or CustomRoles.Werewolf or CustomRoles.Jackal or CustomRoles.CursedSoul or CustomRoles.Amnesiac or CustomRoles.Arsonist or CustomRoles.Sidekick or CustomRoles.Innocent or CustomRoles.Pelican or CustomRoles.Pursuer or CustomRoles.Revolutionist or CustomRoles.FFF or CustomRoles.Gamer or CustomRoles.Glitch or CustomRoles.Juggernaut or CustomRoles.DarkHide or CustomRoles.Provocateur or CustomRoles.BloodKnight or CustomRoles.NSerialKiller or CustomRoles.Maverick/* or CustomRoles.NWitch*/ or CustomRoles.Totocalcio or CustomRoles.Succubus or CustomRoles.Pelican or CustomRoles.Infectious or CustomRoles.Virus or CustomRoles.Pickpocket or CustomRoles.Traitor or CustomRoles.PlagueBearer or CustomRoles.Pestilence or CustomRoles.Spiritcaller)
         {
             yourTeam = new Il2CppSystem.Collections.Generic.List<PlayerControl>();
             yourTeam.Add(PlayerControl.LocalPlayer);
@@ -482,7 +482,7 @@ class BeginImpostorPatch
             __instance.overlayHandle.color = new Color32(127, 140, 141, byte.MaxValue);
             return false;
         }
-        BeginCrewmatePatch.Prefix(__instance, ref yourTeam);
+        _ = BeginCrewmatePatch.Prefix(__instance, ref yourTeam);
         return true;
     }
     public static void Postfix(IntroCutscene __instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> yourTeam)
@@ -506,8 +506,8 @@ class IntroCutsceneDestroyPatch
                     _ = new LateTask(() =>
                     {
                         Main.AllPlayerControls.Do(x => x.ResetKillCooldown());
-                        Main.AllPlayerControls.Where(x => Main.AllPlayerKillCooldown[x.PlayerId] != 7f && Main.AllPlayerKillCooldown[x.PlayerId] != 7.5f).Do(pc => pc.SetKillCooldown(Options.StartingKillCooldown.GetInt() - 2));
-                    }, 2f, "FixKillCooldownTask");
+                        Main.AllPlayerControls.Where(x => Main.AllPlayerKillCooldown[x.PlayerId] != 7f && Main.AllPlayerKillCooldown[x.PlayerId] != 7.5f).Do(pc => pc.SetKillCooldown(Options.StartingKillCooldown.GetInt()));
+                    }, 0.5f, "FixKillCooldownTask");
                 else if (Options.FixFirstKillCooldown.GetBool() && Options.CurrentGameMode != CustomGameMode.SoloKombat && Options.CurrentGameMode != CustomGameMode.FFA)
                     _ = new LateTask(() =>
                     {
@@ -520,33 +520,9 @@ class IntroCutsceneDestroyPatch
             {
                 Main.ProcessShapeshifts = false;
                 _ = new LateTask(() => PlayerControl.AllPlayerControls.ToArray().Do(pc => PetsPatch.SetPet(pc, "pet_Pusheen", true)), 0.3f, "Grant Pet For Everyone");
-                try
-                {
-                    _ = new LateTask(() =>
-                    {
-                        try
-                        {
-                            for (int i = 0; i < Main.AllPlayerControls.Count(); i++)
-                            {
-                                var pc = Main.AllPlayerControls.ElementAt(i);
-                                if (pc.PlayerId == 0) continue;
-                                if (pc != null)
-                                {
-                                    try
-                                    {
-                                        pc.RpcShapeshift(Utils.GetPlayerById(0), false);
-                                        pc.RpcRevertShapeshift(false);
-                                        pc.Notify("", 0.1f);
-                                    }
-                                    catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift"); }
-                                }
-                            }
-                        }
-                        catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift.forCycle"); }
-                    }, 0.4f, "Show Pet For Everyone");
-                }
-                catch { }
-                _ = new LateTask(() => Main.ProcessShapeshifts = true, 2f, "Enable SS Processing");
+                try { _ = new LateTask(() => PlayerControl.AllPlayerControls.ToArray().Do(pc => pc.RpcShapeshift(pc, false)), 0.4f, "Show Pet For Everyone"); } catch { }
+                _ = new LateTask(() => Utils.NotifyRoles(), 0.7f, "Show everyone's role texts");
+                _ = new LateTask(() => Main.ProcessShapeshifts = true, 1f, "Enable SS Processing");
             }
             if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))
             {

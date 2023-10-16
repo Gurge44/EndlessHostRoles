@@ -46,8 +46,8 @@ public static class Mediumshiper
         {
             if (ContactLimit[pc.PlayerId] < 1) continue;
             ContactLimit[pc.PlayerId] -= 1;
-            ContactPlayer.TryAdd(target.PlayerId, pc.PlayerId);
-            Logger.Info($"通灵师建立联系：{pc.GetNameWithRole().RemoveHtmlTags()} => {target.PlayerName}", "Mediumshiper");
+            _ = ContactPlayer.TryAdd(target.PlayerId, pc.PlayerId);
+            Logger.Info($"通灵师建立联系：{pc.GetNameWithRole()} => {target.PlayerName}", "Mediumshiper");
         }
     }
     public static bool MsMsg(PlayerControl pc, string msg)
@@ -61,8 +61,8 @@ public static class Mediumshiper
         if (!CheckCommond(ref msg, "通灵|ms|mediumship|medium", false)) return false;
 
         bool ans;
-        if (msg.Contains('n') || msg.Contains(GetString("No")) || msg.Contains('错') || msg.Contains("不是")) ans = false;
-        else if (msg.Contains('y') || msg.Contains(GetString("Yes")) || msg.Contains('对')) ans = true;
+        if (msg.Contains("n") || msg.Contains(GetString("No")) || msg.Contains("错") || msg.Contains("不是")) ans = false;
+        else if (msg.Contains("y") || msg.Contains(GetString("Yes")) || msg.Contains("对")) ans = true;
         else
         {
             Utils.SendMessage(GetString("MediumshipHelp"), pc.PlayerId);
@@ -72,7 +72,7 @@ public static class Mediumshiper
         Utils.SendMessage(GetString("Mediumship" + (ans ? "Yes" : "No")), ContactPlayer[pc.PlayerId], Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mediumshiper), GetString("MediumshipTitle")));
         Utils.SendMessage(GetString("MediumshipDone"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mediumshiper), GetString("MediumshipTitle")));
 
-        ContactPlayer.Remove(pc.PlayerId);
+        _ = ContactPlayer.Remove(pc.PlayerId);
 
         return true;
     }

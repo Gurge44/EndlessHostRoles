@@ -77,7 +77,7 @@ public class PlayerGameOptionsSender : GameOptionsSender
         .FirstOrDefault(sender => sender.player.PlayerId == player.PlayerId);
         if (sender == null) return;
         sender.player = null;
-        AllSenders.Remove(sender);
+        _ = AllSenders.Remove(sender);
     }
     public override IGameOptions BuildGameOptions()
     {
@@ -142,7 +142,6 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 AURoleOptions.ShapeshifterDuration = Options.ShapeMasterShapeshiftDuration.GetFloat();
                 break;
             case CustomRoles.RiftMaker:
-                if (Options.UsePets.GetBool()) break;
                 AURoleOptions.ShapeshifterDuration = 1f;
                 AURoleOptions.ShapeshifterCooldown = RiftMaker.ShapeshiftCooldown.GetFloat();
                 AURoleOptions.ShapeshifterLeaveSkin = true;
@@ -155,22 +154,17 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 }
                 break;
             case CustomRoles.NiceHacker:
-                if (Options.UsePets.GetBool()) break;
                 AURoleOptions.EngineerCooldown = NiceHacker.AbilityCD.GetFloat();
                 AURoleOptions.EngineerInVentMaxTime = 1f;
                 break;
             case CustomRoles.Warlock:
-                if (Options.UsePets.GetBool()) break;
                 AURoleOptions.ShapeshifterCooldown = Main.isCursed ? 1f : Options.DefaultKillCooldown;
                 AURoleOptions.ShapeshifterDuration = Options.WarlockShiftDuration.GetFloat();
                 break;
             case CustomRoles.Escapee:
-                if (Options.UsePets.GetBool()) break;
                 AURoleOptions.ShapeshifterCooldown = Options.EscapeeSSCD.GetFloat();
-                AURoleOptions.ShapeshifterDuration = Options.EscapeeSSDuration.GetFloat();
                 break;
             case CustomRoles.Sniper:
-                if (Options.UsePets.GetBool()) break;
                 if (Sniper.bulletCount[player.PlayerId] > 0)
                 {
                     AURoleOptions.ShapeshifterDuration = Sniper.ShapeshiftDuration.GetFloat();
@@ -182,9 +176,7 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 }
                 break;
             case CustomRoles.Miner:
-                if (Options.UsePets.GetBool()) break;
                 AURoleOptions.ShapeshifterCooldown = Options.MinerSSCD.GetFloat();
-                AURoleOptions.ShapeshifterDuration = Options.MinerSSDuration.GetFloat();
                 break;
             //case CustomRoles.SerialKiller:
             //    SerialKiller.ApplyGameOptions(player);
@@ -228,12 +220,10 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 opt.SetVision(true);
                 break;
             case CustomRoles.Doormaster:
-                if (Options.UsePets.GetBool()) break;
                 AURoleOptions.EngineerCooldown = Doormaster.VentCooldown.GetFloat();
                 AURoleOptions.EngineerInVentMaxTime = 1f;
                 break;
             case CustomRoles.Tether:
-                if (Options.UsePets.GetBool()) break;
                 AURoleOptions.EngineerCooldown = Tether.VentCooldown.GetFloat();
                 AURoleOptions.EngineerInVentMaxTime = 1f;
                 break;
@@ -252,7 +242,6 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 AURoleOptions.ScientistBatteryCharge = Options.DoctorTaskCompletedBatteryCharge.GetFloat();
                 break;
             case CustomRoles.Mayor:
-                if (Options.UsePets.GetBool()) break;
                 AURoleOptions.EngineerCooldown =
                     !Main.MayorUsedButtonCount.TryGetValue(player.PlayerId, out var count) || count < Options.MayorNumOfUseButton.GetInt()
                     ? opt.GetInt(Int32OptionNames.EmergencyCooldown)
@@ -260,7 +249,6 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 AURoleOptions.EngineerInVentMaxTime = 1;
                 break;
             case CustomRoles.Paranoia:
-                if (Options.UsePets.GetBool()) break;
                 AURoleOptions.EngineerCooldown =
                     !Main.ParaUsedButtonCount.TryGetValue(player.PlayerId, out var count2) || count2 < Options.ParanoiaNumOfUseButton.GetInt()
                     ? Options.ParanoiaVentCooldown.GetFloat()
@@ -281,22 +269,12 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 Bandit.ApplyGameOptions(opt);
                 break;
             case CustomRoles.Bomber:
-                if (Options.UsePets.GetBool()) break;
                 AURoleOptions.ShapeshifterCooldown = Options.BombCooldown.GetFloat();
                 AURoleOptions.ShapeshifterDuration = 2f;
                 break;
             case CustomRoles.Nuker:
-                if (Options.UsePets.GetBool()) break;
                 AURoleOptions.ShapeshifterCooldown = Options.NukeCooldown.GetFloat();
                 AURoleOptions.ShapeshifterDuration = 2f;
-                break;
-            case CustomRoles.Hitman:
-                AURoleOptions.ShapeshifterCooldown = Hitman.ShapeshiftCooldown.GetFloat();
-                AURoleOptions.ShapeshifterDuration = 1f;
-                break;
-            case CustomRoles.CameraMan:
-                AURoleOptions.EngineerCooldown = CameraMan.VentCooldown.GetFloat();
-                AURoleOptions.EngineerInVentMaxTime = 1f;
                 break;
             case CustomRoles.Mafia:
                 AURoleOptions.ShapeshifterCooldown = Options.MafiaShapeshiftCD.GetFloat();
@@ -328,12 +306,10 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 Poisoner.ApplyGameOptions(opt);
                 break;
             case CustomRoles.Veteran:
-                if (Options.UsePets.GetBool()) break;
                 AURoleOptions.EngineerCooldown = Options.VeteranSkillCooldown.GetFloat();
                 AURoleOptions.EngineerInVentMaxTime = 1;
                 break;
             case CustomRoles.Grenadier:
-                if (Options.UsePets.GetBool()) break;
                 AURoleOptions.EngineerCooldown = Options.GrenadierSkillCooldown.GetFloat();
                 AURoleOptions.EngineerInVentMaxTime = 1;
                 break;
@@ -342,12 +318,10 @@ public class PlayerGameOptionsSender : GameOptionsSender
                        AURoleOptions.ShapeshifterDuration = Options.FlashbangSkillDuration.GetFloat();
                        break; */
             case CustomRoles.Lighter:
-                if (Options.UsePets.GetBool()) break;
                 AURoleOptions.EngineerInVentMaxTime = 1;
                 AURoleOptions.EngineerCooldown = Options.LighterSkillCooldown.GetFloat();
                 break;
             case CustomRoles.SecurityGuard:
-                if (Options.UsePets.GetBool()) break;
                 AURoleOptions.EngineerInVentMaxTime = 1;
                 AURoleOptions.EngineerCooldown = Options.SecurityGuardSkillCooldown.GetFloat();
                 break;
@@ -356,7 +330,6 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 AURoleOptions.EngineerCooldown = 15;
                 break;
             case CustomRoles.TimeMaster:
-                if (Options.UsePets.GetBool()) break;
                 AURoleOptions.EngineerCooldown = Options.TimeMasterSkillCooldown.GetFloat();
                 AURoleOptions.EngineerInVentMaxTime = 1;
                 break;
@@ -366,18 +339,6 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 break;
             case CustomRoles.NSerialKiller:
                 NSerialKiller.ApplyGameOptions(opt);
-                break;
-            case CustomRoles.Magician:
-                Magician.ApplyGameOptions(opt);
-                break;
-            case CustomRoles.Reckless:
-                Reckless.ApplyGameOptions(opt);
-                break;
-            case CustomRoles.Mafioso:
-                Mafioso.ApplyGameOptions(opt);
-                break;
-            case CustomRoles.Postman:
-                Postman.ApplyGameOptions(opt);
                 break;
             case CustomRoles.Pyromaniac:
                 Pyromaniac.ApplyGameOptions(opt);
@@ -472,7 +433,6 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 AURoleOptions.ShapeshifterDuration = Options.ShapeImperiusCurseShapeshiftDuration.GetFloat();
                 break;
             case CustomRoles.QuickShooter:
-                if (Options.UsePets.GetBool()) break;
                 AURoleOptions.ShapeshifterCooldown = QuickShooter.ShapeshiftCooldown.GetFloat();
                 AURoleOptions.ShapeshifterDuration = 1f;
                 break;
@@ -480,11 +440,9 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 Camouflager.ApplyGameOptions();
                 break;
             case CustomRoles.Assassin:
-                if (Options.UsePets.GetBool()) break;
                 Assassin.ApplyGameOptions();
                 break;
             case CustomRoles.Undertaker:
-                if (Options.UsePets.GetBool()) break;
                 Undertaker.ApplyGameOptions();
                 break;
             case CustomRoles.Hacker:
@@ -501,12 +459,10 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 BloodKnight.ApplyGameOptions(opt);
                 break;
             case CustomRoles.DovesOfNeace:
-                if (Options.UsePets.GetBool()) break;
                 AURoleOptions.EngineerCooldown = Options.DovesOfNeaceCooldown.GetFloat();
                 AURoleOptions.EngineerInVentMaxTime = 1;
                 break;
             case CustomRoles.Disperser:
-                if (Options.UsePets.GetBool()) break;
                 Disperser.ApplyGameOptions();
                 break;
             case CustomRoles.Farseer:
@@ -525,7 +481,6 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 AURoleOptions.EngineerInVentMaxTime = 1;
                 break;
             case CustomRoles.Alchemist:
-                if (Options.UsePets.GetBool()) break;
                 AURoleOptions.EngineerCooldown = Alchemist.VentCooldown.GetFloat();
                 AURoleOptions.EngineerInVentMaxTime = 1;
                 break;
@@ -537,7 +492,6 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 Deathpact.ApplyGameOptions();
                 break;
             case CustomRoles.Twister:
-                if (Options.UsePets.GetBool()) break;
                 Twister.ApplyGameOptions();
                 break;
             case CustomRoles.Spiritcaller:
@@ -644,13 +598,6 @@ public class PlayerGameOptionsSender : GameOptionsSender
                     opt.SetVision(Options.MadmateHasImpostorVision.GetBool());
                     break;
             }
-        }
-
-        if (Magician.BlindPPL.ContainsKey(player.PlayerId))
-        {
-            opt.SetVision(false);
-            opt.SetFloat(FloatOptionNames.CrewLightMod, 0.01f);
-            opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0.01f);
         }
 
         // ������������ȴΪ0ʱ�޷�������ʾͼ��

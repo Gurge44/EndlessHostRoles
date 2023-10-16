@@ -72,7 +72,7 @@ public static class OptionsMenuBehaviourStartPatch
             static void SwitchVanillaButtonToggle()
             {
                 Harmony.UnpatchAll();
-                Main.Instance.Unload();
+                _ = Main.Instance.Unload();
             }
         }
         /*      if ((VersionCheat == null || VersionCheat.ToggleButton == null) && DebugModeManager.AmDebugger)

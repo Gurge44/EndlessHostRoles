@@ -12,12 +12,12 @@ namespace TOHE;
 internal class ControllerManagerUpdatePatch
 {
     private static readonly (int, int)[] resolutions = { (480, 270), (640, 360), (800, 450), (1280, 720), (1600, 900), (1920, 1080) };
-    private static int resolutionIndex = 0;
+    private static int resolutionIndex;
 
     public static List<string> addDes = new();
     public static int addonIndex = -1;
 
-    public static void Postfix(/*ControllerManager __instance*/)
+    public static void Postfix(ControllerManager __instance)
     {
         //切换自定义设置的页面
         if (GameStates.IsLobby)
@@ -45,7 +45,7 @@ internal class ControllerManagerUpdatePatch
                 var role = PlayerControl.LocalPlayer.GetCustomRole();
                 var lp = PlayerControl.LocalPlayer;
                 var sb = new StringBuilder();
-                sb.Append(GetString(role.ToString()) + Utils.GetRoleMode(role) + lp.GetRoleInfo(true));
+                _ = sb.Append(GetString(role.ToString()) + Utils.GetRoleMode(role) + lp.GetRoleInfo(true));
                 if (Options.CustomRoleSpawnChances.TryGetValue(role, out var opt))
                     Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[role], ref sb, command: true);
                 HudManager.Instance.ShowPopUp(sb.ToString());
@@ -114,7 +114,7 @@ internal class ControllerManagerUpdatePatch
         //打开游戏目录
         if (GetKeysDown(KeyCode.F10))
         {
-            System.Diagnostics.Process.Start(Environment.CurrentDirectory);
+            _ = System.Diagnostics.Process.Start(Environment.CurrentDirectory);
         }
 
         //-- 下面是主机专用的命令--//
@@ -202,8 +202,8 @@ internal class ControllerManagerUpdatePatch
 
         if (GetKeysDown(KeyCode.Return, KeyCode.G, KeyCode.LeftShift) && GameStates.IsInGame)
         {
-            HudManager.Instance.StartCoroutine(HudManager.Instance.CoFadeFullScreen(Color.clear, Color.black));
-            HudManager.Instance.StartCoroutine(DestroyableSingleton<HudManager>.Instance.CoShowIntro());
+            _ = HudManager.Instance.StartCoroutine(HudManager.Instance.CoFadeFullScreen(Color.clear, Color.black));
+            _ = HudManager.Instance.StartCoroutine(DestroyableSingleton<HudManager>.Instance.CoShowIntro());
         }
 
         //实名投票
@@ -245,8 +245,8 @@ internal class ControllerManagerUpdatePatch
         //入门测试
         if (Input.GetKeyDown(KeyCode.G))
         {
-            HudManager.Instance.StartCoroutine(HudManager.Instance.CoFadeFullScreen(Color.clear, Color.black));
-            HudManager.Instance.StartCoroutine(DestroyableSingleton<HudManager>.Instance.CoShowIntro());
+            _ = HudManager.Instance.StartCoroutine(HudManager.Instance.CoFadeFullScreen(Color.clear, Color.black));
+            _ = HudManager.Instance.StartCoroutine(DestroyableSingleton<HudManager>.Instance.CoShowIntro());
         }
         //任务数显示切换
         if (Input.GetKeyDown(KeyCode.Equals))

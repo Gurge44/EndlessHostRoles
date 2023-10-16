@@ -71,7 +71,7 @@ public static class Chameleon
         => GameStates.IsInTask && !InvisTime.ContainsKey(id) && !lastTime.ContainsKey(id);
     public static bool IsInvis(byte id) => InvisTime.ContainsKey(id);
 
-    private static long lastFixedTime = 0;
+    private static long lastFixedTime;
     public static void AfterMeetingTasks()
     {
         lastTime = new();
@@ -90,7 +90,7 @@ public static class Chameleon
 
         if (lastTime.TryGetValue(player.PlayerId, out var time) && time + (long)ChameleonCooldown.GetFloat() < now)
         {
-            lastTime.Remove(player.PlayerId);
+            _ = lastTime.Remove(player.PlayerId);
             if (!player.IsModClient()) player.Notify(GetString("ChameleonCanVent"));
             SendRPC(player);
         }
@@ -135,7 +135,7 @@ public static class Chameleon
             {
                 if (UseLimit[pc.PlayerId] >= 1)
                 {
-                    ventedId.Remove(pc.PlayerId);
+                    _ = ventedId.Remove(pc.PlayerId);
                     ventedId.Add(pc.PlayerId, ventId);
 
                     MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, 34, SendOption.Reliable, pc.GetClientId());
@@ -164,7 +164,7 @@ public static class Chameleon
     {
         if (!pc.Is(CustomRoles.Chameleon) || !IsInvis(pc.PlayerId)) return;
 
-        InvisTime.Remove(pc.PlayerId);
+        _ = InvisTime.Remove(pc.PlayerId);
         lastTime.Add(pc.PlayerId, Utils.GetTimeStamp());
         SendRPC(pc);
 
@@ -178,16 +178,16 @@ public static class Chameleon
         if (IsInvis(pc.PlayerId))
         {
             var remainTime = InvisTime[pc.PlayerId] + (long)ChameleonDuration.GetFloat() - Utils.GetTimeStamp();
-            str.Append(string.Format(GetString("ChameleonInvisStateCountdown"), remainTime + 1));
+            _ = str.Append(string.Format(GetString("ChameleonInvisStateCountdown"), remainTime + 1));
         }
         else if (lastTime.TryGetValue(pc.PlayerId, out var time))
         {
             var cooldown = time + (long)ChameleonCooldown.GetFloat() - Utils.GetTimeStamp();
-            str.Append(string.Format(GetString("ChameleonInvisCooldownRemain"), cooldown + 1));
+            _ = str.Append(string.Format(GetString("ChameleonInvisCooldownRemain"), cooldown + 1));
         }
         else
         {
-            str.Append(GetString("ChameleonCanVent"));
+            _ = str.Append(GetString("ChameleonCanVent"));
         }
         return str.ToString();
     }
@@ -196,7 +196,7 @@ public static class Chameleon
     {
         if (!IsInvis(killer.PlayerId)) return true;
         killer.SetKillCooldown();
-        target.RpcCheckAndMurder(target);
+        _ = target.RpcCheckAndMurder(target);
         target.SetRealKiller(killer);
         return false;
     }

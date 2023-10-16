@@ -14,13 +14,13 @@ namespace TOHE;
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
 class HudManagerPatch
 {
-    public static bool ShowDebugText = false;
-    public static int LastCallNotifyRolesPerSecond = 0;
-    public static int NowCallNotifyRolesCount = 0;
-    public static int LastSetNameDesyncCount = 0;
-    public static int LastFPS = 0;
-    public static int NowFrameCount = 0;
-    public static float FrameRateTimer = 0.0f;
+    public static bool ShowDebugText;
+    public static int LastCallNotifyRolesPerSecond;
+    public static int NowCallNotifyRolesCount;
+    public static int LastSetNameDesyncCount;
+    public static int LastFPS;
+    public static int NowFrameCount;
+    public static float FrameRateTimer;
     public static TextMeshPro LowerInfoText;
     public static GameObject TempLowerInfoText;
     public static void Postfix(HudManager __instance)
@@ -88,12 +88,7 @@ class HudManagerPatch
                             __instance.AbilityButton?.OverrideText(GetString("WarlockShapeshiftButtonText"));
                         break;
                     case CustomRoles.Miner:
-                        if (Options.UsePets.GetBool()) __instance.PetButton?.OverrideText(GetString("MinerTeleButtonText"));
-                        else __instance.AbilityButton?.OverrideText(GetString("MinerTeleButtonText"));
-                        break;
-                    case CustomRoles.Escapee:
-                        if (Options.UsePets.GetBool()) __instance.PetButton?.OverrideText(GetString("EscapeeAbilityButtonText"));
-                        else __instance.AbilityButton?.OverrideText(GetString("EscapeeAbilityButtonText"));
+                        __instance.AbilityButton?.OverrideText(GetString("MinerTeleButtonText"));
                         break;
                     case CustomRoles.Pestilence:
                         __instance.KillButton?.OverrideText(GetString("KillButtonText"));
@@ -158,9 +153,6 @@ class HudManagerPatch
                         Gangster.SetKillButtonText(player.PlayerId);
                         break;
                     case CustomRoles.NSerialKiller:
-                    case CustomRoles.Magician:
-                    case CustomRoles.Mafioso:
-                    case CustomRoles.Reckless:
                     case CustomRoles.Pyromaniac:
                     case CustomRoles.Eclipse:
                     case CustomRoles.Vengeance:
@@ -182,9 +174,6 @@ class HudManagerPatch
                     case CustomRoles.Maverick:
                         __instance.KillButton?.OverrideText(GetString("KillButtonText"));
                         break;
-                    case CustomRoles.Postman:
-                        __instance.KillButton?.OverrideText(GetString("PostmanKillButtonText"));
-                        break;
                     case CustomRoles.Glitch:
                         __instance.SabotageButton?.OverrideText(GetString("HackButtonText"));
                         break;
@@ -203,33 +192,18 @@ class HudManagerPatch
                         break;
                     case CustomRoles.Bomber:
                     case CustomRoles.Nuker:
-                        if (Options.UsePets.GetBool()) __instance.PetButton?.OverrideText(GetString("BomberShapeshiftText"));
-                        else __instance.AbilityButton?.OverrideText(GetString("BomberShapeshiftText"));
+                        __instance.AbilityButton?.OverrideText(GetString("BomberShapeshiftText"));
                         break;
                     case CustomRoles.Twister:
-                        if (Options.UsePets.GetBool())
-                        {
-                            __instance.PetButton?.OverrideText(GetString("TwisterButtonText"));
-                        }
-                        else
-                        {
-                            __instance.AbilityButton?.OverrideText(GetString("TwisterButtonText"));
-                            __instance.AbilityButton?.SetUsesRemaining((int)Twister.TwistLimit[player.PlayerId]);
-                        }
+                        __instance.AbilityButton?.OverrideText(GetString("TwisterButtonText"));
+                        __instance.AbilityButton?.SetUsesRemaining((int)Twister.TwistLimit[player.PlayerId]);
                         break;
                     case CustomRoles.ImperiusCurse:
                         __instance.AbilityButton?.OverrideText(GetString("ImperiusCurseButtonText"));
                         break;
                     case CustomRoles.QuickShooter:
-                        if (Options.UsePets.GetBool())
-                        {
-                            __instance.PetButton?.OverrideText(GetString("QuickShooterShapeshiftText"));
-                        }
-                        else
-                        {
-                            __instance.AbilityButton?.OverrideText(GetString("QuickShooterShapeshiftText"));
-                            __instance.AbilityButton?.SetUsesRemaining(QuickShooter.ShotLimit.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var qx) ? qx : 0);
-                        }
+                        __instance.AbilityButton?.OverrideText(GetString("QuickShooterShapeshiftText"));
+                        __instance.AbilityButton?.SetUsesRemaining(QuickShooter.ShotLimit.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var qx) ? qx : 0);
                         break;
                     case CustomRoles.Provocateur:
                         __instance.KillButton?.OverrideText(GetString("ProvocateurButtonText"));
@@ -266,15 +240,8 @@ class HudManagerPatch
                         __instance.ReportButton?.OverrideText(GetString("VultureEatButtonText"));
                         break;
                     case CustomRoles.Disperser:
-                        if (Options.UsePets.GetBool())
-                        {
-                            __instance.PetButton?.OverrideText(GetString("DisperserVentButtonText"));
-                        }
-                        else
-                        {
-                            __instance.AbilityButton?.OverrideText(GetString("DisperserVentButtonText"));
-                            __instance.AbilityButton?.SetUsesRemaining((int)Disperser.DisperserLimit[player.PlayerId]);
-                        }
+                        __instance.AbilityButton?.OverrideText(GetString("DisperserVentButtonText"));
+                        __instance.AbilityButton?.SetUsesRemaining((int)Disperser.DisperserLimit[player.PlayerId]);
                         break;
                     case CustomRoles.Swooper:
                         __instance.ImpostorVentButton?.OverrideText(GetString(Swooper.IsInvis(PlayerControl.LocalPlayer.PlayerId) ? "SwooperRevertVentButtonText" : "SwooperVentButtonText"));
@@ -438,47 +405,56 @@ class HudManagerPatch
                         break;
                 }
 
-                long now = Utils.GetTimeStamp();
 
-                LowerInfoText.text = player.GetCustomRole() switch
+                switch (player.GetCustomRole())
                 {
-                    CustomRoles.BountyHunter => BountyHunter.GetTargetText(player, true),
-                    CustomRoles.Witch => Witch.GetSpellModeText(player, true),
-                    CustomRoles.HexMaster => HexMaster.GetHexModeText(player, true),
-                    CustomRoles.FireWorks => FireWorks.GetStateText(player),
-                    CustomRoles.Swooper => Swooper.GetHudText(player),
-                    CustomRoles.Wraith => Wraith.GetHudText(player),
-                    CustomRoles.HeadHunter => HeadHunter.GetHudText(player),
-                    CustomRoles.Alchemist => Alchemist.GetHudText(player),
-                    CustomRoles.Chameleon => Chameleon.GetHudText(player),
-                    CustomRoles.Werewolf => Werewolf.GetHudText(player),
-                    CustomRoles.BloodKnight => BloodKnight.GetHudText(player),
-                    CustomRoles.Glitch => Glitch.GetHudText(player),
-                    CustomRoles.NiceHacker => NiceHacker.GetHudText(player),
-                    CustomRoles.Wildling => Wildling.GetHudText(player),
-                    CustomRoles.Doormaster => Doormaster.GetHudText(player),
-                    CustomRoles.Tether => Tether.GetHudText(player),
-                    CustomRoles.CameraMan => !Options.UsePets.GetBool() || !Main.CameraManCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), CameraMan.VentCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.Mayor => !Options.UsePets.GetBool() || !Main.MayorCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.DefaultKillCooldown - (now - cd) + 1),
-                    CustomRoles.Paranoia => !Options.UsePets.GetBool() || !Main.ParanoiaCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.ParanoiaVentCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.Veteran => !Options.UsePets.GetBool() || !Main.VeteranCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.VeteranSkillCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.Grenadier => !Options.UsePets.GetBool() || !Main.GrenadierCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.GrenadierSkillCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.Lighter => !Options.UsePets.GetBool() || !Main.LighterCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.LighterSkillCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.DovesOfNeace => !Options.UsePets.GetBool() || !Main.DovesOfNeaceCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.DovesOfNeaceCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.SecurityGuard => !Options.UsePets.GetBool() || !Main.SecurityGuardCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.SecurityGuardSkillCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.TimeMaster => !Options.UsePets.GetBool() || !Main.TimeMasterCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.TimeMasterSkillCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.Sniper => !Options.UsePets.GetBool() || !Main.SniperCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.DefaultShapeshiftCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.Assassin => !Options.UsePets.GetBool() || !Main.AssassinCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Assassin.AssassinateCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.Undertaker => !Options.UsePets.GetBool() || !Main.UndertakerCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Undertaker.AssassinateCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.Bomber => !Options.UsePets.GetBool() || !Main.BomberCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.BombCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.Nuker => !Options.UsePets.GetBool() || !Main.NukerCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.NukeCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.QuickShooter => !Options.UsePets.GetBool() || !Main.QuickShooterCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), QuickShooter.ShapeshiftCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.Miner => !Options.UsePets.GetBool() || !Main.MinerCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.MinerSSCD.GetInt() - (now - cd) + 1),
-                    CustomRoles.Escapee => !Options.UsePets.GetBool() || !Main.EscapeeCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.EscapeeSSCD.GetInt() - (now - cd) + 1),
-                    CustomRoles.Disperser => !Options.UsePets.GetBool() || !Main.DisperserCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Disperser.DisperserShapeshiftCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.Twister => !Options.UsePets.GetBool() || !Main.TwisterCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Twister.ShapeshiftCooldown.GetInt() - (now - cd) + 1),
-                    _ => string.Empty,
-                };
+                    case CustomRoles.BountyHunter:
+                        LowerInfoText.text = BountyHunter.GetTargetText(player, true);
+                        break;
+                    case CustomRoles.Witch:
+                        LowerInfoText.text = Witch.GetSpellModeText(player, true);
+                        break;
+                    case CustomRoles.HexMaster:
+                        LowerInfoText.text = HexMaster.GetHexModeText(player, true);
+                        break;
+                    case CustomRoles.FireWorks:
+                        LowerInfoText.text = FireWorks.GetStateText(player);
+                        break;
+                    case CustomRoles.Swooper:
+                        LowerInfoText.text = Swooper.GetHudText(player);
+                        break;
+                    case CustomRoles.Wraith:
+                        LowerInfoText.text = Wraith.GetHudText(player);
+                        break;
+                    case CustomRoles.HeadHunter:
+                        LowerInfoText.text = HeadHunter.GetHudText(player);
+                        break;
+                    case CustomRoles.Alchemist:
+                        LowerInfoText.text = Alchemist.GetHudText(player);
+                        break;
+                    case CustomRoles.Chameleon:
+                        LowerInfoText.text = Chameleon.GetHudText(player);
+                        break;
+                    case CustomRoles.Werewolf:
+                        LowerInfoText.text = Werewolf.GetHudText(player);
+                        break;
+                    case CustomRoles.BloodKnight:
+                        LowerInfoText.text = BloodKnight.GetHudText(player);
+                        break;
+                    case CustomRoles.Glitch:
+                        LowerInfoText.text = Glitch.GetHudText(player);
+                        break;
+                    case CustomRoles.NiceHacker:
+                        LowerInfoText.text = NiceHacker.GetHudText(player);
+                        break;
+                    case CustomRoles.Wildling:
+                        LowerInfoText.text = Wildling.GetHudText(player);
+                        break;
+                    default:
+                        LowerInfoText.text = string.Empty;
+                        break;
+                }
+
                 LowerInfoText.enabled = LowerInfoText.text != string.Empty;
 
                 if ((!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay) || GameStates.IsMeeting)
@@ -575,7 +551,7 @@ class SetVentOutlinePatch
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.SetHudActive), new System.Type[] { typeof(PlayerControl), typeof(RoleBehaviour), typeof(bool) })]
 class SetHudActivePatch
 {
-    public static bool IsActive = false;
+    public static bool IsActive;
     public static void Prefix(HudManager __instance, [HarmonyArgument(2)] ref bool isActive)
     {
         isActive &= !GameStates.IsMeeting;
@@ -641,9 +617,6 @@ class SetHudActivePatch
             case CustomRoles.Glitch:
                 Glitch.SetHudActive(__instance, isActive);
                 break;
-            case CustomRoles.Magician:
-                __instance.SabotageButton?.ToggleVisible(true);
-                break;
 
         }
 
@@ -695,7 +668,7 @@ class MapBehaviourShowPatch
         }
         else if (opts.Mode is MapOptions.Modes.Normal or MapOptions.Modes.Sabotage)
         {
-            if (player.Is(CustomRoleTypes.Impostor) || player.Is(CustomRoles.Glitch) || player.Is(CustomRoles.Magician) || player.Is(CustomRoles.Parasite) || player.Is(CustomRoles.Refugee) || (player.Is(CustomRoles.Jackal) && Jackal.CanUseSabotage.GetBool()) || (player.Is(CustomRoles.Traitor) && Traitor.CanUseSabotage.GetBool()))
+            if (player.Is(CustomRoleTypes.Impostor) || player.Is(CustomRoles.Glitch) || player.Is(CustomRoles.Parasite) || player.Is(CustomRoles.Refugee) || (player.Is(CustomRoles.Jackal) && Jackal.CanUseSabotage.GetBool()) || (player.Is(CustomRoles.Traitor) && Traitor.CanUseSabotage.GetBool()))
                 opts.Mode = MapOptions.Modes.Sabotage;
             else
                 opts.Mode = MapOptions.Modes.Normal;
@@ -736,7 +709,7 @@ class TaskPanelBehaviourPatch
                         string eachLine = lines[i];
                         var line = eachLine.Trim();
                         if ((line.StartsWith("<color=#FF1919FF>") || line.StartsWith("<color=#FF0000FF>")) && sb.Length < 1 && !line.Contains('(')) continue;
-                        sb.Append(line + "\r\n");
+                        _ = sb.Append(line + "\r\n");
                     }
                     if (sb.Length > 1)
                     {
@@ -816,8 +789,8 @@ class TaskPanelBehaviourPatch
 
 class RepairSender
 {
-    public static bool enabled = false;
-    public static bool TypingAmount = false;
+    public static bool enabled;
+    public static bool TypingAmount;
 
     public static int SystemType;
     public static int amount;

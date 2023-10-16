@@ -17,7 +17,7 @@ public static class CursedSoul
     public static OptionItem CurseMax;
     public static OptionItem KnowTargetRole;
     public static OptionItem CanCurseNeutral;
-    private static int CurseLimit = new();
+    private static int CurseLimit;
 
     public static void SetupCustomOption()
     {
@@ -80,11 +80,11 @@ public static class CursedSoul
             target.RpcGuardAndKill(target);
 
             Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Soulless.ToString(), "Assign " + CustomRoles.Soulless.ToString());
-            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{CurseLimit}次魅惑机会", "CursedSoul");
+            Logger.Info($"{killer.GetNameWithRole()} : 剩余{CurseLimit}次魅惑机会", "CursedSoul");
             return;
         }
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.CursedSoul), GetString("CursedSoulInvalidTarget")));
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{CurseLimit}次魅惑机会", "CursedSoul");
+        Logger.Info($"{killer.GetNameWithRole()} : 剩余{CurseLimit}次魅惑机会", "CursedSoul");
         return;
     }
     public static bool KnowRole(PlayerControl player, PlayerControl target)

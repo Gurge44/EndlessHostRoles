@@ -206,7 +206,7 @@ public static class Witch
             }
             else
             {
-                Main.AfterMeetingDeathPlayers.Remove(pc.PlayerId);
+                _ = Main.AfterMeetingDeathPlayers.Remove(pc.PlayerId);
             }
         }
         CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Spell, spelledIdList.ToArray());
@@ -227,19 +227,19 @@ public static class Witch
         var str = new StringBuilder();
         if (hud)
         {
-            str.Append($"<color=#00ffa5>{GetString("WitchCurrentMode")}:</color> <b>");
+            _ = str.Append($"<color=#00ffa5>{GetString("WitchCurrentMode")}:</color> <b>");
         }
         else
         {
-            str.Append($"{GetString("Mode")}: ");
+            _ = str.Append($"{GetString("Mode")}: ");
         }
         if (NowSwitchTrigger == SwitchTrigger.DoubleTrigger)
         {
-            str.Append(GetString("WitchModeDouble"));
+            _ = str.Append(GetString("WitchModeDouble"));
         }
         else
         {
-            str.Append(IsSpellMode(witch.PlayerId) ? GetString("WitchModeSpell") : GetString("WitchModeKill"));
+            _ = str.Append(IsSpellMode(witch.PlayerId) ? GetString("WitchModeSpell") : GetString("WitchModeKill"));
         }
         return str.ToString();
     }

@@ -50,11 +50,11 @@ namespace TOHE.Roles.Crewmate
             {
                 UseLimit[pc.PlayerId] -= 1;
                 DoorsReset.OpenAllDoors();
-                Main.DoormasterCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                _ = Main.DoormasterCD.TryAdd(pc.PlayerId, GetTimeStamp());
             }
             else
             {
-                if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
+                pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
             }
         }
         public static string GetProgressText(byte playerId, bool comms)
@@ -73,16 +73,10 @@ namespace TOHE.Roles.Crewmate
             if (UseLimit[playerId] < 1) TextColor1 = Color.red;
             else TextColor1 = Color.white;
 
-            sb.Append(ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
-            sb.Append(ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));
+            _ = sb.Append(ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
+            _ = sb.Append(ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));
 
             return sb.ToString();
-        }
-        public static string GetHudText(PlayerControl pc)
-        {
-            return !UsePets.GetBool() || !Main.DoormasterCD.TryGetValue(pc.PlayerId, out var cd)
-                ? string.Empty
-                : string.Format(Translator.GetString("CDPT"), VentCooldown.GetInt() - (GetTimeStamp() - cd) + 1);
         }
     }
 }

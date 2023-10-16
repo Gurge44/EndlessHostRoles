@@ -64,7 +64,7 @@ namespace TOHE.Roles.Crewmate
                 .SetValueFormat(OptionFormat.Percent);
             EnigmaGetCluesWithoutReporting = BooleanOptionItem.Create(Id + 16, "EnigmaClueGetCluesWithoutReporting", true, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Enigma]);
 
-            OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.Enigma);
+            _ = OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.Enigma);
         }
         public static void Init()
         {
@@ -263,11 +263,11 @@ namespace TOHE.Roles.Crewmate
                     case 1:
                         return GetStage1Clue(killer, letter);
                     case 2:
-                        if (showStageClue) GetStage2Clue(letter);
+                        if (showStageClue) _ = GetStage2Clue(letter);
                         return GetStage1Clue(killer, letter);
                     case 3:
-                        if (showStageClue) GetStage3Clue(killerName, letter);
-                        if (rd.Next(0, 100) < EnigmaClueStage2Probability.GetInt()) GetStage2Clue(letter);
+                        if (showStageClue) _ = GetStage3Clue(killerName, letter);
+                        if (rd.Next(0, 100) < EnigmaClueStage2Probability.GetInt()) _ = GetStage2Clue(letter);
                         return GetStage1Clue(killer, letter);
                 }
 

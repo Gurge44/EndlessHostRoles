@@ -84,7 +84,7 @@ public static class Executioner
             var SelectedTarget = targetList[rand.Next(targetList.Count)];
             Target.Add(playerId, SelectedTarget.PlayerId);
             SendRPC(playerId, SelectedTarget.PlayerId, "SetTarget");
-            Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}:{SelectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Executioner");
+            Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole()}:{SelectedTarget.GetNameWithRole()}", "Executioner");
         }
     }
     public static bool IsEnable() => playerIdList.Any();
@@ -108,7 +108,7 @@ public static class Executioner
             case "WinCheck":
                 if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) break; //まだ勝者が設定されていない場合
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Executioner);
-                CustomWinnerHolder.WinnerIds.Add(executionerId);
+                _ = CustomWinnerHolder.WinnerIds.Add(executionerId);
                 break;
         }
     }
@@ -121,7 +121,7 @@ public static class Executioner
             Target[ExecutionerId] = TargetId;
         }
         else
-            Target.Remove(reader.ReadByte());
+            _ = Target.Remove(reader.ReadByte());
     }
     public static void ChangeRoleByTarget(PlayerControl target)
     {
@@ -132,7 +132,7 @@ public static class Executioner
                 Executioner = x.Key;
         });
         Utils.GetPlayerById(Executioner).RpcSetCustomRole(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()]);
-        Target.Remove(Executioner);
+        _ = Target.Remove(Executioner);
         SendRPC(Executioner);
         Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(Executioner));
         Utils.NotifyRoles(SpecifySeer: target);
@@ -140,7 +140,7 @@ public static class Executioner
     public static void ChangeRole(PlayerControl executioner)
     {
         executioner.RpcSetCustomRole(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()]);
-        Target.Remove(executioner.PlayerId);
+        _ = Target.Remove(executioner.PlayerId);
         SendRPC(executioner.PlayerId);
         var text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Executioner), Translator.GetString(""));
         text = string.Format(text, Utils.ColorString(Utils.GetRoleColor(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()]), Translator.GetString(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()].ToString())));
@@ -178,8 +178,8 @@ public static class Executioner
         }
         else
         {
-            CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Executioner);
-            CustomWinnerHolder.WinnerIds.Add(playerId);
+            _ = CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Executioner);
+            _ = CustomWinnerHolder.WinnerIds.Add(playerId);
         }
     }
 }

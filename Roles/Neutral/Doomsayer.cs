@@ -12,9 +12,9 @@ public static class Doomsayer
     public static List<CustomRoles> GuessedRoles = new();
     public static Dictionary<byte, int> GuessingToWin = new();
 
-    public static int GuessesCount = 0;
-    public static int GuessesCountPerMeeting = 0;
-    public static bool CantGuess = false;
+    public static int GuessesCount;
+    public static int GuessesCountPerMeeting;
+    public static bool CantGuess;
 
     public static OptionItem DoomsayerAmountOfGuessesToWin;
     public static OptionItem DCanGuessImpostors;
@@ -70,7 +70,7 @@ public static class Doomsayer
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        GuessingToWin.TryAdd(playerId, GuessesCount);
+        _ = GuessingToWin.TryAdd(playerId, GuessesCount);
     }
     public static bool IsEnable => playerIdList.Any();
     public static void SendRPC(PlayerControl player)
@@ -98,7 +98,7 @@ public static class Doomsayer
         GuessingToWin[doomsayer.PlayerId] = DoomsayerAmountOfGuessesToWin.GetInt();
         GuessesCount = DoomsayerAmountOfGuessesToWin.GetInt();
         CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Doomsayer);
-        CustomWinnerHolder.WinnerIds.Add(doomsayer.PlayerId);
+        _ = CustomWinnerHolder.WinnerIds.Add(doomsayer.PlayerId);
     }
     public static void OnReportDeadBody()
     {

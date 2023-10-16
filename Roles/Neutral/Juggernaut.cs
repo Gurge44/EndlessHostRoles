@@ -38,7 +38,7 @@ public static class Juggernaut
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        NowCooldown.TryAdd(playerId, DefaultKillCooldown.GetFloat());
+        _ = NowCooldown.TryAdd(playerId, DefaultKillCooldown.GetFloat());
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))

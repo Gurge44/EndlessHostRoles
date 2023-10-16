@@ -48,9 +48,9 @@ public static class Gamer
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        GamerHealth.TryAdd(playerId, SelfHealthMax.GetInt());
+        _ = GamerHealth.TryAdd(playerId, SelfHealthMax.GetInt());
         foreach (var pc in Main.AllAlivePlayerControls)
-            PlayerHealth.TryAdd(pc.PlayerId, HealthMax.GetInt());
+            _ = PlayerHealth.TryAdd(pc.PlayerId, HealthMax.GetInt());
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
@@ -91,7 +91,7 @@ public static class Gamer
 
         if (PlayerHealth[target.PlayerId] - Damage.GetInt() < 1)
         {
-            PlayerHealth.Remove(target.PlayerId);
+            _ = PlayerHealth.Remove(target.PlayerId);
             killer.RpcMurderPlayerV3(target);
             Utils.NotifyRoles(SpecifySeer: killer);
             return false;
@@ -102,7 +102,7 @@ public static class Gamer
         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
         Utils.NotifyRoles(SpecifySeer: killer);
 
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} 对玩家 {target.GetNameWithRole().RemoveHtmlTags()} 造成了 {Damage.GetInt()} 点伤害", "Gamer");
+        Logger.Info($"{killer.GetNameWithRole()} 对玩家 {target.GetNameWithRole()} 造成了 {Damage.GetInt()} 点伤害", "Gamer");
         return true;
     }
     public static bool CheckMurder(PlayerControl killer, PlayerControl target)
@@ -111,7 +111,7 @@ public static class Gamer
 
         if (GamerHealth[target.PlayerId] - SelfDamage.GetInt() < 1)
         {
-            GamerHealth.Remove(target.PlayerId);
+            _ = GamerHealth.Remove(target.PlayerId);
             Utils.NotifyRoles(SpecifySeer: target);
             return true;
         }
@@ -124,7 +124,7 @@ public static class Gamer
         //killer.RpcGuardAndKill(target);
         Utils.NotifyRoles(SpecifySeer: target);
 
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} 对玩家 {target.GetNameWithRole().RemoveHtmlTags()} 造成了 {SelfDamage.GetInt()} 点伤害", "Gamer");
+        Logger.Info($"{killer.GetNameWithRole()} 对玩家 {target.GetNameWithRole()} 造成了 {SelfDamage.GetInt()} 点伤害", "Gamer");
         return false;
     }
     public static string TargetMark(PlayerControl seer, PlayerControl target)

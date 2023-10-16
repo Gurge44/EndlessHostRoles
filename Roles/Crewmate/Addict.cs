@@ -19,7 +19,7 @@ namespace TOHE.Roles.Crewmate
         private static Dictionary<byte, float> SuicideTimer = new();
         private static Dictionary<byte, float> ImmortalTimer = new();
 
-        private static float DefaultSpeed = new();
+        private static float DefaultSpeed;
 
         public static void SetupCustomOption()
         {
@@ -45,8 +45,8 @@ namespace TOHE.Roles.Crewmate
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            SuicideTimer.TryAdd(playerId, -10f);
-            ImmortalTimer.TryAdd(playerId, 420f);
+            _ = SuicideTimer.TryAdd(playerId, -10f);
+            _ = ImmortalTimer.TryAdd(playerId, 420f);
             DefaultSpeed = Main.AllPlayerSpeed[playerId];
         }
         public static bool IsEnable => playerIdList.Any();
@@ -72,7 +72,7 @@ namespace TOHE.Roles.Crewmate
             {
                 Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
                 player.RpcMurderPlayerV3(player);
-                SuicideTimer.Remove(player.PlayerId);
+                _ = SuicideTimer.Remove(player.PlayerId);
             }
             else
             {

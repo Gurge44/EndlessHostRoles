@@ -115,6 +115,7 @@ internal class ChangeRoleSettings
             Main.BardCreations = 0;
             Main.DovesOfNeaceNumOfUsed = new();
             Main.GodfatherTarget = byte.MaxValue;
+            ChatManager.ResetHistory();
 
             ReportDeadBodyPatch.CanReport = new();
 
@@ -248,7 +249,6 @@ internal class ChangeRoleSettings
             Sans.Init();
             Juggernaut.Init();
             Hacker.Init();
-            NiceHacker.Init();
             Psychic.Init();
             Hangman.Init();
             Judge.Init();
@@ -274,10 +274,6 @@ internal class ChangeRoleSettings
             Merchant.Init();
             Mastermind.Init();
             NSerialKiller.Init();
-            Postman.Init();
-            Magician.Init();
-            Mafioso.Init();
-            Reckless.Init();
             Pyromaniac.Init();
             Eclipse.Init();
             Vengeance.Init();
@@ -289,8 +285,6 @@ internal class ChangeRoleSettings
             Jinx.Init();
             DoubleShot.Init();
             Dazzler.Init();
-            CameraMan.Init();
-            Hitman.Init();
             Gambler.Init();
             RiftMaker.Init();
             Addict.Init();
@@ -309,7 +303,6 @@ internal class ChangeRoleSettings
             ParityCop.Init(); // *giggle* party cop
             //Baker.Init();
             Spiritcaller.Init();
-            Enigma.Init();
             Lurker.Init();
             PlagueBearer.Init();
             //Reverie.Init();
@@ -729,9 +722,6 @@ internal class SelectRolesPatch
                     case CustomRoles.Hacker:
                         Hacker.Add(pc.PlayerId);
                         break;
-                    case CustomRoles.NiceHacker:
-                        NiceHacker.Add(pc.PlayerId);
-                        break;
                     case CustomRoles.Psychic:
                         Psychic.Add(pc.PlayerId);
                         break;
@@ -840,18 +830,6 @@ internal class SelectRolesPatch
                     case CustomRoles.NSerialKiller:
                         NSerialKiller.Add(pc.PlayerId);
                         break;
-                    case CustomRoles.Postman:
-                        Postman.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Magician:
-                        Magician.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Mafioso:
-                        Mafioso.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Reckless:
-                        Reckless.Add(pc.PlayerId);
-                        break;
                     case CustomRoles.Eclipse:
                         Eclipse.Add(pc.PlayerId);
                         break;
@@ -878,15 +856,6 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Dazzler:
                         Dazzler.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.CameraMan:
-                        CameraMan.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Hitman:
-                        Hitman.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Enigma:
-                        Enigma.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Gambler:
                         Gambler.Add(pc.PlayerId);
@@ -940,17 +909,17 @@ internal class SelectRolesPatch
                         //    Pirate.Add(pc.PlayerId);
                         //    break;
                 }
-                //List<CustomRoles> list = pc.GetCustomSubRoles();
-                //for (int i = 0; i < list.Count; i++)
-                //{
-                //    CustomRoles subRole = list[i];
-                //    switch (subRole)
-                //    {
-                //        // ここに属性のAddを追加
-                //        default:
-                //            break;
-                //    }
-                //}
+                List<CustomRoles> list = pc.GetCustomSubRoles();
+                for (int i = 0; i < list.Count; i++)
+                {
+                    CustomRoles subRole = list[i];
+                    switch (subRole)
+                    {
+                        // ここに属性のAddを追加
+                        default:
+                            break;
+                    }
+                }
             }
 
         EndOfSelectRolePatch:
@@ -1068,7 +1037,7 @@ internal class SelectRolesPatch
             if (!AllPlayers.Any()) break;
             var rand = IRandom.Instance;
             var player = AllPlayers[rand.Next(0, AllPlayers.Count)];
-            AllPlayers.Remove(player);
+            _ = AllPlayers.Remove(player);
             Main.AllPlayerCustomRoles[player.PlayerId] = role;
             if (!skip)
             {
@@ -1140,7 +1109,7 @@ internal class SelectRolesPatch
         {
             var player = allPlayers[rd.Next(0, allPlayers.Count)];
             Main.LoversPlayers.Add(player);
-            allPlayers.Remove(player);
+            _ = allPlayers.Remove(player);
             Main.PlayerStates[player.PlayerId].SetSubRole(role);
             Logger.Info("注册恋人:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + role.ToString(), "AssignLovers");
         }
@@ -1163,7 +1132,7 @@ internal class SelectRolesPatch
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcSetRole))]
     private class RpcSetRoleReplacer
     {
-        public static bool doReplace = false;
+        public static bool doReplace;
         public static Dictionary<byte, CustomRpcSender> senders;
         public static List<(PlayerControl, RoleTypes)> StoragedData = new();
         // 役職Desyncなど別の処理でSetRoleRpcを書き込み済みなため、追加の書き込みが不要なSenderのリスト
@@ -1189,11 +1158,11 @@ internal class SelectRolesPatch
                 {
                     (PlayerControl, RoleTypes) pair = StoragedData[i];
                     pair.Item1.SetRole(pair.Item2);
-                    sender.Value.AutoStartRpc(pair.Item1.NetId, (byte)RpcCalls.SetRole, Utils.GetPlayerById(sender.Key).GetClientId())
+                    _ = sender.Value.AutoStartRpc(pair.Item1.NetId, (byte)RpcCalls.SetRole, Utils.GetPlayerById(sender.Key).GetClientId())
                         .Write((ushort)pair.Item2)
                         .EndRpc();
                 }
-                sender.Value.EndMessage();
+                _ = sender.Value.EndMessage();
             }
             doReplace = false;
         }

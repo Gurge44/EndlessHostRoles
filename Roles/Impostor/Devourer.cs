@@ -50,8 +50,8 @@ namespace TOHE.Roles.Impostor
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            PlayerSkinsCosumed.TryAdd(playerId, new List<byte>());
-            NowCooldown.TryAdd(playerId, DefaultKillCooldown.GetFloat());
+            _ = PlayerSkinsCosumed.TryAdd(playerId, new List<byte>());
+            _ = NowCooldown.TryAdd(playerId, DefaultKillCooldown.GetFloat());
         }
 
         public static void ApplyGameOptions()
@@ -114,27 +114,27 @@ namespace TOHE.Roles.Impostor
             var sender = CustomRpcSender.Create(name: $"Camouflage.RpcSetSkin({target.Data.PlayerName})");
 
             target.SetColor(outfit.ColorId);
-            sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetColor)
+            _ = sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetColor)
                 .Write(outfit.ColorId)
                 .EndRpc();
 
             target.SetHat(outfit.HatId, outfit.ColorId);
-            sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetHatStr)
+            _ = sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetHatStr)
                 .Write(outfit.HatId)
                 .EndRpc();
 
             target.SetSkin(outfit.SkinId, outfit.ColorId);
-            sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetSkinStr)
+            _ = sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetSkinStr)
                 .Write(outfit.SkinId)
                 .EndRpc();
 
             target.SetVisor(outfit.VisorId, outfit.ColorId);
-            sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetVisorStr)
+            _ = sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetVisorStr)
                 .Write(outfit.VisorId)
                 .EndRpc();
 
             target.SetPet(outfit.PetId);
-            sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetPetStr)
+            _ = sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetPetStr)
                 .Write(outfit.PetId)
                 .EndRpc();
 

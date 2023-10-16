@@ -56,7 +56,7 @@ class SwitchGameModePatch
             ErrorText.Instance.HnSFlag = true;
             ErrorText.Instance.AddError(ErrorCode.HnsUnload);
             Harmony.UnpatchAll();
-            Main.Instance.Unload();
+            _ = Main.Instance.Unload();
         }
     }
 }

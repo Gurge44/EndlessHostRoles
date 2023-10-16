@@ -38,10 +38,10 @@ public static class Magician
     public static Dictionary<byte, long> BlindPPL = new();
     public static Dictionary<Vector2, long> Bombs = new();
     private static List<Vector2> PortalMarks = new();
-    private static bool isSniping = false;
+    private static bool isSniping;
     private static byte snipeTarget = byte.MaxValue;
     private static Vector3 snipeBasePosition;
-    private static bool isSpeedup = false;
+    private static bool isSpeedup;
     private static float originalSpeed;
     private static long lastTP = GetTimeStamp();
 
@@ -109,10 +109,10 @@ public static class Magician
 
         var sb = new StringBuilder();
 
-        sb.Append("\n\n");
-        sb.AppendLine(ColorString(GetRoleColor(CustomRoles.Magician), $"Card name: <color=#ffffff>{GetString($"Magician-GetIdToName-{CardId}")}</color>"));
-        sb.AppendLine(ColorString(GetRoleColor(CustomRoles.Magician), $"Description: <color=#ffffff>{GetString($"Magician-GetIdToDesc-{CardId}")}</color>"));
-        sb.AppendLine(ColorString(GetRoleColor(CustomRoles.Magician), $"Trigger by: <color=#ffffff>{(UsePets.GetBool() ? "Pet button" : "Sabotage")}</color>"));
+        _ = sb.Append("\n\n");
+        _ = sb.AppendLine(ColorString(GetRoleColor(CustomRoles.Magician), $"Card name: <color=#ffffff>{GetString($"Magician-GetIdToName-{CardId}")}</color>"));
+        _ = sb.AppendLine(ColorString(GetRoleColor(CustomRoles.Magician), $"Description: <color=#ffffff>{GetString($"Magician-GetIdToDesc-{CardId}")}</color>"));
+        _ = sb.AppendLine(ColorString(GetRoleColor(CustomRoles.Magician), $"Trigger by: <color=#ffffff>{(UsePets.GetBool() ? "Pet button" : "Sabotage")}</color>"));
 
         killer.Notify(sb.ToString(), 15f);
     }
@@ -182,7 +182,7 @@ public static class Magician
                     sniper.SetKillCooldown(time: Main.AllPlayerKillCooldown[sniper.PlayerId] + temp);
                     snipeTarget = 0x7F;
 
-                    targets.Remove(snipedTarget);
+                    _ = targets.Remove(snipedTarget);
                     var snList = new List<byte>();
                     foreach (var otherPc in targets.Keys)
                     {
@@ -209,13 +209,13 @@ public static class Magician
                     PlayerControl x = players[i];
                     if (x.PlayerId == pc.PlayerId || x == null) continue;
 
-                    BlindPPL.TryAdd(x.PlayerId, GetTimeStamp());
+                    _ = BlindPPL.TryAdd(x.PlayerId, GetTimeStamp());
                     x.MarkDirtySettings();
                 }
                 CardId = byte.MaxValue;
                 break;
             case 7: // Time bomb: Place, explodes after x seconds, kills everyone nearby
-                Bombs.TryAdd(pc.transform.position, GetTimeStamp());
+                _ = Bombs.TryAdd(pc.transform.position, GetTimeStamp());
                 CardId = byte.MaxValue;
                 break;
             case 8: // Speed up
@@ -230,12 +230,12 @@ public static class Magician
                 CardId = byte.MaxValue;
                 break;
             case 10: // Admin map
-                NameNotifyManager.Notice.Remove(pc.PlayerId);
+                _ = NameNotifyManager.Notice.Remove(pc.PlayerId);
                 var rooms = ExtendedPlayerControl.GetAllPlayerLocationsCount();
                 var sb = new StringBuilder();
                 foreach (var location in rooms)
                 {
-                    sb.Append($"\n<color=#00ffa5>{location.Key}:</color> {location.Value}");
+                    _ = sb.Append($"\n<color=#00ffa5>{location.Key}:</color> {location.Value}");
                 }
                 pc.Notify(sb.ToString(), 10f);
                 break;
@@ -301,7 +301,7 @@ public static class Magician
         {
             foreach (var x in BlindPPL.Where(x => x.Value + BlindDur.GetInt() < GetTimeStamp()))
             {
-                BlindPPL.Remove(x.Key);
+                _ = BlindPPL.Remove(x.Key);
                 GetPlayerById(x.Key).MarkDirtySettings();
             }
         }
@@ -325,7 +325,7 @@ public static class Magician
                     tg.RpcMurderPlayerV3(tg);
                     Medic.IsDead(tg);
                 }
-                Bombs.Remove(bomb.Key);
+                _ = Bombs.Remove(bomb.Key);
                 pc.Notify(GetString("MagicianBombExploded"));
                 if (b) _ = new LateTask(() =>
                 {
@@ -341,7 +341,7 @@ public static class Magician
             List<long> list = Bombs.Values.ToList();
             for (int i = 0; i < list.Count; i++)
             {
-                sb.Append(string.Format(GetString("MagicianBombExlodesIn"), BombDelay.GetInt() - (GetTimeStamp() - list[i]) + 1));
+                _ = sb.Append(string.Format(GetString("MagicianBombExlodesIn"), BombDelay.GetInt() - (GetTimeStamp() - list[i]) + 1));
             }
             pc.Notify(sb.ToString());
         }
@@ -364,8 +364,8 @@ public static class Magician
         foreach (var x in TempSpeeds.Where(x => SlowPPL[x.Key] + SlownessDur.GetInt() < GetTimeStamp() || force))
         {
             Main.AllPlayerSpeed[x.Key] = x.Value;
-            SlowPPL.Remove(x.Key);
-            TempSpeeds.Remove(x.Key);
+            _ = SlowPPL.Remove(x.Key);
+            _ = TempSpeeds.Remove(x.Key);
             GetPlayerById(x.Key).MarkDirtySettings();
         }
     }

@@ -113,11 +113,11 @@ namespace TOHE.Roles.Impostor
                 {
                     case 1: // Delayed kill
                         killer.Notify(string.Format(GetString("GamblerGet.DelayedKill"), KillDelay.GetInt()));
-                        waitingDelayedKills.TryAdd(target.PlayerId, GetTimeStamp());
+                        _ = waitingDelayedKills.TryAdd(target.PlayerId, GetTimeStamp());
                         return false;
                     case 2: // Shield
                         killer.Notify(string.Format(GetString("GamblerGet.Shield"), ShieldDur.GetInt()));
-                        isShielded.TryAdd(killer.PlayerId, GetTimeStamp());
+                        _ = isShielded.TryAdd(killer.PlayerId, GetTimeStamp());
                         break;
                     case 3: // No lunge (Swift kill)
                         killer.Notify(GetString("GamblerGet.NoLunge"));
@@ -165,7 +165,7 @@ namespace TOHE.Roles.Impostor
                         break;
                     case 7: // Speed
                         killer.Notify(string.Format(GetString("GamblerGet.Speedup"), SpeedDur.GetInt(), Speed.GetFloat()));
-                        isSpeedChange.TryAdd(killer.PlayerId, (Main.AllPlayerSpeed[killer.PlayerId], GetTimeStamp()));
+                        _ = isSpeedChange.TryAdd(killer.PlayerId, (Main.AllPlayerSpeed[killer.PlayerId], GetTimeStamp()));
                         Main.AllPlayerSpeed[killer.PlayerId] = Speed.GetFloat();
                         killer.SyncSettings();
                         break;
@@ -189,13 +189,13 @@ namespace TOHE.Roles.Impostor
                         break;
                     case 2: // Freeze
                         killer.Notify(string.Format(GetString("GamblerGet.Freeze"), FreezeDur.GetInt()));
-                        isSpeedChange.TryAdd(killer.PlayerId, (Main.AllPlayerSpeed[killer.PlayerId], GetTimeStamp()));
+                        _ = isSpeedChange.TryAdd(killer.PlayerId, (Main.AllPlayerSpeed[killer.PlayerId], GetTimeStamp()));
                         Main.AllPlayerSpeed[killer.PlayerId] = Main.MinSpeed;
                         killer.SyncSettings();
                         break;
                     case 3: // Low vision
                         killer.Notify(string.Format(GetString("GamblerGet.LowVision"), LowVisionDur.GetInt(), LowVision.GetFloat()));
-                        isVisionChange.TryAdd(killer.PlayerId, GetTimeStamp());
+                        _ = isVisionChange.TryAdd(killer.PlayerId, GetTimeStamp());
                         killer.SyncSettings();
                         break;
                     case 4: // High KCD
@@ -210,8 +210,6 @@ namespace TOHE.Roles.Impostor
                         break;
                 }
             }
-
-            EffectID = byte.MaxValue;
 
             return true;
         }
@@ -230,7 +228,7 @@ namespace TOHE.Roles.Impostor
                 var pc = GetPlayerById(x.Key);
                 if (!pc.IsAlive())
                 {
-                    waitingDelayedKills.Remove(x.Key);
+                    _ = waitingDelayedKills.Remove(x.Key);
                     continue;
                 }
                 if (x.Value + KillDelay.GetInt() < GetTimeStamp())
@@ -238,26 +236,26 @@ namespace TOHE.Roles.Impostor
                     Main.PlayerStates[x.Key].deathReason = PlayerState.DeathReason.Poison;
                     pc.SetRealKiller(player);
                     pc.RpcMurderPlayerV3(pc);
-                    waitingDelayedKills.Remove(x.Key);
+                    _ = waitingDelayedKills.Remove(x.Key);
                 }
             }
 
             if (isSpeedChange.TryGetValue(player.PlayerId, out var p) && p.Item2 + SpeedDur.GetInt() < GetTimeStamp())
             {
                 Main.AllPlayerSpeed[player.PlayerId] = p.Item1;
-                isSpeedChange.Remove(player.PlayerId);
+                _ = isSpeedChange.Remove(player.PlayerId);
                 sync = true;
             }
 
             if (isVisionChange.TryGetValue(player.PlayerId, out var v) && v + LowVisionDur.GetInt() < GetTimeStamp())
             {
-                isVisionChange.Remove(player.PlayerId);
+                _ = isVisionChange.Remove(player.PlayerId);
                 sync = true;
             }
 
             if (isShielded.TryGetValue(player.PlayerId, out var shielded) && shielded + ShieldDur.GetInt() < GetTimeStamp())
             {
-                isShielded.Remove(player.PlayerId);
+                _ = isShielded.Remove(player.PlayerId);
             }
 
             if (sync) { player.SyncSettings(); }
@@ -265,7 +263,6 @@ namespace TOHE.Roles.Impostor
 
         public static void OnReportDeadBody()
         {
-            EffectID = byte.MaxValue;
             foreach (var playerId in waitingDelayedKills.Keys)
             {
                 var pc = GetPlayerById(playerId);

@@ -34,7 +34,7 @@ internal static class QuickShooter
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        ShotLimit.TryAdd(playerId, 0);
+        _ = ShotLimit.TryAdd(playerId, 0);
     }
     public static bool IsEnable => playerIdList.Any();
     private static void SendRPC(byte playerId)
@@ -48,7 +48,7 @@ internal static class QuickShooter
     {
         byte QuickShooterId = reader.ReadByte();
         int Limit = reader.ReadInt32();
-        ShotLimit.TryAdd(QuickShooterId, Limit);
+        _ = ShotLimit.TryAdd(QuickShooterId, Limit);
         ShotLimit[QuickShooterId] = Limit;
     }
     public static void OnShapeshift(PlayerControl pc, bool shapeshifting)
@@ -61,7 +61,7 @@ internal static class QuickShooter
             pc.ResetKillCooldown();
             pc.SetKillCooldown();
             pc.Notify(Translator.GetString("QuickShooterStoraging"));
-            Logger.Info($"{Utils.GetPlayerById(pc.PlayerId)?.GetNameWithRole().RemoveHtmlTags()} : 残り{ShotLimit[pc.PlayerId]}発", "QuickShooter");
+            Logger.Info($"{Utils.GetPlayerById(pc.PlayerId)?.GetNameWithRole()} : 残り{ShotLimit[pc.PlayerId]}発", "QuickShooter");
         }
     }
     //private static bool Storaging;
@@ -83,7 +83,7 @@ internal static class QuickShooter
     }
     public static void QuickShooterKill(PlayerControl killer)
     {
-        ShotLimit.TryAdd(killer.PlayerId, 0);
+        _ = ShotLimit.TryAdd(killer.PlayerId, 0);
         if (ShotLimit[killer.PlayerId] > 0) _ = new LateTask(() => { killer.SetKillCooldown(0.01f); }, 0.01f, "QuickShooterKill: Set KCD to 0s");
         ShotLimit[killer.PlayerId]--;
         ShotLimit[killer.PlayerId] = Math.Max(ShotLimit[killer.PlayerId], 0);

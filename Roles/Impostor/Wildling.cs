@@ -40,7 +40,7 @@ public static class Wildling
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        TimeStamp.TryAdd(playerId, 0);
+        _ = TimeStamp.TryAdd(playerId, 0);
 
 
     }
@@ -56,7 +56,7 @@ public static class Wildling
     {
         byte PlayerId = reader.ReadByte();
         string Time = reader.ReadString();
-        TimeStamp.TryAdd(PlayerId, long.Parse(Time));
+        _ = TimeStamp.TryAdd(PlayerId, long.Parse(Time));
         TimeStamp[PlayerId] = long.Parse(Time);
     }
     public static bool InProtect(byte playerId) => TimeStamp.TryGetValue(playerId, out var time) && time > Utils.GetTimeStamp(DateTime.Now);
@@ -83,11 +83,11 @@ public static class Wildling
         if (InProtect(pc.PlayerId))
         {
             var remainTime = TimeStamp[pc.PlayerId] - Utils.GetTimeStamp(DateTime.Now);
-            str.Append(string.Format(Translator.GetString("BKSkillTimeRemain"), remainTime));
+            _ = str.Append(string.Format(Translator.GetString("BKSkillTimeRemain"), remainTime));
         }
         else
         {
-            str.Append(Translator.GetString("BKSkillNotice"));
+            _ = str.Append(Translator.GetString("BKSkillNotice"));
         }
         return str.ToString();
     }

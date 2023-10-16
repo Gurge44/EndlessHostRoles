@@ -54,7 +54,7 @@ public static class Translator
         }
 
         // カスタム翻訳ファイルの読み込み
-        if (!Directory.Exists(LANGUAGE_FOLDER_NAME)) Directory.CreateDirectory(LANGUAGE_FOLDER_NAME);
+        if (!Directory.Exists(LANGUAGE_FOLDER_NAME)) _ = Directory.CreateDirectory(LANGUAGE_FOLDER_NAME);
 
         // 翻訳テンプレートの作成
         CreateTemplateFile();
@@ -166,7 +166,7 @@ public static class Translator
     private static void CreateTemplateFile()
     {
         var sb = new StringBuilder();
-        foreach (var title in translateMaps) sb.Append($"{title.Key}:\n");
+        foreach (var title in translateMaps) _ = sb.Append($"{title.Key}:\n");
         File.WriteAllText(@$"./{LANGUAGE_FOLDER_NAME}/template.dat", sb.ToString());
     }
     public static void ExportCustomTranslation()
@@ -177,7 +177,7 @@ public static class Translator
         foreach (var title in translateMaps)
         {
             if (!title.Value.TryGetValue((int)lang, out var text)) text = "";
-            sb.Append($"{title.Key}:{text.Replace("\n", "\\n").Replace("\r", "\\r")}\n");
+            _ = sb.Append($"{title.Key}:{text.Replace("\n", "\\n").Replace("\r", "\\r")}\n");
         }
         File.WriteAllText(@$"./{LANGUAGE_FOLDER_NAME}/export_{lang}.dat", sb.ToString());
     }

@@ -63,7 +63,7 @@ public static class BallLightning
         else
         {
             if (GhostPlayer.Contains(GhostId))
-                GhostPlayer.Remove(GhostId);
+                _ = GhostPlayer.Remove(GhostId);
         }
     }
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
@@ -87,11 +87,11 @@ public static class BallLightning
             {
                 GhostPlayer.Add(target.PlayerId);
                 SendRPC(target.PlayerId);
-                RealKiller.TryAdd(target.PlayerId, killer);
+                _ = RealKiller.TryAdd(target.PlayerId, killer);
                 if (!killer.inVent) killer.SetKillCooldown();
                 Utils.NotifyRoles(SpecifySeer: killer);
                 Utils.NotifyRoles(SpecifySeer: target);
-                Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} 转化为量子幽灵", "BallLightning");
+                Logger.Info($"{target.GetNameWithRole()} 转化为量子幽灵", "BallLightning");
             }
         }, ConvertTime.GetFloat(), "BallLightning Convert Player To Ghost");
     }
@@ -99,7 +99,7 @@ public static class BallLightning
     {
         if (killer == null || target == null || !target.Is(CustomRoles.BallLightning)) return;
         if (!KillerConvertGhost.GetBool() || IsGhost(killer)) return;
-        RealKiller.TryAdd(killer.PlayerId, target);
+        _ = RealKiller.TryAdd(killer.PlayerId, target);
         StartConvertCountDown(target, killer);
     }
     public static void OnFixedUpdate()
@@ -127,13 +127,13 @@ public static class BallLightning
                 gs.SetRealKiller(RealKiller[gs.PlayerId]);
                 gs.RpcMurderPlayerV3(gs);
 
-                Logger.Info($"{gs.GetNameWithRole().RemoveHtmlTags()} 作为量子幽灵因碰撞而死", "BallLightning");
+                Logger.Info($"{gs.GetNameWithRole()} 作为量子幽灵因碰撞而死", "BallLightning");
                 break;
             }
         }
         if (deList.Any())
         {
-            GhostPlayer.RemoveAll(deList.Contains);
+            _ = GhostPlayer.RemoveAll(deList.Contains);
             for (int i = 0; i < deList.Count; i++)
             {
                 byte gs = deList[i];
@@ -153,7 +153,7 @@ public static class BallLightning
             if (gs == null) continue;
             CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Quantization, gs.PlayerId);
             gs.SetRealKiller(RealKiller[gs.PlayerId]);
-            Logger.Info($"{gs.GetNameWithRole().RemoveHtmlTags()} 作为量子幽灵参与会议，将在会议后死亡", "BallLightning");
+            Logger.Info($"{gs.GetNameWithRole()} 作为量子幽灵参与会议，将在会议后死亡", "BallLightning");
             Utils.NotifyRoles(SpecifySeer: gs);
         }
         GhostPlayer = new();

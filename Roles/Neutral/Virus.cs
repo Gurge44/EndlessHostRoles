@@ -12,7 +12,7 @@ namespace TOHE.Roles.Neutral
     {
         private static readonly int Id = 13200;
         private static List<byte> playerIdList = new();
-        private static int InfectLimit = new();
+        private static int InfectLimit;
         public static List<byte> InfectedPlayer = new();
 
         private static OptionItem KillCooldown;
@@ -145,7 +145,7 @@ namespace TOHE.Roles.Neutral
                 }
                 else
                 {
-                    Main.AfterMeetingDeathPlayers.Remove(pc.PlayerId);
+                    _ = Main.AfterMeetingDeathPlayers.Remove(pc.PlayerId);
                 }
             }
 

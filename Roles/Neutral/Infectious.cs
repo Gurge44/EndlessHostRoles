@@ -22,7 +22,7 @@ public static class Infectious
     public static OptionItem HideBittenRolesOnEject;
 
 
-    private static int BiteLimit = new();
+    private static int BiteLimit;
 
     public static void SetupCustomOption()
     {
@@ -54,12 +54,12 @@ public static class Infectious
             Main.ResetCamPlayerList.Add(playerId);
     }
     public static bool IsEnable => playerIdList.Any();
-    //private static void SendRPC()
-    //{
-    //    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetInfectiousBiteLimit, SendOption.Reliable, -1);
-    //    writer.Write(BiteLimit);
-    //    AmongUsClient.Instance.FinishRpcImmediately(writer);
-    //}
+    private static void SendRPC()
+    {
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetInfectiousBiteLimit, SendOption.Reliable, -1);
+        writer.Write(BiteLimit);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
     public static void ReceiveRPC(MessageReader reader)
     {
         BiteLimit = reader.ReadInt32();
@@ -87,7 +87,7 @@ public static class Infectious
             Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Infected.ToString(), "Assign " + CustomRoles.Infected.ToString());
             if (BiteLimit < 0)
                 HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
-            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{BiteLimit}次招募机会", "Infectious");
+            Logger.Info($"{killer.GetNameWithRole()} : 剩余{BiteLimit}次招募机会", "Infectious");
             return true;
         }
         if (!CanBeBitten(target) && !target.Is(CustomRoles.Infected))
@@ -97,7 +97,7 @@ public static class Infectious
         if (BiteLimit < 0)
             HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Infectious), GetString("InfectiousInvalidTarget")));
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{BiteLimit}次招募机会", "Infectious");
+        Logger.Info($"{killer.GetNameWithRole()} : 剩余{BiteLimit}次招募机会", "Infectious");
         return false;
     }
     public static bool KnowRole(PlayerControl player, PlayerControl target)

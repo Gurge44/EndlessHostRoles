@@ -45,7 +45,7 @@ public static class NiceSwapper
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        NiceSwappermax.TryAdd(playerId, SwapMax.GetInt());
+        _ = NiceSwappermax.TryAdd(playerId, SwapMax.GetInt());
     }
     public static bool IsEnable => playerIdList.Any();
     public static string GetNiceSwappermax(byte playerId) => Utils.ColorString((NiceSwappermax.TryGetValue(playerId, out var x) && x >= 1) ? Color.white : Color.red, NiceSwappermax.TryGetValue(playerId, out var changermax) ? $"<color=#777777>-</color> {Math.Round(changermax, 1)}" : "Invalid");
@@ -125,7 +125,7 @@ public static class NiceSwapper
                 }
                 else if (Vote.Any() && Vote.Contains(dp.PlayerId))
                 {
-                    Vote.Remove(dp.PlayerId);
+                    _ = Vote.Remove(dp.PlayerId);
                     if (HideMsg.GetBool() && !isUI)
                     {
                         ChatManager.SendPreviousMessagesToAll();
@@ -136,7 +136,7 @@ public static class NiceSwapper
                 }
                 else if (VoteTwo.Contains(dp.PlayerId) && VoteTwo.Any())
                 {
-                    VoteTwo.Remove(dp.PlayerId);
+                    _ = VoteTwo.Remove(dp.PlayerId);
                     if (HideMsg.GetBool() && !isUI)
                     {
                         ChatManager.SendPreviousMessagesToAll();
@@ -244,7 +244,7 @@ public static class NiceSwapper
     public static void ReceiveRPC(MessageReader reader, PlayerControl pc)
     {
         byte PlayerId = reader.ReadByte();
-        SwapMsg(pc, $"/sw {PlayerId}");
+        _ = SwapMsg(pc, $"/sw {PlayerId}");
         //if (HideMsg.GetBool()) GuessManager.TryHideMsg();
     }
     private static void SwapperOnClick(byte playerId, MeetingHud __instance)
@@ -252,7 +252,7 @@ public static class NiceSwapper
         Logger.Msg($"Click: ID {playerId}", "NiceSwapper UI");
         var pc = Utils.GetPlayerById(playerId);
         if (pc == null || !pc.IsAlive() || !GameStates.IsVoting) return;
-        if (AmongUsClient.Instance.AmHost) SwapMsg(PlayerControl.LocalPlayer, $"/sw {playerId}", true);
+        if (AmongUsClient.Instance.AmHost) _ = SwapMsg(PlayerControl.LocalPlayer, $"/sw {playerId}", true);
         else SendRPC(playerId);
         if (PlayerControl.LocalPlayer.GetCustomRole() == CustomRoles.NiceSwapper && PlayerControl.LocalPlayer.IsAlive())
         {

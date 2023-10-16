@@ -142,7 +142,7 @@ public enum Sounds
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.HandleRpc))]
 internal class RPCHandlerPatch
 {
-    public static Dictionary<byte, int> ReportDeadBodyRPCs = new();
+    public static int ReportDeadBodyRPCs;
     public static bool TrustedRpc(byte id)
     => (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.RetributionistRevenge;
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
@@ -151,18 +151,13 @@ internal class RPCHandlerPatch
         MessageReader subReader = MessageReader.Get(reader);
         if (EAC.ReceiveRpc(__instance, callId, reader)) return false;
         Logger.Info($"{__instance?.Data?.PlayerId}({(__instance?.Data?.PlayerId == 0 ? "Host" : __instance?.Data?.PlayerName)}):{callId}({RPC.GetRpcName(callId)})", "ReceiveRPC");
-        if (callId == 11)
-        {
-            if (!ReportDeadBodyRPCs.ContainsKey(__instance.PlayerId)) ReportDeadBodyRPCs.TryAdd(__instance.PlayerId, 0);
-            ReportDeadBodyRPCs[__instance.PlayerId]++;
-        }
-
+        if (callId == 11) ReportDeadBodyRPCs++;
         switch (rpcType)
         {
             case RpcCalls.SetName: //SetNameRPC
                 string name = subReader.ReadString();
                 if (subReader.BytesRemaining > 0 && subReader.ReadBoolean()) return false;
-                Logger.Info("RPC名称修改:" + __instance.GetNameWithRole().RemoveHtmlTags() + " => " + name, "SetName");
+                Logger.Info("RPC名称修改:" + __instance.GetNameWithRole() + " => " + name, "SetName");
                 break;
             case RpcCalls.SetRole: //SetNameRPC
                 var role = (RoleTypes)subReader.ReadUInt16();
@@ -170,16 +165,16 @@ internal class RPCHandlerPatch
                 break;
             case RpcCalls.SendChat:
                 var text = subReader.ReadString();
-                Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}:{text}", "ReceiveChat");
+                Logger.Info($"{__instance.GetNameWithRole()}:{text}", "ReceiveChat");
                 ChatCommands.OnReceiveChat(__instance, text, out var canceled);
                 if (canceled) return false;
                 break;
             case RpcCalls.StartMeeting:
                 var p = Utils.GetPlayerById(subReader.ReadByte());
-                Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {p?.GetNameWithRole() ?? "null"}", "StartMeeting");
+                Logger.Info($"{__instance.GetNameWithRole()} => {p?.GetNameWithRole() ?? "null"}", "StartMeeting");
                 break;
             case RpcCalls.Pet:
-                Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} petted their pet", "RpcHandlerPatch");
+                Logger.Info($"{__instance.GetNameWithRole()} petted their pet", "RpcHandlerPatch");
                 break;
         }
         if (__instance.PlayerId != 0
@@ -196,7 +191,7 @@ internal class RPCHandlerPatch
             }
             return false;
         }
-        if (ReportDeadBodyRPCs.TryGetValue(__instance.PlayerId, out var times) && times > 4)
+        if (ReportDeadBodyRPCs > 4)
         {
             AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), true);
             Logger.SendInGame(string.Format(GetString("Warning.ReportDeadBodyHack"), __instance?.Data?.PlayerName));
@@ -293,7 +288,7 @@ internal class RPCHandlerPatch
                     OptionItem co = list[i1];
                     co.SetValue(reader.ReadInt32());
                 }
-                OptionShower.GetText();
+                _ = OptionShower.GetText();
                 break;
             case CustomRPC.SetDeathReason:
                 RPC.GetDeathReason(reader);
@@ -517,7 +512,7 @@ internal class RPCHandlerPatch
                 Main.AllPlayerNames = new();
                 int num = reader.ReadInt32();
                 for (int i = 0; i < num; i++)
-                    Main.AllPlayerNames.TryAdd(reader.ReadByte(), reader.ReadString());
+                    _ = Main.AllPlayerNames.TryAdd(reader.ReadByte(), reader.ReadString());
                 break;
             case CustomRPC.SyncKBBackCountdown:
                 SoloKombatManager.ReceiveRPCSyncBackCountdown(reader);
@@ -720,7 +715,7 @@ internal static class RPC
             writer.StartMessage(1); //0x01 Data
             {
                 writer.WritePacked(GameData.Instance.NetId);
-                GameData.Instance.Serialize(writer, true);
+                _ = GameData.Instance.Serialize(writer, true);
             }
             writer.EndMessage();
         }
@@ -802,16 +797,16 @@ internal static class RPC
             switch (sound)
             {
                 case Sounds.KillSound:
-                    SoundManager.Instance.PlaySound(PlayerControl.LocalPlayer.KillSfx, false, 1f);
+                    _ = SoundManager.Instance.PlaySound(PlayerControl.LocalPlayer.KillSfx, false, 1f);
                     break;
                 case Sounds.TaskComplete:
-                    SoundManager.Instance.PlaySound(DestroyableSingleton<HudManager>.Instance.TaskCompleteSound, false, 1f);
+                    _ = SoundManager.Instance.PlaySound(DestroyableSingleton<HudManager>.Instance.TaskCompleteSound, false, 1f);
                     break;
                 case Sounds.TaskUpdateSound:
-                    SoundManager.Instance.PlaySound(DestroyableSingleton<HudManager>.Instance.TaskUpdateSound, false, 1f);
+                    _ = SoundManager.Instance.PlaySound(DestroyableSingleton<HudManager>.Instance.TaskUpdateSound, false, 1f);
                     break;
                 case Sounds.ImpTransform:
-                    SoundManager.Instance.PlaySound(DestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx, false, 0.8f);
+                    _ = SoundManager.Instance.PlaySound(DestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx, false, 0.8f);
                     break;
             }
         }
@@ -860,9 +855,6 @@ internal static class RPC
                 break;
             case CustomRoles.Executioner:
                 Executioner.Add(targetId);
-                break;
-            case CustomRoles.Enigma:
-                Enigma.Add(targetId);
                 break;
             case CustomRoles.Farseer:
                 Farseer.Add(targetId);
@@ -1132,18 +1124,6 @@ internal static class RPC
             case CustomRoles.NSerialKiller:
                 NSerialKiller.Add(targetId);
                 break;
-            case CustomRoles.Magician:
-                Magician.Add(targetId);
-                break;
-            case CustomRoles.Postman:
-                Postman.Add(targetId);
-                break;
-            case CustomRoles.Mafioso:
-                Mafioso.Add(targetId);
-                break;
-            case CustomRoles.Reckless:
-                Reckless.Add(targetId);
-                break;
             case CustomRoles.Pyromaniac:
                 Pyromaniac.Add(targetId);
                 break;
@@ -1176,12 +1156,6 @@ internal static class RPC
                 break;
             case CustomRoles.Dazzler:
                 Dazzler.Add(targetId);
-                break;
-            case CustomRoles.CameraMan:
-                CameraMan.Add(targetId);
-                break;
-            case CustomRoles.Hitman:
-                Hitman.Add(targetId);
                 break;
             case CustomRoles.NiceHacker:
                 NiceHacker.Add(targetId);
@@ -1351,7 +1325,7 @@ internal static class RPC
 [HarmonyPatch(typeof(InnerNet.InnerNetClient), nameof(InnerNet.InnerNetClient.StartRpc))]
 internal class StartRpcPatch
 {
-    public static void Prefix(/*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId)
+    public static void Prefix(InnerNet.InnerNetClient __instance, [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId)
     {
         RPC.SendRpcLogger(targetNetId, callId);
     }
@@ -1359,7 +1333,7 @@ internal class StartRpcPatch
 [HarmonyPatch(typeof(InnerNet.InnerNetClient), nameof(InnerNet.InnerNetClient.StartRpcImmediately))]
 internal class StartRpcImmediatelyPatch
 {
-    public static void Prefix(/*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId, [HarmonyArgument(3)] int targetClientId = -1)
+    public static void Prefix(InnerNet.InnerNetClient __instance, [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId, [HarmonyArgument(3)] int targetClientId = -1)
     {
         RPC.SendRpcLogger(targetNetId, callId, targetClientId);
     }

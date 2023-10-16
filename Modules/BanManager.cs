@@ -22,7 +22,7 @@ public static class BanManager
     {
         try
         {
-            Directory.CreateDirectory("TOHE_DATA");
+            _ = Directory.CreateDirectory("TOHE_DATA");
 
             if (!File.Exists(BAN_LIST_PATH))
             {
@@ -87,7 +87,7 @@ public static class BanManager
         if (!AmongUsClient.Instance.AmHost || !Options.ApplyDenyNameList.GetBool()) return;
         try
         {
-            Directory.CreateDirectory("TOHE_DATA");
+            _ = Directory.CreateDirectory("TOHE_DATA");
             if (!File.Exists(DENY_NAME_LIST_PATH)) File.Create(DENY_NAME_LIST_PATH).Close();
             using StreamReader sr = new(DENY_NAME_LIST_PATH);
             string line;
@@ -148,7 +148,7 @@ public static class BanManager
         if (code == string.Empty) return false;
         try
         {
-            Directory.CreateDirectory("TOHE_DATA");
+            _ = Directory.CreateDirectory("TOHE_DATA");
             if (!File.Exists(BAN_LIST_PATH)) File.Create(BAN_LIST_PATH).Close();
             using StreamReader sr = new(BAN_LIST_PATH);
             string line;

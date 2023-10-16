@@ -42,7 +42,7 @@
             OptionTasksFinishedVision = FloatOptionItem.Create(Id + 7, "CandleLighterTasksFinishedVision", new(0.5f, 5f, 0.1f), 0.5f, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ignitor])
                 .SetValueFormat(OptionFormat.Multiplier);
-            OverrideTasksData.Create(Id + 8, TabGroup.CrewmateRoles, CustomRoles.Ignitor);
+            _ = OverrideTasksData.Create(Id + 8, TabGroup.CrewmateRoles, CustomRoles.Ignitor);
         }
         public static void Init()
         {

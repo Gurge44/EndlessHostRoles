@@ -235,7 +235,7 @@ public static class Judge
     public static void ReceiveRPC(MessageReader reader, PlayerControl pc)
     {
         int PlayerId = reader.ReadByte();
-        TrialMsg(pc, $"/tl {PlayerId}", true);
+        _ = TrialMsg(pc, $"/tl {PlayerId}", true);
     }
 
     private static void JudgeOnClick(byte playerId, MeetingHud __instance)
@@ -243,7 +243,7 @@ public static class Judge
         Logger.Msg($"Click: ID {playerId}", "Judge UI");
         var pc = Utils.GetPlayerById(playerId);
         if (pc == null || !pc.IsAlive() || !GameStates.IsVoting) return;
-        if (AmongUsClient.Instance.AmHost) TrialMsg(PlayerControl.LocalPlayer, $"/tl {playerId}", true);
+        if (AmongUsClient.Instance.AmHost) _ = TrialMsg(PlayerControl.LocalPlayer, $"/tl {playerId}", true);
         else SendRPC(playerId);
     }
 

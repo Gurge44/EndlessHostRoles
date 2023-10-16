@@ -40,7 +40,7 @@ internal class Monitor
     }
     public static bool IsEnable => playerIdList.Any();
 
-    private static int Count = 0;
+    private static int Count;
     public static void FixedUpdate()
     {
         if (!IsEnable) return;

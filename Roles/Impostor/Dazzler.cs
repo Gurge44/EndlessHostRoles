@@ -54,7 +54,7 @@ namespace TOHE.Roles.Impostor
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            PlayersDazzled.TryAdd(playerId, new List<byte>());
+            _ = PlayersDazzled.TryAdd(playerId, new List<byte>());
             DazzleLimit.Add(playerId, DazzleLimitOpt.GetFloat());
         }
 

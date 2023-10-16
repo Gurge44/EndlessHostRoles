@@ -16,11 +16,11 @@ public static class NameNotifyManager
         //if (!text.Contains("<color=#")) text = Utils.ColorString(Utils.GetRoleColor(pc.GetCustomRole()), text);
         if (!text.Contains("<color=#")) text = Utils.ColorString(Color.white, text);
         if (!text.Contains("<size=")) text = "<size=1.7>" + text + "</size>";
-        Notice.Remove(pc.PlayerId);
+        _ = Notice.Remove(pc.PlayerId);
         Notice.Add(pc.PlayerId, new(text, Utils.GetTimeStamp() + (long)time));
         SendRPC(pc.PlayerId);
         Utils.NotifyRoles(SpecifySeer: pc);
-        Logger.Info($"New name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
+        Logger.Info($"New name notify for {pc.GetNameWithRole()}: {text} ({time}s)", "Name Notify");
     }
     public static void OnFixedUpdate(PlayerControl player)
     {
@@ -31,7 +31,7 @@ public static class NameNotifyManager
         }
         if (Notice.ContainsKey(player.PlayerId) && Notice[player.PlayerId].Item2 < Utils.GetTimeStamp())
         {
-            Notice.Remove(player.PlayerId);
+            _ = Notice.Remove(player.PlayerId);
             Utils.NotifyRoles(SpecifySeer: player);
         }
     }
@@ -59,7 +59,7 @@ public static class NameNotifyManager
     public static void ReceiveRPC(MessageReader reader)
     {
         byte PlayerId = reader.ReadByte();
-        Notice.Remove(PlayerId);
+        _ = Notice.Remove(PlayerId);
         if (reader.ReadBoolean())
             Notice.Add(PlayerId, new(reader.ReadString(), Utils.GetTimeStamp() + (long)reader.ReadSingle()));
         Logger.Info($"New name notify for {Main.AllPlayerNames[PlayerId]}: {Notice[PlayerId].Item1} ({Notice[PlayerId].Item2 - Utils.GetTimeStamp()}s)", "Name Notify");
