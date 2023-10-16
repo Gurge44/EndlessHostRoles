@@ -215,6 +215,9 @@ class CheckMurderPatch
                 case CustomRoles.Magician:
                     Magician.OnCheckMurder(killer);
                     break;
+                case CustomRoles.Postman:
+                    Postman.OnCheckMurder(killer, target);
+                    break;
                 case CustomRoles.Vengeance:
                     if (!Vengeance.OnCheckMurder(killer, target)) return false;
                     break;
@@ -1033,6 +1036,11 @@ class MurderPlayerPatch
         //记录首刀
         if (Main.FirstDied == byte.MaxValue)
             Main.FirstDied = target.PlayerId;
+
+        if (Postman.Target == target.PlayerId)
+        {
+            Postman.OnTargetDeath(killer, target);
+        }
 
         if (target.Is(CustomRoles.Bait))
         {
@@ -3082,7 +3090,7 @@ class PlayerStartPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.SetColor))]
 class SetColorPatch
 {
-    public static bool IsAntiGlitchDisabled = false;
+    public static bool IsAntiGlitchDisabled;
     public static bool Prefix(PlayerControl __instance, int bodyColor)
     {
         //色変更バグ対策
