@@ -51,7 +51,7 @@ namespace TOHE.Roles.Crewmate
             {
                 if (Target != byte.MaxValue)
                 {
-                    _ = Main.TetherCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                    Main.TetherCD.TryAdd(pc.PlayerId, GetTimeStamp());
                     _ = new LateTask(() =>
                     {
                         if (GameStates.IsInTask)
@@ -111,10 +111,10 @@ namespace TOHE.Roles.Crewmate
             if (UseLimit[playerId] < 1) TextColor1 = Color.red;
             else TextColor1 = Color.white;
 
-            _ = sb.Append(ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
-            _ = sb.Append(ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));
+            sb.Append(ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
+            sb.Append(ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));
 
-            if (Target != byte.MaxValue) _ = sb.Append($" <color=#777777>-</color> Target: {GetPlayerById(Target).GetRealName()}");
+            if (Target != byte.MaxValue) sb.Append($" <color=#777777>-</color> Target: {GetPlayerById(Target).GetRealName()}");
 
             return sb.ToString();
         }

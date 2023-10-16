@@ -31,7 +31,7 @@ public static class Options
     {
         Logger.Info("Options.Load Start", "Options");
         taskOptionsLoad = Task.Run(Load);
-        _ = taskOptionsLoad.ContinueWith(t => { Logger.Info("Options.Load End", "Load Options"); });
+        taskOptionsLoad.ContinueWith(t => { Logger.Info("Options.Load End", "Load Options"); });
     }
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPostfix]
     public static void WaitOptionsLoad()
@@ -681,7 +681,7 @@ public static class Options
     // ボタン回数
     public static OptionItem SyncButtonMode;
     public static OptionItem SyncedButtonCount;
-    public static int UsedButtonCount;
+    public static int UsedButtonCount = 0;
 
     // 全員生存時の会議時間
     public static OptionItem AllAliveMeeting;
@@ -838,9 +838,9 @@ public static class Options
 
     public static int SnitchExposeTaskLeft = 1;
 
-    public static bool IsLoaded;
+    public static bool IsLoaded = false;
 
-    public static int LoadingPercentage;
+    public static int LoadingPercentage = 0;
     public static string MainLoadingText = string.Empty;
     public static string RoleLoadingText = string.Empty;
 
@@ -1322,6 +1322,8 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Demolitionist]);
         RoleLoadingText = "Crewmate roles\nTask Manager";
         SetupSingleRoleOptions(5575, TabGroup.CrewmateRoles, CustomRoles.TaskManager, 1);
+        RoleLoadingText = "Crewmate roles\nCamera Man";
+        CameraMan.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nHacker";
         NiceHacker.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nDoormaster";
@@ -1334,6 +1336,8 @@ public static class Options
         Tether.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nSpy";
         Spy.SetupCustomOption();
+        RoleLoadingText = "Crewmate roles\nEnigma";
+        Enigma.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nExpress";
         SetupRoleOptions(5585, TabGroup.CrewmateRoles, CustomRoles.Express);
         ExpressSpeed = FloatOptionItem.Create(5587, "ExpressSpeed", new(0.25f, 5f, 0.25f), 1.5f, TabGroup.CrewmateRoles, false)
@@ -1800,6 +1804,14 @@ public static class Options
         RoleLoadingText = "Neutral roles\nSerial Killer";
 
         NSerialKiller.SetupCustomOption();
+        RoleLoadingText = "Neutral roles\nPostman";
+        //Postman.SetupCustomOption();
+        RoleLoadingText = "Neutral roles\nReckless";
+        //Reckless.SetupCustomOption();
+        RoleLoadingText = "Neutral roles\nMagician";
+        Magician.SetupCustomOption();
+        RoleLoadingText = "Neutral roles\nMafioso";
+        //Mafioso.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nPyromaniac";
         Pyromaniac.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nEclipse";
@@ -2431,10 +2443,10 @@ public static class Options
             .SetHeader(true)
             .SetColor(Color.green);
 
-        DeepLowLoad = BooleanOptionItem.Create(193170, "DeepLowLoad", false, TabGroup.SystemSettings, false)
+        DeepLowLoad = BooleanOptionItem.Create(19325, "DeepLowLoad", false, TabGroup.SystemSettings, false)
             .SetColor(Color.red);
 
-        DontUpdateDeadPlayers = BooleanOptionItem.Create(193171, "DontUpdateDeadPlayers", true, TabGroup.SystemSettings, false)
+        DontUpdateDeadPlayers = BooleanOptionItem.Create(19326, "DontUpdateDeadPlayers", true, TabGroup.SystemSettings, false)
             .SetColor(Color.red);
 
         EndWhenPlayerBug = BooleanOptionItem.Create(19318, "EndWhenPlayerBug", true, TabGroup.SystemSettings, false)
@@ -2504,7 +2516,7 @@ public static class Options
         MainLoadingText = "Building game settings";
 
         //驱逐相关设定
-        _ = TextOptionItem.Create(100023, "MenuTitle.Ejections", TabGroup.GameSettings)
+        TextOptionItem.Create(100023, "MenuTitle.Ejections", TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 238, 232, byte.MaxValue));
 
@@ -2540,7 +2552,7 @@ public static class Options
 
 
         //Maps Settings
-        _ = TextOptionItem.Create(100024, "MenuTitle.MapsSettings", TabGroup.GameSettings)
+        TextOptionItem.Create(100024, "MenuTitle.MapsSettings", TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
@@ -2605,7 +2617,7 @@ public static class Options
         LoadingPercentage = 70;
 
         // Sabotage
-        _ = TextOptionItem.Create(100025, "MenuTitle.Sabotage", TabGroup.GameSettings)
+        TextOptionItem.Create(100025, "MenuTitle.Sabotage", TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(243, 96, 96, byte.MaxValue))
             .SetHeader(true);
@@ -2666,7 +2678,7 @@ public static class Options
 
 
         //禁用相关设定
-        _ = TextOptionItem.Create(100026, "MenuTitle.Disable", TabGroup.GameSettings)
+        TextOptionItem.Create(100026, "MenuTitle.Disable", TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
@@ -2989,7 +3001,7 @@ public static class Options
         LoadingPercentage = 90;
         MainLoadingText = "Building Guesser Mode settings";
 
-        _ = TextOptionItem.Create(100022, "MenuTitle.Guessers", TabGroup.TaskSettings)
+        TextOptionItem.Create(100022, "MenuTitle.Guessers", TabGroup.TaskSettings)
     .SetGameMode(CustomGameMode.Standard)
     .SetColor(Color.yellow)
     .SetHeader(true);
@@ -3021,7 +3033,7 @@ public static class Options
         LoadingPercentage = 92;
 
 
-        _ = TextOptionItem.Create(100050, "MenuTitle.GuesserModeRoles", TabGroup.TaskSettings)
+        TextOptionItem.Create(100050, "MenuTitle.GuesserModeRoles", TabGroup.TaskSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(Color.yellow)
             .SetHeader(true);
@@ -3039,7 +3051,7 @@ public static class Options
 
 
         //会议相关设定
-        _ = TextOptionItem.Create(100027, "MenuTitle.Meeting", TabGroup.GameSettings)
+        TextOptionItem.Create(100027, "MenuTitle.Meeting", TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(147, 241, 240, byte.MaxValue));
 
@@ -3107,12 +3119,12 @@ public static class Options
 
 
         // 其它设定
-        _ = TextOptionItem.Create(100028, "MenuTitle.Other", TabGroup.GameSettings)
+        TextOptionItem.Create(100028, "MenuTitle.Other", TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
         UsePets = BooleanOptionItem.Create(23850, "UsePets", false, TabGroup.GameSettings, false)
-            .SetColor(Color.yellow);
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
         // 梯子摔死
         LadderDeath = BooleanOptionItem.Create(23800, "LadderDeath", false, TabGroup.GameSettings, false)
@@ -3146,7 +3158,7 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard);
 
         // 幽灵相关设定
-        _ = TextOptionItem.Create(100029, "MenuTitle.Ghost", TabGroup.GameSettings)
+        TextOptionItem.Create(100029, "MenuTitle.Ghost", TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(217, 218, 255, byte.MaxValue));
 

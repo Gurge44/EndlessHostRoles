@@ -49,7 +49,7 @@ public static class ParityCop
         ParityAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 18, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1.5f, TabGroup.CrewmateRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
             .SetValueFormat(OptionFormat.Times);
-        _ = OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.ParityCop);
+        OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.ParityCop);
     }
     public static int ParityCheckEgoistInt()
     {
@@ -313,11 +313,11 @@ public static class ParityCop
             var player = Main.AllAlivePlayerControls.ToArray()[rd.Next(0, Main.AllAlivePlayerControls.Count())];
             DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
             var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
-            _ = writer.StartMessage(-1);
-            _ = writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+            writer.StartMessage(-1);
+            writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
                 .Write(msg)
                 .EndRpc();
-            _ = writer.EndMessage();
+            writer.EndMessage();
             writer.SendMessage();
         }
         ChatUpdatePatch.DoBlockChat = false;

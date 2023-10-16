@@ -51,7 +51,7 @@ public static class SerialKiller
     public static void OnCheckMurder(PlayerControl killer, bool CanMurder = true)
     {
         if (!killer.Is(CustomRoles.SerialKiller)) return;
-        _ = SuicideTimer.Remove(killer.PlayerId);
+        SuicideTimer.Remove(killer.PlayerId);
         Timer = TimeLimit.GetInt();
         if (CanMurder)
             killer.MarkDirtySettings();
@@ -66,7 +66,7 @@ public static class SerialKiller
         if (!GameStates.IsInTask || !CustomRoles.SerialKiller.IsEnable()) return;
         if (!HasKilled(player))
         {
-            _ = SuicideTimer.Remove(player.PlayerId);
+            SuicideTimer.Remove(player.PlayerId);
             Timer = TimeLimit.GetInt();
             return;
         }
@@ -80,7 +80,7 @@ public static class SerialKiller
             //自爆時間が来たとき
             Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Suicide;//死因：自殺
             player.RpcMurderPlayerV3(player);//自殺させる
-            _ = SuicideTimer.Remove(player.PlayerId);
+            SuicideTimer.Remove(player.PlayerId);
             Timer = TimeLimit.GetInt();
         }
         else

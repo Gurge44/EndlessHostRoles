@@ -22,7 +22,7 @@ public static class Werewolf
 
     private static Dictionary<byte, long> RampageTime = new();
     public static Dictionary<byte, long> lastTime = new();
-    private static int CD;
+    private static int CD = 0;
 
     public static void SetupCustomOption()
     {
@@ -72,7 +72,7 @@ public static class Werewolf
         => GameStates.IsInTask && !RampageTime.ContainsKey(id) && !lastTime.ContainsKey(id);
     public static bool IsRampaging(byte id) => RampageTime.ContainsKey(id);
 
-    private static long lastFixedTime;
+    private static long lastFixedTime = 0;
     public static void AfterMeetingTasks()
     {
         lastTime = new();
@@ -100,7 +100,7 @@ public static class Werewolf
 
         if (lastTime.TryGetValue(player.PlayerId, out var time) && time + (long)RampageCD.GetFloat() < now)
         {
-            _ = lastTime.Remove(player.PlayerId);
+            lastTime.Remove(player.PlayerId);
             if (!player.IsModClient()) player.Notify(GetString("WWCanRampage"));
             SendRPC(player);
             CD = 0;
@@ -159,16 +159,16 @@ public static class Werewolf
         if (IsRampaging(pc.PlayerId))
         {
             var remainTime = RampageTime[pc.PlayerId] + (long)RampageDur.GetFloat() - Utils.GetTimeStamp();
-            _ = str.Append(string.Format(GetString("WWRampageCountdown"), remainTime + 1));
+            str.Append(string.Format(GetString("WWRampageCountdown"), remainTime + 1));
         }
         else if (lastTime.TryGetValue(pc.PlayerId, out var time))
         {
             var cooldown = time + (long)RampageCD.GetFloat() - Utils.GetTimeStamp();
-            _ = str.Append(string.Format(GetString("WWCD"), cooldown + 2));
+            str.Append(string.Format(GetString("WWCD"), cooldown + 2));
         }
         else
         {
-            _ = str.Append(GetString("WWCanRampage"));
+            str.Append(GetString("WWCanRampage"));
         }
         return str.ToString();
     }

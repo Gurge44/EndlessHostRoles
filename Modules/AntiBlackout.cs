@@ -22,9 +22,9 @@ public static class AntiBlackout
     ///AntiBlackout内の処理が必要であるかどうか
     ///</summary>
     public static bool IsRequired => Options.NoGameEnd.GetBool()
-        || Jackal.IsEnable || Pelican.IsEnable
-        || Gamer.IsEnable || BloodKnight.IsEnable
-        || Succubus.IsEnable || Poisoner.IsEnable
+        || Jackal.IsEnable || Pelican.IsEnable || Magician.IsEnable
+        || Gamer.IsEnable || BloodKnight.IsEnable || Mafioso.IsEnable
+        || Succubus.IsEnable || Poisoner.IsEnable || Reckless.IsEnable
         || Infectious.IsEnable || Juggernaut.IsEnable || HeadHunter.IsEnable
         || Ritualist.IsEnable || Virus.IsEnable || Vengeance.IsEnable
         || Wraith.IsEnable || HexMaster.IsEnable || Imitator.IsEnable()
@@ -52,7 +52,7 @@ public static class AntiBlackout
             return numCrewmates - numImpostors;
         }
     }
-    public static bool IsCached { get; private set; }
+    public static bool IsCached { get; private set; } = false;
     private static Dictionary<byte, (bool isDead, bool Disconnected)> isDeadCache = new();
     private readonly static LogHandler logger = Logger.Handler("AntiBlackout");
 
@@ -103,7 +103,7 @@ public static class AntiBlackout
             writer.StartMessage(1); //0x01 Data
             {
                 writer.WritePacked(GameData.Instance.NetId);
-                _ = GameData.Instance.Serialize(writer, true);
+                GameData.Instance.Serialize(writer, true);
 
             }
             writer.EndMessage();

@@ -18,9 +18,9 @@ internal class PingTrackerUpdatePatch
     {
         __instance.text.alignment = TextAlignmentOptions.TopRight;
 
-        _ = sb.Clear();
+        sb.Clear();
 
-        _ = sb.Append(Main.credentialsText);
+        sb.Append(Main.credentialsText);
 
         var ping = AmongUsClient.Instance.Ping;
         string color = "#ff4500";
@@ -28,12 +28,12 @@ internal class PingTrackerUpdatePatch
         else if (ping < 100) color = "#7bc690";
         else if (ping < 200) color = "#f3920e";
         else if (ping < 400) color = "#ff146e";
-        _ = sb.Append($"\r\n").Append($"<color={color}>Ping: {ping} ms</color>");
+        sb.Append($"\r\n").Append($"<color={color}>Ping: {ping} ms</color>");
 
-        if (Options.NoGameEnd.GetBool()) _ = sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("NoGameEnd")));
+        if (Options.NoGameEnd.GetBool()) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("NoGameEnd")));
         //if (Options.AllowConsole.GetBool()) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("AllowConsole")));
-        if (!GameStates.IsModHost) _ = sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("Warning.NoModHost")));
-        if (DebugModeManager.IsDebugMode) _ = sb.Append("\r\n").Append(Utils.ColorString(Color.green, GetString("DebugMode")));
+        if (!GameStates.IsModHost) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("Warning.NoModHost")));
+        if (DebugModeManager.IsDebugMode) sb.Append("\r\n").Append(Utils.ColorString(Color.green, GetString("DebugMode")));
         //if (Options.LowLoadMode.GetBool()) sb.Append("\r\n").Append(Utils.ColorString(Color.green, GetString("LowLoadMode")));
         //if (Options.GuesserMode.GetBool()) sb.Append("\r\n").Append(Utils.ColorString(Color.yellow, GetString("GuesserMode")));
 

@@ -62,7 +62,7 @@ namespace TOHE.Roles.Impostor
                 killer.SetKillCooldown(time: ManipulateCD);
                 if (target.HasKillButton())
                 {
-                    _ = ManipulateDelays.TryAdd(target.PlayerId, GetTimeStamp());
+                    ManipulateDelays.TryAdd(target.PlayerId, GetTimeStamp());
                     NotifyRoles(SpecifySeer: GetPlayerById(playerIdList[0]));
                 }
             });
@@ -79,15 +79,15 @@ namespace TOHE.Roles.Impostor
 
                 if (!pc.IsAlive())
                 {
-                    _ = ManipulateDelays.Remove(x.Key);
+                    ManipulateDelays.Remove(x.Key);
                     continue;
                 }
                 if (x.Value + Delay.GetInt() < GetTimeStamp())
                 {
-                    _ = ManipulateDelays.Remove(x.Key);
-                    _ = ManipulatedPlayers.TryAdd(x.Key, GetTimeStamp());
+                    ManipulateDelays.Remove(x.Key);
+                    ManipulatedPlayers.TryAdd(x.Key, GetTimeStamp());
 
-                    _ = TempKCDs.TryAdd(pc.PlayerId, pc.killTimer);
+                    TempKCDs.TryAdd(pc.PlayerId, pc.killTimer);
                     pc.SetKillCooldown(time: 1f);
 
                     NotifyRoles(SpecifySeer: GetPlayerById(playerIdList[0]));
@@ -100,14 +100,14 @@ namespace TOHE.Roles.Impostor
 
                 if (!player.IsAlive())
                 {
-                    _ = ManipulatedPlayers.Remove(x.Key);
-                    _ = TempKCDs.Remove(x.Key);
+                    ManipulatedPlayers.Remove(x.Key);
+                    TempKCDs.Remove(x.Key);
                     continue;
                 }
                 if (x.Value + TimeLimit.GetInt() < GetTimeStamp())
                 {
-                    _ = ManipulatedPlayers.Remove(x.Key);
-                    _ = TempKCDs.Remove(x.Key);
+                    ManipulatedPlayers.Remove(x.Key);
+                    TempKCDs.Remove(x.Key);
                     player.SetRealKiller(GetPlayerById(playerIdList[0]));
                     Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
                     player.RpcMurderPlayerV3(player);
@@ -142,7 +142,7 @@ namespace TOHE.Roles.Impostor
             if (killer == null) return false;
             if (target == null) return false;
 
-            _ = ManipulatedPlayers.Remove(killer.PlayerId);
+            ManipulatedPlayers.Remove(killer.PlayerId);
 
             var mastermind = GetPlayerById(playerIdList[0]);
             mastermind.Notify(GetString("ManipulatedKilled"));
@@ -151,16 +151,18 @@ namespace TOHE.Roles.Impostor
             if (target.Is(CustomRoles.Pestilence) || Main.VeteranInProtect.ContainsKey(target.PlayerId) || target.Is(CustomRoles.Mastermind))
             {
                 target.RpcMurderPlayerV3(killer);
-                _ = TempKCDs.Remove(killer.PlayerId);
+                TempKCDs.Remove(killer.PlayerId);
                 return false;
             }
 
             killer.RpcMurderPlayerV3(target);
 
+            killer.Notify(GetString("MastermindTargetSurvived"));
+
             _ = new LateTask(() =>
             {
                 killer.SetKillCooldown(time: TempKCDs[killer.PlayerId] + Main.AllPlayerKillCooldown[killer.PlayerId]);
-                _ = TempKCDs.Remove(killer.PlayerId);
+                TempKCDs.Remove(killer.PlayerId);
             }, 0.1f, "Set KCD for Manipulated Kill");
 
             return true;

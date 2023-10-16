@@ -40,7 +40,7 @@ public static class CopyCat
     {
         playerIdList.Add(playerId);
         CurrentKillCooldown.Add(playerId, KillCooldown.GetFloat());
-        _ = MiscopyLimit.TryAdd(playerId, MiscopyLimitOpt.GetInt());
+        MiscopyLimit.TryAdd(playerId, MiscopyLimitOpt.GetInt());
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
@@ -84,45 +84,45 @@ public static class CopyCat
                 //    Bloodhound.BloodhoundTargets.Remove(player);
                 //    break;
                 case CustomRoles.ParityCop:
-                    _ = ParityCop.MaxCheckLimit.Remove(player);
-                    _ = ParityCop.RoundCheckLimit.Remove(player);
+                    ParityCop.MaxCheckLimit.Remove(player);
+                    ParityCop.RoundCheckLimit.Remove(player);
                     break;
                 case CustomRoles.Cleanser:
-                    _ = Cleanser.CleanserTarget.Remove(pc.PlayerId);
-                    _ = Cleanser.CleanserUses.Remove(pc.PlayerId);
-                    _ = Cleanser.DidVote.Remove(pc.PlayerId);
+                    Cleanser.CleanserTarget.Remove(pc.PlayerId);
+                    Cleanser.CleanserUses.Remove(pc.PlayerId);
+                    Cleanser.DidVote.Remove(pc.PlayerId);
                     break;
                 case CustomRoles.Jailor:
-                    _ = Jailor.JailorExeLimit.Remove(pc.PlayerId);
-                    _ = Jailor.JailorTarget.Remove(pc.PlayerId);
-                    _ = Jailor.JailorHasExe.Remove(pc.PlayerId);
-                    _ = Jailor.JailorDidVote.Remove(pc.PlayerId);
+                    Jailor.JailorExeLimit.Remove(pc.PlayerId);
+                    Jailor.JailorTarget.Remove(pc.PlayerId);
+                    Jailor.JailorHasExe.Remove(pc.PlayerId);
+                    Jailor.JailorDidVote.Remove(pc.PlayerId);
                     break;
                 case CustomRoles.Medic:
-                    _ = Medic.ProtectLimit.Remove(player);
+                    Medic.ProtectLimit.Remove(player);
                     break;
                 case CustomRoles.Mediumshiper:
-                    _ = Mediumshiper.ContactLimit.Remove(player);
+                    Mediumshiper.ContactLimit.Remove(player);
                     break;
                 case CustomRoles.Merchant:
-                    _ = Merchant.addonsSold.Remove(player);
-                    _ = Merchant.bribedKiller.Remove(player);
+                    Merchant.addonsSold.Remove(player);
+                    Merchant.bribedKiller.Remove(player);
                     break;
                 case CustomRoles.Oracle:
-                    _ = Oracle.CheckLimit.Remove(player);
+                    Oracle.CheckLimit.Remove(player);
                     break;
                 //case CustomRoles.DovesOfNeace:
                 //    Main.DovesOfNeaceNumOfUsed.Remove(player);
                 //    break;
                 case CustomRoles.Paranoia:
-                    _ = Main.ParaUsedButtonCount.Remove(player);
+                    Main.ParaUsedButtonCount.Remove(player);
                     break;
                 case CustomRoles.Aid:
-                    _ = Aid.UseLimit.Remove(player);
+                    Aid.UseLimit.Remove(player);
                     break;
                 case CustomRoles.Snitch:
-                    _ = Snitch.IsExposed.Remove(player);
-                    _ = Snitch.IsComplete.Remove(player);
+                    Snitch.IsExposed.Remove(player);
+                    Snitch.IsComplete.Remove(player);
                     break;
                 //case CustomRoles.Spiritualist:
                 //    Spiritualist.LastGhostArrowShowTime.Remove(player);
@@ -141,42 +141,42 @@ public static class CopyCat
                 //        Main.ResetCamPlayerList.Add(player);
                 //    break;
                 case CustomRoles.Sheriff:
-                    _ = Sheriff.CurrentKillCooldown.Remove(player);
-                    _ = Sheriff.ShotLimit.Remove(player);
+                    Sheriff.CurrentKillCooldown.Remove(player);
+                    Sheriff.ShotLimit.Remove(player);
                     break;
                 case CustomRoles.Crusader:
-                    _ = Crusader.CurrentKillCooldown.Remove(player);
-                    _ = Crusader.CrusaderLimit.Remove(player);
+                    Crusader.CurrentKillCooldown.Remove(player);
+                    Crusader.CrusaderLimit.Remove(player);
                     break;
                 case CustomRoles.Veteran:
-                    _ = Main.VeteranNumOfUsed.Remove(player);
+                    Main.VeteranNumOfUsed.Remove(player);
                     break;
                 case CustomRoles.Grenadier:
-                    _ = Main.GrenadierNumOfUsed.Remove(player);
+                    Main.GrenadierNumOfUsed.Remove(player);
                     break;
                 case CustomRoles.Lighter:
-                    _ = Main.LighterNumOfUsed.Remove(player);
+                    Main.LighterNumOfUsed.Remove(player);
                     break;
                 case CustomRoles.SecurityGuard:
-                    _ = Main.SecurityGuardNumOfUsed.Remove(player);
+                    Main.SecurityGuardNumOfUsed.Remove(player);
                     break;
                 case CustomRoles.Ventguard:
                     Main.VentguardNumberOfAbilityUses = 0;
                     break;
                 case CustomRoles.TimeMaster:
-                    _ = Main.TimeMasterNumOfUsed.Remove(player);
+                    Main.TimeMasterNumOfUsed.Remove(player);
                     break;
                 case CustomRoles.Judge:
-                    _ = Judge.TrialLimit.Remove(player);
+                    Judge.TrialLimit.Remove(player);
                     break;
                 case CustomRoles.NiceSwapper:
-                    _ = NiceSwapper.NiceSwappermax.Remove(player);
+                    NiceSwapper.NiceSwappermax.Remove(player);
                     break;
                 case CustomRoles.Mayor:
-                    _ = Main.MayorUsedButtonCount.Remove(player);
+                    Main.MayorUsedButtonCount.Remove(player);
                     break;
                 case CustomRoles.Divinator:
-                    _ = Divinator.CheckLimit.Remove(pc.PlayerId);
+                    Divinator.CheckLimit.Remove(pc.PlayerId);
                     break;
             }
             pc.RpcSetCustomRole(CustomRoles.CopyCat);
@@ -197,10 +197,6 @@ public static class CopyCat
             CustomRoles.Addict or
             CustomRoles.Alchemist or
             CustomRoles.Chameleon or
-            CustomRoles.TimeMaster or
-            CustomRoles.NiceHacker or
-            CustomRoles.Doormaster or
-            CustomRoles.Tether or
             //bcoz of arrows
             CustomRoles.Mortician or
             CustomRoles.Bloodhound or
@@ -266,7 +262,7 @@ public static class CopyCat
                     ParityCop.RoundCheckLimit.Add(pc.PlayerId, ParityCop.ParityCheckLimitPerMeeting.GetInt());
                     break;
                 case CustomRoles.Medic:
-                    _ = Medic.ProtectLimit.TryAdd(pc.PlayerId, Medic.SkillLimit);
+                    Medic.ProtectLimit.TryAdd(pc.PlayerId, Medic.SkillLimit);
                     break;
                 case CustomRoles.Mediumshiper:
                     Mediumshiper.ContactLimit.Add(pc.PlayerId, Mediumshiper.ContactLimitOpt.GetInt());
@@ -279,7 +275,7 @@ public static class CopyCat
                     Aid.UseLimit.Add(pc.PlayerId, Aid.UseLimitOpt.GetInt());
                     break;
                 case CustomRoles.Oracle:
-                    _ = Oracle.CheckLimit.TryAdd(pc.PlayerId, Oracle.CheckLimitOpt.GetInt());
+                    Oracle.CheckLimit.TryAdd(pc.PlayerId, Oracle.CheckLimitOpt.GetInt());
                     break;
                 //case CustomRoles.DovesOfNeace:
                 //    Main.DovesOfNeaceNumOfUsed.Add(pc.PlayerId, Options.DovesOfNeaceMaxOfUseage.GetInt());
@@ -317,7 +313,7 @@ public static class CopyCat
                     break;
                 case CustomRoles.Sheriff:
                     Sheriff.CurrentKillCooldown.Add(pc.PlayerId, KillCooldown.GetFloat());
-                    _ = Sheriff.ShotLimit.TryAdd(pc.PlayerId, Sheriff.ShotLimitOpt.GetInt());
+                    Sheriff.ShotLimit.TryAdd(pc.PlayerId, Sheriff.ShotLimitOpt.GetInt());
                     Logger.Info($"{Utils.GetPlayerById(pc.PlayerId)?.GetNameWithRole().RemoveHtmlTags()} : 残り{Sheriff.ShotLimit[pc.PlayerId]}発", "Sheriff");
 
                     if (!AmongUsClient.Instance.AmHost) break;
@@ -326,7 +322,7 @@ public static class CopyCat
                     break;
                 case CustomRoles.Crusader:
                     Crusader.CurrentKillCooldown.Add(pc.PlayerId, KillCooldown.GetFloat());
-                    _ = Crusader.CrusaderLimit.TryAdd(pc.PlayerId, Sheriff.ShotLimitOpt.GetInt());
+                    Crusader.CrusaderLimit.TryAdd(pc.PlayerId, Sheriff.ShotLimitOpt.GetInt());
                     Logger.Info($"{Utils.GetPlayerById(pc.PlayerId)?.GetNameWithRole().RemoveHtmlTags()} : 残り{Crusader.CrusaderLimit[pc.PlayerId]}発", "Crusader");
 
                     if (!AmongUsClient.Instance.AmHost) break;
@@ -346,7 +342,7 @@ public static class CopyCat
                     Main.MayorUsedButtonCount[pc.PlayerId] = 0;
                     break;
                 case CustomRoles.Divinator:
-                    _ = Divinator.CheckLimit.TryAdd(pc.PlayerId, 5);
+                    Divinator.CheckLimit.TryAdd(pc.PlayerId, 5);
                     break;
             }
 

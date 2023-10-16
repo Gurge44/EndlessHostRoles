@@ -38,13 +38,13 @@ static class DoubleTrigger
                 return false;
             }
             Logger.Info($"{killer.name} DoDoubleAction", "DoubleTrigger");
-            _ = FirstTriggerTimer.Remove(killer.PlayerId);
-            _ = FirstTriggerTarget.Remove(killer.PlayerId);
-            if (doAction) _ = FirstTriggerAction.Remove(killer.PlayerId);
+            FirstTriggerTimer.Remove(killer.PlayerId);
+            FirstTriggerTarget.Remove(killer.PlayerId);
+            if (doAction) FirstTriggerAction.Remove(killer.PlayerId);
             return true;
         }
         //シングルアクション時はキル間隔を無視
-        _ = CheckMurderPatch.TimeSinceLastKill.Remove(killer.PlayerId);
+        CheckMurderPatch.TimeSinceLastKill.Remove(killer.PlayerId);
         FirstTriggerTimer.Add(killer.PlayerId, 1f);
         FirstTriggerTarget.Add(killer.PlayerId, target.PlayerId);
         if (doAction) FirstTriggerAction.Add(killer.PlayerId, firstAction);
@@ -69,9 +69,9 @@ static class DoubleTrigger
             Logger.Info($"{player.name} DoSingleAction", "DoubleTrigger");
             FirstTriggerAction[playerId]();
 
-            _ = FirstTriggerTimer.Remove(playerId);
-            _ = FirstTriggerTarget.Remove(playerId);
-            _ = FirstTriggerAction.Remove(playerId);
+            FirstTriggerTimer.Remove(playerId);
+            FirstTriggerTarget.Remove(playerId);
+            FirstTriggerAction.Remove(playerId);
         }
     }
 }

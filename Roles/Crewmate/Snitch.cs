@@ -38,7 +38,7 @@ public static class Snitch
         OptionCanFindNeutralKiller = BooleanOptionItem.Create(Id + 12, "SnitchCanFindNeutralKiller", true, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Snitch]);
         OptionCanFindMadmate = BooleanOptionItem.Create(Id + 14, "SnitchCanFindMadmate", true, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Snitch]);
         OptionRemainingTasks = IntegerOptionItem.Create(Id + 13, "SnitchRemainingTaskFound", new(0, 10, 1), 1, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Snitch]);
-        _ = OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.Snitch);
+        OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.Snitch);
     }
     public static void Init()
     {
@@ -111,7 +111,7 @@ public static class Snitch
             //ターゲットは共通なので2回登録する必要はない
             if (!TargetList.Contains(targetId))
             {
-                _ = TargetList.Add(targetId);
+                TargetList.Add(targetId);
 
                 if (CanGetColoredArrow)
                     TargetColorlist.Add(targetId, target.GetRoleColor());

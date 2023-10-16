@@ -141,7 +141,7 @@ static class ExtendedPlayerControl
         }
         Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
         HudManagerPatch.LastSetNameDesyncCount++;
-        Logger.Info($"Set:{player?.Data?.PlayerName}:{name} for {seer.GetNameWithRole()}", "RpcSetNamePrivate");
+        Logger.Info($"Set:{player?.Data?.PlayerName}:{name} for {seer.GetNameWithRole().RemoveHtmlTags()}", "RpcSetNamePrivate");
 
         var clientId = seer.GetClientId();
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetName, SendOption.Reliable, clientId);
@@ -178,15 +178,15 @@ static class ExtendedPlayerControl
         if (killer.PlayerId != 0)
         {
             var sender = CustomRpcSender.Create("GuardAndKill Sender", SendOption.None);
-            _ = sender.StartMessage(killer.GetClientId());
-            _ = sender.StartRpc(killer.NetId, (byte)RpcCalls.ProtectPlayer)
+            sender.StartMessage(killer.GetClientId());
+            sender.StartRpc(killer.NetId, (byte)RpcCalls.ProtectPlayer)
                 .WriteNetObject(target)
                 .Write(colorId)
                 .EndRpc();
-            _ = sender.StartRpc(killer.NetId, (byte)RpcCalls.MurderPlayer)
+            sender.StartRpc(killer.NetId, (byte)RpcCalls.MurderPlayer)
                 .WriteNetObject(target)
                 .EndRpc();
-            _ = sender.EndMessage();
+            sender.EndMessage();
             sender.SendMessage();
         }
     }
@@ -371,7 +371,7 @@ static class ExtendedPlayerControl
         {
             CustomRoles role = SubRoles[i];
             if (role == CustomRoles.NotAssigned) continue;
-            _ = sb.Append($"{Utils.ColorString(Color.white, "\n<size=1>")}{Utils.GetRoleName(role, forUser)}");
+            sb.Append($"{Utils.ColorString(Color.white, "\n<size=1>")}{Utils.GetRoleName(role, forUser)}");
         }
 
         return sb.ToString();
@@ -479,6 +479,10 @@ static class ExtendedPlayerControl
             CustomRoles.Pyromaniac => true,
             CustomRoles.Eclipse => true,
             CustomRoles.NSerialKiller => true,
+            CustomRoles.Magician => true,
+            CustomRoles.Mafioso => true,
+            CustomRoles.Postman => true,
+            CustomRoles.Reckless => true,
             CustomRoles.Vengeance => true,
             CustomRoles.HeadHunter => true,
             CustomRoles.Imitator => true,
@@ -574,6 +578,10 @@ static class ExtendedPlayerControl
             CustomRoles.Pyromaniac => pc.IsAlive(),
             CustomRoles.Eclipse => pc.IsAlive(),
             CustomRoles.NSerialKiller => pc.IsAlive(),
+            CustomRoles.Postman => pc.IsAlive() && !Postman.IsFinished,
+            CustomRoles.Magician => pc.IsAlive(),
+            CustomRoles.Mafioso => pc.IsAlive() && Mafioso.CanKill,
+            CustomRoles.Reckless => pc.IsAlive(),
             CustomRoles.Vengeance => pc.IsAlive(),
             CustomRoles.HeadHunter => pc.IsAlive(),
             CustomRoles.Imitator => pc.IsAlive(),
@@ -661,6 +669,10 @@ static class ExtendedPlayerControl
             CustomRoles.Glitch => Glitch.CanVent.GetBool(),
             CustomRoles.Poisoner => Poisoner.CanVent.GetBool(),
             CustomRoles.NSerialKiller => NSerialKiller.CanVent.GetBool(),
+            CustomRoles.Magician => Magician.CanVent.GetBool(),
+            CustomRoles.Reckless => Reckless.CanVent.GetBool(),
+            CustomRoles.Mafioso => Mafioso.CanVent.GetBool(),
+            CustomRoles.Postman => Postman.CanVent.GetBool(),
             CustomRoles.Pyromaniac => Pyromaniac.CanVent.GetBool(),
             CustomRoles.Eclipse => Eclipse.CanVent.GetBool(),
             CustomRoles.Vengeance => Vengeance.CanVent.GetBool(),
@@ -741,6 +753,8 @@ static class ExtendedPlayerControl
             CustomRoles.Pyromaniac or
             CustomRoles.Eclipse or
             CustomRoles.NSerialKiller or
+            CustomRoles.Reckless or
+            CustomRoles.Postman or
             CustomRoles.Vengeance or
             CustomRoles.HeadHunter or
             CustomRoles.Imitator or
@@ -768,6 +782,8 @@ static class ExtendedPlayerControl
             CustomRoles.Parasite => true,
             CustomRoles.Glitch => true,
             CustomRoles.Refugee => true,
+            CustomRoles.Magician => true,
+            CustomRoles.Mafioso => true,
 
 
             _ => pc.Is(CustomRoleTypes.Impostor),
@@ -776,19 +792,19 @@ static class ExtendedPlayerControl
     public static bool IsDousedPlayer(this PlayerControl arsonist, PlayerControl target)
     {
         if (arsonist == null || target == null || Main.isDoused == null) return false;
-        _ = Main.isDoused.TryGetValue((arsonist.PlayerId, target.PlayerId), out bool isDoused);
+        Main.isDoused.TryGetValue((arsonist.PlayerId, target.PlayerId), out bool isDoused);
         return isDoused;
     }
     public static bool IsDrawPlayer(this PlayerControl arsonist, PlayerControl target)
     {
         if (arsonist == null && target == null && Main.isDraw == null) return false;
-        _ = Main.isDraw.TryGetValue((arsonist.PlayerId, target.PlayerId), out bool isDraw);
+        Main.isDraw.TryGetValue((arsonist.PlayerId, target.PlayerId), out bool isDraw);
         return isDraw;
     }
     public static bool IsRevealedPlayer(this PlayerControl player, PlayerControl target)
     {
         if (player == null || target == null || Main.isRevealed == null) return false;
-        _ = Main.isRevealed.TryGetValue((player.PlayerId, target.PlayerId), out bool isDoused);
+        Main.isRevealed.TryGetValue((player.PlayerId, target.PlayerId), out bool isDoused);
         return isDoused;
     }
     public static void RpcSetDousedPlayer(this PlayerControl player, PlayerControl target, bool isDoused)
@@ -905,6 +921,18 @@ static class ExtendedPlayerControl
                 break;
             case CustomRoles.NSerialKiller:
                 NSerialKiller.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.Mafioso:
+                Mafioso.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.Magician:
+                Magician.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.Reckless:
+                Reckless.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.Postman:
+                Postman.SetKillCooldown(player.PlayerId);
                 break;
             case CustomRoles.HeadHunter:
                 Main.AllPlayerKillCooldown[player.PlayerId] = HeadHunter.KCD;
@@ -1216,7 +1244,7 @@ static class ExtendedPlayerControl
     {
         var rangePlayersIL = RoleBehaviour.GetTempPlayerList();
         List<PlayerControl> rangePlayers = new();
-        _ = player.Data.Role.GetPlayersInAbilityRangeSorted(rangePlayersIL, ignoreColliders);
+        player.Data.Role.GetPlayersInAbilityRangeSorted(rangePlayersIL, ignoreColliders);
         foreach (var pc in rangePlayersIL)
         {
             if (predicate(pc)) rangePlayers.Add(pc);

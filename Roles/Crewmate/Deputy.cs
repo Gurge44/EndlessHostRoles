@@ -17,7 +17,7 @@ public static class Deputy
     public static OptionItem DeputyHandcuffCDForTarget;
     private static OptionItem DeputyHandcuffDelay;
 
-    private static int HandcuffLimit;
+    private static int HandcuffLimit = new();
 
     public static void SetupCustomOption()
     {
@@ -88,14 +88,14 @@ public static class Deputy
 
             if (HandcuffLimit < 0)
                 HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
-            Logger.Info($"{killer.GetNameWithRole()} : 剩余{HandcuffLimit}次招募机会", "Deputy");
+            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{HandcuffLimit}次招募机会", "Deputy");
             return true;
         }
 
         if (HandcuffLimit < 0)
             HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("DeputyInvalidTarget")));
-        Logger.Info($"{killer.GetNameWithRole()} : 剩余{HandcuffLimit}次招募机会", "Deputy");
+        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{HandcuffLimit}次招募机会", "Deputy");
         return false;
     }
     public static string GetHandcuffLimit() => Utils.ColorString(HandcuffLimit >= 1 ? Utils.GetRoleColor(CustomRoles.Deputy) : Color.gray, $"({HandcuffLimit})");

@@ -36,7 +36,7 @@ public static class CustomSoundsManager
     {
         if (!Constants.ShouldPlaySfx() || !Main.EnableCustomSoundEffect.Value) return;
         var path = SOUNDS_PATH + sound + ".wav";
-        if (!Directory.Exists(SOUNDS_PATH)) _ = Directory.CreateDirectory(SOUNDS_PATH);
+        if (!Directory.Exists(SOUNDS_PATH)) Directory.CreateDirectory(SOUNDS_PATH);
         DirectoryInfo folder = new(SOUNDS_PATH);
         if ((folder.Attributes & FileAttributes.Hidden) != FileAttributes.Hidden)
             folder.Attributes = FileAttributes.Hidden;
@@ -56,8 +56,12 @@ public static class CustomSoundsManager
         Logger.Msg($"播放声音：{sound}", "CustomSounds");
     }
 
+#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
     [DllImport("winmm.dll")]
+#pragma warning restore CA2101 // Specify marshaling for P/Invoke string arguments
+#pragma warning disable CA1401 // P/Invokes should not be visible
     public static extern bool PlaySound(string Filename, int Mod, int Flags);
+#pragma warning restore CA1401 // P/Invokes should not be visible
     public static void StartPlay(string path) => PlaySound(@$"{path}", 0, 1); //第3个形参，把1换为9，连续播放
 
 }

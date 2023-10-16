@@ -42,7 +42,7 @@ public static class Oracle
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        _ = CheckLimit.TryAdd(playerId, CheckLimitOpt.GetInt());
+        CheckLimit.TryAdd(playerId, CheckLimitOpt.GetInt());
     }
     public static bool IsEnable => playerIdList.Any();
     public static void OnVote(PlayerControl player, PlayerControl target)
@@ -163,6 +163,10 @@ public static class Oracle
                     CustomRoles.Pursuer or
                     CustomRoles.Poisoner or
                     CustomRoles.NSerialKiller or
+                    CustomRoles.Postman or
+                    CustomRoles.Magician or
+                    CustomRoles.Mafioso or
+                    CustomRoles.Reckless or
                     CustomRoles.Pyromaniac or
                     CustomRoles.Eclipse or
                     CustomRoles.Imitator or

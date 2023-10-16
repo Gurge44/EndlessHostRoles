@@ -8,7 +8,7 @@ public static class Agitater
 {
     private static readonly int Id = 12420;
     public static List<byte> playerIdList = new();
-    public static bool IsEnable;
+    public static bool IsEnable = false;
 
     public static OptionItem BombExplodeCooldown;
     public static OptionItem PassCooldown;
@@ -19,9 +19,9 @@ public static class Agitater
 
     public static byte CurrentBombedPlayer = byte.MaxValue;
     public static byte LastBombedPlayer = byte.MaxValue;
-    public static bool AgitaterHasBombed;
-    public static long CurrentBombedPlayerTime;
-    public static long AgitaterBombedTime;
+    public static bool AgitaterHasBombed = false;
+    public static long CurrentBombedPlayerTime = new();
+    public static long AgitaterBombedTime = new();
 
 
     public static void SetupCustomOption()
@@ -98,7 +98,7 @@ public static class Agitater
                     pc.RpcMurderPlayerV3(pc);
                     Main.PlayerStates[CurrentBombedPlayer].deathReason = PlayerState.DeathReason.Bombed;
                     pc.SetRealKiller(Utils.GetPlayerById(playerIdList[0]));
-                    Logger.Info($"{killer.GetNameWithRole()}  bombed {pc.GetNameWithRole()} bomb cd complete", "Agitater");
+                    Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} bombed {pc.GetNameWithRole().RemoveHtmlTags()}, bomb cd complete", "Agitater");
                     ResetBomb();
                 }
 
@@ -123,7 +123,7 @@ public static class Agitater
         Logger.Info($"{killer.GetRealName()} bombed {target.GetRealName()} on report", "Agitater");
     }
 
-    public static void PassBomb(PlayerControl player, PlayerControl target, bool IsAgitater = false)
+    public static void PassBomb(PlayerControl player, PlayerControl target/*, bool IsAgitater = false*/)
     {
         if (!IsEnable) return;
         if (!AgitaterHasBombed) return;
@@ -152,7 +152,7 @@ public static class Agitater
         target.Notify(GetString("AgitaterTargetNotify"));
 
         SendRPC(CurrentBombedPlayer, LastBombedPlayer);
-        Logger.Msg($"{player.GetNameWithRole()} passed bomb to {target.GetNameWithRole()}", "Agitater Pass");
+        Logger.Msg($"{player.GetNameWithRole().RemoveHtmlTags()} passed bomb to {target.GetNameWithRole().RemoveHtmlTags()}", "Agitater Pass");
     }
 
     public static void SendRPC(byte newbomb, byte oldbomb)

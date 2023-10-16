@@ -79,7 +79,7 @@ public static class MafiaRevengeManager
             return true;
         }
 
-        Logger.Info($"{pc.GetNameWithRole()} 复仇了 {target.GetNameWithRole()}", "Mafia");
+        Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} 复仇了 {target.GetNameWithRole().RemoveHtmlTags()}", "Mafia");
 
         string Name = target.GetRealName();
 
@@ -122,7 +122,7 @@ public static class MafiaRevengeManager
     public static void ReceiveRPC(MessageReader reader, PlayerControl pc)
     {
         int PlayerId = reader.ReadByte();
-        _ = MafiaMsgCheck(pc, $"/rv {PlayerId}", true);
+        MafiaMsgCheck(pc, $"/rv {PlayerId}", true);
     }
 
     private static void MafiaOnClick(byte playerId, MeetingHud __instance)
@@ -130,7 +130,7 @@ public static class MafiaRevengeManager
         Logger.Msg($"Click: ID {playerId}", "Mafia UI");
         var pc = Utils.GetPlayerById(playerId);
         if (pc == null || !pc.IsAlive() || !GameStates.IsVoting) return;
-        if (AmongUsClient.Instance.AmHost) _ = MafiaMsgCheck(PlayerControl.LocalPlayer, $"/rv {playerId}", true);
+        if (AmongUsClient.Instance.AmHost) MafiaMsgCheck(PlayerControl.LocalPlayer, $"/rv {playerId}", true);
         else SendRPC(playerId);
     }
 

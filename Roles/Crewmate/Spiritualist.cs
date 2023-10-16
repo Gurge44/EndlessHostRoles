@@ -18,7 +18,7 @@ namespace TOHE.Roles.Crewmate
         private static Dictionary<byte, long> ShowGhostArrowUntil = new();
         private static Dictionary<byte, long> LastGhostArrowShowTime = new();
 
-        public static byte SpiritualistTarget;
+        public static byte SpiritualistTarget = new();
 
         public static void SetupCustomOption()
         {
@@ -100,17 +100,17 @@ namespace TOHE.Roles.Crewmate
                 TargetArrow.Add(spiritualist, target.PlayerId);
 
                 var writer = CustomRpcSender.Create("SpiritualistSendMessage", SendOption.None);
-                _ = writer.StartMessage(target.GetClientId());
-                _ = writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
+                writer.StartMessage(target.GetClientId());
+                writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
                     .Write(GetString("SpiritualistNoticeTitle"))
                     .EndRpc();
-                _ = writer.StartRpc(target.NetId, (byte)RpcCalls.SendChat)
+                writer.StartRpc(target.NetId, (byte)RpcCalls.SendChat)
                     .Write(GetString("SpiritualistNoticeMessage"))
                     .EndRpc();
-                _ = writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
+                writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
                     .Write(target.Data.PlayerName)
                     .EndRpc();
-                _ = writer.EndMessage();
+                writer.EndMessage();
                 writer.SendMessage();
             }
         }

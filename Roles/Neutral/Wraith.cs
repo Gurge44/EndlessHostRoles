@@ -21,7 +21,7 @@ public static class Wraith
     private static Dictionary<byte, long> InvisTime = new();
     public static Dictionary<byte, long> lastTime = new();
     private static Dictionary<byte, int> ventedId = new();
-    private static int CD;
+    private static int CD = 0;
 
     public static void SetupCustomOption()
     {
@@ -71,7 +71,7 @@ public static class Wraith
         => GameStates.IsInTask && !InvisTime.ContainsKey(id) && !lastTime.ContainsKey(id);
     public static bool IsInvis(byte id) => InvisTime.ContainsKey(id);
 
-    private static long lastFixedTime;
+    private static long lastFixedTime = 0;
     public static void AfterMeetingTasks()
     {
         lastTime = new();
@@ -97,7 +97,7 @@ public static class Wraith
 
         if (lastTime.TryGetValue(player.PlayerId, out var time) && time + (long)WraithCooldown.GetFloat() < now)
         {
-            _ = lastTime.Remove(player.PlayerId);
+            lastTime.Remove(player.PlayerId);
             if (!player.IsModClient()) player.Notify(GetString("WraithCanVent"));
             SendRPC(player);
             CD = 0;
@@ -140,7 +140,7 @@ public static class Wraith
         {
             if (CanGoInvis(pc.PlayerId))
             {
-                _ = ventedId.Remove(pc.PlayerId);
+                ventedId.Remove(pc.PlayerId);
                 ventedId.Add(pc.PlayerId, ventId);
 
                 MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, 34, SendOption.Reliable, pc.GetClientId());
@@ -165,7 +165,7 @@ public static class Wraith
     {
         if (!pc.Is(CustomRoles.Wraith) || !IsInvis(pc.PlayerId)) return;
 
-        _ = InvisTime.Remove(pc.PlayerId);
+        InvisTime.Remove(pc.PlayerId);
         lastTime.Add(pc.PlayerId, Utils.GetTimeStamp());
         SendRPC(pc);
 
@@ -179,16 +179,16 @@ public static class Wraith
         if (IsInvis(pc.PlayerId))
         {
             var remainTime = InvisTime[pc.PlayerId] + (long)WraithDuration.GetFloat() - Utils.GetTimeStamp();
-            _ = str.Append(string.Format(GetString("WraithInvisStateCountdown"), remainTime + 1));
+            str.Append(string.Format(GetString("WraithInvisStateCountdown"), remainTime + 1));
         }
         else if (lastTime.TryGetValue(pc.PlayerId, out var time))
         {
             var cooldown = time + (long)WraithCooldown.GetFloat() - Utils.GetTimeStamp();
-            _ = str.Append(string.Format(GetString("WraithInvisCooldownRemain"), cooldown + 2));
+            str.Append(string.Format(GetString("WraithInvisCooldownRemain"), cooldown + 2));
         }
         else
         {
-            _ = str.Append(GetString("WraithCanVent"));
+            str.Append(GetString("WraithCanVent"));
         }
         return str.ToString();
     }
@@ -199,7 +199,7 @@ public static class Wraith
         if (target.Is(CustomRoles.Bait)) return true;
         if (!IsInvis(killer.PlayerId)) return true;
         killer.SetKillCooldown();
-        _ = target.RpcCheckAndMurder(target);
+        target.RpcCheckAndMurder(target);
         target.SetRealKiller(killer);
         return false;
     }

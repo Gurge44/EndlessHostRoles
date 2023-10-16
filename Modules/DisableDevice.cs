@@ -10,7 +10,7 @@ class DisableDevice
 {
     public static bool DoDisable => Options.DisableDevices.GetBool();
     private static List<byte> DesyncComms = new();
-    private static int frame;
+    private static int frame = 0;
     public static readonly Dictionary<string, Vector2> DevicePos = new()
     {
         ["SkeldAdmin"] = new(3.48f, -8.62f),
@@ -107,7 +107,7 @@ class DisableDevice
                 }
                 else if (!Utils.IsActive(SystemTypes.Comms) && DesyncComms.Contains(pc.PlayerId))
                 {
-                    _ = DesyncComms.Remove(pc.PlayerId);
+                    DesyncComms.Remove(pc.PlayerId);
                     pc.RpcDesyncRepairSystem(SystemTypes.Comms, 16);
 
                     if (Main.NormalOptions.MapId == 1)

@@ -33,12 +33,12 @@ class EndGamePatch
             if (date == DateTime.MinValue) continue;
             var killerId = kvp.Value.GetRealKiller();
             var targetId = kvp.Key;
-            _ = sb.Append($"\n{date:T} {Main.AllPlayerNames[targetId]}({Utils.GetDisplayRoleName(targetId, true)}{Utils.GetSubRolesText(targetId, summary: true)}) [{Utils.GetVitalText(kvp.Key)}]");
+            sb.Append($"\n{date:T} {Main.AllPlayerNames[targetId]}({Utils.GetDisplayRoleName(targetId, true)}{Utils.GetSubRolesText(targetId, summary: true)}) [{Utils.GetVitalText(kvp.Key)}]");
             if (killerId != byte.MaxValue && killerId != targetId)
-                _ = sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]}({Utils.GetDisplayRoleName(killerId, true)}{Utils.GetSubRolesText(killerId, summary: true)})");
+                sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]}({Utils.GetDisplayRoleName(killerId, true)}{Utils.GetSubRolesText(killerId, summary: true)})");
         }
         KillLog = sb.ToString();
-        if (!KillLog.Contains("\n")) KillLog = string.Empty;
+        if (!KillLog.Contains('\n')) KillLog = string.Empty;
 
         Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
         //winnerListリセット
@@ -73,7 +73,7 @@ class EndGamePatch
         Main.VisibleTasksCount = false;
         if (AmongUsClient.Instance.AmHost)
         {
-            _ = Main.RealOptionsData.Restore(GameOptionsManager.Instance.CurrentGameOptions);
+            Main.RealOptionsData.Restore(GameOptionsManager.Instance.CurrentGameOptions);
             GameOptionsSender.AllSenders.Clear();
             GameOptionsSender.AllSenders.Add(new NormalGameOptionsSender());
             /* Send SyncSettings RPC */
@@ -247,8 +247,8 @@ class SetEverythingUpPatch
         {
             byte id = Main.winnerList[i];
             if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
-            _ = sb.Append($"\n<b>").Append(EndGamePatch.SummaryText[id]);
-            _ = cloneRoles.Remove(id);
+            sb.Append($"\n<b>").Append(EndGamePatch.SummaryText[id]);
+            cloneRoles.Remove(id);
         }
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
         {
@@ -261,7 +261,7 @@ class SetEverythingUpPatch
 
             list.Sort();
             foreach (var id in list.Where(x => EndGamePatch.SummaryText.ContainsKey(x.Item2)))
-                _ = sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id.Item2]);
+                sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id.Item2]);
         }
         else if (Options.CurrentGameMode == CustomGameMode.FFA)
         {
@@ -274,16 +274,16 @@ class SetEverythingUpPatch
 
             list.Sort();
             foreach (var id in list.Where(x => EndGamePatch.SummaryText.ContainsKey(x.Item2)))
-                _ = sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id.Item2]);
+                sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id.Item2]);
         }
         else
         {
-            _ = sb.Append($"</b>\n");
+            sb.Append($"</b>\n");
             for (int i = 0; i < cloneRoles.Count; i++)
             {
                 byte id = cloneRoles[i];
                 if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
-                _ = sb.Append($"\n").Append(EndGamePatch.SummaryText[id]);
+                sb.Append($"\n").Append(EndGamePatch.SummaryText[id]);
             }
         }
         var RoleSummary = RoleSummaryObject.GetComponent<TMPro.TextMeshPro>();

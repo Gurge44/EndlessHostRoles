@@ -172,16 +172,16 @@ public class CustomRpcSender
         if (currentRpcTarget != targetClientId)
         {
             //StartMessage処理
-            if (currentState == State.InRootMessage) _ = EndMessage();
-            _ = StartMessage(targetClientId);
+            if (currentState == State.InRootMessage) EndMessage();
+            StartMessage(targetClientId);
         }
-        _ = StartRpc(targetNetId, callId);
+        StartRpc(targetNetId, callId);
 
         return this;
     }
     public void SendMessage()
     {
-        if (currentState == State.InRootMessage) _ = EndMessage();
+        if (currentState == State.InRootMessage) EndMessage();
         if (currentState != State.Ready)
         {
             string errorMsg = $"RPCを送信しようとしましたが、StateがReadyではありません (in: \"{name}\")";
@@ -254,13 +254,13 @@ public static class CustomRpcSenderExtensions
 {
     public static void RpcSetRole(this CustomRpcSender sender, PlayerControl player, RoleTypes role, int targetClientId = -1)
     {
-        _ = sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetRole, targetClientId)
+        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetRole, targetClientId)
             .Write((ushort)role)
             .EndRpc();
     }
     public static void RpcMurderPlayerV3(this CustomRpcSender sender, PlayerControl player, PlayerControl target, int targetClientId = -1)
     {
-        _ = sender.AutoStartRpc(player.NetId, (byte)RpcCalls.MurderPlayer, targetClientId)
+        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.MurderPlayer, targetClientId)
             .WriteNetObject(target)
             .EndRpc();
     }

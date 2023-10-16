@@ -242,7 +242,7 @@ public static class Sniper
             snipeTarget[sniperId] = 0x7F;
 
             //スナイプが起きたことを聞こえそうな対象に通知したい
-            _ = targets.Remove(snipedTarget);
+            targets.Remove(snipedTarget);
             var snList = shotNotify[sniperId];
             snList.Clear();
             foreach (var otherPc in targets.Keys)
@@ -345,8 +345,15 @@ public static class Sniper
     }
     public static void OverrideShapeText(byte id)
     {
-        if (IsThisRole(id))
-            HudManager.Instance.AbilityButton.SetUsesRemaining(bulletCount[id]);
-        HudManager.Instance.AbilityButton.OverrideText(GetString(bulletCount[id] <= 0 ? "DefaultShapeshiftText" : "SniperSnipeButtonText"));
+        if (Options.UsePets.GetBool())
+        {
+            HudManager.Instance.PetButton.OverrideText(GetString(bulletCount[id] <= 0 ? "DefaultShapeshiftText" : "SniperSnipeButtonText"));
+        }
+        else
+        {
+            if (IsThisRole(id))
+                HudManager.Instance.AbilityButton.SetUsesRemaining(bulletCount[id]);
+            HudManager.Instance.AbilityButton.OverrideText(GetString(bulletCount[id] <= 0 ? "DefaultShapeshiftText" : "SniperSnipeButtonText"));
+        }
     }
 }

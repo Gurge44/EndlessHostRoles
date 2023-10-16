@@ -40,7 +40,7 @@ public static class Hacker
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        _ = HackLimit.TryAdd(playerId, HackLimitOpt.GetInt());
+        HackLimit.TryAdd(playerId, HackLimitOpt.GetInt());
     }
     public static bool IsEnable => playerIdList.Any();
     private static void SendRPC(byte playerId)
@@ -54,7 +54,7 @@ public static class Hacker
     {
         byte PlayerId = reader.ReadByte();
         int Limit = reader.ReadInt32();
-        _ = HackLimit.TryAdd(PlayerId, HackLimitOpt.GetInt());
+        HackLimit.TryAdd(PlayerId, HackLimitOpt.GetInt());
         HackLimit[PlayerId] = Limit;
     }
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();

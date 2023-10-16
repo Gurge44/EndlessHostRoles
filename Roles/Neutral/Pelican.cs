@@ -65,7 +65,7 @@ public static class Pelican
         else
         {
             int eatenNum = reader.ReadInt32();
-            _ = eatenList.Remove(playerId);
+            eatenList.Remove(playerId);
             List<byte> list = new();
             for (int i = 0; i < eatenNum; i++)
                 list.Add(reader.ReadByte());
@@ -114,7 +114,7 @@ public static class Pelican
 
         SyncEatenList(pc.PlayerId);
 
-        _ = originalSpeed.Remove(target.PlayerId);
+        originalSpeed.Remove(target.PlayerId);
         originalSpeed.Add(target.PlayerId, Main.AllPlayerSpeed[target.PlayerId]);
 
         Utils.TP(target.NetTransform, GetBlackRoomPS());
@@ -168,11 +168,11 @@ public static class Pelican
             Utils.NotifyRoles(SpecifySeer: target);
             Logger.Info($"{Utils.GetPlayerById(pc).GetRealName()} 吐出了 {target.GetRealName()}", "Pelican");
         }
-        _ = eatenList.Remove(pc);
+        eatenList.Remove(pc);
         SyncEatenList(pc);
     }
 
-    private static int Count;
+    private static int Count = 0;
     public static void OnFixedUpdate()
     {
         if (!GameStates.IsInTask)

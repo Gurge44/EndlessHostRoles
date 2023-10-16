@@ -27,7 +27,7 @@ public static class Collector
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        _ = CollectVote.TryAdd(playerId, 0);
+        CollectVote.TryAdd(playerId, 0);
     }
     public static bool IsEnable => playerIdList.Any();
     private static void SendRPC(byte playerId)
@@ -41,7 +41,7 @@ public static class Collector
     {
         byte PlayerId = reader.ReadByte();
         int Num = reader.ReadInt32();
-        _ = CollectVote.TryAdd(PlayerId, 0);
+        CollectVote.TryAdd(PlayerId, 0);
         CollectVote[PlayerId] = Num;
     }
     public static string GetProgressText(byte playerId)
@@ -57,7 +57,7 @@ public static class Collector
         {
             if (check) return true;
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Collector);
-            foreach (var winner in pc) _ = CustomWinnerHolder.WinnerIds.Add(winner.PlayerId);
+            foreach (var winner in pc) CustomWinnerHolder.WinnerIds.Add(winner.PlayerId);
             return true;
         }
         return false;
@@ -76,7 +76,7 @@ public static class Collector
     public static void CollectorVotes(PlayerControl target, PlayerVoteArea ps)//集票者投票给谁
     {
         if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Collector))
-            _ = CollectorVoteFor.TryAdd(target.PlayerId, ps.TargetPlayerId);
+            CollectorVoteFor.TryAdd(target.PlayerId, ps.TargetPlayerId);
     }
     public static void CollectAmount(Dictionary<byte, int> VotingData, MeetingHud __instance)//得到集票者收集到的票
     {
@@ -91,7 +91,7 @@ public static class Collector
                 if (CollectorVoteFor.ContainsKey(data.Key) && pc.PlayerId == CollectorVoteFor[data.Key] && pc.Is(CustomRoles.Collector))
                 {
                     VoteAmount = data.Value;
-                    _ = CollectVote.TryAdd(pc.PlayerId, 0);
+                    CollectVote.TryAdd(pc.PlayerId, 0);
                     CollectVote[pc.PlayerId] = CollectVote[pc.PlayerId] + VoteAmount;
                     SendRPC(pc.PlayerId);
                 }

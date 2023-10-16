@@ -14,7 +14,7 @@ public static class Postman
     public static OptionItem CanVent;
     private static OptionItem HasImpostorVision;
 
-    public static bool IsFinished;
+    public static bool IsFinished = false;
 
     public static void SetupCustomOption()
     {

@@ -67,7 +67,7 @@ static class TargetArrow
         for (int i = 0; i < removeList.Count; i++)
         {
             ArrowInfo a = removeList[i];
-            _ = TargetArrows.Remove(a);
+            TargetArrows.Remove(a);
         }
     }
     /// <summary>
@@ -80,7 +80,7 @@ static class TargetArrow
         for (int i = 0; i < removeList.Count; i++)
         {
             ArrowInfo arrowInfo = removeList[i];
-            _ = TargetArrows.Remove(arrowInfo);
+            TargetArrows.Remove(arrowInfo);
         }
     }
     /// <summary>
@@ -120,7 +120,7 @@ static class TargetArrow
             var target = Utils.GetPlayerById(targetId);
             if (seerIsDead || !target.IsAlive() && !seer.Is(CustomRoles.Spiritualist))
             {
-                _ = TargetArrows.Remove(arrowInfo);
+                TargetArrows.Remove(arrowInfo);
                 update = true;
                 continue;
             }

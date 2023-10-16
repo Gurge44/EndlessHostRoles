@@ -78,7 +78,7 @@ class AddTasksFromListPatch
         {
             NormalPlayerTask task = disabledTasks[i];
             Logger.Msg("削除: " + task.TaskType.ToString(), "AddTask");
-            _ = unusedTasks.Remove(task);
+            unusedTasks.Remove(task);
         }
     }
 }
@@ -142,7 +142,7 @@ class RpcSetTasksPatch
         if (Main.CapitalismAssignTask.ContainsKey(playerId))
         {
             NumShortTasks += Main.CapitalismAssignTask[playerId];
-            _ = Main.CapitalismAssignTask.Remove(playerId);
+            Main.CapitalismAssignTask.Remove(playerId);
         }
 
         if (!taskTypeIds.Any()) hasCommonTasks = false; //タスク再配布時はコモンを0に

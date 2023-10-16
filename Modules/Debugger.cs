@@ -23,7 +23,7 @@ class Webhook
         };
         TaskAwaiter<HttpResponseMessage> awaiter = httpClient.PostAsync(
             Main.WebhookURL.Value, new FormUrlEncodedContent(strs)).GetAwaiter();
-        _ = awaiter.GetResult();
+        awaiter.GetResult();
     }
 }
 class Logger
@@ -31,18 +31,20 @@ class Logger
     public static bool isEnable;
     public static List<string> disableList = new();
     public static List<string> sendToGameList = new();
-    public static bool isDetail;
-    public static bool isAlsoInGame;
+    public static bool isDetail = false;
+    public static bool isAlsoInGame = false;
     public static void Enable() => isEnable = true;
     public static void Disable() => isEnable = false;
     public static void Enable(string tag, bool toGame = false)
     {
-        _ = disableList.Remove(tag);
+        disableList.Remove(tag);
         if (toGame && !sendToGameList.Contains(tag)) sendToGameList.Add(tag);
-        else _ = sendToGameList.Remove(tag);
+        else sendToGameList.Remove(tag);
     }
     public static void Disable(string tag) { if (!disableList.Contains(tag)) disableList.Add(tag); }
+#pragma warning disable IDE0060 // Remove unused parameter
     public static void SendInGame(string text, bool isAlways = false)
+#pragma warning restore IDE0060 // Remove unused parameter
     {
         if (!isEnable) return;
         if (DestroyableSingleton<HudManager>._instance) DestroyableSingleton<HudManager>.Instance.Notifier.AddItem(text);

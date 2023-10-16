@@ -27,7 +27,7 @@ public static class Succubus
         "CharmedCountMode.Original",
     };
 
-    private static int CharmLimit;
+    private static int CharmLimit = new();
 
     public static void SetupCustomOption()
     {
@@ -90,11 +90,11 @@ public static class Succubus
             target.RpcGuardAndKill(target);
 
             Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Charmed.ToString(), "Assign " + CustomRoles.Charmed.ToString());
-            Logger.Info($"{killer.GetNameWithRole()} : 剩余{CharmLimit}次魅惑机会", "Succubus");
+            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{CharmLimit}次魅惑机会", "Succubus");
             return;
         }
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Succubus), GetString("SuccubusInvalidTarget")));
-        Logger.Info($"{killer.GetNameWithRole()} : 剩余{CharmLimit}次魅惑机会", "Succubus");
+        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{CharmLimit}次魅惑机会", "Succubus");
         return;
     }
     public static bool KnowRole(PlayerControl player, PlayerControl target)

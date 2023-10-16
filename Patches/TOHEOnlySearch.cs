@@ -12,7 +12,7 @@ public static class TOHEOnlySearch
     {
         public static void Postfix()
         {
-            _ = DataManager.Settings.Multiplayer.ValidGameFilterOptions.FilterTags.Add(FilterText);
+            DataManager.Settings.Multiplayer.ValidGameFilterOptions.FilterTags.Add(FilterText);
         }
     }
 
@@ -26,7 +26,7 @@ public static class TOHEOnlySearch
                 if (filter == FilterText)
                 {
                     __instance.targetOpts.FilterTags = new();
-                    _ = __instance.targetOpts.FilterTags.Add(FilterText);
+                    __instance.targetOpts.FilterTags.Add(FilterText);
                     foreach (var btn in __instance.controllerSelectable)
                     {
                         btn.GetComponent<ChatLanguageButton>().SetSelected(false);
@@ -35,7 +35,7 @@ public static class TOHEOnlySearch
                 }
                 else
                 {
-                    _ = __instance.targetOpts.FilterTags.Remove(FilterText);
+                    __instance.targetOpts.FilterTags.Remove(FilterText);
                     foreach (var btn in __instance.controllerSelectable)
                     {
                         ChatLanguageButton LangBtn = btn.GetComponent<ChatLanguageButton>();

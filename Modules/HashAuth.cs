@@ -43,7 +43,7 @@ public class HashAuth
         for (int i = 0; i < hashBytes.Length; i++)
         {
             byte b = hashBytes[i];
-            _ = sb.Append(b.ToString("x2")); //1byteずつ2桁の16進法表記に変換する
+            sb.Append(b.ToString("x2")); //1byteずつ2桁の16進法表記に変換する
         }
 
         return sb.ToString();

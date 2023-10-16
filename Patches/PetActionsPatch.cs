@@ -19,7 +19,7 @@ namespace TOHE;
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.TryPet))]
 class LocalPetPatch
 {
-    private static System.Collections.Generic.Dictionary<byte, long> LastProcess = new();
+    private static readonly System.Collections.Generic.Dictionary<byte, long> LastProcess = new();
     public static bool Prefix(PlayerControl __instance)
     {
         if (!Options.UsePets.GetBool()) return true;
@@ -29,7 +29,7 @@ class LocalPetPatch
         if (__instance.petting) return true;
         __instance.petting = true;
 
-        if (!LastProcess.ContainsKey(__instance.PlayerId)) _ = LastProcess.TryAdd(__instance.PlayerId, Utils.GetTimeStamp() - 2);
+        if (!LastProcess.ContainsKey(__instance.PlayerId)) LastProcess.TryAdd(__instance.PlayerId, Utils.GetTimeStamp() - 2);
         if (LastProcess[__instance.PlayerId] + 1 >= Utils.GetTimeStamp()) return true;
 
         ExternalRpcPetPatch.Prefix(__instance.MyPhysics, 51);
@@ -67,7 +67,7 @@ class ExternalRpcPetPatch
                 AmongUsClient.Instance.FinishRpcImmediately(AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, 50, SendOption.None, player.GetClientId()));
         }
 
-        Logger.Info($"Player {pc.GetNameWithRole()} has Pet", "RPCDEBUG");
+        Logger.Info($"Player {pc.GetNameWithRole().RemoveHtmlTags()} petted their pet", "PetActionTrigger");
 
         OnPetUse(pc);
     }
@@ -82,25 +82,30 @@ class ExternalRpcPetPatch
             case CustomRoles.Doormaster:
                 if (Main.DoormasterCD.ContainsKey(pc.PlayerId))
                 {
-                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                    //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
                     break;
                 }
                 Doormaster.OnEnterVent(pc);
-                pc.RpcResetAbilityCooldown();
                 break;
             case CustomRoles.Tether:
                 if (Main.TetherCD.ContainsKey(pc.PlayerId))
                 {
-                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                    //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
                     break;
                 }
                 Tether.OnEnterVent(pc, 0, true);
-                pc.RpcResetAbilityCooldown();
+                break;
+            case CustomRoles.CameraMan:
+                if (Main.CameraManCD.ContainsKey(pc.PlayerId))
+                {
+                    //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                    break;
+                }
+                CameraMan.OnEnterVent(pc);
                 break;
             case CustomRoles.Mayor:
                 if (Main.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count) && count < Options.MayorNumOfUseButton.GetInt() && !Main.MayorCD.ContainsKey(pc.PlayerId))
                 {
-
                     pc?.ReportDeadBody(null);
                 }
                 break;
@@ -125,22 +130,21 @@ class ExternalRpcPetPatch
                 {
                     if (Main.VeteranCD.ContainsKey(pc.PlayerId))
                     {
-                        if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                        //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
                         break;
                     }
-                    _ = Main.VeteranInProtect.Remove(pc.PlayerId);
+                    Main.VeteranInProtect.Remove(pc.PlayerId);
                     Main.VeteranInProtect.Add(pc.PlayerId, Utils.GetTimeStamp(DateTime.Now));
                     Main.VeteranNumOfUsed[pc.PlayerId] -= 1;
                     //pc.RpcGuardAndKill(pc);
                     pc.RPCPlayCustomSound("Gunload");
                     pc.Notify(GetString("VeteranOnGuard"), Options.VeteranSkillDuration.GetFloat());
-                    _ = Main.VeteranCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
-                    pc.RpcResetAbilityCooldown();
+                    Main.VeteranCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                     pc.MarkDirtySettings();
                 }
                 else
                 {
-                    pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
+                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
                 }
                 break;
             case CustomRoles.Grenadier:
@@ -149,32 +153,31 @@ class ExternalRpcPetPatch
                 {
                     if (Main.GrenadierCD.ContainsKey(pc.PlayerId))
                     {
-                        if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                        //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
                         break;
                     }
                     if (pc.Is(CustomRoles.Madmate))
                     {
-                        _ = Main.MadGrenadierBlinding.Remove(pc.PlayerId);
+                        Main.MadGrenadierBlinding.Remove(pc.PlayerId);
                         Main.MadGrenadierBlinding.Add(pc.PlayerId, Utils.GetTimeStamp());
                         Main.AllPlayerControls.Where(x => x.IsModClient()).Where(x => !x.GetCustomRole().IsImpostorTeam() && !x.Is(CustomRoles.Madmate)).Do(x => x.RPCPlayCustomSound("FlashBang"));
                     }
                     else
                     {
-                        _ = Main.GrenadierBlinding.Remove(pc.PlayerId);
+                        Main.GrenadierBlinding.Remove(pc.PlayerId);
                         Main.GrenadierBlinding.Add(pc.PlayerId, Utils.GetTimeStamp());
                         Main.AllPlayerControls.Where(x => x.IsModClient()).Where(x => x.GetCustomRole().IsImpostor() || (x.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool())).Do(x => x.RPCPlayCustomSound("FlashBang"));
                     }
                     //pc.RpcGuardAndKill(pc);
                     pc.RPCPlayCustomSound("FlashBang");
                     pc.Notify(GetString("GrenadierSkillInUse"), Options.GrenadierSkillDuration.GetFloat());
-                    _ = Main.GrenadierCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
-                    pc.RpcResetAbilityCooldown();
+                    Main.GrenadierCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                     Main.GrenadierNumOfUsed[pc.PlayerId] -= 1;
                     Utils.MarkEveryoneDirtySettingsV3();
                 }
                 else
                 {
-                    pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
+                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
                 }
                 break;
             case CustomRoles.Lighter:
@@ -183,20 +186,20 @@ class ExternalRpcPetPatch
                 {
                     if (Main.LighterCD.ContainsKey(pc.PlayerId))
                     {
-                        if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                        //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
                         break;
                     }
-                    _ = Main.Lighter.Remove(pc.PlayerId);
+                    Main.Lighter.Remove(pc.PlayerId);
                     Main.Lighter.Add(pc.PlayerId, Utils.GetTimeStamp());
                     pc.Notify(GetString("LighterSkillInUse"), Options.LighterSkillDuration.GetFloat());
-                    _ = Main.LighterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
-                    pc.RpcResetAbilityCooldown();
+                    Main.LighterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                     Main.LighterNumOfUsed[pc.PlayerId] -= 1;
                     pc.MarkDirtySettings();
                 }
                 else
                 {
-                    pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
+                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
+                        pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
                 }
                 break;
             case CustomRoles.SecurityGuard:
@@ -205,29 +208,30 @@ class ExternalRpcPetPatch
                 {
                     if (Main.SecurityGuardCD.ContainsKey(pc.PlayerId))
                     {
-                        if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                        //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
                         break;
                     }
-                    _ = Main.BlockSabo.Remove(pc.PlayerId);
+                    Main.BlockSabo.Remove(pc.PlayerId);
                     Main.BlockSabo.Add(pc.PlayerId, Utils.GetTimeStamp());
                     pc.Notify(GetString("SecurityGuardSkillInUse"), Options.SecurityGuardSkillDuration.GetFloat());
-                    _ = Main.SecurityGuardCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
-                    pc.RpcResetAbilityCooldown();
+                    Main.SecurityGuardCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                     Main.SecurityGuardNumOfUsed[pc.PlayerId] -= 1;
                 }
                 else
                 {
-                    pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
+                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
+                        pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
                 }
                 break;
             case CustomRoles.DovesOfNeace:
                 if (Main.DovesOfNeaceNumOfUsed[pc.PlayerId] < 1)
                 {
-                    pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
+                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
+                        pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
                 }
                 else if (Main.DovesOfNeaceCD.ContainsKey(pc.PlayerId))
                 {
-                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                    //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
                 }
                 else
                 {
@@ -248,13 +252,11 @@ class ExternalRpcPetPatch
                     });
                     pc.RPCPlayCustomSound("Dove");
                     pc.Notify(string.Format(GetString("DovesOfNeaceOnGuard"), Main.DovesOfNeaceNumOfUsed[pc.PlayerId]));
-                    _ = Main.DovesOfNeaceCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
-                    pc.RpcResetAbilityCooldown();
+                    Main.DovesOfNeaceCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 }
                 break;
             case CustomRoles.Alchemist:
                 Alchemist.OnEnterVent(pc, 0, true);
-                pc.RpcResetAbilityCooldown();
                 break;
             case CustomRoles.TimeMaster:
                 if (Main.TimeMasterInProtect.ContainsKey(pc.PlayerId)) break;
@@ -262,16 +264,15 @@ class ExternalRpcPetPatch
                 {
                     if (Main.TimeMasterCD.ContainsKey(pc.PlayerId))
                     {
-                        if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                        //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
                         break;
                     }
                     Main.TimeMasterNumOfUsed[pc.PlayerId] -= 1;
-                    _ = Main.TimeMasterInProtect.Remove(pc.PlayerId);
+                    Main.TimeMasterInProtect.Remove(pc.PlayerId);
                     Main.TimeMasterInProtect.Add(pc.PlayerId, Utils.GetTimeStamp());
                     //if (!pc.IsModClient()) pc.RpcGuardAndKill(pc);
                     pc.Notify(GetString("TimeMasterOnGuard"), Options.TimeMasterSkillDuration.GetFloat());
-                    _ = Main.TimeMasterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
-                    pc.RpcResetAbilityCooldown();
+                    Main.TimeMasterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                     foreach (var player in Main.AllPlayerControls)
                     {
                         if (Main.TimeMasterBackTrack.ContainsKey(player.PlayerId))
@@ -280,7 +281,7 @@ class ExternalRpcPetPatch
                             Utils.TP(player.NetTransform, position);
                             if (pc != player)
                                 player?.MyPhysics?.RpcBootFromVent(player.PlayerId);
-                            _ = Main.TimeMasterBackTrack.Remove(player.PlayerId);
+                            Main.TimeMasterBackTrack.Remove(player.PlayerId);
                         }
                         else
                         {
@@ -290,12 +291,12 @@ class ExternalRpcPetPatch
                 }
                 else
                 {
-                    pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
+                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
+                        pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
                 }
                 break;
             case CustomRoles.NiceHacker:
                 NiceHacker.OnEnterVent(pc);
-                pc.RpcResetAbilityCooldown();
                 break;
 
             // Impostors
@@ -303,11 +304,11 @@ class ExternalRpcPetPatch
             case CustomRoles.Sniper:
                 if (Main.SniperCD.ContainsKey(pc.PlayerId))
                 {
-                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                    //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
                     break;
                 }
+                if (Sniper.IsAim[pc.PlayerId]) Main.SniperCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 Sniper.OnShapeshift(pc, !Sniper.IsAim[pc.PlayerId]);
-                _ = Main.SniperCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
             case CustomRoles.Warlock:
                 if (Main.CursedPlayers[pc.PlayerId] != null)//呪われた人がいるか確認
@@ -336,7 +337,7 @@ class ExternalRpcPetPatch
                             if (cp.RpcCheckAndMurder(targetw, true))
                             {
                                 targetw.SetRealKiller(pc);
-                                Logger.Info($"{targetw.GetNameWithRole()}was killed", "Warlock");
+                                Logger.Info($"{targetw.GetNameWithRole().RemoveHtmlTags()}was killed", "Warlock");
                                 cp.RpcMurderPlayerV3(targetw);
                                 pc.SetKillCooldown();
                                 pc.Notify(GetString("WarlockControlKill"));
@@ -355,25 +356,25 @@ class ExternalRpcPetPatch
             case CustomRoles.Assassin:
                 if (Main.AssassinCD.ContainsKey(pc.PlayerId))
                 {
-                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                    //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
                     break;
                 }
                 Assassin.OnShapeshift(pc, true);
-                _ = Main.AssassinCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                Main.AssassinCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
             case CustomRoles.Undertaker:
                 if (Main.UndertakerCD.ContainsKey(pc.PlayerId))
                 {
-                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                    //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
                     break;
                 }
                 Undertaker.OnShapeshift(pc, true);
-                _ = Main.UndertakerCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                Main.UndertakerCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
             case CustomRoles.Miner:
                 if (Main.MinerCD.ContainsKey(pc.PlayerId))
                 {
-                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                    //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
                     break;
                 }
                 if (Main.LastEnteredVent.ContainsKey(pc.PlayerId))
@@ -381,22 +382,22 @@ class ExternalRpcPetPatch
                     int ventId = Main.LastEnteredVent[pc.PlayerId].Id;
                     var vent = Main.LastEnteredVent[pc.PlayerId];
                     var position = Main.LastEnteredVentLocation[pc.PlayerId];
-                    Logger.Msg($"{pc.GetNameWithRole()}:{position}", "MinerTeleport");
+                    Logger.Msg($"{pc.GetNameWithRole().RemoveHtmlTags()}:{position}", "MinerTeleport");
                     Utils.TP(pc.NetTransform, new UnityEngine.Vector2(position.x, position.y));
                 }
-                _ = Main.MinerCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                Main.MinerCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
             case CustomRoles.Escapee:
                 if (Main.EscapeeCD.ContainsKey(pc.PlayerId))
                 {
-                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                    //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
                     break;
                 }
                 if (Main.EscapeeLocation.ContainsKey(pc.PlayerId))
                 {
                     var position = Main.EscapeeLocation[pc.PlayerId];
-                    _ = Main.EscapeeLocation.Remove(pc.PlayerId);
-                    Logger.Msg($"{pc.GetNameWithRole()}:{position}", "EscapeeTeleport");
+                    Main.EscapeeLocation.Remove(pc.PlayerId);
+                    Logger.Msg($"{pc.GetNameWithRole().RemoveHtmlTags()}:{position}", "EscapeeTeleport");
                     Utils.TP(pc.NetTransform, position);
                     pc.RPCPlayCustomSound("Teleport");
                 }
@@ -404,7 +405,7 @@ class ExternalRpcPetPatch
                 {
                     Main.EscapeeLocation.Add(pc.PlayerId, pc.GetTruePosition());
                 }
-                _ = Main.EscapeeCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                Main.EscapeeCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
             case CustomRoles.RiftMaker:
                 RiftMaker.OnShapeshift(pc, true);
@@ -412,7 +413,7 @@ class ExternalRpcPetPatch
             case CustomRoles.Bomber:
                 if (Main.BomberCD.ContainsKey(pc.PlayerId))
                 {
-                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                    //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
                     break;
                 }
                 Logger.Info("炸弹爆炸了", "Boom");
@@ -442,12 +443,12 @@ class ExternalRpcPetPatch
                     }
                     Utils.NotifyRoles();
                 }, 1.5f, "Bomber Suiscide");
-                _ = Main.BomberCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                Main.BomberCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
             case CustomRoles.Nuker:
                 if (Main.NukerCD.ContainsKey(pc.PlayerId))
                 {
-                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                    //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
                     break;
                 }
                 Logger.Info("炸弹爆炸了", "Boom");
@@ -477,34 +478,40 @@ class ExternalRpcPetPatch
                     }
                     Utils.NotifyRoles();
                 }, 1.5f, "Nuke");
-                _ = Main.NukerCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                Main.NukerCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
             case CustomRoles.QuickShooter:
                 if (Main.QuickShooterCD.ContainsKey(pc.PlayerId))
                 {
-                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                    //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
                     break;
                 }
                 QuickShooter.OnShapeshift(pc, true);
-                _ = Main.QuickShooterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                Main.QuickShooterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
             case CustomRoles.Disperser:
                 if (Main.DisperserCD.ContainsKey(pc.PlayerId))
                 {
-                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                    //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
                     break;
                 }
                 Disperser.DispersePlayers(pc);
-                _ = Main.DisperserCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                Main.DisperserCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
             case CustomRoles.Twister:
                 if (Main.TwisterCD.ContainsKey(pc.PlayerId))
                 {
-                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                    //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
                     break;
                 }
                 Twister.TwistPlayers(pc, true);
-                _ = Main.TwisterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                Main.TwisterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                break;
+            case CustomRoles.Glitch:
+                Glitch.Mimic(pc);
+                break;
+            case CustomRoles.Magician:
+                Magician.UseCard(pc);
                 break;
         }
     }

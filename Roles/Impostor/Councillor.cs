@@ -235,7 +235,7 @@ public static class Councillor
     public static void ReceiveRPC(MessageReader reader, PlayerControl pc)
     {
         int PlayerId = reader.ReadByte();
-        _ = MurderMsg(pc, $"/tl {PlayerId}", true);
+        MurderMsg(pc, $"/tl {PlayerId}", true);
     }
 
     private static void CouncillorOnClick(byte playerId, MeetingHud __instance)
@@ -243,7 +243,7 @@ public static class Councillor
         Logger.Msg($"Click: ID {playerId}", "Councillor UI");
         var pc = Utils.GetPlayerById(playerId);
         if (pc == null || !pc.IsAlive() || !GameStates.IsVoting) return;
-        if (AmongUsClient.Instance.AmHost) _ = MurderMsg(PlayerControl.LocalPlayer, $"/tl {playerId}", true);
+        if (AmongUsClient.Instance.AmHost) MurderMsg(PlayerControl.LocalPlayer, $"/tl {playerId}", true);
         else SendRPC(playerId);
     }
 

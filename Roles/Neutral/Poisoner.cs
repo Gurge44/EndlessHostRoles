@@ -96,7 +96,7 @@ public static class Poisoner
             {
                 var target = Utils.GetPlayerById(targetId);
                 KillPoisoned(poisoner, target);
-                _ = PoisonedPlayers.Remove(targetId);
+                PoisonedPlayers.Remove(targetId);
             }
             else
             {

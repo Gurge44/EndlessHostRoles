@@ -38,7 +38,7 @@ public static class Sans
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        _ = NowCooldown.TryAdd(playerId, DefaultKillCooldown.GetFloat());
+        NowCooldown.TryAdd(playerId, DefaultKillCooldown.GetFloat());
     }
     public static bool IsEnable() => playerIdList.Any();
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = NowCooldown[id];

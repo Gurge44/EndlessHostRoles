@@ -149,7 +149,7 @@ public static class CredentialsPatch
         {
             InitCredentialsData();
             instance = __instance;
-            _ = AmongUsClient.Instance.StartCoroutine(ViewCredentialsCoro(__instance));
+            AmongUsClient.Instance.StartCoroutine(ViewCredentialsCoro(__instance));
         }
     }
 }

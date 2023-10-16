@@ -130,11 +130,11 @@ public abstract class OptionItem
         {
             var roleName = Translator.GetString(Enum.GetName(typeof(CustomRoles), role.Key));
             ReplacementDictionary ??= new();
-            _ = ReplacementDictionary.TryAdd(roleName, Utils.ColorString(Utils.GetRoleColor(role.Key), roleName));
+            ReplacementDictionary.TryAdd(roleName, Utils.ColorString(Utils.GetRoleColor(role.Key), roleName));
             break;
         }
         i.Parent = parent;
-        _ = parent.SetChild(i);
+        parent.SetChild(i);
     });
     public OptionItem SetChild(OptionItem child) => Do(i => i.Children.Add(child));
     public OptionItem RegisterUpdateValueEvent(EventHandler<UpdateValueEventArgs> handler)

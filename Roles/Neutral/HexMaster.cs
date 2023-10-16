@@ -215,7 +215,7 @@ public static class HexMaster
             }
             else
             {
-                _ = Main.AfterMeetingDeathPlayers.Remove(pc.PlayerId);
+                Main.AfterMeetingDeathPlayers.Remove(pc.PlayerId);
             }
         }
         CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Hex, hexedIdList.ToArray());
@@ -245,19 +245,19 @@ public static class HexMaster
         var str = new StringBuilder();
         if (hud)
         {
-            _ = str.Append($"<color=#00ffa5>{GetString("WitchCurrentMode")}:</color> <b>");
+            str.Append($"<color=#00ffa5>{GetString("WitchCurrentMode")}:</color> <b>");
         }
         else
         {
-            _ = str.Append($"{GetString("Mode")}:");
+            str.Append($"{GetString("Mode")}:");
         }
         if (NowSwitchTrigger == SwitchTrigger.DoubleTrigger)
         {
-            _ = str.Append(GetString("HexMasterModeDouble"));
+            str.Append(GetString("HexMasterModeDouble"));
         }
         else
         {
-            _ = str.Append(IsHexMode(hexmaster.PlayerId) ? GetString("HexMasterModeHex") : GetString("HexMasterModeKill"));
+            str.Append(IsHexMode(hexmaster.PlayerId) ? GetString("HexMasterModeHex") : GetString("HexMasterModeKill"));
         }
         return str.ToString();
     }

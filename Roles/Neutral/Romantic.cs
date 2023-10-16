@@ -15,9 +15,9 @@ public static class Romantic
     public static List<byte> playerIdList = new();
 
     private static readonly int MaxBetTimes = 1;
-    public static bool isProtect;
+    public static bool isProtect = false;
     public static bool isRomanticAlive = true;
-    public static bool isPartnerProtected;
+    public static bool isPartnerProtected = false;
 
     public static OptionItem BetCooldown;
     private static OptionItem ProtectCooldown;
@@ -81,8 +81,8 @@ public static class Romantic
         byte PlayerId = reader.ReadByte();
         int Times = reader.ReadInt32();
         byte Target = reader.ReadByte();
-        _ = BetTimes.Remove(PlayerId);
-        _ = BetPlayer.Remove(PlayerId);
+        BetTimes.Remove(PlayerId);
+        BetPlayer.Remove(PlayerId);
         BetTimes.Add(PlayerId, Times);
         if (Target != byte.MaxValue)
             BetPlayer.Add(PlayerId, Target);
@@ -117,7 +117,7 @@ public static class Romantic
             BetTimes[killer.PlayerId]--;
             if (BetPlayer.TryGetValue(killer.PlayerId, out var originalTarget) && Utils.GetPlayerById(originalTarget) != null)
                 Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(originalTarget));
-            _ = BetPlayer.Remove(killer.PlayerId);
+            BetPlayer.Remove(killer.PlayerId);
             BetPlayer.Add(killer.PlayerId, target.PlayerId);
             SendRPC(killer.PlayerId);
 
@@ -129,7 +129,7 @@ public static class Romantic
             if (BetTargetKnowRomantic.GetBool())
                 target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Romantic), GetString("RomanticBetOnYou")));
 
-            Logger.Info($"赌徒下注：{killer.GetNameWithRole()} => {target.GetNameWithRole()}", "Romantic");
+            Logger.Info($"赌徒下注：{killer.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "Romantic");
         }
         else
         {
@@ -191,20 +191,20 @@ public static class Romantic
         var pc = Utils.GetPlayerById(Romantic);
         if (player.IsNeutralKiller())
         {
-            Logger.Info($"Neutral Romantic Partner Died changing {pc.GetNameWithRole()} to Ruthless Romantic", "Romantic");
+            Logger.Info($"Neutral Romantic Partner Died changing {pc.GetNameWithRole().RemoveHtmlTags()} to Ruthless Romantic", "Romantic");
             pc.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
             RuthlessRomantic.Add(playerId);
         }
         else if (player.GetCustomRole().IsImpostorTeamV3())
         {
-            Logger.Info($"Impostor Romantic Partner Died changing {pc.GetNameWithRole()} to Refugee", "Romantic");
+            Logger.Info($"Impostor Romantic Partner Died changing {pc.GetNameWithRole().RemoveHtmlTags()} to Refugee", "Romantic");
             pc.RpcSetCustomRole(CustomRoles.Refugee);
         }
         else
         {
             _ = new LateTask(() =>
             {
-                Logger.Info($"Crew/nnk Romantic Partner Died changing {pc.GetNameWithRole()} to Vengeful romantic", "Romantic");
+                Logger.Info($"Crew/nnk Romantic Partner Died changing {pc.GetNameWithRole().RemoveHtmlTags()} to Vengeful romantic", "Romantic");
 
                 var killerId = player.GetRealKiller().PlayerId;
                 VengefulRomantic.Add(pc.PlayerId, killerId);
@@ -225,7 +225,7 @@ public static class VengefulRomantic
 {
     public static List<byte> playerIdList = new();
 
-    public static bool hasKilledKiller;
+    public static bool hasKilledKiller = false;
     public static Dictionary<byte, byte> VengefulTarget = new();
 
     public static void Init()
@@ -281,7 +281,7 @@ public static class VengefulRomantic
     {
         byte PlayerId = reader.ReadByte();
         byte Target = reader.ReadByte();
-        _ = VengefulTarget.Remove(PlayerId);
+        VengefulTarget.Remove(PlayerId);
         if (Target != byte.MaxValue)
             VengefulTarget.Add(PlayerId, Target);
     }

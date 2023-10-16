@@ -48,8 +48,8 @@ internal static class Eraser
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        _ = EraseLimit.TryAdd(playerId, EraseLimitOpt.GetInt());
-        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole()} : 剩余{EraseLimit[playerId]}次", "Eraser");
+        EraseLimit.TryAdd(playerId, EraseLimitOpt.GetInt());
+        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : 剩余{EraseLimit[playerId]}次", "Eraser");
     }
     public static bool IsEnable => playerIdList.Any();
     private static void SendRPC(byte playerId)
@@ -145,7 +145,7 @@ internal static class Eraser
             if (player == null) continue;
             player.RpcSetCustomRole(CustomRolesHelper.GetErasedRole(player.GetCustomRole()));
             NameNotifyManager.Notify(player, GetString("LostRoleByEraser"));
-            Logger.Info($"{player.GetNameWithRole()} 被擦除了", "Eraser");
+            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} 被擦除了", "Eraser");
             player.MarkDirtySettings();
         }
         PlayerToErase = new();

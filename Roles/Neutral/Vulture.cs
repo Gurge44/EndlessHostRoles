@@ -128,7 +128,6 @@ public static class Vulture
 
         var pos = target.GetTruePosition();
         float minDis = float.MaxValue;
-        string minName = string.Empty;
         foreach (var pc in Main.AllAlivePlayerControls)
         {
             if (pc.PlayerId == target.PlayerId) continue;
@@ -136,7 +135,7 @@ public static class Vulture
             if (dis < minDis && dis < 1.5f)
             {
                 minDis = dis;
-                minName = pc.GetRealName();
+                string minName = pc.GetRealName();
             }
         }
 
@@ -166,7 +165,7 @@ public static class Vulture
         }
 
         pc.Notify(GetString("VultureBodyReported"));
-        _ = UnreportablePlayers.Remove(target.PlayerId);
+        UnreportablePlayers.Remove(target.PlayerId);
         UnreportablePlayers.Add(target.PlayerId);
         //playerIdList.Remove(target.PlayerId);
     }

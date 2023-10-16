@@ -35,13 +35,13 @@ public static class CustomWinnerHolder
     public static void SetWinnerOrAdditonalWinner(CustomWinner winner)
     {
         if (WinnerTeam == CustomWinner.Default) WinnerTeam = winner;
-        else _ = AdditionalWinnerTeams.Add((AdditionalWinners)winner);
+        else AdditionalWinnerTeams.Add((AdditionalWinners)winner);
     }
     /// <summary><para>WinnerTeamに値を代入します。</para><para>すでに代入されている場合、既存の値をAdditionalWinnerTeamsに追加してから代入します。</para></summary>
     public static void ShiftWinnerAndSetWinner(CustomWinner winner)
     {
         if (WinnerTeam != CustomWinner.Default)
-            _ = AdditionalWinnerTeams.Add((AdditionalWinners)WinnerTeam);
+            AdditionalWinnerTeams.Add((AdditionalWinners)WinnerTeam);
         WinnerTeam = winner;
     }
     /// <summary><para>既存の値をすべて削除してから、WinnerTeamに値を代入します。</para></summary>
@@ -76,16 +76,16 @@ public static class CustomWinnerHolder
         AdditionalWinnerTeams = new();
         int AdditionalWinnerTeamsCount = reader.ReadInt32();
         for (int i = 0; i < AdditionalWinnerTeamsCount; i++)
-            _ = AdditionalWinnerTeams.Add((AdditionalWinners)reader.ReadInt32());
+            AdditionalWinnerTeams.Add((AdditionalWinners)reader.ReadInt32());
 
         WinnerRoles = new();
         int WinnerRolesCount = reader.ReadInt32();
         for (int i = 0; i < WinnerRolesCount; i++)
-            _ = WinnerRoles.Add((CustomRoles)reader.ReadInt32());
+            WinnerRoles.Add((CustomRoles)reader.ReadInt32());
 
         WinnerIds = new();
         int WinnerIdsCount = reader.ReadInt32();
         for (int i = 0; i < WinnerIdsCount; i++)
-            _ = WinnerIds.Add(reader.ReadByte());
+            WinnerIds.Add(reader.ReadByte());
     }
 }

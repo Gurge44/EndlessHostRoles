@@ -13,14 +13,14 @@ namespace TOHE.Roles.Crewmate
     public static class Alchemist
     {
         private static readonly int Id = 5250;
-        public static bool IsProtected;
+        public static bool IsProtected = false;
         private static List<byte> playerIdList = new();
         private static Dictionary<byte, int> ventedId = new();
         public static byte PotionID = 10;
         public static string PlayerName = string.Empty;
         private static Dictionary<byte, long> InvisTime = new();
-        public static bool VisionPotionActive;
-        public static bool FixNextSabo;
+        public static bool VisionPotionActive = false;
+        public static bool FixNextSabo = false;
 
         public static OptionItem VentCooldown;
         public static OptionItem ShieldDuration;
@@ -50,7 +50,7 @@ namespace TOHE.Roles.Crewmate
                 .SetValueFormat(OptionFormat.Multiplier);
             VisionDuration = FloatOptionItem.Create(Id + 18, "AlchemistVisionDur", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
                 .SetValueFormat(OptionFormat.Seconds);
-            _ = OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.Alchemist);
+            OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.Alchemist);
         }
         public static void Init()
         {
@@ -109,11 +109,11 @@ namespace TOHE.Roles.Crewmate
 
             if (Main.AlchemistCD.ContainsKey(player.PlayerId))
             {
-                if (!NameNotifyManager.Notice.ContainsKey(player.PlayerId)) player.Notify(GetString("AbilityOnCooldown"));
+                //if (!NameNotifyManager.Notice.ContainsKey(player.PlayerId)) player.Notify(GetString("AbilityOnCooldown"));
                 return;
             }
 
-            _ = NameNotifyManager.Notice.Remove(player.PlayerId);
+            NameNotifyManager.Notice.Remove(player.PlayerId);
 
             switch (PotionID)
             {
@@ -138,7 +138,7 @@ namespace TOHE.Roles.Crewmate
                         List<PlayerControl> AllAlivePlayer = new();
                         foreach (var pc in Main.AllAlivePlayerControls.Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder)) AllAlivePlayer.Add(pc);
                         var tar1 = AllAlivePlayer[player.PlayerId];
-                        _ = AllAlivePlayer.Remove(tar1);
+                        AllAlivePlayer.Remove(tar1);
                         var tar2 = AllAlivePlayer[rd.Next(0, AllAlivePlayer.Count)];
                         Utils.TP(tar1.NetTransform, tar2.GetTruePosition());
                         tar1.RPCPlayCustomSound("Teleport");
@@ -176,11 +176,11 @@ namespace TOHE.Roles.Crewmate
                     break;
             }
 
-            _ = Main.AlchemistCD.TryAdd(player.PlayerId, Utils.GetTimeStamp());
+            Main.AlchemistCD.TryAdd(player.PlayerId, Utils.GetTimeStamp());
 
             PotionID = 10;
         }
-        private static long lastFixedTime;
+        private static long lastFixedTime = 0;
         public static bool IsInvis(byte id) => InvisTime.ContainsKey(id);
         private static void SendRPC(PlayerControl pc)
         {
@@ -200,11 +200,11 @@ namespace TOHE.Roles.Crewmate
         {
             PotionID = 10;
             var pc = __instance.myPlayer;
-            _ = NameNotifyManager.Notice.Remove(pc.PlayerId);
+            NameNotifyManager.Notice.Remove(pc.PlayerId);
             if (!AmongUsClient.Instance.AmHost) return;
             _ = new LateTask(() =>
             {
-                _ = ventedId.Remove(pc.PlayerId);
+                ventedId.Remove(pc.PlayerId);
                 ventedId.Add(pc.PlayerId, ventId);
 
                 MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, 34, SendOption.Reliable, pc.GetClientId());
@@ -258,40 +258,44 @@ namespace TOHE.Roles.Crewmate
             if (IsInvis(pc.PlayerId))
             {
                 var remainTime = InvisTime[pc.PlayerId] + (long)InvisDuration.GetFloat() - Utils.GetTimeStamp();
-                _ = str.Append(string.Format(GetString("ChameleonInvisStateCountdown"), remainTime + 1));
+                str.Append(string.Format(GetString("ChameleonInvisStateCountdown"), remainTime + 1));
             }
             else
             {
                 switch (PotionID)
                 {
                     case 1: // Shield
-                        _ = str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#00ff97>Shield Potion</color></b>");
+                        str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#00ff97>Shield Potion</color></b>");
                         break;
                     case 2: // Suicide
-                        _ = str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#ff0000>Awkward Potion</color></b>");
+                        str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#ff0000>Awkward Potion</color></b>");
                         break;
                     case 3: // TP to random player
-                        _ = str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#42d1ff>Teleport Potion</color></b>");
+                        str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#42d1ff>Teleport Potion</color></b>");
                         break;
                     case 4: // Increased speed
-                        _ = str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#ff8400>Speed Potion</color></b>");
+                        str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#ff8400>Speed Potion</color></b>");
                         break;
                     case 5: // Quick fix next sabo
-                        _ = str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#3333ff>Quick Fix Potion</color></b>");
+                        str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#3333ff>Quick Fix Potion</color></b>");
                         break;
                     case 6: // Invisibility
-                        _ = str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#01c834>Invisibility Potion</color></b>");
+                        str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#01c834>Invisibility Potion</color></b>");
                         break;
                     case 7: // Increased vision
-                        _ = str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#eee5be>Sight Potion</color></b>");
+                        str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#eee5be>Sight Potion</color></b>");
                         break;
                     case 10:
-                        _ = str.Append("<color=#00ffa5>Potion in store:</color> <color=#888888>None</color>");
+                        str.Append("<color=#00ffa5>Potion in store:</color> <color=#888888>None</color>");
                         break;
                     default: // just in case
                         break;
                 }
-                if (FixNextSabo) _ = str.Append("\n<b><color=#3333ff>Quick Fix Potion</color></b> waiting for use");
+                if (FixNextSabo) str.Append("\n<b><color=#3333ff>Quick Fix Potion</color></b> waiting for use");
+            }
+            if (UsePets.GetBool() && Main.AlchemistCD.TryGetValue(pc.PlayerId, out var cd))
+            {
+                str.Append($"\n<color=#00ffa5>CD:</color> <b>{cd}</b>s");
             }
             return str.ToString();
         }
@@ -302,30 +306,30 @@ namespace TOHE.Roles.Crewmate
             switch (PotionID)
             {
                 case 1: // Shield
-                    _ = str.Append(" <color=#00ffa5>Stored:</color> <color=#00ff97>Shield Potion</color>");
+                    str.Append(" <color=#00ffa5>Stored:</color> <color=#00ff97>Shield Potion</color>");
                     break;
                 case 2: // Suicide
-                    _ = str.Append(" <color=#00ffa5>Stored:</color> <color=#ff0000>Awkward Potion</color>");
+                    str.Append(" <color=#00ffa5>Stored:</color> <color=#ff0000>Awkward Potion</color>");
                     break;
                 case 3: // TP to random player
-                    _ = str.Append(" <color=#00ffa5>Stored:</color> <color=#42d1ff>Teleport Potion</color>");
+                    str.Append(" <color=#00ffa5>Stored:</color> <color=#42d1ff>Teleport Potion</color>");
                     break;
                 case 4: // Increased speed
-                    _ = str.Append(" <color=#00ffa5>Stored:</color> <color=#ff8400>Speed Potion</color>");
+                    str.Append(" <color=#00ffa5>Stored:</color> <color=#ff8400>Speed Potion</color>");
                     break;
                 case 5: // Quick fix next sabo
-                    _ = str.Append(" <color=#00ffa5>Stored:</color> <color=#3333ff>Quick Fix Potion</color>");
+                    str.Append(" <color=#00ffa5>Stored:</color> <color=#3333ff>Quick Fix Potion</color>");
                     break;
                 case 6: // Invisibility
-                    _ = str.Append(" <color=#00ffa5>Stored:</color> <color=#01c834>Invisibility Potion</color>");
+                    str.Append(" <color=#00ffa5>Stored:</color> <color=#01c834>Invisibility Potion</color>");
                     break;
                 case 7: // Increased vision
-                    _ = str.Append(" <color=#00ffa5>Stored:</color> <color=#eee5be>Sight Potion</color>");
+                    str.Append(" <color=#00ffa5>Stored:</color> <color=#eee5be>Sight Potion</color>");
                     break;
                 default:
                     break;
             }
-            if (FixNextSabo) _ = str.Append(" <color=#777777>(<color=#3333ff>Quick Fix</color>)</color>");
+            if (FixNextSabo) str.Append(" <color=#777777>(<color=#3333ff>Quick Fix</color>)</color>");
             return str.ToString();
         }
         public static void RepairSystem(SystemTypes systemType, byte amount)

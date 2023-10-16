@@ -75,7 +75,7 @@ public static class EvilTracker
             var targetId = target.PlayerId;
             if (targetId != playerId && target.Is(CustomRoleTypes.Impostor))
             {
-                _ = ImpostorsId[playerId].Add(targetId);
+                ImpostorsId[playerId].Add(targetId);
                 TargetArrow.Add(playerId, targetId);
             }
         }
@@ -116,7 +116,7 @@ public static class EvilTracker
         if (target == null || target.Is(CustomRoleTypes.Impostor)) return;
 
         SetTarget(shapeshifter.PlayerId, target.PlayerId);
-        Logger.Info($"{shapeshifter.GetNameWithRole()}のターゲットを{target.GetNameWithRole()}に設定", "EvilTrackerTarget");
+        Logger.Info($"{shapeshifter.GetNameWithRole().RemoveHtmlTags()}のターゲットを{target.GetNameWithRole().RemoveHtmlTags()}に設定", "EvilTrackerTarget");
         shapeshifter.MarkDirtySettings();
         Utils.NotifyRoles(SpecifySeer: shapeshifter);
         Utils.NotifyRoles(SpecifySeer: target);
@@ -185,23 +185,23 @@ public static class EvilTracker
         var trackerId = target.PlayerId;
         if (seer.PlayerId != trackerId) return string.Empty;
 
-        _ = ImpostorsId[trackerId].RemoveWhere(id => Main.PlayerStates[id].IsDead);
+        ImpostorsId[trackerId].RemoveWhere(id => Main.PlayerStates[id].IsDead);
 
         var sb = new StringBuilder(80);
         if (ImpostorsId[trackerId].Any())
         {
-            _ = sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Impostor)}>");
+            sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Impostor)}>");
             foreach (var impostorId in ImpostorsId[trackerId])
             {
-                _ = sb.Append(TargetArrow.GetArrows(target, impostorId));
+                sb.Append(TargetArrow.GetArrows(target, impostorId));
             }
-            _ = sb.Append($"</color>");
+            sb.Append($"</color>");
         }
 
         var targetId = Target[trackerId];
         if (targetId != byte.MaxValue)
         {
-            _ = sb.Append(Utils.ColorString(Color.white, TargetArrow.GetArrows(target, targetId)));
+            sb.Append(Utils.ColorString(Color.white, TargetArrow.GetArrows(target, targetId)));
         }
         return sb.ToString();
     }

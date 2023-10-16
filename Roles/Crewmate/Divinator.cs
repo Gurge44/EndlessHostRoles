@@ -29,7 +29,7 @@ public static class Divinator
         HideVote = BooleanOptionItem.Create(Id + 14, "DivinatorHideVote", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
         AbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 15, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator])
             .SetValueFormat(OptionFormat.Times);
-        _ = OverrideTasksData.Create(Id + 21, TabGroup.CrewmateRoles, CustomRoles.Divinator);
+        OverrideTasksData.Create(Id + 21, TabGroup.CrewmateRoles, CustomRoles.Divinator);
     }
     public static void Init()
     {
@@ -39,7 +39,7 @@ public static class Divinator
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        _ = CheckLimit.TryAdd(playerId, CheckLimitOpt.GetInt());
+        CheckLimit.TryAdd(playerId, CheckLimitOpt.GetInt());
     }
     public static bool IsEnable => playerIdList.Any();
     public static void OnVote(PlayerControl player, PlayerControl target)
@@ -244,7 +244,7 @@ public static class Divinator
                 CustomRoles.EvilGuesser or
                 CustomRoles.NiceGuesser or
                 CustomRoles.DarkHide or
-                //       CustomRoles.Mare or
+                CustomRoles.Reckless or
                 CustomRoles.Camouflager or
                 CustomRoles.Eclipse or
                 CustomRoles.Chameleon
@@ -253,6 +253,7 @@ public static class Divinator
                 CustomRoles.Jackal or
                 CustomRoles.Sidekick or
                 CustomRoles.Maverick or
+                CustomRoles.Mafioso or
                 CustomRoles.Opportunist or
                 CustomRoles.Pursuer or
                 CustomRoles.Provocateur
@@ -262,6 +263,7 @@ public static class Divinator
                 CustomRoles.Vampire or
                 CustomRoles.DovesOfNeace or
                 CustomRoles.ImperiusCurse or
+                CustomRoles.Magician or
                 CustomRoles.HeadHunter or
                 CustomRoles.Traitor
                 => "Result21",
@@ -278,6 +280,7 @@ public static class Divinator
                 CustomRoles.Divinator or
                 CustomRoles.EvilDiviner or
                 CustomRoles.Ritualist or
+                CustomRoles.Postman or
                 CustomRoles.Imitator or
                 CustomRoles.HexMaster or
                 CustomRoles.Witch
@@ -295,6 +298,7 @@ public static class Divinator
                 CustomRoles.Jinx or
                 CustomRoles.SwordsMan or
                 CustomRoles.Veteran or
+                CustomRoles.Enigma or
                 CustomRoles.TaskManager or
                 CustomRoles.Pyromaniac or
                 CustomRoles.Hangman
@@ -304,6 +308,7 @@ public static class Divinator
                 CustomRoles.Spiritcaller or
                 CustomRoles.Spiritualist or
                 CustomRoles.Parasite or
+                CustomRoles.CameraMan or
                 CustomRoles.Swooper or
                 CustomRoles.Wraith
                 => "Result26",

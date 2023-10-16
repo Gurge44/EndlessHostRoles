@@ -60,8 +60,8 @@ namespace TOHE.Roles.Impostor
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            _ = PlayersInDeathpact.TryAdd(playerId, new List<PlayerControl>());
-            _ = DeathpactTime.TryAdd(playerId, 0);
+            PlayersInDeathpact.TryAdd(playerId, new List<PlayerControl>());
+            DeathpactTime.TryAdd(playerId, 0);
         }
 
         public static void ApplyGameOptions()
@@ -278,7 +278,7 @@ namespace TOHE.Roles.Impostor
             }
 
             DeathpactTime[deathpact] = 0;
-            _ = ActiveDeathpacts.Remove(deathpact);
+            ActiveDeathpacts.Remove(deathpact);
             PlayersInDeathpact[deathpact].Clear();
 
             if (ReduceVisionWhileInPact.GetBool())

@@ -39,7 +39,7 @@ public static class Reckless
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        _ = NowCooldown.TryAdd(playerId, DefaultKillCooldown.GetFloat());
+        NowCooldown.TryAdd(playerId, DefaultKillCooldown.GetFloat());
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))

@@ -55,7 +55,7 @@ namespace TOHE.Roles.Crewmate
             if (UseLimit[killer.PlayerId] >= 1)
             {
                 UseLimit[killer.PlayerId] -= 1;
-                _ = ShieldedPlayers.TryAdd(target.PlayerId, GetTimeStamp());
+                ShieldedPlayers.TryAdd(target.PlayerId, GetTimeStamp());
                 NotifyRoles(SpecifySeer: killer);
                 return false;
             }
@@ -76,7 +76,7 @@ namespace TOHE.Roles.Crewmate
             {
                 if (x.Value + AidDur.GetInt() < GetTimeStamp() || !GameStates.IsInTask)
                 {
-                    _ = ShieldedPlayers.Remove(x.Key);
+                    ShieldedPlayers.Remove(x.Key);
                     change = true;
                 }
             }
@@ -99,8 +99,8 @@ namespace TOHE.Roles.Crewmate
             if (UseLimit[playerId] < 1) TextColor1 = Color.red;
             else TextColor1 = Color.white;
 
-            _ = sb.Append(ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
-            _ = sb.Append(ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));
+            sb.Append(ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
+            sb.Append(ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));
 
             return sb.ToString();
         }

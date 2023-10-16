@@ -12,7 +12,7 @@ namespace TOHE.Roles.Neutral
     {
         private static readonly int Id = 13400;
         private static List<byte> playerIdList = new();
-        private static int SpiritLimit;
+        private static int SpiritLimit = new();
 
         private static Dictionary<byte, long> PlayersHaunted = new();
 
@@ -26,7 +26,7 @@ namespace TOHE.Roles.Neutral
         private static OptionItem SpiritCauseVision;
         private static OptionItem SpiritCauseVisionTime;
 
-        private static long ProtectTimeStamp;
+        private static long ProtectTimeStamp = new();
 
         public static void SetupCustomOption()
         {
@@ -95,17 +95,17 @@ namespace TOHE.Roles.Neutral
                 target.RpcSetCustomRole(CustomRoles.EvilSpirit);
 
                 var writer = CustomRpcSender.Create("SpiritCallerSendMessage", SendOption.None);
-                _ = writer.StartMessage(target.GetClientId());
-                _ = writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
+                writer.StartMessage(target.GetClientId());
+                writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
                     .Write(GetString("SpiritcallerNoticeTitle"))
                     .EndRpc();
-                _ = writer.StartRpc(target.NetId, (byte)RpcCalls.SendChat)
+                writer.StartRpc(target.NetId, (byte)RpcCalls.SendChat)
                     .Write(GetString("SpiritcallerNoticeMessage"))
                     .EndRpc();
-                _ = writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
+                writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
                     .Write(target.Data.PlayerName)
                     .EndRpc();
-                _ = writer.EndMessage();
+                writer.EndMessage();
                 writer.SendMessage();
             }
         }
@@ -123,7 +123,7 @@ namespace TOHE.Roles.Neutral
             }
             else if (PlayersHaunted.ContainsKey(pc.PlayerId) && PlayersHaunted[pc.PlayerId] < Utils.GetTimeStamp())
             {
-                _ = PlayersHaunted.Remove(pc.PlayerId);
+                PlayersHaunted.Remove(pc.PlayerId);
                 pc.MarkDirtySettings();
             }
         }

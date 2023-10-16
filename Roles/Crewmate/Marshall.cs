@@ -14,7 +14,7 @@ public static class Marshall
 
     public static OptionItem OptionMadmateCanFindMarshall;
 
-    public static bool MadmateCanFindMarshall;
+    public static bool MadmateCanFindMarshall = false;
 
     private static readonly Dictionary<byte, bool> IsExposed = new();
     private static readonly Dictionary<byte, bool> IsComplete = new();
@@ -26,7 +26,7 @@ public static class Marshall
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Marshall);
         //    OptionMadmateCanFindMarshall = BooleanOptionItem.Create(Id + 14, "MadmateCanFindMarshall", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Marshall]);
-        _ = OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.Marshall);
+        OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.Marshall);
     }
     public static void Init()
     {

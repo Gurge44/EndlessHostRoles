@@ -46,10 +46,10 @@ public class Main : BasePlugin
     public Harmony Harmony { get; } = new Harmony(PluginGuid);
     public static Version version = Version.Parse(PluginVersion);
     public static BepInEx.Logging.ManualLogSource Logger;
-    public static bool hasArgumentException;
+    public static bool hasArgumentException = false;
     public static string ExceptionMessage;
-    public static bool ExceptionMessageIsShown;
-    public static bool AlreadyShowMsgBox;
+    public static bool ExceptionMessageIsShown = false;
+    public static bool AlreadyShowMsgBox = false;
     public static string credentialsText;
     public static NormalGameOptionsV07 NormalOptions => GameOptionsManager.Instance.currentNormalGameOptions;
     //Client Options
@@ -87,7 +87,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, PlayerState.DeathReason> AfterMeetingDeathPlayers = new();
     public static Dictionary<CustomRoles, string> roleColors;
     public static bool IsFixedCooldown => CustomRoles.Vampire.IsEnable() || CustomRoles.Poisoner.IsEnable();
-    public static float RefixCooldownDelay;
+    public static float RefixCooldownDelay = 0f;
     public static bool ProcessShapeshifts = true;
     public static Dictionary<byte, long> DoormasterCD = new();
     public static Dictionary<byte, long> HackerCD = new();
@@ -121,7 +121,7 @@ public class Main : BasePlugin
     public static List<string> winnerNameList = new();
     public static List<int> clientIdList = new();
     public static List<(string, byte, string)> MessagesToSend = new();
-    public static bool isChatCommand;
+    public static bool isChatCommand = false;
     public static List<PlayerControl> LoversPlayers = new();
     public static bool isLoversDead = true;
     public static Dictionary<byte, float> AllPlayerKillCooldown = new();
@@ -137,7 +137,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, long> ExpressSpeedUp = new();
     public static float ExpressSpeedNormal;
     public static List<int> BlockedVents = new();
-    public static float VentguardNumberOfAbilityUses;
+    public static float VentguardNumberOfAbilityUses = 0;
     public static List<byte> WorkaholicAlive = new();
     public static List<byte> SpeedrunnerAlive = new();
     public static List<byte> BaitAlive = new();
@@ -151,9 +151,9 @@ public class Main : BasePlugin
     public static Dictionary<byte, string> DetectiveNotify = new();
     public static Dictionary<byte, string> VirusNotify = new();
     public static List<byte> OverDeadPlayerList = new();
-    public static bool DoBlockNameChange;
+    public static bool DoBlockNameChange = false;
     public static int updateTime;
-    public static bool newLobby;
+    public static bool newLobby = false;
     public static Dictionary<int, int> SayStartTimes = new();
     public static Dictionary<int, int> SayBanwordsTimes = new();
     public static Dictionary<byte, float> AllPlayerSpeed = new();
@@ -209,9 +209,9 @@ public class Main : BasePlugin
     public static Dictionary<(byte, byte), string> targetArrows = new();
     public static Dictionary<byte, Vector2> EscapeeLocation = new();
     public static Dictionary<byte, Vector2> TimeMasterLocation = new();
-    public static bool VisibleTasksCount;
+    public static bool VisibleTasksCount = false;
     public static string nickName = "";
-    public static bool introDestroyed;
+    public static bool introDestroyed = false;
     public static int DiscussionTime;
     public static int VotingTime;
     public static byte currentDousingTarget = byte.MaxValue;
@@ -223,8 +223,8 @@ public class Main : BasePlugin
     public static bool ResetOptions = true;
     public static byte FirstDied = byte.MaxValue;
     public static byte ShieldPlayer = byte.MaxValue;
-    public static int MadmateNum;
-    public static int BardCreations;
+    public static int MadmateNum = 0;
+    public static int BardCreations = 0;
     public static Dictionary<byte, byte> Provoked = new();
     public static Dictionary<byte, float> DovesOfNeaceNumOfUsed = new();
 
@@ -550,7 +550,7 @@ public class Main : BasePlugin
                 switch (role.GetCustomRoleTypes())
                 {
                     case CustomRoleTypes.Impostor:
-                        _ = roleColors.TryAdd(role, "#ff1919");
+                        roleColors.TryAdd(role, "#ff1919");
                         break;
                     default:
                         break;

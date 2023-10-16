@@ -8,7 +8,7 @@ namespace TOHE;
 
 public static class OptionShower
 {
-    public static int currentPage;
+    public static int currentPage = 0;
     public static List<string> pages = new();
     static OptionShower()
     {
@@ -16,7 +16,7 @@ public static class OptionShower
     }
     public static string GetTextNoFresh()
     {
-        if (pages.Count < 3) _ = GetText();
+        if (pages.Count < 3) GetText();
         return $"{pages[currentPage]}{GetString("PressTabToNextPage")}({currentPage + 1}/{pages.Count})";
     }
     public static string GetText()
@@ -29,10 +29,10 @@ public static class OptionShower
             GameOptionsManager.Instance.CurrentGameOptions.ToHudString(GameData.Instance ? GameData.Instance.PlayerCount : 10) + "\n\n"
         };
         //ゲームモードの表示
-        _ = sb.Append($"{Options.GameMode.GetName()}: {Options.GameMode.GetString()}\n\n");
+        sb.Append($"{Options.GameMode.GetName()}: {Options.GameMode.GetString()}\n\n");
         if (Options.HideGameSettings.GetBool() && !AmongUsClient.Instance.AmHost)
         {
-            _ = sb.Append($"<color=#ff0000>{GetString("Message.HideGameSettings")}</color>");
+            sb.Append($"<color=#ff0000>{GetString("Message.HideGameSettings")}</color>");
         }
         else
         {
@@ -40,16 +40,16 @@ public static class OptionShower
             if (Options.CurrentGameMode == CustomGameMode.Standard)
             {
                 //有効な役職一覧
-                _ = sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GM)}>{Utils.GetRoleName(CustomRoles.GM)}:</color> {Options.EnableGM.GetString()}\n\n");
-                _ = sb.Append(GetString("ActiveRolesList")).Append('\n');
+                sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GM)}>{Utils.GetRoleName(CustomRoles.GM)}:</color> {Options.EnableGM.GetString()}\n\n");
+                sb.Append(GetString("ActiveRolesList")).Append('\n');
                 foreach (var kvp in Options.CustomRoleSpawnChances.Where(kvp => kvp.Value.GameMode is CustomGameMode.Standard or CustomGameMode.All && kvp.Value.GetBool()//スタンダードか全てのゲームモードで表示する役職
                 ))
                 {
-                    _ = sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}\n");
+                    sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}\n");
                 }
 
                 pages.Add(sb.ToString() + "\n\n");
-                _ = sb.Clear();
+                sb.Clear();
             }
             //有効な役職と詳細設定一覧
             pages.Add("");
@@ -57,8 +57,8 @@ public static class OptionShower
             foreach (var kvp in Options.CustomRoleSpawnChances)
             {
                 if (!kvp.Key.IsEnable() || kvp.Value.IsHiddenOn(Options.CurrentGameMode)) continue;
-                _ = sb.Append('\n');
-                _ = sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}\n");
+                sb.Append('\n');
+                sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}\n");
                 ShowChildren(kvp.Value, ref sb, Utils.GetRoleColor(kvp.Key).ShadeColor(-0.5f), 1);
                 string rule = Utils.ColorString(Palette.ImpostorRed.ShadeColor(-0.5f), "┣ ");
                 string ruleFooter = Utils.ColorString(Palette.ImpostorRed.ShadeColor(-0.5f), "┗ ");
@@ -66,8 +66,8 @@ public static class OptionShower
 
             foreach (var opt in OptionItem.AllOptions.Where(x => x.Id >= 90000 && !x.IsHiddenOn(Options.CurrentGameMode) && x.Parent == null && !x.IsText))
             {
-                if (opt.IsHeader) _ = sb.Append('\n');
-                _ = sb.Append($"{opt.GetName()}: {opt.GetString()}\n");
+                if (opt.IsHeader) sb.Append('\n');
+                sb.Append($"{opt.GetName()}: {opt.GetString()}\n");
                 if (opt.GetBool())
                     ShowChildren(opt, ref sb, Color.white, 1);
             }
@@ -95,9 +95,9 @@ public static class OptionShower
         foreach (var opt in option.Children.Select((v, i) => new { Value = v, Index = i + 1 }))
         {
             if (opt.Value.Name == "Maximum") continue; //Maximumの項目は飛ばす
-            _ = sb.Append(string.Concat(Enumerable.Repeat(Utils.ColorString(color, "┃"), deep - 1)));
-            _ = sb.Append(Utils.ColorString(color, opt.Index == option.Children.Count ? "┗ " : "┣ "));
-            _ = sb.Append($"{opt.Value.GetName()}: {opt.Value.GetString()}\n");
+            sb.Append(string.Concat(Enumerable.Repeat(Utils.ColorString(color, "┃"), deep - 1)));
+            sb.Append(Utils.ColorString(color, opt.Index == option.Children.Count ? "┗ " : "┣ "));
+            sb.Append($"{opt.Value.GetName()}: {opt.Value.GetString()}\n");
             if (opt.Value.GetBool()) ShowChildren(opt.Value, ref sb, color, deep + 1);
         }
     }

@@ -9,7 +9,10 @@ namespace TOHE;
 
 class ExileControllerWrapUpPatch
 {
-    public static GameData.PlayerInfo AntiBlackout_LastExiled;
+    private static GameData.PlayerInfo antiBlackout_LastExiled;
+
+    public static GameData.PlayerInfo AntiBlackout_LastExiled { get => antiBlackout_LastExiled; set => antiBlackout_LastExiled = value; }
+
     [HarmonyPatch(typeof(ExileController), nameof(ExileController.WrapUp))]
     class BaseExileControllerPatch
     {
@@ -83,13 +86,13 @@ class ExileControllerWrapUpPatch
             {
                 if (DecidedWinner) CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Jester);
                 else CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Jester);
-                _ = CustomWinnerHolder.WinnerIds.Add(exiled.PlayerId);
+                CustomWinnerHolder.WinnerIds.Add(exiled.PlayerId);
                 DecidedWinner = true;
             }
 
             //判断处刑人胜利
             if (Executioner.CheckExileTarget(exiled, DecidedWinner)) DecidedWinner = true;
-            if (Lawyer.CheckExileTarget(exiled, DecidedWinner)) DecidedWinner = false;
+            if (Lawyer.CheckExileTarget(exiled/*, DecidedWinner*/)) DecidedWinner = false;
 
             //判断恐怖分子胜利
             if (role == CustomRoles.Terrorist) Utils.CheckTerroristWin(exiled);
@@ -225,7 +228,7 @@ class ExileControllerWrapUpPatch
                 {
                     var player = Utils.GetPlayerById(x.Key);
                     var state = Main.PlayerStates[x.Key];
-                    Logger.Info($"{player.GetNameWithRole()} died with {x.Value}", "AfterMeetingDeath");
+                    Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} died with {x.Value}", "AfterMeetingDeath");
                     state.deathReason = x.Value;
                     state.SetDead();
                     player?.RpcExileV2();

@@ -50,7 +50,7 @@ internal static class Assassin
         byte playerId = reader.ReadByte();
         byte targetId = reader.ReadByte();
 
-        _ = MarkedPlayer.Remove(playerId);
+        MarkedPlayer.Remove(playerId);
         if (targetId != byte.MaxValue)
             MarkedPlayer.Add(playerId, targetId);
     }
@@ -74,12 +74,13 @@ internal static class Assassin
         }
         else
         {
-            _ = MarkedPlayer.Remove(killer.PlayerId);
+            MarkedPlayer.Remove(killer.PlayerId);
             MarkedPlayer.Add(killer.PlayerId, target.PlayerId);
             SendRPC(killer.PlayerId);
             killer.ResetKillCooldown();
             killer.SetKillCooldown();
             if (killer.IsModClient()) killer.RpcResetAbilityCooldown();
+            if (UsePets.GetBool()) Main.AssassinCD.TryAdd(killer.PlayerId, Utils.GetTimeStamp());
             killer.SyncSettings();
             killer.RPCPlayCustomSound("Clothe");
             return false;
@@ -96,7 +97,7 @@ internal static class Assassin
         if (MarkedPlayer.ContainsKey(pc.PlayerId))
         {
             var target = Utils.GetPlayerById(MarkedPlayer[pc.PlayerId]);
-            _ = MarkedPlayer.Remove(pc.PlayerId);
+            MarkedPlayer.Remove(pc.PlayerId);
             SendRPC(pc.PlayerId);
             _ = new LateTask(() =>
             {
@@ -106,9 +107,9 @@ internal static class Assassin
                     pc.ResetKillCooldown();
                     pc.SyncSettings();
                     pc.SetKillCooldown();
-                    _ = pc.RpcCheckAndMurder(target);
+                    pc.RpcCheckAndMurder(target);
                 }
-            }, 1.5f, "Assassin Assassinate");
+            }, UsePets.GetBool() ? 0.1f : 1.5f, "Assassin Assassinate");
             return;
         }
     }
@@ -122,6 +123,7 @@ internal static class Assassin
     public static void GetAbilityButtonText(HudManager __instance, byte playerId)
     {
         if (MarkedPlayer.ContainsKey(playerId) && !playerId.Shapeshifting())
-            __instance.AbilityButton.OverrideText(GetString("AssassinShapeshiftText"));
+            if (!UsePets.GetBool()) __instance.AbilityButton.OverrideText(GetString("AssassinShapeshiftText"));
+            else __instance.PetButton.OverrideText(GetString("AssassinShapeshiftText"));
     }
 }

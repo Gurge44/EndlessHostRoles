@@ -10,7 +10,7 @@ namespace TOHE.Roles.Crewmate
     {
         private static readonly int Id = 8300;
         private static List<byte> playerIdList = new();
-        public static bool IsEnable;
+        public static bool IsEnable = false;
 
         private static OptionItem TrackLimitOpt;
         private static OptionItem OptionCanSeeLastRoomInMeeting;
@@ -111,9 +111,10 @@ namespace TOHE.Roles.Crewmate
             var targetList = TrackerTarget[seer.PlayerId];
             foreach (var trackTarget in targetList)
             {
-                if (!TrackerTarget[seer.PlayerId].Contains(trackTarget)) return string.Empty;
+                if (!TrackerTarget[seer.PlayerId].Contains(trackTarget)) continue;
 
                 var targetData = Utils.GetPlayerById(trackTarget);
+                if (targetData == null) continue;
 
                 var arrow = TargetArrow.GetArrows(seer, trackTarget);
                 arrows += Utils.ColorString(CanGetColoredArrow.GetBool() ? Palette.PlayerColors[targetData.Data.DefaultOutfit.ColorId] : Color.white, arrow);
@@ -128,6 +129,7 @@ namespace TOHE.Roles.Crewmate
 
         public static string GetArrowAndLastRoom(PlayerControl seer, PlayerControl target)
         {
+            if (seer == null || target == null) return string.Empty;
             string text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Tracker), TargetArrow.GetArrows(seer, target.PlayerId));
             var room = Main.PlayerStates[target.PlayerId].LastRoom;
             if (room == null) text += Utils.ColorString(Color.gray, "@" + GetString("FailToTrack"));

@@ -125,27 +125,27 @@ public static class Camouflage
         var sender = CustomRpcSender.Create(name: $"Camouflage.RpcSetSkin({target.Data.PlayerName})");
 
         target.SetColor(newOutfit.ColorId);
-        _ = sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetColor)
+        sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetColor)
             .Write(newOutfit.ColorId)
             .EndRpc();
 
         target.SetHat(newOutfit.HatId, newOutfit.ColorId);
-        _ = sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetHatStr)
+        sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetHatStr)
             .Write(newOutfit.HatId)
             .EndRpc();
 
         target.SetSkin(newOutfit.SkinId, newOutfit.ColorId);
-        _ = sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetSkinStr)
+        sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetSkinStr)
             .Write(newOutfit.SkinId)
             .EndRpc();
 
         target.SetVisor(newOutfit.VisorId, newOutfit.ColorId);
-        _ = sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetVisorStr)
+        sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetVisorStr)
             .Write(newOutfit.VisorId)
             .EndRpc();
 
         target.SetPet(newOutfit.PetId);
-        _ = sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetPetStr)
+        sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetPetStr)
             .Write(newOutfit.PetId)
             .EndRpc();
 

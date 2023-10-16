@@ -114,7 +114,7 @@ internal class CustomRoleSelector
         while (ImpOnList.Any())
         {
             var select = ImpOnList[rd.Next(0, ImpOnList.Count)];
-            _ = ImpOnList.Remove(select);
+            ImpOnList.Remove(select);
             rolesToAssign.Add(select);
             readyRoleNum++;
             Logger.Info(select.ToString() + " 加入内鬼职业待选列表（优先）", "CustomRoleSelector");
@@ -127,7 +127,7 @@ internal class CustomRoleSelector
             while (ImpRateList.Any())
             {
                 var select = ImpRateList[rd.Next(0, ImpRateList.Count)];
-                _ = ImpRateList.Remove(select);
+                ImpRateList.Remove(select);
                 rolesToAssign.Add(select);
                 readyRoleNum++;
                 Logger.Info(select.ToString() + " 加入内鬼职业待选列表", "CustomRoleSelector");
@@ -140,7 +140,7 @@ internal class CustomRoleSelector
         while (NonNeutralKillingOnList.Any() && optNonNeutralKillingNum > 0)
         {
             var select = NonNeutralKillingOnList[rd.Next(0, NonNeutralKillingOnList.Count)];
-            _ = NonNeutralKillingOnList.Remove(select);
+            NonNeutralKillingOnList.Remove(select);
             rolesToAssign.Add(select);
             readyRoleNum++;
             readyNonNeutralKillingNum += select.GetCount();
@@ -155,7 +155,7 @@ internal class CustomRoleSelector
             while (NonNeutralKillingRateList.Any() && optNonNeutralKillingNum > 0)
             {
                 var select = NonNeutralKillingRateList[rd.Next(0, NonNeutralKillingRateList.Count)];
-                _ = NonNeutralKillingRateList.Remove(select);
+                NonNeutralKillingRateList.Remove(select);
                 rolesToAssign.Add(select);
                 readyRoleNum++;
                 readyNonNeutralKillingNum += select.GetCount();
@@ -169,7 +169,7 @@ internal class CustomRoleSelector
         while (NeutralKillingOnList.Any() && optNeutralKillingNum > 0)
         {
             var select = NeutralKillingOnList[rd.Next(0, NeutralKillingOnList.Count)];
-            _ = NeutralKillingOnList.Remove(select);
+            NeutralKillingOnList.Remove(select);
             rolesToAssign.Add(select);
             readyRoleNum++;
             readyNeutralKillingNum += select.GetCount();
@@ -184,7 +184,7 @@ internal class CustomRoleSelector
             while (NeutralKillingRateList.Any() && optNeutralKillingNum > 0)
             {
                 var select = NeutralKillingRateList[rd.Next(0, NeutralKillingRateList.Count)];
-                _ = NeutralKillingRateList.Remove(select);
+                NeutralKillingRateList.Remove(select);
                 rolesToAssign.Add(select);
                 readyRoleNum++;
                 readyNeutralKillingNum += select.GetCount();
@@ -225,7 +225,7 @@ internal class CustomRoleSelector
         while (roleOnList.Any())
         {
             var select = roleOnList[rd.Next(0, roleOnList.Count)];
-            _ = roleOnList.Remove(select);
+            roleOnList.Remove(select);
             rolesToAssign.Add(select);
             readyRoleNum++;
             Logger.Info(select.ToString() + " 加入船员职业待选列表（优先）", "CustomRoleSelector");
@@ -237,7 +237,7 @@ internal class CustomRoleSelector
             while (roleRateList.Any())
             {
                 var select = roleRateList[rd.Next(0, roleRateList.Count)];
-                _ = roleRateList.Remove(select);
+                roleRateList.Remove(select);
                 rolesToAssign.Add(select);
                 readyRoleNum++;
                 Logger.Info(select.ToString() + " 加入船员职业待选列表", "CustomRoleSelector");
@@ -264,7 +264,7 @@ internal class CustomRoleSelector
             if (rolesToAssign.Contains(CustomRoles.Romantic))
             {
                 if (rolesToAssign.Contains(CustomRoles.Lovers))
-                    _ = rolesToAssign.Remove(CustomRoles.Lovers);
+                    rolesToAssign.Remove(CustomRoles.Lovers);
                 //if (rolesToAssign.Contains(CustomRoles.Ntr))
                 //    rolesToAssign.Remove(CustomRoles.Ntr);
             }
@@ -286,7 +286,7 @@ internal class CustomRoleSelector
         {
             if (!rolesToAssign.Contains(CustomRoles.Jester))
                 rolesToAssign.Add(CustomRoles.Jester);
-            _ = Main.DevRole.Remove(PlayerControl.LocalPlayer.PlayerId);
+            Main.DevRole.Remove(PlayerControl.LocalPlayer.PlayerId);
             Main.DevRole.Add(PlayerControl.LocalPlayer.PlayerId, CustomRoles.Jester);
         }
 
@@ -296,7 +296,7 @@ internal class CustomRoleSelector
             if (dr.Key == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()) continue;
             if (rolesToAssign.Contains(dr.Value))
             {
-                _ = rolesToAssign.Remove(dr.Value);
+                rolesToAssign.Remove(dr.Value);
                 rolesToAssign.Insert(dr.Key, dr.Value);
                 Logger.Info("职业列表提高优先：" + dr.Value, "Dev Role");
                 continue;
@@ -350,8 +350,8 @@ internal class CustomRoleSelector
         EndOfWhile:;
             if (delPc != null)
             {
-                _ = AllPlayer.Remove(delPc);
-                _ = Main.DevRole.Remove(delPc.PlayerId);
+                AllPlayer.Remove(delPc);
+                Main.DevRole.Remove(delPc.PlayerId);
             }
         }
 
@@ -362,9 +362,9 @@ internal class CustomRoleSelector
 
     }
 
-    public static int addScientistNum;
-    public static int addEngineerNum;
-    public static int addShapeshifterNum;
+    public static int addScientistNum = 0;
+    public static int addEngineerNum = 0;
+    public static int addShapeshifterNum = 0;
     public static void CalculateVanillaRoleCount()
     {
         // 计算原版特殊职业数量

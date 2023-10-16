@@ -11,10 +11,10 @@ internal class Cloud
 {
     private static string IP;
     //private static int LOBBY_PORT = 0;
-    private static int EAC_PORT;
+    private static int EAC_PORT = 0;
     //private static Socket ClientSocket;
     private static Socket EacClientSocket;
-    private static long LastRepotTimeStamp;
+    private static long LastRepotTimeStamp = 0;
     public static void Init()
     {
         try
@@ -71,7 +71,7 @@ internal class Cloud
         return true;
     }*/
 
-    private static bool connecting;
+    private static bool connecting = false;
     public static void StartConnect()
     {
         if (connecting || EacClientSocket != null && EacClientSocket.Connected) return;
@@ -113,7 +113,7 @@ internal class Cloud
             Logger.Warn("未连接至TOHE服务器，报告被取消", "EAC Cloud");
             return;
         }
-        _ = EacClientSocket.Send(Encoding.Default.GetBytes(msg));
+        EacClientSocket.Send(Encoding.Default.GetBytes(msg));
     }
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     class EACConnectTimeOut

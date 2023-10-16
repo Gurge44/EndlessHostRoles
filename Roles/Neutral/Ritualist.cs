@@ -41,8 +41,8 @@ namespace TOHE.Roles.Neutral
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            _ = RitualCount.TryAdd(playerId, RitualMaxCount.GetInt());
-            _ = RitualTarget.TryAdd(playerId, new());
+            RitualCount.TryAdd(playerId, RitualMaxCount.GetInt());
+            RitualTarget.TryAdd(playerId, new());
             var pc = Utils.GetPlayerById(playerId);
             pc.AddDoubleTrigger();
 
@@ -104,7 +104,7 @@ namespace TOHE.Roles.Neutral
             {
                 RitualCount[killer.PlayerId]--;
                 RitualTarget[killer.PlayerId].Add(target.PlayerId);
-                Logger.Info($"{killer.GetNameWithRole()}：占った 占い先→{target.GetNameWithRole()} || 残り{RitualCount[killer.PlayerId]}回", "Ritualist");
+                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()}：占った 占い先→{target.GetNameWithRole().RemoveHtmlTags()} || 残り{RitualCount[killer.PlayerId]}回", "Ritualist");
                 Utils.NotifyRoles(SpecifySeer: killer);
 
                 SendRPC(killer.PlayerId, target.PlayerId);

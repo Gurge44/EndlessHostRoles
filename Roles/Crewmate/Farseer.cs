@@ -19,7 +19,7 @@ namespace TOHE.Roles.Crewmate
         public static OptionItem FarseerRevealTime;
         public static OptionItem Vision;
 
-        private static System.Collections.Generic.List<CustomRoles> randomRolesForTrickster = new()
+        private static readonly System.Collections.Generic.List<CustomRoles> randomRolesForTrickster = new()
         {
             CustomRoles.Snitch,
             CustomRoles.Luckey,
@@ -31,6 +31,7 @@ namespace TOHE.Roles.Crewmate
             CustomRoles.Express,
             CustomRoles.NiceEraser,
             CustomRoles.TaskManager,
+            CustomRoles.CameraMan,
             CustomRoles.NiceHacker,
             CustomRoles.Aid,
             CustomRoles.Tether,
@@ -99,7 +100,7 @@ namespace TOHE.Roles.Crewmate
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
-        public static bool isEnable;
+        public static bool isEnable = false;
 
         public static void SetCooldown(byte id) => Main.AllPlayerKillCooldown[id] = FarseerCooldown.GetFloat();
 
@@ -109,7 +110,7 @@ namespace TOHE.Roles.Crewmate
             {
                 if (!player.IsAlive() || Pelican.IsEaten(player.PlayerId))
                 {
-                    _ = Main.FarseerTimer.Remove(player.PlayerId);
+                    Main.FarseerTimer.Remove(player.PlayerId);
                     NotifyRoles(SpecifySeer: player);
                     RPC.ResetCurrentRevealTarget(player.PlayerId);
                 }
@@ -119,12 +120,12 @@ namespace TOHE.Roles.Crewmate
                     var ar_time = Main.FarseerTimer[player.PlayerId].Item2;//塗った時間
                     if (!ar_target.IsAlive())
                     {
-                        _ = Main.FarseerTimer.Remove(player.PlayerId);
+                        Main.FarseerTimer.Remove(player.PlayerId);
                     }
                     else if (ar_time >= FarseerRevealTime.GetFloat())//時間以上一緒にいて塗れた時
                     {
                         player.SetKillCooldown();
-                        _ = Main.FarseerTimer.Remove(player.PlayerId);//塗が完了したのでDictionaryから削除
+                        Main.FarseerTimer.Remove(player.PlayerId);//塗が完了したのでDictionaryから削除
                         Main.isRevealed[(player.PlayerId, ar_target.PlayerId)] = true;//塗り完了
                         player.RpcSetRevealtPlayer(ar_target, true);
                         NotifyRoles(SpecifySeer: player);//名前変更
@@ -141,11 +142,11 @@ namespace TOHE.Roles.Crewmate
                         }
                         else//それ以外は削除
                         {
-                            _ = Main.FarseerTimer.Remove(player.PlayerId);
+                            Main.FarseerTimer.Remove(player.PlayerId);
                             NotifyRoles(SpecifySeer: player);
                             RPC.ResetCurrentRevealTarget(player.PlayerId);
 
-                            Logger.Info($"Canceled: {player.GetNameWithRole()}", "Arsonist");
+                            Logger.Info($"Canceled: {player.GetNameWithRole().RemoveHtmlTags()}", "Arsonist");
                         }
                     }
                 }
@@ -157,10 +158,7 @@ namespace TOHE.Roles.Crewmate
             var rd = IRandom.Instance;
             var randomRole = randomRolesForTrickster[rd.Next(0, randomRolesForTrickster.Count)];
 
-            string roleName = GetRoleName(randomRole);
-            string RoleText = ColorString(GetRoleColor(randomRole), GetString(randomRole.ToString()));
-
-            return $"<size={fontSize}>{RoleText}</size>";
+            return $"<size={fontSize}>{ColorString(GetRoleColor(randomRole), GetString(randomRole.ToString()))}</size>";
         }
 
         public static string GetTaskState()

@@ -27,7 +27,7 @@ internal static class SoloKombatManager
 
     private static Dictionary<byte, float> originalSpeed = new();
     public static Dictionary<byte, int> KBScore = new();
-    public static int RoundTime;
+    public static int RoundTime = new();
 
     //Options
     public static OptionItem KB_GameTime;
@@ -98,15 +98,15 @@ internal static class SoloKombatManager
 
         foreach (var pc in Main.AllAlivePlayerControls)
         {
-            _ = PlayerHPMax.TryAdd(pc.PlayerId, KB_HPMax.GetFloat());
-            _ = PlayerHP.TryAdd(pc.PlayerId, KB_HPMax.GetFloat());
-            _ = PlayerHPReco.TryAdd(pc.PlayerId, KB_RecoverPerSecond.GetFloat());
-            _ = PlayerATK.TryAdd(pc.PlayerId, KB_ATK.GetFloat());
-            _ = PlayerDF.TryAdd(pc.PlayerId, 0f);
+            PlayerHPMax.TryAdd(pc.PlayerId, KB_HPMax.GetFloat());
+            PlayerHP.TryAdd(pc.PlayerId, KB_HPMax.GetFloat());
+            PlayerHPReco.TryAdd(pc.PlayerId, KB_RecoverPerSecond.GetFloat());
+            PlayerATK.TryAdd(pc.PlayerId, KB_ATK.GetFloat());
+            PlayerDF.TryAdd(pc.PlayerId, 0f);
 
-            _ = KBScore.TryAdd(pc.PlayerId, 0);
+            KBScore.TryAdd(pc.PlayerId, 0);
 
-            _ = LastHurt.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+            LastHurt.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
         }
     }
     private static void SendRPCSyncKBBackCountdown(PlayerControl player)
@@ -120,10 +120,10 @@ internal static class SoloKombatManager
     {
         int num = reader.ReadInt32();
         if (num == -1)
-            _ = BackCountdown.Remove(PlayerControl.LocalPlayer.PlayerId);
+            BackCountdown.Remove(PlayerControl.LocalPlayer.PlayerId);
         else
         {
-            _ = BackCountdown.TryAdd(PlayerControl.LocalPlayer.PlayerId, num);
+            BackCountdown.TryAdd(PlayerControl.LocalPlayer.PlayerId, num);
             BackCountdown[PlayerControl.LocalPlayer.PlayerId] = num;
         }
     }
@@ -161,7 +161,7 @@ internal static class SoloKombatManager
     public static void ReceiveRPCSyncNameNotify(MessageReader reader)
     {
         var name = reader.ReadString();
-        _ = NameNotify.Remove(PlayerControl.LocalPlayer.PlayerId);
+        NameNotify.Remove(PlayerControl.LocalPlayer.PlayerId);
         if (name != null && name != "")
             NameNotify.Add(PlayerControl.LocalPlayer.PlayerId, (name, 0));
     }
@@ -181,7 +181,7 @@ internal static class SoloKombatManager
         if (BackCountdown.ContainsKey(player.PlayerId))
         {
             name = string.Format(Translator.GetString("KBBackCountDown"), BackCountdown[player.PlayerId]);
-            _ = NameNotify.Remove(player.PlayerId);
+            NameNotify.Remove(player.PlayerId);
             return;
         }
         if (NameNotify.ContainsKey(player.PlayerId))
@@ -244,7 +244,7 @@ internal static class SoloKombatManager
     }
     public static void OnPlayerBack(PlayerControl pc)
     {
-        _ = BackCountdown.Remove(pc.PlayerId);
+        BackCountdown.Remove(pc.PlayerId);
         PlayerHP[pc.PlayerId] = pc.HPMAX();
         SendRPCSyncKBPlayer(pc.PlayerId);
 
@@ -278,14 +278,14 @@ internal static class SoloKombatManager
     }
     public static void OnPlyaerDead(PlayerControl target)
     {
-        _ = originalSpeed.Remove(target.PlayerId);
+        originalSpeed.Remove(target.PlayerId);
         originalSpeed.Add(target.PlayerId, Main.AllPlayerSpeed[target.PlayerId]);
 
         Utils.TP(target.NetTransform, Pelican.GetBlackRoomPS());
         Main.AllPlayerSpeed[target.PlayerId] = 0.3f;
         target.MarkDirtySettings();
 
-        _ = BackCountdown.TryAdd(target.PlayerId, KB_ResurrectionWaitingTime.GetInt());
+        BackCountdown.TryAdd(target.PlayerId, KB_ResurrectionWaitingTime.GetInt());
         SendRPCSyncKBBackCountdown(target);
     }
     public static void OnPlayerKill(PlayerControl killer)
@@ -320,7 +320,7 @@ internal static class SoloKombatManager
     }
     public static void AddNameNotify(PlayerControl pc, string text, int time = 5)
     {
-        _ = NameNotify.Remove(pc.PlayerId);
+        NameNotify.Remove(pc.PlayerId);
         NameNotify.Add(pc.PlayerId, (text, Utils.GetTimeStamp() + time));
         SendRPCSyncNameNotify(pc);
         SendRPCSyncKBPlayer(pc.PlayerId);
@@ -333,7 +333,7 @@ internal static class SoloKombatManager
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     class FixedUpdatePatch
     {
-        private static long LastFixedUpdate;
+        private static long LastFixedUpdate = new();
         public static void Postfix(PlayerControl __instance)
         {
             if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.SoloKombat) return;
@@ -388,7 +388,7 @@ internal static class SoloKombatManager
                     // 清除过期的提示信息
                     if (NameNotify.ContainsKey(pc.PlayerId) && NameNotify[pc.PlayerId].Item2 < Utils.GetTimeStamp())
                     {
-                        _ = NameNotify.Remove(pc.PlayerId);
+                        NameNotify.Remove(pc.PlayerId);
                         SendRPCSyncNameNotify(pc);
                         notifyRoles = true;
                     }
