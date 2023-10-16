@@ -15,9 +15,9 @@ public static class Romantic
     public static List<byte> playerIdList = new();
 
     private static readonly int MaxBetTimes = 1;
-    public static bool isProtect = false;
+    public static bool isProtect;
     public static bool isRomanticAlive = true;
-    public static bool isPartnerProtected = false;
+    public static bool isPartnerProtected;
 
     public static OptionItem BetCooldown;
     private static OptionItem ProtectCooldown;
@@ -225,7 +225,7 @@ public static class VengefulRomantic
 {
     public static List<byte> playerIdList = new();
 
-    public static bool hasKilledKiller = false;
+    public static bool hasKilledKiller;
     public static Dictionary<byte, byte> VengefulTarget = new();
 
     public static void Init()

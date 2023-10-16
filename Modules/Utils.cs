@@ -1,6 +1,5 @@
 using AmongUs.Data;
 using AmongUs.GameOptions;
-using Epic.OnlineServices;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes;
 using InnerNet;
@@ -1030,6 +1029,9 @@ public static class Utils
                     break;
                 case CustomRoles.Ritualist:
                     ProgressText.Append(Ritualist.GetRitualCount(playerId));
+                    break;
+                case CustomRoles.Postman:
+                    ProgressText.Append(Postman.GetProgressText(playerId));
                     break;
                 case CustomRoles.Jackal:
                     if (Jackal.CanRecruitSidekick.GetBool())

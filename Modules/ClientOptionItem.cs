@@ -12,7 +12,7 @@ public class ClientOptionItem
     public ToggleButtonBehaviour ToggleButton;
 
     public static SpriteRenderer CustomBackground;
-    private static int numOptions = 0;
+    private static int numOptions;
 
     private ClientOptionItem(
         string name,

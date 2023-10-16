@@ -8,7 +8,7 @@ namespace TOHE;
 
 public static class OptionShower
 {
-    public static int currentPage = 0;
+    public static int currentPage;
     public static List<string> pages = new();
     static OptionShower()
     {

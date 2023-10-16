@@ -17,11 +17,11 @@ public static class Vengeance
     private static OptionItem HasImpostorVision;
     private static OptionItem RevengeTime;
 
-    private static bool IsRevenge = false;
-    private static int Timer = 0;
-    private static bool Success = false;
-    private static PlayerControl Killer = null;
-    private static float tempKillTimer = 0;
+    private static bool IsRevenge;
+    private static int Timer;
+    private static bool Success;
+    private static PlayerControl Killer;
+    private static float tempKillTimer;
 
     public static void SetupCustomOption()
     {

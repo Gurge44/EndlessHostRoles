@@ -52,7 +52,7 @@ public static class AntiBlackout
             return numCrewmates - numImpostors;
         }
     }
-    public static bool IsCached { get; private set; } = false;
+    public static bool IsCached { get; private set; }
     private static Dictionary<byte, (bool isDead, bool Disconnected)> isDeadCache = new();
     private readonly static LogHandler logger = Logger.Handler("AntiBlackout");
 

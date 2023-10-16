@@ -91,6 +91,7 @@ public static class NameColorManager
 
         if (seer.Is(CustomRoles.HeadHunter) && HeadHunter.Targets.Contains(target.PlayerId)) color = "000000";
         if (seer.Is(CustomRoles.BountyHunter) && BountyHunter.GetTarget(seer) == target.PlayerId) color = "000000";
+        if (seer.Is(CustomRoles.Postman) && Postman.Target == target.PlayerId) color = "000000";
 
         if (seer.Is(CustomRoles.Pyromaniac) && Pyromaniac.DousedList.Contains(target.PlayerId)) color = "#BA4A00";
         if (seer.Is(CustomRoles.Glitch) && Glitch.hackedIdList.ContainsKey(target.PlayerId)) color = Main.roleColors[CustomRoles.Glitch];

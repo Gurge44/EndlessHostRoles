@@ -13,14 +13,14 @@ namespace TOHE.Roles.Crewmate
     public static class Alchemist
     {
         private static readonly int Id = 5250;
-        public static bool IsProtected = false;
+        public static bool IsProtected;
         private static List<byte> playerIdList = new();
         private static Dictionary<byte, int> ventedId = new();
         public static byte PotionID = 10;
         public static string PlayerName = string.Empty;
         private static Dictionary<byte, long> InvisTime = new();
-        public static bool VisionPotionActive = false;
-        public static bool FixNextSabo = false;
+        public static bool VisionPotionActive;
+        public static bool FixNextSabo;
 
         public static OptionItem VentCooldown;
         public static OptionItem ShieldDuration;
@@ -180,7 +180,7 @@ namespace TOHE.Roles.Crewmate
 
             PotionID = 10;
         }
-        private static long lastFixedTime = 0;
+        private static long lastFixedTime;
         public static bool IsInvis(byte id) => InvisTime.ContainsKey(id);
         private static void SendRPC(PlayerControl pc)
         {

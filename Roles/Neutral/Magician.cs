@@ -38,10 +38,9 @@ public static class Magician
     public static Dictionary<byte, long> BlindPPL = new();
     public static Dictionary<Vector2, long> Bombs = new();
     private static List<Vector2> PortalMarks = new();
-    private static bool isSniping = false;
-    private static byte snipeTarget = byte.MaxValue;
+    private static bool isSniping;
     private static Vector3 snipeBasePosition;
-    private static bool isSpeedup = false;
+    private static bool isSpeedup;
     private static float originalSpeed;
     private static long lastTP = GetTimeStamp();
 
@@ -86,7 +85,6 @@ public static class Magician
         PortalMarks = new();
         isSniping = false;
         isSpeedup = false;
-        snipeTarget = byte.MaxValue;
         lastTP = GetTimeStamp();
     }
     public static void Add(byte playerId)
@@ -176,26 +174,22 @@ public static class Magician
                 if (targets.Any())
                 {
                     var snipedTarget = targets.OrderBy(c => c.Value).First().Key;
-                    snipeTarget = snipedTarget.PlayerId;
                     snipedTarget.CheckMurder(snipedTarget);
                     var temp = sniper.killTimer;
                     sniper.SetKillCooldown(time: Main.AllPlayerKillCooldown[sniper.PlayerId] + temp);
-                    snipeTarget = 0x7F;
 
                     targets.Remove(snipedTarget);
-                    var snList = new List<byte>();
-                    foreach (var otherPc in targets.Keys)
+                    List<PlayerControl> list1 = targets.Keys.ToList();
+                    for (int i = 0; i < list1.Count; i++)
                     {
-                        snList.Add(otherPc.PlayerId);
-                        NotifyRoles(SpecifySeer: otherPc);
+                        NotifyRoles(SpecifySeer: list1[i]);
                     }
                     _ = new LateTask(
                         () =>
                         {
-                            snList.Clear();
-                            foreach (var otherPc in targets.Keys)
+                            for (int i = 0; i < list1.Count; i++)
                             {
-                                NotifyRoles(SpecifySeer: otherPc);
+                                NotifyRoles(SpecifySeer: list1[i]);
                             }
                         },
                         0.5f, "Sniper shot Notify"

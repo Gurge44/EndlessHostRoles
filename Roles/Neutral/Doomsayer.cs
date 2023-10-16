@@ -12,9 +12,9 @@ public static class Doomsayer
     public static List<CustomRoles> GuessedRoles = new();
     public static Dictionary<byte, int> GuessingToWin = new();
 
-    public static int GuessesCount = 0;
-    public static int GuessesCountPerMeeting = 0;
-    public static bool CantGuess = false;
+    public static int GuessesCount;
+    public static int GuessesCountPerMeeting;
+    public static bool CantGuess;
 
     public static OptionItem DoomsayerAmountOfGuessesToWin;
     public static OptionItem DCanGuessImpostors;

@@ -22,7 +22,7 @@ public static class Infectious
     public static OptionItem HideBittenRolesOnEject;
 
 
-    private static int BiteLimit = new();
+    private static int BiteLimit;
 
     public static void SetupCustomOption()
     {

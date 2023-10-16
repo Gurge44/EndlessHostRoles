@@ -10,7 +10,7 @@ public static class Bandit
 {
     private static readonly int Id = 18420;
     private static List<byte> playerIdList = new();
-    public static bool IsEnable = false;
+    public static bool IsEnable;
 
     private static OptionItem KillCooldown;
     public static OptionItem MaxSteals;

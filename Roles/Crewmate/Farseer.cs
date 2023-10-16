@@ -100,7 +100,7 @@ namespace TOHE.Roles.Crewmate
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
-        public static bool isEnable = false;
+        public static bool isEnable;
 
         public static void SetCooldown(byte id) => Main.AllPlayerKillCooldown[id] = FarseerCooldown.GetFloat();
 

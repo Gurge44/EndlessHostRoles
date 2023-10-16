@@ -19,7 +19,6 @@ namespace TOHE;
 [HarmonyPatch(typeof(ChatController), nameof(ChatController.SendChat))]
 internal class ChatCommands
 {
-    // Function to check if a player is a moderator
     private static bool IsPlayerModerator(string friendCode)
     {
         var friendCodesFilePath = @"./TOHE_DATA/Moderators.txt";
@@ -42,7 +41,7 @@ internal class ChatCommands
         var cancelVal = string.Empty;
         Main.isChatCommand = true;
         Logger.Info(text, "SendChat");
-        ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
+        ChatManager.GetMessage(PlayerControl.LocalPlayer, text);
         if (text.Length >= 3) if (text[..2] == "/r" && text[..3] != "/rn") args[0] = "/r";
         if (text.Length >= 4) if (text[..3] == "/up") args[0] = "/up";
         if (GuessManager.GuesserMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
@@ -776,7 +775,7 @@ internal class ChatCommands
     {
         canceled = false;
         if (!AmongUsClient.Instance.AmHost) return;
-        if (player.PlayerId != 0) ChatManager.SendMessage(player, text);
+        if (player.PlayerId != 0) ChatManager.GetMessage(player, text);
         if (text.StartsWith("\n")) text = text[1..];
         //if (!text.StartsWith("/")) return;
         string[] args = text.Split(' ');
@@ -1067,7 +1066,7 @@ internal class ChatCommands
 [HarmonyPatch(typeof(ChatController), nameof(ChatController.Update))]
 internal class ChatUpdatePatch
 {
-    public static bool DoBlockChat = false;
+    public static bool DoBlockChat;
     public static void Postfix(ChatController __instance)
     {
         if (!AmongUsClient.Instance.AmHost || !Main.MessagesToSend.Any() || (Main.MessagesToSend[0].Item2 == byte.MaxValue && Main.MessageWait.Value > __instance.timeSinceLastMessage)) return;
