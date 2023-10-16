@@ -99,7 +99,7 @@ public class ChatManager
         }
         return false;
     }
-    public static void GetMessage(PlayerControl player, string message)
+    public static void SendMessage(PlayerControl player, string message)
     {
         int operate;
         string playername = player.GetNameWithRole();
