@@ -14,7 +14,7 @@ public static class Admirer
 
     public static OptionItem AdmireCooldown;
     public static OptionItem KnowTargetRole;
-    private static int AdmireLimit;
+    private static int AdmireLimit = new();
 
     public static void SetupCustomOption()
     {

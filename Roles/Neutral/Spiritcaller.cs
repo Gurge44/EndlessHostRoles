@@ -12,7 +12,7 @@ namespace TOHE.Roles.Neutral
     {
         private static readonly int Id = 13400;
         private static List<byte> playerIdList = new();
-        private static int SpiritLimit;
+        private static int SpiritLimit = new();
 
         private static Dictionary<byte, long> PlayersHaunted = new();
 
@@ -26,7 +26,7 @@ namespace TOHE.Roles.Neutral
         private static OptionItem SpiritCauseVision;
         private static OptionItem SpiritCauseVisionTime;
 
-        private static long ProtectTimeStamp;
+        private static long ProtectTimeStamp = new();
 
         public static void SetupCustomOption()
         {

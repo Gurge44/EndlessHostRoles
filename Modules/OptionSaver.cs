@@ -114,5 +114,5 @@ public static class OptionSaver
     }
 
     /// <summary>オプションの形式に互換性のない変更(プリセット数変更など)を加えるときはここの数字を上げる</summary>
-    public static readonly int Version;
+    public static readonly int Version = 0;
 }

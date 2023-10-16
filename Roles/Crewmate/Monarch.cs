@@ -16,7 +16,7 @@ public static class Monarch
     public static OptionItem KnightMax;
 
 
-    private static int KnightLimit;
+    private static int KnightLimit = new();
 
     public static void SetupCustomOption()
     {

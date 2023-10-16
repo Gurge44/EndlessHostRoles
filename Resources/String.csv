@@ -2714,12 +2714,6 @@
 "PostmanInfoLong","","(Neutral):\nAs the Postman, your job is to deliver mail to everyone. You'll always have a target, and you need to click your kill button on that target to deliver the mail to them. When you've delivered mail to everyone, your win condition is satisfied. You'll win with the winning team, no matter what happens.","","",""
 "PostmanKillButtonText","","Deliver","","",""
 "PostmanDiesWhenTargetDies","","<color=#00b893>Postman</color> dies when the current target dies","","",""
-"PostmanCorrectDeliver","","<color=#00ff00>Deliver successful.</color>","","",""
-"PostmanTargetDied","","<color=#ffff00>Your target died.</color>","","",""
-"PostmanGetNewTarget","","Your new target is {0}.","","",""
-"PostmanDone","","<color=#00ff00>You're done delivering messages!\nYou'll win with the winning team at the end.</color>","","",""
-"PostmanTarget","","<color=#00ffa5>Target:</color> <b>{0}</b>","","",""
-"DeliverCooldown","","Deliver Cooldown","","",""
 
 "## Reckless"
 "Reckless","","Reckless","","",""

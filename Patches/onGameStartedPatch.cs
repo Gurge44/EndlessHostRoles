@@ -115,7 +115,6 @@ internal class ChangeRoleSettings
             Main.BardCreations = 0;
             Main.DovesOfNeaceNumOfUsed = new();
             Main.GodfatherTarget = byte.MaxValue;
-            ChatManager.ResetHistory();
 
             ReportDeadBodyPatch.CanReport = new();
 
@@ -1164,7 +1163,7 @@ internal class SelectRolesPatch
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcSetRole))]
     private class RpcSetRoleReplacer
     {
-        public static bool doReplace;
+        public static bool doReplace = false;
         public static Dictionary<byte, CustomRpcSender> senders;
         public static List<(PlayerControl, RoleTypes)> StoragedData = new();
         // 役職Desyncなど別の処理でSetRoleRpcを書き込み済みなため、追加の書き込みが不要なSenderのリスト

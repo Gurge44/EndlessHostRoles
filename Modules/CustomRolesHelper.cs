@@ -14,7 +14,7 @@ internal static class CustomRolesHelper
             ? role
             : role switch
             {
-                CustomRoles.Sniper => CustomRoles.Shapeshifter,
+                CustomRoles.Sniper => Options.UsePets.GetBool() ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Jester => Options.JesterCanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
                 CustomRoles.Mayor => Options.MayorHasPortableButton.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
                 CustomRoles.Monitor => Monitor.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
@@ -44,14 +44,14 @@ internal static class CustomRolesHelper
                 CustomRoles.EvilDiviner => CustomRoles.Impostor,
                 CustomRoles.Wildling => Wildling.CanShapeshift.GetBool() ? CustomRoles.Shapeshifter : CustomRoles.Impostor,
                 CustomRoles.Morphling => CustomRoles.Shapeshifter,
-                CustomRoles.Warlock => CustomRoles.Shapeshifter,
+                CustomRoles.Warlock => Options.UsePets.GetBool() ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.SerialKiller => CustomRoles.Impostor,
                 CustomRoles.FireWorks => CustomRoles.Shapeshifter,
                 CustomRoles.SpeedBooster => CustomRoles.Crewmate,
                 CustomRoles.Dictator => CustomRoles.Crewmate,
                 CustomRoles.Inhibitor => CustomRoles.Impostor,
                 CustomRoles.Mastermind => CustomRoles.Impostor,
-                CustomRoles.RiftMaker => CustomRoles.Shapeshifter,
+                CustomRoles.RiftMaker => Options.UsePets.GetBool() ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Gambler => CustomRoles.Impostor,
                 CustomRoles.Hitman => CustomRoles.Shapeshifter,
                 CustomRoles.Saboteur => CustomRoles.Impostor,
@@ -66,15 +66,15 @@ internal static class CustomRolesHelper
                 CustomRoles.TimeMaster => CustomRoles.Engineer,
                 CustomRoles.CrewmateTOHE => CustomRoles.Crewmate,
                 CustomRoles.Cleanser => CustomRoles.Crewmate,
-                CustomRoles.Miner => CustomRoles.Shapeshifter,
+                CustomRoles.Miner => Options.UsePets.GetBool() ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Psychic => CustomRoles.Crewmate,
                 CustomRoles.Needy => CustomRoles.Crewmate,
-                CustomRoles.Twister => CustomRoles.Shapeshifter,
+                CustomRoles.Twister => Options.UsePets.GetBool() ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.SuperStar => CustomRoles.Crewmate,
                 CustomRoles.Hacker => CustomRoles.Shapeshifter,
                 CustomRoles.Visionary => CustomRoles.Impostor,
-                CustomRoles.Assassin => CustomRoles.Shapeshifter,
-                CustomRoles.Undertaker => CustomRoles.Shapeshifter,
+                CustomRoles.Assassin => Options.UsePets.GetBool() ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
+                CustomRoles.Undertaker => Options.UsePets.GetBool() ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Luckey => CustomRoles.Crewmate,
                 CustomRoles.CyberStar => CustomRoles.Crewmate,
                 CustomRoles.Demolitionist => CustomRoles.Crewmate,
@@ -82,12 +82,13 @@ internal static class CustomRolesHelper
                 CustomRoles.Express => CustomRoles.Crewmate,
                 CustomRoles.NiceEraser => CustomRoles.Crewmate,
                 CustomRoles.TaskManager => CustomRoles.Crewmate,
+                CustomRoles.CameraMan => Options.UsePets.GetBool() ? CustomRoles.Crewmate : CustomRoles.Engineer,
                 CustomRoles.Spy => CustomRoles.Crewmate,
                 CustomRoles.Ricochet => CustomRoles.Crewmate,
                 CustomRoles.Tether => CustomRoles.Engineer,
                 CustomRoles.Doormaster => CustomRoles.Engineer,
                 CustomRoles.Aid => CustomRoles.Impostor,
-                CustomRoles.Escapee => CustomRoles.Shapeshifter,
+                CustomRoles.Escapee => Options.UsePets.GetBool() ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.NiceGuesser => CustomRoles.Crewmate,
                 CustomRoles.EvilGuesser => CustomRoles.Impostor,
                 CustomRoles.Detective => CustomRoles.Crewmate,
@@ -97,8 +98,8 @@ internal static class CustomRolesHelper
                 CustomRoles.Mario => CustomRoles.Engineer,
                 CustomRoles.AntiAdminer => CustomRoles.Impostor,
                 CustomRoles.Sans => CustomRoles.Impostor,
-                CustomRoles.Bomber => CustomRoles.Shapeshifter,
-                CustomRoles.Nuker => CustomRoles.Shapeshifter,
+                CustomRoles.Bomber => Options.UsePets.GetBool() ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
+                CustomRoles.Nuker => Options.UsePets.GetBool() ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.BoobyTrap => CustomRoles.Impostor,
                 CustomRoles.Scavenger => CustomRoles.Impostor,
                 CustomRoles.Transporter => CustomRoles.Crewmate,
@@ -120,7 +121,7 @@ internal static class CustomRolesHelper
                 CustomRoles.CursedWolf => CustomRoles.Impostor,
                 CustomRoles.Collector => CustomRoles.Crewmate,
                 CustomRoles.ImperiusCurse => CustomRoles.Shapeshifter,
-                CustomRoles.QuickShooter => CustomRoles.Shapeshifter,
+                CustomRoles.QuickShooter => Options.UsePets.GetBool() ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Eraser => CustomRoles.Impostor,
                 CustomRoles.OverKiller => CustomRoles.Impostor,
                 CustomRoles.Hangman => CustomRoles.Shapeshifter,
@@ -135,7 +136,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Crewpostor => CustomRoles.Engineer,
                 CustomRoles.Observer => CustomRoles.Crewmate,
                 CustomRoles.DovesOfNeace => CustomRoles.Engineer,
-                CustomRoles.Disperser => CustomRoles.Shapeshifter,
+                CustomRoles.Disperser => Options.UsePets.GetBool() ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Camouflager => CustomRoles.Shapeshifter,
                 CustomRoles.Dazzler => CustomRoles.Shapeshifter,
                 CustomRoles.Devourer => CustomRoles.Shapeshifter,
@@ -146,6 +147,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Lookout => CustomRoles.Crewmate,
                 CustomRoles.Retributionist => CustomRoles.Crewmate,
                 CustomRoles.Guardian => CustomRoles.Crewmate,
+                CustomRoles.Enigma => CustomRoles.Crewmate,
                 CustomRoles.Addict => CustomRoles.Engineer,
                 CustomRoles.Alchemist => CustomRoles.Engineer,
                 CustomRoles.Chameleon => CustomRoles.Engineer,
@@ -175,6 +177,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Mediumshiper => CustomRoles.CrewmateTOHE,
                 CustomRoles.Bodyguard => CustomRoles.CrewmateTOHE,
                 CustomRoles.ParityCop => CustomRoles.CrewmateTOHE,
+                CustomRoles.Enigma => CustomRoles.CrewmateTOHE,
                 CustomRoles.Grenadier => CustomRoles.EngineerTOHE,
                 CustomRoles.SecurityGuard => CustomRoles.EngineerTOHE,
                 CustomRoles.Lighter => CustomRoles.EngineerTOHE,
@@ -193,6 +196,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Express => CustomRoles.CrewmateTOHE,
                 CustomRoles.NiceEraser => CustomRoles.CrewmateTOHE,
                 CustomRoles.TaskManager => CustomRoles.CrewmateTOHE,
+                CustomRoles.CameraMan => CustomRoles.EngineerTOHE,
                 CustomRoles.Spy => CustomRoles.CrewmateTOHE,
                 CustomRoles.Ricochet => CustomRoles.CrewmateTOHE,
                 CustomRoles.Aid => CustomRoles.CrewmateTOHE,
@@ -270,6 +274,10 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.NSerialKiller => RoleTypes.Impostor,
+            CustomRoles.Postman => RoleTypes.Impostor,
+            CustomRoles.Reckless => RoleTypes.Impostor,
+            CustomRoles.Magician => RoleTypes.Impostor,
+            CustomRoles.Mafioso => RoleTypes.Impostor,
             CustomRoles.Pyromaniac => RoleTypes.Impostor,
             CustomRoles.Eclipse => RoleTypes.Impostor,
             CustomRoles.Vengeance => RoleTypes.Impostor,
@@ -448,6 +456,9 @@ internal static class CustomRolesHelper
             CustomRoles.Refugee or
             CustomRoles.Parasite or
             CustomRoles.NSerialKiller or
+            CustomRoles.Magician or
+            CustomRoles.Mafioso or
+            CustomRoles.Reckless or
             CustomRoles.Pyromaniac or
             CustomRoles.Eclipse or
             CustomRoles.HeadHunter or
@@ -482,6 +493,9 @@ internal static class CustomRolesHelper
             CustomRoles.Refugee or
             CustomRoles.Parasite or
             CustomRoles.NSerialKiller or
+            CustomRoles.Magician or
+            CustomRoles.Mafioso or
+            CustomRoles.Reckless or
             CustomRoles.Eclipse or
             CustomRoles.Pyromaniac or
             CustomRoles.Vengeance or
@@ -607,6 +621,9 @@ internal static class CustomRolesHelper
             CustomRoles.Traitor or
             CustomRoles.Poisoner or
             CustomRoles.NSerialKiller or
+            CustomRoles.Magician or
+            CustomRoles.Mafioso or
+            CustomRoles.Reckless or
             CustomRoles.Eclipse or
             CustomRoles.Pyromaniac or
             CustomRoles.Vengeance or
@@ -754,6 +771,10 @@ internal static class CustomRolesHelper
             //    CustomRoles.Sidekick or
             CustomRoles.Poisoner or
             CustomRoles.NSerialKiller or
+            CustomRoles.Magician or
+            CustomRoles.Mafioso or
+            CustomRoles.Reckless or
+            CustomRoles.Postman or
             CustomRoles.Eclipse or
             CustomRoles.Pyromaniac or
             CustomRoles.Vengeance or
@@ -796,6 +817,10 @@ internal static class CustomRolesHelper
         CustomRoles.Medusa or
         CustomRoles.NSerialKiller or
         CustomRoles.Eclipse or
+        CustomRoles.Magician or
+        CustomRoles.Mafioso or
+        CustomRoles.Reckless or
+        CustomRoles.Postman or
         CustomRoles.Pyromaniac or
         CustomRoles.Vengeance or
         CustomRoles.HeadHunter or
@@ -878,6 +903,10 @@ internal static class CustomRolesHelper
         //    CustomRoles.Sidekick or
             CustomRoles.Poisoner or
             CustomRoles.NSerialKiller or
+            CustomRoles.Magician or
+            CustomRoles.Mafioso or
+            CustomRoles.Reckless or
+            CustomRoles.Postman or
             CustomRoles.Eclipse or
             CustomRoles.Pyromaniac or
             CustomRoles.Vengeance or
@@ -1000,6 +1029,10 @@ internal static class CustomRolesHelper
         CustomRoles.Pestilence or
         CustomRoles.Poisoner or
         CustomRoles.NSerialKiller or
+        CustomRoles.Magician or
+        CustomRoles.Mafioso or
+        CustomRoles.Reckless or
+        CustomRoles.Postman or
         CustomRoles.Eclipse or
         CustomRoles.Pyromaniac or
         CustomRoles.Vengeance or
@@ -1358,6 +1391,9 @@ internal static class CustomRolesHelper
            CustomRoles.PlagueBearer => CountTypes.PlagueBearer,
            CustomRoles.Parasite => CountTypes.Impostor,
            CustomRoles.NSerialKiller => CountTypes.NSerialKiller,
+           CustomRoles.Magician => CountTypes.Magician,
+           CustomRoles.Mafioso => CountTypes.Mafioso,
+           CustomRoles.Reckless => CountTypes.Reckless,
            CustomRoles.Eclipse => CountTypes.Eclipse,
            CustomRoles.Pyromaniac => CountTypes.Pyromaniac,
            CustomRoles.Vengeance => CountTypes.Vengeance,
@@ -1410,6 +1446,9 @@ public enum CountTypes
     NWitch,
     Wraith,
     NSerialKiller,
+    Magician,
+    Mafioso,
+    Reckless,
     Pyromaniac,
     Eclipse,
     Vengeance,

@@ -14,7 +14,7 @@ public static class Marshall
 
     public static OptionItem OptionMadmateCanFindMarshall;
 
-    public static bool MadmateCanFindMarshall;
+    public static bool MadmateCanFindMarshall = false;
 
     private static readonly Dictionary<byte, bool> IsExposed = new();
     private static readonly Dictionary<byte, bool> IsComplete = new();

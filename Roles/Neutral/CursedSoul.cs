@@ -17,7 +17,7 @@ public static class CursedSoul
     public static OptionItem CurseMax;
     public static OptionItem KnowTargetRole;
     public static OptionItem CanCurseNeutral;
-    private static int CurseLimit;
+    private static int CurseLimit = new();
 
     public static void SetupCustomOption()
     {

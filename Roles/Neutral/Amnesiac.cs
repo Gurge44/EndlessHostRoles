@@ -24,7 +24,7 @@ public static class Amnesiac
         "Role.Maverick",
     };
 
-    private static int RememberLimit;
+    private static int RememberLimit = new();
 
     public static void SetupCustomOption()
     {

@@ -17,7 +17,7 @@ internal static class FFAManager
 
     private static Dictionary<byte, float> originalSpeed = new();
     public static Dictionary<byte, int> KBScore = new();
-    public static int RoundTime;
+    public static int RoundTime = new();
 
     //Options
     public static OptionItem FFA_GameTime;
@@ -305,7 +305,7 @@ internal static class FFAManager
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     class FixedUpdatePatch
     {
-        private static long LastFixedUpdate;
+        private static long LastFixedUpdate = new();
         public static void Postfix(PlayerControl __instance)
         {
             if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.FFA) return;

@@ -66,7 +66,7 @@ internal class SplashLogoAnimatorPatch
 [HarmonyPatch(typeof(EOSManager), nameof(EOSManager.IsAllowedOnline))]
 internal class RunLoginPatch
 {
-    public static int ClickCount;
+    public static int ClickCount = 0;
     public static void Prefix(ref bool canOnline)
     {
 #if DEBUG

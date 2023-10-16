@@ -71,7 +71,7 @@ public static class Chameleon
         => GameStates.IsInTask && !InvisTime.ContainsKey(id) && !lastTime.ContainsKey(id);
     public static bool IsInvis(byte id) => InvisTime.ContainsKey(id);
 
-    private static long lastFixedTime;
+    private static long lastFixedTime = 0;
     public static void AfterMeetingTasks()
     {
         lastTime = new();

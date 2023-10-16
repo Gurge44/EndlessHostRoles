@@ -19,7 +19,7 @@ namespace TOHE.Roles.Crewmate
         private static Dictionary<byte, float> SuicideTimer = new();
         private static Dictionary<byte, float> ImmortalTimer = new();
 
-        private static float DefaultSpeed;
+        private static float DefaultSpeed = new();
 
         public static void SetupCustomOption()
         {

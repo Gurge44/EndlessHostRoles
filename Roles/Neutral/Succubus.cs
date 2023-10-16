@@ -27,7 +27,7 @@ public static class Succubus
         "CharmedCountMode.Original",
     };
 
-    private static int CharmLimit;
+    private static int CharmLimit = new();
 
     public static void SetupCustomOption()
     {

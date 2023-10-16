@@ -38,7 +38,7 @@ internal class AntiAdminer
     }
     public static bool IsEnable() => playerIdList.Any();
 
-    private static int Count;
+    private static int Count = 0;
     public static void FixedUpdate()
     {
         if (!IsEnable()) return;

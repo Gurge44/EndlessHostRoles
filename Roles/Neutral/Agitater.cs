@@ -8,7 +8,7 @@ public static class Agitater
 {
     private static readonly int Id = 12420;
     public static List<byte> playerIdList = new();
-    public static bool IsEnable;
+    public static bool IsEnable = false;
 
     public static OptionItem BombExplodeCooldown;
     public static OptionItem PassCooldown;
@@ -19,9 +19,9 @@ public static class Agitater
 
     public static byte CurrentBombedPlayer = byte.MaxValue;
     public static byte LastBombedPlayer = byte.MaxValue;
-    public static bool AgitaterHasBombed;
-    public static long CurrentBombedPlayerTime;
-    public static long AgitaterBombedTime;
+    public static bool AgitaterHasBombed = false;
+    public static long CurrentBombedPlayerTime = new();
+    public static long AgitaterBombedTime = new();
 
 
     public static void SetupCustomOption()

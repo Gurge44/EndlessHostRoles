@@ -14,13 +14,13 @@ namespace TOHE;
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
 class HudManagerPatch
 {
-    public static bool ShowDebugText;
-    public static int LastCallNotifyRolesPerSecond;
-    public static int NowCallNotifyRolesCount;
-    public static int LastSetNameDesyncCount;
-    public static int LastFPS;
-    public static int NowFrameCount;
-    public static float FrameRateTimer;
+    public static bool ShowDebugText = false;
+    public static int LastCallNotifyRolesPerSecond = 0;
+    public static int NowCallNotifyRolesCount = 0;
+    public static int LastSetNameDesyncCount = 0;
+    public static int LastFPS = 0;
+    public static int NowFrameCount = 0;
+    public static float FrameRateTimer = 0.0f;
     public static TextMeshPro LowerInfoText;
     public static GameObject TempLowerInfoText;
     public static void Postfix(HudManager __instance)
@@ -456,7 +456,6 @@ class HudManagerPatch
                     CustomRoles.Glitch => Glitch.GetHudText(player),
                     CustomRoles.NiceHacker => NiceHacker.GetHudText(player),
                     CustomRoles.Wildling => Wildling.GetHudText(player),
-                    CustomRoles.Postman => Postman.GetHudText(player),
                     CustomRoles.Doormaster => Doormaster.GetHudText(player),
                     CustomRoles.Tether => Tether.GetHudText(player),
                     CustomRoles.CameraMan => !Options.UsePets.GetBool() || !Main.CameraManCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), CameraMan.VentCooldown.GetInt() - (now - cd) + 1),
@@ -576,7 +575,7 @@ class SetVentOutlinePatch
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.SetHudActive), new System.Type[] { typeof(PlayerControl), typeof(RoleBehaviour), typeof(bool) })]
 class SetHudActivePatch
 {
-    public static bool IsActive;
+    public static bool IsActive = false;
     public static void Prefix(HudManager __instance, [HarmonyArgument(2)] ref bool isActive)
     {
         isActive &= !GameStates.IsMeeting;
@@ -817,8 +816,8 @@ class TaskPanelBehaviourPatch
 
 class RepairSender
 {
-    public static bool enabled;
-    public static bool TypingAmount;
+    public static bool enabled = false;
+    public static bool TypingAmount = false;
 
     public static int SystemType;
     public static int amount;

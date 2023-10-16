@@ -681,7 +681,7 @@ public static class Options
     // ボタン回数
     public static OptionItem SyncButtonMode;
     public static OptionItem SyncedButtonCount;
-    public static int UsedButtonCount;
+    public static int UsedButtonCount = 0;
 
     // 全員生存時の会議時間
     public static OptionItem AllAliveMeeting;
@@ -838,9 +838,9 @@ public static class Options
 
     public static int SnitchExposeTaskLeft = 1;
 
-    public static bool IsLoaded;
+    public static bool IsLoaded = false;
 
-    public static int LoadingPercentage;
+    public static int LoadingPercentage = 0;
     public static string MainLoadingText = string.Empty;
     public static string RoleLoadingText = string.Empty;
 

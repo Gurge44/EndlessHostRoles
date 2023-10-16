@@ -362,9 +362,9 @@ internal class CustomRoleSelector
 
     }
 
-    public static int addScientistNum;
-    public static int addEngineerNum;
-    public static int addShapeshifterNum;
+    public static int addScientistNum = 0;
+    public static int addEngineerNum = 0;
+    public static int addShapeshifterNum = 0;
     public static void CalculateVanillaRoleCount()
     {
         // 计算原版特殊职业数量

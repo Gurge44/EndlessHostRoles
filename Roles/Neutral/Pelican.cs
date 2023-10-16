@@ -172,7 +172,7 @@ public static class Pelican
         SyncEatenList(pc);
     }
 
-    private static int Count;
+    private static int Count = 0;
     public static void OnFixedUpdate()
     {
         if (!GameStates.IsInTask)

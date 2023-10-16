@@ -47,7 +47,7 @@ public static class Vampire
         PlayerIdList.Add(playerId);
     }
 
-    public static bool IsEnable;
+    public static bool IsEnable = false;
     public static bool IsThisRole(byte playerId) => PlayerIdList.Contains(playerId);
 
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)

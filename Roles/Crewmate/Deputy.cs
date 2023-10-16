@@ -17,7 +17,7 @@ public static class Deputy
     public static OptionItem DeputyHandcuffCDForTarget;
     private static OptionItem DeputyHandcuffDelay;
 
-    private static int HandcuffLimit;
+    private static int HandcuffLimit = new();
 
     public static void SetupCustomOption()
     {

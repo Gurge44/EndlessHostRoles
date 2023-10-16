@@ -10,7 +10,7 @@ namespace TOHE.Roles.Crewmate
     {
         private static readonly int Id = 8300;
         private static List<byte> playerIdList = new();
-        public static bool IsEnable;
+        public static bool IsEnable = false;
 
         private static OptionItem TrackLimitOpt;
         private static OptionItem OptionCanSeeLastRoomInMeeting;

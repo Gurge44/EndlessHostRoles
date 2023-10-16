@@ -12,7 +12,7 @@ namespace TOHE.Roles.Neutral
     {
         private static readonly int Id = 13200;
         private static List<byte> playerIdList = new();
-        private static int InfectLimit;
+        private static int InfectLimit = new();
         public static List<byte> InfectedPlayer = new();
 
         private static OptionItem KillCooldown;
