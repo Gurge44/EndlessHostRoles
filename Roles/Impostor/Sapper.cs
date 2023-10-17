@@ -15,7 +15,6 @@ namespace TOHE.Roles.Impostor
         private static readonly int Id = 643000;
         public static List<byte> playerIdList = new();
 
-        private static OptionItem KillCooldown;
         public static OptionItem ShapeshiftCooldown;
         private static OptionItem Delay;
         private static OptionItem Radius;
@@ -25,8 +24,6 @@ namespace TOHE.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Sapper);
-            KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Sapper])
-                .SetValueFormat(OptionFormat.Seconds);
             ShapeshiftCooldown = FloatOptionItem.Create(Id + 11, "SapperCD", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Sapper])
                 .SetValueFormat(OptionFormat.Seconds);
             Delay = IntegerOptionItem.Create(Id + 12, "SapperDelay", new(1, 15, 1), 5, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Sapper])

@@ -481,7 +481,7 @@ static class ExtendedPlayerControl
             CustomRoles.Eclipse => true,
             CustomRoles.NSerialKiller => true,
             CustomRoles.Magician => true,
-            CustomRoles.Mafioso => true,
+            CustomRoles.WeaponMaster => true,
             CustomRoles.Postman => true,
             CustomRoles.Reckless => true,
             CustomRoles.Vengeance => true,
@@ -582,7 +582,7 @@ static class ExtendedPlayerControl
             CustomRoles.NSerialKiller => pc.IsAlive(),
             CustomRoles.Postman => pc.IsAlive() && !Postman.IsFinished,
             CustomRoles.Magician => pc.IsAlive(),
-            CustomRoles.Mafioso => pc.IsAlive() && Mafioso.CanKill,
+            CustomRoles.WeaponMaster => pc.IsAlive() && WeaponMaster.CanKill(pc),
             CustomRoles.Reckless => pc.IsAlive(),
             CustomRoles.Vengeance => pc.IsAlive(),
             CustomRoles.HeadHunter => pc.IsAlive(),
@@ -673,7 +673,7 @@ static class ExtendedPlayerControl
             CustomRoles.NSerialKiller => NSerialKiller.CanVent.GetBool(),
             CustomRoles.Magician => Magician.CanVent.GetBool(),
             CustomRoles.Reckless => Reckless.CanVent.GetBool(),
-            CustomRoles.Mafioso => Mafioso.CanVent.GetBool(),
+            CustomRoles.WeaponMaster => WeaponMaster.CanVent.GetBool(),
             CustomRoles.Postman => Postman.CanVent.GetBool(),
             CustomRoles.Pyromaniac => Pyromaniac.CanVent.GetBool(),
             CustomRoles.Eclipse => Eclipse.CanVent.GetBool(),
@@ -785,7 +785,7 @@ static class ExtendedPlayerControl
             CustomRoles.Glitch => true,
             CustomRoles.Refugee => true,
             CustomRoles.Magician => true,
-            CustomRoles.Mafioso => true,
+            CustomRoles.WeaponMaster => true,
 
 
             _ => pc.Is(CustomRoleTypes.Impostor),
@@ -873,6 +873,7 @@ static class ExtendedPlayerControl
                 break;
             case CustomRoles.Sapper:
                 Main.AllPlayerKillCooldown[player.PlayerId] = 300f;
+                break;
             case CustomRoles.Hitman:
                 Main.AllPlayerKillCooldown[player.PlayerId] = Hitman.KillCooldown.GetFloat();
                 break;
@@ -926,8 +927,8 @@ static class ExtendedPlayerControl
             case CustomRoles.NSerialKiller:
                 NSerialKiller.SetKillCooldown(player.PlayerId);
                 break;
-            case CustomRoles.Mafioso:
-                Mafioso.SetKillCooldown(player.PlayerId);
+            case CustomRoles.WeaponMaster:
+                WeaponMaster.SetKillCooldown(player.PlayerId);
                 break;
             case CustomRoles.Magician:
                 Magician.SetKillCooldown(player.PlayerId);

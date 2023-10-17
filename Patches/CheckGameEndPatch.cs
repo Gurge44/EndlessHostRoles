@@ -400,7 +400,7 @@ class GameEndChecker
             byte Pestilence = (byte)Utils.AlivePlayersCount(CountTypes.Pestilence);
             byte PB = (byte)Utils.AlivePlayersCount(CountTypes.PlagueBearer);
             byte SK = (byte)Utils.AlivePlayersCount(CountTypes.NSerialKiller);
-            byte MO = (byte)Utils.AlivePlayersCount(CountTypes.Mafioso);
+            byte WM = (byte)Utils.AlivePlayersCount(CountTypes.WeaponMaster);
             byte MG = (byte)Utils.AlivePlayersCount(CountTypes.Magician);
             byte RL = (byte)Utils.AlivePlayersCount(CountTypes.Reckless);
             byte EC = (byte)Utils.AlivePlayersCount(CountTypes.Eclipse);
@@ -454,7 +454,7 @@ class GameEndChecker
             //Virus += (byte)Main.AllAlivePlayerControls.Count(x => x.Is(CustomRoles.Contagious) && x.Is(CustomRoles.DualPersonality));
             //Imp += (byte)Main.AllAlivePlayerControls.Count(x => x.Is(CustomRoles.Madmate) && x.Is(CustomRoles.DualPersonality));
 
-            int totalNKAlive = new int[] { Jackal, Pel, Gam, BK, Pois, CM, Hex, Wraith, Pestilence, PB, SK, EC, PM, HH, VG, IM, WW, RR, Juggy, Vamp, Virus, Rogue, DH, Jinx, Rit, PP, Traitor, Med, SC, Glitch, Arso, Bandit, Agi, MO, MG, RL }.Sum();
+            int totalNKAlive = new int[] { Jackal, Pel, Gam, BK, Pois, CM, Hex, Wraith, Pestilence, PB, SK, EC, PM, HH, VG, IM, WW, RR, Juggy, Vamp, Virus, Rogue, DH, Jinx, Rit, PP, Traitor, Med, SC, Glitch, Arso, Bandit, Agi, WM, MG, RL }.Sum();
 
             CustomWinner? winner = null;
             CustomRoles? rl = null;
@@ -598,11 +598,11 @@ class GameEndChecker
                         winner = CustomWinner.Magician;
                         rl = CustomRoles.Magician;
                     }
-                    else if (MO == totalNKAlive)
+                    else if (WM == totalNKAlive)
                     {
                         reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Mafioso;
-                        rl = CustomRoles.Mafioso;
+                        winner = CustomWinner.WeaponMaster;
+                        rl = CustomRoles.WeaponMaster;
                     }
                     else if (RL == totalNKAlive)
                     {

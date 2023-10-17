@@ -159,7 +159,7 @@ class HudManagerPatch
                         break;
                     case CustomRoles.NSerialKiller:
                     case CustomRoles.Magician:
-                    case CustomRoles.Mafioso:
+                    case CustomRoles.WeaponMaster:
                     case CustomRoles.Reckless:
                     case CustomRoles.Pyromaniac:
                     case CustomRoles.Eclipse:

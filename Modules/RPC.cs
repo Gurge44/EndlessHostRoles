@@ -1138,8 +1138,8 @@ internal static class RPC
             case CustomRoles.Postman:
                 Postman.Add(targetId);
                 break;
-            case CustomRoles.Mafioso:
-                Mafioso.Add(targetId);
+            case CustomRoles.WeaponMaster:
+                WeaponMaster.Add(targetId);
                 break;
             case CustomRoles.Reckless:
                 Reckless.Add(targetId);

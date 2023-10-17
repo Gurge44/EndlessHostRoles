@@ -278,7 +278,7 @@ internal static class CustomRolesHelper
             CustomRoles.Postman => RoleTypes.Impostor,
             CustomRoles.Reckless => RoleTypes.Impostor,
             CustomRoles.Magician => RoleTypes.Impostor,
-            CustomRoles.Mafioso => RoleTypes.Impostor,
+            CustomRoles.WeaponMaster => RoleTypes.Impostor,
             CustomRoles.Pyromaniac => RoleTypes.Impostor,
             CustomRoles.Eclipse => RoleTypes.Impostor,
             CustomRoles.Vengeance => RoleTypes.Impostor,
@@ -458,7 +458,7 @@ internal static class CustomRolesHelper
             CustomRoles.Parasite or
             CustomRoles.NSerialKiller or
             CustomRoles.Magician or
-            CustomRoles.Mafioso or
+            CustomRoles.WeaponMaster or
             CustomRoles.Reckless or
             CustomRoles.Pyromaniac or
             CustomRoles.Eclipse or
@@ -495,7 +495,7 @@ internal static class CustomRolesHelper
             CustomRoles.Parasite or
             CustomRoles.NSerialKiller or
             CustomRoles.Magician or
-            CustomRoles.Mafioso or
+            CustomRoles.WeaponMaster or
             CustomRoles.Reckless or
             CustomRoles.Eclipse or
             CustomRoles.Pyromaniac or
@@ -623,7 +623,7 @@ internal static class CustomRolesHelper
             CustomRoles.Poisoner or
             CustomRoles.NSerialKiller or
             CustomRoles.Magician or
-            CustomRoles.Mafioso or
+            CustomRoles.WeaponMaster or
             CustomRoles.Reckless or
             CustomRoles.Eclipse or
             CustomRoles.Pyromaniac or
@@ -774,7 +774,7 @@ internal static class CustomRolesHelper
             CustomRoles.Poisoner or
             CustomRoles.NSerialKiller or
             CustomRoles.Magician or
-            CustomRoles.Mafioso or
+            CustomRoles.WeaponMaster or
             CustomRoles.Reckless or
             CustomRoles.Postman or
             CustomRoles.Eclipse or
@@ -820,7 +820,7 @@ internal static class CustomRolesHelper
         CustomRoles.NSerialKiller or
         CustomRoles.Eclipse or
         CustomRoles.Magician or
-        CustomRoles.Mafioso or
+        CustomRoles.WeaponMaster or
         CustomRoles.Reckless or
         CustomRoles.Postman or
         CustomRoles.Pyromaniac or
@@ -906,7 +906,7 @@ internal static class CustomRolesHelper
             CustomRoles.Poisoner or
             CustomRoles.NSerialKiller or
             CustomRoles.Magician or
-            CustomRoles.Mafioso or
+            CustomRoles.WeaponMaster or
             CustomRoles.Reckless or
             CustomRoles.Postman or
             CustomRoles.Eclipse or
@@ -1032,7 +1032,7 @@ internal static class CustomRolesHelper
         CustomRoles.Poisoner or
         CustomRoles.NSerialKiller or
         CustomRoles.Magician or
-        CustomRoles.Mafioso or
+        CustomRoles.WeaponMaster or
         CustomRoles.Reckless or
         CustomRoles.Postman or
         CustomRoles.Eclipse or
@@ -1395,7 +1395,7 @@ internal static class CustomRolesHelper
            CustomRoles.Parasite => CountTypes.Impostor,
            CustomRoles.NSerialKiller => CountTypes.NSerialKiller,
            CustomRoles.Magician => CountTypes.Magician,
-           CustomRoles.Mafioso => CountTypes.Mafioso,
+           CustomRoles.WeaponMaster => CountTypes.WeaponMaster,
            CustomRoles.Reckless => CountTypes.Reckless,
            CustomRoles.Eclipse => CountTypes.Eclipse,
            CustomRoles.Pyromaniac => CountTypes.Pyromaniac,
@@ -1450,7 +1450,7 @@ public enum CountTypes
     Wraith,
     NSerialKiller,
     Magician,
-    Mafioso,
+    WeaponMaster,
     Reckless,
     Pyromaniac,
     Eclipse,

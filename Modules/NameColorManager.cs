@@ -61,7 +61,7 @@ public static class NameColorManager
         if (seer.Is(CustomRoles.Juggernaut) && target.Is(CustomRoles.Juggernaut)) color = Main.roleColors[CustomRoles.Juggernaut];
         if (seer.Is(CustomRoles.NSerialKiller) && target.Is(CustomRoles.NSerialKiller)) color = Main.roleColors[CustomRoles.NSerialKiller];
         if (seer.Is(CustomRoles.Postman) && target.Is(CustomRoles.Postman)) color = Main.roleColors[CustomRoles.Postman];
-        if (seer.Is(CustomRoles.Mafioso) && target.Is(CustomRoles.Mafioso)) color = Main.roleColors[CustomRoles.Mafioso];
+        if (seer.Is(CustomRoles.WeaponMaster) && target.Is(CustomRoles.WeaponMaster)) color = Main.roleColors[CustomRoles.WeaponMaster];
         if (seer.Is(CustomRoles.Magician) && target.Is(CustomRoles.Magician)) color = Main.roleColors[CustomRoles.Magician];
         if (seer.Is(CustomRoles.Reckless) && target.Is(CustomRoles.Reckless)) color = Main.roleColors[CustomRoles.Reckless];
         if (seer.Is(CustomRoles.Pyromaniac) && target.Is(CustomRoles.Pyromaniac)) color = Main.roleColors[CustomRoles.Pyromaniac];

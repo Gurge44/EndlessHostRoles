@@ -253,7 +253,7 @@ public static class Divinator
                 CustomRoles.Jackal or
                 CustomRoles.Sidekick or
                 CustomRoles.Maverick or
-                CustomRoles.Mafioso or
+                CustomRoles.WeaponMaster or
                 CustomRoles.Opportunist or
                 CustomRoles.Pursuer or
                 CustomRoles.Provocateur

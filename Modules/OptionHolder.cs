@@ -1807,13 +1807,13 @@ public static class Options
 
         NSerialKiller.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nPostman";
-        //Postman.SetupCustomOption();
+        Postman.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nReckless";
-        //Reckless.SetupCustomOption();
+        Reckless.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nMagician";
         Magician.SetupCustomOption();
-        RoleLoadingText = "Neutral roles\nMafioso";
-        //Mafioso.SetupCustomOption();
+        RoleLoadingText = "Neutral roles\nWeaponMaster";
+        WeaponMaster.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nPyromaniac";
         Pyromaniac.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nEclipse";

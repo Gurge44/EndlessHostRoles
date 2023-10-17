@@ -277,7 +277,7 @@ internal class ChangeRoleSettings
             NSerialKiller.Init();
             Postman.Init();
             Magician.Init();
-            Mafioso.Init();
+            WeaponMaster.Init();
             Reckless.Init();
             Pyromaniac.Init();
             Eclipse.Init();
@@ -848,8 +848,8 @@ internal class SelectRolesPatch
                     case CustomRoles.Magician:
                         Magician.Add(pc.PlayerId);
                         break;
-                    case CustomRoles.Mafioso:
-                        Mafioso.Add(pc.PlayerId);
+                    case CustomRoles.WeaponMaster:
+                        WeaponMaster.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Reckless:
                         Reckless.Add(pc.PlayerId);

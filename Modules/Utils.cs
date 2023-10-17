@@ -456,7 +456,7 @@ public static class Utils
             case CustomRoles.NSerialKiller:
             case CustomRoles.Postman:
             case CustomRoles.Reckless:
-            case CustomRoles.Mafioso:
+            case CustomRoles.WeaponMaster:
             case CustomRoles.Magician:
             case CustomRoles.Vengeance:
             case CustomRoles.HeadHunter:

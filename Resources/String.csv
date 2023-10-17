@@ -2426,7 +2426,7 @@
 "DivinatorCheck.Result17","<b>{0}</b>是医生、马里奥、小丑、潜伏者还是阳光开朗大男孩其中之一","<b>{0}</b> is either Medic, Vector, RiftMaker, Jester, The Glitch, Lurker, or Sunnyboy","","",""
 "DivinatorCheck.Result18","<b>{0}</b>是黑手党、惩罚者、教父、缺点者、幸运儿或失败者其中之一","<b>{0}</b> is either Nemesis, Hitman, Retributionist, Gangster, Glitch, Luckey, or Underdog","","",""
 "DivinatorCheck.Result19","<b>{0}</b>是邪恶赌怪、正义赌怪、潜藏者、梦魇、隐蔽者或变色龙其中之一","<b>{0}</b> is either Evil Guesser, Nice Guesser, Eclipse, Reckless, Stalker, Camouflager, or Chameleon","","",""
-"DivinatorCheck.Result20","<b>{0}</b>是豺狼、跟班、独行者、投机者、追击者或自爆卡车其中之一","<b>{0}</b> is either Jackal, Sidekick, Mafioso, Maverick, Opportunist, Pursuer, or Provocateur","","",""
+"DivinatorCheck.Result20","<b>{0}</b>是豺狼、跟班、独行者、投机者、追击者或自爆卡车其中之一","<b>{0}</b> is either Jackal, Sidekick, WeaponMaster, Maverick, Opportunist, Pursuer, or Provocateur","","",""
 "DivinatorCheck.Result21","<b>{0}</b>是投毒者、吸血鬼、和平之鸽、灵魂论者或背叛者其中之一","<b>{0}</b> is either Poisoner, Magician, Vampire, Pacifist, Head Hunter, Soul Catcher, or Traitor","","",""
 "DivinatorCheck.Result22","<b>{0}</b>是诡雷、快枪手、连环杀手、警长、仰慕者或术士其中之一","<b>{0}</b> is either Trapster, Quick Shooter, Serial Killer, Sheriff, Werewolf, Admirer, or Warlock","","",""
 "DivinatorCheck.Result23","<b>{0}</b>是调查员、军师、祭祀者、巫师或女巫其中之一","<b>{0}</b> is either Fortune Teller, Postman, Consigliere, Ritualist, Imitator, Hex Master, or Witch","","",""
@@ -2603,6 +2603,12 @@
 "PyromaniacInfoLong","","(Neutral):\nAs the Pyromaniac, your job is to kill everyone and be the last one standing. Your special ability is that you can douse players. Whenever you kill a doused player, your kill cooldown will be very short.","","",""
 "PyroDouseCooldown","","Douse Cooldown","","",""
 "PyroBurnCooldown","","Kill Cooldown after killing a Doused Player","","",""
+
+"## Weapon Master"
+"WeaponMaster","","Weapon Master","","",""
+"WeaponMasterInfo","","Select your weapons and kill everyone","","",""
+"WeaponMasterInfoLong","","(Neutral):\nAs the Weapon Master, you can cycle between your weapons by petting your pet/calling a sabotage.\n\nThe Sword weapon is a normal kill method.\n\nThe Axe weapon kills everyone in a certain radius when you make a kill. You have a higher kill cooldown while using this weapon.\n\nThe Lance weapon sets your kill range to the maximum, and you don't lunge toward your kills. You can't vent while using this weapon.\n\nWhile using your Shield, you can survive an attack once. You can't kill while using your shield.","","",""
+"WMRadius","","Axe Mode Death Radius","","",""
 
 "## Eclipse"
 "Eclipse","","Eclipse","","",""
@@ -3403,7 +3409,7 @@
 "WinnerRoleText.Pyromaniac","","Pyromaniac Wins!","","",""
 "WinnerRoleText.Magician","","Magician Wins!","","",""
 "WinnerRoleText.Reckless","","Reckless Wins!","","",""
-"WinnerRoleText.Mafioso","","Mafioso Wins!","","",""
+"WinnerRoleText.WeaponMaster","","Weapon Master Wins!","","",""
 
 
 "## Additional Winner Text"
@@ -3423,6 +3429,7 @@
 "AdditionalWinnerRoleText.Maverick","独行者","The Maverick survived","Бродяга","",""
 "AdditionalWinnerRoleText.Romantic","","The Romantic wins along","","",""
 "AdditionalWinnerRoleText.VengefulRomantic","","The Vengeful Romantic avenged their lover","","",""
+"AdditionalWinnerRoleText.Postman","","The Postman delivered mail to everyone","","",""
 
 
 "## Misc End Screen Text"

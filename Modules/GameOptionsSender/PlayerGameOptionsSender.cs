@@ -373,8 +373,8 @@ public class PlayerGameOptionsSender : GameOptionsSender
             case CustomRoles.Reckless:
                 Reckless.ApplyGameOptions(opt);
                 break;
-            case CustomRoles.Mafioso:
-                Mafioso.ApplyGameOptions(opt);
+            case CustomRoles.WeaponMaster:
+                WeaponMaster.ApplyGameOptions(opt);
                 break;
             case CustomRoles.Postman:
                 Postman.ApplyGameOptions(opt);
