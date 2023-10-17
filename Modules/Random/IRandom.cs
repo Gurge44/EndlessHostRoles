@@ -5,9 +5,9 @@ namespace TOHE;
 
 public interface IRandom
 {
-    /// <summary>0以上maxValue未満の乱数を生成します。</summary>
+    /// <summary>Generates a random number greater than or equal to 0 and less than maxValue.</summary>
     public int Next(int maxValue);
-    /// <summary>minValue以上maxValue未満の乱数を生成します。</summary>
+    /// <summary>Generates a random number greater than or equal to minValue and less than maxValue.</summary>
     public int Next(int minValue, int maxValue);
 
     // == static ==

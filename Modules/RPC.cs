@@ -1177,6 +1177,9 @@ internal static class RPC
             case CustomRoles.Dazzler:
                 Dazzler.Add(targetId);
                 break;
+            case CustomRoles.Sapper:
+                Sapper.Add(targetId);
+                break;
             case CustomRoles.CameraMan:
                 CameraMan.Add(targetId);
                 break;

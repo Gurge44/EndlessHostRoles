@@ -458,6 +458,7 @@ static class ExtendedPlayerControl
             CustomRoles.RiftMaker => true,
             CustomRoles.Hitman => true,
             CustomRoles.Inhibitor => true,
+            CustomRoles.Sapper => true,
             CustomRoles.Saboteur => true,
             CustomRoles.Sniper => true,
             CustomRoles.Sheriff => true,
@@ -555,6 +556,7 @@ static class ExtendedPlayerControl
             CustomRoles.Gambler => pc.IsAlive(),
             CustomRoles.RiftMaker => pc.IsAlive(),
             CustomRoles.Hitman => pc.IsAlive(),
+            CustomRoles.Sapper => false,
             CustomRoles.Inhibitor => !Utils.IsActive(SystemTypes.Electrical) && !Utils.IsActive(SystemTypes.Laboratory) && !Utils.IsActive(SystemTypes.Comms) && !Utils.IsActive(SystemTypes.LifeSupp) && !Utils.IsActive(SystemTypes.Reactor),
             CustomRoles.Saboteur => Utils.IsActive(SystemTypes.Electrical) || Utils.IsActive(SystemTypes.Laboratory) || Utils.IsActive(SystemTypes.Comms) || Utils.IsActive(SystemTypes.LifeSupp) || Utils.IsActive(SystemTypes.Reactor),
             CustomRoles.Sniper => Sniper.CanUseKillButton(pc),
@@ -869,6 +871,8 @@ static class ExtendedPlayerControl
             case CustomRoles.Inhibitor:
                 Main.AllPlayerKillCooldown[player.PlayerId] = Options.InhibitorCDAfterMeetings.GetFloat();
                 break;
+            case CustomRoles.Sapper:
+                Main.AllPlayerKillCooldown[player.PlayerId] = 300f;
             case CustomRoles.Hitman:
                 Main.AllPlayerKillCooldown[player.PlayerId] = Hitman.KillCooldown.GetFloat();
                 break;

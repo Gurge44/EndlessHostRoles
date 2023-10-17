@@ -877,6 +877,10 @@ public static class Utils
                     if (Options.UsePets.GetBool() && Main.DoormasterCD.TryGetValue(playerId, out var time9) && !GetPlayerById(playerId).IsModClient())
                         ProgressText.Append(" " + string.Format(GetString("CDPT"), Doormaster.VentCooldown.GetInt() - (GetTimeStamp() - time9) + 1));
                     break;
+                case CustomRoles.Sapper:
+                    if (Options.UsePets.GetBool() && Main.SapperCD.TryGetValue(playerId, out var time22) && !GetPlayerById(playerId).IsModClient())
+                        ProgressText.Append(" " + string.Format(GetString("CDPT"), Sapper.ShapeshiftCooldown.GetInt() - (GetTimeStamp() - time22) + 1));
+                    break;
                 case CustomRoles.CopyCat:
                     ProgressText.Append(ColorString(GetRoleColor(CustomRoles.CopyCat).ShadeColor(0.25f), $"({(CopyCat.MiscopyLimit.TryGetValue(playerId, out var count2) ? count2 : 0)})"));
                     break;
@@ -2519,6 +2523,9 @@ public static class Utils
                         break;
                     case CustomRoles.Nuker:
                         Main.NukerCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                        break;
+                    case CustomRoles.Sapper:
+                        Main.SapperCD.TryAdd(pc.PlayerId, GetTimeStamp());
                         break;
                     case CustomRoles.Miner:
                         Main.MinerCD.TryAdd(pc.PlayerId, GetTimeStamp());

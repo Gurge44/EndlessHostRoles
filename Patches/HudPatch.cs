@@ -458,6 +458,7 @@ class HudManagerPatch
                     CustomRoles.Wildling => Wildling.GetHudText(player),
                     CustomRoles.Doormaster => Doormaster.GetHudText(player),
                     CustomRoles.Tether => Tether.GetHudText(player),
+                    CustomRoles.Sapper => !Options.UsePets.GetBool() || !Main.SapperCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Sapper.ShapeshiftCooldown.GetInt() - (now - cd) + 1),
                     CustomRoles.CameraMan => !Options.UsePets.GetBool() || !Main.CameraManCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), CameraMan.VentCooldown.GetInt() - (now - cd) + 1),
                     CustomRoles.Mayor => !Options.UsePets.GetBool() || !Main.MayorCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.DefaultKillCooldown - (now - cd) + 1),
                     CustomRoles.Paranoia => !Options.UsePets.GetBool() || !Main.ParanoiaCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.ParanoiaVentCooldown.GetInt() - (now - cd) + 1),

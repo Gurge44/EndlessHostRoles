@@ -2422,7 +2422,7 @@
 "DivinatorCheck.Result13","<b>{0}</b>是神，神谕，幻想家，检查员其中之一","<b>{0}</b> is either God, Oracle, Gambler, Visionary, Nice Eraser, Swapper, or Inspector","","",""
 "DivinatorCheck.Result14","<b>{0}</b>是隐匿者、市长、被害妄想症、小偷或卫道士其中之一","<b>{0}</b> is either Anonymous, Mastermind, Spy, Mayor, Paranoid, Pickpocket, or Vindicator","","",""
 "DivinatorCheck.Result15","<b>{0}</b>是传染性的、病毒的、君主的、革命者的或魅魔的其中之一","<b>{0}</b> is either Infectious, Virus, Agitater, Monarch, Revolutionist, Express, or Cultist","","",""
-"DivinatorCheck.Result16","<b>{0}</b>是冤罪师、受虐狂、抑制者、修理工或破坏者其中之一","<b>{0}</b> is either Innocent, Refugee, Bandit, Inhibitor, Mechanic, or Saboteur","","",""
+"DivinatorCheck.Result16","<b>{0}</b>是冤罪师、受虐狂、抑制者、修理工或破坏者其中之一","<b>{0}</b> is either Innocent, Sapper, Refugee, Bandit, Inhibitor, Mechanic, or Saboteur","","",""
 "DivinatorCheck.Result17","<b>{0}</b>是医生、马里奥、小丑、潜伏者还是阳光开朗大男孩其中之一","<b>{0}</b> is either Medic, Vector, RiftMaker, Jester, The Glitch, Lurker, or Sunnyboy","","",""
 "DivinatorCheck.Result18","<b>{0}</b>是黑手党、惩罚者、教父、缺点者、幸运儿或失败者其中之一","<b>{0}</b> is either Nemesis, Hitman, Retributionist, Gangster, Glitch, Luckey, or Underdog","","",""
 "DivinatorCheck.Result19","<b>{0}</b>是邪恶赌怪、正义赌怪、潜藏者、梦魇、隐蔽者或变色龙其中之一","<b>{0}</b> is either Evil Guesser, Nice Guesser, Eclipse, Reckless, Stalker, Camouflager, or Chameleon","","",""
@@ -2660,6 +2660,14 @@
 "HitmanInfo","","Select your target","","",""
 "HitmanInfoLong","","(Impostors):\nAs the Hitman, you may shapeshift into someone to mark them as your target. If you kill your target, your next kill cooldown will be lower.\n\nNote: Once you chose a target, you cannot change it. You'll get a chance to mark a target again after killing your current target.","","",""
 "HitmanLowKCD","","Lower Kill Cooldown","","",""
+
+"## Sapper"
+"Sapper","","Sapper","","",""
+"SapperInfo","","Blow up Everyone with Timed Bombs!","","",""
+"SapperInfoLong","","(Impostors):\nAs the Sapper, you can not kill with your kill button. Instead, you can pet your pet/shapeshift to plant time bombs which explode after a specified delay (set by host), killing everyone nearby.\n\nNote: If you're in the radius of the explosion, you will die too!","","",""
+"SapperRadius","","Bomb Explosion Radius","","",""
+"SapperCD","","Bomb Place Cooldown","","",""
+"SapperDelay","","Bomb Explode Delay","","",""
 
 "## Rift Maker"
 "RiftMaker","","Rift Maker","","",""

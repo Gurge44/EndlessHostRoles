@@ -112,6 +112,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, long> DisperserCD = new();
     public static Dictionary<byte, long> TwisterCD = new();
     public static Dictionary<byte, long> CameraManCD = new();
+    public static Dictionary<byte, long> SapperCD = new();
     private static GameData.PlayerInfo lastVotedPlayerInfo;
     public static string LastVotedPlayer;
     public static List<byte> ResetCamPlayerList = new();
@@ -629,6 +630,7 @@ public enum CustomRoles
     Miner,
     Escapee,
     Inhibitor,
+    Sapper,
     Mastermind,
     Hitman,
     RiftMaker,

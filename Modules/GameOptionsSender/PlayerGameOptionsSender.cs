@@ -540,6 +540,9 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 if (Options.UsePets.GetBool()) break;
                 Twister.ApplyGameOptions();
                 break;
+            case CustomRoles.Sapper:
+                Sapper.ApplyGameOptions();
+                break;
             case CustomRoles.Spiritcaller:
                 opt.SetVision(Spiritcaller.ImpostorVision.GetBool());
                 break;

@@ -87,6 +87,14 @@ class ExternalRpcPetPatch
                 }
                 Doormaster.OnEnterVent(pc);
                 break;
+            case CustomRoles.Sapper:
+                if (Main.SapperCD.ContainsKey(pc.PlayerId))
+                {
+                    //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                    break;
+                }
+                Sapper.OnShapeshift(pc, true);
+                break;
             case CustomRoles.Tether:
                 if (Main.TetherCD.ContainsKey(pc.PlayerId))
                 {

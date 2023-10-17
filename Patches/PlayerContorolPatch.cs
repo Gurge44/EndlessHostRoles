@@ -228,6 +228,8 @@ class CheckMurderPatch
                         killer.SyncSettings();
                     }
                     break;
+                case CustomRoles.Sapper:
+                    return false;
                 case CustomRoles.Saboteur:
                     if (Main.AllPlayerKillCooldown[killer.PlayerId] != Options.SaboteurCD.GetFloat())
                     {
@@ -1235,6 +1237,9 @@ class ShapeshiftPatch
                         _ = new LateTask(() => { shapeshifter.RpcRevertShapeshift(false); }, 1.5f, "FireWorks RpcRevertShapeshift");
                     }
                     break;
+                case CustomRoles.Sapper:
+                    Sapper.OnShapeshift(shapeshifter);
+                    break;
                 case CustomRoles.Warlock:
                     if (Main.CursedPlayers[shapeshifter.PlayerId] != null)//呪われた人がいるか確認
                     {
@@ -1477,6 +1482,8 @@ class ShapeshiftPatch
             },
             1.2f, "ShapeShiftNotify");
         }
+
+        if (!shapeshifting) shapeshifter.MarkDirtySettings();
 
         if (!isSSneeded) shapeshifter.RpcResetAbilityCooldown();
 
@@ -1785,6 +1792,7 @@ class ReportDeadBodyPatch
         if (Hitman.IsEnable) Hitman.OnReportDeadBody();
         if (Gambler.IsEnable) Gambler.OnReportDeadBody();
         if (Tracker.IsEnable) Tracker.OnReportDeadBody();
+        if (Sapper.IsEnable) Sapper.OnReportDeadBody();
         if (Magician.IsEnable) Magician.OnReportDeadBody();
         if (Reckless.IsEnable) Reckless.OnReportDeadBody();
 
@@ -2000,6 +2008,14 @@ class FixedUpdatePatch
                             Utils.NotifyRoles(SpecifySeer: player);
                         }
                         if (Main.DoormasterCD.ContainsKey(player.PlayerId)) Utils.NotifyRoles(SpecifySeer: player);
+                        break;
+                    case CustomRoles.Sapper:
+                        if (Main.SapperCD.TryGetValue(player.PlayerId, out var spp) && spp + Sapper.ShapeshiftCooldown.GetInt() < Utils.GetTimeStamp())
+                        {
+                            Main.SapperCD.Remove(player.PlayerId);
+                            Utils.NotifyRoles(SpecifySeer: player);
+                        }
+                        if (Main.SapperCD.ContainsKey(player.PlayerId)) Utils.NotifyRoles(SpecifySeer: player);
                         break;
                     case CustomRoles.Tether:
                         if (Main.TetherCD.TryGetValue(player.PlayerId, out var th) && th + Tether.VentCooldown.GetInt() < Utils.GetTimeStamp())
@@ -2476,6 +2492,10 @@ class FixedUpdatePatch
 
                     case CustomRoles.BallLightning:
                         BallLightning.OnFixedUpdate();
+                        break;
+
+                    case CustomRoles.Sapper:
+                        Sapper.OnFixedUpdate(player);
                         break;
 
                     case CustomRoles.Ignitor:

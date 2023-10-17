@@ -125,59 +125,16 @@ class ExileControllerWrapUpPatch
         foreach (var pc in Main.AllPlayerControls)
         {
             pc.ResetKillCooldown();
-            if (Options.MayorHasPortableButton.GetBool() && pc.Is(CustomRoles.Mayor))
-                pc.RpcResetAbilityCooldown();
+
             if (pc.Is(CustomRoles.Warlock))
             {
                 Main.CursedPlayers[pc.PlayerId] = null;
                 Main.isCurseAndKill[pc.PlayerId] = false;
                 //RPC.RpcSyncCurseAndKill();
             }
-            if (pc.GetCustomRole() is
-                CustomRoles.Paranoia or
-                CustomRoles.Veteran or
-                CustomRoles.DovesOfNeace or
-                CustomRoles.QuickShooter or
-                CustomRoles.Addict or
-                CustomRoles.Alchemist or
-                CustomRoles.ShapeshifterTOHE or
-                CustomRoles.Wildling or
-                CustomRoles.Twister or
-                CustomRoles.Deathpact or
-                CustomRoles.Dazzler or
-                CustomRoles.Devourer or
-                CustomRoles.Nuker or
-                CustomRoles.Assassin or
-                CustomRoles.Undertaker or
-                CustomRoles.Camouflager or
-                CustomRoles.Disperser or
-                CustomRoles.Escapee or
-                CustomRoles.Hacker or
-                CustomRoles.Hangman or
-                CustomRoles.ImperiusCurse or
-                CustomRoles.Miner or
-                CustomRoles.Morphling or
-                CustomRoles.Sniper or
-                CustomRoles.Warlock or
-                CustomRoles.Workaholic or
-                CustomRoles.Chameleon or
-                CustomRoles.Engineer or
-                CustomRoles.Grenadier or
-                CustomRoles.Doormaster or
-                CustomRoles.Tether or
-                CustomRoles.Lighter or
-                CustomRoles.SecurityGuard or
-                CustomRoles.Ventguard or
-                CustomRoles.Scientist or
-                CustomRoles.ScientistTOHE or
-                CustomRoles.Tracefinder or
-                CustomRoles.Doctor or
-                CustomRoles.Bomber
-                ) pc.RpcResetAbilityCooldown();
 
-
+            pc.RpcResetAbilityCooldown();
             pc.RpcRemovePet();
-
         }
         if (Options.RandomSpawn.GetBool() || Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA)
         {

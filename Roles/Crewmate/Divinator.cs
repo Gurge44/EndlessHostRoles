@@ -215,9 +215,9 @@ public static class Divinator
                 => "Result15",
 
                 CustomRoles.Innocent or
-                //CustomRoles.Masochist or
                 CustomRoles.Refugee or
                 CustomRoles.Inhibitor or
+                CustomRoles.Sapper or
                 CustomRoles.SabotageMaster or
                 CustomRoles.Bandit or
                 CustomRoles.Saboteur

@@ -192,6 +192,7 @@ class BeginCrewmatePatch
             switch (role)
             {
                 case CustomRoles.Terrorist:
+                case CustomRoles.Sapper:
                 case CustomRoles.Bomber:
                 case CustomRoles.Nuker:
                     var sound = ShipStatus.Instance.CommonTasks.Where(task => task.TaskType == TaskTypes.FixWiring).FirstOrDefault().MinigamePrefab.OpenSound;

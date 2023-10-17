@@ -290,6 +290,7 @@ internal class ChangeRoleSettings
             Jinx.Init();
             DoubleShot.Init();
             Dazzler.Init();
+            Sapper.Init();
             CameraMan.Init();
             Hitman.Init();
             Gambler.Init();
@@ -879,6 +880,9 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Dazzler:
                         Dazzler.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Sapper:
+                        Sapper.Add(pc.PlayerId);
                         break;
                     case CustomRoles.CameraMan:
                         CameraMan.Add(pc.PlayerId);
