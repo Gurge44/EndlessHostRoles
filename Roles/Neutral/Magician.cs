@@ -120,7 +120,6 @@ public static class Magician
         if (CardId == byte.MaxValue) return;
 
         bool sync = false;
-        pc.Notify(GetString("MagicianCardUsed"));
 
         switch (CardId)
         {
@@ -138,6 +137,7 @@ public static class Magician
                     x.MarkDirtySettings();
                 }
                 CardId = byte.MaxValue;
+                pc.Notify(GetString("MagicianCardUsed"));
                 break;
             case 2: // Set KCD to x seconds
                 pc.SetKillCooldown(time: LowKCD.GetFloat());
@@ -160,11 +160,13 @@ public static class Magician
                 {
                     snipeBasePosition = sniper.transform.position;
                     isSniping = true;
+                    pc.Notify(GetString("MarkDone"));
                     return;
                 }
 
                 isSniping = false;
                 CardId = byte.MaxValue;
+                pc.Notify(GetString("MagicianCardUsed"));
 
                 if (!AmongUsClient.Instance.AmHost || Pelican.IsEaten(pc.PlayerId) || Medic.ProtectList.Contains(pc.PlayerId)) return;
                 sniper.RPCPlayCustomSound("AWP");
@@ -207,15 +209,17 @@ public static class Magician
                     x.MarkDirtySettings();
                 }
                 CardId = byte.MaxValue;
+                pc.Notify(GetString("MagicianCardUsed"));
                 break;
             case 7: // Time bomb: Place, explodes after x seconds, kills everyone nearby
                 Bombs.TryAdd(pc.transform.position, GetTimeStamp());
                 CardId = byte.MaxValue;
+                pc.Notify(GetString("MagicianCardUsed"));
                 break;
             case 8: // Speed up
                 Main.AllPlayerSpeed[pc.PlayerId] = Speed.GetFloat();
                 isSpeedup = true;
-                pc.MarkDirtySettings();
+                sync = true;
                 _ = new LateTask(() => { Main.AllPlayerSpeed[pc.PlayerId] = originalSpeed; pc.MarkDirtySettings(); isSpeedup = false; }, SpeedDur.GetInt(), "Revert Magician Speed");
                 CardId = byte.MaxValue;
                 break;
@@ -234,10 +238,11 @@ public static class Magician
                 pc.Notify(sb.ToString(), 10f);
                 break;
             default:
+                Logger.Error("Invalid Card ID", "Magician");
                 break;
         }
 
-        if (sync) pc.SyncSettings();
+        if (sync) pc.MarkDirtySettings();
     }
     public static void OnFixedUpdate(PlayerControl pc)
     {

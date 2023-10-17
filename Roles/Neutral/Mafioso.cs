@@ -7,7 +7,7 @@ namespace TOHE.Roles.Neutral;
 
 public static class Mafioso
 {
-    private static readonly int Id = 640200;
+    private static readonly int Id = 641200;
     public static List<byte> playerIdList = new();
 
     private static OptionItem KillCooldown;

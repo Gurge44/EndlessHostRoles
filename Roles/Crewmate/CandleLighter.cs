@@ -19,7 +19,7 @@
         private static OptionItem OptionTasksFinishedVision;
 
         private static float UpdateTime;
-        static float ElapsedTime;
+        private static float ElapsedTime;
         private static bool active = true;
 
         public static void SetupCustomOption()

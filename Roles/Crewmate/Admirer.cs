@@ -18,7 +18,7 @@ public static class Admirer
 
     public static void SetupCustomOption()
     {
-        SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Admirer);
+        SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Admirer, 1);
         AdmireCooldown = FloatOptionItem.Create(Id + 10, "AdmireCooldown", new(1f, 180f, 1f), 15f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Admirer])
             .SetValueFormat(OptionFormat.Seconds);
         KnowTargetRole = BooleanOptionItem.Create(Id + 13, "AdmirerKnowTargetRole", true, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Admirer]);
