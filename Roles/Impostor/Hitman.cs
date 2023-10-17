@@ -5,7 +5,7 @@ using static TOHE.Utils;
 
 namespace TOHE.Roles.Impostor
 {
-    internal class Hitman
+    public static class Hitman
     {
         private static readonly int Id = 640800;
         public static List<byte> playerIdList = new();

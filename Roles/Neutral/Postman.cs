@@ -115,7 +115,7 @@ public static class Postman
         var sb = new StringBuilder();
 
         sb.AppendLine(baseText);
-        if (Target != byte.MaxValue) sb.AppendLine(string.Format(Translator.GetString("PostmanGetNewTarget"), Utils.GetPlayerById(Target)));
+        if (!IsFinished) sb.AppendLine(string.Format(Translator.GetString("PostmanGetNewTarget"), Utils.GetPlayerById(Target)));
         else sb.AppendLine(Translator.GetString("PostmanDone"));
 
         pc.Notify(sb.ToString());
@@ -125,7 +125,7 @@ public static class Postman
     {
         var sb = new StringBuilder();
 
-        if (Target != byte.MaxValue) sb.AppendLine(string.Format(Translator.GetString("PostmanTarget"), Utils.GetPlayerById(Target)));
+        if (!IsFinished) sb.AppendLine(string.Format(Translator.GetString("PostmanTarget"), Utils.GetPlayerById(Target)));
         else sb.AppendLine(Translator.GetString("PostmanDone"));
 
         return sb.ToString();
@@ -133,6 +133,6 @@ public static class Postman
 
     public static string GetProgressText(byte playerId)
     {
-        return Target != byte.MaxValue ? string.Format(Translator.GetString("PostmanTarget"), Utils.GetPlayerById(Target)) : string.Empty;
+        return !IsFinished ? string.Format(Translator.GetString("PostmanTarget"), Utils.GetPlayerById(Target)) : string.Empty;
     }
 }

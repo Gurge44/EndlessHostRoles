@@ -30,7 +30,7 @@ public static class Glitch
     public static long LastKill;
     public static long LastMimic;
 
-    private static bool isShifted = false;
+    private static bool isShifted;
     //    public static OptionItem CanUseSabotage;
 
     public static void SetupCustomOption()

@@ -77,7 +77,7 @@ public class GameStartManagerPatch
     [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.Update))]
     public class GameStartManagerUpdatePatch
     {
-        private static bool update = false;
+        private static bool update;
         private static string currentText = "";
         public static float exitTimer = -1f;
         private static float minWait, maxWait;

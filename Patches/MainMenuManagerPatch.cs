@@ -172,7 +172,7 @@ public class MainMenuManagerPatch
 [HarmonyPatch(typeof(Constants), nameof(Constants.ShouldHorseAround))]
 public static class HorseModePatch
 {
-    public static bool isHorseMode = false;
+    public static bool isHorseMode;
     public static bool Prefix(ref bool __result)
     {
         __result = isHorseMode;
@@ -182,7 +182,7 @@ public static class HorseModePatch
 [HarmonyPatch(typeof(Constants), nameof(Constants.ShouldFlipSkeld))]
 public static class DleksPatch
 {
-    public static bool isDleks = false;
+    public static bool isDleks;
     public static bool Prefix(ref bool __result)
     {
         __result = isDleks;

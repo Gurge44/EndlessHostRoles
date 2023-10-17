@@ -18,17 +18,17 @@ public class ModUpdater
 {
     //private static readonly string URL_2018k = "http://api.2018k.cn";
     //private static readonly string URL_Github = "https://api.github.com/repos/Loonie-Toons/TOHE-Restored";
-    public static bool hasUpdate = false;
-    public static bool forceUpdate = false;
-    public static bool isBroken = false;
-    public static bool isChecked = false;
-    public static Version latestVersion = null;
-    public static string latestTitle = null;
-    public static string downloadUrl = null;
-    public static string md5 = null;
-    public static string notice = null;
+    public static bool hasUpdate;
+    public static bool forceUpdate;
+    public static bool isBroken;
+    public static bool isChecked;
+    public static Version latestVersion;
+    public static string latestTitle;
+    public static string downloadUrl;
+    public static string md5;
+    public static string notice;
     public static GenericPopup InfoPopup;
-    public static int visit = 0;
+    public static int visit;
 
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPrefix]
     [HarmonyPriority(2)]

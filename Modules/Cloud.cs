@@ -11,10 +11,10 @@ internal class Cloud
 {
     private static string IP;
     //private static int LOBBY_PORT = 0;
-    private static int EAC_PORT = 0;
+    private static int EAC_PORT;
     //private static Socket ClientSocket;
     private static Socket EacClientSocket;
-    private static long LastRepotTimeStamp = 0;
+    private static long LastRepotTimeStamp;
     public static void Init()
     {
         try
@@ -71,7 +71,7 @@ internal class Cloud
         return true;
     }*/
 
-    private static bool connecting = false;
+    private static bool connecting;
     public static void StartConnect()
     {
         if (connecting || EacClientSocket != null && EacClientSocket.Connected) return;

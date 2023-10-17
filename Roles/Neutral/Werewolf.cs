@@ -22,7 +22,7 @@ public static class Werewolf
 
     private static Dictionary<byte, long> RampageTime = new();
     public static Dictionary<byte, long> lastTime = new();
-    private static int CD = 0;
+    private static int CD;
 
     public static void SetupCustomOption()
     {
@@ -72,7 +72,7 @@ public static class Werewolf
         => GameStates.IsInTask && !RampageTime.ContainsKey(id) && !lastTime.ContainsKey(id);
     public static bool IsRampaging(byte id) => RampageTime.ContainsKey(id);
 
-    private static long lastFixedTime = 0;
+    private static long lastFixedTime;
     public static void AfterMeetingTasks()
     {
         lastTime = new();

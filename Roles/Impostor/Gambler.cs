@@ -9,7 +9,7 @@ using static TOHE.Utils;
 
 namespace TOHE.Roles.Impostor
 {
-    internal class Gambler
+    public static class Gambler
     {
         private static readonly int Id = 640700;
         public static List<byte> playerIdList = new();
@@ -64,7 +64,7 @@ namespace TOHE.Roles.Impostor
                 .SetValueFormat(OptionFormat.Seconds);
             HighKCD = FloatOptionItem.Create(Id + 19, "GamblerHighKCD", new(10f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
-            LowKCD = FloatOptionItem.Create(Id + 20, "GamblerLowKCD", new(10f, 60f, 2.5f), 20f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
+            LowKCD = FloatOptionItem.Create(Id + 20, "GamblerLowKCD", new(10f, 60f, 2.5f), 17.5f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
             TPDelay = IntegerOptionItem.Create(Id + 21, "GamblerKillDelay", new(0, 10, 1), 2, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);

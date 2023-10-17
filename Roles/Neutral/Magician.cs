@@ -143,7 +143,7 @@ public static class Magician
                 pc.SetKillCooldown(time: LowKCD.GetFloat());
                 CardId = byte.MaxValue;
                 break;
-            case 3: // TP to nearest vent
+            case 3: // TP to random vent
                 var vents = Object.FindObjectsOfType<Vent>();
                 var vent = vents[IRandom.Instance.Next(0, vents.Count)];
                 TP(pc.NetTransform, new Vector2(vent.transform.position.x, vent.transform.position.y));

@@ -19,7 +19,7 @@ public static class SabotageMaster
     public static OptionItem UsesUsedWhenFixingLightsOrComms;
     public static float UsedSkillCount;
 
-    private static bool DoorsProgressing = false;
+    private static bool DoorsProgressing;
 
     public static void SetupCustomOption()
     {

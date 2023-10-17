@@ -619,8 +619,8 @@ public class PlayerVersion
 }
 public static class GameStates
 {
-    public static bool InGame = false;
-    public static bool AlreadyDied = false;
+    public static bool InGame;
+    public static bool AlreadyDied;
     public static bool IsModHost => PlayerControl.AllPlayerControls.ToArray().FirstOrDefault(x => x.PlayerId == 0 && x.IsModClient());
     public static bool IsLobby => AmongUsClient.Instance.GameState == InnerNet.InnerNetClient.GameStates.Joined;
     public static bool IsInGame => InGame;
@@ -640,13 +640,13 @@ public static class GameStates
 }
 public static class MeetingStates
 {
-    public static DeadBody[] DeadBodies = null;
-    private static GameData.PlayerInfo reportTarget = null;
+    public static DeadBody[] DeadBodies;
+    private static GameData.PlayerInfo reportTarget;
     public static bool IsEmergencyMeeting => ReportTarget == null;
     public static bool IsExistDeadBody => DeadBodies.Length > 0;
 
     public static GameData.PlayerInfo ReportTarget { get => reportTarget; set => reportTarget = value; }
 
-    public static bool MeetingCalled = false;
+    public static bool MeetingCalled;
     public static bool FirstMeeting = true;
 }

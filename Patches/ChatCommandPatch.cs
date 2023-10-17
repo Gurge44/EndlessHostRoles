@@ -1067,7 +1067,7 @@ internal class ChatCommands
 [HarmonyPatch(typeof(ChatController), nameof(ChatController.Update))]
 internal class ChatUpdatePatch
 {
-    public static bool DoBlockChat = false;
+    public static bool DoBlockChat;
     public static void Postfix(ChatController __instance)
     {
         if (!AmongUsClient.Instance.AmHost || !Main.MessagesToSend.Any() || (Main.MessagesToSend[0].Item2 == byte.MaxValue && Main.MessageWait.Value > __instance.timeSinceLastMessage)) return;

@@ -8,8 +8,8 @@ namespace TOHE;
 
 internal class EAC
 {
-    public static int MeetingTimes = 0;
-    public static int DeNum = 0;
+    public static int MeetingTimes;
+    public static int DeNum;
     public static void WarnHost(int denum = 1)
     {
         DeNum += denum;

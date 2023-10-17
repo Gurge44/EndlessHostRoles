@@ -6,7 +6,7 @@ using static TOHE.Utils;
 
 namespace TOHE.Roles.Impostor
 {
-    internal class Mastermind
+    public static class Mastermind
     {
         private static readonly int Id = 640600;
         public static List<byte> playerIdList = new();

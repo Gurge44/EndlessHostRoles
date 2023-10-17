@@ -14,7 +14,7 @@ public static class Mafioso
     public static OptionItem CanVent;
     private static OptionItem HasImpostorVision;
 
-    public static bool CanKill = false;
+    public static bool CanKill;
 
     public static void SetupCustomOption()
     {

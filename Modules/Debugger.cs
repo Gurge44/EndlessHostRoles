@@ -31,8 +31,8 @@ class Logger
     public static bool isEnable;
     public static List<string> disableList = new();
     public static List<string> sendToGameList = new();
-    public static bool isDetail = false;
-    public static bool isAlsoInGame = false;
+    public static bool isDetail;
+    public static bool isAlsoInGame;
     public static void Enable() => isEnable = true;
     public static void Disable() => isEnable = false;
     public static void Enable(string tag, bool toGame = false)

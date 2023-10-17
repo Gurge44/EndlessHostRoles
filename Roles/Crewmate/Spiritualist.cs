@@ -18,7 +18,7 @@ namespace TOHE.Roles.Crewmate
         private static Dictionary<byte, long> ShowGhostArrowUntil = new();
         private static Dictionary<byte, long> LastGhostArrowShowTime = new();
 
-        public static byte SpiritualistTarget = new();
+        public static byte SpiritualistTarget;
 
         public static void SetupCustomOption()
         {
