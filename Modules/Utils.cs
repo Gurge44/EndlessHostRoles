@@ -597,6 +597,72 @@ public static class Utils
             pc.Is(CustomRoles.DualPersonality)
             );
     }
+    public static bool IsRoleTextEnabled(PlayerControl __instance)
+    {
+        bool result = false;
+        if (__instance.AmOwner || Options.CurrentGameMode == CustomGameMode.FFA || Options.CurrentGameMode == CustomGameMode.SoloKombat) result = true; //自分ならロールを表示
+        if (Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool()) result = true; //他プレイヤーでVisibleTasksCountが有効なおかつ自分が死んでいるならロールを表示
+        if (PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) result = true; //他プレイヤーでVisibleTasksCountが有効なおかつ自分が死んでいるならロールを表示
+                                                                                                                                                                                    //if (__instance.GetCustomRole() == (CustomRoles.Ntr) && Options.LoverKnowRoles.GetBool()) result = true;
+        switch (__instance.GetCustomRole())
+        {
+            case CustomRoles.Crewpostor when PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.CrewpostorKnowsAllies.GetBool():
+                result = true;
+                break;
+            case CustomRoles.Jackal when PlayerControl.LocalPlayer.Is(CustomRoles.Sidekick):
+                result = true;
+                break;
+            case CustomRoles.Jackal when PlayerControl.LocalPlayer.Is(CustomRoles.Recruit):
+                result = true;
+                break;
+            case CustomRoles.Workaholic when Options.WorkaholicVisibleToEveryone.GetBool():
+                result = true;
+                break;
+            case CustomRoles.Doctor when !__instance.GetCustomRole().IsEvilAddons() && Options.DoctorVisibleToEveryone.GetBool():
+                result = true;
+                break;
+            case CustomRoles.Mayor when Options.MayorRevealWhenDoneTasks.GetBool() && __instance.GetPlayerTaskState().IsTaskFinished:
+                result = true;
+                break;
+            case CustomRoles.Marshall when PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && __instance.GetPlayerTaskState().IsTaskFinished:
+                result = true;
+                break;
+        }
+
+        if (__instance.Is(CustomRoles.Sidekick) && PlayerControl.LocalPlayer.Is(CustomRoles.Jackal)) result = true;
+        if (__instance.Is(CustomRoles.Madmate) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosMadmate.GetBool()) result = true;
+        if (__instance.Is(CustomRoles.Rogue) && PlayerControl.LocalPlayer.Is(CustomRoles.Rogue) && Options.RogueKnowEachOther.GetBool() && Options.RogueKnowEachOtherRoles.GetBool()) result = true;
+        if (__instance.Is(CustomRoles.Sidekick) && PlayerControl.LocalPlayer.Is(CustomRoles.Sidekick)) result = true;
+        if (__instance.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead) result = true;
+        if (__instance.Is(CustomRoles.Lovers) && PlayerControl.LocalPlayer.Is(CustomRoles.Lovers) && Options.LoverKnowRoles.GetBool()) result = true;
+        if (__instance.Is(CustomRoles.Madmate) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowWhosMadmate.GetBool()) result = true;
+        if (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool()) result = true;
+        if (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool()) result = true;
+        if (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosImp.GetBool()) result = true;
+        if (Totocalcio.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
+        if (Romantic.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
+        if (Lawyer.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
+        if (EvilDiviner.IsShowTargetRole(PlayerControl.LocalPlayer, __instance)) result = true;
+        if (Ritualist.IsShowTargetRole(PlayerControl.LocalPlayer, __instance)) result = true;
+        if (Executioner.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
+        if (Succubus.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
+        if (CursedSoul.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
+        if (Admirer.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
+        if (Amnesiac.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
+        if (Infectious.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
+        if (Virus.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
+        if (PlayerControl.LocalPlayer.IsRevealedPlayer(__instance)) result = true;
+        if (PlayerControl.LocalPlayer.Is(CustomRoles.God)) result = true;
+        if (PlayerControl.LocalPlayer.Is(CustomRoles.GM)) result = true;
+        if (Totocalcio.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
+        if (Lawyer.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
+        if (EvilDiviner.IsShowTargetRole(PlayerControl.LocalPlayer, __instance)) result = true;
+        if (Ritualist.IsShowTargetRole(PlayerControl.LocalPlayer, __instance)) result = true;
+        if (Executioner.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
+        if (Main.GodMode.Value) result = true;
+
+        return result;
+    }
     public static string GetProgressText(PlayerControl pc)
     {
         if (!Main.playerVersion.ContainsKey(0)) return string.Empty; //ホストがMODを入れていなければ未記入を返す

@@ -86,7 +86,7 @@ internal static class CustomRolesHelper
                 CustomRoles.CameraMan => Options.UsePets.GetBool() ? CustomRoles.Crewmate : CustomRoles.Engineer,
                 CustomRoles.Spy => CustomRoles.Crewmate,
                 CustomRoles.Ricochet => CustomRoles.Crewmate,
-                CustomRoles.Tether => CustomRoles.Engineer,
+                CustomRoles.Tether => Options.UsePets.GetBool() ? CustomRoles.Crewmate : CustomRoles.Engineer,
                 CustomRoles.Doormaster => CustomRoles.Engineer,
                 CustomRoles.Aid => CustomRoles.Impostor,
                 CustomRoles.Escapee => Options.UsePets.GetBool() ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
@@ -994,6 +994,24 @@ internal static class CustomRolesHelper
             CustomRoles.DovesOfNeace or
             CustomRoles.Alchemist or
             CustomRoles.TimeMaster or
+            CustomRoles.Sapper or
+            CustomRoles.CameraMan or
+            CustomRoles.NiceHacker or
+            CustomRoles.Sniper or
+            CustomRoles.Warlock or
+            CustomRoles.Assassin or
+            CustomRoles.Undertaker or
+            CustomRoles.Disperser or
+            CustomRoles.Twister or
+            CustomRoles.QuickShooter or
+            CustomRoles.Miner or
+            CustomRoles.Escapee or
+            CustomRoles.RiftMaker or
+            CustomRoles.Bomber or
+            CustomRoles.Nuker or
+            CustomRoles.Glitch or
+            CustomRoles.Magician or
+            CustomRoles.WeaponMaster or
             CustomRoles.Veteran;
     }
     public static bool NeedUpdateOnLights(this CustomRoles role)

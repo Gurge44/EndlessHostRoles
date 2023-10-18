@@ -34,9 +34,9 @@ public static class WeaponMaster
             .SetValueFormat(OptionFormat.Seconds);
         CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster]);
         HasImpostorVision = BooleanOptionItem.Create(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster]);
-        Radius = FloatOptionItem.Create(Id + 12, "WMRadius", new(0f, 10f, 0.25f), 3f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Sapper])
+        Radius = FloatOptionItem.Create(Id + 12, "WMRadius", new(0f, 10f, 0.25f), 2f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
             .SetValueFormat(OptionFormat.Multiplier);
-        HighKCD = FloatOptionItem.Create(Id + 14, "GamblerHighKCD", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
+        HighKCD = FloatOptionItem.Create(Id + 14, "GamblerHighKCD", new(0f, 180f, 2.5f), 35f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
             .SetValueFormat(OptionFormat.Seconds);
     }
     public static void Init()
@@ -58,7 +58,8 @@ public static class WeaponMaster
     public static void ApplyGameOptions(IGameOptions opt)
     {
         if (Mode == 2) opt.SetInt(Int32OptionNames.KillDistance, 2);
-        else opt.SetInt(Int32OptionNames.KillDistance, (int)(NormalGameOptionsV07.KillDistances[Mathf.Clamp(Utils.GetPlayerById(playerIdList[0]).Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f));
+        else opt.SetInt(Int32OptionNames.KillDistance, 0);
+
         opt.SetVision(HasImpostorVision.GetBool());
     }
 
@@ -81,7 +82,7 @@ public static class WeaponMaster
             case 2:
                 Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
                 break;
-            case 3:
+            case 3 when shieldUsed:
                 WM.Notify(Translator.GetString("WMShieldAlreadyUsed"));
                 break;
         }
@@ -111,9 +112,14 @@ public static class WeaponMaster
                         }
                     }
                 }, 0.1f, "Weapon Master Axe Kill");
+                _ = new LateTask(() => { killer.SetKillCooldown(time: HighKCD.GetFloat()); }, 0.1f, "Weapon Master Stack Kill KCD Set");
                 return true;
             case 2:
-                if (killer.RpcCheckAndMurder(target, true)) target.RpcMurderPlayerV3(target);
+                if (killer.RpcCheckAndMurder(target, true))
+                {
+                    target.RpcMurderPlayerV3(target);
+                    killer.SetKillCooldown();
+                }
                 return false;
             case 3:
                 return false;
@@ -143,7 +149,7 @@ public static class WeaponMaster
     }
     public static string GetHudAndProgressText()
     {
-        return $"Mode: {ModeToText(Mode)}";
+        return $"<color=#00ffa5>Mode:</color> <color=#ffffff><b>{ModeToText(Mode)}</b></color>";
     }
     public static string ModeToText(byte mode)
     {

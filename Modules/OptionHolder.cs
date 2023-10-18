@@ -2785,6 +2785,12 @@ public static class Options
         LoadingPercentage = 78;
 
 
+        UsePets = BooleanOptionItem.Create(23850, "UsePets", false, TabGroup.TaskSettings, false)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetHeader(true)
+            .SetColor(new Color32(60, 0, 255, byte.MaxValue));
+
+
         //Disable Short Tasks
         DisableShortTasks = BooleanOptionItem.Create(23000, "DisableShortTasks", false, TabGroup.TaskSettings, false)
             .SetGameMode(CustomGameMode.Standard)
@@ -3004,9 +3010,9 @@ public static class Options
         MainLoadingText = "Building Guesser Mode settings";
 
         TextOptionItem.Create(100022, "MenuTitle.Guessers", TabGroup.TaskSettings)
-    .SetGameMode(CustomGameMode.Standard)
-    .SetColor(Color.yellow)
-    .SetHeader(true);
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(Color.yellow)
+            .SetHeader(true);
         GuesserMode = BooleanOptionItem.Create(19700, "GuesserMode", false, TabGroup.TaskSettings, false)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(Color.yellow)
@@ -3123,9 +3129,6 @@ public static class Options
         // 其它设定
         TextOptionItem.Create(100028, "MenuTitle.Other", TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
-            .SetColor(new Color32(193, 255, 209, byte.MaxValue));
-
-        UsePets = BooleanOptionItem.Create(23850, "UsePets", false, TabGroup.GameSettings, false)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
         // 梯子摔死

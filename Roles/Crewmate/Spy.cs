@@ -53,6 +53,7 @@ namespace TOHE.Roles.Crewmate
             {
                 UseLimit[target.PlayerId] -= 1;
                 SpyRedNameList.TryAdd(killer.PlayerId, GetTimeStamp());
+                NotifyRoles(SpecifySeer: target);
             }
         }
         public static void OnFixedUpdate(PlayerControl pc)
@@ -78,19 +79,11 @@ namespace TOHE.Roles.Crewmate
         {
             var sb = new StringBuilder();
 
-            var taskState = Main.PlayerStates?[playerId].GetTaskState();
-            Color TextColor;
-            var TaskCompleteColor = Color.green;
-            var NonCompleteColor = Color.yellow;
-            var NormalColor = taskState.IsTaskFinished ? TaskCompleteColor : NonCompleteColor;
-            TextColor = comms ? Color.gray : NormalColor;
-            string Completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
-
             Color TextColor1;
             if (UseLimit[playerId] < 1) TextColor1 = Color.red;
             else TextColor1 = Color.white;
 
-            sb.Append(ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
+            sb.Append(GetTaskCount(playerId, comms));
             sb.Append(ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));
 
             return sb.ToString();

@@ -58,7 +58,7 @@ class ExternalRpcPetPatch
 
         PlayerControl pc = __instance.myPlayer;
 
-        //if (callId == 51 && pc.GetCustomRole().PetActivatedAbility() && GameStates.IsInGame) __instance.CancelPet();
+        if (callId == 51 && pc.GetCustomRole().PetActivatedAbility() && GameStates.IsInGame) __instance.CancelPet();
         if (callId != 51)
         {
             if (AmongUsClient.Instance.AmHost && pc.GetCustomRole().PetActivatedAbility() && GameStates.IsInGame)

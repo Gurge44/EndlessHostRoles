@@ -8,7 +8,7 @@ namespace TOHE.Roles.Neutral;
 
 public static class Postman
 {
-    private static readonly int Id = 640400;
+    private static readonly int Id = 641400;
     public static List<byte> playerIdList = new();
 
     private static OptionItem KillCooldown;

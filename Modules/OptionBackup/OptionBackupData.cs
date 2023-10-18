@@ -24,7 +24,7 @@ public class OptionBackupData
         for (int i = 0; i < list1.Count; i++)
         {
             BoolOptionNames name = (BoolOptionNames)list1[i];
-            if (option.TryGetBool(name, out var value))
+            if (option.TryGetBool(name, out var value) && name != BoolOptionNames.GhostsDoTasks)
                 AllValues.Add(new BoolOptionBackupValue(name, value));
         }
         System.Collections.IList list2 = Enum.GetValues(typeof(FloatOptionNames));
