@@ -100,9 +100,9 @@ public static class WeaponMaster
             case 1:
                 _ = new LateTask(() =>
                 {
-                    foreach (var player in Main.AllPlayerControls)
+                    foreach (var player in Main.AllAlivePlayerControls)
                     {
-                        if (!player.IsAlive() || Pelican.IsEaten(player.PlayerId)) continue;
+                        if (Pelican.IsEaten(player.PlayerId)) continue;
                         if (player == killer) continue;
                         if (player.Is(CustomRoles.Pestilence) || Main.VeteranInProtect.ContainsKey(target.PlayerId)) continue;
                         if (Vector2.Distance(killer.transform.position, player.transform.position) <= Radius.GetFloat())
@@ -111,8 +111,8 @@ public static class WeaponMaster
                             player.RpcMurderPlayerV3(player);
                         }
                     }
+                    killer.SetKillCooldown(time: HighKCD.GetFloat());
                 }, 0.1f, "Weapon Master Axe Kill");
-                _ = new LateTask(() => { killer.SetKillCooldown(time: HighKCD.GetFloat()); }, 0.1f, "Weapon Master Stack Kill KCD Set");
                 return true;
             case 2:
                 if (killer.RpcCheckAndMurder(target, true))
