@@ -665,6 +665,9 @@ public static class Utils
                     else TextColorCoun = Color.white;
                     ProgressText.Append(ColorString(TextColorCoun, $"<color=#777777>-</color> {Math.Round(Councillor.MurderLimit[playerId], 1)}"));
                     break;
+                case CustomRoles.WeaponMaster:
+                    ProgressText.Append(WeaponMaster.GetHudAndProgressText());
+                    break;
                 case CustomRoles.Dazzler:
                     Color TextColorDazzler;
                     if (Dazzler.DazzleLimit[playerId] < 1) TextColorDazzler = Color.grey;

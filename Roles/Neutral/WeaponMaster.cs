@@ -36,7 +36,7 @@ public static class WeaponMaster
         HasImpostorVision = BooleanOptionItem.Create(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster]);
         Radius = FloatOptionItem.Create(Id + 12, "WMRadius", new(0f, 10f, 0.25f), 3f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Sapper])
             .SetValueFormat(OptionFormat.Multiplier);
-        KillCooldown = FloatOptionItem.Create(Id + 14, "GamblerHighKCD", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
+        HighKCD = FloatOptionItem.Create(Id + 14, "GamblerHighKCD", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
             .SetValueFormat(OptionFormat.Seconds);
     }
     public static void Init()
@@ -65,11 +65,27 @@ public static class WeaponMaster
     public static bool CanKill(PlayerControl pc) => Mode != 3;
     public static void SwitchMode()
     {
+        var id = playerIdList[0];
+        var WM = Utils.GetPlayerById(id);
+
+        if (WM == null || !WM.IsAlive()) return;
+
         if (Mode == 3) Mode = 0;
         else Mode++;
 
-        if (Mode == 1) Main.AllPlayerKillCooldown[playerIdList[0]] = HighKCD.GetFloat();
-        Utils.GetPlayerById(playerIdList[0]).MarkDirtySettings();
+        switch (Mode)
+        {
+            case 1:
+                Main.AllPlayerKillCooldown[id] = HighKCD.GetFloat();
+                break;
+            case 2:
+                Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+                break;
+            case 3:
+                WM.Notify(Translator.GetString("WMShieldAlreadyUsed"));
+                break;
+        }
+        WM.MarkDirtySettings();
     }
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
@@ -108,13 +124,22 @@ public static class WeaponMaster
     }
     public static bool OnAttack(PlayerControl killer, PlayerControl target)
     {
-        if (Mode == 3 && !shieldUsed) return false;
-        else return true;
+        if (Mode == 3 && !shieldUsed)
+        {
+            shieldUsed = true;
+            return true;
+        }
+        else return false;
     }
     public static void OnEnterVent(PlayerControl pc, int ventId)
     {
-        if (pc == null) return;
-        if (Mode == 2) pc.MyPhysics?.RpcBootFromVent(ventId);
+        if (Mode == 2)
+        {
+            _ = new LateTask(() =>
+            {
+                pc?.MyPhysics?.RpcBootFromVent(ventId);
+            }, 0.5f);
+        }
     }
     public static string GetHudAndProgressText()
     {

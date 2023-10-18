@@ -31,7 +31,7 @@ class Logger
     public static bool isEnable;
     public static List<string> disableList = new();
     public static List<string> sendToGameList = new();
-    public static bool isDetail;
+    //public static bool isDetail; - This was always false and never true
     public static bool isAlsoInGame;
     public static void Enable() => isEnable = true;
     public static void Disable() => isEnable = false;
@@ -42,9 +42,8 @@ class Logger
         else sendToGameList.Remove(tag);
     }
     public static void Disable(string tag) { if (!disableList.Contains(tag)) disableList.Add(tag); }
-#pragma warning disable IDE0060 // Remove unused parameter
+
     public static void SendInGame(string text, bool isAlways = false)
-#pragma warning restore IDE0060 // Remove unused parameter
     {
         if (!isEnable) return;
         if (DestroyableSingleton<HudManager>._instance) DestroyableSingleton<HudManager>.Instance.Notifier.AddItem(text);
@@ -58,13 +57,13 @@ class Logger
         if (escapeCRLF)
             text = text.Replace("\r", "\\r").Replace("\n", "\\n");
         string log_text = $"[{t}][{tag}]{text}";
-        if (isDetail && DebugModeManager.AmDebugger)
-        {
-            StackFrame stack = new(2);
-            string className = stack.GetMethod().ReflectedType.Name;
-            string memberName = stack.GetMethod().Name;
-            log_text = $"[{t}][{className}.{memberName}({Path.GetFileName(fileName)}:{lineNumber})][{tag}]{text}";
-        }
+        //if (isDetail && DebugModeManager.AmDebugger)
+        //{
+        //    StackFrame stack = new(2);
+        //    string className = stack.GetMethod().ReflectedType.Name;
+        //    string memberName = stack.GetMethod().Name;
+        //    log_text = $"[{t}][{className}.{memberName}({Path.GetFileName(fileName)}:{lineNumber})][{tag}]{text}";
+        //}
         switch (level)
         {
             case LogLevel.Info:

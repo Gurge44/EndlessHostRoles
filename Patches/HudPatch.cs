@@ -14,13 +14,13 @@ namespace TOHE;
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
 class HudManagerPatch
 {
-    public static bool ShowDebugText;
-    public static int LastCallNotifyRolesPerSecond;
+    //public static bool ShowDebugText;
+    //public static int LastCallNotifyRolesPerSecond;
     public static int NowCallNotifyRolesCount;
     public static int LastSetNameDesyncCount;
-    public static int LastFPS;
-    public static int NowFrameCount;
-    public static float FrameRateTimer;
+    //public static int LastFPS;
+    //public static int NowFrameCount;
+    //public static float FrameRateTimer;
     public static TextMeshPro LowerInfoText;
     public static GameObject TempLowerInfoText;
     public static void Postfix(HudManager __instance)
@@ -458,6 +458,7 @@ class HudManagerPatch
                     CustomRoles.Wildling => Wildling.GetHudText(player),
                     CustomRoles.Doormaster => Doormaster.GetHudText(player),
                     CustomRoles.Tether => Tether.GetHudText(player),
+                    CustomRoles.WeaponMaster => WeaponMaster.GetHudAndProgressText(),
                     CustomRoles.Sapper => !Options.UsePets.GetBool() || !Main.SapperCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Sapper.ShapeshiftCooldown.GetInt() - (now - cd) + 1),
                     CustomRoles.CameraMan => !Options.UsePets.GetBool() || !Main.CameraManCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), CameraMan.VentCooldown.GetInt() - (now - cd) + 1),
                     CustomRoles.Mayor => !Options.UsePets.GetBool() || !Main.MayorCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.DefaultKillCooldown - (now - cd) + 1),

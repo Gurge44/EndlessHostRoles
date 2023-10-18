@@ -143,44 +143,39 @@ public class ChatManager
     }
     public static void SendPreviousMessagesToAll()
     {
+        ChatUpdatePatch.DoBlockChat = true;
         string msg = "<size=0>.</size>";
         List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x is not CustomRoles.KB_Normal and not CustomRoles.Killer).ToList();
         string[] specialTexts = new string[] { "bet", "bt", "guess", "gs", "shoot", "st", "赌", "猜", "审判", "tl", "判", "审", "trial" };
         var totalAlive = Main.AllAlivePlayerControls.Count();
         var x = Main.AllAlivePlayerControls.ToArray();
 
-        for (int i = chatHistory.Count; i < 20; i++)
+        var filtered = chatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(((string[])a.Split(':'))[0].Trim())).IsAlive()).ToList();
+
+        for (int i = filtered.Count; i < 20; i++)
         {
             var player = x[IRandom.Instance.Next(0, totalAlive)];
             DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
             SendRPC(player, msg);
         }
 
-        for (int i = 0; i < chatHistory.Count; i++)
+        for (int i = 0; i < filtered.Count; i++)
         {
             string entry = chatHistory[i];
             var entryParts = entry.Split(':');
             var senderId = entryParts[0].Trim();
             var senderMessage = entryParts[1].Trim();
+            for (int j = 2; j < entryParts.Length; j++)
+            {
+                senderMessage += ':' + entryParts[j].Trim();
+            }
             var senderPlayer = Utils.GetPlayerById(Convert.ToByte(senderId));
 
-            if (!senderPlayer.IsAlive())
-            {
-                var deathReason = Main.PlayerStates[senderPlayer.PlayerId].deathReason;
-                senderPlayer.Revive();
-
-                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderPlayer, senderMessage);
-                SendRPC(senderPlayer, senderMessage);
-
-                senderPlayer.Die(DeathReason.Kill, true);
-                Main.PlayerStates[senderPlayer.PlayerId].deathReason = deathReason;
-            }
-            else
-            {
-                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderPlayer, senderMessage);
-                SendRPC(senderPlayer, senderMessage);
-            }
+            DestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderPlayer, senderMessage);
+            SendRPC(senderPlayer, senderMessage);
         }
+
+        ChatUpdatePatch.DoBlockChat = false;
     }
     private static void SendRPC(PlayerControl senderPlayer, string senderMessage)
     {

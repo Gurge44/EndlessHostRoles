@@ -521,6 +521,9 @@ class ExternalRpcPetPatch
             case CustomRoles.Magician:
                 Magician.UseCard(pc);
                 break;
+            case CustomRoles.WeaponMaster:
+                WeaponMaster.SwitchMode();
+                break;
         }
     }
 }

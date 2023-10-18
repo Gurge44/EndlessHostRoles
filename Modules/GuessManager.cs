@@ -789,6 +789,8 @@ public static class GuessManager
         var rd = IRandom.Instance;
         string msg;
         string[] command = new string[] { "bet", "bt", "guess", "gs", "shoot", "st", "赌", "猜", "审判", "tl", "判", "审" };
+        var x = Main.AllAlivePlayerControls.ToArray();
+        var totalAlive = Main.AllAlivePlayerControls.Count();
         for (int i = 0; i < 20; i++)
         {
             //msg = "/";
@@ -807,7 +809,7 @@ public static class GuessManager
             //    msg += Utils.GetRoleName(role);
             //}
             msg = "<size=0>.</size>";
-            var player = Main.AllAlivePlayerControls.ToArray()[rd.Next(0, Main.AllAlivePlayerControls.Count())];
+            var player = x[rd.Next(0, totalAlive)];
             DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
             var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
             writer.StartMessage(-1);

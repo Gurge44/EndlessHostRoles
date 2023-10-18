@@ -183,21 +183,25 @@ class CheckMurderPatch
             killer.Notify(string.Format(GetString("HackedByGlitch"), "Kill"));
             return false;
         }
-        if (target.Is(CustomRoles.Gambler) && Gambler.isShielded.ContainsKey(target.PlayerId))
+
+        // Check for protection
+        switch (target.GetCustomRole())
         {
-            killer.SetKillCooldown(time: 5f);
-            return false;
+            case CustomRoles.WeaponMaster when WeaponMaster.OnAttack(killer, target):
+            case CustomRoles.Gambler when Gambler.isShielded.ContainsKey(target.PlayerId):
+            case CustomRoles.Alchemist when Alchemist.IsProtected:
+                killer.SetKillCooldown(time: 5f);
+                return false;
+            case CustomRoles.Vengeance when !Vengeance.OnKillAttempt(killer, target):
+                return false;
+            case CustomRoles.Ricochet when !Ricochet.OnKillAttempt(killer, target):
+                return false;
+            case CustomRoles.Addict when Addict.IsImmortal(target):
+                return false;
         }
+
         if (Pursuer.IsEnable && Pursuer.OnClientMurder(killer)) return false;
-        if (Addict.IsEnable && Addict.IsImmortal(target)) return false;
         if (Aid.ShieldedPlayers.ContainsKey(target.PlayerId)) return false;
-        if (target.Is(CustomRoles.Vengeance) && !Vengeance.OnKillAttempt(killer, target)) return false;
-        if (target.Is(CustomRoles.Ricochet) && !Ricochet.OnKillAttempt(killer, target)) return false;
-        if (Alchemist.IsProtected && target.Is(CustomRoles.Alchemist))
-        {
-            killer.SetKillCooldown(time: 5f);
-            return false;
-        };
 
         //判定凶手技能
         if (killer.PlayerId != target.PlayerId)
@@ -214,6 +218,9 @@ class CheckMurderPatch
                     break;
                 case CustomRoles.Magician:
                     Magician.OnCheckMurder(killer);
+                    break;
+                case CustomRoles.WeaponMaster:
+                    if (!WeaponMaster.OnCheckMurder(killer, target)) return false;
                     break;
                 case CustomRoles.Postman:
                     Postman.OnCheckMurder(killer, target);
@@ -3177,48 +3184,6 @@ class EnterVentPatch
         Main.LastEnteredVentLocation.Remove(pc.PlayerId);
         Main.LastEnteredVentLocation.Add(pc.PlayerId, pc.GetTruePosition());
 
-        if (Swooper.IsEnable) Swooper.OnEnterVent(pc, __instance);
-        if (Wraith.IsEnable) Wraith.OnEnterVent(pc, __instance);
-        if (Addict.IsEnable) Addict.OnEnterVent(pc, __instance);
-        if (Alchemist.IsEnable) Alchemist.OnEnterVent(pc, __instance.Id);
-        if (Chameleon.IsEnable) Chameleon.OnEnterVent(pc, __instance);
-        if (Tether.IsEnable) Tether.OnEnterVent(pc, __instance.Id);
-        if (Werewolf.IsEnable) Werewolf.OnEnterVent(pc);
-        if (Lurker.IsEnable()) Lurker.OnEnterVent(pc);
-        if (Doormaster.IsEnable) Doormaster.OnEnterVent(pc);
-
-        if (pc.GetCustomRole() == CustomRoles.Ventguard)
-        {
-            if (Main.VentguardNumberOfAbilityUses >= 1)
-            {
-                Main.VentguardNumberOfAbilityUses -= 1;
-                if (!Main.BlockedVents.Contains(__instance.Id)) Main.BlockedVents.Add(__instance.Id);
-                pc.Notify(GetString("VentBlockSuccess"));
-            }
-            else
-            {
-                pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
-            }
-        }
-
-        if (pc.Is(CustomRoles.Veteran))
-        {
-            if (Main.VeteranNumOfUsed[pc.PlayerId] >= 1)
-            {
-                Main.VeteranInProtect.Remove(pc.PlayerId);
-                Main.VeteranInProtect.Add(pc.PlayerId, Utils.GetTimeStamp(DateTime.Now));
-                Main.VeteranNumOfUsed[pc.PlayerId] -= 1;
-                //pc.RpcGuardAndKill(pc);
-                pc.RPCPlayCustomSound("Gunload");
-                pc.Notify(GetString("VeteranOnGuard"), Options.VeteranSkillDuration.GetFloat());
-                Main.VeteranCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
-                pc.MarkDirtySettings();
-            }
-            else
-            {
-                pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
-            }
-        }
         if (pc.Is(CustomRoles.Unlucky))
         {
             var Ue = IRandom.Instance;
@@ -3228,125 +3193,182 @@ class EnterVentPatch
                 Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
             }
         }
-        if (pc.Is(CustomRoles.Grenadier))
+
+        switch (pc.GetCustomRole())
         {
-            if (Main.GrenadierNumOfUsed[pc.PlayerId] >= 1)
-            {
-                if (pc.Is(CustomRoles.Madmate))
+            case CustomRoles.Swooper:
+                Swooper.OnEnterVent(pc, __instance);
+                break;
+            case CustomRoles.Wraith:
+                Wraith.OnEnterVent(pc, __instance);
+                break;
+            case CustomRoles.Addict:
+                Addict.OnEnterVent(pc, __instance);
+                break;
+            case CustomRoles.Alchemist:
+                Alchemist.OnEnterVent(pc, __instance.Id);
+                break;
+            case CustomRoles.Chameleon:
+                Chameleon.OnEnterVent(pc, __instance);
+                break;
+            case CustomRoles.Tether:
+                Tether.OnEnterVent(pc, __instance.Id);
+                break;
+            case CustomRoles.Werewolf:
+                Werewolf.OnEnterVent(pc);
+                break;
+            case CustomRoles.Lurker:
+                Lurker.OnEnterVent(pc);
+                break;
+            case CustomRoles.Doormaster:
+                Doormaster.OnEnterVent(pc);
+                break;
+            case CustomRoles.Ventguard:
+                if (Main.VentguardNumberOfAbilityUses >= 1)
                 {
-                    Main.MadGrenadierBlinding.Remove(pc.PlayerId);
-                    Main.MadGrenadierBlinding.Add(pc.PlayerId, Utils.GetTimeStamp());
-                    Main.AllPlayerControls.Where(x => x.IsModClient()).Where(x => !x.GetCustomRole().IsImpostorTeam() && !x.Is(CustomRoles.Madmate)).Do(x => x.RPCPlayCustomSound("FlashBang"));
+                    Main.VentguardNumberOfAbilityUses -= 1;
+                    if (!Main.BlockedVents.Contains(__instance.Id)) Main.BlockedVents.Add(__instance.Id);
+                    pc.Notify(GetString("VentBlockSuccess"));
                 }
                 else
                 {
-                    Main.GrenadierBlinding.Remove(pc.PlayerId);
-                    Main.GrenadierBlinding.Add(pc.PlayerId, Utils.GetTimeStamp());
-                    Main.AllPlayerControls.Where(x => x.IsModClient()).Where(x => x.GetCustomRole().IsImpostor() || (x.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool())).Do(x => x.RPCPlayCustomSound("FlashBang"));
+                    pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
                 }
-                //pc.RpcGuardAndKill(pc);
-                pc.RPCPlayCustomSound("FlashBang");
-                pc.Notify(GetString("GrenadierSkillInUse"), Options.GrenadierSkillDuration.GetFloat());
-                Main.GrenadierCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
-                Main.GrenadierNumOfUsed[pc.PlayerId] -= 1;
-                Utils.MarkEveryoneDirtySettingsV3();
-            }
-            else
-            {
-                pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
-            }
-        }
-        if (pc.Is(CustomRoles.Lighter))
-        {
-            if (Main.LighterNumOfUsed[pc.PlayerId] >= 1)
-            {
-                Main.Lighter.Remove(pc.PlayerId);
-                Main.Lighter.Add(pc.PlayerId, Utils.GetTimeStamp());
-                pc.Notify(GetString("LighterSkillInUse"), Options.LighterSkillDuration.GetFloat());
-                Main.LighterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
-                Main.LighterNumOfUsed[pc.PlayerId] -= 1;
-                pc.MarkDirtySettings();
-            }
-            else
-            {
-                pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
-            }
-        }
-        if (pc.Is(CustomRoles.SecurityGuard))
-        {
-            if (Main.SecurityGuardNumOfUsed[pc.PlayerId] >= 1)
-            {
-                Main.BlockSabo.Remove(pc.PlayerId);
-                Main.BlockSabo.Add(pc.PlayerId, Utils.GetTimeStamp());
-                pc.Notify(GetString("SecurityGuardSkillInUse"), Options.SecurityGuardSkillDuration.GetFloat());
-                Main.SecurityGuardCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
-                Main.SecurityGuardNumOfUsed[pc.PlayerId] -= 1;
-            }
-            else
-            {
-                pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
-            }
-        }
-        if (pc.Is(CustomRoles.DovesOfNeace))
-        {
-            if (Main.DovesOfNeaceNumOfUsed[pc.PlayerId] < 1)
-            {
-                //pc?.MyPhysics?.RpcBootFromVent(__instance.Id);
-                pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
-            }
-            else
-            {
-                Main.DovesOfNeaceNumOfUsed[pc.PlayerId] -= 1;
-                //pc.RpcGuardAndKill(pc);
-                Main.AllAlivePlayerControls.Where(x =>
-                pc.Is(CustomRoles.Madmate) ?
-                (x.CanUseKillButton() && x.GetCustomRole().IsCrewmate()) :
-                x.CanUseKillButton()
-                ).Do(x =>
+                break;
+            case CustomRoles.Veteran:
+                if (Main.VeteranNumOfUsed[pc.PlayerId] >= 1)
                 {
-                    x.RPCPlayCustomSound("Dove");
-                    x.ResetKillCooldown();
-                    x.SetKillCooldown();
-                    if (x.Is(CustomRoles.SerialKiller))
-                    { SerialKiller.OnReportDeadBody(); }
-                    x.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.DovesOfNeace), GetString("DovesOfNeaceSkillNotify")));
-                });
-                pc.RPCPlayCustomSound("Dove");
-                pc.Notify(string.Format(GetString("DovesOfNeaceOnGuard"), Main.DovesOfNeaceNumOfUsed[pc.PlayerId]));
-                Main.DovesOfNeaceCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
-            }
-        }
-        if (pc.Is(CustomRoles.TimeMaster))
-        {
-            if (Main.TimeMasterNumOfUsed[pc.PlayerId] >= 1)
-            {
-                Main.TimeMasterNumOfUsed[pc.PlayerId] -= 1;
-                Main.TimeMasterInProtect.Remove(pc.PlayerId);
-                Main.TimeMasterNumOfUsed[pc.PlayerId] -= 1;
-                Main.TimeMasterInProtect.Add(pc.PlayerId, Utils.GetTimeStamp());
-                //if (!pc.IsModClient()) pc.RpcGuardAndKill(pc);
-                pc.Notify(GetString("TimeMasterOnGuard"), Options.TimeMasterSkillDuration.GetFloat());
-                Main.TimeMasterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
-                foreach (var player in Main.AllPlayerControls)
+                    Main.VeteranInProtect.Remove(pc.PlayerId);
+                    Main.VeteranInProtect.Add(pc.PlayerId, Utils.GetTimeStamp(DateTime.Now));
+                    Main.VeteranNumOfUsed[pc.PlayerId] -= 1;
+                    //pc.RpcGuardAndKill(pc);
+                    pc.RPCPlayCustomSound("Gunload");
+                    pc.Notify(GetString("VeteranOnGuard"), Options.VeteranSkillDuration.GetFloat());
+                    Main.VeteranCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                    pc.MarkDirtySettings();
+                }
+                else
                 {
-                    if (Main.TimeMasterBackTrack.ContainsKey(player.PlayerId))
+                    pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
+                }
+                break;
+            case CustomRoles.Grenadier:
+                if (Main.GrenadierNumOfUsed[pc.PlayerId] >= 1)
+                {
+                    if (pc.Is(CustomRoles.Madmate))
                     {
-                        var position = Main.TimeMasterBackTrack[player.PlayerId];
-                        Utils.TP(player.NetTransform, position);
-                        if (pc != player)
-                            player?.MyPhysics?.RpcBootFromVent(player.PlayerId);
-                        Main.TimeMasterBackTrack.Remove(player.PlayerId);
+                        Main.MadGrenadierBlinding.Remove(pc.PlayerId);
+                        Main.MadGrenadierBlinding.Add(pc.PlayerId, Utils.GetTimeStamp());
+                        Main.AllPlayerControls.Where(x => x.IsModClient()).Where(x => !x.GetCustomRole().IsImpostorTeam() && !x.Is(CustomRoles.Madmate)).Do(x => x.RPCPlayCustomSound("FlashBang"));
                     }
                     else
                     {
-                        Main.TimeMasterBackTrack.Add(player.PlayerId, player.GetTruePosition());
+                        Main.GrenadierBlinding.Remove(pc.PlayerId);
+                        Main.GrenadierBlinding.Add(pc.PlayerId, Utils.GetTimeStamp());
+                        Main.AllPlayerControls.Where(x => x.IsModClient()).Where(x => x.GetCustomRole().IsImpostor() || x.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()).Do(x => x.RPCPlayCustomSound("FlashBang"));
                     }
+                    //pc.RpcGuardAndKill(pc);
+                    pc.RPCPlayCustomSound("FlashBang");
+                    pc.Notify(GetString("GrenadierSkillInUse"), Options.GrenadierSkillDuration.GetFloat());
+                    Main.GrenadierCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                    Main.GrenadierNumOfUsed[pc.PlayerId] -= 1;
+                    Utils.MarkEveryoneDirtySettingsV3();
                 }
-            }
-            else
-            {
-                pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
-            }
+                else
+                {
+                    pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
+                }
+                break;
+            case CustomRoles.Lighter:
+                if (Main.LighterNumOfUsed[pc.PlayerId] >= 1)
+                {
+                    Main.Lighter.Remove(pc.PlayerId);
+                    Main.Lighter.Add(pc.PlayerId, Utils.GetTimeStamp());
+                    pc.Notify(GetString("LighterSkillInUse"), Options.LighterSkillDuration.GetFloat());
+                    Main.LighterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                    Main.LighterNumOfUsed[pc.PlayerId] -= 1;
+                    pc.MarkDirtySettings();
+                }
+                else
+                {
+                    pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
+                }
+                break;
+            case CustomRoles.SecurityGuard:
+                if (Main.SecurityGuardNumOfUsed[pc.PlayerId] >= 1)
+                {
+                    Main.BlockSabo.Remove(pc.PlayerId);
+                    Main.BlockSabo.Add(pc.PlayerId, Utils.GetTimeStamp());
+                    pc.Notify(GetString("SecurityGuardSkillInUse"), Options.SecurityGuardSkillDuration.GetFloat());
+                    Main.SecurityGuardCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                    Main.SecurityGuardNumOfUsed[pc.PlayerId] -= 1;
+                }
+                else
+                {
+                    pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
+                }
+                break;
+            case CustomRoles.DovesOfNeace:
+                if (Main.DovesOfNeaceNumOfUsed[pc.PlayerId] < 1)
+                {
+                    //pc?.MyPhysics?.RpcBootFromVent(__instance.Id);
+                    pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
+                }
+                else
+                {
+                    Main.DovesOfNeaceNumOfUsed[pc.PlayerId] -= 1;
+                    //pc.RpcGuardAndKill(pc);
+                    Main.AllAlivePlayerControls.Where(x =>
+                    pc.Is(CustomRoles.Madmate) ?
+                    x.CanUseKillButton() && x.GetCustomRole().IsCrewmate() :
+                    x.CanUseKillButton()
+                    ).Do(x =>
+                    {
+                        x.RPCPlayCustomSound("Dove");
+                        x.ResetKillCooldown();
+                        x.SetKillCooldown();
+                        if (x.Is(CustomRoles.SerialKiller))
+                        { SerialKiller.OnReportDeadBody(); }
+                        x.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.DovesOfNeace), GetString("DovesOfNeaceSkillNotify")));
+                    });
+                    pc.RPCPlayCustomSound("Dove");
+                    pc.Notify(string.Format(GetString("DovesOfNeaceOnGuard"), Main.DovesOfNeaceNumOfUsed[pc.PlayerId]));
+                    Main.DovesOfNeaceCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                }
+                break;
+            case CustomRoles.TimeMaster:
+                {
+                    if (Main.TimeMasterNumOfUsed[pc.PlayerId] >= 1)
+                    {
+                        Main.TimeMasterNumOfUsed[pc.PlayerId] -= 1;
+                        Main.TimeMasterInProtect.Remove(pc.PlayerId);
+                        Main.TimeMasterNumOfUsed[pc.PlayerId] -= 1;
+                        Main.TimeMasterInProtect.Add(pc.PlayerId, Utils.GetTimeStamp());
+                        //if (!pc.IsModClient()) pc.RpcGuardAndKill(pc);
+                        pc.Notify(GetString("TimeMasterOnGuard"), Options.TimeMasterSkillDuration.GetFloat());
+                        Main.TimeMasterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                        foreach (var player in Main.AllPlayerControls)
+                        {
+                            if (Main.TimeMasterBackTrack.ContainsKey(player.PlayerId))
+                            {
+                                var position = Main.TimeMasterBackTrack[player.PlayerId];
+                                Utils.TP(player.NetTransform, position);
+                                if (pc != player)
+                                    player?.MyPhysics?.RpcBootFromVent(player.PlayerId);
+                                Main.TimeMasterBackTrack.Remove(player.PlayerId);
+                            }
+                            else
+                            {
+                                Main.TimeMasterBackTrack.Add(player.PlayerId, player.GetTruePosition());
+                            }
+                        }
+                    }
+                    else
+                    {
+                        pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
+                    }
+                    break;
+                }
         }
     }
 }
@@ -3504,20 +3526,27 @@ class CoEnterVentPatch
             return false;
         }
 
-        if (__instance.myPlayer.Is(CustomRoles.Swooper))
-            Swooper.OnCoEnterVent(__instance, id);
-
-        if (__instance.myPlayer.Is(CustomRoles.Wraith))
-            Wraith.OnCoEnterVent(__instance, id);
-
-        if (__instance.myPlayer.Is(CustomRoles.Chameleon))
-            Chameleon.OnCoEnterVent(__instance, id);
-
-        if (__instance.myPlayer.Is(CustomRoles.Alchemist) && Alchemist.PotionID == 6)
-            Alchemist.OnCoEnterVent(__instance, id);
-
-        if (__instance.myPlayer.Is(CustomRoles.RiftMaker))
-            RiftMaker.OnEnterVent(__instance.myPlayer, id);
+        switch (__instance.myPlayer.GetCustomRole())
+        {
+            case CustomRoles.Swooper:
+                Swooper.OnCoEnterVent(__instance, id);
+                break;
+            case CustomRoles.Wraith:
+                Wraith.OnCoEnterVent(__instance, id);
+                break;
+            case CustomRoles.Chameleon:
+                Chameleon.OnCoEnterVent(__instance, id);
+                break;
+            case CustomRoles.Alchemist when Alchemist.PotionID == 6:
+                Alchemist.OnCoEnterVent(__instance, id);
+                break;
+            case CustomRoles.RiftMaker:
+                RiftMaker.OnEnterVent(__instance.myPlayer, id);
+                break;
+            case CustomRoles.WeaponMaster:
+                WeaponMaster.OnEnterVent(__instance.myPlayer, id);
+                break;
+        }
 
         //if (__instance.myPlayer.Is(CustomRoles.DovesOfNeace)) __instance.myPlayer.Notify(GetString("DovesOfNeaceMaxUsage"));
         //if (__instance.myPlayer.Is(CustomRoles.Veteran)) __instance.myPlayer.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));

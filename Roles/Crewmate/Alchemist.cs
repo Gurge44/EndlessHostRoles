@@ -193,7 +193,7 @@ namespace TOHE.Roles.Crewmate
         {
             InvisTime = new();
             long invis = long.Parse(reader.ReadString());
-            long last = long.Parse(reader.ReadString());
+            _ = long.Parse(reader.ReadString());
             if (invis > 0) InvisTime.Add(PlayerControl.LocalPlayer.PlayerId, invis);
         }
         public static void OnCoEnterVent(PlayerPhysics __instance, int ventId)

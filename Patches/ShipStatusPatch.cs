@@ -97,32 +97,34 @@ class RepairSystemPatch
         if (systemType == SystemTypes.Sabotage && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay)
         {
             if (Main.BlockSabo.Any()) return false;
-            if (player.Is(CustomRoles.Glitch))
-            {
-                Glitch.Mimic(player);
-                return false;
-            }
-            if (player.Is(CustomRoles.Magician))
-            {
-                Magician.UseCard(player);
-                return false;
-            }
-            if (player.Is(CustomRoleTypes.Impostor) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool())) return true;
-            if (player.Is(CustomRoles.Jackal) && Jackal.CanUseSabotage.GetBool()) return true;
-            if (player.Is(CustomRoles.Sidekick) && Jackal.CanUseSabotageSK.GetBool()) return true;
-            if (player.Is(CustomRoles.Traitor) && Traitor.CanUseSabotage.GetBool()) return true;
-            if (player.Is(CustomRoles.Parasite) && player.IsAlive()) return true;
-            if (player.Is(CustomRoles.Refugee) && player.IsAlive()) return true;
-            return false;
-        }
 
-        /*if (systemType == SystemTypes.Doors && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay)
-          {
-              if (player.Is(CustomRoleTypes.Impostor) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool())) return true;
-              if (player.Is(CustomRoles.Jackal) && Jackal.CanUseSabotage.GetBool()) return true;
-              if (player.Is(CustomRoles.Parasite) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool())) return true;
-              return false;
-          }*/
+            if (player.Is(CustomRoleTypes.Impostor) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool())) return true;
+
+            switch (player.GetCustomRole())
+            {
+                case CustomRoles.Glitch:
+                    Glitch.Mimic(player);
+                    return false;
+                case CustomRoles.Magician:
+                    Magician.UseCard(player);
+                    return false;
+                case CustomRoles.WeaponMaster:
+                    WeaponMaster.SwitchMode();
+                    return false;
+                case CustomRoles.Jackal when Jackal.CanUseSabotage.GetBool():
+                    return true;
+                case CustomRoles.Sidekick when Jackal.CanUseSabotageSK.GetBool():
+                    return true;
+                case CustomRoles.Traitor when Traitor.CanUseSabotage.GetBool():
+                    return true;
+                case CustomRoles.Parasite when player.IsAlive():
+                    return true;
+                case CustomRoles.Refugee when player.IsAlive():
+                    return true;
+                default:
+                    return false;
+            }
+        }
 
         if (systemType == SystemTypes.Security && amount == 1)
         {
