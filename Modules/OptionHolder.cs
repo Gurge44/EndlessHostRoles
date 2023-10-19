@@ -1659,7 +1659,7 @@ public static class Options
         LoadingPercentage = 29;
         RoleLoadingText = "Neutral roles\nHater";
 
-        SetupRoleOptions(11300, TabGroup.NeutralRoles, CustomRoles.FFF);
+        FFF.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nLawyer";
         Lawyer.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nMaverick";

@@ -161,8 +161,7 @@ public class ChatManager
 
         for (int i = 0; i < filtered.Count; i++)
         {
-            string entry = chatHistory[i];
-            var entryParts = entry.Split(':');
+            var entryParts = chatHistory[i].Split(':');
             var senderId = entryParts[0].Trim();
             var senderMessage = entryParts[1].Trim();
             for (int j = 2; j < entryParts.Length; j++)

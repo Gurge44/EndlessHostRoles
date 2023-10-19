@@ -458,15 +458,7 @@ class CheckMurderPatch
                     }
                     return false;
                 case CustomRoles.FFF:
-                    if (!target.Is(CustomRoles.Lovers)/* && !target.Is(CustomRoles.Ntr)*/)
-                    {
-                        killer.Data.IsDead = true;
-                        Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
-                        killer.RpcMurderPlayerV3(killer);
-                        Main.PlayerStates[killer.PlayerId].SetDead();
-                        Logger.Info($"{killer.GetRealName()} 击杀了非目标玩家，壮烈牺牲了（bushi）", "FFF");
-                        return false;
-                    }
+                    if (!FFF.OnCheckMurder(killer, target)) return false;
                     break;
                 case CustomRoles.Gamer:
                     Gamer.CheckGamerMurder(killer, target);
