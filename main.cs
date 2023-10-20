@@ -230,6 +230,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, float> DovesOfNeaceNumOfUsed = new();
 
     public static Dictionary<byte, CustomRoles> DevRole = new();
+    public static Dictionary<byte, int> CrewpostorTasksDone = new();
     public static byte GodfatherTarget = byte.MaxValue;
 
 

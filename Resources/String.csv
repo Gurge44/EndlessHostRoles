@@ -1985,6 +1985,8 @@
 "SpiritcallerCauseVision","<color=#0003366>恶灵</color>能力的减小视野","<color=#003366>Evil Spirit</color> ability caused vision","<color=#003366>Злой Дух</color> уменьшает зрение на","",""
 "SpiritcallerCauseVisionTime","<color=#003366>恶灵</color>能力的减小视野时间","<color=#003366>Evil Spirit</color> ability caused vision time","<color=#003366>Злой Дух</color> время уменьшения зрения","",""
 "killAttacker","","On Kill Attempt, Kill The Attacker","","",""
+"CrewpostorLungeKill","","Lunge on Kills","","",""
+"CrewpostorKillAfterTask","","Amount of Task Completions Required to make 1 Kill","","",""
 
 
 "## 信息 / Message"

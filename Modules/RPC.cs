@@ -58,6 +58,7 @@ enum CustomRPC
     //Roles
     SetDrawPlayer,
     SetCurrentDrawTarget,
+    SetCPTasksDone,
     SetGamerHealth,
     SetPelicanEtenNum,
     SwordsManKill,
@@ -330,6 +331,9 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SetCopyCatMiscopyLimit:
                 CopyCat.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SetCPTasksDone:
+                RPC.CrewpostorTasksRecieveRPC(reader);
                 break;
             case CustomRPC.SetDousedPlayer:
                 byte ArsonistId = reader.ReadByte();
@@ -852,6 +856,9 @@ internal static class RPC
             case CustomRoles.EvilTracker:
                 EvilTracker.Add(targetId);
                 break;
+            case CustomRoles.Crewpostor:
+                Main.CrewpostorTasksDone[targetId] = 0;
+                break;
             case CustomRoles.Witch:
                 Witch.Add(targetId);
                 break;
@@ -1247,6 +1254,31 @@ internal static class RPC
         writer.Write(targetId);
         writer.Write(killerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+    public static void CrewpostorTasksSendRPC(byte cpID, int tasksDone)
+    {
+        if (PlayerControl.LocalPlayer.PlayerId == cpID)
+        {
+            if (Main.CrewpostorTasksDone.ContainsKey(cpID))
+                Main.CrewpostorTasksDone[cpID] = tasksDone;
+            else Main.CrewpostorTasksDone[cpID] = 0;
+        }
+        else
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCPTasksDone, SendOption.Reliable, -1);
+            writer.Write(cpID);
+            writer.Write(tasksDone);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+    }
+    public static void CrewpostorTasksRecieveRPC(MessageReader reader)
+    {
+        byte PlayerId = reader.ReadByte();
+        int tasksDone = reader.ReadInt32();
+        if (Main.CrewpostorTasksDone.ContainsKey(PlayerId))
+            Main.CrewpostorTasksDone[PlayerId] = tasksDone;
+        else
+            Main.CrewpostorTasksDone.Add(PlayerId, 0);
     }
     public static void SyncLoversPlayers()
     {

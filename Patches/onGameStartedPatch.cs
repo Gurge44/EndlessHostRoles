@@ -76,6 +76,7 @@ internal class ChangeRoleSettings
             Main.MedusaBodies = new();
             Main.InfectedBodies = new();
             Main.VirusNotify = new();
+            Main.CrewpostorTasksDone = new();
 
             Main.LastEnteredVent = new();
             Main.LastEnteredVentLocation = new();
@@ -573,6 +574,9 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Lawyer:
                         Lawyer.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Crewpostor:
+                        Main.CrewpostorTasksDone[pc.PlayerId] = 0;
                         break;
                     case CustomRoles.Jackal:
                         Jackal.Add(pc.PlayerId);
