@@ -469,7 +469,7 @@ class CheckMurderPatch
                 case CustomRoles.Provocateur:
                     Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.PissedOff;
                     killer.RpcMurderPlayerV3(target);
-                    killer.RpcMurderPlayerV3(killer);
+                    //killer.RpcMurderPlayerV3(killer);
                     killer.SetRealKiller(target);
                     Main.Provoked.TryAdd(killer.PlayerId, target.PlayerId);
                     return false;
