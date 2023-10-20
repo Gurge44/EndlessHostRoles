@@ -1,0 +1,33 @@
+
+#Number:100066
+#Title:TOHE PLUS v1.1.2
+#SubTitle:★★★★New settings and roles★★★★
+#ShortTitle:★TOHE+ v1.1.2
+#Date:2023-10-20T00:00:00Z
+#-----------------------------
+
+## Thank you for using TOHE+!
+
+## Urgent announcement and warning
+- With Map 5, The Fungle right around the corner, be sure to make a copy of your current Among Us installation, or you will not be able to play with mods, guaranteed.
+- I will try my hardest to make TOHE+ compatible with the new game version (even if not with the new map yet), but it will take time, and I also want to help TOHEN to get things going, as much as I can.
+
+## Fixes
+- Fixed a lot of minor bugs. There are literally so many that I can't remember them.
+- Major performance improvement (fixes around 70% of the lag)
+
+#### Reminder: You can use Pets instead of Venting / Shapeshifting for some roles. You can turn on this option under the Game Modifiers tab, where Guesser Mode is also located.
+
+## New Roles and Settings
+- New Role: Camera Man (Crewmate)
+- New Role: Magician (Neutral)
+- New Role: Reckless (Neutral)
+- New Role: Postman (Neutral)
+- New Role: Sapper (Impostor)
+- New Role: Weapon Master (Neutral)
+- 2 new settings for Crewpostor: Lunge on kills & number of task completions required to make 1 kill
+- New setting for Merchant: Can only add-ons that are enabled in the settings
+
+### Notes
+- I'm sorry if something doesn't work. My time to test the code I add is next to 0, and I work alone on all of this. Still, I hope there aren't any major bugs and this brings you a good experience.
+- Thank you for reading this and using my mod. Support and feedback is what motivates me to keep developing.
