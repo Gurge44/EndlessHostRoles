@@ -1,4 +1,4 @@
-using Hazel;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +13,7 @@ public static class ParityCop
     private static List<byte> playerIdList = new();
     public static Dictionary<byte, float> MaxCheckLimit = new();
     public static Dictionary<byte, int> RoundCheckLimit = new();
+    public static Dictionary<byte, byte> FirstPick = new();
     public static readonly string[] pcEgoistCountMode =
     {
         "EgoistCountMode.Original",
@@ -61,6 +62,7 @@ public static class ParityCop
         playerIdList = new();
         MaxCheckLimit = new();
         RoundCheckLimit = new();
+        FirstPick = new();
     }
 
     public static void Add(byte playerId)
@@ -90,8 +92,8 @@ public static class ParityCop
 
         int operate = 0; // 1:ID 2:猜测
         msg = msg.ToLower().TrimStart().TrimEnd();
-        if (CheckCommond(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id")) operate = 1;
-        else if (CheckCommond(ref msg, "compare|cp|cmp|比较", false)) operate = 2;
+        if (CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id")) operate = 1;
+        else if (CheckCommand(ref msg, "compare|cp|cmp|比较", false)) operate = 2;
         else return false;
 
         if (!pc.IsAlive())
@@ -267,7 +269,7 @@ public static class ParityCop
         error = string.Empty;
         return true;
     }
-    public static bool CheckCommond(ref string msg, string command, bool exact = true)
+    public static bool CheckCommand(ref string msg, string command, bool exact = true)
     {
         var comList = command.Split('|');
         for (int i = 0; i < comList.Length; i++)
@@ -287,39 +289,81 @@ public static class ParityCop
         }
         return false;
     }
-    public static void TryHideMsgForCompare()
-    {
-        ChatUpdatePatch.DoBlockChat = true;
-        List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x is not CustomRoles.NotAssigned and not CustomRoles.KB_Normal).ToList();
-        var rd = IRandom.Instance;
-        string msg;
-        string[] command = new string[] { "cp", "cmp", "compare", "比较" };
-        for (int i = 0; i < 20; i++)
-        {
-            msg = "/";
-            if (rd.Next(1, 100) < 20)
-            {
-                msg += "id";
-            }
-            else
-            {
-                msg += command[rd.Next(0, command.Length - 1)];
-                msg += " ";
-                msg += rd.Next(0, 15).ToString();
-                msg += " ";
-                msg += rd.Next(0, 15).ToString();
+    //public static void TryHideMsgForCompare()
+    //{
+    //    ChatUpdatePatch.DoBlockChat = true;
+    //    List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x is not CustomRoles.NotAssigned and not CustomRoles.KB_Normal).ToList();
+    //    var rd = IRandom.Instance;
+    //    string msg;
+    //    string[] command = new string[] { "cp", "cmp", "compare", "比较" };
+    //    for (int i = 0; i < 20; i++)
+    //    {
+    //        msg = "/";
+    //        if (rd.Next(1, 100) < 20)
+    //        {
+    //            msg += "id";
+    //        }
+    //        else
+    //        {
+    //            msg += command[rd.Next(0, command.Length - 1)];
+    //            msg += " ";
+    //            msg += rd.Next(0, 15).ToString();
+    //            msg += " ";
+    //            msg += rd.Next(0, 15).ToString();
 
-            }
-            var player = Main.AllAlivePlayerControls.ToArray()[rd.Next(0, Main.AllAlivePlayerControls.Count())];
-            DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
-            var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
-            writer.StartMessage(-1);
-            writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
-                .Write(msg)
-                .EndRpc();
-            writer.EndMessage();
-            writer.SendMessage();
+    //        }
+    //        var player = Main.AllAlivePlayerControls.ToArray()[rd.Next(0, Main.AllAlivePlayerControls.Count())];
+    //        DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
+    //        var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
+    //        writer.StartMessage(-1);
+    //        writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+    //            .Write(msg)
+    //            .EndRpc();
+    //        writer.EndMessage();
+    //        writer.SendMessage();
+    //    }
+    //    ChatUpdatePatch.DoBlockChat = false;
+    //}
+    private static void ParityCopOnClick(byte playerId, MeetingHud __instance)
+    {
+        Logger.Msg($"Click: ID {playerId}", "Inspector UI");
+        var pc = Utils.GetPlayerById(playerId);
+        if (pc == null || !pc.IsAlive() || !GameStates.IsVoting || !AmongUsClient.Instance.AmHost) return;
+        if (FirstPick.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var firstPick))
+        {
+            ParityCheckMsg(PlayerControl.LocalPlayer, $"/cp {playerId} {firstPick}", true);
+            FirstPick.Remove(PlayerControl.LocalPlayer.PlayerId);
         }
-        ChatUpdatePatch.DoBlockChat = false;
+        else
+        {
+            FirstPick.Add(PlayerControl.LocalPlayer.PlayerId, playerId);
+        }
+    }
+
+    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+    class StartMeetingPatch
+    {
+        public static void Postfix(MeetingHud __instance)
+        {
+            if (PlayerControl.LocalPlayer.Is(CustomRoles.ParityCop) && PlayerControl.LocalPlayer.IsAlive() && AmongUsClient.Instance.AmHost)
+                CreateParityCopButton(__instance);
+        }
+    }
+    public static void CreateParityCopButton(MeetingHud __instance)
+    {
+        foreach (var pva in __instance.playerStates)
+        {
+            var pc = Utils.GetPlayerById(pva.TargetPlayerId);
+            if (pc == null || !pc.IsAlive()) continue;
+            GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
+            GameObject targetBox = UnityEngine.Object.Instantiate(template, pva.transform);
+            targetBox.name = "ShootButton";
+            targetBox.transform.localPosition = new Vector3(-0.35f, 0.03f, -1.31f);
+            SpriteRenderer renderer = targetBox.GetComponent<SpriteRenderer>();
+            renderer.sprite = CustomButton.Get("ParityCopIcon");
+            PassiveButton button = targetBox.GetComponent<PassiveButton>();
+            button.OnClick.RemoveAllListeners();
+            button.OnClick.AddListener((Action)(() => ParityCopOnClick(pva.TargetPlayerId, __instance)));
+        }
     }
 }

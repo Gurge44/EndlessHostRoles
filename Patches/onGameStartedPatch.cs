@@ -412,7 +412,7 @@ internal class SelectRolesPatch
             for (int i = 0; i < RpcSetRoleReplacer.StoragedData.Count; i++)
             {
                 (PlayerControl, RoleTypes) sd = RpcSetRoleReplacer.StoragedData[i];
-                var kp = RoleResult.Where(x => x.Key.PlayerId == sd.Item1.PlayerId).FirstOrDefault();
+                var kp = RoleResult.FirstOrDefault(x => x.Key.PlayerId == sd.Item1.PlayerId);
                 newList.Add((sd.Item1, kp.Value.GetRoleTypes()));
                 if (sd.Item2 == kp.Value.GetRoleTypes())
                     Logger.Warn($"注册原版职业 => {sd.Item1.GetRealName()}: {sd.Item2}", "Override Role Select");

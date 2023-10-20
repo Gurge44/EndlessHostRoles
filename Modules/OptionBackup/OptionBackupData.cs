@@ -74,8 +74,7 @@ public class OptionBackupData
     {
         var value = AllValues
             .OfType<OptionBackupValueBase<TKey, TValue>>()
-            .Where(val => val.OptionName.Equals(name)).
-            FirstOrDefault();
+.FirstOrDefault(val => val.OptionName.Equals(name));
 
         return value == null ? default : value.Value;
     }
