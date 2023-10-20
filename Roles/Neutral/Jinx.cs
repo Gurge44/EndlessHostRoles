@@ -14,6 +14,7 @@ public static class Jinx
     public static OptionItem CanVent;
     private static OptionItem HasImpostorVision;
     public static OptionItem JinxSpellTimes;
+    public static OptionItem killAttacker;
 
     public static void SetupCustomOption()
     {
@@ -26,6 +27,7 @@ public static class Jinx
         JinxSpellTimes = IntegerOptionItem.Create(Id + 14, "JinxSpellTimes", new(0, 15, 1), 1, TabGroup.NeutralRoles, false)
         .SetParent(CustomRoleSpawnChances[CustomRoles.Jinx])
         .SetValueFormat(OptionFormat.Times);
+        killAttacker = BooleanOptionItem.Create(Id + 12, "killAttacker", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jinx]);
     }
     public static void Init()
     {

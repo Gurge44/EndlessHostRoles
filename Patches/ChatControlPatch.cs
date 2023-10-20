@@ -168,7 +168,9 @@ public class ChatManager
             {
                 senderMessage += ':' + entryParts[j].Trim();
             }
+
             var senderPlayer = Utils.GetPlayerById(Convert.ToByte(senderId));
+            if (senderPlayer == null) continue;
 
             DestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderPlayer, senderMessage);
             SendRPC(senderPlayer, senderMessage);

@@ -448,6 +448,7 @@ public static class Options
     public static OptionItem TrapOnlyWorksOnTheBodyBoobyTrap;
     public static OptionItem ImpCanBeDoubleShot;
     public static OptionItem CrewCanBeDoubleShot;
+    public static OptionItem killAttacker;
     public static OptionItem NeutralCanBeDoubleShot;
     public static OptionItem MimicCanSeeDeadRoles;
     public static OptionItem ResetDoorsEveryTurns;
@@ -1073,6 +1074,7 @@ public static class Options
         GuardSpellTimes = IntegerOptionItem.Create(1010, "GuardSpellTimes", new(1, 15, 1), 3, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.CursedWolf])
             .SetValueFormat(OptionFormat.Times);
+        killAttacker = BooleanOptionItem.Create(1011, "killAttacker", true, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.CursedWolf]);
         RoleLoadingText = "Impostor roles\nDeathpact";
         Deathpact.SetupCustomOption();
         RoleLoadingText = "Impostor roles\nGreedy";

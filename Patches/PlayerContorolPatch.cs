@@ -807,13 +807,16 @@ class CheckMurderPatch
                 killer.RpcGuardAndKill(target);
                 //target.RpcGuardAndKill(target);
                 Main.CursedWolfSpellCount[target.PlayerId] -= 1;
-                killer.SetRealKiller(target);
                 RPC.SendRPCCursedWolfSpellCount(target.PlayerId);
-                Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} : {Main.CursedWolfSpellCount[target.PlayerId]}回目", "CursedWolf");
-                Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Curse;
-                killer.SetRealKiller(target);
-                target.RpcMurderPlayerV3(killer);
-                target.SetKillCooldown();
+                if (Options.killAttacker.GetBool())
+                {
+                    Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} : {Main.CursedWolfSpellCount[target.PlayerId]}回目", "CursedWolf");
+                    Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Curse;
+                    killer.SetRealKiller(target);
+                    target.RpcMurderPlayerV3(killer);
+                }
+                var kcd = target.killTimer + Main.AllPlayerKillCooldown[target.PlayerId];
+                target.SetKillCooldown(time: kcd);
                 return false;
             case CustomRoles.Jinx:
                 if (Main.JinxSpellCount[target.PlayerId] <= 0) break;
@@ -822,13 +825,16 @@ class CheckMurderPatch
                 killer.RpcGuardAndKill(target);
                 //target.RpcGuardAndKill(target);
                 Main.JinxSpellCount[target.PlayerId] -= 1;
-                killer.SetRealKiller(target);
                 RPC.SendRPCJinxSpellCount(target.PlayerId);
-                Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} : {Main.JinxSpellCount[target.PlayerId]}回目", "Jinx");
-                Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Jinx;
-                killer.SetRealKiller(target);
-                target.RpcMurderPlayerV3(killer);
-                target.SetKillCooldown();
+                if (Jinx.killAttacker.GetBool())
+                {
+                    Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} : {Main.JinxSpellCount[target.PlayerId]}回目", "Jinx");
+                    Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Jinx;
+                    killer.SetRealKiller(target);
+                    target.RpcMurderPlayerV3(killer);
+                }
+                var kcd2 = target.killTimer + Main.AllPlayerKillCooldown[target.PlayerId];
+                target.SetKillCooldown(time: kcd2);
                 return false;
             //击杀老兵
             case CustomRoles.Veteran:

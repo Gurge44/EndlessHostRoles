@@ -89,10 +89,9 @@ public static class HeadHunter
             try
             {
                 var cTargets = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(pc => !Targets.Contains(pc.PlayerId) && pc.GetCustomRole() != CustomRoles.HeadHunter));
-                var rand = IRandom.Instance;
-                var target = cTargets[rand.Next(0, cTargets.Count)];
-                var targetId = target.PlayerId;
-                Targets.Add(targetId);
+                if (cTargets == null || !cTargets.Any()) break;
+                var target = cTargets[IRandom.Instance.Next(0, cTargets.Count)];
+                Targets.Add(target.PlayerId);
             }
             catch (System.Exception ex)
             {
