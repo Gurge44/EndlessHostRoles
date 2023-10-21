@@ -124,6 +124,7 @@ public static class Options
     //public static OptionItem ShareLobby;
     //public static OptionItem ShareLobbyMinPlayer;
     public static OptionItem DisableShieldAnimations;
+    public static OptionItem DisableCrackedGlass;
     public static OptionItem DisableKillAnimationOnGuess;
     public static OptionItem DisableVanillaRoles;
     public static OptionItem DisableHiddenRoles;
@@ -2697,6 +2698,9 @@ public static class Options
             .SetHeader(true)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
         DisableKillAnimationOnGuess = BooleanOptionItem.Create(22602, "DisableKillAnimationOnGuess", true, TabGroup.GameSettings, false)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+        DisableCrackedGlass = BooleanOptionItem.Create(22603, "DisableCrackedGlass", false, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
         DisableVanillaRoles = BooleanOptionItem.Create(22600, "DisableVanillaRoles", true, TabGroup.GameSettings, false)

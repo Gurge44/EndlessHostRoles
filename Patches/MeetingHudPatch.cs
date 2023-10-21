@@ -1200,12 +1200,13 @@ class MeetingHudUpdatePatch
 
     public static void Postfix(MeetingHud __instance)
     {
-        //Meeting Skip with vote counting on keystroke (m + delete)
+        // Meeting Skip with vote counting on keystroke (m + delete)
         if (AmongUsClient.Instance.AmHost && Input.GetKeyDown(KeyCode.F6))
         {
             __instance.CheckForEndVoting();
         }
-        //
+
+        if (Options.DisableCrackedGlass.GetBool()) __instance.CrackedGlass = null;
 
         if (AmongUsClient.Instance.AmHost && Input.GetMouseButtonUp(1) && Input.GetKey(KeyCode.LeftControl))
         {

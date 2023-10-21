@@ -170,7 +170,7 @@ internal static class FFAManager
         if (FFAShieldedList.TryGetValue(target.PlayerId, out var dur))
         {
             killer.Notify(GetString("FFA_TargetIsShielded"));
-            Logger.Info($"{killer.GetRealName().RemoveHtmlTags()} attacked shielded player {target.GetRealName().RemoveHtmlTags()}, their shield expires in {FFA_ShieldDuration.GetInt() - (Utils.GetTimeStamp() - dur)}", "FFA");
+            Logger.Info($"{killer.GetRealName().RemoveHtmlTags()} attacked shielded player {target.GetRealName().RemoveHtmlTags()}, their shield expires in {FFA_ShieldDuration.GetInt() - (Utils.GetTimeStamp() - dur)}s", "FFA");
             if (FFA_ShieldIsOneTimeUse.GetBool())
             {
                 FFAShieldedList.Remove(target.PlayerId);
@@ -186,11 +186,14 @@ internal static class FFAManager
 
         if (totalalive <= 3)
         {
+            PlayerControl otherPC = null;
             foreach (var pc in Main.AllAlivePlayerControls.Where(a => a.PlayerId != killer.PlayerId && a.PlayerId != target.PlayerId && a.IsAlive()))
             {
                 TargetArrow.Add(killer.PlayerId, pc.PlayerId);
                 TargetArrow.Add(pc.PlayerId, killer.PlayerId);
+                otherPC = pc;
             }
+            Logger.Info($"The last 2 players ({killer.GetRealName().RemoveHtmlTags()} & {otherPC?.GetRealName().RemoveHtmlTags()}) now have an arrow toward each other", "FFA");
         }
 
         if (FFA_EnableRandomAbilities.GetBool())
@@ -273,7 +276,7 @@ internal static class FFAManager
                 var rd = IRandom.Instance;
                 var vents = Object.FindObjectsOfType<Vent>();
                 var vent = vents[rd.Next(0, vents.Count)];
-                _ = new LateTask(() => { Utils.TP(killer.NetTransform, new Vector2(vent.transform.position.x, vent.transform.position.y)); }, 0.5f);
+                _ = new LateTask(() => { Utils.TP(killer.NetTransform, new Vector2(vent.transform.position.x, vent.transform.position.y)); }, 0.5f, "FFA-Event-TP");
                 killer.Notify(GetString("FFA-Event-GetTP"));
                 Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
             }
@@ -412,7 +415,7 @@ internal static class FFAManager
                         FFAShieldedList.Remove(pc.PlayerId);
                     }
 
-                    if (sync) pc.SyncSettings();
+                    if (sync) pc.MarkDirtySettings();
                 }
             }
         }

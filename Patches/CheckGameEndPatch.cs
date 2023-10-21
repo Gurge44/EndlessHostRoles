@@ -757,11 +757,17 @@ class GameEndChecker
 
             if (FFAManager.RoundTime <= 0)
             {
-                var winner = Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM)).OrderBy(x => FFAManager.GetRankOfScore(x.PlayerId)).First();
+                var winner = Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => FFAManager.GetRankOfScore(x.PlayerId)).First();
+
+                byte winnerId;
+                if (winner == null) winnerId = 0;
+                else winnerId = winner.PlayerId;
+
+                Logger.Warn($"Winner: {Utils.GetPlayerById(winnerId).GetRealName().RemoveHtmlTags()}", "FFA");
 
                 CustomWinnerHolder.WinnerIds = new()
                 {
-                    winner.PlayerId
+                    winnerId
                 };
 
                 Main.DoBlockNameChange = true;
@@ -771,6 +777,8 @@ class GameEndChecker
             else if (Main.AllAlivePlayerControls.Count() == 1)
             {
                 var winner = Main.AllAlivePlayerControls.FirstOrDefault();
+
+                Logger.Info($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "FFA");
 
                 CustomWinnerHolder.WinnerIds = new()
                 {
@@ -784,6 +792,7 @@ class GameEndChecker
             else if (!Main.AllAlivePlayerControls.Any())
             {
                 FFAManager.RoundTime = 0;
+                Logger.Warn("No players alive. Force ending the game", "FFA");
                 return false;
             }
             else return false;

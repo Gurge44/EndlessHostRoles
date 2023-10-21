@@ -1647,6 +1647,7 @@
 "CanBeGuessed","可以猜测","Can be guessed","Может быть угадан","",""
 "GuessTaskDone","抱歉，你猜不死已经完成了任务的玩家","Sorry, you can't guess someone who has finished their tasks.","К сожалению, вы не можете угадать роль игрока, который выполнил все задания","",""
 "CanBeInLove","可能<color=#ff9ace>坠入爱河</color>","Can be <color=#ff9ace>in love</color>","Может стать <color=#ff9ace>Любовником</color>","",""
+"DisableCrackedGlass","","Disable Cracked Glass on Meeting Screen","","",""
 
 "## Moderation for Auto-Hosters"
 "ApplyModeratorList","应用房主列表","Apply Moderator List","Применить список модераторов","",""

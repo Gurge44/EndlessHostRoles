@@ -57,7 +57,7 @@ class Logger
         if (escapeCRLF)
             text = text.Replace("\r", "\\r").Replace("\n", "\\n");
         string log_text = $"[{t}][{tag}]{text}";
-        //if (isDetail && DebugModeManager.AmDebugger)
+        //if (isDetail && DebugModeManager.AmDebugger)  // isDetail was always false
         //{
         //    StackFrame stack = new(2);
         //    string className = stack.GetMethod().ReflectedType.Name;
@@ -85,7 +85,7 @@ class Logger
                 logger.LogFatal(log_text);
                 break;
             default:
-                logger.LogWarning("Error:Invalid LogLevel");
+                logger.LogWarning("Error: Invalid LogLevel");
                 logger.LogInfo(log_text);
                 break;
         }
