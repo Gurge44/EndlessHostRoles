@@ -143,7 +143,6 @@ public static class GuessManager
         }
         else if (operate == 2)
         {
-
             if (
             (pc.Is(CustomRoles.NiceGuesser) && Options.GGTryHideMsg.GetBool()) ||
             (pc.Is(CustomRoles.EvilGuesser) && Options.EGTryHideMsg.GetBool()) ||
