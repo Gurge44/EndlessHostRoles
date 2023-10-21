@@ -757,8 +757,7 @@ class GameEndChecker
 
             if (FFAManager.RoundTime <= 0)
             {
-                var list = Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && FFAManager.GetRankOfScore(x.PlayerId) == 1);
-                var winner = list.FirstOrDefault();
+                var winner = Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM)).OrderBy(x => FFAManager.GetRankOfScore(x.PlayerId)).First();
 
                 CustomWinnerHolder.WinnerIds = new()
                 {
@@ -785,7 +784,7 @@ class GameEndChecker
             else if (!Main.AllAlivePlayerControls.Any())
             {
                 FFAManager.RoundTime = 0;
-                return true;
+                return false;
             }
             else return false;
         }

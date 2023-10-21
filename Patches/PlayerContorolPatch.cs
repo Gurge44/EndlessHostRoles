@@ -77,7 +77,7 @@ class CheckMurderPatch
         //死人はキルできない
         if (killer.Data.IsDead)
         {
-            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()}は死亡しているためキャンセルされました。", "CheckMurder");
+            Logger.Info($"Killer {killer.GetNameWithRole().RemoveHtmlTags()} is dead, kill canceled", "CheckMurder");
             return false;
         }
 
@@ -86,17 +86,17 @@ class CheckMurderPatch
             target.inVent || target.inMovingPlat //targetの状態をチェック
         )
         {
-            Logger.Info("目标处于无法被击杀状态，击杀被取消", "CheckMurder");
+            Logger.Info("The target is in a state where they cannot be killed, kill canceled.", "CheckMurder");
             return false;
         }
         if (target.Data.IsDead) //同じtargetへの同時キルをブロック
         {
-            Logger.Info("目标处于死亡状态，击杀被取消", "CheckMurder");
+            Logger.Info("Target is already dead, kill canceled", "CheckMurder");
             return false;
         }
         if (MeetingHud.Instance != null) //会議中でないかの判定
         {
-            Logger.Info("会议中，击杀被取消", "CheckMurder");
+            Logger.Info("Kill during meeting, canceled", "CheckMurder");
             return false;
         }
 
@@ -106,7 +106,7 @@ class CheckMurderPatch
         //↓許可されない場合
         if (TimeSinceLastKill.TryGetValue(killer.PlayerId, out var time) && time < minTime)
         {
-            Logger.Info("击杀间隔过短，击杀被取消", "CheckMurder");
+            Logger.Info("Last kill was too shortly before", "CheckMurder");
             return false;
         }
         TimeSinceLastKill[killer.PlayerId] = 0f;
