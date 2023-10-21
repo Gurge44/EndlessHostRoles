@@ -2861,6 +2861,9 @@
 "FFA-NoVentingBecauseTwoPlayers","","There are only 2 players alive, stop hiding in vents!","","",""
 "FFA-NoVentingBecauseKCDIsUP","","Your kill cooldown is up, don't hide in vents!","","",""
 "FFA_DisableVentingWhenKCDIsUp","","Prevent players whose kill cooldown is up from venting","","",""
+"FFA_TargetIsShielded","","<color=#ffff00>The player you tried to kill is shielded!</color>","","",""
+"FFA_ShieldIsOneTimeUse","","Shields break after 1 kill attempt","","",""
+"FFA_ShieldBroken","","<color=#ffff00>Someone tried to kill you, your shield is now broken!</color>","","",""
 "Killer","","FREE FOR ALL","","",""
 "KillerInfo","","Kill Everyone to Win","","",""
 

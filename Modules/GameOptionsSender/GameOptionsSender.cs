@@ -21,7 +21,7 @@ public abstract class GameOptionsSender
         }
         else
         {
-            AllSenders.RemoveAll(s => s == null);
+            AllSenders.RemoveAll(s => s == null || !s.AmValid());
             for (int i = 0; i < AllSenders.Count; i++)
             {
                 GameOptionsSender sender = AllSenders[i];
