@@ -712,6 +712,9 @@ public static class Utils
                         if (SKTime <= 20) ProgressText.Append(ColorString(SKColor, $"<color=#777777>-</color> {SKTime}s"));
                     }
                     break;
+                case CustomRoles.Postman:
+                    ProgressText.Append(Postman.GetProgressText(playerId));
+                    break;
                 case CustomRoles.BountyHunter:
                     if (BountyHunter.ChangeTimer.ContainsKey(playerId))
                     {
@@ -2677,6 +2680,8 @@ public static class Utils
             Executioner.ChangeRoleByTarget(target);
         if (Lawyer.Target.ContainsValue(target.PlayerId))
             Lawyer.ChangeRoleByTarget(target);
+        if (Postman.Target == target.PlayerId)
+            Postman.OnTargetDeath();
 
         FixedUpdatePatch.LoversSuicide(target.PlayerId, onMeeting);
     }

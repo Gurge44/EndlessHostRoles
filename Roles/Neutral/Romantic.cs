@@ -207,17 +207,20 @@ public static class Romantic
                 Logger.Info($"Crew/nnk Romantic Partner Died changing {pc.GetNameWithRole().RemoveHtmlTags()} to Vengeful romantic", "Romantic");
 
                 var killerId = player.GetRealKiller().PlayerId;
-                VengefulRomantic.Add(pc.PlayerId, killerId);
-                VengefulRomantic.SendRPC(pc.PlayerId);
-                pc.RpcSetCustomRole(CustomRoles.VengefulRomantic);
+                if (Utils.GetPlayerById(killerId) != null)
+                {
+                    VengefulRomantic.Add(pc.PlayerId, killerId);
+                    VengefulRomantic.SendRPC(pc.PlayerId);
+                    pc.RpcSetCustomRole(CustomRoles.VengefulRomantic);
+                }
             }, 0.2f, "Convert to Vengeful Romantic");
         }
 
-        Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(Romantic));
+        Utils.NotifyRoles(SpecifySeer: pc);
 
-        Utils.GetPlayerById(Romantic).ResetKillCooldown();
-        Utils.GetPlayerById(Romantic).SetKillCooldown();
-        Utils.GetPlayerById(Romantic).MarkDirtySettings();
+        pc.ResetKillCooldown();
+        pc.SetKillCooldown();
+        pc.MarkDirtySettings();
     }
 }
 

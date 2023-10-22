@@ -44,7 +44,7 @@ class CheckProtectPatch
         {
             if (__instance.Data.IsDead)
             {
-                Logger.Info("守護をブロックしました。", "CheckProtect");
+                Logger.Info("Blocked", "CheckProtect");
                 return false;
             }
         }
@@ -1046,7 +1046,7 @@ class MurderPlayerPatch
 
         if (Postman.Target == target.PlayerId)
         {
-            Postman.OnTargetDeath(killer, target);
+            Postman.OnTargetDeath();
         }
 
         if (target.Is(CustomRoles.Bait))

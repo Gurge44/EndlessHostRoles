@@ -1562,7 +1562,7 @@
 "HackDuration","","Hack Duration","","",""
 "MimicCooldown","","Mimic Cooldown","","",""
 "MimicDuration","","Mimic Duration","","",""
-"HackedByGlitch","","<color=#39FF14>You are hacked by The Glitch, you can't {0}.</color>","","",""
+"HackedByGlitch","","<color=#ffff00>You are hacked, you can't {0}.</color>","","",""
 "BKProtectDuration","免疫伤害持续时间","Protection Duration","Длительность щита","免疫傷害持續時間",""
 "TotocalcioMaxBetTimes","下注次数上限","Maximum Number of Follows","Максимальное количество следований","追隨次數上限",""
 "TotocalcioBetCooldown","下注冷却时间","Follow Cooldown","Откат следований","追隨冷卻時間",""
