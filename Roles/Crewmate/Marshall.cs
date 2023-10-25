@@ -66,40 +66,10 @@ public static class Marshall
         if (!marshall.IsAlive() || marshall.Is(CustomRoles.Madmate)) return;
 
         var marshallId = marshall.PlayerId;
-        var marshallTask = marshall.GetPlayerTaskState();
 
-        if (!IsExposed[marshallId])
-        {
-            //foreach (var target in Main.AllAlivePlayerControls)
-            //{
-            //    //     if (!IsMarshallTarget(target)) continue;
-
-            //    //     TargetArrow.Add(target.PlayerId, snitchId);
-            //}
-            IsExposed[marshallId] = true;
-        }
-
-        /*    if (IsComplete[marshallId] || !marshallTask.IsTaskFinished) return;
-
-            foreach (var target in Main.AllAlivePlayerControls)
-            {
-                if (!IsMarshallTarget(target)) continue;
-
-                var targetId = target.PlayerId;
-                NameColorManager.Add(marshallId, targetId);
-
-
-                //ターゲットは共通なので2回登録する必要はない
-                if (!TargetList.Contains(targetId))
-                {
-                    TargetList.Add(targetId);
-
-
-                }
-            } */
+        if (!IsExposed[marshallId]) IsExposed[marshallId] = true;
 
         NameNotifyManager.Notify(marshall, Translator.GetString("MarshallDoneTasks"));
-
         IsComplete[marshallId] = true;
     }
 

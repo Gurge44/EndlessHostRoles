@@ -110,13 +110,14 @@ public static class Utils
         {
             case SystemTypes.Electrical:
                 {
+                    if (mapId == 5) return false; // if The Fungle return false
                     var SwitchSystem = ShipStatus.Instance.Systems[type].Cast<SwitchSystem>();
                     return SwitchSystem != null && SwitchSystem.IsActive;
                 }
             case SystemTypes.Reactor:
                 {
-                    if (mapId == 2) return false;
-                    else if (mapId == 4)
+                    if (mapId == 2) return false; // if Polus return false
+                    else if (mapId is 4) // Only Airhip
                     {
                         var HeliSabotageSystem = ShipStatus.Instance.Systems[type].Cast<HeliSabotageSystem>();
                         return HeliSabotageSystem != null && HeliSabotageSystem.IsActive;
@@ -129,19 +130,19 @@ public static class Utils
                 }
             case SystemTypes.Laboratory:
                 {
-                    if (mapId != 2) return false;
+                    if (mapId != 2) return false; // Only Polus
                     var ReactorSystemType = ShipStatus.Instance.Systems[type].Cast<ReactorSystemType>();
                     return ReactorSystemType != null && ReactorSystemType.IsActive;
                 }
             case SystemTypes.LifeSupp:
                 {
-                    if (mapId is 2 or 4) return false;
+                    if (mapId is 2 or 4 or 5) return false; // Only Skeld & Mira HQ
                     var LifeSuppSystemType = ShipStatus.Instance.Systems[type].Cast<LifeSuppSystemType>();
                     return LifeSuppSystemType != null && LifeSuppSystemType.IsActive;
                 }
             case SystemTypes.Comms:
                 {
-                    if (mapId == 1)
+                    if (mapId is 1 or 5) // Only Mira HQ & The Fungle
                     {
                         var HqHudSystemType = ShipStatus.Instance.Systems[type].Cast<HqHudSystemType>();
                         return HqHudSystemType != null && HqHudSystemType.IsActive;
@@ -151,6 +152,12 @@ public static class Utils
                         var HudOverrideSystemType = ShipStatus.Instance.Systems[type].Cast<HudOverrideSystemType>();
                         return HudOverrideSystemType != null && HudOverrideSystemType.IsActive;
                     }
+                }
+            case SystemTypes.MushroomMixupSabotage:
+                {
+                    if (mapId != 5) return false; // Only The Fungle
+                    var MushroomMixupSabotageSystem = ShipStatus.Instance.Systems[type].Cast<MushroomMixupSabotageSystem>();
+                    return MushroomMixupSabotageSystem != null && MushroomMixupSabotageSystem.IsActive;
                 }
             default:
                 return false;
@@ -2171,7 +2178,7 @@ public static class Utils
 
                 if (seer.Is(CustomRoles.PlagueBearer))
                 {
-                    if (PlagueBearer.isPlagued(seer.PlayerId, target.PlayerId))
+                    if (PlagueBearer.IsPlagued(seer.PlayerId, target.PlayerId))
                     {
                         TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.PlagueBearer)}>●</color>");
                         PlagueBearer.SendRPC(seer, target);

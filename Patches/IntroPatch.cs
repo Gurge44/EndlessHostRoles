@@ -204,13 +204,13 @@ class BeginCrewmatePatch
 
                 case CustomRoles.Sheriff:
                 case CustomRoles.Veteran:
-                    var sound2 = ShipStatus.Instance.NormalTasks.FirstOrDefault(task => task.TaskType == TaskTypes.PutAwayPistols).MinigamePrefab.OpenSound;
+                    var sound2 = ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.PutAwayPistols).MinigamePrefab.OpenSound;
                     PlayerControl.LocalPlayer.Data.Role.IntroSound = sound2;
                     break;
 
                 case CustomRoles.Cleaner:
                 case CustomRoles.Cleanser:
-                    var sound3 = ShipStatus.Instance.NormalTasks.FirstOrDefault(task => task.TaskType == TaskTypes.PolishRuby).MinigamePrefab.OpenSound;
+                    var sound3 = ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.PolishRuby).MinigamePrefab.OpenSound;
                     PlayerControl.LocalPlayer.Data.Role.IntroSound = sound3;
                     break;
 
@@ -218,7 +218,7 @@ class BeginCrewmatePatch
                 case CustomRoles.Lawyer:
                 case CustomRoles.Judge:
                 case CustomRoles.Mayor:
-                    var sound4 = ShipStatus.Instance.NormalTasks.FirstOrDefault(task => task.TaskType == TaskTypes.FixShower).MinigamePrefab.OpenSound;
+                    var sound4 = ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.FixShower).MinigamePrefab.OpenSound;
                     PlayerControl.LocalPlayer.Data.Role.IntroSound = sound4;
                     break;
 
@@ -234,7 +234,7 @@ class BeginCrewmatePatch
                 case CustomRoles.Bloodhound:
                 case CustomRoles.Mortician:
                 case CustomRoles.Lighter:
-                    var sound8 = ShipStatus.Instance.NormalTasks.FirstOrDefault(task => task.TaskType == TaskTypes.DivertPower).MinigamePrefab.OpenSound;
+                    var sound8 = ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.DivertPower).MinigamePrefab.OpenSound;
                     PlayerControl.LocalPlayer.Data.Role.IntroSound = sound8;
                     break;
 
@@ -539,7 +539,7 @@ class IntroCutsceneDestroyPatch
                                     try
                                     {
                                         pc.RpcShapeshift(Utils.GetPlayerById(0), false);
-                                        pc.RpcRevertShapeshift(false);
+                                        pc.RpcShapeshift(pc, false);
                                         pc.Notify("", 0.1f);
                                     }
                                     catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift"); }

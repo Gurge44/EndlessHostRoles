@@ -136,7 +136,6 @@ public static class Vulture
             if (dis < minDis && dis < 1.5f)
             {
                 minDis = dis;
-                string minName = pc.GetRealName();
             }
         }
 

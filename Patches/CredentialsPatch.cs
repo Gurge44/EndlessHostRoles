@@ -1,10 +1,10 @@
 using HarmonyLib;
-using System;
-using System.Linq;
 using System.Text;
 using TMPro;
 using UnityEngine;
-
+using TOHE.Modules;
+using System.Linq;
+using System;
 using static TOHE.Translator;
 
 namespace TOHE;
@@ -54,73 +54,24 @@ internal class VersionShowerStartPatch
 
     private static void Postfix(VersionShower __instance)
     {
-        Main.credentialsText = $"\r<size=1.5><color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginDisplayVersion} by <color=#ffff00>Gurge44</color>";
-        //    Main.credentialsText = $"\r\n<color=#de56fd>TOHE SolarLoonieEdit</color> v{Main.PluginDisplayVersion}";
+        Main.credentialsText = $"\r\n<color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginDisplayVersion}";
+        Main.credentialsText += $"\r\n<color=#a54aff>By <color=#ffff00>Gurge44</color>";
+
         if (Main.IsAprilFools) Main.credentialsText = $"\r\n<color=#00bfff>Town Of Host</color> v11.45.14";
-#if DEBUG
-        //  Main.credentialsText += $"\r\n<color=#a54aff>Modified by </color><color=#ff3b6f>Loonie</color>";
-        //Main.credentialsText += $"\r\n<color=#a54aff>By <color=#ffc0cb>KARPED1EM</color> & </color><color=#f34c50>Loonie</color>";
-#endif
 
-#if RELEASE
-        string additionalCredentials = GetString("TextBelowVersionText");
-        if (additionalCredentials != null && additionalCredentials != "*TextBelowVersionText")
+        var credentials = UnityEngine.Object.Instantiate(__instance.text);
+        credentials.text = Main.credentialsText;
+        credentials.alignment = TextAlignmentOptions.Right;
+        credentials.transform.position = new Vector3(1f, 2.79f, -2f);
+        credentials.fontSize = credentials.fontSizeMax = credentials.fontSizeMin = 2f;
+
+        ErrorText.Create(__instance.text);
+        if (Main.hasArgumentException && ErrorText.Instance != null)
         {
-            Main.credentialsText += $"\n{additionalCredentials}";
+            ErrorText.Instance.AddError(ErrorCode.Main_DictionaryError);
         }
-#endif
-        //var credentials = Object.Instantiate(__instance.text);
-        //credentials.text = Main.credentialsText;
-        //credentials.alignment = TextAlignmentOptions.TopRight;
-        //credentials.transform.position = new Vector3(3.2f, 2.5f, 0);
 
-        //ErrorText.Create(__instance.text);
-        //if (Main.hasArgumentException && ErrorText.Instance != null)
-        //    ErrorText.Instance.AddError(ErrorCode.Main_DictionaryError);
-
-        //if (SpecialEventText == null)
-        //{
-        //    SpecialEventText = Object.Instantiate(__instance.text);
-        //    SpecialEventText.text = "";
-        //    SpecialEventText.color = Color.white;
-        //    SpecialEventText.fontSize += 2.5f;
-        //    SpecialEventText.alignment = TextAlignmentOptions.Top;
-        //    SpecialEventText.transform.position = new Vector3(0, 0.5f, 0);
-        //}
-        //SpecialEventText.enabled = TitleLogoPatch.amongUsLogo != null;
-        //if (Main.IsInitialRelease)
-        //{
-        //    SpecialEventText.text = $"Happy Birthday to {Main.ModName}!";
-        //    ColorUtility.TryParseHtmlString(Main.ModColor, out var col);
-        //    SpecialEventText.color = col;
-        //}
-        /*else if (!Main.IsAprilFools)
-          {
-              SpecialEventText.text = $"{Main.MainMenuText}";
-              SpecialEventText.fontSize = 0.9f;
-              SpecialEventText.color = Color.white;
-              SpecialEventText.alignment = TextAlignmentOptions.TopRight;
-              SpecialEventText.transform.position = new Vector3(4.6f, 2.725f, 0);
-          }
-
-          if ((OVersionShower = GameObject.Find("VersionShower")) != null && !Main.IsAprilFools)
-          {
-              OVersionShower.transform.localScale = new Vector3(0.6f, 0.6f, 1f);
-              OVersionShower.transform.position = new Vector3(-7.3f, 3.9f, 0f);
-              if (TitleLogoPatch.amongUsLogo != null)
-              {
-                  if (VisitText == null && ModUpdater.visit > 0)
-                  {
-                      VisitText = Object.Instantiate(__instance.text);
-                      VisitText.text = string.Format(GetString("TOHEVisitorCount"), Main.ModColor, ModUpdater.visit);
-                      VisitText.color = Color.white;
-                      VisitText.fontSize = 1.2f;
-                      //VisitText.alignment = TMPro.TextAlignmentOptions.Top;
-                      OVersionShower.transform.localScale = new Vector3(0.6f, 0.6f, 1f);
-                      VisitText.transform.position = new Vector3(-5.3f, 2.75f, 0f);
-                  }
-              }
-          }*/
+        VersionChecker.Check();
     }
 }
 

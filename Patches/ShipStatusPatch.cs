@@ -28,7 +28,7 @@ class ShipFixedUpdatePatch
         }
     }
 }
-[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.RepairSystem))]
+[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(PlayerControl), typeof(byte))]
 class RepairSystemPatch
 {
     public static bool IsComms;
@@ -155,13 +155,11 @@ class RepairSystemPatch
     }
     private static void CheckAndOpenDoors(ShipStatus __instance, int amount, params int[] DoorIds)
     {
-        if (DoorIds.Contains(amount))
+        if (!DoorIds.Contains(amount)) return;
+        for (int i = 0; i < DoorIds.Length; i++)
         {
-            for (int i = 0; i < DoorIds.Length; i++)
-            {
-                int id = DoorIds[i];
-                __instance.RpcRepairSystem(SystemTypes.Doors, id);
-            }
+            int id = DoorIds[i];
+            __instance.RpcUpdateSystem(SystemTypes.Doors, (byte)id);
         }
     }
 }
@@ -176,29 +174,29 @@ class CloseDoorsPatch
         return !Options.DisableSabotage.GetBool() && Options.CurrentGameMode != CustomGameMode.SoloKombat && Options.CurrentGameMode != CustomGameMode.FFA;
     }
 }
-[HarmonyPatch(typeof(SwitchSystem), nameof(SwitchSystem.RepairDamage))]
-class SwitchSystemRepairPatch
-{
-    public static bool Prefix(/*SwitchSystem __instance,*/ [HarmonyArgument(0)] PlayerControl player/*, [HarmonyArgument(1)] byte amount*/)
-    {
-        if (player.Is(CustomRoles.Fool)) return false;
-        else return true;
-    }
-    public static void Postfix(SwitchSystem __instance, [HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] byte amount)
-    {
-        if (player.Is(CustomRoles.SabotageMaster))
-            SabotageMaster.SwitchSystemRepair(__instance, amount);
-        if (player.Is(CustomRoles.Alchemist) && Alchemist.FixNextSabo == true)
-        {
-            if (amount is >= 0 and <= 4)
-            {
-                __instance.ActualSwitches = 0;
-                __instance.ExpectedSwitches = 0;
-            }
-            Alchemist.FixNextSabo = false;
-        }
-    }
-}
+//[HarmonyPatch(typeof(SwitchSystem), nameof(SwitchSystem.RepairDamage))]
+//class SwitchSystemRepairPatch
+//{
+//    public static bool Prefix(/*SwitchSystem __instance,*/ [HarmonyArgument(0)] PlayerControl player/*, [HarmonyArgument(1)] byte amount*/)
+//    {
+//        if (player.Is(CustomRoles.Fool)) return false;
+//        else return true;
+//    }
+//    public static void Postfix(SwitchSystem __instance, [HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] byte amount)
+//    {
+//        if (player.Is(CustomRoles.SabotageMaster))
+//            SabotageMaster.SwitchSystemRepair(__instance, amount);
+//        if (player.Is(CustomRoles.Alchemist) && Alchemist.FixNextSabo == true)
+//        {
+//            if (amount is >= 0 and <= 4)
+//            {
+//                __instance.ActualSwitches = 0;
+//                __instance.ExpectedSwitches = 0;
+//            }
+//            Alchemist.FixNextSabo = false;
+//        }
+//    }
+//}
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Start))]
 class StartPatch
 {

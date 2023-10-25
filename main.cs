@@ -35,6 +35,7 @@ public class Main : BasePlugin
     public const string PluginGuid = "com.gurge44.toheplus";
     public const string PluginVersion = "1.1.3";
     public const string PluginDisplayVersion = "1.1.3";
+    public static readonly string SupportedAUVersion = "2023.10.24";
     public const int PluginCreate = 3;
     public const bool Canary = false;
 

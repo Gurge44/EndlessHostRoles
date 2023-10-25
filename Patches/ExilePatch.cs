@@ -136,7 +136,6 @@ class ExileControllerWrapUpPatch
             }
 
             pc.RpcResetAbilityCooldown();
-            pc.RpcRemovePet();
         }
         if (Options.RandomSpawn.GetBool() || Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA)
         {

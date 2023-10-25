@@ -56,7 +56,7 @@ public static class PlagueBearer
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = PlagueBearerCD[id];
     public static void SetKillCooldownPestilence(byte id) => Main.AllPlayerKillCooldown[id] = PestilenceCDOpt.GetFloat();
 
-    public static bool isPlagued(byte pc, byte target)
+    public static bool IsPlagued(byte pc, byte target)
     {
         return PlaguedList[pc].Contains(target);
     }
@@ -68,7 +68,7 @@ public static class PlagueBearer
         writer.Write(target.PlayerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
-    public static void receiveRPC(MessageReader reader)
+    public static void ReceiveRPC(MessageReader reader)
     {
         byte PlagueBearerId = reader.ReadByte();
         byte PlaguedId = reader.ReadByte();
@@ -83,7 +83,7 @@ public static class PlagueBearer
             if (pc.PlayerId == playerId) continue;
 
             all++;
-            if (isPlagued(playerId, pc.PlayerId))
+            if (IsPlagued(playerId, pc.PlayerId))
                 //塗れている場合
                 plagued++;
         }
@@ -100,7 +100,7 @@ public static class PlagueBearer
 
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (isPlagued(killer.PlayerId, target.PlayerId))
+        if (IsPlagued(killer.PlayerId, target.PlayerId))
         {
             killer.Notify(GetString("PlagueBearerAlreadyPlagued"));
             return false;

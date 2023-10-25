@@ -3,6 +3,7 @@ using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using Il2CppSystem.Linq;
 using InnerNet;
+using System;
 using System.Linq;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
@@ -65,7 +66,7 @@ public class PlayerGameOptionsSender : GameOptionsSender
     {
         for (byte i = 0; i < GameManager.Instance.LogicComponents.Count; i++)
         {
-            if (GameManager.Instance.LogicComponents[i].TryCast<LogicOptions>(out _))
+            if (GameManager.Instance.LogicComponents[(Index)i].TryCast<LogicOptions>(out _))
             {
                 SendOptionsArray(optionArray, i, player.GetClientId());
             }
