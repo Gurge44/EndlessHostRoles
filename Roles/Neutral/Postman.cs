@@ -53,8 +53,9 @@ public static class Postman
     {
         byte tempTarget = byte.MaxValue;
 
-        foreach (var pc in Main.AllAlivePlayerControls)
+        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
         {
+            PlayerControl pc = Main.AllAlivePlayerControls[i];
             if (wereTargets.Contains(pc.PlayerId)) continue;
             tempTarget = pc.PlayerId;
             break;

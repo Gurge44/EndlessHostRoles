@@ -199,8 +199,9 @@ public static class HexMaster
                 HexedPlayer[id].Clear();
         }
         var hexedIdList = new List<byte>();
-        foreach (var pc in Main.AllAlivePlayerControls)
+        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
         {
+            PlayerControl pc = Main.AllAlivePlayerControls[i];
             var dic = HexedPlayer.Where(x => x.Value.Contains(pc.PlayerId));
             if (!dic.Any()) continue;
             var whichId = dic.FirstOrDefault().Key;

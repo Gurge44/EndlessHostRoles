@@ -110,8 +110,9 @@ class ExileControllerWrapUpPatch
 
         if (NiceSwapper.Vote.Any() && NiceSwapper.VoteTwo.Any())
         {
-            foreach (var swapper in Main.AllAlivePlayerControls)
+            for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
             {
+                PlayerControl swapper = Main.AllAlivePlayerControls[i];
                 if (swapper.Is(CustomRoles.NiceSwapper))
                 {
                     NiceSwapper.NiceSwappermax[swapper.PlayerId]--;
@@ -122,8 +123,9 @@ class ExileControllerWrapUpPatch
             }
         }
 
-        foreach (var pc in Main.AllPlayerControls)
+        for (int i = 0; i < Main.AllPlayerControls.Count; i++)
         {
+            PlayerControl pc = Main.AllPlayerControls[i];
             pc.ResetKillCooldown();
 
             if (pc.Is(CustomRoles.Warlock))

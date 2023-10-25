@@ -48,8 +48,9 @@ internal class Monitor
         Count--; if (Count > 0) return; Count = 5;
 
         bool Admin = false, Camera = false, DoorLog = false, Vital = false;
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
         {
+            PlayerControl pc = Main.AllAlivePlayerControls[i];
             if (Pelican.IsEaten(pc.PlayerId) || pc.inVent) continue;
             try
             {
@@ -119,8 +120,11 @@ internal class Monitor
                 byte pc = playerIdList[i];
                 Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc));
             }
-            foreach (PlayerControl pc in Main.AllPlayerControls)
+            for (int i1 = 0; i1 < Main.AllPlayerControls.Count; i1++)
+            {
+                PlayerControl pc = Main.AllPlayerControls[i1];
                 FixedUpdatePatch.Postfix(pc);
+            }
         }
     }
 }

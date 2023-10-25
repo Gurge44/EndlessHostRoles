@@ -93,8 +93,9 @@ public static class DarkHide
         MessageExtensions.WriteNetObject(SabotageFixWriter, killer);
         AmongUsClient.Instance.FinishRpcImmediately(SabotageFixWriter);
 
-        foreach (var target in Main.AllPlayerControls)
+        for (int i = 0; i < Main.AllPlayerControls.Count; i++)
         {
+            PlayerControl target = Main.AllPlayerControls[i];
             if (target.PlayerId == killer.PlayerId || target.Data.Disconnected) continue;
             SabotageFixWriter = AmongUsClient.Instance.StartRpcImmediately(ShipStatus.Instance.NetId, (byte)RpcCalls.RepairSystem, SendOption.Reliable, target.GetClientId());
             SabotageFixWriter.Write((byte)SystemTypes.Electrical);

@@ -73,8 +73,11 @@ public static class Utils
     }
     public static void TPAll(Vector2 location)
     {
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+        {
+            PlayerControl pc = Main.AllAlivePlayerControls[i];
             TP(pc.NetTransform, location);
+        }
     }
 
     public static void TP(CustomNetworkTransform nt, Vector2 location)
@@ -195,8 +198,9 @@ public static class Utils
     public static void TargetDies(PlayerControl killer, PlayerControl target)
     {
         if (!target.Data.IsDead || GameStates.IsMeeting) return;
-        foreach (var seer in Main.AllPlayerControls)
+        for (int i = 0; i < Main.AllPlayerControls.Count; i++)
         {
+            PlayerControl seer = Main.AllPlayerControls[i];
             if (KillFlashCheck(killer, target, seer))
             {
                 seer.KillFlash();
@@ -296,7 +300,7 @@ public static class Utils
     }
     public static string GetRoleMode(CustomRoles role, bool parentheses = true)
     {
-        if (Options.HideGameSettings.GetBool() && Main.AllPlayerControls.Count() > 1)
+        if (Options.HideGameSettings.GetBool() && Main.AllPlayerControls.Count > 1)
             return string.Empty;
         string mode = role.GetMode() switch
         {
@@ -1174,8 +1178,9 @@ public static class Utils
     public static List<PlayerControl> GetPlayersInRadius(float radius, Vector2 from)
     {
         var list = new List<PlayerControl>();
-        foreach (var tg in Main.AllAlivePlayerControls)
+        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
         {
+            PlayerControl tg = Main.AllAlivePlayerControls[i];
             var dis = Vector2.Distance(from, tg.transform.position);
 
             if (Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || tg.inVent) continue;
@@ -1760,8 +1765,9 @@ public static class Utils
         var taskState = GetPlayerById(Terrorist.PlayerId).GetPlayerTaskState();
         if (taskState.IsTaskFinished && (!Main.PlayerStates[Terrorist.PlayerId].IsSuicide() || Options.CanTerroristSuicideWin.GetBool())) //タスクが完了で（自殺じゃない OR 自殺勝ちが許可）されていれば
         {
-            foreach (var pc in Main.AllPlayerControls)
+            for (int i = 0; i < Main.AllPlayerControls.Count; i++)
             {
+                PlayerControl pc = Main.AllPlayerControls[i];
                 if (pc.Is(CustomRoles.Terrorist))
                 {
                     if (Main.PlayerStates[pc.PlayerId].deathReason == PlayerState.DeathReason.Vote)
@@ -2094,8 +2100,9 @@ public static class Utils
             seer.RpcSetNamePrivate(SelfName, true, force: NoCache);
 
             //seerが死んでいる場合など、必要なときのみ第二ループを実行する
-            foreach (var target in Main.AllPlayerControls)
+            for (int i1 = 0; i1 < Main.AllPlayerControls.Count; i1++)
             {
+                PlayerControl target = Main.AllPlayerControls[i1];
                 //targetがseer自身の場合は何もしない
                 if (target.PlayerId == seer.PlayerId) continue;
                 logger.Info("NotifyRoles-Loop2-" + target.GetNameWithRole().RemoveHtmlTags() + ":START");
@@ -2538,8 +2545,9 @@ public static class Utils
         //Pirate.AfterMeetingTask();
 
         if (Options.UsePets.GetBool())
-            foreach (var pc in Main.AllAlivePlayerControls)
+            for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
             {
+                PlayerControl pc = Main.AllAlivePlayerControls[i];
                 switch (pc.GetCustomRole())
                 {
                     case CustomRoles.Doormaster:
@@ -2649,8 +2657,9 @@ public static class Utils
                 if (GameStates.IsMeeting)
                 {
                     //网红死亡消息提示
-                    foreach (var pc in Main.AllPlayerControls)
+                    for (int i = 0; i < Main.AllPlayerControls.Count; i++)
                     {
+                        PlayerControl pc = Main.AllPlayerControls[i];
                         if (!Options.ImpKnowCyberStarDead.GetBool() && pc.GetCustomRole().IsImpostor()) continue;
                         if (!Options.NeutralKnowCyberStarDead.GetBool() && pc.GetCustomRole().IsNeutral()) continue;
                         SendMessage(string.Format(GetString("CyberStarDead"), target.GetRealName()), pc.PlayerId, ColorString(GetRoleColor(CustomRoles.CyberStar), GetString("CyberStarNewsTitle")));
@@ -2757,8 +2766,9 @@ public static class Utils
     {
         int doused = 0, all = 0; //学校で習った書き方
                                  //多分この方がMain.isDousedでforeachするより他のアーソニストの分ループ数少なくて済む
-        foreach (var pc in Main.AllAlivePlayerControls)
+        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
         {
+            PlayerControl pc = Main.AllAlivePlayerControls[i];
             if (pc.PlayerId == playerId) continue; //塗れない人は除外 (死んでたり切断済みだったり あとアーソニスト自身も)
 
             all++;
@@ -2773,7 +2783,7 @@ public static class Utils
     {
         int draw = 0;
         int all = Options.RevolutionistDrawCount.GetInt();
-        int max = Main.AllAlivePlayerControls.Count();
+        int max = Main.AllAlivePlayerControls.Count;
         if (!Main.PlayerStates[playerId].IsDead) max--;
         winnerList = new();
         if (all > max) all = max;
@@ -2836,8 +2846,9 @@ public static class Utils
         if (Main.PlayerStates == null) return false;
         //マフィアを除いた生きているインポスターの人数  Number of Living Impostors excluding mafia
         int LivingImpostorsNum = 0;
-        foreach (var pc in Main.AllAlivePlayerControls)
+        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
         {
+            PlayerControl pc = Main.AllAlivePlayerControls[i];
             var role = pc.GetCustomRole();
             if (role != CustomRoles.Mafia && role.IsImpostor()) LivingImpostorsNum++;
         }

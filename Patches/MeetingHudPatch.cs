@@ -429,8 +429,9 @@ class CheckForEndVotingPatch
             goto EndOfSession;
         }
 
-        foreach (var pc in Main.AllAlivePlayerControls)
+        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
         {
+            PlayerControl pc = Main.AllAlivePlayerControls[i];
             var pc_role = pc.GetCustomRole();
             if (pc_role.IsImpostor() && pc != exiledPlayer.Object)
                 impnum++;
@@ -580,8 +581,9 @@ class CheckForEndVotingPatch
     private static PlayerControl PickRevengeTarget(PlayerControl exiledplayer/*, PlayerState.DeathReason deathReason*/)//道連れ先選定
     {
         List<PlayerControl> TargetList = new();
-        foreach (var candidate in Main.AllAlivePlayerControls)
+        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
         {
+            PlayerControl candidate = Main.AllAlivePlayerControls[i];
             if (candidate == exiledplayer || Main.AfterMeetingDeathPlayers.ContainsKey(candidate.PlayerId)) continue;
         }
         if (TargetList == null || !TargetList.Any()) return null;
@@ -736,8 +738,9 @@ class MeetingHudStartPatch
             AddMsg(string.Format(GetString("BaitAdviceAlive"), string.Join(separator, baitAliveList)), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Bait), GetString("BaitAliveTitle")));
         }
         string MimicMsg = string.Empty;
-        foreach (var pc in Main.AllPlayerControls)
+        for (int i1 = 0; i1 < Main.AllPlayerControls.Count; i1++)
         {
+            PlayerControl pc = Main.AllPlayerControls[i1];
             //黑手党死后技能提示
             if (pc.Is(CustomRoles.Mafia) && !pc.IsAlive())
                 AddMsg(GetString("MafiaDeadMsg"), pc.PlayerId);
@@ -908,8 +911,9 @@ class MeetingHudStartPatch
         {
             _ = _ = new LateTask(() =>
             {
-                foreach (var pc in Main.AllPlayerControls)
+                for (int i = 0; i < Main.AllPlayerControls.Count; i++)
                 {
+                    PlayerControl pc = Main.AllPlayerControls[i];
                     pc.RpcSetNameEx(pc.GetRealName(isMeeting: true));
                 }
                 ChatUpdatePatch.DoBlockChat = false;

@@ -70,12 +70,12 @@ public static class Marshall
 
         if (!IsExposed[marshallId])
         {
-            foreach (var target in Main.AllAlivePlayerControls)
-            {
-                //     if (!IsMarshallTarget(target)) continue;
+            //foreach (var target in Main.AllAlivePlayerControls)
+            //{
+            //    //     if (!IsMarshallTarget(target)) continue;
 
-                //     TargetArrow.Add(target.PlayerId, snitchId);
-            }
+            //    //     TargetArrow.Add(target.PlayerId, snitchId);
+            //}
             IsExposed[marshallId] = true;
         }
 

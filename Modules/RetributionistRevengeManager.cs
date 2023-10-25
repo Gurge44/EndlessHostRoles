@@ -23,7 +23,7 @@ public static class RetributionistRevengeManager
             else pc.ShowPopUp(GetString("RetributionistKillDisable"));
             return true;
         }
-        int playerCount = Main.AllAlivePlayerControls.Count();
+        int playerCount = Main.AllAlivePlayerControls.Count;
         {
             if (playerCount <= Options.MinimumPlayersAliveToRetri.GetInt())
             {
@@ -54,8 +54,12 @@ public static class RetributionistRevengeManager
         if (msg == "/ret")
         {
             string text = GetString("PlayerIdList");
-            foreach (var npc in Main.AllAlivePlayerControls)
+            for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+            {
+                PlayerControl npc = Main.AllAlivePlayerControls[i];
                 text += "\n" + npc.PlayerId.ToString() + " → (" + npc.GetDisplayRoleName() + ") " + npc.GetRealName();
+            }
+
             Utils.SendMessage(text, pc.PlayerId);
             return true;
         }

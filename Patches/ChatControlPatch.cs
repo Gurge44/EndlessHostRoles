@@ -147,8 +147,8 @@ public class ChatManager
         string msg = "<size=0>.</size>";
         List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x is not CustomRoles.KB_Normal and not CustomRoles.Killer).ToList();
         string[] specialTexts = new string[] { "bet", "bt", "guess", "gs", "shoot", "st", "赌", "猜", "审判", "tl", "判", "审", "trial" };
-        var totalAlive = Main.AllAlivePlayerControls.Count();
-        var x = Main.AllAlivePlayerControls.ToArray();
+        var totalAlive = Main.AllAlivePlayerControls.Count;
+        var x = Main.AllAlivePlayerControls;
 
         var filtered = chatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(((string[])a.Split(':'))[0].Trim())).IsAlive()).ToList();
 

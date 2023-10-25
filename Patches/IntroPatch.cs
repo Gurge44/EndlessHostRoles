@@ -66,19 +66,22 @@ class CoBeginPatch
     {
         var logger = Logger.Handler("Info");
         logger.Info("------------Display Names------------");
-        foreach (var pc in Main.AllPlayerControls)
+        for (int i = 0; i < Main.AllPlayerControls.Count; i++)
         {
+            PlayerControl pc = Main.AllPlayerControls[i];
             logger.Info($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc.name.PadRightV2(20)}:{pc.cosmetics.nameText.text} ({Palette.ColorNames[pc.Data.DefaultOutfit.ColorId].ToString().Replace("Color", string.Empty)})");
             pc.cosmetics.nameText.text = pc.name;
         }
         logger.Info("------------Roles------------");
-        foreach (var pc in Main.AllPlayerControls)
+        for (int i = 0; i < Main.AllPlayerControls.Count; i++)
         {
+            PlayerControl pc = Main.AllPlayerControls[i];
             logger.Info($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc?.Data?.PlayerName?.PadRightV2(20)}:{pc.GetAllRoleName().RemoveHtmlTags()}");
         }
         logger.Info("------------Platforms------------");
-        foreach (var pc in Main.AllPlayerControls)
+        for (int i = 0; i < Main.AllPlayerControls.Count; i++)
         {
+            PlayerControl pc = Main.AllPlayerControls[i];
             try
             {
                 var text = pc.AmOwner ? "[*]" : "   ";
@@ -105,7 +108,7 @@ class CoBeginPatch
         }
 
         logger.Info("-------------Other Information-------------");
-        logger.Info($"Number of players: {Main.AllPlayerControls.Count()}");
+        logger.Info($"Number of players: {Main.AllPlayerControls.Count}");
         Main.AllPlayerControls.Do(x => Main.PlayerStates[x.PlayerId].InitTask(x));
         GameData.Instance.RecomputeTaskCounts();
         TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
@@ -527,7 +530,7 @@ class IntroCutsceneDestroyPatch
                     {
                         try
                         {
-                            for (int i = 0; i < Main.AllPlayerControls.Count(); i++)
+                            for (int i = 0; i < Main.AllPlayerControls.Count; i++)
                             {
                                 var pc = Main.AllPlayerControls.ElementAt(i);
                                 if (pc.PlayerId == 0) continue;

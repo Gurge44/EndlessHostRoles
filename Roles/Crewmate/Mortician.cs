@@ -59,8 +59,9 @@ public static class Mortician
         var pos = target.GetTruePosition();
         float minDis = float.MaxValue;
         string minName = string.Empty;
-        foreach (var pc in Main.AllAlivePlayerControls)
+        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
         {
+            PlayerControl pc = Main.AllAlivePlayerControls[i];
             if (pc.PlayerId == target.PlayerId) continue;
             var dis = Vector2.Distance(pc.GetTruePosition(), pos);
             if (dis < minDis && dis < 1.5f)

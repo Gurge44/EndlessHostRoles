@@ -76,11 +76,11 @@ public static class PlagueBearer
     }
     public static (int, int) PlaguedPlayerCount(byte playerId)
     {
-        int plagued = 0, all = 0; //学校で習った書き方
-                                  //多分この方がMain.isDousedでforeachするより他のアーソニストの分ループ数少なくて済む
-        foreach (var pc in Main.AllAlivePlayerControls)
+        int plagued = 0, all = 0;
+        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
         {
-            if (pc.PlayerId == playerId) continue; //塗れない人は除外 (死んでたり切断済みだったり あとアーソニスト自身も)
+            PlayerControl pc = Main.AllAlivePlayerControls[i];
+            if (pc.PlayerId == playerId) continue;
 
             all++;
             if (isPlagued(playerId, pc.PlayerId))

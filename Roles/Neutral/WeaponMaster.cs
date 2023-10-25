@@ -100,8 +100,9 @@ public static class WeaponMaster
             case 1:
                 _ = new LateTask(() =>
                 {
-                    foreach (var player in Main.AllAlivePlayerControls)
+                    for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
                     {
+                        PlayerControl player = Main.AllAlivePlayerControls[i];
                         if (Pelican.IsEaten(player.PlayerId)) continue;
                         if (player == killer) continue;
                         if (player.Is(CustomRoles.Pestilence) || Main.VeteranInProtect.ContainsKey(target.PlayerId)) continue;

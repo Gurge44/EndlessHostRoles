@@ -44,8 +44,9 @@ class EndGamePatch
         //winnerListリセット
         TempData.winners = new Il2CppSystem.Collections.Generic.List<WinningPlayerData>();
         var winner = new List<PlayerControl>();
-        foreach (var pc in Main.AllPlayerControls)
+        for (int i = 0; i < Main.AllPlayerControls.Count; i++)
         {
+            PlayerControl pc = Main.AllPlayerControls[i];
             if (CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId)) winner.Add(pc);
         }
         foreach (var team in CustomWinnerHolder.WinnerRoles)

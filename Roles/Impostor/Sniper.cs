@@ -139,8 +139,9 @@ public static class Sniper
         //至近距離で外す対策に一歩後ろから判定を開始する
         snipePos -= dir;
 
-        foreach (var target in Main.AllAlivePlayerControls)
+        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
         {
+            PlayerControl target = Main.AllAlivePlayerControls[i];
             //自分には当たらない
             if (target.PlayerId == sniper.PlayerId) continue;
             //死んでいない対象の方角ベクトル作成

@@ -70,8 +70,9 @@ public static class EvilTracker
         CanSetTarget.Add(playerId, CurrentTargetMode != TargetMode.Never);
         //ImpostorsIdはEvilTracker内で共有
         ImpostorsId[playerId] = new();
-        foreach (var target in Main.AllAlivePlayerControls)
+        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
         {
+            PlayerControl target = Main.AllAlivePlayerControls[i];
             var targetId = target.PlayerId;
             if (targetId != playerId && target.Is(CustomRoleTypes.Impostor))
             {

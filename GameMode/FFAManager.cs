@@ -93,8 +93,9 @@ internal static class FFAManager
         KBScore = new();
         RoundTime = FFA_GameTime.GetInt() + 8;
 
-        foreach (var pc in Main.AllAlivePlayerControls)
+        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
         {
+            PlayerControl pc = Main.AllAlivePlayerControls[i];
             KBScore.TryAdd(pc.PlayerId, 0);
         }
     }
@@ -155,7 +156,7 @@ internal static class FFAManager
         }
         catch
         {
-            return Main.AllPlayerControls.Count();
+            return Main.AllPlayerControls.Count;
         }
     }
     public static string GetHudText()
@@ -166,7 +167,7 @@ internal static class FFAManager
     {
         if (killer == null || target == null || Options.CurrentGameMode != CustomGameMode.FFA) return;
         if (target.inVent) return;
-        var totalalive = Main.AllAlivePlayerControls.Count();
+        var totalalive = Main.AllAlivePlayerControls.Count;
         if (FFAShieldedList.TryGetValue(target.PlayerId, out var dur))
         {
             killer.Notify(GetString("FFA_TargetIsShielded"));
@@ -299,7 +300,7 @@ internal static class FFAManager
     {
         if (GameStates.IsMeeting) return string.Empty;
         if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
-        if (Main.AllAlivePlayerControls.Count() != 2) return string.Empty;
+        if (Main.AllAlivePlayerControls.Count != 2) return string.Empty;
 
         string arrows = string.Empty;
         PlayerControl otherPlayer = null;
@@ -351,8 +352,9 @@ internal static class FFAManager
 
                     List<byte> changePositionPlayers = new();
 
-                    foreach (var pc in Main.AllAlivePlayerControls)
+                    for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
                     {
+                        PlayerControl pc = Main.AllAlivePlayerControls[i];
                         if (changePositionPlayers.Contains(pc.PlayerId) || !pc.IsAlive() || pc.onLadder || pc.inVent) continue;
 
                         var filtered = Main.AllAlivePlayerControls.Where(a =>
@@ -381,8 +383,9 @@ internal static class FFAManager
 
                 if (Main.NormalOptions.MapId == 4) return;
 
-                foreach (var pc in Main.AllAlivePlayerControls)
+                for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
                 {
+                    PlayerControl pc = Main.AllAlivePlayerControls[i];
                     if (pc == null) return;
 
                     bool sync = false;

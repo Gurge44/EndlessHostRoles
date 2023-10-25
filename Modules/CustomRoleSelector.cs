@@ -16,7 +16,7 @@ internal class CustomRoleSelector
         // 开始职业抽取
         RoleResult = new();
         var rd = IRandom.Instance;
-        int playerCount = Main.AllAlivePlayerControls.Count();
+        int playerCount = Main.AllAlivePlayerControls.Count;
         int optImpNum = Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors);
         int optNonNeutralKillingNum = 0;
         int optNeutralKillingNum = 0;
@@ -60,15 +60,23 @@ internal class CustomRoleSelector
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
         {
             RoleResult = new();
-            foreach (var pc in Main.AllAlivePlayerControls)
+            for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+            {
+                PlayerControl pc = Main.AllAlivePlayerControls[i];
                 RoleResult.Add(pc, CustomRoles.KB_Normal);
+            }
+
             return;
         }
         if (Options.CurrentGameMode == CustomGameMode.FFA)
         {
             RoleResult = new();
-            foreach (var pc in Main.AllAlivePlayerControls)
+            for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+            {
+                PlayerControl pc = Main.AllAlivePlayerControls[i];
                 RoleResult.Add(pc, CustomRoles.Killer);
+            }
+
             return;
         }
 
@@ -320,7 +328,7 @@ internal class CustomRoleSelector
             }
         }
 
-        var AllPlayer = Main.AllAlivePlayerControls.ToList();
+        var AllPlayer = Main.AllAlivePlayerControls;
 
         while (AllPlayer.Any() && rolesToAssign.Any())
         {

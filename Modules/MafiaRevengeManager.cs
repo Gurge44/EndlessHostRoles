@@ -32,8 +32,12 @@ public static class MafiaRevengeManager
         if (msg == "/rv")
         {
             string text = GetString("PlayerIdList");
-            foreach (var npc in Main.AllAlivePlayerControls)
+            for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+            {
+                PlayerControl npc = Main.AllAlivePlayerControls[i];
                 text += "\n" + npc.PlayerId.ToString() + " → (" + npc.GetDisplayRoleName() + ") " + npc.GetRealName();
+            }
+
             Utils.SendMessage(text, pc.PlayerId);
             return true;
         }

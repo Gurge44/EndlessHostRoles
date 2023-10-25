@@ -19,8 +19,9 @@ public static class GuessManager
     public static string GetFormatString()
     {
         string text = GetString("PlayerIdList");
-        foreach (var pc in Main.AllAlivePlayerControls)
+        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
         {
+            PlayerControl pc = Main.AllAlivePlayerControls[i];
             string id = pc.PlayerId.ToString();
             string name = pc.GetRealName();
             text += $"\n{id} → {name}";
@@ -763,8 +764,8 @@ public static class GuessManager
         var rd = IRandom.Instance;
         string msg;
         string[] command = new string[] { "bet", "bt", "guess", "gs", "shoot", "st", "赌", "猜", "审判", "tl", "判", "审" };
-        var x = Main.AllAlivePlayerControls.ToArray();
-        var totalAlive = Main.AllAlivePlayerControls.Count();
+        var x = Main.AllAlivePlayerControls;
+        var totalAlive = Main.AllAlivePlayerControls.Count;
         for (int i = 0; i < 20; i++)
         {
             //msg = "/";

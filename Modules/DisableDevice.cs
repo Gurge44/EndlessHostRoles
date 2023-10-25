@@ -45,8 +45,9 @@ class DisableDevice
         if (frame != 0) return;
 
         if (!DoDisable) return;
-        foreach (var pc in Main.AllPlayerControls)
+        for (int i = 0; i < Main.AllPlayerControls.Count; i++)
         {
+            PlayerControl pc = Main.AllPlayerControls[i];
             try
             {
                 if (pc.IsModClient()) continue;

@@ -377,8 +377,9 @@ public static class Magician
 
         snipePos -= dir;
 
-        foreach (var target in Main.AllAlivePlayerControls)
+        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
         {
+            PlayerControl target = Main.AllAlivePlayerControls[i];
             if (target.PlayerId == sniper.PlayerId) continue;
             var target_pos = target.transform.position - snipePos;
             if (target_pos.magnitude < 1) continue;

@@ -204,8 +204,9 @@ internal class ChatCommands
                     if (GameStates.IsLobby || !Options.EnableKillerLeftCommand.GetBool()) break;
                     int impnum = 0;
                     int neutralnum = 0;
-                    foreach (var players in Main.AllAlivePlayerControls)
+                    for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
                     {
+                        PlayerControl players = Main.AllAlivePlayerControls[i];
                         if (Options.ShowImpRemainOnEject.GetBool())
                         {
                             if (players.GetCustomRole().IsImpostor())
@@ -390,8 +391,9 @@ internal class ChatCommands
                         Utils.SendMessage(GetString("Message.CanNotUseInLobby"), PlayerControl.LocalPlayer.PlayerId);
                         break;
                     }
-                    foreach (var pc in Main.AllPlayerControls)
+                    for (int i = 0; i < Main.AllPlayerControls.Count; i++)
                     {
+                        PlayerControl pc = Main.AllPlayerControls[i];
                         pc.RpcSetNameEx(pc.GetRealName(isMeeting: true));
                     }
                     ChatUpdatePatch.DoBlockChat = false;
@@ -402,8 +404,12 @@ internal class ChatCommands
                 case "/id":
                     canceled = true;
                     string msgText = GetString("PlayerIdList");
-                    foreach (var pc in Main.AllPlayerControls)
+                    for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+                    {
+                        PlayerControl pc = Main.AllPlayerControls[i];
                         msgText += "\n" + pc.PlayerId.ToString() + " → " + Main.AllPlayerNames[pc.PlayerId];
+                    }
+
                     Utils.SendMessage(msgText, PlayerControl.LocalPlayer.PlayerId);
                     break;
 
@@ -903,8 +909,12 @@ internal class ChatCommands
                 if (Options.ApplyModeratorList.GetValue() == 0 || !IsPlayerModerator(player.FriendCode)) break;
 
                 string msgText = GetString("PlayerIdList");
-                foreach (var pc in Main.AllPlayerControls)
+                for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+                {
+                    PlayerControl pc = Main.AllPlayerControls[i];
                     msgText += "\n" + pc.PlayerId.ToString() + " → " + Main.AllPlayerNames[pc.PlayerId];
+                }
+
                 Utils.SendMessage(msgText, player.PlayerId);
                 break;
             case "/kick":
@@ -989,8 +999,9 @@ internal class ChatCommands
                 if (GameStates.IsLobby || !Options.EnableKillerLeftCommand.GetBool()) break;
                 int impnum = 0;
                 int neutralnum = 0;
-                foreach (var players in Main.AllAlivePlayerControls)
+                for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
                 {
+                    PlayerControl players = Main.AllAlivePlayerControls[i];
                     if (Options.ShowImpRemainOnEject.GetBool())
                     {
                         if (players.GetCustomRole().IsImpostor())
