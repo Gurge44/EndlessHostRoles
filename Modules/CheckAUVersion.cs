@@ -6,17 +6,18 @@ namespace TOHE.Modules;
 // https://github.com/tukasa0001/TownOfHost/blob/main/Modules/VersionChecker.cs
 public static class VersionChecker
 {
-    public static bool IsSupported { get; private set; } = true;
+    private static bool isSupported = true;
+    public static bool IsSupported { get => isSupported; private set => isSupported = value; }
 
     public static void Check()
     {
-        var amongUsVersion = Version.Parse(Application.version);
-        Logger.Info($" {amongUsVersion}", "Among Us Version Check");
+        var AmongUsVersion = Version.Parse(Application.version);
+        Logger.Info($" {AmongUsVersion}", "Among Us Version Check");
 
-        var SupportedVersion = Version.Parse(Main.SupportedVersionAU);
+        var SupportedVersion = Version.Parse(Main.SupportedAUVersion);
         Logger.Info($" {SupportedVersion}", "Supported Version Check");
 
-        IsSupported = amongUsVersion >= SupportedVersion;
+        IsSupported = AmongUsVersion >= SupportedVersion;
         Logger.Info($" {IsSupported}", "Version Is Supported?");
 
         if (!IsSupported)

@@ -64,10 +64,11 @@ public static class Options
     };
 
     // MapActive
-    public static bool IsActiveSkeld => AddedTheSkeld.GetBool() || Main.NormalOptions.MapId == 0;
-    public static bool IsActiveMiraHQ => AddedMiraHQ.GetBool() || Main.NormalOptions.MapId == 1;
-    public static bool IsActivePolus => AddedPolus.GetBool() || Main.NormalOptions.MapId == 2;
-    public static bool IsActiveAirship => AddedTheAirship.GetBool() || Main.NormalOptions.MapId == 4;
+    public static bool IsActiveSkeld => Main.NormalOptions.MapId == 0;
+    public static bool IsActiveMiraHQ => Main.NormalOptions.MapId == 1;
+    public static bool IsActivePolus => Main.NormalOptions.MapId == 2;
+    public static bool IsActiveAirship => Main.NormalOptions.MapId == 4;
+    public static bool IsActiveFungle => Main.NormalOptions.MapId == 5;
 
     // 役職数・確率
     public static Dictionary<CustomRoles, int> roleCounts;
@@ -279,6 +280,7 @@ public static class Options
     public static OptionItem MiraChance;
     public static OptionItem PolusChance;
     public static OptionItem AirshipChance;
+    public static OptionItem FungleChance;
 
     // UNDERDOG
     public static OptionItem UnderdogKillCooldown;
@@ -2589,6 +2591,9 @@ public static class Options
             .SetParent(RandomMapsMode)
             .SetValueFormat(OptionFormat.Percent);
         AirshipChance = IntegerOptionItem.Create(19913, "AirshipChance", new(0, 100, 5), 0, TabGroup.GameSettings, false)
+            .SetParent(RandomMapsMode)
+            .SetValueFormat(OptionFormat.Percent);
+        FungleChance = IntegerOptionItem.Create(19922, "FungleChance", new(0, 100, 5), 10, TabGroup.GameSettings, false)
             .SetParent(RandomMapsMode)
             .SetValueFormat(OptionFormat.Percent);
 

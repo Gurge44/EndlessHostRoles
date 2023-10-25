@@ -82,8 +82,11 @@ class CheckMurderPatch
         }
 
         //不正キル防止処理
-        if (target.Data == null || //PlayerDataがnullじゃないか確認
-            target.inVent || target.inMovingPlat //targetの状態をチェック
+        if (target.Data == null
+            || target.inVent
+            || target.inMovingPlat
+            || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()
+            || target.MyPhysics.Animations.IsPlayingAnyLadderAnimation()
         )
         {
             Logger.Info("The target is in a state where they cannot be killed, kill canceled.", "CheckMurder");
@@ -1493,9 +1496,15 @@ class ShapeshiftPatch
             1.2f, "ShapeShiftNotify");
         }
 
-        if (!shapeshifting) _ = new LateTask(() => { shapeshifter.RpcResetAbilityCooldown(); }, 0.1f, "Reset SS CD");
+        if (!shapeshifting || !isSSneeded)
+        {
+            _ = new LateTask(shapeshifter.RpcResetAbilityCooldown, 0.1f, "Reset SS CD");
+        }
 
-        if (!isSSneeded) shapeshifter.RpcResetAbilityCooldown();
+        if (!isSSneeded && shapeshifting || true)
+        {
+            shapeshifter.RpcRejectShapeshift();
+        }
 
         return !shapeshifting || isSSneeded || !shapeshifter.IsModClient();
     }

@@ -19,9 +19,10 @@ internal class MakePublicPatch
             Logger.SendInGame(message);
             return false;
         }
-        if (ModUpdater.isBroken || (ModUpdater.hasUpdate && ModUpdater.forceUpdate))
+        if (ModUpdater.isBroken || (ModUpdater.hasUpdate && ModUpdater.forceUpdate) || !VersionChecker.IsSupported)
         {
             var message = string.Empty;
+            if (!VersionChecker.IsSupported) message = GetString("UnsupportedVersion");
             if (ModUpdater.isBroken) message = GetString("ModBrokenMessage");
             if (ModUpdater.hasUpdate) message = GetString("CanNotJoinPublicRoomNoLatest");
             Logger.Info(message, "MakePublicPatch");
