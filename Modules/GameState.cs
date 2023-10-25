@@ -59,27 +59,14 @@ public class PlayerState
     {
         MainRole = role;
         countTypes = role.GetCountTypes();
-        if (role == CustomRoles.DarkHide)
+        switch (role)
         {
-            if (!DarkHide.SnatchesWin.GetBool())
-            {
-                countTypes = CountTypes.DarkHide;
-            }
-            if (DarkHide.SnatchesWin.GetBool())
-            {
-                countTypes = CountTypes.Crew;
-            }
-        }
-        if (role == CustomRoles.Arsonist)
-        {
-            if (Options.ArsonistKeepsGameGoing.GetBool())
-            {
-                countTypes = CountTypes.Arsonist;
-            }
-            if (!Options.ArsonistKeepsGameGoing.GetBool())
-            {
-                countTypes = CountTypes.Crew;
-            }
+            case CustomRoles.DarkHide:
+                countTypes = !DarkHide.SnatchesWin.GetBool() ? CountTypes.DarkHide : CountTypes.Crew;
+                break;
+            case CustomRoles.Arsonist:
+                countTypes = Options.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Arsonist : CountTypes.Crew;
+                break;
         }
     }
     public void SetSubRole(CustomRoles role, bool AllReplace = false)

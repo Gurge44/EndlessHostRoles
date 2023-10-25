@@ -136,6 +136,8 @@ class OnPlayerLeftPatch
                 Pelican.OnPelicanDied(data.Character.PlayerId);
             if (Spiritualist.SpiritualistTarget == data.Character.PlayerId)
                 Spiritualist.RemoveTarget();
+            if (data.Character.PlayerId == Postman.Target)
+                Postman.SetNewTarget();
             if (Main.PlayerStates[data.Character.PlayerId].deathReason == PlayerState.DeathReason.etc) //死因が設定されていなかったら
             {
                 Main.PlayerStates[data.Character.PlayerId].deathReason = PlayerState.DeathReason.Disconnected;
@@ -197,7 +199,7 @@ class OnPlayerLeftPatch
                 break;
         }
 
-        Logger.Info($"{data?.PlayerName}(ClientID:{data?.Id}/FriendCode:{data?.FriendCode})断开连接(理由:{reason}，Ping:{AmongUsClient.Instance.Ping})", "Session");
+        Logger.Info($"{data?.PlayerName} - (ClientID: {data?.Id} / FriendCode: {data?.FriendCode}) - Disconnected: {reason}，Ping: ({AmongUsClient.Instance.Ping})", "Session");
 
         if (AmongUsClient.Instance.AmHost)
         {
@@ -205,6 +207,8 @@ class OnPlayerLeftPatch
             Main.SayBanwordsTimes.Remove(__instance.ClientId);
             Main.playerVersion.Remove(data?.Character?.PlayerId ?? byte.MaxValue);
         }
+
+        Utils.CountAlivePlayers(true);
     }
 }
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CreatePlayer))]

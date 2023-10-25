@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TOHE.Roles.Neutral;
 using static TOHE.Translator;
+using static TOHE.Utils;
 
 namespace TOHE;
 
@@ -229,7 +230,7 @@ class GameEndChecker
                 {
                     foreach (var pc in Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Lovers)))
                     {
-                        if (CustomWinnerHolder.WinnerIds.Any(x => Utils.GetPlayerById(x).Is(CustomRoles.Lovers)))
+                        if (CustomWinnerHolder.WinnerIds.Any(x => GetPlayerById(x).Is(CustomRoles.Lovers)))
                         {
                             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
                             CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Lovers);
@@ -257,7 +258,7 @@ class GameEndChecker
 
 
                 //中立共同胜利
-                if (Options.NeutralWinTogether.GetBool() && CustomWinnerHolder.WinnerIds.Any(x => Utils.GetPlayerById(x) != null && Utils.GetPlayerById(x).GetCustomRole().IsNeutral()))
+                if (Options.NeutralWinTogether.GetBool() && CustomWinnerHolder.WinnerIds.Any(x => GetPlayerById(x) != null && GetPlayerById(x).GetCustomRole().IsNeutral()))
                 {
                     foreach (var pc in Main.AllPlayerControls)
                         if (pc.GetCustomRole().IsNeutral() && !CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId))
@@ -267,7 +268,7 @@ class GameEndChecker
                 {
                     foreach (var id in CustomWinnerHolder.WinnerIds)
                     {
-                        var pc = Utils.GetPlayerById(id);
+                        var pc = GetPlayerById(id);
                         if (pc == null || !pc.GetCustomRole().IsNeutral()) continue;
                         foreach (var tar in Main.AllPlayerControls)
                             if (!CustomWinnerHolder.WinnerIds.Contains(tar.PlayerId) && tar.GetCustomRole() == pc.GetCustomRole())
@@ -387,45 +388,48 @@ class GameEndChecker
 
             if (CustomRolesHelper.RoleExist(CustomRoles.Sunnyboy) && Main.AllAlivePlayerControls.Count() > 1) return false;
 
-            byte Imp = (byte)Utils.AlivePlayersCount(CountTypes.Impostor);
-            byte Jackal = (byte)Utils.AlivePlayersCount(CountTypes.Jackal);
-            byte Pel = (byte)Utils.AlivePlayersCount(CountTypes.Pelican);
-            byte Crew = (byte)Utils.AlivePlayersCount(CountTypes.Crew);
-            byte Gam = (byte)Utils.AlivePlayersCount(CountTypes.Gamer);
-            byte BK = (byte)Utils.AlivePlayersCount(CountTypes.BloodKnight);
-            byte Pois = (byte)Utils.AlivePlayersCount(CountTypes.Poisoner);
-            byte CM = (byte)Utils.AlivePlayersCount(CountTypes.Succubus);
-            byte Hex = (byte)Utils.AlivePlayersCount(CountTypes.HexMaster);
-            byte Wraith = (byte)Utils.AlivePlayersCount(CountTypes.Wraith);
-            byte Pestilence = (byte)Utils.AlivePlayersCount(CountTypes.Pestilence);
-            byte PB = (byte)Utils.AlivePlayersCount(CountTypes.PlagueBearer);
-            byte SK = (byte)Utils.AlivePlayersCount(CountTypes.NSerialKiller);
-            byte WM = (byte)Utils.AlivePlayersCount(CountTypes.WeaponMaster);
-            byte MG = (byte)Utils.AlivePlayersCount(CountTypes.Magician);
-            byte RL = (byte)Utils.AlivePlayersCount(CountTypes.Reckless);
-            byte EC = (byte)Utils.AlivePlayersCount(CountTypes.Eclipse);
-            byte PM = (byte)Utils.AlivePlayersCount(CountTypes.Pyromaniac);
-            byte HH = (byte)Utils.AlivePlayersCount(CountTypes.HeadHunter);
-            byte VG = (byte)Utils.AlivePlayersCount(CountTypes.Vengeance);
-            byte IM = (byte)Utils.AlivePlayersCount(CountTypes.Imitator);
-            byte WW = (byte)Utils.AlivePlayersCount(CountTypes.Werewolf);
-            byte RR = (byte)Utils.AlivePlayersCount(CountTypes.RuthlessRomantic);
-            //byte Witch = Utils.AlivePlayersCount(CountTypes.NWitch);
-            byte Juggy = (byte)Utils.AlivePlayersCount(CountTypes.Juggernaut);
-            byte Vamp = (byte)Utils.AlivePlayersCount(CountTypes.Infectious);
-            byte Virus = (byte)Utils.AlivePlayersCount(CountTypes.Virus);
-            byte Rogue = (byte)Utils.AlivePlayersCount(CountTypes.Rogue);
-            byte DH = (byte)Utils.AlivePlayersCount(CountTypes.DarkHide);
-            byte Jinx = (byte)Utils.AlivePlayersCount(CountTypes.Jinx);
-            byte Rit = (byte)Utils.AlivePlayersCount(CountTypes.Ritualist);
-            byte PP = (byte)Utils.AlivePlayersCount(CountTypes.Pickpocket);
-            byte Traitor = (byte)Utils.AlivePlayersCount(CountTypes.Traitor);
-            byte Med = (byte)Utils.AlivePlayersCount(CountTypes.Medusa);
-            byte SC = (byte)Utils.AlivePlayersCount(CountTypes.Spiritcaller);
-            byte Glitch = (byte)Utils.AlivePlayersCount(CountTypes.Glitch);
-            byte Arso = (byte)Utils.AlivePlayersCount(CountTypes.Arsonist);
-            byte Bandit = (byte)Utils.AlivePlayersCount(CountTypes.Bandit);
-            byte Agi = (byte)Utils.AlivePlayersCount(CountTypes.Agitater);
+            int Imp = AlivePlayersCount(CountTypes.Impostor);
+            int Crew = AlivePlayersCount(CountTypes.Crew);
+
+            Dictionary<(CustomRoles?, CustomWinner), int> roleCounts = new()
+            {
+                { (null,                        CustomWinner.Jackal),             AlivePlayersCount(CountTypes.Jackal) },
+                { (CustomRoles.Pelican,         CustomWinner.Pelican),            AlivePlayersCount(CountTypes.Pelican) },
+                { (CustomRoles.Gamer,           CustomWinner.Gamer),              AlivePlayersCount(CountTypes.Gamer) },
+                { (CustomRoles.Poisoner,        CustomWinner.Poisoner),           AlivePlayersCount(CountTypes.Poisoner) },
+                { (CustomRoles.BloodKnight,     CustomWinner.BloodKnight),        AlivePlayersCount(CountTypes.BloodKnight) },
+                { (null,                        CustomWinner.Succubus),           AlivePlayersCount(CountTypes.Succubus) },
+                { (CustomRoles.HexMaster,       CustomWinner.HexMaster),          AlivePlayersCount(CountTypes.HexMaster) },
+                { (CustomRoles.Wraith,          CustomWinner.Wraith),             AlivePlayersCount(CountTypes.Wraith) },
+                { (CustomRoles.Pestilence,      CustomWinner.Pestilence),         AlivePlayersCount(CountTypes.Pestilence) },
+                { (CustomRoles.PlagueBearer,    CustomWinner.Plaguebearer),       AlivePlayersCount(CountTypes.PlagueBearer) },
+                { (CustomRoles.NSerialKiller,   CustomWinner.SerialKiller),       AlivePlayersCount(CountTypes.NSerialKiller) },
+                { (CustomRoles.WeaponMaster,    CustomWinner.WeaponMaster),       AlivePlayersCount(CountTypes.WeaponMaster) },
+                { (CustomRoles.Magician,        CustomWinner.Magician),           AlivePlayersCount(CountTypes.Magician) },
+                { (CustomRoles.Reckless,        CustomWinner.Reckless),           AlivePlayersCount(CountTypes.Reckless) },
+                { (CustomRoles.Eclipse,         CustomWinner.Eclipse),            AlivePlayersCount(CountTypes.Eclipse) },
+                { (CustomRoles.Pyromaniac,      CustomWinner.Pyromaniac),         AlivePlayersCount(CountTypes.Pyromaniac) },
+                { (CustomRoles.HeadHunter,      CustomWinner.HeadHunter),         AlivePlayersCount(CountTypes.HeadHunter) },
+                { (CustomRoles.Vengeance,       CustomWinner.Vengeance),          AlivePlayersCount(CountTypes.Vengeance) },
+                { (CustomRoles.Imitator,        CustomWinner.Imitator),           AlivePlayersCount(CountTypes.Imitator) },
+                { (CustomRoles.Werewolf,        CustomWinner.Werewolf),           AlivePlayersCount(CountTypes.Werewolf) },
+                { (null,                        CustomWinner.RuthlessRomantic),   AlivePlayersCount(CountTypes.RuthlessRomantic) },
+                { (CustomRoles.Juggernaut,      CustomWinner.Juggernaut),         AlivePlayersCount(CountTypes.Juggernaut) },
+                { (null,                        CustomWinner.Infectious),         AlivePlayersCount(CountTypes.Infectious) },
+                { (null,                        CustomWinner.Virus),              AlivePlayersCount(CountTypes.Virus) },
+                { (null,                        CustomWinner.Rogue),              AlivePlayersCount(CountTypes.Rogue) },
+                { (CustomRoles.DarkHide,        CustomWinner.DarkHide),           AlivePlayersCount(CountTypes.DarkHide) },
+                { (CustomRoles.Jinx,            CustomWinner.Jinx),               AlivePlayersCount(CountTypes.Jinx) },
+                { (CustomRoles.Ritualist,       CustomWinner.Ritualist),          AlivePlayersCount(CountTypes.Ritualist) },
+                { (CustomRoles.Pickpocket,      CustomWinner.Pickpocket),         AlivePlayersCount(CountTypes.Pickpocket) },
+                { (CustomRoles.Traitor,         CustomWinner.Traitor),            AlivePlayersCount(CountTypes.Traitor) },
+                { (CustomRoles.Medusa,          CustomWinner.Medusa),             AlivePlayersCount(CountTypes.Medusa) },
+                { (null,                        CustomWinner.Spiritcaller),       AlivePlayersCount(CountTypes.Spiritcaller) },
+                { (CustomRoles.Glitch,          CustomWinner.Glitch),             AlivePlayersCount(CountTypes.Glitch) },
+                { (CustomRoles.Arsonist,        CustomWinner.Arsonist),           AlivePlayersCount(CountTypes.Arsonist) },
+                { (CustomRoles.Bandit,          CustomWinner.Bandit),             AlivePlayersCount(CountTypes.Bandit) },
+                { (CustomRoles.Agitater,        CustomWinner.Agitater),           AlivePlayersCount(CountTypes.Agitater) },
+            };
 
             foreach (var x in Main.AllAlivePlayerControls)
             {
@@ -434,27 +438,15 @@ class GameEndChecker
                 if (x.GetCustomRole().IsImpostor() && x.Is(CustomRoles.Admired) && x.Is(CustomRoles.DualPersonality)) Crew++;
                 if (x.GetCustomRole().IsNeutral() && x.Is(CustomRoles.Admired) && x.Is(CustomRoles.DualPersonality)) Crew++;
                 if (x.GetCustomRole().IsCrewmate() && x.Is(CustomRoles.Admired) && x.Is(CustomRoles.DualPersonality)) Crew++;
-                if (x.Is(CustomRoles.Charmed) && x.Is(CustomRoles.DualPersonality)) CM++;
-                if (x.Is(CustomRoles.Sidekick) && x.Is(CustomRoles.DualPersonality)) Jackal++;
-                if (x.Is(CustomRoles.Recruit) && x.Is(CustomRoles.DualPersonality)) Jackal++;
-                if (x.Is(CustomRoles.Infected) && x.Is(CustomRoles.DualPersonality)) Vamp++;
-                if (x.Is(CustomRoles.Contagious) && x.Is(CustomRoles.DualPersonality)) Virus++;
+                if (x.Is(CustomRoles.Charmed) && x.Is(CustomRoles.DualPersonality)) roleCounts[(CustomRoles.Succubus, CustomWinner.Succubus)]++;
+                if (x.Is(CustomRoles.Sidekick) && x.Is(CustomRoles.DualPersonality)) roleCounts[(CustomRoles.Jackal, CustomWinner.Jackal)]++;
+                if (x.Is(CustomRoles.Recruit) && x.Is(CustomRoles.DualPersonality)) roleCounts[(CustomRoles.Jackal, CustomWinner.Jackal)]++;
+                if (x.Is(CustomRoles.Infected) && x.Is(CustomRoles.DualPersonality)) roleCounts[(CustomRoles.Infectious, CustomWinner.Infectious)]++;
+                if (x.Is(CustomRoles.Contagious) && x.Is(CustomRoles.DualPersonality)) roleCounts[(CustomRoles.Virus, CustomWinner.Virus)]++;
                 if (x.Is(CustomRoles.Madmate) && x.Is(CustomRoles.DualPersonality)) Imp++;
             }
 
-            //Imp += (byte)Main.AllAlivePlayerControls.Count(x => x.GetCustomRole().IsImpostor() && x.Is(CustomRoles.DualPersonality));
-            //Crew += (byte)Main.AllAlivePlayerControls.Count(x => x.GetCustomRole().IsCrewmate() && x.Is(CustomRoles.DualPersonality));
-            //Crew += (byte)Main.AllAlivePlayerControls.Count(x => x.GetCustomRole().IsImpostor() && x.Is(CustomRoles.Admired) && x.Is(CustomRoles.DualPersonality));
-            //Crew += (byte)Main.AllAlivePlayerControls.Count(x => x.GetCustomRole().IsNeutral() && x.Is(CustomRoles.Admired) && x.Is(CustomRoles.DualPersonality));
-            //Crew += (byte)Main.AllAlivePlayerControls.Count(x => x.GetCustomRole().IsCrewmate() && x.Is(CustomRoles.Admired) && x.Is(CustomRoles.DualPersonality));
-            //CM += (byte)Main.AllAlivePlayerControls.Count(x => x.Is(CustomRoles.Charmed) && x.Is(CustomRoles.DualPersonality));
-            //Jackal += (byte)Main.AllAlivePlayerControls.Count(x => x.Is(CustomRoles.Sidekick) && x.Is(CustomRoles.DualPersonality));
-            //Jackal += (byte)Main.AllAlivePlayerControls.Count(x => x.Is(CustomRoles.Recruit) && x.Is(CustomRoles.DualPersonality));
-            //Vamp += (byte)Main.AllAlivePlayerControls.Count(x => x.Is(CustomRoles.Infected) && x.Is(CustomRoles.DualPersonality));
-            //Virus += (byte)Main.AllAlivePlayerControls.Count(x => x.Is(CustomRoles.Contagious) && x.Is(CustomRoles.DualPersonality));
-            //Imp += (byte)Main.AllAlivePlayerControls.Count(x => x.Is(CustomRoles.Madmate) && x.Is(CustomRoles.DualPersonality));
-
-            int totalNKAlive = new int[] { Jackal, Pel, Gam, BK, Pois, CM, Hex, Wraith, Pestilence, PB, SK, EC, PM, HH, VG, IM, WW, RR, Juggy, Vamp, Virus, Rogue, DH, Jinx, Rit, PP, Traitor, Med, SC, Glitch, Arso, Bandit, Agi, WM, MG, RL }.Sum();
+            int totalNKAlive = roleCounts.Values.Sum();
 
             CustomWinner? winner = null;
             CustomRoles? rl = null;
@@ -484,225 +476,36 @@ class GameEndChecker
                     winner = CustomWinner.Crewmate;
                 }
                 else return false;
-                if (winner != null)
-                    CustomWinnerHolder.ResetAndSetWinner((CustomWinner)winner);
+                if (winner != null) CustomWinnerHolder.ResetAndSetWinner((CustomWinner)winner);
                 return true;
             }
 
             else
             {
                 if (Imp >= 1) return false; // both imps and NKs are alive, game must continue
-                else if (Crew > totalNKAlive) return false; // Imps are dead, but crew still outnumbers NKs (game must continue)
+                else if (Crew > totalNKAlive) return false; // Imps are dead, but crew still outnumbers NKs, game must continue
                 else // Imps dead, Crew <= NK, Checking if all NKs alive are in 1 team
                 {
-                    if (Rit == totalNKAlive)
+                    var aliveCounts = roleCounts.Values.Where(x => x > 0).ToList();
+                    if (aliveCounts.Count > 1) return false; // There are multiple types of NKs alive, game must continue
+                    else if (aliveCounts.Count == 1) // There is only one type of NK alive, they've won
                     {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Ritualist;
-                        rl = CustomRoles.Ritualist;
+                        foreach (var keyValuePair in roleCounts.Where(keyValuePair => keyValuePair.Value == aliveCounts[0]))
+                        {
+                            reason = GameOverReason.ImpostorByKill;
+                            winner = keyValuePair.Key.Item2;
+                            rl = keyValuePair.Key.Item1;
+                            break;
+                        }
                     }
-                    else if (Traitor == totalNKAlive)
+                    else
                     {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Traitor;
-                        rl = CustomRoles.Traitor;
+                        Logger.Fatal("Error while selecting NK winner", "CheckGameEndPatch.CheckGameEndByLivingPlayers");
+                        Logger.SendInGame("There was an error while selecting the winner. Please report this bug to the developer! (Do /dump to get logs)");
+                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Error);
+                        return true;
                     }
-                    else if (Med == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Medusa;
-                        rl = CustomRoles.Medusa;
-                    }
-                    else if (PP == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Pickpocket;
-                        rl = CustomRoles.Pickpocket;
-                    }
-                    else if (Jackal == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Jackal;
-                    }
-                    else if (Vamp == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Infectious;
-                    }
-                    else if (DH == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.DarkHide;
-                    }
-                    else if (Rogue == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Rogue;
-                    }
-                    else if (Wraith == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Wraith;
-                        rl = CustomRoles.Wraith;
-                    }
-                    else if (Agi == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Agitater;
-                    }
-                    else if (Pestilence == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Pestilence;
-                        rl = CustomRoles.Pestilence;
-                    }
-                    else if (PB == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Plaguebearer;
-                        rl = CustomRoles.PlagueBearer;
-                    }
-                    else if (Juggy == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Juggernaut;
-                        rl = CustomRoles.Juggernaut;
-                    }
-                    else if (EC == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Eclipse;
-                        rl = CustomRoles.Eclipse;
-                    }
-                    else if (HH == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.HeadHunter;
-                        rl = CustomRoles.HeadHunter;
-                    }
-                    else if (VG == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Vengeance;
-                        rl = CustomRoles.Vengeance;
-                    }
-                    else if (PM == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Pyromaniac;
-                        rl = CustomRoles.Pyromaniac;
-                    }
-                    else if (MG == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Magician;
-                        rl = CustomRoles.Magician;
-                    }
-                    else if (WM == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.WeaponMaster;
-                        rl = CustomRoles.WeaponMaster;
-                    }
-                    else if (RL == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Reckless;
-                        rl = CustomRoles.Reckless;
-                    }
-                    else if (Hex == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.HexMaster;
-                        rl = CustomRoles.HexMaster;
-                    }
-                    else if (Bandit == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Bandit;
-                        rl = CustomRoles.Bandit;
-                    }
-                    else if (RR == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.RuthlessRomantic;
-                    }
-                    else if (WW == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Werewolf;
-                        rl = CustomRoles.Werewolf;
-                    }
-                    else if (IM == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Imitator;
-                        rl = CustomRoles.Imitator;
-                    }
-                    else if (Arso == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Arsonist;
-                        rl = CustomRoles.Arsonist;
-                    }
-                    else if (Glitch == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Glitch;
-                        rl = CustomRoles.Glitch;
-                    }
-                    else if (Jinx == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Jinx;
-                        rl = CustomRoles.Jinx;
-                    }
-                    else if (SK == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.SerialKiller;
-                        rl = CustomRoles.NSerialKiller;
-                    }
-                    else if (Pel == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Pelican;
-                        rl = CustomRoles.Pelican;
-                    }
-                    else if (Gam == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Gamer;
-                        rl = CustomRoles.Gamer;
-                    }
-                    else if (BK == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.BloodKnight;
-                        rl = CustomRoles.BloodKnight;
-                    }
-                    else if (Pois == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Poisoner;
-                        rl = CustomRoles.Poisoner;
-                    }
-                    else if (Virus == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Virus;
-                    }
-                    else if (SC == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Spiritcaller;
-                    }
-                    else if (CM == totalNKAlive)
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        winner = CustomWinner.Succubus;
-                    }
-                    else return false;
+
                     if (winner != null) CustomWinnerHolder.ResetAndSetWinner((CustomWinner)winner);
                     if (rl != null) CustomWinnerHolder.WinnerRoles.Add((CustomRoles)rl);
                     return true;
@@ -757,12 +560,17 @@ class GameEndChecker
 
             if (FFAManager.RoundTime <= 0)
             {
-                var list = Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && FFAManager.GetRankOfScore(x.PlayerId) == 1);
-                var winner = list.FirstOrDefault();
+                var winner = Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => FFAManager.GetRankOfScore(x.PlayerId)).First();
+
+                byte winnerId;
+                if (winner == null) winnerId = 0;
+                else winnerId = winner.PlayerId;
+
+                Logger.Warn($"Winner: {GetPlayerById(winnerId).GetRealName().RemoveHtmlTags()}", "FFA");
 
                 CustomWinnerHolder.WinnerIds = new()
                 {
-                    winner.PlayerId
+                    winnerId
                 };
 
                 Main.DoBlockNameChange = true;
@@ -772,6 +580,8 @@ class GameEndChecker
             else if (Main.AllAlivePlayerControls.Count() == 1)
             {
                 var winner = Main.AllAlivePlayerControls.FirstOrDefault();
+
+                Logger.Info($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "FFA");
 
                 CustomWinnerHolder.WinnerIds = new()
                 {
@@ -785,7 +595,8 @@ class GameEndChecker
             else if (!Main.AllAlivePlayerControls.Any())
             {
                 FFAManager.RoundTime = 0;
-                return true;
+                Logger.Warn("No players alive. Force ending the game", "FFA");
+                return false;
             }
             else return false;
         }

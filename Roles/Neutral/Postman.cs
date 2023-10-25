@@ -1,8 +1,9 @@
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using static TOHE.Options;
+using static TOHE.Translator;
 
 namespace TOHE.Roles.Neutral;
 
@@ -39,7 +40,7 @@ public static class Postman
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        SetNewTarget();
+        _ = new LateTask(SetNewTarget, 8f, "Set Postman First Target");
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
@@ -48,7 +49,7 @@ public static class Postman
     public static bool IsEnable => playerIdList.Any();
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
-    private static void SetNewTarget()
+    public static void SetNewTarget()
     {
         byte tempTarget = byte.MaxValue;
 
@@ -84,7 +85,7 @@ public static class Postman
         if (target.PlayerId == Target)
         {
             SetNewTarget();
-            killer.NotifyPostman(Translator.GetString("PostmanCorrectDeliver"));
+            killer.NotifyPostman(GetString("PostmanCorrectDeliver"));
         }
         else
         {
@@ -93,20 +94,20 @@ public static class Postman
         }
     }
 
-    public static void OnTargetDeath(PlayerControl killer, PlayerControl target)
+    public static void OnTargetDeath()
     {
-        if (killer == null || target == null) return;
         if (IsFinished) return;
+        var postman = Utils.GetPlayerById(playerIdList[0]);
 
         if (DieWhenTargetDies.GetBool())
         {
-            killer.RpcMurderPlayerV3(killer);
-            Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
+            postman.RpcMurderPlayerV3(postman);
+            Main.PlayerStates[postman.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
         }
         else
         {
             SetNewTarget();
-            killer.NotifyPostman(Translator.GetString("PostmanTargetDied"));
+            postman.NotifyPostman(GetString("PostmanTargetDied"));
         }
     }
 
@@ -115,8 +116,8 @@ public static class Postman
         var sb = new StringBuilder();
 
         sb.AppendLine(baseText);
-        if (!IsFinished) sb.AppendLine(string.Format(Translator.GetString("PostmanGetNewTarget"), Utils.GetPlayerById(Target)));
-        else sb.AppendLine(Translator.GetString("PostmanDone"));
+        if (!IsFinished) sb.AppendLine(string.Format(GetString("PostmanGetNewTarget"), Utils.GetPlayerById(Target)));
+        else sb.AppendLine(GetString("PostmanDone"));
 
         pc.Notify(sb.ToString());
     }
@@ -125,14 +126,14 @@ public static class Postman
     {
         var sb = new StringBuilder();
 
-        if (!IsFinished) sb.AppendLine(string.Format(Translator.GetString("PostmanTarget"), Utils.GetPlayerById(Target)));
-        else sb.AppendLine(Translator.GetString("PostmanDone"));
+        if (!IsFinished) sb.AppendLine(string.Format(GetString("PostmanTarget"), Utils.GetPlayerById(Target)));
+        else sb.AppendLine(GetString("PostmanDone"));
 
         return sb.ToString();
     }
 
     public static string GetProgressText(byte playerId)
     {
-        return !IsFinished ? string.Format(Translator.GetString("PostmanTarget"), Utils.GetPlayerById(Target)) : string.Empty;
+        return !IsFinished ? string.Format(GetString("PostmanTarget"), Utils.GetPlayerById(Target)) : "<color=#00ff00>✓</color>";
     }
 }

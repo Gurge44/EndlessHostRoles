@@ -712,6 +712,9 @@ public static class Utils
                         if (SKTime <= 20) ProgressText.Append(ColorString(SKColor, $"<color=#777777>-</color> {SKTime}s"));
                     }
                     break;
+                case CustomRoles.Postman:
+                    ProgressText.Append(Postman.GetProgressText(playerId));
+                    break;
                 case CustomRoles.BountyHunter:
                     if (BountyHunter.ChangeTimer.ContainsKey(playerId))
                     {
@@ -2677,6 +2680,8 @@ public static class Utils
             Executioner.ChangeRoleByTarget(target);
         if (Lawyer.Target.ContainsValue(target.PlayerId))
             Lawyer.ChangeRoleByTarget(target);
+        if (Postman.Target == target.PlayerId)
+            Postman.OnTargetDeath();
 
         FixedUpdatePatch.LoversSuicide(target.PlayerId, onMeeting);
     }
@@ -2691,7 +2696,7 @@ public static class Utils
         int AliveImpostorCount = Main.AllAlivePlayerControls.Count(pc => pc.Is(CustomRoleTypes.Impostor));
         if (Main.AliveImpostorCount != AliveImpostorCount)
         {
-            Logger.Info("存活内鬼人数:" + AliveImpostorCount + "人", "CountAliveImpostors");
+            Logger.Info("Number of living Impostors:" + AliveImpostorCount, "CountAliveImpostors");
             Main.AliveImpostorCount = AliveImpostorCount;
             LastImpostor.SetSubRole();
         }
@@ -2699,11 +2704,14 @@ public static class Utils
         if (sendLog)
         {
             var sb = new StringBuilder(100);
-            foreach (var countTypes in Enum.GetValues(typeof(CountTypes)).Cast<CountTypes>())
+            if (Options.CurrentGameMode != CustomGameMode.FFA)
             {
+                foreach (var countTypes in Enum.GetValues(typeof(CountTypes)).Cast<CountTypes>())
+                {
                 var playersCount = PlayersCount(countTypes);
                 if (playersCount == 0) continue;
                 sb.Append($"{countTypes}:{AlivePlayersCount(countTypes)}/{playersCount}, ");
+                }
             }
             sb.Append($"All:{AllAlivePlayersCount}/{AllPlayersCount}");
             Logger.Info(sb.ToString(), "CountAlivePlayers");

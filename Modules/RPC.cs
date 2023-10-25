@@ -156,6 +156,7 @@ internal class RPCHandlerPatch
         {
             if (!ReportDeadBodyRPCs.ContainsKey(__instance.PlayerId)) ReportDeadBodyRPCs.TryAdd(__instance.PlayerId, 0);
             ReportDeadBodyRPCs[__instance.PlayerId]++;
+            Logger.Info($"ReportDeadBody RPC count: {ReportDeadBodyRPCs[__instance.PlayerId]}, from {__instance?.Data?.PlayerName}", "EAC");
         }
 
         switch (rpcType)
@@ -187,12 +188,12 @@ internal class RPCHandlerPatch
             && Enum.IsDefined(typeof(CustomRPC), (int)callId)
             && !TrustedRpc(callId)) //ホストではなく、CustomRPCで、VersionCheckではない
         {
-            Logger.Warn($"{__instance?.Data?.PlayerName}:{callId}({RPC.GetRpcName(callId)}) 已取消，因为它是由主机以外的其他人发送的。", "CustomRPC");
+            Logger.Warn($"{__instance?.Data?.PlayerName}:{callId}({RPC.GetRpcName(callId)}) canceled because it was sent by someone other than the host.", "CustomRPC");
             if (AmongUsClient.Instance.AmHost)
             {
                 if (!EAC.ReceiveInvalidRpc(__instance, callId)) return false;
                 AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), false);
-                Logger.Warn($"收到来自 {__instance?.Data?.PlayerName} 的不受信用的RPC，因此将其踢出。", "Kick");
+                Logger.Warn($"The RPC received from {__instance?.Data?.PlayerName} is not trusted, so they were kicked.", "Kick");
                 Logger.SendInGame(string.Format(GetString("Warning.InvalidRpc"), __instance?.Data?.PlayerName));
             }
             return false;
@@ -200,6 +201,7 @@ internal class RPCHandlerPatch
         if (ReportDeadBodyRPCs.TryGetValue(__instance.PlayerId, out var times) && times > 4)
         {
             AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), true);
+            Logger.Warn($"{__instance?.Data?.PlayerName} has sent 5 or more ReportDeadBody RPCs in the last 1 second, they were banned for hacking.", "EAC");
             Logger.SendInGame(string.Format(GetString("Warning.ReportDeadBodyHack"), __instance?.Data?.PlayerName));
             return false;
         }
