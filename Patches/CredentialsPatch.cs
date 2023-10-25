@@ -54,13 +54,13 @@ internal class VersionShowerStartPatch
 
     private static void Postfix(VersionShower __instance)
     {
-        Main.credentialsText = $"\r\n<color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginDisplayVersion}";
-        Main.credentialsText += $"\r\n<color=#a54aff>By <color=#ffff00>Gurge44</color>";
+        Main.credentialsText = $"<size=1.5><color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginDisplayVersion} <color=#a54aff>by <color=#ffff00>Gurge44</color>";
+        string menuText = $"\r\n<color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginDisplayVersion}\r\n<color=#a54aff>By <color=#ffff00>Gurge44</color>";
 
         if (Main.IsAprilFools) Main.credentialsText = $"\r\n<color=#00bfff>Town Of Host</color> v11.45.14";
 
         var credentials = UnityEngine.Object.Instantiate(__instance.text);
-        credentials.text = Main.credentialsText;
+        credentials.text = menuText;
         credentials.alignment = TextAlignmentOptions.Right;
         credentials.transform.position = new Vector3(1f, 2.79f, -2f);
         credentials.fontSize = credentials.fontSizeMax = credentials.fontSizeMin = 2f;

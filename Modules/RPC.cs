@@ -12,6 +12,7 @@ using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
 using static TOHE.Translator;
+
 namespace TOHE;
 
 enum CustomRPC
@@ -151,7 +152,7 @@ internal class RPCHandlerPatch
         var rpcType = (RpcCalls)callId;
         MessageReader subReader = MessageReader.Get(reader);
         if (EAC.ReceiveRpc(__instance, callId, reader)) return false;
-        Logger.Info($"{__instance?.Data?.PlayerId}({(__instance?.Data?.PlayerId == 0 ? "Host" : __instance?.Data?.PlayerName)}):{callId}({RPC.GetRpcName(callId)})", "ReceiveRPC");
+        Logger.Info($"From ID: {__instance?.Data?.PlayerId} ({(__instance?.Data?.PlayerId == 0 ? "Host" : __instance?.Data?.PlayerName)}) : {callId} ({RPC.GetRpcName(callId)})", "ReceiveRPC");
         if (callId == 11)
         {
             if (!ReportDeadBodyRPCs.ContainsKey(__instance.PlayerId)) ReportDeadBodyRPCs.TryAdd(__instance.PlayerId, 0);
@@ -283,19 +284,29 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SyncCustomSettings:
                 if (AmongUsClient.Instance.AmHost) break;
-                List<OptionItem> list = new();
+
+                List<OptionItem> listOptions = new();
                 var startAmount = reader.ReadInt32();
                 var lastAmount = reader.ReadInt32();
-                for (var i = startAmount; i < OptionItem.AllOptions.Count && i <= lastAmount; i++)
+
+                var countAllOptions = OptionItem.AllOptions.Count;
+
+                // Add Options
+                for (var option = startAmount; option < countAllOptions && option <= lastAmount; option++)
                 {
-                    list.Add(OptionItem.AllOptions[i]);
+                    listOptions.Add(OptionItem.AllOptions[option]);
                 }
-                Logger.Info($"{startAmount}-{lastAmount}:{list.Count}/{OptionItem.AllOptions.Count}", "SyncCustomSettings");
-                for (int i1 = 0; i1 < list.Count; i1++)
+
+                var countOptions = listOptions.Count;
+                Logger.Msg($"StartAmount: {startAmount} - LastAmount: {lastAmount} ({startAmount}/{lastAmount}) :--: ListOptionsCount: {countOptions} - AllOptions: {countAllOptions} ({countOptions}/{countAllOptions})", "SyncCustomSettings");
+
+                // Sync Settings
+                for (int optionNumber = 0; optionNumber < countOptions; optionNumber++)
                 {
-                    OptionItem co = list[i1];
+                    var co = listOptions[optionNumber];
                     co.SetValue(reader.ReadInt32());
                 }
+
                 OptionShower.GetText();
                 break;
             case CustomRPC.SetDeathReason:
@@ -657,41 +668,59 @@ internal static class RPC
             var client = Utils.GetClientById(targetId);
             if (client == null || client.Character == null || !Main.playerVersion.ContainsKey(client.Character.PlayerId)) return;
         }
+
         if (!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1 || (AmongUsClient.Instance.AmHost == false && PlayerControl.LocalPlayer == null)) return;
+
         var amount = OptionItem.AllOptions.Count;
         int divideBy = amount / 10;
         for (var i = 0; i <= 10; i++)
-            SyncOptionsBetween(i * divideBy, (i + 1) * divideBy, targetId);
+        {
+            SyncOptionsBetween(i * divideBy, (i + 1) * divideBy, amount, targetId);
+        }
     }
     public static void SyncCustomSettingsRPCforOneOption(OptionItem option)
     {
         List<OptionItem> allOptions = new(OptionItem.AllOptions);
         var placement = allOptions.IndexOf(option);
         if (placement != -1)
-            SyncOptionsBetween(placement, placement);
+            SyncOptionsBetween(placement, placement, OptionItem.AllOptions.Count);
     }
-    static void SyncOptionsBetween(int startAmount, int lastAmount, int targetId = -1)
+    static void SyncOptionsBetween(int startAmount, int lastAmount, int amountAllOptions, int targetId = -1)
     {
         if (targetId != -1)
         {
             var client = Utils.GetClientById(targetId);
-            if (client == null || client.Character == null || !Main.playerVersion.ContainsKey(client.Character.PlayerId)) return;
+            if (client == null || client.Character == null || !Main.playerVersion.ContainsKey(client.Character.PlayerId))
+            {
+                return;
+            }
         }
         if (!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1 || (AmongUsClient.Instance.AmHost == false && PlayerControl.LocalPlayer == null)) return;
+
+        if (amountAllOptions != OptionItem.AllOptions.Count) amountAllOptions = OptionItem.AllOptions.Count;
+
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, 80, SendOption.Reliable, targetId);
-        List<OptionItem> list = new();
         writer.Write(startAmount);
         writer.Write(lastAmount);
-        for (var i = startAmount; i < OptionItem.AllOptions.Count && i <= lastAmount; i++)
+
+        List<OptionItem> listOptions = new();
+
+        // Add Options
+        for (var option = startAmount; option < amountAllOptions && option <= lastAmount; option++)
         {
-            list.Add(OptionItem.AllOptions[i]);
+            listOptions.Add(OptionItem.AllOptions[option]);
         }
-        Logger.Info($"{startAmount}-{lastAmount}:{list.Count}/{OptionItem.AllOptions.Count}", "SyncCustomSettings");
-        for (int i1 = 0; i1 < list.Count; i1++)
+
+        var countListOptions = listOptions.Count;
+        Logger.Msg($"StartAmount: {startAmount} - LastAmount: {lastAmount} ({startAmount}/{lastAmount}) :--: ListOptionsCount: {countListOptions} - AllOptions: {amountAllOptions} ({countListOptions}/{amountAllOptions})", "SyncCustomSettings");
+
+        // Sync Settings
+        for (var optionNumber = 0; optionNumber < countListOptions; optionNumber++)
         {
-            OptionItem co = list[i1];
-            writer.Write(co.GetValue());
+            var opt = listOptions[optionNumber];
+            writer.Write(opt.GetValue());
         }
+
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
     public static void PlaySoundRPC(byte PlayerID, Sounds sound)
@@ -1306,7 +1335,7 @@ internal static class RPC
             from = Main.AllPlayerControls.FirstOrDefault(c => c.NetId == targetNetId)?.Data?.PlayerName;
         }
         catch { }
-        Logger.Info($"FromNetID:{targetNetId}({from}) TargetClientID:{targetClientId}({target}) CallID:{callId}({rpcName})", "SendRPC");
+        Logger.Info($"FromNetID: {targetNetId} ({from}) / TargetClientID: {targetClientId} ({target}) / CallID: {callId} ({rpcName})", "SendRPC");
     }
     public static string GetRpcName(byte callId)
     {

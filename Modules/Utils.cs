@@ -746,7 +746,7 @@ public static class Utils
                     ProgressText.Append(ColorString(TextColorCoun, $"<color=#777777>-</color> {Math.Round(Councillor.MurderLimit[playerId], 1)}"));
                     break;
                 case CustomRoles.WeaponMaster:
-                    ProgressText.Append(WeaponMaster.GetHudAndProgressText());
+                    if (!GetPlayerById(playerId).IsModClient()) ProgressText.Append(WeaponMaster.GetHudAndProgressText()); 
                     break;
                 case CustomRoles.Dazzler:
                     Color TextColorDazzler;
@@ -2032,27 +2032,27 @@ public static class Utils
 
             if (seer.GetCustomRole().IsCrewmate() && !seer.Is(CustomRoles.Madmate))
             {
-                if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool())
+                if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode != CustomGameMode.FFA)
                     SeerRealName = $"<color=#8cffff>" + GetString("YouAreCrewmate") + $"</color>\n" + seer.GetRoleInfo();
             }
             if (seer.GetCustomRole().IsImpostor())
             {
-                if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool())
+                if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode != CustomGameMode.FFA)
                     SeerRealName = $"<color=#ff1919>" + GetString("YouAreImpostor") + $"</color>\n<size=90%>" + seer.GetRoleInfo() + $"</size>";
             }
             if (seer.GetCustomRole().IsNeutral() && !seer.GetCustomRole().IsMadmate())
             {
-                if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool())
+                if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode != CustomGameMode.FFA)
                     SeerRealName = $"<color=#7f8c8d>" + GetString("YouAreNeutral") + $"</color>\n<size=90%>" + seer.GetRoleInfo() + $"</size>";
             }
             if (seer.GetCustomRole().IsMadmate())
             {
-                if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool())
+                if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode != CustomGameMode.FFA)
                     SeerRealName = $"<color=#ff1919>" + GetString("YouAreMadmate") + $"</color>\n<size=90%>" + seer.GetRoleInfo() + $"</size>";
             }
             if (seer.Is(CustomRoles.Madmate))
             {
-                if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool())
+                if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode != CustomGameMode.FFA)
                     SeerRealName = $"<color=#ff1919>" + GetString("YouAreMadmate") + $"</color>\n<size=90%>" + seer.GetRoleInfo() + $"</size>";
             }
             //seerの役職名とSelfTaskTextとseerのプレイヤー名とSelfMarkを合成
@@ -2698,6 +2698,8 @@ public static class Utils
             Lawyer.ChangeRoleByTarget(target);
         if (Postman.Target == target.PlayerId)
             Postman.OnTargetDeath();
+        if (Hitman.targetId == target.PlayerId)
+            Hitman.targetId = byte.MaxValue;
 
         FixedUpdatePatch.LoversSuicide(target.PlayerId, onMeeting);
     }

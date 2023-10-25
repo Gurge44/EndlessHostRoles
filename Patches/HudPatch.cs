@@ -803,7 +803,7 @@ class TaskPanelBehaviourPatch
                     list2.Sort();
                     foreach (var id in list2.Where(x => SummaryText2.ContainsKey(x.Item2))) AllText += "\r\n" + SummaryText2[id.Item2];
 
-                    AllText = $"\n<size=70%>{AllText}</size>";
+                    AllText = $"<size=70%>{AllText}</size>";
 
                     break;
             }

@@ -166,7 +166,11 @@ internal static class FFAManager
     public static void OnPlayerAttack(PlayerControl killer, PlayerControl target)
     {
         if (killer == null || target == null || Options.CurrentGameMode != CustomGameMode.FFA) return;
-        if (target.inVent) return;
+        if (target.inVent)
+        {
+            Logger.Info("Target is in a vent, kill blocked", "FFA");
+            return;
+        }
         var totalalive = Main.AllAlivePlayerControls.Count;
         if (FFAShieldedList.TryGetValue(target.PlayerId, out var dur))
         {
@@ -185,7 +189,7 @@ internal static class FFAManager
 
         SendRPCSyncFFAPlayer(target.PlayerId);
 
-        if (totalalive <= 3)
+        if (totalalive == 3)
         {
             PlayerControl otherPC = null;
             foreach (var pc in Main.AllAlivePlayerControls.Where(a => a.PlayerId != killer.PlayerId && a.PlayerId != target.PlayerId && a.IsAlive()))

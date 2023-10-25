@@ -47,35 +47,23 @@ namespace TOHE.Roles.Crewmate
             if (pc == null) return;
             if (!pc.Is(CustomRoles.Tether)) return;
 
-            if (UseLimit[pc.PlayerId] >= 1)
+            if (Target != byte.MaxValue)
             {
-                if (Target != byte.MaxValue)
+                Main.TetherCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                _ = new LateTask(() =>
                 {
-                    Main.TetherCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                    _ = new LateTask(() =>
+                    if (GameStates.IsInTask)
                     {
-                        if (GameStates.IsInTask)
-                        {
-                            UseLimit[pc.PlayerId] -= 1;
-                            TP(pc.NetTransform, GetPlayerById(Target).GetTruePosition());
-                        }
-                    }, isPet ? 0.1f : 2f, "Tether TP");
-                }
-                else if (!isPet)
-                {
-                    _ = new LateTask(() =>
-                    {
-                        pc.MyPhysics?.RpcBootFromVent(ventId);
-                    }, 0.5f, "Tether No Target Boot From Vent");
-                }
+                        TP(pc.NetTransform, GetPlayerById(Target).GetTruePosition());
+                    }
+                }, isPet ? 0.1f : 2f, "Tether TP");
             }
-            else
+            else if (!isPet)
             {
                 _ = new LateTask(() =>
                 {
-                    if (!isPet) pc.MyPhysics?.RpcBootFromVent(ventId);
-                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
-                }, isPet ? 0.1f : 0.5f, "Tether No Uses Left Boot From Vent");
+                    pc.MyPhysics?.RpcBootFromVent(ventId);
+                }, 0.5f, "Tether No Target Boot From Vent");
             }
         }
         public static void OnVote(PlayerControl pc, PlayerControl target)

@@ -1,11 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using AmongUs.GameOptions;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using Il2CppSystem;
 using InnerNet;
+using System;
+using System.Collections.Generic;
 using Array = Il2CppSystem.Array;
 using Buffer = Il2CppSystem.Buffer;
 
@@ -16,34 +14,15 @@ public abstract class GameOptionsSender
     #region Static
     public readonly static List<GameOptionsSender> AllSenders = new(15) { new NormalGameOptionsSender() };
 
-    public static async void SendAllGameOptions()
+    public static void SendAllGameOptions()
     {
-        if (Options.DeepLowLoad.GetBool())
-        {
-            await Task.Run(() => { DoSend(); });
-        }
-        else
-        {
-            AllSenders.RemoveAll(s => s == null || !s.AmValid());
-            for (int i = 0; i < AllSenders.Count; i++)
-            {
-                GameOptionsSender sender = AllSenders[i];
-                if (sender.IsDirty) sender.SendGameOptions();
-                sender.IsDirty = false;
-            }
-        }
-    }
-
-    private static Task DoSend()
-    {
-        AllSenders.RemoveAll(s => !s.AmValid());
+        AllSenders.RemoveAll(s => s == null || !s.AmValid());
         for (int i = 0; i < AllSenders.Count; i++)
         {
             GameOptionsSender sender = AllSenders[i];
             if (sender.IsDirty) sender.SendGameOptions();
             sender.IsDirty = false;
         }
-        return Task.CompletedTask;
     }
 
     #endregion
@@ -92,27 +71,34 @@ public abstract class GameOptionsSender
     }
     protected virtual void SendOptionsArray(Il2CppStructArray<byte> optionArray, byte LogicOptionsIndex, int targetClientId)
     {
-        var writer = MessageWriter.Get(SendOption.Reliable);
-
-        writer.StartMessage(targetClientId == -1 ? Tags.GameData : Tags.GameDataTo);
+        try
         {
-            writer.Write(AmongUsClient.Instance.GameId);
-            if (targetClientId != -1) writer.WritePacked(targetClientId);
-            writer.StartMessage(1);
+            var writer = MessageWriter.Get(SendOption.Reliable);
+
+            writer.StartMessage(targetClientId == -1 ? Tags.GameData : Tags.GameDataTo);
             {
-                writer.WritePacked(GameManager.Instance.NetId);
-                writer.StartMessage(LogicOptionsIndex);
+                writer.Write(AmongUsClient.Instance.GameId);
+                if (targetClientId != -1) writer.WritePacked(targetClientId);
+                writer.StartMessage(1);
                 {
-                    writer.WriteBytesAndSize(optionArray);
+                    writer.WritePacked(GameManager.Instance.NetId);
+                    writer.StartMessage(LogicOptionsIndex);
+                    {
+                        writer.WriteBytesAndSize(optionArray);
+                    }
+                    writer.EndMessage();
                 }
                 writer.EndMessage();
             }
             writer.EndMessage();
-        }
-        writer.EndMessage();
 
-        AmongUsClient.Instance.SendOrDisconnect(writer);
-        writer.Recycle();
+            AmongUsClient.Instance.SendOrDisconnect(writer);
+            writer.Recycle();
+        }
+        catch (System.Exception ex)
+        {
+            Logger.Fatal(ex.ToString(), "GameOptionsSender.SendOptionsArray");
+        }
     }
     public abstract IGameOptions BuildGameOptions();
 

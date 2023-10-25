@@ -64,12 +64,19 @@ public class PlayerGameOptionsSender : GameOptionsSender
 
     public override void SendOptionsArray(Il2CppStructArray<byte> optionArray)
     {
-        for (byte i = 0; i < GameManager.Instance.LogicComponents.Count; i++)
+        try
         {
-            if (GameManager.Instance.LogicComponents[(Index)i].TryCast<LogicOptions>(out _))
+            for (byte i = 0; i < GameManager.Instance.LogicComponents.Count; i++)
             {
-                SendOptionsArray(optionArray, i, player.GetClientId());
+                if (GameManager.Instance.LogicComponents[(Index)i].TryCast<LogicOptions>(out _))
+                {
+                    SendOptionsArray(optionArray, i, player.GetClientId());
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            Logger.Fatal(ex.ToString(), "PlayerGameOptionsSender.SendOptionsArray");
         }
     }
     public static void RemoveSender(PlayerControl player)

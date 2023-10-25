@@ -67,10 +67,7 @@ namespace TOHE.Roles.Impostor
 
         public static void OnShapeshift(PlayerControl hitman, PlayerControl target, bool shapeshifting)
         {
-            if (target == null) return;
-            if (hitman == null) return;
-            if (!shapeshifting) return;
-            if (targetId != byte.MaxValue) return;
+            if (target == null || hitman == null || !shapeshifting || targetId != byte.MaxValue || !target.IsAlive()) return;
 
             targetId = target.PlayerId;
 
@@ -81,7 +78,7 @@ namespace TOHE.Roles.Impostor
         {
             if (targetId == byte.MaxValue) return string.Empty;
 
-            return $"  <color=#00ffa5>Target:</color> {GetPlayerById(targetId).GetRealName().RemoveHtmlTags()}";
+            return $"  <color=#00ffa5>Target:</color> <color=#ffffff>{GetPlayerById(targetId).GetRealName().RemoveHtmlTags()}</color>";
         }
     }
 }

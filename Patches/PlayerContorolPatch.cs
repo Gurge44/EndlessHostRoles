@@ -70,7 +70,7 @@ class CheckMurderPatch
     {
         if (!AmongUsClient.Instance.AmHost) return false;
 
-        var killer = __instance; //読み替え変数
+        var killer = __instance; // alternative variable
 
         Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
 
@@ -146,7 +146,7 @@ class CheckMurderPatch
         //キル可能判定
         if (killer.PlayerId != target.PlayerId && !killer.CanUseKillButton())
         {
-            Logger.Info(killer.GetNameWithRole().RemoveHtmlTags() + "击杀者不被允许使用击杀键，击杀被取消", "CheckMurder");
+            Logger.Info(killer.GetNameWithRole().RemoveHtmlTags() + "cannot use their kill button, the kill was blocked", "CheckMurder");
             return false;
         }
 
@@ -1199,7 +1199,7 @@ class MurderPlayerPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Shapeshift))]
 class ShapeshiftPatch
 {
-    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
+    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] ref bool animate)
     {
         if (!Main.ProcessShapeshifts) return true;
 
@@ -1210,8 +1210,8 @@ class ShapeshiftPatch
 
         if (Main.CheckShapeshift.TryGetValue(shapeshifter.PlayerId, out var last) && last == shapeshifting)
         {
-            Logger.Info($"{__instance?.GetNameWithRole()}:Cancel Shapeshift.Prefix", "Shapeshift");
-            return false;
+            // Dunno how you would get here but ok
+            return true;
         }
 
         Main.CheckShapeshift[shapeshifter.PlayerId] = shapeshifting;
@@ -1499,11 +1499,6 @@ class ShapeshiftPatch
         if (!shapeshifting || !isSSneeded)
         {
             _ = new LateTask(shapeshifter.RpcResetAbilityCooldown, 0.1f, "Reset SS CD");
-        }
-
-        if (!isSSneeded && shapeshifting || true)
-        {
-            shapeshifter.RpcRejectShapeshift();
         }
 
         return !shapeshifting || isSSneeded || !shapeshifter.IsModClient();
@@ -3515,13 +3510,13 @@ class CoEnterVentPatch
     }
 }
 
-[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.SetName))]
-class SetNamePatch
-{
-    public static void Postfix(/*PlayerControl __instance, [HarmonyArgument(0)] string name*/)
-    {
-    }
-}
+//[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.SetName))]
+//class SetNamePatch
+//{
+//    public static void Postfix(/*PlayerControl __instance, [HarmonyArgument(0)] string name*/)
+//    {
+//    }
+//}
 [HarmonyPatch(typeof(GameData), nameof(GameData.CompleteTask))]
 class GameDataCompleteTaskPatch
 {
@@ -3569,9 +3564,8 @@ class PlayerControlCompleteTaskPatch
                 NameColorManager.Add(impostor.PlayerId, pc.PlayerId, "#ff1919");
             Utils.NotifyRoles(SpecifySeer: pc);
         }
-        if ((isTaskFinish &&
-            pc.GetCustomRole() is CustomRoles.Doctor or CustomRoles.Sunnyboy) ||
-            pc.GetCustomRole() is CustomRoles.SpeedBooster)
+        if (isTaskFinish &&
+            pc.GetCustomRole() is CustomRoles.Doctor or CustomRoles.Sunnyboy or CustomRoles.SpeedBooster)
         {
             //ライターもしくはスピードブースターもしくはドクターがいる試合のみタスク終了時にCustomSyncAllSettingsを実行する
             Utils.MarkEveryoneDirtySettings();
@@ -3601,7 +3595,7 @@ class PlayerControlSetRolePatch
     {
         var target = __instance;
         var targetName = __instance.GetNameWithRole();
-        Logger.Info($"{targetName} =>{roleType}", "PlayerControl.RpcSetRole");
+        Logger.Info($"{targetName} => {roleType}", "PlayerControl.RpcSetRole");
         if (!ShipStatus.Instance.enabled) return true;
         if (roleType is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost)
         {
@@ -3641,7 +3635,7 @@ class PlayerControlSetRolePatch
             {
                 foreach ((var seer, var role) in ghostRoles)
                 {
-                    Logger.Info($"Desync {targetName} =>{role} for{seer.GetNameWithRole().RemoveHtmlTags()}", "PlayerControl.RpcSetRole");
+                    Logger.Info($"Desync {targetName} => {role} for {seer.GetNameWithRole().RemoveHtmlTags()}", "PlayerControl.RpcSetRole");
                     target.RpcSetRoleDesync(role, seer.GetClientId());
                 }
                 return false;
