@@ -1775,6 +1775,8 @@
 "SabotageCooldown","更改修理时限","Sabotage Cooldown","Изменить время Саботажа","更改修理時限","更改修理时限"
 "SabotageTimeControl","更改修理时限","Modify Sabotage Time Limit","Изменить время Саботажа","更改修理時限","更改修理时限"
 "PolusReactorTimeLimit","波鲁斯抗震稳定器修理时限","Polus Reactor Time Limit","Polus время саботажа Реактора","Polus抗震穩定器修理時限","波鲁斯抗震稳定器修理时限"
+"O2TimeLimit","","O2 Time Limit","","",""
+"MushroomMixupTime","","Mushroom Mixup Camouflage Duration","","",""
 "AirshipReactorTimeLimit","飞艇坠毁路线修理时限","Airship Reactor Time Limit","Airship время саботажа Реактора","The Airship避開墜毀路線修理時限","飞艇坠毁路线修理时限"
 
 "## 指令帮助 / Commands"

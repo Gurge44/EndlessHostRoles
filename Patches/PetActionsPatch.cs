@@ -352,7 +352,7 @@ class ExternalRpcPetPatch
                                 pc.SetKillCooldown();
                                 pc.Notify(GetString("WarlockControlKill"));
                             }
-                            _ = new LateTask(() => { pc.RpcShapeshift(pc, false); }, 1.5f, "Warlock RpcRevertShapeshift");
+                            _ = new LateTask(() => { pc.CmdCheckRevertShapeshift(false); }, 1.5f, "Warlock RpcRevertShapeshift");
                         }
                         else
                         {

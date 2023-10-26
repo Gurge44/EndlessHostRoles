@@ -602,6 +602,8 @@ public static class Options
     public static OptionItem SabotageTimeControl;
     public static OptionItem PolusReactorTimeLimit;
     public static OptionItem AirshipReactorTimeLimit;
+    public static OptionItem O2TimeLimit;
+    public static OptionItem MushroomMixupTime;
     public static OptionItem LightsOutSpecialSettings;
     public static OptionItem DisableAirshipViewingDeckLightsPanel;
     public static OptionItem DisableAirshipGapRoomLightsPanel;
@@ -2665,6 +2667,14 @@ public static class Options
             .SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(CustomGameMode.Standard);
         AirshipReactorTimeLimit = FloatOptionItem.Create(22414, "AirshipReactorTimeLimit", new(1f, 90f, 1f), 60f, TabGroup.GameSettings, false)
+            .SetParent(SabotageTimeControl)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetGameMode(CustomGameMode.Standard);
+        O2TimeLimit = FloatOptionItem.Create(22416, "O2TimeLimit", new(1f, 60f, 1f), 45f, TabGroup.GameSettings, false)
+            .SetParent(SabotageTimeControl)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetGameMode(CustomGameMode.Standard);
+        MushroomMixupTime = FloatOptionItem.Create(22418, "MushroomMixupTime", new(1f, 15f, 1f), 7f, TabGroup.GameSettings, false)
             .SetParent(SabotageTimeControl)
             .SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(CustomGameMode.Standard);

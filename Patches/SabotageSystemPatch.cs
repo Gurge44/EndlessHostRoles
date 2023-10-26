@@ -34,6 +34,31 @@ public static class HeliSabotageSystemPatch
                 __instance.Countdown = Options.AirshipReactorTimeLimit.GetFloat();
     }
 }
+[HarmonyPatch(typeof(LifeSuppSystemType), nameof(LifeSuppSystemType.Deteriorate))]
+public static class LifeSuppSystemTypePatch
+{
+    public static void Prefix(LifeSuppSystemType __instance)
+    {
+        if (!__instance.IsActive || !Options.SabotageTimeControl.GetBool())
+            return;
+        if (ShipStatus.Instance != null)
+            if (__instance.Countdown >= Options.O2TimeLimit.GetFloat())
+                __instance.Countdown = Options.O2TimeLimit.GetFloat();
+    }
+}
+[HarmonyPatch(typeof(MushroomMixupSabotageSystem), nameof(MushroomMixupSabotageSystem.Deteriorate))]
+public static class MushroomMixupSabotageSystemPatch
+{
+    public static void Prefix(MushroomMixupSabotageSystem __instance)
+    {
+        __instance.petEmptyChance = 0;
+        if (!__instance.IsActive || !Options.SabotageTimeControl.GetBool())
+            return;
+        if (ShipStatus.Instance != null)
+            if (__instance.secondsForAutoHeal >= Options.MushroomMixupTime.GetFloat())
+                __instance.secondsForAutoHeal = Options.MushroomMixupTime.GetFloat();
+    }
+}
 [HarmonyPatch(typeof(ElectricTask), nameof(ElectricTask.Initialize))]
 public static class ElectricTaskInitializePatch
 {

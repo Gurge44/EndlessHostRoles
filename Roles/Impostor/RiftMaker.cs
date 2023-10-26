@@ -116,7 +116,7 @@ namespace TOHE.Roles.Impostor
             if (Marks.Count == 2) LastTP = GetTimeStamp();
             player.Notify(GetString("MarkDone"));
 
-            if (!isPet) _ = new LateTask(() => { player.RpcShapeshift(player, false); }, 1.5f, "Rift Maker RpcRevertShapeshift");
+            if (!isPet) _ = new LateTask(() => { player.CmdCheckRevertShapeshift(false); }, 1.5f, "Rift Maker RpcRevertShapeshift");
         }
 
         public static string GetProgressText()

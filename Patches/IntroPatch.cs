@@ -539,7 +539,7 @@ class IntroCutsceneDestroyPatch
                                     try
                                     {
                                         pc.RpcShapeshift(Utils.GetPlayerById(0), false);
-                                        pc.RpcShapeshift(pc, false);
+                                        pc.CmdCheckRevertShapeshift(false);
                                         pc.Notify("", 0.1f);
                                     }
                                     catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift"); }

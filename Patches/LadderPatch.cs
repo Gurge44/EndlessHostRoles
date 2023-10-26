@@ -44,10 +44,11 @@ public class FallFromLadder
                 sender.AutoStartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
                         .Write(num)
                         .Write(num2)
-                .EndRpc();
+                    .EndRpc();
                 sender.AutoStartRpc(player.NetId, (byte)RpcCalls.MurderPlayer)
                         .WriteNetObject(player)
-                .EndRpc();
+                        .Write((byte)MurderResultFlags.DecisionByHost)
+                    .EndRpc();
                 sender.SendMessage();
                 player.NetTransform.SnapTo(targetPos);
                 player.MurderPlayer(player, MurderResultFlags.DecisionByHost);

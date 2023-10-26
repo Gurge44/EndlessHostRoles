@@ -53,7 +53,7 @@ public static class CustomSoundsManager
             fs.Close();
         }
         StartPlay(path);
-        Logger.Msg($"播放声音：{sound}", "CustomSounds");
+        Logger.Msg($"Playing sound：{sound}", "CustomSounds");
     }
 
 #pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments

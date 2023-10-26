@@ -59,7 +59,7 @@ namespace TOHE.Roles.Impostor
             Bombs.TryAdd(pc.transform.position, GetTimeStamp());
             Main.SapperCD.TryAdd(pc.PlayerId, GetTimeStamp());
 
-            if (!isPet) _ = new LateTask(() => { pc.RpcShapeshift(pc, false); }, 1.5f, "Sapper RpcRevertShapeshift");
+            if (!isPet) _ = new LateTask(() => { pc.CmdCheckRevertShapeshift(false); }, 1.5f, "Sapper RpcRevertShapeshift");
         }
 
         public static void OnFixedUpdate(PlayerControl pc)

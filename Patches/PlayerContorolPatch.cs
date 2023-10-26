@@ -51,7 +51,18 @@ class CheckProtectPatch
         return true;
     }
 }
-[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckMurder))]
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdCheckMurder))] // Modded
+class CmdCheckMurderPatch
+{
+    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
+    {
+        Logger.Info($"{__instance.GetNameWithRole()} => {target.GetNameWithRole()}", "CmdCheckMurder");
+
+        if (!AmongUsClient.Instance.AmHost) return true;
+        return CheckMurderPatch.Prefix(__instance, target);
+    }
+}
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckMurder))] // Vanilla
 class CheckMurderPatch
 {
     public static Dictionary<byte, float> TimeSinceLastKill = new();
@@ -1231,7 +1242,7 @@ class ShapeshiftPatch
                     EvilTracker.OnShapeshift(shapeshifter, target, shapeshifting);
                     if (shapeshifting)
                     {
-                        _ = new LateTask(() => { shapeshifter.RpcShapeshift(shapeshifter, false); }, 1.5f, "Evil Tracker RpcRevertShapeshift");
+                        _ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "Evil Tracker RpcRevertShapeshift");
                     }
                     break;
                 case CustomRoles.RiftMaker:
@@ -1244,7 +1255,7 @@ class ShapeshiftPatch
                     FireWorks.ShapeShiftState(shapeshifter, shapeshifting);
                     if (shapeshifting)
                     {
-                        _ = new LateTask(() => { shapeshifter.RpcShapeshift(shapeshifter, false); }, 1.5f, "FireWorks RpcRevertShapeshift");
+                        _ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "FireWorks RpcRevertShapeshift");
                     }
                     break;
                 case CustomRoles.Sapper:
@@ -1284,7 +1295,7 @@ class ShapeshiftPatch
                                     shapeshifter.SetKillCooldown();
                                     shapeshifter.Notify(GetString("WarlockControlKill"));
                                 }
-                                _ = new LateTask(() => { shapeshifter.RpcShapeshift(shapeshifter, false); }, 1.5f, "Warlock RpcRevertShapeshift");
+                                _ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "Warlock RpcRevertShapeshift");
                             }
                             else
                             {
@@ -1313,7 +1324,7 @@ class ShapeshiftPatch
                     }
                     if (shapeshifting)
                     {
-                        _ = new LateTask(() => { shapeshifter.RpcShapeshift(shapeshifter, false); }, 1.5f, "Escapist RpcRevertShapeshift");
+                        _ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "Escapist RpcRevertShapeshift");
                     }
                     break;
                 case CustomRoles.Miner:
@@ -1327,7 +1338,7 @@ class ShapeshiftPatch
                     }
                     if (shapeshifting)
                     {
-                        _ = new LateTask(() => { shapeshifter.RpcShapeshift(shapeshifter, false); }, 1.5f, "Miner RpcRevertShapeshift");
+                        _ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "Miner RpcRevertShapeshift");
                     }
                     break;
                 case CustomRoles.Bomber:
@@ -1361,7 +1372,7 @@ class ShapeshiftPatch
                             }
                             else
                             {
-                                shapeshifter.RpcShapeshift(shapeshifter, false);
+                                shapeshifter.CmdCheckRevertShapeshift(false);
                             }
                             Utils.NotifyRoles();
                         }, 1.5f, "Bomber Suiscide");
@@ -1399,7 +1410,7 @@ class ShapeshiftPatch
                             }
                             else if (!shapeshifter.IsModClient())
                             {
-                                shapeshifter.RpcShapeshift(shapeshifter, false);
+                                shapeshifter.CmdCheckRevertShapeshift(false);
                             }
                             Utils.NotifyRoles();
                         }, 1.5f, "Nuke");
@@ -1413,7 +1424,7 @@ class ShapeshiftPatch
                     Undertaker.OnShapeshift(shapeshifter, shapeshifting);
                     if (shapeshifting)
                     {
-                        _ = new LateTask(() => { shapeshifter.RpcShapeshift(shapeshifter, false); }, 1.5f, "Undertaker RpcRevertShapeshift");
+                        _ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "Undertaker RpcRevertShapeshift");
                     }
                     break;
                 case CustomRoles.ImperiusCurse:
@@ -1434,7 +1445,7 @@ class ShapeshiftPatch
                     QuickShooter.OnShapeshift(shapeshifter, shapeshifting);
                     if (shapeshifting)
                     {
-                        _ = new LateTask(() => { shapeshifter.RpcShapeshift(shapeshifter, false); }, 1.5f, "Quick Shooter RpcRevertShapeshift");
+                        _ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "Quick Shooter RpcRevertShapeshift");
                     }
                     break;
                 case CustomRoles.Camouflager:
@@ -1454,7 +1465,7 @@ class ShapeshiftPatch
                         Disperser.DispersePlayers(shapeshifter);
                     if (shapeshifting)
                     {
-                        _ = new LateTask(() => { shapeshifter.RpcShapeshift(shapeshifter, false); }, 1.5f, "Disperser RpcRevertShapeshift");
+                        _ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "Disperser RpcRevertShapeshift");
                     }
                     break;
                 case CustomRoles.Dazzler:
@@ -1462,7 +1473,7 @@ class ShapeshiftPatch
                         Dazzler.OnShapeshift(shapeshifter, target);
                     if (shapeshifting)
                     {
-                        _ = new LateTask(() => { shapeshifter.RpcShapeshift(shapeshifter, false); }, 1.5f, "Dazzler RpcRevertShapeshift");
+                        _ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "Dazzler RpcRevertShapeshift");
                     }
                     break;
                 case CustomRoles.Deathpact:
@@ -1470,7 +1481,7 @@ class ShapeshiftPatch
                         Deathpact.OnShapeshift(shapeshifter, target);
                     if (shapeshifting)
                     {
-                        _ = new LateTask(() => { shapeshifter.RpcShapeshift(shapeshifter, false); }, 1.5f, "Deathpact RpcRevertShapeshift");
+                        _ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "Deathpact RpcRevertShapeshift");
                     }
                     break;
                 case CustomRoles.Devourer:
@@ -1478,7 +1489,7 @@ class ShapeshiftPatch
                         Devourer.OnShapeshift(shapeshifter, target);
                     if (shapeshifting)
                     {
-                        _ = new LateTask(() => { shapeshifter.RpcShapeshift(shapeshifter, false); }, 1.5f, "Devourer RpcRevertShapeshift");
+                        _ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "Devourer RpcRevertShapeshift");
                     }
                     break;
                 case CustomRoles.Twister:
