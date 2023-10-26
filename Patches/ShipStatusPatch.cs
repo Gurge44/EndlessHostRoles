@@ -166,12 +166,15 @@ class RepairSystemPatch
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.CloseDoorsOfType))]
 class CloseDoorsPatch
 {
-    public static bool Prefix(/*ShipStatus __instance, SystemTypes room*/)
+    public static bool Prefix(/*ShipStatus __instance, */[HarmonyArgument(0)] SystemTypes room)
     {
-        if (Main.BlockSabo.Any()) return false;
-        if (Options.DisableCloseDoor.GetBool()) return false;
+        bool allow = !Options.DisableSabotage.GetBool() && Options.CurrentGameMode != CustomGameMode.SoloKombat && Options.CurrentGameMode != CustomGameMode.FFA;
 
-        return !Options.DisableSabotage.GetBool() && Options.CurrentGameMode != CustomGameMode.SoloKombat && Options.CurrentGameMode != CustomGameMode.FFA;
+        if (Main.BlockSabo.Any()) allow = false;
+        if (Options.DisableCloseDoor.GetBool()) allow = false;
+
+        Logger.Info($"({room}) => {(allow ? "Allowed" : "Blocked")}", "DoorClose");
+        return allow;
     }
 }
 //[HarmonyPatch(typeof(SwitchSystem), nameof(SwitchSystem.RepairDamage))]
@@ -217,7 +220,7 @@ class StartPatch
             if (BepInEx.ConsoleManager.ConsoleActive && !DebugModeManager.AmDebugger)
             {
                 BepInEx.ConsoleManager.DetachConsole();
-                Logger.SendInGame("很抱歉，本房间禁止使用控制台，因此已将您的控制台关闭");
+                Logger.SendInGame("Sorry, console use is prohibited in this room, so your console has been turned off");
             }
         }
     }
@@ -238,7 +241,7 @@ class BeginPatch
     {
         Logger.CurrentMethod();
 
-        //ホストの役職初期設定はここで行うべき？
+        //Should I initialize the host role here?
     }
 }
 [HarmonyPatch(typeof(GameManager), nameof(GameManager.CheckTaskCompletion))]

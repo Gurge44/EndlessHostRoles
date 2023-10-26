@@ -11,15 +11,19 @@ public static class ReactorSystemTypePatch
 {
     public static void Prefix(ReactorSystemType __instance)
     {
-        if (!__instance.IsActive || !Options.SabotageTimeControl.GetBool())
-            return;
-        if (ShipStatus.Instance.Type == ShipStatus.MapType.Pb)
+        if (!__instance.IsActive || !Options.SabotageTimeControl.GetBool() || __instance.Countdown < Options.PolusReactorTimeLimit.GetFloat()) return;
+
+        switch (ShipStatus.Instance.Type)
         {
-            if (__instance.Countdown >= Options.PolusReactorTimeLimit.GetFloat())
+            case ShipStatus.MapType.Pb:
                 __instance.Countdown = Options.PolusReactorTimeLimit.GetFloat();
-            return;
+                return;
+            case ShipStatus.MapType.Hq:
+                __instance.Countdown = Options.MiraReactorTimeLimit.GetFloat();
+                return;
+            default:
+                return;
         }
-        return;
     }
 }
 [HarmonyPatch(typeof(HeliSabotageSystem), nameof(HeliSabotageSystem.Deteriorate))]
@@ -29,9 +33,8 @@ public static class HeliSabotageSystemPatch
     {
         if (!__instance.IsActive || !Options.SabotageTimeControl.GetBool())
             return;
-        if (ShipStatus.Instance != null)
-            if (__instance.Countdown >= Options.AirshipReactorTimeLimit.GetFloat())
-                __instance.Countdown = Options.AirshipReactorTimeLimit.GetFloat();
+        if (ShipStatus.Instance != null && __instance.Countdown >= Options.AirshipReactorTimeLimit.GetFloat())
+            __instance.Countdown = Options.AirshipReactorTimeLimit.GetFloat();
     }
 }
 [HarmonyPatch(typeof(LifeSuppSystemType), nameof(LifeSuppSystemType.Deteriorate))]
@@ -41,9 +44,8 @@ public static class LifeSuppSystemTypePatch
     {
         if (!__instance.IsActive || !Options.SabotageTimeControl.GetBool())
             return;
-        if (ShipStatus.Instance != null)
-            if (__instance.Countdown >= Options.O2TimeLimit.GetFloat())
-                __instance.Countdown = Options.O2TimeLimit.GetFloat();
+        if (ShipStatus.Instance.Type == ShipStatus.MapType.Hq && __instance.Countdown >= Options.MiraO2TimeLimit.GetFloat())
+            __instance.Countdown = Options.MiraO2TimeLimit.GetFloat();
     }
 }
 [HarmonyPatch(typeof(MushroomMixupSabotageSystem), nameof(MushroomMixupSabotageSystem.Deteriorate))]
@@ -51,12 +53,12 @@ public static class MushroomMixupSabotageSystemPatch
 {
     public static void Prefix(MushroomMixupSabotageSystem __instance)
     {
-        __instance.petEmptyChance = 0;
-        if (!__instance.IsActive || !Options.SabotageTimeControl.GetBool())
-            return;
-        if (ShipStatus.Instance != null)
-            if (__instance.secondsForAutoHeal >= Options.MushroomMixupTime.GetFloat())
-                __instance.secondsForAutoHeal = Options.MushroomMixupTime.GetFloat();
+        if (Options.UsePets.GetBool()) __instance.petEmptyChance = 0;
+
+        if (!__instance.IsActive || !Options.SabotageTimeControl.GetBool()) return;
+
+        if (ShipStatus.Instance != null && __instance.secondsForAutoHeal >= Options.MushroomMixupTime.GetFloat())
+            __instance.secondsForAutoHeal = Options.MushroomMixupTime.GetFloat();
     }
 }
 [HarmonyPatch(typeof(ElectricTask), nameof(ElectricTask.Initialize))]

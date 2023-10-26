@@ -602,8 +602,9 @@ public static class Options
     public static OptionItem SabotageTimeControl;
     public static OptionItem PolusReactorTimeLimit;
     public static OptionItem AirshipReactorTimeLimit;
-    public static OptionItem O2TimeLimit;
+    public static OptionItem MiraO2TimeLimit;
     public static OptionItem MushroomMixupTime;
+    public static OptionItem MiraReactorTimeLimit;
     public static OptionItem LightsOutSpecialSettings;
     public static OptionItem DisableAirshipViewingDeckLightsPanel;
     public static OptionItem DisableAirshipGapRoomLightsPanel;
@@ -2662,7 +2663,7 @@ public static class Options
             .SetColor(new Color32(243, 96, 96, byte.MaxValue))
             .SetGameMode(CustomGameMode.Standard);
 
-        PolusReactorTimeLimit = FloatOptionItem.Create(22412, "PolusReactorTimeLimit", new(1f, 60f, 1f), 30f, TabGroup.GameSettings, false)
+        PolusReactorTimeLimit = FloatOptionItem.Create(22412, "PolusReactorTimeLimit", new(1f, 60f, 1f), 40f, TabGroup.GameSettings, false)
             .SetParent(SabotageTimeControl)
             .SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(CustomGameMode.Standard);
@@ -2670,7 +2671,11 @@ public static class Options
             .SetParent(SabotageTimeControl)
             .SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(CustomGameMode.Standard);
-        O2TimeLimit = FloatOptionItem.Create(22416, "O2TimeLimit", new(1f, 60f, 1f), 45f, TabGroup.GameSettings, false)
+        MiraO2TimeLimit = FloatOptionItem.Create(22416, "MiraO2TimeLimit", new(1f, 60f, 1f), 35f, TabGroup.GameSettings, false)
+            .SetParent(SabotageTimeControl)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetGameMode(CustomGameMode.Standard);
+        MiraReactorTimeLimit = FloatOptionItem.Create(22420, "MiraReactorTimeLimit", new(1f, 60f, 1f), 35f, TabGroup.GameSettings, false)
             .SetParent(SabotageTimeControl)
             .SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(CustomGameMode.Standard);
