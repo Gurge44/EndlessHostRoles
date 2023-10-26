@@ -1068,7 +1068,7 @@ internal class SelectRolesPatch
         player.SetRole(othersRole);
         player.Data.IsDead = true;
 
-        Logger.Info($"Assigned Role：{player?.Data?.PlayerName} => {role}", "AssignRoles");
+        Logger.Info($"注册模组职业：{player?.Data?.PlayerName} => {role}", "AssignRoles");
     }
     public static void MakeDesyncSender(Dictionary<byte, CustomRpcSender> senders, Dictionary<(byte, byte), RoleTypes> rolesMap)
     {
@@ -1093,7 +1093,7 @@ internal class SelectRolesPatch
         SetColorPatch.IsAntiGlitchDisabled = true;
 
         Main.PlayerStates[player.PlayerId].SetMainRole(role);
-        Logger.Info($"Assigned Role：{player?.Data?.PlayerName} => {role}", "AssignRoles");
+        Logger.Info($"注册模组职业：{player?.Data?.PlayerName} => {role}", "AssignRoles");
 
         SetColorPatch.IsAntiGlitchDisabled = false;
     }

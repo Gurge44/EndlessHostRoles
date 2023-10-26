@@ -746,7 +746,7 @@ public static class Utils
                     ProgressText.Append(ColorString(TextColorCoun, $"<color=#777777>-</color> {Math.Round(Councillor.MurderLimit[playerId], 1)}"));
                     break;
                 case CustomRoles.WeaponMaster:
-                    if (!GetPlayerById(playerId).IsModClient()) ProgressText.Append(WeaponMaster.GetHudAndProgressText()); 
+                    if (!GetPlayerById(playerId).IsModClient()) ProgressText.Append(WeaponMaster.GetHudAndProgressText());
                     break;
                 case CustomRoles.Dazzler:
                     Color TextColorDazzler;
@@ -2726,9 +2726,9 @@ public static class Utils
             {
                 foreach (var countTypes in Enum.GetValues(typeof(CountTypes)).Cast<CountTypes>())
                 {
-                var playersCount = PlayersCount(countTypes);
-                if (playersCount == 0) continue;
-                sb.Append($"{countTypes}:{AlivePlayersCount(countTypes)}/{playersCount}, ");
+                    var playersCount = PlayersCount(countTypes);
+                    if (playersCount == 0) continue;
+                    sb.Append($"{countTypes}:{AlivePlayersCount(countTypes)}/{playersCount}, ");
                 }
             }
             sb.Append($"All:{AllAlivePlayersCount}/{AllPlayersCount}");

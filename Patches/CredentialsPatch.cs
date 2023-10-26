@@ -1,10 +1,10 @@
 using HarmonyLib;
+using System;
+using System.Linq;
 using System.Text;
 using TMPro;
-using UnityEngine;
 using TOHE.Modules;
-using System.Linq;
-using System;
+using UnityEngine;
 using static TOHE.Translator;
 
 namespace TOHE;

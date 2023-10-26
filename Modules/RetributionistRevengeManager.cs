@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using Hazel;
 using System;
-using System.Linq;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Translator;
