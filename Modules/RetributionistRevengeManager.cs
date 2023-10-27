@@ -128,7 +128,7 @@ public static class RetributionistRevengeManager
             }
             else
             {
-                target.RpcMurderPlayerV3(target);
+                target.Kill(target);
                 Main.PlayerStates[target.PlayerId].SetDead();
             }
 

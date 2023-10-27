@@ -97,7 +97,7 @@ public static class Pursuer
         target.SetRealKiller(killer);
         target.Data.IsDead = true;
         Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Misfire;
-        target.RpcMurderPlayerV3(target);
+        target.Kill(target);
         Main.PlayerStates[target.PlayerId].SetDead();
         Logger.Info($"赝品商 {pc.GetRealName()} 的客户 {target.GetRealName()} 因使用赝品走火自杀", "Pursuer");
         return true;

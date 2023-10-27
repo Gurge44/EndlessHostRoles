@@ -141,7 +141,7 @@ public static class Sheriff
             return true;
         }
         Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Misfire;
-        killer.RpcMurderPlayerV3(killer);
+        killer.Kill(killer);
         return MisfireKillsTarget.GetBool();
     }
     public static string GetShotLimit(byte playerId) => Utils.ColorString(CanUseKillButton(playerId) ? Utils.GetRoleColor(CustomRoles.Sheriff).ShadeColor(0.25f) : Color.gray, ShotLimit.TryGetValue(playerId, out var shotLimit) ? $"({shotLimit})" : "Invalid");

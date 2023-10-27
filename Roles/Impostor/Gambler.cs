@@ -121,7 +121,7 @@ namespace TOHE.Roles.Impostor
                         break;
                     case 3: // No lunge (Swift kill)
                         killer.Notify(GetString("GamblerGet.NoLunge"));
-                        if (killer.RpcCheckAndMurder(target, true)) target.RpcMurderPlayerV3(target);
+                        if (killer.RpcCheckAndMurder(target, true)) target.Kill(target);
                         return false;
                     case 4: // Swap with random player
                         killer.Notify(GetString("GamblerGet.Swap"));
@@ -141,7 +141,7 @@ namespace TOHE.Roles.Impostor
                             || (Medic.InProtect(target.PlayerId) && IgnoreMedicShield.GetBool())
                             || ((target.Is(CustomRoles.Jinx) || target.Is(CustomRoles.CursedWolf)) && IgnoreCursedWolfAndJinx.GetBool()))
                         {
-                            killer.RpcMurderPlayerV3(target);
+                            killer.Kill(target);
                             return false;
                         }
                         else if ((target.Is(CustomRoles.Pestilence) && !IgnorePestilence.GetBool())
@@ -153,7 +153,7 @@ namespace TOHE.Roles.Impostor
                         }
                         else
                         {
-                            killer.RpcMurderPlayerV3(target);
+                            killer.Kill(target);
                             return false;
                         }
                     case 6: // Low KCD
@@ -237,7 +237,7 @@ namespace TOHE.Roles.Impostor
                 {
                     Main.PlayerStates[x.Key].deathReason = PlayerState.DeathReason.Poison;
                     pc.SetRealKiller(player);
-                    pc.RpcMurderPlayerV3(pc);
+                    pc.Kill(pc);
                     waitingDelayedKills.Remove(x.Key);
                 }
             }
@@ -269,7 +269,7 @@ namespace TOHE.Roles.Impostor
             foreach (var playerId in waitingDelayedKills.Keys)
             {
                 var pc = GetPlayerById(playerId);
-                if (pc.IsAlive()) pc.RpcMurderPlayerV3(pc);
+                if (pc.IsAlive()) pc.Kill(pc);
             }
             waitingDelayedKills.Clear();
             isShielded.Clear();

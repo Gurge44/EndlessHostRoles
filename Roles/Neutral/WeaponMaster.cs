@@ -109,7 +109,7 @@ public static class WeaponMaster
                         if (Vector2.Distance(killer.transform.position, player.transform.position) <= Radius.GetFloat())
                         {
                             player.SetRealKiller(killer);
-                            player.RpcMurderPlayerV3(player);
+                            player.Kill(player);
                         }
                     }
                     killer.SetKillCooldown(time: HighKCD.GetFloat());
@@ -118,7 +118,7 @@ public static class WeaponMaster
             case 2:
                 if (killer.RpcCheckAndMurder(target, true))
                 {
-                    target.RpcMurderPlayerV3(target);
+                    target.Kill(target);
                     killer.SetKillCooldown();
                 }
                 return false;

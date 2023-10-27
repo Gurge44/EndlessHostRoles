@@ -84,7 +84,7 @@ namespace TOHE.Roles.Impostor
                     }
                     Main.PlayerStates[tg.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
                     tg.SetRealKiller(pc);
-                    tg.RpcMurderPlayerV3(tg);
+                    tg.Kill(tg);
                     Medic.IsDead(tg);
                 }
                 Bombs.Remove(bomb.Key);
@@ -94,7 +94,7 @@ namespace TOHE.Roles.Impostor
                     if (!GameStates.IsEnded)
                     {
                         Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
-                        pc.RpcMurderPlayerV3(pc);
+                        pc.Kill(pc);
                     }
                 }, 0.5f, "Sapper Bomb Suicide");
             }

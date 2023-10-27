@@ -1197,9 +1197,9 @@ static class ExtendedPlayerControl
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.Exiled, SendOption.None, -1);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
-    public static void RpcMurderPlayerV3(this PlayerControl killer, PlayerControl target)
+    public static void Kill(this PlayerControl killer, PlayerControl target)
     {
-        //用于TOHE的击杀前判断
+        //Used for TOHE's pre-kill judgment
 
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat) return;
 

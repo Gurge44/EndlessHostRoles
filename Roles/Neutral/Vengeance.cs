@@ -84,7 +84,7 @@ public static class Vengeance
             Success = false;
             return;
         }
-        if ((seconds <= 0 || GameStates.IsMeeting) && player.IsAlive()) { player.RpcMurderPlayerV3(player); return; }
+        if ((seconds <= 0 || GameStates.IsMeeting) && player.IsAlive()) { player.Kill(player); return; }
         player.Notify(string.Format(GetString("VengeanceRevenge"), seconds), 1.1f);
         Timer = seconds;
 
@@ -106,7 +106,7 @@ public static class Vengeance
         }
         else
         {
-            killer.RpcMurderPlayerV3(killer);
+            killer.Kill(killer);
             return false;
         }
     }

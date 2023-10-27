@@ -1,6 +1,7 @@
 ﻿using AmongUs.GameOptions;
 using Hazel;
 using System.Collections.Generic;
+using TOHE;
 using static TOHE.Translator;
 
 namespace TOHE.Roles.Neutral;
@@ -74,7 +75,7 @@ public static class Agitater
         if (AgitaterAutoReportBait.GetBool() && target.Is(CustomRoles.Bait)) return true;
         if (target.Is(CustomRoles.Pestilence) || (target.Is(CustomRoles.Veteran) && Main.VeteranInProtect.ContainsKey(target.PlayerId)))
         {
-            target.RpcMurderPlayer(killer, true);
+            target.Kill(killer);
             ResetBomb();
             return false;
         }
@@ -95,7 +96,7 @@ public static class Agitater
                 var pc = Utils.GetPlayerById(CurrentBombedPlayer);
                 if (pc != null && pc.IsAlive() && killer != null)
                 {
-                    pc.RpcMurderPlayerV3(pc);
+                    pc.Kill(pc);
                     Main.PlayerStates[CurrentBombedPlayer].deathReason = PlayerState.DeathReason.Bombed;
                     pc.SetRealKiller(Utils.GetPlayerById(playerIdList[0]));
                     Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} bombed {pc.GetNameWithRole().RemoveHtmlTags()}, bomb cd complete", "Agitater");
@@ -137,7 +138,7 @@ public static class Agitater
 
         if (target.Is(CustomRoles.Pestilence) || (target.Is(CustomRoles.Veteran) && Main.VeteranInProtect.ContainsKey(target.PlayerId)))
         {
-            target.RpcMurderPlayer(player, true);
+            target.Kill(player);
             ResetBomb();
             return;
         }

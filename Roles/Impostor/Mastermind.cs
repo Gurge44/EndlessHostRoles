@@ -110,7 +110,7 @@ namespace TOHE.Roles.Impostor
                     TempKCDs.Remove(x.Key);
                     player.SetRealKiller(GetPlayerById(playerIdList[0]));
                     Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
-                    player.RpcMurderPlayerV3(player);
+                    player.Kill(player);
                     RPC.PlaySoundRPC(playerIdList[0], Sounds.KillSound);
                 }
 
@@ -129,7 +129,7 @@ namespace TOHE.Roles.Impostor
                 {
                     pc.SetRealKiller(GetPlayerById(playerIdList[0]));
                     Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
-                    pc.RpcMurderPlayerV3(pc);
+                    pc.Kill(pc);
                 }
             }
             ManipulateDelays.Clear();
@@ -150,12 +150,12 @@ namespace TOHE.Roles.Impostor
 
             if (target.Is(CustomRoles.Pestilence) || Main.VeteranInProtect.ContainsKey(target.PlayerId) || target.Is(CustomRoles.Mastermind))
             {
-                target.RpcMurderPlayerV3(killer);
+                target.Kill(killer);
                 TempKCDs.Remove(killer.PlayerId);
                 return false;
             }
 
-            killer.RpcMurderPlayerV3(target);
+            killer.Kill(target);
 
             killer.Notify(GetString("MastermindTargetSurvived"));
 

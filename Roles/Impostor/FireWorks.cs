@@ -130,7 +130,7 @@ public static class FireWorks
                         {
                             Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
                             target.SetRealKiller(pc);
-                            target.RpcMurderPlayerV3(target);
+                            target.Kill(target);
                             Medic.IsDead(target);
                         }
                     }
@@ -142,7 +142,7 @@ public static class FireWorks
                     if (totalAlive != 1)
                     {
                         Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Misfire;
-                        pc.RpcMurderPlayerV3(pc);
+                        pc.Kill(pc);
                     }
                 }
                 state[pc.PlayerId] = FireWorksState.FireEnd;

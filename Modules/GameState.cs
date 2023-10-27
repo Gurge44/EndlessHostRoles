@@ -401,7 +401,7 @@ public class TaskState
                 var Ue = IRandom.Instance;
                 if (Ue.Next(0, 100) < Options.UnluckyTaskSuicideChance.GetInt())
                 {
-                    player.RpcMurderPlayerV3(player);
+                    player.Kill(player);
                     Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
 
                 }
@@ -493,14 +493,14 @@ public class TaskState
             if (player.Is(CustomRoles.Ghoul) && (CompletedTasksCount + 1) >= AllTasksCount && player.IsAlive())
                 _ = new LateTask(() =>
                 {
-                    player.RpcMurderPlayerV3(player);
+                    player.Kill(player);
                     Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
                 }, 0.2f, "Ghoul Suicide");
             if (player.Is(CustomRoles.Ghoul) && (CompletedTasksCount + 1) >= AllTasksCount && !player.IsAlive())
             {
                 foreach (var pc in Main.AllPlayerControls.Where(pc => !pc.Is(CustomRoles.Pestilence)).Where(pc => Main.KillGhoul.Contains(pc.PlayerId) && player.PlayerId != pc.PlayerId && pc.IsAlive()))
                 {
-                    player.RpcMurderPlayerV3(pc);
+                    player.Kill(pc);
                     Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Kill;
                 }
             }
@@ -520,7 +520,7 @@ public class TaskState
                 {
                     Main.PlayerStates[pc.PlayerId].deathReason = pc.PlayerId == player.PlayerId ?
                                             PlayerState.DeathReason.Overtired : PlayerState.DeathReason.Ashamed;
-                    pc.RpcMurderPlayerV3(pc);
+                    pc.Kill(pc);
                     Main.PlayerStates[pc.PlayerId].SetDead();
                     pc.SetRealKiller(player);
                 }
@@ -573,7 +573,7 @@ public class TaskState
                         else
                         {
                             player.SetRealKiller(target);
-                            player.RpcMurderPlayerV3(target);
+                            player.Kill(target);
                             player.RpcGuardAndKill();
                             Logger.Info("lunge mode kill", "Crewpostor");
 
@@ -583,7 +583,7 @@ public class TaskState
                     if (target.Is(CustomRoles.Pestilence))
                     {
                         target.SetRealKiller(player);
-                        target.RpcMurderPlayerV3(player);
+                        target.Kill(player);
                         //player.RpcGuardAndKill();
                         Logger.Info($"Crewpostor tried to kill Pestilence：{target.GetNameWithRole()} => {player.GetNameWithRole().RemoveHtmlTags()}", "Pestilence Reflect");
                     }

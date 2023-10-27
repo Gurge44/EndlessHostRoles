@@ -90,7 +90,7 @@ public static class Postman
         }
         else
         {
-            killer.RpcMurderPlayerV3(killer);
+            killer.Kill(killer);
             Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
         }
     }
@@ -102,7 +102,7 @@ public static class Postman
 
         if (DieWhenTargetDies.GetBool())
         {
-            postman.RpcMurderPlayerV3(postman);
+            postman.Kill(postman);
             Main.PlayerStates[postman.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
         }
         else

@@ -289,7 +289,7 @@ internal static class FFAManager
             killer.SyncSettings();
         }
 
-        killer.RpcMurderPlayerV3(target);
+        killer.Kill(target);
     }
 
     public static void OnPlayerKill(PlayerControl killer)

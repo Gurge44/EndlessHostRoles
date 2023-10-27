@@ -197,7 +197,7 @@ namespace TOHE.Roles.Impostor
 
             Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
             target.SetRealKiller(deathpact);
-            target.RpcMurderPlayerV3(target);
+            target.Kill(target);
         }
 
         public static string GetDeathpactPlayerArrow(PlayerControl seer, PlayerControl target = null)

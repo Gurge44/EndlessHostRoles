@@ -71,7 +71,7 @@ namespace TOHE.Roles.Crewmate
             if (SuicideTimer[player.PlayerId] >= TimeLimit.GetFloat())
             {
                 Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
-                player.RpcMurderPlayerV3(player);
+                player.Kill(player);
                 SuicideTimer.Remove(player.PlayerId);
             }
             else

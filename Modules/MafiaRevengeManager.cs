@@ -107,7 +107,7 @@ public static class MafiaRevengeManager
             }
             else
             {
-                target.RpcMurderPlayerV3(target);
+                target.Kill(target);
                 Main.PlayerStates[target.PlayerId].SetDead();
             }
 

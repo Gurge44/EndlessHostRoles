@@ -131,7 +131,7 @@ public static class PlagueBearer
         if (target.Is(CustomRoles.TimeMaster) && Main.TimeMasterInProtect.ContainsKey(target.PlayerId)) return true;
         if (IsIndirectKill(killer)) return false;
         killer.SetRealKiller(target);
-        target.RpcMurderPlayerV3(killer);
+        target.Kill(killer);
         return true;
     }
 }

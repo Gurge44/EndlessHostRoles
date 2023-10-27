@@ -92,7 +92,7 @@ public static class Infectious
         }
         if (!CanBeBitten(target) && !target.Is(CustomRoles.Infected))
         {
-            killer.RpcMurderPlayerV3(target);
+            killer.Kill(target);
         }
         if (BiteLimit < 0)
             HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");

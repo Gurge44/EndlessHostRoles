@@ -112,7 +112,7 @@ public static class Poisoner
         {
             Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Poison;
             target.SetRealKiller(poisoner);
-            target.RpcMurderPlayerV3(target);
+            target.Kill(target);
             Medic.IsDead(target);
             Logger.Info($"Poisonerに噛まれている{target.name}を自爆させました。", "Poisoner");
             if (!isButton && poisoner.IsAlive())

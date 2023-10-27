@@ -321,7 +321,7 @@ public static class Magician
                     }
                     Main.PlayerStates[tg.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
                     tg.SetRealKiller(pc);
-                    tg.RpcMurderPlayerV3(tg);
+                    tg.Kill(tg);
                     Medic.IsDead(tg);
                 }
                 Bombs.Remove(bomb.Key);
@@ -331,7 +331,7 @@ public static class Magician
                     if (!GameStates.IsEnded)
                     {
                         Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
-                        pc.RpcMurderPlayerV3(pc);
+                        pc.Kill(pc);
                     }
                 }, 0.5f, "Magician Bomb Suicide");
             }

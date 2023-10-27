@@ -362,7 +362,7 @@ public static class CopyCat
                 return true;
             }
             Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
-            pc.RpcMurderPlayerV3(pc);
+            pc.Kill(pc);
             return false;
         }
         pc.Notify(GetString("CopyCatCanNotCopy"));

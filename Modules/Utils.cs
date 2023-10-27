@@ -230,7 +230,7 @@ public static class Utils
                         if ((Options.DemolitionistKillerDiesOnMeetingCall.GetBool() || GameStates.IsInTask) && killer.IsAlive())
                         {
                             killer.SetRealKiller(target);
-                            killer.RpcMurderPlayerV3(killer);
+                            killer.Kill(killer);
                             RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
                             Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Demolished;
                         }
@@ -1793,7 +1793,7 @@ public static class Utils
                 {
                     //生存者は爆死
                     pc.SetRealKiller(Terrorist.Object);
-                    pc.RpcMurderPlayerV3(pc);
+                    pc.Kill(pc);
                     Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
                     Main.PlayerStates[pc.PlayerId].SetDead();
                 }

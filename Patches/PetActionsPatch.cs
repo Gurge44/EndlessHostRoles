@@ -348,7 +348,7 @@ class ExternalRpcPetPatch
                             {
                                 targetw.SetRealKiller(pc);
                                 Logger.Info($"{targetw.GetNameWithRole().RemoveHtmlTags()}was killed", "Warlock");
-                                cp.RpcMurderPlayerV3(targetw);
+                                cp.Kill(targetw);
                                 pc.SetKillCooldown();
                                 pc.Notify(GetString("WarlockControlKill"));
                             }
@@ -441,7 +441,7 @@ class ExternalRpcPetPatch
 
                     Main.PlayerStates[tg.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
                     tg.SetRealKiller(pc);
-                    tg.RpcMurderPlayerV3(tg);
+                    tg.Kill(tg);
                     Medic.IsDead(tg);
                 }
                 _ = new LateTask(() =>
@@ -450,7 +450,7 @@ class ExternalRpcPetPatch
                     if (Options.BomberDiesInExplosion.GetBool() && totalAlive > 1 && !GameStates.IsEnded)
                     {
                         Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
-                        pc.RpcMurderPlayerV3(pc);
+                        pc.Kill(pc);
                     }
                     Utils.NotifyRoles();
                 }, 1.5f, "Bomber Suiscide");
@@ -477,7 +477,7 @@ class ExternalRpcPetPatch
 
                     Main.PlayerStates[tg.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
                     tg.SetRealKiller(pc);
-                    tg.RpcMurderPlayerV3(tg);
+                    tg.Kill(tg);
                     Medic.IsDead(tg);
                 }
                 _ = new LateTask(() =>
@@ -486,7 +486,7 @@ class ExternalRpcPetPatch
                     if (totalAlive > 1 && !GameStates.IsEnded)
                     {
                         Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
-                        pc.RpcMurderPlayerV3(pc);
+                        pc.Kill(pc);
                     }
                     Utils.NotifyRoles();
                 }, 1.5f, "Nuke");
