@@ -121,8 +121,8 @@ internal class EAC
                     if (GameStates.IsLobby)
                     {
                         WarnHost();
-                        Report(pc, "非法击杀");
-                        Logger.Fatal($"玩家【{pc.GetClientId()}:{pc.GetRealName()}】非法击杀，已驳回", "EAC");
+                        Report(pc, "Illegal Kill");
+                        Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] illegally killed and has been rejected", "EAC");
                         return true;
                     }
                     break;

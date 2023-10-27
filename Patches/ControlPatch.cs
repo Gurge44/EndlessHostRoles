@@ -111,11 +111,11 @@ internal class ControllerManagerUpdatePatch
         {
             Utils.CopyCurrentSettings();
         }
-        //打开游戏目录
-        if (GetKeysDown(KeyCode.F10))
-        {
-            System.Diagnostics.Process.Start(Environment.CurrentDirectory);
-        }
+        //Open game directory
+        //if (GetKeysDown(KeyCode.F10))
+        //{
+        //    System.Diagnostics.Process.Start(Environment.CurrentDirectory);
+        //}
 
         //-- 下面是主机专用的命令--//
         if (!AmongUsClient.Instance.AmHost) return;

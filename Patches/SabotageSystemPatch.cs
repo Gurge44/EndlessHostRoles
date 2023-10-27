@@ -1,4 +1,5 @@
 using HarmonyLib;
+using System.Threading;
 
 namespace TOHE;
 
@@ -10,15 +11,15 @@ public static class ReactorSystemTypePatch
 {
     public static void Prefix(ReactorSystemType __instance)
     {
-        if (!__instance.IsActive || !Options.SabotageTimeControl.GetBool() || __instance.Countdown < Options.PolusReactorTimeLimit.GetFloat()) return;
+        if (!__instance.IsActive || !Options.SabotageTimeControl.GetBool()) return;
 
         switch (ShipStatus.Instance.Type)
         {
             case ShipStatus.MapType.Pb:
-                __instance.Countdown = Options.PolusReactorTimeLimit.GetFloat();
+                if (__instance.Countdown >= Options.PolusReactorTimeLimit.GetFloat()) __instance.Countdown = Options.PolusReactorTimeLimit.GetFloat();
                 return;
             case ShipStatus.MapType.Hq:
-                __instance.Countdown = Options.MiraReactorTimeLimit.GetFloat();
+                if (__instance.Countdown >= Options.MiraReactorTimeLimit.GetFloat()) __instance.Countdown = Options.MiraReactorTimeLimit.GetFloat();
                 return;
             default:
                 return;
@@ -52,12 +53,10 @@ public static class MushroomMixupSabotageSystemPatch
 {
     public static void Prefix(MushroomMixupSabotageSystem __instance)
     {
-        if (Options.UsePets.GetBool()) __instance.petEmptyChance = 0;
-
-        if (!__instance.IsActive || !Options.SabotageTimeControl.GetBool()) return;
-
-        if (ShipStatus.Instance != null && __instance.secondsForAutoHeal >= Options.MushroomMixupTime.GetFloat())
-            __instance.secondsForAutoHeal = Options.MushroomMixupTime.GetFloat();
+        if (Options.UsePets.GetBool())
+        {
+            __instance.petEmptyChance = 0;
+        }
     }
 }
 [HarmonyPatch(typeof(ElectricTask), nameof(ElectricTask.Initialize))]
@@ -65,8 +64,10 @@ public static class ElectricTaskInitializePatch
 {
     public static void Postfix()
     {
-        _ = new LateTask(() => { if (Utils.IsActive(SystemTypes.Electrical)) Utils.MarkEveryoneDirtySettingsV2(); }, 0.1f);
+        Utils.MarkEveryoneDirtySettingsV2();
+
         if (!GameStates.IsMeeting)
+        {
             for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
             {
                 PlayerControl pc = Main.AllAlivePlayerControls[i];
@@ -75,6 +76,7 @@ public static class ElectricTaskInitializePatch
                     Utils.NotifyRoles(SpecifySeer: pc);
                 }
             }
+        }
     }
 }
 [HarmonyPatch(typeof(ElectricTask), nameof(ElectricTask.Complete))]
@@ -82,8 +84,10 @@ public static class ElectricTaskCompletePatch
 {
     public static void Postfix()
     {
-        _ = new LateTask(() => { if (!Utils.IsActive(SystemTypes.Electrical)) Utils.MarkEveryoneDirtySettingsV2(); }, 0.1f);
+        Utils.MarkEveryoneDirtySettingsV2();
+
         if (!GameStates.IsMeeting)
+        {
             for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
             {
                 PlayerControl pc = Main.AllAlivePlayerControls[i];
@@ -92,6 +96,7 @@ public static class ElectricTaskCompletePatch
                     Utils.NotifyRoles(SpecifySeer: pc);
                 }
             }
+        }
     }
 }
 // https://github.com/tukasa0001/TownOfHost/blob/357f7b5523e4bdd0bb58cda1e0ff6cceaa84813d/Patches/SabotageSystemPatch.cs

@@ -1,4 +1,5 @@
 using HarmonyLib;
+using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,7 +29,15 @@ class ShipFixedUpdatePatch
         }
     }
 }
-[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), new Type[] { typeof(SystemTypes), typeof(PlayerControl), typeof(byte) })]
+[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(PlayerControl), typeof(MessageReader))]
+public static class MessageReaderUpdateSystemPatch
+{
+    public static void Postfix(ShipStatus __instance, [HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] PlayerControl player, [HarmonyArgument(2)] MessageReader reader)
+    {
+        Camouflage.CheckCamouflage();
+    }
+}
+[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(PlayerControl), typeof(byte))]
 class RepairSystemPatch
 {
     public static bool IsComms;
@@ -41,7 +50,7 @@ class RepairSystemPatch
         if (RepairSender.enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
             Logger.SendInGame("SystemType: " + systemType.ToString() + ", PlayerName: " + player.GetNameWithRole().RemoveHtmlTags() + ", amount: " + amount);
 
-        if (!AmongUsClient.Instance.AmHost) return true; //以下、ホストのみ実行
+        if (!AmongUsClient.Instance.AmHost) return true; //Execute the following only on the host
 
         IsComms = PlayerControl.LocalPlayer.myTasks.ToArray().Any(x => x.TaskType == TaskTypes.FixComms);
 
@@ -82,16 +91,11 @@ class RepairSystemPatch
             SabotageMaster.RepairSystem(__instance, systemType, amount);
         if (player.Is(CustomRoles.Alchemist) && Alchemist.FixNextSabo) Alchemist.RepairSystem(systemType, amount);
 
-        if (systemType == SystemTypes.Electrical && 0 <= amount && amount <= 4)
+        if (systemType == SystemTypes.Electrical && 0 <= amount && amount <= 4 && Main.NormalOptions.MapId == 4)
         {
-            switch (Main.NormalOptions.MapId)
-            {
-                case 4:
-                    if (Options.DisableAirshipViewingDeckLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(-12.93f, -11.28f)) <= 2f) return false;
-                    if (Options.DisableAirshipGapRoomLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(13.92f, 6.43f)) <= 2f) return false;
-                    if (Options.DisableAirshipCargoLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(30.56f, 2.12f)) <= 2f) return false;
-                    break;
-            }
+            if (Options.DisableAirshipViewingDeckLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(-12.93f, -11.28f)) <= 2f) return false;
+            if (Options.DisableAirshipGapRoomLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(13.92f, 6.43f)) <= 2f) return false;
+            if (Options.DisableAirshipCargoLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(30.56f, 2.12f)) <= 2f) return false;
         }
 
         if (systemType == SystemTypes.Sabotage && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay)
@@ -140,9 +144,31 @@ class RepairSystemPatch
 
         return true;
     }
-    public static void Postfix(/*ShipStatus __instance*/)
+    public static void Postfix(ShipStatus __instance,
+        [HarmonyArgument(0)] SystemTypes systemType,
+        [HarmonyArgument(1)] PlayerControl player,
+        [HarmonyArgument(2)] byte amount)
     {
-        Camouflage.CheckCamouflage();
+        if (systemType == SystemTypes.Electrical && 0 <= amount && amount <= 4)
+        {
+            var SwitchSystem = ShipStatus.Instance.Systems[SystemTypes.Electrical].Cast<SwitchSystem>();
+            if (SwitchSystem != null && SwitchSystem.IsActive)
+            {
+                switch (player.GetCustomRole())
+                {
+                    case CustomRoles.SabotageMaster:
+                        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
+                        SabotageMaster.SwitchSystemRepair(SwitchSystem, amount);
+                        break;
+                    case CustomRoles.Alchemist when Alchemist.FixNextSabo:
+                        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
+                        SwitchSystem.ActualSwitches = 0;
+                        SwitchSystem.ExpectedSwitches = 0;
+                        Alchemist.FixNextSabo = false;
+                        break;
+                }
+            }
+        }
     }
     public static void CheckAndOpenDoorsRange(ShipStatus __instance, int amount, int min, int max)
     {
@@ -177,29 +203,6 @@ class CloseDoorsPatch
         return allow;
     }
 }
-//[HarmonyPatch(typeof(SwitchSystem), nameof(SwitchSystem.RepairDamage))]
-//class SwitchSystemRepairPatch
-//{
-//    public static bool Prefix(/*SwitchSystem __instance,*/ [HarmonyArgument(0)] PlayerControl player/*, [HarmonyArgument(1)] byte amount*/)
-//    {
-//        if (player.Is(CustomRoles.Fool)) return false;
-//        else return true;
-//    }
-//    public static void Postfix(SwitchSystem __instance, [HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] byte amount)
-//    {
-//        if (player.Is(CustomRoles.SabotageMaster))
-//            SabotageMaster.SwitchSystemRepair(__instance, amount);
-//        if (player.Is(CustomRoles.Alchemist) && Alchemist.FixNextSabo == true)
-//        {
-//            if (amount is >= 0 and <= 4)
-//            {
-//                __instance.ActualSwitches = 0;
-//                __instance.ExpectedSwitches = 0;
-//            }
-//            Alchemist.FixNextSabo = false;
-//        }
-//    }
-//}
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Start))]
 class StartPatch
 {

@@ -889,7 +889,7 @@ public static class Utils
                     break;
                 case CustomRoles.SabotageMaster:
                     Color TextColor101;
-                    if (SabotageMaster.SkillLimit.GetFloat() - SabotageMaster.UsedSkillCount > 1) TextColor101 = Color.red;
+                    if (SabotageMaster.SkillLimit.GetFloat() - SabotageMaster.UsedSkillCount < 1) TextColor101 = Color.red;
                     else TextColor101 = Color.white;
                     ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(ColorString(TextColor101, $" <color=#777777>-</color> {Math.Round(SabotageMaster.SkillLimit.GetFloat() - SabotageMaster.UsedSkillCount, 1)}"));

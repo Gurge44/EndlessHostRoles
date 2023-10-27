@@ -660,13 +660,14 @@ class CheckMurderPatch
 
                     MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.None, -1);
                     messageWriter.WriteNetObject(target);
+                    messageWriter.Write((byte)ExtendedPlayerControl.ResultFlags);
                     AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
                 }
                 Utils.TP(killer.NetTransform, ops);
             }, 0.05f, "OverKiller Murder");
         }
 
-        //==キル処理==
+        //==Kill processing==
         __instance.Kill(target);
         //============
 
@@ -1020,11 +1021,11 @@ class MurderPlayerPatch
 
         if (Main.OverDeadPlayerList.Contains(target.PlayerId)) return;
 
-        PlayerControl killer = __instance; //読み替え変数
+        PlayerControl killer = __instance; // Alternative variable
         if (target.PlayerId == Main.GodfatherTarget) killer.RpcSetCustomRole(CustomRoles.Refugee);
 
 
-        //実際のキラーとkillerが違う場合の入れ替え処理
+        // Replacement process when the actual killer and killer are different
         if (Sniper.IsEnable)
         {
             if (Sniper.TryGetSniper(target.PlayerId, ref killer))
@@ -1044,11 +1045,11 @@ class MurderPlayerPatch
         }
         if (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.etc)
         {
-            //死因が設定されていない場合は死亡判定
+            //If the cause of death is not specified, it is determined as a normal kill.
             Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Kill;
         }
 
-        //看看UP是不是被首刀了
+        //Let’s see if Youtuber was stabbed first
         if (Main.FirstDied == byte.MaxValue && target.Is(CustomRoles.Youtuber))
         {
             CustomSoundsManager.RPCPlayCustomSoundAll("Congrats");
@@ -1056,29 +1057,13 @@ class MurderPlayerPatch
             CustomWinnerHolder.WinnerIds.Add(target.PlayerId);
         }
 
-        //记录首刀
+        //Record the first blow
         if (Main.FirstDied == byte.MaxValue)
             Main.FirstDied = target.PlayerId;
 
         if (Postman.Target == target.PlayerId)
         {
             Postman.OnTargetDeath();
-        }
-
-        if (target.Is(CustomRoles.Bait))
-        {
-            if (killer.PlayerId != target.PlayerId || (target.GetRealKiller()?.GetCustomRole() is CustomRoles.Swooper or CustomRoles.Wraith) || !killer.Is(CustomRoles.Oblivious) || (killer.Is(CustomRoles.Oblivious) && !Options.ObliviousBaitImmune.GetBool()))
-            {
-                killer.RPCPlayCustomSound("Congrats");
-                target.RPCPlayCustomSound("Congrats");
-                float delay;
-                if (Options.BaitDelayMax.GetFloat() < Options.BaitDelayMin.GetFloat()) delay = 0f;
-                else delay = IRandom.Instance.Next((int)Options.BaitDelayMin.GetFloat(), (int)Options.BaitDelayMax.GetFloat() + 1);
-                delay = Math.Max(delay, 0.15f);
-                if (delay > 0.15f && Options.BaitDelayNotify.GetBool()) killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Bait), string.Format(GetString("KillBaitNotify"), (int)delay)), delay);
-                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} 击杀诱饵 => {target.GetNameWithRole().RemoveHtmlTags()}", "MurderPlayer");
-                _ = new LateTask(() => { if (GameStates.IsInTask) killer.CmdReportDeadBody(target.Data); }, delay, "Bait Self Report");
-            }
         }
 
         if (target.Is(CustomRoles.Trapper) && killer != target)
@@ -1168,6 +1153,22 @@ class MurderPlayerPatch
                 Main.PlayerStates[rp.PlayerId].deathReason = PlayerState.DeathReason.Revenge;
                 rp.SetRealKiller(target);
                 rp.Kill(rp);
+            }
+        }
+
+        if (target.Is(CustomRoles.Bait))
+        {
+            if (killer.PlayerId != target.PlayerId || (target.GetRealKiller()?.GetCustomRole() is CustomRoles.Swooper or CustomRoles.Wraith) || !killer.Is(CustomRoles.Oblivious) || (killer.Is(CustomRoles.Oblivious) && !Options.ObliviousBaitImmune.GetBool()))
+            {
+                killer.RPCPlayCustomSound("Congrats");
+                target.RPCPlayCustomSound("Congrats");
+                float delay;
+                if (Options.BaitDelayMax.GetFloat() < Options.BaitDelayMin.GetFloat()) delay = 0f;
+                else delay = IRandom.Instance.Next((int)Options.BaitDelayMin.GetFloat(), (int)Options.BaitDelayMax.GetFloat() + 1);
+                delay = Math.Max(delay, 0.15f);
+                if (delay > 0.15f && Options.BaitDelayNotify.GetBool()) killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Bait), string.Format(GetString("KillBaitNotify"), (int)delay)), delay);
+                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} 击杀诱饵 => {target.GetNameWithRole().RemoveHtmlTags()}", "MurderPlayer");
+                _ = new LateTask(() => { if (GameStates.IsInTask) killer.CmdReportDeadBody(target.Data); }, delay, "Bait Self Report");
             }
         }
 

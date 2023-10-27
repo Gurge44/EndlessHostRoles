@@ -539,7 +539,7 @@ class IntroCutsceneDestroyPatch
                                     try
                                     {
                                         pc.RpcShapeshift(Utils.GetPlayerById(0), false);
-                                        pc.CmdCheckRevertShapeshift(false);
+                                        pc.RpcShapeshift(pc, false);
                                         pc.Notify("", 0.1f);
                                     }
                                     catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift"); }
@@ -550,7 +550,16 @@ class IntroCutsceneDestroyPatch
                     }, 0.4f, "Show Pet For Everyone");
                 }
                 catch { }
-                _ = new LateTask(() => Main.ProcessShapeshifts = true, 2f, "Enable SS Processing");
+                //_ = new LateTask(() =>
+                //{
+                //    for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+                //    {
+                //        PlayerControl pc = Main.AllPlayerControls[i];
+                //        try { pc.CmdCheckRevertShapeshift(false); }
+                //        catch { pc.RpcShapeshift(pc, false); }
+                //    }
+                //}, 1f, "Revert Shapeshifts");
+                _ = new LateTask(() => Main.ProcessShapeshifts = true, 3f, "Enable SS Processing");
             }
             if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))
             {

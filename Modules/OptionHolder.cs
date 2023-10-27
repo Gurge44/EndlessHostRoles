@@ -2682,10 +2682,10 @@ public static class Options
             .SetParent(SabotageTimeControl)
             .SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(CustomGameMode.Standard);
-        MushroomMixupTime = FloatOptionItem.Create(22418, "MushroomMixupTime", new(1f, 15f, 1f), 7f, TabGroup.GameSettings, false)
-            .SetParent(SabotageTimeControl)
-            .SetValueFormat(OptionFormat.Seconds)
-            .SetGameMode(CustomGameMode.Standard);
+        //MushroomMixupTime = FloatOptionItem.Create(22418, "MushroomMixupTime", new(1f, 15f, 1f), 7f, TabGroup.GameSettings, false)
+        //    .SetParent(SabotageTimeControl)
+        //    .SetValueFormat(OptionFormat.Seconds)
+        //    .SetGameMode(CustomGameMode.Standard);
 
         LoadingPercentage = 72;
 
