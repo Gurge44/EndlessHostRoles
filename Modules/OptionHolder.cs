@@ -578,6 +578,9 @@ public static class Options
     public static OptionItem DisableAirshipRecordsAdmin;
     public static OptionItem DisableAirshipCamera;
     public static OptionItem DisableAirshipVital;
+    public static OptionItem DisableFungleDevices;
+    public static OptionItem DisableFungleCamera;
+    public static OptionItem DisableFungleVital;
     public static OptionItem DisableDevicesIgnoreConditions;
     public static OptionItem DisableDevicesIgnoreImpostors;
     public static OptionItem DisableDevicesIgnoreNeutrals;
@@ -2798,6 +2801,15 @@ public static class Options
             .SetParent(DisableAirshipDevices);
         DisableAirshipVital = BooleanOptionItem.Create(22919, "DisableAirshipVital", false, TabGroup.GameSettings, false)
             .SetParent(DisableAirshipDevices);
+        DisableFungleDevices = BooleanOptionItem.Create(22925, "DisableFungleDevices", false, TabGroup.GameSettings, false)
+            .SetParent(DisableDevices)
+            .SetGameMode(CustomGameMode.Standard);
+        DisableFungleCamera = BooleanOptionItem.Create(22926, "DisableFungleCamera", false, TabGroup.GameSettings, false)
+            .SetParent(DisableFungleDevices)
+            .SetGameMode(CustomGameMode.Standard);
+        DisableFungleVital = BooleanOptionItem.Create(22927, "DisableFungleVital", false, TabGroup.GameSettings, false)
+            .SetParent(DisableFungleDevices)
+            .SetGameMode(CustomGameMode.Standard);
         DisableDevicesIgnoreConditions = BooleanOptionItem.Create(22920, "IgnoreConditions", false, TabGroup.GameSettings, false)
             .SetParent(DisableDevices);
         DisableDevicesIgnoreImpostors = BooleanOptionItem.Create(22921, "IgnoreImpostors", false, TabGroup.GameSettings, false)

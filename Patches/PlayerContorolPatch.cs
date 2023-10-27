@@ -113,7 +113,7 @@ class CheckMurderPatch
             Logger.Info("Kill during meeting, canceled", "CheckMurder");
             return false;
         }
-
+        
         var divice = Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA ? 3000f : 2000f;
         float minTime = Mathf.Max(0.02f, AmongUsClient.Instance.Ping / divice * 6f); //※AmongUsClient.Instance.Pingの値はミリ秒(ms)なので÷1000
         //TimeSinceLastKillに値が保存されていない || 保存されている時間がminTime以上 => キルを許可
@@ -647,7 +647,7 @@ class CheckMurderPatch
                     AmongUsClient.Instance.FinishRpcImmediately(writer);
 
                     target.NetTransform.SnapTo(location);
-                    killer.MurderPlayer(target, MurderResultFlags.DecisionByHost);
+                    killer.MurderPlayer(target, ExtendedPlayerControl.ResultFlags);
 
                     if (target.Is(CustomRoles.Avanger))
                     {
@@ -1007,10 +1007,10 @@ class MurderPlayerPatch
 {
     public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
-        Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}{(target.protectedByGuardianThisRound ? "(Protected)" : string.Empty)}", "MurderPlayer");
+        Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}{(target.IsProtected() ? "(Protected)" : string.Empty)}", "MurderPlayer");
 
         if (RandomSpawn.CustomNetworkTransformPatch.NumOfTP.TryGetValue(__instance.PlayerId, out var num) && num > 2) RandomSpawn.CustomNetworkTransformPatch.NumOfTP[__instance.PlayerId] = 3;
-        if (!target.protectedByGuardianThisRound)
+        if (!target.IsProtected())
             Camouflage.RpcSetSkin(target, ForceRevert: true);
     }
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)

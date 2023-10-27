@@ -173,7 +173,7 @@ static class ExtendedPlayerControl
         if (killer.AmOwner)
         {
             killer.ProtectPlayer(target, colorId);
-            killer.MurderPlayer(target, MurderResultFlags.DecisionByHost);
+            killer.MurderPlayer(target, ResultFlags);
         }
         // Other Clients
         if (killer.PlayerId != 0)
@@ -186,7 +186,7 @@ static class ExtendedPlayerControl
                 .EndRpc();
             sender.StartRpc(killer.NetId, (byte)RpcCalls.MurderPlayer)
                 .WriteNetObject(target)
-                .Write((byte)MurderResultFlags.DecisionByHost)
+                .Write((byte)ResultFlags)
                 .EndRpc();
             sender.EndMessage();
             sender.SendMessage();
@@ -264,13 +264,13 @@ static class ExtendedPlayerControl
         if (target == null) target = killer;
         if (killer.AmOwner)
         {
-            killer.MurderPlayer(target, MurderResultFlags.DecisionByHost);
+            killer.MurderPlayer(target, ResultFlags);
         }
         else
         {
             MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable, killer.GetClientId());
             messageWriter.WriteNetObject(target);
-            messageWriter.Write((byte)MurderResultFlags.DecisionByHost);
+            messageWriter.Write((byte)ResultFlags);
             AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
         }
     }
@@ -402,8 +402,12 @@ static class ExtendedPlayerControl
     {
         if (pc == null || !AmongUsClient.Instance.AmHost || pc.AmOwner) return;
 
-        var systemtypes = SystemTypes.Reactor;
-        if (Main.NormalOptions.MapId == 2) systemtypes = SystemTypes.Laboratory;
+        var systemtypes = (MapNames)Main.NormalOptions.MapId switch
+        {
+            MapNames.Polus => SystemTypes.Laboratory,
+            MapNames.Airship => SystemTypes.HeliSabotage,
+            _ => SystemTypes.Reactor,
+        };
 
         _ = new LateTask(() =>
         {
@@ -425,10 +429,16 @@ static class ExtendedPlayerControl
     public static void ReactorFlash(this PlayerControl pc, float delay = 0f)
     {
         if (pc == null) return;
-        int clientId = pc.GetClientId();
-        // Logger.Info($"{pc}", "ReactorFlash");
-        var systemtypes = SystemTypes.Reactor;
-        if (Main.NormalOptions.MapId == 2) systemtypes = SystemTypes.Laboratory;
+
+        Logger.Info($"Reactor Flash for {pc}", "ReactorFlash");
+
+        var systemtypes = (MapNames)Main.NormalOptions.MapId switch
+        {
+            MapNames.Polus => SystemTypes.Laboratory,
+            MapNames.Airship => SystemTypes.HeliSabotage,
+            _ => SystemTypes.Reactor,
+        };
+
         float FlashDuration = Options.KillFlashDuration.GetFloat();
 
         pc.RpcDesyncRepairSystem(systemtypes, 128);
@@ -437,7 +447,7 @@ static class ExtendedPlayerControl
         {
             pc.RpcDesyncRepairSystem(systemtypes, 16);
 
-            if (Main.NormalOptions.MapId == 4) //Airship用
+            if (Main.NormalOptions.MapId == 4) // on Airship
                 pc.RpcDesyncRepairSystem(systemtypes, 17);
         }, FlashDuration + delay, "Fix Desync Reactor");
     }
@@ -1185,7 +1195,7 @@ static class ExtendedPlayerControl
         var count = Utils.GetDousedPlayerCount(player.PlayerId);
         return count.Item1 >= count.Item2;
     }
-    public static bool IsDrawDone(this PlayerControl player)//判断是否拉拢完成
+    public static bool IsDrawDone(this PlayerControl player) //Determine whether the conditions to win are met
     {
         if (!player.Is(CustomRoles.Revolutionist)) return false;
         var count = Utils.GetDrawPlayerCount(player.PlayerId, out var _);
@@ -1211,21 +1221,21 @@ static class ExtendedPlayerControl
 
         killer.RpcMurderPlayer(target, true);
     }
-    public static void RpcMurderPlayerV2(this PlayerControl killer, PlayerControl target)
-    {
-        if (target == null) target = killer;
-        if (AmongUsClient.Instance.AmClient)
-        {
-            killer.MurderPlayer(target, MurderResultFlags.DecisionByHost);
-        }
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.None, -1);
-        messageWriter.WriteNetObject(target);
-        messageWriter.Write((byte)MurderResultFlags.DecisionByHost);
-        AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+    //public static void RpcMurderPlayerV2(this PlayerControl killer, PlayerControl target)
+    //{
+    //    if (target == null) target = killer;
+    //    if (AmongUsClient.Instance.AmClient)
+    //    {
+    //        killer.MurderPlayer(target, ResultFlags);
+    //    }
+    //    MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.None, -1);
+    //    messageWriter.WriteNetObject(target);
+    //    messageWriter.Write((byte)ResultFlags);
+    //    AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
 
-        Utils.NotifyRoles(SpecifySeer: killer);
-        Utils.NotifyRoles(SpecifySeer: target);
-    }
+    //    Utils.NotifyRoles(SpecifySeer: killer);
+    //    Utils.NotifyRoles(SpecifySeer: target);
+    //}
     public static bool RpcCheckAndMurder(this PlayerControl killer, PlayerControl target, bool check = false) => CheckMurderPatch.RpcCheckAndMurder(killer, target, check);
     public static void NoCheckStartMeeting(this PlayerControl reporter, GameData.PlayerInfo target, bool force = false)
     { /*サボタージュ中でも関係なしに会議を起こせるメソッド
@@ -1370,4 +1380,8 @@ static class ExtendedPlayerControl
         return GameStates.InGame || (target != null && (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Vote));
     }
 
+    ///<summary>Is the player currently protected</summary>
+    public static bool IsProtected(this PlayerControl self) => self.protectedByGuardianId > -1;
+
+    public const MurderResultFlags ResultFlags = MurderResultFlags.Succeeded | MurderResultFlags.DecisionByHost;
 }

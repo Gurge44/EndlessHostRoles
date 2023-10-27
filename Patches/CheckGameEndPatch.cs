@@ -614,12 +614,12 @@ class GameEndChecker
 
     public abstract class GameEndPredicate
     {
-        /// <summary>ゲームの終了条件をチェックし、CustomWinnerHolderに値を格納します。</summary>
-        /// <params name="reason">バニラのゲーム終了処理に使用するGameOverReason</params>
-        /// <returns>ゲーム終了の条件を満たしているかどうか</returns>
+        /// <summary>Checks the game ending condition and stores the value in CustomWinnerHolder. </summary>
+        /// <params name="reason">GameOverReason used for vanilla game end processing</params>
+        /// <returns>Whether the conditions for ending the game are met</returns>
         public abstract bool CheckForEndGame(out GameOverReason reason);
 
-        /// <summary>GameData.TotalTasksとCompletedTasksをもとにタスク勝利が可能かを判定します。</summary>
+        /// <summary>Determine whether the task can be won based on GameData.TotalTasks and CompletedTasks.</summary>
         public virtual bool CheckGameEndByTask(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
@@ -633,20 +633,20 @@ class GameEndChecker
             }
             return false;
         }
-        /// <summary>ShipStatus.Systems内の要素をもとにサボタージュ勝利が可能かを判定します。</summary>
+        /// <summary>Determines whether sabotage victory is possible based on the elements in ShipStatus.Systems.</summary>
         public virtual bool CheckGameEndBySabotage(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
             if (ShipStatus.Instance.Systems == null) return false;
 
-            // TryGetValueは使用不可
+            // TryGetValue is not available
             var systems = ShipStatus.Instance.Systems;
             LifeSuppSystemType LifeSupp;
-            if (systems.ContainsKey(SystemTypes.LifeSupp) && // サボタージュ存在確認
-                (LifeSupp = systems[SystemTypes.LifeSupp].TryCast<LifeSuppSystemType>()) != null && // キャスト可能確認
-                LifeSupp.Countdown < 0f) // タイムアップ確認
+            if (systems.ContainsKey(SystemTypes.LifeSupp) && // Confirmation of sabotage existence
+                (LifeSupp = systems[SystemTypes.LifeSupp].TryCast<LifeSuppSystemType>()) != null && // Confirmation that cast is possible
+                LifeSupp.Countdown < 0f) // Time up confirmation
             {
-                // 酸素サボタージュ
+                // oxygen sabotage
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Impostor);
                 reason = GameOverReason.ImpostorBySabotage;
                 LifeSupp.Countdown = 10000f;
@@ -656,13 +656,14 @@ class GameEndChecker
             ISystemType sys = null;
             if (systems.ContainsKey(SystemTypes.Reactor)) sys = systems[SystemTypes.Reactor];
             else if (systems.ContainsKey(SystemTypes.Laboratory)) sys = systems[SystemTypes.Laboratory];
+            else if (systems.ContainsKey(SystemTypes.HeliSabotage)) sys = systems[SystemTypes.HeliSabotage];
 
             ICriticalSabotage critical;
-            if (sys != null && // サボタージュ存在確認
-                (critical = sys.TryCast<ICriticalSabotage>()) != null && // キャスト可能確認
-                critical.Countdown < 0f) // タイムアップ確認
+            if (sys != null && // Confirmation of sabotage existence
+                (critical = sys.TryCast<ICriticalSabotage>()) != null && // Confirmation that cast is possible
+                critical.Countdown < 0f) // Time up confirmation
             {
-                // リアクターサボタージュ
+                // reactor sabotage
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Impostor);
                 reason = GameOverReason.ImpostorBySabotage;
                 critical.ClearSabotage();

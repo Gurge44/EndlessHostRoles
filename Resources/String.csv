@@ -1122,6 +1122,7 @@
 "DisablePolusVital","禁用波鲁斯生命监测装置","Disable Vitals","Отключить Пульсы","禁用Polus心電圖","禁用波鲁斯生命监测装置"
 "DisableAirshipVital","禁用飞艇生命监测装置","Disable Vitals","Отключить Пульсы","禁用The Airship心電圖","禁用飞艇生命监测装置"
 "DisableFungleVital","","Disable Vitals","","",""
+"DisableFungleCamera","","Disable Binoculars","","",""
 "IgnoreConditions","忽略条件","Ignore Conditions","Игнорируют условия","忽略條件","忽略条件"
 "IgnoreImpostors","忽略<color=#ff1919>内鬼</color>","Ignore <color=#ff1919>Impostors</color>","<color=#ff1919>Предатели</color> игнорируют условия","忽略<color=#ff1919>偽裝者</color>","忽略<color=#ff1919>内鬼</color>"
 "IgnoreNeutrals","忽略<color=#7f8c8d>中立</color>","Ignore <color=#7f8c8d>Neutrals</color>","<color=#7f8c8d>Нейтралы</color> игнорируют условия","忽略<color=#7f8c8d>中立</color>","忽略<color=#7f8c8d>中立</color>"

@@ -11,15 +11,15 @@ namespace TOHE;
 public static class AntiBlackout
 {
     ///<summary>
-    ///追放処理を上書きするかどうか
+    ///Whether to override the ejection process
     ///</summary>
     public static bool OverrideExiledPlayer => IsRequired && (IsSingleImpostor || Diff_CrewImp == 1);
     ///<summary>
-    ///インポスターが一人しか存在しない設定かどうか
+    ///Is there only one impostor?
     ///</summary>
     public static bool IsSingleImpostor => Main.RealOptionsData != null ? Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors) <= 1 : Main.NormalOptions.NumImpostors <= 1;
     ///<summary>
-    ///AntiBlackout内の処理が必要であるかどうか
+    ///Whether processing within AntiBlackout is required
     ///</summary>
     public static bool IsRequired => Options.NoGameEnd.GetBool()
         || Jackal.IsEnable || Pelican.IsEnable || Magician.IsEnable
@@ -36,7 +36,7 @@ public static class AntiBlackout
         || CustomRoles.Pestilence.RoleExist(true);
     //|| Pirate.IsEnable;
     ///<summary>
-    ///インポスター以外の人数とインポスターの人数の差
+    ///Difference between the number of non-impostors and the number of impostors
     ///</summary>
     public static int Diff_CrewImp
     {
@@ -62,7 +62,7 @@ public static class AntiBlackout
         logger.Info($"SetIsDead is called from {callerMethodName}");
         if (IsCached)
         {
-            logger.Info("再度SetIsDeadを実行する前に、RestoreIsDeadを実行してください。");
+            logger.Info("Please run RestoreIsDead before running SetIsDead again.");
             return;
         }
         isDeadCache.Clear();
@@ -97,7 +97,7 @@ public static class AntiBlackout
     {
         logger.Info($"SendGameData is called from {callerMethodName}");
         MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-        // 書き込み {}は読みやすさのためです。
+        // {} is for readability.
         writer.StartMessage(5); //0x05 GameData
         {
             writer.Write(AmongUsClient.Instance.GameId);
@@ -105,7 +105,6 @@ public static class AntiBlackout
             {
                 writer.WritePacked(GameData.Instance.NetId);
                 GameData.Instance.Serialize(writer, true);
-
             }
             writer.EndMessage();
         }
@@ -116,7 +115,7 @@ public static class AntiBlackout
     }
     public static void OnDisconnect(GameData.PlayerInfo player)
     {
-        // 実行条件: クライアントがホストである, IsDeadが上書きされている, playerが切断済み
+        // Execution conditions: client is host, IsDead is overwritten, player is disconnected
         if (!AmongUsClient.Instance.AmHost || !IsCached || !player.Disconnected) return;
         isDeadCache[player.PlayerId] = (true, true);
         player.IsDead = player.Disconnected = false;
@@ -124,13 +123,13 @@ public static class AntiBlackout
     }
 
     ///<summary>
-    ///一時的にIsDeadを本来のものに戻した状態でコードを実行します
-    ///<param name="action">実行内容</param>
+    ///Run the code with IsDead temporarily restored to its original value
+    ///<param name="action">Execution details</param>
     ///</summary>
     public static void TempRestore(Action action)
     {
         logger.Info("==Temp Restore==");
-        //IsDeadが上書きされた状態でTempRestoreが実行されたかどうか
+        //Whether TempRestore was executed with IsDead overwritten
         bool before_IsCached = IsCached;
         try
         {
@@ -139,7 +138,7 @@ public static class AntiBlackout
         }
         catch (Exception ex)
         {
-            logger.Warn("AntiBlackout.TempRestore内で例外が発生しました");
+            logger.Warn("An exception occurred within AntiBlackout.TempRestore");
             logger.Exception(ex);
         }
         finally

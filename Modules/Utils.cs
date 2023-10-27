@@ -83,12 +83,25 @@ public static class Utils
     public static void TP(CustomNetworkTransform nt, Vector2 location)
     {
         location += new Vector2(0, 0.3636f);
+
+        var pc = nt.myPlayer;
+        if (pc.inVent || pc.inMovingPlat || !pc.IsAlive())
+        {
+            Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is in an un-teleportable state - Teleporting canceled", "TP");
+            return;
+        }
+
         if (AmongUsClient.Instance.AmHost) nt.SnapTo(location);
+
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.None);
-        //nt.WriteVector2(location, writer);
-        NetHelpers.WriteVector2(location, writer);
-        writer.Write(nt.lastSequenceId);
+        {
+            //nt.WriteVector2(location, writer);
+            NetHelpers.WriteVector2(location, writer);
+            writer.Write(nt.lastSequenceId);
+        }
         AmongUsClient.Instance.FinishRpcImmediately(writer);
+
+        Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} => {location}", "TP");
     }
     public static ClientData GetClientById(int id)
     {
@@ -152,6 +165,12 @@ public static class Utils
                         var HudOverrideSystemType = ShipStatus.Instance.Systems[type].Cast<HudOverrideSystemType>();
                         return HudOverrideSystemType != null && HudOverrideSystemType.IsActive;
                     }
+                }
+            case SystemTypes.HeliSabotage:
+                {
+                    if (mapId != 4) return false; // Only Airhip
+                    var HeliSabotageSystem = ShipStatus.Instance.Systems[type].Cast<HeliSabotageSystem>();
+                    return HeliSabotageSystem != null && HeliSabotageSystem.IsActive;
                 }
             case SystemTypes.MushroomMixupSabotage:
                 {
@@ -257,16 +276,22 @@ public static class Utils
     }
     public static void KillFlash(this PlayerControl player)
     {
-        //キルフラッシュ(ブラックアウト+リアクターフラッシュ)の処理
-        bool ReactorCheck = false; //リアクターフラッシュの確認
-        if (Main.NormalOptions.MapId == 2) ReactorCheck = IsActive(SystemTypes.Laboratory);
-        else ReactorCheck = IsActive(SystemTypes.Reactor);
+        //Kill flash (blackout + reactor flash) processing
+        bool ReactorCheck = false; //Checking whether the reactor sabotage is active
+
+        var systemtypes = (MapNames)Main.NormalOptions.MapId switch
+        {
+            MapNames.Polus => SystemTypes.Laboratory,
+            MapNames.Airship => SystemTypes.HeliSabotage,
+            _ => SystemTypes.Reactor,
+        };
+        ReactorCheck = IsActive(systemtypes);
 
         var Duration = Options.KillFlashDuration.GetFloat();
-        if (ReactorCheck) Duration += 0.2f; //リアクター中はブラックアウトを長くする
+        if (ReactorCheck) Duration += 0.2f; // Extend blackout during reactor
 
         //実行
-        Main.PlayerStates[player.PlayerId].IsBlackOut = true; //ブラックアウト
+        Main.PlayerStates[player.PlayerId].IsBlackOut = true; // Blackout
         if (player.AmOwner)
         {
             FlashColor(new(1f, 0f, 0f, 0.3f));
@@ -277,11 +302,11 @@ public static class Utils
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.KillFlash, SendOption.Reliable, player.GetClientId());
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
-        else if (!ReactorCheck) player.ReactorFlash(0f); //リアクターフラッシュ
+        else if (!ReactorCheck) player.ReactorFlash(0f); // reactor flash
         player.MarkDirtySettings();
         _ = new LateTask(() =>
         {
-            Main.PlayerStates[player.PlayerId].IsBlackOut = false; //ブラックアウト解除
+            Main.PlayerStates[player.PlayerId].IsBlackOut = false; // Cancel blackout
             player.MarkDirtySettings();
         }, Options.KillFlashDuration.GetFloat(), "RemoveKillFlash");
     }
