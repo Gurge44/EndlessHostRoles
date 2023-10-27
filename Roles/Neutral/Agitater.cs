@@ -1,7 +1,6 @@
 ﻿using AmongUs.GameOptions;
 using Hazel;
 using System.Collections.Generic;
-using TOHE;
 using static TOHE.Translator;
 
 namespace TOHE.Roles.Neutral;

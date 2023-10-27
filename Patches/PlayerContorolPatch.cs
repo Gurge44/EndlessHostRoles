@@ -113,7 +113,7 @@ class CheckMurderPatch
             Logger.Info("Kill during meeting, canceled", "CheckMurder");
             return false;
         }
-        
+
         var divice = Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA ? 3000f : 2000f;
         float minTime = Mathf.Max(0.02f, AmongUsClient.Instance.Ping / divice * 6f); //※AmongUsClient.Instance.Pingの値はミリ秒(ms)なので÷1000
         //TimeSinceLastKillに値が保存されていない || 保存されている時間がminTime以上 => キルを許可
@@ -1291,7 +1291,7 @@ class ShapeshiftPatch
                                     targetw.SetRealKiller(shapeshifter);
                                     Logger.Info($"{targetw.GetNameWithRole().RemoveHtmlTags()}was killed", "Warlock");
                                     cp.Kill(targetw);//殺す
-                                                                  //shapeshifter.RpcGuardAndKill(shapeshifter);
+                                                     //shapeshifter.RpcGuardAndKill(shapeshifter);
                                     shapeshifter.SetKillCooldown();
                                     shapeshifter.Notify(GetString("WarlockControlKill"));
                                 }
