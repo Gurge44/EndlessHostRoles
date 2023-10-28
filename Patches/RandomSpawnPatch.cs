@@ -165,4 +165,32 @@ class RandomSpawn
                 : positions.ToArray()[0..6].OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault().Value;
         }
     }
+    public class FungleSpawnMap : SpawnMap
+    {
+        public Dictionary<string, Vector2> positions = new()
+        {
+            ["FirstSpawn"] = new Vector2(-9.8f, 3.4f),
+            ["Dropship"] = new Vector2(-7.8f, 10.6f),
+            ["Cafeteria"] = new Vector2(-16.4f, 7.3f),
+            ["SplashZone"] = new Vector2(-15.6f, -1.8f),
+            ["Shore"] = new Vector2(-22.8f, -0.6f),
+            ["Kitchen"] = new Vector2(-15.5f, -7.5f),
+            ["Dock"] = new Vector2(-23.1f, -7.0f),
+            ["Storage"] = new Vector2(1.7f, 4.4f),
+            ["MeetingRoom"] = new Vector2(-3.0f, -2.6f),
+            ["TheDorm"] = new Vector2(2.6f, -1.3f),
+            ["Laboratory"] = new Vector2(-4.3f, -8.6f),
+            ["Jungle"] = new Vector2(0.8f, -11.7f),
+            ["Greenhouse"] = new Vector2(9.3f, -9.8f),
+            ["Reactor"] = new Vector2(22.3f, -7.0f),
+            ["Lookout"] = new Vector2(9.5f, 1.2f),
+            ["MiningPit"] = new Vector2(12.6f, 9.8f),
+            ["UpperEngine"] = new Vector2(22.4f, 3.4f),
+            ["Communications"] = new Vector2(22.2f, 13.7f)
+        };
+        public override Vector2 GetLocation()
+        {
+            return positions.ToArray().OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault().Value;
+        }
+    }
 }

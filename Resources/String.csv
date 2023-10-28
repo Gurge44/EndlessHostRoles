@@ -1135,6 +1135,7 @@
 "RandomSpawn","随机出生点","Random Spawns","Случайный спавн","隨機出生點","随机出生点"
 "AirshipAdditionalSpawn","额外出生点（飞艇地图）","Additional Spawn Locations (Airship)","Дополнительный спавн(Airship)","額外出生點(The Airship)","额外出生点（飞艇地图）"
 "CommsCamouflage","通信破坏时小黑人（有Bug慎开）","Camouflage during Comms Sabotage","Камуфляж при Саботаже Связи","通訊破壞時小灰人(有Bug慎開)","通信破坏时小黑人（有Bug慎开）"
+"CommsCamouflageDisableOnFungle","","Disable on Fungle","","",""
 "DisableReportWhenCC","小黑人时禁止报告尸体","Disable body reporting while camouflaged","Запретить репортить трупы при Камуфляже","小灰人時禁止報告屍體","小黑人时禁止报告尸体"
 "EnableDebugMode","开启调试模式","Enable Debug Mode","Включить режим отладки","開啟偵錯模式","开启调试模式"
 "ChangeNameToRoleInfo","刚开局用玩家名字显示职业简介","Show Role Info to Unmodded Clients Round 1","Показать краткую информацию о роли для игроков без мода","開始遊戲時用玩家名字顯示職業簡介","刚开局用玩家名字显示职业简介"

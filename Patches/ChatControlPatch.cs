@@ -125,7 +125,7 @@ public class ChatManager
                 break;
             case 4:
                 Logger.Info($"Command: {message}", "ChatManager");
-                SendPreviousMessagesToAll();
+                SendPreviousMessagesToAll(realMessagesOnly: true);
                 break;
             case 3:
                 {
@@ -141,7 +141,7 @@ public class ChatManager
                 }
         }
     }
-    public static void SendPreviousMessagesToAll()
+    public static void SendPreviousMessagesToAll(bool realMessagesOnly = false)
     {
         ChatUpdatePatch.DoBlockChat = true;
         string msg = "<size=0>.</size>";
@@ -152,11 +152,14 @@ public class ChatManager
 
         var filtered = chatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(((string[])a.Split(':'))[0].Trim())).IsAlive()).ToList();
 
-        for (int i = filtered.Count; i < 20; i++)
+        if (!realMessagesOnly)
         {
-            var player = x[IRandom.Instance.Next(0, totalAlive)];
-            DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
-            SendRPC(player, msg);
+            for (int i = filtered.Count; i < 20; i++)
+            {
+                var player = x[IRandom.Instance.Next(0, totalAlive)];
+                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
+                SendRPC(player, msg);
+            }
         }
 
         for (int i = 0; i < filtered.Count; i++)

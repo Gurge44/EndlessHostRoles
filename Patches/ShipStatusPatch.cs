@@ -86,10 +86,15 @@ class RepairSystemPatch
               SystemTypes.Electrical))
           { return false; }*/
 
-        //SabotageMaster
-        if (player.Is(CustomRoles.SabotageMaster))
-            SabotageMaster.RepairSystem(__instance, systemType, amount);
-        if (player.Is(CustomRoles.Alchemist) && Alchemist.FixNextSabo) Alchemist.RepairSystem(systemType, amount);
+        switch (player.GetCustomRole())
+        {
+            case CustomRoles.SabotageMaster:
+                SabotageMaster.RepairSystem(__instance, systemType, amount);
+                break;
+            case CustomRoles.Alchemist when Alchemist.FixNextSabo:
+                Alchemist.RepairSystem(systemType, amount);
+                break;
+        }
 
         if (systemType == SystemTypes.Electrical && 0 <= amount && amount <= 4 && Main.NormalOptions.MapId == 4)
         {

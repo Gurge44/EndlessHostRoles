@@ -66,6 +66,9 @@ namespace TOHE.Roles.Crewmate
                     case 4:
                         pos = new(5.8f, -10.8f);
                         break;
+                    case 5:
+                        pos = new(9.5f, 1.2f);
+                        break;
                     default:
                         TOHE.Logger.Error("Invalid MapID", "CameraMan Teleport");
                         return;

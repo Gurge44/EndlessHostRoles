@@ -81,7 +81,7 @@ public static class Camouflage
 
         var oldIsCamouflage = IsCamouflage;
 
-        IsCamouflage = (Utils.IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool()) || Camouflager.IsActive;
+        IsCamouflage = (Utils.IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool() && (Main.NormalOptions.MapId != 5 || !Options.CommsCamouflageDisableOnFungle.GetBool())) || Camouflager.IsActive;
 
         if (oldIsCamouflage != IsCamouflage)
         {

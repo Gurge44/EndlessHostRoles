@@ -601,6 +601,7 @@ public static class Options
 
     // Sabotage
     public static OptionItem CommsCamouflage;
+    public static OptionItem CommsCamouflageDisableOnFungle;
     public static OptionItem DisableReportWhenCC;
     public static OptionItem SabotageTimeControl;
     public static OptionItem PolusReactorTimeLimit;
@@ -2644,6 +2645,10 @@ public static class Options
         CommsCamouflage = BooleanOptionItem.Create(22200, "CommsCamouflage", false, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true)
+            .SetColor(new Color32(243, 96, 96, byte.MaxValue));
+        CommsCamouflageDisableOnFungle = BooleanOptionItem.Create(22202, "CommsCamouflageDisableOnFungle", true, TabGroup.GameSettings, false)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetParent(CommsCamouflage)
             .SetColor(new Color32(243, 96, 96, byte.MaxValue));
         DisableReportWhenCC = BooleanOptionItem.Create(22300, "DisableReportWhenCC", false, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.Standard)

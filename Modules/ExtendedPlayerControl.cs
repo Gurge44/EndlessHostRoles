@@ -75,22 +75,19 @@ static class ExtendedPlayerControl
         return player == null || player.Object == null ? CustomRoles.Crewmate : player.Object.GetCustomRole();
     }
     /// <summary>
-    /// ※サブロールは取得できません。
+    /// *Sub-roles cannot be obtained.
     /// </summary>
     public static CustomRoles GetCustomRole(this PlayerControl player)
     {
         if (player == null)
         {
-            var caller = new System.Diagnostics.StackFrame(1, false);
-            var callerMethod = caller.GetMethod();
+            var callerMethod = new System.Diagnostics.StackFrame(1, false).GetMethod();
             string callerMethodName = callerMethod.Name;
-            string callerClassName = callerMethod.DeclaringType.FullName;
-            Logger.Warn(callerClassName + "." + callerMethodName + "がCustomRoleを取得しようとしましたが、対象がnullでした。", "GetCustomRole");
+            Logger.Warn(callerMethod.DeclaringType.FullName + "." + callerMethodName + "tried to get a CustomRole, but the target was null.", "GetCustomRole");
             return CustomRoles.Crewmate;
         }
-        var GetValue = Main.PlayerStates.TryGetValue(player.PlayerId, out var State);
 
-        return GetValue ? State.MainRole : CustomRoles.Crewmate;
+        return Main.PlayerStates.TryGetValue(player.PlayerId, out var State) ? State.MainRole : CustomRoles.Crewmate;
     }
 
     public static List<CustomRoles> GetCustomSubRoles(this PlayerControl player)

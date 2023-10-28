@@ -2111,7 +2111,7 @@ public static class Utils
             if (playerDevoured && !CamouflageIsForMeeting)
                 SelfName = GetString("DevouredName");
             // Camouflage
-            if (((IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool()) || Camouflager.IsActive) && !CamouflageIsForMeeting)
+            if (((IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool() && (Main.NormalOptions.MapId != 5 || !Options.CommsCamouflageDisableOnFungle.GetBool())) || Camouflager.IsActive) && !CamouflageIsForMeeting)
                 SelfName = $"<size=0>{SelfName}</size>";
 
             if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
@@ -2496,7 +2496,7 @@ public static class Utils
                     TargetPlayerName = GetString("DevouredName");
 
                 // Camouflage
-                if (((IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool()) || Camouflager.IsActive) && !CamouflageIsForMeeting)
+                if (((IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool() && (Main.NormalOptions.MapId != 5 || !Options.CommsCamouflageDisableOnFungle.GetBool())) || Camouflager.IsActive) && !CamouflageIsForMeeting)
                     TargetPlayerName = $"<size=0>{TargetPlayerName}</size>";
 
                 //全てのテキストを合成します。
