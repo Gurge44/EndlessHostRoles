@@ -1,0 +1,23 @@
+﻿
+#Number:100067
+#Title:TOHE PLUS v1.2.0
+#SubTitle:★★★★Compatibility with Fungle★★★★
+#ShortTitle:★TOHE+ v1.2.0
+#Date:2023-10-28T00:00:00Z
+#-----------------------------
+
+## Thank you for using TOHE+!
+
+## Fixes
+- This version is fully compatible with the new and loved Fungle map!
+- Updated all roles to work on Fungle
+- Other minor fixes
+
+#### Reminder: You can use Pets instead of Venting / Shapeshifting for some roles. You can turn on this option under the Game Modifiers tab, where Guesser Mode is also located.
+
+## New Setting
+- You can now change the sabotage time limit on Mira HQ (both Reactor and O2)
+
+### Notes
+- I'm sorry if something doesn't work. My time to test the code I add is next to 0, and I work alone on all of this. Still, I hope there aren't any major bugs and this brings you a good experience.
+- Thank you for reading this and using my mod. Support and feedback is what motivates me to keep developing.

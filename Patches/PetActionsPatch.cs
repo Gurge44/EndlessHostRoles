@@ -338,7 +338,7 @@ class ExternalRpcPetPatch
                             if (Pelican.IsEaten(p.PlayerId) || Medic.ProtectList.Contains(p.PlayerId)) continue;
                             dis = UnityEngine.Vector2.Distance(cppos, p.transform.position);
                             cpdistance.Add(p, dis);
-                            Logger.Info($"{p?.Data?.PlayerName}の位置{dis}", "Warlock");
+                            Logger.Info($"{p?.Data?.PlayerName}'s distance: {dis}", "Warlock");
                         }
                         if (cpdistance.Any())
                         {
@@ -347,7 +347,7 @@ class ExternalRpcPetPatch
                             if (cp.RpcCheckAndMurder(targetw, true))
                             {
                                 targetw.SetRealKiller(pc);
-                                Logger.Info($"{targetw.GetNameWithRole().RemoveHtmlTags()}was killed", "Warlock");
+                                Logger.Info($"{targetw.GetNameWithRole().RemoveHtmlTags()} was killed", "Warlock");
                                 cp.Kill(targetw);
                                 pc.SetKillCooldown();
                                 pc.Notify(GetString("WarlockControlKill"));

@@ -1,5 +1,4 @@
 using HarmonyLib;
-using System.Threading;
 
 namespace TOHE;
 
@@ -77,6 +76,8 @@ public static class ElectricTaskInitializePatch
                 }
             }
         }
+
+        Logger.Info("Lights sabotage called", "ElectricTask");
     }
 }
 [HarmonyPatch(typeof(ElectricTask), nameof(ElectricTask.Complete))]
@@ -97,6 +98,8 @@ public static class ElectricTaskCompletePatch
                 }
             }
         }
+
+        Logger.Info("Lights sabotage fixed", "ElectricTask");
     }
 }
 // https://github.com/tukasa0001/TownOfHost/blob/357f7b5523e4bdd0bb58cda1e0ff6cceaa84813d/Patches/SabotageSystemPatch.cs
