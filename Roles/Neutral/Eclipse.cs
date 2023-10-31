@@ -1,4 +1,5 @@
 using AmongUs.GameOptions;
+using Hazel;
 using System.Collections.Generic;
 using System.Linq;
 using static TOHE.Options;
@@ -42,12 +43,25 @@ public static class Eclipse
     {
         playerIdList.Add(playerId);
         Vision = StartVision.GetFloat();
+        _ = new LateTask(() => { SendRPC(Vision); }, 8f, "Eclipse Set Vision RPC");
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
     public static bool IsEnable => playerIdList.Any();
+    public static void SendRPC(float vision)
+    {
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetEclipseVision, SendOption.Reliable, -1);
+        writer.Write(vision);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+    public static void ReceiveRPC(MessageReader reader)
+    {
+        if (AmongUsClient.Instance.AmHost) return;
+
+        Vision = reader.ReadSingle();
+    }
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public static void ApplyGameOptions(IGameOptions opt)
     {
@@ -63,6 +77,10 @@ public static class Eclipse
         Vision += VisionIncrease.GetFloat();
         if (Vision > MaxVision.GetFloat()) Vision = MaxVision.GetFloat();
 
-        if (Vision != currentVision) pc.SyncSettings();
+        if (Vision != currentVision)
+        {
+            SendRPC(Vision);
+            pc.SyncSettings();
+        }
     }
 }

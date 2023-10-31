@@ -144,9 +144,7 @@ public static class Magician
                 CardId = byte.MaxValue;
                 break;
             case 3: // TP to random vent
-                var vents = Object.FindObjectsOfType<Vent>();
-                var vent = vents[IRandom.Instance.Next(0, vents.Count)];
-                TP(pc.NetTransform, new Vector2(vent.transform.position.x, vent.transform.position.y));
+                pc.TPtoRndVent();
                 CardId = byte.MaxValue;
                 break;
             case 4: // Create Rift Maker portal

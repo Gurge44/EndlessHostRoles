@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using TOHE.Modules;
-using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
 using static TOHE.Utils;
@@ -54,8 +53,6 @@ public static class Disperser
             return;
         }
 
-        var rd = IRandom.Instance;
-        var vents = Object.FindObjectsOfType<Vent>();
         DisperserLimit[shapeshifter.PlayerId] -= 1;
 
         foreach (var pc in PlayerControl.AllPlayerControls)
@@ -69,8 +66,7 @@ public static class Disperser
             }
 
             pc.RPCPlayCustomSound("Teleport");
-            var vent = vents[rd.Next(0, vents.Count)];
-            TP(pc.NetTransform, new Vector2(vent.transform.position.x, vent.transform.position.y));
+            pc.TPtoRndVent();
             pc.Notify(ColorString(GetRoleColor(CustomRoles.Disperser), string.Format(GetString("TeleportedInRndVentByDisperser"), pc.GetRealName())));
         }
     }

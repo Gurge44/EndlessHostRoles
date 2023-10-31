@@ -87,7 +87,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Spy => CustomRoles.Crewmate,
                 CustomRoles.Ricochet => CustomRoles.Crewmate,
                 CustomRoles.Tether => Options.UsePets.GetBool() ? CustomRoles.Crewmate : CustomRoles.Engineer,
-                CustomRoles.Doormaster => CustomRoles.Engineer,
+                CustomRoles.Doormaster => Options.UsePets.GetBool() ? CustomRoles.Crewmate : CustomRoles.Engineer,
                 CustomRoles.Aid => CustomRoles.Impostor,
                 CustomRoles.Escapee => Options.UsePets.GetBool() ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.NiceGuesser => CustomRoles.Crewmate,

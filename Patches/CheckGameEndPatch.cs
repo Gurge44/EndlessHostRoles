@@ -400,7 +400,7 @@ class GameEndChecker
             int Imp = AlivePlayersCount(CountTypes.Impostor);
             int Crew = AlivePlayersCount(CountTypes.Crew);
 
-            Dictionary<(CustomRoles?, CustomWinner), int> roleCounts = new()
+            Dictionary<(CustomRoles?, CustomWinner), int> roleCounts = new()  // Self Note: If you're adding a new NK, you just have to add it into this dictionary and that's it
             {
                 { (null,                        CustomWinner.Jackal),             AlivePlayersCount(CountTypes.Jackal) },
                 { (CustomRoles.Pelican,         CustomWinner.Pelican),            AlivePlayersCount(CountTypes.Pelican) },
@@ -500,6 +500,7 @@ class GameEndChecker
                     if (aliveCounts.Count > 1) return false; // There are multiple types of NKs alive, game must continue
                     else if (aliveCounts.Count == 1) // There is only one type of NK alive, they've won
                     {
+                        if (aliveCounts[0] != roleCounts.Values.Max()) Logger.Warn("There is something wrong here.", "CheckGameEndPatch");
                         foreach (var keyValuePair in roleCounts.Where(keyValuePair => keyValuePair.Value == aliveCounts[0]))
                         {
                             reason = GameOverReason.ImpostorByKill;

@@ -171,7 +171,7 @@ public static class Romantic
     {
         var player = Utils.GetPlayerById(playerId);
         if (player == null) return null;
-        return Utils.ColorString(BetTimes.TryGetValue(playerId, out var timesV1) && timesV1 >= 1 ? Color.white : Utils.GetRoleColor(CustomRoles.Romantic), $"<color=#777777>-</color> {(BetTimes.TryGetValue(playerId, out var timesV2) && timesV2 >= 1 && timesV2 >= 1 ? "PICK PARTNER" : "PROTECT PARTNER")}");
+        return Utils.ColorString(BetTimes.TryGetValue(playerId, out var timesV1) && timesV1 >= 1 ? Color.white : Utils.GetRoleColor(CustomRoles.Romantic), $"<color=#777777>-</color> {(BetTimes.TryGetValue(playerId, out var timesV2) && timesV2 >= 1 && timesV2 >= 1 ? "PICK PARTNER" : "♥")}");
     }
     public static void OnReportDeadBody()
     {
@@ -257,6 +257,7 @@ public static class VengefulRomantic
         if (VengefulTarget.TryGetValue(killer.PlayerId, out var PartnerKiller) && target.PlayerId == PartnerKiller)
         {
             hasKilledKiller = true;
+            Utils.NotifyRoles(SpecifySeer: killer);
             return true;
         }
         else
@@ -270,7 +271,7 @@ public static class VengefulRomantic
     {
         var player = Utils.GetPlayerById(playerId);
         if (player == null) return null;
-        return Utils.ColorString(hasKilledKiller ? Color.green : Utils.GetRoleColor(CustomRoles.VengefulRomantic), $"<color=#777777>-</color> {(hasKilledKiller ? "AVEGNGE SUCCESSFUL" : "AVENGE YOUR PARTNER")}");
+        return Utils.ColorString(hasKilledKiller ? Color.green : Utils.GetRoleColor(CustomRoles.VengefulRomantic), $"<color=#777777>-</color> {(hasKilledKiller ? "✓" : "☹️")}");
     }
     public static void SendRPC(byte playerId)
     {

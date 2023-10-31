@@ -117,7 +117,7 @@ public static class Postman
         var sb = new StringBuilder();
 
         sb.AppendLine(baseText);
-        if (!IsFinished) sb.AppendLine(string.Format(GetString("PostmanGetNewTarget"), Utils.GetPlayerById(Target)));
+        if (!IsFinished) sb.AppendLine(string.Format(GetString("PostmanGetNewTarget"), Utils.GetPlayerById(Target).GetRealName()));
         else sb.AppendLine(GetString("PostmanDone"));
 
         pc.Notify(sb.ToString());
@@ -127,7 +127,7 @@ public static class Postman
     {
         var sb = new StringBuilder();
 
-        if (!IsFinished) sb.AppendLine(string.Format(GetString("PostmanTarget"), Utils.GetPlayerById(Target)));
+        if (!IsFinished) sb.AppendLine(string.Format(GetString("PostmanTarget"), Utils.GetPlayerById(Target).GetRealName()));
         else sb.AppendLine(GetString("PostmanDone"));
 
         return sb.ToString();
@@ -135,6 +135,6 @@ public static class Postman
 
     public static string GetProgressText(byte playerId)
     {
-        return !IsFinished ? string.Format(GetString("PostmanTarget"), Utils.GetPlayerById(Target)) : "<color=#00ff00>✓</color>";
+        return !IsFinished ? string.Format(GetString("PostmanTarget"), Utils.GetPlayerById(Target).GetRealName()) : "<color=#00ff00>✓</color>";
     }
 }

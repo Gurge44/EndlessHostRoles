@@ -36,9 +36,9 @@ class CheckForEndVotingPatch
                 if (pva == null) continue;
                 PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
                 if (pc == null) continue;
-                //死んでいないディクテーターが投票済み
+                // Dictators who are not dead have already voted.
 
-                //主动叛变
+                // Take the initiative to rebel
                 if (pva.DidVote && pc.PlayerId == pva.VotedFor && pva.VotedFor < 253 && !pc.Data.IsDead)
                 {
                     if (Options.MadmateSpawnMode.GetInt() == 2 && Main.MadmateNum < CustomRoles.Madmate.GetCount() && Utils.CanBeMadmate(pc))
@@ -47,11 +47,11 @@ class CheckForEndVotingPatch
                         pc.RpcSetCustomRole(CustomRoles.Madmate);
                         ExtendedPlayerControl.RpcSetCustomRole(pc.PlayerId, CustomRoles.Madmate);
                         Utils.NotifyRoles(true, pc, true);
-                        Logger.Info("设置职业:" + pc?.Data?.PlayerName + " = " + pc.GetCustomRole().ToString() + " + " + CustomRoles.Madmate.ToString(), "Assign " + CustomRoles.Madmate.ToString());
+                        Logger.Info("Set role: " + pc?.Data?.PlayerName + " => " + pc.GetCustomRole().ToString() + " + " + CustomRoles.Madmate.ToString(), "Assign " + CustomRoles.Madmate.ToString());
                     }
                 }
 
-                //催眠师催眠
+                // hypnotist hypnosis
 
                 if (pc.Is(CustomRoles.Dictator) && pva.DidVote && pc.PlayerId != pva.VotedFor && pva.VotedFor < 253 && !pc.Data.IsDead)
                 {
@@ -68,11 +68,11 @@ class CheckForEndVotingPatch
                         __instance.RpcVotingComplete(states.ToArray(), null, true);
                         ExileControllerWrapUpPatch.AntiBlackout_LastExiled = voteTarget.Data;
                     }
-                    else __instance.RpcVotingComplete(states.ToArray(), voteTarget.Data, false); //通常処理
+                    else __instance.RpcVotingComplete(states.ToArray(), voteTarget.Data, false); // Normal processing
 
-                    Logger.Info($"{voteTarget.GetNameWithRole().RemoveHtmlTags()} 被独裁者驱逐", "Dictator");
+                    Logger.Info($"{voteTarget.GetNameWithRole().RemoveHtmlTags()} expelled by dictator", "Dictator");
                     CheckForDeathOnExile(PlayerState.DeathReason.Vote, pva.VotedFor);
-                    Logger.Info("独裁投票，会议强制结束", "Special Phase");
+                    Logger.Info("Dictatorship vote, forced end of meeting", "Special Phase");
                     voteTarget.SetRealKiller(pc);
                     Main.LastVotedPlayerInfo = voteTarget.Data;
                     if (Main.LastVotedPlayerInfo != null)
@@ -128,7 +128,7 @@ class CheckForEndVotingPatch
                 PlayerVoteArea ps = __instance.playerStates[i];
                 if (shouldSkip) break; //Meeting Skip with vote counting on keystroke (m + delete)
 
-                //死んでいないプレイヤーが投票していない
+                // Non-dead players are not voting
                 if (!(Main.PlayerStates[ps.TargetPlayerId].IsDead || ps.DidVote)) return false;
             }
 
@@ -154,11 +154,11 @@ class CheckForEndVotingPatch
                         {
                             case VoteMode.Suicide:
                                 TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Suicide, ps.TargetPlayerId);
-                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()}因跳过投票自杀");
+                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} Commit suicide for skipping voting");
                                 break;
                             case VoteMode.SelfVote:
                                 ps.VotedFor = ps.TargetPlayerId;
-                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()}因跳过投票自票");
+                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} Self-voting due to skipping voting");
                                 break;
                             default:
                                 break;
@@ -170,15 +170,15 @@ class CheckForEndVotingPatch
                         {
                             case VoteMode.Suicide:
                                 TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Suicide, ps.TargetPlayerId);
-                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()}因未投票自杀");
+                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} Committed suicide for not voting");
                                 break;
                             case VoteMode.SelfVote:
                                 ps.VotedFor = ps.TargetPlayerId;
-                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()}因未投票自票");
+                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} Self-voting due to not voting");
                                 break;
                             case VoteMode.Skip:
                                 ps.VotedFor = 253;
-                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()}因未投票跳过");
+                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} Skip for not voting");
                                 break;
                             default:
                                 break;
@@ -252,8 +252,8 @@ class CheckForEndVotingPatch
                             var voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
                             if (NiceList1.Contains(voteAreaPlayer.PlayerId)) continue;
                             playerVoteArea.UnsetVote();
-                            playerVoteArea.VotedFor = swap1.PlayerId;
                             meetingHud.CastVote(voteAreaPlayer.PlayerId, swap1.PlayerId);
+                            playerVoteArea.VotedFor = swap1.PlayerId;
                         }
                         if (Main.NiceSwapSend == false)
                         {
@@ -294,27 +294,27 @@ class CheckForEndVotingPatch
             var VotingData = __instance.CustomCalculateVotes();
             byte exileId = byte.MaxValue;
             int max = 0;
-            voteLog.Info("===决定驱逐玩家处理开始===");
+            voteLog.Info("===Decision to expel player processing begins===");
             foreach (var data in VotingData)
             {
                 voteLog.Info($"{data.Key}({Utils.GetVoteName(data.Key)}):{data.Value}票");
                 if (data.Value > max)
                 {
-                    voteLog.Info(data.Key + "拥有更高票数(" + data.Value + ")");
+                    voteLog.Info(data.Key + " has higher votes (" + data.Value + ")");
                     exileId = data.Key;
                     max = data.Value;
                     tie = false;
                 }
                 else if (data.Value == max)
                 {
-                    voteLog.Info(data.Key + "与" + exileId + "的票数相同(" + data.Value + ")");
+                    voteLog.Info(data.Key + " and " + exileId + "have the same number of votes (" + data.Value + ")");
                     exileId = byte.MaxValue;
                     tie = true;
                 }
-                voteLog.Info($"驱逐ID: {exileId}, 最大: {max}票");
+                voteLog.Info($"expelID: {exileId}, maximum: {max} votes");
             }
 
-            voteLog.Info($"决定驱逐玩家: {exileId}({Utils.GetVoteName(exileId)})");
+            voteLog.Info($"Decide to evict player: {exileId} ({Utils.GetVoteName(exileId)})");
 
             bool braked = false;
             if (tie) //破平者判断
@@ -334,7 +334,7 @@ class CheckForEndVotingPatch
                 }
                 if (target != byte.MaxValue)
                 {
-                    Logger.Info("破平者覆盖驱逐玩家", "Brakar Vote");
+                    Logger.Info("Tiebreaker overrides evicted players", "Brakar Vote");
                     exiledPlayer = Utils.GetPlayerInfoById(target);
                     tie = false;
                     braked = true;
@@ -523,13 +523,13 @@ class CheckForEndVotingPatch
         _ = new LateTask(() =>
         {
             Main.DoBlockNameChange = true;
-            if (GameStates.IsInGame) player.RpcSetName(name);
+            if (GameStates.IsInGame) player?.RpcSetName(name);
         }, 3.0f, "Change Exiled Player Name");
         _ = new LateTask(() =>
         {
             if (GameStates.IsInGame && !player.Data.Disconnected)
             {
-                player.RpcSetName(realName);
+                player?.RpcSetName(realName);
                 Main.DoBlockNameChange = false;
             }
         }, 11.5f, "Change Exiled Player Name Back");
@@ -597,7 +597,7 @@ static class ExtendedMeetingHud
 {
     public static Dictionary<byte, int> CustomCalculateVotes(this MeetingHud __instance)
     {
-        Logger.Info("===计算票数处理开始===", "Vote");
+        Logger.Info("===The vote counting process begins===", "Vote");
         Dictionary<byte, int> dic = new();
         Main.BrakarVoteFor = new();
         Collector.CollectorVoteFor = new();
@@ -799,7 +799,7 @@ class MeetingHudStartPatch
     }
     public static void Prefix(/*MeetingHud __instance*/)
     {
-        Logger.Info("------------会议开始------------", "Phase");
+        Logger.Info("------------Meeting Start------------", "Phase");
         ChatUpdatePatch.DoBlockChat = true;
         GameStates.AlreadyDied |= !Utils.IsAllAlive;
         Main.AllPlayerControls.Do(x => ReportDeadBodyPatch.WaitReport[x.PlayerId].Clear());
@@ -1281,7 +1281,7 @@ class MeetingHudOnDestroyPatch
     public static void Postfix()
     {
         MeetingStates.FirstMeeting = false;
-        Logger.Info("------------会议结束------------", "Phase");
+        Logger.Info("------------End of meeting------------", "Phase");
         if (AmongUsClient.Instance.AmHost)
         {
             AntiBlackout.SetIsDead();
@@ -1290,5 +1290,63 @@ class MeetingHudOnDestroyPatch
             Main.LastVotedPlayerInfo = null;
             EAC.MeetingTimes = 0;
         }
+    }
+}
+[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CastVote))]
+class MeetingHudCastVotePatch
+{
+    public static bool Prefix()
+    {
+        return true; // return true to use the vote as a trigger
+    }
+    public static void Postfix(MeetingHud __instance, [HarmonyArgument(0)] byte srcPlayerId, [HarmonyArgument(1)] byte suspectPlayerId)
+    {
+        PlayerVoteArea pva_src = null;
+        PlayerVoteArea pva_target = null;
+        bool isSkip = false;
+        for (int i = 0; i < __instance.playerStates.Count; i++)
+        {
+            if (__instance.playerStates[i].TargetPlayerId == srcPlayerId) pva_src = __instance.playerStates[i];
+            if (__instance.playerStates[i].TargetPlayerId == suspectPlayerId) pva_target = __instance.playerStates[i];
+        }
+        if (pva_src == null)
+        {
+            Logger.Error("Src PlayerVoteArea not found", "MeetingHudCastVotePatch.Prefix");
+            return;
+        }
+        if (pva_target == null)
+        {
+            //Logger.Warn("Target PlayerVoteArea not found => Vote treated as a Skip", "MeetingHudCastVotePatch.Prefix");
+            isSkip = true;
+        }
+        var pc_src = Utils.GetPlayerById(srcPlayerId);
+        var pc_target = Utils.GetPlayerById(suspectPlayerId);
+        if (pc_src == null)
+        {
+            Logger.Error("Src PlayerControl is null", "MeetingHudCastVotePatch.Prefix");
+            return;
+        }
+        if (pc_target == null)
+        {
+            //Logger.Warn("Target PlayerControl is null => Vote treated as a Skip", "MeetingHudCastVotePatch.Prefix");
+            isSkip = true;
+        }
+
+        Logger.Info($"{pc_src.GetNameWithRole().RemoveHtmlTags()} => {(isSkip ? "Skip" : pc_target.GetNameWithRole().RemoveHtmlTags())}", "Vote");
+
+        //pva_src.UnsetVote(); // Uncomment to use the vote as a trigger
+        //__instance.RpcClearVote(pc_src.GetClientId()); // Uncomment to use the vote as a trigger
+    }
+}
+[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CmdCastVote))]
+class MeetingHudCmdCastVotePatch
+{
+    public static bool Prefix()
+    {
+        return MeetingHudCastVotePatch.Prefix();
+    }
+    public static void Postfix(MeetingHud __instance, [HarmonyArgument(0)] byte srcPlayerId, [HarmonyArgument(1)] byte suspectPlayerId)
+    {
+        MeetingHudCastVotePatch.Postfix(__instance, srcPlayerId, suspectPlayerId);
     }
 }

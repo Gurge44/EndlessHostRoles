@@ -347,7 +347,8 @@ class HudManagerPatch
                         __instance.KillButton?.OverrideText(GetString("TotocalcioKillButtonText"));
                         break;
                     case CustomRoles.Romantic:
-                        __instance.KillButton?.OverrideText(GetString("RomanticKillButtonText"));
+                        if (Romantic.BetTimes.TryGetValue(player.PlayerId, out var timesV1) && timesV1 >= 1) __instance.KillButton?.OverrideText(GetString("RomanticKillButtonText"));
+                        else __instance.KillButton?.OverrideText(GetString("MedicalerButtonText"));
                         break;
                     case CustomRoles.VengefulRomantic:
                         __instance.KillButton?.OverrideText(GetString("VengefulRomanticKillButtonText"));

@@ -1,4 +1,5 @@
 using AmongUs.GameOptions;
+using Hazel;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -54,6 +55,20 @@ public static class WeaponMaster
             Main.ResetCamPlayerList.Add(playerId);
     }
     public static bool IsEnable => playerIdList.Any();
+    public static void SendRPC(byte mode, bool shieldUsed)
+    {
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetWeaponMasterMode, SendOption.Reliable, -1);
+        writer.Write(mode);
+        writer.Write(shieldUsed);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+    public static void ReceiveRPC(MessageReader reader)
+    {
+        if (AmongUsClient.Instance.AmHost) return;
+
+        Mode = reader.ReadByte();
+        shieldUsed = reader.ReadBoolean();
+    }
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public static void ApplyGameOptions(IGameOptions opt)
     {
@@ -86,6 +101,8 @@ public static class WeaponMaster
                 WM.Notify(Translator.GetString("WMShieldAlreadyUsed"));
                 break;
         }
+
+        SendRPC(Mode, shieldUsed);
         WM.MarkDirtySettings();
     }
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -134,6 +151,7 @@ public static class WeaponMaster
         if (Mode == 3 && !shieldUsed)
         {
             shieldUsed = true;
+            SendRPC(Mode, shieldUsed);
             return true;
         }
         else return false;

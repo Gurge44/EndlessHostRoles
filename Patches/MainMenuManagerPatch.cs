@@ -102,7 +102,7 @@ public class MainMenuManagerPatch
         {
             freeplayButton.GetComponent<PassiveButton>().OnClick = new();
             freeplayButton.GetComponent<PassiveButton>().OnClick.AddListener((Action)(() => Application.OpenURL("https://tohe.cc")));
-            __instance.StartCoroutine(Effects.Lerp(0.01f, new Action<float>((p) => freeplayButton.transform.GetChild(0).GetComponent<TMPro.TMP_Text>().SetText(GetString("Website")))));
+            __instance.StartCoroutine(Effects.Lerp(0.01f, new Action<float>((p) => freeplayButton.transform.GetChild(0).GetComponent<TMP_Text>().SetText(GetString("Website")))));
         }
 #endif
 

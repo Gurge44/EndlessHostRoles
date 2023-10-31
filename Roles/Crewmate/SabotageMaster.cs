@@ -1,3 +1,4 @@
+using Hazel;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -23,7 +24,7 @@ public static class SabotageMaster
 
     public static void SetupCustomOption()
     {
-        Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.SabotageMaster);
+        Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.SabotageMaster, 1);
         SkillLimit = IntegerOptionItem.Create(Id + 10, "SabotageMasterSkillLimit", new(0, 80, 1), 2, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster])
             .SetValueFormat(OptionFormat.Times);
         FixesDoors = BooleanOptionItem.Create(Id + 11, "SabotageMasterFixesDoors", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
@@ -51,6 +52,18 @@ public static class SabotageMaster
         playerIdList.Add(playerId);
     }
     public static bool IsEnable() => playerIdList.Any();
+    public static void SendRPC(float count)
+    {
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetSabotageMasterLimit, SendOption.Reliable, -1);
+        writer.Write(count);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+    public static void ReceiveRPC(MessageReader reader)
+    {
+        if (AmongUsClient.Instance.AmHost) return;
+
+        UsedSkillCount = reader.ReadSingle();
+    }
     public static void RepairSystem(ShipStatus __instance, SystemTypes systemType, byte amount)
     {
         switch (systemType)
@@ -63,6 +76,7 @@ public static class SabotageMaster
                     ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Reactor, 16);
                     ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Reactor, 17);
                     UsedSkillCount += UsesUsedWhenFixingReactorOrO2.GetFloat();
+                    SendRPC(UsedSkillCount);
                 }
                 break;
             case SystemTypes.Laboratory:
@@ -73,6 +87,7 @@ public static class SabotageMaster
                     ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Laboratory, 67);
                     ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Laboratory, 66);
                     UsedSkillCount += UsesUsedWhenFixingReactorOrO2.GetFloat();
+                    SendRPC(UsedSkillCount);
                 }
                 break;
             case SystemTypes.LifeSupp:
@@ -83,6 +98,7 @@ public static class SabotageMaster
                     ShipStatus.Instance.RpcUpdateSystem(SystemTypes.LifeSupp, 67);
                     ShipStatus.Instance.RpcUpdateSystem(SystemTypes.LifeSupp, 66);
                     UsedSkillCount += UsesUsedWhenFixingReactorOrO2.GetFloat();
+                    SendRPC(UsedSkillCount);
                 }
                 break;
             case SystemTypes.Comms:
@@ -93,6 +109,7 @@ public static class SabotageMaster
                     ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Comms, 16);
                     ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Comms, 17);
                     UsedSkillCount += UsesUsedWhenFixingLightsOrComms.GetFloat();
+                    SendRPC(UsedSkillCount);
                 }
                 break;
             case SystemTypes.Doors:
@@ -137,6 +154,7 @@ public static class SabotageMaster
             __instance.ActualSwitches = 0;
             __instance.ExpectedSwitches = 0;
             UsedSkillCount += UsesUsedWhenFixingLightsOrComms.GetFloat();
+            SendRPC(UsedSkillCount);
         }
     }
 }

@@ -24,7 +24,7 @@ namespace TOHE.Roles.Impostor
 
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Mastermind, 1);
+            SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Mastermind);
             KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Mastermind])
                 .SetValueFormat(OptionFormat.Seconds);
             //ManipulateCDOpt = FloatOptionItem.Create(Id + 11, "MastermindCD", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Mastermind])
@@ -109,7 +109,7 @@ namespace TOHE.Roles.Impostor
                     ManipulatedPlayers.Remove(x.Key);
                     TempKCDs.Remove(x.Key);
                     player.SetRealKiller(GetPlayerById(playerIdList[0]));
-                    Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
+                    Main.PlayerStates[x.Key].deathReason = PlayerState.DeathReason.Suicide;
                     player.Kill(player);
                     RPC.PlaySoundRPC(playerIdList[0], Sounds.KillSound);
                 }
@@ -146,7 +146,7 @@ namespace TOHE.Roles.Impostor
 
             var mastermind = GetPlayerById(playerIdList[0]);
             mastermind.Notify(GetString("ManipulatedKilled"));
-            mastermind.SetKillCooldown(time: KillCooldown.GetFloat());
+            if (mastermind.killTimer > KillCooldown.GetFloat()) mastermind.SetKillCooldown(time: KillCooldown.GetFloat());
 
             if (target.Is(CustomRoles.Pestilence) || Main.VeteranInProtect.ContainsKey(target.PlayerId) || target.Is(CustomRoles.Mastermind))
             {

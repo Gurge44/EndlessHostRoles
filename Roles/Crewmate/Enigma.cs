@@ -94,8 +94,9 @@ namespace TOHE.Roles.Crewmate
             string msg;
             var rd = IRandom.Instance;
 
-            foreach (var playerId in playerIdList)
+            for (int i = 0; i < playerIdList.Count; i++)
             {
+                byte playerId = playerIdList[i];
                 if (!EnigmaGetCluesWithoutReporting.GetBool() && playerId != player.PlayerId) continue;
 
                 var enigmaPlayer = Utils.GetPlayerById(playerId);
@@ -161,7 +162,7 @@ namespace TOHE.Roles.Crewmate
                 if (killerOutfit.HatId == "hat_EmptyHat")
                     return GetString("EnigmaClueHat2");
 
-                switch (this.ClueStage)
+                switch (ClueStage)
                 {
                     case 1:
                     case 2:
@@ -185,7 +186,7 @@ namespace TOHE.Roles.Crewmate
                 if (killerOutfit.VisorId == "visor_EmptyVisor")
                     return GetString("EnigmaClueVisor2");
 
-                switch (this.ClueStage)
+                switch (ClueStage)
                 {
                     case 1:
                     case 2:
@@ -209,7 +210,7 @@ namespace TOHE.Roles.Crewmate
                 if (killerOutfit.SkinId == "skin_EmptySkin")
                     return GetString("EnigmaClueSkin2");
 
-                switch (this.ClueStage)
+                switch (ClueStage)
                 {
                     case 1:
                     case 2:
@@ -233,7 +234,7 @@ namespace TOHE.Roles.Crewmate
                 if (killerOutfit.PetId == "pet_EmptyPet")
                     return GetString("EnigmaCluePet2");
 
-                switch (this.ClueStage)
+                switch (ClueStage)
                 {
                     case 1:
                     case 2:
@@ -258,7 +259,7 @@ namespace TOHE.Roles.Crewmate
                 string killerName = killer.GetRealName();
                 string letter = killerName[rd.Next(0, killerName.Length - 1)].ToString().ToLower();
 
-                switch (this.ClueStage)
+                switch (ClueStage)
                 {
                     case 1:
                         return GetStage1Clue(killer, letter);
@@ -320,7 +321,7 @@ namespace TOHE.Roles.Crewmate
             {
                 int length = killer.GetRealName().Length;
 
-                switch (this.ClueStage)
+                switch (ClueStage)
                 {
                     case 1:
                         return GetStage1Clue(length);
@@ -371,7 +372,7 @@ namespace TOHE.Roles.Crewmate
             {
                 var killerOutfit = Camouflage.PlayerSkins[killer.PlayerId];
 
-                switch (this.ClueStage)
+                switch (ClueStage)
                 {
                     case 1:
                     case 2:
@@ -429,7 +430,7 @@ namespace TOHE.Roles.Crewmate
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
                 CustomRoles role = killer.GetCustomRole();
-                switch (this.ClueStage)
+                switch (ClueStage)
                 {
                     case 1:
                         if (role.IsImpostor()) return GetString("EnigmaClueRole1");
@@ -455,7 +456,7 @@ namespace TOHE.Roles.Crewmate
             {
                 int level = (int)killer.Data.PlayerLevel;
 
-                switch (this.ClueStage)
+                switch (ClueStage)
                 {
                     case 1:
                         return GetStage1Clue(level);

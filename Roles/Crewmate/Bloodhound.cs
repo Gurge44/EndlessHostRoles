@@ -74,6 +74,25 @@
                 LocateArrow.RemoveAllTarget(playerId);
         }
 
+        public static void SendRPCPlus(byte playerId, bool isMinus)
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.BloodhoundIncreaseAbilityUseByOne, SendOption.Reliable, -1);
+            writer.Write(playerId);
+            writer.Write(isMinus);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+
+        public static void ReceiveRPCPlus(MessageReader reader)
+        {
+            if (AmongUsClient.Instance.AmHost) return;
+
+            byte playerId = reader.ReadByte();
+            bool isMinus = reader.ReadBoolean();
+
+            if (isMinus) UseLimit[playerId]--;
+            else UseLimit[playerId]++;
+        }
+
         public static void Clear()
         {
             for (int i = 0; i < playerIdList.Count; i++)
@@ -126,6 +145,7 @@
 
                 pc.Notify(GetString("BloodhoundTrackRecorded"));
                 UseLimit[pc.PlayerId] -= 1;
+                SendRPCPlus(pc.PlayerId, true);
 
                 if (LeaveDeadBodyUnreportable.GetBool())
                 {

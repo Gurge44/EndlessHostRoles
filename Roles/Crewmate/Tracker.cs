@@ -70,7 +70,6 @@ namespace TOHE.Roles.Crewmate
 
             TrackerTarget[trackerId].Add(targetId);
             TargetArrow.Add(trackerId, targetId);
-
         }
         public static string GetTargetMark(PlayerControl seer, PlayerControl target) => !(seer == null || target == null) && TrackerTarget.ContainsKey(seer.PlayerId) && TrackerTarget[seer.PlayerId].Contains(target.PlayerId) ? Utils.ColorString(seer.GetRoleColor(), "◀") : string.Empty;
 

@@ -20,8 +20,6 @@ public static class ParityCop
         "EgoistCountMode.Neutral",
     };
 
-
-
     private static OptionItem TryHideMsg;
     public static OptionItem ParityCheckLimitMax;
     public static OptionItem ParityCheckLimitPerMeeting;
@@ -31,7 +29,6 @@ public static class ParityCop
     public static OptionItem ParityCheckBaitCountType;
     public static OptionItem ParityCheckRevealTargetTeam;
     public static OptionItem ParityAbilityUseGainWithEachTaskCompleted;
-
 
     public static void SetupCustomOption()
     {
@@ -328,15 +325,16 @@ public static class ParityCop
     {
         Logger.Msg($"Click: ID {playerId}", "Inspector UI");
         var pc = Utils.GetPlayerById(playerId);
+        var lpcId = PlayerControl.LocalPlayer.PlayerId;
         if (pc == null || !pc.IsAlive() || !GameStates.IsVoting || !AmongUsClient.Instance.AmHost) return;
-        if (FirstPick.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var firstPick))
+        if (FirstPick.TryGetValue(lpcId, out var firstPick))
         {
             ParityCheckMsg(PlayerControl.LocalPlayer, $"/cp {playerId} {firstPick}", true);
-            FirstPick.Remove(PlayerControl.LocalPlayer.PlayerId);
+            FirstPick.Remove(lpcId);
         }
         else
         {
-            FirstPick.Add(PlayerControl.LocalPlayer.PlayerId, playerId);
+            FirstPick.Add(lpcId, playerId);
         }
     }
 

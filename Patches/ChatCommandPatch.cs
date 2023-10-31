@@ -76,6 +76,7 @@ internal class ChatCommands
         }
         if (AmongUsClient.Instance.AmHost)
         {
+            var localPlayerId = PlayerControl.LocalPlayer.PlayerId;
             Main.isChatCommand = true;
             switch (args[0])
             {
@@ -83,7 +84,7 @@ internal class ChatCommands
                 case "/winner":
                     canceled = true;
                     if (!Main.winnerNameList.Any()) Utils.SendMessage(GetString("NoInfoExists"));
-                    else Utils.SendMessage("Winner: " + string.Join(",", Main.winnerNameList));
+                    else Utils.SendMessage("<b><u>Winners:</b></u>\n" + string.Join(",", Main.winnerNameList));
                     break;
 
                 case "/l":
@@ -99,7 +100,7 @@ internal class ChatCommands
                     canceled = true;
                     if (args.Length < 1) break;
                     if (args[1].Length is > 10 or < 1)
-                        Utils.SendMessage(GetString("Message.AllowNameLength"), PlayerControl.LocalPlayer.PlayerId);
+                        Utils.SendMessage(GetString("Message.AllowNameLength"), localPlayerId);
                     else Main.nickName = args[1];
                     break;
 
@@ -116,11 +117,11 @@ internal class ChatCommands
                 case "/level":
                     canceled = true;
                     subArgs = args.Length < 2 ? string.Empty : args[1];
-                    Utils.SendMessage(string.Format(GetString("Message.SetLevel"), subArgs), PlayerControl.LocalPlayer.PlayerId);
+                    Utils.SendMessage(string.Format(GetString("Message.SetLevel"), subArgs), localPlayerId);
                     _ = int.TryParse(subArgs, out int input);
                     if (input is < 1 or > 999)
                     {
-                        Utils.SendMessage(GetString("Message.AllowLevelRange"), PlayerControl.LocalPlayer.PlayerId);
+                        Utils.SendMessage(GetString("Message.AllowLevelRange"), localPlayerId);
                         break;
                     }
                     var number = Convert.ToUInt32(input);
@@ -183,21 +184,21 @@ internal class ChatCommands
                     if (!PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp) break;
                     if (!Options.EnableUpMode.GetBool())
                     {
-                        Utils.SendMessage(string.Format(GetString("Message.YTPlanDisabled"), GetString("EnableYTPlan")), PlayerControl.LocalPlayer.PlayerId);
+                        Utils.SendMessage(string.Format(GetString("Message.YTPlanDisabled"), GetString("EnableYTPlan")), localPlayerId);
                         break;
                     }
                     if (!GameStates.IsLobby)
                     {
-                        Utils.SendMessage(GetString("Message.OnlyCanUseInLobby"), PlayerControl.LocalPlayer.PlayerId);
+                        Utils.SendMessage(GetString("Message.OnlyCanUseInLobby"), localPlayerId);
                         break;
                     }
-                    SendRolesInfo(subArgs, PlayerControl.LocalPlayer.PlayerId, isUp: true);
+                    SendRolesInfo(subArgs, localPlayerId, isUp: true);
                     break;
 
                 case "/h":
                 case "/help":
                     canceled = true;
-                    Utils.ShowHelp(PlayerControl.LocalPlayer.PlayerId);
+                    Utils.ShowHelp(localPlayerId);
                     break;
                 case "/kcount":
                     canceled = true;
@@ -206,19 +207,19 @@ internal class ChatCommands
                     int neutralnum = 0;
                     for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
                     {
-                        PlayerControl players = Main.AllAlivePlayerControls[i];
+                        PlayerControl pc = Main.AllAlivePlayerControls[i];
                         if (Options.ShowImpRemainOnEject.GetBool())
                         {
-                            if (players.GetCustomRole().IsImpostor())
+                            if (pc.GetCustomRole().IsImpostor())
                                 impnum++;
                         }
                         if (Options.ShowNKRemainOnEject.GetBool())
                         {
-                            if (players.GetCustomRole().IsNK())
+                            if (pc.GetCustomRole().IsNK())
                                 neutralnum++;
                         }
                     }
-                    Utils.SendMessage($"There {(impnum == 1 ? "is" : "are")}\n<b>{impnum}</b> <color=#ff1919>{(impnum == 1 ? "Impostor" : "Impostors")}</color> and <b>{neutralnum}</b> <color=#7f8c8d>{(neutralnum == 1 ? "Neutral Killer" : "Neutral Killers")}</color> left.", PlayerControl.LocalPlayer.PlayerId);
+                    Utils.SendMessage($"There {(impnum == 1 ? "is" : "are")}\n<b>{impnum}</b> <color=#ff1919>{(impnum == 1 ? "Impostor" : "Impostors")}</color> and <b>{neutralnum}</b> <color=#7f8c8d>{(neutralnum == 1 ? "Neutral Killer" : "Neutral Killers")}</color> left.", localPlayerId);
                     break;
                 case "/m":
                 case "/myrole":
@@ -241,7 +242,7 @@ internal class ChatCommands
                         Utils.SendMessage(sb.ToString(), lp.PlayerId);
                     }
                     else
-                        Utils.SendMessage((PlayerControl.LocalPlayer.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + GetString("Message.CanNotUseInLobby"), PlayerControl.LocalPlayer.PlayerId);
+                        Utils.SendMessage((PlayerControl.LocalPlayer.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + GetString("Message.CanNotUseInLobby"), localPlayerId);
                     break;
 
                 case "/t":
@@ -274,41 +275,41 @@ internal class ChatCommands
                     // Check if the kick command is enabled in the settings
                     if (Options.ApplyModeratorList.GetValue() == 0)
                     {
-                        Utils.SendMessage(GetString("KickCommandDisabled"), PlayerControl.LocalPlayer.PlayerId);
+                        Utils.SendMessage(GetString("KickCommandDisabled"), localPlayerId);
                         break;
                     }
 
                     // Check if the player has the necessary privileges to use the command
                     if (!IsPlayerModerator(PlayerControl.LocalPlayer.FriendCode))
                     {
-                        Utils.SendMessage(GetString("KickCommandNoAccess"), PlayerControl.LocalPlayer.PlayerId);
+                        Utils.SendMessage(GetString("KickCommandNoAccess"), localPlayerId);
                         break;
                     }
 
                     subArgs = args.Length < 2 ? string.Empty : args[1];
                     if (string.IsNullOrEmpty(subArgs) || !byte.TryParse(subArgs, out byte kickPlayerId))
                     {
-                        Utils.SendMessage(GetString("KickCommandInvalidID"), PlayerControl.LocalPlayer.PlayerId);
+                        Utils.SendMessage(GetString("KickCommandInvalidID"), localPlayerId);
                         break;
                     }
 
                     if (kickPlayerId == 0)
                     {
-                        Utils.SendMessage(GetString("KickCommandKickHost"), PlayerControl.LocalPlayer.PlayerId);
+                        Utils.SendMessage(GetString("KickCommandKickHost"), localPlayerId);
                         break;
                     }
 
                     var kickedPlayer = Utils.GetPlayerById(kickPlayerId);
                     if (kickedPlayer == null)
                     {
-                        Utils.SendMessage(GetString("KickCommandInvalidID"), PlayerControl.LocalPlayer.PlayerId);
+                        Utils.SendMessage(GetString("KickCommandInvalidID"), localPlayerId);
                         break;
                     }
 
                     // Prevent moderators from kicking other moderators
                     if (IsPlayerModerator(kickedPlayer.FriendCode))
                     {
-                        Utils.SendMessage(GetString("KickCommandKickMod"), PlayerControl.LocalPlayer.PlayerId);
+                        Utils.SendMessage(GetString("KickCommandKickMod"), localPlayerId);
                         break;
                     }
 
@@ -326,7 +327,7 @@ internal class ChatCommands
                     canceled = true;
                     if (GameStates.IsLobby)
                     {
-                        Utils.SendMessage(GetString("Message.CanNotUseInLobby"), PlayerControl.LocalPlayer.PlayerId);
+                        Utils.SendMessage(GetString("Message.CanNotUseInLobby"), localPlayerId);
                         break;
                     }
                     if (args.Length < 2 || !int.TryParse(args[1], out int id)) break;
@@ -346,7 +347,7 @@ internal class ChatCommands
                     canceled = true;
                     if (GameStates.IsLobby)
                     {
-                        Utils.SendMessage(GetString("Message.CanNotUseInLobby"), PlayerControl.LocalPlayer.PlayerId);
+                        Utils.SendMessage(GetString("Message.CanNotUseInLobby"), localPlayerId);
                         break;
                     }
                     if (args.Length < 2 || !int.TryParse(args[1], out int id2)) break;
@@ -364,41 +365,41 @@ internal class ChatCommands
                     canceled = true;
                     if (GameStates.IsInGame)
                     {
-                        Utils.SendMessage(GetString("Message.OnlyCanUseInLobby"), PlayerControl.LocalPlayer.PlayerId);
+                        Utils.SendMessage(GetString("Message.OnlyCanUseInLobby"), localPlayerId);
                         break;
                     }
                     subArgs = args.Length < 2 ? string.Empty : args[1];
                     var color = Utils.MsgToColor(subArgs, true);
                     if (color == byte.MaxValue)
                     {
-                        Utils.SendMessage(GetString("IllegalColor"), PlayerControl.LocalPlayer.PlayerId);
+                        Utils.SendMessage(GetString("IllegalColor"), localPlayerId);
                         break;
                     }
                     PlayerControl.LocalPlayer.RpcSetColor(color);
-                    Utils.SendMessage(string.Format(GetString("Message.SetColor"), subArgs), PlayerControl.LocalPlayer.PlayerId);
+                    Utils.SendMessage(string.Format(GetString("Message.SetColor"), subArgs), localPlayerId);
                     break;
 
                 case "/quit":
                 case "/qt":
                     canceled = true;
-                    Utils.SendMessage(GetString("Message.CanNotUseByHost"), PlayerControl.LocalPlayer.PlayerId);
+                    Utils.SendMessage(GetString("Message.CanNotUseByHost"), localPlayerId);
                     break;
 
                 case "/xf":
                     canceled = true;
                     if (!GameStates.IsInGame)
                     {
-                        Utils.SendMessage(GetString("Message.CanNotUseInLobby"), PlayerControl.LocalPlayer.PlayerId);
+                        Utils.SendMessage(GetString("Message.CanNotUseInLobby"), localPlayerId);
                         break;
                     }
-                    for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+                    for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
                     {
-                        PlayerControl pc = Main.AllPlayerControls[i];
+                        PlayerControl pc = Main.AllAlivePlayerControls[i];
                         pc.RpcSetNameEx(pc.GetRealName(isMeeting: true));
                     }
                     ChatUpdatePatch.DoBlockChat = false;
                     Utils.NotifyRoles(isForMeeting: GameStates.IsMeeting, NoCache: true);
-                    Utils.SendMessage(GetString("Message.TryFixName"), PlayerControl.LocalPlayer.PlayerId);
+                    Utils.SendMessage(GetString("Message.TryFixName"), localPlayerId);
                     break;
 
                 case "/id":
@@ -410,14 +411,14 @@ internal class ChatCommands
                         msgText += "\n" + pc.PlayerId.ToString() + " → " + Main.AllPlayerNames[pc.PlayerId];
                     }
 
-                    Utils.SendMessage(msgText, PlayerControl.LocalPlayer.PlayerId);
+                    Utils.SendMessage(msgText, localPlayerId);
                     break;
 
                 /*
                 case "/qq":
                     canceled = true;
                     if (Main.newLobby) Cloud.ShareLobby(true);
-                    else Utils.SendMessage("很抱歉，每个房间车队姬只会发一次", PlayerControl.LocalPlayer.PlayerId);
+                    else Utils.SendMessage("很抱歉，每个房间车队姬只会发一次", localPlayerId);
                     break;
                 */
 
@@ -473,58 +474,60 @@ internal class ChatCommands
                     canceled = true;
                     subArgs = text.Remove(0, 3);
                     if (args.Length < 1 || !int.TryParse(args[1], out int sound1)) break;
-                    RPC.PlaySoundRPC(PlayerControl.LocalPlayer.PlayerId, (Sounds)sound1);
+                    RPC.PlaySoundRPC(localPlayerId, (Sounds)sound1);
                     break;
 
                 case "/gno":
                     canceled = true;
                     if (!GameStates.IsLobby && PlayerControl.LocalPlayer.IsAlive())
                     {
-                        Utils.SendMessage(GetString("GNoCommandInfo"), PlayerControl.LocalPlayer.PlayerId);
+                        Utils.SendMessage(GetString("GNoCommandInfo"), localPlayerId);
                         break;
                     }
                     subArgs = args.Length != 2 ? "" : args[1];
                     if (subArgs == "" || !int.TryParse(subArgs, out int guessedNo))
                     {
-                        Utils.SendMessage(GetString("GNoCommandInfo"), PlayerControl.LocalPlayer.PlayerId);
+                        Utils.SendMessage(GetString("GNoCommandInfo"), localPlayerId);
                         break;
                     }
                     else if (guessedNo < 0 || guessedNo > 99)
                     {
-                        Utils.SendMessage(GetString("GNoCommandInfo"), PlayerControl.LocalPlayer.PlayerId);
+                        Utils.SendMessage(GetString("GNoCommandInfo"), localPlayerId);
                         break;
                     }
                     else
                     {
-                        int targetNumber = Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][0];
-                        if (Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][0] == -1)
+                        int targetNumber = Main.GuessNumber[localPlayerId][0];
+                        if (Main.GuessNumber[localPlayerId][0] == -1)
                         {
                             var rand = IRandom.Instance;
-                            Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][0] = rand.Next(0, 100);
-                            targetNumber = Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][0];
+                            Main.GuessNumber[localPlayerId][0] = rand.Next(0, 100);
+                            targetNumber = Main.GuessNumber[localPlayerId][0];
                         }
-                        Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][1]--;
-                        if (Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][1] == 0)
+                        Main.GuessNumber[localPlayerId][1]--;
+                        if (Main.GuessNumber[localPlayerId][1] == 0 && guessedNo != targetNumber)
                         {
-                            Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][0] = -1;
-                            Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][1] = 7;
-                            //targetNumber = Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][0];
-                            Utils.SendMessage(string.Format(GetString("GNoLost"), targetNumber), PlayerControl.LocalPlayer.PlayerId);
+                            Main.GuessNumber[localPlayerId][0] = -1;
+                            Main.GuessNumber[localPlayerId][1] = 7;
+                            //targetNumber = Main.GuessNumber[localPlayerId][0];
+                            Utils.SendMessage(string.Format(GetString("GNoLost"), targetNumber), localPlayerId);
                             break;
                         }
                         else if (guessedNo < targetNumber)
                         {
-                            Utils.SendMessage(string.Format(GetString("GNoLow"), Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][1] - 1), PlayerControl.LocalPlayer.PlayerId);
+                            Utils.SendMessage(string.Format(GetString("GNoLow"), Main.GuessNumber[localPlayerId][1]), localPlayerId);
                             break;
                         }
                         else if (guessedNo > targetNumber)
                         {
-                            Utils.SendMessage(string.Format(GetString("GNoHigh"), Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][1] - 1), PlayerControl.LocalPlayer.PlayerId);
+                            Utils.SendMessage(string.Format(GetString("GNoHigh"), Main.GuessNumber[localPlayerId][1]), localPlayerId);
                             break;
                         }
                         else
                         {
-                            Utils.SendMessage(string.Format(GetString("GNoWon"), Main.GuessNumber[PlayerControl.LocalPlayer.PlayerId][1] - 1), PlayerControl.LocalPlayer.PlayerId);
+                            Utils.SendMessage(string.Format(GetString("GNoWon"), Main.GuessNumber[localPlayerId][1]), localPlayerId);
+                            Main.GuessNumber[localPlayerId][0] = -1;
+                            Main.GuessNumber[localPlayerId][1] = 7;
                             break;
                         }
 
@@ -1013,7 +1016,7 @@ internal class ChatCommands
                             neutralnum++;
                     }
                 }
-                Utils.SendMessage($"There {(impnum == 1 ? "is" : "are")}\n<b>{impnum}</b> <color=#ff1919>{(impnum == 1 ? "Impostor" : "Impostors")}</color> and <b>{neutralnum}</b> <color=#7f8c8d>{(neutralnum == 1 ? "Neutral Killer" : "Neutral Killers")}</color> left.", PlayerControl.LocalPlayer.PlayerId);
+                Utils.SendMessage($"There {(impnum == 1 ? "is" : "are")}\n<b>{impnum}</b> <color=#ff1919>{(impnum == 1 ? "Impostor" : "Impostors")}</color> and <b>{neutralnum}</b> <color=#7f8c8d>{(neutralnum == 1 ? "Neutral Killer" : "Neutral Killers")}</color> left.", player.PlayerId);
                 break;
 
             case "/gno":
@@ -1044,7 +1047,7 @@ internal class ChatCommands
                         targetNumber = Main.GuessNumber[player.PlayerId][0];
                     }
                     Main.GuessNumber[player.PlayerId][1]--;
-                    if (Main.GuessNumber[player.PlayerId][1] == 0)
+                    if (Main.GuessNumber[player.PlayerId][1] == 0 && guessedNo != targetNumber)
                     {
                         Main.GuessNumber[player.PlayerId][0] = -1;
                         Main.GuessNumber[player.PlayerId][1] = 7;
@@ -1054,17 +1057,19 @@ internal class ChatCommands
                     }
                     else if (guessedNo < targetNumber)
                     {
-                        Utils.SendMessage(string.Format(GetString("GNoLow"), Main.GuessNumber[player.PlayerId][1] - 1), player.PlayerId);
+                        Utils.SendMessage(string.Format(GetString("GNoLow"), Main.GuessNumber[player.PlayerId][1]), player.PlayerId);
                         break;
                     }
                     else if (guessedNo > targetNumber)
                     {
-                        Utils.SendMessage(string.Format(GetString("GNoHigh"), Main.GuessNumber[player.PlayerId][1] - 1), player.PlayerId);
+                        Utils.SendMessage(string.Format(GetString("GNoHigh"), Main.GuessNumber[player.PlayerId][1]), player.PlayerId);
                         break;
                     }
                     else
                     {
-                        Utils.SendMessage(string.Format(GetString("GNoWon"), 7 - Main.GuessNumber[player.PlayerId][1] - 1), player.PlayerId);
+                        Utils.SendMessage(string.Format(GetString("GNoWon"), 7 - Main.GuessNumber[player.PlayerId][1]), player.PlayerId);
+                        Main.GuessNumber[player.PlayerId][0] = -1;
+                        Main.GuessNumber[player.PlayerId][1] = 7;
                         break;
                     }
                 }

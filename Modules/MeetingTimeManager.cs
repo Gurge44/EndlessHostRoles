@@ -35,7 +35,7 @@ public class MeetingTimeManager
         {
             DiscussionTime = 0;
             VotingTime = Options.AllAliveMeetingTime.GetInt();
-            Logger.Info($"DiscussionTime:{DiscussionTime}, VotingTime{VotingTime}", "MeetingTimeManager.OnReportDeadBody");
+            Logger.Info($"Discussion Time: {DiscussionTime}s, Voting Time: {VotingTime}s", "MeetingTimeManager.OnReportDeadBody");
             return;
         }
 
@@ -74,6 +74,6 @@ public class MeetingTimeManager
                 DiscussionTime = 0;
             }
         }
-        Logger.Info($"DiscussionTime:{DiscussionTime}, VotingTime{VotingTime}", "MeetingTimeManager.OnReportDeadBody");
+        Logger.Info($"Discussion Time: {DiscussionTime}s, Voting Time: {VotingTime}s", "MeetingTimeManager.OnReportDeadBody");
     }
 }

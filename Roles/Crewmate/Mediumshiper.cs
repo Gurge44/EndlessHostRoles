@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Hazel;
+using System.Collections.Generic;
 using System.Linq;
 using static TOHE.Translator;
 
@@ -38,6 +39,23 @@ public static class Mediumshiper
         ContactLimit.Add(playerId, ContactLimitOpt.GetInt());
     }
     public static bool IsEnable => playerIdList.Any();
+    public static void SendRPC(byte playerId, bool isMinus)
+    {
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMediumshiperLimit, SendOption.Reliable, -1);
+        writer.Write(playerId);
+        writer.Write(isMinus);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+    public static void ReceiveRPC(MessageReader reader)
+    {
+        if (AmongUsClient.Instance.AmHost) return;
+
+        byte playerId = reader.ReadByte();
+        bool isMinus = reader.ReadBoolean();
+
+        if (isMinus) ContactLimit[playerId]--;
+        else ContactLimit[playerId]++;
+    }
     public static void OnReportDeadBody(GameData.PlayerInfo target)
     {
         ContactPlayer = new();
@@ -46,8 +64,9 @@ public static class Mediumshiper
         {
             if (ContactLimit[pc.PlayerId] < 1) continue;
             ContactLimit[pc.PlayerId] -= 1;
+            SendRPC(pc.PlayerId, true);
             ContactPlayer.TryAdd(target.PlayerId, pc.PlayerId);
-            Logger.Info($"通灵师建立联系：{pc.GetNameWithRole().RemoveHtmlTags()} => {target.PlayerName}", "Mediumshiper");
+            Logger.Info($"Medium Connection：{pc.GetNameWithRole().RemoveHtmlTags()} => {target.PlayerName}", "Mediumshiper");
         }
     }
     public static bool MsMsg(PlayerControl pc, string msg)

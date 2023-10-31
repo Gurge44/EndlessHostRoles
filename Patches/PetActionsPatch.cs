@@ -1,5 +1,4 @@
 using HarmonyLib;
-using Hazel;
 using System;
 using System.Linq;
 using TOHE.Modules;
@@ -32,10 +31,10 @@ class LocalPetPatch
         if (!LastProcess.ContainsKey(__instance.PlayerId)) LastProcess.TryAdd(__instance.PlayerId, Utils.GetTimeStamp() - 2);
         if (LastProcess[__instance.PlayerId] + 1 >= Utils.GetTimeStamp()) return true;
 
-        ExternalRpcPetPatch.Prefix(__instance.MyPhysics, 51);
+        ExternalRpcPetPatch.Prefix(__instance.MyPhysics, (byte)RpcCalls.Pet);
 
         LastProcess[__instance.PlayerId] = Utils.GetTimeStamp();
-        return false;
+        return !__instance.GetCustomRole().PetActivatedAbility();
     }
 
     public static void Postfix(PlayerControl __instance)
@@ -49,31 +48,44 @@ class LocalPetPatch
 [HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.HandleRpc))]
 class ExternalRpcPetPatch
 {
-    public static void Prefix(PlayerPhysics __instance, [HarmonyArgument(0)] byte callId)
+    public static void Prefix(PlayerPhysics __instance, [HarmonyArgument(0)] byte callID)
     {
-        if (!Options.UsePets.GetBool()) return;
-        if (!AmongUsClient.Instance.AmHost) return;
-        var rpcType = callId == 51 ? RpcCalls.Pet : (RpcCalls)callId;
-        if (rpcType != RpcCalls.Pet) return;
+        if (!Options.UsePets.GetBool() || !AmongUsClient.Instance.AmHost || (RpcCalls)callID != RpcCalls.Pet) return;
 
-        PlayerControl pc = __instance.myPlayer;
+        var pc = __instance.myPlayer;
+        var physics = __instance;
 
-        if (callId == 51 && pc.GetCustomRole().PetActivatedAbility() && GameStates.IsInGame) __instance.CancelPet();
-        if (callId != 51)
-        {
-            if (AmongUsClient.Instance.AmHost && pc.GetCustomRole().PetActivatedAbility() && GameStates.IsInGame)
-                __instance.CancelPet();
-            foreach (PlayerControl player in PlayerControl.AllPlayerControls)
-                AmongUsClient.Instance.FinishRpcImmediately(AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, 50, SendOption.None, player.GetClientId()));
-        }
+        if (pc == null || physics == null) return;
+
+        if (pc != null
+            && !pc.inVent
+            && !pc.inMovingPlat
+            && !pc.walkingToVent
+            && !pc.onLadder
+            && !physics.Animations.IsPlayingEnterVentAnimation()
+            && !physics.Animations.IsPlayingClimbAnimation()
+            && !physics.Animations.IsPlayingAnyLadderAnimation()
+            && !Pelican.IsEaten(pc.PlayerId)
+            && GameStates.IsInTask
+            && pc.GetCustomRole().PetActivatedAbility())
+            physics.CancelPet();
 
         Logger.Info($"Player {pc.GetNameWithRole().RemoveHtmlTags()} petted their pet", "PetActionTrigger");
 
-        OnPetUse(pc);
+        _ = new LateTask(() => { OnPetUse(pc); }, 0.2f, $"OnPetUse: {pc.GetNameWithRole().RemoveHtmlTags()}", false);
     }
     public static void OnPetUse(PlayerControl pc)
     {
-        if (pc == null) return;
+        if (pc == null ||
+            pc.inVent ||
+            pc.inMovingPlat ||
+            pc.onLadder ||
+            pc.walkingToVent ||
+            pc.MyPhysics.Animations.IsPlayingEnterVentAnimation() ||
+            pc.MyPhysics.Animations.IsPlayingClimbAnimation() ||
+            pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() ||
+            Pelican.IsEaten(pc.PlayerId))
+            return;
 
         switch (pc.GetCustomRole())
         {

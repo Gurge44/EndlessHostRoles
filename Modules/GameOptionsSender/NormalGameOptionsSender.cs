@@ -24,7 +24,7 @@ public class NormalGameOptionsSender : GameOptionsSender
             catch (Exception ex)
             {
                 Logger.Fatal(ex.ToString(), "NormalGameOptionsSender.IsDirty.Get");
-                return true;
+                return _logicOptions != null && _logicOptions.IsDirty;
             }
         }
         protected set

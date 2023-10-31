@@ -756,6 +756,7 @@ public static class Options
     public static OptionItem EndWhenPlayerBug;
 
     public static OptionItem UsePets;
+    public static OptionItem UseVoteCancelling;
     public static OptionItem EnableUpMode;
     public static OptionItem AutoKickStart;
     public static OptionItem AutoKickStartAsBan;
@@ -913,7 +914,8 @@ public static class Options
         OptionSaver.Initialize();
 
         // 预设
-        _ = PresetOptionItem.Create(0, TabGroup.SystemSettings)
+        int defaultPresetNumber = OptionSaver.GetDefaultPresetNumber();
+        _ = PresetOptionItem.Create(defaultPresetNumber, TabGroup.SystemSettings)
             .SetColor(new Color32(255, 235, 4, byte.MaxValue))
             .SetHeader(true);
 
@@ -2834,6 +2836,11 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true)
             .SetColor(new Color32(60, 0, 255, byte.MaxValue));
+
+        UseVoteCancelling = BooleanOptionItem.Create(23852, "UseVoteCancelling", false, TabGroup.TaskSettings, false)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetHeader(true)
+            .SetColor(new Color32(0, 65, 196, byte.MaxValue));
 
 
         //Disable Short Tasks

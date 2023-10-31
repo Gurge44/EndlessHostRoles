@@ -77,7 +77,7 @@ class AddTasksFromListPatch
         for (int i = 0; i < disabledTasks.Count; i++)
         {
             NormalPlayerTask task = disabledTasks[i];
-            Logger.Msg("削除: " + task.TaskType.ToString(), "AddTask");
+            Logger.Msg("Deleted assigned task: " + task.TaskType.ToString(), "AddTask");
             unusedTasks.Remove(task);
         }
     }

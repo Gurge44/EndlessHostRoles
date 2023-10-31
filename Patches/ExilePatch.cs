@@ -207,7 +207,7 @@ class ExileControllerWrapUpPatch
         GameStates.AlreadyDied |= !Utils.IsAllAlive;
         RemoveDisableDevicesPatch.UpdateDisableDevices();
         SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
-        Logger.Info("タスクフェイズ開始", "Phase");
+        Logger.Info("Start task phase", "Phase");
     }
 }
 

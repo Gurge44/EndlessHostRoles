@@ -10,6 +10,18 @@ public static class OptionSaver
     private static readonly DirectoryInfo SaveDataDirectoryInfo = new("./TOHE-DATA/SaveData/");
     private static readonly FileInfo OptionSaverFileInfo = new($"{SaveDataDirectoryInfo.FullName}/Options.json");
     private static readonly LogHandler logger = Logger.Handler(nameof(OptionSaver));
+    private static readonly FileInfo DefaultPresetFileInfo = new($"{SaveDataDirectoryInfo.FullName}/DefaultPreset.txt");
+    private static int DefaultPresetNumber;
+
+    public static int GetDefaultPresetNumber()
+    {
+        if (DefaultPresetFileInfo.Exists)
+        {
+            string presetNmber = File.ReadAllText(DefaultPresetFileInfo.FullName);
+            if (int.TryParse(presetNmber, out int number) && number >= 0 && number <= 4) return number;
+        }
+        return 0;
+    }
 
     public static void Initialize()
     {
@@ -21,6 +33,10 @@ public static class OptionSaver
         if (!OptionSaverFileInfo.Exists)
         {
             OptionSaverFileInfo.Create().Dispose();
+        }
+        if (!DefaultPresetFileInfo.Exists)
+        {
+            DefaultPresetFileInfo.Create().Dispose();
         }
     }
     /// <summary>現在のオプションからjsonシリアライズ用のオブジェクトを生成</summary>
@@ -43,6 +59,7 @@ public static class OptionSaver
                 Logger.Warn($"Duplicate preset option ID: {option.Id}", "Options Load");
             }
         }
+        DefaultPresetNumber = singleOptions[0];
         return new SerializableOptionsData
         {
             Version = Version,
@@ -88,6 +105,7 @@ public static class OptionSaver
 
         var jsonString = JsonSerializer.Serialize(GenerateOptionsData(), new JsonSerializerOptions { WriteIndented = true, });
         File.WriteAllText(OptionSaverFileInfo.FullName, jsonString);
+        File.WriteAllText(DefaultPresetFileInfo.FullName, DefaultPresetNumber.ToString());
     }
     /// <summary>jsonファイルからオプションを読み込み</summary>
     public static void Load()

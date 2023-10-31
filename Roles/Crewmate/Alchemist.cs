@@ -66,8 +66,30 @@ namespace TOHE.Roles.Crewmate
         {
             playerIdList.Add(playerId);
             PlayerName = Utils.GetPlayerById(playerId).GetRealName();
+            _ = new LateTask(() => { SendRPCData(IsProtected, PotionID, PlayerName, VisionPotionActive, FixNextSabo); }, 10f, "Alchemist RPCs");
         }
         public static bool IsEnable => playerIdList.Any();
+
+        public static void SendRPCData(bool isProtected, byte potionId, string playerName, bool visionPotionActive, bool fixNextSabo)
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAlchemistPotion, SendOption.Reliable, -1);
+            writer.Write(isProtected);
+            writer.Write(potionId);
+            writer.Write(playerName);
+            writer.Write(visionPotionActive);
+            writer.Write(fixNextSabo);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        public static void ReceiveRPCData(MessageReader reader)
+        {
+            if (AmongUsClient.Instance.AmHost) return;
+
+            IsProtected = reader.ReadBoolean();
+            PotionID = reader.ReadByte();
+            PlayerName = reader.ReadString();
+            VisionPotionActive = reader.ReadBoolean();
+            FixNextSabo = reader.ReadBoolean();
+        }
 
         public static void OnTaskComplete(PlayerControl pc)
         {
@@ -177,6 +199,8 @@ namespace TOHE.Roles.Crewmate
             }
 
             Main.AlchemistCD.TryAdd(player.PlayerId, Utils.GetTimeStamp());
+
+            SendRPCData(IsProtected, PotionID, PlayerName, VisionPotionActive, FixNextSabo);
 
             PotionID = 10;
         }

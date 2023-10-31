@@ -82,8 +82,6 @@ public static class Utils
 
     public static void TP(CustomNetworkTransform nt, Vector2 location)
     {
-        location += new Vector2(0, 0.3636f);
-
         var pc = nt.myPlayer;
         if (pc.inVent || pc.inMovingPlat || !pc.IsAlive())
         {
@@ -91,17 +89,33 @@ public static class Utils
             return;
         }
 
-        if (AmongUsClient.Instance.AmHost) nt.SnapTo(location);
+        // Modded
+        nt.SnapTo(location, (ushort)(nt.lastSequenceId + 8));
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.None);
-        {
-            //nt.WriteVector2(location, writer);
-            NetHelpers.WriteVector2(location, writer);
-            writer.Write(nt.lastSequenceId);
-        }
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
+        // Vanilla
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.Reliable);
+        NetHelpers.WriteVector2(location, messageWriter);
+        messageWriter.Write(nt.lastSequenceId + 10U);
+        AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
 
         Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} => {location}", "TP");
+    }
+    public static void TP(this PlayerControl pc, Vector2 location)
+    {
+        TP(pc.NetTransform, location);
+    }
+    public static void TPtoRndVent(this PlayerControl pc)
+    {
+        TPtoRndVent(pc.NetTransform);
+    }
+    public static void TPtoRndVent(CustomNetworkTransform nt)
+    {
+        var vents = UnityEngine.Object.FindObjectsOfType<Vent>();
+        var vent = vents[IRandom.Instance.Next(0, vents.Count)];
+
+        Logger.Info($"{nt.myPlayer.GetNameWithRole().RemoveHtmlTags()} => {vent.transform.position} (vent)", "TP");
+
+        TP(nt, new Vector2(vent.transform.position.x, vent.transform.position.y + 0.3636f));
     }
     public static ClientData GetClientById(int id)
     {
@@ -1207,6 +1221,12 @@ public static class Utils
 
         if (Options.NoGameEnd.GetBool()) { SendMessage(GetString("NoGameEndInfo"), PlayerId); }
     }
+    /// <summary>
+    /// Gets all players within a specified radius from the specified location
+    /// </summary>
+    /// <param name="radius">The radius</param>
+    /// <param name="from">The location which the radius is counted from</param>
+    /// <returns>A list containing all PlayerControls within the specified range from the specified location</returns>
     public static List<PlayerControl> GetPlayersInRadius(float radius, Vector2 from)
     {
         var list = new List<PlayerControl>();

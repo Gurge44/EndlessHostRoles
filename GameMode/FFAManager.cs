@@ -203,6 +203,8 @@ internal static class FFAManager
 
         if (FFA_EnableRandomAbilities.GetBool())
         {
+            bool sync = false;
+            bool mark = false;
             byte EffectType;
             if (Main.NormalOptions.MapId != 4) EffectType = (byte)HashRandom.Next(0, 10);
             else EffectType = (byte)HashRandom.Next(4, 10);
@@ -231,13 +233,16 @@ internal static class FFAManager
                         }
                         killer.Notify(GetString("FFA-Event-GetIncreasedSpeed"), FFA_ModifiedSpeedDuration.GetFloat());
                         Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
+                        sync = true;
                         break;
                     case 2:
                         Main.AllPlayerKillCooldown[killer.PlayerId] = System.Math.Clamp(FFA_KCD.GetFloat() - 3f, 1f, 60f);
                         killer.Notify(GetString("FFA-Event-GetLowKCD"));
+                        sync = true;
                         break;
                     default:
                         Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
+                        sync = true;
                         break;
                 }
             }
@@ -261,32 +266,41 @@ internal static class FFAManager
                         }
                         killer.Notify(GetString("FFA-Event-GetDecreasedSpeed"), FFA_ModifiedSpeedDuration.GetFloat());
                         Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
+                        sync = true;
                         break;
                     case 1:
                         Main.AllPlayerKillCooldown[killer.PlayerId] = System.Math.Clamp(FFA_KCD.GetFloat() + 3f, 1f, 60f);
                         killer.Notify(GetString("FFA-Event-GetHighKCD"));
+                        sync = true;
                         break;
                     case 2:
                         FFALowerVisionList.TryAdd(killer.PlayerId, Utils.GetTimeStamp());
                         Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
                         killer.Notify(GetString("FFA-Event-GetLowVision"));
+                        mark = true;
                         break;
                     default:
                         Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
+                        sync = true;
                         break;
                 }
             }
             else // Mixed
             {
-                var rd = IRandom.Instance;
-                var vents = Object.FindObjectsOfType<Vent>();
-                var vent = vents[rd.Next(0, vents.Count)];
-                _ = new LateTask(() => { Utils.TP(killer.NetTransform, new Vector2(vent.transform.position.x, vent.transform.position.y)); }, 0.5f, "FFA-Event-TP");
+                _ = new LateTask(killer.TPtoRndVent, 0.5f, "FFA-Event-TP");
                 killer.Notify(GetString("FFA-Event-GetTP"));
                 Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
             }
 
-            killer.SyncSettings();
+            if (sync)
+            {
+                mark = false;
+                killer.SyncSettings();
+            }
+            if (mark)
+            {
+                killer.MarkDirtySettings();
+            }
         }
 
         killer.Kill(target);

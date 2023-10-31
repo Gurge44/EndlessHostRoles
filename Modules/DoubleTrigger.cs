@@ -27,7 +27,14 @@ static class DoubleTrigger
         return PlayerIdList.Contains(killer.PlayerId);
     }
 
-    ///     一回目アクション時 false、2回目アクション時true
+    /// <summary>
+    /// Checks for whether the killer pressed their kill button twice on the same player
+    /// </summary>
+    /// <param name="killer">Who the killer is</param>
+    /// <param name="target">Who the killer is targeting with the kill button</param>
+    /// <param name="firstAction">The action that should be done if the killer only presses their kill button once</param>
+    /// <param name="doAction">Whether the Action should be done or not</param>
+    /// <returns>Returns true if the kill button is clicked twice within 1 second. Otherwise, does the Action specified in the parameter firstAction and returns false</returns>
     public static bool CheckDoubleTrigger(this PlayerControl killer, PlayerControl target, Action firstAction, bool doAction = true)
     {
         if (FirstTriggerTimer.ContainsKey(killer.PlayerId))
@@ -67,7 +74,7 @@ static class DoubleTrigger
         if (FirstTriggerTimer[playerId] <= 0)
         {
             Logger.Info($"{player.name} DoSingleAction", "DoubleTrigger");
-            FirstTriggerAction[playerId]();
+            if (FirstTriggerAction.ContainsKey(playerId)) FirstTriggerAction[playerId]();
 
             FirstTriggerTimer.Remove(playerId);
             FirstTriggerTarget.Remove(playerId);

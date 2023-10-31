@@ -1,3 +1,4 @@
+using Hazel;
 using System.Collections.Generic;
 using System.Linq;
 using static TOHE.Options;
@@ -45,6 +46,23 @@ public static class Oracle
         CheckLimit.TryAdd(playerId, CheckLimitOpt.GetInt());
     }
     public static bool IsEnable => playerIdList.Any();
+    public static void SendRPC(byte playerId, bool isMinus)
+    {
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetOracleLimit, SendOption.Reliable, -1);
+        writer.Write(playerId);
+        writer.Write(isMinus);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+    public static void ReceiveRPC(MessageReader reader)
+    {
+        if (AmongUsClient.Instance.AmHost) return;
+
+        byte playerId = reader.ReadByte();
+        bool isMinus = reader.ReadBoolean();
+
+        if (isMinus) CheckLimit[playerId]--;
+        else CheckLimit[playerId]++;
+    }
     public static void OnVote(PlayerControl player, PlayerControl target)
     {
         if (player == null || target == null) return;
@@ -58,6 +76,7 @@ public static class Oracle
         }
 
         CheckLimit[player.PlayerId] -= 1;
+        SendRPC(player.PlayerId, true);
 
         if (player.PlayerId == target.PlayerId)
         {

@@ -18,6 +18,8 @@
 	
   <ItemGroup>
     <None Remove="resources\modnews\english\TOHE+.v1.2.0.txt" />
+    <None Remove="Roles\Crewmate\Doormaster.cs~RF5dd42bf0.TMP" />
+    <None Remove="Roles\Neutral\scqzwl4z.0wp~" />
   </ItemGroup>
 	
   <ItemGroup>

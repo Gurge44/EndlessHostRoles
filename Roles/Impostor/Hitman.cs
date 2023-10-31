@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Hazel;
+using System.Collections.Generic;
 using System.Linq;
 using static TOHE.Options;
 using static TOHE.Utils;
@@ -40,6 +41,19 @@ namespace TOHE.Roles.Impostor
 
         public static bool IsEnable => playerIdList.Any();
 
+        public static void SendRPC(byte targetId)
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetHitmanTarget, SendOption.Reliable, -1);
+            writer.Write(targetId);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        public static void ReceiveRPC(MessageReader reader)
+        {
+            if (AmongUsClient.Instance.AmHost) return;
+
+            targetId = reader.ReadByte();
+        }
+
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer == null) return false;
@@ -48,6 +62,7 @@ namespace TOHE.Roles.Impostor
             if (target.PlayerId == targetId)
             {
                 targetId = byte.MaxValue;
+                SendRPC(targetId);
                 _ = new LateTask(() =>
                 {
                     killer.SetKillCooldown(time: SuccessKCD.GetFloat());
@@ -62,6 +77,7 @@ namespace TOHE.Roles.Impostor
             if (!GetPlayerById(targetId).IsAlive() || GetPlayerById(targetId).Data.Disconnected)
             {
                 targetId = byte.MaxValue;
+                SendRPC(targetId);
             }
         }
 
@@ -70,6 +86,7 @@ namespace TOHE.Roles.Impostor
             if (target == null || hitman == null || !shapeshifting || targetId != byte.MaxValue || !target.IsAlive()) return;
 
             targetId = target.PlayerId;
+            SendRPC(targetId);
 
             _ = new LateTask(() => { hitman.CmdCheckRevertShapeshift(false); }, 1.5f, "Hitman RpcRevertShapeshift");
         }

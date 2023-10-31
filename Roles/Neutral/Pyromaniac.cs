@@ -52,7 +52,7 @@ public static class Pyromaniac
 
         if (DousedList.Contains(target.PlayerId))
         {
-            new LateTask(() => { killer.SetKillCooldown(BurnCooldown.GetFloat()); }, 0.1f);
+            _ = new LateTask(() => { killer.SetKillCooldown(BurnCooldown.GetFloat()); }, 0.1f);
             return true;
         }
         else

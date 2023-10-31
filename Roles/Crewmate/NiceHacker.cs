@@ -1,5 +1,6 @@
 ﻿namespace TOHE.Roles.Crewmate
 {
+    using Hazel;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -60,6 +61,22 @@
             else UseLimitSeconds.Add(playerId, UseLimitOpt.GetInt() * ModdedClientAbilityUseSecondsMultiplier.GetInt());
         }
         public static bool IsEnable => playerIdList.Any();
+        public static void SendRPC(byte playerId, float secondsLeft)
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetNiceHackerLimit, SendOption.Reliable, -1);
+            writer.Write(playerId);
+            writer.Write(secondsLeft);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        public static void ReceiveRPC(MessageReader reader)
+        {
+            if (AmongUsClient.Instance.AmHost) return;
+
+            byte playerId = reader.ReadByte();
+            float secondsLeft = reader.ReadSingle();
+
+            UseLimitSeconds[playerId] = secondsLeft;
+        }
         public static void OnEnterVent(PlayerControl pc)
         {
             if (pc == null) return;
@@ -117,6 +134,7 @@
             if (UseLimitSeconds[pc.PlayerId] >= 1)
             {
                 UseLimitSeconds[pc.PlayerId] -= 1; // Remove 1s for opening the map, so they can't utilize spamming
+                SendRPC(pc.PlayerId, UseLimitSeconds[pc.PlayerId]);
                 opts.Mode = MapOptions.Modes.CountOverlay;
                 _ = new LateTask(() => { MapCountdown(pc, map, opts, (int)UseLimitSeconds[pc.PlayerId]); }, 1f, "NiceHacker.StartCountdown");
             }
@@ -142,6 +160,7 @@
                 return;
             }
             UseLimitSeconds[pc.PlayerId] -= 1;
+            SendRPC(pc.PlayerId, UseLimitSeconds[pc.PlayerId]);
             _ = new LateTask(() => { MapCountdown(pc, map, opts, seconds - 1); }, 1f, "NiceHackerAbilityCountdown");
         }
         public static string GetHudText(PlayerControl pc)

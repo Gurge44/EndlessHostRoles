@@ -58,6 +58,34 @@ enum CustomRPC
 
     //Roles
     SetDrawPlayer,
+    SetAlchemistPotion,
+    SetRicochetTarget,
+    SetTetherTarget,
+    SetHitmanTarget,
+    SetWeaponMasterMode,
+    SetEclipseVision,
+    SyncGlitchLongs,
+    SyncGlitchTimers,
+    SyncGlitchSS,
+    SyncGlitchMimic,
+    SyncGlitchKill,
+    SyncGlitchHack,
+    SyncVengeanceTimer,
+    SyncVengeanceData,
+    SpyRedNameSync,
+    SpyAbilitySync,
+    SpyRedNameRemove,
+    SetDivinatorLimit,
+    SetMediumshiperLimit,
+    SetOracleLimit,
+    SetSabotageMasterLimit,
+    SetDoormasterLimit,
+    SetRicochetLimit,
+    SetTetherLimit,
+    SetNiceHackerLimit,
+    SetCameraManLimit,
+    BloodhoundIncreaseAbilityUseByOne,
+    SetChameleonLimit,
     SetCurrentDrawTarget,
     SetCPTasksDone,
     SetGamerHealth,
@@ -216,7 +244,7 @@ internal class RPCHandlerPatch
             case CustomRPC.AntiBlackout:
                 if (Options.EndWhenPlayerBug.GetBool())
                 {
-                    Logger.Fatal($"{__instance?.Data?.PlayerName}({__instance.PlayerId}): {reader.ReadString()} 错误，根据设定终止游戏", "Anti-black");
+                    Logger.Fatal($"{__instance?.Data?.PlayerName}({__instance.PlayerId}): {reader.ReadString()} - Error, terminate the game according to settings", "Anti-blackout");
                     ChatUpdatePatch.DoBlockChat = true;
                     Main.OverrideWelcomeMsg = string.Format(GetString("RpcAntiBlackOutNotifyInLobby"), __instance?.Data?.PlayerName, GetString("EndWhenPlayerBug"));
                     _ = new LateTask(() =>
@@ -232,7 +260,7 @@ internal class RPCHandlerPatch
                 }
                 else if (GameStates.IsOnlineGame)
                 {
-                    Logger.Fatal($"{__instance?.Data?.PlayerName}({__instance.PlayerId}): Change Role Setting Postfix 错误，根据设定继续游戏", "Anti-black");
+                    Logger.Fatal($"{__instance?.Data?.PlayerName}({__instance.PlayerId}): Change Role Setting Postfix - Error, continue the game according to settings", "Anti-blackout");
                     _ = new LateTask(() =>
                     {
                         Logger.SendInGame(string.Format(GetString("RpcAntiBlackOutIgnored"), __instance?.Data?.PlayerName), true);
@@ -386,6 +414,90 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SniperSync:
                 Sniper.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SpyRedNameSync:
+                Spy.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SpyAbilitySync:
+                Spy.ReceiveRPC(reader, isAbility: true);
+                break;
+            case CustomRPC.SpyRedNameRemove:
+                Spy.ReceiveRPC(reader, isRemove: true);
+                break;
+            case CustomRPC.SetDivinatorLimit:
+                Divinator.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SetAlchemistPotion:
+                Alchemist.ReceiveRPCData(reader);
+                break;
+            case CustomRPC.SetRicochetLimit:
+                Ricochet.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SetRicochetTarget:
+                Ricochet.ReceiveRPCSyncTarget(reader);
+                break;
+            case CustomRPC.SetTetherTarget:
+                Tether.ReceiveRPCSyncTarget(reader);
+                break;
+            case CustomRPC.SetTetherLimit:
+                Tether.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SetHitmanTarget:
+                Hitman.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SetWeaponMasterMode:
+                WeaponMaster.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SetEclipseVision:
+                Eclipse.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncGlitchHack:
+                Glitch.ReceiveRPCSyncHack(reader);
+                break;
+            case CustomRPC.SyncGlitchKill:
+                Glitch.ReceiveRPCSyncKill(reader);
+                break;
+            case CustomRPC.SyncGlitchLongs:
+                Glitch.ReceiveRPCSyncLongs(reader);
+                break;
+            case CustomRPC.SyncGlitchMimic:
+                Glitch.ReceiveRPCSyncMimic(reader);
+                break;
+            case CustomRPC.SyncGlitchSS:
+                Glitch.ReceiveRPCSyncSS(reader);
+                break;
+            case CustomRPC.SyncGlitchTimers:
+                Glitch.ReceiveRPCSyncTimers(reader);
+                break;
+            case CustomRPC.SyncVengeanceData:
+                Vengeance.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncVengeanceTimer:
+                Vengeance.ReceiveRPCSyncTimer(reader);
+                break;
+            case CustomRPC.SetMediumshiperLimit:
+                Mediumshiper.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SetOracleLimit:
+                Oracle.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SetSabotageMasterLimit:
+                SabotageMaster.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SetDoormasterLimit:
+                Doormaster.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SetNiceHackerLimit:
+                NiceHacker.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SetCameraManLimit:
+                CameraMan.ReceiveRPC(reader);
+                break;
+            case CustomRPC.BloodhoundIncreaseAbilityUseByOne:
+                Bloodhound.ReceiveRPCPlus(reader);
+                break;
+            case CustomRPC.SetChameleonLimit:
+                Chameleon.ReceiveRPCPlus(reader);
                 break;
             case CustomRPC.SetLoversPlayers:
                 Main.LoversPlayers.Clear();

@@ -1,5 +1,4 @@
 using HarmonyLib;
-using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +21,7 @@ class RandomSpawn
                 var player = Main.AllPlayerControls.FirstOrDefault(p => p.NetTransform == __instance);
                 if (player == null)
                 {
-                    Logger.Warn("プレイヤーがnullです", "RandomSpawn");
+                    Logger.Warn("Player is null", "RandomSpawn");
                     return;
                 }
                 if (player.Is(CustomRoles.GM)) return;
@@ -43,22 +42,23 @@ class RandomSpawn
     }
     public static void TP(CustomNetworkTransform nt, Vector2 location)
     {
-        if (AmongUsClient.Instance.AmHost) nt.SnapTo(location);
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.None);
-        NetHelpers.WriteVector2(location, writer);
-        writer.Write(nt.lastSequenceId);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
+        //if (AmongUsClient.Instance.AmHost) nt.SnapTo(location);
+        //MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.None);
+        //NetHelpers.WriteVector2(location, writer);
+        //writer.Write(nt.lastSequenceId);
+        //AmongUsClient.Instance.FinishRpcImmediately(writer);
+        Utils.TP(nt, location);
     }
 
     public abstract class SpawnMap
     {
         public virtual void RandomTeleport(PlayerControl player)
         {
-            var location = GetLocation();
-            Logger.Info($"{player.Data.PlayerName}:{location}", "RandomSpawn");
-            TP(player.NetTransform, location);
+            var spawn = GetLocation();
+            Logger.Info($"{player.Data.PlayerName} => {spawn.Key} ({spawn.Value})", "RandomSpawn");
+            TP(player.NetTransform, spawn.Value);
         }
-        public abstract Vector2 GetLocation();
+        public abstract KeyValuePair<string, Vector2> GetLocation();
     }
 
     public class SkeldSpawnMap : SpawnMap
@@ -80,9 +80,9 @@ class RandomSpawn
             ["Reactor"] = new(-20.5f, -5.5f),
             ["MedBay"] = new(-9.0f, -4.0f)
         };
-        public override Vector2 GetLocation()
+        public override KeyValuePair<string, Vector2> GetLocation()
         {
-            return positions.ToArray().OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault().Value;
+            return positions.ToArray().OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault();
         }
     }
     public class MiraHQSpawnMap : SpawnMap
@@ -104,9 +104,9 @@ class RandomSpawn
             ["Office"] = new(15.0f, 19.0f),
             ["Greenhouse"] = new(17.8f, 23.0f)
         };
-        public override Vector2 GetLocation()
+        public override KeyValuePair<string, Vector2> GetLocation()
         {
-            return positions.ToArray().OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault().Value;
+            return positions.ToArray().OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault();
         }
     }
     public class PolusSpawnMap : SpawnMap
@@ -129,9 +129,9 @@ class RandomSpawn
             ["Toilet"] = new(34.0f, -10.0f),
             ["SpecimenRoom"] = new(36.5f, -22.0f)
         };
-        public override Vector2 GetLocation()
+        public override KeyValuePair<string, Vector2> GetLocation()
         {
-            return positions.ToArray().OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault().Value;
+            return positions.ToArray().OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault();
         }
     }
     public class AirshipSpawnMap : SpawnMap
@@ -158,11 +158,11 @@ class RandomSpawn
             ["Toilet"] = new(30.9f, 6.8f),
             ["Showers"] = new(21.2f, -0.8f)
         };
-        public override Vector2 GetLocation()
+        public override KeyValuePair<string, Vector2> GetLocation()
         {
             return Options.AirshipAdditionalSpawn.GetBool()
-                ? positions.ToArray().OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault().Value
-                : positions.ToArray()[0..6].OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault().Value;
+                ? positions.ToArray().OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault()
+                : positions.ToArray()[0..6].OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault();
         }
     }
     public class FungleSpawnMap : SpawnMap
@@ -188,9 +188,9 @@ class RandomSpawn
             ["UpperEngine"] = new Vector2(22.4f, 3.4f),
             ["Communications"] = new Vector2(22.2f, 13.7f)
         };
-        public override Vector2 GetLocation()
+        public override KeyValuePair<string, Vector2> GetLocation()
         {
-            return positions.ToArray().OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault().Value;
+            return positions.ToArray().OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault();
         }
     }
 }

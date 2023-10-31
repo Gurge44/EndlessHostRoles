@@ -413,6 +413,7 @@ public class TaskState
                 {
                     case CustomRoles.Divinator:
                         Divinator.CheckLimit[player.PlayerId] += Divinator.AbilityUseGainWithEachTaskCompleted.GetFloat();
+                        Divinator.SendRPC(player.PlayerId, false);
                         break;
                     case CustomRoles.Veteran:
                         Main.VeteranNumOfUsed[player.PlayerId] += Options.VeteranAbilityUseGainWithEachTaskCompleted.GetFloat();
@@ -437,46 +438,57 @@ public class TaskState
                         break;
                     case CustomRoles.Mediumshiper:
                         Mediumshiper.ContactLimit[player.PlayerId] += Mediumshiper.MediumAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        Mediumshiper.SendRPC(player.PlayerId, false);
                         break;
                     case CustomRoles.ParityCop:
                         ParityCop.MaxCheckLimit[player.PlayerId] += ParityCop.ParityAbilityUseGainWithEachTaskCompleted.GetFloat();
                         break;
                     case CustomRoles.Oracle:
                         Oracle.CheckLimit[player.PlayerId] += Oracle.OracleAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        Oracle.SendRPC(player.PlayerId, false);
                         break;
                     case CustomRoles.SabotageMaster:
                         SabotageMaster.UsedSkillCount -= SabotageMaster.SMAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        SabotageMaster.SendRPC(SabotageMaster.UsedSkillCount);
                         break;
                     case CustomRoles.Tracker:
                         Tracker.TrackLimit[player.PlayerId] += Tracker.TrackerAbilityUseGainWithEachTaskCompleted.GetFloat();
                         break;
                     case CustomRoles.Bloodhound:
                         Bloodhound.UseLimit[player.PlayerId] += Bloodhound.BloodhoundAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        Bloodhound.SendRPCPlus(player.PlayerId, false);
                         break;
                     case CustomRoles.Chameleon:
                         Chameleon.UseLimit[player.PlayerId] += Chameleon.ChameleonAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        Chameleon.SendRPCPlus(player.PlayerId, false);
                         break;
                     case CustomRoles.NiceSwapper:
                         NiceSwapper.NiceSwappermax[player.PlayerId] += NiceSwapper.NiceSwapperAbilityUseGainWithEachTaskCompleted.GetFloat();
                         break;
                     case CustomRoles.Doormaster:
                         Doormaster.UseLimit[player.PlayerId] += Doormaster.DoormasterAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        Doormaster.SendRPC(player.PlayerId, false);
                         break;
                     case CustomRoles.Ricochet:
                         Ricochet.UseLimit[player.PlayerId] += Ricochet.RicochetAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        Ricochet.SendRPC(player.PlayerId, false);
                         break;
                     case CustomRoles.Tether:
                         Tether.UseLimit[player.PlayerId] += Tether.TetherAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        Tether.SendRPC(player.PlayerId, false);
                         break;
                     case CustomRoles.Spy:
                         Spy.UseLimit[player.PlayerId] += Spy.SpyAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        Spy.SendAbilityRPC(player.PlayerId);
                         break;
                     case CustomRoles.NiceHacker:
                         if (!player.IsModClient()) NiceHacker.UseLimit[player.PlayerId] += NiceHacker.NiceHackerAbilityUseGainWithEachTaskCompleted.GetFloat();
                         else NiceHacker.UseLimitSeconds[player.PlayerId] += NiceHacker.NiceHackerAbilityUseGainWithEachTaskCompleted.GetInt() * NiceHacker.ModdedClientAbilityUseSecondsMultiplier.GetInt();
+                        NiceHacker.SendRPC(player.PlayerId, NiceHacker.UseLimitSeconds[player.PlayerId]);
                         break;
                     case CustomRoles.CameraMan:
                         CameraMan.UseLimit[player.PlayerId] += CameraMan.CameraManAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        CameraMan.SendRPC(player.PlayerId, false);
                         break;
                 }
             }

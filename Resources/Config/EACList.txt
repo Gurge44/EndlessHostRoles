@@ -60,6 +60,8 @@ storedusty#6125,o O
 farcorn#5146,Acfun
 tilesteep#2740,Engineer
 imagetense#5619,Chinese//Non aum hacker
+gabledebb#2717.部屋潰しガチ勢SEX
+coopfunny#1119,Terklom
 
 ## Griefer
 setmolar#4374,藏族顶针
@@ -68,9 +70,13 @@ roomybump#8560,中国国民党
 whipsame#5558,齐心 习母
 epicdoer#2966,毛泽车
 ternaryjog#6069,习皇帝万岁
+bigtunnel#1506,카제하야가꿈 //Discrimination against Chinese
 
 ## 冒充开发者
 polkaoval#0453,自作Modな橋本環奈
 
 ## Other
 tenthrope#3476,Dronecool
+## teaming and harassing hosts in multiple lobbies
+broadbarn#7413,niah
+tidytrice#2024,Alisa?(either this or above one)

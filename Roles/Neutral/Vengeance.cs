@@ -1,7 +1,7 @@
 using AmongUs.GameOptions;
+using Hazel;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -20,7 +20,7 @@ public static class Vengeance
     private static bool IsRevenge;
     private static int Timer;
     private static bool Success;
-    private static PlayerControl Killer;
+    private static byte Killer;
     private static float tempKillTimer;
 
     public static void SetupCustomOption()
@@ -38,19 +38,50 @@ public static class Vengeance
         playerIdList = new();
         IsRevenge = false;
         Success = false;
-        Killer = null;
+        Killer = byte.MaxValue;
         tempKillTimer = 0;
     }
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         Timer = RevengeTime.GetInt();
+        _ = new LateTask(() => { SendRPCSyncTimer(Timer); }, 8f, "Vengeance Set Timer RPC");
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
     public static bool IsEnable => playerIdList.Any();
+    public static void SendRPCSyncTimer(int timer)
+    {
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncVengeanceTimer, SendOption.Reliable, -1);
+        writer.Write(timer);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+    public static void ReceiveRPCSyncTimer(MessageReader reader)
+    {
+        if (AmongUsClient.Instance.AmHost) return;
+
+        Timer = reader.ReadInt32();
+    }
+    public static void SendRPC(bool isRevenge, bool success, byte killer, float tempKillTimer)
+    {
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncVengeanceData, SendOption.Reliable, -1);
+        writer.Write(isRevenge);
+        writer.Write(success);
+        writer.Write(killer);
+        writer.Write(tempKillTimer);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+    public static void ReceiveRPC(MessageReader reader)
+    {
+        if (AmongUsClient.Instance.AmHost) return;
+
+        IsRevenge = reader.ReadBoolean();
+        Success = reader.ReadBoolean();
+        Killer = reader.ReadByte();
+        tempKillTimer = reader.ReadSingle();
+    }
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
     public static bool OnKillAttempt(PlayerControl killer, PlayerControl target)
@@ -60,10 +91,7 @@ public static class Vengeance
         if (target == null) return false;
         if (IsRevenge) return true;
 
-        var rd = IRandom.Instance;
-        var vents = Object.FindObjectsOfType<Vent>();
-        var vent = vents[rd.Next(0, vents.Count)];
-        _ = new LateTask(() => { Utils.TP(target.NetTransform, new Vector2(vent.transform.position.x, vent.transform.position.y)); }, 0.01f);
+        _ = new LateTask(target.TPtoRndVent, 0.01f);
 
         Timer = RevengeTime.GetInt();
         Countdown(Timer, target);
@@ -71,7 +99,9 @@ public static class Vengeance
         killer.SetKillCooldown();
         tempKillTimer = target.killTimer;
         target.SetKillCooldown(time: 1f);
-        Killer = killer;
+        Killer = killer.PlayerId;
+
+        SendRPC(IsRevenge, Success, Killer, tempKillTimer);
 
         return false;
     }
@@ -82,11 +112,14 @@ public static class Vengeance
         {
             Timer = RevengeTime.GetInt();
             Success = false;
+            SendRPCSyncTimer(Timer);
+            SendRPC(IsRevenge, Success, Killer, tempKillTimer);
             return;
         }
         if ((seconds <= 0 || GameStates.IsMeeting) && player.IsAlive()) { player.Kill(player); return; }
         player.Notify(string.Format(GetString("VengeanceRevenge"), seconds), 1.1f);
         Timer = seconds;
+        SendRPCSyncTimer(Timer);
 
         _ = new LateTask(() => { Countdown(seconds - 1, player); }, 1.01f);
     }
@@ -96,12 +129,13 @@ public static class Vengeance
         if (target == null) return false;
 
         if (!IsRevenge) return true;
-        else if (target == Killer)
+        else if (target.PlayerId == Killer)
         {
             Success = true;
             killer.Notify(GetString("VengeanceSuccess"));
             killer.SetKillCooldown(KillCooldown.GetFloat() + tempKillTimer);
             IsRevenge = false;
+            SendRPC(IsRevenge, Success, Killer, tempKillTimer);
             return true;
         }
         else

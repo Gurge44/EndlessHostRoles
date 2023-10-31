@@ -125,7 +125,7 @@ internal class CustomRoleSelector
             ImpOnList.Remove(select);
             rolesToAssign.Add(select);
             readyRoleNum++;
-            Logger.Info(select.ToString() + " 加入内鬼职业待选列表（优先）", "CustomRoleSelector");
+            Logger.Info(select.ToString() + " Join the mole role waiting list (priority)", "CustomRoleSelector");
             if (readyRoleNum >= playerCount) goto EndOfAssign;
             if (readyRoleNum >= optImpNum) break;
         }
@@ -138,7 +138,7 @@ internal class CustomRoleSelector
                 ImpRateList.Remove(select);
                 rolesToAssign.Add(select);
                 readyRoleNum++;
-                Logger.Info(select.ToString() + " 加入内鬼职业待选列表", "CustomRoleSelector");
+                Logger.Info(select.ToString() + " Add to the role waiting list", "CustomRoleSelector");
                 if (readyRoleNum >= playerCount) goto EndOfAssign;
                 if (readyRoleNum >= optImpNum) break;
             }
@@ -351,7 +351,7 @@ internal class CustomRoleSelector
 
             var roleId = rd.Next(0, rolesToAssign.Count);
             RoleResult.Add(AllPlayer[0], rolesToAssign[roleId]);
-            Logger.Info($"职业分配：{AllPlayer[0].GetRealName()} => {rolesToAssign[roleId]}", "CustomRoleSelector");
+            Logger.Info($"Role assigned：{AllPlayer[0].GetRealName()} => {rolesToAssign[roleId]}", "CustomRoleSelector");
             AllPlayer.RemoveAt(0);
             rolesToAssign.RemoveAt(roleId);
 
@@ -364,9 +364,9 @@ internal class CustomRoleSelector
         }
 
         if (AllPlayer.Any())
-            Logger.Error("职业分配错误：存在未被分配职业的玩家", "CustomRoleSelector");
+            Logger.Error("Role assignment error: There are players who have not been assigned a role", "CustomRoleSelector");
         if (rolesToAssign.Any())
-            Logger.Error("职业分配错误：存在未被分配的职业", "CustomRoleSelector");
+            Logger.Error("Team assignment error: There is an unassigned team", "CustomRoleSelector");
 
     }
 

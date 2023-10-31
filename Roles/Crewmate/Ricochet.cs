@@ -1,5 +1,6 @@
 namespace TOHE.Roles.Crewmate
 {
+    using Hazel;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -39,6 +40,35 @@ namespace TOHE.Roles.Crewmate
             UseLimit.Add(playerId, UseLimitOpt.GetInt());
         }
         public static bool IsEnable => playerIdList.Any();
+        public static void SendRPC(byte playerId, bool isMinus)
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRicochetLimit, SendOption.Reliable, -1);
+            writer.Write(playerId);
+            writer.Write(isMinus);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        public static void SendRPCSyncTarget(byte targetId)
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRicochetTarget, SendOption.Reliable, -1);
+            writer.Write(targetId);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        public static void ReceiveRPC(MessageReader reader)
+        {
+            if (AmongUsClient.Instance.AmHost) return;
+
+            byte playerId = reader.ReadByte();
+            bool isMinus = reader.ReadBoolean();
+
+            if (isMinus) UseLimit[playerId]--;
+            else UseLimit[playerId]++;
+        }
+        public static void ReceiveRPCSyncTarget(MessageReader reader)
+        {
+            if (AmongUsClient.Instance.AmHost) return;
+
+            ProtectAgainst = reader.ReadByte();
+        }
         public static bool OnKillAttempt(PlayerControl killer, PlayerControl target)
         {
             if (killer == null) return false;
@@ -64,11 +94,14 @@ namespace TOHE.Roles.Crewmate
             {
                 UseLimit[pc.PlayerId] -= 1;
                 ProtectAgainst = target.PlayerId;
+                SendRPC(pc.PlayerId, true);
+                SendRPCSyncTarget(ProtectAgainst);
             }
         }
         public static void OnReportDeadBody()
         {
             ProtectAgainst = byte.MaxValue;
+            SendRPCSyncTarget(ProtectAgainst);
         }
         public static string GetProgressText(byte playerId, bool comms)
         {

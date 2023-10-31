@@ -218,7 +218,7 @@ class CreatePlayerPatch
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        Logger.Msg($"创建玩家数据：ID{client.Character.PlayerId}: {client.PlayerName}", "CreatePlayer");
+        Logger.Msg($"Create player data：ID {client.Character.PlayerId}: {client.PlayerName}", "CreatePlayer");
 
         //规范昵称
         var name = client.PlayerName;
@@ -238,7 +238,7 @@ class CreatePlayerPatch
             _ = new LateTask(() =>
             {
                 if (client.Character == null) return;
-                Logger.Warn($"规范昵称：{client.PlayerName} => {name}", "Name Format");
+                Logger.Warn($"Standard nickname：{client.PlayerName} => {name}", "Name Format");
                 client.Character.RpcSetName(name);
             }, 1f, "Name Format");
         }

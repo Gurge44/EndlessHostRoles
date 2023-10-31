@@ -58,11 +58,11 @@ public static class Judge
     public static bool IsEnable => playerIdList.Any();
     public static void OnReportDeadBody()
     {
-        TrialLimit.Clear();
-        for (int i = 0; i < playerIdList.Count; i++)
+        List<byte> list = TrialLimit.Keys.ToList();
+        for (int i = 0; i < list.Count; i++)
         {
-            byte pc = playerIdList[i];
-            TrialLimit.Add(pc, TrialLimitPerMeeting.GetInt());
+            byte pid = list[i];
+            TrialLimit[pid] = TrialLimitPerMeeting.GetInt();
         }
     }
     public static bool TrialMsg(PlayerControl pc, string msg, bool isUI = false)

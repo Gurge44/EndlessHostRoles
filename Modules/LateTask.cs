@@ -8,6 +8,7 @@ class LateTask
     public string name;
     public float timer;
     public Action action;
+    public bool log;
     public static List<LateTask> Tasks = new();
     public bool Run(float deltaTime)
     {
@@ -19,13 +20,21 @@ class LateTask
         }
         return false;
     }
-    public LateTask(Action action, float time, string name = "No Name Task")
+    /// <summary>
+    /// Creates a task that will be automatically completed after the specified amount of time
+    /// </summary>
+    /// <param name="action">The delayed task</param>
+    /// <param name="time">The time to wait until the task is run</param>
+    /// <param name="name">The name of the task</param>
+    /// <param name="log">Whether to send log of the creation of the Late Task</param>
+    public LateTask(Action action, float time, string name = "No Name Task", bool log = true)
     {
         this.action = action;
         timer = time;
         this.name = name;
+        this.log = log;
         Tasks.Add(this);
-        if (name != "")
+        if (name != "" && log)
             Logger.Info("\"" + name + "\" is created", "LateTask");
     }
     public static void Update(float deltaTime)
@@ -38,7 +47,7 @@ class LateTask
             {
                 if (task.Run(deltaTime))
                 {
-                    if (task.name != string.Empty)
+                    if (task.name != string.Empty && task.log)
                         Logger.Info($"\"{task.name}\" is finished", "LateTask");
                     TasksToRemove.Add(task);
                 }

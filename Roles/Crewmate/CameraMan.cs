@@ -1,5 +1,6 @@
 namespace TOHE.Roles.Crewmate
 {
+    using Hazel;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -40,6 +41,23 @@ namespace TOHE.Roles.Crewmate
             UseLimit.Add(playerId, UseLimitOpt.GetInt());
         }
         public static bool IsEnable => playerIdList.Any();
+        public static void SendRPC(byte playerId, bool isMinus)
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCameraManLimit, SendOption.Reliable, -1);
+            writer.Write(playerId);
+            writer.Write(isMinus);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        public static void ReceiveRPC(MessageReader reader)
+        {
+            if (AmongUsClient.Instance.AmHost) return;
+
+            byte playerId = reader.ReadByte();
+            bool isMinus = reader.ReadBoolean();
+
+            if (isMinus) UseLimit[playerId]--;
+            else UseLimit[playerId]++;
+        }
         public static void OnEnterVent(PlayerControl pc)
         {
             if (pc == null) return;
@@ -48,6 +66,7 @@ namespace TOHE.Roles.Crewmate
             if (UseLimit[pc.PlayerId] >= 1)
             {
                 UseLimit[pc.PlayerId] -= 1;
+                SendRPC(pc.PlayerId, true);
                 Main.CameraManCD.TryAdd(pc.PlayerId, GetTimeStamp());
 
                 Vector2 pos;

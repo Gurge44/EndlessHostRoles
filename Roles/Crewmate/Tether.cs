@@ -1,5 +1,6 @@
 namespace TOHE.Roles.Crewmate
 {
+    using Hazel;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -42,6 +43,35 @@ namespace TOHE.Roles.Crewmate
             UseLimit.Add(playerId, UseLimitOpt.GetInt());
         }
         public static bool IsEnable => playerIdList.Any();
+        public static void SendRPC(byte playerId, bool isMinus)
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTetherLimit, SendOption.Reliable, -1);
+            writer.Write(playerId);
+            writer.Write(isMinus);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        public static void SendRPCSyncTarget(byte targetId)
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTetherTarget, SendOption.Reliable, -1);
+            writer.Write(targetId);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        public static void ReceiveRPC(MessageReader reader)
+        {
+            if (AmongUsClient.Instance.AmHost) return;
+
+            byte playerId = reader.ReadByte();
+            bool isMinus = reader.ReadBoolean();
+
+            if (isMinus) UseLimit[playerId]--;
+            else UseLimit[playerId]++;
+        }
+        public static void ReceiveRPCSyncTarget(MessageReader reader)
+        {
+            if (AmongUsClient.Instance.AmHost) return;
+
+            Target = reader.ReadByte();
+        }
         public static void OnEnterVent(PlayerControl pc, int ventId, bool isPet = false)
         {
             if (pc == null) return;
@@ -77,11 +107,14 @@ namespace TOHE.Roles.Crewmate
             {
                 UseLimit[pc.PlayerId] -= 1;
                 Target = target.PlayerId;
+                SendRPC(pc.PlayerId, true);
+                SendRPCSyncTarget(Target);
             }
         }
         public static void OnReportDeadBody()
         {
             Target = byte.MaxValue;
+            SendRPCSyncTarget(Target);
         }
         public static string GetProgressText(byte playerId, bool comms)
         {
