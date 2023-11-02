@@ -45,7 +45,7 @@ namespace TOHE.Roles.Neutral
         }
 
         private static int InfectCount;
-        private static Dictionary<byte, float> InfectInfos;
+        private static readonly Dictionary<byte, float> InfectInfos;
         private static bool InfectActive;
         private static bool LateCheckWin;
 
@@ -94,7 +94,7 @@ namespace TOHE.Roles.Neutral
         }
         public static void SendRPC(byte targetId, float rate)
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.setPlaguedPlayer, SendOption.Reliable, -1); ;
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncPlagueDoctor, SendOption.Reliable, -1);
             writer.Write(targetId);
             writer.Write(rate);
             AmongUsClient.Instance.FinishRpcImmediately(writer);

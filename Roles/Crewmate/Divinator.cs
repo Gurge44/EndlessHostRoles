@@ -176,6 +176,7 @@ public static class Divinator
                 CustomRoles.Executioner or
                 CustomRoles.Lawyer or
                 CustomRoles.Snitch or
+                CustomRoles.Penguin or
                 CustomRoles.Disperser or
                 CustomRoles.Doctor
                 => "Result9",

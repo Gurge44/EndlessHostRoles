@@ -375,6 +375,9 @@ public class PlayerGameOptionsSender : GameOptionsSender
             case CustomRoles.NSerialKiller:
                 NSerialKiller.ApplyGameOptions(opt);
                 break;
+            case CustomRoles.Penguin:
+                Penguin.ApplyGameOptions(opt);
+                break;
             case CustomRoles.PlagueDoctor:
                 PlagueDoctor.ApplyGameOptions(opt);
                 break;

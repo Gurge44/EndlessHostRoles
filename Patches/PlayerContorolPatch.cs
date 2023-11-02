@@ -250,6 +250,9 @@ class CheckMurderPatch
                         killer.SyncSettings();
                     }
                     break;
+                case CustomRoles.Penguin:
+                    if (!Penguin.OnCheckMurderAsKiller(killer, target)) return false;
+                    break;
                 case CustomRoles.Sapper:
                     return false;
                 case CustomRoles.Saboteur:
@@ -351,7 +354,7 @@ class CheckMurderPatch
                     if (!HexMaster.OnCheckMurder(killer, target)) return false;
                     break;
                 case CustomRoles.PlagueDoctor:
-                    PlagueDoctor.OnPDinfect(killer, target);
+                    if (!PlagueDoctor.OnPDinfect(killer, target)) return false;
                     break;
                 case CustomRoles.Puppeteer:
                     if (target.Is(CustomRoles.Needy) || target.Is(CustomRoles.Lazy) || Medic.ProtectList.Contains(target.PlayerId)) return false;

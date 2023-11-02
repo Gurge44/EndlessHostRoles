@@ -1116,6 +1116,8 @@ public static class Options
         InhibitorCDAfterMeetings = FloatOptionItem.Create(1511, "AfterMeetingKillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Inhibitor])
             .SetValueFormat(OptionFormat.Seconds);
+        RoleLoadingText = "Impostor roles\nPenguin";
+        Penguin.SetupCustomOption();
         RoleLoadingText = "Impostor roles\nSapper";
         Sapper.SetupCustomOption();
         RoleLoadingText = "Impostor roles\nMastermind";
