@@ -1845,6 +1845,8 @@ public static class Options
         RoleLoadingText = "Neutral roles\nSerial Killer";
 
         NSerialKiller.SetupCustomOption();
+        RoleLoadingText = "Neutral roles\nCurse";
+        PlagueDoctor.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nPostman";
         Postman.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nReckless";

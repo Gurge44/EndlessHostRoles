@@ -673,6 +673,8 @@ class MeetingHudStartPatch
         void AddMsg(string text, byte sendTo = 255, string title = "")
             => msgToSend.Add((text, sendTo, title));
 
+        ChatManager.SendPreviousMessagesToAll(); // To fix chatting during the ejection screen
+
         //首次会议技能提示
         if (Options.SendRoleDescriptionFirstMeeting.GetBool() && MeetingStates.FirstMeeting)
             foreach (var pc in Main.AllAlivePlayerControls.Where(x => !x.IsModClient()))
@@ -1015,6 +1017,7 @@ class MeetingHudStartPatch
                 //   case CustomRoles.Sidekick:
                 case CustomRoles.Poisoner:
                 case CustomRoles.NSerialKiller:
+                case CustomRoles.PlagueDoctor:
                 case CustomRoles.Reckless:
                 case CustomRoles.Magician:
                 case CustomRoles.WeaponMaster:
@@ -1187,6 +1190,7 @@ class MeetingHudStartPatch
             sb.Append(Totocalcio.TargetMark(seer, target));
             sb.Append(Romantic.TargetMark(seer, target));
             sb.Append(Lawyer.LawyerMark(seer, target));
+            sb.Append(PlagueDoctor.GetMarkOthers(seer, target, isForMeeting: true));
 
             //会議画面ではインポスター自身の名前にSnitchマークはつけません。
 

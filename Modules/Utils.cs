@@ -504,6 +504,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.NSerialKiller:
+            case CustomRoles.PlagueDoctor:
             case CustomRoles.Postman:
             case CustomRoles.Reckless:
             case CustomRoles.WeaponMaster:
@@ -761,6 +762,9 @@ public static class Utils
                         Color SKColor = SKTime < 10 ? SKTime % 2 == 1 ? Color.yellow : Color.red : Color.white;
                         if (SKTime <= 20) ProgressText.Append(ColorString(SKColor, $"<color=#777777>-</color> {SKTime}s"));
                     }
+                    break;
+                case CustomRoles.PlagueDoctor:
+                    ProgressText.Append(PlagueDoctor.GetProgressText(comms));
                     break;
                 case CustomRoles.Postman:
                     ProgressText.Append(Postman.GetProgressText(playerId));
@@ -2506,12 +2510,15 @@ public static class Utils
                 TargetMark.Append(Romantic.TargetMark(seer, target));
                 TargetMark.Append(Lawyer.LawyerMark(seer, target));
                 TargetMark.Append(Deathpact.GetDeathpactMark(seer, target));
+                TargetMark.Append(PlagueDoctor.GetMarkOthers(seer, target));
 
                 //KB目标玩家名字后缀
                 TargetSuffix.Clear();
 
                 if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
                     TargetSuffix.Append(SoloKombatManager.GetDisplayHealth(target));
+
+                TargetSuffix.Append(PlagueDoctor.GetLowerTextOthers(seer, target));
 
                 string TargetDeathReason = string.Empty;
                 if (seer.KnowDeathReason(target))
@@ -2598,6 +2605,7 @@ public static class Utils
         if (SerialKiller.IsEnable()) SerialKiller.AfterMeetingTasks();
         if (Spiritualist.IsEnable) Spiritualist.AfterMeetingTasks();
         if (Jailor.IsEnable) Jailor.AfterMeetingTasks();
+        if (PlagueDoctor.IsEnable) PlagueDoctor.AfterMeetingTasks();
         if (Vulture.IsEnable) Vulture.AfterMeetingTasks();
         //if (Baker.IsEnable()) Baker.AfterMeetingTasks();
         if (CopyCat.IsEnable()) CopyCat.AfterMeetingTasks();
@@ -2711,6 +2719,9 @@ public static class Utils
                     Lawyer.Target.Remove(target.PlayerId);
                     Lawyer.SendRPC(target.PlayerId);
                 }
+                break;
+            case CustomRoles.PlagueDoctor:
+                PlagueDoctor.OnPDdeath(target.GetRealKiller());
                 break;
             case CustomRoles.CyberStar:
                 if (GameStates.IsMeeting)

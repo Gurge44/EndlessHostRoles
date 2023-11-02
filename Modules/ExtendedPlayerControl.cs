@@ -489,6 +489,7 @@ static class ExtendedPlayerControl
             CustomRoles.Pyromaniac => true,
             CustomRoles.Eclipse => true,
             CustomRoles.NSerialKiller => true,
+            CustomRoles.PlagueDoctor => true,
             CustomRoles.Magician => true,
             CustomRoles.WeaponMaster => true,
             CustomRoles.Postman => true,
@@ -589,6 +590,7 @@ static class ExtendedPlayerControl
             CustomRoles.Pyromaniac => pc.IsAlive(),
             CustomRoles.Eclipse => pc.IsAlive(),
             CustomRoles.NSerialKiller => pc.IsAlive(),
+            CustomRoles.PlagueDoctor => pc.IsAlive() && PlagueDoctor.CanUseKillButton(),
             CustomRoles.Postman => pc.IsAlive() && !Postman.IsFinished,
             CustomRoles.Magician => pc.IsAlive(),
             CustomRoles.WeaponMaster => pc.IsAlive() && WeaponMaster.CanKill(pc),
@@ -670,6 +672,7 @@ static class ExtendedPlayerControl
             CustomRoles.PlagueBearer or
             CustomRoles.Admirer or
             CustomRoles.Amnesiac or
+            CustomRoles.PlagueDoctor or
             CustomRoles.Crusader
             => false,
 
@@ -764,6 +767,7 @@ static class ExtendedPlayerControl
             CustomRoles.Pyromaniac or
             CustomRoles.Eclipse or
             CustomRoles.NSerialKiller or
+            CustomRoles.PlagueDoctor or
             CustomRoles.Reckless or
             CustomRoles.Postman or
             CustomRoles.Vengeance or
@@ -938,6 +942,9 @@ static class ExtendedPlayerControl
                 break;
             case CustomRoles.NSerialKiller:
                 NSerialKiller.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.PlagueDoctor:
+                PlagueDoctor.SetKillCooldown(player.PlayerId);
                 break;
             case CustomRoles.WeaponMaster:
                 WeaponMaster.SetKillCooldown(player.PlayerId);

@@ -350,6 +350,9 @@ class CheckMurderPatch
                 case CustomRoles.HexMaster:
                     if (!HexMaster.OnCheckMurder(killer, target)) return false;
                     break;
+                case CustomRoles.PlagueDoctor:
+                    PlagueDoctor.OnPDinfect(killer, target);
+                    break;
                 case CustomRoles.Puppeteer:
                     if (target.Is(CustomRoles.Needy) || target.Is(CustomRoles.Lazy) || Medic.ProtectList.Contains(target.PlayerId)) return false;
                     if (killer.CheckDoubleTrigger(target, () =>
@@ -1030,6 +1033,7 @@ class MurderPlayerPatch
         PlayerControl killer = __instance; // Alternative variable
         if (target.PlayerId == Main.GodfatherTarget) killer.RpcSetCustomRole(CustomRoles.Refugee);
 
+        PlagueDoctor.OnAnyMurder();
 
         // Replacement process when the actual killer and killer are different
         if (Sniper.IsEnable)
@@ -1838,6 +1842,7 @@ class ReportDeadBodyPatch
         if (Hitman.IsEnable) Hitman.OnReportDeadBody();
         if (Gambler.IsEnable) Gambler.OnReportDeadBody();
         if (Tracker.IsEnable) Tracker.OnReportDeadBody();
+        if (PlagueDoctor.IsEnable) PlagueDoctor.OnReportDeadBody();
         if (Sapper.IsEnable) Sapper.OnReportDeadBody();
         if (Magician.IsEnable) Magician.OnReportDeadBody();
         if (Reckless.IsEnable) Reckless.OnReportDeadBody();
@@ -2037,6 +2042,9 @@ class FixedUpdatePatch
                     break;
                 case CustomRoles.SerialKiller:
                     SerialKiller.FixedUpdate(player);
+                    break;
+                case CustomRoles.PlagueDoctor:
+                    PlagueDoctor.OnFixedUpdate(player);
                     break;
                 case CustomRoles.Gambler when !lowLoad:
                     Gambler.OnFixedUpdate(player);
@@ -2928,6 +2936,7 @@ class FixedUpdatePatch
                 if (Totocalcio.IsEnable) Mark.Append(Totocalcio.TargetMark(seer, target));
                 if (Romantic.IsEnable || VengefulRomantic.IsEnable || RuthlessRomantic.IsEnable) Mark.Append(Romantic.TargetMark(seer, target));
                 if (Lawyer.IsEnable()) Mark.Append(Lawyer.LawyerMark(seer, target));
+                if (PlagueDoctor.IsEnable) Mark.Append(PlagueDoctor.GetMarkOthers(seer, target));
 
                 if (Sniper.IsEnable && target.AmOwner)
                 {
@@ -2979,6 +2988,8 @@ class FixedUpdatePatch
                 if (EvilTracker.IsEnable) Suffix.Append(EvilTracker.GetTargetArrow(seer, target));
 
                 if (Bloodhound.IsEnable) Suffix.Append(Bloodhound.GetTargetArrow(seer, target));
+
+                if (PlagueDoctor.IsEnable) Suffix.Append(PlagueDoctor.GetLowerTextOthers(seer, target));
 
                 if (Tracker.IsEnable) Suffix.Append(Tracker.GetTrackerArrow(seer, target));
 

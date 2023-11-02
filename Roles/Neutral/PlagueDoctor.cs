@@ -1,0 +1,279 @@
+﻿using AmongUs.GameOptions;
+using Hazel;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using UnityEngine;
+using static TOHE.Translator;
+
+namespace TOHE.Roles.Neutral
+{
+    public static class PlagueDoctor
+    {
+        private static readonly int Id = 641700;
+        public static List<byte> playerIdList = new();
+
+        private static OptionItem OptionInfectLimit;
+        private static OptionItem OptionInfectWhenKilled;
+        private static OptionItem OptionInfectTime;
+        private static OptionItem OptionInfectDistance;
+        private static OptionItem OptionInfectInactiveTime;
+        private static OptionItem OptionInfectCanInfectSelf;
+        private static OptionItem OptionInfectCanInfectVent;
+
+        private static int InfectLimit;
+        private static bool InfectWhenKilled;
+        private static float InfectTime;
+        private static float InfectDistance;
+        private static float InfectInactiveTime;
+        private static bool CanInfectSelf;
+        private static bool CanInfectVent;
+
+        public static void SetupCustomOption()
+        {
+            OptionInfectLimit = IntegerOptionItem.Create(Id + 10, "PlagueDoctorInfectLimit", new(1, 3, 1), 1, TabGroup.NeutralRoles, false)
+                .SetValueFormat(OptionFormat.Times);
+            OptionInfectWhenKilled = BooleanOptionItem.Create(Id + 11, "PlagueDoctorInfectWhenKilled", false, TabGroup.NeutralRoles, false);
+            OptionInfectTime = FloatOptionItem.Create(Id + 12, "PlagueDoctorInfectTime", new(3f, 20f, 1f), 8f, TabGroup.NeutralRoles, false)
+               .SetValueFormat(OptionFormat.Seconds);
+            OptionInfectDistance = FloatOptionItem.Create(Id + 13, "PlagueDoctorInfectDistance", new(0.5f, 2f, 0.25f), 1.5f, TabGroup.NeutralRoles, false);
+            OptionInfectInactiveTime = FloatOptionItem.Create(Id + 14, "PlagueDoctorInfectInactiveTime", new(0.5f, 10f, 0.5f), 5f, TabGroup.NeutralRoles, false)
+               .SetValueFormat(OptionFormat.Seconds);
+            OptionInfectCanInfectSelf = BooleanOptionItem.Create(Id + 15, "PlagueDoctorCanInfectSelf", false, TabGroup.NeutralRoles, false);
+            OptionInfectCanInfectVent = BooleanOptionItem.Create(Id + 16, "PlagueDoctorCanInfectVent", false, TabGroup.NeutralRoles, false);
+        }
+
+        private static int InfectCount;
+        private static Dictionary<byte, float> InfectInfos;
+        private static bool InfectActive;
+        private static bool LateCheckWin;
+
+        public static void Init()
+        {
+            playerIdList = new();
+        }
+        public static void Add(byte playerId)
+        {
+            InfectLimit = OptionInfectLimit.GetInt();
+            InfectWhenKilled = OptionInfectWhenKilled.GetBool();
+            InfectTime = OptionInfectTime.GetFloat();
+            InfectDistance = OptionInfectDistance.GetFloat();
+            InfectInactiveTime = OptionInfectInactiveTime.GetFloat();
+            CanInfectSelf = OptionInfectCanInfectSelf.GetBool();
+            CanInfectVent = OptionInfectCanInfectVent.GetBool();
+
+            InfectCount = InfectLimit;
+
+            InfectActive = true;
+            if (Main.NormalOptions.MapId == 4)
+                // Fixed airship respawn selection delay
+                InfectInactiveTime += 5f;
+
+            playerIdList.Add(playerId);
+
+            if (!AmongUsClient.Instance.AmHost) return;
+            if (!Main.ResetCamPlayerList.Contains(playerId))
+                Main.ResetCamPlayerList.Add(playerId);
+        }
+        public static bool IsEnable => playerIdList.Any();
+        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
+        public static bool CanUseKillButton() => InfectCount != 0;
+        public static string GetProgressText(bool comms = false)
+        {
+            return Utils.ColorString(Utils.GetRoleColor(CustomRoles.PlagueDoctor).ShadeColor(0.25f), $"({InfectCount})");
+        }
+        public static void ApplyGameOptions(IGameOptions opt)
+        {
+            opt.SetVision(false);
+        }
+        public static bool CanInfect(PlayerControl player)
+        {
+            // Not a plague doctor, or capable of self-infection and infected person created
+            return player.PlayerId != playerIdList[0] || (CanInfectSelf && InfectCount == 0);
+        }
+        public static void SendRPC(byte targetId, float rate)
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.setPlaguedPlayer, SendOption.Reliable, -1); ;
+            writer.Write(targetId);
+            writer.Write(rate);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        public static void ReceiveRPC(MessageReader reader)
+        {
+            var targetId = reader.ReadByte();
+            var rate = reader.ReadSingle();
+            InfectInfos[targetId] = rate;
+        }
+        public static bool OnPDinfect(PlayerControl killer, PlayerControl target)
+        {
+            if (InfectCount > 0)
+            {
+                InfectCount--;
+                killer.RpcGuardAndKill(target);
+                DirectInfect(target);
+            }
+            return false;
+        }
+        public static void OnPDdeath(PlayerControl killer)
+        {
+            if (InfectWhenKilled && InfectCount > 0)
+            {
+                InfectCount = 0;
+                DirectInfect(killer);
+            }
+        }
+        public static void OnAnyMurder()
+        {
+            // You may win if an uninfected person dies.
+            LateCheckWin = true;
+        }
+        public static void OnReportDeadBody()
+        {
+            InfectActive = false;
+        }
+        public static void OnFixedUpdate(PlayerControl player)
+        {
+            if (!AmongUsClient.Instance.AmHost) return;
+
+            if (!GameStates.IsInTask) return;
+            if (LateCheckWin)
+            {
+                // After hanging/killing, check the victory conditions just to be sure.
+                LateCheckWin = false;
+                CheckWin();
+            }
+            if (!player.IsAlive() || !InfectActive) return;
+
+            if (InfectInfos.TryGetValue(player.PlayerId, out var rate) && rate >= 100)
+            {
+                // In case of infected person
+                var changed = false;
+                var inVent = player.inVent;
+                List<PlayerControl> updates = new();
+                for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+                {
+                    PlayerControl target = Main.AllAlivePlayerControls[i];
+                    // Plague doctors are excluded if they cannot infect themselves.
+                    if (!CanInfect(target)) continue;
+                    // Excluded if inside or outside the vent
+                    if (!CanInfectVent && target.inVent != inVent) continue;
+
+                    InfectInfos.TryGetValue(target.PlayerId, out var oldRate);
+                    // Exclude infected people
+                    if (oldRate >= 100) continue;
+
+                    // Exclude players outside the range
+                    var distance = Vector3.Distance(player.transform.position, target.transform.position);
+                    if (distance > InfectDistance) continue;
+
+                    var newRate = oldRate + Time.fixedDeltaTime / InfectTime * 100;
+                    newRate = Math.Clamp(newRate, 0, 100);
+                    InfectInfos[target.PlayerId] = newRate;
+                    if ((oldRate < 50 && newRate >= 50) || newRate >= 100)
+                    {
+                        changed = true;
+                        updates.Add(target);
+                        Logger.Info($"InfectRate[{target.GetNameWithRole()}]:{newRate}%", "OnCheckMurderAsKiller");
+                        SendRPC(target.PlayerId, newRate);
+                    }
+                }
+                if (changed)
+                {
+                    //If someone is infected
+                    CheckWin();
+                    for (int i = 0; i < updates.Count; i++)
+                    {
+                        Utils.NotifyRoles(SpecifySeer: updates[i]);
+                    }
+                }
+            }
+        }
+        public static void AfterMeetingTasks()
+        {
+            // You may win if a non-infected person is hanged.
+            LateCheckWin = true;
+
+            _ = new LateTask(() =>
+            {
+                Logger.Info("InfectActive", "PlagueDoctor");
+                InfectActive = true;
+            },
+            InfectInactiveTime, "ResetInfectInactiveTime");
+        }
+
+        public static string GetMarkOthers(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
+        {
+            seen ??= seer;
+            if (!CanInfect(seen)) return string.Empty;
+            if (!seer.Is(CustomRoles.PlagueDoctor) && seer.IsAlive()) return string.Empty;
+            return Utils.ColorString(Utils.GetRoleColor(CustomRoles.PlagueDoctor), GetInfectRateCharactor(seen));
+        }
+        public static string GetLowerTextOthers(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+        {
+            seen ??= seer;
+            if (!seen.Is(CustomRoles.PlagueDoctor)) return string.Empty;
+            if (!seer.Is(CustomRoles.PlagueDoctor) && seer.IsAlive()) return string.Empty;
+            var str = new StringBuilder(40);
+            for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+            {
+                PlayerControl player = Main.AllAlivePlayerControls[i];
+                if (!player.Is(CustomRoles.PlagueDoctor))
+                    str.Append(GetInfectRateCharactor(player));
+            }
+            return Utils.ColorString(Utils.GetRoleColor(CustomRoles.PlagueDoctor), str.ToString());
+        }
+        public static bool IsInfected(byte playerId)
+        {
+            InfectInfos.TryGetValue(playerId, out var rate);
+            return rate >= 100;
+        }
+        public static string GetInfectRateCharactor(PlayerControl player)
+        {
+            if (!CanInfect(player) || !player.IsAlive()) return "";
+            InfectInfos.TryGetValue(player.PlayerId, out var rate);
+            return rate switch
+            {
+                < 50 => "\u2581",
+                >= 50 and < 100 => "\u2584",
+                >= 100 => "\u2588",
+                _ => string.Empty,
+            };
+        }
+        public static void DirectInfect(PlayerControl player)
+        {
+            Logger.Info($"InfectRate[{player.GetNameWithRole()}]:100%", "OnCheckMurderAsKiller");
+            InfectInfos[player.PlayerId] = 100;
+            SendRPC(player.PlayerId, 100);
+            Utils.NotifyRoles();
+            CheckWin();
+        }
+        public static void CheckWin()
+        {
+            if (!AmongUsClient.Instance.AmHost) return;
+            // Invalid if someone's victory is being processed
+            if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return;
+
+            bool comprete = Main.AllAlivePlayerControls.All(p => p.Is(CustomRoles.PlagueDoctor) || IsInfected(p.PlayerId));
+
+            if (comprete)
+            {
+                InfectActive = false;
+
+                for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+                {
+                    PlayerControl player = Main.AllAlivePlayerControls[i];
+                    if (player.Is(CustomRoles.PlagueDoctor)) continue;
+                    player.SetRealKiller(null);
+                    player.Kill(player);
+                    var state = Main.PlayerStates[player.PlayerId];
+                    state.deathReason = PlayerState.DeathReason.Curse;
+                    state.SetDead();
+                }
+                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.PlagueDoctor);
+                foreach (var plagueDoctor in Main.AllPlayerControls.Where(p => p.Is(CustomRoles.PlagueDoctor)))
+                    CustomWinnerHolder.WinnerIds.Add(plagueDoctor.PlayerId);
+            }
+        }
+    }
+}

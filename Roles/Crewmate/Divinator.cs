@@ -335,6 +335,7 @@ public static class Divinator
                 CustomRoles.TimeManager or
                 CustomRoles.TimeMaster or
                 CustomRoles.TimeThief or
+                CustomRoles.PlagueDoctor or
                 CustomRoles.ShapeMaster or
                 CustomRoles.Tether or
                 CustomRoles.Sniper

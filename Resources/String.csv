@@ -2460,7 +2460,7 @@
 "DivinatorCheck.Result24","<b>{0}</b>是懒人、跟随者、鹈鹕、清道夫或秃鹫其中之一","<b>{0}</b> is either Lazy Guy, Hacker, Follower, Pelican, Vengeance, Scavenger, or Vulture","","",""
 "DivinatorCheck.Result25","<b>{0}</b>是扫把星、骑士、老兵或刽子手其中之一","<b>{0}</b> is either Jinx, Vigilante, Veteran, Enigma, Task Manager, Pyromaniac, or Hangman","","",""
 "DivinatorCheck.Result26","<b>{0}</b>是通灵师、灵魂召唤师、灵魂论者、寄生虫、隐匿者或魅影其中之一","<b>{0}</b> is either Medium, Camera Man, Spiritcaller, Spiritualist, Parasite, Swooper, or Wraith","","",""
-"DivinatorCheck.Result27","<b>{0}</b>可能是时间操控者, 时间之主, 蚀时者, 千面鬼, 或者狙击手其中之一","<b>{0}</b> is either Time Manager, Time Master, Time Thief, Tether, Shapemaster, or Sniper"
+"DivinatorCheck.Result27","<b>{0}</b>可能是时间操控者, 时间之主, 蚀时者, 千面鬼, 或者狙击手其中之一","<b>{0}</b> is either Time Manager, Curse, Time Master, Time Thief, Tether, Shapemaster, or Sniper"
 "DivinatorCheck.Result28","<b>{0}</b>可能是傀儡师, 巫婆, 捕快, 传送师, 龙卷风, 或者嗜血杀手其中之一","<b>{0}</b> is either Puppeteer, Deputy, Aid, Transporter, Twister, Mercenary","","",""
 "DivinatorCheck.Result29","<b>{0}</b>可能是船鬼, 展现者, 工作狂, 幻影, 或者恐怖分子其中之一","<b>{0}</b> is either Crewpostor, Marshall, Workaholic, Phantom, Speedrunner, or Terrorist","","",""
 
@@ -3455,6 +3455,7 @@
 "WinnerRoleText.Magician","","Magician Wins!","","",""
 "WinnerRoleText.Reckless","","Reckless Wins!","","",""
 "WinnerRoleText.WeaponMaster","","Weapon Master Wins!","","",""
+"WinnerRoleText.PlagueDoctor","","Curse Wins!","","",""
 
 
 "## Additional Winner Text"

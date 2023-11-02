@@ -33,8 +33,8 @@ public class Main : BasePlugin
     public static ConfigEntry<string> DebugKeyInput { get; private set; }
     public static readonly string MainMenuText = " ";
     public const string PluginGuid = "com.gurge44.toheplus";
-    public const string PluginVersion = "1.2.1";
-    public const string PluginDisplayVersion = "1.2.1";
+    public const string PluginVersion = "1.3.0";
+    public const string PluginDisplayVersion = "1.3.0";
     public static readonly string SupportedAUVersion = "2023.10.24";
     public const int PluginCreate = 3;
     public const bool Canary = false;
@@ -445,6 +445,7 @@ public class Main : BasePlugin
                 {CustomRoles.HexMaster, "#ff00ff"},
                 {CustomRoles.Wraith, "#4B0082"},
                 {CustomRoles.NSerialKiller, "#233fcc"},
+                {CustomRoles.PlagueDoctor, "#ff6633"},
                 {CustomRoles.Postman, "#00b893"},
                 {CustomRoles.Reckless, "#6e000d"},
                 {CustomRoles.Magician, "#BF5FFF"},
@@ -780,6 +781,7 @@ public enum CustomRoles
     Pelican,
     Revolutionist,
     NSerialKiller,
+    PlagueDoctor,
     Postman,
     Reckless,
     Magician,
@@ -933,6 +935,7 @@ public enum CustomWinner
     Wraith = CustomRoles.Wraith,
     //Pirate = CustomRoles.Pirate,
     SerialKiller = CustomRoles.NSerialKiller,
+    PlagueDoctor = CustomRoles.PlagueDoctor,
     Reckless = CustomRoles.Reckless,
     Magician = CustomRoles.Magician,
     WeaponMaster = CustomRoles.WeaponMaster,

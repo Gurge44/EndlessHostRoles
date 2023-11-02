@@ -280,6 +280,7 @@ internal class ChangeRoleSettings
             Merchant.Init();
             Mastermind.Init();
             NSerialKiller.Init();
+            PlagueDoctor.Init();
             Postman.Init();
             Magician.Init();
             WeaponMaster.Init();
@@ -865,6 +866,9 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.NSerialKiller:
                         NSerialKiller.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.PlagueDoctor:
+                        PlagueDoctor.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Postman:
                         Postman.Add(pc.PlayerId);

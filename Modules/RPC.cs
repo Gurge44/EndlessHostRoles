@@ -58,6 +58,7 @@ enum CustomRPC
 
     //Roles
     SetDrawPlayer,
+    SyncPlagueDoctor,
     SetAlchemistPotion,
     SetRicochetTarget,
     SetTetherTarget,
@@ -534,6 +535,9 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SetEvilTrackerTarget:
                 EvilTracker.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncPlagueDoctor:
+                PlagueDoctor.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetRealKiller:
                 byte targetId = reader.ReadByte();
@@ -1281,6 +1285,9 @@ internal static class RPC
                 break;
             case CustomRoles.NSerialKiller:
                 NSerialKiller.Add(targetId);
+                break;
+            case CustomRoles.PlagueDoctor:
+                PlagueDoctor.Add(targetId);
                 break;
             case CustomRoles.Magician:
                 Magician.Add(targetId);

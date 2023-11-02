@@ -413,6 +413,7 @@ class GameEndChecker
                 { (CustomRoles.Pestilence,      CustomWinner.Pestilence),         AlivePlayersCount(CountTypes.Pestilence) },
                 { (CustomRoles.PlagueBearer,    CustomWinner.Plaguebearer),       AlivePlayersCount(CountTypes.PlagueBearer) },
                 { (CustomRoles.NSerialKiller,   CustomWinner.SerialKiller),       AlivePlayersCount(CountTypes.NSerialKiller) },
+                { (CustomRoles.PlagueDoctor,    CustomWinner.PlagueDoctor),       AlivePlayersCount(CountTypes.PlagueDoctor) },
                 { (CustomRoles.WeaponMaster,    CustomWinner.WeaponMaster),       AlivePlayersCount(CountTypes.WeaponMaster) },
                 { (CustomRoles.Magician,        CustomWinner.Magician),           AlivePlayersCount(CountTypes.Magician) },
                 { (CustomRoles.Reckless,        CustomWinner.Reckless),           AlivePlayersCount(CountTypes.Reckless) },

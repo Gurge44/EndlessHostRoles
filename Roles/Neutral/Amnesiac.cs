@@ -388,6 +388,7 @@ public static class Amnesiac
         if (player.Is(CustomRoles.Refugee) && target.Is(CustomRoles.Refugee)) return true;
         if (player.Is(CustomRoles.Parasite) && target.Is(CustomRoles.Parasite)) return true;
         if (player.Is(CustomRoles.NSerialKiller) && target.Is(CustomRoles.NSerialKiller)) return true;
+        if (player.Is(CustomRoles.PlagueDoctor) && target.Is(CustomRoles.PlagueDoctor)) return true;
         if (player.Is(CustomRoles.Magician) && target.Is(CustomRoles.Magician)) return true;
         if (player.Is(CustomRoles.WeaponMaster) && target.Is(CustomRoles.WeaponMaster)) return true;
         if (player.Is(CustomRoles.Reckless) && target.Is(CustomRoles.Reckless)) return true;

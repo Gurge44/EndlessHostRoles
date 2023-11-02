@@ -178,6 +178,7 @@ public static class Oracle
             CustomRoles.Pursuer or
             CustomRoles.Poisoner or
             CustomRoles.NSerialKiller or
+            CustomRoles.PlagueDoctor or
             CustomRoles.Postman or
             CustomRoles.Magician or
             CustomRoles.WeaponMaster or
