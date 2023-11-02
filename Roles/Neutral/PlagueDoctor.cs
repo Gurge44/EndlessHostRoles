@@ -174,7 +174,7 @@ namespace TOHE.Roles.Neutral
                     {
                         changed = true;
                         updates.Add(target);
-                        Logger.Info($"InfectRate[{target.GetNameWithRole()}]:{newRate}%", "OnCheckMurderAsKiller");
+                        Logger.Info($"InfectRate [{target.GetNameWithRole()}]: {newRate}%", "PlagueDoctor");
                         SendRPC(target.PlayerId, newRate);
                     }
                 }
@@ -196,7 +196,7 @@ namespace TOHE.Roles.Neutral
 
             _ = new LateTask(() =>
             {
-                Logger.Info("InfectActive", "PlagueDoctor");
+                Logger.Info("Infect Active", "PlagueDoctor");
                 InfectActive = true;
             },
             InfectInactiveTime, "ResetInfectInactiveTime");
@@ -242,7 +242,7 @@ namespace TOHE.Roles.Neutral
         }
         public static void DirectInfect(PlayerControl player)
         {
-            Logger.Info($"InfectRate[{player.GetNameWithRole()}]:100%", "OnCheckMurderAsKiller");
+            Logger.Info($"InfectRate [{player.GetNameWithRole()}]: 100%", "PlagueDoctor");
             InfectInfos[player.PlayerId] = 100;
             SendRPC(player.PlayerId, 100);
             Utils.NotifyRoles();
