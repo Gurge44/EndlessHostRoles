@@ -127,6 +127,7 @@ public static class HudSpritePatch
                 case CustomRoles.Jailor:
                     newKillButton = CustomButton.Get("Jail");
                     break;
+                case CustomRoles.Sapper:
                 case CustomRoles.Bomber:
                 case CustomRoles.Nuker:
                     if (Options.UsePets.GetBool())

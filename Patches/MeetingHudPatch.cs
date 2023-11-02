@@ -1204,63 +1204,78 @@ class MeetingHudUpdatePatch
 
     public static void Postfix(MeetingHud __instance)
     {
-        // Meeting Skip with vote counting on keystroke (m + delete)
-        if (AmongUsClient.Instance.AmHost && Input.GetKeyDown(KeyCode.F6))
+        try
         {
-            __instance.CheckForEndVoting();
-        }
-
-        if (Options.DisableCrackedGlass.GetBool()) __instance.CrackedGlass = null;
-
-        if (AmongUsClient.Instance.AmHost && Input.GetMouseButtonUp(1) && Input.GetKey(KeyCode.LeftControl))
-        {
-            __instance.playerStates.DoIf(x => x.HighlightedFX.enabled, x =>
+            // Meeting Skip with vote counting on keystroke (m + delete)
+            if (AmongUsClient.Instance.AmHost && Input.GetKeyDown(KeyCode.F6))
             {
-                var player = Utils.GetPlayerById(x.TargetPlayerId);
-                if (player != null && !player.Data.IsDead)
+                __instance.CheckForEndVoting();
+            }
+
+            //if (Options.DisableCrackedGlass.GetBool()) __instance.CrackedGlass = null;
+
+            if (AmongUsClient.Instance.AmHost && Input.GetMouseButtonUp(1) && Input.GetKey(KeyCode.LeftControl))
+            {
+                __instance.playerStates.DoIf(x => x.HighlightedFX.enabled, x =>
                 {
-                    Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Execution;
-                    player.RpcExileV2();
-                    Main.PlayerStates[player.PlayerId].SetDead();
-                    Utils.SendMessage(string.Format(GetString("Message.Executed"), player.Data.PlayerName));
-                    Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}を処刑しました", "Execution");
-                    __instance.CheckForEndVoting();
-                }
-            });
+                    var player = Utils.GetPlayerById(x.TargetPlayerId);
+                    if (player != null && !player.Data.IsDead)
+                    {
+                        Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Execution;
+                        player.RpcExileV2();
+                        Main.PlayerStates[player.PlayerId].SetDead();
+                        Utils.SendMessage(string.Format(GetString("Message.Executed"), player.Data.PlayerName));
+                        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}を処刑しました", "Execution");
+                        __instance.CheckForEndVoting();
+                    }
+                });
+            }
+
+            //投票结束时销毁全部技能按钮
+            if (!GameStates.IsVoting && __instance.lastSecond < 1)
+            {
+                if (GameObject.Find("ShootButton") != null) ClearShootButton(__instance, true);
+                return;
+            }
+
+            //会议技能UI处理
+            bufferTime--;
+            if (bufferTime < 0 && __instance.discussionTimer > 0)
+            {
+                bufferTime = 10;
+                var myRole = PlayerControl.LocalPlayer.GetCustomRole();
+
+                //若某玩家死亡则修复会议该玩家状态
+                __instance.playerStates.Where(x => (!Main.PlayerStates.TryGetValue(x.TargetPlayerId, out var ps) || ps.IsDead) && !x.AmDead).Do(x => x.SetDead(x.DidReport, true));
+
+                //若玩家死亡则销毁技能按钮
+                if (myRole is CustomRoles.NiceGuesser or CustomRoles.EvilGuesser or CustomRoles.Judge or CustomRoles.NiceSwapper or CustomRoles.Councillor or CustomRoles.Guesser && !PlayerControl.LocalPlayer.IsAlive())
+                    ClearShootButton(__instance, true);
+
+                //若黑手党死亡则创建技能按钮
+                if (myRole is CustomRoles.Mafia && !PlayerControl.LocalPlayer.IsAlive() && GameObject.Find("ShootButton") == null)
+                    MafiaRevengeManager.CreateJudgeButton(__instance);
+                if (myRole is CustomRoles.Retributionist && !PlayerControl.LocalPlayer.IsAlive() && GameObject.Find("ShootButton") == null)
+                    RetributionistRevengeManager.CreateJudgeButton(__instance);
+                //if (myRole is CustomRoles.NiceSwapper && PlayerControl.LocalPlayer.IsAlive())
+                //    NiceSwapper.CreateSwapperButton(__instance);
+
+                //销毁死亡玩家身上的技能按钮
+                ClearShootButton(__instance);
+
+            }
         }
-
-        //投票结束时销毁全部技能按钮
-        if (!GameStates.IsVoting && __instance.lastSecond < 1)
+        catch (Exception ex)
         {
-            if (GameObject.Find("ShootButton") != null) ClearShootButton(__instance, true);
-            return;
-        }
-
-        //会议技能UI处理
-        bufferTime--;
-        if (bufferTime < 0 && __instance.discussionTimer > 0)
-        {
-            bufferTime = 10;
-            var myRole = PlayerControl.LocalPlayer.GetCustomRole();
-
-            //若某玩家死亡则修复会议该玩家状态
-            __instance.playerStates.Where(x => (!Main.PlayerStates.TryGetValue(x.TargetPlayerId, out var ps) || ps.IsDead) && !x.AmDead).Do(x => x.SetDead(x.DidReport, true));
-
-            //若玩家死亡则销毁技能按钮
-            if (myRole is CustomRoles.NiceGuesser or CustomRoles.EvilGuesser or CustomRoles.Judge or CustomRoles.NiceSwapper or CustomRoles.Councillor or CustomRoles.Guesser && !PlayerControl.LocalPlayer.IsAlive())
-                ClearShootButton(__instance, true);
-
-            //若黑手党死亡则创建技能按钮
-            if (myRole is CustomRoles.Mafia && !PlayerControl.LocalPlayer.IsAlive() && GameObject.Find("ShootButton") == null)
-                MafiaRevengeManager.CreateJudgeButton(__instance);
-            if (myRole is CustomRoles.Retributionist && !PlayerControl.LocalPlayer.IsAlive() && GameObject.Find("ShootButton") == null)
-                RetributionistRevengeManager.CreateJudgeButton(__instance);
-            //if (myRole is CustomRoles.NiceSwapper && PlayerControl.LocalPlayer.IsAlive())
-            //    NiceSwapper.CreateSwapperButton(__instance);
-
-            //销毁死亡玩家身上的技能按钮
-            ClearShootButton(__instance);
-
+            Logger.Fatal(ex.ToString(), "MeetingHudUpdatePatch.Postfix");
+            Logger.Warn("All Players and their info:", "Debug for Fatal Error");
+            for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+            {
+                PlayerControl pc = Main.AllPlayerControls[i];
+                Logger.Info($" {(pc.IsAlive() ? "Alive" : $"Dead ({Main.PlayerStates[pc.PlayerId].deathReason})")}, {Utils.GetProgressText(pc)}, {Utils.GetVitalText(pc.PlayerId)}", $"{pc.GetNameWithRole()} / {pc.PlayerId}");
+            }
+            Logger.Warn("-----------------", "Debug for Fatal Error");
+            Logger.SendInGame("An error occured with this meeting. Please use /dump and send the log to the developer.\nSorry for the inconvenience.");
         }
     }
 }

@@ -80,11 +80,12 @@ internal class ChatCommands
             Main.isChatCommand = true;
             switch (args[0])
             {
+                case "/w":
                 case "/win":
                 case "/winner":
                     canceled = true;
                     if (!Main.winnerNameList.Any()) Utils.SendMessage(GetString("NoInfoExists"));
-                    else Utils.SendMessage("<b><u>Winners:</b></u>\n" + string.Join(",", Main.winnerNameList));
+                    else Utils.SendMessage("<b><u>Winners:</b></u>\n" + string.Join(", ", Main.winnerNameList));
                     break;
 
                 case "/l":

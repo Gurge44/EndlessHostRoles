@@ -255,7 +255,7 @@ class CreatePlayerPatch
         }, 3f, "Welcome Message");
         if (Main.OverrideWelcomeMsg == string.Empty && Main.PlayerStates.Any() && Main.clientIdList.Contains(client.Id))
         {
-            if (Options.AutoDisplayKillLog.GetBool() && Main.PlayerStates.Any() && Main.clientIdList.Contains(client.Id))
+            if (Options.AutoDisplayKillLog.GetBool())
             {
                 _ = new LateTask(() =>
                 {

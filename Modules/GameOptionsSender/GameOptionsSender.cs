@@ -61,19 +61,12 @@ public abstract class GameOptionsSender
     }
     public virtual void SendOptionsArray(Il2CppStructArray<byte> optionArray)
     {
-        try
+        for (byte i = 0; i < GameManager.Instance.LogicComponents.Count; i++)
         {
-            for (byte i = 0; i < GameManager.Instance?.LogicComponents?.Count; i++)
+            if (GameManager.Instance.LogicComponents[(Index)i].TryCast<LogicOptions>(out _))
             {
-                if (GameManager.Instance.LogicComponents[(Index)i].TryCast<LogicOptions>(out _))
-                {
-                    SendOptionsArray(optionArray, i, -1);
-                }
+                SendOptionsArray(optionArray, i, -1);
             }
-        }
-        catch (Exception ex)
-        {
-            Logger.Fatal(ex.ToString(), "GameOptionsSender.SendOptionsArray-1");
         }
     }
     protected virtual void SendOptionsArray(Il2CppStructArray<byte> optionArray, byte LogicOptionsIndex, int targetClientId)
@@ -104,7 +97,7 @@ public abstract class GameOptionsSender
         }
         catch (Exception ex)
         {
-            Logger.Fatal(ex.ToString(), "GameOptionsSender.SendOptionsArray-2");
+            Logger.Fatal(ex.ToString(), "GameOptionsSender.SendOptionsArray");
         }
     }
     public abstract IGameOptions BuildGameOptions();

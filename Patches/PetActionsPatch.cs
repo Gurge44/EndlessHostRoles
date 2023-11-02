@@ -1,5 +1,7 @@
 using HarmonyLib;
+using MS.Internal.Xml.XPath;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
@@ -18,7 +20,7 @@ namespace TOHE;
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.TryPet))]
 class LocalPetPatch
 {
-    private static readonly System.Collections.Generic.Dictionary<byte, long> LastProcess = new();
+    private static readonly Dictionary<byte, long> LastProcess = new();
     public static bool Prefix(PlayerControl __instance)
     {
         if (!Options.UsePets.GetBool()) return true;
@@ -48,6 +50,7 @@ class LocalPetPatch
 [HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.HandleRpc))]
 class ExternalRpcPetPatch
 {
+    private static readonly Dictionary<byte, long> LastProcess = new();
     public static void Prefix(PlayerPhysics __instance, [HarmonyArgument(0)] byte callID)
     {
         if (!Options.UsePets.GetBool() || !AmongUsClient.Instance.AmHost || (RpcCalls)callID != RpcCalls.Pet) return;
@@ -69,6 +72,10 @@ class ExternalRpcPetPatch
             && GameStates.IsInTask
             && pc.GetCustomRole().PetActivatedAbility())
             physics.CancelPet();
+
+        if (!LastProcess.ContainsKey(pc.PlayerId)) LastProcess.TryAdd(pc.PlayerId, Utils.GetTimeStamp() - 2);
+        if (LastProcess[pc.PlayerId] + 1 >= Utils.GetTimeStamp()) return;
+        LastProcess[pc.PlayerId] = Utils.GetTimeStamp();
 
         Logger.Info($"Player {pc.GetNameWithRole().RemoveHtmlTags()} petted their pet", "PetActionTrigger");
 
@@ -332,13 +339,14 @@ class ExternalRpcPetPatch
                 Sniper.OnShapeshift(pc, !Sniper.IsAim[pc.PlayerId]);
                 break;
             case CustomRoles.Warlock:
+                if (!Main.isCurseAndKill.ContainsKey(pc.PlayerId)) Main.isCurseAndKill[pc.PlayerId] = false;
                 if (Main.CursedPlayers[pc.PlayerId] != null)//呪われた人がいるか確認
                 {
                     if (!Main.CursedPlayers[pc.PlayerId].Data.IsDead)
                     {
                         var cp = Main.CursedPlayers[pc.PlayerId];
                         UnityEngine.Vector2 cppos = cp.transform.position;
-                        System.Collections.Generic.Dictionary<PlayerControl, float> cpdistance = new();
+                        Dictionary<PlayerControl, float> cpdistance = new();
                         float dis;
                         for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
                         {

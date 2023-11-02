@@ -88,7 +88,7 @@ namespace TOHE.Roles.Impostor
             targetId = target.PlayerId;
             SendRPC(targetId);
 
-            _ = new LateTask(() => { hitman.CmdCheckRevertShapeshift(false); }, 1.5f, "Hitman RpcRevertShapeshift");
+            //_ = new LateTask(() => { hitman.CmdCheckRevertShapeshift(false); }, 1.5f, "Hitman RpcRevertShapeshift");
         }
 
         public static string GetProgressText()

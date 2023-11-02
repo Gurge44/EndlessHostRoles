@@ -22,7 +22,7 @@ public static class Jailor
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Jailor);
-        JailCooldown = FloatOptionItem.Create(Id + 10, "JailorJailCooldown", new(0f, 999f, 1f), 15f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jailor])
+        JailCooldown = FloatOptionItem.Create(Id + 10, "JailorJailCooldown", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jailor])
             .SetValueFormat(OptionFormat.Seconds);
         notifyJailedOnMeeting = BooleanOptionItem.Create(Id + 18, "notifyJailedOnMeeting", true, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jailor]);
     }
@@ -75,7 +75,7 @@ public static class Jailor
         byte jailerId = reader.ReadByte();
         if (!setTarget)
         {
-            int points = reader.ReadInt32();
+            _ = reader.ReadInt32();
             //if (JailorExeLimit.ContainsKey(jailerId)) JailorExeLimit[jailerId] = points;
             //else JailorExeLimit.Add(jailerId, MaxExecution.GetInt());
 

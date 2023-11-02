@@ -185,6 +185,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, long> RevolutionistLastTime = new();
     public static Dictionary<byte, int> RevolutionistCountdown = new();
     public static Dictionary<byte, byte> PuppeteerList = new();
+    public static Dictionary<byte, long> PuppeteerDelayList = new();
     public static Dictionary<byte, byte> TaglockedList = new();
     public static Dictionary<byte, byte> SpeedBoostTarget = new();
     public static Dictionary<byte, int> MayorUsedButtonCount = new();

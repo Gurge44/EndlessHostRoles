@@ -201,6 +201,7 @@ class HudManagerPatch
                     case CustomRoles.BallLightning:
                         __instance.KillButton?.OverrideText(GetString("BallLightningButtonText"));
                         break;
+                    case CustomRoles.Sapper:
                     case CustomRoles.Bomber:
                     case CustomRoles.Nuker:
                         if (Options.UsePets.GetBool()) __instance.PetButton?.OverrideText(GetString("BomberShapeshiftText"));

@@ -106,7 +106,7 @@ internal static class Assassin
                     Utils.TP(pc.NetTransform, target.GetTruePosition());
                     pc.ResetKillCooldown();
                     pc.SyncSettings();
-                    pc.SetKillCooldown();
+                    pc.SetKillCooldown(DefaultKillCooldown);
                     pc.RpcCheckAndMurder(target);
                 }
             }, UsePets.GetBool() ? 0.1f : 1.5f, "Assassin Assassinate");

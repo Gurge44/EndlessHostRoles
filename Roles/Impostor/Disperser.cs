@@ -24,7 +24,7 @@ public static class Disperser
             .SetValueFormat(OptionFormat.Seconds);
         DisperserShapeshiftDuration = FloatOptionItem.Create(Id + 6, "ShapeshiftDuration", new(1f, 30f, 1f), 1f, TabGroup.OtherRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
             .SetValueFormat(OptionFormat.Seconds);
-        DisperserLimitOpt = IntegerOptionItem.Create(Id + 7, "AbilityUseLimit", new(1, 5, 1), 1, TabGroup.OtherRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
+        DisperserLimitOpt = IntegerOptionItem.Create(Id + 7, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.OtherRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
             .SetValueFormat(OptionFormat.Times);
         DisperserAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 8, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.3f, TabGroup.OtherRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])

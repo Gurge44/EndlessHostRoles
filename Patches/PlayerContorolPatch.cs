@@ -352,11 +352,15 @@ class CheckMurderPatch
                     break;
                 case CustomRoles.Puppeteer:
                     if (target.Is(CustomRoles.Needy) || target.Is(CustomRoles.Lazy) || Medic.ProtectList.Contains(target.PlayerId)) return false;
-                    Main.PuppeteerList[target.PlayerId] = killer.PlayerId;
-                    killer.SetKillCooldown();
-                    killer.RPCPlayCustomSound("Line");
-                    NotifyRoles(SpecifySeer: killer);
-                    return false;
+                    if (killer.CheckDoubleTrigger(target, () =>
+                    {
+                        Main.PuppeteerList[target.PlayerId] = killer.PlayerId;
+                        Main.PuppeteerDelayList[target.PlayerId] = GetTimeStamp();
+                        killer.SetKillCooldown(time: Options.PuppeteerCD.GetFloat());
+                        killer.RPCPlayCustomSound("Line");
+                        NotifyRoles(SpecifySeer: killer);
+                    })) return false;
+                    break;
                 //case CustomRoles.NWitch:
                 //    //  if (target.Is(CustomRoles.Needy) || target.Is(CustomRoles.Lazy)) return false;
                 //    Main.TaglockedList[target.PlayerId] = killer.PlayerId;
@@ -1210,40 +1214,40 @@ class MurderPlayerPatch
         }
     }
 }
+
+// Triggered when the shapeshifter selects a target
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckShapeshift))]
 class CheckShapeshiftPatch
 {
-    public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, bool shouldAnimate)
+    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] bool shouldAnimate)
     {
-        Logger.Info($"Check Shapeshift Trigger - __instance: {__instance}, target: {target}, shouldAnimate: {shouldAnimate}", "Prefix");
-    }
-    public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, bool shouldAnimate)
-    {
-        Logger.Info($"Check Shapeshift Trigger - __instance: {__instance}, target: {target}, shouldAnimate: {shouldAnimate}", "Postfix");
+        return ShapeshiftPatch.ProcessShapeshift(__instance, target); // return false to cancel the shapeshift
     }
 }
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdCheckShapeshift))]
 class CmdCheckShapeshiftPatch
 {
-    public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, bool shouldAnimate)
+    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] bool shouldAnimate)
     {
-        CheckShapeshiftPatch.Prefix(__instance, target, shouldAnimate);
-    }
-    public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, bool shouldAnimate)
-    {
-        CheckShapeshiftPatch.Postfix(__instance, target, shouldAnimate);
+        return CheckShapeshiftPatch.Prefix(__instance, target, shouldAnimate);
     }
 }
+
+// Triggered when the egg animation starts playing
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Shapeshift))]
 class ShapeshiftPatch
 {
-    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] ref bool animate)
+    public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
+    {
+
+    }
+
+    public static bool ProcessShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
         if (!Main.ProcessShapeshifts) return true;
 
-        Logger.Info($"{__instance?.GetNameWithRole()} => {target?.GetNameWithRole()}", "Shapeshift");
+        Logger.Info($"{shapeshifter?.GetNameWithRole()} => {target?.GetNameWithRole()}", "Shapeshift");
 
-        var shapeshifter = __instance;
         var shapeshifting = shapeshifter.PlayerId != target.PlayerId;
 
         if (Main.CheckShapeshift.TryGetValue(shapeshifter.PlayerId, out var last) && last == shapeshifting)
@@ -1258,35 +1262,33 @@ class ShapeshiftPatch
         if (Sniper.IsEnable) Sniper.OnShapeshift(shapeshifter, shapeshifting);
 
         if (!AmongUsClient.Instance.AmHost) return true;
-        if (!shapeshifting) Camouflage.RpcSetSkin(__instance);
+        if (!shapeshifting) Camouflage.RpcSetSkin(shapeshifter);
 
         bool isSSneeded = true;
 
         if (!Pelican.IsEaten(shapeshifter.PlayerId) && !GameStates.IsVoting)
+        {
             switch (shapeshifter.GetCustomRole())
             {
                 case CustomRoles.EvilTracker:
                     EvilTracker.OnShapeshift(shapeshifter, target, shapeshifting);
-                    if (shapeshifting)
-                    {
-                        _ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "Evil Tracker RpcRevertShapeshift");
-                    }
+                    isSSneeded = false;
                     break;
                 case CustomRoles.RiftMaker:
                     RiftMaker.OnShapeshift(shapeshifter, shapeshifting);
+                    isSSneeded = false;
                     break;
                 case CustomRoles.Hitman:
                     Hitman.OnShapeshift(shapeshifter, target, shapeshifting);
+                    isSSneeded = false;
                     break;
                 case CustomRoles.FireWorks:
                     FireWorks.ShapeShiftState(shapeshifter, shapeshifting);
-                    if (shapeshifting)
-                    {
-                        _ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "FireWorks RpcRevertShapeshift");
-                    }
+                    isSSneeded = false;
                     break;
                 case CustomRoles.Sapper:
                     Sapper.OnShapeshift(shapeshifter);
+                    isSSneeded = false;
                     break;
                 case CustomRoles.Warlock:
                     if (Main.CursedPlayers[shapeshifter.PlayerId] != null)//呪われた人がいるか確認
@@ -1322,7 +1324,7 @@ class ShapeshiftPatch
                                     shapeshifter.SetKillCooldown();
                                     shapeshifter.Notify(GetString("WarlockControlKill"));
                                 }
-                                _ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "Warlock RpcRevertShapeshift");
+                                //_ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "Warlock RpcRevertShapeshift");
                             }
                             else
                             {
@@ -1332,6 +1334,7 @@ class ShapeshiftPatch
                         }
                         Main.CursedPlayers[shapeshifter.PlayerId] = null;
                     }
+                    isSSneeded = false;
                     break;
                 case CustomRoles.Escapee:
                     if (shapeshifting)
@@ -1349,10 +1352,7 @@ class ShapeshiftPatch
                             Main.EscapeeLocation.Add(shapeshifter.PlayerId, shapeshifter.GetTruePosition());
                         }
                     }
-                    if (shapeshifting)
-                    {
-                        _ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "Escapist RpcRevertShapeshift");
-                    }
+                    isSSneeded = false;
                     break;
                 case CustomRoles.Miner:
                     if (Main.LastEnteredVent.ContainsKey(shapeshifter.PlayerId))
@@ -1363,10 +1363,7 @@ class ShapeshiftPatch
                         Logger.Msg($"{shapeshifter.GetNameWithRole().RemoveHtmlTags()}:{position}", "MinerTeleport");
                         TP(shapeshifter.NetTransform, new Vector2(position.x, position.y));
                     }
-                    if (shapeshifting)
-                    {
-                        _ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "Miner RpcRevertShapeshift");
-                    }
+                    isSSneeded = false;
                     break;
                 case CustomRoles.Bomber:
                     if (shapeshifting)
@@ -1397,14 +1394,15 @@ class ShapeshiftPatch
                                 Main.PlayerStates[shapeshifter.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
                                 shapeshifter.Kill(shapeshifter);
                             }
-                            else
-                            {
-                                shapeshifter.CmdCheckRevertShapeshift(false);
-                            }
+                            //else
+                            //{
+                            //    shapeshifter.CmdCheckRevertShapeshift(false);
+                            //}
                             NotifyRoles();
                         }, 1.5f, "Bomber Suiscide");
                     }
-                    if (Options.BomberDiesInExplosion.GetBool()) isSSneeded = false;
+                    isSSneeded = false;
+                    //if (Options.BomberDiesInExplosion.GetBool()) isSSneeded = false;
                     break;
                 case CustomRoles.Nuker:
                     if (shapeshifting)
@@ -1435,10 +1433,10 @@ class ShapeshiftPatch
                                 Main.PlayerStates[shapeshifter.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
                                 shapeshifter.Kill(shapeshifter);
                             }
-                            else if (!shapeshifter.IsModClient())
-                            {
-                                shapeshifter.CmdCheckRevertShapeshift(false);
-                            }
+                            //else if (!shapeshifter.IsModClient())
+                            //{
+                            //    shapeshifter.CmdCheckRevertShapeshift(false);
+                            //}
                             NotifyRoles();
                         }, 1.5f, "Nuke");
                     }
@@ -1446,13 +1444,11 @@ class ShapeshiftPatch
                     break;
                 case CustomRoles.Assassin:
                     Assassin.OnShapeshift(shapeshifter, shapeshifting);
+                    isSSneeded = false;
                     break;
                 case CustomRoles.Undertaker:
                     Undertaker.OnShapeshift(shapeshifter, shapeshifting);
-                    if (shapeshifting)
-                    {
-                        _ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "Undertaker RpcRevertShapeshift");
-                    }
+                    isSSneeded = false;
                     break;
                 case CustomRoles.ImperiusCurse:
                     if (shapeshifting)
@@ -1470,10 +1466,7 @@ class ShapeshiftPatch
                     break;
                 case CustomRoles.QuickShooter:
                     QuickShooter.OnShapeshift(shapeshifter, shapeshifting);
-                    if (shapeshifting)
-                    {
-                        _ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "Quick Shooter RpcRevertShapeshift");
-                    }
+                    isSSneeded = false;
                     break;
                 case CustomRoles.Camouflager:
                     if (shapeshifting)
@@ -1486,45 +1479,36 @@ class ShapeshiftPatch
                     break;
                 case CustomRoles.Hacker:
                     Hacker.OnShapeshift(shapeshifter, shapeshifting, target);
+                    isSSneeded = false;
                     break;
                 case CustomRoles.Disperser:
                     if (shapeshifting)
                         Disperser.DispersePlayers(shapeshifter);
-                    if (shapeshifting)
-                    {
-                        _ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "Disperser RpcRevertShapeshift");
-                    }
+                    isSSneeded = false;
                     break;
                 case CustomRoles.Dazzler:
                     if (shapeshifting)
                         Dazzler.OnShapeshift(shapeshifter, target);
-                    if (shapeshifting)
-                    {
-                        _ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "Dazzler RpcRevertShapeshift");
-                    }
+                    isSSneeded = false;
                     break;
                 case CustomRoles.Deathpact:
                     if (shapeshifting)
                         Deathpact.OnShapeshift(shapeshifter, target);
-                    if (shapeshifting)
-                    {
-                        _ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "Deathpact RpcRevertShapeshift");
-                    }
+                    isSSneeded = false;
                     break;
                 case CustomRoles.Devourer:
                     if (shapeshifting)
                         Devourer.OnShapeshift(shapeshifter, target);
-                    if (shapeshifting)
-                    {
-                        _ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "Devourer RpcRevertShapeshift");
-                    }
+                    isSSneeded = false;
                     break;
                 case CustomRoles.Twister:
                     Twister.TwistPlayers(shapeshifter, shapeshifting);
+                    isSSneeded = false;
                     break;
             }
+        }
 
-        //変身解除のタイミングがずれて名前が直せなかった時のために強制書き換え
+        // Forced rewriting in case the name cannot be corrected due to the timing of canceling the transformation being off.
         if (!shapeshifting && !shapeshifter.Is(CustomRoles.Glitch))
         {
             _ = new LateTask(() =>
@@ -1539,7 +1523,16 @@ class ShapeshiftPatch
             _ = new LateTask(shapeshifter.RpcResetAbilityCooldown, 0.1f, "Reset SS CD");
         }
 
-        return !shapeshifting || isSSneeded || !shapeshifter.IsModClient();
+        if (!isSSneeded)
+        {
+            Main.CheckShapeshift[shapeshifter.PlayerId] = false;
+        }
+        else
+        {
+            isSSneeded = !Options.DisableShapeshiftAnimations.GetBool();
+        }
+
+        return isSSneeded;
     }
 }
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ReportDeadBody))]
@@ -1795,6 +1788,7 @@ class ReportDeadBodyPatch
         Main.ArsonistTimer.Clear();
         if (Farseer.isEnable) Main.FarseerTimer.Clear();
         Main.PuppeteerList.Clear();
+        Main.PuppeteerDelayList.Clear();
         Main.TaglockedList.Clear();
         Main.GuesserGuessed.Clear();
         Main.VeteranInProtect.Clear();
@@ -2603,8 +2597,9 @@ class FixedUpdatePatch
                     if (!player.IsAlive() || Pelican.IsEaten(player.PlayerId))
                     {
                         Main.PuppeteerList.Remove(player.PlayerId);
+                        Main.PuppeteerDelayList.Remove(player.PlayerId);
                     }
-                    else
+                    else if (Main.PuppeteerDelayList[player.PlayerId] + Options.PuppeteerDelay.GetInt() < GetTimeStamp())
                     {
                         Vector2 puppeteerPos = player.transform.position;//PuppeteerListのKeyの位置
                         Dictionary<byte, float> targetDistance = new();
@@ -2637,6 +2632,7 @@ class FixedUpdatePatch
                                     player.MarkDirtySettings();
                                     target.MarkDirtySettings();
                                     Main.PuppeteerList.Remove(player.PlayerId);
+                                    Main.PuppeteerDelayList.Remove(player.PlayerId);
                                     //Utils.NotifyRoles();
                                     NotifyRoles(SpecifySeer: player);
                                     NotifyRoles(SpecifySeer: target);
@@ -3613,6 +3609,28 @@ class PlayerControlCompleteTaskPatch
             //ライターもしくはスピードブースターもしくはドクターがいる試合のみタスク終了時にCustomSyncAllSettingsを実行する
             MarkEveryoneDirtySettings();
         }
+    }
+}
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckSporeTrigger))]
+public static class PlayerControlCheckSporeTriggerPatch
+{
+    public static bool Prefix()
+    {
+        return !AmongUsClient.Instance.AmHost || !Options.DisableSporeTriggerOnFungle.GetBool();
+    }
+}
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckUseZipline))]
+public static class PlayerControlCheckUseZiplinePatch
+{
+    public static bool Prefix([HarmonyArgument(2)] bool fromTop)
+    {
+        if (AmongUsClient.Instance.AmHost)
+        {
+            if (Options.DisableZiplineFromTop.GetBool() && fromTop) return false;
+            if (Options.DisableZiplineFromUnder.GetBool() && !fromTop) return false;
+        }
+
+        return true;
     }
 }
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ProtectPlayer))]

@@ -144,7 +144,7 @@ public class ChatManager
     public static void SendPreviousMessagesToAll(bool realMessagesOnly = false)
     {
         ChatUpdatePatch.DoBlockChat = true;
-        string msg = "<size=0>.</size>";
+        string msg = Utils.EmptyMessage();
         List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x is not CustomRoles.KB_Normal and not CustomRoles.Killer).ToList();
         string[] specialTexts = new string[] { "bet", "bt", "guess", "gs", "shoot", "st", "赌", "猜", "审判", "tl", "判", "审", "trial" };
         var totalAlive = Main.AllAlivePlayerControls.Count;

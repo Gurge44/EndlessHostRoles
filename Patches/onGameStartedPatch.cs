@@ -58,6 +58,7 @@ internal class ChangeRoleSettings
             Main.isCurseAndKill = new();
             Main.isCursed = false;
             Main.PuppeteerList = new();
+            Main.PuppeteerDelayList = new();
             Main.TaglockedList = new();
             Main.DetectiveNotify = new();
             Main.ForCrusade = new();

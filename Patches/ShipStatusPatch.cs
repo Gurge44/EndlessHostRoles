@@ -14,9 +14,7 @@ class ShipFixedUpdatePatch
 {
     public static void Postfix(/*ShipStatus __instance*/)
     {
-        //ここより上、全員が実行する
         if (!AmongUsClient.Instance.AmHost) return;
-        //ここより下、ホストのみが実行する
         if (Main.IsFixedCooldown && Main.RefixCooldownDelay >= 0)
         {
             Main.RefixCooldownDelay -= Time.fixedDeltaTime;
@@ -148,6 +146,10 @@ class RepairSystemPatch
                 MapNames.Airship => Options.DisableAirshipCamera.GetBool(),
                 _ => false,
             };
+            if (camerasDisabled)
+            {
+                player.Notify(Translator.GetString("CamerasDisabledNotify"), 15f);
+            }
             return !camerasDisabled;
         }
 

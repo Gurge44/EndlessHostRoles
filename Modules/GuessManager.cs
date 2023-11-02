@@ -783,7 +783,7 @@ public static class GuessManager
             //    msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
             //    msg += Utils.GetRoleName(role);
             //}
-            msg = "<size=0>.</size>";
+            msg = Utils.EmptyMessage();
             var player = x[rd.Next(0, totalAlive)];
             DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
             var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);

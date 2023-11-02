@@ -895,6 +895,9 @@ static class ExtendedPlayerControl
             case CustomRoles.RiftMaker:
                 Main.AllPlayerKillCooldown[player.PlayerId] = RiftMaker.KillCooldown.GetFloat();
                 break;
+            case CustomRoles.Puppeteer:
+                Main.AllPlayerKillCooldown[player.PlayerId] = Options.PuppeteerKCD.GetFloat();
+                break;
             case CustomRoles.Saboteur:
                 Main.AllPlayerKillCooldown[player.PlayerId] = Options.SaboteurCDAfterMeetings.GetFloat();
                 break;

@@ -126,6 +126,7 @@ public static class Options
     //public static OptionItem ShareLobbyMinPlayer;
     public static OptionItem DisableShieldAnimations;
     public static OptionItem DisableCrackedGlass;
+    public static OptionItem DisableShapeshiftAnimations;
     public static OptionItem DisableKillAnimationOnGuess;
     public static OptionItem DisableVanillaRoles;
     public static OptionItem DisableHiddenRoles;
@@ -200,6 +201,9 @@ public static class Options
     public static OptionItem GGTryHideMsg;
     public static OptionItem LuckeyProbability;
     public static OptionItem LuckyProbability;
+    public static OptionItem PuppeteerDelay;
+    public static OptionItem PuppeteerKCD;
+    public static OptionItem PuppeteerCD;
     public static OptionItem VindicatorAdditionalVote;
     public static OptionItem VindicatorHideVote;
     public static OptionItem MayorAdditionalVote;
@@ -598,17 +602,24 @@ public static class Options
     public static OptionItem AirshipAdditionalSpawn;
     public static OptionItem AirshipVariableElectrical;
     public static OptionItem DisableAirshipMovingPlatform;
+    public static OptionItem DisableSporeTriggerOnFungle;
+    public static OptionItem DisableZiplineOnFungle;
+    public static OptionItem DisableZiplineFromTop;
+    public static OptionItem DisableZiplineFromUnder;
 
     // Sabotage
     public static OptionItem CommsCamouflage;
     public static OptionItem CommsCamouflageDisableOnFungle;
     public static OptionItem DisableReportWhenCC;
     public static OptionItem SabotageTimeControl;
+    public static OptionItem SkeldReactorTimeLimit;
+    public static OptionItem SkeldO2TimeLimit;
+    public static OptionItem MiraReactorTimeLimit;
+    public static OptionItem MiraO2TimeLimit;
     public static OptionItem PolusReactorTimeLimit;
     public static OptionItem AirshipReactorTimeLimit;
-    public static OptionItem MiraO2TimeLimit;
-    public static OptionItem MushroomMixupTime;
-    public static OptionItem MiraReactorTimeLimit;
+    public static OptionItem FungleReactorTimeLimit;
+    public static OptionItem FungleMushroomMixupDuration;
     public static OptionItem LightsOutSpecialSettings;
     public static OptionItem DisableAirshipViewingDeckLightsPanel;
     public static OptionItem DisableAirshipGapRoomLightsPanel;
@@ -1234,6 +1245,15 @@ public static class Options
         RoleLoadingText = "Impostor roles\nPuppeteer";
 
         SetupRoleOptions(3900, TabGroup.ImpostorRoles, CustomRoles.Puppeteer);
+        PuppeteerCD = FloatOptionItem.Create(3911, "PuppeteerCD", new(2.5f, 60f, 2.5f), 22.5f, TabGroup.ImpostorRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer])
+            .SetValueFormat(OptionFormat.Seconds);
+        PuppeteerKCD = FloatOptionItem.Create(3912, "PuppeteerKCD", new(2.5f, 60f, 2.5f), 25f, TabGroup.ImpostorRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer])
+            .SetValueFormat(OptionFormat.Seconds);
+        PuppeteerDelay = IntegerOptionItem.Create(3910, "PuppeteerDelay", new(0, 20, 1), 5, TabGroup.ImpostorRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer])
+            .SetValueFormat(OptionFormat.Seconds);
         RoleLoadingText = "Impostor roles\nScavenger";
         SetupRoleOptions(4000, TabGroup.ImpostorRoles, CustomRoles.Scavenger);
         ScavengerKillCooldown = FloatOptionItem.Create(4010, "KillCooldown", new(5f, 180f, 2.5f), 40f, TabGroup.ImpostorRoles, false)
@@ -2621,8 +2641,24 @@ public static class Options
         AirshipVariableElectrical = BooleanOptionItem.Create(22100, "AirshipVariableElectrical", false, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
-        //Disable Airship Moving Platform
+        // Disable Airship Moving Platform
         DisableAirshipMovingPlatform = BooleanOptionItem.Create(22110, "DisableAirshipMovingPlatform", false, TabGroup.GameSettings, false)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
+        // Disable Spore Triggers on Fungle
+        DisableSporeTriggerOnFungle = BooleanOptionItem.Create(22130, "DisableSporeTriggerOnFungle", false, TabGroup.GameSettings, false)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
+        // Disable Zipline On Fungle
+        DisableZiplineOnFungle = BooleanOptionItem.Create(22305, "DisableZiplineOnFungle", false, TabGroup.GameSettings, false)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+        // Disable Zipline From Top
+        DisableZiplineFromTop = BooleanOptionItem.Create(22308, "DisableZiplineFromTop", false, TabGroup.GameSettings, false)
+            .SetParent(DisableZiplineOnFungle)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+        // Disable Zipline From Under
+        DisableZiplineFromUnder = BooleanOptionItem.Create(22310, "DisableZiplineFromUnder", false, TabGroup.GameSettings, false)
+            .SetParent(DisableZiplineOnFungle)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
         // Reset Doors After Meeting
@@ -2673,29 +2709,45 @@ public static class Options
             .SetColor(new Color32(243, 96, 96, byte.MaxValue))
             .SetGameMode(CustomGameMode.Standard);
 
-        PolusReactorTimeLimit = FloatOptionItem.Create(22412, "PolusReactorTimeLimit", new(1f, 60f, 1f), 40f, TabGroup.GameSettings, false)
+        // The Skeld
+        SkeldReactorTimeLimit = FloatOptionItem.Create(22418, "SkeldReactorTimeLimit", new(5f, 90f, 1f), 30f, TabGroup.GameSettings, false)
             .SetParent(SabotageTimeControl)
             .SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(CustomGameMode.Standard);
-        AirshipReactorTimeLimit = FloatOptionItem.Create(22414, "AirshipReactorTimeLimit", new(1f, 90f, 1f), 60f, TabGroup.GameSettings, false)
+        SkeldO2TimeLimit = FloatOptionItem.Create(22419, "SkeldO2TimeLimit", new(5f, 90f, 1f), 30f, TabGroup.GameSettings, false)
             .SetParent(SabotageTimeControl)
             .SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(CustomGameMode.Standard);
-        MiraO2TimeLimit = FloatOptionItem.Create(22416, "MiraO2TimeLimit", new(1f, 60f, 1f), 35f, TabGroup.GameSettings, false)
+        // Mira HQ
+        MiraReactorTimeLimit = FloatOptionItem.Create(22422, "MiraReactorTimeLimit", new(5f, 90f, 1f), 45f, TabGroup.GameSettings, false)
             .SetParent(SabotageTimeControl)
             .SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(CustomGameMode.Standard);
-        MiraReactorTimeLimit = FloatOptionItem.Create(22420, "MiraReactorTimeLimit", new(1f, 60f, 1f), 35f, TabGroup.GameSettings, false)
+        MiraO2TimeLimit = FloatOptionItem.Create(22423, "MiraO2TimeLimit", new(5f, 90f, 1f), 45f, TabGroup.GameSettings, false)
             .SetParent(SabotageTimeControl)
             .SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(CustomGameMode.Standard);
-        //MushroomMixupTime = FloatOptionItem.Create(22418, "MushroomMixupTime", new(1f, 15f, 1f), 7f, TabGroup.GameSettings, false)
-        //    .SetParent(SabotageTimeControl)
-        //    .SetValueFormat(OptionFormat.Seconds)
-        //    .SetGameMode(CustomGameMode.Standard);
+        // Polus
+        PolusReactorTimeLimit = FloatOptionItem.Create(22424, "PolusReactorTimeLimit", new(5f, 90f, 1f), 60f, TabGroup.GameSettings, false)
+            .SetParent(SabotageTimeControl)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetGameMode(CustomGameMode.Standard);
+        // The Airship
+        AirshipReactorTimeLimit = FloatOptionItem.Create(22425, "AirshipReactorTimeLimit", new(5f, 90f, 1f), 90f, TabGroup.GameSettings, false)
+            .SetParent(SabotageTimeControl)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetGameMode(CustomGameMode.Standard);
+        // The Fungle
+        FungleReactorTimeLimit = FloatOptionItem.Create(22426, "FungleReactorTimeLimit", new(5f, 90f, 1f), 60f, TabGroup.GameSettings, false)
+            .SetParent(SabotageTimeControl)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetGameMode(CustomGameMode.Standard);
+        FungleMushroomMixupDuration = FloatOptionItem.Create(22427, "FungleMushroomMixupDuration", new(5f, 90f, 1f), 10f, TabGroup.GameSettings, false)
+            .SetParent(SabotageTimeControl)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetGameMode(CustomGameMode.Standard);
 
         LoadingPercentage = 72;
-
 
         // LightsOutSpecialSettings
         LightsOutSpecialSettings = BooleanOptionItem.Create(22500, "LightsOutSpecialSettings", false, TabGroup.GameSettings, false)
@@ -2727,6 +2779,10 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
         DisableCrackedGlass = BooleanOptionItem.Create(22603, "DisableCrackedGlass", false, TabGroup.GameSettings, false)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetHidden(true)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+        DisableShapeshiftAnimations = BooleanOptionItem.Create(22604, "DisableShapeshiftAnimations", false, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
         DisableVanillaRoles = BooleanOptionItem.Create(22600, "DisableVanillaRoles", true, TabGroup.GameSettings, false)

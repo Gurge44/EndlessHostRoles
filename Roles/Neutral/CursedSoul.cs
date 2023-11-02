@@ -16,6 +16,7 @@ public static class CursedSoul
     public static OptionItem CurseCooldownIncrese;
     public static OptionItem CurseMax;
     public static OptionItem KnowTargetRole;
+    public static OptionItem SoullessWinsWithCS;
     public static OptionItem CanCurseNeutral;
     private static int CurseLimit;
 
@@ -29,6 +30,7 @@ public static class CursedSoul
         CurseMax = IntegerOptionItem.Create(Id + 12, "CursedSoulCurseMax", new(1, 15, 1), 3, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.CursedSoul])
             .SetValueFormat(OptionFormat.Times);
         KnowTargetRole = BooleanOptionItem.Create(Id + 13, "CursedSoulKnowTargetRole", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.CursedSoul]);
+        SoullessWinsWithCS = BooleanOptionItem.Create(Id + 14, "SoullessWinsWithCS", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.CursedSoul]);
         CanCurseNeutral = BooleanOptionItem.Create(Id + 16, "CursedSoulCanCurseNeutral", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.CursedSoul]);
     }
     public static void Init()

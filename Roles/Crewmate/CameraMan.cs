@@ -24,7 +24,7 @@ namespace TOHE.Roles.Crewmate
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.CameraMan);
             VentCooldown = FloatOptionItem.Create(Id + 10, "VentCooldown", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.CameraMan])
                 .SetValueFormat(OptionFormat.Seconds);
-            UseLimitOpt = IntegerOptionItem.Create(Id + 11, "AbilityUseLimit", new(1, 20, 1), 1, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.CameraMan])
+            UseLimitOpt = IntegerOptionItem.Create(Id + 11, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.CameraMan])
                 .SetValueFormat(OptionFormat.Times);
             CameraManAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.CameraMan])
@@ -69,29 +69,15 @@ namespace TOHE.Roles.Crewmate
                 SendRPC(pc.PlayerId, true);
                 Main.CameraManCD.TryAdd(pc.PlayerId, GetTimeStamp());
 
-                Vector2 pos;
-
-                switch (Main.NormalOptions.MapId)
+                Vector2 pos = Main.NormalOptions.MapId switch
                 {
-                    case 0:
-                        pos = new(-13.5f, -5.5f);
-                        break;
-                    case 1:
-                        pos = new(15.3f, 3.8f);
-                        break;
-                    case 2:
-                        pos = new(3.0f, -12.0f);
-                        break;
-                    case 4:
-                        pos = new(5.8f, -10.8f);
-                        break;
-                    case 5:
-                        pos = new(9.5f, 1.2f);
-                        break;
-                    default:
-                        TOHE.Logger.Error("Invalid MapID", "CameraMan Teleport");
-                        return;
-                }
+                    0 => new(-13.5f, -5.5f),
+                    1 => new(15.3f, 3.8f),
+                    2 => new(3.0f, -12.0f),
+                    4 => new(5.8f, -10.8f),
+                    5 => new(9.5f, 1.2f),
+                    _ => throw new NotImplementedException(),
+                };
 
                 _ = new LateTask(() => { TP(pc.NetTransform, pos); }, UsePets.GetBool() ? 0.1f : 2f, "CameraMan Teleport");
             }

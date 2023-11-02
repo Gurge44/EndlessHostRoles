@@ -2,6 +2,7 @@ using AmongUs.Data;
 using AmongUs.GameOptions;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes;
+using Il2CppSystem.Runtime.Remoting.Messaging;
 using InnerNet;
 using System;
 using System.Collections.Generic;
@@ -458,11 +459,10 @@ public static class Utils
 
         return (RoleText, RoleColor);
     }
-    public static string GetKillCountText(byte playerId)
+    public static string GetKillCountText(byte playerId, bool ffa = false)
     {
-        int count = Main.PlayerStates.Count(x => x.Value.GetRealKiller() == playerId);
-        if (count < 1) return string.Empty;
-        return ColorString(new Color32(255, 69, 0, byte.MaxValue), string.Format(GetString("KillCount"), count));
+        if (!Main.PlayerStates.Any(x => x.Value.GetRealKiller() == playerId) && !ffa) return string.Empty;
+        return ' ' + ColorString(new Color32(255, 69, 0, byte.MaxValue), string.Format(GetString("KillCount"), Main.PlayerStates.Count(x => x.Value.GetRealKiller() == playerId)));
     }
     public static string GetVitalText(byte playerId, bool RealKillerColor = false)
     {
@@ -1429,15 +1429,17 @@ public static class Utils
             SendMessage(GetString("CantUse.lastroles"), PlayerId);
             return;
         }
+
         var sb = new StringBuilder();
 
-        sb.Append(GetString("PlayerInfo")).Append(':');
+        sb.Append("<color=#ffffff><u>Role Summary:</u></color><size=70%>");
+
         List<byte> cloneRoles = new(Main.PlayerStates.Keys);
         for (int i = 0; i < Main.winnerList.Count; i++)
         {
             byte id = Main.winnerList[i];
             if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
-            sb.Append($"\n★ ").Append(EndGamePatch.SummaryText[id].RemoveHtmlTags());
+            sb.Append($"\n<color=#c4aa02>★</color> ").Append(EndGamePatch.SummaryText[id]/*.RemoveHtmlTags()*/);
             cloneRoles.Remove(id);
         }
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
@@ -1450,10 +1452,11 @@ public static class Utils
             }
 
             list.Sort();
+
             for (int i1 = 0; i1 < list.Count; i1++)
             {
                 (int, byte) id = list[i1];
-                sb.Append($"\n　").Append(EndGamePatch.SummaryText[id.Item2]);
+                sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id.Item2]);
             }
         }
         else if (Options.CurrentGameMode == CustomGameMode.FFA)
@@ -1466,10 +1469,11 @@ public static class Utils
             }
 
             list.Sort();
+
             for (int i1 = 0; i1 < list.Count; i1++)
             {
                 (int, byte) id = list[i1];
-                sb.Append($"\n　").Append(EndGamePatch.SummaryText[id.Item2]);
+                sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id.Item2]);
             }
         }
         else
@@ -1478,10 +1482,12 @@ public static class Utils
             {
                 byte id = cloneRoles[i];
                 if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
-                sb.Append($"\n　").Append(EndGamePatch.SummaryText[id].RemoveHtmlTags());
+                sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id]/*.RemoveHtmlTags()*/);
             }
         }
-        SendMessage(sb.ToString(), PlayerId);
+        sb.Append("</size>");
+
+        SendMessage("\n", PlayerId, sb.ToString());
     }
     public static void ShowKillLog(byte PlayerId = byte.MaxValue)
     {
@@ -1500,10 +1506,11 @@ public static class Utils
             return;
         }
         var sb = new StringBuilder();
-        if (SetEverythingUpPatch.LastWinsText != string.Empty) sb.Append($"{GetString("LastResult")}: {SetEverythingUpPatch.LastWinsText}");
-        if (SetEverythingUpPatch.LastWinsReason != string.Empty) sb.Append($"\n{GetString("LastEndReason")}: {SetEverythingUpPatch.LastWinsReason}");
-        if (sb.Length > 0 && Options.CurrentGameMode != CustomGameMode.SoloKombat && Options.CurrentGameMode != CustomGameMode.FFA) SendMessage(sb.ToString(), PlayerId);
+        if (SetEverythingUpPatch.LastWinsText != string.Empty) sb.Append($"<size=90%>{GetString("LastResult")} {SetEverythingUpPatch.LastWinsText}</size>");
+        if (SetEverythingUpPatch.LastWinsReason != string.Empty) sb.Append($"\n<size=90%>{GetString("LastEndReason")} {SetEverythingUpPatch.LastWinsReason}</size>");
+        if (sb.Length > 0 && Options.CurrentGameMode != CustomGameMode.SoloKombat && Options.CurrentGameMode != CustomGameMode.FFA) SendMessage("\n", PlayerId, sb.ToString());
     }
+    public static string EmptyMessage() => "<size=0>.</size>";
     public static string GetSubRolesText(byte id, bool disableColor = false, bool intro = false, bool summary = false)
     {
         var SubRoles = Main.PlayerStates[id].SubRoles;
@@ -2083,7 +2090,7 @@ public static class Utils
             if (seer.GetCustomRole().IsImpostor())
             {
                 if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode != CustomGameMode.FFA)
-                    SeerRealName = $"<color=#ff1919>" + GetString("YouAreImpostor") + $"</color>\n<size=90%>" + seer.GetRoleInfo() + $"</size>";
+                    SeerRealName = $"<color=#ff1919>"/* + GetString("YouAreImpostor")*/ + $"</color>\n<size=90%>" + seer.GetRoleInfo() + $"</size>";
             }
             if (seer.GetCustomRole().IsNeutral() && !seer.GetCustomRole().IsMadmate())
             {
@@ -2887,7 +2894,7 @@ public static class Utils
         }
         if (Options.CurrentGameMode == CustomGameMode.FFA)
         {
-            summary = $"{ColorString(Main.PlayerColors[id], name)} {GetKillCountText(id)}";
+            summary = $"{ColorString(Main.PlayerColors[id], name)} {GetKillCountText(id, ffa: true)}";
         }
         return check && GetDisplayRoleName(id, true).RemoveHtmlTags().Contains("INVALID:NotAssigned")
             ? "INVALID"
@@ -2962,7 +2969,7 @@ public static class Utils
     }
     public static string ColorString(Color32 color, string str) => $"<color=#{color.r:x2}{color.g:x2}{color.b:x2}{color.a:x2}>{str}</color>";
     /// <summary>
-    /// Darkness:１の比率で黒色と元の色を混ぜる。マイナスだと白色と混ぜる。
+    /// Darkness:Mix black and original color in a ratio of 1. If it is negative, it will be mixed with white.
     /// </summary>
     public static Color ShadeColor(this Color color, float Darkness = 0)
     {

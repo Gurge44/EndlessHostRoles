@@ -74,7 +74,7 @@ class GameEndChecker
                     break;
                 case CustomWinner.CursedSoul:
                     Main.AllPlayerControls
-                        .Where(pc => pc.Is(CustomRoles.CursedSoul) || pc.Is(CustomRoles.Soulless) && !pc.Is(CustomRoles.Rogue) && !pc.Is(CustomRoles.Admired))
+                        .Where(pc => pc.Is(CustomRoles.CursedSoul) || pc.Is(CustomRoles.Soulless) && CursedSoul.SoullessWinsWithCS.GetBool() && !pc.Is(CustomRoles.Rogue) && !pc.Is(CustomRoles.Admired))
                         .Do(pc => CustomWinnerHolder.WinnerIds.Add(pc.PlayerId));
                     break;
                 case CustomWinner.Infectious:
@@ -218,9 +218,9 @@ class GameEndChecker
                 }
 
                 //恋人抢夺胜利
-                if (CustomRolesHelper.RoleExist(CustomRoles.Lovers) && !reason.Equals(GameOverReason.HumansByTask) && !(!Main.LoversPlayers.ToArray().All(p => p.IsAlive()) && Options.LoverSuicide.GetBool()) && CustomWinnerHolder.WinnerTeam is CustomWinner.Crewmate or CustomWinner.Impostor or CustomWinner.Jackal or CustomWinner.Pelican)
+                if (CustomRolesHelper.RoleExist(CustomRoles.Lovers) && !reason.Equals(GameOverReason.HumansByTask) && !(!Main.LoversPlayers.All(p => p.IsAlive()) && Options.LoverSuicide.GetBool()) && CustomWinnerHolder.WinnerTeam is CustomWinner.Crewmate or CustomWinner.Impostor or CustomWinner.Jackal or CustomWinner.Pelican)
                 {
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Lovers);
+                    /*CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Lovers);*/ CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Lovers);
                     Main.AllPlayerControls
                         .Where(p => p.Is(CustomRoles.Lovers))
                         .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
@@ -233,8 +233,8 @@ class GameEndChecker
                     {
                         if (CustomWinnerHolder.WinnerIds.Any(x => GetPlayerById(x).Is(CustomRoles.Lovers)))
                         {
-                            CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
-                            CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Lovers);
+                            if (!CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId)) CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                            if (!CustomWinnerHolder.AdditionalWinnerTeams.Contains(AdditionalWinners.Lovers)) CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Lovers);
                         }
                     }
                 }

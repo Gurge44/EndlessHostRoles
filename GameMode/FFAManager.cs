@@ -205,6 +205,7 @@ internal static class FFAManager
         {
             bool sync = false;
             bool mark = false;
+            var nowKCD = Main.AllPlayerKillCooldown[killer.PlayerId];
             byte EffectType;
             if (Main.NormalOptions.MapId != 4) EffectType = (byte)HashRandom.Next(0, 10);
             else EffectType = (byte)HashRandom.Next(4, 10);
@@ -292,7 +293,7 @@ internal static class FFAManager
                 Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
             }
 
-            if (sync)
+            if (sync || nowKCD != Main.AllPlayerKillCooldown[killer.PlayerId])
             {
                 mark = false;
                 killer.SyncSettings();

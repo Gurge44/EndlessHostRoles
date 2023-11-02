@@ -8,17 +8,39 @@ namespace TOHE;
 [HarmonyPatch(typeof(ReactorSystemType), nameof(ReactorSystemType.Deteriorate))]
 public static class ReactorSystemTypePatch
 {
+    private static bool SetDurationForReactorSabotage = true;
     public static void Prefix(ReactorSystemType __instance)
     {
-        if (!__instance.IsActive || !Options.SabotageTimeControl.GetBool()) return;
+        if (!Options.SabotageTimeControl.GetBool()) return;
+        if ((MapNames)Main.NormalOptions.MapId is MapNames.Airship) return;
+
+        // When the sabotage ends
+        if (!__instance.IsActive || !SetDurationForReactorSabotage)
+        {
+            if (!SetDurationForReactorSabotage && !__instance.IsActive)
+            {
+                SetDurationForReactorSabotage = true;
+            }
+            return;
+        }
+
+        Logger.Info($" {ShipStatus.Instance.Type}", "ReactorSystemTypePatch - ShipStatus.Instance.Type");
+        Logger.Info($" {SetDurationForReactorSabotage}", "ReactorSystemTypePatch - SetDurationCriticalSabotage");
+        SetDurationForReactorSabotage = false;
 
         switch (ShipStatus.Instance.Type)
         {
-            case ShipStatus.MapType.Pb:
-                if (__instance.Countdown >= Options.PolusReactorTimeLimit.GetFloat()) __instance.Countdown = Options.PolusReactorTimeLimit.GetFloat();
+            case ShipStatus.MapType.Ship: //The Skeld
+                __instance.Countdown = Options.SkeldReactorTimeLimit.GetFloat();
                 return;
-            case ShipStatus.MapType.Hq:
-                if (__instance.Countdown >= Options.MiraReactorTimeLimit.GetFloat()) __instance.Countdown = Options.MiraReactorTimeLimit.GetFloat();
+            case ShipStatus.MapType.Hq: //Mira HQ
+                __instance.Countdown = Options.MiraReactorTimeLimit.GetFloat();
+                return;
+            case ShipStatus.MapType.Pb: //Polus
+                __instance.Countdown = Options.PolusReactorTimeLimit.GetFloat();
+                return;
+            case ShipStatus.MapType.Fungle: //The Fungle
+                __instance.Countdown = Options.FungleReactorTimeLimit.GetFloat();
                 return;
             default:
                 return;
@@ -28,34 +50,94 @@ public static class ReactorSystemTypePatch
 [HarmonyPatch(typeof(HeliSabotageSystem), nameof(HeliSabotageSystem.Deteriorate))]
 public static class HeliSabotageSystemPatch
 {
+    private static bool SetDurationForReactorSabotage = true;
     public static void Prefix(HeliSabotageSystem __instance)
     {
-        if (!__instance.IsActive || !Options.SabotageTimeControl.GetBool())
+        if (!Options.SabotageTimeControl.GetBool()) return;
+        if ((MapNames)Main.NormalOptions.MapId is not MapNames.Airship) return;
+
+        // When the sabotage ends
+        if (!__instance.IsActive || ShipStatus.Instance == null || !SetDurationForReactorSabotage)
+        {
+            if (!SetDurationForReactorSabotage && !__instance.IsActive)
+            {
+                SetDurationForReactorSabotage = true;
+            }
             return;
-        if (ShipStatus.Instance != null && __instance.Countdown >= Options.AirshipReactorTimeLimit.GetFloat())
-            __instance.Countdown = Options.AirshipReactorTimeLimit.GetFloat();
+        }
+
+        Logger.Info($" {ShipStatus.Instance.Type}", "HeliSabotageSystemPatch - ShipStatus.Instance.Type");
+        Logger.Info($" {SetDurationForReactorSabotage}", "HeliSabotageSystemPatch - SetDurationCriticalSabotage");
+        SetDurationForReactorSabotage = false;
+
+        __instance.Countdown = Options.AirshipReactorTimeLimit.GetFloat();
     }
 }
 [HarmonyPatch(typeof(LifeSuppSystemType), nameof(LifeSuppSystemType.Deteriorate))]
 public static class LifeSuppSystemTypePatch
 {
+    private static bool SetDurationForO2Sabotage = true;
     public static void Prefix(LifeSuppSystemType __instance)
     {
-        if (!__instance.IsActive || !Options.SabotageTimeControl.GetBool())
+        if (!Options.SabotageTimeControl.GetBool()) return;
+        if ((MapNames)Main.NormalOptions.MapId is MapNames.Polus or MapNames.Airship or MapNames.Fungle) return;
+
+        // When the sabotage ends
+        if (!__instance.IsActive || !SetDurationForO2Sabotage)
+        {
+            if (!SetDurationForO2Sabotage && !__instance.IsActive)
+            {
+                SetDurationForO2Sabotage = true;
+            }
             return;
-        if (ShipStatus.Instance.Type == ShipStatus.MapType.Hq && __instance.Countdown >= Options.MiraO2TimeLimit.GetFloat())
-            __instance.Countdown = Options.MiraO2TimeLimit.GetFloat();
+        }
+
+        Logger.Info($" {ShipStatus.Instance.Type}", "LifeSuppSystemType - ShipStatus.Instance.Type");
+        Logger.Info($" {SetDurationForO2Sabotage}", "LifeSuppSystemType - SetDurationCriticalSabotage");
+        SetDurationForO2Sabotage = false;
+
+        switch (ShipStatus.Instance.Type)
+        {
+            case ShipStatus.MapType.Ship: // The Skeld
+                __instance.Countdown = Options.SkeldO2TimeLimit.GetFloat();
+                return;
+            case ShipStatus.MapType.Hq: // Mira HQ
+                __instance.Countdown = Options.MiraO2TimeLimit.GetFloat();
+                return;
+            default:
+                return;
+        }
     }
 }
 [HarmonyPatch(typeof(MushroomMixupSabotageSystem), nameof(MushroomMixupSabotageSystem.Deteriorate))]
 public static class MushroomMixupSabotageSystemPatch
 {
+    private static bool SetDurationMushroomMixupSabotage = true;
     public static void Prefix(MushroomMixupSabotageSystem __instance)
     {
         if (Options.UsePets.GetBool())
         {
             __instance.petEmptyChance = 0;
         }
+
+        if (!Options.SabotageTimeControl.GetBool()) return;
+        if ((MapNames)Main.NormalOptions.MapId is not MapNames.Fungle) return;
+
+        // When the sabotage ends
+        if (!__instance.IsActive || !SetDurationMushroomMixupSabotage)
+        {
+            if (!SetDurationMushroomMixupSabotage && !__instance.IsActive)
+            {
+                SetDurationMushroomMixupSabotage = true;
+            }
+            return;
+        }
+
+        Logger.Info($" {ShipStatus.Instance.Type}", "MushroomMixupSabotageSystem - ShipStatus.Instance.Type");
+        Logger.Info($" {SetDurationMushroomMixupSabotage}", "MushroomMixupSabotageSystem - SetDurationCriticalSabotage");
+        SetDurationMushroomMixupSabotage = false;
+
+        __instance.currentSecondsUntilHeal = Options.FungleMushroomMixupDuration.GetFloat();
     }
 }
 [HarmonyPatch(typeof(ElectricTask), nameof(ElectricTask.Initialize))]
