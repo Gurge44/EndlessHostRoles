@@ -1859,6 +1859,7 @@ class ReportDeadBodyPatch
         if (PlagueDoctor.IsEnable) PlagueDoctor.OnReportDeadBody();
         if (Penguin.IsEnable) Penguin.OnReportDeadBody();
         if (Sapper.IsEnable) Sapper.OnReportDeadBody();
+        if (Chronomancer.IsEnable) Chronomancer.OnReportDeadBody();
         if (Magician.IsEnable) Magician.OnReportDeadBody();
         if (Stealth.IsEnable) Stealth.OnStartMeeting();
         if (Reckless.IsEnable) Reckless.OnReportDeadBody();
@@ -2064,6 +2065,9 @@ class FixedUpdatePatch
                     break;
                 case CustomRoles.Penguin:
                     Penguin.OnFixedUpdate(player);
+                    break;
+                case CustomRoles.Chronomancer when !lowLoad:
+                    Chronomancer.OnFixedUpdate(player);
                     break;
                 case CustomRoles.Stealth when !lowLoad:
                     Stealth.OnFixedUpdate(player);

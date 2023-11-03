@@ -1,9 +1,6 @@
 ﻿using Hazel;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor
@@ -14,6 +11,8 @@ namespace TOHE.Roles.Impostor
         public static List<byte> playerIdList = new();
 
         private static OptionItem KCD;
+        private static OptionItem ChargeInterval;
+        private static OptionItem ChargeLossInterval;
 
         private static bool isRampaging;
         private static int chargePercent;
@@ -21,8 +20,14 @@ namespace TOHE.Roles.Impostor
 
         public static void SetupCustomOption()
         {
-            SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Chronomancer);
+            SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Chronomancer, 1);
             KCD = FloatOptionItem.Create(Id + 11, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Chronomancer])
+                .SetValueFormat(OptionFormat.Seconds);
+            ChargeInterval = IntegerOptionItem.Create(Id + 12, "ChargeInterval", new(1, 20, 1), 5, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Chronomancer])
+                .SetValueFormat(OptionFormat.Seconds);
+            ChargeLossInterval = IntegerOptionItem.Create(Id + 13, "ChargeLossInterval", new(1, 50, 1), 25, TabGroup.ImpostorRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chronomancer])
                 .SetValueFormat(OptionFormat.Seconds);
         }
@@ -65,6 +70,7 @@ namespace TOHE.Roles.Impostor
             if (!isRampaging)
             {
                 isRampaging = true;
+                SendRPC();
                 killer.ResetKillCooldown();
                 killer.SyncSettings();
             }
@@ -73,13 +79,17 @@ namespace TOHE.Roles.Impostor
         {
             if (pc == null) return;
             if (!pc.Is(CustomRoles.Chronomancer)) return;
-            if (lastUpdate == Utils.GetTimeStamp()) return;
+            if (!GameStates.IsInTask) return;
+            if (lastUpdate >= Utils.GetTimeStamp()) return;
 
             lastUpdate = Utils.GetTimeStamp();
 
+            bool notify = false;
+            var beforeCharge = chargePercent;
+
             if (isRampaging)
             {
-                chargePercent -= 25;
+                chargePercent -= ChargeLossInterval.GetInt();
                 if (chargePercent <= 0)
                 {
                     chargePercent = 0;
@@ -87,15 +97,33 @@ namespace TOHE.Roles.Impostor
                     pc.ResetKillCooldown();
                     pc.SyncSettings();
                     pc.SetKillCooldown();
-                    pc.Notify(string.Format(Translator.GetString("ChronomancerPercent"), chargePercent));
                 }
+                notify = true;
             }
             else if (pc.killTimer <= 0)
             {
-                chargePercent += 5;
+                chargePercent += ChargeInterval.GetInt();
                 if (chargePercent > 100) chargePercent = 100;
+                notify = true;
+            }
+
+            if ((notify || chargePercent == 100) && !pc.IsModClient())
+            {
                 pc.Notify(string.Format(Translator.GetString("ChronomancerPercent"), chargePercent));
             }
+
+            if (beforeCharge != chargePercent)
+            {
+                SendRPC();
+            }
+        }
+        public static string GetHudText() => chargePercent > 0 ? string.Format(Translator.GetString("ChronomancerPercent"), chargePercent) : string.Empty;
+        public static void OnReportDeadBody()
+        {
+            lastUpdate = Utils.GetTimeStamp();
+            chargePercent = 0;
+            isRampaging = false;
+            SendRPC();
         }
     }
 }

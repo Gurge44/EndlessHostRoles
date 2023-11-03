@@ -2607,6 +2607,7 @@ public static class Utils
         if (Jailor.IsEnable) Jailor.AfterMeetingTasks();
         if (PlagueDoctor.IsEnable) PlagueDoctor.AfterMeetingTasks();
         if (Penguin.IsEnable) Penguin.AfterMeetingTasks();
+        if (Chronomancer.IsEnable) Chronomancer.OnReportDeadBody();
         if (Vulture.IsEnable) Vulture.AfterMeetingTasks();
         //if (Baker.IsEnable()) Baker.AfterMeetingTasks();
         if (CopyCat.IsEnable()) CopyCat.AfterMeetingTasks();

@@ -2540,7 +2540,9 @@
 "Chronomancer","","Chronomancer","","",""
 "ChronomancerInfo","","Charge up your kill button and go ham!","","",""
 "ChronomancerInfoLong","","(Impostors):\nAs the Chronomancer, when your kill cooldown is up, your kill button starts charging (you'll see the percentage of the charge under your name). When you make a kill, you use the charge. Depending on how much you've charged your kill button up, you'll have a 0 second kill cooldown until the charge runs out. When the charge runs out, your kill cooldown is reset.","","",""
-"ChronomancerPercent","","Charge: {0}%","","",""
+"ChronomancerPercent","","<color=#00ffa5>Charge:</color> <b>{0}</b>%","","",""
+"ChargeInterval","","Charge Percentage Gained Each Second When Kill Cooldown Is Up","","",""
+"ChangeLossInterval","","Charge Percentage Lost Each Second While Killing","","",""
 
 "## Nullifier"
 "Nullifier","","Nullifier","","",""

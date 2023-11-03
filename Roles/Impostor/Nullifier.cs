@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TOHE.Roles.Crewmate;
-using TOHE.Roles.Neutral;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor
