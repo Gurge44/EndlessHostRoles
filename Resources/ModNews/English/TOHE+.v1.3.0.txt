@@ -1,0 +1,61 @@
+﻿
+#Number:100068
+#Title:TOHE PLUS v1.3.0
+#SubTitle:★★★★Bug Fixes and Major Improvements★★★★
+#ShortTitle:★TOHE+ v1.3.0
+#Date:2023-11-03T00:00:00Z
+#-----------------------------
+
+## Thank you for using TOHE+!
+
+- Fixed Guess The Number minigame showing incorrect messages
+- Fixed wrong Preset settings loading
+- Fixed Teleportation sometimes not working
+- Fixed Postman showing incorrect or no target
+- Fixed Warlock not working sometimes and spamming errors
+- Fixed booting from vent causing issues when no ability uses left for some roles
+- Fixed an error when a player leaves during ejection
+- Fixed Swapper sometimes not working
+- Fixed an issue causing the game to crash (hopefully)
+- Fixed /kcount only working for host
+- Fixed meetings crashing sometimes (hopefully) 
+- Fixed pets causing everyone to shapeshift as the host and never revert
+- Fixed pets causing all sorts of issues
+- Fixed Door Master staying as Engineer when the setting to use pets was on
+- Fixed not being able to use moving platforms (like the zipline) when the setting to use pets was on
+- Fixed character glitching when using moving platforms with pet triggers on
+- Fixed Glitch not reverting mimic
+- Fixed Romantic showing incorrect kill button text after selecting partner
+- Fixed Ability Use Limit settings not letting the user to set it below 1
+- Fixed new roles showing up on the enabled roles list even if they're off
+- Fixed Kill Count text putting no space after role text
+- Fixed FFA Kill Cooldown sometimes being incorrect
+- Fixed Undertaker being able to drag bodies outside of the map
+- Fixed error in checking game end when converting roles were alive
+
+## Additions and Improvements
+- Optimized FFA code
+- Ported PlagueDoctor (Curse), Stealth and Penguin from TOH
+- Added some hackers to the EAC list
+- Added a setting to disable the spore triggers on Fungle
+- You can now customize the time limit for all critical sabotages (+ the mushroom mixup sabotage duration as well)
+- Added a setting to disable the Zipline on Fungle
+- Added a setting to customize the Zipline travel time, both from top to bottom and from bottom to top
+- New setting for Cursed Soul: Soulless Players Win With the Cursed Soul (boolean)
+- New settings for Puppeteer: Kill Cooldown, Puppet Cooldown, Delay before the puppeted player kills
+- Puppeteer can now kill using the double click method
+- Improved the code for multiple roles
+- Role summary in the chat looks a lot better now (it's colored with a black outline)
+
+## Major changes
+- Roles that use shapeshifting only as a target selector or a trigger will no longer perform the transformation, the shapeshift is canceled automatically after selecting the target! There's also a new setting to disable ALL egg animations.
+
+- Added more support for non-host modded clients (we use a lot more RPCs now, so if this update leads you to more disconnects or glitches, please report it to me and I'll make a setting to turn it off)
+Note: Some roles are still buggy for non-host modded clients. If you want a fully functioning experience, join lobbies with a vanilla client (you can use the Switch Vanilla option in the settings) (FFA is fully compatible with non-host modded clients :D)
+
+
+### Notes
+- I'm sorry if something doesn't work. My time to test the code I add is next to 0, and I work alone on all of this. Still, I hope there aren't any major bugs and this brings you a good experience.
+- Thank you for reading this and using my mod. Support and feedback is what motivates me to keep developing.
+
+P.S. I take no responsibility for Penguin, Stealth and PlagueDoctor (aka Curse) if they don't work :D

@@ -11,7 +11,7 @@ namespace TOHE.Roles.Neutral
     public static class PlagueDoctor
     {
         private static readonly int Id = 641700;
-        public static List<byte> playerIdList = new();
+        private static List<byte> playerIdList = new();
 
         private static OptionItem OptionInfectLimit;
         private static OptionItem OptionInfectWhenKilled;

@@ -8,10 +8,11 @@ namespace TOHE.Roles.Impostor
     public static class Stealth
     {
         private static readonly int Id = 641800;
-        public static List<byte> playerIdList = new();
+        private static List<byte> playerIdList = new();
 
         private static OptionItem optionExcludeImpostors;
         private static OptionItem optionDarkenDuration;
+
         public static void SetupCustomOption()
         {
             Options.SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Stealth, 1);
