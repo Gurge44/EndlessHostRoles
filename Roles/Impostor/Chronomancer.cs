@@ -87,7 +87,14 @@ namespace TOHE.Roles.Impostor
                     pc.ResetKillCooldown();
                     pc.SyncSettings();
                     pc.SetKillCooldown();
+                    pc.Notify(string.Format(Translator.GetString("ChronomancerPercent"), chargePercent));
                 }
+            }
+            else if (pc.killTimer <= 0)
+            {
+                chargePercent += 5;
+                if (chargePercent > 100) chargePercent = 100;
+                pc.Notify(string.Format(Translator.GetString("ChronomancerPercent"), chargePercent));
             }
         }
     }

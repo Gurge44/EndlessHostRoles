@@ -2536,6 +2536,19 @@
 "FFFCanKillContagious","","Can Kill Contagious Players","","",""
 "FFFCanKillAdmired","","Can Kill Admired Players","","",""
 
+"## Chronomancer"
+"Chronomancer","","Chronomancer","","",""
+"ChronomancerInfo","","Charge up your kill button and go ham!","","",""
+"ChronomancerInfoLong","","(Impostors):\nAs the Chronomancer, when your kill cooldown is up, your kill button starts charging (you'll see the percentage of the charge under your name). When you make a kill, you use the charge. Depending on how much you've charged your kill button up, you'll have a 0 second kill cooldown until the charge runs out. When the charge runs out, your kill cooldown is reset.","","",""
+"ChronomancerPercent","","Charge: {0}%","","",""
+
+"## Nullifier"
+"Nullifier","","Nullifier","","",""
+"NullifierInfo","","Remove Ability Uses From Crewmates","","",""
+"NullifierInfoLong","","(Impostors):\nAs the Nullifier, clicking your kill button on a player once will remove 1 ability use from them, if they have any. Double click with your kill button on someone to kill them normally.\n\nNote: You won't know if the target had an ability use limit, but the target may notice the removal. Be careful!","","",""
+"NullifierUseRemoved","","Ability use removed","","",""
+"NullCD","","Ability Cooldown","","",""
+
 "## Ventguard"
 "Ventguard","","Ventguard","","",""
 "VentguardInfo","","Block vents by entering them","","",""
