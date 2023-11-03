@@ -17,7 +17,7 @@ public static class Deputy
     public static OptionItem DeputyHandcuffCDForTarget;
     private static OptionItem DeputyHandcuffDelay;
 
-    private static int HandcuffLimit;
+    public static int HandcuffLimit;
 
     public static void SetupCustomOption()
     {
@@ -47,12 +47,12 @@ public static class Deputy
     }
     public static bool IsEnable => playerIdList.Any();
 
-    //private static void SendRPC()
-    //{
-    //    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDeputyHandcuffLimit, SendOption.Reliable, -1);
-    //    writer.Write(HandcuffLimit);
-    //    AmongUsClient.Instance.FinishRpcImmediately(writer);
-    //}
+    public static void SendRPC()
+    {
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDeputyHandcuffLimit, SendOption.Reliable, -1);
+        writer.Write(HandcuffLimit);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
     public static void ReceiveRPC(MessageReader reader)
     {
         HandcuffLimit = reader.ReadInt32();
@@ -65,6 +65,7 @@ public static class Deputy
         if (CanBeHandcuffed(target))
         {
             HandcuffLimit--;
+            SendRPC();
 
             killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("DeputyHandcuffedPlayer")));
 

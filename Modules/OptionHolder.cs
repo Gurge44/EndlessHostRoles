@@ -547,6 +547,25 @@ public static class Options
     public static OptionItem DisableFuelEngines;
     public static OptionItem DisableDivertPower;
     public static OptionItem DisableActivateWeatherNodes;
+    public static OptionItem DisableRoastMarshmallow;
+    public static OptionItem DisableCollectSamples;
+    public static OptionItem DisableReplaceParts;
+    public static OptionItem DisableCollectVegetables;
+    public static OptionItem DisableMineOres;
+    public static OptionItem DisableExtractFuel;
+    public static OptionItem DisableCatchFish;
+    public static OptionItem DisablePolishGem;
+    public static OptionItem DisableHelpCritter;
+    public static OptionItem DisableHoistSupplies;
+    public static OptionItem DisableFixAntenna;
+    public static OptionItem DisableBuildSandcastle;
+    public static OptionItem DisableCrankGenerator;
+    public static OptionItem DisableMonitorMushroom;
+    public static OptionItem DisablePlayVideoGame;
+    public static OptionItem DisableFindSignal;
+    public static OptionItem DisableThrowFisbee;
+    public static OptionItem DisableLiftWeights;
+    public static OptionItem DisableCollectShells;
 
     // Merchant Filters //
     public static OptionItem BaitCanBeSold;
@@ -606,6 +625,9 @@ public static class Options
     public static OptionItem DisableZiplineOnFungle;
     public static OptionItem DisableZiplineFromTop;
     public static OptionItem DisableZiplineFromUnder;
+    public static OptionItem DisableZiplineForImps;
+    public static OptionItem DisableZiplineForNeutrals;
+    public static OptionItem DisableZiplineForCrew;
     public static OptionItem ZiplineTravelTimeFromBottom;
     public static OptionItem ZiplineTravelTimeFromTop;
 
@@ -1118,6 +1140,10 @@ public static class Options
         InhibitorCDAfterMeetings = FloatOptionItem.Create(1511, "AfterMeetingKillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Inhibitor])
             .SetValueFormat(OptionFormat.Seconds);
+        RoleLoadingText = "Impostor roles\nNullifier";
+        Nullifier.SetupCustomOption();
+        RoleLoadingText = "Impostor roles\nChronomancer";
+        Chronomancer.SetupCustomOption();
         RoleLoadingText = "Impostor roles\nStealth";
         Stealth.SetupCustomOption();
         RoleLoadingText = "Impostor roles\nPenguin";
@@ -2669,6 +2695,16 @@ public static class Options
             .SetParent(DisableZiplineOnFungle)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
+        DisableZiplineForCrew = BooleanOptionItem.Create(22316, "DisableZiplineForCrew", false, TabGroup.GameSettings, false)
+            .SetParent(DisableZiplineOnFungle)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+        DisableZiplineForImps = BooleanOptionItem.Create(22318, "DisableZiplineForImps", false, TabGroup.GameSettings, false)
+            .SetParent(DisableZiplineOnFungle)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+        DisableZiplineForNeutrals = BooleanOptionItem.Create(22320, "DisableZiplineForNeutrals", false, TabGroup.GameSettings, false)
+            .SetParent(DisableZiplineOnFungle)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
         ZiplineTravelTimeFromBottom = FloatOptionItem.Create(22312, "ZiplineTravelTimeFromBottom", new(0.5f, 10f, 0.5f), 4f, TabGroup.GameSettings, false)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
         ZiplineTravelTimeFromTop = FloatOptionItem.Create(22314, "ZiplineTravelTimeFromTop", new(0.5f, 10f, 0.5f), 2f, TabGroup.GameSettings, false)
@@ -3019,6 +3055,15 @@ public static class Options
         DisableDressMannequin = BooleanOptionItem.Create(23029, "DisableDressMannequin", false, TabGroup.TaskSettings, false)
         .SetParent(DisableShortTasks)
             .SetGameMode(CustomGameMode.Standard);
+        DisableRoastMarshmallow = BooleanOptionItem.Create(23030, "DisableRoastMarshmallow", false, TabGroup.TaskSettings, false)
+            .SetParent(DisableShortTasks)
+            .SetGameMode(CustomGameMode.Standard);
+        DisableCollectSamples = BooleanOptionItem.Create(23031, "DisableCollectSamples", false, TabGroup.TaskSettings, false)
+            .SetParent(DisableShortTasks)
+            .SetGameMode(CustomGameMode.Standard);
+        DisableReplaceParts = BooleanOptionItem.Create(23032, "DisableReplaceParts", false, TabGroup.TaskSettings, false)
+            .SetParent(DisableShortTasks)
+            .SetGameMode(CustomGameMode.Standard);
 
         LoadingPercentage = 84;
 
@@ -3042,6 +3087,27 @@ public static class Options
         DisableScanBoardingPass = BooleanOptionItem.Create(23105, "DisableScanBoardingPass", false, TabGroup.TaskSettings, false)
         .SetParent(DisableCommonTasks)
             .SetGameMode(CustomGameMode.Standard);
+        DisableCollectVegetables = BooleanOptionItem.Create(23106, "DisableCollectVegetables", false, TabGroup.TaskSettings, false)
+            .SetParent(DisableCommonTasks)
+            .SetGameMode(CustomGameMode.Standard);
+        DisableMineOres = BooleanOptionItem.Create(23107, "DisableMineOres", false, TabGroup.TaskSettings, false)
+            .SetParent(DisableCommonTasks)
+            .SetGameMode(CustomGameMode.Standard);
+        DisableExtractFuel = BooleanOptionItem.Create(23108, "DisableExtractFuel", false, TabGroup.TaskSettings, false)
+            .SetParent(DisableCommonTasks)
+            .SetGameMode(CustomGameMode.Standard);
+        DisableCatchFish = BooleanOptionItem.Create(23109, "DisableCatchFish", false, TabGroup.TaskSettings, false)
+            .SetParent(DisableCommonTasks)
+            .SetGameMode(CustomGameMode.Standard);
+        DisablePolishGem = BooleanOptionItem.Create(23110, "DisablePolishGem", false, TabGroup.TaskSettings, false)
+            .SetParent(DisableCommonTasks)
+            .SetGameMode(CustomGameMode.Standard);
+        DisableHelpCritter = BooleanOptionItem.Create(23111, "DisableHelpCritter", false, TabGroup.TaskSettings, false)
+            .SetParent(DisableCommonTasks)
+            .SetGameMode(CustomGameMode.Standard);
+        DisableHoistSupplies = BooleanOptionItem.Create(23112, "DisableHoistSupplies", false, TabGroup.TaskSettings, false)
+            .SetParent(DisableCommonTasks)
+            .SetGameMode(CustomGameMode.Standard);
 
         LoadingPercentage = 85;
 
@@ -3055,24 +3121,21 @@ public static class Options
         DisableUnlockSafe = BooleanOptionItem.Create(23152, "DisableUnlockSafeTask", false, TabGroup.TaskSettings, false)
             .SetParent(DisableLongTasks)
             .SetGameMode(CustomGameMode.Standard);
-
-        LoadingPercentage = 86;
-
         DisableStartReactor = BooleanOptionItem.Create(23153, "DisableStartReactorTask", false, TabGroup.TaskSettings, false)
             .SetParent(DisableLongTasks)
             .SetGameMode(CustomGameMode.Standard);
         DisableResetBreaker = BooleanOptionItem.Create(23154, "DisableResetBreakerTask", false, TabGroup.TaskSettings, false)
             .SetParent(DisableLongTasks)
             .SetGameMode(CustomGameMode.Standard);
+
+        LoadingPercentage = 86;
+
         DisableAlignEngineOutput = BooleanOptionItem.Create(23155, "DisableAlignEngineOutput", false, TabGroup.TaskSettings, false)
             .SetParent(DisableLongTasks)
             .SetGameMode(CustomGameMode.Standard);
         DisableInspectSample = BooleanOptionItem.Create(23156, "DisableInspectSample", false, TabGroup.TaskSettings, false)
             .SetParent(DisableLongTasks)
             .SetGameMode(CustomGameMode.Standard);
-
-        LoadingPercentage = 87;
-
         DisableEmptyChute = BooleanOptionItem.Create(23157, "DisableEmptyChute", false, TabGroup.TaskSettings, false)
             .SetParent(DisableLongTasks)
             .SetGameMode(CustomGameMode.Standard);
@@ -3086,7 +3149,7 @@ public static class Options
             .SetParent(DisableLongTasks)
             .SetGameMode(CustomGameMode.Standard);
 
-        LoadingPercentage = 88;
+        LoadingPercentage = 87;
 
         DisableReplaceWaterJug = BooleanOptionItem.Create(23161, "DisableReplaceWaterJug", false, TabGroup.TaskSettings, false)
             .SetParent(DisableLongTasks)
@@ -3101,6 +3164,36 @@ public static class Options
             .SetParent(DisableLongTasks)
             .SetGameMode(CustomGameMode.Standard);
         DisableStartFans = BooleanOptionItem.Create(23165, "DisableStartFans", false, TabGroup.TaskSettings, false)
+            .SetParent(DisableLongTasks)
+            .SetGameMode(CustomGameMode.Standard);
+        DisableFixAntenna = BooleanOptionItem.Create(23166, "DisableFixAntenna", false, TabGroup.TaskSettings, false)
+            .SetParent(DisableLongTasks)
+            .SetGameMode(CustomGameMode.Standard);
+        DisableBuildSandcastle = BooleanOptionItem.Create(23167, "DisableBuildSandcastle", false, TabGroup.TaskSettings, false)
+            .SetParent(DisableLongTasks)
+            .SetGameMode(CustomGameMode.Standard);
+
+        LoadingPercentage = 88;
+
+        DisableCrankGenerator = BooleanOptionItem.Create(23168, "DisableCrankGenerator", false, TabGroup.TaskSettings, false)
+            .SetParent(DisableLongTasks)
+            .SetGameMode(CustomGameMode.Standard);
+        DisableMonitorMushroom = BooleanOptionItem.Create(23169, "DisableMonitorMushroom", false, TabGroup.TaskSettings, false)
+            .SetParent(DisableLongTasks)
+            .SetGameMode(CustomGameMode.Standard);
+        DisablePlayVideoGame = BooleanOptionItem.Create(23170, "DisablePlayVideoGame", false, TabGroup.TaskSettings, false)
+            .SetParent(DisableLongTasks)
+            .SetGameMode(CustomGameMode.Standard);
+        DisableFindSignal = BooleanOptionItem.Create(23171, "DisableFindSignal", false, TabGroup.TaskSettings, false)
+            .SetParent(DisableLongTasks)
+            .SetGameMode(CustomGameMode.Standard);
+        DisableThrowFisbee = BooleanOptionItem.Create(23172, "DisableThrowFisbee", false, TabGroup.TaskSettings, false)
+            .SetParent(DisableLongTasks)
+            .SetGameMode(CustomGameMode.Standard);
+        DisableLiftWeights = BooleanOptionItem.Create(23173, "DisableLiftWeights", false, TabGroup.TaskSettings, false)
+            .SetParent(DisableLongTasks)
+            .SetGameMode(CustomGameMode.Standard);
+        DisableCollectShells = BooleanOptionItem.Create(23174, "DisableCollectShells", false, TabGroup.TaskSettings, false)
             .SetParent(DisableLongTasks)
             .SetGameMode(CustomGameMode.Standard);
 

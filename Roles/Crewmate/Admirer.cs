@@ -14,7 +14,7 @@ public static class Admirer
 
     public static OptionItem AdmireCooldown;
     public static OptionItem KnowTargetRole;
-    private static int AdmireLimit;
+    public static int AdmireLimit;
 
     public static void SetupCustomOption()
     {
@@ -39,7 +39,7 @@ public static class Admirer
     }
     public static bool IsEnable => playerIdList.Any();
 
-    private static void SendRPC()
+    public static void SendRPC()
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAdmireLimit, SendOption.Reliable, -1);
         writer.Write(AdmireLimit);

@@ -467,6 +467,8 @@ static class ExtendedPlayerControl
             CustomRoles.RiftMaker => true,
             CustomRoles.Hitman => true,
             CustomRoles.Inhibitor => true,
+            CustomRoles.Chronomancer => true,
+            CustomRoles.Nullifier => true,
             CustomRoles.Stealth => true,
             CustomRoles.Penguin => true,
             CustomRoles.Sapper => true,
@@ -571,6 +573,8 @@ static class ExtendedPlayerControl
             CustomRoles.Sapper => false,
             CustomRoles.Penguin => pc.IsAlive(),
             CustomRoles.Stealth => pc.IsAlive(),
+            CustomRoles.Nullifier => pc.IsAlive(),
+            CustomRoles.Chronomancer => pc.IsAlive(),
             CustomRoles.Inhibitor => !Utils.IsActive(SystemTypes.Electrical) && !Utils.IsActive(SystemTypes.Laboratory) && !Utils.IsActive(SystemTypes.Comms) && !Utils.IsActive(SystemTypes.LifeSupp) && !Utils.IsActive(SystemTypes.Reactor),
             CustomRoles.Saboteur => Utils.IsActive(SystemTypes.Electrical) || Utils.IsActive(SystemTypes.Laboratory) || Utils.IsActive(SystemTypes.Comms) || Utils.IsActive(SystemTypes.LifeSupp) || Utils.IsActive(SystemTypes.Reactor),
             CustomRoles.Sniper => Sniper.CanUseKillButton(pc),
@@ -887,6 +891,12 @@ static class ExtendedPlayerControl
                 break;
             case CustomRoles.Inhibitor:
                 Main.AllPlayerKillCooldown[player.PlayerId] = Options.InhibitorCDAfterMeetings.GetFloat();
+                break;
+            case CustomRoles.Chronomancer:
+                Chronomancer.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.Nullifier:
+                Nullifier.SetKillCooldown(player.PlayerId);
                 break;
             case CustomRoles.Stealth:
                 Stealth.SetKillCooldown(player.PlayerId);

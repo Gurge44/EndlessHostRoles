@@ -16,7 +16,7 @@ public static class Monarch
     public static OptionItem KnightMax;
 
 
-    private static int KnightLimit;
+    public static int KnightLimit;
 
     public static void SetupCustomOption()
     {
@@ -42,12 +42,12 @@ public static class Monarch
     }
     public static bool IsEnable => playerIdList.Any();
 
-    //private static void SendRPC()
-    //{
-    //    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMonarchKnightLimit, SendOption.Reliable, -1);
-    //    writer.Write(KnightLimit);
-    //    AmongUsClient.Instance.FinishRpcImmediately(writer);
-    //}
+    public static void SendRPC()
+    {
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMonarchKnightLimit, SendOption.Reliable, -1);
+        writer.Write(KnightLimit);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
     public static void ReceiveRPC(MessageReader reader)
     {
         KnightLimit = reader.ReadInt32();
@@ -60,6 +60,7 @@ public static class Monarch
         if (CanBeKnighted(target))
         {
             KnightLimit--;
+            SendRPC();
             target.RpcSetCustomRole(CustomRoles.Knighted);
 
             killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("MonarchKnightedPlayer")));
@@ -87,11 +88,5 @@ public static class Monarch
         return false;
     }
     public static string GetKnightLimit() => Utils.ColorString(KnightLimit >= 1 ? Utils.GetRoleColor(CustomRoles.Monarch).ShadeColor(0.25f) : Color.gray, $"({KnightLimit})");
-    public static bool CanBeKnighted(this PlayerControl pc)
-    {
-        return pc != null && !pc.GetCustomRole().IsNotKnightable() && !pc.Is(CustomRoles.Knighted) && !pc.Is(CustomRoles.TicketsStealer)
-        && !
-            false
-            ;
-    }
+    public static bool CanBeKnighted(this PlayerControl pc) => pc != null && !pc.GetCustomRole().IsNotKnightable() && !pc.Is(CustomRoles.Knighted) && !pc.Is(CustomRoles.TicketsStealer);
 }

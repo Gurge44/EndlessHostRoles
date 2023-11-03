@@ -55,7 +55,7 @@ public static class Cleanser
         else x = Color.gray;
         return Utils.ColorString(x, $"({CleanserUsesOpt.GetInt() - CleanserUses[playerId]})");
     }
-    private static void SendRPC(byte playerId)
+    public static void SendRPC(byte playerId)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCleanserCleanLimit, SendOption.Reliable, -1);
         writer.Write(playerId);

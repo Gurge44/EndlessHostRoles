@@ -253,6 +253,12 @@ class CheckMurderPatch
                         killer.SyncSettings();
                     }
                     break;
+                case CustomRoles.Nullifier:
+                    if (Nullifier.OnCheckMurder(killer, target)) return false;
+                    break;
+                case CustomRoles.Chronomancer:
+                    Chronomancer.OnCheckMurder(killer, target);
+                    break;
                 case CustomRoles.Penguin:
                     if (!Penguin.OnCheckMurderAsKiller(killer, target)) return false;
                     break;
@@ -3663,6 +3669,10 @@ public static class PlayerControlCheckUseZiplinePatch
         {
             if (Options.DisableZiplineFromTop.GetBool() && fromTop) return false;
             if (Options.DisableZiplineFromUnder.GetBool() && !fromTop) return false;
+
+            if (__instance.GetCustomRole().IsImpostor() && Options.DisableZiplineForImps.GetBool()) return false;
+            if (__instance.GetCustomRole().IsNeutral() && Options.DisableZiplineForNeutrals.GetBool()) return false;
+            if (__instance.GetCustomRole().IsCrewmate() && Options.DisableZiplineForCrew.GetBool()) return false;
         }
 
         return true;

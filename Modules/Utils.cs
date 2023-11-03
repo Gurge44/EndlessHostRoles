@@ -90,12 +90,12 @@ public static class Utils
         }
 
         // Modded
-        nt.SnapTo(location, (ushort)(nt.lastSequenceId + 8));
+        if (AmongUsClient.Instance.AmHost) nt.SnapTo(location, (ushort)(nt.lastSequenceId + 8));
 
         // Vanilla
         MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.Reliable);
         NetHelpers.WriteVector2(location, messageWriter);
-        messageWriter.Write(nt.lastSequenceId + 10U);
+        messageWriter.Write(nt.lastSequenceId + 100U);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
 
         Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} => {location}", "TP");

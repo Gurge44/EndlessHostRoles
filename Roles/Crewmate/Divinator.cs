@@ -344,9 +344,9 @@ public static class Divinator
                 => "Result27",
 
                 CustomRoles.Puppeteer or
-                //CustomRoles.NWitch or
                 CustomRoles.Deputy or
                 CustomRoles.Transporter or
+                CustomRoles.Chronomancer or
                 CustomRoles.Twister or
                 CustomRoles.Aid or
                 CustomRoles.SerialKiller
@@ -355,6 +355,7 @@ public static class Divinator
                 CustomRoles.Crewpostor or
                 CustomRoles.Marshall or
                 CustomRoles.Workaholic or
+                CustomRoles.Nullifier or
                 CustomRoles.Phantom or
                 CustomRoles.Speedrunner or
                 CustomRoles.Terrorist
