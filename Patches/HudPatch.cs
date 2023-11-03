@@ -355,6 +355,11 @@ class HudManagerPatch
                     case CustomRoles.VengefulRomantic:
                         __instance.KillButton?.OverrideText(GetString("VengefulRomanticKillButtonText"));
                         break;
+                    case CustomRoles.Penguin:
+                        __instance.KillButton?.OverrideText(Penguin.OverrideKillButtonText());
+                        __instance.AbilityButton?.OverrideText(Penguin.GetAbilityButtonText());
+                        __instance.AbilityButton?.ToggleVisible(Penguin.CanUseAbilityButton());
+                        break;
                     case CustomRoles.Succubus:
                         __instance.KillButton?.OverrideText(GetString("SuccubusKillButtonText"));
                         break;
@@ -441,8 +446,6 @@ class HudManagerPatch
                         break;
                 }
 
-                long now = Utils.GetTimeStamp();
-
                 LowerInfoText.text = player.GetCustomRole() switch
                 {
                     CustomRoles.BountyHunter => BountyHunter.GetTargetText(player, true),
@@ -464,26 +467,27 @@ class HudManagerPatch
                     CustomRoles.WeaponMaster => WeaponMaster.GetHudAndProgressText(),
                     CustomRoles.Postman => Postman.GetHudText(player),
                     CustomRoles.PlagueDoctor => PlagueDoctor.GetLowerTextOthers(player, isForHud: true),
-                    CustomRoles.Sapper => !Options.UsePets.GetBool() || !Main.SapperCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Sapper.ShapeshiftCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.CameraMan => !Options.UsePets.GetBool() || !Main.CameraManCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), CameraMan.VentCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.Mayor => !Options.UsePets.GetBool() || !Main.MayorCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.DefaultKillCooldown - (now - cd) + 1),
-                    CustomRoles.Paranoia => !Options.UsePets.GetBool() || !Main.ParanoiaCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.ParanoiaVentCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.Veteran => !Options.UsePets.GetBool() || !Main.VeteranCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.VeteranSkillCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.Grenadier => !Options.UsePets.GetBool() || !Main.GrenadierCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.GrenadierSkillCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.Lighter => !Options.UsePets.GetBool() || !Main.LighterCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.LighterSkillCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.DovesOfNeace => !Options.UsePets.GetBool() || !Main.DovesOfNeaceCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.DovesOfNeaceCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.SecurityGuard => !Options.UsePets.GetBool() || !Main.SecurityGuardCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.SecurityGuardSkillCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.TimeMaster => !Options.UsePets.GetBool() || !Main.TimeMasterCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.TimeMasterSkillCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.Sniper => !Options.UsePets.GetBool() || !Main.SniperCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.DefaultShapeshiftCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.Assassin => !Options.UsePets.GetBool() || !Main.AssassinCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Assassin.AssassinateCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.Undertaker => !Options.UsePets.GetBool() || !Main.UndertakerCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Undertaker.AssassinateCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.Bomber => !Options.UsePets.GetBool() || !Main.BomberCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.BombCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.Nuker => !Options.UsePets.GetBool() || !Main.NukerCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.NukeCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.QuickShooter => !Options.UsePets.GetBool() || !Main.QuickShooterCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), QuickShooter.ShapeshiftCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.Miner => !Options.UsePets.GetBool() || !Main.MinerCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.MinerSSCD.GetInt() - (now - cd) + 1),
-                    CustomRoles.Escapee => !Options.UsePets.GetBool() || !Main.EscapeeCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Options.EscapeeSSCD.GetInt() - (now - cd) + 1),
-                    CustomRoles.Disperser => !Options.UsePets.GetBool() || !Main.DisperserCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Disperser.DisperserShapeshiftCooldown.GetInt() - (now - cd) + 1),
-                    CustomRoles.Twister => !Options.UsePets.GetBool() || !Main.TwisterCD.TryGetValue(player.PlayerId, out var cd) ? string.Empty : string.Format(GetString("CDPT"), Twister.ShapeshiftCooldown.GetInt() - (now - cd) + 1),
+                    CustomRoles.Stealth => Stealth.GetSuffix(player, isHUD: true),
+                    CustomRoles.Sapper => GetCD_HUDText(Main.SapperCD, Sapper.ShapeshiftCooldown.GetInt(), player.PlayerId),
+                    CustomRoles.CameraMan => GetCD_HUDText(Main.CameraManCD, CameraMan.VentCooldown.GetInt(), player.PlayerId),
+                    CustomRoles.Mayor => GetCD_HUDText(Main.MayorCD, (int)Options.DefaultKillCooldown, player.PlayerId),
+                    CustomRoles.Paranoia => GetCD_HUDText(Main.ParanoiaCD, (int)Options.DefaultKillCooldown, player.PlayerId),
+                    CustomRoles.Veteran => GetCD_HUDText(Main.VeteranCD, Options.VeteranSkillCooldown.GetInt(), player.PlayerId),
+                    CustomRoles.Grenadier => GetCD_HUDText(Main.GrenadierCD, Options.GrenadierSkillCooldown.GetInt(), player.PlayerId),
+                    CustomRoles.Lighter => GetCD_HUDText(Main.LighterCD, Options.LighterSkillCooldown.GetInt(), player.PlayerId),
+                    CustomRoles.DovesOfNeace => GetCD_HUDText(Main.DovesOfNeaceCD, Options.DovesOfNeaceCooldown.GetInt(), player.PlayerId),
+                    CustomRoles.SecurityGuard => GetCD_HUDText(Main.SecurityGuardCD, Options.SecurityGuardSkillCooldown.GetInt(), player.PlayerId),
+                    CustomRoles.TimeMaster => GetCD_HUDText(Main.TimeMasterCD, Options.TimeMasterSkillCooldown.GetInt(), player.PlayerId),
+                    CustomRoles.Sniper => GetCD_HUDText(Main.SniperCD, (int)Options.DefaultKillCooldown, player.PlayerId),
+                    CustomRoles.Assassin => GetCD_HUDText(Main.AssassinCD, Assassin.AssassinateCooldown.GetInt(), player.PlayerId),
+                    CustomRoles.Undertaker => GetCD_HUDText(Main.UndertakerCD, Undertaker.AssassinateCooldown.GetInt(), player.PlayerId),
+                    CustomRoles.Bomber => GetCD_HUDText(Main.BomberCD, Options.BombCooldown.GetInt(), player.PlayerId),
+                    CustomRoles.Nuker => GetCD_HUDText(Main.NukerCD, Options.NukeCooldown.GetInt(), player.PlayerId),
+                    CustomRoles.QuickShooter => GetCD_HUDText(Main.QuickShooterCD, QuickShooter.ShapeshiftCooldown.GetInt(), player.PlayerId),
+                    CustomRoles.Miner => GetCD_HUDText(Main.MinerCD, Options.MinerSSCD.GetInt(), player.PlayerId),
+                    CustomRoles.Escapee => GetCD_HUDText(Main.EscapeeCD, Options.EscapeeSSCD.GetInt(), player.PlayerId),
+                    CustomRoles.Disperser => GetCD_HUDText(Main.DisperserCD, Disperser.DisperserShapeshiftCooldown.GetInt(), player.PlayerId),
+                    CustomRoles.Twister => GetCD_HUDText(Main.TwisterCD, Twister.ShapeshiftCooldown.GetInt(), player.PlayerId),
                     _ => string.Empty,
                 };
                 LowerInfoText.enabled = LowerInfoText.text != string.Empty;
@@ -553,6 +557,12 @@ class HudManagerPatch
             if (Input.GetKeyDown(KeyCode.Alpha9)) RepairSender.Input(9);
             if (Input.GetKeyDown(KeyCode.Return)) RepairSender.InputEnter();
         }
+    }
+    public static string GetCD_HUDText(Dictionary<byte, long> data, int CD, byte playerId)
+    {
+        return !Options.UsePets.GetBool() || !data.TryGetValue(playerId, out var cd)
+            ? string.Empty
+            : string.Format(GetString("CDPT"), CD - (Utils.GetTimeStamp() - cd) + 1);
     }
 }
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ToggleHighlight))]

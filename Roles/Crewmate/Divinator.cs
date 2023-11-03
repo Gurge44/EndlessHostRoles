@@ -149,6 +149,7 @@ public static class Divinator
                 CustomRoles.Bloodhound or
                 CustomRoles.EvilTracker or
                 CustomRoles.Mortician or
+                CustomRoles.Stealth or
                 CustomRoles.Tracefinder or
                 CustomRoles.Romantic or
                 CustomRoles.Tracker

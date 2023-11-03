@@ -282,6 +282,7 @@ internal class ChangeRoleSettings
             NSerialKiller.Init();
             PlagueDoctor.Init();
             Penguin.Init();
+            Stealth.Init();
             Postman.Init();
             Magician.Init();
             WeaponMaster.Init();
@@ -873,6 +874,9 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Penguin:
                         Penguin.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Stealth:
+                        Stealth.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Postman:
                         Postman.Add(pc.PlayerId);

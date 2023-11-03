@@ -634,6 +634,7 @@ public enum CustomRoles
     Miner,
     Escapee,
     Inhibitor,
+    Stealth,
     Penguin,
     Sapper,
     Mastermind,

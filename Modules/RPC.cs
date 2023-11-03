@@ -58,6 +58,7 @@ enum CustomRPC
 
     //Roles
     SetDrawPlayer,
+    StealthDarken,
     PenguinSync,
     SyncPlagueDoctor,
     SetAlchemistPotion,
@@ -753,6 +754,9 @@ internal class RPCHandlerPatch
             case CustomRPC.SetCleanserCleanLimit:
                 Cleanser.ReceiveRPC(reader);
                 break;
+            case CustomRPC.StealthDarken:
+                Stealth.ReceiveRPC(reader);
+                break;
             case CustomRPC.SetJailorExeLimit:
                 Jailor.ReceiveRPC(reader, setTarget: false);
                 break;
@@ -1295,6 +1299,9 @@ internal static class RPC
                 break;
             case CustomRoles.Penguin:
                 Penguin.Add(targetId);
+                break;
+            case CustomRoles.Stealth:
+                Stealth.Add(targetId);
                 break;
             case CustomRoles.Magician:
                 Magician.Add(targetId);

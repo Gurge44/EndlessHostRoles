@@ -467,6 +467,7 @@ static class ExtendedPlayerControl
             CustomRoles.RiftMaker => true,
             CustomRoles.Hitman => true,
             CustomRoles.Inhibitor => true,
+            CustomRoles.Stealth => true,
             CustomRoles.Penguin => true,
             CustomRoles.Sapper => true,
             CustomRoles.Saboteur => true,
@@ -569,6 +570,7 @@ static class ExtendedPlayerControl
             CustomRoles.Hitman => pc.IsAlive(),
             CustomRoles.Sapper => false,
             CustomRoles.Penguin => pc.IsAlive(),
+            CustomRoles.Stealth => pc.IsAlive(),
             CustomRoles.Inhibitor => !Utils.IsActive(SystemTypes.Electrical) && !Utils.IsActive(SystemTypes.Laboratory) && !Utils.IsActive(SystemTypes.Comms) && !Utils.IsActive(SystemTypes.LifeSupp) && !Utils.IsActive(SystemTypes.Reactor),
             CustomRoles.Saboteur => Utils.IsActive(SystemTypes.Electrical) || Utils.IsActive(SystemTypes.Laboratory) || Utils.IsActive(SystemTypes.Comms) || Utils.IsActive(SystemTypes.LifeSupp) || Utils.IsActive(SystemTypes.Reactor),
             CustomRoles.Sniper => Sniper.CanUseKillButton(pc),
@@ -886,6 +888,9 @@ static class ExtendedPlayerControl
             case CustomRoles.Inhibitor:
                 Main.AllPlayerKillCooldown[player.PlayerId] = Options.InhibitorCDAfterMeetings.GetFloat();
                 break;
+            case CustomRoles.Stealth:
+                Stealth.SetKillCooldown(player.PlayerId);
+                break;
             case CustomRoles.Sapper:
                 Main.AllPlayerKillCooldown[player.PlayerId] = 300f;
                 break;
@@ -947,6 +952,9 @@ static class ExtendedPlayerControl
                 break;
             case CustomRoles.PlagueDoctor:
                 PlagueDoctor.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.Penguin:
+                Penguin.SetKillCooldown(player.PlayerId);
                 break;
             case CustomRoles.WeaponMaster:
                 WeaponMaster.SetKillCooldown(player.PlayerId);

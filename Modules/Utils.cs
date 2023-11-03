@@ -2,7 +2,6 @@ using AmongUs.Data;
 using AmongUs.GameOptions;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes;
-using Il2CppSystem.Runtime.Remoting.Messaging;
 using InnerNet;
 using System;
 using System.Collections.Generic;
@@ -2519,6 +2518,7 @@ public static class Utils
                     TargetSuffix.Append(SoloKombatManager.GetDisplayHealth(target));
 
                 TargetSuffix.Append(PlagueDoctor.GetLowerTextOthers(seer, target));
+                TargetSuffix.Append(Stealth.GetSuffix(seer, target));
 
                 string TargetDeathReason = string.Empty;
                 if (seer.KnowDeathReason(target))
@@ -2606,6 +2606,7 @@ public static class Utils
         if (Spiritualist.IsEnable) Spiritualist.AfterMeetingTasks();
         if (Jailor.IsEnable) Jailor.AfterMeetingTasks();
         if (PlagueDoctor.IsEnable) PlagueDoctor.AfterMeetingTasks();
+        if (Penguin.IsEnable) Penguin.AfterMeetingTasks();
         if (Vulture.IsEnable) Vulture.AfterMeetingTasks();
         //if (Baker.IsEnable()) Baker.AfterMeetingTasks();
         if (CopyCat.IsEnable()) CopyCat.AfterMeetingTasks();

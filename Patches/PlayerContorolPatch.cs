@@ -243,6 +243,9 @@ class CheckMurderPatch
                 case CustomRoles.Vengeance:
                     if (!Vengeance.OnCheckMurder(killer, target)) return false;
                     break;
+                case CustomRoles.Stealth:
+                    Stealth.OnCheckMurder(killer, target);
+                    break;
                 case CustomRoles.Inhibitor:
                     if (Main.AllPlayerKillCooldown[killer.PlayerId] != Options.InhibitorCD.GetFloat())
                     {
@@ -1293,6 +1296,8 @@ class ShapeshiftPatch
                     FireWorks.ShapeShiftState(shapeshifter, shapeshifting);
                     isSSneeded = false;
                     break;
+                case CustomRoles.Penguin:
+                    return false;
                 case CustomRoles.Sapper:
                     Sapper.OnShapeshift(shapeshifter);
                     isSSneeded = false;
@@ -1756,9 +1761,9 @@ class ReportDeadBodyPatch
     }
     public static void AfterReportTasks(PlayerControl player, GameData.PlayerInfo target)
     {
-        //=============================================
-        //以下、ボタンが押されることが確定したものとする。
-        //=============================================
+        //====================================================================================
+        //    Hereinafter, it is assumed that it is confirmed that the button is pressed.
+        //====================================================================================
 
         if (target == null) //ボタン
         {
@@ -1846,8 +1851,10 @@ class ReportDeadBodyPatch
         if (Gambler.IsEnable) Gambler.OnReportDeadBody();
         if (Tracker.IsEnable) Tracker.OnReportDeadBody();
         if (PlagueDoctor.IsEnable) PlagueDoctor.OnReportDeadBody();
+        if (Penguin.IsEnable) Penguin.OnReportDeadBody();
         if (Sapper.IsEnable) Sapper.OnReportDeadBody();
         if (Magician.IsEnable) Magician.OnReportDeadBody();
+        if (Stealth.IsEnable) Stealth.OnStartMeeting();
         if (Reckless.IsEnable) Reckless.OnReportDeadBody();
 
         if (Mortician.IsEnable) Mortician.OnReportDeadBody(player, target);
@@ -2048,6 +2055,12 @@ class FixedUpdatePatch
                     break;
                 case CustomRoles.PlagueDoctor:
                     PlagueDoctor.OnFixedUpdate(player);
+                    break;
+                case CustomRoles.Penguin:
+                    Penguin.OnFixedUpdate(player);
+                    break;
+                case CustomRoles.Stealth when !lowLoad:
+                    Stealth.OnFixedUpdate(player);
                     break;
                 case CustomRoles.Gambler when !lowLoad:
                     Gambler.OnFixedUpdate(player);
@@ -2994,6 +3007,8 @@ class FixedUpdatePatch
 
                 if (PlagueDoctor.IsEnable) Suffix.Append(PlagueDoctor.GetLowerTextOthers(seer, target));
 
+                if (Stealth.IsEnable) Suffix.Append(Stealth.GetSuffix(seer, target));
+
                 if (Tracker.IsEnable) Suffix.Append(Tracker.GetTrackerArrow(seer, target));
 
                 if (Deathpact.IsEnable)
@@ -3575,7 +3590,7 @@ class GameDataCompleteTaskPatch
 {
     public static void Postfix(PlayerControl pc/*, uint taskId*/)
     {
-        Logger.Info($"TaskComplete:{pc.GetNameWithRole().RemoveHtmlTags()}", "CompleteTask");
+        Logger.Info($"TaskComplete: {pc.GetNameWithRole().RemoveHtmlTags()}", "CompleteTask");
         Main.PlayerStates[pc.PlayerId].UpdateTask(pc);
         NotifyRoles(SpecifySeer: pc);
     }
@@ -3628,16 +3643,22 @@ class PlayerControlCompleteTaskPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckSporeTrigger))]
 public static class PlayerControlCheckSporeTriggerPatch
 {
-    public static bool Prefix()
+    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] Mushroom mushroom)
     {
+        Logger.Info($"{__instance.GetNameWithRole()}, mushroom: {mushroom.name} / {mushroom.Id}, at {mushroom.origPosition}", "Spore Trigger");
         return !AmongUsClient.Instance.AmHost || !Options.DisableSporeTriggerOnFungle.GetBool();
     }
 }
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckUseZipline))]
 public static class PlayerControlCheckUseZiplinePatch
 {
-    public static bool Prefix([HarmonyArgument(2)] bool fromTop)
+    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] ZiplineBehaviour ziplineBehaviour, [HarmonyArgument(2)] bool fromTop)
     {
+        ziplineBehaviour.downTravelTime = Options.ZiplineTravelTimeFromTop.GetFloat();
+        ziplineBehaviour.upTravelTime = Options.ZiplineTravelTimeFromBottom.GetFloat();
+
+        Logger.Info($"{__instance.GetNameWithRole()}, target: {target.GetNameWithRole()}, {(fromTop ? $"from Top, travel time: {ziplineBehaviour.downTravelTime}s" : $"from Bottom, travel time: {ziplineBehaviour.upTravelTime}s")}", "Zipline Use");
+
         if (AmongUsClient.Instance.AmHost)
         {
             if (Options.DisableZiplineFromTop.GetBool() && fromTop) return false;

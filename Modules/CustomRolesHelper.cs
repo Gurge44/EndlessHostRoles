@@ -50,7 +50,8 @@ internal static class CustomRolesHelper
                 CustomRoles.SpeedBooster => CustomRoles.Crewmate,
                 CustomRoles.Dictator => CustomRoles.Crewmate,
                 CustomRoles.Inhibitor => CustomRoles.Impostor,
-                CustomRoles.Penguin => CustomRoles.Impostor,
+                CustomRoles.Stealth => CustomRoles.Impostor,
+                CustomRoles.Penguin => CustomRoles.Shapeshifter,
                 CustomRoles.Sapper => Options.UsePets.GetBool() ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Mastermind => CustomRoles.Impostor,
                 CustomRoles.RiftMaker => Options.UsePets.GetBool() ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
@@ -690,6 +691,7 @@ internal static class CustomRolesHelper
             CustomRoles.SerialKiller or
             CustomRoles.Underdog or
             CustomRoles.Inhibitor or
+            CustomRoles.Stealth or
             CustomRoles.Penguin or
             CustomRoles.Sapper or
             CustomRoles.Hitman or
@@ -1095,7 +1097,6 @@ internal static class CustomRolesHelper
         CustomRoles.Ignitor or
         CustomRoles.Saboteur or
         CustomRoles.Inhibitor or
-        CustomRoles.Sapper or
         CustomRoles.Gambler or
         CustomRoles.Mare or
         CustomRoles.Bandit or

@@ -220,7 +220,8 @@ class GameEndChecker
                 //恋人抢夺胜利
                 if (CustomRolesHelper.RoleExist(CustomRoles.Lovers) && !reason.Equals(GameOverReason.HumansByTask) && !(!Main.LoversPlayers.All(p => p.IsAlive()) && Options.LoverSuicide.GetBool()) && CustomWinnerHolder.WinnerTeam is CustomWinner.Crewmate or CustomWinner.Impostor or CustomWinner.Jackal or CustomWinner.Pelican)
                 {
-                    /*CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Lovers);*/ CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Lovers);
+                    /*CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Lovers);*/
+                    CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Lovers);
                     Main.AllPlayerControls
                         .Where(p => p.Is(CustomRoles.Lovers))
                         .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
@@ -449,11 +450,11 @@ class GameEndChecker
                 if (x.GetCustomRole().IsImpostor() && x.Is(CustomRoles.Admired) && x.Is(CustomRoles.DualPersonality)) Crew++;
                 if (x.GetCustomRole().IsNeutral() && x.Is(CustomRoles.Admired) && x.Is(CustomRoles.DualPersonality)) Crew++;
                 if (x.GetCustomRole().IsCrewmate() && x.Is(CustomRoles.Admired) && x.Is(CustomRoles.DualPersonality)) Crew++;
-                if (x.Is(CustomRoles.Charmed) && x.Is(CustomRoles.DualPersonality)) roleCounts[(CustomRoles.Succubus, CustomWinner.Succubus)]++;
-                if (x.Is(CustomRoles.Sidekick) && x.Is(CustomRoles.DualPersonality)) roleCounts[(CustomRoles.Jackal, CustomWinner.Jackal)]++;
-                if (x.Is(CustomRoles.Recruit) && x.Is(CustomRoles.DualPersonality)) roleCounts[(CustomRoles.Jackal, CustomWinner.Jackal)]++;
-                if (x.Is(CustomRoles.Infected) && x.Is(CustomRoles.DualPersonality)) roleCounts[(CustomRoles.Infectious, CustomWinner.Infectious)]++;
-                if (x.Is(CustomRoles.Contagious) && x.Is(CustomRoles.DualPersonality)) roleCounts[(CustomRoles.Virus, CustomWinner.Virus)]++;
+                if (x.Is(CustomRoles.Charmed) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Succubus)]++;
+                if (x.Is(CustomRoles.Sidekick) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Jackal)]++;
+                if (x.Is(CustomRoles.Recruit) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Jackal)]++;
+                if (x.Is(CustomRoles.Infected) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Infectious)]++;
+                if (x.Is(CustomRoles.Contagious) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Virus)]++;
                 if (x.Is(CustomRoles.Madmate) && x.Is(CustomRoles.DualPersonality)) Imp++;
             }
 

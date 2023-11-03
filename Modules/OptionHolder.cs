@@ -606,6 +606,8 @@ public static class Options
     public static OptionItem DisableZiplineOnFungle;
     public static OptionItem DisableZiplineFromTop;
     public static OptionItem DisableZiplineFromUnder;
+    public static OptionItem ZiplineTravelTimeFromBottom;
+    public static OptionItem ZiplineTravelTimeFromTop;
 
     // Sabotage
     public static OptionItem CommsCamouflage;
@@ -1116,6 +1118,8 @@ public static class Options
         InhibitorCDAfterMeetings = FloatOptionItem.Create(1511, "AfterMeetingKillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Inhibitor])
             .SetValueFormat(OptionFormat.Seconds);
+        RoleLoadingText = "Impostor roles\nStealth";
+        Stealth.SetupCustomOption();
         RoleLoadingText = "Impostor roles\nPenguin";
         Penguin.SetupCustomOption();
         RoleLoadingText = "Impostor roles\nSapper";
@@ -2663,6 +2667,11 @@ public static class Options
         // Disable Zipline From Under
         DisableZiplineFromUnder = BooleanOptionItem.Create(22310, "DisableZiplineFromUnder", false, TabGroup.GameSettings, false)
             .SetParent(DisableZiplineOnFungle)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
+        ZiplineTravelTimeFromBottom = FloatOptionItem.Create(22312, "ZiplineTravelTimeFromBottom", new(0.5f, 10f, 0.5f), 4f, TabGroup.GameSettings, false)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+        ZiplineTravelTimeFromTop = FloatOptionItem.Create(22314, "ZiplineTravelTimeFromTop", new(0.5f, 10f, 0.5f), 2f, TabGroup.GameSettings, false)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
         // Reset Doors After Meeting

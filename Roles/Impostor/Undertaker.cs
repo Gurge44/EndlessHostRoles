@@ -104,7 +104,7 @@ internal static class Undertaker
             {
                 if (!(target == null || !target.IsAlive() || Pelican.IsEaten(target.PlayerId) || target.inVent || !GameStates.IsInTask))
                 {
-                    Utils.TP(target.NetTransform, pc.GetTruePosition());
+                    Utils.TP(target.NetTransform, new UnityEngine.Vector2(pc.transform.position.x, pc.transform.position.y + 0.3636f));
                     pc.ResetKillCooldown();
                     pc.SyncSettings();
                     pc.SetKillCooldown();
