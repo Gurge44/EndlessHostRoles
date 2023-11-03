@@ -58,6 +58,7 @@ enum CustomRPC
 
     //Roles
     SetDrawPlayer,
+    SyncChronomancer,
     StealthDarken,
     PenguinSync,
     SyncPlagueDoctor,
@@ -628,6 +629,9 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SetMarkedPlayer:
                 Assassin.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncChronomancer:
+                Chronomancer.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetMarkedPlayerV2:
                 Undertaker.ReceiveRPC(reader);
@@ -1272,6 +1276,15 @@ internal static class RPC
                 break;
             case CustomRoles.Deputy:
                 Deputy.Add(targetId);
+                break;
+            case CustomRoles.NiceEraser:
+                NiceEraser.Add(targetId);
+                break;
+            case CustomRoles.Nullifier:
+                Nullifier.Add(targetId);
+                break;
+            case CustomRoles.Chronomancer:
+                Chronomancer.Add(targetId);
                 break;
             case CustomRoles.Virus:
                 Virus.Add(targetId);

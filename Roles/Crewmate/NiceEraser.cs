@@ -15,7 +15,7 @@ internal static class NiceEraser
     public static OptionItem HideVote;
 
     private static List<byte> didVote = new();
-    private static Dictionary<byte, int> EraseLimit = new();
+    public static Dictionary<byte, int> EraseLimit = new();
     private static List<byte> PlayerToErase = new();
 
     public static void SetupCustomOption()
@@ -37,7 +37,7 @@ internal static class NiceEraser
         Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : 剩余{EraseLimit[playerId]}次", "NiceEraser");
     }
     public static bool IsEnable => playerIdList.Any();
-    private static void SendRPC(byte playerId)
+    public static void SendRPC(byte playerId)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetEraseLimit, SendOption.Reliable, -1);
         writer.Write(playerId);

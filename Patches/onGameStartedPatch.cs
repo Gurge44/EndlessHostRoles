@@ -271,6 +271,9 @@ internal class ChangeRoleSettings
             Succubus.Init();
             CursedSoul.Init();
             Admirer.Init();
+            Nullifier.Init();
+            Deputy.Init();
+            Chronomancer.Init();
             Amnesiac.Init();
             Infectious.Init();
             Monarch.Init();
@@ -850,6 +853,12 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Deputy:
                         Deputy.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Chronomancer:
+                        Chronomancer.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Nullifier:
+                        Nullifier.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Virus:
                         Virus.Add(pc.PlayerId);

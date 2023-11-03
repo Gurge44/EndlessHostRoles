@@ -11,7 +11,7 @@ namespace TOHE.Roles.Impostor
 {
     internal class Nullifier
     {
-        private static readonly int Id = 643000;
+        private static readonly int Id = 642000;
         public static List<byte> playerIdList = new();
 
         public static OptionItem NullCD;
@@ -38,15 +38,20 @@ namespace TOHE.Roles.Impostor
             playerIdList.Add(playerId);
         }
 
+        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KCD.GetFloat();
+
         public static bool IsEnable => playerIdList.Any();
 
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer == null) return false;
             if (target == null) return false;
+            if (!killer.Is(CustomRoles.Nullifier)) return false;
 
             return killer.CheckDoubleTrigger(target, () =>
             {
+                killer.SetKillCooldown(time: NullCD.GetFloat());
+                killer.Notify(Translator.GetString("NullifierUseRemoved"));
                 switch (target.GetCustomRole())
                 {
                     case CustomRoles.Admirer:
@@ -95,7 +100,82 @@ namespace TOHE.Roles.Impostor
                         Monarch.KnightLimit--;
                         Monarch.SendRPC();
                         break;
-
+                    case CustomRoles.NiceEraser:
+                        NiceEraser.EraseLimit[target.PlayerId]--;
+                        NiceEraser.SendRPC(target.PlayerId);
+                        break;
+                    case CustomRoles.NiceHacker:
+                        if (target.IsModClient())
+                        {
+                            NiceHacker.UseLimitSeconds[target.PlayerId] -= NiceHacker.ModdedClientAbilityUseSecondsMultiplier.GetInt();
+                            NiceHacker.SendRPC(target.PlayerId, NiceHacker.UseLimitSeconds[target.PlayerId]);
+                        }
+                        else
+                        {
+                            NiceHacker.UseLimit[target.PlayerId]--;
+                        }
+                        break;
+                    case CustomRoles.NiceSwapper:
+                        NiceSwapper.NiceSwappermax[target.PlayerId]--;
+                        break;
+                    case CustomRoles.Oracle:
+                        Oracle.CheckLimit[target.PlayerId]--;
+                        Oracle.SendRPC(target.PlayerId, true);
+                        break;
+                    case CustomRoles.ParityCop:
+                        ParityCop.MaxCheckLimit[target.PlayerId]--;
+                        break;
+                    case CustomRoles.Ricochet:
+                        Ricochet.UseLimit[target.PlayerId]--;
+                        Ricochet.SendRPC(target.PlayerId, true);
+                        break;
+                    case CustomRoles.SabotageMaster:
+                        SabotageMaster.UsedSkillCount++;
+                        SabotageMaster.SendRPC(SabotageMaster.UsedSkillCount);
+                        break;
+                    case CustomRoles.Sheriff:
+                        Sheriff.ShotLimit[target.PlayerId]--;
+                        Sheriff.SendRPC(target.PlayerId);
+                        break;
+                    case CustomRoles.Spy:
+                        Spy.UseLimit[target.PlayerId]--;
+                        Spy.SendAbilityRPC(target.PlayerId);
+                        break;
+                    case CustomRoles.SwordsMan:
+                        SwordsMan.killed.Add(target.PlayerId);
+                        SwordsMan.SendRPC(target.PlayerId);
+                        break;
+                    case CustomRoles.Tether:
+                        Tether.UseLimit[target.PlayerId]--;
+                        Tether.SendRPC(target.PlayerId, true);
+                        break;
+                    case CustomRoles.Tracker:
+                        Tracker.TrackLimit[target.PlayerId]--;
+                        Tracker.SendRPC(trackerId: target.PlayerId);
+                        break;
+                    case CustomRoles.Veteran:
+                        Main.VeteranNumOfUsed[target.PlayerId]--;
+                        break;
+                    case CustomRoles.Grenadier:
+                        Main.GrenadierNumOfUsed[target.PlayerId]--;
+                        break;
+                    case CustomRoles.Lighter:
+                        Main.LighterNumOfUsed[target.PlayerId]--;
+                        break;
+                    case CustomRoles.DovesOfNeace:
+                        Main.DovesOfNeaceNumOfUsed[target.PlayerId]--;
+                        break;
+                    case CustomRoles.TimeMaster:
+                        Main.TimeMasterNumOfUsed[target.PlayerId]--;
+                        break;
+                    case CustomRoles.SecurityGuard:
+                        Main.SecurityGuardNumOfUsed[target.PlayerId]--;
+                        break;
+                    case CustomRoles.Ventguard:
+                        Main.VentguardNumberOfAbilityUses--;
+                        break;
+                    default:
+                        break;
                 }
             });
         }
