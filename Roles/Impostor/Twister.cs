@@ -54,9 +54,8 @@ namespace TOHE.Roles.Impostor
             TwistLimit[shapeshifter.PlayerId] -= 1;
 
             var rd = IRandom.Instance;
-            for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                PlayerControl pc = Main.AllAlivePlayerControls[i];
                 if (changePositionPlayers.Contains(pc.PlayerId) || Pelican.IsEaten(pc.PlayerId) || !pc.IsAlive() || pc.onLadder || pc.inVent || GameStates.IsMeeting)
                 {
                     continue;

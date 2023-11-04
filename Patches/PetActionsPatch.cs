@@ -299,9 +299,8 @@ class ExternalRpcPetPatch
                     //if (!pc.IsModClient()) pc.RpcGuardAndKill(pc);
                     pc.Notify(GetString("TimeMasterOnGuard"), Options.TimeMasterSkillDuration.GetFloat());
                     Main.TimeMasterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
-                    for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+                    foreach (PlayerControl player in Main.AllPlayerControls)
                     {
-                        PlayerControl player = Main.AllPlayerControls[i];
                         if (Main.TimeMasterBackTrack.ContainsKey(player.PlayerId))
                         {
                             var position = Main.TimeMasterBackTrack[player.PlayerId];
@@ -347,9 +346,8 @@ class ExternalRpcPetPatch
                         UnityEngine.Vector2 cppos = cp.transform.position;
                         Dictionary<PlayerControl, float> cpdistance = new();
                         float dis;
-                        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+                        foreach (PlayerControl p in Main.AllAlivePlayerControls)
                         {
-                            PlayerControl p = Main.AllAlivePlayerControls[i];
                             if (p.PlayerId == cp.PlayerId) continue;
                             if (!Options.WarlockCanKillSelf.GetBool() && p.PlayerId == pc.PlayerId) continue;
                             if (!Options.WarlockCanKillAllies.GetBool() && p.GetCustomRole().IsImpostor()) continue;
@@ -447,9 +445,8 @@ class ExternalRpcPetPatch
                 }
                 Logger.Info("炸弹爆炸了", "Boom");
                 CustomSoundsManager.RPCPlayCustomSoundAll("Boom");
-                for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+                foreach (PlayerControl tg in Main.AllPlayerControls)
                 {
-                    PlayerControl tg = Main.AllPlayerControls[i];
                     if (!tg.IsModClient()) tg.KillFlash();
                     var pos = pc.transform.position;
                     var dis = UnityEngine.Vector2.Distance(pos, tg.transform.position);
@@ -465,7 +462,7 @@ class ExternalRpcPetPatch
                 }
                 _ = new LateTask(() =>
                 {
-                    var totalAlive = Main.AllAlivePlayerControls.Count;
+                    var totalAlive = Main.AllAlivePlayerControls.Length;
                     if (Options.BomberDiesInExplosion.GetBool() && totalAlive > 1 && !GameStates.IsEnded)
                     {
                         Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
@@ -483,9 +480,8 @@ class ExternalRpcPetPatch
                 }
                 Logger.Info("炸弹爆炸了", "Boom");
                 CustomSoundsManager.RPCPlayCustomSoundAll("Boom");
-                for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+                foreach (PlayerControl tg in Main.AllPlayerControls)
                 {
-                    PlayerControl tg = Main.AllPlayerControls[i];
                     if (!tg.IsModClient()) tg.KillFlash();
                     var pos = pc.transform.position;
                     var dis = UnityEngine.Vector2.Distance(pos, tg.transform.position);
@@ -501,7 +497,7 @@ class ExternalRpcPetPatch
                 }
                 _ = new LateTask(() =>
                 {
-                    var totalAlive = Main.AllAlivePlayerControls.Count;
+                    var totalAlive = Main.AllAlivePlayerControls.Length;
                     if (totalAlive > 1 && !GameStates.IsEnded)
                     {
                         Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Bombed;

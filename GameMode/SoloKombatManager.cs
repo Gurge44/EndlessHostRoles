@@ -96,9 +96,8 @@ internal static class SoloKombatManager
         KBScore = new();
         RoundTime = KB_GameTime.GetInt() + 8;
 
-        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            PlayerControl pc = Main.AllAlivePlayerControls[i];
             PlayerHPMax.TryAdd(pc.PlayerId, KB_HPMax.GetFloat());
             PlayerHP.TryAdd(pc.PlayerId, KB_HPMax.GetFloat());
             PlayerHPReco.TryAdd(pc.PlayerId, KB_RecoverPerSecond.GetFloat());
@@ -210,7 +209,7 @@ internal static class SoloKombatManager
         }
         catch
         {
-            return Main.AllPlayerControls.Count;
+            return Main.AllPlayerControls.Length;
         }
     }
     public static string GetHudText()

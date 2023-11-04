@@ -149,9 +149,8 @@ public static class ElectricTaskInitializePatch
 
         if (!GameStates.IsMeeting)
         {
-            for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                PlayerControl pc = Main.AllAlivePlayerControls[i];
                 if (CustomRolesHelper.NeedUpdateOnLights(pc.GetCustomRole()))
                 {
                     Utils.NotifyRoles(SpecifySeer: pc);
@@ -171,9 +170,8 @@ public static class ElectricTaskCompletePatch
 
         if (!GameStates.IsMeeting)
         {
-            for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                PlayerControl pc = Main.AllAlivePlayerControls[i];
                 if (CustomRolesHelper.NeedUpdateOnLights(pc.GetCustomRole()))
                 {
                     Utils.NotifyRoles(SpecifySeer: pc);

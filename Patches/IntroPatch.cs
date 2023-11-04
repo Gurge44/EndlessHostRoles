@@ -67,35 +67,30 @@ class CoBeginPatch
     {
         var logger = Logger.Handler("Info");
         logger.Info("------------Display Names------------");
-        for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+        foreach (PlayerControl pc in Main.AllPlayerControls)
         {
-            PlayerControl pc = Main.AllPlayerControls[i];
             logger.Info($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc.name.PadRightV2(20)}:{pc.cosmetics.nameText.text} ({Palette.ColorNames[pc.Data.DefaultOutfit.ColorId].ToString().Replace("Color", string.Empty)})");
             pc.cosmetics.nameText.text = pc.name;
         }
         logger.Info("------------Roles------------");
-        for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+        foreach (PlayerControl pc in Main.AllPlayerControls)
         {
-            PlayerControl pc = Main.AllPlayerControls[i];
             logger.Info($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc?.Data?.PlayerName?.PadRightV2(20)}:{pc.GetAllRoleName().RemoveHtmlTags()}");
         }
         logger.Info("------------Platforms------------");
-        for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+        foreach (PlayerControl pc in Main.AllPlayerControls)
         {
-            PlayerControl pc = Main.AllPlayerControls[i];
             try
             {
                 var text = pc.AmOwner ? "[*]" : "   ";
                 text += $"{pc.PlayerId,-2}:{pc.Data?.PlayerName?.PadRightV2(20)}:{pc.GetClient()?.PlatformData?.Platform.ToString()?.Replace("Standalone", string.Empty),-11}";
                 if (Main.playerVersion.TryGetValue(pc.PlayerId, out PlayerVersion pv))
                     text += $":Mod({pv.forkId}/{pv.version}:{pv.tag})";
-                else text += ":Vanilla";
+                else
+                    text += ":Vanilla";
                 logger.Info(text);
             }
-            catch (Exception ex)
-            {
-                Logger.Exception(ex, "Platform");
-            }
+            catch (Exception ex) { Logger.Exception(ex, "Platform"); }
         }
         logger.Info("------------Vanilla Settings------------");
         var tmp = GameOptionsManager.Instance.CurrentGameOptions.ToHudString(GameData.Instance ? GameData.Instance.PlayerCount : 10).Split("\r\n").Skip(1);
@@ -109,7 +104,7 @@ class CoBeginPatch
         }
 
         logger.Info("-------------Other Information-------------");
-        logger.Info($"Number of players: {Main.AllPlayerControls.Count}");
+        logger.Info($"Number of players: {Main.AllPlayerControls.Length}");
         Main.AllPlayerControls.Do(x => Main.PlayerStates[x.PlayerId].InitTask(x));
         GameData.Instance.RecomputeTaskCounts();
         TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
@@ -531,9 +526,8 @@ class IntroCutsceneDestroyPatch
                     {
                         try
                         {
-                            for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+                            foreach (PlayerControl pc in Main.AllPlayerControls)
                             {
-                                var pc = Main.AllPlayerControls.ElementAt(i);
                                 if (pc.PlayerId == 0) continue;
                                 if (pc != null)
                                 {

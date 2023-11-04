@@ -139,40 +139,30 @@ public static class Sniper
         //至近距離で外す対策に一歩後ろから判定を開始する
         snipePos -= dir;
 
-        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+        foreach (PlayerControl target in Main.AllAlivePlayerControls)
         {
-            PlayerControl target = Main.AllAlivePlayerControls[i];
-            //自分には当たらない
-            if (target.PlayerId == sniper.PlayerId) continue;
-            //死んでいない対象の方角ベクトル作成
+            if (target.PlayerId == sniper.PlayerId)
+                continue;
             var target_pos = target.transform.position - snipePos;
-            //自分より後ろの場合はあたらない
-            if (target_pos.magnitude < 1) continue;
-            //正規化して
+            if (target_pos.magnitude < 1)
+                continue;
             var target_dir = target_pos.normalized;
-            //内積を取る
             var target_dot = Vector3.Dot(dir, target_dir);
             Logger.Info($"{target?.Data?.PlayerName}:pos={target_pos} dir={target_dir}", "Sniper");
             Logger.Info($"  Dot={target_dot}", "Sniper");
-
-            //ある程度正確なら登録
-            if (target_dot < 0.995) continue;
-
+            if (target_dot < 0.995)
+                continue;
             if (precisionShooting)
             {
-                //射線との誤差確認
-                //単位ベクトルとの外積をとれば大きさ=誤差になる。
                 var err = Vector3.Cross(dir, target_pos).magnitude;
                 Logger.Info($"  err={err}", "Sniper");
                 if (err < 0.5)
                 {
-                    //ある程度正確なら登録
                     targets.Add(target, err);
                 }
             }
             else
             {
-                //近い順に判定する
                 var err = target_pos.magnitude;
                 Logger.Info($"  err={err}", "Sniper");
                 targets.Add(target, err);

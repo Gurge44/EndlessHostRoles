@@ -112,7 +112,7 @@ public static class FireWorks
             case FireWorksState.ReadyFire:
                 Logger.Info("花火を爆破", "FireWorks");
                 bool suicide = false;
-                for (int i1 = 0; i1 < Main.AllAlivePlayerControls.Count; i1++)
+                for (int i1 = 0; i1 < Main.AllAlivePlayerControls.Length; i1++)
                 {
                     PlayerControl target = Main.AllAlivePlayerControls[i1];
                     for (int i = 0; i < fireWorksPosition[pc.PlayerId].Count; i++)
@@ -137,7 +137,7 @@ public static class FireWorks
                 }
                 if (suicide)
                 {
-                    var totalAlive = Main.AllAlivePlayerControls.Count;
+                    var totalAlive = Main.AllAlivePlayerControls.Length;
                     //自分が最後の生き残りの場合は勝利のために死なない
                     if (totalAlive != 1)
                     {

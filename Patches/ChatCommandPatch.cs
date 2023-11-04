@@ -206,9 +206,8 @@ internal class ChatCommands
                     if (GameStates.IsLobby || !Options.EnableKillerLeftCommand.GetBool()) break;
                     int impnum = 0;
                     int neutralnum = 0;
-                    for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+                    foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                     {
-                        PlayerControl pc = Main.AllAlivePlayerControls[i];
                         if (Options.ShowImpRemainOnEject.GetBool())
                         {
                             if (pc.GetCustomRole().IsImpostor())
@@ -393,9 +392,8 @@ internal class ChatCommands
                         Utils.SendMessage(GetString("Message.CanNotUseInLobby"), localPlayerId);
                         break;
                     }
-                    for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+                    foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                     {
-                        PlayerControl pc = Main.AllAlivePlayerControls[i];
                         pc.RpcSetNameEx(pc.GetRealName(isMeeting: true));
                     }
                     ChatUpdatePatch.DoBlockChat = false;
@@ -406,9 +404,8 @@ internal class ChatCommands
                 case "/id":
                     canceled = true;
                     string msgText = GetString("PlayerIdList");
-                    for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+                    foreach (PlayerControl pc in Main.AllPlayerControls)
                     {
-                        PlayerControl pc = Main.AllPlayerControls[i];
                         msgText += "\n" + pc.PlayerId.ToString() + " → " + Main.AllPlayerNames[pc.PlayerId];
                     }
 
@@ -913,9 +910,8 @@ internal class ChatCommands
                 if (Options.ApplyModeratorList.GetValue() == 0 || !IsPlayerModerator(player.FriendCode)) break;
 
                 string msgText = GetString("PlayerIdList");
-                for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+                foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
-                    PlayerControl pc = Main.AllPlayerControls[i];
                     msgText += "\n" + pc.PlayerId.ToString() + " → " + Main.AllPlayerNames[pc.PlayerId];
                 }
 
@@ -1003,9 +999,8 @@ internal class ChatCommands
                 if (GameStates.IsLobby || !Options.EnableKillerLeftCommand.GetBool()) break;
                 int impnum = 0;
                 int neutralnum = 0;
-                for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+                foreach (PlayerControl players in Main.AllAlivePlayerControls)
                 {
-                    PlayerControl players = Main.AllAlivePlayerControls[i];
                     if (Options.ShowImpRemainOnEject.GetBool())
                     {
                         if (players.GetCustomRole().IsImpostor())

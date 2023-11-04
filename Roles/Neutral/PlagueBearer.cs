@@ -77,14 +77,12 @@ public static class PlagueBearer
     public static (int, int) PlaguedPlayerCount(byte playerId)
     {
         int plagued = 0, all = 0;
-        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            PlayerControl pc = Main.AllAlivePlayerControls[i];
-            if (pc.PlayerId == playerId) continue;
-
+            if (pc.PlayerId == playerId)
+                continue;
             all++;
             if (IsPlagued(playerId, pc.PlayerId))
-                //塗れている場合
                 plagued++;
         }
         return (plagued, all);

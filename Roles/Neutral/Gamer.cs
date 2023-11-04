@@ -49,9 +49,8 @@ public static class Gamer
     {
         playerIdList.Add(playerId);
         GamerHealth.TryAdd(playerId, SelfHealthMax.GetInt());
-        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            PlayerControl pc = Main.AllAlivePlayerControls[i];
             PlayerHealth.TryAdd(pc.PlayerId, HealthMax.GetInt());
         }
 

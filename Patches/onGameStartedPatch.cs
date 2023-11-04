@@ -155,30 +155,25 @@ internal class ChangeRoleSettings
                 Logger.Error(msg, "CoStartGame");
             }
 
-            for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+            foreach (PlayerControl target in Main.AllPlayerControls)
             {
-                PlayerControl target = Main.AllPlayerControls[i];
-                for (int i1 = 0; i1 < Main.AllPlayerControls.Count; i1++)
+                foreach (PlayerControl seer in Main.AllPlayerControls)
                 {
-                    PlayerControl seer = Main.AllPlayerControls[i1];
                     var pair = (target.PlayerId, seer.PlayerId);
                     Main.LastNotifyNames[pair] = target.name;
                 }
             }
-            for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+            foreach (PlayerControl pc in Main.AllPlayerControls)
             {
-                PlayerControl pc = Main.AllPlayerControls[i];
                 var colorId = pc.Data.DefaultOutfit.ColorId;
-                if (AmongUsClient.Instance.AmHost && Options.FormatNameMode.GetInt() == 1) pc.RpcSetName(Palette.GetColorName(colorId));
+                if (AmongUsClient.Instance.AmHost && Options.FormatNameMode.GetInt() == 1)
+                    pc.RpcSetName(Palette.GetColorName(colorId));
                 Main.PlayerStates[pc.PlayerId] = new(pc.PlayerId);
-                //Main.AllPlayerNames[pc.PlayerId] = pc?.Data?.PlayerName;
-
                 Main.PlayerColors[pc.PlayerId] = Palette.PlayerColors[colorId];
-                Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod); //移動速度をデフォルトの移動速度に変更
+                Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                 ReportDeadBodyPatch.CanReport[pc.PlayerId] = true;
                 ReportDeadBodyPatch.WaitReport[pc.PlayerId] = new();
                 pc.cosmetics.nameText.text = pc.name;
-
                 RandomSpawn.CustomNetworkTransformPatch.NumOfTP.Add(pc.PlayerId, 0);
                 var outfit = pc.Data.DefaultOutfit;
                 Camouflage.PlayerSkins[pc.PlayerId] = new GameData.PlayerOutfit().Set(outfit.PlayerName, outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId);
@@ -366,11 +361,9 @@ internal class SelectRolesPatch
         {
             //CustomRpcSenderとRpcSetRoleReplacerの初期化
             Dictionary<byte, CustomRpcSender> senders = new();
-            for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+            foreach (PlayerControl pc in Main.AllPlayerControls)
             {
-                PlayerControl pc = Main.AllPlayerControls[i];
-                senders[pc.PlayerId] = new CustomRpcSender($"{pc.name}'s SetRole Sender", SendOption.Reliable, false)
-                        .StartMessage(pc.GetClientId());
+                senders[pc.PlayerId] = new CustomRpcSender($"{pc.name}'s SetRole Sender", SendOption.Reliable, false).StartMessage(pc.GetClientId());
             }
             RpcSetRoleReplacer.StartReplace(senders);
 
@@ -444,11 +437,11 @@ internal class SelectRolesPatch
 
             //Utils.ApplySuffix();
 
-            for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+            foreach (PlayerControl pc in Main.AllPlayerControls)
             {
-                PlayerControl pc = Main.AllPlayerControls[i];
-                pc.Data.IsDead = false; //プレイヤーの死を解除する
-                if (Main.PlayerStates[pc.PlayerId].MainRole != CustomRoles.NotAssigned) continue; //既にカスタム役職が割り当てられていればスキップ
+                pc.Data.IsDead = false;
+                if (Main.PlayerStates[pc.PlayerId].MainRole != CustomRoles.NotAssigned)
+                    continue;
                 var role = CustomRoles.NotAssigned;
                 switch (pc.Data.Role.Role)
                 {
@@ -513,18 +506,15 @@ internal class SelectRolesPatch
                 }
             }
 
-            for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+            foreach (PlayerControl pc in Main.AllPlayerControls)
             {
-                PlayerControl pc = Main.AllPlayerControls[i];
-                if (pc.Data.Role.Role == RoleTypes.Shapeshifter) Main.CheckShapeshift.Add(pc.PlayerId, false);
+                if (pc.Data.Role.Role == RoleTypes.Shapeshifter)
+                    Main.CheckShapeshift.Add(pc.PlayerId, false);
                 switch (pc.GetCustomRole())
                 {
                     case CustomRoles.BountyHunter:
                         BountyHunter.Add(pc.PlayerId);
                         break;
-                    //case CustomRoles.Reverie:
-                    //    Reverie.Add(pc.PlayerId);
-                    //    break;
                     case CustomRoles.SerialKiller:
                         SerialKiller.Add(pc.PlayerId);
                         break;
@@ -560,9 +550,6 @@ internal class SelectRolesPatch
                     case CustomRoles.Sniper:
                         Sniper.Add(pc.PlayerId);
                         break;
-                    /*     case CustomRoles.Mare:
-                             Mare.Add(pc.PlayerId);
-                             break; */
                     case CustomRoles.Vampire:
                         Vampire.Add(pc.PlayerId);
                         break;
@@ -570,25 +557,20 @@ internal class SelectRolesPatch
                         SwordsMan.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Arsonist:
-                        for (int i1 = 0; i1 < Main.AllPlayerControls.Count; i1++)
+                        foreach (PlayerControl ar in Main.AllPlayerControls)
                         {
-                            PlayerControl ar = Main.AllPlayerControls[i1];
                             Main.isDoused.Add((pc.PlayerId, ar.PlayerId), false);
                         }
-
                         break;
                     case CustomRoles.Revolutionist:
-                        for (int i1 = 0; i1 < Main.AllPlayerControls.Count; i1++)
+                        foreach (PlayerControl ar in Main.AllPlayerControls)
                         {
-                            PlayerControl ar = Main.AllPlayerControls[i1];
                             Main.isDraw.Add((pc.PlayerId, ar.PlayerId), false);
                         }
-
                         break;
                     case CustomRoles.Farseer:
-                        for (int i1 = 0; i1 < Main.AllPlayerControls.Count; i1++)
+                        foreach (PlayerControl ar in Main.AllPlayerControls)
                         {
-                            PlayerControl ar = Main.AllPlayerControls[i1];
                             Main.isRevealed.Add((pc.PlayerId, ar.PlayerId), false);
                         }
                         Farseer.RandomRole.Add(pc.PlayerId, Farseer.GetRandomCrewRoleString());
@@ -609,9 +591,6 @@ internal class SelectRolesPatch
                     case CustomRoles.Sidekick:
                         Sidekick.Add(pc.PlayerId);
                         break;
-                    //case CustomRoles.Baker:
-                    //    Baker.Add(pc.PlayerId);
-                    //    break;
                     case CustomRoles.Cleanser:
                         Cleanser.Add(pc.PlayerId);
                         break;
@@ -643,9 +622,6 @@ internal class SelectRolesPatch
                         Main.TimeMasterNum[pc.PlayerId] = 0;
                         Main.TimeMasterNumOfUsed.Add(pc.PlayerId, Options.TimeMasterMaxUses.GetInt());
                         break;
-                    //case CustomRoles.Masochist:
-                    //    Main.MasochistKillMax[pc.PlayerId] = 0;
-                    //    break;
                     case CustomRoles.Paranoia:
                         Main.ParaUsedButtonCount[pc.PlayerId] = 0;
                         break;
@@ -673,9 +649,6 @@ internal class SelectRolesPatch
                     case CustomRoles.Tether:
                         Tether.Add(pc.PlayerId);
                         break;
-                    //case CustomRoles.Counterfeiter:
-                    //    Counterfeiter.Add(pc.PlayerId);
-                    //    break;
                     case CustomRoles.Aid:
                         Aid.Add(pc.PlayerId);
                         break;
@@ -917,9 +890,6 @@ internal class SelectRolesPatch
                     case CustomRoles.Traitor:
                         Traitor.Add(pc.PlayerId);
                         break;
-                    //case CustomRoles.NWitch:
-                    //    NWitch.Add(pc.PlayerId);
-                    //    break;
                     case CustomRoles.Maverick:
                         Maverick.Add(pc.PlayerId);
                         break;
@@ -989,21 +959,7 @@ internal class SelectRolesPatch
                     case CustomRoles.Disperser:
                         Disperser.Add(pc.PlayerId);
                         break;
-                        //case CustomRoles.Pirate:
-                        //    Pirate.Add(pc.PlayerId);
-                        //    break;
                 }
-                //List<CustomRoles> list = pc.GetCustomSubRoles();
-                //for (int i = 0; i < list.Count; i++)
-                //{
-                //    CustomRoles subRole = list[i];
-                //    switch (subRole)
-                //    {
-                //        // ここに属性のAddを追加
-                //        default:
-                //            break;
-                //    }
-                //}
             }
 
         EndOfSelectRolePatch:
@@ -1011,9 +967,8 @@ internal class SelectRolesPatch
             HudManager.Instance.SetHudActive(true);
             List<PlayerControl> AllPlayers = new();
             CustomRpcSender sender = CustomRpcSender.Create("SelectRoles Sender", SendOption.Reliable);
-            for (int i2 = 0; i2 < Main.AllPlayerControls.Count; i2++)
+            foreach (PlayerControl pc in Main.AllPlayerControls)
             {
-                PlayerControl pc = Main.AllPlayerControls[i2];
                 pc.ResetKillCooldown();
             }
 
@@ -1043,12 +998,9 @@ internal class SelectRolesPatch
             }
 
             GameOptionsSender.AllSenders.Clear();
-            for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+            foreach (PlayerControl pc in Main.AllPlayerControls)
             {
-                PlayerControl pc = Main.AllPlayerControls[i];
-                GameOptionsSender.AllSenders.Add(
-                    new PlayerGameOptionsSender(pc)
-                );
+                GameOptionsSender.AllSenders.Add(new PlayerGameOptionsSender(pc));
             }
 
             // ResetCamが必要なプレイヤーのリストにクラス化が済んでいない役職のプレイヤーを追加
@@ -1075,9 +1027,8 @@ internal class SelectRolesPatch
         var othersRole = player.PlayerId == hostId ? RoleTypes.Crewmate : RoleTypes.Scientist;
 
         //Desync役職視点
-        for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+        foreach (PlayerControl target in Main.AllPlayerControls)
         {
-            PlayerControl target = Main.AllPlayerControls[i];
             rolesMap[(player.PlayerId, target.PlayerId)] = player.PlayerId != target.PlayerId ? othersRole : selfRole;
         }
 
@@ -1094,13 +1045,11 @@ internal class SelectRolesPatch
     }
     public static void MakeDesyncSender(Dictionary<byte, CustomRpcSender> senders, Dictionary<(byte, byte), RoleTypes> rolesMap)
     {
-        for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+        foreach (PlayerControl seer in Main.AllPlayerControls)
         {
-            PlayerControl seer = Main.AllPlayerControls[i];
             var sender = senders[seer.PlayerId];
-            for (int i1 = 0; i1 < Main.AllPlayerControls.Count; i1++)
+            foreach (PlayerControl target in Main.AllPlayerControls)
             {
-                PlayerControl target = Main.AllPlayerControls[i1];
                 if (rolesMap.TryGetValue((seer.PlayerId, target.PlayerId), out var role))
                 {
                     sender.RpcSetRole(seer, role, target.GetClientId());
@@ -1176,12 +1125,10 @@ internal class SelectRolesPatch
     private static void AssignLoversRoles(int RawCount = -1)
     {
         var allPlayers = new List<PlayerControl>();
-        for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+        foreach (PlayerControl pc in Main.AllPlayerControls)
         {
-            PlayerControl pc = Main.AllPlayerControls[i];
             if (pc.Is(CustomRoles.GM)
                 || (pc.HasSubRole() && pc.GetCustomSubRoles().Count >= Options.NoLimitAddonsNumMax.GetInt())
-                //|| pc.Is(CustomRoles.Ntr)
                 || pc.Is(CustomRoles.Dictator)
                 || pc.Is(CustomRoles.God)
                 || pc.Is(CustomRoles.FFF)

@@ -44,9 +44,8 @@ public static class AntiBlackout
         {
             int numImpostors = 0;
             int numCrewmates = 0;
-            for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+            foreach (PlayerControl pc in Main.AllPlayerControls)
             {
-                PlayerControl pc = Main.AllPlayerControls[i];
                 if (pc.Data.Role.IsImpostor) numImpostors++;
                 else numCrewmates++;
             }

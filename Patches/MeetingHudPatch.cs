@@ -429,9 +429,8 @@ class CheckForEndVotingPatch
             goto EndOfSession;
         }
 
-        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            PlayerControl pc = Main.AllAlivePlayerControls[i];
             var pc_role = pc.GetCustomRole();
             if (pc_role.IsImpostor() && pc != exiledPlayer.Object)
                 impnum++;
@@ -581,10 +580,10 @@ class CheckForEndVotingPatch
     private static PlayerControl PickRevengeTarget(PlayerControl exiledplayer/*, PlayerState.DeathReason deathReason*/)//道連れ先選定
     {
         List<PlayerControl> TargetList = new();
-        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+        foreach (PlayerControl candidate in Main.AllAlivePlayerControls)
         {
-            PlayerControl candidate = Main.AllAlivePlayerControls[i];
-            if (candidate == exiledplayer || Main.AfterMeetingDeathPlayers.ContainsKey(candidate.PlayerId)) continue;
+            if (candidate == exiledplayer || Main.AfterMeetingDeathPlayers.ContainsKey(candidate.PlayerId))
+                continue;
         }
         if (TargetList == null || !TargetList.Any()) return null;
         var rand = IRandom.Instance;
@@ -740,7 +739,7 @@ class MeetingHudStartPatch
             AddMsg(string.Format(GetString("BaitAdviceAlive"), string.Join(separator, baitAliveList)), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Bait), GetString("BaitAliveTitle")));
         }
         string MimicMsg = string.Empty;
-        for (int i1 = 0; i1 < Main.AllPlayerControls.Count; i1++)
+        for (int i1 = 0; i1 < Main.AllPlayerControls.Length; i1++)
         {
             PlayerControl pc = Main.AllPlayerControls[i1];
             //黑手党死后技能提示
@@ -913,9 +912,8 @@ class MeetingHudStartPatch
         {
             _ = _ = new LateTask(() =>
             {
-                for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+                foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
-                    PlayerControl pc = Main.AllPlayerControls[i];
                     pc.RpcSetNameEx(pc.GetRealName(isMeeting: true));
                 }
                 ChatUpdatePatch.DoBlockChat = false;
@@ -1273,9 +1271,8 @@ class MeetingHudUpdatePatch
         {
             Logger.Fatal(ex.ToString(), "MeetingHudUpdatePatch.Postfix");
             Logger.Warn("All Players and their info:", "Debug for Fatal Error");
-            for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+            foreach (PlayerControl pc in Main.AllPlayerControls)
             {
-                PlayerControl pc = Main.AllPlayerControls[i];
                 Logger.Info($" {(pc.IsAlive() ? "Alive" : $"Dead ({Main.PlayerStates[pc.PlayerId].deathReason})")}, {Utils.GetProgressText(pc)}, {Utils.GetVitalText(pc.PlayerId)}", $"{pc.GetNameWithRole()} / {pc.PlayerId}");
             }
             Logger.Warn("-----------------", "Debug for Fatal Error");

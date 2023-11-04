@@ -190,9 +190,8 @@ public static class Witch
                 SpelledPlayer[id].Clear();
         }
         var spelledIdList = new List<byte>();
-        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            PlayerControl pc = Main.AllAlivePlayerControls[i];
             var dic = SpelledPlayer.Where(x => x.Value.Contains(pc.PlayerId));
             if (!dic.Any()) continue;
             var whichId = dic.FirstOrDefault().Key;

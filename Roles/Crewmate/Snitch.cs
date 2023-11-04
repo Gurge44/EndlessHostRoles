@@ -86,9 +86,8 @@ public static class Snitch
 
         if (!IsExposed[snitchId] && snitchTask.RemainingTasksCount <= RemainingTasksToBeFound)
         {
-            for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+            foreach (PlayerControl target in Main.AllAlivePlayerControls)
             {
-                PlayerControl target = Main.AllAlivePlayerControls[i];
                 if (!IsSnitchTarget(target)) continue;
 
                 TargetArrow.Add(target.PlayerId, snitchId);
@@ -98,9 +97,8 @@ public static class Snitch
 
         if (IsComplete[snitchId] || !snitchTask.IsTaskFinished) return;
 
-        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+        foreach (PlayerControl target in Main.AllAlivePlayerControls)
         {
-            PlayerControl target = Main.AllAlivePlayerControls[i];
             if (!IsSnitchTarget(target)) continue;
 
             var targetId = target.PlayerId;

@@ -71,9 +71,8 @@ public static class Lawyer
         {
             List<PlayerControl> targetList = new();
             var rand = IRandom.Instance;
-            for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+            foreach (PlayerControl target in Main.AllPlayerControls)
             {
-                PlayerControl target = Main.AllPlayerControls[i];
                 if (playerId == target.PlayerId) continue;
                 else if (!CanTargetImpostor.GetBool() && target.Is(CustomRoleTypes.Impostor)) continue;
                 else if (!CanTargetNeutralKiller.GetBool() && target.IsNeutralKiller()) continue;

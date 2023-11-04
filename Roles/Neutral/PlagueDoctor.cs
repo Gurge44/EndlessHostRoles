@@ -164,9 +164,8 @@ namespace TOHE.Roles.Neutral
                 var changed = false;
                 var inVent = player.inVent;
                 List<PlayerControl> updates = new();
-                for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+                foreach (PlayerControl target in Main.AllAlivePlayerControls)
                 {
-                    PlayerControl target = Main.AllAlivePlayerControls[i];
                     // Plague doctors are excluded if they cannot infect themselves.
                     if (!CanInfect(target)) continue;
                     // Excluded if inside or outside the vent
@@ -230,9 +229,8 @@ namespace TOHE.Roles.Neutral
             if (!seen.Is(CustomRoles.PlagueDoctor)) return string.Empty;
             if (!seer.Is(CustomRoles.PlagueDoctor) && seer.IsAlive()) return string.Empty;
             var str = new StringBuilder(40);
-            for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+            foreach (PlayerControl player in Main.AllAlivePlayerControls)
             {
-                PlayerControl player = Main.AllAlivePlayerControls[i];
                 if (!player.Is(CustomRoles.PlagueDoctor))
                     str.Append(GetInfectRateCharactor(player));
             }
@@ -276,10 +274,10 @@ namespace TOHE.Roles.Neutral
             {
                 InfectActive = false;
 
-                for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+                foreach (PlayerControl player in Main.AllAlivePlayerControls)
                 {
-                    PlayerControl player = Main.AllAlivePlayerControls[i];
-                    if (player.Is(CustomRoles.PlagueDoctor)) continue;
+                    if (player.Is(CustomRoles.PlagueDoctor))
+                        continue;
                     player.SetRealKiller(null);
                     player.Kill(player);
                     var state = Main.PlayerStates[player.PlayerId];

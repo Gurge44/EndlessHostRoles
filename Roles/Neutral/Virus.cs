@@ -130,9 +130,8 @@ namespace TOHE.Roles.Neutral
             }
 
             var infectedIdList = new List<byte>();
-            for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                PlayerControl pc = Main.AllAlivePlayerControls[i];
                 bool isInfected = InfectedPlayer.Contains(pc.PlayerId);
                 if (!isInfected) continue;
 

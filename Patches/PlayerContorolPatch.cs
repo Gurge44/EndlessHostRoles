@@ -804,9 +804,8 @@ class CheckMurderPatch
         //  }
         if (Main.ForCrusade.Contains(target.PlayerId))
         {
-            for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+            foreach (PlayerControl player in Main.AllPlayerControls)
             {
-                PlayerControl player = Main.AllPlayerControls[i];
                 if (player.Is(CustomRoles.Crusader) && player.IsAlive() && !killer.Is(CustomRoles.Pestilence) && !killer.Is(CustomRoles.Minimalism))
                 {
                     player.Kill(killer);
@@ -898,9 +897,8 @@ class CheckMurderPatch
                 if (Main.TimeMasterInProtect.ContainsKey(target.PlayerId) && killer.PlayerId != target.PlayerId)
                     if (Main.TimeMasterInProtect[target.PlayerId] + Options.TimeMasterSkillDuration.GetInt() >= GetTimeStamp(DateTime.UtcNow))
                     {
-                        for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+                        foreach (PlayerControl player in Main.AllPlayerControls)
                         {
-                            PlayerControl player = Main.AllPlayerControls[i];
                             if (!killer.Is(CustomRoles.Pestilence))
                             {
                                 if (Main.TimeMasterBackTrack.ContainsKey(player.PlayerId))
@@ -1126,7 +1124,7 @@ class MurderPlayerPatch
                 Wildling.OnMurderPlayer(killer, target);
                 break;
             case CustomRoles.Underdog:
-                int playerCount = Main.AllAlivePlayerControls.Count;
+                int playerCount = Main.AllAlivePlayerControls.Length;
                 if (playerCount < Options.UnderdogMaximumPlayersNeededToKill.GetInt())
                     Main.AllPlayerKillCooldown[killer.PlayerId] = Options.UnderdogKillCooldown.GetFloat();
                 else Main.AllPlayerKillCooldown[killer.PlayerId] = Options.UnderdogKillCooldownWithMorePlayersAlive.GetFloat();
@@ -1317,14 +1315,16 @@ class ShapeshiftPatch
                             Vector2 cppos = cp.transform.position;//呪われた人の位置
                             Dictionary<PlayerControl, float> cpdistance = new();
                             float dis;
-                            for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+                            foreach (PlayerControl p in Main.AllAlivePlayerControls)
                             {
-                                PlayerControl p = Main.AllAlivePlayerControls[i];
-                                if (p.PlayerId == cp.PlayerId) continue;
-                                if (!Options.WarlockCanKillSelf.GetBool() && p.PlayerId == shapeshifter.PlayerId) continue;
-                                if (!Options.WarlockCanKillAllies.GetBool() && p.GetCustomRole().IsImpostor()) continue;
-                                if (p.Is(CustomRoles.Pestilence)) continue;
-                                if (Pelican.IsEaten(p.PlayerId) || Medic.ProtectList.Contains(p.PlayerId)) continue;
+                                if (p.PlayerId == cp.PlayerId
+                                    || (!Options.WarlockCanKillSelf.GetBool() && p.PlayerId == shapeshifter.PlayerId)
+                                    || (!Options.WarlockCanKillAllies.GetBool() && p.GetCustomRole().IsImpostor())
+                                    || p.Is(CustomRoles.Pestilence)
+                                    || Pelican.IsEaten(p.PlayerId)
+                                    || Medic.ProtectList.Contains(p.PlayerId))
+                                    continue;
+
                                 dis = Vector2.Distance(cppos, p.transform.position);
                                 cpdistance.Add(p, dis);
                                 Logger.Info($"{p?.Data?.PlayerName}の位置{dis}", "Warlock");
@@ -1388,17 +1388,18 @@ class ShapeshiftPatch
                     {
                         Logger.Info("炸弹爆炸了", "Boom");
                         CustomSoundsManager.RPCPlayCustomSoundAll("Boom");
-                        for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+                        foreach (PlayerControl tg in Main.AllPlayerControls)
                         {
-                            PlayerControl tg = Main.AllPlayerControls[i];
-                            if (!tg.IsModClient()) tg.KillFlash();
+                            if (!tg.IsModClient())
+                                tg.KillFlash();
                             var pos = shapeshifter.transform.position;
                             var dis = Vector2.Distance(pos, tg.transform.position);
-
-                            if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || (tg.Is(CustomRoleTypes.Impostor) && Options.ImpostorsSurviveBombs.GetBool()) || tg.inVent || tg.Is(CustomRoles.Pestilence)) continue;
-                            if (dis > Options.BomberRadius.GetFloat()) continue;
-                            if (tg.PlayerId == shapeshifter.PlayerId) continue;
-
+                            if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || (tg.Is(CustomRoleTypes.Impostor) && Options.ImpostorsSurviveBombs.GetBool()) || tg.inVent || tg.Is(CustomRoles.Pestilence))
+                                continue;
+                            if (dis > Options.BomberRadius.GetFloat())
+                                continue;
+                            if (tg.PlayerId == shapeshifter.PlayerId)
+                                continue;
                             Main.PlayerStates[tg.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
                             tg.SetRealKiller(shapeshifter);
                             tg.Kill(tg);
@@ -1406,7 +1407,7 @@ class ShapeshiftPatch
                         }
                         _ = new LateTask(() =>
                         {
-                            var totalAlive = Main.AllAlivePlayerControls.Count;
+                            var totalAlive = Main.AllAlivePlayerControls.Length;
                             if (Options.BomberDiesInExplosion.GetBool() && totalAlive > 1 && !GameStates.IsEnded)
                             {
                                 Main.PlayerStates[shapeshifter.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
@@ -1427,17 +1428,18 @@ class ShapeshiftPatch
                     {
                         Logger.Info("炸弹爆炸了", "Boom");
                         CustomSoundsManager.RPCPlayCustomSoundAll("Boom");
-                        for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+                        foreach (PlayerControl tg in Main.AllPlayerControls)
                         {
-                            PlayerControl tg = Main.AllPlayerControls[i];
-                            if (!tg.IsModClient()) tg.KillFlash();
+                            if (!tg.IsModClient())
+                                tg.KillFlash();
                             var pos = shapeshifter.transform.position;
                             var dis = Vector2.Distance(pos, tg.transform.position);
-
-                            if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || tg.inVent || tg.Is(CustomRoles.Pestilence)) continue;
-                            if (dis > Options.NukeRadius.GetFloat()) continue;
-                            if (tg.PlayerId == shapeshifter.PlayerId) continue;
-
+                            if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || tg.inVent || tg.Is(CustomRoles.Pestilence))
+                                continue;
+                            if (dis > Options.NukeRadius.GetFloat())
+                                continue;
+                            if (tg.PlayerId == shapeshifter.PlayerId)
+                                continue;
                             Main.PlayerStates[tg.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
                             tg.SetRealKiller(shapeshifter);
                             tg.Kill(tg);
@@ -1445,7 +1447,7 @@ class ShapeshiftPatch
                         }
                         _ = new LateTask(() =>
                         {
-                            var totalAlive = Main.AllAlivePlayerControls.Count;
+                            var totalAlive = Main.AllAlivePlayerControls.Length;
                             if (totalAlive > 1 && !GameStates.IsEnded)
                             {
                                 Main.PlayerStates[shapeshifter.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
@@ -1871,15 +1873,13 @@ class ReportDeadBodyPatch
 
         if (Options.InhibitorCDAfterMeetings.GetFloat() != Options.InhibitorCD.GetFloat() || Options.SaboteurCD.GetFloat() != Options.SaboteurCDAfterMeetings.GetFloat())
         {
-            for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+            foreach (PlayerControl x in Main.AllAlivePlayerControls)
             {
-                PlayerControl x = Main.AllAlivePlayerControls[i];
                 if (x.Is(CustomRoles.Inhibitor))
                 {
                     Main.AllPlayerKillCooldown[x.PlayerId] = Options.InhibitorCDAfterMeetings.GetFloat();
                     continue;
                 }
-
                 if (x.Is(CustomRoles.Saboteur))
                 {
                     Main.AllPlayerKillCooldown[x.PlayerId] = Options.SaboteurCDAfterMeetings.GetFloat();
@@ -2638,15 +2638,12 @@ class FixedUpdatePatch
                         Vector2 puppeteerPos = player.transform.position;//PuppeteerListのKeyの位置
                         Dictionary<byte, float> targetDistance = new();
                         float dis;
-                        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+                        foreach (PlayerControl target in Main.AllAlivePlayerControls)
                         {
-                            PlayerControl target = Main.AllAlivePlayerControls[i];
+                            if (target.PlayerId != player.PlayerId && !target.Is(CustomRoleTypes.Impostor) && !target.Is(CustomRoles.Pestilence))
                             {
-                                if (target.PlayerId != player.PlayerId && !target.Is(CustomRoleTypes.Impostor) && !target.Is(CustomRoles.Pestilence))
-                                {
-                                    dis = Vector2.Distance(puppeteerPos, target.transform.position);
-                                    targetDistance.Add(target.PlayerId, dis);
-                                }
+                                dis = Vector2.Distance(puppeteerPos, target.transform.position);
+                                targetDistance.Add(target.PlayerId, dis);
                             }
                         }
                         if (targetDistance.Any())
@@ -2686,9 +2683,8 @@ class FixedUpdatePatch
                         Vector2 puppeteerPos = player.transform.position;//PuppeteerListのKeyの位置
                         Dictionary<byte, float> targetDistance = new();
                         float dis;
-                        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+                        foreach (PlayerControl target in Main.AllAlivePlayerControls)
                         {
-                            PlayerControl target = Main.AllAlivePlayerControls[i];
                             if (target.PlayerId != player.PlayerId && !target.Is(CustomRoles.Pestilence))
                             {
                                 dis = Vector2.Distance(puppeteerPos, target.transform.position);
@@ -2730,9 +2726,8 @@ class FixedUpdatePatch
                 }
 
                 if (GameStates.IsInGame && Main.RefixCooldownDelay <= 0)
-                    for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+                    foreach (PlayerControl pc in Main.AllPlayerControls)
                     {
-                        PlayerControl pc = Main.AllPlayerControls[i];
                         if (pc.Is(CustomRoles.Vampire) || pc.Is(CustomRoles.Warlock) || pc.Is(CustomRoles.Assassin) || pc.Is(CustomRoles.Undertaker) || pc.Is(CustomRoles.Poisoner))
                             Main.AllPlayerKillCooldown[pc.PlayerId] = Options.DefaultKillCooldown * 2;
                     }
@@ -3370,9 +3365,8 @@ class EnterVentPatch
                         //if (!pc.IsModClient()) pc.RpcGuardAndKill(pc);
                         pc.Notify(GetString("TimeMasterOnGuard"), Options.TimeMasterSkillDuration.GetFloat());
                         Main.TimeMasterCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                        for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+                        foreach (PlayerControl player in Main.AllPlayerControls)
                         {
-                            PlayerControl player = Main.AllPlayerControls[i];
                             if (Main.TimeMasterBackTrack.ContainsKey(player.PlayerId))
                             {
                                 var position = Main.TimeMasterBackTrack[player.PlayerId];
@@ -3403,7 +3397,7 @@ class CoEnterVentPatch
     {
         if (!AmongUsClient.Instance.AmHost) return true;
 
-        if (Options.CurrentGameMode == CustomGameMode.FFA && FFAManager.FFA_DisableVentingWhenTwoPlayersAlive.GetBool() && Main.AllAlivePlayerControls.Count <= 2)
+        if (Options.CurrentGameMode == CustomGameMode.FFA && FFAManager.FFA_DisableVentingWhenTwoPlayersAlive.GetBool() && Main.AllAlivePlayerControls.Length <= 2)
         {
             var pc = __instance.myPlayer;
             if (pc.killTimer <= 0)
@@ -3460,21 +3454,18 @@ class CoEnterVentPatch
             if (__instance.myPlayer.IsDouseDone())
             {
                 CustomSoundsManager.RPCPlayCustomSoundAll("Boom");
-                for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
-                    PlayerControl pc = Main.AllAlivePlayerControls[i];
                     if (pc != __instance.myPlayer)
                     {
-                        //生存者は焼殺
                         pc.SetRealKiller(__instance.myPlayer);
                         Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Torched;
                         pc.Kill(pc);
                         Main.PlayerStates[pc.PlayerId].SetDead();
                     }
                 }
-                for (int i1 = 0; i1 < Main.AllPlayerControls.Count; i1++)
+                foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
-                    PlayerControl pc = Main.AllPlayerControls[i1];
                     pc.KillFlash();
                 }
 
@@ -3488,17 +3479,17 @@ class CoEnterVentPatch
                 if (douseCount >= Options.ArsonistMinPlayersToIgnite.GetInt()) // Don't check for max, since the player would not be able to ignite at all if they somehow get more players doused than the max
                 {
                     if (douseCount > Options.ArsonistMaxPlayersToIgnite.GetInt()) Logger.Warn("Arsonist Ignited with more players doused than the maximum amount in the settings", "Arsonist Ignite");
-                    for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+                    foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                     {
-                        PlayerControl pc = Main.AllAlivePlayerControls[i];
-                        if (!__instance.myPlayer.IsDousedPlayer(pc)) continue;
+                        if (!__instance.myPlayer.IsDousedPlayer(pc))
+                            continue;
                         pc.KillFlash();
                         pc.SetRealKiller(__instance.myPlayer);
                         Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Torched;
                         pc.Kill(pc);
                         Main.PlayerStates[pc.PlayerId].SetDead();
                     }
-                    var apc = Main.AllAlivePlayerControls.Count;
+                    var apc = Main.AllAlivePlayerControls.Length;
                     if (apc == 1)
                     {
                         CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist);
@@ -3711,9 +3702,8 @@ class PlayerControlSetRolePatch
         {
             var targetIsKiller = target.Is(CustomRoleTypes.Impostor) || Main.ResetCamPlayerList.Contains(target.PlayerId);
             var ghostRoles = new Dictionary<PlayerControl, RoleTypes>();
-            for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+            foreach (PlayerControl seer in Main.AllPlayerControls)
             {
-                PlayerControl seer = Main.AllPlayerControls[i];
                 var self = seer.PlayerId == target.PlayerId;
                 var seerIsKiller = seer.Is(CustomRoleTypes.Impostor) || Main.ResetCamPlayerList.Contains(seer.PlayerId);
                 if (target.Is(CustomRoles.EvilSpirit))

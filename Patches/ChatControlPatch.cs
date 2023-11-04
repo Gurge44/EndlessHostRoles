@@ -147,14 +147,14 @@ public class ChatManager
         string msg = Utils.EmptyMessage();
         List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x is not CustomRoles.KB_Normal and not CustomRoles.Killer).ToList();
         string[] specialTexts = new string[] { "bet", "bt", "guess", "gs", "shoot", "st", "赌", "猜", "审判", "tl", "判", "审", "trial" };
-        var totalAlive = Main.AllAlivePlayerControls.Count;
+        var totalAlive = Main.AllAlivePlayerControls.Length;
         var x = Main.AllAlivePlayerControls;
 
-        var filtered = chatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(((string[])a.Split(':'))[0].Trim())).IsAlive()).ToList();
+        var filtered = chatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(((string[])a.Split(':'))[0].Trim())).IsAlive()).ToArray();
 
         if (!realMessagesOnly)
         {
-            for (int i = filtered.Count; i < 20; i++)
+            for (int i = filtered.Length; i < 20; i++)
             {
                 var player = x[IRandom.Instance.Next(0, totalAlive)];
                 DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
@@ -162,7 +162,7 @@ public class ChatManager
             }
         }
 
-        for (int i = 0; i < filtered.Count; i++)
+        for (int i = 0; i < filtered.Length; i++)
         {
             var entryParts = chatHistory[i].Split(':');
             var senderId = entryParts[0].Trim();

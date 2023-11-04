@@ -85,9 +85,8 @@ public static class Camouflage
 
         if (oldIsCamouflage != IsCamouflage)
         {
-            for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+            foreach (PlayerControl pc in Main.AllPlayerControls)
             {
-                PlayerControl pc = Main.AllPlayerControls[i];
                 RpcSetSkin(pc);
             }
             Utils.NotifyRoles();

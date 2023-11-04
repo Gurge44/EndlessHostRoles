@@ -115,9 +115,8 @@ static class ExtendedPlayerControl
     }
     public static void RpcSetNameEx(this PlayerControl player, string name)
     {
-        for (int i = 0; i < Main.AllPlayerControls.Count; i++)
+        foreach (PlayerControl seer in Main.AllPlayerControls)
         {
-            PlayerControl seer = Main.AllPlayerControls[i];
             Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
         }
         HudManagerPatch.LastSetNameDesyncCount++;
@@ -1367,9 +1366,8 @@ static class ExtendedPlayerControl
     public static Dictionary<string, int> GetAllPlayerLocationsCount()
     {
         Dictionary<string, int> playerRooms = new();
-        for (int i1 = 0; i1 < Main.AllAlivePlayerControls.Count; i1++)
+        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            PlayerControl pc = Main.AllAlivePlayerControls[i1];
             if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return null;
             var Rooms = ShipStatus.Instance.AllRooms;
             if (Rooms == null) return null;

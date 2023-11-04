@@ -16,7 +16,7 @@ internal class CustomRoleSelector
         // 开始职业抽取
         RoleResult = new();
         var rd = IRandom.Instance;
-        int playerCount = Main.AllAlivePlayerControls.Count;
+        int playerCount = Main.AllAlivePlayerControls.Length;
         int optImpNum = Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors);
         int optNonNeutralKillingNum = 0;
         int optNeutralKillingNum = 0;
@@ -60,9 +60,8 @@ internal class CustomRoleSelector
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
         {
             RoleResult = new();
-            for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                PlayerControl pc = Main.AllAlivePlayerControls[i];
                 RoleResult.Add(pc, CustomRoles.KB_Normal);
             }
 
@@ -71,9 +70,8 @@ internal class CustomRoleSelector
         if (Options.CurrentGameMode == CustomGameMode.FFA)
         {
             RoleResult = new();
-            for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                PlayerControl pc = Main.AllAlivePlayerControls[i];
                 RoleResult.Add(pc, CustomRoles.Killer);
             }
 
@@ -328,7 +326,7 @@ internal class CustomRoleSelector
             }
         }
 
-        var AllPlayer = Main.AllAlivePlayerControls;
+        var AllPlayer = Main.AllAlivePlayerControls.ToList();
 
         while (AllPlayer.Any() && rolesToAssign.Any())
         {
@@ -342,7 +340,7 @@ internal class CustomRoleSelector
                     var id = rolesToAssign.IndexOf(dr.Value);
                     if (id == -1) continue;
                     RoleResult.Add(pc, rolesToAssign[id]);
-                    Logger.Info($"职业优先分配：{AllPlayer[0].GetRealName()} => {rolesToAssign[id]}", "CustomRoleSelector");
+                    Logger.Info($"Role priority allocation：{AllPlayer[0].GetRealName()} => {rolesToAssign[id]}", "CustomRoleSelector");
                     delPc = pc;
                     rolesToAssign.RemoveAt(id);
                     goto EndOfWhile;

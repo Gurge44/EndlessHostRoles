@@ -83,9 +83,8 @@ public static class Tracefinder
         var pos = target.GetTruePosition();
         float minDis = float.MaxValue;
         string minName = string.Empty;
-        for (int i = 0; i < Main.AllAlivePlayerControls.Count; i++)
+        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            PlayerControl pc = Main.AllAlivePlayerControls[i];
             if (pc.PlayerId == target.PlayerId) continue;
             var dis = Vector2.Distance(pc.GetTruePosition(), pos);
             if (dis < minDis && dis < 1.5f)
