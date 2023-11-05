@@ -281,7 +281,7 @@ internal static class SoloKombatManager
         originalSpeed.Remove(target.PlayerId);
         originalSpeed.Add(target.PlayerId, Main.AllPlayerSpeed[target.PlayerId]);
 
-        Utils.TP(target.NetTransform, Pelican.GetBlackRoomPS());
+        target.TP(Pelican.GetBlackRoomPS());
         Main.AllPlayerSpeed[target.PlayerId] = 0.3f;
         target.MarkDirtySettings();
 
@@ -347,7 +347,7 @@ internal static class SoloKombatManager
                     if (pc.inVent && KB_BootVentWhenDead.GetBool()) pc.MyPhysics.RpcExitVent(2);
                     var pos = Pelican.GetBlackRoomPS();
                     var dis = Vector2.Distance(pos, pc.GetTruePosition());
-                    if (dis > 1f) Utils.TP(pc.NetTransform, pos);
+                    if (dis > 1f) pc.TP(pos);
                 }
 
                 if (LastFixedUpdate == Utils.GetTimeStamp()) return;

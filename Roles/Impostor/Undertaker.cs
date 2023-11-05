@@ -104,13 +104,13 @@ internal static class Undertaker
             {
                 if (!(target == null || !target.IsAlive() || Pelican.IsEaten(target.PlayerId) || target.inVent || !GameStates.IsInTask))
                 {
-                    Utils.TP(target.NetTransform, new UnityEngine.Vector2(pc.transform.position.x, pc.transform.position.y + 0.3636f));
+                    target.TP(new UnityEngine.Vector2(pc.transform.position.x, pc.transform.position.y + 0.3636f));
                     pc.ResetKillCooldown();
                     pc.SyncSettings();
                     pc.SetKillCooldown();
                     pc.RpcCheckAndMurder(target);
                 }
-            }, UsePets.GetBool() ? 0.1f : 1.5f, "Undertaker Assassinate");
+            }, UsePets.GetBool() ? 0.1f : 0.2f, "Undertaker Assassinate");
         }
     }
     public static void SetKillButtonText(byte playerId)

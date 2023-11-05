@@ -103,13 +103,13 @@ internal static class Assassin
             {
                 if (!(target == null || !target.IsAlive() || Pelican.IsEaten(target.PlayerId) || target.inVent || !GameStates.IsInTask))
                 {
-                    Utils.TP(pc.NetTransform, target.GetTruePosition());
+                    pc.TP(target.GetTruePosition());
                     pc.ResetKillCooldown();
                     pc.SyncSettings();
                     pc.SetKillCooldown(DefaultKillCooldown);
                     pc.RpcCheckAndMurder(target);
                 }
-            }, UsePets.GetBool() ? 0.1f : 1.5f, "Assassin Assassinate");
+            }, UsePets.GetBool() ? 0.1f : 0.2f, "Assassin Assassinate");
             return;
         }
     }

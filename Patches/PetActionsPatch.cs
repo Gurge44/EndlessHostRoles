@@ -304,7 +304,7 @@ class ExternalRpcPetPatch
                         if (Main.TimeMasterBackTrack.ContainsKey(player.PlayerId))
                         {
                             var position = Main.TimeMasterBackTrack[player.PlayerId];
-                            Utils.TP(player.NetTransform, position);
+                            player.TP(position);
                             if (pc != player)
                                 player?.MyPhysics?.RpcBootFromVent(player.PlayerId);
                             Main.TimeMasterBackTrack.Remove(player.PlayerId);
@@ -410,7 +410,7 @@ class ExternalRpcPetPatch
                     var vent = Main.LastEnteredVent[pc.PlayerId];
                     var position = Main.LastEnteredVentLocation[pc.PlayerId];
                     Logger.Msg($"{pc.GetNameWithRole().RemoveHtmlTags()}:{position}", "MinerTeleport");
-                    Utils.TP(pc.NetTransform, new UnityEngine.Vector2(position.x, position.y));
+                    pc.TP(new UnityEngine.Vector2(position.x, position.y));
                 }
                 Main.MinerCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
@@ -425,7 +425,7 @@ class ExternalRpcPetPatch
                     var position = Main.EscapeeLocation[pc.PlayerId];
                     Main.EscapeeLocation.Remove(pc.PlayerId);
                     Logger.Msg($"{pc.GetNameWithRole().RemoveHtmlTags()}:{position}", "EscapeeTeleport");
-                    Utils.TP(pc.NetTransform, position);
+                    pc.TP(position);
                     pc.RPCPlayCustomSound("Teleport");
                 }
                 else

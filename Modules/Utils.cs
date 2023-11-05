@@ -2433,24 +2433,24 @@ public static class Utils
     {
         if (Options.DiseasedCDReset.GetBool())
         {
-            foreach (var pid in Main.KilledDiseased.Keys)
+            var array = Main.KilledDiseased.Keys.ToArray();
+            foreach (var pid in array)
             {
                 Main.KilledDiseased[pid] = 0;
                 GetPlayerById(pid).ResetKillCooldown();
             }
             Main.KilledDiseased.Clear();
         }
-        //Main.KilledDiseased.Clear();
         if (Options.AntidoteCDReset.GetBool())
         {
-            foreach (var pid in Main.KilledAntidote.Keys)
+            var array = Main.KilledAntidote.Keys.ToArray();
+            foreach (var pid in array)
             {
                 Main.KilledAntidote[pid] = 0;
                 GetPlayerById(pid).ResetKillCooldown();
             }
             Main.KilledAntidote.Clear();
         }
-
 
         if (Glitch.IsEnable) Glitch.AfterMeetingTasks();
         if (Swooper.IsEnable) Swooper.AfterMeetingTasks();
@@ -2559,6 +2559,11 @@ public static class Utils
             AirshipElectricalDoors.Initialize();
 
         DoorsReset.ResetDoors();
+
+        if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer.Is(CustomRoles.GM))
+        {
+            _ = new LateTask(() => { PlayerControl.LocalPlayer.TP(new(15.5f, 0.0f)); }, 2f, "GM Auto-TP Failsafe"); // TP to Main Hall
+        }
     }
     public static void AfterPlayerDeathTasks(PlayerControl target, bool onMeeting = false)
     {

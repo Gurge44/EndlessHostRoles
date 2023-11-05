@@ -378,8 +378,8 @@ public class TaskState
                     AllAlivePlayer.Remove(tar1);
                     var tar2 = AllAlivePlayer[rd.Next(0, AllAlivePlayer.Count)];
                     var pos = tar1.GetTruePosition();
-                    Utils.TP(tar1.NetTransform, tar2.GetTruePosition());
-                    Utils.TP(tar2.NetTransform, pos);
+                    tar1.TP(tar2.GetTruePosition());
+                    tar2.TP(pos);
                     tar1.RPCPlayCustomSound("Teleport");
                     tar2.RPCPlayCustomSound("Teleport");
                     tar1.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Transporter), string.Format(Translator.GetString("TeleportedByTransporter"), tar2.GetRealName())));

@@ -118,7 +118,7 @@ public static class Pelican
         originalSpeed.Remove(target.PlayerId);
         originalSpeed.Add(target.PlayerId, Main.AllPlayerSpeed[target.PlayerId]);
 
-        Utils.TP(target.NetTransform, GetBlackRoomPS());
+        target.TP(GetBlackRoomPS());
         Main.AllPlayerSpeed[target.PlayerId] = 0.5f;
         ReportDeadBodyPatch.CanReport[target.PlayerId] = false;
         target.MarkDirtySettings();
@@ -161,7 +161,7 @@ public static class Pelican
             var target = Utils.GetPlayerById(tar);
             var palyer = Utils.GetPlayerById(pc);
             if (palyer == null || target == null) continue;
-            Utils.TP(target.NetTransform, palyer.GetTruePosition());
+            target.TP(palyer.GetTruePosition());
             Main.AllPlayerSpeed[tar] = Main.AllPlayerSpeed[tar] - 0.5f + originalSpeed[tar];
             ReportDeadBodyPatch.CanReport[tar] = true;
             target.MarkDirtySettings();
@@ -198,7 +198,7 @@ public static class Pelican
                 var pos = GetBlackRoomPS();
                 var dis = Vector2.Distance(pos, target.GetTruePosition());
                 if (dis < 1f) continue;
-                Utils.TP(target.NetTransform, pos);
+                target.TP(pos);
                 Utils.NotifyRoles(SpecifySeer: target);
             }
         }
