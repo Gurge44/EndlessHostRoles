@@ -25,11 +25,7 @@
 
 <br>
 
-# This mod supports public lobbies!
-
-<br>
-
-## Additions, Changes, and improvements compared to TOHRE
+## Additions, Changes, and improvements compared to TOHEN
 - Note: The goal with this branch is to improve the existing stuff over adding new roles. If some of the stuff you see below are in TOHRE, they were originally coded by me.
 ### New gamemode
 - A brand new official gamemode, Basic FFA (Free For All)
@@ -38,7 +34,7 @@
 ### Overall improvements
 - Gain more ability uses for completing tasks as crewmate roles
 - Gain more ability uses for getting kills as impostor roles
-- Most shapeshifting roles that only used shapeshifting as an ability trigger or a target selector now auto-unshift without the egg animation after completing the transformation
+- Most shapeshifting roles that only used shapeshifting as an ability trigger or a target selector now don't actually shapeshift with the egg animation, it's automatically canceled
 - Prevent kills while shifted when no abiltiy uses are left for some roles (Sniper, Twister, Disperser, Hangman, Camouflager, etc.)
 - Code cleanup and major performance improvement
 - Improved EAC
@@ -55,7 +51,7 @@
 - Better confirm ejections text
 - Brand new HUD text
 - Better role summary
-- Option to use Pet button instead of Vent (currently only for Crewmates, this will change in the future) (assigns the Pusheen pet to everyone at the start of the game)
+- Option to use Pet button instead of Vent, Shapeshift or Sabotage (assigns the Pusheen pet to everyone at the start of the game)
 - Smaller mod version text and smaller credentials text (imo it was annoying that it covered a quarter of the screen)
 
 ### Role specific Improvements
