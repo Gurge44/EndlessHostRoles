@@ -160,7 +160,7 @@ public static class MushroomMixupSabotageSystemPatch
 
             foreach (var pc in Main.AllAlivePlayerControls.Where(pc => !pc.Is(CustomRoleTypes.Impostor) && Main.ResetCamPlayerList.Contains(pc.PlayerId)).ToArray())
             {
-                Utils.NotifyRoles(SpecifySeer: pc, NoCache: true, MushroomMixup: true);
+                Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, MushroomMixup: true);
             }
         }
     }
@@ -178,7 +178,7 @@ public static class ElectricTaskInitializePatch
             {
                 if (CustomRolesHelper.NeedUpdateOnLights(pc.GetCustomRole()))
                 {
-                    Utils.NotifyRoles(SpecifySeer: pc);
+                    Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true);
                 }
             }
         }
@@ -199,7 +199,7 @@ public static class ElectricTaskCompletePatch
             {
                 if (CustomRolesHelper.NeedUpdateOnLights(pc.GetCustomRole()))
                 {
-                    Utils.NotifyRoles(SpecifySeer: pc);
+                    Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true);
                 }
             }
         }
@@ -236,7 +236,12 @@ public static class SecurityCameraPatch
 {
     public static bool Prefix([HarmonyArgument(1)] MessageReader msgReader)
     {
-        var amount = MessageReader.Get(msgReader).ReadByte();
+        byte amount;
+        {
+            var newReader = MessageReader.Get(msgReader);
+            amount = newReader.ReadByte();
+            newReader.Recycle();
+        }
 
         if (amount == SecurityCameraSystemType.IncrementOp)
         {

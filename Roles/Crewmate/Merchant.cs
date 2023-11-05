@@ -170,7 +170,7 @@ namespace TOHE.Roles.Crewmate
                 Main.AllAlivePlayerControls.Where(x =>
                     x.PlayerId != player.PlayerId && !Pelican.IsEaten(x.PlayerId)
                     && !x.Is(addon)
-                    && !CustomRolesHelper.CheckAddonConfilct(addon, x)
+                    && !CustomRolesHelper.CheckAddonConflict(addon, x)
                     && (Cleanser.CleansedCanGetAddon.GetBool() || (!Cleanser.CleansedCanGetAddon.GetBool() && !x.Is(CustomRoles.Cleansed)))
                     && (
                         (OptionCanTargetCrew.GetBool() && CustomRolesHelper.IsCrewmate(x.GetCustomRole())) ||

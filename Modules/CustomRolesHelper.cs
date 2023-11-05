@@ -1155,7 +1155,7 @@ internal static class CustomRolesHelper
             CustomRoles.Pickpocket or
             CustomRoles.TicketsStealer;
     }
-    public static bool CheckAddonConfilct(CustomRoles role, PlayerControl pc)
+    public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc)
     {
         if (!role.IsAdditionRole()) return false;
 
