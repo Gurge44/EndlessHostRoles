@@ -115,7 +115,11 @@ public static class Camouflage
 
             newOutfit = PlayerSkins[id];
         }
-        Logger.Info($"newOutfit={newOutfit.GetString()}", "RpcSetSkin");
+
+        // if the current Outfit is the same, return it
+        if (newOutfit.Compare(target.Data.DefaultOutfit)) return;
+
+        Logger.Info($"newOutfit = {newOutfit.GetString()}", "RpcSetSkin");
 
         var sender = CustomRpcSender.Create(name: $"Camouflage.RpcSetSkin({target.Data.PlayerName})");
 

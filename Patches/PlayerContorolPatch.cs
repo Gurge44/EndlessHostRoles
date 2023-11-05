@@ -1160,7 +1160,7 @@ class MurderPlayerPatch
         }
 
         if (Mediumshiper.IsEnable) foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Mediumshiper)).ToArray())
-            pc.Notify(ColorString(GetRoleColor(CustomRoles.Mediumshiper), GetString("MediumshiperKnowPlayerDead")));
+                pc.Notify(ColorString(GetRoleColor(CustomRoles.Mediumshiper), GetString("MediumshiperKnowPlayerDead")));
 
         if (Executioner.Target.ContainsValue(target.PlayerId))
             Executioner.ChangeRoleByTarget(target);

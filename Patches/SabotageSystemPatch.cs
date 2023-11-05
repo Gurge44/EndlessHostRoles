@@ -1,7 +1,6 @@
 using HarmonyLib;
 using Hazel;
 using System.Linq;
-using static UnityEngine.ParticleSystem.PlaybackState;
 
 namespace TOHE;
 
@@ -161,7 +160,7 @@ public static class MushroomMixupSabotageSystemPatch
 
             foreach (var pc in Main.AllAlivePlayerControls.Where(pc => !pc.Is(CustomRoleTypes.Impostor) && Main.ResetCamPlayerList.Contains(pc.PlayerId)).ToArray())
             {
-                Utils.NotifyRoles(SpecifySeer: pc, NoCache: true);
+                Utils.NotifyRoles(SpecifySeer: pc, NoCache: true, MushroomMixup: true);
             }
         }
     }
