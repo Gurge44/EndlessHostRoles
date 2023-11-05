@@ -285,7 +285,7 @@ namespace TOHE.Roles.Neutral
                     state.SetDead();
                 }
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.PlagueDoctor);
-                foreach (var plagueDoctor in Main.AllPlayerControls.Where(p => p.Is(CustomRoles.PlagueDoctor)))
+                foreach (var plagueDoctor in Main.AllPlayerControls.Where(p => p.Is(CustomRoles.PlagueDoctor)).ToArray())
                 {
                     CustomWinnerHolder.WinnerIds.Add(plagueDoctor.PlayerId);
                 }

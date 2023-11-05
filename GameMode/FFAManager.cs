@@ -191,7 +191,7 @@ internal static class FFAManager
         if (totalalive == 3)
         {
             PlayerControl otherPC = null;
-            foreach (var pc in Main.AllAlivePlayerControls.Where(a => a.PlayerId != killer.PlayerId && a.PlayerId != target.PlayerId && a.IsAlive()))
+            foreach (var pc in Main.AllAlivePlayerControls.Where(a => a.PlayerId != killer.PlayerId && a.PlayerId != target.PlayerId && a.IsAlive()).ToArray())
             {
                 TargetArrow.Add(killer.PlayerId, pc.PlayerId);
                 TargetArrow.Add(pc.PlayerId, killer.PlayerId);
@@ -322,7 +322,7 @@ internal static class FFAManager
 
         string arrows = string.Empty;
         PlayerControl otherPlayer = null;
-        foreach (var pc in Main.AllAlivePlayerControls.Where(pc => pc.IsAlive() && pc.PlayerId != seer.PlayerId))
+        foreach (var pc in Main.AllAlivePlayerControls.Where(pc => pc.IsAlive() && pc.PlayerId != seer.PlayerId).ToArray())
         {
             otherPlayer = pc;
             break;
@@ -352,7 +352,7 @@ internal static class FFAManager
 
                 RoundTime--;
 
-                foreach (var pc in Main.AllPlayerControls.Where(pc => NameNotify.TryGetValue(pc.PlayerId, out var nn) && nn.Item2 < now))
+                foreach (var pc in Main.AllPlayerControls.Where(pc => NameNotify.TryGetValue(pc.PlayerId, out var nn) && nn.Item2 < now).ToArray())
                 {
                     NameNotify.Remove(pc.PlayerId);
                     SendRPCSyncNameNotify(pc);
@@ -375,10 +375,10 @@ internal static class FFAManager
                         if (changePositionPlayers.Contains(pc.PlayerId) || !pc.IsAlive() || pc.onLadder || pc.inVent) continue;
 
                         var filtered = Main.AllAlivePlayerControls.Where(a =>
-                            pc.IsAlive() && !pc.inVent && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToList();
+                            pc.IsAlive() && !pc.inVent && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
                         if (!filtered.Any()) break;
 
-                        PlayerControl target = filtered[rd.Next(0, filtered.Count)];
+                        PlayerControl target = filtered[rd.Next(0, filtered.Length)];
 
                         if (pc.inVent || target.inVent) continue;
 

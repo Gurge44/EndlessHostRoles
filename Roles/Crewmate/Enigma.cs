@@ -304,8 +304,8 @@ namespace TOHE.Roles.Crewmate
 
             private string GetRandomLetter(PlayerControl killer, string letter)
             {
-                var alivePlayers = Main.AllAlivePlayerControls.Where(a => a.PlayerId != killer.PlayerId).ToList();
-                var rndPlayer = alivePlayers[rd.Next(0, alivePlayers.Count - 1)];
+                var alivePlayers = Main.AllAlivePlayerControls.Where(a => a.PlayerId != killer.PlayerId).ToArray();
+                var rndPlayer = alivePlayers[rd.Next(0, alivePlayers.Length - 1)];
                 string rndPlayerName = rndPlayer.GetRealName().Replace(letter, "");
                 string letter2 = rndPlayerName[rd.Next(0, rndPlayerName.Length - 1)].ToString().ToLower();
                 return letter2;

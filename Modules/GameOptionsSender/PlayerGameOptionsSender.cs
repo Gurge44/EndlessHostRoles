@@ -573,15 +573,6 @@ public class PlayerGameOptionsSender : GameOptionsSender
         {
             Main.KillGhoul.Add(player.PlayerId);
         }
-        /*     if (Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Diseased) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == player.PlayerId).Count() > 0)
-             {
-                 Main.AllPlayerKillCooldown[player.PlayerId] *= Options.DiseasedMultiplier.GetFloat();
-                 player.SetKillCooldownV3();
-                 player.ResetKillCooldown();
-             //    player.SyncSettings();
-             } */
-
-        // Ͷ��ɵ�ϵ�������������
         if (
             (Main.GrenadierBlinding.Any() &&
             (player.GetCustomRole().IsImpostor() ||
@@ -597,18 +588,18 @@ public class PlayerGameOptionsSender : GameOptionsSender
             }
         }
 
-        if (Main.Lighter.Any() && player.GetCustomRole() == CustomRoles.Lighter)
+        switch (player.GetCustomRole())
         {
-            opt.SetVisionV2();
-            if (Utils.IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.CrewLightMod, Options.LighterVisionOnLightsOut.GetFloat() * 5);
-            else opt.SetFloat(FloatOptionNames.CrewLightMod, Options.LighterVisionNormal.GetFloat());
-        }
-
-        if (player.GetCustomRole() == CustomRoles.Alchemist && Alchemist.VisionPotionActive)
-        {
-            opt.SetVisionV2();
-            if (Utils.IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.CrewLightMod, Alchemist.VisionOnLightsOut.GetFloat() * 5);
-            else opt.SetFloat(FloatOptionNames.CrewLightMod, Alchemist.Vision.GetFloat());
+            case CustomRoles.Lighter when Main.Lighter.Any():
+                opt.SetVisionV2();
+                if (Utils.IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.CrewLightMod, Options.LighterVisionOnLightsOut.GetFloat() * 5);
+                else opt.SetFloat(FloatOptionNames.CrewLightMod, Options.LighterVisionNormal.GetFloat());
+                break;
+            case CustomRoles.Alchemist when Alchemist.VisionPotionActive:
+                opt.SetVisionV2();
+                if (Utils.IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.CrewLightMod, Alchemist.VisionOnLightsOut.GetFloat() * 5);
+                else opt.SetFloat(FloatOptionNames.CrewLightMod, Alchemist.Vision.GetFloat());
+                break;
         }
 
         /*     if ((Main.FlashbangInProtect.Any() && Main.ForFlashbang.Contains(player.PlayerId) && (!player.GetCustomRole().IsCrewmate())))  

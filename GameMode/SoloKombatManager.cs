@@ -340,9 +340,7 @@ internal static class SoloKombatManager
 
             if (AmongUsClient.Instance.AmHost)
             {
-                foreach (var pc in Main.AllPlayerControls.Where(
-                // 锁定死亡玩家在小黑屋
-                pc => !pc.SoloAlive()))
+                foreach (var pc in Main.AllPlayerControls.Where(pc => !pc.SoloAlive()).ToArray())
                 {
                     if (pc.inVent && KB_BootVentWhenDead.GetBool()) pc.MyPhysics.RpcExitVent(2);
                     var pos = Pelican.GetBlackRoomPS();

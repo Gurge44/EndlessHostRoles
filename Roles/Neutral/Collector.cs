@@ -52,7 +52,7 @@ public static class Collector
     }
     public static bool CollectorWin(bool check = true)
     {
-        var pc = Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Collector) && x.IsAlive() && CollectDone(x));
+        var pc = Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Collector) && x.IsAlive() && CollectDone(x)).ToArray();
         if (pc.Any())
         {
             if (check) return true;

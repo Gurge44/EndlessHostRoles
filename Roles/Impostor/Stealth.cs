@@ -58,12 +58,12 @@ namespace TOHE.Roles.Impostor
             }
             if (excludeImpostors)
             {
-                playersToDarken = playersToDarken.Where(player => !player.Is(CustomRoles.Impostor)).ToList();
+                playersToDarken = playersToDarken.Where(player => !player.Is(CustomRoles.Impostor)).ToArray();
             }
             DarkenPlayers(playersToDarken);
         }
         /// <summary>Get all players in the same room as you</summary>
-        private static List<PlayerControl> FindPlayersInSameRoom(PlayerControl killedPlayer)
+        private static PlayerControl[] FindPlayersInSameRoom(PlayerControl killedPlayer)
         {
             var room = killedPlayer.GetPlainShipRoom();
             if (room == null)
@@ -73,15 +73,14 @@ namespace TOHE.Roles.Impostor
             var roomArea = room.roomArea;
             var roomName = room.RoomId;
             RpcDarken(roomName);
-            return Main.AllAlivePlayerControls.Where(player => player != Utils.GetPlayerById(playerIdList[0]) && player.Collider.IsTouching(roomArea)).ToList();
+            return Main.AllAlivePlayerControls.Where(player => player != Utils.GetPlayerById(playerIdList[0]) && player.Collider.IsTouching(roomArea)).ToArray();
         }
         /// <summary>Give the given player zero visibility for <see cref="darkenDuration"/> seconds.</summary>
-        private static void DarkenPlayers(List<PlayerControl> playersToDarken)
+        private static void DarkenPlayers(PlayerControl[] playersToDarken)
         {
             darkenedPlayers = playersToDarken.ToArray();
-            for (int i = 0; i < playersToDarken.Count; i++)
+            foreach (PlayerControl player in playersToDarken)
             {
-                PlayerControl player = playersToDarken[i];
                 Main.PlayerStates[player.PlayerId].IsBlackOut = true;
                 player.MarkDirtySettings();
             }

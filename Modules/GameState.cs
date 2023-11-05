@@ -370,8 +370,7 @@ public class TaskState
             {
                 Logger.Info("传送师触发传送:" + player.GetNameWithRole().RemoveHtmlTags(), "Transporter");
                 var rd = IRandom.Instance;
-                List<PlayerControl> AllAlivePlayer = new();
-                AllAlivePlayer.AddRange(Main.AllAlivePlayerControls.Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder));
+                List<PlayerControl> AllAlivePlayer = Main.AllAlivePlayerControls.Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder).ToList();
                 if (AllAlivePlayer.Count >= 2)
                 {
                     var tar1 = AllAlivePlayer[rd.Next(0, AllAlivePlayer.Count)];
@@ -504,14 +503,14 @@ public class TaskState
                 }, 0.2f, "Ghoul Suicide");
             if (player.Is(CustomRoles.Ghoul) && (CompletedTasksCount + 1) >= AllTasksCount && !player.IsAlive())
             {
-                foreach (var pc in Main.AllPlayerControls.Where(pc => !pc.Is(CustomRoles.Pestilence)).Where(pc => Main.KillGhoul.Contains(pc.PlayerId) && player.PlayerId != pc.PlayerId && pc.IsAlive()))
+                foreach (var pc in Main.AllPlayerControls.Where(pc => !pc.Is(CustomRoles.Pestilence) && Main.KillGhoul.Contains(pc.PlayerId) && player.PlayerId != pc.PlayerId && pc.IsAlive()).ToArray())
                 {
                     player.Kill(pc);
                     Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Kill;
                 }
             }
 
-            foreach (var taskmanager in Main.AllAlivePlayerControls.Where(pc => pc.Is(CustomRoles.TaskManager)))
+            foreach (var taskmanager in Main.AllAlivePlayerControls.Where(pc => pc.Is(CustomRoles.TaskManager)).ToArray())
             {
                 Utils.NotifyRoles(SpecifySeer: taskmanager);
             }
@@ -522,7 +521,7 @@ public class TaskState
             {
                 Logger.Info("工作狂任务做完了", "Workaholic");
                 RPC.PlaySoundRPC(player.PlayerId, Sounds.KillSound);
-                foreach (var pc in Main.AllAlivePlayerControls.Where(pc => pc.PlayerId != player.PlayerId))
+                foreach (var pc in Main.AllAlivePlayerControls.Where(pc => pc.PlayerId != player.PlayerId).ToArray())
                 {
                     Main.PlayerStates[pc.PlayerId].deathReason = pc.PlayerId == player.PlayerId ?
                                             PlayerState.DeathReason.Overtired : PlayerState.DeathReason.Ashamed;
@@ -553,7 +552,7 @@ public class TaskState
                 else Main.CrewpostorTasksDone[player.PlayerId] = 0;
                 RPC.CrewpostorTasksSendRPC(player.PlayerId, Main.CrewpostorTasksDone[player.PlayerId]);
 
-                List<PlayerControl> list = Main.AllAlivePlayerControls.Where(x => x.PlayerId != player.PlayerId && (Options.CrewpostorCanKillAllies.GetBool() || !x.GetCustomRole().IsImpostorTeam())).ToList();
+                PlayerControl[] list = Main.AllAlivePlayerControls.Where(x => x.PlayerId != player.PlayerId && (Options.CrewpostorCanKillAllies.GetBool() || !x.GetCustomRole().IsImpostorTeam())).ToArray();
                 if (!list.Any())
                 {
                     Logger.Info($"No target to kill", "Crewpostor");
@@ -564,7 +563,7 @@ public class TaskState
                 }
                 else
                 {
-                    list = list.OrderBy(x => Vector2.Distance(player.GetTruePosition(), x.GetTruePosition())).ToList();
+                    list = list.OrderBy(x => Vector2.Distance(player.GetTruePosition(), x.GetTruePosition())).ToArray();
                     var target = list[0];
                     if (!target.Is(CustomRoles.Pestilence))
                     {

@@ -676,7 +676,8 @@ class MeetingHudStartPatch
 
         //首次会议技能提示
         if (Options.SendRoleDescriptionFirstMeeting.GetBool() && MeetingStates.FirstMeeting)
-            foreach (var pc in Main.AllAlivePlayerControls.Where(x => !x.IsModClient()))
+        {
+            foreach (var pc in Main.AllAlivePlayerControls.Where(x => !x.IsModClient()).ToArray())
             {
                 var role = pc.GetCustomRole();
                 var sb = new StringBuilder();
@@ -695,6 +696,8 @@ class MeetingHudStartPatch
                 //    sb.Append($"\n\n" + GetString($"Lovers") + Utils.GetRoleMode(CustomRoles.Lovers) + GetString($"LoversInfoLong"));
                 AddMsg(sb.ToString(), pc.PlayerId);
             }
+        }
+
         if (msgToSend.Any())
         {
             var msgTemp = msgToSend.ToList();
@@ -711,7 +714,7 @@ class MeetingHudStartPatch
         //工作狂的生存技巧
         if (MeetingStates.FirstMeeting && CustomRoles.Workaholic.RoleExist() && Options.WorkaholicGiveAdviceAlive.GetBool() && !Options.WorkaholicCannotWinAtDeath.GetBool()/* && !Options.GhostIgnoreTasks.GetBool()*/)
         {
-            foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Workaholic)))
+            foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Workaholic)).ToArray())
                 Main.WorkaholicAlive.Add(pc.PlayerId);
             List<string> workaholicAliveList = new();
             for (int i = 0; i < Main.WorkaholicAlive.Count; i++)
@@ -726,7 +729,7 @@ class MeetingHudStartPatch
         //Bait Notify
         if (MeetingStates.FirstMeeting && CustomRoles.Bait.RoleExist() && Options.BaitNotification.GetBool())
         {
-            foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Bait)))
+            foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Bait)).ToArray())
                 Main.BaitAlive.Add(pc.PlayerId);
             List<string> baitAliveList = new();
             for (int i = 0; i < Main.BaitAlive.Count; i++)
@@ -780,7 +783,7 @@ class MeetingHudStartPatch
         if (MimicMsg != string.Empty)
         {
             MimicMsg = GetString("MimicDeadMsg") + "\n" + MimicMsg;
-            foreach (var ipc in Main.AllPlayerControls.Where(x => x.GetCustomRole().IsImpostorTeam()))
+            foreach (var ipc in Main.AllPlayerControls.Where(x => x.GetCustomRole().IsImpostorTeam()).ToArray())
                 AddMsg(MimicMsg, ipc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mimic), GetString("MimicMsgTitle")));
         }
 

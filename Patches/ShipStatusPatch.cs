@@ -67,27 +67,6 @@ class RepairSystemPatch
             SystemTypes.Electrical))
         { return false; }
 
-        if (player.Is(CustomRoles.Unlucky) && player.IsAlive() &&
-            (systemType is
-            SystemTypes.Doors))
-        {
-            var Ue = IRandom.Instance;
-            if (Ue.Next(0, 100) < Options.UnluckySabotageSuicideChance.GetInt())
-            {
-                player.Kill(player);
-                Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
-                return false;
-            }
-        }
-
-        /*if (player.Is(CustomRoles.Madmate) && !Options.MadmateCanFixSabotage.GetBool() && 
-              (systemType is
-              SystemTypes.Reactor or
-              SystemTypes.LifeSupp or
-              SystemTypes.Comms or
-              SystemTypes.Electrical))
-          { return false; }*/
-
         switch (player.GetCustomRole())
         {
             case CustomRoles.SabotageMaster:
@@ -98,61 +77,63 @@ class RepairSystemPatch
                 break;
         }
 
-        if (systemType == SystemTypes.Electrical && 0 <= amount && amount <= 4 && Main.NormalOptions.MapId == 4)
+        switch (systemType)
         {
-            if (Options.DisableAirshipViewingDeckLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(-12.93f, -11.28f)) <= 2f) return false;
-            if (Options.DisableAirshipGapRoomLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(13.92f, 6.43f)) <= 2f) return false;
-            if (Options.DisableAirshipCargoLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(30.56f, 2.12f)) <= 2f) return false;
+            case SystemTypes.Doors when player.Is(CustomRoles.Unlucky) && player.IsAlive():
+                var Ue = IRandom.Instance;
+                if (Ue.Next(0, 100) < Options.UnluckySabotageSuicideChance.GetInt())
+                {
+                    player.Kill(player);
+                    Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
+                    return false;
+                }
+                break;
+            case SystemTypes.Electrical when 0 <= amount && amount <= 4 && Main.NormalOptions.MapId == 4:
+                if (Options.DisableAirshipViewingDeckLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(-12.93f, -11.28f)) <= 2f) return false;
+                if (Options.DisableAirshipGapRoomLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(13.92f, 6.43f)) <= 2f) return false;
+                if (Options.DisableAirshipCargoLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(30.56f, 2.12f)) <= 2f) return false;
+                break;
+            case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay:
+                if (Main.BlockSabo.Any()) return false;
+                if (player.Is(CustomRoleTypes.Impostor) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool()) && !player.Is(CustomRoles.Minimalism)) return true;
+                switch (player.GetCustomRole())
+                {
+                    case CustomRoles.Glitch:
+                        Glitch.Mimic(player);
+                        return false;
+                    case CustomRoles.Magician:
+                        Magician.UseCard(player);
+                        return false;
+                    case CustomRoles.WeaponMaster:
+                        WeaponMaster.SwitchMode();
+                        return false;
+                    case CustomRoles.Jackal when Jackal.CanUseSabotage.GetBool():
+                        return true;
+                    case CustomRoles.Sidekick when Jackal.CanUseSabotageSK.GetBool():
+                        return true;
+                    case CustomRoles.Traitor when Traitor.CanUseSabotage.GetBool():
+                        return true;
+                    case CustomRoles.Parasite when player.IsAlive():
+                        return true;
+                    case CustomRoles.Refugee when player.IsAlive():
+                        return true;
+                    default:
+                        return false;
+                }
+            case SystemTypes.Security when amount == 1:
+                var camerasDisabled = (MapNames)Main.NormalOptions.MapId switch
+                {
+                    MapNames.Skeld => Options.DisableSkeldCamera.GetBool(),
+                    MapNames.Polus => Options.DisablePolusCamera.GetBool(),
+                    MapNames.Airship => Options.DisableAirshipCamera.GetBool(),
+                    _ => false,
+                };
+                if (camerasDisabled)
+                {
+                    player.Notify(Translator.GetString("CamerasDisabledNotify"), 15f);
+                }
+                return !camerasDisabled;
         }
-
-        if (systemType == SystemTypes.Sabotage && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay)
-        {
-            if (Main.BlockSabo.Any()) return false;
-
-            if (player.Is(CustomRoleTypes.Impostor) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool())) return true;
-
-            switch (player.GetCustomRole())
-            {
-                case CustomRoles.Glitch:
-                    Glitch.Mimic(player);
-                    return false;
-                case CustomRoles.Magician:
-                    Magician.UseCard(player);
-                    return false;
-                case CustomRoles.WeaponMaster:
-                    WeaponMaster.SwitchMode();
-                    return false;
-                case CustomRoles.Jackal when Jackal.CanUseSabotage.GetBool():
-                    return true;
-                case CustomRoles.Sidekick when Jackal.CanUseSabotageSK.GetBool():
-                    return true;
-                case CustomRoles.Traitor when Traitor.CanUseSabotage.GetBool():
-                    return true;
-                case CustomRoles.Parasite when player.IsAlive():
-                    return true;
-                case CustomRoles.Refugee when player.IsAlive():
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        if (systemType == SystemTypes.Security && amount == 1)
-        {
-            var camerasDisabled = (MapNames)Main.NormalOptions.MapId switch
-            {
-                MapNames.Skeld => Options.DisableSkeldCamera.GetBool(),
-                MapNames.Polus => Options.DisablePolusCamera.GetBool(),
-                MapNames.Airship => Options.DisableAirshipCamera.GetBool(),
-                _ => false,
-            };
-            if (camerasDisabled)
-            {
-                player.Notify(Translator.GetString("CamerasDisabledNotify"), 15f);
-            }
-            return !camerasDisabled;
-        }
-
         return true;
     }
     public static void Postfix(ShipStatus __instance,

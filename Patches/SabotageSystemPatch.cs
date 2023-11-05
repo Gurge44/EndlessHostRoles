@@ -1,4 +1,7 @@
 using HarmonyLib;
+using Hazel;
+using System.Linq;
+using static UnityEngine.ParticleSystem.PlaybackState;
 
 namespace TOHE;
 
@@ -113,8 +116,10 @@ public static class LifeSuppSystemTypePatch
 public static class MushroomMixupSabotageSystemPatch
 {
     private static bool SetDurationMushroomMixupSabotage = true;
-    public static void Prefix(MushroomMixupSabotageSystem __instance)
+    public static void Prefix(MushroomMixupSabotageSystem __instance, ref bool __state)
     {
+        __state = __instance.IsActive;
+
         if (Options.UsePets.GetBool())
         {
             __instance.petEmptyChance = 0;
@@ -138,6 +143,27 @@ public static class MushroomMixupSabotageSystemPatch
         SetDurationMushroomMixupSabotage = false;
 
         __instance.currentSecondsUntilHeal = Options.FungleMushroomMixupDuration.GetFloat();
+    }
+    public static void Postfix(MushroomMixupSabotageSystem __instance, bool __state)
+    {
+        // When Mushroom Mixup Sabotage ends
+        if (__instance.IsActive != __state && GameStates.IsInTask)
+        {
+            _ = new LateTask(() =>
+            {
+                // After MushroomMixup sabotage, shapeshift cooldown sets to 0
+                foreach (var pc in Main.AllAlivePlayerControls.ToArray())
+                {
+                    // Reset Ability Cooldown To Default For Alive Players
+                    pc.RpcResetAbilityCooldown();
+                }
+            }, 1.2f, "Reset Ability Cooldown Arter Mushroom Mixup");
+
+            foreach (var pc in Main.AllAlivePlayerControls.Where(pc => !pc.Is(CustomRoleTypes.Impostor) && Main.ResetCamPlayerList.Contains(pc.PlayerId)).ToArray())
+            {
+                Utils.NotifyRoles(SpecifySeer: pc, NoCache: true);
+            }
+        }
     }
 }
 [HarmonyPatch(typeof(ElectricTask), nameof(ElectricTask.Initialize))]
@@ -204,5 +230,25 @@ public static class SabotageSystemTypeRepairDamagePatch
         }
         __instance.Timer = modifiedCooldownSec;
         __instance.IsDirty = true;
+    }
+}
+[HarmonyPatch(typeof(SecurityCameraSystemType), nameof(SecurityCameraSystemType.UpdateSystem))]
+public static class SecurityCameraPatch
+{
+    public static bool Prefix([HarmonyArgument(1)] MessageReader msgReader)
+    {
+        var amount = MessageReader.Get(msgReader).ReadByte();
+
+        if (amount == SecurityCameraSystemType.IncrementOp)
+        {
+            return !((MapNames)Main.NormalOptions.MapId switch
+            {
+                MapNames.Skeld => Options.DisableSkeldCamera.GetBool(),
+                MapNames.Polus => Options.DisablePolusCamera.GetBool(),
+                MapNames.Airship => Options.DisableAirshipCamera.GetBool(),
+                _ => false,
+            });
+        }
+        return true;
     }
 }

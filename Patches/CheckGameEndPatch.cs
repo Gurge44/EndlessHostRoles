@@ -98,7 +98,7 @@ class GameEndChecker
                         .Do(pc => CustomWinnerHolder.WinnerIds.Add(pc.PlayerId));
                     break;
                 case CustomWinner.RuthlessRomantic:
-                    foreach (var pc in Main.AllPlayerControls.Where(pc => pc.Is(CustomRoles.RuthlessRomantic)))
+                    foreach (var pc in Main.AllPlayerControls.Where(pc => pc.Is(CustomRoles.RuthlessRomantic)).ToArray())
                     {
                         CustomWinnerHolder.WinnerIds.Add(Romantic.BetPlayer[pc.PlayerId]);
                     }
@@ -186,7 +186,7 @@ class GameEndChecker
                 //利己主义者抢夺胜利（船员）
                 if (CustomWinnerHolder.WinnerTeam == CustomWinner.Crewmate)
                 {
-                    foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.GetCustomRole().IsCrewmate()))
+                    foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.GetCustomRole().IsCrewmate()).ToArray())
                         if (pc.Is(CustomRoles.Egoist))
                         {
                             reason = GameOverReason.ImpostorByKill;
@@ -198,7 +198,7 @@ class GameEndChecker
                 //利己主义者抢夺胜利（内鬼）
                 if (CustomWinnerHolder.WinnerTeam == CustomWinner.Impostor)
                 {
-                    foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.GetCustomRole().IsImpostor()))
+                    foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.GetCustomRole().IsImpostor()).ToArray())
                         if (pc.Is(CustomRoles.Egoist))
                         {
                             reason = GameOverReason.ImpostorByKill;
@@ -229,7 +229,7 @@ class GameEndChecker
                 //Lovers follow winner
                 if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Lovers and not CustomWinner.Crewmate and not CustomWinner.Impostor)
                 {
-                    foreach (var pc in Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Lovers)))
+                    foreach (var pc in Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Lovers)).ToArray())
                     {
                         if (CustomWinnerHolder.WinnerIds.Any(x => GetPlayerById(x).Is(CustomRoles.Lovers)))
                         {
@@ -538,8 +538,7 @@ class GameEndChecker
 
             if (SoloKombatManager.RoundTime > 0) return false;
 
-            var list = Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && SoloKombatManager.GetRankOfScore(x.PlayerId) == 1);
-            var winner = list.FirstOrDefault();
+            var winner = Main.AllPlayerControls.FirstOrDefault(x => !x.Is(CustomRoles.GM) && SoloKombatManager.GetRankOfScore(x.PlayerId) == 1);
 
             CustomWinnerHolder.WinnerIds = new()
             {

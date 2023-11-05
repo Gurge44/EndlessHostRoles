@@ -116,7 +116,7 @@ public static class SpamManager
             if (kick || !GameStates.IsInGame) Utils.SendMessage(msg);
             else
             {
-                foreach (var pc in Main.AllPlayerControls.Where(x => x.IsAlive() == player.IsAlive()))
+                foreach (var pc in Main.AllPlayerControls.Where(x => x.IsAlive() == player.IsAlive()).ToArray())
                     Utils.SendMessage(msg, pc.PlayerId);
             }
         }

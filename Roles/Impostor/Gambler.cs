@@ -129,8 +129,8 @@ namespace TOHE.Roles.Impostor
                         {
                             if (GameStates.IsInTask && killer.IsAlive())
                             {
-                                var list = Main.AllAlivePlayerControls.Where(a => !Pelican.IsEaten(a.PlayerId) && !a.inVent && a.PlayerId != killer.PlayerId).ToList();
-                                TP(killer.NetTransform, list[rd.Next(0, list.Count)].GetTruePosition());
+                                var list = Main.AllAlivePlayerControls.Where(a => !Pelican.IsEaten(a.PlayerId) && !a.inVent && a.PlayerId != killer.PlayerId).ToArray();
+                                TP(killer.NetTransform, list[rd.Next(0, list.Length)].GetTruePosition());
                             }
                         }, TPDelay.GetInt(), "Gambler Swap");
                         break;

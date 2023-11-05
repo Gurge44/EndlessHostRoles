@@ -68,7 +68,7 @@ public static class Imitator
     public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
     public static void OnReportDeadBody()
     {
-        foreach (var pc in Main.AllAlivePlayerControls.Where(x => playerIdList.Contains(x.PlayerId)))
+        foreach (var pc in Main.AllAlivePlayerControls.Where(x => playerIdList.Contains(x.PlayerId)).ToArray())
         {
             IsOdd[pc.PlayerId] = true;
             SendRPC(pc.PlayerId);

@@ -191,11 +191,11 @@ public static class Glitch
         if (MimicCDTimer > 0) return;
         if (isShifted) return;
 
-        var playerlist = Main.AllAlivePlayerControls.Where(a => a.PlayerId != pc.PlayerId).ToList();
+        var playerlist = Main.AllAlivePlayerControls.Where(a => a.PlayerId != pc.PlayerId).ToArray();
 
         try
         {
-            pc.RpcShapeshift(playerlist[IRandom.Instance.Next(0, playerlist.Count)], false);
+            pc.RpcShapeshift(playerlist[IRandom.Instance.Next(0, playerlist.Length)], false);
 
             isShifted = true;
             SendRPCSyncSS(isShifted);

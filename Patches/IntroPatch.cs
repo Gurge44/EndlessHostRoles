@@ -468,7 +468,7 @@ class BeginImpostorPatch
         {
             yourTeam = new Il2CppSystem.Collections.Generic.List<PlayerControl>();
             yourTeam.Add(PlayerControl.LocalPlayer);
-            foreach (var pc in Main.AllPlayerControls.Where(x => !x.AmOwner)) yourTeam.Add(pc);
+            foreach (var pc in Main.AllPlayerControls.Where(x => !x.AmOwner).ToArray()) yourTeam.Add(pc);
             __instance.BeginCrewmate(yourTeam);
             __instance.overlayHandle.color = Palette.CrewmateBlue;
             return false;
@@ -477,7 +477,7 @@ class BeginImpostorPatch
         {
             yourTeam = new Il2CppSystem.Collections.Generic.List<PlayerControl>();
             yourTeam.Add(PlayerControl.LocalPlayer);
-            foreach (var pc in Main.AllPlayerControls.Where(x => !x.AmOwner)) yourTeam.Add(pc);
+            foreach (var pc in Main.AllPlayerControls.Where(x => !x.AmOwner).ToArray()) yourTeam.Add(pc);
             __instance.BeginCrewmate(yourTeam);
             __instance.overlayHandle.color = new Color32(127, 140, 141, byte.MaxValue);
             return false;

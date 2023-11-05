@@ -1033,7 +1033,7 @@ internal class SelectRolesPatch
         }
 
         //他者視点
-        foreach (var seer in Main.AllPlayerControls.Where(x => player.PlayerId != x.PlayerId))
+        foreach (var seer in Main.AllPlayerControls.Where(x => player.PlayerId != x.PlayerId).ToArray())
             rolesMap[(seer.PlayerId, player.PlayerId)] = othersRole;
 
         RpcSetRoleReplacer.OverriddenSenderList.Add(senders[player.PlayerId]);
@@ -1158,13 +1158,13 @@ internal class SelectRolesPatch
     }
     private static void AssignSubRoles(CustomRoles role, int RawCount = -1)
     {
-        var allPlayers = Main.AllAlivePlayerControls.Where(x => CustomRolesHelper.CheckAddonConfilct(role, x)).ToList();
-        var count = Math.Clamp(RawCount, 0, allPlayers.Count);
-        if (RawCount == -1) count = Math.Clamp(role.GetCount(), 0, allPlayers.Count);
+        var allPlayers = Main.AllAlivePlayerControls.Where(x => CustomRolesHelper.CheckAddonConfilct(role, x)).ToArray();
+        var count = Math.Clamp(RawCount, 0, allPlayers.Length);
+        if (RawCount == -1) count = Math.Clamp(role.GetCount(), 0, allPlayers.Length);
         if (count <= 0) return;
         for (var i = 0; i < count; i++)
         {
-            var player = allPlayers[IRandom.Instance.Next(0, allPlayers.Count)];
+            var player = allPlayers[IRandom.Instance.Next(0, allPlayers.Length)];
             Main.PlayerStates[player.PlayerId].SetSubRole(role);
             Logger.Info("注册附加职业:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + role.ToString(), "Assign " + role.ToString());
         }
