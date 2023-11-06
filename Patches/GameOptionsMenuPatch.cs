@@ -160,8 +160,7 @@ public class GameOptionsMenuUpdatePatch
         for (int i = 0; i < list.Count; i++)
         {
             object tab = list[i];
-            string tabcolor = string.Empty;
-            tabcolor = tab switch
+            string tabcolor = tab switch
             {
                 TabGroup.SystemSettings => Main.ModColor,
                 TabGroup.GameSettings => "#59ef83",

@@ -417,7 +417,7 @@ static class ExtendedPlayerControl
         _ = new LateTask(() =>
         {
             pc.RpcDesyncRepairSystem(systemtypes, 16);
-            if (Main.NormalOptions.MapId == 4) //Airship用
+            if (Main.NormalOptions.MapId == 4) // Airship only
                 pc.RpcDesyncRepairSystem(systemtypes, 17);
         }, 0.4f + delay, "Fix Desync Reactor");
     }

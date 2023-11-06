@@ -1000,7 +1000,7 @@ internal class SelectRolesPatch
                 GameOptionsSender.AllSenders.Add(new PlayerGameOptionsSender(pc));
             }
 
-            // ResetCamが必要なプレイヤーのリストにクラス化が済んでいない役職のプレイヤーを追加
+            // Added players with unclassified roles to the list of players who require ResetCam.
             Main.ResetCamPlayerList.AddRange(Main.AllPlayerControls.Where(p => p.GetCustomRole() is CustomRoles.Arsonist or CustomRoles.Revolutionist or CustomRoles.Sidekick or CustomRoles.KB_Normal).Select(p => p.PlayerId));
             Utils.CountAlivePlayers(true);
             Utils.SyncAllSettings();

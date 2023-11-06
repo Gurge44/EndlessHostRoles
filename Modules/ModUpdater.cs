@@ -306,7 +306,7 @@ public class ModUpdater
                     byte[] buffer = new byte[1024];
                     long readLength = 0;
                     int length;
-                    while ((length = await stream.ReadAsync(buffer, 0, buffer.Length)) != 0)
+                    while ((length = await stream.ReadAsync(buffer)) != 0)
                     {
                         // 写入到文件
                         fileStream.Write(buffer, 0, length);
