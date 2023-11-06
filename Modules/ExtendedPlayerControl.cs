@@ -363,12 +363,11 @@ static class ExtendedPlayerControl
     }
     public static string GetSubRoleName(this PlayerControl player, bool forUser = false)
     {
-        var SubRoles = Main.PlayerStates[player.PlayerId].SubRoles;
+        var SubRoles = Main.PlayerStates[player.PlayerId].SubRoles.ToArray();
         if (!SubRoles.Any()) return string.Empty;
         var sb = new StringBuilder();
-        for (int i = 0; i < SubRoles.Count; i++)
+        foreach (CustomRoles role in SubRoles)
         {
-            CustomRoles role = SubRoles[i];
             if (role == CustomRoles.NotAssigned) continue;
             sb.Append($"{Utils.ColorString(Color.white, "\n<size=1>")}{Utils.GetRoleName(role, forUser)}");
         }
@@ -1352,11 +1351,10 @@ static class ExtendedPlayerControl
     public static PlainShipRoom GetPlainShipRoom(this PlayerControl pc)
     {
         if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return null;
-        var Rooms = ShipStatus.Instance.AllRooms;
+        var Rooms = ShipStatus.Instance.AllRooms.ToArray();
         if (Rooms == null) return null;
-        for (int i = 0; i < Rooms.Count; i++)
+        foreach (PlainShipRoom room in Rooms)
         {
-            PlainShipRoom room = Rooms[i];
             if (!room.roomArea) continue;
             if (pc.Collider.IsTouching(room.roomArea))
                 return room;
@@ -1369,11 +1367,10 @@ static class ExtendedPlayerControl
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
             if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return null;
-            var Rooms = ShipStatus.Instance.AllRooms;
+            var Rooms = ShipStatus.Instance.AllRooms.ToArray();
             if (Rooms == null) return null;
-            for (int i = 0; i < Rooms.Count; i++)
+            foreach (PlainShipRoom room in Rooms)
             {
-                PlainShipRoom room = Rooms[i];
                 if (!room.roomArea) continue;
                 if (pc.Collider.IsTouching(room.roomArea))
                 {

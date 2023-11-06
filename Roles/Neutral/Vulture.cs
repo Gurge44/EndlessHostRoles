@@ -91,18 +91,16 @@ public static class Vulture
 
     public static void Clear()
     {
-        for (int i = 0; i < playerIdList.Count; i++)
+        foreach (byte apc in playerIdList.ToArray())
         {
-            byte apc = playerIdList[i];
             LocateArrow.RemoveAllTarget(apc);
             SendRPC(apc, false);
         }
     }
     public static void AfterMeetingTasks()
     {
-        for (int i = 0; i < playerIdList.Count; i++)
+        foreach (byte apc in playerIdList.ToArray())
         {
-            byte apc = playerIdList[i];
             var player = Utils.GetPlayerById(apc);
             if (player.IsAlive())
             {
@@ -138,9 +136,8 @@ public static class Vulture
             }
         }
 
-        for (int i = 0; i < playerIdList.Count; i++)
+        foreach (byte pc in playerIdList.ToArray())
         {
-            byte pc = playerIdList[i];
             var player = Utils.GetPlayerById(pc);
             if (player == null || !player.IsAlive()) continue;
             LocateArrow.Add(pc, target.transform.position);
@@ -155,9 +152,8 @@ public static class Vulture
         Logger.Msg($"target.object {target.Object}, is null? {target.Object == null}", "VultureNull");
         if (target.Object != null)
         {
-            for (int i = 0; i < playerIdList.Count; i++)
+            foreach (byte apc in playerIdList.ToArray())
             {
-                byte apc = playerIdList[i];
                 LocateArrow.Remove(apc, target.Object.transform.position);
                 SendRPC(apc, false);
             }

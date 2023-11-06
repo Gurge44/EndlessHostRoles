@@ -597,9 +597,8 @@ public static class Utils
                 break;
         }
 
-        for (int i = 0; i < States.SubRoles.Count; i++)
+        foreach (CustomRoles subRole in States.SubRoles.ToArray())
         {
-            CustomRoles subRole = States.SubRoles[i];
             switch (subRole)
             {
                 case CustomRoles.Madmate:
@@ -1435,9 +1434,8 @@ public static class Utils
         sb.Append("<color=#ffffff><u>Role Summary:</u></color><size=70%>");
 
         List<byte> cloneRoles = new(Main.PlayerStates.Keys);
-        for (int i = 0; i < Main.winnerList.Count; i++)
+        foreach (byte id in Main.winnerList.ToArray())
         {
-            byte id = Main.winnerList[i];
             if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
             sb.Append($"\n<color=#c4aa02>★</color> ").Append(EndGamePatch.SummaryText[id]/*.RemoveHtmlTags()*/);
             cloneRoles.Remove(id);
@@ -1445,44 +1443,40 @@ public static class Utils
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
         {
             List<(int, byte)> list = new();
-            for (int i = 0; i < cloneRoles.Count; i++)
+            foreach (byte id in cloneRoles.ToArray())
             {
-                byte id = cloneRoles[i];
                 list.Add((SoloKombatManager.GetRankOfScore(id), id));
             }
 
             list.Sort();
 
-            for (int i1 = 0; i1 < list.Count; i1++)
+            foreach ((int, byte) id in list.ToArray())
             {
-                (int, byte) id = list[i1];
                 sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id.Item2]);
             }
         }
         else if (Options.CurrentGameMode == CustomGameMode.FFA)
         {
             List<(int, byte)> list = new();
-            for (int i = 0; i < cloneRoles.Count; i++)
+            foreach (byte id in cloneRoles.ToArray())
             {
-                byte id = cloneRoles[i];
                 list.Add((FFAManager.GetRankOfScore(id), id));
             }
 
             list.Sort();
 
-            for (int i1 = 0; i1 < list.Count; i1++)
+            foreach ((int, byte) id in list.ToArray())
             {
-                (int, byte) id = list[i1];
                 sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id.Item2]);
             }
         }
         else
         {
-            for (int i = 0; i < cloneRoles.Count; i++)
+            foreach (byte id in cloneRoles.ToArray())
             {
-                byte id = cloneRoles[i];
-                if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
-                sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id]/*.RemoveHtmlTags()*/);
+                if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>"))
+                    continue;
+                sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id]);
             }
         }
         sb.Append("</size>");
@@ -1519,13 +1513,12 @@ public static class Utils
         bool isLovers = false;
         if (intro)
         {
-            for (int i = 0; i < SubRoles.Count; i++)
+            foreach (CustomRoles role in SubRoles.ToArray())
             {
-                CustomRoles role = SubRoles[i];
-                if (role is CustomRoles.NotAssigned or CustomRoles.LastImpostor) SubRoles.Remove(SubRoles[i]);
+                if (role is CustomRoles.NotAssigned or CustomRoles.LastImpostor) SubRoles.Remove(role);
                 if (role is CustomRoles.Lovers)
                 {
-                    SubRoles.Remove(SubRoles[i]);
+                    SubRoles.Remove(role);
                     isLovers = true;
                 }
             }
@@ -1561,12 +1554,10 @@ public static class Utils
         }
         else if (!summary)
         {
-            for (int i = 0; i < SubRoles.Count; i++)
+            foreach (CustomRoles role in SubRoles.ToArray())
             {
-                CustomRoles role = SubRoles[i];
-                if (role is CustomRoles.NotAssigned or CustomRoles.LastImpostor) continue;
-                //if (summary && role is CustomRoles.Madmate or CustomRoles.Charmed or CustomRoles.Recruit or CustomRoles.Admired or CustomRoles.Infected or CustomRoles.Contagious or CustomRoles.Soulless) continue;
-
+                if (role is CustomRoles.NotAssigned or CustomRoles.LastImpostor)
+                    continue;
                 var RoleText = disableColor ? GetRoleName(role) : ColorString(GetRoleColor(role), GetRoleName(role));
                 sb.Append($"{ColorString(Color.gray, " + ")}{RoleText}");
             }
@@ -2884,9 +2875,8 @@ public static class Utils
     public static string WriteRandomHistgram(int[] nums, float scale = 1.0f)
     {
         int[] countData = new int[nums.Max() + 1];
-        for (int i = 0; i < nums.Length; i++)
+        foreach (int num in nums)
         {
-            int num = nums[i];
             if (0 <= num) countData[num]++;
         }
         StringBuilder sb = new();

@@ -3018,21 +3018,16 @@ class FixedUpdatePatch
         if (!Main.LoversPlayers.Any()) return;
         if (Options.LoverSuicide.GetBool() && Main.isLoversDead == false)
         {
-            for (int i = 0; i < Main.LoversPlayers.Count; i++)
+            foreach (PlayerControl loversPlayer in Main.LoversPlayers.ToArray())
             {
-                PlayerControl loversPlayer = Main.LoversPlayers[i];
-                //生きていて死ぬ予定でなければスキップ
-                if (!loversPlayer.Data.IsDead && loversPlayer.PlayerId != deathId) continue;
-
+                if (!loversPlayer.Data.IsDead && loversPlayer.PlayerId != deathId)
+                    continue;
                 Main.isLoversDead = true;
                 for (int i1 = 0; i1 < Main.LoversPlayers.Count; i1++)
                 {
                     PlayerControl partnerPlayer = Main.LoversPlayers[i1];
-                    //本人ならスキップ
-                    if (loversPlayer.PlayerId == partnerPlayer.PlayerId) continue;
-
-                    //残った恋人を全て殺す(2人以上可)
-                    //生きていて死ぬ予定もない場合は心中
+                    if (loversPlayer.PlayerId == partnerPlayer.PlayerId)
+                        continue;
                     if (partnerPlayer.PlayerId != deathId && !partnerPlayer.Data.IsDead)
                     {
                         if (partnerPlayer.Is(CustomRoles.Lovers))
@@ -3447,10 +3442,9 @@ class CoEnterVentPatch
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Revolutionist);//革命者胜利
             GetDrawPlayerCount(__instance.myPlayer.PlayerId, out var x);
             CustomWinnerHolder.WinnerIds.Add(__instance.myPlayer.PlayerId);
-            for (int i = 0; i < x.Count; i++)
+            foreach (PlayerControl apc in x.ToArray())
             {
-                PlayerControl apc = x[i];
-                CustomWinnerHolder.WinnerIds.Add(apc.PlayerId);//胜利玩家
+                CustomWinnerHolder.WinnerIds.Add(apc.PlayerId);
             }
 
             return true;

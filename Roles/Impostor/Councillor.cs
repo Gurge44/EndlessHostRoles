@@ -57,9 +57,8 @@ public static class Councillor
     public static void OnReportDeadBody()
     {
         MurderLimit.Clear();
-        for (int i = 0; i < playerIdList.Count; i++)
+        foreach (byte pc in playerIdList.ToArray())
         {
-            byte pc = playerIdList[i];
             MurderLimit.Add(pc, MurderLimitPerMeeting.GetInt());
         }
     }
@@ -208,17 +207,17 @@ public static class Councillor
     public static bool CheckCommond(ref string msg, string command, bool exact = true)
     {
         var comList = command.Split('|');
-        for (int i = 0; i < comList.Length; i++)
+        foreach (string str in comList)
         {
             if (exact)
             {
-                if (msg == "/" + comList[i]) return true;
+                if (msg == "/" + str) return true;
             }
             else
             {
-                if (msg.StartsWith("/" + comList[i]))
+                if (msg.StartsWith("/" + str))
                 {
-                    msg = msg.Replace("/" + comList[i], string.Empty);
+                    msg = msg.Replace("/" + str, string.Empty);
                     return true;
                 }
             }
@@ -258,9 +257,8 @@ public static class Councillor
     }
     public static void CreateCouncillorButton(MeetingHud __instance)
     {
-        for (int i = 0; i < __instance.playerStates.Count; i++)
+        foreach (PlayerVoteArea pva in __instance.playerStates.ToArray())
         {
-            PlayerVoteArea pva = __instance.playerStates[i];
             var pc = Utils.GetPlayerById(pva.TargetPlayerId);
             if (pc == null || !pc.IsAlive()) continue;
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;

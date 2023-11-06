@@ -27,9 +27,8 @@ public static class GameOptionsMenuPatch
 {
     public static void Postfix(GameOptionsMenu __instance)
     {
-        for (int i = 0; i < __instance.Children.Count; i++)
+        foreach (OptionBehaviour ob in __instance.Children.ToArray())
         {
-            OptionBehaviour ob = __instance.Children[i];
             switch (ob.Title)
             {
                 case StringNames.GameVotingTime:
@@ -93,9 +92,8 @@ public static class GameOptionsMenuPatch
             tohMenu.GetComponentsInChildren<OptionBehaviour>().Do(x => Object.Destroy(x.gameObject));
 
             var scOptions = new List<OptionBehaviour>();
-            for (int i1 = 0; i1 < OptionItem.AllOptions.Count; i1++)
+            foreach (OptionItem option in OptionItem.AllOptions.ToArray())
             {
-                OptionItem option = OptionItem.AllOptions[i1];
                 if (option.Tab != (TabGroup)tab) continue;
                 if (option.OptionBehaviour == null)
                 {
@@ -186,9 +184,8 @@ public class GameOptionsMenuUpdatePatch
             float numItems = __instance.Children.Length;
             var offset = 2.7f;
 
-            for (int i1 = 0; i1 < OptionItem.AllOptions.Count; i1++)
+            foreach (OptionItem option in OptionItem.AllOptions.ToArray())
             {
-                OptionItem option = OptionItem.AllOptions[i1];
                 if ((TabGroup)tab != option.Tab) continue;
                 if (option?.OptionBehaviour == null || option.OptionBehaviour.gameObject == null) continue;
 
@@ -315,9 +312,8 @@ public static class RolesSettingsMenuPatch
 {
     public static void Postfix(RolesSettingsMenu __instance)
     {
-        for (int i = 0; i < __instance.Children.Count; i++)
+        foreach (OptionBehaviour ob in __instance.Children.ToArray())
         {
-            OptionBehaviour ob = __instance.Children[i];
             switch (ob.Title)
             {
                 case StringNames.EngineerCooldown:

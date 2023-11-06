@@ -44,9 +44,8 @@ public static class Psychic
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncPsychicRedList, SendOption.Reliable, -1);
         writer.Write(RedPlayer.Count);
-        for (int i = 0; i < RedPlayer.Count; i++)
+        foreach (byte pc in RedPlayer.ToArray())
         {
-            byte pc = RedPlayer[i];
             writer.Write(pc);
         }
 

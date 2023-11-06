@@ -48,9 +48,8 @@ class ElectricalDoorsInitializePatch
         var closedoors = string.Empty;
         bool isFirst = true;
         byte[] array = AirshipElectricalDoors.GetClosedDoors();
-        for (int i = 0; i < array.Length; i++)
+        foreach (byte num in array)
         {
-            byte num = array[i];
             if (isFirst)
             {
                 isFirst = false;

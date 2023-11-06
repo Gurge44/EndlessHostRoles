@@ -361,9 +361,9 @@ public class ModUpdater
             file.Close();
 
             StringBuilder sb = new();
-            for (int i = 0; i < retVal.Length; i++)
+            foreach (byte x in retVal)
             {
-                sb.Append(retVal[i].ToString("x2"));
+                sb.Append(x.ToString("x2"));
             }
             return sb.ToString();
         }

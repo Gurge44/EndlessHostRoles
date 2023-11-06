@@ -63,9 +63,8 @@ static class LocateArrow
     {
         var arrowInfo = new ArrowInfo(seer, locate);
         var removeList = new List<ArrowInfo>(LocateArrows.Keys.Where(k => k.Equals(arrowInfo)));
-        for (int i = 0; i < removeList.Count; i++)
+        foreach (ArrowInfo a in removeList.ToArray())
         {
-            ArrowInfo a = removeList[i];
             LocateArrows.Remove(a);
         }
     }
@@ -76,9 +75,8 @@ static class LocateArrow
     public static void RemoveAllTarget(byte seer)
     {
         var removeList = new List<ArrowInfo>(LocateArrows.Keys.Where(k => k.From == seer));
-        for (int i = 0; i < removeList.Count; i++)
+        foreach (ArrowInfo arrowInfo in removeList.ToArray())
         {
-            ArrowInfo arrowInfo = removeList[i];
             LocateArrows.Remove(arrowInfo);
         }
     }
@@ -112,9 +110,8 @@ static class LocateArrow
         if (!arrowList.Any()) return;
 
         var update = false;
-        for (int i = 0; i < arrowList.Count; i++)
+        foreach (ArrowInfo arrowInfo in arrowList.ToArray())
         {
-            ArrowInfo arrowInfo = arrowList[i];
             var loc = arrowInfo.To;
             if (seerIsDead)
             {

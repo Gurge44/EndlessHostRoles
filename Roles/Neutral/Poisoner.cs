@@ -88,9 +88,8 @@ public static class Poisoner
 
         List<byte> targetList = new(PoisonedPlayers.Where(b => b.Value.PoisonerId == poisonerID).Select(b => b.Key));
 
-        for (int i = 0; i < targetList.Count; i++)
+        foreach (byte targetId in targetList.ToArray())
         {
-            byte targetId = targetList[i];
             var poisonedPoisoner = PoisonedPlayers[targetId];
             if (poisonedPoisoner.KillTimer >= KillDelay)
             {

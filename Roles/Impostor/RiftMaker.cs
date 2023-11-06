@@ -62,9 +62,8 @@ namespace TOHE.Roles.Impostor
             bool isTP = false;
             Vector2 from = Marks[0];
 
-            for (int i = 0; i < Marks.Count; i++)
+            foreach (Vector2 mark in Marks.ToArray())
             {
-                Vector2 mark = Marks[i];
                 var dis = Vector2.Distance(mark, position);
                 if (dis > 2f) continue;
 

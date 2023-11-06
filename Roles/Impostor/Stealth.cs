@@ -137,9 +137,8 @@ namespace TOHE.Roles.Impostor
             if (!IsEnable) return;
             if (darkenedPlayers != null)
             {
-                for (int i = 0; i < darkenedPlayers.Length; i++)
+                foreach (PlayerControl player in darkenedPlayers)
                 {
-                    PlayerControl player = darkenedPlayers[i];
                     Main.PlayerStates[player.PlayerId].IsBlackOut = false;
                     player.MarkDirtySettings();
                 }

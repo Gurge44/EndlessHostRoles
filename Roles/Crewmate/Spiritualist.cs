@@ -77,9 +77,8 @@ namespace TOHE.Roles.Crewmate
 
         public static void AfterMeetingTasks()
         {
-            for (int i = 0; i < playerIdList.Count; i++)
+            foreach (byte spiritualist in playerIdList.ToArray())
             {
-                byte spiritualist = playerIdList[i];
                 PlayerControl player = Main.AllPlayerControls.FirstOrDefault(a => a.PlayerId == spiritualist);
                 if (!player.IsAlive())
                 {
@@ -129,9 +128,8 @@ namespace TOHE.Roles.Crewmate
 
         public static void RemoveTarget()
         {
-            for (int i = 0; i < playerIdList.Count; i++)
+            foreach (byte spiritualist in playerIdList.ToArray())
             {
-                byte spiritualist = playerIdList[i];
                 TargetArrow.Remove(spiritualist, SpiritualistTarget);
             }
 

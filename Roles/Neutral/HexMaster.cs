@@ -126,9 +126,8 @@ public static class HexMaster
     }
     public static bool HaveHexedPlayer()
     {
-        for (int i = 0; i < playerIdList.Count; i++)
+        foreach (byte hexmaster in playerIdList.ToArray())
         {
-            byte hexmaster = playerIdList[i];
             if (HexedPlayer[hexmaster].Any())
             {
                 return true;
@@ -139,9 +138,8 @@ public static class HexMaster
     }
     public static bool IsHexed(byte target)
     {
-        for (int i = 0; i < playerIdList.Count; i++)
+        foreach (byte hexmaster in playerIdList)
         {
-            byte hexmaster = playerIdList[i];
             if (HexedPlayer[hexmaster].Contains(target))
             {
                 return true;
@@ -161,9 +159,8 @@ public static class HexMaster
     }
     public static void RemoveHexedPlayer()
     {
-        for (int i = 0; i < playerIdList.Count; i++)
+        foreach (byte hexmaster in playerIdList.ToArray())
         {
-            byte hexmaster = playerIdList[i];
             HexedPlayer[hexmaster].Clear();
             SendRPC(true, hexmaster);
         }
@@ -192,9 +189,8 @@ public static class HexMaster
     public static void OnCheckForEndVoting(PlayerState.DeathReason deathReason, params byte[] exileIds)
     {
         if (!IsEnable || deathReason != PlayerState.DeathReason.Vote) return;
-        for (int i = 0; i < exileIds.Length; i++)
+        foreach (byte id in exileIds)
         {
-            byte id = exileIds[i];
             if (HexedPlayer.ContainsKey(id))
                 HexedPlayer[id].Clear();
         }

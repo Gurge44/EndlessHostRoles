@@ -41,9 +41,8 @@ public static class TimeThief
     public static int TotalDecreasedMeetingTime()
     {
         int sec = 0;
-        for (int i = 0; i < playerIdList.Count; i++)
+        foreach (byte playerId in playerIdList.ToArray())
         {
-            byte playerId = playerIdList[i];
             sec -= StolenTime(playerId);
         }
 

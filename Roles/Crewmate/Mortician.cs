@@ -71,9 +71,8 @@ public static class Mortician
         }
 
         lastPlayerName.TryAdd(target.PlayerId, minName);
-        for (int i = 0; i < playerIdList.Count; i++)
+        foreach (byte pc in playerIdList.ToArray())
         {
-            byte pc = playerIdList[i];
             var player = Utils.GetPlayerById(pc);
             if (player == null || !player.IsAlive()) continue;
             LocateArrow.Add(pc, target.transform.position);
@@ -82,9 +81,8 @@ public static class Mortician
     }
     public static void OnReportDeadBody(PlayerControl pc, GameData.PlayerInfo target)
     {
-        for (int i = 0; i < playerIdList.Count; i++)
+        foreach (byte apc in playerIdList.ToArray())
         {
-            byte apc = playerIdList[i];
             LocateArrow.RemoveAllTarget(apc);
             SendRPC(apc, false);
         }

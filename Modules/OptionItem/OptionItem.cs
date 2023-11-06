@@ -231,9 +231,8 @@ public abstract class OptionItem
     {
         CurrentPreset = Math.Clamp(newPreset, 0, NumPresets - 1);
 
-        for (int i = 0; i < AllOptions.Count; i++)
+        foreach (OptionItem op in AllOptions.ToArray())
         {
-            OptionItem op = AllOptions[i];
             op.Refresh();
         }
 

@@ -56,9 +56,8 @@ class EndGamePatch
 
         Main.winnerNameList = new();
         Main.winnerList = new();
-        for (int i = 0; i < winner.Count; i++)
+        foreach (PlayerControl pc in winner.ToArray())
         {
-            PlayerControl pc = winner[i];
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw && pc.Is(CustomRoles.GM)) continue;
 
             TempData.winners.Add(new WinningPlayerData(pc.Data));
@@ -244,9 +243,8 @@ class SetEverythingUpPatch
 
         StringBuilder sb = new($"{GetString("RoleSummaryText")}\n");
         List<byte> cloneRoles = new(Main.PlayerStates.Keys);
-        for (int i = 0; i < Main.winnerList.Count; i++)
+        foreach (byte id in Main.winnerList.ToArray())
         {
-            byte id = Main.winnerList[i];
             if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
             sb.Append($"\n<b>").Append(EndGamePatch.SummaryText[id]);
             cloneRoles.Remove(id);
@@ -254,9 +252,8 @@ class SetEverythingUpPatch
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
         {
             List<(int, byte)> list = new();
-            for (int i = 0; i < cloneRoles.Count; i++)
+            foreach (byte id in cloneRoles.ToArray())
             {
-                byte id = cloneRoles[i];
                 list.Add((SoloKombatManager.GetRankOfScore(id), id));
             }
 
@@ -267,9 +264,8 @@ class SetEverythingUpPatch
         else if (Options.CurrentGameMode == CustomGameMode.FFA)
         {
             List<(int, byte)> list = new();
-            for (int i = 0; i < cloneRoles.Count; i++)
+            foreach (byte id in cloneRoles.ToArray())
             {
-                byte id = cloneRoles[i];
                 list.Add((FFAManager.GetRankOfScore(id), id));
             }
 
@@ -280,10 +276,10 @@ class SetEverythingUpPatch
         else
         {
             sb.Append($"</b>\n");
-            for (int i = 0; i < cloneRoles.Count; i++)
+            foreach (byte id in cloneRoles.ToArray())
             {
-                byte id = cloneRoles[i];
-                if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
+                if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>"))
+                    continue;
                 sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
             }
         }

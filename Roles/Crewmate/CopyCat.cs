@@ -68,21 +68,12 @@ public static class CopyCat
 
     public static void AfterMeetingTasks()
     {
-        for (int i = 0; i < playerIdList.Count; i++)
+        foreach (byte player in playerIdList.ToArray())
         {
-            byte player = playerIdList[i];
             var pc = Utils.GetPlayerById(player);
             var role = pc.GetCustomRole();
-            ////////////           /*remove the settings for current role*/             /////////////////////
             switch (role)
             {
-                //case CustomRoles.Addict:
-                //    Addict.SuicideTimer.Remove(player);
-                //    Addict.ImmortalTimer.Remove(player);
-                //    break;
-                //case CustomRoles.Bloodhound:
-                //    Bloodhound.BloodhoundTargets.Remove(player);
-                //    break;
                 case CustomRoles.ParityCop:
                     ParityCop.MaxCheckLimit.Remove(player);
                     ParityCop.RoundCheckLimit.Remove(player);
@@ -111,9 +102,6 @@ public static class CopyCat
                 case CustomRoles.Oracle:
                     Oracle.CheckLimit.Remove(player);
                     break;
-                //case CustomRoles.DovesOfNeace:
-                //    Main.DovesOfNeaceNumOfUsed.Remove(player);
-                //    break;
                 case CustomRoles.Paranoia:
                     Main.ParaUsedButtonCount.Remove(player);
                     break;
@@ -124,22 +112,6 @@ public static class CopyCat
                     Snitch.IsExposed.Remove(player);
                     Snitch.IsComplete.Remove(player);
                     break;
-                //case CustomRoles.Spiritualist:
-                //    Spiritualist.LastGhostArrowShowTime.Remove(player);
-                //    Spiritualist.ShowGhostArrowUntil.Remove(player);
-                //    break;
-                //case CustomRoles.Tracker:
-                //    Tracker.TrackLimit.Remove(player);
-                //    Tracker.TrackerTarget.Remove(player);
-                //    break;
-                //case CustomRoles.Counterfeiter:
-                //    Counterfeiter.SeelLimit.Remove(player);
-                //    break;
-                //case CustomRoles.SwordsMan:
-                //    if (!AmongUsClient.Instance.AmHost) break;
-                //    if (!Main.ResetCamPlayerList.Contains(player))
-                //        Main.ResetCamPlayerList.Add(player);
-                //    break;
                 case CustomRoles.Sheriff:
                     Sheriff.CurrentKillCooldown.Remove(player);
                     Sheriff.ShotLimit.Remove(player);

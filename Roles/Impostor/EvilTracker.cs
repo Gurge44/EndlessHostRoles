@@ -127,9 +127,8 @@ public static class EvilTracker
         {
             SetTarget();
         }
-        for (int i = 0; i < playerIdList.Count; i++)
+        foreach (byte playerId in playerIdList.ToArray())
         {
-            byte playerId = playerIdList[i];
             var pc = Utils.GetPlayerById(playerId);
             var target = Utils.GetPlayerById(GetTargetId(playerId));
             if (!pc.IsAlive() || !target.IsAlive())
@@ -147,11 +146,12 @@ public static class EvilTracker
     public static void SetTarget(byte trackerId = byte.MaxValue, byte targetId = byte.MaxValue)
     {
         if (trackerId == byte.MaxValue) // ターゲット再設定可能に
-            for (int i = 0; i < playerIdList.Count; i++)
+        {
+            foreach (byte playerId in playerIdList.ToArray())
             {
-                byte playerId = playerIdList[i];
                 CanSetTarget[playerId] = true;
             }
+        }
         else if (targetId == byte.MaxValue) // ターゲット削除
             Target[trackerId] = byte.MaxValue;
         else

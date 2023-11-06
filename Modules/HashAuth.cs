@@ -40,9 +40,8 @@ public class HashAuth
 
         // 4.hashBytesを文字列化
         var sb = new StringBuilder();
-        for (int i = 0; i < hashBytes.Length; i++)
+        foreach (byte b in hashBytes)
         {
-            byte b = hashBytes[i];
             sb.Append(b.ToString("x2")); //1byteずつ2桁の16進法表記に変換する
         }
 

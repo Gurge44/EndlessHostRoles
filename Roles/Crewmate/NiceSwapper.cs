@@ -160,14 +160,12 @@ public static class NiceSwapper
                     {
                         PlayerControl player1 = new();
                         PlayerControl player2 = new();
-                        for (int i = 0; i < Vote.Count; i++)
+                        foreach (byte swap1 in Vote.ToArray())
                         {
-                            byte swap1 = Vote[i];
                             player1.PlayerId = swap1;
                         }
-                        for (int i = 0; i < Vote.Count; i++)
+                        foreach (byte swap2 in Vote.ToArray())
                         {
-                            byte swap2 = Vote[i];
                             player2.PlayerId = swap2;
                         }
                     }
@@ -218,17 +216,17 @@ public static class NiceSwapper
     public static bool CheckCommond(ref string msg, string command, bool exact = true)
     {
         var comList = command.Split('|');
-        for (int i = 0; i < comList.Length; i++)
+        foreach (string str in comList)
         {
             if (exact)
             {
-                if (msg == "/" + comList[i]) return true;
+                if (msg == "/" + str) return true;
             }
             else
             {
-                if (msg.StartsWith("/" + comList[i]))
+                if (msg.StartsWith("/" + str))
                 {
-                    msg = msg.Replace("/" + comList[i], string.Empty);
+                    msg = msg.Replace("/" + str, string.Empty);
                     return true;
                 }
             }
@@ -274,9 +272,8 @@ public static class NiceSwapper
     }
     public static void CreateSwapperButton(MeetingHud __instance)
     {
-        for (int i = 0; i < __instance.playerStates.Count; i++)
+        foreach (PlayerVoteArea pva in __instance.playerStates.ToArray())
         {
-            PlayerVoteArea pva = __instance.playerStates[i];
             var pc = Utils.GetPlayerById(pva.TargetPlayerId);
             if (pc == null || !pc.IsAlive()) continue;
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;

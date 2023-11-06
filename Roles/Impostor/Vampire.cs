@@ -81,9 +81,8 @@ public static class Vampire
 
         List<byte> targetList = new(BittenPlayers.Where(b => b.Value.VampireId == vampireID).Select(b => b.Key));
 
-        for (int i = 0; i < targetList.Count; i++)
+        foreach (byte targetId in targetList.ToArray())
         {
-            byte targetId = targetList[i];
             var bitten = BittenPlayers[targetId];
             if (bitten.KillTimer >= KillDelay)
             {

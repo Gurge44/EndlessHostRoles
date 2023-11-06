@@ -123,7 +123,7 @@ internal class CustomRoleSelector
             ImpOnList.Remove(select);
             rolesToAssign.Add(select);
             readyRoleNum++;
-            Logger.Info(select.ToString() + " Join the mole role waiting list (priority)", "CustomRoleSelector");
+            Logger.Info(select.ToString() + " joins the mole role waiting list (priority)", "CustomRoleSelector");
             if (readyRoleNum >= playerCount) goto EndOfAssign;
             if (readyRoleNum >= optImpNum) break;
         }
@@ -136,7 +136,7 @@ internal class CustomRoleSelector
                 ImpRateList.Remove(select);
                 rolesToAssign.Add(select);
                 readyRoleNum++;
-                Logger.Info(select.ToString() + " Add to the role waiting list", "CustomRoleSelector");
+                Logger.Info(select.ToString() + " added to the role waiting list", "CustomRoleSelector");
                 if (readyRoleNum >= playerCount) goto EndOfAssign;
                 if (readyRoleNum >= optImpNum) break;
             }
@@ -150,7 +150,7 @@ internal class CustomRoleSelector
             rolesToAssign.Add(select);
             readyRoleNum++;
             readyNonNeutralKillingNum += select.GetCount();
-            Logger.Info(select.ToString() + " 加入中立职业待选列表（优先）", "CustomRoleSelector");
+            Logger.Info(select.ToString() + " added to neutral role candidate list (priority)", "CustomRoleSelector");
             if (readyRoleNum >= playerCount) goto EndOfAssign;
             if (readyNonNeutralKillingNum >= optNonNeutralKillingNum) break;
         }
@@ -165,7 +165,7 @@ internal class CustomRoleSelector
                 rolesToAssign.Add(select);
                 readyRoleNum++;
                 readyNonNeutralKillingNum += select.GetCount();
-                Logger.Info(select.ToString() + " 加入中立职业待选列表", "CustomRoleSelector");
+                Logger.Info(select.ToString() + " added to neutral role waiting list", "CustomRoleSelector");
                 if (readyRoleNum >= playerCount) goto EndOfAssign;
                 if (readyNonNeutralKillingNum >= optNonNeutralKillingNum) break;
             }
@@ -179,7 +179,7 @@ internal class CustomRoleSelector
             rolesToAssign.Add(select);
             readyRoleNum++;
             readyNeutralKillingNum += select.GetCount();
-            Logger.Info(select.ToString() + " 加入中立职业待选列表（优先）", "CustomRoleSelector");
+            Logger.Info(select.ToString() + " added to neutral role candidate list (priority)", "CustomRoleSelector");
             if (readyRoleNum >= playerCount) goto EndOfAssign;
             if (readyNeutralKillingNum >= optNeutralKillingNum) break;
         }
@@ -194,7 +194,7 @@ internal class CustomRoleSelector
                 rolesToAssign.Add(select);
                 readyRoleNum++;
                 readyNeutralKillingNum += select.GetCount();
-                Logger.Info(select.ToString() + " 加入中立职业待选列表", "CustomRoleSelector");
+                Logger.Info(select.ToString() + " added to neutral role waiting list", "CustomRoleSelector");
                 if (readyRoleNum >= playerCount) goto EndOfAssign;
                 if (readyNeutralKillingNum >= optNeutralKillingNum) break;
             }
@@ -234,7 +234,7 @@ internal class CustomRoleSelector
             roleOnList.Remove(select);
             rolesToAssign.Add(select);
             readyRoleNum++;
-            Logger.Info(select.ToString() + " 加入船员职业待选列表（优先）", "CustomRoleSelector");
+            Logger.Info(select.ToString() + " joined the crew role waiting list (priority)", "CustomRoleSelector");
             if (readyRoleNum >= playerCount) goto EndOfAssign;
         }
         // 优先职业不足以分配，开始分配启用的职业
@@ -246,7 +246,7 @@ internal class CustomRoleSelector
                 roleRateList.Remove(select);
                 rolesToAssign.Add(select);
                 readyRoleNum++;
-                Logger.Info(select.ToString() + " 加入船员职业待选列表", "CustomRoleSelector");
+                Logger.Info(select.ToString() + " joined the crew role waiting list", "CustomRoleSelector");
                 if (readyRoleNum >= playerCount) goto EndOfAssign;
             }
         }
@@ -304,7 +304,7 @@ internal class CustomRoleSelector
             {
                 rolesToAssign.Remove(dr.Value);
                 rolesToAssign.Insert(dr.Key, dr.Value);
-                Logger.Info("职业列表提高优先：" + dr.Value, "Dev Role");
+                Logger.Info("Occupation list improved priority：" + dr.Value, "Dev Role");
                 continue;
             }
             for (int i = 0; i < rolesToAssign.Count; i++)
@@ -320,7 +320,7 @@ internal class CustomRoleSelector
                 {
                     rolesToAssign.RemoveAt(i);
                     rolesToAssign.Insert(dr.Key, dr.Value);
-                    Logger.Info("覆盖职业列表：" + i + " " + role.ToString() + " => " + dr.Value, "Dev Role");
+                    Logger.Info("Coverage occupation list：" + i + " " + role.ToString() + " => " + dr.Value, "Dev Role");
                     break;
                 }
             }

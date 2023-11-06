@@ -117,9 +117,8 @@ public static class Witch
     }
     public static bool HaveSpelledPlayer()
     {
-        for (int i = 0; i < playerIdList.Count; i++)
+        foreach (byte witch in playerIdList.ToArray())
         {
-            byte witch = playerIdList[i];
             if (SpelledPlayer[witch].Any())
             {
                 return true;
@@ -130,9 +129,8 @@ public static class Witch
     }
     public static bool IsSpelled(byte target)
     {
-        for (int i = 0; i < playerIdList.Count; i++)
+        foreach (byte witch in playerIdList.ToArray())
         {
-            byte witch = playerIdList[i];
             if (SpelledPlayer[witch].Contains(target))
             {
                 return true;
@@ -152,9 +150,8 @@ public static class Witch
     }
     public static void RemoveSpelledPlayer()
     {
-        for (int i = 0; i < playerIdList.Count; i++)
+        foreach (byte witch in playerIdList.ToArray())
         {
-            byte witch = playerIdList[i];
             SpelledPlayer[witch].Clear();
             SendRPC(true, witch);
         }
@@ -183,9 +180,8 @@ public static class Witch
     public static void OnCheckForEndVoting(PlayerState.DeathReason deathReason, params byte[] exileIds)
     {
         if (!IsEnable || deathReason != PlayerState.DeathReason.Vote) return;
-        for (int i = 0; i < exileIds.Length; i++)
+        foreach (byte id in exileIds)
         {
-            byte id = exileIds[i];
             if (SpelledPlayer.ContainsKey(id))
                 SpelledPlayer[id].Clear();
         }

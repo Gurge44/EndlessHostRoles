@@ -58,10 +58,9 @@ public static class Judge
     public static bool IsEnable => playerIdList.Any();
     public static void OnReportDeadBody()
     {
-        List<byte> list = TrialLimit.Keys.ToList();
-        for (int i = 0; i < list.Count; i++)
+        byte[] list = TrialLimit.Keys.ToArray();
+        foreach (byte pid in list)
         {
-            byte pid = list[i];
             TrialLimit[pid] = TrialLimitPerMeeting.GetInt();
         }
     }
@@ -208,17 +207,17 @@ public static class Judge
     public static bool CheckCommand(ref string msg, string command, bool exact = true)
     {
         var comList = command.Split('|');
-        for (int i = 0; i < comList.Length; i++)
+        foreach (string str in comList)
         {
             if (exact)
             {
-                if (msg == "/" + comList[i]) return true;
+                if (msg == "/" + str) return true;
             }
             else
             {
-                if (msg.StartsWith("/" + comList[i]))
+                if (msg.StartsWith("/" + str))
                 {
-                    msg = msg.Replace("/" + comList[i], string.Empty);
+                    msg = msg.Replace("/" + str, string.Empty);
                     return true;
                 }
             }

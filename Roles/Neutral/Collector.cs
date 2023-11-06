@@ -81,9 +81,8 @@ public static class Collector
     public static void CollectAmount(Dictionary<byte, int> VotingData, MeetingHud __instance)//得到集票者收集到的票
     {
         int VoteAmount;
-        for (int i = 0; i < __instance.playerStates.Count; i++)
+        foreach (PlayerVoteArea pva in __instance.playerStates.ToArray())
         {
-            PlayerVoteArea pva = __instance.playerStates[i];
             if (pva == null) continue;
             PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
             if (pc == null) continue;

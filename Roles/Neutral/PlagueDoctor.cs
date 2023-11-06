@@ -194,9 +194,9 @@ namespace TOHE.Roles.Neutral
                 {
                     //If someone is infected
                     CheckWin();
-                    for (int i = 0; i < updates.Count; i++)
+                    foreach (PlayerControl x in updates.ToArray())
                     {
-                        Utils.NotifyRoles(SpecifySeer: updates[i]);
+                        Utils.NotifyRoles(SpecifySeer: x);
                     }
                 }
             }

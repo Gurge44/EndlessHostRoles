@@ -125,10 +125,9 @@ public static class Magician
         {
             case 1: // Slowness for everyone nearby
                 if (TempSpeeds.Any()) RevertSpeedChanges(true);
-                var list = GetPlayersInRadius(SlownessRadius.GetFloat(), pc.transform.position);
-                for (int i = 0; i < list.Count; i++)
+                var list = GetPlayersInRadius(SlownessRadius.GetFloat(), pc.transform.position).ToArray();
+                foreach (var x in list)
                 {
-                    var x = list[i];
                     if (x.PlayerId == pc.PlayerId || x == null) continue;
 
                     TempSpeeds.TryAdd(x.PlayerId, Main.AllPlayerSpeed[x.PlayerId]);
@@ -179,17 +178,17 @@ public static class Magician
                     sniper.SetKillCooldown(time: Main.AllPlayerKillCooldown[sniper.PlayerId] + temp);
 
                     targets.Remove(snipedTarget);
-                    List<PlayerControl> list1 = targets.Keys.ToList();
-                    for (int i = 0; i < list1.Count; i++)
+                    PlayerControl[] list1 = targets.Keys.ToArray();
+                    foreach (PlayerControl x in list1)
                     {
-                        NotifyRoles(SpecifySeer: list1[i]);
+                        NotifyRoles(SpecifySeer: x);
                     }
                     _ = new LateTask(
                         () =>
                         {
-                            for (int i = 0; i < list1.Count; i++)
+                            foreach (PlayerControl x in list1)
                             {
-                                NotifyRoles(SpecifySeer: list1[i]);
+                                NotifyRoles(SpecifySeer: x);
                             }
                         },
                         0.5f, "Sniper shot Notify"
@@ -197,10 +196,9 @@ public static class Magician
                 }
                 break;
             case 6: // Blind everyone nearby
-                var players = GetPlayersInRadius(BlindRadius.GetFloat(), pc.transform.position);
-                for (int i = 0; i < players.Count; i++)
+                var players = GetPlayersInRadius(BlindRadius.GetFloat(), pc.transform.position).ToArray();
+                foreach (PlayerControl x in players)
                 {
-                    PlayerControl x = players[i];
                     if (x.PlayerId == pc.PlayerId || x == null) continue;
 
                     BlindPPL.TryAdd(x.PlayerId, GetTimeStamp());
@@ -265,9 +263,8 @@ public static class Magician
                 bool isTP = false;
                 Vector2 from = PortalMarks[0];
 
-                for (int i = 0; i < PortalMarks.Count; i++)
+                foreach (Vector2 mark in PortalMarks.ToArray())
                 {
-                    Vector2 mark = PortalMarks[i];
                     var dis = Vector2.Distance(mark, position);
                     if (dis > 2f) continue;
 
@@ -308,10 +305,9 @@ public static class Magician
             foreach (var bomb in Bombs.Where(bomb => bomb.Value + BombDelay.GetInt() < GetTimeStamp()))
             {
                 bool b = false;
-                var players = GetPlayersInRadius(BombRadius.GetFloat(), bomb.Key);
-                for (int i = 0; i < players.Count; i++)
+                var players = GetPlayersInRadius(BombRadius.GetFloat(), bomb.Key).ToArray();
+                foreach (PlayerControl tg in players)
                 {
-                    PlayerControl tg = players[i];
                     if (tg.PlayerId == pc.PlayerId)
                     {
                         b = true;
@@ -335,10 +331,10 @@ public static class Magician
             }
 
             var sb = new StringBuilder();
-            List<long> list = Bombs.Values.ToList();
-            for (int i = 0; i < list.Count; i++)
+            long[] list = Bombs.Values.ToArray();
+            foreach (long x in list)
             {
-                sb.Append(string.Format(GetString("MagicianBombExlodesIn"), BombDelay.GetInt() - (GetTimeStamp() - list[i]) + 1));
+                sb.Append(string.Format(GetString("MagicianBombExlodesIn"), BombDelay.GetInt() - (GetTimeStamp() - x) + 1));
             }
             pc.Notify(sb.ToString());
         }

@@ -94,9 +94,8 @@ namespace TOHE.Roles.Crewmate
             string msg;
             var rd = IRandom.Instance;
 
-            for (int i = 0; i < playerIdList.Count; i++)
+            foreach (byte playerId in playerIdList.ToArray())
             {
-                byte playerId = playerIdList[i];
                 if (!EnigmaGetCluesWithoutReporting.GetBool() && playerId != player.PlayerId) continue;
 
                 var enigmaPlayer = Utils.GetPlayerById(playerId);
