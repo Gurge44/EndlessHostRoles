@@ -1,12 +1,9 @@
-﻿using System;
+﻿using Hazel;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static TOHE.Options;
-using static TOHE.Utils;
 using static TOHE.Translator;
-using Hazel;
+using static TOHE.Utils;
 
 namespace TOHE.Roles.AddOns.Impostor
 {

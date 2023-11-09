@@ -3,7 +3,6 @@ using Il2CppSystem.Text;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
-using TOHE.Roles.AddOns.Impostor;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;

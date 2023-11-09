@@ -100,8 +100,9 @@ class AddTasksFromListPatch
                     break;
             }
         }
-        foreach (NormalPlayerTask task in disabledTasks.ToArray())
+        for (int i = 0; i < disabledTasks.Count; i++)
         {
+            NormalPlayerTask task = disabledTasks[i];
             Logger.Msg("Deleted assigned task: " + task.TaskType.ToString(), "AddTask");
             unusedTasks.Remove(task);
         }
@@ -177,8 +178,9 @@ class RpcSetTasksPatch
         //割り当て可能なタスクのIDが入ったリスト
         //本来のRpcSetTasksの第二引数のクローン
         Il2CppSystem.Collections.Generic.List<byte> TasksList = new();
-        foreach (byte num in taskTypeIds.ToArray())
+        for (int i1 = 0; i1 < taskTypeIds.Count; i1++)
         {
+            byte num = taskTypeIds[i1];
             TasksList.Add(num);
         }
 
