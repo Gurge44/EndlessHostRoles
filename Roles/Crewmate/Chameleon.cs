@@ -67,11 +67,11 @@ public static class Chameleon
         if (invis > 0) InvisTime.Add(PlayerControl.LocalPlayer.PlayerId, invis);
         if (last > 0) lastTime.Add(PlayerControl.LocalPlayer.PlayerId, last);
     }
-    public static void SendRPCPlus(byte playerId, bool isMinus)
+    public static void SendRPCPlus(byte playerId)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetChameleonLimit, SendOption.Reliable, -1);
         writer.Write(playerId);
-        writer.Write(isMinus);
+        writer.Write(UseLimit[playerId]);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
     public static void ReceiveRPCPlus(MessageReader reader)
@@ -79,10 +79,8 @@ public static class Chameleon
         if (AmongUsClient.Instance.AmHost) return;
 
         byte playerId = reader.ReadByte();
-        bool isMinus = reader.ReadBoolean();
-
-        if (isMinus) UseLimit[playerId]--;
-        else UseLimit[playerId]++;
+        float uses = reader.ReadSingle();
+        UseLimit[playerId] = uses;
     }
     public static bool CanGoInvis(byte id)
         => GameStates.IsInTask && !InvisTime.ContainsKey(id) && !lastTime.ContainsKey(id);
@@ -164,7 +162,7 @@ public static class Chameleon
                     NameNotifyManager.Notify(pc, GetString("ChameleonInvisState"), ChameleonDuration.GetFloat());
 
                     UseLimit[pc.PlayerId] -= 1;
-                    SendRPCPlus(pc.PlayerId, true);
+                    SendRPCPlus(pc.PlayerId);
                 }
                 else
                 {

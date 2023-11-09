@@ -12,6 +12,7 @@ namespace TOHE.Roles.Impostor
 
         public static OptionItem NullCD;
         private static OptionItem KCD;
+        private static OptionItem Delay;
 
         public static void SetupCustomOption()
         {
@@ -20,6 +21,9 @@ namespace TOHE.Roles.Impostor
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Nullifier])
                 .SetValueFormat(OptionFormat.Seconds);
             KCD = FloatOptionItem.Create(Id + 11, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Nullifier])
+                .SetValueFormat(OptionFormat.Seconds);
+            Delay = IntegerOptionItem.Create(Id + 12, "NullifierDelay", new(0, 20, 1), 5, TabGroup.ImpostorRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Nullifier])
                 .SetValueFormat(OptionFormat.Seconds);
         }
@@ -48,131 +52,135 @@ namespace TOHE.Roles.Impostor
             {
                 killer.SetKillCooldown(time: NullCD.GetFloat());
                 killer.Notify(Translator.GetString("NullifierUseRemoved"));
-                switch (target.GetCustomRole())
+                _ = new LateTask(() =>
                 {
-                    case CustomRoles.Admirer:
-                        Admirer.AdmireLimit--;
-                        Admirer.SendRPC();
-                        break;
-                    case CustomRoles.Aid:
-                        Aid.UseLimit[target.PlayerId]--;
-                        break;
-                    case CustomRoles.Bloodhound:
-                        Bloodhound.UseLimit[target.PlayerId]--;
-                        Bloodhound.SendRPCPlus(target.PlayerId, true);
-                        break;
-                    case CustomRoles.CameraMan:
-                        CameraMan.UseLimit[target.PlayerId]--;
-                        CameraMan.SendRPC(target.PlayerId, true);
-                        break;
-                    case CustomRoles.Chameleon:
-                        Chameleon.UseLimit[target.PlayerId]--;
-                        Chameleon.SendRPCPlus(target.PlayerId, true);
-                        break;
-                    case CustomRoles.Cleanser:
-                        Cleanser.CleanserUses[target.PlayerId]--;
-                        Cleanser.SendRPC(target.PlayerId);
-                        break;
-                    case CustomRoles.Crusader:
-                        Crusader.CrusaderLimit[target.PlayerId]--;
-                        break;
-                    case CustomRoles.Deputy:
-                        Deputy.HandcuffLimit--;
-                        Deputy.SendRPC();
-                        break;
-                    case CustomRoles.Divinator:
-                        Divinator.CheckLimit[target.PlayerId]--;
-                        Divinator.SendRPC(target.PlayerId, true);
-                        break;
-                    case CustomRoles.Doormaster:
-                        Doormaster.UseLimit[target.PlayerId]--;
-                        Doormaster.SendRPC(target.PlayerId, true);
-                        break;
-                    case CustomRoles.Mediumshiper:
-                        Mediumshiper.ContactLimit[target.PlayerId]--;
-                        Mediumshiper.SendRPC(target.PlayerId, true);
-                        break;
-                    case CustomRoles.Monarch:
-                        Monarch.KnightLimit--;
-                        Monarch.SendRPC();
-                        break;
-                    case CustomRoles.NiceEraser:
-                        NiceEraser.EraseLimit[target.PlayerId]--;
-                        NiceEraser.SendRPC(target.PlayerId);
-                        break;
-                    case CustomRoles.NiceHacker:
-                        if (target.IsModClient())
-                        {
-                            NiceHacker.UseLimitSeconds[target.PlayerId] -= NiceHacker.ModdedClientAbilityUseSecondsMultiplier.GetInt();
-                            NiceHacker.SendRPC(target.PlayerId, NiceHacker.UseLimitSeconds[target.PlayerId]);
-                        }
-                        else
-                        {
-                            NiceHacker.UseLimit[target.PlayerId]--;
-                        }
-                        break;
-                    case CustomRoles.NiceSwapper:
-                        NiceSwapper.NiceSwappermax[target.PlayerId]--;
-                        break;
-                    case CustomRoles.Oracle:
-                        Oracle.CheckLimit[target.PlayerId]--;
-                        Oracle.SendRPC(target.PlayerId, true);
-                        break;
-                    case CustomRoles.ParityCop:
-                        ParityCop.MaxCheckLimit[target.PlayerId]--;
-                        break;
-                    case CustomRoles.Ricochet:
-                        Ricochet.UseLimit[target.PlayerId]--;
-                        Ricochet.SendRPC(target.PlayerId, true);
-                        break;
-                    case CustomRoles.SabotageMaster:
-                        SabotageMaster.UsedSkillCount++;
-                        SabotageMaster.SendRPC(SabotageMaster.UsedSkillCount);
-                        break;
-                    case CustomRoles.Sheriff:
-                        Sheriff.ShotLimit[target.PlayerId]--;
-                        Sheriff.SendRPC(target.PlayerId);
-                        break;
-                    case CustomRoles.Spy:
-                        Spy.UseLimit[target.PlayerId]--;
-                        Spy.SendAbilityRPC(target.PlayerId);
-                        break;
-                    case CustomRoles.SwordsMan:
-                        SwordsMan.killed.Add(target.PlayerId);
-                        SwordsMan.SendRPC(target.PlayerId);
-                        break;
-                    case CustomRoles.Tether:
-                        Tether.UseLimit[target.PlayerId]--;
-                        Tether.SendRPC(target.PlayerId, true);
-                        break;
-                    case CustomRoles.Tracker:
-                        Tracker.TrackLimit[target.PlayerId]--;
-                        Tracker.SendRPC(trackerId: target.PlayerId);
-                        break;
-                    case CustomRoles.Veteran:
-                        Main.VeteranNumOfUsed[target.PlayerId]--;
-                        break;
-                    case CustomRoles.Grenadier:
-                        Main.GrenadierNumOfUsed[target.PlayerId]--;
-                        break;
-                    case CustomRoles.Lighter:
-                        Main.LighterNumOfUsed[target.PlayerId]--;
-                        break;
-                    case CustomRoles.DovesOfNeace:
-                        Main.DovesOfNeaceNumOfUsed[target.PlayerId]--;
-                        break;
-                    case CustomRoles.TimeMaster:
-                        Main.TimeMasterNumOfUsed[target.PlayerId]--;
-                        break;
-                    case CustomRoles.SecurityGuard:
-                        Main.SecurityGuardNumOfUsed[target.PlayerId]--;
-                        break;
-                    case CustomRoles.Ventguard:
-                        Main.VentguardNumberOfAbilityUses--;
-                        break;
-                    default:
-                        break;
-                }
+                    switch (target.GetCustomRole())
+                    {
+                        case CustomRoles.Admirer:
+                            Admirer.AdmireLimit--;
+                            Admirer.SendRPC();
+                            break;
+                        case CustomRoles.Aid:
+                            Aid.UseLimit[target.PlayerId]--;
+                            break;
+                        case CustomRoles.Bloodhound:
+                            Bloodhound.UseLimit[target.PlayerId]--;
+                            Bloodhound.SendRPCPlus(target.PlayerId);
+                            break;
+                        case CustomRoles.CameraMan:
+                            CameraMan.UseLimit[target.PlayerId]--;
+                            CameraMan.SendRPC(target.PlayerId);
+                            break;
+                        case CustomRoles.Chameleon:
+                            Chameleon.UseLimit[target.PlayerId]--;
+                            Chameleon.SendRPCPlus(target.PlayerId);
+                            break;
+                        case CustomRoles.Cleanser:
+                            Cleanser.CleanserUses[target.PlayerId]--;
+                            Cleanser.SendRPC(target.PlayerId);
+                            break;
+                        case CustomRoles.Crusader:
+                            Crusader.CrusaderLimit[target.PlayerId]--;
+                            break;
+                        case CustomRoles.Deputy:
+                            Deputy.HandcuffLimit--;
+                            Deputy.SendRPC();
+                            break;
+                        case CustomRoles.Divinator:
+                            Divinator.CheckLimit[target.PlayerId]--;
+                            Divinator.SendRPC(target.PlayerId);
+                            break;
+                        case CustomRoles.Doormaster:
+                            Doormaster.UseLimit[target.PlayerId]--;
+                            Doormaster.SendRPC(target.PlayerId);
+                            break;
+                        case CustomRoles.Mediumshiper:
+                            Mediumshiper.ContactLimit[target.PlayerId]--;
+                            Mediumshiper.SendRPC(target.PlayerId);
+                            break;
+                        case CustomRoles.Monarch:
+                            Monarch.KnightLimit--;
+                            Monarch.SendRPC();
+                            break;
+                        case CustomRoles.NiceEraser:
+                            NiceEraser.EraseLimit[target.PlayerId]--;
+                            NiceEraser.SendRPC(target.PlayerId);
+                            break;
+                        case CustomRoles.NiceHacker:
+                            if (target.IsModClient())
+                            {
+                                NiceHacker.UseLimitSeconds[target.PlayerId] -= NiceHacker.ModdedClientAbilityUseSecondsMultiplier.GetInt();
+                                NiceHacker.SendRPC(target.PlayerId, NiceHacker.UseLimitSeconds[target.PlayerId]);
+                            }
+                            else
+                            {
+                                NiceHacker.UseLimit[target.PlayerId]--;
+                            }
+                            break;
+                        case CustomRoles.NiceSwapper:
+                            NiceSwapper.NiceSwappermax[target.PlayerId]--;
+                            break;
+                        case CustomRoles.Oracle:
+                            Oracle.CheckLimit[target.PlayerId]--;
+                            Oracle.SendRPC(target.PlayerId);
+                            break;
+                        case CustomRoles.ParityCop:
+                            ParityCop.MaxCheckLimit[target.PlayerId]--;
+                            break;
+                        case CustomRoles.Ricochet:
+                            Ricochet.UseLimit[target.PlayerId]--;
+                            Ricochet.SendRPC(target.PlayerId);
+                            break;
+                        case CustomRoles.SabotageMaster:
+                            SabotageMaster.UsedSkillCount++;
+                            SabotageMaster.SendRPC(SabotageMaster.UsedSkillCount);
+                            break;
+                        case CustomRoles.Sheriff:
+                            Sheriff.ShotLimit[target.PlayerId]--;
+                            Sheriff.SendRPC(target.PlayerId);
+                            break;
+                        case CustomRoles.Spy:
+                            Spy.UseLimit[target.PlayerId]--;
+                            Spy.SendAbilityRPC(target.PlayerId);
+                            break;
+                        case CustomRoles.SwordsMan:
+                            SwordsMan.killed.Add(target.PlayerId);
+                            SwordsMan.SendRPC(target.PlayerId);
+                            break;
+                        case CustomRoles.Tether:
+                            Tether.UseLimit[target.PlayerId]--;
+                            Tether.SendRPC(target.PlayerId);
+                            break;
+                        case CustomRoles.Tracker:
+                            Tracker.TrackLimit[target.PlayerId]--;
+                            Tracker.SendRPC(trackerId: target.PlayerId);
+                            break;
+                        case CustomRoles.Veteran:
+                            Main.VeteranNumOfUsed[target.PlayerId]--;
+                            break;
+                        case CustomRoles.Grenadier:
+                            Main.GrenadierNumOfUsed[target.PlayerId]--;
+                            break;
+                        case CustomRoles.Lighter:
+                            Main.LighterNumOfUsed[target.PlayerId]--;
+                            break;
+                        case CustomRoles.DovesOfNeace:
+                            Main.DovesOfNeaceNumOfUsed[target.PlayerId]--;
+                            break;
+                        case CustomRoles.TimeMaster:
+                            Main.TimeMasterNumOfUsed[target.PlayerId]--;
+                            break;
+                        case CustomRoles.SecurityGuard:
+                            Main.SecurityGuardNumOfUsed[target.PlayerId]--;
+                            break;
+                        case CustomRoles.Ventguard:
+                            Main.VentguardNumberOfAbilityUses--;
+                            break;
+                        default:
+                            break;
+                    }
+                    if (GameStates.IsInTask) Utils.NotifyRoles(SpecifySeer: target);
+                }, Delay.GetInt(), "Nullifier Remove Ability Use");
             });
         }
     }

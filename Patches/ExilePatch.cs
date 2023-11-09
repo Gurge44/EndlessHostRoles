@@ -1,6 +1,7 @@
 using AmongUs.Data;
 using HarmonyLib;
 using System.Linq;
+using TOHE.Roles.AddOns.Impostor;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
@@ -79,6 +80,15 @@ class ExileControllerWrapUpPatch
                         .Do(x => CustomWinnerHolder.WinnerIds.Add(x.PlayerId));
                     DecidedWinner = true;
                 }
+            }
+
+            if (role.IsImpostorTeamV3())
+            {
+                Damocles.OnImpostorEjected();
+            }
+            else
+            {
+                Damocles.OnCrewmateEjected();
             }
 
             //判断小丑胜利 (EAC封禁名单成为小丑达成胜利条件无法胜利)

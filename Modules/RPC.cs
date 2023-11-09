@@ -58,6 +58,7 @@ enum CustomRPC
 
     //Roles
     SetDrawPlayer,
+    SyncDamoclesTimer,
     SyncChronomancer,
     StealthDarken,
     PenguinSync,
@@ -387,6 +388,9 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.setPlaguedPlayer:
                 PlagueBearer.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncDamoclesTimer:
+                Damocles.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetDrawPlayer:
                 byte RevolutionistId = reader.ReadByte();
@@ -1564,20 +1568,16 @@ internal static class RPC
 [HarmonyPatch(typeof(InnerNet.InnerNetClient), nameof(InnerNet.InnerNetClient.StartRpc))]
 internal class StartRpcPatch
 {
-    public static bool Prefix(/*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId)
+    public static void Prefix(/*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId)
     {
-        if ((RpcCalls)callId == RpcCalls.Shapeshift && ShapeshiftPatch.IsSSCancelled.Contains(targetNetId)) return false;
         RPC.SendRpcLogger(targetNetId, callId);
-        return true;
     }
 }
 [HarmonyPatch(typeof(InnerNet.InnerNetClient), nameof(InnerNet.InnerNetClient.StartRpcImmediately))]
 internal class StartRpcImmediatelyPatch
 {
-    public static bool Prefix(/*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId, [HarmonyArgument(3)] int targetClientId = -1)
+    public static void Prefix(/*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId, [HarmonyArgument(3)] int targetClientId = -1)
     {
-        if ((RpcCalls)callId == RpcCalls.Shapeshift && ShapeshiftPatch.IsSSCancelled.Contains(targetNetId)) return false;
         RPC.SendRpcLogger(targetNetId, callId, targetClientId);
-        return true;
     }
 }

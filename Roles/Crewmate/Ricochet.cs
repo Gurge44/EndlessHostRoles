@@ -40,11 +40,11 @@ namespace TOHE.Roles.Crewmate
             UseLimit.Add(playerId, UseLimitOpt.GetInt());
         }
         public static bool IsEnable => playerIdList.Any();
-        public static void SendRPC(byte playerId, bool isMinus)
+        public static void SendRPC(byte playerId)
         {
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRicochetLimit, SendOption.Reliable, -1);
             writer.Write(playerId);
-            writer.Write(isMinus);
+            writer.Write(UseLimit[playerId]);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         public static void SendRPCSyncTarget(byte targetId)
@@ -58,10 +58,8 @@ namespace TOHE.Roles.Crewmate
             if (AmongUsClient.Instance.AmHost) return;
 
             byte playerId = reader.ReadByte();
-            bool isMinus = reader.ReadBoolean();
-
-            if (isMinus) UseLimit[playerId]--;
-            else UseLimit[playerId]++;
+            float uses = reader.ReadSingle();
+            UseLimit[playerId] = uses;
         }
         public static void ReceiveRPCSyncTarget(MessageReader reader)
         {
@@ -94,7 +92,7 @@ namespace TOHE.Roles.Crewmate
             {
                 UseLimit[pc.PlayerId] -= 1;
                 ProtectAgainst = target.PlayerId;
-                SendRPC(pc.PlayerId, true);
+                SendRPC(pc.PlayerId);
                 SendRPCSyncTarget(ProtectAgainst);
             }
         }

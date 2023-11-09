@@ -1173,6 +1173,10 @@ public static class Utils
         {
             Logger.Error($"For {GetPlayerById(playerId).GetNameWithRole().RemoveHtmlTags()}, failed to get progress text:  " + ex.ToString(), "Utils.GetProgressText");
         }
+        if (GetPlayerById(playerId).Is(CustomRoles.Damocles))
+        {
+            ProgressText.AppendLine(Damocles.GetProgressText());
+        }
         if (ProgressText.Length != 0 && !ProgressText.ToString().StartsWith(' '))
             ProgressText.Insert(0, " "); //空じゃなければ空白を追加
 
@@ -2483,6 +2487,7 @@ public static class Utils
         //if (Baker.IsEnable()) Baker.AfterMeetingTasks();
         if (CopyCat.IsEnable()) CopyCat.AfterMeetingTasks();
         //Pirate.AfterMeetingTask();
+        Damocles.AfterMeetingTasks();
 
         if (Options.UsePets.GetBool())
         {

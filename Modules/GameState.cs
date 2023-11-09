@@ -406,7 +406,7 @@ public class TaskState
                 {
                     case CustomRoles.Divinator:
                         Divinator.CheckLimit[player.PlayerId] += Divinator.AbilityUseGainWithEachTaskCompleted.GetFloat();
-                        Divinator.SendRPC(player.PlayerId, false);
+                        Divinator.SendRPC(player.PlayerId);
                         break;
                     case CustomRoles.Veteran:
                         Main.VeteranNumOfUsed[player.PlayerId] += Options.VeteranAbilityUseGainWithEachTaskCompleted.GetFloat();
@@ -431,14 +431,14 @@ public class TaskState
                         break;
                     case CustomRoles.Mediumshiper:
                         Mediumshiper.ContactLimit[player.PlayerId] += Mediumshiper.MediumAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        Mediumshiper.SendRPC(player.PlayerId, false);
+                        Mediumshiper.SendRPC(player.PlayerId);
                         break;
                     case CustomRoles.ParityCop:
                         ParityCop.MaxCheckLimit[player.PlayerId] += ParityCop.ParityAbilityUseGainWithEachTaskCompleted.GetFloat();
                         break;
                     case CustomRoles.Oracle:
                         Oracle.CheckLimit[player.PlayerId] += Oracle.OracleAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        Oracle.SendRPC(player.PlayerId, false);
+                        Oracle.SendRPC(player.PlayerId);
                         break;
                     case CustomRoles.SabotageMaster:
                         SabotageMaster.UsedSkillCount -= SabotageMaster.SMAbilityUseGainWithEachTaskCompleted.GetFloat();
@@ -449,26 +449,26 @@ public class TaskState
                         break;
                     case CustomRoles.Bloodhound:
                         Bloodhound.UseLimit[player.PlayerId] += Bloodhound.BloodhoundAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        Bloodhound.SendRPCPlus(player.PlayerId, false);
+                        Bloodhound.SendRPCPlus(player.PlayerId);
                         break;
                     case CustomRoles.Chameleon:
                         Chameleon.UseLimit[player.PlayerId] += Chameleon.ChameleonAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        Chameleon.SendRPCPlus(player.PlayerId, false);
+                        Chameleon.SendRPCPlus(player.PlayerId);
                         break;
                     case CustomRoles.NiceSwapper:
                         NiceSwapper.NiceSwappermax[player.PlayerId] += NiceSwapper.NiceSwapperAbilityUseGainWithEachTaskCompleted.GetFloat();
                         break;
                     case CustomRoles.Doormaster:
                         Doormaster.UseLimit[player.PlayerId] += Doormaster.DoormasterAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        Doormaster.SendRPC(player.PlayerId, false);
+                        Doormaster.SendRPC(player.PlayerId);
                         break;
                     case CustomRoles.Ricochet:
                         Ricochet.UseLimit[player.PlayerId] += Ricochet.RicochetAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        Ricochet.SendRPC(player.PlayerId, false);
+                        Ricochet.SendRPC(player.PlayerId);
                         break;
                     case CustomRoles.Tether:
                         Tether.UseLimit[player.PlayerId] += Tether.TetherAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        Tether.SendRPC(player.PlayerId, false);
+                        Tether.SendRPC(player.PlayerId);
                         break;
                     case CustomRoles.Spy:
                         Spy.UseLimit[player.PlayerId] += Spy.SpyAbilityUseGainWithEachTaskCompleted.GetFloat();
@@ -481,7 +481,7 @@ public class TaskState
                         break;
                     case CustomRoles.CameraMan:
                         CameraMan.UseLimit[player.PlayerId] += CameraMan.CameraManAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        CameraMan.SendRPC(player.PlayerId, false);
+                        CameraMan.SendRPC(player.PlayerId);
                         break;
                 }
             }

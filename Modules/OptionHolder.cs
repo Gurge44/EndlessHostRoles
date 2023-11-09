@@ -2252,6 +2252,8 @@ public static class Options
         TicketsPerKill = FloatOptionItem.Create(16110, "TicketsPerKill", new(0.1f, 10f, 0.1f), 0.5f, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.TicketsStealer]);
         SetupAdtRoleOptions(16050, CustomRoles.Swift, canSetNum: true, tab: TabGroup.Addons);
+        RoleLoadingText = "Add-ons\nDamocles";
+        Damocles.SetupCustomOption();
         RoleLoadingText = "Add-ons\nDeadly Quota";
         SetupAdtRoleOptions(14650, CustomRoles.DeadlyQuota, canSetNum: true);
         DQNumOfKillsNeeded = IntegerOptionItem.Create(14660, "DQNumOfKillsNeeded", new(1, 14, 1), 3, TabGroup.Addons, false)

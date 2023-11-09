@@ -46,11 +46,11 @@ public static class Oracle
         CheckLimit.TryAdd(playerId, CheckLimitOpt.GetInt());
     }
     public static bool IsEnable => playerIdList.Any();
-    public static void SendRPC(byte playerId, bool isMinus)
+    public static void SendRPC(byte playerId)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetOracleLimit, SendOption.Reliable, -1);
         writer.Write(playerId);
-        writer.Write(isMinus);
+        writer.Write(CheckLimit[playerId]);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
     public static void ReceiveRPC(MessageReader reader)
@@ -58,10 +58,8 @@ public static class Oracle
         if (AmongUsClient.Instance.AmHost) return;
 
         byte playerId = reader.ReadByte();
-        bool isMinus = reader.ReadBoolean();
-
-        if (isMinus) CheckLimit[playerId]--;
-        else CheckLimit[playerId]++;
+        float uses = reader.ReadSingle();
+        CheckLimit[playerId] = uses;
     }
     public static void OnVote(PlayerControl player, PlayerControl target)
     {
@@ -76,7 +74,7 @@ public static class Oracle
         }
 
         CheckLimit[player.PlayerId] -= 1;
-        SendRPC(player.PlayerId, true);
+        SendRPC(player.PlayerId);
 
         if (player.PlayerId == target.PlayerId)
         {

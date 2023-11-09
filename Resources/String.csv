@@ -2034,6 +2034,10 @@
 "killAttacker","","On Kill Attempt, Kill The Attacker","","",""
 "CrewpostorLungeKill","","Lunge on Kills","","",""
 "CrewpostorKillAfterTask","","Amount of Task Completions Required to make 1 Kill","","",""
+"DamoclesTimeLeft","<color=#00ffa5>Time:</color> <b>{0}</b>s","","",""
+"DamoclesExtraTimeAfterKill","","Time Gained After Killing","","",""
+"DamoclesExtraTimeAfterMeeting","","Time Gained After Each Meeting","","",""
+"DamoclesStartingTime","","Starting Time","","",""
 
 
 "## 信息 / Message"
@@ -2573,6 +2577,7 @@
 "NullifierInfoLong","","(Impostors):\nAs the Nullifier, clicking your kill button on a player once will remove 1 ability use from them, if they have any. Double click with your kill button on someone to kill them normally.\n\nNote: You won't know if the target had an ability use limit, but the target may notice the removal. Be careful!","","",""
 "NullifierUseRemoved","","Ability use removed","","",""
 "NullCD","","Ability Cooldown","","",""
+"NullifierDelay","","Removal Delay","","",""
 
 "## Ventguard"
 "Ventguard","","Ventguard","","",""

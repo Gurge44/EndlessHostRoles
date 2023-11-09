@@ -270,6 +270,7 @@ internal class ChangeRoleSettings
             Nullifier.Init();
             Deputy.Init();
             Chronomancer.Init();
+            Damocles.Initialize();
             Amnesiac.Init();
             Infectious.Init();
             Monarch.Init();
@@ -1002,7 +1003,7 @@ internal class SelectRolesPatch
             }
 
             // Added players with unclassified roles to the list of players who require ResetCam.
-            Main.ResetCamPlayerList.AddRange(Main.AllPlayerControls.Where(p => p.GetCustomRole() is CustomRoles.Arsonist or CustomRoles.Revolutionist or CustomRoles.Sidekick or CustomRoles.KB_Normal).Select(p => p.PlayerId));
+            Main.ResetCamPlayerList.AddRange(Main.AllPlayerControls.Where(p => p.GetCustomRole() is CustomRoles.Arsonist or CustomRoles.Revolutionist or CustomRoles.Sidekick or CustomRoles.KB_Normal or CustomRoles.Killer or CustomRoles.Witness or CustomRoles.Innocent).Select(p => p.PlayerId));
             Utils.CountAlivePlayers(true);
             Utils.SyncAllSettings();
             SetColorPatch.IsAntiGlitchDisabled = false;
@@ -1150,7 +1151,7 @@ internal class SelectRolesPatch
             Main.LoversPlayers.Add(player);
             allPlayers.Remove(player);
             Main.PlayerStates[player.PlayerId].SetSubRole(role);
-            Logger.Info("注册恋人:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + role.ToString(), "AssignLovers");
+            Logger.Info("Add-on assigned: " + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + role.ToString(), "AssignLovers");
         }
         RPC.SyncLoversPlayers();
     }
@@ -1164,7 +1165,7 @@ internal class SelectRolesPatch
         {
             var player = allPlayers[IRandom.Instance.Next(0, allPlayers.Length)];
             Main.PlayerStates[player.PlayerId].SetSubRole(role);
-            Logger.Info("注册附加职业:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + role.ToString(), "Assign " + role.ToString());
+            Logger.Info("Assigned add-on: " + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + role.ToString(), "Assign " + role.ToString());
         }
     }
 

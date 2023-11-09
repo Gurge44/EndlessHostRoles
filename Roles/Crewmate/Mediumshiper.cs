@@ -39,11 +39,11 @@ public static class Mediumshiper
         ContactLimit.Add(playerId, ContactLimitOpt.GetInt());
     }
     public static bool IsEnable => playerIdList.Any();
-    public static void SendRPC(byte playerId, bool isMinus)
+    public static void SendRPC(byte playerId)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMediumshiperLimit, SendOption.Reliable, -1);
         writer.Write(playerId);
-        writer.Write(isMinus);
+        writer.Write(ContactLimit[playerId]);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
     public static void ReceiveRPC(MessageReader reader)
@@ -51,10 +51,8 @@ public static class Mediumshiper
         if (AmongUsClient.Instance.AmHost) return;
 
         byte playerId = reader.ReadByte();
-        bool isMinus = reader.ReadBoolean();
-
-        if (isMinus) ContactLimit[playerId]--;
-        else ContactLimit[playerId]++;
+        float uses = reader.ReadSingle();
+        ContactLimit[playerId] = uses;
     }
     public static void OnReportDeadBody(GameData.PlayerInfo target)
     {
@@ -64,7 +62,7 @@ public static class Mediumshiper
         {
             if (ContactLimit[pc.PlayerId] < 1) continue;
             ContactLimit[pc.PlayerId] -= 1;
-            SendRPC(pc.PlayerId, true);
+            SendRPC(pc.PlayerId);
             ContactPlayer.TryAdd(target.PlayerId, pc.PlayerId);
             Logger.Info($"Medium Connection：{pc.GetNameWithRole().RemoveHtmlTags()} => {target.PlayerName}", "Mediumshiper");
         }

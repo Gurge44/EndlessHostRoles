@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TOHE.Modules;
 using TOHE.Roles.AddOns.Crewmate;
+using TOHE.Roles.AddOns.Impostor;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
@@ -1125,6 +1126,10 @@ class MurderPlayerPatch
                 break;
         }
 
+        if (killer.Is(CustomRoles.Damocles)) Damocles.OnMurder();
+        else if (killer.GetCustomRole().IsImpostorTeamV3()) Damocles.OnOtherImpostorMurder();
+        if (target.GetCustomRole().IsImpostorTeamV3()) Damocles.OnImpostorDeath();
+
         if (killer.Is(CustomRoles.TicketsStealer) && killer.PlayerId != target.PlayerId)
             killer.Notify(string.Format(GetString("TicketsStealerGetTicket"), ((Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Options.TicketsPerKill.GetFloat()).ToString("0.0#####")));
 
@@ -1237,11 +1242,11 @@ class ShapeshiftPatch
 
         var shapeshifting = shapeshifter.PlayerId != target.PlayerId;
 
-        //if (Main.CheckShapeshift.TryGetValue(shapeshifter.PlayerId, out var last) && last == shapeshifting)
-        //{
-        //    // Dunno how you would get here but ok
-        //    return true;
-        //}
+        if (Main.CheckShapeshift.TryGetValue(shapeshifter.PlayerId, out var last) && last == shapeshifting)
+        {
+            // Dunno how you would get here but ok
+            return true;
+        }
 
         Main.CheckShapeshift[shapeshifter.PlayerId] = shapeshifting;
         Main.ShapeshiftTarget[shapeshifter.PlayerId] = target.PlayerId;
@@ -1512,7 +1517,7 @@ class ShapeshiftPatch
 
         if (!shapeshifting || !isSSneeded)
         {
-            _ = new LateTask(shapeshifter.RpcResetAbilityCooldown, 0.1f, "Reset SS CD");
+            _ = new LateTask(shapeshifter.RpcResetAbilityCooldown, 0.01f, "Reset SS CD");
         }
 
         if (!isSSneeded)
@@ -1807,6 +1812,11 @@ class ReportDeadBodyPatch
         if (Mediumshiper.IsEnable) Mediumshiper.OnReportDeadBody(target);
         if (Spiritualist.IsEnable) Spiritualist.OnReportDeadBody(target);
 
+        if (player.Is(CustomRoles.Damocles))
+        {
+            Damocles.OnReport();
+        }
+
         if (Options.InhibitorCDAfterMeetings.GetFloat() != Options.InhibitorCD.GetFloat() || Options.SaboteurCD.GetFloat() != Options.SaboteurCDAfterMeetings.GetFloat())
         {
             foreach (PlayerControl x in Main.AllAlivePlayerControls)
@@ -2021,6 +2031,11 @@ class FixedUpdatePatch
                     PlagueBearer.PestilenceList.Add(player.PlayerId);
                 PlagueBearer.SetKillCooldownPestilence(player.PlayerId);
                 PlagueBearer.playerIdList.Remove(player.PlayerId);
+            }
+
+            if (!lowLoad && player.Is(CustomRoles.Damocles))
+            {
+                Damocles.Update(player);
             }
 
             if (!lowLoad && Options.UsePets.GetBool())
@@ -3141,6 +3156,11 @@ class EnterVentPatch
                 pc.Kill(pc);
                 Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
             }
+        }
+
+        if (pc.Is(CustomRoles.Damocles))
+        {
+            Damocles.OnEnterVent(__instance.Id);
         }
 
         switch (pc.GetCustomRole())

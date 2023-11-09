@@ -112,7 +112,7 @@ namespace TOHE.Roles.Impostor
                 pc.Notify(string.Format(Translator.GetString("ChronomancerPercent"), chargePercent));
             }
 
-            if (beforeCharge != chargePercent)
+            if (beforeCharge != chargePercent && pc.IsModClient() && pc.PlayerId != 0)
             {
                 SendRPC();
             }
