@@ -415,9 +415,8 @@ internal class SelectRolesPatch
         try
         {
             List<(PlayerControl, RoleTypes)> newList = new();
-            for (int i = 0; i < RpcSetRoleReplacer.StoragedData.Count; i++)
+            foreach ((PlayerControl, RoleTypes) sd in RpcSetRoleReplacer.StoragedData.ToArray())
             {
-                (PlayerControl, RoleTypes) sd = RpcSetRoleReplacer.StoragedData[i];
                 var kp = RoleResult.FirstOrDefault(x => x.Key.PlayerId == sd.Item1.PlayerId);
                 newList.Add((sd.Item1, kp.Value.GetRoleTypes()));
                 if (sd.Item2 == kp.Value.GetRoleTypes())
@@ -488,9 +487,8 @@ internal class SelectRolesPatch
             }
 
             if (CustomRoles.Lovers.IsEnable() && (CustomRoles.FFF.IsEnable() ? -1 : rd.Next(1, 100)) <= Options.LoverSpawnChances.GetInt()) AssignLoversRolesFromList();
-            for (int i = 0; i < AddonRolesList.Count; i++)
+            foreach (CustomRoles role in AddonRolesList.ToArray())
             {
-                CustomRoles role = AddonRolesList[i];
                 if (rd.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(role, out var sc) ? sc.GetFloat() : 0))
                     if (role.IsEnable()) AssignSubRoles(role);
             }
@@ -500,9 +498,8 @@ internal class SelectRolesPatch
             {
                 ExtendedPlayerControl.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
 
-                for (int i = 0; i < pair.Value.SubRoles.Count; i++)
+                foreach (CustomRoles subRole in pair.Value.SubRoles.ToArray())
                 {
-                    CustomRoles subRole = pair.Value.SubRoles[i];
                     ExtendedPlayerControl.RpcSetCustomRole(pair.Key, subRole);
                 }
             }
@@ -1004,7 +1001,7 @@ internal class SelectRolesPatch
                 GameOptionsSender.AllSenders.Add(new PlayerGameOptionsSender(pc));
             }
 
-            // ResetCamが必要なプレイヤーのリストにクラス化が済んでいない役職のプレイヤーを追加
+            // Added players with unclassified roles to the list of players who require ResetCam.
             Main.ResetCamPlayerList.AddRange(Main.AllPlayerControls.Where(p => p.GetCustomRole() is CustomRoles.Arsonist or CustomRoles.Revolutionist or CustomRoles.Sidekick or CustomRoles.KB_Normal).Select(p => p.PlayerId));
             Utils.CountAlivePlayers(true);
             Utils.SyncAllSettings();
@@ -1196,9 +1193,8 @@ internal class SelectRolesPatch
                 if (sender.Value.CurrentState != CustomRpcSender.State.InRootMessage)
                     throw new InvalidOperationException("A CustomRpcSender had Invalid State.");
 
-                for (int i = 0; i < StoragedData.Count; i++)
+                foreach ((PlayerControl, RoleTypes) pair in StoragedData.ToArray())
                 {
-                    (PlayerControl, RoleTypes) pair = StoragedData[i];
                     pair.Item1.SetRole(pair.Item2);
                     sender.Value.AutoStartRpc(pair.Item1.NetId, (byte)RpcCalls.SetRole, Utils.GetPlayerById(sender.Key).GetClientId())
                         .Write((ushort)pair.Item2)

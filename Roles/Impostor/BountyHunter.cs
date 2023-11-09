@@ -190,12 +190,10 @@ public static class BountyHunter
     //public static void SetAbilityButtonText(HudManager __instance) => __instance.AbilityButton.OverrideText(GetString("BountyHunterChangeButtonText"));
     public static void AfterMeetingTasks()
     {
-        for (int i = 0; i < playerIdList.Count; i++)
+        foreach (byte id in playerIdList.ToArray())
         {
-            byte id = playerIdList[i];
             if (!Main.PlayerStates[id].IsDead)
             {
-                //Utils.GetPlayerById(id)?.RpcResetAbilityCooldown();
                 ChangeTimer[id] = 0f;
                 Timer = (int)TargetChangeTime;
                 if (Utils.GetPlayerById(id).GetCustomRole() == CustomRoles.BountyHunter)

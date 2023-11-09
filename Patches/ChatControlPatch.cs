@@ -57,17 +57,17 @@ public class ChatManager
     public static bool CheckCommand(ref string msg, string command, bool exact = true)
     {
         var comList = command.Split('|');
-        for (int i = 0; i < comList.Length; i++)
+        foreach (string str in comList)
         {
             if (exact)
             {
-                if (msg == "/" + comList[i]) return true;
+                if (msg == "/" + str) return true;
             }
             else
             {
-                if (msg.StartsWith("/" + comList[i]))
+                if (msg.StartsWith("/" + str))
                 {
-                    msg = msg.Replace("/" + comList[i], string.Empty);
+                    msg = msg.Replace("/" + str, string.Empty);
                     return true;
                 }
             }
@@ -77,9 +77,8 @@ public class ChatManager
     public static bool CheckName(ref string msg, string command, bool exact = true)
     {
         var comList = command.Split('|');
-        for (int i = 0; i < comList.Length; i++)
+        foreach (string com in comList)
         {
-            string com = comList[i];
             if (exact)
             {
                 if (msg.Contains(com))
@@ -162,9 +161,9 @@ public class ChatManager
             }
         }
 
-        for (int i = 0; i < filtered.Length; i++)
+        foreach (string str in filtered)
         {
-            var entryParts = chatHistory[i].Split(':');
+            var entryParts = str.Split(':');
             var senderId = entryParts[0].Trim();
             var senderMessage = entryParts[1].Trim();
             for (int j = 2; j < entryParts.Length; j++)

@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using Hazel;
 using System;
+using System.Linq;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Translator;
@@ -148,9 +149,8 @@ public static class MafiaRevengeManager
     }
     public static void CreateJudgeButton(MeetingHud __instance)
     {
-        for (int i = 0; i < __instance.playerStates.Count; i++)
+        foreach (PlayerVoteArea pva in __instance.playerStates.ToArray())
         {
-            PlayerVoteArea pva = __instance.playerStates[i];
             var pc = Utils.GetPlayerById(pva.TargetPlayerId);
             if (pc == null || !pc.IsAlive()) continue;
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;

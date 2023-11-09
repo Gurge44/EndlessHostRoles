@@ -69,9 +69,8 @@ public static class Tracefinder
     }
     public static void OnReportDeadBody(/*PlayerControl pc, GameData.PlayerInfo target*/)
     {
-        for (int i = 0; i < playerIdList.Count; i++)
+        foreach (byte apc in playerIdList.ToArray())
         {
-            byte apc = playerIdList[i];
             LocateArrow.RemoveAllTarget(apc);
             SendRPC(apc, false);
         }
@@ -101,11 +100,11 @@ public static class Tracefinder
 
         _ = new LateTask(() =>
         {
-            for (int i = 0; i < playerIdList.Count; i++)
+            foreach (byte pc in playerIdList.ToArray())
             {
-                byte pc = playerIdList[i];
                 var player = Utils.GetPlayerById(pc);
-                if (player == null || !player.IsAlive()) continue;
+                if (player == null || !player.IsAlive())
+                    continue;
                 LocateArrow.Add(pc, target.transform.position);
                 SendRPC(pc, true, target.transform.position);
                 Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc));

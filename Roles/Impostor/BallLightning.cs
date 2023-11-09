@@ -106,9 +106,8 @@ public static class BallLightning
     {
         if (!IsEnable || !GameStates.IsInTask) return;
         List<byte> deList = new();
-        for (int i = 0; i < GhostPlayer.Count; i++)
+        foreach (byte ghost in GhostPlayer.ToArray())
         {
-            byte ghost = GhostPlayer[i];
             var gs = Utils.GetPlayerById(ghost);
             if (gs == null || !gs.IsAlive() || gs.Data.Disconnected)
             {
@@ -134,9 +133,8 @@ public static class BallLightning
         if (deList.Any())
         {
             GhostPlayer.RemoveAll(deList.Contains);
-            for (int i = 0; i < deList.Count; i++)
+            foreach (byte gs in deList.ToArray())
             {
-                byte gs = deList[i];
                 SendRPC(gs);
                 Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(gs));
             }
@@ -146,11 +144,11 @@ public static class BallLightning
     {
         if (!(IsEnable || CustomRoles.BallLightning.IsEnable())) return;
 
-        for (int i = 0; i < GhostPlayer.Count; i++)
+        foreach (byte ghost in GhostPlayer.ToArray())
         {
-            byte ghost = GhostPlayer[i];
             var gs = Utils.GetPlayerById(ghost);
-            if (gs == null) continue;
+            if (gs == null)
+                continue;
             CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Quantization, gs.PlayerId);
             gs.SetRealKiller(RealKiller[gs.PlayerId]);
             Logger.Info($"{gs.GetNameWithRole().RemoveHtmlTags()} 作为量子幽灵参与会议，将在会议后死亡", "BallLightning");

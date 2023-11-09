@@ -234,9 +234,8 @@ internal class ChatCommands
                             Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[role], ref sb, command: true);
                         var txt = sb.ToString();
                         _ = sb.Clear().Append(txt.RemoveHtmlTags());
-                        for (int i = 0; i < Main.PlayerStates[lp.PlayerId].SubRoles.Count; i++)
+                        foreach (CustomRoles subRole in Main.PlayerStates[lp.PlayerId].SubRoles.ToArray())
                         {
-                            CustomRoles subRole = Main.PlayerStates[lp.PlayerId].SubRoles[i];
                             _ = sb.Append($"\n\n" + GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
                         }
                         Utils.SendMessage(sb.ToString(), lp.PlayerId);
@@ -848,9 +847,8 @@ internal class ChatCommands
                         Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[role], ref sb, command: true);
                     var txt = sb.ToString();
                     _ = sb.Clear().Append(txt.RemoveHtmlTags());
-                    for (int i = 0; i < Main.PlayerStates[player.PlayerId].SubRoles.Count; i++)
+                    foreach (CustomRoles subRole in Main.PlayerStates[player.PlayerId].SubRoles.ToArray())
                     {
-                        CustomRoles subRole = Main.PlayerStates[player.PlayerId].SubRoles[i];
                         _ = sb.Append($"\n\n" + GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
                     }
                     Utils.SendMessage(sb.ToString(), player.PlayerId);

@@ -333,10 +333,9 @@ internal class RPCHandlerPatch
                 Logger.Msg($"StartAmount: {startAmount} - LastAmount: {lastAmount} ({startAmount}/{lastAmount}) :--: ListOptionsCount: {countOptions} - AllOptions: {countAllOptions} ({countOptions}/{countAllOptions})", "SyncCustomSettings");
 
                 // Sync Settings
-                for (int optionNumber = 0; optionNumber < countOptions; optionNumber++)
+                foreach (var option in listOptions.ToArray())
                 {
-                    var co = listOptions[optionNumber];
-                    co.SetValue(reader.ReadInt32());
+                    option.SetValue(reader.ReadPackedInt32());
                 }
 
                 OptionShower.GetText();
@@ -843,10 +842,9 @@ internal static class RPC
         Logger.Msg($"StartAmount: {startAmount} - LastAmount: {lastAmount} ({startAmount}/{lastAmount}) :--: ListOptionsCount: {countListOptions} - AllOptions: {amountAllOptions} ({countListOptions}/{amountAllOptions})", "SyncCustomSettings");
 
         // Sync Settings
-        for (var optionNumber = 0; optionNumber < countListOptions; optionNumber++)
+        foreach (var option in listOptions.ToArray())
         {
-            var opt = listOptions[optionNumber];
-            writer.Write(opt.GetValue());
+            writer.WritePacked(option.GetValue());
         }
 
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -1566,16 +1564,20 @@ internal static class RPC
 [HarmonyPatch(typeof(InnerNet.InnerNetClient), nameof(InnerNet.InnerNetClient.StartRpc))]
 internal class StartRpcPatch
 {
-    public static void Prefix(/*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId)
+    public static bool Prefix(/*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId)
     {
+        if ((RpcCalls)callId == RpcCalls.Shapeshift && ShapeshiftPatch.IsSSCancelled.Contains(targetNetId)) return false;
         RPC.SendRpcLogger(targetNetId, callId);
+        return true;
     }
 }
 [HarmonyPatch(typeof(InnerNet.InnerNetClient), nameof(InnerNet.InnerNetClient.StartRpcImmediately))]
 internal class StartRpcImmediatelyPatch
 {
-    public static void Prefix(/*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId, [HarmonyArgument(3)] int targetClientId = -1)
+    public static bool Prefix(/*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId, [HarmonyArgument(3)] int targetClientId = -1)
     {
+        if ((RpcCalls)callId == RpcCalls.Shapeshift && ShapeshiftPatch.IsSSCancelled.Contains(targetNetId)) return false;
         RPC.SendRpcLogger(targetNetId, callId, targetClientId);
+        return true;
     }
 }

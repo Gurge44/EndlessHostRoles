@@ -306,7 +306,7 @@ public class ModUpdater
                     byte[] buffer = new byte[1024];
                     long readLength = 0;
                     int length;
-                    while ((length = await stream.ReadAsync(buffer, 0, buffer.Length)) != 0)
+                    while ((length = await stream.ReadAsync(buffer)) != 0)
                     {
                         // 写入到文件
                         fileStream.Write(buffer, 0, length);
@@ -361,9 +361,9 @@ public class ModUpdater
             file.Close();
 
             StringBuilder sb = new();
-            for (int i = 0; i < retVal.Length; i++)
+            foreach (byte x in retVal)
             {
-                sb.Append(retVal[i].ToString("x2"));
+                sb.Append(x.ToString("x2"));
             }
             return sb.ToString();
         }

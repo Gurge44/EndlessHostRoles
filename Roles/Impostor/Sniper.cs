@@ -86,9 +86,8 @@ public static class Sniper
         writer.Write(playerId);
         var snList = shotNotify[playerId];
         writer.Write(snList.Count);
-        for (int i = 0; i < snList.Count; i++)
+        foreach (byte sn in snList.ToArray())
         {
-            byte sn = snList[i];
             writer.Write(sn);
         }
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -322,9 +321,8 @@ public static class Sniper
         else
         {
             //射撃音が聞こえるプレイヤー
-            for (int i = 0; i < PlayerIdList.Count; i++)
+            foreach (byte sniperId in PlayerIdList.ToArray())
             {
-                byte sniperId = PlayerIdList[i];
                 var snList = shotNotify[sniperId];
                 if (snList.Any() && snList.Contains(seerId))
                 {

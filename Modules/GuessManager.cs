@@ -31,17 +31,17 @@ public static class GuessManager
     public static bool CheckCommand(ref string msg, string command, bool exact = true)
     {
         var comList = command.Split('|');
-        for (int i = 0; i < comList.Length; i++)
+        foreach (string str in comList)
         {
             if (exact)
             {
-                if (msg == "/" + comList[i]) return true;
+                if (msg == "/" + str) return true;
             }
             else
             {
-                if (msg.StartsWith("/" + comList[i]))
+                if (msg.StartsWith("/" + str))
                 {
-                    msg = msg.Replace("/" + comList[i], string.Empty);
+                    msg = msg.Replace("/" + str, string.Empty);
                     return true;
                 }
             }
@@ -75,9 +75,9 @@ public static class GuessManager
     private static bool ComfirmIncludeMsg(string msg, string key)
     {
         var keys = key.Split('|');
-        for (int i = 0; i < keys.Length; i++)
+        foreach (string str in keys)
         {
-            if (msg.Contains(keys[i])) return true;
+            if (msg.Contains(str)) return true;
         }
         return false;
     }
@@ -660,9 +660,8 @@ public static class GuessManager
         voteArea.Overlay.color = Color.white;
         voteArea.XMark.gameObject.SetActive(true);
         voteArea.XMark.transform.localScale = Vector3.one;
-        for (int i = 0; i < meetingHud.playerStates.Count; i++)
+        foreach (PlayerVoteArea playerVoteArea in meetingHud.playerStates.ToArray())
         {
-            PlayerVoteArea playerVoteArea = meetingHud.playerStates[i];
             if (playerVoteArea.VotedFor != pc.PlayerId) continue;
             playerVoteArea.UnsetVote();
             var voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
@@ -700,13 +699,14 @@ public static class GuessManager
         voteArea.Overlay.color = Color.white;
         voteArea.XMark.gameObject.SetActive(true);
         voteArea.XMark.transform.localScale = Vector3.one;
-        for (int i = 0; i < meetingHud.playerStates.Count; i++)
+        foreach (PlayerVoteArea playerVoteArea in meetingHud.playerStates)
         {
-            PlayerVoteArea playerVoteArea = meetingHud.playerStates[i];
-            if (playerVoteArea.VotedFor != pc.PlayerId) continue;
+            if (playerVoteArea.VotedFor != pc.PlayerId)
+                continue;
             playerVoteArea.UnsetVote();
             var voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
-            if (!voteAreaPlayer.AmOwner) continue;
+            if (!voteAreaPlayer.AmOwner)
+                continue;
             meetingHud.ClearVote();
         }
     }
@@ -838,11 +838,11 @@ public static class GuessManager
     }
     public static void CreateGuesserButton(MeetingHud __instance)
     {
-        for (int i = 0; i < __instance.playerStates.Count; i++)
+        foreach (PlayerVoteArea pva in __instance.playerStates.ToArray())
         {
-            PlayerVoteArea pva = __instance.playerStates[i];
             var pc = Utils.GetPlayerById(pva.TargetPlayerId);
-            if (pc == null || !pc.IsAlive()) continue;
+            if (pc == null || !pc.IsAlive())
+                continue;
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
             GameObject targetBox = UnityEngine.Object.Instantiate(template, pva.transform);
             targetBox.name = "ShootButton";
@@ -870,13 +870,21 @@ public static class GuessManager
         foreach (var RoleButton in RoleButtons)
         {
             int index = 0;
-            for (int i = 0; i < RoleButton.Value.Count; i++)
+            foreach (Transform RoleBtn in RoleButton.Value.ToArray())
             {
-                Transform RoleBtn = RoleButton.Value[i];
-                if (RoleBtn == null) continue;
+                if (RoleBtn == null)
+                    continue;
                 index++;
-                if (index <= (Page - 1) * 40) { RoleBtn.gameObject.SetActive(false); continue; }
-                if ((Page * 40) < index) { RoleBtn.gameObject.SetActive(false); continue; }
+                if (index <= (Page - 1) * 40)
+                {
+                    RoleBtn.gameObject.SetActive(false);
+                    continue;
+                }
+                if ((Page * 40) < index)
+                {
+                    RoleBtn.gameObject.SetActive(false);
+                    continue;
+                }
                 RoleBtn.gameObject.SetActive(RoleButton.Key == Role);
             }
         }

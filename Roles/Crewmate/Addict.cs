@@ -55,9 +55,8 @@ namespace TOHE.Roles.Crewmate
 
         public static void OnReportDeadBody()
         {
-            for (int i = 0; i < playerIdList.Count; i++)
+            foreach (byte player in playerIdList.ToArray())
             {
-                byte player = playerIdList[i];
                 SuicideTimer[player] = -10f;
                 ImmortalTimer[player] = 420f;
                 Main.AllPlayerSpeed[player] = DefaultSpeed;

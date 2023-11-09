@@ -47,9 +47,8 @@ class SetUpRoleTextPatch
                     __instance.RoleBlurbText.color = Utils.GetRoleColor(role);
                     __instance.RoleBlurbText.text = "<size=50%>" + PlayerControl.LocalPlayer.GetRoleInfo() + "</size>";
                 }
-                for (int i = 0; i < Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SubRoles.Count; i++)
+                foreach (CustomRoles subRole in Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SubRoles.ToArray())
                 {
-                    CustomRoles subRole = Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SubRoles[i];
                     __instance.RoleBlurbText.text += "\n<size=30%>" + Utils.ColorString(Utils.GetRoleColor(subRole), GetString($"{subRole}Info"));
                 }
 
@@ -96,9 +95,8 @@ class CoBeginPatch
         var tmp = GameOptionsManager.Instance.CurrentGameOptions.ToHudString(GameData.Instance ? GameData.Instance.PlayerCount : 10).Split("\r\n").Skip(1);
         foreach (var t in tmp) logger.Info(t);
         logger.Info("------------Modded Settings------------");
-        for (int i = 0; i < OptionItem.AllOptions.Count; i++)
+        foreach (OptionItem o in OptionItem.AllOptions.ToArray())
         {
-            OptionItem o = OptionItem.AllOptions[i];
             if (!o.IsHiddenOn(Options.CurrentGameMode) && (o.Parent == null ? !o.GetString().Equals("0%") : o.Parent.GetBool()))
                 logger.Info($"{(o.Parent == null ? o.GetName(true, true).RemoveHtmlTags().PadRightV2(40) : $"┗ {o.GetName(true, true).RemoveHtmlTags()}".PadRightV2(41))}:{o.GetString().RemoveHtmlTags()}");
         }

@@ -665,19 +665,9 @@ class SetHudActivePatch
 
         }
 
-        for (int i = 0; i < Main.PlayerStates[player.PlayerId].SubRoles.Count; i++)
+        if (Main.PlayerStates[player.PlayerId].SubRoles.Contains(CustomRoles.Oblivious))
         {
-            CustomRoles subRole = Main.PlayerStates[player.PlayerId].SubRoles[i];
-            switch (subRole)
-            {
-                case CustomRoles.Oblivious:
-                    __instance.ReportButton?.ToggleVisible(false);
-                    break;
-                    //case CustomRoles.Mare:
-                    //    if (!Utils.IsActive(SystemTypes.Electrical))
-                    //        __instance.KillButton.ToggleVisible(false);
-                    //    break;
-            }
+            __instance.ReportButton?.ToggleVisible(false);
         }
         __instance.KillButton?.ToggleVisible(player.CanUseKillButton());
         __instance.ImpostorVentButton?.ToggleVisible(player.CanUseImpostorVentButton());
@@ -749,9 +739,8 @@ class TaskPanelBehaviourPatch
 
                     var lines = taskText.Split("\r\n</color>\n")[0].Split("\r\n\n")[0].Split("\r\n");
                     StringBuilder sb = new();
-                    for (int i = 0; i < lines.Length; i++)
+                    foreach (string eachLine in lines)
                     {
-                        string eachLine = lines[i];
                         var line = eachLine.Trim();
                         if ((line.StartsWith("<color=#FF1919FF>") || line.StartsWith("<color=#FF0000FF>")) && sb.Length < 1 && !line.Contains('(')) continue;
                         sb.Append(line + "\r\n");

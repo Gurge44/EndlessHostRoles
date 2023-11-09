@@ -74,9 +74,8 @@ namespace TOHE.Roles.Impostor
             {
                 bool b = false;
                 var players = GetPlayersInRadius(Radius.GetFloat(), bomb.Key);
-                for (int i = 0; i < players.Count; i++)
+                foreach (PlayerControl tg in players.ToArray())
                 {
-                    PlayerControl tg = players[i];
                     if (tg.PlayerId == pc.PlayerId)
                     {
                         b = true;
@@ -100,10 +99,10 @@ namespace TOHE.Roles.Impostor
             }
 
             var sb = new StringBuilder();
-            List<long> list = Bombs.Values.ToList();
-            for (int i = 0; i < list.Count; i++)
+            long[] list = Bombs.Values.ToArray();
+            foreach (long x in list)
             {
-                sb.Append(string.Format(GetString("MagicianBombExlodesIn"), Delay.GetInt() - (GetTimeStamp() - list[i]) + 1));
+                sb.Append(string.Format(GetString("MagicianBombExlodesIn"), Delay.GetInt() - (GetTimeStamp() - x) + 1));
             }
             pc.Notify(sb.ToString());
         }

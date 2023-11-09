@@ -99,9 +99,8 @@ public static class SerialKiller
     //}
     public static void AfterMeetingTasks()
     {
-        for (int i = 0; i < playerIdList.Count; i++)
+        foreach (byte id in playerIdList.ToArray())
         {
-            byte id = playerIdList[i];
             if (!Main.PlayerStates[id].IsDead)
             {
                 var pc = Utils.GetPlayerById(id);

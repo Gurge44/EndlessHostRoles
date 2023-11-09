@@ -47,9 +47,8 @@ public static class Pelican
         if (playerId != byte.MaxValue)
         {
             writer.Write(eatenList[playerId].Count);
-            for (int i = 0; i < eatenList[playerId].Count; i++)
+            foreach (byte el in eatenList[playerId].ToArray())
             {
-                byte el = eatenList[playerId][i];
                 writer.Write(el);
             }
         }
@@ -132,12 +131,12 @@ public static class Pelican
     {
         foreach (var pc in eatenList)
         {
-            for (int i = 0; i < pc.Value.Count; i++)
+            foreach (byte tar in pc.Value.ToArray())
             {
-                byte tar = pc.Value[i];
                 var target = Utils.GetPlayerById(tar);
                 var killer = Utils.GetPlayerById(pc.Key);
-                if (killer == null || target == null) continue;
+                if (killer == null || target == null)
+                    continue;
                 Main.AllPlayerSpeed[tar] = Main.AllPlayerSpeed[tar] - 0.5f + originalSpeed[tar];
                 ReportDeadBodyPatch.CanReport[tar] = true;
                 target.RpcExileV2();
@@ -155,12 +154,12 @@ public static class Pelican
     public static void OnPelicanDied(byte pc)
     {
         if (!eatenList.ContainsKey(pc)) return;
-        for (int i = 0; i < eatenList[pc].Count; i++)
+        foreach (byte tar in eatenList[pc].ToArray())
         {
-            byte tar = eatenList[pc][i];
             var target = Utils.GetPlayerById(tar);
             var palyer = Utils.GetPlayerById(pc);
-            if (palyer == null || target == null) continue;
+            if (palyer == null || target == null)
+                continue;
             target.TP(palyer.GetTruePosition());
             Main.AllPlayerSpeed[tar] = Main.AllPlayerSpeed[tar] - 0.5f + originalSpeed[tar];
             ReportDeadBodyPatch.CanReport[tar] = true;
@@ -190,14 +189,15 @@ public static class Pelican
 
         foreach (var pc in eatenList)
         {
-            for (int i = 0; i < pc.Value.Count; i++)
+            foreach (byte tar in pc.Value.ToArray())
             {
-                byte tar = pc.Value[i];
                 var target = Utils.GetPlayerById(tar);
-                if (target == null) continue;
+                if (target == null)
+                    continue;
                 var pos = GetBlackRoomPS();
                 var dis = Vector2.Distance(pos, target.GetTruePosition());
-                if (dis < 1f) continue;
+                if (dis < 1f)
+                    continue;
                 target.TP(pos);
                 Utils.NotifyRoles(SpecifySeer: target);
             }

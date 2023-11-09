@@ -176,9 +176,8 @@ class RepairSystemPatch
     private static void CheckAndOpenDoors(ShipStatus __instance, int amount, params int[] DoorIds)
     {
         if (!DoorIds.Contains(amount)) return;
-        for (int i = 0; i < DoorIds.Length; i++)
+        foreach (int id in DoorIds)
         {
-            int id = DoorIds[i];
             __instance.RpcUpdateSystem(SystemTypes.Doors, (byte)id);
         }
     }

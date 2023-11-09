@@ -103,8 +103,8 @@ public static class Medic
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMedicalerProtectList, SendOption.Reliable, -1);
         writer.Write(ProtectList.Count);
-        for (int i = 0; i < ProtectList.Count; i++)
-            writer.Write(ProtectList[i]);
+        foreach (byte x in ProtectList.ToArray())
+            writer.Write(x);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
     public static void ReceiveRPCForProtectList(MessageReader reader)
@@ -198,14 +198,12 @@ public static class Medic
         if (ShieldDeactivationIsVisible.GetInt() == 1)
         {
             TempMarkProtected = byte.MaxValue;
-            for (int i = 0; i < playerIdList.Count; i++)
+            foreach (byte pc in playerIdList.ToArray())
             {
-                byte pc = playerIdList[i];
                 Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc));
             }
-            for (int i = 0; i < ProtectList.Count; i++)
+            foreach (byte pc in ProtectList.ToArray())
             {
-                byte pc = ProtectList[i];
                 Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc));
             }
         }
@@ -215,9 +213,8 @@ public static class Medic
         if (!target.Is(CustomRoles.Medic)) return;
         if (!ShieldDeactivatesWhenMedicDies.GetBool()) return;
 
-        for (int i = 0; i < ProtectList.Count; i++)
+        foreach (byte pc in ProtectList.ToArray())
         {
-            byte pc = ProtectList[i];
             Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc));
         }
         Utils.NotifyRoles(SpecifySeer: target);

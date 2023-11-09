@@ -112,12 +112,10 @@ public static class FireWorks
             case FireWorksState.ReadyFire:
                 Logger.Info("花火を爆破", "FireWorks");
                 bool suicide = false;
-                for (int i1 = 0; i1 < Main.AllAlivePlayerControls.Length; i1++)
+                foreach (PlayerControl target in Main.AllAlivePlayerControls)
                 {
-                    PlayerControl target = Main.AllAlivePlayerControls[i1];
-                    for (int i = 0; i < fireWorksPosition[pc.PlayerId].Count; i++)
+                    foreach (Vector3 pos in fireWorksPosition[pc.PlayerId].ToArray())
                     {
-                        Vector3 pos = fireWorksPosition[pc.PlayerId][i];
                         var dis = Vector2.Distance(pos, target.transform.position);
                         if (dis > fireWorksRadius) continue;
 

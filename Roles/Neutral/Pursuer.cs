@@ -106,9 +106,9 @@ public static class Pursuer
     {
         notActiveList.Clear();
         foreach (var cl in clientList)
-            for (int i = 0; i < cl.Value.Count; i++)
+        {
+            foreach (byte pc in cl.Value.ToArray())
             {
-                byte pc = cl.Value[i];
                 var target = Utils.GetPlayerById(pc);
                 if (target == null || !target.IsAlive()) continue;
                 var role = target.GetCustomRole();
@@ -124,5 +124,6 @@ public static class Pursuer
                     Logger.Info($"赝品商 {killer.GetRealName()} 的客户 {target.GetRealName()} 因不带刀自杀", "Pursuer");
                 }
             }
+        }
     }
 }

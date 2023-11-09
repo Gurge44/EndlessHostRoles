@@ -150,27 +150,21 @@ public static class Sheriff
         var cRole = player.GetCustomRole();
         var subRole = player.GetCustomSubRoles();
         bool CanKill = false;
-        for (int i = 0; i < subRole.Count; i++)
+        foreach (CustomRoles SubRoleTarget in subRole.ToArray())
         {
-            CustomRoles SubRoleTarget = subRole[i];
-            if (SubRoleTarget == CustomRoles.Madmate)
-                CanKill = CanKillMadmate.GetBool();
-            if (SubRoleTarget == CustomRoles.Charmed)
-                CanKill = CanKillCharmed.GetBool();
-            if (SubRoleTarget == CustomRoles.Lovers)
-                CanKill = CanKillLovers.GetBool();
-            if (SubRoleTarget == CustomRoles.Recruit)
-                CanKill = CanKillSidekicks.GetBool();
-            if (SubRoleTarget == CustomRoles.Egoist)
-                CanKill = CanKillEgoists.GetBool();
-            if (SubRoleTarget == CustomRoles.Infected)
-                CanKill = CanKillInfected.GetBool();
-            if (SubRoleTarget == CustomRoles.Contagious)
-                CanKill = CanKillContagious.GetBool();
-            if (SubRoleTarget == CustomRoles.Rascal)
-                CanKill = true;
-            if (SubRoleTarget == CustomRoles.Admired)
-                CanKill = false;
+            CanKill = SubRoleTarget switch
+            {
+                CustomRoles.Madmate => CanKillMadmate.GetBool(),
+                CustomRoles.Charmed => CanKillCharmed.GetBool(),
+                CustomRoles.Lovers => CanKillLovers.GetBool(),
+                CustomRoles.Recruit => CanKillSidekicks.GetBool(),
+                CustomRoles.Egoist => CanKillEgoists.GetBool(),
+                CustomRoles.Infected => CanKillInfected.GetBool(),
+                CustomRoles.Contagious => CanKillContagious.GetBool(),
+                CustomRoles.Rascal => true,
+                CustomRoles.Admired => false,
+                _ => false,
+            };
         }
 
 

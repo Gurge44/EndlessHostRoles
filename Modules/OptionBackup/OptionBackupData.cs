@@ -47,18 +47,16 @@ public class OptionBackupData
         AllValues.Add(new UIntOptionBackupValue(UInt32OptionNames.Keywords, (uint)option.Keywords));
 
         RoleTypes[] array = new RoleTypes[] { RoleTypes.Scientist, RoleTypes.Engineer, RoleTypes.GuardianAngel, RoleTypes.Shapeshifter };
-        for (int i = 0; i < array.Length; i++)
+        foreach (RoleTypes role in array)
         {
-            RoleTypes role = array[i];
             AllValues.Add(new RoleRateBackupValue(role, option.RoleOptions.GetNumPerGame(role), option.RoleOptions.GetChancePerGame(role)));
         }
     }
 
     public IGameOptions Restore(IGameOptions option)
     {
-        for (int i = 0; i < AllValues.Count; i++)
+        foreach (OptionBackupValue value in AllValues.ToArray())
         {
-            OptionBackupValue value = AllValues[i];
             value.Restore(option);
         }
         return option;

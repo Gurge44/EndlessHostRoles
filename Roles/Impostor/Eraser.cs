@@ -138,11 +138,11 @@ internal static class Eraser
     }
     public static void AfterMeetingTasks()
     {
-        for (int i = 0; i < PlayerToErase.Count; i++)
+        foreach (byte pc in PlayerToErase.ToArray())
         {
-            byte pc = PlayerToErase[i];
             var player = Utils.GetPlayerById(pc);
-            if (player == null) continue;
+            if (player == null)
+                continue;
             player.RpcSetCustomRole(CustomRolesHelper.GetErasedRole(player.GetCustomRole()));
             NameNotifyManager.Notify(player, GetString("LostRoleByEraser"));
             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} 被擦除了", "Eraser");

@@ -614,9 +614,9 @@ public class PlayerGameOptionsSender : GameOptionsSender
 
         Spiritcaller.ReduceVision(opt, player);
 
-        for (int i = 0; i < Main.PlayerStates[player.PlayerId].SubRoles.Count; i++)
+        var array = Main.PlayerStates[player.PlayerId].SubRoles.ToArray();
+        foreach (CustomRoles subRole in array)
         {
-            CustomRoles subRole = Main.PlayerStates[player.PlayerId].SubRoles[i];
             switch (subRole)
             {
                 case CustomRoles.Watcher:

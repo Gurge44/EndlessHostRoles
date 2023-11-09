@@ -87,7 +87,7 @@ public static class Bandit
     {
         if (!AmongUsClient.Instance.AmHost) return null;
         var AllSubRoles = Main.PlayerStates[Target.PlayerId].SubRoles;
-        for (int i = AllSubRoles.Count - 1; i >= 0; i--)
+        for (int i = 0; i < AllSubRoles.Count; i++)
         {
             var role = AllSubRoles[i];
             if (role == CustomRoles.Cleansed || // making Bandit unable to steal Cleansed for obvious reasons. Although it can still be cleansed by cleanser.

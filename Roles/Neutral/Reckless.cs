@@ -56,9 +56,8 @@ public static class Reckless
     }
     public static void OnReportDeadBody()
     {
-        for (int i = 0; i < playerIdList.Count; i++)
+        foreach (byte id in playerIdList.ToArray())
         {
-            byte id = playerIdList[i];
             NowCooldown[Utils.GetPlayerById(id).PlayerId] = DefaultKillCooldown.GetFloat();
         }
     }
