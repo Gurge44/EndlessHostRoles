@@ -1218,14 +1218,20 @@ class CmdCheckShapeshiftPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Shapeshift))]
 class ShapeshiftPatch
 {
+    public static List<byte> IgnoreNextSS = new();
     public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
-
+        
     }
 
     public static bool ProcessShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
         if (!Main.ProcessShapeshifts) return true;
+        if (IgnoreNextSS.Contains(shapeshifter.PlayerId))
+        {
+            IgnoreNextSS.Remove(shapeshifter.PlayerId);
+            return true;
+        }
 
         Logger.Info($"{shapeshifter?.GetNameWithRole()} => {target?.GetNameWithRole()}", "Shapeshift");
 
@@ -1512,13 +1518,11 @@ class ShapeshiftPatch
         if (!isSSneeded)
         {
             Main.CheckShapeshift[shapeshifter.PlayerId] = false;
-        }
-        else
-        {
-            isSSneeded = !Options.DisableShapeshiftAnimations.GetBool();
+            IgnoreNextSS.Add(shapeshifter.PlayerId);
+            shapeshifter.RpcShapeshift(shapeshifter, false);
         }
 
-        return isSSneeded;
+        return isSSneeded || !Options.DisableShapeshiftAnimations.GetBool() || !shapeshifting;
     }
 }
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ReportDeadBody))]
@@ -1735,6 +1739,7 @@ class ReportDeadBodyPatch
         }
 
         Main.LastVotedPlayerInfo = null;
+        ShapeshiftPatch.IgnoreNextSS.Clear();
         Main.AllKillers.Clear();
         Main.ArsonistTimer.Clear();
         if (Farseer.isEnable) Main.FarseerTimer.Clear();
