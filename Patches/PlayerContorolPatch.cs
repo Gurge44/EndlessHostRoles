@@ -1218,9 +1218,10 @@ class CmdCheckShapeshiftPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Shapeshift))]
 class ShapeshiftPatch
 {
-    public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
+    public static List<uint> IsSSCancelled = new();
+    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
-
+        return !IsSSCancelled.Contains(__instance.NetId);
     }
 
     public static bool ProcessShapeshift(PlayerControl shapeshifter, PlayerControl target)
@@ -1231,11 +1232,11 @@ class ShapeshiftPatch
 
         var shapeshifting = shapeshifter.PlayerId != target.PlayerId;
 
-        if (Main.CheckShapeshift.TryGetValue(shapeshifter.PlayerId, out var last) && last == shapeshifting)
-        {
-            // Dunno how you would get here but ok
-            return true;
-        }
+        //if (Main.CheckShapeshift.TryGetValue(shapeshifter.PlayerId, out var last) && last == shapeshifting)
+        //{
+        //    // Dunno how you would get here but ok
+        //    return true;
+        //}
 
         Main.CheckShapeshift[shapeshifter.PlayerId] = shapeshifting;
         Main.ShapeshiftTarget[shapeshifter.PlayerId] = target.PlayerId;
@@ -1352,7 +1353,7 @@ class ShapeshiftPatch
                 case CustomRoles.Bomber:
                     if (shapeshifting)
                     {
-                        Logger.Info("炸弹爆炸了", "Boom");
+                        Logger.Info("Bomber explosion", "Boom");
                         CustomSoundsManager.RPCPlayCustomSoundAll("Boom");
                         foreach (PlayerControl tg in Main.AllPlayerControls)
                         {
@@ -1392,7 +1393,7 @@ class ShapeshiftPatch
                 case CustomRoles.Nuker:
                     if (shapeshifting)
                     {
-                        Logger.Info("炸弹爆炸了", "Boom");
+                        Logger.Info("Nuker explosion", "Boom");
                         CustomSoundsManager.RPCPlayCustomSoundAll("Boom");
                         foreach (PlayerControl tg in Main.AllPlayerControls)
                         {
@@ -1512,13 +1513,23 @@ class ShapeshiftPatch
         if (!isSSneeded)
         {
             Main.CheckShapeshift[shapeshifter.PlayerId] = false;
+            shapeshifter.RpcRejectShapeshift();
+            shapeshifter.RejectShapeshift();
+        }
+
+        bool value = isSSneeded || !Options.DisableShapeshiftAnimations.GetBool() || !shapeshifting;
+
+        if (!value)
+        {
+            IsSSCancelled.Remove(shapeshifter.NetId);
+            IsSSCancelled.Add(shapeshifter.NetId);
         }
         else
         {
-            isSSneeded = !Options.DisableShapeshiftAnimations.GetBool();
+            IsSSCancelled.Remove(shapeshifter.NetId);
         }
 
-        return isSSneeded;
+        return value;
     }
 }
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ReportDeadBody))]
