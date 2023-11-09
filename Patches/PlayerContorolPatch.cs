@@ -1217,6 +1217,7 @@ class CmdCheckShapeshiftPatch
 // Triggered when the egg animation starts playing
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Shapeshift))]
 class ShapeshiftPatch
+{ 
     public static List<byte> IgnoreNextSS = new();
     public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
