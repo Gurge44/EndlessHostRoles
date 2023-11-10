@@ -165,7 +165,7 @@ class RepairSystemPatch
             }
         }
 
-        if (player.Is(CustomRoles.Damocles) && systemType is SystemTypes.Reactor or SystemTypes.LifeSupp or SystemTypes.Comms or SystemTypes.Laboratory or SystemTypes.HeliSabotage or SystemTypes.Electrical)
+        if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage && systemType is SystemTypes.Reactor or SystemTypes.LifeSupp or SystemTypes.Comms or SystemTypes.Laboratory or SystemTypes.HeliSabotage or SystemTypes.Electrical)
         {
             Damocles.OnRepairSabotage();
         }

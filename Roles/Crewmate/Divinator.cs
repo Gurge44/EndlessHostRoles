@@ -166,6 +166,7 @@ public static class Divinator
                 CustomRoles.BountyHunter or
                 CustomRoles.Detective or
                 CustomRoles.FFF or
+                CustomRoles.Mafioso or
                 CustomRoles.Cleaner or
                 CustomRoles.Medusa or
                 CustomRoles.Psychic

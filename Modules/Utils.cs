@@ -1175,7 +1175,7 @@ public static class Utils
         }
         if (GetPlayerById(playerId).Is(CustomRoles.Damocles))
         {
-            ProgressText.AppendLine(Damocles.GetProgressText());
+            ProgressText.Append(' ' + Damocles.GetProgressText());
         }
         if (ProgressText.Length != 0 && !ProgressText.ToString().StartsWith(' '))
             ProgressText.Insert(0, " "); //空じゃなければ空白を追加

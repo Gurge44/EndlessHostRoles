@@ -50,6 +50,7 @@ internal static class CustomRolesHelper
                 CustomRoles.SpeedBooster => CustomRoles.Crewmate,
                 CustomRoles.Dictator => CustomRoles.Crewmate,
                 CustomRoles.Inhibitor => CustomRoles.Impostor,
+                CustomRoles.Mafioso => CustomRoles.Impostor,
                 CustomRoles.Chronomancer => CustomRoles.Impostor,
                 CustomRoles.Nullifier => CustomRoles.Impostor,
                 CustomRoles.Stealth => CustomRoles.Impostor,
@@ -694,6 +695,7 @@ internal static class CustomRolesHelper
             CustomRoles.SerialKiller or
             CustomRoles.Underdog or
             CustomRoles.Inhibitor or
+            CustomRoles.Mafioso or
             CustomRoles.Nullifier or
             CustomRoles.Chronomancer or
             CustomRoles.Stealth or
@@ -1253,6 +1255,7 @@ internal static class CustomRolesHelper
         if (role is CustomRoles.Swift && pc.Is(CustomRoles.EvilDiviner)) return false;
         if (role is CustomRoles.Swift && pc.Is(CustomRoles.Witch)) return false;
         if (role is CustomRoles.Swift && pc.Is(CustomRoles.Mafia)) return false;
+        if (role is CustomRoles.Reach && pc.Is(CustomRoles.Mafioso)) return false;
         if (role is CustomRoles.Trapper && pc.Is(CustomRoles.GuardianAngelTOHE)) return false;
         if (role is CustomRoles.Reach && !pc.CanUseKillButton()) return false;
         if (role is CustomRoles.Watcher && ((pc.GetCustomRole().IsCrewmate() && !Options.CrewCanBeWatcher.GetBool()) || (pc.GetCustomRole().IsNeutral() && !Options.NeutralCanBeWatcher.GetBool()) || (pc.GetCustomRole().IsImpostor() && !Options.ImpCanBeWatcher.GetBool()))) return false;

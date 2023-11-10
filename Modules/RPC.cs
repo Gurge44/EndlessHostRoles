@@ -58,6 +58,8 @@ enum CustomRPC
 
     //Roles
     SetDrawPlayer,
+    SyncMafiosoData,
+    SyncMafiosoPistolCD,
     SyncDamoclesTimer,
     SyncChronomancer,
     StealthDarken,

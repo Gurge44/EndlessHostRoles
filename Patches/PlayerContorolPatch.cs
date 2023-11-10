@@ -254,6 +254,9 @@ class CheckMurderPatch
                         killer.SyncSettings();
                     }
                     break;
+                case CustomRoles.Mafioso:
+                    if (!Mafioso.OnCheckMurder(killer, target)) return false;
+                    break;
                 case CustomRoles.Nullifier:
                     if (Nullifier.OnCheckMurder(killer, target)) return false;
                     break;
@@ -1713,6 +1716,8 @@ class ReportDeadBodyPatch
         //    Hereinafter, it is assumed that it is confirmed that the button is pressed.
         //====================================================================================
 
+        Damocles.countRepairSabotage = false;
+
         if (target == null) //ボタン
         {
             if (player.Is(CustomRoles.Mayor))
@@ -2033,12 +2038,12 @@ class FixedUpdatePatch
                 PlagueBearer.playerIdList.Remove(player.PlayerId);
             }
 
-            if (!lowLoad && player.Is(CustomRoles.Damocles))
+            if (!lowLoad && Main.PlayerStates.TryGetValue(player.PlayerId, out var playerState) && playerState.SubRoles.Contains(CustomRoles.Damocles) && GameStates.IsInTask)
             {
                 Damocles.Update(player);
             }
 
-            if (!lowLoad && Options.UsePets.GetBool())
+            if (!lowLoad && Options.UsePets.GetBool() && GameStates.IsInTask)
             {
                 switch (player.GetCustomRole())
                 {

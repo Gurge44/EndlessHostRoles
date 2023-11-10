@@ -84,6 +84,7 @@ internal class CustomRoleSelector
             object cr = list[i1];
             CustomRoles role = (CustomRoles)Enum.Parse(typeof(CustomRoles), cr.ToString());
             if (role.IsVanilla() || role.IsAdditionRole()) continue;
+            if (role is CustomRoles.DarkHide && (MapNames)Main.NormalOptions.MapId == MapNames.Fungle) continue;
             if (role is CustomRoles.GM or CustomRoles.NotAssigned) continue;
             for (int i = 0; i < role.GetCount(); i++)
                 roleList.Add(role);
@@ -401,6 +402,7 @@ internal class CustomRoleSelector
             object cr = list[i];
             CustomRoles role = (CustomRoles)Enum.Parse(typeof(CustomRoles), cr.ToString());
             if (!role.IsAdditionRole()) continue;
+            if (role is CustomRoles.Mare && (MapNames)Main.NormalOptions.MapId == MapNames.Fungle) continue;
             if (role is CustomRoles.Madmate && Options.MadmateSpawnMode.GetInt() != 0) continue;
             if (role is CustomRoles.Lovers or CustomRoles.LastImpostor or CustomRoles.Workhorse) continue;
             AddonRolesList.Add(role);
