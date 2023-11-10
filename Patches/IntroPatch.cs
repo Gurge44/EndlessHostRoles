@@ -107,7 +107,7 @@ class CoBeginPatch
         GameData.Instance.RecomputeTaskCounts();
         TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
 
-        Utils.NotifyRoles();
+        Utils.NotifyRoles(ForceLoop: true);
 
         GameStates.InGame = true;
     }

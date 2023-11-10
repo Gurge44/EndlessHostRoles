@@ -1906,14 +1906,14 @@ public static class Utils
     private static readonly StringBuilder TargetSuffix = new();
     private static readonly StringBuilder TargetMark = new(20);
 
-    public static async void NotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false)
+    public static async void NotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, PlayerControl SpecifyTarget = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false)
     {
         //if (Options.DeepLowLoad.GetBool()) await Task.Run(() => { DoNotifyRoles(isForMeeting, SpecifySeer, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting); });
         /*else */
-        await DoNotifyRoles(isForMeeting, SpecifySeer, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup);
+        await DoNotifyRoles(isForMeeting, SpecifySeer, SpecifyTarget, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup);
     }
 
-    public static Task DoNotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false)
+    public static Task DoNotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, PlayerControl SpecifyTarget = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false)
     {
         if (!AmongUsClient.Instance.AmHost) return Task.CompletedTask;
         if (Main.AllPlayerControls == null) return Task.CompletedTask;
@@ -1924,12 +1924,12 @@ public static class Utils
         var callerMethod = caller.GetMethod();
         string callerMethodName = callerMethod.Name;
         string callerClassName = callerMethod.DeclaringType.FullName;
-        var logger = Logger.Handler("NotifyRoles");
-        logger.Info("NotifyRolesが" + callerClassName + "." + callerMethodName + "から呼び出されました");
+        Logger.Info("NotifyRoles was called from " + callerClassName + "." + callerMethodName, "NotifyRoles");
         HudManagerPatch.NowCallNotifyRolesCount++;
         HudManagerPatch.LastSetNameDesyncCount = 0;
 
         PlayerControl[] seerList = SpecifySeer != null ? (new PlayerControl[] { SpecifySeer }) : Main.AllPlayerControls;
+        PlayerControl[] targetList = SpecifyTarget != null ? (new PlayerControl[] { SpecifyTarget }) : Main.AllPlayerControls;
 
         //seer: Players who can see changes made here
         //target: Players subject to changes that seer can see
@@ -1941,7 +1941,7 @@ public static class Utils
 
                 string fontSize = "1.6";
                 if (isForMeeting && (seer.GetClient().PlatformData.Platform == Platforms.Playstation || seer.GetClient().PlatformData.Platform == Platforms.Switch)) fontSize = "70%";
-                logger.Info("NotifyRoles-Loop1-" + seer.GetNameWithRole().RemoveHtmlTags() + ":START");
+                Logger.Info("NotifyRoles-Loop1-" + seer.GetNameWithRole().RemoveHtmlTags() + ":START", "NotifyRoles");
 
                 // Text containing progress, such as tasks
                 string SelfTaskText = GetProgressText(seer);
@@ -2124,12 +2124,12 @@ public static class Utils
 
 
                 // Run the second loop only when necessary, such as when seer is dead
-                if (seer.Data.IsDead || !seer.IsAlive() || NoCache || CamouflageIsForMeeting || MushroomMixup || IsActive(SystemTypes.MushroomMixupSabotage) || ForceLoop)
+                if (seer.Data.IsDead || !seer.IsAlive() || NoCache || CamouflageIsForMeeting || MushroomMixup || IsActive(SystemTypes.MushroomMixupSabotage) || ForceLoop || seerList.Length == 1)
                 {
-                    foreach (PlayerControl target in Main.AllPlayerControls)
+                    foreach (PlayerControl target in targetList)
                     {
                         if (target.PlayerId == seer.PlayerId) continue;
-                        logger.Info("NotifyRoles-Loop2-" + target.GetNameWithRole().RemoveHtmlTags() + ":START");
+                        Logger.Info("NotifyRoles-Loop2-" + target.GetNameWithRole().RemoveHtmlTags() + ":START", "NotifyRoles");
 
 
                         if ((IsActive(SystemTypes.MushroomMixupSabotage) || MushroomMixup) && target.IsAlive() && !seer.Is(CustomRoleTypes.Impostor) && Main.ResetCamPlayerList.Contains(seer.PlayerId))
@@ -2409,16 +2409,16 @@ public static class Utils
                             target.RpcSetNamePrivate(TargetName, true, seer, force: NoCache);
                         }
 
-                        logger.Info("NotifyRoles-Loop2-" + target.GetNameWithRole().RemoveHtmlTags() + ":END");
+                        Logger.Info("NotifyRoles-Loop2-" + target.GetNameWithRole().RemoveHtmlTags() + ":END", "NotifyRoles");
                     }
                 }
             }
             catch (Exception ex)
             {
-                Logger.Error($"Error for {seer.GetNameWithRole()}: {ex}", "Utils.NotifyRoles");
+                Logger.Error($"Error for {seer.GetNameWithRole()}: {ex}", "NotifyRoles");
             }
 
-            logger.Info("NotifyRoles-Loop1-" + seer.GetNameWithRole().RemoveHtmlTags() + ":END");
+            Logger.Info("NotifyRoles-Loop1-" + seer.GetNameWithRole().RemoveHtmlTags() + ":END", "NotifyRoles");
 
         }
         return Task.CompletedTask;

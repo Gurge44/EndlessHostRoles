@@ -12,6 +12,7 @@ namespace TOHE.Roles.Impostor
         public static OptionItem CamoAbilityUseGainWithEachKill;
 
         public static bool IsActive;
+        public static bool IsEnable;
         public static Dictionary<byte, float> CamoLimit = new();
 
         public static void SetupCustomOption()
@@ -36,10 +37,12 @@ namespace TOHE.Roles.Impostor
         {
             IsActive = false;
             CamoLimit = new();
+            IsEnable = false;
         }
         public static void Add(byte playerId)
         {
             CamoLimit.Add(playerId, CamoLimitOpt.GetInt());
+            IsEnable = true;
         }
         public static void OnShapeshift(PlayerControl pc, bool shapeshifting)
         {
@@ -64,7 +67,7 @@ namespace TOHE.Roles.Impostor
             {
                 IsActive = false;
                 Camouflage.CheckCamouflage();
-                Utils.NotifyRoles();
+                Utils.NotifyRoles(ForceLoop: true);
             }
         }
     }

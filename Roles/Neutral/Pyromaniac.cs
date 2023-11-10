@@ -57,7 +57,7 @@ public static class Pyromaniac
         }
         else
         {
-            return killer.CheckDoubleTrigger(target, () => { DousedList.Add(target.PlayerId); killer.SetKillCooldown(DouseCooldown.GetFloat()); Utils.NotifyRoles(SpecifySeer: killer); });
+            return killer.CheckDoubleTrigger(target, () => { DousedList.Add(target.PlayerId); killer.SetKillCooldown(DouseCooldown.GetFloat()); Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target); });
         }
     }
 }

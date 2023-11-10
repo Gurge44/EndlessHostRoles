@@ -105,9 +105,12 @@ public static class Options
         "CamouflageMode.Default",
         "CamouflageMode.Host",
         "CamouflageMode.Karpe",
-        "CamouflageMode.Loonie",
         "CamouflageMode.Lauryn",
-        "CamouflageMode.Moe"
+        "CamouflageMode.Moe",
+        "CamouflageMode.Pyro",
+        "CamouflageMode.ryuk",
+        "CamouflageMode.Gurge44",
+        "CamouflageMode.TommyXL"
     };
 
     // 各役職の詳細設定

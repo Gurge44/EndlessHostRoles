@@ -149,7 +149,7 @@ public static class FireWorks
                 break;
         }
         SendRPC(pc.PlayerId);
-        Utils.NotifyRoles();
+        Utils.NotifyRoles(ForceLoop: true);
     }
 
     public static string GetStateText(PlayerControl pc, bool isLocal = true)

@@ -468,7 +468,7 @@ class ExternalRpcPetPatch
                         Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
                         pc.Kill(pc);
                     }
-                    Utils.NotifyRoles();
+                    Utils.NotifyRoles(ForceLoop: true);
                 }, 1.5f, "Bomber Suiscide");
                 Main.BomberCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
@@ -503,7 +503,7 @@ class ExternalRpcPetPatch
                         Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
                         pc.Kill(pc);
                     }
-                    Utils.NotifyRoles();
+                    Utils.NotifyRoles(ForceLoop: true);
                 }, 1.5f, "Nuke");
                 Main.NukerCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
