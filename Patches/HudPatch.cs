@@ -186,6 +186,9 @@ class HudManagerPatch
                     case CustomRoles.Postman:
                         __instance.KillButton?.OverrideText(GetString("PostmanKillButtonText"));
                         break;
+                    case CustomRoles.Escort:
+                        __instance.KillButton?.OverrideText(GetString("EscortKillButtonText"));
+                        break;
                     case CustomRoles.Glitch:
                         __instance.SabotageButton?.OverrideText(GetString("HackButtonText"));
                         break;
@@ -193,6 +196,7 @@ class HudManagerPatch
                         __instance.KillButton?.OverrideText(GetString("FFFButtonText"));
                         break;
                     case CustomRoles.Aid:
+                    case CustomRoles.DonutDelivery:
                     case CustomRoles.Medic:
                         __instance.KillButton?.OverrideText(GetString("MedicalerButtonText"));
                         break;
@@ -467,6 +471,7 @@ class HudManagerPatch
                     CustomRoles.WeaponMaster => WeaponMaster.GetHudAndProgressText(),
                     CustomRoles.Postman => Postman.GetHudText(player),
                     CustomRoles.Chronomancer => Chronomancer.GetHudText(),
+                    CustomRoles.Mafioso => Mafioso.GetHUDText(),
                     CustomRoles.PlagueDoctor => PlagueDoctor.GetLowerTextOthers(player, isForHud: true),
                     CustomRoles.Stealth => Stealth.GetSuffix(player, isHUD: true),
                     CustomRoles.Sapper => GetCD_HUDText(Main.SapperCD, Sapper.ShapeshiftCooldown.GetInt(), player.PlayerId),

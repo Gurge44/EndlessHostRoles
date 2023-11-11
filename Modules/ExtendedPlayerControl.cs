@@ -514,6 +514,8 @@ static class ExtendedPlayerControl
             CustomRoles.Nuker => false,
             CustomRoles.Innocent => true,
             CustomRoles.Aid => true,
+            CustomRoles.DonutDelivery => true,
+            CustomRoles.Escort => true,
             CustomRoles.Witness => true,
             CustomRoles.Pursuer => true,
             CustomRoles.Morphling => true,
@@ -622,6 +624,8 @@ static class ExtendedPlayerControl
             CustomRoles.Innocent => pc.IsAlive(),
             //CustomRoles.Counterfeiter => Counterfeiter.CanUseKillButton(pc.PlayerId),
             CustomRoles.Aid => pc.IsAlive() && Aid.UseLimit[pc.PlayerId] >= 1,
+            CustomRoles.Escort => pc.IsAlive() && Escort.BlockLimit >= 1,
+            CustomRoles.DonutDelivery => pc.IsAlive() && DonutDelivery.DeliverLimit >= 1,
             CustomRoles.Witness => pc.IsAlive(),
             CustomRoles.Pursuer => Pursuer.CanUseKillButton(pc.PlayerId),
             CustomRoles.Morphling => Morphling.CanUseKillButton(pc.PlayerId),
@@ -759,6 +763,8 @@ static class ExtendedPlayerControl
             CustomRoles.Pelican or
             //CustomRoles.Counterfeiter or
             CustomRoles.Aid or
+            CustomRoles.DonutDelivery or
+            CustomRoles.Escort or
             CustomRoles.Pursuer or
             CustomRoles.Revolutionist or
             CustomRoles.FFF or
@@ -1059,6 +1065,12 @@ static class ExtendedPlayerControl
             //    break;
             case CustomRoles.Aid:
                 Aid.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.Escort:
+                Escort.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.DonutDelivery:
+                DonutDelivery.SetKillCooldown(player.PlayerId);
                 break;
             case CustomRoles.Witness:
                 Main.AllPlayerKillCooldown[player.PlayerId] = Options.WitnessCD.GetFloat();

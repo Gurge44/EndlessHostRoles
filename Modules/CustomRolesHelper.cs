@@ -94,6 +94,8 @@ internal static class CustomRolesHelper
                 CustomRoles.Tether => Options.UsePets.GetBool() ? CustomRoles.Crewmate : CustomRoles.Engineer,
                 CustomRoles.Doormaster => Options.UsePets.GetBool() ? CustomRoles.Crewmate : CustomRoles.Engineer,
                 CustomRoles.Aid => CustomRoles.Impostor,
+                CustomRoles.Escort => CustomRoles.Impostor,
+                CustomRoles.DonutDelivery => CustomRoles.Impostor,
                 CustomRoles.Escapee => Options.UsePets.GetBool() ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.NiceGuesser => CustomRoles.Crewmate,
                 CustomRoles.EvilGuesser => CustomRoles.Impostor,
@@ -206,6 +208,8 @@ internal static class CustomRolesHelper
                 CustomRoles.Spy => CustomRoles.CrewmateTOHE,
                 CustomRoles.Ricochet => CustomRoles.CrewmateTOHE,
                 CustomRoles.Aid => CustomRoles.CrewmateTOHE,
+                CustomRoles.DonutDelivery => CustomRoles.CrewmateTOHE,
+                CustomRoles.Escort => CustomRoles.CrewmateTOHE,
                 CustomRoles.Doormaster => CustomRoles.EngineerTOHE,
                 CustomRoles.Tether => CustomRoles.EngineerTOHE,
                 CustomRoles.Psychic => CustomRoles.CrewmateTOHE,
@@ -263,6 +267,8 @@ internal static class CustomRolesHelper
             CustomRoles.Pelican => RoleTypes.Impostor,
             //CustomRoles.Counterfeiter => RoleTypes.Impostor,
             CustomRoles.Aid => RoleTypes.Impostor,
+            CustomRoles.Escort => RoleTypes.Impostor,
+            CustomRoles.DonutDelivery => RoleTypes.Impostor,
             CustomRoles.Witness => RoleTypes.Impostor,
             CustomRoles.Pursuer => RoleTypes.Impostor,
             CustomRoles.Revolutionist => RoleTypes.Impostor,
@@ -873,6 +879,8 @@ internal static class CustomRolesHelper
         //CustomRoles.Counterfeiter or
         CustomRoles.Witness or
         CustomRoles.Aid or
+        CustomRoles.DonutDelivery or
+        CustomRoles.Escort or
         CustomRoles.Totocalcio or
         CustomRoles.Farseer or
         CustomRoles.FFF or
@@ -991,6 +999,8 @@ internal static class CustomRolesHelper
         CustomRoles.Crusader or
         //CustomRoles.Counterfeiter or
         CustomRoles.Aid or
+        CustomRoles.Escort or
+        CustomRoles.DonutDelivery or
         CustomRoles.Witness or
         CustomRoles.Monarch or
         CustomRoles.Jailor or
@@ -1041,6 +1051,8 @@ internal static class CustomRolesHelper
         CustomRoles.Crusader or
         //CustomRoles.Counterfeiter or
         CustomRoles.Aid or
+        CustomRoles.DonutDelivery or
+        CustomRoles.Escort or
         CustomRoles.Witness or
         CustomRoles.Monarch or
         CustomRoles.Jailor or

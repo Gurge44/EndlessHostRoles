@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TOHE.Roles.AddOns.Impostor;
 using TOHE.Roles.Crewmate;
+using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
 using UnityEngine;
 
@@ -96,6 +97,12 @@ class RepairSystemPatch
                 break;
             case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay:
                 if (Main.BlockSabo.Any()) return false;
+                if (Glitch.hackedIdList.ContainsKey(player.PlayerId))
+                {
+                    player.Notify(string.Format(Translator.GetString("HackedByGlitch"), "Sabotage"));
+                    return false;
+                }
+                if (player.Is(CustomRoles.Mafioso)) Mafioso.OnSabotage();
                 if (player.Is(CustomRoleTypes.Impostor) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool()) && !player.Is(CustomRoles.Minimalism)) return true;
                 switch (player.GetCustomRole())
                 {

@@ -236,6 +236,12 @@ class CheckMurderPatch
                 case CustomRoles.Magician:
                     Magician.OnCheckMurder(killer);
                     break;
+                case CustomRoles.DonutDelivery:
+                    DonutDelivery.OnCheckMurder(killer, target);
+                    return false;
+                case CustomRoles.Escort:
+                    Escort.OnCheckMurder(killer, target);
+                    return false;
                 case CustomRoles.WeaponMaster:
                     if (!WeaponMaster.OnCheckMurder(killer, target)) return false;
                     break;
@@ -1092,6 +1098,9 @@ class MurderPlayerPatch
             case CustomRoles.BloodKnight:
                 BloodKnight.OnMurderPlayer(killer, target);
                 break;
+            case CustomRoles.Mafioso:
+                Mafioso.OnMurder();
+                break;
             case CustomRoles.Wildling:
                 Wildling.OnMurderPlayer(killer, target);
                 break;
@@ -1801,6 +1810,7 @@ class ReportDeadBodyPatch
         if (Jailor.IsEnable) Jailor.OnReportDeadBody();
         if (Ricochet.IsEnable) Ricochet.OnReportDeadBody();
         if (Mastermind.IsEnable) Mastermind.OnReportDeadBody();
+        if (Mafioso.IsEnable) Mafioso.OnReportDeadBody();
         if (RiftMaker.IsEnable) RiftMaker.OnReportDeadBody();
         if (Hitman.IsEnable) Hitman.OnReportDeadBody();
         if (Gambler.IsEnable) Gambler.OnReportDeadBody();
@@ -2008,6 +2018,9 @@ class FixedUpdatePatch
                     break;
                 case CustomRoles.Magician when !lowLoad:
                     Magician.OnFixedUpdate(player);
+                    break;
+                case CustomRoles.Mafioso when !lowLoad:
+                    Mafioso.OnFixedUpdate(player);
                     break;
                 case CustomRoles.SerialKiller:
                     SerialKiller.FixedUpdate(player);
@@ -3191,6 +3204,9 @@ class EnterVentPatch
                 break;
             case CustomRoles.Werewolf:
                 Werewolf.OnEnterVent(pc);
+                break;
+            case CustomRoles.Mafioso:
+                Mafioso.OnEnterVent(__instance.Id);
                 break;
             case CustomRoles.Lurker:
                 Lurker.OnEnterVent(pc);

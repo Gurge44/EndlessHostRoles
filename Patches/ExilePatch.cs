@@ -88,6 +88,7 @@ class ExileControllerWrapUpPatch
             }
             else
             {
+                Mafioso.OnCrewmateEjected();
                 Damocles.OnCrewmateEjected();
             }
 

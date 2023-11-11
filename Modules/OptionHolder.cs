@@ -1408,6 +1408,10 @@ public static class Options
         Doormaster.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nRicochet";
         Ricochet.SetupCustomOption();
+        RoleLoadingText = "Crewmate roles\nEscort";
+        Escort.SetupCustomOption();
+        RoleLoadingText = "Crewmate roles\nDonut Delivery";
+        DonutDelivery.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nAid";
         Aid.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nTether";

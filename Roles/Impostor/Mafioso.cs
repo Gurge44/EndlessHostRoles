@@ -96,6 +96,7 @@ namespace TOHE.Roles.Impostor
         }
         public static void SendRPC()
         {
+            if (!IsEnable) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMafiosoData, SendOption.Reliable, -1);
             writer.Write(Tier);
             writer.Write(XP);
@@ -105,6 +106,7 @@ namespace TOHE.Roles.Impostor
         }
         public static void ReceiveRPC(MessageReader reader)
         {
+            if (!IsEnable) return;
             Tier = reader.ReadInt32();
             XP = reader.ReadInt32();
             var elements = reader.ReadInt32();
@@ -112,6 +114,7 @@ namespace TOHE.Roles.Impostor
         }
         public static void SendRPCSyncPistolCD()
         {
+            if (!IsEnable) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMafiosoPistolCD, SendOption.Reliable, -1);
             writer.Write(Pistol1CD);
             writer.Write(Pistol2CD);
@@ -120,6 +123,7 @@ namespace TOHE.Roles.Impostor
         }
         public static void ReceiveRPCSyncPistolCD(MessageReader reader)
         {
+            if (!IsEnable) return;
             Pistol1CD = reader.ReadInt32();
             Pistol2CD = reader.ReadInt32();
             lastUpdate = long.Parse(reader.ReadString());
@@ -190,8 +194,10 @@ namespace TOHE.Roles.Impostor
 
             return true;
         }
+        public static bool IsEnable => playerIdList.Any();
         public static void OnReportDeadBody()
         {
+            if (!IsEnable) return;
             PreviouslyUsedVents.Clear();
             int KCD = Tier >= 4 ? (int)Math.Round(DefaultKillCooldown) : (int)Math.Round(DefaultKillCooldown * 1.5);
             KCD++;
@@ -205,11 +211,13 @@ namespace TOHE.Roles.Impostor
         public static string GetHUDText() => string.Format(GetString("MafiosoHUDText"), Tier, XP);
         public static void OnMurder()
         {
+            if (!IsEnable) return;
             XP += RewardForKilling.GetInt();
             SendRPC();
         }
         public static void OnEnterVent(int ventId)
         {
+            if (!IsEnable) return;
             if (PreviouslyUsedVents.Contains(ventId)) return;
 
             PreviouslyUsedVents.Add(ventId);
@@ -218,11 +226,13 @@ namespace TOHE.Roles.Impostor
         }
         public static void OnSabotage()
         {
+            if (!IsEnable) return;
             XP += RewardForSabotaging.GetInt();
             SendRPC();
         }
         public static void OnCrewmateEjected()
         {
+            if (!IsEnable) return;
             XP += RewardForOtherPlayerEjected.GetInt();
             SendRPC();
         }

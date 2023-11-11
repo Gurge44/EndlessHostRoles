@@ -176,7 +176,7 @@ internal class ChangeRoleSettings
                 pc.cosmetics.nameText.text = pc.name;
                 RandomSpawn.CustomNetworkTransformPatch.NumOfTP.Add(pc.PlayerId, 0);
                 var outfit = pc.Data.DefaultOutfit;
-                Camouflage.PlayerSkins[pc.PlayerId] = new GameData.PlayerOutfit().Set(outfit.PlayerName, outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId);
+                Camouflage.PlayerSkins[pc.PlayerId] = new GameData.PlayerOutfit().Set(outfit.PlayerName, outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId, outfit.NamePlateId);
                 Main.clientIdList.Add(pc.GetClientId());
             }
             Main.VisibleTasksCount = true;
@@ -227,6 +227,8 @@ internal class ChangeRoleSettings
             //Counterfeiter.Init();
             Tether.Init();
             Aid.Init();
+            DonutDelivery.Init();
+            Escort.Init();
             Pursuer.Init();
             Gangster.Init();
             Medic.Init();
@@ -284,6 +286,7 @@ internal class ChangeRoleSettings
             Penguin.Init();
             Stealth.Init();
             Postman.Init();
+            Mafioso.Init();
             Magician.Init();
             WeaponMaster.Init();
             Reckless.Init();
@@ -651,6 +654,12 @@ internal class SelectRolesPatch
                     case CustomRoles.Aid:
                         Aid.Add(pc.PlayerId);
                         break;
+                    case CustomRoles.Escort:
+                        Escort.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.DonutDelivery:
+                        DonutDelivery.Add(pc.PlayerId);
+                        break;
                     case CustomRoles.Pursuer:
                         Pursuer.Add(pc.PlayerId);
                         break;
@@ -861,6 +870,9 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Postman:
                         Postman.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Mafioso:
+                        Mafioso.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Magician:
                         Magician.Add(pc.PlayerId);

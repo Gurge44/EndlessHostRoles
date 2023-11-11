@@ -129,6 +129,7 @@ public static class Divinator
                 CustomRoles.Pestilence or
                 CustomRoles.PlagueBearer or
                 CustomRoles.Observer or
+                CustomRoles.DonutDelivery or
                 CustomRoles.BloodKnight or
                 CustomRoles.Guardian or
                 CustomRoles.Wildling
@@ -184,6 +185,7 @@ public static class Divinator
                 CustomRoles.Councillor or
                 CustomRoles.Dictator or
                 CustomRoles.Judge or
+                CustomRoles.Escort or
                 CustomRoles.CursedSoul or
                 CustomRoles.Cleanser or
                 CustomRoles.CursedWolf

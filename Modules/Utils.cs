@@ -564,6 +564,8 @@ public static class Utils
             case CustomRoles.Farseer:
             //case CustomRoles.Counterfeiter:
             case CustomRoles.Aid:
+            case CustomRoles.Escort:
+            case CustomRoles.DonutDelivery:
             case CustomRoles.Witness:
             case CustomRoles.Pursuer:
             case CustomRoles.Spiritcaller:
@@ -1059,6 +1061,15 @@ public static class Utils
                     break;
                 case CustomRoles.Aid:
                     ProgressText.Append(Aid.GetProgressText(playerId, comms));
+                    break;
+                case CustomRoles.Mafioso:
+                    ProgressText.Append(Mafioso.GetProgressText());
+                    break;
+                case CustomRoles.DonutDelivery:
+                    ProgressText.Append(DonutDelivery.GetProgressText());
+                    break;
+                case CustomRoles.Escort:
+                    ProgressText.Append(Escort.GetProgressText());
                     break;
                 case CustomRoles.Pursuer:
                     ProgressText.Append(Pursuer.GetSeelLimit(playerId));
