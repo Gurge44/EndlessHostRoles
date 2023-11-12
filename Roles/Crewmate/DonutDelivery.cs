@@ -71,8 +71,10 @@ namespace TOHE.Roles.Crewmate
 
             DeliverLimit--;
             Glitch.hackedIdList.TryAdd(target.PlayerId, GetTimeStamp());
-            killer.Notify(GetString("DonutDelivered"));
-            target.Notify(GetString("DonutGot"));
+            var num1 = IRandom.Instance.Next(0, 19);
+            var num2 = IRandom.Instance.Next(0, 15);
+            killer.Notify(GetString($"DonutDelivered-{num1}"));
+            target.Notify(GetString($"DonutGot-{num2}"));
         }
         public static string GetProgressText() => $"<color=#777777>-</color> <color=#ffffff>{DeliverLimit}</color>";
     }

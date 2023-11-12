@@ -261,6 +261,9 @@ class CheckMurderPatch
                         killer.SyncSettings();
                     }
                     break;
+                case CustomRoles.Consort:
+                    if (!Consort.OnCheckMurder(killer, target)) return false;
+                    break;
                 case CustomRoles.Mafioso:
                     if (!Mafioso.OnCheckMurder(killer, target)) return false;
                     break;

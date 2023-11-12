@@ -105,6 +105,7 @@ public static class Oracle
             CustomRoles.SerialKiller or
             //     CustomRoles.Mare or
             CustomRoles.Inhibitor or
+            CustomRoles.Consort or
             CustomRoles.Mafioso or
             CustomRoles.Nullifier or
             CustomRoles.Chronomancer or

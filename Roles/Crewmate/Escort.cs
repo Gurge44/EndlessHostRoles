@@ -53,7 +53,6 @@ namespace TOHE.Roles.Crewmate
             writer.Write(BlockLimit);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
-
         public static void ReceiveRPC(MessageReader reader)
         {
             BlockLimit = reader.ReadInt32();
@@ -70,6 +69,7 @@ namespace TOHE.Roles.Crewmate
             if (!killer.Is(CustomRoles.Escort)) return;
 
             BlockLimit--;
+            killer.SetKillCooldown();
             Glitch.hackedIdList.TryAdd(target.PlayerId, GetTimeStamp());
             killer.Notify(GetString("EscortTargetHacked"));
         }

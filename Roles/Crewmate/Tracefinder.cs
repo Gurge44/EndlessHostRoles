@@ -100,16 +100,19 @@ public static class Tracefinder
 
         _ = new LateTask(() =>
         {
-            foreach (byte pc in playerIdList.ToArray())
+            if (GameStates.IsInTask)
             {
-                var player = Utils.GetPlayerById(pc);
-                if (player == null || !player.IsAlive())
-                    continue;
-                LocateArrow.Add(pc, target.transform.position);
-                SendRPC(pc, true, target.transform.position);
-                Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc));
+                foreach (byte pc in playerIdList.ToArray())
+                {
+                    var player = Utils.GetPlayerById(pc);
+                    if (player == null || !player.IsAlive())
+                        continue;
+                    LocateArrow.Add(pc, target.transform.position);
+                    SendRPC(pc, true, target.transform.position);
+                    Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc));
+                }
             }
-        }, delay);
+        }, delay, "Tracefinder arrow delay");
     }
     public static string GetTargetArrow(PlayerControl seer, PlayerControl target = null)
     {

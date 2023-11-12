@@ -74,7 +74,7 @@ class CoBeginPatch
         logger.Info("------------Roles------------");
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
-            logger.Info($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc?.Data?.PlayerName?.PadRightV2(20)}:{pc.GetAllRoleName().RemoveHtmlTags()}");
+            logger.Info($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc?.Data?.PlayerName?.PadRightV2(20)}:{pc.GetAllRoleName().RemoveHtmlTags().Replace("\n", " + ")}");
         }
         logger.Info("------------Platforms------------");
         foreach (PlayerControl pc in Main.AllPlayerControls)

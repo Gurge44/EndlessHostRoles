@@ -121,6 +121,7 @@ public static class Divinator
                 //CustomRoles.Counterfeiter or
                 CustomRoles.Witness or
                 CustomRoles.Greedier or
+                CustomRoles.Consort or
                 CustomRoles.Ventguard or
                 CustomRoles.Merchant or
                 CustomRoles.Trickster

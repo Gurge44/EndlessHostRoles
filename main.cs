@@ -650,6 +650,7 @@ public enum CustomRoles
     TimeThief,
     EvilTracker,
     AntiAdminer,
+    Consort,
     Sans,
     Bomber,
     Nuker,

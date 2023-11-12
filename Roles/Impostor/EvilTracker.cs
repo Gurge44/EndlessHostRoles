@@ -123,19 +123,26 @@ public static class EvilTracker
     }
     public static void AfterMeetingTasks()
     {
-        if (CurrentTargetMode == TargetMode.EveryMeeting)
+        try
         {
-            SetTarget();
+            if (CurrentTargetMode == TargetMode.EveryMeeting)
+            {
+                SetTarget();
+            }
+            foreach (byte playerId in playerIdList.ToArray())
+            {
+                var pc = Utils.GetPlayerById(playerId);
+                var target = Utils.GetPlayerById(GetTargetId(playerId));
+                if (!pc.IsAlive() || !target.IsAlive())
+                    SetTarget(playerId);
+                pc?.SyncSettings();
+                pc?.RpcResetAbilityCooldown();
+                target?.MarkDirtySettings();
+            }
         }
-        foreach (byte playerId in playerIdList.ToArray())
+        catch (System.Exception ex)
         {
-            var pc = Utils.GetPlayerById(playerId);
-            var target = Utils.GetPlayerById(GetTargetId(playerId));
-            if (!pc.IsAlive() || !target.IsAlive())
-                SetTarget(playerId);
-            pc?.SyncSettings();
-            pc?.RpcResetAbilityCooldown();
-            target.MarkDirtySettings();
+            Logger.Error(ex.ToString(), "EvilTracker.AfterMeetingTasks");
         }
     }
     ///<summary>

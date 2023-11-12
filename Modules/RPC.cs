@@ -58,6 +58,7 @@ enum CustomRPC
 
     //Roles
     SetDrawPlayer,
+    SetConsortLimit,
     SetDonutLimit,
     SetEscortLimit,
     SyncMafiosoData,

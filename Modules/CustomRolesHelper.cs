@@ -50,6 +50,7 @@ internal static class CustomRolesHelper
                 CustomRoles.SpeedBooster => CustomRoles.Crewmate,
                 CustomRoles.Dictator => CustomRoles.Crewmate,
                 CustomRoles.Inhibitor => CustomRoles.Impostor,
+                CustomRoles.Consort => CustomRoles.Impostor,
                 CustomRoles.Mafioso => CustomRoles.Impostor,
                 CustomRoles.Chronomancer => CustomRoles.Impostor,
                 CustomRoles.Nullifier => CustomRoles.Impostor,
@@ -701,6 +702,7 @@ internal static class CustomRolesHelper
             CustomRoles.SerialKiller or
             CustomRoles.Underdog or
             CustomRoles.Inhibitor or
+            CustomRoles.Consort or
             CustomRoles.Mafioso or
             CustomRoles.Nullifier or
             CustomRoles.Chronomancer or

@@ -465,6 +465,7 @@ static class ExtendedPlayerControl
             CustomRoles.RiftMaker => true,
             CustomRoles.Hitman => true,
             CustomRoles.Inhibitor => true,
+            CustomRoles.Consort => true,
             CustomRoles.Mafioso => true,
             CustomRoles.Chronomancer => true,
             CustomRoles.Nullifier => true,
@@ -577,6 +578,7 @@ static class ExtendedPlayerControl
             CustomRoles.Nullifier => pc.IsAlive(),
             CustomRoles.Chronomancer => pc.IsAlive(),
             CustomRoles.Mafioso => pc.IsAlive(),
+            CustomRoles.Consort => pc.IsAlive(),
             CustomRoles.Inhibitor => !Utils.IsActive(SystemTypes.Electrical) && !Utils.IsActive(SystemTypes.Laboratory) && !Utils.IsActive(SystemTypes.Comms) && !Utils.IsActive(SystemTypes.LifeSupp) && !Utils.IsActive(SystemTypes.Reactor),
             CustomRoles.Saboteur => Utils.IsActive(SystemTypes.Electrical) || Utils.IsActive(SystemTypes.Laboratory) || Utils.IsActive(SystemTypes.Comms) || Utils.IsActive(SystemTypes.LifeSupp) || Utils.IsActive(SystemTypes.Reactor),
             CustomRoles.Sniper => Sniper.CanUseKillButton(pc),
@@ -952,7 +954,6 @@ static class ExtendedPlayerControl
             case CustomRoles.Pestilence:
                 PlagueBearer.SetKillCooldownPestilence(player.PlayerId);
                 break;
-
             case CustomRoles.Councillor:
                 Councillor.SetKillCooldown(player.PlayerId);
                 break;
