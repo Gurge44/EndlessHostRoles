@@ -1065,6 +1065,12 @@ public static class Utils
                 case CustomRoles.Mafioso:
                     ProgressText.Append(Mafioso.GetProgressText());
                     break;
+                case CustomRoles.Consort:
+                    ProgressText.Append(Consort.GetProgressText());
+                    break;
+                case CustomRoles.Drainer:
+                    ProgressText.Append(Drainer.GetProgressText());
+                    break;
                 case CustomRoles.DonutDelivery:
                     ProgressText.Append(DonutDelivery.GetProgressText());
                     break;

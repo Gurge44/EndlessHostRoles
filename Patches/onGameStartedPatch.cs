@@ -229,6 +229,8 @@ internal class ChangeRoleSettings
             Aid.Init();
             DonutDelivery.Init();
             Escort.Init();
+            Consort.Init();
+            Drainer.Init();
             Pursuer.Init();
             Gangster.Init();
             Medic.Init();
@@ -656,6 +658,12 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Escort:
                         Escort.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Consort:
+                        Consort.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Drainer:
+                        Drainer.Add(pc.PlayerId);
                         break;
                     case CustomRoles.DonutDelivery:
                         DonutDelivery.Add(pc.PlayerId);

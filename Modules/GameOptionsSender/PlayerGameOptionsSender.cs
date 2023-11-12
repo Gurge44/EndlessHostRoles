@@ -337,6 +337,9 @@ public class PlayerGameOptionsSender : GameOptionsSender
             case CustomRoles.Mafioso:
                 Mafioso.ApplyGameOptions(opt);
                 break;
+            case CustomRoles.Drainer:
+                Drainer.ApplyGameOptions(opt);
+                break;
             case CustomRoles.Poisoner:
                 Poisoner.ApplyGameOptions(opt);
                 break;

@@ -483,6 +483,10 @@ public class TaskState
                         CameraMan.UseLimit[player.PlayerId] += CameraMan.CameraManAbilityUseGainWithEachTaskCompleted.GetFloat();
                         CameraMan.SendRPC(player.PlayerId);
                         break;
+                    case CustomRoles.Drainer:
+                        Drainer.DrainLimit += Drainer.DrainerAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        Drainer.SendRPC();
+                        break;
                 }
             }
             if (player.Is(CustomRoles.Express) && player.IsAlive())

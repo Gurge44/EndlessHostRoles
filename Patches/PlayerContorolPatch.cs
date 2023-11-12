@@ -3112,11 +3112,21 @@ class SetColorPatch
     }
 }
 
+[HarmonyPatch(typeof(Vent), nameof(Vent.ExitVent))]
+class ExitVentPatch
+{
+    public static void Postfix(Vent __instance, [HarmonyArgument(0)] PlayerControl pc)
+    {
+        Drainer.OnOtherPlayerExitVent(pc, __instance.Id);
+    }
+}
 [HarmonyPatch(typeof(Vent), nameof(Vent.EnterVent))]
 class EnterVentPatch
 {
     public static void Postfix(Vent __instance, [HarmonyArgument(0)] PlayerControl pc)
     {
+        Drainer.OnOtherPlayerEnterVent(pc, __instance.Id);
+
         if (Witch.IsEnable) Witch.OnEnterVent(pc);
         if (HexMaster.IsEnable) HexMaster.OnEnterVent(pc);
 

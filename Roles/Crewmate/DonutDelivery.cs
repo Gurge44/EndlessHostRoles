@@ -23,12 +23,12 @@ namespace TOHE.Roles.Crewmate
 
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Escort, 1);
+            SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.DonutDelivery, 1);
             CD = FloatOptionItem.Create(Id + 10, "DonutDeliverCD", new(2.5f, 60f, 2.5f), 30f, TabGroup.CrewmateRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Escort])
+                .SetParent(CustomRoleSpawnChances[CustomRoles.DonutDelivery])
                 .SetValueFormat(OptionFormat.Seconds);
             UseLimit = IntegerOptionItem.Create(Id + 12, "AbilityUseLimit", new(1, 20, 1), 3, TabGroup.CrewmateRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Escort])
+                .SetParent(CustomRoleSpawnChances[CustomRoles.DonutDelivery])
                 .SetValueFormat(OptionFormat.Times);
         }
 
@@ -67,7 +67,7 @@ namespace TOHE.Roles.Crewmate
             if (killer == null) return;
             if (target == null) return;
             if (DeliverLimit <= 0) return;
-            if (!killer.Is(CustomRoles.Escort)) return;
+            if (!killer.Is(CustomRoles.DonutDelivery)) return;
 
             DeliverLimit--;
             Glitch.hackedIdList.TryAdd(target.PlayerId, GetTimeStamp());

@@ -46,7 +46,7 @@ class CheckForEndVotingPatch
                         Main.MadmateNum++;
                         pc.RpcSetCustomRole(CustomRoles.Madmate);
                         ExtendedPlayerControl.RpcSetCustomRole(pc.PlayerId, CustomRoles.Madmate);
-                        Utils.NotifyRoles(true, pc, true);
+                        Utils.NotifyRoles(isForMeeting: true, SpecifySeer: pc, NoCache: true);
                         Logger.Info("Set role: " + pc?.Data?.PlayerName + " => " + pc.GetCustomRole().ToString() + " + " + CustomRoles.Madmate.ToString(), "Assign " + CustomRoles.Madmate.ToString());
                     }
                 }

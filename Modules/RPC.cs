@@ -58,6 +58,7 @@ enum CustomRPC
 
     //Roles
     SetDrawPlayer,
+    SetDrainerLimit,
     SetConsortLimit,
     SetDonutLimit,
     SetEscortLimit,
@@ -747,6 +748,12 @@ internal class RPCHandlerPatch
             case CustomRPC.SetInfectiousBiteLimit:
                 Infectious.ReceiveRPC(reader);
                 break;
+            case CustomRPC.SetDrainerLimit:
+                Drainer.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SetConsortLimit:
+                Consort.ReceiveRPC(reader);
+                break;
             case CustomRPC.SetMonarchKnightLimit:
                 Monarch.ReceiveRPC(reader);
                 break;
@@ -1129,6 +1136,12 @@ internal static class RPC
                 break;
             case CustomRoles.Escort:
                 Escort.Add(targetId);
+                break;
+            case CustomRoles.Drainer:
+                Drainer.Add(targetId);
+                break;
+            case CustomRoles.Consort:
+                Consort.Add(targetId);
                 break;
             case CustomRoles.DonutDelivery:
                 DonutDelivery.Add(targetId);

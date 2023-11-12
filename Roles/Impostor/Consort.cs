@@ -61,6 +61,7 @@ namespace TOHE.Roles.Impostor
                 Glitch.hackedIdList.TryAdd(target.PlayerId, GetTimeStamp());
                 killer.Notify(GetString("EscortTargetHacked"));
                 killer.SetKillCooldown(CD.GetFloat());
+                SendRPC();
             });
         }
         public static string GetProgressText() => $"<color=#777777>-</color> <color=#ffffff>{BlockLimit}</color>";
