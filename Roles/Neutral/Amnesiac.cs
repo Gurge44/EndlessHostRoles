@@ -71,7 +71,9 @@ public static class Amnesiac
 
             killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller")));
             target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
-            Utils.NotifyRoles();
+
+            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
+            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
 
             killer.ResetKillCooldown();
             killer.SetKillCooldown();
@@ -94,7 +96,9 @@ public static class Amnesiac
 
             killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller")));
             target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
-            Utils.NotifyRoles();
+
+            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
+            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
 
             killer.ResetKillCooldown();
             killer.SetKillCooldown();
@@ -119,7 +123,9 @@ public static class Amnesiac
 
                 killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedAmnesiac")));
                 target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
-                Utils.NotifyRoles();
+
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
+                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
 
                 Add(killer.PlayerId);
 
@@ -133,26 +139,6 @@ public static class Amnesiac
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
                 return;
             }
-            //if (IncompatibleNeutralMode.GetValue() == 1)
-            //{
-            //    RememberLimit--;
-            //    SendRPC();
-            //    killer.RpcSetCustomRole(CustomRoles.NWitch);
-
-            //    killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedWitch")));
-            //    target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
-            //    Utils.NotifyRoles();
-
-            //    killer.ResetKillCooldown();
-            //    killer.SetKillCooldown();
-            //    //killer.RpcGuardAndKill(target);
-            //    target.RpcGuardAndKill(killer);
-            //    target.RpcGuardAndKill(target);
-
-            //    Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Soulless.ToString(), "Assign " + CustomRoles.Soulless.ToString());
-            //    Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
-            //    return;
-            //}
             if (IncompatibleNeutralMode.GetValue() == 2)
             {
                 RememberLimit--;
@@ -232,7 +218,9 @@ public static class Amnesiac
 
             killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedImpostor")));
             target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
-            Utils.NotifyRoles();
+
+            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
+            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
 
             killer.ResetKillCooldown();
             killer.SetKillCooldown();
@@ -279,7 +267,9 @@ public static class Amnesiac
 
             killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller")));
             target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
-            Utils.NotifyRoles();
+
+            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
+            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
 
             Poisoner.Add(killer.PlayerId);
 
@@ -303,7 +293,9 @@ public static class Amnesiac
 
             killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller")));
             target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
-            Utils.NotifyRoles();
+
+            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
+            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
 
             Juggernaut.Add(killer.PlayerId);
 
@@ -327,7 +319,9 @@ public static class Amnesiac
 
             killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller")));
             target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
-            Utils.NotifyRoles();
+
+            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
+            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
 
             HexMaster.Add(killer.PlayerId);
 
@@ -351,7 +345,9 @@ public static class Amnesiac
 
             killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller")));
             target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
-            Utils.NotifyRoles();
+
+            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
+            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
 
             BloodKnight.Add(killer.PlayerId);
 

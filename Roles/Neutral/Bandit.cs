@@ -137,8 +137,8 @@ public static class Bandit
         }
         TotalSteals[killer.PlayerId]++;
         SendRPC(killer.PlayerId);
-        Utils.NotifyRoles(SpecifySeer: killer);
-        Utils.NotifyRoles(SpecifySeer: target);
+        Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
+        Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
         killer.ResetKillCooldown();
         killer.SetKillCooldown();
         if (!DisableShieldAnimations.GetBool()) killer.RpcGuardAndKill(target);
@@ -166,7 +166,7 @@ public static class Bandit
                 Logger.Info($"Successfully removed {role} addon from {target.GetNameWithRole().RemoveHtmlTags()}", "Bandit");
                 banditpc.RpcSetCustomRole(role);
                 Logger.Info($"Successfully Added {role} addon to {banditpc.GetNameWithRole().RemoveHtmlTags()}", "Bandit");
-                Utils.NotifyRoles(SpecifySeer: target);
+                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: banditpc);
             }
             Targets[banditId].Clear();
         }

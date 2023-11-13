@@ -260,7 +260,8 @@ namespace TOHE.Roles.Neutral
             Logger.Info($"InfectRate [{player.GetNameWithRole()}]: 100%", "PlagueDoctor");
             InfectInfos[player.PlayerId] = 100;
             SendRPC(player.PlayerId, 100);
-            Utils.NotifyRoles();
+            Utils.NotifyRoles(SpecifySeer: player);
+            Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(playerIdList[0]));
             CheckWin();
         }
         public static void CheckWin()

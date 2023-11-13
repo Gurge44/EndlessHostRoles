@@ -218,6 +218,8 @@ public class PlayerGameOptionsSender : GameOptionsSender
             case CustomRoles.Deputy:
             //case CustomRoles.Counterfeiter:
             case CustomRoles.Aid:
+            case CustomRoles.Escort:
+            case CustomRoles.DonutDelivery:
             case CustomRoles.Witness:
             case CustomRoles.Succubus:
             case CustomRoles.CursedSoul:
@@ -331,6 +333,12 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 Vulture.ApplyGameOptions(opt);
                 AURoleOptions.EngineerCooldown = 0f;
                 AURoleOptions.EngineerInVentMaxTime = 0f;
+                break;
+            case CustomRoles.Mafioso:
+                Mafioso.ApplyGameOptions(opt);
+                break;
+            case CustomRoles.Drainer:
+                Drainer.ApplyGameOptions(opt);
                 break;
             case CustomRoles.Poisoner:
                 Poisoner.ApplyGameOptions(opt);

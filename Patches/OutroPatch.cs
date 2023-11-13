@@ -20,7 +20,7 @@ class EndGamePatch
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         GameStates.InGame = false;
 
-        Logger.Info("-----------游戏结束-----------", "Phase");
+        Logger.Info("-----------Game over-----------", "Phase");
         if (!GameStates.IsModHost) return;
         SummaryText = new();
         foreach (var id in Main.PlayerStates.Keys)

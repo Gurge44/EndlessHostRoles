@@ -1,4 +1,5 @@
 using HarmonyLib;
+using static TOHE.Translator;
 
 namespace TOHE;
 
@@ -11,7 +12,7 @@ internal class OnDisconnectedPatch
     }
 }
 
-/* [HarmonyPatch(typeof(DisconnectPopup), nameof(DisconnectPopup.DoShow))]
+[HarmonyPatch(typeof(DisconnectPopup), nameof(DisconnectPopup.DoShow))]
 internal class ShowDisconnectPopupPatch
 {
     public static DisconnectReasons Reason;
@@ -69,4 +70,4 @@ internal class ShowDisconnectPopupPatch
             }
         }, 0.01f, "Override Disconnect Text");
     } 
-} */
+}

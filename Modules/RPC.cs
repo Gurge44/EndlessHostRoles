@@ -58,6 +58,12 @@ enum CustomRPC
 
     //Roles
     SetDrawPlayer,
+    SetDrainerLimit,
+    SetConsortLimit,
+    SetDonutLimit,
+    SetEscortLimit,
+    SyncMafiosoData,
+    SyncMafiosoPistolCD,
     SyncDamoclesTimer,
     SyncChronomancer,
     StealthDarken,
@@ -673,6 +679,18 @@ internal class RPCHandlerPatch
             case CustomRPC.SyncFFANameNotify:
                 FFAManager.ReceiveRPCSyncNameNotify(reader);
                 break;
+            case CustomRPC.SetDonutLimit:
+                DonutDelivery.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SetEscortLimit:
+                Escort.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncMafiosoData:
+                Mafioso.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncMafiosoPistolCD:
+                Mafioso.ReceiveRPCSyncPistolCD(reader);
+                break;
             case CustomRPC.SetMorticianArrow:
                 Mortician.ReceiveRPC(reader);
                 break;
@@ -729,6 +747,12 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SetInfectiousBiteLimit:
                 Infectious.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SetDrainerLimit:
+                Drainer.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SetConsortLimit:
+                Consort.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetMonarchKnightLimit:
                 Monarch.ReceiveRPC(reader);
@@ -1110,6 +1134,18 @@ internal static class RPC
             case CustomRoles.Tether:
                 Tether.Add(targetId);
                 break;
+            case CustomRoles.Escort:
+                Escort.Add(targetId);
+                break;
+            case CustomRoles.Drainer:
+                Drainer.Add(targetId);
+                break;
+            case CustomRoles.Consort:
+                Consort.Add(targetId);
+                break;
+            case CustomRoles.DonutDelivery:
+                DonutDelivery.Add(targetId);
+                break;
             case CustomRoles.Aid:
                 Aid.Add(targetId);
                 break;
@@ -1323,6 +1359,9 @@ internal static class RPC
                 break;
             case CustomRoles.Postman:
                 Postman.Add(targetId);
+                break;
+            case CustomRoles.Mafioso:
+                Mafioso.Add(targetId);
                 break;
             case CustomRoles.WeaponMaster:
                 WeaponMaster.Add(targetId);

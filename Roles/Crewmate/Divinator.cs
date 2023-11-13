@@ -121,6 +121,7 @@ public static class Divinator
                 //CustomRoles.Counterfeiter or
                 CustomRoles.Witness or
                 CustomRoles.Greedier or
+                CustomRoles.Consort or
                 CustomRoles.Ventguard or
                 CustomRoles.Merchant or
                 CustomRoles.Trickster
@@ -129,6 +130,7 @@ public static class Divinator
                 CustomRoles.Pestilence or
                 CustomRoles.PlagueBearer or
                 CustomRoles.Observer or
+                CustomRoles.DonutDelivery or
                 CustomRoles.BloodKnight or
                 CustomRoles.Guardian or
                 CustomRoles.Wildling
@@ -166,6 +168,7 @@ public static class Divinator
                 CustomRoles.BountyHunter or
                 CustomRoles.Detective or
                 CustomRoles.FFF or
+                CustomRoles.Mafioso or
                 CustomRoles.Cleaner or
                 CustomRoles.Medusa or
                 CustomRoles.Psychic
@@ -183,6 +186,7 @@ public static class Divinator
                 CustomRoles.Councillor or
                 CustomRoles.Dictator or
                 CustomRoles.Judge or
+                CustomRoles.Escort or
                 CustomRoles.CursedSoul or
                 CustomRoles.Cleanser or
                 CustomRoles.CursedWolf

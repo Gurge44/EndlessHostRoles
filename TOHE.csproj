@@ -10,6 +10,7 @@
 	  <AmongUs>E:\Program Files\AmongUs</AmongUs>
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	  <Optimize>True</Optimize>
+	  <AssemblyName>$(MSBuildProjectName)+</AssemblyName>
   </PropertyGroup>
 	
   <ItemGroup>

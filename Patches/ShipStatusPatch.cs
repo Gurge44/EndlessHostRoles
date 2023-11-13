@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TOHE.Roles.AddOns.Impostor;
 using TOHE.Roles.Crewmate;
+using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
 using UnityEngine;
 
@@ -33,11 +34,11 @@ public static class MessageReaderUpdateSystemPatch
 {
     public static void Prefix(ShipStatus __instance, [HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] PlayerControl player, [HarmonyArgument(2)] MessageReader reader)
     {
-        RepairSystemPatch.Prefix(__instance, systemType, player, MessageReader.Get(reader).ReadByte());
+        try { RepairSystemPatch.Prefix(__instance, systemType, player, MessageReader.Get(reader).ReadByte()); } catch { }
     }
     public static void Postfix(ShipStatus __instance, [HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] PlayerControl player, [HarmonyArgument(2)] MessageReader reader)
     {
-        RepairSystemPatch.Postfix(__instance, systemType, player, MessageReader.Get(reader).ReadByte());
+        try { RepairSystemPatch.Postfix(__instance, systemType, player, MessageReader.Get(reader).ReadByte()); } catch { }
     }
 }
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(PlayerControl), typeof(byte))]
@@ -96,6 +97,12 @@ class RepairSystemPatch
                 break;
             case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay:
                 if (Main.BlockSabo.Any()) return false;
+                if (Glitch.hackedIdList.ContainsKey(player.PlayerId))
+                {
+                    player.Notify(string.Format(Translator.GetString("HackedByGlitch"), "Sabotage"));
+                    return false;
+                }
+                if (player.Is(CustomRoles.Mafioso)) Mafioso.OnSabotage();
                 if (player.Is(CustomRoleTypes.Impostor) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool()) && !player.Is(CustomRoles.Minimalism)) return true;
                 switch (player.GetCustomRole())
                 {
@@ -165,7 +172,7 @@ class RepairSystemPatch
             }
         }
 
-        if (player.Is(CustomRoles.Damocles) && systemType is SystemTypes.Reactor or SystemTypes.LifeSupp or SystemTypes.Comms or SystemTypes.Laboratory or SystemTypes.HeliSabotage or SystemTypes.Electrical)
+        if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage && systemType is SystemTypes.Reactor or SystemTypes.LifeSupp or SystemTypes.Comms or SystemTypes.Laboratory or SystemTypes.HeliSabotage or SystemTypes.Electrical)
         {
             Damocles.OnRepairSabotage();
         }

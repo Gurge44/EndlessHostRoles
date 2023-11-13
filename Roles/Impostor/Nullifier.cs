@@ -63,6 +63,14 @@ namespace TOHE.Roles.Impostor
                         case CustomRoles.Aid:
                             Aid.UseLimit[target.PlayerId]--;
                             break;
+                        case CustomRoles.Escort:
+                            Escort.BlockLimit--;
+                            Escort.SendRPC();
+                            break;
+                        case CustomRoles.DonutDelivery:
+                            DonutDelivery.DeliverLimit--;
+                            DonutDelivery.SendRPC();
+                            break;
                         case CustomRoles.Bloodhound:
                             Bloodhound.UseLimit[target.PlayerId]--;
                             Bloodhound.SendRPCPlus(target.PlayerId);

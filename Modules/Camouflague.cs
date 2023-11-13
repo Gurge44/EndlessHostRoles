@@ -1,12 +1,13 @@
 using AmongUs.Data;
 using System.Collections.Generic;
 using TOHE.Roles.Impostor;
+using TOHE.Roles.Neutral;
 
 namespace TOHE;
 
 static class PlayerOutfitExtension
 {
-    public static GameData.PlayerOutfit Set(this GameData.PlayerOutfit instance, string playerName, int colorId, string hatId, string skinId, string visorId, string petId)
+    public static GameData.PlayerOutfit Set(this GameData.PlayerOutfit instance, string playerName, int colorId, string hatId, string skinId, string visorId, string petId, string nameplateId)
     {
         instance.PlayerName = playerName;
         instance.ColorId = colorId;
@@ -14,6 +15,7 @@ static class PlayerOutfitExtension
         instance.SkinId = skinId;
         instance.VisorId = visorId;
         instance.PetId = petId;
+        instance.NamePlateId = nameplateId;
         return instance;
     }
     public static bool Compare(this GameData.PlayerOutfit instance, GameData.PlayerOutfit targetOutfit)
@@ -32,74 +34,94 @@ static class PlayerOutfitExtension
 }
 public static class Camouflage
 {
-    static GameData.PlayerOutfit CamouflageOutfit = new GameData.PlayerOutfit().Set("", 15, "", "", "", ""); // Default
+    static GameData.PlayerOutfit CamouflageOutfit = new GameData.PlayerOutfit().Set("", 15, "", "", "", "", ""); // Default
 
     public static bool IsCamouflage;
     public static Dictionary<byte, GameData.PlayerOutfit> PlayerSkins = new();
+
+    public static List<byte> ResetSkinAfterDeathPlayers = new();
 
     public static void Init()
     {
         IsCamouflage = false;
         PlayerSkins.Clear();
+        ResetSkinAfterDeathPlayers = new();
 
         switch (Options.KPDCamouflageMode.GetValue())
         {
             case 0: // Default
                 CamouflageOutfit = new GameData.PlayerOutfit()
-                    .Set("", 15, "", "", "", "");
+                    .Set("", 15, "", "", "", "", "");
                 break;
 
             case 1: // Host's outfit
                 CamouflageOutfit = new GameData.PlayerOutfit()
-                    .Set("", DataManager.Player.Customization.Color, DataManager.Player.Customization.Hat, DataManager.Player.Customization.Skin, DataManager.Player.Customization.Visor, DataManager.Player.Customization.Pet);
+                    .Set("", DataManager.Player.Customization.Color, DataManager.Player.Customization.Hat, DataManager.Player.Customization.Skin, DataManager.Player.Customization.Visor, DataManager.Player.Customization.Pet, "");
                 break;
 
             case 2: // Karpe
                 CamouflageOutfit = new GameData.PlayerOutfit()
-                    .Set("", 13, "hat_pk05_Plant", "", "visor_BubbleBumVisor", "");
+                    .Set("", 13, "hat_pk05_Plant", "", "visor_BubbleBumVisor", "", "");
                 break;
 
-            case 3: // Loonie
+            case 3: // Lauryn
                 CamouflageOutfit = new GameData.PlayerOutfit()
-                    .Set("", 12, "hat_pkHW01_Wolf", "skin_scarfskin", "visor_Carrot", "pet_Pusheen");
+                    .Set("", 13, "hat_rabbitEars", "skin_Bananaskin", "visor_BubbleBumVisor", "pet_Pusheen", "");
                 break;
 
-            case 4: // Lauryn
+            case 4: // Moe
                 CamouflageOutfit = new GameData.PlayerOutfit()
-                    .Set("", 13, "hat_rabbitEars", "skin_Bananaskin", "visor_BubbleBumVisor", "pet_Pusheen");
+                    .Set("", 0, "hat_mira_headset_yellow", "skin_SuitB", "visor_lollipopCrew", "pet_EmptyPet", "");
                 break;
 
-            case 5: // Moe
+            case 5: // Pyro
                 CamouflageOutfit = new GameData.PlayerOutfit()
-                    .Set("", 4, "hat_mira_headset_yellow", "skin_SuitB", "visor_lollipopCrew", "pet_EmptyPet");
+                    .Set("", 17, "hat_pkHW01_Witch", "skin_greedygrampaskin", "visor_Plsno", "pet_Pusheen", "");
+                break;
+
+            case 6: // ryuk
+                CamouflageOutfit = new GameData.PlayerOutfit()
+                    .Set("", 7, "hat_crownDouble", "skin_D2Saint14", "visor_anime", "pet_Bush", "");
+                break;
+
+            case 7: // Gurge44
+                CamouflageOutfit = new GameData.PlayerOutfit()
+                    .Set("", 7, "hat_pk04_Snowman", "", "", "", "");
+                break;
+            case 8: // TommyXL
+                CamouflageOutfit = new GameData.PlayerOutfit()
+                    .Set("", 17, "hat_baseball_Black", "skin_Scientist-Darkskin", "visor_pusheenSmileVisor", "pet_Pip", "");
                 break;
         }
     }
     public static void CheckCamouflage()
     {
-        if (!(AmongUsClient.Instance.AmHost && (Options.CommsCamouflage.GetBool() || CustomRoles.Camouflager.IsEnable()))) return;
+        if (!(AmongUsClient.Instance.AmHost && (Options.CommsCamouflage.GetBool() || Camouflager.IsEnable))) return;
 
         var oldIsCamouflage = IsCamouflage;
 
-        IsCamouflage = (Utils.IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool() && (Main.NormalOptions.MapId != 5 || !Options.CommsCamouflageDisableOnFungle.GetBool())) || Camouflager.IsActive;
+        IsCamouflage = (Utils.IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool()) || Camouflager.IsActive;
 
         if (oldIsCamouflage != IsCamouflage)
         {
-            foreach (PlayerControl pc in Main.AllPlayerControls)
+            foreach (var pc in Main.AllPlayerControls)
             {
                 RpcSetSkin(pc);
             }
-            Utils.NotifyRoles();
+            Utils.NotifyRoles(NoCache: true);
         }
     }
-    public static void RpcSetSkin(PlayerControl target, bool ForceRevert = false, bool RevertToDefault = false)
+    public static void RpcSetSkin(PlayerControl target, bool ForceRevert = false, bool RevertToDefault = false, bool GameEnd = false)
     {
-        if (!(AmongUsClient.Instance.AmHost && (Options.CommsCamouflage.GetBool() || CustomRoles.Camouflager.IsEnable()))) return;
+        if (!(AmongUsClient.Instance.AmHost && (Options.CommsCamouflage.GetBool() || Camouflager.IsEnable))) return;
         if (target == null) return;
 
         var id = target.PlayerId;
 
-        if (IsCamouflage && Main.PlayerStates[id].IsDead) return;
+        if (IsCamouflage && Main.PlayerStates[id].IsDead)
+        {
+            return;
+        }
 
         var newOutfit = CamouflageOutfit;
 
@@ -113,13 +135,12 @@ public static class Camouflage
                 id = Main.ShapeshiftTarget[id];
             }
 
-            newOutfit = PlayerSkins[id];
+                newOutfit = PlayerSkins[id];
         }
-
         // if the current Outfit is the same, return it
         if (newOutfit.Compare(target.Data.DefaultOutfit)) return;
 
-        Logger.Info($"newOutfit = {newOutfit.GetString()}", "RpcSetSkin");
+        Logger.Info($"newOutfit={newOutfit.GetString()}", "RpcSetSkin");
 
         var sender = CustomRpcSender.Create(name: $"Camouflage.RpcSetSkin({target.Data.PlayerName})");
 

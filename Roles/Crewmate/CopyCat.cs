@@ -197,6 +197,9 @@ public static class CopyCat
             CustomRoles.Addict or
             CustomRoles.Alchemist or
             CustomRoles.Chameleon or
+            //bcoz im lazy
+            CustomRoles.Escort or
+            CustomRoles.DonutDelivery or
             //bcoz of arrows
             CustomRoles.Mortician or
             CustomRoles.Bloodhound or

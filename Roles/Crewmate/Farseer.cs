@@ -34,6 +34,8 @@ namespace TOHE.Roles.Crewmate
             CustomRoles.CameraMan,
             CustomRoles.NiceHacker,
             CustomRoles.Aid,
+            CustomRoles.DonutDelivery,
+            CustomRoles.Escort,
             CustomRoles.Tether,
             CustomRoles.Spy,
             CustomRoles.Ricochet,
@@ -143,7 +145,7 @@ namespace TOHE.Roles.Crewmate
                         else//それ以外は削除
                         {
                             Main.FarseerTimer.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
+                            NotifyRoles(SpecifySeer: player, SpecifyTarget: ar_target, ForceLoop: true);
                             RPC.ResetCurrentRevealTarget(player.PlayerId);
 
                             Logger.Info($"Canceled: {player.GetNameWithRole().RemoveHtmlTags()}", "Arsonist");

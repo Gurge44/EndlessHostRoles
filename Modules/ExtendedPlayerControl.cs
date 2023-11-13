@@ -465,6 +465,8 @@ static class ExtendedPlayerControl
             CustomRoles.RiftMaker => true,
             CustomRoles.Hitman => true,
             CustomRoles.Inhibitor => true,
+            CustomRoles.Consort => true,
+            CustomRoles.Mafioso => true,
             CustomRoles.Chronomancer => true,
             CustomRoles.Nullifier => true,
             CustomRoles.Stealth => true,
@@ -513,6 +515,8 @@ static class ExtendedPlayerControl
             CustomRoles.Nuker => false,
             CustomRoles.Innocent => true,
             CustomRoles.Aid => true,
+            CustomRoles.DonutDelivery => true,
+            CustomRoles.Escort => true,
             CustomRoles.Witness => true,
             CustomRoles.Pursuer => true,
             CustomRoles.Morphling => true,
@@ -573,6 +577,8 @@ static class ExtendedPlayerControl
             CustomRoles.Stealth => pc.IsAlive(),
             CustomRoles.Nullifier => pc.IsAlive(),
             CustomRoles.Chronomancer => pc.IsAlive(),
+            CustomRoles.Mafioso => pc.IsAlive(),
+            CustomRoles.Consort => pc.IsAlive(),
             CustomRoles.Inhibitor => !Utils.IsActive(SystemTypes.Electrical) && !Utils.IsActive(SystemTypes.Laboratory) && !Utils.IsActive(SystemTypes.Comms) && !Utils.IsActive(SystemTypes.LifeSupp) && !Utils.IsActive(SystemTypes.Reactor),
             CustomRoles.Saboteur => Utils.IsActive(SystemTypes.Electrical) || Utils.IsActive(SystemTypes.Laboratory) || Utils.IsActive(SystemTypes.Comms) || Utils.IsActive(SystemTypes.LifeSupp) || Utils.IsActive(SystemTypes.Reactor),
             CustomRoles.Sniper => Sniper.CanUseKillButton(pc),
@@ -620,6 +626,8 @@ static class ExtendedPlayerControl
             CustomRoles.Innocent => pc.IsAlive(),
             //CustomRoles.Counterfeiter => Counterfeiter.CanUseKillButton(pc.PlayerId),
             CustomRoles.Aid => pc.IsAlive() && Aid.UseLimit[pc.PlayerId] >= 1,
+            CustomRoles.Escort => pc.IsAlive() && Escort.BlockLimit >= 1,
+            CustomRoles.DonutDelivery => pc.IsAlive() && DonutDelivery.DeliverLimit >= 1,
             CustomRoles.Witness => pc.IsAlive(),
             CustomRoles.Pursuer => Pursuer.CanUseKillButton(pc.PlayerId),
             CustomRoles.Morphling => Morphling.CanUseKillButton(pc.PlayerId),
@@ -757,6 +765,8 @@ static class ExtendedPlayerControl
             CustomRoles.Pelican or
             //CustomRoles.Counterfeiter or
             CustomRoles.Aid or
+            CustomRoles.DonutDelivery or
+            CustomRoles.Escort or
             CustomRoles.Pursuer or
             CustomRoles.Revolutionist or
             CustomRoles.FFF or
@@ -890,6 +900,9 @@ static class ExtendedPlayerControl
             case CustomRoles.Inhibitor:
                 Main.AllPlayerKillCooldown[player.PlayerId] = Options.InhibitorCDAfterMeetings.GetFloat();
                 break;
+            case CustomRoles.Mafioso:
+                Mafioso.SetKillCooldown(player.PlayerId);
+                break;
             case CustomRoles.Chronomancer:
                 Chronomancer.SetKillCooldown(player.PlayerId);
                 break;
@@ -941,7 +954,6 @@ static class ExtendedPlayerControl
             case CustomRoles.Pestilence:
                 PlagueBearer.SetKillCooldownPestilence(player.PlayerId);
                 break;
-
             case CustomRoles.Councillor:
                 Councillor.SetKillCooldown(player.PlayerId);
                 break;
@@ -1054,6 +1066,12 @@ static class ExtendedPlayerControl
             //    break;
             case CustomRoles.Aid:
                 Aid.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.Escort:
+                Escort.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.DonutDelivery:
+                DonutDelivery.SetKillCooldown(player.PlayerId);
                 break;
             case CustomRoles.Witness:
                 Main.AllPlayerKillCooldown[player.PlayerId] = Options.WitnessCD.GetFloat();

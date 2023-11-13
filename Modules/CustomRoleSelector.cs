@@ -84,6 +84,7 @@ internal class CustomRoleSelector
             object cr = list[i1];
             CustomRoles role = (CustomRoles)Enum.Parse(typeof(CustomRoles), cr.ToString());
             if (role.IsVanilla() || role.IsAdditionRole()) continue;
+            if (role is CustomRoles.DarkHide && (MapNames)Main.NormalOptions.MapId == MapNames.Fungle) continue;
             if (role is CustomRoles.GM or CustomRoles.NotAssigned) continue;
             for (int i = 0; i < role.GetCount(); i++)
                 roleList.Add(role);
@@ -271,21 +272,8 @@ internal class CustomRoleSelector
             {
                 if (rolesToAssign.Contains(CustomRoles.Lovers))
                     rolesToAssign.Remove(CustomRoles.Lovers);
-                //if (rolesToAssign.Contains(CustomRoles.Ntr))
-                //    rolesToAssign.Remove(CustomRoles.Ntr);
             }
         }
-
-        {
-            /*  if (!rolesToAssign.Contains(CustomRoles.Lovers) && rolesToAssign.Contains(CustomRoles.FFF) || !rolesToAssign.Contains(CustomRoles.Ntr) && rolesToAssign.Contains(CustomRoles.FFF))
-                  rolesToAssign.Remove(CustomRoles.FFF); 
-                  rolesToAssign.Add(CustomRoles.Jester); */
-
-        }
-        /*   if (!Options.DisableSaboteur.GetBool()) // no longer hidden
-           {
-               if (rd.Next(0, 100) < 25 && rolesToAssign.Remove(CustomRoles.Inhibitor)) rolesToAssign.Add(CustomRoles.Saboteur);
-           } */
 
         // EAC封禁名单玩家开房将被分配为小丑
         if (BanManager.CheckEACList(PlayerControl.LocalPlayer.FriendCode))
@@ -401,6 +389,7 @@ internal class CustomRoleSelector
             object cr = list[i];
             CustomRoles role = (CustomRoles)Enum.Parse(typeof(CustomRoles), cr.ToString());
             if (!role.IsAdditionRole()) continue;
+            if (role is CustomRoles.Mare && (MapNames)Main.NormalOptions.MapId == MapNames.Fungle) continue;
             if (role is CustomRoles.Madmate && Options.MadmateSpawnMode.GetInt() != 0) continue;
             if (role is CustomRoles.Lovers or CustomRoles.LastImpostor or CustomRoles.Workhorse) continue;
             AddonRolesList.Add(role);

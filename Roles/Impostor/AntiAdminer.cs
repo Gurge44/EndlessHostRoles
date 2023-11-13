@@ -121,10 +121,7 @@ internal class AntiAdminer
             foreach (byte pc in playerIdList.ToArray())
             {
                 Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc));
-            }
-            foreach (PlayerControl pc in Main.AllPlayerControls)
-            {
-                FixedUpdatePatch.Postfix(pc);
+                FixedUpdatePatch.Postfix(Utils.GetPlayerById(pc));
             }
         }
     }

@@ -123,10 +123,7 @@ internal class Monitor
             foreach (byte pc in playerIdList.ToArray())
             {
                 Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc));
-            }
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-            {
-                FixedUpdatePatch.Postfix(pc);
+                FixedUpdatePatch.Postfix(Utils.GetPlayerById(pc));
             }
         }
     }

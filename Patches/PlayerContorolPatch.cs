@@ -16,6 +16,7 @@ using TOHE.Roles.Neutral;
 using UnityEngine;
 using static TOHE.Translator;
 using static TOHE.Utils;
+using static UnityEngine.GraphicsBuffer;
 
 namespace TOHE;
 
@@ -235,6 +236,12 @@ class CheckMurderPatch
                 case CustomRoles.Magician:
                     Magician.OnCheckMurder(killer);
                     break;
+                case CustomRoles.DonutDelivery:
+                    DonutDelivery.OnCheckMurder(killer, target);
+                    return false;
+                case CustomRoles.Escort:
+                    Escort.OnCheckMurder(killer, target);
+                    return false;
                 case CustomRoles.WeaponMaster:
                     if (!WeaponMaster.OnCheckMurder(killer, target)) return false;
                     break;
@@ -253,6 +260,12 @@ class CheckMurderPatch
                         Main.AllPlayerKillCooldown[killer.PlayerId] = Options.InhibitorCD.GetFloat();
                         killer.SyncSettings();
                     }
+                    break;
+                case CustomRoles.Consort:
+                    if (!Consort.OnCheckMurder(killer, target)) return false;
+                    break;
+                case CustomRoles.Mafioso:
+                    if (!Mafioso.OnCheckMurder(killer, target)) return false;
                     break;
                 case CustomRoles.Nullifier:
                     if (Nullifier.OnCheckMurder(killer, target)) return false;
@@ -458,7 +471,7 @@ class CheckMurderPatch
                     if (!Main.isDoused[(killer.PlayerId, target.PlayerId)] && !Main.ArsonistTimer.ContainsKey(killer.PlayerId))
                     {
                         Main.ArsonistTimer.Add(killer.PlayerId, (target, 0f));
-                        NotifyRoles(SpecifySeer: __instance);
+                        NotifyRoles(SpecifySeer: __instance, SpecifyTarget: target, ForceLoop: true);
                         RPC.SetCurrentDousingTarget(killer.PlayerId, target.PlayerId);
                     }
                     return false;
@@ -467,7 +480,7 @@ class CheckMurderPatch
                     if (!Main.isDraw[(killer.PlayerId, target.PlayerId)] && !Main.RevolutionistTimer.ContainsKey(killer.PlayerId))
                     {
                         Main.RevolutionistTimer.TryAdd(killer.PlayerId, (target, 0f));
-                        NotifyRoles(SpecifySeer: __instance);
+                        NotifyRoles(SpecifySeer: __instance, SpecifyTarget: target, ForceLoop: true);
                         RPC.SetCurrentDrawTarget(killer.PlayerId, target.PlayerId);
                     }
                     return false;
@@ -476,7 +489,7 @@ class CheckMurderPatch
                     if (!Main.isRevealed[(killer.PlayerId, target.PlayerId)] && !Main.FarseerTimer.ContainsKey(killer.PlayerId))
                     {
                         Main.FarseerTimer.TryAdd(killer.PlayerId, (target, 0f));
-                        NotifyRoles(SpecifySeer: __instance);
+                        NotifyRoles(SpecifySeer: __instance, SpecifyTarget: target, ForceLoop: true);
                         RPC.SetCurrentRevealTarget(killer.PlayerId, target.PlayerId);
                     }
                     return false;
@@ -1088,6 +1101,9 @@ class MurderPlayerPatch
             case CustomRoles.BloodKnight:
                 BloodKnight.OnMurderPlayer(killer, target);
                 break;
+            case CustomRoles.Mafioso:
+                Mafioso.OnMurder();
+                break;
             case CustomRoles.Wildling:
                 Wildling.OnMurderPlayer(killer, target);
                 break;
@@ -1196,7 +1212,7 @@ class MurderPlayerPatch
         else
         {
             SyncAllSettings();
-            NotifyRoles();
+            NotifyRoles(ForceLoop: true);
         }
     }
 }
@@ -1394,7 +1410,7 @@ class ShapeshiftPatch
                             //{
                             //    shapeshifter.CmdCheckRevertShapeshift(false);
                             //}
-                            NotifyRoles();
+                            NotifyRoles(ForceLoop: true);
                         }, 1.5f, "Bomber Suiscide");
                     }
                     isSSneeded = false;
@@ -1434,7 +1450,7 @@ class ShapeshiftPatch
                             //{
                             //    shapeshifter.CmdCheckRevertShapeshift(false);
                             //}
-                            NotifyRoles();
+                            NotifyRoles(ForceLoop: true);
                         }, 1.5f, "Nuke");
                     }
                     isSSneeded = false;
@@ -1713,6 +1729,8 @@ class ReportDeadBodyPatch
         //    Hereinafter, it is assumed that it is confirmed that the button is pressed.
         //====================================================================================
 
+        Damocles.countRepairSabotage = false;
+
         if (target == null) //ボタン
         {
             if (player.Is(CustomRoles.Mayor))
@@ -1795,6 +1813,7 @@ class ReportDeadBodyPatch
         if (Jailor.IsEnable) Jailor.OnReportDeadBody();
         if (Ricochet.IsEnable) Ricochet.OnReportDeadBody();
         if (Mastermind.IsEnable) Mastermind.OnReportDeadBody();
+        if (Mafioso.IsEnable) Mafioso.OnReportDeadBody();
         if (RiftMaker.IsEnable) RiftMaker.OnReportDeadBody();
         if (Hitman.IsEnable) Hitman.OnReportDeadBody();
         if (Gambler.IsEnable) Gambler.OnReportDeadBody();
@@ -1856,7 +1875,7 @@ class ReportDeadBodyPatch
 
         NotifyRoles(isForMeeting: true, NoCache: true, CamouflageIsForMeeting: true, GuesserIsForMeeting: true);
 
-        _ = new LateTask(SyncAllSettings, 3f);
+        _ = new LateTask(SyncAllSettings, 3f, "SyncAllSettings on meeting start");
     }
     public static async void ChangeLocalNameAndRevert(string name, int time)
     {
@@ -2003,6 +2022,9 @@ class FixedUpdatePatch
                 case CustomRoles.Magician when !lowLoad:
                     Magician.OnFixedUpdate(player);
                     break;
+                case CustomRoles.Mafioso when !lowLoad:
+                    Mafioso.OnFixedUpdate(player);
+                    break;
                 case CustomRoles.SerialKiller:
                     SerialKiller.FixedUpdate(player);
                     break;
@@ -2033,12 +2055,12 @@ class FixedUpdatePatch
                 PlagueBearer.playerIdList.Remove(player.PlayerId);
             }
 
-            if (!lowLoad && player.Is(CustomRoles.Damocles))
+            if (!lowLoad && Main.PlayerStates.TryGetValue(player.PlayerId, out var playerState) && playerState.SubRoles.Contains(CustomRoles.Damocles) && GameStates.IsInTask)
             {
                 Damocles.Update(player);
             }
 
-            if (!lowLoad && Options.UsePets.GetBool())
+            if (!lowLoad && Options.UsePets.GetBool() && GameStates.IsInTask)
             {
                 switch (player.GetCustomRole())
                 {
@@ -2295,10 +2317,11 @@ class FixedUpdatePatch
             #region 纵火犯浇油处理
             if (GameStates.IsInTask && Main.ArsonistTimer.ContainsKey(player.PlayerId))//アーソニストが誰かを塗っているとき
             {
+                var arTarget = Main.ArsonistTimer[player.PlayerId].Item1;
                 if (!player.IsAlive() || Pelican.IsEaten(player.PlayerId))
                 {
                     Main.ArsonistTimer.Remove(player.PlayerId);
-                    NotifyRoles(SpecifySeer: __instance);
+                    NotifyRoles(SpecifySeer: __instance, SpecifyTarget: arTarget, ForceLoop: true);
                     RPC.ResetCurrentDousingTarget(player.PlayerId);
                 }
                 else
@@ -2315,7 +2338,7 @@ class FixedUpdatePatch
                         Main.ArsonistTimer.Remove(player.PlayerId);//塗が完了したのでDictionaryから削除
                         Main.isDoused[(player.PlayerId, ar_target.PlayerId)] = true;//塗り完了
                         player.RpcSetDousedPlayer(ar_target, true);
-                        NotifyRoles(SpecifySeer: player);//名前変更
+                        NotifyRoles(SpecifySeer: player, SpecifyTarget: arTarget, ForceLoop: true);//名前変更
                         RPC.ResetCurrentDousingTarget(player.PlayerId);
                     }
                     else
@@ -2330,7 +2353,7 @@ class FixedUpdatePatch
                         else//それ以外は削除
                         {
                             Main.ArsonistTimer.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
+                            NotifyRoles(SpecifySeer: player, SpecifyTarget: arTarget, ForceLoop: true);
                             RPC.ResetCurrentDousingTarget(player.PlayerId);
 
                             Logger.Info($"Canceled: {player.GetNameWithRole().RemoveHtmlTags()}", "Arsonist");
@@ -2343,10 +2366,11 @@ class FixedUpdatePatch
             #region 革命家拉人处理
             if (GameStates.IsInTask && Main.RevolutionistTimer.ContainsKey(player.PlayerId))//当革命家拉拢一个玩家时
             {
+                var rvTarget = Main.RevolutionistTimer[player.PlayerId].Item1;
                 if (!player.IsAlive() || Pelican.IsEaten(player.PlayerId))
                 {
                     Main.RevolutionistTimer.Remove(player.PlayerId);
-                    NotifyRoles(SpecifySeer: player);
+                    NotifyRoles(SpecifySeer: player, SpecifyTarget: rvTarget, ForceLoop: true);
                     RPC.ResetCurrentDrawTarget(player.PlayerId);
                 }
                 else
@@ -2363,7 +2387,7 @@ class FixedUpdatePatch
                         Main.RevolutionistTimer.Remove(player.PlayerId);//拉拢完成从字典中删除
                         Main.isDraw[(player.PlayerId, rv_target.PlayerId)] = true;//完成拉拢
                         player.RpcSetDrawPlayer(rv_target, true);
-                        NotifyRoles(SpecifySeer: player);
+                        NotifyRoles(SpecifySeer: player, SpecifyTarget: rv_target, ForceLoop: true);
                         RPC.ResetCurrentDrawTarget(player.PlayerId);
                         if (IRandom.Instance.Next(1, 100) <= Options.RevolutionistKillProbability.GetInt())
                         {
@@ -2615,7 +2639,6 @@ class FixedUpdatePatch
                                     target.MarkDirtySettings();
                                     Main.PuppeteerList.Remove(player.PlayerId);
                                     Main.PuppeteerDelayList.Remove(player.PlayerId);
-                                    //Utils.NotifyRoles();
                                     NotifyRoles(SpecifySeer: player);
                                     NotifyRoles(SpecifySeer: target);
                                 }
@@ -2659,7 +2682,6 @@ class FixedUpdatePatch
                                     player.MarkDirtySettings();
                                     target.MarkDirtySettings();
                                     Main.TaglockedList.Remove(player.PlayerId);
-                                    //Utils.NotifyRoles();
                                     NotifyRoles(SpecifySeer: player);
                                     NotifyRoles(SpecifySeer: target);
                                 }
@@ -3090,11 +3112,21 @@ class SetColorPatch
     }
 }
 
+[HarmonyPatch(typeof(Vent), nameof(Vent.ExitVent))]
+class ExitVentPatch
+{
+    public static void Postfix(Vent __instance, [HarmonyArgument(0)] PlayerControl pc)
+    {
+        Drainer.OnOtherPlayerExitVent(pc, __instance.Id);
+    }
+}
 [HarmonyPatch(typeof(Vent), nameof(Vent.EnterVent))]
 class EnterVentPatch
 {
     public static void Postfix(Vent __instance, [HarmonyArgument(0)] PlayerControl pc)
     {
+        Drainer.OnOtherPlayerEnterVent(pc, __instance.Id);
+
         if (Witch.IsEnable) Witch.OnEnterVent(pc);
         if (HexMaster.IsEnable) HexMaster.OnEnterVent(pc);
 
@@ -3185,6 +3217,9 @@ class EnterVentPatch
                 break;
             case CustomRoles.Werewolf:
                 Werewolf.OnEnterVent(pc);
+                break;
+            case CustomRoles.Mafioso:
+                Mafioso.OnEnterVent(__instance.Id);
                 break;
             case CustomRoles.Lurker:
                 Lurker.OnEnterVent(pc);
@@ -3581,7 +3616,7 @@ class PlayerControlCompleteTaskPatch
         {
             foreach (var impostor in Main.AllAlivePlayerControls.Where(pc => pc.Is(CustomRoleTypes.Impostor)).ToArray())
                 NameColorManager.Add(impostor.PlayerId, pc.PlayerId, "#ff1919");
-            NotifyRoles(SpecifySeer: pc);
+            NotifyRoles(SpecifySeer: pc, ForceLoop: true);
         }
         if (isTaskFinish &&
             pc.GetCustomRole() is CustomRoles.Doctor or CustomRoles.Sunnyboy or CustomRoles.SpeedBooster)

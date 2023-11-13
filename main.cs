@@ -33,8 +33,8 @@ public class Main : BasePlugin
     public static ConfigEntry<string> DebugKeyInput { get; private set; }
     public static readonly string MainMenuText = " ";
     public const string PluginGuid = "com.gurge44.toheplus";
-    public const string PluginVersion = "1.3.1";
-    public const string PluginDisplayVersion = "1.3.1";
+    public const string PluginVersion = "1.3.2";
+    public const string PluginDisplayVersion = "1.3.2";
     public static readonly string SupportedAUVersion = "2023.10.24";
     public const int PluginCreate = 3;
     public const bool Canary = false;
@@ -354,8 +354,11 @@ public class Main : BasePlugin
                 {CustomRoles.Express, "#00ffff"},
                 {CustomRoles.NiceEraser, "#00a5ff"},
                 {CustomRoles.TaskManager, "#00ffa5"},
+                {CustomRoles.Drainer, "#149627"},
                 {CustomRoles.NiceHacker, "#75fa4c"},
                 {CustomRoles.Aid, "#D7BDE2"},
+                {CustomRoles.DonutDelivery, "##a46efa"},
+                {CustomRoles.Escort, "##ff94e6"},
                 {CustomRoles.Spy, "#34495E"},
                 {CustomRoles.Doormaster, "#7FB3D5"},
                 {CustomRoles.Tether, "#138D75"},
@@ -648,6 +651,7 @@ public enum CustomRoles
     TimeThief,
     EvilTracker,
     AntiAdminer,
+    Consort,
     Sans,
     Bomber,
     Nuker,
@@ -665,6 +669,7 @@ public enum CustomRoles
     OverKiller,
     Hangman,
     Bard,
+    Mafioso,
     Trickster,
     Swooper,
     Crewpostor,
@@ -704,6 +709,7 @@ public enum CustomRoles
     Express,
     NiceEraser,
     TaskManager,
+    Drainer,
     CameraMan,
     NiceHacker,
     Spy,
@@ -711,6 +717,8 @@ public enum CustomRoles
     Doormaster,
     Tether,
     Aid,
+    Escort,
+    DonutDelivery,
     Mayor,
     Jailor,
     Paranoia,

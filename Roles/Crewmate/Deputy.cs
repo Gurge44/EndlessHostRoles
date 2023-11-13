@@ -78,12 +78,8 @@ public static class Deputy
                     target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("HandcuffedByDeputy")));
                     if (target.IsModClient()) target.RpcResetAbilityCooldown();
                     if (!target.IsModClient()) target.RpcGuardAndKill(target);
-                    Utils.NotifyRoles(SpecifySeer: killer);
-                    Utils.NotifyRoles(SpecifySeer: target);
                 }
             }, DeputyHandcuffDelay.GetInt());
-            Utils.NotifyRoles(SpecifySeer: killer);
-            Utils.NotifyRoles(SpecifySeer: target);
 
             killer.SetKillCooldown();
 
