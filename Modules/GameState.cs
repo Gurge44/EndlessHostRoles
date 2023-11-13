@@ -489,15 +489,29 @@ public class TaskState
                         break;
                 }
             }
-            if (player.Is(CustomRoles.Express) && player.IsAlive())
+
+            if (player.IsAlive())
             {
-                if (!Main.ExpressSpeedUp.ContainsKey(player.PlayerId)) Main.ExpressSpeedNormal = Main.AllPlayerSpeed[player.PlayerId];
-                Main.AllPlayerSpeed[player.PlayerId] = Options.ExpressSpeed.GetFloat();
-                Main.ExpressSpeedUp.Remove(player.PlayerId);
-                Main.ExpressSpeedUp.TryAdd(player.PlayerId, Utils.GetTimeStamp());
-                player.SyncSettings();
+                switch (player.GetCustomRole())
+                {
+                    case CustomRoles.Express:
+                        if (!Main.ExpressSpeedUp.ContainsKey(player.PlayerId)) Main.ExpressSpeedNormal = Main.AllPlayerSpeed[player.PlayerId];
+                        Main.AllPlayerSpeed[player.PlayerId] = Options.ExpressSpeed.GetFloat();
+                        Main.ExpressSpeedUp.Remove(player.PlayerId);
+                        Main.ExpressSpeedUp.TryAdd(player.PlayerId, Utils.GetTimeStamp());
+                        player.SyncSettings();
+                        break;
+                    case CustomRoles.Alchemist:
+                        Alchemist.OnTaskComplete(player);
+                        break;
+                    case CustomRoles.Transmitter:
+                        Transmitter.OnTaskComplete(player);
+                        break;
+                    case CustomRoles.Autocrat:
+                        Autocrat.OnTaskComplete(player);
+                        break;
+                }
             }
-            if (player.Is(CustomRoles.Alchemist) && player.IsAlive()) Alchemist.OnTaskComplete(player);
 
             if (player.Is(CustomRoles.Ghoul) && (CompletedTasksCount + 1) >= AllTasksCount && player.IsAlive())
                 _ = new LateTask(() =>

@@ -186,144 +186,32 @@ class BeginCrewmatePatch
         }
         try
         {
-            switch (role)
+            PlayerControl.LocalPlayer.Data.Role.IntroSound = role switch
             {
-                case CustomRoles.Terrorist:
-                case CustomRoles.Sapper:
-                case CustomRoles.Bomber:
-                case CustomRoles.Nuker:
-                    var sound = ShipStatus.Instance.CommonTasks.FirstOrDefault(task => task.TaskType == TaskTypes.FixWiring).MinigamePrefab.OpenSound;
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = sound;
-                    break;
-
-                case CustomRoles.Sheriff:
-                case CustomRoles.Veteran:
-                    var sound2 = ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.PutAwayPistols).MinigamePrefab.OpenSound;
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = sound2;
-                    break;
-
-                case CustomRoles.Cleaner:
-                case CustomRoles.Cleanser:
-                    var sound3 = ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.PolishRuby).MinigamePrefab.OpenSound;
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = sound3;
-                    break;
-
-                case CustomRoles.Dictator:
-                case CustomRoles.Lawyer:
-                case CustomRoles.Judge:
-                case CustomRoles.Mayor:
-                    var sound4 = ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.FixShower).MinigamePrefab.OpenSound;
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = sound4;
-                    break;
-
-                case CustomRoles.Monitor:
-                case CustomRoles.AntiAdminer:
-                    var sound5 = ShipStatus.Instance.LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.ResetBreakers).MinigamePrefab.OpenSound;
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = sound5;
-                    break;
-
-                case CustomRoles.EvilTracker:
-                case CustomRoles.Tracefinder:
-                case CustomRoles.Tracker:
-                case CustomRoles.Bloodhound:
-                case CustomRoles.Mortician:
-                case CustomRoles.Lighter:
-                    var sound8 = ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.DivertPower).MinigamePrefab.OpenSound;
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = sound8;
-                    break;
-
-                case CustomRoles.Oracle:
-                case CustomRoles.Divinator:
-                case CustomRoles.Mediumshiper:
-                case CustomRoles.DovesOfNeace:
-                case CustomRoles.Spiritualist:
-                case CustomRoles.Spiritcaller:
-                case CustomRoles.Farseer:
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.GuardianAngel);
-                    break;
-
-                case CustomRoles.Alchemist:
-                    var sound7 = ShipStatus.Instance.LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.DevelopPhotos).MinigamePrefab.OpenSound;
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = sound7;
-                    break;
-
-                case CustomRoles.Deputy:
-                case CustomRoles.Jailor:
-                    var sound6 = ShipStatus.Instance.LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.UnlockSafe).MinigamePrefab.OpenSound;
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = sound6;
-                    break;
-
-                case CustomRoles.Workaholic:
-                case CustomRoles.Speedrunner:
-                case CustomRoles.Snitch:
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = DestroyableSingleton<HudManager>.Instance.TaskCompleteSound;
-                    break;
-
-                case CustomRoles.TaskManager:
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = DestroyableSingleton<HudManager>.Instance.TaskUpdateSound;
-                    break;
-
-                case CustomRoles.Opportunist:
-                case CustomRoles.FFF:
-                case CustomRoles.Revolutionist:
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Crewmate);
-                    break;
-
-                case CustomRoles.SabotageMaster:
-                case CustomRoles.Engineer:
-                case CustomRoles.EngineerTOHE:
-                case CustomRoles.Inhibitor:
-                case CustomRoles.Saboteur:
-                case CustomRoles.SecurityGuard:
-                case CustomRoles.Provocateur:
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = ShipStatus.Instance.SabotageSound;
-                    break;
-
-                case CustomRoles.Mastermind:
-                case CustomRoles.Gambler:
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
-                    break;
-
-                case CustomRoles.Doctor:
-                case CustomRoles.Medic:
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Scientist);
-                    break;
-
-                case CustomRoles.GM:
-                    __instance.TeamTitle.text = Utils.GetRoleName(role);
-                    __instance.TeamTitle.color = Utils.GetRoleColor(role);
-                    __instance.BackgroundBar.material.color = Utils.GetRoleColor(role);
-                    __instance.ImpostorText.gameObject.SetActive(false);
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = DestroyableSingleton<HudManager>.Instance.TaskCompleteSound;
-                    break;
-                case CustomRoles.SwordsMan:
-                case CustomRoles.Minimalism:
-                //case CustomRoles.Reverie:
-                case CustomRoles.NiceGuesser:
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = PlayerControl.LocalPlayer.KillSfx;
-                    break;
-                case CustomRoles.Swooper:
-                case CustomRoles.Wraith:
-                case CustomRoles.Chameleon:
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = PlayerControl.LocalPlayer.MyPhysics.ImpostorDiscoveredSound;
-                    break;
-                case CustomRoles.Addict:
-                case CustomRoles.Ventguard:
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = ShipStatus.Instance.VentEnterSound;
-                    break;
-                case CustomRoles.ParityCop:
-                case CustomRoles.NiceEraser:
-                case CustomRoles.TimeManager:
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = MeetingHud.Instance.VoteLockinSound;
-                    break;
-                case CustomRoles.Demolitionist:
-                case CustomRoles.TimeMaster:
-                case CustomRoles.Grenadier:
-                case CustomRoles.Miner:
-                case CustomRoles.Disperser:
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = ShipStatus.Instance.VentMoveSounds.FirstOrDefault();
-                    break;
-            }
+                CustomRoles.Terrorist or CustomRoles.Sapper or CustomRoles.Bomber or CustomRoles.Nuker => ShipStatus.Instance.CommonTasks.FirstOrDefault(task => task.TaskType == TaskTypes.FixWiring).MinigamePrefab.OpenSound,
+                CustomRoles.Sheriff or CustomRoles.Veteran => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.PutAwayPistols).MinigamePrefab.OpenSound,
+                CustomRoles.Cleaner or CustomRoles.Cleanser => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.PolishRuby).MinigamePrefab.OpenSound,
+                CustomRoles.Dictator or CustomRoles.Lawyer or CustomRoles.Judge or CustomRoles.Mayor => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.FixShower).MinigamePrefab.OpenSound,
+                CustomRoles.Monitor or CustomRoles.AntiAdminer => ShipStatus.Instance.LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.ResetBreakers).MinigamePrefab.OpenSound,
+                CustomRoles.EvilTracker or CustomRoles.Tracefinder or CustomRoles.Tracker or CustomRoles.Bloodhound or CustomRoles.Mortician or CustomRoles.Lighter => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.DivertPower).MinigamePrefab.OpenSound,
+                CustomRoles.Oracle or CustomRoles.Divinator or CustomRoles.Mediumshiper or CustomRoles.DovesOfNeace or CustomRoles.Spiritualist or CustomRoles.Spiritcaller or CustomRoles.Farseer => GetIntroSound(RoleTypes.GuardianAngel),
+                CustomRoles.Alchemist => ShipStatus.Instance.LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.DevelopPhotos).MinigamePrefab.OpenSound,
+                CustomRoles.Deputy or CustomRoles.Jailor => ShipStatus.Instance.LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.UnlockSafe).MinigamePrefab.OpenSound,
+                CustomRoles.Workaholic or CustomRoles.Speedrunner or CustomRoles.Snitch => DestroyableSingleton<HudManager>.Instance.TaskCompleteSound,
+                CustomRoles.TaskManager => DestroyableSingleton<HudManager>.Instance.TaskUpdateSound,
+                CustomRoles.Opportunist or CustomRoles.FFF or CustomRoles.Revolutionist => GetIntroSound(RoleTypes.Crewmate),
+                CustomRoles.Nightmare => GetIntroSound(RoleTypes.Impostor),
+                CustomRoles.SabotageMaster or CustomRoles.Engineer or CustomRoles.EngineerTOHE or CustomRoles.Inhibitor or CustomRoles.Saboteur or CustomRoles.SecurityGuard or CustomRoles.Provocateur => ShipStatus.Instance.SabotageSound,
+                CustomRoles.Mastermind or CustomRoles.Gambler => GetIntroSound(RoleTypes.Shapeshifter),
+                CustomRoles.Doctor or CustomRoles.Medic => GetIntroSound(RoleTypes.Scientist),
+                CustomRoles.GM => DestroyableSingleton<HudManager>.Instance.TaskCompleteSound,
+                CustomRoles.SwordsMan or CustomRoles.Minimalism or CustomRoles.NiceGuesser => PlayerControl.LocalPlayer.KillSfx,
+                CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Chameleon => PlayerControl.LocalPlayer.MyPhysics.ImpostorDiscoveredSound,
+                CustomRoles.Addict or CustomRoles.Ventguard => ShipStatus.Instance.VentEnterSound,
+                CustomRoles.ParityCop or CustomRoles.NiceEraser or CustomRoles.TimeManager => MeetingHud.Instance.VoteLockinSound,
+                CustomRoles.Demolitionist or CustomRoles.TimeMaster or CustomRoles.Grenadier or CustomRoles.Miner or CustomRoles.Disperser => ShipStatus.Instance.VentMoveSounds.FirstOrDefault(),
+                _ => PlayerControl.LocalPlayer.Is(RoleTypes.Impostor) ? PlayerControl.LocalPlayer.Is(RoleTypes.Shapeshifter) ? GetIntroSound(RoleTypes.Shapeshifter) : GetIntroSound(RoleTypes.Impostor) : GetIntroSound(RoleTypes.Crewmate),
+            };
         }
         catch (Exception ex)
         {
@@ -340,6 +228,14 @@ class BeginCrewmatePatch
                     break;
             }
             Logger.Warn($"Could not set intro sound\n{ex}", "IntroSound");
+        }
+
+        if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))
+        {
+            __instance.TeamTitle.text = Utils.GetRoleName(role);
+            __instance.TeamTitle.color = Utils.GetRoleColor(role);
+            __instance.BackgroundBar.material.color = Utils.GetRoleColor(role);
+            __instance.ImpostorText.gameObject.SetActive(false);
         }
 
         if (PlayerControl.LocalPlayer.Is(CustomRoles.Madmate))

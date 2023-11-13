@@ -965,6 +965,9 @@ public static class Utils
                 case CustomRoles.Crusader:
                     ProgressText.Append(Crusader.GetSkillLimit(playerId));
                     break;
+                case CustomRoles.Benefactor:
+                    ProgressText.Append(Benefactor.GetProgressText(playerId));
+                    break;
                 case CustomRoles.TaskManager:
                     var taskState1 = Main.PlayerStates?[playerId].GetTaskState();
                     Color TextColor1;
@@ -2500,6 +2503,7 @@ public static class Utils
         if (PlagueDoctor.IsEnable) PlagueDoctor.AfterMeetingTasks();
         if (Penguin.IsEnable) Penguin.AfterMeetingTasks();
         if (Chronomancer.IsEnable) Chronomancer.OnReportDeadBody();
+        if (Benefactor.IsEnable) Benefactor.AfterMeetingTasks();
         if (Vulture.IsEnable) Vulture.AfterMeetingTasks();
         //if (Baker.IsEnable()) Baker.AfterMeetingTasks();
         if (CopyCat.IsEnable()) CopyCat.AfterMeetingTasks();

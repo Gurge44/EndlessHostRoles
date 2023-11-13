@@ -58,6 +58,7 @@ enum CustomRPC
 
     //Roles
     SetDrawPlayer,
+    SyncBenefactorMarkedTask,
     SetDrainerLimit,
     SetConsortLimit,
     SetDonutLimit,
@@ -763,6 +764,9 @@ internal class RPCHandlerPatch
             case CustomRPC.SetRitualist:
                 Ritualist.ReceiveRPC(reader);
                 break;
+            case CustomRPC.SyncBenefactorMarkedTask:
+                Benefactor.ReceiveRPC(reader);
+                break;
             case CustomRPC.SetDeputyHandcuffLimit:
                 Deputy.ReceiveRPC(reader);
                 break;
@@ -1133,6 +1137,9 @@ internal static class RPC
             //    break;
             case CustomRoles.Tether:
                 Tether.Add(targetId);
+                break;
+            case CustomRoles.Benefactor:
+                Benefactor.Add(targetId);
                 break;
             case CustomRoles.Escort:
                 Escort.Add(targetId);

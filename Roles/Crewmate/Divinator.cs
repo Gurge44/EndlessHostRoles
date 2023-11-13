@@ -332,6 +332,7 @@ public static class Divinator
                 CustomRoles.Spiritualist or
                 CustomRoles.Parasite or
                 CustomRoles.CameraMan or
+                CustomRoles.Nightmare or
                 CustomRoles.Swooper or
                 CustomRoles.Wraith
                 => "Result26",
@@ -339,6 +340,7 @@ public static class Divinator
                 CustomRoles.TimeManager or
                 CustomRoles.TimeMaster or
                 CustomRoles.TimeThief or
+                CustomRoles.Autocrat or
                 CustomRoles.PlagueDoctor or
                 CustomRoles.ShapeMaster or
                 CustomRoles.Tether or
@@ -350,6 +352,7 @@ public static class Divinator
                 CustomRoles.Transporter or
                 CustomRoles.Chronomancer or
                 CustomRoles.Twister or
+                CustomRoles.Transmitter or
                 CustomRoles.Aid or
                 CustomRoles.SerialKiller
                 => "Result28",
@@ -358,6 +361,7 @@ public static class Divinator
                 CustomRoles.Marshall or
                 CustomRoles.Workaholic or
                 CustomRoles.Nullifier or
+                CustomRoles.Altruist or
                 CustomRoles.Phantom or
                 CustomRoles.Speedrunner or
                 CustomRoles.Terrorist

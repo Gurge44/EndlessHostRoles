@@ -226,6 +226,7 @@ internal class ChangeRoleSettings
             Pelican.Init();
             //Counterfeiter.Init();
             Tether.Init();
+            Benefactor.Init();
             Aid.Init();
             DonutDelivery.Init();
             Escort.Init();
@@ -652,6 +653,9 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Tether:
                         Tether.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Benefactor:
+                        Benefactor.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Aid:
                         Aid.Add(pc.PlayerId);

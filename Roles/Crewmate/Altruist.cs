@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TOHE.Roles.Crewmate
+﻿namespace TOHE.Roles.Crewmate
 {
     public static class Altruist
     {
-        private static readonly int Id = 642600;
+        public static void SetupCustomOption() => Options.SetupRoleOptions(642600, TabGroup.CrewmateRoles, CustomRoles.Altruist);
+
+        public static void OnKilled(PlayerControl killer)
+        {
+            if (killer == null) return;
+            if (!killer.GetCustomRole().IsImpostor()) return;
+
+            killer.RpcSetCustomRole(killer.Is(AmongUs.GameOptions.RoleTypes.Shapeshifter) ? CustomRoles.ShapeshifterTOHE : CustomRoles.ImpostorTOHE);
+        }
     }
 }

@@ -1059,10 +1059,10 @@ public static class Options
         SetupRoleOptions(300, TabGroup.ImpostorRoles, CustomRoles.ImpostorTOHE);
         RoleLoadingText = "Vanilla roles\nShapeshifter";
         SetupRoleOptions(400, TabGroup.ImpostorRoles, CustomRoles.ShapeshifterTOHE);
-        ShapeshiftCD = FloatOptionItem.Create(402, "ShapeshiftCooldown", new(1f, 180f, 1f), 15f, TabGroup.ImpostorRoles, false)
+        ShapeshiftCD = FloatOptionItem.Create(402, "ShapeshiftCooldown", new(1f, 180f, 1f), 30f, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.ShapeshifterTOHE])
             .SetValueFormat(OptionFormat.Seconds);
-        ShapeshiftDur = FloatOptionItem.Create(403, "ShapeshiftDuration", new(1f, 180f, 1f), 30f, TabGroup.ImpostorRoles, false)
+        ShapeshiftDur = FloatOptionItem.Create(403, "ShapeshiftDuration", new(1f, 60f, 1f), 10f, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.ShapeshifterTOHE])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -1402,6 +1402,16 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Demolitionist]);
         RoleLoadingText = "Crewmate roles\nTask Manager";
         SetupSingleRoleOptions(5575, TabGroup.CrewmateRoles, CustomRoles.TaskManager, 1);
+        RoleLoadingText = "Crewmate roles\nAltruist";
+        Altruist.SetupCustomOption();
+        RoleLoadingText = "Crewmate roles\nTransmitter";
+        Transmitter.SetupCustomOption();
+        RoleLoadingText = "Crewmate roles\nAutocrat";
+        Autocrat.SetupCustomOption();
+        RoleLoadingText = "Crewmate roles\nBenefactor";
+        Benefactor.SetupCustomOption();
+        RoleLoadingText = "Crewmate roles\nNightmare";
+        Nightmare.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nCamera Man";
         CameraMan.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nHacker";

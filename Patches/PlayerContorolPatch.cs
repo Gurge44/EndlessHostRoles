@@ -207,6 +207,7 @@ class CheckMurderPatch
             case CustomRoles.WeaponMaster when WeaponMaster.OnAttack(killer, target):
             case CustomRoles.Gambler when Gambler.isShielded.ContainsKey(target.PlayerId):
             case CustomRoles.Alchemist when Alchemist.IsProtected:
+            case CustomRoles.Nightmare when !Nightmare.CanBeKilled:
                 killer.SetKillCooldown(time: 5f);
                 return false;
             case CustomRoles.Vengeance when !Vengeance.OnKillAttempt(killer, target):
@@ -1079,8 +1080,10 @@ class MurderPlayerPatch
         switch (target.GetCustomRole())
         {
             case CustomRoles.BallLightning:
-                if (killer != target)
-                    BallLightning.MurderPlayer(killer, target);
+                if (killer != target) BallLightning.MurderPlayer(killer, target);
+                break;
+            case CustomRoles.Altruist:
+                if (killer != target) Altruist.OnKilled(killer);
                 break;
         }
         switch (killer.GetCustomRole())
@@ -2033,6 +2036,9 @@ class FixedUpdatePatch
                     break;
                 case CustomRoles.Penguin:
                     Penguin.OnFixedUpdate(player);
+                    break;
+                case CustomRoles.Benefactor when !lowLoad:
+                    Benefactor.OnFixedUpdate(player);
                     break;
                 case CustomRoles.Chronomancer when !lowLoad:
                     Chronomancer.OnFixedUpdate(player);
@@ -3584,7 +3590,7 @@ class GameDataCompleteTaskPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CompleteTask))]
 class PlayerControlCompleteTaskPatch
 {
-    public static bool Prefix(PlayerControl __instance/*, uint idx*/)
+    public static bool Prefix(PlayerControl __instance)
     {
         var player = __instance;
 
@@ -3606,9 +3612,12 @@ class PlayerControlCompleteTaskPatch
 
         return true;
     }
-    public static void Postfix(PlayerControl __instance)
+    public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] uint idx)
     {
         var pc = __instance;
+
+        if (pc != null && pc.IsAlive()) Benefactor.OnTasKComplete(pc, pc.myTasks[Convert.ToInt32(idx)]);
+
         Snitch.OnCompleteTask(pc);
 
         var isTaskFinish = pc.GetPlayerTaskState().IsTaskFinished;

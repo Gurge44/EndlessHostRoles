@@ -2495,10 +2495,10 @@
 "DivinatorCheck.Result23","<b>{0}</b>是调查员、军师、祭祀者、巫师或女巫其中之一","<b>{0}</b> is either Fortune Teller, Postman, Consigliere, Ritualist, Imitator, Hex Master, or Witch","","",""
 "DivinatorCheck.Result24","<b>{0}</b>是懒人、跟随者、鹈鹕、清道夫或秃鹫其中之一","<b>{0}</b> is either Lazy Guy, Hacker, Follower, Pelican, Vengeance, Scavenger, or Vulture","","",""
 "DivinatorCheck.Result25","<b>{0}</b>是扫把星、骑士、老兵或刽子手其中之一","<b>{0}</b> is either Jinx, Vigilante, Veteran, Enigma, Task Manager, Pyromaniac, or Hangman","","",""
-"DivinatorCheck.Result26","<b>{0}</b>是通灵师、灵魂召唤师、灵魂论者、寄生虫、隐匿者或魅影其中之一","<b>{0}</b> is either Medium, Camera Man, Spiritcaller, Spiritualist, Parasite, Swooper, or Wraith","","",""
-"DivinatorCheck.Result27","<b>{0}</b>可能是时间操控者, 时间之主, 蚀时者, 千面鬼, 或者狙击手其中之一","<b>{0}</b> is either Time Manager, Curse, Time Master, Time Thief, Tether, Shapemaster, or Sniper"
-"DivinatorCheck.Result28","<b>{0}</b>可能是傀儡师, 巫婆, 捕快, 传送师, 龙卷风, 或者嗜血杀手其中之一","<b>{0}</b> is either Puppeteer, Chronomancer, Deputy, Aid, Transporter, Twister, Mercenary","","",""
-"DivinatorCheck.Result29","<b>{0}</b>可能是船鬼, 展现者, 工作狂, 幻影, 或者恐怖分子其中之一","<b>{0}</b> is either Crewpostor, Marshall, Nullifier, Workaholic, Phantom, Speedrunner, or Terrorist","","",""
+"DivinatorCheck.Result26","<b>{0}</b>是通灵师、灵魂召唤师、灵魂论者、寄生虫、隐匿者或魅影其中之一","<b>{0}</b> is either Medium, Camera Man, Nightmare, Spiritcaller, Spiritualist, Parasite, Swooper, or Wraith","","",""
+"DivinatorCheck.Result27","<b>{0}</b>可能是时间操控者, 时间之主, 蚀时者, 千面鬼, 或者狙击手其中之一","<b>{0}</b> is either Time Manager, Curse, Autocrat, Time Master, Time Thief, Tether, Shapemaster, or Sniper"
+"DivinatorCheck.Result28","<b>{0}</b>可能是傀儡师, 巫婆, 捕快, 传送师, 龙卷风, 或者嗜血杀手其中之一","<b>{0}</b> is either Puppeteer, Chronomancer, Transmitter, Deputy, Aid, Transporter, Twister, Mercenary","","",""
+"DivinatorCheck.Result29","<b>{0}</b>可能是船鬼, 展现者, 工作狂, 幻影, 或者恐怖分子其中之一","<b>{0}</b> is either Crewpostor, Marshall, Nullifier, Altruist, Workaholic, Phantom, Speedrunner, or Terrorist","","",""
 
 "## Hidden Role Chances"
 "SunnyboyChance","<color=#ff9902>阳光开朗大男孩</color>概率","<color=#ff9902>Sunnyboy</color> Chance","","",""
@@ -2585,6 +2585,26 @@
 "MafiosoLevelUp","","You've gone up a tier!","","",""
 "MafiosoProgressText","","<color=#00ffa5>Tier:</color> {0}, <color=#00ffa5>XP:</color> {1}","","",""
 "MafiosoHUDText","","<color=#00ffa5>Tier:</color> {0}\n<color=#00ffa5>XP:</color> {1}","","",""
+
+"## Altruist"
+"Altruist","","Altruist","","",""
+"AltruistInfo","","Erase your killer's role","","",""
+"AltruistInfoLong","","(Crewmates):\nAs the Altruist, if an impostor kills you, they will lose their abilities and become a regular impostor or shapeshifter.","","",""
+
+"## Transmitter"
+"Transmitter","","Transmitter","","",""
+"TransmitterInfo","","TP to nearest player by doing a task","","",""
+"TransmitterInfoLong","","(Crewmates):\nAs the Transmitter, when you complete a task, you teleport to the nearest player.","","",""
+
+"## Autocrat"
+"Autocrat","","Autocrat","","",""
+"AutocratInfo","","TP nearest player to you by doing a task","","",""
+"AutocratInfoLong","","(Crewmates):\nAs the Autocrat, when you complete a task, you teleport the nearest player to you.","","",""
+
+"## Nightmare"
+"Nightmare","","Nightmare","","",""
+"NightmareInfo","","You cannot be killed during lights out","","",""
+"NightmareInfoLong","","(Crewmates):\nAs the Nightmare, you cannot be killed during the lights out sabotage.","","",""
 
 "## Escort"
 "Escort","","Escort","","",""
@@ -3001,6 +3021,18 @@
 "AidInfoLong","","(Crewmates):\nAs the Aid, you may use your kill button on someone to protect them from direct attacks temporarily. Neither you or your target will know if someone tried to kill your target.","","",""
 "AidDur","","Shield Duration","","",""
 "AidCD","","Shield Cooldown","","",""
+
+"## Guess Manager"
+"GuessManager","","Guess Manager","","",""
+"GuessManager","","Guess Manager","","",""
+"GuessManager","","Guess Manager","","",""
+"GuessManagerMessageAboutMisguess","","<b>{0}</b> misguessed.","","",""
+"GuessManagerMessageAboutGuessedRole","","They were guessed as <b>{0}</b>","","",""
+
+"## Benefactor"
+"Benefactor","","Benefactor","","",""
+"BenefactorInfo","","Benefactor","","",""
+"BenefactorInfoLong","","Benefactor","","",""
 
 "## FFA"
 "FFA","","Basic FFA","","",""
