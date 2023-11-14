@@ -92,11 +92,11 @@ namespace TOHE.Roles.Impostor
             //_ = new LateTask(() => { hitman.CmdCheckRevertShapeshift(false); }, 1.5f, "Hitman RpcRevertShapeshift");
         }
 
-        public static string GetProgressText()
+        public static string GetTargetText()
         {
             if (targetId == byte.MaxValue) return string.Empty;
 
-            return $"  <color=#00ffa5>Target:</color> <color=#ffffff>{GetPlayerById(targetId).GetRealName().RemoveHtmlTags()}</color>";
+            return $"<color=#00ffa5>Target:</color> <color=#ffffff>{GetPlayerById(targetId).GetRealName().RemoveHtmlTags()}</color>";
         }
     }
 }

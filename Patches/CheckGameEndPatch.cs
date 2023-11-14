@@ -293,6 +293,14 @@ class GameEndChecker
         sender.StartMessage(-1); // 5: GameData
         MessageWriter writer = sender.stream;
 
+        //foreach (var pc in Main.AllPlayerControls)
+        //{
+        //    var name = pc.GetRealName().RemoveHtmlTags();
+        //    var color = GetRoleColor(pc.GetCustomRole());
+        //    var rolename = GetRoleName(Main.PlayerStates[pc.PlayerId].MainRole);
+        //    pc.RpcSetNameEx($"{name}\n{ColorString(color, rolename)}");
+        //}
+
         //ゴーストロール化
         List<byte> ReviveRequiredPlayerIds = new();
         var winner = CustomWinnerHolder.WinnerTeam;

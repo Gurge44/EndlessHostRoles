@@ -57,7 +57,6 @@ namespace TOHE.Roles.AddOns.Impostor
         {
             if (lastUpdate >= GetTimeStamp() || !GameStates.IsInTask || !pc.IsAlive()) return;
             lastUpdate = GetTimeStamp();
-            Logger.Warn($"Timer for {pc.GetNameWithRole()}: {Timer}", "Damocles");
 
             Timer--;
 
@@ -95,13 +94,11 @@ namespace TOHE.Roles.AddOns.Impostor
         public static void OnMurder()
         {
             Timer += TimeAfterKill;
-            Logger.Warn("murder", "debug");
         }
 
         public static void OnOtherImpostorMurder()
         {
             Timer += 10;
-            Logger.Warn("other impostor killed", "debug");
         }
 
         public static void OnEnterVent(int ventId)
@@ -110,7 +107,6 @@ namespace TOHE.Roles.AddOns.Impostor
 
             PreviouslyEnteredVents.Add(ventId);
             Timer += 10;
-            Logger.Warn("enter vent", "debug");
         }
 
         public static void AfterMeetingTasks()
@@ -120,37 +116,31 @@ namespace TOHE.Roles.AddOns.Impostor
             Timer += TimeAfterMeeting;
             Timer += 7;
             countRepairSabotage = true;
-            Logger.Warn("after meeting", "debug");
         }
 
         public static void OnCrewmateEjected()
         {
             Timer = (int)Math.Round(Timer * 1.3);
-            Logger.Warn("crewmate ejected", "debug");
         }
 
         public static void OnRepairSabotage()
         {
             Timer -= 15;
-            Logger.Warn("repair sabo", "debug");
         }
 
         public static void OnImpostorDeath()
         {
             Timer -= 20;
-            Logger.Warn("an impostor died", "debug");
         }
 
         public static void OnReport()
         {
             Timer = (int)Math.Round(Timer * 0.9);
-            Logger.Warn("called meeting", "debug");
         }
 
         public static void OnImpostorEjected()
         {
             Timer = (int)Math.Round(Timer * 0.8);
-            Logger.Warn("Impostor ejected", "debug");
         }
 
         public static string GetProgressText() => string.Format(GetString("DamoclesTimeLeft"), Timer);

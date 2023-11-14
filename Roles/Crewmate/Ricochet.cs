@@ -12,7 +12,7 @@ namespace TOHE.Roles.Crewmate
     public static class Ricochet
     {
         private static readonly int Id = 640100;
-        private static List<byte> playerIdList = new();
+        public static List<byte> playerIdList = new();
         public static Dictionary<byte, float> UseLimit = new();
         public static byte ProtectAgainst = byte.MaxValue;
 
@@ -120,9 +120,8 @@ namespace TOHE.Roles.Crewmate
             sb.Append(ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
             sb.Append(ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));
 
-            if (ProtectAgainst != byte.MaxValue) sb.Append($" <color=#777777>-</color> Target: {GetPlayerById(ProtectAgainst).GetRealName()}");
-
             return sb.ToString();
         }
+        public static string TargetText => ProtectAgainst != byte.MaxValue ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{GetPlayerById(ProtectAgainst).GetRealName()}</color>" : string.Empty;
     }
 }

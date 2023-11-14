@@ -170,7 +170,7 @@ public static class Romantic
         var GetValue = BetPlayer.TryGetValue(seer.PlayerId, out var targetId);
         return GetValue && targetId == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Romantic), "♥") : string.Empty;
     }
-    public static string GetProgressText(byte playerId)
+    public static string GetTargetText(byte playerId)
     {
         var player = Utils.GetPlayerById(playerId);
         if (player == null) return null;
@@ -271,7 +271,7 @@ public static class VengefulRomantic
             return false;
         }
     }
-    public static string GetProgressText(byte playerId)
+    public static string GetTargetText(byte playerId)
     {
         var player = Utils.GetPlayerById(playerId);
         if (player == null) return null;

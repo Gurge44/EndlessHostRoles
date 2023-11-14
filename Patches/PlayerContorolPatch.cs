@@ -248,7 +248,7 @@ class CheckMurderPatch
                     break;
                 case CustomRoles.Postman:
                     Postman.OnCheckMurder(killer, target);
-                    break;
+                    return false;
                 case CustomRoles.Vengeance:
                     if (!Vengeance.OnCheckMurder(killer, target)) return false;
                     break;
@@ -2773,8 +2773,18 @@ class FixedUpdatePatch
                     RoleText.enabled = false; //ゲームが始まっておらずフリープレイでなければロールを非表示
                     if (!__instance.AmOwner) __instance.cosmetics.nameText.text = __instance?.Data?.PlayerName;
                 }
+
+                bool isProgressTextLong = false;
+                var progressText = GetProgressText(__instance);
+
+                if (progressText.Length > 15 && Main.VisibleTasksCount)
+                {
+                    isProgressTextLong = true;
+                    progressText = $"\n{progressText}";
+                }
+
                 if (Main.VisibleTasksCount) //他プレイヤーでVisibleTasksCountは有効なら
-                    RoleText.text += GetProgressText(__instance); //ロールの横にタスクなど進行状況表示
+                    RoleText.text += progressText; //ロールの横にタスクなど進行状況表示
 
 
                 //変数定義
@@ -2968,37 +2978,46 @@ class FixedUpdatePatch
                         Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}>♥</color>");
                     }
                 }
-                //else if (__instance.Is(CustomRoles.Ntr) || PlayerControl.LocalPlayer.Is(CustomRoles.Ntr))
-                //{
-                //    Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Lovers)}>♥</color>");
-                //}
-                //else if (__instance == PlayerControl.LocalPlayer && CustomRolesHelper.RoleExist(CustomRoles.Ntr))
-                //{
-                //    Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Lovers)}>♥</color>");
-                //}
 
-
-                //矢印オプションありならタスクが終わったスニッチはインポスター/キル可能なニュートラルの方角がわかる
+                // If the arrow option is available, the snitch will be able to see the direction of the imposter/killable neutral after completing the task.
                 if (Snitch.IsEnable) Suffix.Append(Snitch.GetSnitchArrow(seer, target));
-
                 if (BountyHunter.IsEnable) Suffix.Append(BountyHunter.GetTargetArrow(seer, target));
-
                 if (Mortician.IsEnable) Suffix.Append(Mortician.GetTargetArrow(seer, target));
-
                 if (EvilTracker.IsEnable) Suffix.Append(EvilTracker.GetTargetArrow(seer, target));
-
                 if (Bloodhound.IsEnable) Suffix.Append(Bloodhound.GetTargetArrow(seer, target));
-
                 if (PlagueDoctor.IsEnable) Suffix.Append(PlagueDoctor.GetLowerTextOthers(seer, target));
-
                 if (Stealth.IsEnable) Suffix.Append(Stealth.GetSuffix(seer, target));
-
                 if (Tracker.IsEnable) Suffix.Append(Tracker.GetTrackerArrow(seer, target));
 
                 if (Deathpact.IsEnable)
                 {
                     Suffix.Append(Deathpact.GetDeathpactPlayerArrow(seer, target));
                     Suffix.Append(Deathpact.GetDeathpactMark(seer, target));
+                }
+
+                if (seer.PlayerId == target.PlayerId)
+                {
+                    switch (seer.GetCustomRole())
+                    {
+                        case CustomRoles.VengefulRomantic:
+                            Suffix.Append(VengefulRomantic.GetTargetText(seer.PlayerId));
+                            break;
+                        case CustomRoles.Romantic:
+                            Suffix.Append(Romantic.GetTargetText(seer.PlayerId));
+                            break;
+                        case CustomRoles.Ricochet:
+                            Suffix.Append(Ricochet.TargetText);
+                            break;
+                        case CustomRoles.Tether when !seer.IsModClient():
+                            Suffix.Append(Tether.TargetText);
+                            break;
+                        case CustomRoles.Hitman:
+                            Suffix.Append(Hitman.GetTargetText());
+                            break;
+                        case CustomRoles.Postman when !seer.IsModClient():
+                            Suffix.Append(Postman.TargetText);
+                            break;
+                    }
                 }
 
                 if (Spiritualist.IsEnable) Suffix.Append(Spiritualist.GetSpiritualistArrow(seer, target));
@@ -3040,21 +3059,22 @@ class FixedUpdatePatch
 
                     if (Suffix.ToString() != string.Empty)
                     {
-                        //名前が2行になると役職テキストを上にずらす必要がある
+                        // If the name is on two lines, the job title text needs to be moved up.
                         RoleText.transform.SetLocalY(0.35f);
                         target.cosmetics.nameText.text += "\r\n" + Suffix.ToString();
 
                     }
                     else
                     {
-                        //役職テキストの座標を初期値に戻す
-                        RoleText.transform.SetLocalY(0.2f);
+                        isProgressTextLong = true;
+                        // Restoring the position text coordinates to their initial values
+                        RoleText.transform.SetLocalY(isProgressTextLong ? 0.4f : 0.2f);
                     }
                 }
             }
             else
             {
-                //役職テキストの座標を初期値に戻す
+                // Restoring the position text coordinates to their initial values
                 if (!lowLoad) RoleText.transform.SetLocalY(0.2f);
             }
         }

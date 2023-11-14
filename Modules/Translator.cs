@@ -44,11 +44,11 @@ public static class Translator
                     dic[id] = line.Values[i].Replace("\\n", "\n").Replace("\\r", "\r");
                 }
                 if (!translateMaps.TryAdd(line.Values[0], dic))
-                    Logger.Warn($"待翻译的 CSV 文件中存在重复项：第{line.Index}行 => \"{line.Values[0]}\"", "Translator");
+                    Logger.Warn($"Duplicate in CSV file to be translated: line {line.Index} => \"{line.Values[0]}\"", "Translator");
             }
             catch (Exception ex)
             {
-                Logger.Warn($"翻译文件错误：第{line.Index}行 => \"{line.Values[0]}\"", "Translator");
+                Logger.Warn($"Translation file error: line {line.Index} => \"{line.Values[0]}\"", "Translator");
                 Logger.Warn(ex.ToString(), "Translator");
             }
         }

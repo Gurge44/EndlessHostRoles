@@ -13,7 +13,7 @@ namespace TOHE.Roles.Crewmate
 {
     public static class DonutDelivery
     {
-        private static readonly int Id = 642400;
+        private static readonly int Id = 642700;
         private static List<byte> playerIdList = new();
 
         private static OptionItem CD;

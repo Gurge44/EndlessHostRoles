@@ -23,6 +23,7 @@ class EndGamePatch
         Logger.Info("-----------Game over-----------", "Phase");
         if (!GameStates.IsModHost) return;
         SummaryText = new();
+
         foreach (var id in Main.PlayerStates.Keys)
             SummaryText[id] = Utils.SummaryTexts(id, disableColor: false);
 
@@ -33,9 +34,9 @@ class EndGamePatch
             if (date == DateTime.MinValue) continue;
             var killerId = kvp.Value.GetRealKiller();
             var targetId = kvp.Key;
-            sb.Append($"\n{date:T} {Main.AllPlayerNames[targetId]} ({Utils.GetDisplayRoleName(targetId, true)}{Utils.GetSubRolesText(targetId, summary: true)}) [{Utils.GetVitalText(kvp.Key)}]");
+            sb.Append($"\n{date:T} {Main.AllPlayerNames[targetId]} ({(Options.CurrentGameMode == CustomGameMode.FFA ? string.Empty : Utils.GetDisplayRoleName(targetId, true))}{(Options.CurrentGameMode == CustomGameMode.FFA ? string.Empty : Utils.GetSubRolesText(targetId, summary: true))}) [{Utils.GetVitalText(kvp.Key)}]");
             if (killerId != byte.MaxValue && killerId != targetId)
-                sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({Utils.GetDisplayRoleName(killerId, true)}{Utils.GetSubRolesText(killerId, summary: true)})");
+                sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(Options.CurrentGameMode == CustomGameMode.FFA ? string.Empty : Utils.GetDisplayRoleName(killerId, true))}{(Options.CurrentGameMode == CustomGameMode.FFA ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
         }
         KillLog = sb.ToString();
         if (!KillLog.Contains('\n')) KillLog = string.Empty;
@@ -43,12 +44,9 @@ class EndGamePatch
         Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
         //winnerListリセット
         TempData.winners = new Il2CppSystem.Collections.Generic.List<WinningPlayerData>();
-        var winner = new List<PlayerControl>();
-        foreach (PlayerControl pc in Main.AllPlayerControls)
-        {
-            if (CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId))
-                winner.Add(pc);
-        }
+
+        var winner = Main.AllPlayerControls.Where(pc => CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId)).ToList();
+
         foreach (var team in CustomWinnerHolder.WinnerRoles)
         {
             winner.AddRange(Main.AllPlayerControls.Where(p => p.Is(team) && !winner.Contains(p)));
@@ -56,6 +54,7 @@ class EndGamePatch
 
         Main.winnerNameList = new();
         Main.winnerList = new();
+        Main.winnerRolesList = new();
         foreach (PlayerControl pc in winner.ToArray())
         {
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw && pc.Is(CustomRoles.GM)) continue;
@@ -63,6 +62,7 @@ class EndGamePatch
             TempData.winners.Add(new WinningPlayerData(pc.Data));
             Main.winnerList.Add(pc.PlayerId);
             Main.winnerNameList.Add(pc.GetRealName());
+            Main.winnerRolesList.Add(pc.GetCustomRole());
         }
 
         BountyHunter.ChangeTimer = new();
@@ -92,6 +92,66 @@ class SetEverythingUpPatch
         //#######################################
         //          ==勝利陣営表示==
         //#######################################
+
+
+
+
+
+        try
+        {
+            int num = Mathf.CeilToInt(7.5f);
+            List<WinningPlayerData> winningPlayerDataList = TempData.winners.ToArray().ToList();
+            for (int i = 0; i < winningPlayerDataList.Count; i++)
+            {
+                WinningPlayerData winningPlayerData2 = winningPlayerDataList[i];
+                int num2 = (i % 2 == 0) ? -1 : 1;
+                int num3 = (i + 1) / 2;
+                float num4 = num3 / (float)num;
+                float num5 = Mathf.Lerp(1f, 0.75f, num4);
+                float num6 = (i == 0) ? -8 : -1;
+                PoolablePlayer poolablePlayer = UnityEngine.Object.Instantiate(__instance.PlayerPrefab, __instance.transform);
+                poolablePlayer.transform.localPosition = new Vector3(1f * num2 * num3 * num5, FloatRange.SpreadToEdges(-1.125f, 0f, num3, num), num6 + num3 * 0.01f) * 0.9f;
+                float num7 = Mathf.Lerp(1f, 0.65f, num4) * 0.9f;
+                Vector3 vector = new(num7, num7, 1f);
+                poolablePlayer.transform.localScale = vector;
+                poolablePlayer.UpdateFromPlayerOutfit(winningPlayerData2, PlayerMaterial.MaskType.ComplexUI, winningPlayerData2.IsDead, true);
+                if (winningPlayerData2.IsDead)
+                {
+                    poolablePlayer.cosmetics.currentBodySprite.BodySprite.sprite = poolablePlayer.cosmetics.currentBodySprite.GhostSprite;
+                    poolablePlayer.SetDeadFlipX(i % 2 == 0);
+                }
+                else
+                {
+                    poolablePlayer.SetFlipX(i % 2 == 0);
+                }
+
+                bool lowered = i is 1 or 2 or 5 or 6 or 9 or 10 or 13 or 14;
+
+                poolablePlayer.cosmetics.nameText.color = Color.white;
+                poolablePlayer.cosmetics.nameText.transform.localScale = new Vector3(1f / vector.x, 1f / vector.y, 1f / vector.z);
+                poolablePlayer.cosmetics.nameText.transform.localPosition = new Vector3(poolablePlayer.cosmetics.nameText.transform.localPosition.x, !lowered ? poolablePlayer.cosmetics.nameText.transform.localPosition.y - 0.6f : poolablePlayer.cosmetics.nameText.transform.localPosition.y - 1.4f, -15f);
+                poolablePlayer.cosmetics.nameText.text = winningPlayerData2.PlayerName;
+
+                for (int i1 = 0; i1 < Main.winnerList.Count; i1++)
+                {
+                    byte id = Main.winnerList[i1];
+                    if (Main.winnerNameList[i1].RemoveHtmlTags() != winningPlayerData2?.PlayerName.RemoveHtmlTags()) continue;
+                    var color = Main.roleColors[Main.winnerRolesList[i1]];
+                    var rolename = Utils.GetRoleName(Main.PlayerStates[id].MainRole);
+                    poolablePlayer.cosmetics.nameText.text += $"\n<color={color}>{rolename}</color>";
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e.ToString(), "OutroPatch.SetEverythingUpPatch.Postfix");
+        }
+
+
+
+
+
+
 
         __instance.WinText.alignment = TMPro.TextAlignmentOptions.Center;
         var WinnerTextObject = UnityEngine.Object.Instantiate(__instance.WinText.gameObject);

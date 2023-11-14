@@ -24,10 +24,10 @@ public static class Postman
     public static void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Postman, 1, zeroOne: false);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "DeliverCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Postman])
+        KillCooldown = FloatOptionItem.Create(Id + 10, "DeliverCooldown", new(0f, 180f, 2.5f), 10f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Postman])
             .SetValueFormat(OptionFormat.Seconds);
-        CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Postman]);
-        HasImpostorVision = BooleanOptionItem.Create(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Postman]);
+        CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Postman]);
+        HasImpostorVision = BooleanOptionItem.Create(Id + 13, "ImpostorVision", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Postman]);
         DieWhenTargetDies = BooleanOptionItem.Create(Id + 12, "PostmanDiesWhenTargetDies", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Postman]);
     }
     public static void Init()
@@ -55,7 +55,7 @@ public static class Postman
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            if (wereTargets.Contains(pc.PlayerId)) continue;
+            if (wereTargets.Contains(pc.PlayerId) || pc.Is(CustomRoles.Postman)) continue;
             tempTarget = pc.PlayerId;
             break;
         }
@@ -85,10 +85,13 @@ public static class Postman
         if (target.PlayerId == Target)
         {
             SetNewTarget();
+            killer.SetKillCooldown();
             killer.NotifyPostman(GetString("PostmanCorrectDeliver"));
         }
         else
         {
+            killer.SetRealKiller(killer);
+            Main.PlayerStates[killer.PlayerId].SetDead();
             killer.Kill(killer);
             Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
         }
@@ -115,6 +118,7 @@ public static class Postman
     {
         var sb = new StringBuilder();
 
+        sb.Append("\r\n\r\n");
         sb.AppendLine(baseText);
         if (!IsFinished) sb.AppendLine(string.Format(GetString("PostmanGetNewTarget"), Utils.GetPlayerById(Target).GetRealName()));
         else sb.AppendLine(GetString("PostmanDone"));
@@ -132,8 +136,5 @@ public static class Postman
         return sb.ToString();
     }
 
-    public static string GetProgressText(byte playerId)
-    {
-        return !IsFinished ? string.Format(GetString("PostmanTarget"), Utils.GetPlayerById(Target).GetRealName()) : "<color=#00ff00>✓</color>";
-    }
+    public static string TargetText => !IsFinished ? string.Format(GetString("PostmanTarget"), Utils.GetPlayerById(Target).GetRealName()) : "<color=#00ff00>✓</color>";
 }

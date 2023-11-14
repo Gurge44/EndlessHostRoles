@@ -12,7 +12,7 @@ namespace TOHE.Roles.Crewmate
     public static class Tether
     {
         private static readonly int Id = 640300;
-        private static List<byte> playerIdList = new();
+        public static List<byte> playerIdList = new();
         public static Dictionary<byte, float> UseLimit = new();
         private static byte Target = byte.MaxValue;
 
@@ -133,8 +133,6 @@ namespace TOHE.Roles.Crewmate
             sb.Append(ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
             sb.Append(ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));
 
-            if (Target != byte.MaxValue) sb.Append($" <color=#777777>-</color> Target: {GetPlayerById(Target).GetRealName()}");
-
             return sb.ToString();
         }
         public static string GetHudText(PlayerControl pc)
@@ -143,5 +141,6 @@ namespace TOHE.Roles.Crewmate
                 ? string.Empty
                 : string.Format(Translator.GetString("CDPT"), VentCooldown.GetInt() - (GetTimeStamp() - cd) + 1);
         }
+        public static string TargetText => Target != byte.MaxValue ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{GetPlayerById(Target).GetRealName()}</color>" : string.Empty;
     }
 }

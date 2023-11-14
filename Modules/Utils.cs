@@ -9,6 +9,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -764,9 +765,6 @@ public static class Utils
                 case CustomRoles.PlagueDoctor:
                     ProgressText.Append(PlagueDoctor.GetProgressText(comms));
                     break;
-                case CustomRoles.Postman:
-                    ProgressText.Append(Postman.GetProgressText(playerId));
-                    break;
                 case CustomRoles.BountyHunter:
                     if (BountyHunter.ChangeTimer.ContainsKey(playerId))
                     {
@@ -993,9 +991,6 @@ public static class Utils
                 case CustomRoles.RiftMaker:
                     ProgressText.Append(RiftMaker.GetProgressText());
                     break;
-                case CustomRoles.Hitman:
-                    ProgressText.Append(Hitman.GetProgressText());
-                    break;
                 case CustomRoles.Ricochet:
                     ProgressText.Append(Ricochet.GetProgressText(playerId, comms));
                     break;
@@ -1145,12 +1140,6 @@ public static class Utils
                     break;
                 case CustomRoles.Totocalcio:
                     ProgressText.Append(Totocalcio.GetProgressText(playerId));
-                    break;
-                case CustomRoles.Romantic:
-                    ProgressText.Append(Romantic.GetProgressText(playerId));
-                    break;
-                case CustomRoles.VengefulRomantic:
-                    ProgressText.Append(VengefulRomantic.GetProgressText(playerId));
                     break;
                 case CustomRoles.Succubus:
                     ProgressText.Append(Succubus.GetCharmLimit());
@@ -1991,6 +1980,24 @@ public static class Utils
                             SelfSuffix.Append(BountyHunter.GetTargetText(seer, false));
                             SelfSuffix.Append(BountyHunter.GetTargetArrow(seer));
                             break;
+                        case CustomRoles.Ricochet:
+                            SelfSuffix.Append(Ricochet.TargetText);
+                            break;
+                        case CustomRoles.Tether when !seer.IsModClient():
+                            SelfSuffix.Append(Tether.TargetText);
+                            break;
+                        case CustomRoles.Hitman:
+                            SelfSuffix.Append(Hitman.GetTargetText());
+                            break;
+                        case CustomRoles.Romantic:
+                            SelfSuffix.Append(Romantic.GetTargetText(seer.PlayerId));
+                            break;
+                        case CustomRoles.VengefulRomantic:
+                            SelfSuffix.Append(VengefulRomantic.GetTargetText(seer.PlayerId));
+                            break;
+                        case CustomRoles.Postman when !seer.IsModClient():
+                            SelfSuffix.Append(Postman.TargetText);
+                            break;
                         case CustomRoles.Mortician:
                             SelfSuffix.Append(Mortician.GetTargetArrow(seer));
                             break;
@@ -2001,8 +2008,7 @@ public static class Utils
                             SelfSuffix.Append(Vulture.GetTargetArrow(seer));
                             break;
                         case CustomRoles.FireWorks:
-                            string stateText = FireWorks.GetStateText(seer);
-                            SelfSuffix.Append(stateText);
+                            SelfSuffix.Append(FireWorks.GetStateText(seer));
                             break;
                         case CustomRoles.Witch:
                             SelfSuffix.Append(Witch.GetSpellModeText(seer, false, isForMeeting));

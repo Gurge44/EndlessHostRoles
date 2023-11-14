@@ -1256,6 +1256,8 @@ static class ExtendedPlayerControl
 
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat) return;
 
+        target.SetRealKiller(killer);
+
         if (killer.PlayerId == target.PlayerId && killer.shapeshifting)
         {
             _ = new LateTask(() => { killer.RpcMurderPlayer(target, true); }, 1.5f, "Shapeshifting Suicide Delay");

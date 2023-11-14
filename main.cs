@@ -118,6 +118,7 @@ public class Main : BasePlugin
     public static string LastVotedPlayer;
     public static List<byte> ResetCamPlayerList = new();
     public static List<byte> winnerList = new();
+    public static List<CustomRoles> winnerRolesList = new();
     public static List<byte> ForCrusade = new();
     public static List<byte> KillGhoul = new();
     public static List<string> winnerNameList = new();
@@ -359,7 +360,6 @@ public class Main : BasePlugin
                 {CustomRoles.Nightmare, "#1e1247"},
                 {CustomRoles.Benefactor, "#4aeaff"},
                 {CustomRoles.GuessManager, "#d4ff00"},
-                {CustomRoles.Transmitter, "#c9a11e"},
                 {CustomRoles.Drainer, "#149627"},
                 {CustomRoles.NiceHacker, "#75fa4c"},
                 {CustomRoles.Aid, "#D7BDE2"},
