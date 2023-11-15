@@ -304,6 +304,7 @@ internal class ChangeRoleSettings
             Jinx.Init();
             DoubleShot.Init();
             Dazzler.Init();
+            GuessManagerRole.Init();
             FFF.Init();
             Sapper.Init();
             CameraMan.Init();
@@ -918,6 +919,9 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Dazzler:
                         Dazzler.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.GuessManager:
+                        GuessManagerRole.Add(pc.PlayerId);
                         break;
                     case CustomRoles.FFF:
                         FFF.Add(pc.PlayerId);

@@ -552,11 +552,25 @@ public class TaskState
                 CustomWinnerHolder.WinnerIds.Add(player.PlayerId);
             }
 
-            if (player.Is(CustomRoles.Speedrunner) && (CompletedTasksCount + 1) >= AllTasksCount && player.IsAlive())
+            if (player.Is(CustomRoles.Speedrunner))
             {
-                Logger.Info("Speedrunner finished tasks", "Speedrunner");
-                player.RPCPlayCustomSound("Congrats");
-                GameData.Instance.CompletedTasks = GameData.Instance.TotalTasks;
+                var completedTasks = CompletedTasksCount + 1;
+                if (completedTasks >= AllTasksCount && player.IsAlive())
+                {
+                    Logger.Info("Speedrunner finished tasks", "Speedrunner");
+                    player.RPCPlayCustomSound("Congrats");
+                    GameData.Instance.CompletedTasks = GameData.Instance.TotalTasks;
+                }
+                else if (completedTasks >= Options.SpeedrunnerNotifyAtXTasksLeft.GetInt() && Options.SpeedrunnerNotifyKillers.GetBool() && player.IsAlive())
+                {
+                    string speedrunnerName = player.GetRealName().RemoveHtmlTags();
+                    string notifyString = Translator.GetString("SpeedrunnerHasXTasksLeft");
+                    int remainingTasks = AllTasksCount - completedTasks;
+                    foreach (var pc in Main.AllAlivePlayerControls.Where(pc => !pc.GetCustomRole().IsCrewmateTeamV2()).ToArray())
+                    {
+                        pc.Notify(string.Format(notifyString, speedrunnerName, remainingTasks));
+                    }
+                }
             }
 
             Merchant.OnTaskFinished(player);

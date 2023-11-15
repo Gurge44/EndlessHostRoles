@@ -3636,7 +3636,7 @@ class PlayerControlCompleteTaskPatch
     {
         var pc = __instance;
 
-        if (pc != null && pc.IsAlive()) Benefactor.OnTasKComplete(pc, pc.myTasks[Convert.ToInt32(idx)]);
+        if (pc != null && pc.IsAlive()) Benefactor.OnTaskComplete(pc, pc.myTasks[Convert.ToInt32(idx)]);
 
         Snitch.OnCompleteTask(pc);
 

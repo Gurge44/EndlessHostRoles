@@ -607,20 +607,7 @@ public static class GuessManager
                         Doomsayer.CheckCountGuess(pc);
                     }
 
-                    foreach (var guessManager in GuessManagerRole.playerIdList.ToArray())
-                    {
-                        _ = new LateTask(() =>
-                        {
-                            if (dp == pc)
-                            {
-                                Utils.SendMessage(string.Format(GetString("GuessManagerMessageAboutMisguess"), dp.GetRealName().Replace("\n", " + ")));
-                            }
-                            else
-                            {
-                                Utils.SendMessage(string.Format(GetString("GuessManagerMessageAboutGuessedRole"), dp.GetAllRoleName().Replace("\n", " + ")));
-                            }
-                        }, 1f, "GuessManager Messages");
-                    }
+                    GuessManagerRole.OnGuess(dp, pc);
 
                     //死者检查
                     Utils.AfterPlayerDeathTasks(dp, true);

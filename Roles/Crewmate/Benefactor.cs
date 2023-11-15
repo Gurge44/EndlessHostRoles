@@ -118,7 +118,7 @@ namespace TOHE.Roles.Crewmate
                 SendRPC(pc.PlayerId, shieldExpire: true, shieldedId: Utils.GetPlayerById(x.Key).PlayerId);
             }
         }
-        public static void OnTasKComplete(PlayerControl player, PlayerTask task)
+        public static void OnTaskComplete(PlayerControl player, PlayerTask task)
         {
             if (!IsEnable) return;
             if (player == null) return;
@@ -147,6 +147,7 @@ namespace TOHE.Roles.Crewmate
                         var taskinatorPC = Utils.GetPlayerById(benefactorId);
                         if (taskinatorPC == null) continue;
 
+                        player.Notify(Translator.GetString("BenefactorTargetGotShieldNotify"));
                         taskIndex[benefactorId].Remove(task.Index);
                         SendRPC(benefactorID: benefactorId, taskIndex: task.Index, IsShield: true, shieldedId: player.PlayerId);
                         Logger.Info($"{player.GetAllRoleName()} got a shield because the task was marked by {taskinatorPC.GetNameWithRole()}", "Benefactor");

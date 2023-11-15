@@ -1409,6 +1409,9 @@ internal static class RPC
             case CustomRoles.Dazzler:
                 Dazzler.Add(targetId);
                 break;
+            case CustomRoles.GuessManager:
+                GuessManagerRole.Add(targetId);
+                break;
             case CustomRoles.FFF:
                 FFF.Add(targetId);
                 break;

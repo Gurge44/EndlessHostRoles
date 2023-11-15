@@ -282,6 +282,8 @@ public static class Options
     public static OptionItem NukerChance;
     public static OptionItem NukeRadius;
     public static OptionItem NukeCooldown;
+    public static OptionItem SpeedrunnerNotifyKillers;
+    public static OptionItem SpeedrunnerNotifyAtXTasksLeft;
 
     public static OptionItem SkeldChance;
     public static OptionItem MiraChance;
@@ -1402,6 +1404,8 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Demolitionist]);
         RoleLoadingText = "Crewmate roles\nTask Manager";
         SetupSingleRoleOptions(5575, TabGroup.CrewmateRoles, CustomRoles.TaskManager, 1);
+        RoleLoadingText = "Crewmate roles\nGuess Manager";
+        GuessManagerRole.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nAltruist";
         Altruist.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nTransmitter";
@@ -1709,6 +1713,10 @@ public static class Options
         SetupRoleOptions(9150, TabGroup.CrewmateRoles, CustomRoles.Lookout);
         RoleLoadingText = "Crewmate roles\nSpeedrunner";
         SetupRoleOptions(9170, TabGroup.CrewmateRoles, CustomRoles.Speedrunner);
+        SpeedrunnerNotifyKillers = BooleanOptionItem.Create(9178, "SpeedrunnerNotifyKillers", true, TabGroup.CrewmateRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Speedrunner]);
+        SpeedrunnerNotifyAtXTasksLeft = IntegerOptionItem.Create(9179, "SpeedrunnerNotifyAtXTasksLeft", new(1, 10, 1), 3, TabGroup.CrewmateRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Speedrunner]);
         SpeedrunnerTasks = OverrideTasksData.Create(9180, TabGroup.CrewmateRoles, CustomRoles.Speedrunner);
         RoleLoadingText = "Crewmate roles\nMarshall";
         Marshall.SetupCustomOption();
@@ -2410,11 +2418,13 @@ public static class Options
 
 
         //SetupAdtRoleOptions(18600, CustomRoles.Ntr, tab: TabGroup.OtherRoles);
+        RoleLoadingText = "Experimental roles\nFlash";
+        SetupAdtRoleOptions(18700, CustomRoles.Flashman, canSetNum: true, tab: TabGroup.OtherRoles);
+        FlashmanSpeed = FloatOptionItem.Create(6050335, "FlashmanSpeed", new(0.25f, 5f, 0.25f), 2.5f, TabGroup.OtherRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Flashman])
+            .SetValueFormat(OptionFormat.Multiplier);
+
         RoleLoadingText = "Experimental roles\nYouTuber";
-        /*     SetupAdtRoleOptions(18700, CustomRoles.Flashman, canSetNum: true, tab: TabGroup.OtherRoles);
-             FlashmanSpeed = FloatOptionItem.Create(6050335, "FlashmanSpeed", new(0.25f, 5f, 0.25f), 2.5f, TabGroup.OtherRoles, false)
-             .SetParent(CustomRoleSpawnChances[CustomRoles.Flashman])
-                 .SetValueFormat(OptionFormat.Multiplier); */
         SetupAdtRoleOptions(18800, CustomRoles.Youtuber, canSetNum: true, tab: TabGroup.OtherRoles);
 
         LoadingPercentage = 56;

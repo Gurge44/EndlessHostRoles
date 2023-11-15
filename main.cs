@@ -358,6 +358,7 @@ public class Main : BasePlugin
                 {CustomRoles.Autocrat, "#e2ed64"},
                 {CustomRoles.Transmitter, "#c9a11e"},
                 {CustomRoles.Nightmare, "#1e1247"},
+                {CustomRoles.Altruist, "#300000"},
                 {CustomRoles.Benefactor, "#4aeaff"},
                 {CustomRoles.GuessManager, "#d4ff00"},
                 {CustomRoles.Drainer, "#149627"},

@@ -313,6 +313,7 @@ public static class Divinator
                 CustomRoles.Totocalcio or
                 CustomRoles.Pelican or
                 CustomRoles.Scavenger or
+                CustomRoles.GuessManager or
                 CustomRoles.NiceHacker or
                 CustomRoles.Vengeance or
                 CustomRoles.Vulture
@@ -322,6 +323,7 @@ public static class Divinator
                 CustomRoles.SwordsMan or
                 CustomRoles.Veteran or
                 CustomRoles.Enigma or
+                CustomRoles.Benefactor or
                 CustomRoles.TaskManager or
                 CustomRoles.Pyromaniac or
                 CustomRoles.Hangman

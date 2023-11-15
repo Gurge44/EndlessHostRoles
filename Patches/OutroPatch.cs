@@ -93,10 +93,6 @@ class SetEverythingUpPatch
         //          ==勝利陣営表示==
         //#######################################
 
-
-
-
-
         try
         {
             int num = Mathf.CeilToInt(7.5f);
@@ -146,12 +142,6 @@ class SetEverythingUpPatch
         {
             Logger.Error(e.ToString(), "OutroPatch.SetEverythingUpPatch.Postfix");
         }
-
-
-
-
-
-
 
         __instance.WinText.alignment = TMPro.TextAlignmentOptions.Center;
         var WinnerTextObject = UnityEngine.Object.Instantiate(__instance.WinText.gameObject);
