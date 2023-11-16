@@ -15,7 +15,7 @@ namespace TOHE.Roles.Impostor
         public static OptionItem ShapeshiftCooldown;
         private static OptionItem TwisterLimitOpt;
         public static OptionItem TwisterAbilityUseGainWithEachKill;
-        public static Dictionary<byte, float> TwistLimit = new();
+        public static Dictionary<byte, float> TwistLimit = [];
         //    private static OptionItem ShapeshiftDuration;
 
         public static void SetupCustomOption()
@@ -33,7 +33,7 @@ namespace TOHE.Roles.Impostor
         }
         public static void Init()
         {
-            TwistLimit = new();
+            TwistLimit = [];
         }
         public static void Add(byte playerId)
         {
@@ -50,7 +50,7 @@ namespace TOHE.Roles.Impostor
             if (TwistLimit[shapeshifter.PlayerId] < 1) return;
             if (!shapeshifting) return;
 
-            List<byte> changePositionPlayers = new() { shapeshifter.PlayerId };
+            List<byte> changePositionPlayers = [shapeshifter.PlayerId];
             TwistLimit[shapeshifter.PlayerId] -= 1;
 
             var rd = IRandom.Instance;

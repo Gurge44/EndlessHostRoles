@@ -8,7 +8,7 @@ namespace TOHE.Roles.Neutral;
 public static class Maverick
 {
     private static readonly int Id = 10000;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
     public static OptionItem CanVent;
@@ -25,7 +25,7 @@ public static class Maverick
     }
     public static void Init()
     {
-        playerIdList = new();
+        playerIdList = [];
     }
     public static void Add(byte playerId)
     {

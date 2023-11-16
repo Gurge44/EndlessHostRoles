@@ -10,7 +10,7 @@ namespace TOHE.Roles.Crewmate;
 public static class Admirer
 {
     private static readonly int Id = 30000;
-    private static List<byte> playerIdList = new();
+    private static List<byte> playerIdList = [];
 
     public static OptionItem AdmireCooldown;
     public static OptionItem KnowTargetRole;
@@ -25,7 +25,7 @@ public static class Admirer
     }
     public static void Init()
     {
-        playerIdList = new();
+        playerIdList = [];
         AdmireLimit = new();
     }
     public static void Add(byte playerId)

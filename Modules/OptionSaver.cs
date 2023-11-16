@@ -43,8 +43,8 @@ public static class OptionSaver
     /// <summary>現在のオプションからjsonシリアライズ用のオブジェクトを生成</summary>
     private static SerializableOptionsData GenerateOptionsData()
     {
-        Dictionary<int, int> singleOptions = new();
-        Dictionary<int, int[]> presetOptions = new();
+        Dictionary<int, int> singleOptions = [];
+        Dictionary<int, int[]> presetOptions = [];
         foreach (OptionItem option in OptionItem.AllOptions.ToArray())
         {
             if (option.IsSingleValue)

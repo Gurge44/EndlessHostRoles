@@ -28,7 +28,7 @@ class CheckForEndVotingPatch
         var voteLog = Logger.Handler("Vote");
         try
         {
-            List<MeetingHud.VoterState> statesList = new();
+            List<MeetingHud.VoterState> statesList = [];
             MeetingHud.VoterState[] states;
             for (int i = 0; i < __instance.playerStates.Count; i++)
             {
@@ -207,8 +207,8 @@ class CheckForEndVotingPatch
 
                 if (NiceSwapper.Vote.Any() && NiceSwapper.VoteTwo.Any())
                 {
-                    List<byte> NiceList1 = new();
-                    List<byte> NiceList2 = new();
+                    List<byte> NiceList1 = [];
+                    List<byte> NiceList2 = [];
                     PlayerVoteArea pva = new();
                     var meetingHud = MeetingHud.Instance;
                     PlayerControl swap1 = null;
@@ -579,7 +579,7 @@ class CheckForEndVotingPatch
     }
     private static PlayerControl PickRevengeTarget(PlayerControl exiledplayer/*, PlayerState.DeathReason deathReason*/)//道連れ先選定
     {
-        List<PlayerControl> TargetList = new();
+        List<PlayerControl> TargetList = [];
         foreach (PlayerControl candidate in Main.AllAlivePlayerControls)
         {
             if (candidate == exiledplayer || Main.AfterMeetingDeathPlayers.ContainsKey(candidate.PlayerId))
@@ -597,9 +597,9 @@ static class ExtendedMeetingHud
     public static Dictionary<byte, int> CustomCalculateVotes(this MeetingHud __instance)
     {
         Logger.Info("===The vote counting process begins===", "Vote");
-        Dictionary<byte, int> dic = new();
-        Main.BrakarVoteFor = new();
-        Collector.CollectorVoteFor = new();
+        Dictionary<byte, int> dic = [];
+        Main.BrakarVoteFor = [];
+        Collector.CollectorVoteFor = [];
         //| 投票された人 | 投票された回数 |
         for (int i = 0; i < __instance.playerStates.Length; i++)
         {
@@ -667,7 +667,7 @@ class MeetingHudStartPatch
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        List<(string, byte, string)> msgToSend = new();
+        List<(string, byte, string)> msgToSend = [];
 
         void AddMsg(string text, byte sendTo = 255, string title = "")
             => msgToSend.Add((text, sendTo, title));
@@ -703,7 +703,7 @@ class MeetingHudStartPatch
             var msgTemp = msgToSend.ToList();
             _ = new LateTask(() => { msgTemp.Do(x => Utils.SendMessage(x.Item1, x.Item2, x.Item3)); }, 3f, "Skill Description First Meeting");
         }
-        msgToSend = new();
+        msgToSend = [];
 
         //主动叛变模式提示
         if (Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.GetCount() > 0)
@@ -716,7 +716,7 @@ class MeetingHudStartPatch
         {
             foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Workaholic)).ToArray())
                 Main.WorkaholicAlive.Add(pc.PlayerId);
-            List<string> workaholicAliveList = new();
+            List<string> workaholicAliveList = [];
             for (int i = 0; i < Main.WorkaholicAlive.Count; i++)
             {
                 byte whId = Main.WorkaholicAlive[i];
@@ -731,7 +731,7 @@ class MeetingHudStartPatch
         {
             foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Bait)).ToArray())
                 Main.BaitAlive.Add(pc.PlayerId);
-            List<string> baitAliveList = new();
+            List<string> baitAliveList = [];
             for (int i = 0; i < Main.BaitAlive.Count; i++)
             {
                 byte whId = Main.BaitAlive[i];

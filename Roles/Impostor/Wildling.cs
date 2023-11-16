@@ -10,7 +10,7 @@ namespace TOHE.Roles.Impostor;
 public static class Wildling
 {
     private static readonly int Id = 4700;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     private static OptionItem ProtectDuration;
     public static OptionItem CanVent;
@@ -18,7 +18,7 @@ public static class Wildling
     public static OptionItem ShapeshiftCD;
     public static OptionItem ShapeshiftDur;
 
-    private static Dictionary<byte, long> TimeStamp = new();
+    private static Dictionary<byte, long> TimeStamp = [];
 
     public static void SetupCustomOption()
     {
@@ -34,8 +34,8 @@ public static class Wildling
     }
     public static void Init()
     {
-        playerIdList = new();
-        TimeStamp = new();
+        playerIdList = [];
+        TimeStamp = [];
     }
     public static void Add(byte playerId)
     {

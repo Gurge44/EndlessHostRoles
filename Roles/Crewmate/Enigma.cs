@@ -8,8 +8,8 @@ namespace TOHE.Roles.Crewmate
     public class Enigma
     {
         private static readonly int Id = 8460;
-        private static List<byte> playerIdList = new();
-        private static Dictionary<byte, List<EnigmaClue>> ShownClues = new();
+        private static List<byte> playerIdList = [];
+        private static Dictionary<byte, List<EnigmaClue>> ShownClues = [];
 
         public static OptionItem EnigmaClueStage1Tasks;
         public static OptionItem EnigmaClueStage2Tasks;
@@ -18,11 +18,11 @@ namespace TOHE.Roles.Crewmate
         public static OptionItem EnigmaClueStage3Probability;
         public static OptionItem EnigmaGetCluesWithoutReporting;
 
-        public static Dictionary<byte, string> MsgToSend = new();
-        public static Dictionary<byte, string> MsgToSendTitle = new();
+        public static Dictionary<byte, string> MsgToSend = [];
+        public static Dictionary<byte, string> MsgToSendTitle = [];
 
-        private static readonly List<EnigmaClue> EnigmaClues = new()
-        {
+        private static readonly List<EnigmaClue> EnigmaClues =
+        [
             new EnigmaHatClue { ClueStage = 1, EnigmaClueType = EnigmaClueType.HatClue },
             new EnigmaHatClue { ClueStage = 3, EnigmaClueType = EnigmaClueType.HatClue },
             new EnigmaVisorClue { ClueStage = 1, EnigmaClueType = EnigmaClueType.VisorClue },
@@ -47,7 +47,7 @@ namespace TOHE.Roles.Crewmate
             new EnigmaKillerLevelClue { ClueStage = 2, EnigmaClueType = EnigmaClueType.KillerLevelClue },
             new EnigmaKillerLevelClue { ClueStage = 3, EnigmaClueType = EnigmaClueType.KillerLevelClue },
             new EnigmaFriendCodeClue { ClueStage = 3, EnigmaClueType = EnigmaClueType.FriendCodeClue },
-        };
+        ];
 
         public static void SetupCustomOption()
         {
@@ -68,15 +68,15 @@ namespace TOHE.Roles.Crewmate
         }
         public static void Init()
         {
-            playerIdList = new();
-            ShownClues = new();
-            MsgToSend = new();
-            MsgToSendTitle = new();
+            playerIdList = [];
+            ShownClues = [];
+            MsgToSend = [];
+            MsgToSendTitle = [];
         }
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            ShownClues.Add(playerId, new List<EnigmaClue>());
+            ShownClues.Add(playerId, []);
         }
         public static bool IsEnable => playerIdList.Count > 0;
 

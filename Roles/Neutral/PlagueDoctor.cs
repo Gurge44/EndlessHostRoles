@@ -11,7 +11,7 @@ namespace TOHE.Roles.Neutral
     public static class PlagueDoctor
     {
         private static readonly int Id = 641700;
-        private static List<byte> playerIdList = new();
+        private static List<byte> playerIdList = [];
 
         private static OptionItem OptionInfectLimit;
         private static OptionItem OptionInfectWhenKilled;
@@ -58,8 +58,8 @@ namespace TOHE.Roles.Neutral
 
         public static void Init()
         {
-            playerIdList = new();
-            InfectInfos = new();
+            playerIdList = [];
+            InfectInfos = [];
         }
         public static void Add(byte playerId)
         {
@@ -163,7 +163,7 @@ namespace TOHE.Roles.Neutral
                 // In case of an infected person
                 var changed = false;
                 var inVent = player.inVent;
-                List<PlayerControl> updates = new();
+                List<PlayerControl> updates = [];
                 foreach (PlayerControl target in Main.AllAlivePlayerControls)
                 {
                     // Plague doctors are excluded if they cannot infect themselves.

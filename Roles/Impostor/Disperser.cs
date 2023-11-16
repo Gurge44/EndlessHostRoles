@@ -15,7 +15,7 @@ public static class Disperser
     private static OptionItem DisperserLimitOpt;
     public static OptionItem DisperserAbilityUseGainWithEachKill;
 
-    public static Dictionary<byte, float> DisperserLimit = new();
+    public static Dictionary<byte, float> DisperserLimit = [];
 
     public static void SetupCustomOption()
     {
@@ -32,7 +32,7 @@ public static class Disperser
     }
     public static void Init()
     {
-        DisperserLimit = new();
+        DisperserLimit = [];
         //  MurderLimitGame = new();
     }
     public static void Add(byte playerId)

@@ -31,7 +31,7 @@ public class DevUser
 public static class DevManager
 {
     public static DevUser DefaultDevUser = new();
-    public static List<DevUser> DevUserList = new();
+    public static List<DevUser> DevUserList = [];
     public static void Init()
     {
         // Dev

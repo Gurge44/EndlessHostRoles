@@ -9,15 +9,15 @@ namespace TOHE.Roles.Crewmate
     internal class Merchant
     {
         private static readonly int Id = 7300;
-        private static readonly List<byte> playerIdList = new();
+        private static readonly List<byte> playerIdList = [];
 
-        public static Dictionary<byte, int> addonsSold = new();
-        public static Dictionary<byte, List<byte>> bribedKiller = new();
+        public static Dictionary<byte, int> addonsSold = [];
+        public static Dictionary<byte, List<byte>> bribedKiller = [];
 
-        private static List<CustomRoles> addons = new();
+        private static List<CustomRoles> addons = [];
 
-        private static readonly List<CustomRoles> helpfulAddons = new()
-        {
+        private static readonly List<CustomRoles> helpfulAddons =
+        [
             CustomRoles.Bait,
             CustomRoles.Trapper,
             CustomRoles.Antidote,
@@ -26,41 +26,41 @@ namespace TOHE.Roles.Crewmate
             CustomRoles.Onbound,
             CustomRoles.Lucky,
             CustomRoles.DualPersonality // Schizophrenic
-        };
+        ];
 
-        private static readonly List<CustomRoles> balancedAddons = new()
-        {
+        private static readonly List<CustomRoles> balancedAddons =
+        [
             CustomRoles.Watcher,
             CustomRoles.Seer,
             CustomRoles.Necroview,
             CustomRoles.Glow,
             CustomRoles.Gravestone,
             CustomRoles.Autopsy,
-        };
+        ];
 
-        private static readonly List<CustomRoles> harmfulAddons = new()
-        {
+        private static readonly List<CustomRoles> harmfulAddons =
+        [
             CustomRoles.Oblivious,
             CustomRoles.Bewilder,
             CustomRoles.Unreportable, // Disregarded
             CustomRoles.Avanger, // Avenger
             CustomRoles.Diseased,
             CustomRoles.Unlucky
-        };
+        ];
 
-        private static readonly List<CustomRoles> neutralAddons = new()
-        {
+        private static readonly List<CustomRoles> neutralAddons =
+        [
             CustomRoles.Soulless
-        };
+        ];
 
-        private static readonly List<CustomRoles> experimentalAddons = new()
-        {
+        private static readonly List<CustomRoles> experimentalAddons =
+        [
             CustomRoles.Flashman,
             CustomRoles.Egoist,
             CustomRoles.Ntr, // Neptune
             CustomRoles.Guesser,
             CustomRoles.Fool
-        };
+        ];
 
         private static OptionItem OptionMaxSell;
         private static OptionItem OptionMoneyPerSell;
@@ -108,9 +108,9 @@ namespace TOHE.Roles.Crewmate
         {
             playerIdList.Clear();
 
-            addons = new List<CustomRoles>();
-            addonsSold = new Dictionary<byte, int>();
-            bribedKiller = new Dictionary<byte, List<byte>>();
+            addons = [];
+            addonsSold = [];
+            bribedKiller = [];
 
             if (OptionCanSellHelpful.GetBool())
             {
@@ -147,7 +147,7 @@ namespace TOHE.Roles.Crewmate
         {
             playerIdList.Add(playerId);
             addonsSold.Add(playerId, 0);
-            bribedKiller.Add(playerId, new List<byte>());
+            bribedKiller.Add(playerId, []);
         }
 
         public static void OnTaskFinished(PlayerControl player)

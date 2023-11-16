@@ -22,12 +22,12 @@ public static class Poisoner
     }
 
     private static readonly int Id = 12700;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
     private static OptionItem OptionKillDelay;
     private static float KillDelay;
     public static OptionItem CanVent;
     public static OptionItem KillCooldown;
-    private static readonly Dictionary<byte, PoisonedInfo> PoisonedPlayers = new();
+    private static readonly Dictionary<byte, PoisonedInfo> PoisonedPlayers = [];
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Poisoner);
@@ -39,7 +39,7 @@ public static class Poisoner
     }
     public static void Init()
     {
-        playerIdList = new();
+        playerIdList = [];
         PoisonedPlayers.Clear();
 
         KillDelay = OptionKillDelay.GetFloat();

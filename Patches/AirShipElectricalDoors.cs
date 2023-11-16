@@ -16,7 +16,7 @@ public class AirshipElectricalDoors
     }
     public static byte[] GetClosedDoors()
     {
-        List<byte> DoorsArray = new();
+        List<byte> DoorsArray = [];
         if (Instance.Doors == null || !Instance.Doors.Any()) return DoorsArray.ToArray();
         for (byte i = 0; i < Instance.Doors.Count; i++)
         {

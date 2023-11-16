@@ -10,15 +10,15 @@ namespace TOHE.Roles.Crewmate;
 public static class ParityCop
 {
     private static readonly int Id = 6900;
-    private static List<byte> playerIdList = new();
-    public static Dictionary<byte, float> MaxCheckLimit = new();
-    public static Dictionary<byte, int> RoundCheckLimit = new();
-    public static Dictionary<byte, byte> FirstPick = new();
+    private static List<byte> playerIdList = [];
+    public static Dictionary<byte, float> MaxCheckLimit = [];
+    public static Dictionary<byte, int> RoundCheckLimit = [];
+    public static Dictionary<byte, byte> FirstPick = [];
     public static readonly string[] pcEgoistCountMode =
-    {
+    [
         "EgoistCountMode.Original",
         "EgoistCountMode.Neutral",
-    };
+    ];
 
     private static OptionItem TryHideMsg;
     public static OptionItem ParityCheckLimitMax;
@@ -56,10 +56,10 @@ public static class ParityCop
     }
     public static void Init()
     {
-        playerIdList = new();
-        MaxCheckLimit = new();
-        RoundCheckLimit = new();
-        FirstPick = new();
+        playerIdList = [];
+        MaxCheckLimit = [];
+        RoundCheckLimit = [];
+        FirstPick = [];
     }
 
     public static void Add(byte playerId)

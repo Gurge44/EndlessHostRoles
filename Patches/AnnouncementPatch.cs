@@ -40,7 +40,7 @@ public class ModNews
 [HarmonyPatch]
 public class ModNewsHistory
 {
-    public static List<ModNews> AllModNews = new();
+    public static List<ModNews> AllModNews = [];
 
     // 
     public static void Init()
@@ -108,7 +108,7 @@ public class ModNewsHistory
             AllModNews.Sort((a1, a2) => { return DateTime.Compare(DateTime.Parse(a2.Date), DateTime.Parse(a1.Date)); });
         }
 
-        List<Announcement> FinalAllNews = new();
+        List<Announcement> FinalAllNews = [];
         AllModNews.Do(n => FinalAllNews.Add(n.ToAnnouncement()));
         foreach (Announcement news in aRange.ToArray())
         {

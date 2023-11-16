@@ -12,7 +12,7 @@ namespace TOHE.Roles.Neutral;
 public static class Romantic
 {
     private static readonly int Id = 9850;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     private static readonly int MaxBetTimes = 1;
     public static bool isProtect;
@@ -29,8 +29,8 @@ public static class Romantic
     public static OptionItem RuthlessKCD;
     public static OptionItem RuthlessCanVent;
 
-    public static Dictionary<byte, int> BetTimes = new();
-    public static Dictionary<byte, byte> BetPlayer = new();
+    public static Dictionary<byte, int> BetTimes = [];
+    public static Dictionary<byte, byte> BetPlayer = [];
 
     public static void SetupCustomOption()
     {
@@ -52,9 +52,9 @@ public static class Romantic
     }
     public static void Init()
     {
-        playerIdList = new();
-        BetTimes = new();
-        BetPlayer = new();
+        playerIdList = [];
+        BetTimes = [];
+        BetPlayer = [];
         isProtect = false;
         isPartnerProtected = false;
     }
@@ -230,15 +230,15 @@ public static class Romantic
 
 public static class VengefulRomantic
 {
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     public static bool hasKilledKiller;
-    public static Dictionary<byte, byte> VengefulTarget = new();
+    public static Dictionary<byte, byte> VengefulTarget = [];
 
     public static void Init()
     {
-        playerIdList = new();
-        VengefulTarget = new();
+        playerIdList = [];
+        VengefulTarget = [];
         hasKilledKiller = false;
     }
     public static void Add(byte playerId, byte killerId = byte.MaxValue)
@@ -297,10 +297,10 @@ public static class VengefulRomantic
 
 public static class RuthlessRomantic
 {
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
     public static void Init()
     {
-        playerIdList = new();
+        playerIdList = [];
     }
     public static void Add(byte playerId)
     {

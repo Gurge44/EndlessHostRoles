@@ -8,14 +8,14 @@ namespace TOHE.Roles.Crewmate;
 public static class Mediumshiper
 {
     private static readonly int Id = 7200;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     public static OptionItem ContactLimitOpt;
     public static OptionItem OnlyReceiveMsgFromCrew;
     public static OptionItem MediumAbilityUseGainWithEachTaskCompleted;
 
-    public static Dictionary<byte, byte> ContactPlayer = new();
-    public static Dictionary<byte, float> ContactLimit = new();
+    public static Dictionary<byte, byte> ContactPlayer = [];
+    public static Dictionary<byte, float> ContactLimit = [];
 
     public static void SetupCustomOption()
     {
@@ -29,9 +29,9 @@ public static class Mediumshiper
     }
     public static void Init()
     {
-        playerIdList = new();
-        ContactPlayer = new();
-        ContactLimit = new();
+        playerIdList = [];
+        ContactPlayer = [];
+        ContactLimit = [];
     }
     public static void Add(byte playerId)
     {
@@ -56,7 +56,7 @@ public static class Mediumshiper
     }
     public static void OnReportDeadBody(GameData.PlayerInfo target)
     {
-        ContactPlayer = new();
+        ContactPlayer = [];
         if (target == null) return;
         foreach (var pc in Main.AllAlivePlayerControls.Where(x => playerIdList.Contains(x.PlayerId) && x.PlayerId != target.PlayerId).ToArray())
         {

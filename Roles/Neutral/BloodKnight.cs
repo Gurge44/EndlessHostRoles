@@ -10,14 +10,14 @@ namespace TOHE.Roles.Neutral;
 public static class BloodKnight
 {
     private static readonly int Id = 11800;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
     public static OptionItem CanVent;
     private static OptionItem HasImpostorVision;
     private static OptionItem ProtectDuration;
 
-    private static Dictionary<byte, long> TimeStamp = new();
+    private static Dictionary<byte, long> TimeStamp = [];
 
     public static void SetupCustomOption()
     {
@@ -31,8 +31,8 @@ public static class BloodKnight
     }
     public static void Init()
     {
-        playerIdList = new();
-        TimeStamp = new();
+        playerIdList = [];
+        TimeStamp = [];
     }
     public static void Add(byte playerId)
     {

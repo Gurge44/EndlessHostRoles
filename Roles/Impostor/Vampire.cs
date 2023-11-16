@@ -22,10 +22,10 @@ public static class Vampire
     }
 
     private static readonly int Id = 4500;
-    private static readonly List<byte> PlayerIdList = new();
+    private static readonly List<byte> PlayerIdList = [];
     private static OptionItem OptionKillDelay;
     private static float KillDelay;
-    private static readonly Dictionary<byte, BittenInfo> BittenPlayers = new();
+    private static readonly Dictionary<byte, BittenInfo> BittenPlayers = [];
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Vampire);

@@ -11,9 +11,9 @@ namespace TOHE.Roles.Impostor
     public static class RiftMaker
     {
         private static readonly int Id = 640900;
-        public static List<byte> playerIdList = new();
+        public static List<byte> playerIdList = [];
 
-        public static List<Vector2> Marks = new();
+        public static List<Vector2> Marks = [];
 
         public static OptionItem KillCooldown;
         public static OptionItem ShapeshiftCooldown;
@@ -31,8 +31,8 @@ namespace TOHE.Roles.Impostor
 
         public static void Init()
         {
-            playerIdList = new();
-            Marks = new();
+            playerIdList = [];
+            Marks = [];
         }
 
         public static void Add(byte playerId)

@@ -9,9 +9,9 @@ namespace TOHE.Roles.Crewmate;
 public static class CopyCat
 {
     private static readonly int Id = 666420;
-    public static List<byte> playerIdList = new();
-    public static Dictionary<byte, float> CurrentKillCooldown = new();
-    public static Dictionary<byte, int> MiscopyLimit = new();
+    public static List<byte> playerIdList = [];
+    public static Dictionary<byte, float> CurrentKillCooldown = [];
+    public static Dictionary<byte, int> MiscopyLimit = [];
 
     public static OptionItem KillCooldown;
     public static OptionItem CanKill;
@@ -31,9 +31,9 @@ public static class CopyCat
 
     public static void Init()
     {
-        playerIdList = new();
-        CurrentKillCooldown = new();
-        MiscopyLimit = new();
+        playerIdList = [];
+        CurrentKillCooldown = [];
+        MiscopyLimit = [];
     }
 
     public static void Add(byte playerId)
@@ -272,7 +272,7 @@ public static class CopyCat
                     break;
                 case CustomRoles.Merchant:
                     Merchant.addonsSold.Add(pc.PlayerId, 0);
-                    Merchant.bribedKiller.Add(pc.PlayerId, new List<byte>());
+                    Merchant.bribedKiller.Add(pc.PlayerId, []);
                     break;
                 case CustomRoles.Aid:
                     Aid.UseLimit.Add(pc.PlayerId, Aid.UseLimitOpt.GetInt());

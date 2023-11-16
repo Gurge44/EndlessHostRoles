@@ -43,10 +43,10 @@ public static class Options
 
     // プリセット
     private static readonly string[] presets =
-    {
+    [
         Main.Preset1.Value, Main.Preset2.Value, Main.Preset3.Value,
         Main.Preset4.Value, Main.Preset5.Value
-    };
+    ];
 
     // ゲームモード
     public static OptionItem GameMode;
@@ -59,9 +59,9 @@ public static class Options
         };
 
     public static readonly string[] gameModes =
-    {
+    [
         "Standard", "SoloKombat", "FFA"
-    };
+    ];
 
     // MapActive
     public static bool IsActiveSkeld => Main.NormalOptions.MapId == 0;
@@ -77,31 +77,31 @@ public static class Options
     public static Dictionary<CustomRoles, StringOptionItem> CustomRoleSpawnChances;
     public static Dictionary<CustomRoles, IntegerOptionItem> CustomAdtRoleSpawnRate;
     public static readonly string[] rates =
-    {
+    [
         "Rate0",  "Rate5",  "Rate10", "Rate20", "Rate30", "Rate40",
         "Rate50", "Rate60", "Rate70", "Rate80", "Rate90", "Rate100",
-    };
+    ];
     public static readonly string[] ratesZeroOne =
-    {
+    [
         "RoleOff", /*"Rate10", "Rate20", "Rate30", "Rate40", "Rate50",
         "Rate60", "Rate70", "Rate80", "Rate90", */"RoleRate",
-    };
+    ];
     public static readonly string[] ratesToggle =
-    {
+    [
         "RoleOff", "RoleRate", "RoleOn"
-    };
+    ];
     public static readonly string[] CheatResponsesName =
-    {
+    [
         "Ban", "Kick", "NoticeMe","NoticeEveryone"
-    };
+    ];
     public static readonly string[] ConfirmEjectionsMode =
-    {
+    [
         "ConfirmEjections.None",
         "ConfirmEjections.Team",
         "ConfirmEjections.Role"
-    };
+    ];
     public static readonly string[] CamouflageMode =
-    {
+    [
         "CamouflageMode.Default",
         "CamouflageMode.Host",
         "CamouflageMode.Karpe",
@@ -111,7 +111,7 @@ public static class Options
         "CamouflageMode.ryuk",
         "CamouflageMode.Gurge44",
         "CamouflageMode.TommyXL"
-    };
+    ];
 
     // 各役職の詳細設定
     public static OptionItem EnableGM;
@@ -699,35 +699,35 @@ public static class Options
     public static OptionItem WhenNonVote;
     public static OptionItem WhenTie;
     public static readonly string[] voteModes =
-    {
+    [
         "Default", "Suicide", "SelfVote", "Skip"
-    };
+    ];
     public static readonly string[] tieModes =
-    {
+    [
         "TieMode.Default", "TieMode.All", "TieMode.Random"
-    };
+    ];
     /* public static readonly string[] addonGuessModeCrew =
      {
          "GuesserMode.All", "GuesserMode.Harmful", "GuesserMode.Random"
      }; */
     public static readonly string[] madmateSpawnMode =
-    {
+    [
         "MadmateSpawnMode.Assign",
         "MadmateSpawnMode.FirstKill",
         "MadmateSpawnMode.SelfVote",
-    };
+    ];
     public static readonly string[] madmateCountMode =
-    {
+    [
         "MadmateCountMode.None",
         "MadmateCountMode.Imp",
         "MadmateCountMode.Crew",
-    };
+    ];
     public static readonly string[] sidekickCountMode =
-    {
+    [
         "SidekickCountMode.Jackal",
         "SidekickCountMode.None",
         "SidekickCountMode.Original",
-    };
+    ];
     public static VoteMode GetWhenSkipVote() => (VoteMode)WhenSkipVote.GetValue();
     public static VoteMode GetWhenNonVote() => (VoteMode)WhenNonVote.GetValue();
 
@@ -863,7 +863,7 @@ public static class Options
     //public static OptionItem SidekickCountMode;
 
     public static readonly string[] suffixModes =
-    {
+    [
         "SuffixMode.None",
         "SuffixMode.Version",
         "SuffixMode.Streaming",
@@ -872,21 +872,21 @@ public static class Options
         "SuffixMode.OriginalName",
         "SuffixMode.DoNotKillMe",
         "SuffixMode.NoAndroidPlz",
-        "SuffixMode.AutoHost"    };
+        "SuffixMode.AutoHost"    ];
     public static readonly string[] roleAssigningAlgorithms =
-    {
+    [
         "RoleAssigningAlgorithm.Default",
         "RoleAssigningAlgorithm.NetRandom",
         "RoleAssigningAlgorithm.HashRandom",
         "RoleAssigningAlgorithm.Xorshift",
         "RoleAssigningAlgorithm.MersenneTwister",
-    };
+    ];
     public static readonly string[] formatNameModes =
-    {
+    [
         "FormatNameModes.None",
         "FormatNameModes.Color",
         "FormatNameModes.Snacks",
-    };
+    ];
     public static SuffixModes GetSuffixMode() => (SuffixModes)SuffixMode.GetValue();
 
     public static int SnitchExposeTaskLeft = 1;
@@ -903,8 +903,8 @@ public static class Options
     }
     public static void ResetRoleCounts()
     {
-        roleCounts = new Dictionary<CustomRoles, int>();
-        roleSpawnChances = new Dictionary<CustomRoles, float>();
+        roleCounts = [];
+        roleSpawnChances = [];
 
         foreach (var role in Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>())
         {
@@ -964,9 +964,9 @@ public static class Options
             .SetHeader(true);
 
         #region 职业详细设置
-        CustomRoleCounts = new();
-        CustomRoleSpawnChances = new();
-        CustomAdtRoleSpawnRate = new();
+        CustomRoleCounts = [];
+        CustomRoleSpawnChances = [];
+        CustomAdtRoleSpawnRate = [];
 
         // GM
         EnableGM = BooleanOptionItem.Create(100, "GM", false, TabGroup.GameSettings, false)
@@ -2420,7 +2420,7 @@ public static class Options
         //SetupAdtRoleOptions(18600, CustomRoles.Ntr, tab: TabGroup.OtherRoles);
         RoleLoadingText = "Experimental roles\nFlash";
         SetupAdtRoleOptions(18700, CustomRoles.Flashman, canSetNum: true, tab: TabGroup.OtherRoles);
-        FlashmanSpeed = FloatOptionItem.Create(6050335, "FlashmanSpeed", new(0.25f, 5f, 0.25f), 2.5f, TabGroup.OtherRoles, false)
+        FlashmanSpeed = FloatOptionItem.Create(6050335, "FlashmanSpeed", new(0.25f, 3f, 0.25f), 2.5f, TabGroup.OtherRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Flashman])
             .SetValueFormat(OptionFormat.Multiplier);
 
@@ -3534,7 +3534,7 @@ public static class Options
     }
     public class OverrideTasksData
     {
-        public static Dictionary<CustomRoles, OverrideTasksData> AllData = new();
+        public static Dictionary<CustomRoles, OverrideTasksData> AllData = [];
         public CustomRoles Role { get; private set; }
         public int IdStart { get; private set; }
         public OptionItem doOverride;

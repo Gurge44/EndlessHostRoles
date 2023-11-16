@@ -9,7 +9,7 @@ namespace TOHE.Roles.Crewmate;
 public static class Oracle
 {
     private static readonly int Id = 7600;
-    private static List<byte> playerIdList = new();
+    private static List<byte> playerIdList = [];
 
     public static OptionItem CheckLimitOpt;
     //  private static OptionItem OracleCheckMode;
@@ -17,8 +17,8 @@ public static class Oracle
     public static OptionItem FailChance;
     public static OptionItem OracleAbilityUseGainWithEachTaskCompleted;
 
-    public static List<byte> didVote = new();
-    public static Dictionary<byte, float> CheckLimit = new();
+    public static List<byte> didVote = [];
+    public static Dictionary<byte, float> CheckLimit = [];
 
     public static void SetupCustomOption()
     {
@@ -37,8 +37,8 @@ public static class Oracle
     }
     public static void Init()
     {
-        playerIdList = new();
-        CheckLimit = new();
+        playerIdList = [];
+        CheckLimit = [];
     }
     public static void Add(byte playerId)
     {

@@ -11,14 +11,14 @@ namespace TOHE.Roles.Impostor;
 public static class Hacker
 {
     private static readonly int Id = 2200;
-    private static List<byte> playerIdList = new();
+    private static List<byte> playerIdList = [];
 
     private static OptionItem HackLimitOpt;
     private static OptionItem KillCooldown;
     public static OptionItem HackerAbilityUseGainWithEachKill;
 
-    public static Dictionary<byte, float> HackLimit = new();
-    private static List<byte> DeadBodyList = new();
+    public static Dictionary<byte, float> HackLimit = [];
+    private static List<byte> DeadBodyList = [];
 
     public static void SetupCustomOption()
     {
@@ -33,9 +33,9 @@ public static class Hacker
     }
     public static void Init()
     {
-        playerIdList = new();
-        HackLimit = new();
-        DeadBodyList = new();
+        playerIdList = [];
+        HackLimit = [];
+        DeadBodyList = [];
     }
     public static void Add(byte playerId)
     {
@@ -72,7 +72,7 @@ public static class Hacker
             __instance.AbilityButton.SetUsesRemaining((int)x);
         }
     }
-    public static void OnReportDeadBody() => DeadBodyList = new();
+    public static void OnReportDeadBody() => DeadBodyList = [];
     public static void AddDeadBody(PlayerControl target)
     {
         if (target != null && !DeadBodyList.Contains(target.PlayerId))

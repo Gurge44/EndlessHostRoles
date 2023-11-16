@@ -14,11 +14,11 @@ namespace TOHE.Roles.Crewmate
     {
         private static readonly int Id = 5250;
         public static bool IsProtected;
-        private static List<byte> playerIdList = new();
-        private static Dictionary<byte, int> ventedId = new();
+        private static List<byte> playerIdList = [];
+        private static Dictionary<byte, int> ventedId = [];
         public static byte PotionID = 10;
         public static string PlayerName = string.Empty;
-        private static Dictionary<byte, long> InvisTime = new();
+        private static Dictionary<byte, long> InvisTime = [];
         public static bool VisionPotionActive;
         public static bool FixNextSabo;
 
@@ -54,11 +54,11 @@ namespace TOHE.Roles.Crewmate
         }
         public static void Init()
         {
-            playerIdList = new();
+            playerIdList = [];
             PotionID = 10;
             PlayerName = string.Empty;
-            ventedId = new();
-            InvisTime = new();
+            ventedId = [];
+            InvisTime = [];
             FixNextSabo = false;
             VisionPotionActive = false;
         }
@@ -157,8 +157,7 @@ namespace TOHE.Roles.Crewmate
                     _ = new LateTask(() =>
                     {
                         var rd = IRandom.Instance;
-                        List<PlayerControl> AllAlivePlayer = new();
-                        foreach (var pc in Main.AllAlivePlayerControls.Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder).ToArray()) AllAlivePlayer.Add(pc);
+                        List<PlayerControl> AllAlivePlayer = [.. Main.AllAlivePlayerControls.Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder).ToArray()];
                         var tar1 = AllAlivePlayer[player.PlayerId];
                         AllAlivePlayer.Remove(tar1);
                         var tar2 = AllAlivePlayer[rd.Next(0, AllAlivePlayer.Count)];
@@ -215,7 +214,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static void ReceiveRPC(MessageReader reader)
         {
-            InvisTime = new();
+            InvisTime = [];
             long invis = long.Parse(reader.ReadString());
             _ = long.Parse(reader.ReadString());
             if (invis > 0) InvisTime.Add(PlayerControl.LocalPlayer.PlayerId, invis);
@@ -249,8 +248,8 @@ namespace TOHE.Roles.Crewmate
             if (lastFixedTime != now)
             {
                 lastFixedTime = now;
-                Dictionary<byte, long> newList = new();
-                List<byte> refreshList = new();
+                Dictionary<byte, long> newList = [];
+                List<byte> refreshList = [];
                 foreach (var it in InvisTime)
                 {
                     var pc = Utils.GetPlayerById(it.Key);

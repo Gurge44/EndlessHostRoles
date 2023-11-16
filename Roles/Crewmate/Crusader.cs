@@ -8,11 +8,11 @@ namespace TOHE.Roles.Crewmate;
 public static class Crusader
 {
     private static readonly int Id = 20050;
-    private static List<byte> playerIdList = new();
-    public static Dictionary<byte, int> CrusaderLimit = new();
+    private static List<byte> playerIdList = [];
+    public static Dictionary<byte, int> CrusaderLimit = [];
     public static OptionItem SkillLimitOpt;
     public static OptionItem SkillCooldown;
-    public static Dictionary<byte, float> CurrentKillCooldown = new();
+    public static Dictionary<byte, float> CurrentKillCooldown = [];
 
     public static void SetupCustomOption()
     {
@@ -24,8 +24,8 @@ public static class Crusader
     }
     public static void Init()
     {
-        playerIdList = new();
-        CrusaderLimit = new();
+        playerIdList = [];
+        CrusaderLimit = [];
     }
     public static void Add(byte playerId)
     {

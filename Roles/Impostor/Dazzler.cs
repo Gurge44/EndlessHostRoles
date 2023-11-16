@@ -11,9 +11,9 @@ namespace TOHE.Roles.Impostor
     public static class Dazzler
     {
         private static readonly int Id = 3500;
-        public static List<byte> playerIdList = new();
+        public static List<byte> playerIdList = [];
 
-        public static Dictionary<byte, List<byte>> PlayersDazzled = new();
+        public static Dictionary<byte, List<byte>> PlayersDazzled = [];
 
         private static OptionItem KillCooldown;
         private static OptionItem ShapeshiftCooldown;
@@ -46,15 +46,15 @@ namespace TOHE.Roles.Impostor
 
         public static void Init()
         {
-            playerIdList = new();
-            PlayersDazzled = new();
-            DazzleLimit = new();
+            playerIdList = [];
+            PlayersDazzled = [];
+            DazzleLimit = [];
         }
 
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            PlayersDazzled.TryAdd(playerId, new List<byte>());
+            PlayersDazzled.TryAdd(playerId, []);
             DazzleLimit.Add(playerId, DazzleLimitOpt.GetFloat());
         }
 

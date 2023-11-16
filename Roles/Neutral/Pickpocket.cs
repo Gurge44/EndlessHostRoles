@@ -8,7 +8,7 @@ namespace TOHE.Roles.Neutral;
 public static class Pickpocket
 {
     private static readonly int Id = 12600;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
     public static OptionItem CanVent;
@@ -28,7 +28,7 @@ public static class Pickpocket
     }
     public static void Init()
     {
-        playerIdList = new();
+        playerIdList = [];
     }
     public static void Add(byte playerId)
     {

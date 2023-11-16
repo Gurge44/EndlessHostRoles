@@ -28,7 +28,7 @@ public class PlayerState
     public PlayerState(byte playerId)
     {
         MainRole = CustomRoles.NotAssigned;
-        SubRoles = new();
+        SubRoles = [];
         countTypes = CountTypes.OutOfGame;
         PlayerId = playerId;
         IsDead = false;
@@ -37,7 +37,7 @@ public class PlayerState
         IsBlackOut = false;
         RealKiller = (DateTime.MinValue, byte.MaxValue);
         LastRoom = null;
-        TargetColorData = new();
+        TargetColorData = [];
     }
     public CustomRoles GetCustomRole()
     {

@@ -10,7 +10,7 @@ namespace TOHE.Roles.Neutral;
 public static class Postman
 {
     private static readonly int Id = 641400;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
     public static OptionItem CanVent;
@@ -19,7 +19,7 @@ public static class Postman
 
     public static bool IsFinished;
     public static byte Target;
-    private static List<byte> wereTargets = new();
+    private static List<byte> wereTargets = [];
 
     public static void SetupCustomOption()
     {
@@ -32,10 +32,10 @@ public static class Postman
     }
     public static void Init()
     {
-        playerIdList = new();
+        playerIdList = [];
         Target = byte.MaxValue;
         IsFinished = false;
-        wereTargets = new();
+        wereTargets = [];
     }
     public static void Add(byte playerId)
     {

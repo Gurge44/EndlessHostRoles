@@ -184,7 +184,7 @@ public enum Sounds
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.HandleRpc))]
 internal class RPCHandlerPatch
 {
-    public static Dictionary<byte, int> ReportDeadBodyRPCs = new();
+    public static Dictionary<byte, int> ReportDeadBodyRPCs = [];
     public static bool TrustedRpc(byte id)
     => (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.RetributionistRevenge;
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
@@ -325,7 +325,7 @@ internal class RPCHandlerPatch
             case CustomRPC.SyncCustomSettings:
                 if (AmongUsClient.Instance.AmHost) break;
 
-                List<OptionItem> listOptions = new();
+                List<OptionItem> listOptions = [];
                 var startAmount = reader.ReadInt32();
                 var lastAmount = reader.ReadInt32();
 
@@ -666,7 +666,7 @@ internal class RPCHandlerPatch
                 FFAManager.ReceiveRPCSyncFFAPlayer(reader);
                 break;
             case CustomRPC.SyncAllPlayerNames:
-                Main.AllPlayerNames = new();
+                Main.AllPlayerNames = [];
                 int num = reader.ReadInt32();
                 for (int i = 0; i < num; i++)
                     Main.AllPlayerNames.TryAdd(reader.ReadByte(), reader.ReadString());
@@ -862,7 +862,7 @@ internal static class RPC
         writer.Write(startAmount);
         writer.Write(lastAmount);
 
-        List<OptionItem> listOptions = new();
+        List<OptionItem> listOptions = [];
 
         // Add Options
         for (var option = startAmount; option < amountAllOptions && option <= lastAmount; option++)

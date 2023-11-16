@@ -24,10 +24,10 @@ public static class FireWorks
     private static OptionItem FireWorksRadius;
     public static OptionItem CanKill;
 
-    public static Dictionary<byte, int> nowFireWorksCount = new();
-    private static Dictionary<byte, List<Vector3>> fireWorksPosition = new();
-    private static Dictionary<byte, FireWorksState> state = new();
-    private static Dictionary<byte, int> fireWorksBombKill = new();
+    public static Dictionary<byte, int> nowFireWorksCount = [];
+    private static Dictionary<byte, List<Vector3>> fireWorksPosition = [];
+    private static Dictionary<byte, FireWorksState> state = [];
+    private static Dictionary<byte, int> fireWorksBombKill = [];
     private static int fireWorksCount = 1;
     private static float fireWorksRadius = 1;
 
@@ -43,10 +43,10 @@ public static class FireWorks
 
     public static void Init()
     {
-        nowFireWorksCount = new();
-        fireWorksPosition = new();
-        state = new();
-        fireWorksBombKill = new();
+        nowFireWorksCount = [];
+        fireWorksPosition = [];
+        state = [];
+        fireWorksBombKill = [];
         fireWorksCount = FireWorksCount.GetInt();
         fireWorksRadius = FireWorksRadius.GetFloat();
     }
@@ -54,7 +54,7 @@ public static class FireWorks
     public static void Add(byte playerId)
     {
         nowFireWorksCount[playerId] = fireWorksCount;
-        fireWorksPosition[playerId] = new();
+        fireWorksPosition[playerId] = [];
         state[playerId] = FireWorksState.Initial;
         fireWorksBombKill[playerId] = 0;
     }

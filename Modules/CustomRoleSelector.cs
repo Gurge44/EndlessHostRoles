@@ -14,7 +14,7 @@ internal class CustomRoleSelector
     public static void SelectCustomRoles()
     {
         // 开始职业抽取
-        RoleResult = new();
+        RoleResult = [];
         var rd = IRandom.Instance;
         int playerCount = Main.AllAlivePlayerControls.Length;
         int optImpNum = Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors);
@@ -40,26 +40,26 @@ internal class CustomRoleSelector
         int readyNeutralKillingNum = 0;
         // int readyCovenNum = 0;
 
-        List<CustomRoles> rolesToAssign = new();
-        List<CustomRoles> roleList = new();
-        List<CustomRoles> roleOnList = new();
+        List<CustomRoles> rolesToAssign = [];
+        List<CustomRoles> roleList = [];
+        List<CustomRoles> roleOnList = [];
 
-        List<CustomRoles> ImpOnList = new();
-        List<CustomRoles> ImpRateList = new();
+        List<CustomRoles> ImpOnList = [];
+        List<CustomRoles> ImpRateList = [];
 
-        List<CustomRoles> NonNeutralKillingOnList = new();
-        List<CustomRoles> NonNeutralKillingRateList = new();
+        List<CustomRoles> NonNeutralKillingOnList = [];
+        List<CustomRoles> NonNeutralKillingRateList = [];
         // List<CustomRoles> CovenOnList = new();
 
-        List<CustomRoles> NeutralKillingOnList = new();
-        List<CustomRoles> NeutralKillingRateList = new();
+        List<CustomRoles> NeutralKillingOnList = [];
+        List<CustomRoles> NeutralKillingRateList = [];
         // List<CustomRoles> CovenRateList = new();
 
-        List<CustomRoles> roleRateList = new();
+        List<CustomRoles> roleRateList = [];
 
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
         {
-            RoleResult = new();
+            RoleResult = [];
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
                 RoleResult.Add(pc, CustomRoles.KB_Normal);
@@ -69,7 +69,7 @@ internal class CustomRoleSelector
         }
         if (Options.CurrentGameMode == CustomGameMode.FFA)
         {
-            RoleResult = new();
+            RoleResult = [];
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
                 RoleResult.Add(pc, CustomRoles.Killer);
@@ -377,12 +377,12 @@ internal class CustomRoleSelector
         }
     }
 
-    public static List<CustomRoles> AddonRolesList = new();
+    public static List<CustomRoles> AddonRolesList = [];
     public static void SelectAddonRoles()
     {
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA) return;
 
-        AddonRolesList = new();
+        AddonRolesList = [];
         System.Collections.IList list = Enum.GetValues(typeof(CustomRoles));
         for (int i = 0; i < list.Count; i++)
         {

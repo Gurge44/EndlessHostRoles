@@ -37,15 +37,15 @@ public static class Camouflage
     static GameData.PlayerOutfit CamouflageOutfit = new GameData.PlayerOutfit().Set("", 15, "", "", "", "", ""); // Default
 
     public static bool IsCamouflage;
-    public static Dictionary<byte, GameData.PlayerOutfit> PlayerSkins = new();
+    public static Dictionary<byte, GameData.PlayerOutfit> PlayerSkins = [];
 
-    public static List<byte> ResetSkinAfterDeathPlayers = new();
+    public static List<byte> ResetSkinAfterDeathPlayers = [];
 
     public static void Init()
     {
         IsCamouflage = false;
         PlayerSkins.Clear();
-        ResetSkinAfterDeathPlayers = new();
+        ResetSkinAfterDeathPlayers = [];
 
         switch (Options.KPDCamouflageMode.GetValue())
         {

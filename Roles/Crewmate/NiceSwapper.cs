@@ -19,10 +19,10 @@ public static class NiceSwapper
     public static OptionItem CanStartMeeting;
     public static OptionItem NiceSwapperAbilityUseGainWithEachTaskCompleted;
 
-    public static List<byte> playerIdList = new();
-    public static List<byte> Vote = new();
-    public static List<byte> VoteTwo = new();
-    public static Dictionary<byte, float> NiceSwappermax = new();
+    public static List<byte> playerIdList = [];
+    public static List<byte> Vote = [];
+    public static List<byte> VoteTwo = [];
+    public static Dictionary<byte, float> NiceSwappermax = [];
     public static void SetupCustomOption()
     {
         Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.NiceSwapper, 1);
@@ -37,10 +37,10 @@ public static class NiceSwapper
     }
     public static void Init()
     {
-        playerIdList = new();
-        Vote = new();
-        VoteTwo = new();
-        NiceSwappermax = new();
+        playerIdList = [];
+        Vote = [];
+        VoteTwo = [];
+        NiceSwappermax = [];
     }
     public static void Add(byte playerId)
     {

@@ -12,8 +12,8 @@ namespace TOHE.Roles.Crewmate
     public static class CameraMan
     {
         private static readonly int Id = 641600;
-        private static List<byte> playerIdList = new();
-        public static Dictionary<byte, float> UseLimit = new();
+        private static List<byte> playerIdList = [];
+        public static Dictionary<byte, float> UseLimit = [];
 
         public static OptionItem VentCooldown;
         public static OptionItem UseLimitOpt;
@@ -32,8 +32,8 @@ namespace TOHE.Roles.Crewmate
         }
         public static void Init()
         {
-            playerIdList = new();
-            UseLimit = new();
+            playerIdList = [];
+            UseLimit = [];
         }
         public static void Add(byte playerId)
         {

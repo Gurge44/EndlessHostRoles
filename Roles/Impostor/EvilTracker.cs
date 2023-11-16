@@ -12,7 +12,7 @@ namespace TOHE.Roles.Impostor;
 public static class EvilTracker
 {
     private static readonly int Id = 500;
-    private static List<byte> playerIdList = new();
+    private static List<byte> playerIdList = [];
 
     private static OptionItem OptionCanSeeKillFlash;
     private static OptionItem OptionTargetMode;
@@ -31,16 +31,16 @@ public static class EvilTracker
         Always,
     };
     private static readonly string[] TargetModeText =
-    {
+    [
         "EvilTrackerTargetMode.Never",
         "EvilTrackerTargetMode.OnceInGame",
         "EvilTrackerTargetMode.EveryMeeting",
         "EvilTrackerTargetMode.Always",
-    };
+    ];
 
-    public static Dictionary<byte, byte> Target = new();
-    public static Dictionary<byte, bool> CanSetTarget = new();
-    private static Dictionary<byte, HashSet<byte>> ImpostorsId = new();
+    public static Dictionary<byte, byte> Target = [];
+    public static Dictionary<byte, bool> CanSetTarget = [];
+    private static Dictionary<byte, HashSet<byte>> ImpostorsId = [];
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.EvilTracker);
@@ -53,10 +53,10 @@ public static class EvilTracker
     }
     public static void Init()
     {
-        playerIdList = new();
-        Target = new();
-        CanSetTarget = new();
-        ImpostorsId = new();
+        playerIdList = [];
+        Target = [];
+        CanSetTarget = [];
+        ImpostorsId = [];
 
         CanSeeKillFlash = OptionCanSeeKillFlash.GetBool();
         CurrentTargetMode = (TargetMode)OptionTargetMode.GetValue();
@@ -69,7 +69,7 @@ public static class EvilTracker
         Target.Add(playerId, byte.MaxValue);
         CanSetTarget.Add(playerId, CurrentTargetMode != TargetMode.Never);
         //ImpostorsIdはEvilTracker内で共有
-        ImpostorsId[playerId] = new();
+        ImpostorsId[playerId] = [];
         foreach (PlayerControl target in Main.AllAlivePlayerControls)
         {
             var targetId = target.PlayerId;

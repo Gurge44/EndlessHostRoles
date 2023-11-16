@@ -8,7 +8,7 @@ namespace TOHE.Roles.Impostor
     public static class Chronomancer
     {
         private static readonly int Id = 642100;
-        public static List<byte> playerIdList = new();
+        public static List<byte> playerIdList = [];
 
         private static OptionItem KCD;
         private static OptionItem ChargeInterval;
@@ -47,7 +47,7 @@ namespace TOHE.Roles.Impostor
         }
         public static void Init()
         {
-            playerIdList = new();
+            playerIdList = [];
             isRampaging = false;
             chargePercent = 0;
             lastUpdate = Utils.GetTimeStamp() + 30;

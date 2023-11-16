@@ -10,7 +10,7 @@ namespace TOHE.Roles.Neutral;
 public static class Succubus
 {
     private static readonly int Id = 11200;
-    private static List<byte> playerIdList = new();
+    private static List<byte> playerIdList = [];
 
     public static OptionItem CharmCooldown;
     public static OptionItem CharmCooldownIncrese;
@@ -21,11 +21,11 @@ public static class Succubus
     public static OptionItem CharmedCountMode;
 
     public static readonly string[] charmedCountMode =
-    {
+    [
         "CharmedCountMode.None",
         "CharmedCountMode.Succubus",
         "CharmedCountMode.Original",
-    };
+    ];
 
     private static int CharmLimit;
 
@@ -45,7 +45,7 @@ public static class Succubus
     }
     public static void Init()
     {
-        playerIdList = new();
+        playerIdList = [];
         CharmLimit = new();
     }
     public static void Add(byte playerId)

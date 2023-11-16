@@ -10,11 +10,11 @@
     public static class Bloodhound
     {
         private static readonly int Id = 6400;
-        private static List<byte> playerIdList = new();
+        private static List<byte> playerIdList = [];
 
-        public static List<byte> UnreportablePlayers = new();
-        public static Dictionary<byte, List<byte>> BloodhoundTargets = new();
-        public static Dictionary<byte, float> UseLimit = new();
+        public static List<byte> UnreportablePlayers = [];
+        public static Dictionary<byte, List<byte>> BloodhoundTargets = [];
+        public static Dictionary<byte, float> UseLimit = [];
 
         public static OptionItem ArrowsPointingToDeadBody;
         public static OptionItem UseLimitOpt;
@@ -36,16 +36,16 @@
         }
         public static void Init()
         {
-            playerIdList = new();
-            UseLimit = new();
-            UnreportablePlayers = new List<byte>();
-            BloodhoundTargets = new Dictionary<byte, List<byte>>();
+            playerIdList = [];
+            UseLimit = [];
+            UnreportablePlayers = [];
+            BloodhoundTargets = [];
         }
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
             UseLimit.Add(playerId, UseLimitOpt.GetInt());
-            BloodhoundTargets.Add(playerId, new List<byte>());
+            BloodhoundTargets.Add(playerId, []);
 
         }
         public static bool IsEnable => playerIdList.Any();

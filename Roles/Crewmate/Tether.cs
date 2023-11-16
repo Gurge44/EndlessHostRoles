@@ -12,8 +12,8 @@ namespace TOHE.Roles.Crewmate
     public static class Tether
     {
         private static readonly int Id = 640300;
-        public static List<byte> playerIdList = new();
-        public static Dictionary<byte, float> UseLimit = new();
+        public static List<byte> playerIdList = [];
+        public static Dictionary<byte, float> UseLimit = [];
         private static byte Target = byte.MaxValue;
 
         public static OptionItem VentCooldown;
@@ -33,8 +33,8 @@ namespace TOHE.Roles.Crewmate
         }
         public static void Init()
         {
-            playerIdList = new();
-            UseLimit = new();
+            playerIdList = [];
+            UseLimit = [];
             Target = byte.MaxValue;
         }
         public static void Add(byte playerId)

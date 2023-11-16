@@ -8,12 +8,12 @@ namespace TOHE.Roles.Crewmate
     internal class Benefactor
     {
         private static readonly int Id = 8670;
-        private static List<byte> playerIdList = new();
+        private static List<byte> playerIdList = [];
         public static bool IsEnable = false;
 
-        public static Dictionary<byte, List<int>> taskIndex = new();
-        public static Dictionary<byte, int> TaskMarkPerRound = new();
-        public static Dictionary<byte, long> shieldedPlayers = new();
+        public static Dictionary<byte, List<int>> taskIndex = [];
+        public static Dictionary<byte, int> TaskMarkPerRound = [];
+        public static Dictionary<byte, long> shieldedPlayers = [];
         private static int maxTasksMarkedPerRound = new();
 
         public static OptionItem TaskMarkPerRoundOpt;
@@ -33,10 +33,10 @@ namespace TOHE.Roles.Crewmate
 
         public static void Init()
         {
-            playerIdList = new();
-            taskIndex = new();
-            TaskMarkPerRound = new();
-            shieldedPlayers = new();
+            playerIdList = [];
+            taskIndex = [];
+            TaskMarkPerRound = [];
+            shieldedPlayers = [];
             IsEnable = false;
             maxTasksMarkedPerRound = TaskMarkPerRoundOpt.GetInt();
         }
@@ -71,7 +71,7 @@ namespace TOHE.Roles.Crewmate
                 TaskMarkPerRound[benefactorID] = uses;
                 if (!clearAll && !shieldExpire)
                 {
-                    if (!taskIndex.ContainsKey(benefactorID)) taskIndex[benefactorID] = new();
+                    if (!taskIndex.ContainsKey(benefactorID)) taskIndex[benefactorID] = [];
                     taskIndex[benefactorID].Add(taskInd);
                 }
             }
@@ -133,7 +133,7 @@ namespace TOHE.Roles.Crewmate
                     return;
                 }
                 TaskMarkPerRound[playerId]++;
-                if (!taskIndex.ContainsKey(playerId)) taskIndex[playerId] = new();
+                if (!taskIndex.ContainsKey(playerId)) taskIndex[playerId] = [];
                 taskIndex[playerId].Add(task.Index);
                 SendRPC(benefactorID: playerId, taskIndex: task.Index);
                 player.Notify(Translator.GetString("BenefactorTaskMarked"));

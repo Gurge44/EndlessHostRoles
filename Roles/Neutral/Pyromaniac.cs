@@ -8,8 +8,8 @@ namespace TOHE.Roles.Neutral;
 public static class Pyromaniac
 {
     private static readonly int Id = 128020;
-    public static List<byte> playerIdList = new();
-    public static List<byte> DousedList = new();
+    public static List<byte> playerIdList = [];
+    public static List<byte> DousedList = [];
 
     private static OptionItem KillCooldown;
     private static OptionItem DouseCooldown;
@@ -31,8 +31,8 @@ public static class Pyromaniac
     }
     public static void Init()
     {
-        playerIdList = new();
-        DousedList = new();
+        playerIdList = [];
+        DousedList = [];
     }
     public static void Add(byte playerId)
     {

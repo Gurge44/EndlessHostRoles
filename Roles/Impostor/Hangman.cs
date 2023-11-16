@@ -8,8 +8,8 @@ namespace TOHE.Roles.Impostor;
 public static class Hangman
 {
     private static readonly int Id = 1400;
-    private static List<byte> playerIdList = new();
-    public static Dictionary<byte, float> HangLimit = new();
+    private static List<byte> playerIdList = [];
+    public static Dictionary<byte, float> HangLimit = [];
 
     private static OptionItem ShapeshiftCooldown;
     public static OptionItem ShapeshiftDuration;
@@ -34,8 +34,8 @@ public static class Hangman
     }
     public static void Init()
     {
-        playerIdList = new();
-        HangLimit = new();
+        playerIdList = [];
+        HangLimit = [];
     }
     public static void Add(byte playerId)
     {

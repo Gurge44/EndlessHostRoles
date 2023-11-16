@@ -9,7 +9,7 @@ namespace TOHE;
 public static class Imitator
 {
     private static readonly int Id = 11950;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     private static OptionItem OddKillCooldown;
     private static OptionItem EvenKillCooldown;
@@ -17,7 +17,7 @@ public static class Imitator
     public static OptionItem CanVent;
     private static OptionItem HasImpostorVision;
 
-    public static Dictionary<byte, bool> IsOdd = new();
+    public static Dictionary<byte, bool> IsOdd = [];
 
     public static void SetupCustomOption()
     {
@@ -33,8 +33,8 @@ public static class Imitator
     }
     public static void Init()
     {
-        playerIdList = new();
-        IsOdd = new();
+        playerIdList = [];
+        IsOdd = [];
     }
     public static void Add(byte playerId)
     {

@@ -13,11 +13,11 @@
     public static class NiceHacker
     {
         private static readonly int Id = 641000;
-        public static Dictionary<byte, bool> playerIdList = new();
-        public static Dictionary<byte, float> UseLimit = new();
-        public static Dictionary<byte, float> UseLimitSeconds = new();
+        public static Dictionary<byte, bool> playerIdList = [];
+        public static Dictionary<byte, float> UseLimit = [];
+        public static Dictionary<byte, float> UseLimitSeconds = [];
 
-        private static Dictionary<byte, long> LastUpdate = new();
+        private static Dictionary<byte, long> LastUpdate = [];
 
         public static OptionItem AbilityCD;
         public static OptionItem UseLimitOpt;
@@ -49,10 +49,10 @@
         }
         public static void Init()
         {
-            playerIdList = new();
-            UseLimit = new();
-            UseLimitSeconds = new();
-            LastUpdate = new();
+            playerIdList = [];
+            UseLimit = [];
+            UseLimitSeconds = [];
+            LastUpdate = [];
         }
         public static void Add(byte playerId)
         {

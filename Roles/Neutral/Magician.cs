@@ -14,7 +14,7 @@ namespace TOHE.Roles.Neutral;
 public static class Magician
 {
     private static readonly int Id = 641300;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
     public static OptionItem CanVent;
@@ -33,11 +33,11 @@ public static class Magician
 
     private static byte CardId = byte.MaxValue;
 
-    public static Dictionary<byte, long> SlowPPL = new();
-    public static Dictionary<byte, float> TempSpeeds = new();
-    public static Dictionary<byte, long> BlindPPL = new();
-    public static Dictionary<Vector2, long> Bombs = new();
-    private static List<Vector2> PortalMarks = new();
+    public static Dictionary<byte, long> SlowPPL = [];
+    public static Dictionary<byte, float> TempSpeeds = [];
+    public static Dictionary<byte, long> BlindPPL = [];
+    public static Dictionary<Vector2, long> Bombs = [];
+    private static List<Vector2> PortalMarks = [];
     private static bool isSniping;
     private static Vector3 snipeBasePosition;
     private static bool isSpeedup;
@@ -77,12 +77,12 @@ public static class Magician
     }
     public static void Init()
     {
-        playerIdList = new();
+        playerIdList = [];
         CardId = byte.MaxValue;
-        SlowPPL = new();
-        BlindPPL = new();
-        Bombs = new();
-        PortalMarks = new();
+        SlowPPL = [];
+        BlindPPL = [];
+        Bombs = [];
+        PortalMarks = [];
         isSniping = false;
         isSpeedup = false;
         lastTP = GetTimeStamp();

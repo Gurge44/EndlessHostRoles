@@ -9,7 +9,7 @@
     public static class Ignitor // Candle Lighter from TOHY
     {
         private static readonly int Id = 5280;
-        private static List<byte> playerIdList = new();
+        private static List<byte> playerIdList = [];
 
         private static OptionItem OptionTaskStartVision;
         private static OptionItem OptionCountStartTime;
@@ -46,7 +46,7 @@
         }
         public static void Init()
         {
-            playerIdList = new();
+            playerIdList = [];
             active = true;
         }
         public static void Add(byte playerId)

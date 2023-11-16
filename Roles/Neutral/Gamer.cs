@@ -9,7 +9,7 @@ namespace TOHE.Roles.Neutral;
 public static class Gamer
 {
     private static readonly int Id = 10600;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     private static Dictionary<byte, int> PlayerHealth;
     private static Dictionary<byte, int> GamerHealth;
@@ -41,9 +41,9 @@ public static class Gamer
     }
     public static void Init()
     {
-        playerIdList = new();
-        GamerHealth = new();
-        PlayerHealth = new();
+        playerIdList = [];
+        GamerHealth = [];
+        PlayerHealth = [];
     }
     public static void Add(byte playerId)
     {

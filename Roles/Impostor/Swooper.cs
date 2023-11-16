@@ -12,7 +12,7 @@ namespace TOHE.Roles.Impostor;
 public static class Swooper
 {
     private static readonly int Id = 4200;
-    private static List<byte> playerIdList = new();
+    private static List<byte> playerIdList = [];
 
     public static OptionItem SwooperCooldown;
     private static OptionItem SwooperDuration;
@@ -20,10 +20,10 @@ public static class Swooper
     private static OptionItem SwooperLimitOpt;
     public static OptionItem SwooperAbilityUseGainWithEachKill;
 
-    private static Dictionary<byte, long> InvisTime = new();
-    public static Dictionary<byte, long> lastTime = new();
-    private static Dictionary<byte, int> ventedId = new();
-    public static Dictionary<byte, float> SwoopLimit = new();
+    private static Dictionary<byte, long> InvisTime = [];
+    public static Dictionary<byte, long> lastTime = [];
+    private static Dictionary<byte, int> ventedId = [];
+    public static Dictionary<byte, float> SwoopLimit = [];
     private static int CD;
 
     public static void SetupCustomOption()
@@ -42,11 +42,11 @@ public static class Swooper
     }
     public static void Init()
     {
-        playerIdList = new();
-        InvisTime = new();
-        lastTime = new();
-        ventedId = new();
-        SwoopLimit = new();
+        playerIdList = [];
+        InvisTime = [];
+        lastTime = [];
+        ventedId = [];
+        SwoopLimit = [];
         CD = 0;
     }
     public static void Add(byte playerId)
@@ -65,8 +65,8 @@ public static class Swooper
     }
     public static void ReceiveRPC(MessageReader reader)
     {
-        InvisTime = new();
-        lastTime = new();
+        InvisTime = [];
+        lastTime = [];
         long invis = long.Parse(reader.ReadString());
         long last = long.Parse(reader.ReadString());
         if (invis > 0) InvisTime.Add(PlayerControl.LocalPlayer.PlayerId, invis);
@@ -79,8 +79,8 @@ public static class Swooper
     private static long lastFixedTime;
     public static void AfterMeetingTasks()
     {
-        lastTime = new();
-        InvisTime = new();
+        lastTime = [];
+        InvisTime = [];
         foreach (var pc in Main.AllAlivePlayerControls.Where(x => playerIdList.Contains(x.PlayerId)).ToArray())
         {
             lastTime.Add(pc.PlayerId, Utils.GetTimeStamp());
@@ -111,8 +111,8 @@ public static class Swooper
         if (lastFixedTime != now)
         {
             lastFixedTime = now;
-            Dictionary<byte, long> newList = new();
-            List<byte> refreshList = new();
+            Dictionary<byte, long> newList = [];
+            List<byte> refreshList = [];
             foreach (var it in InvisTime)
             {
                 var pc = Utils.GetPlayerById(it.Key);

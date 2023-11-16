@@ -11,18 +11,18 @@ namespace TOHE.Roles.Neutral;
 public static class Amnesiac
 {
     private static readonly int Id = 35000;
-    private static List<byte> playerIdList = new();
+    private static List<byte> playerIdList = [];
 
     public static OptionItem RememberCooldown;
     public static OptionItem RefugeeKillCD;
     public static OptionItem IncompatibleNeutralMode;
     public static readonly string[] amnesiacIncompatibleNeutralMode =
-    {
+    [
         "Role.Amnesiac",
         "Role.Pursuer",
         "Role.Follower",
         "Role.Maverick",
-    };
+    ];
 
     private static int RememberLimit;
 
@@ -37,7 +37,7 @@ public static class Amnesiac
     }
     public static void Init()
     {
-        playerIdList = new();
+        playerIdList = [];
         RememberLimit = new();
     }
     public static void Add(byte playerId)

@@ -9,7 +9,7 @@ namespace TOHE.Roles.Neutral;
 public static class Reckless
 {
     private static readonly int Id = 640500;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     private static OptionItem DefaultKillCooldown;
     private static OptionItem ReduceKillCooldown;
@@ -33,8 +33,8 @@ public static class Reckless
     }
     public static void Init()
     {
-        playerIdList = new();
-        NowCooldown = new();
+        playerIdList = [];
+        NowCooldown = [];
     }
     public static void Add(byte playerId)
     {

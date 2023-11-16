@@ -58,12 +58,12 @@ public static class GameOptionsMenuPatch
 
         var gameSettingMenu = Object.FindObjectsOfType<GameSettingMenu>().FirstOrDefault();
         if (gameSettingMenu == null) return;
-        List<GameObject> menus = new() { gameSettingMenu.RegularGameSettings, gameSettingMenu.RolesSettings.gameObject };
-        List<SpriteRenderer> highlights = new() { gameSettingMenu.GameSettingsHightlight, gameSettingMenu.RolesSettingsHightlight };
+        List<GameObject> menus = [gameSettingMenu.RegularGameSettings, gameSettingMenu.RolesSettings.gameObject];
+        List<SpriteRenderer> highlights = [gameSettingMenu.GameSettingsHightlight, gameSettingMenu.RolesSettingsHightlight];
 
         var roleTab = GameObject.Find("RoleTab");
         var gameTab = GameObject.Find("GameTab");
-        List<GameObject> tabs = new() { gameTab, roleTab };
+        List<GameObject> tabs = [gameTab, roleTab];
 
         System.Collections.IList list = Enum.GetValues(typeof(TabGroup));
         for (int i = 0; i < list.Count; i++)

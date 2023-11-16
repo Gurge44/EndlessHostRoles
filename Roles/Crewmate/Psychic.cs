@@ -10,7 +10,7 @@ namespace TOHE.Roles.Crewmate;
 public static class Psychic
 {
     private static readonly int Id = 7900;
-    private static List<byte> playerIdList = new();
+    private static List<byte> playerIdList = [];
 
     private static OptionItem CanSeeNum;
     private static OptionItem Fresh;
@@ -32,8 +32,8 @@ public static class Psychic
     }
     public static void Init()
     {
-        playerIdList = new();
-        RedPlayer = new();
+        playerIdList = [];
+        RedPlayer = [];
     }
     public static void Add(byte playerId)
     {
@@ -54,7 +54,7 @@ public static class Psychic
     public static void ReceiveRPC(MessageReader reader)
     {
         int count = reader.ReadInt32();
-        RedPlayer = new();
+        RedPlayer = [];
         for (int i = 0; i < count; i++)
             RedPlayer.Add(reader.ReadByte());
     }
@@ -80,9 +80,9 @@ public static class Psychic
         (x.GetCustomRole().IsNB() && NBshowEvil.GetBool())
         ).ToList();
 
-        List<byte> BadList = new();
+        List<byte> BadList = [];
         BadListPc.Do(x => BadList.Add(x.PlayerId));
-        List<byte> AllList = new();
+        List<byte> AllList = [];
         Main.AllAlivePlayerControls.Where(x => !BadList.Contains(x.PlayerId) && !x.Is(CustomRoles.Psychic)).Do(x => AllList.Add(x.PlayerId));
 
         int ENum = 1;
@@ -94,7 +94,7 @@ public static class Psychic
 
         if (ENum < 1) goto EndOfSelect;
 
-        RedPlayer = new();
+        RedPlayer = [];
         for (int i = 0; i < ENum && BadList.Any(); i++)
         {
             RedPlayer.Add(BadList[IRandom.Instance.Next(0, BadList.Count)]);

@@ -25,7 +25,7 @@ public static class Translator
     {
         var assembly = System.Reflection.Assembly.GetExecutingAssembly();
         var stream = assembly.GetManifestResourceStream("TOHE.Resources.String.csv");
-        translateMaps = new Dictionary<string, Dictionary<int, string>>();
+        translateMaps = [];
 
         var options = new CsvOptions()
         {
@@ -37,7 +37,7 @@ public static class Translator
             if (line.Values[0][0] == '#') continue;
             try
             {
-                Dictionary<int, string> dic = new();
+                Dictionary<int, string> dic = [];
                 for (int i = 1; i < line.ColumnCount; i++)
                 {
                     int id = int.Parse(line.Headers[i]);

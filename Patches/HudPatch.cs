@@ -594,7 +594,7 @@ class SetVentOutlinePatch
         __instance.myRend.material.SetColor("_AddColor", mainTarget ? color : Color.clear);
     }
 }
-[HarmonyPatch(typeof(HudManager), nameof(HudManager.SetHudActive), new System.Type[] { typeof(PlayerControl), typeof(RoleBehaviour), typeof(bool) })]
+[HarmonyPatch(typeof(HudManager), nameof(HudManager.SetHudActive), [typeof(PlayerControl), typeof(RoleBehaviour), typeof(bool)])]
 class SetHudActivePatch
 {
     public static bool IsActive;
@@ -777,7 +777,7 @@ class TaskPanelBehaviourPatch
                     AllText += $"\r\n{GetString("PVP.RCO")}: {lpc.HPRECO()}";
                     AllText += "\r\n";
 
-                    Dictionary<byte, string> SummaryText = new();
+                    Dictionary<byte, string> SummaryText = [];
                     foreach (var id in Main.PlayerStates.Keys)
                     {
                         string name = Main.AllPlayerNames[id].RemoveHtmlTags().Replace("\r\n", string.Empty);
@@ -786,7 +786,7 @@ class TaskPanelBehaviourPatch
                         SummaryText[id] = summary;
                     }
 
-                    List<(int, byte)> list = new();
+                    List<(int, byte)> list = [];
                     foreach (var id in Main.PlayerStates.Keys) list.Add((SoloKombatManager.GetRankOfScore(id), id));
                     list.Sort();
                     foreach (var id in list.Where(x => SummaryText.ContainsKey(x.Item2))) AllText += "\r\n" + SummaryText[id.Item2];
@@ -797,7 +797,7 @@ class TaskPanelBehaviourPatch
 
                 case CustomGameMode.FFA:
 
-                    Dictionary<byte, string> SummaryText2 = new();
+                    Dictionary<byte, string> SummaryText2 = [];
                     foreach (var id in Main.PlayerStates.Keys)
                     {
                         string name = Main.AllPlayerNames[id].RemoveHtmlTags().Replace("\r\n", string.Empty);
@@ -806,7 +806,7 @@ class TaskPanelBehaviourPatch
                         SummaryText2[id] = summary;
                     }
 
-                    List<(int, byte)> list2 = new();
+                    List<(int, byte)> list2 = [];
                     foreach (var id in Main.PlayerStates.Keys) list2.Add((FFAManager.GetRankOfScore(id), id));
                     list2.Sort();
                     foreach (var id in list2.Where(x => SummaryText2.ContainsKey(x.Item2))) AllText += "\r\n" + SummaryText2[id.Item2];

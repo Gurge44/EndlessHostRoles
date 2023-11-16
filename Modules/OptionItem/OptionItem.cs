@@ -80,7 +80,7 @@ public abstract class OptionItem
         IsText = false;
 
         // オブジェクト初期化
-        Children = new();
+        Children = [];
 
         // デフォルト値に設定
         if (Id == PresetId)
@@ -129,7 +129,7 @@ public abstract class OptionItem
         foreach (var role in Options.CustomRoleSpawnChances.Where(x => x.Value.Name == parent.Name))
         {
             var roleName = Translator.GetString(Enum.GetName(typeof(CustomRoles), role.Key));
-            ReplacementDictionary ??= new();
+            ReplacementDictionary ??= [];
             ReplacementDictionary.TryAdd(roleName, Utils.ColorString(Utils.GetRoleColor(role.Key), roleName));
             break;
         }
@@ -144,7 +144,7 @@ public abstract class OptionItem
     public OptionItem AddReplacement((string key, string value) kvp)
         => Do(i =>
         {
-            ReplacementDictionary ??= new();
+            ReplacementDictionary ??= [];
             ReplacementDictionary.Add(kvp.key, kvp.value);
         });
     public OptionItem RemoveReplacement(string key)

@@ -18,15 +18,15 @@ public static class Witch
         DoubleTrigger,
     };
     public static readonly string[] SwitchTriggerText =
-    {
+    [
         "TriggerKill", "TriggerVent","TriggerDouble"
-    };
+    ];
 
     private static readonly int Id = 2000;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
-    public static Dictionary<byte, bool> SpellMode = new();
-    public static Dictionary<byte, List<byte>> SpelledPlayer = new();
+    public static Dictionary<byte, bool> SpellMode = [];
+    public static Dictionary<byte, List<byte>> SpelledPlayer = [];
 
     public static OptionItem ModeSwitchAction;
     public static SwitchTrigger NowSwitchTrigger;
@@ -37,15 +37,15 @@ public static class Witch
     }
     public static void Init()
     {
-        playerIdList = new();
-        SpellMode = new();
-        SpelledPlayer = new();
+        playerIdList = [];
+        SpellMode = [];
+        SpelledPlayer = [];
     }
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         SpellMode.Add(playerId, false);
-        SpelledPlayer.Add(playerId, new());
+        SpelledPlayer.Add(playerId, []);
         NowSwitchTrigger = (SwitchTrigger)ModeSwitchAction.GetValue();
         var pc = Utils.GetPlayerById(playerId);
         pc.AddDoubleTrigger();

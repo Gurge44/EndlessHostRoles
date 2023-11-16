@@ -302,7 +302,7 @@ class GameEndChecker
         //}
 
         //ゴーストロール化
-        List<byte> ReviveRequiredPlayerIds = new();
+        List<byte> ReviveRequiredPlayerIds = [];
         var winner = CustomWinnerHolder.WinnerTeam;
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
@@ -548,10 +548,10 @@ class GameEndChecker
 
             var winner = Main.AllPlayerControls.FirstOrDefault(x => !x.Is(CustomRoles.GM) && SoloKombatManager.GetRankOfScore(x.PlayerId) == 1);
 
-            CustomWinnerHolder.WinnerIds = new()
-            {
+            CustomWinnerHolder.WinnerIds =
+            [
                 winner.PlayerId
-            };
+            ];
 
             Main.DoBlockNameChange = true;
 
@@ -582,10 +582,10 @@ class GameEndChecker
 
                 Logger.Warn($"Winner: {GetPlayerById(winnerId).GetRealName().RemoveHtmlTags()}", "FFA");
 
-                CustomWinnerHolder.WinnerIds = new()
-                {
+                CustomWinnerHolder.WinnerIds =
+                [
                     winnerId
-                };
+                ];
 
                 Main.DoBlockNameChange = true;
 
@@ -597,10 +597,10 @@ class GameEndChecker
 
                 Logger.Info($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "FFA");
 
-                CustomWinnerHolder.WinnerIds = new()
-                {
+                CustomWinnerHolder.WinnerIds =
+                [
                     winner.PlayerId
-                };
+                ];
 
                 Main.DoBlockNameChange = true;
 

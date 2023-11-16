@@ -9,10 +9,10 @@ namespace TOHE.Roles.Impostor
     public static class Devourer
     {
         private static readonly GameData.PlayerOutfit ConsumedOutfit = new GameData.PlayerOutfit().Set("", 15, "", "", "visor_Crack", "", "");
-        private static Dictionary<byte, GameData.PlayerOutfit> OriginalPlayerSkins = new();
+        private static Dictionary<byte, GameData.PlayerOutfit> OriginalPlayerSkins = [];
 
         private static readonly int Id = 3550;
-        public static List<byte> playerIdList = new();
+        public static List<byte> playerIdList = [];
 
         private static OptionItem DefaultKillCooldown;
         private static OptionItem ReduceKillCooldown;
@@ -21,7 +21,7 @@ namespace TOHE.Roles.Impostor
         //   private static OptionItem ShapeshiftDuration;
         public static OptionItem HideNameOfConsumedPlayer;
 
-        public static Dictionary<byte, List<byte>> PlayerSkinsCosumed = new();
+        public static Dictionary<byte, List<byte>> PlayerSkinsCosumed = [];
 
         private static Dictionary<byte, float> NowCooldown;
 
@@ -42,15 +42,15 @@ namespace TOHE.Roles.Impostor
         }
         public static void Init()
         {
-            playerIdList = new();
-            PlayerSkinsCosumed = new();
-            OriginalPlayerSkins = new();
-            NowCooldown = new();
+            playerIdList = [];
+            PlayerSkinsCosumed = [];
+            OriginalPlayerSkins = [];
+            NowCooldown = [];
         }
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            PlayerSkinsCosumed.TryAdd(playerId, new List<byte>());
+            PlayerSkinsCosumed.TryAdd(playerId, []);
             NowCooldown.TryAdd(playerId, DefaultKillCooldown.GetFloat());
         }
 

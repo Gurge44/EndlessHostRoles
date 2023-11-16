@@ -12,7 +12,7 @@ namespace TOHE;
 public static class SpamManager
 {
     private static readonly string BANEDWORDS_FILE_PATH = "./TOHE_DATA/BanWords.txt";
-    public static List<string> BanWords = new();
+    public static List<string> BanWords = [];
     public static void Init()
     {
         CreateIfNotExists();
@@ -57,10 +57,10 @@ public static class SpamManager
     }
     public static List<string> ReturnAllNewLinesInFile(string filename)
     {
-        if (!File.Exists(filename)) return new List<string>();
+        if (!File.Exists(filename)) return [];
         using StreamReader sr = new(filename, Encoding.GetEncoding("UTF-8"));
         string text;
-        List<string> sendList = new();
+        List<string> sendList = [];
         while ((text = sr.ReadLine()) != null)
             if (text.Length > 1 && text != "") sendList.Add(text.Replace("\\n", "\n").ToLower());
         return sendList;

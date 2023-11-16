@@ -10,7 +10,7 @@ namespace TOHE.Roles.Impostor
     public static class Penguin
     {
         private static readonly int Id = 641800;
-        private static List<byte> playerIdList = new();
+        private static List<byte> playerIdList = [];
 
         private static OptionItem OptionAbductTimerLimit;
         private static OptionItem OptionMeetingKill;
@@ -34,7 +34,7 @@ namespace TOHE.Roles.Impostor
         }
         public static void Init()
         {
-            playerIdList = new();
+            playerIdList = [];
         }
         public static void Add(byte playerId)
         {

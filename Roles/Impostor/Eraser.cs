@@ -10,26 +10,26 @@ namespace TOHE.Roles.Impostor;
 internal static class Eraser
 {
     private static readonly int Id = 16800;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     public static readonly string[] EraseMode =
-    {
+    [
         "EKill", "EVote"
-    };
+    ];
 
     public static readonly string[] WhenTargetIsNeutralAction =
-    {
+    [
         "E2Block", "E2Kill"
-    };
+    ];
 
     private static OptionItem EraseLimitOpt;
     private static OptionItem EraseMethod;
     private static OptionItem WhenTargetIsNeutral;
     public static OptionItem HideVote;
 
-    private static List<byte> didVote = new();
-    private static Dictionary<byte, int> EraseLimit = new();
-    private static List<byte> PlayerToErase = new();
+    private static List<byte> didVote = [];
+    private static Dictionary<byte, int> EraseLimit = [];
+    private static List<byte> PlayerToErase = [];
 
     public static void SetupCustomOption()
     {
@@ -42,8 +42,8 @@ internal static class Eraser
     }
     public static void Init()
     {
-        playerIdList = new();
-        EraseLimit = new();
+        playerIdList = [];
+        EraseLimit = [];
     }
     public static void Add(byte playerId)
     {
@@ -134,7 +134,7 @@ internal static class Eraser
     public static void OnReportDeadBody()
     {
         //PlayerToErase = new();
-        didVote = new();
+        didVote = [];
     }
     public static void AfterMeetingTasks()
     {
@@ -148,6 +148,6 @@ internal static class Eraser
             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} 被擦除了", "Eraser");
             player.MarkDirtySettings();
         }
-        PlayerToErase = new();
+        PlayerToErase = [];
     }
 }

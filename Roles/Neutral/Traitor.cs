@@ -8,7 +8,7 @@ namespace TOHE.Roles.Neutral;
 public static class Traitor
 {
     private static readonly int Id = 13100;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
     public static OptionItem CanVent;
@@ -27,7 +27,7 @@ public static class Traitor
     }
     public static void Init()
     {
-        playerIdList = new();
+        playerIdList = [];
     }
     public static void Add(byte playerId)
     {

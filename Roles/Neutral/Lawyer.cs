@@ -9,7 +9,7 @@ namespace TOHE.Roles.Neutral;
 public static class Lawyer
 {
     private static readonly int Id = 9900;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
     public static byte WinnerID;
 
     private static OptionItem CanTargetImpostor;
@@ -25,9 +25,9 @@ public static class Lawyer
     /// <summary>
     /// Key: エクスキューショナーのPlayerId, Value: ターゲットのPlayerId
     /// </summary>
-    public static Dictionary<byte, byte> Target = new();
+    public static Dictionary<byte, byte> Target = [];
     public static readonly string[] ChangeRoles =
-    {
+    [
         "Role.Crewmate",
         "Role.Jester",
         "Role.Opportunist",
@@ -38,11 +38,11 @@ public static class Lawyer
         "Role.Mayor",
         "Role.Doctor",
      //   CustomRoles.Crewmate.ToString(), CustomRoles.Jester.ToString(), CustomRoles.Opportunist.ToString(),
-    };
+    ];
     public static readonly CustomRoles[] CRoleChangeRoles =
-    {
+    [
         CustomRoles.CrewmateTOHE, CustomRoles.Jester, CustomRoles.Opportunist, CustomRoles.Convict, CustomRoles.CyberStar, CustomRoles.Bodyguard, CustomRoles.Dictator, CustomRoles.Mayor, CustomRoles.Doctor,
-    };
+    ];
 
     public static void SetupCustomOption()
     {
@@ -59,8 +59,8 @@ public static class Lawyer
     }
     public static void Init()
     {
-        playerIdList = new();
-        Target = new();
+        playerIdList = [];
+        Target = [];
     }
     public static void Add(byte playerId)
     {
@@ -69,7 +69,7 @@ public static class Lawyer
         //ターゲット割り当て
         if (AmongUsClient.Instance.AmHost)
         {
-            List<PlayerControl> targetList = new();
+            List<PlayerControl> targetList = [];
             var rand = IRandom.Instance;
             foreach (PlayerControl target in Main.AllPlayerControls)
             {

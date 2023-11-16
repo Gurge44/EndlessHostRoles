@@ -13,7 +13,7 @@ namespace TOHE;
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnGameEnd))]
 class EndGamePatch
 {
-    public static Dictionary<byte, string> SummaryText = new();
+    public static Dictionary<byte, string> SummaryText = [];
     public static string KillLog = string.Empty;
     public static void Postfix(AmongUsClient __instance, [HarmonyArgument(0)] ref EndGameResult endGameResult)
     {
@@ -22,7 +22,7 @@ class EndGamePatch
 
         Logger.Info("-----------Game over-----------", "Phase");
         if (!GameStates.IsModHost) return;
-        SummaryText = new();
+        SummaryText = [];
 
         foreach (var id in Main.PlayerStates.Keys)
             SummaryText[id] = Utils.SummaryTexts(id, disableColor: false);
@@ -52,9 +52,9 @@ class EndGamePatch
             winner.AddRange(Main.AllPlayerControls.Where(p => p.Is(team) && !winner.Contains(p)));
         }
 
-        Main.winnerNameList = new();
-        Main.winnerList = new();
-        Main.winnerRolesList = new();
+        Main.winnerNameList = [];
+        Main.winnerList = [];
+        Main.winnerRolesList = [];
         foreach (PlayerControl pc in winner.ToArray())
         {
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw && pc.Is(CustomRoles.GM)) continue;
@@ -65,10 +65,10 @@ class EndGamePatch
             Main.winnerRolesList.Add(pc.GetCustomRole());
         }
 
-        BountyHunter.ChangeTimer = new();
-        Main.isDoused = new Dictionary<(byte, byte), bool>();
-        Main.isDraw = new Dictionary<(byte, byte), bool>();
-        Main.isRevealed = new Dictionary<(byte, byte), bool>();
+        BountyHunter.ChangeTimer = [];
+        Main.isDoused = [];
+        Main.isDraw = [];
+        Main.isRevealed = [];
 
         Main.VisibleTasksCount = false;
         if (AmongUsClient.Instance.AmHost)
@@ -301,7 +301,7 @@ class SetEverythingUpPatch
         }
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
         {
-            List<(int, byte)> list = new();
+            List<(int, byte)> list = [];
             foreach (byte id in cloneRoles.ToArray())
             {
                 list.Add((SoloKombatManager.GetRankOfScore(id), id));
@@ -313,7 +313,7 @@ class SetEverythingUpPatch
         }
         else if (Options.CurrentGameMode == CustomGameMode.FFA)
         {
-            List<(int, byte)> list = new();
+            List<(int, byte)> list = [];
             foreach (byte id in cloneRoles.ToArray())
             {
                 list.Add((FFAManager.GetRankOfScore(id), id));

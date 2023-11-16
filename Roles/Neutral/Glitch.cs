@@ -10,9 +10,9 @@ namespace TOHE.Roles.Neutral;
 public static class Glitch
 {
     private static readonly int Id = 18125;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
-    public static Dictionary<byte, long> hackedIdList = new();
+    public static Dictionary<byte, long> hackedIdList = [];
 
     public static OptionItem KillCooldown;
     public static OptionItem HackCooldown;
@@ -54,8 +54,8 @@ public static class Glitch
     }
     public static void Init()
     {
-        playerIdList = new();
-        hackedIdList = new();
+        playerIdList = [];
+        hackedIdList = [];
     }
     public static void Add(byte playerId)
     {

@@ -19,8 +19,8 @@ namespace TOHE.Roles.Crewmate
         public static OptionItem FarseerRevealTime;
         public static OptionItem Vision;
 
-        private static readonly System.Collections.Generic.List<CustomRoles> randomRolesForTrickster = new()
-        {
+        private static readonly System.Collections.Generic.List<CustomRoles> randomRolesForTrickster =
+        [
             CustomRoles.Snitch,
             CustomRoles.Luckey,
             CustomRoles.Needy,
@@ -84,9 +84,9 @@ namespace TOHE.Roles.Crewmate
             CustomRoles.Guardian,
             CustomRoles.Spiritualist,
             CustomRoles.Tracker,
-        };
+        ];
 
-        public static System.Collections.Generic.Dictionary<int, string> RandomRole = new();
+        public static System.Collections.Generic.Dictionary<int, string> RandomRole = [];
 
         public static void SetupCustomOption()
         {

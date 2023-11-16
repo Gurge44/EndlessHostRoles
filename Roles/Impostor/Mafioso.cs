@@ -28,7 +28,7 @@ namespace TOHE.Roles.Impostor
     public static class Mafioso
     {
         private static readonly int Id = 642200;
-        private static List<byte> playerIdList = new();
+        private static List<byte> playerIdList = [];
 
         private static OptionItem Delay;
         private static OptionItem RewardForKilling;
@@ -36,7 +36,7 @@ namespace TOHE.Roles.Impostor
         private static OptionItem RewardForVenting;
         private static OptionItem RewardForOtherPlayerEjected;
 
-        private static List<int> PreviouslyUsedVents = new();
+        private static List<int> PreviouslyUsedVents = [];
 
         private static int Tier;
         private static int XP;
@@ -67,8 +67,8 @@ namespace TOHE.Roles.Impostor
 
         public static void Init()
         {
-            playerIdList = new();
-            PreviouslyUsedVents = new();
+            playerIdList = [];
+            PreviouslyUsedVents = [];
             Tier = 0;
             XP = 0;
             Pistol1CD = 0;

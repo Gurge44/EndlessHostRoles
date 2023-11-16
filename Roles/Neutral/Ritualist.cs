@@ -11,15 +11,15 @@ namespace TOHE.Roles.Neutral
     public static class Ritualist
     {
         private static readonly int Id = 13000;
-        public static List<byte> playerIdList = new();
+        public static List<byte> playerIdList = [];
 
         private static OptionItem KillCooldown;
         private static OptionItem RitualMaxCount;
         public static OptionItem CanVent;
         public static OptionItem HasImpostorVision;
 
-        public static Dictionary<byte, int> RitualCount = new();
-        public static Dictionary<byte, List<byte>> RitualTarget = new();
+        public static Dictionary<byte, int> RitualCount = [];
+        public static Dictionary<byte, List<byte>> RitualTarget = [];
 
 
         public static void SetupCustomOption()
@@ -34,15 +34,15 @@ namespace TOHE.Roles.Neutral
         }
         public static void Init()
         {
-            playerIdList = new();
-            RitualCount = new();
-            RitualTarget = new();
+            playerIdList = [];
+            RitualCount = [];
+            RitualTarget = [];
         }
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
             RitualCount.TryAdd(playerId, RitualMaxCount.GetInt());
-            RitualTarget.TryAdd(playerId, new());
+            RitualTarget.TryAdd(playerId, []);
             var pc = Utils.GetPlayerById(playerId);
             pc.AddDoubleTrigger();
 
@@ -72,7 +72,7 @@ namespace TOHE.Roles.Neutral
                 if (RitualCount.ContainsKey(playerId))
                     RitualTarget[playerId].Add(reader.ReadByte());
                 else
-                    RitualTarget.Add(playerId, new());
+                    RitualTarget.Add(playerId, []);
             }
         }
         public static bool IsEnable => playerIdList.Any();

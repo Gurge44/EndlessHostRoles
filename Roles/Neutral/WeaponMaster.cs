@@ -10,7 +10,7 @@ namespace TOHE.Roles.Neutral;
 public static class WeaponMaster
 {
     private static readonly int Id = 641200;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
     public static OptionItem CanVent;
@@ -42,7 +42,7 @@ public static class WeaponMaster
     }
     public static void Init()
     {
-        playerIdList = new();
+        playerIdList = [];
         Mode = 0;
         shieldUsed = false;
     }

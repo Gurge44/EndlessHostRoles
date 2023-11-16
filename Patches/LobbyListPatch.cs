@@ -29,7 +29,7 @@ public static class FindAGameManagerHandleListPatch
 {
     public static void Prefix(FindAGameManager __instance, [HarmonyArgument(0)] InnerNetClient.TotalGameData totalGames, [HarmonyArgument(1)] ref List<GameListing> games)
     {
-        List<GameListing> newList = new();
+        List<GameListing> newList = [];
 
         var nameList = TranslationController.Instance.currentLanguage.languageID is SupportedLangs.SChinese or SupportedLangs.TChinese ? Main.TName_Snacks_CN : Main.TName_Snacks_EN;
 

@@ -9,7 +9,7 @@ namespace TOHE.Roles.Crewmate;
 public static class Sheriff
 {
     private static readonly int Id = 8800;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     public static OptionItem KillCooldown;
     private static OptionItem MisfireKillsTarget;
@@ -30,13 +30,13 @@ public static class Sheriff
     public static OptionItem NonCrewCanKillCrew;
     public static OptionItem NonCrewCanKillImp;
     public static OptionItem NonCrewCanKillNeutral;
-    public static Dictionary<CustomRoles, OptionItem> KillTargetOptions = new();
-    public static Dictionary<byte, int> ShotLimit = new();
-    public static Dictionary<byte, float> CurrentKillCooldown = new();
+    public static Dictionary<CustomRoles, OptionItem> KillTargetOptions = [];
+    public static Dictionary<byte, int> ShotLimit = [];
+    public static Dictionary<byte, float> CurrentKillCooldown = [];
     public static readonly string[] KillOption =
-    {
+    [
         "SheriffCanKillAll", "SheriffCanKillSeparately"
-    };
+    ];
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Sheriff);
@@ -81,9 +81,9 @@ public static class Sheriff
     }
     public static void Init()
     {
-        playerIdList = new();
-        ShotLimit = new();
-        CurrentKillCooldown = new();
+        playerIdList = [];
+        ShotLimit = [];
+        CurrentKillCooldown = [];
     }
     public static void Add(byte playerId)
     {

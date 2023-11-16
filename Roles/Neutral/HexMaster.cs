@@ -17,18 +17,18 @@ public static class HexMaster
         DoubleTrigger,
     };
     public static readonly string[] SwitchTriggerText =
-    {
+    [
         "TriggerKill", "TriggerVent","TriggerDouble"
-    };
+    ];
 
     private static readonly int Id = 11900;
     private static Color RoleColorHex = Utils.GetRoleColor(CustomRoles.HexMaster);
     private static Color RoleColorSpell = Utils.GetRoleColor(CustomRoles.Impostor);
 
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
-    public static Dictionary<byte, bool> HexMode = new();
-    public static Dictionary<byte, List<byte>> HexedPlayer = new();
+    public static Dictionary<byte, bool> HexMode = [];
+    public static Dictionary<byte, List<byte>> HexedPlayer = [];
 
     public static OptionItem ModeSwitchAction;
     public static OptionItem HexesLookLikeSpells;
@@ -41,15 +41,15 @@ public static class HexMaster
     }
     public static void Init()
     {
-        playerIdList = new();
-        HexMode = new();
-        HexedPlayer = new();
+        playerIdList = [];
+        HexMode = [];
+        HexedPlayer = [];
     }
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         HexMode.Add(playerId, false);
-        HexedPlayer.Add(playerId, new());
+        HexedPlayer.Add(playerId, []);
         NowSwitchTrigger = (SwitchTrigger)ModeSwitchAction.GetValue();
         var pc = Utils.GetPlayerById(playerId);
         pc.AddDoubleTrigger();

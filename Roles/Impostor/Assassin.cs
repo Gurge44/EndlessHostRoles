@@ -12,13 +12,13 @@ namespace TOHE.Roles.Impostor;
 internal static class Assassin
 {
     private static readonly int Id = 700;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     private static OptionItem MarkCooldown;
     public static OptionItem AssassinateCooldown;
     private static OptionItem CanKillAfterAssassinate;
 
-    public static Dictionary<byte, byte> MarkedPlayer = new();
+    public static Dictionary<byte, byte> MarkedPlayer = [];
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Assassin);
@@ -30,8 +30,8 @@ internal static class Assassin
     }
     public static void Init()
     {
-        playerIdList = new();
-        MarkedPlayer = new();
+        playerIdList = [];
+        MarkedPlayer = [];
     }
     public static void Add(byte playerId)
     {

@@ -11,10 +11,10 @@ namespace TOHE.Roles.Neutral
     public static class Spiritcaller
     {
         private static readonly int Id = 13400;
-        private static List<byte> playerIdList = new();
+        private static List<byte> playerIdList = [];
         private static int SpiritLimit;
 
-        private static Dictionary<byte, long> PlayersHaunted = new();
+        private static Dictionary<byte, long> PlayersHaunted = [];
 
         private static OptionItem KillCooldown;
         public static OptionItem CanVent;
@@ -51,10 +51,10 @@ namespace TOHE.Roles.Neutral
 
         public static void Init()
         {
-            playerIdList = new();
+            playerIdList = [];
             SpiritLimit = new();
             ProtectTimeStamp = new();
-            PlayersHaunted = new();
+            PlayersHaunted = [];
         }
 
         public static void Add(byte playerId)

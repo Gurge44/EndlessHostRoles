@@ -9,11 +9,11 @@ namespace TOHE.Roles.Crewmate;
 public static class Jailor
 {
     private static readonly int Id = 63420;
-    public static List<byte> playerIdList = new();
-    public static Dictionary<byte, byte> JailorTarget = new();
-    public static Dictionary<byte, int> JailorExeLimit = new();
-    public static Dictionary<byte, bool> JailorHasExe = new();
-    public static Dictionary<byte, bool> JailorDidVote = new();
+    public static List<byte> playerIdList = [];
+    public static Dictionary<byte, byte> JailorTarget = [];
+    public static Dictionary<byte, int> JailorExeLimit = [];
+    public static Dictionary<byte, bool> JailorHasExe = [];
+    public static Dictionary<byte, bool> JailorDidVote = [];
 
     public static OptionItem JailCooldown;
     public static OptionItem notifyJailedOnMeeting;
@@ -29,11 +29,11 @@ public static class Jailor
 
     public static void Init()
     {
-        playerIdList = new();
-        JailorExeLimit = new();
-        JailorTarget = new();
-        JailorHasExe = new();
-        JailorDidVote = new();
+        playerIdList = [];
+        JailorExeLimit = [];
+        JailorTarget = [];
+        JailorHasExe = [];
+        JailorDidVote = [];
     }
     public static void Add(byte playerId)
     {

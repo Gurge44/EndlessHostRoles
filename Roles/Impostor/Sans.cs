@@ -8,7 +8,7 @@ namespace TOHE;
 public static class Sans
 {
     private static readonly int Id = 600;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     private static OptionItem DefaultKillCooldown;
     private static OptionItem ReduceKillCooldown;
@@ -32,8 +32,8 @@ public static class Sans
     }
     public static void Init()
     {
-        playerIdList = new();
-        NowCooldown = new();
+        playerIdList = [];
+        NowCooldown = [];
     }
     public static void Add(byte playerId)
     {

@@ -9,18 +9,18 @@ namespace TOHE.Roles.Crewmate;
 public static class Marshall
 {
     private static readonly int Id = 9400;
-    private static readonly List<byte> playerIdList = new();
+    private static readonly List<byte> playerIdList = [];
     private static Color RoleColor = Utils.GetRoleColor(CustomRoles.Marshall);
 
     public static OptionItem OptionMadmateCanFindMarshall;
 
     public static bool MadmateCanFindMarshall;
 
-    private static readonly Dictionary<byte, bool> IsExposed = new();
-    private static readonly Dictionary<byte, bool> IsComplete = new();
+    private static readonly Dictionary<byte, bool> IsExposed = [];
+    private static readonly Dictionary<byte, bool> IsComplete = [];
 
-    private static readonly HashSet<byte> TargetList = new();
-    private static readonly Dictionary<byte, Color> TargetColorlist = new();
+    private static readonly HashSet<byte> TargetList = [];
+    private static readonly Dictionary<byte, Color> TargetColorlist = [];
 
     public static void SetupCustomOption()
     {

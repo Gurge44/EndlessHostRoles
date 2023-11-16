@@ -27,7 +27,7 @@ internal class ChatCommands
         return friendCodes.Contains(friendCode) || friendCode.Contains(friendCode + "\n") || friendCode.Contains("\n" + friendCode);
     }
 
-    public static List<string> ChatHistory = new();
+    public static List<string> ChatHistory = [];
 
     public static bool Prefix(ChatController __instance)
     {

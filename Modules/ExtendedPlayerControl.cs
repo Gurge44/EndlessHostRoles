@@ -95,7 +95,7 @@ static class ExtendedPlayerControl
         if (player == null)
         {
             Logger.Warn("CustomSubRoleを取得しようとしましたが、対象がnullでした。", "getCustomSubRole");
-            return new() { CustomRoles.NotAssigned };
+            return [CustomRoles.NotAssigned];
         }
         return Main.PlayerStates[player.PlayerId].SubRoles;
     }
@@ -1307,7 +1307,7 @@ static class ExtendedPlayerControl
     public static List<PlayerControl> GetPlayersInAbilityRangeSorted(this PlayerControl player, Predicate<PlayerControl> predicate, bool ignoreColliders = false)
     {
         var rangePlayersIL = RoleBehaviour.GetTempPlayerList();
-        List<PlayerControl> rangePlayers = new();
+        List<PlayerControl> rangePlayers = [];
         player.Data.Role.GetPlayersInAbilityRangeSorted(rangePlayersIL, ignoreColliders);
         foreach (var pc in rangePlayersIL)
         {
@@ -1383,7 +1383,7 @@ static class ExtendedPlayerControl
     }
     public static Dictionary<string, int> GetAllPlayerLocationsCount()
     {
-        Dictionary<string, int> playerRooms = new();
+        Dictionary<string, int> playerRooms = [];
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
             if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return null;

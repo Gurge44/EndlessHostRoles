@@ -6,7 +6,7 @@ namespace TOHE.Roles.Impostor;
 public static class TimeThief
 {
     private static readonly int Id = 3300;
-    private static List<byte> playerIdList = new();
+    private static List<byte> playerIdList = [];
     public static OptionItem KillCooldown;
     public static OptionItem DecreaseMeetingTime;
     public static OptionItem LowerLimitVotingTime;
@@ -24,7 +24,7 @@ public static class TimeThief
     }
     public static void Init()
     {
-        playerIdList = new();
+        playerIdList = [];
     }
     public static void Add(byte playerId)
     {

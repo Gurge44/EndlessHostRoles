@@ -9,14 +9,14 @@ namespace TOHE.Roles.Crewmate;
 internal static class NiceEraser
 {
     private static readonly int Id = 5580;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     private static OptionItem EraseLimitOpt;
     public static OptionItem HideVote;
 
-    private static List<byte> didVote = new();
-    public static Dictionary<byte, int> EraseLimit = new();
-    private static List<byte> PlayerToErase = new();
+    private static List<byte> didVote = [];
+    public static Dictionary<byte, int> EraseLimit = [];
+    private static List<byte> PlayerToErase = [];
 
     public static void SetupCustomOption()
     {
@@ -27,8 +27,8 @@ internal static class NiceEraser
     }
     public static void Init()
     {
-        playerIdList = new();
-        EraseLimit = new();
+        playerIdList = [];
+        EraseLimit = [];
     }
     public static void Add(byte playerId)
     {
@@ -87,8 +87,8 @@ internal static class NiceEraser
     }
     public static void OnReportDeadBody()
     {
-        PlayerToErase = new();
-        didVote = new();
+        PlayerToErase = [];
+        didVote = [];
     }
     public static void AfterMeetingTasks()
     {

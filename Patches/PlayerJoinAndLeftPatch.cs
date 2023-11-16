@@ -20,7 +20,7 @@ class OnGameJoinedPatch
     {
         while (!Options.IsLoaded) System.Threading.Tasks.Task.Delay(1);
         Logger.Info($"{__instance.GameId} joined lobby", "OnGameJoined");
-        Main.playerVersion = new Dictionary<byte, PlayerVersion>();
+        Main.playerVersion = [];
         if (!Main.VersionCheat.Value) RPC.RpcVersionCheck();
         SoundManager.Instance?.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
 
@@ -36,9 +36,9 @@ class OnGameJoinedPatch
             GameStartManagerPatch.GameStartManagerUpdatePatch.exitTimer = -1;
             Main.DoBlockNameChange = false;
             Main.newLobby = true;
-            Main.DevRole = new();
+            Main.DevRole = [];
             EAC.DeNum = new();
-            Main.AllPlayerNames = new();
+            Main.AllPlayerNames = [];
 
             if (Main.NormalOptions?.KillCooldown == 0f)
                 Main.NormalOptions.KillCooldown = Main.LastKillCooldown.Value;
@@ -244,7 +244,7 @@ class CreatePlayerPatch
 
         _ = new LateTask(() => { if (client.Character == null || !GameStates.IsLobby) return; OptionItem.SyncAllOptions(client.Id); }, 3f, "Sync All Options For New Player");
 
-        Main.GuessNumber[client.Character.PlayerId] = new List<int> { -1, 7 };
+        Main.GuessNumber[client.Character.PlayerId] = [-1, 7];
 
         _ = new LateTask(() =>
         {

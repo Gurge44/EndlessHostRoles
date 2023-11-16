@@ -12,12 +12,12 @@ namespace TOHE.Roles.Impostor
     public static class Deathpact
     {
         private static readonly int Id = 1100;
-        public static List<byte> playerIdList = new();
+        public static List<byte> playerIdList = [];
 
-        public static Dictionary<byte, List<PlayerControl>> PlayersInDeathpact = new();
-        public static Dictionary<byte, long> DeathpactTime = new();
+        public static Dictionary<byte, List<PlayerControl>> PlayersInDeathpact = [];
+        public static Dictionary<byte, long> DeathpactTime = [];
 
-        public static List<byte> ActiveDeathpacts = new();
+        public static List<byte> ActiveDeathpacts = [];
 
         private static OptionItem KillCooldown;
         private static OptionItem ShapeshiftCooldown;
@@ -51,16 +51,16 @@ namespace TOHE.Roles.Impostor
 
         public static void Init()
         {
-            playerIdList = new();
-            PlayersInDeathpact = new();
-            DeathpactTime = new();
-            ActiveDeathpacts = new();
+            playerIdList = [];
+            PlayersInDeathpact = [];
+            DeathpactTime = [];
+            ActiveDeathpacts = [];
         }
 
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            PlayersInDeathpact.TryAdd(playerId, new List<PlayerControl>());
+            PlayersInDeathpact.TryAdd(playerId, []);
             DeathpactTime.TryAdd(playerId, 0);
         }
 

@@ -19,7 +19,7 @@ namespace TOHE;
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.TryPet))]
 class LocalPetPatch
 {
-    private static readonly Dictionary<byte, long> LastProcess = new();
+    private static readonly Dictionary<byte, long> LastProcess = [];
     public static bool Prefix(PlayerControl __instance)
     {
         if (!Options.UsePets.GetBool()) return true;
@@ -49,7 +49,7 @@ class LocalPetPatch
 [HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.HandleRpc))]
 class ExternalRpcPetPatch
 {
-    private static readonly Dictionary<byte, long> LastProcess = new();
+    private static readonly Dictionary<byte, long> LastProcess = [];
     public static void Prefix(PlayerPhysics __instance, [HarmonyArgument(0)] byte callID)
     {
         if (!Options.UsePets.GetBool() || !AmongUsClient.Instance.AmHost || (RpcCalls)callID != RpcCalls.Pet) return;
@@ -344,7 +344,7 @@ class ExternalRpcPetPatch
                     {
                         var cp = Main.CursedPlayers[pc.PlayerId];
                         UnityEngine.Vector2 cppos = cp.transform.position;
-                        Dictionary<PlayerControl, float> cpdistance = new();
+                        Dictionary<PlayerControl, float> cpdistance = [];
                         float dis;
                         foreach (PlayerControl p in Main.AllAlivePlayerControls)
                         {

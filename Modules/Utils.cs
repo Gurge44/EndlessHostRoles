@@ -1455,7 +1455,7 @@ public static class Utils
         }
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
         {
-            List<(int, byte)> list = new();
+            List<(int, byte)> list = [];
             foreach (byte id in cloneRoles.ToArray())
             {
                 list.Add((SoloKombatManager.GetRankOfScore(id), id));
@@ -1470,7 +1470,7 @@ public static class Utils
         }
         else if (Options.CurrentGameMode == CustomGameMode.FFA)
         {
-            List<(int, byte)> list = new();
+            List<(int, byte)> list = [];
             foreach (byte id in cloneRoles.ToArray())
             {
                 list.Add((FFAManager.GetRankOfScore(id), id));
@@ -1937,8 +1937,8 @@ public static class Utils
         HudManagerPatch.NowCallNotifyRolesCount++;
         HudManagerPatch.LastSetNameDesyncCount = 0;
 
-        PlayerControl[] seerList = SpecifySeer != null ? (new PlayerControl[] { SpecifySeer }) : Main.AllPlayerControls;
-        PlayerControl[] targetList = SpecifyTarget != null ? (new PlayerControl[] { SpecifyTarget }) : Main.AllPlayerControls;
+        PlayerControl[] seerList = SpecifySeer != null ? ([SpecifySeer]) : Main.AllPlayerControls;
+        PlayerControl[] targetList = SpecifyTarget != null ? ([SpecifyTarget]) : Main.AllPlayerControls;
 
         //seer: Players who can see changes made here
         //target: Players subject to changes that seer can see
@@ -2764,7 +2764,7 @@ public static class Utils
         int all = Options.RevolutionistDrawCount.GetInt();
         int max = Main.AllAlivePlayerControls.Length;
         if (!Main.PlayerStates[playerId].IsDead) max--;
-        winnerList = new();
+        winnerList = [];
         if (all > max) all = max;
         foreach (var pc in Main.AllPlayerControls.Where(pc => Main.isDraw.TryGetValue((playerId, pc.PlayerId), out var isDraw) && isDraw).ToArray())
         {
@@ -2850,7 +2850,7 @@ public static class Utils
         })));
     }
 
-    public static Dictionary<string, Sprite> CachedSprites = new();
+    public static Dictionary<string, Sprite> CachedSprites = [];
     public static Sprite LoadSprite(string path, float pixelsPerUnit = 1f)
     {
         try

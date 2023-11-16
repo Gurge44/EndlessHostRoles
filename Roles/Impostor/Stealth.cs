@@ -8,7 +8,7 @@ namespace TOHE.Roles.Impostor
     public static class Stealth
     {
         private static readonly int Id = 641900;
-        private static List<byte> playerIdList = new();
+        private static List<byte> playerIdList = [];
 
         private static OptionItem optionExcludeImpostors;
         private static OptionItem optionDarkenDuration;
@@ -31,7 +31,7 @@ namespace TOHE.Roles.Impostor
 
         public static void Init()
         {
-            playerIdList = new();
+            playerIdList = [];
         }
         public static void Add(byte playerId)
         {

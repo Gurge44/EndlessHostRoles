@@ -10,7 +10,7 @@ namespace TOHE.Roles.Neutral;
 public static class Vengeance
 {
     private static readonly int Id = 12820;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
     public static OptionItem CanVent;
@@ -35,7 +35,7 @@ public static class Vengeance
     }
     public static void Init()
     {
-        playerIdList = new();
+        playerIdList = [];
         IsRevenge = false;
         Success = false;
         Killer = byte.MaxValue;

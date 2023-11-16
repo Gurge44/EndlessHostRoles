@@ -47,12 +47,12 @@ class ChatControllerUpdatePatch
 public class ChatManager
 {
     public static bool cancel;
-    private static List<string> chatHistory = new();
+    private static List<string> chatHistory = [];
     private const int maxHistorySize = 20;
     public static void ResetHistory()
     {
         chatHistory.Clear();
-        chatHistory = new();
+        chatHistory = [];
     }
     public static bool CheckCommand(ref string msg, string command, bool exact = true)
     {
@@ -145,7 +145,7 @@ public class ChatManager
         ChatUpdatePatch.DoBlockChat = true;
         string msg = Utils.EmptyMessage();
         List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x is not CustomRoles.KB_Normal and not CustomRoles.Killer).ToList();
-        string[] specialTexts = new string[] { "bet", "bt", "guess", "gs", "shoot", "st", "赌", "猜", "审判", "tl", "判", "审", "trial" };
+        string[] specialTexts = ["bet", "bt", "guess", "gs", "shoot", "st", "赌", "猜", "审判", "tl", "判", "审", "trial"];
         var totalAlive = Main.AllAlivePlayerControls.Length;
         var x = Main.AllAlivePlayerControls;
 

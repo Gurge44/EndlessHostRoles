@@ -7,7 +7,7 @@ namespace TOHE.Roles.Impostor
     public static class Lurker
     {
         private static readonly int Id = 2100;
-        public static List<byte> playerIdList = new();
+        public static List<byte> playerIdList = [];
 
         private static OptionItem DefaultKillCooldown;
         private static OptionItem ReduceKillCooldown;
@@ -22,7 +22,7 @@ namespace TOHE.Roles.Impostor
         }
         public static void Init()
         {
-            playerIdList = new();
+            playerIdList = [];
         }
         public static void Add(byte playerId)
         {

@@ -11,11 +11,11 @@ namespace TOHE;
 
 internal static class SoloKombatManager
 {
-    private static Dictionary<byte, float> PlayerHPMax = new();
-    private static Dictionary<byte, float> PlayerHP = new();
-    private static Dictionary<byte, float> PlayerHPReco = new();
-    private static Dictionary<byte, float> PlayerATK = new();
-    private static Dictionary<byte, float> PlayerDF = new();
+    private static Dictionary<byte, float> PlayerHPMax = [];
+    private static Dictionary<byte, float> PlayerHP = [];
+    private static Dictionary<byte, float> PlayerHPReco = [];
+    private static Dictionary<byte, float> PlayerATK = [];
+    private static Dictionary<byte, float> PlayerDF = [];
 
     public static bool SoloAlive(this PlayerControl pc) => pc.HP() > 0f;
 
@@ -25,8 +25,8 @@ internal static class SoloKombatManager
     public static float ATK(this PlayerControl pc) => PlayerATK[pc.PlayerId];
     public static float DF(this PlayerControl pc) => PlayerDF[pc.PlayerId];
 
-    private static Dictionary<byte, float> originalSpeed = new();
-    public static Dictionary<byte, int> KBScore = new();
+    private static Dictionary<byte, float> originalSpeed = [];
+    public static Dictionary<byte, int> KBScore = [];
     public static int RoundTime;
 
     //Options
@@ -84,16 +84,16 @@ internal static class SoloKombatManager
     {
         if (Options.CurrentGameMode != CustomGameMode.SoloKombat) return;
 
-        PlayerHPMax = new();
-        PlayerHP = new();
-        PlayerHPReco = new();
-        PlayerATK = new();
-        PlayerDF = new();
+        PlayerHPMax = [];
+        PlayerHP = [];
+        PlayerHPReco = [];
+        PlayerATK = [];
+        PlayerDF = [];
 
-        LastHurt = new();
-        originalSpeed = new();
-        BackCountdown = new();
-        KBScore = new();
+        LastHurt = [];
+        originalSpeed = [];
+        BackCountdown = [];
+        KBScore = [];
         RoundTime = KB_GameTime.GetInt() + 8;
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
@@ -174,7 +174,7 @@ internal static class SoloKombatManager
         if (x > 255) R -= x - 255; else G = x;
         return new Color32((byte)R, (byte)G, (byte)B, byte.MaxValue);
     }
-    public static Dictionary<byte, (string, long)> NameNotify = new();
+    public static Dictionary<byte, (string, long)> NameNotify = [];
     public static void GetNameNotify(PlayerControl player, ref string name)
     {
         if (Options.CurrentGameMode != CustomGameMode.SoloKombat || player == null) return;
@@ -327,8 +327,8 @@ internal static class SoloKombatManager
         Utils.NotifyRoles(SpecifySeer: pc);
     }
 
-    private static Dictionary<byte, int> BackCountdown = new();
-    private static Dictionary<byte, long> LastHurt = new();
+    private static Dictionary<byte, int> BackCountdown = [];
+    private static Dictionary<byte, long> LastHurt = [];
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     class FixedUpdatePatch

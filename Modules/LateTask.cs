@@ -9,7 +9,7 @@ class LateTask
     public float timer;
     public Action action;
     public bool log;
-    public static List<LateTask> Tasks = new();
+    public static List<LateTask> Tasks = [];
     public bool Run(float deltaTime)
     {
         timer -= deltaTime;

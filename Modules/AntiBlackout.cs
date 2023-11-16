@@ -53,7 +53,7 @@ public static class AntiBlackout
         }
     }
     public static bool IsCached { get; private set; }
-    private static Dictionary<byte, (bool isDead, bool Disconnected)> isDeadCache = new();
+    private static Dictionary<byte, (bool isDead, bool Disconnected)> isDeadCache = [];
     private readonly static LogHandler logger = Logger.Handler("AntiBlackout");
 
     public static void SetIsDead(bool doSend = true, [CallerMemberName] string callerMethodName = "")
@@ -150,7 +150,7 @@ public static class AntiBlackout
     public static void Reset()
     {
         logger.Info("==Reset==");
-        isDeadCache ??= new();
+        isDeadCache ??= [];
         isDeadCache.Clear();
         IsCached = false;
     }

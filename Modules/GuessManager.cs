@@ -764,7 +764,7 @@ public static class GuessManager
         List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x is not CustomRoles.NotAssigned and not CustomRoles.KB_Normal).ToList();
         var rd = IRandom.Instance;
         string msg = Utils.EmptyMessage();
-        string[] command = new string[] { "bet", "bt", "guess", "gs", "shoot", "st", "赌", "猜", "审判", "tl", "判", "审" };
+        string[] command = ["bet", "bt", "guess", "gs", "shoot", "st", "赌", "猜", "审判", "tl", "判", "审"];
         var x = Main.AllAlivePlayerControls;
         var totalAlive = Main.AllAlivePlayerControls.Length;
         for (int i = 0; i < 20; i++)
@@ -897,16 +897,16 @@ public static class GuessManager
         try
         {
             Page = 1;
-            RoleButtons = new();
-            RoleSelectButtons = new();
-            PageButtons = new();
+            RoleButtons = [];
+            RoleSelectButtons = [];
+            PageButtons = [];
             __instance.playerStates.ToList().ForEach(x => x.gameObject.SetActive(false));
 
             Transform container = UnityEngine.Object.Instantiate(GameObject.Find("PhoneUI").transform, __instance.transform);
             container.transform.localPosition = new Vector3(0, 0, -200f);
             guesserUI = container.gameObject;
 
-            List<int> i = new() { 0, 0, 0, 0 };
+            List<int> i = [0, 0, 0, 0];
             var buttonTemplate = __instance.playerStates[0].transform.FindChild("votePlayerBase");
             var maskTemplate = __instance.playerStates[0].transform.FindChild("MaskArea");
             var smallButtonTemplate = __instance.playerStates[0].Buttons.transform.Find("CancelButton");
@@ -932,7 +932,7 @@ public static class GuessManager
             }));
             ExitButton = exitButton.GetComponent<PassiveButton>();
 
-            List<Transform> buttons = new();
+            List<Transform> buttons = [];
             Transform selectedButton = null;
 
             int tabCount = 0;
@@ -1104,7 +1104,7 @@ public static class GuessManager
                 button.GetComponent<SpriteRenderer>().sprite = CustomButton.Get("GuessPlate");
                 if (!RoleButtons.ContainsKey(role.GetCustomRoleTypes()))
                 {
-                    RoleButtons.Add(role.GetCustomRoleTypes(), new());
+                    RoleButtons.Add(role.GetCustomRoleTypes(), []);
                 }
                 RoleButtons[role.GetCustomRoleTypes()].Add(button);
                 buttons.Add(button);

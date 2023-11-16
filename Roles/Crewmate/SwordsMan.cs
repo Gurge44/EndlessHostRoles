@@ -7,9 +7,9 @@ namespace TOHE.Roles.Crewmate;
 public static class SwordsMan
 {
     private static readonly int Id = 9000;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
     //public static bool isKilled = false;
-    public static List<byte> killed = new();
+    public static List<byte> killed = [];
     public static OptionItem CanVent;
 
     public static void SetupCustomOption()
@@ -19,8 +19,8 @@ public static class SwordsMan
     }
     public static void Init()
     {
-        killed = new();
-        playerIdList = new();
+        killed = [];
+        playerIdList = [];
     }
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = IsKilled(id) ? 300f : 15f;
     public static string GetKillLimit(byte id) => Utils.ColorString(!IsKilled(id) ? Utils.GetRoleColor(CustomRoles.SwordsMan).ShadeColor(0.25f) : Color.gray, !IsKilled(id) ? "(1)" : "(0)");

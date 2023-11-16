@@ -29,8 +29,8 @@ class Webhook
 class Logger
 {
     public static bool isEnable;
-    public static List<string> disableList = new();
-    public static List<string> sendToGameList = new();
+    public static List<string> disableList = [];
+    public static List<string> sendToGameList = [];
     //public static bool isDetail; - This was always false and never true
     public static bool isAlsoInGame;
     public static void Enable() => isEnable = true;

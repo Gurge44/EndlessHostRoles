@@ -12,10 +12,10 @@ namespace TOHE.Roles.Crewmate
     public static class Spy
     {
         private static readonly int Id = 640400;
-        private static List<byte> playerIdList = new();
+        private static List<byte> playerIdList = [];
         public static bool change;
-        public static Dictionary<byte, float> UseLimit = new();
-        public static Dictionary<byte, long> SpyRedNameList = new();
+        public static Dictionary<byte, float> UseLimit = [];
+        public static Dictionary<byte, long> SpyRedNameList = [];
 
         public static OptionItem SpyRedNameDur;
         public static OptionItem UseLimitOpt;
@@ -34,9 +34,9 @@ namespace TOHE.Roles.Crewmate
         }
         public static void Init()
         {
-            playerIdList = new();
-            UseLimit = new();
-            SpyRedNameList = new();
+            playerIdList = [];
+            UseLimit = [];
+            SpyRedNameList = [];
             change = false;
         }
         public static void Add(byte playerId)

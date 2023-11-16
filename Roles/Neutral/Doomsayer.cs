@@ -8,9 +8,9 @@ namespace TOHE.Roles.Neutral;
 public static class Doomsayer
 {
     private static readonly int Id = 27000;
-    public static List<byte> playerIdList = new();
-    public static List<CustomRoles> GuessedRoles = new();
-    public static Dictionary<byte, int> GuessingToWin = new();
+    public static List<byte> playerIdList = [];
+    public static List<CustomRoles> GuessedRoles = [];
+    public static Dictionary<byte, int> GuessingToWin = [];
 
     public static int GuessesCount;
     public static int GuessesCountPerMeeting;
@@ -60,9 +60,9 @@ public static class Doomsayer
     }
     public static void Init()
     {
-        playerIdList = new();
-        GuessedRoles = new();
-        GuessingToWin = new();
+        playerIdList = [];
+        GuessedRoles = [];
+        GuessingToWin = [];
         GuessesCount = 0;
         GuessesCountPerMeeting = 0;
         CantGuess = false;

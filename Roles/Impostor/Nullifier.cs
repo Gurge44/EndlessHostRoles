@@ -8,7 +8,7 @@ namespace TOHE.Roles.Impostor
     internal class Nullifier
     {
         private static readonly int Id = 642000;
-        public static List<byte> playerIdList = new();
+        public static List<byte> playerIdList = [];
 
         public static OptionItem NullCD;
         private static OptionItem KCD;
@@ -30,7 +30,7 @@ namespace TOHE.Roles.Impostor
 
         public static void Init()
         {
-            playerIdList = new();
+            playerIdList = [];
         }
 
         public static void Add(byte playerId)

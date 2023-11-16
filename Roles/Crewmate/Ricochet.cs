@@ -12,8 +12,8 @@ namespace TOHE.Roles.Crewmate
     public static class Ricochet
     {
         private static readonly int Id = 640100;
-        public static List<byte> playerIdList = new();
-        public static Dictionary<byte, float> UseLimit = new();
+        public static List<byte> playerIdList = [];
+        public static Dictionary<byte, float> UseLimit = [];
         public static byte ProtectAgainst = byte.MaxValue;
 
         public static OptionItem UseLimitOpt;
@@ -30,8 +30,8 @@ namespace TOHE.Roles.Crewmate
         }
         public static void Init()
         {
-            playerIdList = new();
-            UseLimit = new();
+            playerIdList = [];
+            UseLimit = [];
             ProtectAgainst = byte.MaxValue;
         }
         public static void Add(byte playerId)

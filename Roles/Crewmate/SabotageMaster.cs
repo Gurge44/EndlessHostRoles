@@ -7,7 +7,7 @@ namespace TOHE.Roles.Crewmate;
 public static class SabotageMaster
 {
     private static readonly int Id = 7000;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     public static OptionItem SkillLimit;
     public static OptionItem FixesDoors;
@@ -44,7 +44,7 @@ public static class SabotageMaster
     }
     public static void Init()
     {
-        playerIdList = new();
+        playerIdList = [];
         UsedSkillCount = 0;
     }
     public static void Add(byte playerId)

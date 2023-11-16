@@ -9,7 +9,7 @@ namespace TOHE.Roles.Crewmate
     public static class Drainer
     {
         private static readonly int Id = 642500;
-        private static List<byte> playerIdList = new();
+        private static List<byte> playerIdList = [];
 
         private static OptionItem VentCD;
         private static OptionItem UseLimit;
@@ -17,7 +17,7 @@ namespace TOHE.Roles.Crewmate
 
         public static float DrainLimit;
 
-        public static Dictionary<byte, int> playersInVents = new();
+        public static Dictionary<byte, int> playersInVents = [];
 
         public static void SetupCustomOption()
         {
@@ -35,8 +35,8 @@ namespace TOHE.Roles.Crewmate
 
         public static void Init()
         {
-            playerIdList = new();
-            playersInVents = new();
+            playerIdList = [];
+            playersInVents = [];
             DrainLimit = 0;
         }
         public static void Add(byte playerId)

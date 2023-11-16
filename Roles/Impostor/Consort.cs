@@ -10,7 +10,7 @@ namespace TOHE.Roles.Impostor
     public static class Consort
     {
         private static readonly int Id = 642400;
-        private static List<byte> playerIdList = new();
+        private static List<byte> playerIdList = [];
 
         private static OptionItem CD;
         private static OptionItem UseLimit;
@@ -30,7 +30,7 @@ namespace TOHE.Roles.Impostor
 
         public static void Init()
         {
-            playerIdList = new();
+            playerIdList = [];
             BlockLimit = 0;
         }
         public static void Add(byte playerId)

@@ -8,7 +8,7 @@ namespace TOHE.Roles.Neutral;
 public static class HeadHunter
 {
     private static readonly int Id = 12870;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
     public static OptionItem CanVent;
@@ -19,7 +19,7 @@ public static class HeadHunter
     private static OptionItem MinKCD;
     private static OptionItem MaxKCD;
 
-    public static List<byte> Targets = new();
+    public static List<byte> Targets = [];
     public static float KCD = 25;
 
     public static void SetupCustomOption()
@@ -43,8 +43,8 @@ public static class HeadHunter
     }
     public static void Init()
     {
-        playerIdList = new();
-        Targets = new();
+        playerIdList = [];
+        Targets = [];
     }
     public static void Add(byte playerId)
     {

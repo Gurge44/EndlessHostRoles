@@ -10,7 +10,7 @@ namespace TOHE;
 public static class DarkHide
 {
     public static readonly int Id = 12900;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     public static OptionItem KillCooldown;
     public static OptionItem HasImpostorVision;
@@ -18,8 +18,8 @@ public static class DarkHide
     public static OptionItem CanVent;
     public static OptionItem SnatchesWin;
 
-    public static Dictionary<byte, float> CurrentKillCooldown = new();
-    public static Dictionary<byte, bool> IsWinKill = new();
+    public static Dictionary<byte, float> CurrentKillCooldown = [];
+    public static Dictionary<byte, bool> IsWinKill = [];
 
     public static void SetupCustomOption()
     {
@@ -34,9 +34,9 @@ public static class DarkHide
     }
     public static void Init()
     {
-        playerIdList = new();
-        CurrentKillCooldown = new();
-        IsWinKill = new();
+        playerIdList = [];
+        CurrentKillCooldown = [];
+        IsWinKill = [];
     }
     public static void Add(byte playerId)
     {

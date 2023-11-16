@@ -94,8 +94,8 @@ public static class TemplateManager
         using StreamReader sr = new(TEMPLATE_FILE_PATH, Encoding.GetEncoding("UTF-8"));
         string text;
         string[] tmp = Array.Empty<string>();
-        List<string> sendList = new();
-        HashSet<string> tags = new();
+        List<string> sendList = [];
+        HashSet<string> tags = [];
         while ((text = sr.ReadLine()) != null)
         {
             tmp = text.Split(":");

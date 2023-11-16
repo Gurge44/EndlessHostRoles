@@ -13,7 +13,7 @@ namespace TOHE.Roles.Impostor
     public static class Sapper
     {
         private static readonly int Id = 643000;
-        public static List<byte> playerIdList = new();
+        public static List<byte> playerIdList = [];
 
         public static OptionItem ShapeshiftCooldown;
         private static OptionItem Delay;
@@ -34,8 +34,8 @@ namespace TOHE.Roles.Impostor
 
         public static void Init()
         {
-            playerIdList = new();
-            Bombs = new();
+            playerIdList = [];
+            Bombs = [];
         }
 
         public static void Add(byte playerId)

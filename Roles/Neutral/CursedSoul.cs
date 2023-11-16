@@ -10,7 +10,7 @@ namespace TOHE.Roles.Neutral;
 public static class CursedSoul
 {
     private static readonly int Id = 10500;
-    private static List<byte> playerIdList = new();
+    private static List<byte> playerIdList = [];
 
     public static OptionItem CurseCooldown;
     public static OptionItem CurseCooldownIncrese;
@@ -35,7 +35,7 @@ public static class CursedSoul
     }
     public static void Init()
     {
-        playerIdList = new();
+        playerIdList = [];
         CurseLimit = new();
     }
     public static void Add(byte playerId)

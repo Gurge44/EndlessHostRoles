@@ -10,13 +10,13 @@ namespace TOHE.Roles.Crewmate
     {
         private static readonly int Id = 8100;
 
-        private static List<byte> playerIdList = new();
+        private static List<byte> playerIdList = [];
 
         public static OptionItem ShowGhostArrowEverySeconds;
         public static OptionItem ShowGhostArrowForSeconds;
 
-        private static Dictionary<byte, long> ShowGhostArrowUntil = new();
-        private static Dictionary<byte, long> LastGhostArrowShowTime = new();
+        private static Dictionary<byte, long> ShowGhostArrowUntil = [];
+        private static Dictionary<byte, long> LastGhostArrowShowTime = [];
 
         public static byte SpiritualistTarget;
 
@@ -30,10 +30,10 @@ namespace TOHE.Roles.Crewmate
         }
         public static void Init()
         {
-            playerIdList = new();
+            playerIdList = [];
             SpiritualistTarget = new();
-            LastGhostArrowShowTime = new();
-            ShowGhostArrowUntil = new();
+            LastGhostArrowShowTime = [];
+            ShowGhostArrowUntil = [];
         }
         public static void Add(byte playerId)
         {

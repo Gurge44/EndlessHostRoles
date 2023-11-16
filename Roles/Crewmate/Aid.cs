@@ -11,9 +11,9 @@ namespace TOHE.Roles.Crewmate
     public static class Aid
     {
         private static readonly int Id = 640200;
-        private static List<byte> playerIdList = new();
-        public static Dictionary<byte, float> UseLimit = new();
-        public static Dictionary<byte, long> ShieldedPlayers = new();
+        private static List<byte> playerIdList = [];
+        public static Dictionary<byte, float> UseLimit = [];
+        public static Dictionary<byte, long> ShieldedPlayers = [];
 
         public static OptionItem AidDur;
         public static OptionItem AidCD;
@@ -31,9 +31,9 @@ namespace TOHE.Roles.Crewmate
         }
         public static void Init()
         {
-            playerIdList = new();
-            UseLimit = new();
-            ShieldedPlayers = new();
+            playerIdList = [];
+            UseLimit = [];
+            ShieldedPlayers = [];
         }
         public static void Add(byte playerId)
         {

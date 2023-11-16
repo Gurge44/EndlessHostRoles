@@ -12,7 +12,7 @@ namespace TOHE.Roles.Impostor
     public static class Gambler
     {
         private static readonly int Id = 640700;
-        public static List<byte> playerIdList = new();
+        public static List<byte> playerIdList = [];
 
         public static OptionItem KillCooldown;
         public static OptionItem KillDelay;
@@ -36,10 +36,10 @@ namespace TOHE.Roles.Impostor
         public static byte EffectID = byte.MaxValue;
         public static bool isPositiveEffect;
 
-        public static Dictionary<byte, long> waitingDelayedKills = new();
-        public static Dictionary<byte, long> isShielded = new();
-        public static Dictionary<byte, (float, long)> isSpeedChange = new();
-        public static Dictionary<byte, long> isVisionChange = new();
+        public static Dictionary<byte, long> waitingDelayedKills = [];
+        public static Dictionary<byte, long> isShielded = [];
+        public static Dictionary<byte, (float, long)> isSpeedChange = [];
+        public static Dictionary<byte, long> isVisionChange = [];
 
         public static void SetupCustomOption()
         {
@@ -80,11 +80,11 @@ namespace TOHE.Roles.Impostor
 
         public static void Init()
         {
-            playerIdList = new();
+            playerIdList = [];
             EffectID = byte.MaxValue;
-            waitingDelayedKills = new();
-            isSpeedChange = new();
-            isVisionChange = new();
+            waitingDelayedKills = [];
+            isSpeedChange = [];
+            isVisionChange = [];
         }
 
         public static void Add(byte playerId)

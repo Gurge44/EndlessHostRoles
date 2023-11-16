@@ -9,14 +9,14 @@ namespace TOHE.Roles.Impostor
     public static class EvilDiviner
     {
         private static readonly int Id = 2700;
-        public static List<byte> playerIdList = new();
+        public static List<byte> playerIdList = [];
 
         private static OptionItem KillCooldown;
         private static OptionItem DivinationMaxCount;
         public static OptionItem EDAbilityUseGainWithEachKill;
 
-        public static Dictionary<byte, float> DivinationCount = new();
-        public static Dictionary<byte, List<byte>> DivinationTarget = new();
+        public static Dictionary<byte, float> DivinationCount = [];
+        public static Dictionary<byte, List<byte>> DivinationTarget = [];
 
 
         public static void SetupCustomOption()
@@ -32,15 +32,15 @@ namespace TOHE.Roles.Impostor
         }
         public static void Init()
         {
-            playerIdList = new();
-            DivinationCount = new();
-            DivinationTarget = new();
+            playerIdList = [];
+            DivinationCount = [];
+            DivinationTarget = [];
         }
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
             DivinationCount.TryAdd(playerId, DivinationMaxCount.GetInt());
-            DivinationTarget.TryAdd(playerId, new());
+            DivinationTarget.TryAdd(playerId, []);
             var pc = Utils.GetPlayerById(playerId);
             pc.AddDoubleTrigger();
         }
@@ -66,7 +66,7 @@ namespace TOHE.Roles.Impostor
                 if (DivinationCount.ContainsKey(playerId))
                     DivinationTarget[playerId].Add(reader.ReadByte());
                 else
-                    DivinationTarget.Add(playerId, new());
+                    DivinationTarget.Add(playerId, []);
             }
         }
 

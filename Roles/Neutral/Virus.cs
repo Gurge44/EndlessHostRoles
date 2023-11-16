@@ -11,9 +11,9 @@ namespace TOHE.Roles.Neutral
     public static class Virus
     {
         private static readonly int Id = 13200;
-        private static List<byte> playerIdList = new();
+        private static List<byte> playerIdList = [];
         private static int InfectLimit;
-        public static List<byte> InfectedPlayer = new();
+        public static List<byte> InfectedPlayer = [];
 
         private static OptionItem KillCooldown;
         private static OptionItem InfectMax;
@@ -25,11 +25,11 @@ namespace TOHE.Roles.Neutral
         public static OptionItem ContagiousCountMode;
 
         public static readonly string[] contagiousCountMode =
-        {
+        [
             "ContagiousCountMode.None",
             "ContagiousCountMode.Virus",
             "ContagiousCountMode.Original",
-        };
+        ];
 
         public static void SetupCustomOption()
         {
@@ -48,7 +48,7 @@ namespace TOHE.Roles.Neutral
 
         public static void Init()
         {
-            playerIdList = new();
+            playerIdList = [];
             InfectLimit = new();
         }
 

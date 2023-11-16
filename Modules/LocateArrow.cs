@@ -25,8 +25,8 @@ static class LocateArrow
         }
     }
 
-    static readonly Dictionary<ArrowInfo, string> LocateArrows = new();
-    static readonly string[] Arrows = {
+    static readonly Dictionary<ArrowInfo, string> LocateArrows = [];
+    static readonly string[] Arrows = [
         "↑",
         "↗",
         "→",
@@ -36,7 +36,7 @@ static class LocateArrow
         "←",
         "↖",
         "・"
-    };
+    ];
 
     public static void Init()
     {

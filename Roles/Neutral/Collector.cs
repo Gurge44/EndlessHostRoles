@@ -8,10 +8,10 @@ public static class Collector
 {
     private static readonly int Id = 11100;
     public static OptionItem CollectorCollectAmount;
-    private static List<byte> playerIdList = new();
-    public static Dictionary<byte, byte> CollectorVoteFor = new();
-    public static Dictionary<byte, int> CollectVote = new();
-    public static Dictionary<byte, int> NewVote = new();
+    private static List<byte> playerIdList = [];
+    public static Dictionary<byte, byte> CollectorVoteFor = [];
+    public static Dictionary<byte, int> CollectVote = [];
+    public static Dictionary<byte, int> NewVote = [];
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Collector);
@@ -20,9 +20,9 @@ public static class Collector
     }
     public static void Init()
     {
-        playerIdList = new();
-        CollectorVoteFor = new();
-        CollectVote = new();
+        playerIdList = [];
+        CollectorVoteFor = [];
+        CollectVote = [];
     }
     public static void Add(byte playerId)
     {

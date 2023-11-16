@@ -8,13 +8,13 @@ namespace TOHE;
 public static class Greedier
 {
     private static readonly int Id = 1300;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     private static OptionItem OddKillCooldown;
     private static OptionItem EvenKillCooldown;
     private static OptionItem AfterMeetingKillCooldown;
 
-    public static Dictionary<byte, bool> IsOdd = new();
+    public static Dictionary<byte, bool> IsOdd = [];
 
     public static void SetupCustomOption()
     {
@@ -28,8 +28,8 @@ public static class Greedier
     }
     public static void Init()
     {
-        playerIdList = new();
-        IsOdd = new();
+        playerIdList = [];
+        IsOdd = [];
     }
     public static void Add(byte playerId)
     {

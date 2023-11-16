@@ -14,7 +14,7 @@ namespace TOHE.Roles.Crewmate
     public static class DonutDelivery
     {
         private static readonly int Id = 642700;
-        private static List<byte> playerIdList = new();
+        private static List<byte> playerIdList = [];
 
         private static OptionItem CD;
         private static OptionItem UseLimit;
@@ -34,7 +34,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void Init()
         {
-            playerIdList = new();
+            playerIdList = [];
             DeliverLimit = 0;
         }
         public static void Add(byte playerId)

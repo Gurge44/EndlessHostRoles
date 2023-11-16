@@ -12,7 +12,7 @@ namespace TOHE.Roles.Crewmate;
 public static class Judge
 {
     private static readonly int Id = 9300;
-    private static List<byte> playerIdList = new();
+    private static List<byte> playerIdList = [];
     public static OptionItem TrialLimitPerMeeting;
     private static OptionItem TryHideMsg;
     private static OptionItem CanTrialMadmate;
@@ -47,8 +47,8 @@ public static class Judge
     }
     public static void Init()
     {
-        playerIdList = new();
-        TrialLimit = new();
+        playerIdList = [];
+        TrialLimit = [];
     }
     public static void Add(byte playerId)
     {

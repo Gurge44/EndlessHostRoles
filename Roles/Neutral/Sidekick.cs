@@ -6,11 +6,11 @@ namespace TOHE.Roles.Neutral;
 
 public static class Sidekick
 {
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     public static void Init()
     {
-        playerIdList = new();
+        playerIdList = [];
     }
     public static void Add(byte playerId)
     {

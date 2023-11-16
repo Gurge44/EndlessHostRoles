@@ -9,7 +9,7 @@ namespace TOHE.Roles.Neutral;
 public static class Bandit
 {
     private static readonly int Id = 18420;
-    private static List<byte> playerIdList = new();
+    private static List<byte> playerIdList = [];
     public static bool IsEnable;
 
     private static OptionItem KillCooldown;
@@ -20,14 +20,14 @@ public static class Bandit
     public static OptionItem CanVent;
     public static OptionItem HasImpostorVision;
 
-    public static Dictionary<byte, int> TotalSteals = new();
-    public static Dictionary<byte, Dictionary<byte, CustomRoles>> Targets = new();
+    public static Dictionary<byte, int> TotalSteals = [];
+    public static Dictionary<byte, Dictionary<byte, CustomRoles>> Targets = [];
 
     public static readonly string[] BanditStealModeOpt =
-    {
+    [
         "BanditStealMode.OnMeeting",
         "BanditStealMode.Instantly"
-    };
+    ];
 
     public static void SetupCustomOption()
     {
@@ -44,9 +44,9 @@ public static class Bandit
 
     public static void Init()
     {
-        playerIdList = new();
-        Targets = new();
-        TotalSteals = new();
+        playerIdList = [];
+        Targets = [];
+        TotalSteals = [];
         IsEnable = false;
     }
 
@@ -55,7 +55,7 @@ public static class Bandit
         playerIdList.Add(playerId);
         IsEnable = true;
         TotalSteals.Add(playerId, 0);
-        Targets[playerId] = new();
+        Targets[playerId] = [];
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))

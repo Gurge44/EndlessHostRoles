@@ -9,7 +9,7 @@ namespace TOHE.Roles.Impostor
     public static class Hitman
     {
         private static readonly int Id = 640800;
-        public static List<byte> playerIdList = new();
+        public static List<byte> playerIdList = [];
 
         public static OptionItem KillCooldown;
         public static OptionItem SuccessKCD;
@@ -30,7 +30,7 @@ namespace TOHE.Roles.Impostor
 
         public static void Init()
         {
-            playerIdList = new();
+            playerIdList = [];
             targetId = byte.MaxValue;
         }
 

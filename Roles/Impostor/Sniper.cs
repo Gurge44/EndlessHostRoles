@@ -12,20 +12,20 @@ namespace TOHE.Roles.Impostor;
 public static class Sniper
 {
     private static readonly int Id = 1900;
-    private static List<byte> PlayerIdList = new();
+    private static List<byte> PlayerIdList = [];
     private static OptionItem SniperBulletCount;
     private static OptionItem SniperPrecisionShooting;
     private static OptionItem SniperAimAssist;
     private static OptionItem SniperAimAssistOnshot;
     public static OptionItem ShapeshiftDuration;
     public static OptionItem CanKillWithBullets;
-    public static Dictionary<byte, byte> snipeTarget = new();
-    private static Dictionary<byte, Vector3> snipeBasePosition = new();
-    private static Dictionary<byte, Vector3> LastPosition = new();
-    public static Dictionary<byte, int> bulletCount = new();
-    private static Dictionary<byte, List<byte>> shotNotify = new();
-    public static Dictionary<byte, bool> IsAim = new();
-    private static Dictionary<byte, float> AimTime = new();
+    public static Dictionary<byte, byte> snipeTarget = [];
+    private static Dictionary<byte, Vector3> snipeBasePosition = [];
+    private static Dictionary<byte, Vector3> LastPosition = [];
+    public static Dictionary<byte, int> bulletCount = [];
+    private static Dictionary<byte, List<byte>> shotNotify = [];
+    public static Dictionary<byte, bool> IsAim = [];
+    private static Dictionary<byte, float> AimTime = [];
     private static bool meetingReset;
     private static int maxBulletCount;
     private static bool precisionShooting;
@@ -47,16 +47,16 @@ public static class Sniper
     {
         Logger.Disable("Sniper");
 
-        PlayerIdList = new();
+        PlayerIdList = [];
         IsEnable = false;
 
-        snipeBasePosition = new();
-        LastPosition = new();
-        snipeTarget = new();
-        bulletCount = new();
-        shotNotify = new();
-        IsAim = new();
-        AimTime = new();
+        snipeBasePosition = [];
+        LastPosition = [];
+        snipeTarget = [];
+        bulletCount = [];
+        shotNotify = [];
+        IsAim = [];
+        AimTime = [];
         meetingReset = false;
 
         maxBulletCount = SniperBulletCount.GetInt();
@@ -73,7 +73,7 @@ public static class Sniper
         LastPosition[playerId] = new();
         snipeTarget[playerId] = 0x7F;
         bulletCount[playerId] = maxBulletCount;
-        shotNotify[playerId] = new();
+        shotNotify[playerId] = [];
         IsAim[playerId] = false;
         AimTime[playerId] = 0f;
     }

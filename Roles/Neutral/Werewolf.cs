@@ -13,15 +13,15 @@ namespace TOHE.Roles.Neutral;
 public static class Werewolf
 {
     private static readonly int Id = 12850;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
     private static OptionItem HasImpostorVision;
     public static OptionItem RampageCD;
     public static OptionItem RampageDur;
 
-    private static Dictionary<byte, long> RampageTime = new();
-    public static Dictionary<byte, long> lastTime = new();
+    private static Dictionary<byte, long> RampageTime = [];
+    public static Dictionary<byte, long> lastTime = [];
     private static int CD;
 
     public static void SetupCustomOption()
@@ -37,7 +37,7 @@ public static class Werewolf
     }
     public static void Init()
     {
-        playerIdList = new();
+        playerIdList = [];
         CD = 0;
     }
     public static void Add(byte playerId)
@@ -61,8 +61,8 @@ public static class Werewolf
     }
     public static void ReceiveRPC(MessageReader reader)
     {
-        RampageTime = new();
-        lastTime = new();
+        RampageTime = [];
+        lastTime = [];
         long rampage = long.Parse(reader.ReadString());
         long last = long.Parse(reader.ReadString());
         if (rampage > 0) RampageTime.Add(PlayerControl.LocalPlayer.PlayerId, rampage);
@@ -75,8 +75,8 @@ public static class Werewolf
     private static long lastFixedTime;
     public static void AfterMeetingTasks()
     {
-        lastTime = new();
-        RampageTime = new();
+        lastTime = [];
+        RampageTime = [];
         foreach (var pc in Main.AllAlivePlayerControls.Where(x => playerIdList.Contains(x.PlayerId)).ToArray())
         {
             lastTime.Add(pc.PlayerId, Utils.GetTimeStamp());
@@ -109,8 +109,8 @@ public static class Werewolf
         if (lastFixedTime != now)
         {
             lastFixedTime = now;
-            Dictionary<byte, long> newList = new();
-            List<byte> refreshList = new();
+            Dictionary<byte, long> newList = [];
+            List<byte> refreshList = [];
             foreach (var it in RampageTime)
             {
                 var pc = Utils.GetPlayerById(it.Key);

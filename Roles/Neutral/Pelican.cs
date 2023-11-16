@@ -8,9 +8,9 @@ namespace TOHE.Roles.Neutral;
 public static class Pelican
 {
     private static readonly int Id = 12500;
-    private static List<byte> playerIdList = new();
-    private static Dictionary<byte, List<byte>> eatenList = new();
-    private static readonly Dictionary<byte, float> originalSpeed = new();
+    private static List<byte> playerIdList = [];
+    private static Dictionary<byte, List<byte>> eatenList = [];
+    private static readonly Dictionary<byte, float> originalSpeed = [];
     public static OptionItem KillCooldown;
     public static OptionItem CanVent;
     public static void SetupCustomOption()
@@ -22,8 +22,8 @@ public static class Pelican
     }
     public static void Init()
     {
-        playerIdList = new();
-        eatenList = new();
+        playerIdList = [];
+        eatenList = [];
     }
     public static void Add(byte playerId)
     {
@@ -65,7 +65,7 @@ public static class Pelican
         {
             int eatenNum = reader.ReadInt32();
             eatenList.Remove(playerId);
-            List<byte> list = new();
+            List<byte> list = [];
             for (int i = 0; i < eatenNum; i++)
                 list.Add(reader.ReadByte());
             eatenList.Add(playerId, list);
@@ -109,7 +109,7 @@ public static class Pelican
     public static void EatPlayer(PlayerControl pc, PlayerControl target)
     {
         if (pc == null || target == null || !CanEat(pc, target.PlayerId)) return;
-        if (!eatenList.ContainsKey(pc.PlayerId)) eatenList.Add(pc.PlayerId, new());
+        if (!eatenList.ContainsKey(pc.PlayerId)) eatenList.Add(pc.PlayerId, []);
         eatenList[pc.PlayerId].Add(target.PlayerId);
 
         SyncEatenList(pc.PlayerId);

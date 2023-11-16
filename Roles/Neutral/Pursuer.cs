@@ -9,10 +9,10 @@ namespace TOHE.Roles.Neutral;
 public static class Pursuer
 {
     private static readonly int Id = 10200;
-    private static List<byte> playerIdList = new();
-    private static Dictionary<byte, List<byte>> clientList = new();
-    private static List<byte> notActiveList = new();
-    public static Dictionary<byte, int> SeelLimit = new();
+    private static List<byte> playerIdList = [];
+    private static Dictionary<byte, List<byte>> clientList = [];
+    private static List<byte> notActiveList = [];
+    public static Dictionary<byte, int> SeelLimit = [];
     public static OptionItem PursuerSkillCooldown;
     public static OptionItem PursuerSkillLimitTimes;
     public static void SetupCustomOption()
@@ -25,10 +25,10 @@ public static class Pursuer
     }
     public static void Init()
     {
-        playerIdList = new();
-        clientList = new();
-        notActiveList = new();
-        SeelLimit = new();
+        playerIdList = [];
+        clientList = [];
+        notActiveList = [];
+        SeelLimit = [];
     }
     public static void Add(byte playerId)
     {
@@ -75,7 +75,7 @@ public static class Pursuer
         if (pc == null || target == null || !pc.Is(CustomRoles.Pursuer)) return;
         SeelLimit[pc.PlayerId]--;
         SendRPC(pc.PlayerId);
-        if (!clientList.ContainsKey(pc.PlayerId)) clientList.Add(pc.PlayerId, new());
+        if (!clientList.ContainsKey(pc.PlayerId)) clientList.Add(pc.PlayerId, []);
         clientList[pc.PlayerId].Add(target.PlayerId);
         //pc.RpcGuardAndKill(pc);
         notActiveList.Add(pc.PlayerId);

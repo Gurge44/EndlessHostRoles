@@ -49,7 +49,7 @@ namespace TOHE.Roles.AddOns.Impostor
 
             Timer = StartingTime;
             lastUpdate = GetTimeStamp() + 10;
-            PreviouslyEnteredVents = new();
+            PreviouslyEnteredVents = [];
             countRepairSabotage = true;
         }
 

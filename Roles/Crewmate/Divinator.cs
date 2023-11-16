@@ -9,7 +9,7 @@ namespace TOHE.Roles.Crewmate;
 public static class Divinator
 {
     private static readonly int Id = 6700;
-    private static List<byte> playerIdList = new();
+    private static List<byte> playerIdList = [];
 
     public static OptionItem CheckLimitOpt;
     public static OptionItem AccurateCheckMode;
@@ -17,8 +17,8 @@ public static class Divinator
     public static OptionItem ShowSpecificRole;
     public static OptionItem AbilityUseGainWithEachTaskCompleted;
 
-    public static List<byte> didVote = new();
-    public static Dictionary<byte, float> CheckLimit = new();
+    public static List<byte> didVote = [];
+    public static Dictionary<byte, float> CheckLimit = [];
 
     public static void SetupCustomOption()
     {
@@ -34,8 +34,8 @@ public static class Divinator
     }
     public static void Init()
     {
-        playerIdList = new();
-        CheckLimit = new();
+        playerIdList = [];
+        CheckLimit = [];
     }
     public static void Add(byte playerId)
     {

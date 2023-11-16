@@ -7,7 +7,7 @@ namespace TOHE.Roles.Neutral;
 public static class Agitater
 {
     private static readonly int Id = 12420;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
     public static bool IsEnable;
 
     public static OptionItem BombExplodeCooldown;
@@ -39,7 +39,7 @@ public static class Agitater
     }
     public static void Init()
     {
-        playerIdList = new();
+        playerIdList = [];
         CurrentBombedPlayer = byte.MaxValue;
         LastBombedPlayer = byte.MaxValue;
         AgitaterHasBombed = false;

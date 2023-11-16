@@ -13,7 +13,7 @@ namespace TOHE.Roles.Impostor
 
         public static bool IsActive;
         public static bool IsEnable;
-        public static Dictionary<byte, float> CamoLimit = new();
+        public static Dictionary<byte, float> CamoLimit = [];
 
         public static void SetupCustomOption()
         {
@@ -36,7 +36,7 @@ namespace TOHE.Roles.Impostor
         public static void Init()
         {
             IsActive = false;
-            CamoLimit = new();
+            CamoLimit = [];
             IsEnable = false;
         }
         public static void Add(byte playerId)

@@ -12,13 +12,13 @@ namespace TOHE.Roles.Impostor;
 internal static class Undertaker
 {
     private static readonly int Id = 750;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     private static OptionItem MarkCooldown;
     public static OptionItem AssassinateCooldown;
     private static OptionItem CanKillAfterAssassinate;
 
-    public static Dictionary<byte, byte> MarkedPlayer = new();
+    public static Dictionary<byte, byte> MarkedPlayer = [];
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Undertaker);
@@ -30,8 +30,8 @@ internal static class Undertaker
     }
     public static void Init()
     {
-        playerIdList = new();
-        MarkedPlayer = new();
+        playerIdList = [];
+        MarkedPlayer = [];
     }
     public static void Add(byte playerId)
     {

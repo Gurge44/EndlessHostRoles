@@ -8,7 +8,7 @@ namespace TOHE;
 public static class Juggernaut
 {
     private static readonly int Id = 12300;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     private static OptionItem DefaultKillCooldown;
     private static OptionItem ReduceKillCooldown;
@@ -32,8 +32,8 @@ public static class Juggernaut
     }
     public static void Init()
     {
-        playerIdList = new();
-        NowCooldown = new();
+        playerIdList = [];
+        NowCooldown = [];
     }
     public static void Add(byte playerId)
     {

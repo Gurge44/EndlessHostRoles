@@ -17,16 +17,13 @@ public static class ServerAddManager
         if (!CultureInfo.CurrentCulture.Name.StartsWith("zh") && serverManager.AvailableRegions.Count == 6) return;
 
         serverManager.AvailableRegions = ServerManager.DefaultRegions;
-        List<IRegionInfo> regionInfos = new();
-
-        if (CultureInfo.CurrentCulture.Name.StartsWith("zh"))
-        {
-            regionInfos.Add(CreateHttp("au-sh.pafyx.top", "梦服上海 (新)", 22000, false));
-            //regionInfos.Add(CreateHttp("120.78.171.61", "霸总广州", 22000, false));
-        }
-        regionInfos.Add(CreateHttp("au-as.duikbo.at", "Modded Asia (MAS)", 443, true));
-        regionInfos.Add(CreateHttp("www.aumods.xyz", "Modded NA (MNA)", 443, true));
-        regionInfos.Add(CreateHttp("au-eu.duikbo.at", "Modded EU (MEU)", 443, true));
+        List<IRegionInfo> regionInfos =
+        [
+            .. CultureInfo.CurrentCulture.Name.StartsWith("zh") ? [CreateHttp("au-sh.pafyx.top", "梦服上海 (新)", 22000, false)] : [],
+            CreateHttp("au-as.duikbo.at", "Modded Asia (MAS)", 443, true),
+            CreateHttp("www.aumods.xyz", "Modded NA (MNA)", 443, true),
+            CreateHttp("au-eu.duikbo.at", "Modded EU (MEU)", 443, true),
+        ];
 
         regionInfos.Where(x => !serverManager.AvailableRegions.Contains(x)).Do(serverManager.AddOrUpdateRegion);
     }
@@ -35,7 +32,7 @@ public static class ServerAddManager
     {
         string serverIp = (ishttps ? "https://" : "http://") + ip;
         ServerInfo serverInfo = new(name, serverIp, port, false);
-        ServerInfo[] ServerInfo = new ServerInfo[] { serverInfo };
+        ServerInfo[] ServerInfo = [serverInfo];
         return new StaticHttpRegionInfo(name, (StringNames)1003, ip, ServerInfo).CastFast<IRegionInfo>();
     }
 

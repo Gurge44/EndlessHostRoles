@@ -68,7 +68,7 @@ class CmdCheckMurderPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckMurder))] // Vanilla
 class CheckMurderPatch
 {
-    public static Dictionary<byte, float> TimeSinceLastKill = new();
+    public static Dictionary<byte, float> TimeSinceLastKill = [];
     public static void Update()
     {
         for (byte i = 0; i < 15; i++)
@@ -1242,7 +1242,7 @@ class CmdCheckShapeshiftPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Shapeshift))]
 class ShapeshiftPatch
 {
-    public static List<byte> IgnoreNextSS = new();
+    public static List<byte> IgnoreNextSS = [];
     public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
 
@@ -1310,7 +1310,7 @@ class ShapeshiftPatch
                         {
                             var cp = Main.CursedPlayers[shapeshifter.PlayerId];
                             Vector2 cppos = cp.transform.position;//呪われた人の位置
-                            Dictionary<PlayerControl, float> cpdistance = new();
+                            Dictionary<PlayerControl, float> cpdistance = [];
                             float dis;
                             foreach (PlayerControl p in Main.AllAlivePlayerControls)
                             {
@@ -1553,7 +1553,7 @@ class ShapeshiftPatch
 class ReportDeadBodyPatch
 {
     public static Dictionary<byte, bool> CanReport;
-    public static Dictionary<byte, List<GameData.PlayerInfo>> WaitReport = new();
+    public static Dictionary<byte, List<GameData.PlayerInfo>> WaitReport = [];
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] GameData.PlayerInfo target)
     {
         if (GameStates.IsMeeting) return false;
@@ -1895,8 +1895,8 @@ class FixedUpdatePatch
     private static readonly StringBuilder Mark = new(20);
     private static readonly StringBuilder Suffix = new(120);
     private static int LevelKickBufferTime = 10;
-    private static readonly Dictionary<byte, int> BufferTime = new();
-    private static readonly Dictionary<byte, int> DeadBufferTime = new();
+    private static readonly Dictionary<byte, int> BufferTime = [];
+    private static readonly Dictionary<byte, int> DeadBufferTime = [];
 
     public static async void Postfix(PlayerControl __instance)
     {
@@ -2275,7 +2275,7 @@ class FixedUpdatePatch
                 else
                 {
                     Vector2 puppeteerPos = player.transform.position;
-                    Dictionary<byte, float> targetDistance = new();
+                    Dictionary<byte, float> targetDistance = [];
                     float dis;
                     foreach (var target in PlayerControl.AllPlayerControls)
                     {
@@ -2617,7 +2617,7 @@ class FixedUpdatePatch
                     else if (Main.PuppeteerDelayList[player.PlayerId] + Options.PuppeteerDelay.GetInt() < GetTimeStamp())
                     {
                         Vector2 puppeteerPos = player.transform.position;//PuppeteerListのKeyの位置
-                        Dictionary<byte, float> targetDistance = new();
+                        Dictionary<byte, float> targetDistance = [];
                         float dis;
                         foreach (PlayerControl target in Main.AllAlivePlayerControls)
                         {
@@ -2661,7 +2661,7 @@ class FixedUpdatePatch
                     else
                     {
                         Vector2 puppeteerPos = player.transform.position;//PuppeteerListのKeyの位置
-                        Dictionary<byte, float> targetDistance = new();
+                        Dictionary<byte, float> targetDistance = [];
                         float dis;
                         foreach (PlayerControl target in Main.AllAlivePlayerControls)
                         {

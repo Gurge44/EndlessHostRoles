@@ -9,7 +9,7 @@ public static class Workhorse
 {
     private static readonly int Id = 15700;
     public static Color RoleColor = Utils.GetRoleColor(CustomRoles.Workhorse);
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
 
     private static OptionItem OptionAssignOnlyToCrewmate;
     private static OptionItem OptionNumLongTasks;
@@ -31,7 +31,7 @@ public static class Workhorse
     }
     public static void Init()
     {
-        playerIdList = new();
+        playerIdList = [];
 
         AssignOnlyToCrewmate = OptionAssignOnlyToCrewmate.GetBool();
         NumLongTasks = OptionNumLongTasks.GetInt();

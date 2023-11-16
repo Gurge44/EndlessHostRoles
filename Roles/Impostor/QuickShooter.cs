@@ -9,12 +9,12 @@ namespace TOHE.Roles.Impostor;
 internal static class QuickShooter
 {
     private static readonly int Id = 1800;
-    public static List<byte> playerIdList = new();
+    public static List<byte> playerIdList = [];
     private static OptionItem KillCooldown;
     private static OptionItem MeetingReserved;
     public static OptionItem ShapeshiftCooldown;
 
-    public static Dictionary<byte, int> ShotLimit = new();
+    public static Dictionary<byte, int> ShotLimit = [];
 
     public static void SetupCustomOption()
     {
@@ -28,8 +28,8 @@ internal static class QuickShooter
     }
     public static void Init()
     {
-        playerIdList = new();
-        ShotLimit = new();
+        playerIdList = [];
+        ShotLimit = [];
     }
     public static void Add(byte playerId)
     {
@@ -72,7 +72,7 @@ internal static class QuickShooter
     }
     public static void OnReportDeadBody()
     {
-        Dictionary<byte, int> NewSL = new();
+        Dictionary<byte, int> NewSL = [];
         foreach (var sl in ShotLimit)
             NewSL.Add(sl.Key, Math.Clamp(sl.Value, 0, MeetingReserved.GetInt()));
         foreach (var sl in NewSL)

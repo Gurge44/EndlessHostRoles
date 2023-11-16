@@ -15,7 +15,7 @@ class AddTasksFromListPatch
         if (!AmongUsClient.Instance.AmHost) return;
 
         if (!Options.DisableShortTasks.GetBool() && !Options.DisableCommonTasks.GetBool() && !Options.DisableLongTasks.GetBool() && !Options.DisableOtherTasks.GetBool()) return;
-        List<NormalPlayerTask> disabledTasks = new();
+        List<NormalPlayerTask> disabledTasks = [];
         for (var i = 0; i < unusedTasks.Count; i++)
         {
             var task = unusedTasks[i];

@@ -16,7 +16,7 @@ public static class BanManager
     private static readonly string BAN_LIST_PATH = @"./TOHE_DATA/BanList.txt";
     private static readonly string MODERATOR_LIST_PATH = @"./TOHE_DATA/Moderators.txt";
 #pragma warning disable IDE0044 // Add readonly modifier
-    private static List<string> EACList = new();
+    private static List<string> EACList = [];
 #pragma warning restore IDE0044 // Add readonly modifier
     public static void Init()
     {
