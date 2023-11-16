@@ -2777,7 +2777,7 @@ class FixedUpdatePatch
                 bool isProgressTextLong = false;
                 var progressText = GetProgressText(__instance);
 
-                if (progressText.Length > 15 && Main.VisibleTasksCount)
+                if (progressText.RemoveHtmlTags().Length > 15 && Main.VisibleTasksCount)
                 {
                     isProgressTextLong = true;
                     progressText = $"\n{progressText}";
@@ -3066,7 +3066,6 @@ class FixedUpdatePatch
                     }
                     else
                     {
-                        isProgressTextLong = true;
                         // Restoring the position text coordinates to their initial values
                         RoleText.transform.SetLocalY(isProgressTextLong ? 0.4f : 0.2f);
                     }

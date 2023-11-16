@@ -2934,6 +2934,15 @@ public static class Utils
         return sb.ToString();
     }
 
+    public static void SetChatVisible()
+    {
+        if (!GameStates.IsInGame) return;
+        MeetingHud.Instance = UnityEngine.Object.Instantiate(HudManager.Instance.MeetingPrefab);
+        MeetingHud.Instance.ServerStart(PlayerControl.LocalPlayer.PlayerId);
+        AmongUsClient.Instance.Spawn(MeetingHud.Instance, -2, SpawnFlags.None);
+        MeetingHud.Instance.RpcClose();
+    }
+
     public static bool TryCast<T>(this Il2CppObjectBase obj, out T casted)
     where T : Il2CppObjectBase
     {

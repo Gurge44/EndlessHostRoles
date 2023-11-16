@@ -192,30 +192,27 @@ public static class Romantic
         });
         if (Romantic == 0x73) return;
         var pc = Utils.GetPlayerById(Romantic);
-        if (player.IsNeutralKiller())
+        var killer = player.GetRealKiller();
+        if (player.IsNeutralKiller() || killer == null)
         {
-            Logger.Info($"Neutral Romantic Partner Died changing {pc.GetNameWithRole().RemoveHtmlTags()} to Ruthless Romantic", "Romantic");
+            Logger.Info($"Neutral Romantic Partner Died / Partner killer is null => changing {pc.GetNameWithRole().RemoveHtmlTags()} to Ruthless Romantic", "Romantic");
             pc.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
             RuthlessRomantic.Add(playerId);
         }
         else if (player.GetCustomRole().IsImpostorTeamV3())
         {
-            Logger.Info($"Impostor Romantic Partner Died changing {pc.GetNameWithRole().RemoveHtmlTags()} to Refugee", "Romantic");
+            Logger.Info($"Impostor Romantic Partner Died => changing {pc.GetNameWithRole().RemoveHtmlTags()} to Refugee", "Romantic");
             pc.RpcSetCustomRole(CustomRoles.Refugee);
         }
         else
         {
             _ = new LateTask(() =>
             {
-                Logger.Info($"Crew/nnk Romantic Partner Died changing {pc.GetNameWithRole().RemoveHtmlTags()} to Vengeful romantic", "Romantic");
+                Logger.Info($"Crew/nnk Romantic Partner Died => changing {pc.GetNameWithRole().RemoveHtmlTags()} to Vengeful romantic", "Romantic");
 
-                var killerId = player.GetRealKiller().PlayerId;
-                if (Utils.GetPlayerById(killerId) != null)
-                {
-                    VengefulRomantic.Add(pc.PlayerId, killerId);
-                    VengefulRomantic.SendRPC(pc.PlayerId);
-                    pc.RpcSetCustomRole(CustomRoles.VengefulRomantic);
-                }
+                VengefulRomantic.Add(pc.PlayerId, killer.PlayerId);
+                VengefulRomantic.SendRPC(pc.PlayerId);
+                pc.RpcSetCustomRole(CustomRoles.VengefulRomantic);
             }, 0.2f, "Convert to Vengeful Romantic");
         }
 
@@ -256,7 +253,7 @@ public static class VengefulRomantic
 
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer.PlayerId == target.PlayerId) return true; //set it to true coz shaman can do this, and killer shd die
+        if (killer.PlayerId == target.PlayerId) return true;
 
         if (VengefulTarget.TryGetValue(killer.PlayerId, out var PartnerKiller) && target.PlayerId == PartnerKiller)
         {

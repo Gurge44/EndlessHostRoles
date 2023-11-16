@@ -97,6 +97,8 @@ internal static class FFAManager
         {
             KBScore.TryAdd(pc.PlayerId, 0);
         }
+
+        _ = new LateTask(Utils.SetChatVisible, 10f, "Set Chat Visible for Everyone");
     }
     private static void SendRPCSyncFFAPlayer(byte playerId)
     {

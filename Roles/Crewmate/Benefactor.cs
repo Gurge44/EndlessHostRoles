@@ -9,12 +9,12 @@ namespace TOHE.Roles.Crewmate
     {
         private static readonly int Id = 8670;
         private static List<byte> playerIdList = [];
-        public static bool IsEnable = false;
+        public static bool IsEnable;
 
         public static Dictionary<byte, List<int>> taskIndex = [];
         public static Dictionary<byte, int> TaskMarkPerRound = [];
         public static Dictionary<byte, long> shieldedPlayers = [];
-        private static int maxTasksMarkedPerRound = new();
+        private static int maxTasksMarkedPerRound;
 
         public static OptionItem TaskMarkPerRoundOpt;
         public static OptionItem ShieldDuration;

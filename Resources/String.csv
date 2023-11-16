@@ -2936,7 +2936,7 @@
 "PostmanCorrectDeliver","","<color=#00ff00>Deliver successful.</color>","","",""
 "PostmanTargetDied","","<color=#ffff00>Your target died.</color>","","",""
 "PostmanGetNewTarget","","Your new target is {0}.","","",""
-"PostmanDone","","<color=#00ff00>You're done delivering messages!\nYou'll win with the winning team at the end.</color>","","",""
+"PostmanDone","","\n\n<color=#00ff00>You're done delivering messages!\nYou'll win with the winning team at the end.</color>","","",""
 "PostmanTarget","","<color=#00ffa5>Target:</color> <b>{0}</b>","","",""
 "DeliverCooldown","","Deliver Cooldown","","",""
 
