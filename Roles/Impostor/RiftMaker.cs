@@ -91,7 +91,7 @@ namespace TOHE.Roles.Impostor
 
         public static void OnReportDeadBody()
         {
-            Marks.Clear();
+            LastTP = GetTimeStamp();
         }
 
         public static void OnEnterVent(PlayerControl player, int ventId)

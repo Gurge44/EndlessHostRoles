@@ -90,7 +90,7 @@ public static class DevManager
                                                                                                                                                                 //        DevUserList.Add(new(code: "honestsofa#2870", color: "#D381D9", tag: "Discord: SolarFlare#0700", isUp: true, isDev: false, colorCmd: false, deBug: false, upName: "SolarFlare")); //SolarFlare
         DevUserList.Add(new(code: "caseeast#7194", color: "#1c2451", tag: "disc.gg/maul", isUp: false, isDev: false, colorCmd: false, deBug: false, upName: null)); //laikrai
         // lol hi go away
-        DevUserList.Add(new(code: "gnuedaphic#7196", color: "#ffc0cb", tag: "TOH-RE Developer", isUp: true, isDev: false, deBug: false, colorCmd: true, upName: "Loonie")); //Loonie
+        //DevUserList.Add(new(code: "gnuedaphic#7196", color: "#ffc0cb", tag: "TOH-RE Developer", isUp: true, isDev: false, deBug: false, colorCmd: true, upName: "Loonie")); //Loonie
         // Lauryn and Moe
         DevUserList.Add(new(code: "straymovie#6453", color: "#F6B05E", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: true, upName: "Moe")); //Moe
         DevUserList.Add(new(code: "singlesign#1823", color: "#ffb6cd", tag: "Princess", isUp: true, isDev: false, deBug: false, colorCmd: true, upName: "Lauryn")); //Lauryn

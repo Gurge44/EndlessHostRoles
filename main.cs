@@ -114,6 +114,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, long> TwisterCD = [];
     public static Dictionary<byte, long> CameraManCD = [];
     public static Dictionary<byte, long> SapperCD = [];
+    public static Dictionary<byte, long> DruidCD = [];
     private static GameData.PlayerInfo lastVotedPlayerInfo;
     public static string LastVotedPlayer;
     public static List<byte> ResetCamPlayerList = [];
@@ -355,6 +356,7 @@ public class Main : BasePlugin
                 {CustomRoles.Express, "#00ffff"},
                 {CustomRoles.NiceEraser, "#00a5ff"},
                 {CustomRoles.TaskManager, "#00ffa5"},
+                {CustomRoles.Druid, "#ffb694"},
                 {CustomRoles.Autocrat, "#e2ed64"},
                 {CustomRoles.Transmitter, "#c9a11e"},
                 {CustomRoles.Nightmare, "#1e1247"},
@@ -716,6 +718,7 @@ public enum CustomRoles
     Express,
     NiceEraser,
     TaskManager,
+    Druid,
     Drainer,
     CameraMan,
     NiceHacker,

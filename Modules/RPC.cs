@@ -58,6 +58,9 @@ enum CustomRPC
 
     //Roles
     SetDrawPlayer,
+    SetDruidLimit,
+    DruidAddTrigger,
+    DruidAddTriggerDelay,
     SyncBenefactorMarkedTask,
     SetDrainerLimit,
     SetConsortLimit,
@@ -494,6 +497,15 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SetOracleLimit:
                 Oracle.ReceiveRPC(reader);
+                break;
+            case CustomRPC.DruidAddTrigger:
+                Druid.ReceiveRPCAddTrigger(reader);
+                break;
+            case CustomRPC.DruidAddTriggerDelay:
+                Druid.ReceiveRPCAddTriggerDelay(reader);
+                break;
+            case CustomRPC.SetDruidLimit:
+                Druid.ReceiveRPCSyncAbilityUse(reader);
                 break;
             case CustomRPC.SetSabotageMasterLimit:
                 SabotageMaster.ReceiveRPC(reader);

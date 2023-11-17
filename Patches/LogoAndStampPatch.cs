@@ -61,7 +61,7 @@ public static class CredentialsPatch
             BoosterData += $"\nNamra";
             BoosterData += $"\nKNIGHT";
             BoosterData += $"\nSolarFlare";
-            BoosterData += $"\nLoonie";
+            //BoosterData += $"\nLoonie";
 
             SponsersData += $"罗寄";
             SponsersData += $"\n鬼";
