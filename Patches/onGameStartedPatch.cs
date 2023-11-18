@@ -109,6 +109,7 @@ internal class ChangeRoleSettings
             Main.MadGrenadierBlinding = [];
             Main.CursedWolfSpellCount = [];
             Main.JinxSpellCount = [];
+            Main.PuppeteerDelay = [];
             Main.OverDeadPlayerList = [];
             Main.Provoked = [];
             Main.ShieldPlayer = Options.ShieldPersonDiedFirst.GetBool() ? Main.FirstDied : byte.MaxValue;

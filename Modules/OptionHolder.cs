@@ -240,9 +240,18 @@ public static class Options
     public static OptionItem GGTryHideMsg;
     public static OptionItem LuckeyProbability;
     public static OptionItem LuckyProbability;
-    public static OptionItem PuppeteerDelay;
     public static OptionItem PuppeteerKCD;
     public static OptionItem PuppeteerCD;
+    public static OptionItem PuppeteerCanKillNormally;
+    public static OptionItem PuppeteerManipulationBypassesLazy;
+    public static OptionItem PuppeteerPuppetCanKillPuppeteer;
+    public static OptionItem PuppeteerPuppetCanKillImpostors;
+    public static OptionItem PuppeteerMaxPuppets;
+    public static OptionItem PuppeteerDiesAfterMaxPuppets;
+    public static OptionItem PuppeteerMinDelay;
+    public static OptionItem PuppeteerMaxDelay;
+    public static OptionItem PuppeteerManipulationEndsAfterFixedTime;
+    public static OptionItem PuppeteerManipulationEndsAfterTime;
     public static OptionItem VindicatorAdditionalVote;
     public static OptionItem VindicatorHideVote;
     public static OptionItem MayorAdditionalVote;
@@ -1326,12 +1335,33 @@ public static class Options
         PuppeteerCD = FloatOptionItem.Create(3911, "PuppeteerCD", new(2.5f, 60f, 2.5f), 22.5f, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer])
             .SetValueFormat(OptionFormat.Seconds);
+        PuppeteerCanKillNormally = BooleanOptionItem.Create(3917, "PuppeteerCanKillNormally", true, TabGroup.ImpostorRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
         PuppeteerKCD = FloatOptionItem.Create(3912, "PuppeteerKCD", new(2.5f, 60f, 2.5f), 25f, TabGroup.ImpostorRoles, false)
+            .SetParent(PuppeteerCanKillNormally)
+            .SetValueFormat(OptionFormat.Seconds);
+        PuppeteerMinDelay = IntegerOptionItem.Create(3913, "PuppeteerMinDelay", new(0, 20, 1), 3, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer])
             .SetValueFormat(OptionFormat.Seconds);
-        PuppeteerDelay = IntegerOptionItem.Create(3910, "PuppeteerDelay", new(0, 20, 1), 5, TabGroup.ImpostorRoles, false)
+        PuppeteerMaxDelay = IntegerOptionItem.Create(3914, "PuppeteerMaxDelay", new(0, 20, 1), 7, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer])
             .SetValueFormat(OptionFormat.Seconds);
+        PuppeteerManipulationEndsAfterFixedTime = BooleanOptionItem.Create(3915, "PuppeteerManipulationEndsAfterFixedTime", false, TabGroup.ImpostorRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
+        PuppeteerManipulationEndsAfterTime = IntegerOptionItem.Create(3916, "PuppeteerManipulationEndsAfterTime", new(0, 20, 1), 7, TabGroup.ImpostorRoles, false)
+            .SetParent(PuppeteerManipulationEndsAfterFixedTime)
+            .SetValueFormat(OptionFormat.Seconds);
+        PuppeteerManipulationBypassesLazy = BooleanOptionItem.Create(3918, "PuppeteerManipulationBypassesLazy", false, TabGroup.ImpostorRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
+        PuppeteerPuppetCanKillImpostors = BooleanOptionItem.Create(3919, "PuppeteerPuppetCanKillImpostors", false, TabGroup.ImpostorRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
+        PuppeteerPuppetCanKillPuppeteer = BooleanOptionItem.Create(3920, "PuppeteerPuppetCanKillPuppeteer", false, TabGroup.ImpostorRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
+        PuppeteerMaxPuppets = IntegerOptionItem.Create(3921, "PuppeteerMaxPuppets", new(0, 20, 1), 5, TabGroup.ImpostorRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer])
+            .SetValueFormat(OptionFormat.Times);
+        PuppeteerDiesAfterMaxPuppets = BooleanOptionItem.Create(3921, "PuppeteerDiesAfterMaxPuppets", false, TabGroup.ImpostorRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
         RoleLoadingText = "Impostor roles\nScavenger";
         SetupRoleOptions(4000, TabGroup.ImpostorRoles, CustomRoles.Scavenger);
         ScavengerKillCooldown = FloatOptionItem.Create(4010, "KillCooldown", new(5f, 180f, 2.5f), 40f, TabGroup.ImpostorRoles, false)

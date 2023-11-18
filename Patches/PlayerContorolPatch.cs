@@ -2285,7 +2285,7 @@ class FixedUpdatePatch
                 }
                 else
                 {
-                    Vector2 puppeteerPos = player.transform.position;
+                    Vector2 agitaterPos = player.transform.position;
                     Dictionary<byte, float> targetDistance = [];
                     float dis;
                     foreach (var target in PlayerControl.AllPlayerControls)
@@ -2293,7 +2293,7 @@ class FixedUpdatePatch
                         if (!target.IsAlive()) continue;
                         if (target.PlayerId != player.PlayerId && target.PlayerId != Agitater.LastBombedPlayer && !target.Data.IsDead)
                         {
-                            dis = Vector2.Distance(puppeteerPos, target.transform.position);
+                            dis = Vector2.Distance(agitaterPos, target.transform.position);
                             targetDistance.Add(target.PlayerId, dis);
                         }
                     }
@@ -2625,7 +2625,7 @@ class FixedUpdatePatch
                         Main.PuppeteerList.Remove(player.PlayerId);
                         Main.PuppeteerDelayList.Remove(player.PlayerId);
                     }
-                    else if (Main.PuppeteerDelayList[player.PlayerId] + Options.PuppeteerDelay.GetInt() < GetTimeStamp())
+                    else if (Main.PuppeteerDelayList[player.PlayerId] + Options.PuppeteerMinDelay.GetInt() < GetTimeStamp())
                     {
                         Vector2 puppeteerPos = player.transform.position;//PuppeteerListのKeyの位置
                         Dictionary<byte, float> targetDistance = [];
