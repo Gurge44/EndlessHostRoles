@@ -414,7 +414,8 @@ class IntroCutsceneDestroyPatch
             if (Options.UsePets.GetBool())
             {
                 Main.ProcessShapeshifts = false;
-                _ = new LateTask(() => PlayerControl.AllPlayerControls.ToArray().Do(pc => PetsPatch.SetPet(pc, Options., true)), 0.3f, "Grant Pet For Everyone");
+                Logger.Info(Options.PetToAssign[Options.PetToAssignToEveryone.GetValue()], "debug");
+                _ = new LateTask(() => PlayerControl.AllPlayerControls.ToArray().Do(pc => PetsPatch.SetPet(pc, Options.PetToAssign[Options.PetToAssignToEveryone.GetValue()], true)), 0.3f, "Grant Pet For Everyone");
                 try
                 {
                     _ = new LateTask(() =>

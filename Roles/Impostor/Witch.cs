@@ -206,7 +206,7 @@ public static class Witch
                 Main.AfterMeetingDeathPlayers.Remove(pc.PlayerId);
             }
         }
-        CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Spell, spelledIdList.ToArray());
+        CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Spell, [.. spelledIdList]);
         RemoveSpelledPlayer();
     }
     public static string GetSpelledMark(byte target, bool isMeeting)

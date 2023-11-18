@@ -58,7 +58,7 @@ public static class Judge
     public static bool IsEnable => playerIdList.Any();
     public static void OnReportDeadBody()
     {
-        byte[] list = TrialLimit.Keys.ToArray();
+        byte[] list = [.. TrialLimit.Keys];
         foreach (byte pid in list)
         {
             TrialLimit[pid] = TrialLimitPerMeeting.GetInt();

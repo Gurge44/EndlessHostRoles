@@ -6,15 +6,11 @@ namespace TOHE;
 
 static class LocateArrow
 {
-    class ArrowInfo
+    class ArrowInfo(byte from, Vector3 to)
     {
-        public byte From;
-        public Vector3 To;
-        public ArrowInfo(byte from, Vector3 to)
-        {
-            From = from;
-            To = to;
-        }
+        public byte From = from;
+        public Vector3 To = to;
+
         public bool Equals(ArrowInfo obj)
         {
             return From == obj.From && To == obj.To;

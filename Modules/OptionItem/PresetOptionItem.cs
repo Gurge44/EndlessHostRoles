@@ -1,16 +1,10 @@
 namespace TOHE;
 
-public class PresetOptionItem : OptionItem
+public class PresetOptionItem(int defaultValue, TabGroup tab) : OptionItem(0, "Preset", defaultValue, tab, true)
 {
     // 必須情報
-    public IntegerValueRule Rule;
+    public IntegerValueRule Rule = (0, NumPresets - 1, 1);
 
-    // コンストラクタ
-    public PresetOptionItem(int defaultValue, TabGroup tab)
-    : base(0, "Preset", defaultValue, tab, true)
-    {
-        Rule = (0, NumPresets - 1, 1);
-    }
     public static PresetOptionItem Create(int defaultValue, TabGroup tab)
     {
         return new PresetOptionItem(defaultValue, tab);

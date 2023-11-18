@@ -62,7 +62,7 @@ class CheckForEndVotingPatch
                         VoterId = pva.TargetPlayerId,
                         VotedForId = pva.VotedFor
                     });
-                    states = statesList.ToArray();
+                    states = [.. statesList];
                     if (AntiBlackout.OverrideExiledPlayer)
                     {
                         __instance.RpcVotingComplete(states.ToArray(), null, true);
@@ -289,7 +289,7 @@ class CheckForEndVotingPatch
                     }
                 }
             }
-            states = statesList.ToArray();
+            states = [.. statesList];
 
             var VotingData = __instance.CustomCalculateVotes();
             byte exileId = byte.MaxValue;
@@ -548,7 +548,7 @@ class CheckForEndVotingPatch
                 AddedIdList.Add(playerId);
         }
 
-        CheckForDeathOnExile(deathReason, AddedIdList.ToArray());
+        CheckForDeathOnExile(deathReason, [.. AddedIdList]);
     }
     public static void CheckForDeathOnExile(PlayerState.DeathReason deathReason, params byte[] playerIds)
     {

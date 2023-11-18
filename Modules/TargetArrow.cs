@@ -7,15 +7,11 @@ namespace TOHE;
 
 static class TargetArrow
 {
-    class ArrowInfo
+    class ArrowInfo(byte from, byte to)
     {
-        public byte From;
-        public byte To;
-        public ArrowInfo(byte from, byte to)
-        {
-            From = from;
-            To = to;
-        }
+        public byte From = from;
+        public byte To = to;
+
         public bool Equals(ArrowInfo obj)
         {
             return From == obj.From && To == obj.To;

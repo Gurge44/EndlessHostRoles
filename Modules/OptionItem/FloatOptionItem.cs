@@ -1,16 +1,10 @@
 namespace TOHE;
 
-public class FloatOptionItem : OptionItem
+public class FloatOptionItem(int id, string name, float defaultValue, TabGroup tab, bool isSingleValue, FloatValueRule rule) : OptionItem(id, name, rule.GetNearestIndex(defaultValue), tab, isSingleValue)
 {
     // 必須情報
-    public FloatValueRule Rule;
+    public FloatValueRule Rule = rule;
 
-    // コンストラクタ
-    public FloatOptionItem(int id, string name, float defaultValue, TabGroup tab, bool isSingleValue, FloatValueRule rule)
-    : base(id, name, rule.GetNearestIndex(defaultValue), tab, isSingleValue)
-    {
-        Rule = rule;
-    }
     public static FloatOptionItem Create(
         int id, string name, FloatValueRule rule, float defaultValue, TabGroup tab, bool isSingleValue
     )

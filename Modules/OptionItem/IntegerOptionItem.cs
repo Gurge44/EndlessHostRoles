@@ -1,16 +1,10 @@
 namespace TOHE;
 
-public class IntegerOptionItem : OptionItem
+public class IntegerOptionItem(int id, string name, int defaultValue, TabGroup tab, bool isSingleValue, IntegerValueRule rule) : OptionItem(id, name, rule.GetNearestIndex(defaultValue), tab, isSingleValue)
 {
     // 必須情報
-    public IntegerValueRule Rule;
+    public IntegerValueRule Rule = rule;
 
-    // コンストラクタ
-    public IntegerOptionItem(int id, string name, int defaultValue, TabGroup tab, bool isSingleValue, IntegerValueRule rule)
-    : base(id, name, rule.GetNearestIndex(defaultValue), tab, isSingleValue)
-    {
-        Rule = rule;
-    }
     public static IntegerOptionItem Create(
         int id, string name, IntegerValueRule rule, int defaultValue, TabGroup tab, bool isSingleValue
     )

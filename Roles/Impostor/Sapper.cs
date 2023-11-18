@@ -99,7 +99,7 @@ namespace TOHE.Roles.Impostor
             }
 
             var sb = new StringBuilder();
-            long[] list = Bombs.Values.ToArray();
+            long[] list = [.. Bombs.Values];
             foreach (long x in list)
             {
                 sb.Append(string.Format(GetString("MagicianBombExlodesIn"), Delay.GetInt() - (GetTimeStamp() - x) + 1));

@@ -1,18 +1,11 @@
 namespace TOHE;
 
-public class StringOptionItem : OptionItem
+public class StringOptionItem(int id, string name, int defaultValue, TabGroup tab, bool isSingleValue, string[] selections) : OptionItem(id, name, defaultValue, tab, isSingleValue)
 {
     // 必須情報
-    public IntegerValueRule Rule;
-    public string[] Selections;
+    public IntegerValueRule Rule = (0, selections.Length - 1, 1);
+    public string[] Selections = selections;
 
-    // コンストラクタ
-    public StringOptionItem(int id, string name, int defaultValue, TabGroup tab, bool isSingleValue, string[] selections)
-    : base(id, name, defaultValue, tab, isSingleValue)
-    {
-        Rule = (0, selections.Length - 1, 1);
-        Selections = selections;
-    }
     public static StringOptionItem Create(
         int id, string name, string[] selections, int defaultIndex, TabGroup tab, bool isSingleValue
     )

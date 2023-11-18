@@ -12,7 +12,7 @@ using Mathf = UnityEngine.Mathf;
 
 namespace TOHE.Modules;
 
-public class PlayerGameOptionsSender : GameOptionsSender
+public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 {
     public static void SetDirty(PlayerControl player) => SetDirty(player.PlayerId);
     public static void SetDirty(byte playerId) =>
@@ -39,12 +39,8 @@ public class PlayerGameOptionsSender : GameOptionsSender
         Main.RealOptionsData.Restore(new NormalGameOptionsV07(new UnityLogger().Cast<ILogger>()).Cast<IGameOptions>());
     public override bool IsDirty { get; protected set; }
 
-    public PlayerControl player;
+    public PlayerControl player = player;
 
-    public PlayerGameOptionsSender(PlayerControl player)
-    {
-        this.player = player;
-    }
     public void SetDirty() => IsDirty = true;
 
     public override void SendGameOptions()

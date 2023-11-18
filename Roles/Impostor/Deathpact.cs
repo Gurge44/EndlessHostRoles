@@ -289,7 +289,7 @@ namespace TOHE.Roles.Impostor
 
         public static void OnReportDeadBody()
         {
-            List<byte> list = ActiveDeathpacts.ToList();
+            List<byte> list = [.. ActiveDeathpacts];
             foreach (byte deathpact in list.ToArray())
             {
                 if (KillDeathpactPlayersOnMeeting.GetBool())

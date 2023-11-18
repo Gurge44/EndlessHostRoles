@@ -2,18 +2,12 @@ using System;
 
 namespace TOHE;
 
-public abstract class ValueRule<T>
+public abstract class ValueRule<T>(T minValue, T maxValue, T step)
 {
-    public T MinValue { get; protected set; }
-    public T MaxValue { get; protected set; }
-    public T Step { get; protected set; }
+    public T MinValue { get; protected set; } = minValue;
+    public T MaxValue { get; protected set; } = maxValue;
+    public T Step { get; protected set; } = step;
 
-    public ValueRule(T minValue, T maxValue, T step)
-    {
-        MinValue = minValue;
-        MaxValue = maxValue;
-        Step = step;
-    }
     public ValueRule((T, T, T) tuple)
     : this(tuple.Item1, tuple.Item2, tuple.Item3)
     { }

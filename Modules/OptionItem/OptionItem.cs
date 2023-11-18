@@ -265,15 +265,10 @@ public abstract class OptionItem
         }
     }
 
-    public class UpdateValueEventArgs : EventArgs
+    public class UpdateValueEventArgs(int beforeValue, int currentValue) : EventArgs
     {
-        public int CurrentValue { get; set; }
-        public int BeforeValue { get; set; }
-        public UpdateValueEventArgs(int beforeValue, int currentValue)
-        {
-            CurrentValue = currentValue;
-            BeforeValue = beforeValue;
-        }
+        public int CurrentValue { get; set; } = currentValue;
+        public int BeforeValue { get; set; } = beforeValue;
     }
 
     public const int NumPresets = 5;

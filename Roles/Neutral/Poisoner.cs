@@ -9,16 +9,10 @@ namespace TOHE.Roles.Neutral;
 
 public static class Poisoner
 {
-    private class PoisonedInfo
+    private class PoisonedInfo(byte poisonerId, float killTimer)
     {
-        public byte PoisonerId;
-        public float KillTimer;
-
-        public PoisonedInfo(byte poisonerId, float killTimer)
-        {
-            PoisonerId = poisonerId;
-            KillTimer = killTimer;
-        }
+        public byte PoisonerId = poisonerId;
+        public float KillTimer = killTimer;
     }
 
     private static readonly int Id = 12700;

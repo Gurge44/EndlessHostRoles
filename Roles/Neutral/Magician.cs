@@ -178,7 +178,7 @@ public static class Magician
                     sniper.SetKillCooldown(time: Main.AllPlayerKillCooldown[sniper.PlayerId] + temp);
 
                     targets.Remove(snipedTarget);
-                    PlayerControl[] list1 = targets.Keys.ToArray();
+                    PlayerControl[] list1 = [.. targets.Keys];
                     foreach (PlayerControl x in list1)
                     {
                         NotifyRoles(SpecifySeer: x);
@@ -331,7 +331,7 @@ public static class Magician
             }
 
             var sb = new StringBuilder();
-            long[] list = Bombs.Values.ToArray();
+            long[] list = [.. Bombs.Values];
             foreach (long x in list)
             {
                 sb.Append(string.Format(GetString("MagicianBombExlodesIn"), BombDelay.GetInt() - (GetTimeStamp() - x) + 1));

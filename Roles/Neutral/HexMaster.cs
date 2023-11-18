@@ -215,7 +215,7 @@ public static class HexMaster
                 Main.AfterMeetingDeathPlayers.Remove(pc.PlayerId);
             }
         }
-        CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Hex, hexedIdList.ToArray());
+        CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Hex, [.. hexedIdList]);
         RemoveHexedPlayer();
     }
     public static string GetHexedMark(byte target, bool isMeeting)

@@ -149,7 +149,7 @@ namespace TOHE.Roles.Neutral
                 }
             }
 
-            CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Infected, infectedIdList.ToArray());
+            CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Infected, [.. infectedIdList]);
             RemoveInfectedPlayer(virus);
         }
 

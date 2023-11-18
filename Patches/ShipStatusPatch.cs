@@ -184,7 +184,7 @@ class RepairSystemPatch
         {
             Ids.Add(i);
         }
-        CheckAndOpenDoors(__instance, amount, Ids.ToArray());
+        CheckAndOpenDoors(__instance, amount, [.. Ids]);
     }
     private static void CheckAndOpenDoors(ShipStatus __instance, int amount, params int[] DoorIds)
     {

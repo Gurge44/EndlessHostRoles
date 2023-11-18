@@ -78,7 +78,7 @@ namespace TOHE.Roles.Impostor
         /// <summary>Give the given player zero visibility for <see cref="darkenDuration"/> seconds.</summary>
         private static void DarkenPlayers(PlayerControl[] playersToDarken)
         {
-            darkenedPlayers = playersToDarken.ToArray();
+            darkenedPlayers = [.. playersToDarken];
             foreach (PlayerControl player in playersToDarken)
             {
                 Main.PlayerStates[player.PlayerId].IsBlackOut = true;
