@@ -59,6 +59,8 @@ enum CustomRPC
     //Roles
     SetDrawPlayer,
     SetDruidLimit,
+    DruidSyncLastUpdate,
+    DruidRemoveTrigger,
     DruidAddTrigger,
     DruidAddTriggerDelay,
     SyncBenefactorMarkedTask,
@@ -506,6 +508,12 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SetDruidLimit:
                 Druid.ReceiveRPCSyncAbilityUse(reader);
+                break;
+            case CustomRPC.DruidSyncLastUpdate:
+                Druid.ReceiveRPCSyncLastUpdate(reader);
+                break;
+            case CustomRPC.DruidRemoveTrigger:
+                Druid.ReceiveRPCRemoveTrigger(reader);
                 break;
             case CustomRPC.SetSabotageMasterLimit:
                 SabotageMaster.ReceiveRPC(reader);
@@ -1420,6 +1428,9 @@ internal static class RPC
                 break;
             case CustomRoles.Dazzler:
                 Dazzler.Add(targetId);
+                break;
+            case CustomRoles.Druid:
+                Druid.Add(targetId);
                 break;
             case CustomRoles.GuessManager:
                 GuessManagerRole.Add(targetId);

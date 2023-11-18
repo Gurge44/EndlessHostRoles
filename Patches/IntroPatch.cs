@@ -410,10 +410,11 @@ class IntroCutsceneDestroyPatch
                     }, 2f, "FixKillCooldownTask");
             }
             _ = new LateTask(() => Main.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
+
             if (Options.UsePets.GetBool())
             {
                 Main.ProcessShapeshifts = false;
-                _ = new LateTask(() => PlayerControl.AllPlayerControls.ToArray().Do(pc => PetsPatch.SetPet(pc, "pet_Pusheen", true)), 0.3f, "Grant Pet For Everyone");
+                _ = new LateTask(() => PlayerControl.AllPlayerControls.ToArray().Do(pc => PetsPatch.SetPet(pc, Options., true)), 0.3f, "Grant Pet For Everyone");
                 try
                 {
                     _ = new LateTask(() =>
@@ -428,7 +429,7 @@ class IntroCutsceneDestroyPatch
                                     try
                                     {
                                         pc.RpcShapeshift(pc, false);
-                                        pc.Notify("", 0.1f);
+                                        pc.Notify("Good Luck & Have Fun!", 1f);
                                     }
                                     catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift"); }
                                 }
@@ -438,17 +439,9 @@ class IntroCutsceneDestroyPatch
                     }, 0.4f, "Show Pet For Everyone");
                 }
                 catch { }
-                //_ = new LateTask(() =>
-                //{
-                //    for (int i = 0; i < Main.AllPlayerControls.Count; i++)
-                //    {
-                //        PlayerControl pc = Main.AllPlayerControls[i];
-                //        try { pc.CmdCheckRevertShapeshift(false); }
-                //        catch { pc.RpcShapeshift(pc, false); }
-                //    }
-                //}, 1f, "Revert Shapeshifts");
-                _ = new LateTask(() => Main.ProcessShapeshifts = true, 3f, "Enable SS Processing");
+                _ = new LateTask(() => Main.ProcessShapeshifts = true, 2f, "Enable SS Processing");
             }
+
             if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))
             {
                 PlayerControl.LocalPlayer.RpcExile();

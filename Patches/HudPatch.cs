@@ -468,6 +468,7 @@ class HudManagerPatch
                             CustomRoles.Postman => Postman.GetHudText(player),
                             CustomRoles.Chronomancer => Chronomancer.GetHudText(),
                             CustomRoles.Mafioso => Mafioso.GetHUDText(),
+                            CustomRoles.Druid => Druid.GetHUDText(player),
                             CustomRoles.PlagueDoctor => PlagueDoctor.GetLowerTextOthers(player, isForHud: true),
                             CustomRoles.Stealth => Stealth.GetSuffix(player, isHUD: true),
                             CustomRoles.Sapper => GetCD_HUDText(Main.SapperCD, Sapper.ShapeshiftCooldown.GetInt(), player.PlayerId),

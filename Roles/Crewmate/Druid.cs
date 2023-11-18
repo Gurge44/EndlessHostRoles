@@ -1,13 +1,12 @@
-﻿using System;
+﻿using Hazel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using TOHE.Roles.Impostor;
 using UnityEngine;
 using static TOHE.Options;
-using static TOHE.Utils;
 using static TOHE.Translator;
-using Hazel;
+using static TOHE.Utils;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -17,9 +16,10 @@ namespace TOHE.Roles.Crewmate
         private static List<byte> playerIdList = [];
         public static Dictionary<byte, float> UseLimit = [];
 
+        public static OptionItem VentCooldown;
         private static OptionItem TriggerPlaceDelay;
         private static OptionItem UseLimitOpt;
-        private static OptionItem DruidAbilityUseGainWithEachTaskCompleted;
+        public static OptionItem DruidAbilityUseGainWithEachTaskCompleted;
 
         private static Dictionary<byte, long> TriggerDelays = [];
         private static Dictionary<byte, Dictionary<Vector2, string>> Triggers = [];
@@ -28,13 +28,16 @@ namespace TOHE.Roles.Crewmate
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Druid);
-            TriggerPlaceDelay = IntegerOptionItem.Create(Id + 10, "DruidTriggerPlaceDelayOpt", new(1, 20, 1), 7, TabGroup.CrewmateRoles, false)
+            VentCooldown = IntegerOptionItem.Create(Id + 10, "VentCooldown", new(0, 60, 1), 15, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Druid])
                 .SetValueFormat(OptionFormat.Seconds);
-            UseLimitOpt = IntegerOptionItem.Create(Id + 11, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles, false)
+            TriggerPlaceDelay = IntegerOptionItem.Create(Id + 11, "DruidTriggerPlaceDelayOpt", new(1, 20, 1), 7, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Druid])
                 .SetValueFormat(OptionFormat.Seconds);
-            DruidAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.5f, TabGroup.CrewmateRoles, false)
+            UseLimitOpt = IntegerOptionItem.Create(Id + 12, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Druid])
+                .SetValueFormat(OptionFormat.Seconds);
+            DruidAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 13, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.5f, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Druid])
                 .SetValueFormat(OptionFormat.Seconds);
         }
@@ -102,6 +105,33 @@ namespace TOHE.Roles.Crewmate
             if (!Triggers.ContainsKey(playerId)) Triggers.Add(playerId, []);
             Triggers[playerId].TryAdd(position, roomName);
         }
+        public static void SendRPCRemoveTrigger(byte playerId, Vector2 position)
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DruidAddTriggerDelay, SendOption.Reliable, -1);
+            writer.Write(playerId);
+            writer.Write(position.x);
+            writer.Write(position.y);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        public static void ReceiveRPCRemoveTrigger(MessageReader reader)
+        {
+            byte playerId = reader.ReadByte();
+            float x = reader.ReadSingle();
+            float y = reader.ReadSingle();
+
+            Vector2 position = new(x, y);
+            Triggers[playerId].Remove(position);
+        }
+        public static void SendRPCSyncLastUpdate()
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DruidAddTriggerDelay, SendOption.Reliable, -1);
+            writer.Write(lastUpdate);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        public static void ReceiveRPCSyncLastUpdate(MessageReader reader)
+        {
+            lastUpdate = long.Parse(reader.ReadString());
+        }
 
         public static void OnEnterVent(PlayerControl pc, bool isPet = false)
         {
@@ -136,8 +166,8 @@ namespace TOHE.Roles.Crewmate
             if (!Triggers.Any() && !TriggerDelays.Any()) return;
 
             long now = GetTimeStamp();
-            if (lastUpdate >= now) return;
             lastUpdate = now;
+            SendRPCSyncLastUpdate();
 
             if (TriggerDelays.Any())
             {
@@ -158,22 +188,22 @@ namespace TOHE.Roles.Crewmate
                     }
 
                     var timeLeft = TriggerPlaceDelay.GetInt() - (now - x.Value);
-                    pc.Notify(string.Format(GetString("DruidTimeLeft"), timeLeft));
-
+                    if (lastUpdate < now) pc.Notify(string.Format(GetString("DruidTimeLeft"), timeLeft));
                 }
             }
             if (Triggers.Any())
             {
-                foreach (var pc in Main.AllAlivePlayerControls) // Check for all alive players
+                foreach (var pc in Main.AllAlivePlayerControls.Where(pc => !playerIdList.Contains(pc.PlayerId)).ToArray()) // Check for all alive players except Druids - Worst case scenario it's 14 loops
                 {
-                    foreach (var triggers in Triggers.ToArray()) // Check for all Druids' traps
+                    foreach (var triggers in Triggers.ToArray()) // Check for all Druids' traps - Most likely just 1 loop
                     {
-                        foreach (var trigger in triggers.Value.ToArray()) // Check for all traps of the current Druid
+                        foreach (var trigger in triggers.Value.ToArray()) // Check for all traps of the current Druid - Most likely 0-2 loops
                         {
                             if (Vector2.Distance(trigger.Key, pc.GetTruePosition()) <= 2f)
                             {
-                                var druid = GetPlayerById(triggers.Key);
-                                druid.Notify(string.Format(GetString("DruidTriggerTriggered"), trigger.Value));
+                                GetPlayerById(triggers.Key).Notify(string.Format(GetString("DruidTriggerTriggered"), GetFormattedRoomName(trigger.Value), GetFormattedVectorText(trigger.Key)));
+                                Triggers[triggers.Key].Remove(trigger.Key);
+                                SendRPCRemoveTrigger(triggers.Key, trigger.Key);
                             }
                         }
                     }
@@ -188,6 +218,37 @@ namespace TOHE.Roles.Crewmate
             Vector2 pos = pc.GetTruePosition();
 
             return (pos, roomName);
+        }
+        private static string GetFormattedRoomName(string roomName) => roomName == "Outside" ? "<color=#00ffa5>Outside</color>" : $"In <color=#00ffa5>{roomName}</color>";
+        private static string GetFormattedVectorText(Vector2 pos) => $"<color=#777777>(at {pos.ToString().Replace("(", string.Empty).Replace(")", string.Empty)})</color>";
+
+        public static string GetSuffixText(byte playerId)
+        {
+            if (GetPlayerById(playerId) == null) return string.Empty;
+
+            var sb = new StringBuilder();
+            sb.Append("\n<size=1.7>");
+
+            sb.AppendLine($"<color=#00ffa5>{Triggers[playerId].Count}</color> triggers active");
+            sb.Append(string.Join(", ", Triggers[playerId].Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));
+
+            sb.Append("</size>");
+            return sb.ToString();
+        }
+
+        public static string GetHUDText(PlayerControl pc)
+        {
+            if (pc == null) return string.Empty;
+
+            var id = pc.PlayerId;
+            var sb = new StringBuilder();
+
+            sb.AppendLine(HudManagerPatch.GetCD_HUDText(Main.DruidCD, VentCooldown.GetInt(), id));
+
+            sb.AppendLine($"<color=#00ffa5>{Triggers[id].Count}</color> triggers active");
+            sb.Append(string.Join('\n', Triggers[id].Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));
+
+            return sb.ToString();
         }
     }
 }

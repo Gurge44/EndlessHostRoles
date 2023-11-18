@@ -2043,6 +2043,9 @@ class FixedUpdatePatch
                 case CustomRoles.Chronomancer when !lowLoad:
                     Chronomancer.OnFixedUpdate(player);
                     break;
+                case CustomRoles.Druid when !lowLoad:
+                    Druid.OnFixedUpdate();
+                    break;
                 case CustomRoles.Stealth when !lowLoad:
                     Stealth.OnFixedUpdate(player);
                     break;
@@ -2085,6 +2088,14 @@ class FixedUpdatePatch
                             NotifyRoles(SpecifySeer: player);
                         }
                         if (Main.SapperCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        break;
+                    case CustomRoles.Druid:
+                        if (Main.DruidCD.TryGetValue(player.PlayerId, out var dc) && dc + Druid.VentCooldown.GetInt() < GetTimeStamp())
+                        {
+                            Main.DruidCD.Remove(player.PlayerId);
+                            NotifyRoles(SpecifySeer: player);
+                        }
+                        if (Main.DruidCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
                         break;
                     case CustomRoles.Tether:
                         if (Main.TetherCD.TryGetValue(player.PlayerId, out var th) && th + Tether.VentCooldown.GetInt() < GetTimeStamp())
@@ -3017,6 +3028,9 @@ class FixedUpdatePatch
                         case CustomRoles.Postman when !seer.IsModClient():
                             Suffix.Append(Postman.TargetText);
                             break;
+                        case CustomRoles.Druid when !seer.IsModClient():
+                            Suffix.Append(Druid.GetSuffixText(seer.PlayerId));
+                            break;
                     }
                 }
 
@@ -3248,6 +3262,9 @@ class EnterVentPatch
                 break;
             case CustomRoles.Lurker:
                 Lurker.OnEnterVent(pc);
+                break;
+            case CustomRoles.Druid:
+                Druid.OnEnterVent(pc);
                 break;
             case CustomRoles.Doormaster:
                 Doormaster.OnEnterVent(pc);

@@ -304,6 +304,7 @@ internal class ChangeRoleSettings
             Jinx.Init();
             DoubleShot.Init();
             Dazzler.Init();
+            Druid.Init();
             GuessManagerRole.Init();
             FFF.Init();
             Sapper.Init();
@@ -922,6 +923,9 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.GuessManager:
                         GuessManagerRole.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Druid:
+                        Druid.Add(pc.PlayerId);
                         break;
                     case CustomRoles.FFF:
                         FFF.Add(pc.PlayerId);

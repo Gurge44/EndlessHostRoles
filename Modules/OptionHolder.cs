@@ -112,6 +112,42 @@ public static class Options
         "CamouflageMode.Gurge44",
         "CamouflageMode.TommyXL"
     ];
+    public static readonly string[] PetToAssign =
+    [
+        "pet_Bedcrab",
+        "pet_BredPet",
+        "pet_YuleGoatPet",
+        "pet_Bush",
+        "pet_Charles",
+        "pet_ChewiePet",
+        "pet_clank",
+        "pet_coaltonpet",
+        "pet_Cube",
+        "pet_Doggy",
+        "pet_Ellie",
+        "pet_frankendog",
+        "pet_D2GhostPet",
+        "pet_test",
+        "pet_GuiltySpark",
+        "pet_Stickmin",
+        "pet_HamPet",
+        "pet_Hamster",
+        "pet_Alien",
+        "pet_poro",
+        "pet_HamPet",
+        "pet_Lava",
+        "pet_Crewmate",
+        "pet_D2PoukaPet",
+        "pet_Pusheen",
+        "pet_Robot",
+        "pet_Snow",
+        "pet_Squig",
+        "pet_nuggetPet",
+        "pet_Charles_Red",
+        "pet_UFO",
+        "pet_D2WormPet",
+        "pet_RANDOM_FOR_EVERYONE"
+    ];
 
     // 各役職の詳細設定
     public static OptionItem EnableGM;
@@ -796,6 +832,7 @@ public static class Options
     public static OptionItem EndWhenPlayerBug;
 
     public static OptionItem UsePets;
+    public static OptionItem PetToAssignToEveryone;
     public static OptionItem UseVoteCancelling;
     public static OptionItem EnableUpMode;
     public static OptionItem AutoKickStart;
@@ -2973,6 +3010,10 @@ public static class Options
         UsePets = BooleanOptionItem.Create(23850, "UsePets", false, TabGroup.TaskSettings, false)
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true)
+            .SetColor(new Color32(60, 0, 255, byte.MaxValue));
+        PetToAssignToEveryone = StringOptionItem.Create(23854, "PetToAssign", PetToAssign, 24, TabGroup.TaskSettings, false)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetParent(UsePets)
             .SetColor(new Color32(60, 0, 255, byte.MaxValue));
 
         UseVoteCancelling = BooleanOptionItem.Create(23852, "UseVoteCancelling", false, TabGroup.TaskSettings, false)

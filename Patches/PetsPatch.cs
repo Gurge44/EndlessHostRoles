@@ -12,7 +12,7 @@ public static class PetsPatch
         }
 
         var outfit = player.Data.Outfits[PlayerOutfitType.Default];
-        outfit.PetId = petId;
+        if (outfit.PetId == string.Empty || outfit.PetId == "") outfit.PetId = petId;
         RPC.SendGameData(player.GetClientId());
     }
 }

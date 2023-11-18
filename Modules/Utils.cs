@@ -746,7 +746,7 @@ public static class Utils
                 case CustomRoles.Alchemist:
                     ProgressText.Append(Alchemist.GetProgressText(playerId));
                     if (Options.UsePets.GetBool() && Main.AlchemistCD.TryGetValue(playerId, out var time) && !GetPlayerById(playerId).IsModClient())
-                        ProgressText.Append(" " + string.Format(GetString("CDPT"), Alchemist.VentCooldown.GetInt() - (GetTimeStamp() - time) + 1));
+                        ProgressText.Append(' ' + string.Format(GetString("CDPT"), Alchemist.VentCooldown.GetInt() - (GetTimeStamp() - time) + 1));
                     break;
                 case CustomRoles.Bandit:
                     ProgressText.Append(Bandit.GetStealLimit(playerId));
@@ -799,7 +799,7 @@ public static class Utils
                     else TextColorDisperser = Color.white;
                     ProgressText.Append(ColorString(TextColorDisperser, $"<color=#777777>-</color> {Math.Round(Disperser.DisperserLimit[playerId], 1)}"));
                     if (Options.UsePets.GetBool() && Main.DisperserCD.TryGetValue(playerId, out var time11) && !GetPlayerById(playerId).IsModClient())
-                        ProgressText.Append(" " + string.Format(GetString("CDPT"), Disperser.DisperserShapeshiftCooldown.GetInt() - (GetTimeStamp() - time11) + 1));
+                        ProgressText.Append(' ' + string.Format(GetString("CDPT"), Disperser.DisperserShapeshiftCooldown.GetInt() - (GetTimeStamp() - time11) + 1));
                     break;
                 case CustomRoles.Hangman:
                     Color TextColorHangman;
@@ -813,7 +813,7 @@ public static class Utils
                     else TextColorTwister = Color.white;
                     ProgressText.Append(ColorString(TextColorTwister, $"<color=#777777>-</color> {Math.Round(Twister.TwistLimit[playerId], 1)}"));
                     if (Options.UsePets.GetBool() && Main.TwisterCD.TryGetValue(playerId, out var time12) && !GetPlayerById(playerId).IsModClient())
-                        ProgressText.Append(" " + string.Format(GetString("CDPT"), Twister.ShapeshiftCooldown.GetInt() - (GetTimeStamp() - time12) + 1));
+                        ProgressText.Append(' ' + string.Format(GetString("CDPT"), Twister.ShapeshiftCooldown.GetInt() - (GetTimeStamp() - time12) + 1));
                     break;
                 case CustomRoles.EvilDiviner:
                     Color TextColorED;
@@ -842,7 +842,7 @@ public static class Utils
                     ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(ColorString(TextColor21, $" <color=#777777>-</color> {Math.Round(Main.VeteranNumOfUsed[playerId], 1)}"));
                     if (Options.UsePets.GetBool() && Main.VeteranCD.TryGetValue(playerId, out var time2) && !GetPlayerById(playerId).IsModClient())
-                        ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.VeteranSkillCooldown.GetInt() + Options.VeteranSkillDuration.GetInt() - (GetTimeStamp() - time2) + 1));
+                        ProgressText.Append(' ' + string.Format(GetString("CDPT"), Options.VeteranSkillCooldown.GetInt() + Options.VeteranSkillDuration.GetInt() - (GetTimeStamp() - time2) + 1));
                     break;
                 case CustomRoles.Grenadier:
                     Color TextColor31;
@@ -852,7 +852,7 @@ public static class Utils
                     ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(ColorString(TextColor31, $" <color=#777777>-</color> {Math.Round(Main.GrenadierNumOfUsed[playerId], 1)}"));
                     if (Options.UsePets.GetBool() && Main.GrenadierCD.TryGetValue(playerId, out var time3) && !GetPlayerById(playerId).IsModClient())
-                        ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.GrenadierSkillCooldown.GetInt() + Options.GrenadierSkillDuration.GetInt() - (GetTimeStamp() - time3) + 1));
+                        ProgressText.Append(' ' + string.Format(GetString("CDPT"), Options.GrenadierSkillCooldown.GetInt() + Options.GrenadierSkillDuration.GetInt() - (GetTimeStamp() - time3) + 1));
                     break;
                 case CustomRoles.Divinator:
                     Color TextColor41;
@@ -868,7 +868,7 @@ public static class Utils
                     ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(ColorString(TextColor51, $" <color=#777777>-</color> {Math.Round(Main.DovesOfNeaceNumOfUsed[playerId], 1)}"));
                     if (Options.UsePets.GetBool() && Main.DovesOfNeaceCD.TryGetValue(playerId, out var time4) && !GetPlayerById(playerId).IsModClient())
-                        ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.DovesOfNeaceCooldown.GetInt() - (GetTimeStamp() - time4) + 1));
+                        ProgressText.Append(' ' + string.Format(GetString("CDPT"), Options.DovesOfNeaceCooldown.GetInt() - (GetTimeStamp() - time4) + 1));
                     break;
                 case CustomRoles.TimeMaster:
                     Color TextColor61;
@@ -878,7 +878,7 @@ public static class Utils
                     ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(ColorString(TextColor61, $" <color=#777777>-</color> {Math.Round(Main.TimeMasterNumOfUsed[playerId], 1)}"));
                     if (Options.UsePets.GetBool() && Main.TimeMasterCD.TryGetValue(playerId, out var time5) && !GetPlayerById(playerId).IsModClient())
-                        ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.TimeMasterSkillCooldown.GetInt() + Options.TimeMasterSkillDuration.GetInt() - (GetTimeStamp() - time5) + 1));
+                        ProgressText.Append(' ' + string.Format(GetString("CDPT"), Options.TimeMasterSkillCooldown.GetInt() + Options.TimeMasterSkillDuration.GetInt() - (GetTimeStamp() - time5) + 1));
                     break;
                 case CustomRoles.Mediumshiper:
                     Color TextColor71;
@@ -938,7 +938,7 @@ public static class Utils
                     ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(ColorString(TextColor141, $" <color=#777777>-</color> {Math.Round(Main.LighterNumOfUsed[playerId], 1)}"));
                     if (Options.UsePets.GetBool() && Main.LighterCD.TryGetValue(playerId, out var time6) && !GetPlayerById(playerId).IsModClient())
-                        ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.LighterSkillCooldown.GetInt() + Options.LighterSkillDuration.GetInt() - (GetTimeStamp() - time6) + 1));
+                        ProgressText.Append(' ' + string.Format(GetString("CDPT"), Options.LighterSkillCooldown.GetInt() + Options.LighterSkillDuration.GetInt() - (GetTimeStamp() - time6) + 1));
                     break;
                 case CustomRoles.Ventguard:
                     Color TextColor151;
@@ -955,7 +955,7 @@ public static class Utils
                     ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(ColorString(TextColor161, $" <color=#777777>-</color> {Math.Round(Main.SecurityGuardNumOfUsed[playerId], 1)}"));
                     if (Options.UsePets.GetBool() && Main.SecurityGuardCD.TryGetValue(playerId, out var time7) && !GetPlayerById(playerId).IsModClient())
-                        ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.SecurityGuardSkillCooldown.GetInt() + Options.SecurityGuardSkillDuration.GetInt() - (GetTimeStamp() - time7) + 1));
+                        ProgressText.Append(' ' + string.Format(GetString("CDPT"), Options.SecurityGuardSkillCooldown.GetInt() + Options.SecurityGuardSkillDuration.GetInt() - (GetTimeStamp() - time7) + 1));
                     break;
                 //case CustomRoles.Pirate:
                 //    ProgressText.Append(ColorString(GetRoleColor(CustomRoles.Pirate).ShadeColor(0.25f), $"({Pirate.NumWin}/{Pirate.SuccessfulDuelsToWin.GetInt()})"));
@@ -981,12 +981,12 @@ public static class Utils
                 case CustomRoles.CameraMan:
                     ProgressText.Append(CameraMan.GetProgressText(playerId, comms));
                     if (Options.UsePets.GetBool() && Main.CameraManCD.TryGetValue(playerId, out var time21) && !GetPlayerById(playerId).IsModClient())
-                        ProgressText.Append(" " + string.Format(GetString("CDPT"), CameraMan.VentCooldown.GetInt() - (GetTimeStamp() - time21) + 1));
+                        ProgressText.Append(' ' + string.Format(GetString("CDPT"), CameraMan.VentCooldown.GetInt() - (GetTimeStamp() - time21) + 1));
                     break;
                 case CustomRoles.NiceHacker:
                     ProgressText.Append(NiceHacker.GetProgressText(playerId, comms));
                     if (Options.UsePets.GetBool() && Main.HackerCD.TryGetValue(playerId, out var time8) && !GetPlayerById(playerId).IsModClient())
-                        ProgressText.Append(" " + string.Format(GetString("CDPT"), NiceHacker.AbilityCD.GetInt() - (GetTimeStamp() - time8) + 1));
+                        ProgressText.Append(' ' + string.Format(GetString("CDPT"), NiceHacker.AbilityCD.GetInt() - (GetTimeStamp() - time8) + 1));
                     break;
                 case CustomRoles.RiftMaker:
                     ProgressText.Append(RiftMaker.GetProgressText());
@@ -997,11 +997,15 @@ public static class Utils
                 case CustomRoles.Doormaster:
                     ProgressText.Append(Doormaster.GetProgressText(playerId, comms));
                     if (Options.UsePets.GetBool() && Main.DoormasterCD.TryGetValue(playerId, out var time9) && !GetPlayerById(playerId).IsModClient())
-                        ProgressText.Append(" " + string.Format(GetString("CDPT"), Doormaster.VentCooldown.GetInt() - (GetTimeStamp() - time9) + 1));
+                        ProgressText.Append(' ' + string.Format(GetString("CDPT"), Doormaster.VentCooldown.GetInt() - (GetTimeStamp() - time9) + 1));
                     break;
                 case CustomRoles.Sapper:
                     if (Options.UsePets.GetBool() && Main.SapperCD.TryGetValue(playerId, out var time22) && !GetPlayerById(playerId).IsModClient())
-                        ProgressText.Append(" " + string.Format(GetString("CDPT"), Sapper.ShapeshiftCooldown.GetInt() - (GetTimeStamp() - time22) + 1));
+                        ProgressText.Append(' ' + string.Format(GetString("CDPT"), Sapper.ShapeshiftCooldown.GetInt() - (GetTimeStamp() - time22) + 1));
+                    break;
+                case CustomRoles.Druid:
+                    if (Options.UsePets.GetBool() && Main.DruidCD.TryGetValue(playerId, out var time23) && !GetPlayerById(playerId).IsModClient())
+                        ProgressText.Append(' ' + string.Format(GetString("CDPT"), Sapper.ShapeshiftCooldown.GetInt() - (GetTimeStamp() - time23) + 1));
                     break;
                 case CustomRoles.CopyCat:
                     ProgressText.Append(ColorString(GetRoleColor(CustomRoles.CopyCat).ShadeColor(0.25f), $"({(CopyCat.MiscopyLimit.TryGetValue(playerId, out var count2) ? count2 : 0)})"));
@@ -1018,7 +1022,7 @@ public static class Utils
                 case CustomRoles.Sniper:
                     ProgressText.Append(Sniper.GetBulletCount(playerId));
                     if (Options.UsePets.GetBool() && Main.SniperCD.TryGetValue(playerId, out var time13) && !GetPlayerById(playerId).IsModClient())
-                        ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.DefaultShapeshiftCooldown.GetInt() - (GetTimeStamp() - time13) + 1));
+                        ProgressText.Append(' ' + string.Format(GetString("CDPT"), Options.DefaultShapeshiftCooldown.GetInt() - (GetTimeStamp() - time13) + 1));
                     break;
                 case CustomRoles.EvilTracker:
                     ProgressText.Append(EvilTracker.GetMarker(playerId));
@@ -1038,7 +1042,7 @@ public static class Utils
                 case CustomRoles.QuickShooter:
                     ProgressText.Append(QuickShooter.GetShotLimit(playerId));
                     if (Options.UsePets.GetBool() && Main.QuickShooterCD.TryGetValue(playerId, out var time14) && !GetPlayerById(playerId).IsModClient())
-                        ProgressText.Append(" " + string.Format(GetString("CDPT"), QuickShooter.ShapeshiftCooldown.GetInt() - (GetTimeStamp() - time14) + 1));
+                        ProgressText.Append(' ' + string.Format(GetString("CDPT"), QuickShooter.ShapeshiftCooldown.GetInt() - (GetTimeStamp() - time14) + 1));
                     break;
                 case CustomRoles.SwordsMan:
                     ProgressText.Append(SwordsMan.GetKillLimit(playerId));
@@ -1052,7 +1056,7 @@ public static class Utils
                 case CustomRoles.Tether:
                     ProgressText.Append(Tether.GetProgressText(playerId, comms));
                     if (Options.UsePets.GetBool() && Main.TetherCD.TryGetValue(playerId, out var time10) && !GetPlayerById(playerId).IsModClient())
-                        ProgressText.Append(" " + string.Format(GetString("CDPT"), Tether.VentCooldown.GetInt() - (GetTimeStamp() - time10) + 1));
+                        ProgressText.Append(' ' + string.Format(GetString("CDPT"), Tether.VentCooldown.GetInt() - (GetTimeStamp() - time10) + 1));
                     break;
                 case CustomRoles.Spy:
                     ProgressText.Append(Spy.GetProgressText(playerId, comms));
@@ -1113,27 +1117,27 @@ public static class Utils
                     break;
                 case CustomRoles.Bomber:
                     if (Options.UsePets.GetBool() && Main.BomberCD.TryGetValue(playerId, out var time15) && !GetPlayerById(playerId).IsModClient())
-                        ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.BombCooldown.GetInt() - (GetTimeStamp() - time15) + 1));
+                        ProgressText.Append(' ' + string.Format(GetString("CDPT"), Options.BombCooldown.GetInt() - (GetTimeStamp() - time15) + 1));
                     break;
                 case CustomRoles.Nuker:
                     if (Options.UsePets.GetBool() && Main.NukerCD.TryGetValue(playerId, out var time16) && !GetPlayerById(playerId).IsModClient())
-                        ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.NukeCooldown.GetInt() - (GetTimeStamp() - time16) + 1));
+                        ProgressText.Append(' ' + string.Format(GetString("CDPT"), Options.NukeCooldown.GetInt() - (GetTimeStamp() - time16) + 1));
                     break;
                 case CustomRoles.Escapee:
                     if (Options.UsePets.GetBool() && Main.EscapeeCD.TryGetValue(playerId, out var time17) && !GetPlayerById(playerId).IsModClient())
-                        ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.EscapeeSSCD.GetInt() - (GetTimeStamp() - time17) + 1));
+                        ProgressText.Append(' ' + string.Format(GetString("CDPT"), Options.EscapeeSSCD.GetInt() - (GetTimeStamp() - time17) + 1));
                     break;
                 case CustomRoles.Miner:
                     if (Options.UsePets.GetBool() && Main.MinerCD.TryGetValue(playerId, out var time18) && !GetPlayerById(playerId).IsModClient())
-                        ProgressText.Append(" " + string.Format(GetString("CDPT"), Options.MinerSSCD.GetInt() - (GetTimeStamp() - time18) + 1));
+                        ProgressText.Append(' ' + string.Format(GetString("CDPT"), Options.MinerSSCD.GetInt() - (GetTimeStamp() - time18) + 1));
                     break;
                 case CustomRoles.Assassin:
                     if (Options.UsePets.GetBool() && Main.AssassinCD.TryGetValue(playerId, out var time19) && !GetPlayerById(playerId).IsModClient())
-                        ProgressText.Append(" " + string.Format(GetString("CDPT"), Assassin.AssassinateCooldown.GetInt() - (GetTimeStamp() - time19) + 1));
+                        ProgressText.Append(' ' + string.Format(GetString("CDPT"), Assassin.AssassinateCooldown.GetInt() - (GetTimeStamp() - time19) + 1));
                     break;
                 case CustomRoles.Undertaker:
                     if (Options.UsePets.GetBool() && Main.UndertakerCD.TryGetValue(playerId, out var time20) && !GetPlayerById(playerId).IsModClient())
-                        ProgressText.Append(" " + string.Format(GetString("CDPT"), Undertaker.AssassinateCooldown.GetInt() - (GetTimeStamp() - time20) + 1));
+                        ProgressText.Append(' ' + string.Format(GetString("CDPT"), Undertaker.AssassinateCooldown.GetInt() - (GetTimeStamp() - time20) + 1));
                     break;
                 case CustomRoles.Killer:
                     ProgressText.Append(FFAManager.GetDisplayScore(playerId));
@@ -1187,7 +1191,7 @@ public static class Utils
             ProgressText.Append(' ' + Damocles.GetProgressText());
         }
         if (ProgressText.Length != 0 && !ProgressText.ToString().StartsWith(' '))
-            ProgressText.Insert(0, " "); //空じゃなければ空白を追加
+            ProgressText.Insert(0, ' '); //空じゃなければ空白を追加
 
         return ProgressText.ToString();
     }
@@ -1998,6 +2002,9 @@ public static class Utils
                         case CustomRoles.Postman when !seer.IsModClient():
                             SelfSuffix.Append(Postman.TargetText);
                             break;
+                        case CustomRoles.Druid when !seer.IsModClient():
+                            SelfSuffix.Append(Druid.GetSuffixText(seer.PlayerId));
+                            break;
                         case CustomRoles.Mortician:
                             SelfSuffix.Append(Mortician.GetTargetArrow(seer));
                             break;
@@ -2292,16 +2299,16 @@ public static class Utils
                                     TargetPlayerName = ColorString(GetRoleColor(CustomRoles.Impostor), TargetPlayerName);
                                     break;
                                 case CustomRoles.Mafia when !seer.IsAlive() && target.IsAlive():
-                                    TargetPlayerName = ColorString(GetRoleColor(CustomRoles.Mafia), target.PlayerId.ToString()) + " " + TargetPlayerName;
+                                    TargetPlayerName = ColorString(GetRoleColor(CustomRoles.Mafia), target.PlayerId.ToString()) + ' ' + TargetPlayerName;
                                     break;
                                 case CustomRoles.Retributionist when !seer.IsAlive() && target.IsAlive():
-                                    TargetPlayerName = ColorString(GetRoleColor(CustomRoles.Retributionist), target.PlayerId.ToString()) + " " + TargetPlayerName;
+                                    TargetPlayerName = ColorString(GetRoleColor(CustomRoles.Retributionist), target.PlayerId.ToString()) + ' ' + TargetPlayerName;
                                     break;
                                 case CustomRoles.Judge when seer.IsAlive() && target.IsAlive() && GuesserIsForMeeting:
-                                    TargetPlayerName = ColorString(GetRoleColor(CustomRoles.Judge), target.PlayerId.ToString()) + " " + TargetPlayerName;
+                                    TargetPlayerName = ColorString(GetRoleColor(CustomRoles.Judge), target.PlayerId.ToString()) + ' ' + TargetPlayerName;
                                     break;
                                 case CustomRoles.NiceSwapper when seer.IsAlive() && target.IsAlive() && isForMeeting:
-                                    TargetPlayerName = ColorString(GetRoleColor(CustomRoles.NiceSwapper), target.PlayerId.ToString()) + " " + TargetPlayerName;
+                                    TargetPlayerName = ColorString(GetRoleColor(CustomRoles.NiceSwapper), target.PlayerId.ToString()) + ' ' + TargetPlayerName;
                                     break;
                                 case CustomRoles.HeadHunter when HeadHunter.Targets.Contains(target.PlayerId) && seer.IsAlive():
                                     TargetPlayerName = "<color=#000000>" + TargetPlayerName + "</size>";
@@ -2310,16 +2317,16 @@ public static class Utils
                                     TargetPlayerName = "<color=#000000>" + TargetPlayerName + "</size>";
                                     break;
                                 case CustomRoles.ParityCop when seer.IsAlive() && target.IsAlive() && GuesserIsForMeeting:
-                                    TargetPlayerName = ColorString(GetRoleColor(CustomRoles.ParityCop), target.PlayerId.ToString()) + " " + TargetPlayerName;
+                                    TargetPlayerName = ColorString(GetRoleColor(CustomRoles.ParityCop), target.PlayerId.ToString()) + ' ' + TargetPlayerName;
                                     break;
                                 case CustomRoles.Councillor when seer.IsAlive() && target.IsAlive() && GuesserIsForMeeting:
-                                    TargetPlayerName = ColorString(GetRoleColor(CustomRoles.Councillor), target.PlayerId.ToString()) + " " + TargetPlayerName;
+                                    TargetPlayerName = ColorString(GetRoleColor(CustomRoles.Councillor), target.PlayerId.ToString()) + ' ' + TargetPlayerName;
                                     break;
                                 case CustomRoles.Doomsayer when seer.IsAlive() && target.IsAlive() && GuesserIsForMeeting:
-                                    TargetPlayerName = ColorString(GetRoleColor(CustomRoles.Doomsayer), " " + target.PlayerId.ToString()) + " " + TargetPlayerName;
+                                    TargetPlayerName = ColorString(GetRoleColor(CustomRoles.Doomsayer), ' ' + target.PlayerId.ToString()) + ' ' + TargetPlayerName;
                                     break;
                                 case CustomRoles.Lookout when seer.IsAlive() && target.IsAlive():
-                                    TargetPlayerName = ColorString(GetRoleColor(CustomRoles.Lookout), " " + target.PlayerId.ToString()) + " " + TargetPlayerName;
+                                    TargetPlayerName = ColorString(GetRoleColor(CustomRoles.Lookout), ' ' + target.PlayerId.ToString()) + ' ' + TargetPlayerName;
                                     break;
                             }
 
@@ -2329,37 +2336,37 @@ public static class Utils
                                 //Crewmates
                                 if (seer.IsAlive() && target.IsAlive() && GuesserIsForMeeting && !seer.Is(CustomRoles.Judge) && !seer.Is(CustomRoles.NiceSwapper) && !seer.Is(CustomRoles.ParityCop) && !seer.Is(CustomRoles.Lookout) && Options.CrewmatesCanGuess.GetBool() && seer.GetCustomRole().IsCrewmate())
                                 {
-                                    TargetPlayerName = ColorString(GetRoleColor(seer.GetCustomRole()), target.PlayerId.ToString()) + " " + TargetPlayerName;
+                                    TargetPlayerName = ColorString(GetRoleColor(seer.GetCustomRole()), target.PlayerId.ToString()) + ' ' + TargetPlayerName;
                                 }
                                 else if (seer.Is(CustomRoles.NiceGuesser) && !Options.CrewmatesCanGuess.GetBool())
                                 {
                                     if (seer.IsAlive() && target.IsAlive() && GuesserIsForMeeting)
                                     {
-                                        TargetPlayerName = ColorString(GetRoleColor(seer.GetCustomRole()), target.PlayerId.ToString()) + " " + TargetPlayerName;
+                                        TargetPlayerName = ColorString(GetRoleColor(seer.GetCustomRole()), target.PlayerId.ToString()) + ' ' + TargetPlayerName;
                                     }
                                 }
 
                                 //Impostors
                                 if (seer.IsAlive() && target.IsAlive() && GuesserIsForMeeting && !seer.Is(CustomRoles.Councillor) && !seer.Is(CustomRoles.Mafia) && Options.ImpostorsCanGuess.GetBool() && seer.GetCustomRole().IsImpostor())
                                 {
-                                    TargetPlayerName = ColorString(GetRoleColor(seer.GetCustomRole()), target.PlayerId.ToString()) + " " + TargetPlayerName;
+                                    TargetPlayerName = ColorString(GetRoleColor(seer.GetCustomRole()), target.PlayerId.ToString()) + ' ' + TargetPlayerName;
                                 }
                                 else if (seer.Is(CustomRoles.EvilGuesser) && !Options.ImpostorsCanGuess.GetBool())
                                 {
                                     if (seer.IsAlive() && target.IsAlive() && GuesserIsForMeeting)
                                     {
-                                        TargetPlayerName = ColorString(GetRoleColor(seer.GetCustomRole()), target.PlayerId.ToString()) + " " + TargetPlayerName;
+                                        TargetPlayerName = ColorString(GetRoleColor(seer.GetCustomRole()), target.PlayerId.ToString()) + ' ' + TargetPlayerName;
                                     }
                                 }
 
                                 // Neutrals
                                 if (seer.IsAlive() && target.IsAlive() && GuesserIsForMeeting && Options.NeutralKillersCanGuess.GetBool() && seer.GetCustomRole().IsNK())
                                 {
-                                    TargetPlayerName = ColorString(GetRoleColor(seer.GetCustomRole()), target.PlayerId.ToString()) + " " + TargetPlayerName;
+                                    TargetPlayerName = ColorString(GetRoleColor(seer.GetCustomRole()), target.PlayerId.ToString()) + ' ' + TargetPlayerName;
                                 }
                                 if (seer.IsAlive() && target.IsAlive() && GuesserIsForMeeting && Options.PassiveNeutralsCanGuess.GetBool() && seer.GetCustomRole().IsNonNK() && !seer.Is(CustomRoles.Doomsayer))
                                 {
-                                    TargetPlayerName = ColorString(GetRoleColor(seer.GetCustomRole()), target.PlayerId.ToString()) + " " + TargetPlayerName;
+                                    TargetPlayerName = ColorString(GetRoleColor(seer.GetCustomRole()), target.PlayerId.ToString()) + ' ' + TargetPlayerName;
                                 }
                             }
                             else // Off Guesser Mode ID
@@ -2368,7 +2375,7 @@ public static class Utils
                                 {
                                     if (seer.IsAlive() && target.IsAlive() && GuesserIsForMeeting)
                                     {
-                                        TargetPlayerName = ColorString(GetRoleColor(seer.GetCustomRole()), target.PlayerId.ToString()) + " " + TargetPlayerName;
+                                        TargetPlayerName = ColorString(GetRoleColor(seer.GetCustomRole()), target.PlayerId.ToString()) + ' ' + TargetPlayerName;
                                     }
                                 }
                             }
@@ -2578,6 +2585,9 @@ public static class Utils
                         break;
                     case CustomRoles.Sapper:
                         Main.SapperCD.TryAdd(pc.PlayerId, GetTimeStamp());
+                        break;
+                    case CustomRoles.Druid:
+                        Main.DruidCD.TryAdd(pc.PlayerId, GetTimeStamp());
                         break;
                     case CustomRoles.Miner:
                         Main.MinerCD.TryAdd(pc.PlayerId, GetTimeStamp());

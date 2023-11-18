@@ -487,6 +487,10 @@ public class TaskState
                         Drainer.DrainLimit += Drainer.DrainerAbilityUseGainWithEachTaskCompleted.GetFloat();
                         Drainer.SendRPC();
                         break;
+                    case CustomRoles.Druid:
+                        Druid.UseLimit[player.PlayerId] += Druid.DruidAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        Druid.SendRPCSyncAbilityUse(player.PlayerId);
+                        break;
                 }
             }
 

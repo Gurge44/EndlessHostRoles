@@ -525,7 +525,7 @@ public class PlayerGameOptionsSender : GameOptionsSender
             case CustomRoles.DovesOfNeace:
                 if (Options.UsePets.GetBool()) break;
                 AURoleOptions.EngineerCooldown = Options.DovesOfNeaceCooldown.GetFloat();
-                AURoleOptions.EngineerInVentMaxTime = 1;
+                AURoleOptions.EngineerInVentMaxTime = 1f;
                 break;
             case CustomRoles.Disperser:
                 if (Options.UsePets.GetBool()) break;
@@ -544,16 +544,16 @@ public class PlayerGameOptionsSender : GameOptionsSender
                 break;
             case CustomRoles.Addict:
                 AURoleOptions.EngineerCooldown = Addict.VentCooldown.GetFloat();
-                AURoleOptions.EngineerInVentMaxTime = 1;
+                AURoleOptions.EngineerInVentMaxTime = 1f;
                 break;
             case CustomRoles.Alchemist:
                 if (Options.UsePets.GetBool()) break;
                 AURoleOptions.EngineerCooldown = Alchemist.VentCooldown.GetFloat();
-                AURoleOptions.EngineerInVentMaxTime = 1;
+                AURoleOptions.EngineerInVentMaxTime = 1f;
                 break;
             case CustomRoles.Mario:
                 AURoleOptions.EngineerCooldown = Options.MarioVentCD.GetFloat();
-                AURoleOptions.EngineerInVentMaxTime = 1;
+                AURoleOptions.EngineerInVentMaxTime = 1f;
                 break;
             case CustomRoles.Deathpact:
                 Deathpact.ApplyGameOptions();
@@ -565,12 +565,15 @@ public class PlayerGameOptionsSender : GameOptionsSender
             case CustomRoles.Sapper:
                 Sapper.ApplyGameOptions();
                 break;
+            case CustomRoles.Druid:
+                AURoleOptions.EngineerCooldown = Druid.VentCooldown.GetInt();
+                AURoleOptions.EngineerInVentMaxTime = 1f;
+                break;
             case CustomRoles.Spiritcaller:
                 opt.SetVision(Spiritcaller.ImpostorVision.GetBool());
                 break;
         }
 
-        // Ϊ�Ի��ߵ�����
         if (Main.AllPlayerControls.Any(x => x.Is(CustomRoles.Bewilder) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == player.PlayerId && !x.Is(CustomRoles.Hangman)))
         {
             opt.SetVision(false);
