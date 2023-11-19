@@ -115,6 +115,7 @@
 - Camera Man (Crewmate)
 - Escort (Crewmate)
 - Donut Delivery (Crewmate)
+- Drainer (Crewmate)
 - Romantic (Neutral)
 - Werewolf (Neutral)
 - Imitator (Neutral)
