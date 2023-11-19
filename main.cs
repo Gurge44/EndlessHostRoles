@@ -207,6 +207,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, int> CursedWolfSpellCount = [];
     public static Dictionary<byte, int> JinxSpellCount = [];
     public static Dictionary<byte, int> PuppeteerDelay = [];
+    public static Dictionary<byte, int> PuppeteerMaxPuppets = [];
     public static int AliveImpostorCount;
     public static bool isCursed;
     public static bool NiceSwapSend;

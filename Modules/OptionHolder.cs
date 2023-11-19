@@ -244,6 +244,7 @@ public static class Options
     public static OptionItem PuppeteerCD;
     public static OptionItem PuppeteerCanKillNormally;
     public static OptionItem PuppeteerManipulationBypassesLazy;
+    public static OptionItem PuppeteerManipulationBypassesLazyGuy;
     public static OptionItem PuppeteerPuppetCanKillPuppeteer;
     public static OptionItem PuppeteerPuppetCanKillImpostors;
     public static OptionItem PuppeteerMaxPuppets;
@@ -1352,6 +1353,8 @@ public static class Options
             .SetParent(PuppeteerManipulationEndsAfterFixedTime)
             .SetValueFormat(OptionFormat.Seconds);
         PuppeteerManipulationBypassesLazy = BooleanOptionItem.Create(3918, "PuppeteerManipulationBypassesLazy", false, TabGroup.ImpostorRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
+        PuppeteerManipulationBypassesLazyGuy = BooleanOptionItem.Create(3922, "PuppeteerManipulationBypassesLazyGuy", false, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
         PuppeteerPuppetCanKillImpostors = BooleanOptionItem.Create(3919, "PuppeteerPuppetCanKillImpostors", false, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);

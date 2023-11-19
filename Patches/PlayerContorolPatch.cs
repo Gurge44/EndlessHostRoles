@@ -2,6 +2,7 @@ using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
+using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,6 @@ using TOHE.Roles.Neutral;
 using UnityEngine;
 using static TOHE.Translator;
 using static TOHE.Utils;
-using static UnityEngine.GraphicsBuffer;
 
 namespace TOHE;
 
@@ -381,22 +381,63 @@ class CheckMurderPatch
                     if (!PlagueDoctor.OnPDinfect(killer, target)) return false;
                     break;
                 case CustomRoles.Puppeteer:
-                    if (target.Is(CustomRoles.Needy) || target.Is(CustomRoles.Lazy) || Medic.ProtectList.Contains(target.PlayerId)) return false;
-                    if (killer.CheckDoubleTrigger(target, () =>
+                    if (target.Is(CustomRoles.Needy) && Options.PuppeteerManipulationBypassesLazyGuy.GetBool()) return false;
+                    if (target.Is(CustomRoles.Lazy) && Options.PuppeteerManipulationBypassesLazy.GetBool()) return false;
+                    if (Medic.ProtectList.Contains(target.PlayerId)) return false;
+
+                    if (!Main.PuppeteerMaxPuppets.TryGetValue(killer.PlayerId, out var usesLeft))
+                    {
+                        usesLeft = Options.PuppeteerMaxPuppets.GetInt();
+                        Main.PuppeteerMaxPuppets.Add(killer.PlayerId, usesLeft);
+                    }
+
+                    if (Options.PuppeteerCanKillNormally.GetBool())
+                    {
+                        if (!killer.CheckDoubleTrigger(target, () =>
+                        {
+                            Main.PuppeteerList[target.PlayerId] = killer.PlayerId;
+                            Main.PuppeteerDelayList[target.PlayerId] = GetTimeStamp();
+                            Main.PuppeteerDelay[target.PlayerId] = IRandom.Instance.Next(Options.PuppeteerMinDelay.GetInt(), Options.PuppeteerMaxDelay.GetInt());
+                            killer.SetKillCooldown(time: Options.PuppeteerCD.GetFloat());
+                            if (usesLeft <= 1)
+                            {
+                                _ = new LateTask(() =>
+                                {
+                                    Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
+                                    Main.PlayerStates[killer.PlayerId].SetDead();
+                                    killer.SetRealKiller(killer);
+                                    killer.Kill(killer);
+                                }, 1.5f, "Puppeteer Max Uses Reached => Suicide");
+                            }
+                            else killer.Notify(string.Format(GetString("PuppeteerUsesRemaining"), usesLeft - 1));
+                            Main.PuppeteerMaxPuppets[killer.PlayerId]--;
+                            killer.RPCPlayCustomSound("Line");
+                            NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                        })) return false;
+                    }
+                    else
                     {
                         Main.PuppeteerList[target.PlayerId] = killer.PlayerId;
                         Main.PuppeteerDelayList[target.PlayerId] = GetTimeStamp();
-                        killer.SetKillCooldown(time: Options.PuppeteerCD.GetFloat());
+                        Main.PuppeteerDelay[target.PlayerId] = IRandom.Instance.Next(Options.PuppeteerMinDelay.GetInt(), Options.PuppeteerMaxDelay.GetInt());
+                        killer.SetKillCooldown();
+                        if (usesLeft <= 1)
+                        {
+                            _ = new LateTask(() =>
+                            {
+                                Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
+                                Main.PlayerStates[killer.PlayerId].SetDead();
+                                killer.SetRealKiller(killer);
+                                killer.Kill(killer);
+                            }, 1.5f, "Puppeteer Max Uses Reached => Suicide");
+                        }
+                        else killer.Notify(string.Format(GetString("PuppeteerUsesRemaining"), usesLeft - 1));
+                        Main.PuppeteerMaxPuppets[killer.PlayerId]--;
                         killer.RPCPlayCustomSound("Line");
-                        NotifyRoles(SpecifySeer: killer);
-                    })) return false;
+                        NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                        return false;
+                    }
                     break;
-                //case CustomRoles.NWitch:
-                //    //  if (target.Is(CustomRoles.Needy) || target.Is(CustomRoles.Lazy)) return false;
-                //    Main.TaglockedList[target.PlayerId] = killer.PlayerId;
-                //    killer.SetKillCooldown();
-                //    Utils.NotifyRoles(SpecifySeer: killer);
-                //    return false;
                 case CustomRoles.Capitalism:
                     return killer.CheckDoubleTrigger(target, () =>
                     {
@@ -406,7 +447,7 @@ class CheckMurderPatch
                         if (!Main.CapitalismAssignTask.ContainsKey(target.PlayerId))
                             Main.CapitalismAssignTask.Add(target.PlayerId, 0);
                         Main.CapitalismAssignTask[target.PlayerId]++;
-                        Logger.Info($"资本主义 {killer.GetRealName()} 又开始祸害人了：{target.GetRealName()}", "Capitalism Add Task");
+                        Logger.Info($"{killer.GetRealName()} added a task for：{target.GetRealName()}", "Capitalism Add Task");
                         //killer.RpcGuardAndKill(killer);
                         killer.SetKillCooldown(Options.CapitalismSkillCooldown.GetFloat());
                     });
@@ -2493,7 +2534,6 @@ class FixedUpdatePatch
                             player.RpcResetAbilityCooldown();
                             player.Notify(string.Format(GetString("VeteranOffGuard"), (int)Main.VeteranNumOfUsed[player.PlayerId]));
                         }
-
                         break;
 
                     case CustomRoles.Express when GameStates.IsInTask:
@@ -2503,7 +2543,6 @@ class FixedUpdatePatch
                             Main.AllPlayerSpeed[player.PlayerId] = Main.ExpressSpeedNormal;
                             player.SyncSettings();
                         }
-
                         break;
 
                     case CustomRoles.Grenadier when GameStates.IsInTask:
@@ -2521,7 +2560,6 @@ class FixedUpdatePatch
                             player.Notify(string.Format(GetString("GrenadierSkillStop"), (int)Main.GrenadierNumOfUsed[player.PlayerId]));
                             MarkEveryoneDirtySettingsV3();
                         }
-
                         break;
 
                     case CustomRoles.Lighter when GameStates.IsInTask:
@@ -2532,7 +2570,6 @@ class FixedUpdatePatch
                             player.Notify(GetString("LighterSkillStop"));
                             player.MarkDirtySettings();
                         }
-
                         break;
 
                     case CustomRoles.SecurityGuard when GameStates.IsInTask:
@@ -2542,18 +2579,15 @@ class FixedUpdatePatch
                             player.RpcResetAbilityCooldown();
                             player.Notify(GetString("SecurityGuardSkillStop"));
                         }
-
                         break;
 
                     case CustomRoles.TimeMaster when GameStates.IsInTask:
-
                         if (Main.TimeMasterInProtect.TryGetValue(player.PlayerId, out var ttime) && ttime + Options.TimeMasterSkillDuration.GetInt() < GetTimeStamp())
                         {
                             Main.TimeMasterInProtect.Remove(player.PlayerId);
                             player.RpcResetAbilityCooldown();
                             player.Notify(GetString("TimeMasterSkillStop"), (int)Main.TimeMasterNumOfUsed[player.PlayerId]);
                         }
-
                         break;
 
                     case CustomRoles.Mario when Main.MarioVentCount[player.PlayerId] > Options.MarioVentNumWin.GetInt() && GameStates.IsInTask:
@@ -2624,19 +2658,28 @@ class FixedUpdatePatch
                     {
                         Main.PuppeteerList.Remove(player.PlayerId);
                         Main.PuppeteerDelayList.Remove(player.PlayerId);
+                        Main.PuppeteerDelay.Remove(player.PlayerId);
                     }
-                    else if (Main.PuppeteerDelayList[player.PlayerId] + Options.PuppeteerMinDelay.GetInt() < GetTimeStamp())
+                    else if (Main.PuppeteerDelayList[player.PlayerId] + Options.PuppeteerManipulationEndsAfterTime.GetInt() < GetTimeStamp() && Options.PuppeteerManipulationEndsAfterFixedTime.GetBool())
+                    {
+                        Main.PuppeteerList.Remove(player.PlayerId);
+                        Main.PuppeteerDelayList.Remove(player.PlayerId);
+                        Main.PuppeteerDelay.Remove(player.PlayerId);
+                        Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Puppeteer)).Do(x => NotifyRoles(SpecifySeer: x, SpecifyTarget: player));
+                    }
+                    else if (Main.PuppeteerDelayList[player.PlayerId] + Main.PuppeteerDelay[player.PlayerId] < GetTimeStamp())
                     {
                         Vector2 puppeteerPos = player.transform.position;//PuppeteerListのKeyの位置
                         Dictionary<byte, float> targetDistance = [];
                         float dis;
                         foreach (PlayerControl target in Main.AllAlivePlayerControls)
                         {
-                            if (target.PlayerId != player.PlayerId && !target.Is(CustomRoleTypes.Impostor) && !target.Is(CustomRoles.Pestilence))
-                            {
-                                dis = Vector2.Distance(puppeteerPos, target.transform.position);
-                                targetDistance.Add(target.PlayerId, dis);
-                            }
+                            if (target.PlayerId == player.PlayerId || target.Is(CustomRoles.Pestilence)) continue;
+                            if (target.Is(CustomRoles.Puppeteer) && !Options.PuppeteerPuppetCanKillPuppeteer.GetBool()) continue;
+                            if (target.Is(CustomRoleTypes.Impostor) && !Options.PuppeteerPuppetCanKillImpostors.GetBool()) continue;
+
+                            dis = Vector2.Distance(puppeteerPos, target.transform.position);
+                            targetDistance.Add(target.PlayerId, dis);
                         }
                         if (targetDistance.Any())
                         {
@@ -2656,49 +2699,7 @@ class FixedUpdatePatch
                                     target.MarkDirtySettings();
                                     Main.PuppeteerList.Remove(player.PlayerId);
                                     Main.PuppeteerDelayList.Remove(player.PlayerId);
-                                    NotifyRoles(SpecifySeer: player);
-                                    NotifyRoles(SpecifySeer: target);
-                                }
-                            }
-                        }
-                    }
-                }
-                if (GameStates.IsInTask && Main.TaglockedList.ContainsKey(player.PlayerId))
-                {
-                    if (!player.IsAlive() || Pelican.IsEaten(player.PlayerId))
-                    {
-                        Main.TaglockedList.Remove(player.PlayerId);
-                    }
-                    else
-                    {
-                        Vector2 puppeteerPos = player.transform.position;//PuppeteerListのKeyの位置
-                        Dictionary<byte, float> targetDistance = [];
-                        float dis;
-                        foreach (PlayerControl target in Main.AllAlivePlayerControls)
-                        {
-                            if (target.PlayerId != player.PlayerId && !target.Is(CustomRoles.Pestilence))
-                            {
-                                dis = Vector2.Distance(puppeteerPos, target.transform.position);
-                                targetDistance.Add(target.PlayerId, dis);
-                            }
-                        }
-                        if (targetDistance.Any())
-                        {
-                            var min = targetDistance.OrderBy(c => c.Value).FirstOrDefault();//一番値が小さい
-                            PlayerControl target = GetPlayerById(min.Key);
-                            var KillRange = NormalGameOptionsV07.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
-                            if (min.Value <= KillRange && player.CanMove && target.CanMove)
-                            {
-                                if (player.RpcCheckAndMurder(target, true))
-                                {
-                                    var puppeteerId = Main.TaglockedList[player.PlayerId];
-                                    RPC.PlaySoundRPC(puppeteerId, Sounds.KillSound);
-                                    target.SetRealKiller(GetPlayerById(puppeteerId));
-                                    player.Kill(target);
-                                    //Utils.MarkEveryoneDirtySettings();
-                                    player.MarkDirtySettings();
-                                    target.MarkDirtySettings();
-                                    Main.TaglockedList.Remove(player.PlayerId);
+                                    Main.PuppeteerDelay.Remove(player.PlayerId);
                                     NotifyRoles(SpecifySeer: player);
                                     NotifyRoles(SpecifySeer: target);
                                 }

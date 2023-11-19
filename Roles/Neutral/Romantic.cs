@@ -182,46 +182,52 @@ public static class Romantic
     }
     public static void ChangeRole(byte playerId)
     {
-        var player = Utils.GetPlayerById(playerId);
-        if (player == null) return;
-        byte Romantic = 0x73;
-        BetPlayer.Do(x =>
+        var partner = Utils.GetPlayerById(playerId);
+        if (partner == null) return;
+
+        byte romanticId = BetPlayer.First(x => x.Value == playerId).Key;
+        var romantic = Utils.GetPlayerById(romanticId);
+
+        var killer = partner.GetRealKiller();
+
+        if (killer?.PlayerId == romanticId) // If the Romantic killed their partner, they also die
         {
-            if (x.Value == playerId)
-                Romantic = x.Key;
-        });
-        if (Romantic == 0x73) return;
-        var pc = Utils.GetPlayerById(Romantic);
-        var killer = player.GetRealKiller();
-        if (player.IsNeutralKiller() || killer == null)
-        {
-            Logger.Info($"Neutral Romantic Partner Died / Partner killer is null => changing {pc.GetNameWithRole().RemoveHtmlTags()} to Ruthless Romantic", "Romantic");
-            pc.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
-            RuthlessRomantic.Add(playerId);
+            Logger.Info("Romantic killed their own partner, Romantic suicides", "Romantic");
+            Main.PlayerStates[romanticId].deathReason = PlayerState.DeathReason.FollowingSuicide;
+            Main.PlayerStates[romanticId].SetDead();
+            romantic.SetRealKiller(partner);
+            romantic.Kill(romantic);
+            return;
         }
-        else if (player.GetCustomRole().IsImpostorTeamV3())
+        else if (partner.IsNeutralKiller() || killer == null) // If partner is NK or died by themselves, Romantic becomes Ruthless Romantic
         {
-            Logger.Info($"Impostor Romantic Partner Died => changing {pc.GetNameWithRole().RemoveHtmlTags()} to Refugee", "Romantic");
-            pc.RpcSetCustomRole(CustomRoles.Refugee);
+            Logger.Info($"NK Romantic Partner Died / Partner killer is null => changing {romantic.GetNameWithRole().RemoveHtmlTags()} to Ruthless Romantic", "Romantic");
+            romantic.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
+            RuthlessRomantic.Add(romanticId);
         }
-        else
+        else if (partner.GetCustomRole().IsImpostorTeamV3()) // If partner is Imp, Romantic joins imp team as Refugee
+        {
+            Logger.Info($"Impostor Romantic Partner Died => changing {romantic.GetNameWithRole().RemoveHtmlTags()} to Refugee", "Romantic");
+            romantic.RpcSetCustomRole(CustomRoles.Refugee);
+        }
+        else // In every other scenario, Romantic becomes Vengeful Romantic and must kill the killer of their partner
         {
             _ = new LateTask(() =>
             {
-                Logger.Info($"Crew/nnk Romantic Partner Died => changing {pc.GetNameWithRole().RemoveHtmlTags()} to Vengeful romantic", "Romantic");
+                Logger.Info($"Crew/NNK Romantic Partner Died => changing {romantic.GetNameWithRole().RemoveHtmlTags()} to Vengeful Romantic", "Romantic");
 
-                VengefulRomantic.Add(pc.PlayerId, killer.PlayerId);
-                VengefulRomantic.SendRPC(pc.PlayerId);
-                pc.RpcSetCustomRole(CustomRoles.VengefulRomantic);
-            }, 0.2f, "Convert to Vengeful Romantic");
+                VengefulRomantic.Add(romanticId, killer.PlayerId);
+                VengefulRomantic.SendRPC(romanticId);
+                romantic.RpcSetCustomRole(CustomRoles.VengefulRomantic);
+            }, 0.2f, "Convert to Vengeful romanticId");
         }
 
-        Utils.NotifyRoles(SpecifySeer: pc);
-        Utils.NotifyRoles(SpecifySeer: player);
+        Utils.NotifyRoles(SpecifySeer: romantic);
+        Utils.NotifyRoles(SpecifySeer: partner);
 
-        pc.ResetKillCooldown();
-        pc.SetKillCooldown();
-        pc.MarkDirtySettings();
+        romantic.ResetKillCooldown();
+        romantic.SetKillCooldown();
+        romantic.MarkDirtySettings();
     }
 }
 
