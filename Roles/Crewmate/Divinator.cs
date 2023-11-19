@@ -304,6 +304,7 @@ public static class Divinator
                 CustomRoles.EvilDiviner or
                 CustomRoles.Ritualist or
                 CustomRoles.Postman or
+                CustomRoles.Drainer or
                 CustomRoles.Imitator or
                 CustomRoles.HexMaster or
                 CustomRoles.Witch

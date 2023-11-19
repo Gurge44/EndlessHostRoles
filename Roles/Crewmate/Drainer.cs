@@ -48,6 +48,7 @@ namespace TOHE.Roles.Crewmate
         {
             AURoleOptions.EngineerCooldown = VentCD.GetFloat();
         }
+        public static bool IsEnable => playerIdList.Any();
         public static void SendRPC()
         {
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDrainerLimit, SendOption.Reliable, -1);
@@ -70,6 +71,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static void OnOtherPlayerEnterVent(PlayerControl pc, int ventId)
         {
+            OnEnterVent(pc, ventId);
             if (pc == null) return;
             if (pc.Is(CustomRoles.Drainer)) return;
 
@@ -84,13 +86,14 @@ namespace TOHE.Roles.Crewmate
         }
         public static void OnOtherPlayerExitVent(PlayerControl pc, int ventId)
         {
+            OnExitVent(pc, ventId);
             if (pc == null) return;
             if (pc.Is(CustomRoles.Drainer)) return;
 
             playersInVents.Remove(pc.PlayerId);
         }
         public static string GetProgressText() => $"<color=#777777>-</color> <color=#ffffff>{DrainLimit}</color>";
-        public static void KillPlayersInVent(PlayerControl pc, int ventId)
+        private static void KillPlayersInVent(PlayerControl pc, int ventId)
         {
             if (!playersInVents.ContainsValue(ventId)) return;
 
@@ -99,18 +102,22 @@ namespace TOHE.Roles.Crewmate
                 var venter = Utils.GetPlayerById(venterId.Key);
                 if (venter == null) continue;
 
-                venter.SetRealKiller(pc);
                 if (pc.RpcCheckAndMurder(venter, true))
                 {
                     venter.MyPhysics?.RpcBootFromVent(ventId);
                     _ = new LateTask(() =>
                     {
+                        venter.SetRealKiller(pc);
                         venter.Kill(venter);
                         Main.PlayerStates[venter.PlayerId].SetDead();
                         Main.PlayerStates[venter.PlayerId].deathReason = PlayerState.DeathReason.Demolished;
-                    }, 0.5f, "Drainer-KillPlayerInVent");
+                    }, 0.55f, "Drainer-KillPlayerInVent");
                 }
             }
+        }
+        public static void OnReportDeadBody()
+        {
+            playersInVents.Clear();
         }
     }
 }

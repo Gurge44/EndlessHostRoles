@@ -27,7 +27,7 @@ namespace TOHE.Roles.Crewmate
             CD = FloatOptionItem.Create(Id + 10, "DonutDeliverCD", new(2.5f, 60f, 2.5f), 30f, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.DonutDelivery])
                 .SetValueFormat(OptionFormat.Seconds);
-            UseLimit = IntegerOptionItem.Create(Id + 12, "AbilityUseLimit", new(1, 20, 1), 3, TabGroup.CrewmateRoles, false)
+            UseLimit = IntegerOptionItem.Create(Id + 12, "AbilityUseLimit", new(1, 20, 1), 5, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.DonutDelivery])
                 .SetValueFormat(OptionFormat.Times);
         }
@@ -70,11 +70,11 @@ namespace TOHE.Roles.Crewmate
             if (!killer.Is(CustomRoles.DonutDelivery)) return;
 
             DeliverLimit--;
-            Glitch.hackedIdList.TryAdd(target.PlayerId, GetTimeStamp());
             var num1 = IRandom.Instance.Next(0, 19);
             var num2 = IRandom.Instance.Next(0, 15);
             killer.Notify(GetString($"DonutDelivered-{num1}"));
             target.Notify(GetString($"DonutGot-{num2}"));
+            killer.SetKillCooldown();
         }
         public static string GetProgressText() => $"<color=#777777>-</color> <color=#ffffff>{DeliverLimit}</color>";
     }

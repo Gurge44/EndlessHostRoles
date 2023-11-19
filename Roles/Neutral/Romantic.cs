@@ -199,7 +199,7 @@ public static class Romantic
             romantic.Kill(romantic);
             return;
         }
-        else if (partner.IsNeutralKiller() || killer == null) // If partner is NK or died by themselves, Romantic becomes Ruthless Romantic
+        else if (partner.IsNeutralKiller() || killer == null || killer?.PlayerId == romanticId) // If partner is NK or died by themselves, Romantic becomes Ruthless Romantic
         {
             Logger.Info($"NK Romantic Partner Died / Partner killer is null => changing {romantic.GetNameWithRole().RemoveHtmlTags()} to Ruthless Romantic", "Romantic");
             romantic.RpcSetCustomRole(CustomRoles.RuthlessRomantic);

@@ -1349,7 +1349,7 @@ public static class Options
             .SetValueFormat(OptionFormat.Seconds);
         PuppeteerManipulationEndsAfterFixedTime = BooleanOptionItem.Create(3915, "PuppeteerManipulationEndsAfterFixedTime", false, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
-        PuppeteerManipulationEndsAfterTime = IntegerOptionItem.Create(3916, "PuppeteerManipulationEndsAfterTime", new(0, 20, 1), 7, TabGroup.ImpostorRoles, false)
+        PuppeteerManipulationEndsAfterTime = IntegerOptionItem.Create(3916, "PuppeteerManipulationEndsAfterTime", new(0, 60, 1), 30, TabGroup.ImpostorRoles, false)
             .SetParent(PuppeteerManipulationEndsAfterFixedTime)
             .SetValueFormat(OptionFormat.Seconds);
         PuppeteerManipulationBypassesLazy = BooleanOptionItem.Create(3918, "PuppeteerManipulationBypassesLazy", false, TabGroup.ImpostorRoles, false)
@@ -1363,7 +1363,7 @@ public static class Options
         PuppeteerMaxPuppets = IntegerOptionItem.Create(3921, "PuppeteerMaxPuppets", new(0, 20, 1), 5, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer])
             .SetValueFormat(OptionFormat.Times);
-        PuppeteerDiesAfterMaxPuppets = BooleanOptionItem.Create(3921, "PuppeteerDiesAfterMaxPuppets", false, TabGroup.ImpostorRoles, false)
+        PuppeteerDiesAfterMaxPuppets = BooleanOptionItem.Create(3923, "PuppeteerDiesAfterMaxPuppets", false, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
         RoleLoadingText = "Impostor roles\nScavenger";
         SetupRoleOptions(4000, TabGroup.ImpostorRoles, CustomRoles.Scavenger);
@@ -1474,6 +1474,8 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Demolitionist]);
         RoleLoadingText = "Crewmate roles\nTask Manager";
         SetupSingleRoleOptions(5575, TabGroup.CrewmateRoles, CustomRoles.TaskManager, 1);
+        RoleLoadingText = "Crewmate roles\nDrainer";
+        Drainer.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nGuess Manager";
         GuessManagerRole.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nAltruist";

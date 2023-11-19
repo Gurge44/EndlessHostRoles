@@ -136,6 +136,8 @@ class SetEverythingUpPatch
                     var rolename = Utils.GetRoleName(Main.PlayerStates[id].MainRole);
                     poolablePlayer.cosmetics.nameText.text += $"\n<color={color}>{rolename}</color>";
                 }
+
+                poolablePlayer.cosmetics.nameText.text += $"<size=0>";
             }
         }
         catch (Exception e)

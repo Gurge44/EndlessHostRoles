@@ -2,7 +2,6 @@ using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
-using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +25,7 @@ class CheckProtectPatch
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
         if (!AmongUsClient.Instance.AmHost) return false;
-        Logger.Info("CheckProtect発生: " + __instance.GetNameWithRole().RemoveHtmlTags() + "=>" + target.GetNameWithRole().RemoveHtmlTags(), "CheckProtect");
+        Logger.Info("CheckProtect: " + __instance.GetNameWithRole().RemoveHtmlTags() + "=>" + target.GetNameWithRole().RemoveHtmlTags(), "CheckProtect");
 
         if (__instance.Is(CustomRoles.EvilSpirit))
         {
@@ -88,14 +87,12 @@ class CheckMurderPatch
 
         Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
 
-        //死人はキルできない
         if (killer.Data.IsDead)
         {
             Logger.Info($"Killer {killer.GetNameWithRole().RemoveHtmlTags()} is dead, kill canceled", "CheckMurder");
             return false;
         }
 
-        //不正キル防止処理
         if (target.Data == null
             || target.inVent
             || target.inMovingPlat
@@ -106,24 +103,24 @@ class CheckMurderPatch
             Logger.Info("The target is in a state where they cannot be killed, kill canceled.", "CheckMurder");
             return false;
         }
-        if (target.Data.IsDead) //同じtargetへの同時キルをブロック
+        if (target.Data.IsDead)
         {
             Logger.Info("Target is already dead, kill canceled", "CheckMurder");
             return false;
         }
-        if (MeetingHud.Instance != null) //会議中でないかの判定
+        if (MeetingHud.Instance != null)
         {
             Logger.Info("Kill during meeting, canceled", "CheckMurder");
             return false;
         }
 
         var divice = Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA ? 3000f : 2000f;
-        float minTime = Mathf.Max(0.02f, AmongUsClient.Instance.Ping / divice * 6f); //※AmongUsClient.Instance.Pingの値はミリ秒(ms)なので÷1000
-        //TimeSinceLastKillに値が保存されていない || 保存されている時間がminTime以上 => キルを許可
-        //↓許可されない場合
+        float minTime = Mathf.Max(0.02f, AmongUsClient.Instance.Ping / divice * 6f); // The value of AmongUsClient.Instance.Ping is in milliseconds (ms), so ÷1000
+        // No value is stored in TimeSinceLastKill || Stored time is greater than or equal to minTime => Allow kill
+        // ↓ If not allowed
         if (TimeSinceLastKill.TryGetValue(killer.PlayerId, out var time) && time < minTime)
         {
-            Logger.Info("Last kill was too shortly before", "CheckMurder");
+            Logger.Info("Last kill was too shortly before, canceled", "CheckMurder");
             return false;
         }
         TimeSinceLastKill[killer.PlayerId] = 0f;
@@ -201,25 +198,7 @@ class CheckMurderPatch
             return false;
         }
 
-        // Check for protection
-        switch (target.GetCustomRole())
-        {
-            case CustomRoles.WeaponMaster when WeaponMaster.OnAttack(killer, target):
-            case CustomRoles.Gambler when Gambler.isShielded.ContainsKey(target.PlayerId):
-            case CustomRoles.Alchemist when Alchemist.IsProtected:
-            case CustomRoles.Nightmare when !Nightmare.CanBeKilled:
-                killer.SetKillCooldown(time: 5f);
-                return false;
-            case CustomRoles.Vengeance when !Vengeance.OnKillAttempt(killer, target):
-                return false;
-            case CustomRoles.Ricochet when !Ricochet.OnKillAttempt(killer, target):
-                return false;
-            case CustomRoles.Addict when Addict.IsImmortal(target):
-                return false;
-        }
-
         if (Pursuer.IsEnable && Pursuer.OnClientMurder(killer)) return false;
-        if (Aid.ShieldedPlayers.ContainsKey(target.PlayerId)) return false;
 
         //判定凶手技能
         if (killer.PlayerId != target.PlayerId)
@@ -840,14 +819,6 @@ class CheckMurderPatch
                 return false;
             }
         }
-        //  if (target.Is(CustomRoles.Diseased))
-        //  {
-
-        ////      killer.RpcGuardAndKill(killer);
-        //   //   killer.SetKillCooldownV3(Main.AllPlayerKillCooldown[killer.PlayerId] *= Options.DiseasedMultiplier.GetFloat());
-        //   //   killer.ResetKillCooldown();
-        //  //    killer.SyncSettings();
-        //  }
         if (Main.ForCrusade.Contains(target.PlayerId))
         {
             foreach (PlayerControl player in Main.AllPlayerControls)
@@ -870,13 +841,28 @@ class CheckMurderPatch
             }
         }
 
+        if (Aid.ShieldedPlayers.ContainsKey(target.PlayerId)) return false;
+
         switch (target.GetCustomRole())
         {
             case CustomRoles.Medic:
-                Medic.IsDead(target); break;
+                Medic.IsDead(target);
+                break;
             case CustomRoles.Guardian when target.AllTasksCompleted():
                 return false;
             case CustomRoles.Monarch when CustomRoles.Knighted.RoleExist():
+                return false;
+            case CustomRoles.WeaponMaster when WeaponMaster.OnAttack(killer, target):
+            case CustomRoles.Gambler when Gambler.isShielded.ContainsKey(target.PlayerId):
+            case CustomRoles.Alchemist when Alchemist.IsProtected:
+            case CustomRoles.Nightmare when !Nightmare.CanBeKilled:
+                killer.SetKillCooldown(time: 5f);
+                return false;
+            case CustomRoles.Vengeance when !Vengeance.OnKillAttempt(killer, target):
+                return false;
+            case CustomRoles.Ricochet when !Ricochet.OnKillAttempt(killer, target):
+                return false;
+            case CustomRoles.Addict when Addict.IsImmortal(target):
                 return false;
             case CustomRoles.Luckey:
                 var rd = IRandom.Instance;
@@ -1867,6 +1853,7 @@ class ReportDeadBodyPatch
         if (Sapper.IsEnable) Sapper.OnReportDeadBody();
         if (Chronomancer.IsEnable) Chronomancer.OnReportDeadBody();
         if (Magician.IsEnable) Magician.OnReportDeadBody();
+        if (Drainer.IsEnable) Drainer.OnReportDeadBody();
         if (Stealth.IsEnable) Stealth.OnStartMeeting();
         if (Reckless.IsEnable) Reckless.OnReportDeadBody();
 
@@ -2789,7 +2776,7 @@ class FixedUpdatePatch
                 bool isProgressTextLong = false;
                 var progressText = GetProgressText(__instance);
 
-                if (progressText.RemoveHtmlTags().Length > 15 && Main.VisibleTasksCount)
+                if (progressText.RemoveHtmlTags().Length > 25 && Main.VisibleTasksCount)
                 {
                     isProgressTextLong = true;
                     progressText = $"\n{progressText}";
@@ -3082,7 +3069,7 @@ class FixedUpdatePatch
                     else
                     {
                         // Restoring the position text coordinates to their initial values
-                        RoleText.transform.SetLocalY(isProgressTextLong ? 0.4f : 0.2f);
+                        RoleText.transform.SetLocalY(isProgressTextLong ? 0.5f : 0.2f);
                     }
                 }
             }

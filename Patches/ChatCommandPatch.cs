@@ -766,9 +766,11 @@ internal class ChatCommands
                 _ = sb.Append(devMark + "<b>" + roleName + "</b>" + Utils.GetRoleMode(rl) + GetString($"{rl}InfoLong"));
                 if (Options.CustomRoleSpawnChances.ContainsKey(rl))
                 {
+                    sb.Append("<size=70%>");
                     Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[rl], ref sb, command: true);
-                    var txt = sb.ToString();
-                    _ = sb.Clear().Append(txt.RemoveHtmlTags());
+                    sb.Append("</size>");
+                    var txt = $"<size=90%>{sb}</size>";
+                    _ = sb.Clear().Append(txt);
                 }
                 Utils.SendMessage(sb.ToString(), playerId);
                 return;

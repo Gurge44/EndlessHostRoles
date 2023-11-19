@@ -16,7 +16,6 @@ namespace TOHE.Roles.Impostor
         public static Dictionary<byte, float> TempKCDs = [];
 
         public static OptionItem KillCooldown;
-        //public static OptionItem ManipulateCDOpt;
         public static OptionItem TimeLimit;
         public static OptionItem Delay;
 
@@ -27,8 +26,6 @@ namespace TOHE.Roles.Impostor
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Mastermind);
             KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Mastermind])
                 .SetValueFormat(OptionFormat.Seconds);
-            //ManipulateCDOpt = FloatOptionItem.Create(Id + 11, "MastermindCD", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Mastermind])
-            //    .SetValueFormat(OptionFormat.Seconds);
             // Manipulation Cooldown = Kill Cooldown + Delay + Time Limit
             TimeLimit = IntegerOptionItem.Create(Id + 12, "MastermindTimeLimit", new(1, 60, 1), 20, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Mastermind])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -60,7 +57,7 @@ namespace TOHE.Roles.Impostor
             return killer.CheckDoubleTrigger(target, () =>
             {
                 killer.SetKillCooldown(time: ManipulateCD);
-                if (target.HasKillButton())
+                if (target.HasKillButton() || target.GetPlayerTaskState().hasTasks)
                 {
                     ManipulateDelays.TryAdd(target.PlayerId, GetTimeStamp());
                     NotifyRoles(SpecifySeer: GetPlayerById(playerIdList[0]));
@@ -87,8 +84,11 @@ namespace TOHE.Roles.Impostor
                     ManipulateDelays.Remove(x.Key);
                     ManipulatedPlayers.TryAdd(x.Key, GetTimeStamp());
 
-                    TempKCDs.TryAdd(pc.PlayerId, pc.killTimer);
-                    pc.SetKillCooldown(time: 1f);
+                    if (!pc.GetPlayerTaskState().hasTasks)
+                    {
+                        TempKCDs.TryAdd(pc.PlayerId, pc.killTimer);
+                        pc.SetKillCooldown(time: 1f);
+                    }
 
                     NotifyRoles(SpecifySeer: GetPlayerById(playerIdList[0]));
                 }
@@ -116,7 +116,7 @@ namespace TOHE.Roles.Impostor
 
                 var time = TimeLimit.GetInt() - (GetTimeStamp() - x.Value);
 
-                player.Notify(string.Format(GetString("ManipulateNotify"), time), 1.1f);
+                player.Notify(string.Format(GetString(player.GetPlayerTaskState().hasTasks ? "ManipulateTaskNotify" : "ManipulateNotify"), time), 1.1f);
             }
         }
 
@@ -144,12 +144,12 @@ namespace TOHE.Roles.Impostor
 
             ManipulatedPlayers.Remove(killer.PlayerId);
 
-            var mastermind = GetPlayerById(playerIdList[0]);
-            mastermind.Notify(GetString("ManipulatedKilled"));
-            if (mastermind.killTimer > KillCooldown.GetFloat()) mastermind.SetKillCooldown(time: KillCooldown.GetFloat());
+            NotifyMastermindTargetSurvived();
 
             if (target.Is(CustomRoles.Pestilence) || Main.VeteranInProtect.ContainsKey(target.PlayerId) || target.Is(CustomRoles.Mastermind))
             {
+                Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
+                Main.PlayerStates[killer.PlayerId].SetDead();
                 target.Kill(killer);
                 TempKCDs.Remove(killer.PlayerId);
                 return false;
@@ -161,11 +161,28 @@ namespace TOHE.Roles.Impostor
 
             _ = new LateTask(() =>
             {
-                killer.SetKillCooldown(time: TempKCDs[killer.PlayerId] + Main.AllPlayerKillCooldown[killer.PlayerId]);
+                killer.SetKillCooldown(time: TempKCDs.TryGetValue(killer.PlayerId, out var cd) ? cd : 0f + Main.AllPlayerKillCooldown[killer.PlayerId]);
                 TempKCDs.Remove(killer.PlayerId);
             }, 0.1f, "Set KCD for Manipulated Kill");
 
             return true;
+        }
+
+        public static void OnManipulatedPlayerTaskComplete(PlayerControl pc)
+        {
+            ManipulatedPlayers.Remove(pc.PlayerId);
+
+            NotifyMastermindTargetSurvived();
+
+            pc.Notify(GetString("MastermindTargetSurvived"));
+            TempKCDs.Remove(pc.PlayerId);
+        }
+
+        private static void NotifyMastermindTargetSurvived()
+        {
+            var mastermind = GetPlayerById(playerIdList[0]);
+            mastermind.Notify(GetString("ManipulatedKilled"));
+            if (mastermind.killTimer > KillCooldown.GetFloat()) mastermind.SetKillCooldown(time: KillCooldown.GetFloat());
         }
     }
 }

@@ -104,6 +104,8 @@ public static class NameColorManager
         if (seer.Is(CustomRoles.Hitman) && Hitman.targetId == target.PlayerId) color = "000000";
         if (seer.Is(CustomRoles.Postman) && Postman.Target == target.PlayerId) color = Main.roleColors[CustomRoles.Postman];
 
+        if (target.Is(CustomRoles.Speedrunner) && target.GetPlayerTaskState().AllTasksCount - target.GetPlayerTaskState().CompletedTasksCount <= Options.SpeedrunnerNotifyAtXTasksLeft.GetInt() && Options.SpeedrunnerNotifyKillers.GetBool()) color = Main.roleColors[CustomRoles.Speedrunner];
+
         if (seer.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor)) color = Main.roleColors[CustomRoles.ImpostorTOHE];
         if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Refugee)) color = Main.roleColors[CustomRoles.Refugee];
 

@@ -1065,7 +1065,7 @@ public static class Utils
                     ProgressText.Append(Aid.GetProgressText(playerId, comms));
                     break;
                 case CustomRoles.Mafioso:
-                    ProgressText.Append(Mafioso.GetProgressText());
+                    if (!GetPlayerById(playerId).IsModClient()) ProgressText.Append(Mafioso.GetProgressText());
                     break;
                 case CustomRoles.Consort:
                     ProgressText.Append(Consort.GetProgressText());
@@ -1422,19 +1422,25 @@ public static class Utils
                 command = false;
             }
 
-            if (opt.Value.Name == "Maximum") continue; //Maximumの項目は飛ばす
-            if (opt.Value.Name == "DisableSkeldDevices" && !Options.IsActiveSkeld) continue;
-            if (opt.Value.Name == "DisableMiraHQDevices" && !Options.IsActiveMiraHQ) continue;
-            if (opt.Value.Name == "DisablePolusDevices" && !Options.IsActivePolus) continue;
-            if (opt.Value.Name == "DisableAirshipDevices" && !Options.IsActiveAirship) continue;
-            if (opt.Value.Name == "PolusReactorTimeLimit" && !Options.IsActivePolus) continue;
-            if (opt.Value.Name == "AirshipReactorTimeLimit" && !Options.IsActiveAirship) continue;
+            switch (opt.Value.Name)
+            {
+                case "Maximum":
+                case "DisableSkeldDevices" when !Options.IsActiveSkeld:
+                case "DisableMiraHQDevices" when !Options.IsActiveMiraHQ:
+                case "DisablePolusDevices" when !Options.IsActivePolus:
+                case "DisableAirshipDevices" when !Options.IsActiveAirship:
+                case "PolusReactorTimeLimit" when !Options.IsActivePolus:
+                case "AirshipReactorTimeLimit" when !Options.IsActiveAirship:
+                    continue;
+            }
             if (deep > 0)
             {
                 sb.Append(string.Concat(Enumerable.Repeat("┃", Mathf.Max(deep - 1, 0))));
                 sb.Append(opt.Index == option.Children.Count ? "┗ " : "┣ ");
             }
-            sb.Append($"{opt.Value.GetName(true)}: {opt.Value.GetString()}\n");
+            var value = opt.Value.GetString().Replace("ON", "<#00ffa5>ON</color>").Replace("OFF", "<#ff0000>OFF</color>");
+            string name = $"<#000000>{opt.Value.GetName().Replace("<color=#ffffff>", string.Empty).Replace("<color=#ffffffff>", string.Empty).Replace("color=", string.Empty)}</color>";
+            sb.Append($"{name}: <b>{value}</b>\n");
             if (opt.Value.GetBool()) ShowChildrenSettings(opt.Value, ref sb, deep + 1);
         }
     }

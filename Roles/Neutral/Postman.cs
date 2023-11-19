@@ -120,21 +120,13 @@ public static class Postman
 
         sb.Append("\r\n\r\n");
         sb.AppendLine(baseText);
-        if (!IsFinished) sb.AppendLine(string.Format(GetString("PostmanGetNewTarget"), Utils.GetPlayerById(Target).GetRealName()));
-        else sb.AppendLine(GetString("PostmanDone"));
+        if (!IsFinished) sb.Append(string.Format(GetString("PostmanGetNewTarget"), Utils.GetPlayerById(Target).GetRealName()));
+        else sb.Append(GetString("PostmanDone"));
 
         pc.Notify(sb.ToString());
     }
 
-    public static string GetHudText(PlayerControl pc)
-    {
-        var sb = new StringBuilder();
-
-        if (!IsFinished) sb.AppendLine(string.Format(GetString("PostmanTarget"), Utils.GetPlayerById(Target).GetRealName()));
-        else sb.AppendLine(GetString("PostmanDone"));
-
-        return sb.ToString();
-    }
+    public static string GetHudText(PlayerControl pc) => !IsFinished ? string.Format(GetString("PostmanTarget"), Utils.GetPlayerById(Target).GetRealName()) : GetString("PostmanDone");
 
     public static string TargetText => !IsFinished ? string.Format(GetString("PostmanTarget"), Utils.GetPlayerById(Target).GetRealName()) : "<color=#00ff00>✓</color>";
 }

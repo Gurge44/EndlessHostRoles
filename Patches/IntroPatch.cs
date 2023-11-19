@@ -206,7 +206,7 @@ class BeginCrewmatePatch
                 CustomRoles.Doctor or CustomRoles.Medic => GetIntroSound(RoleTypes.Scientist),
                 CustomRoles.GM => DestroyableSingleton<HudManager>.Instance.TaskCompleteSound,
                 CustomRoles.SwordsMan or CustomRoles.Minimalism or CustomRoles.NiceGuesser => PlayerControl.LocalPlayer.KillSfx,
-                CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Chameleon => PlayerControl.LocalPlayer.MyPhysics.ImpostorDiscoveredSound,
+                CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Chameleon or CustomRoles.Drainer => PlayerControl.LocalPlayer.MyPhysics.ImpostorDiscoveredSound,
                 CustomRoles.Addict or CustomRoles.Ventguard => ShipStatus.Instance.VentEnterSound,
                 CustomRoles.ParityCop or CustomRoles.NiceEraser or CustomRoles.TimeManager => MeetingHud.Instance.VoteLockinSound,
                 CustomRoles.Demolitionist or CustomRoles.TimeMaster or CustomRoles.Grenadier or CustomRoles.Miner or CustomRoles.Disperser => ShipStatus.Instance.VentMoveSounds.FirstOrDefault(),
@@ -440,7 +440,7 @@ class IntroCutsceneDestroyPatch
                     }, 0.4f, "Show Pet For Everyone");
                 }
                 catch { }
-                _ = new LateTask(() => Main.ProcessShapeshifts = true, 2f, "Enable SS Processing");
+                _ = new LateTask(() => Main.ProcessShapeshifts = true, 1f, "Enable SS Processing");
             }
 
             if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))

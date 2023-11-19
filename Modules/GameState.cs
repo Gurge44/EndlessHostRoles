@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
+using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
 using UnityEngine;
 
@@ -386,6 +387,12 @@ public class TaskState
 
                 }
             }
+
+            if (player.IsAlive() && Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId))
+            {
+                Mastermind.OnManipulatedPlayerTaskComplete(player);
+            }
+
             // Ability Use Gain with this task completed
             if (player.IsAlive())
             {
@@ -539,24 +546,24 @@ public class TaskState
                     pc.SetRealKiller(player);
                 }
 
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Workaholic); //爆破で勝利した人も勝利させる
+                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Workaholic);
                 CustomWinnerHolder.WinnerIds.Add(player.PlayerId);
             }
 
-            if (player.Is(CustomRoles.Speedrunner))
+            if (player.Is(CustomRoles.Speedrunner) && player.IsAlive())
             {
                 var completedTasks = CompletedTasksCount + 1;
-                if (completedTasks >= AllTasksCount && player.IsAlive())
+                int remainingTasks = AllTasksCount - completedTasks;
+                if (completedTasks >= AllTasksCount)
                 {
                     Logger.Info("Speedrunner finished tasks", "Speedrunner");
                     player.RPCPlayCustomSound("Congrats");
                     GameData.Instance.CompletedTasks = GameData.Instance.TotalTasks;
                 }
-                else if (completedTasks >= Options.SpeedrunnerNotifyAtXTasksLeft.GetInt() && Options.SpeedrunnerNotifyKillers.GetBool() && player.IsAlive())
+                else if (remainingTasks <= Options.SpeedrunnerNotifyAtXTasksLeft.GetInt() && Options.SpeedrunnerNotifyKillers.GetBool())
                 {
                     string speedrunnerName = player.GetRealName().RemoveHtmlTags();
                     string notifyString = Translator.GetString("SpeedrunnerHasXTasksLeft");
-                    int remainingTasks = AllTasksCount - completedTasks;
                     foreach (var pc in Main.AllAlivePlayerControls.Where(pc => !pc.GetCustomRole().IsCrewmateTeamV2()).ToArray())
                     {
                         pc.Notify(string.Format(notifyString, speedrunnerName, remainingTasks));

@@ -51,18 +51,14 @@ namespace TOHE.Roles.Impostor
             Delay = IntegerOptionItem.Create(Id + 10, "MafiosoDelay", new(1, 10, 1), 3, TabGroup.ImpostorRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso])
                 .SetValueFormat(OptionFormat.Seconds);
-            RewardForKilling = IntegerOptionItem.Create(Id + 11, "MafiosoRewardForKilling", new(1, 100, 5), 40, TabGroup.ImpostorRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso])
-                .SetValueFormat(OptionFormat.Seconds);
-            RewardForSabotaging = IntegerOptionItem.Create(Id + 12, "MafiosoRewardForSabotaging", new(1, 100, 5), 25, TabGroup.ImpostorRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso])
-                .SetValueFormat(OptionFormat.Seconds);
-            RewardForVenting = IntegerOptionItem.Create(Id + 13, "MafiosoRewardForVenting", new(1, 100, 5), 10, TabGroup.ImpostorRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso])
-                .SetValueFormat(OptionFormat.Seconds);
-            RewardForOtherPlayerEjected = IntegerOptionItem.Create(Id + 14, "MafiosoRewardForOtherPlayerEjected", new(1, 100, 5), 30, TabGroup.ImpostorRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso])
-                .SetValueFormat(OptionFormat.Seconds);
+            RewardForKilling = IntegerOptionItem.Create(Id + 11, "MafiosoRewardForKilling", new(0, 100, 5), 40, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
+            RewardForSabotaging = IntegerOptionItem.Create(Id + 12, "MafiosoRewardForSabotaging", new(0, 100, 5), 25, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
+            RewardForVenting = IntegerOptionItem.Create(Id + 13, "MafiosoRewardForVenting", new(0, 100, 5), 10, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
+            RewardForOtherPlayerEjected = IntegerOptionItem.Create(Id + 14, "MafiosoRewardForOtherPlayerEjected", new(0, 100, 5), 30, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
         }
 
         public static void Init()
@@ -132,6 +128,18 @@ namespace TOHE.Roles.Impostor
         {
             if (!GameStates.IsInTask || !pc.IsAlive() || pc == null || !pc.Is(CustomRoles.Mafioso) || !playerIdList.Any() || lastUpdate >= GetTimeStamp()) return;
 
+            if (XP >= 100 && Tier < 5)
+            {
+                XP -= 100;
+                Tier++;
+
+                SendRPC();
+                pc.MarkDirtySettings();
+                pc.ResetKillCooldown();
+                pc.Notify(GetString("MafiosoLevelUp"));
+            }
+
+            if (lastUpdate >= GetTimeStamp()) return;
             lastUpdate = GetTimeStamp();
 
             var before1CD = Pistol1CD;
@@ -144,17 +152,8 @@ namespace TOHE.Roles.Impostor
             {
                 NotifyRoles(SpecifySeer: pc);
                 SendRPCSyncPistolCD();
+                Logger.Info($"Pistol 1 CD: {Pistol1CD}; Pistol 2 CD: {Pistol2CD}", "debug");
             }
-
-            if (XP < 100 || Tier >= 5) return;
-
-            XP -= 100;
-            Tier++;
-
-            SendRPC();
-            pc.MarkDirtySettings();
-            pc.ResetKillCooldown();
-            pc.Notify(GetString("MafiosoLevelUp"));
         }
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
