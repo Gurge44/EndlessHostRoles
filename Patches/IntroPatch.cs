@@ -188,28 +188,117 @@ class BeginCrewmatePatch
         {
             PlayerControl.LocalPlayer.Data.Role.IntroSound = role switch
             {
-                CustomRoles.Terrorist or CustomRoles.Sapper or CustomRoles.Bomber or CustomRoles.Nuker => ShipStatus.Instance.CommonTasks.FirstOrDefault(task => task.TaskType == TaskTypes.FixWiring).MinigamePrefab.OpenSound,
-                CustomRoles.Sheriff or CustomRoles.Veteran => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.PutAwayPistols).MinigamePrefab.OpenSound,
-                CustomRoles.Cleaner or CustomRoles.Cleanser => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.PolishRuby).MinigamePrefab.OpenSound,
-                CustomRoles.Dictator or CustomRoles.Lawyer or CustomRoles.Judge or CustomRoles.Mayor => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.FixShower).MinigamePrefab.OpenSound,
-                CustomRoles.Monitor or CustomRoles.AntiAdminer => ShipStatus.Instance.LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.ResetBreakers).MinigamePrefab.OpenSound,
-                CustomRoles.EvilTracker or CustomRoles.Tracefinder or CustomRoles.Tracker or CustomRoles.Bloodhound or CustomRoles.Mortician or CustomRoles.Lighter => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.DivertPower).MinigamePrefab.OpenSound,
-                CustomRoles.Oracle or CustomRoles.Divinator or CustomRoles.Mediumshiper or CustomRoles.DovesOfNeace or CustomRoles.Spiritualist or CustomRoles.Spiritcaller or CustomRoles.Farseer => GetIntroSound(RoleTypes.GuardianAngel),
-                CustomRoles.Alchemist => ShipStatus.Instance.LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.DevelopPhotos).MinigamePrefab.OpenSound,
-                CustomRoles.Deputy or CustomRoles.Jailor => ShipStatus.Instance.LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.UnlockSafe).MinigamePrefab.OpenSound,
-                CustomRoles.Workaholic or CustomRoles.Speedrunner or CustomRoles.Snitch => DestroyableSingleton<HudManager>.Instance.TaskCompleteSound,
-                CustomRoles.TaskManager => DestroyableSingleton<HudManager>.Instance.TaskUpdateSound,
-                CustomRoles.Opportunist or CustomRoles.FFF or CustomRoles.Revolutionist => GetIntroSound(RoleTypes.Crewmate),
-                CustomRoles.Nightmare => GetIntroSound(RoleTypes.Impostor),
-                CustomRoles.SabotageMaster or CustomRoles.Engineer or CustomRoles.EngineerTOHE or CustomRoles.Inhibitor or CustomRoles.Saboteur or CustomRoles.SecurityGuard or CustomRoles.Provocateur => ShipStatus.Instance.SabotageSound,
-                CustomRoles.Mastermind or CustomRoles.Gambler => GetIntroSound(RoleTypes.Shapeshifter),
-                CustomRoles.Doctor or CustomRoles.Medic => GetIntroSound(RoleTypes.Scientist),
-                CustomRoles.GM => DestroyableSingleton<HudManager>.Instance.TaskCompleteSound,
-                CustomRoles.SwordsMan or CustomRoles.Minimalism or CustomRoles.NiceGuesser => PlayerControl.LocalPlayer.KillSfx,
-                CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Chameleon or CustomRoles.Drainer => PlayerControl.LocalPlayer.MyPhysics.ImpostorDiscoveredSound,
-                CustomRoles.Addict or CustomRoles.Ventguard => ShipStatus.Instance.VentEnterSound,
-                CustomRoles.ParityCop or CustomRoles.NiceEraser or CustomRoles.TimeManager => MeetingHud.Instance.VoteLockinSound,
-                CustomRoles.Demolitionist or CustomRoles.TimeMaster or CustomRoles.Grenadier or CustomRoles.Miner or CustomRoles.Disperser => ShipStatus.Instance.VentMoveSounds.FirstOrDefault(),
+                CustomRoles.Terrorist or
+                CustomRoles.Sapper or
+                CustomRoles.Bomber or
+                CustomRoles.Nuker
+                => ShipStatus.Instance.CommonTasks.FirstOrDefault(task => task.TaskType == TaskTypes.FixWiring).MinigamePrefab.OpenSound,
+
+                CustomRoles.Sheriff or
+                CustomRoles.Veteran
+                => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.PutAwayPistols).MinigamePrefab.OpenSound,
+
+                CustomRoles.Cleaner or
+                CustomRoles.Cleanser
+                => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.PolishRuby).MinigamePrefab.OpenSound,
+
+                CustomRoles.Dictator or
+                CustomRoles.Lawyer or
+                CustomRoles.Judge or
+                CustomRoles.Mayor
+                => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.FixShower).MinigamePrefab.OpenSound,
+
+                CustomRoles.Monitor or
+                CustomRoles.AntiAdminer
+                => ShipStatus.Instance.LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.ResetBreakers).MinigamePrefab.OpenSound,
+
+                CustomRoles.EvilTracker or
+                CustomRoles.Tracefinder or
+                CustomRoles.Tracker or
+                CustomRoles.Bloodhound or
+                CustomRoles.Mortician or
+                CustomRoles.Lighter
+                => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.DivertPower).MinigamePrefab.OpenSound,
+
+                CustomRoles.Oracle or
+                CustomRoles.Divinator or
+                CustomRoles.Mediumshiper or
+                CustomRoles.DovesOfNeace or
+                CustomRoles.Spiritualist or
+                CustomRoles.Spiritcaller or
+                CustomRoles.Farseer
+                => GetIntroSound(RoleTypes.GuardianAngel),
+
+                CustomRoles.Alchemist
+                => ShipStatus.Instance.LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.DevelopPhotos).MinigamePrefab.OpenSound,
+
+                CustomRoles.Deputy or
+                CustomRoles.Jailor
+                => ShipStatus.Instance.LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.UnlockSafe).MinigamePrefab.OpenSound,
+
+                CustomRoles.Workaholic or
+                CustomRoles.Speedrunner or
+                CustomRoles.Snitch
+                => DestroyableSingleton<HudManager>.Instance.TaskCompleteSound,
+
+                CustomRoles.TaskManager
+                => DestroyableSingleton<HudManager>.Instance.TaskUpdateSound,
+
+                CustomRoles.Opportunist or
+                CustomRoles.FFF or
+                CustomRoles.Revolutionist
+                => GetIntroSound(RoleTypes.Crewmate),
+
+                CustomRoles.Nightmare
+                => GetIntroSound(RoleTypes.Impostor),
+
+                CustomRoles.SabotageMaster or
+                CustomRoles.Engineer or
+                CustomRoles.EngineerTOHE or
+                CustomRoles.Inhibitor or
+                CustomRoles.Saboteur or
+                CustomRoles.SecurityGuard or
+                CustomRoles.Provocateur
+                => ShipStatus.Instance.SabotageSound,
+
+                CustomRoles.Mastermind or
+                CustomRoles.Gambler
+                => GetIntroSound(RoleTypes.Shapeshifter),
+
+                CustomRoles.Doctor or
+                CustomRoles.Medic
+                => GetIntroSound(RoleTypes.Scientist),
+
+                CustomRoles.GM
+                => DestroyableSingleton<HudManager>.Instance.TaskCompleteSound,
+
+                CustomRoles.SwordsMan or
+                CustomRoles.Minimalism or
+                CustomRoles.NiceGuesser
+                => PlayerControl.LocalPlayer.KillSfx,
+
+                CustomRoles.Swooper or
+                CustomRoles.Wraith or
+                CustomRoles.Chameleon or
+                CustomRoles.Drainer
+                => PlayerControl.LocalPlayer.MyPhysics.ImpostorDiscoveredSound,
+
+                CustomRoles.Addict or
+                CustomRoles.Ventguard
+                => ShipStatus.Instance.VentEnterSound,
+
+                CustomRoles.ParityCop or
+                CustomRoles.NiceEraser or
+                CustomRoles.TimeManager
+                => MeetingHud.Instance.VoteLockinSound,
+
+                CustomRoles.Demolitionist or
+                CustomRoles.TimeMaster or
+                CustomRoles.Grenadier or
+                CustomRoles.Miner or
+                CustomRoles.Disperser
+                => ShipStatus.Instance.VentMoveSounds.FirstOrDefault(),
+
                 _ => PlayerControl.LocalPlayer.Is(RoleTypes.Impostor) ? PlayerControl.LocalPlayer.Is(RoleTypes.Shapeshifter) ? GetIntroSound(RoleTypes.Shapeshifter) : GetIntroSound(RoleTypes.Impostor) : GetIntroSound(RoleTypes.Crewmate),
             };
         }
@@ -414,17 +503,31 @@ class IntroCutsceneDestroyPatch
             if (Options.UsePets.GetBool())
             {
                 Main.ProcessShapeshifts = false;
-                Logger.Info(Options.PetToAssign[Options.PetToAssignToEveryone.GetValue()], "debug");
-                _ = new LateTask(() => PlayerControl.AllPlayerControls.ToArray().Do(pc => PetsPatch.SetPet(pc, Options.PetToAssign[Options.PetToAssignToEveryone.GetValue()], true)), 0.3f, "Grant Pet For Everyone");
+
+                string[] pets = Options.PetToAssign;
+                string pet = pets[Options.PetToAssignToEveryone.GetValue()];
+
+                var r = IRandom.Instance;
+
+                _ = new LateTask(() =>
+                {
+                    foreach (var pc in Main.AllAlivePlayerControls)
+                    {
+                        if (pc.Is(CustomRoles.GM)) continue;
+                        string petId = pet == "pet_RANDOM_FOR_EVERYONE" ? pets[r.Next(0, pets.Length)] : pet;
+                        PetsPatch.SetPet(pc, petId, true);
+                        Logger.Info($"{pc.GetNameWithRole()} => {GetString(petId)} Pet", "PetAssign");
+                    }
+                }, 0.3f, "Grant Pet For Everyone");
                 try
                 {
                     _ = new LateTask(() =>
                     {
                         try
                         {
-                            foreach (PlayerControl pc in Main.AllPlayerControls)
+                            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                             {
-                                if (pc.PlayerId == 0) continue;
+                                if (pc.PlayerId == 0) continue; // Skip the host
                                 if (pc != null)
                                 {
                                     try

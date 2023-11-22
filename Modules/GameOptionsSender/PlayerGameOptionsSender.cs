@@ -173,6 +173,9 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 AURoleOptions.ShapeshifterCooldown = Options.EscapeeSSCD.GetFloat();
                 AURoleOptions.ShapeshifterDuration = Options.EscapeeSSDuration.GetFloat();
                 break;
+            case CustomRoles.Duellist:
+                Duellist.ApplyGameOptions(opt);
+                break;
             case CustomRoles.Sniper:
                 if (Options.UsePets.GetBool()) break;
                 if (Sniper.bulletCount[player.PlayerId] > 0)

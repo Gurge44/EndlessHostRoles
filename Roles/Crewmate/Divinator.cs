@@ -277,6 +277,7 @@ public static class Divinator
                 CustomRoles.Sidekick or
                 CustomRoles.Maverick or
                 CustomRoles.WeaponMaster or
+                CustomRoles.Duellist or
                 CustomRoles.Opportunist or
                 CustomRoles.Pursuer or
                 CustomRoles.Provocateur
@@ -286,6 +287,7 @@ public static class Divinator
                 CustomRoles.Vampire or
                 CustomRoles.DovesOfNeace or
                 CustomRoles.ImperiusCurse or
+                CustomRoles.YinYanger or
                 CustomRoles.Magician or
                 CustomRoles.HeadHunter or
                 CustomRoles.Traitor
@@ -295,6 +297,7 @@ public static class Divinator
                 CustomRoles.QuickShooter or
                 CustomRoles.NSerialKiller or
                 CustomRoles.Werewolf or
+                CustomRoles.Cantankerous or
                 CustomRoles.Sheriff or
                 CustomRoles.Admirer or
                 CustomRoles.Warlock

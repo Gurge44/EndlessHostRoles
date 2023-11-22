@@ -98,6 +98,7 @@ class CheckMurderPatch
             || target.inMovingPlat
             || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()
             || target.MyPhysics.Animations.IsPlayingAnyLadderAnimation()
+            || target.onLadder
         )
         {
             Logger.Info("The target is in a state where they cannot be killed, kill canceled.", "CheckMurder");
@@ -1266,14 +1267,10 @@ class CmdCheckShapeshiftPatch
 }
 
 // Triggered when the egg animation starts playing
-[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Shapeshift))]
+//[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Shapeshift))]
 class ShapeshiftPatch
 {
     public static List<byte> IgnoreNextSS = [];
-    public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
-    {
-
-    }
 
     public static bool ProcessShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
@@ -1318,6 +1315,10 @@ class ShapeshiftPatch
                     break;
                 case CustomRoles.Hitman:
                     Hitman.OnShapeshift(shapeshifter, target, shapeshifting);
+                    isSSneeded = false;
+                    break;
+                case CustomRoles.Duellist:
+                    Duellist.OnShapeshift(shapeshifter, target);
                     isSSneeded = false;
                     break;
                 case CustomRoles.FireWorks:

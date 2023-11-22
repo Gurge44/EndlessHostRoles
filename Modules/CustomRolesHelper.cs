@@ -50,6 +50,9 @@ internal static class CustomRolesHelper
                 CustomRoles.SpeedBooster => CustomRoles.Crewmate,
                 CustomRoles.Dictator => CustomRoles.Crewmate,
                 CustomRoles.Inhibitor => CustomRoles.Impostor,
+                CustomRoles.Cantankerous => CustomRoles.Impostor,
+                CustomRoles.YinYanger => CustomRoles.Impostor,
+                CustomRoles.Duellist => CustomRoles.Shapeshifter,
                 CustomRoles.Consort => CustomRoles.Impostor,
                 CustomRoles.Mafioso => CustomRoles.Impostor,
                 CustomRoles.Chronomancer => CustomRoles.Impostor,
@@ -717,6 +720,9 @@ internal static class CustomRolesHelper
             CustomRoles.SerialKiller or
             CustomRoles.Underdog or
             CustomRoles.Inhibitor or
+            CustomRoles.Cantankerous or
+            CustomRoles.Duellist or
+            CustomRoles.YinYanger or
             CustomRoles.Consort or
             CustomRoles.Mafioso or
             CustomRoles.Nullifier or
@@ -1212,6 +1218,7 @@ internal static class CustomRolesHelper
         if (role is CustomRoles.Egoist && pc.GetCustomRole().IsCrewmate() && !Options.CrewCanBeEgoist.GetBool() || pc.Is(CustomRoles.GuardianAngelTOHE)) return false;
         if (role is CustomRoles.TicketsStealer or CustomRoles.Mimic or CustomRoles.Swift or CustomRoles.DeadlyQuota or CustomRoles.Damocles or CustomRoles.Mare && !pc.GetCustomRole().IsImpostor()) return false;
         if (role is CustomRoles.TicketsStealer or CustomRoles.Swift or CustomRoles.DeadlyQuota or CustomRoles.Damocles or CustomRoles.Mare && (pc.Is(CustomRoles.Bomber) || pc.Is(CustomRoles.Nuker) || pc.Is(CustomRoles.BoobyTrap) || pc.Is(CustomRoles.Capitalism))) return false;
+        if (role is CustomRoles.Damocles && (pc.GetCustomRole() is CustomRoles.Bomber or CustomRoles.Nuker or CustomRoles.SerialKiller or CustomRoles.Cantankerous)) return false;
         if (role is CustomRoles.Damocles && pc.Is(CustomRoles.SerialKiller)) return false;
         if (role is CustomRoles.Necroview && pc.Is(CustomRoles.Visionary)) return false;
         if (role is CustomRoles.Ghoul && pc.Is(CustomRoles.Lazy)) return false;

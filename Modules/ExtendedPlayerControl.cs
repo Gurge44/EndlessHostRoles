@@ -465,6 +465,9 @@ static class ExtendedPlayerControl
             CustomRoles.RiftMaker => true,
             CustomRoles.Hitman => true,
             CustomRoles.Inhibitor => true,
+            CustomRoles.Cantankerous => true,
+            CustomRoles.YinYanger => true,
+            CustomRoles.Duellist => true,
             CustomRoles.Consort => true,
             CustomRoles.Mafioso => true,
             CustomRoles.Chronomancer => true,
@@ -579,6 +582,9 @@ static class ExtendedPlayerControl
             CustomRoles.Chronomancer => pc.IsAlive(),
             CustomRoles.Mafioso => pc.IsAlive(),
             CustomRoles.Consort => pc.IsAlive(),
+            CustomRoles.Duellist => pc.IsAlive(),
+            CustomRoles.YinYanger => pc.IsAlive(),
+            CustomRoles.Cantankerous => pc.IsAlive() && Cantankerous.CanUseKillButton,
             CustomRoles.Inhibitor => !Utils.IsActive(SystemTypes.Electrical) && !Utils.IsActive(SystemTypes.Laboratory) && !Utils.IsActive(SystemTypes.Comms) && !Utils.IsActive(SystemTypes.LifeSupp) && !Utils.IsActive(SystemTypes.Reactor),
             CustomRoles.Saboteur => Utils.IsActive(SystemTypes.Electrical) || Utils.IsActive(SystemTypes.Laboratory) || Utils.IsActive(SystemTypes.Comms) || Utils.IsActive(SystemTypes.LifeSupp) || Utils.IsActive(SystemTypes.Reactor),
             CustomRoles.Sniper => Sniper.CanUseKillButton(pc),
@@ -899,6 +905,9 @@ static class ExtendedPlayerControl
                 break;
             case CustomRoles.Inhibitor:
                 Main.AllPlayerKillCooldown[player.PlayerId] = Options.InhibitorCDAfterMeetings.GetFloat();
+                break;
+            case CustomRoles.YinYanger:
+                YinYanger.SetKillCooldown(player.PlayerId);
                 break;
             case CustomRoles.Mafioso:
                 Mafioso.SetKillCooldown(player.PlayerId);
@@ -1255,8 +1264,6 @@ static class ExtendedPlayerControl
         //Used for TOHE's pre-kill judgment
 
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat) return;
-
-        target.SetRealKiller(killer);
 
         if (killer.PlayerId == target.PlayerId && killer.shapeshifting)
         {

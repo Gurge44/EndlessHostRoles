@@ -84,8 +84,15 @@ internal class CustomRoleSelector
             object cr = list[i1];
             CustomRoles role = (CustomRoles)Enum.Parse(typeof(CustomRoles), cr.ToString());
             if (role.IsVanilla() || role.IsAdditionRole()) continue;
-            if (role is CustomRoles.DarkHide && (MapNames)Main.NormalOptions.MapId == MapNames.Fungle) continue;
-            if (role is CustomRoles.GM or CustomRoles.NotAssigned) continue;
+            switch (role)
+            {
+                case CustomRoles.DarkHide when (MapNames)Main.NormalOptions.MapId == MapNames.Fungle:
+                case CustomRoles.Pelican when roleList.Contains(CustomRoles.Duellist):
+                case CustomRoles.Duellist when roleList.Contains(CustomRoles.Pelican):
+                case CustomRoles.GM:
+                case CustomRoles.NotAssigned:
+                    continue;
+            }
             for (int i = 0; i < role.GetCount(); i++)
                 roleList.Add(role);
         }
@@ -99,7 +106,6 @@ internal class CustomRoleSelector
                 if (role.IsImpostor()) ImpOnList.Add(role);
                 else if (role.IsNonNK()) NonNeutralKillingOnList.Add(role);
                 else if (role.IsNK()) NeutralKillingOnList.Add(role);
-                // else if (role.IsCoven()) CovenOnList.Add(role);
                 else roleOnList.Add(role);
             }
         }
@@ -112,7 +118,6 @@ internal class CustomRoleSelector
                 if (role.IsImpostor()) ImpRateList.Add(role);
                 else if (role.IsNonNK()) NonNeutralKillingRateList.Add(role);
                 else if (role.IsNK()) NeutralKillingRateList.Add(role);
-                // else if (role.IsCoven()) CovenRateList.Add(role);
                 else roleRateList.Add(role);
             }
         }
@@ -124,7 +129,7 @@ internal class CustomRoleSelector
             ImpOnList.Remove(select);
             rolesToAssign.Add(select);
             readyRoleNum++;
-            Logger.Info(select.ToString() + " joins the mole role waiting list (priority)", "CustomRoleSelector");
+            Logger.Info(select.ToString() + " joins the impostor role waiting list (priority)", "CustomRoleSelector");
             if (readyRoleNum >= playerCount) goto EndOfAssign;
             if (readyRoleNum >= optImpNum) break;
         }
@@ -137,7 +142,7 @@ internal class CustomRoleSelector
                 ImpRateList.Remove(select);
                 rolesToAssign.Add(select);
                 readyRoleNum++;
-                Logger.Info(select.ToString() + " added to the role waiting list", "CustomRoleSelector");
+                Logger.Info(select.ToString() + " added to the impostor role waiting list", "CustomRoleSelector");
                 if (readyRoleNum >= playerCount) goto EndOfAssign;
                 if (readyRoleNum >= optImpNum) break;
             }
@@ -252,30 +257,34 @@ internal class CustomRoleSelector
             }
         }
 
-    // 职业抽取结束
     EndOfAssign:
 
-        // 隐藏职业
-        {
-            if (rd.Next(0, 100) < Options.SunnyboyChance.GetInt() && rolesToAssign.Remove(CustomRoles.Jester)) rolesToAssign.Add(CustomRoles.Sunnyboy);
-        }
-        {
-            if (rd.Next(0, 100) < Sans.BardChance.GetInt() && rolesToAssign.Remove(CustomRoles.Sans)) rolesToAssign.Add(CustomRoles.Bard);
-        }
-        {
-            if (rd.Next(0, 100) < Options.NukerChance.GetInt() && rolesToAssign.Remove(CustomRoles.Bomber)) rolesToAssign.Add(CustomRoles.Nuker);
-        }
+        if (rd.Next(0, 100) < Options.SunnyboyChance.GetInt() && rolesToAssign.Remove(CustomRoles.Jester)) rolesToAssign.Add(CustomRoles.Sunnyboy);
+        if (rd.Next(0, 100) < Sans.BardChance.GetInt() && rolesToAssign.Remove(CustomRoles.Sans)) rolesToAssign.Add(CustomRoles.Bard);
+        if (rd.Next(0, 100) < Options.NukerChance.GetInt() && rolesToAssign.Remove(CustomRoles.Bomber)) rolesToAssign.Add(CustomRoles.Nuker);
+
 
         if (Romantic.IsEnable)
         {
-            if (rolesToAssign.Contains(CustomRoles.Romantic))
+            if (rolesToAssign.Contains(CustomRoles.Romantic) && rolesToAssign.Contains(CustomRoles.Lovers))
+                rolesToAssign.Remove(CustomRoles.Lovers);
+        }
+
+        if (rolesToAssign.Contains(CustomRoles.Duellist) && rolesToAssign.Contains(CustomRoles.Pelican))
+        {
+            var x = IRandom.Instance.Next(0, 2);
+            if (x == 0)
             {
-                if (rolesToAssign.Contains(CustomRoles.Lovers))
-                    rolesToAssign.Remove(CustomRoles.Lovers);
+                rolesToAssign.Remove(CustomRoles.Duellist);
+                rolesToAssign
+            }
+            else
+            {
+                rolesToAssign.Remove(CustomRoles.Pelican);
             }
         }
 
-        // EAC封禁名单玩家开房将被分配为小丑
+        // Players on the EAC banned list will be assigned as jester when opening rooms
         if (BanManager.CheckEACList(PlayerControl.LocalPlayer.FriendCode))
         {
             if (!rolesToAssign.Contains(CustomRoles.Jester))
