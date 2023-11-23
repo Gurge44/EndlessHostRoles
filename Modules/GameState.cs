@@ -253,6 +253,7 @@ public class PlayerState(byte playerId)
         Infected,
         Jinx,
         Demolished,
+        YinYanged,
         Hack,
 
         etc = -1,
@@ -539,11 +540,7 @@ public class TaskState
                 RPC.PlaySoundRPC(player.PlayerId, Sounds.KillSound);
                 foreach (var pc in Main.AllAlivePlayerControls.Where(pc => pc.PlayerId != player.PlayerId).ToArray())
                 {
-                    Main.PlayerStates[pc.PlayerId].deathReason = pc.PlayerId == player.PlayerId ?
-                                            PlayerState.DeathReason.Overtired : PlayerState.DeathReason.Ashamed;
-                    pc.Kill(pc);
-                    Main.PlayerStates[pc.PlayerId].SetDead();
-                    pc.SetRealKiller(player);
+                    pc.Suicide(pc.PlayerId == player.PlayerId ? PlayerState.DeathReason.Overtired : PlayerState.DeathReason.Ashamed, player);
                 }
 
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Workaholic);

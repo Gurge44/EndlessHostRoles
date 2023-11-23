@@ -82,7 +82,6 @@ public static class Pursuer
         pc.SetKillCooldown();
         pc.RPCPlayCustomSound("Bet");
         Utils.NotifyRoles(SpecifySeer: pc);
-        Logger.Info($"赝品商 {pc.GetRealName()} 将赝品卖给了 {target.GetRealName()}", "Pursuer");
     }
     public static bool OnClientMurder(PlayerControl pc)
     {
@@ -92,14 +91,16 @@ public static class Pursuer
             if (cf.Value.Contains(pc.PlayerId)) cfId = cf.Key;
         if (cfId == byte.MaxValue) return false;
         var killer = Utils.GetPlayerById(cfId);
-        var target = pc;
         if (killer == null) return false;
-        target.SetRealKiller(killer);
-        target.Data.IsDead = true;
-        Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Misfire;
-        target.Kill(target);
-        Main.PlayerStates[target.PlayerId].SetDead();
-        Logger.Info($"赝品商 {pc.GetRealName()} 的客户 {target.GetRealName()} 因使用赝品走火自杀", "Pursuer");
+
+        // Get rid of this nonsense of killing the player for no reason
+        // Just reset their KCD instead
+        pc.SetKillCooldown();
+
+        pc.Notify(Translator.GetString("ShotBlank"));
+        clientList[cfId].Remove(pc.PlayerId);
+        notActiveList.Add(pc.PlayerId);
+
         return true;
     }
     public static void OnReportDeadBody()
@@ -121,7 +122,6 @@ public static class Pursuer
                     if (killer == null) continue;
                     CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Misfire, target.PlayerId);
                     target.SetRealKiller(Utils.GetPlayerById(pc));
-                    Logger.Info($"赝品商 {killer.GetRealName()} 的客户 {target.GetRealName()} 因不带刀自杀", "Pursuer");
                 }
             }
         }

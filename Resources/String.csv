@@ -1739,7 +1739,8 @@
 "DeathReason.Trialed","审判","Judged","Засужен","審判","审判"
 "DeathReason.Infected","感染","Infected","Заражён","",""
 "DeathReason.Jinx","厄杀","Jinxed","Сглазил","",""
-"DeathReason.Demolished","厄杀","Demolished","Сглазил","",""
+"DeathReason.Demolished","","Demolished","","",""
+"DeathReason.YinYanged","","Yin Yanged","","",""
 "DeathReason.etc","其它","Other","Другое","其他","其它"
 
 "DeathReason.Hack","黑客入侵","Hacked","","",""
@@ -1903,7 +1904,8 @@
 "GuessDoctor","对不起，你猜测不到一个已经暴露的法医，因为这不公平","Sorry, you can't guess a revealed Doctor as that would be unfair.","Извините, вы не можете угадать раскрытого Доктора, так как это было бы несправедливо.","",""
 "GuessMayor","对不起，你猜不到一个已经暴露的市长，因为这不公平","Sorry, you can't guess a revealed Mayor as that would be unfair.","Извините, вы не можете угадать раскрытого Мэра, так как это было бы несправедливо.","",""
 "GuessKnighted","对不起，君主们猜不出是骑士","Sorry, Monarchs cannot guess Knighted.","Извините, Монарх не может угадать Рыцарей","",""
-"GuessMonarch","有一位被封为骑士的玩家还活着，所以无法猜测这位君主","There's a knighted player alive, so the Monarch cannot be guessed.","Извините, Рыцари не могут угадать Монарха","",""
+"ShotBlank","","You shot a blank!","","",""
+"GuessMonarch","有一位被封为骑士的玩家还活着，所以无法猜测这位君主","You're knighted, so you cannot guess the Monarch.","Извините, Рыцари не могут угадать Монарха","",""
 "GuessShielded","抱歉，你猜不死被医生保护了的玩家","Sorry, you can't guess the player who is shielded by Medic","К сожалению, вы не можете угадать игрока, которого защищает Медик.","",""
 "MayorRevealWhenDoneTasks","<color=#204d42>市长</color>在任务完成时向所有人透露","<color=#204d42>Mayor</color> is revealed to everyone on task completion","<color=#204d42>Мэр</color> может расскрыться всем после выполненных заданий","",""
 "JudgeDead","很抱歉，死亡后不能进行审判","Sorry, you can't trial after death.","Нету судьи - нету суда!","很抱歉，死亡後不能進行審判","很抱歉，死亡后不能进行审判"
@@ -2616,7 +2618,7 @@
 "## Duellist"
 "Duellist","","Duellist","","",""
 "DuellistInfo","","Duel with Players","","",""
-"DuellistInfoLong","","(Impostors):\As the Duellist, you can shapeshift into someone to teleport them and you next to each other outside the map. You will both be there until the next meeting.","","",""
+"DuellistInfoLong","","(Impostors):\As the Duellist, you can shapeshift into someone to teleport them and you next to each other outside the map. You will both be there until one of you die.","","",""
 "Duellist","","Duellist","","",""
 "TargetCannotBeTeleported","","Target cannot be teleported","","",""
 

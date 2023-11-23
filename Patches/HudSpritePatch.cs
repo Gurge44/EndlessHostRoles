@@ -51,6 +51,7 @@ public static class HudSpritePatch
         if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts) goto EndOfSelectImg;
 
         if (!Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId))
+        {
             switch (player.GetCustomRole())
             {
                 case CustomRoles.Assassin:
@@ -117,6 +118,9 @@ public static class HudSpritePatch
                     break;
                 case CustomRoles.Deputy:
                     newKillButton = CustomButton.Get("Handcuff");
+                    break;
+                case CustomRoles.Pursuer:
+                    newKillButton = CustomButton.Get("Pursuer");
                     break;
                 case CustomRoles.Alchemist:
                     if (Options.UsePets.GetBool())
@@ -284,8 +288,9 @@ public static class HudSpritePatch
                     }
                     break;
             }
+        }
 
-        EndOfSelectImg:
+    EndOfSelectImg:
 
         __instance.KillButton.graphic.sprite = newKillButton;
         __instance.AbilityButton.graphic.sprite = newAbilityButton;

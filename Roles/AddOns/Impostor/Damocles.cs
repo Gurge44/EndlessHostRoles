@@ -63,10 +63,7 @@ namespace TOHE.Roles.AddOns.Impostor
             if (Timer < 0)
             {
                 Timer = 0;
-                Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
-                pc.SetRealKiller(pc);
-                pc.Kill(pc);
-                Main.PlayerStates[pc.PlayerId].SetDead();
+                pc.Suicide();
             }
 
             if (pc.IsModClient() && pc.PlayerId != 0) SendRPC();

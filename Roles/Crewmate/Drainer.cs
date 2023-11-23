@@ -107,10 +107,7 @@ namespace TOHE.Roles.Crewmate
                     venter.MyPhysics?.RpcBootFromVent(ventId);
                     _ = new LateTask(() =>
                     {
-                        venter.SetRealKiller(pc);
-                        venter.Kill(venter);
-                        Main.PlayerStates[venter.PlayerId].SetDead();
-                        Main.PlayerStates[venter.PlayerId].deathReason = PlayerState.DeathReason.Demolished;
+                        pc.Suicide(PlayerState.DeathReason.Demolished, pc);
                     }, 0.55f, "Drainer-KillPlayerInVent");
                 }
             }

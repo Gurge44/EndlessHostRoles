@@ -88,27 +88,29 @@ class ExileControllerWrapUpPatch
             }
             else
             {
+                Cantankerous.OnCrewmateEjected();
                 Mafioso.OnCrewmateEjected();
                 Damocles.OnCrewmateEjected();
             }
 
-            //判断小丑胜利 (EAC封禁名单成为小丑达成胜利条件无法胜利)
-            if (role == CustomRoles.Jester)
+            switch (role)
             {
-                if (DecidedWinner) CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Jester);
-                else CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Jester);
-                CustomWinnerHolder.WinnerIds.Add(exiled.PlayerId);
-                DecidedWinner = true;
+                case CustomRoles.Jester:
+                    if (DecidedWinner) CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Jester);
+                    else CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Jester);
+                    CustomWinnerHolder.WinnerIds.Add(exiled.PlayerId);
+                    DecidedWinner = true;
+                    break;
+                case CustomRoles.Terrorist:
+                    Utils.CheckTerroristWin(exiled);
+                    break;
+                case CustomRoles.Devourer:
+                    Devourer.OnDevourerDied(exiled.PlayerId);
+                    break;
             }
 
-            //判断处刑人胜利
             if (Executioner.CheckExileTarget(exiled, DecidedWinner)) DecidedWinner = true;
             if (Lawyer.CheckExileTarget(exiled/*, DecidedWinner*/)) DecidedWinner = false;
-
-            //判断恐怖分子胜利
-            if (role == CustomRoles.Terrorist) Utils.CheckTerroristWin(exiled);
-
-            if (role == CustomRoles.Devourer) Devourer.OnDevourerDied(exiled.PlayerId);
 
             if (CustomWinnerHolder.WinnerTeam != CustomWinner.Terrorist) Main.PlayerStates[exiled.PlayerId].SetDead();
         }
@@ -118,18 +120,14 @@ class ExileControllerWrapUpPatch
         Witch.RemoveSpelledPlayer();
         HexMaster.RemoveHexedPlayer();
 
-
         if (NiceSwapper.Vote.Any() && NiceSwapper.VoteTwo.Any())
         {
-            foreach (PlayerControl swapper in Main.AllAlivePlayerControls)
+            foreach (var swapper in Main.AllAlivePlayerControls.Where(swapper => swapper.Is(CustomRoles.NiceSwapper)).ToArray())
             {
-                if (swapper.Is(CustomRoles.NiceSwapper))
-                {
-                    NiceSwapper.NiceSwappermax[swapper.PlayerId]--;
-                    NiceSwapper.Vote.Clear();
-                    NiceSwapper.VoteTwo.Clear();
-                    Main.NiceSwapSend = false;
-                }
+                NiceSwapper.NiceSwappermax[swapper.PlayerId]--;
+                NiceSwapper.Vote.Clear();
+                NiceSwapper.VoteTwo.Clear();
+                Main.NiceSwapSend = false;
             }
         }
 

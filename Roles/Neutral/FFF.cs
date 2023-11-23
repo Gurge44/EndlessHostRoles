@@ -95,10 +95,7 @@ namespace TOHE.Roles.Neutral
                 target.Data.IsDead = true;
                 Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Misfire;
             }
-            killer.Data.IsDead = true;
-            Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
-            killer.Kill(killer);
-            Main.PlayerStates[killer.PlayerId].SetDead();
+            killer.Suicide(PlayerState.DeathReason.Sacrifice);
             Logger.Info($"{killer.GetRealName()} killed incorrect target => misfire", "FFF");
             return false;
         }

@@ -251,7 +251,7 @@ public static class GuessManager
                         if (!isUI) Utils.SendMessage(GetString("GuessDoctor"), pc.PlayerId);
                         else pc.ShowPopUp(GetString("GuessDoctor"));
                         return true;
-                    case CustomRoles.Monarch when role == CustomRoles.Monarch && CustomRoles.Knighted.RoleExist():
+                    case CustomRoles.Monarch when role == CustomRoles.Monarch && pc.Is(CustomRoles.Knighted):
                         if (!isUI) Utils.SendMessage(GetString("GuessMonarch"), pc.PlayerId);
                         else pc.ShowPopUp(GetString("GuessMonarch"));
                         return true;

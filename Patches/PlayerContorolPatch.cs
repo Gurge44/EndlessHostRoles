@@ -183,7 +183,7 @@ class CheckMurderPatch
 
         //実際のキラーとkillerが違う場合の入れ替え処理
         if (Sniper.IsEnable) Sniper.TryGetSniper(target.PlayerId, ref killer);
-        if (killer != __instance) Logger.Info($"Real Killer={killer.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
+        if (killer != __instance) Logger.Info($"Real Killer: {killer.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
 
         //鹈鹕肚子里的人无法击杀
         if (Pelican.IsEaten(target.PlayerId))
@@ -225,6 +225,9 @@ class CheckMurderPatch
                     return false;
                 case CustomRoles.WeaponMaster:
                     if (!WeaponMaster.OnCheckMurder(killer, target)) return false;
+                    break;
+                case CustomRoles.Cantankerous:
+                    if (Cantankerous.OnCheckMurder(killer)) return false;
                     break;
                 case CustomRoles.Postman:
                     Postman.OnCheckMurder(killer, target);
@@ -383,10 +386,7 @@ class CheckMurderPatch
                             {
                                 _ = new LateTask(() =>
                                 {
-                                    Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
-                                    Main.PlayerStates[killer.PlayerId].SetDead();
-                                    killer.SetRealKiller(killer);
-                                    killer.Kill(killer);
+                                    killer.Suicide(PlayerState.DeathReason.Suicide);
                                 }, 1.5f, "Puppeteer Max Uses Reached => Suicide");
                             }
                             else killer.Notify(string.Format(GetString("PuppeteerUsesRemaining"), usesLeft - 1));
@@ -405,10 +405,7 @@ class CheckMurderPatch
                         {
                             _ = new LateTask(() =>
                             {
-                                Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
-                                Main.PlayerStates[killer.PlayerId].SetDead();
-                                killer.SetRealKiller(killer);
-                                killer.Kill(killer);
+                                killer.Suicide(PlayerState.DeathReason.Suicide);
                             }, 1.5f, "Puppeteer Max Uses Reached => Suicide");
                         }
                         else killer.Notify(string.Format(GetString("PuppeteerUsesRemaining"), usesLeft - 1));
@@ -668,9 +665,7 @@ class CheckMurderPatch
             if (!target.Is(CustomRoles.Pestilence))
             {
                 TP(target.NetTransform, Pelican.GetBlackRoomPS());
-                target.SetRealKiller(killer);
-                Main.PlayerStates[target.PlayerId].SetDead();
-                target.Kill(target);
+                target.Suicide(PlayerState.DeathReason.Kill, killer);
                 killer.SetKillCooldown();
                 RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
                 NameNotifyManager.Notify(target, ColorString(GetRoleColor(CustomRoles.Scavenger), GetString("KilledByScavenger")));
@@ -851,7 +846,7 @@ class CheckMurderPatch
                 break;
             case CustomRoles.Guardian when target.AllTasksCompleted():
                 return false;
-            case CustomRoles.Monarch when CustomRoles.Knighted.RoleExist():
+            case CustomRoles.Monarch when killer.Is(CustomRoles.Knighted):
                 return false;
             case CustomRoles.WeaponMaster when WeaponMaster.OnAttack(killer, target):
             case CustomRoles.Gambler when Gambler.isShielded.ContainsKey(target.PlayerId):
@@ -1852,6 +1847,7 @@ class ReportDeadBodyPatch
         if (PlagueDoctor.IsEnable) PlagueDoctor.OnReportDeadBody();
         if (Penguin.IsEnable) Penguin.OnReportDeadBody();
         if (Sapper.IsEnable) Sapper.OnReportDeadBody();
+        if (Pursuer.IsEnable) Pursuer.OnReportDeadBody();
         if (Chronomancer.IsEnable) Chronomancer.OnReportDeadBody();
         if (Magician.IsEnable) Magician.OnReportDeadBody();
         if (Drainer.IsEnable) Drainer.OnReportDeadBody();
@@ -2305,6 +2301,7 @@ class FixedUpdatePatch
                 }
             }
 
+            if (!lowLoad) Duellist.OnFixedUpdate();
 
             if (GameStates.IsInTask && Agitater.IsEnable && Agitater.AgitaterHasBombed && Agitater.CurrentBombedPlayer == player.PlayerId)
             {
@@ -2479,16 +2476,10 @@ class FixedUpdatePatch
                             GetDrawPlayerCount(player.PlayerId, out var y);
                             foreach (var pc in y.Where(x => x != null && x.IsAlive()))
                             {
-                                pc.Data.IsDead = true;
-                                Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
-                                pc.Kill(pc);
-                                Main.PlayerStates[pc.PlayerId].SetDead();
+                                pc.Suicide(PlayerState.DeathReason.Sacrifice);
                                 NotifyRoles(SpecifySeer: pc);
                             }
-                            player.Data.IsDead = true;
-                            Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
-                            player.Kill(player);
-                            Main.PlayerStates[player.PlayerId].SetDead();
+                            player.Suicide(PlayerState.DeathReason.Sacrifice);
                         }
                         else
                         {
@@ -3020,6 +3011,9 @@ class FixedUpdatePatch
                         case CustomRoles.Druid when !seer.IsModClient():
                             Suffix.Append(Druid.GetSuffixText(seer.PlayerId));
                             break;
+                        case CustomRoles.YinYanger when !seer.IsModClient():
+                            Suffix.Append(YinYanger.ModeText);
+                            break;
                     }
                 }
 
@@ -3475,10 +3469,7 @@ class CoEnterVentPatch
                 {
                     if (pc != __instance.myPlayer)
                     {
-                        pc.SetRealKiller(__instance.myPlayer);
-                        Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Torched;
-                        pc.Kill(pc);
-                        Main.PlayerStates[pc.PlayerId].SetDead();
+                        pc.Suicide(PlayerState.DeathReason.Torched, __instance.myPlayer);
                     }
                 }
                 foreach (PlayerControl pc in Main.AllPlayerControls)
@@ -3501,10 +3492,7 @@ class CoEnterVentPatch
                         if (!__instance.myPlayer.IsDousedPlayer(pc))
                             continue;
                         pc.KillFlash();
-                        pc.SetRealKiller(__instance.myPlayer);
-                        Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Torched;
-                        pc.Kill(pc);
-                        Main.PlayerStates[pc.PlayerId].SetDead();
+                        pc.Suicide(PlayerState.DeathReason.Torched, __instance.myPlayer);
                     }
                     var apc = Main.AllAlivePlayerControls.Length;
                     if (apc == 1)

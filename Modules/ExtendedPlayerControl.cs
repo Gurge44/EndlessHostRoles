@@ -188,16 +188,25 @@ static class ExtendedPlayerControl
             sender.SendMessage();
         }
     }
-    public static void SetKillCooldownV2(this PlayerControl player, float time = -1f)
+    //public static void SetKillCooldownV2(this PlayerControl player, float time = -1f)
+    //{
+    //    if (player == null) return;
+    //    if (!player.CanUseKillButton()) return;
+    //    if (time >= 0f) Main.AllPlayerKillCooldown[player.PlayerId] = time * 2;
+    //    else Main.AllPlayerKillCooldown[player.PlayerId] *= 2;
+    //    player.SyncSettings();
+    //    player.RpcGuardAndKill();
+    //    player.ResetKillCooldown();
+    //}
+
+    public static void Suicide(this PlayerControl pc, PlayerState.DeathReason deathReason = PlayerState.DeathReason.Suicide, PlayerControl realKiller = null)
     {
-        if (player == null) return;
-        if (!player.CanUseKillButton()) return;
-        if (time >= 0f) Main.AllPlayerKillCooldown[player.PlayerId] = time * 2;
-        else Main.AllPlayerKillCooldown[player.PlayerId] *= 2;
-        player.SyncSettings();
-        player.RpcGuardAndKill();
-        player.ResetKillCooldown();
+        Main.PlayerStates[pc.PlayerId].SetDead();
+        Main.PlayerStates[pc.PlayerId].deathReason = deathReason;
+        if (realKiller != null) pc.SetRealKiller(realKiller);
+        pc.Kill(pc);
     }
+
     public static void SetKillCooldown(this PlayerControl player, float time = -1f, PlayerControl target = null, bool forceAnime = false)
     {
         if (player == null) return;
@@ -229,32 +238,32 @@ static class ExtendedPlayerControl
         }
         if (player.GetCustomRole() is not CustomRoles.Inhibitor and not CustomRoles.Saboteur) player.ResetKillCooldown();
     }
-    public static void SetKillCooldownV3(this PlayerControl player, float time = -1f, PlayerControl target = null, bool forceAnime = false)
-    {
-        if (player == null) return;
-        if (!player.CanUseKillButton()) return;
-        if (target == null) target = player;
-        if (time >= 0f) Main.AllPlayerKillCooldown[player.PlayerId] = time * 2;
-        else Main.AllPlayerKillCooldown[player.PlayerId] *= 2;
-        if (forceAnime || !player.IsModClient() || !Options.DisableShieldAnimations.GetBool())
-        {
-            player.SyncSettings();
-            player.RpcGuardAndKill(target, 11);
-        }
-        else
-        {
-            time = Main.AllPlayerKillCooldown[player.PlayerId] / 2;
-            if (player.AmOwner) PlayerControl.LocalPlayer.SetKillTimer(time);
-            else
-            {
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetKillTimer, SendOption.Reliable, player.GetClientId());
-                writer.Write(time);
-                AmongUsClient.Instance.FinishRpcImmediately(writer);
-            }
-            Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Observer) && target.PlayerId != x.PlayerId).Do(x => x.RpcGuardAndKill(target, 11, true));
-        }
-        player.ResetKillCooldown();
-    }
+    //public static void SetKillCooldownV3(this PlayerControl player, float time = -1f, PlayerControl target = null, bool forceAnime = false)
+    //{
+    //    if (player == null) return;
+    //    if (!player.CanUseKillButton()) return;
+    //    if (target == null) target = player;
+    //    if (time >= 0f) Main.AllPlayerKillCooldown[player.PlayerId] = time * 2;
+    //    else Main.AllPlayerKillCooldown[player.PlayerId] *= 2;
+    //    if (forceAnime || !player.IsModClient() || !Options.DisableShieldAnimations.GetBool())
+    //    {
+    //        player.SyncSettings();
+    //        player.RpcGuardAndKill(target, 11);
+    //    }
+    //    else
+    //    {
+    //        time = Main.AllPlayerKillCooldown[player.PlayerId] / 2;
+    //        if (player.AmOwner) PlayerControl.LocalPlayer.SetKillTimer(time);
+    //        else
+    //        {
+    //            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetKillTimer, SendOption.Reliable, player.GetClientId());
+    //            writer.Write(time);
+    //            AmongUsClient.Instance.FinishRpcImmediately(writer);
+    //        }
+    //        Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Observer) && target.PlayerId != x.PlayerId).Do(x => x.RpcGuardAndKill(target, 11, true));
+    //    }
+    //    player.ResetKillCooldown();
+    //}
     public static void RpcSpecificMurderPlayer(this PlayerControl killer, PlayerControl target = null)
     {
         if (target == null) target = killer;
@@ -584,7 +593,7 @@ static class ExtendedPlayerControl
             CustomRoles.Consort => pc.IsAlive(),
             CustomRoles.Duellist => pc.IsAlive(),
             CustomRoles.YinYanger => pc.IsAlive(),
-            CustomRoles.Cantankerous => pc.IsAlive() && Cantankerous.CanUseKillButton,
+            CustomRoles.Cantankerous => pc.IsAlive() && Cantankerous.CanUseKillButton(pc.PlayerId),
             CustomRoles.Inhibitor => !Utils.IsActive(SystemTypes.Electrical) && !Utils.IsActive(SystemTypes.Laboratory) && !Utils.IsActive(SystemTypes.Comms) && !Utils.IsActive(SystemTypes.LifeSupp) && !Utils.IsActive(SystemTypes.Reactor),
             CustomRoles.Saboteur => Utils.IsActive(SystemTypes.Electrical) || Utils.IsActive(SystemTypes.Laboratory) || Utils.IsActive(SystemTypes.Comms) || Utils.IsActive(SystemTypes.LifeSupp) || Utils.IsActive(SystemTypes.Reactor),
             CustomRoles.Sniper => Sniper.CanUseKillButton(pc),

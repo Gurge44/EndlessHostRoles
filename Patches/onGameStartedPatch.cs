@@ -306,6 +306,8 @@ internal class ChangeRoleSettings
             Jinx.Init();
             DoubleShot.Init();
             Dazzler.Init();
+            Cantankerous.Init();
+            Duellist.Init();
             Druid.Init();
             GuessManagerRole.Init();
             FFF.Init();
@@ -923,8 +925,11 @@ internal class SelectRolesPatch
                     case CustomRoles.Dazzler:
                         Dazzler.Add(pc.PlayerId);
                         break;
-                    case CustomRoles.GuessManager:
-                        GuessManagerRole.Add(pc.PlayerId);
+                    case CustomRoles.Cantankerous:
+                        Cantankerous.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Duellist:
+                        Duellist.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Druid:
                         Druid.Add(pc.PlayerId);
@@ -973,6 +978,9 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Vulture:
                         Vulture.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.GuessManager:
+                        GuessManagerRole.Add(pc.PlayerId);
                         break;
                     case CustomRoles.PlagueBearer:
                         PlagueBearer.Add(pc.PlayerId);

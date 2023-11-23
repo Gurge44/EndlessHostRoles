@@ -464,6 +464,7 @@ class HudManagerPatch
                             CustomRoles.Wildling => Wildling.GetHudText(player),
                             CustomRoles.Doormaster => Doormaster.GetHudText(player),
                             CustomRoles.Tether => Tether.GetHudText(player),
+                            CustomRoles.YinYanger => YinYanger.ModeText,
                             CustomRoles.WeaponMaster => WeaponMaster.GetHudAndProgressText(),
                             CustomRoles.Postman => Postman.GetHudText(player),
                             CustomRoles.Chronomancer => Chronomancer.GetHudText(),

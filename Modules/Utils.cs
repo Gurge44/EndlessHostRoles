@@ -1853,10 +1853,7 @@ public static class Utils
                 }
                 else if (!pc.Data.IsDead)
                 {
-                    pc.SetRealKiller(Terrorist.Object);
-                    pc.Kill(pc);
-                    Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
-                    Main.PlayerStates[pc.PlayerId].SetDead();
+                    pc.Suicide(PlayerState.DeathReason.Bombed, Terrorist.Object);
                 }
             }
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Terrorist);
@@ -2019,6 +2016,9 @@ public static class Utils
                             break;
                         case CustomRoles.Vulture when Vulture.ArrowsPointingToDeadBody.GetBool():
                             SelfSuffix.Append(Vulture.GetTargetArrow(seer));
+                            break;
+                        case CustomRoles.YinYanger when !seer.IsModClient():
+                            SelfSuffix.Append(YinYanger.ModeText);
                             break;
                         case CustomRoles.FireWorks:
                             SelfSuffix.Append(FireWorks.GetStateText(seer));

@@ -58,6 +58,8 @@ enum CustomRPC
 
     //Roles
     SetDrawPlayer,
+    SyncCantankerousLimit,
+    SyncDuellistTarget,
     SetDruidLimit,
     DruidSyncLastUpdate,
     DruidRemoveTrigger,
@@ -706,6 +708,9 @@ internal class RPCHandlerPatch
             case CustomRPC.SetEscortLimit:
                 Escort.ReceiveRPC(reader);
                 break;
+            case CustomRPC.SyncDuellistTarget:
+                Duellist.ReceiveRPC(reader);
+                break;
             case CustomRPC.SyncMafiosoData:
                 Mafioso.ReceiveRPC(reader);
                 break;
@@ -817,6 +822,9 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SetJailorTarget:
                 Jailor.ReceiveRPC(reader, setTarget: true);
+                break;
+            case CustomRPC.SyncCantankerousLimit:
+                Cantankerous.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetWWTimer:
                 Werewolf.ReceiveRPC(reader);
@@ -1428,6 +1436,12 @@ internal static class RPC
                 break;
             case CustomRoles.Dazzler:
                 Dazzler.Add(targetId);
+                break;
+            case CustomRoles.Duellist:
+                Duellist.Add(targetId);
+                break;
+            case CustomRoles.Cantankerous:
+                Cantankerous.Add(targetId);
                 break;
             case CustomRoles.Druid:
                 Druid.Add(targetId);

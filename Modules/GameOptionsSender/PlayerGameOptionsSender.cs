@@ -174,7 +174,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 AURoleOptions.ShapeshifterDuration = Options.EscapeeSSDuration.GetFloat();
                 break;
             case CustomRoles.Duellist:
-                Duellist.ApplyGameOptions(opt);
+                Duellist.ApplyGameOptions();
                 break;
             case CustomRoles.Sniper:
                 if (Options.UsePets.GetBool()) break;

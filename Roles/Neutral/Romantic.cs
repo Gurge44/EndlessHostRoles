@@ -192,11 +192,9 @@ public static class Romantic
 
         if (killer?.PlayerId == romanticId) // If the Romantic killed their partner, they also die
         {
+            if (!romantic.IsAlive()) return;
             Logger.Info("Romantic killed their own partner, Romantic suicides", "Romantic");
-            Main.PlayerStates[romanticId].deathReason = PlayerState.DeathReason.FollowingSuicide;
-            Main.PlayerStates[romanticId].SetDead();
-            romantic.SetRealKiller(partner);
-            romantic.Kill(romantic);
+            romantic.Suicide(PlayerState.DeathReason.FollowingSuicide, partner);
             return;
         }
         else if (partner.IsNeutralKiller() || killer == null || killer?.PlayerId == romanticId) // If partner is NK or died by themselves, Romantic becomes Ruthless Romantic
