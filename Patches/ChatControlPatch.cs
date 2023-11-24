@@ -4,6 +4,7 @@ using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TOHE.Roles.Impostor;
 using UnityEngine;
 
 namespace TOHE;
@@ -111,6 +112,11 @@ public class ChatManager
         else if (CheckCommand(ref message, "up", false)) operate = 2;
         else if (CheckCommand(ref message, "r|role|m|myrole|n|now")) operate = 4;
         else operate = 3;
+
+        if (Blackmailer.ForBlackmailer.Contains(player.PlayerId) && player.IsAlive())
+        {
+            cancel = true;
+        }
 
         switch (operate)
         {

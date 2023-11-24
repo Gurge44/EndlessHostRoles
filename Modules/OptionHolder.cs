@@ -1242,6 +1242,10 @@ public static class Options
 
         RoleLoadingText = "Impostor roles\nSniper";
         Sniper.SetupCustomOption();
+        RoleLoadingText = "Impostor roles\nDoppelganger";
+        Doppelganger.SetupCustomOption();
+        RoleLoadingText = "Impostor roles\nBlackmailer";
+        Blackmailer.SetupCustomOption();
         RoleLoadingText = "Impostor roles\nWitch";
         Witch.SetupCustomOption();
         RoleLoadingText = "Impostor roles\nUnderdog";

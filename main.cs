@@ -361,6 +361,7 @@ public class Main : BasePlugin
                 {CustomRoles.Druid, "#ffb694"},
                 {CustomRoles.Autocrat, "#e2ed64"},
                 {CustomRoles.Transmitter, "#c9a11e"},
+                {CustomRoles.Doppelganger,"#f6f4a3"},
                 {CustomRoles.Nightmare, "#1e1247"},
                 {CustomRoles.Altruist, "#300000"},
                 {CustomRoles.Benefactor, "#4aeaff"},
@@ -698,6 +699,7 @@ public enum CustomRoles
     EvilDiviner,
     Morphling,
     Twister,
+    Blackmailer,
     Lurker,
     Convict,
     Visionary,
@@ -854,6 +856,7 @@ public enum CustomRoles
     CursedSoul,
     //Pirate,
     Ritualist,
+    Doppelganger,
     Pickpocket,
     Traitor,
     Vulture,
@@ -1003,6 +1006,7 @@ public enum CustomWinner
     //Masochist = CustomRoles.Masochist,
     Doomsayer = CustomRoles.Doomsayer,
     RuthlessRomantic = CustomRoles.RuthlessRomantic,
+    Doppelganger = CustomRoles.Doppelganger,
     Imitator = CustomRoles.Imitator
 }
 public enum AdditionalWinners

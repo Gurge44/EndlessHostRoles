@@ -470,6 +470,7 @@ static class ExtendedPlayerControl
             CustomRoles.Mafia => true,
             CustomRoles.Underdog => true,
             CustomRoles.Mastermind => true,
+            CustomRoles.Doppelganger => true,
             CustomRoles.Gambler => true,
             CustomRoles.RiftMaker => true,
             CustomRoles.Hitman => true,
@@ -654,6 +655,7 @@ static class ExtendedPlayerControl
             CustomRoles.Assassin => Assassin.CanUseKillButton(pc),
             CustomRoles.Undertaker => Undertaker.CanUseKillButton(pc),
             CustomRoles.BloodKnight => pc.IsAlive(),
+            CustomRoles.Doppelganger => pc.IsAlive(),
             CustomRoles.Crewpostor => false,
             CustomRoles.Totocalcio => Totocalcio.CanUseKillButton(pc),
             CustomRoles.Romantic => pc.IsAlive(),
@@ -697,6 +699,7 @@ static class ExtendedPlayerControl
             CustomRoles.Totocalcio or
             CustomRoles.Romantic or
             CustomRoles.Succubus or
+            CustomRoles.Doppelganger or
             CustomRoles.CursedSoul or
             CustomRoles.PlagueBearer or
             CustomRoles.Admirer or
@@ -899,6 +902,9 @@ static class ExtendedPlayerControl
                 break;
             case CustomRoles.Morphling:
                 Morphling.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.Doppelganger:
+                Doppelganger.SetKillCooldown(player.PlayerId);
                 break;
             case CustomRoles.Ritualist:
                 Ritualist.SetKillCooldown(player.PlayerId);

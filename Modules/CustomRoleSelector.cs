@@ -270,20 +270,6 @@ internal class CustomRoleSelector
                 rolesToAssign.Remove(CustomRoles.Lovers);
         }
 
-        if (rolesToAssign.Contains(CustomRoles.Duellist) && rolesToAssign.Contains(CustomRoles.Pelican))
-        {
-            var x = IRandom.Instance.Next(0, 2);
-            if (x == 0)
-            {
-                rolesToAssign.Remove(CustomRoles.Duellist);
-                rolesToAssign
-            }
-            else
-            {
-                rolesToAssign.Remove(CustomRoles.Pelican);
-            }
-        }
-
         // Players on the EAC banned list will be assigned as jester when opening rooms
         if (BanManager.CheckEACList(PlayerControl.LocalPlayer.FriendCode))
         {

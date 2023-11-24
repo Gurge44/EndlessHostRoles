@@ -502,6 +502,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.NSerialKiller:
+            case CustomRoles.Doppelganger:
             case CustomRoles.PlagueDoctor:
             case CustomRoles.Postman:
             case CustomRoles.Reckless:
@@ -753,6 +754,9 @@ public static class Utils
                     break;
                 case CustomRoles.Cleanser:
                     ProgressText.Append(Cleanser.GetProgressText(playerId));
+                    break;
+                case CustomRoles.Doppelganger:
+                    ProgressText.Append(Doppelganger.GetStealLimit(playerId));
                     break;
                 case CustomRoles.SerialKiller:
                     if (SerialKiller.SuicideTimer.ContainsKey(playerId))
@@ -1973,6 +1977,7 @@ public static class Utils
                     SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Medic), " ●"));
                 if (Gamer.IsEnable) SelfMark.Append(Gamer.TargetMark(seer, seer));
                 if (Sniper.IsEnable) SelfMark.Append(Sniper.GetShotNotify(seer.PlayerId));
+                if (Blackmailer.ForBlackmailer.Contains(seer.PlayerId)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Blackmailer), "╳"));
 
                 SelfSuffix.Clear();
 
@@ -2506,6 +2511,7 @@ public static class Utils
             Main.KilledAntidote.Clear();
         }
 
+        if (Blackmailer.IsEnable) Blackmailer.ForBlackmailer.Clear();
         if (Glitch.IsEnable) Glitch.AfterMeetingTasks();
         if (Swooper.IsEnable) Swooper.AfterMeetingTasks();
         if (Wraith.IsEnable) Wraith.AfterMeetingTasks();

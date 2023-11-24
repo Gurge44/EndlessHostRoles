@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using TOHE.Modules;
 using TOHE.Roles.Impostor;
+using TOHE.Roles.Neutral;
 using UnityEngine;
 using static TOHE.Translator;
 
@@ -25,7 +26,22 @@ class EndGamePatch
         SummaryText = [];
 
         foreach (var id in Main.PlayerStates.Keys)
+        {
+            if (Doppelganger.IsEnable && Doppelganger.DoppelVictim.ContainsKey(id))
+            {
+                var dpc = Utils.GetPlayerById(id);
+                if (dpc != null)
+                {
+                    //if (id == PlayerControl.LocalPlayer.PlayerId) Main.nickName = Doppelganger.DoppelVictim[id];
+                    //else
+                    //{ 
+                    dpc.RpcSetName(Doppelganger.DoppelVictim[id]);
+                    //}
+                    Main.AllPlayerNames[id] = Doppelganger.DoppelVictim[id];
+                }
+            }
             SummaryText[id] = Utils.SummaryTexts(id, disableColor: false);
+        }
 
         var sb = new StringBuilder(GetString("KillLog") + ":");
         foreach (var kvp in Main.PlayerStates.OrderBy(x => x.Value.RealKiller.Item1.Ticks))

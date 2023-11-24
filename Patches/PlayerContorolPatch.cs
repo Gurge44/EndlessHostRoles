@@ -229,6 +229,12 @@ class CheckMurderPatch
                 case CustomRoles.Cantankerous:
                     if (Cantankerous.OnCheckMurder(killer)) return false;
                     break;
+                case CustomRoles.Blackmailer:
+                    if (!killer.CheckDoubleTrigger(target, () =>
+                    {
+                        Blackmailer.ForBlackmailer.Add(target.PlayerId);
+                    })) return false;
+                    break;
                 case CustomRoles.Postman:
                     Postman.OnCheckMurder(killer, target);
                     return false;
@@ -1024,6 +1030,7 @@ class CheckMurderPatch
         }
 
         if (!check) killer.Kill(target);
+        if (killer.Is(CustomRoles.Doppelganger)) Doppelganger.OnCheckMurder(killer, target);
         return true;
     }
 }
@@ -1035,8 +1042,12 @@ class MurderPlayerPatch
         Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}{(target.IsProtected() ? "(Protected)" : string.Empty)}", "MurderPlayer");
 
         if (RandomSpawn.CustomNetworkTransformPatch.NumOfTP.TryGetValue(__instance.PlayerId, out var num) && num > 2) RandomSpawn.CustomNetworkTransformPatch.NumOfTP[__instance.PlayerId] = 3;
-        if (!target.IsProtected())
+
+        if (!target.IsProtected() && !Doppelganger.DoppelVictim.ContainsKey(target.PlayerId) && !Camouflage.ResetSkinAfterDeathPlayers.Contains(target.PlayerId))
+        {
+            Camouflage.ResetSkinAfterDeathPlayers.Add(target.PlayerId);
             Camouflage.RpcSetSkin(target, ForceRevert: true);
+        }
     }
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
@@ -1896,7 +1907,7 @@ class ReportDeadBodyPatch
         Main.RevolutionistLastTime.Clear();
 
         Main.AllPlayerControls
-            .Where(pc => Main.CheckShapeshift.ContainsKey(pc.PlayerId))
+            .Where(pc => Main.CheckShapeshift.ContainsKey(pc.PlayerId) && !Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId))
             .Do(pc => Camouflage.RpcSetSkin(pc, RevertToDefault: true));
 
         MeetingTimeManager.OnReportDeadBody();
@@ -2673,7 +2684,6 @@ class FixedUpdatePatch
                                     RPC.PlaySoundRPC(puppeteerId, Sounds.KillSound);
                                     target.SetRealKiller(GetPlayerById(puppeteerId));
                                     player.Kill(target);
-                                    //Utils.MarkEveryoneDirtySettings();
                                     player.MarkDirtySettings();
                                     target.MarkDirtySettings();
                                     Main.PuppeteerList.Remove(player.PlayerId);

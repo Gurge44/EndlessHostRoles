@@ -135,6 +135,7 @@ enum CustomRPC
     SetTracefinderArrow,
     SetCleanserCleanLimit,
     SetJailorTarget,
+    SetDoppelgangerStealLimit,
     SetJailorExeLimit,
     SetWWTimer,
     SetNiceSwapperVotes,
@@ -789,6 +790,9 @@ internal class RPCHandlerPatch
             case CustomRPC.SetRitualist:
                 Ritualist.ReceiveRPC(reader);
                 break;
+            case CustomRPC.SetDoppelgangerStealLimit:
+                Doppelganger.ReceiveRPC(reader);
+                break;
             case CustomRPC.SyncBenefactorMarkedTask:
                 Benefactor.ReceiveRPC(reader);
                 break;
@@ -1260,6 +1264,9 @@ internal static class RPC
             case CustomRoles.Psychic:
                 Psychic.Add(targetId);
                 break;
+            case CustomRoles.Doppelganger:
+                Doppelganger.Add(targetId);
+                break;
             case CustomRoles.Hangman:
                 Hangman.Add(targetId);
                 break;
@@ -1442,6 +1449,9 @@ internal static class RPC
                 break;
             case CustomRoles.Cantankerous:
                 Cantankerous.Add(targetId);
+                break;
+            case CustomRoles.Blackmailer:
+                Blackmailer.Add(targetId);
                 break;
             case CustomRoles.Druid:
                 Druid.Add(targetId);

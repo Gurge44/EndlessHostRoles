@@ -259,6 +259,7 @@ public static class Divinator
                 CustomRoles.Retributionist or
                 CustomRoles.Gangster or
                 CustomRoles.Glitch or
+                CustomRoles.Doppelganger or
                 CustomRoles.Hitman or
                 CustomRoles.Luckey or
                 CustomRoles.Underdog
@@ -268,6 +269,7 @@ public static class Divinator
                 CustomRoles.NiceGuesser or
                 CustomRoles.DarkHide or
                 CustomRoles.Reckless or
+                CustomRoles.Blackmailer or
                 CustomRoles.Camouflager or
                 CustomRoles.Eclipse or
                 CustomRoles.Chameleon

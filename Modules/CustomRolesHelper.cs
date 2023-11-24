@@ -174,6 +174,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Lurker => CustomRoles.Impostor,
                 CustomRoles.Doomsayer => CustomRoles.Crewmate,
                 CustomRoles.Godfather => CustomRoles.Impostor,
+                CustomRoles.Blackmailer => CustomRoles.Shapeshifter,
 
                 _ => role.IsImpostor() ? CustomRoles.Impostor : CustomRoles.Crewmate,
             };
@@ -334,6 +335,7 @@ internal static class CustomRolesHelper
             CustomRoles.PlagueBearer => RoleTypes.Impostor,
             CustomRoles.Pestilence => RoleTypes.Impostor,
             CustomRoles.Spiritcaller => RoleTypes.Impostor,
+            CustomRoles.Doppelganger => RoleTypes.Impostor,
             _ => RoleTypes.GuardianAngel
         };
     }
@@ -439,6 +441,7 @@ internal static class CustomRolesHelper
             //CustomRoles.Masochist or
             CustomRoles.Executioner or
             CustomRoles.Mario or
+            CustomRoles.Doppelganger or
             CustomRoles.Crewpostor or
             CustomRoles.Glitch or
             CustomRoles.Lawyer or
@@ -513,6 +516,7 @@ internal static class CustomRolesHelper
             CustomRoles.Glitch or
             CustomRoles.Sidekick or
             CustomRoles.HexMaster or
+            CustomRoles.Doppelganger or
             CustomRoles.Agitater or
             CustomRoles.Infectious or
             CustomRoles.Wraith or
@@ -555,6 +559,7 @@ internal static class CustomRolesHelper
             CustomRoles.HexMaster or
             CustomRoles.Refugee or
             CustomRoles.Agitater or
+            CustomRoles.Doppelganger or
             CustomRoles.Infectious or
             CustomRoles.Wraith or
             CustomRoles.Crewpostor or
@@ -703,6 +708,7 @@ internal static class CustomRolesHelper
             CustomRoles.ImpostorTOHE or
             CustomRoles.EvilDiviner or
             CustomRoles.Wildling or
+            CustomRoles.Blackmailer or
             CustomRoles.Morphling or
             CustomRoles.BountyHunter or
             CustomRoles.Vampire or
@@ -781,6 +787,7 @@ internal static class CustomRolesHelper
             CustomRoles.Killer or
             //Standard
             CustomRoles.Jester or
+            CustomRoles.Doppelganger or
             CustomRoles.Opportunist or
             CustomRoles.Agitater or
             CustomRoles.Mario or
@@ -862,6 +869,7 @@ internal static class CustomRolesHelper
         CustomRoles.Virus or
         CustomRoles.Medusa or
         CustomRoles.NSerialKiller or
+        CustomRoles.Doppelganger or
         CustomRoles.PlagueDoctor or
         CustomRoles.Eclipse or
         CustomRoles.Magician or
@@ -928,6 +936,7 @@ internal static class CustomRolesHelper
             //Standard
             CustomRoles.Jester or
             CustomRoles.Agitater or
+            CustomRoles.Doppelganger or
             CustomRoles.Opportunist or
             CustomRoles.Bandit or
             CustomRoles.Mario or
@@ -1455,6 +1464,7 @@ internal static class CustomRolesHelper
            CustomRoles.Jackal => CountTypes.Jackal,
            CustomRoles.Sidekick => CountTypes.Jackal,
            CustomRoles.Poisoner => CountTypes.Poisoner,
+           CustomRoles.Doppelganger => CountTypes.Doppelganger,
            CustomRoles.Pelican => CountTypes.Pelican,
            CustomRoles.Gamer => CountTypes.Gamer,
            CustomRoles.BloodKnight => CountTypes.BloodKnight,
@@ -1513,6 +1523,7 @@ public enum CountTypes
     Crew,
     Impostor,
     Jackal,
+    Doppelganger,
     Pelican,
     Gamer,
     BloodKnight,

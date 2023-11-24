@@ -26,7 +26,7 @@ public static class AntiBlackout
         || Gamer.IsEnable || BloodKnight.IsEnable || WeaponMaster.IsEnable
         || Succubus.IsEnable || Poisoner.IsEnable || Reckless.IsEnable
         || Infectious.IsEnable || Juggernaut.IsEnable || HeadHunter.IsEnable
-        || Ritualist.IsEnable || Virus.IsEnable || Vengeance.IsEnable
+        || Ritualist.IsEnable || Virus.IsEnable || Vengeance.IsEnable || Doppelganger.IsEnable
         || Wraith.IsEnable || HexMaster.IsEnable || Imitator.IsEnable()
         || Traitor.IsEnable || Pickpocket.IsEnable || Werewolf.IsEnable
         || NSerialKiller.IsEnable || /*NWitch.IsEnable || */RuthlessRomantic.IsEnable

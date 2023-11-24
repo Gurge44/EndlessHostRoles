@@ -306,10 +306,12 @@ internal class ChangeRoleSettings
             Jinx.Init();
             DoubleShot.Init();
             Dazzler.Init();
+            Blackmailer.Init();
             Cantankerous.Init();
             Duellist.Init();
             Druid.Init();
             GuessManagerRole.Init();
+            Doppelganger.Init();
             FFF.Init();
             Sapper.Init();
             CameraMan.Init();
@@ -593,8 +595,14 @@ internal class SelectRolesPatch
                     case CustomRoles.Lawyer:
                         Lawyer.Add(pc.PlayerId);
                         break;
+                    case CustomRoles.Blackmailer:
+                        Blackmailer.Add(pc.PlayerId);
+                        break;
                     case CustomRoles.Crewpostor:
                         Main.CrewpostorTasksDone[pc.PlayerId] = 0;
+                        break;
+                    case CustomRoles.Doppelganger:
+                        Doppelganger.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Jackal:
                         Jackal.Add(pc.PlayerId);

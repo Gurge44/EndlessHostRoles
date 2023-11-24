@@ -760,6 +760,12 @@ class MeetingHudStartPatch
             }
 
             //侦探报告线索
+            if (Blackmailer.IsEnable && pc != null && Blackmailer.ForBlackmailer.Contains(pc.PlayerId))
+            {
+                var playername = pc.GetRealName();
+                if (Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId)) playername = Doppelganger.DoppelVictim[pc.PlayerId];
+                AddMsg(string.Format(GetString("BlackmailerDead"), playername, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Blackmailer), GetString("BlackmaileKillTitle"))));
+            }
             if (Main.DetectiveNotify.ContainsKey(pc.PlayerId))
                 AddMsg(Main.DetectiveNotify[pc.PlayerId], pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Detective), GetString("DetectiveNoticeTitle")));
             //宝箱怪的消息（记录）
@@ -1115,6 +1121,9 @@ class MeetingHudStartPatch
                     sb.Append(Tracker.GetTargetMark(seer, target));
                     break;
             }
+
+            if (Blackmailer.ForBlackmailer.Contains(target.PlayerId))
+                sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Blackmailer), "╳"));
 
             List<CustomRoles> list = seer.GetCustomSubRoles();
             for (int i1 = 0; i1 < list.Count; i1++)
