@@ -282,7 +282,7 @@ public static class Sniper
         else
         {
             AimTime[sniperId] += Time.fixedDeltaTime;
-            Utils.NotifyRoles(SpecifySeer: sniper);
+            Utils.NotifyRoles(SpecifySeer: sniper, SpecifyTarget: sniper);
         }
     }
     public static void OnReportDeadBody()

@@ -213,8 +213,8 @@ namespace TOHE.Roles.Crewmate
                 target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Merchant), GetString("MerchantAddonSell")));
                 player.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Merchant), GetString("MerchantAddonDelivered")));
 
-                Utils.NotifyRoles(SpecifySeer: player);
-                Utils.NotifyRoles(SpecifySeer: target);
+                Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: target);
+                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: player);
 
                 addonsSold[player.PlayerId] += 1;
             }

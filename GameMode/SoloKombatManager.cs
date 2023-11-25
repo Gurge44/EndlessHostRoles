@@ -239,8 +239,8 @@ internal static class SoloKombatManager
             target.RpcGuardAndKill(colorId: 5);
 
         SendRPCSyncKBPlayer(target.PlayerId);
-        Utils.NotifyRoles(SpecifySeer: killer);
-        Utils.NotifyRoles(SpecifySeer: target);
+        Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
+        Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
     }
     public static void OnPlayerBack(PlayerControl pc)
     {
@@ -324,7 +324,7 @@ internal static class SoloKombatManager
         NameNotify.Add(pc.PlayerId, (text, Utils.GetTimeStamp() + time));
         SendRPCSyncNameNotify(pc);
         SendRPCSyncKBPlayer(pc.PlayerId);
-        Utils.NotifyRoles(SpecifySeer: pc);
+        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
     private static Dictionary<byte, int> BackCountdown = [];
@@ -391,7 +391,7 @@ internal static class SoloKombatManager
                         notifyRoles = true;
                     }
                     // 必要时刷新玩家名字
-                    if (notifyRoles) Utils.NotifyRoles(SpecifySeer: pc);
+                    if (notifyRoles) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                 }
             }
         }

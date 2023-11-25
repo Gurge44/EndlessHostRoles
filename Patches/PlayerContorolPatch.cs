@@ -1240,7 +1240,7 @@ class MurderPlayerPatch
         {
             __instance.MarkDirtySettings();
             target.MarkDirtySettings();
-            NotifyRoles(SpecifySeer: killer);
+            NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
             NotifyRoles(SpecifySeer: target);
         }
         else
@@ -2111,205 +2111,89 @@ class FixedUpdatePatch
                 switch (player.GetCustomRole())
                 {
                     case CustomRoles.Doormaster:
-                        if (Main.DoormasterCD.TryGetValue(player.PlayerId, out var dm) && dm + Doormaster.VentCooldown.GetInt() < GetTimeStamp())
-                        {
-                            Main.DoormasterCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.DoormasterCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.DoormasterCD, Doormaster.VentCooldown.GetInt());
                         break;
                     case CustomRoles.Sapper:
-                        if (Main.SapperCD.TryGetValue(player.PlayerId, out var spp) && spp + Sapper.ShapeshiftCooldown.GetInt() < GetTimeStamp())
-                        {
-                            Main.SapperCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.SapperCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.SapperCD, Sapper.ShapeshiftCooldown.GetInt());
                         break;
                     case CustomRoles.Druid:
-                        if (Main.DruidCD.TryGetValue(player.PlayerId, out var dc) && dc + Druid.VentCooldown.GetInt() < GetTimeStamp())
-                        {
-                            Main.DruidCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.DruidCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.DruidCD, Druid.VentCooldown.GetInt());
                         break;
                     case CustomRoles.Tether:
-                        if (Main.TetherCD.TryGetValue(player.PlayerId, out var th) && th + Tether.VentCooldown.GetInt() < GetTimeStamp())
-                        {
-                            Main.TetherCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.TetherCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.TetherCD, Tether.VentCooldown.GetInt());
                         break;
                     case CustomRoles.CameraMan:
-                        if (Main.CameraManCD.TryGetValue(player.PlayerId, out var cm) && cm + CameraMan.VentCooldown.GetInt() < GetTimeStamp())
-                        {
-                            Main.CameraManCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.CameraManCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.CameraManCD, CameraMan.VentCooldown.GetInt());
                         break;
                     case CustomRoles.Mayor:
-                        if (Main.MayorCD.TryGetValue(player.PlayerId, out var my) && my + Options.DefaultKillCooldown < GetTimeStamp())
-                        {
-                            Main.MayorCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.MayorCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.MayorCD, (int)Math.Round(Options.DefaultKillCooldown));
                         break;
                     case CustomRoles.Paranoia:
-                        if (Main.ParanoiaCD.TryGetValue(player.PlayerId, out var pn) && pn + Options.ParanoiaVentCooldown.GetInt() < GetTimeStamp())
-                        {
-                            Main.ParanoiaCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.ParanoiaCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.ParanoiaCD, Options.ParanoiaVentCooldown.GetInt());
                         break;
                     case CustomRoles.NiceHacker:
-                        if (Main.HackerCD.TryGetValue(player.PlayerId, out var nh) && nh + NiceHacker.AbilityCD.GetInt() < GetTimeStamp())
-                        {
-                            Main.HackerCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.HackerCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.HackerCD, NiceHacker.AbilityCD.GetInt());
                         break;
                     case CustomRoles.Grenadier:
-                        if (Main.GrenadierCD.TryGetValue(player.PlayerId, out var gd) && gd + Options.GrenadierSkillCooldown.GetInt() + Options.GrenadierSkillDuration.GetInt() < GetTimeStamp())
-                        {
-                            Main.GrenadierCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.GrenadierCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.GrenadierCD, Options.GrenadierSkillCooldown.GetInt() + Options.GrenadierSkillDuration.GetInt());
                         break;
                     case CustomRoles.Lighter:
-                        if (Main.LighterCD.TryGetValue(player.PlayerId, out var lt) && lt + Options.LighterSkillCooldown.GetInt() + Options.LighterSkillDuration.GetInt() < GetTimeStamp())
-                        {
-                            Main.LighterCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.LighterCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.LighterCD, Options.LighterSkillCooldown.GetInt() + Options.LighterSkillDuration.GetInt());
                         break;
                     case CustomRoles.SecurityGuard:
-                        if (Main.SecurityGuardCD.TryGetValue(player.PlayerId, out var sg) && sg + Options.SecurityGuardSkillCooldown.GetInt() + Options.SecurityGuardSkillDuration.GetInt() < GetTimeStamp())
-                        {
-                            Main.SecurityGuardCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.SecurityGuardCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.SecurityGuardCD, Options.SecurityGuardSkillCooldown.GetInt() + Options.SecurityGuardSkillDuration.GetInt());
                         break;
                     case CustomRoles.DovesOfNeace:
-                        if (Main.DovesOfNeaceCD.TryGetValue(player.PlayerId, out var don) && don + Options.DovesOfNeaceCooldown.GetInt() < GetTimeStamp())
-                        {
-                            Main.DovesOfNeaceCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.DovesOfNeaceCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.DovesOfNeaceCD, Options.DovesOfNeaceCooldown.GetInt());
                         break;
                     case CustomRoles.Alchemist:
-                        if (Main.AlchemistCD.TryGetValue(player.PlayerId, out var ac) && ac + Alchemist.VentCooldown.GetInt() < GetTimeStamp())
-                        {
-                            Main.AlchemistCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.AlchemistCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.AlchemistCD, Alchemist.VentCooldown.GetInt());
                         break;
                     case CustomRoles.TimeMaster:
-                        if (Main.TimeMasterCD.TryGetValue(player.PlayerId, out var tm) && tm + Options.TimeMasterSkillCooldown.GetInt() + Options.TimeMasterSkillDuration.GetInt() < GetTimeStamp())
-                        {
-                            Main.TimeMasterCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.TimeMasterCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.TimeMasterCD, Options.TimeMasterSkillCooldown.GetInt() + Options.TimeMasterSkillDuration.GetInt());
                         break;
                     case CustomRoles.Veteran:
-                        if (Main.VeteranCD.TryGetValue(player.PlayerId, out var vr) && vr + Options.VeteranSkillCooldown.GetInt() + Options.VeteranSkillDuration.GetInt() < GetTimeStamp())
-                        {
-                            Main.VeteranCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.VeteranCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.VeteranCD, Options.VeteranSkillCooldown.GetInt() + Options.VeteranSkillDuration.GetInt());
                         break;
                     case CustomRoles.Sniper:
-                        if (Main.SniperCD.TryGetValue(player.PlayerId, out var sp) && sp + Options.DefaultShapeshiftCooldown.GetInt() < GetTimeStamp())
-                        {
-                            Main.SniperCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.SniperCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.SniperCD, Options.DefaultShapeshiftCooldown.GetInt());
                         break;
                     case CustomRoles.Assassin:
-                        if (Main.AssassinCD.TryGetValue(player.PlayerId, out var ass) && ass + Assassin.AssassinateCooldown.GetInt() < GetTimeStamp())
-                        {
-                            Main.AssassinCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.AssassinCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.AssassinCD, Assassin.AssassinateCooldown.GetInt());
                         break;
                     case CustomRoles.Undertaker:
-                        if (Main.UndertakerCD.TryGetValue(player.PlayerId, out var ut) && ut + Undertaker.AssassinateCooldown.GetInt() < GetTimeStamp())
-                        {
-                            Main.UndertakerCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.UndertakerCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.UndertakerCD, Undertaker.AssassinateCooldown.GetInt());
                         break;
                     case CustomRoles.Bomber:
-                        if (Main.BomberCD.TryGetValue(player.PlayerId, out var bb) && bb + Options.BombCooldown.GetInt() < GetTimeStamp())
-                        {
-                            Main.BomberCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.BomberCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.BomberCD, Options.BombCooldown.GetInt());
                         break;
                     case CustomRoles.Nuker:
-                        if (Main.NukerCD.TryGetValue(player.PlayerId, out var nk) && nk + Options.NukeCooldown.GetInt() < GetTimeStamp())
-                        {
-                            Main.NukerCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.NukerCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.NukerCD, Options.NukeCooldown.GetInt());
                         break;
                     case CustomRoles.Escapee:
-                        if (Main.EscapeeCD.TryGetValue(player.PlayerId, out var ec) && ec + Options.EscapeeSSCD.GetInt() < GetTimeStamp())
-                        {
-                            Main.EscapeeCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.EscapeeCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.EscapeeCD, Options.EscapeeSSCD.GetInt());
                         break;
                     case CustomRoles.Miner:
-                        if (Main.MinerCD.TryGetValue(player.PlayerId, out var mn) && mn + Options.MinerSSCD.GetInt() < GetTimeStamp())
-                        {
-                            Main.MinerCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.MinerCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.MinerCD, Options.MinerSSCD.GetInt());
                         break;
                     case CustomRoles.Disperser:
-                        if (Main.DisperserCD.TryGetValue(player.PlayerId, out var dp) && dp + Disperser.DisperserShapeshiftCooldown.GetInt() < GetTimeStamp())
-                        {
-                            Main.DisperserCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.DisperserCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.DisperserCD, Disperser.DisperserShapeshiftCooldown.GetInt());
                         break;
                     case CustomRoles.Twister:
-                        if (Main.TwisterCD.TryGetValue(player.PlayerId, out var ts) && ts + Twister.ShapeshiftCooldown.GetInt() < GetTimeStamp())
-                        {
-                            Main.TwisterCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.TwisterCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.TwisterCD, Twister.ShapeshiftCooldown.GetInt());
                         break;
                     case CustomRoles.QuickShooter:
-                        if (Main.QuickShooterCD.TryGetValue(player.PlayerId, out var qs) && qs + QuickShooter.ShapeshiftCooldown.GetInt() < GetTimeStamp())
-                        {
-                            Main.QuickShooterCD.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player);
-                        }
-                        if (Main.QuickShooterCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player);
+                        NotifyPetCD(Main.QuickShooterCD, QuickShooter.ShapeshiftCooldown.GetInt());
                         break;
+                }
+                void NotifyPetCD(Dictionary<byte, long> data, int CD)
+                {
+                    if (data.TryGetValue(player.PlayerId, out var timer) && timer + CD < GetTimeStamp())
+                    {
+                        data.Remove(player.PlayerId);
+                        NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                    }
+                    if (data.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 }
             }
 
@@ -2464,7 +2348,7 @@ class FixedUpdatePatch
                         else//否则删除
                         {
                             Main.RevolutionistTimer.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: __instance);
+                            NotifyRoles(SpecifySeer: __instance, SpecifyTarget: rv_target);
                             RPC.ResetCurrentDrawTarget(player.PlayerId);
 
                             Logger.Info($"Canceled: {__instance.GetNameWithRole().RemoveHtmlTags()}", "Revolutionist");
@@ -2489,7 +2373,7 @@ class FixedUpdatePatch
                             foreach (var pc in y.Where(x => x != null && x.IsAlive()))
                             {
                                 pc.Suicide(PlayerState.DeathReason.Sacrifice);
-                                NotifyRoles(SpecifySeer: pc);
+                                NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                             }
                             player.Suicide(PlayerState.DeathReason.Sacrifice);
                         }
@@ -2690,8 +2574,8 @@ class FixedUpdatePatch
                                     Main.PuppeteerList.Remove(player.PlayerId);
                                     Main.PuppeteerDelayList.Remove(player.PlayerId);
                                     Main.PuppeteerDelay.Remove(player.PlayerId);
-                                    NotifyRoles(SpecifySeer: player);
-                                    NotifyRoles(SpecifySeer: target);
+                                    NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                                    NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
                                 }
                             }
                         }
@@ -3150,7 +3034,9 @@ class ExitVentPatch
 {
     public static void Postfix(Vent __instance, [HarmonyArgument(0)] PlayerControl pc)
     {
-        Drainer.OnOtherPlayerExitVent(pc, __instance.Id);
+        Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "ExitVent");
+
+        Drainer.OnAnyoneExitVent(pc, __instance.Id);
     }
 }
 [HarmonyPatch(typeof(Vent), nameof(Vent.EnterVent))]
@@ -3158,7 +3044,9 @@ class EnterVentPatch
 {
     public static void Postfix(Vent __instance, [HarmonyArgument(0)] PlayerControl pc)
     {
-        Drainer.OnOtherPlayerEnterVent(pc, __instance.Id);
+        Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "EnterVent");
+
+        Drainer.OnAnyoneEnterVent(pc, __instance);
 
         if (Witch.IsEnable) Witch.OnEnterVent(pc);
         if (HexMaster.IsEnable) HexMaster.OnEnterVent(pc);
@@ -3193,7 +3081,7 @@ class EnterVentPatch
         {
             Main.MarioVentCount.TryAdd(pc.PlayerId, 0);
             Main.MarioVentCount[pc.PlayerId]++;
-            NotifyRoles(SpecifySeer: pc);
+            NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             if (pc.AmOwner)
             {
                 //     if (Main.MarioVentCount[pc.PlayerId] % 5 == 0) CustomSoundsManager.Play("MarioCoin");
@@ -3422,10 +3310,12 @@ class CoEnterVentPatch
     {
         if (!AmongUsClient.Instance.AmHost) return true;
 
+        Logger.Info($" {__instance.myPlayer.GetNameWithRole()}, Vent ID: {id}", "CoEnterVent");
+
         if (Options.CurrentGameMode == CustomGameMode.FFA && FFAManager.FFA_DisableVentingWhenTwoPlayersAlive.GetBool() && Main.AllAlivePlayerControls.Length <= 2)
         {
-            var pc = __instance.myPlayer;
-            if (pc.killTimer <= 0)
+            var pc = __instance?.myPlayer;
+            if (pc?.killTimer <= 0)
             {
                 _ = new LateTask(() =>
                 {
@@ -3611,7 +3501,7 @@ class GameDataCompleteTaskPatch
     {
         Logger.Info($"TaskComplete: {pc.GetNameWithRole().RemoveHtmlTags()}", "CompleteTask");
         Main.PlayerStates[pc.PlayerId].UpdateTask(pc);
-        NotifyRoles(SpecifySeer: pc);
+        NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 }
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CompleteTask))]
@@ -3633,7 +3523,7 @@ class PlayerControlCompleteTaskPatch
             taskState.CompletedTasksCount++;
             GameData.Instance.RpcSetTasks(player.PlayerId, Array.Empty<byte>()); //タスクを再配布
             player.SyncSettings();
-            NotifyRoles(SpecifySeer: player);
+            NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
             return false;
         }
 

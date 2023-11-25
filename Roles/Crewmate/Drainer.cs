@@ -39,65 +39,69 @@ namespace TOHE.Roles.Crewmate
             playersInVents = [];
             DrainLimit = 0;
         }
+
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
             DrainLimit = UseLimit.GetInt();
         }
+
         public static void ApplyGameOptions(IGameOptions opt)
         {
             AURoleOptions.EngineerCooldown = VentCD.GetFloat();
         }
+
         public static bool IsEnable => playerIdList.Any();
+
         public static void SendRPC()
         {
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDrainerLimit, SendOption.Reliable, -1);
             writer.Write(DrainLimit);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
+
         public static void ReceiveRPC(MessageReader reader)
         {
             DrainLimit = reader.ReadInt32();
         }
-        public static void OnEnterVent(PlayerControl pc, int ventId)
+
+        public static void OnAnyoneExitVent(PlayerControl pc, int ventId)
         {
-            if (pc == null) return;
+            if (pc != null) playersInVents.Remove(pc.PlayerId);
+        }
+
+        public static void OnDrainerEnterVent(PlayerControl pc, Vent vent)
+        {
             if (!pc.Is(CustomRoles.Drainer)) return;
             if (DrainLimit <= 0) return;
 
             DrainLimit--;
 
-            KillPlayersInVent(pc, ventId);
+            foreach (var ventToDrain in vent.NearbyVents.ToArray())
+            {
+                KillPlayersInVent(pc, ventToDrain.Id);
+            }
         }
-        public static void OnOtherPlayerEnterVent(PlayerControl pc, int ventId)
-        {
-            OnEnterVent(pc, ventId);
-            if (pc == null) return;
-            if (pc.Is(CustomRoles.Drainer)) return;
 
-            playersInVents.TryAdd(pc.PlayerId, ventId);
-        }
-        public static void OnExitVent(PlayerControl pc, int ventId)
+        public static void OnAnyoneEnterVent(PlayerControl pc, Vent vent)
         {
             if (pc == null) return;
-            if (!pc.Is(CustomRoles.Drainer)) return;
+            if (pc.Is(CustomRoles.Drainer))
+            {
+                OnDrainerEnterVent(pc, vent);
+                return;
+            }
 
-            KillPlayersInVent(pc, ventId);
+            playersInVents.Add(pc.PlayerId, vent.Id);
         }
-        public static void OnOtherPlayerExitVent(PlayerControl pc, int ventId)
-        {
-            OnExitVent(pc, ventId);
-            if (pc == null) return;
-            if (pc.Is(CustomRoles.Drainer)) return;
 
-            playersInVents.Remove(pc.PlayerId);
-        }
         public static string GetProgressText() => $"<color=#777777>-</color> <color=#ffffff>{DrainLimit}</color>";
+
         private static void KillPlayersInVent(PlayerControl pc, int ventId)
         {
             if (!playersInVents.ContainsValue(ventId)) return;
 
-            foreach (var venterId in playersInVents.Where(x => x.Value == ventId))
+            foreach (var venterId in playersInVents.Where(x => x.Value == ventId).ToArray())
             {
                 var venter = Utils.GetPlayerById(venterId.Key);
                 if (venter == null) continue;
@@ -112,6 +116,7 @@ namespace TOHE.Roles.Crewmate
                 }
             }
         }
+
         public static void OnReportDeadBody()
         {
             playersInVents.Clear();

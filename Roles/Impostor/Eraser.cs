@@ -129,7 +129,7 @@ internal static class Eraser
 
         Utils.SendMessage(string.Format(GetString("EraserEraseNotice"), target.GetRealName()), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Eraser), GetString("EraserEraseMsgTitle")));
 
-        Utils.NotifyRoles(SpecifySeer: player);
+        Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: target);
     }
     public static void OnReportDeadBody()
     {

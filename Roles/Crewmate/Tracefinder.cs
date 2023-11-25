@@ -102,14 +102,14 @@ public static class Tracefinder
         {
             if (GameStates.IsInTask)
             {
-                foreach (byte pc in playerIdList.ToArray())
+                foreach (byte id in playerIdList.ToArray())
                 {
-                    var player = Utils.GetPlayerById(pc);
-                    if (player == null || !player.IsAlive())
+                    PlayerControl pc = Utils.GetPlayerById(id);
+                    if (pc == null || !pc.IsAlive())
                         continue;
-                    LocateArrow.Add(pc, target.transform.position);
-                    SendRPC(pc, true, target.transform.position);
-                    Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc));
+                    LocateArrow.Add(id, target.transform.position);
+                    SendRPC(id, true, target.transform.position);
+                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                 }
             }
         }, delay, "Tracefinder arrow delay");

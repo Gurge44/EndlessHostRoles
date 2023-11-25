@@ -120,10 +120,11 @@ internal class Monitor
 
         if (isChange)
         {
-            foreach (byte pc in playerIdList.ToArray())
+            foreach (byte id in playerIdList.ToArray())
             {
-                Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc));
-                FixedUpdatePatch.Postfix(Utils.GetPlayerById(pc));
+                PlayerControl pc = Utils.GetPlayerById(id);
+                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                FixedUpdatePatch.Postfix(pc);
             }
         }
     }

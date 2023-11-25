@@ -162,7 +162,7 @@ public static class FireWorks
             Logger.Info("爆破準備OK", "FireWorks");
             state[pc.PlayerId] = FireWorksState.ReadyFire;
             SendRPC(pc.PlayerId);
-            Utils.NotifyRoles(SpecifySeer: pc);
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
         switch (state[pc.PlayerId])
         {

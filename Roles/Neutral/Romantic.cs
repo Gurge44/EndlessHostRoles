@@ -220,7 +220,7 @@ public static class Romantic
             }, 0.2f, "Convert to Vengeful romanticId");
         }
 
-        Utils.NotifyRoles(SpecifySeer: romantic);
+        Utils.NotifyRoles(SpecifySeer: romantic, SpecifyTarget: partner);
         Utils.NotifyRoles(SpecifySeer: partner);
 
         romantic.ResetKillCooldown();
@@ -262,7 +262,7 @@ public static class VengefulRomantic
         if (VengefulTarget.TryGetValue(killer.PlayerId, out var PartnerKiller) && target.PlayerId == PartnerKiller)
         {
             hasKilledKiller = true;
-            Utils.NotifyRoles(SpecifySeer: killer);
+            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             return true;
         }
         else

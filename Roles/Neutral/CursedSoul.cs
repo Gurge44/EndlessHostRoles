@@ -72,8 +72,9 @@ public static class CursedSoul
 
             killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.CursedSoul), GetString("CursedSoulSoullessPlayer")));
             target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.CursedSoul), GetString("SoullessByCursedSoul")));
-            Utils.NotifyRoles(SpecifySeer: killer);
-            Utils.NotifyRoles(SpecifySeer: target);
+
+            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
+            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
 
             killer.ResetKillCooldown();
             killer.SetKillCooldown();

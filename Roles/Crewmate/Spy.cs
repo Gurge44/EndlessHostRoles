@@ -100,7 +100,7 @@ namespace TOHE.Roles.Crewmate
                 SendAbilityRPC(target.PlayerId);
                 SpyRedNameList.TryAdd(killer.PlayerId, GetTimeStamp());
                 SendRPC(killer.PlayerId);
-                NotifyRoles(SpecifySeer: target);
+                NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
             }
         }
         public static void OnFixedUpdate(PlayerControl pc)

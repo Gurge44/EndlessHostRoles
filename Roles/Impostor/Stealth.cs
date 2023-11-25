@@ -146,7 +146,7 @@ namespace TOHE.Roles.Impostor
             }
             darkenTimer = darkenDuration;
             RpcDarken(null);
-            Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(playerIdList[0]));
+            Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(playerIdList[0]), SpecifyTarget: Utils.GetPlayerById(playerIdList[0]));
         }
 
         public static string GetSuffix(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isHUD = false)

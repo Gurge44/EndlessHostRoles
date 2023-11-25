@@ -220,7 +220,7 @@ public static class Glitch
         {
             if (HackCDTimer <= 0)
             {
-                Utils.NotifyRoles(SpecifySeer: killer);
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 HackCDTimer = HackCooldown.GetInt();
                 hackedIdList.TryAdd(target.PlayerId, Utils.GetTimeStamp());
                 LastHack = Utils.GetTimeStamp();
@@ -256,7 +256,7 @@ public static class Glitch
         if (player == null) return;
         if (!player.Is(CustomRoles.Glitch)) return;
 
-        if (change) { Utils.NotifyRoles(SpecifySeer: player); }
+        if (change) { Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player); }
 
         if (!player.IsAlive())
         {

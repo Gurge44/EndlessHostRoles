@@ -65,8 +65,8 @@ public static class Monarch
 
             killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("MonarchKnightedPlayer")));
             target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("KnightedByMonarch")));
-            Utils.NotifyRoles(SpecifySeer: killer);
-            Utils.NotifyRoles(SpecifySeer: target);
+            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
             killer.ResetKillCooldown();
             killer.SetKillCooldown();

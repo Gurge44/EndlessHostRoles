@@ -55,6 +55,6 @@ public static class SwordsMan
         killed.Add(killer.PlayerId);
         Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : " + (IsKilled(killer.PlayerId) ? "已使用击杀机会" : "未使用击杀机会"), "SwordsMan");
         SetKillCooldown(killer.PlayerId);
-        Utils.NotifyRoles(SpecifySeer: killer);
+        Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
     }
 }

@@ -89,8 +89,8 @@ public static class BallLightning
                 SendRPC(target.PlayerId);
                 RealKiller.TryAdd(target.PlayerId, killer);
                 if (!killer.inVent) killer.SetKillCooldown();
-                Utils.NotifyRoles(SpecifySeer: killer);
-                Utils.NotifyRoles(SpecifySeer: target);
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
                 Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} 转化为量子幽灵", "BallLightning");
             }
         }, ConvertTime.GetFloat(), "BallLightning Convert Player To Ghost");

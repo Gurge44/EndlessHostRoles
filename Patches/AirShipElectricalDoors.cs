@@ -58,6 +58,6 @@ class ElectricalDoorsInitializePatch
             else
                 closedoors += $", {num}";
         }
-        Logger.Info($"ClosedDoors:{closedoors}", "ElectricalDoors Initialize");
+        Logger.Info($"Closed Doors: {closedoors}", "ElectricalDoors Initialize");
     }
 }

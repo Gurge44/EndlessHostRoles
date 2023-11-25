@@ -56,7 +56,7 @@ namespace TOHE.Roles.Crewmate
             {
                 UseLimit[killer.PlayerId] -= 1;
                 ShieldedPlayers.TryAdd(target.PlayerId, GetTimeStamp());
-                NotifyRoles(SpecifySeer: killer);
+                NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 return false;
             }
             else

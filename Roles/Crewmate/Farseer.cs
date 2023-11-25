@@ -139,7 +139,7 @@ namespace TOHE.Roles.Crewmate
                         Main.FarseerTimer.Remove(player.PlayerId);//塗が完了したのでDictionaryから削除
                         Main.isRevealed[(player.PlayerId, ar_target.PlayerId)] = true;//塗り完了
                         player.RpcSetRevealtPlayer(ar_target, true);
-                        NotifyRoles(SpecifySeer: player);//名前変更
+                        NotifyRoles(SpecifySeer: player, SpecifyTarget: ar_target);//名前変更
                         RPC.ResetCurrentRevealTarget(player.PlayerId);
                     }
                     else

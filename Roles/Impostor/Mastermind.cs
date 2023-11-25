@@ -60,7 +60,7 @@ namespace TOHE.Roles.Impostor
                 if (target.HasKillButton() || target.GetPlayerTaskState().hasTasks)
                 {
                     ManipulateDelays.TryAdd(target.PlayerId, GetTimeStamp());
-                    NotifyRoles(SpecifySeer: GetPlayerById(playerIdList[0]));
+                    NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 }
             });
         }
@@ -90,7 +90,8 @@ namespace TOHE.Roles.Impostor
                         pc.SetKillCooldown(time: 1f);
                     }
 
-                    NotifyRoles(SpecifySeer: GetPlayerById(playerIdList[0]));
+                    PlayerControl mastermind = GetPlayerById(playerIdList[0]);
+                    NotifyRoles(SpecifySeer: mastermind, SpecifyTarget: mastermind);
                 }
             }
 

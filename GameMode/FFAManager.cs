@@ -358,7 +358,7 @@ internal static class FFAManager
                 {
                     NameNotify.Remove(pc.PlayerId);
                     SendRPCSyncNameNotify(pc);
-                    Utils.NotifyRoles(SpecifySeer: pc);
+                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                 }
 
                 var rd = IRandom.Instance;

@@ -191,7 +191,7 @@ namespace TOHE.Roles.Impostor
                         default:
                             break;
                     }
-                    if (GameStates.IsInTask) Utils.NotifyRoles(SpecifySeer: target);
+                    if (GameStates.IsInTask) Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
                 }, Delay.GetInt(), "Nullifier Remove Ability Use");
             });
         }

@@ -152,8 +152,8 @@ public static class Medic
                 break;
         }
 
-        Utils.NotifyRoles(SpecifySeer: killer);
-        Utils.NotifyRoles(SpecifySeer: target);
+        Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+        Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
         Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : {ProtectLimit[killer.PlayerId]} shields left", "Medic");
     }
@@ -167,7 +167,7 @@ public static class Medic
         //killer.RpcGuardAndKill(target);
         killer.SetKillCooldown(ResetCooldown.GetFloat());
 
-        Utils.NotifyRoles(SpecifySeer: target);
+        Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
         switch (KnowShieldBroken.GetInt())
         {

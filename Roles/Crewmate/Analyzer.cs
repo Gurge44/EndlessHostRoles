@@ -1,12 +1,9 @@
-﻿using System;
+﻿using Hazel;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static TOHE.Options;
-using static TOHE.Utils;
 using static TOHE.Translator;
-using Hazel;
+using static TOHE.Utils;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -46,22 +43,23 @@ namespace TOHE.Roles.Crewmate
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Analyzer]);
         }
 
-        public static bool CanUseKillButton => 
+        public static bool CanUseKillButton => CurrentTarget.Item1 == byte.MaxValue;
+
+        public static bool IsEnable => playerId != byte.MaxValue;
 
         private static string GetRoleBasis(CustomRoles role)
         {
-            var DYRole = role.GetDYRole();
-            var VNRole = role.GetVNRole();
-            if (DYRole == AmongUs.GameOptions.RoleTypes.Impostor) return ColorString(GetRoleColor(CustomRoles.Impostor), GetString("Impostor"));
-            else return VNRole switch
-            {
-                CustomRoles.Impostor => ColorString(GetRoleColor(CustomRoles.Impostor), GetString("Impostor")),
-                CustomRoles.Shapeshifter => ColorString(GetRoleColor(CustomRoles.Speedrunner), GetString("Shapeshifter")),
-                CustomRoles.Crewmate => ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("Crewmate")),
-                CustomRoles.Engineer => ColorString(GetRoleColor(CustomRoles.Autocrat), GetString("Engineer")),
-                CustomRoles.Scientist => ColorString(GetRoleColor(CustomRoles.Doctor), GetString("Scientist")),
-                _ => string.Empty
-            };
+            return role.GetDYRole() == AmongUs.GameOptions.RoleTypes.Impostor
+                ? ColorString(GetRoleColor(CustomRoles.Impostor), GetString("Impostor"))
+                : role.GetVNRole() switch
+                {
+                    CustomRoles.Impostor => ColorString(GetRoleColor(CustomRoles.Impostor), GetString("Impostor")),
+                    CustomRoles.Shapeshifter => ColorString(GetRoleColor(CustomRoles.Speedrunner), GetString("Shapeshifter")),
+                    CustomRoles.Crewmate => ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("Crewmate")),
+                    CustomRoles.Engineer => ColorString(GetRoleColor(CustomRoles.Autocrat), GetString("Engineer")),
+                    CustomRoles.Scientist => ColorString(GetRoleColor(CustomRoles.Doctor), GetString("Scientist")),
+                    _ => string.Empty
+                };
         }
 
         private static int GetKillCount(byte id) => Main.PlayerStates.Count(x => x.Value.GetRealKiller() == id);
@@ -125,6 +123,24 @@ namespace TOHE.Roles.Crewmate
                 var value = reader.ReadInt32();
                 VentCount.Add(key, value);
             }
+        }
+
+        public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
+        {
+            if (killer == null || target == null) return;
+            if (UseLimit <= 0) return;
+            if (CurrentTarget.Item1 != byte.MaxValue) return;
+
+            UseLimit--;
+            CurrentTarget = (target.PlayerId, GetTimeStamp());
+            killer.SetKillCooldown(time: Duration.GetFloat());
+            NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+        }
+
+        public static void OnFixedUpdate(PlayerControl pc)
+        {
+            if (pc == null) return;
+            if ()
         }
     }
 }

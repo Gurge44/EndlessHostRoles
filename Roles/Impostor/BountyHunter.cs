@@ -21,8 +21,7 @@ public static class BountyHunter
     private static float FailureKillCooldown;
     private static bool ShowTargetArrow;
 
-    private static int Timer;
-
+    private static Dictionary<byte, int> Timer;
     public static Dictionary<byte, byte> Targets = [];
     public static Dictionary<byte, float> ChangeTimer = [];
 
@@ -55,7 +54,7 @@ public static class BountyHunter
         FailureKillCooldown = OptionFailureKillCooldown.GetFloat();
         ShowTargetArrow = OptionShowTargetArrow.GetBool();
 
-        Timer = (int)TargetChangeTime;
+        Timer[playerId] = (int)TargetChangeTime;
 
         if (AmongUsClient.Instance.AmHost)
             ResetTarget(Utils.GetPlayerById(playerId));
@@ -117,15 +116,15 @@ public static class BountyHunter
                 var targetId = GetTarget(player);
                 if (ChangeTimer[player.PlayerId] >= TargetChangeTime)//時間経過でターゲットをリセットする処理
                 {
-                    ResetTarget(player);//ターゲットの選びなおし
-                    Utils.NotifyRoles(SpecifySeer: player);
+                    var newTargetId = ResetTarget(player);//ターゲットの選びなおし
+                    Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: Utils.GetPlayerById(newTargetId));
                 }
                 if (ChangeTimer[player.PlayerId] >= 0)
                 {
                     ChangeTimer[player.PlayerId] += Time.fixedDeltaTime;
-                    int tempTimer = Timer;
-                    Timer = (int)(TargetChangeTime - ChangeTimer[player.PlayerId]);
-                    if (tempTimer != Timer && Timer <= 15 && !player.IsModClient()) Utils.NotifyRoles(SpecifySeer: player);
+                    int tempTimer = Timer[player.PlayerId];
+                    Timer[player.PlayerId] = (int)(TargetChangeTime - ChangeTimer[player.PlayerId]);
+                    if (tempTimer != Timer[player.PlayerId] && Timer[player.PlayerId] <= 15 && !player.IsModClient()) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 }
 
 
@@ -160,7 +159,7 @@ public static class BountyHunter
         var playerId = player.PlayerId;
 
         ChangeTimer[playerId] = 0f;
-        Timer = (int)TargetChangeTime;
+        Timer[playerId] = (int)TargetChangeTime;
 
         Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}:ターゲットリセット", "BountyHunter");
         //player.RpcResetAbilityCooldown(); ;//タイマー（変身クールダウン）のリセットと
@@ -195,7 +194,7 @@ public static class BountyHunter
             if (!Main.PlayerStates[id].IsDead)
             {
                 ChangeTimer[id] = 0f;
-                Timer = (int)TargetChangeTime;
+                Timer[id] = (int)TargetChangeTime;
                 if (Utils.GetPlayerById(id).GetCustomRole() == CustomRoles.BountyHunter)
                 {
                     Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;

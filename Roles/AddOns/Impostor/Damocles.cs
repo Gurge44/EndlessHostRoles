@@ -67,7 +67,7 @@ namespace TOHE.Roles.AddOns.Impostor
             }
 
             if (pc.IsModClient() && pc.PlayerId != 0) SendRPC();
-            NotifyRoles(SpecifySeer: pc);
+            NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
         public static void SendRPC()

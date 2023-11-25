@@ -122,8 +122,8 @@ public static class Pelican
         ReportDeadBodyPatch.CanReport[target.PlayerId] = false;
         target.MarkDirtySettings();
 
-        Utils.NotifyRoles(SpecifySeer: pc);
-        Utils.NotifyRoles(SpecifySeer: target);
+        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);
+        Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: pc);
         Logger.Info($"{pc.GetRealName()} 吞掉了 {target.GetRealName()}", "Pelican");
     }
 
@@ -157,15 +157,15 @@ public static class Pelican
         foreach (byte tar in eatenList[pc].ToArray())
         {
             var target = Utils.GetPlayerById(tar);
-            var palyer = Utils.GetPlayerById(pc);
-            if (palyer == null || target == null)
+            var player = Utils.GetPlayerById(pc);
+            if (player == null || target == null)
                 continue;
-            target.TP(palyer.GetTruePosition());
+            target.TP(player.GetTruePosition());
             Main.AllPlayerSpeed[tar] = Main.AllPlayerSpeed[tar] - 0.5f + originalSpeed[tar];
             ReportDeadBodyPatch.CanReport[tar] = true;
             target.MarkDirtySettings();
             RPC.PlaySoundRPC(tar, Sounds.TaskComplete);
-            Utils.NotifyRoles(SpecifySeer: target);
+            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: player);
             Logger.Info($"{Utils.GetPlayerById(pc).GetRealName()} 吐出了 {target.GetRealName()}", "Pelican");
         }
         eatenList.Remove(pc);
@@ -199,7 +199,7 @@ public static class Pelican
                 if (dis < 1f)
                     continue;
                 target.TP(pos);
-                Utils.NotifyRoles(SpecifySeer: target);
+                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: Utils.GetPlayerById(pc.Key));
             }
         }
     }

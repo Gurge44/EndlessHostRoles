@@ -81,7 +81,7 @@ public static class Pursuer
         notActiveList.Add(pc.PlayerId);
         pc.SetKillCooldown();
         pc.RPCPlayCustomSound("Bet");
-        Utils.NotifyRoles(SpecifySeer: pc);
+        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);
     }
     public static bool OnClientMurder(PlayerControl pc)
     {

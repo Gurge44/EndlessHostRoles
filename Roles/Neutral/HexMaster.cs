@@ -121,7 +121,7 @@ public static class HexMaster
         {
             HexMode[playerId] = !HexMode[playerId];
             SendRPC(false, playerId);
-            Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(playerId));
+            Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(playerId), SpecifyTarget: Utils.GetPlayerById(playerId));
         }
     }
     public static bool HaveHexedPlayer()

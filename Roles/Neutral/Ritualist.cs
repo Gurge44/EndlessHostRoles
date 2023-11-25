@@ -105,7 +105,7 @@ namespace TOHE.Roles.Neutral
                 RitualCount[killer.PlayerId]--;
                 RitualTarget[killer.PlayerId].Add(target.PlayerId);
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()}：占った 占い先→{target.GetNameWithRole().RemoveHtmlTags()} || 残り{RitualCount[killer.PlayerId]}回", "Ritualist");
-                Utils.NotifyRoles(SpecifySeer: killer);
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
 
                 SendRPC(killer.PlayerId, target.PlayerId);
                 //キルクールの適正化

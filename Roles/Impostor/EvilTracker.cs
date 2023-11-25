@@ -118,8 +118,8 @@ public static class EvilTracker
         SetTarget(shapeshifter.PlayerId, target.PlayerId);
         Logger.Info($"{shapeshifter.GetNameWithRole().RemoveHtmlTags()}のターゲットを{target.GetNameWithRole().RemoveHtmlTags()}に設定", "EvilTrackerTarget");
         shapeshifter.MarkDirtySettings();
-        Utils.NotifyRoles(SpecifySeer: shapeshifter);
-        Utils.NotifyRoles(SpecifySeer: target);
+        Utils.NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: target);
+        Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: shapeshifter);
     }
     public static void AfterMeetingTasks()
     {

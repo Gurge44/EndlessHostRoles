@@ -147,8 +147,9 @@ public static class Amnesiac
 
                 killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedPursuer")));
                 target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
-                Utils.NotifyRoles(SpecifySeer: killer);
-                Utils.NotifyRoles(SpecifySeer: target);
+
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
+                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
 
                 Pursuer.Add(killer.PlayerId);
 
@@ -170,8 +171,9 @@ public static class Amnesiac
 
                 killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedFollower")));
                 target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
-                Utils.NotifyRoles(SpecifySeer: killer);
-                Utils.NotifyRoles(SpecifySeer: target);
+
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
+                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
 
                 Totocalcio.Add(killer.PlayerId);
 
@@ -193,9 +195,9 @@ public static class Amnesiac
 
                 killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedMaverick")));
                 target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
-                Utils.NotifyRoles(SpecifySeer: killer);
-                Utils.NotifyRoles(SpecifySeer: target);
 
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
+                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
 
                 killer.ResetKillCooldown();
                 killer.SetKillCooldown();
@@ -242,8 +244,9 @@ public static class Amnesiac
 
             killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedCrewmate")));
             target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
-            Utils.NotifyRoles(SpecifySeer: killer);
-            Utils.NotifyRoles(SpecifySeer: target);
+
+            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
+            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
 
             Sheriff.Add(killer.PlayerId);
 

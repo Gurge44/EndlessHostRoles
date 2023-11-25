@@ -87,8 +87,8 @@ public static class Gangster
 
                 killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Gangster), GetString("GangsterSuccessfullyRecruited")));
                 target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Gangster), GetString("BeRecruitedByGangster")));
-                Utils.NotifyRoles(SpecifySeer: killer);
-                Utils.NotifyRoles(SpecifySeer: target);
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
                 killer.ResetKillCooldown();
                 killer.SetKillCooldown();
@@ -110,8 +110,8 @@ public static class Gangster
 
                 killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Recruit), GetString("GangsterSuccessfullyRecruited")));
                 target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Recruit), GetString("BeRecruitedByGangster")));
-                Utils.NotifyRoles(SpecifySeer: killer);
-                Utils.NotifyRoles(SpecifySeer: target);
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
                 killer.ResetKillCooldown();
                 killer.SetKillCooldown();
@@ -133,8 +133,8 @@ public static class Gangster
 
                 killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Admired), GetString("GangsterSuccessfullyRecruited")));
                 target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Admired), GetString("BeRecruitedByGangster")));
-                Utils.NotifyRoles(SpecifySeer: killer);
-                Utils.NotifyRoles(SpecifySeer: target);
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
                 killer.ResetKillCooldown();
                 killer.SetKillCooldown();
@@ -156,8 +156,8 @@ public static class Gangster
 
                 killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Charmed), GetString("GangsterSuccessfullyRecruited")));
                 target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Charmed), GetString("BeRecruitedByGangster")));
-                Utils.NotifyRoles(SpecifySeer: killer);
-                Utils.NotifyRoles(SpecifySeer: target);
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
                 killer.ResetKillCooldown();
                 killer.SetKillCooldown();
@@ -179,8 +179,8 @@ public static class Gangster
 
                 killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Infected), GetString("GangsterSuccessfullyRecruited")));
                 target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Infected), GetString("BeRecruitedByGangster")));
-                Utils.NotifyRoles(SpecifySeer: killer);
-                Utils.NotifyRoles(SpecifySeer: target);
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
                 killer.ResetKillCooldown();
                 killer.SetKillCooldown();
@@ -202,8 +202,8 @@ public static class Gangster
 
                 killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Contagious), GetString("GangsterSuccessfullyRecruited")));
                 target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Contagious), GetString("BeRecruitedByGangster")));
-                Utils.NotifyRoles(SpecifySeer: killer);
-                Utils.NotifyRoles(SpecifySeer: target);
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
                 killer.ResetKillCooldown();
                 killer.SetKillCooldown();

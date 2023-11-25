@@ -150,7 +150,7 @@ namespace TOHE.Roles.Impostor
 
             if (before1CD != Pistol1CD || before2CD != Pistol2CD)
             {
-                NotifyRoles(SpecifySeer: pc);
+                NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                 SendRPCSyncPistolCD();
                 Logger.Info($"Pistol 1 CD: {Pistol1CD}; Pistol 2 CD: {Pistol2CD}", "debug");
             }
@@ -170,12 +170,12 @@ namespace TOHE.Roles.Impostor
             if (Pistol1CD <= 0 && Pistol2CD > 0)
             {
                 Pistol1CD = KCD;
-                NotifyRoles(SpecifySeer: killer);
+                NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
             }
             if (Pistol2CD <= 0 && Pistol1CD > 0)
             {
                 Pistol2CD = KCD;
-                NotifyRoles(SpecifySeer: killer);
+                NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
             }
 
             if (Tier >= 5)

@@ -2832,7 +2832,7 @@
 "## Drainer"
 "Drainer","","Drainer","","",""
 "DrainerInfo","","Drain Vents by Entering Them","","",""
-"DrainerInfoLong","","(Crewmates):\nAs the Drainer, entering and exiting a vent will kill all players inside that vent.","","",""
+"DrainerInfoLong","","(Crewmates):\nAs the Drainer, entering a vent will kill all players inside that vent and all connecting vents.","","",""
 
 "## Camera Man"
 "CameraMan","","Camera Man","","",""

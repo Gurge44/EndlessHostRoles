@@ -13,7 +13,7 @@ public static class SerialKiller
     public static OptionItem TimeLimit;
     public static OptionItem WaitFor1Kill;
 
-    private static int Timer;
+    private static Dictionary<byte, int> Timer;
 
     public static Dictionary<byte, float> SuicideTimer = [];
 
@@ -34,7 +34,7 @@ public static class SerialKiller
     public static void Add(byte serial)
     {
         playerIdList.Add(serial);
-        Timer = TimeLimit.GetInt();
+        Timer[serial] = TimeLimit.GetInt();
     }
     public static bool IsEnable() => playerIdList.Any();
     public static void ApplyKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
@@ -52,14 +52,13 @@ public static class SerialKiller
     {
         if (!killer.Is(CustomRoles.SerialKiller)) return;
         SuicideTimer.Remove(killer.PlayerId);
-        Timer = TimeLimit.GetInt();
-        if (CanMurder)
-            killer.MarkDirtySettings();
+        Timer[killer.PlayerId] = TimeLimit.GetInt();
+        if (CanMurder) killer.MarkDirtySettings();
     }
     public static void OnReportDeadBody()
     {
         SuicideTimer.Clear();
-        Timer = TimeLimit.GetInt();
+        foreach (var kvp in Timer) Timer[kvp.Key] = TimeLimit.GetInt();
     }
     public static void FixedUpdate(PlayerControl player)
     {
@@ -67,7 +66,7 @@ public static class SerialKiller
         if (!HasKilled(player))
         {
             SuicideTimer.Remove(player.PlayerId);
-            Timer = TimeLimit.GetInt();
+            Timer[player.PlayerId] = TimeLimit.GetInt();
             return;
         }
         if (!SuicideTimer.ContainsKey(player.PlayerId)) //タイマーがない
@@ -81,14 +80,14 @@ public static class SerialKiller
             Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Suicide;//死因：自殺
             player.Kill(player);//自殺させる
             SuicideTimer.Remove(player.PlayerId);
-            Timer = TimeLimit.GetInt();
+            Timer[player.PlayerId] = TimeLimit.GetInt();
         }
         else
         {
             SuicideTimer[player.PlayerId] += Time.fixedDeltaTime;
-            int tempTimer = Timer;
-            Timer = TimeLimit.GetInt() - (int)SuicideTimer[player.PlayerId];
-            if (Timer != tempTimer && Timer <= 20 && !player.IsModClient()) Utils.NotifyRoles(SpecifySeer: player);
+            int tempTimer = Timer[player.PlayerId];
+            Timer[player.PlayerId] = TimeLimit.GetInt() - (int)SuicideTimer[player.PlayerId];
+            if (Timer[player.PlayerId] != tempTimer && Timer[player.PlayerId] <= 20 && !player.IsModClient()) Utils.NotifyRoles(SpecifySeer: player);
         }
         //時間をカウント
     }
@@ -108,7 +107,7 @@ public static class SerialKiller
                 if (HasKilled(pc))
                 {
                     SuicideTimer[id] = 0f;
-                    Timer = TimeLimit.GetInt();
+                    Timer[id] = TimeLimit.GetInt();
                 }
 
             }
