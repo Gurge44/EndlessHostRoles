@@ -127,8 +127,8 @@ namespace TOHE.Roles.Crewmate
                 }
                 else
                 {
-                    var ar_target = Main.FarseerTimer[player.PlayerId].Item1;//塗られる人
-                    var ar_time = Main.FarseerTimer[player.PlayerId].Item2;//塗った時間
+                    var ar_target = Main.FarseerTimer[player.PlayerId].PLAYER;//塗られる人
+                    var ar_time = Main.FarseerTimer[player.PlayerId].TIMER;//塗った時間
                     if (!ar_target.IsAlive())
                     {
                         Main.FarseerTimer.Remove(player.PlayerId);

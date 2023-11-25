@@ -23,7 +23,7 @@ public class PlayerState(byte playerId)
 #pragma warning restore IDE1006 // Naming Styles
     public TaskState taskState = new();
     public bool IsBlackOut { get; set; } = false;
-    public (DateTime, byte) RealKiller = (DateTime.MinValue, byte.MaxValue);
+    public (DateTime TIMESTAMP, byte ID) RealKiller = (DateTime.MinValue, byte.MaxValue);
     public PlainShipRoom LastRoom = null;
     public Dictionary<byte, string> TargetColorData = [];
 
@@ -259,7 +259,7 @@ public class PlayerState(byte playerId)
         etc = -1,
     }
     public byte GetRealKiller()
-        => IsDead && RealKiller.Item1 != DateTime.MinValue ? RealKiller.Item2 : byte.MaxValue;
+        => IsDead && RealKiller.TIMESTAMP != DateTime.MinValue ? RealKiller.ID : byte.MaxValue;
     public int GetKillCount(bool ExcludeSelfKill = false)
     {
         return Main.PlayerStates.Values.Where(state => !(ExcludeSelfKill && state.PlayerId == PlayerId) && state.GetRealKiller() == PlayerId).Count();

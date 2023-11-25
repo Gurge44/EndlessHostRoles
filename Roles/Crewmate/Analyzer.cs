@@ -11,7 +11,7 @@ namespace TOHE.Roles.Crewmate
     {
         private static readonly int Id = 643100;
         private static byte playerId = byte.MaxValue;
-        private static int UseLimit = 0;
+        public static int UseLimit = 0;
 
         private static OptionItem UseLimitOpt;
         private static OptionItem CD;
@@ -21,7 +21,7 @@ namespace TOHE.Roles.Crewmate
         private static OptionItem SeeRoleBasis;
 
         public static Dictionary<byte, int> VentCount = [];
-        private static (byte, long) CurrentTarget = (byte.MaxValue, GetTimeStamp());
+        public static (byte ID, long TIME) CurrentTarget = (byte.MaxValue, GetTimeStamp());
 
         public static void SetupCustomOption()
         {
@@ -43,7 +43,7 @@ namespace TOHE.Roles.Crewmate
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Analyzer]);
         }
 
-        public static bool CanUseKillButton => CurrentTarget.Item1 == byte.MaxValue;
+        public static bool CanUseKillButton => CurrentTarget.ID == byte.MaxValue && UseLimit > 0;
 
         public static bool IsEnable => playerId != byte.MaxValue;
 
@@ -66,6 +66,8 @@ namespace TOHE.Roles.Crewmate
 
         private static int GetVentCount(byte id) => VentCount.TryGetValue(id, out var count) ? count : 0;
 
+        private static string GetAnalyzeResult(PlayerControl pc) => string.Format(GetString("AnalyzerResult"), pc.GetRealName().RemoveHtmlTags(), GetKillCount(pc.PlayerId), GetVentCount(pc.PlayerId), GetRoleBasis(pc.GetCustomRole()));
+
         public static void Init()
         {
             playerId = byte.MaxValue;
@@ -84,11 +86,13 @@ namespace TOHE.Roles.Crewmate
                 Main.ResetCamPlayerList.Add(id);
         }
 
+        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CD.GetFloat();
+
         private static void SendRPCSyncTarget()
         {
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAnalyzerTarget, SendOption.Reliable, -1);
-            writer.Write(CurrentTarget.Item1);
-            writer.Write(CurrentTarget.Item2);
+            writer.Write(CurrentTarget.ID);
+            writer.Write(CurrentTarget.TIME);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 
@@ -125,14 +129,20 @@ namespace TOHE.Roles.Crewmate
             }
         }
 
+        public static void OnAnyoneEnterVent(PlayerControl pc)
+        {
+            if (VentCount.ContainsKey(pc.PlayerId)) VentCount[pc.PlayerId]++;
+            else VentCount[pc.PlayerId] = 1;
+        }
+
         public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer == null || target == null) return;
             if (UseLimit <= 0) return;
-            if (CurrentTarget.Item1 != byte.MaxValue) return;
+            if (CurrentTarget.ID != byte.MaxValue) return;
 
-            UseLimit--;
             CurrentTarget = (target.PlayerId, GetTimeStamp());
+            SendRPCSyncTarget();
             killer.SetKillCooldown(time: Duration.GetFloat());
             NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         }
@@ -140,7 +150,32 @@ namespace TOHE.Roles.Crewmate
         public static void OnFixedUpdate(PlayerControl pc)
         {
             if (pc == null) return;
-            if ()
+            if (CurrentTarget.ID == byte.MaxValue) return;
+
+            PlayerControl target = GetPlayerById(CurrentTarget.ID);
+            if (target == null) return;
+
+            if (UnityEngine.Vector2.Distance(target.GetTruePosition(), pc.GetTruePosition()) < 2f)
+            {
+                CurrentTarget.ID = byte.MaxValue;
+                NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);
+                return;
+            }
+
+            if (CurrentTarget.TIME + Duration.GetInt() < GetTimeStamp())
+            {
+                pc.SetKillCooldown();
+                pc.Notify(GetAnalyzeResult(target));
+                CurrentTarget.ID = byte.MaxValue;
+                UseLimit--;
+            }
+        }
+
+        public static string GetProgressText() => $" <color=#777777>-</color> <color=#{(UseLimit > 0 ? "ffffff" : "ff0000")}>{UseLimit}</color>";
+
+        public static void OnReportDeadBody()
+        {
+            CurrentTarget.ID = byte.MaxValue;
         }
     }
 }

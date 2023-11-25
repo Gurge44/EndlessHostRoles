@@ -1837,6 +1837,7 @@ class ReportDeadBodyPatch
         if (Eraser.IsEnable) Eraser.OnReportDeadBody();
         if (NiceEraser.IsEnable) NiceEraser.OnReportDeadBody();
         if (Hacker.IsEnable) Hacker.OnReportDeadBody();
+        if (Analyzer.IsEnable) Analyzer.OnReportDeadBody();
         if (Judge.IsEnable) Judge.OnReportDeadBody();
         //    Councillor.OnReportDeadBody();
         if (Greedier.IsEnable()) Greedier.OnReportDeadBody();
@@ -2065,6 +2066,9 @@ class FixedUpdatePatch
                 case CustomRoles.Mafioso when !lowLoad:
                     Mafioso.OnFixedUpdate(player);
                     break;
+                case CustomRoles.Analyzer:
+                    Analyzer.OnFixedUpdate(player);
+                    break;
                 case CustomRoles.SerialKiller:
                     SerialKiller.FixedUpdate(player);
                     break;
@@ -2256,7 +2260,7 @@ class FixedUpdatePatch
             #region 纵火犯浇油处理
             if (GameStates.IsInTask && Main.ArsonistTimer.ContainsKey(player.PlayerId))//アーソニストが誰かを塗っているとき
             {
-                var arTarget = Main.ArsonistTimer[player.PlayerId].Item1;
+                var arTarget = Main.ArsonistTimer[player.PlayerId].PLAYER;
                 if (!player.IsAlive() || Pelican.IsEaten(player.PlayerId))
                 {
                     Main.ArsonistTimer.Remove(player.PlayerId);
@@ -2265,8 +2269,8 @@ class FixedUpdatePatch
                 }
                 else
                 {
-                    var ar_target = Main.ArsonistTimer[player.PlayerId].Item1;//塗られる人
-                    var ar_time = Main.ArsonistTimer[player.PlayerId].Item2;//塗った時間
+                    var ar_target = Main.ArsonistTimer[player.PlayerId].PLAYER;//塗られる人
+                    var ar_time = Main.ArsonistTimer[player.PlayerId].TIMER;//塗った時間
                     if (!ar_target.IsAlive())
                     {
                         Main.ArsonistTimer.Remove(player.PlayerId);
@@ -2305,7 +2309,7 @@ class FixedUpdatePatch
             #region 革命家拉人处理
             if (GameStates.IsInTask && Main.RevolutionistTimer.ContainsKey(player.PlayerId))//当革命家拉拢一个玩家时
             {
-                var rvTarget = Main.RevolutionistTimer[player.PlayerId].Item1;
+                var rvTarget = Main.RevolutionistTimer[player.PlayerId].PLAYER;
                 if (!player.IsAlive() || Pelican.IsEaten(player.PlayerId))
                 {
                     Main.RevolutionistTimer.Remove(player.PlayerId);
@@ -2314,8 +2318,8 @@ class FixedUpdatePatch
                 }
                 else
                 {
-                    var rv_target = Main.RevolutionistTimer[player.PlayerId].Item1;//拉拢的人
-                    var rv_time = Main.RevolutionistTimer[player.PlayerId].Item2;//拉拢时间
+                    var rv_target = Main.RevolutionistTimer[player.PlayerId].PLAYER;//拉拢的人
+                    var rv_time = Main.RevolutionistTimer[player.PlayerId].TIMER;//拉拢时间
                     if (!rv_target.IsAlive())
                     {
                         Main.RevolutionistTimer.Remove(player.PlayerId);
@@ -2768,12 +2772,16 @@ class FixedUpdatePatch
                         }
                         break;
                     case CustomRoles.Farseer:
-                        if (
-                                Main.currentDrawTarget != byte.MaxValue &&
-                                Main.currentDrawTarget == target.PlayerId
-                            )
+                        if (Main.currentDrawTarget != byte.MaxValue &&
+                            Main.currentDrawTarget == target.PlayerId)
                         {
                             Mark.Append($"<color={GetRoleColorCode(CustomRoles.Farseer)}>○</color>");
+                        }
+                        break;
+                    case CustomRoles.Analyzer:
+                        if (Analyzer.CurrentTarget.ID == target.PlayerId)
+                        {
+                            Mark.Append($"<color={GetRoleColorCode(CustomRoles.Analyzer)}>○</color>");
                         }
                         break;
                     case CustomRoles.Puppeteer:
@@ -3047,6 +3055,7 @@ class EnterVentPatch
         Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "EnterVent");
 
         Drainer.OnAnyoneEnterVent(pc, __instance);
+        Analyzer.OnAnyoneEnterVent(pc);
 
         if (Witch.IsEnable) Witch.OnEnterVent(pc);
         if (HexMaster.IsEnable) HexMaster.OnEnterVent(pc);

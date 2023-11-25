@@ -157,6 +157,8 @@ public class ChatManager
 
         var filtered = chatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(((string[])a.Split(':'))[0].Trim())).IsAlive()).ToArray();
 
+        if (realMessagesOnly && filtered.Length < 5) return;
+
         if (!realMessagesOnly)
         {
             for (int i = filtered.Length; i < 20; i++)

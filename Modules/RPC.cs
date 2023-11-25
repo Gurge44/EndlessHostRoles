@@ -1666,8 +1666,8 @@ internal static class RPC
     public static void SetRealKiller(byte targetId, byte killerId)
     {
         var state = Main.PlayerStates[targetId];
-        state.RealKiller.Item1 = DateTime.Now;
-        state.RealKiller.Item2 = killerId;
+        state.RealKiller.TIMESTAMP = DateTime.Now;
+        state.RealKiller.ID = killerId;
 
         if (!AmongUsClient.Instance.AmHost) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRealKiller, SendOption.Reliable, -1);

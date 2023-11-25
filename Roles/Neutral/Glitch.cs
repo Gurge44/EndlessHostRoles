@@ -316,7 +316,7 @@ public static class Glitch
 
             string ns = sb.ToString();
 
-            if ((!NameNotifyManager.Notice.TryGetValue(player.PlayerId, out var a) || a.Item1 != ns) && ns != string.Empty) player.Notify(ns, 1.1f);
+            if ((!NameNotifyManager.Notice.TryGetValue(player.PlayerId, out var a) || a.TEXT != ns) && ns != string.Empty) player.Notify(ns, 1.1f);
         }
 
         SendRPCSyncTimers(MimicCDTimer, MimicDurTimer, HackCDTimer, KCDTimer);

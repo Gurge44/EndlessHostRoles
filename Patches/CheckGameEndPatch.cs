@@ -406,7 +406,7 @@ class GameEndChecker
             int Imp = AlivePlayersCount(CountTypes.Impostor);
             int Crew = AlivePlayersCount(CountTypes.Crew);
 
-            Dictionary<(CustomRoles?, CustomWinner), int> roleCounts = new()  // Self Note: If you're adding a new NK, you just have to add it into this dictionary and that's it
+            Dictionary<(CustomRoles? ROLE, CustomWinner WINNER), int> roleCounts = new()  // Self Note: If you're adding a new NK, you just have to add it into this dictionary and that's it
             {
                 { (null,                        CustomWinner.Jackal),             AlivePlayersCount(CountTypes.Jackal) },
                 { (CustomRoles.Pelican,         CustomWinner.Pelican),            AlivePlayersCount(CountTypes.Pelican) },
@@ -511,8 +511,8 @@ class GameEndChecker
                         foreach (var keyValuePair in roleCounts.Where(keyValuePair => keyValuePair.Value == aliveCounts[0]))
                         {
                             reason = GameOverReason.ImpostorByKill;
-                            winner = keyValuePair.Key.Item2;
-                            rl = keyValuePair.Key.Item1;
+                            winner = keyValuePair.Key.WINNER;
+                            rl = keyValuePair.Key.ROLE;
                             break;
                         }
                     }

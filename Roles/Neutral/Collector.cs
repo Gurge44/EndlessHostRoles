@@ -46,7 +46,7 @@ public static class Collector
     }
     public static string GetProgressText(byte playerId)
     {
-        int VoteAmount = CollectVote[playerId];
+        if (!CollectVote.TryGetValue(playerId, out var VoteAmount)) return string.Empty;
         int CollectNum = CollectorCollectAmount.GetInt();
         return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Collector).ShadeColor(0.25f), $"({VoteAmount}/{CollectNum})");
     }

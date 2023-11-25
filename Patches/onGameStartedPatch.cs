@@ -431,14 +431,14 @@ internal class SelectRolesPatch
         try
         {
             List<(PlayerControl, RoleTypes)> newList = [];
-            foreach ((PlayerControl, RoleTypes) sd in RpcSetRoleReplacer.StoragedData.ToArray())
+            foreach ((PlayerControl PLAYER, RoleTypes ROLETYPE) in RpcSetRoleReplacer.StoragedData.ToArray())
             {
-                var kp = RoleResult.FirstOrDefault(x => x.Key.PlayerId == sd.Item1.PlayerId);
-                newList.Add((sd.Item1, kp.Value.GetRoleTypes()));
-                if (sd.Item2 == kp.Value.GetRoleTypes())
-                    Logger.Warn($"Register original role type => {sd.Item1.GetRealName()}: {sd.Item2}", "Override Role Select");
+                var kp = RoleResult.FirstOrDefault(x => x.Key.PlayerId == PLAYER.PlayerId);
+                newList.Add((PLAYER, kp.Value.GetRoleTypes()));
+                if (ROLETYPE == kp.Value.GetRoleTypes())
+                    Logger.Warn($"Register original role type => {PLAYER.GetRealName()}: {ROLETYPE}", "Override Role Select");
                 else
-                    Logger.Warn($"Register original role type => {sd.Item1.GetRealName()}: {sd.Item2} => {kp.Value.GetRoleTypes()}", "Override Role Select");
+                    Logger.Warn($"Register original role type => {PLAYER.GetRealName()}: {ROLETYPE} => {kp.Value.GetRoleTypes()}", "Override Role Select");
             }
             if (Options.EnableGM.GetBool()) newList.Add((PlayerControl.LocalPlayer, RoleTypes.Crewmate));
             RpcSetRoleReplacer.StoragedData = newList;
@@ -1248,11 +1248,11 @@ internal class SelectRolesPatch
                 if (sender.Value.CurrentState != CustomRpcSender.State.InRootMessage)
                     throw new InvalidOperationException("A CustomRpcSender had Invalid State.");
 
-                foreach ((PlayerControl, RoleTypes) pair in StoragedData.ToArray())
+                foreach ((PlayerControl PLAYER, RoleTypes ROLETYPE) in StoragedData.ToArray())
                 {
-                    pair.Item1.SetRole(pair.Item2);
-                    sender.Value.AutoStartRpc(pair.Item1.NetId, (byte)RpcCalls.SetRole, Utils.GetPlayerById(sender.Key).GetClientId())
-                        .Write((ushort)pair.Item2)
+                    PLAYER.SetRole(ROLETYPE);
+                    sender.Value.AutoStartRpc(PLAYER.NetId, (byte)RpcCalls.SetRole, Utils.GetPlayerById(sender.Key).GetClientId())
+                        .Write((ushort)ROLETYPE)
                         .EndRpc();
                 }
                 sender.Value.EndMessage();

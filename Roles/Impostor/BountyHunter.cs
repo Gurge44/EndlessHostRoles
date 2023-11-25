@@ -21,7 +21,7 @@ public static class BountyHunter
     private static float FailureKillCooldown;
     private static bool ShowTargetArrow;
 
-    private static Dictionary<byte, int> Timer;
+    private static readonly Dictionary<byte, int> Timer;
     public static Dictionary<byte, byte> Targets = [];
     public static Dictionary<byte, float> ChangeTimer = [];
 

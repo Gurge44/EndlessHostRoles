@@ -154,7 +154,7 @@ internal static class SoloKombatManager
         if (pc.AmOwner || !pc.IsModClient()) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncKBNameNotify, SendOption.Reliable, pc.GetClientId());
         if (NameNotify.ContainsKey(pc.PlayerId))
-            writer.Write(NameNotify[pc.PlayerId].Item1);
+            writer.Write(NameNotify[pc.PlayerId].TEXT);
         else writer.Write("");
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
@@ -174,7 +174,7 @@ internal static class SoloKombatManager
         if (x > 255) R -= x - 255; else G = x;
         return new Color32((byte)R, (byte)G, (byte)B, byte.MaxValue);
     }
-    public static Dictionary<byte, (string, long)> NameNotify = [];
+    public static Dictionary<byte, (string TEXT, long TIMESTAMP)> NameNotify = [];
     public static void GetNameNotify(PlayerControl player, ref string name)
     {
         if (Options.CurrentGameMode != CustomGameMode.SoloKombat || player == null) return;
@@ -186,7 +186,7 @@ internal static class SoloKombatManager
         }
         if (NameNotify.ContainsKey(player.PlayerId))
         {
-            name = NameNotify[player.PlayerId].Item1;
+            name = NameNotify[player.PlayerId].TEXT;
             return;
         }
     }
@@ -384,7 +384,7 @@ internal static class SoloKombatManager
                         notifyRoles = true;
                     }
                     // 清除过期的提示信息
-                    if (NameNotify.ContainsKey(pc.PlayerId) && NameNotify[pc.PlayerId].Item2 < Utils.GetTimeStamp())
+                    if (NameNotify.ContainsKey(pc.PlayerId) && NameNotify[pc.PlayerId].TIMESTAMP < Utils.GetTimeStamp())
                     {
                         NameNotify.Remove(pc.PlayerId);
                         SendRPCSyncNameNotify(pc);

@@ -1305,6 +1305,8 @@
 "MareAddSpeedInLightsOut","熄灯时的额外速度","Additional Speed During Lights Out","Скорость Ночного при Саботаже Света","關燈時的額外速度","熄灯时的额外速度"
 "MareKillCooldownInLightsOut","熄灯时的击杀冷却时间","Kill Cooldown During Lights Out","Откат убийства Ночного при Саботаже Света","關燈時的殺人冷卻時間","熄灯时的击杀冷却时间"
 "KillCooldownNormally","击杀冷却时不能破坏","Kill Cooldown Without Sabotage","","",""
+"MareHasIncreasedSpeed","","Increased Speed During Lights Sabotage","","",""
+"MareSpeedDuringLightsOut","","Speed During Lights Sabotage","","",""
 "SabotageMasterSkillLimit","修理技能次数上限","Max use of Abilities (Excluding Doors)","Лимит способности (Кроме открытия дверей)","修理技能可使用次數上限","修理技能次数上限"
 "LuckeyProbability","触发挡伤的概率","Probability of surviving a kill","Вероятность остаться в живых","觸發擋傷的機率","触发挡伤的概率"
 "SabotageMasterFixesDoors","打开多扇关闭的门","Can open all doors in the same building","Может открыть все двери","打開多扇關閉的門","打开多扇关闭的门"
@@ -1790,6 +1792,8 @@
 "Speedrunner","","Speedrunner","","",""
 "SpeedrunnerInfo","","Crew wins if you finish your tasks","","",""
 "SpeedrunnerInfoLong","","(Crewmates):\nWhen you complete all of your tasks (and you're still alive), the game instantly ends and everyone on the crewmate team will win.","","",""
+"SpeedrunnerNotifyKillers","","Notify Killers When Tasks are Almost Done","","",""
+"SpeedrunnerNotifyAtXTasksLeft","","Tasks Remaining When Notifying","","",""
 
 "## Lookout"
 "Lookout","瞭望员","Lookout","Дозорный","",""
@@ -2828,6 +2832,14 @@
 "StealthDarkened","","Darkened: {0}","","",""
 "StealthExcludeImpostors","","Ignore Impostors when Blinding","","",""
 "StealthDarkenDuration","","Blinding Duration","","",""
+
+"## Analyzer"
+"Analyzer","","Analyzer","","",""
+"AnalyzerInfo","","Analyze Players to Get Information","","",""
+"AnalyzerInfoLong","","(Crewmates):\nAs the Analyzer, you may use your kill button on someone to analyze them. You will have to stand next to your target for a few seconds to complete the analysis. When the analysis is complete, you will see how many players they've killed so far, how many times they've vented so far, and their role basis.\n\nNote: None of these factors determine whether someone is evil or not! Think twice before judging too fast!","","",""
+"AnalyzerCD","","Analyze Cooldown","","",""
+"AnalyzerDur","","Analyze Time","","",""
+"AnalyzerResult","","\n\nShowing analyzation result for <color=#00ffa5>{0}</color>:\nKills: <color=#ff1919>{1}</color>, Vents: <color=#ffa500>{2}</color>, Role Basis: <color=#00ffff>{3}</color>","","",""
 
 "## Drainer"
 "Drainer","","Drainer","","",""

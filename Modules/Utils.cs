@@ -745,6 +745,9 @@ public static class Utils
                 case CustomRoles.Sheriff:
                     if (Sheriff.ShowShotLimit.GetBool()) ProgressText.Append(Sheriff.GetShotLimit(playerId));
                     break;
+                case CustomRoles.Analyzer:
+                    ProgressText.Append(Analyzer.GetProgressText());
+                    break;
                 case CustomRoles.Alchemist:
                     ProgressText.Append(Alchemist.GetProgressText(playerId));
                     if (Options.UsePets.GetBool() && Main.AlchemistCD.TryGetValue(playerId, out var time) && !GetPlayerById(playerId).IsModClient())
@@ -1444,7 +1447,7 @@ public static class Utils
                 sb.Append(opt.Index == option.Children.Count ? "┗ " : "┣ ");
             }
             var value = opt.Value.GetString().Replace("ON", "<#00ffa5>ON</color>").Replace("OFF", "<#ff0000>OFF</color>");
-            string name = $"<#000000>{opt.Value.GetName().Replace("<color=#ffffff>", string.Empty).Replace("<color=#ffffffff>", string.Empty).Replace("color=", string.Empty)}</color>";
+            string name = $"<#000000>{opt.Value.GetName(disableColor: true).Replace("<color=#ffffff>", string.Empty).Replace("<color=#ffffffff>", string.Empty).Replace("color=", string.Empty)}</color>";
             sb.Append($"{name}: <b>{value}</b>\n");
             if (opt.Value.GetBool()) ShowChildrenSettings(opt.Value, ref sb, deep + 1);
         }
@@ -2217,7 +2220,7 @@ public static class Utils
                                     {
                                         TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Arsonist)}>▲</color>");
                                     }
-                                    if (Main.ArsonistTimer.TryGetValue(seer.PlayerId, out var ar_kvp) && ar_kvp.Item1 == target)
+                                    if (Main.ArsonistTimer.TryGetValue(seer.PlayerId, out var ar_kvp) && ar_kvp.PLAYER == target)
                                     {
                                         TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Arsonist)}>△</color>");
                                     }
@@ -2227,15 +2230,21 @@ public static class Utils
                                     {
                                         TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Revolutionist)}>●</color>");
                                     }
-                                    if (Main.RevolutionistTimer.TryGetValue(seer.PlayerId, out var ar_kvp1) && ar_kvp1.Item1 == target)
+                                    if (Main.RevolutionistTimer.TryGetValue(seer.PlayerId, out var ar_kvp1) && ar_kvp1.PLAYER == target)
                                     {
                                         TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Revolutionist)}>○</color>");
                                     }
                                     break;
                                 case CustomRoles.Farseer:
-                                    if (Main.FarseerTimer.TryGetValue(seer.PlayerId, out var ar_kvp2) && ar_kvp2.Item1 == target)
+                                    if (Main.FarseerTimer.TryGetValue(seer.PlayerId, out var ar_kvp2) && ar_kvp2.PLAYER == target)
                                     {
                                         TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Farseer)}>○</color>");
+                                    }
+                                    break;
+                                case CustomRoles.Analyzer:
+                                    if (Analyzer.CurrentTarget.ID == target.PlayerId)
+                                    {
+                                        TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Analyzer)}>○</color>");
                                     }
                                     break;
                                 case CustomRoles.Puppeteer when Main.PuppeteerList.ContainsValue(seer.PlayerId) && Main.PuppeteerList.ContainsKey(target.PlayerId):

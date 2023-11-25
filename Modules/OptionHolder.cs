@@ -457,13 +457,13 @@ public static class Options
     // Mare Add-on
     public static OptionItem MareKillCD;
     public static OptionItem MareKillCDNormally;
-
+    public static OptionItem MareHasIncreasedSpeed;
+    public static OptionItem MareSpeedDuringLightsOut;
 
     public static OptionItem AutoPlayAgain;
     public static OptionItem AutoPlayAgainCountdown;
     public static OptionItem AutoStartTimer;
-
-    //
+    
     public static OptionItem ControlCooldown;
     public static OptionItem InhibitorCD;
     public static OptionItem InhibitorCDAfterMeetings;
@@ -2353,6 +2353,11 @@ public static class Options
         MareKillCDNormally = FloatOptionItem.Create(1606, "KillCooldownNormally", new(0f, 90f, 1f), 40f, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Mare])
             .SetValueFormat(OptionFormat.Seconds);
+        MareHasIncreasedSpeed = BooleanOptionItem.Create(1607, "MareHasIncreasedSpeed", true, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Mare]);
+        MareSpeedDuringLightsOut = FloatOptionItem.Create(1608, "MareSpeedDuringLightsOut", new(0.5f, 3f, 0.05f), 1.75f, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Mare])
+            .SetValueFormat(OptionFormat.Multiplier);
         RoleLoadingText = "Add-ons\nMimic";
         SetupAdtRoleOptions(16000, CustomRoles.Mimic, canSetNum: true, tab: TabGroup.Addons);
         MimicCanSeeDeadRoles = BooleanOptionItem.Create(16010, "MimicCanSeeDeadRoles", true, TabGroup.Addons, false)

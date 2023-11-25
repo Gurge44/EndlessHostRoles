@@ -13,7 +13,7 @@ public static class SerialKiller
     public static OptionItem TimeLimit;
     public static OptionItem WaitFor1Kill;
 
-    private static Dictionary<byte, int> Timer;
+    private static readonly Dictionary<byte, int> Timer;
 
     public static Dictionary<byte, float> SuicideTimer = [];
 

@@ -667,7 +667,7 @@ class MeetingHudStartPatch
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        List<(string, byte, string)> msgToSend = [];
+        List<(string MESSAGE, byte TARGET_ID, string TITLE)> msgToSend = [];
 
         void AddMsg(string text, byte sendTo = 255, string title = "")
             => msgToSend.Add((text, sendTo, title));
@@ -701,7 +701,7 @@ class MeetingHudStartPatch
         if (msgToSend.Any())
         {
             var msgTemp = msgToSend.ToList();
-            _ = new LateTask(() => { msgTemp.Do(x => Utils.SendMessage(x.Item1, x.Item2, x.Item3)); }, 3f, "Skill Description First Meeting");
+            _ = new LateTask(() => { msgTemp.Do(x => Utils.SendMessage(x.MESSAGE, x.TARGET_ID, x.TITLE)); }, 3f, "Skill Description First Meeting");
         }
         msgToSend = [];
 
@@ -793,10 +793,10 @@ class MeetingHudStartPatch
                 AddMsg(MimicMsg, ipc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mimic), GetString("MimicMsgTitle")));
         }
 
-        msgToSend.Do(x => Logger.Info($"To:{x.Item2} {x.Item3} => {x.Item1}", "Skill Notice OnMeeting Start"));
+        msgToSend.Do(x => Logger.Info($"To:{x.TARGET_ID} {x.TITLE} => {x.MESSAGE}", "Skill Notice OnMeeting Start"));
 
         //总体延迟发送
-        _ = new LateTask(() => { msgToSend.Do(x => Utils.SendMessage(x.Item1, x.Item2, x.Item3)); }, 3f, "Skill Notice OnMeeting Start");
+        _ = new LateTask(() => { msgToSend.Do(x => Utils.SendMessage(x.MESSAGE, x.TARGET_ID, x.TITLE)); }, 3f, "Skill Notice OnMeeting Start");
 
         Main.CyberStarDead.Clear();
         Main.DemolitionistDead.Clear();

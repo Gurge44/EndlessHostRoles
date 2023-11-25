@@ -117,7 +117,7 @@ internal static class FFAManager
         if (pc.AmOwner || !pc.IsModClient()) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncFFANameNotify, SendOption.Reliable, pc.GetClientId());
         if (NameNotify.ContainsKey(pc.PlayerId))
-            writer.Write(NameNotify[pc.PlayerId].Item1);
+            writer.Write(NameNotify[pc.PlayerId].TEXT);
         else writer.Write(string.Empty);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
@@ -128,13 +128,13 @@ internal static class FFAManager
         if (name != null && name != string.Empty)
             NameNotify.Add(PlayerControl.LocalPlayer.PlayerId, (name, 0));
     }
-    public static Dictionary<byte, (string, long)> NameNotify = [];
+    public static Dictionary<byte, (string TEXT, long TIMESTAMP)> NameNotify = [];
     public static void GetNameNotify(PlayerControl player, ref string name)
     {
         if (Options.CurrentGameMode != CustomGameMode.FFA || player == null) return;
         if (NameNotify.ContainsKey(player.PlayerId))
         {
-            name = NameNotify[player.PlayerId].Item1;
+            name = NameNotify[player.PlayerId].TEXT;
             return;
         }
     }
@@ -354,7 +354,7 @@ internal static class FFAManager
 
                 RoundTime--;
 
-                foreach (var pc in Main.AllPlayerControls.Where(pc => NameNotify.TryGetValue(pc.PlayerId, out var nn) && nn.Item2 < now).ToArray())
+                foreach (var pc in Main.AllPlayerControls.Where(pc => NameNotify.TryGetValue(pc.PlayerId, out var nn) && nn.TIMESTAMP < now).ToArray())
                 {
                     NameNotify.Remove(pc.PlayerId);
                     SendRPCSyncNameNotify(pc);

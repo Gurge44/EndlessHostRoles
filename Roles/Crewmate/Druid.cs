@@ -145,10 +145,10 @@ namespace TOHE.Roles.Crewmate
                 if (Main.DruidCD.ContainsKey(pc.PlayerId)) return;
                 Main.DruidCD.TryAdd(pc.PlayerId, now);
 
-                var trigger = GetTriggerInfo(pc);
+                var (LOCATION, ROOM_NAME) = GetTriggerInfo(pc);
                 if (!Triggers.ContainsKey(pc.PlayerId)) Triggers.Add(pc.PlayerId, []);
-                Triggers[pc.PlayerId].TryAdd(trigger.Item1, trigger.Item2);
-                SendRPCAddTrigger(pc.PlayerId, trigger.Item1, trigger.Item2);
+                Triggers[pc.PlayerId].TryAdd(LOCATION, ROOM_NAME);
+                SendRPCAddTrigger(pc.PlayerId, LOCATION, ROOM_NAME);
             }
             else
             {
@@ -180,10 +180,10 @@ namespace TOHE.Roles.Crewmate
                     if (x.Value + TriggerPlaceDelay.GetInt() < now)
                     {
                         TriggerDelays.Remove(id);
-                        var trigger = GetTriggerInfo(pc);
+                        var (LOCATION, ROOM_NAME) = GetTriggerInfo(pc);
                         if (!Triggers.ContainsKey(id)) Triggers.Add(id, []);
-                        Triggers[id].TryAdd(trigger.Item1, trigger.Item2);
-                        SendRPCAddTrigger(id, trigger.Item1, trigger.Item2);
+                        Triggers[id].TryAdd(LOCATION, ROOM_NAME);
+                        SendRPCAddTrigger(id, LOCATION, ROOM_NAME);
                         continue;
                     }
 
@@ -211,7 +211,7 @@ namespace TOHE.Roles.Crewmate
             }
         }
 
-        private static (Vector2, string) GetTriggerInfo(PlayerControl pc)
+        private static (Vector2 LOCATION, string ROOM_NAME) GetTriggerInfo(PlayerControl pc)
         {
             PlainShipRoom room = pc.GetPlainShipRoom();
             string roomName = room == null ? "Outside" : room.name;

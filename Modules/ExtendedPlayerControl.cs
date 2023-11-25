@@ -201,8 +201,8 @@ static class ExtendedPlayerControl
 
     public static void Suicide(this PlayerControl pc, PlayerState.DeathReason deathReason = PlayerState.DeathReason.Suicide, PlayerControl realKiller = null)
     {
-        Main.PlayerStates[pc.PlayerId].SetDead();
         Main.PlayerStates[pc.PlayerId].deathReason = deathReason;
+        Main.PlayerStates[pc.PlayerId].SetDead();
         if (realKiller != null) pc.SetRealKiller(realKiller);
         pc.Kill(pc);
     }
@@ -1387,7 +1387,7 @@ static class ExtendedPlayerControl
             return;
         }
         var State = Main.PlayerStates[target.PlayerId];
-        if (State.RealKiller.Item1 != DateTime.MinValue && NotOverRide) return; //既に値がある場合上書きしない
+        if (State.RealKiller.TIMESTAMP != DateTime.MinValue && NotOverRide) return; //既に値がある場合上書きしない
         byte killerId = killer == null ? byte.MaxValue : killer.PlayerId;
         RPC.SetRealKiller(target.PlayerId, killerId);
     }

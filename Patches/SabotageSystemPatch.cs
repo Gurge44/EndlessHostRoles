@@ -172,11 +172,11 @@ public static class ElectricTaskInitializePatch
     {
         Utils.MarkEveryoneDirtySettingsV2();
 
-        if (!GameStates.IsMeeting)
+        if (GameStates.IsInTask)
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (CustomRolesHelper.NeedUpdateOnLights(pc.GetCustomRole()))
+                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare))
                 {
                     Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true);
                 }
@@ -193,11 +193,11 @@ public static class ElectricTaskCompletePatch
     {
         Utils.MarkEveryoneDirtySettingsV2();
 
-        if (!GameStates.IsMeeting)
+        if (GameStates.IsInTask)
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (CustomRolesHelper.NeedUpdateOnLights(pc.GetCustomRole()))
+                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare))
                 {
                     Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true);
                 }

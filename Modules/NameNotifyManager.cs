@@ -6,7 +6,7 @@ namespace TOHE;
 
 public static class NameNotifyManager
 {
-    public static Dictionary<byte, (string, long)> Notice = [];
+    public static Dictionary<byte, (string TEXT, long TIMESTAMP)> Notice = [];
     public static void Reset() => Notice = [];
     public static bool Notifying(this PlayerControl pc) => Notice.ContainsKey(pc.PlayerId);
     public static void Notify(this PlayerControl pc, string text, float time = 5f)
@@ -29,7 +29,7 @@ public static class NameNotifyManager
             Notice = [];
             return;
         }
-        if (Notice.ContainsKey(player.PlayerId) && Notice[player.PlayerId].Item2 < Utils.GetTimeStamp())
+        if (Notice.ContainsKey(player.PlayerId) && Notice[player.PlayerId].TIMESTAMP < Utils.GetTimeStamp())
         {
             Notice.Remove(player.PlayerId);
             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
@@ -39,7 +39,7 @@ public static class NameNotifyManager
     {
         name = string.Empty;
         if (!Notice.ContainsKey(player.PlayerId)) return false;
-        name = Notice[player.PlayerId].Item1;
+        name = Notice[player.PlayerId].TEXT;
         return true;
     }
     private static void SendRPC(byte playerId)
@@ -50,8 +50,8 @@ public static class NameNotifyManager
         if (Notice.ContainsKey(playerId))
         {
             writer.Write(true);
-            writer.Write(Notice[playerId].Item1);
-            writer.Write(Notice[playerId].Item2 - Utils.GetTimeStamp());
+            writer.Write(Notice[playerId].TEXT);
+            writer.Write(Notice[playerId].TIMESTAMP - Utils.GetTimeStamp());
         }
         else writer.Write(false);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -62,6 +62,6 @@ public static class NameNotifyManager
         Notice.Remove(PlayerId);
         if (reader.ReadBoolean())
             Notice.Add(PlayerId, new(reader.ReadString(), Utils.GetTimeStamp() + (long)reader.ReadSingle()));
-        Logger.Info($"New name notify for {Main.AllPlayerNames[PlayerId]}: {Notice[PlayerId].Item1} ({Notice[PlayerId].Item2 - Utils.GetTimeStamp()}s)", "Name Notify");
+        Logger.Info($"New name notify for {Main.AllPlayerNames[PlayerId]}: {Notice[PlayerId].TEXT} ({Notice[PlayerId].TIMESTAMP - Utils.GetTimeStamp()}s)", "Name Notify");
     }
 }

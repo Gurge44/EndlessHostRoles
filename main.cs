@@ -180,9 +180,9 @@ public class Main : BasePlugin
     public static Dictionary<(byte, byte), bool> isDoused = [];
     public static Dictionary<(byte, byte), bool> isDraw = [];
     public static Dictionary<(byte, byte), bool> isRevealed = [];
-    public static Dictionary<byte, (PlayerControl, float)> ArsonistTimer = [];
-    public static Dictionary<byte, (PlayerControl, float)> RevolutionistTimer = [];
-    public static Dictionary<byte, (PlayerControl, float)> FarseerTimer = [];
+    public static Dictionary<byte, (PlayerControl PLAYER, float TIMER)> ArsonistTimer = [];
+    public static Dictionary<byte, (PlayerControl PLAYER, float TIMER)> RevolutionistTimer = [];
+    public static Dictionary<byte, (PlayerControl PLAYER, float TIMER)> FarseerTimer = [];
     public static Dictionary<byte, long> RevolutionistStart = [];
     public static Dictionary<byte, long> RevolutionistLastTime = [];
     public static Dictionary<byte, int> RevolutionistCountdown = [];

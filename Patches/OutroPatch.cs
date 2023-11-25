@@ -44,9 +44,9 @@ class EndGamePatch
         }
 
         var sb = new StringBuilder(GetString("KillLog") + ":");
-        foreach (var kvp in Main.PlayerStates.OrderBy(x => x.Value.RealKiller.Item1.Ticks))
+        foreach (var kvp in Main.PlayerStates.OrderBy(x => x.Value.RealKiller.TIMESTAMP.Ticks))
         {
-            var date = kvp.Value.RealKiller.Item1;
+            var date = kvp.Value.RealKiller.TIMESTAMP;
             if (date == DateTime.MinValue) continue;
             var killerId = kvp.Value.GetRealKiller();
             var targetId = kvp.Key;

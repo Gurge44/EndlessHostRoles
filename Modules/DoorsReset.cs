@@ -39,8 +39,9 @@ public static class DoorsReset
     /// <summary>Open all doors on the map</summary>
     public static void OpenAllDoors()
     {
-        foreach (var door in ShipStatus.Instance.AllDoors)
+        foreach (var door in ShipStatus.Instance?.AllDoors)
         {
+            if (door == null) continue;
             SetDoorOpenState(door, true);
         }
         DoorsSystem.IsDirty = true;
@@ -48,8 +49,9 @@ public static class DoorsReset
     /// <summary>Close all doors on the map</summary>
     private static void CloseAllDoors()
     {
-        foreach (var door in ShipStatus.Instance.AllDoors)
+        foreach (var door in ShipStatus.Instance?.AllDoors)
         {
+            if (door == null) continue;
             SetDoorOpenState(door, false);
         }
         DoorsSystem.IsDirty = true;
