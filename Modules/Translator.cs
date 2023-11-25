@@ -17,9 +17,9 @@ public static class Translator
     public const string LANGUAGE_FOLDER_NAME = "Language";
     public static void Init()
     {
-        Logger.Info("加载语言文件...", "Translator");
+        Logger.Info("Loading language file...", "Translator");
         LoadLangs();
-        Logger.Info("加载语言文件成功", "Translator");
+        Logger.Info("Language file loaded successfully", "Translator");
     }
     public static void LoadLangs()
     {
@@ -152,14 +152,14 @@ public static class Translator
                     }
                     catch (KeyNotFoundException)
                     {
-                        Logger.Warn($"无效密钥：{tmp[0]}", "LoadCustomTranslation");
+                        Logger.Warn($"Invalid key：{tmp[0]}", "LoadCustomTranslation");
                     }
                 }
             }
         }
         else
         {
-            Logger.Error($"找不到自定义翻译文件：{filename}", "LoadCustomTranslation");
+            Logger.Error($"Custom translation file not found：{filename}", "LoadCustomTranslation");
         }
     }
 

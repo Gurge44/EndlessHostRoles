@@ -57,7 +57,7 @@ class HudManagerPatch
 
         Utils.CountAlivePlayers();
 
-        bool shapeshifting = Main.CheckShapeshift.TryGetValue(player.PlayerId, out bool ss) && ss;
+        bool shapeshifting = player.shapeshifting;
 
         if (SetHudActivePatch.IsActive)
         {
@@ -149,6 +149,9 @@ class HudManagerPatch
                     //case CustomRoles.Counterfeiter:
                     //    __instance.KillButton.OverrideText(GetString("CounterfeiterButtonText"));
                     //    break;
+                    case CustomRoles.Analyzer:
+                        __instance.KillButton?.OverrideText(GetString("AnalyzerKillButtonText"));
+                        break;
                     case CustomRoles.Witness:
                         __instance.KillButton?.OverrideText(GetString("WitnessButtonText"));
                         break;
@@ -671,7 +674,7 @@ class SetHudActivePatch
 
         }
 
-        if (Main.PlayerStates[player.PlayerId].SubRoles.Contains(CustomRoles.Oblivious))
+        if (Main.PlayerStates.TryGetValue(player.PlayerId, out var ps) && ps.SubRoles.Contains(CustomRoles.Oblivious))
         {
             __instance.ReportButton?.ToggleVisible(false);
         }

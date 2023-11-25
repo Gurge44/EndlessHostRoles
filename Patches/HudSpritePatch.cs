@@ -34,7 +34,7 @@ public static class HudSpritePatch
             return;
         }
 
-        bool shapeshifting = Main.CheckShapeshift.TryGetValue(player.PlayerId, out bool ss) && ss;
+        bool shapeshifting = player.shapeshifting;
 
         if (!Kill) Kill = __instance.KillButton.graphic.sprite;
         if (!Ability) Ability = __instance.AbilityButton.graphic.sprite;
@@ -231,6 +231,7 @@ public static class HudSpritePatch
                     else
                         newPetButton = CustomButton.Get("Mine");
                     break;
+                case CustomRoles.Analyzer:
                 case CustomRoles.Witness:
                     newKillButton = CustomButton.Get("Examine");
                     break;

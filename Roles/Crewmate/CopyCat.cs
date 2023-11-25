@@ -200,6 +200,7 @@ public static class CopyCat
             //bcoz im lazy
             CustomRoles.Escort or
             CustomRoles.DonutDelivery or
+            CustomRoles.Analyzer or
             //bcoz of arrows
             CustomRoles.Mortician or
             CustomRoles.Bloodhound or

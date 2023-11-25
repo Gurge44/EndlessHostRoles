@@ -52,7 +52,7 @@ namespace TOHE.Roles.Impostor
 
         public static void SendRPC(bool isClear, byte playerId = byte.MaxValue)
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDruidLimit, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncYinYanger, SendOption.Reliable, -1);
             writer.Write(isClear);
             if (!isClear) writer.Write(playerId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);

@@ -231,6 +231,7 @@ internal class ChangeRoleSettings
             Benefactor.Init();
             Aid.Init();
             DonutDelivery.Init();
+            Analyzer.Init();
             Escort.Init();
             Consort.Init();
             Drainer.Init();
@@ -685,6 +686,9 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.DonutDelivery:
                         DonutDelivery.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Analyzer:
+                        Analyzer.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Pursuer:
                         Pursuer.Add(pc.PlayerId);

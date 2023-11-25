@@ -217,6 +217,9 @@ class CheckMurderPatch
                 case CustomRoles.Magician:
                     Magician.OnCheckMurder(killer);
                     break;
+                case CustomRoles.Analyzer:
+                    Analyzer.OnCheckMurder(killer, target);
+                    return false;
                 case CustomRoles.DonutDelivery:
                     DonutDelivery.OnCheckMurder(killer, target);
                     return false;
@@ -228,12 +231,6 @@ class CheckMurderPatch
                     break;
                 case CustomRoles.Cantankerous:
                     if (Cantankerous.OnCheckMurder(killer)) return false;
-                    break;
-                case CustomRoles.Blackmailer:
-                    if (!killer.CheckDoubleTrigger(target, () =>
-                    {
-                        Blackmailer.ForBlackmailer.Add(target.PlayerId);
-                    })) return false;
                     break;
                 case CustomRoles.Postman:
                     Postman.OnCheckMurder(killer, target);
@@ -324,7 +321,7 @@ class CheckMurderPatch
                     break;
                 case CustomRoles.Warlock:
                     if (!Main.isCurseAndKill.ContainsKey(killer.PlayerId)) Main.isCurseAndKill[killer.PlayerId] = false;
-                    if (!Main.CheckShapeshift[killer.PlayerId] && !Main.isCurseAndKill[killer.PlayerId])
+                    if (!killer.shapeshifting && !Main.isCurseAndKill[killer.PlayerId])
                     { //Warlockが変身時以外にキルしたら、呪われる処理
                         if (target.Is(CustomRoles.Needy) || target.Is(CustomRoles.Lazy)) return false;
                         Main.isCursed = true;
@@ -337,7 +334,7 @@ class CheckMurderPatch
                         //RPC.RpcSyncCurseAndKill();
                         return false;
                     }
-                    if (Main.CheckShapeshift[killer.PlayerId])
+                    if (killer.shapeshifting)
                     {//呪われてる人がいないくて変身してるときに通常キルになる
                         killer.RpcCheckAndMurder(target);
                         return false;
@@ -1335,6 +1332,10 @@ class ShapeshiftPatch
                     return false;
                 case CustomRoles.Sapper:
                     Sapper.OnShapeshift(shapeshifter);
+                    isSSneeded = false;
+                    break;
+                case CustomRoles.Blackmailer:
+                    Blackmailer.ForBlackmailer.Add(target.PlayerId);
                     isSSneeded = false;
                     break;
                 case CustomRoles.Warlock:
@@ -3237,6 +3238,9 @@ class EnterVentPatch
                 break;
             case CustomRoles.Addict:
                 Addict.OnEnterVent(pc, __instance);
+                break;
+            case CustomRoles.CameraMan:
+                CameraMan.OnEnterVent(pc);
                 break;
             case CustomRoles.Alchemist:
                 Alchemist.OnEnterVent(pc, __instance.Id);

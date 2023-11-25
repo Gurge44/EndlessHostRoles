@@ -37,7 +37,7 @@ public static class Morphling
     }
     public static bool CanUseKillButton(byte playerId)
         => !Main.PlayerStates[playerId].IsDead
-        && Main.CheckShapeshift[playerId];
+        && Utils.GetPlayerById(playerId).shapeshifting;
 
     public static void ApplyGameOptions()
     {

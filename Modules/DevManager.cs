@@ -66,6 +66,9 @@ public static class DevManager
 
         DevUserList.Add(new(code: "radarright#2509", color: "null", tag: "null", isUp: false, isDev: false, deBug: true, colorCmd: false, upName: null));
 
+        // TOHE+ players
+        DevUserList.Add(new(code: "crustzonal#9589", color: "#00ffff", tag: "Translator PT-BR", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "artyleague01"));
+
         // Sponsor
         DevUserList.Add(new(code: "recentduct#6068", color: "#FF00FF", tag: "高冷男模法师", isUp: false, isDev: false, colorCmd: false, deBug: true, upName: null));
         DevUserList.Add(new(code: "canneddrum#2370", color: "#fffcbe", tag: "我是喜唉awa", isUp: false, isDev: false, colorCmd: false, deBug: false, upName: null));
@@ -77,7 +80,7 @@ public static class DevManager
         DevUserList.Add(new(code: "mallcasual#6075", color: "#f89ccb", tag: "波奇酱", isUp: false, isDev: false, colorCmd: false, deBug: false, upName: null));
         DevUserList.Add(new(code: "beamelfin#9478", color: "#6495ED", tag: "Amaster-1111", isUp: false, isDev: false, colorCmd: false, deBug: false, upName: null));
         DevUserList.Add(new(code: "lordcosy#8966", color: "#FFD6EC", tag: "HostTOHE", isUp: false, isDev: false, colorCmd: false, deBug: false, upName: null)); //K
-                                                                                                                                                                //        DevUserList.Add(new(code: "honestsofa#2870", color: "#D381D9", tag: "Discord: SolarFlare#0700", isUp: true, isDev: false, colorCmd: false, deBug: false, upName: "SolarFlare")); //SolarFlare
+        DevUserList.Add(new(code: "honestsofa#2870", color: "#D381D9", tag: "Discord: SolarFlare#0700", isUp: true, isDev: false, colorCmd: false, deBug: false, upName: "SolarFlare")); //SolarFlare
         DevUserList.Add(new(code: "caseeast#7194", color: "#1c2451", tag: "disc.gg/maul", isUp: false, isDev: false, colorCmd: false, deBug: false, upName: null)); //laikrai
         // lol hi go away
         //DevUserList.Add(new(code: "gnuedaphic#7196", color: "#ffc0cb", tag: "TOH-RE Developer", isUp: true, isDev: false, deBug: false, colorCmd: true, upName: "Loonie")); //Loonie

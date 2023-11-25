@@ -568,6 +568,7 @@ public static class Utils
             case CustomRoles.Aid:
             case CustomRoles.Escort:
             case CustomRoles.DonutDelivery:
+            case CustomRoles.Analyzer:
             case CustomRoles.Witness:
             case CustomRoles.Pursuer:
             case CustomRoles.Spiritcaller:

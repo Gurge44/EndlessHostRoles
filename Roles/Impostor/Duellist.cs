@@ -46,7 +46,7 @@ namespace TOHE.Roles.Impostor
 
         private static void SendRPC(byte duellistId, byte targetId)
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDruidLimit, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncDuellistTarget, SendOption.Reliable, -1);
             writer.Write(duellistId);
             writer.Write(targetId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);

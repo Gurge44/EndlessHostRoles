@@ -107,6 +107,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Aid => CustomRoles.Impostor,
                 CustomRoles.Escort => CustomRoles.Impostor,
                 CustomRoles.DonutDelivery => CustomRoles.Impostor,
+                CustomRoles.Analyzer => CustomRoles.Impostor,
                 CustomRoles.Escapee => Options.UsePets.GetBool() ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.NiceGuesser => CustomRoles.Crewmate,
                 CustomRoles.EvilGuesser => CustomRoles.Impostor,
@@ -229,6 +230,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Ricochet => CustomRoles.CrewmateTOHE,
                 CustomRoles.Aid => CustomRoles.CrewmateTOHE,
                 CustomRoles.DonutDelivery => CustomRoles.CrewmateTOHE,
+                CustomRoles.Analyzer => CustomRoles.CrewmateTOHE,
                 CustomRoles.Escort => CustomRoles.CrewmateTOHE,
                 CustomRoles.Doormaster => CustomRoles.EngineerTOHE,
                 CustomRoles.Tether => CustomRoles.EngineerTOHE,
@@ -289,6 +291,7 @@ internal static class CustomRolesHelper
             CustomRoles.Aid => RoleTypes.Impostor,
             CustomRoles.Escort => RoleTypes.Impostor,
             CustomRoles.DonutDelivery => RoleTypes.Impostor,
+            CustomRoles.Analyzer => RoleTypes.Impostor,
             CustomRoles.Witness => RoleTypes.Impostor,
             CustomRoles.Pursuer => RoleTypes.Impostor,
             CustomRoles.Revolutionist => RoleTypes.Impostor,
@@ -911,6 +914,7 @@ internal static class CustomRolesHelper
         CustomRoles.Witness or
         CustomRoles.Aid or
         CustomRoles.DonutDelivery or
+        CustomRoles.Analyzer or
         CustomRoles.Escort or
         CustomRoles.Totocalcio or
         CustomRoles.Farseer or
@@ -1033,6 +1037,7 @@ internal static class CustomRolesHelper
         CustomRoles.Aid or
         CustomRoles.Escort or
         CustomRoles.DonutDelivery or
+        CustomRoles.Analyzer or
         CustomRoles.Witness or
         CustomRoles.Monarch or
         CustomRoles.Jailor or
@@ -1084,6 +1089,7 @@ internal static class CustomRolesHelper
         //CustomRoles.Counterfeiter or
         CustomRoles.Aid or
         CustomRoles.DonutDelivery or
+        CustomRoles.Analyzer or
         CustomRoles.Escort or
         CustomRoles.Witness or
         CustomRoles.Monarch or

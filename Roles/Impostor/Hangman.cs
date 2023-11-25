@@ -59,10 +59,10 @@ public static class Hangman
 
         if (HangLimit[killer.PlayerId] < 1)
         {
-            if (Main.CheckShapeshift.TryGetValue(killer.PlayerId, out var ss) && ss) return false;
+            if (killer.shapeshifting) return false;
         };
 
-        if (Main.CheckShapeshift.TryGetValue(killer.PlayerId, out var s) && s)
+        if (killer.shapeshifting)
         {
             if (target.Is(CustomRoles.Pestilence)) return false;
             if (target.Is(CustomRoles.Veteran) && Main.VeteranInProtect.ContainsKey(target.PlayerId)) return false;

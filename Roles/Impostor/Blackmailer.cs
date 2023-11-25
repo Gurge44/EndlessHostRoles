@@ -15,8 +15,9 @@ public static class Blackmailer
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.OtherRoles, CustomRoles.Blackmailer);
-        SkillCooldown = FloatOptionItem.Create(Id + 5, "BlackmailerSkillCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.OtherRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Blackmailer])
-           .SetValueFormat(OptionFormat.Seconds);
+        SkillCooldown = FloatOptionItem.Create(Id + 5, "BlackmailerSkillCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.OtherRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Blackmailer])
+            .SetValueFormat(OptionFormat.Seconds);
     }
     public static void Init()
     {

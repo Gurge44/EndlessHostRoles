@@ -130,7 +130,7 @@ public static class Doppelganger
     {
 
         if (killer == null || target == null || !IsEnable || Camouflage.IsCamouflage || Camouflager.IsActive) return;
-        if (Main.CheckShapeshift.TryGetValue(target.PlayerId, out bool isShapeshifitng) && isShapeshifitng)
+        if (target.shapeshifting)
         {
             Logger.Info("Target was shapeshifting", "Doppelganger");
             return;

@@ -58,6 +58,9 @@ enum CustomRPC
 
     //Roles
     SetDrawPlayer,
+    SyncYinYanger,
+    SyncAnalyzer,
+    SyncAnalyzerTarget,
     SyncCantankerousLimit,
     SyncDuellistTarget,
     SetDruidLimit,
@@ -437,6 +440,12 @@ internal class RPCHandlerPatch
             case CustomRPC.SniperSync:
                 Sniper.ReceiveRPC(reader);
                 break;
+            case CustomRPC.SyncAnalyzer:
+                Analyzer.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncAnalyzerTarget:
+                Analyzer.ReceiveRPCSyncTarget(reader);
+                break;
             case CustomRPC.SpyRedNameSync:
                 Spy.ReceiveRPC(reader);
                 break;
@@ -457,6 +466,9 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SetRicochetTarget:
                 Ricochet.ReceiveRPCSyncTarget(reader);
+                break;
+            case CustomRPC.SyncYinYanger:
+                YinYanger.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetTetherTarget:
                 Tether.ReceiveRPCSyncTarget(reader);
@@ -1184,6 +1196,9 @@ internal static class RPC
                 break;
             case CustomRoles.DonutDelivery:
                 DonutDelivery.Add(targetId);
+                break;
+            case CustomRoles.Analyzer:
+                Analyzer.Add(targetId);
                 break;
             case CustomRoles.Aid:
                 Aid.Add(targetId);

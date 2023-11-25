@@ -66,8 +66,70 @@ internal class ShowDisconnectPopupPatch
                         if (StringReason.Contains("Reliable packet")) __instance.SetText(GetString("DCNotify.DCFromServer"));
                         else if (StringReason.Contains("remote has not responded to")) __instance.SetText(GetString("DCNotify.DCFromServer"));
                         break;
+                    case DisconnectReasons.ExitGame:
+                        break;
+                    case DisconnectReasons.InvalidName:
+                        break;
+                    case DisconnectReasons.ConnectionLimit:
+                        break;
+                    case DisconnectReasons.Destroy:
+                        break;
+                    case DisconnectReasons.IncorrectGame:
+                        break;
+                    case DisconnectReasons.ServerRequest:
+                        break;
+                    case DisconnectReasons.ServerFull:
+                        break;
+                    case DisconnectReasons.InternalPlayerMissing:
+                        break;
+                    case DisconnectReasons.InternalNonceFailure:
+                        break;
+                    case DisconnectReasons.InternalConnectionToken:
+                        break;
+                    case DisconnectReasons.PlatformLock:
+                        break;
+                    case DisconnectReasons.MatchmakerInactivity:
+                        break;
+                    case DisconnectReasons.NoServersAvailable:
+                        break;
+                    case DisconnectReasons.QuickmatchDisabled:
+                        break;
+                    case DisconnectReasons.TooManyGames:
+                        break;
+                    case DisconnectReasons.QuickchatLock:
+                        break;
+                    case DisconnectReasons.MatchmakerFull:
+                        break;
+                    case DisconnectReasons.Sanctions:
+                        break;
+                    case DisconnectReasons.ServerError:
+                        break;
+                    case DisconnectReasons.SelfPlatformLock:
+                        break;
+                    case DisconnectReasons.TooManyRequests:
+                        break;
+                    case DisconnectReasons.IntentionalLeaving:
+                        break;
+                    case DisconnectReasons.FocusLostBackground:
+                        break;
+                    case DisconnectReasons.FocusLost:
+                        break;
+                    case DisconnectReasons.NewConnection:
+                        break;
+                    case DisconnectReasons.PlatformParentalControlsBlock:
+                        break;
+                    case DisconnectReasons.PlatformUserBlock:
+                        break;
+                    case DisconnectReasons.PlatformFailedToGetUserBlock:
+                        break;
+                    case DisconnectReasons.ServerNotFound:
+                        break;
+                    case DisconnectReasons.ClientTimeout:
+                        break;
+                    case DisconnectReasons.Unknown:
+                        break;
                 }
             }
         }, 0.01f, "Override Disconnect Text");
-    } 
+    }
 }
