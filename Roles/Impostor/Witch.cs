@@ -19,7 +19,9 @@ public static class Witch
     };
     public static readonly string[] SwitchTriggerText =
     [
-        "TriggerKill", "TriggerVent","TriggerDouble"
+        "TriggerKill",
+        "TriggerVent",
+        "TriggerDouble"
     ];
 
     private static readonly int Id = 2000;

@@ -35,7 +35,8 @@ public static class Sheriff
     public static Dictionary<byte, float> CurrentKillCooldown = [];
     public static readonly string[] KillOption =
     [
-        "SheriffCanKillAll", "SheriffCanKillSeparately"
+        "SheriffCanKillAll",
+        "SheriffCanKillSeparately"
     ];
     public static void SetupCustomOption()
     {

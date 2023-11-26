@@ -14,12 +14,14 @@ internal static class Eraser
 
     public static readonly string[] EraseMode =
     [
-        "EKill", "EVote"
+        "EKill",
+        "EVote"
     ];
 
     public static readonly string[] WhenTargetIsNeutralAction =
     [
-        "E2Block", "E2Kill"
+        "E2Block",
+        "E2Kill"
     ];
 
     private static OptionItem EraseLimitOpt;

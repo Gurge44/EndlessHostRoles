@@ -1,15 +1,10 @@
-﻿using System;
+﻿using Hazel;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static TOHE.Options;
-using static TOHE.Utils;
-using static TOHE.Translator;
 using TOHE.Roles.Neutral;
-using UnityEngine.Bindings;
-using AmongUs.GameOptions;
-using Hazel;
+using static TOHE.Options;
+using static TOHE.Translator;
+using static TOHE.Utils;
 
 namespace TOHE.Roles.Impostor
 {

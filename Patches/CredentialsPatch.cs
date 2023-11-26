@@ -92,7 +92,7 @@ internal class TitleLogoPatch
     //private static readonly Color themeColor9 = new(0.42f, 0.3f, 0.8f);
     //private static readonly Color themeColor10 = new(0.18f, 0.2f, 0.59f);
     //private static readonly Color themeColor11 = new(0.96f, 0.88f, 0.86f);
-    
+
     private static readonly Color themeColor1 = new(0.98f, 0.7f, 0.44f);
     private static readonly Color themeColor2 = new(0.98f, 0.61f, 0.42f);
     private static readonly Color themeColor3 = new(0.04f, 0.41f, 0.75f);

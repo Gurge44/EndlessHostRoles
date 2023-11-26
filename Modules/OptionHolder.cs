@@ -44,8 +44,11 @@ public static class Options
     // プリセット
     private static readonly string[] presets =
     [
-        Main.Preset1.Value, Main.Preset2.Value, Main.Preset3.Value,
-        Main.Preset4.Value, Main.Preset5.Value
+        Main.Preset1.Value,
+        Main.Preset2.Value,
+        Main.Preset3.Value,
+        Main.Preset4.Value,
+        Main.Preset5.Value
     ];
 
     // ゲームモード
@@ -60,7 +63,9 @@ public static class Options
 
     public static readonly string[] gameModes =
     [
-        "Standard", "SoloKombat", "FFA"
+        "Standard",
+        "SoloKombat",
+        "FFA"
     ];
 
     // MapActive
@@ -78,21 +83,37 @@ public static class Options
     public static Dictionary<CustomRoles, IntegerOptionItem> CustomAdtRoleSpawnRate;
     public static readonly string[] rates =
     [
-        "Rate0",  "Rate5",  "Rate10", "Rate20", "Rate30", "Rate40",
-        "Rate50", "Rate60", "Rate70", "Rate80", "Rate90", "Rate100",
+        "Rate0",
+        "Rate5",
+        "Rate10",
+        "Rate20",
+        "Rate30",
+        "Rate40",
+        "Rate50",
+        "Rate60",
+        "Rate70",
+        "Rate80",
+        "Rate90",
+        "Rate100",
     ];
     public static readonly string[] ratesZeroOne =
     [
         "RoleOff", /*"Rate10", "Rate20", "Rate30", "Rate40", "Rate50",
-        "Rate60", "Rate70", "Rate80", "Rate90", */"RoleRate",
+        "Rate60", "Rate70", "Rate80", "Rate90", */
+        "RoleRate",
     ];
     public static readonly string[] ratesToggle =
     [
-        "RoleOff", "RoleRate", "RoleOn"
+        "RoleOff",
+        "RoleRate",
+        "RoleOn"
     ];
     public static readonly string[] CheatResponsesName =
     [
-        "Ban", "Kick", "NoticeMe","NoticeEveryone"
+        "Ban",
+        "Kick",
+        "NoticeMe",
+        "NoticeEveryone"
     ];
     public static readonly string[] ConfirmEjectionsMode =
     [
@@ -463,7 +484,7 @@ public static class Options
     public static OptionItem AutoPlayAgain;
     public static OptionItem AutoPlayAgainCountdown;
     public static OptionItem AutoStartTimer;
-    
+
     public static OptionItem ControlCooldown;
     public static OptionItem InhibitorCD;
     public static OptionItem InhibitorCDAfterMeetings;
@@ -746,11 +767,16 @@ public static class Options
     public static OptionItem WhenTie;
     public static readonly string[] voteModes =
     [
-        "Default", "Suicide", "SelfVote", "Skip"
+        "Default",
+        "Suicide",
+        "SelfVote",
+        "Skip"
     ];
     public static readonly string[] tieModes =
     [
-        "TieMode.Default", "TieMode.All", "TieMode.Random"
+        "TieMode.Default",
+        "TieMode.All",
+        "TieMode.Random"
     ];
     /* public static readonly string[] addonGuessModeCrew =
      {
@@ -919,7 +945,7 @@ public static class Options
         "SuffixMode.OriginalName",
         "SuffixMode.DoNotKillMe",
         "SuffixMode.NoAndroidPlz",
-        "SuffixMode.AutoHost"    ];
+        "SuffixMode.AutoHost"];
     public static readonly string[] roleAssigningAlgorithms =
     [
         "RoleAssigningAlgorithm.Default",

@@ -1,13 +1,9 @@
-﻿using System;
+﻿using Hazel;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TOHE.Roles.Neutral;
 using static TOHE.Options;
-using static TOHE.Utils;
 using static TOHE.Translator;
-using Hazel;
+using static TOHE.Utils;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -20,7 +16,7 @@ namespace TOHE.Roles.Crewmate
         private static OptionItem UseLimit;
 
         public static int BlockLimit;
-        
+
         public static void SetupCustomOption()
         {
             SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Escort, 1);
