@@ -2618,8 +2618,14 @@
 "Duellist","","Duellist","","",""
 "DuellistInfo","","Duel with Players","","",""
 "DuellistInfoLong","","(Impostors):\As the Duellist, you can shapeshift into someone to teleport them and you next to each other outside the map. You will both be there until one of you die.","","",""
-"Duellist","","Duellist","","",""
 "TargetCannotBeTeleported","","Target cannot be teleported","","",""
+
+"## Cantankerous"
+"Cantankerous","","Cantankerous","","",""
+"CantankerousInfo","","Eject Crewmates to Kill","","",""
+"CantankerousInfoLong","","(Impostors):\nAs the Cantankerous, you can only kill if you have a point. You gain points if a non-impostor player gets ejected.","","",""
+"CantankerousPointsGainedPerEjection","","Points Gained Per Non-Impostor Player Ejected","","",""
+"CantankerousStartingPoints","","Starting Points","","",""
 
 "## Druid"
 "Druid","","Druid","","",""

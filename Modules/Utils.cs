@@ -1446,8 +1446,8 @@ public static class Utils
                 sb.Append(opt.Index == option.Children.Count ? "┗ " : "┣ ");
             }
             var value = opt.Value.GetString().Replace("ON", "<#00ffa5>ON</color>").Replace("OFF", "<#ff0000>OFF</color>");
-            string name = $"<#000000>{opt.Value.GetName(disableColor: true).Replace("<color=#ffffff>", string.Empty).Replace("<color=#ffffffff>", string.Empty).Replace("color=", string.Empty)}</color>";
-            sb.Append($"{name}: <b>{value}</b>\n");
+            string name = $"{opt.Value.GetName(disableColor: true).Replace("color=", string.Empty)}</color>";
+            sb.Append($"{name}: <#ffff00>{value}</color>\n");
             if (opt.Value.GetBool()) ShowChildrenSettings(opt.Value, ref sb, deep + 1);
         }
     }

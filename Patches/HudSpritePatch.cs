@@ -131,6 +131,18 @@ public static class HudSpritePatch
                 case CustomRoles.Jailor:
                     newKillButton = CustomButton.Get("Jail");
                     break;
+                case CustomRoles.Penguin:
+                    newAbilityButton = CustomButton.Get("Timer");
+                    break;
+                case CustomRoles.Hitman:
+                    newAbilityButton = CustomButton.Get("TargetIcon");
+                    break;
+                case CustomRoles.Revolutionist:
+                    newKillButton = CustomButton.Get("Tag");
+                    break;
+                case CustomRoles.DonutDelivery:
+                    newKillButton = CustomButton.Get("Donut");
+                    break;
                 case CustomRoles.Sapper:
                 case CustomRoles.Bomber:
                 case CustomRoles.Nuker:

@@ -244,7 +244,10 @@ internal class ChatCommands
                         {
                             _ = sb.Append($"\n\n" + GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
                         }
-                        Utils.SendMessage(sb.ToString(), lp.PlayerId);
+                        _ = new LateTask(() =>
+                        {
+                            Utils.SendMessage(sb.ToString(), lp.PlayerId);
+                        }, 0.5f, log: false);
                     }
                     else
                         Utils.SendMessage((PlayerControl.LocalPlayer.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + GetString("Message.CanNotUseInLobby"), localPlayerId);
@@ -770,15 +773,17 @@ internal class ChatCommands
                 }
                 var sb = new StringBuilder();
                 _ = sb.Append(devMark + "<b>" + roleName + "</b>" + Utils.GetRoleMode(rl) + GetString($"{rl}InfoLong"));
+                var settings = new StringBuilder();
                 if (Options.CustomRoleSpawnChances.ContainsKey(rl))
                 {
-                    sb.Append("<size=70%>");
-                    Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[rl], ref sb, command: true);
-                    sb.Append("</size>");
+                    settings.AppendLine($"<size=70%><u>Settings for {roleName}:</u>");
+                    Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[rl], ref settings);
+                    settings.Append("</size>");
                     var txt = $"<size=90%>{sb}</size>";
                     _ = sb.Clear().Append(txt);
                 }
-                Utils.SendMessage(sb.ToString(), playerId);
+                Utils.SendMessage(text: "\n", sendTo: playerId, title: settings.ToString());
+                Utils.SendMessage(text: sb.ToString(), sendTo: playerId);
                 return;
             }
         }
@@ -866,7 +871,10 @@ internal class ChatCommands
                     {
                         _ = sb.Append($"\n\n" + GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
                     }
-                    Utils.SendMessage(sb.ToString(), player.PlayerId);
+                    _ = new LateTask(() =>
+                    {
+                        Utils.SendMessage(sb.ToString(), player.PlayerId);
+                    }, 1f, log: false);
                 }
                 else
                     Utils.SendMessage(GetString("Message.CanNotUseInLobby"), player.PlayerId);

@@ -39,11 +39,12 @@ namespace TOHE.Roles.Impostor
             AURoleOptions.ShapeshifterCooldown = SSCD.GetFloat();
         }
 
-        private static void SendRPC(byte duellistId, byte targetId)
+        private static void SendRPC(byte duellistId, byte targetId, bool remove)
         {
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncDuellistTarget, SendOption.Reliable, -1);
             writer.Write(duellistId);
             writer.Write(targetId);
+            writer.Write(remove);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 
@@ -51,7 +52,9 @@ namespace TOHE.Roles.Impostor
         {
             byte duellistId = reader.ReadByte();
             byte targetId = reader.ReadByte();
-            DuelPair[duellistId] = targetId;
+            bool remove = reader.ReadBoolean();
+            if (remove) DuelPair.Remove(duellistId);
+            else DuelPair[duellistId] = targetId;
         }
 
         public static void OnShapeshift(PlayerControl duellist, PlayerControl target)
@@ -67,7 +70,7 @@ namespace TOHE.Roles.Impostor
             duellist.TP(pos);
             target.TP(pos);
             DuelPair[duellist.PlayerId] = target.PlayerId;
-            SendRPC(duellist.PlayerId, target.PlayerId);
+            SendRPC(duellist.PlayerId, target.PlayerId, false);
         }
 
         public static void OnFixedUpdate()
@@ -79,9 +82,24 @@ namespace TOHE.Roles.Impostor
                 var target = GetPlayerById(pair.Value);
                 var DAlive = duellist.IsAlive();
                 var TAlive = target.IsAlive();
-                if (!DAlive && !TAlive) continue;
-                else if (DAlive && !TAlive) duellist.TPtoRndVent();
-                else if (TAlive && !DAlive) target.TPtoRndVent();
+                if (!DAlive && !TAlive)
+                {
+                    DuelPair.Remove(pair.Key);
+                    SendRPC(pair.Key, pair.Value, true);
+                    continue;
+                }
+                else if (DAlive && !TAlive)
+                {
+                    DuelPair.Remove(pair.Key);
+                    SendRPC(pair.Key, pair.Value, true);
+                    duellist.TPtoRndVent();
+                }
+                else if (TAlive && !DAlive)
+                {
+                    DuelPair.Remove(pair.Key);
+                    SendRPC(pair.Key, pair.Value, true);
+                    target.TPtoRndVent();
+                }
                 else continue;
             }
         }
