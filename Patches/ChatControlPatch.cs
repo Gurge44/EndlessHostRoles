@@ -116,6 +116,7 @@ public class ChatManager
         if (Blackmailer.ForBlackmailer.Contains(player.PlayerId) && player.IsAlive())
         {
             cancel = true;
+            return;
         }
 
         switch (operate)
