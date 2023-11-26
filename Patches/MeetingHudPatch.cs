@@ -492,26 +492,36 @@ class CheckForEndVotingPatch
         else if (Options.ShowImpRemainOnEject.GetBool())
         {
             name += "\n";
-            if (impnum == 0 && neutralnum == 0) name += GetString("GG");
-            else if (impnum > 0 && neutralnum > 0 && Options.ShowNKRemainOnEject.GetBool())
+            switch (impnum)
             {
-                if (impnum == 1) name += "1 <color=#ff1919>Impostor</color> <color=#777777>&</color> ";
-                else if (impnum == 2) name += "2 <color=#ff1919>Impostors</color> <color=#777777>&</color> ";
-                else if (impnum == 3) name += "3 <color=#ff1919>Impostors</color> <color=#777777>&</color> ";
-                if (neutralnum == 1) name += "1 <color=#ffab1b>Neutral</color> <color=#777777>remains.</color>";
-                else name += "2 <color=#ffab1b>Neutrals</color> <color=#777777>remain.</color>";
-            }
-            else if (impnum > 0 && (neutralnum == 0 || !Options.ShowNKRemainOnEject.GetBool()))
-            {
-                if (impnum == 0) name += GetString("NoImpRemain");
-                else if (impnum == 1) name += GetString("OneImpRemain");
-                else if (impnum == 2) name += GetString("TwoImpRemain");
-                else if (impnum == 3) name += GetString("ThreeImpRemain");
-            }
-            else if (neutralnum > 0 && impnum == 0)
-            {
-                if (neutralnum == 1) name += GetString("OneNeutralRemain");
-                else name += string.Format(GetString("NeutralRemain"), neutralnum);
+                case 0 when neutralnum == 0: // Crewmates win
+                    name += GetString("GG");
+                    break;
+                case > 0 when neutralnum > 0 && Options.ShowNKRemainOnEject.GetBool(): // Both imps and neutrals remain
+                    name += impnum switch
+                    {
+                        1 => "1 <color=#ff1919>Impostor</color> <color=#777777>&</color> ",
+                        2 => "2 <color=#ff1919>Impostors</color> <color=#777777>&</color> ",
+                        3 => "3 <color=#ff1919>Impostors</color> <color=#777777>&</color> ",
+                        _ => string.Empty,
+                    };
+                    if (neutralnum == 1) name += "1 <color=#ffab1b>Neutral</color> <color=#777777>remains.</color>";
+                    else name += "2 <color=#ffab1b>Neutrals</color> <color=#777777>remain.</color>";
+                    break;
+                case > 0 when neutralnum == 0 || !Options.ShowNKRemainOnEject.GetBool(): // Only imps remain
+                    name += impnum switch
+                    {
+                        0 => GetString("NoImpRemain"),
+                        1 => GetString("OneImpRemain"),
+                        2 => GetString("TwoImpRemain"),
+                        3 => GetString("ThreeImpRemain"),
+                        _ => string.Empty,
+                    };
+                    break;
+                case 0 when neutralnum > 0: // Only neutrals remain
+                    if (neutralnum == 1) name += GetString("OneNeutralRemain");
+                    else name += string.Format(GetString("NeutralRemain"), neutralnum);
+                    break;
             }
         }
 
@@ -532,6 +542,15 @@ class CheckForEndVotingPatch
                 Main.DoBlockNameChange = false;
             }
         }, 11.5f, "Change Exiled Player Name Back");
+        _ = new LateTask(() =>
+        {
+            var text = name.Split('\n')[1];
+            var r = IRandom.Instance;
+            foreach (var pc in Main.AllAlivePlayerControls)
+            {
+                pc?.Notify(text, r.Next(7, 13));
+            }
+        }, 12f, log: false);
     }
     public static bool CheckRole(byte id, CustomRoles role)
     {

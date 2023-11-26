@@ -2657,8 +2657,9 @@
 "MafiosoRewardForVenting","","XP Gained for Entering a Unique Vent","","",""
 "MafiosoRewardForOtherPlayerEjected","","XP Gained When a Non-Impostor Player Gets Ejected","","",""
 "MafiosoLevelUp","","You've gone up a tier!","","",""
-"MafiosoProgressText","","<color=#00ffa5>Tier:</color> {0}, <color=#00ffa5>XP:</color> {1}","","",""
+"MafiosoProgressText","","<color=#00ffa5>Tier:</color> <color=#ffffff>{0}</color>, <color=#00ffa5>XP:</color> <color=#ffffff>{1}</color>","","",""
 "MafiosoHUDText","","<color=#00ffa5>Tier:</color> {0}\n<color=#00ffa5>XP:</color> {1}","","",""
+"MafiosoHUDTextWithDualPistols","","<color=#00ffa5>Tier:</color> {0}, <color=#00ffa5>XP:</color> {1}\n","","",""
 
 "## Altruist"
 "Altruist","","Altruist","","",""

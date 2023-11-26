@@ -307,6 +307,7 @@ internal class ChangeRoleSettings
             Jinx.Init();
             DoubleShot.Init();
             Dazzler.Init();
+            YinYanger.Init();
             Blackmailer.Init();
             Cantankerous.Init();
             Duellist.Init();
@@ -936,6 +937,9 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Dazzler:
                         Dazzler.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.YinYanger:
+                        YinYanger.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Cantankerous:
                         Cantankerous.Add(pc.PlayerId);

@@ -48,6 +48,7 @@ namespace TOHE.Roles.Crewmate
         }
         private static void SendRPC(byte benefactorID, int taskIndex = -1, bool IsShield = false, bool clearAll = false, bool shieldExpire = false, byte shieldedId = byte.MaxValue)
         {
+            if (!IsEnable) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncBenefactorMarkedTask, SendOption.Reliable, -1);
             writer.Write(benefactorID);
             writer.Write(taskIndex);
@@ -59,6 +60,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static void ReceiveRPC(MessageReader reader)
         {
+            if (!IsEnable) return;
             byte benefactorID = reader.ReadByte();
             int taskInd = reader.ReadInt32();
             bool IsShield = reader.ReadBoolean();
@@ -92,6 +94,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static string GetProgressText(byte playerId)
         {
+            if (!IsEnable) return string.Empty;
             if (!TaskMarkPerRound.ContainsKey(playerId)) TaskMarkPerRound[playerId] = 0;
             int markedTasks = TaskMarkPerRound[playerId];
             int x = Math.Max(maxTasksMarkedPerRound - markedTasks, 0);

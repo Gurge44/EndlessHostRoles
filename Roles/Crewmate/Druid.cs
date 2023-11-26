@@ -56,8 +56,11 @@ namespace TOHE.Roles.Crewmate
             lastUpdate = GetTimeStamp();
         }
 
+        public static bool IsEnable => playerIdList.Any();
+
         public static void SendRPCSyncAbilityUse(byte playerId)
         {
+            if (!IsEnable) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDruidLimit, SendOption.Reliable, -1);
             writer.Write(playerId);
             writer.Write(UseLimit[playerId]);
@@ -65,11 +68,13 @@ namespace TOHE.Roles.Crewmate
         }
         public static void ReceiveRPCSyncAbilityUse(MessageReader reader)
         {
+            if (!IsEnable) return;
             byte playerId = reader.ReadByte();
             UseLimit[playerId] = reader.ReadSingle();
         }
         public static void SendRPCAddTriggerDelay(byte playerId, long timestamp)
         {
+            if (!IsEnable) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DruidAddTriggerDelay, SendOption.Reliable, -1);
             writer.Write(playerId);
             writer.Write(timestamp);
@@ -77,6 +82,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static void ReceiveRPCAddTriggerDelay(MessageReader reader)
         {
+            if (!IsEnable) return;
             byte playerId = reader.ReadByte();
             long timestamp = long.Parse(reader.ReadString());
 
@@ -85,6 +91,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static void SendRPCAddTrigger(byte playerId, Vector2 position, string roomName)
         {
+            if (!IsEnable) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DruidAddTriggerDelay, SendOption.Reliable, -1);
             writer.Write(playerId);
             writer.Write(position.x);
@@ -94,6 +101,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static void ReceiveRPCAddTrigger(MessageReader reader)
         {
+            if (!IsEnable) return;
             byte playerId = reader.ReadByte();
             float x = reader.ReadSingle();
             float y = reader.ReadSingle();
@@ -106,6 +114,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static void SendRPCRemoveTrigger(byte playerId, Vector2 position)
         {
+            if (!IsEnable) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DruidAddTriggerDelay, SendOption.Reliable, -1);
             writer.Write(playerId);
             writer.Write(position.x);
@@ -114,6 +123,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static void ReceiveRPCRemoveTrigger(MessageReader reader)
         {
+            if (!IsEnable) return;
             byte playerId = reader.ReadByte();
             float x = reader.ReadSingle();
             float y = reader.ReadSingle();
@@ -123,17 +133,20 @@ namespace TOHE.Roles.Crewmate
         }
         public static void SendRPCSyncLastUpdate()
         {
+            if (!IsEnable) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DruidAddTriggerDelay, SendOption.Reliable, -1);
             writer.Write(lastUpdate);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         public static void ReceiveRPCSyncLastUpdate(MessageReader reader)
         {
+            if (!IsEnable) return;
             lastUpdate = long.Parse(reader.ReadString());
         }
 
         public static void OnEnterVent(PlayerControl pc, bool isPet = false)
         {
+            if (!IsEnable) return;
             if (pc == null || !GameStates.IsInTask) return;
             if (!pc.Is(CustomRoles.Druid) || UseLimit[pc.PlayerId] < 1) return;
 
@@ -161,6 +174,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void OnFixedUpdate()
         {
+            if (!IsEnable) return;
             if (!GameStates.IsInTask) return;
             if (!Triggers.Any() && !TriggerDelays.Any()) return;
 
@@ -223,6 +237,7 @@ namespace TOHE.Roles.Crewmate
 
         public static string GetSuffixText(byte playerId)
         {
+            if (!IsEnable) return string.Empty;
             if (GetPlayerById(playerId) == null) return string.Empty;
 
             var sb = new StringBuilder();
@@ -237,6 +252,7 @@ namespace TOHE.Roles.Crewmate
 
         public static string GetHUDText(PlayerControl pc)
         {
+            if (!IsEnable) return string.Empty;
             if (pc == null) return string.Empty;
 
             var id = pc.PlayerId;

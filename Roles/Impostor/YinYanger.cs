@@ -38,6 +38,8 @@ namespace TOHE.Roles.Impostor
             playerIdList.Add(playerId);
         }
 
+        public static bool IsEnable => playerIdList.Any();
+
         public static void SetKillCooldown(byte playerId)
         {
             Main.AllPlayerKillCooldown[playerId] = YinYangedPlayers.Count == 2 ? KCD.GetFloat() : YinYangCD.GetFloat();
@@ -45,6 +47,7 @@ namespace TOHE.Roles.Impostor
 
         public static void SendRPC(bool isClear, byte playerId = byte.MaxValue)
         {
+            if (!IsEnable) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncYinYanger, SendOption.Reliable, -1);
             writer.Write(isClear);
             if (!isClear) writer.Write(playerId);
@@ -53,6 +56,7 @@ namespace TOHE.Roles.Impostor
 
         public static void ReceiveRPC(MessageReader reader)
         {
+            if (!IsEnable) return;
             bool isClear = reader.ReadBoolean();
             if (!isClear)
             {
@@ -63,6 +67,7 @@ namespace TOHE.Roles.Impostor
 
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
+            if (!IsEnable) return false;
             if (killer == null || target == null) return false;
 
             if (YinYangedPlayers.Count == 2)
@@ -93,6 +98,7 @@ namespace TOHE.Roles.Impostor
 
         public static void OnReportDeadBody()
         {
+            if (!IsEnable) return;
             foreach (var id in playerIdList) GetPlayerById(id)?.ResetKillCooldown();
             YinYangedPlayers.Clear();
             SendRPC(true);
@@ -100,8 +106,9 @@ namespace TOHE.Roles.Impostor
 
         public static void OnFixedUpdate()
         {
+            if (!IsEnable) return;
             if (!GameStates.IsInTask) return;
-            if (!playerIdList.Any() || YinYangedPlayers.Count < 2) return;
+            if (YinYangedPlayers.Count < 2) return;
 
             var yy = GetPlayerById(playerIdList[0]);
             var pc1 = GetPlayerById(YinYangedPlayers[0]);

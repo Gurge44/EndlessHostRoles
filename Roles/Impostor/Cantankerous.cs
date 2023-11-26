@@ -41,10 +41,13 @@ namespace TOHE.Roles.Impostor
             Points.Add(playerId, StartingPoints.GetInt());
         }
 
+        public static bool IsEnable => playerIdList.Any();
+
         public static bool CanUseKillButton(byte playerId) => Points.TryGetValue(playerId, out var point) && point > 0;
 
         private static void SendRPC(byte playerId, bool isPlus)
         {
+            if (!IsEnable) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncCantankerousLimit, SendOption.Reliable, -1);
             writer.Write(playerId);
             writer.Write(isPlus);
@@ -53,6 +56,7 @@ namespace TOHE.Roles.Impostor
 
         public static void ReceiveRPC(MessageReader reader)
         {
+            if (!IsEnable) return;
             byte playerId = reader.ReadByte();
             bool isPlus = reader.ReadBoolean();
 
@@ -62,6 +66,7 @@ namespace TOHE.Roles.Impostor
 
         public static void OnCrewmateEjected()
         {
+            if (!IsEnable) return;
             var value = PointsGainedPerEjection.GetInt();
             foreach (var x in Points.Keys.ToArray())
             {
@@ -72,6 +77,7 @@ namespace TOHE.Roles.Impostor
 
         public static bool OnCheckMurder(PlayerControl killer)
         {
+            if (!IsEnable) return false;
             if (killer == null) return false;
 
             if (Points[killer.PlayerId] <= 0) return false;

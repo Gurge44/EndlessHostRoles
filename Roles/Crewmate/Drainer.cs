@@ -55,6 +55,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void SendRPC()
         {
+            if (!IsEnable) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDrainerLimit, SendOption.Reliable, -1);
             writer.Write(DrainLimit);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -62,16 +63,19 @@ namespace TOHE.Roles.Crewmate
 
         public static void ReceiveRPC(MessageReader reader)
         {
+            if (!IsEnable) return;
             DrainLimit = reader.ReadInt32();
         }
 
         public static void OnAnyoneExitVent(PlayerControl pc, int ventId)
         {
+            if (!IsEnable) return;
             if (pc != null) playersInVents.Remove(pc.PlayerId);
         }
 
         public static void OnDrainerEnterVent(PlayerControl pc, Vent vent)
         {
+            if (!IsEnable) return;
             if (!pc.Is(CustomRoles.Drainer)) return;
             if (DrainLimit <= 0) return;
 
@@ -85,6 +89,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void OnAnyoneEnterVent(PlayerControl pc, Vent vent)
         {
+            if (!IsEnable) return;
             if (pc == null) return;
             if (pc.Is(CustomRoles.Drainer))
             {
@@ -99,6 +104,7 @@ namespace TOHE.Roles.Crewmate
 
         private static void KillPlayersInVent(PlayerControl pc, int ventId)
         {
+            if (!IsEnable) return;
             if (!playersInVents.ContainsValue(ventId)) return;
 
             foreach (var venterId in playersInVents.Where(x => x.Value == ventId).ToArray())
@@ -119,6 +125,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void OnReportDeadBody()
         {
+            if (!IsEnable) return;
             playersInVents.Clear();
         }
     }

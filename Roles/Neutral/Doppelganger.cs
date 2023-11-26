@@ -50,6 +50,7 @@ public static class Doppelganger
 
     private static void SendRPC(byte playerId, bool isTargetList = false)
     {
+        if (!IsEnable) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDoppelgangerStealLimit, SendOption.Reliable, -1);
         writer.Write(playerId);
         writer.Write(TotalSteals[playerId]);
@@ -58,6 +59,7 @@ public static class Doppelganger
 
     public static void ReceiveRPC(MessageReader reader)
     {
+        if (!IsEnable) return;
         byte PlayerId = reader.ReadByte();
         int Limit = reader.ReadInt32();
         if (TotalSteals.ContainsKey(PlayerId))
@@ -83,6 +85,7 @@ public static class Doppelganger
 
     public static void RpcChangeSkin(PlayerControl pc, GameData.PlayerOutfit newOutfit)
     {
+        if (!IsEnable) return;
         var sender = CustomRpcSender.Create(name: $"Doppelganger.RpcChangeSkin({pc.Data.PlayerName})");
         //if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) Main.nickName = newOutfit.PlayerName;
         pc.SetName(newOutfit.PlayerName);
@@ -128,7 +131,6 @@ public static class Doppelganger
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-
         if (killer == null || target == null || !IsEnable || Camouflage.IsCamouflage || Camouflager.IsActive) return;
         if (target.shapeshifting)
         {

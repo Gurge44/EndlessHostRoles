@@ -1,5 +1,6 @@
 ﻿using Hazel;
 using System.Collections.Generic;
+using System.Linq;
 using TOHE.Roles.Neutral;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -38,18 +39,22 @@ namespace TOHE.Roles.Impostor
             playerIdList.Add(playerId);
             BlockLimit = UseLimit.GetInt();
         }
+        public static bool IsEnable => playerIdList.Any();
         public static void SendRPC()
         {
+            if (!IsEnable) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetConsortLimit, SendOption.Reliable, -1);
             writer.Write(BlockLimit);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         public static void ReceiveRPC(MessageReader reader)
         {
+            if (!IsEnable) return;
             BlockLimit = reader.ReadInt32();
         }
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
+            if (!IsEnable) return false;
             if (killer == null) return false;
             if (target == null) return false;
             if (BlockLimit <= 0) return true;

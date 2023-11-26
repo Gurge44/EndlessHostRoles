@@ -1459,6 +1459,9 @@ internal static class RPC
             case CustomRoles.Dazzler:
                 Dazzler.Add(targetId);
                 break;
+            case CustomRoles.YinYanger:
+                YinYanger.Add(targetId);
+                break;
             case CustomRoles.Duellist:
                 Duellist.Add(targetId);
                 break;

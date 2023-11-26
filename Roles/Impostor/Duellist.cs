@@ -34,6 +34,8 @@ namespace TOHE.Roles.Impostor
             playerIdList.Add(playerId);
         }
 
+        public static bool IsEnable => playerIdList.Any();
+
         public static void ApplyGameOptions()
         {
             AURoleOptions.ShapeshifterCooldown = SSCD.GetFloat();
@@ -41,6 +43,7 @@ namespace TOHE.Roles.Impostor
 
         private static void SendRPC(byte duellistId, byte targetId, bool remove)
         {
+            if (!IsEnable) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncDuellistTarget, SendOption.Reliable, -1);
             writer.Write(duellistId);
             writer.Write(targetId);
@@ -50,6 +53,7 @@ namespace TOHE.Roles.Impostor
 
         public static void ReceiveRPC(MessageReader reader)
         {
+            if (!IsEnable) return;
             byte duellistId = reader.ReadByte();
             byte targetId = reader.ReadByte();
             bool remove = reader.ReadBoolean();
@@ -59,6 +63,7 @@ namespace TOHE.Roles.Impostor
 
         public static void OnShapeshift(PlayerControl duellist, PlayerControl target)
         {
+            if (!IsEnable) return;
             if (duellist == null || target == null) return;
             if (target.inMovingPlat || target.onLadder || target.MyPhysics.Animations.IsPlayingEnterVentAnimation() || target.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || !target.IsAlive())
             {
@@ -75,7 +80,8 @@ namespace TOHE.Roles.Impostor
 
         public static void OnFixedUpdate()
         {
-            if (!playerIdList.Any() || !DuelPair.Any()) return;
+            if (!IsEnable) return;
+            if (!DuelPair.Any()) return;
             foreach (var pair in DuelPair)
             {
                 var duellist = GetPlayerById(pair.Key);

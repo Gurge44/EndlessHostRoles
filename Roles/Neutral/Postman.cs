@@ -51,6 +51,7 @@ public static class Postman
     public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
     public static void SetNewTarget()
     {
+        if (!IsEnable) return;
         byte tempTarget = byte.MaxValue;
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
@@ -73,6 +74,7 @@ public static class Postman
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
+        if (!IsEnable) return;
         if (killer == null) return;
         if (target == null) return;
         if (IsFinished) return;
@@ -96,6 +98,7 @@ public static class Postman
 
     public static void OnTargetDeath()
     {
+        if (!IsEnable) return;
         if (IsFinished) return;
         var postman = Utils.GetPlayerById(playerIdList[0]);
 
@@ -112,6 +115,7 @@ public static class Postman
 
     private static void NotifyPostman(this PlayerControl pc, string baseText)
     {
+        if (!IsEnable) return;
         var sb = new StringBuilder();
 
         sb.Append("\r\n\r\n");

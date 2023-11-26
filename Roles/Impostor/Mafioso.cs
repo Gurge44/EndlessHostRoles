@@ -191,6 +191,14 @@ namespace TOHE.Roles.Impostor
                 return false;
             }
 
+            if (Pistol1CD > 1 && Pistol2CD > 1)
+            {
+                _ = new LateTask(() =>
+                {
+                    killer.SetKillCooldown(time: Math.Min(Pistol1CD, Pistol2CD) - 1);
+                }, 0.1f, "Mafioso SetKillCooldown");
+            }
+
             return true;
         }
         public static bool IsEnable => playerIdList.Any();
@@ -207,7 +215,21 @@ namespace TOHE.Roles.Impostor
             SendRPCSyncPistolCD();
         }
         public static string GetProgressText() => string.Format(GetString("MafiosoProgressText"), Tier, XP);
-        public static string GetHUDText() => string.Format(GetString("MafiosoHUDText"), Tier, XP);
+        public static string GetHUDText()
+        {
+            if (Tier >= 3)
+            {
+                string CD;
+                if (Pistol1CD <= 0 && Pistol2CD <= 0) CD = "<color=#00ff00>Can Kill</color>";
+                else CD = $"<color=#ff1919>CD:</color> <b>{Math.Min(Pistol1CD, Pistol2CD)}</b>s";
+                return string.Format(GetString("MafiosoHUDTextWithDualPistols"), Tier, XP, CD);
+            }
+            else
+            {
+                return string.Format(GetString("MafiosoHUDText"), Tier, XP);
+            }
+        }
+
         public static void OnMurder()
         {
             if (!IsEnable) return;

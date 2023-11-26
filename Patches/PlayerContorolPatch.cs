@@ -214,6 +214,9 @@ class CheckMurderPatch
                 case CustomRoles.Reckless:
                     Reckless.OnCheckMurder(killer);
                     break;
+                case CustomRoles.YinYanger:
+                    if (YinYanger.OnCheckMurder(killer, target)) return false;
+                    break;
                 case CustomRoles.Magician:
                     Magician.OnCheckMurder(killer);
                     break;
@@ -1824,6 +1827,7 @@ class ReportDeadBodyPatch
         if (Enigma.IsEnable) Enigma.OnReportDeadBody(player, target);
         if (Psychic.IsEnable) Psychic.OnReportDeadBody();
         if (BountyHunter.IsEnable) BountyHunter.OnReportDeadBody();
+        if (YinYanger.IsEnable) YinYanger.OnReportDeadBody();
         if (HeadHunter.IsEnable) HeadHunter.OnReportDeadBody();
         if (SerialKiller.IsEnable()) SerialKiller.OnReportDeadBody();
         if (Sniper.IsEnable) Sniper.OnReportDeadBody();
@@ -2201,7 +2205,11 @@ class FixedUpdatePatch
                 }
             }
 
-            if (!lowLoad) Duellist.OnFixedUpdate();
+            if (!lowLoad)
+            {
+                YinYanger.OnFixedUpdate();
+                Duellist.OnFixedUpdate();
+            }
 
             if (GameStates.IsInTask && Agitater.IsEnable && Agitater.AgitaterHasBombed && Agitater.CurrentBombedPlayer == player.PlayerId)
             {

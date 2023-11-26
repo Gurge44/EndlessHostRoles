@@ -90,6 +90,7 @@ namespace TOHE.Roles.Crewmate
 
         private static void SendRPCSyncTarget()
         {
+            if (!IsEnable) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAnalyzerTarget, SendOption.Reliable, -1);
             writer.Write(CurrentTarget.ID);
             writer.Write(CurrentTarget.TIME);
@@ -98,6 +99,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void ReceiveRPCSyncTarget(MessageReader reader)
         {
+            if (!IsEnable) return;
             var item1 = reader.ReadByte();
             var item2 = long.Parse(reader.ReadString());
             CurrentTarget = (item1, item2);
@@ -105,6 +107,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void SendRPC()
         {
+            if (!IsEnable) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAnalyzer, SendOption.Reliable, -1);
             writer.Write(UseLimit);
             writer.Write(VentCount.Count);
@@ -118,6 +121,8 @@ namespace TOHE.Roles.Crewmate
 
         public static void ReceiveRPC(MessageReader reader)
         {
+            if (!IsEnable) return;
+
             UseLimit = reader.ReadInt32();
 
             int length = reader.ReadInt32();
@@ -131,12 +136,14 @@ namespace TOHE.Roles.Crewmate
 
         public static void OnAnyoneEnterVent(PlayerControl pc)
         {
+            if (!IsEnable) return;
             if (VentCount.ContainsKey(pc.PlayerId)) VentCount[pc.PlayerId]++;
             else VentCount[pc.PlayerId] = 1;
         }
 
         public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
+            if (!IsEnable) return;
             if (killer == null || target == null) return;
             if (UseLimit <= 0) return;
             if (CurrentTarget.ID != byte.MaxValue) return;
@@ -149,6 +156,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void OnFixedUpdate(PlayerControl pc)
         {
+            if (!IsEnable) return;
             if (pc == null) return;
             if (CurrentTarget.ID == byte.MaxValue) return;
 
@@ -175,6 +183,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void OnReportDeadBody()
         {
+            if (!IsEnable) return;
             CurrentTarget.ID = byte.MaxValue;
         }
     }

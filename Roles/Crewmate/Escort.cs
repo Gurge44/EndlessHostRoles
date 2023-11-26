@@ -1,5 +1,6 @@
 ﻿using Hazel;
 using System.Collections.Generic;
+using System.Linq;
 using TOHE.Roles.Neutral;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -43,14 +44,17 @@ namespace TOHE.Roles.Crewmate
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
+        public static bool IsEnable => playerIdList.Any();
         public static void SendRPC()
         {
+            if (!IsEnable) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetEscortLimit, SendOption.Reliable, -1);
             writer.Write(BlockLimit);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         public static void ReceiveRPC(MessageReader reader)
         {
+            if (!IsEnable) return;
             BlockLimit = reader.ReadInt32();
         }
         public static void SetKillCooldown(byte playerId)
@@ -59,10 +63,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null) return;
-            if (target == null) return;
-            if (BlockLimit <= 0) return;
-            if (!killer.Is(CustomRoles.Escort)) return;
+            if (!IsEnable || killer == null || target == null || BlockLimit <= 0 || !killer.Is(CustomRoles.Escort)) return;
 
             BlockLimit--;
             killer.SetKillCooldown();

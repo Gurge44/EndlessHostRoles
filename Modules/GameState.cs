@@ -557,7 +557,7 @@ public class TaskState
                     player.RPCPlayCustomSound("Congrats");
                     GameData.Instance.CompletedTasks = GameData.Instance.TotalTasks;
                 }
-                else if (remainingTasks <= Options.SpeedrunnerNotifyAtXTasksLeft.GetInt() && Options.SpeedrunnerNotifyKillers.GetBool())
+                else if (completedTasks >= Options.SpeedrunnerNotifyAtXTasksLeft.GetInt() && Options.SpeedrunnerNotifyKillers.GetBool())
                 {
                     string speedrunnerName = player.GetRealName().RemoveHtmlTags();
                     string notifyString = Translator.GetString("SpeedrunnerHasXTasksLeft");

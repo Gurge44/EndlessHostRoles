@@ -51,6 +51,7 @@ namespace TOHE.Roles.Impostor
 
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
+            if (!IsEnable) return false;
             if (killer == null) return false;
             if (target == null) return false;
 
@@ -67,6 +68,7 @@ namespace TOHE.Roles.Impostor
 
         public static void OnFixedUpdate()
         {
+            if (!IsEnable) return;
             if (GameStates.IsMeeting) return;
             if (!ManipulatedPlayers.Any() && !ManipulateDelays.Any()) return;
 
@@ -123,6 +125,7 @@ namespace TOHE.Roles.Impostor
 
         public static void OnReportDeadBody()
         {
+            if (!IsEnable) return;
             foreach (var x in ManipulatedPlayers)
             {
                 var pc = GetPlayerById(x.Key);
@@ -140,6 +143,7 @@ namespace TOHE.Roles.Impostor
 
         public static bool ForceKillForManipulatedPlayer(PlayerControl killer, PlayerControl target)
         {
+            if (!IsEnable) return false;
             if (killer == null) return false;
             if (target == null) return false;
 
@@ -171,6 +175,7 @@ namespace TOHE.Roles.Impostor
 
         public static void OnManipulatedPlayerTaskComplete(PlayerControl pc)
         {
+            if (!IsEnable) return;
             ManipulatedPlayers.Remove(pc.PlayerId);
 
             NotifyMastermindTargetSurvived();
@@ -181,6 +186,7 @@ namespace TOHE.Roles.Impostor
 
         private static void NotifyMastermindTargetSurvived()
         {
+            if (!IsEnable) return;
             var mastermind = GetPlayerById(playerIdList[0]);
             mastermind.Notify(GetString("ManipulatedKilled"));
             if (mastermind.killTimer > KillCooldown.GetFloat()) mastermind.SetKillCooldown(time: KillCooldown.GetFloat());
