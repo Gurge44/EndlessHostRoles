@@ -21,7 +21,7 @@ public static class BountyHunter
     private static float FailureKillCooldown;
     private static bool ShowTargetArrow;
 
-    private static readonly Dictionary<byte, int> Timer;
+    private static Dictionary<byte, int> Timer;
     public static Dictionary<byte, byte> Targets = [];
     public static Dictionary<byte, float> ChangeTimer = [];
 
@@ -43,6 +43,7 @@ public static class BountyHunter
 
         Targets = [];
         ChangeTimer = [];
+        Timer = [];
     }
     public static void Add(byte playerId)
     {
@@ -54,7 +55,7 @@ public static class BountyHunter
         FailureKillCooldown = OptionFailureKillCooldown.GetFloat();
         ShowTargetArrow = OptionShowTargetArrow.GetBool();
 
-        Timer[playerId] = (int)TargetChangeTime;
+        Timer.Add(playerId, (int)TargetChangeTime);
 
         if (AmongUsClient.Instance.AmHost)
             ResetTarget(Utils.GetPlayerById(playerId));

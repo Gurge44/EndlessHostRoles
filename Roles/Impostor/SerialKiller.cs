@@ -13,7 +13,7 @@ public static class SerialKiller
     public static OptionItem TimeLimit;
     public static OptionItem WaitFor1Kill;
 
-    private static readonly Dictionary<byte, int> Timer;
+    private static Dictionary<byte, int> Timer;
 
     public static Dictionary<byte, float> SuicideTimer = [];
 
@@ -30,11 +30,12 @@ public static class SerialKiller
     {
         playerIdList = [];
         SuicideTimer = [];
+        Timer = [];
     }
     public static void Add(byte serial)
     {
         playerIdList.Add(serial);
-        Timer[serial] = TimeLimit.GetInt();
+        Timer.Add(serial, TimeLimit.GetInt());
     }
     public static bool IsEnable() => playerIdList.Any();
     public static void ApplyKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();

@@ -11,7 +11,7 @@ namespace TOHE.Roles.Impostor
     {
         // 2 yin yanged players touch => both of them die
 
-        private static readonly int Id = 642860;
+        private static readonly int Id = 642870;
         private static List<byte> playerIdList = [];
         private static List<byte> YinYangedPlayers = [];
 
