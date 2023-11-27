@@ -587,6 +587,10 @@ public class Main : BasePlugin
             ExceptionMessage = ex.Message;
             ExceptionMessageIsShown = false;
         }
+        catch (Exception ex)
+        {
+            TOHE.Logger.Fatal(ex.ToString(), "Main");
+        }
 
         CustomWinnerHolder.Reset();
         ServerAddManager.Init();
