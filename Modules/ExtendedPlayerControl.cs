@@ -529,6 +529,7 @@ static class ExtendedPlayerControl
             CustomRoles.Innocent => true,
             CustomRoles.Aid => true,
             CustomRoles.DonutDelivery => true,
+            CustomRoles.Gaulois => true,
             CustomRoles.Analyzer => true,
             CustomRoles.Escort => true,
             CustomRoles.Witness => true,
@@ -645,6 +646,7 @@ static class ExtendedPlayerControl
             CustomRoles.Aid => pc.IsAlive() && Aid.UseLimit[pc.PlayerId] >= 1,
             CustomRoles.Escort => pc.IsAlive() && Escort.BlockLimit >= 1,
             CustomRoles.DonutDelivery => pc.IsAlive() && DonutDelivery.DeliverLimit >= 1,
+            CustomRoles.Gaulois => pc.IsAlive() && Gaulois.UseLimit[pc.PlayerId] >= 1,
             CustomRoles.Analyzer => pc.IsAlive() && Analyzer.CanUseKillButton,
             CustomRoles.Witness => pc.IsAlive(),
             CustomRoles.Pursuer => Pursuer.CanUseKillButton(pc.PlayerId),
@@ -786,6 +788,7 @@ static class ExtendedPlayerControl
             //CustomRoles.Counterfeiter or
             CustomRoles.Aid or
             CustomRoles.DonutDelivery or
+            CustomRoles.Gaulois or
             CustomRoles.Analyzer or
             CustomRoles.Escort or
             CustomRoles.Pursuer or
@@ -1100,6 +1103,9 @@ static class ExtendedPlayerControl
             case CustomRoles.DonutDelivery:
                 DonutDelivery.SetKillCooldown(player.PlayerId);
                 break;
+            case CustomRoles.Gaulois:
+                Gaulois.SetKillCooldown(player.PlayerId);
+                break;
             case CustomRoles.Analyzer:
                 Analyzer.SetKillCooldown(player.PlayerId);
                 break;
@@ -1408,27 +1414,6 @@ static class ExtendedPlayerControl
                 return room;
         }
         return null;
-    }
-    public static Dictionary<string, int> GetAllPlayerLocationsCount()
-    {
-        Dictionary<string, int> playerRooms = [];
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-        {
-            if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return null;
-            var Rooms = ShipStatus.Instance.AllRooms.ToArray();
-            if (Rooms == null) return null;
-            foreach (PlainShipRoom room in Rooms)
-            {
-                if (!room.roomArea) continue;
-                if (pc.Collider.IsTouching(room.roomArea))
-                {
-                    if (playerRooms.ContainsKey(room.name)) playerRooms[room.name]++;
-                    else playerRooms.Add(room.name, 1);
-                }
-            }
-        }
-        if (playerRooms.Any()) return playerRooms;
-        else return null;
     }
 
     //汎用

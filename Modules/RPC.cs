@@ -58,6 +58,8 @@ enum CustomRPC
 
     //Roles
     SetDrawPlayer,
+    GaulousAddPlayerToList,
+    SetGauloisLimit,
     SyncYinYanger,
     SyncAnalyzer,
     SyncAnalyzerTarget,
@@ -718,6 +720,12 @@ internal class RPCHandlerPatch
             case CustomRPC.SetDonutLimit:
                 DonutDelivery.ReceiveRPC(reader);
                 break;
+            case CustomRPC.SetGauloisLimit:
+                Gaulois.ReceiveRPC(reader);
+                break;
+            case CustomRPC.GaulousAddPlayerToList:
+                Gaulois.ReceiveRPCAddPlayerToList(reader);
+                break;
             case CustomRPC.SetEscortLimit:
                 Escort.ReceiveRPC(reader);
                 break;
@@ -1196,6 +1204,9 @@ internal static class RPC
                 break;
             case CustomRoles.DonutDelivery:
                 DonutDelivery.Add(targetId);
+                break;
+            case CustomRoles.Gaulois:
+                Gaulois.Add(targetId);
                 break;
             case CustomRoles.Analyzer:
                 Analyzer.Add(targetId);

@@ -93,7 +93,7 @@
                 {
                     UseLimit[pc.PlayerId] -= 1;
                     Main.HackerCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                    var list = ExtendedPlayerControl.GetAllPlayerLocationsCount();
+                    var list = GetAllPlayerLocationsCount();
                     var sb = new StringBuilder();
                     foreach (var location in list)
                     {

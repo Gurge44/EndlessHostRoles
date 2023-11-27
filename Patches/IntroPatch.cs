@@ -447,7 +447,7 @@ class BeginImpostorPatch
             __instance.overlayHandle.color = Palette.ImpostorRed;
             return true;
         }
-        else if (role is CustomRoles.Sheriff or CustomRoles.Jailor or CustomRoles.SwordsMan or CustomRoles.Medic/* or CustomRoles.Counterfeiter*/ or CustomRoles.Witness or CustomRoles.Analyzer or CustomRoles.Aid or CustomRoles.Escort or CustomRoles.DonutDelivery or CustomRoles.Monarch or CustomRoles.Farseer or CustomRoles.Admirer or CustomRoles.Deputy)
+        else if (role is CustomRoles.Sheriff or CustomRoles.Jailor or CustomRoles.SwordsMan or CustomRoles.Medic/* or CustomRoles.Counterfeiter*/ or CustomRoles.Witness or CustomRoles.Analyzer or CustomRoles.Aid or CustomRoles.Escort or CustomRoles.DonutDelivery or CustomRoles.Gaulois or CustomRoles.Monarch or CustomRoles.Farseer or CustomRoles.Admirer or CustomRoles.Deputy)
         {
             yourTeam = new Il2CppSystem.Collections.Generic.List<PlayerControl>();
             yourTeam.Add(PlayerControl.LocalPlayer);

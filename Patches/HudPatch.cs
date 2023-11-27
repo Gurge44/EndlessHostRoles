@@ -198,6 +198,9 @@ class HudManagerPatch
                     case CustomRoles.FFF:
                         __instance.KillButton?.OverrideText(GetString("FFFButtonText"));
                         break;
+                    case CustomRoles.Gaulois:
+                        __instance.KillButton?.OverrideText(GetString("GauloisKillButtonText"));
+                        break;
                     case CustomRoles.Aid:
                     case CustomRoles.DonutDelivery:
                     case CustomRoles.Medic:

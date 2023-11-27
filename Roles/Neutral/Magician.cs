@@ -225,7 +225,7 @@ public static class Magician
                 break;
             case 10: // Admin map
                 NameNotifyManager.Notice.Remove(pc.PlayerId);
-                var rooms = ExtendedPlayerControl.GetAllPlayerLocationsCount();
+                var rooms = GetAllPlayerLocationsCount();
                 var sb = new StringBuilder();
                 foreach (var location in rooms)
                 {

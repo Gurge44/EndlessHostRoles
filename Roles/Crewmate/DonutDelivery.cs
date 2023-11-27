@@ -58,7 +58,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static void SetKillCooldown(byte playerId)
         {
-            Main.AllPlayerKillCooldown[playerId] = CD.GetFloat();
+            Main.AllPlayerKillCooldown[playerId] = DeliverLimit > 0 ? CD.GetFloat() : 300f;
         }
         public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
         {

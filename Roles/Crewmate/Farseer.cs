@@ -43,6 +43,7 @@ namespace TOHE.Roles.Crewmate
             CustomRoles.NiceHacker,
             CustomRoles.Aid,
             CustomRoles.DonutDelivery,
+            CustomRoles.Gaulois,
             CustomRoles.Analyzer,
             CustomRoles.Escort,
             CustomRoles.Tether,

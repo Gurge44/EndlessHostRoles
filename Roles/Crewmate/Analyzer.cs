@@ -86,7 +86,7 @@ namespace TOHE.Roles.Crewmate
                 Main.ResetCamPlayerList.Add(id);
         }
 
-        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CD.GetFloat();
+        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = UseLimit > 0 ? CD.GetFloat() : 300f;
 
         private static void SendRPCSyncTarget()
         {

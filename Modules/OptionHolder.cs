@@ -1536,6 +1536,8 @@ public static class Options
         Escort.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nAnalyzer";
         Analyzer.SetupCustomOption();
+        RoleLoadingText = "Crewmate roles\nGaulois";
+        Gaulois.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nDonut Delivery";
         DonutDelivery.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nAid";

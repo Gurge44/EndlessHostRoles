@@ -219,6 +219,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
             case CustomRoles.Aid:
             case CustomRoles.Escort:
             case CustomRoles.DonutDelivery:
+            case CustomRoles.Gaulois:
             case CustomRoles.Analyzer:
             case CustomRoles.Witness:
             case CustomRoles.Succubus:

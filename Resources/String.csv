@@ -2017,6 +2017,7 @@
 "HauntedByEvilSpirit","被恶灵所困扰","Haunted by an Evil Spirit","Вас преследует Злой Дух","",""
 "TriedToKillLastGameFirstKill","","\n<color=#ffff00><size=1.8>This poor player died first in the last game.\nPlease let them play and don't kill them yet.</size></color>"
 
+"AbilityCooldown","","Ability Cooldown","","",""
 "MonarchKnightCooldown","骑士冷却","Knight Cooldown","Откат посвящения","",""
 "MonarchKnightMax","最高骑士数量","Maximum Knights","Максимум просвящений","",""
 "MonarchKnightedPlayer","你成功地封了一名玩家为骑士！","You successfully knighted a player!","Вы успешно посвятили игрока!","",""
@@ -2498,7 +2499,7 @@
 "DivinatorCheck.Result13","<b>{0}</b>是神，神谕，幻想家，检查员其中之一","<b>{0}</b> is either God, Oracle, Gambler, Visionary, Nice Eraser, Swapper, or Inspector","","",""
 "DivinatorCheck.Result14","<b>{0}</b>是隐匿者、市长、被害妄想症、小偷或卫道士其中之一","<b>{0}</b> is either Anonymous, Mastermind, Spy, Mayor, Paranoid, Pickpocket, or Vindicator","","",""
 "DivinatorCheck.Result15","<b>{0}</b>是传染性的、病毒的、君主的、革命者的或魅魔的其中之一","<b>{0}</b> is either Infectious, Virus, Agitater, Monarch, Revolutionist, Express, or Cultist","","",""
-"DivinatorCheck.Result16","<b>{0}</b>是冤罪师、受虐狂、抑制者、修理工或破坏者其中之一","<b>{0}</b> is either Innocent, Sapper, Refugee, Bandit, Inhibitor, Mechanic, or Saboteur","","",""
+"DivinatorCheck.Result16","<b>{0}</b>是冤罪师、受虐狂、抑制者、修理工或破坏者其中之一","<b>{0}</b> is either Innocent, Gaulois, Sapper, Refugee, Bandit, Inhibitor, Mechanic, or Saboteur","","",""
 "DivinatorCheck.Result17","<b>{0}</b>是医生、马里奥、小丑、潜伏者还是阳光开朗大男孩其中之一","<b>{0}</b> is either Medic, Vector, Analyzer, RiftMaker, Jester, The Glitch, Lurker, or Sunnyboy","","",""
 "DivinatorCheck.Result18","<b>{0}</b>是黑手党、惩罚者、教父、缺点者、幸运儿或失败者其中之一","<b>{0}</b> is either Nemesis, Hitman, Retributionist, Gangster, Glitch, Luckey, or Underdog","","",""
 "DivinatorCheck.Result19","<b>{0}</b>是邪恶赌怪、正义赌怪、潜藏者、梦魇、隐蔽者或变色龙其中之一","<b>{0}</b> is either Evil Guesser, Nice Guesser, Blackmailer, Eclipse, Reckless, Stalker, Camouflager, or Chameleon","","",""
@@ -2690,6 +2691,12 @@
 "EscortTargetHacked","","Target successfully role-blocked","","",""
 "EscortKillButtonText","","Role-Block","","",""
 
+"## Gaulois"
+"Gaulois","","Gaulois","","",""
+"GauloisInfo","","Boost Players' Speed","","",""
+"GauloisInfoLong","","(Crewmate):\nAs the Gaulois, you can use your kill button on someone to give them a permanent speed boost.","","",""
+"GauloisSpeedBoost","","Additional Speed","","",""
+
 "## Consort"
 "Consort","","Consort","","",""
 "ConsortInfo","","Role-Block and Kill Players","","",""
@@ -2847,6 +2854,7 @@
 "AnalyzerCD","","Analyze Cooldown","","",""
 "AnalyzerDur","","Analyze Time","","",""
 "AnalyzerResult","","\n\nShowing analyzation result for <color=#00ffa5>{0}</color>:\nKills: <color=#ff1919>{1}</color>, Vents: <color=#ffa500>{2}</color>, Role Basis: <color=#00ffff>{3}</color>","","",""
+"AnalyzerKillButtonText","","Analyze","","",""
 
 "## Drainer"
 "Drainer","","Drainer","","",""

@@ -226,6 +226,9 @@ class CheckMurderPatch
                 case CustomRoles.DonutDelivery:
                     DonutDelivery.OnCheckMurder(killer, target);
                     return false;
+                case CustomRoles.Gaulois:
+                    Gaulois.OnCheckMurder(killer, target);
+                    return false;
                 case CustomRoles.Escort:
                     Escort.OnCheckMurder(killer, target);
                     return false;

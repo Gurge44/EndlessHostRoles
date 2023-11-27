@@ -241,6 +241,7 @@ public static class Divinator
                 CustomRoles.Refugee or
                 CustomRoles.Inhibitor or
                 CustomRoles.Sapper or
+                CustomRoles.Gaulois or
                 CustomRoles.SabotageMaster or
                 CustomRoles.Bandit or
                 CustomRoles.Saboteur

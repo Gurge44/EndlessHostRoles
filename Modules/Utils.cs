@@ -1,6 +1,5 @@
 using AmongUs.Data;
 using AmongUs.GameOptions;
-using HarmonyLib;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes;
 using InnerNet;
@@ -568,6 +567,7 @@ public static class Utils
             case CustomRoles.Aid:
             case CustomRoles.Escort:
             case CustomRoles.DonutDelivery:
+            case CustomRoles.Gaulois:
             case CustomRoles.Analyzer:
             case CustomRoles.Witness:
             case CustomRoles.Pursuer:
@@ -1039,6 +1039,9 @@ public static class Utils
                 case CustomRoles.DonutDelivery:
                     ProgressText.Append(DonutDelivery.GetProgressText());
                     break;
+                case CustomRoles.Gaulois:
+                    ProgressText.Append(Gaulois.GetProgressText(playerId));
+                    break;
                 case CustomRoles.Escort:
                     ProgressText.Append(Escort.GetProgressText());
                     break;
@@ -1189,10 +1192,8 @@ public static class Utils
         foreach (PlayerControl tg in Main.AllAlivePlayerControls)
         {
             var dis = Vector2.Distance(from, tg.transform.position);
-            if (Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || tg.inVent)
-                continue;
-            if (dis > radius)
-                continue;
+            if (Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || tg.inVent) continue;
+            if (dis > radius) continue;
             list.Add(tg);
         }
         return list;
@@ -1849,6 +1850,27 @@ public static class Utils
         }
         if (name != player.name && player.CurrentOutfitType == PlayerOutfitType.Default)
             player.RpcSetName(name);
+    }
+    public static Dictionary<string, int> GetAllPlayerLocationsCount()
+    {
+        Dictionary<string, int> playerRooms = [];
+        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        {
+            if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return null;
+            var Rooms = ShipStatus.Instance.AllRooms.ToArray();
+            if (Rooms == null) return null;
+            foreach (PlainShipRoom room in Rooms)
+            {
+                if (!room.roomArea) continue;
+                if (pc.Collider.IsTouching(room.roomArea))
+                {
+                    if (playerRooms.ContainsKey(room.name)) playerRooms[room.name]++;
+                    else playerRooms.Add(room.name, 1);
+                }
+            }
+        }
+        if (playerRooms.Any()) return playerRooms;
+        else return null;
     }
     public static PlayerControl GetPlayerById(int PlayerId)
     {

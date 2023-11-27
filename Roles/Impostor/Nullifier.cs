@@ -71,6 +71,10 @@ namespace TOHE.Roles.Impostor
                             DonutDelivery.DeliverLimit--;
                             DonutDelivery.SendRPC();
                             break;
+                        case CustomRoles.Gaulois:
+                            Gaulois.UseLimit[target.PlayerId]--;
+                            Gaulois.SendRPC(target.PlayerId);
+                            break;
                         case CustomRoles.Analyzer:
                             Analyzer.UseLimit--;
                             Analyzer.SendRPC();
