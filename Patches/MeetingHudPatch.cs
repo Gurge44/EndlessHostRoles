@@ -431,11 +431,11 @@ class CheckForEndVotingPatch
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
+            if (pc == exiledPlayer.Object) continue;
             var pc_role = pc.GetCustomRole();
-            if (pc_role.IsImpostor() && pc != exiledPlayer.Object)
-                impnum++;
-            else if (pc_role.IsNeutralKilling() && pc != exiledPlayer.Object)
-                neutralnum++;
+
+            if (pc_role.IsImpostor()) impnum++;
+            else if (pc_role.IsNeutralKilling()) neutralnum++;
         }
         switch (Options.CEMode.GetInt())
         {
@@ -492,12 +492,13 @@ class CheckForEndVotingPatch
         else if (Options.ShowImpRemainOnEject.GetBool())
         {
             name += "\n";
-            switch (impnum)
+            if (!Options.ShowNKRemainOnEject.GetBool()) neutralnum = 0;
+            switch (impnum, neutralnum)
             {
-                case 0 when neutralnum == 0: // Crewmates win
+                case (0, 0): // Crewmates win
                     name += GetString("GG");
                     break;
-                case > 0 when neutralnum > 0 && Options.ShowNKRemainOnEject.GetBool(): // Both imps and neutrals remain
+                case (> 0, > 0): // Both imps and neutrals remain
                     name += impnum switch
                     {
                         1 => "1 <color=#ff1919>Impostor</color> <color=#777777>&</color> ",
@@ -506,19 +507,18 @@ class CheckForEndVotingPatch
                         _ => string.Empty,
                     };
                     if (neutralnum == 1) name += "1 <color=#ffab1b>Neutral</color> <color=#777777>remains.</color>";
-                    else name += "2 <color=#ffab1b>Neutrals</color> <color=#777777>remain.</color>";
+                    else name += $"{neutralnum} <color=#ffab1b>Neutrals</color> <color=#777777>remain.</color>";
                     break;
-                case > 0 when neutralnum == 0 || !Options.ShowNKRemainOnEject.GetBool(): // Only imps remain
+                case (> 0, 0): // Only imps remain
                     name += impnum switch
                     {
-                        0 => GetString("NoImpRemain"),
                         1 => GetString("OneImpRemain"),
                         2 => GetString("TwoImpRemain"),
                         3 => GetString("ThreeImpRemain"),
                         _ => string.Empty,
                     };
                     break;
-                case 0 when neutralnum > 0: // Only neutrals remain
+                case (0, > 0): // Only neutrals remain
                     if (neutralnum == 1) name += GetString("OneNeutralRemain");
                     else name += string.Format(GetString("NeutralRemain"), neutralnum);
                     break;

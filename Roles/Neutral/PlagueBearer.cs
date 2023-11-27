@@ -56,10 +56,7 @@ public static class PlagueBearer
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = PlagueBearerCD[id];
     public static void SetKillCooldownPestilence(byte id) => Main.AllPlayerKillCooldown[id] = PestilenceCDOpt.GetFloat();
 
-    public static bool IsPlagued(byte pc, byte target)
-    {
-        return PlaguedList[pc].Contains(target);
-    }
+    public static bool IsPlagued(byte pc, byte target) => PlaguedList.TryGetValue(pc, out var x) && x.Contains(target);
     public static void SendRPC(PlayerControl player, PlayerControl target)
     {
         MessageWriter writer;

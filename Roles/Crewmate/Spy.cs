@@ -125,6 +125,8 @@ namespace TOHE.Roles.Crewmate
         }
         public static string GetProgressText(byte playerId, bool comms)
         {
+            if (GetPlayerById(playerId) == null) return string.Empty;
+
             var sb = new StringBuilder();
 
             Color TextColor1;

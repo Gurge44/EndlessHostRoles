@@ -81,7 +81,7 @@ namespace TOHE.Roles.Crewmate
 
             DrainLimit--;
 
-            foreach (var ventToDrain in vent.NearbyVents.ToArray())
+            foreach (var ventToDrain in vent?.NearbyVents?.ToArray())
             {
                 KillPlayersInVent(pc, ventToDrain.Id);
             }
@@ -97,6 +97,7 @@ namespace TOHE.Roles.Crewmate
                 return;
             }
 
+            playersInVents.Remove(pc.PlayerId);
             playersInVents.Add(pc.PlayerId, vent.Id);
         }
 
@@ -117,7 +118,7 @@ namespace TOHE.Roles.Crewmate
                     venter.MyPhysics?.RpcBootFromVent(ventId);
                     _ = new LateTask(() =>
                     {
-                        pc.Suicide(PlayerState.DeathReason.Demolished, pc);
+                        pc.Suicide(PlayerState.DeathReason.Demolished);
                     }, 0.55f, "Drainer-KillPlayerInVent");
                 }
             }

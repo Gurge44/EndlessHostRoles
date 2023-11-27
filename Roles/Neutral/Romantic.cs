@@ -186,6 +186,7 @@ public static class Romantic
 
         byte romanticId = BetPlayer.First(x => x.Value == playerId).Key;
         var romantic = Utils.GetPlayerById(romanticId);
+        if (romantic == null) return;
 
         var killer = partner.GetRealKiller();
 

@@ -31,7 +31,7 @@ public static class Utils
     {
         if (AmongUsClient.Instance.AmHost)
         {
-            Logger.Fatal($"{text} 错误，触发防黑屏措施", "Anti-black");
+            Logger.Fatal($"{text} error, triggering anti-black screen measures", "Anti-Blackout");
             ChatUpdatePatch.DoBlockChat = true;
             Main.OverrideWelcomeMsg = GetString("AntiBlackOutNotifyInLobby");
             _ = new LateTask(() =>

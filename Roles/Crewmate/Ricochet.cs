@@ -103,9 +103,11 @@ namespace TOHE.Roles.Crewmate
         }
         public static string GetProgressText(byte playerId, bool comms)
         {
+            if (GetPlayerById(playerId) == null) return string.Empty;
+
             var sb = new StringBuilder();
 
-            var taskState = Main.PlayerStates?[playerId].GetTaskState();
+            var taskState = Main.PlayerStates?[playerId]?.GetTaskState();
             Color TextColor;
             var TaskCompleteColor = Color.green;
             var NonCompleteColor = Color.yellow;

@@ -154,7 +154,7 @@ class OnPlayerLeftPatch
             var msg = string.Empty;
             if (GameStates.IsInGame)
             {
-                Utils.ErrorEnd("房主退出游戏");
+                Utils.ErrorEnd("Host Left the Game");
                 msg = GetString("Message.HostLeftGameInGame");
             }
             else if (GameStates.IsLobby)
