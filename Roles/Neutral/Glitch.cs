@@ -90,7 +90,7 @@ public static class Glitch
         __instance.SabotageButton.ToggleVisible(true);
     }
 
-    public static bool IsEnable => playerIdList.Any();
+    public static bool IsEnable => playerIdList.Count > 0;
     public static void SendRPCSyncTimers(int mimicCDTimer, int mimicDurTimer, int hackCDTimer, int KCDTimer)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGlitchTimers, SendOption.Reliable, -1);

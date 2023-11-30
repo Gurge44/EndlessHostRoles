@@ -86,7 +86,7 @@ public static class Jackal
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Any();
+    public static bool IsEnable => playerIdList.Count > 0;
 
     private static void SendRPC(byte playerId)
     {

@@ -41,7 +41,7 @@ namespace TOHE.Roles.Impostor
             LastTP = GetTimeStamp();
         }
 
-        public static bool IsEnable => playerIdList.Any();
+        public static bool IsEnable => playerIdList.Count > 0;
 
         public static void OnFixedUpdate(PlayerControl player)
         {

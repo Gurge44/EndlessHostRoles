@@ -41,7 +41,7 @@ namespace TOHE.Roles.Impostor
             Points.Add(playerId, StartingPoints.GetInt());
         }
 
-        public static bool IsEnable => playerIdList.Any();
+        public static bool IsEnable => playerIdList.Count > 0;
 
         public static bool CanUseKillButton(byte playerId) => Points.TryGetValue(playerId, out var point) && point > 0;
 

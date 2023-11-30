@@ -47,7 +47,7 @@ public static class NiceSwapper
         playerIdList.Add(playerId);
         NiceSwappermax.TryAdd(playerId, SwapMax.GetInt());
     }
-    public static bool IsEnable => playerIdList.Any();
+    public static bool IsEnable => playerIdList.Count > 0;
     public static string GetNiceSwappermax(byte playerId) => Utils.ColorString((NiceSwappermax.TryGetValue(playerId, out var x) && x >= 1) ? Color.white : Color.red, NiceSwappermax.TryGetValue(playerId, out var changermax) ? $"<color=#777777>-</color> {Math.Round(changermax, 1)}" : "Invalid");
     public static bool SwapMsg(PlayerControl pc, string msg, bool isUI = false)
     {

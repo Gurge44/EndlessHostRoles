@@ -54,7 +54,7 @@ public static class Swooper
         playerIdList.Add(playerId);
         SwoopLimit.Add(playerId, SwooperLimitOpt.GetInt());
     }
-    public static bool IsEnable => playerIdList.Any();
+    public static bool IsEnable => playerIdList.Count > 0;
     private static void SendRPC(PlayerControl pc)
     {
         if (pc.AmOwner) return;

@@ -50,7 +50,7 @@ public static class Gangster
         playerIdList.Add(playerId);
         RecruitLimit.TryAdd(playerId, RecruitLimitOpt.GetInt());
     }
-    public static bool IsEnable => playerIdList.Any();
+    public static bool IsEnable => playerIdList.Count > 0;
     private static void SendRPC(byte playerId)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGangsterRecruitLimit, SendOption.Reliable, -1);

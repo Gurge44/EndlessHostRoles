@@ -44,7 +44,7 @@ namespace TOHE.Roles.Crewmate
             UseLimit.Add(playerId, UseLimitOpt.GetInt());
         }
 
-        public static bool IsEnable => playerIdList.Any();
+        public static bool IsEnable => playerIdList.Count > 0;
 
         public static void SendRPC(byte playerId)
         {

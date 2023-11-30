@@ -41,7 +41,7 @@ public static class Workhorse
     {
         playerIdList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Any();
+    public static bool IsEnable => playerIdList.Count > 0;
     public static bool IsThisRole(byte playerId) => playerIdList.Contains(playerId);
     public static (bool, int, int) TaskData => (false, NumLongTasks, NumShortTasks);
     private static bool IsAssignTarget(PlayerControl pc)

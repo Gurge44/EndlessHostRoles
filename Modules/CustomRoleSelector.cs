@@ -123,7 +123,7 @@ internal class CustomRoleSelector
         }
 
         // 抽取优先职业（内鬼）
-        while (ImpOnList.Any())
+        while (ImpOnList.Count > 0)
         {
             var select = ImpOnList[rd.Next(0, ImpOnList.Count)];
             ImpOnList.Remove(select);
@@ -136,7 +136,7 @@ internal class CustomRoleSelector
         // 优先职业不足以分配，开始分配启用的职业（内鬼）
         if (readyRoleNum < playerCount && readyRoleNum < optImpNum)
         {
-            while (ImpRateList.Any())
+            while (ImpRateList.Count > 0)
             {
                 var select = ImpRateList[rd.Next(0, ImpRateList.Count)];
                 ImpRateList.Remove(select);
@@ -149,7 +149,7 @@ internal class CustomRoleSelector
         }
 
         // Select NonNeutralKilling "Always"
-        while (NonNeutralKillingOnList.Any() && optNonNeutralKillingNum > 0)
+        while (NonNeutralKillingOnList.Count > 0 && optNonNeutralKillingNum > 0)
         {
             var select = NonNeutralKillingOnList[rd.Next(0, NonNeutralKillingOnList.Count)];
             NonNeutralKillingOnList.Remove(select);
@@ -164,7 +164,7 @@ internal class CustomRoleSelector
         // Select NonNeutralKilling "Random"
         if (readyRoleNum < playerCount && readyNonNeutralKillingNum < optNonNeutralKillingNum)
         {
-            while (NonNeutralKillingRateList.Any() && optNonNeutralKillingNum > 0)
+            while (NonNeutralKillingRateList.Count > 0 && optNonNeutralKillingNum > 0)
             {
                 var select = NonNeutralKillingRateList[rd.Next(0, NonNeutralKillingRateList.Count)];
                 NonNeutralKillingRateList.Remove(select);
@@ -178,7 +178,7 @@ internal class CustomRoleSelector
         }
 
         // Select NeutralKilling "Always"
-        while (NeutralKillingOnList.Any() && optNeutralKillingNum > 0)
+        while (NeutralKillingOnList.Count > 0 && optNeutralKillingNum > 0)
         {
             var select = NeutralKillingOnList[rd.Next(0, NeutralKillingOnList.Count)];
             NeutralKillingOnList.Remove(select);
@@ -193,7 +193,7 @@ internal class CustomRoleSelector
         // Select NeutralKilling "Random"
         if (readyRoleNum < playerCount && readyNeutralKillingNum < optNeutralKillingNum)
         {
-            while (NeutralKillingRateList.Any() && optNeutralKillingNum > 0)
+            while (NeutralKillingRateList.Count > 0 && optNeutralKillingNum > 0)
             {
                 var select = NeutralKillingRateList[rd.Next(0, NeutralKillingRateList.Count)];
                 NeutralKillingRateList.Remove(select);
@@ -206,35 +206,8 @@ internal class CustomRoleSelector
             }
         }
 
-        /*while (CovenOnList.Any() && optCovenNum > 0)
-          {
-              var select = CovenOnList[rd.Next(0, CovenOnList.Count)];
-              CovenOnList.Remove(select);
-              rolesToAssign.Add(select);
-              readyRoleNum++;
-              readyCovenNum += select.GetCount();
-              Logger.Info(select.ToString() + " 加入中立职业待选列表（优先）", "CustomRoleSelector");
-              if (readyRoleNum >= playerCount) goto EndOfAssign;
-              if (readyCovenNum >= optCovenNum) break;
-          }*/
-
-        /*if (readyRoleNum < playerCount && readyCovenNum < optCovenNum)
-          {
-              while (CovenRateList.Any() && optCovenNum > 0)
-              {
-                  var select = CovenRateList[rd.Next(0, CovenRateList.Count)];
-                  CovenRateList.Remove(select);
-                  rolesToAssign.Add(select);
-                  readyRoleNum++;
-                  readyCovenNum += select.GetCount();
-                  Logger.Info(select.ToString() + " 加入中立职业待选列表", "CustomRoleSelector");
-                  if (readyRoleNum >= playerCount) goto EndOfAssign;
-                  if (readyCovenNum >= optCovenNum) break;
-              }
-          }*/
-
         // 抽取优先职业
-        while (roleOnList.Any())
+        while (roleOnList.Count > 0)
         {
             var select = roleOnList[rd.Next(0, roleOnList.Count)];
             roleOnList.Remove(select);
@@ -246,7 +219,7 @@ internal class CustomRoleSelector
         // 优先职业不足以分配，开始分配启用的职业
         if (readyRoleNum < playerCount)
         {
-            while (roleRateList.Any())
+            while (roleRateList.Count > 0)
             {
                 var select = roleRateList[rd.Next(0, roleRateList.Count)];
                 roleRateList.Remove(select);
@@ -311,7 +284,7 @@ internal class CustomRoleSelector
 
         var AllPlayer = Main.AllAlivePlayerControls.ToList();
 
-        while (AllPlayer.Any() && rolesToAssign.Any())
+        while (AllPlayer.Count > 0 && rolesToAssign.Count > 0)
         {
             PlayerControl delPc = null;
             for (int i = 0; i < AllPlayer.Count; i++)
@@ -344,9 +317,9 @@ internal class CustomRoleSelector
             }
         }
 
-        if (AllPlayer.Any())
+        if (AllPlayer.Count > 0)
             Logger.Error("Role assignment error: There are players who have not been assigned a role", "CustomRoleSelector");
-        if (rolesToAssign.Any())
+        if (rolesToAssign.Count > 0)
             Logger.Error("Team assignment error: There is an unassigned team", "CustomRoleSelector");
 
     }

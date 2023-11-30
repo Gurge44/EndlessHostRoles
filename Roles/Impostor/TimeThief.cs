@@ -30,7 +30,7 @@ public static class TimeThief
     {
         playerIdList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Any();
+    public static bool IsEnable => playerIdList.Count > 0;
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     private static int StolenTime(byte id)
     {

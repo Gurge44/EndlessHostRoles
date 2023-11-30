@@ -42,7 +42,7 @@ public static class Traitor
         __instance.SabotageButton.ToggleVisible(isActive && CanUseSabotage.GetBool());
     }
 
-    public static bool IsEnable => playerIdList.Any();
+    public static bool IsEnable => playerIdList.Count > 0;
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
     public static void CanUseVent(PlayerControl player)

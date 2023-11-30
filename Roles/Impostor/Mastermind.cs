@@ -47,7 +47,7 @@ namespace TOHE.Roles.Impostor
             ManipulateCD = KillCooldown.GetFloat() + TimeLimit.GetFloat() + Delay.GetFloat();
         }
 
-        public static bool IsEnable => playerIdList.Any();
+        public static bool IsEnable => playerIdList.Count > 0;
 
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {

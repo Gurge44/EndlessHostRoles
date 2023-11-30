@@ -2481,6 +2481,8 @@ public static class Utils
                             TargetSuffix.Append(PlagueDoctor.GetLowerTextOthers(seer, target));
                             TargetSuffix.Append(Stealth.GetSuffix(seer, target));
 
+                            if (target.Is(CustomRoles.Librarian)) TargetSuffix.Append(Librarian.GetNameTextForSuffix(target.PlayerId));
+
                             string TargetDeathReason = string.Empty;
                             if (seer.KnowDeathReason(target))
                                 TargetDeathReason = $"({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))})";

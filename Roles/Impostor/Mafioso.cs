@@ -201,7 +201,7 @@ namespace TOHE.Roles.Impostor
 
             return true;
         }
-        public static bool IsEnable => playerIdList.Any();
+        public static bool IsEnable => playerIdList.Count > 0;
         public static void OnReportDeadBody()
         {
             if (!IsEnable) return;

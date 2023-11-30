@@ -3021,6 +3021,20 @@
 "MagicianBombExlodesIn","","Bomb explodes in {0}s","","",""
 "MagicianCardUsed","","Card used","","",""
 
+"## Librarian"
+"Librarian","","Librarian","","",""
+"LibrarianInfo","","Silence the Reporters Nearby","","",""
+"LibrarianInfoLong","","(Impostors):\nAs the Librarian, when you're in silencing mode, if someone reports a body next to you, you'll kill them instead. After you kill someone like this, everyone will see 'SSSH!' in red under your name.","","",""
+"LibrarianRadius","","Silence Radius","","",""
+"LibrarianShowSSAnimation","","Shapeshift Transformation Animation is Visible","","",""
+"LibrarianNameNotifyDuration","","SSSH! Name Text Duration","","",""
+"LibrarianNameText","","SSSH!","","",""
+"LibrarianModeText","","<color=#00ffa5>Mode:</color> <b>{0}</b>","","",""
+"LibrarianSilenceMode","","<color=#ff1919>Silence</color>","","",""
+"LibrarianNormalMode","","Normal","","",""
+
+"CanKillWhileShifted","","Can Kill While Shapeshifting","","",""
+
 "## Postman"
 "Postman","","Postman","","",""
 "PostmanInfo","","Deliver Mail to Everyone!","","",""

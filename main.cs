@@ -656,6 +656,7 @@ public enum CustomRoles
     Miner,
     Escapee,
     Inhibitor,
+    Librarian,
     Chronomancer,
     Nullifier,
     Stealth,

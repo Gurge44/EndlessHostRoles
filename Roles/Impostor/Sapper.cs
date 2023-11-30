@@ -49,7 +49,7 @@ namespace TOHE.Roles.Impostor
             AURoleOptions.ShapeshifterDuration = 1f;
         }
 
-        public static bool IsEnable => playerIdList.Any();
+        public static bool IsEnable => playerIdList.Count > 0;
 
         public static void OnShapeshift(PlayerControl pc, bool isPet = false)
         {

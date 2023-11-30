@@ -37,7 +37,7 @@ public static class SerialKiller
         playerIdList.Add(serial);
         Timer.Add(serial, TimeLimit.GetInt());
     }
-    public static bool IsEnable() => playerIdList.Any();
+    public static bool IsEnable() => playerIdList.Count > 0;
     public static void ApplyKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     //public static void ApplyGameOptions(PlayerControl pc)
     //{

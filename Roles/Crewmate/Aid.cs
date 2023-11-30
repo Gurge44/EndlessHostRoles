@@ -45,7 +45,7 @@ namespace TOHE.Roles.Crewmate
                 Main.ResetCamPlayerList.Add(playerId);
         }
         public static void SetKillCooldown(byte playerId) => Main.AllPlayerKillCooldown[playerId] = AidCD.GetInt();
-        public static bool IsEnable => playerIdList.Any();
+        public static bool IsEnable => playerIdList.Count > 0;
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer == null) return false;

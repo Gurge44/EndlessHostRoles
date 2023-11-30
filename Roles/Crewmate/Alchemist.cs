@@ -68,7 +68,7 @@ namespace TOHE.Roles.Crewmate
             PlayerName = Utils.GetPlayerById(playerId).GetRealName();
             _ = new LateTask(() => { SendRPCData(IsProtected, PotionID, PlayerName, VisionPotionActive, FixNextSabo); }, 10f, "Alchemist RPCs");
         }
-        public static bool IsEnable => playerIdList.Any();
+        public static bool IsEnable => playerIdList.Count > 0;
 
         public static void SendRPCData(bool isProtected, byte potionId, string playerName, bool visionPotionActive, bool fixNextSabo)
         {

@@ -55,7 +55,7 @@ public static class Judge
         playerIdList.Add(playerId);
         TrialLimit.Add(playerId, TrialLimitPerMeeting.GetInt());
     }
-    public static bool IsEnable => playerIdList.Any();
+    public static bool IsEnable => playerIdList.Count > 0;
     public static void OnReportDeadBody()
     {
         byte[] list = [.. TrialLimit.Keys];

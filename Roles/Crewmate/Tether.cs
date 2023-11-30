@@ -42,7 +42,7 @@ namespace TOHE.Roles.Crewmate
             playerIdList.Add(playerId);
             UseLimit.Add(playerId, UseLimitOpt.GetInt());
         }
-        public static bool IsEnable => playerIdList.Any();
+        public static bool IsEnable => playerIdList.Count > 0;
         public static void SendRPC(byte playerId)
         {
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTetherLimit, SendOption.Reliable, -1);

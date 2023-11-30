@@ -39,7 +39,7 @@ namespace TOHE.Roles.Impostor
             playerIdList.Add(playerId);
         }
 
-        public static bool IsEnable => playerIdList.Any();
+        public static bool IsEnable => playerIdList.Count > 0;
 
         public static void SendRPC(byte targetId)
         {

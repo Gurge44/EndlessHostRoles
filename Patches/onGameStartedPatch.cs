@@ -228,6 +228,7 @@ internal class ChangeRoleSettings
             Pelican.Init();
             //Counterfeiter.Init();
             Tether.Init();
+            Librarian.Init();
             Benefactor.Init();
             Aid.Init();
             DonutDelivery.Init();
@@ -673,6 +674,9 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Benefactor:
                         Benefactor.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Librarian:
+                        Librarian.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Aid:
                         Aid.Add(pc.PlayerId);

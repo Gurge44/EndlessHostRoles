@@ -36,7 +36,7 @@ internal class AntiAdminer
     {
         playerIdList.Add(playerId);
     }
-    public static bool IsEnable() => playerIdList.Any();
+    public static bool IsEnable() => playerIdList.Count > 0;
 
     private static int Count;
     public static void FixedUpdate()

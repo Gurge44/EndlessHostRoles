@@ -42,7 +42,7 @@ public static class Hangman
         playerIdList.Add(playerId);
         HangLimit.Add(playerId, HangmanLimitOpt.GetInt());
     }
-    public static bool IsEnable => playerIdList.Any();
+    public static bool IsEnable => playerIdList.Count > 0;
     public static void ApplyGameOptions()
     {
         AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();

@@ -48,7 +48,7 @@ public static class Crusader
         if (Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Remove(playerId);
     }
-    public static bool IsEnable => playerIdList.Any();
+    public static bool IsEnable => playerIdList.Count > 0;
     public static void ReceiveRPC(MessageReader reader)
     {
         byte PlayerId = reader.ReadByte();

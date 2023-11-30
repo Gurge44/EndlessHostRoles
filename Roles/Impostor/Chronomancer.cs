@@ -58,7 +58,7 @@ namespace TOHE.Roles.Impostor
             lastUpdate = Utils.GetTimeStamp() + 10;
         }
         public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = isRampaging ? 0.01f : KCD.GetFloat();
-        public static bool IsEnable => playerIdList.Any();
+        public static bool IsEnable => playerIdList.Count > 0;
         public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer == null) return;

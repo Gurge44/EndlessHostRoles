@@ -48,7 +48,7 @@
             BloodhoundTargets.Add(playerId, []);
 
         }
-        public static bool IsEnable => playerIdList.Any();
+        public static bool IsEnable => playerIdList.Count > 0;
 
         private static void SendRPC(byte playerId, bool add, Vector3 loc = new())
         {

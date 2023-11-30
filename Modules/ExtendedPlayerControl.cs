@@ -373,7 +373,7 @@ static class ExtendedPlayerControl
     public static string GetSubRoleName(this PlayerControl player, bool forUser = false)
     {
         var SubRoles = Main.PlayerStates[player.PlayerId].SubRoles.ToArray();
-        if (!SubRoles.Any()) return string.Empty;
+        if (SubRoles.Length == 0) return string.Empty;
         var sb = new StringBuilder();
         foreach (CustomRoles role in SubRoles)
         {
@@ -475,6 +475,7 @@ static class ExtendedPlayerControl
             CustomRoles.RiftMaker => true,
             CustomRoles.Hitman => true,
             CustomRoles.Inhibitor => true,
+            CustomRoles.Librarian => true,
             CustomRoles.Cantankerous => true,
             CustomRoles.YinYanger => true,
             CustomRoles.Duellist => true,
@@ -595,6 +596,7 @@ static class ExtendedPlayerControl
             CustomRoles.Mafioso => pc.IsAlive(),
             CustomRoles.Consort => pc.IsAlive(),
             CustomRoles.Duellist => pc.IsAlive(),
+            CustomRoles.Librarian => pc.IsAlive() && Librarian.CanUseKillButton(pc),
             CustomRoles.YinYanger => pc.IsAlive(),
             CustomRoles.Cantankerous => pc.IsAlive() && Cantankerous.CanUseKillButton(pc.PlayerId),
             CustomRoles.Inhibitor => !Utils.IsActive(SystemTypes.Electrical) && !Utils.IsActive(SystemTypes.Laboratory) && !Utils.IsActive(SystemTypes.Comms) && !Utils.IsActive(SystemTypes.LifeSupp) && !Utils.IsActive(SystemTypes.Reactor),

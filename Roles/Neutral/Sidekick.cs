@@ -20,7 +20,7 @@ public static class Sidekick
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Any();
+    public static bool IsEnable => playerIdList.Count > 0;
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Jackal.KillCooldownSK.GetFloat();
     public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(Jackal.HasImpostorVision.GetBool());
     public static void SetHudActive(HudManager __instance, bool isActive)

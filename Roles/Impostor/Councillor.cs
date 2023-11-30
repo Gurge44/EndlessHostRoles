@@ -53,7 +53,7 @@ public static class Councillor
         MurderLimit.Add(playerId, MurderLimitPerMeeting.GetInt());
         //   MurderLimitGame.Add(playerId, MurderLimitPerGame.GetInt());
     }
-    public static bool IsEnable => playerIdList.Any();
+    public static bool IsEnable => playerIdList.Count > 0;
     public static void OnReportDeadBody()
     {
         MurderLimit.Clear();

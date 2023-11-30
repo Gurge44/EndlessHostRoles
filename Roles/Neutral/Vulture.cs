@@ -61,7 +61,7 @@ public static class Vulture
             return;
         }, VultureReportCD.GetFloat() + 8f, "Vulture CD");  //for some reason that idk vulture cd completes 8s faster when the game starts, so I added 8f for now 
     }
-    public static bool IsEnable => playerIdList.Any();
+    public static bool IsEnable => playerIdList.Count > 0;
 
     public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpVision.GetBool());
 

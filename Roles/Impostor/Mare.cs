@@ -33,7 +33,7 @@
 //    {
 //        playerIdList.Add(mare);
 //    }
-//    public static bool IsEnable => playerIdList.Any();
+//    public static bool IsEnable => playerIdList.Count > 0;
 //    public static float GetKillCooldown => Utils.IsActive(SystemTypes.Electrical) ? KillCooldownInLightsOut.GetFloat() : KillCooldownNormally.GetFloat();
 //    public static void SetKillCooldown(byte id)
 //    {

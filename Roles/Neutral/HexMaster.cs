@@ -62,7 +62,7 @@ public static class HexMaster
 
 
     }
-    public static bool IsEnable => playerIdList.Any();
+    public static bool IsEnable => playerIdList.Count > 0;
     private static void SendRPC(bool doHex, byte hexId, byte target = 255)
     {
         if (doHex)

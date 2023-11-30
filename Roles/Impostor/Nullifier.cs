@@ -40,7 +40,7 @@ namespace TOHE.Roles.Impostor
 
         public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KCD.GetFloat();
 
-        public static bool IsEnable => playerIdList.Any();
+        public static bool IsEnable => playerIdList.Count > 0;
 
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {

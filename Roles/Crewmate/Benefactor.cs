@@ -57,6 +57,7 @@ namespace TOHE.Roles.Crewmate
             writer.Write(shieldExpire);
             writer.Write(shieldedId);
             if (!IsShield) writer.Write(TaskMarkPerRound[benefactorID]);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         public static void ReceiveRPC(MessageReader reader)
         {

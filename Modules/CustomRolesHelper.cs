@@ -50,6 +50,7 @@ internal static class CustomRolesHelper
                 CustomRoles.SpeedBooster => CustomRoles.Crewmate,
                 CustomRoles.Dictator => CustomRoles.Crewmate,
                 CustomRoles.Inhibitor => CustomRoles.Impostor,
+                CustomRoles.Librarian => CustomRoles.Shapeshifter,
                 CustomRoles.Cantankerous => CustomRoles.Impostor,
                 CustomRoles.YinYanger => CustomRoles.Impostor,
                 CustomRoles.Duellist => CustomRoles.Shapeshifter,
@@ -732,6 +733,7 @@ internal static class CustomRolesHelper
             CustomRoles.SerialKiller or
             CustomRoles.Underdog or
             CustomRoles.Inhibitor or
+            CustomRoles.Librarian or
             CustomRoles.Cantankerous or
             CustomRoles.Duellist or
             CustomRoles.YinYanger or
@@ -1519,7 +1521,7 @@ internal static class CustomRolesHelper
            _ => role.IsImpostorTeam() ? CountTypes.Impostor : CountTypes.Crew,
        };
 
-    public static bool HasSubRole(this PlayerControl pc) => Main.PlayerStates[pc.PlayerId].SubRoles.Any();
+    public static bool HasSubRole(this PlayerControl pc) => Main.PlayerStates[pc.PlayerId].SubRoles.Count > 0;
 }
 public enum CustomRoleTypes
 {

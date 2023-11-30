@@ -58,6 +58,8 @@ enum CustomRPC
 
     //Roles
     SetDrawPlayer,
+    SetLibrarianMode,
+    SyncLibrarianList,
     GaulousAddPlayerToList,
     SetGauloisLimit,
     SyncYinYanger,
@@ -399,6 +401,12 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SetCPTasksDone:
                 RPC.CrewpostorTasksRecieveRPC(reader);
+                break;
+            case CustomRPC.SetLibrarianMode:
+                Librarian.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncLibrarianList:
+                Librarian.ReceiveRPCSyncList(reader);
                 break;
             case CustomRPC.SetDousedPlayer:
                 byte ArsonistId = reader.ReadByte();
@@ -1192,6 +1200,9 @@ internal static class RPC
                 break;
             case CustomRoles.Benefactor:
                 Benefactor.Add(targetId);
+                break;
+            case CustomRoles.Librarian:
+                Librarian.Add(targetId);
                 break;
             case CustomRoles.Escort:
                 Escort.Add(targetId);

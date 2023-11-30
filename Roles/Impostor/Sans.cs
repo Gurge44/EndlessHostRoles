@@ -40,7 +40,7 @@ public static class Sans
         playerIdList.Add(playerId);
         NowCooldown.TryAdd(playerId, DefaultKillCooldown.GetFloat());
     }
-    public static bool IsEnable() => playerIdList.Any();
+    public static bool IsEnable() => playerIdList.Count > 0;
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = NowCooldown[id];
     public static void OnCheckMurder(PlayerControl killer)
     {

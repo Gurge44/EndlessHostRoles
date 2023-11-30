@@ -643,11 +643,11 @@ class CheckMurderPatch
 
         if (killer.Is(CustomRoles.Swift) && !target.Is(CustomRoles.Pestilence))
         {
-            target.Kill(target);
-            //killer.RpcGuardAndKill(killer);
-            //    target.RpcGuardAndKill(target);
-            target.SetRealKiller(killer);
-            killer.SetKillCooldown();
+            if (killer.RpcCheckAndMurder(target, true))
+            {
+                target.Suicide(PlayerState.DeathReason.Kill, killer);
+                killer.SetKillCooldown();
+            }
             RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
             return false;
         }
@@ -1344,6 +1344,11 @@ class ShapeshiftPatch
                     Blackmailer.ForBlackmailer.Add(target.PlayerId);
                     isSSneeded = false;
                     break;
+                case CustomRoles.Librarian:
+                    if (shapeshifting)
+                    {
+                        isSSneeded = Librarian.OnShapeshift(shapeshifter);
+                    }
                 case CustomRoles.Warlock:
                     if (Main.CursedPlayers[shapeshifter.PlayerId] != null)//呪われた人がいるか確認
                     {
@@ -1640,6 +1645,8 @@ class ReportDeadBodyPatch
                 if (Bloodhound.UnreportablePlayers.Contains(target.PlayerId)
                     || Vulture.UnreportablePlayers.Contains(target.PlayerId)) return false;
 
+                if (!Librarian.OnAnyoneReport(__instance)) return false;
+
                 switch (__instance.GetCustomRole())
                 {
                     case CustomRoles.Bloodhound:
@@ -1843,6 +1850,7 @@ class ReportDeadBodyPatch
         if (QuickShooter.IsEnable) QuickShooter.OnReportDeadBody();
         if (Eraser.IsEnable) Eraser.OnReportDeadBody();
         if (NiceEraser.IsEnable) NiceEraser.OnReportDeadBody();
+        if (Librarian.IsEnable) Librarian.OnReportDeadBody();
         if (Hacker.IsEnable) Hacker.OnReportDeadBody();
         if (Analyzer.IsEnable) Analyzer.OnReportDeadBody();
         if (Judge.IsEnable) Judge.OnReportDeadBody();
@@ -2072,6 +2080,9 @@ class FixedUpdatePatch
                     break;
                 case CustomRoles.Mafioso when !lowLoad:
                     Mafioso.OnFixedUpdate(player);
+                    break;
+                case CustomRoles.Librarian when !lowLoad:
+                    Librarian.OnFixedUpdate();
                     break;
                 case CustomRoles.Analyzer:
                     Analyzer.OnFixedUpdate(player);
@@ -2928,8 +2939,13 @@ class FixedUpdatePatch
                         case CustomRoles.YinYanger when !seer.IsModClient():
                             Suffix.Append(YinYanger.ModeText);
                             break;
+                        case CustomRoles.Librarian when !seer.IsModClient():
+                            Suffix.Append(Librarian.GetSelfSuffixAndHUDText(seer.PlayerId));
+                            break;
                     }
                 }
+
+                if (target.Is(CustomRoles.Librarian) && !seer.Is(CustomRoles.Librarian)) Suffix.Append(Librarian.GetNameTextForSuffix(target.PlayerId));
 
                 if (Spiritualist.IsEnable) Suffix.Append(Spiritualist.GetSpiritualistArrow(seer, target));
 

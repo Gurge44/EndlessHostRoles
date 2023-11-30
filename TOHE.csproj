@@ -6,7 +6,7 @@
 	  <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <Description>TOHE+</Description>
     <Authors>Gurge44</Authors>
-    <langVersion>latest</langVersion>
+    <langVersion>preview</langVersion>
 	  <AmongUs>E:\Program Files\AmongUs</AmongUs>
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	  <Optimize>True</Optimize>

@@ -68,7 +68,7 @@ public static class ParityCop
         MaxCheckLimit.Add(playerId, ParityCheckLimitMax.GetInt());
         RoundCheckLimit.Add(playerId, ParityCheckLimitPerMeeting.GetInt());
     }
-    public static bool IsEnable => playerIdList.Any();
+    public static bool IsEnable => playerIdList.Count > 0;
     public static void OnReportDeadBody()
     {
         RoundCheckLimit.Clear();

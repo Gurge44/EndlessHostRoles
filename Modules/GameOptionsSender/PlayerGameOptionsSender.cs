@@ -15,25 +15,45 @@ namespace TOHE.Modules;
 public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 {
     public static void SetDirty(PlayerControl player) => SetDirty(player.PlayerId);
-    public static void SetDirty(byte playerId) =>
-        AllSenders.OfType<PlayerGameOptionsSender>()
-        .Where(sender => sender.player.PlayerId == playerId)
-        .ToList().ForEach(sender => sender.SetDirty());
-    public static void SetDirtyToAll() =>
-        AllSenders.OfType<PlayerGameOptionsSender>()
-        .ToList().ForEach(sender => sender.SetDirty());
-    public static void SetDirtyToAllV2() =>
-        AllSenders.OfType<PlayerGameOptionsSender>()
-        .Where(sender => !sender.IsDirty && sender.player.IsAlive() && CustomRolesHelper.NeedUpdateOnLights(sender.player.GetCustomRole()))
-        .ToList().ForEach(sender => sender.SetDirty());
-    public static void SetDirtyToAllV3() =>
-        AllSenders.OfType<PlayerGameOptionsSender>()
-        .Where(sender => !sender.IsDirty && sender.player.IsAlive() && ((Main.GrenadierBlinding.Any() && (sender.player.GetCustomRole().IsImpostor() || (sender.player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))) || (Main.MadGrenadierBlinding.Any() && !sender.player.GetCustomRole().IsImpostorTeam() && !sender.player.Is(CustomRoles.Madmate))))
-        .ToList().ForEach(sender => sender.SetDirty());
-    public static void SetDirtyToAllV4() =>
-        AllSenders.OfType<PlayerGameOptionsSender>()
-        .Where(sender => !sender.IsDirty && sender.player.IsAlive() && sender.player.CanUseKillButton())
-        .ToList().ForEach(sender => sender.SetDirty());
+    public static void SetDirty(byte playerId)
+    {
+        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().Where(sender => sender.player.PlayerId == playerId).ToArray())
+        {
+            sender.SetDirty();
+        }
+    }
+
+    public static void SetDirtyToAll()
+    {
+        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().ToArray())
+        {
+            sender.SetDirty();
+        }
+    }
+
+    public static void SetDirtyToAllV2()
+    {
+        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().Where(sender => !sender.IsDirty && sender.player.IsAlive() && sender.player.GetCustomRole().NeedUpdateOnLights()).ToArray())
+        {
+            sender.SetDirty();
+        }
+    }
+
+    public static void SetDirtyToAllV3()
+    {
+        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().Where(sender => !sender.IsDirty && sender.player.IsAlive() && ((Main.GrenadierBlinding.Any() && (sender.player.GetCustomRole().IsImpostor() || (sender.player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))) || (Main.MadGrenadierBlinding.Any() && !sender.player.GetCustomRole().IsImpostorTeam() && !sender.player.Is(CustomRoles.Madmate)))).ToArray())
+        {
+            sender.SetDirty();
+        }
+    }
+
+    public static void SetDirtyToAllV4()
+    {
+        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().Where(sender => !sender.IsDirty && sender.player.IsAlive() && sender.player.CanUseKillButton()).ToArray())
+        {
+            sender.SetDirty();
+        }
+    }
 
     public override IGameOptions BasedGameOptions =>
         Main.RealOptionsData.Restore(new NormalGameOptionsV07(new UnityLogger().Cast<ILogger>()).Cast<IGameOptions>());
@@ -62,7 +82,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
     {
         try
         {
-            for (byte i = 0; i < GameManager.Instance.LogicComponents.Count; i++)
+            for (byte i = 0; i < GameManager.Instance?.LogicComponents?.Count; i++)
             {
                 if (GameManager.Instance.LogicComponents[(Index)i].TryCast<LogicOptions>(out _))
                 {
@@ -332,6 +352,9 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 break;
             case CustomRoles.Sidekick:
                 Sidekick.ApplyGameOptions(opt);
+                break;
+            case CustomRoles.Librarian:
+                Librarian.ApplyGameOptions();
                 break;
             case CustomRoles.Vulture:
                 Vulture.ApplyGameOptions(opt);

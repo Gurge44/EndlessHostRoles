@@ -30,7 +30,7 @@ public static class TimeManager
     {
         playerIdList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Any();
+    public static bool IsEnable => playerIdList.Count > 0;
     private static int AdditionalTime(byte id)
     {
         var pc = Utils.GetPlayerById(id);

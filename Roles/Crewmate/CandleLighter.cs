@@ -68,7 +68,7 @@
             if (Utils.IsActive(SystemTypes.Electrical))
                 opt.SetFloat(FloatOptionNames.CrewLightMod, Vision * 5);
         }
-        public static bool IsEnable => playerIdList.Any();
+        public static bool IsEnable => playerIdList.Count > 0;
         public static bool OnCompleteTask(PlayerControl pc)
         {
             ElapsedTime = OptionTaskEndVisionTime.GetInt();
