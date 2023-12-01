@@ -107,17 +107,17 @@ public class ChatManager
 
         if (!player.IsAlive() || !AmongUsClient.Instance.AmHost) return;
 
-        if (!GameStates.IsInGame) operate = 3;
-        else if (CheckCommand(ref message, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id|shoot|guess|bet|st|gs|bt|猜|赌|sp|jj|tl|trial|审判|判|审|xp|效颦|效|颦|sw|换票|换|swap", false) || CheckName(ref playername, "系统消息", false)) operate = 1;
-        else if (CheckCommand(ref message, "up", false)) operate = 2;
-        else if (CheckCommand(ref message, "r|role|m|myrole|n|now")) operate = 4;
-        else operate = 3;
-
         if (Blackmailer.ForBlackmailer.Contains(player.PlayerId) && player.IsAlive())
         {
             cancel = true;
             return;
         }
+
+        if (!GameStates.IsInGame) operate = 3;
+        else if (CheckCommand(ref message, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id|shoot|guess|bet|st|gs|bt|猜|赌|sp|jj|tl|trial|审判|判|审|xp|效颦|效|颦|sw|换票|换|swap", false) || CheckName(ref playername, "系统消息", false)) operate = 1;
+        else if (CheckCommand(ref message, "up", false)) operate = 2;
+        else if (CheckCommand(ref message, "r|role|m|myrole|n|now")) operate = 4;
+        else operate = 3;
 
         switch (operate)
         {
@@ -129,24 +129,25 @@ public class ChatManager
                 Logger.Info($"Command: {message}", "ChatManager");
                 cancel = false;
                 break;
+            case 3:
+                string chatEntry = $"{player.PlayerId}: {message}";
+                chatHistory.Add(chatEntry);
+
+                if (chatHistory.Count > maxHistorySize)
+                {
+                    chatHistory.RemoveAt(0);
+                }
+                cancel = false;
+                break;
             case 4:
                 Logger.Info($"Command: {message}", "ChatManager");
-                SendPreviousMessagesToAll(realMessagesOnly: true);
+                //if (!DontBlock) SendPreviousMessagesToAll(realMessagesOnly: true);
                 break;
-            case 3:
-                {
-                    string chatEntry = $"{player.PlayerId}: {message}";
-                    chatHistory.Add(chatEntry);
-
-                    if (chatHistory.Count > maxHistorySize)
-                    {
-                        chatHistory.RemoveAt(0);
-                    }
-                    cancel = false;
-                    break;
-                }
         }
     }
+
+    public static bool DontBlock = false;
+
     public static void SendPreviousMessagesToAll(bool realMessagesOnly = false)
     {
         ChatUpdatePatch.DoBlockChat = true;

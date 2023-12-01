@@ -93,7 +93,7 @@ public static class TemplateManager
         CreateIfNotExists();
         using StreamReader sr = new(TEMPLATE_FILE_PATH, Encoding.GetEncoding("UTF-8"));
         string text;
-        string[] tmp = Array.Empty<string>();
+        string[] tmp = [];
         List<string> sendList = [];
         HashSet<string> tags = [];
         while ((text = sr.ReadLine()) != null)

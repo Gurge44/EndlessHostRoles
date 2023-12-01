@@ -153,7 +153,7 @@ class RepairSystemPatch
 
         if (systemType == SystemTypes.Electrical && 0 <= amount && amount <= 4)
         {
-            var SwitchSystem = ShipStatus.Instance.Systems[SystemTypes.Electrical].Cast<SwitchSystem>();
+            var SwitchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.Cast<SwitchSystem>();
             if (SwitchSystem != null && SwitchSystem.IsActive)
             {
                 switch (player.GetCustomRole())
@@ -172,7 +172,14 @@ class RepairSystemPatch
             }
         }
 
-        if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage && systemType is SystemTypes.Reactor or SystemTypes.LifeSupp or SystemTypes.Comms or SystemTypes.Laboratory or SystemTypes.HeliSabotage or SystemTypes.Electrical)
+        if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage &&
+            systemType is
+            SystemTypes.Reactor or
+            SystemTypes.LifeSupp or
+            SystemTypes.Comms or
+            SystemTypes.Laboratory or
+            SystemTypes.HeliSabotage or
+            SystemTypes.Electrical)
         {
             Damocles.OnRepairSabotage();
         }

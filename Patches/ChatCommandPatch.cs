@@ -872,7 +872,7 @@ internal class ChatCommands
                 {
                     var sb = new StringBuilder();
                     _ = sb.Append(GetString(role.ToString()) + Utils.GetRoleMode(role) + player.GetRoleInfo(true));
-                    if (Options.CustomRoleSpawnChances.TryGetValue(role, out _))
+                    if (Options.CustomRoleSpawnChances.ContainsKey(role))
                         Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[role], ref sb, command: true);
                     var txt = sb.ToString();
                     _ = sb.Clear().Append(txt.RemoveHtmlTags());
@@ -882,7 +882,9 @@ internal class ChatCommands
                     }
                     _ = new LateTask(() =>
                     {
+                        ChatManager.DontBlock = true;
                         Utils.SendMessage(sb.ToString(), player.PlayerId);
+                        _ = new LateTask(() => ChatManager.DontBlock = false, 0.5f, log: false);
                     }, 1f, log: false);
                 }
                 else

@@ -1345,10 +1345,8 @@ class ShapeshiftPatch
                     isSSneeded = false;
                     break;
                 case CustomRoles.Librarian:
-                    if (shapeshifting)
-                    {
-                        isSSneeded = Librarian.OnShapeshift(shapeshifter);
-                    }
+                    if (shapeshifting) isSSneeded = Librarian.OnShapeshift(shapeshifter);
+                    break;
                 case CustomRoles.Warlock:
                     if (Main.CursedPlayers[shapeshifter.PlayerId] != null)//呪われた人がいるか確認
                     {

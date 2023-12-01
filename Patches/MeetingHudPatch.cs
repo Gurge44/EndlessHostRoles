@@ -550,7 +550,7 @@ class CheckForEndVotingPatch
             {
                 pc?.Notify(text, r.Next(7, 13));
             }
-        }, 12f, log: false);
+        }, 13f, log: false);
     }
     public static bool CheckRole(byte id, CustomRoles role)
     {

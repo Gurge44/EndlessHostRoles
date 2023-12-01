@@ -549,6 +549,7 @@ internal static class CustomRolesHelper
             CustomRoles.Ritualist or
             CustomRoles.Arsonist or
             CustomRoles.Pickpocket or
+            CustomRoles.PlagueDoctor or
             CustomRoles.Traitor or
             CustomRoles.Virus or
             CustomRoles.BloodKnight or
@@ -682,6 +683,7 @@ internal static class CustomRolesHelper
             CustomRoles.Bandit or
             CustomRoles.BloodKnight or
             CustomRoles.Infectious or
+            CustomRoles.PlagueDoctor or
             CustomRoles.Virus or
             CustomRoles.Succubus or
             CustomRoles.Spiritcaller or
