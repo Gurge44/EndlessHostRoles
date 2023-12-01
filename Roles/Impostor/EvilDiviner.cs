@@ -70,10 +70,7 @@ namespace TOHE.Roles.Impostor
             }
         }
 
-        public static bool IsEnable()
-        {
-            return playerIdList.Any();
-        }
+        public static bool IsEnable => playerIdList.Count > 0;
         public static void SetKillCooldown(byte id)
         {
             Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();

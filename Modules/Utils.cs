@@ -1471,7 +1471,7 @@ public static class Utils
     public static string GetSubRolesText(byte id, bool disableColor = false, bool intro = false, bool summary = false)
     {
         var SubRoles = Main.PlayerStates[id].SubRoles;
-        if (!SubRoles.Any()) return string.Empty;
+        if (SubRoles.Count == 0) return string.Empty;
         var sb = new StringBuilder();
         bool isLovers = false;
         if (intro)
@@ -1869,8 +1869,7 @@ public static class Utils
                 }
             }
         }
-        if (playerRooms.Any()) return playerRooms;
-        else return null;
+        return playerRooms.Any() ? playerRooms : null;
     }
     public static PlayerControl GetPlayerById(int PlayerId)
     {
@@ -2237,8 +2236,8 @@ public static class Utils
 
                             if (Snitch.IsEnable) TargetMark.Append(Snitch.GetWarningMark(seer, target));
 
-                            if (seer.Is(CustomRoles.Lovers) && target.Is(CustomRoles.Lovers)
-                                || seer.Data.IsDead && !seer.Is(CustomRoles.Lovers) && target.Is(CustomRoles.Lovers))
+                            if ((seer.Is(CustomRoles.Lovers) && target.Is(CustomRoles.Lovers))
+                                || (seer.Data.IsDead && !seer.Is(CustomRoles.Lovers) && target.Is(CustomRoles.Lovers)))
                             {
                                 TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}>♥</color>");
                             }
@@ -2709,8 +2708,8 @@ public static class Utils
                 {
                     foreach (PlayerControl pc in Main.AllPlayerControls)
                     {
-                        if (!Options.ImpKnowCyberStarDead.GetBool() && pc.GetCustomRole().IsImpostor()
-                            || !Options.NeutralKnowCyberStarDead.GetBool() && pc.GetCustomRole().IsNeutral())
+                        if ((!Options.ImpKnowCyberStarDead.GetBool() && pc.GetCustomRole().IsImpostor())
+                            || (!Options.NeutralKnowCyberStarDead.GetBool() && pc.GetCustomRole().IsNeutral()))
                             continue;
 
                         SendMessage(string.Format(GetString("CyberStarDead"), target.GetRealName()), pc.PlayerId, ColorString(GetRoleColor(CustomRoles.CyberStar), GetString("CyberStarNewsTitle")));

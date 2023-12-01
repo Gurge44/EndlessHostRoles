@@ -324,7 +324,7 @@ public static class Sniper
             foreach (byte sniperId in PlayerIdList.ToArray())
             {
                 var snList = shotNotify[sniperId];
-                if (snList.Any() && snList.Contains(seerId))
+                if (snList.Count > 0 && snList.Contains(seerId))
                 {
                     return $"<size=200%>{Utils.ColorString(Palette.ImpostorRed, "!")}</size>";
                 }

@@ -580,7 +580,7 @@ public class TaskState
                 RPC.CrewpostorTasksSendRPC(player.PlayerId, Main.CrewpostorTasksDone[player.PlayerId]);
 
                 PlayerControl[] list = Main.AllAlivePlayerControls.Where(x => x.PlayerId != player.PlayerId && (Options.CrewpostorCanKillAllies.GetBool() || !x.GetCustomRole().IsImpostorTeam())).ToArray();
-                if (!list.Any())
+                if (list.Length == 0 || list == null)
                 {
                     Logger.Info($"No target to kill", "Crewpostor");
                 }

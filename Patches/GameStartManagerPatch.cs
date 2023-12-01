@@ -273,7 +273,7 @@ public class GameStartRandomMap
         if (tempRand <= Options.AirshipChance.GetInt()) randomMaps.Add(4);
         if (tempRand <= Options.FungleChance.GetInt()) randomMaps.Add(5);
 
-        if (randomMaps.Any())
+        if (randomMaps.Count > 0)
         {
             var mapsId = randomMaps[0];
 

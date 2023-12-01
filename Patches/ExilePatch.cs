@@ -120,7 +120,7 @@ class ExileControllerWrapUpPatch
         Witch.RemoveSpelledPlayer();
         HexMaster.RemoveHexedPlayer();
 
-        if (NiceSwapper.Vote.Any() && NiceSwapper.VoteTwo.Any())
+        if (NiceSwapper.Vote.Count > 0 && NiceSwapper.VoteTwo.Count > 0)
         {
             foreach (var swapper in Main.AllAlivePlayerControls.Where(swapper => swapper.Is(CustomRoles.NiceSwapper)).ToArray())
             {

@@ -76,7 +76,7 @@ namespace TOHE.Roles.AddOns.Impostor
             writer.Write(Timer);
             writer.Write(lastUpdate);
             writer.Write(PreviouslyEnteredVents.Count);
-            if (PreviouslyEnteredVents.Any()) foreach (var vent in PreviouslyEnteredVents.ToArray()) writer.Write(vent);
+            if (PreviouslyEnteredVents.Count > 0) foreach (var vent in PreviouslyEnteredVents.ToArray()) writer.Write(vent);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 

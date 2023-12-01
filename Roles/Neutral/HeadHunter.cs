@@ -89,7 +89,7 @@ public static class HeadHunter
             try
             {
                 var cTargets = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(pc => !Targets.Contains(pc.PlayerId) && pc.GetCustomRole() != CustomRoles.HeadHunter));
-                if (cTargets == null || !cTargets.Any()) break;
+                if (cTargets == null || cTargets.Count == 0) break;
                 var target = cTargets[IRandom.Instance.Next(0, cTargets.Count)];
                 Targets.Add(target.PlayerId);
             }

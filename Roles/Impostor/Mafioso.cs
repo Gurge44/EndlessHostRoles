@@ -97,7 +97,7 @@ namespace TOHE.Roles.Impostor
             writer.Write(Tier);
             writer.Write(XP);
             writer.Write(PreviouslyUsedVents.Count);
-            if (PreviouslyUsedVents.Any()) foreach (var vent in PreviouslyUsedVents.ToArray()) writer.Write(vent);
+            if (PreviouslyUsedVents.Count > 0) foreach (var vent in PreviouslyUsedVents.ToArray()) writer.Write(vent);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         public static void ReceiveRPC(MessageReader reader)
@@ -126,7 +126,7 @@ namespace TOHE.Roles.Impostor
         }
         public static void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || !pc.IsAlive() || pc == null || !pc.Is(CustomRoles.Mafioso) || !playerIdList.Any() || lastUpdate >= GetTimeStamp()) return;
+            if (!GameStates.IsInTask || !pc.IsAlive() || pc == null || !pc.Is(CustomRoles.Mafioso) || !IsEnable || lastUpdate >= GetTimeStamp()) return;
 
             if (XP >= 100 && Tier < 5)
             {
@@ -157,7 +157,7 @@ namespace TOHE.Roles.Impostor
         }
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!GameStates.IsInTask || target == null || killer == null || !killer.Is(CustomRoles.Mafioso) || Tier < 3 || !playerIdList.Any()) return true;
+            if (!GameStates.IsInTask || target == null || killer == null || !killer.Is(CustomRoles.Mafioso) || Tier < 3 || !IsEnable) return true;
 
             if (Pistol1CD > 0 && Pistol2CD > 0)
             {

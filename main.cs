@@ -124,7 +124,7 @@ public class Main : BasePlugin
     public static List<byte> KillGhoul = [];
     public static List<string> winnerNameList = [];
     public static List<int> clientIdList = [];
-    public static List<(string, byte, string)> MessagesToSend = [];
+    public static List<(string MESSAGE, byte RECEIVER_ID, string TITLE)> MessagesToSend = [];
     public static bool isChatCommand;
     public static List<PlayerControl> LoversPlayers = [];
     public static bool isLoversDead = true;

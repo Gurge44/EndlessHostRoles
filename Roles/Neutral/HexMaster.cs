@@ -130,7 +130,7 @@ public static class HexMaster
     {
         foreach (byte hexmaster in playerIdList.ToArray())
         {
-            if (HexedPlayer[hexmaster].Any())
+            if (HexedPlayer[hexmaster].Count > 0)
             {
                 return true;
             }

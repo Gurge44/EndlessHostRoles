@@ -22,7 +22,7 @@ public class ModNews
 
     public Announcement ToAnnouncement()
     {
-        var result = new Announcement
+        return new Announcement
         {
             Number = Number,
             Title = Title,
@@ -33,8 +33,6 @@ public class ModNews
             Date = Date,
             Id = "ModNews"
         };
-
-        return result;
     }
 }
 [HarmonyPatch]
@@ -102,7 +100,7 @@ public class ModNewsHistory
     [HarmonyPatch(typeof(PlayerAnnouncementData), nameof(PlayerAnnouncementData.SetAnnouncements)), HarmonyPrefix]
     public static bool SetModAnnouncements(PlayerAnnouncementData __instance, [HarmonyArgument(0)] ref Il2CppReferenceArray<Announcement> aRange)
     {
-        if (!AllModNews.Any())
+        if (AllModNews.Count == 0)
         {
             Init();
             AllModNews.Sort((a1, a2) => { return DateTime.Compare(DateTime.Parse(a2.Date), DateTime.Parse(a1.Date)); });

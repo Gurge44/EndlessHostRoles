@@ -93,11 +93,9 @@ public static class Marshall
         if (GameStates.IsMeeting || !IsMarshallTarget(seer)) return string.Empty;
         if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
 
-        var exposedMarshall = playerIdList.Where(s => !Main.PlayerStates[s].IsDead && IsExposed[s]);
-        if (!exposedMarshall.Any()) return string.Empty;
+        if (!playerIdList.Any(s => !Main.PlayerStates[s].IsDead && IsExposed[s])) return string.Empty;
 
         var warning = "★";
-
 
         return Utils.ColorString(RoleColor, warning);
     }

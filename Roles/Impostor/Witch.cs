@@ -121,7 +121,7 @@ public static class Witch
     {
         foreach (byte witch in playerIdList.ToArray())
         {
-            if (SpelledPlayer[witch].Any())
+            if (SpelledPlayer[witch].Count > 0)
             {
                 return true;
             }

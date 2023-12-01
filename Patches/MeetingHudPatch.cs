@@ -205,7 +205,7 @@ class CheckForEndVotingPatch
                     VotedForId = ps.VotedFor
                 });
 
-                if (NiceSwapper.Vote.Any() && NiceSwapper.VoteTwo.Any())
+                if (NiceSwapper.Vote.Count > 0 && NiceSwapper.VoteTwo.Count > 0)
                 {
                     List<byte> NiceList1 = [];
                     List<byte> NiceList2 = [];
@@ -604,7 +604,7 @@ class CheckForEndVotingPatch
             if (candidate == exiledplayer || Main.AfterMeetingDeathPlayers.ContainsKey(candidate.PlayerId))
                 continue;
         }
-        if (TargetList == null || !TargetList.Any()) return null;
+        if (TargetList == null || TargetList.Count == 0) return null;
         var rand = IRandom.Instance;
         var target = TargetList[rand.Next(TargetList.Count)];
         return target;
@@ -717,10 +717,9 @@ class MeetingHudStartPatch
             }
         }
 
-        if (msgToSend.Any())
+        if (msgToSend.Count > 0)
         {
-            var msgTemp = msgToSend.ToList();
-            _ = new LateTask(() => { msgTemp.Do(x => Utils.SendMessage(x.MESSAGE, x.TARGET_ID, x.TITLE)); }, 3f, "Skill Description First Meeting");
+            _ = new LateTask(() => { msgToSend.Do(x => Utils.SendMessage(x.MESSAGE, x.TARGET_ID, x.TITLE)); }, 3f, "Skill Description First Meeting");
         }
         msgToSend = [];
 

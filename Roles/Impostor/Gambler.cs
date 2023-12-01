@@ -260,7 +260,7 @@ namespace TOHE.Roles.Impostor
                 isShielded.Remove(player.PlayerId);
             }
 
-            if (sync) { player.SyncSettings(); }
+            if (sync) { player.MarkDirtySettings(); }
         }
 
         public static void OnReportDeadBody()

@@ -2635,7 +2635,7 @@ class FixedUpdatePatch
             if (GameStates.IsInTask && !__instance.Is(CustomRoleTypes.Impostor) && __instance.CanUseKillButton() && !__instance.Data.IsDead)
             {
                 var players = __instance.GetPlayersInAbilityRangeSorted(false);
-                PlayerControl closest = !players.Any() ? null : players[0];
+                PlayerControl closest = players.Count == 0 ? null : players[0];
                 HudManager.Instance.KillButton.SetTarget(closest);
             }
         }
@@ -2882,7 +2882,7 @@ class FixedUpdatePatch
                 if (Snitch.IsEnable) Mark.Append(Snitch.GetWarningMark(seer, target));
                 if (Marshall.IsEnable) Mark.Append(Marshall.GetWarningMark(seer, target));
 
-                if (Main.LoversPlayers.Any())
+                if (Main.LoversPlayers.Count > 0)
                 {
                     //ハートマークを付ける(会議中MOD視点)
                     if (__instance.Is(CustomRoles.Lovers) && PlayerControl.LocalPlayer.Is(CustomRoles.Lovers))
@@ -3009,7 +3009,7 @@ class FixedUpdatePatch
     //FIXME: 役職クラス化のタイミングで、このメソッドは移動予定
     public static void LoversSuicide(byte deathId = 0x7f, bool isExiled = false)
     {
-        if (!Main.LoversPlayers.Any()) return;
+        if (Main.LoversPlayers.Count == 0) return;
         if (Options.LoverSuicide.GetBool() && Main.isLoversDead == false)
         {
             foreach (PlayerControl loversPlayer in Main.LoversPlayers.ToArray())
@@ -3232,7 +3232,7 @@ class EnterVentPatch
                     {
                         Main.GrenadierBlinding.Remove(pc.PlayerId);
                         Main.GrenadierBlinding.Add(pc.PlayerId, GetTimeStamp());
-                        Main.AllPlayerControls.Where(x => x.IsModClient()).Where(x => x.GetCustomRole().IsImpostor() || x.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()).Do(x => x.RPCPlayCustomSound("FlashBang"));
+                        Main.AllPlayerControls.Where(x => x.IsModClient()).Where(x => x.GetCustomRole().IsImpostor() || (x.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool())).Do(x => x.RPCPlayCustomSound("FlashBang"));
                     }
                     //pc.RpcGuardAndKill(pc);
                     pc.RPCPlayCustomSound("FlashBang");

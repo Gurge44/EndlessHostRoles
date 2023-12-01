@@ -74,7 +74,7 @@ internal class Cloud
     private static bool connecting;
     public static void StartConnect()
     {
-        if (connecting || EacClientSocket != null && EacClientSocket.Connected) return;
+        if (connecting || (EacClientSocket != null && EacClientSocket.Connected)) return;
         connecting = true;
         _ = new LateTask(() =>
         {

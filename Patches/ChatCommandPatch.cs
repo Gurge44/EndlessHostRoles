@@ -33,18 +33,25 @@ internal class ChatCommands
     {
         if (__instance.freeChatField.textArea.text == string.Empty) return false;
         __instance.timeSinceLastMessage = 3f;
+
         var text = __instance.freeChatField.textArea.text;
-        if (!ChatHistory.Any() || ChatHistory[^1] != text) ChatHistory.Add(text);
+
+        if (ChatHistory.Count == 0 || ChatHistory[^1] != text) ChatHistory.Add(text);
         ChatControllerUpdatePatch.CurrentHistorySelection = ChatHistory.Count;
+
         string[] args = text.Split(' ');
         string subArgs = string.Empty;
         var canceled = false;
         var cancelVal = string.Empty;
         Main.isChatCommand = true;
+
         Logger.Info(text, "SendChat");
+
         ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
+
         if (text.Length >= 3) if (text[..2] == "/r" && text[..3] != "/rn") args[0] = "/r";
         if (text.Length >= 4) if (text[..3] == "/up") args[0] = "/up";
+
         if (GuessManager.GuesserMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (Judge.TrialMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (NiceSwapper.SwapMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
@@ -54,12 +61,14 @@ internal class ChatCommands
         if (Mediumshiper.MsMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (MafiaRevengeManager.MafiaMsgCheck(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (RetributionistRevengeManager.RetributionistMsgCheck(PlayerControl.LocalPlayer, text)) goto Canceled;
+
         if (Blackmailer.ForBlackmailer.Contains(PlayerControl.LocalPlayer.PlayerId) && PlayerControl.LocalPlayer.IsAlive())
         {
             ChatManager.SendPreviousMessagesToAll();
             ChatManager.cancel = false;
             goto Canceled;
         }
+
         switch (args[0])
         {
             case "/dump":
@@ -90,7 +99,7 @@ internal class ChatCommands
                 case "/win":
                 case "/winner":
                     canceled = true;
-                    if (!Main.winnerNameList.Any()) Utils.SendMessage(GetString("NoInfoExists"));
+                    if (Main.winnerNameList.Count == 0) Utils.SendMessage(GetString("NoInfoExists"));
                     else Utils.SendMessage("<b><u>Winners:</b></u>\n" + string.Join(", ", Main.winnerNameList));
                     break;
 
@@ -1103,7 +1112,7 @@ internal class ChatUpdatePatch
     public static bool DoBlockChat;
     public static void Postfix(ChatController __instance)
     {
-        if (!AmongUsClient.Instance.AmHost || !Main.MessagesToSend.Any() || (Main.MessagesToSend[0].Item2 == byte.MaxValue && Main.MessageWait.Value > __instance.timeSinceLastMessage)) return;
+        if (!AmongUsClient.Instance.AmHost || Main.MessagesToSend.Count == 0 || (Main.MessagesToSend[0].RECEIVER_ID == byte.MaxValue && Main.MessageWait.Value > __instance.timeSinceLastMessage)) return;
         if (DoBlockChat) return;
         var player = Main.AllAlivePlayerControls.OrderBy(x => x.PlayerId).FirstOrDefault() ?? Main.AllPlayerControls.OrderBy(x => x.PlayerId).FirstOrDefault();
         if (player == null) return;
