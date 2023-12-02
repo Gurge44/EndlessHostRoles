@@ -40,7 +40,7 @@ public static class Greedier
 
     private static void SendRPC(byte playerId)
     {
-        if (!IsEnable || !Utils.DoRPC) return;
+        if (!IsEnable() || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGreedierOE, SendOption.Reliable, -1);
         writer.Write(playerId);
         writer.Write(IsOdd[playerId]);

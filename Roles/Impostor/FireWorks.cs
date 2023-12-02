@@ -25,6 +25,8 @@ public static class FireWorks
     private static OptionItem FireWorksRadius;
     public static OptionItem CanKill;
 
+    public static bool IsEnable;
+
     public static Dictionary<byte, int> nowFireWorksCount = [];
     private static Dictionary<byte, List<Vector3>> fireWorksPosition = [];
     private static Dictionary<byte, FireWorksState> state = [];
@@ -44,6 +46,7 @@ public static class FireWorks
 
     public static void Init()
     {
+        IsEnable = false;
         nowFireWorksCount = [];
         fireWorksPosition = [];
         state = [];
@@ -54,6 +57,7 @@ public static class FireWorks
 
     public static void Add(byte playerId)
     {
+        IsEnable = true;
         nowFireWorksCount[playerId] = fireWorksCount;
         fireWorksPosition[playerId] = [];
         state[playerId] = FireWorksState.Initial;
