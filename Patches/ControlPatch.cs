@@ -257,7 +257,7 @@ internal class ControllerManagerUpdatePatch
 
         //获取现在的坐标
         if (Input.GetKeyDown(KeyCode.I))
-            Logger.Info(PlayerControl.LocalPlayer.GetTruePosition().ToString(), "GetLocalPlayerPos");
+            Logger.Info(PlayerControl.LocalPlayer.Pos().ToString(), "GetLocalPlayerPos");
 
         //マスゲーム用コード
         if (Input.GetKeyDown(KeyCode.C))

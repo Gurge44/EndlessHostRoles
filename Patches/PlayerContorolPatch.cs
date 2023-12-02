@@ -695,7 +695,7 @@ class CheckMurderPatch
             _ = new LateTask(() =>
             {
                 if (!Main.OverDeadPlayerList.Contains(target.PlayerId)) Main.OverDeadPlayerList.Add(target.PlayerId);
-                var ops = target.GetTruePosition();
+                var ops = target.Pos();
                 var rd = IRandom.Instance;
                 for (int i = 0; i < 20; i++)
                 {
@@ -954,7 +954,7 @@ class CheckMurderPatch
                 if (Main.AllAlivePlayerControls.Any(x =>
                     x.PlayerId != killer.PlayerId &&
                     x.PlayerId != target.PlayerId &&
-                    Vector2.Distance(x.GetTruePosition(), target.GetTruePosition()) < 2f)) return false;
+                    Vector2.Distance(x.Pos(), target.Pos()) < 2f)) return false;
                 break;
             case CustomRoles.Gamer:
                 if (!Gamer.CheckMurder(killer, target))
@@ -1407,7 +1407,7 @@ class ShapeshiftPatch
                         }
                         else
                         {
-                            Main.EscapeeLocation.Add(shapeshifter.PlayerId, shapeshifter.GetTruePosition());
+                            Main.EscapeeLocation.Add(shapeshifter.PlayerId, shapeshifter.Pos());
                         }
                     }
                     isSSneeded = false;
@@ -1517,8 +1517,8 @@ class ShapeshiftPatch
                         {
                             if (!(!GameStates.IsInTask || !shapeshifter.IsAlive() || !target.IsAlive() || shapeshifter.inVent || target.inVent))
                             {
-                                var originPs = target.GetTruePosition();
-                                TP(target.NetTransform, shapeshifter.GetTruePosition());
+                                var originPs = target.Pos();
+                                TP(target.NetTransform, shapeshifter.Pos());
                                 TP(shapeshifter.NetTransform, originPs);
                             }
                         }, 1.5f, "ImperiusCurse TP");
@@ -3133,7 +3133,7 @@ class EnterVentPatch
         Main.LastEnteredVent.Remove(pc.PlayerId);
         Main.LastEnteredVent.Add(pc.PlayerId, __instance);
         Main.LastEnteredVentLocation.Remove(pc.PlayerId);
-        Main.LastEnteredVentLocation.Add(pc.PlayerId, pc.GetTruePosition());
+        Main.LastEnteredVentLocation.Add(pc.PlayerId, pc.Pos());
 
         if (pc.Is(CustomRoles.Unlucky))
         {
@@ -3324,7 +3324,7 @@ class EnterVentPatch
                             }
                             else
                             {
-                                Main.TimeMasterBackTrack.Add(player.PlayerId, player.GetTruePosition());
+                                Main.TimeMasterBackTrack.Add(player.PlayerId, player.Pos());
                             }
                         }
                     }

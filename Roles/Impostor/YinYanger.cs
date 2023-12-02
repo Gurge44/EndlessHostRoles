@@ -116,7 +116,7 @@ namespace TOHE.Roles.Impostor
 
             if (!pc1.IsAlive() || !pc2.IsAlive() || !yy.IsAlive()) return;
 
-            if (Vector2.Distance(pc1.GetTruePosition(), pc2.GetTruePosition()) <= 2f)
+            if (Vector2.Distance(pc1.Pos(), pc2.Pos()) <= 2f)
             {
                 if (!yy.RpcCheckAndMurder(pc1, true)
                  || !yy.RpcCheckAndMurder(pc2, true)) return;

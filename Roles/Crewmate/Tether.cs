@@ -82,7 +82,7 @@ namespace TOHE.Roles.Crewmate
                 {
                     if (GameStates.IsInTask)
                     {
-                        TP(pc.NetTransform, GetPlayerById(Target).GetTruePosition());
+                        TP(pc.NetTransform, GetPlayerById(Target).Pos());
                     }
                 }, isPet ? 0.1f : 2f, "Tether TP");
             }

@@ -74,8 +74,8 @@ namespace TOHE.Roles.Impostor
 
                 pc.RPCPlayCustomSound("Teleport");
 
-                var originPs = target.GetTruePosition();
-                TP(target.NetTransform, pc.GetTruePosition());
+                var originPs = target.Pos();
+                TP(target.NetTransform, pc.Pos());
                 TP(pc.NetTransform, originPs);
 
                 target.Notify(ColorString(GetRoleColor(CustomRoles.Twister), string.Format(GetString("TeleportedByTwister"), pc.GetRealName())));

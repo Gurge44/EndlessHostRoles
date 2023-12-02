@@ -54,7 +54,7 @@ class DisableDevice
                 if (pc.IsModClient()) continue;
 
                 bool doComms = false;
-                Vector2 PlayerPos = pc.GetTruePosition();
+                Vector2 PlayerPos = pc.Pos();
                 bool ignore = (Options.DisableDevicesIgnoreImpostors.GetBool() && pc.Is(CustomRoleTypes.Impostor)) ||
                               (Options.DisableDevicesIgnoreNeutrals.GetBool() && pc.Is(CustomRoleTypes.Neutral)) ||
                               (Options.DisableDevicesIgnoreCrewmates.GetBool() && pc.Is(CustomRoleTypes.Crewmate)) ||

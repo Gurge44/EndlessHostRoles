@@ -365,8 +365,8 @@ public class TaskState
                     var tar1 = AllAlivePlayer[rd.Next(0, AllAlivePlayer.Count)];
                     AllAlivePlayer.Remove(tar1);
                     var tar2 = AllAlivePlayer[rd.Next(0, AllAlivePlayer.Count)];
-                    var pos = tar1.GetTruePosition();
-                    tar1.TP(tar2.GetTruePosition());
+                    var pos = tar1.Pos();
+                    tar1.TP(tar2.Pos());
                     tar2.TP(pos);
                     tar1.RPCPlayCustomSound("Teleport");
                     tar2.RPCPlayCustomSound("Teleport");
@@ -590,7 +590,7 @@ public class TaskState
                 }
                 else
                 {
-                    list = [.. list.OrderBy(x => Vector2.Distance(player.GetTruePosition(), x.GetTruePosition()))];
+                    list = [.. list.OrderBy(x => Vector2.Distance(player.Pos(), x.Pos()))];
                     var target = list[0];
                     if (!target.Is(CustomRoles.Pestilence))
                     {

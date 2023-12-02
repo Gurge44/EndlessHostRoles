@@ -268,7 +268,7 @@ class ExternalRpcPetPatch
                         }
                         else
                         {
-                            Main.TimeMasterBackTrack.Add(player.PlayerId, player.GetTruePosition());
+                            Main.TimeMasterBackTrack.Add(player.PlayerId, player.Pos());
                         }
                     }
                 }
@@ -370,7 +370,7 @@ class ExternalRpcPetPatch
                 }
                 else
                 {
-                    Main.EscapeeLocation.Add(pc.PlayerId, pc.GetTruePosition());
+                    Main.EscapeeLocation.Add(pc.PlayerId, pc.Pos());
                 }
                 Main.EscapeeCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;

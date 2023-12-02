@@ -1,14 +1,9 @@
-﻿using System;
+﻿using Hazel;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static TOHE.Options;
-using static TOHE.Utils;
 using static TOHE.Translator;
-using Hazel;
-using TOHE.Roles.Crewmate;
-using Il2CppMono.Security.Authenticode;
+using static TOHE.Utils;
 
 namespace TOHE.Roles.Impostor
 {
@@ -62,7 +57,7 @@ namespace TOHE.Roles.Impostor
 
         public static bool IsEnable => playerIdList.Count > 0;
 
-        public static bool CanUseKillButton(PlayerControl pc) => !pc.shapeshifting || CanKillWhileShifted.GetBool(); 
+        public static bool CanUseKillButton(PlayerControl pc) => !pc.shapeshifting || CanKillWhileShifted.GetBool();
 
         public static void ApplyGameOptions()
         {
@@ -119,7 +114,6 @@ namespace TOHE.Roles.Impostor
             if (!IsEnable) return true;
             if (reporter == null) return true;
 
-            bool isSilence = false;
             PlayerControl librarian = null;
             float silenceRadius = Radius.GetFloat();
 
@@ -127,14 +121,13 @@ namespace TOHE.Roles.Impostor
             {
                 if (!isInSilencingMode.TryGetValue(id, out var x) || !x.SILENCING) continue;
                 var pc = GetPlayerById(id);
-                if (UnityEngine.Vector2.Distance(pc.GetTruePosition(), reporter.GetTruePosition()) <= silenceRadius)
+                if (UnityEngine.Vector2.Distance(pc.Pos(), reporter.Pos()) <= silenceRadius)
                 {
-                    isSilence = true;
                     librarian = pc;
                 }
             }
 
-            if (!isSilence || librarian == null) return true;
+            if (librarian == null) return true;
 
             if (librarian.RpcCheckAndMurder(reporter))
             {

@@ -53,7 +53,7 @@ internal class Monitor
             if (Pelican.IsEaten(pc.PlayerId) || pc.inVent) continue;
             try
             {
-                Vector2 PlayerPos = pc.GetTruePosition();
+                Vector2 PlayerPos = pc.Pos();
 
                 switch (Main.NormalOptions.MapId)
                 {

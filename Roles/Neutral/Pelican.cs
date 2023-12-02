@@ -160,7 +160,7 @@ public static class Pelican
             var player = Utils.GetPlayerById(pc);
             if (player == null || target == null)
                 continue;
-            target.TP(player.GetTruePosition());
+            target.TP(player.Pos());
             Main.AllPlayerSpeed[tar] = Main.AllPlayerSpeed[tar] - 0.5f + originalSpeed[tar];
             ReportDeadBodyPatch.CanReport[tar] = true;
             target.MarkDirtySettings();
@@ -195,7 +195,7 @@ public static class Pelican
                 if (target == null)
                     continue;
                 var pos = GetBlackRoomPS();
-                var dis = Vector2.Distance(pos, target.GetTruePosition());
+                var dis = Vector2.Distance(pos, target.Pos());
                 if (dis < 1f)
                     continue;
                 target.TP(pos);

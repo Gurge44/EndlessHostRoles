@@ -389,8 +389,8 @@ internal static class FFAManager
 
                         pc.RPCPlayCustomSound("Teleport");
 
-                        var originPs = target.GetTruePosition();
-                        target.TP(pc.GetTruePosition());
+                        var originPs = target.Pos();
+                        target.TP(pc.Pos());
                         pc.TP(originPs);
 
                         target.Notify(Utils.ColorString(new Color32(0, 255, 165, byte.MaxValue), string.Format(GetString("FFA-Event-RandomTP"), pc.GetRealName())));

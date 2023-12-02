@@ -596,6 +596,7 @@ static class ExtendedPlayerControl
             CustomRoles.Consort => pc.IsAlive(),
             CustomRoles.Duellist => pc.IsAlive(),
             CustomRoles.YinYanger => pc.IsAlive(),
+            CustomRoles.Librarian => pc.IsAlive() && Librarian.CanUseKillButton(pc),
             CustomRoles.Cantankerous => pc.IsAlive() && Cantankerous.CanUseKillButton(pc.PlayerId),
             CustomRoles.Inhibitor => !Utils.IsActive(SystemTypes.Electrical) && !Utils.IsActive(SystemTypes.Laboratory) && !Utils.IsActive(SystemTypes.Comms) && !Utils.IsActive(SystemTypes.LifeSupp) && !Utils.IsActive(SystemTypes.Reactor),
             CustomRoles.Saboteur => Utils.IsActive(SystemTypes.Electrical) || Utils.IsActive(SystemTypes.Laboratory) || Utils.IsActive(SystemTypes.Comms) || Utils.IsActive(SystemTypes.LifeSupp) || Utils.IsActive(SystemTypes.Reactor),
@@ -844,6 +845,7 @@ static class ExtendedPlayerControl
             _ => pc.Is(CustomRoleTypes.Impostor),
         };
     }
+    public static Vector2 Pos(this PlayerControl pc) => pc.Pos();
     public static bool IsDousedPlayer(this PlayerControl arsonist, PlayerControl target)
     {
         if (arsonist == null || target == null || Main.isDoused == null) return false;

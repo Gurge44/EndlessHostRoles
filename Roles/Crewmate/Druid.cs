@@ -212,7 +212,7 @@ namespace TOHE.Roles.Crewmate
                     {
                         foreach (var trigger in triggers.Value.ToArray()) // Check for all traps of the current Druid - Most likely 0-2 loops
                         {
-                            if (Vector2.Distance(trigger.Key, pc.GetTruePosition()) <= 2f)
+                            if (Vector2.Distance(trigger.Key, pc.Pos()) <= 2f)
                             {
                                 GetPlayerById(triggers.Key).Notify(string.Format(GetString("DruidTriggerTriggered"), GetFormattedRoomName(trigger.Value), GetFormattedVectorText(trigger.Key)));
                                 Triggers[triggers.Key].Remove(trigger.Key);
@@ -228,7 +228,7 @@ namespace TOHE.Roles.Crewmate
         {
             PlainShipRoom room = pc.GetPlainShipRoom();
             string roomName = room == null ? "Outside" : room.name;
-            Vector2 pos = pc.GetTruePosition();
+            Vector2 pos = pc.Pos();
 
             return (pos, roomName);
         }
