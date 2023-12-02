@@ -437,21 +437,23 @@ class CheckForEndVotingPatch
             if (pc_role.IsImpostor()) impnum++;
             else if (pc_role.IsNeutralKilling()) neutralnum++;
         }
+
+        string coloredRealName = Utils.ColorString(Main.PlayerColors[player.PlayerId], realName);
         switch (Options.CEMode.GetInt())
         {
             case 0:
-                name = string.Format(GetString("PlayerExiled"), realName);
+                name = string.Format(GetString("PlayerExiled"), coloredRealName);
                 break;
             case 1:
                 if (player.GetCustomRole().IsImpostor() || player.Is(CustomRoles.Parasite) || player.Is(CustomRoles.Crewpostor) || player.Is(CustomRoles.Refugee) || player.Is(CustomRoles.Convict))
-                    name = string.Format(GetString("BelongTo"), realName, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("TeamImpostor")));
+                    name = string.Format(GetString("BelongTo"), coloredRealName, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("TeamImpostor")));
                 else if (player.GetCustomRole().IsCrewmate())
-                    name = string.Format(GetString("IsGood"), realName);
+                    name = string.Format(GetString("IsGood"), coloredRealName);
                 else if (player.GetCustomRole().IsNeutral() && !player.Is(CustomRoles.Parasite) && !player.Is(CustomRoles.Refugee) && !player.Is(CustomRoles.Crewpostor) && !player.Is(CustomRoles.Convict))
-                    name = string.Format(GetString("BelongTo"), realName, Utils.ColorString(new Color32(127, 140, 141, byte.MaxValue), GetString("TeamNeutral")));
+                    name = string.Format(GetString("BelongTo"), coloredRealName, Utils.ColorString(new Color32(127, 140, 141, byte.MaxValue), GetString("TeamNeutral")));
                 break;
             case 2:
-                name = string.Format(GetString("PlayerIsRole"), realName, coloredRole);
+                name = string.Format(GetString("PlayerIsRole"), coloredRealName, coloredRole);
                 if (Options.ShowTeamNextToRoleNameOnEject.GetBool())
                 {
                     name += " (";
@@ -528,7 +530,8 @@ class CheckForEndVotingPatch
     EndOfSession:
 
 
-        name += "<size=0>";
+        name = name.Replace("color=", string.Empty) + "<size=0>";
+
         _ = new LateTask(() =>
         {
             Main.DoBlockNameChange = true;
@@ -542,15 +545,6 @@ class CheckForEndVotingPatch
                 Main.DoBlockNameChange = false;
             }
         }, 11.5f, "Change Exiled Player Name Back");
-        _ = new LateTask(() =>
-        {
-            var text = name.Split('\n')[1];
-            var r = IRandom.Instance;
-            foreach (var pc in Main.AllAlivePlayerControls)
-            {
-                pc?.Notify(text, r.Next(7, 13));
-            }
-        }, 13f, log: false);
     }
     public static bool CheckRole(byte id, CustomRoles role)
     {
@@ -811,7 +805,7 @@ class MeetingHudStartPatch
                 AddMsg(MimicMsg, ipc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mimic), GetString("MimicMsgTitle")));
         }
 
-        msgToSend.Do(x => Logger.Info($"To:{x.TARGET_ID} {x.TITLE} => {x.MESSAGE}", "Skill Notice OnMeeting Start"));
+        msgToSend.Do(x => Logger.Info($"To: {x.TARGET_ID} {x.TITLE} => {x.MESSAGE}", "Skill Notice OnMeeting Start"));
 
         //总体延迟发送
         _ = new LateTask(() => { msgToSend.Do(x => Utils.SendMessage(x.MESSAGE, x.TARGET_ID, x.TITLE)); }, 3f, "Skill Notice OnMeeting Start");
@@ -1343,7 +1337,7 @@ class MeetingHudCastVotePatch
 {
     public static bool Prefix()
     {
-        return true; // return true to use the vote as a trigger
+        return true; // return false to use the vote as a trigger
     }
     public static void Postfix(MeetingHud __instance, [HarmonyArgument(0)] byte srcPlayerId, [HarmonyArgument(1)] byte suspectPlayerId)
     {

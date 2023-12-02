@@ -2982,18 +2982,19 @@ class FixedUpdatePatch
                 {
                     target.cosmetics.nameText.text = changeTo;
 
+                    float offset = 0.2f;
                     if (Suffix.ToString() != string.Empty)
                     {
                         // If the name is on two lines, the job title text needs to be moved up.
-                        RoleText.transform.SetLocalY(0.35f);
+                        //RoleText.transform.SetLocalY(0.35f);
+                        offset += 0.15f;
                         target.cosmetics.nameText.text += "\r\n" + Suffix.ToString();
-
                     }
-                    else
+                    else if (isProgressTextLong)
                     {
-                        // Restoring the position text coordinates to their initial values
-                        RoleText.transform.SetLocalY(isProgressTextLong ? 0.5f : 0.2f);
+                        offset += 0.3f;
                     }
+                    RoleText.transform.SetLocalY(offset);
                 }
             }
             else

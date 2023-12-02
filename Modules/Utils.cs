@@ -2889,6 +2889,25 @@ public static class Utils
             ? "INVALID"
             : disableColor ? summary.RemoveHtmlTags() : summary;
     }
+    public static string GetRemainingKillers()
+    {
+        int impnum = 0;
+        int neutralnum = 0;
+        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        {
+            if (Options.ShowImpRemainOnEject.GetBool())
+            {
+                if (pc.GetCustomRole().IsImpostor())
+                    impnum++;
+            }
+            if (Options.ShowNKRemainOnEject.GetBool())
+            {
+                if (pc.GetCustomRole().IsNK())
+                    neutralnum++;
+            }
+        }
+        return $"There {(impnum == 1 ? "is" : "are")}\n<b>{impnum}</b> <color=#ff1919>{(impnum == 1 ? "Impostor" : "Impostors")}</color> and <b>{neutralnum}</b> <color=#7f8c8d>{(neutralnum == 1 ? "Neutral Killer" : "Neutral Killers")}</color> left.";
+    }
     public static string RemoveHtmlTagsTemplate(this string str) => Regex.Replace(str, string.Empty, string.Empty);
     public static string RemoveHtmlTags(this string str) => Regex.Replace(str, "<[^>]*?>", string.Empty);
     public static bool CanMafiaKill()

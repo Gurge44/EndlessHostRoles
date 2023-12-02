@@ -215,6 +215,19 @@ class ExileControllerWrapUpPatch
         RemoveDisableDevicesPatch.UpdateDisableDevices();
         SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
         Logger.Info("Start task phase", "Phase");
+
+        if (Options.EnableKillerLeftCommand.GetBool())
+        {
+            _ = new LateTask(() =>
+            {
+                var text = Utils.GetRemainingKillers();
+                var r = IRandom.Instance;
+                foreach (var pc in Main.AllAlivePlayerControls)
+                {
+                    pc?.Notify(text, r.Next(7, 13));
+                }
+            }, 0.5f, log: false);
+        }
     }
 }
 
