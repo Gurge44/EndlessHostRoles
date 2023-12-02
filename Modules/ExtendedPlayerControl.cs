@@ -304,22 +304,22 @@ static class ExtendedPlayerControl
         }
         else if (PlayerControl.LocalPlayer == target)
         {
-            //targetがホストだった場合
+            // If target is host
             PlayerControl.LocalPlayer.Data.Role.SetCooldown();
         }
         else
         {
-            //targetがホスト以外だった場合
+            // If target is not host
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.ProtectPlayer, SendOption.None, target.GetClientId());
             writer.WriteNetObject(target);
             writer.Write(0);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         /*
-            プレイヤーがバリアを張ったとき、そのプレイヤーの役職に関わらずアビリティーのクールダウンがリセットされます。
-            ログの追加により無にバリアを張ることができなくなったため、代わりに自身に0秒バリアを張るように変更しました。
-            この変更により、役職としての守護天使が無効化されます。
-            ホストのクールダウンは直接リセットします。
+            When a player guards someone, ability cooldowns are reset regardless of that player's role.
+            Due to the addition of logs, it is no longer possible to guard no one, so it has been changed to the player guarding themselves for 0 seconds instead.
+            This change disables Guardian Angel as a position.
+            Reset host cooldown directly.
         */
     }
     public static void RpcDesyncRepairSystem(this PlayerControl target, SystemTypes systemType, int amount)
@@ -365,6 +365,8 @@ static class ExtendedPlayerControl
         var optByte = opt.ToBytes(5);
         return GameOptionsData.FromBytes(optByte);
     }*/
+
+    public static bool IsNonHostModClient(this PlayerControl pc) => pc.IsModClient() && pc.PlayerId != 0;
 
     public static string GetDisplayRoleName(this PlayerControl player, bool pure = false)
     {

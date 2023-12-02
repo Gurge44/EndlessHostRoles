@@ -98,6 +98,7 @@ public static class Executioner
     public static bool IsEnable() => playerIdList.Count > 0;
     public static void SendRPC(byte executionerId, byte targetId = 0x73, string Progress = "")
     {
+        if (!IsEnable() || !Utils.DoRPC) return;
         MessageWriter writer;
         switch (Progress)
         {

@@ -54,6 +54,7 @@ public static class Vengeance
     public static bool IsEnable => playerIdList.Count > 0;
     public static void SendRPCSyncTimer(int timer)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncVengeanceTimer, SendOption.Reliable, -1);
         writer.Write(timer);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -66,6 +67,7 @@ public static class Vengeance
     }
     public static void SendRPC(bool isRevenge, bool success, byte killer, float tempKillTimer)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncVengeanceData, SendOption.Reliable, -1);
         writer.Write(isRevenge);
         writer.Write(success);

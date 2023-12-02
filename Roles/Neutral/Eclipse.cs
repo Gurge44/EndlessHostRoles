@@ -52,6 +52,7 @@ public static class Eclipse
     public static bool IsEnable => playerIdList.Count > 0;
     public static void SendRPC(float vision)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetEclipseVision, SendOption.Reliable, -1);
         writer.Write(vision);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -80,7 +81,7 @@ public static class Eclipse
         if (Vision != currentVision)
         {
             SendRPC(Vision);
-            pc.SyncSettings();
+            pc.MarkDirtySettings();
         }
     }
 }

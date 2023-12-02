@@ -1,4 +1,5 @@
-﻿using Hazel;
+﻿using Epic.OnlineServices;
+using Hazel;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -36,8 +37,10 @@ public static class SwordsMan
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
+    public static bool IsEnable => playerIdList.Count > 0;
     public static void SendRPC(byte playerId)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SwordsManKill, SendOption.Reliable, -1);
         writer.Write(playerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

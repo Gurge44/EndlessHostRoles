@@ -101,6 +101,7 @@ public static class Lawyer
     public static bool IsEnable() => playerIdList.Count > 0;
     public static void SendRPC(byte lawyerId, byte targetId = 0x73, string Progress = "")
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer;
         switch (Progress)
         {

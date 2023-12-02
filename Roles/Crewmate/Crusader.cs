@@ -49,15 +49,15 @@ public static class Crusader
             Main.ResetCamPlayerList.Remove(playerId);
     }
     public static bool IsEnable => playerIdList.Count > 0;
-    public static void ReceiveRPC(MessageReader reader)
-    {
-        byte PlayerId = reader.ReadByte();
-        int Limit = reader.ReadInt32();
-        if (CrusaderLimit.ContainsKey(PlayerId))
-            CrusaderLimit[PlayerId] = Limit;
-        else
-            CrusaderLimit.Add(PlayerId, SkillLimitOpt.GetInt());
-    }
+    //public static void ReceiveRPC(MessageReader reader)
+    //{
+    //    byte PlayerId = reader.ReadByte();
+    //    int Limit = reader.ReadInt32();
+    //    if (CrusaderLimit.ContainsKey(PlayerId))
+    //        CrusaderLimit[PlayerId] = Limit;
+    //    else
+    //        CrusaderLimit.Add(PlayerId, SkillLimitOpt.GetInt());
+    //}
     public static bool CanUseKillButton(byte playerId)
         => !Main.PlayerStates[playerId].IsDead
         && (CrusaderLimit.TryGetValue(playerId, out var x) ? x : 1) >= 1;

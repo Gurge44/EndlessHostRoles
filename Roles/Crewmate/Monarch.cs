@@ -44,6 +44,7 @@ public static class Monarch
 
     public static void SendRPC()
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMonarchKnightLimit, SendOption.Reliable, -1);
         writer.Write(KnightLimit);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

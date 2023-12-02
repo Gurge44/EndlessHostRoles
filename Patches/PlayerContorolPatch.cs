@@ -2264,7 +2264,7 @@ class FixedUpdatePatch
                     {
                         player.RpcResetAbilityCooldown();
                         Main.isCursed = false;//変身クールを１秒に変更
-                        player.SyncSettings();
+                        player.MarkDirtySettings();
                         Main.WarlockTimer.Remove(player.PlayerId);
                     }
                     else Main.WarlockTimer[player.PlayerId] = Main.WarlockTimer[player.PlayerId] + Time.fixedDeltaTime;//時間をカウント
@@ -2440,7 +2440,7 @@ class FixedUpdatePatch
                         {
                             Main.ExpressSpeedUp.Remove(player.PlayerId);
                             Main.AllPlayerSpeed[player.PlayerId] = Main.ExpressSpeedNormal;
-                            player.SyncSettings();
+                            player.MarkDirtySettings();
                         }
                         break;
 

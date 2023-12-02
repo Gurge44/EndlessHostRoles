@@ -81,6 +81,7 @@ public static class Sniper
     public static bool IsThisRole(byte playerId) => PlayerIdList.Contains(playerId);
     public static void SendRPC(byte playerId)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         Logger.Info($"Player{playerId}:SendRPC", "Sniper");
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SniperSync, SendOption.Reliable, -1);
         writer.Write(playerId);

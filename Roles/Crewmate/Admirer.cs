@@ -41,6 +41,7 @@ public static class Admirer
 
     public static void SendRPC()
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAdmireLimit, SendOption.Reliable, -1);
         writer.Write(AdmireLimit);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

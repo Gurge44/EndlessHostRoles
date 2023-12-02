@@ -167,7 +167,7 @@ namespace TOHE.Roles.Impostor
                         killer.Notify(string.Format(GetString("GamblerGet.Speedup"), SpeedDur.GetInt(), Speed.GetFloat()));
                         isSpeedChange.TryAdd(killer.PlayerId, (Main.AllPlayerSpeed[killer.PlayerId], GetTimeStamp()));
                         Main.AllPlayerSpeed[killer.PlayerId] = Speed.GetFloat();
-                        killer.SyncSettings();
+                        killer.MarkDirtySettings();
                         break;
                     default:
                         Logger.Error("Invalid Effect ID (positive)", "Gambler.OnCheckMurder");
@@ -191,12 +191,12 @@ namespace TOHE.Roles.Impostor
                         killer.Notify(string.Format(GetString("GamblerGet.Freeze"), FreezeDur.GetInt()));
                         isSpeedChange.TryAdd(killer.PlayerId, (Main.AllPlayerSpeed[killer.PlayerId], GetTimeStamp()));
                         Main.AllPlayerSpeed[killer.PlayerId] = Main.MinSpeed;
-                        killer.SyncSettings();
+                        killer.MarkDirtySettings();
                         break;
                     case 3: // Low vision
                         killer.Notify(string.Format(GetString("GamblerGet.LowVision"), LowVisionDur.GetInt(), LowVision.GetFloat()));
                         isVisionChange.TryAdd(killer.PlayerId, GetTimeStamp());
-                        killer.SyncSettings();
+                        killer.MarkDirtySettings();
                         break;
                     case 4: // High KCD
                         killer.Notify(string.Format(GetString("GamblerGet.HighKCD"), HighKCD.GetFloat()));

@@ -53,6 +53,7 @@ public static class Jailor
 
     public static void SendRPC(byte jailerId, byte targetId = byte.MaxValue, bool setTarget = true)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer;
         if (!setTarget)
         {

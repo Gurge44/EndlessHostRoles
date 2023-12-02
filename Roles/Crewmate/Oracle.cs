@@ -48,6 +48,7 @@ public static class Oracle
     public static bool IsEnable => playerIdList.Count > 0;
     public static void SendRPC(byte playerId)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetOracleLimit, SendOption.Reliable, -1);
         writer.Write(playerId);
         writer.Write(CheckLimit[playerId]);

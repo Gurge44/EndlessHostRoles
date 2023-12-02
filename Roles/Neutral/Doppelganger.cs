@@ -50,7 +50,7 @@ public static class Doppelganger
 
     private static void SendRPC(byte playerId, bool isTargetList = false)
     {
-        if (!IsEnable) return;
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDoppelgangerStealLimit, SendOption.Reliable, -1);
         writer.Write(playerId);
         writer.Write(TotalSteals[playerId]);

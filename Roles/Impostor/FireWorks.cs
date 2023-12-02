@@ -1,3 +1,4 @@
+using Epic.OnlineServices;
 using Hazel;
 using System.Collections.Generic;
 using TOHE.Roles.Crewmate;
@@ -61,6 +62,7 @@ public static class FireWorks
 
     public static void SendRPC(byte playerId)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         Logger.Info($"Player{playerId}:SendRPC", "FireWorks");
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SendFireWorksState, SendOption.Reliable, -1);
         writer.Write(playerId);

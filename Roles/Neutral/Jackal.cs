@@ -90,6 +90,7 @@ public static class Jackal
 
     private static void SendRPC(byte playerId)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetJackalRecruitLimit, SendOption.Reliable, -1);
         writer.Write(playerId);
         writer.Write(RecruitLimit[playerId]);

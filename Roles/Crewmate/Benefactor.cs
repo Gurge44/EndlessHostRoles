@@ -48,7 +48,7 @@ namespace TOHE.Roles.Crewmate
         }
         private static void SendRPC(byte benefactorID, int taskIndex = -1, bool IsShield = false, bool clearAll = false, bool shieldExpire = false, byte shieldedId = byte.MaxValue)
         {
-            if (!IsEnable) return;
+            if (!IsEnable || !Utils.DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncBenefactorMarkedTask, SendOption.Reliable, -1);
             writer.Write(benefactorID);
             writer.Write(taskIndex);

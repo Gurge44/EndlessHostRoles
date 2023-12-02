@@ -67,7 +67,7 @@ namespace TOHE.Roles.Impostor
 
         private static void SendRPC(byte playerId, bool isInSilenceMode)
         {
-            if (!IsEnable) return;
+            if (!IsEnable || !Utils.DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetLibrarianMode, SendOption.Reliable, -1);
             writer.Write(playerId);
             writer.Write(isInSilenceMode);
@@ -85,7 +85,7 @@ namespace TOHE.Roles.Impostor
 
         private static void SendRPCSyncList()
         {
-            if (!IsEnable) return;
+            if (!IsEnable || !Utils.DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncLibrarianList, SendOption.Reliable, -1);
             writer.Write(sssh.Count);
             foreach (var item in sssh.ToArray())

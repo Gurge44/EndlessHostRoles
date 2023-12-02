@@ -93,6 +93,7 @@ public static class Glitch
     public static bool IsEnable => playerIdList.Count > 0;
     public static void SendRPCSyncTimers(int mimicCDTimer, int mimicDurTimer, int hackCDTimer, int KCDTimer)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGlitchTimers, SendOption.Reliable, -1);
         writer.Write(mimicCDTimer);
         writer.Write(mimicDurTimer);
@@ -102,6 +103,7 @@ public static class Glitch
     }
     public static void SendRPCSyncMimic(int mimicCDTimer, int mimicDurTimer, long lastMimic)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGlitchMimic, SendOption.Reliable, -1);
         writer.Write(mimicCDTimer);
         writer.Write(mimicDurTimer);
@@ -110,6 +112,7 @@ public static class Glitch
     }
     public static void SendRPCSyncLongs(long lastKill, long lastHack, long lastMimic)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGlitchLongs, SendOption.Reliable, -1);
         writer.Write(lastKill);
         writer.Write(lastHack);
@@ -118,6 +121,7 @@ public static class Glitch
     }
     public static void SendRPCSyncKill(long lastKill, int KCDtimer)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGlitchKill, SendOption.Reliable, -1);
         writer.Write(lastKill);
         writer.Write(KCDtimer);
@@ -125,6 +129,7 @@ public static class Glitch
     }
     public static void SendRPCSyncHack(long lastHack, int hackCDTimer)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGlitchHack, SendOption.Reliable, -1);
         writer.Write(lastHack);
         writer.Write(hackCDTimer);
@@ -132,6 +137,7 @@ public static class Glitch
     }
     public static void SendRPCSyncSS(bool isShifted)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGlitchSS, SendOption.Reliable, -1);
         writer.Write(isShifted);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

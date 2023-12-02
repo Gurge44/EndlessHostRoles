@@ -90,7 +90,7 @@ namespace TOHE.Roles.Crewmate
 
         private static void SendRPCSyncTarget()
         {
-            if (!IsEnable) return;
+            if (!IsEnable || !Utils.DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAnalyzerTarget, SendOption.Reliable, -1);
             writer.Write(CurrentTarget.ID);
             writer.Write(CurrentTarget.TIME);

@@ -65,6 +65,7 @@ public static class HexMaster
     public static bool IsEnable => playerIdList.Count > 0;
     private static void SendRPC(bool doHex, byte hexId, byte target = 255)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         if (doHex)
         {
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DoHex, SendOption.Reliable, -1);

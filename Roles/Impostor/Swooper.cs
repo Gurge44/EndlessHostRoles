@@ -57,7 +57,7 @@ public static class Swooper
     public static bool IsEnable => playerIdList.Count > 0;
     private static void SendRPC(PlayerControl pc)
     {
-        if (pc.AmOwner) return;
+        if (!IsEnable || !Utils.DoRPC || pc.AmOwner) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetSwooperTimer, SendOption.Reliable, pc.GetClientId());
         writer.Write((InvisTime.TryGetValue(pc.PlayerId, out var x) ? x : -1).ToString());
         writer.Write((lastTime.TryGetValue(pc.PlayerId, out var y) ? y : -1).ToString());

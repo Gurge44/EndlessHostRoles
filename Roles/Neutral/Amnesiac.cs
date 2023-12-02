@@ -379,28 +379,7 @@ public static class Amnesiac
     public static bool CanBeRememberedBloodKnight(this PlayerControl pc) => pc != null && pc.Is(CustomRoles.BloodKnight);
     public static bool KnowRole(PlayerControl player, PlayerControl target)
     {
-        if (player.Is(CustomRoles.Infectious) && target.Is(CustomRoles.Infectious)) return true;
-        if (player.Is(CustomRoles.Glitch) && target.Is(CustomRoles.Glitch)) return true;
-        if (player.Is(CustomRoles.Wraith) && target.Is(CustomRoles.Wraith)) return true;
-        if (player.Is(CustomRoles.Medusa) && target.Is(CustomRoles.Medusa)) return true;
-        if (player.Is(CustomRoles.Pelican) && target.Is(CustomRoles.Pelican)) return true;
-        if (player.Is(CustomRoles.Refugee) && target.Is(CustomRoles.Refugee)) return true;
-        if (player.Is(CustomRoles.Parasite) && target.Is(CustomRoles.Parasite)) return true;
-        if (player.Is(CustomRoles.NSerialKiller) && target.Is(CustomRoles.NSerialKiller)) return true;
-        if (player.Is(CustomRoles.PlagueDoctor) && target.Is(CustomRoles.PlagueDoctor)) return true;
-        if (player.Is(CustomRoles.Magician) && target.Is(CustomRoles.Magician)) return true;
-        if (player.Is(CustomRoles.WeaponMaster) && target.Is(CustomRoles.WeaponMaster)) return true;
-        if (player.Is(CustomRoles.Reckless) && target.Is(CustomRoles.Reckless)) return true;
-        if (player.Is(CustomRoles.Eclipse) && target.Is(CustomRoles.Eclipse)) return true;
-        if (player.Is(CustomRoles.Pyromaniac) && target.Is(CustomRoles.Pyromaniac)) return true;
-        if (player.Is(CustomRoles.Imitator) && target.Is(CustomRoles.Imitator)) return true;
-        if (player.Is(CustomRoles.Werewolf) && target.Is(CustomRoles.Werewolf)) return true;
-        if (player.Is(CustomRoles.Pickpocket) && target.Is(CustomRoles.Pickpocket)) return true;
-        if (player.Is(CustomRoles.Traitor) && target.Is(CustomRoles.Traitor)) return true;
-        if (player.Is(CustomRoles.Virus) && target.Is(CustomRoles.Virus)) return true;
-        if (player.Is(CustomRoles.Spiritcaller) && target.Is(CustomRoles.Spiritcaller)) return true;
-        if (player.Is(CustomRoles.Succubus) && target.Is(CustomRoles.Succubus)) return true;
-        if (player.Is(CustomRoles.Poisoner) && target.Is(CustomRoles.Poisoner)) return true;
+        if (player.IsNeutralKiller() && target.IsNeutralKiller() && player.GetCustomRole() == target.GetCustomRole()) return true;
         if (player.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor)) return true;
         if (player.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Refugee)) return true;
         return false;

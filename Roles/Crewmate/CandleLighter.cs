@@ -77,7 +77,7 @@
         public static void OnTasksFinished(PlayerControl pc)
         {
             active = false;
-            pc.SyncSettings();
+            pc.MarkDirtySettings();
         }
         public static void OnFixedUpdate(PlayerControl player)
         {
@@ -91,7 +91,7 @@
             {
                 ElapsedTime -= Time.fixedDeltaTime;
 
-                if (UpdateTime == 1.0f) player.SyncSettings();
+                if (UpdateTime == 1.0f) player.MarkDirtySettings();
             }
         }
     }

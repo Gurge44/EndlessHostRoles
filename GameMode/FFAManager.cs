@@ -16,7 +16,7 @@ internal static class FFAManager
     public static Dictionary<byte, long> FFALowerVisionList = [];
 
     private static Dictionary<byte, float> originalSpeed = [];
-    public static Dictionary<byte, int> KBScore = [];
+    public static Dictionary<byte, int> KillCount = [];
     public static int RoundTime;
 
     //Options
@@ -90,12 +90,12 @@ internal static class FFAManager
         FFAShieldedList = [];
 
         originalSpeed = [];
-        KBScore = [];
+        KillCount = [];
         RoundTime = FFA_GameTime.GetInt() + 8;
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            KBScore.TryAdd(pc.PlayerId, 0);
+            KillCount.TryAdd(pc.PlayerId, 0);
         }
 
         _ = new LateTask(Utils.SetChatVisible, 7f, "Set Chat Visible for Everyone");
@@ -104,13 +104,13 @@ internal static class FFAManager
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncFFAPlayer, SendOption.Reliable, -1);
         writer.Write(playerId);
-        writer.Write(KBScore[playerId]);
+        writer.Write(KillCount[playerId]);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
     public static void ReceiveRPCSyncFFAPlayer(MessageReader reader)
     {
         byte PlayerId = reader.ReadByte();
-        KBScore[PlayerId] = reader.ReadInt32();
+        KillCount[PlayerId] = reader.ReadInt32();
     }
     public static void SendRPCSyncNameNotify(PlayerControl pc)
     {
@@ -141,7 +141,7 @@ internal static class FFAManager
     public static string GetDisplayScore(byte playerId)
     {
         int rank = GetRankOfScore(playerId);
-        string score = KBScore.TryGetValue(playerId, out var s) ? $"{s}" : "Invalid";
+        string score = KillCount.TryGetValue(playerId, out var s) ? $"{s}" : "Invalid";
         string text = string.Format(GetString("KBDisplayScore"), rank.ToString(), score);
         Color color = Utils.GetRoleColor(CustomRoles.Killer);
         return Utils.ColorString(color, text);
@@ -150,9 +150,9 @@ internal static class FFAManager
     {
         try
         {
-            int ms = KBScore[playerId];
-            int rank = 1 + KBScore.Values.Where(x => x > ms).Count();
-            rank += KBScore.Where(x => x.Value == ms).ToList().IndexOf(new(playerId, ms));
+            int ms = KillCount[playerId];
+            int rank = 1 + KillCount.Values.Where(x => x > ms).Count();
+            rank += KillCount.Where(x => x.Value == ms).ToList().IndexOf(new(playerId, ms));
             return rank;
         }
         catch
@@ -235,7 +235,7 @@ internal static class FFAManager
                         }
                         killer.Notify(GetString("FFA-Event-GetIncreasedSpeed"), FFA_ModifiedSpeedDuration.GetFloat());
                         Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
-                        sync = true;
+                        mark = true;
                         break;
                     case 2:
                         Main.AllPlayerKillCooldown[killer.PlayerId] = System.Math.Clamp(FFA_KCD.GetFloat() - 3f, 1f, 60f);
@@ -244,7 +244,6 @@ internal static class FFAManager
                         break;
                     default:
                         Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
-                        sync = true;
                         break;
                 }
             }
@@ -268,7 +267,7 @@ internal static class FFAManager
                         }
                         killer.Notify(GetString("FFA-Event-GetDecreasedSpeed"), FFA_ModifiedSpeedDuration.GetFloat());
                         Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
-                        sync = true;
+                        mark = true;
                         break;
                     case 1:
                         Main.AllPlayerKillCooldown[killer.PlayerId] = System.Math.Clamp(FFA_KCD.GetFloat() + 3f, 1f, 60f);
@@ -283,7 +282,6 @@ internal static class FFAManager
                         break;
                     default:
                         Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
-                        sync = true;
                         break;
                 }
             }
@@ -313,7 +311,7 @@ internal static class FFAManager
         if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))
             PlayerControl.LocalPlayer.KillFlash();
 
-        KBScore[killer.PlayerId]++;
+        KillCount[killer.PlayerId]++;
     }
 
     public static string GetPlayerArrow(PlayerControl seer, PlayerControl target = null)

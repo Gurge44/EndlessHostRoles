@@ -40,6 +40,7 @@ internal static class Undertaker
     public static bool IsEnable => playerIdList.Count > 0;
     private static void SendRPC(byte playerId)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMarkedPlayerV2, SendOption.Reliable, -1);
         writer.Write(playerId);
         writer.Write(MarkedPlayer.ContainsKey(playerId) ? MarkedPlayer[playerId] : byte.MaxValue);
@@ -98,17 +99,19 @@ internal static class Undertaker
         if (MarkedPlayer.ContainsKey(pc.PlayerId))
         {
             var target = Utils.GetPlayerById(MarkedPlayer[pc.PlayerId]);
-            MarkedPlayer.Remove(pc.PlayerId);
-            SendRPC(pc.PlayerId);
             _ = new LateTask(() =>
             {
                 if (!(target == null || !target.IsAlive() || Pelican.IsEaten(target.PlayerId) || target.inVent || !GameStates.IsInTask))
                 {
                     target.TP(new UnityEngine.Vector2(pc.transform.position.x, pc.transform.position.y + 0.3636f));
-                    pc.ResetKillCooldown();
-                    pc.SyncSettings();
-                    pc.SetKillCooldown();
-                    pc.RpcCheckAndMurder(target);
+                    if (pc.RpcCheckAndMurder(target))
+                    {
+                        MarkedPlayer.Remove(pc.PlayerId);
+                        SendRPC(pc.PlayerId);
+                        pc.ResetKillCooldown();
+                        pc.SyncSettings();
+                        pc.SetKillCooldown();
+                    }
                 }
             }, UsePets.GetBool() ? 0.1f : 0.2f, "Undertaker Assassinate");
         }

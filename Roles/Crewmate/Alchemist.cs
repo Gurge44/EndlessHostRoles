@@ -72,6 +72,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void SendRPCData(bool isProtected, byte potionId, string playerName, bool visionPotionActive, bool fixNextSabo)
         {
+            if (!IsEnable || !Utils.DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAlchemistPotion, SendOption.Reliable, -1);
             writer.Write(isProtected);
             writer.Write(potionId);
@@ -207,7 +208,7 @@ namespace TOHE.Roles.Crewmate
         public static bool IsInvis(byte id) => InvisTime.ContainsKey(id);
         private static void SendRPC(PlayerControl pc)
         {
-            if (pc.AmOwner) return;
+            if (!IsEnable || !Utils.DoRPC || pc.AmOwner) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAlchemistTimer, SendOption.Reliable, pc.GetClientId());
             writer.Write((InvisTime.TryGetValue(pc.PlayerId, out var x) ? x : -1).ToString());
             AmongUsClient.Instance.FinishRpcImmediately(writer);

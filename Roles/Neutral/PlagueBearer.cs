@@ -59,6 +59,7 @@ public static class PlagueBearer
     public static bool IsPlagued(byte pc, byte target) => PlaguedList.TryGetValue(pc, out var x) && x.Contains(target);
     public static void SendRPC(PlayerControl player, PlayerControl target)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer;
         writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.setPlaguedPlayer, SendOption.Reliable, -1);//RPCによる同期
         writer.Write(player.PlayerId);

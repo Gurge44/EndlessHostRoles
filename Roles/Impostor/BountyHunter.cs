@@ -63,6 +63,7 @@ public static class BountyHunter
     public static bool IsEnable;
     private static void SendRPC(byte bountyId, byte targetId)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBountyTarget, SendOption.Reliable, -1);
         writer.Write(bountyId);
         writer.Write(targetId);

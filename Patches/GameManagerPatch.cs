@@ -32,7 +32,7 @@ class LogicOptionsSerializePatch
 {
     public static bool Prefix(LogicOptions __instance, ref bool __result, MessageWriter writer, bool initialState)
     {
-        // 初回以外はブロックし、CustomSyncSettingsでのみ同期する
+        // Block all but the first time and synchronize only with CustomSyncSettings
         if (!initialState)
         {
             __result = false;

@@ -112,35 +112,12 @@ namespace TOHE.Roles.Crewmate
             addonsSold = [];
             bribedKiller = [];
 
-            if (OptionCanSellHelpful.GetBool())
-            {
-                addons.AddRange(helpfulAddons);
-            }
-
-            if (OptionCanSellBalanced.GetBool())
-            {
-                addons.AddRange(balancedAddons);
-            }
-
-            if (OptionCanSellHarmful.GetBool())
-            {
-                addons.AddRange(harmfulAddons);
-            }
-
-            if (OptionCanSellNeutral.GetBool())
-            {
-                addons.AddRange(neutralAddons);
-            }
-
-            if (OptionCanSellExperimental.GetBool())
-            {
-                addons.AddRange(experimentalAddons);
-            }
-
-            if (OptionSellOnlyEnabledAddons.GetBool())
-            {
-                addons = addons.Where(role => role.GetMode() != 0).ToList();
-            }
+            if (OptionCanSellHelpful.GetBool()) addons.AddRange(helpfulAddons);
+            if (OptionCanSellBalanced.GetBool()) addons.AddRange(balancedAddons);
+            if (OptionCanSellHarmful.GetBool()) addons.AddRange(harmfulAddons);
+            if (OptionCanSellNeutral.GetBool()) addons.AddRange(neutralAddons);
+            if (OptionCanSellExperimental.GetBool()) addons.AddRange(experimentalAddons);
+            if (OptionSellOnlyEnabledAddons.GetBool()) addons = addons.Where(role => role.GetMode() != 0).ToList();
         }
 
         public static void Add(byte playerId)

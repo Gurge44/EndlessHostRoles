@@ -33,6 +33,7 @@ namespace TOHE.Roles.Impostor
         }
         public static void SendRPC()
         {
+            if (!IsEnable || !Utils.DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAdmireLimit, SendOption.Reliable, -1);
             writer.Write(isRampaging);
             writer.Write(chargePercent);
@@ -59,6 +60,7 @@ namespace TOHE.Roles.Impostor
         }
         public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = isRampaging ? 0.01f : KCD.GetFloat();
         public static bool IsEnable => playerIdList.Count > 0;
+        public static bool IsRPCNecessary => Utils.DoRPC;
         public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer == null) return;

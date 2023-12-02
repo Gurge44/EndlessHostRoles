@@ -235,6 +235,7 @@ internal class ChangeRoleSettings
             Gaulois.Init();
             Analyzer.Init();
             Escort.Init();
+            Marshall.Init();
             Consort.Init();
             Drainer.Init();
             Pursuer.Init();
@@ -683,6 +684,9 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Escort:
                         Escort.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Marshall:
+                        Marshall.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Consort:
                         Consort.Add(pc.PlayerId);

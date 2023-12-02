@@ -42,6 +42,7 @@ public static class Psychic
     public static bool IsEnable => playerIdList.Any();
     private static void SendRPC()
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncPsychicRedList, SendOption.Reliable, -1);
         writer.Write(RedPlayer.Count);
         foreach (byte pc in RedPlayer.ToArray())

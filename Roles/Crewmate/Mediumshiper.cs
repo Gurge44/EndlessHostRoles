@@ -41,6 +41,7 @@ public static class Mediumshiper
     public static bool IsEnable => playerIdList.Count > 0;
     public static void SendRPC(byte playerId)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMediumshiperLimit, SendOption.Reliable, -1);
         writer.Write(playerId);
         writer.Write(ContactLimit[playerId]);

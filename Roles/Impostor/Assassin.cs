@@ -40,6 +40,7 @@ internal static class Assassin
     public static bool IsEnable => playerIdList.Count > 0;
     private static void SendRPC(byte playerId)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMarkedPlayer, SendOption.Reliable, -1);
         writer.Write(playerId);
         writer.Write(MarkedPlayer.ContainsKey(playerId) ? MarkedPlayer[playerId] : byte.MaxValue);
@@ -97,17 +98,19 @@ internal static class Assassin
         if (MarkedPlayer.ContainsKey(pc.PlayerId))
         {
             var target = Utils.GetPlayerById(MarkedPlayer[pc.PlayerId]);
-            MarkedPlayer.Remove(pc.PlayerId);
-            SendRPC(pc.PlayerId);
             _ = new LateTask(() =>
             {
                 if (!(target == null || !target.IsAlive() || Pelican.IsEaten(target.PlayerId) || target.inVent || !GameStates.IsInTask))
                 {
                     pc.TP(target.Pos());
-                    pc.ResetKillCooldown();
-                    pc.SyncSettings();
-                    pc.SetKillCooldown(DefaultKillCooldown);
-                    pc.RpcCheckAndMurder(target);
+                    if (pc.RpcCheckAndMurder(target))
+                    {
+                        MarkedPlayer.Remove(pc.PlayerId);
+                        SendRPC(pc.PlayerId);
+                        pc.ResetKillCooldown();
+                        pc.SyncSettings();
+                        pc.SetKillCooldown(DefaultKillCooldown);
+                    }
                 }
             }, UsePets.GetBool() ? 0.1f : 0.2f, "Assassin Assassinate");
             return;

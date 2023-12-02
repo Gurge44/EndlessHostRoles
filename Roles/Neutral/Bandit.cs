@@ -65,6 +65,7 @@ public static class Bandit
 
     private static void SendRPC(byte playerId/*, bool isTargetList = false*/)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBanditStealLimit, SendOption.Reliable, -1);
         writer.Write(playerId);
         writer.Write(TotalSteals[playerId]);

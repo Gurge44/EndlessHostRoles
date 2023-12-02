@@ -498,7 +498,7 @@ public class TaskState
                         Main.AllPlayerSpeed[player.PlayerId] = Options.ExpressSpeed.GetFloat();
                         Main.ExpressSpeedUp.Remove(player.PlayerId);
                         Main.ExpressSpeedUp.TryAdd(player.PlayerId, Utils.GetTimeStamp());
-                        player.SyncSettings();
+                        player.MarkDirtySettings();
                         break;
                     case CustomRoles.Alchemist:
                         Alchemist.OnTaskComplete(player);

@@ -17,7 +17,7 @@ public class FallFromLadder
         if (!Options.LadderDeath.GetBool()) return;
         var sourcePos = source.transform.position;
         var targetPos = source.Destination.transform.position;
-        //降りているのかを検知
+        
         if (sourcePos.y > targetPos.y)
         {
             int chance = IRandom.Instance.Next(1, 101);
@@ -33,7 +33,7 @@ public class FallFromLadder
         if (TargetLadderData.ContainsKey(player.PlayerId) && Vector2.Distance(TargetLadderData[player.PlayerId], player.transform.position) < 0.5f)
         {
             if (player.Data.IsDead) return;
-            //LateTaskを入れるため、先に死亡判定を入れておく
+            // In order to insert LateTask, first enter the death judgment.
             player.Data.IsDead = true;
             _ = new LateTask(() =>
             {

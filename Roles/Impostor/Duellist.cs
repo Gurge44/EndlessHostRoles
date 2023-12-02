@@ -43,7 +43,7 @@ namespace TOHE.Roles.Impostor
 
         private static void SendRPC(byte duellistId, byte targetId, bool remove)
         {
-            if (!IsEnable) return;
+            if (!IsEnable || !Utils.DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncDuellistTarget, SendOption.Reliable, -1);
             writer.Write(duellistId);
             writer.Write(targetId);

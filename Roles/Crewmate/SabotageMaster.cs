@@ -51,9 +51,10 @@ public static class SabotageMaster
     {
         playerIdList.Add(playerId);
     }
-    public static bool IsEnable() => playerIdList.Count > 0;
+    public static bool IsEnable => playerIdList.Count > 0;
     public static void SendRPC(float count)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetSabotageMasterLimit, SendOption.Reliable, -1);
         writer.Write(count);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

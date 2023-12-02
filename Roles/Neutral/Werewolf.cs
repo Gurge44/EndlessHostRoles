@@ -53,7 +53,7 @@ public static class Werewolf
     public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
     private static void SendRPC(PlayerControl pc)
     {
-        if (pc.AmOwner) return;
+        if (pc.AmOwner || !IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetWWTimer, SendOption.Reliable, pc.GetClientId());
         writer.Write((RampageTime.TryGetValue(pc.PlayerId, out var x) ? x : -1).ToString());
         writer.Write((lastTime.TryGetValue(pc.PlayerId, out var y) ? y : -1).ToString());

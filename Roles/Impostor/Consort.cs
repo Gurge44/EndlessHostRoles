@@ -42,7 +42,7 @@ namespace TOHE.Roles.Impostor
         public static bool IsEnable => playerIdList.Count > 0;
         public static void SendRPC()
         {
-            if (!IsEnable) return;
+            if (!IsEnable || !Utils.DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetConsortLimit, SendOption.Reliable, -1);
             writer.Write(BlockLimit);
             AmongUsClient.Instance.FinishRpcImmediately(writer);

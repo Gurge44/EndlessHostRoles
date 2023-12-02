@@ -331,9 +331,9 @@ namespace TOHE.Roles.Crewmate
                         if (showStageClue) return GetStage3Clue(length);
                         if (rd.Next(0, 100) < EnigmaClueStage2Probability.GetInt()) return GetStage2Clue(length);
                         return GetStage1Clue(length);
+                    default:
+                        return null;
                 }
-
-                return null;
             }
 
             private string GetStage1Clue(int length)

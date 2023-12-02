@@ -42,6 +42,7 @@ public static class Tracefinder
     public static bool IsEnable => playerIdList.Count > 0;
     private static void SendRPC(byte playerId, bool add, Vector3 loc = new())
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTracefinderArrow, SendOption.Reliable, -1);
         writer.Write(playerId);
         writer.Write(add);
@@ -74,9 +75,7 @@ public static class Tracefinder
             LocateArrow.RemoveAllTarget(apc);
             SendRPC(apc, false);
         }
-
     }
-
     public static void OnPlayerDead(PlayerControl target)
     {
         var pos = target.Pos();

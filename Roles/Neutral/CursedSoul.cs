@@ -51,6 +51,7 @@ public static class CursedSoul
 
     private static void SendRPC()
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCursedSoulCurseLimit, SendOption.Reliable, -1);
         writer.Write(CurseLimit);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

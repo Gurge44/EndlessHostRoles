@@ -52,6 +52,7 @@
 
         private static void SendRPC(byte playerId, bool add, Vector3 loc = new())
         {
+            if (!IsEnable || !Utils.DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBloodhoundArrow, SendOption.Reliable, -1);
             writer.Write(playerId);
             writer.Write(add);
@@ -76,6 +77,7 @@
 
         public static void SendRPCPlus(byte playerId)
         {
+            if (!IsEnable || !Utils.DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.BloodhoundIncreaseAbilityUseByOne, SendOption.Reliable, -1);
             writer.Write(playerId);
             writer.Write(UseLimit[playerId]);

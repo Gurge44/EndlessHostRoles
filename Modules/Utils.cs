@@ -195,6 +195,7 @@ public static class Utils
                 return false;
         }
     }
+    public static bool DoRPC => AmongUsClient.Instance.AmHost && Main.AllPlayerControls.Any(x => x.IsModClient() && x.PlayerId != 0);
     public static void SetVision(this IGameOptions opt, bool HasImpVision)
     {
         if (HasImpVision)
@@ -302,7 +303,7 @@ public static class Utils
         var Duration = Options.KillFlashDuration.GetFloat();
         if (ReactorCheck) Duration += 0.2f; // Extend blackout during reactor
 
-        //実行
+        // Execution
         Main.PlayerStates[player.PlayerId].IsBlackOut = true; // Blackout
         if (player.AmOwner)
         {
@@ -314,7 +315,7 @@ public static class Utils
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.KillFlash, SendOption.Reliable, player.GetClientId());
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
-        else if (!ReactorCheck) player.ReactorFlash(0f); // reactor flash
+        else if (!ReactorCheck) player.ReactorFlash(0f); // Reactor flash
         player.MarkDirtySettings();
         _ = new LateTask(() =>
         {

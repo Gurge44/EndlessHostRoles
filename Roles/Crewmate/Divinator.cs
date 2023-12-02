@@ -45,6 +45,7 @@ public static class Divinator
     public static bool IsEnable => playerIdList.Count > 0;
     public static void SendRPC(byte playerId)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDivinatorLimit, SendOption.Reliable, -1);
         writer.Write(playerId);
         writer.Write(CheckLimit[playerId]);

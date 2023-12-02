@@ -72,43 +72,6 @@ public static class Marshall
         NameNotifyManager.Notify(marshall, Translator.GetString("MarshallDoneTasks"));
         IsComplete[marshallId] = true;
     }
-
-    /// <summary>
-    /// タスクが進んだスニッチに警告マーク
-    /// </summary>
-    /// <param name="seer">キラーの場合有効</param>
-    /// <param name="target">スニッチの場合有効</param>
-    /// <returns></returns>
     public static string GetWarningMark(PlayerControl seer, PlayerControl target)
         => IsMarshallTarget(seer) && GetExpose(target) ? Utils.ColorString(RoleColor, "★") : string.Empty;
-
-    /// <summary>
-    /// キラーからスニッチに対する矢印
-    /// </summary>
-    /// <param name="seer">キラーの場合有効</param>
-    /// <param name="target">キラーの場合有効</param>
-    /// <returns></returns>
-    public static string GetWarningArrow(PlayerControl seer, PlayerControl target = null)
-    {
-        if (GameStates.IsMeeting || !IsMarshallTarget(seer)) return string.Empty;
-        if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
-
-        if (!playerIdList.Any(s => !Main.PlayerStates[s].IsDead && IsExposed[s])) return string.Empty;
-
-        var warning = "★";
-
-        return Utils.ColorString(RoleColor, warning);
-    }
-    /// <summary>
-    /// スニッチからキラーへの矢印
-    /// </summary>
-    /// <param name="seer">スニッチの場合有効</param>
-    /// <param name="target">スニッチの場合有効</param>
-    /// <returns></returns>
-
-    public static void OnCompleteTask(PlayerControl player)
-    {
-        if (!IsThisRole(player.PlayerId) /*|| player.Is(CustomRoles.Madmate)*/) return;
-        CheckTask(player);
-    }
 }

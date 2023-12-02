@@ -47,6 +47,7 @@ public static class Wildling
     public static bool IsEnable => playerIdList.Count > 0;
     private static void SendRPC(byte playerId)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBKTimer, SendOption.Reliable, -1);
         writer.Write(playerId);
         writer.Write(TimeStamp[playerId].ToString());

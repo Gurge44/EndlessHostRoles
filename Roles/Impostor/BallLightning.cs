@@ -41,6 +41,7 @@ public static class BallLightning
     public static bool IsEnable => playerIdList.Count > 0;
     private static void SendRPC(byte playerId)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGhostPlayer, SendOption.Reliable, -1);
         writer.Write(playerId);
         writer.Write(IsGhost(playerId));

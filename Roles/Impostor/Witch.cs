@@ -56,6 +56,7 @@ public static class Witch
     public static bool IsEnable => playerIdList.Count > 0;
     private static void SendRPC(bool doSpell, byte witchId, byte target = 255)
     {
+        if (!IsEnable || !Utils.DoRPC) return;
         if (doSpell)
         {
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DoSpell, SendOption.Reliable, -1);
