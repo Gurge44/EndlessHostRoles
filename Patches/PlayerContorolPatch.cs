@@ -2082,6 +2082,9 @@ class FixedUpdatePatch
                 case CustomRoles.Librarian when !lowLoad:
                     Librarian.OnFixedUpdate();
                     break;
+                case CustomRoles.NiceHacker when !lowLoad:
+                    NiceHacker.OnFixedUpdate(player);
+                    break;
                 case CustomRoles.Analyzer:
                     Analyzer.OnFixedUpdate(player);
                     break;

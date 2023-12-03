@@ -286,31 +286,32 @@ namespace TOHE.Roles.Crewmate
             }
             else
             {
+                var preText = "<color=#00ffa5>Potion in store:</color>";
                 switch (PotionID)
                 {
                     case 1: // Shield
-                        str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#00ff97>Shield Potion</color></b>");
+                        str.Append($"{preText} <b><color=#00ff97>Shield Potion</color></b>");
                         break;
                     case 2: // Suicide
-                        str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#ff0000>Awkward Potion</color></b>");
+                        str.Append($"{preText} <b><color=#ff0000>Awkward Potion</color></b>");
                         break;
                     case 3: // TP to random player
-                        str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#42d1ff>Teleport Potion</color></b>");
+                        str.Append($"{preText} <b><color=#42d1ff>Teleport Potion</color></b>");
                         break;
                     case 4: // Increased speed
-                        str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#ff8400>Speed Potion</color></b>");
+                        str.Append($"{preText} <b><color=#ff8400>Speed Potion</color></b>");
                         break;
                     case 5: // Quick fix next sabo
-                        str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#3333ff>Quick Fix Potion</color></b>");
+                        str.Append($"{preText} <b><color=#3333ff>Quick Fix Potion</color></b>");
                         break;
                     case 6: // Invisibility
-                        str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#01c834>Invisibility Potion</color></b>");
+                        str.Append($"{preText} <b><color=#01c834>Invisibility Potion</color></b>");
                         break;
                     case 7: // Increased vision
-                        str.Append("<color=#00ffa5>Potion in store:</color> <b><color=#eee5be>Sight Potion</color></b>");
+                        str.Append($"{preText} <b><color=#eee5be>Sight Potion</color></b>");
                         break;
                     case 10:
-                        str.Append("<color=#00ffa5>Potion in store:</color> <color=#888888>None</color>");
+                        str.Append($"{preText} <color=#888888>None</color>");
                         break;
                     default: // just in case
                         break;

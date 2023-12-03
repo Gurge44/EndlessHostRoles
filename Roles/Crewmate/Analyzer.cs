@@ -47,9 +47,8 @@ namespace TOHE.Roles.Crewmate
 
         public static bool IsEnable => playerId != byte.MaxValue;
 
-        private static string GetRoleBasis(CustomRoles role)
-        {
-            return role.GetDYRole() == AmongUs.GameOptions.RoleTypes.Impostor
+        private static string GetRoleBasis(CustomRoles role) =>
+            role.GetDYRole() == AmongUs.GameOptions.RoleTypes.Impostor
                 ? ColorString(GetRoleColor(CustomRoles.Impostor), GetString("Impostor"))
                 : role.GetVNRole() switch
                 {
@@ -60,7 +59,6 @@ namespace TOHE.Roles.Crewmate
                     CustomRoles.Scientist => ColorString(GetRoleColor(CustomRoles.Doctor), GetString("Scientist")),
                     _ => string.Empty
                 };
-        }
 
         private static int GetKillCount(byte id) => Main.PlayerStates.Count(x => x.Value.GetRealKiller() == id);
 
@@ -90,7 +88,7 @@ namespace TOHE.Roles.Crewmate
 
         private static void SendRPCSyncTarget()
         {
-            if (!IsEnable || !Utils.DoRPC) return;
+            if (!IsEnable || !DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAnalyzerTarget, SendOption.Reliable, -1);
             writer.Write(CurrentTarget.ID);
             writer.Write(CurrentTarget.TIME);
