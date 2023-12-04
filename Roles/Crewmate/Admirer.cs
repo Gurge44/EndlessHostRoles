@@ -201,9 +201,5 @@ public static class Admirer
         return false;
     }
     public static string GetAdmireLimit() => Utils.ColorString(AdmireLimit >= 1 ? Utils.GetRoleColor(CustomRoles.Admirer).ShadeColor(0.25f) : Color.gray, $"({AdmireLimit})");
-    public static bool CanBeAdmired(this PlayerControl pc)
-    {
-        return pc != null && (pc.GetCustomRole().IsCrewmate() || pc.GetCustomRole().IsImpostor() ||
-            pc.GetCustomRole().IsNeutral()) && !pc.Is(CustomRoles.Soulless) && !pc.Is(CustomRoles.Admired) && !pc.Is(CustomRoles.Lovers) && !pc.Is(CustomRoles.Loyal);
-    }
+    public static bool CanBeAdmired(this PlayerControl pc) => pc != null && (pc.GetCustomRole().IsCrewmate() || pc.GetCustomRole().IsImpostor() || pc.GetCustomRole().IsNeutral()) && !pc.Is(CustomRoles.Soulless) && !pc.Is(CustomRoles.Admired) && !pc.Is(CustomRoles.Lovers) && !pc.Is(CustomRoles.Loyal);
 }

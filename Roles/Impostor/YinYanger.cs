@@ -10,11 +10,13 @@ namespace TOHE.Roles.Impostor
     public static class YinYanger
     {
         private static readonly int Id = 642870;
-        private static List<byte> playerIdList = [];
+        private static byte YinYangerId = byte.MaxValue;
         private static List<byte> YinYangedPlayers = [];
 
         private static OptionItem YinYangCD;
         private static OptionItem KCD;
+
+        private static PlayerControl YinYanger_ => GetPlayerById(YinYangerId);
 
         public static void SetupCustomOption()
         {
@@ -29,16 +31,16 @@ namespace TOHE.Roles.Impostor
 
         public static void Init()
         {
-            playerIdList = [];
+            YinYangerId = byte.MaxValue;
             YinYangedPlayers = [];
         }
 
         public static void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            YinYangerId = playerId;
         }
 
-        public static bool IsEnable => playerIdList.Count > 0;
+        public static bool IsEnable => YinYangerId != byte.MaxValue;
 
         public static void SetKillCooldown(byte playerId)
         {
@@ -99,7 +101,7 @@ namespace TOHE.Roles.Impostor
         public static void OnReportDeadBody()
         {
             if (!IsEnable) return;
-            foreach (var id in playerIdList) GetPlayerById(id)?.ResetKillCooldown();
+            YinYanger_?.ResetKillCooldown();
             YinYangedPlayers.Clear();
             SendRPC(true);
         }
@@ -110,10 +112,11 @@ namespace TOHE.Roles.Impostor
             if (!GameStates.IsInTask) return;
             if (YinYangedPlayers.Count < 2) return;
 
-            var yy = GetPlayerById(playerIdList[0]);
+            var yy = YinYanger_;
             var pc1 = GetPlayerById(YinYangedPlayers[0]);
             var pc2 = GetPlayerById(YinYangedPlayers[1]);
 
+            if (pc1 == null || pc2 == null || yy == null) return;
             if (!pc1.IsAlive() || !pc2.IsAlive() || !yy.IsAlive()) return;
 
             if (Vector2.Distance(pc1.Pos(), pc2.Pos()) <= 2f)

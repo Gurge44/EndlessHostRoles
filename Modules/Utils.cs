@@ -1777,7 +1777,7 @@ public static class Utils
     {
         if (!AmongUsClient.Instance.AmHost) return;
         var taskState = GetPlayerById(Terrorist.PlayerId).GetPlayerTaskState();
-        if (taskState.IsTaskFinished && (!Main.PlayerStates[Terrorist.PlayerId].IsSuicide() || Options.CanTerroristSuicideWin.GetBool())) //タスクが完了で（自殺じゃない OR 自殺勝ちが許可）されていれば
+        if (taskState.IsTaskFinished && (!Main.PlayerStates[Terrorist.PlayerId].IsSuicide || Options.CanTerroristSuicideWin.GetBool())) //タスクが完了で（自殺じゃない OR 自殺勝ちが許可）されていれば
         {
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {

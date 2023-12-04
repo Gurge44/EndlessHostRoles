@@ -209,16 +209,10 @@ public class PlayerState(byte playerId)
             RPC.SendDeathReason(PlayerId, deathReason);
         }
     }
-    public bool IsSuicide() { return deathReason == DeathReason.Suicide; }
-    public TaskState GetTaskState() { return taskState; }
-    public void InitTask(PlayerControl player)
-    {
-        taskState.Init(player);
-    }
-    public void UpdateTask(PlayerControl player)
-    {
-        taskState.Update(player);
-    }
+    public bool IsSuicide => deathReason == DeathReason.Suicide;
+    public TaskState GetTaskState() => taskState;
+    public void InitTask(PlayerControl player) => taskState.Init(player);
+    public void UpdateTask(PlayerControl player) => taskState.Update(player);
     public enum DeathReason
     {
         Kill,
@@ -258,12 +252,8 @@ public class PlayerState(byte playerId)
 
         etc = -1,
     }
-    public byte GetRealKiller()
-        => IsDead && RealKiller.TIMESTAMP != DateTime.MinValue ? RealKiller.ID : byte.MaxValue;
-    public int GetKillCount(bool ExcludeSelfKill = false)
-    {
-        return Main.PlayerStates.Values.Where(state => !(ExcludeSelfKill && state.PlayerId == PlayerId) && state.GetRealKiller() == PlayerId).Count();
-    }
+    public byte GetRealKiller() => IsDead && RealKiller.TIMESTAMP != DateTime.MinValue ? RealKiller.ID : byte.MaxValue;
+    public int GetKillCount(bool ExcludeSelfKill = false) => Main.PlayerStates.Values.Where(state => !(ExcludeSelfKill && state.PlayerId == PlayerId) && state.GetRealKiller() == PlayerId).ToArray().Length;
 }
 public class TaskState
 {
