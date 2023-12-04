@@ -47,7 +47,7 @@ namespace TOHE.Roles.Crewmate
         public static bool IsEnable => playerIdList.Count > 0;
         public static void SendRPC()
         {
-            if (!IsEnable || !Utils.DoRPC) return;
+            if (!IsEnable || !DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetEscortLimit, SendOption.Reliable, -1);
             writer.Write(BlockLimit);
             AmongUsClient.Instance.FinishRpcImmediately(writer);

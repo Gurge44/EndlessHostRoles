@@ -47,7 +47,7 @@ namespace TOHE.Roles.Crewmate
         public static bool IsEnable => playerIdList.Count > 0;
         public static void SendRPC(byte susId)
         {
-            if (!IsEnable || !Utils.DoRPC) return;
+            if (!IsEnable || !DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SpyRedNameSync, SendOption.Reliable, -1);
             writer.Write(susId);
             writer.Write(SpyRedNameList[susId].ToString());
@@ -55,7 +55,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static void SendAbilityRPC(byte spyId)
         {
-            if (!IsEnable || !Utils.DoRPC) return;
+            if (!IsEnable || !DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SpyAbilitySync, SendOption.Reliable, -1);
             writer.Write(spyId);
             writer.Write(UseLimit[spyId]);
@@ -64,7 +64,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static void SendRPC(byte susId, bool changeColor)
         {
-            if (!IsEnable || !Utils.DoRPC) return;
+            if (!IsEnable || !DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SpyRedNameRemove, SendOption.Reliable, -1);
             //writer.Write(spyId);
             writer.Write(susId);

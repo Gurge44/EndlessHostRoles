@@ -83,7 +83,7 @@ static class ExtendedPlayerControl
         {
             var callerMethod = new System.Diagnostics.StackFrame(1, false).GetMethod();
             string callerMethodName = callerMethod.Name;
-            Logger.Warn(callerMethod.DeclaringType.FullName + "." + callerMethodName + "tried to get a CustomRole, but the target was null.", "GetCustomRole");
+            Logger.Warn(callerMethod.DeclaringType.FullName + "." + callerMethodName + " tried to get a CustomRole, but the target was null.", "GetCustomRole");
             return CustomRoles.Crewmate;
         }
 
@@ -1423,9 +1423,25 @@ static class ExtendedPlayerControl
     //汎用
     public static bool Is(this PlayerControl target, CustomRoles role) =>
         role > CustomRoles.NotAssigned ? target.GetCustomSubRoles().Contains(role) : target.GetCustomRole() == role;
-    public static bool Is(this PlayerControl target, CustomRoleTypes type) { return target.GetCustomRole().GetCustomRoleTypes() == type; }
-    public static bool Is(this PlayerControl target, RoleTypes type) { return target.GetCustomRole().GetRoleTypes() == type; }
-    public static bool Is(this PlayerControl target, CountTypes type) { return target.GetCountTypes() == type; }
+    public static bool Is(this PlayerControl target, CustomRoleTypes type) => target.GetCustomRole().GetCustomRoleTypes() == type;
+    public static bool Is(this PlayerControl target, RoleTypes type) => target.GetCustomRole().GetRoleTypes() == type;
+    public static bool Is(this PlayerControl target, CountTypes type) => target.GetCountTypes() == type;
+    public static bool Is(this PlayerControl target, Team team) => team switch
+    {
+        Team.Impostor => target.GetCustomRole().IsImpostorTeamV3(),
+        Team.Neutral => target.GetCustomRole().IsNeutralTeamV2(),
+        Team.Crewmate => target.GetCustomRole().IsCrewmateTeamV2(),
+        Team.None => target.Is(CustomRoles.GM) || target.Is(CountTypes.None) || target.Is(CountTypes.OutOfGame),
+        _ => false,
+    };
+    public static Team GetTeam(this PlayerControl target)
+    {
+        var role = target.GetCustomRole();
+        if (role.IsImpostorTeamV3()) return Team.Impostor;
+        else if (role.IsNeutralTeamV2()) return Team.Neutral;
+        else if (role.IsCrewmateTeamV2()) return Team.Crewmate;
+        else return Team.None;
+    }
     public static bool IsAlive(this PlayerControl target)
     {
         //ロビーなら生きている

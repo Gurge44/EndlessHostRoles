@@ -82,7 +82,7 @@ class ExileControllerWrapUpPatch
                 }
             }
 
-            if (role.IsImpostorTeamV3())
+            if (role.Is(Team.Impostor))
             {
                 Damocles.OnImpostorEjected();
             }

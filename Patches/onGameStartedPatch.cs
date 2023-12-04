@@ -38,6 +38,7 @@ internal class ChangeRoleSettings
             Main.AllPlayerKillCooldown = [];
             Main.AllPlayerSpeed = [];
             Main.AllPlayerCustomRoles = [];
+            Main.KillTimers = [];
             Main.WarlockTimer = [];
             Main.AssassinTimer = [];
             Main.UndertakerTimer = [];

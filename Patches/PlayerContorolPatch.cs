@@ -1183,8 +1183,8 @@ class MurderPlayerPatch
         }
 
         if (killer.Is(CustomRoles.Damocles)) Damocles.OnMurder();
-        else if (killer.GetCustomRole().IsImpostorTeamV3()) Damocles.OnOtherImpostorMurder();
-        if (target.GetCustomRole().IsImpostorTeamV3()) Damocles.OnImpostorDeath();
+        else if (killer.Is(Team.Impostor)) Damocles.OnOtherImpostorMurder();
+        if (target.Is(Team.Impostor)) Damocles.OnImpostorDeath();
 
         if (killer.Is(CustomRoles.TicketsStealer) && killer.PlayerId != target.PlayerId)
             killer.Notify(string.Format(GetString("TicketsStealerGetTicket"), ((Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Options.TicketsPerKill.GetFloat()).ToString("0.0#####")));
@@ -2046,6 +2046,11 @@ class FixedUpdatePatch
                 }
             }
 
+            if (!Main.KillTimers.ContainsKey(player.PlayerId))
+                Main.KillTimers.Add(player.PlayerId, 10f);
+            else if (!player.inVent && !player.MyPhysics.Animations.IsPlayingEnterVentAnimation() && Main.KillTimers[player.PlayerId] > 0)
+                Main.KillTimers[player.PlayerId] -= Time.fixedDeltaTime;
+
             if (DoubleTrigger.FirstTriggerTimer.Any()) DoubleTrigger.OnFixedUpdate(player);
             switch (player.GetCustomRole())
             {
@@ -2055,7 +2060,7 @@ class FixedUpdatePatch
                 case CustomRoles.Poisoner:
                     Poisoner.OnFixedUpdate(player);
                     break;
-                case CustomRoles.BountyHunter when !lowLoad:
+                case CustomRoles.BountyHunter:
                     BountyHunter.FixedUpdate(player);
                     break;
                 case CustomRoles.Glitch when !lowLoad:

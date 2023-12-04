@@ -60,7 +60,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void SendRPCSyncAbilityUse(byte playerId)
         {
-            if (!IsEnable || !Utils.DoRPC) return;
+            if (!IsEnable || !DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDruidLimit, SendOption.Reliable, -1);
             writer.Write(playerId);
             writer.Write(UseLimit[playerId]);
@@ -74,7 +74,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static void SendRPCAddTriggerDelay(byte playerId, long timestamp)
         {
-            if (!IsEnable || !Utils.DoRPC) return;
+            if (!IsEnable || !DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DruidAddTriggerDelay, SendOption.Reliable, -1);
             writer.Write(playerId);
             writer.Write(timestamp);
@@ -91,7 +91,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static void SendRPCAddTrigger(byte playerId, Vector2 position, string roomName)
         {
-            if (!IsEnable || !Utils.DoRPC) return;
+            if (!IsEnable || !DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DruidAddTriggerDelay, SendOption.Reliable, -1);
             writer.Write(playerId);
             writer.Write(position.x);
@@ -114,7 +114,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static void SendRPCRemoveTrigger(byte playerId, Vector2 position)
         {
-            if (!IsEnable || !Utils.DoRPC) return;
+            if (!IsEnable || !DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DruidAddTriggerDelay, SendOption.Reliable, -1);
             writer.Write(playerId);
             writer.Write(position.x);
@@ -133,7 +133,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static void SendRPCSyncLastUpdate()
         {
-            if (!IsEnable || !Utils.DoRPC) return;
+            if (!IsEnable || !DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DruidAddTriggerDelay, SendOption.Reliable, -1);
             writer.Write(lastUpdate);
             AmongUsClient.Instance.FinishRpcImmediately(writer);

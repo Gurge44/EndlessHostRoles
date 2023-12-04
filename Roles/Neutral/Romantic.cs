@@ -204,7 +204,7 @@ public static class Romantic
             romantic.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
             RuthlessRomantic.Add(romanticId);
         }
-        else if (partner.GetCustomRole().IsImpostorTeamV3()) // If partner is Imp, Romantic joins imp team as Refugee
+        else if (partner.Is(Team.Impostor)) // If partner is Imp, Romantic joins imp team as Refugee
         {
             Logger.Info($"Impostor Romantic Partner Died => changing {romantic.GetNameWithRole().RemoveHtmlTags()} to Refugee", "Romantic");
             romantic.RpcSetCustomRole(CustomRoles.Refugee);

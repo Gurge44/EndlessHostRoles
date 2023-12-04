@@ -80,6 +80,7 @@ public class Main : BasePlugin
     public static ConfigEntry<float> LastKillCooldown { get; private set; }
     public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
     public static OptionBackupData RealOptionsData;
+    public static Dictionary<byte, float> KillTimers = [];
     public static Dictionary<byte, PlayerState> PlayerStates = [];
     public static Dictionary<byte, string> AllPlayerNames = [];
     public static Dictionary<byte, CustomRoles> AllPlayerCustomRoles;
@@ -623,6 +624,13 @@ public class Main : BasePlugin
 
         TOHE.Logger.Msg("========= TOHE loaded! =========", "Plugin Load");
     }
+}
+public enum Team
+{
+    None,
+    Impostor,
+    Neutral,
+    Crewmate
 }
 public enum CustomRoles
 {

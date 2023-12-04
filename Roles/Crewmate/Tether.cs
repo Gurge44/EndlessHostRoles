@@ -45,7 +45,7 @@ namespace TOHE.Roles.Crewmate
         public static bool IsEnable => playerIdList.Count > 0;
         public static void SendRPC(byte playerId)
         {
-            if (!IsEnable || !Utils.DoRPC) return;
+            if (!IsEnable || !DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTetherLimit, SendOption.Reliable, -1);
             writer.Write(playerId);
             writer.Write(UseLimit[playerId]);
@@ -53,7 +53,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static void SendRPCSyncTarget(byte targetId)
         {
-            if (!IsEnable || !Utils.DoRPC) return;
+            if (!IsEnable || !DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTetherTarget, SendOption.Reliable, -1);
             writer.Write(targetId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
