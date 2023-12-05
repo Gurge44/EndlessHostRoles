@@ -1,4 +1,3 @@
-using Epic.OnlineServices;
 using Hazel;
 using System.Collections.Generic;
 using TOHE.Roles.Crewmate;
@@ -109,7 +108,7 @@ public static class FireWorks
             case FireWorksState.Initial:
             case FireWorksState.SettingFireWorks:
                 Logger.Info("花火を一個設置", "FireWorks");
-                fireWorksPosition[pc.PlayerId].Add(pc.transform.position);
+                fireWorksPosition[pc.PlayerId].Add(pc.Pos());
                 nowFireWorksCount[pc.PlayerId]--;
                 state[pc.PlayerId] = nowFireWorksCount[pc.PlayerId] == 0
                     ? Main.AliveImpostorCount <= 1 ? FireWorksState.ReadyFire : FireWorksState.WaitTime

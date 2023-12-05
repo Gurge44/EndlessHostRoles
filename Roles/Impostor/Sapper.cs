@@ -56,7 +56,7 @@ namespace TOHE.Roles.Impostor
             if (pc == null) return;
             if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return;
 
-            Bombs.TryAdd(pc.transform.position, GetTimeStamp());
+            Bombs.TryAdd(pc.Pos(), GetTimeStamp());
             Main.SapperCD.TryAdd(pc.PlayerId, GetTimeStamp());
 
             //if (!isPet) _ = new LateTask(() => { pc.CmdCheckRevertShapeshift(false); }, 1.5f, "Sapper RpcRevertShapeshift");

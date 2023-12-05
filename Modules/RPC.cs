@@ -58,6 +58,7 @@ enum CustomRPC
 
     //Roles
     SetDrawPlayer,
+    SyncStressedTimer,
     SetLibrarianMode,
     SyncLibrarianList,
     GaulousAddPlayerToList,
@@ -826,6 +827,9 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SetDeputyHandcuffLimit:
                 Deputy.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncStressedTimer:
+                Stressed.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetVirusInfectLimit:
                 Virus.ReceiveRPC(reader);

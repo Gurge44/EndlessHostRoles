@@ -118,7 +118,7 @@ public static class BallLightning
             foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.PlayerId != gs.PlayerId && x.IsAlive() && !x.Is(CustomRoles.BallLightning) && !IsGhost(x) && !Pelican.IsEaten(x.PlayerId)).ToArray())
             {
                 var pos = gs.transform.position;
-                var dis = Vector2.Distance(pos, pc.transform.position);
+                var dis = Vector2.Distance(pos, pc.Pos());
                 if (dis > 0.3f) continue;
 
                 deList.Add(gs.PlayerId);

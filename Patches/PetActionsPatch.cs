@@ -299,7 +299,7 @@ class ExternalRpcPetPatch
                     if (!Main.CursedPlayers[pc.PlayerId].Data.IsDead)
                     {
                         var cp = Main.CursedPlayers[pc.PlayerId];
-                        UnityEngine.Vector2 cppos = cp.transform.position;
+                        UnityEngine.Vector2 cppos = cp.Pos();
                         Dictionary<PlayerControl, float> cpdistance = [];
                         float dis;
                         foreach (PlayerControl p in Main.AllAlivePlayerControls)
@@ -309,7 +309,7 @@ class ExternalRpcPetPatch
                             if (!Options.WarlockCanKillAllies.GetBool() && p.GetCustomRole().IsImpostor()) continue;
                             if (p.Is(CustomRoles.Pestilence)) continue;
                             if (Pelican.IsEaten(p.PlayerId) || Medic.ProtectList.Contains(p.PlayerId)) continue;
-                            dis = UnityEngine.Vector2.Distance(cppos, p.transform.position);
+                            dis = UnityEngine.Vector2.Distance(cppos, p.Pos());
                             cpdistance.Add(p, dis);
                             Logger.Info($"{p?.Data?.PlayerName}'s distance: {dis}", "Warlock");
                         }
@@ -384,8 +384,8 @@ class ExternalRpcPetPatch
                 foreach (PlayerControl tg in Main.AllPlayerControls)
                 {
                     if (!tg.IsModClient()) tg.KillFlash();
-                    var pos = pc.transform.position;
-                    var dis = UnityEngine.Vector2.Distance(pos, tg.transform.position);
+                    var pos = pc.Pos();
+                    var dis = UnityEngine.Vector2.Distance(pos, tg.Pos());
 
                     if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || (tg.Is(CustomRoleTypes.Impostor) && Options.ImpostorsSurviveBombs.GetBool()) || tg.inVent || tg.Is(CustomRoles.Pestilence)) continue;
                     if (dis > Options.BomberRadius.GetFloat()) continue;
@@ -415,8 +415,8 @@ class ExternalRpcPetPatch
                 foreach (PlayerControl tg in Main.AllPlayerControls)
                 {
                     if (!tg.IsModClient()) tg.KillFlash();
-                    var pos = pc.transform.position;
-                    var dis = UnityEngine.Vector2.Distance(pos, tg.transform.position);
+                    var pos = pc.Pos();
+                    var dis = UnityEngine.Vector2.Distance(pos, tg.Pos());
 
                     if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || tg.inVent || tg.Is(CustomRoles.Pestilence)) continue;
                     if (dis > Options.NukeRadius.GetFloat()) continue;

@@ -727,6 +727,7 @@ public static class Utils
         if (!Main.playerVersion.ContainsKey(0)) return string.Empty; //ホストがMODを入れていなければ未記入を返す
         var ProgressText = new StringBuilder();
         var role = Main.PlayerStates[playerId].MainRole;
+        PlayerControl pc = GetPlayerById(playerId);
         try
         {
             switch (role)
@@ -785,7 +786,7 @@ public static class Utils
                     ProgressText.Append(ColorString(TextColorCoun, $"<color=#777777>-</color> {Math.Round(Councillor.MurderLimit[playerId], 1)}"));
                     break;
                 case CustomRoles.WeaponMaster:
-                    if (!GetPlayerById(playerId).IsModClient()) ProgressText.Append(WeaponMaster.GetHudAndProgressText());
+                    if (!pc.IsModClient()) ProgressText.Append(WeaponMaster.GetHudAndProgressText());
                     break;
                 case CustomRoles.Dazzler:
                     Color TextColorDazzler;
@@ -1029,7 +1030,7 @@ public static class Utils
                     ProgressText.Append(Aid.GetProgressText(playerId, comms));
                     break;
                 case CustomRoles.Mafioso:
-                    if (!GetPlayerById(playerId).IsModClient()) ProgressText.Append(Mafioso.GetProgressText());
+                    if (!pc.IsModClient()) ProgressText.Append(Mafioso.GetProgressText());
                     break;
                 case CustomRoles.Consort:
                     ProgressText.Append(Consort.GetProgressText());
@@ -1127,12 +1128,12 @@ public static class Utils
         }
         catch (Exception ex)
         {
-            Logger.Error($"For {GetPlayerById(playerId).GetNameWithRole().RemoveHtmlTags()}, failed to get progress text:  " + ex.ToString(), "Utils.GetProgressText");
+            Logger.Error($"For {pc.GetNameWithRole().RemoveHtmlTags()}, failed to get progress text:  " + ex.ToString(), "Utils.GetProgressText");
         }
-        if (GetPlayerById(playerId).Is(CustomRoles.Damocles))
-        {
-            ProgressText.Append(' ' + Damocles.GetProgressText());
-        }
+
+        if (pc.Is(CustomRoles.Damocles)) ProgressText.Append(' ' + Damocles.GetProgressText());
+        if (pc.Is(CustomRoles.Stressed)) ProgressText.Append(' ' + Stressed.GetProgressText(playerId));
+
         if (ProgressText.Length != 0 && !ProgressText.ToString().StartsWith(' '))
             ProgressText.Insert(0, ' '); //空じゃなければ空白を追加
 
@@ -1192,7 +1193,7 @@ public static class Utils
         var list = new List<PlayerControl>();
         foreach (PlayerControl tg in Main.AllAlivePlayerControls)
         {
-            var dis = Vector2.Distance(from, tg.transform.position);
+            var dis = Vector2.Distance(from, tg.Pos());
             if (Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || tg.inVent) continue;
             if (dis > radius) continue;
             list.Add(tg);
@@ -2583,6 +2584,7 @@ public static class Utils
         if (CopyCat.IsEnable()) CopyCat.AfterMeetingTasks();
         //Pirate.AfterMeetingTask();
         Damocles.AfterMeetingTasks();
+        Stressed.AfterMeetingTasks();
 
         if (Options.UsePets.GetBool())
         {

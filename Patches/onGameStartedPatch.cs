@@ -283,6 +283,7 @@ internal class ChangeRoleSettings
             Deputy.Init();
             Chronomancer.Init();
             Damocles.Initialize();
+            Stressed.Init();
             Amnesiac.Init();
             Infectious.Init();
             Monarch.Init();
@@ -1031,6 +1032,8 @@ internal class SelectRolesPatch
                         break;
                 }
             }
+
+            Stressed.Add();
 
         EndOfSelectRolePatch:
 

@@ -500,7 +500,7 @@ class CheckForEndVotingPatch
                 case (0, 0): // Crewmates win
                     name += GetString("GG");
                     break;
-                case (> 0, > 0): // Both imps and neutrals remain
+                case ( > 0, > 0): // Both imps and neutrals remain
                     name += impnum switch
                     {
                         1 => "1 <color=#ff1919>Impostor</color> <color=#777777>&</color> ",
@@ -511,7 +511,7 @@ class CheckForEndVotingPatch
                     if (neutralnum == 1) name += "1 <color=#ffab1b>Neutral</color> <color=#777777>remains.</color>";
                     else name += $"{neutralnum} <color=#ffab1b>Neutrals</color> <color=#777777>remain.</color>";
                     break;
-                case (> 0, 0): // Only imps remain
+                case ( > 0, 0): // Only imps remain
                     name += impnum switch
                     {
                         1 => GetString("OneImpRemain"),

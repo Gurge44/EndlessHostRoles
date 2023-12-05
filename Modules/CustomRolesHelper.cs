@@ -386,6 +386,7 @@ internal static class CustomRolesHelper
             CustomRoles.Reach or
             CustomRoles.DeadlyQuota or
             CustomRoles.Damocles or
+            CustomRoles.Stressed or
             CustomRoles.Cleansed or
             CustomRoles.Charmed or
             CustomRoles.Infected or
@@ -1188,6 +1189,8 @@ internal static class CustomRolesHelper
             CustomRoles.LastImpostor or
             CustomRoles.Mare or
             CustomRoles.Mimic or
+            CustomRoles.Damocles or
+            CustomRoles.DeadlyQuota or
             CustomRoles.TicketsStealer or
             CustomRoles.Swift;
     }
@@ -1222,20 +1225,22 @@ internal static class CustomRolesHelper
 
         if (pc.GetCustomRole() is CustomRoles.GuardianAngelTOHE or CustomRoles.God || pc.Is(CustomRoles.Madmate) || pc.Is(CustomRoles.Egoist)) return false;
         if (pc.Is(CustomRoles.GM) || role is CustomRoles.Lovers || pc.Is(CustomRoles.Needy) || (pc.HasSubRole() && pc.GetCustomSubRoles().Count >= Options.NoLimitAddonsNumMax.GetInt())) return false;
-        if ((pc.Is(CustomRoles.RuthlessRomantic) || pc.Is(CustomRoles.Romantic) || pc.Is(CustomRoles.VengefulRomantic)) && role is CustomRoles.Lovers) return false;
         return role switch
         {
+            CustomRoles.Lovers when pc.Is(CustomRoles.RuthlessRomantic) || pc.Is(CustomRoles.Romantic) || pc.Is(CustomRoles.VengefulRomantic) => false,
             CustomRoles.Sidekick when pc.Is(CustomRoles.Madmate) => false,
             CustomRoles.Madmate when pc.Is(CustomRoles.Sidekick) => false,
             CustomRoles.Egoist when pc.Is(CustomRoles.Sidekick) => false,
             CustomRoles.Autopsy when pc.Is(CustomRoles.Doctor) || pc.Is(CustomRoles.Tracefinder) || pc.Is(CustomRoles.Scientist) || pc.Is(CustomRoles.ScientistTOHE) || pc.Is(CustomRoles.Sunnyboy) => false,
             CustomRoles.Necroview when pc.Is(CustomRoles.Doctor) => false,
+            CustomRoles.Lazy when pc.Is(CustomRoles.Speedrunner) => false,
             CustomRoles.Loyal when pc.GetCustomRole().IsCrewmate() && !Options.CrewCanBeLoyal.GetBool() => false,
             CustomRoles.DualPersonality when pc.GetCustomRole().IsCrewmate() && !Options.CrewCanBeDualPersonality.GetBool() => false,
             CustomRoles.Lazy when pc.Is(CustomRoles.Needy) || pc.Is(CustomRoles.Snitch) || pc.Is(CustomRoles.Marshall) || pc.Is(CustomRoles.Transporter) || pc.Is(CustomRoles.Guardian) => false,
             CustomRoles.Ghoul when pc.Is(CustomRoles.Needy) || pc.Is(CustomRoles.Snitch) || pc.Is(CustomRoles.Marshall) || pc.Is(CustomRoles.Transporter) || pc.Is(CustomRoles.Guardian) => false,
             CustomRoles.Egoist when pc.GetCustomRole().IsCrewmate() && !Options.CrewCanBeEgoist.GetBool() => false,
             CustomRoles.Brakar when pc.Is(CustomRoles.Dictator) => false,
+            CustomRoles.Stressed when !pc.GetCustomRole().IsCrewmate() || pc.GetCustomRole().IsTasklessCrewmate() => false,
             CustomRoles.Avanger when pc.GetCustomRole().IsImpostor() && !Options.ImpCanBeAvanger.GetBool() => false,
             CustomRoles.Ghoul when pc.GetCustomRole().IsNeutral() || pc.GetCustomRole().IsImpostor() || pc.GetCustomRole().IsTasklessCrewmate() || pc.GetCustomRole().IsTaskBasedCrewmate() => false,
             CustomRoles.Lazy when pc.GetCustomRole().IsNeutral() || pc.GetCustomRole().IsImpostor() || pc.GetCustomRole().IsTasklessCrewmate() && !Options.TasklessCrewCanBeLazy.GetBool() || pc.GetCustomRole().IsTaskBasedCrewmate() && !Options.TaskBasedCrewCanBeLazy.GetBool() => false,
@@ -1251,7 +1256,7 @@ internal static class CustomRolesHelper
             CustomRoles.Egoist when pc.GetCustomRole().IsImpostor() && !Options.ImpCanBeEgoist.GetBool() => false,
             CustomRoles.Egoist when pc.GetCustomRole().IsNeutral() || pc.Is(CustomRoles.Madmate) => false,
             CustomRoles.Damocles when pc.GetCustomRole() is CustomRoles.Bomber or CustomRoles.Nuker or CustomRoles.SerialKiller or CustomRoles.Cantankerous => false,
-            CustomRoles.Damocles when pc.Is(CustomRoles.SerialKiller) => false,
+            CustomRoles.Damocles when !pc.CanUseKillButton() => false,
             CustomRoles.Necroview when pc.Is(CustomRoles.Visionary) => false,
             CustomRoles.Ghoul when pc.Is(CustomRoles.Lazy) => false,
             CustomRoles.Ghoul when pc.Is(CustomRoles.Needy) => false,
@@ -1269,7 +1274,6 @@ internal static class CustomRolesHelper
             CustomRoles.Mare when pc.Is(CustomRoles.FireWorks) => false,
             CustomRoles.Mare when pc.Is(CustomRoles.Swooper) => false,
             CustomRoles.Mare when pc.Is(CustomRoles.Vampire) => false,
-            CustomRoles.Mare when pc.Is(CustomRoles.Sans) => false,
             CustomRoles.Torch when pc.Is(CustomRoles.Lighter) => false,
             CustomRoles.Torch when pc.Is(CustomRoles.Ignitor) => false,
             CustomRoles.Bewilder when pc.Is(CustomRoles.Lighter) => false,

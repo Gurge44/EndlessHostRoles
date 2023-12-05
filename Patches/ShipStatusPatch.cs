@@ -3,6 +3,7 @@ using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
@@ -172,8 +173,7 @@ class RepairSystemPatch
             }
         }
 
-        if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage &&
-            systemType is
+        if (systemType is
             SystemTypes.Reactor or
             SystemTypes.LifeSupp or
             SystemTypes.Comms or
@@ -181,7 +181,8 @@ class RepairSystemPatch
             SystemTypes.HeliSabotage or
             SystemTypes.Electrical)
         {
-            Damocles.OnRepairSabotage();
+            if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage) Damocles.OnRepairSabotage();
+            if (player.Is(CustomRoles.Stressed) && Stressed.countRepairSabotage) Stressed.OnRepairSabotage(player);
         }
     }
     public static void CheckAndOpenDoorsRange(ShipStatus __instance, int amount, int min, int max)

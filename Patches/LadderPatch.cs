@@ -17,7 +17,7 @@ public class FallFromLadder
         if (!Options.LadderDeath.GetBool()) return;
         var sourcePos = source.transform.position;
         var targetPos = source.Destination.transform.position;
-        
+
         if (sourcePos.y > targetPos.y)
         {
             int chance = IRandom.Instance.Next(1, 101);

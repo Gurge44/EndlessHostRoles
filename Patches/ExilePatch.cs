@@ -1,6 +1,7 @@
 using AmongUs.Data;
 using HarmonyLib;
 using System.Linq;
+using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
@@ -82,6 +83,14 @@ class ExileControllerWrapUpPatch
                 }
             }
 
+            if (role.Is(Team.Impostor) || role.Is(Team.Neutral))
+            {
+                Stressed.OnNonCrewmateEjected();
+            }
+            else
+            {
+                Stressed.OnCrewmateEjected();
+            }
             if (role.Is(Team.Impostor))
             {
                 Damocles.OnImpostorEjected();

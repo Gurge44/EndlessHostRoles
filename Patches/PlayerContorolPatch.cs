@@ -990,7 +990,7 @@ class CheckMurderPatch
             foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId).ToArray())
             {
                 var pos = target.transform.position;
-                var dis = Vector2.Distance(pos, pc.transform.position);
+                var dis = Vector2.Distance(pos, pc.Pos());
                 if (dis > Options.BodyguardProtectRadius.GetFloat()) continue;
                 if (pc.Is(CustomRoles.Bodyguard))
                 {
@@ -1181,6 +1181,8 @@ class MurderPlayerPatch
                 Twister.TwistLimit[killer.PlayerId] += Twister.TwisterAbilityUseGainWithEachKill.GetFloat();
                 break;
         }
+
+        if (target.GetTeam() is Team.Impostor or Team.Neutral) Stressed.OnNonCrewmateDead();
 
         if (killer.Is(CustomRoles.Damocles)) Damocles.OnMurder();
         else if (killer.Is(Team.Impostor)) Damocles.OnOtherImpostorMurder();
@@ -1433,7 +1435,7 @@ class ShapeshiftPatch
                             if (!tg.IsModClient())
                                 tg.KillFlash();
                             var pos = shapeshifter.transform.position;
-                            var dis = Vector2.Distance(pos, tg.transform.position);
+                            var dis = Vector2.Distance(pos, tg.Pos());
                             if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || (tg.Is(CustomRoleTypes.Impostor) && Options.ImpostorsSurviveBombs.GetBool()) || tg.inVent || tg.Is(CustomRoles.Pestilence))
                                 continue;
                             if (dis > Options.BomberRadius.GetFloat())
@@ -1473,7 +1475,7 @@ class ShapeshiftPatch
                             if (!tg.IsModClient())
                                 tg.KillFlash();
                             var pos = shapeshifter.transform.position;
-                            var dis = Vector2.Distance(pos, tg.transform.position);
+                            var dis = Vector2.Distance(pos, tg.Pos());
                             if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || tg.inVent || tg.Is(CustomRoles.Pestilence))
                                 continue;
                             if (dis > Options.NukeRadius.GetFloat())
@@ -1779,6 +1781,7 @@ class ReportDeadBodyPatch
         //====================================================================================
 
         Damocles.countRepairSabotage = false;
+        Stressed.countRepairSabotage = false;
 
         if (target == null) //ボタン
         {
@@ -1888,6 +1891,11 @@ class ReportDeadBodyPatch
         if (player.Is(CustomRoles.Damocles))
         {
             Damocles.OnReport();
+        }
+
+        if (player.Is(CustomRoles.Stressed))
+        {
+            Stressed.OnReport(player);
         }
 
         if (Options.InhibitorCDAfterMeetings.GetFloat() != Options.InhibitorCD.GetFloat() || Options.SaboteurCD.GetFloat() != Options.SaboteurCDAfterMeetings.GetFloat())
@@ -2129,9 +2137,16 @@ class FixedUpdatePatch
                 PlagueBearer.playerIdList.Remove(player.PlayerId);
             }
 
-            if (!lowLoad && Main.PlayerStates.TryGetValue(player.PlayerId, out var playerState) && playerState.SubRoles.Contains(CustomRoles.Damocles) && GameStates.IsInTask)
+            if (!lowLoad && Main.PlayerStates.TryGetValue(player.PlayerId, out var playerState) && GameStates.IsInTask)
             {
-                Damocles.Update(player);
+                if (playerState.SubRoles.Contains(CustomRoles.Damocles))
+                {
+                    Damocles.Update(player);
+                }
+                if (playerState.SubRoles.Contains(CustomRoles.Stressed))
+                {
+                    Stressed.Update(player);
+                }
             }
 
             if (!lowLoad && Options.UsePets.GetBool() && GameStates.IsInTask)
@@ -2998,7 +3013,7 @@ class FixedUpdatePatch
                         offset += 0.15f;
                         target.cosmetics.nameText.text += "\r\n" + Suffix.ToString();
                     }
-                    else if (isProgressTextLong)
+                    if (isProgressTextLong)
                     {
                         offset += 0.3f;
                     }
@@ -3013,7 +3028,6 @@ class FixedUpdatePatch
         }
         return Task.CompletedTask;
     }
-    //FIXME: 役職クラス化のタイミングで、このメソッドは移動予定
     public static void LoversSuicide(byte deathId = 0x7f, bool isExiled = false)
     {
         if (Main.LoversPlayers.Count == 0) return;

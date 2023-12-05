@@ -304,7 +304,7 @@ public static class GuessManager
                 }
 
 
-                if (role == CustomRoles.Glow || role == CustomRoles.LastImpostor || role == CustomRoles.Mare)
+                if (role == CustomRoles.Glow || role == CustomRoles.LastImpostor)
                 {
                     if (!isUI) Utils.SendMessage(GetString("GuessObviousAddon"), pc.PlayerId);
                     else pc.ShowPopUp(GetString("GuessObviousAddon"));

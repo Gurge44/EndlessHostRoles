@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TOHE.Modules;
+using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
@@ -558,6 +559,8 @@ public class TaskState
                 }
             }
 
+            if (player.Is(CustomRoles.Stressed)) Stressed.OnTaskComplete(player);
+
             Merchant.OnTaskFinished(player);
             if (player.Is(CustomRoles.Ignitor) && player.IsAlive()) Ignitor.OnCompleteTask(player);
             if (player.Is(CustomRoles.Ignitor) && (CompletedTasksCount + 1) >= AllTasksCount && player.IsAlive()) Ignitor.OnTasksFinished(player);
@@ -645,7 +648,7 @@ public static class GameStates
 {
     public static bool InGame;
     public static bool AlreadyDied;
-    public static bool IsModHost => PlayerControl.AllPlayerControls.ToArray().FirstOrDefault(x => x.PlayerId == 0 && x.IsModClient());
+    public static bool IsModHost => PlayerControl.AllPlayerControls.ToArray().Any(x => x.PlayerId == 0 && x.IsModClient());
     public static bool IsLobby => AmongUsClient.Instance.GameState == InnerNet.InnerNetClient.GameStates.Joined;
     public static bool IsInGame => InGame;
     public static bool IsEnded => AmongUsClient.Instance.GameState == InnerNet.InnerNetClient.GameStates.Ended;

@@ -843,11 +843,10 @@ static class ExtendedPlayerControl
             CustomRoles.Magician => true,
             CustomRoles.WeaponMaster => true,
 
-
             _ => pc.Is(CustomRoleTypes.Impostor),
         };
     }
-    public static Vector2 Pos(this PlayerControl pc) => pc.Pos();
+    public static Vector2 Pos(this PlayerControl pc) => new(pc.transform.position.x, pc.transform.position.y);
     public static bool IsDousedPlayer(this PlayerControl arsonist, PlayerControl target)
     {
         if (arsonist == null || target == null || Main.isDoused == null) return false;

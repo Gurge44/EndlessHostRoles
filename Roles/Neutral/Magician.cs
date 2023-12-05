@@ -125,7 +125,7 @@ public static class Magician
         {
             case 1: // Slowness for everyone nearby
                 if (TempSpeeds.Any()) RevertSpeedChanges(true);
-                var list = GetPlayersInRadius(SlownessRadius.GetFloat(), pc.transform.position).ToArray();
+                var list = GetPlayersInRadius(SlownessRadius.GetFloat(), pc.Pos()).ToArray();
                 foreach (var x in list)
                 {
                     if (x.PlayerId == pc.PlayerId || x == null) continue;
@@ -148,7 +148,7 @@ public static class Magician
                 break;
             case 4: // Create Rift Maker portal
                 if (PortalMarks.Count == 2) PortalMarks.Clear();
-                PortalMarks.Add(pc.transform.position);
+                PortalMarks.Add(pc.Pos());
                 if (PortalMarks.Count == 2) CardId = byte.MaxValue;
                 break;
             case 5: // Snipe
@@ -196,7 +196,7 @@ public static class Magician
                 }
                 break;
             case 6: // Blind everyone nearby
-                var players = GetPlayersInRadius(BlindRadius.GetFloat(), pc.transform.position).ToArray();
+                var players = GetPlayersInRadius(BlindRadius.GetFloat(), pc.Pos()).ToArray();
                 foreach (PlayerControl x in players)
                 {
                     if (x.PlayerId == pc.PlayerId || x == null) continue;
@@ -208,7 +208,7 @@ public static class Magician
                 pc.Notify(GetString("MagicianCardUsed"));
                 break;
             case 7: // Time bomb: Place, explodes after x seconds, kills everyone nearby
-                Bombs.TryAdd(pc.transform.position, GetTimeStamp());
+                Bombs.TryAdd(pc.Pos(), GetTimeStamp());
                 CardId = byte.MaxValue;
                 pc.Notify(GetString("MagicianCardUsed"));
                 break;
@@ -258,7 +258,7 @@ public static class Magician
             }
             else
             {
-                Vector2 position = pc.transform.position;
+                Vector2 position = pc.Pos();
 
                 bool isTP = false;
                 Vector2 from = PortalMarks[0];

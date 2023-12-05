@@ -1,6 +1,5 @@
 ﻿using Hazel;
 using System.Collections.Generic;
-using System.Linq;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
