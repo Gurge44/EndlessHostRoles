@@ -682,8 +682,7 @@ class MeetingHudStartPatch
 
         List<(string MESSAGE, byte TARGET_ID, string TITLE)> msgToSend = [];
 
-        void AddMsg(string text, byte sendTo = 255, string title = "")
-            => msgToSend.Add((text, sendTo, title));
+        void AddMsg(string text, byte sendTo = 255, string title = "") => msgToSend.Add((text, sendTo, title));
 
         ChatManager.SendPreviousMessagesToAll(); // To fix chatting during the ejection screen
 

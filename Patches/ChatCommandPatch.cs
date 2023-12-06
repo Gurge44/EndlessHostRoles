@@ -771,13 +771,16 @@ internal class ChatCommands
                 if (Options.CustomRoleSpawnChances.ContainsKey(rl))
                 {
                     settings.AppendLine($"<size=70%><u>Settings for {roleName}:</u>");
-                    Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[rl], ref settings);
+                    Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[rl], ref settings, disableColor: false);
                     settings.Append("</size>");
                     var txt = $"<size=90%>{sb}</size>";
                     _ = sb.Clear().Append(txt);
                 }
-                Utils.SendMessage(text: "\n", sendTo: playerId, title: settings.ToString());
-                Utils.SendMessage(text: sb.ToString(), sendTo: playerId);
+                _ = new LateTask(() =>
+                {
+                    Utils.SendMessage(text: "\n", sendTo: playerId, title: settings.ToString());
+                    Utils.SendMessage(text: sb.ToString(), sendTo: playerId);
+                }, 0.5f, log: false);
                 return;
             }
         }

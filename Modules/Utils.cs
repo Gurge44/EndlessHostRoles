@@ -1259,7 +1259,7 @@ public static class Utils
             var text = sb.ToString();
             sb.Clear().Append(text.RemoveHtmlTags());
         }
-        foreach (var opt in OptionItem.AllOptions.Where(x => x.GetBool() && x.Parent == null && x.Id >= 80000 && !x.IsHiddenOn(Options.CurrentGameMode)))
+        foreach (var opt in OptionItem.AllOptions.Where(x => x.GetBool() && x.Parent == null && x.Id is >= 80000 and < 640000 && !x.IsHiddenOn(Options.CurrentGameMode)))
         {
             if (opt.Name is "KillFlashDuration" or "RoleAssigningAlgorithm")
                 sb.Append($"\n【{opt.GetName(true)}: {opt.GetString()}】\n");
@@ -1291,7 +1291,7 @@ public static class Utils
             sb.Clear().Append(text.RemoveHtmlTags());
         }
         sb.Append($"━━━━━━━━━━━━【{GetString("Settings")}】━━━━━━━━━━━━");
-        foreach (var opt in OptionItem.AllOptions.Where(x => x.GetBool() && x.Parent == null && x.Id >= 80000 && !x.IsHiddenOn(Options.CurrentGameMode)))
+        foreach (var opt in OptionItem.AllOptions.Where(x => x.GetBool() && x.Parent == null && x.Id is >= 80000 and < 640000 && !x.IsHiddenOn(Options.CurrentGameMode)))
         {
             if (opt.Name == "KillFlashDuration")
                 sb.Append($"\n【{opt.GetName(true)}: {opt.GetString()}】\n");
@@ -1354,7 +1354,7 @@ public static class Utils
         //foreach (string roleList in sb.ToString().Split("\n\n●"))
         //    SendMessage("\n\n●" + roleList + "\n\n.", PlayerId);
     }
-    public static void ShowChildrenSettings(OptionItem option, ref StringBuilder sb, int deep = 0, bool command = false)
+    public static void ShowChildrenSettings(OptionItem option, ref StringBuilder sb, int deep = 0, bool command = false, bool disableColor = true)
     {
         foreach (var opt in option.Children.Select((v, i) => new { Value = v, Index = i + 1 }))
         {
@@ -1381,9 +1381,9 @@ public static class Utils
                 sb.Append(opt.Index == option.Children.Count ? "┗ " : "┣ ");
             }
             var value = opt.Value.GetString().Replace("ON", "<#00ffa5>ON</color>").Replace("OFF", "<#ff0000>OFF</color>");
-            string name = $"{opt.Value.GetName(disableColor: true).Replace("color=", string.Empty)}</color>";
+            string name = $"{opt.Value.GetName(disableColor: disableColor).Replace("color=", string.Empty)}</color>";
             sb.Append($"{name}: <#ffff00>{value}</color>\n");
-            if (opt.Value.GetBool()) ShowChildrenSettings(opt.Value, ref sb, deep + 1);
+            if (opt.Value.GetBool()) ShowChildrenSettings(opt.Value, ref sb, deep + 1, disableColor: disableColor);
         }
     }
     public static void ShowLastRoles(byte PlayerId = byte.MaxValue)
@@ -1396,13 +1396,13 @@ public static class Utils
 
         var sb = new StringBuilder();
 
-        sb.Append("<color=#ffffff><u>Role Summary:</u></color><size=70%>");
+        sb.Append("<#ffffff><u>Role Summary:</u></color><size=70%>");
 
         List<byte> cloneRoles = new(Main.PlayerStates.Keys);
         foreach (byte id in Main.winnerList.ToArray())
         {
             if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
-            sb.Append($"\n<color=#c4aa02>★</color> ").Append(EndGamePatch.SummaryText[id]/*.RemoveHtmlTags()*/);
+            sb.Append($"\n<#c4aa02>★</color> ").Append(EndGamePatch.SummaryText[id]/*.RemoveHtmlTags()*/);
             cloneRoles.Remove(id);
         }
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
@@ -2678,7 +2678,7 @@ public static class Utils
 
         if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer.Is(CustomRoles.GM))
         {
-            _ = new LateTask(() => { PlayerControl.LocalPlayer.TP(new(15.5f, 0.0f)); }, 2f, "GM Auto-TP Failsafe"); // TP to Main Hall
+            _ = new LateTask(() => { PlayerControl.LocalPlayer.TP(new(15.5f, 0.0f)); }, 11f, "GM Auto-TP Failsafe"); // TP to Main Hall
         }
     }
     public static void AfterPlayerDeathTasks(PlayerControl target, bool onMeeting = false)
@@ -2783,13 +2783,15 @@ public static class Utils
     }
     public static string GetVoteName(byte num)
     {
-        string name = "invalid";
         var player = GetPlayerById(num);
-        if (num < 15 && player != null) name = player?.GetNameWithRole().RemoveHtmlTags();
-        if (num == 253) name = "Skip";
-        if (num == 254) name = "None";
-        if (num == 255) name = "Dead";
-        return name;
+        return num switch
+        {
+            < 15 when player != null => player?.GetNameWithRole().RemoveHtmlTags(),
+            253 => "Skip",
+            254 => "None",
+            255 => "Dead",
+            _ => "invalid",
+        };
     }
     public static string PadRightV2(this object text, int num)
     {

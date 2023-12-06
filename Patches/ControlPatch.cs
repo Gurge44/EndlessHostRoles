@@ -47,7 +47,7 @@ internal class ControllerManagerUpdatePatch
                 var sb = new StringBuilder();
                 sb.Append(GetString(role.ToString()) + Utils.GetRoleMode(role) + lp.GetRoleInfo(true));
                 if (Options.CustomRoleSpawnChances.TryGetValue(role, out var opt))
-                    Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[role], ref sb, command: true);
+                    Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[role], ref sb, command: true, disableColor: false);
                 HudManager.Instance.ShowPopUp(sb.ToString());
             }
             catch (Exception ex)
