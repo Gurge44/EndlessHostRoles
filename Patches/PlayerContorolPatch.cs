@@ -2916,7 +2916,7 @@ class FixedUpdatePatch
                     }
                 }
 
-                // If the arrow option is available, the snitch will be able to see the direction of the imposter/killable neutral after completing the task.
+                // If the arrow option is available, the snitch will be able to see the direction of the impostor/killable neutral after completing the task.
                 if (Snitch.IsEnable) Suffix.Append(Snitch.GetSnitchArrow(seer, target));
                 if (BountyHunter.IsEnable) Suffix.Append(BountyHunter.GetTargetArrow(seer, target));
                 if (Mortician.IsEnable) Suffix.Append(Mortician.GetTargetArrow(seer, target));
