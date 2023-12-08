@@ -270,6 +270,8 @@ internal static class CustomRolesHelper
             CustomRoles.KB_Normal => RoleTypes.Impostor,
             //FFA
             CustomRoles.Killer => RoleTypes.Impostor,
+            //Move And Stop
+            CustomRoles.Tasker => RoleTypes.Crewmate,
             //Standard
             CustomRoles.Sheriff => RoleTypes.Impostor,
             CustomRoles.Crusader => RoleTypes.Impostor,
@@ -794,6 +796,8 @@ internal static class CustomRolesHelper
             CustomRoles.KB_Normal or
             //FFA
             CustomRoles.Killer or
+            //Move And Stop
+            CustomRoles.Tasker or
             //Standard
             CustomRoles.Jester or
             CustomRoles.Doppelganger or
@@ -944,6 +948,8 @@ internal static class CustomRolesHelper
             CustomRoles.KB_Normal or
             //FFA
             CustomRoles.Killer or
+            //Move And Stop
+            CustomRoles.Tasker or
             //Standard
             CustomRoles.Jester or
             CustomRoles.Agitater or

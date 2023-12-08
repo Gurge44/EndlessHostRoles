@@ -153,7 +153,7 @@ class ExileControllerWrapUpPatch
 
             pc.RpcResetAbilityCooldown();
         }
-        if (Options.RandomSpawn.GetBool() || Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA)
+        if (Options.RandomSpawn.GetBool() || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop)
         {
             RandomSpawn.SpawnMap map;
             switch (Main.NormalOptions.MapId)

@@ -19,6 +19,7 @@ public enum CustomGameMode
     Standard = 0x01,
     SoloKombat = 0x02,
     FFA = 0x03,
+    MoveAndStop = 0x04,
     All = int.MaxValue
 }
 
@@ -58,6 +59,7 @@ public static class Options
         {
             1 => CustomGameMode.SoloKombat,
             2 => CustomGameMode.FFA,
+            3 => CustomGameMode.MoveAndStop,
             _ => CustomGameMode.Standard
         };
 
@@ -65,7 +67,8 @@ public static class Options
     [
         "Standard",
         "SoloKombat",
-        "FFA"
+        "FFA",
+        "MoveAndStop"
     ];
 
     // MapActive
@@ -2736,6 +2739,8 @@ public static class Options
         SoloKombatManager.SetupCustomOption();
         //FFA
         FFAManager.SetupCustomOption();
+        //Move And Stop
+        MoveAndStopManager.SetupCustomOption();
 
 
         LoadingPercentage = 65;

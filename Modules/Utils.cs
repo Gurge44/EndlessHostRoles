@@ -486,7 +486,12 @@ public static class Utils
         if (p.Disconnected) return false;
         if (p.Role.IsImpostor)
             hasTasks = false; //タスクはCustomRoleを元に判定する
-        if (Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA) return false;
+        switch (Options.CurrentGameMode)
+        {
+            case CustomGameMode.SoloKombat: return false;
+            case CustomGameMode.FFA: return false;
+            case CustomGameMode.MoveAndStop: return true;
+        }
         //if (p.IsDead && Options.GhostIgnoreTasks.GetBool()) hasTasks = false;
         var role = States.MainRole;
         switch (role)
@@ -651,7 +656,7 @@ public static class Utils
     public static bool IsRoleTextEnabled(PlayerControl __instance)
     {
         bool result = false;
-        if (__instance.AmOwner || Options.CurrentGameMode == CustomGameMode.FFA || Options.CurrentGameMode == CustomGameMode.SoloKombat) result = true; //自分ならロールを表示
+        if (__instance.AmOwner || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop) result = true; //自分ならロールを表示
         if (Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool()) result = true; //他プレイヤーでVisibleTasksCountが有効なおかつ自分が死んでいるならロールを表示
         if (PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) result = true; //他プレイヤーでVisibleTasksCountが有効なおかつ自分が死んでいるならロールを表示
                                                                                                                                                                           //if (__instance.GetCustomRole() == (CustomRoles.Ntr) && Options.LoverKnowRoles.GetBool()) result = true;
@@ -1403,44 +1408,52 @@ public static class Utils
             sb.Append($"\n<#c4aa02>★</color> ").Append(EndGamePatch.SummaryText[id]/*.RemoveHtmlTags()*/);
             cloneRoles.Remove(id);
         }
-        if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
+        switch (Options.CurrentGameMode)
         {
-            List<(int, byte)> list = [];
-            foreach (byte id in cloneRoles.ToArray())
-            {
-                list.Add((SoloKombatManager.GetRankOfScore(id), id));
-            }
-
-            list.Sort();
-
-            foreach ((int, byte) id in list.ToArray())
-            {
-                sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id.Item2]);
-            }
-        }
-        else if (Options.CurrentGameMode == CustomGameMode.FFA)
-        {
-            List<(int, byte)> list = [];
-            foreach (byte id in cloneRoles.ToArray())
-            {
-                list.Add((FFAManager.GetRankOfScore(id), id));
-            }
-
-            list.Sort();
-
-            foreach ((int, byte) id in list.ToArray())
-            {
-                sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id.Item2]);
-            }
-        }
-        else
-        {
-            foreach (byte id in cloneRoles.ToArray())
-            {
-                if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>"))
-                    continue;
-                sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id]);
-            }
+            case CustomGameMode.SoloKombat:
+                List<(int, byte)> list = [];
+                foreach (byte id in cloneRoles.ToArray())
+                {
+                    list.Add((SoloKombatManager.GetRankOfScore(id), id));
+                }
+                list.Sort();
+                foreach ((int, byte) id in list.ToArray())
+                {
+                    sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id.Item2]);
+                }
+                break;
+            case CustomGameMode.FFA:
+                List<(int, byte)> list2 = [];
+                foreach (byte id in cloneRoles.ToArray())
+                {
+                    list2.Add((FFAManager.GetRankOfScore(id), id));
+                }
+                list2.Sort();
+                foreach ((int, byte) id in list2.ToArray())
+                {
+                    sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id.Item2]);
+                }
+                break;
+            case CustomGameMode.MoveAndStop:
+                List<(int, byte)> list3 = [];
+                foreach (byte id in cloneRoles.ToArray())
+                {
+                    list3.Add((MoveAndStopManager.GetRankOfScore(id), id));
+                }
+                list3.Sort();
+                foreach ((int, byte) id in list3.ToArray())
+                {
+                    sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id.Item2]);
+                }
+                break;
+            default:
+                foreach (byte id in cloneRoles.ToArray())
+                {
+                    if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>"))
+                        continue;
+                    sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id]);
+                }
+                break;
         }
         sb.Append("</size>");
 
@@ -1465,7 +1478,7 @@ public static class Utils
         var sb = new StringBuilder();
         if (SetEverythingUpPatch.LastWinsText != string.Empty) sb.Append($"<size=90%>{GetString("LastResult")} {SetEverythingUpPatch.LastWinsText}</size>");
         if (SetEverythingUpPatch.LastWinsReason != string.Empty) sb.Append($"\n<size=90%>{GetString("LastEndReason")} {SetEverythingUpPatch.LastWinsReason}</size>");
-        if (sb.Length > 0 && Options.CurrentGameMode != CustomGameMode.SoloKombat && Options.CurrentGameMode != CustomGameMode.FFA) SendMessage("\n", PlayerId, sb.ToString());
+        if (sb.Length > 0 && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop) SendMessage("\n", PlayerId, sb.ToString());
     }
     public static string EmptyMessage() => "<size=0>.</size>";
     public static string GetSubRolesText(byte id, bool disableColor = false, bool intro = false, bool summary = false)
@@ -1827,10 +1840,18 @@ public static class Utils
 
                 //name = $"<color=#902efd>{GetString("HostText")}</color><color=#4bf4ff>♥</color>" + name;
 
-                if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
-                    name = $"<color=#f55252><size=1.7>{GetString("ModeSoloKombat")}</size></color>\r\n" + name;
-                if (Options.CurrentGameMode == CustomGameMode.FFA)
-                    name = $"<color=#00ffff><size=1.7>{GetString("ModeFFA")}</size></color>\r\n" + name;
+                switch (Options.CurrentGameMode)
+                {
+                    case CustomGameMode.SoloKombat:
+                        name = $"<color=#f55252><size=1.7>{GetString("ModeSoloKombat")}</size></color>\r\n" + name;
+                        break;
+                    case CustomGameMode.FFA:
+                        name = $"<color=#00ffff><size=1.7>{GetString("ModeFFA")}</size></color>\r\n" + name;
+                        break;
+                    case CustomGameMode.MoveAndStop:
+                        name = $"<color=#00ffa5><size=1.7>{GetString("ModeMoveAndStop")}</size></color>\r\n" + name;
+                        break;
+                }
             }
             if (!name.Contains('\r') && player.FriendCode.GetDevUser().HasTag())
                 name = player.FriendCode.GetDevUser().GetTag() + name;
@@ -2120,11 +2141,14 @@ public static class Utils
                     case CustomGameMode.SoloKombat:
                         SelfSuffix.Append(SoloKombatManager.GetDisplayHealth(seer));
                         break;
+                    case CustomGameMode.MoveAndStop:
+                        SelfSuffix.Append(MoveAndStopManager.GetSuffixText(seer));
+                        break;
                 }
 
                 string SeerRealName = seer.GetRealName(isForMeeting);
 
-                if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode != CustomGameMode.FFA)
+                if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop)
                 {
                     if (seer.GetCustomRole().IsCrewmate() && !seer.Is(CustomRoles.Madmate))
                     {
@@ -2194,6 +2218,10 @@ public static class Utils
                         break;
                     case CustomGameMode.FFA:
                         FFAManager.GetNameNotify(seer, ref SelfName);
+                        SelfName = $"<size={fontSize}>{SelfTaskText}</size>\r\n{SelfName}";
+                        break;
+                    case CustomGameMode.MoveAndStop:
+                        MoveAndStopManager.GetNameNotify(seer, ref SelfName);
                         SelfName = $"<size={fontSize}>{SelfTaskText}</size>\r\n{SelfName}";
                         break;
                     default:
@@ -2323,7 +2351,7 @@ public static class Utils
                                 Amnesiac.KnowRole(seer, target) ||
                                 Infectious.KnowRole(seer, target) ||
                                 Virus.KnowRole(seer, target) ||
-                                Options.CurrentGameMode == CustomGameMode.FFA ||
+                                Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop ||
                                 (seer.IsRevealedPlayer(target) && !target.Is(CustomRoles.Trickster)) ||
                                 seer.Is(CustomRoles.God) ||
                                 target.Is(CustomRoles.GM)
@@ -2766,7 +2794,7 @@ public static class Utils
         if (sendLog)
         {
             var sb = new StringBuilder(100);
-            if (Options.CurrentGameMode != CustomGameMode.FFA)
+            if (Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop)
             {
                 foreach (var countTypes in Enum.GetValues(typeof(CountTypes)).Cast<CountTypes>())
                 {
@@ -2876,16 +2904,20 @@ public static class Utils
         }
         else { TaskCount = string.Empty; }
         string summary = $"{ColorString(Main.PlayerColors[id], name)} - {GetDisplayRoleName(id, true)}{TaskCount}{GetKillCountText(id)} ({GetVitalText(id, true)})";
-        if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
+        switch (Options.CurrentGameMode)
         {
-            if (TranslationController.Instance.currentLanguage.languageID is SupportedLangs.SChinese or SupportedLangs.TChinese)
-                summary = $"{GetProgressText(id)}\t<pos=22%>{ColorString(Main.PlayerColors[id], name)}</pos>";
-            else summary = $"{ColorString(Main.PlayerColors[id], name)}<pos=30%>{GetProgressText(id)}</pos>";
-            if (GetProgressText(id).Trim() == string.Empty) return string.Empty;
-        }
-        if (Options.CurrentGameMode == CustomGameMode.FFA)
-        {
-            summary = $"{ColorString(Main.PlayerColors[id], name)} {GetKillCountText(id, ffa: true)}";
+            case CustomGameMode.SoloKombat:
+                if (TranslationController.Instance.currentLanguage.languageID is SupportedLangs.SChinese or SupportedLangs.TChinese)
+                    summary = $"{GetProgressText(id)}\t<pos=22%>{ColorString(Main.PlayerColors[id], name)}</pos>";
+                else summary = $"{ColorString(Main.PlayerColors[id], name)}<pos=30%>{GetProgressText(id)}</pos>";
+                if (GetProgressText(id).Trim() == string.Empty) return string.Empty;
+                break;
+            case CustomGameMode.FFA:
+                summary = $"{ColorString(Main.PlayerColors[id], name)} {GetKillCountText(id, ffa: true)}";
+                break;
+            case CustomGameMode.MoveAndStop:
+                summary = $"{ColorString(Main.PlayerColors[id], name)} {GetVitalText(id, true)}";
+                break;
         }
         return check && GetDisplayRoleName(id, true).RemoveHtmlTags().Contains("INVALID:NotAssigned")
             ? "INVALID"

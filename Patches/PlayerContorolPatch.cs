@@ -115,7 +115,7 @@ class CheckMurderPatch
             return false;
         }
 
-        var divice = Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA ? 3000f : 2000f;
+        var divice = Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop ? 3000f : 2000f;
         float minTime = Mathf.Max(0.02f, AmongUsClient.Instance.Ping / divice * 6f); // The value of AmongUsClient.Instance.Ping is in milliseconds (ms), so ÷1000
         // No value is stored in TimeSinceLastKill || Stored time is greater than or equal to minTime => Allow kill
         // ↓ If not allowed
@@ -162,16 +162,16 @@ class CheckMurderPatch
             return false;
         }
 
-        if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
+        switch (Options.CurrentGameMode)
         {
-            SoloKombatManager.OnPlayerAttack(killer, target);
-            return false;
-        }
-
-        if (Options.CurrentGameMode == CustomGameMode.FFA)
-        {
-            FFAManager.OnPlayerAttack(killer, target);
-            return true;
+            case CustomGameMode.SoloKombat:
+                SoloKombatManager.OnPlayerAttack(killer, target);
+                return false;
+            case CustomGameMode.FFA:
+                FFAManager.OnPlayerAttack(killer, target);
+                return true;
+            case CustomGameMode.MoveAndStop:
+                return false;
         }
 
         if (Mastermind.ManipulatedPlayers.ContainsKey(killer.PlayerId))
@@ -1582,7 +1582,7 @@ class ReportDeadBodyPatch
     {
         if (GameStates.IsMeeting) return false;
         if (Options.DisableMeeting.GetBool()) return false;
-        if (Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA) return false;
+        if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop) return false;
         if (!CanReport[__instance.PlayerId])
         {
             WaitReport[__instance.PlayerId].Add(target);
@@ -2664,7 +2664,7 @@ class FixedUpdatePatch
                 RoleText.text = RoleTextData.Item1;
                 RoleText.color = RoleTextData.Item2;
 
-                if (Options.CurrentGameMode == CustomGameMode.FFA || Options.CurrentGameMode == CustomGameMode.SoloKombat) RoleText.text = string.Empty;
+                if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop) RoleText.text = string.Empty;
 
                 RoleText.enabled = IsRoleTextEnabled(__instance);
 
@@ -2717,10 +2717,18 @@ class FixedUpdatePatch
                     if (Pelican.IsEaten(seer.PlayerId))
                         RealName = ColorString(GetRoleColor(CustomRoles.Pelican), GetString("EatenByPelican"));
 
-                    if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
-                        SoloKombatManager.GetNameNotify(target, ref RealName);
-                    else if (Options.CurrentGameMode == CustomGameMode.FFA)
-                        FFAManager.GetNameNotify(target, ref RealName);
+                    switch (Options.CurrentGameMode)
+                    {
+                        case CustomGameMode.SoloKombat:
+                            SoloKombatManager.GetNameNotify(target, ref RealName);
+                            break;
+                        case CustomGameMode.FFA:
+                            FFAManager.GetNameNotify(target, ref RealName);
+                            break;
+                        case CustomGameMode.MoveAndStop:
+                            MoveAndStopManager.GetNameNotify(target, ref RealName);
+                            break;
+                    }
                     if (Deathpact.IsInActiveDeathpact(seer))
                         RealName = Deathpact.GetDeathpactString(seer);
                     if (NameNotifyManager.GetNameNotify(target, out var name))
@@ -2943,7 +2951,15 @@ class FixedUpdatePatch
 
                 if (Spiritualist.IsEnable) Suffix.Append(Spiritualist.GetSpiritualistArrow(seer, target));
 
-                if (Options.CurrentGameMode == CustomGameMode.FFA) Suffix.Append(FFAManager.GetPlayerArrow(seer, target));
+                switch (Options.CurrentGameMode)
+                {
+                    case CustomGameMode.FFA:
+                        Suffix.Append(FFAManager.GetPlayerArrow(seer, target));
+                        break;
+                    case CustomGameMode.MoveAndStop:
+                        Suffix.Append(MoveAndStopManager.GetPlayerArrow(seer, target));
+                        break;
+                }
 
                 if (Vulture.ArrowsPointingToDeadBody.GetBool() && Vulture.IsEnable)
                     Suffix.Append(Vulture.GetTargetArrow(seer, target));
@@ -3359,6 +3375,14 @@ class CoEnterVentPatch
             _ = new LateTask(() =>
             {
                 __instance.myPlayer?.Notify(GetString("FFA-NoVentingBecauseKCDIsUP"), 7f);
+                __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id);
+            }, 0.5f);
+            return true;
+        }
+        if (Options.CurrentGameMode == CustomGameMode.MoveAndStop)
+        {
+            _ = new LateTask(() =>
+            {
                 __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id);
             }, 0.5f);
             return true;

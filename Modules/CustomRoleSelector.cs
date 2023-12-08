@@ -57,25 +57,29 @@ internal class CustomRoleSelector
 
         List<CustomRoles> roleRateList = [];
 
-        if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
+        switch (Options.CurrentGameMode)
         {
-            RoleResult = [];
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-            {
-                RoleResult.Add(pc, CustomRoles.KB_Normal);
-            }
-
-            return;
-        }
-        if (Options.CurrentGameMode == CustomGameMode.FFA)
-        {
-            RoleResult = [];
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-            {
-                RoleResult.Add(pc, CustomRoles.Killer);
-            }
-
-            return;
+            case CustomGameMode.SoloKombat:
+                RoleResult = [];
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                {
+                    RoleResult.Add(pc, CustomRoles.KB_Normal);
+                }
+                return;
+            case CustomGameMode.FFA:
+                RoleResult = [];
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                {
+                    RoleResult.Add(pc, CustomRoles.Killer);
+                }
+                return;
+            case CustomGameMode.MoveAndStop:
+                RoleResult = [];
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                {
+                    RoleResult.Add(pc, CustomRoles.Tasker);
+                }
+                break;
         }
 
         System.Collections.IList list = Enum.GetValues(typeof(CustomRoles));
@@ -348,7 +352,7 @@ internal class CustomRoleSelector
     public static List<CustomRoles> AddonRolesList = [];
     public static void SelectAddonRoles()
     {
-        if (Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA) return;
+        if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop) return;
 
         AddonRolesList = [];
         System.Collections.IList list = Enum.GetValues(typeof(CustomRoles));

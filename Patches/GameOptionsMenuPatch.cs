@@ -359,14 +359,28 @@ public static class SetRecommendationsPatch
         __instance.roleOptions.SetRoleRecommended(RoleTypes.GuardianAngel);
         __instance.roleOptions.SetRoleRecommended(RoleTypes.Engineer);
 
-        if (Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA) //SoloKombat & FFA
+        switch (Options.CurrentGameMode)
         {
-            __instance.CrewLightMod = __instance.ImpostorLightMod = 1.25f;
-            __instance.NumImpostors = 3;
-            __instance.NumCommonTasks = 0;
-            __instance.NumLongTasks = 0;
-            __instance.NumShortTasks = 0;
-            __instance.KillCooldown = 0f;
+            case CustomGameMode.SoloKombat:
+            case CustomGameMode.FFA:
+                __instance.CrewLightMod = __instance.ImpostorLightMod = 1.25f;
+                __instance.NumImpostors = 3;
+                __instance.NumCommonTasks = 0;
+                __instance.NumLongTasks = 0;
+                __instance.NumShortTasks = 0;
+                __instance.KillCooldown = 0f;
+                __instance.NumEmergencyMeetings = 0;
+                break;
+            case CustomGameMode.MoveAndStop:
+                __instance.CrewLightMod = 1.25f;
+                __instance.ImpostorLightMod = 1.25f;
+                __instance.KillCooldown = 60f;
+                __instance.NumCommonTasks = 2;
+                __instance.NumLongTasks = 3;
+                __instance.NumShortTasks = 5;
+                __instance.NumEmergencyMeetings = 0;
+                __instance.VisualTasks = true;
+                break;
         }
         return false;
     }

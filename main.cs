@@ -568,7 +568,9 @@ public class Main : BasePlugin
                 //SoloKombat
                 {CustomRoles.KB_Normal, "#f55252"},
                 //FFA
-                {CustomRoles.Killer, "#00ffff"}
+                {CustomRoles.Killer, "#00ffff"},
+                //Move And Stop
+                {CustomRoles.Tasker, "#00ffa5"}
             };
             foreach (var role in Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>())
             {
@@ -893,6 +895,7 @@ public enum CustomRoles
     KB_Normal,
     //FFA
     Killer,
+    Tasker,
 
     //GM
     GM,

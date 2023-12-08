@@ -31,7 +31,7 @@ class GameEndChecker
         predicate.CheckForEndGame(out reason);
 
         // SoloKombat
-        if (Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA)
+        if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop)
         {
             if (CustomWinnerHolder.WinnerIds.Any() || CustomWinnerHolder.WinnerTeam != CustomWinner.Default)
             {
@@ -381,6 +381,7 @@ class GameEndChecker
     public static void SetPredicateToNormal() => predicate = new NormalGameEndPredicate();
     public static void SetPredicateToSoloKombat() => predicate = new SoloKombatGameEndPredicate();
     public static void SetPredicateToFFA() => predicate = new FFAGameEndPredicate();
+    public static void SetPredicateToMoveAndStop() => predicate = new MoveAndStopGameEndPredicate();
 
     // ===== ゲーム終了条件 =====
     // 通常ゲーム用
@@ -613,6 +614,63 @@ class GameEndChecker
             {
                 FFAManager.RoundTime = 0;
                 Logger.Warn("No players alive. Force ending the game", "FFA");
+                return false;
+            }
+            else return false;
+        }
+    }
+    class MoveAndStopGameEndPredicate : GameEndPredicate
+    {
+        public override bool CheckForEndGame(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorByKill;
+            if (CustomWinnerHolder.WinnerIds.Any()) return false;
+            if (CheckGameEndByLivingPlayers(out reason)) return true;
+            return false;
+        }
+
+        public static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorByKill;
+
+            if (MoveAndStopManager.RoundTime <= 0)
+            {
+                var winner = Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => MoveAndStopManager.GetRankOfScore(x.PlayerId)).First();
+
+                byte winnerId;
+                if (winner == null) winnerId = 0;
+                else winnerId = winner.PlayerId;
+
+                Logger.Warn($"Winner: {GetPlayerById(winnerId).GetRealName().RemoveHtmlTags()}", "MoveAndStop");
+
+                CustomWinnerHolder.WinnerIds =
+                [
+                    winnerId
+                ];
+
+                Main.DoBlockNameChange = true;
+
+                return true;
+            }
+            else if (Main.AllAlivePlayerControls.Any(x => x.GetPlayerTaskState().IsTaskFinished))
+            {
+                var winner = Main.AllAlivePlayerControls.FirstOrDefault(x => x.GetPlayerTaskState().IsTaskFinished);
+
+                Logger.Info($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "MoveAndStop");
+
+                CustomWinnerHolder.WinnerIds =
+                [
+                    winner.PlayerId
+                ];
+
+                Main.DoBlockNameChange = true;
+
+                return true;
+            }
+            else if (Main.AllAlivePlayerControls.Length == 0)
+            {
+                FFAManager.RoundTime = 0;
+                Logger.Warn("No players alive. Force ending the game", "MoveAndStop");
                 return false;
             }
             else return false;

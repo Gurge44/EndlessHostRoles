@@ -493,7 +493,7 @@ internal class SelectRolesPatch
             }
 
             // 个人竞技模式用
-            if (Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA)
+            if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop)
             {
                 foreach (var pair in Main.PlayerStates)
                     ExtendedPlayerControl.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
@@ -1067,6 +1067,9 @@ internal class SelectRolesPatch
                     break;
                 case CustomGameMode.FFA:
                     GameEndChecker.SetPredicateToFFA();
+                    break;
+                case CustomGameMode.MoveAndStop:
+                    GameEndChecker.SetPredicateToMoveAndStop();
                     break;
             }
 

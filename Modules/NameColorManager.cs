@@ -193,7 +193,7 @@ public static class NameColorManager
         if (color != "") return true;
         else return seer == target
             || (Main.GodMode.Value && seer.AmOwner)
-            || (Options.CurrentGameMode == CustomGameMode.FFA)
+            || (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop)
             || (Main.PlayerStates[seer.Data.PlayerId].IsDead && seer.Data.IsDead && !seer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool())
             || (seer.Is(CustomRoles.Mimic) && Main.PlayerStates[target.Data.PlayerId].IsDead && target.Data.IsDead && !target.IsAlive() && Options.MimicCanSeeDeadRoles.GetBool())
             || target.Is(CustomRoles.GM)

@@ -395,7 +395,7 @@ static class ExtendedPlayerControl
     }
     public static string GetNameWithRole(this PlayerControl player, bool forUser = false)
     {
-        return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode != CustomGameMode.FFA ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
+        return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
     }
     public static string GetRoleColorCode(this PlayerControl player)
     {
@@ -580,6 +580,8 @@ static class ExtendedPlayerControl
             CustomRoles.KB_Normal => pc.SoloAlive(),
             //FFA
             CustomRoles.Killer => pc.IsAlive(),
+            //Move And Stop
+            CustomRoles.Tasker => false,
             //Standard
             CustomRoles.FireWorks => FireWorks.CanUseKillButton(pc),
             CustomRoles.Mafia => Utils.CanMafiaKill(),
@@ -765,6 +767,8 @@ static class ExtendedPlayerControl
             CustomRoles.KB_Normal => true,
             //FFA
             CustomRoles.Killer => true,
+            //Move And Stop
+            CustomRoles.Tasker => false,
 
             _ => pc.Is(CustomRoleTypes.Impostor),
         };
