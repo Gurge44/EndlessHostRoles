@@ -111,6 +111,7 @@ class SetEverythingUpPatch
 
         try
         {
+            if (Options.CurrentGameMode is not CustomGameMode.Standard) goto End;
             int num = Mathf.CeilToInt(7.5f);
             List<WinningPlayerData> winningPlayerDataList = TempData.winners.ToArray().ToList();
             for (int i = 0; i < winningPlayerDataList.Count; i++)
@@ -160,6 +161,8 @@ class SetEverythingUpPatch
         {
             Logger.Error(e.ToString(), "OutroPatch.SetEverythingUpPatch.Postfix");
         }
+
+        End:
 
         __instance.WinText.alignment = TMPro.TextAlignmentOptions.Center;
         var WinnerTextObject = UnityEngine.Object.Instantiate(__instance.WinText.gameObject);

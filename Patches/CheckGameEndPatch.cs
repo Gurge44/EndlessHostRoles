@@ -669,7 +669,7 @@ class GameEndChecker
             }
             else if (Main.AllAlivePlayerControls.Length == 0)
             {
-                FFAManager.RoundTime = 0;
+                MoveAndStopManager.RoundTime = 0;
                 Logger.Warn("No players alive. Force ending the game", "MoveAndStop");
                 return false;
             }

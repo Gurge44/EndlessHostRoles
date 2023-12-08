@@ -354,6 +354,7 @@ internal class ChangeRoleSettings
 
             SoloKombatManager.Init();
             FFAManager.Init();
+            MoveAndStopManager.Init();
             CustomWinnerHolder.Reset();
             AntiBlackout.Reset();
             NameNotifyManager.Reset();

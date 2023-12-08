@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 using static TOHE.Translator;
 
@@ -20,7 +21,7 @@ class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, char sy
     private static Color Orange => new(255, 165, 0, 255);
 
     public int Timer { get => (IsRed ? TotalRedTime : IsYellow ? TotalYellowTime : TotalGreenTime) - (int)Math.Round((double)(Utils.GetTimeStamp() - StartTimeStamp)); }
-    public string ColoredTimerString { get => IsYellow ? string.Empty : Utils.ColorString(IsRed ? Color.red : Color.green, Timer.ToString()); }
+    public string ColoredTimerString { get => IsYellow ? Utils.ColorString(Color.black, "--") : Utils.ColorString(IsRed ? Color.red : Color.green, Timer < 10 ? $"0{Timer}" : Timer.ToString()); }
     public string ColoredArrow { get => Utils.ColorString(IsRed ? Timer <= 2 ? Orange : Color.red : IsYellow ? Color.yellow : Color.green, Symbol.ToString()); }
 
     public void Update()
@@ -65,7 +66,7 @@ class MoveAndStopPlayerData(Counter leftCounter, Counter middleCounter, Counter 
             var rightTimer = RightCounter.ColoredTimerString;
 
             var arrowRow = $"{LeftCounter.ColoredArrow}  {MiddleCounter.ColoredArrow}  {RightCounter.ColoredArrow}";
-            var counterRow = $"{leftTimer}{Space(leftTimer.Length)} {middleCounter}{Space(middleTimer.Length)} {rightCounter}{Space(rightTimer.Length)}";
+            var counterRow = $"{leftTimer}{Space(leftTimer.Length)} {middleTimer}{Space(middleTimer.Length)} {rightTimer}{Space(rightTimer.Length)}";
 
             return $"{arrowRow}\n{counterRow}";
         }
@@ -85,7 +86,7 @@ internal class MoveAndStopManager
     private static IRandom Random => IRandom.Instance;
     public static int RoundTime;
 
-    private static int StartingGreenTime => 10;
+    private static int StartingGreenTime => 20;
     public static int RandomRedTime(char direction) => direction switch
     {
         '→' => Random.Next(MoveAndStop_RightCounterRedMin.GetInt(), MoveAndStop_RightCounterRedMax.GetInt()),
@@ -115,7 +116,7 @@ internal class MoveAndStopManager
     private static OptionItem MoveAndStop_MiddleCounterGreenMax;
     private static OptionItem MoveAndStop_MiddleCounterRedMax;
 
-    private static string CounterSettingString(string direction, bool red, bool min) => GetString($"MoveAndStop_{direction}Counter{(red ? "Red" : "Green")}{(min ? "Min" : "Max")}");
+    private static string CounterSettingString(string direction, bool red, bool min) => $"MoveAndStop_{direction}Counter{(red ? "Red" : "Green")}{(min ? "Min" : "Max")}";
     private static IntegerValueRule CounterValueRule => new(1, 100, 1);
     private static int DefaultMinValue => 5;
     private static int DefaultMaxValue => 30;
@@ -123,7 +124,14 @@ internal class MoveAndStopManager
     IntegerOptionItem.Create(Id, CounterSettingString(direction, red, min), CounterValueRule, min ? DefaultMinValue : DefaultMaxValue, TabGroup.GameSettings, false)
                      .SetGameMode(CustomGameMode.MoveAndStop)
                      .SetColor(new Color32(0, 255, 255, byte.MaxValue))
-                     .SetValueFormat(OptionFormat.Seconds);
+                     .SetValueFormat(OptionFormat.Seconds)
+                     .AddReplacement(new("Red", Utils.ColorString(Color.red, "Red")))
+                     .AddReplacement(new("Green", Utils.ColorString(Color.green, "Green")))
+                     .AddReplacement(new("Minimum", Utils.ColorString(Color.blue, "Minimum")))
+                     .AddReplacement(new("Maximum", Utils.ColorString(Color.gray, "Maximum")))
+                     .AddReplacement(new("Right", Utils.ColorString(Color.magenta, "Right")))
+                     .AddReplacement(new("Left", Utils.ColorString(Color.yellow, "Left")))
+                     .AddReplacement(new("Middle", Utils.ColorString(Color.white, "Middle")));
 
     public static void SetupCustomOption()
     {
@@ -133,17 +141,17 @@ internal class MoveAndStopManager
             .SetValueFormat(OptionFormat.Seconds)
             .SetHeader(true);
         MoveAndStop_RightCounterGreenMin = CreateSetting(68_213_002, "Right", false, true);
-        MoveAndStop_RightCounterRedMin = CreateSetting(68_213_002, "Right", true, true);
-        MoveAndStop_RightCounterGreenMax = CreateSetting(68_213_003, "Right", false, false);
-        MoveAndStop_RightCounterRedMax = CreateSetting(68_213_003, "Right", true, false);
-        MoveAndStop_LeftCounterGreenMin = CreateSetting(68_213_004, "Left", false, true);
-        MoveAndStop_LeftCounterRedMin = CreateSetting(68_213_004, "Left", true, true);
-        MoveAndStop_LeftCounterGreenMax = CreateSetting(68_213_005, "Left", false, false);
-        MoveAndStop_LeftCounterRedMax = CreateSetting(68_213_005, "Left", true, false);
-        MoveAndStop_MiddleCounterGreenMin = CreateSetting(68_213_006, "Middle", false, true);
-        MoveAndStop_MiddleCounterRedMin = CreateSetting(68_213_006, "Middle", true, true);
-        MoveAndStop_MiddleCounterGreenMax = CreateSetting(68_213_007, "Middle", false, false);
-        MoveAndStop_MiddleCounterRedMax = CreateSetting(68_213_007, "Middle", true, false);
+        MoveAndStop_RightCounterRedMin = CreateSetting(68_213_003, "Right", true, true);
+        MoveAndStop_RightCounterGreenMax = CreateSetting(68_213_004, "Right", false, false);
+        MoveAndStop_RightCounterRedMax = CreateSetting(68_213_005, "Right", true, false);
+        MoveAndStop_LeftCounterGreenMin = CreateSetting(68_213_006, "Left", false, true);
+        MoveAndStop_LeftCounterRedMin = CreateSetting(68_213_007, "Left", true, true);
+        MoveAndStop_LeftCounterGreenMax = CreateSetting(68_213_008, "Left", false, false);
+        MoveAndStop_LeftCounterRedMax = CreateSetting(68_213_009, "Left", true, false);
+        MoveAndStop_MiddleCounterGreenMin = CreateSetting(68_213_010, "Middle", false, true);
+        MoveAndStop_MiddleCounterRedMin = CreateSetting(68_213_011, "Middle", true, true);
+        MoveAndStop_MiddleCounterGreenMax = CreateSetting(68_213_012, "Middle", false, false);
+        MoveAndStop_MiddleCounterRedMax = CreateSetting(68_213_013, "Middle", true, false);
     }
 
     public static void Init()
@@ -160,7 +168,7 @@ internal class MoveAndStopManager
             AllPlayerTimers.TryAdd(pc.PlayerId, new(new(StartingGreenTime, RandomRedTime('←'), now, '←', false), new(StartingGreenTime, RandomRedTime('●'), now, '●', false), new(StartingGreenTime, RandomRedTime('→'), now, '→', false), pc.Pos().x, pc.Pos().y));
         }
 
-        _ = new LateTask(Utils.SetChatVisible, 7f, "Set Chat Visible for Everyone");
+        //_ = new LateTask(Utils.SetChatVisible, 7f, "Set Chat Visible for Everyone");
     }
     public static string GetDisplayScore(byte playerId)
     {
@@ -191,6 +199,7 @@ internal class MoveAndStopManager
     class FixedUpdatePatch
     {
         private static long LastFixedUpdate;
+
         public static void Postfix(PlayerControl __instance)
         {
             if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.MoveAndStop || !__instance.IsAlive() || !AmongUsClient.Instance.AmHost) return;
@@ -199,21 +208,38 @@ internal class MoveAndStopManager
 
             if (AllPlayerTimers.TryGetValue(pc.PlayerId, out var data))
             {
-                Vector2 pos = pc.Pos();
-                if (pos.x - data.Position_X > 0.5f)
-                {
-                    if (data.LeftCounter.IsRed) pc.Suicide();
-                    data.Position_X = pos.x;
-                }
-                if (pos.x - data.Position_X < 0.5f)
+                Vector2 previousPosition = new(data.Position_X, data.Position_Y);
+
+                // Update the player's position
+                Vector2 currentPosition = pc.transform.position;
+                currentPosition.x += data.Position_X * Time.deltaTime;
+                currentPosition.y += data.Position_Y * Time.deltaTime;
+
+                // Calculate the direction of movement
+                Vector2 direction = currentPosition - previousPosition;
+
+                // Normalize the direction vector to get a unit vector
+                direction.Normalize();
+
+                // Calculate the distance moved along each axis
+                float distanceX = currentPosition.x - previousPosition.x;
+                float distanceY = currentPosition.y - previousPosition.y;
+
+                // Now we can check the components of the direction vector to determine the movement direction
+                if (direction.x > 0 && distanceX > 1.5f) // Player is moving right
                 {
                     if (data.RightCounter.IsRed) pc.Suicide();
-                    data.Position_X = pos.x;
+                    data.Position_X = currentPosition.x;
                 }
-                if (pos.y - data.Position_Y is > 0.5f or < 0.5f)
+                if (direction.x < 0 && distanceX < -1.5f) // Player is moving left
+                {
+                    if (data.LeftCounter.IsRed) pc.Suicide();
+                    data.Position_X = currentPosition.x;
+                }
+                if ((direction.y is > 0 or < 0) && (distanceY is > 1.5f or < -1.5f)) // y > 0 means the player is moving up, y < 0 means the player is moving down
                 {
                     if (data.MiddleCounter.IsRed) pc.Suicide();
-                    data.Position_Y = pos.y;
+                    data.Position_Y = currentPosition.y;
                 }
 
                 data.UpdateCounters();
