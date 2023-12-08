@@ -112,7 +112,7 @@ namespace TOHE.Roles.Impostor
                 {
                     ManipulatedPlayers.Remove(x.Key);
                     TempKCDs.Remove(x.Key);
-                    player.Suicide(PlayerState.DeathReason.Suicide, Mastermind_);
+                    player.Suicide(realKiller: Mastermind_);
                     RPC.PlaySoundRPC(mastermindId, Sounds.KillSound);
                 }
 
@@ -128,7 +128,7 @@ namespace TOHE.Roles.Impostor
             foreach (var x in ManipulatedPlayers)
             {
                 var pc = GetPlayerById(x.Key);
-                if (pc.IsAlive()) pc.Suicide(PlayerState.DeathReason.Suicide, Mastermind_);
+                if (pc.IsAlive()) pc.Suicide(realKiller: Mastermind_);
             }
             ManipulateDelays.Clear();
             ManipulatedPlayers.Clear();

@@ -395,7 +395,7 @@ class CheckMurderPatch
                             {
                                 _ = new LateTask(() =>
                                 {
-                                    killer.Suicide(PlayerState.DeathReason.Suicide);
+                                    killer.Suicide();
                                 }, 1.5f, "Puppeteer Max Uses Reached => Suicide");
                             }
                             else killer.Notify(string.Format(GetString("PuppeteerUsesRemaining"), usesLeft - 1));
@@ -414,7 +414,7 @@ class CheckMurderPatch
                         {
                             _ = new LateTask(() =>
                             {
-                                killer.Suicide(PlayerState.DeathReason.Suicide);
+                                killer.Suicide();
                             }, 1.5f, "Puppeteer Max Uses Reached => Suicide");
                         }
                         else killer.Notify(string.Format(GetString("PuppeteerUsesRemaining"), usesLeft - 1));
@@ -547,7 +547,7 @@ class CheckMurderPatch
                     Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.PissedOff;
                     killer.Kill(target);
                     //killer.Kill(killer);
-                    killer.SetRealKiller(target);
+                    //killer.SetRealKiller(target);
                     Main.Provoked.TryAdd(killer.PlayerId, target.PlayerId);
                     return false;
                 case CustomRoles.Totocalcio:
@@ -635,8 +635,7 @@ class CheckMurderPatch
             var Ue = IRandom.Instance;
             if (Ue.Next(0, 100) < Options.UnluckyKillSuicideChance.GetInt())
             {
-                killer.Kill(killer);
-                Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
+                killer.Suicide();
                 return false;
             }
         }
@@ -714,9 +713,7 @@ class CheckMurderPatch
                     {
                         var pcList = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId || Pelican.IsEaten(x.PlayerId) || Medic.ProtectList.Contains(x.PlayerId) || target.Is(CustomRoles.Pestilence)).ToArray();
                         var rp = pcList[IRandom.Instance.Next(0, pcList.Length)];
-                        Main.PlayerStates[rp.PlayerId].deathReason = PlayerState.DeathReason.Revenge;
-                        rp.SetRealKiller(target);
-                        rp.Kill(rp);
+                        rp.Suicide(PlayerState.DeathReason.Revenge, target);
                     }
 
                     MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.None, -1);
@@ -989,20 +986,18 @@ class CheckMurderPatch
         {
             foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId).ToArray())
             {
-                var pos = target.transform.position;
+                var pos = target.Pos();
                 var dis = Vector2.Distance(pos, pc.Pos());
                 if (dis > Options.BodyguardProtectRadius.GetFloat()) continue;
                 if (pc.Is(CustomRoles.Bodyguard))
                 {
-                    if (pc.Is(CustomRoles.Madmate) && killer.GetCustomRole().IsImpostorTeam())
+                    if (pc.Is(CustomRoles.Madmate) && killer.Is(Team.Impostor))
                         Logger.Info($"{pc.GetRealName()} is a madmate, so they chose to ignore the murder scene", "Bodyguard");
                     else
                     {
-                        Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
                         if (Options.BodyguardKillsKiller.GetBool()) pc.Kill(killer);
                         else killer.SetKillCooldown();
-                        pc.SetRealKiller(killer);
-                        pc.Kill(pc);
+                        pc.Suicide(PlayerState.DeathReason.Sacrifice, killer);
                         Logger.Info($"{pc.GetRealName()} stood up and died for {killer.GetRealName()}", "Bodyguard");
                         return false;
                     }
@@ -1042,7 +1037,7 @@ class MurderPlayerPatch
 {
     public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
-        Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}{(target.IsProtected() ? "(Protected)" : string.Empty)}", "MurderPlayer");
+        Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}{(target.IsProtected() ? " (Protected)" : string.Empty)}", "MurderPlayer");
 
         if (RandomSpawn.CustomNetworkTransformPatch.NumOfTP.TryGetValue(__instance.PlayerId, out var num) && num > 2) RandomSpawn.CustomNetworkTransformPatch.NumOfTP[__instance.PlayerId] = 3;
 
@@ -1130,8 +1125,7 @@ class MurderPlayerPatch
                 {
                     if (!Main.BoobyTrapBody.Contains(target.PlayerId)) Main.BoobyTrapBody.Add(target.PlayerId);
                     if (!Main.KillerOfBoobyTrapBody.ContainsKey(target.PlayerId)) Main.KillerOfBoobyTrapBody.Add(target.PlayerId, killer.PlayerId);
-                    Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Misfire;
-                    killer.Kill(killer);
+                    killer.Suicide();
                 }
                 break;
             case CustomRoles.SwordsMan:
@@ -1200,9 +1194,7 @@ class MurderPlayerPatch
             var rp = pcList[IRandom.Instance.Next(0, pcList.Length)];
             if (!rp.Is(CustomRoles.Pestilence))
             {
-                Main.PlayerStates[rp.PlayerId].deathReason = PlayerState.DeathReason.Revenge;
-                rp.SetRealKiller(target);
-                rp.Kill(rp);
+                rp.Suicide(PlayerState.DeathReason.Revenge, target);
             }
         }
 
@@ -1436,24 +1428,17 @@ class ShapeshiftPatch
                                 tg.KillFlash();
                             var pos = shapeshifter.transform.position;
                             var dis = Vector2.Distance(pos, tg.Pos());
-                            if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || (tg.Is(CustomRoleTypes.Impostor) && Options.ImpostorsSurviveBombs.GetBool()) || tg.inVent || tg.Is(CustomRoles.Pestilence))
-                                continue;
-                            if (dis > Options.BomberRadius.GetFloat())
-                                continue;
-                            if (tg.PlayerId == shapeshifter.PlayerId)
-                                continue;
-                            Main.PlayerStates[tg.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
-                            tg.SetRealKiller(shapeshifter);
-                            tg.Kill(tg);
-                            Medic.IsDead(tg);
+                            if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || (tg.Is(CustomRoleTypes.Impostor) && Options.ImpostorsSurviveBombs.GetBool()) || tg.inVent || tg.Is(CustomRoles.Pestilence)) continue;
+                            if (dis > Options.BomberRadius.GetFloat()) continue;
+                            if (tg.PlayerId == shapeshifter.PlayerId) continue;
+                            tg.Suicide(PlayerState.DeathReason.Bombed, shapeshifter);
                         }
                         _ = new LateTask(() =>
                         {
                             var totalAlive = Main.AllAlivePlayerControls.Length;
                             if (Options.BomberDiesInExplosion.GetBool() && totalAlive > 1 && !GameStates.IsEnded)
                             {
-                                Main.PlayerStates[shapeshifter.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
-                                shapeshifter.Kill(shapeshifter);
+                                shapeshifter.Suicide(PlayerState.DeathReason.Bombed);
                             }
                             //else
                             //{
@@ -1476,24 +1461,17 @@ class ShapeshiftPatch
                                 tg.KillFlash();
                             var pos = shapeshifter.transform.position;
                             var dis = Vector2.Distance(pos, tg.Pos());
-                            if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || tg.inVent || tg.Is(CustomRoles.Pestilence))
-                                continue;
-                            if (dis > Options.NukeRadius.GetFloat())
-                                continue;
-                            if (tg.PlayerId == shapeshifter.PlayerId)
-                                continue;
-                            Main.PlayerStates[tg.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
-                            tg.SetRealKiller(shapeshifter);
-                            tg.Kill(tg);
-                            Medic.IsDead(tg);
+                            if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || tg.inVent || tg.Is(CustomRoles.Pestilence)) continue;
+                            if (dis > Options.NukeRadius.GetFloat()) continue;
+                            if (tg.PlayerId == shapeshifter.PlayerId) continue;
+                            tg.Suicide(PlayerState.DeathReason.Bombed, shapeshifter);
                         }
                         _ = new LateTask(() =>
                         {
                             var totalAlive = Main.AllAlivePlayerControls.Length;
                             if (totalAlive > 1 && !GameStates.IsEnded)
                             {
-                                Main.PlayerStates[shapeshifter.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
-                                shapeshifter.Kill(shapeshifter);
+                                shapeshifter.Suicide(PlayerState.DeathReason.Bombed);
                             }
                             //else if (!shapeshifter.IsModClient())
                             //{
@@ -1712,8 +1690,7 @@ class ReportDeadBodyPatch
                     var Ue = IRandom.Instance;
                     if (Ue.Next(0, 100) < Options.UnluckyReportSuicideChance.GetInt())
                     {
-                        __instance.Kill(__instance);
-                        Main.PlayerStates[__instance.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
+                        __instance.Suicide();
                         return false;
                     }
                 }
@@ -1723,10 +1700,8 @@ class ReportDeadBodyPatch
                     if (!Options.TrapOnlyWorksOnTheBodyBoobyTrap.GetBool())
                     {
                         var killerID = Main.KillerOfBoobyTrapBody[target.PlayerId];
-                        Main.PlayerStates[__instance.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
-                        __instance.SetRealKiller(GetPlayerById(killerID));
 
-                        __instance.Kill(__instance);
+                        __instance.Suicide(PlayerState.DeathReason.Bombed, GetPlayerById(killerID));
                         RPC.PlaySoundRPC(killerID, Sounds.KillSound);
 
                         if (!Main.BoobyTrapBody.Contains(__instance.PlayerId)) Main.BoobyTrapBody.Add(__instance.PlayerId);
@@ -1736,10 +1711,8 @@ class ReportDeadBodyPatch
                     else
                     {
                         var killerID2 = target.PlayerId;
-                        Main.PlayerStates[__instance.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
-                        __instance.SetRealKiller(GetPlayerById(killerID2));
 
-                        __instance.Kill(__instance);
+                        __instance.Suicide(PlayerState.DeathReason.Bombed, GetPlayerById(killerID2));
                         RPC.PlaySoundRPC(killerID2, Sounds.KillSound);
                         return false;
                     }
@@ -3163,8 +3136,7 @@ class EnterVentPatch
             var Ue = IRandom.Instance;
             if (Ue.Next(0, 100) < Options.UnluckyVentSuicideChance.GetInt())
             {
-                pc.Kill(pc);
-                Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
+                pc.Suicide();
             }
         }
 

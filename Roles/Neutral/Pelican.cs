@@ -136,8 +136,7 @@ public static class Pelican
             {
                 var target = Utils.GetPlayerById(tar);
                 var killer = Utils.GetPlayerById(pc.Key);
-                if (killer == null || target == null)
-                    continue;
+                if (killer == null || target == null) continue;
                 Main.AllPlayerSpeed[tar] = Main.AllPlayerSpeed[tar] - 0.5f + originalSpeed[tar];
                 ReportDeadBodyPatch.CanReport[tar] = true;
                 target.RpcExileV2();

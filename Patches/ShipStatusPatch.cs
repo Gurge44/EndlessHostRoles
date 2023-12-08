@@ -86,8 +86,7 @@ class RepairSystemPatch
                 var Ue = IRandom.Instance;
                 if (Ue.Next(0, 100) < Options.UnluckySabotageSuicideChance.GetInt())
                 {
-                    player.Kill(player);
-                    Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
+                    player.Suicide();
                     return false;
                 }
                 break;

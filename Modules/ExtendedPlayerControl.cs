@@ -204,6 +204,7 @@ static class ExtendedPlayerControl
         Main.PlayerStates[pc.PlayerId].deathReason = deathReason;
         Main.PlayerStates[pc.PlayerId].SetDead();
         if (realKiller != null) pc.SetRealKiller(realKiller);
+        Medic.IsDead(pc);
         pc.Kill(pc);
     }
 

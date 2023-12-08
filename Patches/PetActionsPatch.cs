@@ -391,18 +391,14 @@ class ExternalRpcPetPatch
                     if (dis > Options.BomberRadius.GetFloat()) continue;
                     if (tg.PlayerId == pc.PlayerId) continue;
 
-                    Main.PlayerStates[tg.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
-                    tg.SetRealKiller(pc);
-                    tg.Kill(tg);
-                    Medic.IsDead(tg);
+                    tg.Suicide(PlayerState.DeathReason.Bombed, pc);
                 }
                 _ = new LateTask(() =>
                 {
                     var totalAlive = Main.AllAlivePlayerControls.Length;
                     if (Options.BomberDiesInExplosion.GetBool() && totalAlive > 1 && !GameStates.IsEnded)
                     {
-                        Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
-                        pc.Kill(pc);
+                        pc.Suicide(PlayerState.DeathReason.Bombed);
                     }
                     Utils.NotifyRoles(ForceLoop: true);
                 }, 1.5f, "Bomber Suiscide");
@@ -422,18 +418,14 @@ class ExternalRpcPetPatch
                     if (dis > Options.NukeRadius.GetFloat()) continue;
                     if (tg.PlayerId == pc.PlayerId) continue;
 
-                    Main.PlayerStates[tg.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
-                    tg.SetRealKiller(pc);
-                    tg.Kill(tg);
-                    Medic.IsDead(tg);
+                    tg.Suicide(PlayerState.DeathReason.Bombed, pc);
                 }
                 _ = new LateTask(() =>
                 {
                     var totalAlive = Main.AllAlivePlayerControls.Length;
                     if (totalAlive > 1 && !GameStates.IsEnded)
                     {
-                        Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
-                        pc.Kill(pc);
+                        pc.Suicide(PlayerState.DeathReason.Bombed);
                     }
                     Utils.NotifyRoles(ForceLoop: true);
                 }, 1.5f, "Nuke");

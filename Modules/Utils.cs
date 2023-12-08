@@ -261,10 +261,8 @@ public static class Utils
                     {
                         if ((Options.DemolitionistKillerDiesOnMeetingCall.GetBool() || GameStates.IsInTask) && killer.IsAlive())
                         {
-                            killer.SetRealKiller(target);
-                            killer.Kill(killer);
+                            killer.Suicide(PlayerState.DeathReason.Demolished, target);
                             RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
-                            Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Demolished;
                         }
                     }
                     else

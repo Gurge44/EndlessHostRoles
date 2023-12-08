@@ -131,10 +131,7 @@ public static class FireWorks
                         }
                         else
                         {
-                            Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
-                            target.SetRealKiller(pc);
-                            target.Kill(target);
-                            Medic.IsDead(target);
+                            target.Suicide(PlayerState.DeathReason.Bombed, pc);
                         }
                     }
                 }
@@ -144,8 +141,7 @@ public static class FireWorks
                     //自分が最後の生き残りの場合は勝利のために死なない
                     if (totalAlive != 1)
                     {
-                        Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Misfire;
-                        pc.Kill(pc);
+                        pc.Suicide();
                     }
                 }
                 state[pc.PlayerId] = FireWorksState.FireEnd;
