@@ -146,7 +146,7 @@ public class ChatManager
         }
     }
 
-    public static bool DontBlock = false;
+    public static bool DontBlock;
 
     public static void SendPreviousMessagesToAll(bool realMessagesOnly = false)
     {

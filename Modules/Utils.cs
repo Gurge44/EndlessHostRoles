@@ -2220,10 +2220,6 @@ public static class Utils
                         FFAManager.GetNameNotify(seer, ref SelfName);
                         SelfName = $"<size={fontSize}>{SelfTaskText}</size>\r\n{SelfName}";
                         break;
-                    case CustomGameMode.MoveAndStop:
-                        MoveAndStopManager.GetNameNotify(seer, ref SelfName);
-                        SelfName = $"<size={fontSize}>{SelfTaskText}</size>\r\n{SelfName}";
-                        break;
                     default:
                         SelfName = SelfRoleName + "\r\n" + SelfName;
                         break;

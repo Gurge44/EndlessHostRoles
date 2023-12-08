@@ -18,14 +18,14 @@ public class PlayerState(byte playerId)
     public CustomRoles MainRole = CustomRoles.NotAssigned;
     public List<CustomRoles> SubRoles = [];
     public CountTypes countTypes = CountTypes.OutOfGame;
-    public bool IsDead { get; set; } = false;
+    public bool IsDead { get; set; }
 #pragma warning disable IDE1006 // Naming Styles
     public DeathReason deathReason { get; set; } = DeathReason.etc;
 #pragma warning restore IDE1006 // Naming Styles
     public TaskState taskState = new();
-    public bool IsBlackOut { get; set; } = false;
+    public bool IsBlackOut { get; set; }
     public (DateTime TIMESTAMP, byte ID) RealKiller = (DateTime.MinValue, byte.MaxValue);
-    public PlainShipRoom LastRoom = null;
+    public PlainShipRoom LastRoom;
     public Dictionary<byte, string> TargetColorData = [];
 
     public CustomRoles GetCustomRole()

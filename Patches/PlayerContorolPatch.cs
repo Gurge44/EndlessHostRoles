@@ -2725,9 +2725,6 @@ class FixedUpdatePatch
                         case CustomGameMode.FFA:
                             FFAManager.GetNameNotify(target, ref RealName);
                             break;
-                        case CustomGameMode.MoveAndStop:
-                            MoveAndStopManager.GetNameNotify(target, ref RealName);
-                            break;
                     }
                     if (Deathpact.IsInActiveDeathpact(seer))
                         RealName = Deathpact.GetDeathpactString(seer);
@@ -2956,8 +2953,8 @@ class FixedUpdatePatch
                     case CustomGameMode.FFA:
                         Suffix.Append(FFAManager.GetPlayerArrow(seer, target));
                         break;
-                    case CustomGameMode.MoveAndStop:
-                        Suffix.Append(MoveAndStopManager.GetPlayerArrow(seer, target));
+                    case CustomGameMode.MoveAndStop when seer.PlayerId == target.PlayerId:
+                        Suffix.Append(MoveAndStopManager.GetSuffixText(seer));
                         break;
                 }
 

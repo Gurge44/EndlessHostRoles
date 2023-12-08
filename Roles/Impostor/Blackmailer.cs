@@ -10,7 +10,7 @@ public static class Blackmailer
     public static OptionItem SkillCooldown;
     public static Dictionary<byte, int> BlackmailerMaxUp;
     public static List<byte> ForBlackmailer = [];
-    public static bool IsEnable = false;
+    public static bool IsEnable;
 
     public static void SetupCustomOption()
     {

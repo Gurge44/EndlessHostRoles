@@ -11,7 +11,7 @@ namespace TOHE.Roles.Crewmate
     {
         private static readonly int Id = 643100;
         private static byte playerId = byte.MaxValue;
-        public static int UseLimit = 0;
+        public static int UseLimit;
 
         private static OptionItem UseLimitOpt;
         private static OptionItem CD;

@@ -3210,6 +3210,16 @@
 "FFA_ShieldBroken","","<color=#ffff00>Someone tried to kill you, your shield is now broken!</color>","","",""
 "Killer","","FREE FOR ALL","","",""
 "KillerInfo","","Kill Everyone to Win","","",""
+"KillerInfoLong","","Kill Everyone to Win","","",""
+
+"## Move And Stop"
+
+"MoveAndStop","","Free For All","","",""
+"ModeMoveAndStop","","Gamemode: FFA","","",""
+"ModeDescribe.MoveAndStop","","Everyone has 3 timers, each with a symbol that represents a direction you can move in. For example:\n← (left) 17s\n→ (right) 5s\n⬤ (up and down) 9s\n\nEach symbol is either red or green. When the timer next to the symbol reaches 0, the color swaps for that symbol.\n\nConcept:\nYou cannot move in directions which you have a red symbol of, or you die.\nEveryone is a crewmate, first to finish all their tasks wins!","","",""
+"Tasker","","Tasker","","",""
+"TaskerInfo","","Finish Tasks First to Win","","",""
+"TaskerInfoLong","","Finish Tasks First to Win","","",""
 
 "## Lobby Games"
 "GNoCommandInfo","","<b>This Command can only be used when in lobby or after you die.</b>\n\ntype <b>/gno X</b> to play guess a number. X can be a number between 0 and 99 (both included). \n\nYou get maximum of <color=#ff0000>7 tries</color> to guess the number.\n\n Example:- <b>/gno 10</b>","","",""
