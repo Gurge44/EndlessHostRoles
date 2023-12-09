@@ -25,7 +25,7 @@ class CheckProtectPatch
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
         if (!AmongUsClient.Instance.AmHost) return false;
-        Logger.Info("CheckProtect: " + __instance.GetNameWithRole().RemoveHtmlTags() + "=>" + target.GetNameWithRole().RemoveHtmlTags(), "CheckProtect");
+        Logger.Info("CheckProtect: " + __instance.GetNameWithRole().RemoveHtmlTags() + " => " + target.GetNameWithRole().RemoveHtmlTags(), "CheckProtect");
 
         if (__instance.Is(CustomRoles.EvilSpirit))
         {
@@ -2983,7 +2983,7 @@ class FixedUpdatePatch
                 //Mark・Suffixの適用
 
                 var currentText = target.cosmetics.nameText.text;
-                var changeTo = $"{RealName}<size=1.7>{DeathReason}</size>{Mark}";
+                var changeTo = $"{RealName}{(Options.CurrentGameMode == CustomGameMode.MoveAndStop && DeathReason != string.Empty ? '\n' : string.Empty)}<size=1.7>{DeathReason}</size>{Mark}";
                 var needUpdate = false;
                 if (currentText != changeTo) needUpdate = true;
 
@@ -3003,13 +3003,17 @@ class FixedUpdatePatch
                     {
                         offset += 0.3f;
                     }
+                    if (Options.CurrentGameMode == CustomGameMode.MoveAndStop)
+                    {
+                        offset += 0.2f;
+                    }
                     RoleText.transform.SetLocalY(offset);
                 }
             }
             else
             {
                 // Restoring the position text coordinates to their initial values
-                if (!lowLoad) RoleText.transform.SetLocalY(0.2f);
+                RoleText.transform.SetLocalY(0.2f);
             }
         }
         return Task.CompletedTask;

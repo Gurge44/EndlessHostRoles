@@ -728,6 +728,7 @@ public static class Utils
     public static string GetProgressText(byte playerId, bool comms = false)
     {
         if (!Main.playerVersion.ContainsKey(0)) return string.Empty; //ホストがMODを入れていなければ未記入を返す
+        if (Options.CurrentGameMode == CustomGameMode.MoveAndStop) return GetTaskCount(playerId, comms, moveAndStop: true);
         var ProgressText = new StringBuilder();
         var role = Main.PlayerStates[playerId].MainRole;
         PlayerControl pc = GetPlayerById(playerId);
@@ -1041,7 +1042,7 @@ public static class Utils
                 case CustomRoles.Drainer:
                     ProgressText.Append(Drainer.GetProgressText());
                     break;
-                case CustomRoles.DonutDelivery:
+                case CustomRoles.DonutDelivery when Options.CurrentGameMode != CustomGameMode.MoveAndStop:
                     ProgressText.Append(DonutDelivery.GetProgressText());
                     break;
                 case CustomRoles.Gaulois:
@@ -1142,7 +1143,7 @@ public static class Utils
 
         return ProgressText.ToString();
     }
-    public static string GetTaskCount(byte playerId, bool comms)
+    public static string GetTaskCount(byte playerId, bool comms, bool moveAndStop = false)
     {
         var taskState = Main.PlayerStates?[playerId].GetTaskState();
         if (taskState.hasTasks)
@@ -1161,7 +1162,7 @@ public static class Utils
 
             TextColor = comms ? Color.gray : NormalColor;
             string Completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
-            return ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}");
+            return ColorString(TextColor, $"{(moveAndStop ? string.Empty :"<color=#777777>-</color>")} {(moveAndStop ? "<size=1.6>" : string.Empty)}{Completed}/{taskState.AllTasksCount}{(moveAndStop ? "</size>" : string.Empty)}");
         }
         else
         {
@@ -2912,7 +2913,7 @@ public static class Utils
                 summary = $"{ColorString(Main.PlayerColors[id], name)} {GetKillCountText(id, ffa: true)}";
                 break;
             case CustomGameMode.MoveAndStop:
-                summary = $"{ColorString(Main.PlayerColors[id], name)} {GetVitalText(id, true)}";
+                summary = $"{ColorString(Main.PlayerColors[id], name)} -{TaskCount.Replace("(", string.Empty).Replace(")", string.Empty)}  ({GetVitalText(id, true)})";
                 break;
         }
         return check && GetDisplayRoleName(id, true).RemoveHtmlTags().Contains("INVALID:NotAssigned")
@@ -3074,4 +3075,5 @@ public static class Utils
     public static bool IsAllAlive => Main.PlayerStates.Values.All(state => state.countTypes == CountTypes.OutOfGame || !state.IsDead);
     public static int PlayersCount(CountTypes countTypes) => Main.PlayerStates.Values.Count(state => state.countTypes == countTypes);
     public static int AlivePlayersCount(CountTypes countTypes) => Main.AllAlivePlayerControls.Count(pc => pc.Is(countTypes));
+    public static int IsOneAlive(CountTypes countTypes) => Main.AllAlivePlayerControls.Any(pc => pc.Is(countTypes)) ? 1 : 0;
 }

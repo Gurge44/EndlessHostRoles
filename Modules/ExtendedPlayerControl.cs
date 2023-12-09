@@ -570,7 +570,7 @@ static class ExtendedPlayerControl
     public static bool CanUseKillButton(this PlayerControl pc)
     {
         //int playerCount = Main.AllAlivePlayerControls.Count();
-        if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel || Pelican.IsEaten(pc.PlayerId)) return false;
+        if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel || Pelican.IsEaten(pc.PlayerId) || Options.CurrentGameMode == CustomGameMode.MoveAndStop) return false;
 
         if (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId)) return true;
 

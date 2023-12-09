@@ -21,7 +21,7 @@ class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, char sy
     private static Color Orange => new(255, 165, 0, 255);
 
     public int Timer { get => (IsRed ? TotalRedTime : IsYellow ? TotalYellowTime : TotalGreenTime) - (int)Math.Round((double)(Utils.GetTimeStamp() - StartTimeStamp)); }
-    public string ColoredTimerString { get => IsYellow ? Utils.ColorString(Color.black, "--") : Utils.ColorString(IsRed ? Color.red : Color.green, Timer < 10 ? $"0{Timer}" : Timer.ToString()); }
+    public string ColoredTimerString { get => IsYellow ? Utils.ColorString(Color.black, "00") : Utils.ColorString(IsRed ? Color.red : Color.green, Timer < 10 ? $"0{Timer}" : Timer.ToString()); }
     public string ColoredArrow { get => Utils.ColorString(IsRed ? Timer <= 2 ? Orange : Color.red : IsYellow ? Color.yellow : Color.green, Symbol.ToString()); }
 
     public void Update()
@@ -55,8 +55,6 @@ class MoveAndStopPlayerData(Counter leftCounter, Counter middleCounter, Counter 
     public float Position_X { get => position_x; set => position_x = value; }
     public float Position_Y { get => position_y; set => position_y = value; }
 
-    private static string Space(int length) => length is 1 or 0 ? length is 1 ? " " /*1*/ : string.Empty /*2*/ : "  " /*0*/;
-
     public string SuffixText
     {
         get
@@ -65,8 +63,8 @@ class MoveAndStopPlayerData(Counter leftCounter, Counter middleCounter, Counter 
             var middleTimer = MiddleCounter.ColoredTimerString;
             var rightTimer = RightCounter.ColoredTimerString;
 
-            var arrowRow = $"{LeftCounter.ColoredArrow}  {MiddleCounter.ColoredArrow}  {RightCounter.ColoredArrow}";
-            var counterRow = $"{leftTimer}{Space(leftTimer.Length)} {middleTimer}{Space(middleTimer.Length)} {rightTimer}{Space(rightTimer.Length)}";
+            var arrowRow = $"{LeftCounter.ColoredArrow.PadRightV2(4)}   {MiddleCounter.ColoredArrow.PadRightV2(4)}   {RightCounter.ColoredArrow.PadRightV2(4)}";
+            var counterRow = $"{leftTimer.PadRightV2(4)}  {middleTimer.PadRightV2(4)}  {rightTimer.PadRightV2(4)}";
 
             return $"{arrowRow}\n{counterRow}";
         }
@@ -135,7 +133,7 @@ internal class MoveAndStopManager
 
     public static void SetupCustomOption()
     {
-        MoveAndStop_GameTime = IntegerOptionItem.Create(68_213_001, "FFA_GameTime", new(30, 1200, 10), 600, TabGroup.GameSettings, false)
+        MoveAndStop_GameTime = IntegerOptionItem.Create(68_213_001, "FFA_GameTime", new(30, 1200, 10), 900, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.MoveAndStop)
             .SetColor(new Color32(0, 255, 255, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds)
@@ -193,7 +191,7 @@ internal class MoveAndStopManager
         }
     }
     public static string GetHudText() => string.Format(GetString("KBTimeRemain"), RoundTime.ToString());
-    public static string GetSuffixText(PlayerControl pc) => AllPlayerTimers.TryGetValue(pc.PlayerId, out var timers) ? timers.SuffixText : string.Empty;
+    public static string GetSuffixText(PlayerControl pc) => !pc.IsAlive() ? string.Empty : AllPlayerTimers.TryGetValue(pc.PlayerId, out var timers) ? timers.SuffixText : string.Empty;
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     class FixedUpdatePatch

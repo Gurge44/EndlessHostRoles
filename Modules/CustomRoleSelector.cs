@@ -77,7 +77,8 @@ internal class CustomRoleSelector
                 RoleResult = [];
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
-                    RoleResult.Add(pc, CustomRoles.Tasker);
+                    if (pc.PlayerId == 0 || pc.IsModClient() || pc.PlayerId == PlayerControl.LocalPlayer.PlayerId || pc.GetClientId() == Main.HostClientId) RoleResult.Add(pc, CustomRoles.DonutDelivery);
+                    else RoleResult.Add(pc, CustomRoles.Tasker);
                 }
                 break;
         }
