@@ -1925,7 +1925,7 @@ class ReportDeadBodyPatch
 class FixedUpdatePatch
 {
     private static readonly StringBuilder Mark = new(20);
-    private static readonly StringBuilder Suffix = new(120);
+    private static StringBuilder Suffix = new(120);
     private static int LevelKickBufferTime = 10;
     private static readonly Dictionary<byte, int> BufferTime = [];
     private static readonly Dictionary<byte, int> DeadBufferTime = [];
@@ -2912,8 +2912,87 @@ class FixedUpdatePatch
 
                 if (seer.PlayerId == target.PlayerId)
                 {
+                    void CallPetCDSimpler(Dictionary<byte, long> data, int CD)
+                    {
+                        if (seer.IsModClient()) return;
+                        GetPetCDSuffix(data, seer, ref Suffix, CD);
+                    }
                     switch (seer.GetCustomRole())
                     {
+                        // Pet CD in Suffix ----------------------------------------------------------------------------
+
+                        case CustomRoles.Doormaster:
+                            CallPetCDSimpler(Main.DoormasterCD, Doormaster.VentCooldown.GetInt());
+                            break;
+                        case CustomRoles.Sapper:
+                            CallPetCDSimpler(Main.SapperCD, Sapper.ShapeshiftCooldown.GetInt());
+                            break;
+                        case CustomRoles.CameraMan:
+                            CallPetCDSimpler(Main.CameraManCD, CameraMan.VentCooldown.GetInt());
+                            break;
+                        case CustomRoles.Mayor:
+                            CallPetCDSimpler(Main.MayorCD, (int)Math.Round(Options.DefaultKillCooldown));
+                            break;
+                        case CustomRoles.Paranoia:
+                            CallPetCDSimpler(Main.ParanoiaCD, Options.ParanoiaVentCooldown.GetInt());
+                            break;
+                        case CustomRoles.Veteran:
+                            CallPetCDSimpler(Main.VeteranCD, Options.VeteranSkillCooldown.GetInt() + Options.VeteranSkillDuration.GetInt());
+                            break;
+                        case CustomRoles.Grenadier:
+                            CallPetCDSimpler(Main.GrenadierCD, Options.GrenadierSkillCooldown.GetInt() + Options.GrenadierSkillDuration.GetInt());
+                            break;
+                        case CustomRoles.Lighter:
+                            CallPetCDSimpler(Main.LighterCD, Options.LighterSkillCooldown.GetInt() + Options.LighterSkillDuration.GetInt());
+                            break;
+                        case CustomRoles.SecurityGuard:
+                            CallPetCDSimpler(Main.SecurityGuardCD, Options.SecurityGuardSkillCooldown.GetInt() + Options.SecurityGuardSkillDuration.GetInt());
+                            break;
+                        case CustomRoles.DovesOfNeace:
+                            CallPetCDSimpler(Main.DovesOfNeaceCD, Options.DovesOfNeaceCooldown.GetInt());
+                            break;
+                        case CustomRoles.Alchemist:
+                            CallPetCDSimpler(Main.AlchemistCD, Alchemist.VentCooldown.GetInt());
+                            break;
+                        case CustomRoles.TimeMaster:
+                            CallPetCDSimpler(Main.TimeMasterCD, Options.TimeMasterSkillCooldown.GetInt() + Options.TimeMasterSkillDuration.GetInt());
+                            break;
+                        case CustomRoles.NiceHacker:
+                            CallPetCDSimpler(Main.HackerCD, NiceHacker.AbilityCD.GetInt());
+                            break;
+                        case CustomRoles.Sniper:
+                            CallPetCDSimpler(Main.SniperCD, Options.DefaultShapeshiftCooldown.GetInt());
+                            break;
+                        case CustomRoles.Assassin:
+                            CallPetCDSimpler(Main.AssassinCD, Assassin.AssassinateCooldown.GetInt());
+                            break;
+                        case CustomRoles.Undertaker:
+                            CallPetCDSimpler(Main.UndertakerCD, Undertaker.AssassinateCooldown.GetInt());
+                            break;
+                        case CustomRoles.Miner:
+                            CallPetCDSimpler(Main.MinerCD, Options.MinerSSCD.GetInt());
+                            break;
+                        case CustomRoles.Escapee:
+                            CallPetCDSimpler(Main.EscapeeCD, Options.EscapeeSSCD.GetInt());
+                            break;
+                        case CustomRoles.Bomber:
+                            CallPetCDSimpler(Main.BomberCD, Options.BombCooldown.GetInt());
+                            break;
+                        case CustomRoles.Nuker:
+                            CallPetCDSimpler(Main.NukerCD, Options.NukeCooldown.GetInt());
+                            break;
+                        case CustomRoles.QuickShooter:
+                            CallPetCDSimpler(Main.QuickShooterCD, QuickShooter.ShapeshiftCooldown.GetInt());
+                            break;
+                        case CustomRoles.Disperser:
+                            CallPetCDSimpler(Main.DisperserCD, Disperser.DisperserShapeshiftCooldown.GetInt());
+                            break;
+                        case CustomRoles.Twister:
+                            CallPetCDSimpler(Main.TwisterCD, Twister.ShapeshiftCooldown.GetInt());
+                            break;
+
+                        // ---------------------------------------------------------------------------------------
+
                         case CustomRoles.VengefulRomantic:
                             Suffix.Append(VengefulRomantic.GetTargetText(seer.PlayerId));
                             break;
@@ -2924,6 +3003,8 @@ class FixedUpdatePatch
                             Suffix.Append(Ricochet.TargetText);
                             break;
                         case CustomRoles.Tether when !seer.IsModClient():
+                            CallPetCDSimpler(Main.TetherCD, Tether.VentCooldown.GetInt());
+                            if (Suffix.Length > 0 && Tether.TargetText != string.Empty) Suffix.Append(", ");
                             Suffix.Append(Tether.TargetText);
                             break;
                         case CustomRoles.Hitman:
@@ -2933,6 +3014,8 @@ class FixedUpdatePatch
                             Suffix.Append(Postman.TargetText);
                             break;
                         case CustomRoles.Druid when !seer.IsModClient():
+                            CallPetCDSimpler(Main.DruidCD, Druid.VentCooldown.GetInt());
+                            if (Suffix.Length > 0 && Druid.GetSuffixText(seer.PlayerId) != string.Empty) Suffix.Append(", ");
                             Suffix.Append(Druid.GetSuffixText(seer.PlayerId));
                             break;
                         case CustomRoles.YinYanger when !seer.IsModClient():

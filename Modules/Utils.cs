@@ -1963,6 +1963,7 @@ public static class Utils
                 {
                     void CallPetCDSimpler(Dictionary<byte, long> data, int CD)
                     {
+                        if (seer.IsModClient()) return;
                         GetPetCDSuffix(data, seer, ref SelfSuffix, CD);
                     }
                     switch (seer.GetCustomRole())
@@ -1975,9 +1976,8 @@ public static class Utils
                         case CustomRoles.Sapper:
                             CallPetCDSimpler(Main.SapperCD, Sapper.ShapeshiftCooldown.GetInt());
                             break;
-                        case CustomRoles.Tether:
+                        case CustomRoles.Tether when !seer.IsModClient():
                             CallPetCDSimpler(Main.TetherCD, Tether.VentCooldown.GetInt());
-                            if (seer.IsModClient()) break;
                             if (SelfSuffix.Length > 0 && Tether.TargetText != string.Empty) SelfSuffix.Append(", ");
                             SelfSuffix.Append(Tether.TargetText);
                             break;
@@ -2014,9 +2014,8 @@ public static class Utils
                         case CustomRoles.NiceHacker:
                             CallPetCDSimpler(Main.HackerCD, NiceHacker.AbilityCD.GetInt());
                             break;
-                        case CustomRoles.Druid:
+                        case CustomRoles.Druid when !seer.IsModClient():
                             CallPetCDSimpler(Main.DruidCD, Druid.VentCooldown.GetInt());
-                            if (seer.IsModClient()) break;
                             if (SelfSuffix.Length > 0 && Druid.GetSuffixText(seer.PlayerId) != string.Empty) SelfSuffix.Append(", ");
                             SelfSuffix.Append(Druid.GetSuffixText(seer.PlayerId));
                             break;
