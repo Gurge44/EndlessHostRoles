@@ -955,6 +955,9 @@ public static class Utils
                 case CustomRoles.Benefactor:
                     ProgressText.Append(Benefactor.GetProgressText(playerId));
                     break;
+                case CustomRoles.Tunneler:
+                    if (Main.TunnelerPositions.ContainsKey(playerId)) ProgressText.Append('●');
+                    break;
                 case CustomRoles.TaskManager:
                     var taskState1 = Main.PlayerStates?[playerId].GetTaskState();
                     Color TextColor1;
@@ -1162,7 +1165,7 @@ public static class Utils
 
             TextColor = comms ? Color.gray : NormalColor;
             string Completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
-            return ColorString(TextColor, $"{(moveAndStop ? string.Empty :"<color=#777777>-</color>")} {(moveAndStop ? "<size=1.6>" : string.Empty)}{Completed}/{taskState.AllTasksCount}{(moveAndStop ? "</size>" : string.Empty)}");
+            return ColorString(TextColor, $"{(moveAndStop ? string.Empty : "<color=#777777>-</color>")} {(moveAndStop ? "<size=1.6>" : string.Empty)}{Completed}/{taskState.AllTasksCount}{(moveAndStop ? "</size>" : string.Empty)}");
         }
         else
         {

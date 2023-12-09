@@ -2510,8 +2510,8 @@
 "DivinatorCheck.Result11","<b>{0}</b>是瘾君子、逃亡者、矿工或化形者其中之一","<b>{0}</b> is either Addict, Alchemist, Escapist, Miner, Demolitionist, or Morphling","","",""
 "DivinatorCheck.Result12","<b>{0}</b>是玩家、僵尸、网红、大明星、死亡契约或吞噬者其中之一","<b>{0}</b> is either Demon, Doormaster, Zombie, Celebrity, Super Star, Deathpact, or Devourer","","",""
 "DivinatorCheck.Result13","<b>{0}</b>是神，神谕，幻想家，检查员其中之一","<b>{0}</b> is either God, Oracle, Gambler, Visionary, Nice Eraser, Swapper, or Inspector","","",""
-"DivinatorCheck.Result14","<b>{0}</b>是隐匿者、市长、被害妄想症、小偷或卫道士其中之一","<b>{0}</b> is either Anonymous, Mastermind, Spy, Mayor, Paranoid, Pickpocket, or Vindicator","","",""
-"DivinatorCheck.Result15","<b>{0}</b>是传染性的、病毒的、君主的、革命者的或魅魔的其中之一","<b>{0}</b> is either Infectious, Virus, Agitater, Monarch, Revolutionist, Express, or Cultist","","",""
+"DivinatorCheck.Result14","<b>{0}</b>是隐匿者、市长、被害妄想症、小偷或卫道士其中之一","<b>{0}</b> is either Anonymous, Mastermind, Tunneler, Spy, Mayor, Paranoid, Pickpocket, or Vindicator","","",""
+"DivinatorCheck.Result15","<b>{0}</b>是传染性的、病毒的、君主的、革命者的或魅魔的其中之一","<b>{0}</b> is either Infectious, Detour, Virus, Agitater, Monarch, Revolutionist, Express, or Cultist","","",""
 "DivinatorCheck.Result16","<b>{0}</b>是冤罪师、受虐狂、抑制者、修理工或破坏者其中之一","<b>{0}</b> is either Innocent, Gaulois, Sapper, Refugee, Bandit, Inhibitor, Mechanic, or Saboteur","","",""
 "DivinatorCheck.Result17","<b>{0}</b>是医生、马里奥、小丑、潜伏者还是阳光开朗大男孩其中之一","<b>{0}</b> is either Medic, Vector, Analyzer, RiftMaker, Jester, The Glitch, Lurker, or Sunnyboy","","",""
 "DivinatorCheck.Result18","<b>{0}</b>是黑手党、惩罚者、教父、缺点者、幸运儿或失败者其中之一","<b>{0}</b> is either Nemesis, Hitman, Retributionist, Gangster, Glitch, Luckey, or Underdog","","",""
@@ -2604,6 +2604,16 @@
 "notifyJailedOnMeeting","","Notify Jailed player when meeting starts","","",""
 "JailedNotifyMsg","","You have been locked up in Jail by the Jailor. No one can guess or judge you and you can only guess Jailor.\n\nIf Jailor votes you, you will be executed after the meeting ends.","","",""
 "JailorTitle","","Jailor Message","","",""
+
+"## Tunneler"
+"Tunneler","","Tunneler","","",""
+"TunnelerInfo","","Mark a position and TP back there","","",""
+"TunnelerInfoLong","","(Crewmates):\nAs the Tunneler, you may mark a position by petting your pet, and then you can teleport back to the marked position by petting your pet again.\nNote: This role requires the setting 'Use Pets Instead of Venting/Shapeshifting' to be enabled, or it won't spawn.","","",""
+
+"## Detour"
+"Detour","","Detour","","",""
+"DetourInfo","","Pass Kills Onto Nearest Player","","",""
+"DetourInfoLong","","(Crewmate):\nAs the Detour, all kill button related actions on you will be blocked and instead happen on the closest player to you","","",""
 
 "## Telecommunication"
 "Monitor","通信员","Telecommunication","Коммуникатор","",""

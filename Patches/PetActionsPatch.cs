@@ -284,6 +284,14 @@ class ExternalRpcPetPatch
             case CustomRoles.Druid:
                 Druid.OnEnterVent(pc, isPet: true);
                 break;
+            case CustomRoles.Tunneler:
+                if (Main.TunnelerPositions.TryGetValue(pc.PlayerId, out var ps))
+                {
+                    pc.TP(ps);
+                    Main.TunnelerPositions.Remove(pc.PlayerId);
+                }
+                else Main.TunnelerPositions[pc.PlayerId] = pc.Pos();
+                break;
 
             // Impostors
 
@@ -350,8 +358,6 @@ class ExternalRpcPetPatch
                 if (Main.MinerCD.ContainsKey(pc.PlayerId)) break;
                 if (Main.LastEnteredVent.ContainsKey(pc.PlayerId))
                 {
-                    int ventId = Main.LastEnteredVent[pc.PlayerId].Id;
-                    var vent = Main.LastEnteredVent[pc.PlayerId];
                     var position = Main.LastEnteredVentLocation[pc.PlayerId];
                     Logger.Msg($"{pc.GetNameWithRole().RemoveHtmlTags()}:{position}", "MinerTeleport");
                     pc.TP(new UnityEngine.Vector2(position.x, position.y));

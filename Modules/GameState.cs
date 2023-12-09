@@ -521,7 +521,7 @@ public class TaskState
 
             foreach (var taskmanager in Main.AllAlivePlayerControls.Where(pc => pc.Is(CustomRoles.TaskManager)).ToArray())
             {
-                Utils.NotifyRoles(SpecifySeer: taskmanager);
+                Utils.NotifyRoles(SpecifySeer: taskmanager, SpecifyTarget: player);
             }
 
             //工作狂做完了

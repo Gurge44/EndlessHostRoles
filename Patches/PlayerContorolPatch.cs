@@ -93,6 +93,13 @@ class CheckMurderPatch
             return false;
         }
 
+        if (target.Is(CustomRoles.Detour))
+        {
+            var tempTarget = target;
+            target = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId && x.PlayerId != killer.PlayerId).OrderBy(x => Vector2.Distance(x.Pos(), target.Pos())).FirstOrDefault();
+            Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
+        }
+
         if (target.Data == null
             || target.inVent
             || target.inMovingPlat

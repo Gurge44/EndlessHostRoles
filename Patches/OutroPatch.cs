@@ -162,7 +162,7 @@ class SetEverythingUpPatch
             Logger.Error(e.ToString(), "OutroPatch.SetEverythingUpPatch.Postfix");
         }
 
-        End:
+    End:
 
         __instance.WinText.alignment = TMPro.TextAlignmentOptions.Center;
         var WinnerTextObject = UnityEngine.Object.Instantiate(__instance.WinText.gameObject);

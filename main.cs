@@ -178,6 +178,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, int> GuesserGuessed = [];
     public static Dictionary<byte, int> CapitalismAddTask = [];
     public static Dictionary<byte, int> CapitalismAssignTask = [];
+    public static Dictionary<byte, Vector2> TunnelerPositions = [];
     public static Dictionary<(byte, byte), bool> isDoused = [];
     public static Dictionary<(byte, byte), bool> isDraw = [];
     public static Dictionary<(byte, byte), bool> isRevealed = [];
@@ -359,6 +360,8 @@ public class Main : BasePlugin
                 {CustomRoles.Express, "#00ffff"},
                 {CustomRoles.NiceEraser, "#00a5ff"},
                 {CustomRoles.TaskManager, "#00ffa5"},
+                {CustomRoles.Tunneler, "#543232"},
+                {CustomRoles.Detour, "#ffd35c"},
                 {CustomRoles.Gaulois, "#42d1f5"},
                 {CustomRoles.Druid, "#ffb694"},
                 {CustomRoles.Autocrat, "#e2ed64"},
@@ -743,6 +746,8 @@ public enum CustomRoles
     Express,
     NiceEraser,
     TaskManager,
+    Tunneler,
+    Detour,
     Gaulois,
     Druid,
     Drainer,
