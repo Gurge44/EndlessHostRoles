@@ -3223,10 +3223,9 @@
 "KillerInfoLong","","Kill Everyone to Win","","",""
 
 "## Move And Stop"
-
 "MoveAndStop","","Move And Stop","","",""
 "ModeMoveAndStop","","Gamemode: Move And Stop","","",""
-"ModeDescribe.MoveAndStop","","Everyone has 3 timers, each with a symbol that represents a direction you can move in. For example:\n← (left) 17s\n→ (right) 5s\n● (up and down) 9s\n\nEach symbol is either red or green. When the timer next to the symbol reaches 0, the color swaps for that symbol.\n\nConcept:\nYou cannot move in directions which you have a red symbol of, or you die.\nEveryone is a crewmate, first to finish all their tasks wins!","","",""
+"ModeDescribe.MoveAndStop","","In the Move And Stop game mode, everyone has 3 timers, each with a symbol that represents a direction you can move in. For example:\n← (left) 17s\n→ (right) 5s\n● (up and down) 9s\n\nEach symbol is either red or green. When the timer next to the symbol reaches 0, the color swaps for that symbol.\n\nConcept:\nYou cannot move in directions which you have a red symbol of, or you die.\nEveryone is a crewmate, first to finish all their tasks wins!","","",""
 "MoveAndStop_RightCounterGreenMin","","Right Counter Minimum Green Time","","",""
 "MoveAndStop_RightCounterGreenMax","","Right Counter Maximum Green Time","","",""
 "MoveAndStop_RightCounterRedMin","","Right Counter Minimum Red Time","","",""

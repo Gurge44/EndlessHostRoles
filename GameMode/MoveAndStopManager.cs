@@ -155,6 +155,7 @@ internal class MoveAndStopManager
     {
         if (Options.CurrentGameMode != CustomGameMode.MoveAndStop) return;
 
+        FixedUpdatePatch.LastSuffix = [];
         AllPlayerTimers = [];
         RoundTime = MoveAndStop_GameTime.GetInt() + 8;
 
@@ -196,7 +197,7 @@ internal class MoveAndStopManager
     class FixedUpdatePatch
     {
         private static long LastFixedUpdate;
-
+        public static Dictionary<byte, string> LastSuffix = [];
         public static void Postfix(PlayerControl __instance)
         {
             if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.MoveAndStop || !__instance.IsAlive() || !AmongUsClient.Instance.AmHost) return;
@@ -222,24 +223,46 @@ internal class MoveAndStopManager
                 float distanceX = currentPosition.x - previousPosition.x;
                 float distanceY = currentPosition.y - previousPosition.y;
 
+                float limit;
+                try
+                {
+                    limit = pc.GetClient().PlatformData.Platform is Platforms.Unknown or Platforms.IPhone or Platforms.Android or Platforms.Switch or Platforms.Xbox or Platforms.Playstation
+                        ? 3f  // If the player has a joystick, the game is a lot harder
+                        : 1f; // On PC you have WASD, you can't mess up
+                }
+                catch
+                {
+                    limit = 2.5f;
+                }
+
                 // Now we can check the components of the direction vector to determine the movement direction
-                if (direction.x > 0 && distanceX > 1.5f) // Player is moving right
+                if (direction.x > 0) // Player is moving right
                 {
-                    if (data.RightCounter.IsRed) pc.Suicide();
-                    data.Position_X = currentPosition.x;
+                    if (data.RightCounter.IsRed && distanceX > limit) pc.Suicide();
+                    else if (!data.RightCounter.IsRed) data.Position_X = currentPosition.x;
                 }
-                if (direction.x < 0 && distanceX < -1.5f) // Player is moving left
+                if (direction.x < 0) // Player is moving left
                 {
-                    if (data.LeftCounter.IsRed) pc.Suicide();
-                    data.Position_X = currentPosition.x;
+                    if (data.LeftCounter.IsRed && distanceX < -limit) pc.Suicide();
+                    else if (!data.LeftCounter.IsRed) data.Position_X = currentPosition.x;
                 }
-                if ((direction.y is > 0 or < 0) && (distanceY is > 1.5f or < -1.5f)) // y > 0 means the player is moving up, y < 0 means the player is moving down
+                if (direction.y is > 0 or < 0) // y > 0 means the player is moving up, y < 0 means the player is moving down
                 {
-                    if (data.MiddleCounter.IsRed) pc.Suicide();
-                    data.Position_Y = currentPosition.y;
+                    if (data.MiddleCounter.IsRed && (distanceY is > limit or < -limit)) pc.Suicide();
+                    else if (!data.MiddleCounter.IsRed) data.Position_Y = currentPosition.y;
                 }
 
                 data.UpdateCounters();
+
+                string suffix = GetSuffixText(pc);
+
+                if (!LastSuffix.TryGetValue(pc.PlayerId, out var beforeSuffix) || beforeSuffix != suffix)
+                {
+                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                }
+
+                LastSuffix.Remove(pc.PlayerId);
+                LastSuffix.Add(pc.PlayerId, suffix);
             }
 
             long now = Utils.GetTimeStamp();

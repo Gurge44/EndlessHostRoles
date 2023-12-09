@@ -1516,9 +1516,9 @@ public static class Options
         RoleLoadingText = "Crewmate roles\nTask Manager";
         SetupRoleOptions(5575, TabGroup.CrewmateRoles, CustomRoles.TaskManager);
         RoleLoadingText = "Crewmate roles\nTunneler";
-        SetupRoleOptions(5585, TabGroup.CrewmateRoles, CustomRoles.Tunneler);
+        SetupRoleOptions(5595, TabGroup.CrewmateRoles, CustomRoles.Tunneler);
         RoleLoadingText = "Crewmate roles\nDetour";
-        SetupRoleOptions(5580, TabGroup.CrewmateRoles, CustomRoles.Detour);
+        SetupRoleOptions(5590, TabGroup.CrewmateRoles, CustomRoles.Detour);
         RoleLoadingText = "Crewmate roles\nDrainer";
         Drainer.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nGuess Manager";
