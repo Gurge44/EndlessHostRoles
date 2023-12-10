@@ -92,20 +92,12 @@ public static class Utils
         if (AmongUsClient.Instance.AmHost) nt.SnapTo(location, (ushort)(nt.lastSequenceId + 8));
 
         // Vanilla
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.Reliable);
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, ExtendedPlayerControl.PsendOption);
         NetHelpers.WriteVector2(location, messageWriter);
         messageWriter.Write(nt.lastSequenceId + 100U);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
 
         Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} => {location}", "TP");
-    }
-    public static void TP(this PlayerControl pc, Vector2 location)
-    {
-        TP(pc.NetTransform, location);
-    }
-    public static void TPtoRndVent(this PlayerControl pc)
-    {
-        TPtoRndVent(pc.NetTransform);
     }
     public static void TPtoRndVent(CustomNetworkTransform nt)
     {
@@ -1948,6 +1940,8 @@ public static class Utils
                 string SelfTaskText = GetProgressText(seer);
                 SelfMark.Clear();
 
+                if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop) goto GameMode0;
+
                 if (Snitch.IsEnable) SelfMark.Append(Snitch.GetWarningArrow(seer));
                 if (seer.Is(CustomRoles.Lovers)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lovers), "♥"));
                 if (BallLightning.IsGhost(seer) && BallLightning.IsEnable) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.BallLightning), "■"));
@@ -1960,7 +1954,11 @@ public static class Utils
                 if (Sniper.IsEnable) SelfMark.Append(Sniper.GetShotNotify(seer.PlayerId));
                 if (Blackmailer.ForBlackmailer.Contains(seer.PlayerId)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Blackmailer), "╳"));
 
+            GameMode0:
+
                 SelfSuffix.Clear();
+
+                if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop) goto GameMode;
 
                 if (!isForMeeting)
                 {
@@ -2136,6 +2134,8 @@ public static class Utils
                 if (Deathpact.IsEnable)
                     SelfSuffix.Append(Deathpact.GetDeathpactPlayerArrow(seer));
 
+            GameMode:
+
                 switch (Options.CurrentGameMode)
                 {
                     case CustomGameMode.FFA:
@@ -2177,8 +2177,10 @@ public static class Utils
 
                 // Combine seer's job title and SelfTaskText with seer's player name and SelfMark
                 string SelfRoleName = $"<size={fontSize}>{seer.GetDisplayRoleName()}{SelfTaskText}</size>";
-                string SelfDeathReason = seer.KnowDeathReason(seer) ? $"({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(seer.PlayerId))})" : string.Empty;
+                string SelfDeathReason = seer.KnowDeathReason(seer) ? $"{(Options.CurrentGameMode == CustomGameMode.MoveAndStop ? '\n' : ' ')}<size=1.7>({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(seer.PlayerId))})</size>" : string.Empty;
                 string SelfName = $"{ColorString(seer.GetRoleColor(), SeerRealName)}{SelfDeathReason}{SelfMark}";
+
+                if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop) goto GameMode2;
 
                 switch (seer.GetCustomRole())
                 {
@@ -2213,6 +2215,8 @@ public static class Utils
                 if (((IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool() && (Main.NormalOptions.MapId != 5 || !Options.CommsCamouflageDisableOnFungle.GetBool())) || Camouflager.IsActive) && !CamouflageIsForMeeting)
                     SelfName = $"<size=0>{SelfName}</size>";
 
+            GameMode2:
+
                 switch (Options.CurrentGameMode)
                 {
                     case CustomGameMode.SoloKombat:
@@ -2233,9 +2237,8 @@ public static class Utils
 
                 seer.RpcSetNamePrivate(SelfName, true, force: NoCache);
 
-
                 // Run the second loop only when necessary, such as when seer is dead
-                if (seer.Data.IsDead || !seer.IsAlive() || NoCache || CamouflageIsForMeeting || MushroomMixup || IsActive(SystemTypes.MushroomMixupSabotage) || ForceLoop || seerList.Length == 1)
+                if (seer.Data.IsDead || !seer.IsAlive() || NoCache || CamouflageIsForMeeting || MushroomMixup || IsActive(SystemTypes.MushroomMixupSabotage) || ForceLoop || seerList.Length == 1 || targetList.Length == 1)
                 {
                     foreach (PlayerControl target in targetList)
                     {
@@ -2249,8 +2252,9 @@ public static class Utils
                         }
                         else
                         {
-
                             TargetMark.Clear();
+
+                            if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop) goto BeforeEnd2;
 
                             if (Witch.IsEnable) TargetMark.Append(Witch.GetSpelledMark(target.PlayerId, isForMeeting));
                             if (HexMaster.IsEnable) TargetMark.Append(HexMaster.GetHexedMark(target.PlayerId, isForMeeting));
@@ -2315,7 +2319,9 @@ public static class Utils
                                     break;
                             }
 
-                            // Other people's roles and tasks will only be visible if the ghost can see other people's roles and the seer is dead. otherwise it will be empty.
+                        BeforeEnd2:
+
+                            // Other people's roles and tasks will only be visible if the ghost can see other people's roles and the seer is dead, otherwise it will be empty.
                             string TargetRoleText =
                                 (seer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool()) ||
                                 (seer.Is(CustomRoles.Mimic) && target.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) ||
@@ -2366,6 +2372,8 @@ public static class Utils
                                 TargetRoleText = $"<size={fontSize}>{GetProgressText(target)}</size>\r\n";
 
                             string TargetPlayerName = target.GetRealName(isForMeeting);
+
+                            if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop) goto BeforeEnd;
 
                             switch (seer.GetCustomRole())
                             {
@@ -2464,7 +2472,12 @@ public static class Utils
                                 }
                             }
                             //ターゲットのプレイヤー名の色を書き換えます。
+
+                        BeforeEnd:
+
                             TargetPlayerName = TargetPlayerName.ApplyNameColorData(seer, target, isForMeeting);
+
+                            if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop) goto End;
 
                             if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Snitch) && target.Is(CustomRoles.Madmate) && target.GetPlayerTaskState().IsTaskFinished)
                                 TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Impostor), "★"));
@@ -2483,7 +2496,7 @@ public static class Utils
 
                             TargetMark.Append(Gamer.TargetMark(seer, target));
 
-                            if (seer.Is(CustomRoles.Medic) && (Medic.InProtect(target.PlayerId) || Medic.TempMarkProtected == target.PlayerId) && (Medic.WhoCanSeeProtect.GetInt() == 0 || Medic.WhoCanSeeProtect.GetInt() == 1))
+                            if (seer.Is(CustomRoles.Medic) && (Medic.InProtect(target.PlayerId) || Medic.TempMarkProtected == target.PlayerId) && (Medic.WhoCanSeeProtect.GetInt() is 0 or 1))
                             {
                                 TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Medic), " ●"));
                             }
@@ -2497,6 +2510,8 @@ public static class Utils
                             TargetMark.Append(Lawyer.LawyerMark(seer, target));
                             TargetMark.Append(Deathpact.GetDeathpactMark(seer, target));
                             TargetMark.Append(PlagueDoctor.GetMarkOthers(seer, target));
+
+                        End:
 
                             //KB目标玩家名字后缀
                             TargetSuffix.Clear();
@@ -2700,6 +2715,7 @@ public static class Utils
             AirshipElectricalDoors.Initialize();
 
         DoorsReset.ResetDoors();
+        KeepProtection.ProtectEveryone();
 
         if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer.Is(CustomRoles.GM))
         {

@@ -3701,6 +3701,6 @@ public static class Options
             if (!AllData.ContainsKey(role)) AllData.Add(role, this);
             else Logger.Warn("重複したCustomRolesを対象とするOverrideTasksDataが作成されました", "OverrideTasksData");
         }
-        public static OverrideTasksData Create(int idStart, TabGroup tab, CustomRoles role) => new OverrideTasksData(idStart, tab, role);
+        public static OverrideTasksData Create(int idStart, TabGroup tab, CustomRoles role) => new(idStart, tab, role);
     }
 }

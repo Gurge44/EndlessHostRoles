@@ -447,7 +447,7 @@ class HudManagerPatch
                 {
                     CustomGameMode.SoloKombat => SoloKombatManager.GetHudText(),
                     CustomGameMode.FFA when player.PlayerId == 0 => FFAManager.GetHudText(),
-                    CustomGameMode.MoveAndStop when player.PlayerId == 0 => MoveAndStopManager.GetHudText(),
+                    CustomGameMode.MoveAndStop when player.PlayerId == 0 => MoveAndStopManager.HUDText,
                     CustomGameMode.Standard => player.GetCustomRole() switch
                     {
                         CustomRoles.BountyHunter => BountyHunter.GetTargetText(player, true),

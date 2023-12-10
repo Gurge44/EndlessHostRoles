@@ -50,6 +50,7 @@ internal static class CustomRolesHelper
                 CustomRoles.SpeedBooster => CustomRoles.Crewmate,
                 CustomRoles.Dictator => CustomRoles.Crewmate,
                 CustomRoles.Inhibitor => CustomRoles.Impostor,
+                CustomRoles.Librarian => CustomRoles.Shapeshifter,
                 CustomRoles.Cantankerous => CustomRoles.Impostor,
                 CustomRoles.YinYanger => CustomRoles.Impostor,
                 CustomRoles.Duellist => CustomRoles.Shapeshifter,
@@ -741,6 +742,7 @@ internal static class CustomRolesHelper
             CustomRoles.SerialKiller or
             CustomRoles.Underdog or
             CustomRoles.Inhibitor or
+            CustomRoles.Librarian or
             CustomRoles.Cantankerous or
             CustomRoles.Duellist or
             CustomRoles.YinYanger or
@@ -1098,7 +1100,7 @@ internal static class CustomRolesHelper
     }
     public static bool NeedUpdateOnLights(this CustomRoles role)
     {
-        return role is
+        return role.IsNK() || role is
         CustomRoles.Sheriff or
         CustomRoles.Medic or
         CustomRoles.CopyCat or
@@ -1369,6 +1371,34 @@ internal static class CustomRolesHelper
             CustomRoles.DoubleShot when Options.CrewCanBeDoubleShot.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.NiceGuesser) && pc.Is(CustomRoleTypes.Crewmate) && !Options.CrewmatesCanGuess.GetBool() => false,
             CustomRoles.DoubleShot when Options.NeutralCanBeDoubleShot.GetBool() && !pc.Is(CustomRoles.Guesser) && (pc.GetCustomRole().IsNonNK() && !Options.PassiveNeutralsCanGuess.GetBool() || pc.GetCustomRole().IsNK() && !Options.NeutralKillersCanGuess.GetBool()) => false,
             _ => true
+        };
+    }
+    public static bool IsAbleToHostPublic(this CustomRoles role)
+    {
+        if (Main.UseVersionProtocol.Value) return true;
+        return role switch
+        {
+            // Because of Double Trigger use
+            CustomRoles.EvilDiviner or
+            CustomRoles.Mastermind or
+            CustomRoles.Puppeteer or
+            CustomRoles.Witch or
+            CustomRoles.Glitch or
+            CustomRoles.HexMaster or
+            CustomRoles.Infectious or
+            CustomRoles.Consort or
+            CustomRoles.Eraser or
+            CustomRoles.Nullifier or
+            CustomRoles.Ritualist or
+            CustomRoles.Puppeteer or
+            CustomRoles.Capitalism or
+            CustomRoles.Pyromaniac
+            => false,
+
+            // Because of GA use
+            CustomRoles.Spiritcaller
+            => false,
+            _ => true,
         };
     }
     public static Team GetTeam(this CustomRoles role)

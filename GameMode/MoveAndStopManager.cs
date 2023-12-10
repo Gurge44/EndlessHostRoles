@@ -156,32 +156,41 @@ internal class MoveAndStopManager
         if (Options.CurrentGameMode != CustomGameMode.MoveAndStop) return;
 
         FixedUpdatePatch.LastSuffix = [];
+        FixedUpdatePatch.Limit = [];
         AllPlayerTimers = [];
         RoundTime = MoveAndStop_GameTime.GetInt() + 8;
 
         long now = Utils.GetTimeStamp();
+        float limit;
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            AllPlayerTimers.TryAdd(pc.PlayerId, new(new(StartingGreenTime, RandomRedTime('←'), now, '←', false), new(StartingGreenTime, RandomRedTime('●'), now, '●', false), new(StartingGreenTime, RandomRedTime('→'), now, '→', false), pc.Pos().x, pc.Pos().y));
-        }
+            AllPlayerTimers.TryAdd(pc.PlayerId, new(
+                new(StartingGreenTime, RandomRedTime('←'), now, '←', false),
+                new(StartingGreenTime, RandomRedTime('●'), now, '●', false),
+                new(StartingGreenTime, RandomRedTime('→'), now, '→', false),
+                pc.Pos().x, pc.Pos().y));
 
-        //_ = new LateTask(Utils.SetChatVisible, 7f, "Set Chat Visible for Everyone");
-    }
-    public static string GetDisplayScore(byte playerId)
-    {
-        int rank = GetRankOfScore(playerId);
-        string score = Main.PlayerStates.TryGetValue(playerId, out var s) ? $"{s.GetTaskState().CompletedTasksCount}" : "Invalid";
-        string text = string.Format(GetString("MoveAndStopScoreDisplay"), rank.ToString(), score);
-        Color color = Utils.GetRoleColor(CustomRoles.Tasker);
-        return Utils.ColorString(color, text);
+            try
+            {
+                limit = pc.GetClient().PlatformData.Platform is Platforms.Unknown or Platforms.IPhone or Platforms.Android or Platforms.Switch or Platforms.Xbox or Platforms.Playstation
+                    ? 3f  // If the player has a joystick, the game is a lot harder
+                    : 1f; // On PC you have WASD, you can't mess up
+            }
+            catch
+            {
+                limit = 3f;
+            }
+
+            FixedUpdatePatch.Limit.TryAdd(pc.PlayerId, limit);
+        }
     }
     public static int GetRankOfScore(byte playerId)
     {
         try
         {
             int ms = Main.PlayerStates[playerId].GetTaskState().CompletedTasksCount;
-            int rank = 1 + Main.PlayerStates.Values.Where(x => x.GetTaskState().CompletedTasksCount > ms).Count();
+            int rank = 1 + Main.PlayerStates.Values.Count(x => x.GetTaskState().CompletedTasksCount > ms);
             rank += Main.PlayerStates.Values.Where(x => x.GetTaskState().CompletedTasksCount == ms).ToList().IndexOf(Main.PlayerStates[playerId]);
             return rank;
         }
@@ -190,7 +199,7 @@ internal class MoveAndStopManager
             return Main.AllPlayerControls.Length;
         }
     }
-    public static string GetHudText() => string.Format(GetString("KBTimeRemain"), RoundTime.ToString());
+    public static string HUDText => string.Format(GetString("KBTimeRemain"), RoundTime.ToString());
     public static string GetSuffixText(PlayerControl pc) => !pc.IsAlive() ? string.Empty : AllPlayerTimers.TryGetValue(pc.PlayerId, out var timers) ? timers.SuffixText : string.Empty;
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
@@ -198,6 +207,7 @@ internal class MoveAndStopManager
     {
         private static long LastFixedUpdate;
         public static Dictionary<byte, string> LastSuffix = [];
+        public static Dictionary<byte, float> Limit = [];
         public static void Postfix(PlayerControl __instance)
         {
             if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.MoveAndStop || !__instance.IsAlive() || !AmongUsClient.Instance.AmHost) return;
@@ -223,36 +233,51 @@ internal class MoveAndStopManager
                 float distanceX = currentPosition.x - previousPosition.x;
                 float distanceY = currentPosition.y - previousPosition.y;
 
-                float limit;
-                try
-                {
-                    limit = pc.GetClient().PlatformData.Platform is Platforms.Unknown or Platforms.IPhone or Platforms.Android or Platforms.Switch or Platforms.Xbox or Platforms.Playstation
-                        ? 3f  // If the player has a joystick, the game is a lot harder
-                        : 1f; // On PC you have WASD, you can't mess up
-                }
-                catch
-                {
-                    limit = 2.5f;
-                }
+                float limit = Limit.TryGetValue(pc.PlayerId, out var x) ? x : 3f;
 
                 // Now we can check the components of the direction vector to determine the movement direction
                 if (direction.x > 0) // Player is moving right
                 {
-                    if (data.RightCounter.IsRed && distanceX > limit) pc.Suicide();
-                    else if (!data.RightCounter.IsRed) data.Position_X = currentPosition.x;
+                    if (data.RightCounter.IsRed && distanceX > limit) // If: Right counter is red && player moved more than their limit
+                    {
+                        pc.Suicide(); // Player suicides
+                        goto End; // Skip the upcoming checks, the player is already dead
+                    }
+                    else if (!data.RightCounter.IsRed) // Else If: Right counter is yellow or green
+                    {
+                        data.Position_X = currentPosition.x; // Update the player's last position regardless of the distance
+                    }
                 }
                 if (direction.x < 0) // Player is moving left
                 {
-                    if (data.LeftCounter.IsRed && distanceX < -limit) pc.Suicide();
-                    else if (!data.LeftCounter.IsRed) data.Position_X = currentPosition.x;
+                    if (data.LeftCounter.IsRed && distanceX < -limit) // The distance is negative here because it's the opposite direction as right
+                    {
+                        pc.Suicide();
+                        goto End;
+                    }
+                    else if (!data.LeftCounter.IsRed)
+                    {
+                        data.Position_X = currentPosition.x;
+                    }
                 }
                 if (direction.y is > 0 or < 0) // y > 0 means the player is moving up, y < 0 means the player is moving down
                 {
-                    if (data.MiddleCounter.IsRed && (distanceY is > limit or < -limit)) pc.Suicide();
-                    else if (!data.MiddleCounter.IsRed) data.Position_Y = currentPosition.y;
+                    if (data.MiddleCounter.IsRed && (distanceY > limit || distanceY < -limit)) // The player dies if either they moved up OR down too far
+                    {
+                        pc.Suicide();
+                        goto End;
+                    }
+                    else if (!data.MiddleCounter.IsRed)
+                    {
+                        data.Position_Y = currentPosition.y;
+                    }
                 }
 
+            End:
+
                 data.UpdateCounters();
+
+                if (!pc.IsAlive()) goto NoSuffix; // If the player is dead, there's no need to get them a suffix and notify them
 
                 string suffix = GetSuffixText(pc);
 
@@ -264,6 +289,8 @@ internal class MoveAndStopManager
                 LastSuffix.Remove(pc.PlayerId);
                 LastSuffix.Add(pc.PlayerId, suffix);
             }
+
+        NoSuffix:
 
             long now = Utils.GetTimeStamp();
             if (LastFixedUpdate == now) return;

@@ -1,4 +1,5 @@
 using HarmonyLib;
+using System.Linq;
 using UnityEngine;
 
 namespace TOHE;
@@ -14,8 +15,11 @@ public static class OptionsMenuBehaviourStartPatch
     private static ClientOptionItem EnableCustomButton;
     private static ClientOptionItem EnableCustomSoundEffect;
     private static ClientOptionItem SwitchVanilla;
-    //private static ClientOptionItem VersionCheat;
-    //private static ClientOptionItem GodMode;
+    private static ClientOptionItem UseVersionProtocol;
+#if DEBUG
+    private static ClientOptionItem VersionCheat;
+    private static ClientOptionItem GodMode;
+#endif
 
     public static void Postfix(OptionsMenuBehaviour __instance)
     {
@@ -75,14 +79,20 @@ public static class OptionsMenuBehaviourStartPatch
                 Main.Instance.Unload();
             }
         }
-        /*      if ((VersionCheat == null || VersionCheat.ToggleButton == null) && DebugModeManager.AmDebugger)
-                {
-                    VersionCheat = ClientOptionItem.Create("VersionCheat", Main.VersionCheat, __instance);
-                }
-                if ((GodMode == null || GodMode.ToggleButton == null) && DebugModeManager.AmDebugger)
-                {
-                    GodMode = ClientOptionItem.Create("GodMode", Main.GodMode, __instance);
-                } */
+        if (UseVersionProtocol == null || UseVersionProtocol.ToggleButton == null && DevManager.DevUserList.Any(x => x.Code == EOSManager.Instance.friendCode && x.IsUp))
+        {
+            UseVersionProtocol = ClientOptionItem.Create("UseVersionProtocol", Main.UseVersionProtocol, __instance);
+        }
+#if DEBUG
+        if ((VersionCheat == null || VersionCheat.ToggleButton == null) && DebugModeManager.AmDebugger)
+        {
+            VersionCheat = ClientOptionItem.Create("VersionCheat", Main.VersionCheat, __instance);
+        }
+        if ((GodMode == null || GodMode.ToggleButton == null) && DebugModeManager.AmDebugger)
+        {
+            GodMode = ClientOptionItem.Create("GodMode", Main.GodMode, __instance);
+        }
+#endif
     }
 }
 
