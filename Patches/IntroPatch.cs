@@ -3,6 +3,7 @@ using HarmonyLib;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using TOHE.Modules;
 using TOHE.Roles.Impostor;
 using UnityEngine;
 using static TOHE.Translator;
@@ -609,6 +610,8 @@ class IntroCutsceneDestroyPatch
             {
                 Penguin.OnSpawnAirship();
             }
+
+            KeepProtection.ProtectEveryone();
 
             var amDesyncImpostor = Main.ResetCamPlayerList.Contains(PlayerControl.LocalPlayer.PlayerId);
             if (amDesyncImpostor)

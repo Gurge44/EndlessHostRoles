@@ -1066,6 +1066,7 @@
 "EnableCustomButton","使用模组按钮样式","Enable Custom Button Images","Использовать кастомные кнопки","使用模組按鈕樣式",""
 "EnableCustomSoundEffect","开启模组技能音效","Enable Custom Sound Effects","Использовать кастомные звуки","開啟模組技能音效",""
 "SwitchVanilla","切换为原版","Switch Vanilla","Отключить мод","切換為原版","切换为原版"
+"UseVersionProtocol","","Use Advanced Server Protocol\n(Disabling Requires /up Access)","","",""
 "FastBoot","快速启动模式","Quick Start Mode","Быстрая загрузка","快速啟動","切换为原版"
 "UnlockFPS","解锁帧数限制","Unlock FPS","Убрать ограничение FPS","解鎖FPS限制","解锁帧数限制"
 "ForceOwnLanguage","强制模组使用您的语言","Force mod to use your language if possible","Использовать ваш язык если возможно","強制模組使用您的語言","强制模组使用您的语言"

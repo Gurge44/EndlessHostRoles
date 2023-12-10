@@ -274,7 +274,7 @@ internal class ControllerManagerUpdatePatch
             {
                 if (!pc.AmOwner)
                 {
-                    pc.NetTransform.RpcSnapTo(pos);
+                    pc.TP(pos);
                     pos.x += 0.5f;
                 }
             }

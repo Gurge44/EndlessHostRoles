@@ -732,6 +732,8 @@ class CheckMurderPatch
             }, 0.05f, "OverKiller Murder");
         }
 
+        if (!Main.UseVersionProtocol.Value) return true;
+
         //==Kill processing==
         __instance.Kill(target);
         //============
@@ -1042,7 +1044,7 @@ class CheckMurderPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.MurderPlayer))]
 class MurderPlayerPatch
 {
-    public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
+    public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] MurderResultFlags resultFlags)
     {
         Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}{(target.IsProtected() ? " (Protected)" : string.Empty)}", "MurderPlayer");
 
@@ -1052,6 +1054,25 @@ class MurderPlayerPatch
         {
             Camouflage.ResetSkinAfterDeathPlayers.Add(target.PlayerId);
             Camouflage.RpcSetSkin(target, ForceRevert: true);
+        }
+
+        if (!Main.UseVersionProtocol.Value && resultFlags == MurderResultFlags.FailedProtected && __instance.PlayerId != target.PlayerId)
+        {
+            if (CheckMurderPatch.Prefix(__instance, target))
+            {
+                __instance.Kill(target);
+            }
+            else
+            {
+                var sender = CustomRpcSender.Create(sendOption: SendOption.Reliable);
+                sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)RpcCalls.ProtectPlayer, __instance.GetClientId())
+                    .WriteNetObject(target)
+                    .Write(18)
+                    .EndRpc();
+                sender.SendMessage();
+
+                _ = new LateTask(() => { if (GameStates.IsInTask) KeepProtection.Protect(target); }, 0.1f, "Protect Target On Kill");
+            }
         }
     }
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
@@ -2013,11 +2034,11 @@ class FixedUpdatePatch
         }
 
         if (AmongUsClient.Instance.AmHost)
-        {//実行クライアントがホストの場合のみ実行
+        {
             if (GameStates.IsLobby && ((ModUpdater.hasUpdate && ModUpdater.forceUpdate) || ModUpdater.isBroken || !Main.AllowPublicRoom) && AmongUsClient.Instance.IsGamePublic)
                 AmongUsClient.Instance.ChangeGamePublic(false);
 
-            //踢出低等级的人
+            // Kick low level people
             if (!lowLoad && GameStates.IsLobby && !player.AmOwner && Options.KickLowLevelPlayer.GetInt() != 0 && (
                 (player.Data.PlayerLevel != 0 && player.Data.PlayerLevel < Options.KickLowLevelPlayer.GetInt()) ||
                 player.Data.FriendCode == string.Empty
@@ -2038,6 +2059,8 @@ class FixedUpdatePatch
                 Main.KillTimers.Add(player.PlayerId, 10f);
             else if (!player.inVent && !player.MyPhysics.Animations.IsPlayingEnterVentAnimation() && Main.KillTimers[player.PlayerId] > 0)
                 Main.KillTimers[player.PlayerId] -= Time.fixedDeltaTime;
+
+            if (GameStates.IsInTask) KeepProtection.OnFixedUpdate();
 
             if (DoubleTrigger.FirstTriggerTimer.Any()) DoubleTrigger.OnFixedUpdate(player);
             switch (player.GetCustomRole())

@@ -6,7 +6,7 @@ namespace TOHE.Modules
 {
     public static class KeepProtection
     {
-        public static long LastFixUpdate = 0;
+        public static long LastFixedUpdate = 0;
         public static void Protect(this PlayerControl target)
         {
             if (Main.UseVersionProtocol.Value || target.Data.IsDead) return;
@@ -25,20 +25,25 @@ namespace TOHE.Modules
         public static void OnFixedUpdate()
         {
             if (Main.UseVersionProtocol.Value) return;
-            if (LastFixUpdate + 24 < Utils.GetTimeStamp())
+
+            long now = Utils.GetTimeStamp();
+            if (LastFixedUpdate + 24 >= now) return;
+            LastFixedUpdate = now;
+
+            foreach (var pc in Main.AllAlivePlayerControls)
             {
-                LastFixUpdate = Utils.GetTimeStamp();
-                Main.AllAlivePlayerControls.ToArray()
-                    .Where(x => !x.AmOwner && !x.IsProtected())
-                    .Do(x => x.Protect());
-                PlayerControl.LocalPlayer.Protect();
+                if (!pc.AmOwner && !pc.IsProtected())
+                {
+                    pc.Protect();
+                }
             }
+            PlayerControl.LocalPlayer.Protect();
         }
 
         public static void ProtectEveryone()
         {
             if (Main.UseVersionProtocol.Value) return;
-            LastFixUpdate = Utils.GetTimeStamp();
+            LastFixedUpdate = Utils.GetTimeStamp();
             Main.AllAlivePlayerControls.ToArray().Do(x => x.Protect());
         }
     }
