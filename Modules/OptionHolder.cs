@@ -1515,8 +1515,10 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Demolitionist]);
         RoleLoadingText = "Crewmate roles\nTask Manager";
         SetupRoleOptions(5575, TabGroup.CrewmateRoles, CustomRoles.TaskManager);
+        RoleLoadingText = "Crewmate roles\nInsight";
+        SetupRoleOptions(5594, TabGroup.CrewmateRoles, CustomRoles.Insight);
         RoleLoadingText = "Crewmate roles\nTunneler";
-        SetupRoleOptions(5595, TabGroup.CrewmateRoles, CustomRoles.Tunneler);
+        SetupRoleOptions(5592, TabGroup.CrewmateRoles, CustomRoles.Tunneler);
         RoleLoadingText = "Crewmate roles\nDetour";
         SetupRoleOptions(5590, TabGroup.CrewmateRoles, CustomRoles.Detour);
         RoleLoadingText = "Crewmate roles\nDrainer";

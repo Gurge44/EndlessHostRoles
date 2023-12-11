@@ -33,8 +33,8 @@ public class Main : BasePlugin
     public static ConfigEntry<string> DebugKeyInput { get; private set; }
     public static readonly string MainMenuText = " ";
     public const string PluginGuid = "com.gurge44.toheplus";
-    public const string PluginVersion = "1.4.1";
-    public const string PluginDisplayVersion = "1.4.1";
+    public const string PluginVersion = "1.5.0";
+    public const string PluginDisplayVersion = "1.5.0";
     public static readonly string SupportedAUVersion = "2023.10.24";
     public const int PluginCreate = 3;
     public const bool Canary = false;
@@ -214,6 +214,7 @@ public class Main : BasePlugin
     public static int AliveImpostorCount;
     public static bool isCursed;
     public static bool NiceSwapSend;
+    public static List<byte> InsightKnownRolesOfPlayerIds = [];
     public static Dictionary<byte, bool> CheckShapeshift = [];
     public static Dictionary<byte, byte> ShapeshiftTarget = [];
     public static Dictionary<(byte, byte), string> targetArrows = [];
@@ -361,6 +362,7 @@ public class Main : BasePlugin
                 {CustomRoles.Express, "#00ffff"},
                 {CustomRoles.NiceEraser, "#00a5ff"},
                 {CustomRoles.TaskManager, "#00ffa5"},
+                {CustomRoles.Insight, "#26ff38"},
                 {CustomRoles.Tunneler, "#543232"},
                 {CustomRoles.Detour, "#ffd35c"},
                 {CustomRoles.Gaulois, "#42d1f5"},
@@ -747,6 +749,7 @@ public enum CustomRoles
     Express,
     NiceEraser,
     TaskManager,
+    Insight,
     Tunneler,
     Detour,
     Gaulois,

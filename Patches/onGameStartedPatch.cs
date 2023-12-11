@@ -88,6 +88,7 @@ internal class ChangeRoleSettings
             Main.ResetCamPlayerList = [];
             Main.clientIdList = [];
 
+            Main.InsightKnownRolesOfPlayerIds = [];
             Main.CapitalismAddTask = [];
             Main.CapitalismAssignTask = [];
             Main.CheckShapeshift = [];
