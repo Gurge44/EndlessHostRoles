@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
 using UnityEngine;
 using static TOHE.Options;
@@ -56,7 +55,7 @@ namespace TOHE.Roles.Impostor
             if (pc == null) return;
             if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return;
 
-            Bombs.TryAdd(pc.transform.position, GetTimeStamp());
+            Bombs.TryAdd(pc.Pos(), GetTimeStamp());
             Main.SapperCD.TryAdd(pc.PlayerId, GetTimeStamp());
 
             //if (!isPet) _ = new LateTask(() => { pc.CmdCheckRevertShapeshift(false); }, 1.5f, "Sapper RpcRevertShapeshift");
@@ -81,10 +80,7 @@ namespace TOHE.Roles.Impostor
                         b = true;
                         continue;
                     }
-                    Main.PlayerStates[tg.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
-                    tg.SetRealKiller(pc);
-                    tg.Kill(tg);
-                    Medic.IsDead(tg);
+                    tg.Suicide(PlayerState.DeathReason.Bombed, pc);
                 }
                 Bombs.Remove(bomb.Key);
                 pc.Notify(GetString("MagicianBombExploded"));
@@ -92,8 +88,7 @@ namespace TOHE.Roles.Impostor
                 {
                     if (!GameStates.IsEnded)
                     {
-                        Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
-                        pc.Kill(pc);
+                        pc.Suicide(PlayerState.DeathReason.Bombed);
                     }
                 }, 0.5f, "Sapper Bomb Suicide");
             }

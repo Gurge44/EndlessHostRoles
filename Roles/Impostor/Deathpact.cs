@@ -189,9 +189,7 @@ namespace TOHE.Roles.Impostor
             if (deathpact == null || target == null || target.Data.Disconnected) return;
             if (!target.IsAlive()) return;
 
-            Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
-            target.SetRealKiller(deathpact);
-            target.Kill(target);
+            target.Suicide(realKiller: deathpact);
         }
 
         public static string GetDeathpactPlayerArrow(PlayerControl seer, PlayerControl target = null)

@@ -61,7 +61,7 @@ class HudManagerPatch
 
         if (SetHudActivePatch.IsActive)
         {
-            if (player.IsAlive())
+            if (player.IsAlive() || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop)
             {
                 //MOD入り用のボタン下テキスト変更
                 switch (player.GetCustomRole())
@@ -443,65 +443,67 @@ class HudManagerPatch
                     LowerInfoText.fontSize = LowerInfoText.fontSizeMax = LowerInfoText.fontSizeMin = 2f;
                 }
 
-                switch (Options.CurrentGameMode)
+                LowerInfoText.text = Options.CurrentGameMode switch
                 {
-                    case CustomGameMode.SoloKombat:
-                        LowerInfoText.text = SoloKombatManager.GetHudText();
-                        break;
-                    case CustomGameMode.FFA:
-                        LowerInfoText.text = FFAManager.GetHudText();
-                        break;
-                    case CustomGameMode.Standard:
-                        LowerInfoText.text = player.GetCustomRole() switch
-                        {
-                            CustomRoles.BountyHunter => BountyHunter.GetTargetText(player, true),
-                            CustomRoles.Witch => Witch.GetSpellModeText(player, true),
-                            CustomRoles.HexMaster => HexMaster.GetHexModeText(player, true),
-                            CustomRoles.FireWorks => FireWorks.GetStateText(player),
-                            CustomRoles.Swooper => Swooper.GetHudText(player),
-                            CustomRoles.Wraith => Wraith.GetHudText(player),
-                            CustomRoles.HeadHunter => HeadHunter.GetHudText(player),
-                            CustomRoles.Alchemist => Alchemist.GetHudText(player),
-                            CustomRoles.Chameleon => Chameleon.GetHudText(player),
-                            CustomRoles.Werewolf => Werewolf.GetHudText(player),
-                            CustomRoles.BloodKnight => BloodKnight.GetHudText(player),
-                            CustomRoles.Glitch => Glitch.GetHudText(player),
-                            CustomRoles.NiceHacker => NiceHacker.GetHudText(player),
-                            CustomRoles.Wildling => Wildling.GetHudText(player),
-                            CustomRoles.Doormaster => Doormaster.GetHudText(player),
-                            CustomRoles.Tether => Tether.GetHudText(player),
-                            CustomRoles.YinYanger => YinYanger.ModeText,
-                            CustomRoles.WeaponMaster => WeaponMaster.GetHudAndProgressText(),
-                            CustomRoles.Postman => Postman.GetHudText(player),
-                            CustomRoles.Chronomancer => Chronomancer.GetHudText(),
-                            CustomRoles.Mafioso => Mafioso.GetHUDText(),
-                            CustomRoles.Druid => Druid.GetHUDText(player),
-                            CustomRoles.Librarian => Librarian.GetSelfSuffixAndHUDText(player.PlayerId),
-                            CustomRoles.PlagueDoctor => PlagueDoctor.GetLowerTextOthers(player, isForHud: true),
-                            CustomRoles.Stealth => Stealth.GetSuffix(player, isHUD: true),
-                            CustomRoles.Sapper => GetCD_HUDText(Main.SapperCD, Sapper.ShapeshiftCooldown.GetInt(), player.PlayerId),
-                            CustomRoles.CameraMan => GetCD_HUDText(Main.CameraManCD, CameraMan.VentCooldown.GetInt(), player.PlayerId),
-                            CustomRoles.Mayor => GetCD_HUDText(Main.MayorCD, (int)Options.DefaultKillCooldown, player.PlayerId),
-                            CustomRoles.Paranoia => GetCD_HUDText(Main.ParanoiaCD, (int)Options.DefaultKillCooldown, player.PlayerId),
-                            CustomRoles.Veteran => GetCD_HUDText(Main.VeteranCD, Options.VeteranSkillCooldown.GetInt(), player.PlayerId),
-                            CustomRoles.Grenadier => GetCD_HUDText(Main.GrenadierCD, Options.GrenadierSkillCooldown.GetInt(), player.PlayerId),
-                            CustomRoles.Lighter => GetCD_HUDText(Main.LighterCD, Options.LighterSkillCooldown.GetInt(), player.PlayerId),
-                            CustomRoles.DovesOfNeace => GetCD_HUDText(Main.DovesOfNeaceCD, Options.DovesOfNeaceCooldown.GetInt(), player.PlayerId),
-                            CustomRoles.SecurityGuard => GetCD_HUDText(Main.SecurityGuardCD, Options.SecurityGuardSkillCooldown.GetInt(), player.PlayerId),
-                            CustomRoles.TimeMaster => GetCD_HUDText(Main.TimeMasterCD, Options.TimeMasterSkillCooldown.GetInt(), player.PlayerId),
-                            CustomRoles.Sniper => GetCD_HUDText(Main.SniperCD, (int)Options.DefaultKillCooldown, player.PlayerId),
-                            CustomRoles.Assassin => GetCD_HUDText(Main.AssassinCD, Assassin.AssassinateCooldown.GetInt(), player.PlayerId),
-                            CustomRoles.Undertaker => GetCD_HUDText(Main.UndertakerCD, Undertaker.AssassinateCooldown.GetInt(), player.PlayerId),
-                            CustomRoles.Bomber => GetCD_HUDText(Main.BomberCD, Options.BombCooldown.GetInt(), player.PlayerId),
-                            CustomRoles.Nuker => GetCD_HUDText(Main.NukerCD, Options.NukeCooldown.GetInt(), player.PlayerId),
-                            CustomRoles.QuickShooter => GetCD_HUDText(Main.QuickShooterCD, QuickShooter.ShapeshiftCooldown.GetInt(), player.PlayerId),
-                            CustomRoles.Miner => GetCD_HUDText(Main.MinerCD, Options.MinerSSCD.GetInt(), player.PlayerId),
-                            CustomRoles.Escapee => GetCD_HUDText(Main.EscapeeCD, Options.EscapeeSSCD.GetInt(), player.PlayerId),
-                            CustomRoles.Disperser => GetCD_HUDText(Main.DisperserCD, Disperser.DisperserShapeshiftCooldown.GetInt(), player.PlayerId),
-                            CustomRoles.Twister => GetCD_HUDText(Main.TwisterCD, Twister.ShapeshiftCooldown.GetInt(), player.PlayerId),
-                            _ => string.Empty,
-                        };
-                        break;
+                    CustomGameMode.SoloKombat => SoloKombatManager.GetHudText(),
+                    CustomGameMode.FFA when player.PlayerId == 0 => FFAManager.GetHudText(),
+                    CustomGameMode.MoveAndStop when player.PlayerId == 0 => MoveAndStopManager.HUDText,
+                    CustomGameMode.Standard => player.GetCustomRole() switch
+                    {
+                        CustomRoles.BountyHunter => BountyHunter.GetTargetText(player, true),
+                        CustomRoles.Witch => Witch.GetSpellModeText(player, true),
+                        CustomRoles.HexMaster => HexMaster.GetHexModeText(player, true),
+                        CustomRoles.FireWorks => FireWorks.GetStateText(player),
+                        CustomRoles.Swooper => Swooper.GetHudText(player),
+                        CustomRoles.Wraith => Wraith.GetHudText(player),
+                        CustomRoles.HeadHunter => HeadHunter.GetHudText(player),
+                        CustomRoles.Alchemist => Alchemist.GetHudText(player),
+                        CustomRoles.Chameleon => Chameleon.GetHudText(player),
+                        CustomRoles.Werewolf => Werewolf.GetHudText(player),
+                        CustomRoles.BloodKnight => BloodKnight.GetHudText(player),
+                        CustomRoles.Glitch => Glitch.GetHudText(player),
+                        CustomRoles.NiceHacker => NiceHacker.GetHudText(player),
+                        CustomRoles.Wildling => Wildling.GetHudText(player),
+                        CustomRoles.Doormaster => Doormaster.GetHudText(player),
+                        CustomRoles.Tether => Tether.GetHudText(player),
+                        CustomRoles.YinYanger => YinYanger.ModeText,
+                        CustomRoles.WeaponMaster => WeaponMaster.GetHudAndProgressText(),
+                        CustomRoles.Postman => Postman.GetHudText(player),
+                        CustomRoles.Chronomancer => Chronomancer.GetHudText(),
+                        CustomRoles.Mafioso => Mafioso.GetHUDText(),
+                        CustomRoles.Druid => Druid.GetHUDText(player),
+                        CustomRoles.Librarian => Librarian.GetSelfSuffixAndHUDText(player.PlayerId),
+                        CustomRoles.PlagueDoctor => PlagueDoctor.GetLowerTextOthers(player, isForHud: true),
+                        CustomRoles.Stealth => Stealth.GetSuffix(player, isHUD: true),
+                        CustomRoles.Sapper => GetCD_HUDText(Main.SapperCD, Sapper.ShapeshiftCooldown.GetInt()),
+                        CustomRoles.CameraMan => GetCD_HUDText(Main.CameraManCD, CameraMan.VentCooldown.GetInt()),
+                        CustomRoles.Mayor => GetCD_HUDText(Main.MayorCD, (int)Options.DefaultKillCooldown),
+                        CustomRoles.Paranoia => GetCD_HUDText(Main.ParanoiaCD, (int)Options.DefaultKillCooldown),
+                        CustomRoles.Veteran => GetCD_HUDText(Main.VeteranCD, Options.VeteranSkillCooldown.GetInt()),
+                        CustomRoles.Grenadier => GetCD_HUDText(Main.GrenadierCD, Options.GrenadierSkillCooldown.GetInt()),
+                        CustomRoles.Lighter => GetCD_HUDText(Main.LighterCD, Options.LighterSkillCooldown.GetInt()),
+                        CustomRoles.DovesOfNeace => GetCD_HUDText(Main.DovesOfNeaceCD, Options.DovesOfNeaceCooldown.GetInt()),
+                        CustomRoles.SecurityGuard => GetCD_HUDText(Main.SecurityGuardCD, Options.SecurityGuardSkillCooldown.GetInt()),
+                        CustomRoles.TimeMaster => GetCD_HUDText(Main.TimeMasterCD, Options.TimeMasterSkillCooldown.GetInt()),
+                        CustomRoles.Sniper => GetCD_HUDText(Main.SniperCD, (int)Options.DefaultKillCooldown),
+                        CustomRoles.Assassin => GetCD_HUDText(Main.AssassinCD, Assassin.AssassinateCooldown.GetInt()),
+                        CustomRoles.Undertaker => GetCD_HUDText(Main.UndertakerCD, Undertaker.AssassinateCooldown.GetInt()),
+                        CustomRoles.Bomber => GetCD_HUDText(Main.BomberCD, Options.BombCooldown.GetInt()),
+                        CustomRoles.Nuker => GetCD_HUDText(Main.NukerCD, Options.NukeCooldown.GetInt()),
+                        CustomRoles.QuickShooter => GetCD_HUDText(Main.QuickShooterCD, QuickShooter.ShapeshiftCooldown.GetInt()),
+                        CustomRoles.Miner => GetCD_HUDText(Main.MinerCD, Options.MinerSSCD.GetInt()),
+                        CustomRoles.Escapee => GetCD_HUDText(Main.EscapeeCD, Options.EscapeeSSCD.GetInt()),
+                        CustomRoles.Disperser => GetCD_HUDText(Main.DisperserCD, Disperser.DisperserShapeshiftCooldown.GetInt()),
+                        CustomRoles.Twister => GetCD_HUDText(Main.TwisterCD, Twister.ShapeshiftCooldown.GetInt()),
+                        _ => string.Empty,
+                    },
+                    _ => string.Empty,
+                };
+                string GetCD_HUDText(Dictionary<byte, long> data, int CD)
+                {
+                    return !Options.UsePets.GetBool() || !data.TryGetValue(player.PlayerId, out var cd)
+                        ? string.Empty
+                        : string.Format(GetString("CDPT"), CD - (Utils.GetTimeStamp() - cd) + 1);
                 }
 
                 LowerInfoText.enabled = LowerInfoText.text != string.Empty;
@@ -572,12 +574,6 @@ class HudManagerPatch
             if (Input.GetKeyDown(KeyCode.Return)) RepairSender.InputEnter();
         }
     }
-    public static string GetCD_HUDText(Dictionary<byte, long> data, int CD, byte playerId)
-    {
-        return !Options.UsePets.GetBool() || !data.TryGetValue(playerId, out var cd)
-            ? string.Empty
-            : string.Format(GetString("CDPT"), CD - (Utils.GetTimeStamp() - cd) + 1);
-    }
 }
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ToggleHighlight))]
 class ToggleHighlightPatch
@@ -623,6 +619,22 @@ class SetHudActivePatch
         }
         IsActive = isActive;
         if (!isActive) return;
+
+        switch (Options.CurrentGameMode)
+        {
+            case CustomGameMode.MoveAndStop:
+                __instance.ReportButton?.ToggleVisible(false);
+                __instance.KillButton?.ToggleVisible(false);
+                __instance.SabotageButton?.ToggleVisible(false);
+                __instance.ImpostorVentButton?.ToggleVisible(false);
+                __instance.AbilityButton?.ToggleVisible(false);
+                return;
+            case CustomGameMode.FFA:
+                __instance.ReportButton?.ToggleVisible(false);
+                __instance.SabotageButton?.ToggleVisible(false);
+                __instance.AbilityButton?.ToggleVisible(false);
+                return;
+        }
 
         var player = PlayerControl.LocalPlayer;
         if (player == null) return;
@@ -740,9 +752,8 @@ class TaskPanelBehaviourPatch
         // 役職説明表示
         if (!player.GetCustomRole().IsVanilla())
         {
-            var RoleWithInfo = $"<size=80%>{player.GetDisplayRoleName()}:\r\n";
-            RoleWithInfo += player.GetRoleInfo();
-            RoleWithInfo += "</size>";
+            var RoleWithInfo = $"<size=80%>{player.GetDisplayRoleName()}:\r\n{player.GetRoleInfo()}</size>";
+            if (Options.CurrentGameMode == CustomGameMode.MoveAndStop) RoleWithInfo = $"{GetString("TaskerInfo")}\r\n";
 
             var AllText = Utils.ColorString(player.GetRoleColor(), RoleWithInfo);
 
@@ -821,6 +832,44 @@ class TaskPanelBehaviourPatch
                     foreach (var id in list2.Where(x => SummaryText2.ContainsKey(x.Item2))) AllText += "\r\n" + SummaryText2[id.Item2];
 
                     AllText = $"<size=70%>{AllText}</size>";
+
+                    break;
+
+                case CustomGameMode.MoveAndStop:
+
+                    Dictionary<byte, string> SummaryText3 = [];
+                    foreach (var id in Main.PlayerStates.Keys.ToArray())
+                    {
+                        string name = Main.AllPlayerNames[id].RemoveHtmlTags().Replace("\r\n", string.Empty);
+                        string summary = $"{Utils.GetProgressText(id)}  {Utils.ColorString(Main.PlayerColors[id], name)}";
+                        if (Utils.GetProgressText(id).Trim() == string.Empty) continue;
+                        SummaryText3[id] = summary;
+                    }
+
+                    var lines1 = taskText.Split("\r\n</color>\n")[0].Split("\r\n\n")[0].Split("\r\n");
+                    StringBuilder sb1 = new();
+                    foreach (string eachLine in lines1)
+                    {
+                        var line = eachLine.Trim();
+                        if ((line.StartsWith("<color=#FF1919FF>") || line.StartsWith("<color=#FF0000FF>")) && sb1.Length < 1 && !line.Contains('(')) continue;
+                        sb1.Append(line + "\r\n");
+                    }
+                    if (sb1.Length > 1)
+                    {
+                        var text = sb1.ToString().TrimEnd('\n').TrimEnd('\r');
+                        if (!Utils.HasTasks(player.Data, false) && sb1.ToString().Count(s => s == '\n') >= 2)
+                            text = $"{Utils.ColorString(Utils.GetRoleColor(player.GetCustomRole()).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}";
+                        AllText += $"<size=70%>\r\n{text}\r\n</size>";
+                    }
+
+                    List<(int, byte)> list3 = [];
+                    foreach (var id in Main.PlayerStates.Keys) list3.Add((MoveAndStopManager.GetRankOfScore(id), id));
+                    list3.Sort();
+                    foreach (var id in list3.Where(x => SummaryText3.ContainsKey(x.Item2)).ToArray())
+                    {
+                        bool alive = Utils.GetPlayerById(id.Item2).IsAlive();
+                        AllText += $"{(!alive ? "<#777777>" : string.Empty)}<size=1.6>\r\n{(alive ? SummaryText3[id.Item2] : SummaryText3[id.Item2].RemoveHtmlTags())}{(!alive ? "  <#ff0000>DEAD</color>" : string.Empty)}</size>";
+                    }
 
                     break;
             }

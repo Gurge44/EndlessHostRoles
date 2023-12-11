@@ -1,7 +1,6 @@
 ﻿using Hazel;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using static TOHE.Options;
 using static TOHE.Translator;
 using static TOHE.Utils;
@@ -72,6 +71,7 @@ namespace TOHE.Roles.AddOns.Impostor
 
         public static void SendRPC()
         {
+            if (!DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncDamoclesTimer, SendOption.Reliable, -1);
             writer.Write(Timer);
             writer.Write(lastUpdate);
@@ -111,7 +111,7 @@ namespace TOHE.Roles.AddOns.Impostor
             PreviouslyEnteredVents.Clear();
 
             Timer += TimeAfterMeeting;
-            Timer += 7;
+            Timer += 9;
             countRepairSabotage = true;
         }
 

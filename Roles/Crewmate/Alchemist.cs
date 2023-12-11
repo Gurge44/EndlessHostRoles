@@ -149,9 +149,7 @@ namespace TOHE.Roles.Crewmate
                     if (!isPet) player.MyPhysics.RpcBootFromVent(ventId);
                     _ = new LateTask(() =>
                     {
-                        player.SetRealKiller(player);
-                        player.Kill(player);
-                        Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Poison;
+                        player.Suicide(PlayerState.DeathReason.Poison);
                     }, !isPet ? 1f : 0.1f);
                     break;
                 case 3: // TP to random player

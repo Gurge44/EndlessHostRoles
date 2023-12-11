@@ -268,8 +268,7 @@ public static class VengefulRomantic
         }
         else
         {
-            Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Misfire;
-            killer.Kill(killer);
+            killer.Suicide(PlayerState.DeathReason.Misfire);
             return false;
         }
     }

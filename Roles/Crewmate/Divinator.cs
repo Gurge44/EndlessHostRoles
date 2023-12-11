@@ -1,6 +1,5 @@
 using Hazel;
 using System.Collections.Generic;
-using System.Linq;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -224,6 +223,7 @@ public static class Divinator
                 CustomRoles.Mayor or
                 CustomRoles.Paranoia or
                 CustomRoles.Pickpocket or
+                CustomRoles.Tunneler or
                 CustomRoles.Mastermind or
                 CustomRoles.Spy or
                 CustomRoles.Vindicator
@@ -233,6 +233,7 @@ public static class Divinator
                 CustomRoles.Virus or
                 CustomRoles.Monarch or
                 CustomRoles.Revolutionist or
+                CustomRoles.Detour or
                 CustomRoles.Agitater or
                 CustomRoles.Express or
                 CustomRoles.Succubus

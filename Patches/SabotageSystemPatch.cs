@@ -151,7 +151,7 @@ public static class MushroomMixupSabotageSystemPatch
             _ = new LateTask(() =>
             {
                 // After MushroomMixup sabotage, shapeshift cooldown sets to 0
-                foreach (var pc in Main.AllAlivePlayerControls.ToArray())
+                foreach (var pc in Main.AllAlivePlayerControls)
                 {
                     // Reset Ability Cooldown To Default For Alive Players
                     pc.RpcResetAbilityCooldown();
@@ -178,7 +178,8 @@ public static class ElectricTaskInitializePatch
             {
                 if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare))
                 {
-                    Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true);
+                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                    Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true);
                 }
             }
         }
@@ -199,7 +200,8 @@ public static class ElectricTaskCompletePatch
             {
                 if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare))
                 {
-                    Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true);
+                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                    Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true);
                 }
             }
         }

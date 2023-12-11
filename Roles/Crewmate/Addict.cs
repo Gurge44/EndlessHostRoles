@@ -1,7 +1,6 @@
 namespace TOHE.Roles.Crewmate
 {
     using System.Collections.Generic;
-    using System.Linq;
     using UnityEngine;
     using static TOHE.Options;
 
@@ -69,8 +68,7 @@ namespace TOHE.Roles.Crewmate
 
             if (SuicideTimer[player.PlayerId] >= TimeLimit.GetFloat())
             {
-                Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
-                player.Kill(player);
+                player.Suicide();
                 SuicideTimer.Remove(player.PlayerId);
             }
             else

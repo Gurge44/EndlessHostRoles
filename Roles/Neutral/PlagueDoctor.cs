@@ -277,13 +277,8 @@ namespace TOHE.Roles.Neutral
 
                 foreach (PlayerControl player in Main.AllAlivePlayerControls)
                 {
-                    if (player.Is(CustomRoles.PlagueDoctor))
-                        continue;
-                    player.SetRealKiller(null);
-                    player.Kill(player);
-                    var state = Main.PlayerStates[player.PlayerId];
-                    state.deathReason = PlayerState.DeathReason.Curse;
-                    state.SetDead();
+                    if (player.Is(CustomRoles.PlagueDoctor)) continue;
+                    player.Suicide(PlayerState.DeathReason.Curse);
                 }
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.PlagueDoctor);
                 foreach (var plagueDoctor in Main.AllPlayerControls.Where(p => p.Is(CustomRoles.PlagueDoctor)).ToArray())

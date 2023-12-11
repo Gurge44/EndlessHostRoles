@@ -1,6 +1,5 @@
 ﻿using Hazel;
 using System.Collections.Generic;
-using System.Linq;
 using TOHE.Roles.Crewmate;
 using UnityEngine;
 using static TOHE.Translator;

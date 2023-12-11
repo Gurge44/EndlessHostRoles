@@ -114,20 +114,27 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 
         CustomRoles role = player.GetCustomRole();
 
-        if (Options.CurrentGameMode == CustomGameMode.FFA)
+        switch (Options.CurrentGameMode)
         {
-            if (FFAManager.FFALowerVisionList.ContainsKey(player.PlayerId))
-            {
-                opt.SetVision(true);
-                opt.SetFloat(FloatOptionNames.CrewLightMod, FFAManager.FFA_LowerVision.GetFloat());
-                opt.SetFloat(FloatOptionNames.ImpostorLightMod, FFAManager.FFA_LowerVision.GetFloat());
-            }
-            else
-            {
+            case CustomGameMode.FFA:
+                if (FFAManager.FFALowerVisionList.ContainsKey(player.PlayerId))
+                {
+                    opt.SetVision(true);
+                    opt.SetFloat(FloatOptionNames.CrewLightMod, FFAManager.FFA_LowerVision.GetFloat());
+                    opt.SetFloat(FloatOptionNames.ImpostorLightMod, FFAManager.FFA_LowerVision.GetFloat());
+                }
+                else
+                {
+                    opt.SetVision(true);
+                    opt.SetFloat(FloatOptionNames.CrewLightMod, 1.25f);
+                    opt.SetFloat(FloatOptionNames.ImpostorLightMod, 1.25f);
+                }
+                break;
+            case CustomGameMode.MoveAndStop:
                 opt.SetVision(true);
                 opt.SetFloat(FloatOptionNames.CrewLightMod, 1.25f);
                 opt.SetFloat(FloatOptionNames.ImpostorLightMod, 1.25f);
-            }
+                break;
         }
 
         switch (role.GetCustomRoleTypes())
@@ -732,7 +739,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
         MeetingTimeManager.ApplyGameOptions(opt);
 
         AURoleOptions.ShapeshifterCooldown = Mathf.Max(1f, AURoleOptions.ShapeshifterCooldown);
-        AURoleOptions.ProtectionDurationSeconds = 0f;
+        AURoleOptions.ProtectionDurationSeconds = Main.UseVersionProtocol.Value ? 0f : 60f;
 
         return opt;
     }

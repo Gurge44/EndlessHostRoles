@@ -235,9 +235,7 @@ namespace TOHE.Roles.Impostor
                 }
                 if (x.Value + KillDelay.GetInt() < GetTimeStamp())
                 {
-                    Main.PlayerStates[x.Key].deathReason = PlayerState.DeathReason.Poison;
-                    pc.SetRealKiller(player);
-                    pc.Kill(pc);
+                    pc.Suicide(PlayerState.DeathReason.Poison, player);
                     waitingDelayedKills.Remove(x.Key);
                 }
             }

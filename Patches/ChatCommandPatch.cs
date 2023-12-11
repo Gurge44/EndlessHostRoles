@@ -713,15 +713,17 @@ internal class ChatCommands
     }
     public static void SendRolesInfo(string role, byte playerId, bool isDev = false, bool isUp = false)
     {
-        if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
+        switch (Options.CurrentGameMode)
         {
-            Utils.SendMessage(GetString("ModeDescribe.SoloKombat"), playerId);
-            return;
-        }
-        if (Options.CurrentGameMode == CustomGameMode.FFA)
-        {
-            Utils.SendMessage(GetString("ModeDescribe.FFA"), playerId);
-            return;
+            case CustomGameMode.SoloKombat:
+                Utils.SendMessage(GetString("ModeDescribe.SoloKombat"), playerId);
+                return;
+            case CustomGameMode.FFA:
+                Utils.SendMessage(GetString("ModeDescribe.FFA"), playerId);
+                return;
+            case CustomGameMode.MoveAndStop:
+                Utils.SendMessage(GetString("ModeDescribe.MoveAndStop"), playerId);
+                return;
         }
 
         role = role.Trim().ToLower();
@@ -771,13 +773,16 @@ internal class ChatCommands
                 if (Options.CustomRoleSpawnChances.ContainsKey(rl))
                 {
                     settings.AppendLine($"<size=70%><u>Settings for {roleName}:</u>");
-                    Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[rl], ref settings);
+                    Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[rl], ref settings, disableColor: false);
                     settings.Append("</size>");
                     var txt = $"<size=90%>{sb}</size>";
                     _ = sb.Clear().Append(txt);
                 }
-                Utils.SendMessage(text: "\n", sendTo: playerId, title: settings.ToString());
-                Utils.SendMessage(text: sb.ToString(), sendTo: playerId);
+                _ = new LateTask(() =>
+                {
+                    Utils.SendMessage(text: "\n", sendTo: playerId, title: settings.ToString());
+                    Utils.SendMessage(text: sb.ToString(), sendTo: playerId);
+                }, 0.5f, log: false);
                 return;
             }
         }

@@ -284,6 +284,14 @@ class ExternalRpcPetPatch
             case CustomRoles.Druid:
                 Druid.OnEnterVent(pc, isPet: true);
                 break;
+            case CustomRoles.Tunneler:
+                if (Main.TunnelerPositions.TryGetValue(pc.PlayerId, out var ps))
+                {
+                    pc.TP(ps);
+                    Main.TunnelerPositions.Remove(pc.PlayerId);
+                }
+                else Main.TunnelerPositions[pc.PlayerId] = pc.Pos();
+                break;
 
             // Impostors
 
@@ -299,7 +307,7 @@ class ExternalRpcPetPatch
                     if (!Main.CursedPlayers[pc.PlayerId].Data.IsDead)
                     {
                         var cp = Main.CursedPlayers[pc.PlayerId];
-                        UnityEngine.Vector2 cppos = cp.transform.position;
+                        UnityEngine.Vector2 cppos = cp.Pos();
                         Dictionary<PlayerControl, float> cpdistance = [];
                         float dis;
                         foreach (PlayerControl p in Main.AllAlivePlayerControls)
@@ -309,7 +317,7 @@ class ExternalRpcPetPatch
                             if (!Options.WarlockCanKillAllies.GetBool() && p.GetCustomRole().IsImpostor()) continue;
                             if (p.Is(CustomRoles.Pestilence)) continue;
                             if (Pelican.IsEaten(p.PlayerId) || Medic.ProtectList.Contains(p.PlayerId)) continue;
-                            dis = UnityEngine.Vector2.Distance(cppos, p.transform.position);
+                            dis = UnityEngine.Vector2.Distance(cppos, p.Pos());
                             cpdistance.Add(p, dis);
                             Logger.Info($"{p?.Data?.PlayerName}'s distance: {dis}", "Warlock");
                         }
@@ -350,8 +358,6 @@ class ExternalRpcPetPatch
                 if (Main.MinerCD.ContainsKey(pc.PlayerId)) break;
                 if (Main.LastEnteredVent.ContainsKey(pc.PlayerId))
                 {
-                    int ventId = Main.LastEnteredVent[pc.PlayerId].Id;
-                    var vent = Main.LastEnteredVent[pc.PlayerId];
                     var position = Main.LastEnteredVentLocation[pc.PlayerId];
                     Logger.Msg($"{pc.GetNameWithRole().RemoveHtmlTags()}:{position}", "MinerTeleport");
                     pc.TP(new UnityEngine.Vector2(position.x, position.y));
@@ -384,25 +390,21 @@ class ExternalRpcPetPatch
                 foreach (PlayerControl tg in Main.AllPlayerControls)
                 {
                     if (!tg.IsModClient()) tg.KillFlash();
-                    var pos = pc.transform.position;
-                    var dis = UnityEngine.Vector2.Distance(pos, tg.transform.position);
+                    var pos = pc.Pos();
+                    var dis = UnityEngine.Vector2.Distance(pos, tg.Pos());
 
                     if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || (tg.Is(CustomRoleTypes.Impostor) && Options.ImpostorsSurviveBombs.GetBool()) || tg.inVent || tg.Is(CustomRoles.Pestilence)) continue;
                     if (dis > Options.BomberRadius.GetFloat()) continue;
                     if (tg.PlayerId == pc.PlayerId) continue;
 
-                    Main.PlayerStates[tg.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
-                    tg.SetRealKiller(pc);
-                    tg.Kill(tg);
-                    Medic.IsDead(tg);
+                    tg.Suicide(PlayerState.DeathReason.Bombed, pc);
                 }
                 _ = new LateTask(() =>
                 {
                     var totalAlive = Main.AllAlivePlayerControls.Length;
                     if (Options.BomberDiesInExplosion.GetBool() && totalAlive > 1 && !GameStates.IsEnded)
                     {
-                        Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
-                        pc.Kill(pc);
+                        pc.Suicide(PlayerState.DeathReason.Bombed);
                     }
                     Utils.NotifyRoles(ForceLoop: true);
                 }, 1.5f, "Bomber Suiscide");
@@ -415,25 +417,21 @@ class ExternalRpcPetPatch
                 foreach (PlayerControl tg in Main.AllPlayerControls)
                 {
                     if (!tg.IsModClient()) tg.KillFlash();
-                    var pos = pc.transform.position;
-                    var dis = UnityEngine.Vector2.Distance(pos, tg.transform.position);
+                    var pos = pc.Pos();
+                    var dis = UnityEngine.Vector2.Distance(pos, tg.Pos());
 
                     if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || tg.inVent || tg.Is(CustomRoles.Pestilence)) continue;
                     if (dis > Options.NukeRadius.GetFloat()) continue;
                     if (tg.PlayerId == pc.PlayerId) continue;
 
-                    Main.PlayerStates[tg.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
-                    tg.SetRealKiller(pc);
-                    tg.Kill(tg);
-                    Medic.IsDead(tg);
+                    tg.Suicide(PlayerState.DeathReason.Bombed, pc);
                 }
                 _ = new LateTask(() =>
                 {
                     var totalAlive = Main.AllAlivePlayerControls.Length;
                     if (totalAlive > 1 && !GameStates.IsEnded)
                     {
-                        Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
-                        pc.Kill(pc);
+                        pc.Suicide(PlayerState.DeathReason.Bombed);
                     }
                     Utils.NotifyRoles(ForceLoop: true);
                 }, 1.5f, "Nuke");

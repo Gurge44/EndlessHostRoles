@@ -96,10 +96,7 @@ public static class Vampire
         if (vampire == null || target == null || target.Data.Disconnected) return;
         if (target.IsAlive())
         {
-            Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Bite;
-            target.SetRealKiller(vampire);
-            target.Kill(target);
-            Medic.IsDead(target);
+            target.Suicide(PlayerState.DeathReason.Bite, vampire);
             Logger.Info($"Vampireに噛まれている{target.name}を自爆させました。", "Vampire");
             if (!isButton && vampire.IsAlive())
             {

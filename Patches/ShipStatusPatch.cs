@@ -3,6 +3,7 @@ using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
@@ -58,7 +59,7 @@ class RepairSystemPatch
 
         IsComms = PlayerControl.LocalPlayer.myTasks.ToArray().Any(x => x.TaskType == TaskTypes.FixComms);
 
-        if ((Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA) && systemType == SystemTypes.Sabotage) return false;
+        if ((Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop) && systemType == SystemTypes.Sabotage) return false;
 
         if (Options.DisableSabotage.GetBool() && systemType == SystemTypes.Sabotage) return false;
 
@@ -85,8 +86,7 @@ class RepairSystemPatch
                 var Ue = IRandom.Instance;
                 if (Ue.Next(0, 100) < Options.UnluckySabotageSuicideChance.GetInt())
                 {
-                    player.Kill(player);
-                    Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
+                    player.Suicide();
                     return false;
                 }
                 break;
@@ -172,8 +172,7 @@ class RepairSystemPatch
             }
         }
 
-        if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage &&
-            systemType is
+        if (systemType is
             SystemTypes.Reactor or
             SystemTypes.LifeSupp or
             SystemTypes.Comms or
@@ -181,7 +180,8 @@ class RepairSystemPatch
             SystemTypes.HeliSabotage or
             SystemTypes.Electrical)
         {
-            Damocles.OnRepairSabotage();
+            if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage) Damocles.OnRepairSabotage();
+            if (player.Is(CustomRoles.Stressed) && Stressed.countRepairSabotage) Stressed.OnRepairSabotage(player);
         }
     }
     public static void CheckAndOpenDoorsRange(ShipStatus __instance, int amount, int min, int max)
@@ -207,7 +207,7 @@ class CloseDoorsPatch
 {
     public static bool Prefix(/*ShipStatus __instance, */[HarmonyArgument(0)] SystemTypes room)
     {
-        bool allow = !Options.DisableSabotage.GetBool() && Options.CurrentGameMode != CustomGameMode.SoloKombat && Options.CurrentGameMode != CustomGameMode.FFA;
+        bool allow = !Options.DisableSabotage.GetBool() && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop;
 
         if (Main.BlockSabo.Any()) allow = false;
         if (Options.DisableCloseDoor.GetBool()) allow = false;
@@ -265,7 +265,7 @@ class CheckTaskCompletionPatch
 {
     public static bool Prefix(ref bool __result)
     {
-        if (Options.DisableTaskWin.GetBool() || Options.NoGameEnd.GetBool() || TaskState.InitialTotalTasks == 0 || Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA)
+        if (Options.DisableTaskWin.GetBool() || Options.NoGameEnd.GetBool() || TaskState.InitialTotalTasks == 0 || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop)
         {
             __result = false;
             return false;

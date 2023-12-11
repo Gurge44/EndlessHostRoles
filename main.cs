@@ -78,6 +78,7 @@ public class Main : BasePlugin
     public static ConfigEntry<string> WebhookURL { get; private set; }
     public static ConfigEntry<string> BetaBuildURL { get; private set; }
     public static ConfigEntry<float> LastKillCooldown { get; private set; }
+    public static ConfigEntry<bool> UseVersionProtocol { get; private set; }
     public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
     public static OptionBackupData RealOptionsData;
     public static Dictionary<byte, float> KillTimers = [];
@@ -178,6 +179,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, int> GuesserGuessed = [];
     public static Dictionary<byte, int> CapitalismAddTask = [];
     public static Dictionary<byte, int> CapitalismAssignTask = [];
+    public static Dictionary<byte, Vector2> TunnelerPositions = [];
     public static Dictionary<(byte, byte), bool> isDoused = [];
     public static Dictionary<(byte, byte), bool> isDraw = [];
     public static Dictionary<(byte, byte), bool> isRevealed = [];
@@ -359,6 +361,8 @@ public class Main : BasePlugin
                 {CustomRoles.Express, "#00ffff"},
                 {CustomRoles.NiceEraser, "#00a5ff"},
                 {CustomRoles.TaskManager, "#00ffa5"},
+                {CustomRoles.Tunneler, "#543232"},
+                {CustomRoles.Detour, "#ffd35c"},
                 {CustomRoles.Gaulois, "#42d1f5"},
                 {CustomRoles.Druid, "#ffb694"},
                 {CustomRoles.Autocrat, "#e2ed64"},
@@ -532,6 +536,7 @@ public class Main : BasePlugin
                 {CustomRoles.Reach, "#74ba43"},
                 {CustomRoles.DeadlyQuota, "#ff1919"},
                 {CustomRoles.Damocles, "#ff1919"},
+                {CustomRoles.Stressed, "#9403fc"},
                 {CustomRoles.Charmed, "#cf6acd"},
                 {CustomRoles.Bait, "#00f7ff"},
                 {CustomRoles.Trapper, "#5a8fd0"},
@@ -567,7 +572,9 @@ public class Main : BasePlugin
                 //SoloKombat
                 {CustomRoles.KB_Normal, "#f55252"},
                 //FFA
-                {CustomRoles.Killer, "#00ffff"}
+                {CustomRoles.Killer, "#00ffff"},
+                //Move And Stop
+                {CustomRoles.Tasker, "#00ffa5"}
             };
             foreach (var role in Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>())
             {
@@ -740,6 +747,8 @@ public enum CustomRoles
     Express,
     NiceEraser,
     TaskManager,
+    Tunneler,
+    Detour,
     Gaulois,
     Druid,
     Drainer,
@@ -777,7 +786,6 @@ public enum CustomRoles
     Transmitter,
     Autocrat,
     Nightmare,
-    Clairvoyant,
     TimeManager,
     Veteran,
     Bodyguard,
@@ -893,6 +901,7 @@ public enum CustomRoles
     KB_Normal,
     //FFA
     Killer,
+    Tasker,
 
     //GM
     GM,
@@ -933,6 +942,7 @@ public enum CustomRoles
     Unreportable,
     DeadlyQuota,
     Damocles,
+    Stressed,
     Rogue,
     Lucky,
     Unlucky,

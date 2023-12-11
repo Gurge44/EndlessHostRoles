@@ -1,6 +1,5 @@
 ﻿using Hazel;
 using System.Collections.Generic;
-using System.Linq;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -34,6 +33,8 @@ namespace TOHE.Roles.Crewmate
         }
         public static void Add(byte playerId)
         {
+            if (CurrentGameMode == CustomGameMode.MoveAndStop) return;
+
             playerIdList.Add(playerId);
 
             DeliverLimit = UseLimit.GetInt();
@@ -45,7 +46,7 @@ namespace TOHE.Roles.Crewmate
         public static bool IsEnable => playerIdList.Count > 0;
         public static void SendRPC()
         {
-            if (!IsEnable || !Utils.DoRPC) return;
+            if (CurrentGameMode == CustomGameMode.MoveAndStop || !IsEnable || !Utils.DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDonutLimit, SendOption.Reliable, -1);
             writer.Write(DeliverLimit);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -53,16 +54,22 @@ namespace TOHE.Roles.Crewmate
 
         public static void ReceiveRPC(MessageReader reader)
         {
-            if (!IsEnable) return;
+            if (CurrentGameMode == CustomGameMode.MoveAndStop || !IsEnable) return;
             DeliverLimit = reader.ReadInt32();
         }
         public static void SetKillCooldown(byte playerId)
         {
+            if (CurrentGameMode == CustomGameMode.MoveAndStop)
+            {
+                Main.AllPlayerKillCooldown[playerId] = MoveAndStopManager.RoundTime + 10;
+                return;
+            }
+
             Main.AllPlayerKillCooldown[playerId] = DeliverLimit > 0 ? CD.GetFloat() : 300f;
         }
         public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable || killer == null || target == null || DeliverLimit <= 0 || !killer.Is(CustomRoles.DonutDelivery)) return;
+            if (CurrentGameMode == CustomGameMode.MoveAndStop || !IsEnable || killer == null || target == null || DeliverLimit <= 0 || !killer.Is(CustomRoles.DonutDelivery)) return;
 
             DeliverLimit--;
 

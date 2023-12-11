@@ -1,7 +1,6 @@
 using AmongUs.GameOptions;
 using HarmonyLib;
 using System.Collections.Generic;
-using System.Linq;
 using TOHE.Roles.AddOns.Crewmate;
 
 namespace TOHE;
@@ -153,7 +152,7 @@ class RpcSetTasksPatch
         }
 
         //管理员和摆烂人没有任务
-        if (pc.Is(CustomRoles.GM) || pc.Is(CustomRoles.Needy) || Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA || pc.Is(CustomRoles.Lazy))
+        if (pc.Is(CustomRoles.GM) || pc.Is(CustomRoles.Needy) || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA || pc.Is(CustomRoles.Lazy))
         {
             hasCommonTasks = false;
             NumShortTasks = 0;

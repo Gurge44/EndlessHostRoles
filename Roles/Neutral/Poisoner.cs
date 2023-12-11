@@ -103,10 +103,7 @@ public static class Poisoner
         if (poisoner == null || target == null || target.Data.Disconnected) return;
         if (target.IsAlive())
         {
-            Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Poison;
-            target.SetRealKiller(poisoner);
-            target.Kill(target);
-            Medic.IsDead(target);
+            target.Suicide(PlayerState.DeathReason.Poison, poisoner);
             Logger.Info($"Poisonerに噛まれている{target.name}を自爆させました。", "Poisoner");
             if (!isButton && poisoner.IsAlive())
             {

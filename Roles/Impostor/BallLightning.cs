@@ -118,14 +118,11 @@ public static class BallLightning
             foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.PlayerId != gs.PlayerId && x.IsAlive() && !x.Is(CustomRoles.BallLightning) && !IsGhost(x) && !Pelican.IsEaten(x.PlayerId)).ToArray())
             {
                 var pos = gs.transform.position;
-                var dis = Vector2.Distance(pos, pc.transform.position);
+                var dis = Vector2.Distance(pos, pc.Pos());
                 if (dis > 0.3f) continue;
 
                 deList.Add(gs.PlayerId);
-                Main.PlayerStates[gs.PlayerId].IsDead = true;
-                Main.PlayerStates[gs.PlayerId].deathReason = PlayerState.DeathReason.Quantization;
-                gs.SetRealKiller(RealKiller[gs.PlayerId]);
-                gs.Kill(gs);
+                gs.Suicide(PlayerState.DeathReason.Quantization, RealKiller[gs.PlayerId]);
 
                 Logger.Info($"{gs.GetNameWithRole().RemoveHtmlTags()} 作为量子幽灵因碰撞而死", "BallLightning");
                 break;

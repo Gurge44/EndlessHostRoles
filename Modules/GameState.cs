@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TOHE.Modules;
+using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
@@ -17,14 +18,14 @@ public class PlayerState(byte playerId)
     public CustomRoles MainRole = CustomRoles.NotAssigned;
     public List<CustomRoles> SubRoles = [];
     public CountTypes countTypes = CountTypes.OutOfGame;
-    public bool IsDead { get; set; } = false;
+    public bool IsDead { get; set; }
 #pragma warning disable IDE1006 // Naming Styles
     public DeathReason deathReason { get; set; } = DeathReason.etc;
 #pragma warning restore IDE1006 // Naming Styles
     public TaskState taskState = new();
-    public bool IsBlackOut { get; set; } = false;
+    public bool IsBlackOut { get; set; }
     public (DateTime TIMESTAMP, byte ID) RealKiller = (DateTime.MinValue, byte.MaxValue);
-    public PlainShipRoom LastRoom = null;
+    public PlainShipRoom LastRoom;
     public Dictionary<byte, string> TargetColorData = [];
 
     public CustomRoles GetCustomRole()
@@ -373,8 +374,7 @@ public class TaskState
                 var Ue = IRandom.Instance;
                 if (Ue.Next(0, 100) < Options.UnluckyTaskSuicideChance.GetInt())
                 {
-                    player.Kill(player);
-                    Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
+                    player.Suicide();
 
                 }
             }
@@ -503,11 +503,13 @@ public class TaskState
             }
 
             if (player.Is(CustomRoles.Ghoul) && (CompletedTasksCount + 1) >= AllTasksCount && player.IsAlive())
+            {
                 _ = new LateTask(() =>
                 {
-                    player.Kill(player);
-                    Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
+                    player.Suicide();
                 }, 0.2f, "Ghoul Suicide");
+            }
+
             if (player.Is(CustomRoles.Ghoul) && (CompletedTasksCount + 1) >= AllTasksCount && !player.IsAlive())
             {
                 foreach (var pc in Main.AllPlayerControls.Where(pc => !pc.Is(CustomRoles.Pestilence) && Main.KillGhoul.Contains(pc.PlayerId) && player.PlayerId != pc.PlayerId && pc.IsAlive()).ToArray())
@@ -519,7 +521,7 @@ public class TaskState
 
             foreach (var taskmanager in Main.AllAlivePlayerControls.Where(pc => pc.Is(CustomRoles.TaskManager)).ToArray())
             {
-                Utils.NotifyRoles(SpecifySeer: taskmanager);
+                Utils.NotifyRoles(SpecifySeer: taskmanager, SpecifyTarget: player);
             }
 
             //工作狂做完了
@@ -557,6 +559,8 @@ public class TaskState
                     }
                 }
             }
+
+            if (player.Is(CustomRoles.Stressed)) Stressed.OnTaskComplete(player);
 
             Merchant.OnTaskFinished(player);
             if (player.Is(CustomRoles.Ignitor) && player.IsAlive()) Ignitor.OnCompleteTask(player);
@@ -645,7 +649,7 @@ public static class GameStates
 {
     public static bool InGame;
     public static bool AlreadyDied;
-    public static bool IsModHost => PlayerControl.AllPlayerControls.ToArray().FirstOrDefault(x => x.PlayerId == 0 && x.IsModClient());
+    public static bool IsModHost => PlayerControl.AllPlayerControls.ToArray().Any(x => x.PlayerId == 0 && x.IsModClient());
     public static bool IsLobby => AmongUsClient.Instance.GameState == InnerNet.InnerNetClient.GameStates.Joined;
     public static bool IsInGame => InGame;
     public static bool IsEnded => AmongUsClient.Instance.GameState == InnerNet.InnerNetClient.GameStates.Ended;

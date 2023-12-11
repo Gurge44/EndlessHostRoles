@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace TOHE.Roles.Impostor;
@@ -77,9 +76,8 @@ public static class SerialKiller
         }
         else if (SuicideTimer[player.PlayerId] >= TimeLimit.GetFloat())
         {
-            //自爆時間が来たとき
-            Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Suicide;//死因：自殺
-            player.Kill(player);//自殺させる
+            //自爆時間が来たとき //死因：自殺
+            player.Suicide();//自殺させる
             SuicideTimer.Remove(player.PlayerId);
             Timer[player.PlayerId] = TimeLimit.GetInt();
         }

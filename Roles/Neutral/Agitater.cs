@@ -95,9 +95,7 @@ public static class Agitater
                 var pc = Utils.GetPlayerById(CurrentBombedPlayer);
                 if (pc != null && pc.IsAlive() && killer != null)
                 {
-                    pc.Kill(pc);
-                    Main.PlayerStates[CurrentBombedPlayer].deathReason = PlayerState.DeathReason.Bombed;
-                    pc.SetRealKiller(Utils.GetPlayerById(playerIdList[0]));
+                    pc.Suicide(PlayerState.DeathReason.Bombed, Utils.GetPlayerById(playerIdList[0]));
                     Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} bombed {pc.GetNameWithRole().RemoveHtmlTags()}, bomb cd complete", "Agitater");
                     ResetBomb();
                 }

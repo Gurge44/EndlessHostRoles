@@ -1,4 +1,3 @@
-using Epic.OnlineServices;
 using Hazel;
 using System.Collections.Generic;
 using TOHE.Roles.Crewmate;
@@ -109,7 +108,7 @@ public static class FireWorks
             case FireWorksState.Initial:
             case FireWorksState.SettingFireWorks:
                 Logger.Info("花火を一個設置", "FireWorks");
-                fireWorksPosition[pc.PlayerId].Add(pc.transform.position);
+                fireWorksPosition[pc.PlayerId].Add(pc.Pos());
                 nowFireWorksCount[pc.PlayerId]--;
                 state[pc.PlayerId] = nowFireWorksCount[pc.PlayerId] == 0
                     ? Main.AliveImpostorCount <= 1 ? FireWorksState.ReadyFire : FireWorksState.WaitTime
@@ -132,10 +131,7 @@ public static class FireWorks
                         }
                         else
                         {
-                            Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Bombed;
-                            target.SetRealKiller(pc);
-                            target.Kill(target);
-                            Medic.IsDead(target);
+                            target.Suicide(PlayerState.DeathReason.Bombed, pc);
                         }
                     }
                 }
@@ -145,8 +141,7 @@ public static class FireWorks
                     //自分が最後の生き残りの場合は勝利のために死なない
                     if (totalAlive != 1)
                     {
-                        Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Misfire;
-                        pc.Kill(pc);
+                        pc.Suicide();
                     }
                 }
                 state[pc.PlayerId] = FireWorksState.FireEnd;

@@ -1,6 +1,5 @@
 ﻿using Hazel;
 using System.Collections.Generic;
-using System.Linq;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
@@ -103,7 +102,7 @@ internal static class Undertaker
             {
                 if (!(target == null || !target.IsAlive() || Pelican.IsEaten(target.PlayerId) || target.inVent || !GameStates.IsInTask))
                 {
-                    target.TP(new UnityEngine.Vector2(pc.transform.position.x, pc.transform.position.y + 0.3636f));
+                    target.TP(new UnityEngine.Vector2(pc.Pos().x, pc.Pos().y + 0.3636f));
                     if (pc.RpcCheckAndMurder(target))
                     {
                         MarkedPlayer.Remove(pc.PlayerId);

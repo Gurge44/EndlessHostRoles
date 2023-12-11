@@ -367,8 +367,7 @@ public static class CopyCat
                 SendRPC(pc.PlayerId);
                 return true;
             }
-            Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
-            pc.Kill(pc);
+            pc.Suicide();
             return false;
         }
         pc.Notify(GetString("CopyCatCanNotCopy"));

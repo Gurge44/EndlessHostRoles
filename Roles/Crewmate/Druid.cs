@@ -258,7 +258,14 @@ namespace TOHE.Roles.Crewmate
             var id = pc.PlayerId;
             var sb = new StringBuilder();
 
-            sb.AppendLine(HudManagerPatch.GetCD_HUDText(Main.DruidCD, VentCooldown.GetInt(), id));
+            sb.AppendLine(GetCD_HUDText(Main.DruidCD, VentCooldown.GetInt()));
+
+            string GetCD_HUDText(Dictionary<byte, long> data, int CD)
+            {
+                return !UsePets.GetBool() || !data.TryGetValue(id, out var cd)
+                    ? string.Empty
+                    : string.Format(GetString("CDPT"), CD - (GetTimeStamp() - cd) + 1);
+            }
 
             sb.AppendLine($"<color=#00ffa5>{Triggers[id].Count}</color> triggers active");
             sb.Append(string.Join('\n', Triggers[id].Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));

@@ -31,6 +31,8 @@ namespace TOHE.Roles.Crewmate
             CustomRoles.Express,
             CustomRoles.NiceEraser,
             CustomRoles.TaskManager,
+            CustomRoles.Tunneler,
+            CustomRoles.Detour,
             CustomRoles.Drainer,
             CustomRoles.GuessManager,
             CustomRoles.Benefactor,

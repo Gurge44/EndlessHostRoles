@@ -57,25 +57,30 @@ internal class CustomRoleSelector
 
         List<CustomRoles> roleRateList = [];
 
-        if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
+        switch (Options.CurrentGameMode)
         {
-            RoleResult = [];
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-            {
-                RoleResult.Add(pc, CustomRoles.KB_Normal);
-            }
-
-            return;
-        }
-        if (Options.CurrentGameMode == CustomGameMode.FFA)
-        {
-            RoleResult = [];
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-            {
-                RoleResult.Add(pc, CustomRoles.Killer);
-            }
-
-            return;
+            case CustomGameMode.SoloKombat:
+                RoleResult = [];
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                {
+                    RoleResult.Add(pc, CustomRoles.KB_Normal);
+                }
+                return;
+            case CustomGameMode.FFA:
+                RoleResult = [];
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                {
+                    RoleResult.Add(pc, CustomRoles.Killer);
+                }
+                return;
+            case CustomGameMode.MoveAndStop:
+                RoleResult = [];
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                {
+                    if (pc.PlayerId == 0 || pc.IsModClient() || pc.PlayerId == PlayerControl.LocalPlayer.PlayerId || pc.GetClientId() == Main.HostClientId) RoleResult.Add(pc, CustomRoles.DonutDelivery);
+                    else RoleResult.Add(pc, CustomRoles.Tasker);
+                }
+                return;
         }
 
         System.Collections.IList list = Enum.GetValues(typeof(CustomRoles));
@@ -84,11 +89,13 @@ internal class CustomRoleSelector
             object cr = list[i1];
             CustomRoles role = (CustomRoles)Enum.Parse(typeof(CustomRoles), cr.ToString());
             if (role.IsVanilla() || role.IsAdditionRole()) continue;
+            if (!Main.UseVersionProtocol.Value && !role.IsAbleToHostPublic()) continue;
             switch (role)
             {
                 case CustomRoles.DarkHide when (MapNames)Main.NormalOptions.MapId == MapNames.Fungle:
                 case CustomRoles.Pelican when roleList.Contains(CustomRoles.Duellist):
                 case CustomRoles.Duellist when roleList.Contains(CustomRoles.Pelican):
+                case CustomRoles.Tunneler when !Options.UsePets.GetBool():
                 case CustomRoles.GM:
                 case CustomRoles.NotAssigned:
                     continue;
@@ -348,7 +355,7 @@ internal class CustomRoleSelector
     public static List<CustomRoles> AddonRolesList = [];
     public static void SelectAddonRoles()
     {
-        if (Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA) return;
+        if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop) return;
 
         AddonRolesList = [];
         System.Collections.IList list = Enum.GetValues(typeof(CustomRoles));
@@ -357,9 +364,14 @@ internal class CustomRoleSelector
             object cr = list[i];
             CustomRoles role = (CustomRoles)Enum.Parse(typeof(CustomRoles), cr.ToString());
             if (!role.IsAdditionRole()) continue;
-            if (role is CustomRoles.Mare && (MapNames)Main.NormalOptions.MapId == MapNames.Fungle) continue;
-            if (role is CustomRoles.Madmate && Options.MadmateSpawnMode.GetInt() != 0) continue;
-            if (role is CustomRoles.Lovers or CustomRoles.LastImpostor or CustomRoles.Workhorse) continue;
+            if (!Main.UseVersionProtocol.Value && !role.IsAbleToHostPublic()) continue;
+            switch (role)
+            {
+                case CustomRoles.Mare when (MapNames)Main.NormalOptions.MapId == MapNames.Fungle:
+                case CustomRoles.Madmate when Options.MadmateSpawnMode.GetInt() != 0:
+                case CustomRoles.Lovers or CustomRoles.LastImpostor or CustomRoles.Workhorse:
+                    continue;
+            }
             AddonRolesList.Add(role);
         }
     }

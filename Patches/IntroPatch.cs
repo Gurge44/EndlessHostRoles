@@ -3,6 +3,7 @@ using HarmonyLib;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using TOHE.Modules;
 using TOHE.Roles.Impostor;
 using UnityEngine;
 using static TOHE.Translator;
@@ -17,44 +18,60 @@ class SetUpRoleTextPatch
         if (!GameStates.IsModHost) return;
         _ = new LateTask(() =>
         {
-            if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
+            switch (Options.CurrentGameMode)
             {
-                var color = ColorUtility.TryParseHtmlString("#f55252", out var c) ? c : new(255, 255, 255, 255);
-                CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
-                __instance.YouAreText.color = color;
-                __instance.RoleText.text = Utils.GetRoleName(role);
-                __instance.RoleText.color = Utils.GetRoleColor(role);
-                __instance.RoleBlurbText.color = color;
-                __instance.RoleBlurbText.text = PlayerControl.LocalPlayer.GetRoleInfo();
-            }
-            else if (Options.CurrentGameMode == CustomGameMode.FFA)
-            {
-                var color = ColorUtility.TryParseHtmlString("#00ffff", out var c) ? c : new(255, 255, 255, 255);
-                __instance.YouAreText.transform.gameObject.SetActive(false);
-                __instance.RoleText.text = "FREE FOR ALL";
-                __instance.RoleText.color = color;
-                __instance.RoleBlurbText.color = color;
-                __instance.RoleBlurbText.text = "KILL EVERYONE TO WIN";
-            }
-            else
-            {
-                CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
-                if (!role.IsVanilla())
-                {
-                    __instance.YouAreText.color = Utils.GetRoleColor(role);
-                    __instance.RoleText.text = Utils.GetRoleName(role);
-                    __instance.RoleText.color = Utils.GetRoleColor(role);
-                    __instance.RoleBlurbText.color = Utils.GetRoleColor(role);
-                    __instance.RoleBlurbText.text = "<size=50%>" + PlayerControl.LocalPlayer.GetRoleInfo() + "</size>";
-                }
-                foreach (CustomRoles subRole in Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SubRoles.ToArray())
-                {
-                    __instance.RoleBlurbText.text += "\n<size=30%>" + Utils.ColorString(Utils.GetRoleColor(subRole), GetString($"{subRole}Info"));
-                }
+                case CustomGameMode.SoloKombat:
+                    {
+                        var color = ColorUtility.TryParseHtmlString("#f55252", out var c) ? c : new(255, 255, 255, 255);
+                        CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
+                        __instance.YouAreText.color = color;
+                        __instance.RoleText.text = Utils.GetRoleName(role);
+                        __instance.RoleText.color = Utils.GetRoleColor(role);
+                        __instance.RoleBlurbText.color = color;
+                        __instance.RoleBlurbText.text = PlayerControl.LocalPlayer.GetRoleInfo();
+                        break;
+                    }
+                case CustomGameMode.FFA:
+                    {
+                        var color = ColorUtility.TryParseHtmlString("#00ffff", out var c) ? c : new(255, 255, 255, 255);
+                        __instance.YouAreText.transform.gameObject.SetActive(false);
+                        __instance.RoleText.text = "FREE FOR ALL";
+                        __instance.RoleText.color = color;
+                        __instance.RoleBlurbText.color = color;
+                        __instance.RoleBlurbText.text = "KILL EVERYONE TO WIN";
+                        break;
+                    }
+                case CustomGameMode.MoveAndStop:
+                    {
+                        var color = ColorUtility.TryParseHtmlString("#00ffa5", out var c) ? c : new(255, 255, 255, 255);
+                        __instance.YouAreText.transform.gameObject.SetActive(false);
+                        __instance.RoleText.text = "MOVE AND STOP";
+                        __instance.RoleText.color = color;
+                        __instance.RoleBlurbText.color = color;
+                        __instance.RoleBlurbText.text = "FINISH TASKS FIRST TO WIN";
+                        break;
+                    }
+                default:
+                    {
+                        CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
+                        if (!role.IsVanilla())
+                        {
+                            __instance.YouAreText.color = Utils.GetRoleColor(role);
+                            __instance.RoleText.text = Utils.GetRoleName(role);
+                            __instance.RoleText.color = Utils.GetRoleColor(role);
+                            __instance.RoleBlurbText.color = Utils.GetRoleColor(role);
+                            __instance.RoleBlurbText.text = "<size=50%>" + PlayerControl.LocalPlayer.GetRoleInfo() + "</size>";
+                        }
+                        foreach (CustomRoles subRole in Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SubRoles.ToArray())
+                        {
+                            __instance.RoleBlurbText.text += "\n<size=30%>" + Utils.ColorString(Utils.GetRoleColor(subRole), GetString($"{subRole}Info"));
+                        }
 
-                //if (!PlayerControl.LocalPlayer.Is(CustomRoles.Lovers) && !PlayerControl.LocalPlayer.Is(CustomRoles.Ntr) && CustomRolesHelper.RoleExist(CustomRoles.Ntr))
-                //    __instance.RoleBlurbText.text += "\n" + Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lovers), GetString($"{CustomRoles.Lovers}Info"));
-                __instance.RoleText.text += Utils.GetSubRolesText(PlayerControl.LocalPlayer.PlayerId, false, true);
+                        //if (!PlayerControl.LocalPlayer.Is(CustomRoles.Lovers) && !PlayerControl.LocalPlayer.Is(CustomRoles.Ntr) && CustomRolesHelper.RoleExist(CustomRoles.Ntr))
+                        //    __instance.RoleBlurbText.text += "\n" + Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lovers), GetString($"{CustomRoles.Lovers}Info"));
+                        __instance.RoleText.text += Utils.GetSubRolesText(PlayerControl.LocalPlayer.PlayerId, false, true);
+                        break;
+                    }
             }
         }, 0.01f, "Override Role Text");
     }
@@ -354,23 +371,33 @@ class BeginCrewmatePatch
             __instance.ImpostorText.text = GetString("SubText.Madmate");
         }
 
-        if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
+        switch (Options.CurrentGameMode)
         {
-            var color = ColorUtility.TryParseHtmlString("#f55252", out var c) ? c : new(255, 255, 255, 255);
-            __instance.TeamTitle.text = Utils.GetRoleName(role);
-            __instance.TeamTitle.color = Utils.GetRoleColor(role);
-            __instance.ImpostorText.gameObject.SetActive(true);
-            __instance.ImpostorText.text = GetString("ModeSoloKombat");
-            __instance.BackgroundBar.material.color = color;
-            PlayerControl.LocalPlayer.Data.Role.IntroSound = DestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx;
-        }
-        if (Options.CurrentGameMode == CustomGameMode.FFA)
-        {
-            __instance.TeamTitle.text = "FREE FOR ALL";
-            __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(0, 255, 255, byte.MaxValue);
-            PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
-            __instance.ImpostorText.gameObject.SetActive(true);
-            __instance.ImpostorText.text = "KILL EVERYONE TO WIN";
+            case CustomGameMode.SoloKombat:
+                {
+                    var color = ColorUtility.TryParseHtmlString("#f55252", out var c) ? c : new(255, 255, 255, 255);
+                    __instance.TeamTitle.text = Utils.GetRoleName(role);
+                    __instance.TeamTitle.color = Utils.GetRoleColor(role);
+                    __instance.ImpostorText.gameObject.SetActive(true);
+                    __instance.ImpostorText.text = GetString("ModeSoloKombat");
+                    __instance.BackgroundBar.material.color = color;
+                    PlayerControl.LocalPlayer.Data.Role.IntroSound = DestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx;
+                    break;
+                }
+            case CustomGameMode.FFA:
+                __instance.TeamTitle.text = "FREE FOR ALL";
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(0, 255, 255, byte.MaxValue);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
+                __instance.ImpostorText.gameObject.SetActive(true);
+                __instance.ImpostorText.text = "KILL EVERYONE TO WIN";
+                break;
+            case CustomGameMode.MoveAndStop:
+                __instance.TeamTitle.text = "MOVE AND STOP";
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(0, 255, 160, byte.MaxValue);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
+                __instance.ImpostorText.gameObject.SetActive(true);
+                __instance.ImpostorText.text = "FINISH TASKS FIRST TO WIN";
+                break;
         }
 
         if (Input.GetKey(KeyCode.RightShift))
@@ -486,17 +513,21 @@ class IntroCutsceneDestroyPatch
             {
                 Main.AllPlayerControls.Do(pc => pc.RpcResetAbilityCooldown());
                 if (Options.StartingKillCooldown.GetInt() != 10 && Options.StartingKillCooldown.GetInt() > 0)
+                {
                     _ = new LateTask(() =>
                     {
                         Main.AllPlayerControls.Do(x => x.ResetKillCooldown());
                         Main.AllPlayerControls.Where(x => Main.AllPlayerKillCooldown[x.PlayerId] != 7f && Main.AllPlayerKillCooldown[x.PlayerId] != 7.5f).Do(pc => pc.SetKillCooldown(Options.StartingKillCooldown.GetInt() - 2));
                     }, 2f, "FixKillCooldownTask");
-                else if (Options.FixFirstKillCooldown.GetBool() && Options.CurrentGameMode != CustomGameMode.SoloKombat && Options.CurrentGameMode != CustomGameMode.FFA)
+                }
+                else if (Options.FixFirstKillCooldown.GetBool() && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop)
+                {
                     _ = new LateTask(() =>
                     {
                         Main.AllPlayerControls.Do(x => x.ResetKillCooldown());
                         Main.AllPlayerControls.Where(x => (Main.AllPlayerKillCooldown[x.PlayerId] - 2f) > 0f).Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 2f));
                     }, 2f, "FixKillCooldownTask");
+                }
             }
             _ = new LateTask(() => Main.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
 
@@ -551,7 +582,7 @@ class IntroCutsceneDestroyPatch
                 PlayerControl.LocalPlayer.RpcExile();
                 Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SetDead();
             }
-            if (Options.RandomSpawn.GetBool() || Options.CurrentGameMode == CustomGameMode.SoloKombat || Options.CurrentGameMode == CustomGameMode.FFA)
+            if (Options.RandomSpawn.GetBool() || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop)
             {
                 RandomSpawn.SpawnMap map;
                 switch (Main.NormalOptions.MapId)
@@ -579,6 +610,8 @@ class IntroCutsceneDestroyPatch
             {
                 Penguin.OnSpawnAirship();
             }
+
+            KeepProtection.ProtectEveryone();
 
             var amDesyncImpostor = Main.ResetCamPlayerList.Contains(PlayerControl.LocalPlayer.PlayerId);
             if (amDesyncImpostor)

@@ -9,7 +9,7 @@ public static class Doppelganger
 {
     private static readonly int Id = 194200;
     public static List<byte> playerIdList = [];
-    public static bool IsEnable = false;
+    public static bool IsEnable;
 
     private static OptionItem KillCooldown;
     public static OptionItem MaxSteals;
