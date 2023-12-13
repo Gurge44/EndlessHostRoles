@@ -174,8 +174,8 @@ internal class MoveAndStopManager
             try
             {
                 limit = pc.GetClient().PlatformData.Platform is Platforms.Unknown or Platforms.IPhone or Platforms.Android or Platforms.Switch or Platforms.Xbox or Platforms.Playstation
-                    ? 3f  // If the player has a joystick, the game is a lot harder
-                    : 1f; // On PC you have WASD, you can't mess up
+                    ? 2f    // If the player has a joystick, the game is a lot harder
+                    : 0.5f; // On PC you have WASD, you can't mess up
             }
             catch
             {

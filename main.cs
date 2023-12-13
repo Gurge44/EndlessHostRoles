@@ -33,9 +33,9 @@ public class Main : BasePlugin
     public static ConfigEntry<string> DebugKeyInput { get; private set; }
     public static readonly string MainMenuText = " ";
     public const string PluginGuid = "com.gurge44.toheplus";
-    public const string PluginVersion = "1.4.1";
-    public const string PluginDisplayVersion = "1.4.1";
-    public static readonly string SupportedAUVersion = "2023.10.24";
+    public const string PluginVersion = "1.5.0";
+    public const string PluginDisplayVersion = "1.5.0";
+    public static readonly string SupportedAUVersion = "2023.11.28";
     public const int PluginCreate = 3;
     public const bool Canary = false;
 
@@ -92,31 +92,7 @@ public class Main : BasePlugin
     public static bool IsFixedCooldown => CustomRoles.Vampire.IsEnable() || CustomRoles.Poisoner.IsEnable();
     public static float RefixCooldownDelay;
     public static bool ProcessShapeshifts = true;
-    public static Dictionary<byte, long> DoormasterCD = [];
-    public static Dictionary<byte, long> HackerCD = [];
-    public static Dictionary<byte, long> TetherCD = [];
-    public static Dictionary<byte, long> MayorCD = [];
-    public static Dictionary<byte, long> ParanoiaCD = [];
-    public static Dictionary<byte, long> VeteranCD = [];
-    public static Dictionary<byte, long> GrenadierCD = [];
-    public static Dictionary<byte, long> LighterCD = [];
-    public static Dictionary<byte, long> SecurityGuardCD = [];
-    public static Dictionary<byte, long> DovesOfNeaceCD = [];
-    public static Dictionary<byte, long> AlchemistCD = [];
-    public static Dictionary<byte, long> TimeMasterCD = [];
-    public static Dictionary<byte, long> SniperCD = [];
-    public static Dictionary<byte, long> AssassinCD = [];
-    public static Dictionary<byte, long> UndertakerCD = [];
-    public static Dictionary<byte, long> MinerCD = [];
-    public static Dictionary<byte, long> EscapeeCD = [];
-    public static Dictionary<byte, long> BomberCD = [];
-    public static Dictionary<byte, long> NukerCD = [];
-    public static Dictionary<byte, long> QuickShooterCD = [];
-    public static Dictionary<byte, long> DisperserCD = [];
-    public static Dictionary<byte, long> TwisterCD = [];
-    public static Dictionary<byte, long> CameraManCD = [];
-    public static Dictionary<byte, long> SapperCD = [];
-    public static Dictionary<byte, long> DruidCD = [];
+    public static Dictionary<byte, (long START_TIMESTAMP, int TOTALCD)> PetCD = [];
     private static GameData.PlayerInfo lastVotedPlayerInfo;
     public static string LastVotedPlayer;
     public static List<byte> ResetCamPlayerList = [];
@@ -281,6 +257,7 @@ public class Main : BasePlugin
         SwitchVanilla = Config.Bind("Client Options", "SwitchVanilla", false);
         VersionCheat = Config.Bind("Client Options", "VersionCheat", false);
         GodMode = Config.Bind("Client Options", "GodMode", false);
+        UseVersionProtocol = Config.Bind("Client Options", "UseVersionProtocol", true);
 
         Logger = BepInEx.Logging.Logger.CreateLogSource("TOHE");
         TOHE.Logger.Enable();

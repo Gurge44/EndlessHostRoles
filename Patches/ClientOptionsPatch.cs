@@ -15,7 +15,7 @@ public static class OptionsMenuBehaviourStartPatch
     private static ClientOptionItem EnableCustomButton;
     private static ClientOptionItem EnableCustomSoundEffect;
     private static ClientOptionItem SwitchVanilla;
-    private static ClientOptionItem UseVersionProtocol;
+    public static ClientOptionItem UseVersionProtocol;
 #if DEBUG
     private static ClientOptionItem VersionCheat;
     private static ClientOptionItem GodMode;
@@ -79,7 +79,7 @@ public static class OptionsMenuBehaviourStartPatch
                 Main.Instance.Unload();
             }
         }
-        if (UseVersionProtocol == null || UseVersionProtocol.ToggleButton == null && DevManager.DevUserList.Any(x => x.Code == EOSManager.Instance.friendCode && x.IsUp))
+        if (UseVersionProtocol == null || UseVersionProtocol.ToggleButton == null)
         {
             UseVersionProtocol = ClientOptionItem.Create("UseVersionProtocol", Main.UseVersionProtocol, __instance);
         }

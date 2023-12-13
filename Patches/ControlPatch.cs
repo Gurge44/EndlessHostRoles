@@ -90,7 +90,7 @@ internal class ControllerManagerUpdatePatch
         //重新加载自定义翻译
         if (GetKeysDown(KeyCode.F5, KeyCode.T))
         {
-            Logger.Info("加载自定义翻译文件", "KeyCommand");
+            Logger.Info("Reloading Custom Translation File", "KeyCommand");
             LoadLangs();
             Logger.SendInGame("Reloaded Custom Translation File");
         }

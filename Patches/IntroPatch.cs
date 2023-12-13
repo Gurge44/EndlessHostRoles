@@ -45,7 +45,7 @@ class SetUpRoleTextPatch
                     {
                         var color = ColorUtility.TryParseHtmlString("#00ffa5", out var c) ? c : new(255, 255, 255, 255);
                         __instance.YouAreText.transform.gameObject.SetActive(false);
-                        __instance.RoleText.text = "MOVE AND STOP";
+                        __instance.RoleText.text = "STOP AND GO";
                         __instance.RoleText.color = color;
                         __instance.RoleBlurbText.color = color;
                         __instance.RoleBlurbText.text = "FINISH TASKS FIRST TO WIN";
@@ -392,7 +392,7 @@ class BeginCrewmatePatch
                 __instance.ImpostorText.text = "KILL EVERYONE TO WIN";
                 break;
             case CustomGameMode.MoveAndStop:
-                __instance.TeamTitle.text = "MOVE AND STOP";
+                __instance.TeamTitle.text = "STOP AND GO";
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(0, 255, 160, byte.MaxValue);
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
                 __instance.ImpostorText.gameObject.SetActive(true);

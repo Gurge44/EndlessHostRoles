@@ -130,12 +130,6 @@ namespace TOHE.Roles.Crewmate
         {
             if (!player.Is(CustomRoles.Alchemist)) return;
 
-            if (Main.AlchemistCD.ContainsKey(player.PlayerId))
-            {
-                //if (!NameNotifyManager.Notice.ContainsKey(player.PlayerId)) player.Notify(GetString("AbilityOnCooldown"));
-                return;
-            }
-
             NameNotifyManager.Notice.Remove(player.PlayerId);
 
             switch (PotionID)
@@ -195,8 +189,6 @@ namespace TOHE.Roles.Crewmate
                 default: // just in case
                     break;
             }
-
-            Main.AlchemistCD.TryAdd(player.PlayerId, Utils.GetTimeStamp());
 
             SendRPCData(IsProtected, PotionID, PlayerName, VisionPotionActive, FixNextSabo);
 
@@ -316,9 +308,9 @@ namespace TOHE.Roles.Crewmate
                 }
                 if (FixNextSabo) str.Append("\n<b><color=#3333ff>Quick Fix Potion</color></b> waiting for use");
             }
-            if (UsePets.GetBool() && Main.AlchemistCD.TryGetValue(pc.PlayerId, out var cd))
+            if (UsePets.GetBool() && Main.PetCD.TryGetValue(pc.PlayerId, out var CD))
             {
-                str.Append($"\n<color=#00ffa5>CD:</color> <b>{cd}</b>s");
+                str.Append($"\n<color=#00ffa5>CD:</color> <b>{CD.TOTALCD - (Utils.GetTimeStamp() - CD.START_TIMESTAMP) + 1}</b>s");
             }
             return str.ToString();
         }

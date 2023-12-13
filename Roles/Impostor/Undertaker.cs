@@ -82,7 +82,6 @@ internal static class Undertaker
             killer.ResetKillCooldown();
             killer.SetKillCooldown();
             if (killer.IsModClient()) killer.RpcResetAbilityCooldown();
-            if (UsePets.GetBool()) Main.UndertakerCD.TryAdd(killer.PlayerId, Utils.GetTimeStamp());
             killer.SyncSettings();
             killer.RPCPlayCustomSound("Clothe");
             return false;

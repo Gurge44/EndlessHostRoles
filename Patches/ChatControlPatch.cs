@@ -48,12 +48,11 @@ class ChatControllerUpdatePatch
 public class ChatManager
 {
     public static bool cancel;
-    private static List<string> chatHistory = [];
+    private static readonly List<string> chatHistory = [];
     private const int maxHistorySize = 20;
     public static void ResetHistory()
     {
         chatHistory.Clear();
-        chatHistory = [];
     }
     public static bool CheckCommand(ref string msg, string command, bool exact = true)
     {
@@ -132,11 +131,7 @@ public class ChatManager
             case 3:
                 string chatEntry = $"{player.PlayerId}: {message}";
                 chatHistory.Add(chatEntry);
-
-                if (chatHistory.Count > maxHistorySize)
-                {
-                    chatHistory.RemoveAt(0);
-                }
+                if (chatHistory.Count > maxHistorySize) chatHistory.RemoveAt(0);
                 cancel = false;
                 break;
             case 4:
@@ -156,6 +151,7 @@ public class ChatManager
         string[] specialTexts = ["bet", "bt", "guess", "gs", "shoot", "st", "赌", "猜", "审判", "tl", "判", "审", "trial"];
         var totalAlive = Main.AllAlivePlayerControls.Length;
         var x = Main.AllAlivePlayerControls;
+        var r = IRandom.Instance;
 
         var filtered = chatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(((string[])a.Split(':'))[0].Trim())).IsAlive()).ToArray();
 
@@ -165,7 +161,7 @@ public class ChatManager
         {
             for (int i = filtered.Length; i < 20; i++)
             {
-                var player = x[IRandom.Instance.Next(0, totalAlive)];
+                var player = x[r.Next(0, totalAlive)];
                 DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
                 SendRPC(player, msg);
             }

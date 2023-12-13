@@ -93,32 +93,32 @@ class ExternalRpcPetPatch
             Pelican.IsEaten(pc.PlayerId))
             return;
 
+        if (Main.PetCD.ContainsKey(pc.PlayerId)) return;
+
+        Utils.AddPetCD(pc.GetCustomRole(), pc.PlayerId);
+
         switch (pc.GetCustomRole())
         {
             // Crewmates
 
             case CustomRoles.Doormaster:
-                if (Main.DoormasterCD.ContainsKey(pc.PlayerId)) break;
                 Doormaster.OnEnterVent(pc);
                 break;
             case CustomRoles.Sapper:
-                if (Main.SapperCD.ContainsKey(pc.PlayerId)) break;
                 Sapper.OnShapeshift(pc, true);
                 break;
             case CustomRoles.Tether:
-                if (Main.TetherCD.ContainsKey(pc.PlayerId)) break;
                 Tether.OnEnterVent(pc, 0, true);
                 break;
             case CustomRoles.CameraMan:
-                if (Main.CameraManCD.ContainsKey(pc.PlayerId)) break;
                 CameraMan.OnEnterVent(pc);
                 break;
             case CustomRoles.Mayor:
-                if (Main.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count) && count < Options.MayorNumOfUseButton.GetInt() && !Main.MayorCD.ContainsKey(pc.PlayerId))
+                if (Main.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count) && count < Options.MayorNumOfUseButton.GetInt())
                     pc?.ReportDeadBody(null);
                 break;
             case CustomRoles.Paranoia:
-                if (Main.ParaUsedButtonCount.TryGetValue(pc.PlayerId, out var count2) && count2 < Options.ParanoiaNumOfUseButton.GetInt() && !Main.ParanoiaCD.ContainsKey(pc.PlayerId))
+                if (Main.ParaUsedButtonCount.TryGetValue(pc.PlayerId, out var count2) && count2 < Options.ParanoiaNumOfUseButton.GetInt())
                 {
                     Main.ParaUsedButtonCount[pc.PlayerId] += 1;
                     if (AmongUsClient.Instance.AmHost)
@@ -136,13 +136,11 @@ class ExternalRpcPetPatch
                 if (Main.VeteranInProtect.ContainsKey(pc.PlayerId)) break;
                 if (Main.VeteranNumOfUsed[pc.PlayerId] >= 1)
                 {
-                    if (Main.VeteranCD.ContainsKey(pc.PlayerId)) break;
                     Main.VeteranInProtect.Remove(pc.PlayerId);
                     Main.VeteranInProtect.Add(pc.PlayerId, Utils.GetTimeStamp(DateTime.Now));
                     Main.VeteranNumOfUsed[pc.PlayerId] -= 1;
                     pc.RPCPlayCustomSound("Gunload");
                     pc.Notify(GetString("VeteranOnGuard"), Options.VeteranSkillDuration.GetFloat());
-                    Main.VeteranCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                     pc.MarkDirtySettings();
                 }
                 else
@@ -154,7 +152,6 @@ class ExternalRpcPetPatch
                 if (Main.GrenadierBlinding.ContainsKey(pc.PlayerId) || Main.MadGrenadierBlinding.ContainsKey(pc.PlayerId)) break;
                 if (Main.GrenadierNumOfUsed[pc.PlayerId] >= 1)
                 {
-                    if (Main.GrenadierCD.ContainsKey(pc.PlayerId)) break;
                     if (pc.Is(CustomRoles.Madmate))
                     {
                         Main.MadGrenadierBlinding.Remove(pc.PlayerId);
@@ -169,7 +166,6 @@ class ExternalRpcPetPatch
                     }
                     pc.RPCPlayCustomSound("FlashBang");
                     pc.Notify(GetString("GrenadierSkillInUse"), Options.GrenadierSkillDuration.GetFloat());
-                    Main.GrenadierCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                     Main.GrenadierNumOfUsed[pc.PlayerId] -= 1;
                     Utils.MarkEveryoneDirtySettingsV3();
                 }
@@ -182,11 +178,9 @@ class ExternalRpcPetPatch
                 if (Main.Lighter.ContainsKey(pc.PlayerId)) break;
                 if (Main.LighterNumOfUsed[pc.PlayerId] >= 1)
                 {
-                    if (Main.LighterCD.ContainsKey(pc.PlayerId)) break;
                     Main.Lighter.Remove(pc.PlayerId);
                     Main.Lighter.Add(pc.PlayerId, Utils.GetTimeStamp());
                     pc.Notify(GetString("LighterSkillInUse"), Options.LighterSkillDuration.GetFloat());
-                    Main.LighterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                     Main.LighterNumOfUsed[pc.PlayerId] -= 1;
                     pc.MarkDirtySettings();
                 }
@@ -200,11 +194,9 @@ class ExternalRpcPetPatch
                 if (Main.BlockSabo.ContainsKey(pc.PlayerId)) break;
                 if (Main.SecurityGuardNumOfUsed[pc.PlayerId] >= 1)
                 {
-                    if (Main.SecurityGuardCD.ContainsKey(pc.PlayerId)) break;
                     Main.BlockSabo.Remove(pc.PlayerId);
                     Main.BlockSabo.Add(pc.PlayerId, Utils.GetTimeStamp());
                     pc.Notify(GetString("SecurityGuardSkillInUse"), Options.SecurityGuardSkillDuration.GetFloat());
-                    Main.SecurityGuardCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                     Main.SecurityGuardNumOfUsed[pc.PlayerId] -= 1;
                 }
                 else
@@ -220,7 +212,6 @@ class ExternalRpcPetPatch
                         pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
                     break;
                 }
-                else if (Main.DovesOfNeaceCD.ContainsKey(pc.PlayerId)) break;
                 else
                 {
                     Main.DovesOfNeaceNumOfUsed[pc.PlayerId] -= 1;
@@ -240,7 +231,6 @@ class ExternalRpcPetPatch
                     });
                     pc.RPCPlayCustomSound("Dove");
                     pc.Notify(string.Format(GetString("DovesOfNeaceOnGuard"), Main.DovesOfNeaceNumOfUsed[pc.PlayerId]));
-                    Main.DovesOfNeaceCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 }
                 break;
             case CustomRoles.Alchemist:
@@ -250,12 +240,10 @@ class ExternalRpcPetPatch
                 if (Main.TimeMasterInProtect.ContainsKey(pc.PlayerId)) break;
                 if (Main.TimeMasterNumOfUsed[pc.PlayerId] >= 1)
                 {
-                    if (Main.TimeMasterCD.ContainsKey(pc.PlayerId)) break;
                     Main.TimeMasterNumOfUsed[pc.PlayerId] -= 1;
                     Main.TimeMasterInProtect.Remove(pc.PlayerId);
                     Main.TimeMasterInProtect.Add(pc.PlayerId, Utils.GetTimeStamp());
                     pc.Notify(GetString("TimeMasterOnGuard"), Options.TimeMasterSkillDuration.GetFloat());
-                    Main.TimeMasterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                     foreach (PlayerControl player in Main.AllPlayerControls)
                     {
                         if (Main.TimeMasterBackTrack.ContainsKey(player.PlayerId))
@@ -296,8 +284,7 @@ class ExternalRpcPetPatch
             // Impostors
 
             case CustomRoles.Sniper:
-                if (Main.SniperCD.ContainsKey(pc.PlayerId)) break;
-                if (Sniper.IsAim[pc.PlayerId]) Main.SniperCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
+                if (!Sniper.IsAim[pc.PlayerId]) Main.PetCD.Remove(pc.PlayerId);
                 Sniper.OnShapeshift(pc, !Sniper.IsAim[pc.PlayerId]);
                 break;
             case CustomRoles.Warlock:
@@ -345,27 +332,20 @@ class ExternalRpcPetPatch
                 }
                 break;
             case CustomRoles.Assassin:
-                if (Main.AssassinCD.ContainsKey(pc.PlayerId)) break;
                 Assassin.OnShapeshift(pc, true);
-                Main.AssassinCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
             case CustomRoles.Undertaker:
-                if (Main.UndertakerCD.ContainsKey(pc.PlayerId)) break;
                 Undertaker.OnShapeshift(pc, true);
-                Main.UndertakerCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
             case CustomRoles.Miner:
-                if (Main.MinerCD.ContainsKey(pc.PlayerId)) break;
                 if (Main.LastEnteredVent.ContainsKey(pc.PlayerId))
                 {
                     var position = Main.LastEnteredVentLocation[pc.PlayerId];
                     Logger.Msg($"{pc.GetNameWithRole().RemoveHtmlTags()}:{position}", "MinerTeleport");
                     pc.TP(new UnityEngine.Vector2(position.x, position.y));
                 }
-                Main.MinerCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
             case CustomRoles.Escapee:
-                if (Main.EscapeeCD.ContainsKey(pc.PlayerId)) break;
                 if (Main.EscapeeLocation.ContainsKey(pc.PlayerId))
                 {
                     var position = Main.EscapeeLocation[pc.PlayerId];
@@ -378,13 +358,11 @@ class ExternalRpcPetPatch
                 {
                     Main.EscapeeLocation.Add(pc.PlayerId, pc.Pos());
                 }
-                Main.EscapeeCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
             case CustomRoles.RiftMaker:
                 RiftMaker.OnShapeshift(pc, true);
                 break;
             case CustomRoles.Bomber:
-                if (Main.BomberCD.ContainsKey(pc.PlayerId)) break;
                 Logger.Info("Bomber explosion", "Boom");
                 CustomSoundsManager.RPCPlayCustomSoundAll("Boom");
                 foreach (PlayerControl tg in Main.AllPlayerControls)
@@ -408,10 +386,8 @@ class ExternalRpcPetPatch
                     }
                     Utils.NotifyRoles(ForceLoop: true);
                 }, 1.5f, "Bomber Suiscide");
-                Main.BomberCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
             case CustomRoles.Nuker:
-                if (Main.NukerCD.ContainsKey(pc.PlayerId)) break;
                 Logger.Info("Nuker explosion", "Boom");
                 CustomSoundsManager.RPCPlayCustomSoundAll("Boom");
                 foreach (PlayerControl tg in Main.AllPlayerControls)
@@ -435,22 +411,15 @@ class ExternalRpcPetPatch
                     }
                     Utils.NotifyRoles(ForceLoop: true);
                 }, 1.5f, "Nuke");
-                Main.NukerCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
             case CustomRoles.QuickShooter:
-                if (Main.QuickShooterCD.ContainsKey(pc.PlayerId)) break;
                 QuickShooter.OnShapeshift(pc, true);
-                Main.QuickShooterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
             case CustomRoles.Disperser:
-                if (Main.DisperserCD.ContainsKey(pc.PlayerId)) break;
                 Disperser.DispersePlayers(pc);
-                Main.DisperserCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
             case CustomRoles.Twister:
-                if (Main.TwisterCD.ContainsKey(pc.PlayerId)) break;
                 Twister.TwistPlayers(pc, true);
-                Main.TwisterCD.TryAdd(pc.PlayerId, Utils.GetTimeStamp());
                 break;
 
             // Neutrals

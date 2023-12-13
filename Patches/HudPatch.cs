@@ -475,36 +475,33 @@ class HudManagerPatch
                         CustomRoles.Librarian => Librarian.GetSelfSuffixAndHUDText(player.PlayerId),
                         CustomRoles.PlagueDoctor => PlagueDoctor.GetLowerTextOthers(player, isForHud: true),
                         CustomRoles.Stealth => Stealth.GetSuffix(player, isHUD: true),
-                        CustomRoles.Sapper => GetCD_HUDText(Main.SapperCD, Sapper.ShapeshiftCooldown.GetInt()),
-                        CustomRoles.CameraMan => GetCD_HUDText(Main.CameraManCD, CameraMan.VentCooldown.GetInt()),
-                        CustomRoles.Mayor => GetCD_HUDText(Main.MayorCD, (int)Options.DefaultKillCooldown),
-                        CustomRoles.Paranoia => GetCD_HUDText(Main.ParanoiaCD, (int)Options.DefaultKillCooldown),
-                        CustomRoles.Veteran => GetCD_HUDText(Main.VeteranCD, Options.VeteranSkillCooldown.GetInt()),
-                        CustomRoles.Grenadier => GetCD_HUDText(Main.GrenadierCD, Options.GrenadierSkillCooldown.GetInt()),
-                        CustomRoles.Lighter => GetCD_HUDText(Main.LighterCD, Options.LighterSkillCooldown.GetInt()),
-                        CustomRoles.DovesOfNeace => GetCD_HUDText(Main.DovesOfNeaceCD, Options.DovesOfNeaceCooldown.GetInt()),
-                        CustomRoles.SecurityGuard => GetCD_HUDText(Main.SecurityGuardCD, Options.SecurityGuardSkillCooldown.GetInt()),
-                        CustomRoles.TimeMaster => GetCD_HUDText(Main.TimeMasterCD, Options.TimeMasterSkillCooldown.GetInt()),
-                        CustomRoles.Sniper => GetCD_HUDText(Main.SniperCD, (int)Options.DefaultKillCooldown),
-                        CustomRoles.Assassin => GetCD_HUDText(Main.AssassinCD, Assassin.AssassinateCooldown.GetInt()),
-                        CustomRoles.Undertaker => GetCD_HUDText(Main.UndertakerCD, Undertaker.AssassinateCooldown.GetInt()),
-                        CustomRoles.Bomber => GetCD_HUDText(Main.BomberCD, Options.BombCooldown.GetInt()),
-                        CustomRoles.Nuker => GetCD_HUDText(Main.NukerCD, Options.NukeCooldown.GetInt()),
-                        CustomRoles.QuickShooter => GetCD_HUDText(Main.QuickShooterCD, QuickShooter.ShapeshiftCooldown.GetInt()),
-                        CustomRoles.Miner => GetCD_HUDText(Main.MinerCD, Options.MinerSSCD.GetInt()),
-                        CustomRoles.Escapee => GetCD_HUDText(Main.EscapeeCD, Options.EscapeeSSCD.GetInt()),
-                        CustomRoles.Disperser => GetCD_HUDText(Main.DisperserCD, Disperser.DisperserShapeshiftCooldown.GetInt()),
-                        CustomRoles.Twister => GetCD_HUDText(Main.TwisterCD, Twister.ShapeshiftCooldown.GetInt()),
+                        CustomRoles.Sapper => GetCD_HUDText(),
+                        CustomRoles.CameraMan => GetCD_HUDText(),
+                        CustomRoles.Mayor => GetCD_HUDText(),
+                        CustomRoles.Paranoia => GetCD_HUDText(),
+                        CustomRoles.Veteran => GetCD_HUDText(),
+                        CustomRoles.Grenadier => GetCD_HUDText(),
+                        CustomRoles.Lighter => GetCD_HUDText(),
+                        CustomRoles.DovesOfNeace => GetCD_HUDText(),
+                        CustomRoles.SecurityGuard => GetCD_HUDText(),
+                        CustomRoles.TimeMaster => GetCD_HUDText(),
+                        CustomRoles.Sniper => GetCD_HUDText(),
+                        CustomRoles.Assassin => GetCD_HUDText(),
+                        CustomRoles.Undertaker => GetCD_HUDText(),
+                        CustomRoles.Bomber => GetCD_HUDText(),
+                        CustomRoles.Nuker => GetCD_HUDText(),
+                        CustomRoles.QuickShooter => GetCD_HUDText(),
+                        CustomRoles.Miner => GetCD_HUDText(),
+                        CustomRoles.Escapee => GetCD_HUDText(),
+                        CustomRoles.Disperser => GetCD_HUDText(),
+                        CustomRoles.Twister => GetCD_HUDText(),
                         _ => string.Empty,
                     },
                     _ => string.Empty,
                 };
-                string GetCD_HUDText(Dictionary<byte, long> data, int CD)
-                {
-                    return !Options.UsePets.GetBool() || !data.TryGetValue(player.PlayerId, out var cd)
+                string GetCD_HUDText() => !Options.UsePets.GetBool() || !Main.PetCD.TryGetValue(player.PlayerId, out var CD)
                         ? string.Empty
-                        : string.Format(GetString("CDPT"), CD - (Utils.GetTimeStamp() - cd) + 1);
-                }
+                        : string.Format(GetString("CDPT"), CD.TOTALCD - (Utils.GetTimeStamp() - CD.START_TIMESTAMP) + 1);
 
                 LowerInfoText.enabled = LowerInfoText.text != string.Empty;
 

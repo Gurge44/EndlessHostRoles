@@ -85,22 +85,15 @@
 
             if (UseLimit[pc.PlayerId] >= 1)
             {
-                if (Main.HackerCD.ContainsKey(pc.PlayerId))
+                UseLimit[pc.PlayerId] -= 1;
+                var list = GetAllPlayerLocationsCount();
+                var sb = new StringBuilder();
+                foreach (var location in list)
                 {
-                    //if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("AbilityOnCooldown"));
+                    sb.Append($"\n<color=#00ffa5>{location.Key}:</color> {location.Value}");
                 }
-                else
-                {
-                    UseLimit[pc.PlayerId] -= 1;
-                    Main.HackerCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                    var list = GetAllPlayerLocationsCount();
-                    var sb = new StringBuilder();
-                    foreach (var location in list)
-                    {
-                        sb.Append($"\n<color=#00ffa5>{location.Key}:</color> {location.Value}");
-                    }
-                    pc.Notify(sb.ToString(), VanillaClientSeesInfoFor.GetFloat());
-                }
+                pc.Notify(sb.ToString(), VanillaClientSeesInfoFor.GetFloat());
+
             }
             else
             {

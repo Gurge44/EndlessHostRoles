@@ -137,7 +137,7 @@ public static class Translator
         string path = @$"./{LANGUAGE_FOLDER_NAME}/{filename}";
         if (File.Exists(path))
         {
-            Logger.Info($"加载自定义翻译文件：{filename}", "LoadCustomTranslation");
+            Logger.Info($"Loading custom translation file：{filename}", "LoadCustomTranslation");
             using StreamReader sr = new(path, Encoding.GetEncoding("UTF-8"));
             string text;
             string[] tmp = [];

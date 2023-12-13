@@ -79,10 +79,17 @@ namespace TOHE.Roles.Crewmate
             if (!pc.Is(CustomRoles.Drainer)) return;
             if (DrainLimit <= 0) return;
 
+            if (vent?.NearbyVents == null)
+            {
+                Logger.Warn("No Nearby Vents....?", "Drainer");
+                return;
+            }
+
             DrainLimit--;
 
             foreach (var ventToDrain in vent?.NearbyVents?.ToArray())
             {
+                if (ventToDrain == null) continue;
                 KillPlayersInVent(pc, ventToDrain.Id);
             }
         }
@@ -90,7 +97,7 @@ namespace TOHE.Roles.Crewmate
         public static void OnAnyoneEnterVent(PlayerControl pc, Vent vent)
         {
             if (!IsEnable) return;
-            if (pc == null) return;
+            if (pc == null || vent == null) return;
             if (pc.Is(CustomRoles.Drainer))
             {
                 OnDrainerEnterVent(pc, vent);
@@ -113,12 +120,12 @@ namespace TOHE.Roles.Crewmate
                 var venter = Utils.GetPlayerById(venterId.Key);
                 if (venter == null) continue;
 
-                if (pc.RpcCheckAndMurder(venter, true))
+                if (pc != null && pc.RpcCheckAndMurder(venter, true))
                 {
-                    venter.MyPhysics?.RpcBootFromVent(ventId);
+                    venter?.MyPhysics?.RpcBootFromVent(ventId);
                     _ = new LateTask(() =>
                     {
-                        pc.Suicide(PlayerState.DeathReason.Demolished);
+                        venter?.Suicide(PlayerState.DeathReason.Demolished);
                     }, 0.55f, "Drainer-KillPlayerInVent");
                 }
             }

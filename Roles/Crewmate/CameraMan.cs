@@ -65,7 +65,6 @@ namespace TOHE.Roles.Crewmate
             {
                 UseLimit[pc.PlayerId] -= 1;
                 SendRPC(pc.PlayerId);
-                Main.CameraManCD.TryAdd(pc.PlayerId, GetTimeStamp());
 
                 Vector2 pos = Main.NormalOptions.MapId switch
                 {
@@ -107,9 +106,9 @@ namespace TOHE.Roles.Crewmate
         }
         public static string GetHudText(PlayerControl pc)
         {
-            return !UsePets.GetBool() || !Main.CameraManCD.TryGetValue(pc.PlayerId, out var cd)
+            return !UsePets.GetBool() || !Main.PetCD.TryGetValue(pc.PlayerId, out var CD)
                 ? string.Empty
-                : string.Format(Translator.GetString("CDPT"), VentCooldown.GetInt() - (GetTimeStamp() - cd) + 1);
+                : string.Format(Translator.GetString("CDPT"), VentCooldown.GetInt() - (GetTimeStamp() - CD.START_TIMESTAMP) + 1);
         }
     }
 }

@@ -78,7 +78,6 @@ namespace TOHE.Roles.Crewmate
 
             if (Target != byte.MaxValue)
             {
-                Main.TetherCD.TryAdd(pc.PlayerId, GetTimeStamp());
                 _ = new LateTask(() =>
                 {
                     if (GameStates.IsInTask)
@@ -138,9 +137,9 @@ namespace TOHE.Roles.Crewmate
         }
         public static string GetHudText(PlayerControl pc)
         {
-            return !UsePets.GetBool() || !Main.TetherCD.TryGetValue(pc.PlayerId, out var cd)
+            return !UsePets.GetBool() || !Main.PetCD.TryGetValue(pc.PlayerId, out var CD)
                 ? string.Empty
-                : string.Format(Translator.GetString("CDPT"), VentCooldown.GetInt() - (GetTimeStamp() - cd) + 1);
+                : string.Format(Translator.GetString("CDPT"), VentCooldown.GetInt() - (GetTimeStamp() - CD.START_TIMESTAMP) + 1);
         }
         public static string TargetText => Target != byte.MaxValue ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{GetPlayerById(Target).GetRealName()}</color>" : string.Empty;
     }

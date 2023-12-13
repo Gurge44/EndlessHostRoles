@@ -92,7 +92,7 @@ public static class Sheriff
         CurrentKillCooldown.Add(playerId, KillCooldown.GetFloat());
 
         ShotLimit.TryAdd(playerId, ShotLimitOpt.GetInt());
-        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : 残り{ShotLimit[playerId]}発", "Sheriff");
+        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : Shot Limit - {ShotLimit[playerId]}", "Sheriff");
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))

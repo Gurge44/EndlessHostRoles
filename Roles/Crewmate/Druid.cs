@@ -154,9 +154,6 @@ namespace TOHE.Roles.Crewmate
 
             if (isPet)
             {
-                if (Main.DruidCD.ContainsKey(pc.PlayerId)) return;
-                Main.DruidCD.TryAdd(pc.PlayerId, now);
-
                 var (LOCATION, ROOM_NAME) = GetTriggerInfo(pc);
                 if (!Triggers.ContainsKey(pc.PlayerId)) Triggers.Add(pc.PlayerId, []);
                 Triggers[pc.PlayerId].TryAdd(LOCATION, ROOM_NAME);
@@ -258,14 +255,11 @@ namespace TOHE.Roles.Crewmate
             var id = pc.PlayerId;
             var sb = new StringBuilder();
 
-            sb.AppendLine(GetCD_HUDText(Main.DruidCD, VentCooldown.GetInt()));
+            sb.AppendLine(GetCD_HUDText());
 
-            string GetCD_HUDText(Dictionary<byte, long> data, int CD)
-            {
-                return !UsePets.GetBool() || !data.TryGetValue(id, out var cd)
+            string GetCD_HUDText() => !UsePets.GetBool() || !Main.PetCD.TryGetValue(id, out var CD)
                     ? string.Empty
-                    : string.Format(GetString("CDPT"), CD - (GetTimeStamp() - cd) + 1);
-            }
+                    : string.Format(GetString("CDPT"), CD.TOTALCD - (GetTimeStamp() - CD.START_TIMESTAMP) + 1);
 
             sb.AppendLine($"<color=#00ffa5>{Triggers[id].Count}</color> triggers active");
             sb.Append(string.Join('\n', Triggers[id].Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));

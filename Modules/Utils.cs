@@ -699,10 +699,10 @@ public static class Utils
 
         return result;
     }
-    public static void GetPetCDSuffix(Dictionary<byte, long> data, PlayerControl pc, ref StringBuilder sb, int CD)
+    public static void GetPetCDSuffix(PlayerControl pc, ref StringBuilder sb)
     {
-        if (Options.UsePets.GetBool() && data.TryGetValue(pc.PlayerId, out var time) && !pc.IsModClient())
-            sb.Append(string.Format(GetString("CDPT"), CD - (GetTimeStamp() - time) + 1));
+        if (Options.UsePets.GetBool() && Main.PetCD.TryGetValue(pc.PlayerId, out var time) && !pc.IsModClient())
+            sb.Append(string.Format(GetString("CDPT"), time.TOTALCD - (GetTimeStamp() - time.START_TIMESTAMP) + 1));
     }
     public static string GetProgressText(PlayerControl pc)
     {
@@ -1954,7 +1954,7 @@ public static class Utils
                 if (Sniper.IsEnable) SelfMark.Append(Sniper.GetShotNotify(seer.PlayerId));
                 if (Blackmailer.ForBlackmailer.Contains(seer.PlayerId)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Blackmailer), "╳"));
 
-            GameMode0:
+                GameMode0:
 
                 SelfSuffix.Clear();
 
@@ -1962,93 +1962,46 @@ public static class Utils
 
                 if (!isForMeeting)
                 {
-                    void CallPetCDSimpler(Dictionary<byte, long> data, int CD)
-                    {
-                        if (seer.IsModClient()) return;
-                        GetPetCDSuffix(data, seer, ref SelfSuffix, CD);
-                    }
+                    void AddPetCD() { GetPetCDSuffix(seer, ref SelfSuffix); }
                     switch (seer.GetCustomRole())
                     {
                         // Pet CD in Suffix ----------------------------------------------------------------------------
 
                         case CustomRoles.Doormaster:
-                            CallPetCDSimpler(Main.DoormasterCD, Doormaster.VentCooldown.GetInt());
-                            break;
                         case CustomRoles.Sapper:
-                            CallPetCDSimpler(Main.SapperCD, Sapper.ShapeshiftCooldown.GetInt());
+                        case CustomRoles.CameraMan:
+                        case CustomRoles.Mayor:
+                        case CustomRoles.Paranoia:
+                        case CustomRoles.Veteran:
+                        case CustomRoles.Grenadier:
+                        case CustomRoles.Lighter:
+                        case CustomRoles.SecurityGuard:
+                        case CustomRoles.DovesOfNeace:
+                        case CustomRoles.Alchemist:
+                        case CustomRoles.TimeMaster:
+                        case CustomRoles.NiceHacker:
+                        case CustomRoles.Sniper:
+                        case CustomRoles.Assassin:
+                        case CustomRoles.Undertaker:
+                        case CustomRoles.Miner:
+                        case CustomRoles.Escapee:
+                        case CustomRoles.Bomber:
+                        case CustomRoles.Nuker:
+                        case CustomRoles.QuickShooter:
+                        case CustomRoles.Disperser:
+                        case CustomRoles.Twister:
+                            AddPetCD();
                             break;
+
                         case CustomRoles.Tether when !seer.IsModClient():
-                            CallPetCDSimpler(Main.TetherCD, Tether.VentCooldown.GetInt());
+                            AddPetCD();
                             if (SelfSuffix.Length > 0 && Tether.TargetText != string.Empty) SelfSuffix.Append(", ");
                             SelfSuffix.Append(Tether.TargetText);
                             break;
-                        case CustomRoles.CameraMan:
-                            CallPetCDSimpler(Main.CameraManCD, CameraMan.VentCooldown.GetInt());
-                            break;
-                        case CustomRoles.Mayor:
-                            CallPetCDSimpler(Main.MayorCD, (int)Math.Round(Options.DefaultKillCooldown));
-                            break;
-                        case CustomRoles.Paranoia:
-                            CallPetCDSimpler(Main.ParanoiaCD, Options.ParanoiaVentCooldown.GetInt());
-                            break;
-                        case CustomRoles.Veteran:
-                            CallPetCDSimpler(Main.VeteranCD, Options.VeteranSkillCooldown.GetInt() + Options.VeteranSkillDuration.GetInt());
-                            break;
-                        case CustomRoles.Grenadier:
-                            CallPetCDSimpler(Main.GrenadierCD, Options.GrenadierSkillCooldown.GetInt() + Options.GrenadierSkillDuration.GetInt());
-                            break;
-                        case CustomRoles.Lighter:
-                            CallPetCDSimpler(Main.LighterCD, Options.LighterSkillCooldown.GetInt() + Options.LighterSkillDuration.GetInt());
-                            break;
-                        case CustomRoles.SecurityGuard:
-                            CallPetCDSimpler(Main.SecurityGuardCD, Options.SecurityGuardSkillCooldown.GetInt() + Options.SecurityGuardSkillDuration.GetInt());
-                            break;
-                        case CustomRoles.DovesOfNeace:
-                            CallPetCDSimpler(Main.DovesOfNeaceCD, Options.DovesOfNeaceCooldown.GetInt());
-                            break;
-                        case CustomRoles.Alchemist:
-                            CallPetCDSimpler(Main.AlchemistCD, Alchemist.VentCooldown.GetInt());
-                            break;
-                        case CustomRoles.TimeMaster:
-                            CallPetCDSimpler(Main.TimeMasterCD, Options.TimeMasterSkillCooldown.GetInt() + Options.TimeMasterSkillDuration.GetInt());
-                            break;
-                        case CustomRoles.NiceHacker:
-                            CallPetCDSimpler(Main.HackerCD, NiceHacker.AbilityCD.GetInt());
-                            break;
                         case CustomRoles.Druid when !seer.IsModClient():
-                            CallPetCDSimpler(Main.DruidCD, Druid.VentCooldown.GetInt());
+                            AddPetCD();
                             if (SelfSuffix.Length > 0 && Druid.GetSuffixText(seer.PlayerId) != string.Empty) SelfSuffix.Append(", ");
                             SelfSuffix.Append(Druid.GetSuffixText(seer.PlayerId));
-                            break;
-                        case CustomRoles.Sniper:
-                            CallPetCDSimpler(Main.SniperCD, Options.DefaultShapeshiftCooldown.GetInt());
-                            break;
-                        case CustomRoles.Assassin:
-                            CallPetCDSimpler(Main.AssassinCD, Assassin.AssassinateCooldown.GetInt());
-                            break;
-                        case CustomRoles.Undertaker:
-                            CallPetCDSimpler(Main.UndertakerCD, Undertaker.AssassinateCooldown.GetInt());
-                            break;
-                        case CustomRoles.Miner:
-                            CallPetCDSimpler(Main.MinerCD, Options.MinerSSCD.GetInt());
-                            break;
-                        case CustomRoles.Escapee:
-                            CallPetCDSimpler(Main.EscapeeCD, Options.EscapeeSSCD.GetInt());
-                            break;
-                        case CustomRoles.Bomber:
-                            CallPetCDSimpler(Main.BomberCD, Options.BombCooldown.GetInt());
-                            break;
-                        case CustomRoles.Nuker:
-                            CallPetCDSimpler(Main.NukerCD, Options.NukeCooldown.GetInt());
-                            break;
-                        case CustomRoles.QuickShooter:
-                            CallPetCDSimpler(Main.QuickShooterCD, QuickShooter.ShapeshiftCooldown.GetInt());
-                            break;
-                        case CustomRoles.Disperser:
-                            CallPetCDSimpler(Main.DisperserCD, Disperser.DisperserShapeshiftCooldown.GetInt());
-                            break;
-                        case CustomRoles.Twister:
-                            CallPetCDSimpler(Main.TwisterCD, Twister.ShapeshiftCooldown.GetInt());
                             break;
 
                         // ---------------------------------------------------------------------------------------
@@ -2134,7 +2087,7 @@ public static class Utils
                 if (Deathpact.IsEnable)
                     SelfSuffix.Append(Deathpact.GetDeathpactPlayerArrow(seer));
 
-            GameMode:
+                GameMode:
 
                 switch (Options.CurrentGameMode)
                 {
@@ -2215,7 +2168,7 @@ public static class Utils
                 if (((IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool() && (Main.NormalOptions.MapId != 5 || !Options.CommsCamouflageDisableOnFungle.GetBool())) || Camouflager.IsActive) && !CamouflageIsForMeeting)
                     SelfName = $"<size=0>{SelfName}</size>";
 
-            GameMode2:
+                GameMode2:
 
                 switch (Options.CurrentGameMode)
                 {
@@ -2471,7 +2424,7 @@ public static class Utils
                                     }
                                 }
                             }
-                            //ターゲットのプレイヤー名の色を書き換えます。
+                        //ターゲットのプレイヤー名の色を書き換えます。
 
                         BeforeEnd:
 
@@ -2578,6 +2531,40 @@ public static class Utils
         PlayerGameOptionsSender.SetDirtyToAll();
         GameOptionsSender.SendAllGameOptions();
     }
+    public static void AddPetCD(CustomRoles role, byte playerId, bool includeDuration = true)
+    {
+        long now = GetTimeStamp();
+        Main.PetCD[playerId] = role switch
+        {
+            CustomRoles.Doormaster => (now, Doormaster.VentCooldown.GetInt()),
+            CustomRoles.Tether => (now, Tether.VentCooldown.GetInt()),
+            CustomRoles.Mayor => (now, (int)Math.Round(Options.DefaultKillCooldown)),
+            CustomRoles.Paranoia => (now, (int)Math.Round(Options.DefaultKillCooldown)),
+            CustomRoles.Grenadier => (now, Options.GrenadierSkillCooldown.GetInt() + (includeDuration ? Options.GrenadierSkillDuration.GetInt() : 0)),
+            CustomRoles.Lighter => (now, Options.LighterSkillCooldown.GetInt() + (includeDuration ? Options.LighterSkillDuration.GetInt() : 0)),
+            CustomRoles.SecurityGuard => (now, Options.SecurityGuardSkillCooldown.GetInt() + (includeDuration ? Options.SecurityGuardSkillDuration.GetInt() : 0)),
+            CustomRoles.TimeMaster => (now, Options.TimeMasterSkillCooldown.GetInt() + (includeDuration ? Options.TimeMasterSkillDuration.GetInt() : 0)),
+            CustomRoles.Veteran => (now, Options.VeteranSkillCooldown.GetInt() + (includeDuration ? Options.VeteranSkillDuration.GetInt() : 0)),
+            CustomRoles.DovesOfNeace => (now, Options.DovesOfNeaceCooldown.GetInt()),
+            CustomRoles.Alchemist => (now, Alchemist.VentCooldown.GetInt()),
+            CustomRoles.NiceHacker => (now, NiceHacker.AbilityCD.GetInt()),
+            CustomRoles.CameraMan => (now, CameraMan.VentCooldown.GetInt()),
+            CustomRoles.Sniper => (now, Options.DefaultShapeshiftCooldown.GetInt()),
+            CustomRoles.Assassin => (now, Assassin.AssassinateCooldown.GetInt()),
+            CustomRoles.Undertaker => (now, Undertaker.AssassinateCooldown.GetInt()),
+            CustomRoles.Bomber => (now, Options.BombCooldown.GetInt()),
+            CustomRoles.Nuker => (now, Options.NukeCooldown.GetInt()),
+            CustomRoles.Sapper => (now, Sapper.ShapeshiftCooldown.GetInt()),
+            CustomRoles.Druid => (now, Druid.VentCooldown.GetInt()),
+            CustomRoles.Miner => (now, Options.MinerSSCD.GetInt()),
+            CustomRoles.Escapee => (now, Options.EscapeeSSCD.GetInt()),
+            CustomRoles.QuickShooter => (now, QuickShooter.ShapeshiftCooldown.GetInt()),
+            CustomRoles.Disperser => (now, Disperser.DisperserShapeshiftCooldown.GetInt()),
+            CustomRoles.Twister => (now, Twister.ShapeshiftCooldown.GetInt()),
+            _ => (now, -1),
+        };
+        if (Main.PetCD.TryGetValue(playerId, out var petCD) && petCD.TOTALCD < 0) Main.PetCD.Remove(playerId);
+    }
     public static void AfterMeetingTasks()
     {
         if (Options.DiseasedCDReset.GetBool())
@@ -2630,84 +2617,7 @@ public static class Utils
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                switch (pc.GetCustomRole())
-                {
-                    case CustomRoles.Doormaster:
-                        Main.DoormasterCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                        break;
-                    case CustomRoles.Tether:
-                        Main.TetherCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                        break;
-                    case CustomRoles.Mayor:
-                        Main.MayorCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                        break;
-                    case CustomRoles.Paranoia:
-                        Main.ParanoiaCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                        break;
-                    case CustomRoles.Grenadier:
-                        Main.GrenadierCD.TryAdd(pc.PlayerId, GetTimeStamp() - Options.GrenadierSkillDuration.GetInt());
-                        break;
-                    case CustomRoles.Lighter:
-                        Main.LighterCD.TryAdd(pc.PlayerId, GetTimeStamp() - Options.LighterSkillDuration.GetInt());
-                        break;
-                    case CustomRoles.SecurityGuard:
-                        Main.SecurityGuardCD.TryAdd(pc.PlayerId, GetTimeStamp() - Options.SecurityGuardSkillDuration.GetInt());
-                        break;
-                    case CustomRoles.DovesOfNeace:
-                        Main.DovesOfNeaceCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                        break;
-                    case CustomRoles.Alchemist:
-                        Main.AlchemistCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                        break;
-                    case CustomRoles.TimeMaster:
-                        Main.TimeMasterCD.TryAdd(pc.PlayerId, GetTimeStamp() - Options.TimeMasterSkillDuration.GetInt());
-                        break;
-                    case CustomRoles.Veteran:
-                        Main.VeteranCD.TryAdd(pc.PlayerId, GetTimeStamp() - Options.VeteranSkillDuration.GetInt());
-                        break;
-                    case CustomRoles.NiceHacker:
-                        Main.HackerCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                        break;
-                    case CustomRoles.CameraMan:
-                        Main.CameraManCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                        break;
-                    case CustomRoles.Sniper:
-                        Main.SniperCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                        break;
-                    case CustomRoles.Assassin:
-                        Main.AssassinCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                        break;
-                    case CustomRoles.Undertaker:
-                        Main.UndertakerCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                        break;
-                    case CustomRoles.Bomber:
-                        Main.BomberCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                        break;
-                    case CustomRoles.Nuker:
-                        Main.NukerCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                        break;
-                    case CustomRoles.Sapper:
-                        Main.SapperCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                        break;
-                    case CustomRoles.Druid:
-                        Main.DruidCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                        break;
-                    case CustomRoles.Miner:
-                        Main.MinerCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                        break;
-                    case CustomRoles.Escapee:
-                        Main.EscapeeCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                        break;
-                    case CustomRoles.QuickShooter:
-                        Main.QuickShooterCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                        break;
-                    case CustomRoles.Disperser:
-                        Main.DisperserCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                        break;
-                    case CustomRoles.Twister:
-                        Main.TwisterCD.TryAdd(pc.PlayerId, GetTimeStamp());
-                        break;
-                }
+                AddPetCD(pc.GetCustomRole(), pc.PlayerId, includeDuration: false);
             }
         }
 

@@ -61,7 +61,7 @@ internal static class QuickShooter
             pc.ResetKillCooldown();
             pc.SetKillCooldown();
             pc.Notify(Translator.GetString("QuickShooterStoraging"));
-            Logger.Info($"{Utils.GetPlayerById(pc.PlayerId)?.GetNameWithRole().RemoveHtmlTags()} : 残り{ShotLimit[pc.PlayerId]}発", "QuickShooter");
+            Logger.Info($"{Utils.GetPlayerById(pc.PlayerId)?.GetNameWithRole().RemoveHtmlTags()} : Remaining: {ShotLimit[pc.PlayerId]} bullets", "QuickShooter");
         }
     }
     //private static bool Storaging;
