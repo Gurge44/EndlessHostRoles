@@ -405,6 +405,9 @@ internal class SelectRolesPatch
             SelectAddonRoles();
             CalculateVanillaRoleCount();
 
+            addEngineerNum += AddonRolesList.Count(x => x == CustomRoles.Nimble);
+            addScientistNum += AddonRolesList.Count(x => x == CustomRoles.Physicist);
+
             //指定原版特殊职业数量
             var roleOpt = Main.NormalOptions.roleOptions;
             int ScientistNum = Options.DisableVanillaRoles.GetBool() ? 0 : roleOpt.GetNumPerGame(RoleTypes.Scientist);
@@ -438,15 +441,63 @@ internal class SelectRolesPatch
 
         try
         {
+            var rd = IRandom.Instance;
+
+            Main.NimblePlayer = byte.MaxValue;
+            Main.PhysicistPlayer = byte.MaxValue;
+
+            bool physicistSpawn = false;
+            bool nimbleSpawn = false;
+
+            if (rd.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Physicist, out var x) ? x.GetFloat() : 0) && CustomRoles.Physicist.IsEnable())
+            {
+                physicistSpawn = true;
+            }
+            if (rd.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Nimble, out var x2) ? x2.GetFloat() : 0) && CustomRoles.Nimble.IsEnable())
+            {
+                nimbleSpawn = true;
+            }
+
+            List<byte> crewList = [];
+            if (nimbleSpawn || physicistSpawn)
+            {
+                foreach ((PlayerControl PLAYER, RoleTypes ROLETYPE) in RpcSetRoleReplacer.StoragedData.ToArray())
+                {
+                    var kp = RoleResult.FirstOrDefault(x => x.Key.PlayerId == PLAYER.PlayerId);
+                    if (kp.Value.IsCrewmate()) crewList.Add(PLAYER.PlayerId);
+                }
+            }
+
+            if (nimbleSpawn) Main.NimblePlayer = (byte)rd.Next(0, crewList.Count);
+            if (physicistSpawn) while (Main.PhysicistPlayer == byte.MaxValue || Main.PhysicistPlayer == Main.NimblePlayer)
+                Main.PhysicistPlayer = (byte)rd.Next(0, crewList.Count);
+
             List<(PlayerControl, RoleTypes)> newList = [];
             foreach ((PlayerControl PLAYER, RoleTypes ROLETYPE) in RpcSetRoleReplacer.StoragedData.ToArray())
             {
                 var kp = RoleResult.FirstOrDefault(x => x.Key.PlayerId == PLAYER.PlayerId);
-                newList.Add((PLAYER, kp.Value.GetRoleTypes()));
-                if (ROLETYPE == kp.Value.GetRoleTypes())
+                RoleTypes roleType = kp.Value.GetRoleTypes();
+                if (Main.NimblePlayer == PLAYER.PlayerId)
+                {
+                    if (roleType == RoleTypes.Crewmate)
+                    {
+                        roleType = RoleTypes.Engineer;
+                        Logger.Warn($"{PLAYER.GetRealName()} was assigned Nimble, their role basis was changed to Engineer", "Nimble");
+                    }
+                }
+                else if (Main.PhysicistPlayer == PLAYER.PlayerId)
+                {
+                    if (roleType == RoleTypes.Crewmate)
+                    {
+                        roleType = RoleTypes.Scientist;
+                        Logger.Warn($"{PLAYER.GetRealName()} was assigned Physicist, their role basis was changed to Scientist", "Physicist");
+                    }
+                }
+                newList.Add((PLAYER, roleType));
+                if (ROLETYPE == roleType)
                     Logger.Warn($"Register original role type => {PLAYER.GetRealName()}: {ROLETYPE}", "Override Role Select");
                 else
-                    Logger.Warn($"Register original role type => {PLAYER.GetRealName()}: {ROLETYPE} => {kp.Value.GetRoleTypes()}", "Override Role Select");
+                    Logger.Warn($"Register original role type => {PLAYER.GetRealName()}: {ROLETYPE} => {roleType}", "Override Role Select");
             }
             if (Options.EnableGM.GetBool()) newList.Add((PlayerControl.LocalPlayer, RoleTypes.Crewmate));
             RpcSetRoleReplacer.StoragedData = newList;
@@ -487,13 +538,14 @@ internal class SelectRolesPatch
                 goto EndOfSelectRolePatch;
             }
 
-            var rd = IRandom.Instance;
-
             foreach (var kv in RoleResult)
             {
                 if (kv.Value.IsDesyncRole()) continue;
                 AssignCustomRole(kv.Value, kv.Key);
             }
+
+            if (Main.NimblePlayer != byte.MaxValue) Main.PlayerStates[Main.NimblePlayer].SetSubRole(CustomRoles.Nimble);
+            if (Main.PhysicistPlayer != byte.MaxValue) Main.PlayerStates[Main.PhysicistPlayer].SetSubRole(CustomRoles.Physicist);
 
             if (CustomRoles.Lovers.IsEnable() && (CustomRoles.FFF.IsEnable() ? -1 : rd.Next(1, 100)) <= Options.LoverSpawnChances.GetInt()) AssignLoversRolesFromList();
             foreach (CustomRoles role in AddonRolesList.ToArray())

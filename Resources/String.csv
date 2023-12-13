@@ -3270,6 +3270,20 @@
 "BanditCanStealBetrayalAddon","","Can Steal Betrayal Addons","","",""
 "BanditCanStealImpOnlyAddon","","Can Steal <color=#ff1919>Impostor</color> Only Addons","","",""
 
+"## Nimble"
+"Nimble","","Nimble","","",""
+"NimbleInfo","","Grants Vent Access","","",""
+"NimbleInfoLong","","\nGrants vent access for crewmate roles.","","",""
+"Prefix.Nimble","","Nimble ","","",""
+"PrefixB.Nimble","","<color=#ffffff>(</color>Nimble<color=#ffffff>)</color> ","","",""
+
+"## Physicist"
+"Physicist","","Physicist","","",""
+"PhysicistInfo","","Grants Portable Vitals Access","","",""
+"PhysicistInfoLong","","\nGrants portable vitals access for crewmate roles","","",""
+"Prefix.Physicist","","Physicist ","","",""
+"PrefixB.Physicist","","<color=#ffffff>(</color>Physicist<color=#ffffff>)</color> ","","",""
+
 "## Agitater"
 "Agitater","煽动者","Agitater","Агитатор","","Agitador"
 "AgitaterInfo","这个炸弹给你了！","Pass a Bomb onto others","Вот тебе подарок в виде бомбы","","Pásale la patata caliente a otros"

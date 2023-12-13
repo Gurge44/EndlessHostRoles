@@ -95,6 +95,8 @@ public class Main : BasePlugin
     public static Dictionary<byte, (long START_TIMESTAMP, int TOTALCD)> PetCD = [];
     private static GameData.PlayerInfo lastVotedPlayerInfo;
     public static string LastVotedPlayer;
+    public static byte NimblePlayer = byte.MaxValue;
+    public static byte PhysicistPlayer = byte.MaxValue;
     public static List<byte> ResetCamPlayerList = [];
     public static List<byte> winnerList = [];
     public static List<CustomRoles> winnerRolesList = [];
@@ -495,6 +497,8 @@ public class Main : BasePlugin
                 {CustomRoles.Madmate, "#ff1919"},
                 {CustomRoles.Watcher, "#800080"},
                 {CustomRoles.Flashman, "#ff8400"},
+                {CustomRoles.Nimble, "#feffc7"},
+                {CustomRoles.Physicist, "#87e9ff"},
                 {CustomRoles.Torch, "#eee5be"},
                 {CustomRoles.Seer, "#61b26c"},
                 {CustomRoles.Brakar, "#1447af"},

@@ -23,6 +23,8 @@ namespace TOHE.Roles.Crewmate
             CustomRoles.Antidote,
             CustomRoles.Brakar, // Tiebreaker
             CustomRoles.Knighted,
+            CustomRoles.Physicist,
+            CustomRoles.Nimble,
             CustomRoles.Onbound,
             CustomRoles.Lucky,
             CustomRoles.DualPersonality // Schizophrenic

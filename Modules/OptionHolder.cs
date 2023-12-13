@@ -2294,6 +2294,10 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Unreportable]);
         RoleLoadingText = "Add-ons\nStressed";
         Stressed.SetupCustomOption();
+        RoleLoadingText = "Add-ons\nNimble";
+        SetupAdtRoleOptions(15640, CustomRoles.Nimble);
+        RoleLoadingText = "Add-ons\nPhysicist";
+        SetupAdtRoleOptions(15650, CustomRoles.Physicist);
         RoleLoadingText = "Add-ons\nGhoul";
         SetupAdtRoleOptions(15250, CustomRoles.Ghoul, canSetNum: true);
         RoleLoadingText = "Add-ons\nOblivious";
