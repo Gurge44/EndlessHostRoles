@@ -199,6 +199,24 @@ internal class ChatCommands
                     canceled = true;
                     subArgs = text.Remove(0, 3);
                     if (!PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp) break;
+                    Utils.SendMessage("/up was replaced by /setrole which allows you to set anyone's role for any game by typing '/setrole (ID) (ROLE)'. You can view ID's with /id.\nTo set your own role like with /up, you need to do '/setrole 0 (ROLE)'.", localPlayerId);
+                    //if (!Options.EnableUpMode.GetBool())
+                    //{
+                    //    Utils.SendMessage(string.Format(GetString("Message.YTPlanDisabled"), GetString("EnableYTPlan")), localPlayerId);
+                    //    break;
+                    //}
+                    //if (!GameStates.IsLobby)
+                    //{
+                    //    Utils.SendMessage(GetString("Message.OnlyCanUseInLobby"), localPlayerId);
+                    //    break;
+                    //}
+                    //SendRolesInfo(subArgs, localPlayerId, isUp: true);
+                    break;
+
+                case "/setrole":
+                    canceled = true;
+                    subArgs = text.Remove(0, 8);
+                    if (!PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp) break;
                     if (!Options.EnableUpMode.GetBool())
                     {
                         Utils.SendMessage(string.Format(GetString("Message.YTPlanDisabled"), GetString("EnableYTPlan")), localPlayerId);
@@ -209,7 +227,20 @@ internal class ChatCommands
                         Utils.SendMessage(GetString("Message.OnlyCanUseInLobby"), localPlayerId);
                         break;
                     }
-                    SendRolesInfo(subArgs, localPlayerId, isUp: true);
+                    if (!GuessManager.MsgToPlayerAndRole(subArgs, out byte resultId, out CustomRoles roleToSet, out _))
+                    {
+                        Utils.SendMessage("Invalid arguments", localPlayerId);
+                        break;
+                    }
+                    else
+                    {
+                        var targetPc = Utils.GetPlayerById(resultId);
+                        if (targetPc == null) break;
+
+                        Main.SetRoles[targetPc.PlayerId] = roleToSet;
+
+                        Utils.SendMessage($"<b>{Utils.ColorString(Main.PlayerColors.TryGetValue(resultId, out var textColor) ? textColor : Color.black, targetPc.GetRealName())}</b>'s role in the next game will be <b><color={Main.roleColors[roleToSet]}>{GetString(roleToSet.ToString())}</color></b>", localPlayerId);
+                    }
                     break;
 
                 case "/h":
@@ -621,57 +652,57 @@ internal class ChatCommands
             "靈媒" => GetString("Seer"),
             "破平者" or "破平" => GetString("Brakar"),
             "執燈人" or "执灯" or "灯人" => GetString("Torch"),
-            "膽小" or "胆小" => GetString("Oblivious"),
-            "迷惑者" or "迷幻" => GetString("Bewilder"),
+            "膽小" or "胆小" or "obli" => GetString("Oblivious"),
+            "迷惑者" or "迷幻" or "bew" => GetString("Bewilder"),
             "sun" => GetString("Sunglasses"),
             "蠢蛋" or "笨蛋" or "蠢狗" or "傻逼" => GetString("Fool"),
-            "冤罪師" or "冤罪" => GetString("Innocent"),
-            "資本家" or "资本主义" or "资本" => GetString("Capitalism"),
-            "老兵" => GetString("Veteran"),
+            "冤罪師" or "冤罪" or "inno" => GetString("Innocent"),
+            "資本家" or "资本主义" or "资本" or "cap" or "capi" => GetString("Capitalism"),
+            "老兵" or "vet" => GetString("Veteran"),
             "加班狂" or "加班" => GetString("Workhorse"),
             "復仇者" or "复仇" => GetString("Avanger"),
-            "鵜鶘" => GetString("Pelican"),
-            "保鏢" => GetString("Bodyguard"),
-            "up" or "up主" => GetString("Youtuber"),
-            "利己主義者" or "利己主义" or "利己" => GetString("Egoist"),
+            "鵜鶘" or "pel" or "peli" => GetString("Pelican"),
+            "保鏢" or "bg" => GetString("Bodyguard"),
+            "up" or "up主" or "yt" => GetString("Youtuber"),
+            "利己主義者" or "利己主义" or "利己" or "ego" => GetString("Egoist"),
             "贗品商" or "赝品" => GetString("Counterfeiter"),
-            "擲雷兵" or "掷雷" or "闪光弹" => GetString("Grenadier"),
+            "擲雷兵" or "掷雷" or "闪光弹" or "gren" or "grena" => GetString("Grenadier"),
             "竊票者" or "偷票" or "偷票者" or "窃票师" or "窃票" => GetString("TicketsStealer"),
             "教父" => GetString("Gangster"),
-            "革命家" or "革命" => GetString("Revolutionist"),
+            "革命家" or "革命" or "revo" => GetString("Revolutionist"),
             "fff團" or "fff" or "fff团" => GetString("FFF"),
-            "清理工" or "清潔工" or "清洁工" or "清理" or "清洁" => GetString("Cleaner"),
+            "清理工" or "清潔工" or "清洁工" or "清理" or "清洁" or "janitor" => GetString("Cleaner"),
             "醫生" => GetString("Medicaler"),
-            "占卜師" or "占卜" => GetString("Divinator"),
-            "雙重人格" or "双重" or "双人格" or "人格" => GetString("DualPersonality"),
+            "占卜師" or "占卜" or "ft" => GetString("Divinator"),
+            "雙重人格" or "双重" or "双人格" or "人格" or "schizo" or "scizo" or "shizo" => GetString("DualPersonality"),
             "玩家" => GetString("Gamer"),
             "情報販子" or "情报" or "贩子" => GetString("Messenger"),
             "球狀閃電" or "球闪" or "球状" => GetString("BallLightning"),
             "潛藏者" or "潜藏" => GetString("DarkHide"),
             "貪婪者" or "贪婪" => GetString("Greedier"),
-            "工作狂" or "工作" => GetString("Workaholic"),
-            "呪狼" or "咒狼" => GetString("CursedWolf"),
+            "工作狂" or "工作" or "worka" => GetString("Workaholic"),
+            "呪狼" or "咒狼" or "cw" => GetString("CursedWolf"),
             "寶箱怪" or "宝箱" => GetString("Mimic"),
             "集票者" or "集票" or "寄票" or "机票" => GetString("Collector"),
             "活死人" or "活死" => GetString("Glitch"),
-            "奪魂者" or "多混" or "夺魂" => GetString("ImperiusCurse"),
-            "自爆卡車" or "自爆" or "卡车" => GetString("Provocateur"),
-            "快槍手" or "快枪" => GetString("QuickShooter"),
+            "奪魂者" or "多混" or "夺魂" or "sc" => GetString("ImperiusCurse"),
+            "自爆卡車" or "自爆" or "卡车" or "provo" => GetString("Provocateur"),
+            "快槍手" or "快枪" or "qs" => GetString("QuickShooter"),
             "隱蔽者" or "隐蔽" or "小黑人" => GetString("Concealer"),
             "抹除者" or "抹除" => GetString("Eraser"),
             "肢解者" or "肢解" => GetString("OverKiller"),
             "劊子手" or "侩子手" or "柜子手" => GetString("Hangman"),
-            "陽光開朗大男孩" or "阳光" or "开朗" or "大男孩" or "阳光开朗" or "开朗大男孩" or "阳光大男孩" => GetString("Sunnyboy"),
+            "陽光開朗大男孩" or "阳光" or "开朗" or "大男孩" or "阳光开朗" or "开朗大男孩" or "阳光大男孩" or "sunny" => GetString("Sunnyboy"),
             "法官" or "审判" => GetString("Judge"),
-            "入殮師" or "入检师" or "入殓" => GetString("Mortician"),
+            "入殮師" or "入检师" or "入殓" or "mor" => GetString("Mortician"),
             "通靈師" or "通灵" => GetString("Mediumshiper"),
             "吟游詩人" or "诗人" => GetString("Bard"),
             "隱匿者" or "隐匿" or "隐身" or "隐身人" or "印尼" => GetString("Swooper"),
-            "船鬼" => GetString("Crewpostor"),
+            "船鬼" or "cp" => GetString("Crewpostor"),
             "嗜血騎士" or "血骑" or "骑士" or "bk" => GetString("BloodKnight"),
             "賭徒" => GetString("Totocalcio"),
             "分散机" => GetString("Disperser"),
-            "和平之鸽" or "和平之鴿" or "和平的鸽子" or "和平" => GetString("DovesOfNeace"),
+            "和平之鸽" or "和平之鴿" or "和平的鸽子" or "和平" or "dop" or "dove of peace" => GetString("DovesOfNeace"),
             "持槍" or "持械" or "手长" => GetString("Reach"),
             "monarch" => GetString("Monarch"),
             _ => text,

@@ -416,7 +416,7 @@ internal class SelectRolesPatch
 
             Dictionary<(byte, byte), RoleTypes> rolesMap = [];
 
-            // 注册反职业
+            // Register Desync Impostor Roles
             foreach (var kv in RoleResult.Where(x => x.Value.IsDesyncRole()))
                 AssignDesyncRole(kv.Value, kv.Key, senders, rolesMap, BaseRole: kv.Value.GetDYRole());
 
@@ -429,7 +429,7 @@ internal class SelectRolesPatch
             Utils.ErrorEnd("Select Role Prefix");
             Logger.Fatal(e.Message, "Select Role Prefix");
         }
-        //以下、バニラ側の役職割り当てが入る
+        // Below is the role assignment on the vanilla side.
     }
 
     public static void Postfix()
@@ -451,10 +451,10 @@ internal class SelectRolesPatch
             if (Options.EnableGM.GetBool()) newList.Add((PlayerControl.LocalPlayer, RoleTypes.Crewmate));
             RpcSetRoleReplacer.StoragedData = newList;
 
-            RpcSetRoleReplacer.Release(); //保存していたSetRoleRpcを一気に書く
+            RpcSetRoleReplacer.Release(); // Write the saved SetRoleRpc all at once
             RpcSetRoleReplacer.senders.Do(kvp => kvp.Value.SendMessage());
 
-            // 不要なオブジェクトの削除
+            // Delete unnecessary objects
             RpcSetRoleReplacer.senders = null;
             RpcSetRoleReplacer.OverriddenSenderList = null;
             RpcSetRoleReplacer.StoragedData = null;
@@ -464,37 +464,22 @@ internal class SelectRolesPatch
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
                 pc.Data.IsDead = false;
-                if (Main.PlayerStates[pc.PlayerId].MainRole != CustomRoles.NotAssigned)
-                    continue;
-                var role = CustomRoles.NotAssigned;
-                switch (pc.Data.Role.Role)
+                if (Main.PlayerStates[pc.PlayerId].MainRole != CustomRoles.NotAssigned) continue;
+                var role = pc.Data.Role.Role switch
                 {
-                    case RoleTypes.Crewmate:
-                        role = CustomRoles.Crewmate;
-                        break;
-                    case RoleTypes.Impostor:
-                        role = CustomRoles.Impostor;
-                        break;
-                    case RoleTypes.Scientist:
-                        role = CustomRoles.Scientist;
-                        break;
-                    case RoleTypes.Engineer:
-                        role = CustomRoles.Engineer;
-                        break;
-                    case RoleTypes.GuardianAngel:
-                        role = CustomRoles.GuardianAngel;
-                        break;
-                    case RoleTypes.Shapeshifter:
-                        role = CustomRoles.Shapeshifter;
-                        break;
-                    default:
-                        Logger.SendInGame(string.Format(GetString("Error.InvalidRoleAssignment"), pc?.Data?.PlayerName));
-                        break;
-                }
+                    RoleTypes.Crewmate => CustomRoles.Crewmate,
+                    RoleTypes.Impostor => CustomRoles.Impostor,
+                    RoleTypes.Scientist => CustomRoles.Scientist,
+                    RoleTypes.Engineer => CustomRoles.Engineer,
+                    RoleTypes.GuardianAngel => CustomRoles.GuardianAngel,
+                    RoleTypes.Shapeshifter => CustomRoles.Shapeshifter,
+                    _ => CustomRoles.NotAssigned,
+                };
+                if (role == CustomRoles.NotAssigned) Logger.SendInGame(string.Format(GetString("Error.InvalidRoleAssignment"), pc?.Data?.PlayerName));
                 Main.PlayerStates[pc.PlayerId].SetMainRole(role);
             }
 
-            // 个人竞技模式用
+            // For other gamemodes:
             if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop)
             {
                 foreach (var pair in Main.PlayerStates)
@@ -1243,7 +1228,7 @@ internal class SelectRolesPatch
         {
             var player = allPlayers[IRandom.Instance.Next(0, allPlayers.Length)];
             Main.PlayerStates[player.PlayerId].SetSubRole(role);
-            Logger.Info("Assigned add-on: " + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + role.ToString(), "Assign " + role.ToString());
+            Logger.Info($"Assigned add-on: {player?.Data?.PlayerName} = {player.GetCustomRole()} + {role}", $"Assign {role}");
         }
     }
 
@@ -1253,7 +1238,7 @@ internal class SelectRolesPatch
         public static bool doReplace;
         public static Dictionary<byte, CustomRpcSender> senders;
         public static List<(PlayerControl, RoleTypes)> StoragedData = [];
-        // 役職Desyncなど別の処理でSetRoleRpcを書き込み済みなため、追加の書き込みが不要なSenderのリスト
+        // A list of Senders that does not require additional writing because SetRoleRpc has already been written in another process such as role Desync.
         public static List<CustomRpcSender> OverriddenSenderList;
         public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] RoleTypes roleType)
         {

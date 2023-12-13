@@ -943,6 +943,8 @@ public enum CustomRoles
     Swift,
     Ghoul,
     Mare,
+    Nimble,
+    Physicist,
     // QuickFix
 }
 //WinData

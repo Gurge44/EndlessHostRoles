@@ -22,6 +22,7 @@ class HudManagerPatch
     //public static int NowFrameCount;
     //public static float FrameRateTimer;
     public static TextMeshPro LowerInfoText;
+    private static TextMeshPro OverriddenRolesText;
     //public static GameObject TempLowerInfoText;
     public static void Postfix(HudManager __instance)
     {
@@ -52,7 +53,42 @@ class HudManagerPatch
             __instance.GameSettings.fontSizeMin =
             __instance.GameSettings.fontSizeMax = 1f;
         }
-        //ゲーム中でなければ以下は実行されない
+
+        if (OverriddenRolesText == null)
+        {
+            OverriddenRolesText = Object.Instantiate(__instance.KillButton.cooldownTimerText);
+            OverriddenRolesText.alignment = TextAlignmentOptions.Right;
+            OverriddenRolesText.verticalAlignment = VerticalAlignmentOptions.Top;
+            OverriddenRolesText.transform.parent = __instance.transform;
+            OverriddenRolesText.transform.localPosition = new Vector3(4.9f, 0.8f, 0);
+            OverriddenRolesText.overflowMode = TextOverflowModes.Overflow;
+            OverriddenRolesText.enableWordWrapping = false;
+            OverriddenRolesText.color = Color.white;
+            OverriddenRolesText.fontSize = OverriddenRolesText.fontSizeMax = OverriddenRolesText.fontSizeMin = 2f;
+        }
+
+        if (Main.SetRoles.Any())
+        {
+            var sb = new StringBuilder();
+            bool first = true;
+            foreach (var item in Main.SetRoles)
+            {
+                var pc = Utils.GetPlayerById(item.Key);
+                string prefix = first ? string.Empty : "\n";
+                string text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc == null ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <color={(Main.roleColors.TryGetValue(item.Value, out var roleColor) ? roleColor : "#ffffff")}>{Translator.GetString(item.Value.ToString())}</color>";
+                sb.Append(text);
+                first = false;
+            }
+            OverriddenRolesText.text = sb.ToString();
+        }
+        else
+        {
+            OverriddenRolesText.text = string.Empty;
+        }
+
+        OverriddenRolesText.enabled = OverriddenRolesText.text != string.Empty;
+
+        // The following will not be executed unless the game is in progress
         if (!AmongUsClient.Instance.IsGameStarted) return;
 
         Utils.CountAlivePlayers();

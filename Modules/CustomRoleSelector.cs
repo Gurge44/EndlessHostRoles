@@ -83,6 +83,8 @@ internal class CustomRoleSelector
                 return;
         }
 
+        foreach (var id in Main.SetRoles.Keys.Where(id => Utils.GetPlayerById(id) == null).ToArray()) Main.SetRoles.Remove(id);
+
         System.Collections.IList list = Enum.GetValues(typeof(CustomRoles));
         for (int i1 = 0; i1 < list.Count; i1++)
         {
@@ -104,7 +106,7 @@ internal class CustomRoleSelector
                 roleList.Add(role);
         }
 
-        // 职业设置为：优先
+        // Career setting: priority
         for (int i2 = 0; i2 < roleList.Count; i2++)
         {
             CustomRoles role = roleList[i2];
@@ -116,7 +118,15 @@ internal class CustomRoleSelector
                 else roleOnList.Add(role);
             }
         }
-        // 职业设置为：启用
+        // Add pre-set roles by host as priority roles
+        foreach (var role in Main.SetRoles.Values.ToArray())
+        {
+            if (role.IsImpostor() && !ImpOnList.Contains(role)) ImpOnList.Add(role);
+            else if (role.IsNonNK() && !NonNeutralKillingOnList.Contains(role)) NonNeutralKillingOnList.Add(role);
+            else if (role.IsNK() && !NeutralKillingOnList.Contains(role)) NeutralKillingOnList.Add(role);
+            else if (!roleOnList.Contains(role)) roleOnList.Add(role);
+        }
+        // Career settings are: enabled
         for (int i3 = 0; i3 < roleList.Count; i3++)
         {
             CustomRoles role = roleList[i3];
@@ -129,7 +139,7 @@ internal class CustomRoleSelector
             }
         }
 
-        // 抽取优先职业（内鬼）
+        // Assign roles set to ALWAYS (impostors)
         while (ImpOnList.Count > 0)
         {
             var select = ImpOnList[rd.Next(0, ImpOnList.Count)];
@@ -140,7 +150,7 @@ internal class CustomRoleSelector
             if (readyRoleNum >= playerCount) goto EndOfAssign;
             if (readyRoleNum >= optImpNum) break;
         }
-        // 优先职业不足以分配，开始分配启用的职业（内鬼）
+        // The priority profession is not enough to allocate, start to allocate the enabled roles (impostors)
         if (readyRoleNum < playerCount && readyRoleNum < optImpNum)
         {
             while (ImpRateList.Count > 0)
@@ -213,7 +223,7 @@ internal class CustomRoleSelector
             }
         }
 
-        // 抽取优先职业
+        // Assign roles set to ALWAYS
         while (roleOnList.Count > 0)
         {
             var select = roleOnList[rd.Next(0, roleOnList.Count)];
@@ -223,7 +233,7 @@ internal class CustomRoleSelector
             Logger.Info(select.ToString() + " joined the crew role waiting list (priority)", "CustomRoleSelector");
             if (readyRoleNum >= playerCount) goto EndOfAssign;
         }
-        // 优先职业不足以分配，开始分配启用的职业
+        // There are not enough priority occupations to allocate. Start allocating enabled occupations.
         if (readyRoleNum < playerCount)
         {
             while (roleRateList.Count > 0)
@@ -283,13 +293,23 @@ internal class CustomRoleSelector
                 {
                     rolesToAssign.RemoveAt(i);
                     rolesToAssign.Insert(dr.Key, dr.Value);
-                    Logger.Info("Coverage occupation list：" + i + " " + role.ToString() + " => " + dr.Value, "Dev Role");
+                    Logger.Info($"Coverage occupation list：{i} {role} => {dr.Value}", "Dev Role");
                     break;
                 }
             }
         }
 
         var AllPlayer = Main.AllAlivePlayerControls.ToList();
+
+        foreach (var item in Main.SetRoles)
+        {
+            if (item.Key == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()) continue;
+
+            rolesToAssign.Remove(item.Value);
+            rolesToAssign.Insert(item.Key, item.Value);
+
+            Logger.Warn($"Override {Main.AllPlayerNames[item.Key]}'s role to their role set by host: {Translator.GetString(item.Value.ToString())}", "CustomRoleSelector");
+        }
 
         while (AllPlayer.Count > 0 && rolesToAssign.Count > 0)
         {
@@ -308,11 +328,38 @@ internal class CustomRoleSelector
                     rolesToAssign.RemoveAt(id);
                     goto EndOfWhile;
                 }
+                foreach (var item in Main.SetRoles.Where(x => pc.PlayerId == x.Key))
+                {
+                    if (item.Key == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()) continue;
+
+                    var index = rolesToAssign.IndexOf(item.Value);
+                    if (index == -1) continue;
+
+                    RoleResult.Add(pc, rolesToAssign[index]);
+                    Logger.Warn($"Assign Overridden Role: {AllPlayer[0].GetRealName()} => {rolesToAssign[index]}", "CustomRoleSelector");
+
+                    delPc = pc;
+
+                    rolesToAssign.RemoveAt(index);
+
+                    goto EndOfWhile;
+                }
             }
 
             var roleId = rd.Next(0, rolesToAssign.Count);
-            RoleResult.Add(AllPlayer[0], rolesToAssign[roleId]);
+
+            CustomRoles assignedRole;
+            if (Main.SetRoles.TryGetValue(AllPlayer[0].PlayerId, out var preSetRole))
+            {
+                assignedRole = preSetRole;
+                Main.SetRoles.Remove(AllPlayer[0].PlayerId);
+
+            }
+            else assignedRole = rolesToAssign[roleId];
+
+            RoleResult.Add(AllPlayer[0], assignedRole);
             Logger.Info($"Role assigned：{AllPlayer[0].GetRealName()} => {rolesToAssign[roleId]}", "CustomRoleSelector");
+
             AllPlayer.RemoveAt(0);
             rolesToAssign.RemoveAt(roleId);
 
@@ -321,6 +368,7 @@ internal class CustomRoleSelector
             {
                 AllPlayer.Remove(delPc);
                 Main.DevRole.Remove(delPc.PlayerId);
+                Main.SetRoles.Remove(delPc.PlayerId);
             }
         }
 
@@ -336,14 +384,14 @@ internal class CustomRoleSelector
     public static int addShapeshifterNum;
     public static void CalculateVanillaRoleCount()
     {
-        // 计算原版特殊职业数量
+        // Calculate the number of special professions in the original version
         addEngineerNum = 0;
         addScientistNum = 0;
         addShapeshifterNum = 0;
         for (int i = 0; i < AllRoles.Count; i++)
         {
             CustomRoles role = AllRoles[i];
-            switch (CustomRolesHelper.GetVNRole(role))
+            switch (role.GetVNRole())
             {
                 case CustomRoles.Scientist: addScientistNum++; break;
                 case CustomRoles.Engineer: addEngineerNum++; break;

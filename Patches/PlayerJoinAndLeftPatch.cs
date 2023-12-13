@@ -54,6 +54,8 @@ class OnGameJoinedPatch
                     SceneChanger.ChangeScene("MainMenu");
                 }
             }, 1f, "OnGameJoinedPatch");
+
+            Main.SetRoles = [];
         }
     }
 }
