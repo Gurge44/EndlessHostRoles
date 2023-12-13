@@ -562,6 +562,14 @@ public class TaskState
 
             if (player.Is(CustomRoles.Stressed)) Stressed.OnTaskComplete(player);
 
+            if (player.Is(CustomRoles.Insight))
+            {
+                var list = Main.AllPlayerControls.Where(x => !Main.InsightKnownRolesOfPlayerIds.Contains(x.PlayerId) && !x.Is(CountTypes.OutOfGame) && !x.Is(CustomRoles.GM) && !x.Is(CustomRoles.NotAssigned)).ToList();
+                var target = list[IRandom.Instance.Next(0, list.Count)];
+                Main.InsightKnownRolesOfPlayerIds.Add(target.PlayerId);
+                player.Notify(string.Format(Utils.ColorString(target.GetRoleColor(), Translator.GetString("InsightNotify")), target.GetDisplayRoleName(pure: true)));
+            }
+
             Merchant.OnTaskFinished(player);
             if (player.Is(CustomRoles.Ignitor) && player.IsAlive()) Ignitor.OnCompleteTask(player);
             if (player.Is(CustomRoles.Ignitor) && (CompletedTasksCount + 1) >= AllTasksCount && player.IsAlive()) Ignitor.OnTasksFinished(player);

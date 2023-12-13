@@ -214,6 +214,7 @@ public static class Divinator
                 CustomRoles.Oracle or
                 CustomRoles.NiceSwapper or
                 CustomRoles.Visionary or
+                CustomRoles.Insight or
                 CustomRoles.Gambler or
                 CustomRoles.NiceEraser or
                 CustomRoles.ParityCop

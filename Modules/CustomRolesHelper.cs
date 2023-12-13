@@ -93,6 +93,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Express => CustomRoles.Crewmate,
                 CustomRoles.NiceEraser => CustomRoles.Crewmate,
                 CustomRoles.TaskManager => CustomRoles.Crewmate,
+                CustomRoles.Insight => CustomRoles.Crewmate,
                 CustomRoles.Tunneler => CustomRoles.Crewmate,
                 CustomRoles.Detour => CustomRoles.Crewmate,
                 CustomRoles.Drainer => CustomRoles.Engineer,
@@ -222,6 +223,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Express => CustomRoles.CrewmateTOHE,
                 CustomRoles.NiceEraser => CustomRoles.CrewmateTOHE,
                 CustomRoles.TaskManager => CustomRoles.CrewmateTOHE,
+                CustomRoles.Insight => CustomRoles.CrewmateTOHE,
                 CustomRoles.Tunneler => CustomRoles.CrewmateTOHE,
                 CustomRoles.Detour => CustomRoles.CrewmateTOHE,
                 CustomRoles.Drainer => CustomRoles.EngineerTOHE,
@@ -1451,8 +1453,8 @@ internal static class CustomRolesHelper
             ((role is CustomRoles.Doctor) && Options.DoctorVisibleToEveryone.GetBool()) ||
             ((role is CustomRoles.Bait) && Options.BaitNotification.GetBool() && ParityCop.ParityCheckBaitCountType.GetBool());
     public static bool IsImpostorTeamV3(this CustomRoles role) => role.IsImpostor() || role.IsMadmate();
-    public static bool IsNeutralKillerTeam(this CustomRoles role) => role.IsNK() || !role.IsMadmate();
-    public static bool IsPassiveNeutralTeam(this CustomRoles role) => role.IsNonNK() || !role.IsMadmate();
+    public static bool IsNeutralKillerTeam(this CustomRoles role) => role.IsNK() && !role.IsMadmate();
+    public static bool IsPassiveNeutralTeam(this CustomRoles role) => role.IsNonNK() && !role.IsMadmate();
     public static bool IsNNK(this CustomRoles role) => role.IsNeutral() && !role.IsNK();
     public static bool IsVanilla(this CustomRoles role)
     {
