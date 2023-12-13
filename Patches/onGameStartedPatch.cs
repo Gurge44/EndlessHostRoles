@@ -37,7 +37,6 @@ internal class ChangeRoleSettings
 
             Main.AllPlayerKillCooldown = [];
             Main.AllPlayerSpeed = [];
-            Main.AllPlayerCustomRoles = [];
             Main.KillTimers = [];
             Main.WarlockTimer = [];
             Main.AssassinTimer = [];
@@ -1159,7 +1158,6 @@ internal class SelectRolesPatch
             var rand = IRandom.Instance;
             var player = AllPlayers[rand.Next(0, AllPlayers.Count)];
             AllPlayers.Remove(player);
-            Main.AllPlayerCustomRoles[player.PlayerId] = role;
             if (!skip)
             {
                 if (!player.IsModClient())
