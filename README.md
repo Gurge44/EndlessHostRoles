@@ -53,6 +53,10 @@
 - Better role summary
 - Option to use Pet button instead of Vent, Shapeshift or Sabotage (assigns the Pusheen pet to everyone at the start of the game)
 - Smaller mod version text and smaller credentials text (imo it was annoying that it covered a quarter of the screen)
+- Players have their name displayed with their color on the ejection screen
+- Everyone knows how many killers remain after each ejection (even if no one was ejected, like it was a skip or a tie)
+- You can chat during the game if the game mode is FFA
+- Simplified and shortened role descriptions
 
 ### Role specific Improvements
 #### Crewmates
@@ -66,6 +70,7 @@
 - Sheriff: Setting whether to display the shot limit next to the role name
 - Tracefinder: Settings that determine the delay in which the arrows show up
 - Bodyguard: Setting whether the murderer dies when the bodyguard protects the target
+- Monarch: Can be guessed, just not by Knighted players
 #### Impostors
 - Ninja: Kill Cooldown no longer resets when unshifting
 - Bounty Hunter: Target's name is displayed in black for the Bounty Hunter; Swap Timer is displayed next to the role name, not on the Shapeshift button => Changed the basis to regular Impostor
@@ -83,11 +88,14 @@
 - Vampire: Kill Cooldown is reset when the bitten target dies
 - Capitalist: Can kill normally with the double click method (& + Kill Cooldown setting)
 - Killing Machine: Has impostor vision
+- Puppeteer: Added a lot of settings
 #### Neutrals
 - Medusa: Can only clean bodies if their kill cooldown is up
 - Wraith: Setting whether it can vent normally when invis is on cooldown; Invis Cooldown is visualized next to the role name
 - Poisoner: Kill Cooldown is reset when the poisoned target dies
 - Glitch is now The Glitch from TOU-R, it was completely rewritten and I worked really hard on it
+- Provocateur: No longer suicides after selecting a target
+- Pursuer: Target doesn't die when trying to use their kill button, they'll just have their kill cooldown reset
 
 ### Now, some new roles as well
 - Lighter (Crewmate)
@@ -116,6 +124,11 @@
 - Escort (Crewmate)
 - Donut Delivery (Crewmate)
 - Drainer (Crewmate)
+- Insight (Crewmate)
+- Tunneler (Crewmate)
+- Detour (Crewmate)
+- Gaulois (Crewmate)
+- Analyzer (Crewmate)
 - Romantic (Neutral)
 - Werewolf (Neutral)
 - Imitator (Neutral)
@@ -135,8 +148,15 @@
 - Sapper (Impostor)
 - Nullifier (Impostor)
 - Chronomancer (Impostor)
+- Librarian (Impostor)
+- Yin Yanger (Impostor)
+- Cantankerous (Impostor)
+- Duellist (Impostor)
 - Damocles (Impostor-only Add-on)
 - Deadly Quota (Impostor-only Add-on)
+- Nimble (Add-on)
+- Physicist (Add-on)
+- Stressed (Add-on)
 
 ## Note:
 - You can use parts of the code in here, but if you do, you'll have to credit me (Gurge44) or the mod by mentioning its name (TOHE+) and providing a link to this github page. (Or leaving the in-game credits as they are are also fine!)
