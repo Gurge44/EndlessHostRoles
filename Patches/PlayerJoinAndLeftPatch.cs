@@ -56,6 +56,7 @@ class OnGameJoinedPatch
             }, 1f, "OnGameJoinedPatch");
 
             Main.SetRoles = [];
+            Main.SetAddOns = [];
         }
     }
 }

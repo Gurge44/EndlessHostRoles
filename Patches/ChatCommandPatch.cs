@@ -237,9 +237,16 @@ internal class ChatCommands
                         var targetPc = Utils.GetPlayerById(resultId);
                         if (targetPc == null) break;
 
-                        Main.SetRoles[targetPc.PlayerId] = roleToSet;
+                        if (roleToSet.IsAdditionRole())
+                        {
+                            if (!Main.SetAddOns.ContainsKey(resultId)) Main.SetAddOns[resultId] = [];
 
-                        Utils.SendMessage($"<b>{Utils.ColorString(Main.PlayerColors.TryGetValue(resultId, out var textColor) ? textColor : Color.black, targetPc.GetRealName())}</b>'s role in the next game will be <b><color={Main.roleColors[roleToSet]}>{GetString(roleToSet.ToString())}</color></b>", localPlayerId);
+                            if (Main.SetAddOns[resultId].Contains(roleToSet)) Main.SetAddOns[resultId].Remove(roleToSet);
+                            else Main.SetAddOns[resultId].Add(roleToSet);
+                        }
+                        else Main.SetRoles[targetPc.PlayerId] = roleToSet;
+
+                        Utils.SendMessage("\n", localPlayerId, $"<b>{Utils.ColorString(Main.PlayerColors.TryGetValue(resultId, out var textColor) ? textColor : Color.white, targetPc.GetRealName())}</b>'s role in the next game will be <b><color={Main.roleColors[roleToSet]}>{GetString(roleToSet.ToString())}</color></b>");
                     }
                     break;
 

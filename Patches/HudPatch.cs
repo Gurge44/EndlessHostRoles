@@ -6,6 +6,7 @@ using TMPro;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
+using Unity.Services.Analytics;
 using UnityEngine;
 using static TOHE.Translator;
 
@@ -69,19 +70,56 @@ class HudManagerPatch
                 OverriddenRolesText.fontSize = OverriddenRolesText.fontSizeMax = OverriddenRolesText.fontSizeMin = 2f;
             }
 
-            if (Main.SetRoles.Any())
+            if (Main.SetRoles.Any() || Main.SetAddOns.Any())
             {
-                var sb = new StringBuilder();
+                Dictionary<byte, string> resultText = [];
                 bool first = true;
                 foreach (var item in Main.SetRoles)
                 {
                     var pc = Utils.GetPlayerById(item.Key);
                     string prefix = first ? string.Empty : "\n";
-                    string text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc == null ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <color={(Main.roleColors.TryGetValue(item.Value, out var roleColor) ? roleColor : "#ffffff")}>{Translator.GetString(item.Value.ToString())}</color>";
-                    sb.Append(text);
+                    string text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc == null ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <color={(Main.roleColors.TryGetValue(item.Value, out var roleColor) ? roleColor : "#ffffff")}>{GetString(item.Value.ToString())}</color>";
+                    resultText[item.Key] = text;
                     first = false;
                 }
-                OverriddenRolesText.text = sb.ToString();
+                if (!Main.SetRoles.Any()) first = true;
+                foreach (var item in Main.SetAddOns)
+                {
+                    for (int i = 0; i < item.Value.Count; i++)
+                    {
+                        CustomRoles role = item.Value[i];
+                        var pc = Utils.GetPlayerById(item.Key);
+                        if (resultText.ContainsKey(item.Key))
+                        {
+                            string text = $" <#ffffff>(</color><color={(Main.roleColors.TryGetValue(role, out var roleColor) ? roleColor : "#ffffff")}>{GetString(role.ToString())}</color><#ffffff>)</color>";
+                            resultText[item.Key] += text;
+                        }
+                        else
+                        {
+                            string prefix = first ? string.Empty : "\n";
+                            string text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc == null ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <#ffffff>(</color><color={(Main.roleColors.TryGetValue(role, out var roleColor) ? roleColor : "#ffffff")}>{GetString(role.ToString())}</color><#ffffff>)</color>";
+                            resultText[item.Key] = text;
+                            first = false;
+                        }
+                    }
+                }
+                foreach (var roles in Main.SetRoles)
+                {
+                    if (!Main.SetAddOns.ContainsKey(roles.Key)) continue;
+                    foreach (var addons in Main.SetAddOns)
+                    {
+                        if (!Main.SetRoles.ContainsKey(addons.Key)) continue;
+                        foreach (var addon in addons.Value)
+                        {
+                            if (!CustomRolesHelper.CheckAddonConflictV2(addon, roles.Value))
+                            {
+                                resultText[roles.Key] += $" <#ff0000>(!)</color>";
+                                break;
+                            }
+                        }
+                    }
+                }
+                OverriddenRolesText.text = string.Join(string.Empty, resultText.Values);
             }
             else
             {

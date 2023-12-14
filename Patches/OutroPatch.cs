@@ -24,6 +24,7 @@ class EndGamePatch
         Logger.Info("-----------Game over-----------", "Phase");
         if (!GameStates.IsModHost) return;
         Main.SetRoles = [];
+        Main.SetAddOns = [];
         SummaryText = [];
 
         foreach (var id in Main.PlayerStates.Keys)

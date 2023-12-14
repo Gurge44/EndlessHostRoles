@@ -1223,6 +1223,7 @@
 "Cooldown","冷却时间","Cooldown","Откат","冷卻時間","冷却时间"
 "KillCooldown","击杀冷却时间","Kill Cooldown","Откат убийства","殺人冷卻時間","击杀冷却时间"
 "VentCooldown","使用通风管道冷却时间","Vent Cooldown","Откат Вентиляции","使用通風管冷卻時間","使用通风管道冷却时间"
+"MaxInVentTime","","Max In-Vent Time","","",""
 "ControlCooldown","控制冷却","Control Cooldown","Откат контроля","ControlCooldown","ControlCooldown"
 "PoisonCooldown","毒药冷却","Poison Cooldown","Откат отравления","PoisonCooldown","PoisonCooldown"
 "PoisonerKillDelay","毒杀延迟","Poison Kill Delay","Длительность яда","PoisonerKillDelay","PoisonerKillDelay"

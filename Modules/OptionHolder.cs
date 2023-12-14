@@ -367,6 +367,11 @@ public static class Options
     public static OptionItem UnderdogCanKillWithMorePlayersAlive;
     public static OptionItem UnderdogKillCooldownWithMorePlayersAlive;
 
+    public static OptionItem NimbleCD;
+    public static OptionItem NimbleInVentTime;
+    public static OptionItem PhysicistCD;
+    public static OptionItem PhysicistViewDuration;
+
     public static OptionItem CleanerKillCooldown;
     public static OptionItem KillCooldownAfterCleaning;
     public static OptionItem GuardSpellTimes;
@@ -2296,8 +2301,20 @@ public static class Options
         Stressed.SetupCustomOption();
         RoleLoadingText = "Add-ons\nNimble";
         SetupAdtRoleOptions(15640, CustomRoles.Nimble);
+        NimbleCD = FloatOptionItem.Create(15645, "VentCooldown", new(0, 180, 1), 30, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Nimble])
+            .SetValueFormat(OptionFormat.Seconds);
+        NimbleInVentTime = FloatOptionItem.Create(15646, "MaxInVentTime", new(0, 180, 1), 15, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Nimble])
+            .SetValueFormat(OptionFormat.Seconds);
         RoleLoadingText = "Add-ons\nPhysicist";
         SetupAdtRoleOptions(15650, CustomRoles.Physicist);
+        PhysicistCD = FloatOptionItem.Create(15655, "VitalsCooldown", new(0, 180, 1), 20, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Physicist])
+            .SetValueFormat(OptionFormat.Seconds);
+        PhysicistViewDuration = FloatOptionItem.Create(15656, "VitalsDuration", new(0, 180, 1), 5, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Physicist])
+            .SetValueFormat(OptionFormat.Seconds);
         RoleLoadingText = "Add-ons\nGhoul";
         SetupAdtRoleOptions(15250, CustomRoles.Ghoul, canSetNum: true);
         RoleLoadingText = "Add-ons\nOblivious";

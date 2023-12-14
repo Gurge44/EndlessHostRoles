@@ -229,7 +229,8 @@ class ExileControllerWrapUpPatch
         {
             _ = new LateTask(() =>
             {
-                var text = Utils.GetRemainingKillers();
+                var text = Utils.GetRemainingKillers(notify: true);
+                text = $"<#ffffff>{text}</color>";
                 var r = IRandom.Instance;
                 foreach (var pc in Main.AllAlivePlayerControls)
                 {
@@ -237,6 +238,8 @@ class ExileControllerWrapUpPatch
                 }
             }, 0.5f, log: false);
         }
+
+        _ = new LateTask(() => { ChatManager.SendPreviousMessagesToAll(); }, 1f, log: false);
     }
 }
 

@@ -684,8 +684,6 @@ class MeetingHudStartPatch
 
         void AddMsg(string text, byte sendTo = 255, string title = "") => msgToSend.Add((text, sendTo, title));
 
-        ChatManager.SendPreviousMessagesToAll(); // To fix chatting during the ejection screen
-
         //首次会议技能提示
         if (Options.SendRoleDescriptionFirstMeeting.GetBool() && MeetingStates.FirstMeeting)
         {

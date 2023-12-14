@@ -89,6 +89,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, PlayerState.DeathReason> AfterMeetingDeathPlayers = [];
     public static Dictionary<CustomRoles, string> roleColors;
     public static Dictionary<byte, CustomRoles> SetRoles = [];
+    public static Dictionary<byte, List<CustomRoles>> SetAddOns = [];
     public static bool IsFixedCooldown => CustomRoles.Vampire.IsEnable() || CustomRoles.Poisoner.IsEnable();
     public static float RefixCooldownDelay;
     public static bool ProcessShapeshifts = true;

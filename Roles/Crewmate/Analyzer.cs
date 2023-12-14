@@ -167,7 +167,7 @@ namespace TOHE.Roles.Crewmate
             PlayerControl target = GetPlayerById(CurrentTarget.ID);
             if (target == null) return;
 
-            if (UnityEngine.Vector2.Distance(target.Pos(), pc.Pos()) > 2f)
+            if (UnityEngine.Vector2.Distance(target.Pos(), pc.Pos()) > (pc.Is(CustomRoles.Reach) ? 2.5f : 1.5f))
             {
                 CurrentTarget.ID = byte.MaxValue;
                 NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);

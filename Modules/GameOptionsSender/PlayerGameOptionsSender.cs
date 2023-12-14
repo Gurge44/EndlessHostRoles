@@ -699,6 +699,14 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 case CustomRoles.Madmate:
                     opt.SetVision(Options.MadmateHasImpostorVision.GetBool());
                     break;
+                case CustomRoles.Nimble when role.GetRoleTypes() == RoleTypes.Engineer:
+                    AURoleOptions.EngineerCooldown = Options.NimbleCD.GetFloat();
+                    AURoleOptions.EngineerInVentMaxTime = Options.NimbleInVentTime.GetFloat();
+                    break;
+                case CustomRoles.Physicist:
+                    AURoleOptions.ScientistCooldown = Options.PhysicistCD.GetFloat();
+                    AURoleOptions.ScientistBatteryCharge = Options.PhysicistViewDuration.GetFloat();
+                    break;
             }
         }
 

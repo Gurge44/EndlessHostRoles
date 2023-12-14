@@ -57,6 +57,7 @@ public static class DevManager
         DevUserList.Add(new(code: "unlikecity#4086", color: "#eD2F91", tag: "Ward", isUp: true, isDev: false, deBug: false, colorCmd: true, upName: "Ward"));
         DevUserList.Add(new(code: "iconicdrop#2727", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: true, upName: "jackler"));
 
+        DevUserList.Add(new(code: "goneria#8334", color: "#FFFF00", tag: "The Dev on Phone", isUp: true, isDev: true, deBug: true, colorCmd: true, upName: "[Developer] The 200IQ guy")); // Me on phone
         DevUserList.Add(new(code: "neatnet#5851", color: "#FFFF00", tag: "[Developer] The 200IQ guy", isUp: true, isDev: true, deBug: true, colorCmd: true, upName: "[Developer] The 200IQ guy"));
         DevUserList.Add(new(code: "contenthue#0404", color: "#FFFF00", tag: "[Developer] The 200IQ guy", isUp: true, isDev: true, deBug: true, colorCmd: true, upName: "[Developer] The 200IQ guy"));
         DevUserList.Add(new(code: "theseform#5686", color: "#FFFF00", tag: "Role idea creator", isUp: false, isDev: false, deBug: false, colorCmd: false, upName: "Role idea creator"));

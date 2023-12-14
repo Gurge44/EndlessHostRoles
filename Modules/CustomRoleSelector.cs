@@ -405,6 +405,8 @@ internal class CustomRoleSelector
     {
         if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop) return;
 
+        foreach (var id in Main.SetAddOns.Keys.Where(id => Utils.GetPlayerById(id) == null).ToArray()) Main.SetAddOns.Remove(id);
+
         AddonRolesList = [];
         System.Collections.IList list = Enum.GetValues(typeof(CustomRoles));
         for (int i = 0; i < list.Count; i++)

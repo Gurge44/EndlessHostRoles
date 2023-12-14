@@ -471,6 +471,22 @@ internal class SelectRolesPatch
                 }
             }
 
+            if (Main.SetAddOns.Values.Any(x => x.Contains(CustomRoles.Nimble)))
+            {
+                nimbleSpawn = true;
+                nimbleList = Main.SetAddOns.Where(x => x.Value.Contains(CustomRoles.Nimble)).Select(x => x.Key).ToList();
+            }
+
+            if (Main.SetAddOns.Values.Any(x => x.Contains(CustomRoles.Physicist)))
+            {
+                physicistSpawn = true;
+                var newPhysicistList = Main.SetAddOns.Where(x => x.Value.Contains(CustomRoles.Physicist)).Select(x => x.Key).ToList();
+                if (nimbleList.Count != 1 || physicistList.Count != 1 || nimbleList[0] != newPhysicistList[0])
+                {
+                    physicistList = newPhysicistList;
+                }
+            }
+
             if (nimbleSpawn) Main.NimblePlayer = nimbleList[rd.Next(0, nimbleList.Count)];
             if (physicistSpawn) while (Main.PhysicistPlayer == byte.MaxValue || Main.PhysicistPlayer == Main.NimblePlayer)
                 Main.PhysicistPlayer = physicistList[rd.Next(0, physicistList.Count)];
@@ -553,6 +569,18 @@ internal class SelectRolesPatch
 
             if (Main.NimblePlayer != byte.MaxValue) Main.PlayerStates[Main.NimblePlayer].SetSubRole(CustomRoles.Nimble);
             if (Main.PhysicistPlayer != byte.MaxValue) Main.PlayerStates[Main.PhysicistPlayer].SetSubRole(CustomRoles.Physicist);
+
+            foreach (var item in Main.SetAddOns)
+            {
+                if (Main.PlayerStates.TryGetValue(item.Key, out var state))
+                {
+                    foreach (var role in item.Value)
+                    {
+                        if (role is CustomRoles.Nimble or CustomRoles.Physicist) continue;
+                        state.SetSubRole(role);
+                    }
+                }
+            }
 
             if (CustomRoles.Lovers.IsEnable() && (CustomRoles.FFF.IsEnable() ? -1 : rd.Next(1, 100)) <= Options.LoverSpawnChances.GetInt()) AssignLoversRolesFromList();
             foreach (CustomRoles role in AddonRolesList.ToArray())
@@ -1130,6 +1158,12 @@ internal class SelectRolesPatch
             Utils.CountAlivePlayers(true);
             Utils.SyncAllSettings();
             SetColorPatch.IsAntiGlitchDisabled = false;
+
+            _ = new LateTask(() =>
+            {
+                Main.SetRoles = [];
+                Main.SetAddOns = [];
+            }, 7f, log: false);
         }
         catch (Exception ex)
         {

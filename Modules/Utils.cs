@@ -1815,8 +1815,8 @@ public static class Utils
         if (title == "" || title == string.Empty) title = "<color=#aaaaff>" + GetString("DefaultSystemMessageTitle") + "</color>";
         if (!Main.UseVersionProtocol.Value)
         {
-            text = text.Replace("TOHE+", "TOHE").Replace("+", string.Empty);
-            title = title.Replace("TOHE+", "TOHE").Replace("+", string.Empty);
+            text = text.Replace("TOHE+", "TOHE").Replace("+", string.Empty).Replace(Main.PluginVersion, string.Empty);
+            title = title.Replace("TOHE+", "TOHE").Replace("+", string.Empty).Replace(Main.PluginVersion, string.Empty);
         }
         Main.MessagesToSend.Add((text.RemoveHtmlTagsTemplate(), sendTo, title));
     }
@@ -2855,7 +2855,7 @@ public static class Utils
             ? "INVALID"
             : disableColor ? summary.RemoveHtmlTags() : summary;
     }
-    public static string GetRemainingKillers()
+    public static string GetRemainingKillers(bool notify = false)
     {
         int impnum = 0;
         int neutralnum = 0;
@@ -2872,7 +2872,7 @@ public static class Utils
                     neutralnum++;
             }
         }
-        return $"There {(impnum == 1 ? "is" : "are")}\n<b>{impnum}</b> <color=#ff1919>{(impnum == 1 ? "Impostor" : "Impostors")}</color> and <b>{neutralnum}</b> <color=#7f8c8d>{(neutralnum == 1 ? "Neutral Killer" : "Neutral Killers")}</color> left.";
+        return $"{(notify ? "<color=#777777>" : string.Empty)}There {(impnum == 1 ? "is" : "are")}{(notify ? ' ' : '\n')}{(notify ? "<#ffffff>" : "<b>")}{impnum}{(notify ? "</color>" : "</b>")} <color=#ff1919>{(impnum == 1 ? "Impostor" : "Impostors")}</color> and {(notify ? "<#ffffff>" : "<b>")}{neutralnum}{(notify ? "</color>" : "</b>")} <color=#ffab1b>{(neutralnum == 1 ? "Neutral Killer" : "Neutral Killers")}</color> left.{(notify ? "</color>" : string.Empty)}";
     }
     public static string RemoveHtmlTagsTemplate(this string str) => Regex.Replace(str, string.Empty, string.Empty);
     public static string RemoveHtmlTags(this string str) => Regex.Replace(str, "<[^>]*?>", string.Empty);
