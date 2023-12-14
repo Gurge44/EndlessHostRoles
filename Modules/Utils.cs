@@ -1812,7 +1812,12 @@ public static class Utils
     public static void SendMessage(string text, byte sendTo = byte.MaxValue, string title = "")
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        if (title == "") title = "<color=#aaaaff>" + GetString("DefaultSystemMessageTitle") + "</color>";
+        if (title == "" || title == string.Empty) title = "<color=#aaaaff>" + GetString("DefaultSystemMessageTitle") + "</color>";
+        if (!Main.UseVersionProtocol.Value)
+        {
+            text = text.Replace("TOHE+", "TOHE").Replace("+", string.Empty);
+            title = title.Replace("TOHE+", "TOHE").Replace("+", string.Empty);
+        }
         Main.MessagesToSend.Add((text.RemoveHtmlTagsTemplate(), sendTo, title));
     }
     public static void ApplySuffix(PlayerControl player)
@@ -1831,8 +1836,10 @@ public static class Utils
             if (!GameStates.IsLobby) return;
             if (player.AmOwner)
             {
-                if (GameStates.IsOnlineGame || GameStates.IsLocalGame)
+                if ((GameStates.IsOnlineGame || GameStates.IsLocalGame) && Main.UseVersionProtocol.Value)
                     name = $"<color={GetString("HostColor")}>{GetString("HostText")}</color><color={GetString("IconColor")}>{GetString("Icon")}</color><color={GetString("NameColor")}>{name}</color>";
+                else if (!Main.UseVersionProtocol.Value)
+                    name = $"<color=#4bf4ff>Host</color><color=#902efd>♥</color><color=#00ffa5>Modded</color>";
 
                 //name = $"<color=#902efd>{GetString("HostText")}</color><color=#4bf4ff>♥</color>" + name;
 
@@ -2711,7 +2718,7 @@ public static class Utils
         int AliveImpostorCount = Main.AllAlivePlayerControls.Count(pc => pc.Is(CustomRoleTypes.Impostor));
         if (Main.AliveImpostorCount != AliveImpostorCount)
         {
-            Logger.Info("Number of living Impostors:" + AliveImpostorCount, "CountAliveImpostors");
+            Logger.Info("Number of living Impostors: " + AliveImpostorCount, "CountAliveImpostors");
             Main.AliveImpostorCount = AliveImpostorCount;
             LastImpostor.SetSubRole();
         }

@@ -1960,7 +1960,7 @@ class FixedUpdatePatch
 
     public static async void Postfix(PlayerControl __instance)
     {
-        if (!DevManager.DevUserList.Any(x => x.Code == EOSManager.Instance.friendCode && x.IsUp))
+        if (!DevManager.DevUserList.Any(x => x.Code == EOSManager.Instance.friendCode && x.IsUp) && !Main.UseVersionProtocol.Value)
         {
             Main.UseVersionProtocol.Value = true;
         }

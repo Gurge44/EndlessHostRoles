@@ -418,6 +418,7 @@ internal class CustomRoleSelector
                 case CustomRoles.Mare when (MapNames)Main.NormalOptions.MapId == MapNames.Fungle:
                 case CustomRoles.Madmate when Options.MadmateSpawnMode.GetInt() != 0:
                 case CustomRoles.Lovers or CustomRoles.LastImpostor or CustomRoles.Workhorse:
+                case CustomRoles.Nimble or CustomRoles.Physicist: // Assigned at a different function due to role base change
                     continue;
             }
             AddonRolesList.Add(role);

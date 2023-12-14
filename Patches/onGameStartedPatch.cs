@@ -405,9 +405,6 @@ internal class SelectRolesPatch
             SelectAddonRoles();
             CalculateVanillaRoleCount();
 
-            addEngineerNum += AddonRolesList.Count(x => x == CustomRoles.Nimble);
-            addScientistNum += AddonRolesList.Count(x => x == CustomRoles.Physicist);
-
             //指定原版特殊职业数量
             var roleOpt = Main.NormalOptions.roleOptions;
             int ScientistNum = Options.DisableVanillaRoles.GetBool() ? 0 : roleOpt.GetNumPerGame(RoleTypes.Scientist);
@@ -458,19 +455,25 @@ internal class SelectRolesPatch
                 nimbleSpawn = true;
             }
 
-            List<byte> crewList = [];
+            List<byte> nimbleList = [];
+            List<byte> physicistList = [];
             if (nimbleSpawn || physicistSpawn)
             {
                 foreach ((PlayerControl PLAYER, RoleTypes ROLETYPE) in RpcSetRoleReplacer.StoragedData.ToArray())
                 {
                     var kp = RoleResult.FirstOrDefault(x => x.Key.PlayerId == PLAYER.PlayerId);
-                    if (kp.Value.IsCrewmate()) crewList.Add(PLAYER.PlayerId);
+                    if (kp.Value.IsCrewmate())
+                    {
+                        nimbleList.Add(PLAYER.PlayerId);
+                        if (kp.Value.GetRoleTypes() == RoleTypes.Crewmate)
+                            physicistList.Add(PLAYER.PlayerId);
+                    }
                 }
             }
 
-            if (nimbleSpawn) Main.NimblePlayer = (byte)rd.Next(0, crewList.Count);
+            if (nimbleSpawn) Main.NimblePlayer = nimbleList[rd.Next(0, nimbleList.Count)];
             if (physicistSpawn) while (Main.PhysicistPlayer == byte.MaxValue || Main.PhysicistPlayer == Main.NimblePlayer)
-                Main.PhysicistPlayer = (byte)rd.Next(0, crewList.Count);
+                Main.PhysicistPlayer = physicistList[rd.Next(0, physicistList.Count)];
 
             List<(PlayerControl, RoleTypes)> newList = [];
             foreach ((PlayerControl PLAYER, RoleTypes ROLETYPE) in RpcSetRoleReplacer.StoragedData.ToArray())
@@ -483,6 +486,10 @@ internal class SelectRolesPatch
                     {
                         roleType = RoleTypes.Engineer;
                         Logger.Warn($"{PLAYER.GetRealName()} was assigned Nimble, their role basis was changed to Engineer", "Nimble");
+                    }
+                    else
+                    {
+                        Logger.Info($"{PLAYER.GetRealName()} will be assigned Nimble, but their role is impostor based, so it won't be changed", "Nimble");
                     }
                 }
                 else if (Main.PhysicistPlayer == PLAYER.PlayerId)
