@@ -2884,7 +2884,11 @@ public static class Utils
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
             var role = pc.GetCustomRole();
-            if (role != CustomRoles.Mafia && role.IsImpostor()) LivingImpostorsNum++;
+            if (role != CustomRoles.Mafia && role.IsImpostor())
+            {
+                LivingImpostorsNum++;
+                break;
+            }
         }
 
         return LivingImpostorsNum <= 0;

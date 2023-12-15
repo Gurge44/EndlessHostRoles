@@ -277,10 +277,7 @@ internal class ChatCommands
                         {
                             _ = sb.Append($"\n\n" + GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
                         }
-                        _ = new LateTask(() =>
-                        {
-                            Utils.SendMessage(sb.ToString(), lp.PlayerId);
-                        }, 0.5f, log: false);
+                        Utils.SendMessage(sb.ToString(), lp.PlayerId);
                     }
                     else
                         Utils.SendMessage((PlayerControl.LocalPlayer.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + GetString("Message.CanNotUseInLobby"), localPlayerId);
@@ -791,7 +788,7 @@ internal class ChatCommands
                 if ((isDev || isUp) && GameStates.IsLobby)
                 {
                     devMark = "▲";
-                    if (CustomRolesHelper.IsAdditionRole(rl) || rl is CustomRoles.GM) devMark = string.Empty;
+                    if (rl.IsAdditionRole() || rl is CustomRoles.GM) devMark = string.Empty;
                     if (rl.GetCount() < 1 || rl.GetMode() == 0) devMark = string.Empty;
                     if (isUp)
                     {
@@ -817,11 +814,8 @@ internal class ChatCommands
                     var txt = $"<size=90%>{sb}</size>";
                     _ = sb.Clear().Append(txt);
                 }
-                _ = new LateTask(() =>
-                {
-                    Utils.SendMessage(text: "\n", sendTo: playerId, title: settings.ToString());
-                    Utils.SendMessage(text: sb.ToString(), sendTo: playerId);
-                }, 0.5f, log: false);
+                Utils.SendMessage(text: "\n", sendTo: playerId, title: settings.ToString());
+                Utils.SendMessage(text: sb.ToString(), sendTo: playerId);
                 return;
             }
         }

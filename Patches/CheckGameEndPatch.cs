@@ -209,7 +209,7 @@ class GameEndChecker
                 }
 
                 //神抢夺胜利
-                if (CustomRolesHelper.RoleExist(CustomRoles.God))
+                if (CustomRoles.God.RoleExist())
                 {
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.God);
                     Main.AllPlayerControls
@@ -402,7 +402,7 @@ class GameEndChecker
         {
             reason = GameOverReason.ImpostorByKill;
 
-            if (CustomRolesHelper.RoleExist(CustomRoles.Sunnyboy) && Main.AllAlivePlayerControls.Length > 1) return false;
+            if (CustomRoles.Sunnyboy.RoleExist() && Main.AllAlivePlayerControls.Length > 1) return false;
 
             int Imp = AlivePlayersCount(CountTypes.Impostor);
             int Crew = AlivePlayersCount(CountTypes.Crew);

@@ -103,6 +103,7 @@ class HudManagerPatch
                         }
                     }
                 }
+                bool stop = false;
                 foreach (var roles in Main.SetRoles)
                 {
                     if (!Main.SetAddOns.ContainsKey(roles.Key)) continue;
@@ -114,10 +115,13 @@ class HudManagerPatch
                             if (!CustomRolesHelper.CheckAddonConflictV2(addon, roles.Value))
                             {
                                 resultText[roles.Key] += $" <#ff0000>(!)</color>";
+                                stop = true;
                                 break;
                             }
                         }
+                        if (stop) break;
                     }
+                    if (stop) break;
                 }
                 OverriddenRolesText.text = string.Join(string.Empty, resultText.Values);
             }
