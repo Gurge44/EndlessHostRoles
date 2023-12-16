@@ -92,12 +92,13 @@ static class ExtendedPlayerControl
 
     public static List<CustomRoles> GetCustomSubRoles(this PlayerControl player)
     {
+        if (GameStates.IsLobby) return [CustomRoles.NotAssigned];
         if (player == null)
         {
             Logger.Warn("CustomSubRoleを取得しようとしましたが、対象がnullでした。", "getCustomSubRole");
             return [CustomRoles.NotAssigned];
         }
-        return Main.PlayerStates[player.PlayerId].SubRoles;
+        return Main.PlayerStates.TryGetValue(player.PlayerId, out var state) ? state.SubRoles : [CustomRoles.NotAssigned];
     }
     public static CountTypes GetCountTypes(this PlayerControl player)
     {

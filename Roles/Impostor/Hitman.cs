@@ -87,7 +87,7 @@ namespace TOHE.Roles.Impostor
 
             targetId = target.PlayerId;
             SendRPC(targetId);
-            NotifyRoles(SpecifySeer: hitman, SpecifyTarget: hitman);
+            NotifyRoles(SpecifySeer: hitman, SpecifyTarget: target);
 
             //_ = new LateTask(() => { hitman.CmdCheckRevertShapeshift(false); }, 1.5f, "Hitman RpcRevertShapeshift");
         }

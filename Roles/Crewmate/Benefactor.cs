@@ -2,6 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static TOHE.Options;
+using static TOHE.Translator;
+using static TOHE.Utils;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -21,14 +24,14 @@ namespace TOHE.Roles.Crewmate
 
         public static void SetupCustomOption()
         {
-            Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Benefactor);
+            SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Benefactor);
             TaskMarkPerRoundOpt = IntegerOptionItem.Create(Id + 10, "TaskMarkPerRound", new(1, 14, 1), 3, TabGroup.CrewmateRoles, false)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Benefactor])
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Benefactor])
                 .SetValueFormat(OptionFormat.Votes);
             ShieldDuration = IntegerOptionItem.Create(Id + 11, "AidDur", new(1, 30, 1), 10, TabGroup.CrewmateRoles, false)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Benefactor])
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Benefactor])
                 .SetValueFormat(OptionFormat.Seconds);
-            Options.OverrideTasksData.Create(Id + 12, TabGroup.CrewmateRoles, CustomRoles.Benefactor);
+            OverrideTasksData.Create(Id + 12, TabGroup.CrewmateRoles, CustomRoles.Benefactor);
         }
 
         public static void Init()
@@ -48,7 +51,7 @@ namespace TOHE.Roles.Crewmate
         }
         private static void SendRPC(byte benefactorID, int taskIndex = -1, bool IsShield = false, bool clearAll = false, bool shieldExpire = false, byte shieldedId = byte.MaxValue)
         {
-            if (!IsEnable || !Utils.DoRPC) return;
+            if (!IsEnable || !DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncBenefactorMarkedTask, SendOption.Reliable, -1);
             writer.Write(benefactorID);
             writer.Write(taskIndex);
@@ -85,7 +88,7 @@ namespace TOHE.Roles.Crewmate
             if (clearAll && taskIndex.ContainsKey(benefactorID)) taskIndex[benefactorID].Clear();
             if (IsShield)
             {
-                shieldedPlayers.TryAdd(shieldedId, Utils.GetTimeStamp());
+                shieldedPlayers.TryAdd(shieldedId, GetTimeStamp());
             }
             if (shieldExpire)
             {
@@ -99,7 +102,7 @@ namespace TOHE.Roles.Crewmate
             if (!TaskMarkPerRound.ContainsKey(playerId)) TaskMarkPerRound[playerId] = 0;
             int markedTasks = TaskMarkPerRound[playerId];
             int x = Math.Max(maxTasksMarkedPerRound - markedTasks, 0);
-            return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Benefactor).ShadeColor(0.25f), $"({x})");
+            return ColorString(GetRoleColor(CustomRoles.Benefactor).ShadeColor(0.25f), $"({x})");
         }
         public static void AfterMeetingTasks()
         {
@@ -116,10 +119,10 @@ namespace TOHE.Roles.Crewmate
         {
             if (!IsEnable) return;
 
-            foreach (var x in shieldedPlayers.Where(x => x.Value + ShieldDuration.GetInt() < Utils.GetTimeStamp()))
+            foreach (var x in shieldedPlayers.Where(x => x.Value + ShieldDuration.GetInt() < GetTimeStamp()))
             {
                 shieldedPlayers.Remove(x.Key);
-                SendRPC(pc.PlayerId, shieldExpire: true, shieldedId: Utils.GetPlayerById(x.Key).PlayerId);
+                SendRPC(pc.PlayerId, shieldExpire: true, shieldedId: GetPlayerById(x.Key).PlayerId);
             }
         }
         public static void OnTaskComplete(PlayerControl player, PlayerTask task)
@@ -140,7 +143,7 @@ namespace TOHE.Roles.Crewmate
                 if (!taskIndex.ContainsKey(playerId)) taskIndex[playerId] = [];
                 taskIndex[playerId].Add(task.Index);
                 SendRPC(benefactorID: playerId, taskIndex: task.Index);
-                player.Notify(Translator.GetString("BenefactorTaskMarked"));
+                player.Notify(GetString("BenefactorTaskMarked"));
             }
             else
             {
@@ -148,13 +151,13 @@ namespace TOHE.Roles.Crewmate
                 {
                     if (taskIndex[benefactorId].Contains(task.Index))
                     {
-                        var taskinatorPC = Utils.GetPlayerById(benefactorId);
-                        if (taskinatorPC == null) continue;
+                        var benefactorPC = GetPlayerById(benefactorId);
+                        if (benefactorPC == null) continue;
 
-                        player.Notify(Translator.GetString("BenefactorTargetGotShieldNotify"));
+                        player.Notify(GetString("BenefactorTargetGotShieldNotify"));
                         taskIndex[benefactorId].Remove(task.Index);
                         SendRPC(benefactorID: benefactorId, taskIndex: task.Index, IsShield: true, shieldedId: player.PlayerId);
-                        Logger.Info($"{player.GetAllRoleName()} got a shield because the task was marked by {taskinatorPC.GetNameWithRole()}", "Benefactor");
+                        Logger.Info($"{player.GetAllRoleName()} got a shield because the task was marked by {benefactorPC.GetNameWithRole()}", "Benefactor");
                     }
                 }
             }

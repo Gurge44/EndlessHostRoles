@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using HarmonyLib;
 using Hazel;
 using System.Collections.Generic;
 using System.Linq;
@@ -79,19 +80,10 @@ namespace TOHE.Roles.Crewmate
             if (!pc.Is(CustomRoles.Drainer)) return;
             if (DrainLimit <= 0) return;
 
-            if (vent?.NearbyVents == null)
-            {
-                Logger.Warn("No Nearby Vents....?", "Drainer");
-                return;
-            }
-
             DrainLimit--;
 
-            foreach (var ventToDrain in vent?.NearbyVents?.ToArray())
-            {
-                if (ventToDrain == null) continue;
-                KillPlayersInVent(pc, ventToDrain.Id);
-            }
+            var vents = vent.NearbyVents.Where(vent => vent != null).AddItem(vent).ToArray();
+            foreach (var ventToDrain in vents) KillPlayersInVent(pc, ventToDrain);
         }
 
         public static void OnAnyoneEnterVent(PlayerControl pc, Vent vent)
@@ -110,9 +102,12 @@ namespace TOHE.Roles.Crewmate
 
         public static string GetProgressText() => $"<color=#777777>-</color> <color=#ffffff>{DrainLimit}</color>";
 
-        private static void KillPlayersInVent(PlayerControl pc, int ventId)
+        private static void KillPlayersInVent(PlayerControl pc, Vent vent)
         {
             if (!IsEnable) return;
+
+            int ventId = vent.Id;
+
             if (!playersInVents.ContainsValue(ventId)) return;
 
             foreach (var venterId in playersInVents.Where(x => x.Value == ventId).ToArray())
@@ -122,10 +117,11 @@ namespace TOHE.Roles.Crewmate
 
                 if (pc != null && pc.RpcCheckAndMurder(venter, true))
                 {
-                    venter?.MyPhysics?.RpcBootFromVent(ventId);
+                    venter.MyPhysics.RpcBootFromVent(ventId);
                     _ = new LateTask(() =>
                     {
-                        venter?.Suicide(PlayerState.DeathReason.Demolished);
+                        venter.Suicide(PlayerState.DeathReason.Demolished, pc);
+                        Logger.Info($"Killed venter {venter.GetNameWithRole()} (was inside {vent.name}, ID {ventId})", "Drainer");
                     }, 0.55f, "Drainer-KillPlayerInVent");
                 }
             }

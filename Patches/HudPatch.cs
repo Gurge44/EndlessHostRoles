@@ -6,7 +6,6 @@ using TMPro;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
-using Unity.Services.Analytics;
 using UnityEngine;
 using static TOHE.Translator;
 

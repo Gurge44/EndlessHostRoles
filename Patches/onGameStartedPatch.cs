@@ -489,7 +489,7 @@ internal class SelectRolesPatch
 
             if (nimbleSpawn) Main.NimblePlayer = nimbleList[rd.Next(0, nimbleList.Count)];
             if (physicistSpawn) while (Main.PhysicistPlayer == byte.MaxValue || Main.PhysicistPlayer == Main.NimblePlayer)
-                Main.PhysicistPlayer = physicistList[rd.Next(0, physicistList.Count)];
+                    Main.PhysicistPlayer = physicistList[rd.Next(0, physicistList.Count)];
 
             List<(PlayerControl, RoleTypes)> newList = [];
             foreach ((PlayerControl PLAYER, RoleTypes ROLETYPE) in RpcSetRoleReplacer.StoragedData.ToArray())
