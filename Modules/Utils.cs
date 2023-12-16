@@ -19,6 +19,7 @@ using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
 using UnityEngine;
+using static Epic.OnlineServices.Helper;
 using static TOHE.Translator;
 
 namespace TOHE;
@@ -2639,7 +2640,7 @@ public static class Utils
 
         if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer.Is(CustomRoles.GM))
         {
-            _ = new LateTask(() => { PlayerControl.LocalPlayer.TP(new(15.5f, 0.0f)); }, 11f, "GM Auto-TP Failsafe"); // TP to Main Hall
+            _ = new LateTask(() => { PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)); }, 11f, "GM Auto-TP Failsafe"); // TP to Main Hall
         }
     }
     public static void AfterPlayerDeathTasks(PlayerControl target, bool onMeeting = false)
