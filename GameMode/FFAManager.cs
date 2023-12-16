@@ -347,8 +347,6 @@ internal static class FFAManager
         }
     }
 
-    public static string ChatMessageSuffix => LatestChatMessage;
-
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     class FixedUpdatePatch
     {

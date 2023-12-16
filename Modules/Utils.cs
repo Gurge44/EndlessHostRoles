@@ -2103,7 +2103,7 @@ public static class Utils
                 {
                     case CustomGameMode.FFA:
                         SelfSuffix.Append(FFAManager.GetPlayerArrow(seer));
-                        SelfSuffix.Append((SelfSuffix.Length > 0 ? "\n" : string.Empty) + FFAManager.ChatMessageSuffix);
+                        SelfSuffix.Append((SelfSuffix.Length > 0 && FFAManager.LatestChatMessage != string.Empty ? "\n" : string.Empty) + FFAManager.LatestChatMessage);
                         break;
                     case CustomGameMode.SoloKombat:
                         SelfSuffix.Append(SoloKombatManager.GetDisplayHealth(seer));
