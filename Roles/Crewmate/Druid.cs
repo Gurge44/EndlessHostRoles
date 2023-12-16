@@ -237,11 +237,13 @@ namespace TOHE.Roles.Crewmate
             if (!IsEnable) return string.Empty;
             if (GetPlayerById(playerId) == null) return string.Empty;
 
+            if (!Triggers.TryGetValue(playerId, out var triggers)) return string.Empty;
+
             var sb = new StringBuilder();
             sb.Append("\n<size=1.7>");
 
-            sb.AppendLine($"<color=#00ffa5>{Triggers[playerId].Count}</color> triggers active");
-            sb.Append(string.Join(", ", Triggers[playerId].Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));
+            sb.AppendLine($"<color=#00ffa5>{triggers.Count}</color> triggers active");
+            sb.Append(string.Join(", ", triggers.Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));
 
             sb.Append("</size>");
             return sb.ToString();
@@ -257,12 +259,14 @@ namespace TOHE.Roles.Crewmate
 
             sb.AppendLine(GetCD_HUDText());
 
+            if (!Triggers.TryGetValue(id, out var triggers)) return sb.ToString();
+
             string GetCD_HUDText() => !UsePets.GetBool() || !Main.PetCD.TryGetValue(id, out var CD)
                     ? string.Empty
                     : string.Format(GetString("CDPT"), CD.TOTALCD - (GetTimeStamp() - CD.START_TIMESTAMP) + 1);
 
-            sb.AppendLine($"<color=#00ffa5>{Triggers[id].Count}</color> triggers active");
-            sb.Append(string.Join('\n', Triggers[id].Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));
+            sb.AppendLine($"<color=#00ffa5>{triggers.Count}</color> triggers active");
+            sb.Append(string.Join('\n', triggers.Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));
 
             return sb.ToString();
         }

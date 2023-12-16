@@ -751,6 +751,9 @@ public static class Utils
                 case CustomRoles.Doppelganger:
                     ProgressText.Append(Doppelganger.GetStealLimit(playerId));
                     break;
+                case CustomRoles.Druid:
+                    ProgressText.Append(Druid.UseLimit.TryGetValue(playerId, out var uses) ? $"<color=#777777>-</color> {uses}" : string.Empty);
+                    break;
                 case CustomRoles.SerialKiller:
                     if (SerialKiller.SuicideTimer.ContainsKey(playerId))
                     {
