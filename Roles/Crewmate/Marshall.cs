@@ -68,7 +68,7 @@ public static class Marshall
 
         if (!IsExposed[marshallId]) IsExposed[marshallId] = true;
 
-        NameNotifyManager.Notify(marshall, Translator.GetString("MarshallDoneTasks"));
+        marshall.Notify(Translator.GetString("MarshallDoneTasks"));
         IsComplete[marshallId] = true;
     }
     public static string GetWarningMark(PlayerControl seer, PlayerControl target)

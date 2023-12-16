@@ -125,7 +125,7 @@ public static class Chameleon
                 {
                     lastTime.Add(pc.PlayerId, now);
                     pc?.MyPhysics?.RpcBootFromVent(ventedId.TryGetValue(pc.PlayerId, out var id) ? id : Main.LastEnteredVent[pc.PlayerId].Id);
-                    NameNotifyManager.Notify(pc, GetString("ChameleonInvisStateOut"));
+                    pc.Notify(GetString("ChameleonInvisStateOut"));
                     pc.RpcResetAbilityCooldown();
                     SendRPC(pc);
                     continue;
@@ -160,7 +160,7 @@ public static class Chameleon
 
                     InvisTime.Add(pc.PlayerId, Utils.GetTimeStamp());
                     SendRPC(pc);
-                    NameNotifyManager.Notify(pc, GetString("ChameleonInvisState"), ChameleonDuration.GetFloat());
+                    pc.Notify(GetString("ChameleonInvisState"), ChameleonDuration.GetFloat());
 
                     UseLimit[pc.PlayerId] -= 1;
                     SendRPCPlus(pc.PlayerId);
@@ -173,7 +173,7 @@ public static class Chameleon
             else
             {
                 //__instance.myPlayer.MyPhysics.RpcBootFromVent(ventId);
-                NameNotifyManager.Notify(pc, GetString("ChameleonInvisInCooldown"));
+                pc.Notify(GetString("ChameleonInvisInCooldown"));
             }
         }, 0.5f, "Chameleon Vent");
     }
@@ -186,7 +186,7 @@ public static class Chameleon
         SendRPC(pc);
 
         pc?.MyPhysics?.RpcBootFromVent(vent.Id);
-        NameNotifyManager.Notify(pc, GetString("ChameleonInvisStateOut"));
+        pc.Notify(GetString("ChameleonInvisStateOut"));
     }
     public static string GetHudText(PlayerControl pc)
     {

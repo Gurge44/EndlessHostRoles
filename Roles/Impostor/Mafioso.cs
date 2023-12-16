@@ -113,7 +113,7 @@ namespace TOHE.Roles.Impostor
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMafiosoPistolCD, SendOption.Reliable, -1);
             writer.Write(Pistol1CD);
             writer.Write(Pistol2CD);
-            writer.Write(lastUpdate);
+            writer.Write(lastUpdate.ToString());
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         public static void ReceiveRPCSyncPistolCD(MessageReader reader)

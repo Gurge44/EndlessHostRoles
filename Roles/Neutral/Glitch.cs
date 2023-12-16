@@ -107,23 +107,23 @@ public static class Glitch
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGlitchMimic, SendOption.Reliable, -1);
         writer.Write(mimicCDTimer);
         writer.Write(mimicDurTimer);
-        writer.Write(lastMimic);
+        writer.Write(lastMimic.ToString());
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
     public static void SendRPCSyncLongs(long lastKill, long lastHack, long lastMimic)
     {
         if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGlitchLongs, SendOption.Reliable, -1);
-        writer.Write(lastKill);
-        writer.Write(lastHack);
-        writer.Write(lastMimic);
+        writer.Write(lastKill.ToString());
+        writer.Write(lastHack.ToString());
+        writer.Write(lastMimic.ToString());
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
     public static void SendRPCSyncKill(long lastKill, int KCDtimer)
     {
         if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGlitchKill, SendOption.Reliable, -1);
-        writer.Write(lastKill);
+        writer.Write(lastKill.ToString());
         writer.Write(KCDtimer);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }

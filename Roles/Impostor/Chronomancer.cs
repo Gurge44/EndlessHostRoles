@@ -36,7 +36,7 @@ namespace TOHE.Roles.Impostor
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAdmireLimit, SendOption.Reliable, -1);
             writer.Write(isRampaging);
             writer.Write(chargePercent);
-            writer.Write(lastUpdate);
+            writer.Write(lastUpdate.ToString());
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         public static void ReceiveRPC(MessageReader reader)

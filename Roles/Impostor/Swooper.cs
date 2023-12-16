@@ -122,7 +122,7 @@ public static class Swooper
                 {
                     lastTime.Add(pc.PlayerId, now);
                     pc?.MyPhysics?.RpcBootFromVent(ventedId.TryGetValue(pc.PlayerId, out var id) ? id : Main.LastEnteredVent[pc.PlayerId].Id);
-                    NameNotifyManager.Notify(pc, GetString("SwooperInvisStateOut"));
+                    pc.Notify(GetString("SwooperInvisStateOut"));
                     SendRPC(pc);
                     continue;
                 }
@@ -155,14 +155,14 @@ public static class Swooper
                 InvisTime.Add(pc.PlayerId, Utils.GetTimeStamp());
                 SwoopLimit[pc.PlayerId] -= 1;
                 SendRPC(pc);
-                NameNotifyManager.Notify(pc, GetString("SwooperInvisState"), SwooperDuration.GetFloat());
+                pc.Notify(GetString("SwooperInvisState"), SwooperDuration.GetFloat());
             }
             else
             {
                 if (!SwooperVentNormallyOnCooldown.GetBool())
                 {
                     __instance.myPlayer.MyPhysics.RpcBootFromVent(ventId);
-                    NameNotifyManager.Notify(pc, GetString("SwooperInvisInCooldown"));
+                    pc.Notify(GetString("SwooperInvisInCooldown"));
                 }
             }
         }, 0.5f, "Swooper Vent");
@@ -176,7 +176,7 @@ public static class Swooper
         SendRPC(pc);
 
         pc?.MyPhysics?.RpcBootFromVent(vent.Id);
-        NameNotifyManager.Notify(pc, GetString("SwooperInvisStateOut"));
+        pc.Notify(GetString("SwooperInvisStateOut"));
     }
     public static string GetHudText(PlayerControl pc)
     {

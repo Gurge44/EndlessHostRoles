@@ -207,7 +207,6 @@ namespace TOHE.Roles.Crewmate
         {
             InvisTime = [];
             long invis = long.Parse(reader.ReadString());
-            _ = long.Parse(reader.ReadString());
             if (invis > 0) InvisTime.Add(PlayerControl.LocalPlayer.PlayerId, invis);
         }
         public static void OnCoEnterVent(PlayerPhysics __instance, int ventId)
@@ -227,7 +226,7 @@ namespace TOHE.Roles.Crewmate
 
                 InvisTime.Add(pc.PlayerId, Utils.GetTimeStamp());
                 SendRPC(pc);
-                NameNotifyManager.Notify(pc, GetString("ChameleonInvisState"), InvisDuration.GetFloat());
+                pc.Notify(GetString("ChameleonInvisState"), InvisDuration.GetFloat());
             }, 0.5f, "Alchemist Invis");
         }
         public static void OnFixedUpdate(PlayerControl player)
@@ -249,7 +248,7 @@ namespace TOHE.Roles.Crewmate
                     if (remainTime < 0)
                     {
                         pc?.MyPhysics?.RpcBootFromVent(ventedId.TryGetValue(pc.PlayerId, out var id) ? id : Main.LastEnteredVent[pc.PlayerId].Id);
-                        NameNotifyManager.Notify(pc, GetString("ChameleonInvisStateOut"));
+                        pc.Notify(GetString("ChameleonInvisStateOut"));
                         pc.RpcResetAbilityCooldown();
                         SendRPC(pc);
                         continue;

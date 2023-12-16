@@ -126,7 +126,7 @@ namespace TOHE.Roles.AddOns.Crewmate
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncStressedTimer, SendOption.Reliable, -1);
             writer.Write(id);
             writer.Write(time);
-            writer.Write(lastUpdate);
+            writer.Write(lastUpdate.ToString());
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 

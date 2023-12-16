@@ -119,7 +119,7 @@ public static class Werewolf
                 if (remainTime < 0)
                 {
                     lastTime.Add(pc.PlayerId, now);
-                    NameNotifyManager.Notify(pc, GetString("WWRampageOut"));
+                    pc.Notify(GetString("WWRampageOut"));
                     SendRPC(pc);
                     continue;
                 }
@@ -147,7 +147,7 @@ public static class Werewolf
             {
                 RampageTime.Add(pc.PlayerId, Utils.GetTimeStamp());
                 SendRPC(pc);
-                NameNotifyManager.Notify(pc, GetString("WWRampaging"), RampageDur.GetFloat());
+                pc.Notify(GetString("WWRampaging"), RampageDur.GetFloat());
             }
             else return;
         }, 0.5f, "Werewolf Vent");

@@ -118,7 +118,7 @@ public static class Snitch
             }
         }
 
-        NameNotifyManager.Notify(snitch, Translator.GetString("SnitchDoneTasks"));
+        snitch.Notify(Translator.GetString("SnitchDoneTasks"));
 
         IsComplete[snitchId] = true;
     }

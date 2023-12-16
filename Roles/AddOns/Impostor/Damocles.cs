@@ -74,7 +74,7 @@ namespace TOHE.Roles.AddOns.Impostor
             if (!DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncDamoclesTimer, SendOption.Reliable, -1);
             writer.Write(Timer);
-            writer.Write(lastUpdate);
+            writer.Write(lastUpdate.ToString());
             writer.Write(PreviouslyEnteredVents.Count);
             if (PreviouslyEnteredVents.Count > 0) foreach (var vent in PreviouslyEnteredVents.ToArray()) writer.Write(vent);
             AmongUsClient.Instance.FinishRpcImmediately(writer);

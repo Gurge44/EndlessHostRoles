@@ -683,7 +683,7 @@ class CheckMurderPatch
                 target.Suicide(PlayerState.DeathReason.Kill, killer);
                 killer.SetKillCooldown();
                 RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
-                NameNotifyManager.Notify(target, ColorString(GetRoleColor(CustomRoles.Scavenger), GetString("KilledByScavenger")));
+                target.Notify(ColorString(GetRoleColor(CustomRoles.Scavenger), GetString("KilledByScavenger")));
                 return false;
             }
             if (target.Is(CustomRoles.Pestilence))

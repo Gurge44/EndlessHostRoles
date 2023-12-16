@@ -117,7 +117,7 @@ public static class Wraith
                 {
                     lastTime.Add(pc.PlayerId, now);
                     pc?.MyPhysics?.RpcBootFromVent(ventedId.TryGetValue(pc.PlayerId, out var id) ? id : Main.LastEnteredVent[pc.PlayerId].Id);
-                    NameNotifyManager.Notify(pc, GetString("WraithInvisStateOut"));
+                    pc.Notify(GetString("WraithInvisStateOut"));
                     SendRPC(pc);
                     continue;
                 }
@@ -149,14 +149,14 @@ public static class Wraith
 
                 InvisTime.Add(pc.PlayerId, Utils.GetTimeStamp());
                 SendRPC(pc);
-                NameNotifyManager.Notify(pc, GetString("WraithInvisState"), WraithDuration.GetFloat());
+                pc.Notify(GetString("WraithInvisState"), WraithDuration.GetFloat());
             }
             else
             {
                 if (!WraithVentNormallyOnCooldown.GetBool())
                 {
                     __instance.myPlayer.MyPhysics.RpcBootFromVent(ventId);
-                    NameNotifyManager.Notify(pc, GetString("WraithInvisInCooldown"));
+                    pc.Notify(GetString("WraithInvisInCooldown"));
                 }
             }
         }, 0.5f, "Wraith Vent");
@@ -170,7 +170,7 @@ public static class Wraith
         SendRPC(pc);
 
         pc?.MyPhysics?.RpcBootFromVent(vent.Id);
-        NameNotifyManager.Notify(pc, GetString("WraithInvisStateOut"));
+        pc.Notify(GetString("WraithInvisStateOut"));
     }
     public static string GetHudText(PlayerControl pc)
     {

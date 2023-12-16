@@ -77,7 +77,7 @@ namespace TOHE.Roles.Crewmate
             if (!IsEnable || !DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DruidAddTriggerDelay, SendOption.Reliable, -1);
             writer.Write(playerId);
-            writer.Write(timestamp);
+            writer.Write(timestamp.ToString());
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         public static void ReceiveRPCAddTriggerDelay(MessageReader reader)
@@ -135,7 +135,7 @@ namespace TOHE.Roles.Crewmate
         {
             if (!IsEnable || !DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DruidSyncLastUpdate, SendOption.Reliable, -1);
-            writer.Write(lastUpdate);
+            writer.Write(lastUpdate.ToString());
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         public static void ReceiveRPCSyncLastUpdate(MessageReader reader)
