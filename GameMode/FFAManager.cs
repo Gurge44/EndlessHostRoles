@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using Hazel;
+using Il2CppSystem.Runtime.Remoting.Messaging;
 using System.Collections.Generic;
 using System.Linq;
 using TOHE.Modules;
@@ -18,6 +19,8 @@ internal static class FFAManager
     private static Dictionary<byte, float> originalSpeed = [];
     public static Dictionary<byte, int> KillCount = [];
     public static int RoundTime;
+
+    public static string LatestChatMessage = string.Empty;
 
     //Options
     public static OptionItem FFA_GameTime;
@@ -334,6 +337,17 @@ internal static class FFAManager
 
         return arrows;
     }
+
+    public static void UpdateLastChatMessage(string playerName, string message)
+    {
+        LatestChatMessage = string.Format(GetString("FFAChatMessageNotify"), playerName, message);
+        foreach (var pc in Main.AllAlivePlayerControls)
+        {
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        }
+    }
+
+    public static string ChatMessageSuffix => LatestChatMessage;
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     class FixedUpdatePatch

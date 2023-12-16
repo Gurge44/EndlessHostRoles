@@ -3227,6 +3227,7 @@
 "FFA_TargetIsShielded","","<color=#ffff00>The player you tried to kill is shielded!</color>","","",""
 "FFA_ShieldIsOneTimeUse","","Shields break after 1 kill attempt","","",""
 "FFA_ShieldBroken","","<color=#ffff00>Someone tried to kill you, your shield is now broken!</color>","","",""
+"FFAChatMessageNotify","","[<color=#00ffff>Chat</color>] <color=#00ffa5>{0}:</color> {1}","","",""
 "Killer","","FREE FOR ALL","","",""
 "KillerInfo","","Kill Everyone to Win","","",""
 "KillerInfoLong","","Kill Everyone to Win","","",""

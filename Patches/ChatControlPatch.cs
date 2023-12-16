@@ -120,24 +120,29 @@ public class ChatManager
 
         switch (operate)
         {
-            case 1 when player.IsAlive():
+            case 1 when player.IsAlive(): // Guessing Command & Such
                 Logger.Info($"Special Command", "ChatManager");
                 cancel = true;
                 break;
-            case 2:
+            case 2: // /up
                 Logger.Info($"Command: {message}", "ChatManager");
                 cancel = false;
                 break;
-            case 3:
+            case 3: // In Lobby & Evertything Else
                 string chatEntry = $"{player.PlayerId}: {message}";
                 chatHistory.Add(chatEntry);
                 if (chatHistory.Count > maxHistorySize) chatHistory.RemoveAt(0);
                 cancel = false;
                 break;
-            case 4:
+            case 4: // /r, /n, /m
                 Logger.Info($"Command: {message}", "ChatManager");
                 //if (!DontBlock) SendPreviousMessagesToAll(realMessagesOnly: true);
                 break;
+        }
+
+        if (Options.CurrentGameMode == CustomGameMode.FFA && !message.StartsWith('/'))
+        {
+            FFAManager.UpdateLastChatMessage(player.GetRealName(), message);
         }
     }
 

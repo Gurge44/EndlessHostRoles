@@ -2976,6 +2976,7 @@ class FixedUpdatePatch
                 {
                     case CustomGameMode.FFA:
                         Suffix.Append(FFAManager.GetPlayerArrow(seer, target));
+                        if (seer.PlayerId == target.PlayerId) Suffix.Append((Suffix.Length > 0 ? "\n" : string.Empty) + FFAManager.ChatMessageSuffix);
                         break;
                     case CustomGameMode.MoveAndStop when seer.PlayerId == target.PlayerId:
                         Suffix.Append(MoveAndStopManager.GetSuffixText(seer));
