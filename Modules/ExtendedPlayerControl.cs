@@ -188,6 +188,7 @@ static class ExtendedPlayerControl
             sender.EndMessage();
             sender.SendMessage();
         }
+        killer.AddKillTimerToDict(half: true);
     }
     //public static void SetKillCooldownV2(this PlayerControl player, float time = -1f)
     //{
@@ -213,6 +214,7 @@ static class ExtendedPlayerControl
     {
         if (player == null) return;
         if (!player.CanUseKillButton()) return;
+        player.AddKillTimerToDict();
         if (target == null) target = player;
         if (time >= 0f) Main.AllPlayerKillCooldown[player.PlayerId] = time * 2;
         else Main.AllPlayerKillCooldown[player.PlayerId] *= 2;
@@ -855,6 +857,7 @@ static class ExtendedPlayerControl
         };
     }
     public static Vector2 Pos(this PlayerControl pc) => new(pc.transform.position.x, pc.transform.position.y);
+    public static void AddKillTimerToDict(this PlayerControl pc, bool half = false) => Main.KillTimers[pc.PlayerId] = Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out var kcd) ? kcd : 0;
     public static bool IsDousedPlayer(this PlayerControl arsonist, PlayerControl target)
     {
         if (arsonist == null || target == null || Main.isDoused == null) return false;

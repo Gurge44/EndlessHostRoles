@@ -1164,6 +1164,11 @@ internal class SelectRolesPatch
                 Main.SetRoles = [];
                 Main.SetAddOns = [];
             }, 7f, log: false);
+
+            if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && Options.EnableGM.GetBool())
+            {
+                _ = new LateTask(() => { PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)); }, 15f, "GM Auto-TP Failsafe"); // TP to Main Hall
+            }
         }
         catch (Exception ex)
         {

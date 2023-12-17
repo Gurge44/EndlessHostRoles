@@ -2578,6 +2578,11 @@ public static class Utils
     }
     public static void AfterMeetingTasks()
     {
+        foreach (var pc in Main.AllAlivePlayerControls)
+        {
+            pc.AddKillTimerToDict();
+        }
+
         if (Options.DiseasedCDReset.GetBool())
         {
             var array = Main.KilledDiseased.Keys.ToArray();

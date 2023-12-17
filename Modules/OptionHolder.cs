@@ -555,6 +555,8 @@ public static class Options
     public static OptionItem MafiaShapeshiftCD;
     public static OptionItem MafiaShapeshiftDur;
 
+    public static OverrideTasksData InsightTasks;
+
     public static OptionItem ScientistDur;
     public static OptionItem ScientistCD;
 
@@ -1523,7 +1525,8 @@ public static class Options
         RoleLoadingText = "Crewmate roles\nDruid";
         Druid.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nInsight";
-        SetupRoleOptions(5594, TabGroup.CrewmateRoles, CustomRoles.Insight);
+        SetupRoleOptions(5650, TabGroup.CrewmateRoles, CustomRoles.Insight);
+        InsightTasks = OverrideTasksData.Create(5653, TabGroup.CrewmateRoles, CustomRoles.Insight);
         RoleLoadingText = "Crewmate roles\nTunneler";
         SetupRoleOptions(5592, TabGroup.CrewmateRoles, CustomRoles.Tunneler);
         RoleLoadingText = "Crewmate roles\nDetour";
