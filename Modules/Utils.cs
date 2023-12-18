@@ -497,6 +497,11 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.NSerialKiller:
+            case CustomRoles.Enderman:
+            case CustomRoles.Mycologist:
+            case CustomRoles.Bubble:
+            case CustomRoles.Hookshot:
+            case CustomRoles.Sprayer:
             case CustomRoles.Doppelganger:
             case CustomRoles.PlagueDoctor:
             case CustomRoles.Postman:
@@ -701,7 +706,7 @@ public static class Utils
     }
     public static void GetPetCDSuffix(PlayerControl pc, ref StringBuilder sb)
     {
-        if (Options.UsePets.GetBool() && Main.PetCD.TryGetValue(pc.PlayerId, out var time) && !pc.IsModClient())
+        if (Options.UsePets.GetBool() && Main.AbilityCD.TryGetValue(pc.PlayerId, out var time) && !pc.IsModClient())
             sb.Append(string.Format(GetString("CDPT"), time.TOTALCD - (GetTimeStamp() - time.START_TIMESTAMP) + 1));
     }
     public static string GetProgressText(PlayerControl pc)
@@ -738,6 +743,9 @@ public static class Utils
                     break;
                 case CustomRoles.Analyzer:
                     ProgressText.Append(Analyzer.GetProgressText());
+                    break;
+                case CustomRoles.Sprayer:
+                    ProgressText.Append(Sprayer.ProgressText);
                     break;
                 case CustomRoles.Alchemist:
                     ProgressText.Append(Alchemist.GetProgressText(playerId));
@@ -1190,7 +1198,7 @@ public static class Utils
     /// <param name="radius">The radius</param>
     /// <param name="from">The location which the radius is counted from</param>
     /// <returns>A list containing all PlayerControls within the specified range from the specified location</returns>
-    public static List<PlayerControl> GetPlayersInRadius(float radius, Vector2 from)
+    public static PlayerControl[] GetPlayersInRadius(float radius, Vector2 from)
     {
         var list = new List<PlayerControl>();
         foreach (PlayerControl tg in Main.AllAlivePlayerControls)
@@ -1200,7 +1208,7 @@ public static class Utils
             if (dis > radius) continue;
             list.Add(tg);
         }
-        return list;
+        return [.. list];
     }
     public static void ShowActiveSettings(byte PlayerId = byte.MaxValue)
     {
@@ -1972,44 +1980,15 @@ public static class Utils
 
                 if (!isForMeeting)
                 {
-                    void AddPetCD() { GetPetCDSuffix(seer, ref SelfSuffix); }
+                    GetPetCDSuffix(seer, ref SelfSuffix);
+
                     switch (seer.GetCustomRole())
                     {
-                        // Pet CD in Suffix ----------------------------------------------------------------------------
-
-                        case CustomRoles.Doormaster:
-                        case CustomRoles.Sapper:
-                        case CustomRoles.CameraMan:
-                        case CustomRoles.Mayor:
-                        case CustomRoles.Paranoia:
-                        case CustomRoles.Veteran:
-                        case CustomRoles.Grenadier:
-                        case CustomRoles.Lighter:
-                        case CustomRoles.SecurityGuard:
-                        case CustomRoles.DovesOfNeace:
-                        case CustomRoles.Alchemist:
-                        case CustomRoles.TimeMaster:
-                        case CustomRoles.NiceHacker:
-                        case CustomRoles.Sniper:
-                        case CustomRoles.Assassin:
-                        case CustomRoles.Undertaker:
-                        case CustomRoles.Miner:
-                        case CustomRoles.Escapee:
-                        case CustomRoles.Bomber:
-                        case CustomRoles.Nuker:
-                        case CustomRoles.QuickShooter:
-                        case CustomRoles.Disperser:
-                        case CustomRoles.Twister:
-                            AddPetCD();
-                            break;
-
                         case CustomRoles.Tether when !seer.IsModClient():
-                            AddPetCD();
                             if (SelfSuffix.Length > 0 && Tether.TargetText != string.Empty) SelfSuffix.Append(", ");
                             SelfSuffix.Append(Tether.TargetText);
                             break;
                         case CustomRoles.Druid when !seer.IsModClient():
-                            AddPetCD();
                             if (SelfSuffix.Length > 0 && Druid.GetSuffixText(seer.PlayerId) != string.Empty) SelfSuffix.Append(", ");
                             SelfSuffix.Append(Druid.GetSuffixText(seer.PlayerId));
                             break;
@@ -2022,6 +2001,9 @@ public static class Utils
                         case CustomRoles.BountyHunter:
                             SelfSuffix.Append(BountyHunter.GetTargetText(seer, false));
                             SelfSuffix.Append(BountyHunter.GetTargetArrow(seer));
+                            break;
+                        case CustomRoles.Hookshot:
+                            SelfSuffix.Append(Hookshot.SuffixText);
                             break;
                         case CustomRoles.Ricochet:
                             SelfSuffix.Append(Ricochet.TargetText);
@@ -2542,10 +2524,10 @@ public static class Utils
         PlayerGameOptionsSender.SetDirtyToAll();
         GameOptionsSender.SendAllGameOptions();
     }
-    public static void AddPetCD(CustomRoles role, byte playerId, bool includeDuration = true)
+    public static void AddAbilityCD(CustomRoles role, byte playerId, bool includeDuration = true)
     {
         long now = GetTimeStamp();
-        Main.PetCD[playerId] = role switch
+        Main.AbilityCD[playerId] = role switch
         {
             CustomRoles.Doormaster => (now, Doormaster.VentCooldown.GetInt()),
             CustomRoles.Tether => (now, Tether.VentCooldown.GetInt()),
@@ -2574,7 +2556,7 @@ public static class Utils
             CustomRoles.Twister => (now, Twister.ShapeshiftCooldown.GetInt()),
             _ => (now, -1),
         };
-        if (Main.PetCD.TryGetValue(playerId, out var petCD) && petCD.TOTALCD < 0) Main.PetCD.Remove(playerId);
+        if (Main.AbilityCD.TryGetValue(playerId, out var petCD) && petCD.TOTALCD < 0) Main.AbilityCD.Remove(playerId);
     }
     public static void AfterMeetingTasks()
     {
@@ -2618,6 +2600,8 @@ public static class Utils
         if (SerialKiller.IsEnable()) SerialKiller.AfterMeetingTasks();
         if (Spiritualist.IsEnable) Spiritualist.AfterMeetingTasks();
         if (Jailor.IsEnable) Jailor.AfterMeetingTasks();
+        if (Mycologist.IsEnable) Mycologist.AfterMeetingTasks();
+        if (Sprayer.IsEnable) Sprayer.AfterMeetingTasks();
         if (PlagueDoctor.IsEnable) PlagueDoctor.AfterMeetingTasks();
         if (Penguin.IsEnable) Penguin.AfterMeetingTasks();
         if (Chronomancer.IsEnable) Chronomancer.OnReportDeadBody();
@@ -2633,7 +2617,7 @@ public static class Utils
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                AddPetCD(pc.GetCustomRole(), pc.PlayerId, includeDuration: false);
+                pc.AddAbilityCD(includeDuration: false);
             }
         }
 

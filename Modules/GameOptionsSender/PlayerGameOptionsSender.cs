@@ -443,6 +443,21 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 case CustomRoles.NSerialKiller:
                     NSerialKiller.ApplyGameOptions(opt);
                     break;
+                case CustomRoles.Enderman:
+                    Enderman.ApplyGameOptions(opt);
+                    break;
+                case CustomRoles.Mycologist:
+                    Mycologist.ApplyGameOptions(opt);
+                    break;
+                case CustomRoles.Bubble:
+                    Bubble.ApplyGameOptions(opt);
+                    break;
+                case CustomRoles.Hookshot:
+                    Hookshot.ApplyGameOptions(opt);
+                    break;
+                case CustomRoles.Sprayer:
+                    Sprayer.ApplyGameOptions(opt);
+                    break;
                 case CustomRoles.Penguin:
                     Penguin.ApplyGameOptions(opt);
                     break;
@@ -671,6 +686,13 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     if (Utils.IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.CrewLightMod, Alchemist.VisionOnLightsOut.GetFloat() * 5);
                     else opt.SetFloat(FloatOptionNames.CrewLightMod, Alchemist.Vision.GetFloat());
                     break;
+            }
+
+            if (Sprayer.LowerVisionList.Contains(player.PlayerId))
+            {
+                opt.SetVision(false);
+                opt.SetFloat(FloatOptionNames.CrewLightMod, Sprayer.LoweredVision.GetFloat());
+                opt.SetFloat(FloatOptionNames.ImpostorLightMod, Sprayer.LoweredVision.GetFloat());
             }
 
             /*     if ((Main.FlashbangInProtect.Any() && Main.ForFlashbang.Contains(player.PlayerId) && (!player.GetCustomRole().IsCrewmate())))  

@@ -58,6 +58,11 @@ public static class NameColorManager
             (CustomRoles.Jackal, CustomRoles.Jackal) => Main.roleColors[CustomRoles.Jackal],
             (CustomRoles.Juggernaut, CustomRoles.Juggernaut) => Main.roleColors[CustomRoles.Juggernaut],
             (CustomRoles.NSerialKiller, CustomRoles.NSerialKiller) => Main.roleColors[CustomRoles.NSerialKiller],
+            (CustomRoles.Enderman, CustomRoles.Enderman) => Main.roleColors[CustomRoles.Enderman],
+            (CustomRoles.Mycologist, CustomRoles.Mycologist) => Main.roleColors[CustomRoles.Mycologist],
+            (CustomRoles.Bubble, CustomRoles.Bubble) => Main.roleColors[CustomRoles.Bubble],
+            (CustomRoles.Hookshot, CustomRoles.Hookshot) => Main.roleColors[CustomRoles.Hookshot],
+            (CustomRoles.Sprayer, CustomRoles.Sprayer) => Main.roleColors[CustomRoles.Sprayer],
             (CustomRoles.PlagueDoctor, CustomRoles.PlagueDoctor) => Main.roleColors[CustomRoles.PlagueDoctor],
             (CustomRoles.Postman, CustomRoles.Postman) => Main.roleColors[CustomRoles.Postman],
             (CustomRoles.WeaponMaster, CustomRoles.WeaponMaster) => Main.roleColors[CustomRoles.WeaponMaster],
@@ -103,8 +108,12 @@ public static class NameColorManager
             CustomRoles.Mastermind when Mastermind.ManipulatedPlayers.ContainsKey(target.PlayerId) => Main.roleColors[CustomRoles.Arsonist],
             CustomRoles.Hitman when Hitman.targetId == target.PlayerId => "000000",
             CustomRoles.Postman when Postman.Target == target.PlayerId => Main.roleColors[CustomRoles.Postman],
+            CustomRoles.Mycologist when Mycologist.InfectedPlayers.Contains(target.PlayerId) => Main.roleColors[CustomRoles.Mycologist],
+            CustomRoles.Bubble when Bubble.EncasedPlayers.ContainsKey(target.PlayerId) => Main.roleColors[CustomRoles.Bubble],
             _ => "",
         };
+
+        if (Bubble.EncasedPlayers.TryGetValue(target.PlayerId, out var ts) && ts + Bubble.NotifyDelay.GetInt() < Utils.GetTimeStamp()) color = Main.roleColors[CustomRoles.Bubble];
 
         if (target.Is(CustomRoles.Speedrunner) && target.GetPlayerTaskState().CompletedTasksCount >= Options.SpeedrunnerNotifyAtXTasksLeft.GetInt() && Options.SpeedrunnerNotifyKillers.GetBool()) color = Main.roleColors[CustomRoles.Speedrunner];
 

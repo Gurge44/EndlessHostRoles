@@ -22,13 +22,13 @@ public static class AntiBlackout
     ///Whether processing within AntiBlackout is required
     ///</summary>
     public static bool IsRequired => Options.NoGameEnd.GetBool()
-        || Jackal.IsEnable || Pelican.IsEnable || Magician.IsEnable
-        || Gamer.IsEnable || BloodKnight.IsEnable || WeaponMaster.IsEnable
-        || Succubus.IsEnable || Poisoner.IsEnable || Reckless.IsEnable
+        || Jackal.IsEnable || Pelican.IsEnable || Magician.IsEnable || Enderman.IsEnable
+        || Gamer.IsEnable || BloodKnight.IsEnable || WeaponMaster.IsEnable || Sprayer.IsEnable
+        || Succubus.IsEnable || Poisoner.IsEnable || Reckless.IsEnable || Bubble.IsEnable
         || Infectious.IsEnable || Juggernaut.IsEnable || HeadHunter.IsEnable
         || Ritualist.IsEnable || Virus.IsEnable || Vengeance.IsEnable || Doppelganger.IsEnable
-        || Wraith.IsEnable || HexMaster.IsEnable || Imitator.IsEnable()
-        || Traitor.IsEnable || Pickpocket.IsEnable || Werewolf.IsEnable
+        || Wraith.IsEnable || HexMaster.IsEnable || Imitator.IsEnable() || Mycologist.IsEnable
+        || Traitor.IsEnable || Pickpocket.IsEnable || Werewolf.IsEnable || Hookshot.IsEnable
         || NSerialKiller.IsEnable || /*NWitch.IsEnable || */RuthlessRomantic.IsEnable
         || Maverick.IsEnable || Jinx.IsEnable || Eclipse.IsEnable || PlagueDoctor.IsEnable
         || Medusa.IsEnable || Spiritcaller.IsEnable || Pyromaniac.IsEnable

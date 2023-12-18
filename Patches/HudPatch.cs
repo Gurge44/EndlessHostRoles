@@ -242,6 +242,11 @@ class HudManagerPatch
                         Gangster.SetKillButtonText(player.PlayerId);
                         break;
                     case CustomRoles.NSerialKiller:
+                    case CustomRoles.Enderman:
+                    case CustomRoles.Mycologist:
+                    case CustomRoles.Bubble:
+                    case CustomRoles.Hookshot:
+                    case CustomRoles.Sprayer:
                     case CustomRoles.Magician:
                     case CustomRoles.WeaponMaster:
                     case CustomRoles.Reckless:
@@ -555,31 +560,13 @@ class HudManagerPatch
                         CustomRoles.Librarian => Librarian.GetSelfSuffixAndHUDText(player.PlayerId),
                         CustomRoles.PlagueDoctor => PlagueDoctor.GetLowerTextOthers(player, isForHud: true),
                         CustomRoles.Stealth => Stealth.GetSuffix(player, isHUD: true),
-                        CustomRoles.Sapper => GetCD_HUDText(),
-                        CustomRoles.CameraMan => GetCD_HUDText(),
-                        CustomRoles.Mayor => GetCD_HUDText(),
-                        CustomRoles.Paranoia => GetCD_HUDText(),
-                        CustomRoles.Veteran => GetCD_HUDText(),
-                        CustomRoles.Grenadier => GetCD_HUDText(),
-                        CustomRoles.Lighter => GetCD_HUDText(),
-                        CustomRoles.DovesOfNeace => GetCD_HUDText(),
-                        CustomRoles.SecurityGuard => GetCD_HUDText(),
-                        CustomRoles.TimeMaster => GetCD_HUDText(),
-                        CustomRoles.Sniper => GetCD_HUDText(),
-                        CustomRoles.Assassin => GetCD_HUDText(),
-                        CustomRoles.Undertaker => GetCD_HUDText(),
-                        CustomRoles.Bomber => GetCD_HUDText(),
-                        CustomRoles.Nuker => GetCD_HUDText(),
-                        CustomRoles.QuickShooter => GetCD_HUDText(),
-                        CustomRoles.Miner => GetCD_HUDText(),
-                        CustomRoles.Escapee => GetCD_HUDText(),
-                        CustomRoles.Disperser => GetCD_HUDText(),
-                        CustomRoles.Twister => GetCD_HUDText(),
+                        CustomRoles.Hookshot => Hookshot.SuffixText,
                         _ => string.Empty,
                     },
                     _ => string.Empty,
                 };
-                string GetCD_HUDText() => !Options.UsePets.GetBool() || !Main.PetCD.TryGetValue(player.PlayerId, out var CD)
+                if (GetCD_HUDText() != string.Empty) LowerInfoText.text = $"{GetCD_HUDText()}\n{LowerInfoText.text}";
+                string GetCD_HUDText() => !Options.UsePets.GetBool() || !Main.AbilityCD.TryGetValue(player.PlayerId, out var CD)
                         ? string.Empty
                         : string.Format(GetString("CDPT"), CD.TOTALCD - (Utils.GetTimeStamp() - CD.START_TIMESTAMP) + 1);
 

@@ -1428,6 +1428,21 @@ internal static class RPC
             case CustomRoles.NSerialKiller:
                 NSerialKiller.Add(targetId);
                 break;
+            case CustomRoles.Enderman:
+                Enderman.Add(targetId);
+                break;
+            case CustomRoles.Mycologist:
+                Mycologist.Add(targetId);
+                break;
+            case CustomRoles.Bubble:
+                Bubble.Add(targetId);
+                break;
+            case CustomRoles.Hookshot:
+                Hookshot.Add(targetId);
+                break;
+            case CustomRoles.Sprayer:
+                Sprayer.Add(targetId);
+                break;
             case CustomRoles.PlagueDoctor:
                 PlagueDoctor.Add(targetId);
                 break;

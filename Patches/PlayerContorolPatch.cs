@@ -233,6 +233,15 @@ class CheckMurderPatch
                 case CustomRoles.DonutDelivery:
                     DonutDelivery.OnCheckMurder(killer, target);
                     return false;
+                case CustomRoles.Mycologist:
+                    if (!Mycologist.OnCheckMurder(target)) return false;
+                    break;
+                case CustomRoles.Bubble:
+                    Bubble.OnCheckMurder(target);
+                    return false;
+                case CustomRoles.Hookshot:
+                    if (!Hookshot.OnCheckMurder(target)) return false;
+                    break;
                 case CustomRoles.Gaulois:
                     Gaulois.OnCheckMurder(killer, target);
                     return false;
@@ -1098,7 +1107,7 @@ class MurderPlayerPatch
 
         if (killer.Is(CustomRoles.Sniper))
             if (!Options.UsePets.GetBool()) killer.RpcResetAbilityCooldown();
-            else Main.PetCD[killer.PlayerId] = (GetTimeStamp(), Options.DefaultShapeshiftCooldown.GetInt());
+            else Main.AbilityCD[killer.PlayerId] = (GetTimeStamp(), Options.DefaultShapeshiftCooldown.GetInt());
 
         if (killer != __instance)
         {
@@ -1878,6 +1887,10 @@ class ReportDeadBodyPatch
         if (Penguin.IsEnable) Penguin.OnReportDeadBody();
         if (Sapper.IsEnable) Sapper.OnReportDeadBody();
         if (Pursuer.IsEnable) Pursuer.OnReportDeadBody();
+        if (Enderman.IsEnable) Enderman.OnReportDeadBody();
+        if (Bubble.IsEnable) Bubble.OnReportDeadBody();
+        if (Hookshot.IsEnable) Hookshot.OnReportDeadBody();
+        if (Sprayer.IsEnable) Sprayer.OnReportDeadBody();
         if (Chronomancer.IsEnable) Chronomancer.OnReportDeadBody();
         if (Magician.IsEnable) Magician.OnReportDeadBody();
         if (Drainer.IsEnable) Drainer.OnReportDeadBody();
@@ -1888,6 +1901,8 @@ class ReportDeadBodyPatch
         if (Tracefinder.IsEnable) Tracefinder.OnReportDeadBody(/*player, target*/);
         if (Mediumshiper.IsEnable) Mediumshiper.OnReportDeadBody(target);
         if (Spiritualist.IsEnable) Spiritualist.OnReportDeadBody(target);
+
+        Main.AbilityCD.Clear();
 
         if (player.Is(CustomRoles.Damocles))
         {
@@ -1936,7 +1951,7 @@ class ReportDeadBodyPatch
 
         MeetingTimeManager.OnReportDeadBody();
 
-        NotifyRoles(isForMeeting: true, NoCache: true, CamouflageIsForMeeting: true, GuesserIsForMeeting: true);
+        _ = new LateTask(() => { NotifyRoles(isForMeeting: true, NoCache: true, CamouflageIsForMeeting: true, GuesserIsForMeeting: true); }, 0.5f, log: false);
 
         _ = new LateTask(SyncAllSettings, 3f, "SyncAllSettings on meeting start");
     }
@@ -2106,6 +2121,15 @@ class FixedUpdatePatch
                 case CustomRoles.NiceHacker when !lowLoad:
                     NiceHacker.OnFixedUpdate(player);
                     break;
+                case CustomRoles.Enderman when !lowLoad:
+                    Enderman.OnFixedUpdate();
+                    break;
+                case CustomRoles.Bubble when !lowLoad:
+                    Bubble.OnFixedUpdate();
+                    break;
+                case CustomRoles.Sprayer when !lowLoad:
+                    Sprayer.OnFixedUpdate();
+                    break;
                 case CustomRoles.Analyzer:
                     Analyzer.OnFixedUpdate(player);
                     break;
@@ -2159,42 +2183,12 @@ class FixedUpdatePatch
 
             if (!lowLoad && Options.UsePets.GetBool() && GameStates.IsInTask)
             {
-                if (player.GetCustomRole() is
-                    CustomRoles.Doormaster or
-                    CustomRoles.Sapper or
-                    CustomRoles.Druid or
-                    CustomRoles.Tether or
-                    CustomRoles.CameraMan or
-                    CustomRoles.Mayor or
-                    CustomRoles.Paranoia or
-                    CustomRoles.NiceHacker or
-                    CustomRoles.Grenadier or
-                    CustomRoles.Lighter or
-                    CustomRoles.SecurityGuard or
-                    CustomRoles.DovesOfNeace or
-                    CustomRoles.Alchemist or
-                    CustomRoles.TimeMaster or
-                    CustomRoles.Veteran or
-                    CustomRoles.Sniper or
-                    CustomRoles.Assassin or
-                    CustomRoles.Undertaker or
-                    CustomRoles.Bomber or
-                    CustomRoles.Nuker or
-                    CustomRoles.Escapee or
-                    CustomRoles.Miner or
-                    CustomRoles.Disperser or
-                    CustomRoles.Twister or
-                    CustomRoles.QuickShooter)
-                    NotifyPetCD();
-            }
-            void NotifyPetCD()
-            {
-                if (Main.PetCD.TryGetValue(player.PlayerId, out var timer) && timer.START_TIMESTAMP + timer.TOTALCD < GetTimeStamp())
+                if (Main.AbilityCD.TryGetValue(player.PlayerId, out var timer) && timer.START_TIMESTAMP + timer.TOTALCD < GetTimeStamp())
                 {
-                    Main.PetCD.Remove(player.PlayerId);
-                    NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                    Main.AbilityCD.Remove(player.PlayerId);
+                    if (!player.IsModClient()) NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 }
-                if (Main.PetCD.ContainsKey(player.PlayerId)) NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                if (Main.AbilityCD.ContainsKey(player.PlayerId) && !player.IsModClient()) NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
             }
         }
 
@@ -2897,43 +2891,9 @@ class FixedUpdatePatch
 
                 if (seer.PlayerId == target.PlayerId)
                 {
-                    void AddPetCD()
-                    {
-                        if (seer.IsModClient()) return;
-                        GetPetCDSuffix(seer, ref Suffix);
-                    }
+                    if (!seer.IsModClient()) GetPetCDSuffix(seer, ref Suffix);
                     switch (seer.GetCustomRole())
                     {
-                        // Pet CD in Suffix ----------------------------------------------------------------------------
-
-                        case CustomRoles.Doormaster:
-                        case CustomRoles.Sapper:
-                        case CustomRoles.CameraMan:
-                        case CustomRoles.Mayor:
-                        case CustomRoles.Paranoia:
-                        case CustomRoles.Veteran:
-                        case CustomRoles.Grenadier:
-                        case CustomRoles.Lighter:
-                        case CustomRoles.SecurityGuard:
-                        case CustomRoles.DovesOfNeace:
-                        case CustomRoles.Alchemist:
-                        case CustomRoles.TimeMaster:
-                        case CustomRoles.NiceHacker:
-                        case CustomRoles.Sniper:
-                        case CustomRoles.Assassin:
-                        case CustomRoles.Undertaker:
-                        case CustomRoles.Miner:
-                        case CustomRoles.Escapee:
-                        case CustomRoles.Bomber:
-                        case CustomRoles.Nuker:
-                        case CustomRoles.QuickShooter:
-                        case CustomRoles.Disperser:
-                        case CustomRoles.Twister:
-                            AddPetCD();
-                            break;
-
-                        // ---------------------------------------------------------------------------------------
-
                         case CustomRoles.VengefulRomantic:
                             Suffix.Append(VengefulRomantic.GetTargetText(seer.PlayerId));
                             break;
@@ -2944,7 +2904,6 @@ class FixedUpdatePatch
                             Suffix.Append(Ricochet.TargetText);
                             break;
                         case CustomRoles.Tether when !seer.IsModClient():
-                            AddPetCD();
                             if (Suffix.Length > 0 && Tether.TargetText != string.Empty) Suffix.Append(", ");
                             Suffix.Append(Tether.TargetText);
                             break;
@@ -2955,7 +2914,6 @@ class FixedUpdatePatch
                             Suffix.Append(Postman.TargetText);
                             break;
                         case CustomRoles.Druid when !seer.IsModClient():
-                            AddPetCD();
                             if (Suffix.Length > 0 && Druid.GetSuffixText(seer.PlayerId) != string.Empty) Suffix.Append(", ");
                             Suffix.Append(Druid.GetSuffixText(seer.PlayerId));
                             break;
@@ -2964,6 +2922,9 @@ class FixedUpdatePatch
                             break;
                         case CustomRoles.Librarian when !seer.IsModClient():
                             Suffix.Append(Librarian.GetSelfSuffixAndHUDText(seer.PlayerId));
+                            break;
+                        case CustomRoles.Hookshot when !seer.IsModClient():
+                            Suffix.Append(Hookshot.SuffixText);
                             break;
                     }
                 }
@@ -3225,6 +3186,12 @@ class EnterVentPatch
             case CustomRoles.Doormaster:
                 Doormaster.OnEnterVent(pc);
                 break;
+            case CustomRoles.Mycologist when Mycologist.SpreadAction.GetValue() == 0:
+                Mycologist.SpreadSpores();
+                break;
+            case CustomRoles.Hookshot:
+                Hookshot.SwitchActionMode();
+                break;
             case CustomRoles.Ventguard:
                 if (Main.VentguardNumberOfAbilityUses >= 1)
                 {
@@ -3246,7 +3213,7 @@ class EnterVentPatch
                     //pc.RpcGuardAndKill(pc);
                     pc.RPCPlayCustomSound("Gunload");
                     pc.Notify(GetString("VeteranOnGuard"), Options.VeteranSkillDuration.GetFloat());
-                    AddPetCD(pc.GetCustomRole(), pc.PlayerId);
+                    pc.AddAbilityCD();
                     pc.MarkDirtySettings();
                 }
                 else
@@ -3272,7 +3239,7 @@ class EnterVentPatch
                     //pc.RpcGuardAndKill(pc);
                     pc.RPCPlayCustomSound("FlashBang");
                     pc.Notify(GetString("GrenadierSkillInUse"), Options.GrenadierSkillDuration.GetFloat());
-                    AddPetCD(pc.GetCustomRole(), pc.PlayerId);
+                    pc.AddAbilityCD();
                     Main.GrenadierNumOfUsed[pc.PlayerId] -= 1;
                     MarkEveryoneDirtySettingsV3();
                 }
@@ -3287,7 +3254,7 @@ class EnterVentPatch
                     Main.Lighter.Remove(pc.PlayerId);
                     Main.Lighter.Add(pc.PlayerId, GetTimeStamp());
                     pc.Notify(GetString("LighterSkillInUse"), Options.LighterSkillDuration.GetFloat());
-                    AddPetCD(pc.GetCustomRole(), pc.PlayerId);
+                    pc.AddAbilityCD();
                     Main.LighterNumOfUsed[pc.PlayerId] -= 1;
                     pc.MarkDirtySettings();
                 }
@@ -3302,7 +3269,7 @@ class EnterVentPatch
                     Main.BlockSabo.Remove(pc.PlayerId);
                     Main.BlockSabo.Add(pc.PlayerId, GetTimeStamp());
                     pc.Notify(GetString("SecurityGuardSkillInUse"), Options.SecurityGuardSkillDuration.GetFloat());
-                    AddPetCD(pc.GetCustomRole(), pc.PlayerId);
+                    pc.AddAbilityCD();
                     Main.SecurityGuardNumOfUsed[pc.PlayerId] -= 1;
                 }
                 else
@@ -3335,7 +3302,7 @@ class EnterVentPatch
                     });
                     pc.RPCPlayCustomSound("Dove");
                     pc.Notify(string.Format(GetString("DovesOfNeaceOnGuard"), Main.DovesOfNeaceNumOfUsed[pc.PlayerId]));
-                    AddPetCD(pc.GetCustomRole(), pc.PlayerId);
+                    pc.AddAbilityCD();
                 }
                 break;
             case CustomRoles.TimeMaster:
@@ -3348,7 +3315,7 @@ class EnterVentPatch
                         Main.TimeMasterInProtect.Add(pc.PlayerId, GetTimeStamp());
                         //if (!pc.IsModClient()) pc.RpcGuardAndKill(pc);
                         pc.Notify(GetString("TimeMasterOnGuard"), Options.TimeMasterSkillDuration.GetFloat());
-                        AddPetCD(pc.GetCustomRole(), pc.PlayerId);
+                        pc.AddAbilityCD();
                         foreach (PlayerControl player in Main.AllPlayerControls)
                         {
                             if (Main.TimeMasterBackTrack.ContainsKey(player.PlayerId))

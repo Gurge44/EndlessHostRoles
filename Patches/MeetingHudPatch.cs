@@ -1033,6 +1033,11 @@ class MeetingHudStartPatch
                 //   case CustomRoles.Sidekick:
                 case CustomRoles.Poisoner:
                 case CustomRoles.NSerialKiller:
+                case CustomRoles.Enderman:
+                case CustomRoles.Mycologist:
+                case CustomRoles.Bubble:
+                case CustomRoles.Hookshot:
+                case CustomRoles.Sprayer:
                 case CustomRoles.PlagueDoctor:
                 case CustomRoles.Reckless:
                 case CustomRoles.Magician:

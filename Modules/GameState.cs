@@ -357,7 +357,7 @@ public class TaskState
                     AllAlivePlayer.Remove(tar1);
                     var tar2 = AllAlivePlayer[rd.Next(0, AllAlivePlayer.Count)];
                     var pos = tar1.Pos();
-                    tar1.TP(tar2.Pos());
+                    tar1.TP(tar2);
                     tar2.TP(pos);
                     tar1.RPCPlayCustomSound("Teleport");
                     tar2.RPCPlayCustomSound("Teleport");

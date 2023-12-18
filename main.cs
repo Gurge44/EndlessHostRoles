@@ -93,7 +93,7 @@ public class Main : BasePlugin
     public static bool IsFixedCooldown => CustomRoles.Vampire.IsEnable() || CustomRoles.Poisoner.IsEnable();
     public static float RefixCooldownDelay;
     public static bool ProcessShapeshifts = true;
-    public static Dictionary<byte, (long START_TIMESTAMP, int TOTALCD)> PetCD = [];
+    public static Dictionary<byte, (long START_TIMESTAMP, int TOTALCD)> AbilityCD = [];
     private static GameData.PlayerInfo lastVotedPlayerInfo;
     public static string LastVotedPlayer;
     public static byte NimblePlayer = byte.MaxValue;
@@ -449,6 +449,11 @@ public class Main : BasePlugin
                 {CustomRoles.HexMaster, "#ff00ff"},
                 {CustomRoles.Wraith, "#4B0082"},
                 {CustomRoles.NSerialKiller, "#233fcc"},
+                {CustomRoles.Enderman, "#3c008a"},
+                {CustomRoles.Mycologist, "#0043de"},
+                {CustomRoles.Bubble, "#ff38c3"},
+                {CustomRoles.Hookshot, "#32a852"},
+                {CustomRoles.Sprayer, "#ffc038"},
                 {CustomRoles.PlagueDoctor, "#ff6633"},
                 {CustomRoles.Postman, "#00b893"},
                 {CustomRoles.Reckless, "#6e000d"},
@@ -828,6 +833,11 @@ public enum CustomRoles
     Pelican,
     Revolutionist,
     NSerialKiller,
+    Enderman,
+    Mycologist,
+    Bubble,
+    Hookshot,
+    Sprayer,
     PlagueDoctor,
     Postman,
     Reckless,
@@ -988,6 +998,11 @@ public enum CustomWinner
     Wraith = CustomRoles.Wraith,
     //Pirate = CustomRoles.Pirate,
     SerialKiller = CustomRoles.NSerialKiller,
+    Enderman = CustomRoles.Enderman,
+    Mycologist = CustomRoles.Mycologist,
+    Bubble = CustomRoles.Bubble,
+    Hookshot = CustomRoles.Hookshot,
+    Sprayer = CustomRoles.Sprayer,
     PlagueDoctor = CustomRoles.PlagueDoctor,
     Reckless = CustomRoles.Reckless,
     Magician = CustomRoles.Magician,

@@ -160,7 +160,7 @@ public static class Pelican
             var player = Utils.GetPlayerById(pc);
             if (player == null || target == null)
                 continue;
-            target.TP(player.Pos());
+            target.TP(player);
             Main.AllPlayerSpeed[tar] = Main.AllPlayerSpeed[tar] - 0.5f + originalSpeed[tar];
             ReportDeadBodyPatch.CanReport[tar] = true;
             target.MarkDirtySettings();

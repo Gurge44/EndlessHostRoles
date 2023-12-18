@@ -323,6 +323,11 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.NSerialKiller => RoleTypes.Impostor,
+            CustomRoles.Enderman => RoleTypes.Impostor,
+            CustomRoles.Mycologist => RoleTypes.Impostor,
+            CustomRoles.Bubble => RoleTypes.Impostor,
+            CustomRoles.Hookshot => RoleTypes.Impostor,
+            CustomRoles.Sprayer => RoleTypes.Impostor,
             CustomRoles.PlagueDoctor => RoleTypes.Impostor,
             CustomRoles.Postman => RoleTypes.Impostor,
             CustomRoles.Reckless => RoleTypes.Impostor,
@@ -512,6 +517,11 @@ internal static class CustomRolesHelper
             CustomRoles.Refugee or
             CustomRoles.Parasite or
             CustomRoles.NSerialKiller or
+            CustomRoles.Enderman or
+            CustomRoles.Mycologist or
+            CustomRoles.Bubble or
+            CustomRoles.Hookshot or
+            CustomRoles.Sprayer or
             CustomRoles.PlagueDoctor or
             CustomRoles.Magician or
             CustomRoles.WeaponMaster or
@@ -551,6 +561,11 @@ internal static class CustomRolesHelper
             CustomRoles.Refugee or
             CustomRoles.Parasite or
             CustomRoles.NSerialKiller or
+            CustomRoles.Enderman or
+            CustomRoles.Mycologist or
+            CustomRoles.Bubble or
+            CustomRoles.Hookshot or
+            CustomRoles.Sprayer or
             CustomRoles.Magician or
             CustomRoles.WeaponMaster or
             CustomRoles.Reckless or
@@ -591,6 +606,11 @@ internal static class CustomRolesHelper
             CustomRoles.Poisoner or
             CustomRoles.Parasite or
             CustomRoles.NSerialKiller or
+            CustomRoles.Enderman or
+            CustomRoles.Mycologist or
+            CustomRoles.Bubble or
+            CustomRoles.Hookshot or
+            CustomRoles.Sprayer or
             CustomRoles.PlagueDoctor or
             CustomRoles.Pyromaniac or
             CustomRoles.Eclipse or
@@ -682,6 +702,11 @@ internal static class CustomRolesHelper
             CustomRoles.Traitor or
             CustomRoles.Poisoner or
             CustomRoles.NSerialKiller or
+            CustomRoles.Enderman or
+            CustomRoles.Mycologist or
+            CustomRoles.Bubble or
+            CustomRoles.Hookshot or
+            CustomRoles.Sprayer or
             CustomRoles.Magician or
             CustomRoles.WeaponMaster or
             CustomRoles.Reckless or
@@ -848,6 +873,11 @@ internal static class CustomRolesHelper
             //    CustomRoles.Sidekick or
             CustomRoles.Poisoner or
             CustomRoles.NSerialKiller or
+            CustomRoles.Enderman or
+            CustomRoles.Mycologist or
+            CustomRoles.Bubble or
+            CustomRoles.Hookshot or
+            CustomRoles.Sprayer or
             CustomRoles.PlagueDoctor or
             CustomRoles.Magician or
             CustomRoles.WeaponMaster or
@@ -894,6 +924,11 @@ internal static class CustomRolesHelper
         CustomRoles.Virus or
         CustomRoles.Medusa or
         CustomRoles.NSerialKiller or
+        CustomRoles.Enderman or
+        CustomRoles.Mycologist or
+        CustomRoles.Bubble or
+        CustomRoles.Hookshot or
+        CustomRoles.Sprayer or
         CustomRoles.Doppelganger or
         CustomRoles.PlagueDoctor or
         CustomRoles.Eclipse or
@@ -990,6 +1025,11 @@ internal static class CustomRolesHelper
         //    CustomRoles.Sidekick or
             CustomRoles.Poisoner or
             CustomRoles.NSerialKiller or
+            CustomRoles.Enderman or
+            CustomRoles.Mycologist or
+            CustomRoles.Bubble or
+            CustomRoles.Hookshot or
+            CustomRoles.Sprayer or
             CustomRoles.PlagueDoctor or
             CustomRoles.Magician or
             CustomRoles.WeaponMaster or
@@ -1143,6 +1183,11 @@ internal static class CustomRolesHelper
         CustomRoles.Pestilence or
         CustomRoles.Poisoner or
         CustomRoles.NSerialKiller or
+        CustomRoles.Enderman or
+        CustomRoles.Mycologist or
+        CustomRoles.Bubble or
+        CustomRoles.Hookshot or
+        CustomRoles.Sprayer or
         CustomRoles.PlagueDoctor or
         CustomRoles.Magician or
         CustomRoles.WeaponMaster or
@@ -1684,6 +1729,11 @@ internal static class CustomRolesHelper
            CustomRoles.PlagueBearer => CountTypes.PlagueBearer,
            CustomRoles.Parasite => CountTypes.Impostor,
            CustomRoles.NSerialKiller => CountTypes.NSerialKiller,
+           CustomRoles.Enderman => CountTypes.Enderman,
+           CustomRoles.Mycologist => CountTypes.Mycologist,
+           CustomRoles.Bubble => CountTypes.Bubble,
+           CustomRoles.Hookshot => CountTypes.Hookshot,
+           CustomRoles.Sprayer => CountTypes.Sprayer,
            CustomRoles.PlagueDoctor => CountTypes.PlagueDoctor,
            CustomRoles.Magician => CountTypes.Magician,
            CustomRoles.WeaponMaster => CountTypes.WeaponMaster,
@@ -1741,6 +1791,11 @@ public enum CountTypes
     NWitch,
     Wraith,
     NSerialKiller,
+    Enderman,
+    Mycologist,
+    Bubble,
+    Hookshot,
+    Sprayer,
     PlagueDoctor,
     Magician,
     WeaponMaster,

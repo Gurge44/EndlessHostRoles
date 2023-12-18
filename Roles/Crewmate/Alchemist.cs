@@ -154,7 +154,7 @@ namespace TOHE.Roles.Crewmate
                         var tar1 = AllAlivePlayer[player.PlayerId];
                         AllAlivePlayer.Remove(tar1);
                         var tar2 = AllAlivePlayer[rd.Next(0, AllAlivePlayer.Count)];
-                        tar1.TP(tar2.Pos());
+                        tar1.TP(tar2);
                         tar1.RPCPlayCustomSound("Teleport");
                     }, !isPet ? 2f : 0.1f);
                     break;
@@ -307,7 +307,7 @@ namespace TOHE.Roles.Crewmate
                 }
                 if (FixNextSabo) str.Append("\n<b><color=#3333ff>Quick Fix Potion</color></b> waiting for use");
             }
-            if (UsePets.GetBool() && Main.PetCD.TryGetValue(pc.PlayerId, out var CD))
+            if (UsePets.GetBool() && Main.AbilityCD.TryGetValue(pc.PlayerId, out var CD))
             {
                 str.Append($"\n<color=#00ffa5>CD:</color> <b>{CD.TOTALCD - (Utils.GetTimeStamp() - CD.START_TIMESTAMP) + 1}</b>s");
             }

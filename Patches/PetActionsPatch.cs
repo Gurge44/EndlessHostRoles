@@ -93,9 +93,9 @@ class ExternalRpcPetPatch
             Pelican.IsEaten(pc.PlayerId))
             return;
 
-        if (Main.PetCD.ContainsKey(pc.PlayerId)) return;
+        if (pc.HasAbilityCD()) return;
 
-        Utils.AddPetCD(pc.GetCustomRole(), pc.PlayerId);
+        pc.AddAbilityCD();
 
         switch (pc.GetCustomRole())
         {
@@ -284,7 +284,7 @@ class ExternalRpcPetPatch
             // Impostors
 
             case CustomRoles.Sniper:
-                if (!Sniper.IsAim[pc.PlayerId]) Main.PetCD.Remove(pc.PlayerId);
+                if (!Sniper.IsAim[pc.PlayerId]) Main.AbilityCD.Remove(pc.PlayerId);
                 Sniper.OnShapeshift(pc, !Sniper.IsAim[pc.PlayerId]);
                 break;
             case CustomRoles.Warlock:
@@ -432,6 +432,18 @@ class ExternalRpcPetPatch
                 break;
             case CustomRoles.WeaponMaster:
                 WeaponMaster.SwitchMode();
+                break;
+            case CustomRoles.Enderman:
+                Enderman.MarkPosition();
+                break;
+            case CustomRoles.Mycologist when Mycologist.SpreadAction.GetValue() == 2:
+                Mycologist.SpreadSpores();
+                break;
+            case CustomRoles.Hookshot:
+                Hookshot.ExecuteAction();
+                break;
+            case CustomRoles.Sprayer:
+                Sprayer.PlaceTrap();
                 break;
         }
     }

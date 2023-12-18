@@ -125,7 +125,7 @@ public static class Magician
         {
             case 1: // Slowness for everyone nearby
                 if (TempSpeeds.Any()) RevertSpeedChanges(true);
-                var list = GetPlayersInRadius(SlownessRadius.GetFloat(), pc.Pos()).ToArray();
+                var list = GetPlayersInRadius(SlownessRadius.GetFloat(), pc.Pos());
                 foreach (var x in list)
                 {
                     if (x.PlayerId == pc.PlayerId || x == null) continue;
@@ -196,7 +196,7 @@ public static class Magician
                 }
                 break;
             case 6: // Blind everyone nearby
-                var players = GetPlayersInRadius(BlindRadius.GetFloat(), pc.Pos()).ToArray();
+                var players = GetPlayersInRadius(BlindRadius.GetFloat(), pc.Pos());
                 foreach (PlayerControl x in players)
                 {
                     if (x.PlayerId == pc.PlayerId || x == null) continue;
@@ -305,7 +305,7 @@ public static class Magician
             foreach (var bomb in Bombs.Where(bomb => bomb.Value + BombDelay.GetInt() < GetTimeStamp()))
             {
                 bool b = false;
-                var players = GetPlayersInRadius(BombRadius.GetFloat(), bomb.Key).ToArray();
+                var players = GetPlayersInRadius(BombRadius.GetFloat(), bomb.Key);
                 foreach (PlayerControl tg in players)
                 {
                     if (tg.PlayerId == pc.PlayerId)

@@ -100,7 +100,7 @@ internal static class Assassin
             {
                 if (!(target == null || !target.IsAlive() || Pelican.IsEaten(target.PlayerId) || target.inVent || !GameStates.IsInTask))
                 {
-                    pc.TP(target.Pos());
+                    pc.TP(target);
                     if (pc.RpcCheckAndMurder(target))
                     {
                         MarkedPlayer.Remove(pc.PlayerId);

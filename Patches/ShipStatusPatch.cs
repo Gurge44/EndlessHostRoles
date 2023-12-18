@@ -115,6 +115,15 @@ class RepairSystemPatch
                     case CustomRoles.WeaponMaster:
                         WeaponMaster.SwitchMode();
                         return false;
+                    case CustomRoles.Enderman:
+                        Enderman.MarkPosition();
+                        return false;
+                    case CustomRoles.Mycologist when Mycologist.SpreadAction.GetValue() == 1:
+                        Mycologist.SpreadSpores();
+                        return false;
+                    case CustomRoles.Sprayer:
+                        Sprayer.PlaceTrap();
+                        return false;
                     case CustomRoles.Jackal when Jackal.CanUseSabotage.GetBool():
                         return true;
                     case CustomRoles.Sidekick when Jackal.CanUseSabotageSK.GetBool():

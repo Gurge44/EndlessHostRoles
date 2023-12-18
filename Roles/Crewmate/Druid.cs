@@ -263,7 +263,7 @@ namespace TOHE.Roles.Crewmate
 
             if (!Triggers.TryGetValue(id, out var triggers)) return sb.ToString();
 
-            string GetCD_HUDText() => !UsePets.GetBool() || !Main.PetCD.TryGetValue(id, out var CD)
+            string GetCD_HUDText() => !UsePets.GetBool() || !Main.AbilityCD.TryGetValue(id, out var CD)
                     ? string.Empty
                     : string.Format(GetString("CDPT"), CD.TOTALCD - (GetTimeStamp() - CD.START_TIMESTAMP) + 1);
 

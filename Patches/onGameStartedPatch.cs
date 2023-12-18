@@ -294,6 +294,11 @@ internal class ChangeRoleSettings
             Merchant.Init();
             Mastermind.Init();
             NSerialKiller.Init();
+            Enderman.Init();
+            Mycologist.Init();
+            Bubble.Init();
+            Hookshot.Init();
+            Sprayer.Init();
             PlagueDoctor.Init();
             Penguin.Init();
             Stealth.Init();
@@ -977,6 +982,21 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.NSerialKiller:
                         NSerialKiller.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Enderman:
+                        Enderman.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Mycologist:
+                        Mycologist.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Bubble:
+                        Bubble.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Hookshot:
+                        Hookshot.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Sprayer:
+                        Sprayer.Add(pc.PlayerId);
                         break;
                     case CustomRoles.PlagueDoctor:
                         PlagueDoctor.Add(pc.PlayerId);
