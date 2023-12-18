@@ -3515,6 +3515,9 @@ class CoEnterVentPatch
             case CustomRoles.Chameleon:
                 Chameleon.OnCoEnterVent(__instance, id);
                 break;
+            case CustomRoles.Mole:
+                Mole.OnCoEnterVent(__instance);
+                break;
             case CustomRoles.Alchemist when Alchemist.PotionID == 6:
                 Alchemist.OnCoEnterVent(__instance, id);
                 break;

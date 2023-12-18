@@ -280,6 +280,9 @@ class ExternalRpcPetPatch
                 }
                 else Main.TunnelerPositions[pc.PlayerId] = pc.Pos();
                 break;
+            case CustomRoles.Tornado:
+                Tornado.SpawnTornado(pc);
+                break;
 
             // Impostors
 

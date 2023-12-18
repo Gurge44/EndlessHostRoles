@@ -299,7 +299,8 @@ public class TaskState
         if (AmongUsClient.Instance.AmHost)
         {
             //FIXME:SpeedBooster class transplant
-            if (player.IsAlive()
+            bool alive = player.IsAlive();
+            if (alive
             && player.Is(CustomRoles.SpeedBooster)
             && ((CompletedTasksCount + 1) <= Options.SpeedBoosterTimes.GetInt()))
             {
@@ -344,7 +345,7 @@ public class TaskState
             */
 
             //传送师完成任务
-            if (player.IsAlive()
+            if (alive
             && player.Is(CustomRoles.Transporter)
             && ((CompletedTasksCount + 1) <= Options.TransporterTeleportMax.GetInt()))
             {
@@ -369,7 +370,7 @@ public class TaskState
                     player.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), string.Format(Translator.GetString("ErrorTeleport"), player.GetRealName())));
                 }
             }
-            if (player.Is(CustomRoles.Unlucky) && player.IsAlive())
+            if (player.Is(CustomRoles.Unlucky) && alive)
             {
                 var Ue = IRandom.Instance;
                 if (Ue.Next(0, 100) < Options.UnluckyTaskSuicideChance.GetInt())
@@ -379,13 +380,13 @@ public class TaskState
                 }
             }
 
-            if (player.IsAlive() && Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId))
+            if (alive && Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId))
             {
                 Mastermind.OnManipulatedPlayerTaskComplete(player);
             }
 
             // Ability Use Gain with this task completed
-            if (player.IsAlive())
+            if (alive)
             {
                 switch (player.GetCustomRole())
                 {
@@ -479,7 +480,7 @@ public class TaskState
                 }
             }
 
-            if (player.IsAlive())
+            if (alive)
             {
                 switch (player.GetCustomRole())
                 {
@@ -502,7 +503,7 @@ public class TaskState
                 }
             }
 
-            if (player.Is(CustomRoles.Ghoul) && (CompletedTasksCount + 1) >= AllTasksCount && player.IsAlive())
+            if (player.Is(CustomRoles.Ghoul) && (CompletedTasksCount + 1) >= AllTasksCount && alive)
             {
                 _ = new LateTask(() =>
                 {
@@ -510,7 +511,7 @@ public class TaskState
                 }, 0.2f, "Ghoul Suicide");
             }
 
-            if (player.Is(CustomRoles.Ghoul) && (CompletedTasksCount + 1) >= AllTasksCount && !player.IsAlive())
+            if (player.Is(CustomRoles.Ghoul) && (CompletedTasksCount + 1) >= AllTasksCount && !alive)
             {
                 foreach (var pc in Main.AllPlayerControls.Where(pc => !pc.Is(CustomRoles.Pestilence) && Main.KillGhoul.Contains(pc.PlayerId) && player.PlayerId != pc.PlayerId && pc.IsAlive()).ToArray())
                 {
@@ -526,7 +527,7 @@ public class TaskState
 
             //工作狂做完了
             if (player.Is(CustomRoles.Workaholic) && (CompletedTasksCount + 1) >= AllTasksCount
-                    && !(Options.WorkaholicCannotWinAtDeath.GetBool() && !player.IsAlive()))
+                    && !(Options.WorkaholicCannotWinAtDeath.GetBool() && !alive))
             {
                 Logger.Info("工作狂任务做完了", "Workaholic");
                 RPC.PlaySoundRPC(player.PlayerId, Sounds.KillSound);
@@ -539,7 +540,7 @@ public class TaskState
                 CustomWinnerHolder.WinnerIds.Add(player.PlayerId);
             }
 
-            if (player.Is(CustomRoles.Speedrunner) && player.IsAlive())
+            if (player.Is(CustomRoles.Speedrunner) && alive)
             {
                 var completedTasks = CompletedTasksCount + 1;
                 int remainingTasks = AllTasksCount - completedTasks;
@@ -560,6 +561,9 @@ public class TaskState
                 }
             }
 
+            if (player.Is(CustomRoles.Electric))
+                Electric.OnTaskComplete(player);
+
             if (player.Is(CustomRoles.Stressed)) Stressed.OnTaskComplete(player);
 
             if (player.Is(CustomRoles.Insight))
@@ -571,8 +575,8 @@ public class TaskState
             }
 
             Merchant.OnTaskFinished(player);
-            if (player.Is(CustomRoles.Ignitor) && player.IsAlive()) Ignitor.OnCompleteTask(player);
-            if (player.Is(CustomRoles.Ignitor) && (CompletedTasksCount + 1) >= AllTasksCount && player.IsAlive()) Ignitor.OnTasksFinished(player);
+            if (player.Is(CustomRoles.Ignitor) && alive) Ignitor.OnCompleteTask(player);
+            if (player.Is(CustomRoles.Ignitor) && (CompletedTasksCount + 1) >= AllTasksCount && alive) Ignitor.OnTasksFinished(player);
 
             //船鬼要抽奖啦
             if (player.Is(CustomRoles.Crewpostor))

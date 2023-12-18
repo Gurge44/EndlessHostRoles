@@ -973,6 +973,9 @@ public static class Utils
                     ProgressText.Append(ColorString(TextColor1, $"<color=#777777>-</color> {Completed1}/{taskState1.AllTasksCount}"));
                     ProgressText.Append($" <color=#777777>-</color> <color=#00ffa5>{totalCompleted1}</color><color=#ffffff>/{GameData.Instance.TotalTasks}</color>");
                     break;
+                case CustomRoles.Philantropist:
+                    ProgressText.Append(Philantropist.GetProgressText(playerId));
+                    break;
                 case CustomRoles.CameraMan:
                     ProgressText.Append(CameraMan.GetProgressText(playerId, comms));
                     break;
@@ -2526,37 +2529,39 @@ public static class Utils
     }
     public static void AddAbilityCD(CustomRoles role, byte playerId, bool includeDuration = true)
     {
-        long now = GetTimeStamp();
-        Main.AbilityCD[playerId] = role switch
+        int CD = role switch
         {
-            CustomRoles.Doormaster => (now, Doormaster.VentCooldown.GetInt()),
-            CustomRoles.Tether => (now, Tether.VentCooldown.GetInt()),
-            CustomRoles.Mayor => (now, (int)Math.Round(Options.DefaultKillCooldown)),
-            CustomRoles.Paranoia => (now, (int)Math.Round(Options.DefaultKillCooldown)),
-            CustomRoles.Grenadier => (now, Options.GrenadierSkillCooldown.GetInt() + (includeDuration ? Options.GrenadierSkillDuration.GetInt() : 0)),
-            CustomRoles.Lighter => (now, Options.LighterSkillCooldown.GetInt() + (includeDuration ? Options.LighterSkillDuration.GetInt() : 0)),
-            CustomRoles.SecurityGuard => (now, Options.SecurityGuardSkillCooldown.GetInt() + (includeDuration ? Options.SecurityGuardSkillDuration.GetInt() : 0)),
-            CustomRoles.TimeMaster => (now, Options.TimeMasterSkillCooldown.GetInt() + (includeDuration ? Options.TimeMasterSkillDuration.GetInt() : 0)),
-            CustomRoles.Veteran => (now, Options.VeteranSkillCooldown.GetInt() + (includeDuration ? Options.VeteranSkillDuration.GetInt() : 0)),
-            CustomRoles.DovesOfNeace => (now, Options.DovesOfNeaceCooldown.GetInt()),
-            CustomRoles.Alchemist => (now, Alchemist.VentCooldown.GetInt()),
-            CustomRoles.NiceHacker => (now, NiceHacker.AbilityCD.GetInt()),
-            CustomRoles.CameraMan => (now, CameraMan.VentCooldown.GetInt()),
-            CustomRoles.Sniper => (now, Options.DefaultShapeshiftCooldown.GetInt()),
-            CustomRoles.Assassin => (now, Assassin.AssassinateCooldown.GetInt()),
-            CustomRoles.Undertaker => (now, Undertaker.AssassinateCooldown.GetInt()),
-            CustomRoles.Bomber => (now, Options.BombCooldown.GetInt()),
-            CustomRoles.Nuker => (now, Options.NukeCooldown.GetInt()),
-            CustomRoles.Sapper => (now, Sapper.ShapeshiftCooldown.GetInt()),
-            CustomRoles.Druid => (now, Druid.VentCooldown.GetInt()),
-            CustomRoles.Miner => (now, Options.MinerSSCD.GetInt()),
-            CustomRoles.Escapee => (now, Options.EscapeeSSCD.GetInt()),
-            CustomRoles.QuickShooter => (now, QuickShooter.ShapeshiftCooldown.GetInt()),
-            CustomRoles.Disperser => (now, Disperser.DisperserShapeshiftCooldown.GetInt()),
-            CustomRoles.Twister => (now, Twister.ShapeshiftCooldown.GetInt()),
-            _ => (now, -1),
+            CustomRoles.Doormaster => Doormaster.VentCooldown.GetInt(),
+            CustomRoles.Tether => Tether.VentCooldown.GetInt(),
+            CustomRoles.Mayor => (int)Math.Round(Options.DefaultKillCooldown),
+            CustomRoles.Paranoia => (int)Math.Round(Options.DefaultKillCooldown),
+            CustomRoles.Grenadier => Options.GrenadierSkillCooldown.GetInt() + (includeDuration ? Options.GrenadierSkillDuration.GetInt() : 0),
+            CustomRoles.Lighter => Options.LighterSkillCooldown.GetInt() + (includeDuration ? Options.LighterSkillDuration.GetInt() : 0),
+            CustomRoles.SecurityGuard => Options.SecurityGuardSkillCooldown.GetInt() + (includeDuration ? Options.SecurityGuardSkillDuration.GetInt() : 0),
+            CustomRoles.TimeMaster => Options.TimeMasterSkillCooldown.GetInt() + (includeDuration ? Options.TimeMasterSkillDuration.GetInt() : 0),
+            CustomRoles.Veteran => Options.VeteranSkillCooldown.GetInt() + (includeDuration ? Options.VeteranSkillDuration.GetInt() : 0),
+            CustomRoles.DovesOfNeace => Options.DovesOfNeaceCooldown.GetInt(),
+            CustomRoles.Alchemist => Alchemist.VentCooldown.GetInt(),
+            CustomRoles.NiceHacker => NiceHacker.AbilityCD.GetInt(),
+            CustomRoles.CameraMan => CameraMan.VentCooldown.GetInt(),
+            CustomRoles.Tornado => Tornado.TornadoCooldown.GetInt(),
+            CustomRoles.Sniper => Options.DefaultShapeshiftCooldown.GetInt(),
+            CustomRoles.Assassin => Assassin.AssassinateCooldown.GetInt(),
+            CustomRoles.Undertaker => Undertaker.AssassinateCooldown.GetInt(),
+            CustomRoles.Bomber => Options.BombCooldown.GetInt(),
+            CustomRoles.Nuker => Options.NukeCooldown.GetInt(),
+            CustomRoles.Sapper => Sapper.ShapeshiftCooldown.GetInt(),
+            CustomRoles.Druid => Druid.VentCooldown.GetInt(),
+            CustomRoles.Miner => Options.MinerSSCD.GetInt(),
+            CustomRoles.Escapee => Options.EscapeeSSCD.GetInt(),
+            CustomRoles.QuickShooter => QuickShooter.ShapeshiftCooldown.GetInt(),
+            CustomRoles.Disperser => Disperser.DisperserShapeshiftCooldown.GetInt(),
+            CustomRoles.Twister => Twister.ShapeshiftCooldown.GetInt(),
+            _ => -1,
         };
-        if (Main.AbilityCD.TryGetValue(playerId, out var petCD) && petCD.TOTALCD < 0) Main.AbilityCD.Remove(playerId);
+        if (CD == -1) return;
+
+        Main.AbilityCD[playerId] = (GetTimeStamp(), CD);
     }
     public static void AfterMeetingTasks()
     {

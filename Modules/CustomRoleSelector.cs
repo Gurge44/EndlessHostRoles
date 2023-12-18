@@ -98,6 +98,7 @@ internal class CustomRoleSelector
                 case CustomRoles.Pelican when roleList.Contains(CustomRoles.Duellist):
                 case CustomRoles.Duellist when roleList.Contains(CustomRoles.Pelican):
                 case CustomRoles.Tunneler when !Options.UsePets.GetBool():
+                case CustomRoles.Tornado when !Options.UsePets.GetBool():
                 case CustomRoles.GM:
                 case CustomRoles.NotAssigned:
                     continue;

@@ -112,16 +112,17 @@ public static class Divinator
                 CustomRoles.Farseer or
                 CustomRoles.Arsonist or
                 CustomRoles.Assassin or
+                CustomRoles.Tornado or
                 CustomRoles.Undertaker or
                 CustomRoles.BallLightning or
                 CustomRoles.Collector
                 => "Result2",
 
                 CustomRoles.Capitalism or
-                //CustomRoles.Counterfeiter or
                 CustomRoles.Witness or
                 CustomRoles.Greedier or
                 CustomRoles.Consort or
+                CustomRoles.Philantropist or
                 CustomRoles.Ventguard or
                 CustomRoles.Merchant or
                 CustomRoles.Trickster
@@ -130,6 +131,7 @@ public static class Divinator
                 CustomRoles.Pestilence or
                 CustomRoles.PlagueBearer or
                 CustomRoles.Observer or
+                CustomRoles.Electric or
                 CustomRoles.DonutDelivery or
                 CustomRoles.BloodKnight or
                 CustomRoles.Guardian or
@@ -138,9 +140,9 @@ public static class Divinator
 
                 CustomRoles.Bard or
                 CustomRoles.Juggernaut or
-                //CustomRoles.Reverie or
                 CustomRoles.SecurityGuard or
                 CustomRoles.Sans or
+                CustomRoles.Sentinel or
                 CustomRoles.Ricochet or
                 CustomRoles.Minimalism or
                 CustomRoles.OverKiller
@@ -150,6 +152,7 @@ public static class Divinator
                 CustomRoles.EvilTracker or
                 CustomRoles.Mortician or
                 CustomRoles.Stealth or
+                CustomRoles.Mole or
                 CustomRoles.Tracefinder or
                 CustomRoles.Romantic or
                 CustomRoles.Tracker
@@ -160,7 +163,6 @@ public static class Divinator
                 CustomRoles.Bomber or
                 CustomRoles.FireWorks or
                 CustomRoles.Lookout or
-                CustomRoles.Sprayer or
                 CustomRoles.RuthlessRomantic or
                 CustomRoles.VengefulRomantic or
                 CustomRoles.Nuker
@@ -170,7 +172,7 @@ public static class Divinator
                 CustomRoles.Detective or
                 CustomRoles.FFF or
                 CustomRoles.Mafioso or
-                CustomRoles.Hookshot or
+                CustomRoles.Sprayer or
                 CustomRoles.Cleaner or
                 CustomRoles.Medusa or
                 CustomRoles.Psychic
@@ -180,7 +182,7 @@ public static class Divinator
                 CustomRoles.Executioner or
                 CustomRoles.Lawyer or
                 CustomRoles.Snitch or
-                CustomRoles.Bubble or
+                CustomRoles.Hookshot or
                 CustomRoles.Penguin or
                 CustomRoles.Disperser or
                 CustomRoles.Doctor
@@ -190,7 +192,7 @@ public static class Divinator
                 CustomRoles.Dictator or
                 CustomRoles.Judge or
                 CustomRoles.Escort or
-                CustomRoles.Hookshot or
+                CustomRoles.Bubble or
                 CustomRoles.CursedSoul or
                 CustomRoles.Cleanser or
                 CustomRoles.CursedWolf

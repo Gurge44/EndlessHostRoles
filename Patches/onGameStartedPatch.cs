@@ -297,6 +297,7 @@ internal class ChangeRoleSettings
             Enderman.Init();
             Mycologist.Init();
             Bubble.Init();
+            Tornado.Init();
             Hookshot.Init();
             Sprayer.Init();
             PlagueDoctor.Init();
@@ -991,6 +992,9 @@ internal class SelectRolesPatch
                         break;
                     case CustomRoles.Bubble:
                         Bubble.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Tornado:
+                        Tornado.Add(pc.PlayerId);
                         break;
                     case CustomRoles.Hookshot:
                         Hookshot.Add(pc.PlayerId);

@@ -1522,6 +1522,16 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Demolitionist]);
         RoleLoadingText = "Crewmate roles\nTask Manager";
         SetupRoleOptions(5575, TabGroup.CrewmateRoles, CustomRoles.TaskManager);
+        RoleLoadingText = "Crewmate roles\nMole";
+        Mole.SetupCustomOption();
+        RoleLoadingText = "Crewmate roles\nSentinel";
+        Sentinel.SetupCustomOption();
+        RoleLoadingText = "Crewmate roles\nElectric";
+        Electric.SetupCustomOption();
+        RoleLoadingText = "Crewmate roles\nPhilantropist";
+        Philantropist.SetupCustomOption();
+        RoleLoadingText = "Crewmate roles\nTornado";
+        Tornado.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nDruid";
         Druid.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nInsight";

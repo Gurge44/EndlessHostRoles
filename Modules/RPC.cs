@@ -1437,6 +1437,9 @@ internal static class RPC
             case CustomRoles.Bubble:
                 Bubble.Add(targetId);
                 break;
+            case CustomRoles.Tornado:
+                Tornado.Add(targetId);
+                break;
             case CustomRoles.Hookshot:
                 Hookshot.Add(targetId);
                 break;
