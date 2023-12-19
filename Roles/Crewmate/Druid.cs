@@ -154,7 +154,7 @@ namespace TOHE.Roles.Crewmate
 
             if (isPet)
             {
-                var (LOCATION, ROOM_NAME) = GetTriggerInfo(pc);
+                var (LOCATION, ROOM_NAME) = pc.GetPositionInfo();
                 if (!Triggers.ContainsKey(pc.PlayerId)) Triggers.Add(pc.PlayerId, []);
                 Triggers[pc.PlayerId].TryAdd(LOCATION, ROOM_NAME);
                 SendRPCAddTrigger(pc.PlayerId, LOCATION, ROOM_NAME);
@@ -188,7 +188,7 @@ namespace TOHE.Roles.Crewmate
                     if (x.Value + TriggerPlaceDelay.GetInt() < now)
                     {
                         TriggerDelays.Remove(id);
-                        var (LOCATION, ROOM_NAME) = GetTriggerInfo(pc);
+                        var (LOCATION, ROOM_NAME) = pc.GetPositionInfo();
                         if (!Triggers.ContainsKey(id)) Triggers.Add(id, []);
                         Triggers[id].TryAdd(LOCATION, ROOM_NAME);
                         SendRPCAddTrigger(id, LOCATION, ROOM_NAME);
@@ -223,17 +223,6 @@ namespace TOHE.Roles.Crewmate
             SendRPCSyncLastUpdate();
         }
 
-        private static (Vector2 LOCATION, string ROOM_NAME) GetTriggerInfo(PlayerControl pc)
-        {
-            PlainShipRoom room = pc.GetPlainShipRoom();
-            string roomName = room == null ? "Outside" : room.name;
-            Vector2 pos = pc.Pos();
-
-            return (pos, roomName);
-        }
-        private static string GetFormattedRoomName(string roomName) => roomName == "Outside" ? "<color=#00ffa5>Outside</color>" : $"In <color=#00ffa5>{roomName}</color>";
-        private static string GetFormattedVectorText(Vector2 pos) => $"<color=#777777>(at {pos.ToString().Replace("(", string.Empty).Replace(")", string.Empty)})</color>";
-
         public static string GetSuffixText(byte playerId)
         {
             if (!IsEnable) return string.Empty;
@@ -244,7 +233,7 @@ namespace TOHE.Roles.Crewmate
             var sb = new StringBuilder();
             sb.Append("\n<size=1.7>");
 
-            sb.AppendLine($"<color=#00ffa5>{triggers.Count}</color> trigger{(triggers.Count == 1 ? string.Empty : 's')} active");
+            sb.AppendLine($"<#00ffa5>{triggers.Count}</color> trigger{(triggers.Count == 1 ? string.Empty : 's')} active");
             sb.Append(string.Join(", ", triggers.Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));
 
             sb.Append("</size>");
@@ -267,7 +256,7 @@ namespace TOHE.Roles.Crewmate
                     ? string.Empty
                     : string.Format(GetString("CDPT"), CD.TOTALCD - (GetTimeStamp() - CD.START_TIMESTAMP) + 1);
 
-            sb.AppendLine($"<color=#00ffa5>{triggers.Count}</color> trigger{(triggers.Count == 1 ? string.Empty : 's')} active");
+            sb.AppendLine($"<#00ffa5>{triggers.Count}</color> trigger{(triggers.Count == 1 ? string.Empty : 's')} active");
             sb.Append(string.Join('\n', triggers.Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));
 
             return sb.ToString();

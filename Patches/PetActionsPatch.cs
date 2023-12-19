@@ -95,8 +95,6 @@ class ExternalRpcPetPatch
 
         if (pc.HasAbilityCD()) return;
 
-        pc.AddAbilityCD();
-
         switch (pc.GetCustomRole())
         {
             // Crewmates
@@ -449,5 +447,7 @@ class ExternalRpcPetPatch
                 Sprayer.PlaceTrap();
                 break;
         }
+
+        pc.AddAbilityCD();
     }
 }

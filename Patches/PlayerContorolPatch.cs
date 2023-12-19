@@ -2094,6 +2094,9 @@ class FixedUpdatePatch
                 case CustomRoles.BountyHunter:
                     BountyHunter.FixedUpdate(player);
                     break;
+                case CustomRoles.Tornado when !lowLoad:
+                    Tornado.OnFixedUpdate(player);
+                    break;
                 case CustomRoles.Glitch when !lowLoad:
                     Glitch.UpdateHackCooldown(player);
                     break;
@@ -2925,6 +2928,9 @@ class FixedUpdatePatch
                             break;
                         case CustomRoles.Hookshot when !seer.IsModClient():
                             Suffix.Append(Hookshot.SuffixText);
+                            break;
+                        case CustomRoles.Tornado when !seer.IsModClient():
+                            Suffix.Append(Tornado.GetSuffixText(seer.PlayerId));
                             break;
                     }
                 }

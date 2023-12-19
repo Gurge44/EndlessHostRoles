@@ -709,6 +709,8 @@ public static class Utils
         if (Options.UsePets.GetBool() && Main.AbilityCD.TryGetValue(pc.PlayerId, out var time) && !pc.IsModClient())
             sb.Append(string.Format(GetString("CDPT"), time.TOTALCD - (GetTimeStamp() - time.START_TIMESTAMP) + 1));
     }
+    public static string GetFormattedRoomName(string roomName) => roomName == "Outside" ? "<#00ffa5>Outside</color>" : $"<#ffffff>In</color> <#00ffa5>{roomName}</color>";
+    public static string GetFormattedVectorText(Vector2 pos) => $"<#777777>(at {pos.ToString().Replace("(", string.Empty).Replace(")", string.Empty)})</color>";
     public static string GetProgressText(PlayerControl pc)
     {
         if (!Main.playerVersion.ContainsKey(0)) return string.Empty; //ホストがMODを入れていなければ未記入を返す
@@ -2022,6 +2024,9 @@ public static class Utils
                             break;
                         case CustomRoles.Postman when !seer.IsModClient():
                             SelfSuffix.Append(Postman.TargetText);
+                            break;
+                        case CustomRoles.Tornado when !seer.IsModClient():
+                            SelfSuffix.Append(Tornado.GetSuffixText(seer.PlayerId));
                             break;
                         case CustomRoles.Mortician:
                             SelfSuffix.Append(Mortician.GetTargetArrow(seer));

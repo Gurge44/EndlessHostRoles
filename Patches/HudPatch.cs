@@ -561,6 +561,7 @@ class HudManagerPatch
                         CustomRoles.PlagueDoctor => PlagueDoctor.GetLowerTextOthers(player, isForHud: true),
                         CustomRoles.Stealth => Stealth.GetSuffix(player, isHUD: true),
                         CustomRoles.Hookshot => Hookshot.SuffixText,
+                        CustomRoles.Tornado => Tornado.GetSuffixText(player.PlayerId, isHUD: true),
                         _ => string.Empty,
                     },
                     _ => string.Empty,

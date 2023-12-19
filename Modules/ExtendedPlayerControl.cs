@@ -1340,6 +1340,14 @@ static class ExtendedPlayerControl
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.Exiled, SendOption.None, -1);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+    public static (Vector2 LOCATION, string ROOM_NAME) GetPositionInfo(this PlayerControl pc)
+    {
+        PlainShipRoom room = pc.GetPlainShipRoom();
+        string roomName = room == null ? "Outside" : room.name;
+        Vector2 pos = pc.Pos();
+
+        return (pos, roomName);
+    }
     public static void TP(this PlayerControl pc, PlayerControl target)
     {
         Utils.TP(pc.NetTransform, target.Pos());
