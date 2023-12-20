@@ -18,6 +18,8 @@ namespace TOHE.Roles.Crewmate
         private static OptionItem TornadoDuration;
         private static OptionItem TornadoRange;
 
+        private static readonly Dictionary<string, string> replacementDict = new() { { "Tornado", ColorString(GetRoleColor(CustomRoles.Tornado), "Tornado") } };
+
         private static RandomSpawn.SpawnMap Map;
         private static readonly Dictionary<(Vector2 LOCATION, string ROOM_NAME), long> Tornados = [];
         private static long LastNotify = GetTimeStamp();
@@ -27,16 +29,17 @@ namespace TOHE.Roles.Crewmate
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Tornado);
             TornadoCooldown = IntegerOptionItem.Create(Id + 2, "TornadoCooldown", new(1, 90, 1), 15, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Tornado])
-                .SetValueFormat(OptionFormat.Seconds)
-                .AddReplacement(new("Tornado", $"<{Main.roleColors[CustomRoles.Tornado]}>Tornado</color>"));
+                .SetValueFormat(OptionFormat.Seconds);
             TornadoDuration = IntegerOptionItem.Create(Id + 3, "TornadoDuration", new(1, 90, 1), 25, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Tornado])
-                .SetValueFormat(OptionFormat.Seconds)
-                .AddReplacement(new("Tornado", $"<{Main.roleColors[CustomRoles.Tornado]}>Tornado</color>"));
+                .SetValueFormat(OptionFormat.Seconds);
             TornadoRange = FloatOptionItem.Create(Id + 4, "TornadoRange", new(0.5f, 25f, 0.5f), 3f, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Tornado])
-                .SetValueFormat(OptionFormat.Multiplier)
-                .AddReplacement(new("Tornado", $"<{Main.roleColors[CustomRoles.Tornado]}>Tornado</color>"));
+                .SetValueFormat(OptionFormat.Multiplier);
+
+            TornadoCooldown.ReplacementDictionary = replacementDict;
+            TornadoDuration.ReplacementDictionary = replacementDict;
+            TornadoRange.ReplacementDictionary = replacementDict;
         }
         public static void Init()
         {
