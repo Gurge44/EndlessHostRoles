@@ -28,15 +28,15 @@ namespace TOHE.Roles.Crewmate
             TornadoCooldown = IntegerOptionItem.Create(Id + 2, "TornadoCooldown", new(1, 90, 1), 15, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Tornado])
                 .SetValueFormat(OptionFormat.Seconds)
-                .AddReplacement(("Tornado", $"<{Main.roleColors[CustomRoles.Tornado]}>Tornado</color>"));
+                .AddReplacement(new("Tornado", $"<{Main.roleColors[CustomRoles.Tornado]}>Tornado</color>"));
             TornadoDuration = IntegerOptionItem.Create(Id + 3, "TornadoDuration", new(1, 90, 1), 25, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Tornado])
                 .SetValueFormat(OptionFormat.Seconds)
-                .AddReplacement(("Tornado", $"<{Main.roleColors[CustomRoles.Tornado]}>Tornado</color>"));
+                .AddReplacement(new("Tornado", $"<{Main.roleColors[CustomRoles.Tornado]}>Tornado</color>"));
             TornadoRange = FloatOptionItem.Create(Id + 4, "TornadoRange", new(0.5f, 25f, 0.5f), 3f, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Tornado])
                 .SetValueFormat(OptionFormat.Multiplier)
-                .AddReplacement(("Tornado", $"<{Main.roleColors[CustomRoles.Tornado]}>Tornado</color>"));
+                .AddReplacement(new("Tornado", $"<{Main.roleColors[CustomRoles.Tornado]}>Tornado</color>"));
         }
         public static void Init()
         {
