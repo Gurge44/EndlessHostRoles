@@ -26,7 +26,7 @@ namespace TOHE.Roles.Neutral
         private static OptionItem InfectRadius;
         private static OptionItem InfectTime;
 
-        public static List<byte> InfectedPlayers = [];
+        public static readonly List<byte> InfectedPlayers = [];
 
         public static void SetupCustomOption()
         {

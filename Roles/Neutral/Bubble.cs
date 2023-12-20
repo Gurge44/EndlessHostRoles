@@ -21,7 +21,7 @@ namespace TOHE.Roles.Neutral
         private static OptionItem BubbleDiesIfInRange;
         private static OptionItem ExplosionRadius;
 
-        public static Dictionary<byte, long> EncasedPlayers = [];
+        public static readonly Dictionary<byte, long> EncasedPlayers = [];
 
         public static void SetupCustomOption()
         {

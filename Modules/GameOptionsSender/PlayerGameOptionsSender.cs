@@ -644,6 +644,14 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     AURoleOptions.EngineerCooldown = Druid.VentCooldown.GetInt();
                     AURoleOptions.EngineerInVentMaxTime = 1f;
                     break;
+                case CustomRoles.Mole:
+                    AURoleOptions.EngineerInVentMaxTime = 1f;
+                    AURoleOptions.EngineerCooldown = 5f;
+                    break;
+                case CustomRoles.Sentinel:
+                    AURoleOptions.EngineerCooldown = Sentinel.PatrolCooldown.GetFloat();
+                    AURoleOptions.EngineerInVentMaxTime = 1f;
+                    break;
                 case CustomRoles.Spiritcaller:
                     opt.SetVision(Spiritcaller.ImpostorVision.GetBool());
                     break;

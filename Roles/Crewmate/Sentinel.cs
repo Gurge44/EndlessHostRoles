@@ -115,7 +115,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Crewmate, 1);
+            SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Sentinel, 1);
             PatrolCooldown = CreateCDSetting(Id + 2, TabGroup.CrewmateRoles, CustomRoles.Sentinel);
             PatrolDuration = IntegerOptionItem.Create(Id + 3, "SentinelPatrolDuration", new(1, 90, 1), 5, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sentinel])

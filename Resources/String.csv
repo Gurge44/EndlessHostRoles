@@ -2895,6 +2895,31 @@
 "HookshotInfo","","Pull Players or TP to them","","",""
 "HookshotInfoLong","","(Neutral):\nAs the Hookshot, you may mark a target by clicking on your target once. Double click to kill them normally.\n\nVent to switch between the 2 teleporting modes: Teleport Target to You / You Teleport to Target\n\nSabotage/Pet your pet to execute the current selected action mode after marking a target.","","",""
 
+"## Sprayer"
+"Sprayer","","Sprayer","","",""
+"SprayerInfo","","Place Traps","","",""
+"SprayerInfoLong","","(Neutral):\nAs the Sprayer, you can place traps by sabotaging/petting your pet.","","",""
+"NegativeEffectDuration","","Lower Vision/Speed Duration","","",""
+"SprayerMaxTrappedTimes","","Times a Player Has to Walk Into a Trap to Die","","",""
+
+"## Electric"
+"Electric","","Electric","","",""
+"ElectricInfo","","Shock Players","","",""
+"ElectricInfoLong","","(Crewmates):\nAs the Electric, when you complete a task, a random killer gets frozen for a few seconds.","","",""
+
+"## Mole"
+"Mole","","Mole","","",""
+"MoleInfo","","TP to Random Vents by Entering One","","",""
+"MoleInfoLong","","(Crewmates):\nAs the Mole, when you vent, you get kicked out and teleport to a random vent on the map.","","",""
+
+"## Tornado"
+"Tornado","","Tornado","","",""
+"TornadoInfo","","Spawn Tornados","","",""
+"TornadoInfoLong","","(Crewmates):\nAs the Tornado, you can spawn tornados by petting your pet. When someone walks close to a tornado, they fly (teleport) to a random place on the ship.","","",""
+"TornadoCooldown","","Tornado Spawn Cooldown","","",""
+"TornadoDuration","","Tornado Duration","","",""
+"TornadoRange","","Tornado Range","","",""
+
 "## Penguin"
 "Penguin","","Penguin","","",""
 "PenguinInfo","","Drag your victims","","",""
