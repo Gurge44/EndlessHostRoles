@@ -285,6 +285,7 @@ public static class GuessManager
                                 else pc.ShowPopUp(GetString("GuessSuperStar"));
                                 return true;
                             case CustomRoles.Glow:
+                            case CustomRoles.Sentinel:
                             case CustomRoles.LastImpostor:
                                 if (!isUI) Utils.SendMessage(GetString("GuessObviousAddon"), pc.PlayerId);
                                 else pc.ShowPopUp(GetString("GuessObviousAddon"));
@@ -1043,6 +1044,7 @@ public static class GuessManager
                     or CustomRoles.Impostor
                     or CustomRoles.Shapeshifter
                     or CustomRoles.Flashman
+                    or CustomRoles.Sentinel
                     or CustomRoles.NotAssigned
                     or CustomRoles.KB_Normal
                     //     or CustomRoles.Marshall 

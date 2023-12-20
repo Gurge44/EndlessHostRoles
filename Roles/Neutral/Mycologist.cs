@@ -74,9 +74,6 @@ namespace TOHE.Roles.Neutral
             }, InfectTime.GetFloat(), "Mycologist Infect Time");
         }
         public static bool OnCheckMurder(PlayerControl target) => IsEnable && target != null && InfectedPlayers.Contains(target.PlayerId);
-        public static void AfterMeetingTasks()
-        {
-            Mycologist_.AddAbilityCD(CD.GetInt());
-        }
+        public static void AfterMeetingTasks() => Mycologist_.AddAbilityCD(CD.GetInt());
     }
 }

@@ -542,10 +542,9 @@ public static class Options
     public static OptionItem MimicCanSeeDeadRoles;
     public static OptionItem ResetDoorsEveryTurns;
     public static OptionItem DoorsResetMode;
-
-    //public static OptionItem NSerialKillerKillCD;
-    //public static OptionItem NSerialKillerHasImpostorVision;
-    //public static OptionItem NSerialKillerCanVent;
+    public static OptionItem ChangeDecontaminationTime;
+    public static OptionItem DecontaminationTimeOnMiraHQ;
+    public static OptionItem DecontaminationTimeOnPolus;
 
     public static OptionItem ParasiteCD;
 
@@ -1529,7 +1528,7 @@ public static class Options
         RoleLoadingText = "Crewmate roles\nElectric";
         Electric.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nPhilantropist";
-        Philantropist.SetupCustomOption();
+        //Philantropist.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nTornado";
         Tornado.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nDruid";
@@ -2931,6 +2930,21 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetParent(ResetDoorsEveryTurns);
 
+        // Change decontamination time on MiraHQ/Polus
+        ChangeDecontaminationTime = BooleanOptionItem.Create(60503, "ChangeDecontaminationTime", false, TabGroup.GameSettings, false)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+        // Decontamination time on MiraHQ
+        DecontaminationTimeOnMiraHQ = FloatOptionItem.Create(60504, "DecontaminationTimeOnMiraHQ", new(0.5f, 10f, 0.25f), 3f, TabGroup.GameSettings, false)
+            .SetParent(ChangeDecontaminationTime)
+            .SetValueFormat(OptionFormat.Multiplier)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+        // Decontamination time on Polus
+        DecontaminationTimeOnPolus = FloatOptionItem.Create(60505, "DecontaminationTimeOnPolus", new(0.5f, 10f, 0.25f), 3f, TabGroup.GameSettings, false)
+            .SetParent(ChangeDecontaminationTime)
+            .SetValueFormat(OptionFormat.Multiplier)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
+
         LoadingPercentage = 70;
 
         // Sabotage
@@ -3714,6 +3728,12 @@ public static class Options
         CustomRoleSpawnChances.Add(role, spawnOption);
         CustomRoleCounts.Add(role, countOption);
     }
+
+    public static OptionItem CreateCDSetting(int id, TabGroup tab, CustomRoles role, bool isKCD = false) =>
+    FloatOptionItem.Create(id, isKCD ? "KillCooldown" : "AbilityCooldown", new(0f, 180f, 2.5f), 30f, tab, false)
+        .SetParent(CustomRoleSpawnChances[role])
+        .SetValueFormat(OptionFormat.Seconds);
+
     public class OverrideTasksData
     {
         public static Dictionary<CustomRoles, OverrideTasksData> AllData = [];

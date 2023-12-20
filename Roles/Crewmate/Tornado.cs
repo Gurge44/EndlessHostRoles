@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hazel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -55,10 +56,47 @@ namespace TOHE.Roles.Crewmate
             playerIdList.Add(playerId);
         }
         public static bool IsEnable => playerIdList.Count > 0;
+        private static void SendRPCAddTornado(Vector2 pos, string roomname, long timestamp)
+        {
+            if (!IsEnable || !DoRPC) return;
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.AddTornado, SendOption.Reliable, -1);
+            writer.Write(pos.x);
+            writer.Write(pos.y);
+            writer.Write(roomname);
+            writer.Write(timestamp.ToString());
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        private static void SendRPCRemoveTornado(Vector2 pos, string roomname)
+        {
+            if (!IsEnable || !DoRPC) return;
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RemoveTornado, SendOption.Reliable, -1);
+            writer.Write(pos.x);
+            writer.Write(pos.y);
+            writer.Write(roomname);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        public static void ReceiveRPCAddTornado(MessageReader reader)
+        {
+            float x = reader.ReadSingle();
+            float y = reader.ReadSingle();
+            string roomname = reader.ReadString();
+            long timestamp = long.Parse(reader.ReadString());
+            Tornados.Add((new(x, y), roomname), timestamp);
+        }
+        public static void ReceiveRPCRemoveTornado(MessageReader reader)
+        {
+            float x = reader.ReadSingle();
+            float y = reader.ReadSingle();
+            string roomname = reader.ReadString();
+            Tornados.Remove((new(x, y), roomname));
+        }
         public static void SpawnTornado(PlayerControl pc)
         {
             if (pc == null) return;
-            Tornados.Add(pc.GetPositionInfo(), GetTimeStamp());
+            var info = pc.GetPositionInfo();
+            var now = GetTimeStamp();
+            Tornados.Add(info, now);
+            SendRPCAddTornado(info.LOCATION, info.ROOM_NAME, now);
         }
         public static void OnFixedUpdate(PlayerControl tornadoPc)
         {
@@ -92,6 +130,7 @@ namespace TOHE.Roles.Crewmate
                     if (tornado.Value + tornadoDuration < now)
                     {
                         Tornados.Remove(tornado.Key);
+                        SendRPCRemoveTornado(tornado.Key.LOCATION, tornado.Key.ROOM_NAME);
                     }
                 }
             }

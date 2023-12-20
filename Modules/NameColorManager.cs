@@ -21,7 +21,7 @@ public static class NameColorManager
         {
             if (!colorCode.StartsWith('#'))
                 colorCode = "#" + colorCode;
-            openTag = $"<color={colorCode}>";
+            openTag = $"<{colorCode}>";
             closeTag = "</color>";
         }
         return openTag + name + closeTag;
@@ -110,6 +110,7 @@ public static class NameColorManager
             CustomRoles.Postman when Postman.Target == target.PlayerId => Main.roleColors[CustomRoles.Postman],
             CustomRoles.Mycologist when Mycologist.InfectedPlayers.Contains(target.PlayerId) => Main.roleColors[CustomRoles.Mycologist],
             CustomRoles.Bubble when Bubble.EncasedPlayers.ContainsKey(target.PlayerId) => Main.roleColors[CustomRoles.Bubble],
+            CustomRoles.Hookshot when Hookshot.MarkedPlayerId == target.PlayerId => Main.roleColors[CustomRoles.Hookshot],
             _ => "",
         };
 

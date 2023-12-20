@@ -695,6 +695,13 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 opt.SetFloat(FloatOptionNames.ImpostorLightMod, Sprayer.LoweredVision.GetFloat());
             }
 
+            if (Sentinel.IsPatrolling(player.PlayerId))
+            {
+                opt.SetVision(false);
+                opt.SetFloat(FloatOptionNames.CrewLightMod, Sentinel.LoweredVision.GetFloat());
+                opt.SetFloat(FloatOptionNames.ImpostorLightMod, Sentinel.LoweredVision.GetFloat());
+            }
+
             /*     if ((Main.FlashbangInProtect.Any() && Main.ForFlashbang.Contains(player.PlayerId) && (!player.GetCustomRole().IsCrewmate())))  
                  {
                          opt.SetVision(false);

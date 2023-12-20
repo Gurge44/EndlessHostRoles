@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using Hazel;
 using static TOHE.Options;
 using static TOHE.Utils;
 
@@ -16,7 +17,7 @@ namespace TOHE.Roles.Neutral
         public static OptionItem CanVent;
 
         private static bool ToTargetTP = false;
-        private static byte MarkedPlayerId = byte.MaxValue;
+        public static byte MarkedPlayerId = byte.MaxValue;
 
         public static void SetupCustomOption()
         {
@@ -45,6 +46,14 @@ namespace TOHE.Roles.Neutral
         public static bool IsEnable => HookshotId != byte.MaxValue;
         public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
+        private static void SendRPC()
+        {
+            if (!IsEnable || !DoRPC) return;
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncHookshot, SendOption.Reliable, -1);
+            writer.Write(ToTargetTP);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        public static void ReceiveRPC(MessageReader reader) => ToTargetTP = reader.ReadBoolean();
         public static void ExecuteAction()
         {
             if (MarkedPlayerId == byte.MaxValue) return;
@@ -70,6 +79,7 @@ namespace TOHE.Roles.Neutral
         public static void SwitchActionMode()
         {
             ToTargetTP = !ToTargetTP;
+            SendRPC();
             NotifyRoles(SpecifySeer: Hookshot_, SpecifyTarget: Hookshot_);
         }
         public static bool OnCheckMurder(PlayerControl target)
@@ -82,10 +92,7 @@ namespace TOHE.Roles.Neutral
                 Hookshot_.SetKillCooldown(5f);
             });
         }
-        public static void OnReportDeadBody()
-        {
-            MarkedPlayerId = byte.MaxValue;
-        }
+        public static void OnReportDeadBody() => MarkedPlayerId = byte.MaxValue;
         public static string SuffixText => $"<#00ffa5>Mode:</color> <#ffffff>{(ToTargetTP ? "TP to Target" : "Pull Target")}</color>";
     }
 }

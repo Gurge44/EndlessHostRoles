@@ -164,7 +164,7 @@ namespace TOHE.Roles.Impostor
                 TempKCDs.Remove(killer.PlayerId);
             }, 0.1f, "Set KCD for Manipulated Kill");
 
-            return true;
+            return false;
         }
 
         public static void OnManipulatedPlayerTaskComplete(PlayerControl pc)

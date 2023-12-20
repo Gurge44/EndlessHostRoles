@@ -188,6 +188,12 @@ class CheckMurderPatch
 
         if (target.Is(CustomRoles.Spy)) Spy.OnKillAttempt(killer, target);
 
+        if (Sentinel.IsEnable)
+        {
+            if (!Sentinel.OnAnyoneCheckMurder(killer))
+                return false;
+        }
+
         //実際のキラーとkillerが違う場合の入れ替え処理
         if (Sniper.IsEnable) Sniper.TryGetSniper(target.PlayerId, ref killer);
         if (killer != __instance) Logger.Info($"Real Killer: {killer.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
@@ -2133,6 +2139,9 @@ class FixedUpdatePatch
                 case CustomRoles.Sprayer when !lowLoad:
                     Sprayer.OnFixedUpdate();
                     break;
+                case CustomRoles.Sentinel when !lowLoad:
+                    Sentinel.OnFixedUpdate();
+                    break;
                 case CustomRoles.Analyzer:
                     Analyzer.OnFixedUpdate(player);
                     break;
@@ -3197,6 +3206,9 @@ class EnterVentPatch
                 break;
             case CustomRoles.Hookshot:
                 Hookshot.SwitchActionMode();
+                break;
+            case CustomRoles.Sentinel:
+                Sentinel.StartPatrolling(pc);
                 break;
             case CustomRoles.Ventguard:
                 if (Main.VentguardNumberOfAbilityUses >= 1)

@@ -976,7 +976,7 @@ public static class Utils
                     ProgressText.Append($" <color=#777777>-</color> <color=#00ffa5>{totalCompleted1}</color><color=#ffffff>/{GameData.Instance.TotalTasks}</color>");
                     break;
                 case CustomRoles.Philantropist:
-                    ProgressText.Append(Philantropist.GetProgressText(playerId));
+                    //ProgressText.Append(Philantropist.GetProgressText(playerId));
                     break;
                 case CustomRoles.CameraMan:
                     ProgressText.Append(CameraMan.GetProgressText(playerId, comms));
@@ -2550,6 +2550,7 @@ public static class Utils
             CustomRoles.NiceHacker => NiceHacker.AbilityCD.GetInt(),
             CustomRoles.CameraMan => CameraMan.VentCooldown.GetInt(),
             CustomRoles.Tornado => Tornado.TornadoCooldown.GetInt(),
+            CustomRoles.Sentinel => Sentinel.PatrolCooldown.GetInt(),
             CustomRoles.Sniper => Options.DefaultShapeshiftCooldown.GetInt(),
             CustomRoles.Assassin => Assassin.AssassinateCooldown.GetInt(),
             CustomRoles.Undertaker => Undertaker.AssassinateCooldown.GetInt(),

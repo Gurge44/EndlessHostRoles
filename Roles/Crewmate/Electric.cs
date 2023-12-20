@@ -13,7 +13,6 @@ namespace TOHE.Roles.Crewmate
     {
         private static int Id => 64410;
         private static OptionItem FreezeDuration;
-        private static readonly IRandom Random = IRandom.Instance;
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Electric);
@@ -24,6 +23,7 @@ namespace TOHE.Roles.Crewmate
         public static void OnTaskComplete(PlayerControl pc)
         {
             if (pc == null) return;
+            var Random = IRandom.Instance;
             var target = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Crewmate)).ToList()[Random.Next(0, Main.AllAlivePlayerControls.Length)];
             var beforeSpeed = Main.AllPlayerSpeed[target.PlayerId];
             Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;

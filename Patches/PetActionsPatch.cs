@@ -281,6 +281,9 @@ class ExternalRpcPetPatch
             case CustomRoles.Tornado:
                 Tornado.SpawnTornado(pc);
                 break;
+            case CustomRoles.Sentinel:
+                Sentinel.StartPatrolling(pc);
+                break;
 
             // Impostors
 

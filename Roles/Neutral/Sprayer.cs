@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -81,12 +82,21 @@ namespace TOHE.Roles.Neutral
         public static bool IsEnable => SprayerId != byte.MaxValue;
         public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
+        private static void SendRPC()
+        {
+            if (!IsEnable || !DoRPC) return;
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncSprayer, SendOption.Reliable, -1);
+            writer.Write(UseLimit);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        public static void ReceiveRPC(MessageReader reader) => UseLimit = reader.ReadInt32();
         public static void PlaceTrap()
         {
             if (!IsEnable || Sprayer_.HasAbilityCD() || UseLimit <= 0) return;
 
             Traps.Add(Sprayer_.Pos());
             UseLimit--;
+            SendRPC();
 
             if (UseLimit > 0) Sprayer_.AddAbilityCD(CD.GetInt());
         }

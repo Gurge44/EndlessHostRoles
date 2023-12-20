@@ -58,6 +58,11 @@ enum CustomRPC
 
     //Roles
     SetDrawPlayer,
+    AddTornado,
+    RemoveTornado,
+    SyncSprayer,
+    SyncHookshot,
+    SyncSentinel,
     SyncStressedTimer,
     SetLibrarianMode,
     SyncLibrarianList,
@@ -819,6 +824,21 @@ internal class RPCHandlerPatch
             case CustomRPC.SetRitualist:
                 Ritualist.ReceiveRPC(reader);
                 break;
+            case CustomRPC.SyncSentinel:
+                Sentinel.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncHookshot:
+                Hookshot.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncSprayer:
+                Sprayer.ReceiveRPC(reader);
+                break;
+            case CustomRPC.AddTornado:
+                Tornado.ReceiveRPCAddTornado(reader);
+                break;
+            case CustomRPC.RemoveTornado:
+                Tornado.ReceiveRPCRemoveTornado(reader);
+                break;
             case CustomRPC.SetDoppelgangerStealLimit:
                 Doppelganger.ReceiveRPC(reader);
                 break;
@@ -1430,6 +1450,9 @@ internal static class RPC
                 break;
             case CustomRoles.Enderman:
                 Enderman.Add(targetId);
+                break;
+            case CustomRoles.Sentinel:
+                Sentinel.Add(targetId);
                 break;
             case CustomRoles.Mycologist:
                 Mycologist.Add(targetId);
