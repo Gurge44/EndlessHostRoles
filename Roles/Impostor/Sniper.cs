@@ -181,7 +181,7 @@ public static class Sniper
         if (bulletCount[sniperId] <= 0)
         {
             float CD = ShapeshiftDuration.GetFloat() + 1f;
-            if (sniper.killTimer < CD && !isPet) sniper.SetKillCooldown(time: CD);
+            if (Main.KillTimers[sniper.PlayerId] < CD && !isPet) sniper.SetKillCooldown(time: CD);
             return;
         };
 

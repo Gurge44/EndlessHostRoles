@@ -101,7 +101,7 @@ namespace TOHE.Roles.Impostor
                 }
                 notify = true;
             }
-            else if (pc.killTimer <= 0)
+            else if (Main.KillTimers[pc.PlayerId] <= 0)
             {
                 chargePercent += ChargeInterval.GetInt();
                 if (chargePercent > 100) chargePercent = 100;

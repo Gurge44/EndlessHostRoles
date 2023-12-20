@@ -188,12 +188,6 @@ class CheckMurderPatch
 
         if (target.Is(CustomRoles.Spy)) Spy.OnKillAttempt(killer, target);
 
-        if (Sentinel.IsEnable)
-        {
-            if (!Sentinel.OnAnyoneCheckMurder(killer))
-                return false;
-        }
-
         //実際のキラーとkillerが違う場合の入れ替え処理
         if (Sniper.IsEnable) Sniper.TryGetSniper(target.PlayerId, ref killer);
         if (killer != __instance) Logger.Info($"Real Killer: {killer.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
@@ -902,6 +896,7 @@ class CheckMurderPatch
                 if (Main.CursedWolfSpellCount[target.PlayerId] <= 0) break;
                 if (killer.Is(CustomRoles.Pestilence)) break;
                 if (killer == target) break;
+                var kcd = Main.KillTimers[target.PlayerId] + Main.AllPlayerKillCooldown[target.PlayerId];
                 killer.RpcGuardAndKill(target);
                 Main.CursedWolfSpellCount[target.PlayerId] -= 1;
                 RPC.SendRPCCursedWolfSpellCount(target.PlayerId);
@@ -912,13 +907,13 @@ class CheckMurderPatch
                     killer.SetRealKiller(target);
                     target.Kill(killer);
                 }
-                var kcd = target.killTimer + Main.AllPlayerKillCooldown[target.PlayerId];
                 target.SetKillCooldown(time: kcd);
                 return false;
             case CustomRoles.Jinx:
                 if (Main.JinxSpellCount[target.PlayerId] <= 0) break;
                 if (killer.Is(CustomRoles.Pestilence)) break;
                 if (killer == target) break;
+                var kcd2 = Main.KillTimers[target.PlayerId] + Main.AllPlayerKillCooldown[target.PlayerId];
                 killer.RpcGuardAndKill(target);
                 Main.JinxSpellCount[target.PlayerId] -= 1;
                 RPC.SendRPCJinxSpellCount(target.PlayerId);
@@ -929,7 +924,6 @@ class CheckMurderPatch
                     killer.SetRealKiller(target);
                     target.Kill(killer);
                 }
-                var kcd2 = target.killTimer + Main.AllPlayerKillCooldown[target.PlayerId];
                 target.SetKillCooldown(time: kcd2);
                 return false;
             case CustomRoles.Veteran:
@@ -1051,6 +1045,12 @@ class CheckMurderPatch
             return false;
         }
 
+        if (Sentinel.IsEnable)
+        {
+            if (!Sentinel.OnAnyoneCheckMurder(killer))
+                return false;
+        }
+
         if (!check) killer.Kill(target);
         if (killer.Is(CustomRoles.Doppelganger)) Doppelganger.OnCheckMurder(killer, target);
         return true;
@@ -1151,6 +1151,8 @@ class MurderPlayerPatch
 
         Main.AllKillers.Remove(killer.PlayerId);
         Main.AllKillers.Add(killer.PlayerId, GetTimeStamp());
+
+        killer.AddKillTimerToDict();
 
         switch (target.GetCustomRole())
         {
@@ -1696,17 +1698,16 @@ class ReportDeadBodyPatch
                             return false;
                         }
                         break;
-                    case CustomRoles.Cleaner when __instance.killTimer > 0:
+                    case CustomRoles.Cleaner when Main.KillTimers[__instance.PlayerId] > 0:
                         Main.CleanerBodies.Remove(target.PlayerId);
                         Main.CleanerBodies.Add(target.PlayerId);
                         __instance.Notify(GetString("CleanerCleanBody"));
                         __instance.SetKillCooldown(Options.KillCooldownAfterCleaning.GetFloat());
                         Logger.Info($"{__instance.GetRealName()} cleans up the corpse of {target.PlayerName}", "Cleaner");
                         return false;
-                    case CustomRoles.Medusa when __instance.killTimer > 0:
+                    case CustomRoles.Medusa when Main.KillTimers[__instance.PlayerId] > 0:
                         Main.MedusaBodies.Remove(target.PlayerId);
                         Main.MedusaBodies.Add(target.PlayerId);
-                        __instance.RpcGuardAndKill(__instance);
                         __instance.Notify(GetString("MedusaStoneBody"));
                         __instance.SetKillCooldown(Medusa.KillCooldownAfterStoneGazing.GetFloat());
                         Logger.Info($"{__instance.GetRealName()} stoned {target.PlayerName}'s body", "Medusa");
@@ -2980,11 +2981,11 @@ class FixedUpdatePatch
                 if ((IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool() && (Main.NormalOptions.MapId != 5 || !Options.CommsCamouflageDisableOnFungle.GetBool())) || Camouflager.IsActive)
                     RealName = $"<size=0>{RealName}</size> ";
 
-                string DeathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))})" : string.Empty;
+                string DeathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"\n<size=1.7>({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))})</size>" : string.Empty;
                 //Mark・Suffixの適用
 
                 var currentText = target.cosmetics.nameText.text;
-                var changeTo = $"{RealName}{(Options.CurrentGameMode == CustomGameMode.MoveAndStop && DeathReason != string.Empty ? '\n' : string.Empty)}<size=1.7>{DeathReason}</size>{Mark}";
+                var changeTo = $"{RealName}{DeathReason}{Mark}";
                 var needUpdate = false;
                 if (currentText != changeTo) needUpdate = true;
 
@@ -3368,20 +3369,22 @@ class CoEnterVentPatch
 
         Logger.Info($" {__instance.myPlayer.GetNameWithRole()}, Vent ID: {id}", "CoEnterVent");
 
-        if (Options.CurrentGameMode == CustomGameMode.FFA && FFAManager.FFA_DisableVentingWhenKCDIsUp.GetBool() && Main.AllAlivePlayerControls.Length <= 2)
+        if (Main.KillTimers.TryGetValue(__instance.myPlayer.PlayerId, out var timer))
+        {
+            Main.KillTimers[__instance.myPlayer.PlayerId] = timer + 0.5f;
+        }
+
+        if (Options.CurrentGameMode == CustomGameMode.FFA && FFAManager.FFA_DisableVentingWhenTwoPlayersAlive.GetBool() && Main.AllAlivePlayerControls.Length <= 2)
         {
             var pc = __instance?.myPlayer;
-            if (pc?.killTimer <= 0)
+            _ = new LateTask(() =>
             {
-                _ = new LateTask(() =>
-                {
-                    pc?.Notify(GetString("FFA-NoVentingBecauseTwoPlayers"), 7f);
-                    pc?.MyPhysics?.RpcBootFromVent(id);
-                }, 0.5f);
-                return true;
-            }
+                pc?.Notify(GetString("FFA-NoVentingBecauseTwoPlayers"), 7f);
+                pc?.MyPhysics?.RpcBootFromVent(id);
+            }, 0.5f);
+            return true;
         }
-        if (Options.CurrentGameMode == CustomGameMode.FFA && FFAManager.FFA_DisableVentingWhenTwoPlayersAlive.GetBool() && __instance.myPlayer.killTimer <= 0)
+        if (Options.CurrentGameMode == CustomGameMode.FFA && FFAManager.FFA_DisableVentingWhenKCDIsUp.GetBool() && Main.KillTimers[__instance.myPlayer.PlayerId] <= 0)
         {
             _ = new LateTask(() =>
             {

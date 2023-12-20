@@ -9,7 +9,7 @@ namespace TOHE.Roles.Impostor
     public static class Mastermind
     {
         private static readonly int Id = 640600;
-        public static byte mastermindId = byte.MaxValue;
+        public static byte MastermindId = byte.MaxValue;
 
         public static Dictionary<byte, long> ManipulatedPlayers = [];
         public static Dictionary<byte, long> ManipulateDelays = [];
@@ -21,7 +21,7 @@ namespace TOHE.Roles.Impostor
 
         public static float ManipulateCD;
 
-        private static PlayerControl Mastermind_ => GetPlayerById(mastermindId);
+        private static PlayerControl Mastermind_ => GetPlayerById(MastermindId);
 
         public static void SetupCustomOption()
         {
@@ -37,7 +37,7 @@ namespace TOHE.Roles.Impostor
 
         public static void Init()
         {
-            mastermindId = byte.MaxValue;
+            MastermindId = byte.MaxValue;
             ManipulatedPlayers = [];
             ManipulateDelays = [];
             TempKCDs = [];
@@ -45,11 +45,11 @@ namespace TOHE.Roles.Impostor
 
         public static void Add(byte playerId)
         {
-            mastermindId = playerId;
+            MastermindId = playerId;
             ManipulateCD = KillCooldown.GetFloat() + TimeLimit.GetFloat() + Delay.GetFloat();
         }
 
-        public static bool IsEnable => mastermindId != byte.MaxValue;
+        public static bool IsEnable => MastermindId != byte.MaxValue;
 
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
@@ -90,7 +90,7 @@ namespace TOHE.Roles.Impostor
 
                     if (!pc.GetPlayerTaskState().hasTasks)
                     {
-                        TempKCDs.TryAdd(pc.PlayerId, pc.killTimer);
+                        TempKCDs.TryAdd(pc.PlayerId, Main.KillTimers[pc.PlayerId]);
                         pc.SetKillCooldown(time: 1f);
                     }
 
@@ -113,7 +113,7 @@ namespace TOHE.Roles.Impostor
                     ManipulatedPlayers.Remove(x.Key);
                     TempKCDs.Remove(x.Key);
                     player.Suicide(realKiller: Mastermind_);
-                    RPC.PlaySoundRPC(mastermindId, Sounds.KillSound);
+                    RPC.PlaySoundRPC(MastermindId, Sounds.KillSound);
                 }
 
                 var time = TimeLimit.GetInt() - (GetTimeStamp() - x.Value);
@@ -182,7 +182,7 @@ namespace TOHE.Roles.Impostor
         {
             if (!IsEnable) return;
             Mastermind_.Notify(GetString("ManipulatedKilled"));
-            if (Mastermind_.killTimer > KillCooldown.GetFloat()) Mastermind_.SetKillCooldown(time: KillCooldown.GetFloat());
+            if (Main.KillTimers[MastermindId] > KillCooldown.GetFloat()) Mastermind_.SetKillCooldown(time: KillCooldown.GetFloat());
         }
     }
 }

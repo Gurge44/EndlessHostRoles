@@ -30,6 +30,7 @@ namespace TOHE.Roles.Neutral
         private static readonly List<Vector2> Traps = [];
         private static readonly Dictionary<byte, int> TrappedCount = [];
         public static readonly List<byte> LowerVisionList = [];
+        private static readonly Dictionary<byte, long> LastUpdate = [];
 
         public static void SetupCustomOption()
         {
@@ -66,6 +67,7 @@ namespace TOHE.Roles.Neutral
             Traps.Clear();
             TrappedCount.Clear();
             LowerVisionList.Clear();
+            LastUpdate.Clear();
             UseLimit = 0;
         }
         public static void Add(byte playerId)
@@ -104,9 +106,15 @@ namespace TOHE.Roles.Neutral
         {
             if (!IsEnable || !GameStates.IsInTask || !Traps.Any()) return;
 
+            long now = GetTimeStamp();
+
             foreach (var pc in Main.AllAlivePlayerControls)
             {
                 if (pc.PlayerId == SprayerId) continue;
+
+                if (!LastUpdate.ContainsKey(pc.PlayerId)) LastUpdate.Add(pc.PlayerId, now);
+                if (LastUpdate[pc.PlayerId] + 3 > now) continue;
+                LastUpdate[pc.PlayerId] = now;
 
                 foreach (var trap in Traps.ToArray())
                 {

@@ -174,7 +174,7 @@ public static class Magician
                 {
                     var snipedTarget = targets.OrderBy(c => c.Value).First().Key;
                     snipedTarget.CheckMurder(snipedTarget);
-                    var temp = sniper.killTimer;
+                    var temp = Main.KillTimers[sniper.PlayerId];
                     sniper.SetKillCooldown(time: Main.AllPlayerKillCooldown[sniper.PlayerId] + temp);
 
                     targets.Remove(snipedTarget);

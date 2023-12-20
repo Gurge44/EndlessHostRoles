@@ -1815,7 +1815,7 @@ public static class Options
         LoadingPercentage = 26;
 
         RoleLoadingText = "Crewmate roles\nVeteran";
-        SetupRoleOptions(8900, TabGroup.CrewmateRoles, CustomRoles.Veteran);
+        SetupRoleOptions(8908, TabGroup.CrewmateRoles, CustomRoles.Veteran);
         VeteranSkillCooldown = FloatOptionItem.Create(8910, "VeteranSkillCooldown", new(0f, 180f, 1f), 20f, TabGroup.CrewmateRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
             .SetValueFormat(OptionFormat.Seconds);

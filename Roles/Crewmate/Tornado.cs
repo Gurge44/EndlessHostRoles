@@ -145,6 +145,6 @@ namespace TOHE.Roles.Crewmate
             NotifyRoles(SpecifySeer: tornadoPc, SpecifyTarget: tornadoPc);
             LastNotify = now;
         }
-        public static string GetSuffixText(byte playerId, bool isHUD = false) => string.Join(isHUD ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.ROOM_NAME)} {GetFormattedVectorText(x.Key.LOCATION)} ({(int)(TornadoDuration.GetInt() - (GetTimeStamp() - x.Value))}s)"));
+        public static string GetSuffixText(byte playerId, bool isHUD = false) => string.Join(isHUD ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.ROOM_NAME)} {GetFormattedVectorText(x.Key.LOCATION)} ({(int)(TornadoDuration.GetInt() - (GetTimeStamp() - x.Value) + 1)}s)"));
     }
 }

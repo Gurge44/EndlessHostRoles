@@ -571,6 +571,8 @@ class HudManagerPatch
                         ? string.Empty
                         : string.Format(GetString("CDPT"), CD.TOTALCD - (Utils.GetTimeStamp() - CD.START_TIMESTAMP) + 1);
 
+                LowerInfoText.text += "\n" + (int)System.Math.Round(Main.KillTimers[player.PlayerId]);
+
                 LowerInfoText.enabled = LowerInfoText.text != string.Empty;
 
                 if ((!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay) || GameStates.IsMeeting)
@@ -793,7 +795,7 @@ class MapBehaviourShowPatch
         }
         else if (opts.Mode is MapOptions.Modes.Normal or MapOptions.Modes.Sabotage)
         {
-            if (player.Is(CustomRoleTypes.Impostor) || player.Is(CustomRoles.Glitch) || player.Is(CustomRoles.WeaponMaster) || player.Is(CustomRoles.Magician) || player.Is(CustomRoles.Parasite) || player.Is(CustomRoles.Refugee) || (player.Is(CustomRoles.Jackal) && Jackal.CanUseSabotage.GetBool()) || (player.Is(CustomRoles.Traitor) && Traitor.CanUseSabotage.GetBool()))
+            if (player.Is(CustomRoleTypes.Impostor) || player.CanUseSabotage() || player.Is(CustomRoles.Glitch) || player.Is(CustomRoles.WeaponMaster) || player.Is(CustomRoles.Magician) || player.Is(CustomRoles.Parasite) || player.Is(CustomRoles.Refugee) || (player.Is(CustomRoles.Jackal) && Jackal.CanUseSabotage.GetBool()) || (player.Is(CustomRoles.Traitor) && Traitor.CanUseSabotage.GetBool()))
                 opts.Mode = MapOptions.Modes.Sabotage;
             else
                 opts.Mode = MapOptions.Modes.Normal;

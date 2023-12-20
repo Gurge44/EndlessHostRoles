@@ -77,7 +77,12 @@ namespace TOHE.Roles.Neutral
                 var players = GetPlayersInRadius(ExplosionRadius.GetFloat(), GetPlayerById(id).Pos());
                 foreach (var pc in players)
                 {
-                    if (pc == null || (pc.PlayerId == BubbleId && !BubbleDiesIfInRange.GetBool())) continue;
+                    if (pc == null) continue;
+                    if (pc.PlayerId == BubbleId)
+                    {
+                        if (BubbleDiesIfInRange.GetBool()) _ = new LateTask(() => { if (GameStates.IsInTask) pc.Suicide(); }, 0.2f, log: false);
+                        else continue;
+                    }
                     pc.Suicide(realKiller: Bubble_);
                 }
             }

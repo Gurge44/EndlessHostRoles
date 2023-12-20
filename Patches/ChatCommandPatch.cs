@@ -301,6 +301,12 @@ internal class ChatCommands
                     else Utils.SendMessage($"{GetString("Message.MessageWaitHelp")}\n{GetString("ForExample")}:\n{args[0]} 3", 0);
                     break;
 
+                case "/death":
+                    if (!GameStates.IsInGame) break;
+                    var killer = PlayerControl.LocalPlayer.GetRealKiller();
+                    Utils.SendMessage("\n", localPlayerId, string.Format(GetString("DeathCommand"), killer.GetRealName(), GetString(killer.GetCustomRole().ToString())));
+                    break;
+
                 case "/say":
                 case "/s":
                     canceled = true;
@@ -918,6 +924,13 @@ internal class ChatCommands
             case "/template":
                 if (args.Length > 1) TemplateManager.SendTemplate(args[1], player.PlayerId);
                 else Utils.SendMessage($"{GetString("ForExample")}:\n{args[0]} test", player.PlayerId);
+                break;
+
+            case "/death":
+                if (!GameStates.IsInGame || player.IsAlive()) break;
+                var killer = player.GetRealKiller();
+                if (killer == null) break;
+                Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathCommand"), Utils.ColorString(Main.PlayerColors.TryGetValue(killer.PlayerId, out var pcColor) ? pcColor : Color.white, killer.GetRealName()), $"<{Main.roleColors[killer.GetCustomRole()]}>{GetString(killer.GetCustomRole().ToString())}</color>"));
                 break;
 
             case "/colour":

@@ -60,6 +60,7 @@ namespace TOHE.Roles.Neutral
         {
             if (!IsEnable || !GameStates.IsInTask || !MarkedPosition.TP || !Enderman_.IsAlive() || MarkedPosition.MARK_TIMESTAMP + Time.GetInt() >= GetTimeStamp()) return;
             Enderman_.TP(MarkedPosition.POSITION);
+            MarkedPosition.TP = false;
         }
         public static void OnReportDeadBody()
         {

@@ -163,7 +163,7 @@ static class ExtendedPlayerControl
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
-    public static void RpcGuardAndKill(this PlayerControl killer, PlayerControl target = null, int colorId = 0, bool forObserver = false)
+    public static void RpcGuardAndKill(this PlayerControl killer, PlayerControl target = null, int colorId = 0, bool forObserver = false, bool fromSetKCD = false)
     {
         if (target == null) target = killer;
         if (!forObserver && !MeetingStates.FirstMeeting) Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Observer) && killer.PlayerId != x.PlayerId).Do(x => x.RpcGuardAndKill(target, colorId, true));
@@ -189,7 +189,7 @@ static class ExtendedPlayerControl
             sender.EndMessage();
             sender.SendMessage();
         }
-        killer.AddKillTimerToDict(half: true);
+        if (!fromSetKCD) killer.AddKillTimerToDict(half: true);
     }
     //public static void SetKillCooldownV2(this PlayerControl player, float time = -1f)
     //{
@@ -219,7 +219,7 @@ static class ExtendedPlayerControl
     {
         if (player == null) return;
         if (!player.CanUseKillButton()) return;
-        player.AddKillTimerToDict();
+        player.AddKillTimerToDict(CD: time);
         if (target == null) target = player;
         if (time >= 0f) Main.AllPlayerKillCooldown[player.PlayerId] = time * 2;
         else Main.AllPlayerKillCooldown[player.PlayerId] *= 2;
@@ -231,7 +231,7 @@ static class ExtendedPlayerControl
         else if (forceAnime || !player.IsModClient() || !Options.DisableShieldAnimations.GetBool())
         {
             player.SyncSettings();
-            player.RpcGuardAndKill(target, 11);
+            player.RpcGuardAndKill(target, 11, fromSetKCD: true);
         }
         else
         {
@@ -243,7 +243,7 @@ static class ExtendedPlayerControl
                 writer.Write(time);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
             }
-            Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Observer) && target.PlayerId != x.PlayerId).Do(x => x.RpcGuardAndKill(target, 11, true));
+            Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Observer) && target.PlayerId != x.PlayerId).Do(x => x.RpcGuardAndKill(target, 11, true, fromSetKCD: true));
         }
         if (player.GetCustomRole() is not CustomRoles.Inhibitor and not CustomRoles.Saboteur) player.ResetKillCooldown();
     }
@@ -840,11 +840,7 @@ static class ExtendedPlayerControl
             CustomRoles.Pyromaniac or
             CustomRoles.Eclipse or
             CustomRoles.NSerialKiller or
-            CustomRoles.Enderman or
-            CustomRoles.Mycologist or
             CustomRoles.Bubble or
-            CustomRoles.Hookshot or
-            CustomRoles.Sprayer or
             CustomRoles.PlagueDoctor or
             CustomRoles.Reckless or
             CustomRoles.Postman or
@@ -873,6 +869,10 @@ static class ExtendedPlayerControl
             CustomRoles.Sidekick => Jackal.CanUseSabotageSK.GetBool(),
             CustomRoles.Traitor => Traitor.CanUseSabotage.GetBool(),
             CustomRoles.Parasite => true,
+            CustomRoles.Enderman => true,
+            CustomRoles.Mycologist => Mycologist.SpreadAction.GetValue() == 1,
+            CustomRoles.Hookshot => true,
+            CustomRoles.Sprayer => true,
             CustomRoles.Glitch => true,
             CustomRoles.Refugee => true,
             CustomRoles.Magician => true,
@@ -882,7 +882,24 @@ static class ExtendedPlayerControl
         };
     }
     public static Vector2 Pos(this PlayerControl pc) => new(pc.transform.position.x, pc.transform.position.y);
-    public static void AddKillTimerToDict(this PlayerControl pc, bool half = false) => Main.KillTimers[pc.PlayerId] = Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out var kcd) ? kcd : 0;
+    public static void AddKillTimerToDict(this PlayerControl pc, bool half = false, float CD = -1f)
+    {
+        float resultKCD;
+        if (CD == -1)
+        {
+            if (Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out var kcd)) resultKCD = kcd;
+            else resultKCD = 0f;
+        }
+        else
+        {
+            resultKCD = CD;
+        }
+
+        if (Main.KillTimers.TryGetValue(pc.PlayerId, out var timer) && timer > resultKCD) return;
+
+        Main.KillTimers[pc.PlayerId] = resultKCD;
+    }
+
     public static bool IsDousedPlayer(this PlayerControl arsonist, PlayerControl target)
     {
         if (arsonist == null || target == null || Main.isDoused == null) return false;

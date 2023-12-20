@@ -118,7 +118,7 @@ class RepairSystemPatch
                     case CustomRoles.Enderman:
                         Enderman.MarkPosition();
                         return false;
-                    case CustomRoles.Mycologist when Mycologist.SpreadAction.GetValue() == 1:
+                    case CustomRoles.Mycologist when Mycologist.SpreadAction.GetValue() == 1 || (Mycologist.SpreadAction.GetValue() == 2 && !Options.UsePets.GetBool()):
                         Mycologist.SpreadSpores();
                         return false;
                     case CustomRoles.Sprayer:

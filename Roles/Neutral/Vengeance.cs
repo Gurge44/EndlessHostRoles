@@ -98,7 +98,7 @@ public static class Vengeance
         Countdown(Timer, target);
         IsRevenge = true;
         killer.SetKillCooldown();
-        tempKillTimer = target.killTimer;
+        tempKillTimer = Main.KillTimers[target.PlayerId];
         target.SetKillCooldown(time: 1f);
         Killer = killer.PlayerId;
 

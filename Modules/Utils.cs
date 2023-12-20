@@ -1911,12 +1911,9 @@ public static class Utils
         }
         return playerRooms.Any() ? playerRooms : null;
     }
-    public static PlayerControl GetPlayerById(int PlayerId)
-    {
-        return Main.AllPlayerControls.FirstOrDefault(pc => pc.PlayerId == PlayerId);
-    }
-    public static GameData.PlayerInfo GetPlayerInfoById(int PlayerId) =>
-        GameData.Instance.AllPlayers.ToArray().FirstOrDefault(info => info.PlayerId == PlayerId);
+    public static PlayerControl GetPlayerById(int PlayerId) => Main.AllPlayerControls.FirstOrDefault(pc => pc.PlayerId == PlayerId);
+    public static GameData.PlayerInfo GetPlayerInfoById(int PlayerId) => GameData.Instance.AllPlayers.ToArray().FirstOrDefault(info => info.PlayerId == PlayerId);
+
     private static StringBuilder SelfSuffix = new();
     private static readonly StringBuilder SelfMark = new(20);
     private static readonly StringBuilder TargetSuffix = new();
@@ -1931,6 +1928,7 @@ public static class Utils
 
     public static Task DoNotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, PlayerControl SpecifyTarget = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false)
     {
+        if (SpecifySeer != null && SpecifySeer.IsModClient()) return Task.CompletedTask;
         if (!AmongUsClient.Instance.AmHost) return Task.CompletedTask;
         if (Main.AllPlayerControls == null) return Task.CompletedTask;
 
@@ -2131,7 +2129,7 @@ public static class Utils
 
                 // Combine seer's job title and SelfTaskText with seer's player name and SelfMark
                 string SelfRoleName = $"<size={fontSize}>{seer.GetDisplayRoleName()}{SelfTaskText}</size>";
-                string SelfDeathReason = seer.KnowDeathReason(seer) ? $"{(Options.CurrentGameMode == CustomGameMode.MoveAndStop ? '\n' : ' ')}<size=1.7>({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(seer.PlayerId))})</size>" : string.Empty;
+                string SelfDeathReason = seer.KnowDeathReason(seer) ? $"\n<size=1.7>({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(seer.PlayerId))})</size>" : string.Empty;
                 string SelfName = $"{ColorString(seer.GetRoleColor(), SeerRealName)}{SelfDeathReason}{SelfMark}";
 
                 if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop) goto GameMode2;
@@ -2480,7 +2478,7 @@ public static class Utils
 
                             string TargetDeathReason = string.Empty;
                             if (seer.KnowDeathReason(target))
-                                TargetDeathReason = $"({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))})";
+                                TargetDeathReason = $"\n<size=1.7>({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))})</size>";
 
                             //Devourer
                             if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerSkinsCosumed.Any(a => a.Value.Contains(target.PlayerId)) && !CamouflageIsForMeeting)

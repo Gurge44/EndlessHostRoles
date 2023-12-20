@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using static TOHE.Options;
 using static TOHE.Utils;
+using static TOHE.Translator;
 
 namespace TOHE.Roles.Neutral
 {
@@ -72,6 +73,7 @@ namespace TOHE.Roles.Neutral
             {
                 InfectedPlayers.AddRange(GetPlayersInRadius(InfectRadius.GetFloat(), Mycologist_.Pos()).Select(x => x.PlayerId));
             }, InfectTime.GetFloat(), "Mycologist Infect Time");
+            Mycologist_.Notify(GetString("MycologistNotify"));
         }
         public static bool OnCheckMurder(PlayerControl target) => IsEnable && target != null && InfectedPlayers.Contains(target.PlayerId);
         public static void AfterMeetingTasks() => Mycologist_.AddAbilityCD(CD.GetInt());

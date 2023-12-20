@@ -53,7 +53,7 @@ internal static class QuickShooter
     }
     public static void OnShapeshift(PlayerControl pc, bool shapeshifting)
     {
-        if (pc.killTimer == 0 && shapeshifting)
+        if (Main.KillTimers[pc.PlayerId] == 0 && shapeshifting)
         {
             ShotLimit[pc.PlayerId]++;
             SendRPC(pc.PlayerId);

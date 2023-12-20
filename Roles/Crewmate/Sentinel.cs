@@ -154,7 +154,7 @@ namespace TOHE.Roles.Crewmate
         public static void StartPatrolling(PlayerControl pc) => GetPatrollingState(pc.PlayerId)?.StartPatrolling();
         public static bool OnAnyoneCheckMurder(PlayerControl killer)
         {
-            if (killer == null || !IsEnable || !PatrolStates.Any(x => x.IsPatrolling)) return false;
+            if (killer == null || !IsEnable || !PatrolStates.Any(x => x.IsPatrolling)) return true;
             foreach (PatrollingState state in PatrolStates)
             {
                 if (!state.IsPatrolling) continue;

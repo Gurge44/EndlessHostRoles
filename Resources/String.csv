@@ -2155,6 +2155,7 @@
 "ERR-001-000-3","在主目录出现重复密钥","Main dictionary has duplicated keys.","Дублирование ключей происходит в основном словаре.","在矚目路出現重複密鑰","在主目录出现重复密钥"
 
 "## 其它 / Other things"
+"DeathCommand","","<#ffffff>You were killed by </color>{0}<#ffffff>\nTheir role is </color>{1}","","",""
 "DefaultSystemMessageTitle","[ ★ 系统消息 ★ ]","[ ★ System message ★ ]","[ ★ Системное сообщение ★ ]","[ ★ 系統訊息 ★ ]","[ ★ 系统消息 ★ ]"
 "MessageFromTheHost","[ ★ 房主消息 ★ ]","[ ★ Host message ★ ]","[ ★ Сообщение от Хоста ★ ]","[ ★ 房主訊息 ★ ]","[ ★ 房主消息 ★ ]"
 "MessageFromEAC","[ ★ EAC ★ ]","[ ★ EAC ★ ]","[ ★ EAC ★ ]","[ ★ EAC反作弊 ★ ]","[ ★ EAC ★ ]"
@@ -2878,6 +2879,7 @@
 "MycologistInfoLong","","(Neutral):\nAs the Mycologist, you can infect players around you by entering a vent/sabotaging/petting your pet. You can only kill the ones you've infected.","","",""
 "MycologistAction","","Action To Infect","","",""
 "InfectRadius","","Infect Radius","","",""
+"MycologistNotify","","Spores spread successfully","","",""
 
 "## Bubble"
 "Bubble","","Bubble","","",""
@@ -2897,7 +2899,7 @@
 "## Sprayer"
 "Sprayer","","Sprayer","","",""
 "SprayerInfo","","Place Traps","","",""
-"SprayerInfoLong","","(Neutral):\nAs the Sprayer, you can place traps by sabotaging/petting your pet.","","",""
+"SprayerInfoLong","","(Neutral):\nAs the Sprayer, you can place traps by sabotaging/petting your pet. If someone walks into a trap, they'll have lower speed and vision for some time. If a player walks into a trap a specified amount of times, they suicide.","","",""
 "NegativeEffectDuration","","Lower Vision/Speed Duration","","",""
 "SprayerMaxTrappedTimes","","Times a Player Has to Walk Into a Trap to Die","","",""
 
@@ -2918,6 +2920,16 @@
 "TornadoCooldown","","Tornado Spawn Cooldown","","",""
 "TornadoDuration","","Tornado Duration","","",""
 "TornadoRange","","Tornado Range","","",""
+"TeleportedByTornado","","\nOh no! You just got caught up in a tornado,\nand you flew to over here!","","",""
+
+"## Sentinel"
+"Sentinel","","Sentinel","","",""
+"SentinelInfo","","Scare Killers Away","","",""
+"SentinelInfoLong","","(Crewmates):\nAs the Sentinel, you may vent to start patrolling your surrounding area. When you do, all killers within this area are notified to dip. If any killer attempts to kill someone within this area while you're patrolling, you'll kill them instead.","","",""
+"SentinelPatrolDuration","","Patrol Time","","",""
+"SentinelPatrolRadius","","Patrol Radius","","",""
+"KillerEscapedFromSentinel","","<#00ff00>Successfully went out of patrolling radius</color>","","",""
+"KillerNotifyPatrol","","<#ffff00>You are in the patrolling radius! Move out or you'll die!</color>","","",""
 
 "## Penguin"
 "Penguin","","Penguin","","",""

@@ -106,7 +106,7 @@ public abstract class OptionItem
         }
         else
         {
-            Logger.Error($"Duplicate ID: {id}", "OptionItem");
+            Logger.Error($"Duplicate ID: {id} ({name})", "OptionItem");
         }
     }
 
