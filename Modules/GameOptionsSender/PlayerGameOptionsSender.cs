@@ -169,11 +169,11 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     AURoleOptions.EngineerCooldown = Chameleon.ChameleonCooldown.GetFloat();
                     AURoleOptions.EngineerInVentMaxTime = 0f;
                     break;
-                case CustomRoles.ShapeMaster:
-                    AURoleOptions.ShapeshifterCooldown = 1f;
-                    AURoleOptions.ShapeshifterLeaveSkin = false;
-                    AURoleOptions.ShapeshifterDuration = Options.ShapeMasterShapeshiftDuration.GetFloat();
-                    break;
+                //case CustomRoles.ShapeMaster:
+                //    AURoleOptions.ShapeshifterCooldown = 1f;
+                //    AURoleOptions.ShapeshifterLeaveSkin = false;
+                //    AURoleOptions.ShapeshifterDuration = Options.ShapeMasterShapeshiftDuration.GetFloat();
+                //    break;
                 case CustomRoles.RiftMaker:
                     if (Options.UsePets.GetBool()) break;
                     AURoleOptions.ShapeshifterDuration = 1f;

@@ -651,7 +651,7 @@ public enum CustomRoles
     Mafia,
     Godfather,
     SerialKiller,
-    ShapeMaster,
+    //ShapeMaster,
     Wildling,
     EvilGuesser,
     Minimalism,

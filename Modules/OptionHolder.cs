@@ -1410,10 +1410,10 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Scavenger])
             .SetValueFormat(OptionFormat.Seconds);
         RoleLoadingText = "Impostor roles\nShapemaster";
-        SetupRoleOptions(4100, TabGroup.ImpostorRoles, CustomRoles.ShapeMaster);
-        ShapeMasterShapeshiftDuration = FloatOptionItem.Create(4110, "ShapeshiftDuration", new(0, 180, 1), 10, TabGroup.ImpostorRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.ShapeMaster])
-            .SetValueFormat(OptionFormat.Seconds);
+        //SetupRoleOptions(4100, TabGroup.ImpostorRoles, CustomRoles.ShapeMaster);
+        //ShapeMasterShapeshiftDuration = FloatOptionItem.Create(4110, "ShapeshiftDuration", new(0, 180, 1), 10, TabGroup.ImpostorRoles, false)
+        //    .SetParent(CustomRoleSpawnChances[CustomRoles.ShapeMaster])
+        //    .SetValueFormat(OptionFormat.Seconds);
         RoleLoadingText = "Impostor roles\nSwooper";
         Swooper.SetupCustomOption();
         RoleLoadingText = "Impostor roles\nTrickster";
