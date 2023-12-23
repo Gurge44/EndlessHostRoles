@@ -236,7 +236,7 @@ public static class Gangster
             (pc.Is(CustomRoles.Judge) && !JudgeCanBeMadmate.GetBool()) ||
             (pc.Is(CustomRoles.Marshall) && !MarshallCanBeMadmate.GetBool()) ||
             (pc.Is(CustomRoles.Farseer) && !FarseerCanBeMadmate.GetBool()) ||
-            (pc.Is(CustomRoles.Retributionist) && !RetributionistCanBeMadmate.GetBool()) ||
+            //(pc.Is(CustomRoles.Retributionist) && !RetributionistCanBeMadmate.GetBool()) ||
             pc.Is(CustomRoles.Snitch) ||
             pc.Is(CustomRoles.Needy) ||
             pc.Is(CustomRoles.Lazy) ||

@@ -223,15 +223,17 @@ public static class CopyCat
         }
         if (CopyCrewVar.GetBool())
         {
-            if (role == CustomRoles.Eraser) role = CustomRoles.Cleanser;
-            if (role == CustomRoles.Mafia) role = CustomRoles.Retributionist;
-            if (role == CustomRoles.Visionary) role = CustomRoles.Oracle;
-            if (role == CustomRoles.Workaholic) role = CustomRoles.Snitch;
-            if (role == CustomRoles.Sunnyboy) role = CustomRoles.Doctor;
-            if (role == CustomRoles.Vindicator || role == CustomRoles.Pickpocket) role = CustomRoles.Mayor;
-            else if (role == CustomRoles.Councillor) role = CustomRoles.Judge;
-            //else if (role == CustomRoles.Sans || role == CustomRoles.Juggernaut) role = CustomRoles.Reverie;
-            else if (role == CustomRoles.EvilGuesser || role == CustomRoles.Doomsayer || role == CustomRoles.Ritualist) role = CustomRoles.NiceGuesser;
+            role = role switch
+            {
+                CustomRoles.Eraser => CustomRoles.Cleanser,
+                CustomRoles.Visionary => CustomRoles.Oracle,
+                CustomRoles.Workaholic => CustomRoles.Snitch,
+                CustomRoles.Sunnyboy => CustomRoles.Doctor,
+                CustomRoles.Vindicator or CustomRoles.Pickpocket => CustomRoles.Mayor,
+                CustomRoles.Councillor => CustomRoles.Judge,
+                CustomRoles.EvilGuesser or CustomRoles.Doomsayer or CustomRoles.Ritualist => CustomRoles.NiceGuesser,
+                _ => role,
+            };
         }
         if (role.IsCrewmate() && (!tpc.GetCustomSubRoles().Any(x => x == CustomRoles.Rascal)))
         {

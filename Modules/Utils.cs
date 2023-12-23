@@ -638,7 +638,7 @@ public static class Utils
             (pc.Is(CustomRoles.Judge) && !Options.JudgeCanBeMadmate.GetBool()) ||
             (pc.Is(CustomRoles.Marshall) && !Options.MarshallCanBeMadmate.GetBool()) ||
             (pc.Is(CustomRoles.Farseer) && !Options.FarseerCanBeMadmate.GetBool()) ||
-            (pc.Is(CustomRoles.Retributionist) && !Options.RetributionistCanBeMadmate.GetBool()) ||
+            //(pc.Is(CustomRoles.Retributionist) && !Options.RetributionistCanBeMadmate.GetBool()) ||
             pc.Is(CustomRoles.Needy) ||
             pc.Is(CustomRoles.Lazy) ||
             pc.Is(CustomRoles.Loyal) ||
@@ -2355,9 +2355,9 @@ public static class Utils
                                 case CustomRoles.Mafia when !seer.IsAlive() && target.IsAlive():
                                     TargetPlayerName = ColorString(GetRoleColor(CustomRoles.Mafia), target.PlayerId.ToString()) + ' ' + TargetPlayerName;
                                     break;
-                                case CustomRoles.Retributionist when !seer.IsAlive() && target.IsAlive():
-                                    TargetPlayerName = ColorString(GetRoleColor(CustomRoles.Retributionist), target.PlayerId.ToString()) + ' ' + TargetPlayerName;
-                                    break;
+                                //case CustomRoles.Retributionist when !seer.IsAlive() && target.IsAlive():
+                                //    TargetPlayerName = ColorString(GetRoleColor(CustomRoles.Retributionist), target.PlayerId.ToString()) + ' ' + TargetPlayerName;
+                                //    break;
                                 case CustomRoles.Judge when seer.IsAlive() && target.IsAlive() && GuesserIsForMeeting:
                                     TargetPlayerName = ColorString(GetRoleColor(CustomRoles.Judge), target.PlayerId.ToString()) + ' ' + TargetPlayerName;
                                     break;

@@ -1789,17 +1789,17 @@ public static class Options
         RoleLoadingText = "Crewmate roles\nVigilante";
         SwordsMan.SetupCustomOption();
         //Reverie.SetupCustomOption();
-        RoleLoadingText = "Crewmate roles\nRetributionist";
-        SetupRoleOptions(8700, TabGroup.CrewmateRoles, CustomRoles.Retributionist);
-        RetributionistCanKillNum = IntegerOptionItem.Create(8710, "RetributionistCanKillNum", new(0, 15, 1), 1, TabGroup.CrewmateRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Retributionist])
-            .SetValueFormat(OptionFormat.Players);
-        MinimumPlayersAliveToRetri = IntegerOptionItem.Create(8718, "MinimumPlayersAliveToRetri", new(0, 15, 1), 5, TabGroup.CrewmateRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Retributionist])
-            .SetValueFormat(OptionFormat.Players);
-        CanOnlyRetributeWithTasksDone = BooleanOptionItem.Create(8715, "CanOnlyRetributeWithTasksDone", true, TabGroup.CrewmateRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Retributionist]);
-        RetributionistTasks = OverrideTasksData.Create(8720, TabGroup.CrewmateRoles, CustomRoles.Retributionist);
+        //RoleLoadingText = "Crewmate roles\nRetributionist";
+        //SetupRoleOptions(8700, TabGroup.CrewmateRoles, CustomRoles.Retributionist);
+        //RetributionistCanKillNum = IntegerOptionItem.Create(8710, "RetributionistCanKillNum", new(0, 15, 1), 1, TabGroup.CrewmateRoles, false)
+        //    .SetParent(CustomRoleSpawnChances[CustomRoles.Retributionist])
+        //    .SetValueFormat(OptionFormat.Players);
+        //MinimumPlayersAliveToRetri = IntegerOptionItem.Create(8718, "MinimumPlayersAliveToRetri", new(0, 15, 1), 5, TabGroup.CrewmateRoles, false)
+        //    .SetParent(CustomRoleSpawnChances[CustomRoles.Retributionist])
+        //    .SetValueFormat(OptionFormat.Players);
+        //CanOnlyRetributeWithTasksDone = BooleanOptionItem.Create(8715, "CanOnlyRetributeWithTasksDone", true, TabGroup.CrewmateRoles, false)
+        //    .SetParent(CustomRoleSpawnChances[CustomRoles.Retributionist]);
+        //RetributionistTasks = OverrideTasksData.Create(8720, TabGroup.CrewmateRoles, CustomRoles.Retributionist);
 
         LoadingPercentage = 25;
         RoleLoadingText = "Crewmate roles\nSheriff";
@@ -3640,7 +3640,7 @@ public static class Options
             .SetHeader(true)
             .SetGameMode(customGameMode) as StringOptionItem;
         var countOption = IntegerOptionItem.Create(id + 1, "Maximum", new(1, 15, 1), 1, tab, false)
-        .SetParent(spawnOption)
+            .SetParent(spawnOption)
             .SetValueFormat(OptionFormat.Players)
             .SetGameMode(customGameMode);
 

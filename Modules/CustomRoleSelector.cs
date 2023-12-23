@@ -13,7 +13,6 @@ internal class CustomRoleSelector
 
     public static void SelectCustomRoles()
     {
-        // 开始职业抽取
         RoleResult = [];
         var rd = IRandom.Instance;
         int playerCount = Main.AllAlivePlayerControls.Length;
@@ -38,7 +37,6 @@ internal class CustomRoleSelector
         int readyRoleNum = 0;
         int readyNonNeutralKillingNum = 0;
         int readyNeutralKillingNum = 0;
-        // int readyCovenNum = 0;
 
         List<CustomRoles> rolesToAssign = [];
         List<CustomRoles> roleList = [];
@@ -49,11 +47,9 @@ internal class CustomRoleSelector
 
         List<CustomRoles> NonNeutralKillingOnList = [];
         List<CustomRoles> NonNeutralKillingRateList = [];
-        // List<CustomRoles> CovenOnList = new();
 
         List<CustomRoles> NeutralKillingOnList = [];
         List<CustomRoles> NeutralKillingRateList = [];
-        // List<CustomRoles> CovenRateList = new();
 
         List<CustomRoles> roleRateList = [];
 

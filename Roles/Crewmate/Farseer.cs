@@ -91,7 +91,7 @@ namespace TOHE.Roles.Crewmate
             CustomRoles.Observer,
             CustomRoles.DovesOfNeace,
             CustomRoles.Bloodhound,
-            CustomRoles.Retributionist,
+            //CustomRoles.Retributionist,
             CustomRoles.Guardian,
             CustomRoles.Spiritualist,
             CustomRoles.Tracker,

@@ -176,7 +176,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Tracker => CustomRoles.Crewmate,
                 CustomRoles.Merchant => CustomRoles.Crewmate,
                 CustomRoles.Lookout => CustomRoles.Crewmate,
-                CustomRoles.Retributionist => CustomRoles.Crewmate,
+                //CustomRoles.Retributionist => CustomRoles.Crewmate,
                 CustomRoles.Guardian => CustomRoles.Crewmate,
                 CustomRoles.Enigma => CustomRoles.Crewmate,
                 CustomRoles.Addict => CustomRoles.Engineer,
@@ -270,7 +270,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Snitch => CustomRoles.CrewmateTOHE,
                 CustomRoles.Marshall => CustomRoles.CrewmateTOHE,
                 CustomRoles.SabotageMaster => CustomRoles.EngineerTOHE,
-                CustomRoles.Retributionist => CustomRoles.Crewmate,
+                //CustomRoles.Retributionist => CustomRoles.Crewmate,
                 CustomRoles.Witness => CustomRoles.CrewmateTOHE,
                 CustomRoles.Guardian => CustomRoles.CrewmateTOHE,
                 CustomRoles.Addict => CustomRoles.EngineerTOHE,
@@ -751,7 +751,7 @@ internal static class CustomRolesHelper
             CustomRoles.Crusader or
             CustomRoles.NiceGuesser or
             //CustomRoles.Counterfeiter or
-            CustomRoles.Retributionist or
+            //CustomRoles.Retributionist or
             CustomRoles.Sheriff or
             CustomRoles.Jailor;
     }

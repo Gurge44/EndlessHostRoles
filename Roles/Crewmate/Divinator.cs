@@ -269,7 +269,7 @@ public static class Divinator
                 => "Result17",
 
                 CustomRoles.Mafia or
-                CustomRoles.Retributionist or
+                //CustomRoles.Retributionist or
                 CustomRoles.Gangster or
                 CustomRoles.Glitch or
                 CustomRoles.Doppelganger or
