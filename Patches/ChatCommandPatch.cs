@@ -61,7 +61,7 @@ internal class ChatCommands
         if (Councillor.MurderMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (Mediumshiper.MsMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (MafiaRevengeManager.MafiaMsgCheck(PlayerControl.LocalPlayer, text)) goto Canceled;
-        if (RetributionistRevengeManager.RetributionistMsgCheck(PlayerControl.LocalPlayer, text)) goto Canceled;
+        //if (RetributionistRevengeManager.RetributionistMsgCheck(PlayerControl.LocalPlayer, text)) goto Canceled;
 
         if (Blackmailer.ForBlackmailer.Contains(PlayerControl.LocalPlayer.PlayerId) && PlayerControl.LocalPlayer.IsAlive())
         {
@@ -848,7 +848,7 @@ internal class ChatCommands
         if (Councillor.MurderMsg(player, text)) { canceled = true; return; }
         if (Mediumshiper.MsMsg(player, text)) return;
         if (MafiaRevengeManager.MafiaMsgCheck(player, text)) return;
-        if (RetributionistRevengeManager.RetributionistMsgCheck(player, text)) return;
+        //if (RetributionistRevengeManager.RetributionistMsgCheck(player, text)) return;
         if (Blackmailer.ForBlackmailer.Contains(player.PlayerId) && player.IsAlive() && player.PlayerId != 0)
         {
             ChatManager.SendPreviousMessagesToAll();

@@ -773,9 +773,9 @@ internal class RPCHandlerPatch
             case CustomRPC.MafiaRevenge:
                 MafiaRevengeManager.ReceiveRPC(reader, __instance);
                 break;
-            case CustomRPC.RetributionistRevenge:
-                RetributionistRevengeManager.ReceiveRPC(reader, __instance);
-                break;
+            //case CustomRPC.RetributionistRevenge:
+            //    RetributionistRevengeManager.ReceiveRPC(reader, __instance);
+            //    break;
             case CustomRPC.SetSwooperTimer:
                 Swooper.ReceiveRPC(reader);
                 break;
