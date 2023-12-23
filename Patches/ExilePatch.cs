@@ -142,8 +142,6 @@ class ExileControllerWrapUpPatch
 
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
-            pc.ResetKillCooldown();
-
             if (pc.Is(CustomRoles.Warlock))
             {
                 Main.CursedPlayers[pc.PlayerId] = null;
@@ -151,7 +149,9 @@ class ExileControllerWrapUpPatch
                 //RPC.RpcSyncCurseAndKill();
             }
 
+            pc.ResetKillCooldown();
             pc.RpcResetAbilityCooldown();
+            PetsPatch.RpcRemovePet(pc);
         }
         if (Options.RandomSpawn.GetBool() || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop)
         {
@@ -239,7 +239,7 @@ class ExileControllerWrapUpPatch
             }, 0.5f, log: false);
         }
 
-        _ = new LateTask(() => { ChatManager.SendPreviousMessagesToAll(); }, 1f, log: false);
+        _ = new LateTask(() => { ChatManager.SendPreviousMessagesToAll(); }, 3f, log: false);
     }
 }
 

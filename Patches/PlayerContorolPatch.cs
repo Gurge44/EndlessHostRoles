@@ -1952,12 +1952,17 @@ class ReportDeadBodyPatch
         Main.RevolutionistStart.Clear();
         Main.RevolutionistLastTime.Clear();
 
-        Main.AllPlayerControls
-            .Where(pc => Main.CheckShapeshift.ContainsKey(pc.PlayerId) && !Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId))
-            .Do(pc => Camouflage.RpcSetSkin(pc, RevertToDefault: true));
+        foreach (var pc in Main.AllPlayerControls)
+        {
+            if (Main.CheckShapeshift.ContainsKey(pc.PlayerId) && !Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId))
+            {
+                Camouflage.RpcSetSkin(pc, RevertToDefault: true);
+            }
+        }
 
         MeetingTimeManager.OnReportDeadBody();
 
+        NameNotifyManager.Reset();
         _ = new LateTask(() => { NotifyRoles(isForMeeting: true, NoCache: true, CamouflageIsForMeeting: true, GuesserIsForMeeting: true); }, 0.5f, log: false);
 
         _ = new LateTask(SyncAllSettings, 3f, "SyncAllSettings on meeting start");
@@ -2075,10 +2080,15 @@ class FixedUpdatePatch
                 if (LevelKickBufferTime <= 0)
                 {
                     LevelKickBufferTime = 20;
-                    AmongUsClient.Instance.KickPlayer(player.GetClientId(), false);
+                    if (player.GetClient().ProductUserId != "")
+                    {
+                        if (!BanManager.TempBanWhiteList.Contains(player.GetClient().GetHashedPuid()))
+                            BanManager.TempBanWhiteList.Add(player.GetClient().GetHashedPuid());
+                    }
                     string msg = string.Format(GetString("KickBecauseLowLevel"), player.GetRealName().RemoveHtmlTags());
                     Logger.SendInGame(msg);
-                    Logger.Info(msg, "LowLevel Kick");
+                    AmongUsClient.Instance.KickPlayer(player.GetClientId(), true);
+                    Logger.Info(msg, "Low Level Temp Ban");
                 }
             }
 
@@ -3621,6 +3631,14 @@ class PlayerControlCompleteTaskPatch
             //ライターもしくはスピードブースターもしくはドクターがいる試合のみタスク終了時にCustomSyncAllSettingsを実行する
             MarkEveryoneDirtySettings();
         }
+    }
+}
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Die))]
+public static class PlayerControlDiePatch
+{
+    public static void Postfix(PlayerControl __instance)
+    {
+        if (AmongUsClient.Instance.AmHost) PetsPatch.RpcRemovePet(__instance);
     }
 }
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckSporeTrigger))]

@@ -243,6 +243,8 @@ public class Main : BasePlugin
 
     public static GameData.PlayerInfo LastVotedPlayerInfo { get => lastVotedPlayerInfo; set => lastVotedPlayerInfo = value; }
 
+    public static MapNames CurrentMap => (MapNames)NormalOptions.MapId;
+
     public override void Load()
     {
         Instance = this;

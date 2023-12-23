@@ -14,7 +14,7 @@ public static class NameNotifyManager
         if (!AmongUsClient.Instance.AmHost || pc == null) return;
         if (!GameStates.IsInTask) return;
         //if (!text.Contains("<color=#")) text = Utils.ColorString(Utils.GetRoleColor(pc.GetCustomRole()), text);
-        if (!text.Contains("<color=#")) text = Utils.ColorString(Color.white, text);
+        if (!text.Contains("<color=") && !text.Contains("</color>")) text = Utils.ColorString(Color.white, text);
         if (!text.Contains("<size=")) text = "<size=1.8>" + text + "</size>";
         Notice.Remove(pc.PlayerId);
         Notice.Add(pc.PlayerId, new(text, Utils.GetTimeStamp() + (long)time));
@@ -26,7 +26,7 @@ public static class NameNotifyManager
     {
         if (!GameStates.IsInTask)
         {
-            Notice = [];
+            if (Notice.Count > 0) Notice = [];
             return;
         }
         if (Notice.ContainsKey(player.PlayerId) && Notice[player.PlayerId].TIMESTAMP < Utils.GetTimeStamp())
@@ -60,8 +60,9 @@ public static class NameNotifyManager
     {
         byte PlayerId = reader.ReadByte();
         Notice.Remove(PlayerId);
+        long now = Utils.GetTimeStamp();
         if (reader.ReadBoolean())
-            Notice.Add(PlayerId, new(reader.ReadString(), Utils.GetTimeStamp() + (long)reader.ReadSingle()));
-        Logger.Info($"New name notify for {Main.AllPlayerNames[PlayerId]}: {Notice[PlayerId].TEXT} ({Notice[PlayerId].TIMESTAMP - Utils.GetTimeStamp()}s)", "Name Notify");
+            Notice.Add(PlayerId, new(reader.ReadString(), now + (long)reader.ReadSingle()));
+        Logger.Info($"New name notify for {Main.AllPlayerNames[PlayerId]}: {Notice[PlayerId].TEXT} ({Notice[PlayerId].TIMESTAMP - now}s)", "Name Notify");
     }
 }

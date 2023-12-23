@@ -175,6 +175,9 @@ internal class MoveAndStopManager
         AllPlayerTimers = [];
         RoundTime = MoveAndStop_GameTime.GetInt() + 8;
 
+        FixedUpdatePatch.DoChecks = false;
+        _ = new LateTask(() => { FixedUpdatePatch.DoChecks = true; }, 10f, log: false);
+
         long now = Utils.GetTimeStamp();
         float limit;
 
@@ -220,12 +223,13 @@ internal class MoveAndStopManager
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     class FixedUpdatePatch
     {
+        public static bool DoChecks = false;
         private static long LastFixedUpdate;
         public static Dictionary<byte, string> LastSuffix = [];
         public static Dictionary<byte, float> Limit = [];
         public static void Postfix(PlayerControl __instance)
         {
-            if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.MoveAndStop || !__instance.IsAlive() || !AmongUsClient.Instance.AmHost) return;
+            if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.MoveAndStop || !__instance.IsAlive() || !AmongUsClient.Instance.AmHost || !DoChecks) return;
 
             var pc = __instance;
 

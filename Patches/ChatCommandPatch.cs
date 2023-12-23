@@ -1135,9 +1135,8 @@ internal class ChatUpdatePatch
     public static bool DoBlockChat;
     public static void Postfix(ChatController __instance)
     {
-        if (!AmongUsClient.Instance.AmHost || Main.MessagesToSend.Count == 0 || (Main.MessagesToSend[0].RECEIVER_ID == byte.MaxValue && Main.MessageWait.Value > __instance.timeSinceLastMessage)) return;
-        if (DoBlockChat) return;
-        var player = Main.AllAlivePlayerControls.OrderBy(x => x.PlayerId).FirstOrDefault() ?? Main.AllPlayerControls.OrderBy(x => x.PlayerId).FirstOrDefault();
+        if (!AmongUsClient.Instance.AmHost || Main.MessagesToSend.Count == 0 || (Main.MessagesToSend[0].RECEIVER_ID == byte.MaxValue && Main.MessageWait.Value > __instance.timeSinceLastMessage) || DoBlockChat) return;
+        var player = Main.AllAlivePlayerControls.OrderBy(x => x.PlayerId).FirstOrDefault() ?? Main.AllPlayerControls.OrderBy(x => x.PlayerId).FirstOrDefault() ?? PlayerControl.LocalPlayer;
         if (player == null) return;
         (string msg, byte sendTo, string title) = Main.MessagesToSend[0];
         Main.MessagesToSend.RemoveAt(0);
@@ -1166,19 +1165,36 @@ internal class ChatUpdatePatch
     }
 }
 
-[HarmonyPatch(typeof(ChatController), nameof(ChatController.AddChat))]
-internal class AddChatPatch
+//[HarmonyPatch(typeof(ChatController), nameof(ChatController.AddChat))]
+//internal class AddChatPatch
+//{
+//    public static void Postfix(string chatText)
+//    {
+//        switch (chatText)
+//        {
+//            default:
+//                break;
+//        }
+//        if (!AmongUsClient.Instance.AmHost) return;
+//    }
+//}
+
+[HarmonyPatch(typeof(FreeChatInputField), nameof(FreeChatInputField.UpdateCharCount))]
+internal class UpdateCharCountPatch
 {
-    public static void Postfix(string chatText)
+    public static void Postfix(FreeChatInputField __instance)
     {
-        switch (chatText)
-        {
-            default:
-                break;
-        }
-        if (!AmongUsClient.Instance.AmHost) return;
+        int length = __instance.textArea.text.Length;
+        __instance.charCountText.SetText(length <= 0 ? "Thank you for using TOHE+!" : $"{length}/{__instance.textArea.characterLimit}");
+        if (length < (AmongUsClient.Instance.AmHost ? 1700 : 250))
+            __instance.charCountText.color = Color.black;
+        else if (length < (AmongUsClient.Instance.AmHost ? 1900 : 300))
+            __instance.charCountText.color = new Color(1f, 1f, 0f, 1f);
+        else
+            __instance.charCountText.color = Color.red;
     }
 }
+
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcSendChat))]
 internal class RpcSendChatPatch
 {

@@ -108,6 +108,11 @@ public static class Camouflage
             foreach (var pc in Main.AllPlayerControls)
             {
                 RpcSetSkin(pc);
+
+                if (!IsCamouflage && !pc.IsAlive())
+                {
+                    PetsPatch.RpcRemovePet(pc);
+                }
             }
             Utils.NotifyRoles(NoCache: true);
         }

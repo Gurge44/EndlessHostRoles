@@ -15,4 +15,19 @@ public static class PetsPatch
         if (outfit.PetId == string.Empty || outfit.PetId == "") outfit.PetId = petId;
         RPC.SendGameData(player.GetClientId());
     }
+    public static void RpcRemovePet(PlayerControl pc)
+    {
+        if (pc == null || !pc.Data.IsDead) return;
+        if (!GameStates.IsInGame) return;
+        if (!Options.RemovePetsAtDeadPlayers.GetBool()) return;
+        if (pc.CurrentOutfit.PetId == "") return;
+
+        var sender = CustomRpcSender.Create(name: "Remove Pet From Dead Player");
+
+        pc.RpcSetPet("");
+        sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetPetStr)
+            .Write("")
+            .EndRpc();
+        sender.SendMessage();
+    }
 }

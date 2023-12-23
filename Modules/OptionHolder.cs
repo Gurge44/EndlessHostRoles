@@ -71,13 +71,6 @@ public static class Options
         "MoveAndStop"
     ];
 
-    // MapActive
-    public static bool IsActiveSkeld => Main.NormalOptions.MapId == 0;
-    public static bool IsActiveMiraHQ => Main.NormalOptions.MapId == 1;
-    public static bool IsActivePolus => Main.NormalOptions.MapId == 2;
-    public static bool IsActiveAirship => Main.NormalOptions.MapId == 4;
-    public static bool IsActiveFungle => Main.NormalOptions.MapId == 5;
-
     // 役職数・確率
     public static Dictionary<CustomRoles, int> roleCounts;
     public static Dictionary<CustomRoles, float> roleSpawnChances;
@@ -875,6 +868,7 @@ public static class Options
     public static OptionItem SendRoleDescriptionFirstMeeting;
     public static OptionItem RoleAssigningAlgorithm;
     public static OptionItem EndWhenPlayerBug;
+    public static OptionItem RemovePetsAtDeadPlayers;
 
     public static OptionItem UsePets;
     public static OptionItem PetToAssignToEveryone;
@@ -2735,6 +2729,9 @@ public static class Options
         EndWhenPlayerBug = BooleanOptionItem.Create(19318, "EndWhenPlayerBug", true, TabGroup.SystemSettings, false)
             .SetHeader(true)
             .SetColor(Color.blue);
+
+        RemovePetsAtDeadPlayers = BooleanOptionItem.Create(60294, "RemovePetsAtDeadPlayers", false, TabGroup.SystemSettings, false)
+            .SetColor(Color.magenta);
 
         CheatResponses = StringOptionItem.Create(19319, "CheatResponses", CheatResponsesName, 0, TabGroup.SystemSettings, false)
             .SetHeader(true);

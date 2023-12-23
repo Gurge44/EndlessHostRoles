@@ -1,9 +1,11 @@
 using HarmonyLib;
+using InnerNet;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using static TOHE.Translator;
@@ -15,9 +17,11 @@ public static class BanManager
     private static readonly string DENY_NAME_LIST_PATH = @"./TOHE_DATA/DenyName.txt";
     private static readonly string BAN_LIST_PATH = @"./TOHE_DATA/BanList.txt";
     private static readonly string MODERATOR_LIST_PATH = @"./TOHE_DATA/Moderators.txt";
+    private static readonly string WHITE_LIST_LIST_PATH = @"./TOHE_DATA/WhiteList.txt";
 #pragma warning disable IDE0044 // Add readonly modifier
-    private static List<string> EACList = [];
+    private static List<string> EACList = []; // Don't make it read-only
 #pragma warning restore IDE0044 // Add readonly modifier
+    public static List<string> TempBanWhiteList = []; //To prevent writing to ban list
     public static void Init()
     {
         try
@@ -26,12 +30,12 @@ public static class BanManager
 
             if (!File.Exists(BAN_LIST_PATH))
             {
-                Logger.Warn("创建新的 BanList.txt 文件", "BanManager");
+                Logger.Warn("Create a new BanList.txt file", "BanManager");
                 File.Create(BAN_LIST_PATH).Close();
             }
             if (!File.Exists(DENY_NAME_LIST_PATH))
             {
-                Logger.Warn("创建新的 DenyName.txt 文件", "BanManager");
+                Logger.Warn("Create a new DenyName.txt file", "BanManager");
                 File.Create(DENY_NAME_LIST_PATH).Close();
                 File.WriteAllText(DENY_NAME_LIST_PATH, GetResourcesTxt("TOHE.Resources.Config.DenyName.txt"));
             }
@@ -39,19 +43,21 @@ public static class BanManager
             {
                 Logger.Warn("Creating a new Moderators.txt file", "BanManager");
                 File.Create(MODERATOR_LIST_PATH).Close();
-                File.WriteAllText(MODERATOR_LIST_PATH, GetResourcesTxt("TOHE.Resources.Config.Moderators.txt"));
+            }
+            if (!File.Exists(WHITE_LIST_LIST_PATH))
+            {
+                Logger.Warn("Creating a new WhiteList.txt file", "BanManager");
+                File.Create(WHITE_LIST_LIST_PATH).Close();
             }
 
-            //读取EAC名单
+            // Read EAC List
             var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("TOHE.Resources.Config.EACList.txt");
             stream.Position = 0;
             using StreamReader sr = new(stream, Encoding.UTF8);
             string line;
             while ((line = sr.ReadLine()) != null)
             {
-                if (line == string.Empty || line.StartsWith("#")) continue;
-                //          if (line.Contains("actorour#0029")) continue;
-                //if (line.Contains("gnuedaphic#7196")) continue;
+                if (line == "" || line.StartsWith("#")) continue;
                 EACList.Add(line);
             }
 
@@ -63,26 +69,38 @@ public static class BanManager
     }
     private static string GetResourcesTxt(string path)
     {
-        var stream = Assembly.GetExecutingAssembly()?.GetManifestResourceStream(path);
-        if (stream == null)
-        {
-            Logger.Error("Assembly.GetExecutingAssembly()?.GetManifestResourceStream(path) ended up being null", "BanManager.GetResourcesTxt");
-            return string.Empty;
-        }
+        var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
         stream.Position = 0;
         using StreamReader reader = new(stream, Encoding.UTF8);
         return reader.ReadToEnd();
     }
-    public static void AddBanPlayer(InnerNet.ClientData player)
+    public static string GetHashedPuid(this ClientData player)
+    {
+        if (player == null) return "";
+        string puid = player.ProductUserId;
+        using SHA256 sha256 = SHA256.Create();
+        // get sha-256 hash
+        byte[] sha256Bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(puid));
+        string sha256Hash = BitConverter.ToString(sha256Bytes).Replace("-", "").ToLower();
+
+        // pick front 5 and last 4
+        return string.Concat(sha256Hash.AsSpan(0, 5), sha256Hash.AsSpan(sha256Hash.Length - 4));
+    }
+    public static void AddBanPlayer(ClientData player)
     {
         if (!AmongUsClient.Instance.AmHost || player == null) return;
-        if (!CheckBanList(player?.FriendCode) && player.FriendCode != string.Empty)
+        if (!CheckBanList(player?.FriendCode, player?.GetHashedPuid()) && !TempBanWhiteList.Contains(player?.GetHashedPuid()))
         {
-            File.AppendAllText(BAN_LIST_PATH, $"{player.FriendCode},{player.PlayerName}\n");
-            Logger.SendInGame(string.Format(GetString("Message.AddedPlayerToBanList"), player.PlayerName));
+            if (player?.GetHashedPuid() != "" && player?.GetHashedPuid() != null && player?.GetHashedPuid() != "e3b0cb855")
+            {
+                File.AppendAllText(BAN_LIST_PATH, $"{player.FriendCode},{player?.GetHashedPuid()},{player.PlayerName.RemoveHtmlTags()}\n");
+                Logger.SendInGame(string.Format(GetString("Message.AddedPlayerToBanList"), player.PlayerName));
+            }
+            else Logger.Info($"Failed to add player {player?.PlayerName.RemoveHtmlTags()}/{player?.FriendCode}/{player?.GetHashedPuid()} to ban list!", "AddBanPlayer");
         }
     }
-    public static void CheckDenyNamePlayer(InnerNet.ClientData player)
+
+    public static void CheckDenyNamePlayer(ClientData player)
     {
         if (!AmongUsClient.Instance.AmHost || !Options.ApplyDenyNameList.GetBool()) return;
         try
@@ -93,9 +111,7 @@ public static class BanManager
             string line;
             while ((line = sr.ReadLine()) != null)
             {
-                if (line == string.Empty) continue;
-                //     if (line.Contains("actorour#0029")) continue;
-                //if (line.Contains("gnuedaphic#7196")) continue;
+                if (line == "") continue;
                 if (line.Contains("Amogus"))
                 {
                     AmongUsClient.Instance.KickPlayer(player.Id, false);
@@ -125,27 +141,36 @@ public static class BanManager
             Logger.Exception(ex, "CheckDenyNamePlayer");
         }
     }
-    public static void CheckBanPlayer(InnerNet.ClientData player)
+    public static void CheckBanPlayer(ClientData player)
     {
         if (!AmongUsClient.Instance.AmHost || !Options.ApplyBanList.GetBool()) return;
-        if (CheckBanList(player?.FriendCode))
+        if (CheckBanList(player?.FriendCode, player?.GetHashedPuid()))
         {
             AmongUsClient.Instance.KickPlayer(player.Id, true);
             Logger.SendInGame(string.Format(GetString("Message.BanedByBanList"), player.PlayerName));
             Logger.Info($"{player.PlayerName}は過去にBAN済みのためBANされました。", "BAN");
             return;
         }
-        if (CheckEACList(player?.FriendCode))
+        if (CheckEACList(player?.FriendCode, player?.GetHashedPuid()))
         {
             AmongUsClient.Instance.KickPlayer(player.Id, true);
             Logger.SendInGame(string.Format(GetString("Message.BanedByEACList"), player.PlayerName));
             Logger.Info($"{player.PlayerName}存在于EAC封禁名单", "BAN");
             return;
         }
+        if (TempBanWhiteList.Contains(player?.GetHashedPuid()))
+        {
+            AmongUsClient.Instance.KickPlayer(player.Id, true);
+            //This should not happen
+            Logger.Info($"{player.PlayerName} was in temp ban list", "BAN");
+            return;
+        }
     }
-    public static bool CheckBanList(string code)
+    public static bool CheckBanList(string code, string hashedpuid = "")
     {
-        if (code == string.Empty) return false;
+        bool OnlyCheckPuid = false;
+        if (code == "" && hashedpuid != "") OnlyCheckPuid = true;
+        else if (code == "") return false;
         try
         {
             Directory.CreateDirectory("TOHE_DATA");
@@ -154,10 +179,10 @@ public static class BanManager
             string line;
             while ((line = sr.ReadLine()) != null)
             {
-                if (line == string.Empty) continue;
-                //     if (line.Contains("actorour#0029")) continue;
-                //if (line.Contains("gnuedaphic#7196")) continue;
-                if (line.Contains(code)) return true;
+                if (line == "") continue;
+                if (!OnlyCheckPuid)
+                    if (line.Contains(code)) return true;
+                if (line.Contains(hashedpuid)) return true;
             }
         }
         catch (Exception ex)
@@ -166,10 +191,12 @@ public static class BanManager
         }
         return false;
     }
-    public static bool CheckEACList(string code)
+    public static bool CheckEACList(string code, string hashedPuid)
     {
-        if (code == string.Empty) return false;
-        return EACList.Any(x => x.Contains(code));
+        bool OnlyCheckPuid = false;
+        if (code == "" && hashedPuid == "") OnlyCheckPuid = true;
+        else if (code == "") return false;
+        return EACList.Any(x => x.Contains(code) && !OnlyCheckPuid) || EACList.Any(x => x.Contains(hashedPuid) && hashedPuid != "");
     }
 }
 [HarmonyPatch(typeof(BanMenu), nameof(BanMenu.Select))]
@@ -177,8 +204,8 @@ class BanMenuSelectPatch
 {
     public static void Postfix(BanMenu __instance, int clientId)
     {
-        InnerNet.ClientData recentClient = AmongUsClient.Instance.GetRecentClient(clientId);
+        ClientData recentClient = AmongUsClient.Instance.GetRecentClient(clientId);
         if (recentClient == null) return;
-        if (!BanManager.CheckBanList(recentClient?.FriendCode)) __instance.BanButton.GetComponent<ButtonRolloverHandler>().SetEnabledColors();
+        if (!BanManager.CheckBanList(recentClient?.FriendCode, recentClient?.GetHashedPuid())) __instance.BanButton.GetComponent<ButtonRolloverHandler>().SetEnabledColors();
     }
 }

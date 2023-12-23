@@ -261,13 +261,13 @@ internal class CustomRoleSelector
                 rolesToAssign.Remove(CustomRoles.Lovers);
         }
 
-        // Players on the EAC banned list will be assigned as jester when opening rooms
-        if (BanManager.CheckEACList(PlayerControl.LocalPlayer.FriendCode))
+        // Players on the EAC banned list will be assigned as basic ass crewmates when opening rooms
+        if (BanManager.CheckEACList(PlayerControl.LocalPlayer.FriendCode, PlayerControl.LocalPlayer.GetClient().GetHashedPuid()))
         {
-            if (!rolesToAssign.Contains(CustomRoles.Jester))
-                rolesToAssign.Add(CustomRoles.Jester);
+            if (!rolesToAssign.Contains(CustomRoles.CrewmateTOHE))
+                rolesToAssign.Add(CustomRoles.CrewmateTOHE);
             Main.DevRole.Remove(PlayerControl.LocalPlayer.PlayerId);
-            Main.DevRole.Add(PlayerControl.LocalPlayer.PlayerId, CustomRoles.Jester);
+            Main.DevRole.Add(PlayerControl.LocalPlayer.PlayerId, CustomRoles.CrewmateTOHE);
         }
 
         // Dev Roles List Edit

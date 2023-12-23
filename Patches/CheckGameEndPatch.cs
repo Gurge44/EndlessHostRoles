@@ -18,19 +18,14 @@ class GameEndChecker
     {
         if (!AmongUsClient.Instance.AmHost) return true;
 
-        //ゲーム終了判定済みなら中断
         if (predicate == null) return false;
 
-        //ゲーム終了しないモードで廃村以外の場合は中断
         if (Options.NoGameEnd.GetBool() && CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw and not CustomWinner.Error) return false;
 
-        //廃村用に初期値を設定
         var reason = GameOverReason.ImpostorByKill;
 
-        //ゲーム終了判定
         predicate.CheckForEndGame(out reason);
 
-        // SoloKombat
         if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop)
         {
             if (CustomWinnerHolder.WinnerIds.Any() || CustomWinnerHolder.WinnerTeam != CustomWinner.Default)
@@ -391,10 +386,7 @@ class GameEndChecker
         {
             reason = GameOverReason.ImpostorByKill;
             if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return false;
-            if (CheckGameEndByLivingPlayers(out reason)) return true;
-            if (CheckGameEndByTask(out reason)) return true;
-            if (CheckGameEndBySabotage(out reason)) return true;
-
+            if (CheckGameEndBySabotage(out reason) || CheckGameEndByTask(out reason) || CheckGameEndByLivingPlayers(out reason)) return true;
             return false;
         }
 

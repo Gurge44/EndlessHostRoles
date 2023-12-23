@@ -1382,12 +1382,12 @@ public static class Utils
             switch (opt.Value.Name)
             {
                 case "Maximum":
-                case "DisableSkeldDevices" when !Options.IsActiveSkeld:
-                case "DisableMiraHQDevices" when !Options.IsActiveMiraHQ:
-                case "DisablePolusDevices" when !Options.IsActivePolus:
-                case "DisableAirshipDevices" when !Options.IsActiveAirship:
-                case "PolusReactorTimeLimit" when !Options.IsActivePolus:
-                case "AirshipReactorTimeLimit" when !Options.IsActiveAirship:
+                case "DisableSkeldDevices" when Main.CurrentMap != MapNames.Skeld:
+                case "DisableMiraHQDevices" when Main.CurrentMap != MapNames.Mira:
+                case "DisablePolusDevices" when Main.CurrentMap != MapNames.Polus:
+                case "DisableAirshipDevices" when Main.CurrentMap != MapNames.Airship:
+                case "PolusReactorTimeLimit" when Main.CurrentMap != MapNames.Polus:
+                case "AirshipReactorTimeLimit" when Main.CurrentMap != MapNames.Airship:
                     continue;
             }
             if (deep > 0)
@@ -1872,21 +1872,31 @@ public static class Utils
                         break;
                 }
             }
-            if (!name.Contains('\r') && player.FriendCode.GetDevUser().HasTag())
-                name = player.FriendCode.GetDevUser().GetTag() + name;
-            else
+
+            DevUser devUser = player.FriendCode.GetDevUser();
+            if (!name.Contains('\r') && devUser.HasTag())
+            {
+                string tag = devUser.GetTag();
+                if (player.AmOwner || player.IsModClient())
+                name = tag + name;
+                else name = tag.Replace("\r\n", " - ") + name;
+            }
+
+            if (player.AmOwner)
+            {
                 name = Options.GetSuffixMode() switch
                 {
-                    SuffixModes.TOHE => name += $"\r\n<color={Main.ModColor}>TOHE-R v{Main.PluginDisplayVersion}</color>",
-                    SuffixModes.Streaming => name += $"\r\n<size=1.7><color={Main.ModColor}>{GetString("SuffixMode.Streaming")}</color></size>",
-                    SuffixModes.Recording => name += $"\r\n<size=1.7><color={Main.ModColor}>{GetString("SuffixMode.Recording")}</color></size>",
-                    SuffixModes.RoomHost => name += $"\r\n<size=1.7><color={Main.ModColor}>{GetString("SuffixMode.RoomHost")}</color></size>",
-                    SuffixModes.OriginalName => name += $"\r\n<size=1.7><color={Main.ModColor}>{DataManager.player.Customization.Name}</color></size>",
-                    SuffixModes.DoNotKillMe => name += $"\r\n<size=1.7><color={Main.ModColor}>{GetString("SuffixModeText.DoNotKillMe")}</color></size>",
-                    SuffixModes.NoAndroidPlz => name += $"\r\n<size=1.7><color={Main.ModColor}>{GetString("SuffixModeText.NoAndroidPlz")}</color></size>",
-                    SuffixModes.AutoHost => name += $"\r\n<size=1.7><color={Main.ModColor}>{GetString("SuffixModeText.AutoHost")}</color></size>",
+                    SuffixModes.TOHE => name + $"\r\n<color={Main.ModColor}>TOHE+ v{Main.PluginDisplayVersion}</color>",
+                    SuffixModes.Streaming => name + $"\r\n<size=1.7><color={Main.ModColor}>{GetString("SuffixMode.Streaming")}</color></size>",
+                    SuffixModes.Recording => name + $"\r\n<size=1.7><color={Main.ModColor}>{GetString("SuffixMode.Recording")}</color></size>",
+                    SuffixModes.RoomHost => name + $"\r\n<size=1.7><color={Main.ModColor}>{GetString("SuffixMode.RoomHost")}</color></size>",
+                    SuffixModes.OriginalName => name + $"\r\n<size=1.7><color={Main.ModColor}>{DataManager.player.Customization.Name}</color></size>",
+                    SuffixModes.DoNotKillMe => name + $"\r\n<size=1.7><color={Main.ModColor}>{GetString("SuffixModeText.DoNotKillMe")}</color></size>",
+                    SuffixModes.NoAndroidPlz => name + $"\r\n<size=1.7><color={Main.ModColor}>{GetString("SuffixModeText.NoAndroidPlz")}</color></size>",
+                    SuffixModes.AutoHost => name + $"\r\n<size=1.7><color={Main.ModColor}>{GetString("SuffixModeText.AutoHost")}</color></size>",
                     _ => name
                 };
+            }
         }
         if (name != player.name && player.CurrentOutfitType == PlayerOutfitType.Default)
             player.RpcSetName(name);

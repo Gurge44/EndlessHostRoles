@@ -48,11 +48,13 @@ class OnGameJoinedPatch
 
             _ = new LateTask(() =>
             {
-                if (BanManager.CheckEACList(PlayerControl.LocalPlayer.FriendCode) && GameStates.IsOnlineGame)
+                if (BanManager.CheckEACList(PlayerControl.LocalPlayer.FriendCode, PlayerControl.LocalPlayer.GetClient().GetHashedPuid()) && GameStates.IsOnlineGame)
                 {
                     AmongUsClient.Instance.ExitGame(DisconnectReasons.Banned);
                     SceneChanger.ChangeScene("MainMenu");
                 }
+                var client = PlayerControl.LocalPlayer.GetClient();
+                Logger.Info($"{client.PlayerName.RemoveHtmlTags()} (ClientID: {client.Id} / FriendCode: {client.FriendCode} / HashPuid: {client.GetHashedPuid()} / Platform: {client.PlatformData.Platform}) Hosted room", "Session");
             }, 1f, "OnGameJoinedPatch");
 
             Main.SetRoles = [];
@@ -79,11 +81,13 @@ class OnPlayerJoinedPatch
     public static void Postfix(AmongUsClient __instance, [HarmonyArgument(0)] ClientData client)
     {
         Logger.Info($"{client.PlayerName}(ClientID:{client.Id}/FriendCode:{client.FriendCode}) joined the lobby", "Session");
-        if (AmongUsClient.Instance.AmHost && client.FriendCode == string.Empty && Options.KickPlayerFriendCodeNotExist.GetBool())
+        if (AmongUsClient.Instance.AmHost && client.FriendCode == "" && Options.KickPlayerFriendCodeNotExist.GetBool() && !GameStates.IsLocalGame)
         {
-            AmongUsClient.Instance?.KickPlayer(client.Id, false);
+            if (!BanManager.TempBanWhiteList.Contains(client.GetHashedPuid()))
+                BanManager.TempBanWhiteList.Add(client.GetHashedPuid());
+            AmongUsClient.Instance?.KickPlayer(client.Id, true);
             Logger.SendInGame(string.Format(GetString("Message.KickedByNoFriendCode"), client.PlayerName));
-            Logger.Info($"フレンドコードがないプレイヤーを{client?.PlayerName}をキックしました。", "Kick");
+            Logger.Info($"TempBanned a player {client?.PlayerName} without a friend code", "Temp Ban");
         }
         if (AmongUsClient.Instance.AmHost && client.PlatformData.Platform == (Platforms.Android | Platforms.IPhone) && Options.KickAndroidPlayer.GetBool())
         {
@@ -95,7 +99,7 @@ class OnPlayerJoinedPatch
         if (DestroyableSingleton<FriendsListManager>.Instance.IsPlayerBlockedUsername(client.FriendCode) && AmongUsClient.Instance.AmHost)
         {
             AmongUsClient.Instance?.KickPlayer(client.Id, true);
-            Logger.Info($"ブロック済みのプレイヤー{client?.PlayerName}({client.FriendCode})をBANしました。", "BAN");
+            Logger.Info($"Ban Player ー {client?.PlayerName}({client.FriendCode}) has been banned.", "BAN");
         }
         BanManager.CheckBanPlayer(client);
         BanManager.CheckDenyNamePlayer(client);
@@ -105,7 +109,6 @@ class OnPlayerJoinedPatch
         {
             if (Main.SayStartTimes.ContainsKey(client.Id)) Main.SayStartTimes.Remove(client.Id);
             if (Main.SayBanwordsTimes.ContainsKey(client.Id)) Main.SayBanwordsTimes.Remove(client.Id);
-            //if (Main.newLobby && Options.ShareLobby.GetBool()) Cloud.ShareLobby();
         }
     }
 }
