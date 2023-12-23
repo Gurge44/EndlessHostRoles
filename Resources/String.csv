@@ -3356,6 +3356,12 @@
 "Prefix.Physicist","","Physicist ","","",""
 "PrefixB.Physicist","","<color=#ffffff>(</color>Physicist<color=#ffffff>)</color> ","","",""
 
+"## Mod Updater Text Strings"
+"updatePleaseWait","","Updating, Please Wait....","","",""
+"updateRestart","","Update Completed!\nRestart your game for the update to complete.","","",""
+"updateManually","","Update Failed!\nPlease update the mod manually.","","",""
+"Close","","Close","","",""
+
 "## Agitater"
 "Agitater","煽动者","Agitater","Агитатор","","Agitador"
 "AgitaterInfo","这个炸弹给你了！","Pass a Bomb onto others","Вот тебе подарок в виде бомбы","","Pásale la patata caliente a otros"
