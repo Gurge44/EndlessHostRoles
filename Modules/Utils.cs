@@ -1878,7 +1878,7 @@ public static class Utils
             {
                 string tag = devUser.GetTag();
                 if (player.AmOwner || player.IsModClient())
-                name = tag + name;
+                    name = tag + name;
                 else name = tag.Replace("\r\n", " - ") + name;
             }
 

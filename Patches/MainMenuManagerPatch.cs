@@ -88,12 +88,12 @@ public class MainMenuManagerPatch
         updatePassiveButton.OnClick.AddListener((Action)(() =>
         {
             updateButton.SetActive(false);
-            ModUpdater.StartUpdate(ModUpdater.downloadUrl);
+            ModUpdater.StartUpdate(ModUpdater.downloadUrl, true);
         }));
         updatePassiveButton.OnMouseOut.AddListener((Action)(() => updateButtonSprite.color = updateText.color = updateColor));
         updateButtonSprite.color = updateText.color = updateColor;
         updateButtonSprite.size *= 1.5f;
-        updateButton.SetActive(false);
+        updateButton.gameObject.SetActive(ModUpdater.hasUpdate);
 
 #if RELEASE
         //フリープレイの無効化

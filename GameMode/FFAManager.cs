@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using Hazel;
-using Il2CppSystem.Runtime.Remoting.Messaging;
 using System.Collections.Generic;
 using System.Linq;
 using TOHE.Modules;
@@ -400,7 +399,7 @@ internal static class FFAManager
                         pc.RPCPlayCustomSound("Teleport");
 
                         var originPs = target.Pos();
-                        target.TP(pc);
+                        target.TP(pc.Pos());
                         pc.TP(originPs);
 
                         target.Notify(Utils.ColorString(new Color32(0, 255, 165, byte.MaxValue), string.Format(GetString("FFA-Event-RandomTP"), pc.GetRealName())));

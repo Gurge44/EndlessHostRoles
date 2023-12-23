@@ -1,6 +1,5 @@
 using HarmonyLib;
 using InnerNet;
-using System.Collections.Generic;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Translator;
@@ -103,7 +102,7 @@ internal class InnerNetClientCanBanPatch
 internal class KickPlayerPatch
 {
     public static void Prefix(InnerNetClient __instance, int clientId, bool ban)
-        {
+    {
         if (!AmongUsClient.Instance.AmHost) return;
         if (ban) BanManager.AddBanPlayer(AmongUsClient.Instance.GetRecentClient(clientId));
     }

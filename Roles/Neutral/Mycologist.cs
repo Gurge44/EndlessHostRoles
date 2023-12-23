@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using static TOHE.Options;
-using static TOHE.Utils;
 using static TOHE.Translator;
+using static TOHE.Utils;
 
 namespace TOHE.Roles.Neutral
 {
