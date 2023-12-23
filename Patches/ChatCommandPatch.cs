@@ -263,24 +263,29 @@ internal class ChatCommands
                 case "/m":
                 case "/myrole":
                     canceled = true;
-                    var role = PlayerControl.LocalPlayer.GetCustomRole();
+                    var lp = PlayerControl.LocalPlayer;
+                    var role = lp.GetCustomRole();
                     if (GameStates.IsInGame)
                     {
-                        var lp = PlayerControl.LocalPlayer;
                         var sb = new StringBuilder();
+                        var settings = new StringBuilder();
+                        settings.Append("<size=70%>");
                         _ = sb.Append(GetString(role.ToString()) + Utils.GetRoleMode(role) + lp.GetRoleInfo(true));
                         if (Options.CustomRoleSpawnChances.TryGetValue(role, out var opt))
-                            Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[role], ref sb, command: true);
+                            Utils.ShowChildrenSettings(opt, ref settings, disableColor: false);
+                        settings.Append("</size>");
                         var txt = sb.ToString();
                         _ = sb.Clear().Append(txt.RemoveHtmlTags());
-                        foreach (CustomRoles subRole in Main.PlayerStates[lp.PlayerId].SubRoles.ToArray())
+                        sb.Append("<size=70%>");
+                        foreach (CustomRoles subRole in Main.PlayerStates[localPlayerId].SubRoles.ToArray())
                         {
                             _ = sb.Append($"\n\n" + GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
                         }
-                        Utils.SendMessage(sb.ToString(), lp.PlayerId);
+                        Utils.SendMessage("\n", localPlayerId, settings.ToString());
+                        Utils.SendMessage(sb.ToString(), localPlayerId, string.Empty);
                     }
                     else
-                        Utils.SendMessage((PlayerControl.LocalPlayer.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + GetString("Message.CanNotUseInLobby"), localPlayerId);
+                        Utils.SendMessage((lp.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + GetString("Message.CanNotUseInLobby"), localPlayerId);
                     break;
 
                 case "/t":
@@ -803,18 +808,18 @@ internal class ChatCommands
                     }
                     if (devMark == "▲")
                     {
-                        byte pid = playerId == 255 ? (byte)0 : playerId; // rl contains the ID whose role we want to set, move that to pid
+                        byte pid = playerId == 255 ? (byte)0 : playerId;
                         _ = Main.DevRole.Remove(pid);
                         Main.DevRole.Add(pid, rl);
                     }
                     if (isUp) return;
                 }
                 var sb = new StringBuilder();
-                _ = sb.Append(devMark + "<b>" + roleName + "</b>" + Utils.GetRoleMode(rl) + GetString($"{rl}InfoLong"));
+                _ = sb.Append($"{devMark}<b>{roleName}</b>{Utils.GetRoleMode(rl)}{GetString($"{rl}InfoLong")}");
                 var settings = new StringBuilder();
                 if (Options.CustomRoleSpawnChances.ContainsKey(rl))
                 {
-                    settings.AppendLine($"<size=70%><u>Settings for {roleName}:</u>");
+                    settings.AppendLine($"<size=70%><u>Settings for <{Main.roleColors[rl]}>{roleName}</color>:</u>");
                     Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[rl], ref settings, disableColor: false);
                     settings.Append("</size>");
                     var txt = $"<size=90%>{sb}</size>";
@@ -900,21 +905,23 @@ internal class ChatCommands
                 if (GameStates.IsInGame)
                 {
                     var sb = new StringBuilder();
+                    var settings = new StringBuilder();
+                    settings.Append("<size=70%>");
                     _ = sb.Append(GetString(role.ToString()) + Utils.GetRoleMode(role) + player.GetRoleInfo(true));
-                    if (Options.CustomRoleSpawnChances.ContainsKey(role))
-                        Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[role], ref sb, command: true);
+                    if (Options.CustomRoleSpawnChances.TryGetValue(role, out var opt))
+                        Utils.ShowChildrenSettings(opt, ref settings, disableColor: false);
+                    settings.Append("</size>");
                     var txt = sb.ToString();
                     _ = sb.Clear().Append(txt.RemoveHtmlTags());
+                    sb.Append("<size=70%>");
                     foreach (CustomRoles subRole in Main.PlayerStates[player.PlayerId].SubRoles.ToArray())
                     {
                         _ = sb.Append($"\n\n" + GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
                     }
-                    _ = new LateTask(() =>
-                    {
-                        ChatManager.DontBlock = true;
-                        Utils.SendMessage(sb.ToString(), player.PlayerId);
-                        _ = new LateTask(() => ChatManager.DontBlock = false, 0.5f, log: false);
-                    }, 1f, log: false);
+                    ChatManager.DontBlock = true;
+                    Utils.SendMessage("\n", player.PlayerId, settings.ToString());
+                    Utils.SendMessage(sb.ToString(), player.PlayerId, string.Empty);
+                    _ = new LateTask(() => ChatManager.DontBlock = false, 0.5f, log: false);
                 }
                 else
                     Utils.SendMessage(GetString("Message.CanNotUseInLobby"), player.PlayerId);
@@ -1186,6 +1193,7 @@ internal class UpdateCharCountPatch
     {
         int length = __instance.textArea.text.Length;
         __instance.charCountText.SetText(length <= 0 ? "Thank you for using TOHE+!" : $"{length}/{__instance.textArea.characterLimit}");
+        __instance.charCountText.enableWordWrapping = false;
         if (length < (AmongUsClient.Instance.AmHost ? 1700 : 250))
             __instance.charCountText.color = Color.black;
         else if (length < (AmongUsClient.Instance.AmHost ? 1900 : 300))

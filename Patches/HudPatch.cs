@@ -571,7 +571,7 @@ class HudManagerPatch
                         ? string.Empty
                         : string.Format(GetString("CDPT"), CD.TOTALCD - (Utils.GetTimeStamp() - CD.START_TIMESTAMP) + 1);
 
-                LowerInfoText.text += "\n" + (int)System.Math.Round(Main.KillTimers[player.PlayerId]);
+                //LowerInfoText.text += "\n" + (int)System.Math.Round(Main.KillTimers[player.PlayerId]);
 
                 LowerInfoText.enabled = LowerInfoText.text != string.Empty;
 

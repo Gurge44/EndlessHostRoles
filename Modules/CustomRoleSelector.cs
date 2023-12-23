@@ -163,6 +163,14 @@ internal class CustomRoleSelector
             }
         }
 
+        if (ImpRateList.Count == 0 && ImpOnList.Count == 0 && Main.SetRoles.Count == 0 && Main.DevRole.Count == 0)
+        {
+            for (int i = 0; i < optImpNum; i++)
+            {
+                ImpOnList.Add(CustomRoles.ImpostorTOHE);
+            }
+        }
+
         // Assign roles set to ALWAYS (impostors)
         while (ImpOnList.Count > 0)
         {
