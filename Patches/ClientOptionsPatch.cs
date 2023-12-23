@@ -78,11 +78,11 @@ public static class OptionsMenuBehaviourStartPatch
                 Main.Instance.Unload();
             }
         }
+#if DEBUG
         if (UseVersionProtocol == null || UseVersionProtocol.ToggleButton == null)
         {
             UseVersionProtocol = ClientOptionItem.Create("UseVersionProtocol", Main.UseVersionProtocol, __instance);
         }
-#if DEBUG
         if ((VersionCheat == null || VersionCheat.ToggleButton == null) && DebugModeManager.AmDebugger)
         {
             VersionCheat = ClientOptionItem.Create("VersionCheat", Main.VersionCheat, __instance);

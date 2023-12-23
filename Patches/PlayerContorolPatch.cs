@@ -2422,10 +2422,11 @@ class FixedUpdatePatch
 
         if (!lowLoad)
         {
+            long now = GetTimeStamp();
             switch (player.GetCustomRole())
             {
                 case CustomRoles.Veteran when GameStates.IsInTask:
-                    if (Main.VeteranInProtect.TryGetValue(player.PlayerId, out var vtime) && vtime + Options.VeteranSkillDuration.GetInt() < GetTimeStamp())
+                    if (Main.VeteranInProtect.TryGetValue(player.PlayerId, out var vtime) && vtime + Options.VeteranSkillDuration.GetInt() < now)
                     {
                         Main.VeteranInProtect.Remove(player.PlayerId);
                         player.RpcResetAbilityCooldown();
@@ -2434,7 +2435,7 @@ class FixedUpdatePatch
                     break;
 
                 case CustomRoles.Express when GameStates.IsInTask:
-                    if (Main.ExpressSpeedUp.TryGetValue(player.PlayerId, out var etime) && etime + Options.ExpressSpeedDur.GetInt() < GetTimeStamp())
+                    if (Main.ExpressSpeedUp.TryGetValue(player.PlayerId, out var etime) && etime + Options.ExpressSpeedDur.GetInt() < now)
                     {
                         Main.ExpressSpeedUp.Remove(player.PlayerId);
                         Main.AllPlayerSpeed[player.PlayerId] = Main.ExpressSpeedNormal;
@@ -2443,14 +2444,14 @@ class FixedUpdatePatch
                     break;
 
                 case CustomRoles.Grenadier when GameStates.IsInTask:
-                    if (Main.GrenadierBlinding.TryGetValue(player.PlayerId, out var gtime) && gtime + Options.GrenadierSkillDuration.GetInt() < GetTimeStamp())
+                    if (Main.GrenadierBlinding.TryGetValue(player.PlayerId, out var gtime) && gtime + Options.GrenadierSkillDuration.GetInt() < now)
                     {
                         Main.GrenadierBlinding.Remove(player.PlayerId);
                         player.RpcResetAbilityCooldown();
                         player.Notify(string.Format(GetString("GrenadierSkillStop"), (int)Main.GrenadierNumOfUsed[player.PlayerId]));
                         MarkEveryoneDirtySettingsV3();
                     }
-                    if (Main.MadGrenadierBlinding.TryGetValue(player.PlayerId, out var mgtime) && mgtime + Options.GrenadierSkillDuration.GetInt() < GetTimeStamp())
+                    if (Main.MadGrenadierBlinding.TryGetValue(player.PlayerId, out var mgtime) && mgtime + Options.GrenadierSkillDuration.GetInt() < now)
                     {
                         Main.MadGrenadierBlinding.Remove(player.PlayerId);
                         player.RpcResetAbilityCooldown();
@@ -2460,7 +2461,7 @@ class FixedUpdatePatch
                     break;
 
                 case CustomRoles.Lighter when GameStates.IsInTask:
-                    if (Main.Lighter.TryGetValue(player.PlayerId, out var ltime) && ltime + Options.LighterSkillDuration.GetInt() < GetTimeStamp())
+                    if (Main.Lighter.TryGetValue(player.PlayerId, out var ltime) && ltime + Options.LighterSkillDuration.GetInt() < now)
                     {
                         Main.Lighter.Remove(player.PlayerId);
                         player.RpcResetAbilityCooldown();
@@ -2470,7 +2471,7 @@ class FixedUpdatePatch
                     break;
 
                 case CustomRoles.SecurityGuard when GameStates.IsInTask:
-                    if (Main.BlockSabo.TryGetValue(player.PlayerId, out var stime) && stime + Options.SecurityGuardSkillDuration.GetInt() < GetTimeStamp())
+                    if (Main.BlockSabo.TryGetValue(player.PlayerId, out var stime) && stime + Options.SecurityGuardSkillDuration.GetInt() < now)
                     {
                         Main.BlockSabo.Remove(player.PlayerId);
                         player.RpcResetAbilityCooldown();
@@ -2479,7 +2480,7 @@ class FixedUpdatePatch
                     break;
 
                 case CustomRoles.TimeMaster when GameStates.IsInTask:
-                    if (Main.TimeMasterInProtect.TryGetValue(player.PlayerId, out var ttime) && ttime + Options.TimeMasterSkillDuration.GetInt() < GetTimeStamp())
+                    if (Main.TimeMasterInProtect.TryGetValue(player.PlayerId, out var ttime) && ttime + Options.TimeMasterSkillDuration.GetInt() < now)
                     {
                         Main.TimeMasterInProtect.Remove(player.PlayerId);
                         player.RpcResetAbilityCooldown();
@@ -2544,7 +2545,7 @@ class FixedUpdatePatch
                     break;
             }
 
-            if (Main.AllKillers.TryGetValue(player.PlayerId, out var ktime) && ktime + Options.WitnessTime.GetInt() < GetTimeStamp()) Main.AllKillers.Remove(player.PlayerId);
+            if (Main.AllKillers.TryGetValue(player.PlayerId, out var ktime) && ktime + Options.WitnessTime.GetInt() < now) Main.AllKillers.Remove(player.PlayerId);
             if (GameStates.IsInTask && player.IsAlive() && Options.LadderDeath.GetBool()) FallFromLadder.FixedUpdate(player);
             if (GameStates.IsInGame) LoversSuicide();
 
@@ -2557,14 +2558,14 @@ class FixedUpdatePatch
                     Main.PuppeteerDelayList.Remove(player.PlayerId);
                     Main.PuppeteerDelay.Remove(player.PlayerId);
                 }
-                else if (Main.PuppeteerDelayList[player.PlayerId] + Options.PuppeteerManipulationEndsAfterTime.GetInt() < GetTimeStamp() && Options.PuppeteerManipulationEndsAfterFixedTime.GetBool())
+                else if (Main.PuppeteerDelayList[player.PlayerId] + Options.PuppeteerManipulationEndsAfterTime.GetInt() < now && Options.PuppeteerManipulationEndsAfterFixedTime.GetBool())
                 {
                     Main.PuppeteerList.Remove(player.PlayerId);
                     Main.PuppeteerDelayList.Remove(player.PlayerId);
                     Main.PuppeteerDelay.Remove(player.PlayerId);
                     Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Puppeteer)).Do(x => NotifyRoles(SpecifySeer: x, SpecifyTarget: player));
                 }
-                else if (Main.PuppeteerDelayList[player.PlayerId] + Main.PuppeteerDelay[player.PlayerId] < GetTimeStamp())
+                else if (Main.PuppeteerDelayList[player.PlayerId] + Main.PuppeteerDelay[player.PlayerId] < now)
                 {
                     Vector2 puppeteerPos = player.transform.position;//PuppeteerListのKeyの位置
                     Dictionary<byte, float> targetDistance = [];
@@ -2613,11 +2614,13 @@ class FixedUpdatePatch
             }
 
             if (GameStates.IsInGame && Main.RefixCooldownDelay <= 0)
+            {
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
                     if (pc.Is(CustomRoles.Vampire) || pc.Is(CustomRoles.Warlock) || pc.Is(CustomRoles.Assassin) || pc.Is(CustomRoles.Undertaker) || pc.Is(CustomRoles.Poisoner))
                         Main.AllPlayerKillCooldown[pc.PlayerId] = Options.DefaultKillCooldown * 2;
                 }
+            }
 
             if (!Main.DoBlockNameChange && AmongUsClient.Instance.AmHost)
                 ApplySuffix(__instance);

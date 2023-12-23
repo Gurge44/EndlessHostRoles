@@ -82,14 +82,23 @@ public static class Options
         "Rate0",
         "Rate5",
         "Rate10",
+        "Rate15",
         "Rate20",
+        "Rate25",
         "Rate30",
+        "Rate35",
         "Rate40",
+        "Rate45",
         "Rate50",
+        "Rate55",
         "Rate60",
+        "Rate65",
         "Rate70",
+        "Rate75",
         "Rate80",
+        "Rate85",
         "Rate90",
+        "Rate95",
         "Rate100",
     ];
     public static readonly string[] ratesZeroOne =
@@ -999,18 +1008,7 @@ public static class Options
         }
     }
 
-    public static int GetRoleSpawnMode(CustomRoles role)
-    {
-        var mode = CustomRoleSpawnChances.TryGetValue(role, out var sc) ? sc.GetChance() : 0;
-        return mode switch
-        {
-            0 => 0,
-            1 => 1,
-            2 => 2,
-            100 => 1,
-            _ => 1,
-        };
-    }
+    public static int GetRoleSpawnMode(CustomRoles role) => CustomRoleSpawnChances.TryGetValue(role, out var sc) ? sc.GetChance() : 0;
     public static int GetRoleCount(CustomRoles role)
     {
         var mode = GetRoleSpawnMode(role);
@@ -3636,7 +3634,7 @@ public static class Options
 
     public static void SetupRoleOptions(int id, TabGroup tab, CustomRoles role, CustomGameMode customGameMode = CustomGameMode.Standard, bool zeroOne = false)
     {
-        var spawnOption = StringOptionItem.Create(id, role.ToString(), zeroOne ? ratesZeroOne : ratesToggle, 0, tab, false).SetColor(Utils.GetRoleColor(role))
+        var spawnOption = StringOptionItem.Create(id, role.ToString(), zeroOne ? ratesZeroOne : rates, 0, tab, false).SetColor(Utils.GetRoleColor(role))
             .SetHeader(true)
             .SetGameMode(customGameMode) as StringOptionItem;
         var countOption = IntegerOptionItem.Create(id + 1, "Maximum", new(1, 15, 1), 1, tab, false)
@@ -3714,7 +3712,7 @@ public static class Options
 
     public static void SetupSingleRoleOptions(int id, TabGroup tab, CustomRoles role, int count, CustomGameMode customGameMode = CustomGameMode.Standard, bool zeroOne = false)
     {
-        var spawnOption = StringOptionItem.Create(id, role.ToString(), zeroOne ? ratesZeroOne : ratesToggle, 0, tab, false).SetColor(Utils.GetRoleColor(role))
+        var spawnOption = StringOptionItem.Create(id, role.ToString(), zeroOne ? ratesZeroOne : rates, 0, tab, false).SetColor(Utils.GetRoleColor(role))
             .SetHeader(true)
             .SetGameMode(customGameMode) as StringOptionItem;
         // 初期値,最大値,最小値が同じで、stepが0のどうやっても変えることができない個数オプション
