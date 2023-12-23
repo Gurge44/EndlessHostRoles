@@ -278,7 +278,7 @@ internal class ChangeRoleSettings
             VengefulRomantic.Init();
             RuthlessRomantic.Init();
             Succubus.Init();
-            CursedSoul.Init();
+            //CursedSoul.Init();
             Admirer.Init();
             Nullifier.Init();
             Deputy.Init();
@@ -940,9 +940,9 @@ internal class SelectRolesPatch
                     case CustomRoles.Succubus:
                         Succubus.Add(pc.PlayerId);
                         break;
-                    case CustomRoles.CursedSoul:
-                        CursedSoul.Add(pc.PlayerId);
-                        break;
+                    //case CustomRoles.CursedSoul:
+                    //    CursedSoul.Add(pc.PlayerId);
+                    //    break;
                     case CustomRoles.Admirer:
                         Admirer.Add(pc.PlayerId);
                         break;

@@ -268,7 +268,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 case CustomRoles.Analyzer:
                 case CustomRoles.Witness:
                 case CustomRoles.Succubus:
-                case CustomRoles.CursedSoul:
+                //case CustomRoles.CursedSoul:
                 case CustomRoles.Admirer:
                 case CustomRoles.Amnesiac:
                     opt.SetVision(false);

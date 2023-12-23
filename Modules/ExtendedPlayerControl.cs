@@ -565,7 +565,7 @@ static class ExtendedPlayerControl
             CustomRoles.RuthlessRomantic => true,
             CustomRoles.VengefulRomantic => true,
             CustomRoles.Succubus => true,
-            CustomRoles.CursedSoul => true,
+            //CustomRoles.CursedSoul => true,
             CustomRoles.Admirer => true,
             CustomRoles.Amnesiac => true,
             CustomRoles.Infectious => true,
@@ -690,7 +690,7 @@ static class ExtendedPlayerControl
             CustomRoles.RuthlessRomantic => pc.IsAlive(),
             CustomRoles.VengefulRomantic => VengefulRomantic.CanUseKillButton(pc),
             CustomRoles.Succubus => Succubus.CanUseKillButton(pc),
-            CustomRoles.CursedSoul => CursedSoul.CanUseKillButton(pc),
+            //CustomRoles.CursedSoul => CursedSoul.CanUseKillButton(pc),
             CustomRoles.Admirer => Admirer.CanUseKillButton(pc),
             CustomRoles.Amnesiac => Amnesiac.CanUseKillButton(pc),
             //CustomRoles.Warlock => !Main.isCurseAndKill.TryGetValue(pc.PlayerId, out bool wcs) || !wcs,
@@ -730,7 +730,7 @@ static class ExtendedPlayerControl
             CustomRoles.Romantic or
             CustomRoles.Succubus or
             CustomRoles.Doppelganger or
-            CustomRoles.CursedSoul or
+            //CustomRoles.CursedSoul or
             CustomRoles.PlagueBearer or
             CustomRoles.Admirer or
             CustomRoles.Amnesiac or
@@ -807,7 +807,7 @@ static class ExtendedPlayerControl
             CustomRoles.Sheriff or
             CustomRoles.Crusader or
             CustomRoles.CopyCat or
-            CustomRoles.CursedSoul or
+            //CustomRoles.CursedSoul or
             CustomRoles.Admirer or
             CustomRoles.Amnesiac or
             CustomRoles.Monarch or
@@ -1262,9 +1262,9 @@ static class ExtendedPlayerControl
             case CustomRoles.Succubus:
                 Succubus.SetKillCooldown(player.PlayerId);
                 break;
-            case CustomRoles.CursedSoul:
-                CursedSoul.SetKillCooldown(player.PlayerId);
-                break;
+            //case CustomRoles.CursedSoul:
+            //    CursedSoul.SetKillCooldown(player.PlayerId);
+            //    break;
             case CustomRoles.Admirer:
                 Admirer.SetKillCooldown(player.PlayerId);
                 break;

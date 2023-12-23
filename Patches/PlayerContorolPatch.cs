@@ -578,9 +578,9 @@ class CheckMurderPatch
                 case CustomRoles.Succubus:
                     Succubus.OnCheckMurder(killer, target);
                     return false;
-                case CustomRoles.CursedSoul:
-                    CursedSoul.OnCheckMurder(killer, target);
-                    return false;
+                //case CustomRoles.CursedSoul:
+                //    CursedSoul.OnCheckMurder(killer, target);
+                //    return false;
                 case CustomRoles.Admirer:
                     Admirer.OnCheckMurder(killer, target);
                     return false;

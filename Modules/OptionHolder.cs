@@ -1913,10 +1913,10 @@ public static class Options
               .SetValueFormat(OptionFormat.Seconds); */
 
         LoadingPercentage = 30;
-        RoleLoadingText = "Neutral roles\nCursed Soul";
+        //RoleLoadingText = "Neutral roles\nCursed Soul";
 
 
-        CursedSoul.SetupCustomOption();
+        //CursedSoul.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nDemon";
         Gamer.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nExecutioner";

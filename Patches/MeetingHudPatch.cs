@@ -878,7 +878,7 @@ class MeetingHudStartPatch
                 Lawyer.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Executioner.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Succubus.KnowRole(PlayerControl.LocalPlayer, pc) ||
-                CursedSoul.KnowRole(PlayerControl.LocalPlayer, pc) ||
+                //CursedSoul.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Admirer.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Amnesiac.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Infectious.KnowRole(PlayerControl.LocalPlayer, pc) ||

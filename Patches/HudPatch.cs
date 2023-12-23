@@ -458,9 +458,9 @@ class HudManagerPatch
                     case CustomRoles.Succubus:
                         __instance.KillButton?.OverrideText(GetString("SuccubusKillButtonText"));
                         break;
-                    case CustomRoles.CursedSoul:
-                        __instance.KillButton?.OverrideText(GetString("CursedSoulKillButtonText"));
-                        break;
+                    //case CustomRoles.CursedSoul:
+                    //    __instance.KillButton?.OverrideText(GetString("CursedSoulKillButtonText"));
+                    //    break;
                     case CustomRoles.Admirer:
                         __instance.KillButton?.OverrideText(GetString("AdmireButtonText"));
                         break;

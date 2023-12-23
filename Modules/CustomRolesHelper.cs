@@ -295,7 +295,7 @@ internal static class CustomRolesHelper
             CustomRoles.Sheriff => RoleTypes.Impostor,
             CustomRoles.Crusader => RoleTypes.Impostor,
             CustomRoles.CopyCat => RoleTypes.Impostor,
-            CustomRoles.CursedSoul => RoleTypes.Impostor,
+            //CustomRoles.CursedSoul => RoleTypes.Impostor,
             CustomRoles.Admirer => RoleTypes.Impostor,
             CustomRoles.Refugee => RoleTypes.Impostor,
             CustomRoles.Amnesiac => RoleTypes.Impostor,
@@ -458,7 +458,7 @@ internal static class CustomRolesHelper
             CustomRoles.Collector or
             CustomRoles.Sunnyboy or
             CustomRoles.Maverick or
-            CustomRoles.CursedSoul or
+            //CustomRoles.CursedSoul or
             CustomRoles.Phantom or
             CustomRoles.Totocalcio or
             CustomRoles.Romantic or
@@ -500,7 +500,7 @@ internal static class CustomRolesHelper
             CustomRoles.Sunnyboy or
             CustomRoles.Arsonist or
             CustomRoles.Maverick or
-            CustomRoles.CursedSoul or
+            //CustomRoles.CursedSoul or
             CustomRoles.Phantom or
             CustomRoles.DarkHide or
             CustomRoles.Ritualist or
@@ -679,7 +679,7 @@ internal static class CustomRolesHelper
             CustomRoles.Vulture or
             //CustomRoles.Famine or
             //CustomRoles.Baker or
-            CustomRoles.CursedSoul or
+            //CustomRoles.CursedSoul or
             CustomRoles.Phantom or
             CustomRoles.Workaholic or
             CustomRoles.Collector or
@@ -908,7 +908,7 @@ internal static class CustomRolesHelper
             CustomRoles.Konan or
             CustomRoles.Gamer or
             CustomRoles.Maverick or
-            CustomRoles.CursedSoul or
+            //CustomRoles.CursedSoul or
             CustomRoles.DarkHide or
             CustomRoles.Infectious or
             CustomRoles.Workaholic or
@@ -988,7 +988,7 @@ internal static class CustomRolesHelper
         CustomRoles.Farseer or
         CustomRoles.FFF or
         CustomRoles.SwordsMan or
-        CustomRoles.CursedSoul or
+        //CustomRoles.CursedSoul or
         CustomRoles.Admirer or
         CustomRoles.Refugee or
         CustomRoles.Amnesiac or
@@ -1217,7 +1217,7 @@ internal static class CustomRolesHelper
         CustomRoles.FFF or
         CustomRoles.Gamer or
         CustomRoles.Maverick or
-        CustomRoles.CursedSoul or
+        //CustomRoles.CursedSoul or
         CustomRoles.DarkHide or
         CustomRoles.Infectious or
         CustomRoles.Provocateur or

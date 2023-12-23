@@ -803,9 +803,9 @@ internal class RPCHandlerPatch
             case CustomRPC.SetSuccubusCharmLimit:
                 Succubus.ReceiveRPC(reader);
                 break;
-            case CustomRPC.SetCursedSoulCurseLimit:
-                CursedSoul.ReceiveRPC(reader);
-                break;
+            //case CustomRPC.SetCursedSoulCurseLimit:
+            //    CursedSoul.ReceiveRPC(reader);
+            //    break;
             case CustomRPC.SetInfectiousBiteLimit:
                 Infectious.ReceiveRPC(reader);
                 break;
@@ -1397,9 +1397,9 @@ internal static class RPC
             case CustomRoles.Succubus:
                 Succubus.Add(targetId);
                 break;
-            case CustomRoles.CursedSoul:
-                CursedSoul.Add(targetId);
-                break;
+            //case CustomRoles.CursedSoul:
+            //    CursedSoul.Add(targetId);
+            //    break;
             case CustomRoles.Admirer:
                 Admirer.Add(targetId);
                 break;

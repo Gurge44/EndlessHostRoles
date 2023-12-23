@@ -557,7 +557,7 @@ public static class Utils
             case CustomRoles.VengefulRomantic:
             case CustomRoles.RuthlessRomantic:
             case CustomRoles.Succubus:
-            case CustomRoles.CursedSoul:
+            //case CustomRoles.CursedSoul:
             case CustomRoles.Admirer:
             case CustomRoles.Amnesiac:
             case CustomRoles.Infectious:
@@ -688,7 +688,7 @@ public static class Utils
         if (Ritualist.IsShowTargetRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Executioner.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Succubus.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
-        if (CursedSoul.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
+        //if (CursedSoul.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Admirer.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Amnesiac.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Infectious.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
@@ -1108,9 +1108,9 @@ public static class Utils
                 case CustomRoles.Succubus:
                     ProgressText.Append(Succubus.GetCharmLimit());
                     break;
-                case CustomRoles.CursedSoul:
-                    ProgressText.Append(CursedSoul.GetCurseLimit());
-                    break;
+                //case CustomRoles.CursedSoul:
+                //    ProgressText.Append(CursedSoul.GetCurseLimit());
+                //    break;
                 case CustomRoles.Admirer:
                     ProgressText.Append(Admirer.GetAdmireLimit());
                     break;
@@ -2314,7 +2314,7 @@ public static class Utils
                                 Ritualist.IsShowTargetRole(seer, target) ||
                                 Executioner.KnowRole(seer, target) ||
                                 Succubus.KnowRole(seer, target) ||
-                                CursedSoul.KnowRole(seer, target) ||
+                                //CursedSoul.KnowRole(seer, target) ||
                                 Admirer.KnowRole(seer, target) ||
                                 Amnesiac.KnowRole(seer, target) ||
                                 Infectious.KnowRole(seer, target) ||
