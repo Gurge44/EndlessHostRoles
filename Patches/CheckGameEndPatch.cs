@@ -118,6 +118,10 @@ class GameEndChecker
                             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Phantom);
                             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
                             break;
+                        case CustomRoles.Phantom when !Options.PhantomSnatchesWin.GetBool() && !pc.IsAlive() && pc.GetPlayerTaskState().IsTaskFinished:
+                            CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                            CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Phantom);
+                            break;
                         //case CustomRoles.CursedSoul when !pc.Data.IsDead && (CustomWinnerHolder.WinnerTeam == CustomWinner.Impostor || CustomWinnerHolder.WinnerTeam == CustomWinner.Crewmate || CustomWinnerHolder.WinnerTeam == CustomWinner.Jackal || CustomWinnerHolder.WinnerTeam == CustomWinner.BloodKnight || CustomWinnerHolder.WinnerTeam == CustomWinner.SerialKiller || CustomWinnerHolder.WinnerTeam == CustomWinner.Juggernaut || CustomWinnerHolder.WinnerTeam == CustomWinner.Ritualist || CustomWinnerHolder.WinnerTeam == CustomWinner.Poisoner || CustomWinnerHolder.WinnerTeam == CustomWinner.Succubus || CustomWinnerHolder.WinnerTeam == CustomWinner.Infectious || CustomWinnerHolder.WinnerTeam == CustomWinner.Jinx || CustomWinnerHolder.WinnerTeam == CustomWinner.Virus || CustomWinnerHolder.WinnerTeam == CustomWinner.Arsonist || CustomWinnerHolder.WinnerTeam == CustomWinner.Pelican || CustomWinnerHolder.WinnerTeam == CustomWinner.HexMaster || CustomWinnerHolder.WinnerTeam == CustomWinner.Wraith || CustomWinnerHolder.WinnerTeam == CustomWinner.Pestilence || CustomWinnerHolder.WinnerTeam == CustomWinner.Rogue || CustomWinnerHolder.WinnerTeam == CustomWinner.Jester || CustomWinnerHolder.WinnerTeam == CustomWinner.Doppelganger || CustomWinnerHolder.WinnerTeam == CustomWinner.Executioner):
                         //    reason = GameOverReason.ImpostorByKill;
                         //    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CursedSoul);
@@ -169,38 +173,29 @@ class GameEndChecker
                             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
                             CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Postman);
                             break;
-                        default:
-                            if (!Options.PhantomSnatchesWin.GetBool() && pc.GetCustomRole() == CustomRoles.Phantom && !pc.IsAlive() && pc.GetPlayerTaskState().IsTaskFinished)
-                            {
-                                CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
-                                CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Phantom);
-                            }
-                            break;
                     }
                 }
 
                 //利己主义者抢夺胜利（船员）
                 if (CustomWinnerHolder.WinnerTeam == CustomWinner.Crewmate)
                 {
-                    foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.GetCustomRole().IsCrewmate()).ToArray())
-                        if (pc.Is(CustomRoles.Egoist))
-                        {
-                            reason = GameOverReason.ImpostorByKill;
-                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Egoist);
-                            CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
-                        }
+                    foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.GetCustomRole().IsCrewmate() && x.Is(CustomRoles.Egoist)).ToArray())
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Egoist);
+                        CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                    }
                 }
 
                 //利己主义者抢夺胜利（内鬼）
                 if (CustomWinnerHolder.WinnerTeam == CustomWinner.Impostor)
                 {
-                    foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.GetCustomRole().IsImpostor()).ToArray())
-                        if (pc.Is(CustomRoles.Egoist))
-                        {
-                            reason = GameOverReason.ImpostorByKill;
-                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Egoist);
-                            CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
-                        }
+                    foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.GetCustomRole().IsImpostor() && x.Is(CustomRoles.Egoist)).ToArray())
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Egoist);
+                        CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                    }
                 }
 
                 //神抢夺胜利
@@ -238,6 +233,7 @@ class GameEndChecker
 
                 //Ruthless Romantic partner win condition
                 if (RuthlessRomantic.IsEnable && (CustomWinnerHolder.WinnerIds.Contains(RuthlessRomantic.playerIdList[0]) || (Main.PlayerStates.TryGetValue(RuthlessRomantic.playerIdList[0], out var pz) && CustomWinnerHolder.WinnerRoles.Contains(pz.MainRole))))
+                {
                     foreach (PlayerControl pc in Main.AllPlayerControls)
                     {
                         if (Romantic.BetPlayer.TryGetValue(pc.PlayerId, out var betTarget))
@@ -245,6 +241,7 @@ class GameEndChecker
                             CustomWinnerHolder.WinnerIds.Add(betTarget);
                         }
                     }
+                }
 
                 //补充恋人胜利名单
                 if (CustomWinnerHolder.WinnerTeam == CustomWinner.Lovers || CustomWinnerHolder.AdditionalWinnerTeams.Contains(AdditionalWinners.Lovers))
