@@ -14,8 +14,9 @@ public static class OptionsMenuBehaviourStartPatch
     private static ClientOptionItem EnableCustomButton;
     private static ClientOptionItem EnableCustomSoundEffect;
     private static ClientOptionItem SwitchVanilla;
-    public static ClientOptionItem UseVersionProtocol;
+    private static ClientOptionItem DarkTheme;
 #if DEBUG
+    public static ClientOptionItem UseVersionProtocol;
     private static ClientOptionItem VersionCheat;
     private static ClientOptionItem GodMode;
 #endif
@@ -77,6 +78,10 @@ public static class OptionsMenuBehaviourStartPatch
                 Harmony.UnpatchAll();
                 Main.Instance.Unload();
             }
+        }
+        if (DarkTheme == null || DarkTheme.ToggleButton == null)
+        {
+            DarkTheme = ClientOptionItem.Create("EnableDarkTheme", Main.DarkTheme, __instance);
         }
 #if DEBUG
         if (UseVersionProtocol == null || UseVersionProtocol.ToggleButton == null)

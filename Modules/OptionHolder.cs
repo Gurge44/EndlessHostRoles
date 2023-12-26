@@ -1517,6 +1517,8 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Demolitionist]);
         RoleLoadingText = "Crewmate roles\nTask Manager";
         SetupRoleOptions(5575, TabGroup.CrewmateRoles, CustomRoles.TaskManager);
+        RoleLoadingText = "Crewmate roles\nShiftguard";
+        SetupRoleOptions(5594, TabGroup.CrewmateRoles, CustomRoles.Shiftguard);
         RoleLoadingText = "Crewmate roles\nMole";
         Mole.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nSentinel";
@@ -3055,7 +3057,7 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetHidden(true)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
-        DisableShapeshiftAnimations = BooleanOptionItem.Create(22604, "DisableShapeshiftAnimations", false, TabGroup.GameSettings, false)
+        DisableShapeshiftAnimations = BooleanOptionItem.Create(22604, "DisableShapeshiftAnimations", true, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
         DisableVanillaRoles = BooleanOptionItem.Create(22600, "DisableVanillaRoles", true, TabGroup.GameSettings, false)

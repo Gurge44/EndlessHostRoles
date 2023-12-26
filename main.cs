@@ -33,8 +33,8 @@ public class Main : BasePlugin
     public static ConfigEntry<string> DebugKeyInput { get; private set; }
     public static readonly string MainMenuText = " ";
     public const string PluginGuid = "com.gurge44.toheplus";
-    public const string PluginVersion = "2.1.0";
-    public const string PluginDisplayVersion = "2.1.0";
+    public const string PluginVersion = "2.1.1";
+    public const string PluginDisplayVersion = "2.1.1";
     public static readonly string SupportedAUVersion = "2023.10.24";
     public const int PluginCreate = 3;
     public const bool Canary = false;
@@ -66,6 +66,7 @@ public class Main : BasePlugin
     public static ConfigEntry<bool> SwitchVanilla { get; private set; }
     public static ConfigEntry<bool> VersionCheat { get; private set; }
     public static ConfigEntry<bool> GodMode { get; private set; }
+    public static ConfigEntry<bool> DarkTheme { get; private set; }
 
     public static Dictionary<byte, PlayerVersion> playerVersion = [];
     //Preset Name Options
@@ -264,6 +265,7 @@ public class Main : BasePlugin
         VersionCheat = Config.Bind("Client Options", "VersionCheat", false);
         GodMode = Config.Bind("Client Options", "GodMode", false);
         UseVersionProtocol = Config.Bind("Client Options", "UseVersionProtocol", true);
+        DarkTheme = Config.Bind("Client Options", "DarkTheme", false);
 
         Logger = BepInEx.Logging.Logger.CreateLogSource("TOHE");
         TOHE.Logger.Enable();
@@ -344,6 +346,7 @@ public class Main : BasePlugin
                 {CustomRoles.Express, "#00ffff"},
                 {CustomRoles.NiceEraser, "#00a5ff"},
                 {CustomRoles.TaskManager, "#00ffa5"},
+                {CustomRoles.Shiftguard, "#eb34cc"},
                 {CustomRoles.Mole, "#00ff80"},
                 {CustomRoles.Sentinel, "#4bc8d6"},
                 {CustomRoles.Electric, "#fbff00"},
@@ -743,6 +746,7 @@ public enum CustomRoles
     Express,
     NiceEraser,
     TaskManager,
+    Shiftguard,
     Mole,
     Sentinel,
     Electric,

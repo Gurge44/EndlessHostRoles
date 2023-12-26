@@ -1331,7 +1331,7 @@ class CmdCheckShapeshiftPatch
 }
 
 // Triggered when the egg animation starts playing
-//[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Shapeshift))]
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Shapeshift))]
 class ShapeshiftPatch
 {
     public static List<byte> IgnoreNextSS = [];
@@ -1621,7 +1621,7 @@ class ShapeshiftPatch
 
         if (!shapeshifting || !isSSneeded)
         {
-            _ = new LateTask(shapeshifter.RpcResetAbilityCooldown, 0.01f, "Reset SS CD");
+            _ = new LateTask(shapeshifter.RpcResetAbilityCooldown, 0.01f, log: false);
         }
 
         if (!isSSneeded)
@@ -1632,6 +1632,21 @@ class ShapeshiftPatch
         }
 
         return isSSneeded || !Options.DisableShapeshiftAnimations.GetBool() || !shapeshifting;
+    }
+
+    // Tasks that should run when someone performs a shapeshift (with the egg animation) should be here.
+    public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
+    {
+        bool shapeshifting = __instance.PlayerId != target.PlayerId;
+
+        foreach (var pc in Main.AllAlivePlayerControls)
+        {
+            if (pc.Is(CustomRoles.Shiftguard))
+            {
+                if (shapeshifting) pc.Notify(GetString("ShiftguardNotifySS"));
+                else pc.Notify("ShiftguardNotifyUnshift");
+            }
+        }
     }
 }
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ReportDeadBody))]

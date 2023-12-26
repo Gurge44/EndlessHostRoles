@@ -11,6 +11,7 @@ using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using UnityEngine;
+using UnityEngine.UI;
 using static TOHE.Translator;
 
 
@@ -1142,19 +1143,33 @@ internal class ChatUpdatePatch
     public static bool DoBlockChat;
     public static void Postfix(ChatController __instance)
     {
+        var chatBubble = __instance.chatBubblePool.Prefab.Cast<ChatBubble>();
+        chatBubble.TextArea.overrideColorTags = false;
+        if (Main.DarkTheme.Value)
+        {
+            chatBubble.TextArea.color = Color.white;
+            chatBubble.Background.color = Color.black;
+        }
+
         if (!AmongUsClient.Instance.AmHost || Main.MessagesToSend.Count == 0 || (Main.MessagesToSend[0].RECEIVER_ID == byte.MaxValue && Main.MessageWait.Value > __instance.timeSinceLastMessage) || DoBlockChat) return;
+
         var player = Main.AllAlivePlayerControls.OrderBy(x => x.PlayerId).FirstOrDefault() ?? Main.AllPlayerControls.OrderBy(x => x.PlayerId).FirstOrDefault() ?? PlayerControl.LocalPlayer;
         if (player == null) return;
+
         (string msg, byte sendTo, string title) = Main.MessagesToSend[0];
         Main.MessagesToSend.RemoveAt(0);
+
         int clientId = sendTo == byte.MaxValue ? -1 : Utils.GetPlayerById(sendTo).GetClientId();
+
         var name = player.Data.PlayerName;
+
         if (clientId == -1)
         {
             player.SetName(title);
             DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
             player.SetName(name);
         }
+
         var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
         _ = writer.StartMessage(clientId);
         _ = writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
@@ -1168,6 +1183,7 @@ internal class ChatUpdatePatch
             .EndRpc();
         _ = writer.EndMessage();
         writer.SendMessage();
+
         __instance.timeSinceLastMessage = 0f;
     }
 }
@@ -1196,7 +1212,7 @@ internal class UpdateCharCountPatch
         __instance.charCountText.enableWordWrapping = false;
         if (length < (AmongUsClient.Instance.AmHost ? 1700 : 250))
             __instance.charCountText.color = Color.black;
-        else if (length < (AmongUsClient.Instance.AmHost ? 1900 : 300))
+        else if (length < (AmongUsClient.Instance.AmHost ? 2000 : 300))
             __instance.charCountText.color = new Color(1f, 1f, 0f, 1f);
         else
             __instance.charCountText.color = Color.red;

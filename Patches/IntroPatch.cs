@@ -279,6 +279,7 @@ class BeginCrewmatePatch
                 => ShipStatus.Instance.SabotageSound,
 
                 CustomRoles.Mastermind or
+                CustomRoles.Shiftguard or
                 CustomRoles.Gambler
                 => GetIntroSound(RoleTypes.Shapeshifter),
 
