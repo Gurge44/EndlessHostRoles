@@ -17,7 +17,6 @@ public static class Jinx
 
     public static void SetupCustomOption()
     {
-        //Jinxは1人固定
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Jinx, 1, zeroOne: false);
         KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jinx])
             .SetValueFormat(OptionFormat.Seconds);
@@ -43,10 +42,4 @@ public static class Jinx
     public static bool IsEnable => playerIdList.Count > 0;
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
-    public static void CanUseVent(PlayerControl player)
-    {
-        bool Jinx_canUse = CanVent.GetBool();
-        DestroyableSingleton<HudManager>.Instance.ImpostorVentButton.ToggleVisible(Jinx_canUse && !player.Data.IsDead);
-        player.Data.Role.CanVent = Jinx_canUse;
-    }
 }

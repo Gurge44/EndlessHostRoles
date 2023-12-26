@@ -2,6 +2,7 @@ using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
@@ -94,6 +95,8 @@ class ExternalRpcPetPatch
             return;
 
         if (pc.HasAbilityCD()) return;
+
+        PlayerControl[] AllAlivePlayers = Main.AllAlivePlayerControls;
 
         switch (pc.GetCustomRole())
         {
@@ -214,7 +217,7 @@ class ExternalRpcPetPatch
                 {
                     Main.DovesOfNeaceNumOfUsed[pc.PlayerId] -= 1;
                     //pc.RpcGuardAndKill(pc);
-                    Main.AllAlivePlayerControls.Where(x =>
+                    AllAlivePlayers.Where(x =>
                     pc.Is(CustomRoles.Madmate) ?
                     (x.CanUseKillButton() && x.GetCustomRole().IsCrewmate()) :
                     x.CanUseKillButton()
@@ -284,11 +287,26 @@ class ExternalRpcPetPatch
             case CustomRoles.Sentinel:
                 Sentinel.StartPatrolling(pc);
                 break;
+            case CustomRoles.Lookout:
+                var sb = new StringBuilder();
+                for (int i = 0; i < AllAlivePlayers.Length; i++) if (i % 3 == 0) sb.AppendLine();
+                for (int i = 0; i < AllAlivePlayers.Length; i++)
+                {
+                    PlayerControl player = AllAlivePlayers[i];
+                    if (player == null) continue;
+                    if (i != 0) sb.Append("; ");
+                    string name = player.GetRealName();
+                    byte id = player.PlayerId;
+                    if (Main.PlayerColors.TryGetValue(id, out var color)) name = Utils.ColorString(color, name);
+                    sb.Append($"{name} {id}");
+                    if (i % 3 == 0 && i != AllAlivePlayers.Length - 1) sb.AppendLine();
+                }
+                pc.Notify(sb.ToString());
+                break;
 
             // Impostors
 
             case CustomRoles.Sniper:
-                if (!Sniper.IsAim[pc.PlayerId]) Main.AbilityCD.Remove(pc.PlayerId);
                 Sniper.OnShapeshift(pc, !Sniper.IsAim[pc.PlayerId]);
                 break;
             case CustomRoles.Warlock:
@@ -301,7 +319,7 @@ class ExternalRpcPetPatch
                         UnityEngine.Vector2 cppos = cp.Pos();
                         Dictionary<PlayerControl, float> cpdistance = [];
                         float dis;
-                        foreach (PlayerControl p in Main.AllAlivePlayerControls)
+                        foreach (PlayerControl p in AllAlivePlayers)
                         {
                             if (p.PlayerId == cp.PlayerId) continue;
                             if (!Options.WarlockCanKillSelf.GetBool() && p.PlayerId == pc.PlayerId) continue;
@@ -383,7 +401,7 @@ class ExternalRpcPetPatch
                 }
                 _ = new LateTask(() =>
                 {
-                    var totalAlive = Main.AllAlivePlayerControls.Length;
+                    var totalAlive = AllAlivePlayers.Length;
                     if (Options.BomberDiesInExplosion.GetBool() && totalAlive > 1 && !GameStates.IsEnded)
                     {
                         pc.Suicide(PlayerState.DeathReason.Bombed);
@@ -408,7 +426,7 @@ class ExternalRpcPetPatch
                 }
                 _ = new LateTask(() =>
                 {
-                    var totalAlive = Main.AllAlivePlayerControls.Length;
+                    var totalAlive = AllAlivePlayers.Length;
                     if (totalAlive > 1 && !GameStates.IsEnded)
                     {
                         pc.Suicide(PlayerState.DeathReason.Bombed);
@@ -450,6 +468,8 @@ class ExternalRpcPetPatch
                 Sprayer.PlaceTrap();
                 break;
         }
+
+        if (pc.Is(CustomRoles.Sniper) && Sniper.IsAim[pc.PlayerId]) return;
 
         pc.AddAbilityCD();
     }

@@ -750,6 +750,12 @@ public static class Utils
                 case CustomRoles.Sprayer:
                     ProgressText.Append(Sprayer.ProgressText);
                     break;
+                case CustomRoles.Maverick:
+                    int kills = Maverick.NumOfKills;
+                    int min = Maverick.MinKillsToWin.GetInt();
+                    Color color = kills >= min ? Color.green : Color.red;
+                    ProgressText.Append(ColorString(color, $"{kills}/{min}"));
+                    break;
                 case CustomRoles.Alchemist:
                     ProgressText.Append(Alchemist.GetProgressText(playerId));
                     break;

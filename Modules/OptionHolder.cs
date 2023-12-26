@@ -257,6 +257,7 @@ public static class Options
     public static OptionItem WarlockCanKillSelf;
     public static OptionItem WarlockShiftDuration;
     public static OptionItem ScavengerKillCooldown;
+    public static OptionItem ScavengerKillDuration;
     public static OptionItem ZombieKillCooldown;
     public static OptionItem ZombieSpeedReduce;
     public static OptionItem EvilWatcherChance;
@@ -1407,6 +1408,9 @@ public static class Options
         RoleLoadingText = "Impostor roles\nScavenger";
         SetupRoleOptions(4000, TabGroup.ImpostorRoles, CustomRoles.Scavenger);
         ScavengerKillCooldown = FloatOptionItem.Create(4010, "KillCooldown", new(0f, 180f, 2.5f), 40f, TabGroup.ImpostorRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Scavenger])
+            .SetValueFormat(OptionFormat.Seconds);
+        ScavengerKillDuration = FloatOptionItem.Create(4011, "ScavengerKillDuration", new(0f, 90f, 0.5f), 5f, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Scavenger])
             .SetValueFormat(OptionFormat.Seconds);
         RoleLoadingText = "Impostor roles\nShapemaster";

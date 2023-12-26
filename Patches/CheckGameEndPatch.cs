@@ -140,7 +140,7 @@ class GameEndChecker
                             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
                             CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Sunnyboy);
                             break;
-                        case CustomRoles.Maverick when pc.IsAlive():
+                        case CustomRoles.Maverick when pc.IsAlive() && Maverick.NumOfKills >= Maverick.MinKillsToWin.GetInt():
                             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
                             CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Maverick);
                             break;

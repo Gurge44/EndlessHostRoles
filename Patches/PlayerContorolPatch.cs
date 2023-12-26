@@ -688,17 +688,21 @@ class CheckMurderPatch
         {
             if (!target.Is(CustomRoles.Pestilence))
             {
-                TP(target.NetTransform, Pelican.GetBlackRoomPS());
-                target.Suicide(PlayerState.DeathReason.Kill, killer);
-                killer.SetKillCooldown();
-                RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
-                target.Notify(ColorString(GetRoleColor(CustomRoles.Scavenger), GetString("KilledByScavenger")));
+                float dur = Options.ScavengerKillDuration.GetFloat();
+                killer.Notify("....", dur);
+                _ = new LateTask(() =>
+                {
+                    target.TP(Pelican.GetBlackRoomPS());
+                    target.Suicide(PlayerState.DeathReason.Kill, killer);
+                    killer.SetKillCooldown();
+                    RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
+                    target.Notify(ColorString(GetRoleColor(CustomRoles.Scavenger), GetString("KilledByScavenger")));
+                }, dur, "Scavenger Kill");
                 return false;
             }
-            if (target.Is(CustomRoles.Pestilence))
+            else
             {
-                target.Kill(target);
-                target.SetRealKiller(killer);
+                killer.Suicide(PlayerState.DeathReason.Kill, target);
                 return false;
             }
 
@@ -710,9 +714,18 @@ class CheckMurderPatch
             _ = new LateTask(() =>
             {
                 if (!Main.OverDeadPlayerList.Contains(target.PlayerId)) Main.OverDeadPlayerList.Add(target.PlayerId);
+                if (target.Is(CustomRoles.Avanger))
+                {
+                    foreach (var pc in Main.AllAlivePlayerControls)
+                    {
+                        pc.Suicide(PlayerState.DeathReason.Revenge, target);
+                    }
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
+                    return;
+                }
                 var ops = target.Pos();
                 var rd = IRandom.Instance;
-                for (int i = 0; i < 20; i++)
+                for (int i = 0; i < 10; i++)
                 {
                     Vector2 location = new(ops.x + ((float)(rd.Next(0, 201) - 100) / 100), ops.y + ((float)(rd.Next(0, 201) - 100) / 100));
                     location += new Vector2(0, 0.3636f);
@@ -737,7 +750,7 @@ class CheckMurderPatch
                     messageWriter.Write((byte)ExtendedPlayerControl.ResultFlags);
                     AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
                 }
-                TP(killer.NetTransform, ops);
+                killer.TP(ops);
             }, 0.05f, "OverKiller Murder");
         }
 
@@ -1179,6 +1192,9 @@ class MurderPlayerPatch
                 break;
             case CustomRoles.BloodKnight:
                 BloodKnight.OnMurderPlayer(killer, target);
+                break;
+            case CustomRoles.Maverick:
+                Maverick.NumOfKills++;
                 break;
             case CustomRoles.Mafioso:
                 Mafioso.OnMurder();

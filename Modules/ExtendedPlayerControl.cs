@@ -885,7 +885,7 @@ static class ExtendedPlayerControl
     public static void AddKillTimerToDict(this PlayerControl pc, bool half = false, float CD = -1f)
     {
         float resultKCD;
-        if (CD == -1)
+        if (CD == -1f)
         {
             if (Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out var kcd)) resultKCD = kcd;
             else resultKCD = 0f;
