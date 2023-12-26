@@ -692,6 +692,7 @@ class CheckMurderPatch
                 killer.Notify("....", dur);
                 _ = new LateTask(() =>
                 {
+                    if (Vector2.Distance(killer.Pos(), target.Pos()) > 2f) return;
                     target.TP(Pelican.GetBlackRoomPS());
                     target.Suicide(PlayerState.DeathReason.Kill, killer);
                     killer.SetKillCooldown();
