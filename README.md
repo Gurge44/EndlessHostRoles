@@ -32,6 +32,7 @@
 - This mode makes everyone a killer and the last player alive wins
 - Features: Random events, ranks and scoring, random ability gain for every kill, game timer, scoreboard (task list), unique end screen, fully customizable
 ### Overall improvements
+- Role spawn chances are in percentages
 - Gain more ability uses for completing tasks as crewmate roles
 - Gain more ability uses for getting kills as impostor roles
 - Most shapeshifting roles that only used shapeshifting as an ability trigger or a target selector now don't actually shapeshift with the egg animation, it's automatically canceled
@@ -129,6 +130,10 @@
 - Detour (Crewmate)
 - Gaulois (Crewmate)
 - Analyzer (Crewmate)
+- Electric (Crewmate)
+- Mole (Crewmate)
+- Tornado (Crewmate)
+- Sentinel (Crewmate)
 - Romantic (Neutral)
 - Werewolf (Neutral)
 - Imitator (Neutral)
@@ -140,6 +145,11 @@
 - Postman (Neutral)
 - Reckless (Neutral)
 - Magician (Neutral)
+- Enderman (Neutral)
+- Mycologist (Neutral)
+- Bubble (Neutral)
+- Hookshot (Neutral)
+- Sprayer (Neutral)
 - Undertaker (Impostor)
 - Gambler (Impostor)
 - Mastermind (Impostor)
@@ -165,13 +175,14 @@
 <br>
 
 ## Credit to these mods and their developers for the code and help:
-### :star: [TOH Enhanced](https://github.com/0xDrMoe/TownofHost-Enhanced) :
+### :star: [TOHEN](https://github.com/0xDrMoe/TownofHost-Enhanced) :
 > 
-> - Our repo is forked from TOHE
+> - Our repo is forked from TOHEN
 > 
-### :star: [TOH Edited](https://github.com/KARPED1EM/TownOfHostEdited) :
+### :star: [TOHE/TONX](https://github.com/KARPED1EM/TownOfHostEdited) :
 > 
 > - Our repo is a continuation of TOHE
+> - TONX reference: Modify character limit for chat messages
 > 
 ### :star: [TOH](https://github.com/tukasa0001/TownOfHost) :
 > 
