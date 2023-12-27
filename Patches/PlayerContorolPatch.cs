@@ -2019,7 +2019,7 @@ class FixedUpdatePatch
 
     public static async void Postfix(PlayerControl __instance)
     {
-        if (!DevManager.DevUserList.Any(x => x.Code == EOSManager.Instance.friendCode && x.IsUp) && !Main.UseVersionProtocol.Value)
+        if (!Main.UseVersionProtocol.Value && !DevManager.DevUserList.Any(x => x.Code == EOSManager.Instance.friendCode && x.IsUp))
         {
             Main.UseVersionProtocol.Value = true;
         }
@@ -2027,18 +2027,19 @@ class FixedUpdatePatch
         if (__instance == null) return;
         if (!GameStates.IsModHost) return;
 
-        if (GameStates.IsInTask && ReportDeadBodyPatch.CanReport[__instance.PlayerId] && ReportDeadBodyPatch.WaitReport[__instance.PlayerId].Any())
+        byte id = __instance.PlayerId;
+        if (GameStates.IsInTask && ReportDeadBodyPatch.CanReport[id] && ReportDeadBodyPatch.WaitReport[id].Count > 0)
         {
-            if (Glitch.hackedIdList.ContainsKey(__instance.PlayerId))
+            if (Glitch.hackedIdList.ContainsKey(id))
             {
                 __instance.Notify(string.Format(GetString("HackedByGlitch"), "Report"));
                 Logger.Info("Dead Body Report Blocked (player is hacked by Glitch)", "FixedUpdate.ReportDeadBody");
-                ReportDeadBodyPatch.WaitReport[__instance.PlayerId].Clear();
+                ReportDeadBodyPatch.WaitReport[id].Clear();
             }
             else
             {
-                var info = ReportDeadBodyPatch.WaitReport[__instance.PlayerId][0];
-                ReportDeadBodyPatch.WaitReport[__instance.PlayerId].Clear();
+                var info = ReportDeadBodyPatch.WaitReport[id][0];
+                ReportDeadBodyPatch.WaitReport[id].Clear();
                 Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}:通報可能になったため通報処理を行います", "ReportDeadbody");
                 __instance.ReportDeadBody(info);
             }
@@ -2046,17 +2047,17 @@ class FixedUpdatePatch
 
         if (Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive())
         {
-            DeadBufferTime.TryAdd(__instance.PlayerId, IRandom.Instance.Next(50, 70));
-            DeadBufferTime[__instance.PlayerId]--;
-            if (DeadBufferTime[__instance.PlayerId] > 0) return;
-            else DeadBufferTime[__instance.PlayerId] = IRandom.Instance.Next(50, 70);
+            DeadBufferTime.TryAdd(id, IRandom.Instance.Next(50, 70));
+            DeadBufferTime[id]--;
+            if (DeadBufferTime[id] > 0) return;
+            else DeadBufferTime[id] = IRandom.Instance.Next(50, 70);
         }
 
         if (Options.LowLoadMode.GetBool())
         {
-            BufferTime.TryAdd(__instance.PlayerId, 10);
-            BufferTime[__instance.PlayerId]--;
-            if (BufferTime[__instance.PlayerId] % 2 == 1 && Options.DeepLowLoad.GetBool()) return;
+            BufferTime.TryAdd(id, 10);
+            BufferTime[id]--;
+            if (BufferTime[id] % 2 == 1 && Options.DeepLowLoad.GetBool()) return;
         }
 
         //if (Options.DeepLowLoad.GetBool()) await Task.Run(() => { DoPostfix(__instance); });
@@ -2074,12 +2075,13 @@ class FixedUpdatePatch
     public static Task DoPostfix(PlayerControl __instance)
     {
         var player = __instance;
+        var playerId = player.PlayerId;
 
         bool lowLoad = false;
         if (Options.LowLoadMode.GetBool())
         {
-            if (BufferTime[player.PlayerId] > 0) lowLoad = true;
-            else BufferTime[player.PlayerId] = 10;
+            if (BufferTime[playerId] > 0) lowLoad = true;
+            else BufferTime[playerId] = 10;
         }
 
         if (Sniper.IsEnable) Sniper.OnFixedUpdate(player);
@@ -2089,11 +2091,8 @@ class FixedUpdatePatch
             NameNotifyManager.OnFixedUpdate(player);
             TargetArrow.OnFixedUpdate(player);
             LocateArrow.OnFixedUpdate(player);
-        }
 
-        if (!lowLoad)
-        {
-            if (RPCHandlerPatch.ReportDeadBodyRPCs.Remove(player.PlayerId))
+            if (RPCHandlerPatch.ReportDeadBodyRPCs.Remove(playerId))
                 Logger.Info($"Cleared ReportDeadBodyRPC Count for {player.GetRealName().RemoveHtmlTags()}", "FixedUpdatePatch");
         }
 
@@ -2124,14 +2123,14 @@ class FixedUpdatePatch
                 }
             }
 
-            if (!Main.KillTimers.ContainsKey(player.PlayerId))
-                Main.KillTimers.Add(player.PlayerId, 10f);
-            else if (!player.inVent && !player.MyPhysics.Animations.IsPlayingEnterVentAnimation() && Main.KillTimers[player.PlayerId] > 0)
-                Main.KillTimers[player.PlayerId] -= Time.fixedDeltaTime;
+            if (!Main.KillTimers.ContainsKey(playerId))
+                Main.KillTimers.Add(playerId, 10f);
+            else if (!player.inVent && !player.MyPhysics.Animations.IsPlayingEnterVentAnimation() && Main.KillTimers[playerId] > 0)
+                Main.KillTimers[playerId] -= Time.fixedDeltaTime;
 
             if (GameStates.IsInTask) KeepProtection.OnFixedUpdate();
 
-            if (DoubleTrigger.FirstTriggerTimer.Any()) DoubleTrigger.OnFixedUpdate(player);
+            if (DoubleTrigger.FirstTriggerTimer.Count > 0) DoubleTrigger.OnFixedUpdate(player);
             switch (player.GetCustomRole())
             {
                 case CustomRoles.Vampire:
@@ -2218,13 +2217,13 @@ class FixedUpdatePatch
                 player.RpcSetCustomRole(CustomRoles.Pestilence);
                 player.Notify(GetString("PlagueBearerToPestilence"));
                 player.RpcGuardAndKill(player);
-                if (!PlagueBearer.PestilenceList.Contains(player.PlayerId))
-                    PlagueBearer.PestilenceList.Add(player.PlayerId);
-                PlagueBearer.SetKillCooldownPestilence(player.PlayerId);
-                PlagueBearer.playerIdList.Remove(player.PlayerId);
+                if (!PlagueBearer.PestilenceList.Contains(playerId))
+                    PlagueBearer.PestilenceList.Add(playerId);
+                PlagueBearer.SetKillCooldownPestilence(playerId);
+                PlagueBearer.playerIdList.Remove(playerId);
             }
 
-            if (!lowLoad && Main.PlayerStates.TryGetValue(player.PlayerId, out var playerState) && GameStates.IsInTask)
+            if (!lowLoad && Main.PlayerStates.TryGetValue(playerId, out var playerState) && GameStates.IsInTask)
             {
                 if (playerState.SubRoles.Contains(CustomRoles.Damocles))
                 {
@@ -2238,12 +2237,16 @@ class FixedUpdatePatch
 
             if (!lowLoad && Options.UsePets.GetBool() && GameStates.IsInTask)
             {
-                if (Main.AbilityCD.TryGetValue(player.PlayerId, out var timer) && timer.START_TIMESTAMP + timer.TOTALCD < GetTimeStamp())
+                if (Main.AbilityCD.TryGetValue(playerId, out var timer))
                 {
-                    Main.AbilityCD.Remove(player.PlayerId);
+                    if (timer.START_TIMESTAMP + timer.TOTALCD < GetTimeStamp())
+                    {
+                        Main.AbilityCD.Remove(playerId);
+                    }
                     if (!player.IsModClient()) NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 }
-                if (Main.AbilityCD.ContainsKey(player.PlayerId) && !player.IsModClient()) NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+
+                if (Main.AbilityCD.ContainsKey(playerId) && !player.IsModClient()) NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
             }
         }
 
@@ -2253,7 +2256,7 @@ class FixedUpdatePatch
             Duellist.OnFixedUpdate();
         }
 
-        if (GameStates.IsInTask && Agitater.IsEnable && Agitater.AgitaterHasBombed && Agitater.CurrentBombedPlayer == player.PlayerId)
+        if (GameStates.IsInTask && Agitater.IsEnable && Agitater.AgitaterHasBombed && Agitater.CurrentBombedPlayer == playerId)
         {
             if (!player.IsAlive())
             {
@@ -2267,7 +2270,7 @@ class FixedUpdatePatch
                 foreach (var target in PlayerControl.AllPlayerControls)
                 {
                     if (!target.IsAlive()) continue;
-                    if (target.PlayerId != player.PlayerId && target.PlayerId != Agitater.LastBombedPlayer && !target.Data.IsDead)
+                    if (target.PlayerId != playerId && target.PlayerId != Agitater.LastBombedPlayer && !target.Data.IsDead)
                     {
                         dis = Vector2.Distance(agitaterPos, target.transform.position);
                         targetDistance.Add(target.PlayerId, dis);
@@ -2286,53 +2289,53 @@ class FixedUpdatePatch
 
 
         #region 女巫处理
-        if (GameStates.IsInTask && Main.WarlockTimer.ContainsKey(player.PlayerId))//処理を1秒遅らせる
+        if (GameStates.IsInTask && Main.WarlockTimer.ContainsKey(playerId))//処理を1秒遅らせる
         {
             if (player.IsAlive())
             {
-                if (Main.WarlockTimer[player.PlayerId] >= 1f)
+                if (Main.WarlockTimer[playerId] >= 1f)
                 {
                     player.RpcResetAbilityCooldown();
                     Main.isCursed = false;//変身クールを１秒に変更
                     player.MarkDirtySettings();
-                    Main.WarlockTimer.Remove(player.PlayerId);
+                    Main.WarlockTimer.Remove(playerId);
                 }
-                else Main.WarlockTimer[player.PlayerId] = Main.WarlockTimer[player.PlayerId] + Time.fixedDeltaTime;//時間をカウント
+                else Main.WarlockTimer[playerId] = Main.WarlockTimer[playerId] + Time.fixedDeltaTime;//時間をカウント
             }
             else
             {
-                Main.WarlockTimer.Remove(player.PlayerId);
+                Main.WarlockTimer.Remove(playerId);
             }
         }
         //ターゲットのリセット
         #endregion
 
         #region 纵火犯浇油处理
-        if (GameStates.IsInTask && Main.ArsonistTimer.ContainsKey(player.PlayerId))//アーソニストが誰かを塗っているとき
+        if (GameStates.IsInTask && Main.ArsonistTimer.ContainsKey(playerId))//アーソニストが誰かを塗っているとき
         {
-            var arTarget = Main.ArsonistTimer[player.PlayerId].PLAYER;
-            if (!player.IsAlive() || Pelican.IsEaten(player.PlayerId))
+            var arTarget = Main.ArsonistTimer[playerId].PLAYER;
+            if (!player.IsAlive() || Pelican.IsEaten(playerId))
             {
-                Main.ArsonistTimer.Remove(player.PlayerId);
+                Main.ArsonistTimer.Remove(playerId);
                 NotifyRoles(SpecifySeer: __instance, SpecifyTarget: arTarget, ForceLoop: true);
-                RPC.ResetCurrentDousingTarget(player.PlayerId);
+                RPC.ResetCurrentDousingTarget(playerId);
             }
             else
             {
-                var ar_target = Main.ArsonistTimer[player.PlayerId].PLAYER;//塗られる人
-                var ar_time = Main.ArsonistTimer[player.PlayerId].TIMER;//塗った時間
+                var ar_target = Main.ArsonistTimer[playerId].PLAYER;//塗られる人
+                var ar_time = Main.ArsonistTimer[playerId].TIMER;//塗った時間
                 if (!ar_target.IsAlive())
                 {
-                    Main.ArsonistTimer.Remove(player.PlayerId);
+                    Main.ArsonistTimer.Remove(playerId);
                 }
                 else if (ar_time >= Options.ArsonistDouseTime.GetFloat())//時間以上一緒にいて塗れた時
                 {
                     player.SetKillCooldown();
-                    Main.ArsonistTimer.Remove(player.PlayerId);//塗が完了したのでDictionaryから削除
-                    Main.isDoused[(player.PlayerId, ar_target.PlayerId)] = true;//塗り完了
+                    Main.ArsonistTimer.Remove(playerId);//塗が完了したのでDictionaryから削除
+                    Main.isDoused[(playerId, ar_target.PlayerId)] = true;//塗り完了
                     player.RpcSetDousedPlayer(ar_target, true);
                     NotifyRoles(SpecifySeer: player, SpecifyTarget: arTarget, ForceLoop: true);//名前変更
-                    RPC.ResetCurrentDousingTarget(player.PlayerId);
+                    RPC.ResetCurrentDousingTarget(playerId);
                 }
                 else
                 {
@@ -2341,13 +2344,13 @@ class FixedUpdatePatch
                     float dis = Vector2.Distance(player.transform.position, ar_target.transform.position);//距離を出す
                     if (dis <= range)//一定の距離にターゲットがいるならば時間をカウント
                     {
-                        Main.ArsonistTimer[player.PlayerId] = (ar_target, ar_time + Time.fixedDeltaTime);
+                        Main.ArsonistTimer[playerId] = (ar_target, ar_time + Time.fixedDeltaTime);
                     }
                     else//それ以外は削除
                     {
-                        Main.ArsonistTimer.Remove(player.PlayerId);
+                        Main.ArsonistTimer.Remove(playerId);
                         NotifyRoles(SpecifySeer: player, SpecifyTarget: arTarget, ForceLoop: true);
-                        RPC.ResetCurrentDousingTarget(player.PlayerId);
+                        RPC.ResetCurrentDousingTarget(playerId);
 
                         Logger.Info($"Canceled: {player.GetNameWithRole().RemoveHtmlTags()}", "Arsonist");
                     }
@@ -2357,31 +2360,31 @@ class FixedUpdatePatch
         #endregion
 
         #region 革命家拉人处理
-        if (GameStates.IsInTask && Main.RevolutionistTimer.ContainsKey(player.PlayerId))//当革命家拉拢一个玩家时
+        if (GameStates.IsInTask && Main.RevolutionistTimer.ContainsKey(playerId))//当革命家拉拢一个玩家时
         {
-            var rvTarget = Main.RevolutionistTimer[player.PlayerId].PLAYER;
-            if (!player.IsAlive() || Pelican.IsEaten(player.PlayerId))
+            var rvTarget = Main.RevolutionistTimer[playerId].PLAYER;
+            if (!player.IsAlive() || Pelican.IsEaten(playerId))
             {
-                Main.RevolutionistTimer.Remove(player.PlayerId);
+                Main.RevolutionistTimer.Remove(playerId);
                 NotifyRoles(SpecifySeer: player, SpecifyTarget: rvTarget, ForceLoop: true);
-                RPC.ResetCurrentDrawTarget(player.PlayerId);
+                RPC.ResetCurrentDrawTarget(playerId);
             }
             else
             {
-                var rv_target = Main.RevolutionistTimer[player.PlayerId].PLAYER;//拉拢的人
-                var rv_time = Main.RevolutionistTimer[player.PlayerId].TIMER;//拉拢时间
+                var rv_target = Main.RevolutionistTimer[playerId].PLAYER;//拉拢的人
+                var rv_time = Main.RevolutionistTimer[playerId].TIMER;//拉拢时间
                 if (!rv_target.IsAlive())
                 {
-                    Main.RevolutionistTimer.Remove(player.PlayerId);
+                    Main.RevolutionistTimer.Remove(playerId);
                 }
                 else if (rv_time >= Options.RevolutionistDrawTime.GetFloat())//在一起时间超过多久
                 {
                     player.SetKillCooldown();
-                    Main.RevolutionistTimer.Remove(player.PlayerId);//拉拢完成从字典中删除
-                    Main.isDraw[(player.PlayerId, rv_target.PlayerId)] = true;//完成拉拢
+                    Main.RevolutionistTimer.Remove(playerId);//拉拢完成从字典中删除
+                    Main.isDraw[(playerId, rv_target.PlayerId)] = true;//完成拉拢
                     player.RpcSetDrawPlayer(rv_target, true);
                     NotifyRoles(SpecifySeer: player, SpecifyTarget: rv_target, ForceLoop: true);
-                    RPC.ResetCurrentDrawTarget(player.PlayerId);
+                    RPC.ResetCurrentDrawTarget(playerId);
                     if (IRandom.Instance.Next(1, 100) <= Options.RevolutionistKillProbability.GetInt())
                     {
                         rv_target.SetRealKiller(player);
@@ -2397,13 +2400,13 @@ class FixedUpdatePatch
                     float dis = Vector2.Distance(player.transform.position, rv_target.transform.position);//超出距离
                     if (dis <= range)//在一定距离内则计算时间
                     {
-                        Main.RevolutionistTimer[player.PlayerId] = (rv_target, rv_time + Time.fixedDeltaTime);
+                        Main.RevolutionistTimer[playerId] = (rv_target, rv_time + Time.fixedDeltaTime);
                     }
                     else//否则删除
                     {
-                        Main.RevolutionistTimer.Remove(player.PlayerId);
+                        Main.RevolutionistTimer.Remove(playerId);
                         NotifyRoles(SpecifySeer: __instance, SpecifyTarget: rv_target);
-                        RPC.ResetCurrentDrawTarget(player.PlayerId);
+                        RPC.ResetCurrentDrawTarget(playerId);
 
                         Logger.Info($"Canceled: {__instance.GetNameWithRole().RemoveHtmlTags()}", "Revolutionist");
                     }
@@ -2412,18 +2415,18 @@ class FixedUpdatePatch
         }
         if (GameStates.IsInTask && player.IsDrawDone() && player.IsAlive())
         {
-            if (Main.RevolutionistStart.ContainsKey(player.PlayerId)) //如果存在字典
+            if (Main.RevolutionistStart.ContainsKey(playerId)) //如果存在字典
             {
-                if (Main.RevolutionistLastTime.ContainsKey(player.PlayerId))
+                if (Main.RevolutionistLastTime.ContainsKey(playerId))
                 {
                     long nowtime = GetTimeStamp();
-                    if (Main.RevolutionistLastTime[player.PlayerId] != nowtime) Main.RevolutionistLastTime[player.PlayerId] = nowtime;
-                    int time = (int)(Main.RevolutionistLastTime[player.PlayerId] - Main.RevolutionistStart[player.PlayerId]);
+                    if (Main.RevolutionistLastTime[playerId] != nowtime) Main.RevolutionistLastTime[playerId] = nowtime;
+                    int time = (int)(Main.RevolutionistLastTime[playerId] - Main.RevolutionistStart[playerId]);
                     int countdown = Options.RevolutionistVentCountDown.GetInt() - time;
                     Main.RevolutionistCountdown.Clear();
                     if (countdown <= 0)//倒计时结束
                     {
-                        GetDrawPlayerCount(player.PlayerId, out var y);
+                        GetDrawPlayerCount(playerId, out var y);
                         foreach (var pc in y.Where(x => x != null && x.IsAlive()))
                         {
                             pc.Suicide(PlayerState.DeathReason.Sacrifice);
@@ -2433,17 +2436,17 @@ class FixedUpdatePatch
                     }
                     else
                     {
-                        Main.RevolutionistCountdown.Add(player.PlayerId, countdown);
+                        Main.RevolutionistCountdown.Add(playerId, countdown);
                     }
                 }
                 else
                 {
-                    Main.RevolutionistLastTime.TryAdd(player.PlayerId, Main.RevolutionistStart[player.PlayerId]);
+                    Main.RevolutionistLastTime.TryAdd(playerId, Main.RevolutionistStart[playerId]);
                 }
             }
             else //如果不存在字典
             {
-                Main.RevolutionistStart.TryAdd(player.PlayerId, GetTimeStamp());
+                Main.RevolutionistStart.TryAdd(playerId, GetTimeStamp());
             }
         }
         #endregion
@@ -2458,44 +2461,44 @@ class FixedUpdatePatch
             switch (player.GetCustomRole())
             {
                 case CustomRoles.Veteran when GameStates.IsInTask:
-                    if (Main.VeteranInProtect.TryGetValue(player.PlayerId, out var vtime) && vtime + Options.VeteranSkillDuration.GetInt() < now)
+                    if (Main.VeteranInProtect.TryGetValue(playerId, out var vtime) && vtime + Options.VeteranSkillDuration.GetInt() < now)
                     {
-                        Main.VeteranInProtect.Remove(player.PlayerId);
+                        Main.VeteranInProtect.Remove(playerId);
                         player.RpcResetAbilityCooldown();
-                        player.Notify(string.Format(GetString("VeteranOffGuard"), (int)Main.VeteranNumOfUsed[player.PlayerId]));
+                        player.Notify(string.Format(GetString("VeteranOffGuard"), (int)Main.VeteranNumOfUsed[playerId]));
                     }
                     break;
 
                 case CustomRoles.Express when GameStates.IsInTask:
-                    if (Main.ExpressSpeedUp.TryGetValue(player.PlayerId, out var etime) && etime + Options.ExpressSpeedDur.GetInt() < now)
+                    if (Main.ExpressSpeedUp.TryGetValue(playerId, out var etime) && etime + Options.ExpressSpeedDur.GetInt() < now)
                     {
-                        Main.ExpressSpeedUp.Remove(player.PlayerId);
-                        Main.AllPlayerSpeed[player.PlayerId] = Main.ExpressSpeedNormal;
+                        Main.ExpressSpeedUp.Remove(playerId);
+                        Main.AllPlayerSpeed[playerId] = Main.ExpressSpeedNormal;
                         player.MarkDirtySettings();
                     }
                     break;
 
                 case CustomRoles.Grenadier when GameStates.IsInTask:
-                    if (Main.GrenadierBlinding.TryGetValue(player.PlayerId, out var gtime) && gtime + Options.GrenadierSkillDuration.GetInt() < now)
+                    if (Main.GrenadierBlinding.TryGetValue(playerId, out var gtime) && gtime + Options.GrenadierSkillDuration.GetInt() < now)
                     {
-                        Main.GrenadierBlinding.Remove(player.PlayerId);
+                        Main.GrenadierBlinding.Remove(playerId);
                         player.RpcResetAbilityCooldown();
-                        player.Notify(string.Format(GetString("GrenadierSkillStop"), (int)Main.GrenadierNumOfUsed[player.PlayerId]));
+                        player.Notify(string.Format(GetString("GrenadierSkillStop"), (int)Main.GrenadierNumOfUsed[playerId]));
                         MarkEveryoneDirtySettingsV3();
                     }
-                    if (Main.MadGrenadierBlinding.TryGetValue(player.PlayerId, out var mgtime) && mgtime + Options.GrenadierSkillDuration.GetInt() < now)
+                    if (Main.MadGrenadierBlinding.TryGetValue(playerId, out var mgtime) && mgtime + Options.GrenadierSkillDuration.GetInt() < now)
                     {
-                        Main.MadGrenadierBlinding.Remove(player.PlayerId);
+                        Main.MadGrenadierBlinding.Remove(playerId);
                         player.RpcResetAbilityCooldown();
-                        player.Notify(string.Format(GetString("GrenadierSkillStop"), (int)Main.GrenadierNumOfUsed[player.PlayerId]));
+                        player.Notify(string.Format(GetString("GrenadierSkillStop"), (int)Main.GrenadierNumOfUsed[playerId]));
                         MarkEveryoneDirtySettingsV3();
                     }
                     break;
 
                 case CustomRoles.Lighter when GameStates.IsInTask:
-                    if (Main.Lighter.TryGetValue(player.PlayerId, out var ltime) && ltime + Options.LighterSkillDuration.GetInt() < now)
+                    if (Main.Lighter.TryGetValue(playerId, out var ltime) && ltime + Options.LighterSkillDuration.GetInt() < now)
                     {
-                        Main.Lighter.Remove(player.PlayerId);
+                        Main.Lighter.Remove(playerId);
                         player.RpcResetAbilityCooldown();
                         player.Notify(GetString("LighterSkillStop"));
                         player.MarkDirtySettings();
@@ -2503,33 +2506,33 @@ class FixedUpdatePatch
                     break;
 
                 case CustomRoles.SecurityGuard when GameStates.IsInTask:
-                    if (Main.BlockSabo.TryGetValue(player.PlayerId, out var stime) && stime + Options.SecurityGuardSkillDuration.GetInt() < now)
+                    if (Main.BlockSabo.TryGetValue(playerId, out var stime) && stime + Options.SecurityGuardSkillDuration.GetInt() < now)
                     {
-                        Main.BlockSabo.Remove(player.PlayerId);
+                        Main.BlockSabo.Remove(playerId);
                         player.RpcResetAbilityCooldown();
                         player.Notify(GetString("SecurityGuardSkillStop"));
                     }
                     break;
 
                 case CustomRoles.TimeMaster when GameStates.IsInTask:
-                    if (Main.TimeMasterInProtect.TryGetValue(player.PlayerId, out var ttime) && ttime + Options.TimeMasterSkillDuration.GetInt() < now)
+                    if (Main.TimeMasterInProtect.TryGetValue(playerId, out var ttime) && ttime + Options.TimeMasterSkillDuration.GetInt() < now)
                     {
-                        Main.TimeMasterInProtect.Remove(player.PlayerId);
+                        Main.TimeMasterInProtect.Remove(playerId);
                         player.RpcResetAbilityCooldown();
-                        player.Notify(GetString("TimeMasterSkillStop"), (int)Main.TimeMasterNumOfUsed[player.PlayerId]);
+                        player.Notify(GetString("TimeMasterSkillStop"), (int)Main.TimeMasterNumOfUsed[playerId]);
                     }
                     break;
 
-                case CustomRoles.Mario when Main.MarioVentCount[player.PlayerId] > Options.MarioVentNumWin.GetInt() && GameStates.IsInTask:
-                    Main.MarioVentCount[player.PlayerId] = Options.MarioVentNumWin.GetInt();
+                case CustomRoles.Mario when Main.MarioVentCount[playerId] > Options.MarioVentNumWin.GetInt() && GameStates.IsInTask:
+                    Main.MarioVentCount[playerId] = Options.MarioVentNumWin.GetInt();
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Mario); //马里奥这个多动症赢了
-                    CustomWinnerHolder.WinnerIds.Add(player.PlayerId);
+                    CustomWinnerHolder.WinnerIds.Add(playerId);
                     break;
 
-                case CustomRoles.Vulture when Vulture.BodyReportCount[player.PlayerId] >= Vulture.NumberOfReportsToWin.GetInt() && GameStates.IsInTask:
-                    Vulture.BodyReportCount[player.PlayerId] = Vulture.NumberOfReportsToWin.GetInt();
+                case CustomRoles.Vulture when Vulture.BodyReportCount[playerId] >= Vulture.NumberOfReportsToWin.GetInt() && GameStates.IsInTask:
+                    Vulture.BodyReportCount[playerId] = Vulture.NumberOfReportsToWin.GetInt();
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Vulture);
-                    CustomWinnerHolder.WinnerIds.Add(player.PlayerId);
+                    CustomWinnerHolder.WinnerIds.Add(playerId);
                     break;
 
                 case CustomRoles.Pelican:
@@ -2577,34 +2580,34 @@ class FixedUpdatePatch
                     break;
             }
 
-            if (Main.AllKillers.TryGetValue(player.PlayerId, out var ktime) && ktime + Options.WitnessTime.GetInt() < now) Main.AllKillers.Remove(player.PlayerId);
+            if (Main.AllKillers.TryGetValue(playerId, out var ktime) && ktime + Options.WitnessTime.GetInt() < now) Main.AllKillers.Remove(playerId);
             if (GameStates.IsInTask && player.IsAlive() && Options.LadderDeath.GetBool()) FallFromLadder.FixedUpdate(player);
             if (GameStates.IsInGame) LoversSuicide();
 
             #region 傀儡师处理
-            if (GameStates.IsInTask && Main.PuppeteerList.ContainsKey(player.PlayerId))
+            if (GameStates.IsInTask && Main.PuppeteerList.ContainsKey(playerId))
             {
-                if (!player.IsAlive() || Pelican.IsEaten(player.PlayerId))
+                if (!player.IsAlive() || Pelican.IsEaten(playerId))
                 {
-                    Main.PuppeteerList.Remove(player.PlayerId);
-                    Main.PuppeteerDelayList.Remove(player.PlayerId);
-                    Main.PuppeteerDelay.Remove(player.PlayerId);
+                    Main.PuppeteerList.Remove(playerId);
+                    Main.PuppeteerDelayList.Remove(playerId);
+                    Main.PuppeteerDelay.Remove(playerId);
                 }
-                else if (Main.PuppeteerDelayList[player.PlayerId] + Options.PuppeteerManipulationEndsAfterTime.GetInt() < now && Options.PuppeteerManipulationEndsAfterFixedTime.GetBool())
+                else if (Main.PuppeteerDelayList[playerId] + Options.PuppeteerManipulationEndsAfterTime.GetInt() < now && Options.PuppeteerManipulationEndsAfterFixedTime.GetBool())
                 {
-                    Main.PuppeteerList.Remove(player.PlayerId);
-                    Main.PuppeteerDelayList.Remove(player.PlayerId);
-                    Main.PuppeteerDelay.Remove(player.PlayerId);
+                    Main.PuppeteerList.Remove(playerId);
+                    Main.PuppeteerDelayList.Remove(playerId);
+                    Main.PuppeteerDelay.Remove(playerId);
                     Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Puppeteer)).Do(x => NotifyRoles(SpecifySeer: x, SpecifyTarget: player));
                 }
-                else if (Main.PuppeteerDelayList[player.PlayerId] + Main.PuppeteerDelay[player.PlayerId] < now)
+                else if (Main.PuppeteerDelayList[playerId] + Main.PuppeteerDelay[playerId] < now)
                 {
                     Vector2 puppeteerPos = player.transform.position;//PuppeteerListのKeyの位置
                     Dictionary<byte, float> targetDistance = [];
                     float dis;
                     foreach (PlayerControl target in Main.AllAlivePlayerControls)
                     {
-                        if (target.PlayerId == player.PlayerId || target.Is(CustomRoles.Pestilence)) continue;
+                        if (target.PlayerId == playerId || target.Is(CustomRoles.Pestilence)) continue;
                         if (target.Is(CustomRoles.Puppeteer) && !Options.PuppeteerPuppetCanKillPuppeteer.GetBool()) continue;
                         if (target.Is(CustomRoleTypes.Impostor) && !Options.PuppeteerPuppetCanKillImpostors.GetBool()) continue;
 
@@ -2620,15 +2623,15 @@ class FixedUpdatePatch
                         {
                             if (player.RpcCheckAndMurder(target, true))
                             {
-                                var puppeteerId = Main.PuppeteerList[player.PlayerId];
+                                var puppeteerId = Main.PuppeteerList[playerId];
                                 RPC.PlaySoundRPC(puppeteerId, Sounds.KillSound);
                                 target.SetRealKiller(GetPlayerById(puppeteerId));
                                 player.Kill(target);
                                 player.MarkDirtySettings();
                                 target.MarkDirtySettings();
-                                Main.PuppeteerList.Remove(player.PlayerId);
-                                Main.PuppeteerDelayList.Remove(player.PlayerId);
-                                Main.PuppeteerDelay.Remove(player.PlayerId);
+                                Main.PuppeteerList.Remove(playerId);
+                                Main.PuppeteerDelayList.Remove(playerId);
+                                Main.PuppeteerDelay.Remove(playerId);
                                 NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                                 NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
                             }
@@ -2679,7 +2682,7 @@ class FixedUpdatePatch
         {
             if (GameStates.IsLobby)
             {
-                if (Main.playerVersion.TryGetValue(__instance.PlayerId, out var ver))
+                if (Main.playerVersion.TryGetValue(playerId, out var ver))
                 {
                     if (Main.ForkId != ver.forkId) // フォークIDが違う場合
                         __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.2>{ver.forkId}</size>\n{__instance?.name}</color>";
@@ -2691,11 +2694,11 @@ class FixedUpdatePatch
             }
             if (GameStates.IsInGame)
             {
-                var RoleTextData = GetRoleText(PlayerControl.LocalPlayer.PlayerId, __instance.PlayerId);
+                var RoleTextData = GetRoleText(PlayerControl.LocalPlayer.PlayerId, playerId);
 
                 //if (Options.CurrentGameMode == CustomGameMode.HideAndSeek)
                 //{
-                //    var hasRole = main.AllPlayerCustomRoles.TryGetValue(__instance.PlayerId, out var role);
+                //    var hasRole = main.AllPlayerCustomRoles.TryGetValue(playerId, out var role);
                 //    if (hasRole) RoleTextData = Utils.GetRoleTextHideAndSeek(__instance.Data.Role.Role, role);
                 //}
                 RoleText.text = RoleTextData.Item1;
@@ -3018,8 +3021,7 @@ class FixedUpdatePatch
                 }*/
 
                 //Devourer
-                bool targetDevoured = Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerSkinsCosumed.Any(a => a.Value.Contains(target.PlayerId));
-                if (targetDevoured)
+                if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerSkinsCosumed.Any(a => a.Value.Contains(target.PlayerId)))
                     RealName = GetString("DevouredName");
 
                 // Camouflage
