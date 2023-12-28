@@ -66,7 +66,7 @@ public static class Utils
                 _ = new LateTask(() =>
                 {
                     AmongUsClient.Instance.ExitGame(DisconnectReasons.Custom);
-                    Logger.Fatal($"{text} 错误，已断开游戏", "Anti-black");
+                    Logger.Fatal($"{text} error, disconnected from game", "Anti-black");
                 }, 8f, "Anti-Black Exit Game");
             }
         }
@@ -75,7 +75,7 @@ public static class Utils
     {
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            TP(pc.NetTransform, location);
+            pc.TP(location);
         }
     }
 
@@ -1926,7 +1926,7 @@ public static class Utils
                 }
             }
         }
-        return playerRooms.Any() ? playerRooms : null;
+        return playerRooms.Count > 0 ? playerRooms : null;
     }
     public static PlayerControl GetPlayerById(int PlayerId) => Main.AllPlayerControls.FirstOrDefault(pc => pc.PlayerId == PlayerId);
     public static GameData.PlayerInfo GetPlayerInfoById(int PlayerId) => GameData.Instance.AllPlayers.ToArray().FirstOrDefault(info => info.PlayerId == PlayerId);

@@ -222,7 +222,7 @@ public static class Sniper
 
         var targets = GetSnipeTargets(sniper);
 
-        if (targets.Any())
+        if (targets.Count > 0)
         {
             //一番正確な対象がターゲット
             var snipedTarget = targets.OrderBy(c => c.Value).First().Key;
@@ -313,7 +313,7 @@ public static class Sniper
             //エイムアシスト中のスナイパー
             if (0.5f < AimTime[seerId] && (!AimAssistOneshot || AimTime[seerId] < 1.0f))
             {
-                if (GetSnipeTargets(Utils.GetPlayerById(seerId)).Any())
+                if (GetSnipeTargets(Utils.GetPlayerById(seerId)).Count > 0)
                 {
                     return $"<size=200%>{Utils.ColorString(Palette.ImpostorRed, "◎")}</size>";
                 }

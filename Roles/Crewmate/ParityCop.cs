@@ -167,7 +167,7 @@ public static class ParityCop
 
                     if (((target1.Is(Team.Impostor) || target1.GetCustomSubRoles().Any(role => role.IsImpostorTeamV3())) && (target2.Is(Team.Impostor) || target2.GetCustomSubRoles().Any(role => role.IsImpostorTeamV3()))) ||
                     ((target1.Is(Team.Neutral) || target1.GetCustomSubRoles().Any(role => role.IsNeutralTeamV2())) && (target2.Is(Team.Neutral) || target2.GetCustomSubRoles().Any(role => role.IsNeutralTeamV2()))) ||
-                    (target1.Is(Team.Crewmate) && (target1.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || (!target1.GetCustomSubRoles().Any())) && target2.Is(Team.Crewmate) && (target2.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || !target2.GetCustomSubRoles().Any())))
+                    (target1.Is(Team.Crewmate) && (target1.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || (target1.GetCustomSubRoles().Count == 0)) && target2.Is(Team.Crewmate) && (target2.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || target2.GetCustomSubRoles().Count == 0)))
                     {
                         _ = new LateTask(() =>
                         {
@@ -210,11 +210,11 @@ public static class ParityCop
                             string roleT1 = string.Empty, roleT2 = string.Empty;
                             if (target1.Is(Team.Impostor) || target1.GetCustomSubRoles().Any(role => role.IsImpostorTeamV3())) roleT1 = "Impostor";
                             else if (target1.Is(Team.Neutral) || target1.GetCustomSubRoles().Any(role => role.IsNeutralTeamV2())) roleT1 = "Neutral";
-                            else if (target1.Is(Team.Crewmate) && (target1.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || (!target1.GetCustomSubRoles().Any())))
+                            else if (target1.Is(Team.Crewmate) && (target1.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || (target1.GetCustomSubRoles().Count == 0)))
 
                                 if (target2.Is(Team.Impostor) || target2.GetCustomSubRoles().Any(role => role.IsImpostorTeamV3())) roleT2 = "Impostor";
                                 else if (target2.Is(Team.Neutral) || target2.GetCustomSubRoles().Any(role => role.IsNeutralTeamV2())) roleT2 = "Neutral";
-                                else if (target2.Is(Team.Crewmate) && (target2.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || !target2.GetCustomSubRoles().Any())) roleT2 = "Crewmate";
+                                else if (target2.Is(Team.Crewmate) && (target2.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || target2.GetCustomSubRoles().Count == 0)) roleT2 = "Crewmate";
 
                             _ = new LateTask(() =>
                             {

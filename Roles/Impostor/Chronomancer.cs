@@ -108,9 +108,9 @@ namespace TOHE.Roles.Impostor
                 notify = true;
             }
 
-            if ((notify || chargePercent == 100) && !pc.IsModClient())
+            if (notify && !pc.IsModClient())
             {
-                pc.Notify(string.Format(Translator.GetString("ChronomancerPercent"), chargePercent));
+                pc.Notify(string.Format(Translator.GetString("ChronomancerPercent"), chargePercent), 300f);
             }
 
             if (beforeCharge != chargePercent && pc.IsModClient() && pc.PlayerId != 0)

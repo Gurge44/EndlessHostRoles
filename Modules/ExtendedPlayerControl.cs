@@ -384,7 +384,7 @@ static class ExtendedPlayerControl
     public static string GetSubRoleName(this PlayerControl player, bool forUser = false)
     {
         var SubRoles = Main.PlayerStates[player.PlayerId].SubRoles.ToArray();
-        if (!SubRoles.Any()) return string.Empty;
+        if (SubRoles.Length == 0) return string.Empty;
         var sb = new StringBuilder();
         foreach (CustomRoles role in SubRoles)
         {

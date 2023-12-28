@@ -81,6 +81,8 @@ internal class CustomRoleSelector
 
         foreach (var id in Main.SetRoles.Keys.Where(id => Utils.GetPlayerById(id) == null).ToArray()) Main.SetRoles.Remove(id);
 
+        Dictionary<CustomRoles, (int ASSIGNED, int COUNT)> RoleCounts = [];
+
         System.Collections.IList list = Enum.GetValues(typeof(CustomRoles));
         for (int i1 = 0; i1 < list.Count; i1++)
         {
@@ -99,9 +101,13 @@ internal class CustomRoleSelector
                 case CustomRoles.NotAssigned:
                     continue;
             }
-            for (int i = 0; i < role.GetCount(); i++)
+            var roleCount = role.GetCount();
+            RoleCounts[role] = (0, roleCount);
+            for (int i = 0; i < roleCount; i++)
                 roleList.Add(role);
         }
+
+        Logger.Info(string.Join(", ", RoleCounts.Select(x => $"{x.Key}: {x.Value.COUNT}")), "RoleCounts");
 
         // Career setting: priority
         for (int i2 = 0; i2 < roleList.Count; i2++)
@@ -167,7 +173,20 @@ internal class CustomRoleSelector
             for (int i = 0; i < optImpNum; i++)
             {
                 ImpOnList.Add(CustomRoles.ImpostorTOHE);
+                Logger.Warn("No Impostor roles are enabled, adding a vanilla impostor to the game", "CustomRoleSelector");
             }
+        }
+
+        LogRoleChancePool();
+
+        void LogRoleChancePool()
+        {
+            Logger.Info(string.Join(", ", ImpRateList.Select(p => p.ToString())), "ImpChancePool");
+            Logger.Info(string.Join(", ", NeutralKillingRateList.Select(p => p.ToString())), "NKChancePool");
+            Logger.Info(string.Join(", ", NonNeutralKillingRateList.Select(p => p.ToString())), "NNKChancePool");
+            Logger.Info(string.Join(", ", roleRateList.Select(p => p.ToString())), "CrewChancePool");
+
+            Logger.Info(string.Join(", ", RoleCounts.Select(p => $"{p.Key}: {p.Value.ASSIGNED}/{p.Value.COUNT}")), "AssignedCount");
         }
 
         // Assign roles set to ALWAYS (impostors)
@@ -187,10 +206,12 @@ internal class CustomRoleSelector
             while (ImpRateList.Count > 0)
             {
                 var select = ImpRateList[rd.Next(0, ImpRateList.Count)];
-                while (ImpRateList.Contains(select)) ImpRateList.Remove(select);
+                var (ASSIGNED, COUNT) = RoleCounts[select];
                 rolesToAssign.Add(select);
                 readyRoleNum++;
                 Logger.Info(select.ToString() + " added to the impostor role waiting list", "CustomRoleSelector");
+                RoleCounts[select] = (ASSIGNED + 1, COUNT);
+                if (ASSIGNED + 1 >= COUNT) while (ImpRateList.Contains(select)) ImpRateList.Remove(select);
                 if (readyRoleNum >= playerCount) goto EndOfAssign;
                 if (readyRoleNum >= optImpNum) break;
             }
@@ -215,11 +236,13 @@ internal class CustomRoleSelector
             while (NonNeutralKillingRateList.Count > 0 && optNonNeutralKillingNum > 0)
             {
                 var select = NonNeutralKillingRateList[rd.Next(0, NonNeutralKillingRateList.Count)];
-                while (NonNeutralKillingRateList.Contains(select)) NonNeutralKillingRateList.Remove(select);
+                var (ASSIGNED, COUNT) = RoleCounts[select];
                 rolesToAssign.Add(select);
                 readyRoleNum++;
                 readyNonNeutralKillingNum += select.GetCount();
                 Logger.Info(select.ToString() + " added to neutral role waiting list", "CustomRoleSelector");
+                RoleCounts[select] = (ASSIGNED + 1, COUNT);
+                if (ASSIGNED + 1 >= COUNT) while (NonNeutralKillingRateList.Contains(select)) NonNeutralKillingRateList.Remove(select);
                 if (readyRoleNum >= playerCount) goto EndOfAssign;
                 if (readyNonNeutralKillingNum >= optNonNeutralKillingNum) break;
             }
@@ -244,11 +267,13 @@ internal class CustomRoleSelector
             while (NeutralKillingRateList.Count > 0 && optNeutralKillingNum > 0)
             {
                 var select = NeutralKillingRateList[rd.Next(0, NeutralKillingRateList.Count)];
-                while (NeutralKillingRateList.Contains(select)) NeutralKillingRateList.Remove(select);
+                var (ASSIGNED, COUNT) = RoleCounts[select];
                 rolesToAssign.Add(select);
                 readyRoleNum++;
                 readyNeutralKillingNum += select.GetCount();
                 Logger.Info(select.ToString() + " added to neutral role waiting list", "CustomRoleSelector");
+                RoleCounts[select] = (ASSIGNED + 1, COUNT);
+                if (ASSIGNED + 1 >= COUNT) while (NeutralKillingRateList.Contains(select)) NeutralKillingRateList.Remove(select);
                 if (readyRoleNum >= playerCount) goto EndOfAssign;
                 if (readyNeutralKillingNum >= optNeutralKillingNum) break;
             }
@@ -270,15 +295,19 @@ internal class CustomRoleSelector
             while (roleRateList.Count > 0)
             {
                 var select = roleRateList[rd.Next(0, roleRateList.Count)];
-                while (roleRateList.Contains(select)) roleRateList.Remove(select);
+                var (ASSIGNED, COUNT) = RoleCounts[select];
                 rolesToAssign.Add(select);
                 readyRoleNum++;
                 Logger.Info(select.ToString() + " joined the crew role waiting list", "CustomRoleSelector");
+                RoleCounts[select] = (ASSIGNED + 1, COUNT);
+                if (ASSIGNED + 1 >= COUNT) while (roleRateList.Contains(select)) roleRateList.Remove(select);
                 if (readyRoleNum >= playerCount) goto EndOfAssign;
             }
         }
 
     EndOfAssign:
+
+        LogRoleChancePool();
 
         if (rd.Next(0, 100) < Options.SunnyboyChance.GetInt() && rolesToAssign.Remove(CustomRoles.Jester)) rolesToAssign.Add(CustomRoles.Sunnyboy);
         if (rd.Next(0, 100) < Sans.BardChance.GetInt() && rolesToAssign.Remove(CustomRoles.Sans)) rolesToAssign.Add(CustomRoles.Bard);

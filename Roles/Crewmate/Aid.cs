@@ -66,9 +66,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static void OnFixedUpdate(PlayerControl pc)
         {
-            if (pc == null) return;
-            if (!pc.Is(CustomRoles.Aid)) return;
-            if (!ShieldedPlayers.Any()) return;
+            if (pc == null || !pc.Is(CustomRoles.Aid) || ShieldedPlayers.Count == 0) return;
 
             bool change = false;
 

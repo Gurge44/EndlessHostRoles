@@ -69,7 +69,7 @@ namespace TOHE.Roles.Neutral
         }
         public static void OnFixedUpdate()
         {
-            if (!IsEnable || !GameStates.IsInTask || !EncasedPlayers.Any()) return;
+            if (!IsEnable || !GameStates.IsInTask || EncasedPlayers.Count == 0) return;
 
             long now = GetTimeStamp();
             foreach (var id in EncasedPlayers.Where(item => item.Value + ExplodeDelay.GetInt() < now).Select(item => item.Key).ToArray())

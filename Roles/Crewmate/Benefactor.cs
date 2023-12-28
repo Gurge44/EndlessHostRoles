@@ -94,7 +94,7 @@ namespace TOHE.Roles.Crewmate
             {
                 shieldedPlayers.Remove(shieldedId);
             }
-            if (clearAll && shieldedPlayers.Any()) shieldedPlayers.Clear();
+            if (clearAll && shieldedPlayers.Count > 0) shieldedPlayers.Clear();
         }
         public static string GetProgressText(byte playerId)
         {

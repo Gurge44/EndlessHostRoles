@@ -256,7 +256,7 @@ namespace TOHE.Roles.Neutral
         }
         public static void DirectInfect(PlayerControl player)
         {
-            if (!playerIdList.Any() || player == null) return;
+            if (playerIdList.Count == 0 || player == null) return;
             Logger.Info($"InfectRate [{player.GetNameWithRole()}]: 100%", "PlagueDoctor");
             InfectInfos[player.PlayerId] = 100;
             SendRPC(player.PlayerId, 100);

@@ -62,11 +62,7 @@ namespace TOHE.Roles.Impostor
 
         public static void OnFixedUpdate(PlayerControl pc)
         {
-            if (pc == null) return;
-            if (!Bombs.Any()) return;
-            if (!GameStates.IsInTask) return;
-            if (!pc.IsAlive()) return;
-            if (!pc.Is(CustomRoles.Sapper)) return;
+            if (pc == null || Bombs.Count == 0 || !GameStates.IsInTask || !pc.IsAlive() || !pc.Is(CustomRoles.Sapper)) return;
 
             foreach (var bomb in Bombs.Where(bomb => bomb.Value + Delay.GetInt() < GetTimeStamp()))
             {

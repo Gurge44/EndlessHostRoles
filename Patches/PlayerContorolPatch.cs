@@ -1426,7 +1426,7 @@ class ShapeshiftPatch
                                 cpdistance.Add(p, dis);
                                 Logger.Info($"{p?.Data?.PlayerName}の位置{dis}", "Warlock");
                             }
-                            if (cpdistance.Any())
+                            if (cpdistance.Count > 0)
                             {
                                 var min = cpdistance.OrderBy(c => c.Value).FirstOrDefault();
                                 PlayerControl targetw = min.Key;
@@ -2276,7 +2276,7 @@ class FixedUpdatePatch
                         targetDistance.Add(target.PlayerId, dis);
                     }
                 }
-                if (targetDistance.Any())
+                if (targetDistance.Count > 0)
                 {
                     var min = targetDistance.OrderBy(c => c.Value).FirstOrDefault();
                     PlayerControl target = GetPlayerById(min.Key);
@@ -2614,7 +2614,7 @@ class FixedUpdatePatch
                         dis = Vector2.Distance(puppeteerPos, target.transform.position);
                         targetDistance.Add(target.PlayerId, dis);
                     }
-                    if (targetDistance.Any())
+                    if (targetDistance.Count > 0)
                     {
                         var min = targetDistance.OrderBy(c => c.Value).FirstOrDefault();//一番値が小さい
                         PlayerControl target = GetPlayerById(min.Key);

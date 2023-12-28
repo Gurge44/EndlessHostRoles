@@ -218,10 +218,7 @@ namespace TOHE.Roles.Impostor
 
         public static void OnFixedUpdate(PlayerControl player)
         {
-            if (!GameStates.IsInTask) return;
-            if (player == null) return;
-            if (!player.Is(CustomRoles.Gambler)) return;
-            if (!waitingDelayedKills.Any() && !isSpeedChange.Any() && !isVisionChange.Any() && !isShielded.Any()) return;
+            if (!GameStates.IsInTask || player == null || !player.Is(CustomRoles.Gambler) || (waitingDelayedKills.Count == 0 && isSpeedChange.Count == 0 && isVisionChange.Count == 0 && isShielded.Count == 0)) return;
 
             bool sync = false;
 

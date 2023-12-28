@@ -104,7 +104,7 @@ namespace TOHE.Roles.Neutral
         }
         public static void OnFixedUpdate()
         {
-            if (!IsEnable || !GameStates.IsInTask || !Traps.Any()) return;
+            if (!IsEnable || !GameStates.IsInTask || Traps.Count == 0) return;
 
             long now = GetTimeStamp();
 

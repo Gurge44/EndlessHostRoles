@@ -37,11 +37,11 @@
 //        }
 //        public static bool IsEnable()
 //        {
-//            return playerIdList.Any();
+//            return playerIdList.Count > 0;
 //        }
 //        public static bool IsNEnable()
 //        {
-//            return NplayerIdList.Any();
+//            return NplayerIdList.Count > 0;
 //        }
 //        public static bool IsNAlive()
 //        {

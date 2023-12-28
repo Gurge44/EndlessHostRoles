@@ -124,7 +124,7 @@ public static class Magician
         switch (CardId)
         {
             case 1: // Slowness for everyone nearby
-                if (TempSpeeds.Any()) RevertSpeedChanges(true);
+                if (TempSpeeds.Count > 0) RevertSpeedChanges(true);
                 var list = GetPlayersInRadius(SlownessRadius.GetFloat(), pc.Pos());
                 foreach (var x in list)
                 {
@@ -170,7 +170,7 @@ public static class Magician
 
                 var targets = GetSnipeTargets(sniper);
 
-                if (targets.Any())
+                if (targets.Count > 0)
                 {
                     var snipedTarget = targets.OrderBy(c => c.Value).First().Key;
                     snipedTarget.CheckMurder(snipedTarget);
@@ -247,7 +247,7 @@ public static class Magician
         if (!GameStates.IsInTask) return;
         if (Pelican.IsEaten(pc.PlayerId) || pc.Data.IsDead) return;
 
-        if (TempSpeeds.Any()) RevertSpeedChanges(false);
+        if (TempSpeeds.Count > 0) RevertSpeedChanges(false);
 
         if (PortalMarks.Count == 2 && lastTP + 5 < GetTimeStamp())
         {
@@ -291,7 +291,7 @@ public static class Magician
             }
         }
 
-        if (BlindPPL.Any())
+        if (BlindPPL.Count > 0)
         {
             foreach (var x in BlindPPL.Where(x => x.Value + BlindDur.GetInt() < GetTimeStamp()))
             {
@@ -300,7 +300,7 @@ public static class Magician
             }
         }
 
-        if (Bombs.Any())
+        if (Bombs.Count > 0)
         {
             foreach (var bomb in Bombs.Where(bomb => bomb.Value + BombDelay.GetInt() < GetTimeStamp()))
             {

@@ -81,7 +81,7 @@ namespace TOHE.Roles.Impostor
         public static void OnFixedUpdate()
         {
             if (!IsEnable) return;
-            if (!DuelPair.Any()) return;
+            if (DuelPair.Count == 0) return;
             foreach (var pair in DuelPair)
             {
                 var duellist = GetPlayerById(pair.Key);

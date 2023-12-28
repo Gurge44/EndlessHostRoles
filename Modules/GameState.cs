@@ -322,7 +322,7 @@ public class TaskState
                 foreach (SystemTypes sys in Enum.GetValues(typeof(SystemTypes)))
                     if (Utils.IsActive(sys)) SysList.Add(sys);
 
-                if (SysList.Any())
+                if (SysList.Count > 0)
                 {
                     var SbSys = SysList[IRandom.Instance.Next(0, SysList.Count)];
 

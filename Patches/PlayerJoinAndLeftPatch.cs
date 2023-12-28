@@ -257,7 +257,7 @@ class CreatePlayerPatch
             if (Main.OverrideWelcomeMsg != string.Empty) Utils.SendMessage(Main.OverrideWelcomeMsg, client.Character.PlayerId);
             else TemplateManager.SendTemplate("welcome", client.Character.PlayerId, true);
         }, 3f, "Welcome Message");
-        if (Main.OverrideWelcomeMsg == string.Empty && Main.PlayerStates.Any() && Main.clientIdList.Contains(client.Id))
+        if (Main.OverrideWelcomeMsg == string.Empty && Main.PlayerStates.Count > 0 && Main.clientIdList.Contains(client.Id))
         {
             if (Options.AutoDisplayKillLog.GetBool())
             {

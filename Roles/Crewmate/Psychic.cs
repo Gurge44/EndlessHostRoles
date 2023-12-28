@@ -39,7 +39,7 @@ public static class Psychic
     {
         playerIdList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Any();
+    public static bool IsEnable => playerIdList.Count > 0;
     private static void SendRPC()
     {
         if (!IsEnable || !Utils.DoRPC) return;
@@ -67,7 +67,7 @@ public static class Psychic
     }
     public static void OnReportDeadBody()
     {
-        if (Fresh.GetBool() || RedPlayer == null || !RedPlayer.Any())
+        if (Fresh.GetBool() || RedPlayer == null || RedPlayer.Count == 0)
             GetRedName();
     }
     public static void GetRedName()
@@ -96,14 +96,14 @@ public static class Psychic
         if (ENum < 1) goto EndOfSelect;
 
         RedPlayer = [];
-        for (int i = 0; i < ENum && BadList.Any(); i++)
+        for (int i = 0; i < ENum && BadList.Count > 0; i++)
         {
             RedPlayer.Add(BadList[IRandom.Instance.Next(0, BadList.Count)]);
             BadList.RemoveAll(RedPlayer.Contains);
         }
 
         AllList.RemoveAll(RedPlayer.Contains);
-        for (int i = 0; i < BNum && AllList.Any(); i++)
+        for (int i = 0; i < BNum && AllList.Count > 0; i++)
         {
             RedPlayer.Add(AllList[IRandom.Instance.Next(0, AllList.Count)]);
             AllList.RemoveAll(RedPlayer.Contains);

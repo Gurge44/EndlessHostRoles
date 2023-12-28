@@ -478,6 +478,9 @@ internal class SelectRolesPatch
                 }
             }
 
+            if (nimbleList.Count == 0) nimbleSpawn = false;
+            if (physicistList.Count == 0) physicistSpawn = false;
+
             if (Main.SetAddOns.Values.Any(x => x.Contains(CustomRoles.Nimble)))
             {
                 nimbleSpawn = true;
@@ -574,8 +577,8 @@ internal class SelectRolesPatch
                 AssignCustomRole(kv.Value, kv.Key);
             }
 
-            if (Main.NimblePlayer != byte.MaxValue) Main.PlayerStates[Main.NimblePlayer].SetSubRole(CustomRoles.Nimble);
-            if (Main.PhysicistPlayer != byte.MaxValue) Main.PlayerStates[Main.PhysicistPlayer].SetSubRole(CustomRoles.Physicist);
+            if (Main.PlayerStates.TryGetValue(Main.NimblePlayer, out var nimbleState)) nimbleState.SetSubRole(CustomRoles.Nimble);
+            if (Main.PlayerStates.TryGetValue(Main.PhysicistPlayer, out var physicistState)) physicistState.SetSubRole(CustomRoles.Physicist);
 
             foreach (var item in Main.SetAddOns)
             {
@@ -1201,7 +1204,7 @@ internal class SelectRolesPatch
         catch (Exception ex)
         {
             Utils.ErrorEnd("Select Role Postfix");
-            Logger.Fatal(ex.ToString(), "Select Role Prefix");
+            Logger.Fatal(ex.ToString(), "Select Role Postfix");
         }
     }
     private static void AssignDesyncRole(CustomRoles role, PlayerControl player, Dictionary<byte, CustomRpcSender> senders, Dictionary<(byte, byte), RoleTypes> rolesMap, RoleTypes BaseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate)
@@ -1265,7 +1268,7 @@ internal class SelectRolesPatch
             count = Count;
         for (var i = 0; i < count; i++)
         {
-            if (!AllPlayers.Any()) break;
+            if (AllPlayers.Count == 0) break;
             var rand = IRandom.Instance;
             var player = AllPlayers[rand.Next(0, AllPlayers.Count)];
             AllPlayers.Remove(player);

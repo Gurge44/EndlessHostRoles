@@ -106,7 +106,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static void OnFixedUpdate(PlayerControl tornadoPc)
         {
-            if (!IsEnable || !GameStates.IsInTask || !Tornados.Any()) return;
+            if (!IsEnable || !GameStates.IsInTask || Tornados.Count == 0) return;
 
             var Random = IRandom.Instance;
             var NotifyString = GetString("TeleportedByTornado");

@@ -110,7 +110,7 @@ namespace TOHE.Roles.Crewmate
         {
             if (pc == null) return;
             if (!pc.Is(CustomRoles.Spy)) return;
-            if (!SpyRedNameList.Any()) return;
+            if (SpyRedNameList.Count == 0) return;
 
             bool change = false;
 

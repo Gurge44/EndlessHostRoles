@@ -171,13 +171,11 @@ namespace TOHE.Roles.Crewmate
 
         public static void OnFixedUpdate()
         {
-            if (!IsEnable) return;
-            if (!GameStates.IsInTask) return;
-            if (!Triggers.Any() && !TriggerDelays.Any()) return;
+            if (!IsEnable || !GameStates.IsInTask || Triggers.Count == 0 && TriggerDelays.Count == 0) return;
 
             long now = GetTimeStamp();
 
-            if (TriggerDelays.Any())
+            if (TriggerDelays.Count > 0)
             {
                 foreach (var x in TriggerDelays.ToArray())
                 {
@@ -200,7 +198,7 @@ namespace TOHE.Roles.Crewmate
                 }
             }
 
-            if (Triggers.Any())
+            if (Triggers.Count > 0)
             {
                 foreach (var pc in Main.AllAlivePlayerControls.Where(pc => !playerIdList.Contains(pc.PlayerId)).ToArray()) // Check for all alive players except Druids - Worst case scenario it's 14 loops
                 {

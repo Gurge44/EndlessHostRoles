@@ -69,7 +69,7 @@ class HudManagerPatch
                 OverriddenRolesText.fontSize = OverriddenRolesText.fontSizeMax = OverriddenRolesText.fontSizeMin = 2f;
             }
 
-            if (Main.SetRoles.Any() || Main.SetAddOns.Any())
+            if (Main.SetRoles.Count > 0 || Main.SetAddOns.Count > 0)
             {
                 Dictionary<byte, string> resultText = [];
                 bool first = true;
@@ -81,7 +81,7 @@ class HudManagerPatch
                     resultText[item.Key] = text;
                     first = false;
                 }
-                if (!Main.SetRoles.Any()) first = true;
+                if (Main.SetRoles.Count == 0) first = true;
                 foreach (var item in Main.SetAddOns)
                 {
                     for (int i = 0; i < item.Value.Count; i++)

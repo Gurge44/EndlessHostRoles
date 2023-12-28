@@ -41,7 +41,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 
     public static void SetDirtyToAllV3()
     {
-        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().Where(sender => !sender.IsDirty && sender.player.IsAlive() && ((Main.GrenadierBlinding.Any() && (sender.player.GetCustomRole().IsImpostor() || (sender.player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))) || (Main.MadGrenadierBlinding.Any() && !sender.player.GetCustomRole().IsImpostorTeam() && !sender.player.Is(CustomRoles.Madmate)))).ToArray())
+        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().Where(sender => !sender.IsDirty && sender.player.IsAlive() && ((Main.GrenadierBlinding.Count > 0 && (sender.player.GetCustomRole().IsImpostor() || (sender.player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))) || (Main.MadGrenadierBlinding.Count > 0 && !sender.player.GetCustomRole().IsImpostorTeam() && !sender.player.Is(CustomRoles.Madmate)))).ToArray())
         {
             sender.SetDirty();
         }
@@ -668,11 +668,11 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 Main.KillGhoul.Add(player.PlayerId);
             }
             if (
-                (Main.GrenadierBlinding.Any() &&
+                (Main.GrenadierBlinding.Count > 0 &&
                 (player.GetCustomRole().IsImpostor() ||
                 (player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))
                 ) || (
-                Main.MadGrenadierBlinding.Any() && !player.GetCustomRole().IsImpostorTeam() && !player.Is(CustomRoles.Madmate))
+                Main.MadGrenadierBlinding.Count > 0 && !player.GetCustomRole().IsImpostorTeam() && !player.Is(CustomRoles.Madmate))
                 )
             {
                 {
@@ -684,7 +684,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 
             switch (player.GetCustomRole())
             {
-                case CustomRoles.Lighter when Main.Lighter.Any():
+                case CustomRoles.Lighter when Main.Lighter.Count > 0:
                     opt.SetVisionV2();
                     if (Utils.IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.CrewLightMod, Options.LighterVisionOnLightsOut.GetFloat() * 5);
                     else opt.SetFloat(FloatOptionNames.CrewLightMod, Options.LighterVisionNormal.GetFloat());
@@ -710,7 +710,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 opt.SetFloat(FloatOptionNames.ImpostorLightMod, Sentinel.LoweredVision.GetFloat());
             }
 
-            /*     if ((Main.FlashbangInProtect.Any() && Main.ForFlashbang.Contains(player.PlayerId) && (!player.GetCustomRole().IsCrewmate())))  
+            /*     if ((Main.FlashbangInProtect.Count > 0 && Main.ForFlashbang.Contains(player.PlayerId) && (!player.GetCustomRole().IsCrewmate())))  
                  {
                          opt.SetVision(false);
                          opt.SetFloat(FloatOptionNames.CrewLightMod, Options.FlashbangVision.GetFloat());

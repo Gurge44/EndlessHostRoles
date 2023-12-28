@@ -15,6 +15,10 @@ namespace TOHE.Roles.Crewmate
                 var vents = UnityEngine.Object.FindObjectsOfType<Vent>();
                 var vent = vents[IRandom.Instance.Next(0, vents.Count)];
                 physics.RpcBootFromVent(vent.Id);
+                _ = new LateTask(() =>
+                {
+                    pc.TPtoRndVent();
+                }, 0.55f, "Mole TP");
             }, 0.5f, "Mole BootFromVent");
         }
     }

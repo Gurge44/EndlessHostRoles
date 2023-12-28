@@ -96,7 +96,7 @@ class RepairSystemPatch
                 if (Options.DisableAirshipCargoLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(30.56f, 2.12f)) <= 2f) return false;
                 break;
             case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay:
-                if (Main.BlockSabo.Any()) return false;
+                if (Main.BlockSabo.Count > 0) return false;
                 if (Glitch.hackedIdList.ContainsKey(player.PlayerId))
                 {
                     player.Notify(string.Format(Translator.GetString("HackedByGlitch"), "Sabotage"));
@@ -218,7 +218,7 @@ class CloseDoorsPatch
     {
         bool allow = !Options.DisableSabotage.GetBool() && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop;
 
-        if (Main.BlockSabo.Any()) allow = false;
+        if (Main.BlockSabo.Count > 0) allow = false;
         if (Options.DisableCloseDoor.GetBool()) allow = false;
 
         Logger.Info($"({room}) => {(allow ? "Allowed" : "Blocked")}", "DoorClose");

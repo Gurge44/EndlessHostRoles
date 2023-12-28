@@ -330,7 +330,7 @@ class ExternalRpcPetPatch
                             cpdistance.Add(p, dis);
                             Logger.Info($"{p?.Data?.PlayerName}'s distance: {dis}", "Warlock");
                         }
-                        if (cpdistance.Any())
+                        if (cpdistance.Count > 0)
                         {
                             var min = cpdistance.OrderBy(c => c.Value).FirstOrDefault();
                             PlayerControl targetw = min.Key;
