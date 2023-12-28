@@ -7,7 +7,7 @@
     <Description>TOHE+</Description>
     <Authors>Gurge44</Authors>
     <langVersion>preview</langVersion>
-	  <AmongUs>D:\Epic Games\AmongUs</AmongUs>
+	  <AmongUs>E:\Program Files\AmongUs</AmongUs>
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	  <Optimize>True</Optimize>
 	  <AssemblyName>$(MSBuildProjectName)+</AssemblyName>
@@ -34,7 +34,7 @@
 	<ItemGroup>
 		<PackageReference Include="AmongUs.GameLibs.Steam" Version="2023.11.28" PrivateAssets="all" />
 		<PackageReference Include="BepInEx.IL2CPP.MSBuild" Version="2.1.0-rc.1" />
-		<PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.679" Private="false" ExcludeAssets="runtime;native" />
+		<PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.682" Private="false" ExcludeAssets="runtime;native" />
 		<PackageReference Include="Samboy063.Cpp2IL.Core" Version="2022.1.0-development.898" />
 	</ItemGroup>
 

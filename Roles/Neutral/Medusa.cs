@@ -16,7 +16,6 @@ public static class Medusa
 
     public static void SetupCustomOption()
     {
-        //Medusaは1人固定
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Medusa, 1, zeroOne: false);
         KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Medusa])
             .SetValueFormat(OptionFormat.Seconds);
@@ -40,10 +39,4 @@ public static class Medusa
     public static bool IsEnable => playerIdList.Count > 0;
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
-    public static void CanUseVent(PlayerControl player)
-    {
-        bool Medusa_canUse = CanVent.GetBool();
-        DestroyableSingleton<HudManager>.Instance.ImpostorVentButton.ToggleVisible(Medusa_canUse && !player.Data.IsDead);
-        player.Data.Role.CanVent = Medusa_canUse;
-    }
 }

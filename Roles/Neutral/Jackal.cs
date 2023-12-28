@@ -42,7 +42,6 @@ public static class Jackal
 
     public static void SetupCustomOption()
     {
-        //Jackalは1人固定
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Jackal, 1, zeroOne: false);
         KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal])
             .SetValueFormat(OptionFormat.Seconds);
@@ -117,12 +116,6 @@ public static class Jackal
             HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
     }
     public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
-    public static void CanUseVent(PlayerControl player)
-    {
-        bool jackal_canUse = CanVent.GetBool();
-        DestroyableSingleton<HudManager>.Instance.ImpostorVentButton.ToggleVisible(jackal_canUse && !player.Data.IsDead);
-        player.Data.Role.CanVent = jackal_canUse;
-    }
     public static void SetHudActive(HudManager __instance, bool isActive)
     {
         __instance.SabotageButton.ToggleVisible(isActive && CanUseSabotage.GetBool());

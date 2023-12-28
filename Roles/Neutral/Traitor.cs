@@ -16,7 +16,6 @@ public static class Traitor
 
     public static void SetupCustomOption()
     {
-        //Traitorは1人固定
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Traitor, 1, zeroOne: false);
         KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Traitor])
             .SetValueFormat(OptionFormat.Seconds);
@@ -44,10 +43,4 @@ public static class Traitor
     public static bool IsEnable => playerIdList.Count > 0;
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
-    public static void CanUseVent(PlayerControl player)
-    {
-        bool Traitor_canUse = CanVent.GetBool();
-        DestroyableSingleton<HudManager>.Instance.ImpostorVentButton.ToggleVisible(Traitor_canUse && !player.Data.IsDead);
-        player.Data.Role.CanVent = Traitor_canUse;
-    }
 }

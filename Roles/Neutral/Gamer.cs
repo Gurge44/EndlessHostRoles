@@ -23,7 +23,6 @@ public static class Gamer
 
     public static void SetupCustomOption()
     {
-        //玩家只能有一人
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Gamer, 1, zeroOne: false);
         KillCooldown = FloatOptionItem.Create(Id + 10, "GamerKillCooldown", new(1f, 180f, 1f), 2f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Gamer])
             .SetValueFormat(OptionFormat.Seconds);
@@ -60,12 +59,6 @@ public static class Gamer
     public static bool IsEnable => playerIdList.Count > 0;
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
-    public static void CanUseVent(PlayerControl player)
-    {
-        bool gamer_canUse = CanVent.GetBool();
-        DestroyableSingleton<HudManager>.Instance.ImpostorVentButton.ToggleVisible(gamer_canUse && !player.Data.IsDead);
-        player.Data.Role.CanVent = gamer_canUse;
-    }
     private static void SendRPC(byte playerId)
     {
         if (!IsEnable || !Utils.DoRPC) return;

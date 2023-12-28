@@ -1,4 +1,5 @@
 using HarmonyLib;
+using UnityEngine;
 
 namespace TOHE.Patches;
 
@@ -17,5 +18,10 @@ class ChatBubbleSetNamePatch
     {
         if (GameStates.IsInGame && __instance.playerInfo.PlayerId == PlayerControl.LocalPlayer.PlayerId)
             __instance.NameText.color = PlayerControl.LocalPlayer.GetRoleColor();
+        if (Main.DarkTheme.Value)
+        {
+            __instance.Background.color = Color.black;
+            __instance.TextArea.color = Color.white;
+        }
     }
 }

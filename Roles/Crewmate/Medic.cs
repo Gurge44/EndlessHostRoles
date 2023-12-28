@@ -22,6 +22,7 @@ public static class Medic
     private static OptionItem ShieldDeactivationIsVisible;
     private static OptionItem ResetCooldown;
     public static OptionItem GuesserIgnoreShield;
+    private static OptionItem AmountOfShields;
 
     public static readonly string[] MedicWhoCanSeeProtectName =
     [
@@ -52,7 +53,7 @@ public static class Medic
         WhoCanSeeProtect = StringOptionItem.Create(Id + 10, "MedicWhoCanSeeProtect", MedicWhoCanSeeProtectName, 0, TabGroup.CrewmateRoles, false)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
         KnowShieldBroken = StringOptionItem.Create(Id + 16, "MedicKnowShieldBroken", KnowShieldBrokenOption, 1, TabGroup.CrewmateRoles, false)
-           .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
         ShieldDeactivatesWhenMedicDies = BooleanOptionItem.Create(Id + 24, "MedicShieldDeactivatesWhenMedicDies", true, TabGroup.CrewmateRoles, false)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
         ShieldDeactivationIsVisible = StringOptionItem.Create(Id + 25, "MedicShielDeactivationIsVisible", ShieldDeactivationIsVisibleOption, 0, TabGroup.CrewmateRoles, false)
@@ -62,6 +63,8 @@ public static class Medic
             .SetValueFormat(OptionFormat.Seconds);
         GuesserIgnoreShield = BooleanOptionItem.Create(Id + 32, "MedicShieldedCanBeGuessed", true, TabGroup.CrewmateRoles, false)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
+        AmountOfShields = IntegerOptionItem.Create(Id + 34, "MedicAmountOfShields", new(1, 14, 1), 1, TabGroup.CrewmateRoles, false)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
     }
     public static void Init()
     {
@@ -69,7 +72,7 @@ public static class Medic
         ProtectList = [];
         ProtectLimit = [];
         TempMarkProtected = byte.MaxValue;
-        SkillLimit = 1;
+        SkillLimit = AmountOfShields.GetInt();
     }
     public static void Add(byte playerId)
     {
@@ -129,7 +132,6 @@ public static class Medic
         if (ProtectList.Contains(target.PlayerId)) return;
 
         ProtectLimit[killer.PlayerId]--;
-        SkillLimit--;
 
         SendRPC(killer.PlayerId);
         ProtectList.Add(target.PlayerId);
@@ -186,7 +188,6 @@ public static class Medic
                 Main.AllPlayerControls.Where(x => ProtectList.Contains(x.PlayerId)).Do(x => x.Notify(Translator.GetString("MedicKillerTryBrokenShieldTargetForTarget")));
                 break;
             default:
-                Utils.NotifyRoles(); // What is this?? Why is this here??
                 break;
         }
 
@@ -200,13 +201,12 @@ public static class Medic
         if (ShieldDeactivationIsVisible.GetInt() == 1)
         {
             TempMarkProtected = byte.MaxValue;
-            foreach (byte pc in playerIdList.ToArray())
+            foreach (byte id in playerIdList.ToArray())
             {
-                Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc));
-            }
-            foreach (byte pc in ProtectList.ToArray())
-            {
-                Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc));
+                foreach (byte id2 in ProtectList.ToArray())
+                {
+                    Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(id), SpecifyTarget: Utils.GetPlayerById(id2));
+                }
             }
         }
     }
@@ -215,9 +215,11 @@ public static class Medic
         if (!target.Is(CustomRoles.Medic)) return;
         if (!ShieldDeactivatesWhenMedicDies.GetBool()) return;
 
+        if (!playerIdList.All(x => !Utils.GetPlayerById(x).IsAlive())) return; // If not all Medic-s are dead, return
+
         foreach (byte pc in ProtectList.ToArray())
         {
-            Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc));
+            Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc), SpecifyTarget: target);
         }
         Utils.NotifyRoles(SpecifySeer: target);
 

@@ -257,6 +257,7 @@ public static class Options
     public static OptionItem WarlockCanKillSelf;
     public static OptionItem WarlockShiftDuration;
     public static OptionItem ScavengerKillCooldown;
+    public static OptionItem ScavengerKillDuration;
     public static OptionItem ZombieKillCooldown;
     public static OptionItem ZombieSpeedReduce;
     public static OptionItem EvilWatcherChance;
@@ -1409,6 +1410,9 @@ public static class Options
         ScavengerKillCooldown = FloatOptionItem.Create(4010, "KillCooldown", new(0f, 180f, 2.5f), 40f, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Scavenger])
             .SetValueFormat(OptionFormat.Seconds);
+        ScavengerKillDuration = FloatOptionItem.Create(4011, "ScavengerKillDuration", new(0f, 90f, 0.5f), 5f, TabGroup.ImpostorRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Scavenger])
+            .SetValueFormat(OptionFormat.Seconds);
         RoleLoadingText = "Impostor roles\nShapemaster";
         //SetupRoleOptions(4100, TabGroup.ImpostorRoles, CustomRoles.ShapeMaster);
         //ShapeMasterShapeshiftDuration = FloatOptionItem.Create(4110, "ShapeshiftDuration", new(0, 180, 1), 10, TabGroup.ImpostorRoles, false)
@@ -1513,6 +1517,8 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Demolitionist]);
         RoleLoadingText = "Crewmate roles\nTask Manager";
         SetupRoleOptions(5575, TabGroup.CrewmateRoles, CustomRoles.TaskManager);
+        RoleLoadingText = "Crewmate roles\nShiftguard";
+        SetupRoleOptions(5594, TabGroup.CrewmateRoles, CustomRoles.Shiftguard);
         RoleLoadingText = "Crewmate roles\nMole";
         Mole.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nSentinel";
@@ -3051,7 +3057,7 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetHidden(true)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
-        DisableShapeshiftAnimations = BooleanOptionItem.Create(22604, "DisableShapeshiftAnimations", false, TabGroup.GameSettings, false)
+        DisableShapeshiftAnimations = BooleanOptionItem.Create(22604, "DisableShapeshiftAnimations", true, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
         DisableVanillaRoles = BooleanOptionItem.Create(22600, "DisableVanillaRoles", true, TabGroup.GameSettings, false)

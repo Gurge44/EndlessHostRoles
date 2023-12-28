@@ -93,6 +93,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Express => CustomRoles.Crewmate,
                 CustomRoles.NiceEraser => CustomRoles.Crewmate,
                 CustomRoles.TaskManager => CustomRoles.Crewmate,
+                CustomRoles.Shiftguard => CustomRoles.Crewmate,
                 CustomRoles.Mole => CustomRoles.Engineer,
                 CustomRoles.Sentinel => Options.UsePets.GetBool() ? CustomRoles.Crewmate : CustomRoles.Engineer,
                 CustomRoles.Electric => CustomRoles.Crewmate,
@@ -229,6 +230,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Express => CustomRoles.CrewmateTOHE,
                 CustomRoles.NiceEraser => CustomRoles.CrewmateTOHE,
                 CustomRoles.TaskManager => CustomRoles.CrewmateTOHE,
+                CustomRoles.Shiftguard => CustomRoles.CrewmateTOHE,
                 CustomRoles.Mole => CustomRoles.EngineerTOHE,
                 CustomRoles.Sentinel => CustomRoles.EngineerTOHE,
                 CustomRoles.Electric => CustomRoles.CrewmateTOHE,
@@ -1104,6 +1106,7 @@ internal static class CustomRolesHelper
     {
         return role is
         CustomRoles.Sheriff or
+        CustomRoles.Admirer or
         CustomRoles.Medic or
         CustomRoles.CopyCat or
         //CustomRoles.Reverie or
@@ -1129,6 +1132,7 @@ internal static class CustomRolesHelper
             CustomRoles.Mayor or
             CustomRoles.Paranoia or
             CustomRoles.Grenadier or
+            CustomRoles.Veteran or
             CustomRoles.Lighter or
             CustomRoles.SecurityGuard or
             CustomRoles.DovesOfNeace or
@@ -1137,6 +1141,11 @@ internal static class CustomRolesHelper
             CustomRoles.Sapper or
             CustomRoles.CameraMan or
             CustomRoles.NiceHacker or
+            CustomRoles.Druid or
+            CustomRoles.Tunneler or
+            CustomRoles.Tornado or
+            CustomRoles.Sentinel or
+            CustomRoles.Lookout or
             CustomRoles.Sniper or
             CustomRoles.Warlock or
             CustomRoles.Assassin or
@@ -1152,7 +1161,10 @@ internal static class CustomRolesHelper
             CustomRoles.Glitch or
             CustomRoles.Magician or
             CustomRoles.WeaponMaster or
-            CustomRoles.Veteran;
+            CustomRoles.Enderman or
+            CustomRoles.Mycologist or
+            CustomRoles.Hookshot or
+            CustomRoles.Sprayer;
     }
     public static bool NeedUpdateOnLights(this CustomRoles role)
     {

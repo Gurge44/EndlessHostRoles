@@ -193,6 +193,7 @@ public static class Divinator
                 CustomRoles.Judge or
                 CustomRoles.Escort or
                 CustomRoles.Bubble or
+                CustomRoles.Shiftguard or
                 //CustomRoles.CursedSoul or
                 CustomRoles.Cleanser or
                 CustomRoles.CursedWolf

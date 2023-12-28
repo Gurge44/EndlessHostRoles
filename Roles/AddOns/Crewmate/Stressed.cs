@@ -89,6 +89,11 @@ namespace TOHE.Roles.AddOns.Crewmate
                 {
                     if (pc.Is(CustomRoles.Stressed))
                     {
+                        if (!pc.GetPlayerTaskState().hasTasks)
+                        {
+                            Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Stressed);
+                            continue;
+                        }
                         Timers.Add(pc.PlayerId, StartingTime);
                         LastUpdates.Add(pc.PlayerId, GetTimeStamp() + 1);
                     }
@@ -117,7 +122,7 @@ namespace TOHE.Roles.AddOns.Crewmate
             }
 
             if (pc.IsModClient() && pc.PlayerId != 0) SendRPC(pc.PlayerId, Timers[pc.PlayerId], LastUpdates[pc.PlayerId]);
-            if (pc.PlayerId != 0) NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            if (!pc.IsModClient()) NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
         public static void SendRPC(byte id, int time, long lastUpdate)

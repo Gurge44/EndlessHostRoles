@@ -40,8 +40,6 @@ public static class Wildling
     {
         playerIdList.Add(playerId);
         TimeStamp.TryAdd(playerId, 0);
-
-
     }
     public static bool IsEnable => playerIdList.Count > 0;
     private static void SendRPC(byte playerId)
@@ -91,12 +89,4 @@ public static class Wildling
         }
         return str.ToString();
     }
-
-    public static void CanUseVent(PlayerControl player)
-    {
-        bool canUse = CanVent.GetBool();
-        DestroyableSingleton<HudManager>.Instance.ImpostorVentButton.ToggleVisible(canUse && !player.Data.IsDead);
-        player.Data.Role.CanVent = canUse;
-    }
-
 }
