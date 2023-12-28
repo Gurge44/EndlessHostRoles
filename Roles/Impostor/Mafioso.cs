@@ -151,7 +151,6 @@ namespace TOHE.Roles.Impostor
             {
                 NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                 SendRPCSyncPistolCD();
-                Logger.Info($"Pistol 1 CD: {Pistol1CD}; Pistol 2 CD: {Pistol2CD}", "debug");
             }
         }
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
