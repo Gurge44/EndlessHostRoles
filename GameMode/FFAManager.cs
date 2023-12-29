@@ -100,7 +100,7 @@ internal static class FFAManager
             KillCount.TryAdd(pc.PlayerId, 0);
         }
 
-        _ = new LateTask(Utils.SetChatVisible, 7f, "Set Chat Visible for Everyone");
+        //_ = new LateTask(Utils.SetChatVisible, 7f, "Set Chat Visible for Everyone");
     }
     private static void SendRPCSyncFFAPlayer(byte playerId)
     {
