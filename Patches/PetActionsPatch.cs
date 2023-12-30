@@ -98,6 +98,11 @@ class ExternalRpcPetPatch
 
         PlayerControl[] AllAlivePlayers = Main.AllAlivePlayerControls;
 
+        bool hasKillTarget = false;
+        PlayerControl target = SelectKillButtonTarget(pc);
+        if (target != null) hasKillTarget = true;
+        if (!pc.CanUseKillButton()) hasKillTarget = false;
+
         switch (pc.GetCustomRole())
         {
             // Crewmates
@@ -304,6 +309,78 @@ class ExternalRpcPetPatch
                 pc.Notify(sb.ToString());
                 break;
 
+            case CustomRoles.Gaulois when hasKillTarget:
+                Gaulois.OnCheckMurder(pc, target);
+                pc.AddKCDAsAbilityCD();
+                break;
+            case CustomRoles.Aid when hasKillTarget:
+                Aid.OnCheckMurder(pc, target);
+                pc.AddKCDAsAbilityCD();
+                break;
+            case CustomRoles.Escort when hasKillTarget:
+                Escort.OnCheckMurder(pc, target);
+                pc.AddKCDAsAbilityCD();
+                break;
+            case CustomRoles.DonutDelivery when hasKillTarget:
+                DonutDelivery.OnCheckMurder(pc, target);
+                pc.AddKCDAsAbilityCD();
+                break;
+            case CustomRoles.Analyzer when hasKillTarget:
+                Analyzer.OnCheckMurder(pc, target);
+                pc.AddKCDAsAbilityCD();
+                break;
+            case CustomRoles.Jailor when hasKillTarget:
+                Jailor.OnCheckMurder(pc, target);
+                pc.AddKCDAsAbilityCD();
+                break;
+            case CustomRoles.Sheriff when hasKillTarget:
+                if (Sheriff.OnCheckMurder(pc, target)) pc.RpcCheckAndMurder(target);
+                else pc.AddKCDAsAbilityCD();
+                break;
+            case CustomRoles.SwordsMan when hasKillTarget:
+                if (SwordsMan.OnCheckMurder(pc)) if (!pc.RpcCheckAndMurder(target)) pc.AddKCDAsAbilityCD();
+                    else pc.AddKCDAsAbilityCD();
+                break;
+            case CustomRoles.Witness when hasKillTarget:
+                if (Main.AllKillers.ContainsKey(target.PlayerId))
+                    pc.Notify(GetString("WitnessFoundKiller"));
+                else pc.Notify(GetString("WitnessFoundInnocent"));
+                pc.AddKCDAsAbilityCD();
+                break;
+            case CustomRoles.Medic when hasKillTarget:
+                Medic.OnCheckMurderFormedicaler(pc, target);
+                pc.AddKCDAsAbilityCD();
+                break;
+            case CustomRoles.Monarch when hasKillTarget:
+                Monarch.OnCheckMurder(pc, target);
+                pc.AddKCDAsAbilityCD();
+                break;
+            case CustomRoles.CopyCat when hasKillTarget:
+                if (CopyCat.OnCheckMurder(pc, target)) if (!pc.RpcCheckAndMurder(target)) pc.AddKCDAsAbilityCD();
+                pc.AddKCDAsAbilityCD();
+                break;
+            case CustomRoles.Farseer when hasKillTarget:
+                pc.AddAbilityCD(Farseer.FarseerRevealTime.GetInt());
+                if (!Main.isRevealed[(pc.PlayerId, target.PlayerId)] && !Main.FarseerTimer.ContainsKey(pc.PlayerId))
+                {
+                    Main.FarseerTimer.TryAdd(pc.PlayerId, (target, 0f));
+                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: target, ForceLoop: true);
+                    RPC.SetCurrentRevealTarget(pc.PlayerId, target.PlayerId);
+                }
+                break;
+            case CustomRoles.Deputy when hasKillTarget:
+                Deputy.OnCheckMurder(pc, target);
+                pc.AddKCDAsAbilityCD();
+                break;
+            case CustomRoles.Admirer when hasKillTarget:
+                Admirer.OnCheckMurder(pc, target);
+                pc.AddKCDAsAbilityCD();
+                break;
+            case CustomRoles.Crusader when hasKillTarget:
+                Crusader.OnCheckMurder(pc, target);
+                pc.AddKCDAsAbilityCD();
+                break;
+
             // Impostors
 
             case CustomRoles.Sniper:
@@ -469,8 +546,15 @@ class ExternalRpcPetPatch
                 break;
         }
 
-        if (pc.Is(CustomRoles.Sniper) && Sniper.IsAim[pc.PlayerId]) return;
+        if (pc.HasAbilityCD() || (pc.Is(CustomRoles.Sniper) && Sniper.IsAim[pc.PlayerId])) return;
 
         pc.AddAbilityCD();
+    }
+
+    public static PlayerControl SelectKillButtonTarget(PlayerControl pc)
+    {
+        var players = pc.GetPlayersInAbilityRangeSorted();
+        var target = players.Count == 0 ? null : players[0];
+        return target;
     }
 }

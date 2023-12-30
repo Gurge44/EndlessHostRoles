@@ -17,6 +17,7 @@ public static class CopyCat
     public static OptionItem CanKill;
     public static OptionItem CopyCrewVar;
     public static OptionItem MiscopyLimitOpt;
+    private static OptionItem UsePet;
 
     public static void SetupCustomOption()
     {
@@ -27,6 +28,7 @@ public static class CopyCat
         CopyCrewVar = BooleanOptionItem.Create(Id + 13, "CopyCrewVar", true, TabGroup.OtherRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.CopyCat]);
         MiscopyLimitOpt = IntegerOptionItem.Create(Id + 12, "CopyCatMiscopyLimit", new(0, 14, 1), 2, TabGroup.OtherRoles, false).SetParent(CanKill)
             .SetValueFormat(OptionFormat.Times);
+        UsePet = CreatePetUseSetting(Id + 14, CustomRoles.CopyCat);
     }
 
     public static void Init()
@@ -41,7 +43,8 @@ public static class CopyCat
         playerIdList.Add(playerId);
         CurrentKillCooldown.Add(playerId, KillCooldown.GetFloat());
         MiscopyLimit.TryAdd(playerId, MiscopyLimitOpt.GetInt());
-        if (!AmongUsClient.Instance.AmHost) return;
+
+        if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }

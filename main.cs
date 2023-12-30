@@ -642,13 +642,16 @@ public enum CustomRoles
 {
     //Default
     Crewmate = 0,
-    //Impostor(Vanilla)
+
+    //Impostors (Vanilla)
     Impostor,
     Shapeshifter,
     // Vanilla Remakes
     ImpostorTOHE,
     ShapeshifterTOHE,
-    //Impostor
+
+    //Impostors
+
     BountyHunter,
     FireWorks,
     Mafia,
@@ -727,7 +730,8 @@ public enum CustomRoles
     Refugee,
     Underdog,
     // Flashbang,
-    //Crewmate(Vanilla)
+
+    //Crewmates (Vanilla)
     Engineer,
     GuardianAngel,
     Scientist,
@@ -736,7 +740,9 @@ public enum CustomRoles
     EngineerTOHE,
     GuardianAngelTOHE,
     ScientistTOHE,
-    //Crewmate
+
+    // Crewmate
+
     Luckey,
     Needy,
     SuperStar,
@@ -831,7 +837,9 @@ public enum CustomRoles
     Crusader,
     Cleanser,
     //Reverie,
-    //Neutral
+
+    //Neutrals
+
     Arsonist,
     HexMaster,
     Jester,

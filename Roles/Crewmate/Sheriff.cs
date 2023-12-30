@@ -30,6 +30,7 @@ public static class Sheriff
     public static OptionItem NonCrewCanKillCrew;
     public static OptionItem NonCrewCanKillImp;
     public static OptionItem NonCrewCanKillNeutral;
+    private static OptionItem UsePet;
     public static Dictionary<CustomRoles, OptionItem> KillTargetOptions = [];
     public static Dictionary<byte, int> ShotLimit = [];
     public static Dictionary<byte, float> CurrentKillCooldown = [];
@@ -63,6 +64,7 @@ public static class Sheriff
         NonCrewCanKillImp = BooleanOptionItem.Create(Id + 19, "SheriffMadCanKillImp", true, TabGroup.CrewmateRoles, false).SetParent(SetNonCrewCanKill);
         NonCrewCanKillCrew = BooleanOptionItem.Create(Id + 21, "SheriffMadCanKillCrew", true, TabGroup.CrewmateRoles, false).SetParent(SetNonCrewCanKill);
         NonCrewCanKillNeutral = BooleanOptionItem.Create(Id + 20, "SheriffMadCanKillNeutral", true, TabGroup.CrewmateRoles, false).SetParent(SetNonCrewCanKill);
+        UsePet = Options.CreatePetUseSetting(Id + 29, CustomRoles.Sheriff);
     }
     public static void SetUpNeutralOptions(int Id)
     {
@@ -94,7 +96,7 @@ public static class Sheriff
         ShotLimit.TryAdd(playerId, ShotLimitOpt.GetInt());
         Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : Shot Limit - {ShotLimit[playerId]}", "Sheriff");
 
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost || (Options.UsePets.GetBool() && UsePet.GetBool())) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }

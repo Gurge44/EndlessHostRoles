@@ -15,6 +15,7 @@ public static class Deputy
     public static OptionItem HandcuffMax;
     public static OptionItem DeputyHandcuffCDForTarget;
     private static OptionItem DeputyHandcuffDelay;
+    private static OptionItem UsePet;
 
     public static int HandcuffLimit;
 
@@ -29,6 +30,7 @@ public static class Deputy
             .SetValueFormat(OptionFormat.Times);
         DeputyHandcuffDelay = IntegerOptionItem.Create(Id + 11, "DeputyHandcuffDelay", new(0, 20, 1), 5, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Deputy])
             .SetValueFormat(OptionFormat.Seconds);
+        UsePet = CreatePetUseSetting(Id + 13, CustomRoles.Deputy);
     }
     public static void Init()
     {
@@ -40,7 +42,7 @@ public static class Deputy
         playerIdList.Add(playerId);
         HandcuffLimit = HandcuffMax.GetInt();
 
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }

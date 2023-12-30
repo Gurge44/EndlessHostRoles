@@ -16,7 +16,7 @@ public static class Jailor
 
     public static OptionItem JailCooldown;
     public static OptionItem notifyJailedOnMeeting;
-
+    private static OptionItem UsePet;
 
     public static void SetupCustomOption()
     {
@@ -24,6 +24,7 @@ public static class Jailor
         JailCooldown = FloatOptionItem.Create(Id + 10, "JailorJailCooldown", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jailor])
             .SetValueFormat(OptionFormat.Seconds);
         notifyJailedOnMeeting = BooleanOptionItem.Create(Id + 18, "notifyJailedOnMeeting", true, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jailor]);
+        UsePet = CreatePetUseSetting(Id + 11, CustomRoles.Jailor);
     }
 
     public static void Init()
@@ -41,7 +42,7 @@ public static class Jailor
         JailorHasExe.Add(playerId, false);
         JailorDidVote.Add(playerId, false);
 
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }

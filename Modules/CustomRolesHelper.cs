@@ -118,7 +118,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Aid => CustomRoles.Impostor,
                 CustomRoles.Escort => CustomRoles.Impostor,
                 CustomRoles.DonutDelivery => CustomRoles.Impostor,
-                CustomRoles.Gaulois => CustomRoles.Impostor,
+                CustomRoles.Gaulois => Options.UsePets.GetBool() && Gaulois.UsePet.GetBool() ? CustomRoles.Crewmate : CustomRoles.Impostor, // note to self: finish this
                 CustomRoles.Analyzer => CustomRoles.Impostor,
                 CustomRoles.Escapee => Options.UsePets.GetBool() ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.NiceGuesser => CustomRoles.Crewmate,

@@ -331,6 +331,7 @@ public static class Options
     public static OptionItem BodyguardKillsKiller;
     public static OptionItem WitnessCD;
     public static OptionItem WitnessTime;
+    public static OptionItem WitnessUsePet;
     public static OptionItem DQNumOfKillsNeeded;
     public static OptionItem ParanoiaNumOfUseButton;
     public static OptionItem ParanoiaVentCooldown;
@@ -1790,6 +1791,7 @@ public static class Options
         WitnessTime = IntegerOptionItem.Create(8553, "WitnessTime", new(0, 90, 1), 10, TabGroup.CrewmateRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Witness])
             .SetValueFormat(OptionFormat.Seconds);
+        WitnessUsePet = CreatePetUseSetting(8554, CustomRoles.Witness);
         RoleLoadingText = "Crewmate roles\nVigilante";
         SwordsMan.SetupCustomOption();
         //Reverie.SetupCustomOption();
@@ -3734,6 +3736,10 @@ public static class Options
     FloatOptionItem.Create(id, isKCD ? "KillCooldown" : "AbilityCooldown", new(0f, 180f, 2.5f), 30f, tab, false)
         .SetParent(CustomRoleSpawnChances[role])
         .SetValueFormat(OptionFormat.Seconds);
+
+    public static OptionItem CreatePetUseSetting(int id, CustomRoles role) =>
+    BooleanOptionItem.Create(id, "UsePetInsteadOfKillButton", false, TabGroup.CrewmateRoles, false)
+        .SetParent(CustomRoleSpawnChances[role]);
 
     public class OverrideTasksData
     {

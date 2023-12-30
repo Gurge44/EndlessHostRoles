@@ -18,6 +18,7 @@ namespace TOHE.Roles.Crewmate
         public static OptionItem FarseerCooldown;
         public static OptionItem FarseerRevealTime;
         public static OptionItem Vision;
+        private static OptionItem UsePet;
 
         private static readonly System.Collections.Generic.List<CustomRoles> randomRolesForTrickster =
         [
@@ -109,6 +110,7 @@ namespace TOHE.Roles.Crewmate
                 .SetValueFormat(OptionFormat.Seconds);
             Vision = FloatOptionItem.Create(Id + 12, "FarseerVision", new(0f, 1f, 0.05f), 0.25f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Farseer])
                 .SetValueFormat(OptionFormat.Multiplier);
+            UsePet = CreatePetUseSetting(Id + 13, CustomRoles.Farseer);
         }
         public static void Init()
         {
@@ -117,7 +119,8 @@ namespace TOHE.Roles.Crewmate
         public static void Add(byte playerId)
         {
             isEnable = true;
-            if (!AmongUsClient.Instance.AmHost) return;
+
+            if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
@@ -145,7 +148,8 @@ namespace TOHE.Roles.Crewmate
                     }
                     else if (ar_time >= FarseerRevealTime.GetFloat())//時間以上一緒にいて塗れた時
                     {
-                        player.SetKillCooldown();
+                        if (UsePets.GetBool()) player.AddKCDAsAbilityCD();
+                        else player.SetKillCooldown();
                         Main.FarseerTimer.Remove(player.PlayerId);//塗が完了したのでDictionaryから削除
                         Main.isRevealed[(player.PlayerId, ar_target.PlayerId)] = true;//塗り完了
                         player.RpcSetRevealtPlayer(ar_target, true);

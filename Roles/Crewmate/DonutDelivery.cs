@@ -12,6 +12,7 @@ namespace TOHE.Roles.Crewmate
 
         private static OptionItem CD;
         private static OptionItem UseLimit;
+        private static OptionItem UsePet;
 
         public static int DeliverLimit;
 
@@ -24,6 +25,7 @@ namespace TOHE.Roles.Crewmate
             UseLimit = IntegerOptionItem.Create(Id + 12, "AbilityUseLimit", new(1, 20, 1), 5, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.DonutDelivery])
                 .SetValueFormat(OptionFormat.Times);
+            UsePet = CreatePetUseSetting(Id + 13, CustomRoles.DonutDelivery);
         }
 
         public static void Init()
@@ -39,7 +41,7 @@ namespace TOHE.Roles.Crewmate
 
             DeliverLimit = UseLimit.GetInt();
 
-            if (!AmongUsClient.Instance.AmHost) return;
+            if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }

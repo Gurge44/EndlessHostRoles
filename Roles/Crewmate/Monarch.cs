@@ -13,7 +13,7 @@ public static class Monarch
 
     public static OptionItem KnightCooldown;
     public static OptionItem KnightMax;
-
+    private static OptionItem UsePet;
 
     public static int KnightLimit;
 
@@ -24,6 +24,7 @@ public static class Monarch
             .SetValueFormat(OptionFormat.Seconds);
         KnightMax = IntegerOptionItem.Create(Id + 12, "MonarchKnightMax", new(1, 15, 1), 2, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Monarch])
             .SetValueFormat(OptionFormat.Times);
+        UsePet = CreatePetUseSetting(Id + 11, CustomRoles.Monarch);
     }
     public static void Init()
     {
@@ -35,7 +36,7 @@ public static class Monarch
         playerIdList.Add(playerId);
         KnightLimit = KnightMax.GetInt();
 
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }

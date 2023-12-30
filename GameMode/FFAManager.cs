@@ -35,6 +35,7 @@ internal static class FFAManager
     public static OptionItem FFA_EnableRandomAbilities;
     public static OptionItem FFA_EnableRandomTwists;
     public static OptionItem FFA_ShieldIsOneTimeUse;
+    public static OptionItem FFA_ChatDuringGame;
 
     public static void SetupCustomOption()
     {
@@ -80,6 +81,9 @@ internal static class FFAManager
         FFA_ShieldIsOneTimeUse = BooleanOptionItem.Create(67_223_013, "FFA_ShieldIsOneTimeUse", true, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.FFA)
             .SetColor(new Color32(0, 255, 165, byte.MaxValue));
+        FFA_ChatDuringGame = BooleanOptionItem.Create(67_223_014, "FFA_ChatDuringGame", false, TabGroup.GameSettings, false)
+            .SetGameMode(CustomGameMode.FFA)
+            .SetColor(new Color32(0, 255, 165, byte.MaxValue));
     }
 
     public static void Init()
@@ -97,10 +101,10 @@ internal static class FFAManager
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            KillCount.TryAdd(pc.PlayerId, 0);
+            KillCount[pc.PlayerId] = 0;
         }
 
-        //_ = new LateTask(Utils.SetChatVisible, 7f, "Set Chat Visible for Everyone");
+        if (FFA_ChatDuringGame.GetBool()) _ = new LateTask(Utils.SetChatVisible, 7f, "Set Chat Visible for Everyone");
     }
     private static void SendRPCSyncFFAPlayer(byte playerId)
     {

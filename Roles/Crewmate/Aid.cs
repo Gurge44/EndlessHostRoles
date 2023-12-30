@@ -18,16 +18,21 @@ namespace TOHE.Roles.Crewmate
         public static OptionItem AidDur;
         public static OptionItem AidCD;
         public static OptionItem UseLimitOpt;
+        private static OptionItem UsePet;
 
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Aid);
-            AidCD = FloatOptionItem.Create(Id + 10, "AidCD", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Aid])
+            AidCD = FloatOptionItem.Create(Id + 10, "AidCD", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Aid])
                 .SetValueFormat(OptionFormat.Seconds);
-            AidDur = FloatOptionItem.Create(Id + 11, "AidDur", new(0f, 60f, 1f), 10f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Aid])
+            AidDur = FloatOptionItem.Create(Id + 11, "AidDur", new(0f, 60f, 1f), 10f, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Aid])
                 .SetValueFormat(OptionFormat.Seconds);
-            UseLimitOpt = IntegerOptionItem.Create(Id + 12, "AbilityUseLimit", new(1, 20, 1), 5, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Aid])
-            .SetValueFormat(OptionFormat.Times);
+            UseLimitOpt = IntegerOptionItem.Create(Id + 12, "AbilityUseLimit", new(1, 20, 1), 5, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Aid])
+                .SetValueFormat(OptionFormat.Times);
+            UsePet = CreatePetUseSetting(Id + 13, CustomRoles.Aid);
         }
         public static void Init()
         {
@@ -40,7 +45,7 @@ namespace TOHE.Roles.Crewmate
             playerIdList.Add(playerId);
             UseLimit.Add(playerId, UseLimitOpt.GetInt());
 
-            if (!AmongUsClient.Instance.AmHost) return;
+            if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }

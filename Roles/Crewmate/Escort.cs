@@ -14,6 +14,7 @@ namespace TOHE.Roles.Crewmate
 
         private static OptionItem CD;
         private static OptionItem UseLimit;
+        private static OptionItem UsePet;
 
         public static int BlockLimit;
 
@@ -26,6 +27,7 @@ namespace TOHE.Roles.Crewmate
             UseLimit = IntegerOptionItem.Create(Id + 11, "AbilityUseLimit", new(1, 20, 1), 3, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Escort])
                 .SetValueFormat(OptionFormat.Times);
+            UsePet = CreatePetUseSetting(Id + 12, CustomRoles.Escort);
         }
 
         public static void Init()
@@ -39,7 +41,7 @@ namespace TOHE.Roles.Crewmate
 
             BlockLimit = UseLimit.GetInt();
 
-            if (!AmongUsClient.Instance.AmHost) return;
+            if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }

@@ -19,6 +19,7 @@ namespace TOHE.Roles.Crewmate
         private static OptionItem SeeKillCount;
         private static OptionItem SeeVentCount;
         private static OptionItem SeeRoleBasis;
+        private static OptionItem UsePet;
 
         private static readonly Dictionary<string, string> replacementDict = new() { { "Analyze", ColorString(GetRoleColor(CustomRoles.Analyzer), "Analyze") } };
 
@@ -45,6 +46,7 @@ namespace TOHE.Roles.Crewmate
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Analyzer]);
             SeeRoleBasis = BooleanOptionItem.Create(Id + 15, "AnalyzerSeeRoleBasis", true, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Analyzer]);
+            UsePet = CreatePetUseSetting(Id + 16, CustomRoles.Analyzer);
         }
 
         public static bool CanUseKillButton => CurrentTarget.ID == byte.MaxValue && UseLimit > 0;
@@ -85,7 +87,7 @@ namespace TOHE.Roles.Crewmate
             playerId = id;
             UseLimit = UseLimitOpt.GetInt();
 
-            if (!AmongUsClient.Instance.AmHost) return;
+            if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
             if (!Main.ResetCamPlayerList.Contains(id))
                 Main.ResetCamPlayerList.Add(id);
         }

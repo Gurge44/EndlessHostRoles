@@ -7,10 +7,13 @@ public static class Crusader
 {
     private static readonly int Id = 20050;
     private static List<byte> playerIdList = [];
-    public static Dictionary<byte, int> CrusaderLimit = [];
+
     public static OptionItem SkillLimitOpt;
     public static OptionItem SkillCooldown;
+    private static OptionItem UsePet;
+
     public static Dictionary<byte, float> CurrentKillCooldown = [];
+    public static Dictionary<byte, int> CrusaderLimit = [];
 
     public static void SetupCustomOption()
     {
@@ -19,6 +22,7 @@ public static class Crusader
             .SetValueFormat(OptionFormat.Seconds);
         SkillLimitOpt = IntegerOptionItem.Create(Id + 11, "CrusaderSkillLimit", new(1, 10, 1), 2, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Crusader])
             .SetValueFormat(OptionFormat.Times);
+        UsePet = Options.CreatePetUseSetting(Id + 12, CustomRoles.Crusader);
     }
     public static void Init()
     {
@@ -31,8 +35,7 @@ public static class Crusader
         CrusaderLimit.TryAdd(playerId, SkillLimitOpt.GetInt());
         CurrentKillCooldown.Add(playerId, SkillCooldown.GetFloat());
 
-
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost || (Options.UsePets.GetBool() && UsePet.GetBool())) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }

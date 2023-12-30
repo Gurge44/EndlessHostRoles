@@ -13,6 +13,7 @@ namespace TOHE.Roles.Crewmate
         private static OptionItem CD;
         private static OptionItem AdditionalSpeed;
         private static OptionItem UseLimitOpt;
+        private static OptionItem UsePet;
 
         public static List<byte> IncreasedSpeedPlayerList = [];
 
@@ -28,6 +29,7 @@ namespace TOHE.Roles.Crewmate
             UseLimitOpt = IntegerOptionItem.Create(Id + 7, "AbilityUseLimit", new(1, 14, 1), 3, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Gaulois])
                 .SetValueFormat(OptionFormat.Times);
+            UsePet = CreatePetUseSetting(Id + 8, CustomRoles.Gaulois);
         }
 
         public static void Init()
@@ -41,6 +43,10 @@ namespace TOHE.Roles.Crewmate
         {
             playerIdList.Add(playerId);
             UseLimit.Add(playerId, UseLimitOpt.GetInt());
+
+            if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
+            if (!Main.ResetCamPlayerList.Contains(playerId))
+                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public static bool IsEnable => playerIdList.Count > 0;
@@ -91,6 +97,7 @@ namespace TOHE.Roles.Crewmate
             IncreasedSpeedPlayerList.Add(target.PlayerId);
             UseLimit[killer.PlayerId]--;
 
+            killer.SetKillCooldown();
             SendRPC(killer.PlayerId);
             SendRPCAddPlayerToList(target.PlayerId);
         }

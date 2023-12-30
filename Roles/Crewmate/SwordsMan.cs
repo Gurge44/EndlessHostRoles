@@ -11,11 +11,14 @@ public static class SwordsMan
     //public static bool isKilled = false;
     public static List<byte> killed = [];
     public static OptionItem CanVent;
+    private static OptionItem UsePet;
 
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.SwordsMan);
-        CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", false, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SwordsMan]);
+        CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", false, TabGroup.CrewmateRoles, false)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SwordsMan]);
+        UsePet = Options.CreatePetUseSetting(Id + 10, CustomRoles.SwordsMan);
     }
     public static void Init()
     {
@@ -32,7 +35,7 @@ public static class SwordsMan
     {
         playerIdList.Add(playerId);
 
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost || (Options.UsePets.GetBool() && UsePet.GetBool())) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }

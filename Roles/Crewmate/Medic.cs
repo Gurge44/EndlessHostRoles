@@ -23,6 +23,7 @@ public static class Medic
     private static OptionItem ResetCooldown;
     public static OptionItem GuesserIgnoreShield;
     private static OptionItem AmountOfShields;
+    private static OptionItem UsePet;
 
     public static readonly string[] MedicWhoCanSeeProtectName =
     [
@@ -65,6 +66,7 @@ public static class Medic
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
         AmountOfShields = IntegerOptionItem.Create(Id + 34, "MedicAmountOfShields", new(1, 14, 1), 1, TabGroup.CrewmateRoles, false)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
+        UsePet = Options.CreatePetUseSetting(Id + 36, CustomRoles.Medic);
     }
     public static void Init()
     {
@@ -81,7 +83,7 @@ public static class Medic
 
         Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : {ProtectLimit[playerId]} shields left", "Medicaler");
 
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost || (Options.UsePets.GetBool() && UsePet.GetBool())) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }

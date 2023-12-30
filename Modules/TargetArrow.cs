@@ -40,7 +40,7 @@ static class TargetArrow
         TargetArrows.Clear();
     }
     /// <summary>
-    /// 新たにターゲット矢印対象を登録
+    /// Register a new target arrow object
     /// </summary>
     /// <param name="seer"></param>
     /// <param name="target"></param>
@@ -52,7 +52,7 @@ static class TargetArrow
             TargetArrows[arrowInfo] = "・";
     }
     /// <summary>
-    /// ターゲットの削除
+    /// Delete target
     /// </summary>
     /// <param name="seer"></param>
     /// <param name="target"></param>
@@ -66,7 +66,7 @@ static class TargetArrow
         }
     }
     /// <summary>
-    /// タイプの同じターゲットの全削除
+    /// Delete all targets for the specified seer
     /// </summary>
     /// <param name="seer"></param>
     public static void RemoveAllTarget(byte seer)
@@ -78,7 +78,7 @@ static class TargetArrow
         }
     }
     /// <summary>
-    /// 見ることのできるすべてのターゲット矢印を取得
+    /// Get all visible target arrows
     /// </summary>
     /// <param name="seer"></param>
     /// <returns></returns>
@@ -92,8 +92,8 @@ static class TargetArrow
         return arrows;
     }
     /// <summary>
-    /// FixedUpdate毎にターゲット矢印を確認
-    /// 更新があったらNotifyRolesを発行
+    /// Check target arrow every FixedUpdate
+    /// Issue NotifyRoles when there are updates
     /// </summary>
     /// <param name="seer"></param>
     public static void OnFixedUpdate(PlayerControl seer)
@@ -117,20 +117,20 @@ static class TargetArrow
                 update = true;
                 continue;
             }
-            //対象の方角ベクトルを取る
+            // Take the direction vector of the target
             var dir = target.transform.position - seer.transform.position;
             int index;
             if (dir.magnitude < 2)
             {
-                //近い時はドット表示
+                // Display a dot when close
                 index = 8;
             }
             else
             {
-                //-22.5～22.5度を0とするindexに変換
-                // 下が0度、左側が+180まで右側が-180まで
-                // 180度足すことで上が0度の時計回り
-                // 45度単位のindexにするため45/2を加算
+                // Convert to index with -22.5 to 22.5 degrees as 0
+                // Bottom is 0 degrees, left side is +180, right side is -180
+                // Adding 180 degrees clockwise with top being 0 degrees
+                // Add 45/2 to make index in 45 degree units
                 var angle = Vector3.SignedAngle(Vector3.down, dir, Vector3.back) + 180 + 22.5;
                 index = ((int)(angle / 45)) % 8;
             }
