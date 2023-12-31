@@ -3,7 +3,6 @@ using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
-using System.Linq;
 using System.Text.RegularExpressions;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;

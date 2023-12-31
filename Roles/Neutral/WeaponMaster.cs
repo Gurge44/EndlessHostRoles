@@ -3,6 +3,7 @@ using Hazel;
 using System.Collections.Generic;
 using UnityEngine;
 using static TOHE.Options;
+using static TOHE.Translator;
 
 namespace TOHE.Roles.Neutral;
 
@@ -98,7 +99,7 @@ public static class WeaponMaster
                 Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
                 break;
             case 3 when shieldUsed:
-                WM.Notify(Translator.GetString("WMShieldAlreadyUsed"));
+                WM.Notify(GetString("WMShieldAlreadyUsed"));
                 break;
         }
 
@@ -173,10 +174,10 @@ public static class WeaponMaster
     {
         return mode switch
         {
-            0 => Translator.GetString("Sword"),
-            1 => Translator.GetString("Axe"),
-            2 => Translator.GetString("lance"),
-            3 => Translator.GetString("Shield"),
+            0 => GetString("Sword"),
+            1 => GetString("Axe"),
+            2 => GetString("lance"),
+            3 => GetString("Shield"),
             _ => string.Empty,
         };
     }

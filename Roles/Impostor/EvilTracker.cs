@@ -2,7 +2,6 @@ using AmongUs.GameOptions;
 using Hazel;
 using Il2CppSystem.Text;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
