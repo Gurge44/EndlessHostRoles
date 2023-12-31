@@ -219,6 +219,12 @@ static class ExtendedPlayerControl
     public static void SetKillCooldown(this PlayerControl player, float time = -1f, PlayerControl target = null, bool forceAnime = false)
     {
         if (player == null) return;
+        if (player.GetCustomRole().PetActivatedAbility())
+        {
+            if (time == -1f) player.AddKCDAsAbilityCD();
+            else player.AddAbilityCD((int)Math.Round(time));
+            return;
+        }
         if (!player.CanUseKillButton()) return;
         player.AddKillTimerToDict(CD: time);
         if (target == null) target = player;

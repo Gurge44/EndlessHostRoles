@@ -3739,7 +3739,8 @@ public static class Options
 
     public static OptionItem CreatePetUseSetting(int id, CustomRoles role) =>
     BooleanOptionItem.Create(id, "UsePetInsteadOfKillButton", false, TabGroup.CrewmateRoles, false)
-        .SetParent(CustomRoleSpawnChances[role]);
+        .SetParent(CustomRoleSpawnChances[role])
+        .SetColor(Color.magenta);
 
     public class OverrideTasksData
     {
@@ -3774,7 +3775,7 @@ public static class Options
             numShortTasks.ReplacementDictionary = replacementDic;
 
             if (!AllData.ContainsKey(role)) AllData.Add(role, this);
-            else Logger.Warn("重複したCustomRolesを対象とするOverrideTasksDataが作成されました", "OverrideTasksData");
+            else Logger.Warn("OverrideTasksData created for duplicate CustomRoles", "OverrideTasksData");
         }
         public static OverrideTasksData Create(int idStart, TabGroup tab, CustomRoles role) => new(idStart, tab, role);
     }

@@ -30,7 +30,7 @@ public static class Sheriff
     public static OptionItem NonCrewCanKillCrew;
     public static OptionItem NonCrewCanKillImp;
     public static OptionItem NonCrewCanKillNeutral;
-    private static OptionItem UsePet;
+    public static OptionItem UsePet;
     public static Dictionary<CustomRoles, OptionItem> KillTargetOptions = [];
     public static Dictionary<byte, int> ShotLimit = [];
     public static Dictionary<byte, float> CurrentKillCooldown = [];

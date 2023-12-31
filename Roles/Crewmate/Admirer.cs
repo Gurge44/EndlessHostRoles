@@ -13,7 +13,7 @@ public static class Admirer
 
     public static OptionItem AdmireCooldown;
     public static OptionItem KnowTargetRole;
-    private static OptionItem UsePet;
+    public static OptionItem UsePet;
 
     public static int AdmireLimit;
 

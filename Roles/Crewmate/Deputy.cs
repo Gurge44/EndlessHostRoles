@@ -15,7 +15,7 @@ public static class Deputy
     public static OptionItem HandcuffMax;
     public static OptionItem DeputyHandcuffCDForTarget;
     private static OptionItem DeputyHandcuffDelay;
-    private static OptionItem UsePet;
+    public static OptionItem UsePet;
 
     public static int HandcuffLimit;
 

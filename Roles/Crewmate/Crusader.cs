@@ -10,7 +10,7 @@ public static class Crusader
 
     public static OptionItem SkillLimitOpt;
     public static OptionItem SkillCooldown;
-    private static OptionItem UsePet;
+    public static OptionItem UsePet;
 
     public static Dictionary<byte, float> CurrentKillCooldown = [];
     public static Dictionary<byte, int> CrusaderLimit = [];

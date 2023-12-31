@@ -18,7 +18,7 @@ namespace TOHE.Roles.Crewmate
         public static OptionItem FarseerCooldown;
         public static OptionItem FarseerRevealTime;
         public static OptionItem Vision;
-        private static OptionItem UsePet;
+        public static OptionItem UsePet;
 
         private static readonly System.Collections.Generic.List<CustomRoles> randomRolesForTrickster =
         [

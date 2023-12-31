@@ -19,7 +19,7 @@ namespace TOHE.Roles.Crewmate
         private static OptionItem SeeKillCount;
         private static OptionItem SeeVentCount;
         private static OptionItem SeeRoleBasis;
-        private static OptionItem UsePet;
+        public static OptionItem UsePet;
 
         private static readonly Dictionary<string, string> replacementDict = new() { { "Analyze", ColorString(GetRoleColor(CustomRoles.Analyzer), "Analyze") } };
 

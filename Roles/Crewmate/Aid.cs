@@ -18,7 +18,7 @@ namespace TOHE.Roles.Crewmate
         public static OptionItem AidDur;
         public static OptionItem AidCD;
         public static OptionItem UseLimitOpt;
-        private static OptionItem UsePet;
+        public static OptionItem UsePet;
 
         public static void SetupCustomOption()
         {

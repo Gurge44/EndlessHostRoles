@@ -64,6 +64,7 @@ namespace TOHE.Roles.Impostor
                 byte playerId = reader.ReadByte();
                 YinYangedPlayers.Add(playerId);
             }
+            else YinYangedPlayers.Clear();
         }
 
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -100,8 +101,8 @@ namespace TOHE.Roles.Impostor
         public static void OnReportDeadBody()
         {
             if (!IsEnable) return;
-            YinYanger_?.ResetKillCooldown();
             YinYangedPlayers.Clear();
+            YinYanger_?.ResetKillCooldown();
             SendRPC(true);
         }
 

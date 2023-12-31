@@ -13,7 +13,7 @@ public static class Monarch
 
     public static OptionItem KnightCooldown;
     public static OptionItem KnightMax;
-    private static OptionItem UsePet;
+    public static OptionItem UsePet;
 
     public static int KnightLimit;
 

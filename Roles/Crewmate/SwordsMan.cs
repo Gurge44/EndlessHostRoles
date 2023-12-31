@@ -11,7 +11,7 @@ public static class SwordsMan
     //public static bool isKilled = false;
     public static List<byte> killed = [];
     public static OptionItem CanVent;
-    private static OptionItem UsePet;
+    public static OptionItem UsePet;
 
     public static void SetupCustomOption()
     {

@@ -2239,21 +2239,19 @@ class FixedUpdatePatch
             {
                 if (Main.AbilityCD.TryGetValue(playerId, out var timer))
                 {
-                    if (timer.START_TIMESTAMP + timer.TOTALCD < GetTimeStamp())
+                    if (timer.START_TIMESTAMP + timer.TOTALCD < GetTimeStamp() || !player.IsAlive())
                     {
                         Main.AbilityCD.Remove(playerId);
                     }
                     if (!player.IsModClient()) NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 }
-
-                if (Main.AbilityCD.ContainsKey(playerId) && !player.IsModClient()) NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
             }
-        }
 
-        if (!lowLoad)
-        {
-            YinYanger.OnFixedUpdate();
-            Duellist.OnFixedUpdate();
+            if (!lowLoad)
+            {
+                YinYanger.OnFixedUpdate();
+                Duellist.OnFixedUpdate();
+            }
         }
 
         if (GameStates.IsInTask && Agitater.IsEnable && Agitater.AgitaterHasBombed && Agitater.CurrentBombedPlayer == playerId)
