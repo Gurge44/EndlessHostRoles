@@ -3034,6 +3034,10 @@
 "WeaponMasterInfoLong","","(Neutral):\nAs the Weapon Master, you can cycle between your weapons by petting your pet/calling a sabotage.\n\nThe Sword weapon is a normal kill method.\n\nThe Axe weapon kills everyone in a certain radius when you make a kill. You have a higher kill cooldown while using this weapon.\n\nThe Lance weapon sets your kill range to the maximum, and you don't lunge toward your kills. You can't vent while using this weapon.\n\nWhile using your Shield, you can survive an attack once. You can't kill while using your shield.","","",""
 "WMRadius","","Axe Mode Death Radius","","",""
 "WMShieldAlreadyUsed","","Your shield was already used","","",""
+"Sword","","Sword","","",""
+"Axe","","Axe","","",""
+"Lance","","Lance","","",""
+"Shield","","Shield","","",""
 
 "## Eclipse"
 "Eclipse","","Eclipse","","",""
