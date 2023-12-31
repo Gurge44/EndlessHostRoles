@@ -173,10 +173,10 @@ public static class WeaponMaster
     {
         return mode switch
         {
-            0 => "Sword",
-            1 => "Axe",
-            2 => "Lance",
-            3 => "Shield",
+            0 => Translator.GetString("Sword"),
+            1 => Translator.GetString("Axe"),
+            2 => Translator.GetString("lance"),
+            3 => Translator.GetString("Shield"),
             _ => string.Empty,
         };
     }
