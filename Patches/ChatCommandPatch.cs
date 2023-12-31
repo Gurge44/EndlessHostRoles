@@ -32,7 +32,9 @@ internal class ChatCommands
 
     public static bool Prefix(ChatController __instance)
     {
+        if (__instance.quickChatField.visible) return true;
         if (__instance.freeChatField.textArea.text == string.Empty) return false;
+        if (!GameStates.IsModHost && !AmongUsClient.Instance.AmHost) return true;
         __instance.timeSinceLastMessage = 3f;
 
         var text = __instance.freeChatField.textArea.text;

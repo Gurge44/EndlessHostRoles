@@ -896,14 +896,23 @@ static class ExtendedPlayerControl
         {
             if (Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out var kcd)) resultKCD = kcd;
             else resultKCD = 0f;
+
+            if (half)
+            {
+                resultKCD /= 2f;
+            }
         }
         else
         {
             resultKCD = CD;
         }
 
-        if (Main.KillTimers.TryGetValue(pc.PlayerId, out var timer) && timer > resultKCD) return;
+        if (pc.GetCustomRole().UsesPetInsteadOfKill() && resultKCD > 0f)
+        {
+            pc.AddAbilityCD((int)Math.Round(resultKCD));
+        }
 
+        if (Main.KillTimers.TryGetValue(pc.PlayerId, out var timer) && timer > resultKCD) return;
         Main.KillTimers[pc.PlayerId] = resultKCD;
     }
 

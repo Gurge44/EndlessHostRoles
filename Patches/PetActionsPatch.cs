@@ -372,15 +372,12 @@ class ExternalRpcPetPatch
                 break;
             case CustomRoles.Deputy when hasKillTarget:
                 Deputy.OnCheckMurder(pc, target);
-                pc.AddKCDAsAbilityCD();
                 break;
             case CustomRoles.Admirer when hasKillTarget:
                 Admirer.OnCheckMurder(pc, target);
-                pc.AddKCDAsAbilityCD();
                 break;
             case CustomRoles.Crusader when hasKillTarget:
                 Crusader.OnCheckMurder(pc, target);
-                pc.AddKCDAsAbilityCD();
                 break;
 
             // Impostors
@@ -405,7 +402,7 @@ class ExternalRpcPetPatch
                             if (!Options.WarlockCanKillAllies.GetBool() && p.GetCustomRole().IsImpostor()) continue;
                             if (p.Is(CustomRoles.Pestilence)) continue;
                             if (Pelican.IsEaten(p.PlayerId) || Medic.ProtectList.Contains(p.PlayerId)) continue;
-                            dis = UnityEngine.Vector2.Distance(cppos, p.Pos());
+                            dis = Vector2.Distance(cppos, p.Pos());
                             cpdistance.Add(p, dis);
                             Logger.Info($"{p?.Data?.PlayerName}'s distance: {dis}", "Warlock");
                         }
@@ -470,7 +467,7 @@ class ExternalRpcPetPatch
                 {
                     if (!tg.IsModClient()) tg.KillFlash();
                     var pos = pc.Pos();
-                    var dis = UnityEngine.Vector2.Distance(pos, tg.Pos());
+                    var dis = Vector2.Distance(pos, tg.Pos());
 
                     if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || (tg.Is(CustomRoleTypes.Impostor) && Options.ImpostorsSurviveBombs.GetBool()) || tg.inVent || tg.Is(CustomRoles.Pestilence)) continue;
                     if (dis > Options.BomberRadius.GetFloat()) continue;
@@ -495,7 +492,7 @@ class ExternalRpcPetPatch
                 {
                     if (!tg.IsModClient()) tg.KillFlash();
                     var pos = pc.Pos();
-                    var dis = UnityEngine.Vector2.Distance(pos, tg.Pos());
+                    var dis = Vector2.Distance(pos, tg.Pos());
 
                     if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || tg.inVent || tg.Is(CustomRoles.Pestilence)) continue;
                     if (dis > Options.NukeRadius.GetFloat()) continue;
