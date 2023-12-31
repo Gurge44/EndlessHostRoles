@@ -512,8 +512,12 @@ class IntroCutsceneDestroyPatch
         {
             if (Main.NormalOptions.MapId != 4)
             {
-                Main.AllPlayerControls.Do(pc => pc.RpcResetAbilityCooldown());
-                Main.AllPlayerControls.Do(pc => pc.AddAbilityCD());
+                foreach (var pc in Main.AllAlivePlayerControls)
+                {
+                    pc.RpcResetAbilityCooldown();
+                    if (pc.GetCustomRole().UsesPetInsteadOfKill()) pc.AddAbilityCD(10);
+                    else pc.AddAbilityCD();
+                }
                 if (Options.StartingKillCooldown.GetInt() != 10 && Options.StartingKillCooldown.GetInt() > 0)
                 {
                     _ = new LateTask(() =>

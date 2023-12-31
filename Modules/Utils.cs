@@ -490,7 +490,7 @@ public static class Utils
         switch (role)
         {
             case CustomRoles.GM:
-            case CustomRoles.Sheriff:
+            case CustomRoles.Sheriff when !Options.UsePets.GetBool() || !Sheriff.UsePet.GetBool():
             case CustomRoles.Arsonist:
             case CustomRoles.Jackal:
             case CustomRoles.Sidekick:
@@ -514,7 +514,7 @@ public static class Utils
             case CustomRoles.Imitator:
             case CustomRoles.Werewolf:
             case CustomRoles.Bandit:
-            case CustomRoles.Jailor:
+            case CustomRoles.Jailor when !Options.UsePets.GetBool() || !Jailor.UsePet.GetBool():
             case CustomRoles.Traitor:
             case CustomRoles.Glitch:
             case CustomRoles.Pickpocket:
@@ -522,7 +522,7 @@ public static class Utils
             case CustomRoles.Jinx:
             case CustomRoles.Parasite:
             case CustomRoles.Agitater:
-            case CustomRoles.Crusader:
+            case CustomRoles.Crusader when !Options.UsePets.GetBool() || !Crusader.UsePet.GetBool():
             case CustomRoles.Refugee:
             case CustomRoles.Jester:
             //case CustomRoles.Pirate:
@@ -532,7 +532,7 @@ public static class Utils
             case CustomRoles.Mario:
             case CustomRoles.Vulture:
             case CustomRoles.God:
-            case CustomRoles.SwordsMan:
+            case CustomRoles.SwordsMan when !Options.UsePets.GetBool() || !SwordsMan.UsePet.GetBool():
             case CustomRoles.Innocent:
             case CustomRoles.Pelican:
             case CustomRoles.Medusa:
@@ -549,7 +549,7 @@ public static class Utils
             case CustomRoles.Collector:
             case CustomRoles.ImperiusCurse:
             case CustomRoles.Provocateur:
-            case CustomRoles.Medic:
+            case CustomRoles.Medic when !Options.UsePets.GetBool() || !Medic.UsePet.GetBool():
             case CustomRoles.BloodKnight:
             case CustomRoles.Camouflager:
             case CustomRoles.Totocalcio:
@@ -558,20 +558,20 @@ public static class Utils
             case CustomRoles.RuthlessRomantic:
             case CustomRoles.Succubus:
             //case CustomRoles.CursedSoul:
-            case CustomRoles.Admirer:
+            case CustomRoles.Admirer when !Options.UsePets.GetBool() || !Admirer.UsePet.GetBool():
             case CustomRoles.Amnesiac:
             case CustomRoles.Infectious:
-            case CustomRoles.Monarch:
-            case CustomRoles.Deputy:
+            case CustomRoles.Monarch when !Options.UsePets.GetBool() || !Monarch.UsePet.GetBool():
+            case CustomRoles.Deputy when !Options.UsePets.GetBool() || !Deputy.UsePet.GetBool():
             case CustomRoles.Virus:
-            case CustomRoles.Farseer:
+            case CustomRoles.Farseer when !Options.UsePets.GetBool() || !Farseer.UsePet.GetBool():
             //case CustomRoles.Counterfeiter:
-            case CustomRoles.Aid:
-            case CustomRoles.Escort:
-            case CustomRoles.DonutDelivery:
-            case CustomRoles.Gaulois:
-            case CustomRoles.Analyzer:
-            case CustomRoles.Witness:
+            case CustomRoles.Aid when !Options.UsePets.GetBool() || !Aid.UsePet.GetBool():
+            case CustomRoles.Escort when !Options.UsePets.GetBool() || !Escort.UsePet.GetBool():
+            case CustomRoles.DonutDelivery when !Options.UsePets.GetBool() || !DonutDelivery.UsePet.GetBool():
+            case CustomRoles.Gaulois when !Options.UsePets.GetBool() || !Gaulois.UsePet.GetBool():
+            case CustomRoles.Analyzer when !Options.UsePets.GetBool() || !Analyzer.UsePet.GetBool():
+            case CustomRoles.Witness when !Options.UsePets.GetBool() || !Options.WitnessUsePet.GetBool():
             case CustomRoles.Pursuer:
             case CustomRoles.Spiritcaller:
             case CustomRoles.PlagueBearer:
@@ -623,7 +623,7 @@ public static class Utils
             }
         }
 
-        if (CopyCat.playerIdList.Contains(p.PlayerId) && ForRecompute) hasTasks = false;
+        if (CopyCat.playerIdList.Contains(p.PlayerId) && ForRecompute && (!Options.UsePets.GetBool() || CopyCat.UsePet.GetBool())) hasTasks = false;
 
         return hasTasks;
     }
@@ -2549,6 +2549,11 @@ public static class Utils
     }
     public static void AddAbilityCD(CustomRoles role, byte playerId, bool includeDuration = true)
     {
+        if (role.UsesPetInsteadOfKill())
+        {
+            Main.AbilityCD[playerId] = (GetTimeStamp(), (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(playerId, out var KCD) ? KCD : Options.DefaultKillCooldown));
+            return;
+        }
         int CD = role switch
         {
             CustomRoles.Doormaster => Doormaster.VentCooldown.GetInt(),

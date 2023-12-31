@@ -1002,86 +1002,6 @@ internal static class CustomRolesHelper
 
     }
 
-    public static bool IsNeutralWithGuessAccess(this CustomRoles role)
-    {
-        return role is
-            //SoloKombat
-            CustomRoles.KB_Normal or
-            //FFA
-            CustomRoles.Killer or
-            //Move And Stop
-            CustomRoles.Tasker or
-            //Standard
-            CustomRoles.Jester or
-            CustomRoles.Agitater or
-            CustomRoles.Doppelganger or
-            CustomRoles.Opportunist or
-            CustomRoles.Bandit or
-            CustomRoles.Mario or
-            CustomRoles.HexMaster or
-            CustomRoles.Crewpostor or
-            //CustomRoles.NWitch or
-            CustomRoles.Wraith or
-            CustomRoles.Parasite or
-            CustomRoles.Terrorist or
-            CustomRoles.Executioner or
-            CustomRoles.Medusa or
-            CustomRoles.Juggernaut or
-            CustomRoles.Vulture or
-            CustomRoles.Jinx or
-            CustomRoles.Lawyer or
-            CustomRoles.Arsonist or
-            CustomRoles.Jackal or
-            CustomRoles.Sidekick or
-            CustomRoles.God or
-            CustomRoles.Innocent or
-            CustomRoles.Pursuer or
-        //    CustomRoles.Sidekick or
-            CustomRoles.Poisoner or
-            CustomRoles.NSerialKiller or
-            CustomRoles.Enderman or
-            CustomRoles.Mycologist or
-            CustomRoles.Bubble or
-            CustomRoles.Hookshot or
-            CustomRoles.Sprayer or
-            CustomRoles.PlagueDoctor or
-            CustomRoles.Magician or
-            CustomRoles.WeaponMaster or
-            CustomRoles.Reckless or
-            CustomRoles.Postman or
-            CustomRoles.Eclipse or
-            CustomRoles.Pyromaniac or
-            CustomRoles.Vengeance or
-            CustomRoles.HeadHunter or
-            CustomRoles.Imitator or
-            CustomRoles.Werewolf or
-            CustomRoles.Pelican or
-            CustomRoles.Revolutionist or
-            CustomRoles.FFF or
-            CustomRoles.Traitor or
-            CustomRoles.Konan or
-            CustomRoles.Gamer or
-            CustomRoles.DarkHide or
-            CustomRoles.Infectious or
-            CustomRoles.Workaholic or
-            CustomRoles.Collector or
-            CustomRoles.Provocateur or
-            CustomRoles.Sunnyboy or
-            CustomRoles.Phantom or
-            CustomRoles.BloodKnight or
-            CustomRoles.Romantic or
-            CustomRoles.Totocalcio or
-            CustomRoles.VengefulRomantic or
-            CustomRoles.RuthlessRomantic or
-            CustomRoles.Virus or
-            CustomRoles.Succubus or
-            CustomRoles.Spiritcaller or
-            CustomRoles.Doomsayer or
-            CustomRoles.PlagueBearer or
-            //CustomRoles.Pirate or
-            CustomRoles.Pestilence;
-    }
-
     public static bool IsEvilAddons(this CustomRoles role)
     {
         return role is
@@ -1106,7 +1026,7 @@ internal static class CustomRolesHelper
     }
     public static bool IsTasklessCrewmate(this CustomRoles role)
     {
-        return role is
+        return !role.UsesPetInsteadOfKill() && role is
         CustomRoles.Sheriff or
         CustomRoles.Admirer or
         CustomRoles.Medic or
@@ -1190,9 +1110,33 @@ internal static class CustomRolesHelper
             _ => false,
         };
     }
+    public static bool UsesPetInsteadOfKill(this CustomRoles role)
+    {
+        return Options.UsePets.GetBool() && role switch
+        {
+            CustomRoles.Gaulois when Gaulois.UsePet.GetBool() => true,
+            CustomRoles.Aid when Aid.UsePet.GetBool() => true,
+            CustomRoles.Escort when Escort.UsePet.GetBool() => true,
+            CustomRoles.DonutDelivery when DonutDelivery.UsePet.GetBool() => true,
+            CustomRoles.Analyzer when Analyzer.UsePet.GetBool() => true,
+            CustomRoles.Jailor when Jailor.UsePet.GetBool() => true,
+            CustomRoles.Sheriff when Sheriff.UsePet.GetBool() => true,
+            CustomRoles.SwordsMan when SwordsMan.UsePet.GetBool() => true,
+            CustomRoles.Medic when Medic.UsePet.GetBool() => true,
+            CustomRoles.Monarch when Monarch.UsePet.GetBool() => true,
+            CustomRoles.CopyCat when CopyCat.UsePet.GetBool() => true,
+            CustomRoles.Farseer when Farseer.UsePet.GetBool() => true,
+            CustomRoles.Deputy when Deputy.UsePet.GetBool() => true,
+            CustomRoles.Admirer when Admirer.UsePet.GetBool() => true,
+            CustomRoles.Crusader when Crusader.UsePet.GetBool() => true,
+            CustomRoles.Witness when Options.WitnessUsePet.GetBool() => true,
+
+            _ => false,
+        };
+    }
     public static bool NeedUpdateOnLights(this CustomRoles role)
     {
-        return role.IsNK() || role is
+        return (!role.UsesPetInsteadOfKill()) && (role.GetDYRole() != RoleTypes.GuardianAngel || role is
         CustomRoles.Sheriff or
         CustomRoles.Medic or
         CustomRoles.CopyCat or
@@ -1276,7 +1220,7 @@ internal static class CustomRolesHelper
         CustomRoles.Mare or
         CustomRoles.Bandit or
         CustomRoles.Agitater or
-        CustomRoles.Deputy;
+        CustomRoles.Deputy);
     }
 
     public static bool IsBetrayalAddon(this CustomRoles role)
@@ -1330,11 +1274,7 @@ internal static class CustomRolesHelper
     }
     public static bool CheckAddonConflictV2(CustomRoles addon, CustomRoles mainRole)
     {
-        if (!addon.IsAdditionRole()) return false;
-
-        if (mainRole is CustomRoles.GuardianAngelTOHE or CustomRoles.God) return false;
-        if (mainRole is CustomRoles.GM || addon is CustomRoles.Lovers) return false;
-        return addon switch
+        return addon.IsAdditionRole() && mainRole is not CustomRoles.GuardianAngelTOHE and not CustomRoles.God and not CustomRoles.GM && addon is not CustomRoles.Lovers && addon switch
         {
             CustomRoles.Lovers when mainRole is CustomRoles.RuthlessRomantic or CustomRoles.Romantic or CustomRoles.VengefulRomantic => false,
             CustomRoles.Autopsy when mainRole is CustomRoles.Doctor or CustomRoles.Tracefinder or CustomRoles.Scientist or CustomRoles.ScientistTOHE or CustomRoles.Sunnyboy => false,

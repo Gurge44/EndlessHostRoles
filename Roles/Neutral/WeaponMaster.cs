@@ -120,13 +120,10 @@ public static class WeaponMaster
                 {
                     foreach (PlayerControl player in Main.AllAlivePlayerControls)
                     {
-                        if (Pelican.IsEaten(player.PlayerId)) continue;
-                        if (player == killer) continue;
-                        if (player.Is(CustomRoles.Pestilence) || Main.VeteranInProtect.ContainsKey(target.PlayerId)) continue;
+                        if (Pelican.IsEaten(player.PlayerId) || player == killer || player.Is(CustomRoles.Pestilence) || Main.VeteranInProtect.ContainsKey(target.PlayerId)) continue;
                         if (Vector2.Distance(killer.transform.position, player.transform.position) <= Radius.GetFloat())
                         {
-                            player.SetRealKiller(killer);
-                            player.Kill(player);
+                            player.Suicide(PlayerState.DeathReason.Kill, killer);
                         }
                     }
                     killer.SetKillCooldown(time: HighKCD.GetFloat());
@@ -135,7 +132,7 @@ public static class WeaponMaster
             case 2:
                 if (killer.RpcCheckAndMurder(target, true))
                 {
-                    target.Kill(target);
+                    target.Suicide(PlayerState.DeathReason.Kill, killer);
                     killer.SetKillCooldown();
                 }
                 return false;
