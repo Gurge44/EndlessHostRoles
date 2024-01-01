@@ -1095,6 +1095,8 @@
 "RemovePetsAtDeadPlayers","","Remove pets from dead players","Убирать питомцев у мертвых игроков","",""
 "SeeEjectedRolesInMeeting","","See ejected roles in meetings","","",""
 "EnableKillerLeftCommand","","Enable use of /kcount command","","",""
+"Remaining.ImpostorCount","","<color=#ff1919>Impostors</color> left: ","","",""
+"Remaining.NeutralCount","","<color=#7f8c8d>Neutral Killers</color> left: ","","",""
 "DoorsResetMode","","Mode","","",""
 "AllClosed","","Close All","","",""
 "AllOpen","","Open All","","",""
