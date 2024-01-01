@@ -491,40 +491,20 @@ class CheckForEndVotingPatch
         }
 
         if (DecidedWinner) name += "<size=0>";
-        else if (Options.ShowImpRemainOnEject.GetBool())
+        if (Options.ShowImpRemainOnEject.GetBool() && !DecidedWinner)
         {
             name += "\n";
-            if (!Options.ShowNKRemainOnEject.GetBool()) neutralnum = 0;
-            switch (impnum, neutralnum)
-            {
-                case (0, 0): // Crewmates win
-                    name += GetString("GG");
-                    break;
-                case ( > 0, > 0): // Both imps and neutrals remain
-                    name += impnum switch
-                    {
-                        1 => "1 <color=#ff1919>Impostor</color> <color=#777777>&</color> ",
-                        2 => "2 <color=#ff1919>Impostors</color> <color=#777777>&</color> ",
-                        3 => "3 <color=#ff1919>Impostors</color> <color=#777777>&</color> ",
-                        _ => string.Empty,
-                    };
-                    if (neutralnum == 1) name += "1 <color=#ffab1b>Neutral</color> <color=#777777>remains.</color>";
-                    else name += $"{neutralnum} <color=#ffab1b>Neutrals</color> <color=#777777>remain.</color>";
-                    break;
-                case ( > 0, 0): // Only imps remain
-                    name += impnum switch
-                    {
-                        1 => GetString("OneImpRemain"),
-                        2 => GetString("TwoImpRemain"),
-                        3 => GetString("ThreeImpRemain"),
-                        _ => string.Empty,
-                    };
-                    break;
-                case (0, > 0): // Only neutrals remain
-                    if (neutralnum == 1) name += GetString("OneNeutralRemain");
-                    else name += string.Format(GetString("NeutralRemain"), neutralnum);
-                    break;
-            }
+            string comma = neutralnum > 0 ? "" : "";
+            if (impnum == 0) name += GetString("NoImpRemain") + comma;
+            if (impnum == 1) name += GetString("OneImpRemain") + comma;
+            if (impnum == 2) name += GetString("TwoImpRemain") + comma;
+            if (impnum == 3) name += GetString("ThreeImpRemain") + comma;
+            //    else name += string.Format(GetString("ImpRemain"), impnum) + comma;
+            if (Options.ShowNKRemainOnEject.GetBool() && neutralnum > 0)
+                if (neutralnum == 1)
+                    name += string.Format(GetString("OneNeutralRemain"), neutralnum) + comma;
+                else
+                    name += string.Format(GetString("NeutralRemain"), neutralnum) + comma;
         }
 
     EndOfSession:
