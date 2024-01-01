@@ -2891,7 +2891,7 @@ public static class Utils
                     neutralnum++;
             }
         }
-        return $"{(notify ? "<color=#777777>" : string.Empty)}There {(impnum == 1 ? "is" : "are")}{(notify ? ' ' : '\n')}{(notify ? "<#ffffff>" : "<b>")}{impnum}{(notify ? "</color>" : "</b>")} <color=#ff1919>{(impnum == 1 ? "Impostor" : "Impostors")}</color> and {(notify ? "<#ffffff>" : "<b>")}{neutralnum}{(notify ? "</color>" : "</b>")} <color=#ffab1b>{(neutralnum == 1 ? "Neutral Killer" : "Neutral Killers")}</color> left.{(notify ? "</color>" : string.Empty)}";
+        return (notify ? GetString("Remaining.ImpostorCount") + impnum + "\n\r" + GetString("Remaining.NeutralCount") + neutralnum : GetString("Remaining.ImpostorCount") + impnum + "\n\r" + GetString("Remaining.NeutralCount") + neutralnum);
     }
     public static string RemoveHtmlTagsTemplate(this string str) => Regex.Replace(str, string.Empty, string.Empty);
     public static string RemoveHtmlTags(this string str) => Regex.Replace(str, "<[^>]*?>", string.Empty);
