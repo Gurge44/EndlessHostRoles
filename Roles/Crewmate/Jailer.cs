@@ -16,7 +16,7 @@ public static class Jailor
 
     public static OptionItem JailCooldown;
     public static OptionItem notifyJailedOnMeeting;
-    private static OptionItem UsePet;
+    public static OptionItem UsePet;
 
     public static void SetupCustomOption()
     {

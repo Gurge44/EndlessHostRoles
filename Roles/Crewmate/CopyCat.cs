@@ -17,7 +17,7 @@ public static class CopyCat
     public static OptionItem CanKill;
     public static OptionItem CopyCrewVar;
     public static OptionItem MiscopyLimitOpt;
-    private static OptionItem UsePet;
+    public static OptionItem UsePet;
 
     public static void SetupCustomOption()
     {

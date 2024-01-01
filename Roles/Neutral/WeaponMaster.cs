@@ -3,6 +3,7 @@ using Hazel;
 using System.Collections.Generic;
 using UnityEngine;
 using static TOHE.Options;
+using static TOHE.Translator;
 
 namespace TOHE.Roles.Neutral;
 
@@ -98,7 +99,7 @@ public static class WeaponMaster
                 Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
                 break;
             case 3 when shieldUsed:
-                WM.Notify(Translator.GetString("WMShieldAlreadyUsed"));
+                WM.Notify(GetString("WMShieldAlreadyUsed"));
                 break;
         }
 
@@ -119,13 +120,10 @@ public static class WeaponMaster
                 {
                     foreach (PlayerControl player in Main.AllAlivePlayerControls)
                     {
-                        if (Pelican.IsEaten(player.PlayerId)) continue;
-                        if (player == killer) continue;
-                        if (player.Is(CustomRoles.Pestilence) || Main.VeteranInProtect.ContainsKey(target.PlayerId)) continue;
+                        if (Pelican.IsEaten(player.PlayerId) || player == killer || player.Is(CustomRoles.Pestilence) || Main.VeteranInProtect.ContainsKey(target.PlayerId)) continue;
                         if (Vector2.Distance(killer.transform.position, player.transform.position) <= Radius.GetFloat())
                         {
-                            player.SetRealKiller(killer);
-                            player.Kill(player);
+                            player.Suicide(PlayerState.DeathReason.Kill, killer);
                         }
                     }
                     killer.SetKillCooldown(time: HighKCD.GetFloat());
@@ -134,7 +132,7 @@ public static class WeaponMaster
             case 2:
                 if (killer.RpcCheckAndMurder(target, true))
                 {
-                    target.Kill(target);
+                    target.Suicide(PlayerState.DeathReason.Kill, killer);
                     killer.SetKillCooldown();
                 }
                 return false;
@@ -173,10 +171,10 @@ public static class WeaponMaster
     {
         return mode switch
         {
-            0 => Translator.GetString("Sword"),
-            1 => Translator.GetString("Axe"),
-            2 => Translator.GetString("lance"),
-            3 => Translator.GetString("Shield"),
+            0 => GetString("Sword"),
+            1 => GetString("Axe"),
+            2 => GetString("lance"),
+            3 => GetString("Shield"),
             _ => string.Empty,
         };
     }

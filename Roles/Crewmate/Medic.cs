@@ -23,7 +23,7 @@ public static class Medic
     private static OptionItem ResetCooldown;
     public static OptionItem GuesserIgnoreShield;
     private static OptionItem AmountOfShields;
-    private static OptionItem UsePet;
+    public static OptionItem UsePet;
 
     public static readonly string[] MedicWhoCanSeeProtectName =
     [

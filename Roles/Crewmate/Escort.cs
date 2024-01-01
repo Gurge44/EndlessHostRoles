@@ -14,7 +14,7 @@ namespace TOHE.Roles.Crewmate
 
         private static OptionItem CD;
         private static OptionItem UseLimit;
-        private static OptionItem UsePet;
+        public static OptionItem UsePet;
 
         public static int BlockLimit;
 

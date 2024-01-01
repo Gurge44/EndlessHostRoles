@@ -580,7 +580,7 @@ class HudManagerPatch
                     LowerInfoText.enabled = false;
                 }
 
-                if (player.CanUseKillButton())
+                if (player.CanUseKillButton() && !player.GetCustomRole().UsesPetInsteadOfKill())
                 {
                     __instance.KillButton?.ToggleVisible(player.IsAlive() && GameStates.IsInTask);
                     player.Data.Role.CanUseKillButton = true;

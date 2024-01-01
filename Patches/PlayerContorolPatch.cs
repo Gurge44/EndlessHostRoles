@@ -2239,21 +2239,19 @@ class FixedUpdatePatch
             {
                 if (Main.AbilityCD.TryGetValue(playerId, out var timer))
                 {
-                    if (timer.START_TIMESTAMP + timer.TOTALCD < GetTimeStamp())
+                    if (timer.START_TIMESTAMP + timer.TOTALCD < GetTimeStamp() || !player.IsAlive())
                     {
                         Main.AbilityCD.Remove(playerId);
                     }
                     if (!player.IsModClient()) NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 }
-
-                if (Main.AbilityCD.ContainsKey(playerId) && !player.IsModClient()) NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
             }
-        }
 
-        if (!lowLoad)
-        {
-            YinYanger.OnFixedUpdate();
-            Duellist.OnFixedUpdate();
+            if (!lowLoad)
+            {
+                YinYanger.OnFixedUpdate();
+                Duellist.OnFixedUpdate();
+            }
         }
 
         if (GameStates.IsInTask && Agitater.IsEnable && Agitater.AgitaterHasBombed && Agitater.CurrentBombedPlayer == playerId)
@@ -3779,5 +3777,29 @@ class PlayerControlSetRolePatch
             }
         }
         return true;
+    }
+}
+
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.SetRole))]
+class PlayerControlLocalSetRolePatch
+{
+    public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] RoleTypes role)
+    {
+        if (!AmongUsClient.Instance.AmHost && !GameStates.IsModHost)
+        {
+            var moddedRole = role switch
+            {
+                RoleTypes.Impostor => CustomRoles.ImpostorTOHE,
+                RoleTypes.Shapeshifter => CustomRoles.ShapeshifterTOHE,
+                RoleTypes.Crewmate => CustomRoles.CrewmateTOHE,
+                RoleTypes.Engineer => CustomRoles.EngineerTOHE,
+                RoleTypes.Scientist => CustomRoles.ScientistTOHE,
+                _ => CustomRoles.NotAssigned,
+            };
+            if (moddedRole != CustomRoles.NotAssigned)
+            {
+                Main.PlayerStates[__instance.PlayerId].SetMainRole(moddedRole);
+            }
+        }
     }
 }

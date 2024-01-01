@@ -13,7 +13,7 @@ namespace TOHE.Roles.Crewmate
         private static OptionItem CD;
         private static OptionItem AdditionalSpeed;
         private static OptionItem UseLimitOpt;
-        private static OptionItem UsePet;
+        public static OptionItem UsePet;
 
         public static List<byte> IncreasedSpeedPlayerList = [];
 

@@ -2,7 +2,6 @@ namespace TOHE.Roles.Crewmate
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Text;
     using UnityEngine;
     using static TOHE.Options;
@@ -18,7 +17,7 @@ namespace TOHE.Roles.Crewmate
         public static OptionItem AidDur;
         public static OptionItem AidCD;
         public static OptionItem UseLimitOpt;
-        private static OptionItem UsePet;
+        public static OptionItem UsePet;
 
         public static void SetupCustomOption()
         {

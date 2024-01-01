@@ -219,6 +219,12 @@ static class ExtendedPlayerControl
     public static void SetKillCooldown(this PlayerControl player, float time = -1f, PlayerControl target = null, bool forceAnime = false)
     {
         if (player == null) return;
+        if (player.GetCustomRole().PetActivatedAbility())
+        {
+            if (time == -1f) player.AddKCDAsAbilityCD();
+            else player.AddAbilityCD((int)Math.Round(time));
+            return;
+        }
         if (!player.CanUseKillButton()) return;
         player.AddKillTimerToDict(CD: time);
         if (target == null) target = player;
@@ -890,14 +896,23 @@ static class ExtendedPlayerControl
         {
             if (Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out var kcd)) resultKCD = kcd;
             else resultKCD = 0f;
+
+            if (half)
+            {
+                resultKCD /= 2f;
+            }
         }
         else
         {
             resultKCD = CD;
         }
 
-        if (Main.KillTimers.TryGetValue(pc.PlayerId, out var timer) && timer > resultKCD) return;
+        if (pc.GetCustomRole().UsesPetInsteadOfKill() && resultKCD > 0f)
+        {
+            pc.AddAbilityCD((int)Math.Round(resultKCD));
+        }
 
+        if (Main.KillTimers.TryGetValue(pc.PlayerId, out var timer) && timer > resultKCD) return;
         Main.KillTimers[pc.PlayerId] = resultKCD;
     }
 

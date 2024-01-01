@@ -47,7 +47,7 @@ class ChatControllerUpdatePatch
     }
 }
 
-public class ChatManager
+public static class ChatManager
 {
     public static bool cancel;
     private static readonly List<string> chatHistory = [];
@@ -152,6 +152,7 @@ public class ChatManager
 
     public static void SendPreviousMessagesToAll(bool realMessagesOnly = false)
     {
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsModHost) return;
         ChatUpdatePatch.DoBlockChat = true;
         string msg = Utils.EmptyMessage();
         List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x is not CustomRoles.KB_Normal and not CustomRoles.Killer and not CustomRoles.Tasker).ToList();
