@@ -101,10 +101,20 @@ internal class InnerNetClientCanBanPatch
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.KickPlayer))]
 internal class KickPlayerPatch
 {
-    public static void Prefix(InnerNetClient __instance, int clientId, bool ban)
+    public static bool Prefix(InnerNetClient __instance, int clientId, bool ban)
     {
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost) return true;
+
+        if (AmongUsClient.Instance.ClientId == clientId)
+        {
+            Logger.SendInGame(string.Format("Game Attempting to {0} Host, Blocked the attempt.", ban ? "Ban" : "Kick"));
+            Logger.Info("Game attempted to kick/ban host....", "KickPlayerPatch");
+            return false;
+        }
+
         if (ban) BanManager.AddBanPlayer(AmongUsClient.Instance.GetRecentClient(clientId));
+
+        return true;
     }
 }
 [HarmonyPatch(typeof(ResolutionManager), nameof(ResolutionManager.SetResolution))]

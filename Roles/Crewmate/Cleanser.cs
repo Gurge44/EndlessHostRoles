@@ -16,6 +16,7 @@ public static class Cleanser
 
     public static OptionItem CleanserUsesOpt;
     public static OptionItem CleansedCanGetAddon;
+    public static OptionItem CancelVote;
 
     public static void SetupCustomOption()
     {
@@ -23,7 +24,7 @@ public static class Cleanser
         CleanserUsesOpt = IntegerOptionItem.Create(Id + 10, "MaxCleanserUses", new(1, 14, 1), 3, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Cleanser])
             .SetValueFormat(OptionFormat.Times);
         CleansedCanGetAddon = BooleanOptionItem.Create(Id + 11, "CleansedCanGetAddon", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Cleanser]);
-
+        CancelVote = CreateVoteCancellingUseSetting(Id + 12, CustomRoles.Cleanser, TabGroup.CrewmateRoles);
     }
     public static void Init()
     {
@@ -73,18 +74,18 @@ public static class Cleanser
             CleanserUses.Add(CleanserId, 0);
     }
 
-    public static void OnVote(PlayerControl voter, PlayerControl target)
+    public static bool OnVote(PlayerControl voter, PlayerControl target)
     {
-        if (!voter.Is(CustomRoles.Cleanser)) return;
-        if (DidVote[voter.PlayerId]) return;
+        if (!voter.Is(CustomRoles.Cleanser)) return false;
+        if (DidVote[voter.PlayerId] || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
         DidVote[voter.PlayerId] = true;
-        if (CleanserUses[voter.PlayerId] >= CleanserUsesOpt.GetInt()) return;
+        if (CleanserUses[voter.PlayerId] >= CleanserUsesOpt.GetInt()) return false;
         if (target.PlayerId == voter.PlayerId)
         {
             Utils.SendMessage(GetString("CleanserRemoveSelf"), voter.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Cleanser), GetString("CleanserTitle")));
-            return;
+            return false;
         }
-        if (CleanserTarget[voter.PlayerId] != byte.MaxValue) return;
+        if (CleanserTarget[voter.PlayerId] != byte.MaxValue) return false;
 
         CleanserUses[voter.PlayerId]++;
         CleanserTarget[voter.PlayerId] = target.PlayerId;
@@ -92,6 +93,9 @@ public static class Cleanser
         CleansedPlayers.Add(target.PlayerId);
         Utils.SendMessage(string.Format(GetString("CleanserRemovedRole"), target.GetRealName()), voter.PlayerId, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Cleanser), GetString("CleanserTitle")));
         SendRPC(voter.PlayerId);
+
+        Main.DontCancelVoteList.Add(voter.PlayerId);
+        return true;
     }
 
     public static void AfterMeetingTasks()

@@ -18,6 +18,7 @@ namespace TOHE.Roles.Crewmate
         public static OptionItem VentCooldown;
         public static OptionItem UseLimitOpt;
         public static OptionItem TetherAbilityUseGainWithEachTaskCompleted;
+        public static OptionItem CancelVote;
 
         public static void SetupCustomOption()
         {
@@ -25,10 +26,11 @@ namespace TOHE.Roles.Crewmate
             VentCooldown = FloatOptionItem.Create(Id + 10, "VentCooldown", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Tether])
                 .SetValueFormat(OptionFormat.Seconds);
             UseLimitOpt = IntegerOptionItem.Create(Id + 11, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Tether])
-            .SetValueFormat(OptionFormat.Times);
+                .SetValueFormat(OptionFormat.Times);
             TetherAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.4f, TabGroup.CrewmateRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Tether])
-            .SetValueFormat(OptionFormat.Times);
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Tether])
+                .SetValueFormat(OptionFormat.Times);
+            CancelVote = CreateVoteCancellingUseSetting(Id + 13, CustomRoles.Tether, TabGroup.CrewmateRoles);
         }
         public static void Init()
         {
@@ -94,12 +96,9 @@ namespace TOHE.Roles.Crewmate
                 }, 0.5f, "Tether No Target Boot From Vent");
             }
         }
-        public static void OnVote(PlayerControl pc, PlayerControl target)
+        public static bool OnVote(PlayerControl pc, PlayerControl target)
         {
-            if (pc == null) return;
-            if (target == null) return;
-            if (!pc.Is(CustomRoles.Tether)) return;
-            if (pc.PlayerId == target.PlayerId) return;
+            if (pc == null || target == null || !pc.Is(CustomRoles.Tether) || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
 
             if (UseLimit[pc.PlayerId] >= 1)
             {
@@ -107,7 +106,10 @@ namespace TOHE.Roles.Crewmate
                 Target = target.PlayerId;
                 SendRPC(pc.PlayerId);
                 SendRPCSyncTarget(Target);
+                Main.DontCancelVoteList.Add(pc.PlayerId);
+                return true;
             }
+            return false;
         }
         public static void OnReportDeadBody()
         {

@@ -95,6 +95,7 @@ public class Main : BasePlugin
     public static float RefixCooldownDelay;
     public static bool ProcessShapeshifts = true;
     public static Dictionary<byte, (long START_TIMESTAMP, int TOTALCD)> AbilityCD = [];
+    public static List<byte> DontCancelVoteList = [];
     private static GameData.PlayerInfo lastVotedPlayerInfo;
     public static string LastVotedPlayer;
     public static byte NimblePlayer = byte.MaxValue;

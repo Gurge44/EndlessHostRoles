@@ -17,15 +17,17 @@ namespace TOHE.Roles.Crewmate
 
         public static OptionItem UseLimitOpt;
         public static OptionItem RicochetAbilityUseGainWithEachTaskCompleted;
+        public static OptionItem CancelVote;
 
         public static void SetupCustomOption()
         {
             SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Ricochet, 1);
             UseLimitOpt = IntegerOptionItem.Create(Id + 10, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Ricochet])
-            .SetValueFormat(OptionFormat.Times);
+                .SetValueFormat(OptionFormat.Times);
             RicochetAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 11, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.5f, TabGroup.CrewmateRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Ricochet])
-            .SetValueFormat(OptionFormat.Times);
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Ricochet])
+                .SetValueFormat(OptionFormat.Times);
+            CancelVote = CreateVoteCancellingUseSetting(Id + 12, CustomRoles.Ricochet, TabGroup.CrewmateRoles);
         }
         public static void Init()
         {
@@ -82,12 +84,9 @@ namespace TOHE.Roles.Crewmate
 
             return true;
         }
-        public static void OnVote(PlayerControl pc, PlayerControl target)
+        public static bool OnVote(PlayerControl pc, PlayerControl target)
         {
-            if (target == null) return;
-            if (pc == null) return;
-            if (pc.PlayerId == target.PlayerId) return;
-            if (!pc.Is(CustomRoles.Ricochet)) return;
+            if (target == null || pc == null || pc.PlayerId == target.PlayerId || !pc.Is(CustomRoles.Ricochet) || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
 
             if (UseLimit[pc.PlayerId] >= 1)
             {
@@ -95,7 +94,10 @@ namespace TOHE.Roles.Crewmate
                 ProtectAgainst = target.PlayerId;
                 SendRPC(pc.PlayerId);
                 SendRPCSyncTarget(ProtectAgainst);
+                Main.DontCancelVoteList.Add(pc.PlayerId);
+                return true;
             }
+            return false;
         }
         public static void OnReportDeadBody()
         {

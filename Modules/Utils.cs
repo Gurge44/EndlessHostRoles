@@ -2655,6 +2655,8 @@ public static class Utils
         if (Options.AirshipVariableElectrical.GetBool())
             AirshipElectricalDoors.Initialize();
 
+        Main.DontCancelVoteList.Clear();
+
         DoorsReset.ResetDoors();
         KeepProtection.ProtectEveryone();
 

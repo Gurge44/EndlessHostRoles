@@ -15,6 +15,7 @@ public static class Oracle
     public static OptionItem HideVote;
     public static OptionItem FailChance;
     public static OptionItem OracleAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem CancelVote;
 
     public static List<byte> didVote = [];
     public static Dictionary<byte, float> CheckLimit = [];
@@ -33,6 +34,7 @@ public static class Oracle
         OracleAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 14, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Oracle])
             .SetValueFormat(OptionFormat.Times);
+        CancelVote = CreateVoteCancellingUseSetting(Id + 11, CustomRoles.Oracle, TabGroup.CrewmateRoles);
     }
     public static void Init()
     {
@@ -61,16 +63,16 @@ public static class Oracle
         float uses = reader.ReadSingle();
         CheckLimit[playerId] = uses;
     }
-    public static void OnVote(PlayerControl player, PlayerControl target)
+    public static bool OnVote(PlayerControl player, PlayerControl target)
     {
-        if (player == null || target == null) return;
-        if (didVote.Contains(player.PlayerId)) return;
+        if (player == null || target == null) return false;
+        if (didVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
         didVote.Add(player.PlayerId);
 
         if (CheckLimit[player.PlayerId] < 1)
         {
             Utils.SendMessage(GetString("OracleCheckReachLimit"), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Oracle), GetString("OracleCheckMsgTitle")));
-            return;
+            return false;
         }
 
         CheckLimit[player.PlayerId] -= 1;
@@ -79,7 +81,7 @@ public static class Oracle
         if (player.PlayerId == target.PlayerId)
         {
             Utils.SendMessage(GetString("OracleCheckSelfMsg") + "\n\n" + string.Format(GetString("OracleCheckLimit"), CheckLimit[player.PlayerId]), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Oracle), GetString("OracleCheckMsgTitle")));
-            return;
+            return false;
         }
 
         string text;
@@ -94,20 +96,20 @@ public static class Oracle
             if (random_number_1 <= FailChance.GetInt())
             {
                 int random_number_2 = IRandom.Instance.Next(1, 3);
-                if (text == "Crew")
+                switch (text)
                 {
-                    if (random_number_2 == 1) text = "Neut";
-                    if (random_number_2 == 2) text = "Imp";
-                }
-                if (text == "Neut")
-                {
-                    if (random_number_2 == 1) text = "Crew";
-                    if (random_number_2 == 2) text = "Imp";
-                }
-                if (text == "Imp")
-                {
-                    if (random_number_2 == 1) text = "Neut";
-                    if (random_number_2 == 2) text = "Crew";
+                    case "Crew":
+                        if (random_number_2 == 1) text = "Neut";
+                        else if (random_number_2 == 2) text = "Imp";
+                        break;
+                    case "Neut":
+                        if (random_number_2 == 1) text = "Crew";
+                        if (random_number_2 == 2) text = "Imp";
+                        break;
+                    case "Imp":
+                        if (random_number_2 == 1) text = "Neut";
+                        if (random_number_2 == 2) text = "Crew";
+                        break;
                 }
             }
         }
@@ -116,5 +118,7 @@ public static class Oracle
 
         Utils.SendMessage(GetString("OracleCheck") + "\n" + msg + "\n\n" + string.Format(GetString("OracleCheckLimit"), CheckLimit[player.PlayerId]), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Oracle), GetString("OracleCheckMsgTitle")));
 
+        Main.DontCancelVoteList.Add(player.PlayerId);
+        return true;
     }
 }

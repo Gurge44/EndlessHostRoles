@@ -17,6 +17,7 @@ namespace TOHE.Roles.Crewmate
         private static OptionItem CanGetColoredArrow;
         public static OptionItem HideVote;
         public static OptionItem TrackerAbilityUseGainWithEachTaskCompleted;
+        public static OptionItem CancelVote;
 
         public static bool CanSeeLastRoomInMeeting;
 
@@ -37,6 +38,7 @@ namespace TOHE.Roles.Crewmate
             TrackerAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 9, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Tracker])
                 .SetValueFormat(OptionFormat.Times);
+            CancelVote = CreateVoteCancellingUseSetting(Id + 4, CustomRoles.Tracker, TabGroup.CrewmateRoles);
         }
         public static void Init()
         {
@@ -74,12 +76,9 @@ namespace TOHE.Roles.Crewmate
         }
         public static string GetTargetMark(PlayerControl seer, PlayerControl target) => !(seer == null || target == null) && TrackerTarget.ContainsKey(seer.PlayerId) && TrackerTarget[seer.PlayerId].Contains(target.PlayerId) ? Utils.ColorString(seer.GetRoleColor(), "◀") : string.Empty;
 
-        public static void OnVote(PlayerControl player, PlayerControl target)
+        public static bool OnVote(PlayerControl player, PlayerControl target)
         {
-            if (player == null || target == null) return;
-            if (TrackLimit[player.PlayerId] < 1) return;
-            if (player.PlayerId == target.PlayerId) return;
-            if (TrackerTarget[player.PlayerId].Contains(target.PlayerId)) return;
+            if (player == null || target == null || TrackLimit[player.PlayerId] < 1 || player.PlayerId == target.PlayerId || TrackerTarget[player.PlayerId].Contains(target.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
 
             TrackLimit[player.PlayerId]--;
 
@@ -87,6 +86,9 @@ namespace TOHE.Roles.Crewmate
             TargetArrow.Add(player.PlayerId, target.PlayerId);
 
             SendRPC(player.PlayerId, target.PlayerId);
+
+            Main.DontCancelVoteList.Add(player.PlayerId);
+            return true;
         }
 
         public static void OnReportDeadBody()

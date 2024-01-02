@@ -15,6 +15,7 @@ public static class Divinator
     public static OptionItem HideVote;
     public static OptionItem ShowSpecificRole;
     public static OptionItem AbilityUseGainWithEachTaskCompleted;
+    public static OptionItem CancelVote;
 
     public static List<byte> didVote = [];
     public static Dictionary<byte, float> CheckLimit = [];
@@ -29,6 +30,7 @@ public static class Divinator
         HideVote = BooleanOptionItem.Create(Id + 14, "DivinatorHideVote", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
         AbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 15, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator])
             .SetValueFormat(OptionFormat.Times);
+        CancelVote = CreateVoteCancellingUseSetting(Id + 11, CustomRoles.Divinator, TabGroup.CrewmateRoles);
         OverrideTasksData.Create(Id + 21, TabGroup.CrewmateRoles, CustomRoles.Divinator);
     }
     public static void Init()
@@ -58,16 +60,16 @@ public static class Divinator
         float uses = reader.ReadSingle();
         CheckLimit[playerId] = uses;
     }
-    public static void OnVote(PlayerControl player, PlayerControl target)
+    public static bool OnVote(PlayerControl player, PlayerControl target)
     {
-        if (player == null || target == null) return;
-        if (didVote.Contains(player.PlayerId)) return;
+        if (player == null || target == null) return false;
+        if (didVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
         didVote.Add(player.PlayerId);
 
         if (CheckLimit[player.PlayerId] < 1)
         {
             Utils.SendMessage(GetString("DivinatorCheckReachLimit"), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Divinator), GetString("DivinatorCheckMsgTitle")));
-            return;
+            return false;
         }
 
         CheckLimit[player.PlayerId] -= 1;
@@ -76,7 +78,7 @@ public static class Divinator
         if (player.PlayerId == target.PlayerId)
         {
             Utils.SendMessage(GetString("DivinatorCheckSelfMsg") + "\n\n" + string.Format(GetString("DivinatorCheckLimit"), CheckLimit[player.PlayerId]), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Divinator), GetString("DivinatorCheckMsgTitle")));
-            return;
+            return false;
         }
 
         string msg;
@@ -548,5 +550,8 @@ public static class Divinator
            }*/
 
         Utils.SendMessage(GetString("DivinatorCheck") + "\n" + msg + "\n\n" + string.Format(GetString("DivinatorCheckLimit"), CheckLimit[player.PlayerId]), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Divinator), GetString("DivinatorCheckMsgTitle")));
+
+        Main.DontCancelVoteList.Add(player.PlayerId);
+        return true;
     }
 }

@@ -146,6 +146,7 @@ class OnPlayerLeftPatch
                 Main.PlayerStates[data.Character.PlayerId].deathReason = PlayerState.DeathReason.Disconnected;
                 Main.PlayerStates[data.Character.PlayerId].SetDead();
             }
+            NameNotifyManager.Notice.Remove(data.Character.PlayerId);
             AntiBlackout.OnDisconnect(data.Character.Data);
             PlayerGameOptionsSender.RemoveSender(data.Character);
         }

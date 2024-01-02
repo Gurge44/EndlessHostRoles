@@ -78,6 +78,7 @@ internal class ChangeRoleSettings
             Main.InfectedBodies = [];
             Main.VirusNotify = [];
             Main.CrewpostorTasksDone = [];
+            Main.DontCancelVoteList = [];
 
             Main.LastEnteredVent = [];
             Main.LastEnteredVentLocation = [];

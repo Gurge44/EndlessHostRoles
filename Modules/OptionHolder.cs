@@ -371,6 +371,8 @@ public static class Options
     public static OptionItem UnderdogCanKillWithMorePlayersAlive;
     public static OptionItem UnderdogKillCooldownWithMorePlayersAlive;
 
+    public static OptionItem GodfatherCancelVote;
+
     public static OptionItem NimbleCD;
     public static OptionItem NimbleInVentTime;
     public static OptionItem PhysicistCD;
@@ -1316,6 +1318,7 @@ public static class Options
         RoleLoadingText = "Impostor roles\nGodfather";
 
         SetupRoleOptions(555420, TabGroup.ImpostorRoles, CustomRoles.Godfather);
+        GodfatherCancelVote = CreateVoteCancellingUseSetting(555422, CustomRoles.Godfather, TabGroup.ImpostorRoles);
         RoleLoadingText = "Impostor roles\nMorphling";
         Morphling.SetupCustomOption();
         RoleLoadingText = "Impostor roles\nNemesis";
@@ -3741,6 +3744,11 @@ public static class Options
     BooleanOptionItem.Create(id, "UsePetInsteadOfKillButton", false, TabGroup.CrewmateRoles, false)
         .SetParent(CustomRoleSpawnChances[role])
         .SetColor(Color.magenta);
+
+    public static OptionItem CreateVoteCancellingUseSetting(int id, CustomRoles role, TabGroup tab) =>
+    BooleanOptionItem.Create(id, "UseVoteCancellingAfterVote", false, tab, false)
+        .SetParent(CustomRoleSpawnChances[role])
+        .SetColor(Color.yellow);
 
     public class OverrideTasksData
     {

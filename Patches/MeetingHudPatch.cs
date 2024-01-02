@@ -87,40 +87,36 @@ class CheckForEndVotingPatch
                     {
                         switch (pc.GetCustomRole())
                         {
-                            case CustomRoles.Divinator:
+                            case CustomRoles.Divinator when !Divinator.CancelVote.GetBool():
                                 Divinator.OnVote(pc, voteTarget);
                                 break;
-                            case CustomRoles.Oracle:
+                            case CustomRoles.Oracle when !Oracle.CancelVote.GetBool():
                                 Oracle.OnVote(pc, voteTarget);
                                 break;
-                            case CustomRoles.Eraser:
+                            case CustomRoles.Eraser when !Eraser.CancelVote.GetBool():
                                 Eraser.OnVote(pc, voteTarget);
                                 break;
-                            case CustomRoles.Tether:
+                            case CustomRoles.Tether when !Tether.CancelVote.GetBool():
                                 Tether.OnVote(pc, voteTarget);
                                 break;
-                            case CustomRoles.Ricochet:
+                            case CustomRoles.Ricochet when !Ricochet.CancelVote.GetBool():
                                 Ricochet.OnVote(pc, voteTarget);
                                 break;
-                            case CustomRoles.Cleanser:
+                            case CustomRoles.Cleanser when !Cleanser.CancelVote.GetBool():
                                 Cleanser.OnVote(pc, voteTarget);
                                 break;
-                            //case CustomRoles.Jailor:
-                            //    Jailor.OnVote(pc, voteTarget);
-                            //    break;
-                            case CustomRoles.NiceEraser:
+                            case CustomRoles.NiceEraser when !NiceEraser.CancelVote.GetBool():
                                 NiceEraser.OnVote(pc, voteTarget);
                                 break;
-                            case CustomRoles.Tracker:
+                            case CustomRoles.Tracker when !Tracker.CancelVote.GetBool():
                                 Tracker.OnVote(pc, voteTarget);
                                 break;
-                            case CustomRoles.Godfather:
-                                if (pc == null || voteTarget == null) break;
+                            case CustomRoles.Godfather when !Options.GodfatherCancelVote.GetBool():
                                 Main.GodfatherTarget = voteTarget.PlayerId;
                                 break;
                         }
                     }
-                    else if (pc.GetCustomRole() == CustomRoles.Godfather) Main.GodfatherTarget = byte.MaxValue;
+                    else if (pc.Is(CustomRoles.Godfather)) Main.GodfatherTarget = byte.MaxValue;
                 }
             }
             for (int i = 0; i < __instance.playerStates.Count; i++)
@@ -1333,11 +1329,9 @@ class MeetingHudOnDestroyPatch
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CastVote))]
 class MeetingHudCastVotePatch
 {
-    public static bool Prefix()
-    {
-        return true; // return false to use the vote as a trigger
-    }
-    public static void Postfix(MeetingHud __instance, [HarmonyArgument(0)] byte srcPlayerId, [HarmonyArgument(1)] byte suspectPlayerId)
+    private static readonly Dictionary<byte, (MeetingHud MEETING_HUD, PlayerVoteArea SOURCE_PLAYER_VOTE_AREA, PlayerControl SOURCE_PLAYER)> ShouldCancelVoteList = [];
+
+    public static bool Prefix(MeetingHud __instance, [HarmonyArgument(0)] byte srcPlayerId, [HarmonyArgument(1)] byte suspectPlayerId)
     {
         PlayerVoteArea pva_src = null;
         PlayerVoteArea pva_target = null;
@@ -1350,7 +1344,7 @@ class MeetingHudCastVotePatch
         if (pva_src == null)
         {
             Logger.Error("Src PlayerVoteArea not found", "MeetingHudCastVotePatch.Prefix");
-            return;
+            return true;
         }
         if (pva_target == null)
         {
@@ -1362,7 +1356,7 @@ class MeetingHudCastVotePatch
         if (pc_src == null)
         {
             Logger.Error("Src PlayerControl is null", "MeetingHudCastVotePatch.Prefix");
-            return;
+            return true;
         }
         if (pc_target == null)
         {
@@ -1370,21 +1364,77 @@ class MeetingHudCastVotePatch
             isSkip = true;
         }
 
-        Logger.Info($"{pc_src.GetNameWithRole().RemoveHtmlTags()} => {(isSkip ? "Skip" : pc_target.GetNameWithRole().RemoveHtmlTags())}", "Vote");
+        bool isVoteCanceled = false;
 
-        //pva_src.UnsetVote(); // Uncomment to use the vote as a trigger
-        //__instance.RpcClearVote(pc_src.GetClientId()); // Uncomment to use the vote as a trigger
+        if (!Main.DontCancelVoteList.Contains(srcPlayerId))
+        {
+            if (!isSkip)
+            {
+                switch (pc_src.GetCustomRole())
+                {
+                    case CustomRoles.Divinator when Divinator.CancelVote.GetBool():
+                        if (Divinator.OnVote(pc_src, pc_target)) CancelVote();
+                        break;
+                    case CustomRoles.Oracle when Oracle.CancelVote.GetBool():
+                        if (Oracle.OnVote(pc_src, pc_target)) CancelVote();
+                        break;
+                    case CustomRoles.Eraser when Eraser.CancelVote.GetBool():
+                        if (Eraser.OnVote(pc_src, pc_target)) CancelVote();
+                        break;
+                    case CustomRoles.Tether when Tether.CancelVote.GetBool():
+                        if (Tether.OnVote(pc_src, pc_target)) CancelVote();
+                        break;
+                    case CustomRoles.Ricochet when Ricochet.CancelVote.GetBool():
+                        if (Ricochet.OnVote(pc_src, pc_target)) CancelVote();
+                        break;
+                    case CustomRoles.Cleanser when Cleanser.CancelVote.GetBool():
+                        if (Cleanser.OnVote(pc_src, pc_target)) CancelVote();
+                        break;
+                    case CustomRoles.NiceEraser when NiceEraser.CancelVote.GetBool():
+                        if (NiceEraser.OnVote(pc_src, pc_target)) CancelVote();
+                        break;
+                    case CustomRoles.Tracker when Tracker.CancelVote.GetBool():
+                        if (Tracker.OnVote(pc_src, pc_target)) CancelVote();
+                        break;
+                    case CustomRoles.Godfather when Options.GodfatherCancelVote.GetBool():
+                        Main.GodfatherTarget = pc_target.PlayerId;
+                        CancelVote();
+                        break;
+                }
+            }
+        }
+
+        void CancelVote()
+        {
+            ShouldCancelVoteList.TryAdd(srcPlayerId, (__instance, pva_src, pc_src));
+            isVoteCanceled = true;
+        }
+
+        Logger.Info($"{pc_src.GetNameWithRole().RemoveHtmlTags()} => {(isSkip ? "Skip" : pc_target.GetNameWithRole().RemoveHtmlTags())}{(isVoteCanceled ? " (Canceled)" : string.Empty)}", "Vote");
+
+        return isSkip || !isVoteCanceled; // return false to use the vote as a trigger; skips and invalid votes are never canceled
+    }
+    public static void Postfix([HarmonyArgument(0)] byte srcPlayerId)
+    {
+        if (!ShouldCancelVoteList.TryGetValue(srcPlayerId, out var info)) return;
+
+        MeetingHud __instance = info.MEETING_HUD;
+        PlayerVoteArea pva_src = info.SOURCE_PLAYER_VOTE_AREA;
+        PlayerControl pc_src = info.SOURCE_PLAYER;
+
+        pva_src.UnsetVote();
+        __instance.RpcClearVote(pc_src.GetClientId());
     }
 }
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CmdCastVote))]
 class MeetingHudCmdCastVotePatch
 {
-    public static bool Prefix()
+    public static bool Prefix(MeetingHud __instance, [HarmonyArgument(0)] byte srcPlayerId, [HarmonyArgument(1)] byte suspectPlayerId)
     {
-        return MeetingHudCastVotePatch.Prefix();
+        return MeetingHudCastVotePatch.Prefix(__instance, srcPlayerId, suspectPlayerId);
     }
-    public static void Postfix(MeetingHud __instance, [HarmonyArgument(0)] byte srcPlayerId, [HarmonyArgument(1)] byte suspectPlayerId)
+    public static void Postfix([HarmonyArgument(0)] byte srcPlayerId)
     {
-        MeetingHudCastVotePatch.Postfix(__instance, srcPlayerId, suspectPlayerId);
+        MeetingHudCastVotePatch.Postfix(srcPlayerId);
     }
 }
