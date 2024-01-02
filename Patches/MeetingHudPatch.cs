@@ -408,19 +408,16 @@ class CheckForEndVotingPatch
         var role = GetString(exiledPlayer.GetCustomRole().ToString());
         var crole = exiledPlayer.GetCustomRole();
         var coloredRole = Utils.GetDisplayRoleName(exileId, true);
-        if (Options.ConfirmEgoistOnEject.GetBool() && player.Is(CustomRoles.Egoist))
-            coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Egoist), GetRoleString("Temp.Blank") + coloredRole.RemoveHtmlTags());
-        //   if (Options.ConfirmSidekickOnEject.GetBool() && player.Is(CustomRoles.Sidekick))
-        //       coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Sidekick), GetRoleString("Temp.Blank") + coloredRole.RemoveHtmlTags());
-        if (Options.ConfirmLoversOnEject.GetBool() && player.Is(CustomRoles.Lovers))
-            coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lovers), GetRoleString("Temp.Blank") + coloredRole.RemoveHtmlTags());
-        if (Options.RascalAppearAsMadmate.GetBool() && player.Is(CustomRoles.Rascal))
-            coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Madmate), GetRoleString("Mad-") + coloredRole.RemoveHtmlTags());
+
+        if (Options.ConfirmEgoistOnEject.GetBool() && player.Is(CustomRoles.Egoist)) coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Egoist), GetRoleString("Temp.Blank") + coloredRole.RemoveHtmlTags());
+        if (Options.ConfirmLoversOnEject.GetBool() && player.Is(CustomRoles.Lovers)) coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lovers), GetRoleString("Temp.Blank") + coloredRole.RemoveHtmlTags());
+        if (Options.RascalAppearAsMadmate.GetBool() && player.Is(CustomRoles.Rascal)) coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Madmate), GetRoleString("Mad-") + coloredRole.RemoveHtmlTags());
+
         var name = string.Empty;
         int impnum = 0;
         int neutralnum = 0;
 
-        if (CustomRolesHelper.RoleExist(CustomRoles.Bard))
+        if (CustomRoles.Bard.RoleExist())
         {
             Main.BardCreations++;
             try { name = ModUpdater.Get("https://v1.hitokoto.cn/?encode=text"); }
@@ -500,18 +497,18 @@ class CheckForEndVotingPatch
                 case (0, 0): // Crewmates win
                     name += GetString("GG");
                     break;
-                case ( > 0, > 0): // Both imps and neutrals remain
+                case (> 0, > 0): // Both imps and neutrals remain
                     name += impnum switch
                     {
-                        1 => "1 <color=#ff1919>Impostor</color> <color=#777777>&</color> ",
-                        2 => "2 <color=#ff1919>Impostors</color> <color=#777777>&</color> ",
-                        3 => "3 <color=#ff1919>Impostors</color> <color=#777777>&</color> ",
+                        1 => $"1 <color=#ff1919>{GetString("RemainingText.ImpSingle")}</color> <color=#777777>&</color> ",
+                        2 => $"2 <color=#ff1919>{GetString("RemainingText.ImpPlural")}</color> <color=#777777>&</color> ",
+                        3 => $"3 <color=#ff1919>{GetString("RemainingText.ImpPlural")}</color> <color=#777777>&</color> ",
                         _ => string.Empty,
                     };
-                    if (neutralnum == 1) name += "1 <color=#ffab1b>Neutral</color> <color=#777777>remains.</color>";
-                    else name += $"{neutralnum} <color=#ffab1b>Neutrals</color> <color=#777777>remain.</color>";
+                    if (neutralnum == 1) name += $"1 <color=#ffab1b>{GetString("RemainingText.NKSingle")}</color> <color=#777777>{GetString("RemainingText.EjectionSuffix.NKSingle")}</color>";
+                    else name += $"{neutralnum} <color=#ffab1b>{GetString("RemainingText.NKPlural")}</color> <color=#777777>{GetString("RemainingText.EjectionSuffix.NKPlural")}</color>";
                     break;
-                case ( > 0, 0): // Only imps remain
+                case (> 0, 0): // Only imps remain
                     name += impnum switch
                     {
                         1 => GetString("OneImpRemain"),
