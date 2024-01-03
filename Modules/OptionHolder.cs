@@ -2742,7 +2742,7 @@ public static class Options
         RemovePetsAtDeadPlayers = BooleanOptionItem.Create(60294, "RemovePetsAtDeadPlayers", false, TabGroup.SystemSettings, false)
             .SetColor(Color.magenta);
 
-        CheatResponses = StringOptionItem.Create(19319, "CheatResponses", CheatResponsesName, 0, TabGroup.SystemSettings, false)
+        CheatResponses = StringOptionItem.Create(19319, "CheatResponses", CheatResponsesName, 2, TabGroup.SystemSettings, false)
             .SetHeader(true);
 
         //HighLevelAntiCheat = StringOptionItem.Create(19320, "HighLevelAntiCheat", CheatResponsesName, 0, TabGroup.SystemSettings, false)

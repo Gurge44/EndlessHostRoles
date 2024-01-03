@@ -1422,8 +1422,10 @@ class MeetingHudCastVotePatch
         PlayerVoteArea pva_src = info.SOURCE_PLAYER_VOTE_AREA;
         PlayerControl pc_src = info.SOURCE_PLAYER;
 
-        pva_src.UnsetVote();
+        try { pva_src.UnsetVote(); } catch { }
         __instance.RpcClearVote(pc_src.GetClientId());
+
+        ShouldCancelVoteList.Remove(srcPlayerId);
     }
 }
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CmdCastVote))]

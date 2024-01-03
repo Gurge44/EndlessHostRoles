@@ -1947,6 +1947,7 @@ class ReportDeadBodyPatch
         {
             Damocles.OnReport();
         }
+        Damocles.OnMeetingStart();
 
         if (player.Is(CustomRoles.Stressed))
         {

@@ -54,7 +54,12 @@ namespace TOHE.Roles.AddOns.Impostor
 
         public static void Update(PlayerControl pc)
         {
-            if (lastUpdate >= GetTimeStamp() || !GameStates.IsInTask || !pc.IsAlive()) return;
+            if (lastUpdate >= GetTimeStamp() || !GameStates.IsInTask || pc == null) return;
+            if (!pc.IsAlive())
+            {
+                Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Damocles);
+                return;
+            }
             lastUpdate = GetTimeStamp();
 
             Timer--;
@@ -65,7 +70,7 @@ namespace TOHE.Roles.AddOns.Impostor
                 pc.Suicide();
             }
 
-            if (pc.IsModClient() && pc.PlayerId != 0) SendRPC();
+            if (pc.IsNonHostModClient()) SendRPC();
             NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
@@ -111,8 +116,12 @@ namespace TOHE.Roles.AddOns.Impostor
             PreviouslyEnteredVents.Clear();
 
             Timer += TimeAfterMeeting;
-            Timer += 9;
             countRepairSabotage = true;
+        }
+
+        public static void OnMeetingStart()
+        {
+            Timer += 9;
         }
 
         public static void OnCrewmateEjected()
