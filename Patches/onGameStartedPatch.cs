@@ -1210,7 +1210,7 @@ internal class SelectRolesPatch
             }
 
             var vents = UnityEngine.Object.FindObjectsOfType<Vent>();
-            var vent = vents[IRandom.Instance.Next(0, vents.Count)];
+            var vent = vents[rd.Next(0, vents.Count)];
             TryMoveToVentPatch.HostVentTarget = vent;
         }
         catch (Exception ex)
