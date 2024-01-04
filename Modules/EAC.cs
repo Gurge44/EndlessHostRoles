@@ -69,7 +69,6 @@ internal class EAC
                     break;
                 case RpcCalls.SendChat:
                     var text = sr.ReadString();
-                    if (text.StartsWith("/")) return false;
                     if (
                         text.Contains('░') ||
                         text.Contains('▄') ||
@@ -85,7 +84,7 @@ internal class EAC
                     }
                     break;
                 case RpcCalls.StartMeeting:
-                    //Client will never send StartMeeting rpc
+                    // Non-Host Clients will never send StartMeeting RPC
                     WarnHost();
                     Report(pc, "Bad StartMeeting");
                     HandleCheat(pc, "Bad StartMeeting");
@@ -133,6 +132,13 @@ internal class EAC
                         Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] illegally set the color and has been rejected", "EAC");
                         return true;
                     }
+                    if (pc.AmOwner)
+                    {
+                        WarnHost();
+                        Report(pc, "Illegal setting of host color");
+                        Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] illegally set the host's color, which has been rejected", "EAC");
+                        return true;
+                    }
                     break;
                 case RpcCalls.CheckMurder:
                     if (GameStates.IsLobby)
@@ -145,28 +151,29 @@ internal class EAC
                     }
                     break;
                 case RpcCalls.MurderPlayer:
-                    //If using version protocol, client should never directly send Murder player rpc
+                    // Calls will only be sent by server / host
                     Report(pc, "Directly Murder Player");
                     HandleCheat(pc, "Directly Murder Player");
                     Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] killed directly, rejected", "EAC");
                     return true;
-                case RpcCalls.Shapeshift:
+                case RpcCalls.CheckShapeshift:
                     if (GameStates.IsLobby)
                     {
-                        Report(pc, "ShapeShift in lobby");
-                        HandleCheat(pc, "ShapeShift in lobby");
-                        Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] lobby is deformed and has been rejected", "EAC");
-                        return true;
-                    }
-                    var target = sr.ReadNetObject<PlayerControl>();
-                    if (target == null)
-                    {
-                        Report(pc, "ShapeShift to null player!");
-                        //HandleCheat(pc, "ShapeShift to null player!");
-                        Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] illegally transformed into an empty player and has been rejected", "EAC");
+                        Report(pc, "Lobby CheckShapeshift");
+                        HandleCheat(pc, "Lobby CheckShapeshift");
+                        Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] directly shapeshifted and has been rejected", "EAC");
                         return true;
                     }
                     break;
+                case RpcCalls.Shapeshift:
+                    Report(pc, "Directly Shapeshift");
+                    var swriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.Shapeshift, SendOption.Reliable, -1);
+                    swriter.WriteNetObject(pc);
+                    swriter.Write(false);
+                    AmongUsClient.Instance.FinishRpcImmediately(swriter);
+                    HandleCheat(pc, "Directly Shapeshift");
+                    Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] directly shapeshifted and has been rejected", "EAC");
+                    return true;
             }
             switch (callId)
             {
@@ -177,6 +184,7 @@ internal class EAC
                     HandleCheat(pc, GetString("EAC.CheatDetected.EAC"));
                     return true;
                 case 7:
+                case 8:
                     if (!GameStates.IsLobby)
                     {
                         WarnHost();
@@ -204,49 +212,45 @@ internal class EAC
                         return true;
                     }
                     break;
-                case 41:
+                case 38:
                     if (GameStates.IsInGame)
                     {
                         WarnHost();
-                        Report(pc, "Illegal pet setting");
-                        Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] illegally set a pet and has been rejected", "EAC");
+                        Report(pc, "Set level in game");
+                        Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] changed the level in the game and it has been rejected", "EAC");
                         return true;
                     }
-                    break;
-                case 40:
-                    if (GameStates.IsInGame)
+                    if (sr.ReadPackedUInt32() > 0)
                     {
-                        WarnHost();
-                        Report(pc, "Illegal skin setting");
-                        Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] illegally set the skin and has been rejected", "EAC");
-                        return true;
-                    }
-                    break;
-                case 42:
-                    if (GameStates.IsInGame)
-                    {
-                        WarnHost();
-                        Report(pc, "Illegal facial decoration");
-                        Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] illegally set facial decoration and has been rejected", "EAC");
-                        return true;
+                        uint ClientDataLevel = pc.GetClient() == null ? pc.GetClient().PlayerLevel : 0;
+                        uint PlayerControlLevel = sr.ReadPackedUInt32();
+                        if (ClientDataLevel != 0 && Math.Abs(PlayerControlLevel - ClientDataLevel) > 4)
+                        {
+                            WarnHost();
+                            Report(pc, "Sus Level Change");
+                            AmongUsClient.Instance.KickPlayer(pc.GetClientId(), false);
+                            Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] changed the level in the game and it has been rejected", "EAC");
+                            return true;
+                        }
                     }
                     break;
                 case 39:
+                case 40:
+                case 41:
+                case 42:
+                case 43:
                     if (GameStates.IsInGame)
                     {
                         WarnHost();
-                        Report(pc, "Illegal hat setting");
-                        Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] illegally set a hat and has been rejected", "EAC");
+                        Report(pc, "Change skin in game");
+                        Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] changed the skin in the game and it has been rejected", "EAC");
                         return true;
                     }
-                    break;
-                case 43:
-                    if (sr.BytesRemaining > 0 && sr.ReadBoolean()) return false;
-                    if (GameStates.IsInGame)
+                    if (pc.AmOwner)
                     {
                         WarnHost();
-                        Report(pc, "Illegal setting of game name");
-                        Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] illegally set the name and has been rejected", "EAC");
+                        Report(pc, "Change Host skin");
+                        Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] changed the owner's skin and it has been rejected", "EAC");
                         return true;
                     }
                     break;
@@ -280,7 +284,7 @@ internal class EAC
         //Update system rpc can not get received by playercontrol.handlerpc
         var Mapid = Main.NormalOptions.MapId;
         Logger.Info("Check sabotage RPC" + ", PlayerName: " + player.GetNameWithRole() + ", SabotageType: " + systemType.ToString() + ", amount: " + amount.ToString(), "EAC");
-        if (player.AmOwner || !AmongUsClient.Instance.AmHost) return false;
+        if (!AmongUsClient.Instance.AmHost) return false;
         switch (systemType) //Normal sabotage using buttons
         {
             case SystemTypes.Sabotage:
@@ -402,7 +406,7 @@ internal class EAC
         string msg = $"{pc.GetClientId()}|{pc.FriendCode}|{pc.Data.PlayerName}|{pc.GetClient().GetHashedPuid()}|{reason}";
         //Cloud.SendData(msg);
         Logger.Fatal($"EAC report: {msg}", "EAC Cloud");
-        Logger.SendInGame(string.Format(GetString("Message.NoticeByEAC"), $"{pc?.Data?.PlayerName} | {pc.GetClient().GetHashedPuid()}", reason));
+        if (Options.CheatResponses.GetInt() != 5) Logger.SendInGame(string.Format(GetString("Message.NoticeByEAC"), $"{pc?.Data?.PlayerName} | {pc.GetClient().GetHashedPuid()}", reason));
     }
     public static bool ReceiveInvalidRpc(PlayerControl pc, byte callId)
     {

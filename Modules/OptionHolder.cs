@@ -118,7 +118,8 @@ public static class Options
         "Ban",
         "Kick",
         "NoticeMe",
-        "NoticeEveryone"
+        "NoticeEveryone",
+        "OnlyCancel"
     ];
     public static readonly string[] ConfirmEjectionsMode =
     [

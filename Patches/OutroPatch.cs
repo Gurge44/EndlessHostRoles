@@ -113,6 +113,7 @@ class SetEverythingUpPatch
 
         try
         {
+            // ---------- Code from TOR (The Other Roles)! ----------
             if (Options.CurrentGameMode is not CustomGameMode.Standard) goto End;
             int num = Mathf.CeilToInt(7.5f);
             List<WinningPlayerData> winningPlayerDataList = TempData.winners.ToArray().ToList();
@@ -144,19 +145,20 @@ class SetEverythingUpPatch
 
                 poolablePlayer.cosmetics.nameText.color = Color.white;
                 poolablePlayer.cosmetics.nameText.transform.localScale = new Vector3(1f / vector.x, 1f / vector.y, 1f / vector.z);
-                poolablePlayer.cosmetics.nameText.transform.localPosition = new Vector3(poolablePlayer.cosmetics.nameText.transform.localPosition.x, !lowered ? poolablePlayer.cosmetics.nameText.transform.localPosition.y - 0.6f : poolablePlayer.cosmetics.nameText.transform.localPosition.y - 1.4f, -15f);
                 poolablePlayer.cosmetics.nameText.text = winningPlayerData2.PlayerName;
+
+                Vector3 defaultPos = poolablePlayer.cosmetics.nameText.transform.localPosition;
 
                 for (int i1 = 0; i1 < Main.winnerList.Count; i1++)
                 {
                     byte id = Main.winnerList[i1];
                     if (Main.winnerNameList[i1].RemoveHtmlTags() != winningPlayerData2?.PlayerName.RemoveHtmlTags()) continue;
-                    var color = Main.roleColors[Main.winnerRolesList[i1]];
-                    var rolename = Utils.GetRoleName(Main.PlayerStates[id].MainRole);
+                    var role = Main.PlayerStates[id].MainRole;
+                    var color = Main.roleColors[role];
+                    var rolename = Utils.GetRoleName(role);
                     poolablePlayer.cosmetics.nameText.text += $"\n<color={color}>{rolename}</color>";
+                    poolablePlayer.cosmetics.nameText.transform.localPosition = new Vector3(defaultPos.x, !lowered || role.IsImpostor() ? defaultPos.y - 0.6f : defaultPos.y - 1.4f, -15f);
                 }
-
-                poolablePlayer.cosmetics.nameText.text += $"<size=0>";
             }
         }
         catch (Exception e)
@@ -316,21 +318,21 @@ class SetEverythingUpPatch
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        //#######################################
-        //           ==最終結果表示==
-        //#######################################
+        //########################################
+        //     ==The final result indicates==
+        //########################################
 
         var Pos = Camera.main.ViewportToWorldPoint(new Vector3(0f, 1f, Camera.main.nearClipPlane));
         var RoleSummaryObject = UnityEngine.Object.Instantiate(__instance.WinText.gameObject);
         RoleSummaryObject.transform.position = new Vector3(__instance.Navigation.ExitButton.transform.position.x + 0.1f, Pos.y - 0.1f, -15f);
         RoleSummaryObject.transform.localScale = new Vector3(1f, 1f, 1f);
 
-        StringBuilder sb = new($"{GetString("RoleSummaryText")}\n");
+        StringBuilder sb = new($"{GetString("RoleSummaryText")}\n<b>");
         List<byte> cloneRoles = new(Main.PlayerStates.Keys);
         foreach (byte id in Main.winnerList.ToArray())
         {
             if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
-            sb.Append($"\n<b>").Append(EndGamePatch.SummaryText[id]);
+            sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
             cloneRoles.Remove(id);
         }
         switch (Options.CurrentGameMode)
@@ -379,8 +381,7 @@ class SetEverythingUpPatch
                     sb.Append($"</b>\n");
                     foreach (byte id in cloneRoles.ToArray())
                     {
-                        if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>"))
-                            continue;
+                        if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
                         sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
                     }
 

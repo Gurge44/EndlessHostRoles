@@ -74,9 +74,11 @@ class RepairSystemPatch
         {
             case CustomRoles.SabotageMaster:
                 SabotageMaster.RepairSystem(__instance, systemType, amount);
+                Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 break;
             case CustomRoles.Alchemist when Alchemist.FixNextSabo:
                 Alchemist.RepairSystem(systemType, amount);
+                Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 break;
         }
 
@@ -160,37 +162,44 @@ class RepairSystemPatch
     {
         Camouflage.CheckCamouflage();
 
-        if (systemType == SystemTypes.Electrical && 0 <= amount && amount <= 4)
+        switch (systemType)
         {
-            var SwitchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.Cast<SwitchSystem>();
-            if (SwitchSystem != null && SwitchSystem.IsActive)
-            {
-                switch (player.GetCustomRole())
+            case SystemTypes.Electrical when 0 <= amount && amount <= 4:
                 {
-                    case CustomRoles.SabotageMaster:
-                        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
-                        SabotageMaster.SwitchSystemRepair(SwitchSystem, amount);
-                        break;
-                    case CustomRoles.Alchemist when Alchemist.FixNextSabo:
-                        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
-                        SwitchSystem.ActualSwitches = 0;
-                        SwitchSystem.ExpectedSwitches = 0;
-                        Alchemist.FixNextSabo = false;
-                        break;
-                }
-            }
-        }
+                    var SwitchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.Cast<SwitchSystem>();
+                    if (SwitchSystem != null && SwitchSystem.IsActive)
+                    {
+                        switch (player.GetCustomRole())
+                        {
+                            case CustomRoles.SabotageMaster:
+                                Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
+                                SabotageMaster.SwitchSystemRepair(SwitchSystem, amount);
+                                Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                                break;
+                            case CustomRoles.Alchemist when Alchemist.FixNextSabo:
+                                Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
+                                SwitchSystem.ActualSwitches = 0;
+                                SwitchSystem.ExpectedSwitches = 0;
+                                Alchemist.FixNextSabo = false;
+                                Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                                break;
+                        }
+                        if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage) Damocles.OnRepairSabotage();
+                        if (player.Is(CustomRoles.Stressed) && Stressed.countRepairSabotage) Stressed.OnRepairSabotage(player);
+                    }
 
-        if (systemType is
-            SystemTypes.Reactor or
-            SystemTypes.LifeSupp or
-            SystemTypes.Comms or
-            SystemTypes.Laboratory or
-            SystemTypes.HeliSabotage or
-            SystemTypes.Electrical)
-        {
-            if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage) Damocles.OnRepairSabotage();
-            if (player.Is(CustomRoles.Stressed) && Stressed.countRepairSabotage) Stressed.OnRepairSabotage(player);
+                    break;
+                }
+
+            case SystemTypes.Reactor:
+            case SystemTypes.LifeSupp:
+            case SystemTypes.Comms:
+            case SystemTypes.Laboratory:
+            case SystemTypes.HeliSabotage:
+            case SystemTypes.Electrical:
+                if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage) Damocles.OnRepairSabotage();
+                if (player.Is(CustomRoles.Stressed) && Stressed.countRepairSabotage) Stressed.OnRepairSabotage(player);
+                break;
         }
     }
     public static void CheckAndOpenDoorsRange(ShipStatus __instance, int amount, int min, int max)

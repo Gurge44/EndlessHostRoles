@@ -85,12 +85,14 @@ namespace TOHE.Roles.Neutral
                     }
                     pc.Suicide(realKiller: Bubble_);
                 }
+                EncasedPlayers.Remove(id);
             }
         }
         public static void OnReportDeadBody()
         {
             if (IsEnable) return;
             foreach (var pc in EncasedPlayers.Keys.Select(x => GetPlayerById(x)).Where(x => x != null && x.IsAlive())) pc.Suicide(realKiller: Bubble_);
+            EncasedPlayers.Clear();
         }
     }
 }
