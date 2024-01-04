@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TOHE.Modules;
+using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
@@ -1399,6 +1400,12 @@ static class ExtendedPlayerControl
 
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat) return;
 
+        if (target.GetTeam() is Team.Impostor or Team.Neutral) Stressed.OnNonCrewmateDead();
+
+        if (killer.Is(CustomRoles.Damocles)) Damocles.OnMurder();
+        else if (killer.Is(Team.Impostor)) Damocles.OnOtherImpostorMurder();
+        if (target.Is(Team.Impostor)) Damocles.OnImpostorDeath();
+
         if (killer.PlayerId == target.PlayerId && killer.shapeshifting)
         {
             _ = new LateTask(() => { killer.RpcMurderPlayerV2(target); }, 1.5f, "Shapeshifting Suicide Delay");
@@ -1437,7 +1444,7 @@ static class ExtendedPlayerControl
         }
         target.Data.IsDead = true;
 
-        NotifyRoles(SpecifySeer: killer);
+        NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         NotifyRoles(SpecifySeer: target);
     }
     public static bool RpcCheckAndMurder(this PlayerControl killer, PlayerControl target, bool check = false) => CheckMurderPatch.RpcCheckAndMurder(killer, target, check);

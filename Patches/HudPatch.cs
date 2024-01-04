@@ -591,9 +591,18 @@ class HudManagerPatch
                     __instance.KillButton?.ToggleVisible(false);
                 }
 
-                bool CanUseVent = player.CanUseImpostorVentButton() && GameStates.IsInTask;
+                bool CanUseVent = (player.CanUseImpostorVentButton() || player.inVent || player.MyPhysics.Animations.IsPlayingEnterVentAnimation()) && GameStates.IsInTask;
                 __instance.ImpostorVentButton?.ToggleVisible(CanUseVent);
                 player.Data.Role.CanVent = CanUseVent;
+                if (player.PlayerId == 0 && player.inVent && GameStates.IsInTask)
+                {
+                    __instance.ImpostorVentButton.canInteract = true;
+                    __instance.ImpostorVentButton.enabled = true;
+                    __instance.ImpostorVentButton.isCoolingDown = false;
+                    __instance.ImpostorVentButton.SetEnabled();
+                    __instance.ImpostorVentButton.currentTarget = TryMoveToVentPatch.HostVentTarget;
+                    __instance.ImpostorVentButton.SetTarget(TryMoveToVentPatch.HostVentTarget);
+                }
             }
             else
             {
@@ -773,6 +782,11 @@ class VentButtonDoClickPatch
     {
         var pc = PlayerControl.LocalPlayer;
         {
+            if (pc.inVent)
+            {
+                pc.MyPhysics.RpcExitVent(TryMoveToVentPatch.HostVentTarget.Id);
+                return true;
+            }
             if (!pc.Is(CustomRoles.Swooper) || !pc.Is(CustomRoles.Wraith) || !pc.Is(CustomRoles.Chameleon) || pc.inVent || __instance.currentTarget == null || !pc.CanMove || !__instance.isActiveAndEnabled) return true;
             pc?.MyPhysics?.RpcEnterVent(__instance.currentTarget.Id);
             return false;

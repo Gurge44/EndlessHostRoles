@@ -72,27 +72,39 @@ public static class Executioner
         playerIdList.Add(playerId);
 
         //ターゲット割り当て
-        if (AmongUsClient.Instance.AmHost)
+        try
         {
-            List<PlayerControl> targetList = [];
-            var rand = IRandom.Instance;
-            foreach (PlayerControl target in Main.AllPlayerControls)
+            if (AmongUsClient.Instance.AmHost)
             {
-                if (playerId == target.PlayerId) continue;
-                else if (!CanTargetImpostor.GetBool() && target.Is(CustomRoleTypes.Impostor)) continue;
-                else if (!CanTargetNeutralKiller.GetBool() && target.IsNeutralKiller()) continue;
-                else if (!CanTargetNeutralBenign.GetBool() && target.IsNeutralBenign()) continue;
-                else if (!CanTargetNeutralEvil.GetBool() && target.IsNeutralEvil()) continue;
-                else if (!CanTargetNeutralChaos.GetBool() && target.IsNeutralChaos()) continue;
-                if (target.GetCustomRole() is CustomRoles.GM or CustomRoles.SuperStar) continue;
-                if (Utils.GetPlayerById(playerId).Is(CustomRoles.Lovers) && target.Is(CustomRoles.Lovers)) continue;
+                List<PlayerControl> targetList = [];
+                var rand = IRandom.Instance;
+                foreach (PlayerControl target in Main.AllPlayerControls)
+                {
+                    if (playerId == target.PlayerId) continue;
+                    else if (!CanTargetImpostor.GetBool() && target.Is(CustomRoleTypes.Impostor)) continue;
+                    else if (!CanTargetNeutralKiller.GetBool() && target.IsNeutralKiller()) continue;
+                    else if (!CanTargetNeutralBenign.GetBool() && target.IsNeutralBenign()) continue;
+                    else if (!CanTargetNeutralEvil.GetBool() && target.IsNeutralEvil()) continue;
+                    else if (!CanTargetNeutralChaos.GetBool() && target.IsNeutralChaos()) continue;
+                    if (target.GetCustomRole() is CustomRoles.GM or CustomRoles.SuperStar) continue;
+                    if (Utils.GetPlayerById(playerId).Is(CustomRoles.Lovers) && target.Is(CustomRoles.Lovers)) continue;
 
-                targetList.Add(target);
+                    targetList.Add(target);
+                }
+                if (targetList.Count == 0)
+                {
+                    ChangeRole(Utils.GetPlayerById(playerId));
+                    return;
+                }
+                var SelectedTarget = targetList[rand.Next(targetList.Count)];
+                Target.Add(playerId, SelectedTarget.PlayerId);
+                SendRPC(playerId, SelectedTarget.PlayerId, "SetTarget");
+                Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}:{SelectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Executioner");
             }
-            var SelectedTarget = targetList[rand.Next(targetList.Count)];
-            Target.Add(playerId, SelectedTarget.PlayerId);
-            SendRPC(playerId, SelectedTarget.PlayerId, "SetTarget");
-            Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}:{SelectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Executioner");
+        }
+        catch (System.Exception ex)
+        {
+            Logger.Error(ex.ToString(), "Executioner.Add");
         }
     }
     public static bool IsEnable() => playerIdList.Count > 0;

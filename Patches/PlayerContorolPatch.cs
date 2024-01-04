@@ -1238,12 +1238,6 @@ class MurderPlayerPatch
                 break;
         }
 
-        if (target.GetTeam() is Team.Impostor or Team.Neutral) Stressed.OnNonCrewmateDead();
-
-        if (killer.Is(CustomRoles.Damocles)) Damocles.OnMurder();
-        else if (killer.Is(Team.Impostor)) Damocles.OnOtherImpostorMurder();
-        if (target.Is(Team.Impostor)) Damocles.OnImpostorDeath();
-
         if (killer.Is(CustomRoles.TicketsStealer) && killer.PlayerId != target.PlayerId)
             killer.Notify(string.Format(GetString("TicketsStealerGetTicket"), ((Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Options.TicketsPerKill.GetFloat()).ToString("0.0#####")));
 
@@ -3123,12 +3117,31 @@ class SetColorPatch
     }
 }
 
+[HarmonyPatch(typeof(Vent), nameof(Vent.TryMoveToVent))]
+class TryMoveToVentPatch
+{
+    public static Vent HostVentTarget;
+    public static void Postfix(Vent __instance, [HarmonyArgument(0)] Vent otherVent, bool __result)
+    {
+        if (__result && AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer.PlayerId == 0 && PlayerControl.LocalPlayer.inVent && (HostVentTarget.Equals(__instance) || HostVentTarget == __instance))
+        {
+            Logger.Info($"{__instance.name} => {otherVent.name}", "HostVentTarget");
+            HostVentTarget = otherVent;
+        }
+    }
+}
 [HarmonyPatch(typeof(Vent), nameof(Vent.ExitVent))]
 class ExitVentPatch
 {
     public static void Postfix(Vent __instance, [HarmonyArgument(0)] PlayerControl pc)
     {
         Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "ExitVent");
+
+        if (pc.PlayerId == 0)
+        {
+            Logger.Info(__instance.name, "HostVentTarget");
+            TryMoveToVentPatch.HostVentTarget = __instance;
+        }
 
         Drainer.OnAnyoneExitVent(pc, __instance.Id);
     }
@@ -3139,6 +3152,12 @@ class EnterVentPatch
     public static void Postfix(Vent __instance, [HarmonyArgument(0)] PlayerControl pc)
     {
         Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "EnterVent");
+
+        if (pc.PlayerId == 0)
+        {
+            Logger.Info(__instance.name, "HostVentTarget");
+            TryMoveToVentPatch.HostVentTarget = __instance;
+        }
 
         Drainer.OnAnyoneEnterVent(pc, __instance);
         Analyzer.OnAnyoneEnterVent(pc);

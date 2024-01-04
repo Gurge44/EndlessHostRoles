@@ -613,529 +613,536 @@ internal class SelectRolesPatch
 
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
-                if (pc.Data.Role.Role == RoleTypes.Shapeshifter)
-                    Main.CheckShapeshift.Add(pc.PlayerId, false);
-                switch (pc.GetCustomRole())
+                try
                 {
-                    case CustomRoles.BountyHunter:
-                        BountyHunter.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.SerialKiller:
-                        SerialKiller.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Bandit:
-                        Bandit.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Witch:
-                        Witch.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.HexMaster:
-                        HexMaster.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.NiceSwapper:
-                        NiceSwapper.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Crusader:
-                        Crusader.Add(pc.PlayerId);
-                        Crusader.CrusaderLimit[pc.PlayerId] = Crusader.SkillLimitOpt.GetInt();
-                        break;
-                    case CustomRoles.Warlock:
-                        Main.CursedPlayers.Add(pc.PlayerId, null);
-                        Main.isCurseAndKill.Add(pc.PlayerId, false);
-                        break;
-                    case CustomRoles.FireWorks:
-                        FireWorks.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Agitater:
-                        Agitater.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.TimeThief:
-                        TimeThief.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Sniper:
-                        Sniper.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Vampire:
-                        Vampire.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.SwordsMan:
-                        SwordsMan.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Arsonist:
-                        foreach (PlayerControl ar in Main.AllPlayerControls)
-                        {
-                            Main.isDoused.Add((pc.PlayerId, ar.PlayerId), false);
-                        }
-                        break;
-                    case CustomRoles.Revolutionist:
-                        foreach (PlayerControl ar in Main.AllPlayerControls)
-                        {
-                            Main.isDraw.Add((pc.PlayerId, ar.PlayerId), false);
-                        }
-                        break;
-                    case CustomRoles.Farseer:
-                        foreach (PlayerControl ar in Main.AllPlayerControls)
-                        {
-                            Main.isRevealed.Add((pc.PlayerId, ar.PlayerId), false);
-                        }
-                        Farseer.RandomRole.Add(pc.PlayerId, Farseer.GetRandomCrewRoleString());
-                        Farseer.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Executioner:
-                        Executioner.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Lawyer:
-                        Lawyer.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Blackmailer:
-                        Blackmailer.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Crewpostor:
-                        Main.CrewpostorTasksDone[pc.PlayerId] = 0;
-                        break;
-                    case CustomRoles.Doppelganger:
-                        Doppelganger.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Jackal:
-                        Jackal.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Sidekick:
-                        Sidekick.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Cleanser:
-                        Cleanser.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Pickpocket:
-                        Pickpocket.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Jailor:
-                        Jailor.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Monitor:
-                        Monitor.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Poisoner:
-                        Poisoner.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Sheriff:
-                        Sheriff.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.CopyCat:
-                        CopyCat.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.QuickShooter:
-                        QuickShooter.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Mayor:
-                        Main.MayorUsedButtonCount[pc.PlayerId] = 0;
-                        break;
-                    case CustomRoles.TimeMaster:
-                        Main.TimeMasterNum[pc.PlayerId] = 0;
-                        Main.TimeMasterNumOfUsed.Add(pc.PlayerId, Options.TimeMasterMaxUses.GetInt());
-                        break;
-                    case CustomRoles.Paranoia:
-                        Main.ParaUsedButtonCount[pc.PlayerId] = 0;
-                        break;
-                    case CustomRoles.SabotageMaster:
-                        SabotageMaster.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.EvilTracker:
-                        EvilTracker.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Snitch:
-                        Snitch.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.AntiAdminer:
-                        AntiAdminer.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Mario:
-                        Main.MarioVentCount[pc.PlayerId] = 0;
-                        break;
-                    case CustomRoles.TimeManager:
-                        TimeManager.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Pelican:
-                        Pelican.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Tether:
-                        Tether.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Benefactor:
-                        Benefactor.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Librarian:
-                        Librarian.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Aid:
-                        Aid.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Escort:
-                        Escort.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Marshall:
-                        Marshall.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Consort:
-                        Consort.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Drainer:
-                        Drainer.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.DonutDelivery:
-                        DonutDelivery.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Gaulois:
-                        Gaulois.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Analyzer:
-                        Analyzer.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Pursuer:
-                        Pursuer.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Gangster:
-                        Gangster.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Medic:
-                        Medic.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.EvilDiviner:
-                        EvilDiviner.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Ritualist:
-                        Ritualist.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Divinator:
-                        Divinator.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Ricochet:
-                        Ricochet.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Doormaster:
-                        Doormaster.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Oracle:
-                        Oracle.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Gamer:
-                        Gamer.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.BallLightning:
-                        BallLightning.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.DarkHide:
-                        DarkHide.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Greedier:
-                        Greedier.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Glitch:
-                        Glitch.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Imitator:
-                        Imitator.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Ignitor:
-                        Ignitor.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Collector:
-                        Collector.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.CursedWolf:
-                        Main.CursedWolfSpellCount[pc.PlayerId] = Options.GuardSpellTimes.GetInt();
-                        break;
-                    case CustomRoles.Jinx:
-                        Main.JinxSpellCount[pc.PlayerId] = Jinx.JinxSpellTimes.GetInt();
-                        Jinx.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Eraser:
-                        Eraser.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Spy:
-                        Spy.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.NiceEraser:
-                        NiceEraser.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Assassin:
-                        Assassin.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Undertaker:
-                        Undertaker.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Sans:
-                        Sans.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Juggernaut:
-                        Juggernaut.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Hacker:
-                        Hacker.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.NiceHacker:
-                        NiceHacker.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Psychic:
-                        Psychic.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Hangman:
-                        Hangman.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Judge:
-                        Judge.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Councillor:
-                        Councillor.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Camouflager:
-                        Camouflager.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Twister:
-                        Twister.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Mortician:
-                        Mortician.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Tracefinder:
-                        Tracefinder.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Mediumshiper:
-                        Mediumshiper.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Veteran:
-                        Main.VeteranNumOfUsed.Add(pc.PlayerId, Options.VeteranSkillMaxOfUseage.GetInt());
-                        break;
-                    case CustomRoles.Grenadier:
-                        Main.GrenadierNumOfUsed.Add(pc.PlayerId, Options.GrenadierSkillMaxOfUseage.GetInt());
-                        break;
-                    case CustomRoles.Lighter:
-                        Main.LighterNumOfUsed.Add(pc.PlayerId, Options.LighterSkillMaxOfUseage.GetInt());
-                        break;
-                    case CustomRoles.SecurityGuard:
-                        Main.SecurityGuardNumOfUsed.Add(pc.PlayerId, Options.SecurityGuardSkillMaxOfUseage.GetInt());
-                        break;
-                    case CustomRoles.Ventguard:
-                        Main.VentguardNumberOfAbilityUses = Options.VentguardMaxGuards.GetInt();
-                        break;
-                    case CustomRoles.Swooper:
-                        Swooper.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Wraith:
-                        Wraith.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Chameleon:
-                        Chameleon.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.BloodKnight:
-                        BloodKnight.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Totocalcio:
-                        Totocalcio.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Romantic:
-                        Romantic.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.VengefulRomantic:
-                        VengefulRomantic.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.RuthlessRomantic:
-                        RuthlessRomantic.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Succubus:
-                        Succubus.Add(pc.PlayerId);
-                        break;
-                    //case CustomRoles.CursedSoul:
-                    //    CursedSoul.Add(pc.PlayerId);
-                    //    break;
-                    case CustomRoles.Admirer:
-                        Admirer.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Amnesiac:
-                        Amnesiac.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.DovesOfNeace:
-                        Main.DovesOfNeaceNumOfUsed.Add(pc.PlayerId, Options.DovesOfNeaceMaxOfUseage.GetInt());
-                        break;
-                    case CustomRoles.Infectious:
-                        Infectious.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Monarch:
-                        Monarch.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Deputy:
-                        Deputy.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Chronomancer:
-                        Chronomancer.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Nullifier:
-                        Nullifier.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Virus:
-                        Virus.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Wildling:
-                        Wildling.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Bloodhound:
-                        Bloodhound.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Tracker:
-                        Tracker.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Merchant:
-                        Merchant.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.NSerialKiller:
-                        NSerialKiller.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Enderman:
-                        Enderman.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Sentinel:
-                        Sentinel.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Mycologist:
-                        Mycologist.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Bubble:
-                        Bubble.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Tornado:
-                        Tornado.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Hookshot:
-                        Hookshot.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Sprayer:
-                        Sprayer.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.PlagueDoctor:
-                        PlagueDoctor.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Penguin:
-                        Penguin.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Stealth:
-                        Stealth.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Postman:
-                        Postman.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Mafioso:
-                        Mafioso.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Magician:
-                        Magician.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.WeaponMaster:
-                        WeaponMaster.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Reckless:
-                        Reckless.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Eclipse:
-                        Eclipse.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Pyromaniac:
-                        Pyromaniac.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Vengeance:
-                        Vengeance.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.HeadHunter:
-                        HeadHunter.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Werewolf:
-                        Werewolf.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Traitor:
-                        Traitor.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Maverick:
-                        Maverick.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Dazzler:
-                        Dazzler.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.YinYanger:
-                        YinYanger.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Cantankerous:
-                        Cantankerous.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Duellist:
-                        Duellist.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Druid:
-                        Druid.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.FFF:
-                        FFF.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Sapper:
-                        Sapper.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.CameraMan:
-                        CameraMan.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Hitman:
-                        Hitman.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Enigma:
-                        Enigma.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Gambler:
-                        Gambler.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.RiftMaker:
-                        RiftMaker.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Mastermind:
-                        Mastermind.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Addict:
-                        Addict.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Alchemist:
-                        Alchemist.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Deathpact:
-                        Deathpact.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Morphling:
-                        Morphling.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Devourer:
-                        Devourer.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Spiritualist:
-                        Spiritualist.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Vulture:
-                        Vulture.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.GuessManager:
-                        GuessManagerRole.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.PlagueBearer:
-                        PlagueBearer.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.ParityCop:
-                        ParityCop.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Spiritcaller:
-                        Spiritcaller.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Lurker:
-                        Lurker.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Doomsayer:
-                        Doomsayer.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Disperser:
-                        Disperser.Add(pc.PlayerId);
-                        break;
+                    if (pc.Data.Role.Role == RoleTypes.Shapeshifter)
+                        Main.CheckShapeshift.Add(pc.PlayerId, false);
+                    switch (pc.GetCustomRole())
+                    {
+                        case CustomRoles.BountyHunter:
+                            BountyHunter.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.SerialKiller:
+                            SerialKiller.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Bandit:
+                            Bandit.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Witch:
+                            Witch.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.HexMaster:
+                            HexMaster.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.NiceSwapper:
+                            NiceSwapper.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Crusader:
+                            Crusader.Add(pc.PlayerId);
+                            Crusader.CrusaderLimit[pc.PlayerId] = Crusader.SkillLimitOpt.GetInt();
+                            break;
+                        case CustomRoles.Warlock:
+                            Main.CursedPlayers.Add(pc.PlayerId, null);
+                            Main.isCurseAndKill.Add(pc.PlayerId, false);
+                            break;
+                        case CustomRoles.FireWorks:
+                            FireWorks.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Agitater:
+                            Agitater.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.TimeThief:
+                            TimeThief.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Sniper:
+                            Sniper.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Vampire:
+                            Vampire.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.SwordsMan:
+                            SwordsMan.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Arsonist:
+                            foreach (PlayerControl ar in Main.AllPlayerControls)
+                            {
+                                Main.isDoused.Add((pc.PlayerId, ar.PlayerId), false);
+                            }
+                            break;
+                        case CustomRoles.Revolutionist:
+                            foreach (PlayerControl ar in Main.AllPlayerControls)
+                            {
+                                Main.isDraw.Add((pc.PlayerId, ar.PlayerId), false);
+                            }
+                            break;
+                        case CustomRoles.Farseer:
+                            foreach (PlayerControl ar in Main.AllPlayerControls)
+                            {
+                                Main.isRevealed.Add((pc.PlayerId, ar.PlayerId), false);
+                            }
+                            Farseer.RandomRole.Add(pc.PlayerId, Farseer.GetRandomCrewRoleString());
+                            Farseer.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Executioner:
+                            Executioner.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Lawyer:
+                            Lawyer.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Blackmailer:
+                            Blackmailer.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Crewpostor:
+                            Main.CrewpostorTasksDone[pc.PlayerId] = 0;
+                            break;
+                        case CustomRoles.Doppelganger:
+                            Doppelganger.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Jackal:
+                            Jackal.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Sidekick:
+                            Sidekick.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Cleanser:
+                            Cleanser.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Pickpocket:
+                            Pickpocket.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Jailor:
+                            Jailor.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Monitor:
+                            Monitor.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Poisoner:
+                            Poisoner.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Sheriff:
+                            Sheriff.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.CopyCat:
+                            CopyCat.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.QuickShooter:
+                            QuickShooter.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Mayor:
+                            Main.MayorUsedButtonCount[pc.PlayerId] = 0;
+                            break;
+                        case CustomRoles.TimeMaster:
+                            Main.TimeMasterNum[pc.PlayerId] = 0;
+                            Main.TimeMasterNumOfUsed.Add(pc.PlayerId, Options.TimeMasterMaxUses.GetInt());
+                            break;
+                        case CustomRoles.Paranoia:
+                            Main.ParaUsedButtonCount[pc.PlayerId] = 0;
+                            break;
+                        case CustomRoles.SabotageMaster:
+                            SabotageMaster.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.EvilTracker:
+                            EvilTracker.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Snitch:
+                            Snitch.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.AntiAdminer:
+                            AntiAdminer.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Mario:
+                            Main.MarioVentCount[pc.PlayerId] = 0;
+                            break;
+                        case CustomRoles.TimeManager:
+                            TimeManager.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Pelican:
+                            Pelican.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Tether:
+                            Tether.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Benefactor:
+                            Benefactor.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Librarian:
+                            Librarian.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Aid:
+                            Aid.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Escort:
+                            Escort.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Marshall:
+                            Marshall.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Consort:
+                            Consort.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Drainer:
+                            Drainer.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.DonutDelivery:
+                            DonutDelivery.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Gaulois:
+                            Gaulois.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Analyzer:
+                            Analyzer.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Pursuer:
+                            Pursuer.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Gangster:
+                            Gangster.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Medic:
+                            Medic.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.EvilDiviner:
+                            EvilDiviner.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Ritualist:
+                            Ritualist.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Divinator:
+                            Divinator.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Ricochet:
+                            Ricochet.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Doormaster:
+                            Doormaster.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Oracle:
+                            Oracle.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Gamer:
+                            Gamer.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.BallLightning:
+                            BallLightning.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.DarkHide:
+                            DarkHide.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Greedier:
+                            Greedier.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Glitch:
+                            Glitch.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Imitator:
+                            Imitator.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Ignitor:
+                            Ignitor.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Collector:
+                            Collector.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.CursedWolf:
+                            Main.CursedWolfSpellCount[pc.PlayerId] = Options.GuardSpellTimes.GetInt();
+                            break;
+                        case CustomRoles.Jinx:
+                            Main.JinxSpellCount[pc.PlayerId] = Jinx.JinxSpellTimes.GetInt();
+                            Jinx.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Eraser:
+                            Eraser.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Spy:
+                            Spy.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.NiceEraser:
+                            NiceEraser.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Assassin:
+                            Assassin.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Undertaker:
+                            Undertaker.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Sans:
+                            Sans.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Juggernaut:
+                            Juggernaut.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Hacker:
+                            Hacker.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.NiceHacker:
+                            NiceHacker.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Psychic:
+                            Psychic.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Hangman:
+                            Hangman.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Judge:
+                            Judge.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Councillor:
+                            Councillor.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Camouflager:
+                            Camouflager.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Twister:
+                            Twister.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Mortician:
+                            Mortician.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Tracefinder:
+                            Tracefinder.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Mediumshiper:
+                            Mediumshiper.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Veteran:
+                            Main.VeteranNumOfUsed.Add(pc.PlayerId, Options.VeteranSkillMaxOfUseage.GetInt());
+                            break;
+                        case CustomRoles.Grenadier:
+                            Main.GrenadierNumOfUsed.Add(pc.PlayerId, Options.GrenadierSkillMaxOfUseage.GetInt());
+                            break;
+                        case CustomRoles.Lighter:
+                            Main.LighterNumOfUsed.Add(pc.PlayerId, Options.LighterSkillMaxOfUseage.GetInt());
+                            break;
+                        case CustomRoles.SecurityGuard:
+                            Main.SecurityGuardNumOfUsed.Add(pc.PlayerId, Options.SecurityGuardSkillMaxOfUseage.GetInt());
+                            break;
+                        case CustomRoles.Ventguard:
+                            Main.VentguardNumberOfAbilityUses = Options.VentguardMaxGuards.GetInt();
+                            break;
+                        case CustomRoles.Swooper:
+                            Swooper.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Wraith:
+                            Wraith.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Chameleon:
+                            Chameleon.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.BloodKnight:
+                            BloodKnight.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Totocalcio:
+                            Totocalcio.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Romantic:
+                            Romantic.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.VengefulRomantic:
+                            VengefulRomantic.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.RuthlessRomantic:
+                            RuthlessRomantic.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Succubus:
+                            Succubus.Add(pc.PlayerId);
+                            break;
+                        //case CustomRoles.CursedSoul:
+                        //    CursedSoul.Add(pc.PlayerId);
+                        //    break;
+                        case CustomRoles.Admirer:
+                            Admirer.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Amnesiac:
+                            Amnesiac.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.DovesOfNeace:
+                            Main.DovesOfNeaceNumOfUsed.Add(pc.PlayerId, Options.DovesOfNeaceMaxOfUseage.GetInt());
+                            break;
+                        case CustomRoles.Infectious:
+                            Infectious.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Monarch:
+                            Monarch.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Deputy:
+                            Deputy.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Chronomancer:
+                            Chronomancer.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Nullifier:
+                            Nullifier.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Virus:
+                            Virus.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Wildling:
+                            Wildling.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Bloodhound:
+                            Bloodhound.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Tracker:
+                            Tracker.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Merchant:
+                            Merchant.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.NSerialKiller:
+                            NSerialKiller.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Enderman:
+                            Enderman.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Sentinel:
+                            Sentinel.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Mycologist:
+                            Mycologist.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Bubble:
+                            Bubble.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Tornado:
+                            Tornado.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Hookshot:
+                            Hookshot.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Sprayer:
+                            Sprayer.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.PlagueDoctor:
+                            PlagueDoctor.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Penguin:
+                            Penguin.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Stealth:
+                            Stealth.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Postman:
+                            Postman.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Mafioso:
+                            Mafioso.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Magician:
+                            Magician.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.WeaponMaster:
+                            WeaponMaster.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Reckless:
+                            Reckless.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Eclipse:
+                            Eclipse.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Pyromaniac:
+                            Pyromaniac.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Vengeance:
+                            Vengeance.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.HeadHunter:
+                            HeadHunter.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Werewolf:
+                            Werewolf.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Traitor:
+                            Traitor.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Maverick:
+                            Maverick.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Dazzler:
+                            Dazzler.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.YinYanger:
+                            YinYanger.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Cantankerous:
+                            Cantankerous.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Duellist:
+                            Duellist.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Druid:
+                            Druid.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.FFF:
+                            FFF.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Sapper:
+                            Sapper.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.CameraMan:
+                            CameraMan.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Hitman:
+                            Hitman.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Enigma:
+                            Enigma.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Gambler:
+                            Gambler.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.RiftMaker:
+                            RiftMaker.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Mastermind:
+                            Mastermind.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Addict:
+                            Addict.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Alchemist:
+                            Alchemist.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Deathpact:
+                            Deathpact.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Morphling:
+                            Morphling.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Devourer:
+                            Devourer.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Spiritualist:
+                            Spiritualist.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Vulture:
+                            Vulture.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.GuessManager:
+                            GuessManagerRole.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.PlagueBearer:
+                            PlagueBearer.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.ParityCop:
+                            ParityCop.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Spiritcaller:
+                            Spiritcaller.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Lurker:
+                            Lurker.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Doomsayer:
+                            Doomsayer.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Disperser:
+                            Disperser.Add(pc.PlayerId);
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex.ToString(), "onGameStartedPatch Add methods");
                 }
             }
 
@@ -1201,6 +1208,10 @@ internal class SelectRolesPatch
             {
                 _ = new LateTask(() => { PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)); }, 15f, "GM Auto-TP Failsafe"); // TP to Main Hall
             }
+
+            var vents = UnityEngine.Object.FindObjectsOfType<Vent>();
+            var vent = vents[IRandom.Instance.Next(0, vents.Count)];
+            TryMoveToVentPatch.HostVentTarget = vent;
         }
         catch (Exception ex)
         {
