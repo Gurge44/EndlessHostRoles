@@ -1451,6 +1451,7 @@
 "NotifyGodAlive","如果神存活则在会议上通知所有人","Inform players at meetings that God is still alive","Сообщать игрокам на встрече что Дьявол ещё жив","若神存活則在會議上通知所有人","如果神存活则在会议上通知所有人"
 "TransporterTeleportMax","传送次数上限","Max number of teleports","Максимальное колличество телепортов","傳送次數上限","传送次数上限"
 "TriggerKill","击杀","Kill","Убийство","殺死","击杀"
+"RequiresPetIndicator","","  <#ff0000>PET</color>","","",""
 "UsePetInsteadOfKillButton","","Use Pet Button As Kill Button","","",""
 "UsePets","","Use Pet button instead of Vent / Shapeshift","","",""
 "PetToAssign","","Pet to Assign to Everyone","","",""

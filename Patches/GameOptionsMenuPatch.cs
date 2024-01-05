@@ -263,6 +263,9 @@ public class StringOptionEnablePatch
 
         __instance.OnValueChanged = new Action<OptionBehaviour>((o) => { });
         __instance.TitleText.text = option.GetName();
+        if (option.Id == Options.UsePets.Id) LoadLangs();
+        else if (!Options.UsePets.GetBool() && CustomRolesHelper.OnlySpawnsWithPetsRoleList.Any(role => role.ToString().Equals(option.GetName().RemoveHtmlTags())))
+            __instance.TitleText.text += GetString("RequiresPetIndicator");
         __instance.Value = __instance.oldValue = option.CurrentValue;
         __instance.ValueText.text = option.GetString();
 

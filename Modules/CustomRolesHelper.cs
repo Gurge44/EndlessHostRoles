@@ -1,4 +1,5 @@
 using AmongUs.GameOptions;
+using System.Collections.Generic;
 using System.Linq;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
@@ -1076,9 +1077,10 @@ internal static class CustomRolesHelper
 
         _ => false,
     };
-    public static bool OnlySpawnsWithPets(this CustomRoles role) => role is
-        CustomRoles.Tunneler or
-        CustomRoles.Tornado;
+    public static List<CustomRoles> OnlySpawnsWithPetsRoleList = [
+        CustomRoles.Tunneler,
+        CustomRoles.Tornado
+        ];
     public static bool NeedUpdateOnLights(this CustomRoles role) => (!role.UsesPetInsteadOfKill()) && (role.GetDYRole() != RoleTypes.GuardianAngel || role is
         CustomRoles.Sheriff or
         CustomRoles.Medic or
