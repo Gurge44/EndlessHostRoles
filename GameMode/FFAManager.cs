@@ -293,7 +293,7 @@ internal static class FFAManager
             }
             else // Mixed
             {
-                _ = new LateTask(killer.TPtoRndVent, 0.5f, "FFA-Event-TP");
+                _ = new LateTask(() => { killer.TPtoRndVent(); }, 0.5f, "FFA-Event-TP");
                 killer.Notify(GetString("FFA-Event-GetTP"));
                 Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
             }

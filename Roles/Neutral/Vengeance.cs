@@ -92,7 +92,7 @@ public static class Vengeance
         if (target == null) return false;
         if (IsRevenge) return true;
 
-        _ = new LateTask(target.TPtoRndVent, 0.01f);
+        _ = new LateTask(() => { target.TPtoRndVent(); }, 0.01f);
 
         Timer = RevengeTime.GetInt();
         Countdown(Timer, target);

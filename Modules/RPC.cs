@@ -58,6 +58,8 @@ enum CustomRPC
 
     //Roles
     SetDrawPlayer,
+    SyncMycologist,
+    SyncBubble,
     AddTornado,
     RemoveTornado,
     SyncSprayer,
@@ -584,6 +586,12 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SendFireWorksState:
                 FireWorks.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncMycologist:
+                Mycologist.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncBubble:
+                Bubble.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetCurrentDousingTarget:
                 byte arsonistId = reader.ReadByte();

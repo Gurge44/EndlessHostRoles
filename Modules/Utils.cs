@@ -79,13 +79,13 @@ public static class Utils
         }
     }
 
-    public static void TP(CustomNetworkTransform nt, Vector2 location)
+    public static bool TP(CustomNetworkTransform nt, Vector2 location)
     {
         var pc = nt.myPlayer;
-        if (pc.inVent || pc.inMovingPlat || !pc.IsAlive())
+        if (pc.inVent || pc.inMovingPlat || !pc.IsAlive() || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation())
         {
             Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is in an un-teleportable state - Teleporting canceled", "TP");
-            return;
+            return false;
         }
 
         // Modded
@@ -98,15 +98,16 @@ public static class Utils
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
 
         Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} => {location}", "TP");
+        return true;
     }
-    public static void TPtoRndVent(CustomNetworkTransform nt)
+    public static bool TPtoRndVent(CustomNetworkTransform nt)
     {
         var vents = UnityEngine.Object.FindObjectsOfType<Vent>();
         var vent = vents[IRandom.Instance.Next(0, vents.Count)];
 
         Logger.Info($"{nt.myPlayer.GetNameWithRole().RemoveHtmlTags()} => {vent.transform.position} (vent)", "TP");
 
-        TP(nt, new Vector2(vent.transform.position.x, vent.transform.position.y + 0.3636f));
+        return TP(nt, new Vector2(vent.transform.position.x, vent.transform.position.y + 0.3636f));
     }
     public static ClientData GetClientById(int id)
     {

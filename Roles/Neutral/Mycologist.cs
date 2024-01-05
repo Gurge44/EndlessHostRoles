@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using Hazel;
 using System.Collections.Generic;
 using System.Linq;
 using static TOHE.Options;
@@ -45,7 +46,7 @@ namespace TOHE.Roles.Neutral
             InfectRadius = FloatOptionItem.Create(Id + 5, "InfectRadius", new(0.1f, 5f, 0.1f), 3f, TabGroup.NeutralRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mycologist])
                 .SetValueFormat(OptionFormat.Multiplier);
-            InfectTime = IntegerOptionItem.Create(Id + 6, "PlagueDoctorInfectTime", new(0, 60, 1), 5, TabGroup.NeutralRoles, false)
+            InfectTime = IntegerOptionItem.Create(Id + 6, "InfectDelay", new(0, 60, 1), 5, TabGroup.NeutralRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mycologist])
                 .SetValueFormat(OptionFormat.Seconds);
         }
@@ -65,6 +66,23 @@ namespace TOHE.Roles.Neutral
         public static bool IsEnable => MycologistId != byte.MaxValue;
         public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
+        private static void SendRPC()
+        {
+            if (!IsEnable || !DoRPC) return;
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMycologist, SendOption.Reliable, -1);
+            writer.Write(InfectedPlayers.Count);
+            if (InfectedPlayers.Count > 0) foreach (var x in InfectedPlayers) writer.Write(x);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        public static void ReceiveRPC(MessageReader reader)
+        {
+            InfectedPlayers.Clear();
+            var length = reader.ReadInt32();
+            for (int i = 0; i < length; i++)
+            {
+                InfectedPlayers.Add(reader.ReadByte());
+            }
+        }
         public static void SpreadSpores()
         {
             if (!IsEnable || Mycologist_.HasAbilityCD()) return;
@@ -72,6 +90,8 @@ namespace TOHE.Roles.Neutral
             _ = new LateTask(() =>
             {
                 InfectedPlayers.AddRange(GetPlayersInRadius(InfectRadius.GetFloat(), Mycologist_.Pos()).Select(x => x.PlayerId));
+                SendRPC();
+                NotifyRoles(SpecifySeer: Mycologist_);
             }, InfectTime.GetFloat(), "Mycologist Infect Time");
             Mycologist_.Notify(GetString("MycologistNotify"));
         }

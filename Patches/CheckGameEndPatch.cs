@@ -447,17 +447,18 @@ class GameEndChecker
 
             foreach (PlayerControl x in Main.AllAlivePlayerControls)
             {
-                if (x.GetCustomRole().IsImpostor() && x.Is(CustomRoles.DualPersonality)) Imp++;
-                if (x.GetCustomRole().IsCrewmate() && x.Is(CustomRoles.DualPersonality)) Crew++;
-                if (x.GetCustomRole().IsImpostor() && x.Is(CustomRoles.Admired) && x.Is(CustomRoles.DualPersonality)) Crew++;
-                if (x.GetCustomRole().IsNeutral() && x.Is(CustomRoles.Admired) && x.Is(CustomRoles.DualPersonality)) Crew++;
-                if (x.GetCustomRole().IsCrewmate() && x.Is(CustomRoles.Admired) && x.Is(CustomRoles.DualPersonality)) Crew++;
+                CustomRoles role = x.GetCustomRole();
+                if ((x.Is(CustomRoles.Madmate) && x.Is(CustomRoles.DualPersonality)) ||
+                    (role.IsImpostor() && x.Is(CustomRoles.DualPersonality))) Imp++;
+                if (role.IsCrewmate() && x.Is(CustomRoles.DualPersonality)) Crew++;
+                if (role.IsImpostor() && x.Is(CustomRoles.Admired) && x.Is(CustomRoles.DualPersonality)) Crew++;
+                if (role.IsNeutral() && x.Is(CustomRoles.Admired) && x.Is(CustomRoles.DualPersonality)) Crew++;
+                if (role.IsCrewmate() && x.Is(CustomRoles.Admired) && x.Is(CustomRoles.DualPersonality)) Crew++;
                 if (x.Is(CustomRoles.Charmed) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Succubus)]++;
                 if (x.Is(CustomRoles.Sidekick) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Jackal)]++;
                 if (x.Is(CustomRoles.Recruit) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Jackal)]++;
                 if (x.Is(CustomRoles.Infected) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Infectious)]++;
                 if (x.Is(CustomRoles.Contagious) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Virus)]++;
-                if (x.Is(CustomRoles.Madmate) && x.Is(CustomRoles.DualPersonality)) Imp++;
             }
 
             int totalNKAlive = roleCounts.Values.Sum();

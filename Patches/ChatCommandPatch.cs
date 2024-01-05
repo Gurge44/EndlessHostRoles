@@ -29,6 +29,7 @@ internal class ChatCommands
     }
 
     public static List<string> ChatHistory = [];
+    public static Dictionary<byte, long> LastSentCommand = [];
 
     public static bool Prefix(ChatController __instance)
     {
@@ -75,7 +76,7 @@ internal class ChatCommands
         switch (args[0])
         {
             case "/dump":
-                canceled = true;
+                //canceled = true;
                 Utils.DumpLog();
                 break;
             case "/v":
@@ -430,11 +431,11 @@ internal class ChatCommands
                     Utils.SendMessage(string.Format(GetString("Message.SetColor"), subArgs), localPlayerId);
                     break;
 
-                case "/quit":
-                case "/qt":
-                    canceled = true;
-                    Utils.SendMessage(GetString("Message.CanNotUseByHost"), localPlayerId);
-                    break;
+                //case "/quit":
+                //case "/qt":
+                //    canceled = true;
+                //    Utils.SendMessage(GetString("Message.CanNotUseByHost"), localPlayerId);
+                //    break;
 
                 case "/xf":
                     canceled = true;
@@ -840,6 +841,8 @@ internal class ChatCommands
     {
         canceled = false;
         if (!AmongUsClient.Instance.AmHost) return;
+        long now = Utils.GetTimeStamp();
+        if (LastSentCommand.TryGetValue(player.PlayerId, out var ts) && ts + 2 >= now) { Logger.Warn("Command Ignored, it was sent too soon after their last command", "ReceiveChat"); return; }
         if (player.PlayerId != 0) ChatManager.SendMessage(player, text);
         if (text.StartsWith("\n")) text = text[1..];
         //if (!text.StartsWith("/")) return;
@@ -847,22 +850,24 @@ internal class ChatCommands
         string subArgs = string.Empty;
         //if (text.Length >= 3) if (text[..2] == "/r" && text[..3] != "/rn") args[0] = "/r";
         //   if (SpamManager.CheckSpam(player, text)) return;
-        if (GuessManager.GuesserMsg(player, text)) { canceled = true; return; }
-        if (Judge.TrialMsg(player, text)) { canceled = true; return; }
-        if (NiceSwapper.SwapMsg(player, text)) { canceled = true; return; }
-        if (ParityCop.ParityCheckMsg(player, text)) { canceled = true; return; }
+        if (GuessManager.GuesserMsg(player, text)) { canceled = true; LastSentCommand[player.PlayerId] = now; return; }
+        if (Judge.TrialMsg(player, text)) { canceled = true; LastSentCommand[player.PlayerId] = now; return; }
+        if (NiceSwapper.SwapMsg(player, text)) { canceled = true; LastSentCommand[player.PlayerId] = now; return; }
+        if (ParityCop.ParityCheckMsg(player, text)) { canceled = true; LastSentCommand[player.PlayerId] = now; return; }
         //if (Pirate.DuelCheckMsg(player, text)) { canceled = true; return; }
-        if (Councillor.MurderMsg(player, text)) { canceled = true; return; }
-        if (Mediumshiper.MsMsg(player, text)) return;
-        if (MafiaRevengeManager.MafiaMsgCheck(player, text)) return;
+        if (Councillor.MurderMsg(player, text)) { canceled = true; LastSentCommand[player.PlayerId] = now; return; }
+        if (Mediumshiper.MsMsg(player, text)) { LastSentCommand[player.PlayerId] = now; return; }
+        if (MafiaRevengeManager.MafiaMsgCheck(player, text)) { LastSentCommand[player.PlayerId] = now; return; }
         //if (RetributionistRevengeManager.RetributionistMsgCheck(player, text)) return;
         if (Blackmailer.ForBlackmailer.Contains(player.PlayerId) && player.IsAlive() && player.PlayerId != 0)
         {
             ChatManager.SendPreviousMessagesToAll();
             ChatManager.cancel = false;
             canceled = true;
+            LastSentCommand[player.PlayerId] = now;
             return;
         }
+        bool isCommand = true;
         switch (args[0])
         {
             case "/l":
@@ -967,22 +972,22 @@ internal class ChatCommands
                 }
                 break;
 
-            case "/quit":
-            case "/qt":
-                subArgs = args.Length < 2 ? string.Empty : args[1];
-                var cid = player.PlayerId.ToString();
-                cid = cid.Length != 1 ? cid.Substring(1, 1) : cid;
-                if (subArgs.Equals(cid))
-                {
-                    string name = player.GetRealName();
-                    Utils.SendMessage(string.Format(GetString("Message.PlayerQuitForever"), name));
-                    AmongUsClient.Instance.KickPlayer(player.GetClientId(), true);
-                }
-                else
-                {
-                    Utils.SendMessage(string.Format(GetString("SureUse.quit"), cid), player.PlayerId);
-                }
-                break;
+            //case "/quit":
+            //case "/qt":
+            //    subArgs = args.Length < 2 ? string.Empty : args[1];
+            //    var cid = player.PlayerId.ToString();
+            //    cid = cid.Length != 1 ? cid.Substring(1, 1) : cid;
+            //    if (subArgs.Equals(cid))
+            //    {
+            //        string name = player.GetRealName();
+            //        Utils.SendMessage(string.Format(GetString("Message.PlayerQuitForever"), name));
+            //        AmongUsClient.Instance.KickPlayer(player.GetClientId(), true);
+            //    }
+            //    else
+            //    {
+            //        Utils.SendMessage(string.Format(GetString("SureUse.quit"), cid), player.PlayerId);
+            //    }
+            //    break;
             case "/id":
                 if (Options.ApplyModeratorList.GetValue() == 0 || !IsPlayerModerator(player.FriendCode)) break;
 
@@ -1133,8 +1138,10 @@ internal class ChatCommands
                 }
 
             default:
+                isCommand = false;
                 break;
         }
+        if (isCommand) LastSentCommand[player.PlayerId] = now;
         if (SpamManager.CheckSpam(player, text)) return;
     }
 }

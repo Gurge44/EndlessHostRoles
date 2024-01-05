@@ -60,13 +60,13 @@ namespace TOHE.Roles.Impostor
                 .SetValueFormat(OptionFormat.Multiplier);
             SpeedDur = IntegerOptionItem.Create(Id + 17, "GamblerSpeedupDur", new(1, 20, 1), 5, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
-            BSRDelay = IntegerOptionItem.Create(Id + 18, "GamblerKillDelay", new(0, 10, 1), 2, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
+            BSRDelay = IntegerOptionItem.Create(Id + 18, "GamblerBSRDelay", new(0, 10, 1), 2, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
             HighKCD = FloatOptionItem.Create(Id + 19, "GamblerHighKCD", new(10f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
             LowKCD = FloatOptionItem.Create(Id + 20, "GamblerLowKCD", new(10f, 60f, 2.5f), 17.5f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
-            TPDelay = IntegerOptionItem.Create(Id + 21, "GamblerKillDelay", new(0, 10, 1), 2, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
+            TPDelay = IntegerOptionItem.Create(Id + 21, "GamblerTPDelay", new(0, 10, 1), 2, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
             WhatToIgnore = BooleanOptionItem.Create(Id + 22, "GamblerWhatToIgnore", true, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler]);
             IgnoreMedicShield = BooleanOptionItem.Create(Id + 23, "GamblerIgnoreMedicShield", true, TabGroup.ImpostorRoles, false).SetParent(WhatToIgnore);
@@ -153,7 +153,7 @@ namespace TOHE.Roles.Impostor
                         }
                         else
                         {
-                            killer.Kill(target);
+                            killer.RpcCheckAndMurder(target);
                             return false;
                         }
                     case 6: // Low KCD
@@ -261,7 +261,7 @@ namespace TOHE.Roles.Impostor
         public static void OnReportDeadBody()
         {
             EffectID = byte.MaxValue;
-            foreach (var playerId in waitingDelayedKills.Keys)
+            foreach (var playerId in waitingDelayedKills.Keys.ToArray())
             {
                 var pc = GetPlayerById(playerId);
                 if (pc.IsAlive()) pc.Kill(pc);

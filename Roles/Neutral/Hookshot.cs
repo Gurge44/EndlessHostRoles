@@ -51,9 +51,14 @@ namespace TOHE.Roles.Neutral
             if (!IsEnable || !DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncHookshot, SendOption.Reliable, -1);
             writer.Write(ToTargetTP);
+            writer.Write(MarkedPlayerId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
-        public static void ReceiveRPC(MessageReader reader) => ToTargetTP = reader.ReadBoolean();
+        public static void ReceiveRPC(MessageReader reader)
+        {
+            ToTargetTP = reader.ReadBoolean();
+            MarkedPlayerId = reader.ReadByte();
+        }
         public static void ExecuteAction()
         {
             if (MarkedPlayerId == byte.MaxValue) return;
@@ -62,19 +67,20 @@ namespace TOHE.Roles.Neutral
             if (markedPlayer == null)
             {
                 MarkedPlayerId = byte.MaxValue;
+                SendRPC();
                 return;
             }
 
-            if (ToTargetTP)
-            {
-                Hookshot_.TP(markedPlayer);
-            }
-            else
-            {
-                markedPlayer.TP(Hookshot_);
-            }
+            bool isTPsuccess;
 
-            MarkedPlayerId = byte.MaxValue;
+            if (ToTargetTP) isTPsuccess = Hookshot_.TP(markedPlayer);
+            else isTPsuccess = markedPlayer.TP(Hookshot_);
+
+            if (isTPsuccess)
+            {
+                MarkedPlayerId = byte.MaxValue;
+                SendRPC();
+            }
         }
         public static void SwitchActionMode()
         {
@@ -89,10 +95,15 @@ namespace TOHE.Roles.Neutral
             return Hookshot_.CheckDoubleTrigger(target, () =>
             {
                 MarkedPlayerId = target.PlayerId;
+                SendRPC();
                 Hookshot_.SetKillCooldown(5f);
             });
         }
-        public static void OnReportDeadBody() => MarkedPlayerId = byte.MaxValue;
+        public static void OnReportDeadBody()
+        {
+            MarkedPlayerId = byte.MaxValue;
+            SendRPC();
+        }
         public static string SuffixText => $"<#00ffa5>Mode:</color> <#ffffff>{(ToTargetTP ? "TP to Target" : "Pull Target")}</color>";
     }
 }

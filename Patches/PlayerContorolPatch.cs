@@ -3125,7 +3125,7 @@ class TryMoveToVentPatch
     {
         if (__result && AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer.PlayerId == 0 && PlayerControl.LocalPlayer.inVent && (HostVentTarget.Equals(__instance) || HostVentTarget == __instance))
         {
-            Logger.Info($"{__instance.name} => {otherVent.name}", "HostVentTarget");
+            Logger.Info($"(Move)  {__instance.name} => {otherVent.name}", "HostVentTarget");
             HostVentTarget = otherVent;
         }
     }
@@ -3139,7 +3139,7 @@ class ExitVentPatch
 
         if (pc.PlayerId == 0)
         {
-            Logger.Info(__instance.name, "HostVentTarget");
+            Logger.Info("(Exit)  " + __instance.name, "HostVentTarget");
             TryMoveToVentPatch.HostVentTarget = __instance;
         }
 
@@ -3155,7 +3155,7 @@ class EnterVentPatch
 
         if (pc.PlayerId == 0)
         {
-            Logger.Info(__instance.name, "HostVentTarget");
+            Logger.Info("(Enter)  " + __instance.name, "HostVentTarget");
             TryMoveToVentPatch.HostVentTarget = __instance;
         }
 

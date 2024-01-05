@@ -97,13 +97,13 @@ namespace TOHE.Roles.Impostor
                 {
                     DuelPair.Remove(pair.Key);
                     SendRPC(pair.Key, pair.Value, true);
-                    _ = new LateTask(duellist.TPtoRndVent, 0.5f, log: false);
+                    _ = new LateTask(() => { duellist.TPtoRndVent(); }, 0.5f, log: false);
                 }
                 else if (TAlive && !DAlive)
                 {
                     DuelPair.Remove(pair.Key);
                     SendRPC(pair.Key, pair.Value, true);
-                    _ = new LateTask(target.TPtoRndVent, 0.5f, log: false);
+                    _ = new LateTask(() => { target.TPtoRndVent(); }, 0.5f, log: false);
                 }
                 else continue;
             }

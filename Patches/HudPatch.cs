@@ -785,6 +785,7 @@ class VentButtonDoClickPatch
             if (pc.inVent)
             {
                 pc.MyPhysics.RpcExitVent(TryMoveToVentPatch.HostVentTarget.Id);
+                TryMoveToVentPatch.HostVentTarget.SetButtons(false);
                 return true;
             }
             if (!pc.Is(CustomRoles.Swooper) || !pc.Is(CustomRoles.Wraith) || !pc.Is(CustomRoles.Chameleon) || pc.inVent || __instance.currentTarget == null || !pc.CanMove || !__instance.isActiveAndEnabled) return true;

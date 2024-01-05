@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using Hazel;
 using System.Collections.Generic;
 using System.Linq;
 using static TOHE.Options;
@@ -61,10 +62,29 @@ namespace TOHE.Roles.Neutral
         public static bool IsEnable => BubbleId != byte.MaxValue;
         public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
+        private static void SendRPC(byte id = byte.MaxValue, bool remove = false, bool clear = false)
+        {
+            if (!IsEnable || !DoRPC) return;
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncBubble, SendOption.Reliable, -1);
+            writer.Write(remove);
+            writer.Write(clear);
+            writer.Write(id);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        public static void ReceiveRPC(MessageReader reader)
+        {
+            bool remove = reader.ReadBoolean();
+            bool clear = reader.ReadBoolean();
+            byte id = reader.ReadByte();
+            if (clear) EncasedPlayers.Clear();
+            else if (remove) EncasedPlayers.Remove(id);
+            else EncasedPlayers.Add(id, GetTimeStamp());
+        }
         public static void OnCheckMurder(PlayerControl target)
         {
             if (!IsEnable || target == null) return;
             EncasedPlayers.Add(target.PlayerId, GetTimeStamp());
+            SendRPC(target.PlayerId);
             Bubble_.SetKillCooldown();
         }
         public static void OnFixedUpdate()
@@ -86,6 +106,7 @@ namespace TOHE.Roles.Neutral
                     pc.Suicide(realKiller: Bubble_);
                 }
                 EncasedPlayers.Remove(id);
+                SendRPC(id, remove: true);
             }
         }
         public static void OnReportDeadBody()
@@ -93,6 +114,7 @@ namespace TOHE.Roles.Neutral
             if (IsEnable) return;
             foreach (var pc in EncasedPlayers.Keys.Select(x => GetPlayerById(x)).Where(x => x != null && x.IsAlive())) pc.Suicide(realKiller: Bubble_);
             EncasedPlayers.Clear();
+            SendRPC(clear: true);
         }
     }
 }
