@@ -1858,12 +1858,13 @@ public static class Utils
             }
 
             DevUser devUser = player.FriendCode.GetDevUser();
-            if (!name.Contains('\r') && devUser.HasTag())
+            bool isMod = ChatCommands.IsPlayerModerator(player.FriendCode);
+            if (!name.Contains('\r') && (devUser.HasTag() || isMod))
             {
                 string tag = devUser.GetTag();
                 if (player.AmOwner || player.IsModClient())
-                    name = tag + name;
-                else name = tag.Replace("\r\n", " - ") + name;
+                    name = tag + (isMod ? ("<size=1.4>" + GetString("ModeratorTag") + "\r\n</size>") : string.Empty) + name;
+                else name = tag.Replace("\r\n", " - ") + (isMod ? ("<size=1.4>" + GetString("ModeratorTag") + " - </size>") : string.Empty) + name;
             }
 
             if (player.AmOwner)
@@ -1938,6 +1939,8 @@ public static class Utils
 
         PlayerControl[] seerList = SpecifySeer != null ? ([SpecifySeer]) : Main.AllPlayerControls;
         PlayerControl[] targetList = SpecifyTarget != null ? ([SpecifyTarget]) : Main.AllPlayerControls;
+
+        Logger.Info($" Seers: {string.Join(", ", seerList.ToList())};  Targets: {string.Join(", ", targetList.ToList())}", "NR");
 
         //seer: Players who can see changes made here
         //target: Players subject to changes that seer can see
@@ -2190,7 +2193,6 @@ public static class Utils
                     {
                         if (target.PlayerId == seer.PlayerId) continue;
                         Logger.Info("NotifyRoles-Loop2-" + target.GetNameWithRole().RemoveHtmlTags() + ":START", "NotifyRoles");
-
 
                         if ((IsActive(SystemTypes.MushroomMixupSabotage) || MushroomMixup) && target.IsAlive() && !seer.Is(CustomRoleTypes.Impostor) && Main.ResetCamPlayerList.Contains(seer.PlayerId))
                         {

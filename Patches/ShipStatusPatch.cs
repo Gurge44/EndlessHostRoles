@@ -190,7 +190,6 @@ class RepairSystemPatch
                         if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage) Damocles.OnRepairSabotage();
                         if (player.Is(CustomRoles.Stressed) && Stressed.countRepairSabotage) Stressed.OnRepairSabotage(player);
                     }
-
                     break;
                 }
 

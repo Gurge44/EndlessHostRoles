@@ -20,12 +20,12 @@ namespace TOHE;
 internal class ChatCommands
 {
     // Function to check if a player is a moderator
-    private static bool IsPlayerModerator(string friendCode)
+    public static bool IsPlayerModerator(string friendCode)
     {
-        if (friendCode == "" || friendCode == string.Empty) return false;
+        if (friendCode == "" || friendCode == string.Empty || !Options.ApplyModeratorList.GetBool()) return false;
         var friendCodesFilePath = @"./TOHE_DATA/Moderators.txt";
         var friendCodes = File.ReadAllLines(friendCodesFilePath);
-        return friendCodes.Any(code => code.Contains(friendCode));
+        return friendCodes.Any(code => code.Contains(friendCode, StringComparison.CurrentCultureIgnoreCase));
     }
 
     public static List<string> ChatHistory = [];
@@ -322,6 +322,7 @@ internal class ChatCommands
                         Utils.SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<color=#ff0000>{GetString("MessageFromTheHost")}</color>");
                     break;
 
+                case "/ban":
                 case "/kick":
                     canceled = true;
                     // Check if the kick command is enabled in the settings
@@ -366,7 +367,7 @@ internal class ChatCommands
                     }
 
                     // Kick the specified player
-                    AmongUsClient.Instance.KickPlayer(kickedPlayer.GetClientId(), true);
+                    AmongUsClient.Instance.KickPlayer(kickedPlayer.GetClientId(), args[0] == "/ban");
                     string kickedPlayerName = kickedPlayer.GetRealName();
                     string textToSend = $"{kickedPlayerName} {GetString("KickCommandKicked")}";
                     if (GameStates.IsInGame)
@@ -1000,6 +1001,7 @@ internal class ChatCommands
 
                 Utils.SendMessage(msgText, player.PlayerId);
                 break;
+            case "/ban":
             case "/kick":
                 // Check if the kick command is enabled in the settings
                 if (Options.ApplyModeratorList.GetValue() == 0)
@@ -1043,7 +1045,7 @@ internal class ChatCommands
                 }
 
                 // Kick the specified player
-                AmongUsClient.Instance.KickPlayer(kickedPlayer.GetClientId(), true);
+                AmongUsClient.Instance.KickPlayer(kickedPlayer.GetClientId(), args[0] == "/ban");
                 string kickedPlayerName = kickedPlayer.GetRealName();
                 string textToSend = $"{kickedPlayerName} {GetString("KickCommandKicked")}";
                 if (GameStates.IsInGame)

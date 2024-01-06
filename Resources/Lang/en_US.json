@@ -1609,6 +1609,7 @@
   "KickCommandKickMod": "You are not permitted to kick other moderators.",
   "KickCommandKicked": "was kicked from the game.",
   "KickCommandKickedRole": "Their role was",
+  "ModeratorTag": "<#8000ff>Moderator</color>",
   "DeathReason.Kill": "Kill",
   "DeathReason.Vote": "Ejected",
   "DeathReason.Suicide": "Suicide",
