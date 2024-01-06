@@ -1,7 +1,9 @@
 ﻿using AmongUs.GameOptions;
+using HarmonyLib;
 using Hazel;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Utils;
 
@@ -92,28 +94,39 @@ namespace TOHE.Roles.Neutral
             if (!IsEnable || !GameStates.IsInTask || EncasedPlayers.Count == 0) return;
 
             long now = GetTimeStamp();
-            foreach (var id in EncasedPlayers.Where(item => item.Value + ExplodeDelay.GetInt() < now).Select(item => item.Key).ToArray())
+            foreach (var kvp in EncasedPlayers)
             {
-                var encased = GetPlayerById(id);
-                if (!encased.IsAlive())
+                var id = kvp.Key;
+                var encasedPc = GetPlayerById(id);
+
+                if (kvp.Value + ExplodeDelay.GetInt() < now)
                 {
+                    if (!encasedPc.IsAlive())
+                    {
+                        EncasedPlayers.Remove(id);
+                        SendRPC(id, remove: true);
+                        continue;
+                    }
+                    var players = GetPlayersInRadius(ExplosionRadius.GetFloat(), encasedPc.Pos());
+                    foreach (var pc in players)
+                    {
+                        if (pc == null) continue;
+                        if (pc.PlayerId == BubbleId)
+                        {
+                            if (BubbleDiesIfInRange.GetBool()) _ = new LateTask(() => { if (GameStates.IsInTask) pc.Suicide(PlayerState.DeathReason.Bombed); }, 0.5f, log: false);
+                            continue;
+                        }
+                        pc.Suicide(PlayerState.DeathReason.Bombed, Bubble_);
+                    }
                     EncasedPlayers.Remove(id);
                     SendRPC(id, remove: true);
                     continue;
                 }
-                var players = GetPlayersInRadius(ExplosionRadius.GetFloat(), encased.Pos());
-                foreach (var pc in players)
+
+                if (kvp.Value + NotifyDelay.GetInt() < now)
                 {
-                    if (pc == null) continue;
-                    if (pc.PlayerId == BubbleId)
-                    {
-                        if (BubbleDiesIfInRange.GetBool()) _ = new LateTask(() => { if (GameStates.IsInTask) pc.Suicide(PlayerState.DeathReason.Bombed); }, 0.5f, log: false);
-                        continue;
-                    }
-                    pc.Suicide(PlayerState.DeathReason.Bombed, Bubble_);
+                    Main.AllAlivePlayerControls.Where(x => Vector2.Distance(x.Pos(), encasedPc.Pos()) < 5f).Do(x => NotifyRoles(SpecifySeer: x, SpecifyTarget: encasedPc));
                 }
-                EncasedPlayers.Remove(id);
-                SendRPC(id, remove: true);
             }
         }
         public static void OnReportDeadBody()
@@ -125,7 +138,7 @@ namespace TOHE.Roles.Neutral
         }
         public static string GetEncasedPlayerSuffix(PlayerControl seer, PlayerControl target)
         {
-            if (!IsEnable || target == null || !EncasedPlayers.TryGetValue(target.PlayerId, out var ts) || (ts + NotifyDelay.GetInt() >= GetTimeStamp() && seer.PlayerId != BubbleId)) return string.Empty;
+            if (!IsEnable || target == null || !EncasedPlayers.TryGetValue(target.PlayerId, out var ts) || (ts + NotifyDelay.GetInt() >= GetTimeStamp())) return string.Empty;
             return ColorString(GetRoleColor(CustomRoles.Bubble), $"{ExplodeDelay.GetInt() - (GetTimeStamp() - ts) + 1}s");
         }
     }
