@@ -88,15 +88,12 @@ internal class CustomRoleSelector
         {
             object cr = list[i1];
             CustomRoles role = (CustomRoles)Enum.Parse(typeof(CustomRoles), cr.ToString());
-            if (role.IsVanilla() || role.IsAdditionRole()) continue;
-            if (!Main.UseVersionProtocol.Value && !role.IsAbleToHostPublic()) continue;
+            if (role.IsVanilla() || role.IsAdditionRole() || (CustomRolesHelper.OnlySpawnsWithPetsRoleList.Contains(role) && !Options.UsePets.GetBool()) || (!Main.UseVersionProtocol.Value && !role.IsAbleToHostPublic())) continue;
             switch (role)
             {
                 case CustomRoles.DarkHide when (MapNames)Main.NormalOptions.MapId == MapNames.Fungle:
                 case CustomRoles.Pelican when roleList.Contains(CustomRoles.Duellist):
                 case CustomRoles.Duellist when roleList.Contains(CustomRoles.Pelican):
-                case CustomRoles.Tunneler when !Options.UsePets.GetBool():
-                case CustomRoles.Tornado when !Options.UsePets.GetBool():
                 case CustomRoles.GM:
                 case CustomRoles.NotAssigned:
                     continue;

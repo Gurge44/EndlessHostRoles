@@ -383,32 +383,8 @@ public static class Utils
 
         if (Options.NameDisplayAddons.GetBool() && !pure && self)
         {
-            if (Options.AddBracketsToAddons.GetBool())
-            {
-                if (Options.ImpEgoistVisibalToAllies.GetBool())
-                {
-                    foreach (var subRole in targetSubRoles.Where(x => x is not CustomRoles.LastImpostor and not CustomRoles.Madmate and not CustomRoles.Charmed and not CustomRoles.Recruit and not CustomRoles.Admired and not CustomRoles.Soulless and not CustomRoles.Lovers and not CustomRoles.Infected and not CustomRoles.Contagious))
-                        RoleText = ColorString(GetRoleColor(subRole), GetString("PrefixB." + subRole.ToString())) + RoleText;
-                }
-                if (!Options.ImpEgoistVisibalToAllies.GetBool())
-                {
-                    foreach (var subRole in targetSubRoles.Where(x => x is not CustomRoles.LastImpostor and not CustomRoles.Madmate and not CustomRoles.Charmed and not CustomRoles.Recruit and not CustomRoles.Admired and not CustomRoles.Soulless and not CustomRoles.Lovers and not CustomRoles.Infected and not CustomRoles.Contagious))
-                        RoleText = ColorString(GetRoleColor(subRole), GetString("PrefixB." + subRole.ToString())) + RoleText;
-                }
-            }
-            else if (!Options.AddBracketsToAddons.GetBool())
-            {
-                if (Options.ImpEgoistVisibalToAllies.GetBool())
-                {
-                    foreach (var subRole in targetSubRoles.Where(x => x is not CustomRoles.LastImpostor and not CustomRoles.Madmate and not CustomRoles.Charmed and not CustomRoles.Recruit and not CustomRoles.Admired and not CustomRoles.Soulless and not CustomRoles.Lovers and not CustomRoles.Infected and not CustomRoles.Contagious))
-                        RoleText = ColorString(GetRoleColor(subRole), GetString("Prefix." + subRole.ToString())) + RoleText;
-                }
-                if (!Options.ImpEgoistVisibalToAllies.GetBool())
-                {
-                    foreach (var subRole in targetSubRoles.Where(x => x is not CustomRoles.LastImpostor and not CustomRoles.Madmate and not CustomRoles.Charmed and not CustomRoles.Recruit and not CustomRoles.Admired and not CustomRoles.Soulless and not CustomRoles.Lovers and not CustomRoles.Infected and not CustomRoles.Contagious))
-                        RoleText = ColorString(GetRoleColor(subRole), GetString("Prefix." + subRole.ToString())) + RoleText;
-                }
-            }
+            foreach (var subRole in targetSubRoles.Where(x => x is not CustomRoles.LastImpostor and not CustomRoles.Madmate and not CustomRoles.Charmed and not CustomRoles.Recruit and not CustomRoles.Admired and not CustomRoles.Soulless and not CustomRoles.Lovers and not CustomRoles.Infected and not CustomRoles.Contagious))
+                RoleText = ColorString(GetRoleColor(subRole), (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>(</color>" : string.Empty) + GetString("Prefix." + subRole.ToString())) + (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>)</color>" : string.Empty) + RoleText;
         }
 
         if (targetSubRoles.Contains(CustomRoles.Madmate))
@@ -2899,7 +2875,7 @@ public static class Utils
                     neutralnum++;
             }
         }
-        return  (notify ? "<#777777>" : string.Empty) +
+        return (notify ? "<#777777>" : string.Empty) +
                 (impnum == 1 ? GetString("RemainingText.Prefix.SingleImp") : GetString("RemainingText.Prefix.PluralImp")) +
                 (notify ? " " : "\n") +
                 (notify ? "<#ffffff>" : "<b>") +

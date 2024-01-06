@@ -129,6 +129,7 @@ namespace TOHE.Roles.Impostor
 
             if (librarian == null) return true;
 
+            reporter.SetRealKiller(librarian);
             if (librarian.RpcCheckAndMurder(reporter))
             {
                 sssh.Add(librarian.PlayerId);
@@ -143,7 +144,7 @@ namespace TOHE.Roles.Impostor
             return false;
         }
 
-        public static bool OnShapeshift(PlayerControl pc)
+        public static bool OnShapeshift(PlayerControl pc, bool shapeshifting)
         {
             if (!IsEnable) return false;
             if (pc == null) return false;
@@ -153,7 +154,7 @@ namespace TOHE.Roles.Impostor
             isInSilencingMode[id] = (!isInSilencingMode[id].SILENCING, GetTimeStamp());
             SendRPC(id, isInSilencingMode[id].SILENCING);
 
-            return ShowSSAnimation.GetBool();
+            return !shapeshifting || ShowSSAnimation.GetBool();
         }
 
         public static void OnFixedUpdate()

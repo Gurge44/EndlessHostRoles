@@ -100,10 +100,10 @@ namespace TOHE.Roles.Neutral
                     if (pc == null) continue;
                     if (pc.PlayerId == BubbleId)
                     {
-                        if (BubbleDiesIfInRange.GetBool()) _ = new LateTask(() => { if (GameStates.IsInTask) pc.Suicide(); }, 0.2f, log: false);
+                        if (BubbleDiesIfInRange.GetBool()) _ = new LateTask(() => { if (GameStates.IsInTask) pc.Suicide(); }, 0.5f, log: false);
                         else continue;
                     }
-                    pc.Suicide(realKiller: Bubble_);
+                    pc.Suicide(PlayerState.DeathReason.Bombed, Bubble_);
                 }
                 EncasedPlayers.Remove(id);
                 SendRPC(id, remove: true);
@@ -111,8 +111,8 @@ namespace TOHE.Roles.Neutral
         }
         public static void OnReportDeadBody()
         {
-            if (IsEnable) return;
-            foreach (var pc in EncasedPlayers.Keys.Select(x => GetPlayerById(x)).Where(x => x != null && x.IsAlive())) pc.Suicide(realKiller: Bubble_);
+            if (!IsEnable) return;
+            foreach (var pc in EncasedPlayers.Keys.Select(x => GetPlayerById(x)).Where(x => x != null && x.IsAlive())) pc.Suicide(PlayerState.DeathReason.Bombed, Bubble_);
             EncasedPlayers.Clear();
             SendRPC(clear: true);
         }

@@ -15,7 +15,7 @@ public class DevUser(string code = "", string color = "null", string tag = "null
     public string UpName { get; set; } = upName;
 
     public bool HasTag() => Tag != "null";
-    public string GetTag() => Color == "null" ? $"<size=1>{Tag}</size>\r\n" : $"<color={Color}><size=1>{(Tag == "#Dev" ? Translator.GetString("Developer") : Tag)}</size></color>\r\n";
+    public string GetTag() => Color == "null" ? $"<size=1.4>{Tag}</size>\r\n" : $"<color={Color}><size=1.4>{(Tag == "#Dev" ? Translator.GetString("Developer") : Tag)}</size></color>\r\n";
 }
 
 public static class DevManager

@@ -818,7 +818,8 @@ internal class ChatCommands
                     if (isUp) return;
                 }
                 var sb = new StringBuilder();
-                _ = sb.Append($"{devMark}<b>{roleName}</b>{Utils.GetRoleMode(rl)}{GetString($"{rl}InfoLong")}");
+                var title = $"{devMark}<{Main.roleColors[rl]}>{roleName}</color>  {Utils.GetRoleMode(rl)}";
+                _ = sb.Append($"{GetString($"{rl}InfoLong")}");
                 var settings = new StringBuilder();
                 if (Options.CustomRoleSpawnChances.ContainsKey(rl))
                 {
@@ -829,7 +830,7 @@ internal class ChatCommands
                     _ = sb.Clear().Append(txt);
                 }
                 Utils.SendMessage(text: "\n", sendTo: playerId, title: settings.ToString());
-                Utils.SendMessage(text: sb.ToString(), sendTo: playerId);
+                Utils.SendMessage(text: sb.ToString(), sendTo: playerId, title: title);
                 return;
             }
         }

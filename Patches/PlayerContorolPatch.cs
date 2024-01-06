@@ -1395,7 +1395,7 @@ class ShapeshiftPatch
                     isSSneeded = false;
                     break;
                 case CustomRoles.Librarian:
-                    if (shapeshifting) isSSneeded = Librarian.OnShapeshift(shapeshifter);
+                    isSSneeded = Librarian.OnShapeshift(shapeshifter, shapeshifting);
                     break;
                 case CustomRoles.Warlock:
                     if (Main.CursedPlayers[shapeshifter.PlayerId] != null)//呪われた人がいるか確認
@@ -3034,6 +3034,10 @@ class FixedUpdatePatch
                     target.cosmetics.nameText.text = changeTo;
 
                     float offset = 0.2f;
+                    if (NameNotifyManager.Notice.TryGetValue(target.PlayerId, out var notify) && notify.TEXT.Contains('\n'))
+                    {
+                        offset += 0.1f;
+                    }
                     if (Suffix.ToString() != string.Empty)
                     {
                         // If the name is on two lines, the job title text needs to be moved up.
