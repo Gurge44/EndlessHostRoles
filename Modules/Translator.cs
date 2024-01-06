@@ -117,50 +117,6 @@ public static class Translator
         return resourceNames.Where(resourceName => resourceName.StartsWith(directoryName) && resourceName.EndsWith(".json")).ToArray();
     }
 
-    //public static void LoadLangs()
-    //{
-    //    var assembly = System.Reflection.Assembly.GetExecutingAssembly();
-    //    var stream = assembly.GetManifestResourceStream("TOHE.Resources.String.csv");
-    //    translateMaps = new Dictionary<string, Dictionary<int, string>>();
-
-    //    var options = new CsvOptions()
-    //    {
-    //        HeaderMode = HeaderMode.HeaderPresent,
-    //        AllowNewLineInEnclosedFieldValues = false,
-    //    };
-    //    foreach (var line in CsvReader.ReadFromStream(stream, options))
-    //    {
-    //        if (line.Values[0][0] == '#') continue;
-    //        try
-    //        {
-    //            Dictionary<int, string> dic = new();
-    //            for (int i = 1; i < line.ColumnCount; i++)
-    //            {
-    //                int id = int.Parse(line.Headers[i]);
-    //                dic[id] = line.Values[i].Replace("\\n", "\n").Replace("\\r", "\r");
-    //            }
-    //            if (!translateMaps.TryAdd(line.Values[0], dic))
-    //                Logger.Warn($"待翻译的 CSV 文件中存在重复项：第{line.Index}行 => \"{line.Values[0]}\"", "Translator");
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            Logger.Warn($"翻译文件错误：第{line.Index}行 => \"{line.Values[0]}\"", "Translator");
-    //            Logger.Warn(ex.ToString(), "Translator");
-    //        }
-    //    }
-
-    //    // カスタム翻訳ファイルの読み込み
-    //    if (!Directory.Exists(LANGUAGE_FOLDER_NAME)) Directory.CreateDirectory(LANGUAGE_FOLDER_NAME);
-
-    //    // 翻訳テンプレートの作成
-    //    CreateTemplateFile();
-    //    foreach (var lang in Enum.GetValues(typeof(SupportedLangs)))
-    //    {
-    //        if (File.Exists(@$"./{LANGUAGE_FOLDER_NAME}/{lang}.dat"))
-    //            LoadCustomTranslation($"{lang}.dat", (SupportedLangs)lang);
-    //    }
-    //}
-
     public static string GetString(string s, Dictionary<string, string> replacementDic = null, bool console = false)
     {
         var langId = TranslationController.InstanceExists ? TranslationController.Instance.currentLanguage.languageID : SupportedLangs.English;
@@ -273,7 +229,7 @@ public static class Translator
         string path = @$"./{LANGUAGE_FOLDER_NAME}/{filename}";
         if (File.Exists(path))
         {
-            Logger.Info($"加载自定义翻译文件：{filename}", "LoadCustomTranslation");
+            Logger.Info($"Loading Custom Translation File：{filename}", "LoadCustomTranslation");
             using StreamReader sr = new(path, Encoding.GetEncoding("UTF-8"));
             string text;
             string[] tmp = [];
@@ -288,14 +244,14 @@ public static class Translator
                     }
                     catch (KeyNotFoundException)
                     {
-                        Logger.Warn($"无效密钥：{tmp[0]}", "LoadCustomTranslation");
+                        Logger.Warn($"Invalid Key：{tmp[0]}", "LoadCustomTranslation");
                     }
                 }
             }
         }
         else
         {
-            Logger.Error($"找不到自定义翻译文件：{filename}", "LoadCustomTranslation");
+            Logger.Error($"Custom Translation File Not Found：{filename}", "LoadCustomTranslation");
         }
     }
 
