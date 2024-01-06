@@ -214,15 +214,14 @@ class CheckMurderPatch
             //非自杀场景下才会触发
             switch (killer.GetCustomRole())
             {
-                //==========内鬼阵营==========//
-                case CustomRoles.BountyHunter: //必须在击杀发生前处理
+                case CustomRoles.BountyHunter:
                     BountyHunter.OnCheckMurder(killer, target);
                     break;
                 case CustomRoles.Reckless:
                     Reckless.OnCheckMurder(killer);
                     break;
                 case CustomRoles.YinYanger:
-                    if (YinYanger.OnCheckMurder(killer, target)) return false;
+                    if (!YinYanger.OnCheckMurder(killer, target)) return false;
                     break;
                 case CustomRoles.Magician:
                     Magician.OnCheckMurder(killer);
@@ -1947,6 +1946,7 @@ class ReportDeadBodyPatch
         {
             Stressed.OnReport(player);
         }
+        Stressed.OnMeetingStart();
 
         if (Options.InhibitorCDAfterMeetings.GetFloat() != Options.InhibitorCD.GetFloat() || Options.SaboteurCD.GetFloat() != Options.SaboteurCDAfterMeetings.GetFloat())
         {
@@ -2137,9 +2137,6 @@ class FixedUpdatePatch
                 case CustomRoles.BountyHunter:
                     BountyHunter.FixedUpdate(player);
                     break;
-                case CustomRoles.Tornado when !lowLoad:
-                    Tornado.OnFixedUpdate(player);
-                    break;
                 case CustomRoles.Glitch when !lowLoad:
                     Glitch.UpdateHackCooldown(player);
                     break;
@@ -2172,9 +2169,6 @@ class FixedUpdatePatch
                     break;
                 case CustomRoles.Bubble when !lowLoad:
                     Bubble.OnFixedUpdate();
-                    break;
-                case CustomRoles.Sprayer when !lowLoad:
-                    Sprayer.OnFixedUpdate();
                     break;
                 case CustomRoles.Sentinel when !lowLoad:
                     Sentinel.OnFixedUpdate();
@@ -2216,6 +2210,15 @@ class FixedUpdatePatch
                     PlagueBearer.PestilenceList.Add(playerId);
                 PlagueBearer.SetKillCooldownPestilence(playerId);
                 PlagueBearer.playerIdList.Remove(playerId);
+            }
+
+            if (GameStates.IsInTask && player != null && player.IsAlive())
+            {
+                Druid.OnCheckPlayerPosition(player);
+                Sentinel.OnCheckPlayerPosition(player);
+                Tornado.OnCheckPlayerPosition(player);
+                BallLightning.OnCheckPlayerPosition(player);
+                Sprayer.OnCheckPlayerPosition(player);
             }
 
             if (!lowLoad && Main.PlayerStates.TryGetValue(playerId, out var playerState) && GameStates.IsInTask)
@@ -2530,10 +2533,6 @@ class FixedUpdatePatch
 
                 case CustomRoles.Pelican:
                     Pelican.OnFixedUpdate();
-                    break;
-
-                case CustomRoles.BallLightning:
-                    BallLightning.OnFixedUpdate();
                     break;
 
                 case CustomRoles.Sapper:
@@ -2936,6 +2935,7 @@ class FixedUpdatePatch
                 if (PlagueDoctor.IsEnable) Suffix.Append(PlagueDoctor.GetLowerTextOthers(seer, target));
                 if (Stealth.IsEnable) Suffix.Append(Stealth.GetSuffix(seer, target));
                 if (Tracker.IsEnable) Suffix.Append(Tracker.GetTrackerArrow(seer, target));
+                if (Bubble.IsEnable) Suffix.Append(Bubble.GetEncasedPlayerSuffix(seer, target));
 
                 if (Deathpact.IsEnable)
                 {
@@ -3044,6 +3044,10 @@ class FixedUpdatePatch
                         //RoleText.transform.SetLocalY(0.35f);
                         offset += 0.15f;
                         target.cosmetics.nameText.text += "\r\n" + Suffix.ToString();
+                    }
+                    if (!seer.IsAlive())
+                    {
+                        offset += 0.1f;
                     }
                     if (isProgressTextLong)
                     {

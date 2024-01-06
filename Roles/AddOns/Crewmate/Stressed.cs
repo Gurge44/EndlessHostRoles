@@ -103,10 +103,10 @@ namespace TOHE.Roles.AddOns.Crewmate
 
         public static void Update(PlayerControl pc)
         {
-            if (!LastUpdates.TryGetValue(pc.PlayerId, out var x) || x >= GetTimeStamp() || !Timers.ContainsKey(pc.PlayerId) || !IsEnable || !GameStates.IsInTask || !pc.IsAlive() || !pc.Is(CustomRoles.Stressed)) return;
+            if (!LastUpdates.TryGetValue(pc.PlayerId, out var x) || x >= GetTimeStamp() || !Timers.ContainsKey(pc.PlayerId) || !IsEnable || !GameStates.IsInTask || !pc.Is(CustomRoles.Stressed)) return;
             LastUpdates[pc.PlayerId] = GetTimeStamp();
 
-            if (pc.GetPlayerTaskState().IsTaskFinished)
+            if (pc.GetPlayerTaskState().IsTaskFinished || !pc.IsAlive())
             {
                 Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Stressed);
                 Timers.Remove(pc.PlayerId);
@@ -121,7 +121,7 @@ namespace TOHE.Roles.AddOns.Crewmate
                 pc.Suicide();
             }
 
-            if (pc.IsModClient() && pc.PlayerId != 0) SendRPC(pc.PlayerId, Timers[pc.PlayerId], LastUpdates[pc.PlayerId]);
+            if (pc.IsNonHostModClient()) SendRPC(pc.PlayerId, Timers[pc.PlayerId], LastUpdates[pc.PlayerId]);
             if (!pc.IsModClient()) NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
@@ -154,7 +154,6 @@ namespace TOHE.Roles.AddOns.Crewmate
         public static void AfterMeetingTasks()
         {
             if (!IsEnable) return;
-            AdjustTime(TimeAfterMeeting + 9);
             countRepairSabotage = true;
         }
 
@@ -186,6 +185,12 @@ namespace TOHE.Roles.AddOns.Crewmate
         {
             if (!IsEnable) return;
             Timers[pc.PlayerId] += TimeAfterReport;
+        }
+
+        public static void OnMeetingStart()
+        {
+            if (!IsEnable) return;
+            AdjustTime(TimeAfterMeeting + 9);
         }
 
         public static string GetProgressText(byte playerId) => Timers.TryGetValue(playerId, out var x) ? string.Format(GetString("DamoclesTimeLeft"), x) : string.Empty;

@@ -94,14 +94,21 @@ namespace TOHE.Roles.Neutral
             long now = GetTimeStamp();
             foreach (var id in EncasedPlayers.Where(item => item.Value + ExplodeDelay.GetInt() < now).Select(item => item.Key).ToArray())
             {
-                var players = GetPlayersInRadius(ExplosionRadius.GetFloat(), GetPlayerById(id).Pos());
+                var encased = GetPlayerById(id);
+                if (!encased.IsAlive())
+                {
+                    EncasedPlayers.Remove(id);
+                    SendRPC(id, remove: true);
+                    continue;
+                }
+                var players = GetPlayersInRadius(ExplosionRadius.GetFloat(), encased.Pos());
                 foreach (var pc in players)
                 {
                     if (pc == null) continue;
                     if (pc.PlayerId == BubbleId)
                     {
-                        if (BubbleDiesIfInRange.GetBool()) _ = new LateTask(() => { if (GameStates.IsInTask) pc.Suicide(); }, 0.5f, log: false);
-                        else continue;
+                        if (BubbleDiesIfInRange.GetBool()) _ = new LateTask(() => { if (GameStates.IsInTask) pc.Suicide(PlayerState.DeathReason.Bombed); }, 0.5f, log: false);
+                        continue;
                     }
                     pc.Suicide(PlayerState.DeathReason.Bombed, Bubble_);
                 }
@@ -115,6 +122,11 @@ namespace TOHE.Roles.Neutral
             foreach (var pc in EncasedPlayers.Keys.Select(x => GetPlayerById(x)).Where(x => x != null && x.IsAlive())) pc.Suicide(PlayerState.DeathReason.Bombed, Bubble_);
             EncasedPlayers.Clear();
             SendRPC(clear: true);
+        }
+        public static string GetEncasedPlayerSuffix(PlayerControl seer, PlayerControl target)
+        {
+            if (!IsEnable || target == null || !EncasedPlayers.TryGetValue(target.PlayerId, out var ts) || (ts + NotifyDelay.GetInt() >= GetTimeStamp() && seer.PlayerId != BubbleId)) return string.Empty;
+            return ColorString(GetRoleColor(CustomRoles.Bubble), $"{ExplodeDelay.GetInt() - (GetTimeStamp() - ts) + 1}s");
         }
     }
 }

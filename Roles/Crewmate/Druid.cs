@@ -169,52 +169,45 @@ namespace TOHE.Roles.Crewmate
             SendRPCSyncAbilityUse(pc.PlayerId);
         }
 
+        public static void OnCheckPlayerPosition(PlayerControl pc)
+        {
+            if (!IsEnable || !GameStates.IsInTask || Triggers.Count <= 0 || playerIdList.Contains(pc.PlayerId)) return;
+
+            foreach (var triggers in Triggers.ToArray()) // Check for all Druids' traps - Most likely just 1 loop
+            {
+                foreach (var trigger in triggers.Value.Where(trigger => Vector2.Distance(trigger.Key, pc.Pos()) <= 1.5f)) // Check for all traps of the current Druid - Most likely 0-3 loops
+                {
+                    GetPlayerById(triggers.Key).Notify(string.Format(GetString("DruidTriggerTriggered"), GetFormattedRoomName(trigger.Value), GetFormattedVectorText(trigger.Key)));
+                    Triggers[triggers.Key].Remove(trigger.Key);
+                    SendRPCRemoveTrigger(triggers.Key, trigger.Key);
+                }
+            }
+        }
+
         public static void OnFixedUpdate()
         {
-            if (!IsEnable || !GameStates.IsInTask || Triggers.Count == 0 && TriggerDelays.Count == 0) return;
+            if (!IsEnable || !GameStates.IsInTask || TriggerDelays.Count <= 0) return;
 
             long now = GetTimeStamp();
 
-            if (TriggerDelays.Count > 0)
+            foreach (var x in TriggerDelays.ToArray())
             {
-                foreach (var x in TriggerDelays.ToArray())
+                var id = x.Key;
+                var pc = GetPlayerById(id);
+                if (pc == null) continue;
+
+                if (x.Value + TriggerPlaceDelay.GetInt() < now)
                 {
-                    var id = x.Key;
-                    var pc = GetPlayerById(id);
-                    if (pc == null) continue;
-
-                    if (x.Value + TriggerPlaceDelay.GetInt() < now)
-                    {
-                        TriggerDelays.Remove(id);
-                        var (LOCATION, ROOM_NAME) = pc.GetPositionInfo();
-                        if (!Triggers.ContainsKey(id)) Triggers.Add(id, []);
-                        Triggers[id].TryAdd(LOCATION, ROOM_NAME);
-                        SendRPCAddTrigger(id, LOCATION, ROOM_NAME);
-                        continue;
-                    }
-
-                    var timeLeft = TriggerPlaceDelay.GetInt() - (now - x.Value);
-                    if (lastUpdate < now) pc.Notify(string.Format(GetString("DruidTimeLeft"), timeLeft, 2f));
+                    TriggerDelays.Remove(id);
+                    var (LOCATION, ROOM_NAME) = pc.GetPositionInfo();
+                    if (!Triggers.ContainsKey(id)) Triggers.Add(id, []);
+                    Triggers[id].TryAdd(LOCATION, ROOM_NAME);
+                    SendRPCAddTrigger(id, LOCATION, ROOM_NAME);
+                    continue;
                 }
-            }
 
-            if (Triggers.Count > 0)
-            {
-                foreach (var pc in Main.AllAlivePlayerControls.Where(pc => !playerIdList.Contains(pc.PlayerId)).ToArray()) // Check for all alive players except Druids - Worst case scenario it's 14 loops
-                {
-                    foreach (var triggers in Triggers.ToArray()) // Check for all Druids' traps - Most likely just 1 loop
-                    {
-                        foreach (var trigger in triggers.Value.ToArray()) // Check for all traps of the current Druid - Most likely 0-3 loops
-                        {
-                            if (Vector2.Distance(trigger.Key, pc.Pos()) <= 1.5f)
-                            {
-                                GetPlayerById(triggers.Key).Notify(string.Format(GetString("DruidTriggerTriggered"), GetFormattedRoomName(trigger.Value), GetFormattedVectorText(trigger.Key)));
-                                Triggers[triggers.Key].Remove(trigger.Key);
-                                SendRPCRemoveTrigger(triggers.Key, trigger.Key);
-                            }
-                        }
-                    }
-                }
+                var timeLeft = TriggerPlaceDelay.GetInt() - (now - x.Value);
+                if (lastUpdate < now) pc.Notify(string.Format(GetString("DruidTimeLeft"), timeLeft, 2f));
             }
 
             lastUpdate = now;

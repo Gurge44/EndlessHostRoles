@@ -49,22 +49,22 @@ namespace TOHE.Roles.Crewmate
                 FinishPatrolling();
                 return;
             }
+        }
 
+        public void OnCheckPlayerPosition(PlayerControl pc)
+        {
             var killers = NearbyKillers;
 
-            foreach (var pc in Main.AllAlivePlayerControls)
-            {
-                bool nowInRange = killers.Any(x => x.PlayerId == pc.PlayerId);
-                bool wasInRange = LastNearbyKillers.Contains(pc.PlayerId);
+            bool nowInRange = killers.Any(x => x.PlayerId == pc.PlayerId);
+            bool wasInRange = LastNearbyKillers.Contains(pc.PlayerId);
 
-                if (wasInRange && !nowInRange)
-                {
-                    pc.Notify(GetString("KillerEscapedFromSentinel"));
-                }
-                if (nowInRange)
-                {
-                    pc.Notify(string.Format(GetString("KillerNotifyPatrol"), PatrolDuration - (now - PatrolStartTimeStamp)));
-                }
+            if (wasInRange && !nowInRange)
+            {
+                pc.Notify(GetString("KillerEscapedFromSentinel"));
+            }
+            if (nowInRange)
+            {
+                pc.Notify(string.Format(GetString("KillerNotifyPatrol"), PatrolDuration - (GetTimeStamp() - PatrolStartTimeStamp)));
             }
         }
 
@@ -169,6 +169,14 @@ namespace TOHE.Roles.Crewmate
             foreach (PatrollingState state in PatrolStates)
             {
                 state.Update();
+            }
+        }
+        public static void OnCheckPlayerPosition(PlayerControl pc)
+        {
+            if (!IsEnable) return;
+            foreach (PatrollingState state in PatrolStates)
+            {
+                state.OnCheckPlayerPosition(pc);
             }
         }
     }

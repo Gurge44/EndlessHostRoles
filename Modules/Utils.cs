@@ -2467,6 +2467,7 @@ public static class Utils
 
                             TargetSuffix.Append(PlagueDoctor.GetLowerTextOthers(seer, target));
                             TargetSuffix.Append(Stealth.GetSuffix(seer, target));
+                            TargetSuffix.Append(Bubble.GetEncasedPlayerSuffix(seer, target));
 
                             if (target.Is(CustomRoles.Librarian)) TargetSuffix.Append(Librarian.GetNameTextForSuffix(target.PlayerId));
 

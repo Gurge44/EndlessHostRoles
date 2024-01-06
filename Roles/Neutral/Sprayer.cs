@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using static TOHE.Options;
+using static TOHE.Translator;
 using static TOHE.Utils;
 
 namespace TOHE.Roles.Neutral
@@ -93,56 +94,56 @@ namespace TOHE.Roles.Neutral
         public static void ReceiveRPC(MessageReader reader) => UseLimit = reader.ReadInt32();
         public static void PlaceTrap()
         {
-            if (!IsEnable || Sprayer_.HasAbilityCD() || UseLimit <= 0) return;
+            if (!IsEnable || UseLimit <= 0 || Sprayer_.HasAbilityCD()) return;
 
             Traps.Add(Sprayer_.Pos());
             UseLimit--;
             SendRPC();
 
             if (UseLimit > 0) Sprayer_.AddAbilityCD(CD.GetInt());
+
+            Sprayer_.Notify(GetString("SprayerNotify"));
         }
-        public static void OnFixedUpdate()
+        public static void OnCheckPlayerPosition(PlayerControl pc)
         {
             if (!IsEnable || !GameStates.IsInTask || Traps.Count == 0) return;
 
             long now = GetTimeStamp();
 
-            foreach (var pc in Main.AllAlivePlayerControls)
+            if (pc.PlayerId == SprayerId) return;
+
+            if (!LastUpdate.ContainsKey(pc.PlayerId)) LastUpdate.Add(pc.PlayerId, now);
+            if (LastUpdate[pc.PlayerId] + 3 > now) return;
+            LastUpdate[pc.PlayerId] = now;
+
+            foreach (var trap in Traps.ToArray())
             {
-                if (pc.PlayerId == SprayerId) continue;
-
-                if (!LastUpdate.ContainsKey(pc.PlayerId)) LastUpdate.Add(pc.PlayerId, now);
-                if (LastUpdate[pc.PlayerId] + 3 > now) continue;
-                LastUpdate[pc.PlayerId] = now;
-
-                foreach (var trap in Traps.ToArray())
+                if (Vector2.Distance(pc.Pos(), trap) <= 2f)
                 {
-                    if (Vector2.Distance(pc.Pos(), trap) <= 2f)
+                    byte playerId = pc.PlayerId;
+                    var tempSpeed = Main.AllPlayerSpeed[playerId];
+                    Main.AllPlayerSpeed[playerId] = LoweredSpeed.GetFloat();
+                    LowerVisionList.Add(playerId);
+                    TrappedCount[playerId]++;
+                    if (TrappedCount[playerId] > MaxTrappedTimes.GetInt())
                     {
-                        byte playerId = pc.PlayerId;
-                        var tempSpeed = Main.AllPlayerSpeed[playerId];
-                        Main.AllPlayerSpeed[playerId] = LoweredSpeed.GetFloat();
-                        LowerVisionList.Add(playerId);
-                        TrappedCount[playerId]++;
-                        if (TrappedCount[playerId] > MaxTrappedTimes.GetInt())
+                        pc.Suicide(realKiller: Sprayer_);
+                        TrappedCount.Remove(playerId);
+                    }
+                    else
+                    {
+                        pc.MarkDirtySettings();
+                        _ = new LateTask(() =>
                         {
-                            pc.Suicide(realKiller: Sprayer_);
-                            TrappedCount.Remove(playerId);
-                        }
-                        else
-                        {
-                            pc.MarkDirtySettings();
-                            _ = new LateTask(() =>
-                            {
-                                Main.AllPlayerSpeed[playerId] = tempSpeed;
-                                LowerVisionList.Remove(playerId);
-                                if (GameStates.IsInTask) pc.MarkDirtySettings();
-                            }, EffectDuration.GetFloat(), "Sprayer Revert Effects");
-                        }
+                            Main.AllPlayerSpeed[playerId] = tempSpeed;
+                            LowerVisionList.Remove(playerId);
+                            if (GameStates.IsInTask) pc.MarkDirtySettings();
+                        }, EffectDuration.GetFloat(), "Sprayer Revert Effects");
                     }
                 }
             }
         }
+
         public static void OnReportDeadBody()
         {
             Traps.Clear();

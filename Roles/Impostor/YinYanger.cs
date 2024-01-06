@@ -70,7 +70,7 @@ namespace TOHE.Roles.Impostor
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (!IsEnable) return false;
-            if (killer == null || target == null) return false;
+            if (killer == null || target == null || !killer.Is(CustomRoles.YinYanger)) return false;
 
             if (YinYangedPlayers.Count == 2)
             {

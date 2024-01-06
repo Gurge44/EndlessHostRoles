@@ -24,6 +24,7 @@ public static class Medic
     public static OptionItem GuesserIgnoreShield;
     private static OptionItem AmountOfShields;
     public static OptionItem UsePet;
+    public static OptionItem CD;
 
     public static readonly string[] MedicWhoCanSeeProtectName =
     [
@@ -67,6 +68,9 @@ public static class Medic
         AmountOfShields = IntegerOptionItem.Create(Id + 34, "MedicAmountOfShields", new(1, 14, 1), 1, TabGroup.CrewmateRoles, false)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
         UsePet = Options.CreatePetUseSetting(Id + 36, CustomRoles.Medic);
+        CD = FloatOptionItem.Create(Id + 38, "AbilityCooldown", new(0f, 180f, 2.5f), 7.5f, TabGroup.CrewmateRoles, false)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic])
+            .SetValueFormat(OptionFormat.Seconds);
     }
     public static void Init()
     {
@@ -124,7 +128,7 @@ public static class Medic
     public static bool CanUseKillButton(byte playerId)
         => !Main.PlayerStates[playerId].IsDead
         && (ProtectLimit.TryGetValue(playerId, out var x) ? x : 1) >= 1;
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanUseKillButton(id) ? 5f : 300f;
+    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanUseKillButton(id) ? CD.GetFloat() : 300f;
     public static string GetSkillLimit(byte playerId) => Utils.ColorString(CanUseKillButton(playerId) ? Utils.GetRoleColor(CustomRoles.Medic).ShadeColor(0.25f) : Color.gray, ProtectLimit.TryGetValue(playerId, out var protectLimit) ? $"({protectLimit})" : "Invalid");
     public static bool InProtect(byte id) => ProtectList.Contains(id) && Main.PlayerStates.TryGetValue(id, out var ps) && !ps.IsDead;
     public static void OnCheckMurderFormedicaler(PlayerControl killer, PlayerControl target)

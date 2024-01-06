@@ -104,7 +104,7 @@ namespace TOHE.Roles.Crewmate
             Tornados.Add(info, now);
             SendRPCAddTornado(info.LOCATION, info.ROOM_NAME, now);
         }
-        public static void OnFixedUpdate(PlayerControl tornadoPc)
+        public static void OnCheckPlayerPosition(PlayerControl pc)
         {
             if (!IsEnable || !GameStates.IsInTask || Tornados.Count == 0) return;
 
@@ -114,10 +114,8 @@ namespace TOHE.Roles.Crewmate
             var tornadoRange = TornadoRange.GetFloat();
             var tornadoDuration = TornadoDuration.GetInt();
 
-            foreach (var pc in Main.AllAlivePlayerControls)
+            foreach (var tornadoPc in playerIdList.Select(x => GetPlayerById(x)).Where(x => x.PlayerId != pc.PlayerId).ToArray())
             {
-                if (playerIdList.Contains(pc.PlayerId)) continue;
-
                 foreach (var tornado in Tornados)
                 {
                     if (Vector2.Distance(tornado.Key.LOCATION, pc.Pos()) <= tornadoRange)
@@ -139,11 +137,11 @@ namespace TOHE.Roles.Crewmate
                         SendRPCRemoveTornado(tornado.Key.LOCATION, tornado.Key.ROOM_NAME);
                     }
                 }
-            }
 
-            if (tornadoPc == null || LastNotify >= now || !tornadoPc.Is(CustomRoles.Tornado) || tornadoPc.HasAbilityCD()) return;
-            NotifyRoles(SpecifySeer: tornadoPc, SpecifyTarget: tornadoPc);
-            LastNotify = now;
+                if (tornadoPc == null || LastNotify >= now || !tornadoPc.Is(CustomRoles.Tornado) || tornadoPc.HasAbilityCD()) return;
+                NotifyRoles(SpecifySeer: tornadoPc, SpecifyTarget: tornadoPc);
+                LastNotify = now;
+            }
         }
         public static string GetSuffixText(byte playerId, bool isHUD = false) => string.Join(isHUD ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.ROOM_NAME)} {GetFormattedVectorText(x.Key.LOCATION)} ({(int)(TornadoDuration.GetInt() - (GetTimeStamp() - x.Value) + 1)}s)"));
     }

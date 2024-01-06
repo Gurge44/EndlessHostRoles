@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MS.Internal.Xml.XPath;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TOHE.Roles.Crewmate;
@@ -33,8 +34,8 @@ namespace TOHE.Roles.Impostor
         public static OptionItem IgnorePestilence;
         public static OptionItem PositiveEffectChance;
 
-        public static byte EffectID = byte.MaxValue;
-        public static bool isPositiveEffect;
+        public static Dictionary<byte, byte> EffectID = [];
+        public static Dictionary<byte, bool> isPositiveEffect = [];
 
         public static Dictionary<byte, long> waitingDelayedKills = [];
         public static Dictionary<byte, long> isShielded = [];
@@ -43,7 +44,7 @@ namespace TOHE.Roles.Impostor
 
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Gambler, 1);
+            SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Gambler);
             KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 60f, 2.5f), 25f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
             KillDelay = IntegerOptionItem.Create(Id + 11, "GamblerKillDelay", new(0, 10, 1), 3, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
@@ -74,17 +75,18 @@ namespace TOHE.Roles.Impostor
             IgnoreVeteranAlert = BooleanOptionItem.Create(Id + 25, "GamblerIgnoreVeteranAlert", false, TabGroup.ImpostorRoles, false).SetParent(WhatToIgnore);
             IgnorePestilence = BooleanOptionItem.Create(Id + 26, "GamblerIgnorePestilence", false, TabGroup.ImpostorRoles, false).SetParent(WhatToIgnore);
             PositiveEffectChance = IntegerOptionItem.Create(Id + 27, "GamblerPositiveEffectChance", new(0, 100, 5), 70, TabGroup.ImpostorRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
-            .SetValueFormat(OptionFormat.Percent);
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
+                .SetValueFormat(OptionFormat.Percent);
         }
 
         public static void Init()
         {
             playerIdList = [];
-            EffectID = byte.MaxValue;
+            EffectID = [];
             waitingDelayedKills = [];
             isSpeedChange = [];
             isVisionChange = [];
+            isPositiveEffect = [];
         }
 
         public static void Add(byte playerId)
@@ -99,17 +101,17 @@ namespace TOHE.Roles.Impostor
             if (killer == null) return false;
             if (target == null) return false;
 
-            if (EffectID != byte.MaxValue)
+            if (EffectID.TryGetValue(killer.PlayerId, out var id) && id != byte.MaxValue)
             {
                 return true;
             }
 
             var rd = IRandom.Instance;
-            isPositiveEffect = rd.Next(1, 101) <= PositiveEffectChance.GetInt();
-            if (isPositiveEffect)
+            isPositiveEffect[killer.PlayerId] = rd.Next(1, 101) <= PositiveEffectChance.GetInt();
+            if (isPositiveEffect[killer.PlayerId])
             {
-                EffectID = (byte)rd.Next(1, 8);
-                switch (EffectID)
+                EffectID[killer.PlayerId] = (byte)rd.Next(1, 8);
+                switch (EffectID[killer.PlayerId])
                 {
                     case 1: // Delayed kill
                         killer.Notify(string.Format(GetString("GamblerGet.DelayedKill"), KillDelay.GetInt()));
@@ -176,8 +178,8 @@ namespace TOHE.Roles.Impostor
             }
             else
             {
-                EffectID = (byte)rd.Next(1, 5);
-                switch (EffectID)
+                EffectID[killer.PlayerId] = (byte)rd.Next(1, 5);
+                switch (EffectID[killer.PlayerId])
                 {
                     case 1: // BSR
                         var delay = Math.Max(0.15f, BSRDelay.GetFloat());
@@ -211,7 +213,7 @@ namespace TOHE.Roles.Impostor
                 }
             }
 
-            EffectID = byte.MaxValue;
+            EffectID[killer.PlayerId] = byte.MaxValue;
 
             return true;
         }
@@ -260,7 +262,8 @@ namespace TOHE.Roles.Impostor
 
         public static void OnReportDeadBody()
         {
-            EffectID = byte.MaxValue;
+            EffectID.Clear();
+            isPositiveEffect.Clear();
             foreach (var playerId in waitingDelayedKills.Keys.ToArray())
             {
                 var pc = GetPlayerById(playerId);

@@ -96,6 +96,12 @@ class ExternalRpcPetPatch
             Pelican.IsEaten(pc.PlayerId))
             return;
 
+        if (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId))
+        {
+            var killTarget = SelectKillButtonTarget(pc);
+            if (killTarget != null) Mastermind.ForceKillForManipulatedPlayer(pc, killTarget);
+        }
+
         if (pc.HasAbilityCD()) return;
 
         PlayerControl[] AllAlivePlayers = Main.AllAlivePlayerControls;

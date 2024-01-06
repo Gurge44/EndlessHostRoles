@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using static TOHE.Options;
 using static TOHE.Translator;
 using static TOHE.Utils;
@@ -59,7 +60,7 @@ namespace TOHE.Roles.Impostor
             return killer.CheckDoubleTrigger(target, () =>
             {
                 killer.SetKillCooldown(time: ManipulateCD);
-                if (target.HasKillButton() || target.GetPlayerTaskState().hasTasks)
+                if (target.HasKillButton() || target.GetPlayerTaskState().hasTasks || UsePets.GetBool())
                 {
                     ManipulateDelays.TryAdd(target.PlayerId, GetTimeStamp());
                     NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
@@ -85,13 +86,13 @@ namespace TOHE.Roles.Impostor
                     ManipulateDelays.Remove(x.Key);
                     ManipulatedPlayers.TryAdd(x.Key, GetTimeStamp());
 
-                    if (!pc.GetPlayerTaskState().hasTasks)
+                    if (!pc.GetPlayerTaskState().hasTasks || UsePets.GetBool())
                     {
                         TempKCDs.TryAdd(pc.PlayerId, Main.KillTimers[pc.PlayerId]);
                         pc.SetKillCooldown(time: 1f);
                     }
 
-                    NotifyRoles(SpecifySeer: Mastermind_, SpecifyTarget: Mastermind_);
+                    NotifyRoles(SpecifySeer: Mastermind_, SpecifyTarget: pc);
                 }
             }
 
@@ -115,7 +116,7 @@ namespace TOHE.Roles.Impostor
 
                 var time = TimeLimit.GetInt() - (GetTimeStamp() - x.Value);
 
-                player.Notify(string.Format(GetString(player.GetPlayerTaskState().hasTasks ? "ManipulateTaskNotify" : "ManipulateNotify"), time), 1.1f);
+                player.Notify(string.Format(GetString(UsePets.GetBool() ? "ManipulatePetNotify" : player.GetPlayerTaskState().hasTasks ? "ManipulateTaskNotify" : "ManipulateNotify"), time), 1.1f);
             }
         }
 
@@ -157,7 +158,9 @@ namespace TOHE.Roles.Impostor
 
             _ = new LateTask(() =>
             {
-                killer.SetKillCooldown(time: TempKCDs.TryGetValue(killer.PlayerId, out var cd) ? cd : 0f + Main.AllPlayerKillCooldown[killer.PlayerId]);
+                var kcd = TempKCDs.TryGetValue(killer.PlayerId, out var cd) ? cd : Main.AllPlayerKillCooldown.TryGetValue(killer.PlayerId, out var baseKCD) ? baseKCD : DefaultKillCooldown;
+                killer.SetKillCooldown(time: kcd);
+                if (killer.GetCustomRole().PetActivatedAbility()) killer.AddAbilityCD((int)Math.Round(kcd));
                 TempKCDs.Remove(killer.PlayerId);
             }, 0.1f, "Set KCD for Manipulated Kill");
 

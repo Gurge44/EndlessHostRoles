@@ -180,13 +180,9 @@ namespace TOHE.Roles.Impostor
             sssh.Clear();
         }
 
-        public static string GetNameTextForSuffix(byte playerId)
-        {
-            if (!IsEnable) return string.Empty;
-            return isInSilencingMode.TryGetValue(playerId, out var x) && x.SILENCING && sssh.Contains(playerId) && GameStates.IsInTask
+        public static string GetNameTextForSuffix(byte playerId) => IsEnable && isInSilencingMode.TryGetValue(playerId, out var x) && x.SILENCING && sssh.Contains(playerId) && GameStates.IsInTask
                 ? GetString("LibrarianNameText")
                 : string.Empty;
-        }
 
         public static string GetSelfSuffixAndHUDText(byte playerId)
         {

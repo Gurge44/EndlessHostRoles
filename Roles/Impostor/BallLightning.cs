@@ -103,7 +103,7 @@ public static class BallLightning
         RealKiller.TryAdd(killer.PlayerId, target);
         StartConvertCountDown(target, killer);
     }
-    public static void OnFixedUpdate()
+    public static void OnCheckPlayerPosition(PlayerControl pc)
     {
         if (!IsEnable || !GameStates.IsInTask) return;
         List<byte> deList = [];
@@ -115,7 +115,7 @@ public static class BallLightning
                 deList.Add(gs.PlayerId);
                 continue;
             }
-            foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.PlayerId != gs.PlayerId && x.IsAlive() && !x.Is(CustomRoles.BallLightning) && !IsGhost(x) && !Pelican.IsEaten(x.PlayerId)).ToArray())
+            if (pc.PlayerId != gs.PlayerId && pc.IsAlive() && !pc.Is(CustomRoles.BallLightning) && !IsGhost(pc) && !Pelican.IsEaten(pc.PlayerId))
             {
                 var pos = gs.transform.position;
                 var dis = Vector2.Distance(pos, pc.Pos());
