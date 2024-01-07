@@ -187,7 +187,7 @@ class RepairSystemPatch
                                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                                 break;
                         }
-                        if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage) Damocles.OnRepairSabotage();
+                        if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage) Damocles.OnRepairSabotage(player.PlayerId);
                         if (player.Is(CustomRoles.Stressed) && Stressed.countRepairSabotage) Stressed.OnRepairSabotage(player);
                     }
                     break;
@@ -199,7 +199,7 @@ class RepairSystemPatch
             case SystemTypes.Laboratory:
             case SystemTypes.HeliSabotage:
             case SystemTypes.Electrical:
-                if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage) Damocles.OnRepairSabotage();
+                if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage) Damocles.OnRepairSabotage(player.PlayerId);
                 if (player.Is(CustomRoles.Stressed) && Stressed.countRepairSabotage) Stressed.OnRepairSabotage(player);
                 break;
         }

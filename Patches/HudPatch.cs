@@ -594,14 +594,22 @@ class HudManagerPatch
                 bool CanUseVent = (player.CanUseImpostorVentButton() || player.inVent || player.MyPhysics.Animations.IsPlayingEnterVentAnimation()) && GameStates.IsInTask;
                 __instance.ImpostorVentButton?.ToggleVisible(CanUseVent);
                 player.Data.Role.CanVent = CanUseVent;
-                if (player.PlayerId == 0 && player.inVent && GameStates.IsInTask)
+
+                var vents = Object.FindObjectsOfType<Vent>().ToArray();
+                if (player.PlayerId == 0 && player.inVent && GameStates.IsInTask) SetVentButtonEnabled(TryMoveToVentPatch.HostVentTarget);
+                else if (CanUseVent && vents.Any(vent => Vector2.Distance(new Vector2(vent.transform.position.x, vent.transform.position.y + 0.3636f), player.Pos()) < 0.4f))
+                {
+                    Vent vent = vents.FirstOrDefault(vent => Vector2.Distance(new Vector2(vent.transform.position.x, vent.transform.position.y + 0.3636f), player.Pos()) < 0.4f);
+                    SetVentButtonEnabled(vent);
+                }
+                void SetVentButtonEnabled(Vent target)
                 {
                     __instance.ImpostorVentButton.canInteract = true;
                     __instance.ImpostorVentButton.enabled = true;
                     __instance.ImpostorVentButton.isCoolingDown = false;
                     __instance.ImpostorVentButton.SetEnabled();
-                    __instance.ImpostorVentButton.currentTarget = TryMoveToVentPatch.HostVentTarget;
-                    __instance.ImpostorVentButton.SetTarget(TryMoveToVentPatch.HostVentTarget);
+                    __instance.ImpostorVentButton.currentTarget = target;
+                    __instance.ImpostorVentButton.SetTarget(target);
                 }
             }
             else
@@ -788,7 +796,15 @@ class VentButtonDoClickPatch
                 TryMoveToVentPatch.HostVentTarget.SetButtons(false);
                 return true;
             }
-            if (!pc.Is(CustomRoles.Swooper) || !pc.Is(CustomRoles.Wraith) || !pc.Is(CustomRoles.Chameleon) || pc.inVent || __instance.currentTarget == null || !pc.CanMove || !__instance.isActiveAndEnabled) return true;
+            if (pc.inVent || !pc.CanMove) return true;
+            var vents = Object.FindObjectsOfType<Vent>().ToArray();
+            if (vents.Any(vent => Vector2.Distance(new Vector2(vent.transform.position.x, vent.transform.position.y + 0.3636f), pc.Pos()) < 0.4f))
+            {
+                Vent vent = vents.FirstOrDefault(vent => Vector2.Distance(new Vector2(vent.transform.position.x, vent.transform.position.y + 0.3636f), pc.Pos()) < 0.4f);
+                pc.MyPhysics.RpcEnterVent(vent.Id);
+                vent.SetButtons(true);
+                return false;
+            }
             pc?.MyPhysics?.RpcEnterVent(__instance.currentTarget.Id);
             return false;
         }

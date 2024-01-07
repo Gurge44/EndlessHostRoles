@@ -1938,7 +1938,7 @@ class ReportDeadBodyPatch
 
         if (player.Is(CustomRoles.Damocles))
         {
-            Damocles.OnReport();
+            Damocles.OnReport(player.PlayerId);
         }
         Damocles.OnMeetingStart();
 
@@ -3034,7 +3034,7 @@ class FixedUpdatePatch
                     target.cosmetics.nameText.text = changeTo;
 
                     float offset = 0.2f;
-                    if (NameNotifyManager.Notice.TryGetValue(target.PlayerId, out var notify) && notify.TEXT.Contains('\n'))
+                    if (NameNotifyManager.Notice.TryGetValue(seer.PlayerId, out var notify) && notify.TEXT.Contains('\n'))
                     {
                         offset += 0.1f;
                     }
@@ -3075,14 +3075,12 @@ class FixedUpdatePatch
         {
             foreach (PlayerControl loversPlayer in Main.LoversPlayers.ToArray())
             {
-                if (!loversPlayer.Data.IsDead && loversPlayer.PlayerId != deathId)
-                    continue;
+                if (!loversPlayer.Data.IsDead && loversPlayer.PlayerId != deathId) continue;
                 Main.isLoversDead = true;
                 for (int i1 = 0; i1 < Main.LoversPlayers.Count; i1++)
                 {
                     PlayerControl partnerPlayer = Main.LoversPlayers[i1];
-                    if (loversPlayer.PlayerId == partnerPlayer.PlayerId)
-                        continue;
+                    if (loversPlayer.PlayerId == partnerPlayer.PlayerId) continue;
                     if (partnerPlayer.PlayerId != deathId && !partnerPlayer.Data.IsDead)
                     {
                         if (partnerPlayer.Is(CustomRoles.Lovers))
@@ -3234,7 +3232,7 @@ class EnterVentPatch
 
         if (pc.Is(CustomRoles.Damocles))
         {
-            Damocles.OnEnterVent(__instance.Id);
+            Damocles.OnEnterVent(pc.PlayerId, __instance.Id);
         }
 
         switch (pc.GetCustomRole())

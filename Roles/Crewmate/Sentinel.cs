@@ -53,6 +53,12 @@ namespace TOHE.Roles.Crewmate
 
         public void OnCheckPlayerPosition(PlayerControl pc)
         {
+            if (!IsPatrolling) return;
+
+            long now = GetTimeStamp();
+            if (LastUpdate >= now) return;
+            LastUpdate = now;
+
             var killers = NearbyKillers;
 
             bool nowInRange = killers.Any(x => x.PlayerId == pc.PlayerId);
@@ -61,10 +67,12 @@ namespace TOHE.Roles.Crewmate
             if (wasInRange && !nowInRange)
             {
                 pc.Notify(GetString("KillerEscapedFromSentinel"));
+                LastNearbyKillers.Remove(pc.PlayerId);
             }
             if (nowInRange)
             {
                 pc.Notify(string.Format(GetString("KillerNotifyPatrol"), PatrolDuration - (GetTimeStamp() - PatrolStartTimeStamp)));
+                LastNearbyKillers.Add(pc.PlayerId);
             }
         }
 

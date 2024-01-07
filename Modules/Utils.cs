@@ -384,7 +384,7 @@ public static class Utils
         if (Options.NameDisplayAddons.GetBool() && !pure && self)
         {
             foreach (var subRole in targetSubRoles.Where(x => x is not CustomRoles.LastImpostor and not CustomRoles.Madmate and not CustomRoles.Charmed and not CustomRoles.Recruit and not CustomRoles.Admired and not CustomRoles.Soulless and not CustomRoles.Lovers and not CustomRoles.Infected and not CustomRoles.Contagious))
-                RoleText = ColorString(GetRoleColor(subRole), (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>(</color>" : string.Empty) + GetString("Prefix." + subRole.ToString())) + (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>)</color>" : string.Empty) + RoleText;
+                RoleText = ColorString(GetRoleColor(subRole), (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>(</color>" : string.Empty) + GetString("Prefix." + subRole.ToString()) + " " + (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>)</color>" : string.Empty)) + RoleText;
         }
 
         if (targetSubRoles.Contains(CustomRoles.Madmate))
@@ -3037,4 +3037,5 @@ public static class Utils
     public static int PlayersCount(CountTypes countTypes) => Main.PlayerStates.Values.Count(state => state.countTypes == countTypes);
     public static int AlivePlayersCount(CountTypes countTypes) => Main.AllAlivePlayerControls.Count(pc => pc.Is(countTypes));
     public static int IsOneAlive(CountTypes countTypes) => Main.AllAlivePlayerControls.Any(pc => pc.Is(countTypes)) ? 1 : 0;
+    public static bool IsNonHostModClient(this byte id) => id != 0 && Main.playerVersion.ContainsKey(id);
 }

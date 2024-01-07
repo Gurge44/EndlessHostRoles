@@ -215,7 +215,7 @@ static class ExtendedPlayerControl
         if (realKiller != null) pc.SetRealKiller(realKiller);
 
         Medic.IsDead(pc);
-        if (realKiller != null && realKiller.Is(CustomRoles.Damocles)) Damocles.OnMurder();
+        if (realKiller != null && realKiller.Is(CustomRoles.Damocles)) Damocles.OnMurder(realKiller.PlayerId);
 
         pc.Kill(pc);
     }
@@ -1404,7 +1404,7 @@ static class ExtendedPlayerControl
 
         if (target.GetTeam() is Team.Impostor or Team.Neutral) Stressed.OnNonCrewmateDead();
 
-        if (killer.Is(CustomRoles.Damocles)) Damocles.OnMurder();
+        if (killer.Is(CustomRoles.Damocles)) Damocles.OnMurder(killer.PlayerId);
         else if (killer.Is(Team.Impostor)) Damocles.OnOtherImpostorMurder();
         if (target.Is(Team.Impostor)) Damocles.OnImpostorDeath();
 

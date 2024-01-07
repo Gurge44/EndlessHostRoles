@@ -230,23 +230,31 @@ public static class Translator
         if (File.Exists(path))
         {
             Logger.Info($"Loading Custom Translation File：{filename}", "LoadCustomTranslation");
-            using StreamReader sr = new(path, Encoding.GetEncoding("UTF-8"));
-            string text;
-            string[] tmp = [];
-            while ((text = sr.ReadLine()) != null)
+            try
             {
-                tmp = text.Split(":");
-                if (tmp.Length > 1 && tmp[1] != "")
+                using StreamReader sr = new(path, Encoding.GetEncoding("UTF-8"));
+                string text;
+                string[] tmp = [];
+                while ((text = sr.ReadLine()) != null)
                 {
-                    try
+                    tmp = text.Split(":");
+                    if (tmp.Length > 1 && tmp[1] != "")
                     {
-                        translateMaps[tmp[0]][(int)lang] = tmp.Skip(1).Join(delimiter: ":").Replace("\\n", "\n").Replace("\\r", "\r");
-                    }
-                    catch (KeyNotFoundException)
-                    {
-                        Logger.Warn($"Invalid Key：{tmp[0]}", "LoadCustomTranslation");
+                        try
+                        {
+                            translateMaps[tmp[0]][(int)lang] = tmp.Skip(1).Join(delimiter: ":").Replace("\\n", "\n").Replace("\\r", "\r");
+                        }
+                        catch (KeyNotFoundException)
+                        {
+                            Logger.Warn($"Invalid Key：{tmp[0]}", "LoadCustomTranslation");
+                        }
                     }
                 }
+            }
+            catch (ObjectDisposedException) { }
+            catch (Exception e)
+            {
+                Logger.Error(e.ToString(), "Translator.LoadCustomTranslation");
             }
         }
         else

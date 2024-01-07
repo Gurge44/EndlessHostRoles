@@ -18,6 +18,7 @@
   </ItemGroup>
 	
   <ItemGroup>
+    <None Remove="Modules\zqihthf4.eqf~" />
     <None Remove="resources\modnews\english\TOHE+.v1.2.0.txt" />
     <None Remove="resources\modnews\english\TOHE+.v1.3.0.txt" />
     <None Remove="resources\modnews\english\TOHE+.v1.4.0.txt" />
