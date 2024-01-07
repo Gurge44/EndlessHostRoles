@@ -63,7 +63,7 @@ namespace TOHE.Roles.AddOns.Impostor
                 return;
             }
             lastUpdate[id] = GetTimeStamp();
-            if (!Timer.ContainsKey(id)) Timer[id] = StartingTime + 1;
+            if (!Timer.ContainsKey(id)) Timer[id] = StartingTime + 8;
 
             Timer[id]--;
 
@@ -74,7 +74,7 @@ namespace TOHE.Roles.AddOns.Impostor
             }
 
             if (pc.IsNonHostModClient()) SendRPC(id);
-            NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            if (!pc.IsModClient()) NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
         public static void SendRPC(byte playerId)
@@ -171,6 +171,6 @@ namespace TOHE.Roles.AddOns.Impostor
             }
         }
 
-        public static string GetProgressText() => string.Format(GetString("DamoclesTimeLeft"), Timer);
+        public static string GetProgressText(byte id) => string.Format(GetString("DamoclesTimeLeft"), Timer.TryGetValue(id, out var time) ? time : StartingTime);
     }
 }

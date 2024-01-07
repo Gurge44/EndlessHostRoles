@@ -384,7 +384,7 @@ public static class Utils
         if (Options.NameDisplayAddons.GetBool() && !pure && self)
         {
             foreach (var subRole in targetSubRoles.Where(x => x is not CustomRoles.LastImpostor and not CustomRoles.Madmate and not CustomRoles.Charmed and not CustomRoles.Recruit and not CustomRoles.Admired and not CustomRoles.Soulless and not CustomRoles.Lovers and not CustomRoles.Infected and not CustomRoles.Contagious))
-                RoleText = ColorString(GetRoleColor(subRole), (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>(</color>" : string.Empty) + GetString("Prefix." + subRole.ToString()) + " " + (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>)</color>" : string.Empty)) + RoleText;
+                RoleText = ColorString(GetRoleColor(subRole), (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>(</color>" : string.Empty) + GetString("Prefix." + subRole.ToString()) + (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>)</color>" : string.Empty) + " ") + RoleText;
         }
 
         if (targetSubRoles.Contains(CustomRoles.Madmate))
@@ -1130,7 +1130,7 @@ public static class Utils
             Logger.Error($"For {pc.GetNameWithRole().RemoveHtmlTags()}, failed to get progress text:  " + ex.ToString(), "Utils.GetProgressText");
         }
 
-        if (pc.Is(CustomRoles.Damocles)) ProgressText.Append(' ' + Damocles.GetProgressText());
+        if (pc.Is(CustomRoles.Damocles)) ProgressText.Append(' ' + Damocles.GetProgressText(playerId));
         if (pc.Is(CustomRoles.Stressed)) ProgressText.Append(' ' + Stressed.GetProgressText(playerId));
 
         if (ProgressText.Length != 0 && !ProgressText.ToString().StartsWith(' '))
@@ -1940,7 +1940,7 @@ public static class Utils
         PlayerControl[] seerList = SpecifySeer != null ? ([SpecifySeer]) : Main.AllPlayerControls;
         PlayerControl[] targetList = SpecifyTarget != null ? ([SpecifyTarget]) : Main.AllPlayerControls;
 
-        Logger.Info($" Seers: {string.Join(", ", seerList.ToList())};  Targets: {string.Join(", ", targetList.ToList())}", "NR");
+        Logger.Info($" Seers: {string.Join(", ", seerList.Select(x => x.GetNameWithRole()))}  Targets: {string.Join(", ", targetList.Select(x => x.GetNameWithRole()))}", "NR");
 
         //seer: Players who can see changes made here
         //target: Players subject to changes that seer can see
