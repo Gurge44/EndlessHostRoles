@@ -733,6 +733,9 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     case CustomRoles.Flashman:
                         Main.AllPlayerSpeed[player.PlayerId] = Options.FlashmanSpeed.GetFloat();
                         break;
+                    case CustomRoles.Giant:
+                        Main.AllPlayerSpeed[player.PlayerId] = Options.GiantSpeed.GetFloat();
+                        break;
                     case CustomRoles.Mare when Options.MareHasIncreasedSpeed.GetBool():
                         Main.AllPlayerSpeed[player.PlayerId] = Options.MareSpeedDuringLightsOut.GetFloat();
                         break;

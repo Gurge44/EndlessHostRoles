@@ -58,6 +58,7 @@ namespace TOHE.Roles.Crewmate
         private static readonly List<CustomRoles> experimentalAddons =
         [
             CustomRoles.Flashman,
+            CustomRoles.Giant,
             CustomRoles.Egoist,
             CustomRoles.Ntr, // Neptune
             CustomRoles.Guesser,
@@ -80,10 +81,7 @@ namespace TOHE.Roles.Crewmate
         private static OptionItem OptionSellOnlyHarmfulToEvil;
         private static OptionItem OptionSellOnlyHelpfulToCrew;
 
-        private static int GetCurrentAmountOfMoney(byte playerId)
-        {
-            return (addonsSold[playerId] * OptionMoneyPerSell.GetInt()) - (bribedKiller[playerId].Count * OptionMoneyRequiredToBribe.GetInt());
-        }
+        private static int GetCurrentAmountOfMoney(byte playerId) => (addonsSold[playerId] * OptionMoneyPerSell.GetInt()) - (bribedKiller[playerId].Count * OptionMoneyRequiredToBribe.GetInt());
 
         public static void SetupCustomOption()
         {
@@ -222,10 +220,7 @@ namespace TOHE.Roles.Crewmate
             return false;
         }
 
-        public static bool IsBribedKiller(PlayerControl killer, PlayerControl target)
-        {
-            return bribedKiller[target.PlayerId].Contains(killer.PlayerId);
-        }
+        public static bool IsBribedKiller(PlayerControl killer, PlayerControl target) => bribedKiller[target.PlayerId].Contains(killer.PlayerId);
 
         private static void NotifyBribery(PlayerControl killer, PlayerControl target)
         {

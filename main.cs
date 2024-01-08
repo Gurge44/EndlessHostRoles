@@ -319,7 +319,7 @@ public class Main : BasePlugin
         {
             roleColors = new Dictionary<CustomRoles, string>()
             {
-                //バニラ役職
+                //Vanilla
                 {CustomRoles.Crewmate, "#8cffff"},
                 {CustomRoles.Engineer, "#8cffff"},
                 {CustomRoles.Scientist, "#8cffff"},
@@ -329,7 +329,7 @@ public class Main : BasePlugin
                 {CustomRoles.EngineerTOHE, "#FF6A00"},
                 {CustomRoles.ScientistTOHE, "#8ee98e"},
                 {CustomRoles.GuardianAngelTOHE, "#77e6d1"},
-                //特殊クルー役職
+                //Crewmates
                 {CustomRoles.Luckey, "#b8d7a3" },
                 {CustomRoles.Needy, "#a4dffe"},
                 {CustomRoles.SabotageMaster, "#3333ff"},
@@ -424,7 +424,7 @@ public class Main : BasePlugin
                 {CustomRoles.TimeMaster, "#44baff"},
                 {CustomRoles.Crusader, "#C65C39"},
                 //{CustomRoles.Reverie, "#00BFFF"},
-                //第三陣営役職
+                //Neutrals
                 {CustomRoles.Arsonist, "#ff6633"},
                 {CustomRoles.Pyromaniac, "#ff6633"},
                 {CustomRoles.PlagueBearer,"#e5f6b4"},
@@ -506,7 +506,7 @@ public class Main : BasePlugin
                 //{CustomRoles.Pirate,"#EDC240"},
                 // GM
                 {CustomRoles.GM, "#ff5b70"},
-                //サブ役職
+                //Add-ons
                 {CustomRoles.NotAssigned, "#ffffff"},
                 {CustomRoles.LastImpostor, "#ff1919"},
                 {CustomRoles.Lovers, "#ff9ace"},
@@ -514,6 +514,7 @@ public class Main : BasePlugin
                 {CustomRoles.Madmate, "#ff1919"},
                 {CustomRoles.Watcher, "#800080"},
                 {CustomRoles.Flashman, "#ff8400"},
+                {CustomRoles.Giant, "#32a852"},
                 {CustomRoles.Nimble, "#feffc7"},
                 {CustomRoles.Physicist, "#87e9ff"},
                 {CustomRoles.Torch, "#eee5be"},
@@ -576,17 +577,7 @@ public class Main : BasePlugin
                 //Move And Stop
                 {CustomRoles.Tasker, "#00ffa5"}
             };
-            foreach (var role in Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>())
-            {
-                switch (role.GetCustomRoleTypes())
-                {
-                    case CustomRoleTypes.Impostor:
-                        roleColors.TryAdd(role, "#ff1919");
-                        break;
-                    default:
-                        break;
-                }
-            }
+            Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => roleColors.TryAdd(x, "#ff1919"));
         }
         catch (ArgumentException ex)
         {
@@ -938,6 +929,7 @@ public enum CustomRoles
     Flashman,
     Fool,
     Ghoul,
+    Giant,
     Glow,
     Gravestone,
     Guesser,

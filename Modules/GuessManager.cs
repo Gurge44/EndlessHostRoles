@@ -1043,6 +1043,7 @@ public static class GuessManager
                     or CustomRoles.Impostor
                     or CustomRoles.Shapeshifter
                     or CustomRoles.Flashman
+                    or CustomRoles.Giant
                     or CustomRoles.NotAssigned
                     or CustomRoles.KB_Normal
                     //     or CustomRoles.Marshall 
