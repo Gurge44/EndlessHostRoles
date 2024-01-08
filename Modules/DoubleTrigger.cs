@@ -22,10 +22,7 @@ static class DoubleTrigger
     {
         PlayerIdList.Add(killer.PlayerId);
     }
-    public static bool CanDoubleTrigger(this PlayerControl killer)
-    {
-        return PlayerIdList.Contains(killer.PlayerId);
-    }
+    public static bool CanDoubleTrigger(this PlayerControl killer) => PlayerIdList.Contains(killer.PlayerId);
 
     /// <summary>
     /// Checks for whether the killer pressed their kill button twice on the same player
@@ -41,7 +38,7 @@ static class DoubleTrigger
         {
             if (FirstTriggerTarget[killer.PlayerId] != target.PlayerId)
             {
-                //2回目がターゲットずれてたら最初の相手にシングルアクション
+                // If the second target is off target, single action on the first opponent.
                 return false;
             }
             Logger.Info($"{killer.name} DoDoubleAction", "DoubleTrigger");
@@ -50,7 +47,7 @@ static class DoubleTrigger
             if (doAction) FirstTriggerAction.Remove(killer.PlayerId);
             return true;
         }
-        //シングルアクション時はキル間隔を無視
+        // Ignore kill interval during single action
         CheckMurderPatch.TimeSinceLastKill.Remove(killer.PlayerId);
         FirstTriggerTimer.Add(killer.PlayerId, 1f);
         FirstTriggerTarget.Add(killer.PlayerId, target.PlayerId);

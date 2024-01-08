@@ -167,6 +167,7 @@ public static class Divinator
                 CustomRoles.Lookout or
                 CustomRoles.RuthlessRomantic or
                 CustomRoles.VengefulRomantic or
+                CustomRoles.Kidnapper or
                 CustomRoles.Nuker
                 => "Result7",
 
@@ -278,6 +279,7 @@ public static class Divinator
                 CustomRoles.Doppelganger or
                 CustomRoles.Hitman or
                 CustomRoles.Luckey or
+                CustomRoles.Kamikaze or
                 CustomRoles.Underdog
                 => "Result18",
 

@@ -250,6 +250,7 @@ public class PlayerState(byte playerId)
         Demolished,
         YinYanged,
         Hack,
+        Kamikazed,
 
         etc = -1,
     }

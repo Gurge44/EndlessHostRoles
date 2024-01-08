@@ -52,6 +52,8 @@ internal static class CustomRolesHelper
                 CustomRoles.SpeedBooster => CustomRoles.Crewmate,
                 CustomRoles.Dictator => CustomRoles.Crewmate,
                 CustomRoles.Inhibitor => CustomRoles.Impostor,
+                CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
+                CustomRoles.Kamikaze => CustomRoles.Impostor,
                 CustomRoles.Librarian => CustomRoles.Shapeshifter,
                 CustomRoles.Cantankerous => CustomRoles.Impostor,
                 CustomRoles.YinYanger => CustomRoles.Impostor,
@@ -754,6 +756,8 @@ internal static class CustomRolesHelper
             CustomRoles.SerialKiller or
             CustomRoles.Underdog or
             CustomRoles.Inhibitor or
+            CustomRoles.Kidnapper or
+            CustomRoles.Kamikaze or
             CustomRoles.Librarian or
             CustomRoles.Cantankerous or
             CustomRoles.Duellist or

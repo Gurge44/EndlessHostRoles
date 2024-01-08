@@ -217,6 +217,9 @@ class CheckMurderPatch
                 case CustomRoles.BountyHunter:
                     BountyHunter.OnCheckMurder(killer, target);
                     break;
+                case CustomRoles.Kamikaze:
+                    if (!Kamikaze.OnCheckMurder(killer, target)) return false;
+                    break;
                 case CustomRoles.Reckless:
                     Reckless.OnCheckMurder(killer);
                     break;
@@ -1210,6 +1213,7 @@ class MurderPlayerPatch
                 break;
             case CustomRoles.Hacker:
                 Hacker.HackLimit[killer.PlayerId] += Hacker.HackerAbilityUseGainWithEachKill.GetFloat();
+                Hacker.SendRPC(killer.PlayerId);
                 break;
             case CustomRoles.Camouflager:
                 Camouflager.CamoLimit[killer.PlayerId] += Camouflager.CamoAbilityUseGainWithEachKill.GetFloat();
@@ -1234,6 +1238,10 @@ class MurderPlayerPatch
                 break;
             case CustomRoles.Twister:
                 Twister.TwistLimit[killer.PlayerId] += Twister.TwisterAbilityUseGainWithEachKill.GetFloat();
+                break;
+            case CustomRoles.Kamikaze:
+                Kamikaze.MarkLimit[killer.PlayerId] += Kamikaze.KamikazeAbilityUseGainWithEachKill.GetFloat();
+                Kamikaze.SendRPCSyncLimit(killer.PlayerId);
                 break;
         }
 
@@ -1365,6 +1373,10 @@ class ShapeshiftPatch
             {
                 case CustomRoles.EvilTracker:
                     EvilTracker.OnShapeshift(shapeshifter, target, shapeshifting);
+                    isSSneeded = false;
+                    break;
+                case CustomRoles.Kidnapper:
+                    Kidnapper.OnShapeshift(shapeshifter, target);
                     isSSneeded = false;
                     break;
                 case CustomRoles.RiftMaker:
@@ -2011,6 +2023,7 @@ class FixedUpdatePatch
     private static int LevelKickBufferTime = 10;
     private static readonly Dictionary<byte, int> BufferTime = [];
     private static readonly Dictionary<byte, int> DeadBufferTime = [];
+    private static readonly Dictionary<byte, long> LastUpdate = [];
 
     public static async void Postfix(PlayerControl __instance)
     {
@@ -2137,6 +2150,9 @@ class FixedUpdatePatch
                 case CustomRoles.BountyHunter:
                     BountyHunter.FixedUpdate(player);
                     break;
+                case CustomRoles.Kamikaze when !lowLoad:
+                    Kamikaze.OnFixedUpdate();
+                    break;
                 case CustomRoles.Glitch when !lowLoad:
                     Glitch.UpdateHackCooldown(player);
                     break;
@@ -2233,7 +2249,8 @@ class FixedUpdatePatch
                 }
             }
 
-            if (!lowLoad && Options.UsePets.GetBool() && GameStates.IsInTask)
+            long now = GetTimeStamp();
+            if (!lowLoad && Options.UsePets.GetBool() && GameStates.IsInTask && (!LastUpdate.TryGetValue(playerId, out var lastPetNotify) || lastPetNotify < now))
             {
                 if (Main.AbilityCD.TryGetValue(playerId, out var timer))
                 {
@@ -2242,6 +2259,7 @@ class FixedUpdatePatch
                         Main.AbilityCD.Remove(playerId);
                     }
                     if (!player.IsModClient()) NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                    LastUpdate[playerId] = now;
                 }
             }
 

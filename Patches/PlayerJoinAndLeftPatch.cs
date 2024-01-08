@@ -141,10 +141,14 @@ class OnPlayerLeftPatch
                 Spiritualist.RemoveTarget();
             if (data.Character.PlayerId == Postman.Target)
                 Postman.SetNewTarget();
-            if (Main.PlayerStates[data.Character.PlayerId].deathReason == PlayerState.DeathReason.etc) //死因が設定されていなかったら
+            PlayerState state = Main.PlayerStates[data.Character.PlayerId];
+            if (state.deathReason == PlayerState.DeathReason.etc) // If no cause of death was established
             {
-                Main.PlayerStates[data.Character.PlayerId].deathReason = PlayerState.DeathReason.Disconnected;
-                Main.PlayerStates[data.Character.PlayerId].SetDead();
+                state.deathReason = PlayerState.DeathReason.Disconnected;
+            }
+            if (!state.IsDead)
+            {
+                state.SetDead();
             }
             NameNotifyManager.Notice.Remove(data.Character.PlayerId);
             AntiBlackout.OnDisconnect(data.Character.Data);

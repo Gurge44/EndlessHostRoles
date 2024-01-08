@@ -58,6 +58,8 @@ enum CustomRPC
 
     //Roles
     SetDrawPlayer,
+    SyncKamikazeLimit,
+    KamikazeAddTarget,
     SyncMycologist,
     SyncBubble,
     AddTornado,
@@ -592,6 +594,12 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SyncBubble:
                 Bubble.ReceiveRPC(reader);
+                break;
+            case CustomRPC.KamikazeAddTarget:
+                Kamikaze.ReceiveRPCAddTarget(reader);
+                break;
+            case CustomRPC.SyncKamikazeLimit:
+                Kamikaze.ReceiveRPCSyncLimit(reader);
                 break;
             case CustomRPC.SetCurrentDousingTarget:
                 byte arsonistId = reader.ReadByte();
@@ -1265,6 +1273,12 @@ internal static class RPC
                 break;
             case CustomRoles.EvilDiviner:
                 EvilDiviner.Add(targetId);
+                break;
+            case CustomRoles.Kamikaze:
+                Kamikaze.Add(targetId);
+                break;
+            case CustomRoles.Disperser:
+                Disperser.Add(targetId);
                 break;
             case CustomRoles.Medic:
                 Medic.Add(targetId);

@@ -497,6 +497,8 @@ static class ExtendedPlayerControl
             CustomRoles.RiftMaker => true,
             CustomRoles.Hitman => true,
             CustomRoles.Inhibitor => true,
+            CustomRoles.Kidnapper => true,
+            CustomRoles.Kamikaze => true,
             CustomRoles.Cantankerous => true,
             CustomRoles.YinYanger => true,
             CustomRoles.Duellist => true,
@@ -588,7 +590,7 @@ static class ExtendedPlayerControl
             CustomRoles.PlagueBearer => true,
             CustomRoles.Pestilence => true,
 
-            _ => pc.Is(CustomRoleTypes.Impostor),
+            _ => pc.Is(CustomRoleTypes.Impostor) || pc.GetCustomRole().IsNK() || pc.GetCustomRole().IsTasklessCrewmate(),
         };
     }
     public static bool CanUseKillButton(this PlayerControl pc)
@@ -627,6 +629,8 @@ static class ExtendedPlayerControl
             CustomRoles.YinYanger => pc.IsAlive(),
             CustomRoles.Librarian => pc.IsAlive() && Librarian.CanUseKillButton(pc),
             CustomRoles.Cantankerous => pc.IsAlive() && Cantankerous.CanUseKillButton(pc.PlayerId),
+            CustomRoles.Kidnapper => pc.IsAlive(),
+            CustomRoles.Kamikaze => pc.IsAlive(),
             CustomRoles.Inhibitor => !IsActive(SystemTypes.Electrical) && !IsActive(SystemTypes.Comms) && !IsActive(SystemTypes.MushroomMixupSabotage) && !IsActive(SystemTypes.Laboratory) && !IsActive(SystemTypes.LifeSupp) && !IsActive(SystemTypes.Reactor) && !IsActive(SystemTypes.HeliSabotage),
             CustomRoles.Saboteur => IsActive(SystemTypes.Electrical) || IsActive(SystemTypes.Comms) || IsActive(SystemTypes.MushroomMixupSabotage) || IsActive(SystemTypes.Laboratory) || IsActive(SystemTypes.LifeSupp) || IsActive(SystemTypes.Reactor) || IsActive(SystemTypes.HeliSabotage),
             CustomRoles.Sniper => Sniper.CanUseKillButton(pc),

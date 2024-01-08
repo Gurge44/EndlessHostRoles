@@ -196,6 +196,7 @@ internal class ChangeRoleSettings
             BountyHunter.Init();
             SerialKiller.Init();
             EvilDiviner.Init();
+            Kamikaze.Init();
             FireWorks.Init();
             NiceSwapper.Init();
             Pickpocket.Init();
@@ -803,6 +804,9 @@ internal class SelectRolesPatch
                             break;
                         case CustomRoles.EvilDiviner:
                             EvilDiviner.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.Kamikaze:
+                            Kamikaze.Add(pc.PlayerId);
                             break;
                         case CustomRoles.Ritualist:
                             Ritualist.Add(pc.PlayerId);

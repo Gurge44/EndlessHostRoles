@@ -80,6 +80,7 @@ namespace TOHE.Roles.Crewmate
         private static OptionItem OptionCanSellExperimental;
         private static OptionItem OptionSellOnlyHarmfulToEvil;
         private static OptionItem OptionSellOnlyHelpfulToCrew;
+        private static OptionItem OptionGivesAllMoneyOnBribe;
 
         private static int GetCurrentAmountOfMoney(byte playerId) => (addonsSold[playerId] * OptionMoneyPerSell.GetInt()) - (bribedKiller[playerId].Count * OptionMoneyRequiredToBribe.GetInt());
 
@@ -101,8 +102,9 @@ namespace TOHE.Roles.Crewmate
             OptionSellOnlyEnabledAddons = BooleanOptionItem.Create(Id + 16, "MerchantSellOnlyEnabledAddons", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
             OptionSellOnlyHarmfulToEvil = BooleanOptionItem.Create(Id + 14, "MerchantSellHarmfulToEvil", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
             OptionSellOnlyHelpfulToCrew = BooleanOptionItem.Create(Id + 15, "MerchantSellHelpfulToCrew", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
+            OptionGivesAllMoneyOnBribe = BooleanOptionItem.Create(Id + 17, "MerchantGivesAllMoneyOnBribe", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
 
-            OverrideTasksData.Create(Id + 17, TabGroup.CrewmateRoles, CustomRoles.Merchant);
+            OverrideTasksData.Create(Id + 18, TabGroup.CrewmateRoles, CustomRoles.Merchant);
         }
         public static void Init()
         {
@@ -204,7 +206,7 @@ namespace TOHE.Roles.Crewmate
                 return false;
             }
 
-            if (bribedKiller[target.PlayerId].Contains(killer.PlayerId))
+            if (IsBribedKiller(killer, target))
             {
                 NotifyBribery(killer, target);
                 return true;
@@ -224,6 +226,8 @@ namespace TOHE.Roles.Crewmate
 
         private static void NotifyBribery(PlayerControl killer, PlayerControl target)
         {
+            if (OptionGivesAllMoneyOnBribe.GetBool()) addonsSold[target.PlayerId] = 0;
+
             killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Merchant), GetString("BribedByMerchant")));
 
             if (OptionNotifyBribery.GetBool())

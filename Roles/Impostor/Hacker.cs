@@ -42,7 +42,7 @@ public static class Hacker
         HackLimit.TryAdd(playerId, HackLimitOpt.GetInt());
     }
     public static bool IsEnable => playerIdList.Count > 0;
-    private static void SendRPC(byte playerId)
+    public static void SendRPC(byte playerId)
     {
         if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetHackerHackLimit, SendOption.Reliable, -1);

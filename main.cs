@@ -678,6 +678,8 @@ public enum CustomRoles
     Hangman,
     Hitman,
     Inhibitor,
+    Kamikaze,
+    Kidnapper,
     Minimalism, // Killing Machine
     BallLightning, // Lightning
     Librarian,

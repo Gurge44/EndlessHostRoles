@@ -317,23 +317,24 @@ class BeginCrewmatePatch
                 CustomRoles.Disperser
                 => ShipStatus.Instance.VentMoveSounds.FirstOrDefault(),
 
-                _ => PlayerControl.LocalPlayer.Is(RoleTypes.Impostor) ? PlayerControl.LocalPlayer.Is(RoleTypes.Shapeshifter) ? GetIntroSound(RoleTypes.Shapeshifter) : GetIntroSound(RoleTypes.Impostor) : GetIntroSound(RoleTypes.Crewmate),
+                _ => role.GetCustomRoleTypes() switch
+                {
+                    CustomRoleTypes.Impostor => GetIntroSound(RoleTypes.Impostor),
+                    CustomRoleTypes.Crewmate => GetIntroSound(RoleTypes.Crewmate),
+                    CustomRoleTypes.Neutral => GetIntroSound(RoleTypes.Shapeshifter),
+                    _ => GetIntroSound(RoleTypes.Crewmate),
+                }
             };
         }
         catch (Exception ex)
         {
-            switch (role.GetCustomRoleTypes())
+            PlayerControl.LocalPlayer.Data.Role.IntroSound = role.GetCustomRoleTypes() switch
             {
-                case CustomRoleTypes.Impostor:
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Impostor);
-                    break;
-                case CustomRoleTypes.Crewmate:
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Crewmate);
-                    break;
-                case CustomRoleTypes.Neutral:
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
-                    break;
-            }
+                CustomRoleTypes.Impostor => GetIntroSound(RoleTypes.Impostor),
+                CustomRoleTypes.Crewmate => GetIntroSound(RoleTypes.Crewmate),
+                CustomRoleTypes.Neutral => GetIntroSound(RoleTypes.Shapeshifter),
+                _ => GetIntroSound(RoleTypes.Crewmate),
+            };
             Logger.Warn($"Could not set intro sound\n{ex}", "IntroSound");
         }
 
