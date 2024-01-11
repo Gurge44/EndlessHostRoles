@@ -79,12 +79,13 @@ namespace TOHE.Roles.Crewmate
         public void FinishPatrolling()
         {
             IsPatrolling = false;
+            SendRPC();
+            if (!GameStates.IsInTask) return;
             foreach (var pc in NearbyKillers)
             {
                 pc.Suicide(realKiller: Sentinel);
             }
             Sentinel.MarkDirtySettings();
-            SendRPC();
         }
 
         public void SendRPC()
@@ -186,6 +187,20 @@ namespace TOHE.Roles.Crewmate
             {
                 state.OnCheckPlayerPosition(pc);
             }
+        }
+        public static void OnReportDeadBody()
+        {
+            if (!IsEnable) return;
+            _ = new LateTask(() =>
+            {
+                foreach (PatrollingState state in PatrolStates)
+                {
+                    if (state.IsPatrolling)
+                    {
+                        state.FinishPatrolling();
+                    }
+                }
+            }, 0.1f);
         }
     }
 }

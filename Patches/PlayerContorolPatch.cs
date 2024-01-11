@@ -1936,6 +1936,7 @@ class ReportDeadBodyPatch
         if (Hookshot.IsEnable) Hookshot.OnReportDeadBody();
         if (Sprayer.IsEnable) Sprayer.OnReportDeadBody();
         if (Chronomancer.IsEnable) Chronomancer.OnReportDeadBody();
+        if (Sentinel.IsEnable) Sentinel.OnReportDeadBody();
         if (Magician.IsEnable) Magician.OnReportDeadBody();
         if (Drainer.IsEnable) Drainer.OnReportDeadBody();
         if (Stealth.IsEnable) Stealth.OnStartMeeting();
