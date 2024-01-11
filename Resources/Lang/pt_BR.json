@@ -2783,6 +2783,7 @@
     "Axe": "Machado",
     "Lance": "Lança",
     "Shield": "Escudo",
+    "WMMode": "<color=#00ffa5>Modo:</color> <color=#ffffff><b>{0}</b></color>",
     "Eclipse": "Eclipse",
     "EclipseInfo": "Sua visão aumenta com cada abate",
     "EclipseInfoLong": "(Neutros):\\nComo Eclipse, sua missão é matar todos e ser o ultimo sobrevivente.\\nVocê começa com uma visão baixa, e a cada abate, ela aumenta lentamente.",
