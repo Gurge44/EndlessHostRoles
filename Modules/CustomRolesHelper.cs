@@ -437,6 +437,7 @@ internal static class CustomRolesHelper
     public static bool IsNonNK(this CustomRoles role) // ROLE ASSIGNING, NOT NEUTRAL TYPE
             => role is
             CustomRoles.Jester or
+            CustomRoles.Postman or
             CustomRoles.Terrorist or
             CustomRoles.Opportunist or
             //CustomRoles.Masochist or
