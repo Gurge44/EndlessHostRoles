@@ -2748,6 +2748,7 @@
   "Axe": "Axe",
   "Lance": "Lance",
   "Shield": "Shield",
+  "WMMode": "<color=#00ffa5>Mode:</color> <color=#ffffff><b>{0}</b></color>",
   "Eclipse": "Eclipse",
   "EclipseInfo": "Your vision increases with each kill you get",
   "EclipseInfoLong": "(Neutral):\\nAs the Eclipse, your job is to kill everyone and be the last one standing to win.\\nYou start with a low vision, and with each kill you get, it slowly increases.",

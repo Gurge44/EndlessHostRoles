@@ -165,7 +165,7 @@ public static class WeaponMaster
     }
     public static string GetHudAndProgressText()
     {
-        return $"<color=#00ffa5>Mode:</color> <color=#ffffff><b>{ModeToText(Mode)}</b></color>";
+        return string.Format(GetString("WMMode"), ModeToText(Mode));
     }
     public static string ModeToText(byte mode)
     {
@@ -173,7 +173,7 @@ public static class WeaponMaster
         {
             0 => GetString("Sword"),
             1 => GetString("Axe"),
-            2 => GetString("lance"),
+            2 => GetString("Lance"),
             3 => GetString("Shield"),
             _ => string.Empty,
         };
