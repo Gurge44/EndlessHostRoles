@@ -1896,6 +1896,7 @@
   "MerchantSellExperimental": "Can sell <color=#76b8e0>experimental</color> Add-ons",
   "MerchantSellHarmfulToEvil": "Can sell <color=#ff1919>Harmful</color> Add-ons only to <color=#ff1919>Evil</color>",
   "MerchantSellHelpfulToCrew": "Can sell <color=#8cffff>Helpful</color> Add-ons only to <color=#8cffff>Crew</color>",
+  "MerchantGivesAllMoneyOnBribe": "<color=#D27D2D>Merchant</color> gives <color=#ff0000>all the money</color> on bribe",
   "SpiritcallerSpiritMax": "Maximum number of <color=#003366>Evil Spirits</color>",
   "SpiritcallerSpiritAbilityCooldown": "<color=#003366>Evil Spirit</color> ability cooldown",
   "SpiritcallerFreezeTime": "<color=#003366>Evil Spirit</color> ability freeze time",
