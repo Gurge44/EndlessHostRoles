@@ -390,10 +390,10 @@ internal class SelectRolesPatch
     public static void Prefix()
     {
         if (!AmongUsClient.Instance.AmHost) return;
-
+        
         try
         {
-            //CustomRpcSenderとRpcSetRoleReplacerの初期化
+            // Initializing CustomRpcSender and RpcSetRoleReplacer
             Dictionary<byte, CustomRpcSender> senders = [];
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {

@@ -151,7 +151,7 @@ static class ExtendedPlayerControl
     }
     public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId)
     {
-        //player: 名前の変更対象
+        //player: Rename target
 
         if (player == null) return;
         if (AmongUsClient.Instance.ClientId == clientId)
@@ -727,7 +727,7 @@ static class ExtendedPlayerControl
         if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
         if (CopyCat.playerIdList.Contains(pc.PlayerId)) return true;
 
-        if (pc.Is(CustomRoles.Nimble)) return true;
+        if (pc.Is(CustomRoles.Nimble) && pc.GetCustomRole().GetVNRole() != CustomRoles.Engineer) return true;
 
         return pc.GetCustomRole() switch
         {

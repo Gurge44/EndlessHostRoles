@@ -577,7 +577,7 @@ class IntroCutsceneDestroyPatch
                                 }
                             }
                         }
-                        catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift.forCycle"); }
+                        catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift.foreachCycle"); }
                     }, 0.4f, "Show Pet For Everyone");
                 }
                 catch { }
@@ -620,8 +620,7 @@ class IntroCutsceneDestroyPatch
 
             KeepProtection.ProtectEveryone();
 
-            var amDesyncImpostor = Main.ResetCamPlayerList.Contains(PlayerControl.LocalPlayer.PlayerId);
-            if (amDesyncImpostor)
+            if (Main.ResetCamPlayerList.Contains(PlayerControl.LocalPlayer.PlayerId))
             {
                 PlayerControl.LocalPlayer.Data.Role.AffectedByLightAffectors = false;
             }

@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using Hazel;
-using System.Linq;
 
 namespace TOHE.Modules
 {
@@ -44,7 +43,7 @@ namespace TOHE.Modules
         {
             if (Main.UseVersionProtocol.Value) return;
             LastFixedUpdate = Utils.GetTimeStamp();
-            Main.AllAlivePlayerControls.ToArray().Do(x => x.Protect());
+            Main.AllAlivePlayerControls.Do(x => x.Protect());
         }
     }
 }
