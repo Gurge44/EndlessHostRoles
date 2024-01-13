@@ -535,6 +535,7 @@ public class Main : BasePlugin
                 {CustomRoles.Guesser, "#f8cd46"},
                 {CustomRoles.Necroview, "#663399"},
                 {CustomRoles.Reach, "#74ba43"},
+                {CustomRoles.Magnet, "#eb3477"},
                 {CustomRoles.DeadlyQuota, "#ff1919"},
                 {CustomRoles.Damocles, "#ff1919"},
                 {CustomRoles.Stressed, "#9403fc"},
@@ -684,9 +685,9 @@ public enum CustomRoles
     BallLightning, // Lightning
     Librarian,
     Lurker,
-    Mafia,
     Mafioso,
     Mastermind,
+    Mafia, // Nemesis
     SerialKiller, // Mercenary
     Miner,
     Morphling,
@@ -943,6 +944,7 @@ public enum CustomRoles
     Loyal,
     Lucky,
     Madmate,
+    Magnet,
     Mare,
     Mimic,
     Necroview,

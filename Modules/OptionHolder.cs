@@ -2237,6 +2237,8 @@ public static class Options
         SetupAdtRoleOptions(14600, CustomRoles.Reach, canSetNum: true);
 
         LoadingPercentage = 40;
+        RoleLoadingText = "Add-ons\nMagnet";
+        SetupAdtRoleOptions(14650, CustomRoles.Magnet, canSetNum: true);
         RoleLoadingText = "Add-ons\nSchizophrenic";
         SetupAdtRoleOptions(14700, CustomRoles.DualPersonality, canSetNum: true);
         ImpCanBeDualPersonality = BooleanOptionItem.Create(14710, "ImpCanBeDualPersonality", true, TabGroup.Addons, false)

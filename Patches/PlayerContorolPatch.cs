@@ -668,10 +668,17 @@ class CheckMurderPatch
             RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
             return false;
         }
+
+        if (killer.Is(CustomRoles.Magnet))
+        {
+            target.TP(killer);
+            _ = new LateTask(() => { killer.RpcCheckAndMurder(target); }, 0.1f, log: false);
+            return false;
+        }
+
         if (killer.Is(CustomRoles.Mare))
         {
             killer.ResetKillCooldown();
-            return true;
         }
         /*     if (killer.Is(CustomRoles.Minimalism))
              {
@@ -680,7 +687,6 @@ class CheckMurderPatch
 
         if (killer.Is(CustomRoles.Ritualist))
         {
-
             if (!Ritualist.OnCheckMurder(killer, target))
                 return false;
         }

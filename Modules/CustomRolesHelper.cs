@@ -415,6 +415,7 @@ internal static class CustomRolesHelper
             CustomRoles.DualPersonality or
             CustomRoles.Mimic or
             CustomRoles.Reach or
+            CustomRoles.Magnet or
             CustomRoles.DeadlyQuota or
             CustomRoles.Damocles or
             CustomRoles.Stressed or
@@ -1440,6 +1441,7 @@ internal static class CustomRolesHelper
         CustomRoles.Reach when pc.Is(CustomRoles.Mafioso) => false,
         CustomRoles.Trapper when pc.Is(CustomRoles.GuardianAngelTOHE) => false,
         CustomRoles.Reach when !pc.CanUseKillButton() => false,
+        CustomRoles.Magnet when !pc.CanUseKillButton() => false,
         CustomRoles.Watcher when pc.GetCustomRole().IsCrewmate() && !Options.CrewCanBeWatcher.GetBool() || pc.GetCustomRole().IsNeutral() && !Options.NeutralCanBeWatcher.GetBool() || pc.GetCustomRole().IsImpostor() && !Options.ImpCanBeWatcher.GetBool() => false,
         CustomRoles.Diseased when pc.GetCustomRole().IsCrewmate() && !Options.CrewCanBeDiseased.GetBool() || pc.GetCustomRole().IsNeutral() && !Options.NeutralCanBeDiseased.GetBool() || pc.GetCustomRole().IsImpostor() && !Options.ImpCanBeDiseased.GetBool() => false,
         CustomRoles.Antidote when pc.GetCustomRole().IsCrewmate() && !Options.CrewCanBeAntidote.GetBool() || pc.GetCustomRole().IsNeutral() && !Options.NeutralCanBeAntidote.GetBool() || pc.GetCustomRole().IsImpostor() && !Options.ImpCanBeAntidote.GetBool() => false,
