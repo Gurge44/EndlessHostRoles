@@ -35,20 +35,20 @@ class SetUpRoleTextPatch
                     {
                         var color = ColorUtility.TryParseHtmlString("#00ffff", out var c) ? c : new(255, 255, 255, 255);
                         __instance.YouAreText.transform.gameObject.SetActive(false);
-                        __instance.RoleText.text = "FREE FOR ALL";
+                        __instance.RoleText.text = GetString("Killer");
                         __instance.RoleText.color = color;
                         __instance.RoleBlurbText.color = color;
-                        __instance.RoleBlurbText.text = "KILL EVERYONE TO WIN";
+                        __instance.RoleBlurbText.text = GetString("KillerInfo");
                         break;
                     }
                 case CustomGameMode.MoveAndStop:
                     {
                         var color = ColorUtility.TryParseHtmlString("#00ffa5", out var c) ? c : new(255, 255, 255, 255);
                         __instance.YouAreText.transform.gameObject.SetActive(false);
-                        __instance.RoleText.text = "STOP AND GO";
+                        __instance.RoleText.text = GetString("MoveAndStop");
                         __instance.RoleText.color = color;
                         __instance.RoleBlurbText.color = color;
-                        __instance.RoleBlurbText.text = "FINISH TASKS FIRST TO WIN";
+                        __instance.RoleBlurbText.text = GetString("TaskerInfo");
                         break;
                     }
                 default:
@@ -387,18 +387,18 @@ class BeginCrewmatePatch
                     break;
                 }
             case CustomGameMode.FFA:
-                __instance.TeamTitle.text = "FREE FOR ALL";
+                __instance.TeamTitle.text = GetString("Killer");
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(0, 255, 255, byte.MaxValue);
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
                 __instance.ImpostorText.gameObject.SetActive(true);
-                __instance.ImpostorText.text = "KILL EVERYONE TO WIN";
+                __instance.ImpostorText.text = GetString("KillerInfo");
                 break;
             case CustomGameMode.MoveAndStop:
-                __instance.TeamTitle.text = "STOP AND GO";
+                __instance.TeamTitle.text = GetString("MoveAndStop");
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(0, 255, 160, byte.MaxValue);
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
                 __instance.ImpostorText.gameObject.SetActive(true);
-                __instance.ImpostorText.text = "FINISH TASKS FIRST TO WIN";
+                __instance.ImpostorText.text = GetString("TaskerInfo");
                 break;
         }
 

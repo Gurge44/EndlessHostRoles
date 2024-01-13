@@ -44,29 +44,6 @@ internal class CustomRoleSelector
 
     public static void SelectCustomRoles()
     {
-        RoleResult = [];
-        var rd = IRandom.Instance;
-        int playerCount = Main.AllAlivePlayerControls.Length;
-        int optImpNum = Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors);
-        int optNonNeutralKillingNum = 0;
-        int optNeutralKillingNum = 0;
-
-        GetNeutralCounts(Options.NeutralKillingRolesMaxPlayer.GetInt(), Options.NeutralKillingRolesMinPlayer.GetInt(), Options.NonNeutralKillingRolesMaxPlayer.GetInt(), Options.NonNeutralKillingRolesMinPlayer.GetInt(), ref optNeutralKillingNum, ref optNonNeutralKillingNum); ;
-
-        int readyRoleNum = 0;
-        int readyImpNum = 0;
-        int readyNonNeutralKillingNum = 0;
-        int readyNeutralKillingNum = 0;
-
-        List<CustomRoles> FinalRolesList = [];
-
-        Dictionary<RoleAssignType, List<RoleAssignInfo>> AllRoles = [];
-
-        AllRoles[RoleAssignType.Impostor] = [];
-        AllRoles[RoleAssignType.NeutralKilling] = [];
-        AllRoles[RoleAssignType.NonKillingNeutral] = [];
-        AllRoles[RoleAssignType.Crewmate] = [];
-
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.SoloKombat:
@@ -92,6 +69,29 @@ internal class CustomRoleSelector
                 }
                 return;
         }
+
+        RoleResult = [];
+        var rd = IRandom.Instance;
+        int playerCount = Main.AllAlivePlayerControls.Length;
+        int optImpNum = Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors);
+        int optNonNeutralKillingNum = 0;
+        int optNeutralKillingNum = 0;
+
+        GetNeutralCounts(Options.NeutralKillingRolesMaxPlayer.GetInt(), Options.NeutralKillingRolesMinPlayer.GetInt(), Options.NonNeutralKillingRolesMaxPlayer.GetInt(), Options.NonNeutralKillingRolesMinPlayer.GetInt(), ref optNeutralKillingNum, ref optNonNeutralKillingNum);
+
+        int readyRoleNum = 0;
+        int readyImpNum = 0;
+        int readyNonNeutralKillingNum = 0;
+        int readyNeutralKillingNum = 0;
+
+        List<CustomRoles> FinalRolesList = [];
+
+        Dictionary<RoleAssignType, List<RoleAssignInfo>> AllRoles = [];
+
+        AllRoles[RoleAssignType.Impostor] = [];
+        AllRoles[RoleAssignType.NeutralKilling] = [];
+        AllRoles[RoleAssignType.NonKillingNeutral] = [];
+        AllRoles[RoleAssignType.Crewmate] = [];
 
         foreach (var id in Main.SetRoles.Keys.Where(id => Utils.GetPlayerById(id) == null).ToArray()) Main.SetRoles.Remove(id);
 
@@ -127,10 +127,12 @@ internal class CustomRoleSelector
             Logger.Warn("Adding Vanilla Impostor", "CustomRoleSelector");
         }
 
+        Logger.Info("====================================", "AllActiveRoles");
         Logger.Info(string.Join(", ", AllRoles[RoleAssignType.Impostor].Select(x => $"{x.Role}: {x.SpawnChance}% - {x.MaxCount}")), "ImpRoles");
         Logger.Info(string.Join(", ", AllRoles[RoleAssignType.NeutralKilling].Select(x => $"{x.Role}: {x.SpawnChance}% - {x.MaxCount}")), "NKRoles");
         Logger.Info(string.Join(", ", AllRoles[RoleAssignType.NonKillingNeutral].Select(x => $"{x.Role}: {x.SpawnChance}% - {x.MaxCount}")), "NNKRoles");
         Logger.Info(string.Join(", ", AllRoles[RoleAssignType.Crewmate].Select(x => $"{x.Role}: {x.SpawnChance}% - {x.MaxCount}")), "CrewRoles");
+        Logger.Info("====================================", "AllActiveRoles");
 
         var AllPlayers = Main.AllAlivePlayerControls.ToList();
 
