@@ -259,6 +259,9 @@ class CheckMurderPatch
                 case CustomRoles.Postman:
                     Postman.OnCheckMurder(killer, target);
                     return false;
+                case CustomRoles.SoulHunter:
+                    if (!SoulHunter.OnCheckMurder(target)) return false;
+                    break;
                 case CustomRoles.Vengeance:
                     if (!Vengeance.OnCheckMurder(killer, target)) return false;
                     break;
@@ -807,12 +810,16 @@ class CheckMurderPatch
         if (Medic.OnCheckMurder(killer, target))
             return false;
 
-
+        if (SoulHunter.IsTargetBlocked && SoulHunter.CurrentTarget.ID == killer.PlayerId && target.Is(CustomRoles.SoulHunter))
+        {
+            killer.Notify(GetString("SoulHunterTargetNotifyNoKill"));
+            _ = new LateTask(() => { if (SoulHunter.CurrentTarget.ID == killer.PlayerId) killer.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter.SoulHunter_.GetRealName()), 300f); }, 4f, log: false);
+            return false;
+        }
 
         // Traitor can't kill Impostors but Impostors can kill it
         if (killer.Is(CustomRoles.Traitor) && target.Is(CustomRoleTypes.Impostor))
             return false;
-
 
         //禁止叛徒刀内鬼
         if (killer.Is(CustomRoles.Madmate) && target.Is(CustomRoleTypes.Impostor) && !Options.MadmateCanKillImp.GetBool())
@@ -1705,6 +1712,12 @@ class ReportDeadBodyPatch
             {
                 if (__instance.Is(CustomRoles.Jester) && !Options.JesterCanUseButton.GetBool()) return false;
                 if (__instance.Is(CustomRoles.NiceSwapper) && !NiceSwapper.CanStartMeeting.GetBool()) return false;
+                if (SoulHunter.IsTargetBlocked && __instance.PlayerId == SoulHunter.CurrentTarget.ID)
+                {
+                    __instance.Notify(GetString("SoulHunterTargetNotifyNoMeeting"));
+                    _ = new LateTask(() => { if (SoulHunter.CurrentTarget.ID == __instance.PlayerId) __instance.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter.SoulHunter_.GetRealName()), 300f); }, 4f, log: false);
+                    return false;
+                }
             }
             if (target != null)
             {
@@ -2161,6 +2174,9 @@ class FixedUpdatePatch
                     break;
                 case CustomRoles.BountyHunter:
                     BountyHunter.FixedUpdate(player);
+                    break;
+                case CustomRoles.SoulHunter when !lowLoad:
+                    SoulHunter.OnFixedUpdate();
                     break;
                 case CustomRoles.Kamikaze when !lowLoad:
                     Kamikaze.OnFixedUpdate();
@@ -3509,6 +3525,17 @@ class CoEnterVentPatch
             {
                 __instance.myPlayer?.Notify(string.Format(GetString("HackedByGlitch"), "Vent"));
                 __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id);
+            }, 0.5f);
+            return true;
+        }
+
+        if (SoulHunter.IsTargetBlocked && SoulHunter.CurrentTarget.ID == __instance.myPlayer.PlayerId)
+        {
+            _ = new LateTask(() =>
+            {
+                __instance.myPlayer?.Notify(GetString("SoulHunterTargetNotifyNoVent"));
+                __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id);
+                _ = new LateTask(() => { if (SoulHunter.CurrentTarget.ID == __instance.myPlayer.PlayerId) __instance.myPlayer.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter.SoulHunter_.GetRealName()), 300f); }, 4f, log: false);
             }, 0.5f);
             return true;
         }

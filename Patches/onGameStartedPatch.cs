@@ -297,6 +297,7 @@ internal class ChangeRoleSettings
             Merchant.Init();
             Mastermind.Init();
             NSerialKiller.Init();
+            SoulHunter.Init();
             Enderman.Init();
             Mycologist.Init();
             Bubble.Init();
@@ -995,6 +996,9 @@ internal class SelectRolesPatch
                             break;
                         case CustomRoles.NSerialKiller:
                             NSerialKiller.Add(pc.PlayerId);
+                            break;
+                        case CustomRoles.SoulHunter:
+                            SoulHunter.Add(pc.PlayerId);
                             break;
                         case CustomRoles.Enderman:
                             Enderman.Add(pc.PlayerId);

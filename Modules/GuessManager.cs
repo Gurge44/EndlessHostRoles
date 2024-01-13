@@ -1055,6 +1055,8 @@ public static class GuessManager
                     or CustomRoles.GuardianAngelTOHE
                     ) continue;
 
+                if (!role.IsEnable() && !role.RoleExist(countDead: true)) continue;
+
                 CreateRole(role);
             }
             void CreateRole(CustomRoles role)

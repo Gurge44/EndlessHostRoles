@@ -1,10 +1,13 @@
 using AmongUs.GameOptions;
+using BepInEx.Unity.IL2CPP.Utils.Collections;
 using HarmonyLib;
 using Hazel;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
+using UnityEngine;
 using static TOHE.Translator;
 using static TOHE.Utils;
 
@@ -175,6 +178,10 @@ class GameEndChecker
                             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
                             CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Postman);
                             break;
+                        case CustomRoles.SoulHunter when SoulHunter.Souls >= SoulHunter.NumOfSoulsToWin.GetInt():
+                            CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                            CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.SoulHunter);
+                            break;
                     }
                 }
 
@@ -284,31 +291,23 @@ class GameEndChecker
     }
     public static void StartEndGame(GameOverReason reason)
     {
-        var sender = new CustomRpcSender("EndGameSender", SendOption.Reliable, true);
-        sender.StartMessage(-1); // 5: GameData
-        MessageWriter writer = sender.stream;
-
-        //foreach (var pc in Main.AllPlayerControls)
-        //{
-        //    var name = pc.GetRealName().RemoveHtmlTags();
-        //    var color = GetRoleColor(pc.GetCustomRole());
-        //    var rolename = GetRoleName(Main.PlayerStates[pc.PlayerId].MainRole);
-        //    pc.RpcSetNameEx($"{name}\n{ColorString(color, rolename)}");
-        //}
-
+        AmongUsClient.Instance.StartCoroutine(CoEndGame(AmongUsClient.Instance, reason).WrapToIl2Cpp());
+    }
+    private static IEnumerator CoEndGame(AmongUsClient self, GameOverReason reason)
+    {
         if (Blackmailer.IsEnable) Blackmailer.ForBlackmailer.Clear();
 
+        // Set ghost role
         List<byte> ReviveRequiredPlayerIds = [];
         var winner = CustomWinnerHolder.WinnerTeam;
-        foreach (PlayerControl pc in Main.AllPlayerControls)
+        foreach (var pc in Main.AllPlayerControls)
         {
             if (winner == CustomWinner.Draw)
             {
                 SetGhostRole(ToGhostImpostor: true);
                 continue;
             }
-            bool canWin = CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) ||
-                    CustomWinnerHolder.WinnerRoles.Contains(pc.GetCustomRole());
+            bool canWin = CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) || CustomWinnerHolder.WinnerRoles.Contains(pc.GetCustomRole());
             bool isCrewmateWin = reason.Equals(GameOverReason.HumansByVote) || reason.Equals(GameOverReason.HumansByTask);
             SetGhostRole(ToGhostImpostor: canWin ^ isCrewmateWin);
 
@@ -317,68 +316,53 @@ class GameEndChecker
                 if (!pc.Data.IsDead) ReviveRequiredPlayerIds.Add(pc.PlayerId);
                 if (ToGhostImpostor)
                 {
-                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()}: ImpostorGhost", "ResetRoleAndEndGame");
-                    sender.StartRpc(pc.NetId, RpcCalls.SetRole)
-                        .Write((ushort)RoleTypes.ImpostorGhost)
-                        .EndRpc();
-                    pc.SetRole(RoleTypes.ImpostorGhost);
+                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()}: changed to ImpostorGhost", "ResetRoleAndEndGame");
+                    pc.RpcSetRole(RoleTypes.ImpostorGhost);
                 }
                 else
                 {
-                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()}: CrewmateGhost", "ResetRoleAndEndGame");
-                    sender.StartRpc(pc.NetId, RpcCalls.SetRole)
-                        .Write((ushort)RoleTypes.CrewmateGhost)
-                        .EndRpc();
-                    pc.SetRole(RoleTypes.Crewmate);
+                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()}: changed to CrewmateGhost", "ResetRoleAndEndGame");
+                    pc.RpcSetRole(RoleTypes.CrewmateGhost);
                 }
             }
             SetEverythingUpPatch.LastWinsReason = winner is CustomWinner.Crewmate or CustomWinner.Impostor ? GetString($"GameOverReason.{reason}") : string.Empty;
         }
 
-        // CustomWinnerHolderの情報の同期
-        sender.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.EndGame);
-        CustomWinnerHolder.WriteTo(sender.stream);
-        sender.EndRpc();
+        // Sync of CustomWinnerHolder info
+        var winnerWriter = self.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.EndGame, SendOption.Reliable);
+        CustomWinnerHolder.WriteTo(winnerWriter);
+        self.FinishRpcImmediately(winnerWriter);
 
-        // GameDataによる蘇生処理
-        writer.StartMessage(1); // Data
+        // Delay to ensure that resuscitation is delivered after the ghost roll setting
+        yield return new WaitForSeconds(EndGameDelay);
+
+        if (ReviveRequiredPlayerIds.Count > 0)
         {
-            writer.WritePacked(GameData.Instance.NetId); // NetId
-            foreach (var info in GameData.Instance.AllPlayers)
+            // Resuscitation Resuscitate one person per transmission to prevent the packet from swelling up and dying
+            for (int i = 0; i < ReviveRequiredPlayerIds.Count; i++)
             {
-                if (ReviveRequiredPlayerIds.Contains(info.PlayerId))
-                {
-                    // 蘇生&メッセージ書き込み
-                    info.IsDead = false;
-                    writer.StartMessage(info.PlayerId);
-                    info.Serialize(writer);
-                    writer.EndMessage();
-                }
+                var playerId = ReviveRequiredPlayerIds[i];
+                var playerInfo = GameData.Instance.GetPlayerById(playerId);
+                // resuscitation
+                playerInfo.IsDead = false;
+                // transmission
+                GameData.Instance.SetDirtyBit(0b_1u << playerId);
+                AmongUsClient.Instance.SendAllStreamedObjects();
             }
-            writer.EndMessage();
+            // Delay to ensure that the end of the game is delivered at the end of the game
+            yield return new WaitForSeconds(EndGameDelay);
         }
 
-        sender.EndMessage();
-
-        // バニラ側のゲーム終了RPC
-        writer.StartMessage(8); //8: EndGame
-        {
-            writer.Write(AmongUsClient.Instance.GameId); //GameId
-            writer.Write((byte)reason); //GameoverReason
-            writer.Write(false); //showAd
-        }
-        writer.EndMessage();
-
-        sender.SendMessage();
+        // Start End Game
+        GameManager.Instance.RpcEndGame(reason, false);
     }
+    private const float EndGameDelay = 0.2f;
 
     public static void SetPredicateToNormal() => predicate = new NormalGameEndPredicate();
     public static void SetPredicateToSoloKombat() => predicate = new SoloKombatGameEndPredicate();
     public static void SetPredicateToFFA() => predicate = new FFAGameEndPredicate();
     public static void SetPredicateToMoveAndStop() => predicate = new MoveAndStopGameEndPredicate();
 
-    // ===== ゲーム終了条件 =====
-    // 通常ゲーム用
     class NormalGameEndPredicate : GameEndPredicate
     {
         public override bool CheckForEndGame(out GameOverReason reason)

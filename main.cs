@@ -33,8 +33,8 @@ public class Main : BasePlugin
     public static ConfigEntry<string> DebugKeyInput { get; private set; }
     public static readonly string MainMenuText = " ";
     public const string PluginGuid = "com.gurge44.toheplus";
-    public const string PluginVersion = "2.2.4";
-    public const string PluginDisplayVersion = "2.2.4";
+    public const string PluginVersion = "2.3.0";
+    public const string PluginDisplayVersion = "2.3.0";
     public static readonly string SupportedAUVersion = "2023.10.24";
     public const int PluginCreate = 3;
     public const bool Canary = false;
@@ -461,6 +461,7 @@ public class Main : BasePlugin
                 {CustomRoles.HexMaster, "#ff00ff"},
                 {CustomRoles.Wraith, "#4B0082"},
                 {CustomRoles.NSerialKiller, "#233fcc"},
+                {CustomRoles.SoulHunter, "#3f2c61"},
                 {CustomRoles.Enderman, "#3c008a"},
                 {CustomRoles.Mycologist, "#0043de"},
                 {CustomRoles.Bubble, "#ff38c3"},
@@ -884,6 +885,7 @@ public enum CustomRoles
     RuthlessRomantic,
     NSerialKiller, // Serial Killer
     Sidekick,
+    SoulHunter,
     Spiritcaller,
     Sprayer,
     DarkHide, // Stalker
@@ -1071,6 +1073,7 @@ public enum AdditionalWinners
     Phantom = CustomRoles.Phantom,
     Maverick = CustomRoles.Maverick,
     Postman = CustomRoles.Postman,
+    SoulHunter = CustomRoles.SoulHunter,
     //   Baker = CustomRoles.Baker,
 }
 public enum SuffixModes

@@ -1470,6 +1470,9 @@ internal static class RPC
             case CustomRoles.NSerialKiller:
                 NSerialKiller.Add(targetId);
                 break;
+            case CustomRoles.SoulHunter:
+                SoulHunter.Add(targetId);
+                break;
             case CustomRoles.Enderman:
                 Enderman.Add(targetId);
                 break;

@@ -530,6 +530,7 @@ static class ExtendedPlayerControl
             CustomRoles.Pyromaniac => true,
             CustomRoles.Eclipse => true,
             CustomRoles.NSerialKiller => true,
+            CustomRoles.SoulHunter => true,
             CustomRoles.Enderman => true,
             CustomRoles.Mycologist => true,
             CustomRoles.Bubble => true,
@@ -654,6 +655,7 @@ static class ExtendedPlayerControl
             CustomRoles.Pyromaniac => pc.IsAlive(),
             CustomRoles.Eclipse => pc.IsAlive(),
             CustomRoles.NSerialKiller => pc.IsAlive(),
+            CustomRoles.SoulHunter => pc.IsAlive(),
             CustomRoles.Enderman => pc.IsAlive(),
             CustomRoles.Mycologist => pc.IsAlive(),
             CustomRoles.Bubble => pc.IsAlive(),
@@ -760,6 +762,7 @@ static class ExtendedPlayerControl
             CustomRoles.Glitch => Glitch.CanVent.GetBool(),
             CustomRoles.Poisoner => Poisoner.CanVent.GetBool(),
             CustomRoles.NSerialKiller => NSerialKiller.CanVent.GetBool(),
+            CustomRoles.SoulHunter => SoulHunter.CanVent.GetBool(),
             CustomRoles.Enderman => Enderman.CanVent.GetBool(),
             CustomRoles.Mycologist => true,
             CustomRoles.Bubble => Bubble.CanVent.GetBool(),
@@ -855,6 +858,7 @@ static class ExtendedPlayerControl
             CustomRoles.Pyromaniac or
             CustomRoles.Eclipse or
             CustomRoles.NSerialKiller or
+            CustomRoles.SoulHunter or
             CustomRoles.Bubble or
             CustomRoles.PlagueDoctor or
             CustomRoles.Reckless or
@@ -1079,6 +1083,9 @@ static class ExtendedPlayerControl
                 break;
             case CustomRoles.NSerialKiller:
                 NSerialKiller.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.SoulHunter:
+                SoulHunter.SetKillCooldown(player.PlayerId);
                 break;
             case CustomRoles.Enderman:
                 Enderman.SetKillCooldown(player.PlayerId);

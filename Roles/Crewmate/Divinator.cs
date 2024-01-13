@@ -368,6 +368,7 @@ public static class Divinator
                 CustomRoles.TimeThief or
                 CustomRoles.Autocrat or
                 CustomRoles.PlagueDoctor or
+                CustomRoles.SoulHunter or
                 //CustomRoles.ShapeMaster or
                 CustomRoles.Tether or
                 CustomRoles.Sniper

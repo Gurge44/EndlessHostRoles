@@ -475,6 +475,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.NSerialKiller:
+            case CustomRoles.SoulHunter:
             case CustomRoles.Enderman:
             case CustomRoles.Mycologist:
             case CustomRoles.Bubble:
@@ -723,6 +724,9 @@ public static class Utils
                     break;
                 case CustomRoles.Analyzer:
                     ProgressText.Append(Analyzer.GetProgressText());
+                    break;
+                case CustomRoles.SoulHunter:
+                    ProgressText.Append(SoulHunter.ProgressText);
                     break;
                 case CustomRoles.Sprayer:
                     ProgressText.Append(Sprayer.ProgressText);
@@ -2614,6 +2618,7 @@ public static class Utils
         if (Mycologist.IsEnable) Mycologist.AfterMeetingTasks();
         if (Sprayer.IsEnable) Sprayer.AfterMeetingTasks();
         if (PlagueDoctor.IsEnable) PlagueDoctor.AfterMeetingTasks();
+        if (SoulHunter.IsEnable) SoulHunter.AfterMeetingTasks();
         if (Penguin.IsEnable) Penguin.AfterMeetingTasks();
         if (Chronomancer.IsEnable) Chronomancer.OnReportDeadBody();
         if (Benefactor.IsEnable) Benefactor.AfterMeetingTasks();

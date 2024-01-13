@@ -337,6 +337,7 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.NSerialKiller => RoleTypes.Impostor,
+            CustomRoles.SoulHunter => RoleTypes.Impostor,
             CustomRoles.Enderman => RoleTypes.Impostor,
             CustomRoles.Mycologist => RoleTypes.Impostor,
             CustomRoles.Bubble => RoleTypes.Impostor,
@@ -440,6 +441,7 @@ internal static class CustomRolesHelper
             => role is
             CustomRoles.Jester or
             CustomRoles.Postman or
+            CustomRoles.SoulHunter or
             CustomRoles.Terrorist or
             CustomRoles.Opportunist or
             //CustomRoles.Masochist or
@@ -858,6 +860,7 @@ internal static class CustomRolesHelper
             //    CustomRoles.Sidekick or
             CustomRoles.Poisoner or
             CustomRoles.NSerialKiller or
+            CustomRoles.SoulHunter or
             CustomRoles.Enderman or
             CustomRoles.Mycologist or
             CustomRoles.Bubble or
@@ -906,6 +909,7 @@ internal static class CustomRolesHelper
         CustomRoles.Virus or
         CustomRoles.Medusa or
         CustomRoles.NSerialKiller or
+        CustomRoles.SoulHunter or
         CustomRoles.Enderman or
         CustomRoles.Mycologist or
         CustomRoles.Bubble or
@@ -1126,6 +1130,7 @@ internal static class CustomRolesHelper
         CustomRoles.Pestilence or
         CustomRoles.Poisoner or
         CustomRoles.NSerialKiller or
+        CustomRoles.SoulHunter or
         CustomRoles.Enderman or
         CustomRoles.Mycologist or
         CustomRoles.Bubble or

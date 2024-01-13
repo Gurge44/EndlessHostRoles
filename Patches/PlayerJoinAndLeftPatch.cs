@@ -116,17 +116,17 @@ class OnPlayerLeftPatch
 {
     public static void Postfix(AmongUsClient __instance, [HarmonyArgument(0)] ClientData data, [HarmonyArgument(1)] DisconnectReasons reason)
     {
-        //            Logger.info($"RealNames[{data.Character.PlayerId}]を削除");
-        //            main.RealNames.Remove(data.Character.PlayerId);
         if (GameStates.IsInGame)
         {
             if (data.Character.Is(CustomRoles.Lovers) && !data.Character.Data.IsDead)
+            {
                 foreach (var lovers in Main.LoversPlayers.ToArray())
                 {
                     Main.isLoversDead = true;
                     Main.LoversPlayers.Remove(lovers);
                     Main.PlayerStates[lovers.PlayerId].RemoveSubRole(CustomRoles.Lovers);
                 }
+            }
             if (data.Character.Is(CustomRoles.Executioner) && Executioner.Target.ContainsKey(data.Character.PlayerId))
                 Executioner.ChangeRole(data.Character);
             if (Executioner.Target.ContainsValue(data.Character.PlayerId))
@@ -142,14 +142,8 @@ class OnPlayerLeftPatch
             if (data.Character.PlayerId == Postman.Target)
                 Postman.SetNewTarget();
             PlayerState state = Main.PlayerStates[data.Character.PlayerId];
-            if (state.deathReason == PlayerState.DeathReason.etc) // If no cause of death was established
-            {
-                state.deathReason = PlayerState.DeathReason.Disconnected;
-            }
-            if (!state.IsDead)
-            {
-                state.SetDead();
-            }
+            if (state.deathReason == PlayerState.DeathReason.etc) state.deathReason = PlayerState.DeathReason.Disconnected;
+            if (!state.IsDead) state.SetDead();
             NameNotifyManager.Notice.Remove(data.Character.PlayerId);
             AntiBlackout.OnDisconnect(data.Character.Data);
             PlayerGameOptionsSender.RemoveSender(data.Character);
@@ -189,7 +183,7 @@ class OnPlayerLeftPatch
             writer.SendMessage();
         }
 
-        // 附加描述掉线原因
+        // Additional description of the reason for disconnection
         switch (reason)
         {
             case DisconnectReasons.Hacking:
@@ -217,6 +211,8 @@ class OnPlayerLeftPatch
         }
 
         Utils.CountAlivePlayers(true);
+
+        data.Character.Data.Disconnected = true;
     }
 }
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CreatePlayer))]

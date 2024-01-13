@@ -242,6 +242,7 @@ class HudManagerPatch
                         Gangster.SetKillButtonText(player.PlayerId);
                         break;
                     case CustomRoles.NSerialKiller:
+                    case CustomRoles.SoulHunter:
                     case CustomRoles.Enderman:
                     case CustomRoles.Mycologist:
                     case CustomRoles.Bubble:
@@ -554,6 +555,7 @@ class HudManagerPatch
                         CustomRoles.YinYanger => YinYanger.ModeText,
                         CustomRoles.WeaponMaster => WeaponMaster.GetHudAndProgressText(),
                         CustomRoles.Postman => Postman.GetHudText(player),
+                        CustomRoles.SoulHunter => SoulHunter.HUDText,
                         CustomRoles.Chronomancer => Chronomancer.GetHudText(),
                         CustomRoles.Mafioso => Mafioso.GetHUDText(),
                         CustomRoles.Druid => Druid.GetHUDText(player),
