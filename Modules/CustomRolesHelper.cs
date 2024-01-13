@@ -381,6 +381,7 @@ internal static class CustomRolesHelper
             CustomRoles.Ntr or
             CustomRoles.Madmate or
             CustomRoles.Watcher or
+            CustomRoles.Sleuth or
             CustomRoles.Admired or
             CustomRoles.Flashman or
             CustomRoles.Giant or

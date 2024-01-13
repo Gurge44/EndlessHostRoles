@@ -192,6 +192,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, int> JinxSpellCount = [];
     public static Dictionary<byte, int> PuppeteerDelay = [];
     public static Dictionary<byte, int> PuppeteerMaxPuppets = [];
+    public static Dictionary<byte, string> SleuthMsgs = [];
     public static int AliveImpostorCount;
     public static bool isCursed;
     public static bool NiceSwapSend;
@@ -513,6 +514,7 @@ public class Main : BasePlugin
                 {CustomRoles.Ntr, "#00a4ff"},
                 {CustomRoles.Madmate, "#ff1919"},
                 {CustomRoles.Watcher, "#800080"},
+                {CustomRoles.Sleuth, "#30221c"},
                 {CustomRoles.Flashman, "#ff8400"},
                 {CustomRoles.Giant, "#32a852"},
                 {CustomRoles.Nimble, "#feffc7"},
@@ -959,6 +961,7 @@ public enum CustomRoles
     Rogue,
     DualPersonality, // Schizophrenic
     Seer,
+    Sleuth,
     Soulless,
     TicketsStealer, // Stealer
     Stressed,

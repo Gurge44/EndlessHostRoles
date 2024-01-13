@@ -61,6 +61,7 @@ internal class ChangeRoleSettings
             Main.PuppeteerDelayList = [];
             Main.TaglockedList = [];
             Main.DetectiveNotify = [];
+            Main.SleuthMsgs = [];
             Main.ForCrusade = [];
             Main.KillGhoul = [];
             Main.CyberStarDead = [];

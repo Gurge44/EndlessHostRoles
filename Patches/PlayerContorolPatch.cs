@@ -1868,6 +1868,11 @@ class ReportDeadBodyPatch
                     }
                     Main.DetectiveNotify.Add(player.PlayerId, msg);
                 }
+                else if (player.Is(CustomRoles.Sleuth) && player.PlayerId != target.PlayerId)
+                {
+                    string msg = string.Format(GetString("SleuthMsg"), tpc.GetRealName(), tpc.GetDisplayRoleName());
+                    Main.SleuthMsgs[player.PlayerId] = msg;
+                }
             }
 
             if (Main.InfectedBodies.Contains(target.PlayerId)) Virus.OnKilledBodyReport(player);
