@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TOHE.Modules;
+using TOHE.Roles.AddOns.Common;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
 using TOHE.Roles.Crewmate;
@@ -2263,6 +2264,7 @@ class FixedUpdatePatch
                 Tornado.OnCheckPlayerPosition(player);
                 BallLightning.OnCheckPlayerPosition(player);
                 Sprayer.OnCheckPlayerPosition(player);
+                Asthmatic.OnCheckPlayerPosition(player);
             }
 
             if (!lowLoad && Main.PlayerStates.TryGetValue(playerId, out var playerState) && GameStates.IsInTask)
@@ -2274,6 +2276,10 @@ class FixedUpdatePatch
                 if (playerState.SubRoles.Contains(CustomRoles.Stressed))
                 {
                     Stressed.Update(player);
+                }
+                if (playerState.SubRoles.Contains(CustomRoles.Asthmatic))
+                {
+                    Asthmatic.OnFixedUpdate();
                 }
             }
 
@@ -2992,6 +2998,7 @@ class FixedUpdatePatch
                 if (seer.PlayerId == target.PlayerId)
                 {
                     if (!seer.IsModClient()) GetPetCDSuffix(seer, ref Suffix);
+                    if (seer.Is(CustomRoles.Asthmatic)) Suffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
                     switch (seer.GetCustomRole())
                     {
                         case CustomRoles.VengefulRomantic:

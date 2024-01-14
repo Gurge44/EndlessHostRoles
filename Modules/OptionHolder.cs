@@ -474,6 +474,10 @@ public static class Options
     public static OptionItem UnluckyVentSuicideChance;
     public static OptionItem UnluckyReportSuicideChance;
     public static OptionItem UnluckySabotageSuicideChance;
+    public static OptionItem AsthmaticMinRedTime;
+    public static OptionItem AsthmaticMaxRedTime;
+    public static OptionItem AsthmaticMinGreenTime;
+    public static OptionItem AsthmaticMaxGreenTime;
     // RASCAL //
     public static OptionItem RascalAppearAsMadmate;
 
@@ -2372,8 +2376,22 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Rascal]);
 
         LoadingPercentage = 45;
-        RoleLoadingText = "Add-ons\nSunglasses";
+        RoleLoadingText = "Add-ons\nAsthmatic";
 
+        SetupAdtRoleOptions(15420, CustomRoles.Asthmatic, canSetNum: true);
+        AsthmaticMinRedTime = IntegerOptionItem.Create(15423, "AsthmaticMinRedTime", new(1, 90, 1), 5, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
+            .SetValueFormat(OptionFormat.Seconds);
+        AsthmaticMaxRedTime = IntegerOptionItem.Create(15424, "AsthmaticMaxRedTime", new(1, 90, 1), 30, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
+            .SetValueFormat(OptionFormat.Seconds);
+        AsthmaticMinGreenTime = IntegerOptionItem.Create(15425, "AsthmaticMinGreenTime", new(1, 90, 1), 5, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
+            .SetValueFormat(OptionFormat.Seconds);
+        AsthmaticMaxGreenTime = IntegerOptionItem.Create(15426, "AsthmaticMaxGreenTime", new(1, 90, 1), 30, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
+            .SetValueFormat(OptionFormat.Seconds);
+        RoleLoadingText = "Add-ons\nSunglasses";
         SetupAdtRoleOptions(15450, CustomRoles.Sunglasses, canSetNum: true);
         SunglassesVision = FloatOptionItem.Create(15460, "SunglassesVision", new(0f, 5f, 0.05f), 0.75f, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Sunglasses])

@@ -2,12 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TOHE.Roles.AddOns.Common;
 using UnityEngine;
 using static TOHE.Translator;
 
 namespace TOHE;
 
-class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, char symbol, bool isRed, bool isYellow = false)
+public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, char symbol, bool isRed, bool isYellow = false, bool moveAndStop = true)
 {
     public int TotalGreenTime { get => totalGreenTime; set => totalGreenTime = value; }
     public int TotalRedTime { get => totalRedTime; set => totalRedTime = value; }
@@ -15,6 +16,7 @@ class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, char sy
     public char Symbol { get => symbol; set => symbol = value; }
     public bool IsRed { get => isRed; set => isRed = value; }
     public bool IsYellow { get => isYellow; set => isYellow = value; }
+    public bool MoveAndStop { get => moveAndStop; set => moveAndStop = value; }
 
     private static int TotalYellowTime => 3;
     private static Color Orange => new(255, 165, 0, 255);
@@ -33,12 +35,12 @@ class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, char sy
             }
             else if (IsRed && !IsYellow) // Change from red to green
             {
-                TotalGreenTime = MoveAndStopManager.RandomGreenTime(Symbol);
+                TotalGreenTime = MoveAndStop ? MoveAndStopManager.RandomGreenTime(Symbol) : Asthmatic.RandomGreenTime();
                 IsRed = false;
             }
             else if (IsYellow && !IsRed) // Change from yellow to red
             {
-                TotalRedTime = MoveAndStopManager.RandomRedTime(Symbol);
+                TotalRedTime = MoveAndStop ? MoveAndStopManager.RandomRedTime(Symbol) : Asthmatic.RandomRedTime();
                 IsYellow = false;
                 IsRed = true;
             }
@@ -197,7 +199,7 @@ internal class MoveAndStopManager
             }
             catch
             {
-                limit = 3f;
+                limit = 2f;
             }
 
             FixedUpdatePatch.Limit.TryAdd(pc.PlayerId, limit);
@@ -252,7 +254,7 @@ internal class MoveAndStopManager
                 float distanceX = currentPosition.x - previousPosition.x;
                 float distanceY = currentPosition.y - previousPosition.y;
 
-                float limit = Limit.TryGetValue(pc.PlayerId, out var x) ? x : 3f;
+                float limit = Limit.TryGetValue(pc.PlayerId, out var x) ? x : 2f;
 
                 // Now we can check the components of the direction vector to determine the movement direction
                 if (direction.x > 0) // Player is moving right
@@ -305,8 +307,7 @@ internal class MoveAndStopManager
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                 }
 
-                LastSuffix.Remove(pc.PlayerId);
-                LastSuffix.Add(pc.PlayerId, suffix);
+                LastSuffix[pc.PlayerId] = suffix;
             }
 
         NoSuffix:

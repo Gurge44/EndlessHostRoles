@@ -45,6 +45,7 @@ namespace TOHE.Roles.Crewmate
         [
             CustomRoles.Oblivious,
             CustomRoles.Bewilder,
+            CustomRoles.Asthmatic,
             CustomRoles.Unreportable, // Disregarded
             CustomRoles.Avanger, // Avenger
             CustomRoles.Diseased,

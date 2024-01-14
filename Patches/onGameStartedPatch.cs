@@ -296,6 +296,7 @@ internal class ChangeRoleSettings
             Tracker.Init();
             Merchant.Init();
             Mastermind.Init();
+            Asthmatic.Init();
             NSerialKiller.Init();
             SoulHunter.Init();
             Enderman.Init();
@@ -1156,6 +1157,7 @@ internal class SelectRolesPatch
             }
 
             Stressed.Add();
+            Asthmatic.Add();
 
         EndOfSelectRolePatch:
 

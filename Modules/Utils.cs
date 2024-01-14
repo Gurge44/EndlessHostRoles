@@ -1986,6 +1986,8 @@ public static class Utils
                 {
                     GetPetCDSuffix(seer, ref SelfSuffix);
 
+                    if (seer.Is(CustomRoles.Asthmatic)) SelfSuffix.Append(Roles.AddOns.Common.Asthmatic.GetSuffixText(seer.PlayerId));
+
                     switch (seer.GetCustomRole())
                     {
                         case CustomRoles.Tether when !seer.IsModClient():
