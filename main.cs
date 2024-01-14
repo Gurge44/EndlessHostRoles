@@ -517,6 +517,7 @@ public class Main : BasePlugin
                 {CustomRoles.Watcher, "#800080"},
                 {CustomRoles.Sleuth, "#30221c"},
                 {CustomRoles.Flashman, "#ff8400"},
+                {CustomRoles.Disco, "#eb34e8"},
                 {CustomRoles.Asthmatic, "#8feb34"},
                 {CustomRoles.Giant, "#32a852"},
                 {CustomRoles.Nimble, "#feffc7"},
@@ -930,6 +931,7 @@ public enum CustomRoles
     Contagious,
     Damocles,
     DeadlyQuota,
+    Disco,
     Diseased,
     Unreportable, // Disregarded
     DoubleShot,

@@ -51,33 +51,33 @@ public static class GuessManager
 
     public static byte GetColorFromMsg(string msg)
     {
-        if (ComfirmIncludeMsg(msg, "红|紅|red")) return 0;
-        else if (ComfirmIncludeMsg(msg, "蓝|藍|深蓝|blue")) return 1;
-        else if (ComfirmIncludeMsg(msg, "绿|綠|深绿|green")) return 2;
-        else if (ComfirmIncludeMsg(msg, "粉红|粉紅|pink")) return 3;
-        else if (ComfirmIncludeMsg(msg, "橘|橘|orange")) return 4;
-        else if (ComfirmIncludeMsg(msg, "黄|黃|yellow")) return 5;
-        else if (ComfirmIncludeMsg(msg, "黑|黑|black")) return 6;
-        else if (ComfirmIncludeMsg(msg, "白|白|white")) return 7;
-        else if (ComfirmIncludeMsg(msg, "紫|紫|perple")) return 8;
-        else if (ComfirmIncludeMsg(msg, "棕|棕|brown")) return 9;
-        else if (ComfirmIncludeMsg(msg, "青|青|cyan")) return 10;
-        else if (ComfirmIncludeMsg(msg, "黄绿|黃綠|浅绿|lime")) return 11;
-        else if (ComfirmIncludeMsg(msg, "红褐|紅褐|深红|maroon")) return 12;
-        else if (ComfirmIncludeMsg(msg, "玫红|玫紅|浅粉|rose")) return 13;
-        else if (ComfirmIncludeMsg(msg, "焦黄|焦黃|淡黄|banana")) return 14;
-        else if (ComfirmIncludeMsg(msg, "灰|灰|gray")) return 15;
-        else if (ComfirmIncludeMsg(msg, "茶|茶|tan")) return 16;
-        else if (ComfirmIncludeMsg(msg, "珊瑚|珊瑚|coral")) return 17;
+        if (ConfirmIncludeMsg(msg, "红|紅|red")) return 0;
+        else if (ConfirmIncludeMsg(msg, "蓝|藍|深蓝|blue")) return 1;
+        else if (ConfirmIncludeMsg(msg, "绿|綠|深绿|green")) return 2;
+        else if (ConfirmIncludeMsg(msg, "粉红|粉紅|pink")) return 3;
+        else if (ConfirmIncludeMsg(msg, "橘|橘|orange")) return 4;
+        else if (ConfirmIncludeMsg(msg, "黄|黃|yellow")) return 5;
+        else if (ConfirmIncludeMsg(msg, "黑|黑|black")) return 6;
+        else if (ConfirmIncludeMsg(msg, "白|白|white")) return 7;
+        else if (ConfirmIncludeMsg(msg, "紫|紫|perple")) return 8;
+        else if (ConfirmIncludeMsg(msg, "棕|棕|brown")) return 9;
+        else if (ConfirmIncludeMsg(msg, "青|青|cyan")) return 10;
+        else if (ConfirmIncludeMsg(msg, "黄绿|黃綠|浅绿|lime")) return 11;
+        else if (ConfirmIncludeMsg(msg, "红褐|紅褐|深红|maroon")) return 12;
+        else if (ConfirmIncludeMsg(msg, "玫红|玫紅|浅粉|rose")) return 13;
+        else if (ConfirmIncludeMsg(msg, "焦黄|焦黃|淡黄|banana")) return 14;
+        else if (ConfirmIncludeMsg(msg, "灰|灰|gray")) return 15;
+        else if (ConfirmIncludeMsg(msg, "茶|茶|tan")) return 16;
+        else if (ConfirmIncludeMsg(msg, "珊瑚|珊瑚|coral")) return 17;
         else return byte.MaxValue;
     }
 
-    private static bool ComfirmIncludeMsg(string msg, string key)
+    private static bool ConfirmIncludeMsg(string msg, string key)
     {
         var keys = key.Split('|');
-        for (int i = 0; i < keys.Length; i++)
+        foreach (string str in keys)
         {
-            if (msg.Contains(keys[i])) return true;
+            if (msg.Contains(str)) return true;
         }
         return false;
     }
@@ -1043,6 +1043,7 @@ public static class GuessManager
                     or CustomRoles.Impostor
                     or CustomRoles.Shapeshifter
                     or CustomRoles.Flashman
+                    or CustomRoles.Disco
                     or CustomRoles.Giant
                     or CustomRoles.NotAssigned
                     or CustomRoles.KB_Normal

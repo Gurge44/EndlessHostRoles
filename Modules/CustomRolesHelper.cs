@@ -385,6 +385,7 @@ internal static class CustomRolesHelper
         CustomRoles.Sleuth or
         CustomRoles.Admired or
         CustomRoles.Flashman or
+        CustomRoles.Disco or
         CustomRoles.Asthmatic or
         CustomRoles.Giant or
         CustomRoles.Physicist or

@@ -78,7 +78,6 @@ public static class Utils
             pc.TP(location);
         }
     }
-
     public static bool TP(CustomNetworkTransform nt, Vector2 location)
     {
         var pc = nt.myPlayer;

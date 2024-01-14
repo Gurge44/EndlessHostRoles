@@ -2269,17 +2269,22 @@ class FixedUpdatePatch
 
             if (!lowLoad && Main.PlayerStates.TryGetValue(playerId, out var playerState) && GameStates.IsInTask)
             {
-                if (playerState.SubRoles.Contains(CustomRoles.Damocles))
+                var subRoles = playerState.SubRoles;
+                if (subRoles.Contains(CustomRoles.Damocles))
                 {
                     Damocles.Update(player);
                 }
-                if (playerState.SubRoles.Contains(CustomRoles.Stressed))
+                if (subRoles.Contains(CustomRoles.Stressed))
                 {
                     Stressed.Update(player);
                 }
-                if (playerState.SubRoles.Contains(CustomRoles.Asthmatic))
+                if (subRoles.Contains(CustomRoles.Asthmatic))
                 {
                     Asthmatic.OnFixedUpdate();
+                }
+                if (subRoles.Contains(CustomRoles.Disco))
+                {
+                    Disco.OnFixedUpdate(player);
                 }
             }
 

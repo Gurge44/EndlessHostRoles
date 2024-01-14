@@ -35,6 +35,7 @@ namespace TOHE.Roles.Crewmate
             CustomRoles.Watcher,
             CustomRoles.Sleuth,
             CustomRoles.Seer,
+            CustomRoles.Disco,
             CustomRoles.Necroview,
             CustomRoles.Glow,
             CustomRoles.Gravestone,
