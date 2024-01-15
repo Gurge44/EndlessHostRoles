@@ -15,7 +15,7 @@ using static TOHE.Translator;
 
 namespace TOHE;
 
-enum CustomRPC
+public enum CustomRPC
 {
     VersionCheck = 60,
     RequestRetryVersionCheck = 61,
@@ -58,6 +58,7 @@ enum CustomRPC
 
     //Roles
     SetDrawPlayer,
+    SyncSoulHunter,
     SyncKamikazeLimit,
     KamikazeAddTarget,
     SyncMycologist,
@@ -417,6 +418,9 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SyncLibrarianList:
                 Librarian.ReceiveRPCSyncList(reader);
+                break;
+            case CustomRPC.SyncSoulHunter:
+                SoulHunter.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetDousedPlayer:
                 byte ArsonistId = reader.ReadByte();

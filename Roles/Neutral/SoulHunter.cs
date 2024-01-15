@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using Hazel;
 using static TOHE.Options;
 using static TOHE.Translator;
 using static TOHE.Utils;
@@ -63,6 +64,22 @@ namespace TOHE.Roles.Neutral
         public static bool IsEnable => SoulHunterId != byte.MaxValue;
         public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = WaitingTimeAfterMeeting.GetFloat() + 0.5f;
         public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
+        public static void SendRPC()
+        {
+            MessageWriter writer = CreateCustomRoleRPC(CustomRPC.SyncSoulHunter);
+            writer.Write(Souls);
+            writer.Write(CurrentTarget.ID);
+            writer.Write(CurrentTarget.START_TIMESTAMP.ToString());
+            writer.Write(CurrentTarget.FROZEN);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        public static void ReceiveRPC(MessageReader reader)
+        {
+            Souls = reader.ReadInt32();
+            CurrentTarget.ID = reader.ReadByte();
+            CurrentTarget.START_TIMESTAMP = long.Parse(reader.ReadString());
+            CurrentTarget.FROZEN = reader.ReadBoolean();
+        }
         public static bool OnCheckMurder(PlayerControl target)
         {
             if (SoulHunter_ == null || target == null) return false;
@@ -73,6 +90,7 @@ namespace TOHE.Roles.Neutral
                 CurrentTarget.START_TIMESTAMP = 0;
                 SoulHunter_.SetKillCooldown(5f);
                 Logger.Info($"Marked Next Target: {target.GetNameWithRole()}", "SoulHunter");
+                SendRPC();
                 return false;
             }
             else if (CurrentTarget.ID == target.PlayerId && CurrentTarget.START_TIMESTAMP != 0)
@@ -84,6 +102,7 @@ namespace TOHE.Roles.Neutral
                 SoulHunter_.Notify(GetString("SoulHunterNotifySuccess"));
                 _ = new LateTask(() => { SoulHunter_.SetKillCooldown(1f); }, 0.1f, log: false);
                 Logger.Info($"Killed Target", "SoulHunter");
+                SendRPC();
                 return true;
             }
             else
@@ -94,6 +113,7 @@ namespace TOHE.Roles.Neutral
                 SoulHunter_.Suicide();
                 target.Notify(GetString("SoulHunterTargetNotifySurvived"));
                 Logger.Info($"Killed Incorrect Player => Suicide", "SoulHunter");
+                SendRPC();
                 return false;
             }
         }
@@ -117,6 +137,7 @@ namespace TOHE.Roles.Neutral
             target.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter_.GetRealName()), 300f);
             LastUpdate = now;
 
+            SendRPC();
             Logger.Info($"Waiting to being hunting (in {waitingTime}s)", "SoulHunter");
         }
         public static void OnFixedUpdate()
@@ -150,6 +171,7 @@ namespace TOHE.Roles.Neutral
                 Souls++;
                 SoulHunter_.Notify(GetString("SoulHunterNotifySuccess"));
                 Logger.Info("Target Died/Disconnected", "SoulHunter");
+                SendRPC();
                 return;
             }
 
@@ -161,6 +183,7 @@ namespace TOHE.Roles.Neutral
                     Main.AllPlayerSpeed[SoulHunterId] = NormalSpeed;
                     SoulHunter_.MarkDirtySettings();
                     CurrentTarget.START_TIMESTAMP = now;
+                    SendRPC();
                 }
                 else if (!SoulHunter_.IsModClient())
                 {
@@ -175,6 +198,7 @@ namespace TOHE.Roles.Neutral
                     CurrentTarget.START_TIMESTAMP = 0;
                     SoulHunter_.Suicide();
                     target.Notify(GetString("SoulHunterTargetNotifySurvived"));
+                    SendRPC();
                 }
                 else if (!SoulHunter_.IsModClient())
                 {

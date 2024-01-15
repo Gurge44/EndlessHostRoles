@@ -385,6 +385,7 @@ internal static class CustomRolesHelper
         CustomRoles.Sleuth or
         CustomRoles.Admired or
         CustomRoles.Flashman or
+        CustomRoles.Truant or
         CustomRoles.Disco or
         CustomRoles.Asthmatic or
         CustomRoles.Giant or
@@ -1329,6 +1330,7 @@ internal static class CustomRolesHelper
         CustomRoles.Gravestone when mainRole.IsCrewmate() && !Options.CrewCanBeGravestone.GetBool() || mainRole.IsNeutral() && !Options.NeutralCanBeGravestone.GetBool() || mainRole.IsImpostor() && !Options.ImpCanBeGravestone.GetBool() => false,
         CustomRoles.Flashman or CustomRoles.Giant when mainRole is CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Chameleon or CustomRoles.Alchemist => false,
         CustomRoles.Bait when mainRole is CustomRoles.Unreportable => false,
+        CustomRoles.Truant when mainRole is CustomRoles.SoulHunter => false,
         CustomRoles.Nimble when !mainRole.IsCrewmate() => false,
         CustomRoles.Physicist when !mainRole.IsCrewmate() => false,
         CustomRoles.Unreportable when mainRole is CustomRoles.Bait => false,
@@ -1467,6 +1469,7 @@ internal static class CustomRolesHelper
         CustomRoles.Gravestone when pc.GetCustomRole().IsCrewmate() && !Options.CrewCanBeGravestone.GetBool() || pc.GetCustomRole().IsNeutral() && !Options.NeutralCanBeGravestone.GetBool() || pc.GetCustomRole().IsImpostor() && !Options.ImpCanBeGravestone.GetBool() => false,
         CustomRoles.Flashman or CustomRoles.Giant when pc.GetCustomRole() is CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Chameleon or CustomRoles.Alchemist => false,
         CustomRoles.Bait when pc.Is(CustomRoles.Unreportable) => false,
+        CustomRoles.Truant when pc.Is(CustomRoles.SoulHunter) => false,
         CustomRoles.Nimble when !pc.GetCustomRole().IsCrewmate() => false,
         CustomRoles.Physicist when !pc.GetCustomRole().IsCrewmate() => false,
         CustomRoles.Unreportable when pc.Is(CustomRoles.Bait) => false,

@@ -284,6 +284,7 @@ public static class GuessManager
                                 if (!isUI) Utils.SendMessage(GetString("GuessSuperStar"), pc.PlayerId);
                                 else pc.ShowPopUp(GetString("GuessSuperStar"));
                                 return true;
+                            case CustomRoles.Disco:
                             case CustomRoles.Glow:
                             case CustomRoles.LastImpostor:
                                 if (!isUI) Utils.SendMessage(GetString("GuessObviousAddon"), pc.PlayerId);

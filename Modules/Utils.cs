@@ -1,5 +1,6 @@
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using Epic.OnlineServices;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes;
 using InnerNet;
@@ -442,6 +443,8 @@ public static class Utils
         }
         return deathReason;
     }
+
+    public static MessageWriter CreateCustomRoleRPC(CustomRPC rpc) => AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)rpc, SendOption.Reliable, -1);
 
     public static bool HasTasks(GameData.PlayerInfo p, bool ForRecompute = true)
     {
@@ -2579,6 +2582,18 @@ public static class Utils
         foreach (var pc in Main.AllAlivePlayerControls)
         {
             pc.AddKillTimerToDict();
+
+            if (pc.Is(CustomRoles.Truant))
+            {
+                float beforeSpeed = Main.AllPlayerSpeed[pc.PlayerId];
+                Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
+                pc.MarkDirtySettings();
+                _ = new LateTask(() =>
+                {
+                    Main.AllPlayerSpeed[pc.PlayerId] = beforeSpeed;
+                    pc.MarkDirtySettings();
+                }, Options.TruantWaitingTime.GetFloat(), $"Truant Waiting: {pc.GetNameWithRole()}");
+            }
         }
 
         if (Options.DiseasedCDReset.GetBool())

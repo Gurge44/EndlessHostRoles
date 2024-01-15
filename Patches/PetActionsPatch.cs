@@ -549,6 +549,26 @@ class ExternalRpcPetPatch
             case CustomRoles.Sprayer:
                 Sprayer.PlaceTrap();
                 break;
+
+            // Message when no ability is triggered
+
+            default:
+                int x = IRandom.Instance.Next(1, 16);
+                string suffix;
+                if (x >= 14)
+                {
+                    x -= 13;
+                    suffix = pc.GetCustomRole().GetCustomRoleTypes() switch
+                    {
+                        CustomRoleTypes.Impostor => $"Imp{x}",
+                        CustomRoleTypes.Neutral => $"Neutral{x}",
+                        CustomRoleTypes.Crewmate => x == 1 ? "Crew" : pc.GetPlayerTaskState().IsTaskFinished ? "CrewTaskDone" : "CrewWithTasksLeft",
+                        _ => x.ToString(),
+                    };
+                }
+                else suffix = x.ToString();
+                pc.Notify(GetString($"NoPetActionMsg{suffix}"));
+                break;
         }
 
         if (pc.HasAbilityCD() || (pc.Is(CustomRoles.Sniper) && Sniper.IsAim[pc.PlayerId])) return;

@@ -479,6 +479,7 @@ public static class Options
     public static OptionItem AsthmaticMinGreenTime;
     public static OptionItem AsthmaticMaxGreenTime;
     public static OptionItem DiscoChangeInterval;
+    public static OptionItem TruantWaitingTime;
     // RASCAL //
     public static OptionItem RascalAppearAsMadmate;
 
@@ -2391,6 +2392,11 @@ public static class Options
             .SetValueFormat(OptionFormat.Seconds);
         AsthmaticMaxGreenTime = IntegerOptionItem.Create(15426, "AsthmaticMaxGreenTime", new(1, 90, 1), 30, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
+            .SetValueFormat(OptionFormat.Seconds);
+        RoleLoadingText = "Add-ons\nTruant";
+        SetupAdtRoleOptions(15435, CustomRoles.Truant, canSetNum: true);
+        TruantWaitingTime = IntegerOptionItem.Create(15438, "TruantWaitingTime", new(1, 90, 1), 3, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Truant])
             .SetValueFormat(OptionFormat.Seconds);
         RoleLoadingText = "Add-ons\nDisco";
         SetupAdtRoleOptions(15430, CustomRoles.Disco, canSetNum: true);

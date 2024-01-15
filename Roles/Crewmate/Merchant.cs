@@ -50,6 +50,7 @@ namespace TOHE.Roles.Crewmate
             CustomRoles.Unreportable, // Disregarded
             CustomRoles.Avanger, // Avenger
             CustomRoles.Diseased,
+            CustomRoles.Truant,
             CustomRoles.Unlucky
         ];
 

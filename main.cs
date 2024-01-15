@@ -517,6 +517,7 @@ public class Main : BasePlugin
                 {CustomRoles.Watcher, "#800080"},
                 {CustomRoles.Sleuth, "#30221c"},
                 {CustomRoles.Flashman, "#ff8400"},
+                {CustomRoles.Truant, "#eb3467"},
                 {CustomRoles.Disco, "#eb34e8"},
                 {CustomRoles.Asthmatic, "#8feb34"},
                 {CustomRoles.Giant, "#32a852"},
@@ -975,6 +976,7 @@ public enum CustomRoles
     Sunglasses,
     Brakar, // Tiebreaker
     Torch,
+    Truant,
     Unlucky,
     Watcher,
     Workhorse,
