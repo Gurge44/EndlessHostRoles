@@ -61,6 +61,7 @@ internal class ChangeRoleSettings
             Main.PuppeteerDelayList = [];
             Main.TaglockedList = [];
             Main.DetectiveNotify = [];
+            Main.SleuthMsgs = [];
             Main.ForCrusade = [];
             Main.KillGhoul = [];
             Main.CyberStarDead = [];
@@ -295,7 +296,9 @@ internal class ChangeRoleSettings
             Tracker.Init();
             Merchant.Init();
             Mastermind.Init();
+            Asthmatic.Init();
             NSerialKiller.Init();
+            SoulHunter.Init();
             Enderman.Init();
             Mycologist.Init();
             Bubble.Init();
@@ -390,10 +393,10 @@ internal class SelectRolesPatch
     public static void Prefix()
     {
         if (!AmongUsClient.Instance.AmHost) return;
-
+        
         try
         {
-            //CustomRpcSenderとRpcSetRoleReplacerの初期化
+            // Initializing CustomRpcSender and RpcSetRoleReplacer
             Dictionary<byte, CustomRpcSender> senders = [];
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
@@ -995,6 +998,9 @@ internal class SelectRolesPatch
                         case CustomRoles.NSerialKiller:
                             NSerialKiller.Add(pc.PlayerId);
                             break;
+                        case CustomRoles.SoulHunter:
+                            SoulHunter.Add(pc.PlayerId);
+                            break;
                         case CustomRoles.Enderman:
                             Enderman.Add(pc.PlayerId);
                             break;
@@ -1151,6 +1157,7 @@ internal class SelectRolesPatch
             }
 
             Stressed.Add();
+            Asthmatic.Add();
 
         EndOfSelectRolePatch:
 

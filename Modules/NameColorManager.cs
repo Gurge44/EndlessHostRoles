@@ -58,6 +58,7 @@ public static class NameColorManager
             (CustomRoles.Jackal, CustomRoles.Jackal) => Main.roleColors[CustomRoles.Jackal],
             (CustomRoles.Juggernaut, CustomRoles.Juggernaut) => Main.roleColors[CustomRoles.Juggernaut],
             (CustomRoles.NSerialKiller, CustomRoles.NSerialKiller) => Main.roleColors[CustomRoles.NSerialKiller],
+            (CustomRoles.SoulHunter, CustomRoles.SoulHunter) => Main.roleColors[CustomRoles.SoulHunter],
             (CustomRoles.Enderman, CustomRoles.Enderman) => Main.roleColors[CustomRoles.Enderman],
             (CustomRoles.Mycologist, CustomRoles.Mycologist) => Main.roleColors[CustomRoles.Mycologist],
             (CustomRoles.Bubble, CustomRoles.Bubble) => Main.roleColors[CustomRoles.Bubble],
@@ -111,8 +112,11 @@ public static class NameColorManager
             CustomRoles.Mycologist when Mycologist.InfectedPlayers.Contains(target.PlayerId) => Main.roleColors[CustomRoles.Mycologist],
             CustomRoles.Bubble when Bubble.EncasedPlayers.ContainsKey(target.PlayerId) => Main.roleColors[CustomRoles.Bubble],
             CustomRoles.Hookshot when Hookshot.MarkedPlayerId == target.PlayerId => Main.roleColors[CustomRoles.Hookshot],
+            CustomRoles.SoulHunter when SoulHunter.CurrentTarget.ID == target.PlayerId => Main.roleColors[CustomRoles.SoulHunter],
             _ => "",
         };
+
+        if (SoulHunter.CurrentTarget.ID == seer.PlayerId && target.Is(CustomRoles.SoulHunter)) color = Main.roleColors[CustomRoles.SoulHunter];
 
         if (Bubble.EncasedPlayers.TryGetValue(target.PlayerId, out var ts) && ts + Bubble.NotifyDelay.GetInt() < Utils.GetTimeStamp()) color = Main.roleColors[CustomRoles.Bubble];
 

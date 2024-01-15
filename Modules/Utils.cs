@@ -78,7 +78,6 @@ public static class Utils
             pc.TP(location);
         }
     }
-
     public static bool TP(CustomNetworkTransform nt, Vector2 location)
     {
         var pc = nt.myPlayer;
@@ -475,6 +474,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.NSerialKiller:
+            case CustomRoles.SoulHunter:
             case CustomRoles.Enderman:
             case CustomRoles.Mycologist:
             case CustomRoles.Bubble:
@@ -723,6 +723,9 @@ public static class Utils
                     break;
                 case CustomRoles.Analyzer:
                     ProgressText.Append(Analyzer.GetProgressText());
+                    break;
+                case CustomRoles.SoulHunter:
+                    ProgressText.Append(SoulHunter.ProgressText);
                     break;
                 case CustomRoles.Sprayer:
                     ProgressText.Append(Sprayer.ProgressText);
@@ -1982,6 +1985,8 @@ public static class Utils
                 {
                     GetPetCDSuffix(seer, ref SelfSuffix);
 
+                    if (seer.Is(CustomRoles.Asthmatic)) SelfSuffix.Append(Roles.AddOns.Common.Asthmatic.GetSuffixText(seer.PlayerId));
+
                     switch (seer.GetCustomRole())
                     {
                         case CustomRoles.Tether when !seer.IsModClient():
@@ -2614,6 +2619,7 @@ public static class Utils
         if (Mycologist.IsEnable) Mycologist.AfterMeetingTasks();
         if (Sprayer.IsEnable) Sprayer.AfterMeetingTasks();
         if (PlagueDoctor.IsEnable) PlagueDoctor.AfterMeetingTasks();
+        if (SoulHunter.IsEnable) SoulHunter.AfterMeetingTasks();
         if (Penguin.IsEnable) Penguin.AfterMeetingTasks();
         if (Chronomancer.IsEnable) Chronomancer.OnReportDeadBody();
         if (Benefactor.IsEnable) Benefactor.AfterMeetingTasks();

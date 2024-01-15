@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TOHE.Modules;
+using TOHE.Roles.AddOns.Common;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
 using TOHE.Roles.Crewmate;
@@ -259,6 +260,9 @@ class CheckMurderPatch
                 case CustomRoles.Postman:
                     Postman.OnCheckMurder(killer, target);
                     return false;
+                case CustomRoles.SoulHunter:
+                    if (!SoulHunter.OnCheckMurder(target)) return false;
+                    break;
                 case CustomRoles.Vengeance:
                     if (!Vengeance.OnCheckMurder(killer, target)) return false;
                     break;
@@ -668,10 +672,17 @@ class CheckMurderPatch
             RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
             return false;
         }
+
+        if (killer.Is(CustomRoles.Magnet))
+        {
+            target.TP(killer);
+            _ = new LateTask(() => { killer.RpcCheckAndMurder(target); }, 0.1f, log: false);
+            return false;
+        }
+
         if (killer.Is(CustomRoles.Mare))
         {
             killer.ResetKillCooldown();
-            return true;
         }
         /*     if (killer.Is(CustomRoles.Minimalism))
              {
@@ -680,7 +691,6 @@ class CheckMurderPatch
 
         if (killer.Is(CustomRoles.Ritualist))
         {
-
             if (!Ritualist.OnCheckMurder(killer, target))
                 return false;
         }
@@ -801,12 +811,16 @@ class CheckMurderPatch
         if (Medic.OnCheckMurder(killer, target))
             return false;
 
-
+        if (SoulHunter.IsTargetBlocked && SoulHunter.CurrentTarget.ID == killer.PlayerId && target.Is(CustomRoles.SoulHunter))
+        {
+            killer.Notify(GetString("SoulHunterTargetNotifyNoKill"));
+            _ = new LateTask(() => { if (SoulHunter.CurrentTarget.ID == killer.PlayerId) killer.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter.SoulHunter_.GetRealName()), 300f); }, 4f, log: false);
+            return false;
+        }
 
         // Traitor can't kill Impostors but Impostors can kill it
         if (killer.Is(CustomRoles.Traitor) && target.Is(CustomRoleTypes.Impostor))
             return false;
-
 
         //禁止叛徒刀内鬼
         if (killer.Is(CustomRoles.Madmate) && target.Is(CustomRoleTypes.Impostor) && !Options.MadmateCanKillImp.GetBool())
@@ -1699,6 +1713,12 @@ class ReportDeadBodyPatch
             {
                 if (__instance.Is(CustomRoles.Jester) && !Options.JesterCanUseButton.GetBool()) return false;
                 if (__instance.Is(CustomRoles.NiceSwapper) && !NiceSwapper.CanStartMeeting.GetBool()) return false;
+                if (SoulHunter.IsTargetBlocked && __instance.PlayerId == SoulHunter.CurrentTarget.ID)
+                {
+                    __instance.Notify(GetString("SoulHunterTargetNotifyNoMeeting"));
+                    _ = new LateTask(() => { if (SoulHunter.CurrentTarget.ID == __instance.PlayerId) __instance.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter.SoulHunter_.GetRealName()), 300f); }, 4f, log: false);
+                    return false;
+                }
             }
             if (target != null)
             {
@@ -1861,6 +1881,11 @@ class ReportDeadBodyPatch
                         else msg += "；" + string.Format(GetString("DetectiveNoticeKiller"), realKiller.GetDisplayRoleName());
                     }
                     Main.DetectiveNotify.Add(player.PlayerId, msg);
+                }
+                else if (player.Is(CustomRoles.Sleuth) && player.PlayerId != target.PlayerId)
+                {
+                    string msg = string.Format(GetString("SleuthMsg"), tpc.GetRealName(), tpc.GetDisplayRoleName());
+                    Main.SleuthMsgs[player.PlayerId] = msg;
                 }
             }
 
@@ -2151,6 +2176,9 @@ class FixedUpdatePatch
                 case CustomRoles.BountyHunter:
                     BountyHunter.FixedUpdate(player);
                     break;
+                case CustomRoles.SoulHunter when !lowLoad:
+                    SoulHunter.OnFixedUpdate();
+                    break;
                 case CustomRoles.Kamikaze when !lowLoad:
                     Kamikaze.OnFixedUpdate();
                     break;
@@ -2236,17 +2264,27 @@ class FixedUpdatePatch
                 Tornado.OnCheckPlayerPosition(player);
                 BallLightning.OnCheckPlayerPosition(player);
                 Sprayer.OnCheckPlayerPosition(player);
+                Asthmatic.OnCheckPlayerPosition(player);
             }
 
             if (!lowLoad && Main.PlayerStates.TryGetValue(playerId, out var playerState) && GameStates.IsInTask)
             {
-                if (playerState.SubRoles.Contains(CustomRoles.Damocles))
+                var subRoles = playerState.SubRoles;
+                if (subRoles.Contains(CustomRoles.Damocles))
                 {
                     Damocles.Update(player);
                 }
-                if (playerState.SubRoles.Contains(CustomRoles.Stressed))
+                if (subRoles.Contains(CustomRoles.Stressed))
                 {
                     Stressed.Update(player);
+                }
+                if (subRoles.Contains(CustomRoles.Asthmatic))
+                {
+                    Asthmatic.OnFixedUpdate();
+                }
+                if (subRoles.Contains(CustomRoles.Disco))
+                {
+                    Disco.OnFixedUpdate(player);
                 }
             }
 
@@ -2965,6 +3003,7 @@ class FixedUpdatePatch
                 if (seer.PlayerId == target.PlayerId)
                 {
                     if (!seer.IsModClient()) GetPetCDSuffix(seer, ref Suffix);
+                    if (seer.Is(CustomRoles.Asthmatic)) Suffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
                     switch (seer.GetCustomRole())
                     {
                         case CustomRoles.VengefulRomantic:
@@ -3498,6 +3537,17 @@ class CoEnterVentPatch
             {
                 __instance.myPlayer?.Notify(string.Format(GetString("HackedByGlitch"), "Vent"));
                 __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id);
+            }, 0.5f);
+            return true;
+        }
+
+        if (SoulHunter.IsTargetBlocked && SoulHunter.CurrentTarget.ID == __instance.myPlayer.PlayerId)
+        {
+            _ = new LateTask(() =>
+            {
+                __instance.myPlayer?.Notify(GetString("SoulHunterTargetNotifyNoVent"));
+                __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id);
+                _ = new LateTask(() => { if (SoulHunter.CurrentTarget.ID == __instance.myPlayer.PlayerId) __instance.myPlayer.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter.SoulHunter_.GetRealName()), 300f); }, 4f, log: false);
             }, 0.5f);
             return true;
         }

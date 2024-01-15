@@ -474,6 +474,11 @@ public static class Options
     public static OptionItem UnluckyVentSuicideChance;
     public static OptionItem UnluckyReportSuicideChance;
     public static OptionItem UnluckySabotageSuicideChance;
+    public static OptionItem AsthmaticMinRedTime;
+    public static OptionItem AsthmaticMaxRedTime;
+    public static OptionItem AsthmaticMinGreenTime;
+    public static OptionItem AsthmaticMaxGreenTime;
+    public static OptionItem DiscoChangeInterval;
     // RASCAL //
     public static OptionItem RascalAppearAsMadmate;
 
@@ -2057,6 +2062,8 @@ public static class Options
         RoleLoadingText = "Neutral roles\nSerial Killer";
 
         NSerialKiller.SetupCustomOption();
+        RoleLoadingText = "Neutral roles\nSoulHunter";
+        SoulHunter.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nEnderman";
         Enderman.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nMycologist";
@@ -2237,6 +2244,8 @@ public static class Options
         SetupAdtRoleOptions(14600, CustomRoles.Reach, canSetNum: true);
 
         LoadingPercentage = 40;
+        RoleLoadingText = "Add-ons\nMagnet";
+        SetupAdtRoleOptions(14697, CustomRoles.Magnet, canSetNum: true);
         RoleLoadingText = "Add-ons\nSchizophrenic";
         SetupAdtRoleOptions(14700, CustomRoles.DualPersonality, canSetNum: true);
         ImpCanBeDualPersonality = BooleanOptionItem.Create(14710, "ImpCanBeDualPersonality", true, TabGroup.Addons, false)
@@ -2282,6 +2291,8 @@ public static class Options
         SetupAdtRoleOptions(15100, CustomRoles.Avanger, canSetNum: true);
         ImpCanBeAvanger = BooleanOptionItem.Create(15110, "ImpCanBeAvanger", false, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Avanger]);
+        RoleLoadingText = "Add-ons\nSleuth";
+        SetupAdtRoleOptions(15150, CustomRoles.Sleuth, canSetNum: true);
         RoleLoadingText = "Add-ons\nBewilder";
         SetupAdtRoleOptions(15200, CustomRoles.Bewilder, canSetNum: true);
         BewilderVision = FloatOptionItem.Create(15210, "BewilderVision", new(0f, 5f, 0.05f), 0.6f, TabGroup.Addons, false)
@@ -2366,8 +2377,27 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Rascal]);
 
         LoadingPercentage = 45;
-        RoleLoadingText = "Add-ons\nSunglasses";
+        RoleLoadingText = "Add-ons\nAsthmatic";
 
+        SetupAdtRoleOptions(15420, CustomRoles.Asthmatic, canSetNum: true);
+        AsthmaticMinRedTime = IntegerOptionItem.Create(15423, "AsthmaticMinRedTime", new(1, 90, 1), 5, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
+            .SetValueFormat(OptionFormat.Seconds);
+        AsthmaticMaxRedTime = IntegerOptionItem.Create(15424, "AsthmaticMaxRedTime", new(1, 90, 1), 30, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
+            .SetValueFormat(OptionFormat.Seconds);
+        AsthmaticMinGreenTime = IntegerOptionItem.Create(15425, "AsthmaticMinGreenTime", new(1, 90, 1), 5, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
+            .SetValueFormat(OptionFormat.Seconds);
+        AsthmaticMaxGreenTime = IntegerOptionItem.Create(15426, "AsthmaticMaxGreenTime", new(1, 90, 1), 30, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
+            .SetValueFormat(OptionFormat.Seconds);
+        RoleLoadingText = "Add-ons\nDisco";
+        SetupAdtRoleOptions(15430, CustomRoles.Disco, canSetNum: true);
+        DiscoChangeInterval = IntegerOptionItem.Create(15433, "DiscoChangeInterval", new(1, 90, 1), 5, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Disco])
+            .SetValueFormat(OptionFormat.Seconds);
+        RoleLoadingText = "Add-ons\nSunglasses";
         SetupAdtRoleOptions(15450, CustomRoles.Sunglasses, canSetNum: true);
         SunglassesVision = FloatOptionItem.Create(15460, "SunglassesVision", new(0f, 5f, 0.05f), 0.75f, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Sunglasses])
@@ -2604,12 +2634,12 @@ public static class Options
         //SetupAdtRoleOptions(18600, CustomRoles.Ntr, tab: TabGroup.OtherRoles);
         RoleLoadingText = "Experimental roles\nFlash";
         SetupAdtRoleOptions(18700, CustomRoles.Flashman, canSetNum: true, tab: TabGroup.OtherRoles);
-        FlashmanSpeed = FloatOptionItem.Create(6050335, "FlashmanSpeed", new(0.25f, 3f, 0.25f), 2.5f, TabGroup.OtherRoles, false)
+        FlashmanSpeed = FloatOptionItem.Create(18703, "FlashmanSpeed", new(0.25f, 3f, 0.25f), 2.5f, TabGroup.OtherRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Flashman])
             .SetValueFormat(OptionFormat.Multiplier);
         RoleLoadingText = "Experimental roles\nGiant";
         SetupAdtRoleOptions(18750, CustomRoles.Giant, canSetNum: true, tab: TabGroup.OtherRoles);
-        GiantSpeed = FloatOptionItem.Create(6050335, "FlashmanSpeed", new(0.25f, 3f, 0.25f), 2.5f, TabGroup.OtherRoles, false)
+        GiantSpeed = FloatOptionItem.Create(18753, "FlashmanSpeed", new(0.25f, 3f, 0.25f), 2.5f, TabGroup.OtherRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Flashman])
             .SetValueFormat(OptionFormat.Multiplier);
 
