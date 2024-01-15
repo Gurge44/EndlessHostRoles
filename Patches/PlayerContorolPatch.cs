@@ -165,7 +165,7 @@ class CheckMurderPatch
         //キル可能判定
         if (killer.PlayerId != target.PlayerId && !killer.CanUseKillButton())
         {
-            Logger.Info(killer.GetNameWithRole().RemoveHtmlTags() + "cannot use their kill button, the kill was blocked", "CheckMurder");
+            Logger.Info(killer.GetNameWithRole().RemoveHtmlTags() + " cannot use their kill button, the kill was blocked", "CheckMurder");
             return false;
         }
 
