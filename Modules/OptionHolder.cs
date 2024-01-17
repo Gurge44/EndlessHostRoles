@@ -34,13 +34,13 @@ public static class Options
         taskOptionsLoad = Task.Run(Load);
         taskOptionsLoad.ContinueWith(t => { Logger.Info("Options.Load End", "Load Options"); });
     }
-    [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPostfix]
-    public static void WaitOptionsLoad()
-    {
-        return;
-        //taskOptionsLoad.Wait();
-        //Logger.Info("Options.Load End", "Options");
-    }
+    //[HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPostfix]
+    //public static void WaitOptionsLoad()
+    //{
+    //    return;
+    //    //taskOptionsLoad.Wait();
+    //    //Logger.Info("Options.Load End", "Options");
+    //}
 
     // プリセット
     private static readonly string[] presets =
@@ -777,6 +777,10 @@ public static class Options
     public static OptionItem CrewOnlyAddonSettingsNeut;
     public static OptionItem NeutralAddonSettingsNeut;
     public static OptionItem BasicAddonSettingsNeut;
+
+    public static OptionItem EveryoneCanVent;
+    public static OptionItem OverrideScientistBasedRoles;
+    public static OptionItem WhackAMole;
 
 
     // 投票モード
@@ -3229,6 +3233,17 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true)
             .SetColor(new Color32(0, 65, 196, byte.MaxValue));
+
+        EveryoneCanVent = BooleanOptionItem.Create(23853, "EveryoneCanVent", false, TabGroup.TaskSettings, false)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetHeader(true)
+            .SetColor(Color.green);
+        OverrideScientistBasedRoles = BooleanOptionItem.Create(23855, "OverrideScientistBasedRoles", false, TabGroup.TaskSettings, false)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetParent(EveryoneCanVent);
+        WhackAMole = BooleanOptionItem.Create(23856, "WhackAMole", false, TabGroup.TaskSettings, false)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetParent(EveryoneCanVent);
 
 
         //Disable Short Tasks

@@ -4,6 +4,7 @@ using MonoMod.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using TOHE.Roles.Neutral;
 
 namespace TOHE.Modules;
@@ -224,11 +225,13 @@ internal class CustomRoleSelector
 
             Logger.Warn($"Pre-Set Role Assigned: {pc.GetRealName()} => {item.Value}", "CustomRoleSelector");
         }
+        
+        RoleAssignInfo GetAssignInfo(CustomRoles role) => AllRoles.Values.FirstOrDefault(x => x.Any(x => x.Role == role)).FirstOrDefault(x => x.Role == role);
 
         // Impostor Roles
         {
-            List<RoleAssignInfo> AlwaysImpRoles = [];
-            List<RoleAssignInfo> ChanceImpRoles = [];
+            List<CustomRoles> AlwaysImpRoles = [];
+            List<CustomRoles> ChanceImpRoles = [];
             for (int i = 0; i < AllRoles[RoleAssignType.Impostor].Count; i++)
             {
                 RoleAssignInfo item = AllRoles[RoleAssignType.Impostor][i];
@@ -236,7 +239,7 @@ internal class CustomRoleSelector
                 {
                     for (int j = 0; j < item.MaxCount; j++)
                     {
-                        AlwaysImpRoles.Add(item);
+                        AlwaysImpRoles.Add(item.Role);
                     }
                 }
                 else
@@ -245,11 +248,13 @@ internal class CustomRoleSelector
                     {
                         for (int k = 0; k < item.MaxCount; k++)
                         {
-                            ChanceImpRoles.Add(item);
+                            ChanceImpRoles.Add(item.Role);
                         }
                     }
                 }
             }
+
+            RoleAssignInfo[] ImpRoleCounts = AlwaysImpRoles.Distinct().Select(GetAssignInfo).ToArray().AddRangeToArray(ChanceImpRoles.Distinct().Select(GetAssignInfo).ToArray());
 
             // Assign roles set to ALWAYS
             if (readyImpNum < optImpNum)
@@ -257,15 +262,15 @@ internal class CustomRoleSelector
                 while (AlwaysImpRoles.Count > 0)
                 {
                     var selected = AlwaysImpRoles[rd.Next(0, AlwaysImpRoles.Count)];
+                    var info = ImpRoleCounts.FirstOrDefault(x => x.Role == selected);
                     AlwaysImpRoles.Remove(selected);
-                    if (selected.AssignedCount >= selected.MaxCount) continue;
+                    if (info.AssignedCount >= info.MaxCount) continue;
 
-                    FinalRolesList.Add(selected.Role);
-                    selected.AssignedCount++;
+                    FinalRolesList.Add(selected);
+                    info.AssignedCount++;
                     readyRoleNum++;
                     readyImpNum++;
 
-                    Logger.Info(selected.Role.ToString() + " added to the impostor roles list (priority)", "CustomRoleSelector");
                     if (readyRoleNum >= playerCount) goto EndOfAssign;
                     if (readyImpNum >= optImpNum) break;
                 }
@@ -277,29 +282,30 @@ internal class CustomRoleSelector
                 while (ChanceImpRoles.Count > 0)
                 {
                     var selected = ChanceImpRoles[rd.Next(0, ChanceImpRoles.Count)];
-                    for (int i = 0; i < selected.SpawnChance / 5; i++) ChanceImpRoles.Remove(selected);
+                    var info = ImpRoleCounts.FirstOrDefault(x => x.Role == selected);
+                    for (int i = 0; i < info.SpawnChance / 5; i++) ChanceImpRoles.Remove(selected);
 
-                    FinalRolesList.Add(selected.Role);
-                    selected.AssignedCount++;
+                    FinalRolesList.Add(selected);
+                    info.AssignedCount++;
                     readyRoleNum++;
                     readyImpNum++;
 
-                    Logger.Info(selected.Role.ToString() + " added to the impostor roles list", "CustomRoleSelector");
-
-                    if (selected.AssignedCount >= selected.MaxCount) while (ChanceImpRoles.Contains(selected)) ChanceImpRoles.Remove(selected);
+                    if (info.AssignedCount >= info.MaxCount) while (ChanceImpRoles.Contains(selected)) ChanceImpRoles.Remove(selected);
 
                     if (readyRoleNum >= playerCount) goto EndOfAssign;
                     if (readyImpNum >= optImpNum) break;
                 }
             }
+
+            Logger.Info(string.Join(", ", ImpRoleCounts.Select(x => $"{x.Role} - {x.AssignedCount}/{x.MaxCount} ({x.SpawnChance}%)")), "ImpRoleResult");
         }
 
         // Neutral Roles
         {
             // Neutral Non-Killing Roles
             {
-                List<RoleAssignInfo> AlwaysNNKRoles = [];
-                List<RoleAssignInfo> ChanceNNKRoles = [];
+                List<CustomRoles> AlwaysNNKRoles = [];
+                List<CustomRoles> ChanceNNKRoles = [];
                 for (int i = 0; i < AllRoles[RoleAssignType.NonKillingNeutral].Count; i++)
                 {
                     RoleAssignInfo item = AllRoles[RoleAssignType.NonKillingNeutral][i];
@@ -307,7 +313,7 @@ internal class CustomRoleSelector
                     {
                         for (int j = 0; j < item.MaxCount; j++)
                         {
-                            AlwaysNNKRoles.Add(item);
+                            AlwaysNNKRoles.Add(item.Role);
                         }
                     }
                     else
@@ -316,11 +322,13 @@ internal class CustomRoleSelector
                         {
                             for (int k = 0; k < item.MaxCount; k++)
                             {
-                                ChanceNNKRoles.Add(item);
+                                ChanceNNKRoles.Add(item.Role);
                             }
                         }
                     }
                 }
+
+                RoleAssignInfo[] NNKRoleCounts = AlwaysNNKRoles.Distinct().Select(GetAssignInfo).ToArray().AddRangeToArray(ChanceNNKRoles.Distinct().Select(GetAssignInfo).ToArray());
 
                 // Assign roles set to ALWAYS
                 if (readyNonNeutralKillingNum < optNonNeutralKillingNum)
@@ -328,15 +336,15 @@ internal class CustomRoleSelector
                     while (AlwaysNNKRoles.Count > 0 && optNonNeutralKillingNum > 0)
                     {
                         var selected = AlwaysNNKRoles[rd.Next(0, AlwaysNNKRoles.Count)];
+                        var info = NNKRoleCounts.FirstOrDefault(x => x.Role == selected);
                         AlwaysNNKRoles.Remove(selected);
-                        if (selected.AssignedCount >= selected.MaxCount) continue;
+                        if (info.AssignedCount >= info.MaxCount) continue;
 
-                        FinalRolesList.Add(selected.Role);
-                        selected.AssignedCount++;
+                        FinalRolesList.Add(selected);
+                        info.AssignedCount++;
                         readyRoleNum++;
                         readyNonNeutralKillingNum++;
 
-                        Logger.Info(selected.Role.ToString() + " added to the NNK roles list (priority)", "CustomRoleSelector");
                         if (readyRoleNum >= playerCount) goto EndOfAssign;
                         if (readyNonNeutralKillingNum >= optNonNeutralKillingNum) break;
                     }
@@ -348,27 +356,29 @@ internal class CustomRoleSelector
                     while (ChanceNNKRoles.Count > 0 && optNonNeutralKillingNum > 0)
                     {
                         var selected = ChanceNNKRoles[rd.Next(0, ChanceNNKRoles.Count)];
-                        for (int i = 0; i < selected.SpawnChance / 5; i++) ChanceNNKRoles.Remove(selected);
+                        var info = NNKRoleCounts.FirstOrDefault(x => x.Role == selected);
+                        for (int i = 0; i < info.SpawnChance / 5; i++) ChanceNNKRoles.Remove(selected);
 
-                        FinalRolesList.Add(selected.Role);
-                        selected.AssignedCount++;
+                        FinalRolesList.Add(selected);
+                        info.AssignedCount++;
                         readyRoleNum++;
                         readyNonNeutralKillingNum++;
 
-                        Logger.Info(selected.Role.ToString() + " added to the NNK roles list", "CustomRoleSelector");
 
-                        if (selected.AssignedCount >= selected.MaxCount) while (ChanceNNKRoles.Contains(selected)) ChanceNNKRoles.Remove(selected);
+                        if (info.AssignedCount >= info.MaxCount) while (ChanceNNKRoles.Contains(selected)) ChanceNNKRoles.Remove(selected);
 
                         if (readyRoleNum >= playerCount) goto EndOfAssign;
                         if (readyNonNeutralKillingNum >= optNonNeutralKillingNum) break;
                     }
                 }
+
+                Logger.Info(string.Join(", ", NNKRoleCounts.Select(x => $"{x.Role} - {x.AssignedCount}/{x.MaxCount} ({x.SpawnChance}%)")), "NNKRoleResult");
             }
 
             // Neutral Killing Roles
             {
-                List<RoleAssignInfo> AlwaysNKRoles = [];
-                List<RoleAssignInfo> ChanceNKRoles = [];
+                List<CustomRoles> AlwaysNKRoles = [];
+                List<CustomRoles> ChanceNKRoles = [];
                 for (int i = 0; i < AllRoles[RoleAssignType.NeutralKilling].Count; i++)
                 {
                     RoleAssignInfo item = AllRoles[RoleAssignType.NeutralKilling][i];
@@ -376,7 +386,7 @@ internal class CustomRoleSelector
                     {
                         for (int j = 0; j < item.MaxCount; j++)
                         {
-                            AlwaysNKRoles.Add(item);
+                            AlwaysNKRoles.Add(item.Role);
                         }
                     }
                     else
@@ -385,11 +395,13 @@ internal class CustomRoleSelector
                         {
                             for (int k = 0; k < item.MaxCount; k++)
                             {
-                                ChanceNKRoles.Add(item);
+                                ChanceNKRoles.Add(item.Role);
                             }
                         }
                     }
                 }
+
+                RoleAssignInfo[] NKRoleCounts = AlwaysNKRoles.Distinct().Select(GetAssignInfo).ToArray().AddRangeToArray(ChanceNKRoles.Distinct().Select(GetAssignInfo).ToArray());
 
                 // Assign roles set to ALWAYS
                 if (readyNeutralKillingNum < optNeutralKillingNum)
@@ -397,15 +409,15 @@ internal class CustomRoleSelector
                     while (AlwaysNKRoles.Count > 0 && optNeutralKillingNum > 0)
                     {
                         var selected = AlwaysNKRoles[rd.Next(0, AlwaysNKRoles.Count)];
+                        var info = NKRoleCounts.FirstOrDefault(x => x.Role == selected);
                         AlwaysNKRoles.Remove(selected);
-                        if (selected.AssignedCount >= selected.MaxCount) continue;
+                        if (info.AssignedCount >= info.MaxCount) continue;
 
-                        FinalRolesList.Add(selected.Role);
-                        selected.AssignedCount++;
+                        FinalRolesList.Add(selected);
+                        info.AssignedCount++;
                         readyRoleNum++;
                         readyNeutralKillingNum++;
 
-                        Logger.Info(selected.Role.ToString() + " added to the NK roles list (priority)", "CustomRoleSelector");
                         if (readyRoleNum >= playerCount) goto EndOfAssign;
                         if (readyNeutralKillingNum >= optNeutralKillingNum) break;
                     }
@@ -417,28 +429,29 @@ internal class CustomRoleSelector
                     while (ChanceNKRoles.Count > 0 && optNeutralKillingNum > 0)
                     {
                         var selected = ChanceNKRoles[rd.Next(0, ChanceNKRoles.Count)];
-                        for (int i = 0; i < selected.SpawnChance / 5; i++) ChanceNKRoles.Remove(selected);
+                        var info = NKRoleCounts.FirstOrDefault(x => x.Role == selected);
+                        for (int i = 0; i < info.SpawnChance / 5; i++) ChanceNKRoles.Remove(selected);
 
-                        FinalRolesList.Add(selected.Role);
-                        selected.AssignedCount++;
+                        FinalRolesList.Add(selected);
+                        info.AssignedCount++;
                         readyRoleNum++;
                         readyNeutralKillingNum++;
 
-                        Logger.Info(selected.Role.ToString() + " added to the NK roles list", "CustomRoleSelector");
-
-                        if (selected.AssignedCount >= selected.MaxCount) while (ChanceNKRoles.Contains(selected)) ChanceNKRoles.Remove(selected);
+                        if (info.AssignedCount >= info.MaxCount) while (ChanceNKRoles.Contains(selected)) ChanceNKRoles.Remove(selected);
 
                         if (readyRoleNum >= playerCount) goto EndOfAssign;
                         if (readyNeutralKillingNum >= optNeutralKillingNum) break;
                     }
                 }
+
+                Logger.Info(string.Join(", ", NKRoleCounts.Select(x => $"{x.Role} - {x.AssignedCount}/{x.MaxCount} ({x.SpawnChance}%)")), "NKRoleResult");
             }
         }
 
         // Crewmate Roles
         {
-            List<RoleAssignInfo> AlwaysCrewRoles = [];
-            List<RoleAssignInfo> ChanceCrewRoles = [];
+            List<CustomRoles> AlwaysCrewRoles = [];
+            List<CustomRoles> ChanceCrewRoles = [];
             for (int i = 0; i < AllRoles[RoleAssignType.Crewmate].Count; i++)
             {
                 RoleAssignInfo item = AllRoles[RoleAssignType.Crewmate][i];
@@ -446,7 +459,7 @@ internal class CustomRoleSelector
                 {
                     for (int j = 0; j < item.MaxCount; j++)
                     {
-                        AlwaysCrewRoles.Add(item);
+                        AlwaysCrewRoles.Add(item.Role);
                     }
                 }
                 else
@@ -455,12 +468,13 @@ internal class CustomRoleSelector
                     {
                         for (int k = 0; k < item.MaxCount; k++)
                         {
-                            ChanceCrewRoles.Add(item);
+                            ChanceCrewRoles.Add(item.Role);
                         }
                     }
                 }
             }
 
+            RoleAssignInfo[] CrewRoleCounts = AlwaysCrewRoles.Distinct().Select(GetAssignInfo).ToArray().AddRangeToArray(ChanceCrewRoles.Distinct().Select(GetAssignInfo).ToArray());
 
             // Assign roles set to ALWAYS
             if (readyRoleNum < playerCount)
@@ -468,14 +482,14 @@ internal class CustomRoleSelector
                 while (AlwaysCrewRoles.Count > 0)
                 {
                     var selected = AlwaysCrewRoles[rd.Next(0, AlwaysCrewRoles.Count)];
+                    var info = CrewRoleCounts.FirstOrDefault(x => x.Role == selected);
                     AlwaysCrewRoles.Remove(selected);
-                    if (selected.AssignedCount >= selected.MaxCount) continue;
+                    if (info.AssignedCount >= info.MaxCount) continue;
 
-                    FinalRolesList.Add(selected.Role);
-                    selected.AssignedCount++;
+                    FinalRolesList.Add(selected);
+                    info.AssignedCount++;
                     readyRoleNum++;
 
-                    Logger.Info(selected.Role.ToString() + " added to the crewmate roles list (priority)", "CustomRoleSelector");
                     if (readyRoleNum >= playerCount) goto EndOfAssign;
                 }
             }
@@ -486,19 +500,20 @@ internal class CustomRoleSelector
                 while (ChanceCrewRoles.Count > 0)
                 {
                     var selected = ChanceCrewRoles[rd.Next(0, ChanceCrewRoles.Count)];
-                    for (int i = 0; i < selected.SpawnChance / 5; i++) ChanceCrewRoles.Remove(selected);
+                    var info = CrewRoleCounts.FirstOrDefault(x => x.Role == selected);
+                    for (int i = 0; i < info.SpawnChance / 5; i++) ChanceCrewRoles.Remove(selected);
 
-                    FinalRolesList.Add(selected.Role);
-                    selected.AssignedCount++;
+                    FinalRolesList.Add(selected);
+                    info.AssignedCount++;
                     readyRoleNum++;
 
-                    Logger.Info(selected.Role.ToString() + " added to the crewmate roles waiting list", "CustomRoleSelector");
-
-                    if (selected.AssignedCount >= selected.MaxCount) while (ChanceCrewRoles.Contains(selected)) ChanceCrewRoles.Remove(selected);
+                    if (info.AssignedCount >= info.MaxCount) while (ChanceCrewRoles.Contains(selected)) ChanceCrewRoles.Remove(selected);
 
                     if (readyRoleNum >= playerCount) goto EndOfAssign;
                 }
             }
+
+            Logger.Info(string.Join(", ", CrewRoleCounts.Select(x => $"{x.Role} - {x.AssignedCount}/{x.MaxCount} ({x.SpawnChance}%)")), "CrewRoleResult");
         }
 
     EndOfAssign:
@@ -569,8 +584,7 @@ internal class CustomRoleSelector
         {
             object cr = list[i];
             CustomRoles role = (CustomRoles)Enum.Parse(typeof(CustomRoles), cr.ToString());
-            if (!role.IsAdditionRole()) continue;
-            if (!Main.UseVersionProtocol.Value && !role.IsAbleToHostPublic()) continue;
+            if (!role.IsAdditionRole() || !Main.UseVersionProtocol.Value && !role.IsAbleToHostPublic()) continue;
             switch (role)
             {
                 case CustomRoles.Mare when (MapNames)Main.NormalOptions.MapId == MapNames.Fungle:

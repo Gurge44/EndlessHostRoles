@@ -1924,17 +1924,14 @@ public static class Utils
     {
         //if (Options.DeepLowLoad.GetBool()) await Task.Run(() => { DoNotifyRoles(isForMeeting, SpecifySeer, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting); });
         /*else */
+
+        if ((SpecifySeer != null && SpecifySeer.IsModClient()) || !AmongUsClient.Instance.AmHost || Main.AllPlayerControls == null || GameStates.IsMeeting) return;
+
         await DoNotifyRoles(isForMeeting, SpecifySeer, SpecifyTarget, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup);
     }
 
     public static Task DoNotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, PlayerControl SpecifyTarget = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false)
     {
-        if (SpecifySeer != null && SpecifySeer.IsModClient()) return Task.CompletedTask;
-        if (!AmongUsClient.Instance.AmHost) return Task.CompletedTask;
-        if (Main.AllPlayerControls == null) return Task.CompletedTask;
-
-        if (GameStates.IsMeeting) return Task.CompletedTask;
-
         var caller = new System.Diagnostics.StackFrame(1, false);
         var callerMethod = caller.GetMethod();
         string callerMethodName = callerMethod.Name;
@@ -1946,7 +1943,7 @@ public static class Utils
         PlayerControl[] seerList = SpecifySeer != null ? ([SpecifySeer]) : Main.AllPlayerControls;
         PlayerControl[] targetList = SpecifyTarget != null ? ([SpecifyTarget]) : Main.AllPlayerControls;
 
-        Logger.Info($" Seers: {string.Join(", ", seerList.Select(x => x.GetNameWithRole()))}  Targets: {string.Join(", ", targetList.Select(x => x.GetNameWithRole()))}", "NR");
+        Logger.Info($" Called From: {callerClassName}.{callerMethodName} ---- Seers: {string.Join(", ", seerList.Select(x => x.GetRealName()))} ---- Targets: {string.Join(", ", targetList.Select(x => x.GetRealName()))}", "NR");
 
         //seer: Players who can see changes made here
         //target: Players subject to changes that seer can see
@@ -2534,6 +2531,537 @@ public static class Utils
     {
         PlayerGameOptionsSender.SetDirtyToAll();
         GameOptionsSender.SendAllGameOptions();
+    }
+    public static void AddRoles(byte id, CustomRoles role)
+    {
+        switch (role)
+        {
+            case CustomRoles.BountyHunter:
+                BountyHunter.Add(id);
+                break;
+            case CustomRoles.SerialKiller:
+                SerialKiller.Add(id);
+                break;
+            case CustomRoles.Bandit:
+                Bandit.Add(id);
+                break;
+            case CustomRoles.Witch:
+                Witch.Add(id);
+                break;
+            case CustomRoles.HexMaster:
+                HexMaster.Add(id);
+                break;
+            case CustomRoles.NiceSwapper:
+                NiceSwapper.Add(id);
+                break;
+            case CustomRoles.Crusader:
+                Crusader.Add(id);
+                Crusader.CrusaderLimit[id] = Crusader.SkillLimitOpt.GetInt();
+                break;
+            case CustomRoles.Warlock:
+                Main.CursedPlayers.Add(id, null);
+                Main.isCurseAndKill.Add(id, false);
+                break;
+            case CustomRoles.FireWorks:
+                FireWorks.Add(id);
+                break;
+            case CustomRoles.Agitater:
+                Agitater.Add(id);
+                break;
+            case CustomRoles.TimeThief:
+                TimeThief.Add(id);
+                break;
+            case CustomRoles.Sniper:
+                Sniper.Add(id);
+                break;
+            case CustomRoles.Vampire:
+                Vampire.Add(id);
+                break;
+            case CustomRoles.SwordsMan:
+                SwordsMan.Add(id);
+                break;
+            case CustomRoles.Arsonist:
+                foreach (PlayerControl ar in Main.AllPlayerControls)
+                {
+                    Main.isDoused.Add((id, ar.PlayerId), false);
+                }
+                break;
+            case CustomRoles.Revolutionist:
+                foreach (PlayerControl ar in Main.AllPlayerControls)
+                {
+                    Main.isDraw.Add((id, ar.PlayerId), false);
+                }
+                break;
+            case CustomRoles.Farseer:
+                foreach (PlayerControl ar in Main.AllPlayerControls)
+                {
+                    Main.isRevealed.Add((id, ar.PlayerId), false);
+                }
+                Farseer.RandomRole.Add(id, Farseer.GetRandomCrewRoleString());
+                Farseer.Add(id);
+                break;
+            case CustomRoles.Executioner:
+                Executioner.Add(id);
+                break;
+            case CustomRoles.Lawyer:
+                Lawyer.Add(id);
+                break;
+            case CustomRoles.Blackmailer:
+                Blackmailer.Add(id);
+                break;
+            case CustomRoles.Crewpostor:
+                Main.CrewpostorTasksDone[id] = 0;
+                break;
+            case CustomRoles.Doppelganger:
+                Doppelganger.Add(id);
+                break;
+            case CustomRoles.Jackal:
+                Jackal.Add(id);
+                break;
+            case CustomRoles.Sidekick:
+                Sidekick.Add(id);
+                break;
+            case CustomRoles.Cleanser:
+                Cleanser.Add(id);
+                break;
+            case CustomRoles.Pickpocket:
+                Pickpocket.Add(id);
+                break;
+            case CustomRoles.Jailor:
+                Jailor.Add(id);
+                break;
+            case CustomRoles.Monitor:
+                Monitor.Add(id);
+                break;
+            case CustomRoles.Poisoner:
+                Poisoner.Add(id);
+                break;
+            case CustomRoles.Sheriff:
+                Sheriff.Add(id);
+                break;
+            case CustomRoles.CopyCat:
+                CopyCat.Add(id);
+                break;
+            case CustomRoles.QuickShooter:
+                QuickShooter.Add(id);
+                break;
+            case CustomRoles.Mayor:
+                Main.MayorUsedButtonCount[id] = 0;
+                break;
+            case CustomRoles.TimeMaster:
+                Main.TimeMasterNum[id] = 0;
+                Main.TimeMasterNumOfUsed.Add(id, Options.TimeMasterMaxUses.GetInt());
+                break;
+            case CustomRoles.Paranoia:
+                Main.ParaUsedButtonCount[id] = 0;
+                break;
+            case CustomRoles.SabotageMaster:
+                SabotageMaster.Add(id);
+                break;
+            case CustomRoles.EvilTracker:
+                EvilTracker.Add(id);
+                break;
+            case CustomRoles.Snitch:
+                Snitch.Add(id);
+                break;
+            case CustomRoles.AntiAdminer:
+                AntiAdminer.Add(id);
+                break;
+            case CustomRoles.Mario:
+                Main.MarioVentCount[id] = 0;
+                break;
+            case CustomRoles.TimeManager:
+                TimeManager.Add(id);
+                break;
+            case CustomRoles.Pelican:
+                Pelican.Add(id);
+                break;
+            case CustomRoles.Tether:
+                Tether.Add(id);
+                break;
+            case CustomRoles.Benefactor:
+                Benefactor.Add(id);
+                break;
+            case CustomRoles.Librarian:
+                Librarian.Add(id);
+                break;
+            case CustomRoles.Aid:
+                Aid.Add(id);
+                break;
+            case CustomRoles.Escort:
+                Escort.Add(id);
+                break;
+            case CustomRoles.Marshall:
+                Marshall.Add(id);
+                break;
+            case CustomRoles.Consort:
+                Consort.Add(id);
+                break;
+            case CustomRoles.Drainer:
+                Drainer.Add(id);
+                break;
+            case CustomRoles.DonutDelivery:
+                DonutDelivery.Add(id);
+                break;
+            case CustomRoles.Gaulois:
+                Gaulois.Add(id);
+                break;
+            case CustomRoles.Analyzer:
+                Analyzer.Add(id);
+                break;
+            case CustomRoles.Pursuer:
+                Pursuer.Add(id);
+                break;
+            case CustomRoles.Gangster:
+                Gangster.Add(id);
+                break;
+            case CustomRoles.Medic:
+                Medic.Add(id);
+                break;
+            case CustomRoles.EvilDiviner:
+                EvilDiviner.Add(id);
+                break;
+            case CustomRoles.Kamikaze:
+                Kamikaze.Add(id);
+                break;
+            case CustomRoles.Ritualist:
+                Ritualist.Add(id);
+                break;
+            case CustomRoles.Divinator:
+                Divinator.Add(id);
+                break;
+            case CustomRoles.Ricochet:
+                Ricochet.Add(id);
+                break;
+            case CustomRoles.Doormaster:
+                Doormaster.Add(id);
+                break;
+            case CustomRoles.Oracle:
+                Oracle.Add(id);
+                break;
+            case CustomRoles.Gamer:
+                Gamer.Add(id);
+                break;
+            case CustomRoles.BallLightning:
+                BallLightning.Add(id);
+                break;
+            case CustomRoles.DarkHide:
+                DarkHide.Add(id);
+                break;
+            case CustomRoles.Greedier:
+                Greedier.Add(id);
+                break;
+            case CustomRoles.Glitch:
+                Glitch.Add(id);
+                break;
+            case CustomRoles.Imitator:
+                Imitator.Add(id);
+                break;
+            case CustomRoles.Ignitor:
+                Ignitor.Add(id);
+                break;
+            case CustomRoles.Collector:
+                Collector.Add(id);
+                break;
+            case CustomRoles.CursedWolf:
+                Main.CursedWolfSpellCount[id] = Options.GuardSpellTimes.GetInt();
+                break;
+            case CustomRoles.Jinx:
+                Main.JinxSpellCount[id] = Jinx.JinxSpellTimes.GetInt();
+                Jinx.Add(id);
+                break;
+            case CustomRoles.Eraser:
+                Eraser.Add(id);
+                break;
+            case CustomRoles.Spy:
+                Spy.Add(id);
+                break;
+            case CustomRoles.NiceEraser:
+                NiceEraser.Add(id);
+                break;
+            case CustomRoles.Assassin:
+                Assassin.Add(id);
+                break;
+            case CustomRoles.Undertaker:
+                Undertaker.Add(id);
+                break;
+            case CustomRoles.Sans:
+                Sans.Add(id);
+                break;
+            case CustomRoles.Juggernaut:
+                Juggernaut.Add(id);
+                break;
+            case CustomRoles.Hacker:
+                Hacker.Add(id);
+                break;
+            case CustomRoles.NiceHacker:
+                NiceHacker.Add(id);
+                break;
+            case CustomRoles.Psychic:
+                Psychic.Add(id);
+                break;
+            case CustomRoles.Hangman:
+                Hangman.Add(id);
+                break;
+            case CustomRoles.Judge:
+                Judge.Add(id);
+                break;
+            case CustomRoles.Councillor:
+                Councillor.Add(id);
+                break;
+            case CustomRoles.Camouflager:
+                Camouflager.Add(id);
+                break;
+            case CustomRoles.Twister:
+                Twister.Add(id);
+                break;
+            case CustomRoles.Mortician:
+                Mortician.Add(id);
+                break;
+            case CustomRoles.Tracefinder:
+                Tracefinder.Add(id);
+                break;
+            case CustomRoles.Mediumshiper:
+                Mediumshiper.Add(id);
+                break;
+            case CustomRoles.Veteran:
+                Main.VeteranNumOfUsed.Add(id, Options.VeteranSkillMaxOfUseage.GetInt());
+                break;
+            case CustomRoles.Grenadier:
+                Main.GrenadierNumOfUsed.Add(id, Options.GrenadierSkillMaxOfUseage.GetInt());
+                break;
+            case CustomRoles.Lighter:
+                Main.LighterNumOfUsed.Add(id, Options.LighterSkillMaxOfUseage.GetInt());
+                break;
+            case CustomRoles.SecurityGuard:
+                Main.SecurityGuardNumOfUsed.Add(id, Options.SecurityGuardSkillMaxOfUseage.GetInt());
+                break;
+            case CustomRoles.Ventguard:
+                Main.VentguardNumberOfAbilityUses = Options.VentguardMaxGuards.GetInt();
+                break;
+            case CustomRoles.Swooper:
+                Swooper.Add(id);
+                break;
+            case CustomRoles.Wraith:
+                Wraith.Add(id);
+                break;
+            case CustomRoles.Chameleon:
+                Chameleon.Add(id);
+                break;
+            case CustomRoles.BloodKnight:
+                BloodKnight.Add(id);
+                break;
+            case CustomRoles.Totocalcio:
+                Totocalcio.Add(id);
+                break;
+            case CustomRoles.Romantic:
+                Romantic.Add(id);
+                break;
+            case CustomRoles.VengefulRomantic:
+                VengefulRomantic.Add(id);
+                break;
+            case CustomRoles.RuthlessRomantic:
+                RuthlessRomantic.Add(id);
+                break;
+            case CustomRoles.Succubus:
+                Succubus.Add(id);
+                break;
+            //case CustomRoles.CursedSoul:
+            //    CursedSoul.Add(id);
+            //    break;
+            case CustomRoles.Admirer:
+                Admirer.Add(id);
+                break;
+            case CustomRoles.Amnesiac:
+                Amnesiac.Add(id);
+                break;
+            case CustomRoles.DovesOfNeace:
+                Main.DovesOfNeaceNumOfUsed.Add(id, Options.DovesOfNeaceMaxOfUseage.GetInt());
+                break;
+            case CustomRoles.Infectious:
+                Infectious.Add(id);
+                break;
+            case CustomRoles.Monarch:
+                Monarch.Add(id);
+                break;
+            case CustomRoles.Deputy:
+                Deputy.Add(id);
+                break;
+            case CustomRoles.Chronomancer:
+                Chronomancer.Add(id);
+                break;
+            case CustomRoles.Nullifier:
+                Nullifier.Add(id);
+                break;
+            case CustomRoles.Virus:
+                Virus.Add(id);
+                break;
+            case CustomRoles.Wildling:
+                Wildling.Add(id);
+                break;
+            case CustomRoles.Bloodhound:
+                Bloodhound.Add(id);
+                break;
+            case CustomRoles.Tracker:
+                Tracker.Add(id);
+                break;
+            case CustomRoles.Merchant:
+                Merchant.Add(id);
+                break;
+            case CustomRoles.NSerialKiller:
+                NSerialKiller.Add(id);
+                break;
+            case CustomRoles.SoulHunter:
+                SoulHunter.Add(id);
+                break;
+            case CustomRoles.Enderman:
+                Enderman.Add(id);
+                break;
+            case CustomRoles.Sentinel:
+                Sentinel.Add(id);
+                break;
+            case CustomRoles.Mycologist:
+                Mycologist.Add(id);
+                break;
+            case CustomRoles.Bubble:
+                Bubble.Add(id);
+                break;
+            case CustomRoles.Tornado:
+                Tornado.Add(id);
+                break;
+            case CustomRoles.Hookshot:
+                Hookshot.Add(id);
+                break;
+            case CustomRoles.Sprayer:
+                Sprayer.Add(id);
+                break;
+            case CustomRoles.PlagueDoctor:
+                PlagueDoctor.Add(id);
+                break;
+            case CustomRoles.Penguin:
+                Penguin.Add(id);
+                break;
+            case CustomRoles.Stealth:
+                Stealth.Add(id);
+                break;
+            case CustomRoles.Postman:
+                Postman.Add(id);
+                break;
+            case CustomRoles.Mafioso:
+                Mafioso.Add(id);
+                break;
+            case CustomRoles.Magician:
+                Magician.Add(id);
+                break;
+            case CustomRoles.WeaponMaster:
+                WeaponMaster.Add(id);
+                break;
+            case CustomRoles.Reckless:
+                Reckless.Add(id);
+                break;
+            case CustomRoles.Eclipse:
+                Eclipse.Add(id);
+                break;
+            case CustomRoles.Pyromaniac:
+                Pyromaniac.Add(id);
+                break;
+            case CustomRoles.Vengeance:
+                Vengeance.Add(id);
+                break;
+            case CustomRoles.HeadHunter:
+                HeadHunter.Add(id);
+                break;
+            case CustomRoles.Werewolf:
+                Werewolf.Add(id);
+                break;
+            case CustomRoles.Traitor:
+                Traitor.Add(id);
+                break;
+            case CustomRoles.Maverick:
+                Maverick.Add(id);
+                break;
+            case CustomRoles.Dazzler:
+                Dazzler.Add(id);
+                break;
+            case CustomRoles.YinYanger:
+                YinYanger.Add(id);
+                break;
+            case CustomRoles.Cantankerous:
+                Cantankerous.Add(id);
+                break;
+            case CustomRoles.Duellist:
+                Duellist.Add(id);
+                break;
+            case CustomRoles.Druid:
+                Druid.Add(id);
+                break;
+            case CustomRoles.FFF:
+                FFF.Add(id);
+                break;
+            case CustomRoles.Sapper:
+                Sapper.Add(id);
+                break;
+            case CustomRoles.CameraMan:
+                CameraMan.Add(id);
+                break;
+            case CustomRoles.Hitman:
+                Hitman.Add(id);
+                break;
+            case CustomRoles.Enigma:
+                Enigma.Add(id);
+                break;
+            case CustomRoles.Gambler:
+                Gambler.Add(id);
+                break;
+            case CustomRoles.RiftMaker:
+                RiftMaker.Add(id);
+                break;
+            case CustomRoles.Mastermind:
+                Mastermind.Add(id);
+                break;
+            case CustomRoles.Addict:
+                Addict.Add(id);
+                break;
+            case CustomRoles.Alchemist:
+                Alchemist.Add(id);
+                break;
+            case CustomRoles.Deathpact:
+                Deathpact.Add(id);
+                break;
+            case CustomRoles.Morphling:
+                Morphling.Add(id);
+                break;
+            case CustomRoles.Devourer:
+                Devourer.Add(id);
+                break;
+            case CustomRoles.Spiritualist:
+                Spiritualist.Add(id);
+                break;
+            case CustomRoles.Vulture:
+                Vulture.Add(id);
+                break;
+            case CustomRoles.GuessManager:
+                GuessManagerRole.Add(id);
+                break;
+            case CustomRoles.PlagueBearer:
+                PlagueBearer.Add(id);
+                break;
+            case CustomRoles.ParityCop:
+                ParityCop.Add(id);
+                break;
+            case CustomRoles.Spiritcaller:
+                Spiritcaller.Add(id);
+                break;
+            case CustomRoles.Lurker:
+                Lurker.Add(id);
+                break;
+            case CustomRoles.Doomsayer:
+                Doomsayer.Add(id);
+                break;
+            case CustomRoles.Disperser:
+                Disperser.Add(id);
+                break;
+        }
     }
     public static void AddAbilityCD(CustomRoles role, byte playerId, bool includeDuration = true)
     {

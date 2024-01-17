@@ -729,7 +729,7 @@ static class ExtendedPlayerControl
         if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
         if (CopyCat.playerIdList.Contains(pc.PlayerId)) return true;
 
-        if (pc.Is(CustomRoles.Nimble) && pc.GetCustomRole().GetVNRole() != CustomRoles.Engineer) return true;
+        if ((pc.Is(CustomRoles.Nimble) || Options.EveryoneCanVent.GetBool()) && pc.GetCustomRole().GetVNRole() != CustomRoles.Engineer) return true;
 
         return pc.GetCustomRole() switch
         {
