@@ -1943,7 +1943,7 @@ public static class Utils
         PlayerControl[] seerList = SpecifySeer != null ? ([SpecifySeer]) : Main.AllPlayerControls;
         PlayerControl[] targetList = SpecifyTarget != null ? ([SpecifyTarget]) : Main.AllPlayerControls;
 
-        Logger.Info($" Called From: {callerClassName}.{callerMethodName} ---- Seers: {string.Join(", ", seerList.Select(x => x.GetRealName()))} ---- Targets: {string.Join(", ", targetList.Select(x => x.GetRealName()))}", "NR");
+        Logger.Info($" Seers: {string.Join(", ", seerList.Select(x => x.GetRealName()))} ---- Targets: {string.Join(", ", targetList.Select(x => x.GetRealName()))}", "NR");
 
         //seer: Players who can see changes made here
         //target: Players subject to changes that seer can see

@@ -771,7 +771,7 @@ internal class SelectRolesPatch
 
         SetColorPatch.IsAntiGlitchDisabled = false;
     }
-    private static void ForceAssignRole(CustomRoles role, List<PlayerControl> AllPlayers, CustomRpcSender sender, RoleTypes BaseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate, bool skip = false, int Count = -1)
+    private static void ForceAssignRole(/*CustomRoles role,*/ List<PlayerControl> AllPlayers, CustomRpcSender sender, RoleTypes BaseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate, bool skip = false, int Count = -1)
     {
         var count = 1;
 

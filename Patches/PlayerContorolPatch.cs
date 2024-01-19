@@ -1332,7 +1332,7 @@ class MurderPlayerPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckShapeshift))]
 class CheckShapeshiftPatch
 {
-    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] bool shouldAnimate)
+    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target/*, [HarmonyArgument(1)] bool shouldAnimate*/)
     {
         return ShapeshiftPatch.ProcessShapeshift(__instance, target); // return false to cancel the shapeshift
     }
@@ -1340,9 +1340,9 @@ class CheckShapeshiftPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdCheckShapeshift))]
 class CmdCheckShapeshiftPatch
 {
-    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] bool shouldAnimate)
+    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target/*, [HarmonyArgument(1)] bool shouldAnimate*/)
     {
-        return CheckShapeshiftPatch.Prefix(__instance, target, shouldAnimate);
+        return CheckShapeshiftPatch.Prefix(__instance, target/*, shouldAnimate*/);
     }
 }
 
@@ -2617,7 +2617,7 @@ class FixedUpdatePatch
                     break;
 
                 case CustomRoles.Alchemist:
-                    Alchemist.OnFixedUpdate(player);
+                    Alchemist.OnFixedUpdate(/*player*/);
                     break;
 
                 case CustomRoles.BloodKnight:

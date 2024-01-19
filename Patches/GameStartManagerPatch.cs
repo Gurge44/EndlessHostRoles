@@ -34,6 +34,8 @@ public class GameStartManagerPatch
         {
             try
             {
+                if (AmongUsClient.Instance == null || AmongUsClient.Instance.IsGameStarted || GameStates.IsInGame || __instance == null || __instance.startState == GameStartManager.StartingStates.Starting) return;
+
                 __instance.GameRoomNameCode.text = GameCode.IntToGameName(AmongUsClient.Instance.GameId);
                 // Reset lobby countdown timer
                 timer = 600f;
@@ -77,7 +79,7 @@ public class GameStartManagerPatch
             }
             catch (Exception ex)
             {
-                Logger.Error(ex.ToString(), "GameStartManagerStartPatch.Postfix (handling at line 80)");
+                Logger.Error(ex.ToString(), "GameStartManagerStartPatch.Postfix (1)");
             }
         }
     }
@@ -94,6 +96,8 @@ public class GameStartManagerPatch
         {
             try
             {
+                if (AmongUsClient.Instance == null || AmongUsClient.Instance.IsGameStarted || GameStates.IsInGame || __instance == null || __instance.startState == GameStartManager.StartingStates.Starting) return;
+
                 minWait = Options.MinWaitAutoStart.GetFloat();
                 maxWait = Options.MaxWaitAutoStart.GetFloat();
                 minPlayer = Options.PlayerAutoStart.GetInt();
@@ -117,15 +121,12 @@ public class GameStartManagerPatch
                             GameStartManagerStartPatch.HideName.enabled = false;
                     }
                 }
-                Logger.Warn("pos1", "debug");
-                if (AmongUsClient.Instance == null || GameData.Instance == null) return;
-                if (!AmongUsClient.Instance.AmHost || !GameData.Instance || AmongUsClient.Instance?.NetworkMode == NetworkModes.LocalGame) return; // Not host or no instance or LocalGame
 
-                Logger.Warn("pos2", "debug");
+                if (AmongUsClient.Instance == null || GameData.Instance == null || !AmongUsClient.Instance.AmHost || !GameData.Instance) return;
+
                 update = GameData.Instance?.PlayerCount != __instance?.LastPlayerCount;
 
-                Logger.Warn("pos3", "debug");
-                if (Main.AutoStart.Value)
+                if (Main.AutoStart != null && Main.AutoStart.Value)
                 {
                     Main.updateTime++;
                     if (Main.updateTime >= 50)
@@ -157,79 +158,88 @@ public class GameStartManagerPatch
                     }
                 }
             }
+            catch (NullReferenceException) { }
             catch (Exception ex)
             {
-                Logger.Error(ex.ToString(), "GameStartManagerUpdatePatch.Prefix (handling at line 147)");
+                Logger.Error(ex.ToString(), "GameStartManagerUpdatePatch.Prefix (2)");
             }
         }
         public static void Postfix(GameStartManager __instance)
         {
-            if (!AmongUsClient.Instance) return;
+            try
+            {
+                if (AmongUsClient.Instance == null || AmongUsClient.Instance.IsGameStarted || GameStates.IsInGame || __instance == null || __instance.startState == GameStartManager.StartingStates.Starting) return;
 
-            string warningMessage = "";
-            if (AmongUsClient.Instance.AmHost)
-            {
-                bool canStartGame = true;
-                List<string> mismatchedPlayerNameList = [];
-                foreach (var client in AmongUsClient.Instance.allClients.ToArray())
+                string warningMessage = "";
+                if (AmongUsClient.Instance.AmHost)
                 {
-                    if (client.Character == null) continue;
-                    var dummyComponent = client.Character.GetComponent<DummyBehaviour>();
-                    if (dummyComponent != null && dummyComponent.enabled)
-                        continue;
-                    if (!MatchVersions(client.Character.PlayerId, true))
+                    bool canStartGame = true;
+                    List<string> mismatchedPlayerNameList = [];
+                    foreach (var client in AmongUsClient.Instance.allClients.ToArray())
                     {
-                        canStartGame = false;
-                        mismatchedPlayerNameList.Add(Utils.ColorString(Palette.PlayerColors[client.ColorId], client.Character.Data.PlayerName));
+                        if (client.Character == null) continue;
+                        var dummyComponent = client.Character.GetComponent<DummyBehaviour>();
+                        if (dummyComponent != null && dummyComponent.enabled)
+                            continue;
+                        if (!MatchVersions(client.Character.PlayerId, true))
+                        {
+                            canStartGame = false;
+                            mismatchedPlayerNameList.Add(Utils.ColorString(Palette.PlayerColors[client.ColorId], client.Character.Data.PlayerName));
+                        }
                     }
+                    if (!canStartGame)
+                    {
+                        __instance.StartButton.gameObject.SetActive(false);
+                        warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.MismatchedVersion"), string.Join(" ", mismatchedPlayerNameList), $"<color={Main.ModColor}>{(Main.UseVersionProtocol.Value ? "TOHE" : Main.ModName)}</color>"));
+                    }
+                    cancelButton.gameObject.SetActive(__instance.startState == GameStartManager.StartingStates.Countdown);
                 }
-                if (!canStartGame)
-                {
-                    __instance.StartButton.gameObject.SetActive(false);
-                    warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.MismatchedVersion"), string.Join(" ", mismatchedPlayerNameList), $"<color={Main.ModColor}>{(Main.UseVersionProtocol.Value ? "TOHE" : Main.ModName)}</color>"));
-                }
-                cancelButton.gameObject.SetActive(__instance.startState == GameStartManager.StartingStates.Countdown);
-            }
-            else
-            {
-                if (MatchVersions(0, true) || Main.VersionCheat.Value)
-                    exitTimer = 0;
                 else
                 {
-                    exitTimer += Time.deltaTime;
-                    if (exitTimer >= 5)
-                    {
+                    if (MatchVersions(0, true) || Main.VersionCheat.Value)
                         exitTimer = 0;
-                        AmongUsClient.Instance.ExitGame(DisconnectReasons.ExitGame);
-                        SceneChanger.ChangeScene("MainMenu");
+                    else
+                    {
+                        exitTimer += Time.deltaTime;
+                        if (exitTimer >= 5)
+                        {
+                            exitTimer = 0;
+                            AmongUsClient.Instance.ExitGame(DisconnectReasons.ExitGame);
+                            SceneChanger.ChangeScene("MainMenu");
+                        }
+                        if (exitTimer != 0)
+                            warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.AutoExitAtMismatchedVersion"), $"<color={Main.ModColor}>{(Main.UseVersionProtocol.Value ? "TOHE" : Main.ModName)}</color>", Math.Round(5 - exitTimer).ToString()));
                     }
-                    if (exitTimer != 0)
-                        warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.AutoExitAtMismatchedVersion"), $"<color={Main.ModColor}>{(Main.UseVersionProtocol.Value ? "TOHE" : Main.ModName)}</color>", Math.Round(5 - exitTimer).ToString()));
                 }
+                if (warningMessage != "")
+                {
+                    __instance.GameStartText.text = warningMessage;
+                    __instance.GameStartText.transform.localPosition = __instance.StartButton.transform.localPosition + Vector3.up * 2;
+                }
+                else
+                {
+                    __instance.GameStartText.transform.localPosition = __instance.StartButton.transform.localPosition;
+                }
+
+                // Lobby timer
+                if (!AmongUsClient.Instance.AmHost || !GameData.Instance || AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame) return;
+
+                if (update) currentText = __instance.PlayerCounter.text;
+
+                timer = Mathf.Max(0f, timer -= Time.deltaTime);
+                int minutes = (int)timer / 60;
+                int seconds = (int)timer % 60;
+                string suffix = $" ({minutes:00}:{seconds:00})";
+                if (timer <= 60) suffix = Utils.ColorString(Color.red, suffix);
+
+                __instance.PlayerCounter.text = currentText + suffix;
+                __instance.PlayerCounter.autoSizeTextContainer = true;
             }
-            if (warningMessage != "")
+            catch (NullReferenceException) { }
+            catch (Exception e)
             {
-                __instance.GameStartText.text = warningMessage;
-                __instance.GameStartText.transform.localPosition = __instance.StartButton.transform.localPosition + Vector3.up * 2;
+                Logger.Error(e.ToString(), "GameStartManagerUpdatePatch.Postfix (3)");
             }
-            else
-            {
-                __instance.GameStartText.transform.localPosition = __instance.StartButton.transform.localPosition;
-            }
-
-            // Lobby timer
-            if (!AmongUsClient.Instance.AmHost || !GameData.Instance || AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame) return;
-
-            if (update) currentText = __instance.PlayerCounter.text;
-
-            timer = Mathf.Max(0f, timer -= Time.deltaTime);
-            int minutes = (int)timer / 60;
-            int seconds = (int)timer % 60;
-            string suffix = $" ({minutes:00}:{seconds:00})";
-            if (timer <= 60) suffix = Utils.ColorString(Color.red, suffix);
-
-            __instance.PlayerCounter.text = currentText + suffix;
-            __instance.PlayerCounter.autoSizeTextContainer = true;
         }
         private static bool MatchVersions(byte playerId, bool acceptVanilla = false)
         {

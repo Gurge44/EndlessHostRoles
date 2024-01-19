@@ -3,6 +3,7 @@ using HarmonyLib;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using TMPro;
 using TOHE.Modules;
 using TOHE.Roles.Impostor;
 using UnityEngine;
@@ -171,7 +172,7 @@ class BeginCrewmatePatch
 
         return true;
     }
-    public static void Postfix(IntroCutscene __instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> teamToDisplay)
+    public static void Postfix(IntroCutscene __instance/*, ref Il2CppSystem.Collections.Generic.List<PlayerControl> teamToDisplay*/)
     {
         //チーム表示変更
         CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
@@ -497,15 +498,15 @@ class BeginImpostorPatch
         BeginCrewmatePatch.Prefix(__instance, ref yourTeam);
         return true;
     }
-    public static void Postfix(IntroCutscene __instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> yourTeam)
+    public static void Postfix(IntroCutscene __instance/*, ref Il2CppSystem.Collections.Generic.List<PlayerControl> yourTeam*/)
     {
-        BeginCrewmatePatch.Postfix(__instance, ref yourTeam);
+        BeginCrewmatePatch.Postfix(__instance/*, ref yourTeam*/);
     }
 }
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.OnDestroy))]
 class IntroCutsceneDestroyPatch
 {
-    public static void Postfix(IntroCutscene __instance)
+    public static void Postfix(/*IntroCutscene __instance*/)
     {
         if (!GameStates.IsInGame) return;
         Main.introDestroyed = true;
@@ -624,6 +625,8 @@ class IntroCutsceneDestroyPatch
             {
                 PlayerControl.LocalPlayer.Data.Role.AffectedByLightAffectors = false;
             }
+
+            LoadingScreen.UpdateLoadingAnimation();
         }
         Logger.Info("OnDestroy", "IntroCutscene");
     }

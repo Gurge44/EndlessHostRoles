@@ -3,6 +3,7 @@ using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
@@ -64,7 +65,7 @@ class OnGameJoinedPatch
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.DisconnectInternal))]
 class DisconnectInternalPatch
 {
-    public static void Prefix(InnerNetClient __instance, DisconnectReasons reason, string stringReason)
+    public static void Prefix(/*InnerNetClient __instance,*/ DisconnectReasons reason, string stringReason)
     {
         ShowDisconnectPopupPatch.Reason = reason;
         ShowDisconnectPopupPatch.StringReason = stringReason;
@@ -77,9 +78,9 @@ class DisconnectInternalPatch
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnPlayerJoined))]
 class OnPlayerJoinedPatch
 {
-    public static void Postfix(AmongUsClient __instance, [HarmonyArgument(0)] ClientData client)
+    public static void Postfix(/*AmongUsClient __instance,*/ [HarmonyArgument(0)] ClientData client)
     {
-        Logger.Info($"{client.PlayerName}(ClientID:{client.Id}/FriendCode:{client.FriendCode}) joined the lobby", "Session");
+        Logger.Info($"{client.PlayerName} (ClientID: {client.Id} / FriendCode: {client.FriendCode}) joined the lobby", "Session");
         if (AmongUsClient.Instance.AmHost && client.FriendCode == "" && Options.KickPlayerFriendCodeNotExist.GetBool() && !GameStates.IsLocalGame)
         {
             if (!BanManager.TempBanWhiteList.Contains(client.GetHashedPuid()))
@@ -145,6 +146,7 @@ class OnPlayerLeftPatch
             if (state.deathReason == PlayerState.DeathReason.etc) state.deathReason = PlayerState.DeathReason.Disconnected;
             if (!state.IsDead) state.SetDead();
             NameNotifyManager.Notice.Remove(data.Character.PlayerId);
+            data.Character.RpcSetName(data.Character.GetRealName(isMeeting: true));
             AntiBlackout.OnDisconnect(data.Character.Data);
             PlayerGameOptionsSender.RemoveSender(data.Character);
         }
@@ -218,11 +220,11 @@ class OnPlayerLeftPatch
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CreatePlayer))]
 class CreatePlayerPatch
 {
-    public static void Postfix(AmongUsClient __instance, [HarmonyArgument(0)] ClientData client)
+    public static void Postfix(/*AmongUsClient __instance,*/ [HarmonyArgument(0)] ClientData client)
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        Logger.Msg($"Create player data：ID {client.Character.PlayerId}: {client.PlayerName}", "CreatePlayer");
+        Logger.Msg($"Create player data： ID {client.Character.PlayerId}: {client.PlayerName}", "CreatePlayer");
 
         //规范昵称
         var name = client.PlayerName;

@@ -248,6 +248,7 @@ class GameEndChecker
                         if (Romantic.BetPlayer.TryGetValue(pc.PlayerId, out var betTarget))
                         {
                             CustomWinnerHolder.WinnerIds.Add(betTarget);
+                            if (!CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId)) CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
                         }
                     }
                 }

@@ -3,6 +3,7 @@ using Il2CppSystem.Text;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
@@ -24,44 +25,9 @@ class HudManagerPatch
     public static TextMeshPro LowerInfoText;
     private static TextMeshPro OverriddenRolesText;
     //public static GameObject TempLowerInfoText;
-    public static GameObject LoadingAnimation;
-    public static TextMeshPro LoadingText;
     public static void Postfix(HudManager __instance)
     {
-        try
-        {
-            if (LoadingAnimation == null)
-            {
-                //Texture2D gifTexture = Resources.Load<Texture2D>("Loading");
-                //Image gifImage = LoadingAnimation.AddComponent<Image>();
-                //gifImage.sprite = Sprite.Create(gifTexture, new Rect(0, 0, gifTexture.width, gifTexture.height), new Vector2(0.5f, 0.5f));
-
-                LoadingAnimation = new GameObject("LoadingAnimation");
-                //LoadingAnimation.transform.position = new Vector3(0f, 0f, 0f);
-                var renderer = LoadingAnimation.AddComponent<SpriteRenderer>();
-                renderer.sprite = Utils.LoadSprite("TOHE.Resources.Loading.gif", 70f);
-                LoadingAnimation.transform.SetParent(__instance.transform, false);
-            }
-
-            if (LoadingText == null)
-            {
-                var tempGameObject = new GameObject("LoadingTextGameObject");
-                tempGameObject?.transform?.SetParent(__instance?.transform, false);
-                LoadingText = tempGameObject.AddComponent<TextMeshPro>();
-                LoadingText.text = "Loading...";
-                LoadingText.color = Color.white;
-                LoadingText.alignment = TextAlignmentOptions.BottomJustified;
-                LoadingText.fontSize = 2f;
-            }
-        }
-        //catch (System.NullReferenceException) { }
-        catch (System.Exception e)
-        {
-            Logger.Error(e.ToString(), "Debug");
-        }
-
-        LoadingAnimation?.SetActive(GameStartManager.Instance?.startState != GameStartManager.StartingStates.Starting);
-        LoadingText?.transform?.gameObject?.SetActive(GameStartManager.Instance?.startState != GameStartManager.StartingStates.Starting);
+        LoadingScreen.Update();
 
         if (!GameStates.IsModHost) return;
         var player = PlayerControl.LocalPlayer;
@@ -587,8 +553,6 @@ class HudManagerPatch
                         CustomRoles.Glitch => Glitch.GetHudText(player),
                         CustomRoles.NiceHacker => NiceHacker.GetHudText(player),
                         CustomRoles.Wildling => Wildling.GetHudText(player),
-                        CustomRoles.Doormaster => Doormaster.GetHudText(player),
-                        CustomRoles.Tether => Tether.GetHudText(player),
                         CustomRoles.YinYanger => YinYanger.ModeText,
                         CustomRoles.WeaponMaster => WeaponMaster.GetHudAndProgressText(),
                         CustomRoles.Postman => Postman.GetHudText(player),
@@ -701,7 +665,7 @@ class HudManagerPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ToggleHighlight))]
 class ToggleHighlightPatch
 {
-    public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] bool active, [HarmonyArgument(1)] RoleTeamTypes team)
+    public static void Postfix(PlayerControl __instance /*[HarmonyArgument(0)] bool active,*/ /*[HarmonyArgument(1)] RoleTeamTypes team*/)
     {
         var player = PlayerControl.LocalPlayer;
         if (!GameStates.IsInTask) return;
@@ -726,7 +690,7 @@ class SetVentOutlinePatch
 class SetHudActivePatch
 {
     public static bool IsActive;
-    public static void Prefix(HudManager __instance, [HarmonyArgument(2)] ref bool isActive)
+    public static void Prefix(/*HudManager __instance,*/ [HarmonyArgument(2)] ref bool isActive)
     {
         isActive &= !GameStates.IsMeeting;
         return;
