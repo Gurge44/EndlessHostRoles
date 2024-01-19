@@ -33,7 +33,10 @@ namespace TOHE.Roles.Crewmate
         private static readonly List<CustomRoles> balancedAddons =
         [
             CustomRoles.Watcher,
+            CustomRoles.Sleuth,
             CustomRoles.Seer,
+            CustomRoles.Busy,
+            CustomRoles.Disco,
             CustomRoles.Necroview,
             CustomRoles.Glow,
             CustomRoles.Gravestone,
@@ -44,9 +47,11 @@ namespace TOHE.Roles.Crewmate
         [
             CustomRoles.Oblivious,
             CustomRoles.Bewilder,
+            CustomRoles.Asthmatic,
             CustomRoles.Unreportable, // Disregarded
             CustomRoles.Avanger, // Avenger
             CustomRoles.Diseased,
+            CustomRoles.Truant,
             CustomRoles.Unlucky
         ];
 

@@ -3,6 +3,7 @@ using Il2CppSystem.Text;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
@@ -26,6 +27,8 @@ class HudManagerPatch
     //public static GameObject TempLowerInfoText;
     public static void Postfix(HudManager __instance)
     {
+        LoadingScreen.Update();
+
         if (!GameStates.IsModHost) return;
         var player = PlayerControl.LocalPlayer;
         if (player == null) return;
@@ -242,6 +245,7 @@ class HudManagerPatch
                         Gangster.SetKillButtonText(player.PlayerId);
                         break;
                     case CustomRoles.NSerialKiller:
+                    case CustomRoles.SoulHunter:
                     case CustomRoles.Enderman:
                     case CustomRoles.Mycologist:
                     case CustomRoles.Bubble:
@@ -549,11 +553,10 @@ class HudManagerPatch
                         CustomRoles.Glitch => Glitch.GetHudText(player),
                         CustomRoles.NiceHacker => NiceHacker.GetHudText(player),
                         CustomRoles.Wildling => Wildling.GetHudText(player),
-                        CustomRoles.Doormaster => Doormaster.GetHudText(player),
-                        CustomRoles.Tether => Tether.GetHudText(player),
                         CustomRoles.YinYanger => YinYanger.ModeText,
                         CustomRoles.WeaponMaster => WeaponMaster.GetHudAndProgressText(),
                         CustomRoles.Postman => Postman.GetHudText(player),
+                        CustomRoles.SoulHunter => SoulHunter.HUDText,
                         CustomRoles.Chronomancer => Chronomancer.GetHudText(),
                         CustomRoles.Mafioso => Mafioso.GetHUDText(),
                         CustomRoles.Druid => Druid.GetHUDText(player),
@@ -662,7 +665,7 @@ class HudManagerPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ToggleHighlight))]
 class ToggleHighlightPatch
 {
-    public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] bool active, [HarmonyArgument(1)] RoleTeamTypes team)
+    public static void Postfix(PlayerControl __instance /*[HarmonyArgument(0)] bool active,*/ /*[HarmonyArgument(1)] RoleTeamTypes team*/)
     {
         var player = PlayerControl.LocalPlayer;
         if (!GameStates.IsInTask) return;
@@ -687,7 +690,7 @@ class SetVentOutlinePatch
 class SetHudActivePatch
 {
     public static bool IsActive;
-    public static void Prefix(HudManager __instance, [HarmonyArgument(2)] ref bool isActive)
+    public static void Prefix(/*HudManager __instance,*/ [HarmonyArgument(2)] ref bool isActive)
     {
         isActive &= !GameStates.IsMeeting;
         return;

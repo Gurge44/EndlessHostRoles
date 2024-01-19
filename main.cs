@@ -33,8 +33,8 @@ public class Main : BasePlugin
     public static ConfigEntry<string> DebugKeyInput { get; private set; }
     public static readonly string MainMenuText = " ";
     public const string PluginGuid = "com.gurge44.toheplus";
-    public const string PluginVersion = "2.2.4";
-    public const string PluginDisplayVersion = "2.2.4";
+    public const string PluginVersion = "2.3.0";
+    public const string PluginDisplayVersion = "2.3.0";
     public static readonly string SupportedAUVersion = "2023.10.24";
     public const int PluginCreate = 3;
     public const bool Canary = false;
@@ -192,6 +192,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, int> JinxSpellCount = [];
     public static Dictionary<byte, int> PuppeteerDelay = [];
     public static Dictionary<byte, int> PuppeteerMaxPuppets = [];
+    public static Dictionary<byte, string> SleuthMsgs = [];
     public static int AliveImpostorCount;
     public static bool isCursed;
     public static bool NiceSwapSend;
@@ -460,6 +461,7 @@ public class Main : BasePlugin
                 {CustomRoles.HexMaster, "#ff00ff"},
                 {CustomRoles.Wraith, "#4B0082"},
                 {CustomRoles.NSerialKiller, "#233fcc"},
+                {CustomRoles.SoulHunter, "#3f2c61"},
                 {CustomRoles.Enderman, "#3c008a"},
                 {CustomRoles.Mycologist, "#0043de"},
                 {CustomRoles.Bubble, "#ff38c3"},
@@ -513,7 +515,12 @@ public class Main : BasePlugin
                 {CustomRoles.Ntr, "#00a4ff"},
                 {CustomRoles.Madmate, "#ff1919"},
                 {CustomRoles.Watcher, "#800080"},
+                {CustomRoles.Sleuth, "#30221c"},
                 {CustomRoles.Flashman, "#ff8400"},
+                {CustomRoles.Busy, "#32a852"},
+                {CustomRoles.Truant, "#eb3467"},
+                {CustomRoles.Disco, "#eb34e8"},
+                {CustomRoles.Asthmatic, "#8feb34"},
                 {CustomRoles.Giant, "#32a852"},
                 {CustomRoles.Nimble, "#feffc7"},
                 {CustomRoles.Physicist, "#87e9ff"},
@@ -535,6 +542,7 @@ public class Main : BasePlugin
                 {CustomRoles.Guesser, "#f8cd46"},
                 {CustomRoles.Necroview, "#663399"},
                 {CustomRoles.Reach, "#74ba43"},
+                {CustomRoles.Magnet, "#eb3477"},
                 {CustomRoles.DeadlyQuota, "#ff1919"},
                 {CustomRoles.Damocles, "#ff1919"},
                 {CustomRoles.Stressed, "#9403fc"},
@@ -684,9 +692,9 @@ public enum CustomRoles
     BallLightning, // Lightning
     Librarian,
     Lurker,
-    Mafia,
     Mafioso,
     Mastermind,
+    Mafia, // Nemesis
     SerialKiller, // Mercenary
     Miner,
     Morphling,
@@ -881,6 +889,7 @@ public enum CustomRoles
     RuthlessRomantic,
     NSerialKiller, // Serial Killer
     Sidekick,
+    SoulHunter,
     Spiritcaller,
     Sprayer,
     DarkHide, // Stalker
@@ -913,9 +922,11 @@ public enum CustomRoles
     NotAssigned = 500,
     Admired,
     Antidote,
+    Asthmatic,
     Autopsy,
     Avanger,
     Bait,
+    Busy,
     Trapper, // Beartrap
     Bewilder,
     Charmed,
@@ -923,6 +934,7 @@ public enum CustomRoles
     Contagious,
     Damocles,
     DeadlyQuota,
+    Disco,
     Diseased,
     Unreportable, // Disregarded
     DoubleShot,
@@ -943,6 +955,7 @@ public enum CustomRoles
     Loyal,
     Lucky,
     Madmate,
+    Magnet,
     Mare,
     Mimic,
     Necroview,
@@ -957,6 +970,7 @@ public enum CustomRoles
     Rogue,
     DualPersonality, // Schizophrenic
     Seer,
+    Sleuth,
     Soulless,
     TicketsStealer, // Stealer
     Stressed,
@@ -964,6 +978,7 @@ public enum CustomRoles
     Sunglasses,
     Brakar, // Tiebreaker
     Torch,
+    Truant,
     Unlucky,
     Watcher,
     Workhorse,
@@ -1066,6 +1081,7 @@ public enum AdditionalWinners
     Phantom = CustomRoles.Phantom,
     Maverick = CustomRoles.Maverick,
     Postman = CustomRoles.Postman,
+    SoulHunter = CustomRoles.SoulHunter,
     //   Baker = CustomRoles.Baker,
 }
 public enum SuffixModes

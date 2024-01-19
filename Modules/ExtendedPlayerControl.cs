@@ -151,7 +151,7 @@ static class ExtendedPlayerControl
     }
     public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId)
     {
-        //player: 名前の変更対象
+        //player: Rename target
 
         if (player == null) return;
         if (AmongUsClient.Instance.ClientId == clientId)
@@ -485,113 +485,8 @@ static class ExtendedPlayerControl
     public static bool HasKillButton(this PlayerControl pc)
     {
         if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel || Pelican.IsEaten(pc.PlayerId)) return false;
-
-        return pc.GetCustomRole() switch
-        {
-            CustomRoles.FireWorks => true,
-            CustomRoles.Mafia => true,
-            CustomRoles.Underdog => true,
-            CustomRoles.Mastermind => true,
-            CustomRoles.Doppelganger => true,
-            CustomRoles.Gambler => true,
-            CustomRoles.RiftMaker => true,
-            CustomRoles.Hitman => true,
-            CustomRoles.Inhibitor => true,
-            CustomRoles.Kidnapper => true,
-            CustomRoles.Kamikaze => true,
-            CustomRoles.Cantankerous => true,
-            CustomRoles.YinYanger => true,
-            CustomRoles.Duellist => true,
-            CustomRoles.Consort => true,
-            CustomRoles.Mafioso => true,
-            CustomRoles.Chronomancer => true,
-            CustomRoles.Nullifier => true,
-            CustomRoles.Stealth => true,
-            CustomRoles.Penguin => true,
-            CustomRoles.Sapper => true,
-            CustomRoles.Saboteur => true,
-            CustomRoles.Sniper => true,
-            CustomRoles.Sheriff => true,
-            CustomRoles.Crusader => true,
-            CustomRoles.CopyCat => true,
-            CustomRoles.Jailor => true,
-            CustomRoles.Pelican => true,
-            CustomRoles.Arsonist => true,
-            CustomRoles.Revolutionist => true,
-            CustomRoles.SwordsMan => true,
-            CustomRoles.Jackal => true,
-            CustomRoles.Sidekick => true,
-            CustomRoles.HexMaster => true,
-            CustomRoles.Bandit => true,
-            CustomRoles.Agitater => true,
-            CustomRoles.Poisoner => true,
-            CustomRoles.Juggernaut => true,
-            CustomRoles.Ritualist => true,
-            CustomRoles.Pyromaniac => true,
-            CustomRoles.Eclipse => true,
-            CustomRoles.NSerialKiller => true,
-            CustomRoles.Enderman => true,
-            CustomRoles.Mycologist => true,
-            CustomRoles.Bubble => true,
-            CustomRoles.Hookshot => true,
-            CustomRoles.Sprayer => true,
-            CustomRoles.PlagueDoctor => true,
-            CustomRoles.Magician => true,
-            CustomRoles.WeaponMaster => true,
-            CustomRoles.Postman => true,
-            CustomRoles.Reckless => true,
-            CustomRoles.Vengeance => true,
-            CustomRoles.HeadHunter => true,
-            CustomRoles.Imitator => true,
-            CustomRoles.Werewolf => true,
-            CustomRoles.Medusa => true,
-            CustomRoles.Traitor => true,
-            CustomRoles.Glitch => true,
-            CustomRoles.Pickpocket => true,
-            CustomRoles.Maverick => true,
-            CustomRoles.Jinx => true,
-            CustomRoles.Parasite => true,
-            CustomRoles.Refugee => true,
-            CustomRoles.Wraith => true,
-            CustomRoles.Bomber => true,
-            CustomRoles.Nuker => false,
-            CustomRoles.Innocent => true,
-            CustomRoles.Aid => true,
-            CustomRoles.DonutDelivery => true,
-            CustomRoles.Gaulois => true,
-            CustomRoles.Analyzer => true,
-            CustomRoles.Escort => true,
-            CustomRoles.Witness => true,
-            CustomRoles.Pursuer => true,
-            CustomRoles.Morphling => true,
-            CustomRoles.FFF => true,
-            CustomRoles.Medic => true,
-            CustomRoles.Gamer => true,
-            CustomRoles.DarkHide => true,
-            CustomRoles.Provocateur => true,
-            CustomRoles.Assassin => true,
-            CustomRoles.Undertaker => true,
-            CustomRoles.BloodKnight => true,
-            CustomRoles.Crewpostor => false,
-            CustomRoles.Totocalcio => true,
-            CustomRoles.Romantic => true,
-            CustomRoles.RuthlessRomantic => true,
-            CustomRoles.VengefulRomantic => true,
-            CustomRoles.Succubus => true,
-            //CustomRoles.CursedSoul => true,
-            CustomRoles.Admirer => true,
-            CustomRoles.Amnesiac => true,
-            CustomRoles.Infectious => true,
-            CustomRoles.Monarch => true,
-            CustomRoles.Deputy => true,
-            CustomRoles.Virus => true,
-            CustomRoles.Farseer => true,
-            CustomRoles.Spiritcaller => true,
-            CustomRoles.PlagueBearer => true,
-            CustomRoles.Pestilence => true,
-
-            _ => pc.Is(CustomRoleTypes.Impostor) || pc.GetCustomRole().IsNK() || pc.GetCustomRole().IsTasklessCrewmate(),
-        };
+        else if (pc.GetCustomRole().GetDYRole() == RoleTypes.Impostor || pc.GetCustomRole().GetVNRole() is CustomRoles.Impostor or CustomRoles.Shapeshifter) return true;
+        else return pc.Is(CustomRoleTypes.Impostor) || pc.GetCustomRole().IsNK() || pc.GetCustomRole().IsTasklessCrewmate();
     }
     public static bool CanUseKillButton(this PlayerControl pc)
     {
@@ -654,6 +549,7 @@ static class ExtendedPlayerControl
             CustomRoles.Pyromaniac => pc.IsAlive(),
             CustomRoles.Eclipse => pc.IsAlive(),
             CustomRoles.NSerialKiller => pc.IsAlive(),
+            CustomRoles.SoulHunter => pc.IsAlive(),
             CustomRoles.Enderman => pc.IsAlive(),
             CustomRoles.Mycologist => pc.IsAlive(),
             CustomRoles.Bubble => pc.IsAlive(),
@@ -727,7 +623,7 @@ static class ExtendedPlayerControl
         if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
         if (CopyCat.playerIdList.Contains(pc.PlayerId)) return true;
 
-        if (pc.Is(CustomRoles.Nimble)) return true;
+        if ((pc.Is(CustomRoles.Nimble) || Options.EveryoneCanVent.GetBool()) && pc.GetCustomRole().GetVNRole() != CustomRoles.Engineer) return true;
 
         return pc.GetCustomRole() switch
         {
@@ -760,6 +656,7 @@ static class ExtendedPlayerControl
             CustomRoles.Glitch => Glitch.CanVent.GetBool(),
             CustomRoles.Poisoner => Poisoner.CanVent.GetBool(),
             CustomRoles.NSerialKiller => NSerialKiller.CanVent.GetBool(),
+            CustomRoles.SoulHunter => SoulHunter.CanVent.GetBool(),
             CustomRoles.Enderman => Enderman.CanVent.GetBool(),
             CustomRoles.Mycologist => true,
             CustomRoles.Bubble => Bubble.CanVent.GetBool(),
@@ -855,6 +752,7 @@ static class ExtendedPlayerControl
             CustomRoles.Pyromaniac or
             CustomRoles.Eclipse or
             CustomRoles.NSerialKiller or
+            CustomRoles.SoulHunter or
             CustomRoles.Bubble or
             CustomRoles.PlagueDoctor or
             CustomRoles.Reckless or
@@ -1079,6 +977,9 @@ static class ExtendedPlayerControl
                 break;
             case CustomRoles.NSerialKiller:
                 NSerialKiller.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.SoulHunter:
+                SoulHunter.SetKillCooldown(player.PlayerId);
                 break;
             case CustomRoles.Enderman:
                 Enderman.SetKillCooldown(player.PlayerId);

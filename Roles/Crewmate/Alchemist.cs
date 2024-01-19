@@ -229,7 +229,7 @@ namespace TOHE.Roles.Crewmate
                 pc.Notify(GetString("ChameleonInvisState"), InvisDuration.GetFloat());
             }, 0.5f, "Alchemist Invis");
         }
-        public static void OnFixedUpdate(PlayerControl player)
+        public static void OnFixedUpdate(/*PlayerControl player*/)
         {
             if (!GameStates.IsInTask || !IsEnable) return;
 

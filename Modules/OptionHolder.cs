@@ -34,13 +34,13 @@ public static class Options
         taskOptionsLoad = Task.Run(Load);
         taskOptionsLoad.ContinueWith(t => { Logger.Info("Options.Load End", "Load Options"); });
     }
-    [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPostfix]
-    public static void WaitOptionsLoad()
-    {
-        return;
-        //taskOptionsLoad.Wait();
-        //Logger.Info("Options.Load End", "Options");
-    }
+    //[HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPostfix]
+    //public static void WaitOptionsLoad()
+    //{
+    //    return;
+    //    //taskOptionsLoad.Wait();
+    //    //Logger.Info("Options.Load End", "Options");
+    //}
 
     // プリセット
     private static readonly string[] presets =
@@ -474,6 +474,12 @@ public static class Options
     public static OptionItem UnluckyVentSuicideChance;
     public static OptionItem UnluckyReportSuicideChance;
     public static OptionItem UnluckySabotageSuicideChance;
+    public static OptionItem AsthmaticMinRedTime;
+    public static OptionItem AsthmaticMaxRedTime;
+    public static OptionItem AsthmaticMinGreenTime;
+    public static OptionItem AsthmaticMaxGreenTime;
+    public static OptionItem DiscoChangeInterval;
+    public static OptionItem TruantWaitingTime;
     // RASCAL //
     public static OptionItem RascalAppearAsMadmate;
 
@@ -671,6 +677,8 @@ public static class Options
     public static OptionItem LuckyCanBeSold;
     public static OptionItem ObliviousCanBeSold;
     public static OptionItem BewilderCanBeSold;
+    public static OptionItem BusyLongTasks;
+    public static OptionItem BusyShortTasks;
 
     //デバイスブロック
     public static OptionItem DisableDevices;
@@ -771,6 +779,10 @@ public static class Options
     public static OptionItem CrewOnlyAddonSettingsNeut;
     public static OptionItem NeutralAddonSettingsNeut;
     public static OptionItem BasicAddonSettingsNeut;
+
+    public static OptionItem EveryoneCanVent;
+    public static OptionItem OverrideScientistBasedRoles;
+    public static OptionItem WhackAMole;
 
 
     // 投票モード
@@ -2057,6 +2069,8 @@ public static class Options
         RoleLoadingText = "Neutral roles\nSerial Killer";
 
         NSerialKiller.SetupCustomOption();
+        RoleLoadingText = "Neutral roles\nSoulHunter";
+        SoulHunter.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nEnderman";
         Enderman.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nMycologist";
@@ -2237,6 +2251,8 @@ public static class Options
         SetupAdtRoleOptions(14600, CustomRoles.Reach, canSetNum: true);
 
         LoadingPercentage = 40;
+        RoleLoadingText = "Add-ons\nMagnet";
+        SetupAdtRoleOptions(14697, CustomRoles.Magnet, canSetNum: true);
         RoleLoadingText = "Add-ons\nSchizophrenic";
         SetupAdtRoleOptions(14700, CustomRoles.DualPersonality, canSetNum: true);
         ImpCanBeDualPersonality = BooleanOptionItem.Create(14710, "ImpCanBeDualPersonality", true, TabGroup.Addons, false)
@@ -2282,6 +2298,8 @@ public static class Options
         SetupAdtRoleOptions(15100, CustomRoles.Avanger, canSetNum: true);
         ImpCanBeAvanger = BooleanOptionItem.Create(15110, "ImpCanBeAvanger", false, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Avanger]);
+        RoleLoadingText = "Add-ons\nSleuth";
+        SetupAdtRoleOptions(15150, CustomRoles.Sleuth, canSetNum: true);
         RoleLoadingText = "Add-ons\nBewilder";
         SetupAdtRoleOptions(15200, CustomRoles.Bewilder, canSetNum: true);
         BewilderVision = FloatOptionItem.Create(15210, "BewilderVision", new(0f, 5f, 0.05f), 0.6f, TabGroup.Addons, false)
@@ -2353,21 +2371,51 @@ public static class Options
         RoleLoadingText = "Add-ons\nOblivious";
         SetupAdtRoleOptions(15400, CustomRoles.Oblivious, canSetNum: true);
         ImpCanBeOblivious = BooleanOptionItem.Create(15410, "ImpCanBeOblivious", true, TabGroup.Addons, false)
-        .SetParent(CustomRoleSpawnChances[CustomRoles.Oblivious]);
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Oblivious]);
         CrewCanBeOblivious = BooleanOptionItem.Create(15411, "CrewCanBeOblivious", true, TabGroup.Addons, false)
-        .SetParent(CustomRoleSpawnChances[CustomRoles.Oblivious]);
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Oblivious]);
         NeutralCanBeOblivious = BooleanOptionItem.Create(15412, "NeutralCanBeOblivious", true, TabGroup.Addons, false)
-        .SetParent(CustomRoleSpawnChances[CustomRoles.Oblivious]);
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Oblivious]);
         ObliviousBaitImmune = BooleanOptionItem.Create(15413, "ObliviousBaitImmune", false, TabGroup.Addons, false)
-        .SetParent(CustomRoleSpawnChances[CustomRoles.Oblivious]);
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Oblivious]);
+        RoleLoadingText = "Add-ons\nBusy";
+        SetupAdtRoleOptions(15290, CustomRoles.Busy, canSetNum: true);
+        BusyLongTasks = IntegerOptionItem.Create(15293, "BusyLongTasks", new(0, 90, 1), 1, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Busy]);
+        BusyShortTasks = IntegerOptionItem.Create(15294, "BusyShortTasks", new(0, 90, 1), 1, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Busy]);
         RoleLoadingText = "Add-ons\nRascal";
         SetupAdtRoleOptions(15600, CustomRoles.Rascal, canSetNum: true, tab: TabGroup.Addons);
         RascalAppearAsMadmate = BooleanOptionItem.Create(15610, "RascalAppearAsMadmate", true, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Rascal]);
 
         LoadingPercentage = 45;
-        RoleLoadingText = "Add-ons\nSunglasses";
+        RoleLoadingText = "Add-ons\nAsthmatic";
 
+        SetupAdtRoleOptions(15420, CustomRoles.Asthmatic, canSetNum: true);
+        AsthmaticMinRedTime = IntegerOptionItem.Create(15423, "AsthmaticMinRedTime", new(1, 90, 1), 5, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
+            .SetValueFormat(OptionFormat.Seconds);
+        AsthmaticMaxRedTime = IntegerOptionItem.Create(15424, "AsthmaticMaxRedTime", new(1, 90, 1), 30, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
+            .SetValueFormat(OptionFormat.Seconds);
+        AsthmaticMinGreenTime = IntegerOptionItem.Create(15425, "AsthmaticMinGreenTime", new(1, 90, 1), 5, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
+            .SetValueFormat(OptionFormat.Seconds);
+        AsthmaticMaxGreenTime = IntegerOptionItem.Create(15426, "AsthmaticMaxGreenTime", new(1, 90, 1), 30, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
+            .SetValueFormat(OptionFormat.Seconds);
+        RoleLoadingText = "Add-ons\nTruant";
+        SetupAdtRoleOptions(15435, CustomRoles.Truant, canSetNum: true);
+        TruantWaitingTime = IntegerOptionItem.Create(15438, "TruantWaitingTime", new(1, 90, 1), 3, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Truant])
+            .SetValueFormat(OptionFormat.Seconds);
+        RoleLoadingText = "Add-ons\nDisco";
+        SetupAdtRoleOptions(15430, CustomRoles.Disco, canSetNum: true);
+        DiscoChangeInterval = IntegerOptionItem.Create(15433, "DiscoChangeInterval", new(1, 90, 1), 5, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Disco])
+            .SetValueFormat(OptionFormat.Seconds);
+        RoleLoadingText = "Add-ons\nSunglasses";
         SetupAdtRoleOptions(15450, CustomRoles.Sunglasses, canSetNum: true);
         SunglassesVision = FloatOptionItem.Create(15460, "SunglassesVision", new(0f, 5f, 0.05f), 0.75f, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Sunglasses])
@@ -2604,12 +2652,12 @@ public static class Options
         //SetupAdtRoleOptions(18600, CustomRoles.Ntr, tab: TabGroup.OtherRoles);
         RoleLoadingText = "Experimental roles\nFlash";
         SetupAdtRoleOptions(18700, CustomRoles.Flashman, canSetNum: true, tab: TabGroup.OtherRoles);
-        FlashmanSpeed = FloatOptionItem.Create(6050335, "FlashmanSpeed", new(0.25f, 3f, 0.25f), 2.5f, TabGroup.OtherRoles, false)
+        FlashmanSpeed = FloatOptionItem.Create(18703, "FlashmanSpeed", new(0.25f, 3f, 0.25f), 2.5f, TabGroup.OtherRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Flashman])
             .SetValueFormat(OptionFormat.Multiplier);
         RoleLoadingText = "Experimental roles\nGiant";
         SetupAdtRoleOptions(18750, CustomRoles.Giant, canSetNum: true, tab: TabGroup.OtherRoles);
-        GiantSpeed = FloatOptionItem.Create(6050335, "FlashmanSpeed", new(0.25f, 3f, 0.25f), 2.5f, TabGroup.OtherRoles, false)
+        GiantSpeed = FloatOptionItem.Create(18753, "FlashmanSpeed", new(0.25f, 3f, 0.25f), 2.5f, TabGroup.OtherRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Flashman])
             .SetValueFormat(OptionFormat.Multiplier);
 
@@ -3193,6 +3241,17 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true)
             .SetColor(new Color32(0, 65, 196, byte.MaxValue));
+
+        EveryoneCanVent = BooleanOptionItem.Create(23853, "EveryoneCanVent", false, TabGroup.TaskSettings, false)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetHeader(true)
+            .SetColor(Color.green);
+        OverrideScientistBasedRoles = BooleanOptionItem.Create(23855, "OverrideScientistBasedRoles", false, TabGroup.TaskSettings, false)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetParent(EveryoneCanVent);
+        WhackAMole = BooleanOptionItem.Create(23856, "WhackAMole", false, TabGroup.TaskSettings, false)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetParent(EveryoneCanVent);
 
 
         //Disable Short Tasks

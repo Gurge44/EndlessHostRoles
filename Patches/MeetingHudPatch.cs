@@ -770,6 +770,8 @@ class MeetingHudStartPatch
             }
             if (Main.DetectiveNotify.ContainsKey(pc.PlayerId))
                 AddMsg(Main.DetectiveNotify[pc.PlayerId], pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Detective), GetString("DetectiveNoticeTitle")));
+            if (Main.SleuthMsgs.ContainsKey(pc.PlayerId))
+                AddMsg(Main.SleuthMsgs[pc.PlayerId], pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Sleuth), GetString("Sleuth")));
             //宝箱怪的消息（记录）
             if (pc.Is(CustomRoles.Mimic) && !pc.IsAlive())
                 Main.AllAlivePlayerControls.Where(x => x.GetRealKiller()?.PlayerId == pc.PlayerId).Do(x => MimicMsg += $"\n{x.GetNameWithRole(true)}");
@@ -804,6 +806,7 @@ class MeetingHudStartPatch
         Main.DemolitionistDead.Clear();
         Main.ExpressSpeedUp.Clear();
         Main.DetectiveNotify.Clear();
+        Main.SleuthMsgs.Clear();
         Main.VirusNotify.Clear();
         Mortician.msgToSend.Clear();
         Enigma.MsgToSend.Clear();
@@ -1026,6 +1029,7 @@ class MeetingHudStartPatch
                 //   case CustomRoles.Sidekick:
                 case CustomRoles.Poisoner:
                 case CustomRoles.NSerialKiller:
+                case CustomRoles.SoulHunter:
                 case CustomRoles.Enderman:
                 case CustomRoles.Mycologist:
                 case CustomRoles.Bubble:

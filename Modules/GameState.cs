@@ -478,6 +478,9 @@ public class TaskState
                         Druid.UseLimit[player.PlayerId] += Druid.DruidAbilityUseGainWithEachTaskCompleted.GetFloat();
                         Druid.SendRPCSyncAbilityUse(player.PlayerId);
                         break;
+                    case CustomRoles.Judge:
+                        Judge.TrialLimit[player.PlayerId] += Judge.JudgeAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        break;
                 }
             }
 

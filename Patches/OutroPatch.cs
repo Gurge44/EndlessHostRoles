@@ -16,6 +16,7 @@ class EndGamePatch
 {
     public static Dictionary<byte, string> SummaryText = [];
     public static string KillLog = string.Empty;
+    public static GameOverReason LastGameOverReason = GameOverReason.ImpostorByKill;
     public static void Postfix(AmongUsClient __instance, [HarmonyArgument(0)] ref EndGameResult endGameResult)
     {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -23,6 +24,9 @@ class EndGamePatch
 
         Logger.Info("-----------Game over-----------", "Phase");
         if (!GameStates.IsModHost) return;
+
+        LastGameOverReason = endGameResult.GameOverReason;
+
         Main.SetRoles = [];
         Main.SetAddOns = [];
         SummaryText = [];
@@ -44,7 +48,7 @@ class EndGamePatch
             }
             SummaryText[id] = Utils.SummaryTexts(id, disableColor: false);
         }
-
+        
         var sb = new StringBuilder(GetString("KillLog") + ":");
         foreach (var kvp in Main.PlayerStates.OrderBy(x => x.Value.RealKiller.TIMESTAMP.Ticks))
         {
@@ -141,7 +145,9 @@ class SetEverythingUpPatch
                     poolablePlayer.SetFlipX(i % 2 == 0);
                 }
 
-                bool lowered = i is 1 or 2 or 5 or 6 or 9 or 10 or 13 or 14;
+                GameOverReason reason = EndGamePatch.LastGameOverReason;
+                bool isCrewWin = reason.Equals(GameOverReason.HumansByVote) || reason.Equals(GameOverReason.HumansByTask);
+                bool lowered = isCrewWin && (i is 1 or 2 or 5 or 6 or 9 or 10 or 13 or 14);
 
                 poolablePlayer.cosmetics.nameText.color = Color.white;
                 poolablePlayer.cosmetics.nameText.transform.localScale = new Vector3(1f / vector.x, 1f / vector.y, 1f / vector.z);

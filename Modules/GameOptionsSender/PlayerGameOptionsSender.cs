@@ -443,6 +443,9 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 case CustomRoles.NSerialKiller:
                     NSerialKiller.ApplyGameOptions(opt);
                     break;
+                case CustomRoles.SoulHunter:
+                    SoulHunter.ApplyGameOptions(opt);
+                    break;
                 case CustomRoles.Enderman:
                     Enderman.ApplyGameOptions(opt);
                     break;
