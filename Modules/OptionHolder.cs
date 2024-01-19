@@ -677,6 +677,8 @@ public static class Options
     public static OptionItem LuckyCanBeSold;
     public static OptionItem ObliviousCanBeSold;
     public static OptionItem BewilderCanBeSold;
+    public static OptionItem BusyLongTasks;
+    public static OptionItem BusyShortTasks;
 
     //デバイスブロック
     public static OptionItem DisableDevices;
@@ -2369,13 +2371,19 @@ public static class Options
         RoleLoadingText = "Add-ons\nOblivious";
         SetupAdtRoleOptions(15400, CustomRoles.Oblivious, canSetNum: true);
         ImpCanBeOblivious = BooleanOptionItem.Create(15410, "ImpCanBeOblivious", true, TabGroup.Addons, false)
-        .SetParent(CustomRoleSpawnChances[CustomRoles.Oblivious]);
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Oblivious]);
         CrewCanBeOblivious = BooleanOptionItem.Create(15411, "CrewCanBeOblivious", true, TabGroup.Addons, false)
-        .SetParent(CustomRoleSpawnChances[CustomRoles.Oblivious]);
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Oblivious]);
         NeutralCanBeOblivious = BooleanOptionItem.Create(15412, "NeutralCanBeOblivious", true, TabGroup.Addons, false)
-        .SetParent(CustomRoleSpawnChances[CustomRoles.Oblivious]);
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Oblivious]);
         ObliviousBaitImmune = BooleanOptionItem.Create(15413, "ObliviousBaitImmune", false, TabGroup.Addons, false)
-        .SetParent(CustomRoleSpawnChances[CustomRoles.Oblivious]);
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Oblivious]);
+        RoleLoadingText = "Add-ons\nBusy";
+        SetupAdtRoleOptions(15290, CustomRoles.Busy, canSetNum: true);
+        BusyLongTasks = IntegerOptionItem.Create(15293, "BusyLongTasks", new(0, 90, 1), 1, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Busy]);
+        BusyShortTasks = IntegerOptionItem.Create(15294, "BusyShortTasks", new(0, 90, 1), 1, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Busy]);
         RoleLoadingText = "Add-ons\nRascal";
         SetupAdtRoleOptions(15600, CustomRoles.Rascal, canSetNum: true, tab: TabGroup.Addons);
         RascalAppearAsMadmate = BooleanOptionItem.Create(15610, "RascalAppearAsMadmate", true, TabGroup.Addons, false)

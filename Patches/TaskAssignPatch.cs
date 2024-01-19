@@ -143,6 +143,12 @@ class RpcSetTasksPatch
                                                          // ロングとショートは常時再割り当てが行われる。
         }
 
+        if (pc.Is(CustomRoles.Busy))
+        {
+            NumLongTasks += Options.BusyLongTasks.GetInt();
+            NumShortTasks += Options.BusyShortTasks.GetInt();
+        }
+
         //背叛告密的任务覆盖
         if (pc.Is(CustomRoles.Snitch) && pc.Is(CustomRoles.Madmate))
         {
