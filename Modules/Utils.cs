@@ -620,6 +620,7 @@ public static class Utils
             (pc.Is(CustomRoles.Marshall) && !Options.MarshallCanBeMadmate.GetBool()) ||
             (pc.Is(CustomRoles.Farseer) && !Options.FarseerCanBeMadmate.GetBool()) ||
             //(pc.Is(CustomRoles.Retributionist) && !Options.RetributionistCanBeMadmate.GetBool()) ||
+            pc.Is(CustomRoles.NiceSwapper) ||
             pc.Is(CustomRoles.Needy) ||
             pc.Is(CustomRoles.Lazy) ||
             pc.Is(CustomRoles.Loyal) ||

@@ -322,6 +322,14 @@ internal class ChatCommands
                         Utils.SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<color=#ff0000>{GetString("MessageFromTheHost")}</color>");
                     break;
 
+                case "/vote":
+                    canceled = true;
+                    if (text.Length < 6 || !GameStates.IsMeeting) break;
+                    string toVote = text[6..].Replace(" ", string.Empty);
+                    if (!byte.TryParse(toVote, out var voteId)) break;
+                    MeetingHud.Instance?.CastVote(PlayerControl.LocalPlayer.PlayerId, voteId);
+                    break;
+
                 case "/ban":
                 case "/kick":
                     canceled = true;
@@ -1000,6 +1008,14 @@ internal class ChatCommands
                 }
 
                 Utils.SendMessage(msgText, player.PlayerId);
+                break;
+            case "/vote":
+                canceled = true;
+                if (text.Length < 6 || !GameStates.IsMeeting) break;
+                string toVote = text[6..].Replace(" ", string.Empty);
+                if (!byte.TryParse(toVote, out var voteId)) break;
+                ChatManager.SendPreviousMessagesToAll();
+                MeetingHud.Instance?.CastVote(player.PlayerId, voteId);
                 break;
             case "/ban":
             case "/kick":

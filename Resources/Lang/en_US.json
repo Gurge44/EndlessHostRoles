@@ -1934,7 +1934,7 @@
   "killAttacker": "On Kill Attempt, Kill The Attacker",
   "CrewpostorLungeKill": "Lunge on Kills",
   "CrewpostorKillAfterTask": "Amount of Task Completions Required to make 1 Kill",
-  "SpeedrunnerHasXTasksLeft": "<color=#800080>{0}</color> is the <color=#800080>Speedrunner</color>!\\nThey have {1} task(s) left.",
+  "SpeedrunnerHasXTasksLeft": "\n<color=#800080>{0}</color> is the <color=#800080>Speedrunner</color>!\\nThey have {1} task(s) left.",
   "Message.SetToSeconds": "Set to <b>{0}</b> seconds.",
   "Message.MessageWaitHelp": "Specify the first argument in seconds.",
   "Message.TemplateNotFoundHost": "No templates matching <b>{0}</b> were found",
