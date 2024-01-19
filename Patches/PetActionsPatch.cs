@@ -549,6 +549,60 @@ class ExternalRpcPetPatch
             case CustomRoles.Sprayer:
                 Sprayer.PlaceTrap();
                 break;
+            case CustomRoles.Arsonist when pc.CanUseImpostorVentButton():
+                if (pc.IsDouseDone())
+                {
+                    CustomSoundsManager.RPCPlayCustomSoundAll("Boom");
+                    foreach (PlayerControl player in Main.AllAlivePlayerControls)
+                    {
+                        if (player != pc)
+                        {
+                            player.Suicide(PlayerState.DeathReason.Torched, pc);
+                        }
+                    }
+                    foreach (PlayerControl player in Main.AllPlayerControls)
+                    {
+                        player.KillFlash();
+                    }
+
+                    CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist);
+                    CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                    break;
+                }
+                else if (Options.ArsonistCanIgniteAnytime.GetBool())
+                {
+                    var douseCount = Utils.GetDousedPlayerCount(pc.PlayerId).Item1;
+                    if (douseCount >= Options.ArsonistMinPlayersToIgnite.GetInt()) // Don't check for max, since the player would not be able to ignite at all if they somehow get more players doused than the max
+                    {
+                        if (douseCount > Options.ArsonistMaxPlayersToIgnite.GetInt()) Logger.Warn("Arsonist Ignited with more players doused than the maximum amount in the settings", "Arsonist Ignite");
+                        foreach (PlayerControl player in Main.AllAlivePlayerControls)
+                        {
+                            if (!pc.IsDousedPlayer(player))
+                                continue;
+                            player.KillFlash();
+                            player.Suicide(PlayerState.DeathReason.Torched, pc);
+                        }
+                        var apc = Main.AllAlivePlayerControls.Length;
+                        if (apc == 1)
+                        {
+                            CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist);
+                            CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                        }
+                        if (apc == 2)
+                        {
+                            foreach (var player in Main.AllAlivePlayerControls.Where(p => p.PlayerId != pc.PlayerId).ToArray())
+                            {
+                                if (!player.GetCustomRole().IsImpostor() && !player.GetCustomRole().IsNeutralKilling())
+                                {
+                                    CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist);
+                                    CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+                break;
 
             // Message when no ability is triggered
 

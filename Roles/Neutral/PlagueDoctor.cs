@@ -144,7 +144,7 @@ namespace TOHE.Roles.Neutral
         {
             InfectActive = false;
         }
-        public static void OnFixedUpdate(PlayerControl player)
+        public static void OnCheckPlayerPosition(PlayerControl player)
         {
             if (!IsEnable) return;
             if (!AmongUsClient.Instance.AmHost) return;
@@ -228,6 +228,7 @@ namespace TOHE.Roles.Neutral
             seen ??= seer;
             if (!seen.Is(CustomRoles.PlagueDoctor)) return string.Empty;
             if (!seer.Is(CustomRoles.PlagueDoctor) && seer.IsAlive()) return string.Empty;
+            if (!isForHud && seer.IsModClient()) return string.Empty;
             var str = new StringBuilder(40);
             foreach (PlayerControl player in Main.AllAlivePlayerControls)
             {

@@ -2224,9 +2224,6 @@ class FixedUpdatePatch
                 case CustomRoles.SerialKiller:
                     SerialKiller.FixedUpdate(player);
                     break;
-                case CustomRoles.PlagueDoctor:
-                    PlagueDoctor.OnFixedUpdate(player);
-                    break;
                 case CustomRoles.Penguin:
                     Penguin.OnFixedUpdate(player);
                     break;
@@ -2265,6 +2262,7 @@ class FixedUpdatePatch
                 BallLightning.OnCheckPlayerPosition(player);
                 Sprayer.OnCheckPlayerPosition(player);
                 Asthmatic.OnCheckPlayerPosition(player);
+                PlagueDoctor.OnCheckPlayerPosition(player);
             }
 
             if (!lowLoad && Main.PlayerStates.TryGetValue(playerId, out var playerState) && GameStates.IsInTask)
