@@ -791,7 +791,7 @@ class CheckMurderPatch
             if (target.Is(CustomRoles.Opportunist) && target.AllTasksCompleted())
                 return false;
         }
-
+        
         if (Merchant.OnClientMurder(killer, target)) return false;
 
         if (Medic.OnCheckMurder(killer, target))
@@ -3706,17 +3706,17 @@ class PlayerControlCompleteTaskPatch
     {
         var player = __instance;
 
-        if (Workhorse.OnCompleteTask(player)) //タスク勝利をキャンセル
+        if (Workhorse.OnCompleteTask(player)) // Cancel task win
             return false;
 
-        //来自资本主义的任务
+        // Tasks from Capitalist
         if (Main.CapitalismAddTask.ContainsKey(player.PlayerId))
         {
             var taskState = player.GetPlayerTaskState();
             taskState.AllTasksCount += Main.CapitalismAddTask[player.PlayerId];
             Main.CapitalismAddTask.Remove(player.PlayerId);
             taskState.CompletedTasksCount++;
-            GameData.Instance.RpcSetTasks(player.PlayerId, Array.Empty<byte>()); //タスクを再配布
+            GameData.Instance.RpcSetTasks(player.PlayerId, Array.Empty<byte>()); // Redistribute tasks
             player.SyncSettings();
             NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
             return false;
@@ -3742,7 +3742,7 @@ class PlayerControlCompleteTaskPatch
         if (isTaskFinish &&
             pc.GetCustomRole() is CustomRoles.Doctor or CustomRoles.Sunnyboy or CustomRoles.SpeedBooster)
         {
-            //ライターもしくはスピードブースターもしくはドクターがいる試合のみタスク終了時にCustomSyncAllSettingsを実行する
+            // Execute CustomSyncAllSettings at the end of the task only for matches with sunnyboy, speed booster, or doctor.
             MarkEveryoneDirtySettings();
         }
     }
@@ -3880,5 +3880,16 @@ class PlayerControlLocalSetRolePatch
                 Main.PlayerStates[__instance.PlayerId].SetMainRole(moddedRole);
             }
         }
+    }
+}
+
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Revive))]
+class RevivePreventerPatch
+{
+    public static bool Prefix(ref PlayerControl __instance)
+    {
+        Logger.Warn("Revive attempted", "RevivePreventerPatch");
+        __instance = null;
+        return false;
     }
 }

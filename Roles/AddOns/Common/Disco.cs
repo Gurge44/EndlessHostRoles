@@ -8,12 +8,21 @@ namespace TOHE.Roles.AddOns.Common
         private static void ChangeColor(PlayerControl pc)
         {
             int colorId = IRandom.Instance.Next(0, 18);
+
             pc.SetColor(colorId);
-            var sender = CustomRpcSender.Create(name: $"Disco.ChangeColor({pc.Data.PlayerName})");
-            sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetColor)
-                .Write(colorId)
-                .EndRpc();
-            sender.SendMessage();
+
+            try
+            {
+                pc.RpcSetColor((byte)colorId);
+            }
+            catch
+            {
+                var sender = CustomRpcSender.Create(name: $"Disco.ChangeColor({pc.Data.PlayerName})");
+                sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetColor)
+                    .Write((byte)colorId)
+                    .EndRpc();
+                sender.SendMessage();
+            }
         }
         public static void OnFixedUpdate(PlayerControl pc)
         {
