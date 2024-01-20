@@ -632,25 +632,20 @@ class CheckMurderPatch
                     if (Pursuer.CanBeClient(target) && Pursuer.CanSeel(killer.PlayerId))
                         Pursuer.SeelToClient(killer, target);
                     return false;
+                case CustomRoles.EvilDiviner:
+                    if (!EvilDiviner.OnCheckMurder(killer, target)) return false;
+                    break;
+                case CustomRoles.Ritualist:
+                    if (!Ritualist.OnCheckMurder(killer, target)) return false;
+                    break;
             }
         }
 
-        // 击杀前检查
         if (!killer.RpcCheckAndMurder(target, true))
             return false;
-        if (Merchant.OnClientMurder(killer, target)) return false;
-
 
         if (killer.Is(CustomRoles.Virus)) Virus.OnCheckMurder(killer, target);
         else if (killer.Is(CustomRoles.Spiritcaller)) Spiritcaller.OnCheckMurder(target);
-
-        // Consigliere
-        if (killer.Is(CustomRoles.EvilDiviner))
-        {
-
-            if (!EvilDiviner.OnCheckMurder(killer, target))
-                return false;
-        }
 
         if (killer.Is(CustomRoles.Unlucky))
         {
@@ -662,40 +657,11 @@ class CheckMurderPatch
             }
         }
 
-        if (killer.Is(CustomRoles.Swift) && !target.Is(CustomRoles.Pestilence))
-        {
-            if (killer.RpcCheckAndMurder(target, true))
-            {
-                target.Suicide(PlayerState.DeathReason.Kill, killer);
-                killer.SetKillCooldown();
-            }
-            RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
-            return false;
-        }
-
-        if (killer.Is(CustomRoles.Magnet))
-        {
-            target.TP(killer);
-            _ = new LateTask(() => { killer.RpcCheckAndMurder(target); }, 0.1f, log: false);
-            return false;
-        }
-
         if (killer.Is(CustomRoles.Mare))
         {
             killer.ResetKillCooldown();
         }
-        /*     if (killer.Is(CustomRoles.Minimalism))
-             {
-                 return true;
-             } */
 
-        if (killer.Is(CustomRoles.Ritualist))
-        {
-            if (!Ritualist.OnCheckMurder(killer, target))
-                return false;
-        }
-
-        // 清道夫清理尸体
         if (killer.Is(CustomRoles.Scavenger))
         {
             if (!target.Is(CustomRoles.Pestilence))
@@ -720,7 +686,7 @@ class CheckMurderPatch
             }
 
         }
-        // 肢解者肢解受害者
+        
         if (killer.Is(CustomRoles.OverKiller) && killer.PlayerId != target.PlayerId)
         {
             Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Dismembered;
@@ -738,7 +704,7 @@ class CheckMurderPatch
                 }
                 var ops = target.Pos();
                 var rd = IRandom.Instance;
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 20; i++)
                 {
                     Vector2 location = new(ops.x + ((float)(rd.Next(0, 201) - 100) / 100), ops.y + ((float)(rd.Next(0, 201) - 100) / 100));
                     location += new Vector2(0, 0.3636f);
@@ -767,11 +733,29 @@ class CheckMurderPatch
             }, 0.05f, "OverKiller Murder");
         }
 
+        if (killer.Is(CustomRoles.Swift) && !target.Is(CustomRoles.Pestilence))
+        {
+            if (killer.RpcCheckAndMurder(target, true))
+            {
+                target.Suicide(PlayerState.DeathReason.Kill, killer);
+                killer.SetKillCooldown();
+            }
+            RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
+            return false;
+        }
+
+        if (killer.Is(CustomRoles.Magnet) && !target.Is(CustomRoles.Pestilence))
+        {
+            target.TP(killer);
+            _ = new LateTask(() => { killer.RpcCheckAndMurder(target); }, 0.1f, log: false);
+            return false;
+        }
+
         if (!Main.UseVersionProtocol.Value) return true;
 
         //==Kill processing==
         __instance.Kill(target);
-        //============
+        //===================
 
         return false;
     }
@@ -807,6 +791,8 @@ class CheckMurderPatch
             if (target.Is(CustomRoles.Opportunist) && target.AllTasksCompleted())
                 return false;
         }
+
+        if (Merchant.OnClientMurder(killer, target)) return false;
 
         if (Medic.OnCheckMurder(killer, target))
             return false;

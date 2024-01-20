@@ -185,29 +185,29 @@ class GameEndChecker
                     }
                 }
 
-                //利己主义者抢夺胜利（船员）
-                if (CustomWinnerHolder.WinnerTeam == CustomWinner.Crewmate)
+                if (CustomRoles.Egoist.RoleExist())
                 {
-                    foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.GetCustomRole().IsCrewmate() && x.Is(CustomRoles.Egoist)).ToArray())
+                    if (CustomWinnerHolder.WinnerTeam == CustomWinner.Crewmate)
                     {
-                        reason = GameOverReason.ImpostorByKill;
-                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Egoist);
-                        CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                        foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.GetCustomRole().IsCrewmate() && x.Is(CustomRoles.Egoist)).ToArray())
+                        {
+                            reason = GameOverReason.ImpostorByKill;
+                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Egoist);
+                            CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                        }
+                    }
+
+                    if (CustomWinnerHolder.WinnerTeam == CustomWinner.Impostor)
+                    {
+                        foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.GetCustomRole().IsImpostor() && x.Is(CustomRoles.Egoist)).ToArray())
+                        {
+                            reason = GameOverReason.ImpostorByKill;
+                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Egoist);
+                            CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                        }
                     }
                 }
 
-                //利己主义者抢夺胜利（内鬼）
-                if (CustomWinnerHolder.WinnerTeam == CustomWinner.Impostor)
-                {
-                    foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.GetCustomRole().IsImpostor() && x.Is(CustomRoles.Egoist)).ToArray())
-                    {
-                        reason = GameOverReason.ImpostorByKill;
-                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Egoist);
-                        CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
-                    }
-                }
-
-                //神抢夺胜利
                 if (CustomRoles.God.RoleExist())
                 {
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.God);
@@ -216,10 +216,8 @@ class GameEndChecker
                         .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
                 }
 
-                //恋人抢夺胜利
                 if (CustomRoles.Lovers.RoleExist() && !reason.Equals(GameOverReason.HumansByTask) && Main.AllPlayerControls.Length >= 2 && !(!Main.LoversPlayers.All(p => p.IsAlive()) && Options.LoverSuicide.GetBool()) && CustomWinnerHolder.WinnerTeam is CustomWinner.Crewmate or CustomWinner.Impostor or CustomWinner.Jackal or CustomWinner.Pelican)
                 {
-                    /*CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Lovers);*/
                     CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Lovers);
                     Main.AllPlayerControls
                         .Where(p => p.Is(CustomRoles.Lovers))
@@ -239,7 +237,6 @@ class GameEndChecker
                     }
                 }
 
-
                 //Ruthless Romantic partner win condition
                 if (RuthlessRomantic.IsEnable && (CustomWinnerHolder.WinnerIds.Contains(RuthlessRomantic.playerIdList[0]) || (Main.PlayerStates.TryGetValue(RuthlessRomantic.playerIdList[0], out var pz) && CustomWinnerHolder.WinnerRoles.Contains(pz.MainRole))))
                 {
@@ -248,20 +245,16 @@ class GameEndChecker
                         if (Romantic.BetPlayer.TryGetValue(pc.PlayerId, out var betTarget))
                         {
                             CustomWinnerHolder.WinnerIds.Add(betTarget);
-                            if (!CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId)) CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
                         }
                     }
                 }
 
-                //补充恋人胜利名单
                 if (CustomWinnerHolder.WinnerTeam == CustomWinner.Lovers || CustomWinnerHolder.AdditionalWinnerTeams.Contains(AdditionalWinners.Lovers))
                 {
                     Main.AllPlayerControls.Where(p => p.Is(CustomRoles.Lovers) && !CustomWinnerHolder.WinnerIds.Contains(p.PlayerId))
                                           .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
                 }
 
-
-                //中立共同胜利
                 if (Options.NeutralWinTogether.GetBool() && CustomWinnerHolder.WinnerIds.Any(x => GetPlayerById(x) != null && GetPlayerById(x).GetCustomRole().IsNeutral()))
                 {
                     foreach (PlayerControl pc in Main.AllPlayerControls)
@@ -310,7 +303,7 @@ class GameEndChecker
             }
             bool canWin = CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) || CustomWinnerHolder.WinnerRoles.Contains(pc.GetCustomRole());
             bool isCrewmateWin = reason.Equals(GameOverReason.HumansByVote) || reason.Equals(GameOverReason.HumansByTask);
-            SetGhostRole(ToGhostImpostor: canWin ^ isCrewmateWin);
+            SetGhostRole(ToGhostImpostor: canWin ^ isCrewmateWin); // XOR
 
             void SetGhostRole(bool ToGhostImpostor)
             {
@@ -385,49 +378,49 @@ class GameEndChecker
 
             Dictionary<(CustomRoles? ROLE, CustomWinner WINNER), int> roleCounts = new()  // Self Note: If you're adding a new NK, you just have to add it into this dictionary and that's it
             {
-                { (null,                        CustomWinner.Jackal),             AlivePlayersCount(CountTypes.Jackal) },
-                { (CustomRoles.Pelican,         CustomWinner.Pelican),            AlivePlayersCount(CountTypes.Pelican) },
-                { (CustomRoles.Gamer,           CustomWinner.Gamer),              AlivePlayersCount(CountTypes.Gamer) },
-                { (CustomRoles.Poisoner,        CustomWinner.Poisoner),           AlivePlayersCount(CountTypes.Poisoner) },
-                { (CustomRoles.BloodKnight,     CustomWinner.BloodKnight),        AlivePlayersCount(CountTypes.BloodKnight) },
-                { (null,                        CustomWinner.Succubus),           AlivePlayersCount(CountTypes.Succubus) },
-                { (CustomRoles.HexMaster,       CustomWinner.HexMaster),          AlivePlayersCount(CountTypes.HexMaster) },
-                { (CustomRoles.Wraith,          CustomWinner.Wraith),             AlivePlayersCount(CountTypes.Wraith) },
-                { (CustomRoles.Pestilence,      CustomWinner.Pestilence),         AlivePlayersCount(CountTypes.Pestilence) },
-                { (CustomRoles.PlagueBearer,    CustomWinner.Plaguebearer),       AlivePlayersCount(CountTypes.PlagueBearer) },
-                { (CustomRoles.NSerialKiller,   CustomWinner.SerialKiller),       AlivePlayersCount(CountTypes.NSerialKiller) },
-                { (CustomRoles.Enderman,        CustomWinner.Enderman),           AlivePlayersCount(CountTypes.Enderman) },
-                { (CustomRoles.Mycologist,      CustomWinner.Mycologist),         AlivePlayersCount(CountTypes.Mycologist) },
-                { (CustomRoles.Bubble,          CustomWinner.Bubble),             AlivePlayersCount(CountTypes.Bubble) },
-                { (CustomRoles.Hookshot,        CustomWinner.Hookshot),           AlivePlayersCount(CountTypes.Hookshot) },
-                { (CustomRoles.Sprayer,         CustomWinner.Sprayer),            AlivePlayersCount(CountTypes.Sprayer) },
-                { (CustomRoles.PlagueDoctor,    CustomWinner.PlagueDoctor),       AlivePlayersCount(CountTypes.PlagueDoctor) },
-                { (CustomRoles.WeaponMaster,    CustomWinner.WeaponMaster),       AlivePlayersCount(CountTypes.WeaponMaster) },
-                { (CustomRoles.Magician,        CustomWinner.Magician),           AlivePlayersCount(CountTypes.Magician) },
-                { (CustomRoles.Reckless,        CustomWinner.Reckless),           AlivePlayersCount(CountTypes.Reckless) },
-                { (CustomRoles.Eclipse,         CustomWinner.Eclipse),            AlivePlayersCount(CountTypes.Eclipse) },
-                { (CustomRoles.Pyromaniac,      CustomWinner.Pyromaniac),         AlivePlayersCount(CountTypes.Pyromaniac) },
-                { (CustomRoles.HeadHunter,      CustomWinner.HeadHunter),         AlivePlayersCount(CountTypes.HeadHunter) },
-                { (CustomRoles.Vengeance,       CustomWinner.Vengeance),          AlivePlayersCount(CountTypes.Vengeance) },
-                { (CustomRoles.Imitator,        CustomWinner.Imitator),           AlivePlayersCount(CountTypes.Imitator) },
-                { (CustomRoles.Werewolf,        CustomWinner.Werewolf),           AlivePlayersCount(CountTypes.Werewolf) },
-                { (null,                        CustomWinner.RuthlessRomantic),   AlivePlayersCount(CountTypes.RuthlessRomantic) },
-                { (CustomRoles.Juggernaut,      CustomWinner.Juggernaut),         AlivePlayersCount(CountTypes.Juggernaut) },
-                { (null,                        CustomWinner.Infectious),         AlivePlayersCount(CountTypes.Infectious) },
-                { (null,                        CustomWinner.Virus),              AlivePlayersCount(CountTypes.Virus) },
-                { (null,                        CustomWinner.Rogue),              AlivePlayersCount(CountTypes.Rogue) },
-                { (CustomRoles.DarkHide,        CustomWinner.DarkHide),           AlivePlayersCount(CountTypes.DarkHide) },
-                { (CustomRoles.Jinx,            CustomWinner.Jinx),               AlivePlayersCount(CountTypes.Jinx) },
-                { (CustomRoles.Ritualist,       CustomWinner.Ritualist),          AlivePlayersCount(CountTypes.Ritualist) },
-                { (CustomRoles.Pickpocket,      CustomWinner.Pickpocket),         AlivePlayersCount(CountTypes.Pickpocket) },
-                { (CustomRoles.Traitor,         CustomWinner.Traitor),            AlivePlayersCount(CountTypes.Traitor) },
-                { (CustomRoles.Medusa,          CustomWinner.Medusa),             AlivePlayersCount(CountTypes.Medusa) },
-                { (null,                        CustomWinner.Spiritcaller),       AlivePlayersCount(CountTypes.Spiritcaller) },
-                { (CustomRoles.Glitch,          CustomWinner.Glitch),             AlivePlayersCount(CountTypes.Glitch) },
-                { (CustomRoles.Arsonist,        CustomWinner.Arsonist),           AlivePlayersCount(CountTypes.Arsonist) },
-                { (CustomRoles.Bandit,          CustomWinner.Bandit),             AlivePlayersCount(CountTypes.Bandit) },
-                { (CustomRoles.Doppelganger,    CustomWinner.Doppelganger),       AlivePlayersCount(CountTypes.Doppelganger) },
-                { (CustomRoles.Agitater,        CustomWinner.Agitater),           AlivePlayersCount(CountTypes.Agitater) },
+                { (null,                         CustomWinner.Jackal),             AlivePlayersCount(CountTypes.Jackal) },
+                { (CustomRoles.Pelican,          CustomWinner.Pelican),            AlivePlayersCount(CountTypes.Pelican) },
+                { (CustomRoles.Gamer,            CustomWinner.Gamer),              AlivePlayersCount(CountTypes.Gamer) },
+                { (CustomRoles.Poisoner,         CustomWinner.Poisoner),           AlivePlayersCount(CountTypes.Poisoner) },
+                { (CustomRoles.BloodKnight,      CustomWinner.BloodKnight),        AlivePlayersCount(CountTypes.BloodKnight) },
+                { (null,                         CustomWinner.Succubus),           AlivePlayersCount(CountTypes.Succubus) },
+                { (CustomRoles.HexMaster,        CustomWinner.HexMaster),          AlivePlayersCount(CountTypes.HexMaster) },
+                { (CustomRoles.Wraith,           CustomWinner.Wraith),             AlivePlayersCount(CountTypes.Wraith) },
+                { (CustomRoles.Pestilence,       CustomWinner.Pestilence),         AlivePlayersCount(CountTypes.Pestilence) },
+                { (CustomRoles.PlagueBearer,     CustomWinner.Plaguebearer),       AlivePlayersCount(CountTypes.PlagueBearer) },
+                { (CustomRoles.NSerialKiller,    CustomWinner.SerialKiller),       AlivePlayersCount(CountTypes.NSerialKiller) },
+                { (CustomRoles.Enderman,         CustomWinner.Enderman),           AlivePlayersCount(CountTypes.Enderman) },
+                { (CustomRoles.Mycologist,       CustomWinner.Mycologist),         AlivePlayersCount(CountTypes.Mycologist) },
+                { (CustomRoles.Bubble,           CustomWinner.Bubble),             AlivePlayersCount(CountTypes.Bubble) },
+                { (CustomRoles.Hookshot,         CustomWinner.Hookshot),           AlivePlayersCount(CountTypes.Hookshot) },
+                { (CustomRoles.Sprayer,          CustomWinner.Sprayer),            AlivePlayersCount(CountTypes.Sprayer) },
+                { (CustomRoles.PlagueDoctor,     CustomWinner.PlagueDoctor),       AlivePlayersCount(CountTypes.PlagueDoctor) },
+                { (CustomRoles.WeaponMaster,     CustomWinner.WeaponMaster),       AlivePlayersCount(CountTypes.WeaponMaster) },
+                { (CustomRoles.Magician,         CustomWinner.Magician),           AlivePlayersCount(CountTypes.Magician) },
+                { (CustomRoles.Reckless,         CustomWinner.Reckless),           AlivePlayersCount(CountTypes.Reckless) },
+                { (CustomRoles.Eclipse,          CustomWinner.Eclipse),            AlivePlayersCount(CountTypes.Eclipse) },
+                { (CustomRoles.Pyromaniac,       CustomWinner.Pyromaniac),         AlivePlayersCount(CountTypes.Pyromaniac) },
+                { (CustomRoles.HeadHunter,       CustomWinner.HeadHunter),         AlivePlayersCount(CountTypes.HeadHunter) },
+                { (CustomRoles.Vengeance,        CustomWinner.Vengeance),          AlivePlayersCount(CountTypes.Vengeance) },
+                { (CustomRoles.Imitator,         CustomWinner.Imitator),           AlivePlayersCount(CountTypes.Imitator) },
+                { (CustomRoles.Werewolf,         CustomWinner.Werewolf),           AlivePlayersCount(CountTypes.Werewolf) },
+                { (CustomRoles.RuthlessRomantic, CustomWinner.RuthlessRomantic),   AlivePlayersCount(CountTypes.RuthlessRomantic) },
+                { (CustomRoles.Juggernaut,       CustomWinner.Juggernaut),         AlivePlayersCount(CountTypes.Juggernaut) },
+                { (null,                         CustomWinner.Infectious),         AlivePlayersCount(CountTypes.Infectious) },
+                { (null,                         CustomWinner.Virus),              AlivePlayersCount(CountTypes.Virus) },
+                { (null,                         CustomWinner.Rogue),              AlivePlayersCount(CountTypes.Rogue) },
+                { (CustomRoles.DarkHide,         CustomWinner.DarkHide),           AlivePlayersCount(CountTypes.DarkHide) },
+                { (CustomRoles.Jinx,             CustomWinner.Jinx),               AlivePlayersCount(CountTypes.Jinx) },
+                { (CustomRoles.Ritualist,        CustomWinner.Ritualist),          AlivePlayersCount(CountTypes.Ritualist) },
+                { (CustomRoles.Pickpocket,       CustomWinner.Pickpocket),         AlivePlayersCount(CountTypes.Pickpocket) },
+                { (CustomRoles.Traitor,          CustomWinner.Traitor),            AlivePlayersCount(CountTypes.Traitor) },
+                { (CustomRoles.Medusa,           CustomWinner.Medusa),             AlivePlayersCount(CountTypes.Medusa) },
+                { (null,                         CustomWinner.Spiritcaller),       AlivePlayersCount(CountTypes.Spiritcaller) },
+                { (CustomRoles.Glitch,           CustomWinner.Glitch),             AlivePlayersCount(CountTypes.Glitch) },
+                { (CustomRoles.Arsonist,         CustomWinner.Arsonist),           AlivePlayersCount(CountTypes.Arsonist) },
+                { (CustomRoles.Bandit,           CustomWinner.Bandit),             AlivePlayersCount(CountTypes.Bandit) },
+                { (CustomRoles.Doppelganger,     CustomWinner.Doppelganger),       AlivePlayersCount(CountTypes.Doppelganger) },
+                { (CustomRoles.Agitater,         CustomWinner.Agitater),           AlivePlayersCount(CountTypes.Agitater) },
             };
 
             foreach (PlayerControl x in Main.AllAlivePlayerControls)

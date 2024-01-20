@@ -120,6 +120,14 @@ class SetEverythingUpPatch
             // ---------- Code from TOR (The Other Roles)! ----------
             if (Options.CurrentGameMode is not CustomGameMode.Standard) goto End;
             int num = Mathf.CeilToInt(7.5f);
+
+            GameOverReason reason = EndGamePatch.LastGameOverReason;
+            bool isCrewWin = reason.Equals(GameOverReason.HumansByVote) || reason.Equals(GameOverReason.HumansByTask);
+
+            byte RRTarget = byte.MaxValue;
+            bool isRRSwap = Main.winnerRolesList.Contains(CustomRoles.RuthlessRomantic);
+            if (isRRSwap) RRTarget = Romantic.BetPlayer.Values.First();
+
             List<WinningPlayerData> winningPlayerDataList = TempData.winners.ToArray().ToList();
             for (int i = 0; i < winningPlayerDataList.Count; i++)
             {
@@ -145,8 +153,6 @@ class SetEverythingUpPatch
                     poolablePlayer.SetFlipX(i % 2 == 0);
                 }
 
-                GameOverReason reason = EndGamePatch.LastGameOverReason;
-                bool isCrewWin = reason.Equals(GameOverReason.HumansByVote) || reason.Equals(GameOverReason.HumansByTask);
                 bool lowered = isCrewWin && (i is 1 or 2 or 5 or 6 or 9 or 10 or 13 or 14);
 
                 poolablePlayer.cosmetics.nameText.color = Color.white;
@@ -160,6 +166,13 @@ class SetEverythingUpPatch
                     byte id = Main.winnerList[i1];
                     if (Main.winnerNameList[i1].RemoveHtmlTags() != winningPlayerData2?.PlayerName.RemoveHtmlTags()) continue;
                     var role = Main.PlayerStates[id].MainRole;
+
+                    if (isRRSwap && RRTarget != byte.MaxValue)
+                    {
+                        if (role == CustomRoles.RuthlessRomantic) role = Main.winnerRolesList[RRTarget];
+                        if (role == Main.winnerRolesList[RRTarget]) role = CustomRoles.RuthlessRomantic;
+                    }
+
                     var color = Main.roleColors[role];
                     var rolename = Utils.GetRoleName(role);
                     poolablePlayer.cosmetics.nameText.text += $"\n<color={color}>{rolename}</color>";

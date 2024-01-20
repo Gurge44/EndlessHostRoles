@@ -594,7 +594,7 @@ class HudManagerPatch
                     __instance.KillButton?.ToggleVisible(false);
                 }
 
-                bool CanUseVent = (player.CanUseImpostorVentButton() || player.inVent || player.MyPhysics.Animations.IsPlayingEnterVentAnimation()) && GameStates.IsInTask;
+                bool CanUseVent = (player.CanUseImpostorVentButton() || player.inVent) && GameStates.IsInTask && !player.MyPhysics.Animations.IsPlayingEnterVentAnimation();
                 __instance.ImpostorVentButton?.ToggleVisible(CanUseVent);
                 player.Data.Role.CanVent = CanUseVent;
 
@@ -667,8 +667,8 @@ class ToggleHighlightPatch
 {
     public static void Postfix(PlayerControl __instance /*[HarmonyArgument(0)] bool active,*/ /*[HarmonyArgument(1)] RoleTeamTypes team*/)
     {
-        var player = PlayerControl.LocalPlayer;
         if (!GameStates.IsInTask) return;
+        var player = PlayerControl.LocalPlayer;
 
         if (player.CanUseKillButton())
         {
@@ -792,25 +792,26 @@ class VentButtonDoClickPatch
     public static bool Prefix(VentButton __instance)
     {
         var pc = PlayerControl.LocalPlayer;
+        if (pc.MyPhysics.Animations.IsPlayingEnterVentAnimation()) return false;
+
+        if (pc.inVent)
         {
-            if (pc.inVent)
-            {
-                pc.MyPhysics.RpcExitVent(TryMoveToVentPatch.HostVentTarget.Id);
-                TryMoveToVentPatch.HostVentTarget.SetButtons(false);
-                return true;
-            }
-            if (pc.inVent || !pc.CanMove) return true;
-            var vents = Object.FindObjectsOfType<Vent>().ToArray();
-            if (vents.Any(vent => Vector2.Distance(new Vector2(vent.transform.position.x, vent.transform.position.y + 0.3636f), pc.Pos()) < 0.4f))
-            {
-                Vent vent = vents.FirstOrDefault(vent => Vector2.Distance(new Vector2(vent.transform.position.x, vent.transform.position.y + 0.3636f), pc.Pos()) < 0.4f);
-                pc.MyPhysics.RpcEnterVent(vent.Id);
-                vent.SetButtons(true);
-                return false;
-            }
-            pc?.MyPhysics?.RpcEnterVent(__instance.currentTarget.Id);
+            pc.MyPhysics.RpcExitVent(TryMoveToVentPatch.HostVentTarget.Id);
+            TryMoveToVentPatch.HostVentTarget.SetButtons(false);
+            return true;
+        }
+        if (pc.inVent || !pc.CanMove) return true;
+        var vents = Object.FindObjectsOfType<Vent>().ToArray();
+        if (vents.Any(vent => Vector2.Distance(new Vector2(vent.transform.position.x, vent.transform.position.y + 0.3636f), pc.Pos()) < 0.4f))
+        {
+            Vent vent = vents.FirstOrDefault(vent => Vector2.Distance(new Vector2(vent.transform.position.x, vent.transform.position.y + 0.3636f), pc.Pos()) < 0.4f);
+            pc.MyPhysics.RpcEnterVent(vent.Id);
+            vent.SetButtons(true);
             return false;
         }
+        pc?.MyPhysics?.RpcEnterVent(__instance.currentTarget.Id);
+        return false;
+
     }
 }
 [HarmonyPatch(typeof(MapBehaviour), nameof(MapBehaviour.Show))]
@@ -841,7 +842,6 @@ class MapBehaviourShowPatch
 [HarmonyPatch(typeof(TaskPanelBehaviour), nameof(TaskPanelBehaviour.SetTaskText))]
 class TaskPanelBehaviourPatch
 {
-    // タスク表示の文章が更新・適用された後に実行される
     public static void Postfix(TaskPanelBehaviour __instance)
     {
         if (!GameStates.IsModHost) return;
@@ -850,7 +850,6 @@ class TaskPanelBehaviourPatch
         var taskText = __instance.taskText.text;
         if (taskText == "None") return;
 
-        // 役職説明表示
         if (!player.GetCustomRole().IsVanilla())
         {
             var RoleWithInfo = $"<size=80%>{player.GetDisplayRoleName()}:\r\n{player.GetRoleInfo()}</size>";
@@ -978,7 +977,6 @@ class TaskPanelBehaviourPatch
             __instance.taskText.text = AllText;
         }
 
-        // RepairSenderの表示
         if (RepairSender.enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
             __instance.taskText.text = RepairSender.GetText();
     }
@@ -996,13 +994,11 @@ class RepairSender
     {
         if (!TypingAmount)
         {
-            //SystemType入力中
             SystemType *= 10;
             SystemType += num;
         }
         else
         {
-            //Amount入力中
             amount *= 10;
             amount += num;
         }
@@ -1011,12 +1007,10 @@ class RepairSender
     {
         if (!TypingAmount)
         {
-            //SystemType入力中
             TypingAmount = true;
         }
         else
         {
-            //Amount入力中
             Send();
         }
     }

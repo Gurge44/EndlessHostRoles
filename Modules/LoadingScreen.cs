@@ -31,7 +31,7 @@ namespace TOHE.Modules
         {
             try
             {
-                bool visible = AmongUsClient.Instance.IsGameStarted && !GameStates.IsCanMove && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening;
+                bool visible = AmongUsClient.Instance.IsGameStarted && !GameStates.IsCanMove && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening && !PlayerControl.LocalPlayer.inVent && !PlayerControl.LocalPlayer.MyPhysics.Animations.IsPlayingSomeAnimation();
 
                 if (LoadingAnimation == null && visible)
                 {

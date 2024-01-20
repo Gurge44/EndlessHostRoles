@@ -87,15 +87,12 @@ public static class Romantic
         if (Target != byte.MaxValue)
             BetPlayer.Add(PlayerId, Target);
     }
-    public static bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead;
     public static void SetKillCooldown(byte id)
     {
-        if (BetTimes.TryGetValue(id, out var times) && times < 1)
-        {
-            Main.AllPlayerKillCooldown[id] = ProtectCooldown.GetFloat();
-            return;
-        }
+        float beforeCD = Main.AllPlayerKillCooldown.TryGetValue(id, out var kcd) ? kcd : 0f;
+        if (BetTimes.TryGetValue(id, out var times) && times < 1) Main.AllPlayerKillCooldown[id] = ProtectCooldown.GetFloat();
         else Main.AllPlayerKillCooldown[id] = BetCooldown.GetFloat();
+        if (beforeCD != Main.AllPlayerKillCooldown[id]) Utils.GetPlayerById(id)?.SyncSettings();
         //float cd = BetCooldown.GetFloat();
         //cd += Main.AllPlayerControls.Count(x => !x.IsAlive()) * BetCooldownIncrese.GetFloat();
         //cd = Math.Min(cd, MaxBetCooldown.GetFloat());
@@ -136,7 +133,7 @@ public static class Romantic
         }
         else
         {
-            if (BetPlayer.TryGetValue(killer.PlayerId, out var originalTarget))
+            if (!isPartnerProtected && BetPlayer.TryGetValue(killer.PlayerId, out var originalTarget))
             {
                 var tpc = Utils.GetPlayerById(originalTarget);
                 isPartnerProtected = true;
@@ -174,7 +171,7 @@ public static class Romantic
     {
         var player = Utils.GetPlayerById(playerId);
         if (player == null) return null;
-        return Utils.ColorString(BetTimes.TryGetValue(playerId, out var timesV1) && timesV1 >= 1 ? Color.white : Utils.GetRoleColor(CustomRoles.Romantic), $"<color=#777777>-</color> {(BetTimes.TryGetValue(playerId, out var timesV2) && timesV2 >= 1 && timesV2 >= 1 ? "PICK PARTNER" : "♥")}");
+        return Utils.ColorString(BetTimes.TryGetValue(playerId, out var timesV1) && timesV1 >= 1 ? Color.white : Utils.GetRoleColor(CustomRoles.Romantic), $"{(BetTimes.TryGetValue(playerId, out var timesV2) && timesV2 >= 1 && timesV2 >= 1 ? "PICK PARTNER" : "♥")}");
     }
     public static void OnReportDeadBody()
     {
@@ -184,6 +181,7 @@ public static class Romantic
     {
         var partner = Utils.GetPlayerById(playerId);
         if (partner == null) return;
+        var partnerRole = partner.GetCustomRole();
 
         byte romanticId = BetPlayer.First(x => x.Value == playerId).Key;
         var romantic = Utils.GetPlayerById(romanticId);
@@ -198,22 +196,37 @@ public static class Romantic
             romantic.Suicide(PlayerState.DeathReason.FollowingSuicide, partner);
             return;
         }
-        else if (partner.IsNeutralKiller() || killer == null || killer?.PlayerId == romanticId) // If partner is NK or died by themselves, Romantic becomes Ruthless Romantic
+        else if (partnerRole.IsNonNK() || killer == null) // If partner is NNK or died by themselves, Romantic becomes Ruthless Romantic
         {
             Logger.Info($"NK Romantic Partner Died / Partner killer is null => changing {romantic.GetNameWithRole().RemoveHtmlTags()} to Ruthless Romantic", "Romantic");
             romantic.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
             RuthlessRomantic.Add(romanticId);
         }
+        else if (partner.HasKillButton() || partnerRole.IsNK() || partnerRole.IsCK()) // If partner has a kill button (NK or CK), Romantic becomes the role they were
+        {
+            try
+            {
+                romantic.RpcSetCustomRole(partnerRole);
+                Utils.AddRoles(romantic.PlayerId, partnerRole);
+                Logger.Info($"Romantic Partner With Kill Button Died => changing {romantic.GetNameWithRole()} to {partner.GetAllRoleName().RemoveHtmlTags()}", "Romantic");
+            }
+            catch
+            {
+                Logger.Error($"Romantic Partner With Kill Button Died => changing {romantic.GetNameWithRole()} to {partner.GetAllRoleName().RemoveHtmlTags()} : FAILED ----> changing to Ruthless Romantic instead", "Romantic");
+                romantic.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
+                RuthlessRomantic.Add(romanticId);
+            }
+        }
         else if (partner.Is(Team.Impostor)) // If partner is Imp, Romantic joins imp team as Refugee
         {
-            Logger.Info($"Impostor Romantic Partner Died => changing {romantic.GetNameWithRole().RemoveHtmlTags()} to Refugee", "Romantic");
+            Logger.Info($"Impostor Romantic Partner Died => changing {romantic.GetNameWithRole()} to Refugee", "Romantic");
             romantic.RpcSetCustomRole(CustomRoles.Refugee);
         }
         else // In every other scenario, Romantic becomes Vengeful Romantic and must kill the killer of their partner
         {
             _ = new LateTask(() =>
             {
-                Logger.Info($"Crew/NNK Romantic Partner Died => changing {romantic.GetNameWithRole().RemoveHtmlTags()} to Vengeful Romantic", "Romantic");
+                Logger.Info($"Crew/NNK Romantic Partner Died => changing {romantic.GetNameWithRole()} to Vengeful Romantic", "Romantic");
 
                 VengefulRomantic.Add(romanticId, killer.PlayerId);
                 VengefulRomantic.SendRPC(romanticId);
@@ -276,7 +289,7 @@ public static class VengefulRomantic
     {
         var player = Utils.GetPlayerById(playerId);
         if (player == null) return null;
-        return Utils.ColorString(hasKilledKiller ? Color.green : Utils.GetRoleColor(CustomRoles.VengefulRomantic), $"<color=#777777>-</color> {(hasKilledKiller ? "✓" : "☹️")}");
+        return Utils.ColorString(hasKilledKiller ? Color.green : Utils.GetRoleColor(CustomRoles.VengefulRomantic), $"{(hasKilledKiller ? "✓" : "☹️")}");
     }
     public static void SendRPC(byte playerId)
     {

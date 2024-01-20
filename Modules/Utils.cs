@@ -605,6 +605,8 @@ public static class Utils
 
         if (CopyCat.playerIdList.Contains(p.PlayerId) && ForRecompute && (!Options.UsePets.GetBool() || CopyCat.UsePet.GetBool())) hasTasks = false;
 
+        if (!hasTasks && role.UsesPetInsteadOfKill()) hasTasks = true;
+
         return hasTasks;
     }
 
