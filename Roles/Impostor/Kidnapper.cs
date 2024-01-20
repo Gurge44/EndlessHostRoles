@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+﻿using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor
 {

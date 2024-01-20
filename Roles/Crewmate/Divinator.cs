@@ -118,7 +118,7 @@ public static class Divinator
             string roles = string.Join(", ", AllPlayerRoleList[target.PlayerId].Select(x => GetString(x.ToString())));
             msg = string.Format(GetString("DivinatorCheckResult"), target.GetRealName(), roles);
         }
-        
+
         Utils.SendMessage(GetString("DivinatorCheck") + "\n" + msg + "\n\n" + string.Format(GetString("DivinatorCheckLimit"), CheckLimit[player.PlayerId]), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Divinator), GetString("DivinatorCheckMsgTitle")));
 
         Main.DontCancelVoteList.Add(player.PlayerId);

@@ -393,7 +393,7 @@ internal class SelectRolesPatch
     public static void Prefix()
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        
+
         try
         {
             // Initializing CustomRpcSender and RpcSetRoleReplacer

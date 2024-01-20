@@ -1,10 +1,8 @@
 ﻿using AmongUs.GameOptions;
 using HarmonyLib;
-using MonoMod.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using TOHE.Roles.Neutral;
 
 namespace TOHE.Modules;

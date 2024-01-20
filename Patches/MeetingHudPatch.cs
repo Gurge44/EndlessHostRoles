@@ -493,7 +493,7 @@ class CheckForEndVotingPatch
                 case (0, 0): // Crewmates win
                     name += GetString("GG");
                     break;
-                case (> 0, > 0): // Both imps and neutrals remain
+                case ( > 0, > 0): // Both imps and neutrals remain
                     name += impnum switch
                     {
                         1 => $"1 <color=#ff1919>{GetString("RemainingText.ImpSingle")}</color> <color=#777777>&</color> ",
@@ -504,7 +504,7 @@ class CheckForEndVotingPatch
                     if (neutralnum == 1) name += $"1 <color=#ffab1b>{GetString("RemainingText.NKSingle")}</color> <color=#777777>{GetString("RemainingText.EjectionSuffix.NKSingle")}</color>";
                     else name += $"{neutralnum} <color=#ffab1b>{GetString("RemainingText.NKPlural")}</color> <color=#777777>{GetString("RemainingText.EjectionSuffix.NKPlural")}</color>";
                     break;
-                case (> 0, 0): // Only imps remain
+                case ( > 0, 0): // Only imps remain
                     name += impnum switch
                     {
                         1 => GetString("OneImpRemain"),

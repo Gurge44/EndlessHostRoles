@@ -686,7 +686,7 @@ class CheckMurderPatch
             }
 
         }
-        
+
         if (killer.Is(CustomRoles.OverKiller) && killer.PlayerId != target.PlayerId)
         {
             Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Dismembered;

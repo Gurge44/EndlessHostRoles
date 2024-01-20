@@ -1,12 +1,7 @@
-﻿using Epic.OnlineServices;
-using Hazel;
-using System;
+﻿using Hazel;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static TOHE.Options;
-using static TOHE.Translator;
 using static TOHE.Utils;
 
 namespace TOHE.Roles.Impostor

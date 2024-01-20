@@ -48,7 +48,7 @@ class EndGamePatch
             }
             SummaryText[id] = Utils.SummaryTexts(id, disableColor: false);
         }
-        
+
         var sb = new StringBuilder(GetString("KillLog") + ":");
         foreach (var kvp in Main.PlayerStates.OrderBy(x => x.Value.RealKiller.TIMESTAMP.Ticks))
         {
