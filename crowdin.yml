@@ -1,0 +1,5 @@
+bundles:
+  - 2
+files:
+  - source: '**/Lang/en_US.json'
+    translation: /Resources/Lang/%locale_with_underscore%.json
