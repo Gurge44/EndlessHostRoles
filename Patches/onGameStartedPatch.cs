@@ -236,6 +236,7 @@ internal class ChangeRoleSettings
             Benefactor.Init();
             Aid.Init();
             DonutDelivery.Init();
+            Rabbit.Init();
             Gaulois.Init();
             Analyzer.Init();
             Escort.Init();

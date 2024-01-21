@@ -14,13 +14,14 @@ internal class PingTrackerUpdatePatch
 {
     private static readonly StringBuilder sb = new();
     private static long LastUpdate = 0;
+    private static int Delay => GameStates.IsInTask ? 8 : 1;
     private static void Postfix(PingTracker __instance)
     {
         __instance.text.alignment = TextAlignmentOptions.TopRight;
         __instance.text.text = sb.ToString();
 
         long now = Utils.GetTimeStamp();
-        if (now + 1 <= LastUpdate) return; // Only update every 2 seconds
+        if (now + Delay <= LastUpdate) return; // Only update every 2 seconds
         LastUpdate = now;
 
         sb.Clear();

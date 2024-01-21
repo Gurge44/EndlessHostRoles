@@ -549,6 +549,9 @@ public class TaskState
                             }
                         }
                         break;
+                    case CustomRoles.Rabbit:
+                        Rabbit.OnTaskComplete(player);
+                        break;
                 }
             }
 

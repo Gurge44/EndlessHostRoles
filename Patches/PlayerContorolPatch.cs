@@ -789,7 +789,7 @@ class CheckMurderPatch
             if (target.Is(CustomRoles.Opportunist) && target.AllTasksCompleted())
                 return false;
         }
-        
+
         if (Merchant.OnClientMurder(killer, target)) return false;
 
         if (Medic.OnCheckMurder(killer, target))
@@ -3020,6 +3020,9 @@ class FixedUpdatePatch
                             break;
                         case CustomRoles.Tornado when !seer.IsModClient():
                             Suffix.Append(Tornado.GetSuffixText(seer.PlayerId));
+                            break;
+                        case CustomRoles.Rabbit:
+                            Suffix.Append(Rabbit.GetSuffix(seer));
                             break;
                     }
                 }

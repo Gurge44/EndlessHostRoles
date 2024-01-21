@@ -32,7 +32,7 @@ class HudManagerPatch
         if (!GameStates.IsModHost) return;
         var player = PlayerControl.LocalPlayer;
         if (player == null) return;
-        
+
         if (Input.GetKeyDown(KeyCode.LeftControl))
         {
             if ((!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame) && player.CanMove)
@@ -40,7 +40,7 @@ class HudManagerPatch
                 player.Collider.offset = new Vector2(0f, 127f);
             }
         }
-        
+
         if (player.Collider.offset.y == 127f)
         {
             if (!Input.GetKey(KeyCode.LeftControl) || (AmongUsClient.Instance.IsGameStarted && GameStates.IsOnlineGame))

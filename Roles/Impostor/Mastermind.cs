@@ -70,7 +70,7 @@ namespace TOHE.Roles.Impostor
 
         public static void OnFixedUpdate()
         {
-            if (!IsEnable || GameStates.IsMeeting || ManipulatedPlayers.Count == 0 && ManipulateDelays.Count == 0) return;
+            if (!IsEnable || GameStates.IsMeeting || (ManipulatedPlayers.Count == 0 && ManipulateDelays.Count == 0)) return;
 
             foreach (var x in ManipulateDelays)
             {

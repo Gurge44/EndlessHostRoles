@@ -1541,6 +1541,8 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Demolitionist]);
         RoleLoadingText = "Crewmate roles\nTask Manager";
         SetupRoleOptions(5575, TabGroup.CrewmateRoles, CustomRoles.TaskManager);
+        RoleLoadingText = "Crewmate roles\nRabbit";
+        Rabbit.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nShiftguard";
         SetupRoleOptions(5594, TabGroup.CrewmateRoles, CustomRoles.Shiftguard);
         RoleLoadingText = "Crewmate roles\nMole";
@@ -2477,7 +2479,7 @@ public static class Options
         FarseerCanBeMadmate = BooleanOptionItem.Create(15816, "FarseerCanBeMadmate", false, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Madmate]);
         //RetributionistCanBeMadmate = BooleanOptionItem.Create(15817, "RetributionistCanBeMadmate", false, TabGroup.Addons, false)
-            //.SetParent(CustomRoleSpawnChances[CustomRoles.Madmate]);
+        //.SetParent(CustomRoleSpawnChances[CustomRoles.Madmate]);
         SnitchCanBeMadmate = BooleanOptionItem.Create(15818, "SnitchCanBeMadmate", false, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Madmate]);
         MadSnitchTasks = IntegerOptionItem.Create(15819, "MadSnitchTasks", new(0, 90, 1), 3, TabGroup.Addons, false)

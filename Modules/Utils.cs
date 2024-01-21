@@ -2005,6 +2005,9 @@ public static class Utils
                         case CustomRoles.SuperStar when Options.EveryOneKnowSuperStar.GetBool():
                             SelfMark.Append(ColorString(GetRoleColor(CustomRoles.SuperStar), "★"));
                             break;
+                        case CustomRoles.Rabbit:
+                            SelfSuffix.Append(Rabbit.GetSuffix(seer));
+                            break;
                         case CustomRoles.BountyHunter:
                             SelfSuffix.Append(BountyHunter.GetTargetText(seer, false));
                             SelfSuffix.Append(BountyHunter.GetTargetArrow(seer));
@@ -2704,6 +2707,9 @@ public static class Utils
                 break;
             case CustomRoles.DonutDelivery:
                 DonutDelivery.Add(id);
+                break;
+            case CustomRoles.Rabbit:
+                Rabbit.Add(id);
                 break;
             case CustomRoles.Gaulois:
                 Gaulois.Add(id);

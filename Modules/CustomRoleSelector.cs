@@ -603,7 +603,7 @@ internal class CustomRoleSelector
         {
             object cr = list[i];
             CustomRoles role = (CustomRoles)Enum.Parse(typeof(CustomRoles), cr.ToString());
-            if (!role.IsAdditionRole() || !Main.UseVersionProtocol.Value && !role.IsAbleToHostPublic()) continue;
+            if (!role.IsAdditionRole() || (!Main.UseVersionProtocol.Value && !role.IsAbleToHostPublic())) continue;
             switch (role)
             {
                 case CustomRoles.Mare when (MapNames)Main.NormalOptions.MapId == MapNames.Fungle:

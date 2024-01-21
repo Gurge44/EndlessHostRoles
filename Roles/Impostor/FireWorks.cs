@@ -85,10 +85,10 @@ public static class FireWorks
     public static bool CanUseKillButton(PlayerControl pc)
     {
         if (pc == null || pc.Data.IsDead) return false;
-        
+
         try
         {
-            return CanKill.GetBool() || state.TryGetValue(pc.PlayerId, out var fwState) && (fwState & FireWorksState.CanUseKill) != 0;
+            return CanKill.GetBool() || (state.TryGetValue(pc.PlayerId, out var fwState) && (fwState & FireWorksState.CanUseKill) != 0);
         }
         catch
         {

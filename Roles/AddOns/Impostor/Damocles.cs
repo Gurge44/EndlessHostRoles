@@ -56,7 +56,7 @@ namespace TOHE.Roles.AddOns.Impostor
         public static void Update(PlayerControl pc)
         {
             byte id = pc.PlayerId;
-            if (lastUpdate.TryGetValue(id, out var ts) && ts >= GetTimeStamp() || !GameStates.IsInTask || pc == null) return;
+            if ((lastUpdate.TryGetValue(id, out var ts) && ts >= GetTimeStamp()) || !GameStates.IsInTask || pc == null) return;
             if (!pc.IsAlive())
             {
                 Main.PlayerStates[id].RemoveSubRole(CustomRoles.Damocles);

@@ -1,5 +1,4 @@
 using Hazel;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using static TOHE.Options;
@@ -49,7 +48,7 @@ public static class Divinator
         playerIdList.Add(playerId);
         CheckLimit.TryAdd(playerId, CheckLimitOpt.GetInt());
 
-        List<CustomRoles> AllRoles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().ToList();
+        List<CustomRoles> AllRoles = [.. EnumHelper.GetAllValues<CustomRoles>()];
         var r = IRandom.Instance;
 
         foreach (var pc in Main.AllAlivePlayerControls)

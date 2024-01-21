@@ -103,7 +103,7 @@ namespace TOHE.Roles.AddOns.Crewmate
 
         public static void Update(PlayerControl pc)
         {
-            if (!LastUpdates.TryGetValue(pc.PlayerId, out var x) || x >= GetTimeStamp() || !Timers.ContainsKey(pc.PlayerId) || !IsEnable || !GameStates.IsInTask || !pc.Is(CustomRoles.Stressed)) return;
+            if (pc == null || !LastUpdates.TryGetValue(pc.PlayerId, out var x) || x >= GetTimeStamp() || !Timers.ContainsKey(pc.PlayerId) || !IsEnable || !GameStates.IsInTask || !pc.Is(CustomRoles.Stressed)) return;
             LastUpdates[pc.PlayerId] = GetTimeStamp();
 
             if (pc.GetPlayerTaskState().IsTaskFinished || !pc.IsAlive())
@@ -111,6 +111,7 @@ namespace TOHE.Roles.AddOns.Crewmate
                 Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Stressed);
                 Timers.Remove(pc.PlayerId);
                 LastUpdates.Remove(pc.PlayerId);
+                return;
             }
 
             Timers[pc.PlayerId]--;
