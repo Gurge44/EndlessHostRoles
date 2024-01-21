@@ -20,7 +20,7 @@ internal class PingTrackerUpdatePatch
         __instance.text.text = sb.ToString();
 
         long now = Utils.GetTimeStamp();
-        if (now + 1 >= LastUpdate) return; // Only update every 2 seconds
+        if (now + 1 <= LastUpdate) return; // Only update every 2 seconds
         LastUpdate = now;
 
         sb.Clear();

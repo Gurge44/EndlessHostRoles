@@ -3706,10 +3706,10 @@ class PlayerControlCompleteTaskPatch
             return false;
 
         // Tasks from Capitalist
-        if (Main.CapitalismAddTask.ContainsKey(player.PlayerId))
+        if (Main.CapitalismAddTask.TryGetValue(player.PlayerId, out var amount))
         {
             var taskState = player.GetPlayerTaskState();
-            taskState.AllTasksCount += Main.CapitalismAddTask[player.PlayerId];
+            taskState.AllTasksCount += amount;
             Main.CapitalismAddTask.Remove(player.PlayerId);
             taskState.CompletedTasksCount++;
             GameData.Instance.RpcSetTasks(player.PlayerId, Array.Empty<byte>()); // Redistribute tasks
