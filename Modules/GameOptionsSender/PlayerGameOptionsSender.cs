@@ -659,6 +659,10 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     AURoleOptions.ShapeshifterCooldown = Kidnapper.SSCD.GetFloat();
                     AURoleOptions.ShapeshifterDuration = 1f;
                     break;
+                case CustomRoles.Swapster:
+                    AURoleOptions.ShapeshifterCooldown = Swapster.SSCD.GetFloat();
+                    AURoleOptions.ShapeshifterDuration = 1f;
+                    break;
                 case CustomRoles.Spiritcaller:
                     opt.SetVision(Spiritcaller.ImpostorVision.GetBool());
                     break;

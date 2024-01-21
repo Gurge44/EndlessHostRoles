@@ -941,7 +941,7 @@ public static class Options
     public static OptionItem SnitchCanBeMadmate;
     public static OptionItem JudgeCanBeMadmate;
     public static OptionItem MarshallCanBeMadmate;
-    public static OptionItem RetributionistCanBeMadmate;
+    //public static OptionItem RetributionistCanBeMadmate;
     public static OptionItem FarseerCanBeMadmate;
     public static OptionItem MadSnitchTasks;
     public static OptionItem FlashmanSpeed;
@@ -1241,6 +1241,8 @@ public static class Options
         Kamikaze.SetupCustomOption();
         RoleLoadingText = "Impostor roles\nKidnapper";
         Kidnapper.SetupCustomOption();
+        RoleLoadingText = "Impostor roles\nSwapster";
+        Swapster.SetupCustomOption();
         RoleLoadingText = "Impostor roles\nLibrarian";
         Librarian.SetupCustomOption();
         RoleLoadingText = "Impostor roles\nCantankerous";
@@ -2474,8 +2476,8 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Madmate]);
         FarseerCanBeMadmate = BooleanOptionItem.Create(15816, "FarseerCanBeMadmate", false, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Madmate]);
-        RetributionistCanBeMadmate = BooleanOptionItem.Create(15817, "RetributionistCanBeMadmate", false, TabGroup.Addons, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Madmate]);
+        //RetributionistCanBeMadmate = BooleanOptionItem.Create(15817, "RetributionistCanBeMadmate", false, TabGroup.Addons, false)
+            //.SetParent(CustomRoleSpawnChances[CustomRoles.Madmate]);
         SnitchCanBeMadmate = BooleanOptionItem.Create(15818, "SnitchCanBeMadmate", false, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Madmate]);
         MadSnitchTasks = IntegerOptionItem.Create(15819, "MadSnitchTasks", new(0, 90, 1), 3, TabGroup.Addons, false)

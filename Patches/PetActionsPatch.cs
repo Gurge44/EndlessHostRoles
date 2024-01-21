@@ -317,54 +317,54 @@ class ExternalRpcPetPatch
                 break;
 
             case CustomRoles.Gaulois when hasKillTarget:
-                Gaulois.OnCheckMurder(pc, target);
                 pc.AddKCDAsAbilityCD();
+                Gaulois.OnCheckMurder(pc, target);
                 break;
             case CustomRoles.Aid when hasKillTarget:
-                Aid.OnCheckMurder(pc, target);
                 pc.AddKCDAsAbilityCD();
+                Aid.OnCheckMurder(pc, target);
                 break;
             case CustomRoles.Escort when hasKillTarget:
-                Escort.OnCheckMurder(pc, target);
                 pc.AddKCDAsAbilityCD();
+                Escort.OnCheckMurder(pc, target);
                 break;
             case CustomRoles.DonutDelivery when hasKillTarget:
-                DonutDelivery.OnCheckMurder(pc, target);
                 pc.AddKCDAsAbilityCD();
+                DonutDelivery.OnCheckMurder(pc, target);
                 break;
             case CustomRoles.Analyzer when hasKillTarget:
-                Analyzer.OnCheckMurder(pc, target);
                 pc.AddKCDAsAbilityCD();
+                Analyzer.OnCheckMurder(pc, target);
                 break;
             case CustomRoles.Jailor when hasKillTarget:
-                Jailor.OnCheckMurder(pc, target);
                 pc.AddKCDAsAbilityCD();
+                Jailor.OnCheckMurder(pc, target);
                 break;
             case CustomRoles.Sheriff when hasKillTarget:
+                pc.AddKCDAsAbilityCD();
                 if (Sheriff.OnCheckMurder(pc, target)) pc.RpcCheckAndMurder(target);
-                else pc.AddKCDAsAbilityCD();
                 break;
             case CustomRoles.SwordsMan when hasKillTarget:
-                if (SwordsMan.OnCheckMurder(pc)) if (!pc.RpcCheckAndMurder(target)) pc.AddKCDAsAbilityCD();
-                    else pc.AddKCDAsAbilityCD();
+                pc.AddKCDAsAbilityCD();
+                if (SwordsMan.OnCheckMurder(pc)) pc.RpcCheckAndMurder(target);
                 break;
             case CustomRoles.Witness when hasKillTarget:
+                pc.AddKCDAsAbilityCD();
                 if (Main.AllKillers.ContainsKey(target.PlayerId))
                     pc.Notify(GetString("WitnessFoundKiller"));
                 else pc.Notify(GetString("WitnessFoundInnocent"));
-                pc.AddKCDAsAbilityCD();
                 break;
             case CustomRoles.Medic when hasKillTarget:
                 Medic.OnCheckMurderFormedicaler(pc, target);
                 pc.AddKCDAsAbilityCD();
                 break;
             case CustomRoles.Monarch when hasKillTarget:
-                Monarch.OnCheckMurder(pc, target);
                 pc.AddKCDAsAbilityCD();
+                Monarch.OnCheckMurder(pc, target);
                 break;
             case CustomRoles.CopyCat when hasKillTarget:
-                if (CopyCat.OnCheckMurder(pc, target)) if (!pc.RpcCheckAndMurder(target)) pc.AddKCDAsAbilityCD();
                 pc.AddKCDAsAbilityCD();
+                if (CopyCat.OnCheckMurder(pc, target)) pc.RpcCheckAndMurder(target);
                 break;
             case CustomRoles.Farseer when hasKillTarget:
                 pc.AddAbilityCD(Farseer.FarseerRevealTime.GetInt());
@@ -376,12 +376,15 @@ class ExternalRpcPetPatch
                 }
                 break;
             case CustomRoles.Deputy when hasKillTarget:
+                pc.AddKCDAsAbilityCD();
                 Deputy.OnCheckMurder(pc, target);
                 break;
             case CustomRoles.Admirer when hasKillTarget:
+                pc.AddKCDAsAbilityCD();
                 Admirer.OnCheckMurder(pc, target);
                 break;
             case CustomRoles.Crusader when hasKillTarget:
+                pc.AddKCDAsAbilityCD();
                 Crusader.OnCheckMurder(pc, target);
                 break;
 
@@ -389,6 +392,9 @@ class ExternalRpcPetPatch
 
             case CustomRoles.Sniper:
                 Sniper.OnShapeshift(pc, !Sniper.IsAim[pc.PlayerId]);
+                break;
+            case CustomRoles.FireWorks:
+                FireWorks.ShapeShiftState(pc, true);
                 break;
             case CustomRoles.Warlock:
                 if (!Main.isCurseAndKill.ContainsKey(pc.PlayerId)) Main.isCurseAndKill[pc.PlayerId] = false;

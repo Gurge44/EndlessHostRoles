@@ -53,6 +53,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Dictator => CustomRoles.Crewmate,
                 CustomRoles.Inhibitor => CustomRoles.Impostor,
                 CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
+                CustomRoles.Swapster => CustomRoles.Shapeshifter,
                 CustomRoles.Kamikaze => CustomRoles.Impostor,
                 CustomRoles.Librarian => CustomRoles.Shapeshifter,
                 CustomRoles.Cantankerous => CustomRoles.Impostor,
@@ -766,6 +767,7 @@ internal static class CustomRolesHelper
         CustomRoles.Underdog or
         CustomRoles.Inhibitor or
         CustomRoles.Kidnapper or
+        CustomRoles.Swapster or
         CustomRoles.Kamikaze or
         CustomRoles.Librarian or
         CustomRoles.Cantankerous or
@@ -1033,6 +1035,7 @@ internal static class CustomRolesHelper
         CustomRoles.Sentinel or
         CustomRoles.Lookout or
         CustomRoles.Sniper or
+        CustomRoles.FireWorks or
         CustomRoles.Warlock or
         CustomRoles.Assassin or
         CustomRoles.Undertaker or
@@ -1044,6 +1047,7 @@ internal static class CustomRolesHelper
         CustomRoles.RiftMaker or
         CustomRoles.Bomber or
         CustomRoles.Nuker or
+        CustomRoles.Arsonist or
         CustomRoles.Glitch or
         CustomRoles.Magician or
         CustomRoles.WeaponMaster or

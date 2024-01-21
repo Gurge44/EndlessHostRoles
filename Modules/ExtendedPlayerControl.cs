@@ -223,6 +223,7 @@ static class ExtendedPlayerControl
     public static void SetKillCooldown(this PlayerControl player, float time = -1f, PlayerControl target = null, bool forceAnime = false)
     {
         if (player == null) return;
+        Logger.Info($"{player.GetNameWithRole()}'s KCD set to {(time == -1f ? Main.AllPlayerKillCooldown[player.PlayerId] : time)}s", "SetKCD");
         if (player.GetCustomRole().PetActivatedAbility())
         {
             if (time == -1f) player.AddKCDAsAbilityCD();
@@ -456,7 +457,7 @@ static class ExtendedPlayerControl
     {
         if (pc == null) return;
 
-        Logger.Info($"Reactor Flash for {pc}", "ReactorFlash");
+        Logger.Info($"Reactor Flash for {pc.GetNameWithRole()}", "ReactorFlash");
 
         var systemtypes = (MapNames)Main.NormalOptions.MapId switch
         {
@@ -525,6 +526,7 @@ static class ExtendedPlayerControl
             CustomRoles.Librarian => pc.IsAlive() && Librarian.CanUseKillButton(pc),
             CustomRoles.Cantankerous => pc.IsAlive() && Cantankerous.CanUseKillButton(pc.PlayerId),
             CustomRoles.Kidnapper => pc.IsAlive(),
+            CustomRoles.Swapster => pc.IsAlive(),
             CustomRoles.Kamikaze => pc.IsAlive(),
             CustomRoles.Inhibitor => !IsActive(SystemTypes.Electrical) && !IsActive(SystemTypes.Comms) && !IsActive(SystemTypes.MushroomMixupSabotage) && !IsActive(SystemTypes.Laboratory) && !IsActive(SystemTypes.LifeSupp) && !IsActive(SystemTypes.Reactor) && !IsActive(SystemTypes.HeliSabotage),
             CustomRoles.Saboteur => IsActive(SystemTypes.Electrical) || IsActive(SystemTypes.Comms) || IsActive(SystemTypes.MushroomMixupSabotage) || IsActive(SystemTypes.Laboratory) || IsActive(SystemTypes.LifeSupp) || IsActive(SystemTypes.Reactor) || IsActive(SystemTypes.HeliSabotage),

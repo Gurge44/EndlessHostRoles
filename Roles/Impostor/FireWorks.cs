@@ -84,19 +84,16 @@ public static class FireWorks
 
     public static bool CanUseKillButton(PlayerControl pc)
     {
-        //            Logger.Info($"FireWorks CanUseKillButton", "FireWorks");
-        if (pc.Data.IsDead) return false;
-        var canUse = false;
-        if ((state[pc.PlayerId] & FireWorksState.CanUseKill) != 0)
+        if (pc == null || pc.Data.IsDead) return false;
+        
+        try
         {
-            canUse = true;
+            return CanKill.GetBool() || state.TryGetValue(pc.PlayerId, out var fwState) && (fwState & FireWorksState.CanUseKill) != 0;
         }
-        if (CanKill.GetBool())
+        catch
         {
-            canUse = true;
+            return false;
         }
-        //            Logger.Info($"CanUseKillButton:{canUse}", "FireWorks");
-        return canUse;
     }
 
     public static void ShapeShiftState(PlayerControl pc, bool shapeshifting)
@@ -107,7 +104,7 @@ public static class FireWorks
         {
             case FireWorksState.Initial:
             case FireWorksState.SettingFireWorks:
-                Logger.Info("花火を一個設置", "FireWorks");
+                Logger.Info("Install Firework", "FireWorks");
                 fireWorksPosition[pc.PlayerId].Add(pc.Pos());
                 nowFireWorksCount[pc.PlayerId]--;
                 state[pc.PlayerId] = nowFireWorksCount[pc.PlayerId] == 0
@@ -115,7 +112,7 @@ public static class FireWorks
                     : FireWorksState.SettingFireWorks;
                 break;
             case FireWorksState.ReadyFire:
-                Logger.Info("花火を爆破", "FireWorks");
+                Logger.Info("Explode fireworks", "FireWorks");
                 bool suicide = false;
                 foreach (PlayerControl target in Main.AllAlivePlayerControls)
                 {
@@ -126,7 +123,6 @@ public static class FireWorks
 
                         if (target == pc)
                         {
-                            //自分は後回し
                             suicide = true;
                         }
                         else
@@ -138,7 +134,6 @@ public static class FireWorks
                 if (suicide)
                 {
                     var totalAlive = Main.AllAlivePlayerControls.Length;
-                    //自分が最後の生き残りの場合は勝利のために死なない
                     if (totalAlive != 1)
                     {
                         pc.Suicide();
@@ -153,7 +148,7 @@ public static class FireWorks
         Utils.NotifyRoles(ForceLoop: true);
     }
 
-    public static string GetStateText(PlayerControl pc, bool isLocal = true)
+    public static string GetStateText(PlayerControl pc/*, bool isLocal = true*/)
     {
         string retText = string.Empty;
         if (pc == null || pc.Data.IsDead) return retText;

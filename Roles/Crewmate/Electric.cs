@@ -18,7 +18,11 @@ namespace TOHE.Roles.Crewmate
         {
             if (pc == null) return;
             var Random = IRandom.Instance;
-            var target = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Crewmate)).ToList()[Random.Next(0, Main.AllAlivePlayerControls.Length)];
+
+            var targetList = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Crewmate)).ToList();
+            if (targetList.Count == 0) return;
+            var target = targetList[Random.Next(0, targetList.Count)];
+
             var beforeSpeed = Main.AllPlayerSpeed[target.PlayerId];
             Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
             target.MarkDirtySettings();

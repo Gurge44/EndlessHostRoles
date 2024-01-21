@@ -59,8 +59,6 @@ class CmdCheckMurderPatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
-        Logger.Info($"{__instance.GetNameWithRole()} => {target.GetNameWithRole()}", "CmdCheckMurder");
-
         if (!AmongUsClient.Instance.AmHost) return true;
         return CheckMurderPatch.Prefix(__instance, target);
     }
@@ -1336,16 +1334,9 @@ class CmdCheckShapeshiftPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Shapeshift))]
 class ShapeshiftPatch
 {
-    public static List<byte> IgnoreNextSS = [];
-
     public static bool ProcessShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
         if (!Main.ProcessShapeshifts) return true;
-        if (IgnoreNextSS.Contains(shapeshifter.PlayerId))
-        {
-            IgnoreNextSS.Remove(shapeshifter.PlayerId);
-            return true;
-        }
 
         Logger.Info($"{shapeshifter?.GetNameWithRole()} => {target?.GetNameWithRole()}", "Shapeshift");
 
@@ -1377,6 +1368,10 @@ class ShapeshiftPatch
                     break;
                 case CustomRoles.Kidnapper:
                     Kidnapper.OnShapeshift(shapeshifter, target);
+                    isSSneeded = false;
+                    break;
+                case CustomRoles.Swapster:
+                    Swapster.OnShapeshift(shapeshifter, target);
                     isSSneeded = false;
                     break;
                 case CustomRoles.RiftMaker:
@@ -1625,7 +1620,7 @@ class ShapeshiftPatch
             1.2f, "ShapeShiftNotify");
         }
 
-        if (!shapeshifting || !isSSneeded)
+        if ((!shapeshifting || !isSSneeded) && !Swapster.FirstSwapTarget.ContainsKey(shapeshifter.PlayerId))
         {
             _ = new LateTask(shapeshifter.RpcResetAbilityCooldown, 0.01f, log: false);
         }
@@ -1633,8 +1628,8 @@ class ShapeshiftPatch
         if (!isSSneeded)
         {
             Main.CheckShapeshift[shapeshifter.PlayerId] = false;
-            IgnoreNextSS.Add(shapeshifter.PlayerId);
-            shapeshifter.RpcShapeshift(shapeshifter, false);
+            shapeshifter.RpcRejectShapeshift();
+            NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: shapeshifter);
         }
 
         return isSSneeded || !Options.DisableShapeshiftAnimations.GetBool() || !shapeshifting;
@@ -1643,6 +1638,8 @@ class ShapeshiftPatch
     // Tasks that should run when someone performs a shapeshift (with the egg animation) should be here.
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
+        if (!Main.ProcessShapeshifts || !GameStates.IsInTask || __instance == null || target == null) return;
+
         bool shapeshifting = __instance.PlayerId != target.PlayerId;
 
         foreach (var pc in Main.AllAlivePlayerControls)
@@ -1879,7 +1876,6 @@ class ReportDeadBodyPatch
         }
 
         Main.LastVotedPlayerInfo = null;
-        ShapeshiftPatch.IgnoreNextSS.Clear();
         Main.AllKillers.Clear();
         Main.ArsonistTimer.Clear();
         if (Farseer.isEnable) Main.FarseerTimer.Clear();

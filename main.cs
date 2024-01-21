@@ -712,6 +712,7 @@ public enum CustomRoles
     Scavenger,
     Sniper,
     ImperiusCurse, // Soul Catcher
+    Swapster,
     Swooper,
     Stealth,
     TimeThief,

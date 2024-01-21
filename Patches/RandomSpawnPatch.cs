@@ -55,8 +55,8 @@ class RandomSpawn
         public virtual void RandomTeleport(PlayerControl player)
         {
             var spawn = GetLocation();
-            Logger.Info($"{player.Data.PlayerName} => {spawn.Key} ({spawn.Value})", "RandomSpawn");
-            TP(player.NetTransform, spawn.Value);
+            Logger.Info($"{player.Data.PlayerName} => {spawn.Key} {spawn.Value}", "RandomSpawn");
+            player.TP(spawn.Value);
         }
         public abstract KeyValuePair<string, Vector2> GetLocation();
     }

@@ -256,6 +256,8 @@ internal class EAC
                     break;
             }
         }
+        catch (System.IO.InvalidDataException) { }
+        catch (NullReferenceException) { }
         catch (Exception e)
         {
             Logger.Exception(e, "EAC");

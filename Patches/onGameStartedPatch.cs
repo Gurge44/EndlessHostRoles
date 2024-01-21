@@ -192,7 +192,6 @@ internal class ChangeRoleSettings
                 Main.RefixCooldownDelay = 0;
             }
             Main.NiceSwapSend = false;
-            ShapeshiftPatch.IgnoreNextSS.Clear();
             FallFromLadder.Reset();
             BountyHunter.Init();
             SerialKiller.Init();

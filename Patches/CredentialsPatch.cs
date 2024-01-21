@@ -13,7 +13,7 @@ namespace TOHE;
 internal class PingTrackerUpdatePatch
 {
     private static readonly StringBuilder sb = new();
-    private static long LastUpdate = Utils.GetTimeStamp();
+    private static long LastUpdate = 0;
     private static void Postfix(PingTracker __instance)
     {
         __instance.text.alignment = TextAlignmentOptions.TopRight;

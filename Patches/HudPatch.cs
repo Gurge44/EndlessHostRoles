@@ -32,16 +32,15 @@ class HudManagerPatch
         if (!GameStates.IsModHost) return;
         var player = PlayerControl.LocalPlayer;
         if (player == null) return;
-        //壁抜け
+        
         if (Input.GetKeyDown(KeyCode.LeftControl))
         {
-            if ((!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame)
-                && player.CanMove)
+            if ((!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame) && player.CanMove)
             {
                 player.Collider.offset = new Vector2(0f, 127f);
             }
         }
-        //壁抜け解除
+        
         if (player.Collider.offset.y == 127f)
         {
             if (!Input.GetKey(KeyCode.LeftControl) || (AmongUsClient.Instance.IsGameStarted && GameStates.IsOnlineGame))
