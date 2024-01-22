@@ -3543,5 +3543,10 @@
   "ForceEnd": "Cancelado",
   "EveryoneDied": "Todos morreram",
   "ForceEndText": "O Anfitrião cancelou o jogo!",
-  "DiscoChangeInterval": "Intervalo de mudança de cor do discoteca"
+  "DiscoChangeInterval": "Intervalo de mudança de cor do discoteca",
+  "Modifier": "\nModifier: ",
+  "Modifiers": "\nModifiers: ",
+  "RoleSelected": "<b>The role of {0} in the next game will be{1}</b>",
+  "UpReplacedMessage": "/up was replaced by /setrole which allows you to set anyone's role for any game by typing '/setrole (ID) (ROLE)'. You can view ID's with /id.\nTo set your own role like with /up, you need to do '/setrole 0 (ROLE)'.",
+  "PingText": "Ping"
 }
