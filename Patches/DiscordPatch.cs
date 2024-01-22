@@ -33,6 +33,7 @@ namespace TOHE.Patches
                             else if (region.Contains("MNA")) region = "MNA";
                             else if (region.Contains("MEU")) region = "MEU";
                             else if (region.Contains("MAS")) region = "MAS";
+                            else if (region.Contains("MSA")) region = "MSA";
                         }
 
                         if (lobbycode != "" && region != "")
