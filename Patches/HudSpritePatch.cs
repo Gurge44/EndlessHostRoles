@@ -262,9 +262,9 @@ public static class HudSpritePatch
                     else
                         newAbilityButton = CustomButton.Get("Time Master");
                     break;
-                case CustomRoles.Mario:
-                    newAbilityButton = CustomButton.Get("Happy");
-                    break;
+                //case CustomRoles.Mario:
+                //    newAbilityButton = CustomButton.Get("Happy");
+                //    break;
                 case CustomRoles.Sheriff:
                     newKillButton = CustomButton.Get("Kill");
                     break;

@@ -209,9 +209,9 @@ internal class MoveAndStopManager
     {
         try
         {
-            int ms = Main.PlayerStates[playerId].GetTaskState().CompletedTasksCount;
-            int rank = 1 + Main.PlayerStates.Values.Count(x => x.GetTaskState().CompletedTasksCount > ms);
-            rank += Main.PlayerStates.Values.Where(x => x.GetTaskState().CompletedTasksCount == ms).ToList().IndexOf(Main.PlayerStates[playerId]);
+            int ms = Main.PlayerStates[playerId].TaskState.CompletedTasksCount;
+            int rank = 1 + Main.PlayerStates.Values.Count(x => x.TaskState.CompletedTasksCount > ms);
+            rank += Main.PlayerStates.Values.Where(x => x.TaskState.CompletedTasksCount == ms).ToList().IndexOf(Main.PlayerStates[playerId]);
             return rank;
         }
         catch

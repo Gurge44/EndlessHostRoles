@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Hazel;
+using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -9,9 +9,9 @@ namespace TOHE.Roles.Crewmate
         class RabbitState(PlayerControl player)
         {
             public PlayerControl Player { get => player; set => player = value; }
-            private TaskState MyTaskState => Player.GetPlayerTaskState();
+            private TaskState MyTaskState => Player.GetTaskState();
 
-            public string ShowArrow = string.Empty;
+            private (bool HasArrow, byte Target) Arrow = (false, byte.MaxValue);
 
             public void OnTaskComplete()
             {
@@ -20,30 +20,39 @@ namespace TOHE.Roles.Crewmate
                 var Impostors = Main.AllAlivePlayerControls.Where(pc => pc.Is(CustomRoleTypes.Impostor)).ToArray();
                 var target = Impostors[IRandom.Instance.Next(Impostors.Length)];
 
-                var dir = target.transform.position - Player.transform.position;
-                int index;
-                if (dir.magnitude < 2)
-                {
-                    index = 8;
-                }
-                else
-                {
-                    var angle = Vector3.SignedAngle(Vector3.down, dir, Vector3.back) + 180 + 22.5;
-                    index = ((int)(angle / 45)) % 8;
-                }
-                ShowArrow = TargetArrow.Arrows[index];
-                Logger.Info($"{Player.GetNameWithRole()}'s target: {target.GetNameWithRole()}[{TargetArrow.Arrows[index]}]", "Rabbit");
+                TargetArrow.Add(Player.PlayerId, target.PlayerId, update: false);
+                Arrow = (true, target.PlayerId);
+                SendRPC();
+                Utils.NotifyRoles(SpecifySeer: Player, SpecifyTarget: Player);
+                Logger.Info($"{Player.GetNameWithRole()}'s target: {target.GetNameWithRole()} ({TargetArrow.GetArrows(Player, Arrow.Target)})", "Rabbit");
 
                 _ = new LateTask(() =>
                 {
-                    ShowArrow = string.Empty;
+                    TargetArrow.Remove(Player.PlayerId, target.PlayerId);
+                    Arrow = (false, byte.MaxValue);
+                    SendRPC();
                     Utils.NotifyRoles(SpecifySeer: Player, SpecifyTarget: Player);
                 }, 5f, "Rabbit ShowArrow Empty");
             }
 
-            public string Suffix => !GameStates.IsInTask || ShowArrow.Length == 0
+            public void SendRPC()
+            {
+                var writer = Utils.CreateCustomRoleRPC(CustomRPC.SyncRabbit);
+                writer.Write(Player.PlayerId);
+                writer.Write(Arrow.HasArrow);
+                writer.Write(Arrow.Target);
+                Utils.EndRPC(writer);
+            }
+
+            public void ReceiveRPC(bool hasArrow, byte target)
+            {
+                Arrow.HasArrow = hasArrow;
+                Arrow.Target = target;
+            }
+
+            public string Suffix => !GameStates.IsInTask || !Arrow.HasArrow
                     ? string.Empty
-                    : Utils.ColorString(Utils.GetRoleColor(CustomRoles.Rabbit), ShowArrow);
+                    : Utils.ColorString(Utils.GetRoleColor(CustomRoles.Rabbit), TargetArrow.GetArrows(Player, Arrow.Target));
         }
         private static int Id => 643330;
         private static readonly Dictionary<byte, RabbitState> RabbitStates = [];
@@ -62,15 +71,22 @@ namespace TOHE.Roles.Crewmate
             TaskTrigger = OptionTaskTrigger.GetInt();
         }
         public static void Add(byte playerId) => RabbitStates[playerId] = new(Utils.GetPlayerById(playerId));
+        public static void ReceiveRPC(MessageReader reader)
+        {
+            byte id = reader.ReadByte();
+            bool hasArrow = reader.ReadBoolean();
+            byte target = reader.ReadByte();
+            RabbitStates[id].ReceiveRPC(hasArrow, target);
+        }
         public static void OnTaskComplete(PlayerControl pc)
         {
-            if (pc == null) return;
-            RabbitStates[pc.PlayerId].OnTaskComplete();
+            if (pc == null || !RabbitStates.TryGetValue(pc.PlayerId, out RabbitState state)) return;
+            state.OnTaskComplete();
         }
         public static string GetSuffix(PlayerControl pc)
         {
-            if (pc == null) return string.Empty;
-            return RabbitStates[pc.PlayerId].Suffix;
+            if (pc == null || !RabbitStates.TryGetValue(pc.PlayerId, out RabbitState state)) return string.Empty;
+            return state.Suffix;
         }
     }
 }

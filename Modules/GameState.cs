@@ -207,7 +207,7 @@ public class PlayerState(byte playerId)
         }
     }
     public bool IsSuicide => deathReason == DeathReason.Suicide;
-    public TaskState GetTaskState() => taskState;
+    public TaskState TaskState => taskState;
     public void InitTask(PlayerControl player) => taskState.Init(player);
     public void UpdateTask(PlayerControl player) => taskState.Update(player);
     public enum DeathReason

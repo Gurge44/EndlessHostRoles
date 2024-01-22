@@ -731,7 +731,7 @@ class CheckMurderPatch
             }, 0.05f, "OverKiller Murder");
         }
 
-        if (killer.Is(CustomRoles.Swift) && !target.Is(CustomRoles.Pestilence))
+        if (!DoubleTrigger.FirstTriggerTimer.ContainsKey(killer.PlayerId) && killer.Is(CustomRoles.Swift) && !target.Is(CustomRoles.Pestilence))
         {
             if (killer.RpcCheckAndMurder(target, true))
             {
@@ -1208,38 +1208,6 @@ class MurderPlayerPatch
                 if (playerCount < Options.UnderdogMaximumPlayersNeededToKill.GetInt())
                     Main.AllPlayerKillCooldown[killer.PlayerId] = Options.UnderdogKillCooldown.GetFloat();
                 else Main.AllPlayerKillCooldown[killer.PlayerId] = Options.UnderdogKillCooldownWithMorePlayersAlive.GetFloat();
-                break;
-            case CustomRoles.Hacker:
-                Hacker.HackLimit[killer.PlayerId] += Hacker.HackerAbilityUseGainWithEachKill.GetFloat();
-                Hacker.SendRPC(killer.PlayerId);
-                break;
-            case CustomRoles.Camouflager:
-                Camouflager.CamoLimit[killer.PlayerId] += Camouflager.CamoAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.Councillor:
-                Councillor.MurderLimit[killer.PlayerId] += Councillor.CouncillorAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.Dazzler:
-                Dazzler.DazzleLimit[killer.PlayerId] += Dazzler.DazzlerAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.Disperser:
-                Disperser.DisperserLimit[killer.PlayerId] += Disperser.DisperserAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.EvilDiviner:
-                EvilDiviner.DivinationCount[killer.PlayerId] += EvilDiviner.EDAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.Swooper:
-                Swooper.SwoopLimit[killer.PlayerId] += Swooper.SwooperAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.Hangman:
-                Hangman.HangLimit[killer.PlayerId] += Hangman.HangmanAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.Twister:
-                Twister.TwistLimit[killer.PlayerId] += Twister.TwisterAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.Kamikaze:
-                Kamikaze.MarkLimit[killer.PlayerId] += Kamikaze.KamikazeAbilityUseGainWithEachKill.GetFloat();
-                Kamikaze.SendRPCSyncLimit(killer.PlayerId);
                 break;
         }
 
@@ -2806,10 +2774,10 @@ class FixedUpdatePatch
 
                 switch (target.GetCustomRole()) //seerがインポスター
                 {
-                    case CustomRoles.Snitch when seer.GetCustomRole().IsImpostor() && target.Is(CustomRoles.Madmate) && target.GetPlayerTaskState().IsTaskFinished:
+                    case CustomRoles.Snitch when seer.GetCustomRole().IsImpostor() && target.Is(CustomRoles.Madmate) && target.GetTaskState().IsTaskFinished:
                         Mark.Append(ColorString(GetRoleColor(CustomRoles.Impostor), "★")); //targetにマーク付与
                         break;
-                    case CustomRoles.Marshall when seer.GetCustomRole().IsCrewmate() && target.GetPlayerTaskState().IsTaskFinished:
+                    case CustomRoles.Marshall when seer.GetCustomRole().IsCrewmate() && target.GetTaskState().IsTaskFinished:
                         Mark.Append(ColorString(GetRoleColor(CustomRoles.Marshall), "★")); //targetにマーク付与
                         break;
                     case CustomRoles.SuperStar when Options.EveryOneKnowSuperStar.GetBool():
@@ -2819,7 +2787,7 @@ class FixedUpdatePatch
 
                 if (seer.GetCustomRole().IsCrewmate() && seer.Is(CustomRoles.Madmate) && Marshall.MadmateCanFindMarshall) //seerがインポスター
                 {
-                    if (target.Is(CustomRoles.Marshall) && target.GetPlayerTaskState().IsTaskFinished) //targetがタスクを終わらせたマッドスニッチ
+                    if (target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished) //targetがタスクを終わらせたマッドスニッチ
                         Mark.Append(ColorString(GetRoleColor(CustomRoles.Marshall), "★")); //targetにマーク付与
                 }
 
@@ -3711,7 +3679,7 @@ class PlayerControlCompleteTaskPatch
         // Tasks from Capitalist
         if (Main.CapitalismAddTask.TryGetValue(player.PlayerId, out var amount))
         {
-            var taskState = player.GetPlayerTaskState();
+            var taskState = player.GetTaskState();
             taskState.AllTasksCount += amount;
             Main.CapitalismAddTask.Remove(player.PlayerId);
             taskState.CompletedTasksCount++;
@@ -3731,7 +3699,7 @@ class PlayerControlCompleteTaskPatch
 
         Snitch.OnCompleteTask(pc);
 
-        var isTaskFinish = pc.GetPlayerTaskState().IsTaskFinished;
+        var isTaskFinish = pc.GetTaskState().IsTaskFinished;
         if (isTaskFinish && pc.Is(CustomRoles.Snitch) && pc.Is(CustomRoles.Madmate))
         {
             foreach (var impostor in Main.AllAlivePlayerControls.Where(pc => pc.Is(CustomRoleTypes.Impostor)).ToArray())

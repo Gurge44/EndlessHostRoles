@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -8,13 +9,8 @@ namespace TOHE;
 public class ErrorText : MonoBehaviour
 {
     #region Singleton
-    public static ErrorText Instance
-    {
-        get
-        {
-            return _instance;
-        }
-    }
+    public static ErrorText Instance => _instance;
+
     private static ErrorText _instance;
 #pragma warning disable IDE0051 // Remove unused private members
     private void Awake()
@@ -87,28 +83,36 @@ public class ErrorText : MonoBehaviour
     }
     public void UpdateText()
     {
-        string text = string.Empty;
-        int maxLevel = 0;
-        foreach (ErrorData err in AllErrors.ToArray())
+        try
         {
-            text += $"{err}: {err.Message}\n";
-            if (maxLevel < err.ErrorLevel) maxLevel = err.ErrorLevel;
+            string text = string.Empty;
+            int maxLevel = 0;
+            foreach (ErrorData err in AllErrors.ToArray())
+            {
+                text += $"{err}: {err.Message}\n";
+                if (maxLevel < err.ErrorLevel) maxLevel = err.ErrorLevel;
+            }
+            if (maxLevel == 0)
+            {
+                Text.enabled = false;
+            }
+            else
+            {
+                if (!HnSFlag)
+                    text += $"{GetString($"ErrorLevel{maxLevel}")}";
+                if (CheatDetected)
+                    text = SBDetected ? GetString("EAC.CheatDetected.HighLevel") : GetString("EAC.CheatDetected.LowLevel");
+                Text.enabled = true;
+            }
+            if (GameStates.IsInGame && maxLevel != 3 && !CheatDetected)
+                text += $"\n{GetString("TerminateCommand")}: Shift+L+Enter";
+            Text.text = text;
         }
-        if (maxLevel == 0)
+        catch (NullReferenceException) { }
+        catch (Exception e)
         {
-            Text.enabled = false;
+            Logger.Error(e.ToString(), "ErrorText.UpdateText");
         }
-        else
-        {
-            if (!HnSFlag)
-                text += $"{GetString($"ErrorLevel{maxLevel}")}";
-            if (CheatDetected)
-                text = SBDetected ? GetString("EAC.CheatDetected.HighLevel") : GetString("EAC.CheatDetected.LowLevel");
-            Text.enabled = true;
-        }
-        if (GameStates.IsInGame && maxLevel != 3 && !CheatDetected)
-            text += $"\n{GetString("TerminateCommand")}: Shift+L+Enter";
-        Text.text = text;
     }
     public void Clear()
     {

@@ -376,10 +376,7 @@ static class ExtendedPlayerControl
         PlayerGameOptionsSender.SetDirty(player.PlayerId);
         GameOptionsSender.SendAllGameOptions();
     }
-    public static TaskState GetPlayerTaskState(this PlayerControl player)
-    {
-        return Main.PlayerStates[player.PlayerId].GetTaskState();
-    }
+    public static TaskState GetTaskState(this PlayerControl player) => Main.PlayerStates[player.PlayerId].TaskState;
 
     /*public static GameOptionsData DeepCopy(this GameOptionsData opt)
     {
@@ -1314,6 +1311,42 @@ static class ExtendedPlayerControl
         if (killer.Is(CustomRoles.Damocles)) Damocles.OnMurder(killer.PlayerId);
         else if (killer.Is(Team.Impostor)) Damocles.OnOtherImpostorMurder();
         if (target.Is(Team.Impostor)) Damocles.OnImpostorDeath();
+
+        switch (killer.GetCustomRole())
+        {
+            case CustomRoles.Hacker:
+                Hacker.HackLimit[killer.PlayerId] += Hacker.HackerAbilityUseGainWithEachKill.GetFloat();
+                Hacker.SendRPC(killer.PlayerId);
+                break;
+            case CustomRoles.Camouflager:
+                Camouflager.CamoLimit[killer.PlayerId] += Camouflager.CamoAbilityUseGainWithEachKill.GetFloat();
+                break;
+            case CustomRoles.Councillor:
+                Councillor.MurderLimit[killer.PlayerId] += Councillor.CouncillorAbilityUseGainWithEachKill.GetFloat();
+                break;
+            case CustomRoles.Dazzler:
+                Dazzler.DazzleLimit[killer.PlayerId] += Dazzler.DazzlerAbilityUseGainWithEachKill.GetFloat();
+                break;
+            case CustomRoles.Disperser:
+                Disperser.DisperserLimit[killer.PlayerId] += Disperser.DisperserAbilityUseGainWithEachKill.GetFloat();
+                break;
+            case CustomRoles.EvilDiviner:
+                EvilDiviner.DivinationCount[killer.PlayerId] += EvilDiviner.EDAbilityUseGainWithEachKill.GetFloat();
+                break;
+            case CustomRoles.Swooper:
+                Swooper.SwoopLimit[killer.PlayerId] += Swooper.SwooperAbilityUseGainWithEachKill.GetFloat();
+                break;
+            case CustomRoles.Hangman:
+                Hangman.HangLimit[killer.PlayerId] += Hangman.HangmanAbilityUseGainWithEachKill.GetFloat();
+                break;
+            case CustomRoles.Twister:
+                Twister.TwistLimit[killer.PlayerId] += Twister.TwisterAbilityUseGainWithEachKill.GetFloat();
+                break;
+            case CustomRoles.Kamikaze:
+                Kamikaze.MarkLimit[killer.PlayerId] += Kamikaze.KamikazeAbilityUseGainWithEachKill.GetFloat();
+                Kamikaze.SendRPCSyncLimit(killer.PlayerId);
+                break;
+        }
 
         if (killer.PlayerId == target.PlayerId && killer.shapeshifting)
         {

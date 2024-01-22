@@ -58,6 +58,7 @@ public enum CustomRPC
 
     //Roles
     SetDrawPlayer,
+    SyncRabbit,
     SyncSoulHunter,
     SyncKamikazeLimit,
     KamikazeAddTarget,
@@ -490,6 +491,9 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SetRicochetTarget:
                 Ricochet.ReceiveRPCSyncTarget(reader);
+                break;
+            case CustomRPC.SyncRabbit:
+                Rabbit.ReceiveRPC(reader);
                 break;
             case CustomRPC.SyncYinYanger:
                 YinYanger.ReceiveRPC(reader);

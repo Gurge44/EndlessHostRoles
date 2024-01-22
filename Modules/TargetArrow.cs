@@ -7,10 +7,12 @@ namespace TOHE;
 
 static class TargetArrow
 {
-    class ArrowInfo(byte from, byte to)
+    class ArrowInfo(byte from, byte to, bool update = true)
     {
         public byte From = from;
         public byte To = to;
+
+        public bool Update = update;
 
         public bool Equals(ArrowInfo obj)
         {
@@ -23,7 +25,7 @@ static class TargetArrow
     }
 
     static readonly Dictionary<ArrowInfo, string> TargetArrows = [];
-    public static readonly string[] Arrows = [
+    static readonly string[] Arrows = [
         "↑",
         "↗",
         "→",
@@ -45,11 +47,14 @@ static class TargetArrow
     /// <param name="seer"></param>
     /// <param name="target"></param>
     /// <param name="coloredArrow"></param>
-    public static void Add(byte seer, byte target)
+    public static void Add(byte seer, byte target, bool update = true)
     {
-        var arrowInfo = new ArrowInfo(seer, target);
+        var arrowInfo = new ArrowInfo(seer, target, update);
         if (!TargetArrows.Any(a => a.Key.Equals(arrowInfo)))
+        {
             TargetArrows[arrowInfo] = "・";
+            if (!update) OnFixedUpdate(Utils.GetPlayerById(seer), forceUpdate: true);
+        }
     }
     /// <summary>
     /// Delete target
@@ -96,14 +101,14 @@ static class TargetArrow
     /// Issue NotifyRoles when there are updates
     /// </summary>
     /// <param name="seer"></param>
-    public static void OnFixedUpdate(PlayerControl seer)
+    public static void OnFixedUpdate(PlayerControl seer, bool forceUpdate = false)
     {
         if (!GameStates.IsInTask) return;
 
         var seerId = seer.PlayerId;
         var seerIsDead = !seer.IsAlive();
 
-        var arrowList = new List<ArrowInfo>(TargetArrows.Keys.Where(a => a.From == seer.PlayerId));
+        var arrowList = new List<ArrowInfo>(TargetArrows.Keys.Where(a => (a.Update || forceUpdate) && a.From == seer.PlayerId));
         if (arrowList.Count == 0) return;
 
         var update = false;

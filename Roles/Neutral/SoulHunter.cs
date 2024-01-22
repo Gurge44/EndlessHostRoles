@@ -66,12 +66,12 @@ namespace TOHE.Roles.Neutral
         public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
         public static void SendRPC()
         {
-            MessageWriter writer = CreateCustomRoleRPC(CustomRPC.SyncSoulHunter);
+            var writer = CreateCustomRoleRPC(CustomRPC.SyncSoulHunter);
             writer.Write(Souls);
             writer.Write(CurrentTarget.ID);
             writer.Write(CurrentTarget.START_TIMESTAMP.ToString());
             writer.Write(CurrentTarget.FROZEN);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
+            EndRPC(writer);
         }
         public static void ReceiveRPC(MessageReader reader)
         {

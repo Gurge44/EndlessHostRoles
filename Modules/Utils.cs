@@ -444,6 +444,7 @@ public static class Utils
     }
 
     public static MessageWriter CreateCustomRoleRPC(CustomRPC rpc) => AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)rpc, SendOption.Reliable, -1);
+    public static void EndRPC(MessageWriter writer) => AmongUsClient.Instance.FinishRpcImmediately(writer);
 
     public static bool HasTasks(GameData.PlayerInfo p, bool ForRecompute = true)
     {
@@ -647,8 +648,8 @@ public static class Utils
             case CustomRoles.Jackal when PlayerControl.LocalPlayer.Is(CustomRoles.Recruit):
             case CustomRoles.Workaholic when Options.WorkaholicVisibleToEveryone.GetBool():
             case CustomRoles.Doctor when !__instance.GetCustomRole().IsEvilAddons() && Options.DoctorVisibleToEveryone.GetBool():
-            case CustomRoles.Mayor when Options.MayorRevealWhenDoneTasks.GetBool() && __instance.GetPlayerTaskState().IsTaskFinished:
-            case CustomRoles.Marshall when PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && __instance.GetPlayerTaskState().IsTaskFinished:
+            case CustomRoles.Mayor when Options.MayorRevealWhenDoneTasks.GetBool() && __instance.GetTaskState().IsTaskFinished:
+            case CustomRoles.Marshall when PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && __instance.GetTaskState().IsTaskFinished:
                 result = true;
                 break;
         }
@@ -697,7 +698,7 @@ public static class Utils
     public static string GetProgressText(PlayerControl pc)
     {
         if (!Main.playerVersion.ContainsKey(0)) return string.Empty; //ホストがMODを入れていなければ未記入を返す
-        var taskState = pc.GetPlayerTaskState();
+        var taskState = pc.GetTaskState();
         var Comms = false;
         if (taskState.hasTasks)
         {
@@ -725,6 +726,9 @@ public static class Utils
                     break;
                 case CustomRoles.Sheriff:
                     if (Sheriff.ShowShotLimit.GetBool()) ProgressText.Append(Sheriff.GetShotLimit(playerId));
+                    break;
+                case CustomRoles.Kamikaze:
+                    ProgressText.Append(Kamikaze.GetProgressText(playerId));
                     break;
                 case CustomRoles.Analyzer:
                     ProgressText.Append(Analyzer.GetProgressText());
@@ -956,7 +960,7 @@ public static class Utils
                     if (Main.TunnelerPositions.ContainsKey(playerId)) ProgressText.Append('●');
                     break;
                 case CustomRoles.TaskManager:
-                    var taskState1 = Main.PlayerStates?[playerId].GetTaskState();
+                    var taskState1 = Main.PlayerStates?[playerId].TaskState;
                     Color TextColor1;
                     var TaskCompleteColor1 = Color.green;
                     var NonCompleteColor1 = Color.yellow;
@@ -1148,7 +1152,7 @@ public static class Utils
     }
     public static string GetTaskCount(byte playerId, bool comms, bool moveAndStop = false)
     {
-        var taskState = Main.PlayerStates?[playerId].GetTaskState();
+        var taskState = Main.PlayerStates?[playerId].TaskState;
         if (taskState.hasTasks)
         {
             Color TextColor;
@@ -1792,7 +1796,7 @@ public static class Utils
     public static void CheckTerroristWin(GameData.PlayerInfo Terrorist)
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        var taskState = GetPlayerById(Terrorist.PlayerId).GetPlayerTaskState();
+        var taskState = GetPlayerById(Terrorist.PlayerId).GetTaskState();
         if (taskState.IsTaskFinished && (!Main.PlayerStates[Terrorist.PlayerId].IsSuicide || Options.CanTerroristSuicideWin.GetBool())) //タスクが完了で（自殺じゃない OR 自殺勝ちが許可）されていれば
         {
             foreach (PlayerControl pc in Main.AllPlayerControls)
@@ -2299,8 +2303,8 @@ public static class Utils
                                 (seer.Is(CustomRoles.Recruit) && target.Is(CustomRoles.Jackal)) ||
                                 (target.Is(CustomRoles.Workaholic) && Options.WorkaholicVisibleToEveryone.GetBool()) ||
                                 (target.Is(CustomRoles.Doctor) && !target.GetCustomRole().IsEvilAddons() && Options.DoctorVisibleToEveryone.GetBool()) ||
-                                (target.Is(CustomRoles.Mayor) && Options.MayorRevealWhenDoneTasks.GetBool() && target.GetPlayerTaskState().IsTaskFinished) ||
-                                (seer.Is(CustomRoleTypes.Crewmate) && target.Is(CustomRoles.Marshall) && target.GetPlayerTaskState().IsTaskFinished) ||
+                                (target.Is(CustomRoles.Mayor) && Options.MayorRevealWhenDoneTasks.GetBool() && target.GetTaskState().IsTaskFinished) ||
+                                (seer.Is(CustomRoleTypes.Crewmate) && target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished) ||
                                 (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Vote && Options.SeeEjectedRolesInMeeting.GetBool()) ||
                                 Totocalcio.KnowRole(seer, target) ||
                                 Romantic.KnowRole(seer, target) ||
@@ -2437,9 +2441,9 @@ public static class Utils
 
                             if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop) goto End;
 
-                            if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Snitch) && target.Is(CustomRoles.Madmate) && target.GetPlayerTaskState().IsTaskFinished)
+                            if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Snitch) && target.Is(CustomRoles.Madmate) && target.GetTaskState().IsTaskFinished)
                                 TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Impostor), "★"));
-                            if (seer.Is(CustomRoleTypes.Crewmate) && target.Is(CustomRoles.Marshall) && target.GetPlayerTaskState().IsTaskFinished)
+                            if (seer.Is(CustomRoleTypes.Crewmate) && target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished)
                                 TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Marshall), "★"));
                             /*if (seer.Is(CustomRoles.Jackal) && target.Is(CustomRoles.Sidekick))
                                 TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Jackal), " ♥"));
@@ -3138,7 +3142,7 @@ public static class Utils
             foreach (var pid in array)
             {
                 Main.KilledDiseased[pid] = 0;
-                GetPlayerById(pid).ResetKillCooldown();
+                GetPlayerById(pid)?.ResetKillCooldown();
             }
             Main.KilledDiseased.Clear();
         }
@@ -3148,7 +3152,7 @@ public static class Utils
             foreach (var pid in array)
             {
                 Main.KilledAntidote[pid] = 0;
-                GetPlayerById(pid).ResetKillCooldown();
+                GetPlayerById(pid)?.ResetKillCooldown();
             }
             Main.KilledAntidote.Clear();
         }
@@ -3377,7 +3381,7 @@ public static class Utils
         var name = Main.AllPlayerNames[id].RemoveHtmlTags().Replace("\r\n", string.Empty);
         if (id == PlayerControl.LocalPlayer.PlayerId) name = DataManager.player.Customization.Name;
         else name = GetPlayerById(id)?.Data.PlayerName ?? name;
-        var taskState = Main.PlayerStates?[id].GetTaskState();
+        var taskState = Main.PlayerStates?[id].TaskState;
         string TaskCount;
         if (taskState.hasTasks)
         {

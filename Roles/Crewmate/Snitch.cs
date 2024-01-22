@@ -82,7 +82,7 @@ public static class Snitch
         if (!snitch.IsAlive() || snitch.Is(CustomRoles.Madmate)) return;
 
         var snitchId = snitch.PlayerId;
-        var snitchTask = snitch.GetPlayerTaskState();
+        var snitchTask = snitch.GetTaskState();
 
         if (!IsExposed[snitchId] && snitchTask.RemainingTasksCount <= RemainingTasksToBeFound)
         {

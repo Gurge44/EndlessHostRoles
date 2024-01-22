@@ -255,7 +255,7 @@ public static class GuessManager
                                 if (!isUI) Utils.SendMessage(GetString("GuessMonarch"), pc.PlayerId);
                                 else pc.ShowPopUp(GetString("GuessMonarch"));
                                 return true;
-                            case CustomRoles.Mayor when Options.MayorRevealWhenDoneTasks.GetBool() && target.GetPlayerTaskState().IsTaskFinished:
+                            case CustomRoles.Mayor when Options.MayorRevealWhenDoneTasks.GetBool() && target.GetTaskState().IsTaskFinished:
                                 if (!isUI) Utils.SendMessage(GetString("GuessMayor"), pc.PlayerId);
                                 else pc.ShowPopUp(GetString("GuessMayor"));
                                 return true;
@@ -272,7 +272,7 @@ public static class GuessManager
                                 if (!isUI) Utils.SendMessage(GetString("GuessPhantom"), pc.PlayerId);
                                 else pc.ShowPopUp(GetString("GuessPhantom"));
                                 return true;
-                            case CustomRoles.Snitch when target.GetPlayerTaskState().IsTaskFinished:
+                            case CustomRoles.Snitch when target.GetTaskState().IsTaskFinished:
                                 if (!isUI) Utils.SendMessage(GetString("EGGuessSnitchTaskDone"), pc.PlayerId);
                                 else pc.ShowPopUp(GetString("EGGuessSnitchTaskDone"));
                                 return true;

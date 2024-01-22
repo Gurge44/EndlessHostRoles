@@ -113,5 +113,7 @@ namespace TOHE.Roles.Impostor
                 Logger.Info($"Murder {kamikazePc.GetRealName()}'s targets: {string.Join(", ", kvp.Value.Select(x => GetPlayerById(x).GetNameWithRole()))}", "Kamikaze");
             }
         }
+
+        public static string GetProgressText(byte playerId) => MarkLimit.TryGetValue(playerId, out var limit) ? $"<#777777>-</color> <#ffffff>{System.Math.Round(limit, 1)}</color>" : string.Empty;
     }
 }

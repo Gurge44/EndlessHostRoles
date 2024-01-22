@@ -38,7 +38,7 @@
 //        }
 //        if (Options.CanOnlyRetributeWithTasksDone.GetBool())
 //        {
-//            if (!pc.GetPlayerTaskState().IsTaskFinished && pc.Data.IsDead)
+//            if (!pc.GetTaskState().IsTaskFinished && pc.Data.IsDead)
 //            {
 //                if (!isUI) Utils.SendMessage(GetString("RetributionistKillDisable"), pc.PlayerId);
 //                else pc.ShowPopUp(GetString("RetributionistKillDisable"));

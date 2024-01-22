@@ -48,7 +48,7 @@ public static class Workhorse
         if (!pc.IsAlive() || IsThisRole(pc.PlayerId)) return false;
         if (pc.Is(CustomRoles.Needy)) return false;
         if (pc.Is(CustomRoles.Lazy)) return false;
-        var taskState = pc.GetPlayerTaskState();
+        var taskState = pc.GetTaskState();
         if (taskState.CompletedTasksCount + 1 < taskState.AllTasksCount) return false;
         if (AssignOnlyToCrewmate) //クルーメイトのみ
             return pc.Is(CustomRoleTypes.Crewmate);
@@ -62,7 +62,7 @@ public static class Workhorse
         if (!IsAssignTarget(pc)) return false;
 
         pc.RpcSetCustomRole(CustomRoles.Workhorse);
-        var taskState = pc.GetPlayerTaskState();
+        var taskState = pc.GetTaskState();
         taskState.AllTasksCount += NumLongTasks + NumShortTasks;
         taskState.CompletedTasksCount++; //今回の完了分加算
 
