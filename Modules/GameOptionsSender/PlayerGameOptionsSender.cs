@@ -668,6 +668,11 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     break;
             }
 
+            if (Options.WhackAMole.GetBool() && role.GetRoleTypes() == RoleTypes.Engineer)
+            {
+                try { AURoleOptions.EngineerInVentMaxTime = 1f; } catch { }
+            }
+
             if (Main.AllPlayerControls.Any(x => x.Is(CustomRoles.Bewilder) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == player.PlayerId && !x.Is(CustomRoles.Hangman)))
             {
                 opt.SetVision(false);
