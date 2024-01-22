@@ -57,6 +57,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Kamikaze => CustomRoles.Impostor,
                 CustomRoles.Librarian => CustomRoles.Shapeshifter,
                 CustomRoles.Cantankerous => CustomRoles.Impostor,
+                CustomRoles.Swiftclaw => CustomRoles.Impostor,
                 CustomRoles.YinYanger => CustomRoles.Impostor,
                 CustomRoles.Duellist => CustomRoles.Shapeshifter,
                 CustomRoles.Consort => CustomRoles.Impostor,
@@ -773,6 +774,7 @@ internal static class CustomRolesHelper
         CustomRoles.Kamikaze or
         CustomRoles.Librarian or
         CustomRoles.Cantankerous or
+        CustomRoles.Swiftclaw or
         CustomRoles.Duellist or
         CustomRoles.YinYanger or
         CustomRoles.Consort or
@@ -1258,6 +1260,7 @@ internal static class CustomRolesHelper
         CustomRoles.Egoist when mainRole.IsNeutral() || mainRole is CustomRoles.Madmate => false,
         CustomRoles.Damocles when mainRole is CustomRoles.Bomber or CustomRoles.Nuker or CustomRoles.SerialKiller or CustomRoles.Cantankerous => false,
         CustomRoles.Necroview when mainRole is CustomRoles.Visionary => false,
+        CustomRoles.Flashman when mainRole is CustomRoles.Swiftclaw => false,
         CustomRoles.Ghoul when mainRole is CustomRoles.Lazy => false,
         CustomRoles.Ghoul when mainRole is CustomRoles.Needy => false,
         CustomRoles.Lazy when mainRole is CustomRoles.Ghoul => false,
@@ -1394,6 +1397,7 @@ internal static class CustomRolesHelper
         CustomRoles.Egoist when pc.GetCustomRole().IsNeutral() || pc.Is(CustomRoles.Madmate) => false,
         CustomRoles.Damocles when pc.GetCustomRole() is CustomRoles.Bomber or CustomRoles.Nuker or CustomRoles.SerialKiller or CustomRoles.Cantankerous => false,
         CustomRoles.Damocles when !pc.CanUseKillButton() => false,
+        CustomRoles.Flashman when pc.Is(CustomRoles.Swiftclaw) => false,
         CustomRoles.Necroview when pc.Is(CustomRoles.Visionary) => false,
         CustomRoles.Ghoul when pc.Is(CustomRoles.Lazy) => false,
         CustomRoles.Ghoul when pc.Is(CustomRoles.Needy) => false,

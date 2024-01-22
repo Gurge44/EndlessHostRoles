@@ -1245,6 +1245,8 @@ public static class Options
         Swapster.SetupCustomOption();
         RoleLoadingText = "Impostor roles\nLibrarian";
         Librarian.SetupCustomOption();
+        RoleLoadingText = "Impostor roles\nSwiftclaw";
+        Swiftclaw.SetupCustomOption();
         RoleLoadingText = "Impostor roles\nCantankerous";
         Cantankerous.SetupCustomOption();
         RoleLoadingText = "Impostor roles\nDuellist";

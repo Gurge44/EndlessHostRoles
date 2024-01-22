@@ -522,6 +522,7 @@ static class ExtendedPlayerControl
             CustomRoles.YinYanger => pc.IsAlive(),
             CustomRoles.Librarian => pc.IsAlive() && Librarian.CanUseKillButton(pc),
             CustomRoles.Cantankerous => pc.IsAlive() && Cantankerous.CanUseKillButton(pc.PlayerId),
+            CustomRoles.Swiftclaw => pc.IsAlive(),
             CustomRoles.Kidnapper => pc.IsAlive(),
             CustomRoles.Swapster => pc.IsAlive(),
             CustomRoles.Kamikaze => pc.IsAlive(),

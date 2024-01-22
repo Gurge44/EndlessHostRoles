@@ -328,6 +328,7 @@ internal class ChangeRoleSettings
             YinYanger.Init();
             Blackmailer.Init();
             Cantankerous.Init();
+            Swiftclaw.Init();
             Duellist.Init();
             Druid.Init();
             GuessManagerRole.Init();
