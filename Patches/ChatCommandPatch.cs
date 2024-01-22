@@ -202,7 +202,7 @@ internal class ChatCommands
                     canceled = true;
                     subArgs = text.Remove(0, 3);
                     if (!PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp) break;
-                    Utils.SendMessage("/up was replaced by /setrole which allows you to set anyone's role for any game by typing '/setrole (ID) (ROLE)'. You can view ID's with /id.\nTo set your own role like with /up, you need to do '/setrole 0 (ROLE)'.", localPlayerId);
+                    Utils.SendMessage($"{Translator.GetString("UpReplacedMessage")}", localPlayerId); 
                     //if (!Options.EnableUpMode.GetBool())
                     //{
                     //    Utils.SendMessage(string.Format(GetString("Message.YTPlanDisabled"), GetString("EnableYTPlan")), localPlayerId);

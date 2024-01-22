@@ -34,7 +34,7 @@ internal class PingTrackerUpdatePatch
         else if (ping < 100) color = "#7bc690";
         else if (ping < 200) color = "#f3920e";
         else if (ping < 400) color = "#ff146e";
-        sb.Append("\r\n").Append($"<color={color}>Ping: {ping} ms</color>");
+        sb.Append("\r\n").Append($"<color={color}>{Translator.GetString("PingText")}: {ping} ms</color>");
 
         if (Options.NoGameEnd.GetBool()) sb.Append("\r\n").Append(Utils.ColorString(Color.red, GetString("NoGameEnd")));
         //if (Options.AllowConsole.GetBool()) sb.Append("\r\n").Append(Utils.ColorString(Color.red, GetString("AllowConsole")));
