@@ -2989,7 +2989,7 @@ class FixedUpdatePatch
                         case CustomRoles.Tornado when !seer.IsModClient():
                             Suffix.Append(Tornado.GetSuffixText(seer.PlayerId));
                             break;
-                        case CustomRoles.Rabbit:
+                        case CustomRoles.Rabbit when !seer.IsModClient():
                             Suffix.Append(Rabbit.GetSuffix(seer));
                             break;
                     }
@@ -3159,6 +3159,14 @@ class ExitVentPatch
         }
 
         Drainer.OnAnyoneExitVent(pc, __instance.Id);
+
+        if (Options.WhackAMole.GetBool())
+        {
+            _ = new LateTask(() =>
+            {
+                pc.TPtoRndVent();
+            }, 0.5f, "Whack-A-Mole TP");
+        }
     }
 }
 [HarmonyPatch(typeof(Vent), nameof(Vent.EnterVent))]

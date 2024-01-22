@@ -559,6 +559,7 @@ class HudManagerPatch
                         CustomRoles.Chronomancer => Chronomancer.GetHudText(),
                         CustomRoles.Mafioso => Mafioso.GetHUDText(),
                         CustomRoles.Druid => Druid.GetHUDText(player),
+                        CustomRoles.Rabbit => Rabbit.GetSuffix(player),
                         CustomRoles.Librarian => Librarian.GetSelfSuffixAndHUDText(player.PlayerId),
                         CustomRoles.PlagueDoctor => PlagueDoctor.GetLowerTextOthers(player, isForHud: true),
                         CustomRoles.Stealth => Stealth.GetSuffix(player, isHUD: true),

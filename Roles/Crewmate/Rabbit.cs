@@ -24,7 +24,7 @@ namespace TOHE.Roles.Crewmate
                 Arrow = (true, target.PlayerId);
                 SendRPC();
                 Utils.NotifyRoles(SpecifySeer: Player, SpecifyTarget: Player);
-                Logger.Info($"{Player.GetNameWithRole()}'s target: {target.GetNameWithRole()} ({TargetArrow.GetArrows(Player, Arrow.Target)})", "Rabbit");
+                Logger.Info($"{Player.GetNameWithRole()}'s target: {target.GetNameWithRole()}", "Rabbit");
 
                 _ = new LateTask(() =>
                 {
@@ -83,10 +83,11 @@ namespace TOHE.Roles.Crewmate
             if (pc == null || !RabbitStates.TryGetValue(pc.PlayerId, out RabbitState state)) return;
             state.OnTaskComplete();
         }
-        public static string GetSuffix(PlayerControl pc)
+        public static string GetSuffix(PlayerControl pc, bool HUD = false)
         {
             if (pc == null || !RabbitStates.TryGetValue(pc.PlayerId, out RabbitState state)) return string.Empty;
-            return state.Suffix;
+            string suffix = state.Suffix;
+            return HUD ? $"<size=200%>{suffix}</size>" : suffix;
         }
     }
 }
