@@ -3543,5 +3543,8 @@
   "ForceEnd": "Aborted",
   "EveryoneDied": "Everyone died",
   "ForceEndText": "Host has aborted the game",
-  "DiscoChangeInterval": "Disco Change Color Interval"
+  "DiscoChangeInterval": "Disco Change Color Interval",
+  "Modifier": "\nModifier: ",
+  "Modifiers": "\nModifiers: ",
+  "RoleSelected": "<b>The role of {0} in the next game will be{1}</b>"
 }

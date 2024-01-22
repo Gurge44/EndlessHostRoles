@@ -1519,11 +1519,11 @@ public static class Utils
                 CustomRoles role = SubRoles[0];
 
                 var RoleText = ColorString(GetRoleColor(role), GetRoleName(role));
-                sb.Append($"{ColorString(Color.gray, "\nModifier: ")}{RoleText}");
+                sb.Append($"{ColorString(Color.gray, Translator.GetString("Modifier"))}{RoleText}");
             }
             else
             {
-                sb.Append($"{ColorString(Color.gray, "\nModifiers: ")}");
+                sb.Append($"{ColorString(Color.gray, Translator.GetString("Modifiers"))}");
                 for (int i = 0; i < SubRoles.Count; i++)
                 {
                     if (i != 0) sb.Append(", ");
