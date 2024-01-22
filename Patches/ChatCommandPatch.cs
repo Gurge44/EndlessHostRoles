@@ -250,7 +250,8 @@ internal class ChatCommands
                         else Main.SetRoles[targetPc.PlayerId] = roleToSet;
 
                        var playername = $"<b>{Utils.ColorString(Main.PlayerColors.TryGetValue(resultId, out var textColor) ? textColor : Color.white, targetPc.GetRealName())}</b>";
-                       var rolename = $"<color={Main.roleColors[roleToSet]}> {GetString(roleToSet.ToString())} </color>";                    
+                       var rolename = $"<color={Main.roleColors[roleToSet]}> {GetString(roleToSet.ToString())} </color>";
+                       Utils.SendMessage("\n", localPlayerId, string.Format(GetString("RoleSelected"), playername, rolename));
                     }
                     break;
 
