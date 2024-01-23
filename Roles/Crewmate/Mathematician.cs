@@ -14,7 +14,7 @@
         }
         public static void Ask(PlayerControl pc, string num1Str, string num2Str)
         {
-            if (pc == null || !pc.IsAlive() || !int.TryParse(num1Str, out var num1) || !int.TryParse(num2Str, out var num2)) return;
+            if (pc == null || !pc.IsAlive() || State.AskedQuestion || !int.TryParse(num1Str, out var num1) || !int.TryParse(num2Str, out var num2)) return;
 
             State.AskedQuestion = true;
             State.Answer = num1 + num2;
