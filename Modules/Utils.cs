@@ -91,7 +91,7 @@ public static class Utils
         if (AmongUsClient.Instance.AmHost) nt.SnapTo(location, (ushort)(nt.lastSequenceId + 8));
 
         // Vanilla
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, ExtendedPlayerControl.PsendOption);
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.Reliable);
         NetHelpers.WriteVector2(location, messageWriter);
         messageWriter.Write(nt.lastSequenceId + 100U);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
@@ -726,6 +726,9 @@ public static class Utils
                     break;
                 case CustomRoles.Sheriff:
                     if (Sheriff.ShowShotLimit.GetBool()) ProgressText.Append(Sheriff.GetShotLimit(playerId));
+                    break;
+                case CustomRoles.Convener:
+                    ProgressText.Append(Convener.GetProgressText(playerId));
                     break;
                 case CustomRoles.Kamikaze:
                     ProgressText.Append(Kamikaze.GetProgressText(playerId));
@@ -1825,11 +1828,7 @@ public static class Utils
     {
         if (!AmongUsClient.Instance.AmHost) return;
         if (title == "" || title == string.Empty) title = "<color=#aaaaff>" + GetString("DefaultSystemMessageTitle") + "</color>";
-        if (!Main.UseVersionProtocol.Value)
-        {
-            text = text.Replace("TOHE+", "TOHE").Replace("+", string.Empty).Replace(Main.PluginVersion, string.Empty);
-            title = title.Replace("TOHE+", "TOHE").Replace("+", string.Empty).Replace(Main.PluginVersion, string.Empty);
-        }
+        text = text.Replace("color=", string.Empty);
         Main.MessagesToSend.Add((text.RemoveHtmlTagsTemplate(), sendTo, title));
     }
     public static void ApplySuffix(PlayerControl player)
@@ -1848,10 +1847,9 @@ public static class Utils
             if (!GameStates.IsLobby) return;
             if (player.AmOwner)
             {
-                if ((GameStates.IsOnlineGame || GameStates.IsLocalGame) && Main.UseVersionProtocol.Value)
+                if ((GameStates.IsOnlineGame || GameStates.IsLocalGame))
                     name = $"<color={GetString("HostColor")}>{GetString("HostText")}</color><color={GetString("IconColor")}>{GetString("Icon")}</color><color={GetString("NameColor")}>{name}</color>";
-                else if (!Main.UseVersionProtocol.Value)
-                    name = $"<color=#4bf4ff>Host</color><color=#902efd>♥</color><color=#00ffa5>Modded</color>";
+                
 
                 //name = $"<color=#902efd>{GetString("HostText")}</color><color=#4bf4ff>♥</color>" + name;
 
@@ -3007,6 +3005,9 @@ public static class Utils
             case CustomRoles.Druid:
                 Druid.Add(id);
                 break;
+            case CustomRoles.Convener:
+                Convener.Add(id);
+                break;
             case CustomRoles.FFF:
                 FFF.Add(id);
                 break;
@@ -3093,6 +3094,8 @@ public static class Utils
             CustomRoles.SecurityGuard => Options.SecurityGuardSkillCooldown.GetInt() + (includeDuration ? Options.SecurityGuardSkillDuration.GetInt() : 0),
             CustomRoles.TimeMaster => Options.TimeMasterSkillCooldown.GetInt() + (includeDuration ? Options.TimeMasterSkillDuration.GetInt() : 0),
             CustomRoles.Veteran => Options.VeteranSkillCooldown.GetInt() + (includeDuration ? Options.VeteranSkillDuration.GetInt() : 0),
+            CustomRoles.Swiftclaw => Swiftclaw.DashCD.GetInt() + (includeDuration ? Swiftclaw.DashDuration.GetInt() : 0),
+            CustomRoles.Perceiver => Perceiver.CD.GetInt(),
             CustomRoles.DovesOfNeace => Options.DovesOfNeaceCooldown.GetInt(),
             CustomRoles.Alchemist => Alchemist.VentCooldown.GetInt(),
             CustomRoles.NiceHacker => NiceHacker.AbilityCD.GetInt(),
@@ -3199,7 +3202,6 @@ public static class Utils
         Main.DontCancelVoteList.Clear();
 
         DoorsReset.ResetDoors();
-        KeepProtection.ProtectEveryone();
 
         if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer.Is(CustomRoles.GM))
         {

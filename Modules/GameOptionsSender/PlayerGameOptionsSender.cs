@@ -666,11 +666,16 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 case CustomRoles.Spiritcaller:
                     opt.SetVision(Spiritcaller.ImpostorVision.GetBool());
                     break;
-            }
-
-            if (Options.WhackAMole.GetBool() && role.GetRoleTypes() == RoleTypes.Engineer)
-            {
-                try { AURoleOptions.EngineerInVentMaxTime = 1f; } catch { }
+                case CustomRoles.Perceiver:
+                    if (Options.UsePets.GetBool()) break;
+                    AURoleOptions.EngineerCooldown = Perceiver.CD.GetFloat();
+                    AURoleOptions.EngineerInVentMaxTime = 1f;
+                    break;
+                case CustomRoles.Convener:
+                    if (Options.UsePets.GetBool()) break;
+                    AURoleOptions.EngineerCooldown = Convener.CD.GetFloat();
+                    AURoleOptions.EngineerInVentMaxTime = 1f;
+                    break;
             }
 
             if (Main.AllPlayerControls.Any(x => x.Is(CustomRoles.Bewilder) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == player.PlayerId && !x.Is(CustomRoles.Hangman)))
@@ -829,7 +834,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
             MeetingTimeManager.ApplyGameOptions(opt);
 
             AURoleOptions.ShapeshifterCooldown = Mathf.Max(1f, AURoleOptions.ShapeshifterCooldown);
-            AURoleOptions.ProtectionDurationSeconds = Main.UseVersionProtocol.Value ? 0f : 60f;
+            AURoleOptions.ProtectionDurationSeconds = 0f;
 
             return opt;
         }

@@ -607,8 +607,6 @@ class IntroCutsceneDestroyPatch
                 Penguin.OnSpawnAirship();
             }
 
-            KeepProtection.ProtectEveryone();
-
             if (Main.ResetCamPlayerList.Contains(PlayerControl.LocalPlayer.PlayerId))
             {
                 PlayerControl.LocalPlayer.Data.Role.AffectedByLightAffectors = false;

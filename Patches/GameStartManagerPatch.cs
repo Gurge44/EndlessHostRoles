@@ -75,7 +75,7 @@ public class GameStartManagerPatch
                     AURoleOptions.ShapeshifterCooldown = Main.LastShapeshifterCooldown.Value;
 
                 AURoleOptions.GuardianAngelCooldown = Spiritcaller.SpiritAbilityCooldown.GetFloat();
-                AURoleOptions.ProtectionDurationSeconds = Main.UseVersionProtocol.Value ? 0f : 60f;
+                AURoleOptions.ProtectionDurationSeconds = 0f;
             }
             catch (Exception ex)
             {
@@ -190,7 +190,7 @@ public class GameStartManagerPatch
                     if (!canStartGame)
                     {
                         __instance.StartButton.gameObject.SetActive(false);
-                        warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.MismatchedVersion"), string.Join(" ", mismatchedPlayerNameList), $"<color={Main.ModColor}>{(Main.UseVersionProtocol.Value ? "TOHE" : Main.ModName)}</color>"));
+                        warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.MismatchedVersion"), string.Join(" ", mismatchedPlayerNameList), $"<color={Main.ModColor}>{(Main.ModName)}</color>"));
                     }
                     cancelButton.gameObject.SetActive(__instance.startState == GameStartManager.StartingStates.Countdown);
                 }
@@ -208,7 +208,7 @@ public class GameStartManagerPatch
                             SceneChanger.ChangeScene("MainMenu");
                         }
                         if (exitTimer != 0)
-                            warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.AutoExitAtMismatchedVersion"), $"<color={Main.ModColor}>{(Main.UseVersionProtocol.Value ? "TOHE" : Main.ModName)}</color>", Math.Round(5 - exitTimer).ToString()));
+                            warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.AutoExitAtMismatchedVersion"), $"<color={Main.ModColor}>{(Main.ModName)}</color>", Math.Round(5 - exitTimer).ToString()));
                     }
                 }
                 if (warningMessage != "")

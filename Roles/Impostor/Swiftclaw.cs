@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace TOHE.Roles.Impostor
 {
@@ -10,9 +6,9 @@ namespace TOHE.Roles.Impostor
     {
         private static int Id => 643340;
         public static OptionItem DashCD;
-        private static OptionItem DashDuration;
+        public static OptionItem DashDuration;
         public static OptionItem DashSpeed;
-        private static readonly Dictionary<byte, long> DashStart;
+        private static readonly Dictionary<byte, (long StartTimeStamp, float NormalSpeed)> DashStart = [];
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Swiftclaw);
@@ -30,11 +26,24 @@ namespace TOHE.Roles.Impostor
         public static void OnPet(PlayerControl pc)
         {
             if (pc == null || DashStart.ContainsKey(pc.PlayerId)) return;
-            DashStart[pc.PlayerId] = Utils.GetTimeStamp();
-        }
-        public static void OnFixedUpdate()
-        {
 
+            DashStart[pc.PlayerId] = (Utils.GetTimeStamp(), Main.AllPlayerSpeed[pc.PlayerId]);
+            Main.AllPlayerSpeed[pc.PlayerId] = DashSpeed.GetFloat();
+            pc.MarkDirtySettings();
+        }
+        public static void OnFixedUpdate(PlayerControl pc)
+        {
+            if (!GameStates.IsInTask || pc == null || !DashStart.TryGetValue(pc.PlayerId, out var dashInfo) || dashInfo.StartTimeStamp + DashDuration.GetFloat() >= Utils.GetTimeStamp() || !pc.Is(CustomRoles.Swiftclaw)) return;
+
+            Main.AllPlayerSpeed[pc.PlayerId] = dashInfo.NormalSpeed;
+            pc.MarkDirtySettings();
+        }
+        public static void OnReportDeadBody()
+        {
+            foreach (var item in DashStart)
+            {
+                Main.AllPlayerSpeed[item.Key] = item.Value.NormalSpeed;
+            }
         }
     }
 }

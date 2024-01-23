@@ -79,7 +79,6 @@ public class Main : BasePlugin
     public static ConfigEntry<string> WebhookURL { get; private set; }
     public static ConfigEntry<string> BetaBuildURL { get; private set; }
     public static ConfigEntry<float> LastKillCooldown { get; private set; }
-    public static ConfigEntry<bool> UseVersionProtocol { get; private set; }
     public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
     public static OptionBackupData RealOptionsData;
     public static Dictionary<byte, float> KillTimers = [];
@@ -266,7 +265,6 @@ public class Main : BasePlugin
         SwitchVanilla = Config.Bind("Client Options", "SwitchVanilla", false);
         VersionCheat = Config.Bind("Client Options", "VersionCheat", false);
         GodMode = Config.Bind("Client Options", "GodMode", false);
-        UseVersionProtocol = Config.Bind("Client Options", "UseVersionProtocol", true);
         DarkTheme = Config.Bind("Client Options", "DarkTheme", false);
 
         Logger = BepInEx.Logging.Logger.CreateLogSource("TOHE");
@@ -361,6 +359,9 @@ public class Main : BasePlugin
                 {CustomRoles.Gaulois, "#42d1f5"},
                 {CustomRoles.Druid, "#ffb694"},
                 {CustomRoles.Autocrat, "#e2ed64"},
+                {CustomRoles.Perceiver, "#ebeb34"},
+                {CustomRoles.Convener, "#34eb7a"},
+                {CustomRoles.Mathematician, "#eb3474"},
                 {CustomRoles.Transmitter, "#c9a11e"},
                 {CustomRoles.Doppelganger,"#f6f4a3"},
                 {CustomRoles.Nightmare, "#1e1247"},
@@ -936,6 +937,7 @@ public enum CustomRoles
     Charmed,
     Cleansed,
     Contagious,
+    Convener,
     Damocles,
     DeadlyQuota,
     Disco,
@@ -961,12 +963,14 @@ public enum CustomRoles
     Madmate,
     Magnet,
     Mare,
+    Mathematician,
     Mimic,
     Necroview,
     Ntr, // Neptune
     Nimble,
     Oblivious,
     Onbound,
+    Perceiver,
     Physicist,
     Rascal,
     Reach,

@@ -116,6 +116,9 @@ internal static class CustomRolesHelper
                 CustomRoles.Altruist => CustomRoles.Crewmate,
                 CustomRoles.Transmitter => CustomRoles.Crewmate,
                 CustomRoles.Autocrat => CustomRoles.Crewmate,
+                CustomRoles.Perceiver => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
+                CustomRoles.Convener => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
+                CustomRoles.Mathematician => CustomRoles.Crewmate,
                 CustomRoles.Nightmare => CustomRoles.Crewmate,
                 CustomRoles.CameraMan => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
                 CustomRoles.Spy => CustomRoles.Crewmate,
@@ -252,6 +255,9 @@ internal static class CustomRolesHelper
             CustomRoles.Altruist => CustomRoles.CrewmateTOHE,
             CustomRoles.Transmitter => CustomRoles.CrewmateTOHE,
             CustomRoles.Autocrat => CustomRoles.CrewmateTOHE,
+            CustomRoles.Mathematician => CustomRoles.CrewmateTOHE,
+            CustomRoles.Perceiver => CustomRoles.EngineerTOHE,
+            CustomRoles.Convener => CustomRoles.EngineerTOHE,
             CustomRoles.Nightmare => CustomRoles.CrewmateTOHE,
             CustomRoles.CameraMan => CustomRoles.EngineerTOHE,
             CustomRoles.Spy => CustomRoles.CrewmateTOHE,
@@ -1103,8 +1109,10 @@ internal static class CustomRolesHelper
     };
     public static List<CustomRoles> OnlySpawnsWithPetsRoleList = [
         CustomRoles.Tunneler,
-        CustomRoles.Tornado
+        CustomRoles.Tornado,
+        CustomRoles.Swiftclaw,
         ];
+    public static bool OnlySpawnsWithPets(this CustomRoles role) => OnlySpawnsWithPetsRoleList.Contains(role);
     public static bool NeedUpdateOnLights(this CustomRoles role) => (!role.UsesPetInsteadOfKill()) && (role.GetDYRole() != RoleTypes.GuardianAngel || role is
         CustomRoles.Sheriff or
         CustomRoles.Medic or
@@ -1505,30 +1513,6 @@ internal static class CustomRolesHelper
         CustomRoles.DoubleShot when Options.CrewCanBeDoubleShot.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.NiceGuesser) && pc.Is(CustomRoleTypes.Crewmate) && !Options.CrewmatesCanGuess.GetBool() => false,
         CustomRoles.DoubleShot when Options.NeutralCanBeDoubleShot.GetBool() && !pc.Is(CustomRoles.Guesser) && ((pc.GetCustomRole().IsNonNK() && !Options.PassiveNeutralsCanGuess.GetBool()) || (pc.GetCustomRole().IsNK() && !Options.NeutralKillersCanGuess.GetBool())) => false,
         _ => true
-    };
-    public static bool IsAbleToHostPublic(this CustomRoles role) => Main.UseVersionProtocol.Value || role switch
-    {
-        // Because of Double Trigger use
-        CustomRoles.EvilDiviner or
-        CustomRoles.Mastermind or
-        CustomRoles.Puppeteer or
-        CustomRoles.Witch or
-        CustomRoles.Glitch or
-        CustomRoles.HexMaster or
-        CustomRoles.Infectious or
-        CustomRoles.Consort or
-        CustomRoles.Eraser or
-        CustomRoles.Nullifier or
-        CustomRoles.Ritualist or
-        CustomRoles.Puppeteer or
-        CustomRoles.Capitalism or
-        CustomRoles.Pyromaniac
-        => false,
-
-        // Because of GA use
-        CustomRoles.Spiritcaller
-        => false,
-        _ => true,
     };
     public static Team GetTeam(this CustomRoles role)
     {

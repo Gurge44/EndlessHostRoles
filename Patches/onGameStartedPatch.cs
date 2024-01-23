@@ -329,6 +329,8 @@ internal class ChangeRoleSettings
             Blackmailer.Init();
             Cantankerous.Init();
             Swiftclaw.Init();
+            Convener.Init();
+            Mathematician.Init();
             Duellist.Init();
             Druid.Init();
             GuessManagerRole.Init();
@@ -451,6 +453,8 @@ internal class SelectRolesPatch
 
         try
         {
+            RevivePreventerPatch.Ignore = true;
+
             var rd = IRandom.Instance;
 
             Main.NimblePlayer = byte.MaxValue;
@@ -712,6 +716,8 @@ internal class SelectRolesPatch
             var vents = UnityEngine.Object.FindObjectsOfType<Vent>();
             var vent = vents[rd.Next(0, vents.Count)];
             TryMoveToVentPatch.HostVentTarget = vent;
+
+            RevivePreventerPatch.Ignore = false;
         }
         catch (Exception ex)
         {

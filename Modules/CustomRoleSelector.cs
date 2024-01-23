@@ -124,7 +124,7 @@ internal class CustomRoleSelector
             object cr = list[i1];
             CustomRoles role = (CustomRoles)Enum.Parse(typeof(CustomRoles), cr.ToString());
             int chance = role.GetMode();
-            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (CustomRolesHelper.OnlySpawnsWithPetsRoleList.Contains(role) && !Options.UsePets.GetBool()) || (!Main.UseVersionProtocol.Value && !role.IsAbleToHostPublic())) continue;
+            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool())) continue;
             switch (role)
             {
                 case CustomRoles.DarkHide when (MapNames)Main.NormalOptions.MapId == MapNames.Fungle:
@@ -603,7 +603,7 @@ internal class CustomRoleSelector
         {
             object cr = list[i];
             CustomRoles role = (CustomRoles)Enum.Parse(typeof(CustomRoles), cr.ToString());
-            if (!role.IsAdditionRole() || (!Main.UseVersionProtocol.Value && !role.IsAbleToHostPublic())) continue;
+            if (!role.IsAdditionRole()) continue;
             switch (role)
             {
                 case CustomRoles.Mare when (MapNames)Main.NormalOptions.MapId == MapNames.Fungle:

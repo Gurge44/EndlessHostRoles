@@ -315,6 +315,12 @@ class ExternalRpcPetPatch
                 }
                 pc.Notify(sb.ToString());
                 break;
+            case CustomRoles.Convener:
+                Convener.UseAbility(pc, isPet: true);
+                break;
+            case CustomRoles.Perceiver:
+                Perceiver.UseAbility(pc);
+                break;
 
             case CustomRoles.Gaulois when hasKillTarget:
                 pc.AddKCDAsAbilityCD();
@@ -529,6 +535,9 @@ class ExternalRpcPetPatch
                 break;
             case CustomRoles.Twister:
                 Twister.TwistPlayers(pc, true);
+                break;
+            case CustomRoles.Swiftclaw:
+                Swiftclaw.OnPet(pc);
                 break;
 
             // Neutrals

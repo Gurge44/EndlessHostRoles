@@ -294,7 +294,7 @@ static class ExtendedPlayerControl
         }
         else
         {
-            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, PsendOption, killer.GetClientId());
+            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable, killer.GetClientId());
             messageWriter.WriteNetObject(target);
             messageWriter.Write((byte)ResultFlags);
             AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
@@ -1305,7 +1305,7 @@ static class ExtendedPlayerControl
     {
         //Used for TOHE's pre-kill judgment
 
-        if (Options.CurrentGameMode == CustomGameMode.SoloKombat) return;
+        if (Options.CurrentGameMode == CustomGameMode.SoloKombat) return; if (target == null) target = killer;
 
         if (target.GetTeam() is Team.Impostor or Team.Neutral) Stressed.OnNonCrewmateDead();
 
@@ -1355,20 +1355,12 @@ static class ExtendedPlayerControl
             return;
         }
 
-        killer.RpcMurderPlayerV2(target);
+        killer.RpcMurderPlayer(target, true);
     }
     public static void RpcMurderPlayerV2(this PlayerControl killer, PlayerControl target)
     {
-        if (target == null) target = killer;
-
-        if (Main.UseVersionProtocol.Value)
-        {
-            killer.RpcMurderPlayer(target, true);
-            return;
-        }
-
         target.RemoveProtection();
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.MurderPlayer, PsendOption, -1);
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable, -1);
         messageWriter.WriteNetObject(target);
         messageWriter.Write((int)MurderResultFlags.FailedProtected);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
@@ -1380,7 +1372,7 @@ static class ExtendedPlayerControl
         else
         {
             killer.MurderPlayer(target, ResultFlags);
-            MessageWriter messageWriter2 = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, PsendOption, -1);
+            MessageWriter messageWriter2 = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable, -1);
             messageWriter2.WriteNetObject(target);
             messageWriter2.Write((int)ResultFlags);
             AmongUsClient.Instance.FinishRpcImmediately(messageWriter2);
@@ -1530,6 +1522,4 @@ static class ExtendedPlayerControl
     public static bool IsProtected(this PlayerControl self) => self.protectedByGuardianId > -1;
 
     public const MurderResultFlags ResultFlags = MurderResultFlags.Succeeded | MurderResultFlags.DecisionByHost;
-
-    public static SendOption PsendOption = Main.UseVersionProtocol.Value ? SendOption.Reliable : SendOption.None;
 }

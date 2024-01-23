@@ -16,7 +16,6 @@ public static class OptionsMenuBehaviourStartPatch
     private static ClientOptionItem SwitchVanilla;
     private static ClientOptionItem DarkTheme;
 #if DEBUG
-    public static ClientOptionItem UseVersionProtocol;
     private static ClientOptionItem VersionCheat;
     private static ClientOptionItem GodMode;
 #endif
@@ -84,10 +83,6 @@ public static class OptionsMenuBehaviourStartPatch
             DarkTheme = ClientOptionItem.Create("EnableDarkTheme", Main.DarkTheme, __instance);
         }
 #if DEBUG
-        if (UseVersionProtocol == null || UseVersionProtocol.ToggleButton == null)
-        {
-            UseVersionProtocol = ClientOptionItem.Create("UseVersionProtocol", Main.UseVersionProtocol, __instance);
-        }
         if ((VersionCheat == null || VersionCheat.ToggleButton == null) && DebugModeManager.AmDebugger)
         {
             VersionCheat = ClientOptionItem.Create("VersionCheat", Main.VersionCheat, __instance);

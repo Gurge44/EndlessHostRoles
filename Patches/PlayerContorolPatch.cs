@@ -749,8 +749,6 @@ class CheckMurderPatch
             return false;
         }
 
-        if (!Main.UseVersionProtocol.Value) return true;
-
         //==Kill processing==
         __instance.Kill(target);
         //===================
@@ -794,6 +792,8 @@ class CheckMurderPatch
 
         if (Medic.OnCheckMurder(killer, target))
             return false;
+
+        if (Mathematician.State.ProtectedPlayerId == target.PlayerId) return false;
 
         if (SoulHunter.IsTargetBlocked && SoulHunter.CurrentTarget.ID == killer.PlayerId && target.Is(CustomRoles.SoulHunter))
         {
@@ -1073,7 +1073,7 @@ class CheckMurderPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.MurderPlayer))]
 class MurderPlayerPatch
 {
-    public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] MurderResultFlags resultFlags)
+    public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target/*, [HarmonyArgument(1)] MurderResultFlags resultFlags*/)
     {
         Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}{(target.IsProtected() ? " (Protected)" : string.Empty)}", "MurderPlayer");
 
@@ -1083,25 +1083,6 @@ class MurderPlayerPatch
         {
             Camouflage.ResetSkinAfterDeathPlayers.Add(target.PlayerId);
             Camouflage.RpcSetSkin(target, ForceRevert: true);
-        }
-
-        if (!Main.UseVersionProtocol.Value && resultFlags == MurderResultFlags.FailedProtected && __instance.PlayerId != target.PlayerId)
-        {
-            if (CheckMurderPatch.Prefix(__instance, target))
-            {
-                __instance.Kill(target);
-            }
-            else
-            {
-                var sender = CustomRpcSender.Create(sendOption: SendOption.Reliable);
-                sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)RpcCalls.ProtectPlayer, __instance.GetClientId())
-                    .WriteNetObject(target)
-                    .Write(18)
-                    .EndRpc();
-                sender.SendMessage();
-
-                _ = new LateTask(() => { if (GameStates.IsInTask) KeepProtection.Protect(target); }, 0.1f, "Protect Target On Kill");
-            }
         }
     }
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
@@ -1916,6 +1897,7 @@ class ReportDeadBodyPatch
         if (Drainer.IsEnable) Drainer.OnReportDeadBody();
         if (Stealth.IsEnable) Stealth.OnStartMeeting();
         if (Reckless.IsEnable) Reckless.OnReportDeadBody();
+        Swiftclaw.OnReportDeadBody();
 
         if (Mortician.IsEnable) Mortician.OnReportDeadBody(player, target);
         if (Tracefinder.IsEnable) Tracefinder.OnReportDeadBody(/*player, target*/);
@@ -2003,11 +1985,6 @@ class FixedUpdatePatch
 
     public static async void Postfix(PlayerControl __instance)
     {
-        if (!Main.UseVersionProtocol.Value && !DevManager.DevUserList.Any(x => x.Code == EOSManager.Instance.friendCode && x.IsUp))
-        {
-            Main.UseVersionProtocol.Value = true;
-        }
-
         if (__instance == null) return;
         if (!GameStates.IsModHost) return;
 
@@ -2112,8 +2089,6 @@ class FixedUpdatePatch
             else if (!player.inVent && !player.MyPhysics.Animations.IsPlayingEnterVentAnimation() && Main.KillTimers[playerId] > 0)
                 Main.KillTimers[playerId] -= Time.fixedDeltaTime;
 
-            if (GameStates.IsInTask) KeepProtection.OnFixedUpdate();
-
             if (DoubleTrigger.FirstTriggerTimer.Count > 0) DoubleTrigger.OnFixedUpdate(player);
             switch (player.GetCustomRole())
             {
@@ -2191,6 +2166,9 @@ class FixedUpdatePatch
                     break;
                 case CustomRoles.Gambler when !lowLoad:
                     Gambler.OnFixedUpdate(player);
+                    break;
+                case CustomRoles.Swiftclaw when !lowLoad:
+                    Swiftclaw.OnFixedUpdate(player);
                     break;
             }
             if (GameStates.IsInTask && player.Is(CustomRoles.PlagueBearer) && PlagueBearer.IsPlaguedAll(player))
@@ -3445,6 +3423,9 @@ class EnterVentPatch
                     }
                     break;
                 }
+            case CustomRoles.Perceiver:
+                Perceiver.UseAbility(pc);
+                break;
         }
     }
 }
@@ -3621,7 +3602,7 @@ class CoEnterVentPatch
                 //writer2.Write(id);
                 //AmongUsClient.Instance.FinishRpcImmediately(writer2);
             }, 0.5f, "Fix DesyncImpostor Stuck");
-            return false;
+            return true;
         }
 
         switch (__instance.myPlayer.GetCustomRole())
@@ -3646,6 +3627,9 @@ class CoEnterVentPatch
                 break;
             case CustomRoles.WeaponMaster:
                 WeaponMaster.OnEnterVent(__instance.myPlayer, id);
+                break;
+            case CustomRoles.Convener:
+                Convener.UseAbility(__instance.myPlayer, id);
                 break;
         }
 
@@ -3861,8 +3845,10 @@ class PlayerControlLocalSetRolePatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Revive))]
 class RevivePreventerPatch
 {
+    public static bool Ignore = false;
     public static bool Prefix(ref PlayerControl __instance)
     {
+        if (Ignore) return true;
         Logger.Warn("Revive attempted", "RevivePreventerPatch");
         __instance = null;
         return false;

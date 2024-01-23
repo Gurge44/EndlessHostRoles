@@ -442,6 +442,14 @@ public class TaskState
                     case CustomRoles.Judge:
                         Judge.TrialLimit[player.PlayerId] += Judge.JudgeAbilityUseGainWithEachTaskCompleted.GetFloat();
                         break;
+                    case CustomRoles.Perceiver:
+                        Perceiver.UseLimit[player.PlayerId] += Perceiver.PerceiverAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        Perceiver.SendRPC(player.PlayerId);
+                        break;
+                    case CustomRoles.Convener:
+                        Convener.UseLimit[player.PlayerId] += Convener.ConvenerAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        Convener.SendRPC(player.PlayerId);
+                        break;
                 }
 
                 switch (player.GetCustomRole())

@@ -1586,6 +1586,12 @@ public static class Options
         NiceHacker.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nDoormaster";
         Doormaster.SetupCustomOption();
+        RoleLoadingText = "Crewmate roles\nConvener";
+        Convener.SetupCustomOption();
+        RoleLoadingText = "Crewmate roles\nPerceiver";
+        Perceiver.SetupCustomOption();
+        RoleLoadingText = "Crewmate roles\nMathematician";
+        Mathematician.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nRicochet";
         Ricochet.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nEscort";

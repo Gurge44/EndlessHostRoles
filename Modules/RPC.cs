@@ -58,6 +58,8 @@ public enum CustomRPC
 
     //Roles
     SetDrawPlayer,
+    SyncConvener,
+    SyncPerceiver,
     SyncRabbit,
     SyncSoulHunter,
     SyncKamikazeLimit,
@@ -479,6 +481,12 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SpyRedNameRemove:
                 Spy.ReceiveRPC(reader, isRemove: true);
+                break;
+            case CustomRPC.SyncPerceiver:
+                Perceiver.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncConvener:
+                Convener.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetDivinatorLimit:
                 Divinator.ReceiveRPC(reader);
