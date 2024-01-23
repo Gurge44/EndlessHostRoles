@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using Hazel;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -9,6 +11,7 @@ namespace TOHE.Roles.Crewmate
         public static OptionItem CD;
         public static OptionItem Limit;
         public static OptionItem PerceiverAbilityUseGainWithEachTaskCompleted;
+        public static readonly Dictionary<byte, float> UseLimit = [];
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Perceiver);
@@ -23,11 +26,26 @@ namespace TOHE.Roles.Crewmate
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Perceiver])
                 .SetValueFormat(OptionFormat.Times);
         }
+        public static void SendRPC(byte id)
+        {
+            var writer = Utils.CreateCustomRoleRPC(CustomRPC.SyncPerceiver);
+            writer.Write(id);
+            writer.Write(UseLimit[id]);
+            Utils.EndRPC(writer);
+        }
+        public static void ReceiveRPC(MessageReader reader)
+        {
+            byte id = reader.ReadByte();
+            float limit = reader.ReadSingle();
+            UseLimit[id] = limit;
+        }
         public static void UseAbility(PlayerControl pc)
         {
             if (pc == null) return;
             var killers = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Crewmate) && x.HasKillButton() && UnityEngine.Vector2.Distance(x.Pos(), pc.Pos()) <= Radius.GetFloat()).ToArray();
             pc.Notify(string.Format(Translator.GetString("PerceiverNotify"), killers.Length));
+            UseLimit[pc.PlayerId]--;
+            SendRPC(pc.PlayerId);
         }
     }
 }
