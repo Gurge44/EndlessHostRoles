@@ -2711,7 +2711,7 @@
   "PenguinTimerText": "Tempo para arrastar restante",
   "Stealth": "Furtivo",
   "StealthInfo": "matar Cega todos na sala",
-  "StealthInfoLong": "(Impostores):\\nQuando o Furtivo mata, jogadores na mesma sala ficam sem visão por um curto período.",
+  "StealthInfoLong": "(Impostores):\\nQuando o Furtivo mata, os jogadores na mesma sala ficam sem visão por um curto período.",
   "StealthDarkened": "Cegado: {0}",
   "StealthExcludeImpostors": "Ignorar Impostores ao Cegar",
   "StealthDarkenDuration": "Duração da Visão Zero",
