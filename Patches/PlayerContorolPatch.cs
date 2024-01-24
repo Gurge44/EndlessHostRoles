@@ -1898,6 +1898,7 @@ class ReportDeadBodyPatch
         if (Stealth.IsEnable) Stealth.OnStartMeeting();
         if (Reckless.IsEnable) Reckless.OnReportDeadBody();
         Swiftclaw.OnReportDeadBody();
+        Mathematician.OnReportDeadBody();
 
         if (Mortician.IsEnable) Mortician.OnReportDeadBody(player, target);
         if (Tracefinder.IsEnable) Tracefinder.OnReportDeadBody(/*player, target*/);
@@ -3136,6 +3137,8 @@ class ExitVentPatch
             TryMoveToVentPatch.HostVentTarget = __instance;
         }
 
+        if (!AmongUsClient.Instance.AmHost) return;
+
         Drainer.OnAnyoneExitVent(pc, __instance.Id);
 
         if (Options.WhackAMole.GetBool())
@@ -3166,19 +3169,13 @@ class EnterVentPatch
         if (Witch.IsEnable) Witch.OnEnterVent(pc);
         if (HexMaster.IsEnable) HexMaster.OnEnterVent(pc);
 
-        if (pc.Is(CustomRoles.Mayor))
+        switch (pc.GetCustomRole())
         {
-            if (Main.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count) && count < Options.MayorNumOfUseButton.GetInt())
-            {
+            case CustomRoles.Mayor when !Options.UsePets.GetBool() && Main.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count2) && count2 < Options.MayorNumOfUseButton.GetInt():
                 pc?.MyPhysics?.RpcBootFromVent(__instance.Id);
                 pc?.ReportDeadBody(null);
-            }
-        }
-
-        if (pc.Is(CustomRoles.Paranoia))
-        {
-            if (Main.ParaUsedButtonCount.TryGetValue(pc.PlayerId, out var count) && count < Options.ParanoiaNumOfUseButton.GetInt())
-            {
+                break;
+            case CustomRoles.Paranoia when !Options.UsePets.GetBool() && Main.ParaUsedButtonCount.TryGetValue(pc.PlayerId, out var count) && count < Options.ParanoiaNumOfUseButton.GetInt():
                 Main.ParaUsedButtonCount[pc.PlayerId] += 1;
                 if (AmongUsClient.Instance.AmHost)
                 {
@@ -3189,24 +3186,22 @@ class EnterVentPatch
                 }
                 pc?.MyPhysics?.RpcBootFromVent(__instance.Id);
                 pc?.NoCheckStartMeeting(pc?.Data);
-            }
-        }
-
-        if (pc.Is(CustomRoles.Mario))
-        {
-            Main.MarioVentCount.TryAdd(pc.PlayerId, 0);
-            Main.MarioVentCount[pc.PlayerId]++;
-            NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            if (pc.AmOwner)
-            {
-                //     if (Main.MarioVentCount[pc.PlayerId] % 5 == 0) CustomSoundsManager.Play("MarioCoin");
-                //     else CustomSoundsManager.Play("MarioJump");
-            }
-            if (AmongUsClient.Instance.AmHost && Main.MarioVentCount[pc.PlayerId] >= Options.MarioVentNumWin.GetInt())
-            {
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Mario); //马里奥这个多动症赢了
-                CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
-            }
+                break;
+            case CustomRoles.Mario:
+                Main.MarioVentCount.TryAdd(pc.PlayerId, 0);
+                Main.MarioVentCount[pc.PlayerId]++;
+                NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                if (pc.AmOwner)
+                {
+                    //     if (Main.MarioVentCount[pc.PlayerId] % 5 == 0) CustomSoundsManager.Play("MarioCoin");
+                    //     else CustomSoundsManager.Play("MarioJump");
+                }
+                if (AmongUsClient.Instance.AmHost && Main.MarioVentCount[pc.PlayerId] >= Options.MarioVentNumWin.GetInt())
+                {
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Mario); //马里奥这个多动症赢了
+                    CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                }
+                break;
         }
 
         if (!AmongUsClient.Instance.AmHost) return;
@@ -3241,7 +3236,7 @@ class EnterVentPatch
             case CustomRoles.Addict:
                 Addict.OnEnterVent(pc, __instance);
                 break;
-            case CustomRoles.CameraMan:
+            case CustomRoles.CameraMan when !Options.UsePets.GetBool():
                 CameraMan.OnEnterVent(pc);
                 break;
             case CustomRoles.Alchemist:
@@ -3250,7 +3245,7 @@ class EnterVentPatch
             case CustomRoles.Chameleon:
                 Chameleon.OnEnterVent(pc, __instance);
                 break;
-            case CustomRoles.Tether:
+            case CustomRoles.Tether when !Options.UsePets.GetBool():
                 Tether.OnEnterVent(pc, __instance.Id);
                 break;
             case CustomRoles.Werewolf:
@@ -3262,10 +3257,10 @@ class EnterVentPatch
             case CustomRoles.Lurker:
                 Lurker.OnEnterVent(pc);
                 break;
-            case CustomRoles.Druid:
+            case CustomRoles.Druid when !Options.UsePets.GetBool():
                 Druid.OnEnterVent(pc);
                 break;
-            case CustomRoles.Doormaster:
+            case CustomRoles.Doormaster when !Options.UsePets.GetBool():
                 Doormaster.OnEnterVent(pc);
                 break;
             case CustomRoles.Mycologist when Mycologist.SpreadAction.GetValue() == 0:
@@ -3274,7 +3269,7 @@ class EnterVentPatch
             case CustomRoles.Hookshot:
                 Hookshot.SwitchActionMode();
                 break;
-            case CustomRoles.Sentinel:
+            case CustomRoles.Sentinel when !Options.UsePets.GetBool():
                 Sentinel.StartPatrolling(pc);
                 break;
             case CustomRoles.Ventguard:
@@ -3289,7 +3284,7 @@ class EnterVentPatch
                     pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
                 }
                 break;
-            case CustomRoles.Veteran:
+            case CustomRoles.Veteran when !Options.UsePets.GetBool():
                 if (Main.VeteranNumOfUsed[pc.PlayerId] >= 1)
                 {
                     Main.VeteranInProtect.Remove(pc.PlayerId);
@@ -3306,7 +3301,7 @@ class EnterVentPatch
                     pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
                 }
                 break;
-            case CustomRoles.Grenadier:
+            case CustomRoles.Grenadier when !Options.UsePets.GetBool():
                 if (Main.GrenadierNumOfUsed[pc.PlayerId] >= 1)
                 {
                     if (pc.Is(CustomRoles.Madmate))
@@ -3333,7 +3328,7 @@ class EnterVentPatch
                     pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
                 }
                 break;
-            case CustomRoles.Lighter:
+            case CustomRoles.Lighter when !Options.UsePets.GetBool():
                 if (Main.LighterNumOfUsed[pc.PlayerId] >= 1)
                 {
                     Main.Lighter.Remove(pc.PlayerId);
@@ -3348,7 +3343,7 @@ class EnterVentPatch
                     pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
                 }
                 break;
-            case CustomRoles.SecurityGuard:
+            case CustomRoles.SecurityGuard when !Options.UsePets.GetBool():
                 if (Main.SecurityGuardNumOfUsed[pc.PlayerId] >= 1)
                 {
                     Main.BlockSabo.Remove(pc.PlayerId);
@@ -3362,7 +3357,7 @@ class EnterVentPatch
                     pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
                 }
                 break;
-            case CustomRoles.DovesOfNeace:
+            case CustomRoles.DovesOfNeace when !Options.UsePets.GetBool():
                 if (Main.DovesOfNeaceNumOfUsed[pc.PlayerId] < 1)
                 {
                     //pc?.MyPhysics?.RpcBootFromVent(__instance.Id);
@@ -3390,7 +3385,7 @@ class EnterVentPatch
                     pc.AddAbilityCD();
                 }
                 break;
-            case CustomRoles.TimeMaster:
+            case CustomRoles.TimeMaster when !Options.UsePets.GetBool():
                 {
                     if (Main.TimeMasterNumOfUsed[pc.PlayerId] >= 1)
                     {
@@ -3423,7 +3418,7 @@ class EnterVentPatch
                     }
                     break;
                 }
-            case CustomRoles.Perceiver:
+            case CustomRoles.Perceiver when !Options.UsePets.GetBool():
                 Perceiver.UseAbility(pc);
                 break;
         }

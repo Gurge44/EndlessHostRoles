@@ -332,12 +332,14 @@ internal class ChatCommands
                     MeetingHud.Instance?.CastVote(PlayerControl.LocalPlayer.PlayerId, voteId);
                     break;
 
-                case "/quiz":
+                case "/ask":
                     canceled = true;
+                    if (args.Length < 3) break;
                     try { Mathematician.Ask(PlayerControl.LocalPlayer, args[1], args[2]); } catch { }
                     break;
 
-                case "/reply":
+                case "/answer":
+                    if (args.Length < 2) break;
                     try { Mathematician.Reply(PlayerControl.LocalPlayer, args[1]); } catch { }
                     break;
 
@@ -1028,10 +1030,10 @@ internal class ChatCommands
                 ChatManager.SendPreviousMessagesToAll();
                 MeetingHud.Instance?.CastVote(player.PlayerId, voteId);
                 break;
-            case "/quiz":
+            case "/ask":
                 try { Mathematician.Ask(player, args[1], args[2]); } catch { }
                 break;
-            case "/reply":
+            case "/answer":
                 try { Mathematician.Reply(player, args[1]); } catch { }
                 break;
             case "/ban":

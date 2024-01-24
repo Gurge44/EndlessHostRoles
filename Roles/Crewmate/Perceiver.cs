@@ -41,11 +41,14 @@ namespace TOHE.Roles.Crewmate
         }
         public static void UseAbility(PlayerControl pc)
         {
-            if (pc == null) return;
+            if (pc == null || !UseLimit.TryGetValue(pc.PlayerId, out var limit) || limit < 1f) return;
+
             var killers = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Crewmate) && x.HasKillButton() && UnityEngine.Vector2.Distance(x.Pos(), pc.Pos()) <= Radius.GetFloat()).ToArray();
             pc.Notify(string.Format(Translator.GetString("PerceiverNotify"), killers.Length));
+
             UseLimit[pc.PlayerId]--;
             SendRPC(pc.PlayerId);
         }
+        public static string GetProgressText(byte id) => UseLimit.TryGetValue(id, out var limit) ? $"<#777777>-</color> <#ff{(limit < 1 ? "0000" : "ffff")}>{System.Math.Round(limit, 1)}</color>" : string.Empty;
     }
 }

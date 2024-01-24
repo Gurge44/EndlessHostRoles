@@ -46,7 +46,7 @@ internal static class CustomRolesHelper
                 CustomRoles.EvilDiviner => CustomRoles.Impostor,
                 CustomRoles.Wildling => Wildling.CanShapeshift.GetBool() ? CustomRoles.Shapeshifter : CustomRoles.Impostor,
                 CustomRoles.Morphling => CustomRoles.Shapeshifter,
-                CustomRoles.Warlock => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
+                CustomRoles.Warlock => CustomRoles.Impostor,
                 CustomRoles.SerialKiller => CustomRoles.Impostor,
                 CustomRoles.FireWorks => CustomRoles.Shapeshifter,
                 CustomRoles.SpeedBooster => CustomRoles.Crewmate,

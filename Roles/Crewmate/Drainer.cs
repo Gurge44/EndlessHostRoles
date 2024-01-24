@@ -70,7 +70,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void OnAnyoneExitVent(PlayerControl pc, int ventId)
         {
-            if (!IsEnable) return;
+            if (!IsEnable || !AmongUsClient.Instance.AmHost) return;
             if (pc != null) playersInVents.Remove(pc.PlayerId);
         }
 
@@ -88,8 +88,8 @@ namespace TOHE.Roles.Crewmate
 
         public static void OnAnyoneEnterVent(PlayerControl pc, Vent vent)
         {
-            if (!IsEnable) return;
-            if (pc == null || vent == null) return;
+            if (!IsEnable || !AmongUsClient.Instance.AmHost || pc == null || vent == null) return;
+
             if (pc.Is(CustomRoles.Drainer))
             {
                 OnDrainerEnterVent(pc, vent);

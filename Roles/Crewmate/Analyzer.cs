@@ -142,7 +142,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void OnAnyoneEnterVent(PlayerControl pc)
         {
-            if (!IsEnable) return;
+            if (!IsEnable || !AmongUsClient.Instance.AmHost) return;
             if (VentCount.ContainsKey(pc.PlayerId)) VentCount[pc.PlayerId]++;
             else VentCount[pc.PlayerId] = 1;
         }

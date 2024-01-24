@@ -130,6 +130,7 @@ class OnPlayerLeftPatch
                         Main.PlayerStates[lovers.PlayerId].RemoveSubRole(CustomRoles.Lovers);
                     }
                 }
+
                 if (data.Character.Is(CustomRoles.Executioner) && Executioner.Target.ContainsKey(data.Character.PlayerId))
                     Executioner.ChangeRole(data.Character);
                 if (Executioner.Target.ContainsValue(data.Character.PlayerId))
@@ -144,9 +145,13 @@ class OnPlayerLeftPatch
                     Spiritualist.RemoveTarget();
                 if (data.Character.PlayerId == Postman.Target)
                     Postman.SetNewTarget();
+
+                Utils.AfterPlayerDeathTasks(data.Character, GameStates.IsMeeting);
+
                 PlayerState state = Main.PlayerStates[data.Character.PlayerId];
                 if (state.deathReason == PlayerState.DeathReason.etc) state.deathReason = PlayerState.DeathReason.Disconnected;
                 if (!state.IsDead) state.SetDead();
+
                 NameNotifyManager.Notice.Remove(data.Character.PlayerId);
                 data.Character.RpcSetName(data.Character.GetRealName(isMeeting: true));
                 AntiBlackout.OnDisconnect(data.Character.Data);

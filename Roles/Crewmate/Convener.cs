@@ -42,7 +42,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static void UseAbility(PlayerControl pc, int ventId = 0, bool isPet = false)
         {
-            if (pc == null) return;
+            if (pc == null || !UseLimit.TryGetValue(pc.PlayerId, out var limit) || limit < 1f) return;
 
             if (isPet)
             {
@@ -51,12 +51,12 @@ namespace TOHE.Roles.Crewmate
             else
             {
                 _ = new LateTask(() => { pc.MyPhysics.RpcBootFromVent(ventId); }, 0.5f, "Convener RpcBootFromVent");
-                _ = new LateTask(() => Utils.TPAll(pc.Pos()), 1f, "Convener TP");
+                _ = new LateTask(() => { Utils.TPAll(pc.Pos()); }, 1f, "Convener TP");
             }
 
             UseLimit[pc.PlayerId]--;
             SendRPC(pc.PlayerId);
         }
-        public static string GetProgressText(byte id) => UseLimit.TryGetValue(id, out var limit) ? $"<#777777>-</color> <#ffffff>{limit}</color>" : string.Empty;
+        public static string GetProgressText(byte id) => UseLimit.TryGetValue(id, out var limit) ? $"<#777777>-</color> <#ff{(limit < 1f ? "0000" : "ffff")}>{Math.Round(limit, 1)}</color>" : string.Empty;
     }
 }

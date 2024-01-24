@@ -727,6 +727,9 @@ public static class Utils
                 case CustomRoles.Sheriff:
                     if (Sheriff.ShowShotLimit.GetBool()) ProgressText.Append(Sheriff.GetShotLimit(playerId));
                     break;
+                case CustomRoles.Perceiver:
+                    ProgressText.Append(Perceiver.GetProgressText(playerId));
+                    break;
                 case CustomRoles.Convener:
                     ProgressText.Append(Convener.GetProgressText(playerId));
                     break;
@@ -3096,6 +3099,7 @@ public static class Utils
             CustomRoles.Veteran => Options.VeteranSkillCooldown.GetInt() + (includeDuration ? Options.VeteranSkillDuration.GetInt() : 0),
             CustomRoles.Swiftclaw => Swiftclaw.DashCD.GetInt() + (includeDuration ? Swiftclaw.DashDuration.GetInt() : 0),
             CustomRoles.Perceiver => Perceiver.CD.GetInt(),
+            CustomRoles.Convener => Convener.CD.GetInt(),
             CustomRoles.DovesOfNeace => Options.DovesOfNeaceCooldown.GetInt(),
             CustomRoles.Alchemist => Alchemist.VentCooldown.GetInt(),
             CustomRoles.NiceHacker => NiceHacker.AbilityCD.GetInt(),
@@ -3239,7 +3243,7 @@ public static class Utils
                     foreach (PlayerControl pc in Main.AllPlayerControls)
                     {
                         if ((!Options.ImpKnowCyberStarDead.GetBool() && pc.GetCustomRole().IsImpostor())
-                            || (!Options.NeutralKnowCyberStarDead.GetBool() && pc.GetCustomRole().IsNeutral()))
+                         || (!Options.NeutralKnowCyberStarDead.GetBool() && pc.GetCustomRole().IsNeutral()))
                             continue;
 
                         SendMessage(string.Format(GetString("CyberStarDead"), target.GetRealName()), pc.PlayerId, ColorString(GetRoleColor(CustomRoles.CyberStar), GetString("CyberStarNewsTitle")));
