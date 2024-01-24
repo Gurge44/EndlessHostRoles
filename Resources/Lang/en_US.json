@@ -2466,6 +2466,7 @@
   "SwiftclawInfoLong": "(Impostors):\\nAs the Swiftclaw, you can pet your pet to dash, which makes you go faster for a set amount of seconds.",
   "SwiftclawDashDur": "Dash Duration",
   "SwiftclawDashSpeed": "Speed During Dash",
+  "SwiftclawDashCD": "Dash Cooldown",
   "Cantankerous": "Cantankerous",
   "CantankerousInfo": "Eject Crewmates to Kill",
   "CantankerousInfoLong": "(Impostors):\\nAs the Cantankerous, you can only kill if you have a point. You gain points if a non-impostor player gets ejected.",
