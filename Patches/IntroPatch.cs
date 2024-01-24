@@ -602,11 +602,6 @@ class IntroCutsceneDestroyPatch
                 if (map != null) Main.AllAlivePlayerControls.Do(map.RandomTeleport);
             }
 
-            if (Main.NormalOptions.MapId == 4)
-            {
-                Penguin.OnSpawnAirship();
-            }
-
             if (Main.ResetCamPlayerList.Contains(PlayerControl.LocalPlayer.PlayerId))
             {
                 PlayerControl.LocalPlayer.Data.Role.AffectedByLightAffectors = false;

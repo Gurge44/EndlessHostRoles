@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace TOHE.Roles.Impostor
 {
@@ -15,7 +16,7 @@ namespace TOHE.Roles.Impostor
             DashCD = FloatOptionItem.Create(Id + 2, "SwiftclawDashCD", new(0f, 180f, 2.5f), 15f, TabGroup.ImpostorRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Swiftclaw])
                 .SetValueFormat(OptionFormat.Seconds);
-            DashDuration = FloatOptionItem.Create(Id + 3, "SwiftclawDashDur", new(0f, 60f, 0.5f), 4f, TabGroup.ImpostorRoles, false)
+            DashDuration = IntegerOptionItem.Create(Id + 3, "SwiftclawDashDur", new(0, 60, 1), 4, TabGroup.ImpostorRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Swiftclaw])
                 .SetValueFormat(OptionFormat.Seconds);
             DashSpeed = FloatOptionItem.Create(Id + 4, "SwiftclawDashSpeed", new(0.05f, 3f, 0.05f), 2f, TabGroup.ImpostorRoles, false)
@@ -33,10 +34,11 @@ namespace TOHE.Roles.Impostor
         }
         public static void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || pc == null || !DashStart.TryGetValue(pc.PlayerId, out var dashInfo) || dashInfo.StartTimeStamp + DashDuration.GetFloat() >= Utils.GetTimeStamp() || !pc.Is(CustomRoles.Swiftclaw)) return;
-
+            if (!GameStates.IsInTask || pc == null || !DashStart.TryGetValue(pc.PlayerId, out var dashInfo) || dashInfo.StartTimeStamp + DashDuration.GetInt() > Utils.GetTimeStamp()) return;
+            
             Main.AllPlayerSpeed[pc.PlayerId] = dashInfo.NormalSpeed;
             pc.MarkDirtySettings();
+            DashStart.Remove(pc.PlayerId);
         }
         public static void OnReportDeadBody()
         {
@@ -44,6 +46,7 @@ namespace TOHE.Roles.Impostor
             {
                 Main.AllPlayerSpeed[item.Key] = item.Value.NormalSpeed;
             }
+            DashStart.Clear();
         }
     }
 }
