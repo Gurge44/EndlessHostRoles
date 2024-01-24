@@ -4,7 +4,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using TOHE.Modules;
-using TOHE.Roles.Impostor;
 using UnityEngine;
 using static TOHE.Translator;
 

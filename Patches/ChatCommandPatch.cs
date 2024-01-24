@@ -202,7 +202,7 @@ internal class ChatCommands
                     canceled = true;
                     subArgs = text.Remove(0, 3);
                     if (!PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp) break;
-                    Utils.SendMessage($"{Translator.GetString("UpReplacedMessage")}", localPlayerId); 
+                    Utils.SendMessage($"{Translator.GetString("UpReplacedMessage")}", localPlayerId);
                     //if (!Options.EnableUpMode.GetBool())
                     //{
                     //    Utils.SendMessage(string.Format(GetString("Message.YTPlanDisabled"), GetString("EnableYTPlan")), localPlayerId);
@@ -249,9 +249,9 @@ internal class ChatCommands
                         }
                         else Main.SetRoles[targetPc.PlayerId] = roleToSet;
 
-                       var playername = $"<b>{Utils.ColorString(Main.PlayerColors.TryGetValue(resultId, out var textColor) ? textColor : Color.white, targetPc.GetRealName())}</b>";
-                       var rolename = $"<color={Main.roleColors[roleToSet]}> {GetString(roleToSet.ToString())} </color>";
-                       Utils.SendMessage("\n", localPlayerId, string.Format(GetString("RoleSelected"), playername, rolename));
+                        var playername = $"<b>{Utils.ColorString(Main.PlayerColors.TryGetValue(resultId, out var textColor) ? textColor : Color.white, targetPc.GetRealName())}</b>";
+                        var rolename = $"<color={Main.roleColors[roleToSet]}> {GetString(roleToSet.ToString())} </color>";
+                        Utils.SendMessage("\n", localPlayerId, string.Format(GetString("RoleSelected"), playername, rolename));
                     }
                     break;
 

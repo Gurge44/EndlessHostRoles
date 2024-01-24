@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace TOHE.Roles.Impostor
 {
@@ -35,7 +34,7 @@ namespace TOHE.Roles.Impostor
         public static void OnFixedUpdate(PlayerControl pc)
         {
             if (!GameStates.IsInTask || pc == null || !DashStart.TryGetValue(pc.PlayerId, out var dashInfo) || dashInfo.StartTimeStamp + DashDuration.GetInt() > Utils.GetTimeStamp()) return;
-            
+
             Main.AllPlayerSpeed[pc.PlayerId] = dashInfo.NormalSpeed;
             pc.MarkDirtySettings();
             DashStart.Remove(pc.PlayerId);
