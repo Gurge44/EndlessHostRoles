@@ -33,7 +33,7 @@ namespace TOHE.Roles.Impostor
         public static void SendRPC()
         {
             if (!IsEnable || !Utils.DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAdmireLimit, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncChronomancer, SendOption.Reliable, -1);
             writer.Write(isRampaging);
             writer.Write(chargePercent);
             writer.Write(lastUpdate.ToString());

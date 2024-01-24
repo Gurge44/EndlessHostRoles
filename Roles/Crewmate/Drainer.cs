@@ -47,7 +47,7 @@ namespace TOHE.Roles.Crewmate
             DrainLimit = UseLimit.GetInt();
         }
 
-        public static void ApplyGameOptions(IGameOptions opt)
+        public static void ApplyGameOptions()
         {
             AURoleOptions.EngineerCooldown = VentCD.GetFloat();
         }
@@ -68,7 +68,7 @@ namespace TOHE.Roles.Crewmate
             DrainLimit = reader.ReadInt32();
         }
 
-        public static void OnAnyoneExitVent(PlayerControl pc, int ventId)
+        public static void OnAnyoneExitVent(PlayerControl pc)
         {
             if (!IsEnable || !AmongUsClient.Instance.AmHost) return;
             if (pc != null) playersInVents.Remove(pc.PlayerId);

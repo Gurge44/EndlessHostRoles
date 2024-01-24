@@ -775,7 +775,7 @@ public static class Utils
                     }
                     break;
                 case CustomRoles.PlagueDoctor:
-                    ProgressText.Append(PlagueDoctor.GetProgressText(comms));
+                    ProgressText.Append(PlagueDoctor.GetProgressText());
                     break;
                 case CustomRoles.BountyHunter:
                     if (BountyHunter.ChangeTimer.ContainsKey(playerId))
@@ -1027,6 +1027,9 @@ public static class Utils
                 //    break;
                 case CustomRoles.QuickShooter:
                     ProgressText.Append(QuickShooter.GetShotLimit(playerId));
+                    break;
+                case CustomRoles.Cantankerous:
+                    ProgressText.Append(Cantankerous.GetProgressText(playerId));
                     break;
                 case CustomRoles.SwordsMan:
                     ProgressText.Append(SwordsMan.GetKillLimit(playerId));
@@ -2036,7 +2039,7 @@ public static class Utils
                             SelfSuffix.Append(Postman.TargetText);
                             break;
                         case CustomRoles.Tornado when !seer.IsModClient():
-                            SelfSuffix.Append(Tornado.GetSuffixText(seer.PlayerId));
+                            SelfSuffix.Append(Tornado.GetSuffixText());
                             break;
                         case CustomRoles.Mortician:
                             SelfSuffix.Append(Mortician.GetTargetArrow(seer));
@@ -2484,7 +2487,7 @@ public static class Utils
 
                             TargetSuffix.Append(PlagueDoctor.GetLowerTextOthers(seer, target));
                             TargetSuffix.Append(Stealth.GetSuffix(seer, target));
-                            TargetSuffix.Append(Bubble.GetEncasedPlayerSuffix(seer, target));
+                            TargetSuffix.Append(Bubble.GetEncasedPlayerSuffix(target));
 
                             if (target.Is(CustomRoles.Librarian)) TargetSuffix.Append(Librarian.GetNameTextForSuffix(target.PlayerId));
 

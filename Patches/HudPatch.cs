@@ -564,7 +564,7 @@ class HudManagerPatch
                         CustomRoles.PlagueDoctor => PlagueDoctor.GetLowerTextOthers(player, isForHud: true),
                         CustomRoles.Stealth => Stealth.GetSuffix(player, isHUD: true),
                         CustomRoles.Hookshot => Hookshot.SuffixText,
-                        CustomRoles.Tornado => Tornado.GetSuffixText(player.PlayerId, isHUD: true),
+                        CustomRoles.Tornado => Tornado.GetSuffixText(isHUD: true),
                         _ => string.Empty,
                     },
                     _ => string.Empty,
@@ -769,7 +769,7 @@ class SetHudActivePatch
                 Traitor.SetHudActive(__instance, isActive);
                 break;
             case CustomRoles.Glitch:
-                Glitch.SetHudActive(__instance, isActive);
+                Glitch.SetHudActive(__instance);
                 break;
             case CustomRoles.Magician:
                 __instance.SabotageButton?.ToggleVisible(true);

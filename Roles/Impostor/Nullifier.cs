@@ -154,7 +154,7 @@ namespace TOHE.Roles.Impostor
                             break;
                         case CustomRoles.Spy:
                             Spy.UseLimit[target.PlayerId]--;
-                            Spy.SendAbilityRPC(target.PlayerId);
+                            Spy.SendRPC(2, id: target.PlayerId);
                             break;
                         case CustomRoles.SwordsMan:
                             SwordsMan.killed.Add(target.PlayerId);

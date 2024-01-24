@@ -558,7 +558,7 @@ static class ExtendedPlayerControl
             CustomRoles.PlagueDoctor => pc.IsAlive() && PlagueDoctor.CanUseKillButton(),
             CustomRoles.Postman => pc.IsAlive() && !Postman.IsFinished,
             CustomRoles.Magician => pc.IsAlive(),
-            CustomRoles.WeaponMaster => pc.IsAlive() && WeaponMaster.CanKill(pc),
+            CustomRoles.WeaponMaster => pc.IsAlive() && WeaponMaster.CanKill(),
             CustomRoles.Reckless => pc.IsAlive(),
             CustomRoles.Vengeance => pc.IsAlive(),
             CustomRoles.HeadHunter => pc.IsAlive(),
@@ -886,6 +886,9 @@ static class ExtendedPlayerControl
                 break;
             case CustomRoles.Morphling:
                 Morphling.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.Cantankerous:
+                Cantankerous.SetKillCooldown(player.PlayerId);
                 break;
             case CustomRoles.Doppelganger:
                 Doppelganger.SetKillCooldown(player.PlayerId);

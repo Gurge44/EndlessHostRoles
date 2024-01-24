@@ -83,32 +83,6 @@ namespace TOHE.Roles.Impostor
             isInSilencingMode[playerId] = (isInSilenceMode, GetTimeStamp());
         }
 
-        private static void SendRPCSyncList()
-        {
-            if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncLibrarianList, SendOption.Reliable, -1);
-            writer.Write(sssh.Count);
-            foreach (var item in sssh.ToArray())
-            {
-                writer.Write(item);
-            }
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-
-        public static void ReceiveRPCSyncList(MessageReader reader)
-        {
-            if (!IsEnable) return;
-            sssh.Clear();
-
-            int length = reader.ReadInt32();
-            if (length == 0) return;
-
-            for (int i = 0; i < length; i++)
-            {
-                sssh.Add(reader.ReadByte());
-            }
-        }
-
         public static bool OnAnyoneReport(PlayerControl reporter)
         {
             if (!IsEnable) return true;
@@ -133,11 +107,9 @@ namespace TOHE.Roles.Impostor
             if (librarian.RpcCheckAndMurder(reporter))
             {
                 sssh.Add(librarian.PlayerId);
-                SendRPCSyncList();
                 _ = new LateTask(() =>
                 {
                     sssh.Remove(librarian.PlayerId);
-                    SendRPCSyncList();
                 }, NameDuration.GetInt(), "Librarian sssh text");
             }
 

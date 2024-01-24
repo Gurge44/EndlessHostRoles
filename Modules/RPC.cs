@@ -63,29 +63,19 @@ public enum CustomRPC
     SyncRabbit,
     SyncSoulHunter,
     SyncKamikazeLimit,
-    KamikazeAddTarget,
     SyncMycologist,
     SyncBubble,
     AddTornado,
-    RemoveTornado,
     SyncSprayer,
     SyncHookshot,
-    SyncSentinel,
     SyncStressedTimer,
     SetLibrarianMode,
-    SyncLibrarianList,
-    GaulousAddPlayerToList,
     SetGauloisLimit,
     SyncYinYanger,
     SyncAnalyzer,
-    SyncAnalyzerTarget,
     SyncCantankerousLimit,
-    SyncDuellistTarget,
     SetDruidLimit,
-    DruidSyncLastUpdate,
-    DruidRemoveTrigger,
     DruidAddTrigger,
-    DruidAddTriggerDelay,
     SyncBenefactorMarkedTask,
     SetDrainerLimit,
     SetConsortLimit,
@@ -103,18 +93,8 @@ public enum CustomRPC
     SetTetherTarget,
     SetHitmanTarget,
     SetWeaponMasterMode,
-    SetEclipseVision,
-    SyncGlitchLongs,
     SyncGlitchTimers,
-    SyncGlitchSS,
-    SyncGlitchMimic,
-    SyncGlitchKill,
-    SyncGlitchHack,
-    SyncVengeanceTimer,
-    SyncVengeanceData,
-    SpyRedNameSync,
-    SpyAbilitySync,
-    SpyRedNameRemove,
+    SyncSpy,
     SetDivinatorLimit,
     SetMediumshiperLimit,
     SetOracleLimit,
@@ -419,9 +399,6 @@ internal class RPCHandlerPatch
             case CustomRPC.SetLibrarianMode:
                 Librarian.ReceiveRPC(reader);
                 break;
-            case CustomRPC.SyncLibrarianList:
-                Librarian.ReceiveRPCSyncList(reader);
-                break;
             case CustomRPC.SyncSoulHunter:
                 SoulHunter.ReceiveRPC(reader);
                 break;
@@ -470,17 +447,8 @@ internal class RPCHandlerPatch
             case CustomRPC.SyncAnalyzer:
                 Analyzer.ReceiveRPC(reader);
                 break;
-            case CustomRPC.SyncAnalyzerTarget:
-                Analyzer.ReceiveRPCSyncTarget(reader);
-                break;
-            case CustomRPC.SpyRedNameSync:
+            case CustomRPC.SyncSpy:
                 Spy.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SpyAbilitySync:
-                Spy.ReceiveRPC(reader, isAbility: true);
-                break;
-            case CustomRPC.SpyRedNameRemove:
-                Spy.ReceiveRPC(reader, isRemove: true);
                 break;
             case CustomRPC.SyncPerceiver:
                 Perceiver.ReceiveRPC(reader);
@@ -518,32 +486,8 @@ internal class RPCHandlerPatch
             case CustomRPC.SetWeaponMasterMode:
                 WeaponMaster.ReceiveRPC(reader);
                 break;
-            case CustomRPC.SetEclipseVision:
-                Eclipse.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SyncGlitchHack:
-                Glitch.ReceiveRPCSyncHack(reader);
-                break;
-            case CustomRPC.SyncGlitchKill:
-                Glitch.ReceiveRPCSyncKill(reader);
-                break;
-            case CustomRPC.SyncGlitchLongs:
-                Glitch.ReceiveRPCSyncLongs(reader);
-                break;
-            case CustomRPC.SyncGlitchMimic:
-                Glitch.ReceiveRPCSyncMimic(reader);
-                break;
-            case CustomRPC.SyncGlitchSS:
-                Glitch.ReceiveRPCSyncSS(reader);
-                break;
             case CustomRPC.SyncGlitchTimers:
                 Glitch.ReceiveRPCSyncTimers(reader);
-                break;
-            case CustomRPC.SyncVengeanceData:
-                Vengeance.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SyncVengeanceTimer:
-                Vengeance.ReceiveRPCSyncTimer(reader);
                 break;
             case CustomRPC.SetMediumshiperLimit:
                 Mediumshiper.ReceiveRPC(reader);
@@ -554,17 +498,8 @@ internal class RPCHandlerPatch
             case CustomRPC.DruidAddTrigger:
                 Druid.ReceiveRPCAddTrigger(reader);
                 break;
-            case CustomRPC.DruidAddTriggerDelay:
-                Druid.ReceiveRPCAddTriggerDelay(reader);
-                break;
             case CustomRPC.SetDruidLimit:
                 Druid.ReceiveRPCSyncAbilityUse(reader);
-                break;
-            case CustomRPC.DruidSyncLastUpdate:
-                Druid.ReceiveRPCSyncLastUpdate(reader);
-                break;
-            case CustomRPC.DruidRemoveTrigger:
-                Druid.ReceiveRPCRemoveTrigger(reader);
                 break;
             case CustomRPC.SetSabotageMasterLimit:
                 SabotageMaster.ReceiveRPC(reader);
@@ -610,9 +545,6 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SyncBubble:
                 Bubble.ReceiveRPC(reader);
-                break;
-            case CustomRPC.KamikazeAddTarget:
-                Kamikaze.ReceiveRPCAddTarget(reader);
                 break;
             case CustomRPC.SyncKamikazeLimit:
                 Kamikaze.ReceiveRPCSyncLimit(reader);
@@ -769,14 +701,8 @@ internal class RPCHandlerPatch
             case CustomRPC.SetGauloisLimit:
                 Gaulois.ReceiveRPC(reader);
                 break;
-            case CustomRPC.GaulousAddPlayerToList:
-                Gaulois.ReceiveRPCAddPlayerToList(reader);
-                break;
             case CustomRPC.SetEscortLimit:
                 Escort.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SyncDuellistTarget:
-                Duellist.ReceiveRPC(reader);
                 break;
             case CustomRPC.SyncMafiosoData:
                 Mafioso.ReceiveRPC(reader);
@@ -856,9 +782,6 @@ internal class RPCHandlerPatch
             case CustomRPC.SetRitualist:
                 Ritualist.ReceiveRPC(reader);
                 break;
-            case CustomRPC.SyncSentinel:
-                Sentinel.ReceiveRPC(reader);
-                break;
             case CustomRPC.SyncHookshot:
                 Hookshot.ReceiveRPC(reader);
                 break;
@@ -867,9 +790,6 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.AddTornado:
                 Tornado.ReceiveRPCAddTornado(reader);
-                break;
-            case CustomRPC.RemoveTornado:
-                Tornado.ReceiveRPCRemoveTornado(reader);
                 break;
             case CustomRPC.SetDoppelgangerStealLimit:
                 Doppelganger.ReceiveRPC(reader);

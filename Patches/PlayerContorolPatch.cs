@@ -287,7 +287,7 @@ class CheckMurderPatch
                     Chronomancer.OnCheckMurder(killer, target);
                     break;
                 case CustomRoles.Penguin:
-                    if (!Penguin.OnCheckMurderAsKiller(killer, target)) return false;
+                    if (!Penguin.OnCheckMurderAsKiller(target)) return false;
                     break;
                 case CustomRoles.Sapper:
                     return false;
@@ -886,7 +886,7 @@ class CheckMurderPatch
                 return false;
             case CustomRoles.Monarch when killer.Is(CustomRoles.Knighted):
                 return false;
-            case CustomRoles.WeaponMaster when WeaponMaster.OnAttack(killer, target):
+            case CustomRoles.WeaponMaster when WeaponMaster.OnAttack():
             case CustomRoles.Gambler when Gambler.isShielded.ContainsKey(target.PlayerId):
             case CustomRoles.Alchemist when Alchemist.IsProtected:
             case CustomRoles.Nightmare when !Nightmare.CanBeKilled:
@@ -2151,7 +2151,7 @@ class FixedUpdatePatch
                     SerialKiller.FixedUpdate(player);
                     break;
                 case CustomRoles.Penguin:
-                    Penguin.OnFixedUpdate(player);
+                    Penguin.OnFixedUpdate();
                     break;
                 case CustomRoles.Benefactor when !lowLoad:
                     Benefactor.OnFixedUpdate(player);
@@ -2919,7 +2919,7 @@ class FixedUpdatePatch
                 if (PlagueDoctor.IsEnable) Suffix.Append(PlagueDoctor.GetLowerTextOthers(seer, target));
                 if (Stealth.IsEnable) Suffix.Append(Stealth.GetSuffix(seer, target));
                 if (Tracker.IsEnable) Suffix.Append(Tracker.GetTrackerArrow(seer, target));
-                if (Bubble.IsEnable) Suffix.Append(Bubble.GetEncasedPlayerSuffix(seer, target));
+                if (Bubble.IsEnable) Suffix.Append(Bubble.GetEncasedPlayerSuffix(target));
 
                 if (Deathpact.IsEnable)
                 {
@@ -2966,7 +2966,7 @@ class FixedUpdatePatch
                             Suffix.Append(Hookshot.SuffixText);
                             break;
                         case CustomRoles.Tornado when !seer.IsModClient():
-                            Suffix.Append(Tornado.GetSuffixText(seer.PlayerId));
+                            Suffix.Append(Tornado.GetSuffixText());
                             break;
                         case CustomRoles.Rabbit when !seer.IsModClient():
                             Suffix.Append(Rabbit.GetSuffix(seer));
@@ -3139,7 +3139,7 @@ class ExitVentPatch
 
         if (!AmongUsClient.Instance.AmHost) return;
 
-        Drainer.OnAnyoneExitVent(pc, __instance.Id);
+        Drainer.OnAnyoneExitVent(pc);
 
         if (Options.WhackAMole.GetBool())
         {

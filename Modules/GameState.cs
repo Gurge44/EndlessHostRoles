@@ -420,7 +420,7 @@ public class TaskState
                         break;
                     case CustomRoles.Spy:
                         Spy.UseLimit[player.PlayerId] += Spy.SpyAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        Spy.SendAbilityRPC(player.PlayerId);
+                        Spy.SendRPC(2, id: player.PlayerId);
                         break;
                     case CustomRoles.NiceHacker:
                         if (!player.IsModClient() && NiceHacker.UseLimit.ContainsKey(player.PlayerId)) NiceHacker.UseLimit[player.PlayerId] += NiceHacker.NiceHackerAbilityUseGainWithEachTaskCompleted.GetFloat();

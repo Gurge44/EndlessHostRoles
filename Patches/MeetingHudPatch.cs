@@ -1211,7 +1211,7 @@ class MeetingHudStartPatch
             sb.Append(Totocalcio.TargetMark(seer, target));
             sb.Append(Romantic.TargetMark(seer, target));
             sb.Append(Lawyer.LawyerMark(seer, target));
-            sb.Append(PlagueDoctor.GetMarkOthers(seer, target, isForMeeting: true));
+            sb.Append(PlagueDoctor.GetMarkOthers(seer, target));
 
             //会議画面ではインポスター自身の名前にSnitchマークはつけません。
 

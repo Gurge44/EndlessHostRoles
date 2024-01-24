@@ -47,7 +47,7 @@ namespace TOHE.Roles.Impostor
         }
         public static bool IsEnable => playerIdList.Count > 0;
         public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
-        public static void ApplyGameOptions(IGameOptions opt) => AURoleOptions.ShapeshifterCooldown = AbductVictim != null ? AbductTimer : AbductTimerLimit;
+        public static void ApplyGameOptions() => AURoleOptions.ShapeshifterCooldown = AbductVictim != null ? AbductTimer : AbductTimerLimit;
         private static void SendRPC()
         {
             if (!IsEnable || !Utils.DoRPC) return;
@@ -94,7 +94,7 @@ namespace TOHE.Roles.Impostor
             Utils.GetPlayerById(playerIdList[0]).RpcResetAbilityCooldown();
             SendRPC();
         }
-        public static bool OnCheckMurderAsKiller(PlayerControl killer, PlayerControl target)
+        public static bool OnCheckMurderAsKiller(PlayerControl target)
         {
             if (!IsEnable) return false;
             bool doKill = true;
@@ -167,7 +167,7 @@ namespace TOHE.Roles.Impostor
                 stopCount = false;
             }
         }
-        public static void OnFixedUpdate(PlayerControl player)
+        public static void OnFixedUpdate()
         {
             if (!IsEnable) return;
             if (!AmongUsClient.Instance.AmHost) return;

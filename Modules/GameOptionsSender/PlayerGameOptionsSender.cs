@@ -398,7 +398,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     Mafioso.ApplyGameOptions(opt);
                     break;
                 case CustomRoles.Drainer:
-                    Drainer.ApplyGameOptions(opt);
+                    Drainer.ApplyGameOptions();
                     break;
                 case CustomRoles.Poisoner:
                     Poisoner.ApplyGameOptions(opt);
@@ -462,7 +462,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     Sprayer.ApplyGameOptions(opt);
                     break;
                 case CustomRoles.Penguin:
-                    Penguin.ApplyGameOptions(opt);
+                    Penguin.ApplyGameOptions();
                     break;
                 case CustomRoles.PlagueDoctor:
                     PlagueDoctor.ApplyGameOptions(opt);

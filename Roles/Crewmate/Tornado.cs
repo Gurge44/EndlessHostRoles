@@ -62,39 +62,33 @@ namespace TOHE.Roles.Crewmate
             playerIdList.Add(playerId);
         }
         public static bool IsEnable => playerIdList.Count > 0;
-        private static void SendRPCAddTornado(Vector2 pos, string roomname, long timestamp)
+        private static void SendRPCAddTornado(bool add, Vector2 pos, string roomname, long timestamp = 0)
         {
             if (!IsEnable || !DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.AddTornado, SendOption.Reliable, -1);
+            writer.Write(add);
             writer.Write(pos.x);
             writer.Write(pos.y);
             writer.Write(roomname);
-            writer.Write(timestamp.ToString());
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-        private static void SendRPCRemoveTornado(Vector2 pos, string roomname)
-        {
-            if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RemoveTornado, SendOption.Reliable, -1);
-            writer.Write(pos.x);
-            writer.Write(pos.y);
-            writer.Write(roomname);
+            if (add) writer.Write(timestamp.ToString());
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         public static void ReceiveRPCAddTornado(MessageReader reader)
         {
+            bool add = reader.ReadBoolean();
             float x = reader.ReadSingle();
             float y = reader.ReadSingle();
             string roomname = reader.ReadString();
-            long timestamp = long.Parse(reader.ReadString());
-            Tornados.Add((new(x, y), roomname), timestamp);
-        }
-        public static void ReceiveRPCRemoveTornado(MessageReader reader)
-        {
-            float x = reader.ReadSingle();
-            float y = reader.ReadSingle();
-            string roomname = reader.ReadString();
-            Tornados.Remove((new(x, y), roomname));
+
+            if (add)
+            {
+                long timestamp = long.Parse(reader.ReadString());
+                Tornados.Add((new(x, y), roomname), timestamp);
+            }
+            else
+            {
+                Tornados.Remove((new(x, y), roomname));
+            }
         }
         public static void SpawnTornado(PlayerControl pc)
         {
@@ -102,7 +96,7 @@ namespace TOHE.Roles.Crewmate
             var info = pc.GetPositionInfo();
             var now = GetTimeStamp();
             Tornados.Add(info, now);
-            SendRPCAddTornado(info.LOCATION, info.ROOM_NAME, now);
+            SendRPCAddTornado(true, info.LOCATION, info.ROOM_NAME, now);
         }
         public static void OnCheckPlayerPosition(PlayerControl pc)
         {
@@ -134,7 +128,7 @@ namespace TOHE.Roles.Crewmate
                     if (tornado.Value + tornadoDuration < now)
                     {
                         Tornados.Remove(tornado.Key);
-                        SendRPCRemoveTornado(tornado.Key.LOCATION, tornado.Key.ROOM_NAME);
+                        SendRPCAddTornado(false, tornado.Key.LOCATION, tornado.Key.ROOM_NAME);
                     }
                 }
 
@@ -143,6 +137,6 @@ namespace TOHE.Roles.Crewmate
                 LastNotify = now;
             }
         }
-        public static string GetSuffixText(byte playerId, bool isHUD = false) => string.Join(isHUD ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.ROOM_NAME)} {GetFormattedVectorText(x.Key.LOCATION)} ({(int)(TornadoDuration.GetInt() - (GetTimeStamp() - x.Value) + 1)}s)"));
+        public static string GetSuffixText(bool isHUD = false) => string.Join(isHUD ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.ROOM_NAME)} {GetFormattedVectorText(x.Key.LOCATION)} ({(int)(TornadoDuration.GetInt() - (GetTimeStamp() - x.Value) + 1)}s)"));
     }
 }

@@ -136,7 +136,7 @@ namespace TOHE.Roles.Neutral
             EncasedPlayers.Clear();
             SendRPC(clear: true);
         }
-        public static string GetEncasedPlayerSuffix(PlayerControl seer, PlayerControl target)
+        public static string GetEncasedPlayerSuffix(PlayerControl target)
         {
             if (!IsEnable || target == null || !EncasedPlayers.TryGetValue(target.PlayerId, out var ts) || (ts + NotifyDelay.GetInt() >= GetTimeStamp())) return string.Empty;
             return ColorString(GetRoleColor(CustomRoles.Bubble), $"{ExplodeDelay.GetInt() - (GetTimeStamp() - ts) + 1}s");

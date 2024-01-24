@@ -55,27 +55,11 @@ namespace TOHE.Roles.Impostor
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 
-        private static void SendRPCAddTarget(byte kamikazeId, byte targetId)
-        {
-            if (!IsEnable || !DoRPC || kamikazeId == 0) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.KamikazeAddTarget, SendOption.Reliable, -1);
-            writer.Write(kamikazeId);
-            writer.Write(targetId);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-
         public static void ReceiveRPCSyncLimit(MessageReader reader)
         {
             byte playerId = reader.ReadByte();
             float limit = reader.ReadSingle();
             MarkLimit[playerId] = limit;
-        }
-
-        public static void ReceiveRPCAddTarget(MessageReader reader)
-        {
-            byte playerId = reader.ReadByte();
-            byte targetId = reader.ReadByte();
-            MarkedPlayers[playerId].Add(targetId);
         }
 
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -85,7 +69,6 @@ namespace TOHE.Roles.Impostor
             return killer.CheckDoubleTrigger(target, () =>
             {
                 MarkedPlayers[killer.PlayerId].Add(target.PlayerId);
-                SendRPCAddTarget(killer.PlayerId, target.PlayerId);
                 killer.SetKillCooldown(MarkCD.GetFloat());
                 MarkLimit[killer.PlayerId]--;
                 SendRPCSyncLimit(killer.PlayerId);
