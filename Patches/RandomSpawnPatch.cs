@@ -58,7 +58,7 @@ class RandomSpawn
         {
             var spawn = GetLocation();
             Logger.Info($"{player.Data.PlayerName} => {spawn.Key} {spawn.Value}", "RandomSpawn");
-            player.TP(spawn.Value);
+            player.TP(spawn.Value, log: false);
         }
         public abstract KeyValuePair<string, Vector2> GetLocation();
     }

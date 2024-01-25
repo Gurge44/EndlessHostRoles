@@ -223,14 +223,14 @@ namespace TOHE.Roles.Impostor
                     var position = Utils.GetPlayerById(playerIdList[0]).transform.position;
                     if (Utils.GetPlayerById(playerIdList[0]).PlayerId != 0)
                     {
-                        RandomSpawn.TP(AbductVictim.NetTransform, position);
+                        Utils.TP(AbductVictim.NetTransform, position, log: false);
                     }
                     else
                     {
                         _ = new LateTask(() =>
                         {
                             if (AbductVictim != null)
-                                RandomSpawn.TP(AbductVictim.NetTransform, position);
+                                Utils.TP(AbductVictim.NetTransform, position, log: false);
                         }
                         , 0.25f, "");
                     }

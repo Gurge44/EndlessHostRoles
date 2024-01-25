@@ -1292,17 +1292,17 @@ static class ExtendedPlayerControl
 
         return (pos, roomName);
     }
-    public static bool TP(this PlayerControl pc, PlayerControl target)
+    public static bool TP(this PlayerControl pc, PlayerControl target, bool log = true)
     {
-        return Utils.TP(pc.NetTransform, target.Pos());
+        return Utils.TP(pc.NetTransform, target.Pos(), log);
     }
-    public static bool TP(this PlayerControl pc, Vector2 location)
+    public static bool TP(this PlayerControl pc, Vector2 location, bool log = true)
     {
-        return Utils.TP(pc.NetTransform, location);
+        return Utils.TP(pc.NetTransform, location, log);
     }
-    public static bool TPtoRndVent(this PlayerControl pc)
+    public static bool TPtoRndVent(this PlayerControl pc, bool log = true)
     {
-        return Utils.TPtoRndVent(pc.NetTransform);
+        return Utils.TPtoRndVent(pc.NetTransform, log);
     }
     public static void Kill(this PlayerControl killer, PlayerControl target)
     {
