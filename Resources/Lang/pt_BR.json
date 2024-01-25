@@ -3559,7 +3559,7 @@
   "DiscoChangeInterval": "Intervalo de mudança de cor do discoteca",
   "Modifier": "\nModificador: ",
   "Modifiers": "\nModificadores: ",
-  "RoleSelected": "<b>No Próximo Jogo, a função de {0} será {1}</b>",
+  "RoleSelected": "<b>No próximo jogo, a função de {0} será {1}</b>",
   "UpReplacedMessage": "O /up foi substituído por /setrole que permite definir a função de qualquer um em qualquer jogo usando '/setrole (ID) (FUNÇÂO)'. Você pode ver os IDs com /id. \nPara definir sua própria função como /up, você precisa usar '/setrole 0 (FUNÇÃO)'.",
   "PingText": "Latência"
 }
