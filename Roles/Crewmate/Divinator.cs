@@ -48,7 +48,7 @@ public static class Divinator
         playerIdList.Add(playerId);
         CheckLimit.TryAdd(playerId, CheckLimitOpt.GetInt());
 
-        List<CustomRoles> AllRoles = [.. EnumHelper.GetAllValues<CustomRoles>().Where(x => !x.IsAdditionRole() && x is not CustomRoles.Killer or CustomRoles.Tasker or CustomRoles.KB_Normal)];
+        List<CustomRoles> AllRoles = [.. EnumHelper.GetAllValues<CustomRoles>().Where(x => !x.IsAdditionRole() && x is not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.KB_Normal)];
         var r = IRandom.Instance;
 
         foreach (var pc in Main.AllAlivePlayerControls)
