@@ -89,7 +89,7 @@ namespace TOHE.Roles.Crewmate
         public static void OnKillAttempt(PlayerControl killer, PlayerControl target)
         {
             if (killer == null || target == null || !target.Is(CustomRoles.Spy) || killer.PlayerId == target.PlayerId || UseLimit[target.PlayerId] < 1) return;
-            
+
             UseLimit[target.PlayerId] -= 1;
             SendRPC(2, id: target.PlayerId);
             SpyRedNameList.TryAdd(killer.PlayerId, GetTimeStamp());
@@ -99,7 +99,7 @@ namespace TOHE.Roles.Crewmate
         public static void OnFixedUpdate(PlayerControl pc)
         {
             if (pc == null || !pc.Is(CustomRoles.Spy) || SpyRedNameList.Count == 0) return;
-            
+
             bool change = false;
 
             foreach (var x in SpyRedNameList)

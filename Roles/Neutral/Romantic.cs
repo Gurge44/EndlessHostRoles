@@ -112,7 +112,7 @@ public static class Romantic
         if (!isProtect)
         {
             BetTimes[killer.PlayerId]--;
-            
+
             BetPlayer.Remove(killer.PlayerId);
             BetPlayer.Add(killer.PlayerId, target.PlayerId);
             SendRPC(killer.PlayerId);
