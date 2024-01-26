@@ -798,9 +798,9 @@ class VentButtonDoClickPatch
         {
             pc.MyPhysics.RpcExitVent(TryMoveToVentPatch.HostVentTarget.Id);
             TryMoveToVentPatch.HostVentTarget.SetButtons(false);
-            return true;
+            return false;
         }
-        if (pc.inVent || !pc.CanMove) return true;
+        if (pc.inVent || !pc.CanMove) return false;
         var vents = Object.FindObjectsOfType<Vent>().ToArray();
         if (vents.Any(vent => Vector2.Distance(new Vector2(vent.transform.position.x, vent.transform.position.y + 0.3636f), pc.Pos()) < 0.4f))
         {
@@ -810,8 +810,8 @@ class VentButtonDoClickPatch
             return false;
         }
         pc?.MyPhysics?.RpcEnterVent(__instance.currentTarget.Id);
+        __instance.currentTarget.SetButtons(true);
         return false;
-
     }
 }
 [HarmonyPatch(typeof(MapBehaviour), nameof(MapBehaviour.Show))]

@@ -218,7 +218,7 @@ internal class RPCHandlerPatch
                 break;
             case RpcCalls.SetRole: //SetNameRPC
                 var role = (RoleTypes)subReader.ReadUInt16();
-                Logger.Info("RPC设置职业:" + __instance.GetRealName() + " => " + role, "SetRole");
+                Logger.Info("RPCSetRole:" + __instance.GetRealName() + " => " + role, "SetRole");
                 break;
             case RpcCalls.SendChat:
                 var text = subReader.ReadString();

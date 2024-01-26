@@ -82,7 +82,7 @@
 //            target.RpcGuardAndKill(killer);
 //            target.RpcGuardAndKill(target);
 
-//            Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Soulless.ToString(), "Assign " + CustomRoles.Soulless.ToString());
+//            Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Soulless.ToString(), "Assign " + CustomRoles.Soulless.ToString());
 //            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{CurseLimit}次魅惑机会", "CursedSoul");
 //            return;
 //        }

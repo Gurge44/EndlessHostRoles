@@ -113,6 +113,7 @@ public static class NameColorManager
             CustomRoles.Bubble when Bubble.EncasedPlayers.ContainsKey(target.PlayerId) => Main.roleColors[CustomRoles.Bubble],
             CustomRoles.Hookshot when Hookshot.MarkedPlayerId == target.PlayerId => Main.roleColors[CustomRoles.Hookshot],
             CustomRoles.SoulHunter when SoulHunter.CurrentTarget.ID == target.PlayerId => Main.roleColors[CustomRoles.SoulHunter],
+            CustomRoles.Kamikaze when Kamikaze.MarkedPlayers.TryGetValue(seer.PlayerId, out var targets) && targets.Contains(target.PlayerId) => Main.roleColors[CustomRoles.Electric],
             _ => "",
         };
 
@@ -120,7 +121,7 @@ public static class NameColorManager
 
         if (Bubble.EncasedPlayers.TryGetValue(target.PlayerId, out var ts) && ts + Bubble.NotifyDelay.GetInt() < Utils.GetTimeStamp()) color = Main.roleColors[CustomRoles.Bubble];
 
-        if (target.Is(CustomRoles.Speedrunner) && target.GetTaskState().CompletedTasksCount >= Options.SpeedrunnerNotifyAtXTasksLeft.GetInt() && Options.SpeedrunnerNotifyKillers.GetBool()) color = Main.roleColors[CustomRoles.Speedrunner];
+        if (target.Is(CustomRoles.Speedrunner) && !seer.Is(Team.Crewmate) && target.GetTaskState().CompletedTasksCount >= Options.SpeedrunnerNotifyAtXTasksLeft.GetInt() && Options.SpeedrunnerNotifyKillers.GetBool()) color = Main.roleColors[CustomRoles.Speedrunner];
 
         if (seer.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor)) color = Main.roleColors[CustomRoles.ImpostorTOHE];
         if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Refugee)) color = Main.roleColors[CustomRoles.Refugee];

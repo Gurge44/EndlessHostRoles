@@ -75,7 +75,7 @@ public static class Monarch
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 
-            Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Knighted.ToString(), "Assign " + CustomRoles.Knighted.ToString());
+            Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Knighted.ToString(), "Assign " + CustomRoles.Knighted.ToString());
             if (KnightLimit < 0)
                 HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
             Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{KnightLimit}次招募机会", "Monarch");

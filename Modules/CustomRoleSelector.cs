@@ -566,7 +566,6 @@ internal class CustomRoleSelector
             Logger.Error("Role assignment error: There are players who have not been assigned a role", "CustomRoleSelector");
         if (FinalRolesList.Count > 0)
             Logger.Error("Team assignment error: There is an unassigned team", "CustomRoleSelector");
-
     }
 
     public static int addScientistNum;

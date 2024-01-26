@@ -1,5 +1,4 @@
-﻿using Hazel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TOHE.Roles.Neutral;
 using static TOHE.Options;
 using static TOHE.Translator;

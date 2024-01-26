@@ -87,14 +87,30 @@ public static class Utils
             return false;
         }
 
-        // Modded
-        if (AmongUsClient.Instance.AmHost) nt.SnapTo(location, (ushort)(nt.lastSequenceId + 8));
+        var numHost = (ushort)(nt.lastSequenceId + 6);
+        var numLocalClient = (ushort)(nt.lastSequenceId + 48);
+        var numGlobal = (ushort)(nt.lastSequenceId + 100);
 
-        // Vanilla
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.Reliable);
-        NetHelpers.WriteVector2(location, messageWriter);
-        messageWriter.Write(nt.lastSequenceId + 100U);
-        AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+        // Host side
+        if (AmongUsClient.Instance.AmHost)
+        {
+            nt.SnapTo(location, numHost);
+        }
+
+        if (PlayerControl.LocalPlayer.PlayerId != pc.PlayerId)
+        {
+            // Local Teleport For Client
+            MessageWriter localMessageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.None, pc.GetClientId());
+            NetHelpers.WriteVector2(location, localMessageWriter);
+            localMessageWriter.Write(numLocalClient);
+            AmongUsClient.Instance.FinishRpcImmediately(localMessageWriter);
+        }
+
+        // Global Teleport
+        MessageWriter globalMessageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.None);
+        NetHelpers.WriteVector2(location, globalMessageWriter);
+        globalMessageWriter.Write(numGlobal);
+        AmongUsClient.Instance.FinishRpcImmediately(globalMessageWriter);
 
         if (log) Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} => {location}", "TP");
         return true;
@@ -383,7 +399,15 @@ public static class Utils
         if (Options.NameDisplayAddons.GetBool() && !pure && self)
         {
             foreach (var subRole in targetSubRoles.Where(x => x is not CustomRoles.LastImpostor and not CustomRoles.Madmate and not CustomRoles.Charmed and not CustomRoles.Recruit and not CustomRoles.Admired and not CustomRoles.Soulless and not CustomRoles.Lovers and not CustomRoles.Infected and not CustomRoles.Contagious))
-                RoleText = ColorString(GetRoleColor(subRole), (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>(</color>" : string.Empty) + GetString("Prefix." + subRole.ToString()) + (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>)</color>" : string.Empty) + " ") + RoleText;
+            {
+                var str = GetString("Prefix." + subRole.ToString());
+                if (!subRole.IsAdditionRole())
+                {
+                    str = GetString(subRole.ToString());
+                    Logger.Fatal("This is concerning....", "Utils.GetRoleText");
+                }
+                RoleText = ColorString(GetRoleColor(subRole), (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>(</color>" : string.Empty) + str + (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>)</color>" : string.Empty) + " ") + RoleText;
+            }
         }
 
         if (targetSubRoles.Contains(CustomRoles.Madmate))
@@ -3104,7 +3128,7 @@ public static class Utils
             CustomRoles.Convener => Convener.CD.GetInt(),
             CustomRoles.DovesOfNeace => Options.DovesOfNeaceCooldown.GetInt(),
             CustomRoles.Alchemist => Alchemist.VentCooldown.GetInt(),
-            CustomRoles.NiceHacker => NiceHacker.AbilityCD.GetInt(),
+            CustomRoles.NiceHacker => playerId.IsPlayerModClient() ? -1 : NiceHacker.AbilityCD.GetInt(),
             CustomRoles.CameraMan => CameraMan.VentCooldown.GetInt(),
             CustomRoles.Tornado => Tornado.TornadoCooldown.GetInt(),
             CustomRoles.Sentinel => Sentinel.PatrolCooldown.GetInt(),
@@ -3607,5 +3631,5 @@ public static class Utils
     public static int PlayersCount(CountTypes countTypes) => Main.PlayerStates.Values.Count(state => state.countTypes == countTypes);
     public static int AlivePlayersCount(CountTypes countTypes) => Main.AllAlivePlayerControls.Count(pc => pc.Is(countTypes));
     public static int IsOneAlive(CountTypes countTypes) => Main.AllAlivePlayerControls.Any(pc => pc.Is(countTypes)) ? 1 : 0;
-    public static bool IsNonHostModClient(this byte id) => id != 0 && Main.playerVersion.ContainsKey(id);
+    public static bool IsPlayerModClient(this byte id) => Main.playerVersion.ContainsKey(id);
 }

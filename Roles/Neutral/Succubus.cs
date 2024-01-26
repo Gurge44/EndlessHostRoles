@@ -91,7 +91,7 @@ public static class Succubus
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 
-            Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Charmed.ToString(), "Assign " + CustomRoles.Charmed.ToString());
+            Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Charmed.ToString(), "Assign " + CustomRoles.Charmed.ToString());
             Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{CharmLimit}次魅惑机会", "Succubus");
             return;
         }

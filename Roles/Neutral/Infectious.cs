@@ -86,7 +86,7 @@ public static class Infectious
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 
-            Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Infected.ToString(), "Assign " + CustomRoles.Infected.ToString());
+            Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Infected.ToString(), "Assign " + CustomRoles.Infected.ToString());
             if (BiteLimit < 0)
                 HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
             Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{BiteLimit}次招募机会", "Infectious");
