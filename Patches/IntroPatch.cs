@@ -606,7 +606,7 @@ class IntroCutsceneDestroyPatch
                 PlayerControl.LocalPlayer.Data.Role.AffectedByLightAffectors = false;
             }
 
-            LoadingScreen.UpdateLoadingAnimation();
+            // LoadingScreen.UpdateLoadingAnimation();
         }
         Logger.Info("OnDestroy", "IntroCutscene");
     }

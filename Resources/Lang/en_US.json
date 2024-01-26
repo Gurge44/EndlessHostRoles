@@ -3319,6 +3319,7 @@
   "TeleportPotion": "Teleport Potion",
   "SpeedPotion": "Speed Potion",
   "QuickFixPotion": "Quick Fix Potion",
+  "QuickFixPotionWaitForUse": "Quick Fix Potion, wait for use",
   "InvisibilityPotion": "Invisibility Potion",
   "SightPotion": "Sight Potion",
   "None": "None",

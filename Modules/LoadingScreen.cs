@@ -44,7 +44,7 @@ namespace TOHE.Modules
                 }
                 else if (LoadingAnimation == null && visible)
                 {
-                    UpdateLoadingAnimation();
+                    // UpdateLoadingAnimation();
                     return;
                 }
 
