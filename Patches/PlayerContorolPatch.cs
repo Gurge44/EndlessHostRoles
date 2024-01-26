@@ -2105,9 +2105,6 @@ class FixedUpdatePatch
                 case CustomRoles.SoulHunter when !lowLoad:
                     SoulHunter.OnFixedUpdate();
                     break;
-                case CustomRoles.Kamikaze when !lowLoad:
-                    Kamikaze.OnFixedUpdate();
-                    break;
                 case CustomRoles.Glitch when !lowLoad:
                     Glitch.UpdateHackCooldown(player);
                     break;
@@ -2197,22 +2194,10 @@ class FixedUpdatePatch
             if (!lowLoad && Main.PlayerStates.TryGetValue(playerId, out var playerState) && GameStates.IsInTask)
             {
                 var subRoles = playerState.SubRoles;
-                if (subRoles.Contains(CustomRoles.Damocles))
-                {
-                    Damocles.Update(player);
-                }
-                if (subRoles.Contains(CustomRoles.Stressed))
-                {
-                    Stressed.Update(player);
-                }
-                if (subRoles.Contains(CustomRoles.Asthmatic))
-                {
-                    Asthmatic.OnFixedUpdate();
-                }
-                if (subRoles.Contains(CustomRoles.Disco))
-                {
-                    Disco.OnFixedUpdate(player);
-                }
+                if (subRoles.Contains(CustomRoles.Damocles)) Damocles.Update(player);
+                if (subRoles.Contains(CustomRoles.Stressed)) Stressed.Update(player);
+                if (subRoles.Contains(CustomRoles.Asthmatic)) Asthmatic.OnFixedUpdate();
+                if (subRoles.Contains(CustomRoles.Disco)) Disco.OnFixedUpdate(player);
             }
 
             long now = GetTimeStamp();
@@ -2233,6 +2218,7 @@ class FixedUpdatePatch
             {
                 YinYanger.OnFixedUpdate();
                 Duellist.OnFixedUpdate();
+                Kamikaze.OnFixedUpdate();
             }
         }
 
