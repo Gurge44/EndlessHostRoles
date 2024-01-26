@@ -112,11 +112,7 @@ public static class Romantic
         if (!isProtect)
         {
             BetTimes[killer.PlayerId]--;
-            if (BetPlayer.TryGetValue(killer.PlayerId, out var originalTarget) && Utils.GetPlayerById(originalTarget) != null)
-            {
-                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: Utils.GetPlayerById(originalTarget), ForceLoop: true);
-                Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(originalTarget), SpecifyTarget: killer, ForceLoop: true);
-            }
+            
             BetPlayer.Remove(killer.PlayerId);
             BetPlayer.Add(killer.PlayerId, target.PlayerId);
             SendRPC(killer.PlayerId);
@@ -234,12 +230,13 @@ public static class Romantic
             }, 0.2f, "Convert to Vengeful romanticId");
         }
 
-        Utils.NotifyRoles(SpecifySeer: romantic, SpecifyTarget: partner);
-        Utils.NotifyRoles(SpecifySeer: partner);
+        Utils.NotifyRoles(SpecifySeer: romantic);
+        Utils.NotifyRoles(SpecifyTarget: romantic);
 
         romantic.ResetKillCooldown();
         romantic.SetKillCooldown();
-        romantic.MarkDirtySettings();
+
+        romantic.SyncSettings();
     }
 }
 

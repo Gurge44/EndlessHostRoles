@@ -87,14 +87,30 @@ public static class Utils
             return false;
         }
 
-        // Modded
-        if (AmongUsClient.Instance.AmHost) nt.SnapTo(location, (ushort)(nt.lastSequenceId + 8));
+        var numHost = (ushort)(nt.lastSequenceId + 6);
+        var numLocalClient = (ushort)(nt.lastSequenceId + 48);
+        var numGlobal = (ushort)(nt.lastSequenceId + 100);
 
-        // Vanilla
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.Reliable);
-        NetHelpers.WriteVector2(location, messageWriter);
-        messageWriter.Write(nt.lastSequenceId + 100U);
-        AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+        // Host side
+        if (AmongUsClient.Instance.AmHost)
+        {
+            nt.SnapTo(location, numHost);
+        }
+
+        if (PlayerControl.LocalPlayer.PlayerId != pc.PlayerId)
+        {
+            // Local Teleport For Client
+            MessageWriter localMessageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.None, pc.GetClientId());
+            NetHelpers.WriteVector2(location, localMessageWriter);
+            localMessageWriter.Write(numLocalClient);
+            AmongUsClient.Instance.FinishRpcImmediately(localMessageWriter);
+        }
+
+        // Global Teleport
+        MessageWriter globalMessageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.None);
+        NetHelpers.WriteVector2(location, globalMessageWriter);
+        globalMessageWriter.Write(numGlobal);
+        AmongUsClient.Instance.FinishRpcImmediately(globalMessageWriter);
 
         if (log) Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} => {location}", "TP");
         return true;
