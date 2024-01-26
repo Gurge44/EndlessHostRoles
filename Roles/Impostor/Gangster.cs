@@ -96,7 +96,7 @@ public static class Gangster
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
 
-                Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Madmate.ToString(), "Assign " + CustomRoles.Madmate.ToString());
+                Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Madmate.ToString(), "Assign " + CustomRoles.Madmate.ToString());
                 if (RecruitLimit[killer.PlayerId] < 0)
                     HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RecruitLimit[killer.PlayerId]}次招募机会", "Gangster");
@@ -119,7 +119,7 @@ public static class Gangster
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
 
-                Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Recruit.ToString(), "Assign " + CustomRoles.Recruit.ToString());
+                Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Recruit.ToString(), "Assign " + CustomRoles.Recruit.ToString());
                 if (RecruitLimit[killer.PlayerId] < 0)
                     HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RecruitLimit[killer.PlayerId]}次招募机会", "Gangster");
@@ -142,7 +142,7 @@ public static class Gangster
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
 
-                Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Admired.ToString(), "Assign " + CustomRoles.Admired.ToString());
+                Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Admired.ToString(), "Assign " + CustomRoles.Admired.ToString());
                 if (RecruitLimit[killer.PlayerId] < 0)
                     HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RecruitLimit[killer.PlayerId]}次招募机会", "Gangster");
@@ -165,7 +165,7 @@ public static class Gangster
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
 
-                Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Charmed.ToString(), "Assign " + CustomRoles.Charmed.ToString());
+                Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Charmed.ToString(), "Assign " + CustomRoles.Charmed.ToString());
                 if (RecruitLimit[killer.PlayerId] < 0)
                     HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RecruitLimit[killer.PlayerId]}次招募机会", "Gangster");
@@ -188,7 +188,7 @@ public static class Gangster
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
 
-                Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Infected.ToString(), "Assign " + CustomRoles.Infected.ToString());
+                Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Infected.ToString(), "Assign " + CustomRoles.Infected.ToString());
                 if (RecruitLimit[killer.PlayerId] < 0)
                     HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RecruitLimit[killer.PlayerId]}次招募机会", "Gangster");
@@ -211,7 +211,7 @@ public static class Gangster
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
 
-                Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Contagious.ToString(), "Assign " + CustomRoles.Contagious.ToString());
+                Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Contagious.ToString(), "Assign " + CustomRoles.Contagious.ToString());
                 if (RecruitLimit[killer.PlayerId] < 0)
                     HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RecruitLimit[killer.PlayerId]}次招募机会", "Gangster");

@@ -483,7 +483,7 @@ public class TaskState
                         {
                             string speedrunnerName = player.GetRealName().RemoveHtmlTags();
                             string notifyString = Translator.GetString("SpeedrunnerHasXTasksLeft");
-                            foreach (var pc in Main.AllAlivePlayerControls.Where(pc => pc.GetTeam() != Team.Crewmate).ToArray())
+                            foreach (var pc in Main.AllAlivePlayerControls.Where(pc => !pc.Is(Team.Crewmate)).ToArray())
                             {
                                 pc.Notify(string.Format(notifyString, speedrunnerName, remainingTasks));
                             }

@@ -11,7 +11,7 @@ namespace TOHE.Roles.Impostor
         private static int Id => 643310;
         public static bool IsEnable = false;
 
-        private static readonly Dictionary<byte, List<byte>> MarkedPlayers = [];
+        public static readonly Dictionary<byte, List<byte>> MarkedPlayers = [];
         public static readonly Dictionary<byte, float> MarkLimit = [];
 
         private static OptionItem MarkCD;

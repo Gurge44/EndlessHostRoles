@@ -2669,7 +2669,7 @@ public static class Options
             .SetValueFormat(OptionFormat.Multiplier);
         RoleLoadingText = "Experimental roles\nGiant";
         SetupAdtRoleOptions(18750, CustomRoles.Giant, canSetNum: true, tab: TabGroup.OtherRoles);
-        GiantSpeed = FloatOptionItem.Create(18753, "FlashmanSpeed", new(0.25f, 3f, 0.25f), 2.5f, TabGroup.OtherRoles, false)
+        GiantSpeed = FloatOptionItem.Create(18753, "GiantSpeed", new(0.25f, 3f, 0.25f), 0.75f, TabGroup.OtherRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Flashman])
             .SetValueFormat(OptionFormat.Multiplier);
 
