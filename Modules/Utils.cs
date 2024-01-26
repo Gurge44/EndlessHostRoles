@@ -3104,7 +3104,7 @@ public static class Utils
             CustomRoles.Convener => Convener.CD.GetInt(),
             CustomRoles.DovesOfNeace => Options.DovesOfNeaceCooldown.GetInt(),
             CustomRoles.Alchemist => Alchemist.VentCooldown.GetInt(),
-            CustomRoles.NiceHacker => NiceHacker.AbilityCD.GetInt(),
+            CustomRoles.NiceHacker => playerId.IsPlayerModClient() ? -1 : NiceHacker.AbilityCD.GetInt(),
             CustomRoles.CameraMan => CameraMan.VentCooldown.GetInt(),
             CustomRoles.Tornado => Tornado.TornadoCooldown.GetInt(),
             CustomRoles.Sentinel => Sentinel.PatrolCooldown.GetInt(),
@@ -3607,5 +3607,5 @@ public static class Utils
     public static int PlayersCount(CountTypes countTypes) => Main.PlayerStates.Values.Count(state => state.countTypes == countTypes);
     public static int AlivePlayersCount(CountTypes countTypes) => Main.AllAlivePlayerControls.Count(pc => pc.Is(countTypes));
     public static int IsOneAlive(CountTypes countTypes) => Main.AllAlivePlayerControls.Any(pc => pc.Is(countTypes)) ? 1 : 0;
-    public static bool IsNonHostModClient(this byte id) => id != 0 && Main.playerVersion.ContainsKey(id);
+    public static bool IsPlayerModClient(this byte id) => Main.playerVersion.ContainsKey(id);
 }
