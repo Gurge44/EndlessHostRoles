@@ -104,6 +104,6 @@ namespace TOHE.Roles.Neutral
             MarkedPlayerId = byte.MaxValue;
             SendRPC();
         }
-        public static string SuffixText => $"<#00ffa5>Mode:</color> <#ffffff>{(ToTargetTP ? "TP to Target" : "Pull Target")}</color>";
+        public static string SuffixText => $"<#00ffa5>{Translator.GetString("Mode")}:</color> <#ffffff>{(ToTargetTP ? Translator.GetString("HookshotTpToTarget") : Translator.GetString("HookshotPullTarget"))}</color>";
     }
 }
