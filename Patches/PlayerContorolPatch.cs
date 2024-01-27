@@ -2220,35 +2220,7 @@ class FixedUpdatePatch
                 Duellist.OnFixedUpdate();
                 Kamikaze.OnFixedUpdate();
             }
-
-            if (!lowLoad && Main.PlayerStates.TryGetValue(playerId, out var state) && state.SubRoles.Any(x => !x.IsAdditionRole()))
-            {
-                var addon = state.SubRoles.First(x => !x.IsAdditionRole());
-                var mainrole = player.GetCustomRole();
-                Logger.Fatal($"{player.GetRealName()} has an add-on assigned, which isn't treated as an add-on: {addon}. The player's main role is {mainrole}, their ID is {player.PlayerId}", "FixedUpdatePatch");
-                state.RemoveSubRole(addon);
-                if (mainrole == CustomRoles.NotAssigned)
-                {
-                    player.RpcSetCustomRole(addon);
-                    AddRoles(playerId, addon);
-                    Logger.Warn("The player's main role was set to the invalid add-on.", "FixedUpdatePatch");
-                }
-            }
         }
-
-        try
-        {
-            if (!lowLoad && !AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer.GetCustomRole() == CustomRoles.NotAssigned)
-            {
-                CustomRoles? addon = Main.PlayerStates.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var state) ? state?.SubRoles?.FirstOrDefault(x => !x.IsAdditionRole()) : null;
-                if (addon != null)
-                {
-                    Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId]?.SetMainRole((CustomRoles)addon);
-                    Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId]?.RemoveSubRole((CustomRoles)addon);
-                }
-            }
-        }
-        catch { }
 
         if (GameStates.IsInTask && Agitater.IsEnable && Agitater.AgitaterHasBombed && Agitater.CurrentBombedPlayer == playerId)
         {

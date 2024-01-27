@@ -51,6 +51,6 @@ namespace TOHE.Roles.Crewmate
             UseLimit[pc.PlayerId]--;
             SendRPC(pc.PlayerId);
         }
-        public static string GetProgressText(byte id) => UseLimit.TryGetValue(id, out var limit) ? $"<#777777>-</color> <#ff{(limit < 1 ? "0000" : "ffff")}>{System.Math.Round(limit, 1)}</color>" : string.Empty;
+        public static string GetProgressText(byte id) => UseLimit.TryGetValue(id, out var limit) ? $"<#777777>-</color> <#ff{(limit < 1f ? "0000" : "ffff")}>{System.Math.Round(limit, 1)}</color>" : string.Empty;
     }
 }
