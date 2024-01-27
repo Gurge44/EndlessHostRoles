@@ -950,9 +950,7 @@ public static class Options
     public static OptionItem LoverSpawnChances;
     public static OptionItem LoverKnowRoles;
     public static OptionItem LoverSuicide;
-    public static OptionItem ImpCanBeEgoist;
     public static OptionItem ImpEgoistVisibalToAllies;
-    public static OptionItem CrewCanBeEgoist;
     public static OptionItem TicketsPerKill;
     public static OptionItem ImpCanBeDualPersonality;
     public static OptionItem CrewCanBeDualPersonality;
@@ -2681,10 +2679,6 @@ public static class Options
         RoleLoadingText = "Experimental roles\nEgoist";
 
         SetupAdtRoleOptions(18900, CustomRoles.Egoist, canSetNum: true, tab: TabGroup.OtherRoles);
-        CrewCanBeEgoist = BooleanOptionItem.Create(18910, "CrewCanBeEgoist", true, TabGroup.OtherRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Egoist]);
-        ImpCanBeEgoist = BooleanOptionItem.Create(18911, "ImpCanBeEgoist", true, TabGroup.OtherRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Egoist]);
         ImpEgoistVisibalToAllies = BooleanOptionItem.Create(18912, "ImpEgoistVisibalToAllies", true, TabGroup.OtherRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Egoist]);
         /*    SetupAdtRoleOptions(19000, CustomRoles.Sidekick, canSetNum: true, tab: TabGroup.OtherRoles);

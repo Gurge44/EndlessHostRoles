@@ -15,7 +15,7 @@ namespace TOHE.Roles.Crewmate
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Perceiver);
-            Radius = FloatOptionItem.Create(Id + 2, "PerceiverRadius", new(0.05f, 5f, 0.05f), 0.5f, TabGroup.CrewmateRoles, false)
+            Radius = FloatOptionItem.Create(Id + 2, "PerceiverRadius", new(0.25f, 10f, 0.25f), 2.5f, TabGroup.CrewmateRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Perceiver])
                 .SetValueFormat(OptionFormat.Multiplier);
             CD = Options.CreateCDSetting(Id + 3, TabGroup.CrewmateRoles, CustomRoles.Perceiver);

@@ -99,7 +99,7 @@ namespace TOHE.Roles.Crewmate
             playersInVents.Add(pc.PlayerId, vent.Id);
         }
 
-        public static string GetProgressText() => $"<color=#777777>-</color> <color=#ffffff>{DrainLimit}</color>";
+        public static string GetProgressText() => $"<color=#777777>-</color> <color=#ff{(DrainLimit < 1 ? "0000" : "ffff")}>{DrainLimit}</color>";
 
         private static void KillPlayersInVent(PlayerControl pc, Vent vent)
         {
