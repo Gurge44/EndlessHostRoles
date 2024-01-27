@@ -2236,6 +2236,20 @@ class FixedUpdatePatch
             }
         }
 
+        try
+        {
+            if (!lowLoad && !AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer.GetCustomRole() == CustomRoles.NotAssigned)
+            {
+                CustomRoles? addon = Main.PlayerStates.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var state) ? state?.SubRoles?.FirstOrDefault(x => !x.IsAdditionRole()) : null;
+                if (addon != null)
+                {
+                    Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId]?.SetMainRole((CustomRoles)addon);
+                    Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId]?.RemoveSubRole((CustomRoles)addon);
+                }
+            }
+        }
+        catch { }
+
         if (GameStates.IsInTask && Agitater.IsEnable && Agitater.AgitaterHasBombed && Agitater.CurrentBombedPlayer == playerId)
         {
             if (!player.IsAlive())
@@ -3111,6 +3125,16 @@ class SetColorPatch
     }
 }
 
+[HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.RpcBootFromVent))]
+class BootFromVentPatch
+{
+    public static void Postfix(PlayerPhysics __instance)
+    {
+        if (!AmongUsClient.Instance.AmHost || __instance.myPlayer.PlayerId != 0) return;
+
+        TryMoveToVentPatch.HostVentTarget.SetButtons(false);
+    }
+}
 [HarmonyPatch(typeof(Vent), nameof(Vent.TryMoveToVent))]
 class TryMoveToVentPatch
 {
@@ -3137,6 +3161,8 @@ class ExitVentPatch
             TryMoveToVentPatch.HostVentTarget = __instance;
         }
 
+        __instance.SetButtons(false);
+
         if (!AmongUsClient.Instance.AmHost) return;
 
         Drainer.OnAnyoneExitVent(pc);
@@ -3162,6 +3188,8 @@ class EnterVentPatch
             Logger.Info("(Enter)  " + __instance.name, "HostVentTarget");
             TryMoveToVentPatch.HostVentTarget = __instance;
         }
+
+        __instance.SetButtons(true);
 
         Drainer.OnAnyoneEnterVent(pc, __instance);
         Analyzer.OnAnyoneEnterVent(pc);

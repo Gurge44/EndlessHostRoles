@@ -789,6 +789,7 @@ class SetHudActivePatch
 [HarmonyPatch(typeof(VentButton), nameof(VentButton.DoClick))]
 class VentButtonDoClickPatch
 {
+    public static bool Animating = false;
     public static bool Prefix(VentButton __instance)
     {
         var pc = PlayerControl.LocalPlayer;
@@ -798,6 +799,8 @@ class VentButtonDoClickPatch
         {
             pc.MyPhysics.RpcExitVent(TryMoveToVentPatch.HostVentTarget.Id);
             TryMoveToVentPatch.HostVentTarget.SetButtons(false);
+            Animating = true;
+            _ = new LateTask(() => { Animating = false; }, 0.6f, log: false);
             return false;
         }
         if (pc.inVent || !pc.CanMove) return false;
@@ -807,10 +810,14 @@ class VentButtonDoClickPatch
             Vent vent = vents.FirstOrDefault(vent => Vector2.Distance(new Vector2(vent.transform.position.x, vent.transform.position.y + 0.3636f), pc.Pos()) < 0.4f);
             pc.MyPhysics.RpcEnterVent(vent.Id);
             vent.SetButtons(true);
+            Animating = true;
+            _ = new LateTask(() => { Animating = false; }, 0.6f, log: false);
             return false;
         }
         pc?.MyPhysics?.RpcEnterVent(__instance.currentTarget.Id);
         __instance.currentTarget.SetButtons(true);
+        Animating = true;
+        _ = new LateTask(() => { Animating = false; }, 0.6f, log: false);
         return false;
     }
 }

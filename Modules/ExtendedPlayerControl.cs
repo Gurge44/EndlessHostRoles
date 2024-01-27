@@ -224,7 +224,7 @@ static class ExtendedPlayerControl
     {
         if (player == null) return;
         Logger.Info($"{player.GetNameWithRole()}'s KCD set to {(time == -1f ? Main.AllPlayerKillCooldown[player.PlayerId] : time)}s", "SetKCD");
-        if (player.GetCustomRole().PetActivatedAbility())
+        if (player.GetCustomRole().UsesPetInsteadOfKill())
         {
             if (time == -1f) player.AddKCDAsAbilityCD();
             else player.AddAbilityCD((int)Math.Round(time));

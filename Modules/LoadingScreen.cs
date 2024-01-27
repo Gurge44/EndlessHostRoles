@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Rewired.Utils;
+using UnityEngine;
 
 namespace TOHE.Modules
 {
@@ -10,7 +11,7 @@ namespace TOHE.Modules
         {
             try
             {
-                LoadingAnimation = null;
+                if (!LoadingAnimation.IsNullOrDestroyed()) Object.Destroy(LoadingAnimation);
 
                 LoadingAnimation = Object.Instantiate(ModManager.Instance.ModStamp);
                 LoadingAnimation.sprite = Utils.LoadSprite("TOHE.Resources.Loading.png", 300f);
@@ -31,20 +32,19 @@ namespace TOHE.Modules
         {
             try
             {
-                //bool visible = AmongUsClient.Instance.AmHost && AmongUsClient.Instance.IsGameStarted && !GameStates.IsCanMove && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening && !PlayerControl.LocalPlayer.inVent && !PlayerControl.LocalPlayer.MyPhysics.Animations.IsPlayingSomeAnimation() && !PlayerControl.LocalPlayer.onLadder;
-                bool visible = true;
+                var lp = PlayerControl.LocalPlayer;
+                var anims = PlayerControl.LocalPlayer.MyPhysics.Animations;
 
-
+                bool visible = AmongUsClient.Instance.AmHost && AmongUsClient.Instance.IsGameStarted && !GameStates.IsCanMove && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening && !lp.inVent && !anims.IsPlayingAnyLadderAnimation() && !VentButtonDoClickPatch.Animating && !lp.onLadder;
+                
                 if (!visible && LoadingAnimation != null)
                 {
-                    LoadingAnimation.forceRenderingOff = true;
-                    LoadingAnimation.enabled = false;
-                    LoadingAnimation = null;
+                    Object.Destroy(LoadingAnimation);
                     return;
                 }
                 else if (LoadingAnimation == null && visible)
                 {
-                    // UpdateLoadingAnimation();
+                    UpdateLoadingAnimation();
                     return;
                 }
 
@@ -52,9 +52,12 @@ namespace TOHE.Modules
                 {
                     var tempButton = Object.Instantiate(ModManager.Instance.ModStamp);
                     var basePos = tempButton.transform.position;
+                    Object.Destroy(tempButton);
+
                     var x = basePos.x - 9.5f;
                     var y = basePos.y - 3.5f;
                     var z = basePos.z;
+
                     if (LoadingAnimation.transform.position != new Vector3(x, y, z)) LoadingAnimation.transform.position = new Vector3(x, y, z);
 
                     LoadingAnimation.transform?.Rotate(Vector3.forward, 200f * Time.deltaTime);
