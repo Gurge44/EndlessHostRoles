@@ -188,7 +188,7 @@ class ExileControllerWrapUpPatch
                 {
                     exiled.Object.RpcExileV2();
                 }
-            }, 0.5f, "Restore IsDead Task");
+            }, 0.8f, "Restore IsDead Task");
             _ = new LateTask(() =>
             {
                 Main.AfterMeetingDeathPlayers.Do(x =>
@@ -206,7 +206,7 @@ class ExileControllerWrapUpPatch
                     Utils.AfterPlayerDeathTasks(player);
                 });
                 Main.AfterMeetingDeathPlayers.Clear();
-            }, 0.5f, "AfterMeetingDeathPlayers Task");
+            }, 0.8f, "AfterMeetingDeathPlayers Task");
         }
 
         GameStates.AlreadyDied |= !Utils.IsAllAlive;

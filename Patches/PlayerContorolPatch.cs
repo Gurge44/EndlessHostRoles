@@ -962,22 +962,18 @@ class CheckMurderPatch
                 }
                 break;
             case CustomRoles.TimeMaster:
-                if (Main.TimeMasterInProtect.ContainsKey(target.PlayerId)
-                    && killer.PlayerId != target.PlayerId
-                    && Main.TimeMasterInProtect[target.PlayerId] + Options.TimeMasterSkillDuration.GetInt() >= GetTimeStamp(DateTime.UtcNow))
+                if (Main.TimeMasterInProtect.ContainsKey(target.PlayerId) && killer.PlayerId != target.PlayerId && Main.TimeMasterInProtect[target.PlayerId] + Options.TimeMasterSkillDuration.GetInt() >= Utils.GetTimeStamp(DateTime.UtcNow))
                 {
-                    foreach (PlayerControl player in Main.AllPlayerControls)
+                    foreach (var player in Main.AllPlayerControls)
                     {
-                        if (!killer.Is(CustomRoles.Pestilence) && Main.TimeMasterBackTrack.ContainsKey(player.PlayerId))
+                        if (!killer.Is(CustomRoles.Pestilence) && Main.TimeMasterBackTrack.TryGetValue(player.PlayerId, out var pos))
                         {
-                            var position = Main.TimeMasterBackTrack[player.PlayerId];
-                            TP(player.NetTransform, position);
+                            player.TP(pos);
                         }
                     }
                     killer.SetKillCooldown(target: target, forceAnime: true);
                     return false;
                 }
-
                 break;
             case CustomRoles.SuperStar:
                 if (Main.AllAlivePlayerControls.Any(x =>
@@ -3391,19 +3387,23 @@ class EnterVentPatch
                     {
                         Main.TimeMasterNumOfUsed[pc.PlayerId] -= 1;
                         Main.TimeMasterInProtect.Remove(pc.PlayerId);
-                        Main.TimeMasterNumOfUsed[pc.PlayerId] -= 1;
                         Main.TimeMasterInProtect.Add(pc.PlayerId, GetTimeStamp());
                         //if (!pc.IsModClient()) pc.RpcGuardAndKill(pc);
                         pc.Notify(GetString("TimeMasterOnGuard"), Options.TimeMasterSkillDuration.GetFloat());
                         pc.AddAbilityCD();
                         foreach (PlayerControl player in Main.AllPlayerControls)
                         {
-                            if (Main.TimeMasterBackTrack.ContainsKey(player.PlayerId))
+                            if (Main.TimeMasterBackTrack.TryGetValue(player.PlayerId, out var position))
                             {
-                                var position = Main.TimeMasterBackTrack[player.PlayerId];
-                                TP(player.NetTransform, position);
-                                if (pc != player)
-                                    player?.MyPhysics?.RpcBootFromVent(player.PlayerId);
+                                if ((!pc.inVent && !pc.inMovingPlat && pc.IsAlive() && !pc.onLadder && !pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() && !pc.MyPhysics.Animations.IsPlayingEnterVentAnimation()) || player.PlayerId != pc.PlayerId)
+                                {
+                                    player.TP(position);
+                                }
+                                if (pc.PlayerId == player.PlayerId)
+                                {
+                                    player?.MyPhysics?.RpcBootFromVent(Main.LastEnteredVent.TryGetValue(player.PlayerId, out var vent) ? vent.Id : player.PlayerId);
+                                }
+
                                 Main.TimeMasterBackTrack.Remove(player.PlayerId);
                             }
                             else
