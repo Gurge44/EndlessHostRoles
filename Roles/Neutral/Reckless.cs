@@ -57,7 +57,9 @@ public static class Reckless
     {
         foreach (byte id in playerIdList.ToArray())
         {
-            NowCooldown[Utils.GetPlayerById(id).PlayerId] = DefaultKillCooldown.GetFloat();
+            var pc = Utils.GetPlayerById(id);
+            if (pc == null) continue;
+            NowCooldown[pc.PlayerId] = DefaultKillCooldown.GetFloat();
         }
     }
 }
