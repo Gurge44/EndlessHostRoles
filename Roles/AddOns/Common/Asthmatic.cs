@@ -22,6 +22,7 @@ namespace TOHE.Roles.AddOns.Common
             Timers.Clear();
             LastSuffix.Clear();
             LastPosition.Clear();
+
             MinRedTime = AsthmaticMinRedTime.GetInt();
             MaxRedTime = AsthmaticMaxRedTime.GetInt();
             MinGreenTime = AsthmaticMinGreenTime.GetInt();

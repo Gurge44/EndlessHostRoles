@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using TOHE.Modules;
+using TOHE.Roles.AddOns.Common;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
@@ -565,7 +566,7 @@ class HudManagerPatch
                         CustomRoles.Stealth => Stealth.GetSuffix(player, isHUD: true),
                         CustomRoles.Hookshot => Hookshot.SuffixText,
                         CustomRoles.Tornado => Tornado.GetSuffixText(isHUD: true),
-                        _ => string.Empty,
+                        _ => player.Is(CustomRoles.Asthmatic) ? Asthmatic.GetSuffixText(player.PlayerId) : string.Empty,
                     },
                     _ => string.Empty,
                 };

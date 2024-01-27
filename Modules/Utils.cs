@@ -2588,6 +2588,9 @@ public static class Utils
             case CustomRoles.HexMaster:
                 HexMaster.Add(id);
                 break;
+            case CustomRoles.Perceiver:
+                Perceiver.Add(id);
+                break;
             case CustomRoles.NiceSwapper:
                 NiceSwapper.Add(id);
                 break;

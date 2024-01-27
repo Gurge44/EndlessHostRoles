@@ -26,6 +26,8 @@ namespace TOHE.Roles.Crewmate
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Perceiver])
                 .SetValueFormat(OptionFormat.Times);
         }
+        public static void Init() => UseLimit.Clear();
+        public static void Add(byte id) => UseLimit[id] = Limit.GetInt();
         public static void SendRPC(byte id)
         {
             var writer = Utils.CreateCustomRoleRPC(CustomRPC.SyncPerceiver);
