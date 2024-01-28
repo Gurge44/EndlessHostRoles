@@ -796,7 +796,7 @@ class VentButtonDoClickPatch
         var pc = PlayerControl.LocalPlayer;
         if (pc.MyPhysics.Animations.IsPlayingEnterVentAnimation()) return false;
 
-        if (pc.inVent)
+        if (pc.inVent && pc.PlayerId == 0)
         {
             pc.MyPhysics.RpcExitVent(TryMoveToVentPatch.HostVentTarget.Id);
             TryMoveToVentPatch.HostVentTarget.SetButtons(false);

@@ -3130,9 +3130,8 @@ class ExitVentPatch
         {
             Logger.Info("(Exit)  " + __instance.name, "HostVentTarget");
             TryMoveToVentPatch.HostVentTarget = __instance;
+            __instance.SetButtons(false);
         }
-
-        __instance.SetButtons(false);
 
         if (!AmongUsClient.Instance.AmHost) return;
 
@@ -3158,9 +3157,8 @@ class EnterVentPatch
         {
             Logger.Info("(Enter)  " + __instance.name, "HostVentTarget");
             TryMoveToVentPatch.HostVentTarget = __instance;
+            __instance.SetButtons(true);
         }
-
-        __instance.SetButtons(true);
 
         Drainer.OnAnyoneEnterVent(pc, __instance);
         Analyzer.OnAnyoneEnterVent(pc);
