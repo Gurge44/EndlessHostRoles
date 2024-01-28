@@ -74,14 +74,14 @@ namespace TOHE.Roles.Neutral
 
                 killer.SetKillCooldown();
 
-                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: Deathknight.Deathknight_);
-                Utils.NotifyRoles(SpecifySeer: Deathknight.Deathknight_);
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                Utils.NotifyRoles(SpecifySeer: target);
 
-                Deathknight.Deathknight_.MarkDirtySettings();
-                Deathknight.Deathknight_.ResetKillCooldown();
-                Deathknight.Deathknight_.SetKillCooldown();
+                target.MarkDirtySettings();
+                target.ResetKillCooldown();
+                target.SetKillCooldown();
 
-                Deathknight.Deathknight_.Notify(GetString("RecruitedToDeathknight"));
+                target.Notify(GetString("RecruitedToDeathknight"));
 
                 return;
             }
@@ -148,7 +148,7 @@ namespace TOHE.Roles.Neutral
 
         public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (Necromancer.CanBeUndead(target))
+            if (Necromancer.CanBeUndead(target) && Necromancer.PartiallyRecruitedIds.Contains(target.PlayerId))
             {
                 target.RpcSetCustomRole(CustomRoles.Undead);
 

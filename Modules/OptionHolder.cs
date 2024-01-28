@@ -2055,8 +2055,6 @@ public static class Options
         Bandit.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nAgitater";
         Agitater.SetupCustomOption();
-        RoleLoadingText = "Neutral roles\nInfectious";
-        Infectious.SetupCustomOption();
 
         LoadingPercentage = 33;
         RoleLoadingText = "Neutral roles\nJackal";

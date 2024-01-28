@@ -597,9 +597,6 @@ class CheckMurderPatch
                 case CustomRoles.Amnesiac:
                     Amnesiac.OnCheckMurder(killer, target);
                     return false;
-                case CustomRoles.Infectious:
-                    Infectious.OnCheckMurder(killer, target);
-                    return false;
                 case CustomRoles.Monarch:
                     Monarch.OnCheckMurder(killer, target);
                     return false;
@@ -814,15 +811,6 @@ class CheckMurderPatch
 
         //禁止叛徒刀内鬼
         if (killer.Is(CustomRoles.Madmate) && target.Is(CustomRoleTypes.Impostor) && !Options.MadmateCanKillImp.GetBool())
-            return false;
-        //Bitten players cannot kill Vampire
-        if (killer.Is(CustomRoles.Infected) && target.Is(CustomRoles.Infectious))
-            return false;
-        //Vampire cannot kill bitten players
-        if (killer.Is(CustomRoles.Infectious) && target.Is(CustomRoles.Infected))
-            return false;
-        //Bitten players cannot kill each other
-        if (killer.Is(CustomRoles.Infected) && target.Is(CustomRoles.Infected) && !Infectious.TargetKnowOtherTarget.GetBool())
             return false;
         //Sidekick can kill Sidekick
         if (killer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Sidekick) && !Options.SidekickCanKillSidekick.GetBool())

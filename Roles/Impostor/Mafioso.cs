@@ -104,6 +104,7 @@ namespace TOHE.Roles.Impostor
             if (!IsEnable) return;
             Tier = reader.ReadInt32();
             XP = reader.ReadInt32();
+            PreviouslyUsedVents.Clear();
             var elements = reader.ReadInt32();
             if (elements > 0) for (int i = 0; i < elements; i++) PreviouslyUsedVents.Add(reader.ReadInt32());
         }
@@ -125,7 +126,7 @@ namespace TOHE.Roles.Impostor
         }
         public static void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || !pc.IsAlive() || pc == null || !pc.Is(CustomRoles.Mafioso) || !IsEnable || lastUpdate >= GetTimeStamp()) return;
+            if (!GameStates.IsInTask || !IsEnable || pc == null || !pc.IsAlive() || !pc.Is(CustomRoles.Mafioso)) return;
 
             if (XP >= 100 && Tier < 5)
             {
@@ -150,7 +151,7 @@ namespace TOHE.Roles.Impostor
             if (before1CD != Pistol1CD || before2CD != Pistol2CD)
             {
                 NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                SendRPCSyncPistolCD();
+                if (pc.IsNonHostModClient()) SendRPCSyncPistolCD();
             }
         }
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)

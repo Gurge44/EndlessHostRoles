@@ -290,7 +290,6 @@ internal class ChangeRoleSettings
             Damocles.Initialize();
             Stressed.Init();
             Amnesiac.Init();
-            Infectious.Init();
             Monarch.Init();
             Virus.Init();
             Bloodhound.Init();

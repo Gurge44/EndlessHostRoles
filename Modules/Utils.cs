@@ -430,11 +430,6 @@ public static class Utils
             RoleColor = GetRoleColor(CustomRoles.Soulless);
             RoleText = GetRoleString("Soulless-") + RoleText;
         }
-        if (targetSubRoles.Contains(CustomRoles.Infected) && (self || pure || seerMainRole == CustomRoles.Infectious || (Infectious.TargetKnowOtherTarget.GetBool() && seerSubRoles.Contains(CustomRoles.Infected))))
-        {
-            RoleColor = GetRoleColor(CustomRoles.Infected);
-            RoleText = GetRoleString("Infected-") + RoleText;
-        }
         if (targetSubRoles.Contains(CustomRoles.Contagious) && (self || pure || seerMainRole == CustomRoles.Virus || (Virus.TargetKnowOtherTarget.GetBool() && seerSubRoles.Contains(CustomRoles.Contagious))))
         {
             RoleColor = GetRoleColor(CustomRoles.Contagious);
@@ -564,7 +559,6 @@ public static class Utils
             //case CustomRoles.CursedSoul:
             case CustomRoles.Admirer when !Options.UsePets.GetBool() || !Admirer.UsePet.GetBool():
             case CustomRoles.Amnesiac:
-            case CustomRoles.Infectious:
             case CustomRoles.Monarch when !Options.UsePets.GetBool() || !Monarch.UsePet.GetBool():
             case CustomRoles.Deputy when !Options.UsePets.GetBool() || !Deputy.UsePet.GetBool():
             case CustomRoles.Virus:
@@ -695,10 +689,10 @@ public static class Utils
         if (Ritualist.IsShowTargetRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Executioner.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Succubus.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
+        if (Necromancer.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         //if (CursedSoul.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Admirer.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Amnesiac.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
-        if (Infectious.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Virus.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (PlayerControl.LocalPlayer.IsRevealedPlayer(__instance)) result = true;
         if (PlayerControl.LocalPlayer.Is(CustomRoles.God)) result = true;
@@ -1141,9 +1135,6 @@ public static class Utils
                 //    break;
                 case CustomRoles.Admirer:
                     ProgressText.Append(Admirer.GetAdmireLimit());
-                    break;
-                case CustomRoles.Infectious:
-                    ProgressText.Append(Infectious.GetBiteLimit());
                     break;
                 case CustomRoles.Monarch:
                     ProgressText.Append(Monarch.GetKnightLimit());
@@ -2341,10 +2332,10 @@ public static class Utils
                                 Ritualist.IsShowTargetRole(seer, target) ||
                                 Executioner.KnowRole(seer, target) ||
                                 Succubus.KnowRole(seer, target) ||
+                                Necromancer.KnowRole(seer, target) ||
                                 //CursedSoul.KnowRole(seer, target) ||
                                 Admirer.KnowRole(seer, target) ||
                                 Amnesiac.KnowRole(seer, target) ||
-                                Infectious.KnowRole(seer, target) ||
                                 Virus.KnowRole(seer, target) ||
                                 Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop ||
                                 (seer.IsRevealedPlayer(target) && !target.Is(CustomRoles.Trickster)) ||
@@ -2917,9 +2908,6 @@ public static class Utils
                 break;
             case CustomRoles.DovesOfNeace:
                 Main.DovesOfNeaceNumOfUsed.Add(id, Options.DovesOfNeaceMaxOfUseage.GetInt());
-                break;
-            case CustomRoles.Infectious:
-                Infectious.Add(id);
                 break;
             case CustomRoles.Monarch:
                 Monarch.Add(id);

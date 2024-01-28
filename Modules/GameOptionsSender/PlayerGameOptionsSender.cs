@@ -543,9 +543,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     AURoleOptions.EngineerInVentMaxTime = 0f;
                     opt.SetVision(Options.JesterHasImpostorVision.GetBool());
                     break;
-                case CustomRoles.Infectious:
-                    opt.SetVision(Infectious.HasImpostorVision.GetBool());
-                    break;
                 case CustomRoles.Lawyer:
                     //Main.NormalOptions.CrewLightMod = Lawyer.LawyerVision.GetFloat();
                     break;

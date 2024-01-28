@@ -56,7 +56,7 @@ public static class NameColorManager
         }
         if (seer.Is(CustomRoles.Deathknight) && target.Is(CustomRoles.Undead)) color = Main.roleColors[CustomRoles.Undead];
         if (seer.Is(CustomRoles.Necromancer) && target.Is(CustomRoles.Undead)) color = Main.roleColors[CustomRoles.Undead];
-        if (seer.GetCustomRole() is CustomRoles.Necromancer or CustomRoles.Deathknight && Necromancer.PartiallyRecruitedIds.Contains(target.PlayerId)) color = Main.roleColors[CustomRoles.Deathknight];
+        if ((seer.GetCustomRole() is CustomRoles.Necromancer or CustomRoles.Deathknight) && Necromancer.PartiallyRecruitedIds.Contains(target.PlayerId)) color = Main.roleColors[CustomRoles.Deathknight];
 
         //if (seer.Is(CustomRoles.CursedSoul) && target.Is(CustomRoles.Soulless)) color = Main.roleColors[CustomRoles.Soulless];
 
@@ -91,7 +91,6 @@ public static class NameColorManager
             (CustomRoles.BloodKnight, CustomRoles.BloodKnight) => Main.roleColors[CustomRoles.BloodKnight],
             (CustomRoles.Pelican, CustomRoles.Pelican) => Main.roleColors[CustomRoles.Pelican],
             (CustomRoles.Poisoner, CustomRoles.Poisoner) => Main.roleColors[CustomRoles.Poisoner],
-            (CustomRoles.Infectious, CustomRoles.Infectious) => Main.roleColors[CustomRoles.Infectious],
             (CustomRoles.Virus, CustomRoles.Virus) => Main.roleColors[CustomRoles.Virus],
             (CustomRoles.Parasite, CustomRoles.Parasite) => Main.roleColors[CustomRoles.Parasite],
             (CustomRoles.Traitor, CustomRoles.Traitor) => Main.roleColors[CustomRoles.Traitor],
@@ -139,10 +138,6 @@ public static class NameColorManager
 
         if (seer.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor)) color = Main.roleColors[CustomRoles.ImpostorTOHE];
         if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Refugee)) color = Main.roleColors[CustomRoles.Refugee];
-
-        if (seer.Is(CustomRoles.Infected) && target.Is(CustomRoles.Infectious)) color = Main.roleColors[CustomRoles.Infectious];
-        if (seer.Is(CustomRoles.Infectious) && target.Is(CustomRoles.Infected)) color = Main.roleColors[CustomRoles.Infected];
-        if (seer.Is(CustomRoles.Infected) && target.Is(CustomRoles.Infected) && Infectious.TargetKnowOtherTarget.GetBool()) color = Main.roleColors[CustomRoles.Infectious];
 
         if (seer.Is(CustomRoles.Necroview) && seer.IsAlive())
         {

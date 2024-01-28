@@ -124,10 +124,6 @@ class SetEverythingUpPatch
             GameOverReason reason = EndGamePatch.LastGameOverReason;
             bool isCrewWin = reason.Equals(GameOverReason.HumansByVote) || reason.Equals(GameOverReason.HumansByTask);
 
-            byte RRTarget = byte.MaxValue;
-            bool isRRSwap = Main.winnerRolesList.Contains(CustomRoles.RuthlessRomantic);
-            if (isRRSwap) RRTarget = Romantic.BetPlayer.Values.First();
-
             List<WinningPlayerData> winningPlayerDataList = TempData.winners.ToArray().ToList();
             for (int i = 0; i < winningPlayerDataList.Count; i++)
             {
@@ -167,14 +163,9 @@ class SetEverythingUpPatch
                     if (Main.winnerNameList[i1].RemoveHtmlTags() != winningPlayerData2?.PlayerName.RemoveHtmlTags()) continue;
                     var role = Main.PlayerStates[id].MainRole;
 
-                    if (isRRSwap && RRTarget != byte.MaxValue)
-                    {
-                        if (role == CustomRoles.RuthlessRomantic) role = Main.winnerRolesList[RRTarget];
-                        if (role == Main.winnerRolesList[RRTarget]) role = CustomRoles.RuthlessRomantic;
-                    }
-
                     var color = Main.roleColors[role];
                     var rolename = Utils.GetRoleName(role);
+
                     poolablePlayer.cosmetics.nameText.text += $"\n<color={color}>{rolename}</color>";
                     poolablePlayer.cosmetics.nameText.transform.localPosition = new Vector3(defaultPos.x, !lowered || role.IsImpostorTeamV3() || role.IsNK() ? defaultPos.y - 0.6f : defaultPos.y - 1.4f, -15f);
                 }

@@ -764,9 +764,6 @@ internal class RPCHandlerPatch
             //case CustomRPC.SetCursedSoulCurseLimit:
             //    CursedSoul.ReceiveRPC(reader);
             //    break;
-            case CustomRPC.SetInfectiousBiteLimit:
-                Infectious.ReceiveRPC(reader);
-                break;
             case CustomRPC.SetDrainerLimit:
                 Drainer.ReceiveRPC(reader);
                 break;

@@ -83,11 +83,6 @@ class GameEndChecker
                 //        .Where(pc => pc.Is(CustomRoles.CursedSoul) || (pc.Is(CustomRoles.Soulless) && CursedSoul.SoullessWinsWithCS.GetBool() && !pc.Is(CustomRoles.Rogue) && !pc.Is(CustomRoles.Admired)))
                 //        .Do(pc => CustomWinnerHolder.WinnerIds.Add(pc.PlayerId));
                 //    break;
-                case CustomWinner.Infectious:
-                    Main.AllPlayerControls
-                        .Where(pc => pc.Is(CustomRoles.Infectious) || (pc.Is(CustomRoles.Infected) && !pc.Is(CustomRoles.Rogue) && !pc.Is(CustomRoles.Admired)))
-                        .Do(pc => CustomWinnerHolder.WinnerIds.Add(pc.PlayerId));
-                    break;
                 case CustomWinner.Virus:
                     Main.AllPlayerControls
                         .Where(pc => pc.Is(CustomRoles.Virus) || (pc.Is(CustomRoles.Contagious) && !pc.Is(CustomRoles.Rogue) && !pc.Is(CustomRoles.Admired)))
@@ -123,7 +118,7 @@ class GameEndChecker
                             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.DarkHide);
                             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
                             break;
-                        case CustomRoles.Phantom when pc.GetTaskState().IsTaskFinished && pc.Data.IsDead && (CustomWinnerHolder.WinnerTeam is CustomWinner.Impostor or CustomWinner.Crewmate or CustomWinner.Jackal or CustomWinner.BloodKnight or CustomWinner.SerialKiller or CustomWinner.Juggernaut or CustomWinner.Ritualist or CustomWinner.Poisoner or CustomWinner.Succubus or CustomWinner.Infectious or CustomWinner.Jinx or CustomWinner.Virus or CustomWinner.Arsonist or CustomWinner.Pelican or CustomWinner.HexMaster or CustomWinner.Wraith or CustomWinner.Pestilence or CustomWinner.Rogue or CustomWinner.Doppelganger or CustomWinner.Spiritcaller) && Options.PhantomSnatchesWin.GetBool():
+                        case CustomRoles.Phantom when pc.GetTaskState().IsTaskFinished && pc.Data.IsDead && (CustomWinnerHolder.WinnerTeam is CustomWinner.Impostor or CustomWinner.Crewmate or CustomWinner.Jackal or CustomWinner.BloodKnight or CustomWinner.SerialKiller or CustomWinner.Juggernaut or CustomWinner.Ritualist or CustomWinner.Poisoner or CustomWinner.Succubus or CustomWinner.Jinx or CustomWinner.Virus or CustomWinner.Arsonist or CustomWinner.Pelican or CustomWinner.HexMaster or CustomWinner.Wraith or CustomWinner.Pestilence or CustomWinner.Rogue or CustomWinner.Doppelganger or CustomWinner.Spiritcaller) && Options.PhantomSnatchesWin.GetBool():
                             reason = GameOverReason.ImpostorByKill;
                             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Phantom);
                             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
@@ -132,12 +127,6 @@ class GameEndChecker
                             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
                             CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Phantom);
                             break;
-                        //case CustomRoles.CursedSoul when !pc.Data.IsDead && (CustomWinnerHolder.WinnerTeam == CustomWinner.Impostor || CustomWinnerHolder.WinnerTeam == CustomWinner.Crewmate || CustomWinnerHolder.WinnerTeam == CustomWinner.Jackal || CustomWinnerHolder.WinnerTeam == CustomWinner.BloodKnight || CustomWinnerHolder.WinnerTeam == CustomWinner.SerialKiller || CustomWinnerHolder.WinnerTeam == CustomWinner.Juggernaut || CustomWinnerHolder.WinnerTeam == CustomWinner.Ritualist || CustomWinnerHolder.WinnerTeam == CustomWinner.Poisoner || CustomWinnerHolder.WinnerTeam == CustomWinner.Succubus || CustomWinnerHolder.WinnerTeam == CustomWinner.Infectious || CustomWinnerHolder.WinnerTeam == CustomWinner.Jinx || CustomWinnerHolder.WinnerTeam == CustomWinner.Virus || CustomWinnerHolder.WinnerTeam == CustomWinner.Arsonist || CustomWinnerHolder.WinnerTeam == CustomWinner.Pelican || CustomWinnerHolder.WinnerTeam == CustomWinner.HexMaster || CustomWinnerHolder.WinnerTeam == CustomWinner.Wraith || CustomWinnerHolder.WinnerTeam == CustomWinner.Pestilence || CustomWinnerHolder.WinnerTeam == CustomWinner.Rogue || CustomWinnerHolder.WinnerTeam == CustomWinner.Jester || CustomWinnerHolder.WinnerTeam == CustomWinner.Doppelganger || CustomWinnerHolder.WinnerTeam == CustomWinner.Executioner):
-                        //    reason = GameOverReason.ImpostorByKill;
-                        //    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CursedSoul);
-                        //    CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Soulless);
-                        //    CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
-                        //    break;
                         case CustomRoles.Opportunist when pc.IsAlive():
                             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
                             CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Opportunist);
@@ -409,7 +398,6 @@ class GameEndChecker
                 { (CustomRoles.Werewolf,         CustomWinner.Werewolf),           AlivePlayersCount(CountTypes.Werewolf) },
                 { (CustomRoles.RuthlessRomantic, CustomWinner.RuthlessRomantic),   AlivePlayersCount(CountTypes.RuthlessRomantic) },
                 { (CustomRoles.Juggernaut,       CustomWinner.Juggernaut),         AlivePlayersCount(CountTypes.Juggernaut) },
-                { (null,                         CustomWinner.Infectious),         AlivePlayersCount(CountTypes.Infectious) },
                 { (null,                         CustomWinner.Virus),              AlivePlayersCount(CountTypes.Virus) },
                 { (null,                         CustomWinner.Rogue),              AlivePlayersCount(CountTypes.Rogue) },
                 { (CustomRoles.DarkHide,         CustomWinner.DarkHide),           AlivePlayersCount(CountTypes.DarkHide) },
@@ -439,7 +427,6 @@ class GameEndChecker
                 if (x.Is(CustomRoles.Undead) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Necromancer)]++;
                 if (x.Is(CustomRoles.Sidekick) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Jackal)]++;
                 if (x.Is(CustomRoles.Recruit) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Jackal)]++;
-                if (x.Is(CustomRoles.Infected) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Infectious)]++;
                 if (x.Is(CustomRoles.Contagious) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Virus)]++;
             }
 

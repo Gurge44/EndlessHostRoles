@@ -607,7 +607,6 @@ static class ExtendedPlayerControl
             CustomRoles.Admirer => Admirer.CanUseKillButton(pc),
             CustomRoles.Amnesiac => Amnesiac.CanUseKillButton(pc),
             //CustomRoles.Warlock => !Main.isCurseAndKill.TryGetValue(pc.PlayerId, out bool wcs) || !wcs,
-            CustomRoles.Infectious => Infectious.CanUseKillButton(pc),
             CustomRoles.Monarch => Monarch.CanUseKillButton(pc),
             CustomRoles.Deputy => Deputy.CanUseKillButton(pc),
             CustomRoles.Virus => pc.IsAlive(),
@@ -687,7 +686,6 @@ static class ExtendedPlayerControl
             CustomRoles.Gamer => Gamer.CanVent.GetBool(),
             CustomRoles.BloodKnight => BloodKnight.CanVent.GetBool(),
             CustomRoles.Juggernaut => Juggernaut.CanVent.GetBool(),
-            CustomRoles.Infectious => Infectious.CanVent.GetBool(),
             CustomRoles.Ritualist => Ritualist.CanVent.GetBool(),
             CustomRoles.Virus => Virus.CanVent.GetBool(),
             CustomRoles.SwordsMan => SwordsMan.CanVent.GetBool(),
@@ -771,7 +769,6 @@ static class ExtendedPlayerControl
             CustomRoles.Succubus or
             CustomRoles.Necromancer or
             CustomRoles.Deathknight or
-            CustomRoles.Infectious or
             CustomRoles.Virus or
             CustomRoles.Farseer or
             CustomRoles.Pickpocket or
@@ -1209,9 +1206,6 @@ static class ExtendedPlayerControl
                 break;
             case CustomRoles.Amnesiac:
                 Amnesiac.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Infectious:
-                Infectious.SetKillCooldown(player.PlayerId);
                 break;
             case CustomRoles.Monarch:
                 Monarch.SetKillCooldown(player.PlayerId);

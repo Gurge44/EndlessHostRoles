@@ -81,7 +81,6 @@ namespace TOHE.Roles.Neutral
                         || Romantic.BetPlayer.ContainsValue(target.PlayerId)) && CanKillLovers.GetBool())
                     || ((target.Is(CustomRoles.Sidekick) || target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.Recruit)) && CanKillSidekicks.GetBool())
                     || (target.Is(CustomRoles.Egoist) && CanKillEgoists.GetBool())
-                    || ((target.Is(CustomRoles.Infected) || target.Is(CustomRoles.Infectious)) && CanKillInfected.GetBool())
                     || ((target.Is(CustomRoles.Contagious) || target.Is(CustomRoles.Virus)) && CanKillContagious.GetBool())
                     || ((target.Is(CustomRoles.Admired) || target.Is(CustomRoles.Admirer)) && CanKillAdmired.GetBool())
                     )
@@ -117,7 +116,6 @@ namespace TOHE.Roles.Neutral
                 CustomRoles.Sidekick or
                 CustomRoles.Jackal or
                 CustomRoles.Virus or
-                CustomRoles.Infectious or
                 CustomRoles.Admirer
                 => true,
 

@@ -146,19 +146,6 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Admired);
                 SubRoles.Remove(CustomRoles.Undead);
                 break;
-            case CustomRoles.Infected:
-                countTypes = CountTypes.Infectious;
-                SubRoles.Remove(CustomRoles.Madmate);
-                SubRoles.Remove(CustomRoles.Recruit);
-                SubRoles.Remove(CustomRoles.Charmed);
-                SubRoles.Remove(CustomRoles.Rogue);
-                SubRoles.Remove(CustomRoles.Contagious);
-                SubRoles.Remove(CustomRoles.Rascal);
-                SubRoles.Remove(CustomRoles.Soulless);
-                SubRoles.Remove(CustomRoles.Loyal);
-                SubRoles.Remove(CustomRoles.Admired);
-                SubRoles.Remove(CustomRoles.Undead);
-                break;
             case CustomRoles.Contagious:
                 countTypes = Virus.ContagiousCountMode.GetInt() switch
                 {

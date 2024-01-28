@@ -375,7 +375,6 @@ internal static class CustomRolesHelper
             CustomRoles.RuthlessRomantic => RoleTypes.Impostor,
             CustomRoles.Succubus => RoleTypes.Impostor,
             CustomRoles.Necromancer => RoleTypes.Impostor,
-            CustomRoles.Infectious => RoleTypes.Impostor,
             CustomRoles.Virus => RoleTypes.Impostor,
             CustomRoles.Farseer => UsePets && Farseer.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Ritualist => RoleTypes.Impostor,
@@ -539,7 +538,6 @@ internal static class CustomRolesHelper
         CustomRoles.Totocalcio;
     public static bool IsAmneNK(this CustomRoles role) => role is
         CustomRoles.Sidekick or
-        CustomRoles.Infectious or
         CustomRoles.Glitch or
         CustomRoles.Wraith or
         CustomRoles.Medusa or
@@ -577,7 +575,6 @@ internal static class CustomRolesHelper
         CustomRoles.HexMaster or
         CustomRoles.Doppelganger or
         CustomRoles.Agitater or
-        CustomRoles.Infectious or
         CustomRoles.Wraith or
         CustomRoles.Bandit or
         CustomRoles.Medusa or
@@ -622,7 +619,6 @@ internal static class CustomRolesHelper
         CustomRoles.Refugee or
         CustomRoles.Agitater or
         CustomRoles.Doppelganger or
-        CustomRoles.Infectious or
         CustomRoles.Wraith or
         CustomRoles.Crewpostor or
         CustomRoles.Juggernaut or
@@ -737,7 +733,6 @@ internal static class CustomRolesHelper
         CustomRoles.Traitor or
         CustomRoles.Bandit or
         CustomRoles.BloodKnight or
-        CustomRoles.Infectious or
         CustomRoles.PlagueDoctor or
         CustomRoles.Virus or
         CustomRoles.Succubus or
@@ -913,7 +908,6 @@ internal static class CustomRolesHelper
         CustomRoles.Maverick or
         //CustomRoles.CursedSoul or
         CustomRoles.DarkHide or
-        CustomRoles.Infectious or
         CustomRoles.Workaholic or
         CustomRoles.Collector or
         CustomRoles.Provocateur or
@@ -977,7 +971,6 @@ internal static class CustomRolesHelper
         CustomRoles.Wraith or
         CustomRoles.Juggernaut or
         CustomRoles.Pelican or
-        CustomRoles.Infectious or
         CustomRoles.Pursuer or
         CustomRoles.Jinx or
         //CustomRoles.Counterfeiter or
@@ -1188,7 +1181,6 @@ internal static class CustomRolesHelper
         CustomRoles.Maverick or
         //CustomRoles.CursedSoul or
         CustomRoles.DarkHide or
-        CustomRoles.Infectious or
         CustomRoles.Provocateur or
         CustomRoles.BloodKnight or
         CustomRoles.Romantic or
@@ -1678,7 +1670,6 @@ internal static class CustomRolesHelper
            CustomRoles.Juggernaut => CountTypes.Juggernaut,
            CustomRoles.Jinx => CountTypes.Jinx,
            CustomRoles.Agitater => CountTypes.Agitater,
-           CustomRoles.Infectious => CountTypes.Infectious,
            CustomRoles.Crewpostor => CountTypes.Impostor,
            CustomRoles.Virus => CountTypes.Virus,
            CustomRoles.Ritualist => CountTypes.Ritualist,
@@ -1740,7 +1731,6 @@ public enum CountTypes
     Werewolf,
     Juggernaut,
     Agitater,
-    Infectious,
     Virus,
     Rogue,
     DarkHide,
