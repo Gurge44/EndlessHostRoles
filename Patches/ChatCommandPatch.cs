@@ -232,7 +232,7 @@ internal class ChatCommands
                     }
                     if (!GuessManager.MsgToPlayerAndRole(subArgs, out byte resultId, out CustomRoles roleToSet, out _))
                     {
-                        Utils.SendMessage("Invalid arguments", localPlayerId);
+                        Utils.SendMessage($"{GetString("InvalidArguments")}", localPlayerId);
                         break;
                     }
                     else
@@ -845,7 +845,7 @@ internal class ChatCommands
                 var settings = new StringBuilder();
                 if (Options.CustomRoleSpawnChances.ContainsKey(rl))
                 {
-                    settings.AppendLine($"<size=70%><u>Settings for <{Main.roleColors[rl]}>{roleName}</color>:</u>");
+                    settings.AppendLine($"<size=70%><u>{GetString("SettingsForRoleText")} <{Main.roleColors[rl]}>{roleName}</color>:</u>");
                     Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[rl], ref settings, disableColor: false);
                     settings.Append("</size>");
                     var txt = $"<size=90%>{sb}</size>";
