@@ -2912,6 +2912,7 @@
   "SoulHunterNumOfSoulsToWin": "Number of Souls Required to Win",
   "SoulHunterFreezeTimeAfterMeeting": "Waiting Time After Meeting",
   "SoulHunterTimeToKillTarget": "Time to Kill Target",
+  "SoulHunterGetSoulForSuicide": "Gain Soul When Target Dies By Other Means",
   "SoulHunterTargetNotify": "The <color=#3f2c61>Soul Hunter</color>, <color=#00ffa5>{0}</color> is hunting you. Hide!",
   "SoulHunterTargetNotifySurvived": "<color=#00ff00>You survived!</color>",
   "SoulHunterTargetNotifyNoVent": "<color=#ffff00>You cannot vent while being hunted</color>",
