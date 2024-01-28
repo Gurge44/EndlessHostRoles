@@ -840,7 +840,7 @@ internal class ChatCommands
                     if (isUp) return;
                 }
                 var sb = new StringBuilder();
-                var title = $"{devMark}<{Main.roleColors[rl]}>{roleName}</color>  {Utils.GetRoleMode(rl)}";
+                var title = $"<{Main.roleColors[rl]}>{roleName}</color>  {Utils.GetRoleMode(rl)}";
                 _ = sb.Append($"{GetString($"{rl}InfoLong")}");
                 var settings = new StringBuilder();
                 if (Options.CustomRoleSpawnChances.ContainsKey(rl))

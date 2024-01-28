@@ -1960,7 +1960,7 @@ class ReportDeadBodyPatch
         MeetingTimeManager.OnReportDeadBody();
 
         NameNotifyManager.Reset();
-        _ = new LateTask(() => { NotifyRoles(isForMeeting: true, NoCache: true, CamouflageIsForMeeting: true, GuesserIsForMeeting: true); }, 0.5f, log: false);
+        NotifyRoles(isForMeeting: true, NoCache: true, CamouflageIsForMeeting: true, GuesserIsForMeeting: true);
 
         _ = new LateTask(SyncAllSettings, 3f, "SyncAllSettings on meeting start");
     }
