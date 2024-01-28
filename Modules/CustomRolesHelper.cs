@@ -1053,6 +1053,8 @@ internal static class CustomRolesHelper
         CustomRoles.RiftMaker or
         CustomRoles.Bomber or
         CustomRoles.Nuker or
+        CustomRoles.Necromancer or
+        CustomRoles.Deathknight or
         CustomRoles.Arsonist or
         CustomRoles.Glitch or
         CustomRoles.Magician or

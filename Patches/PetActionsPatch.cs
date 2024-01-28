@@ -619,7 +619,7 @@ class ExternalRpcPetPatch
                 Necromancer.OnCheckMurder(pc, target);
                 break;
             case CustomRoles.Deathknight when hasKillTarget:
-                pc.AddKCDAsAbilityCD();
+                if (pc.Data.RoleType != AmongUs.GameOptions.RoleTypes.Impostor) pc.AddKCDAsAbilityCD();
                 Deathknight.OnCheckMurder(pc, target);
                 break;
 
