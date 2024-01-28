@@ -535,6 +535,7 @@ public class Main : BasePlugin
                 {CustomRoles.Bewilder, "#c894f5"},
                 {CustomRoles.Sunglasses, "#E7C12B"},
                 {CustomRoles.Workhorse, "#00ffff"},
+                {CustomRoles.Undead, "#ed9abd"},
                 {CustomRoles.Cleansed,"#98FF98"},
                 {CustomRoles.Fool, "#e6e7ff"},
                 {CustomRoles.Avanger, "#ffab1c"},

@@ -874,7 +874,6 @@ class MeetingHudStartPatch
                 Lawyer.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Executioner.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Succubus.KnowRole(PlayerControl.LocalPlayer, pc) ||
-                Necromancer.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 //CursedSoul.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Admirer.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Amnesiac.KnowRole(PlayerControl.LocalPlayer, pc) ||
@@ -1054,8 +1053,6 @@ class MeetingHudStartPatch
                 case CustomRoles.Virus:
                 case CustomRoles.Medusa:
                 case CustomRoles.Succubus:
-                case CustomRoles.Necromancer:
-                case CustomRoles.Deathknight:
                 case CustomRoles.Pickpocket:
                 case CustomRoles.Ritualist:
                 case CustomRoles.Traitor:

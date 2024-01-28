@@ -397,6 +397,7 @@ internal static class CustomRolesHelper
         CustomRoles.Sleuth or
         CustomRoles.Admired or
         CustomRoles.Flashman or
+        CustomRoles.Undead or
         CustomRoles.Busy or
         CustomRoles.Truant or
         CustomRoles.Disco or
@@ -1561,6 +1562,9 @@ internal static class CustomRolesHelper
         or CustomRoles.Recruit
         or CustomRoles.Infected
         or CustomRoles.Contagious
+        or CustomRoles.Sidekick
+        or CustomRoles.Undead
+        or CustomRoles.Admired
         or CustomRoles.Lovers
         || ((role is CustomRoles.Egoist) && (ParityCop.ParityCheckEgoistInt() == 1));
     public static bool IsRevealingRole(this CustomRoles role, PlayerControl target) =>

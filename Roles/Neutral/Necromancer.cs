@@ -31,7 +31,8 @@ namespace TOHE.Roles.Neutral
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Necromancer])
                 .SetValueFormat(OptionFormat.Seconds);
             DKCD = FloatOptionItem.Create(Id + 10, "DKCD", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Necromancer]);
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Necromancer])
+                .SetValueFormat(OptionFormat.Seconds);
             KnowTargetRole = BooleanOptionItem.Create(Id + 13, "NecromancerKnowTargetRole", true, TabGroup.NeutralRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Necromancer]);
             UndeadCountMode = StringOptionItem.Create(Id + 15, "UndeadCountMode", undeadCountMode, 0, TabGroup.NeutralRoles, false)

@@ -202,7 +202,7 @@ internal class ChatCommands
                     canceled = true;
                     subArgs = text.Remove(0, 3);
                     if (!PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp) break;
-                    Utils.SendMessage($"{Translator.GetString("UpReplacedMessage")}", localPlayerId);
+                    Utils.SendMessage($"{GetString("UpReplacedMessage")}", localPlayerId);
                     //if (!Options.EnableUpMode.GetBool())
                     //{
                     //    Utils.SendMessage(string.Format(GetString("Message.YTPlanDisabled"), GetString("EnableYTPlan")), localPlayerId);
@@ -232,7 +232,7 @@ internal class ChatCommands
                     }
                     if (!GuessManager.MsgToPlayerAndRole(subArgs, out byte resultId, out CustomRoles roleToSet, out _))
                     {
-                        Utils.SendMessage($"{GetString("InvalidArguments")}", localPlayerId);
+                        Utils.SendMessage("Invalid arguments", localPlayerId);
                         break;
                     }
                     else
@@ -840,12 +840,12 @@ internal class ChatCommands
                     if (isUp) return;
                 }
                 var sb = new StringBuilder();
-                var title = $"<{Main.roleColors[rl]}>{roleName}</color>  {Utils.GetRoleMode(rl)}";
+                var title = $"{devMark}<{Main.roleColors[rl]}>{roleName}</color>  {Utils.GetRoleMode(rl)}";
                 _ = sb.Append($"{GetString($"{rl}InfoLong")}");
                 var settings = new StringBuilder();
                 if (Options.CustomRoleSpawnChances.ContainsKey(rl))
                 {
-                    settings.AppendLine($"<size=70%><u>{GetString("SettingsForRoleText")} <{Main.roleColors[rl]}>{roleName}</color>:</u>");
+                    settings.AppendLine($"<size=70%><u>Settings for <{Main.roleColors[rl]}>{roleName}</color>:</u>");
                     Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[rl], ref settings, disableColor: false);
                     settings.Append("</size>");
                     var txt = $"<size=90%>{sb}</size>";

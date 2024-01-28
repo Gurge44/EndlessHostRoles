@@ -81,7 +81,7 @@ public static class Utils
     public static bool TP(CustomNetworkTransform nt, Vector2 location, bool log = true)
     {
         var pc = nt.myPlayer;
-        if (pc.inVent || pc.inMovingPlat || !pc.IsAlive() || pc.onLadder || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation())
+        if (pc.inVent || pc.inMovingPlat || !pc.IsAlive() || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation())
         {
             if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is in an un-teleportable state - Teleporting canceled", "TP");
             return false;
@@ -398,14 +398,15 @@ public static class Utils
 
         if (Options.NameDisplayAddons.GetBool() && !pure && self)
         {
-            bool brackets = Options.AddBracketsToAddons.GetBool();
-            string prefix = brackets ? "<#ffffff>(</color>" : string.Empty;
-            string suffix = brackets ? "<#ffffff>)</color>" : string.Empty;
-
             foreach (var subRole in targetSubRoles.Where(x => x is not CustomRoles.LastImpostor and not CustomRoles.Madmate and not CustomRoles.Charmed and not CustomRoles.Recruit and not CustomRoles.Admired and not CustomRoles.Soulless and not CustomRoles.Lovers and not CustomRoles.Infected and not CustomRoles.Contagious))
             {
-                var str = GetString($"Prefix.{subRole}");
-                RoleText = $"{ColorString(GetRoleColor(subRole), $"{prefix}{str}{suffix} ")}{RoleText}";
+                var str = GetString("Prefix." + subRole.ToString());
+                if (!subRole.IsAdditionRole())
+                {
+                    str = GetString(subRole.ToString());
+                    Logger.Fatal("This is concerning....", "Utils.GetRoleText");
+                }
+                RoleText = ColorString(GetRoleColor(subRole), (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>(</color>" : string.Empty) + str + (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>)</color>" : string.Empty) + " ") + RoleText;
             }
         }
 
@@ -423,11 +424,6 @@ public static class Utils
         {
             RoleColor = GetRoleColor(CustomRoles.Charmed);
             RoleText = GetRoleString("Charmed-") + RoleText;
-        }
-        if (targetSubRoles.Contains(CustomRoles.Undead) && (self || pure || seerMainRole is CustomRoles.Necromancer or CustomRoles.Deathknight || seerSubRoles.Contains(CustomRoles.Undead)))
-        {
-            RoleColor = GetRoleColor(CustomRoles.Undead);
-            RoleText = GetRoleString("Undead-") + RoleText;
         }
         if (targetSubRoles.Contains(CustomRoles.Soulless))
         {
@@ -565,8 +561,6 @@ public static class Utils
             case CustomRoles.VengefulRomantic:
             case CustomRoles.RuthlessRomantic:
             case CustomRoles.Succubus:
-            case CustomRoles.Necromancer:
-            case CustomRoles.Deathknight:
             //case CustomRoles.CursedSoul:
             case CustomRoles.Admirer when !Options.UsePets.GetBool() || !Admirer.UsePet.GetBool():
             case CustomRoles.Amnesiac:
@@ -701,7 +695,6 @@ public static class Utils
         if (Ritualist.IsShowTargetRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Executioner.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Succubus.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
-        if (Necromancer.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         //if (CursedSoul.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Admirer.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Amnesiac.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
@@ -1447,7 +1440,7 @@ public static class Utils
 
         var sb = new StringBuilder();
 
-        sb.Append($"<#ffffff>{GetString("RoleSummaryText")}</color><size=70%>");
+        sb.Append("<#ffffff><u>Role Summary:</u></color><size=70%>");
 
         List<byte> cloneRoles = new(Main.PlayerStates.Keys);
         foreach (byte id in Main.winnerList.ToArray())
@@ -1559,11 +1552,11 @@ public static class Utils
                 CustomRoles role = SubRoles[0];
 
                 var RoleText = ColorString(GetRoleColor(role), GetRoleName(role));
-                sb.Append($"{ColorString(Color.gray, Translator.GetString("Modifier"))}{RoleText}");
+                sb.Append($"{ColorString(Color.gray, GetString("Modifier"))}{RoleText}");
             }
             else
             {
-                sb.Append($"{ColorString(Color.gray, Translator.GetString("Modifiers"))}");
+                sb.Append($"{ColorString(Color.gray, GetString("Modifiers"))}");
                 for (int i = 0; i < SubRoles.Count; i++)
                 {
                     if (i != 0) sb.Append(", ");
@@ -1884,7 +1877,7 @@ public static class Utils
             if (!GameStates.IsLobby) return;
             if (player.AmOwner)
             {
-                if (GameStates.IsOnlineGame || GameStates.IsLocalGame)
+                if ((GameStates.IsOnlineGame || GameStates.IsLocalGame))
                     name = $"<color={GetString("HostColor")}>{GetString("HostText")}</color><color={GetString("IconColor")}>{GetString("Icon")}</color><color={GetString("NameColor")}>{name}</color>";
 
 
@@ -2348,7 +2341,6 @@ public static class Utils
                                 Ritualist.IsShowTargetRole(seer, target) ||
                                 Executioner.KnowRole(seer, target) ||
                                 Succubus.KnowRole(seer, target) ||
-                                Necromancer.KnowRole(seer, target) ||
                                 //CursedSoul.KnowRole(seer, target) ||
                                 Admirer.KnowRole(seer, target) ||
                                 Amnesiac.KnowRole(seer, target) ||
@@ -2595,9 +2587,6 @@ public static class Utils
                 break;
             case CustomRoles.HexMaster:
                 HexMaster.Add(id);
-                break;
-            case CustomRoles.Perceiver:
-                Perceiver.Add(id);
                 break;
             case CustomRoles.NiceSwapper:
                 NiceSwapper.Add(id);
@@ -2916,12 +2905,6 @@ public static class Utils
                 break;
             case CustomRoles.Succubus:
                 Succubus.Add(id);
-                break;
-            case CustomRoles.Deathknight:
-                Deathknight.Add(id);
-                break;
-            case CustomRoles.Necromancer:
-                Necromancer.Add(id);
                 break;
             //case CustomRoles.CursedSoul:
             //    CursedSoul.Add(id);
