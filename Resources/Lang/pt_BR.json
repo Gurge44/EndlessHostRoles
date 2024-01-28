@@ -2912,6 +2912,7 @@
   "SoulHunterNumOfSoulsToWin": "Número de Almas requeridas para Vencer",
   "SoulHunterFreezeTimeAfterMeeting": "Tempo de Espera após uma Reunião",
   "SoulHunterTimeToKillTarget": "Tempo para matar o alvo",
+  "SoulHunterGetSoulForSuicide": "Gain Soul When Target Dies By Other Means",
   "SoulHunterTargetNotify": "O <color=#3f2c61>Ceifador de Almas</color>, <color=#00ffa5>{0}</color> está te caçando. Se esconda!",
   "SoulHunterTargetNotifySurvived": "<color=#00ff00>Você sobreviveu!</color>",
   "SoulHunterTargetNotifyNoVent": "<color=#ffff00>Você não pode usar os dutos no tempo de caça</color>",
