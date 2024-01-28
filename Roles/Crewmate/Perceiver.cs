@@ -15,7 +15,7 @@ namespace TOHE.Roles.Crewmate
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Perceiver);
-            Radius = FloatOptionItem.Create(Id + 2, "PerceiverRadius", new(0.05f, 5f, 0.05f), 0.5f, TabGroup.CrewmateRoles, false)
+            Radius = FloatOptionItem.Create(Id + 2, "PerceiverRadius", new(0.25f, 10f, 0.25f), 2.5f, TabGroup.CrewmateRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Perceiver])
                 .SetValueFormat(OptionFormat.Multiplier);
             CD = Options.CreateCDSetting(Id + 3, TabGroup.CrewmateRoles, CustomRoles.Perceiver);
@@ -26,6 +26,8 @@ namespace TOHE.Roles.Crewmate
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Perceiver])
                 .SetValueFormat(OptionFormat.Times);
         }
+        public static void Init() => UseLimit.Clear();
+        public static void Add(byte id) => UseLimit[id] = Limit.GetInt();
         public static void SendRPC(byte id)
         {
             var writer = Utils.CreateCustomRoleRPC(CustomRPC.SyncPerceiver);
@@ -49,6 +51,6 @@ namespace TOHE.Roles.Crewmate
             UseLimit[pc.PlayerId]--;
             SendRPC(pc.PlayerId);
         }
-        public static string GetProgressText(byte id) => UseLimit.TryGetValue(id, out var limit) ? $"<#777777>-</color> <#ff{(limit < 1 ? "0000" : "ffff")}>{System.Math.Round(limit, 1)}</color>" : string.Empty;
+        public static string GetProgressText(byte id) => UseLimit.TryGetValue(id, out var limit) ? $"<#777777>-</color> <#ff{(limit < 1f ? "0000" : "ffff")}>{System.Math.Round(limit, 1)}</color>" : string.Empty;
     }
 }

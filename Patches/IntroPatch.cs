@@ -551,7 +551,7 @@ class IntroCutsceneDestroyPatch
                     foreach (var pc in Main.AllAlivePlayerControls)
                     {
                         if (pc.Is(CustomRoles.GM)) continue;
-                        string petId = pet == "pet_RANDOM_FOR_EVERYONE" ? pets[r.Next(0, pets.Length)] : pet;
+                        string petId = pet == "pet_RANDOM_FOR_EVERYONE" ? pets[r.Next(0, pets.Length - 1)] : pet;
                         PetsPatch.SetPet(pc, petId, true);
                         Logger.Info($"{pc.GetNameWithRole()} => {GetString(petId)} Pet", "PetAssign");
                     }
@@ -605,8 +605,6 @@ class IntroCutsceneDestroyPatch
             {
                 PlayerControl.LocalPlayer.Data.Role.AffectedByLightAffectors = false;
             }
-
-            // LoadingScreen.UpdateLoadingAnimation();
         }
         Logger.Info("OnDestroy", "IntroCutscene");
     }

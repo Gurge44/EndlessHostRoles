@@ -81,7 +81,7 @@ public static class Utils
     public static bool TP(CustomNetworkTransform nt, Vector2 location, bool log = true)
     {
         var pc = nt.myPlayer;
-        if (pc.inVent || pc.inMovingPlat || !pc.IsAlive() || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation())
+        if (pc.inVent || pc.inMovingPlat || !pc.IsAlive() || pc.onLadder || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation())
         {
             if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is in an un-teleportable state - Teleporting canceled", "TP");
             return false;
@@ -398,15 +398,14 @@ public static class Utils
 
         if (Options.NameDisplayAddons.GetBool() && !pure && self)
         {
+            bool brackets = Options.AddBracketsToAddons.GetBool();
+            string prefix = brackets ? "<#ffffff>(</color>" : string.Empty;
+            string suffix = brackets ? "<#ffffff>)</color>" : string.Empty;
+
             foreach (var subRole in targetSubRoles.Where(x => x is not CustomRoles.LastImpostor and not CustomRoles.Madmate and not CustomRoles.Charmed and not CustomRoles.Recruit and not CustomRoles.Admired and not CustomRoles.Soulless and not CustomRoles.Lovers and not CustomRoles.Infected and not CustomRoles.Contagious))
             {
-                var str = GetString("Prefix." + subRole.ToString());
-                if (!subRole.IsAdditionRole())
-                {
-                    str = GetString(subRole.ToString());
-                    Logger.Fatal("This is concerning....", "Utils.GetRoleText");
-                }
-                RoleText = ColorString(GetRoleColor(subRole), (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>(</color>" : string.Empty) + str + (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>)</color>" : string.Empty) + " ") + RoleText;
+                var str = GetString($"Prefix.{subRole}");
+                RoleText = $"{ColorString(GetRoleColor(subRole), $"{prefix}{str}{suffix} ")}{RoleText}";
             }
         }
 
@@ -1877,7 +1876,7 @@ public static class Utils
             if (!GameStates.IsLobby) return;
             if (player.AmOwner)
             {
-                if ((GameStates.IsOnlineGame || GameStates.IsLocalGame))
+                if (GameStates.IsOnlineGame || GameStates.IsLocalGame)
                     name = $"<color={GetString("HostColor")}>{GetString("HostText")}</color><color={GetString("IconColor")}>{GetString("Icon")}</color><color={GetString("NameColor")}>{name}</color>";
 
 
@@ -2587,6 +2586,9 @@ public static class Utils
                 break;
             case CustomRoles.HexMaster:
                 HexMaster.Add(id);
+                break;
+            case CustomRoles.Perceiver:
+                Perceiver.Add(id);
                 break;
             case CustomRoles.NiceSwapper:
                 NiceSwapper.Add(id);

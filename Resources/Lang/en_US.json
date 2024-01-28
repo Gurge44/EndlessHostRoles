@@ -766,7 +766,7 @@
   "FoolInfoLong": "(Add-ons):\\nImpostors and Mechanics won't be Fool. Fools can't repair any sabotage.",
   "AvangerInfoLong": "(Add-ons):\\nHost can allow Impostor to become Avenger. If Avenger is killed, they'll revenge a random player.",
   "YoutuberInfoLong": "(Add-ons):\\nIf the YouTuber is the first player killed, they win. If not, they follow the Crewmate to win. Note: Indirect killing methods don't trigger the YouTuber's skills.",
-  "EgoistInfoLong": "(Add-ons):\\nMadmate and Neutrals won't be Egoist. If the Egoist's team wins, the Egoist wins instead of their team.",
+  "EgoistInfoLong": "(Add-ons):\\nOnly impostors can get Egoist. If the impostor team wins while there's at least 1 impostor alive who isn't an Egoist, the Egoist loses.\\nIn order for the Egoist to win, <b>they must eject all other impostors</b> and stay alive.",
   "TicketsStealerInfoLong": "(Add-ons):\\nStealers get an additional vote every time they kill someone, and their extra votes are hidden during meetings.",
   "DualPersonalityInfoLong": "(Add-ons):\\nNeutrals and Madmates can't become Schizophrenic. Schizophrenic will be considered as 2 players in the game. Having at least one player as Schizophrenic won't end the game if there are only them and the Impostor left.",
   "MimicInfoLong": "(Add-ons):\\nMimic is an Impostor role. When a Mimic dies, other Impostors receive a message during meetings that reveals the roles killed by the Mimic.",
@@ -3580,5 +3580,5 @@
   "RoleSelected": "<b>The role of {0} in the next game will be{1}</b>",
   "UpReplacedMessage": "/up was replaced by /setrole which allows you to set anyone's role for any game by typing '/setrole (ID) (ROLE)'. You can view ID's with /id.\nTo set your own role like with /up, you need to do '/setrole 0 (ROLE)'.",
   "PingText": "Ping",
-  "NotAssigned": ""
+  "NotAssigned": " "
 }

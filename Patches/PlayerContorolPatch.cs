@@ -962,22 +962,18 @@ class CheckMurderPatch
                 }
                 break;
             case CustomRoles.TimeMaster:
-                if (Main.TimeMasterInProtect.ContainsKey(target.PlayerId)
-                    && killer.PlayerId != target.PlayerId
-                    && Main.TimeMasterInProtect[target.PlayerId] + Options.TimeMasterSkillDuration.GetInt() >= GetTimeStamp(DateTime.UtcNow))
+                if (Main.TimeMasterInProtect.ContainsKey(target.PlayerId) && killer.PlayerId != target.PlayerId && Main.TimeMasterInProtect[target.PlayerId] + Options.TimeMasterSkillDuration.GetInt() >= Utils.GetTimeStamp(DateTime.UtcNow))
                 {
-                    foreach (PlayerControl player in Main.AllPlayerControls)
+                    foreach (var player in Main.AllPlayerControls)
                     {
-                        if (!killer.Is(CustomRoles.Pestilence) && Main.TimeMasterBackTrack.ContainsKey(player.PlayerId))
+                        if (!killer.Is(CustomRoles.Pestilence) && Main.TimeMasterBackTrack.TryGetValue(player.PlayerId, out var pos))
                         {
-                            var position = Main.TimeMasterBackTrack[player.PlayerId];
-                            TP(player.NetTransform, position);
+                            player.TP(pos);
                         }
                     }
                     killer.SetKillCooldown(target: target, forceAnime: true);
                     return false;
                 }
-
                 break;
             case CustomRoles.SuperStar:
                 if (Main.AllAlivePlayerControls.Any(x =>
@@ -2220,20 +2216,6 @@ class FixedUpdatePatch
                 Duellist.OnFixedUpdate();
                 Kamikaze.OnFixedUpdate();
             }
-
-            if (!lowLoad && Main.PlayerStates.TryGetValue(playerId, out var state) && state.SubRoles.Any(x => !x.IsAdditionRole()))
-            {
-                var addon = state.SubRoles.First(x => !x.IsAdditionRole());
-                var mainrole = player.GetCustomRole();
-                Logger.Fatal($"{player.GetRealName()} has an add-on assigned, which isn't treated as an add-on: {addon}. The player's main role is {mainrole}, their ID is {player.PlayerId}", "FixedUpdatePatch");
-                state.RemoveSubRole(addon);
-                if (mainrole == CustomRoles.NotAssigned)
-                {
-                    player.RpcSetCustomRole(addon);
-                    AddRoles(playerId, addon);
-                    Logger.Warn("The player's main role was set to the invalid add-on.", "FixedUpdatePatch");
-                }
-            }
         }
 
         if (GameStates.IsInTask && Agitater.IsEnable && Agitater.AgitaterHasBombed && Agitater.CurrentBombedPlayer == playerId)
@@ -3111,6 +3093,16 @@ class SetColorPatch
     }
 }
 
+[HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.RpcBootFromVent))]
+class BootFromVentPatch
+{
+    public static void Postfix(PlayerPhysics __instance)
+    {
+        if (!AmongUsClient.Instance.AmHost || __instance.myPlayer.PlayerId != 0) return;
+
+        TryMoveToVentPatch.HostVentTarget.SetButtons(false);
+    }
+}
 [HarmonyPatch(typeof(Vent), nameof(Vent.TryMoveToVent))]
 class TryMoveToVentPatch
 {
@@ -3137,6 +3129,8 @@ class ExitVentPatch
             TryMoveToVentPatch.HostVentTarget = __instance;
         }
 
+        __instance.SetButtons(false);
+
         if (!AmongUsClient.Instance.AmHost) return;
 
         Drainer.OnAnyoneExitVent(pc);
@@ -3162,6 +3156,8 @@ class EnterVentPatch
             Logger.Info("(Enter)  " + __instance.name, "HostVentTarget");
             TryMoveToVentPatch.HostVentTarget = __instance;
         }
+
+        __instance.SetButtons(true);
 
         Drainer.OnAnyoneEnterVent(pc, __instance);
         Analyzer.OnAnyoneEnterVent(pc);
@@ -3391,19 +3387,23 @@ class EnterVentPatch
                     {
                         Main.TimeMasterNumOfUsed[pc.PlayerId] -= 1;
                         Main.TimeMasterInProtect.Remove(pc.PlayerId);
-                        Main.TimeMasterNumOfUsed[pc.PlayerId] -= 1;
                         Main.TimeMasterInProtect.Add(pc.PlayerId, GetTimeStamp());
                         //if (!pc.IsModClient()) pc.RpcGuardAndKill(pc);
                         pc.Notify(GetString("TimeMasterOnGuard"), Options.TimeMasterSkillDuration.GetFloat());
                         pc.AddAbilityCD();
                         foreach (PlayerControl player in Main.AllPlayerControls)
                         {
-                            if (Main.TimeMasterBackTrack.ContainsKey(player.PlayerId))
+                            if (Main.TimeMasterBackTrack.TryGetValue(player.PlayerId, out var position))
                             {
-                                var position = Main.TimeMasterBackTrack[player.PlayerId];
-                                TP(player.NetTransform, position);
-                                if (pc != player)
-                                    player?.MyPhysics?.RpcBootFromVent(player.PlayerId);
+                                if ((!pc.inVent && !pc.inMovingPlat && pc.IsAlive() && !pc.onLadder && !pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() && !pc.MyPhysics.Animations.IsPlayingEnterVentAnimation()) || player.PlayerId != pc.PlayerId)
+                                {
+                                    player.TP(position);
+                                }
+                                if (pc.PlayerId == player.PlayerId)
+                                {
+                                    player?.MyPhysics?.RpcBootFromVent(Main.LastEnteredVent.TryGetValue(player.PlayerId, out var vent) ? vent.Id : player.PlayerId);
+                                }
+
                                 Main.TimeMasterBackTrack.Remove(player.PlayerId);
                             }
                             else

@@ -22,6 +22,7 @@ namespace TOHE.Roles.AddOns.Common
             Timers.Clear();
             LastSuffix.Clear();
             LastPosition.Clear();
+
             MinRedTime = AsthmaticMinRedTime.GetInt();
             MaxRedTime = AsthmaticMaxRedTime.GetInt();
             MinGreenTime = AsthmaticMinGreenTime.GetInt();
@@ -105,6 +106,7 @@ namespace TOHE.Roles.AddOns.Common
 
             LastSuffix[pc.PlayerId] = suffix;
         }
+        // Why is it not showing up?
         public static string GetSuffixText(byte id) => Timers.TryGetValue(id, out Counter counter) ? $"{counter.ColoredArrow} {counter.ColoredTimerString}" : string.Empty;
     }
 }
