@@ -2303,7 +2303,7 @@
   "OneNeutralRemain": "1 <color=#ffab1b>Neutral</color> remains",
   "IsGood": "{0} was a <color=#8cffff>good guy</color>",
   "BelongTo": "{0} belongs to {1}",
-  "GG": "GG! No more killers remain. <color=#8cffff>Crewmates</color> win!",
+  "GG": "GG! No more killers remain.",
   "GameOverReason.HumansByVote": "<color=#8cffff>All <color=#ff1919>Impostors</color> and <color=#ffab1b>Neutral Killers</color> were ejected or killed</color>",
   "GameOverReason.HumansDisconnect": "<color=#777777>Crewmates disconnected</color>",
   "GameOverReason.ImpostorByKill": "<color=#ff1919>The Impostors killed everyone</color>",
