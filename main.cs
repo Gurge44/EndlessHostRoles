@@ -423,7 +423,6 @@ public class Main : BasePlugin
                 {CustomRoles.Spiritualist, "#669999"},
                 {CustomRoles.Chameleon, "#01C834"},
                 {CustomRoles.ParityCop, "#0D57AF"},
-                {CustomRoles.Admirer, "#ee43c3"},
                 {CustomRoles.TimeMaster, "#44baff"},
                 {CustomRoles.Crusader, "#C65C39"},
                 //{CustomRoles.Reverie, "#00BFFF"},
@@ -553,7 +552,6 @@ public class Main : BasePlugin
                 {CustomRoles.Charmed, "#cf6acd"},
                 {CustomRoles.Bait, "#00f7ff"},
                 {CustomRoles.Trapper, "#5a8fd0"},
-                {CustomRoles.Infected, "#7B8968"},
                 {CustomRoles.Onbound, "#BAAAE9"},
                 {CustomRoles.Knighted, "#FFA500"},
                 {CustomRoles.Contagious, "#2E8B57"},
@@ -564,14 +562,12 @@ public class Main : BasePlugin
                 {CustomRoles.DoubleShot, "#19fa8d"},
      //           {CustomRoles.Reflective, "#FFD700"},
                 {CustomRoles.Rascal, "#990000"},
-                {CustomRoles.Soulless, "#531269"},
                 {CustomRoles.Gravestone, "#2EA8E7"},
                 {CustomRoles.Lazy, "#a4dffe"},
                 {CustomRoles.Autopsy, "#80ffdd"},
                 {CustomRoles.Loyal, "#B71556"},
                 {CustomRoles.Visionary, "#ff1919"},
                 {CustomRoles.Recruit, "#00b4eb"},
-                {CustomRoles.Admired, "#ee43c3"},
                 {CustomRoles.Glow, "#E2F147"},
                 {CustomRoles.Diseased, "#AAAAAA"},
                 {CustomRoles.Antidote,"#FF9876"},
@@ -747,7 +743,6 @@ public enum CustomRoles
 
     // Crewmate
 
-    Admirer,
     Addict,
     Aid,
     Alchemist,
@@ -931,7 +926,6 @@ public enum CustomRoles
 
     // Sub-role after 500
     NotAssigned = 500,
-    Admired,
     Antidote,
     Asthmatic,
     Autopsy,
@@ -958,7 +952,6 @@ public enum CustomRoles
     Glow,
     Gravestone,
     Guesser,
-    Infected,
     Knighted,
     LastImpostor,
     Lazy,
@@ -982,7 +975,6 @@ public enum CustomRoles
     DualPersonality, // Schizophrenic
     Seer,
     Sleuth,
-    Soulless,
     TicketsStealer, // Stealer
     Stressed,
     Swift,

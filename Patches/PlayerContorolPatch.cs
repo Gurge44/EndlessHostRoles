@@ -591,9 +591,6 @@ class CheckMurderPatch
                 //case CustomRoles.CursedSoul:
                 //    CursedSoul.OnCheckMurder(killer, target);
                 //    return false;
-                case CustomRoles.Admirer:
-                    Admirer.OnCheckMurder(killer, target);
-                    return false;
                 case CustomRoles.Amnesiac:
                     Amnesiac.OnCheckMurder(killer, target);
                     return false;
@@ -645,7 +642,7 @@ class CheckMurderPatch
         if (!killer.RpcCheckAndMurder(target, true))
             return false;
 
-        if (killer.Is(CustomRoles.Virus)) Virus.OnCheckMurder(killer, target);
+        if (killer.Is(CustomRoles.Virus)) Virus.OnCheckMurder(/*killer,*/ target);
         else if (killer.Is(CustomRoles.Spiritcaller)) Spiritcaller.OnCheckMurder(target);
 
         if (killer.Is(CustomRoles.Unlucky))

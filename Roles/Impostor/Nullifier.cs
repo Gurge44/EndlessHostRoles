@@ -53,10 +53,6 @@ namespace TOHE.Roles.Impostor
                 {
                     switch (target.GetCustomRole())
                     {
-                        case CustomRoles.Admirer:
-                            Admirer.AdmireLimit--;
-                            Admirer.SendRPC();
-                            break;
                         case CustomRoles.Aid:
                             Aid.UseLimit[target.PlayerId]--;
                             break;

@@ -602,9 +602,6 @@ internal class RPCHandlerPatch
             case CustomRPC.SetJackalRecruitLimit:
                 Jackal.ReceiveRPC(reader);
                 break;
-            case CustomRPC.SetAdmireLimit:
-                Admirer.ReceiveRPC(reader);
-                break;
             case CustomRPC.SetRememberLimit:
                 Amnesiac.ReceiveRPC(reader);
                 break;

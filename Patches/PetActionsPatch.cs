@@ -385,10 +385,6 @@ class ExternalRpcPetPatch
                 pc.AddKCDAsAbilityCD();
                 Deputy.OnCheckMurder(pc, target);
                 break;
-            case CustomRoles.Admirer when hasKillTarget:
-                pc.AddKCDAsAbilityCD();
-                Admirer.OnCheckMurder(pc, target);
-                break;
             case CustomRoles.Crusader when hasKillTarget:
                 pc.AddKCDAsAbilityCD();
                 Crusader.OnCheckMurder(pc, target);

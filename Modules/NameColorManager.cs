@@ -58,11 +58,6 @@ public static class NameColorManager
         if (seer.Is(CustomRoles.Necromancer) && target.Is(CustomRoles.Undead)) color = Main.roleColors[CustomRoles.Undead];
         if ((seer.GetCustomRole() is CustomRoles.Necromancer or CustomRoles.Deathknight) && Necromancer.PartiallyRecruitedIds.Contains(target.PlayerId)) color = Main.roleColors[CustomRoles.Deathknight];
 
-        //if (seer.Is(CustomRoles.CursedSoul) && target.Is(CustomRoles.Soulless)) color = Main.roleColors[CustomRoles.Soulless];
-
-        if (seer.Is(CustomRoles.Admirer) && target.Is(CustomRoles.Admired)) color = Main.roleColors[CustomRoles.Admirer];
-        if (seer.Is(CustomRoles.Admired) && target.Is(CustomRoles.Admirer)) color = Main.roleColors[CustomRoles.Admirer];
-
         color = (seer.GetCustomRole(), target.GetCustomRole()) switch
         {
             (CustomRoles.Jackal, CustomRoles.Jackal) => Main.roleColors[CustomRoles.Jackal],
@@ -145,7 +140,6 @@ public static class NameColorManager
             {
                 if (target.Is(CustomRoleTypes.Impostor)) color = Main.roleColors[CustomRoles.Impostor];
                 if (target.Is(CustomRoles.Madmate)) color = Main.roleColors[CustomRoles.Impostor];
-                if (target.Is(CustomRoles.Admired)) color = Main.roleColors[CustomRoles.Bait];
                 if (target.Is(CustomRoles.Parasite)) color = Main.roleColors[CustomRoles.Impostor];
                 if (target.Is(CustomRoles.Crewpostor)) color = Main.roleColors[CustomRoles.Impostor];
                 if (target.Is(CustomRoles.Convict)) color = Main.roleColors[CustomRoles.Impostor];
@@ -154,11 +148,9 @@ public static class NameColorManager
                 if (target.Is(CustomRoleTypes.Crewmate)) color = Main.roleColors[CustomRoles.Bait];
                 if (target.Is(CustomRoleTypes.Neutral)) color = Main.roleColors[CustomRoles.SwordsMan];
                 if (target.Is(CustomRoles.Charmed)) color = Main.roleColors[CustomRoles.SwordsMan];
-                if (target.Is(CustomRoles.Infected)) color = Main.roleColors[CustomRoles.SwordsMan];
                 if (target.Is(CustomRoles.Contagious)) color = Main.roleColors[CustomRoles.SwordsMan];
                 if (target.Is(CustomRoles.Egoist)) color = Main.roleColors[CustomRoles.SwordsMan];
                 if (target.Is(CustomRoles.Recruit)) color = Main.roleColors[CustomRoles.SwordsMan];
-                if (target.Is(CustomRoles.Soulless)) color = Main.roleColors[CustomRoles.SwordsMan];
             }
         }
 
@@ -168,7 +160,6 @@ public static class NameColorManager
             {
                 if (target.Is(CustomRoleTypes.Impostor)) color = Main.roleColors[CustomRoles.Impostor];
                 if (target.Is(CustomRoles.Madmate)) color = Main.roleColors[CustomRoles.Impostor];
-                if (target.Is(CustomRoles.Admired)) color = Main.roleColors[CustomRoles.Bait];
                 if (target.Is(CustomRoles.Parasite)) color = Main.roleColors[CustomRoles.Impostor];
                 if (target.Is(CustomRoles.Crewpostor)) color = Main.roleColors[CustomRoles.Impostor];
                 if (target.Is(CustomRoles.Convict)) color = Main.roleColors[CustomRoles.Impostor];
@@ -177,11 +168,9 @@ public static class NameColorManager
                 if (target.Is(CustomRoleTypes.Crewmate)) color = Main.roleColors[CustomRoles.Bait];
                 if (target.Is(CustomRoleTypes.Neutral)) color = Main.roleColors[CustomRoles.SwordsMan];
                 if (target.Is(CustomRoles.Charmed)) color = Main.roleColors[CustomRoles.SwordsMan];
-                if (target.Is(CustomRoles.Infected)) color = Main.roleColors[CustomRoles.SwordsMan];
                 if (target.Is(CustomRoles.Contagious)) color = Main.roleColors[CustomRoles.SwordsMan];
                 if (target.Is(CustomRoles.Egoist)) color = Main.roleColors[CustomRoles.SwordsMan];
                 if (target.Is(CustomRoles.Recruit)) color = Main.roleColors[CustomRoles.SwordsMan];
-                if (target.Is(CustomRoles.Soulless)) color = Main.roleColors[CustomRoles.SwordsMan];
             }
         }
 

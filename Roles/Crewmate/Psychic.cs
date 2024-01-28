@@ -75,7 +75,7 @@ public static class Psychic
         if (!IsEnable || !AmongUsClient.Instance.AmHost) return;
 
         List<PlayerControl> BadListPc = Main.AllAlivePlayerControls.Where(x =>
-        (x.Is(CustomRoleTypes.Impostor) && !x.Is(CustomRoles.Trickster)) || x.Is(CustomRoles.Madmate) || x.Is(CustomRoles.Rascal) || x.Is(CustomRoles.Recruit) || x.Is(CustomRoles.Charmed) || x.Is(CustomRoles.Infected) || x.Is(CustomRoles.Contagious) ||
+        (x.Is(CustomRoleTypes.Impostor) && !x.Is(CustomRoles.Trickster)) || x.Is(CustomRoles.Madmate) || x.Is(CustomRoles.Rascal) || x.Is(CustomRoles.Recruit) || x.Is(CustomRoles.Charmed) || x.Is(CustomRoles.Contagious) ||
         (x.GetCustomRole().IsCK() && CkshowEvil.GetBool()) ||
         (x.GetCustomRole().IsNE() && NEshowEvil.GetBool()) ||
         (x.GetCustomRole().IsNB() && NBshowEvil.GetBool())

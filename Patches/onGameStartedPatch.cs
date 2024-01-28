@@ -283,7 +283,6 @@ internal class ChangeRoleSettings
             Succubus.Init();
             Necromancer.Init();
             //CursedSoul.Init();
-            Admirer.Init();
             Nullifier.Init();
             Deputy.Init();
             Chronomancer.Init();

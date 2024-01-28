@@ -311,7 +311,6 @@ internal static class CustomRolesHelper
             CustomRoles.Crusader => UsePets && Crusader.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.CopyCat => UsePets && CopyCat.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             //CustomRoles.CursedSoul => RoleTypes.Impostor,
-            CustomRoles.Admirer => UsePets && Gaulois.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Refugee => RoleTypes.Impostor,
             CustomRoles.Amnesiac => RoleTypes.Impostor,
             CustomRoles.Agitater => RoleTypes.Impostor,
@@ -394,7 +393,6 @@ internal static class CustomRolesHelper
         CustomRoles.Madmate or
         CustomRoles.Watcher or
         CustomRoles.Sleuth or
-        CustomRoles.Admired or
         CustomRoles.Flashman or
         CustomRoles.Undead or
         CustomRoles.Busy or
@@ -424,7 +422,6 @@ internal static class CustomRolesHelper
         CustomRoles.Necroview or
         CustomRoles.Avanger or
         CustomRoles.Youtuber or
-        CustomRoles.Soulless or
         CustomRoles.Loyal or
         CustomRoles.Egoist or
         CustomRoles.Recruit or
@@ -439,7 +436,6 @@ internal static class CustomRolesHelper
         CustomRoles.Stressed or
         CustomRoles.Cleansed or
         CustomRoles.Charmed or
-        CustomRoles.Infected or
         CustomRoles.Onbound or
         CustomRoles.Lazy or
         //     CustomRoles.Reflective or
@@ -985,7 +981,6 @@ internal static class CustomRolesHelper
         CustomRoles.FFF or
         CustomRoles.SwordsMan or
         //CustomRoles.CursedSoul or
-        CustomRoles.Admirer or
         CustomRoles.Refugee or
         CustomRoles.Amnesiac or
         CustomRoles.Monarch or
@@ -997,11 +992,9 @@ internal static class CustomRolesHelper
         CustomRoles.Egoist or
         CustomRoles.Charmed or
         CustomRoles.Recruit or
-        CustomRoles.Infected or
         CustomRoles.Contagious or
         CustomRoles.Rogue or
-        CustomRoles.Rascal or
-        CustomRoles.Soulless;
+        CustomRoles.Rascal;
 
     public static bool IsMadmate(this CustomRoles role) => role is
         CustomRoles.Crewpostor or
@@ -1010,7 +1003,6 @@ internal static class CustomRolesHelper
         CustomRoles.Parasite;
     public static bool IsTasklessCrewmate(this CustomRoles role) => !role.UsesPetInsteadOfKill() && role is
         CustomRoles.Sheriff or
-        CustomRoles.Admirer or
         CustomRoles.Medic or
         CustomRoles.CopyCat or
         //CustomRoles.Reverie or
@@ -1084,7 +1076,6 @@ internal static class CustomRolesHelper
         CustomRoles.CopyCat when CopyCat.UsePet.GetBool() => true,
         CustomRoles.Farseer when Farseer.UsePet.GetBool() => true,
         CustomRoles.Deputy when Deputy.UsePet.GetBool() => true,
-        CustomRoles.Admirer when Admirer.UsePet.GetBool() => true,
         CustomRoles.Crusader when Crusader.UsePet.GetBool() => true,
         CustomRoles.Witness when Options.WitnessUsePet.GetBool() => true,
 
@@ -1105,7 +1096,6 @@ internal static class CustomRolesHelper
         CustomRoles.CopyCat when CopyCat.UsePet.GetBool() => true,
         CustomRoles.Farseer when Farseer.UsePet.GetBool() => true,
         CustomRoles.Deputy when Deputy.UsePet.GetBool() => true,
-        CustomRoles.Admirer when Admirer.UsePet.GetBool() => true,
         CustomRoles.Crusader when Crusader.UsePet.GetBool() => true,
         CustomRoles.Witness when Options.WitnessUsePet.GetBool() => true,
 
@@ -1207,12 +1197,9 @@ internal static class CustomRolesHelper
     public static bool IsBetrayalAddon(this CustomRoles role) => role is
         CustomRoles.Charmed or
         CustomRoles.Recruit or
-        CustomRoles.Infected or
         CustomRoles.Contagious or
         CustomRoles.Lovers or
         CustomRoles.Madmate or
-        CustomRoles.Soulless or
-        CustomRoles.Admired or
         CustomRoles.Egoist;
 
     public static bool IsImpOnlyAddon(this CustomRoles role) => role is
@@ -1552,11 +1539,9 @@ internal static class CustomRolesHelper
     public static bool IsConverted(this CustomRoles role) => role is
            CustomRoles.Charmed
         or CustomRoles.Recruit
-        or CustomRoles.Infected
         or CustomRoles.Contagious
         or CustomRoles.Sidekick
         or CustomRoles.Undead
-        or CustomRoles.Admired
         or CustomRoles.Lovers
         || ((role is CustomRoles.Egoist) && (ParityCop.ParityCheckEgoistInt() == 1));
     public static bool IsRevealingRole(this CustomRoles role, PlayerControl target) =>

@@ -76,13 +76,10 @@ public class PlayerState(byte playerId)
                 };
                 SubRoles.Remove(CustomRoles.Charmed);
                 SubRoles.Remove(CustomRoles.Recruit);
-                SubRoles.Remove(CustomRoles.Infected);
                 SubRoles.Remove(CustomRoles.Contagious);
                 SubRoles.Remove(CustomRoles.Rogue);
                 SubRoles.Remove(CustomRoles.Rascal);
-                SubRoles.Remove(CustomRoles.Soulless);
                 SubRoles.Remove(CustomRoles.Loyal);
-                SubRoles.Remove(CustomRoles.Admired);
                 SubRoles.Remove(CustomRoles.Undead);
                 break;
             case CustomRoles.Charmed:
@@ -95,13 +92,10 @@ public class PlayerState(byte playerId)
                 };
                 SubRoles.Remove(CustomRoles.Madmate);
                 SubRoles.Remove(CustomRoles.Recruit);
-                SubRoles.Remove(CustomRoles.Infected);
                 SubRoles.Remove(CustomRoles.Contagious);
                 SubRoles.Remove(CustomRoles.Rogue);
                 SubRoles.Remove(CustomRoles.Rascal);
-                SubRoles.Remove(CustomRoles.Soulless);
                 SubRoles.Remove(CustomRoles.Loyal);
-                SubRoles.Remove(CustomRoles.Admired);
                 SubRoles.Remove(CustomRoles.Undead);
                 break;
             case CustomRoles.Undead:
@@ -114,13 +108,10 @@ public class PlayerState(byte playerId)
                 };
                 SubRoles.Remove(CustomRoles.Madmate);
                 SubRoles.Remove(CustomRoles.Recruit);
-                SubRoles.Remove(CustomRoles.Infected);
                 SubRoles.Remove(CustomRoles.Contagious);
                 SubRoles.Remove(CustomRoles.Rogue);
                 SubRoles.Remove(CustomRoles.Rascal);
-                SubRoles.Remove(CustomRoles.Soulless);
                 SubRoles.Remove(CustomRoles.Loyal);
-                SubRoles.Remove(CustomRoles.Admired);
                 SubRoles.Remove(CustomRoles.Charmed);
                 break;
             case CustomRoles.LastImpostor:
@@ -136,14 +127,11 @@ public class PlayerState(byte playerId)
                 };
                 SubRoles.Remove(CustomRoles.Madmate);
                 SubRoles.Remove(CustomRoles.Charmed);
-                SubRoles.Remove(CustomRoles.Infected);
                 SubRoles.Remove(CustomRoles.Contagious);
                 SubRoles.Remove(CustomRoles.Rogue);
                 SubRoles.Remove(CustomRoles.Rascal);
-                SubRoles.Remove(CustomRoles.Soulless);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Loyal);
-                SubRoles.Remove(CustomRoles.Admired);
                 SubRoles.Remove(CustomRoles.Undead);
                 break;
             case CustomRoles.Contagious:
@@ -158,11 +146,8 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Recruit);
                 SubRoles.Remove(CustomRoles.Rogue);
                 SubRoles.Remove(CustomRoles.Charmed);
-                SubRoles.Remove(CustomRoles.Infected);
                 SubRoles.Remove(CustomRoles.Rascal);
-                SubRoles.Remove(CustomRoles.Soulless);
                 SubRoles.Remove(CustomRoles.Loyal);
-                SubRoles.Remove(CustomRoles.Admired);
                 SubRoles.Remove(CustomRoles.Undead);
                 break;
             case CustomRoles.Rogue:
@@ -170,38 +155,9 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Madmate);
                 SubRoles.Remove(CustomRoles.Recruit);
                 SubRoles.Remove(CustomRoles.Charmed);
-                SubRoles.Remove(CustomRoles.Infected);
                 SubRoles.Remove(CustomRoles.Contagious);
                 SubRoles.Remove(CustomRoles.Rascal);
-                SubRoles.Remove(CustomRoles.Soulless);
                 SubRoles.Remove(CustomRoles.Loyal);
-                SubRoles.Remove(CustomRoles.Admired);
-                SubRoles.Remove(CustomRoles.Undead);
-                break;
-            case CustomRoles.Admired:
-                countTypes = CountTypes.Crew;
-                SubRoles.Remove(CustomRoles.Madmate);
-                SubRoles.Remove(CustomRoles.Recruit);
-                SubRoles.Remove(CustomRoles.Charmed);
-                SubRoles.Remove(CustomRoles.Infected);
-                SubRoles.Remove(CustomRoles.Contagious);
-                SubRoles.Remove(CustomRoles.Rascal);
-                SubRoles.Remove(CustomRoles.Soulless);
-                SubRoles.Remove(CustomRoles.Loyal);
-                SubRoles.Remove(CustomRoles.Rogue);
-                SubRoles.Remove(CustomRoles.Undead);
-                break;
-            case CustomRoles.Soulless:
-                countTypes = CountTypes.OutOfGame;
-                SubRoles.Remove(CustomRoles.Madmate);
-                SubRoles.Remove(CustomRoles.Recruit);
-                SubRoles.Remove(CustomRoles.Charmed);
-                SubRoles.Remove(CustomRoles.Infected);
-                SubRoles.Remove(CustomRoles.Contagious);
-                SubRoles.Remove(CustomRoles.Rascal);
-                SubRoles.Remove(CustomRoles.Rogue);
-                SubRoles.Remove(CustomRoles.Loyal);
-                SubRoles.Remove(CustomRoles.Admired);
                 SubRoles.Remove(CustomRoles.Undead);
                 break;
         }

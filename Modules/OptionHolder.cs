@@ -1649,9 +1649,7 @@ public static class Options
         TransporterTasks = OverrideTasksData.Create(6211, TabGroup.CrewmateRoles, CustomRoles.Transporter);
 
         LoadingPercentage = 17;
-        RoleLoadingText = "Crewmate roles\nAdmirer";
 
-        Admirer.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nChameleon";
         Chameleon.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nCoroner";

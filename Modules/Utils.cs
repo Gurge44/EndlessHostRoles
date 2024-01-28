@@ -398,7 +398,7 @@ public static class Utils
 
         if (Options.NameDisplayAddons.GetBool() && !pure && self)
         {
-            foreach (var subRole in targetSubRoles.Where(x => x is not CustomRoles.LastImpostor and not CustomRoles.Madmate and not CustomRoles.Charmed and not CustomRoles.Recruit and not CustomRoles.Admired and not CustomRoles.Soulless and not CustomRoles.Lovers and not CustomRoles.Infected and not CustomRoles.Contagious))
+            foreach (var subRole in targetSubRoles.Where(x => x is not CustomRoles.LastImpostor and not CustomRoles.Madmate and not CustomRoles.Charmed and not CustomRoles.Recruit and not CustomRoles.Lovers and not CustomRoles.Contagious))
             {
                 var str = GetString("Prefix." + subRole.ToString());
                 if (!subRole.IsAdditionRole())
@@ -425,20 +425,10 @@ public static class Utils
             RoleColor = GetRoleColor(CustomRoles.Charmed);
             RoleText = GetRoleString("Charmed-") + RoleText;
         }
-        if (targetSubRoles.Contains(CustomRoles.Soulless))
-        {
-            RoleColor = GetRoleColor(CustomRoles.Soulless);
-            RoleText = GetRoleString("Soulless-") + RoleText;
-        }
         if (targetSubRoles.Contains(CustomRoles.Contagious) && (self || pure || seerMainRole == CustomRoles.Virus || (Virus.TargetKnowOtherTarget.GetBool() && seerSubRoles.Contains(CustomRoles.Contagious))))
         {
             RoleColor = GetRoleColor(CustomRoles.Contagious);
             RoleText = GetRoleString("Contagious-") + RoleText;
-        }
-        if (targetSubRoles.Contains(CustomRoles.Admired))
-        {
-            RoleColor = GetRoleColor(CustomRoles.Admired);
-            RoleText = GetRoleString("Admired-") + RoleText;
         }
 
         return (RoleText, RoleColor);
@@ -557,7 +547,6 @@ public static class Utils
             case CustomRoles.RuthlessRomantic:
             case CustomRoles.Succubus:
             //case CustomRoles.CursedSoul:
-            case CustomRoles.Admirer when !Options.UsePets.GetBool() || !Admirer.UsePet.GetBool():
             case CustomRoles.Amnesiac:
             case CustomRoles.Monarch when !Options.UsePets.GetBool() || !Monarch.UsePet.GetBool():
             case CustomRoles.Deputy when !Options.UsePets.GetBool() || !Deputy.UsePet.GetBool():
@@ -610,10 +599,8 @@ public static class Utils
                 case CustomRoles.Charmed:
                 case CustomRoles.Recruit:
                 case CustomRoles.Egoist:
-                case CustomRoles.Infected:
                 case CustomRoles.EvilSpirit:
                 case CustomRoles.Contagious:
-                case CustomRoles.Soulless:
                 case CustomRoles.Rascal:
                     //ラバーズはタスクを勝利用にカウントしない
                     hasTasks &= !ForRecompute;
@@ -691,7 +678,6 @@ public static class Utils
         if (Succubus.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Necromancer.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         //if (CursedSoul.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
-        if (Admirer.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Amnesiac.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Virus.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (PlayerControl.LocalPlayer.IsRevealedPlayer(__instance)) result = true;
@@ -1133,9 +1119,6 @@ public static class Utils
                 //case CustomRoles.CursedSoul:
                 //    ProgressText.Append(CursedSoul.GetCurseLimit());
                 //    break;
-                case CustomRoles.Admirer:
-                    ProgressText.Append(Admirer.GetAdmireLimit());
-                    break;
                 case CustomRoles.Monarch:
                     ProgressText.Append(Monarch.GetKnightLimit());
                     break;
@@ -2334,7 +2317,6 @@ public static class Utils
                                 Succubus.KnowRole(seer, target) ||
                                 Necromancer.KnowRole(seer, target) ||
                                 //CursedSoul.KnowRole(seer, target) ||
-                                Admirer.KnowRole(seer, target) ||
                                 Amnesiac.KnowRole(seer, target) ||
                                 Virus.KnowRole(seer, target) ||
                                 Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop ||
@@ -2900,9 +2882,6 @@ public static class Utils
             //case CustomRoles.CursedSoul:
             //    CursedSoul.Add(id);
             //    break;
-            case CustomRoles.Admirer:
-                Admirer.Add(id);
-                break;
             case CustomRoles.Amnesiac:
                 Amnesiac.Add(id);
                 break;

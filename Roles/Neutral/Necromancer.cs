@@ -116,7 +116,7 @@ namespace TOHE.Roles.Neutral
             return false;
         }
 
-        public static bool CanBeUndead(PlayerControl pc) => pc != null && !pc.Is(CustomRoles.Deathknight) && !pc.Is(CustomRoles.Necromancer) && !pc.Is(CustomRoles.Undead) && !pc.Is(CustomRoles.Admired) && !pc.Is(CustomRoles.Loyal);
+        public static bool CanBeUndead(PlayerControl pc) => pc != null && !pc.Is(CustomRoles.Deathknight) && !pc.Is(CustomRoles.Necromancer) && !pc.Is(CustomRoles.Undead) && !pc.Is(CustomRoles.Loyal);
     }
 
     internal class Deathknight

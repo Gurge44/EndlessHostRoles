@@ -271,7 +271,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 case CustomRoles.Necromancer:
                 case CustomRoles.Deathknight:
                 //case CustomRoles.CursedSoul:
-                case CustomRoles.Admirer:
                 case CustomRoles.Amnesiac:
                     opt.SetVision(false);
                     break;

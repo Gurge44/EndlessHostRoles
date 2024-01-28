@@ -85,7 +85,7 @@ namespace TOHE.Roles.Neutral
             InfectLimit = reader.ReadInt32();
         }
 
-        public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
+        public static void OnCheckMurder(/*PlayerControl killer,*/ PlayerControl target)
         {
             if (InfectLimit < 1) return;
             Main.InfectedBodies.Add(target.PlayerId);
@@ -171,7 +171,7 @@ namespace TOHE.Roles.Neutral
 
         public static bool CanBeInfected(this PlayerControl pc)
         {
-            return true && !pc.Is(CustomRoles.Virus) && !pc.Is(CustomRoles.Contagious) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Admired);
+            return true && !pc.Is(CustomRoles.Virus) && !pc.Is(CustomRoles.Contagious) && !pc.Is(CustomRoles.Loyal);
         }
     }
 }

@@ -604,7 +604,6 @@ static class ExtendedPlayerControl
             CustomRoles.Necromancer => Necromancer.CanUseKillButton(pc),
             CustomRoles.Deathknight => Deathknight.CanUseKillButton(pc),
             //CustomRoles.CursedSoul => CursedSoul.CanUseKillButton(pc),
-            CustomRoles.Admirer => Admirer.CanUseKillButton(pc),
             CustomRoles.Amnesiac => Amnesiac.CanUseKillButton(pc),
             //CustomRoles.Warlock => !Main.isCurseAndKill.TryGetValue(pc.PlayerId, out bool wcs) || !wcs,
             CustomRoles.Monarch => Monarch.CanUseKillButton(pc),
@@ -646,7 +645,6 @@ static class ExtendedPlayerControl
             CustomRoles.Doppelganger or
             //CustomRoles.CursedSoul or
             CustomRoles.PlagueBearer or
-            CustomRoles.Admirer or
             CustomRoles.Amnesiac or
             CustomRoles.PlagueDoctor or
             CustomRoles.Crusader
@@ -722,7 +720,6 @@ static class ExtendedPlayerControl
             CustomRoles.Crusader or
             CustomRoles.CopyCat or
             //CustomRoles.CursedSoul or
-            CustomRoles.Admirer or
             CustomRoles.Amnesiac or
             CustomRoles.Monarch or
             CustomRoles.Deputy or
@@ -1201,9 +1198,6 @@ static class ExtendedPlayerControl
             //case CustomRoles.CursedSoul:
             //    CursedSoul.SetKillCooldown(player.PlayerId);
             //    break;
-            case CustomRoles.Admirer:
-                Admirer.SetKillCooldown(player.PlayerId);
-                break;
             case CustomRoles.Amnesiac:
                 Amnesiac.SetKillCooldown(player.PlayerId);
                 break;

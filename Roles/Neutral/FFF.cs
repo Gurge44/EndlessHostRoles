@@ -63,7 +63,7 @@ namespace TOHE.Roles.Neutral
             if (killer == null || target == null) return false;
             if (killer.PlayerId == target.PlayerId) return true;
 
-            if (target.GetCustomSubRoles().Any(x => x.IsConverted() || x == CustomRoles.Madmate || x == CustomRoles.Admired)
+            if (target.GetCustomSubRoles().Any(x => x.IsConverted() || x == CustomRoles.Madmate)
                 || IsConvertedMainRole(target.GetCustomRole()))
             {
                 if (!ChooseConverted.GetBool())
@@ -82,7 +82,6 @@ namespace TOHE.Roles.Neutral
                     || ((target.Is(CustomRoles.Sidekick) || target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.Recruit)) && CanKillSidekicks.GetBool())
                     || (target.Is(CustomRoles.Egoist) && CanKillEgoists.GetBool())
                     || ((target.Is(CustomRoles.Contagious) || target.Is(CustomRoles.Virus)) && CanKillContagious.GetBool())
-                    || ((target.Is(CustomRoles.Admired) || target.Is(CustomRoles.Admirer)) && CanKillAdmired.GetBool())
                     )
                 {
                     if (killer.RpcCheckAndMurder(target)) isWon = true;
@@ -115,8 +114,7 @@ namespace TOHE.Roles.Neutral
                 CustomRoles.VengefulRomantic or
                 CustomRoles.Sidekick or
                 CustomRoles.Jackal or
-                CustomRoles.Virus or
-                CustomRoles.Admirer
+                CustomRoles.Virus
                 => true,
 
                 _ => false,
