@@ -140,7 +140,7 @@ class HudManagerPatch
 
         Utils.CountAlivePlayers();
 
-        bool shapeshifting = player.shapeshifting;
+        bool shapeshifting = player.IsShifted();
 
         if (SetHudActivePatch.IsActive)
         {

@@ -135,7 +135,7 @@ public static class Camouflage
         {
             //コミュサボ解除または強制解除
 
-            if (Utils.GetPlayerById(id).shapeshifting && !RevertToDefault)
+            if (id.IsPlayerShifted() && !RevertToDefault)
             {
                 //シェイプシフターなら今の姿のidに変更
                 id = Main.ShapeshiftTarget[id];

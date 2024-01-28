@@ -57,7 +57,7 @@ namespace TOHE.Roles.Impostor
 
         public static bool IsEnable => playerIdList.Count > 0;
 
-        public static bool CanUseKillButton(PlayerControl pc) => !pc.shapeshifting || CanKillWhileShifted.GetBool();
+        public static bool CanUseKillButton(PlayerControl pc) => !pc.IsShifted() || CanKillWhileShifted.GetBool();
 
         public static void ApplyGameOptions()
         {

@@ -110,7 +110,7 @@ public static class Sniper
     {
         if (!pc.IsAlive()) return false;
         var canUse = false;
-        if (pc.shapeshifting) return false;
+        if (pc.IsShifted()) return false;
         if (!bulletCount.ContainsKey(pc.PlayerId))
         {
             Logger.Info($" Sniper not Init yet.", "Sniper");

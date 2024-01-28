@@ -347,7 +347,7 @@ class CheckMurderPatch
                     break;
                 case CustomRoles.Warlock:
                     if (!Main.isCurseAndKill.ContainsKey(killer.PlayerId)) Main.isCurseAndKill[killer.PlayerId] = false;
-                    if (!killer.shapeshifting && !Main.isCurseAndKill[killer.PlayerId])
+                    if (!killer.IsShifted() && !Main.isCurseAndKill[killer.PlayerId])
                     { //Warlockが変身時以外にキルしたら、呪われる処理
                         if (target.Is(CustomRoles.Needy) || target.Is(CustomRoles.Lazy)) return false;
                         Main.isCursed = true;
@@ -360,7 +360,7 @@ class CheckMurderPatch
                         //RPC.RpcSyncCurseAndKill();
                         return false;
                     }
-                    if (killer.shapeshifting)
+                    if (killer.IsShifted())
                     {//呪われてる人がいないくて変身してるときに通常キルになる
                         killer.RpcCheckAndMurder(target);
                         return false;

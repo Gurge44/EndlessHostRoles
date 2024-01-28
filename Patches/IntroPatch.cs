@@ -552,7 +552,7 @@ class IntroCutsceneDestroyPatch
                     {
                         if (pc.Is(CustomRoles.GM)) continue;
                         string petId = pet == "pet_RANDOM_FOR_EVERYONE" ? pets[r.Next(0, pets.Length - 1)] : pet;
-                        PetsPatch.SetPet(pc, petId, true);
+                        PetsPatch.SetPet(pc, petId);
                         Logger.Info($"{pc.GetNameWithRole()} => {GetString(petId)} Pet", "PetAssign");
                     }
                 }, 0.3f, "Grant Pet For Everyone");
