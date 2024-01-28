@@ -1439,7 +1439,7 @@ public static class Utils
 
         var sb = new StringBuilder();
 
-        sb.Append("<#ffffff><u>Role Summary:</u></color><size=70%>");
+        sb.Append($"<#ffffff>{GetString("RoleSummaryText")}</color><size=70%>");
 
         List<byte> cloneRoles = new(Main.PlayerStates.Keys);
         foreach (byte id in Main.winnerList.ToArray())
