@@ -546,6 +546,8 @@ public static class Utils
             case CustomRoles.VengefulRomantic:
             case CustomRoles.RuthlessRomantic:
             case CustomRoles.Succubus:
+            case CustomRoles.Necromancer:
+            case CustomRoles.Deathknight:
             //case CustomRoles.CursedSoul:
             case CustomRoles.Amnesiac:
             case CustomRoles.Monarch when !Options.UsePets.GetBool() || !Monarch.UsePet.GetBool():

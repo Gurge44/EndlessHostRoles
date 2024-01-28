@@ -2203,6 +2203,7 @@ class FixedUpdatePatch
                 YinYanger.OnFixedUpdate();
                 Duellist.OnFixedUpdate();
                 Kamikaze.OnFixedUpdate();
+                Succubus.OnFixedUpdate();
             }
         }
 
