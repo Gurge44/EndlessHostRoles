@@ -1350,6 +1350,10 @@ static class ExtendedPlayerControl
                 Kamikaze.MarkLimit[killer.PlayerId] += Kamikaze.KamikazeAbilityUseGainWithEachKill.GetFloat();
                 Kamikaze.SendRPCSyncLimit(killer.PlayerId);
                 break;
+
+            case CustomRoles.Mafioso:
+                Mafioso.OnMurder();
+                break;
         }
 
         if (killer.PlayerId == target.PlayerId && killer.shapeshifting)

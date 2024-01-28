@@ -1174,9 +1174,6 @@ class MurderPlayerPatch
             case CustomRoles.Maverick:
                 Maverick.NumOfKills++;
                 break;
-            case CustomRoles.Mafioso:
-                Mafioso.OnMurder();
-                break;
             case CustomRoles.Wildling:
                 Wildling.OnMurderPlayer(killer, target);
                 break;

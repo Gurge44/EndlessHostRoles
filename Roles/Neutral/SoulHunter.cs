@@ -62,7 +62,7 @@ namespace TOHE.Roles.Neutral
                 Main.ResetCamPlayerList.Add(playerId);
         }
         public static bool IsEnable => SoulHunterId != byte.MaxValue;
-        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = WaitingTimeAfterMeeting.GetFloat() + 0.5f;
+        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = WaitingTimeAfterMeeting.GetFloat() + 1.5f;
         public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
         public static void SendRPC()
         {

@@ -165,12 +165,12 @@ namespace TOHE.Roles.Impostor
             int KCD = Tier >= 4 ? (int)Math.Round(DefaultKillCooldown) : (int)Math.Round(DefaultKillCooldown * 1.5);
             KCD++;
 
-            if (Pistol1CD <= 0 && Pistol2CD > 0)
+            if (Pistol1CD <= 0)
             {
                 Pistol1CD = KCD;
                 NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
             }
-            if (Pistol2CD <= 0 && Pistol1CD > 0)
+            else if (Pistol2CD <= 0)
             {
                 Pistol2CD = KCD;
                 NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
@@ -180,9 +180,9 @@ namespace TOHE.Roles.Impostor
             {
                 _ = new LateTask(() =>
                 {
-                    if (target.IsAlive() && killer.IsAlive() && GameStates.IsInTask)
+                    if (target != null && target.IsAlive() && GameStates.IsInTask)
                     {
-                        killer.RpcCheckAndMurder(target);
+                        target.Suicide(realKiller: killer);
                     }
                 }, Delay.GetInt(), "Mafioso Tier 5 Kill Delay");
 
