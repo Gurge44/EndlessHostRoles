@@ -2070,6 +2070,7 @@
   "FireworksReadyFirePhase": "Fire!",
   "EnterVentWinCountDown": "Enter vent within <b>{0}</b> seconds to win!",
   "InvalidArgs": "Invalid Args",
+  "InvalidArguments": "Invalid Arguments",
   "On": "Always",
   "Off": "OFF",
   "ColoredOn": "<color=#00fefe>ON</color>",

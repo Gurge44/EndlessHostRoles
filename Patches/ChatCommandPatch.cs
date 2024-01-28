@@ -232,7 +232,7 @@ internal class ChatCommands
                     }
                     if (!GuessManager.MsgToPlayerAndRole(subArgs, out byte resultId, out CustomRoles roleToSet, out _))
                     {
-                        Utils.SendMessage("Invalid arguments", localPlayerId);
+                        Utils.SendMessage($"{GetString("InvalidArguments")}", localPlayerId);
                         break;
                     }
                     else
