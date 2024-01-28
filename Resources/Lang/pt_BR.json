@@ -1247,7 +1247,7 @@
   "CanTargetNeutralEvil": "O seu alvo pode ser um <color=#7f8c8d>Neutro</color> <color=#912900>Malvado</color>",
   "CanTargetNeutralChaos": "O seu alvo pode ser um <color=#7f8c8d>Neutro</color> do <color=#D4AF37>Caos</color>",
   "SidekickSheriffCanGoBerserk": "<color=#f8cd46>Xerife</color> <color=#00b4eb>Recrutado</color> pode enlouquecer",
-  "LawyerCanTargetImpostor": "O seu cliente pode ser um <color=#ff1919>Impostor</color>",
+  "LawyerCanTargetImpostor": "O seu alvo pode ser um <color=#ff1919>Impostor</color>",
   "LawyerCanTargetNeutralKiller": "O seu cliente pode ser um <color=#7f8c8d>Neutro Assassino</color>",
   "LawyerCanTargetCrewmate": "O seu cliente pode ser um <color=#8cffff>Tripulante</color>",
   "LawyerCanTargetJester": "O seu cliente pode ser um <color=#ec62a5>Palhaço</color>",
@@ -2070,7 +2070,7 @@
   "FireworksReadyFirePhase": "Fogo!",
   "EnterVentWinCountDown": "Entre na ventilação em <b>{0}</b> segundos para ganhar!",
   "InvalidArgs": "Argumentos Inválidos",
-  "InvalidArguments": "Invalid Arguments",
+  "InvalidArguments": "Argumentos inválidos",
   "On": "Ligado",
   "Off": "Desligado",
   "ColoredOn": "<color=#008000>Ligado</color>",
@@ -3581,6 +3581,6 @@
   "RoleSelected": "<b>No próximo jogo, a função de {0} será{1}</b>",
   "UpReplacedMessage": "O /up foi substituído por /setrole que permite definir a função de qualquer um em qualquer jogo usando '/setrole (ID) (FUNÇÂO)'. Você pode ver os IDs com /id. \nPara definir sua própria função como /up, você precisa usar '/setrole 0 (FUNÇÃO)'.",
   "PingText": "Latência",
-  "SettingsForRoleText": "Settings for",
+  "SettingsForRoleText": "Configurações para",
   "NotAssigned": " "
 }
