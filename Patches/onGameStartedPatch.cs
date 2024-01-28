@@ -281,6 +281,7 @@ internal class ChangeRoleSettings
             VengefulRomantic.Init();
             RuthlessRomantic.Init();
             Succubus.Init();
+            Necromancer.Init();
             //CursedSoul.Init();
             Admirer.Init();
             Nullifier.Init();

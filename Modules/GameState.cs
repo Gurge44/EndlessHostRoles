@@ -83,6 +83,7 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Soulless);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Admired);
+                SubRoles.Remove(CustomRoles.Undead);
                 break;
             case CustomRoles.Charmed:
                 countTypes = Succubus.CharmedCountMode.GetInt() switch
@@ -101,6 +102,26 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Soulless);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Admired);
+                SubRoles.Remove(CustomRoles.Undead);
+                break;
+            case CustomRoles.Undead:
+                countTypes = Necromancer.UndeadCountMode.GetInt() switch
+                {
+                    0 => CountTypes.OutOfGame,
+                    1 => CountTypes.Necromancer,
+                    2 => countTypes,
+                    _ => throw new NotImplementedException()
+                };
+                SubRoles.Remove(CustomRoles.Madmate);
+                SubRoles.Remove(CustomRoles.Recruit);
+                SubRoles.Remove(CustomRoles.Infected);
+                SubRoles.Remove(CustomRoles.Contagious);
+                SubRoles.Remove(CustomRoles.Rogue);
+                SubRoles.Remove(CustomRoles.Rascal);
+                SubRoles.Remove(CustomRoles.Soulless);
+                SubRoles.Remove(CustomRoles.Loyal);
+                SubRoles.Remove(CustomRoles.Admired);
+                SubRoles.Remove(CustomRoles.Charmed);
                 break;
             case CustomRoles.LastImpostor:
                 SubRoles.Remove(CustomRoles.Mare);
@@ -123,6 +144,7 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Admired);
+                SubRoles.Remove(CustomRoles.Undead);
                 break;
             case CustomRoles.Infected:
                 countTypes = CountTypes.Infectious;
@@ -135,6 +157,7 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Soulless);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Admired);
+                SubRoles.Remove(CustomRoles.Undead);
                 break;
             case CustomRoles.Contagious:
                 countTypes = Virus.ContagiousCountMode.GetInt() switch
@@ -153,6 +176,7 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Soulless);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Admired);
+                SubRoles.Remove(CustomRoles.Undead);
                 break;
             case CustomRoles.Rogue:
                 countTypes = CountTypes.Rogue;
@@ -165,6 +189,7 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Soulless);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Admired);
+                SubRoles.Remove(CustomRoles.Undead);
                 break;
             case CustomRoles.Admired:
                 countTypes = CountTypes.Crew;
@@ -177,6 +202,7 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Soulless);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Rogue);
+                SubRoles.Remove(CustomRoles.Undead);
                 break;
             case CustomRoles.Soulless:
                 countTypes = CountTypes.OutOfGame;
@@ -189,6 +215,7 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Rogue);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Admired);
+                SubRoles.Remove(CustomRoles.Undead);
                 break;
         }
     }

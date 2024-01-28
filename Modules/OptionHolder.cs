@@ -1989,6 +1989,8 @@ public static class Options
         Collector.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nCultist";
         Succubus.SetupCustomOption();
+        RoleLoadingText = "Neutral roles\nNecromancer";
+        Necromancer.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nPhantom";
         SetupRoleOptions(11400, TabGroup.NeutralRoles, CustomRoles.Phantom);
         PhantomCanVent = BooleanOptionItem.Create(11410, "CanVent", false, TabGroup.NeutralRoles, false)

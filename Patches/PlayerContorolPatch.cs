@@ -582,6 +582,12 @@ class CheckMurderPatch
                 case CustomRoles.Succubus:
                     Succubus.OnCheckMurder(killer, target);
                     return false;
+                case CustomRoles.Necromancer:
+                    Necromancer.OnCheckMurder(killer, target);
+                    return false;
+                case CustomRoles.Deathknight:
+                    Deathknight.OnCheckMurder(killer, target);
+                    return false;
                 //case CustomRoles.CursedSoul:
                 //    CursedSoul.OnCheckMurder(killer, target);
                 //    return false;
@@ -971,7 +977,7 @@ class CheckMurderPatch
                             player.TP(pos);
                         }
                     }
-                    killer.SetKillCooldown(target: target, forceAnime: true);
+                    killer.SetKillCooldown(target: target);
                     return false;
                 }
                 break;

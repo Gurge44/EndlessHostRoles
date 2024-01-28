@@ -185,6 +185,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Deathpact => CustomRoles.Shapeshifter,
                 CustomRoles.Bloodhound => CustomRoles.Crewmate,
                 CustomRoles.Tracker => CustomRoles.Crewmate,
+                CustomRoles.Deathknight => CustomRoles.Crewmate,
                 CustomRoles.Merchant => CustomRoles.Crewmate,
                 CustomRoles.Lookout => CustomRoles.Crewmate,
                 //CustomRoles.Retributionist => CustomRoles.Crewmate,
@@ -373,6 +374,7 @@ internal static class CustomRolesHelper
             CustomRoles.VengefulRomantic => RoleTypes.Impostor,
             CustomRoles.RuthlessRomantic => RoleTypes.Impostor,
             CustomRoles.Succubus => RoleTypes.Impostor,
+            CustomRoles.Necromancer => RoleTypes.Impostor,
             CustomRoles.Infectious => RoleTypes.Impostor,
             CustomRoles.Virus => RoleTypes.Impostor,
             CustomRoles.Farseer => UsePets && Farseer.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
@@ -484,6 +486,8 @@ internal static class CustomRolesHelper
         CustomRoles.Romantic or
         CustomRoles.VengefulRomantic or
         CustomRoles.Doomsayer or
+        CustomRoles.Necromancer or
+        CustomRoles.Deathknight or
         CustomRoles.Succubus;
 
     public static bool IsAmneMaverick(this CustomRoles role) // ROLE ASSIGNING, NOT NEUTRAL TYPE
@@ -561,6 +565,8 @@ internal static class CustomRolesHelper
         CustomRoles.Traitor or
         CustomRoles.Virus or
         CustomRoles.Spiritcaller or
+        CustomRoles.Necromancer or
+        CustomRoles.Deathknight or
         CustomRoles.Succubus;
 
     public static bool IsNK(this CustomRoles role) => role is
@@ -645,6 +651,8 @@ internal static class CustomRolesHelper
         CustomRoles.Pelican or
         CustomRoles.Virus or
         CustomRoles.Succubus or
+        CustomRoles.Necromancer or
+        CustomRoles.Deathknight or
         CustomRoles.BloodKnight or
         CustomRoles.Spiritcaller or
         CustomRoles.RuthlessRomantic or
@@ -917,6 +925,8 @@ internal static class CustomRolesHelper
         CustomRoles.VengefulRomantic or
         CustomRoles.Virus or
         CustomRoles.Succubus or
+        CustomRoles.Necromancer or
+        CustomRoles.Deathknight or
         CustomRoles.Doomsayer or
         CustomRoles.Spiritcaller;
 
@@ -1186,6 +1196,7 @@ internal static class CustomRolesHelper
         CustomRoles.Totocalcio or
         CustomRoles.Virus or
         CustomRoles.Succubus or
+        CustomRoles.Necromancer or
         CustomRoles.Spiritcaller or
         CustomRoles.Refugee or
         CustomRoles.Parasite or
@@ -1636,6 +1647,8 @@ internal static class CustomRolesHelper
            CustomRoles.BloodKnight => CountTypes.BloodKnight,
            CustomRoles.Bandit => CountTypes.Bandit,
            CustomRoles.Succubus => CountTypes.Succubus,
+           CustomRoles.Necromancer => CountTypes.Necromancer,
+           CustomRoles.Deathknight => CountTypes.Necromancer,
            CustomRoles.HexMaster => CountTypes.HexMaster,
            //CustomRoles.NWitch => CountTypes.NWitch,
            CustomRoles.Wraith => CountTypes.Wraith,
@@ -1701,6 +1714,7 @@ public enum CountTypes
     Poisoner,
     Charmed,
     Succubus,
+    Necromancer,
     HexMaster,
     NWitch,
     Wraith,

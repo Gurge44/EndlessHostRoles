@@ -48,6 +48,15 @@ public static class NameColorManager
         if (seer.Is(CustomRoles.Succubus) && target.Is(CustomRoles.Charmed)) color = Main.roleColors[CustomRoles.Charmed];
         if (seer.Is(CustomRoles.Charmed) && target.Is(CustomRoles.Charmed) && Succubus.TargetKnowOtherTarget.GetBool()) color = Main.roleColors[CustomRoles.Charmed];
 
+        if (seer.Is(CustomRoles.Undead))
+        {
+            if (target.Is(CustomRoles.Undead)) color = Main.roleColors[CustomRoles.Undead];
+            if (target.Is(CustomRoles.Necromancer)) color = Main.roleColors[CustomRoles.Necromancer];
+            if (target.Is(CustomRoles.Deathknight)) color = Main.roleColors[CustomRoles.Deathknight];
+        }
+        if (seer.Is(CustomRoles.Deathknight) && target.Is(CustomRoles.Undead)) color = Main.roleColors[CustomRoles.Undead];
+        if (seer.Is(CustomRoles.Necromancer) && target.Is(CustomRoles.Undead)) color = Main.roleColors[CustomRoles.Undead];
+
         //if (seer.Is(CustomRoles.CursedSoul) && target.Is(CustomRoles.Soulless)) color = Main.roleColors[CustomRoles.Soulless];
 
         if (seer.Is(CustomRoles.Admirer) && target.Is(CustomRoles.Admired)) color = Main.roleColors[CustomRoles.Admirer];
@@ -92,6 +101,10 @@ public static class NameColorManager
             (CustomRoles.Ritualist, CustomRoles.Ritualist) => Main.roleColors[CustomRoles.Ritualist],
             (CustomRoles.Glitch, CustomRoles.Glitch) => Main.roleColors[CustomRoles.Glitch],
             (CustomRoles.Succubus, CustomRoles.Succubus) => Main.roleColors[CustomRoles.Succubus],
+            (CustomRoles.Necromancer, CustomRoles.Deathknight) => Main.roleColors[CustomRoles.Deathknight],
+            (CustomRoles.Deathknight, CustomRoles.Necromancer) => Main.roleColors[CustomRoles.Necromancer],
+            (CustomRoles.Necromancer, CustomRoles.Necromancer) => Main.roleColors[CustomRoles.Necromancer],
+            (CustomRoles.Deathknight, CustomRoles.Deathknight) => Main.roleColors[CustomRoles.Deathknight],
             _ => "",
         };
 

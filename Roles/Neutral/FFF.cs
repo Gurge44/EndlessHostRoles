@@ -22,6 +22,7 @@ namespace TOHE.Roles.Neutral
         public static OptionItem CanKillEgoists;
         public static OptionItem CanKillInfected;
         public static OptionItem CanKillContagious;
+        public static OptionItem CanKillUndead;
 
         public static bool isWon;
         public static void SetupCustomOption()
@@ -37,6 +38,7 @@ namespace TOHE.Roles.Neutral
             CanKillInfected = BooleanOptionItem.Create(Id + 18, "FFFCanKillInfected", true, TabGroup.NeutralRoles, false).SetParent(ChooseConverted);
             CanKillContagious = BooleanOptionItem.Create(Id + 19, "FFFCanKillContagious", true, TabGroup.NeutralRoles, false).SetParent(ChooseConverted);
             CanKillAdmired = BooleanOptionItem.Create(Id + 20, "FFFCanKillAdmired", true, TabGroup.NeutralRoles, false).SetParent(ChooseConverted);
+            CanKillUndead = BooleanOptionItem.Create(Id + 21, "FFFCanKillUndead", true, TabGroup.NeutralRoles, false).SetParent(ChooseConverted);
         }
 
         public static void Init()
@@ -73,6 +75,7 @@ namespace TOHE.Roles.Neutral
                 else if (
                     ((target.Is(CustomRoles.Madmate) || target.Is(CustomRoles.Gangster)) && CanKillMadmate.GetBool())
                     || ((target.Is(CustomRoles.Charmed) || target.Is(CustomRoles.Succubus)) && CanKillCharmed.GetBool())
+                    || ((target.Is(CustomRoles.Undead) || target.Is(CustomRoles.Necromancer) || target.Is(CustomRoles.Deathknight)) && CanKillUndead.GetBool())
                     || ((target.Is(CustomRoles.Lovers) || target.Is(CustomRoles.Ntr)) && CanKillLovers.GetBool())
                     || ((target.Is(CustomRoles.Romantic) || target.Is(CustomRoles.RuthlessRomantic) || target.Is(CustomRoles.VengefulRomantic)
                         || Romantic.BetPlayer.ContainsValue(target.PlayerId)) && CanKillLovers.GetBool())
@@ -106,6 +109,8 @@ namespace TOHE.Roles.Neutral
             {
                 CustomRoles.Gangster or
                 CustomRoles.Succubus or
+                CustomRoles.Deathknight or
+                CustomRoles.Necromancer or
                 CustomRoles.Romantic or
                 CustomRoles.RuthlessRomantic or
                 CustomRoles.VengefulRomantic or

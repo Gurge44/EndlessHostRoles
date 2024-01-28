@@ -424,6 +424,11 @@ public static class Utils
             RoleColor = GetRoleColor(CustomRoles.Charmed);
             RoleText = GetRoleString("Charmed-") + RoleText;
         }
+        if (targetSubRoles.Contains(CustomRoles.Undead) && (self || pure || seerMainRole is CustomRoles.Necromancer or CustomRoles.Deathknight || seerSubRoles.Contains(CustomRoles.Undead)))
+        {
+            RoleColor = GetRoleColor(CustomRoles.Undead);
+            RoleText = GetRoleString("Undead-") + RoleText;
+        }
         if (targetSubRoles.Contains(CustomRoles.Soulless))
         {
             RoleColor = GetRoleColor(CustomRoles.Soulless);
@@ -560,6 +565,8 @@ public static class Utils
             case CustomRoles.VengefulRomantic:
             case CustomRoles.RuthlessRomantic:
             case CustomRoles.Succubus:
+            case CustomRoles.Necromancer:
+            case CustomRoles.Deathknight:
             //case CustomRoles.CursedSoul:
             case CustomRoles.Admirer when !Options.UsePets.GetBool() || !Admirer.UsePet.GetBool():
             case CustomRoles.Amnesiac:
@@ -694,6 +701,7 @@ public static class Utils
         if (Ritualist.IsShowTargetRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Executioner.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Succubus.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
+        if (Necromancer.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         //if (CursedSoul.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Admirer.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Amnesiac.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
@@ -2340,6 +2348,7 @@ public static class Utils
                                 Ritualist.IsShowTargetRole(seer, target) ||
                                 Executioner.KnowRole(seer, target) ||
                                 Succubus.KnowRole(seer, target) ||
+                                Necromancer.KnowRole(seer, target) ||
                                 //CursedSoul.KnowRole(seer, target) ||
                                 Admirer.KnowRole(seer, target) ||
                                 Amnesiac.KnowRole(seer, target) ||
@@ -2907,6 +2916,12 @@ public static class Utils
                 break;
             case CustomRoles.Succubus:
                 Succubus.Add(id);
+                break;
+            case CustomRoles.Deathknight:
+                Deathknight.Add(id);
+                break;
+            case CustomRoles.Necromancer:
+                Necromancer.Add(id);
                 break;
             //case CustomRoles.CursedSoul:
             //    CursedSoul.Add(id);

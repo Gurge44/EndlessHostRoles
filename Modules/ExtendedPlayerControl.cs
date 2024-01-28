@@ -601,6 +601,8 @@ static class ExtendedPlayerControl
             CustomRoles.RuthlessRomantic => pc.IsAlive(),
             CustomRoles.VengefulRomantic => VengefulRomantic.CanUseKillButton(pc),
             CustomRoles.Succubus => Succubus.CanUseKillButton(pc),
+            CustomRoles.Necromancer => Necromancer.CanUseKillButton(pc),
+            CustomRoles.Deathknight => Deathknight.CanUseKillButton(pc),
             //CustomRoles.CursedSoul => CursedSoul.CanUseKillButton(pc),
             CustomRoles.Admirer => Admirer.CanUseKillButton(pc),
             CustomRoles.Amnesiac => Amnesiac.CanUseKillButton(pc),
@@ -640,6 +642,8 @@ static class ExtendedPlayerControl
             CustomRoles.Totocalcio or
             CustomRoles.Romantic or
             CustomRoles.Succubus or
+            CustomRoles.Deathknight or
+            CustomRoles.Necromancer or
             CustomRoles.Doppelganger or
             //CustomRoles.CursedSoul or
             CustomRoles.PlagueBearer or
@@ -765,6 +769,8 @@ static class ExtendedPlayerControl
             CustomRoles.Ritualist or
             CustomRoles.Totocalcio or
             CustomRoles.Succubus or
+            CustomRoles.Necromancer or
+            CustomRoles.Deathknight or
             CustomRoles.Infectious or
             CustomRoles.Virus or
             CustomRoles.Farseer or
@@ -1188,6 +1194,12 @@ static class ExtendedPlayerControl
                 break;
             case CustomRoles.Succubus:
                 Succubus.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.Deathknight:
+                Deathknight.SetKillCooldown(player.PlayerId);
+                break;
+            case CustomRoles.Necromancer:
+                Necromancer.SetKillCooldown(player.PlayerId);
                 break;
             //case CustomRoles.CursedSoul:
             //    CursedSoul.SetKillCooldown(player.PlayerId);

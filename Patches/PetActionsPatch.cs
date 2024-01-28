@@ -618,6 +618,15 @@ class ExternalRpcPetPatch
                 }
                 break;
 
+            case CustomRoles.Necromancer when hasKillTarget:
+                pc.AddKCDAsAbilityCD();
+                Necromancer.OnCheckMurder(pc, target);
+                break;
+            case CustomRoles.Deathknight when hasKillTarget:
+                pc.AddKCDAsAbilityCD();
+                Deathknight.OnCheckMurder(pc, target);
+                break;
+
             // Message when no ability is triggered
 
             default:
