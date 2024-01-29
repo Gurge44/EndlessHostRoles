@@ -25,6 +25,8 @@
 
 <br>
 
+### Website: https://sites.google.com/view/toheplus
+
 ## Additions, Changes, and improvements compared to TOHEN
 - Note: The goal with this branch is to improve the existing stuff over adding new roles. If some of the stuff you see below are in TOHRE, they were originally coded by me.
 ### New gamemode
@@ -58,6 +60,8 @@
 - Everyone knows how many killers remain after each ejection (even if no one was ejected, like it was a skip or a tie)
 - You can chat during the game if the game mode is FFA
 - Simplified and shortened role descriptions
+- Loading animation
+- Set anyone's role for the next game using '/setrole [player ID] [role name]' (replaces /up)
 
 ### Role specific Improvements
 #### Crewmates
@@ -134,6 +138,10 @@
 - Mole (Crewmate)
 - Tornado (Crewmate)
 - Sentinel (Crewmate)
+- Rabbit (Crewmate)
+- Perceiver (Crewmate)
+- Convener (Crewmate)
+- Mathematician (Crewmate)
 - Romantic (Neutral)
 - Werewolf (Neutral)
 - Imitator (Neutral)
@@ -150,6 +158,8 @@
 - Bubble (Neutral)
 - Hookshot (Neutral)
 - Sprayer (Neutral)
+- Soul Hunter (Neutral)
+- Necromancer / Deathknight (Neutral)
 - Undertaker (Impostor)
 - Gambler (Impostor)
 - Mastermind (Impostor)
@@ -162,11 +172,21 @@
 - Yin Yanger (Impostor)
 - Cantankerous (Impostor)
 - Duellist (Impostor)
+- Kamikaze (Impostor)
+- Swapster (Impostor)
+- Swiftclaw (Impostor)
 - Damocles (Impostor-only Add-on)
 - Deadly Quota (Impostor-only Add-on)
 - Nimble (Add-on)
 - Physicist (Add-on)
 - Stressed (Add-on)
+- Giant (Add-on)
+- Magnet (Add-on)
+- Sleuth (Add-on)
+- Asthmatic (Add-on)
+- Disco (Add-on)
+- Truant (Add-on)
+- Busy (Add-on)
 
 ## Note:
 - You can use parts of the code in here, but if you do, you'll have to credit me (Gurge44) or the mod by mentioning its name (TOHE+) and providing a link to this github page. (Or leaving the in-game credits as they are are also fine!)
@@ -191,7 +211,7 @@
 ### :star: [TOHY](https://github.com/Yumenopai/TownOfHost_Y) :
 > 
 > - Many role ideas
-> - Provided roles: AntiAdminer, CursedWolf, Workaholic, Greedier, DarkHide
+> - Provided roles: AntiAdminer, CursedWolf, Workaholic, Greedier, DarkHide, Ignitor, Rabbit
 > - Reference: Modify game announcement
 > 
 ### :star: [TOH:TOR](https://github.com/music-discussion/TownOfHost-TheOtherRoles) :
