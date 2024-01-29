@@ -107,6 +107,17 @@ namespace TOHE.Roles.Neutral
             killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Necromancer), GetString("InvalidUndeadTarget")));
         }
 
+        public static void OnFixedUpdate()
+        {
+            if (!GameStates.IsInTask || !IsEnable || Necromancer_.IsAlive() || !Deathknight.Deathknight_.IsAlive()) return;
+
+            Deathknight.Deathknight_.RpcSetCustomRole(CustomRoles.Necromancer);
+            Add(Deathknight.DeathknightId);
+
+            Deathknight.Deathknight_ = null;
+            Deathknight.DeathknightId = byte.MaxValue;
+        }
+
         public static bool KnowRole(PlayerControl player, PlayerControl target)
         {
             if (player.Is(CustomRoles.Undead) && (target.Is(CustomRoles.Necromancer) || target.Is(CustomRoles.Deathknight))) return true;

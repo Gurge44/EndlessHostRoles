@@ -253,7 +253,7 @@ class CheckMurderPatch
                     if (!WeaponMaster.OnCheckMurder(killer, target)) return false;
                     break;
                 case CustomRoles.Cantankerous:
-                    if (Cantankerous.OnCheckMurder(killer)) return false;
+                    if (!Cantankerous.OnCheckMurder(killer)) return false;
                     break;
                 case CustomRoles.Postman:
                     Postman.OnCheckMurder(killer, target);
@@ -2204,6 +2204,7 @@ class FixedUpdatePatch
                 Duellist.OnFixedUpdate();
                 Kamikaze.OnFixedUpdate();
                 Succubus.OnFixedUpdate();
+                Necromancer.OnFixedUpdate();
             }
         }
 

@@ -100,7 +100,7 @@ public static class NameColorManager
             (CustomRoles.Deathknight, CustomRoles.Necromancer) => Main.roleColors[CustomRoles.Necromancer],
             (CustomRoles.Necromancer, CustomRoles.Necromancer) => Main.roleColors[CustomRoles.Necromancer],
             (CustomRoles.Deathknight, CustomRoles.Deathknight) => Main.roleColors[CustomRoles.Deathknight],
-            _ => "",
+            _ => color,
         };
 
         color = seer.GetCustomRole() switch
@@ -122,7 +122,7 @@ public static class NameColorManager
             CustomRoles.Hookshot when Hookshot.MarkedPlayerId == target.PlayerId => Main.roleColors[CustomRoles.Hookshot],
             CustomRoles.SoulHunter when SoulHunter.CurrentTarget.ID == target.PlayerId => Main.roleColors[CustomRoles.SoulHunter],
             CustomRoles.Kamikaze when Kamikaze.MarkedPlayers.TryGetValue(seer.PlayerId, out var targets) && targets.Contains(target.PlayerId) => Main.roleColors[CustomRoles.Electric],
-            _ => "",
+            _ => color,
         };
 
         if (SoulHunter.CurrentTarget.ID == seer.PlayerId && target.Is(CustomRoles.SoulHunter)) color = Main.roleColors[CustomRoles.SoulHunter];
