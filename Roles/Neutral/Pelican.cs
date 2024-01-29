@@ -191,13 +191,11 @@ public static class Pelican
             foreach (byte tar in pc.Value.ToArray())
             {
                 var target = Utils.GetPlayerById(tar);
-                if (target == null)
-                    continue;
+                if (target == null) continue;
                 var pos = GetBlackRoomPS();
                 var dis = Vector2.Distance(pos, target.Pos());
-                if (dis < 1f)
-                    continue;
-                target.TP(pos);
+                if (dis < 1f) continue;
+                target.TP(pos, log: false);
                 Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: Utils.GetPlayerById(pc.Key));
             }
         }

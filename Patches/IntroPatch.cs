@@ -3,9 +3,7 @@ using HarmonyLib;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using TMPro;
 using TOHE.Modules;
-using TOHE.Roles.Impostor;
 using UnityEngine;
 using static TOHE.Translator;
 
@@ -477,7 +475,7 @@ class BeginImpostorPatch
             __instance.overlayHandle.color = Palette.ImpostorRed;
             return true;
         }
-        else if (role is CustomRoles.Sheriff or CustomRoles.Jailor or CustomRoles.SwordsMan or CustomRoles.Medic/* or CustomRoles.Counterfeiter*/ or CustomRoles.Witness or CustomRoles.Analyzer or CustomRoles.Aid or CustomRoles.Escort or CustomRoles.DonutDelivery or CustomRoles.Gaulois or CustomRoles.Monarch or CustomRoles.Farseer or CustomRoles.Admirer or CustomRoles.Deputy)
+        else if (role is CustomRoles.Sheriff or CustomRoles.Jailor or CustomRoles.SwordsMan or CustomRoles.Medic/* or CustomRoles.Counterfeiter*/ or CustomRoles.Witness or CustomRoles.Analyzer or CustomRoles.Aid or CustomRoles.Escort or CustomRoles.DonutDelivery or CustomRoles.Gaulois or CustomRoles.Monarch or CustomRoles.Farseer or CustomRoles.Deputy)
         {
             yourTeam = new Il2CppSystem.Collections.Generic.List<PlayerControl>();
             yourTeam.Add(PlayerControl.LocalPlayer);
@@ -486,7 +484,7 @@ class BeginImpostorPatch
             __instance.overlayHandle.color = Palette.CrewmateBlue;
             return false;
         }
-        else if (role is CustomRoles.Romantic or CustomRoles.RuthlessRomantic or CustomRoles.VengefulRomantic or CustomRoles.Agitater or CustomRoles.Doppelganger or CustomRoles.NSerialKiller or CustomRoles.SoulHunter or CustomRoles.Enderman or CustomRoles.Mycologist or CustomRoles.Bubble or CustomRoles.Hookshot or CustomRoles.Sprayer or CustomRoles.PlagueDoctor or CustomRoles.Postman or CustomRoles.Magician or CustomRoles.WeaponMaster or CustomRoles.Reckless or CustomRoles.Eclipse or CustomRoles.Pyromaniac or CustomRoles.HeadHunter or CustomRoles.Vengeance or CustomRoles.Imitator or CustomRoles.Werewolf or CustomRoles.Jackal/* or CustomRoles.CursedSoul*/ or CustomRoles.Amnesiac or CustomRoles.Arsonist or CustomRoles.Sidekick or CustomRoles.Innocent or CustomRoles.Pelican or CustomRoles.Pursuer or CustomRoles.Revolutionist or CustomRoles.FFF or CustomRoles.Gamer or CustomRoles.Glitch or CustomRoles.Juggernaut or CustomRoles.DarkHide or CustomRoles.Provocateur or CustomRoles.BloodKnight or CustomRoles.NSerialKiller or CustomRoles.Maverick/* or CustomRoles.NWitch*/ or CustomRoles.Totocalcio or CustomRoles.Succubus or CustomRoles.Pelican or CustomRoles.Infectious or CustomRoles.Virus or CustomRoles.Pickpocket or CustomRoles.Traitor or CustomRoles.PlagueBearer or CustomRoles.Pestilence or CustomRoles.Spiritcaller)
+        else if (role is CustomRoles.Romantic or CustomRoles.RuthlessRomantic or CustomRoles.VengefulRomantic or CustomRoles.Agitater or CustomRoles.Doppelganger or CustomRoles.NSerialKiller or CustomRoles.SoulHunter or CustomRoles.Enderman or CustomRoles.Mycologist or CustomRoles.Bubble or CustomRoles.Hookshot or CustomRoles.Sprayer or CustomRoles.PlagueDoctor or CustomRoles.Postman or CustomRoles.Magician or CustomRoles.WeaponMaster or CustomRoles.Reckless or CustomRoles.Eclipse or CustomRoles.Pyromaniac or CustomRoles.HeadHunter or CustomRoles.Vengeance or CustomRoles.Imitator or CustomRoles.Werewolf or CustomRoles.Jackal/* or CustomRoles.CursedSoul*/ or CustomRoles.Amnesiac or CustomRoles.Necromancer or CustomRoles.Arsonist or CustomRoles.Sidekick or CustomRoles.Innocent or CustomRoles.Pelican or CustomRoles.Pursuer or CustomRoles.Revolutionist or CustomRoles.FFF or CustomRoles.Gamer or CustomRoles.Glitch or CustomRoles.Juggernaut or CustomRoles.DarkHide or CustomRoles.Provocateur or CustomRoles.BloodKnight or CustomRoles.NSerialKiller or CustomRoles.Maverick/* or CustomRoles.NWitch*/ or CustomRoles.Totocalcio or CustomRoles.Succubus or CustomRoles.Pelican or CustomRoles.Virus or CustomRoles.Pickpocket or CustomRoles.Traitor or CustomRoles.PlagueBearer or CustomRoles.Pestilence or CustomRoles.Spiritcaller)
         {
             yourTeam = new Il2CppSystem.Collections.Generic.List<PlayerControl>();
             yourTeam.Add(PlayerControl.LocalPlayer);
@@ -553,8 +551,8 @@ class IntroCutsceneDestroyPatch
                     foreach (var pc in Main.AllAlivePlayerControls)
                     {
                         if (pc.Is(CustomRoles.GM)) continue;
-                        string petId = pet == "pet_RANDOM_FOR_EVERYONE" ? pets[r.Next(0, pets.Length)] : pet;
-                        PetsPatch.SetPet(pc, petId, true);
+                        string petId = pet == "pet_RANDOM_FOR_EVERYONE" ? pets[r.Next(0, pets.Length - 1)] : pet;
+                        PetsPatch.SetPet(pc, petId);
                         Logger.Info($"{pc.GetNameWithRole()} => {GetString(petId)} Pet", "PetAssign");
                     }
                 }, 0.3f, "Grant Pet For Everyone");
@@ -592,41 +590,21 @@ class IntroCutsceneDestroyPatch
             }
             if (Options.RandomSpawn.GetBool() || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop)
             {
-                RandomSpawn.SpawnMap map;
-                switch (Main.NormalOptions.MapId)
+                RandomSpawn.SpawnMap map = Main.NormalOptions.MapId switch
                 {
-                    case 0:
-                        map = new RandomSpawn.SkeldSpawnMap();
-                        Main.AllPlayerControls.Do(map.RandomTeleport);
-                        break;
-                    case 1:
-                        map = new RandomSpawn.MiraHQSpawnMap();
-                        Main.AllPlayerControls.Do(map.RandomTeleport);
-                        break;
-                    case 2:
-                        map = new RandomSpawn.PolusSpawnMap();
-                        Main.AllPlayerControls.Do(map.RandomTeleport);
-                        break;
-                    case 5:
-                        map = new RandomSpawn.FungleSpawnMap();
-                        Main.AllPlayerControls.Do(map.RandomTeleport);
-                        break;
-                }
+                    0 => new RandomSpawn.SkeldSpawnMap(),
+                    1 => new RandomSpawn.MiraHQSpawnMap(),
+                    2 => new RandomSpawn.PolusSpawnMap(),
+                    5 => new RandomSpawn.FungleSpawnMap(),
+                    _ => null,
+                };
+                if (map != null) Main.AllAlivePlayerControls.Do(map.RandomTeleport);
             }
-
-            if (Main.NormalOptions.MapId == 4)
-            {
-                Penguin.OnSpawnAirship();
-            }
-
-            KeepProtection.ProtectEveryone();
 
             if (Main.ResetCamPlayerList.Contains(PlayerControl.LocalPlayer.PlayerId))
             {
                 PlayerControl.LocalPlayer.Data.Role.AffectedByLightAffectors = false;
             }
-
-            LoadingScreen.UpdateLoadingAnimation();
         }
         Logger.Info("OnDestroy", "IntroCutscene");
     }

@@ -94,34 +94,11 @@ namespace TOHE.Roles.Crewmate
 
         public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = UseLimit > 0 ? CD.GetFloat() : 300f;
 
-        private static void SendRPCSyncTarget()
-        {
-            if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAnalyzerTarget, SendOption.Reliable, -1);
-            writer.Write(CurrentTarget.ID);
-            writer.Write(CurrentTarget.TIME.ToString());
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-
-        public static void ReceiveRPCSyncTarget(MessageReader reader)
-        {
-            if (!IsEnable) return;
-            var item1 = reader.ReadByte();
-            var item2 = long.Parse(reader.ReadString());
-            CurrentTarget = (item1, item2);
-        }
-
         public static void SendRPC()
         {
             if (!IsEnable) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAnalyzer, SendOption.Reliable, -1);
             writer.Write(UseLimit);
-            writer.Write(VentCount.Count);
-            foreach (var item in VentCount)
-            {
-                writer.Write(item.Key);
-                writer.Write(item.Value);
-            }
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 
@@ -130,19 +107,11 @@ namespace TOHE.Roles.Crewmate
             if (!IsEnable) return;
 
             UseLimit = reader.ReadInt32();
-
-            int length = reader.ReadInt32();
-            for (int i = 0; i < length; i++)
-            {
-                var key = reader.ReadByte();
-                var value = reader.ReadInt32();
-                VentCount.Add(key, value);
-            }
         }
 
         public static void OnAnyoneEnterVent(PlayerControl pc)
         {
-            if (!IsEnable) return;
+            if (!IsEnable || !AmongUsClient.Instance.AmHost) return;
             if (VentCount.ContainsKey(pc.PlayerId)) VentCount[pc.PlayerId]++;
             else VentCount[pc.PlayerId] = 1;
         }
@@ -155,7 +124,6 @@ namespace TOHE.Roles.Crewmate
             if (CurrentTarget.ID != byte.MaxValue) return;
 
             CurrentTarget = (target.PlayerId, GetTimeStamp());
-            SendRPCSyncTarget();
             killer.SetKillCooldown(time: Duration.GetFloat());
             NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         }

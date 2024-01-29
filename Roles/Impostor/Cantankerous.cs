@@ -43,6 +43,8 @@ namespace TOHE.Roles.Impostor
 
         public static bool IsEnable => playerIdList.Count > 0;
 
+        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KCD.GetFloat();
+
         public static bool CanUseKillButton(byte playerId) => Points.TryGetValue(playerId, out var point) && point > 0;
 
         private static void SendRPC(byte playerId, bool isPlus)
@@ -87,5 +89,7 @@ namespace TOHE.Roles.Impostor
 
             return true;
         }
+
+        public static string GetProgressText(byte id) => Points.TryGetValue(id, out var limit) ? $"<#777777>-</color> <#ff{(limit < 1 ? "0000" : "ffff")}>{limit}</color>" : string.Empty;
     }
 }

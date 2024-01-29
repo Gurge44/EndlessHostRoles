@@ -135,7 +135,6 @@ public static class Sheriff
                     (
                         killer.Is(CustomRoles.Madmate)
                      || killer.Is(CustomRoles.Charmed)
-                     || killer.Is(CustomRoles.Infected)
                      || killer.Is(CustomRoles.Contagious)
                     )
                  && ((target.GetCustomRole().IsImpostor() && NonCrewCanKillImp.GetBool()) || (target.GetCustomRole().IsCrewmate() && NonCrewCanKillCrew.GetBool()) || (target.GetCustomRole().IsNeutral() && NonCrewCanKillNeutral.GetBool()))
@@ -162,10 +161,8 @@ public static class Sheriff
                 CustomRoles.Lovers => CanKillLovers.GetBool(),
                 CustomRoles.Recruit => CanKillSidekicks.GetBool(),
                 CustomRoles.Egoist => CanKillEgoists.GetBool(),
-                CustomRoles.Infected => CanKillInfected.GetBool(),
                 CustomRoles.Contagious => CanKillContagious.GetBool(),
                 CustomRoles.Rascal => true,
-                CustomRoles.Admired => false,
                 _ => false,
             };
         }

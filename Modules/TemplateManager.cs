@@ -116,7 +116,6 @@ public static class TemplateManager
 
     private static string ApplyReplaceDictionary(string text)
     {
-        if (!Main.UseVersionProtocol.Value) text = text.Replace("TOHE+", "TOHE").Replace("+", string.Empty);
         foreach (var kvp in _replaceDictionary)
         {
             text = Regex.Replace(text, "{{" + kvp.Key + "}}", kvp.Value.Invoke() ?? "", RegexOptions.IgnoreCase);

@@ -22,7 +22,7 @@ namespace TOHE.Roles.Impostor
             KCD = FloatOptionItem.Create(Id + 11, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Nullifier])
                 .SetValueFormat(OptionFormat.Seconds);
-            Delay = IntegerOptionItem.Create(Id + 12, "NullifierDelay", new(0, 20, 1), 5, TabGroup.ImpostorRoles, false)
+            Delay = IntegerOptionItem.Create(Id + 12, "NullifierDelay", new(0, 90, 1), 5, TabGroup.ImpostorRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Nullifier])
                 .SetValueFormat(OptionFormat.Seconds);
         }
@@ -43,9 +43,7 @@ namespace TOHE.Roles.Impostor
 
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null) return false;
-            if (target == null) return false;
-            if (!killer.Is(CustomRoles.Nullifier)) return false;
+            if (!IsEnable || killer == null || target == null || !killer.Is(CustomRoles.Nullifier)) return false;
 
             return killer.CheckDoubleTrigger(target, () =>
             {
@@ -55,10 +53,6 @@ namespace TOHE.Roles.Impostor
                 {
                     switch (target.GetCustomRole())
                     {
-                        case CustomRoles.Admirer:
-                            Admirer.AdmireLimit--;
-                            Admirer.SendRPC();
-                            break;
                         case CustomRoles.Aid:
                             Aid.UseLimit[target.PlayerId]--;
                             break;
@@ -156,7 +150,7 @@ namespace TOHE.Roles.Impostor
                             break;
                         case CustomRoles.Spy:
                             Spy.UseLimit[target.PlayerId]--;
-                            Spy.SendAbilityRPC(target.PlayerId);
+                            Spy.SendRPC(2, id: target.PlayerId);
                             break;
                         case CustomRoles.SwordsMan:
                             SwordsMan.killed.Add(target.PlayerId);
@@ -190,6 +184,9 @@ namespace TOHE.Roles.Impostor
                             break;
                         case CustomRoles.Ventguard:
                             Main.VentguardNumberOfAbilityUses--;
+                            break;
+                        case CustomRoles.Judge:
+                            Judge.TrialLimit[target.PlayerId]--;
                             break;
                         default:
                             break;

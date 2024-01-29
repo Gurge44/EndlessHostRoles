@@ -153,7 +153,7 @@ public static class Jackal
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
 
-                Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Sidekick.ToString(), "Assign " + CustomRoles.Sidekick.ToString());
+                Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Sidekick.ToString(), "Assign " + CustomRoles.Sidekick.ToString());
                 if (RecruitLimit[killer.PlayerId] < 0)
                     HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RecruitLimit[killer.PlayerId]}次招募机会", "Jackal");
@@ -162,7 +162,7 @@ public static class Jackal
         }
         if (SidekickAssignMode.GetValue() != 1)
         {
-            if (!CanBeSidekick(target) && !target.Is(CustomRoles.Sidekick) && !target.Is(CustomRoles.Recruit) && !target.Is(CustomRoles.Loyal) && !target.Is(CustomRoles.Admired))
+            if (!CanBeSidekick(target) && !target.Is(CustomRoles.Sidekick) && !target.Is(CustomRoles.Recruit) && !target.Is(CustomRoles.Loyal))
             {
                 RecruitLimit[killer.PlayerId]--;
                 SendRPC(killer.PlayerId);
@@ -180,7 +180,7 @@ public static class Jackal
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
 
-                Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Sidekick.ToString(), "Assign " + CustomRoles.Sidekick.ToString());
+                Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Sidekick.ToString(), "Assign " + CustomRoles.Sidekick.ToString());
                 if (RecruitLimit[killer.PlayerId] < 0)
                     HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RecruitLimit[killer.PlayerId]}次招募机会", "Jackal");
@@ -197,6 +197,6 @@ public static class Jackal
 
     public static bool CanBeSidekick(this PlayerControl pc)
     {
-        return pc != null && !pc.Is(CustomRoles.Sidekick) && !pc.Is(CustomRoles.Recruit) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Admired) && !pc.Is(CustomRoles.Rascal) && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Infected) && !pc.Is(CustomRoles.DualPersonality) && !pc.Is(CustomRoles.Contagious) && pc.GetCustomRole().IsAbleToBeSidekicked();
+        return pc != null && !pc.Is(CustomRoles.Sidekick) && !pc.Is(CustomRoles.Recruit) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Rascal) && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.DualPersonality) && !pc.Is(CustomRoles.Contagious) && pc.GetCustomRole().IsAbleToBeSidekicked();
     }
 }

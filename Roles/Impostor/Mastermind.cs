@@ -60,7 +60,7 @@ namespace TOHE.Roles.Impostor
             return killer.CheckDoubleTrigger(target, () =>
             {
                 killer.SetKillCooldown(time: ManipulateCD);
-                if (target.HasKillButton() || target.GetPlayerTaskState().hasTasks || UsePets.GetBool())
+                if (target.HasKillButton() || target.GetTaskState().hasTasks || UsePets.GetBool())
                 {
                     ManipulateDelays.TryAdd(target.PlayerId, GetTimeStamp());
                     NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
@@ -70,7 +70,7 @@ namespace TOHE.Roles.Impostor
 
         public static void OnFixedUpdate()
         {
-            if (!IsEnable || GameStates.IsMeeting || ManipulatedPlayers.Count == 0 && ManipulateDelays.Count == 0) return;
+            if (!IsEnable || GameStates.IsMeeting || (ManipulatedPlayers.Count == 0 && ManipulateDelays.Count == 0)) return;
 
             foreach (var x in ManipulateDelays)
             {
@@ -86,7 +86,7 @@ namespace TOHE.Roles.Impostor
                     ManipulateDelays.Remove(x.Key);
                     ManipulatedPlayers.TryAdd(x.Key, GetTimeStamp());
 
-                    if (!pc.GetPlayerTaskState().hasTasks || UsePets.GetBool())
+                    if (!pc.GetTaskState().hasTasks || UsePets.GetBool())
                     {
                         TempKCDs.TryAdd(pc.PlayerId, Main.KillTimers[pc.PlayerId]);
                         pc.SetKillCooldown(time: 1f);
@@ -116,7 +116,7 @@ namespace TOHE.Roles.Impostor
 
                 var time = TimeLimit.GetInt() - (GetTimeStamp() - x.Value);
 
-                player.Notify(string.Format(GetString(UsePets.GetBool() ? "ManipulatePetNotify" : player.GetPlayerTaskState().hasTasks ? "ManipulateTaskNotify" : "ManipulateNotify"), time), 1.1f);
+                player.Notify(string.Format(GetString(UsePets.GetBool() ? "ManipulatePetNotify" : player.GetTaskState().hasTasks ? "ManipulateTaskNotify" : "ManipulateNotify"), time), 1.1f);
             }
         }
 

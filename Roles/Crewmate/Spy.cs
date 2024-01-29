@@ -44,72 +44,61 @@ namespace TOHE.Roles.Crewmate
             UseLimit.Add(playerId, UseLimitOpt.GetInt());
         }
         public static bool IsEnable => playerIdList.Count > 0;
-        public static void SendRPC(byte susId)
+        public static void SendRPC(int operate, byte id = byte.MaxValue, bool changeColor = false)
         {
             if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SpyRedNameSync, SendOption.Reliable, -1);
-            writer.Write(susId);
-            writer.Write(SpyRedNameList[susId].ToString());
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-        public static void SendAbilityRPC(byte spyId)
-        {
-            if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SpyAbilitySync, SendOption.Reliable, -1);
-            writer.Write(spyId);
-            writer.Write(UseLimit[spyId]);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-
-        }
-        public static void SendRPC(byte susId, bool changeColor)
-        {
-            if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SpyRedNameRemove, SendOption.Reliable, -1);
-            //writer.Write(spyId);
-            writer.Write(susId);
-            writer.Write(changeColor);
-            TOHE.Logger.Info($"RPC to remove player {susId} from red name list and change `change` to {changeColor}", "Spy");
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-        public static void ReceiveRPC(MessageReader reader, bool isRemove = false, bool isAbility = false)
-        {
-            if (isAbility)
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncSpy, SendOption.Reliable, -1);
+            writer.Write(operate);
+            switch (operate)
             {
-                byte spyId = reader.ReadByte();
-                UseLimit[spyId] = reader.ReadSingle();
-                return;
+                case 1: // Red Name Add
+                    writer.Write(id);
+                    writer.Write(SpyRedNameList[id].ToString());
+                    break;
+                case 2: // Ability Use
+                    writer.Write(id);
+                    writer.Write(UseLimit[id]);
+                    break;
+                case 3: // Red Name Remove
+                    writer.Write(id);
+                    writer.Write(changeColor);
+                    break;
             }
-            else if (isRemove)
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        public static void ReceiveRPC(MessageReader reader)
+        {
+            int operate = reader.ReadInt32();
+            switch (operate)
             {
-                SpyRedNameList.Remove(reader.ReadByte());
-                change = reader.ReadBoolean();
-                return;
+                case 1:
+                    byte susId = reader.ReadByte();
+                    string stimeStamp = reader.ReadString();
+                    if (long.TryParse(stimeStamp, out long timeStamp)) SpyRedNameList[susId] = timeStamp;
+                    return;
+                case 2:
+                    byte spyId = reader.ReadByte();
+                    UseLimit[spyId] = reader.ReadSingle();
+                    return;
+                case 3:
+                    SpyRedNameList.Remove(reader.ReadByte());
+                    change = reader.ReadBoolean();
+                    return;
             }
-            byte susId = reader.ReadByte();
-            string stimeStamp = reader.ReadString();
-            if (long.TryParse(stimeStamp, out long timeStamp)) SpyRedNameList[susId] = timeStamp;
         }
         public static void OnKillAttempt(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null) return;
-            if (target == null) return;
-            if (!target.Is(CustomRoles.Spy)) return;
-            if (killer.PlayerId == target.PlayerId) return;
+            if (killer == null || target == null || !target.Is(CustomRoles.Spy) || killer.PlayerId == target.PlayerId || UseLimit[target.PlayerId] < 1) return;
 
-            if (UseLimit[target.PlayerId] >= 1)
-            {
-                UseLimit[target.PlayerId] -= 1;
-                SendAbilityRPC(target.PlayerId);
-                SpyRedNameList.TryAdd(killer.PlayerId, GetTimeStamp());
-                SendRPC(killer.PlayerId);
-                NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
-            }
+            UseLimit[target.PlayerId] -= 1;
+            SendRPC(2, id: target.PlayerId);
+            SpyRedNameList.TryAdd(killer.PlayerId, GetTimeStamp());
+            SendRPC(1, id: killer.PlayerId);
+            NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
         }
         public static void OnFixedUpdate(PlayerControl pc)
         {
-            if (pc == null) return;
-            if (!pc.Is(CustomRoles.Spy)) return;
-            if (SpyRedNameList.Count == 0) return;
+            if (pc == null || !pc.Is(CustomRoles.Spy) || SpyRedNameList.Count == 0) return;
 
             bool change = false;
 
@@ -119,7 +108,7 @@ namespace TOHE.Roles.Crewmate
                 {
                     SpyRedNameList.Remove(x.Key);
                     change = true;
-                    SendRPC(x.Key, change);
+                    SendRPC(3, id: x.Key, changeColor: change);
                 }
             }
 

@@ -1,5 +1,4 @@
-﻿using AmongUs.GameOptions;
-using HarmonyLib;
+﻿using HarmonyLib;
 using Hazel;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,7 +46,7 @@ namespace TOHE.Roles.Crewmate
             DrainLimit = UseLimit.GetInt();
         }
 
-        public static void ApplyGameOptions(IGameOptions opt)
+        public static void ApplyGameOptions()
         {
             AURoleOptions.EngineerCooldown = VentCD.GetFloat();
         }
@@ -68,9 +67,9 @@ namespace TOHE.Roles.Crewmate
             DrainLimit = reader.ReadInt32();
         }
 
-        public static void OnAnyoneExitVent(PlayerControl pc, int ventId)
+        public static void OnAnyoneExitVent(PlayerControl pc)
         {
-            if (!IsEnable) return;
+            if (!IsEnable || !AmongUsClient.Instance.AmHost) return;
             if (pc != null) playersInVents.Remove(pc.PlayerId);
         }
 
@@ -88,8 +87,8 @@ namespace TOHE.Roles.Crewmate
 
         public static void OnAnyoneEnterVent(PlayerControl pc, Vent vent)
         {
-            if (!IsEnable) return;
-            if (pc == null || vent == null) return;
+            if (!IsEnable || !AmongUsClient.Instance.AmHost || pc == null || vent == null) return;
+
             if (pc.Is(CustomRoles.Drainer))
             {
                 OnDrainerEnterVent(pc, vent);
@@ -100,7 +99,7 @@ namespace TOHE.Roles.Crewmate
             playersInVents.Add(pc.PlayerId, vent.Id);
         }
 
-        public static string GetProgressText() => $"<color=#777777>-</color> <color=#ffffff>{DrainLimit}</color>";
+        public static string GetProgressText() => $"<color=#777777>-</color> <color=#ff{(DrainLimit < 1 ? "0000" : "ffff")}>{DrainLimit}</color>";
 
         private static void KillPlayersInVent(PlayerControl pc, Vent vent)
         {

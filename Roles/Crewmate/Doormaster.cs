@@ -77,7 +77,7 @@ namespace TOHE.Roles.Crewmate
         {
             var sb = new StringBuilder();
 
-            var taskState = Main.PlayerStates?[playerId].GetTaskState();
+            var taskState = Main.PlayerStates?[playerId].TaskState;
             Color TextColor;
             var TaskCompleteColor = Color.green;
             var NonCompleteColor = Color.yellow;

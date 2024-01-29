@@ -13,10 +13,16 @@ namespace TOHE;
 internal class PingTrackerUpdatePatch
 {
     private static readonly StringBuilder sb = new();
-
+    private static long LastUpdate = 0;
+    private static int Delay => GameStates.IsInTask ? 8 : 1;
     private static void Postfix(PingTracker __instance)
     {
         __instance.text.alignment = TextAlignmentOptions.TopRight;
+        __instance.text.text = sb.ToString();
+
+        long now = Utils.GetTimeStamp();
+        if (now + Delay <= LastUpdate) return; // Only update every 2 seconds
+        LastUpdate = now;
 
         sb.Clear();
 
@@ -28,11 +34,11 @@ internal class PingTrackerUpdatePatch
         else if (ping < 100) color = "#7bc690";
         else if (ping < 200) color = "#f3920e";
         else if (ping < 400) color = "#ff146e";
-        sb.Append($"\r\n").Append($"<color={color}>Ping: {ping} ms</color>");
+        sb.Append("\r\n").Append($"<color={color}>{GetString("PingText")}: {ping} ms</color>");
 
-        if (Options.NoGameEnd.GetBool()) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("NoGameEnd")));
-        //if (Options.AllowConsole.GetBool()) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("AllowConsole")));
-        if (!GameStates.IsModHost) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("Warning.NoModHost")));
+        if (Options.NoGameEnd.GetBool()) sb.Append("\r\n").Append(Utils.ColorString(Color.red, GetString("NoGameEnd")));
+        //if (Options.AllowConsole.GetBool()) sb.Append("\r\n").Append(Utils.ColorString(Color.red, GetString("AllowConsole")));
+        if (!GameStates.IsModHost) sb.Append("\r\n").Append(Utils.ColorString(Color.red, GetString("Warning.NoModHost")));
         if (DebugModeManager.IsDebugMode) sb.Append("\r\n").Append(Utils.ColorString(Color.green, GetString("DebugMode")));
         //if (Options.LowLoadMode.GetBool()) sb.Append("\r\n").Append(Utils.ColorString(Color.green, GetString("LowLoadMode")));
         //if (Options.GuesserMode.GetBool()) sb.Append("\r\n").Append(Utils.ColorString(Color.yellow, GetString("GuesserMode")));
@@ -41,8 +47,6 @@ internal class PingTrackerUpdatePatch
         if (HudManager.InstanceExists && HudManager._instance.Chat.chatButton.active) offset_x += 0.8f; //チャットボタンがある場合の追加オフセット
         if (FriendsListManager.InstanceExists && FriendsListManager._instance.FriendsListButton.Button.active) offset_x += 0.8f; //フレンドリストボタンがある場合の追加オフセット
         __instance.GetComponent<AspectPosition>().DistanceFromEdge = new Vector3(offset_x, 0f, 0f);
-
-        __instance.text.text = sb.ToString();
     }
 }
 [HarmonyPatch(typeof(VersionShower), nameof(VersionShower.Start))]
@@ -208,23 +212,9 @@ internal class TitleLogoPatch
                 GameObject.Find("Shine")?.transform.gameObject.SetActive(false);
 
                 leftPanel?.GetComponentsInChildren<SpriteRenderer>(true).Where(r => r.name == "Shine").Do(r => r.color = new Color(0f, 0f, 1f, 0.1f));
-                //leftPanel.GetComponents<SpriteRenderer>().Where(r => r.name == "Shine").Do(r => r.color = new Color(1f, 0f, 0f));
 
                 if (leftPanel != null) leftPanel.gameObject.GetComponent<SpriteRenderer>().enabled = false;
                 GameObject.Find("LeftPanel")?.transform.Find("Divider")?.gameObject.SetActive(false);
-
-                //__instance.playButton.OnClick = __instance.PlayOnlineButton.OnClick;
-                //_ = new LateTask(() => __instance.playButton.buttonText.text = "Play Online", 0.001f);
-
-                //__instance.playButton.transform.localPosition -= new Vector3(0f, 1.4f);
-
-                //PassiveButton playLocalButton = UnityEngine.Object.Instantiate(__instance.playButton, __instance.transform);
-                //playLocalButton.transform.localPosition -= new Vector3(3.4f, 1.5f);
-                //playLocalButton.transform.localScale -= new Vector3(0.16f, 0.2f);
-                //playLocalButton.activeSprites.GetComponent<SpriteRenderer>().color = activeSpriteRender.color;
-
-                //playLocalButton.OnClick = __instance.playLocalButton.OnClick;
-                //_ = new LateTask(() => playLocalButton.buttonText.text = "Play Local", 0.001f);
 
                 PlayerParticles particles = UnityEngine.Object.FindObjectOfType<PlayerParticles>();
                 particles?.gameObject.SetActive(false);

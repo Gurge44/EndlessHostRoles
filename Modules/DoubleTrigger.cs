@@ -22,7 +22,6 @@ static class DoubleTrigger
     {
         PlayerIdList.Add(killer.PlayerId);
     }
-    public static bool CanDoubleTrigger(this PlayerControl killer) => PlayerIdList.Contains(killer.PlayerId);
 
     /// <summary>
     /// Checks for whether the killer pressed their kill button twice on the same player
@@ -41,7 +40,7 @@ static class DoubleTrigger
                 // If the second target is off target, single action on the first opponent.
                 return false;
             }
-            Logger.Info($"{killer.name} DoDoubleAction", "DoubleTrigger");
+            Logger.Info($"{killer.name} - Do Double Action", "DoubleTrigger");
             FirstTriggerTimer.Remove(killer.PlayerId);
             FirstTriggerTarget.Remove(killer.PlayerId);
             if (doAction) FirstTriggerAction.Remove(killer.PlayerId);
@@ -70,7 +69,7 @@ static class DoubleTrigger
         FirstTriggerTimer[playerId] -= Time.fixedDeltaTime;
         if (FirstTriggerTimer[playerId] <= 0)
         {
-            Logger.Info($"{player.name} DoSingleAction", "DoubleTrigger");
+            Logger.Info($"{player.name} - Do Single Action", "DoubleTrigger");
             if (FirstTriggerAction.ContainsKey(playerId)) FirstTriggerAction[playerId]();
 
             FirstTriggerTimer.Remove(playerId);

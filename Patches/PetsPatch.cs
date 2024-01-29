@@ -2,7 +2,7 @@
 
 public static class PetsPatch
 {
-    public static void SetPet(PlayerControl player, string petId, bool applyNow = false)
+    public static void SetPet(PlayerControl player, string petId)
     {
         if (player.Is(CustomRoles.GM)) return;
         if (player.AmOwner)
@@ -24,7 +24,6 @@ public static class PetsPatch
 
         var sender = CustomRpcSender.Create(name: "Remove Pet From Dead Player");
 
-        pc.RpcSetPet("");
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetPetStr)
             .Write("")
             .EndRpc();

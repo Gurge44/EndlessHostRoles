@@ -3,7 +3,7 @@ using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
-using System.Collections.Generic;
+using System;
 using System.Text.RegularExpressions;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
@@ -117,104 +117,117 @@ class OnPlayerLeftPatch
 {
     public static void Postfix(AmongUsClient __instance, [HarmonyArgument(0)] ClientData data, [HarmonyArgument(1)] DisconnectReasons reason)
     {
-        if (GameStates.IsInGame)
+        try
         {
-            if (data.Character.Is(CustomRoles.Lovers) && !data.Character.Data.IsDead)
-            {
-                foreach (var lovers in Main.LoversPlayers.ToArray())
-                {
-                    Main.isLoversDead = true;
-                    Main.LoversPlayers.Remove(lovers);
-                    Main.PlayerStates[lovers.PlayerId].RemoveSubRole(CustomRoles.Lovers);
-                }
-            }
-            if (data.Character.Is(CustomRoles.Executioner) && Executioner.Target.ContainsKey(data.Character.PlayerId))
-                Executioner.ChangeRole(data.Character);
-            if (Executioner.Target.ContainsValue(data.Character.PlayerId))
-                Executioner.ChangeRoleByTarget(data.Character);
-            if (data.Character.Is(CustomRoles.Lawyer) && Lawyer.Target.ContainsKey(data.Character.PlayerId))
-                Lawyer.ChangeRole(data.Character);
-            if (Lawyer.Target.ContainsValue(data.Character.PlayerId))
-                Lawyer.ChangeRoleByTarget(data.Character);
-            if (data.Character.Is(CustomRoles.Pelican))
-                Pelican.OnPelicanDied(data.Character.PlayerId);
-            if (Spiritualist.SpiritualistTarget == data.Character.PlayerId)
-                Spiritualist.RemoveTarget();
-            if (data.Character.PlayerId == Postman.Target)
-                Postman.SetNewTarget();
-            PlayerState state = Main.PlayerStates[data.Character.PlayerId];
-            if (state.deathReason == PlayerState.DeathReason.etc) state.deathReason = PlayerState.DeathReason.Disconnected;
-            if (!state.IsDead) state.SetDead();
-            NameNotifyManager.Notice.Remove(data.Character.PlayerId);
-            data.Character.RpcSetName(data.Character.GetRealName(isMeeting: true));
-            AntiBlackout.OnDisconnect(data.Character.Data);
-            PlayerGameOptionsSender.RemoveSender(data.Character);
-        }
-
-        if (Main.HostClientId == __instance.ClientId)
-        {
-            var clientId = -1;
-            var player = PlayerControl.LocalPlayer;
-            var title = "<color=#aaaaff>" + GetString("DefaultSystemMessageTitle") + "</color>";
-            var name = player?.Data?.PlayerName;
-            var msg = string.Empty;
             if (GameStates.IsInGame)
             {
-                Utils.ErrorEnd("Host Left the Game");
-                msg = GetString("Message.HostLeftGameInGame");
-            }
-            else if (GameStates.IsLobby)
-                msg = GetString("Message.HostLeftGameInLobby");
-
-            player.SetName(title);
-            DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
-            player.SetName(name);
-
-            var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
-            writer.StartMessage(clientId);
-            writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
-                .Write(title)
-                .EndRpc();
-            writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
-                .Write(msg)
-                .EndRpc();
-            writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
-                .Write(player.Data.PlayerName)
-                .EndRpc();
-            writer.EndMessage();
-            writer.SendMessage();
-        }
-
-        // Additional description of the reason for disconnection
-        switch (reason)
-        {
-            case DisconnectReasons.Hacking:
-                Logger.SendInGame(string.Format(GetString("PlayerLeftByAU-Anticheat"), data?.PlayerName));
-                break;
-            case DisconnectReasons.Error:
-                Logger.SendInGame(string.Format(GetString("PlayerLeftByError"), data?.PlayerName));
-                _ = new LateTask(() =>
+                if (data.Character.Is(CustomRoles.Lovers) && !data.Character.Data.IsDead)
                 {
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Error);
-                    GameManager.Instance.enabled = false;
-                    GameManager.Instance?.RpcEndGame(GameOverReason.ImpostorDisconnect, false);
-                }, 3f, "Disconnect Error Auto-end");
+                    foreach (var lovers in Main.LoversPlayers.ToArray())
+                    {
+                        Main.isLoversDead = true;
+                        Main.LoversPlayers.Remove(lovers);
+                        Main.PlayerStates[lovers.PlayerId].RemoveSubRole(CustomRoles.Lovers);
+                    }
+                }
 
-                break;
+                if (data.Character.Is(CustomRoles.Executioner) && Executioner.Target.ContainsKey(data.Character.PlayerId))
+                    Executioner.ChangeRole(data.Character);
+                if (Executioner.Target.ContainsValue(data.Character.PlayerId))
+                    Executioner.ChangeRoleByTarget(data.Character);
+                if (data.Character.Is(CustomRoles.Lawyer) && Lawyer.Target.ContainsKey(data.Character.PlayerId))
+                    Lawyer.ChangeRole(data.Character);
+                if (Lawyer.Target.ContainsValue(data.Character.PlayerId))
+                    Lawyer.ChangeRoleByTarget(data.Character);
+                if (data.Character.Is(CustomRoles.Pelican))
+                    Pelican.OnPelicanDied(data.Character.PlayerId);
+                if (Spiritualist.SpiritualistTarget == data.Character.PlayerId)
+                    Spiritualist.RemoveTarget();
+                if (data.Character.PlayerId == Postman.Target)
+                    Postman.SetNewTarget();
+
+                Utils.AfterPlayerDeathTasks(data.Character, GameStates.IsMeeting);
+
+                PlayerState state = Main.PlayerStates[data.Character.PlayerId];
+                if (state.deathReason == PlayerState.DeathReason.etc) state.deathReason = PlayerState.DeathReason.Disconnected;
+                if (!state.IsDead) state.SetDead();
+
+                NameNotifyManager.Notice.Remove(data.Character.PlayerId);
+                data.Character.RpcSetName(data.Character.GetRealName(isMeeting: true));
+                AntiBlackout.OnDisconnect(data.Character.Data);
+                PlayerGameOptionsSender.RemoveSender(data.Character);
+            }
+
+            if (Main.HostClientId == __instance.ClientId)
+            {
+                var clientId = -1;
+                var player = PlayerControl.LocalPlayer;
+                var title = "<color=#aaaaff>" + GetString("DefaultSystemMessageTitle") + "</color>";
+                var name = player?.Data?.PlayerName;
+                var msg = string.Empty;
+                if (GameStates.IsInGame)
+                {
+                    Utils.ErrorEnd("Host Left the Game");
+                    msg = GetString("Message.HostLeftGameInGame");
+                }
+                else if (GameStates.IsLobby)
+                    msg = GetString("Message.HostLeftGameInLobby");
+
+                player.SetName(title);
+                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
+                player.SetName(name);
+
+                var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
+                writer.StartMessage(clientId);
+                writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+                    .Write(title)
+                    .EndRpc();
+                writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+                    .Write(msg)
+                    .EndRpc();
+                writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+                    .Write(player.Data.PlayerName)
+                    .EndRpc();
+                writer.EndMessage();
+                writer.SendMessage();
+            }
+
+            // Additional description of the reason for disconnection
+            switch (reason)
+            {
+                case DisconnectReasons.Hacking:
+                    Logger.SendInGame(string.Format(GetString("PlayerLeftByAU-Anticheat"), data?.PlayerName));
+                    break;
+                case DisconnectReasons.Error:
+                    Logger.SendInGame(string.Format(GetString("PlayerLeftByError"), data?.PlayerName));
+                    _ = new LateTask(() =>
+                    {
+                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Error);
+                        GameManager.Instance.enabled = false;
+                        GameManager.Instance?.RpcEndGame(GameOverReason.ImpostorDisconnect, false);
+                    }, 3f, "Disconnect Error Auto-end");
+
+                    break;
+            }
+
+            Logger.Info($"{data?.PlayerName} - (ClientID: {data?.Id} / FriendCode: {data?.FriendCode}) - Disconnected: {reason}，Ping: ({AmongUsClient.Instance.Ping})", "Session");
+
+            if (AmongUsClient.Instance.AmHost)
+            {
+                Main.SayStartTimes.Remove(__instance.ClientId);
+                Main.SayBanwordsTimes.Remove(__instance.ClientId);
+                Main.playerVersion.Remove(data?.Character?.PlayerId ?? byte.MaxValue);
+            }
+
+            Utils.CountAlivePlayers(true);
+
+            data.Character.Data.Disconnected = true;
         }
-
-        Logger.Info($"{data?.PlayerName} - (ClientID: {data?.Id} / FriendCode: {data?.FriendCode}) - Disconnected: {reason}，Ping: ({AmongUsClient.Instance.Ping})", "Session");
-
-        if (AmongUsClient.Instance.AmHost)
+        catch (NullReferenceException) { }
+        catch (Exception ex)
         {
-            Main.SayStartTimes.Remove(__instance.ClientId);
-            Main.SayBanwordsTimes.Remove(__instance.ClientId);
-            Main.playerVersion.Remove(data?.Character?.PlayerId ?? byte.MaxValue);
+            Logger.Error(ex.ToString(), "OnPlayerLeftPatch.Postfix");
         }
-
-        Utils.CountAlivePlayers(true);
-
-        data.Character.Data.Disconnected = true;
     }
 }
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CreatePlayer))]

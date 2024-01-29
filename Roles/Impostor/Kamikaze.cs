@@ -1,12 +1,7 @@
-﻿using Epic.OnlineServices;
-using Hazel;
-using System;
+﻿using Hazel;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static TOHE.Options;
-using static TOHE.Translator;
 using static TOHE.Utils;
 
 namespace TOHE.Roles.Impostor
@@ -16,7 +11,7 @@ namespace TOHE.Roles.Impostor
         private static int Id => 643310;
         public static bool IsEnable = false;
 
-        private static readonly Dictionary<byte, List<byte>> MarkedPlayers = [];
+        public static readonly Dictionary<byte, List<byte>> MarkedPlayers = [];
         public static readonly Dictionary<byte, float> MarkLimit = [];
 
         private static OptionItem MarkCD;
@@ -29,10 +24,10 @@ namespace TOHE.Roles.Impostor
             MarkCD = FloatOptionItem.Create(Id + 2, "KamikazeMarkCD", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Kamikaze])
                 .SetValueFormat(OptionFormat.Seconds);
-            KamikazeLimitOpt = IntegerOptionItem.Create(Id + 5, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.ImpostorRoles, false)
+            KamikazeLimitOpt = IntegerOptionItem.Create(Id + 3, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.ImpostorRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Kamikaze])
                 .SetValueFormat(OptionFormat.Times);
-            KamikazeAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 6, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.5f, TabGroup.ImpostorRoles, false)
+            KamikazeAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 4, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.5f, TabGroup.ImpostorRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Kamikaze])
                 .SetValueFormat(OptionFormat.Times);
         }
@@ -60,27 +55,11 @@ namespace TOHE.Roles.Impostor
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 
-        private static void SendRPCAddTarget(byte kamikazeId, byte targetId)
-        {
-            if (!IsEnable || !DoRPC || kamikazeId == 0) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.KamikazeAddTarget, SendOption.Reliable, -1);
-            writer.Write(kamikazeId);
-            writer.Write(targetId);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-
         public static void ReceiveRPCSyncLimit(MessageReader reader)
         {
             byte playerId = reader.ReadByte();
             float limit = reader.ReadSingle();
             MarkLimit[playerId] = limit;
-        }
-
-        public static void ReceiveRPCAddTarget(MessageReader reader)
-        {
-            byte playerId = reader.ReadByte();
-            byte targetId = reader.ReadByte();
-            MarkedPlayers[playerId].Add(targetId);
         }
 
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -90,7 +69,6 @@ namespace TOHE.Roles.Impostor
             return killer.CheckDoubleTrigger(target, () =>
             {
                 MarkedPlayers[killer.PlayerId].Add(target.PlayerId);
-                SendRPCAddTarget(killer.PlayerId, target.PlayerId);
                 killer.SetKillCooldown(MarkCD.GetFloat());
                 MarkLimit[killer.PlayerId]--;
                 SendRPCSyncLimit(killer.PlayerId);
@@ -118,5 +96,7 @@ namespace TOHE.Roles.Impostor
                 Logger.Info($"Murder {kamikazePc.GetRealName()}'s targets: {string.Join(", ", kvp.Value.Select(x => GetPlayerById(x).GetNameWithRole()))}", "Kamikaze");
             }
         }
+
+        public static string GetProgressText(byte playerId) => MarkLimit.TryGetValue(playerId, out var limit) ? $"<#777777>-</color> <#ffffff>{System.Math.Round(limit, 1)}</color>" : string.Empty;
     }
 }

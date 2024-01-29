@@ -33,7 +33,7 @@ public static class TimeManager
     private static int AdditionalTime(byte id)
     {
         var pc = Utils.GetPlayerById(id);
-        return playerIdList.Contains(id) && pc.IsAlive() ? IncreaseMeetingTime.GetInt() * pc.GetPlayerTaskState().CompletedTasksCount : 0;
+        return playerIdList.Contains(id) && pc.IsAlive() ? IncreaseMeetingTime.GetInt() * pc.GetTaskState().CompletedTasksCount : 0;
     }
     public static int TotalIncreasedMeetingTime()
     {

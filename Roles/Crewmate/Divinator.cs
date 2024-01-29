@@ -1,5 +1,4 @@
 using Hazel;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using static TOHE.Options;
@@ -49,7 +48,7 @@ public static class Divinator
         playerIdList.Add(playerId);
         CheckLimit.TryAdd(playerId, CheckLimitOpt.GetInt());
 
-        List<CustomRoles> AllRoles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().ToList();
+        List<CustomRoles> AllRoles = [.. EnumHelper.GetAllValues<CustomRoles>().Where(x => !x.IsAdditionRole() && x is not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.KB_Normal)];
         var r = IRandom.Instance;
 
         foreach (var pc in Main.AllAlivePlayerControls)
@@ -118,7 +117,7 @@ public static class Divinator
             string roles = string.Join(", ", AllPlayerRoleList[target.PlayerId].Select(x => GetString(x.ToString())));
             msg = string.Format(GetString("DivinatorCheckResult"), target.GetRealName(), roles);
         }
-        
+
         Utils.SendMessage(GetString("DivinatorCheck") + "\n" + msg + "\n\n" + string.Format(GetString("DivinatorCheckLimit"), CheckLimit[player.PlayerId]), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Divinator), GetString("DivinatorCheckMsgTitle")));
 
         Main.DontCancelVoteList.Add(player.PlayerId);

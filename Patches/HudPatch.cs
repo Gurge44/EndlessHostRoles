@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using TOHE.Modules;
+using TOHE.Roles.AddOns.Common;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
@@ -32,16 +33,15 @@ class HudManagerPatch
         if (!GameStates.IsModHost) return;
         var player = PlayerControl.LocalPlayer;
         if (player == null) return;
-        //壁抜け
+
         if (Input.GetKeyDown(KeyCode.LeftControl))
         {
-            if ((!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame)
-                && player.CanMove)
+            if ((!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame) && player.CanMove)
             {
                 player.Collider.offset = new Vector2(0f, 127f);
             }
         }
-        //壁抜け解除
+
         if (player.Collider.offset.y == 127f)
         {
             if (!Input.GetKey(KeyCode.LeftControl) || (AmongUsClient.Instance.IsGameStarted && GameStates.IsOnlineGame))
@@ -140,7 +140,7 @@ class HudManagerPatch
 
         Utils.CountAlivePlayers();
 
-        bool shapeshifting = player.shapeshifting;
+        bool shapeshifting = player.IsShifted();
 
         if (SetHudActivePatch.IsActive)
         {
@@ -465,9 +465,6 @@ class HudManagerPatch
                     //case CustomRoles.CursedSoul:
                     //    __instance.KillButton?.OverrideText(GetString("CursedSoulKillButtonText"));
                     //    break;
-                    case CustomRoles.Admirer:
-                        __instance.KillButton?.OverrideText(GetString("AdmireButtonText"));
-                        break;
                     case CustomRoles.Amnesiac:
                         __instance.KillButton?.OverrideText(GetString("RememberButtonText"));
                         break;
@@ -476,9 +473,6 @@ class HudManagerPatch
                             __instance.PetButton.buttonLabelText.text = GetString("DovesOfNeaceVentButtonText");
                         else
                             __instance.AbilityButton.buttonLabelText.text = GetString("DovesOfNeaceVentButtonText");
-                        break;
-                    case CustomRoles.Infectious:
-                        __instance.KillButton?.OverrideText(GetString("InfectiousKillButtonText"));
                         break;
                     case CustomRoles.Monarch:
                         __instance.KillButton?.OverrideText(GetString("MonarchKillButtonText"));
@@ -560,12 +554,13 @@ class HudManagerPatch
                         CustomRoles.Chronomancer => Chronomancer.GetHudText(),
                         CustomRoles.Mafioso => Mafioso.GetHUDText(),
                         CustomRoles.Druid => Druid.GetHUDText(player),
+                        CustomRoles.Rabbit => Rabbit.GetSuffix(player),
                         CustomRoles.Librarian => Librarian.GetSelfSuffixAndHUDText(player.PlayerId),
                         CustomRoles.PlagueDoctor => PlagueDoctor.GetLowerTextOthers(player, isForHud: true),
                         CustomRoles.Stealth => Stealth.GetSuffix(player, isHUD: true),
                         CustomRoles.Hookshot => Hookshot.SuffixText,
-                        CustomRoles.Tornado => Tornado.GetSuffixText(player.PlayerId, isHUD: true),
-                        _ => string.Empty,
+                        CustomRoles.Tornado => Tornado.GetSuffixText(isHUD: true),
+                        _ => player.Is(CustomRoles.Asthmatic) ? Asthmatic.GetSuffixText(player.PlayerId) : string.Empty,
                     },
                     _ => string.Empty,
                 };
@@ -594,7 +589,7 @@ class HudManagerPatch
                     __instance.KillButton?.ToggleVisible(false);
                 }
 
-                bool CanUseVent = (player.CanUseImpostorVentButton() || player.inVent || player.MyPhysics.Animations.IsPlayingEnterVentAnimation()) && GameStates.IsInTask;
+                bool CanUseVent = (player.CanUseImpostorVentButton() || player.inVent) && GameStates.IsInTask && !player.MyPhysics.Animations.IsPlayingEnterVentAnimation();
                 __instance.ImpostorVentButton?.ToggleVisible(CanUseVent);
                 player.Data.Role.CanVent = CanUseVent;
 
@@ -667,8 +662,8 @@ class ToggleHighlightPatch
 {
     public static void Postfix(PlayerControl __instance /*[HarmonyArgument(0)] bool active,*/ /*[HarmonyArgument(1)] RoleTeamTypes team*/)
     {
-        var player = PlayerControl.LocalPlayer;
         if (!GameStates.IsInTask) return;
+        var player = PlayerControl.LocalPlayer;
 
         if (player.CanUseKillButton())
         {
@@ -769,7 +764,7 @@ class SetHudActivePatch
                 Traitor.SetHudActive(__instance, isActive);
                 break;
             case CustomRoles.Glitch:
-                Glitch.SetHudActive(__instance, isActive);
+                Glitch.SetHudActive(__instance);
                 break;
             case CustomRoles.Magician:
                 __instance.SabotageButton?.ToggleVisible(true);
@@ -789,28 +784,36 @@ class SetHudActivePatch
 [HarmonyPatch(typeof(VentButton), nameof(VentButton.DoClick))]
 class VentButtonDoClickPatch
 {
+    public static bool Animating = false;
     public static bool Prefix(VentButton __instance)
     {
         var pc = PlayerControl.LocalPlayer;
+        if (pc.MyPhysics.Animations.IsPlayingEnterVentAnimation()) return false;
+
+        if (pc.inVent && pc.PlayerId == 0)
         {
-            if (pc.inVent)
-            {
-                pc.MyPhysics.RpcExitVent(TryMoveToVentPatch.HostVentTarget.Id);
-                TryMoveToVentPatch.HostVentTarget.SetButtons(false);
-                return true;
-            }
-            if (pc.inVent || !pc.CanMove) return true;
-            var vents = Object.FindObjectsOfType<Vent>().ToArray();
-            if (vents.Any(vent => Vector2.Distance(new Vector2(vent.transform.position.x, vent.transform.position.y + 0.3636f), pc.Pos()) < 0.4f))
-            {
-                Vent vent = vents.FirstOrDefault(vent => Vector2.Distance(new Vector2(vent.transform.position.x, vent.transform.position.y + 0.3636f), pc.Pos()) < 0.4f);
-                pc.MyPhysics.RpcEnterVent(vent.Id);
-                vent.SetButtons(true);
-                return false;
-            }
-            pc?.MyPhysics?.RpcEnterVent(__instance.currentTarget.Id);
+            pc.MyPhysics.RpcExitVent(TryMoveToVentPatch.HostVentTarget.Id);
+            TryMoveToVentPatch.HostVentTarget.SetButtons(false);
+            Animating = true;
+            _ = new LateTask(() => { Animating = false; }, 0.6f, log: false);
             return false;
         }
+        if (pc.inVent || !pc.CanMove) return false;
+        var vents = Object.FindObjectsOfType<Vent>().ToArray();
+        if (vents.Any(vent => Vector2.Distance(new Vector2(vent.transform.position.x, vent.transform.position.y + 0.3636f), pc.Pos()) < 0.4f))
+        {
+            Vent vent = vents.FirstOrDefault(vent => Vector2.Distance(new Vector2(vent.transform.position.x, vent.transform.position.y + 0.3636f), pc.Pos()) < 0.4f);
+            pc.MyPhysics.RpcEnterVent(vent.Id);
+            vent.SetButtons(true);
+            Animating = true;
+            _ = new LateTask(() => { Animating = false; }, 0.6f, log: false);
+            return false;
+        }
+        pc?.MyPhysics?.RpcEnterVent(__instance.currentTarget.Id);
+        __instance.currentTarget.SetButtons(true);
+        Animating = true;
+        _ = new LateTask(() => { Animating = false; }, 0.6f, log: false);
+        return false;
     }
 }
 [HarmonyPatch(typeof(MapBehaviour), nameof(MapBehaviour.Show))]
@@ -841,7 +844,6 @@ class MapBehaviourShowPatch
 [HarmonyPatch(typeof(TaskPanelBehaviour), nameof(TaskPanelBehaviour.SetTaskText))]
 class TaskPanelBehaviourPatch
 {
-    // タスク表示の文章が更新・適用された後に実行される
     public static void Postfix(TaskPanelBehaviour __instance)
     {
         if (!GameStates.IsModHost) return;
@@ -850,7 +852,6 @@ class TaskPanelBehaviourPatch
         var taskText = __instance.taskText.text;
         if (taskText == "None") return;
 
-        // 役職説明表示
         if (!player.GetCustomRole().IsVanilla())
         {
             var RoleWithInfo = $"<size=80%>{player.GetDisplayRoleName()}:\r\n{player.GetRoleInfo()}</size>";
@@ -978,7 +979,6 @@ class TaskPanelBehaviourPatch
             __instance.taskText.text = AllText;
         }
 
-        // RepairSenderの表示
         if (RepairSender.enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
             __instance.taskText.text = RepairSender.GetText();
     }
@@ -996,13 +996,11 @@ class RepairSender
     {
         if (!TypingAmount)
         {
-            //SystemType入力中
             SystemType *= 10;
             SystemType += num;
         }
         else
         {
-            //Amount入力中
             amount *= 10;
             amount += num;
         }
@@ -1011,12 +1009,10 @@ class RepairSender
     {
         if (!TypingAmount)
         {
-            //SystemType入力中
             TypingAmount = true;
         }
         else
         {
-            //Amount入力中
             Send();
         }
     }

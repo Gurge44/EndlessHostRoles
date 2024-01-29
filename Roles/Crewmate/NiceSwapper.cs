@@ -102,8 +102,8 @@ public static class NiceSwapper
                 bool Vote1Empty = Vote.Count == 0 && targetIsntSelected;
                 bool Vote2Available = Vote.Count == 1 && VoteTwo.Count == 0 && targetIsntSelected;
 
-                if (Vote1Empty && CanSwapSelf.GetBool() ||
-                    Vote1Empty && dp != pc && !CanSwapSelf.GetBool())
+                if ((Vote1Empty && CanSwapSelf.GetBool()) ||
+                    (Vote1Empty && dp != pc && !CanSwapSelf.GetBool()))
                 {
                     Vote.Add(dp.PlayerId);
                     if (HideMsg.GetBool() && !isUI)
@@ -114,8 +114,8 @@ public static class NiceSwapper
                     //else pc.ShowPopUp(GetString("Swap1"));
                     Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} 选择 {target.GetNameWithRole()}", "Swapper");
                 }
-                else if (Vote2Available && CanSwapSelf.GetBool() ||
-                         Vote2Available && dp != pc && !CanSwapSelf.GetBool())
+                else if ((Vote2Available && CanSwapSelf.GetBool()) ||
+                         (Vote2Available && dp != pc && !CanSwapSelf.GetBool()))
                 {
                     VoteTwo.Add(dp.PlayerId);
                     if (HideMsg.GetBool() && !isUI)

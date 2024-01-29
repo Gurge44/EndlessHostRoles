@@ -155,26 +155,15 @@ class ExileControllerWrapUpPatch
         }
         if (Options.RandomSpawn.GetBool() || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop)
         {
-            RandomSpawn.SpawnMap map;
-            switch (Main.NormalOptions.MapId)
+            RandomSpawn.SpawnMap map = Main.NormalOptions.MapId switch
             {
-                case 0:
-                    map = new RandomSpawn.SkeldSpawnMap();
-                    Main.AllPlayerControls.Do(map.RandomTeleport);
-                    break;
-                case 1:
-                    map = new RandomSpawn.MiraHQSpawnMap();
-                    Main.AllPlayerControls.Do(map.RandomTeleport);
-                    break;
-                case 2:
-                    map = new RandomSpawn.PolusSpawnMap();
-                    Main.AllPlayerControls.Do(map.RandomTeleport);
-                    break;
-                case 5:
-                    map = new RandomSpawn.FungleSpawnMap();
-                    Main.AllPlayerControls.Do(map.RandomTeleport);
-                    break;
-            }
+                0 => new RandomSpawn.SkeldSpawnMap(),
+                1 => new RandomSpawn.MiraHQSpawnMap(),
+                2 => new RandomSpawn.PolusSpawnMap(),
+                5 => new RandomSpawn.FungleSpawnMap(),
+                _ => null,
+            };
+            if (map != null) Main.AllAlivePlayerControls.Do(map.RandomTeleport);
         }
 
         FallFromLadder.Reset();
@@ -199,7 +188,7 @@ class ExileControllerWrapUpPatch
                 {
                     exiled.Object.RpcExileV2();
                 }
-            }, 0.5f, "Restore IsDead Task");
+            }, 0.8f, "Restore IsDead Task");
             _ = new LateTask(() =>
             {
                 Main.AfterMeetingDeathPlayers.Do(x =>
@@ -217,7 +206,7 @@ class ExileControllerWrapUpPatch
                     Utils.AfterPlayerDeathTasks(player);
                 });
                 Main.AfterMeetingDeathPlayers.Clear();
-            }, 0.5f, "AfterMeetingDeathPlayers Task");
+            }, 0.8f, "AfterMeetingDeathPlayers Task");
         }
 
         GameStates.AlreadyDied |= !Utils.IsAllAlive;

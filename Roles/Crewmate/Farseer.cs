@@ -20,95 +20,21 @@ namespace TOHE.Roles.Crewmate
         public static OptionItem Vision;
         public static OptionItem UsePet;
 
-        private static readonly System.Collections.Generic.List<CustomRoles> randomRolesForTrickster =
-        [
-            CustomRoles.Snitch,
-            CustomRoles.Luckey,
-            CustomRoles.Needy,
-            CustomRoles.SuperStar,
-            CustomRoles.CyberStar,
-            CustomRoles.Demolitionist,
-            CustomRoles.Ventguard,
-            CustomRoles.Express,
-            CustomRoles.NiceEraser,
-            CustomRoles.TaskManager,
-            CustomRoles.Shiftguard,
-            CustomRoles.Mole,
-            CustomRoles.Sentinel,
-            CustomRoles.Electric,
-            CustomRoles.Philantropist,
-            CustomRoles.Tornado,
-            CustomRoles.Insight,
-            CustomRoles.Tunneler,
-            CustomRoles.Detour,
-            CustomRoles.Drainer,
-            CustomRoles.GuessManager,
-            CustomRoles.Benefactor,
-            CustomRoles.Speedrunner,
-            CustomRoles.Altruist,
-            CustomRoles.Transmitter,
-            CustomRoles.Autocrat,
-            CustomRoles.Nightmare,
-            CustomRoles.CameraMan,
-            CustomRoles.NiceHacker,
-            CustomRoles.Aid,
-            CustomRoles.DonutDelivery,
-            CustomRoles.Gaulois,
-            CustomRoles.Analyzer,
-            CustomRoles.Escort,
-            CustomRoles.Tether,
-            CustomRoles.Spy,
-            CustomRoles.Ricochet,
-            CustomRoles.Doormaster,
-            CustomRoles.Mayor,
-            CustomRoles.Paranoia,
-            CustomRoles.Psychic,
-            CustomRoles.Lookout,
-            CustomRoles.SabotageMaster,
-            CustomRoles.Snitch,
-            CustomRoles.Marshall,
-            CustomRoles.Monitor,
-            CustomRoles.ParityCop,
-            //     CustomRoles.SpeedBooster,
-            CustomRoles.Dictator,
-            CustomRoles.Doctor,
-            CustomRoles.Detective,
-            CustomRoles.NiceGuesser,
-            CustomRoles.Transporter,
-            CustomRoles.TimeManager,
-            CustomRoles.Veteran,
-            CustomRoles.Bodyguard,
-            CustomRoles.Grenadier,
-            CustomRoles.Lighter,
-            CustomRoles.SecurityGuard,
-            CustomRoles.Ventguard,
-            CustomRoles.Divinator,
-            CustomRoles.Oracle,
-            CustomRoles.Tracefinder,
-            //      CustomRoles.Glitch,
-            CustomRoles.Judge,
-            CustomRoles.NiceSwapper,
-            CustomRoles.Mortician,
-            CustomRoles.Mediumshiper,
-            CustomRoles.Observer,
-            CustomRoles.DovesOfNeace,
-            CustomRoles.Bloodhound,
-            //CustomRoles.Retributionist,
-            CustomRoles.Guardian,
-            CustomRoles.Spiritualist,
-            CustomRoles.Tracker,
-        ];
+        private static System.Collections.Generic.List<CustomRoles> RandomRolesForTrickster => EnumHelper.GetAllValues<CustomRoles>().Where(x => x.IsCrewmate()).ToList();
 
         public static System.Collections.Generic.Dictionary<int, string> RandomRole = [];
 
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Farseer);
-            FarseerCooldown = FloatOptionItem.Create(Id + 10, "FarseerRevealCooldown", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Farseer])
+            FarseerCooldown = FloatOptionItem.Create(Id + 10, "FarseerRevealCooldown", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Farseer])
                 .SetValueFormat(OptionFormat.Seconds);
-            FarseerRevealTime = FloatOptionItem.Create(Id + 11, "FarseerRevealTime", new(0f, 30f, 1f), 10f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Farseer])
+            FarseerRevealTime = FloatOptionItem.Create(Id + 11, "FarseerRevealTime", new(0f, 30f, 1f), 10f, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Farseer])
                 .SetValueFormat(OptionFormat.Seconds);
-            Vision = FloatOptionItem.Create(Id + 12, "FarseerVision", new(0f, 1f, 0.05f), 0.25f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Farseer])
+            Vision = FloatOptionItem.Create(Id + 12, "FarseerVision", new(0f, 1f, 0.05f), 0.25f, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Farseer])
                 .SetValueFormat(OptionFormat.Multiplier);
             UsePet = CreatePetUseSetting(Id + 13, CustomRoles.Farseer);
         }
@@ -181,14 +107,14 @@ namespace TOHE.Roles.Crewmate
         public static string GetRandomCrewRoleString()
         {
             var rd = IRandom.Instance;
-            var randomRole = randomRolesForTrickster[rd.Next(0, randomRolesForTrickster.Count)];
+            var randomRole = RandomRolesForTrickster[rd.Next(0, RandomRolesForTrickster.Count)];
 
             return $"<size={fontSize}>{ColorString(GetRoleColor(randomRole), GetString(randomRole.ToString()))}</size>";
         }
 
         public static string GetTaskState()
         {
-            var playersWithTasks = Main.PlayerStates.Where(a => a.Value.GetTaskState().hasTasks).ToArray();
+            var playersWithTasks = Main.PlayerStates.Where(a => a.Value.TaskState.hasTasks).ToArray();
             if (playersWithTasks.Length == 0)
             {
                 return "\r\n";
@@ -196,7 +122,7 @@ namespace TOHE.Roles.Crewmate
 
             var rd = IRandom.Instance;
             var randomPlayer = playersWithTasks[rd.Next(0, playersWithTasks.Length)];
-            var taskState = randomPlayer.Value.GetTaskState();
+            var taskState = randomPlayer.Value.TaskState;
 
             Color TextColor;
             var TaskCompleteColor = Color.green;

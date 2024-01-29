@@ -19,7 +19,7 @@
 
         private static float UpdateTime;
         private static float ElapsedTime;
-        private static bool active = true;
+        private static bool Active = true;
 
         public static void SetupCustomOption()
         {
@@ -46,7 +46,7 @@
         public static void Init()
         {
             playerIdList = [];
-            active = true;
+            Active = true;
         }
         public static void Add(byte playerId)
         {
@@ -57,7 +57,7 @@
         public static void ApplyGameOptions(IGameOptions opt)
         {
             float Vision;
-            if (!active) Vision = OptionTasksFinishedVision.GetFloat();
+            if (!Active) Vision = OptionTasksFinishedVision.GetFloat();
             else if (ElapsedTime > OptionTaskEndVisionTime.GetInt()) Vision = OptionTaskStartVision.GetFloat();
             else Vision = OptionTaskStartVision.GetFloat() * (ElapsedTime / OptionTaskEndVisionTime.GetInt());
 
@@ -71,17 +71,18 @@
         public static bool OnCompleteTask(PlayerControl pc)
         {
             ElapsedTime = OptionTaskEndVisionTime.GetInt();
+            pc.MarkDirtySettings();
             return true;
         }
         public static void OnTasksFinished(PlayerControl pc)
         {
-            active = false;
+            Active = false;
             pc.MarkDirtySettings();
         }
         public static void OnFixedUpdate(PlayerControl player)
         {
             if (!GameStates.IsInTask && !OptionTaskTimeMoveMeeting.GetBool()) return;
-            if (!active) return;
+            if (!Active) return;
 
             UpdateTime -= Time.fixedDeltaTime;
             if (UpdateTime < 0) UpdateTime = 1.0f;

@@ -2,6 +2,7 @@ using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TOHE.Roles.Impostor;
 using UnityEngine;
 
 namespace TOHE;
@@ -36,6 +37,7 @@ class RandomSpawn
                     else if (Options.StartingKillCooldown.GetInt() != 10) player.SetKillCooldown(Options.StartingKillCooldown.GetInt());
                     if (!Options.RandomSpawn.GetBool() && Options.CurrentGameMode != CustomGameMode.SoloKombat) return;
                     new AirshipSpawnMap().RandomTeleport(player);
+                    Penguin.OnSpawnAirship();
                 }
             }
         }
@@ -55,8 +57,8 @@ class RandomSpawn
         public virtual void RandomTeleport(PlayerControl player)
         {
             var spawn = GetLocation();
-            Logger.Info($"{player.Data.PlayerName} => {spawn.Key} ({spawn.Value})", "RandomSpawn");
-            TP(player.NetTransform, spawn.Value);
+            Logger.Info($"{player.Data.PlayerName} => {spawn.Key} {spawn.Value}", "RandomSpawn");
+            player.TP(spawn.Value, log: false);
         }
         public abstract KeyValuePair<string, Vector2> GetLocation();
     }

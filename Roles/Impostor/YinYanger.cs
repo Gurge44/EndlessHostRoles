@@ -128,7 +128,6 @@ namespace TOHE.Roles.Impostor
                 pc2.Suicide(PlayerState.DeathReason.YinYanged, yy);
             }
         }
-
-        public static string ModeText => YinYangedPlayers.Count == 2 ? "<color=#00ffa5>Mode:</color> Kill" : $"<color=#00ffa5>Mode:</color> Yin Yang ({YinYangedPlayers.Count}/2)";
+      public static string ModeText => YinYangedPlayers.Count == 2 ? $"<color=#00ffa5>{Translator.GetString("Mode")}:</color> {Translator.GetString("YinYangModeNormal")}" : $"<color=#00ffa5>{Translator.GetString("Mode")}:</color> {Translator.GetString("YinYangMode")} ({YinYangedPlayers.Count}/2)";
     }
 }

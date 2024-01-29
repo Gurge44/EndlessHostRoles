@@ -192,7 +192,6 @@ internal class ChangeRoleSettings
                 Main.RefixCooldownDelay = 0;
             }
             Main.NiceSwapSend = false;
-            ShapeshiftPatch.IgnoreNextSS.Clear();
             FallFromLadder.Reset();
             BountyHunter.Init();
             SerialKiller.Init();
@@ -237,6 +236,7 @@ internal class ChangeRoleSettings
             Benefactor.Init();
             Aid.Init();
             DonutDelivery.Init();
+            Rabbit.Init();
             Gaulois.Init();
             Analyzer.Init();
             Escort.Init();
@@ -281,15 +281,14 @@ internal class ChangeRoleSettings
             VengefulRomantic.Init();
             RuthlessRomantic.Init();
             Succubus.Init();
+            Necromancer.Init();
             //CursedSoul.Init();
-            Admirer.Init();
             Nullifier.Init();
             Deputy.Init();
             Chronomancer.Init();
             Damocles.Initialize();
             Stressed.Init();
             Amnesiac.Init();
-            Infectious.Init();
             Monarch.Init();
             Virus.Init();
             Bloodhound.Init();
@@ -297,6 +296,7 @@ internal class ChangeRoleSettings
             Merchant.Init();
             Mastermind.Init();
             Asthmatic.Init();
+            Perceiver.Init();
             NSerialKiller.Init();
             SoulHunter.Init();
             Enderman.Init();
@@ -328,6 +328,9 @@ internal class ChangeRoleSettings
             YinYanger.Init();
             Blackmailer.Init();
             Cantankerous.Init();
+            Swiftclaw.Init();
+            Convener.Init();
+            Mathematician.Init();
             Duellist.Init();
             Druid.Init();
             GuessManagerRole.Init();
@@ -393,7 +396,7 @@ internal class SelectRolesPatch
     public static void Prefix()
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        
+
         try
         {
             // Initializing CustomRpcSender and RpcSetRoleReplacer
@@ -450,6 +453,8 @@ internal class SelectRolesPatch
 
         try
         {
+            RevivePreventerPatch.Ignore = true;
+
             var rd = IRandom.Instance;
 
             Main.NimblePlayer = byte.MaxValue;
@@ -711,6 +716,8 @@ internal class SelectRolesPatch
             var vents = UnityEngine.Object.FindObjectsOfType<Vent>();
             var vent = vents[rd.Next(0, vents.Count)];
             TryMoveToVentPatch.HostVentTarget = vent;
+
+            RevivePreventerPatch.Ignore = false;
         }
         catch (Exception ex)
         {

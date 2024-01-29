@@ -121,28 +121,34 @@ public static class Bandit
             TotalSteals[killer.PlayerId] = MaxSteals.GetInt();
             return true;
         }
+
         var SelectedAddOn = SelectRandomAddon(target);
         if (SelectedAddOn == null) return true; // no stealable addons found on the target.
-        if (StealMode.GetValue() == 1)
-        {
-            Main.PlayerStates[target.PlayerId].RemoveSubRole((CustomRoles)SelectedAddOn);
-            Logger.Info($"Successfully removed {SelectedAddOn} addon from {target.GetNameWithRole().RemoveHtmlTags()}", "Bandit");
-            killer.RpcSetCustomRole((CustomRoles)SelectedAddOn);
-            Logger.Info($"Successfully Added {SelectedAddOn} addon to {killer.GetNameWithRole().RemoveHtmlTags()}", "Bandit");
-        }
-        else
-        {
-            Targets[killer.PlayerId][target.PlayerId] = (CustomRoles)SelectedAddOn;
-            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} will steal {SelectedAddOn} addon from {target.GetNameWithRole().RemoveHtmlTags()} after meeting starts", "Bandit");
-        }
-        TotalSteals[killer.PlayerId]++;
-        SendRPC(killer.PlayerId);
-        Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
-        Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
+
         killer.ResetKillCooldown();
-        killer.SetKillCooldown();
-        if (!DisableShieldAnimations.GetBool()) killer.RpcGuardAndKill(target);
-        return false;
+
+        return killer.CheckDoubleTrigger(target, () =>
+        {
+            if (StealMode.GetValue() == 1)
+            {
+                Main.PlayerStates[target.PlayerId].RemoveSubRole((CustomRoles)SelectedAddOn);
+                Logger.Info($"Successfully removed {SelectedAddOn} addon from {target.GetNameWithRole().RemoveHtmlTags()}", "Bandit");
+                killer.RpcSetCustomRole((CustomRoles)SelectedAddOn);
+                Logger.Info($"Successfully Added {SelectedAddOn} addon to {killer.GetNameWithRole().RemoveHtmlTags()}", "Bandit");
+            }
+            else
+            {
+                Targets[killer.PlayerId][target.PlayerId] = (CustomRoles)SelectedAddOn;
+                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} will steal {SelectedAddOn} addon from {target.GetNameWithRole().RemoveHtmlTags()} after meeting starts", "Bandit");
+            }
+            TotalSteals[killer.PlayerId]++;
+            SendRPC(killer.PlayerId);
+            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
+            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
+            if (!DisableShieldAnimations.GetBool()) killer.RpcGuardAndKill(target);
+            killer.ResetKillCooldown();
+            killer.SetKillCooldown();
+        });
     }
 
     public static void OnReportDeadBody()

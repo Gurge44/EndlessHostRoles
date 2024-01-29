@@ -268,8 +268,9 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 case CustomRoles.Analyzer:
                 case CustomRoles.Witness:
                 case CustomRoles.Succubus:
+                case CustomRoles.Necromancer:
+                case CustomRoles.Deathknight:
                 //case CustomRoles.CursedSoul:
-                case CustomRoles.Admirer:
                 case CustomRoles.Amnesiac:
                     opt.SetVision(false);
                     break;
@@ -398,7 +399,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     Mafioso.ApplyGameOptions(opt);
                     break;
                 case CustomRoles.Drainer:
-                    Drainer.ApplyGameOptions(opt);
+                    Drainer.ApplyGameOptions();
                     break;
                 case CustomRoles.Poisoner:
                     Poisoner.ApplyGameOptions(opt);
@@ -462,7 +463,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     Sprayer.ApplyGameOptions(opt);
                     break;
                 case CustomRoles.Penguin:
-                    Penguin.ApplyGameOptions(opt);
+                    Penguin.ApplyGameOptions();
                     break;
                 case CustomRoles.PlagueDoctor:
                     PlagueDoctor.ApplyGameOptions(opt);
@@ -540,9 +541,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     AURoleOptions.EngineerCooldown = 0f;
                     AURoleOptions.EngineerInVentMaxTime = 0f;
                     opt.SetVision(Options.JesterHasImpostorVision.GetBool());
-                    break;
-                case CustomRoles.Infectious:
-                    opt.SetVision(Infectious.HasImpostorVision.GetBool());
                     break;
                 case CustomRoles.Lawyer:
                     //Main.NormalOptions.CrewLightMod = Lawyer.LawyerVision.GetFloat();
@@ -659,8 +657,22 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     AURoleOptions.ShapeshifterCooldown = Kidnapper.SSCD.GetFloat();
                     AURoleOptions.ShapeshifterDuration = 1f;
                     break;
+                case CustomRoles.Swapster:
+                    AURoleOptions.ShapeshifterCooldown = Swapster.SSCD.GetFloat();
+                    AURoleOptions.ShapeshifterDuration = 1f;
+                    break;
                 case CustomRoles.Spiritcaller:
                     opt.SetVision(Spiritcaller.ImpostorVision.GetBool());
+                    break;
+                case CustomRoles.Perceiver:
+                    if (Options.UsePets.GetBool()) break;
+                    AURoleOptions.EngineerCooldown = Perceiver.CD.GetFloat();
+                    AURoleOptions.EngineerInVentMaxTime = 1f;
+                    break;
+                case CustomRoles.Convener:
+                    if (Options.UsePets.GetBool()) break;
+                    AURoleOptions.EngineerCooldown = Convener.CD.GetFloat();
+                    AURoleOptions.EngineerInVentMaxTime = 1f;
                     break;
             }
 
@@ -820,7 +832,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
             MeetingTimeManager.ApplyGameOptions(opt);
 
             AURoleOptions.ShapeshifterCooldown = Mathf.Max(1f, AURoleOptions.ShapeshifterCooldown);
-            AURoleOptions.ProtectionDurationSeconds = Main.UseVersionProtocol.Value ? 0f : 60f;
+            AURoleOptions.ProtectionDurationSeconds = 0f;
 
             return opt;
         }

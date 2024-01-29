@@ -202,7 +202,7 @@ internal class ChatCommands
                     canceled = true;
                     subArgs = text.Remove(0, 3);
                     if (!PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp) break;
-                    Utils.SendMessage("/up was replaced by /setrole which allows you to set anyone's role for any game by typing '/setrole (ID) (ROLE)'. You can view ID's with /id.\nTo set your own role like with /up, you need to do '/setrole 0 (ROLE)'.", localPlayerId);
+                    Utils.SendMessage($"{GetString("UpReplacedMessage")}", localPlayerId);
                     //if (!Options.EnableUpMode.GetBool())
                     //{
                     //    Utils.SendMessage(string.Format(GetString("Message.YTPlanDisabled"), GetString("EnableYTPlan")), localPlayerId);
@@ -249,7 +249,9 @@ internal class ChatCommands
                         }
                         else Main.SetRoles[targetPc.PlayerId] = roleToSet;
 
-                        Utils.SendMessage("\n", localPlayerId, $"<b>{Utils.ColorString(Main.PlayerColors.TryGetValue(resultId, out var textColor) ? textColor : Color.white, targetPc.GetRealName())}</b>'s role in the next game will be <b><color={Main.roleColors[roleToSet]}>{GetString(roleToSet.ToString())}</color></b>");
+                        var playername = $"<b>{Utils.ColorString(Main.PlayerColors.TryGetValue(resultId, out var textColor) ? textColor : Color.white, targetPc.GetRealName())}</b>";
+                        var rolename = $"<color={Main.roleColors[roleToSet]}> {GetString(roleToSet.ToString())} </color>";
+                        Utils.SendMessage("\n", localPlayerId, string.Format(GetString("RoleSelected"), playername, rolename));
                     }
                     break;
 
@@ -328,6 +330,17 @@ internal class ChatCommands
                     string toVote = text[6..].Replace(" ", string.Empty);
                     if (!byte.TryParse(toVote, out var voteId)) break;
                     MeetingHud.Instance?.CastVote(PlayerControl.LocalPlayer.PlayerId, voteId);
+                    break;
+
+                case "/ask":
+                    canceled = true;
+                    if (args.Length < 3) break;
+                    try { Mathematician.Ask(PlayerControl.LocalPlayer, args[1], args[2]); } catch { }
+                    break;
+
+                case "/answer":
+                    if (args.Length < 2) break;
+                    try { Mathematician.Reply(PlayerControl.LocalPlayer, args[1]); } catch { }
                     break;
 
                 case "/ban":
@@ -1016,6 +1029,12 @@ internal class ChatCommands
                 if (!byte.TryParse(toVote, out var voteId)) break;
                 ChatManager.SendPreviousMessagesToAll();
                 MeetingHud.Instance?.CastVote(player.PlayerId, voteId);
+                break;
+            case "/ask":
+                try { Mathematician.Ask(player, args[1], args[2]); } catch { }
+                break;
+            case "/answer":
+                try { Mathematician.Reply(player, args[1]); } catch { }
                 break;
             case "/ban":
             case "/kick":

@@ -941,7 +941,7 @@ public static class Options
     public static OptionItem SnitchCanBeMadmate;
     public static OptionItem JudgeCanBeMadmate;
     public static OptionItem MarshallCanBeMadmate;
-    public static OptionItem RetributionistCanBeMadmate;
+    //public static OptionItem RetributionistCanBeMadmate;
     public static OptionItem FarseerCanBeMadmate;
     public static OptionItem MadSnitchTasks;
     public static OptionItem FlashmanSpeed;
@@ -950,9 +950,7 @@ public static class Options
     public static OptionItem LoverSpawnChances;
     public static OptionItem LoverKnowRoles;
     public static OptionItem LoverSuicide;
-    public static OptionItem ImpCanBeEgoist;
     public static OptionItem ImpEgoistVisibalToAllies;
-    public static OptionItem CrewCanBeEgoist;
     public static OptionItem TicketsPerKill;
     public static OptionItem ImpCanBeDualPersonality;
     public static OptionItem CrewCanBeDualPersonality;
@@ -1241,8 +1239,12 @@ public static class Options
         Kamikaze.SetupCustomOption();
         RoleLoadingText = "Impostor roles\nKidnapper";
         Kidnapper.SetupCustomOption();
+        RoleLoadingText = "Impostor roles\nSwapster";
+        Swapster.SetupCustomOption();
         RoleLoadingText = "Impostor roles\nLibrarian";
         Librarian.SetupCustomOption();
+        RoleLoadingText = "Impostor roles\nSwiftclaw";
+        Swiftclaw.SetupCustomOption();
         RoleLoadingText = "Impostor roles\nCantankerous";
         Cantankerous.SetupCustomOption();
         RoleLoadingText = "Impostor roles\nDuellist";
@@ -1539,6 +1541,8 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Demolitionist]);
         RoleLoadingText = "Crewmate roles\nTask Manager";
         SetupRoleOptions(5575, TabGroup.CrewmateRoles, CustomRoles.TaskManager);
+        RoleLoadingText = "Crewmate roles\nRabbit";
+        Rabbit.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nShiftguard";
         SetupRoleOptions(5594, TabGroup.CrewmateRoles, CustomRoles.Shiftguard);
         RoleLoadingText = "Crewmate roles\nMole";
@@ -1580,6 +1584,12 @@ public static class Options
         NiceHacker.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nDoormaster";
         Doormaster.SetupCustomOption();
+        RoleLoadingText = "Crewmate roles\nConvener";
+        Convener.SetupCustomOption();
+        RoleLoadingText = "Crewmate roles\nPerceiver";
+        Perceiver.SetupCustomOption();
+        RoleLoadingText = "Crewmate roles\nMathematician";
+        Mathematician.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nRicochet";
         Ricochet.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nEscort";
@@ -1639,9 +1649,7 @@ public static class Options
         TransporterTasks = OverrideTasksData.Create(6211, TabGroup.CrewmateRoles, CustomRoles.Transporter);
 
         LoadingPercentage = 17;
-        RoleLoadingText = "Crewmate roles\nAdmirer";
 
-        Admirer.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nChameleon";
         Chameleon.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nCoroner";
@@ -1979,6 +1987,8 @@ public static class Options
         Collector.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nCultist";
         Succubus.SetupCustomOption();
+        RoleLoadingText = "Neutral roles\nNecromancer";
+        Necromancer.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nPhantom";
         SetupRoleOptions(11400, TabGroup.NeutralRoles, CustomRoles.Phantom);
         PhantomCanVent = BooleanOptionItem.Create(11410, "CanVent", false, TabGroup.NeutralRoles, false)
@@ -2043,8 +2053,6 @@ public static class Options
         Bandit.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nAgitater";
         Agitater.SetupCustomOption();
-        RoleLoadingText = "Neutral roles\nInfectious";
-        Infectious.SetupCustomOption();
 
         LoadingPercentage = 33;
         RoleLoadingText = "Neutral roles\nJackal";
@@ -2474,8 +2482,8 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Madmate]);
         FarseerCanBeMadmate = BooleanOptionItem.Create(15816, "FarseerCanBeMadmate", false, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Madmate]);
-        RetributionistCanBeMadmate = BooleanOptionItem.Create(15817, "RetributionistCanBeMadmate", false, TabGroup.Addons, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Madmate]);
+        //RetributionistCanBeMadmate = BooleanOptionItem.Create(15817, "RetributionistCanBeMadmate", false, TabGroup.Addons, false)
+        //.SetParent(CustomRoleSpawnChances[CustomRoles.Madmate]);
         SnitchCanBeMadmate = BooleanOptionItem.Create(15818, "SnitchCanBeMadmate", false, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Madmate]);
         MadSnitchTasks = IntegerOptionItem.Create(15819, "MadSnitchTasks", new(0, 90, 1), 3, TabGroup.Addons, false)
@@ -2657,7 +2665,7 @@ public static class Options
             .SetValueFormat(OptionFormat.Multiplier);
         RoleLoadingText = "Experimental roles\nGiant";
         SetupAdtRoleOptions(18750, CustomRoles.Giant, canSetNum: true, tab: TabGroup.OtherRoles);
-        GiantSpeed = FloatOptionItem.Create(18753, "FlashmanSpeed", new(0.25f, 3f, 0.25f), 2.5f, TabGroup.OtherRoles, false)
+        GiantSpeed = FloatOptionItem.Create(18753, "GiantSpeed", new(0.25f, 3f, 0.25f), 0.75f, TabGroup.OtherRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Flashman])
             .SetValueFormat(OptionFormat.Multiplier);
 
@@ -2669,10 +2677,6 @@ public static class Options
         RoleLoadingText = "Experimental roles\nEgoist";
 
         SetupAdtRoleOptions(18900, CustomRoles.Egoist, canSetNum: true, tab: TabGroup.OtherRoles);
-        CrewCanBeEgoist = BooleanOptionItem.Create(18910, "CrewCanBeEgoist", true, TabGroup.OtherRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Egoist]);
-        ImpCanBeEgoist = BooleanOptionItem.Create(18911, "ImpCanBeEgoist", true, TabGroup.OtherRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Egoist]);
         ImpEgoistVisibalToAllies = BooleanOptionItem.Create(18912, "ImpEgoistVisibalToAllies", true, TabGroup.OtherRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Egoist]);
         /*    SetupAdtRoleOptions(19000, CustomRoles.Sidekick, canSetNum: true, tab: TabGroup.OtherRoles);

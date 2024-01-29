@@ -1,10 +1,8 @@
 ﻿using AmongUs.GameOptions;
 using HarmonyLib;
-using MonoMod.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using TOHE.Roles.Neutral;
 
 namespace TOHE.Modules;
@@ -126,12 +124,15 @@ internal class CustomRoleSelector
             object cr = list[i1];
             CustomRoles role = (CustomRoles)Enum.Parse(typeof(CustomRoles), cr.ToString());
             int chance = role.GetMode();
-            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (CustomRolesHelper.OnlySpawnsWithPetsRoleList.Contains(role) && !Options.UsePets.GetBool()) || (!Main.UseVersionProtocol.Value && !role.IsAbleToHostPublic())) continue;
+            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool())) continue;
             switch (role)
             {
                 case CustomRoles.DarkHide when (MapNames)Main.NormalOptions.MapId == MapNames.Fungle:
                 case CustomRoles.Pelican when AllRoles[RoleAssignType.Impostor].Any(x => x.Role == CustomRoles.Duellist):
                 case CustomRoles.Duellist when AllRoles[RoleAssignType.NeutralKilling].Any(x => x.Role == CustomRoles.Pelican):
+                case CustomRoles.VengefulRomantic:
+                case CustomRoles.RuthlessRomantic:
+                case CustomRoles.Deathknight:
                 case CustomRoles.GM:
                 case CustomRoles.NotAssigned:
                     continue;
@@ -568,7 +569,6 @@ internal class CustomRoleSelector
             Logger.Error("Role assignment error: There are players who have not been assigned a role", "CustomRoleSelector");
         if (FinalRolesList.Count > 0)
             Logger.Error("Team assignment error: There is an unassigned team", "CustomRoleSelector");
-
     }
 
     public static int addScientistNum;
@@ -605,12 +605,12 @@ internal class CustomRoleSelector
         {
             object cr = list[i];
             CustomRoles role = (CustomRoles)Enum.Parse(typeof(CustomRoles), cr.ToString());
-            if (!role.IsAdditionRole() || !Main.UseVersionProtocol.Value && !role.IsAbleToHostPublic()) continue;
+            if (!role.IsAdditionRole()) continue;
             switch (role)
             {
                 case CustomRoles.Mare when (MapNames)Main.NormalOptions.MapId == MapNames.Fungle:
                 case CustomRoles.Madmate when Options.MadmateSpawnMode.GetInt() != 0:
-                case CustomRoles.Lovers or CustomRoles.LastImpostor or CustomRoles.Workhorse:
+                case CustomRoles.Lovers or CustomRoles.LastImpostor or CustomRoles.Workhorse or CustomRoles.Undead:
                 case CustomRoles.Nimble or CustomRoles.Physicist: // Assigned at a different function due to role base change
                     continue;
             }

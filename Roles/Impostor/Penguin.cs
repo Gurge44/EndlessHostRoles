@@ -1,5 +1,4 @@
-﻿using AmongUs.GameOptions;
-using Hazel;
+﻿using Hazel;
 using System.Collections.Generic;
 using UnityEngine;
 using static TOHE.Translator;
@@ -47,7 +46,7 @@ namespace TOHE.Roles.Impostor
         }
         public static bool IsEnable => playerIdList.Count > 0;
         public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
-        public static void ApplyGameOptions(IGameOptions opt) => AURoleOptions.ShapeshifterCooldown = AbductVictim != null ? AbductTimer : AbductTimerLimit;
+        public static void ApplyGameOptions() => AURoleOptions.ShapeshifterCooldown = AbductVictim != null ? AbductTimer : AbductTimerLimit;
         private static void SendRPC()
         {
             if (!IsEnable || !Utils.DoRPC) return;
@@ -94,7 +93,7 @@ namespace TOHE.Roles.Impostor
             Utils.GetPlayerById(playerIdList[0]).RpcResetAbilityCooldown();
             SendRPC();
         }
-        public static bool OnCheckMurderAsKiller(PlayerControl killer, PlayerControl target)
+        public static bool OnCheckMurderAsKiller(PlayerControl target)
         {
             if (!IsEnable) return false;
             bool doKill = true;
@@ -167,7 +166,7 @@ namespace TOHE.Roles.Impostor
                 stopCount = false;
             }
         }
-        public static void OnFixedUpdate(PlayerControl player)
+        public static void OnFixedUpdate()
         {
             if (!IsEnable) return;
             if (!AmongUsClient.Instance.AmHost) return;
@@ -223,14 +222,14 @@ namespace TOHE.Roles.Impostor
                     var position = Utils.GetPlayerById(playerIdList[0]).transform.position;
                     if (Utils.GetPlayerById(playerIdList[0]).PlayerId != 0)
                     {
-                        RandomSpawn.TP(AbductVictim.NetTransform, position);
+                        Utils.TP(AbductVictim.NetTransform, position, log: false);
                     }
                     else
                     {
                         _ = new LateTask(() =>
                         {
                             if (AbductVictim != null)
-                                RandomSpawn.TP(AbductVictim.NetTransform, position);
+                                Utils.TP(AbductVictim.NetTransform, position, log: false);
                         }
                         , 0.25f, "");
                     }

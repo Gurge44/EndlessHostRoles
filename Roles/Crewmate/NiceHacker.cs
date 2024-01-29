@@ -107,7 +107,7 @@
             if (!pc.Is(CustomRoles.NiceHacker)) return;
             if (GameStates.IsMeeting) return;
 
-            if (Main.PlayerStates[pc.PlayerId].GetTaskState().IsTaskFinished)
+            if (Main.PlayerStates[pc.PlayerId].TaskState.IsTaskFinished)
             {
                 LastUpdate.TryAdd(pc.PlayerId, GetTimeStamp());
                 if (LastUpdate[pc.PlayerId] + 5 < GetTimeStamp())
@@ -169,7 +169,7 @@
 
             var sb = new StringBuilder();
 
-            var taskState = Main.PlayerStates?[playerId].GetTaskState();
+            var taskState = Main.PlayerStates?[playerId].TaskState;
             UnityEngine.Color TextColor;
             var TaskCompleteColor = UnityEngine.Color.green;
             var NonCompleteColor = UnityEngine.Color.yellow;

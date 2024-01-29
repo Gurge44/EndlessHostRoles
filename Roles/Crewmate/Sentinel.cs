@@ -1,5 +1,4 @@
-﻿using Hazel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -33,7 +32,6 @@ namespace TOHE.Roles.Crewmate
             PatrolStartTimeStamp = GetTimeStamp();
             foreach (var pc in NearbyKillers) pc.Notify(string.Format(GetString("KillerNotifyPatrol"), PatrolDuration));
             Sentinel.MarkDirtySettings();
-            SendRPC();
         }
 
         public void Update()
@@ -79,32 +77,12 @@ namespace TOHE.Roles.Crewmate
         public void FinishPatrolling()
         {
             IsPatrolling = false;
-            SendRPC();
             if (!GameStates.IsInTask) return;
             foreach (var pc in NearbyKillers)
             {
                 pc.Suicide(realKiller: Sentinel);
             }
             Sentinel.MarkDirtySettings();
-        }
-
-        public void SendRPC()
-        {
-            if (!DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncSentinel, SendOption.Reliable, -1);
-            writer.Write(SentinelId);
-            writer.Write(IsPatrolling);
-            writer.Write(StartingPosition.x);
-            writer.Write(StartingPosition.y);
-            writer.Write(PatrolStartTimeStamp.ToString());
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-
-        public void ReceiveRPC(bool ispatrolling, float x, float y, string ts)
-        {
-            IsPatrolling = ispatrolling;
-            StartingPosition = new(x, y);
-            PatrolStartTimeStamp = long.Parse(ts);
         }
     }
     internal class Sentinel
@@ -144,15 +122,6 @@ namespace TOHE.Roles.Crewmate
             var newPatrolState = new PatrollingState(playerId, PatrolDuration.GetInt(), PatrolRadius.GetFloat());
             PatrolStates.Add(newPatrolState);
             _ = new LateTask(newPatrolState.SetPlayer, 8f, log: false);
-        }
-        public static void ReceiveRPC(MessageReader reader)
-        {
-            byte id = reader.ReadByte();
-            bool ispatrolling = reader.ReadBoolean();
-            float x = reader.ReadSingle();
-            float y = reader.ReadSingle();
-            string ts = reader.ReadString();
-            PatrolStates.FirstOrDefault(x => x.SentinelId == id).ReceiveRPC(ispatrolling, x, y, ts);
         }
         public static bool IsEnable => PatrolStates.Count > 0;
         public static PatrollingState GetPatrollingState(byte playerId) => PatrolStates.FirstOrDefault(x => x.SentinelId == playerId) ?? new(playerId, PatrolDuration.GetInt(), PatrolRadius.GetInt());

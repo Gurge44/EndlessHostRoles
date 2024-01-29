@@ -168,8 +168,13 @@ public static class MushroomMixupSabotageSystemPatch
 [HarmonyPatch(typeof(ElectricTask), nameof(ElectricTask.Initialize))]
 public static class ElectricTaskInitializePatch
 {
+    private static long LastUpdate = 0;
     public static void Postfix()
     {
+        long now = Utils.GetTimeStamp();
+        if (LastUpdate >= now) return;
+        LastUpdate = now;
+
         Utils.MarkEveryoneDirtySettingsV2();
 
         if (GameStates.IsInTask)
@@ -190,8 +195,13 @@ public static class ElectricTaskInitializePatch
 [HarmonyPatch(typeof(ElectricTask), nameof(ElectricTask.Complete))]
 public static class ElectricTaskCompletePatch
 {
+    private static long LastUpdate = 0;
     public static void Postfix()
     {
+        long now = Utils.GetTimeStamp();
+        if (LastUpdate >= now) return;
+        LastUpdate = now;
+
         Utils.MarkEveryoneDirtySettingsV2();
 
         if (GameStates.IsInTask)

@@ -72,76 +72,40 @@ namespace TOHE.Roles.Crewmate
             byte playerId = reader.ReadByte();
             UseLimit[playerId] = reader.ReadSingle();
         }
-        public static void SendRPCAddTriggerDelay(byte playerId, long timestamp)
-        {
-            if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DruidAddTriggerDelay, SendOption.Reliable, -1);
-            writer.Write(playerId);
-            writer.Write(timestamp.ToString());
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-        public static void ReceiveRPCAddTriggerDelay(MessageReader reader)
-        {
-            if (!IsEnable) return;
-            byte playerId = reader.ReadByte();
-            long timestamp = long.Parse(reader.ReadString());
-
-            TriggerDelays.Remove(playerId);
-            TriggerDelays.Add(playerId, timestamp);
-        }
-        public static void SendRPCAddTrigger(byte playerId, Vector2 position, string roomName)
+        public static void SendRPCAddTrigger(bool add, byte playerId, Vector2 position, string roomName = "")
         {
             if (!IsEnable || !DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DruidAddTrigger, SendOption.Reliable, -1);
+            writer.Write(add);
             writer.Write(playerId);
             writer.Write(position.x);
             writer.Write(position.y);
-            writer.Write(roomName);
+            if (add) writer.Write(roomName);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         public static void ReceiveRPCAddTrigger(MessageReader reader)
         {
             if (!IsEnable) return;
-            byte playerId = reader.ReadByte();
-            float x = reader.ReadSingle();
-            float y = reader.ReadSingle();
-            string roomName = reader.ReadString();
 
-            Vector2 position = new(x, y);
-            TriggerDelays.Remove(playerId);
-            if (!Triggers.ContainsKey(playerId)) Triggers.Add(playerId, []);
-            Triggers[playerId].TryAdd(position, roomName);
-        }
-        public static void SendRPCRemoveTrigger(byte playerId, Vector2 position)
-        {
-            if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DruidRemoveTrigger, SendOption.Reliable, -1);
-            writer.Write(playerId);
-            writer.Write(position.x);
-            writer.Write(position.y);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-        public static void ReceiveRPCRemoveTrigger(MessageReader reader)
-        {
-            if (!IsEnable) return;
+            bool add = reader.ReadBoolean();
             byte playerId = reader.ReadByte();
             float x = reader.ReadSingle();
             float y = reader.ReadSingle();
 
             Vector2 position = new(x, y);
-            Triggers[playerId].Remove(position);
-        }
-        public static void SendRPCSyncLastUpdate()
-        {
-            if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DruidSyncLastUpdate, SendOption.Reliable, -1);
-            writer.Write(lastUpdate.ToString());
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-        public static void ReceiveRPCSyncLastUpdate(MessageReader reader)
-        {
-            if (!IsEnable) return;
-            lastUpdate = long.Parse(reader.ReadString());
+
+            if (add)
+            {
+                string roomName = reader.ReadString();
+
+                TriggerDelays.Remove(playerId);
+                if (!Triggers.ContainsKey(playerId)) Triggers.Add(playerId, []);
+                Triggers[playerId].TryAdd(position, roomName);
+            }
+            else
+            {
+                Triggers[playerId].Remove(position);
+            }
         }
 
         public static void OnEnterVent(PlayerControl pc, bool isPet = false)
@@ -157,12 +121,11 @@ namespace TOHE.Roles.Crewmate
                 var (LOCATION, ROOM_NAME) = pc.GetPositionInfo();
                 if (!Triggers.ContainsKey(pc.PlayerId)) Triggers.Add(pc.PlayerId, []);
                 Triggers[pc.PlayerId].TryAdd(LOCATION, ROOM_NAME);
-                SendRPCAddTrigger(pc.PlayerId, LOCATION, ROOM_NAME);
+                SendRPCAddTrigger(true, pc.PlayerId, LOCATION, ROOM_NAME);
             }
             else
             {
                 TriggerDelays.TryAdd(pc.PlayerId, now);
-                SendRPCAddTriggerDelay(pc.PlayerId, now);
             }
 
             UseLimit[pc.PlayerId]--;
@@ -179,7 +142,7 @@ namespace TOHE.Roles.Crewmate
                 {
                     GetPlayerById(triggers.Key).Notify(string.Format(GetString("DruidTriggerTriggered"), GetFormattedRoomName(trigger.Value), GetFormattedVectorText(trigger.Key)));
                     Triggers[triggers.Key].Remove(trigger.Key);
-                    SendRPCRemoveTrigger(triggers.Key, trigger.Key);
+                    SendRPCAddTrigger(false, triggers.Key, trigger.Key);
                 }
             }
         }
@@ -202,7 +165,7 @@ namespace TOHE.Roles.Crewmate
                     var (LOCATION, ROOM_NAME) = pc.GetPositionInfo();
                     if (!Triggers.ContainsKey(id)) Triggers.Add(id, []);
                     Triggers[id].TryAdd(LOCATION, ROOM_NAME);
-                    SendRPCAddTrigger(id, LOCATION, ROOM_NAME);
+                    SendRPCAddTrigger(true, id, LOCATION, ROOM_NAME);
                     continue;
                 }
 
@@ -211,7 +174,6 @@ namespace TOHE.Roles.Crewmate
             }
 
             lastUpdate = now;
-            SendRPCSyncLastUpdate();
         }
 
         public static string GetSuffixText(byte playerId)

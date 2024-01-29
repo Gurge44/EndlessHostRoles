@@ -101,7 +101,7 @@ namespace TOHE.Roles.Crewmate
                 var enigmaPlayer = Utils.GetPlayerById(playerId);
                 if (enigmaPlayer == null) continue;
 
-                int tasksCompleted = enigmaPlayer.GetPlayerTaskState().CompletedTasksCount;
+                int tasksCompleted = enigmaPlayer.GetTaskState().CompletedTasksCount;
                 int stage = 0;
                 bool showStageClue = false;
 

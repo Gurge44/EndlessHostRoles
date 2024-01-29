@@ -28,7 +28,7 @@ public class ModUpdater
 
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPrefix]
     [HarmonyPriority(2)]
-    public static void Start_Prefix(MainMenuManager __instance)
+    public static void Start_Prefix()
     {
         NewVersionCheck();
         DeleteOldFiles();
@@ -96,7 +96,7 @@ public class ModUpdater
                 Logger.Info(assets.ToString(), "ModUpdater");
                 for (int i = 0; i < assets.Count; i++)
                 {
-                    if (assets[i]["name"].ToString() == $"TOHE+.v{latestVersion}.zip")
+                    if (assets[i]["name"].ToString() == $"TOHE-PLUS.v{latestVersion}.zip")
                     {
                         downloadUrl = assets[i]["browser_download_url"].ToString();
                         break;

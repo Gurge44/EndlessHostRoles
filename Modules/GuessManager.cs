@@ -144,10 +144,10 @@ public static class GuessManager
             case 2:
                 {
                     if (
-                    pc.Is(CustomRoles.NiceGuesser) && Options.GGTryHideMsg.GetBool() ||
-                    pc.Is(CustomRoles.EvilGuesser) && Options.EGTryHideMsg.GetBool() ||
-                    pc.Is(CustomRoles.Doomsayer) && Doomsayer.DoomsayerTryHideMsg.GetBool() ||
-                    pc.Is(CustomRoles.Guesser) && Options.GTryHideMsg.GetBool() || Options.GuesserMode.GetBool() && Options.HideGuesserCommands.GetBool()
+                    (pc.Is(CustomRoles.NiceGuesser) && Options.GGTryHideMsg.GetBool()) ||
+                    (pc.Is(CustomRoles.EvilGuesser) && Options.EGTryHideMsg.GetBool()) ||
+                    (pc.Is(CustomRoles.Doomsayer) && Doomsayer.DoomsayerTryHideMsg.GetBool()) ||
+                    (pc.Is(CustomRoles.Guesser) && Options.GTryHideMsg.GetBool()) || (Options.GuesserMode.GetBool() && Options.HideGuesserCommands.GetBool())
                     ) /*TryHideMsg();*/ ChatManager.SendPreviousMessagesToAll();
                     else if (pc.AmOwner && !isUI) Utils.SendMessage(originMsg, 255, pc.GetRealName());
 
@@ -255,7 +255,7 @@ public static class GuessManager
                                 if (!isUI) Utils.SendMessage(GetString("GuessMonarch"), pc.PlayerId);
                                 else pc.ShowPopUp(GetString("GuessMonarch"));
                                 return true;
-                            case CustomRoles.Mayor when Options.MayorRevealWhenDoneTasks.GetBool() && target.GetPlayerTaskState().IsTaskFinished:
+                            case CustomRoles.Mayor when Options.MayorRevealWhenDoneTasks.GetBool() && target.GetTaskState().IsTaskFinished:
                                 if (!isUI) Utils.SendMessage(GetString("GuessMayor"), pc.PlayerId);
                                 else pc.ShowPopUp(GetString("GuessMayor"));
                                 return true;
@@ -272,7 +272,7 @@ public static class GuessManager
                                 if (!isUI) Utils.SendMessage(GetString("GuessPhantom"), pc.PlayerId);
                                 else pc.ShowPopUp(GetString("GuessPhantom"));
                                 return true;
-                            case CustomRoles.Snitch when target.GetPlayerTaskState().IsTaskFinished:
+                            case CustomRoles.Snitch when target.GetTaskState().IsTaskFinished:
                                 if (!isUI) Utils.SendMessage(GetString("EGGuessSnitchTaskDone"), pc.PlayerId);
                                 else pc.ShowPopUp(GetString("EGGuessSnitchTaskDone"));
                                 return true;
@@ -1057,7 +1057,7 @@ public static class GuessManager
                     or CustomRoles.GuardianAngelTOHE
                     ) continue;
 
-                if (!role.IsEnable() && !role.RoleExist(countDead: true)) continue;
+                if (!role.IsEnable() && !role.RoleExist(countDead: true) && !role.IsConverted()) continue;
 
                 CreateRole(role);
             }

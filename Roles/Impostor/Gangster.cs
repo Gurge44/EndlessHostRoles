@@ -18,7 +18,7 @@ public static class Gangster
     public static OptionItem JudgeCanBeMadmate;
     public static OptionItem MarshallCanBeMadmate;
     public static OptionItem FarseerCanBeMadmate;
-    public static OptionItem RetributionistCanBeMadmate;
+    //public static OptionItem RetributionistCanBeMadmate;
 
     public static Dictionary<byte, int> RecruitLimit = [];
 
@@ -36,7 +36,7 @@ public static class Gangster
         JudgeCanBeMadmate = BooleanOptionItem.Create(Id + 17, "GanJudgeCanBeMadmate", false, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
         MarshallCanBeMadmate = BooleanOptionItem.Create(Id + 18, "GanMarshallCanBeMadmate", false, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
         FarseerCanBeMadmate = BooleanOptionItem.Create(Id + 19, "GanFarseerCanBeMadmate", false, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
-        RetributionistCanBeMadmate = BooleanOptionItem.Create(Id + 20, "GanRetributionistCanBeMadmate", false, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
+        //RetributionistCanBeMadmate = BooleanOptionItem.Create(Id + 20, "GanRetributionistCanBeMadmate", false, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
 
     }
     public static void Init()
@@ -79,7 +79,7 @@ public static class Gangster
         if (RecruitLimit[killer.PlayerId] < 1) return false;
         if (CanBeMadmate(target))
         {
-            if (!killer.Is(CustomRoles.Recruit) && !killer.Is(CustomRoles.Charmed) && !killer.Is(CustomRoles.Infected) && !killer.Is(CustomRoles.Contagious) && !killer.Is(CustomRoles.Admired))
+            if (!killer.Is(CustomRoles.Recruit) && !killer.Is(CustomRoles.Charmed) && !killer.Is(CustomRoles.Contagious))
             {
                 RecruitLimit[killer.PlayerId]--;
                 SendRPC(killer.PlayerId);
@@ -96,7 +96,7 @@ public static class Gangster
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
 
-                Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Madmate.ToString(), "Assign " + CustomRoles.Madmate.ToString());
+                Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Madmate.ToString(), "Assign " + CustomRoles.Madmate.ToString());
                 if (RecruitLimit[killer.PlayerId] < 0)
                     HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RecruitLimit[killer.PlayerId]}次招募机会", "Gangster");
@@ -119,30 +119,7 @@ public static class Gangster
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
 
-                Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Recruit.ToString(), "Assign " + CustomRoles.Recruit.ToString());
-                if (RecruitLimit[killer.PlayerId] < 0)
-                    HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
-                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RecruitLimit[killer.PlayerId]}次招募机会", "Gangster");
-                return true;
-            }
-            if (killer.Is(CustomRoles.Admired))
-            {
-                RecruitLimit[killer.PlayerId]--;
-                SendRPC(killer.PlayerId);
-                target.RpcSetCustomRole(CustomRoles.Admired);
-
-                killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Admired), GetString("GangsterSuccessfullyRecruited")));
-                target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Admired), GetString("BeRecruitedByGangster")));
-                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
-
-                killer.ResetKillCooldown();
-                killer.SetKillCooldown();
-                //killer.RpcGuardAndKill(target);
-                target.RpcGuardAndKill(killer);
-                target.RpcGuardAndKill(target);
-
-                Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Admired.ToString(), "Assign " + CustomRoles.Admired.ToString());
+                Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Recruit.ToString(), "Assign " + CustomRoles.Recruit.ToString());
                 if (RecruitLimit[killer.PlayerId] < 0)
                     HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RecruitLimit[killer.PlayerId]}次招募机会", "Gangster");
@@ -165,30 +142,7 @@ public static class Gangster
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
 
-                Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Charmed.ToString(), "Assign " + CustomRoles.Charmed.ToString());
-                if (RecruitLimit[killer.PlayerId] < 0)
-                    HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
-                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RecruitLimit[killer.PlayerId]}次招募机会", "Gangster");
-                return true;
-            }
-            if (killer.Is(CustomRoles.Infected))
-            {
-                RecruitLimit[killer.PlayerId]--;
-                SendRPC(killer.PlayerId);
-                target.RpcSetCustomRole(CustomRoles.Infected);
-
-                killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Infected), GetString("GangsterSuccessfullyRecruited")));
-                target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Infected), GetString("BeRecruitedByGangster")));
-                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
-
-                killer.ResetKillCooldown();
-                killer.SetKillCooldown();
-                //killer.RpcGuardAndKill(target);
-                target.RpcGuardAndKill(killer);
-                target.RpcGuardAndKill(target);
-
-                Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Infected.ToString(), "Assign " + CustomRoles.Infected.ToString());
+                Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Charmed.ToString(), "Assign " + CustomRoles.Charmed.ToString());
                 if (RecruitLimit[killer.PlayerId] < 0)
                     HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RecruitLimit[killer.PlayerId]}次招募机会", "Gangster");
@@ -211,7 +165,7 @@ public static class Gangster
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
 
-                Logger.Info("设置职业:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Contagious.ToString(), "Assign " + CustomRoles.Contagious.ToString());
+                Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Contagious.ToString(), "Assign " + CustomRoles.Contagious.ToString());
                 if (RecruitLimit[killer.PlayerId] < 0)
                     HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RecruitLimit[killer.PlayerId]}次招募机会", "Gangster");

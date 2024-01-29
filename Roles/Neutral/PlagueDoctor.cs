@@ -87,7 +87,7 @@ namespace TOHE.Roles.Neutral
         public static bool IsEnable => playerIdList.Count > 0;
         public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
         public static bool CanUseKillButton() => InfectCount != 0;
-        public static string GetProgressText(bool comms = false)
+        public static string GetProgressText()
         {
             return Utils.ColorString(Utils.GetRoleColor(CustomRoles.PlagueDoctor).ShadeColor(0.25f), $"({InfectCount})");
         }
@@ -214,7 +214,7 @@ namespace TOHE.Roles.Neutral
             InfectInactiveTime, "ResetInfectInactiveTime");
         }
 
-        public static string GetMarkOthers(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
+        public static string GetMarkOthers(PlayerControl seer, PlayerControl seen = null)
         {
             if (!IsEnable) return string.Empty;
             seen ??= seer;
@@ -222,7 +222,7 @@ namespace TOHE.Roles.Neutral
             if (!seer.Is(CustomRoles.PlagueDoctor) && seer.IsAlive()) return string.Empty;
             return Utils.ColorString(Utils.GetRoleColor(CustomRoles.PlagueDoctor), GetInfectRateCharactor(seen));
         }
-        public static string GetLowerTextOthers(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+        public static string GetLowerTextOthers(PlayerControl seer, PlayerControl seen = null, bool isForHud = false)
         {
             if (!IsEnable) return string.Empty;
             seen ??= seer;

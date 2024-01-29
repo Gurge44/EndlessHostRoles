@@ -32,11 +32,9 @@ public static class Glitch
     public static long LastMimic;
 
     private static bool isShifted;
-    //    public static OptionItem CanUseSabotage;
 
     public static void SetupCustomOption()
     {
-        //Glitchは1人固定
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Glitch, 1, zeroOne: false);
         KillCooldown = IntegerOptionItem.Create(Id + 10, "KillCooldown", new(0, 180, 1), 25, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Glitch])
             .SetValueFormat(OptionFormat.Seconds);
@@ -76,107 +74,28 @@ public static class Glitch
 
         _ = new LateTask(() =>
         {
-            SendRPCSyncLongs(LastKill, LastHack, LastMimic);
-            SendRPCSyncTimers(MimicCDTimer, MimicDurTimer, HackCDTimer, KCDTimer);
-            SendRPCSyncSS(isShifted);
+            SendRPCSyncTimers();
         }, 7f, "Glitch RPCs");
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static void SetHudActive(HudManager __instance, bool isActive)
+    public static void SetHudActive(HudManager __instance)
     {
         __instance.SabotageButton.ToggleVisible(true);
     }
 
     public static bool IsEnable => playerIdList.Count > 0;
-    public static void SendRPCSyncTimers(int mimicCDTimer, int mimicDurTimer, int hackCDTimer, int KCDTimer)
+    public static void SendRPCSyncTimers()
     {
         if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGlitchTimers, SendOption.Reliable, -1);
-        writer.Write(mimicCDTimer);
-        writer.Write(mimicDurTimer);
-        writer.Write(hackCDTimer);
+        writer.Write(MimicCDTimer);
+        writer.Write(MimicDurTimer);
+        writer.Write(HackCDTimer);
         writer.Write(KCDTimer);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-    public static void SendRPCSyncMimic(int mimicCDTimer, int mimicDurTimer, long lastMimic)
-    {
-        if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGlitchMimic, SendOption.Reliable, -1);
-        writer.Write(mimicCDTimer);
-        writer.Write(mimicDurTimer);
-        writer.Write(lastMimic.ToString());
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-    public static void SendRPCSyncLongs(long lastKill, long lastHack, long lastMimic)
-    {
-        if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGlitchLongs, SendOption.Reliable, -1);
-        writer.Write(lastKill.ToString());
-        writer.Write(lastHack.ToString());
-        writer.Write(lastMimic.ToString());
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-    public static void SendRPCSyncKill(long lastKill, int KCDtimer)
-    {
-        if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGlitchKill, SendOption.Reliable, -1);
-        writer.Write(lastKill.ToString());
-        writer.Write(KCDtimer);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-    public static void SendRPCSyncHack(long lastHack, int hackCDTimer)
-    {
-        if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGlitchHack, SendOption.Reliable, -1);
-        writer.Write(lastHack);
-        writer.Write(hackCDTimer);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-    public static void SendRPCSyncSS(bool isShifted)
-    {
-        if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGlitchSS, SendOption.Reliable, -1);
-        writer.Write(isShifted);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-    public static void ReceiveRPCSyncSS(MessageReader reader)
-    {
-        if (AmongUsClient.Instance.AmHost) return;
-
-        isShifted = reader.ReadBoolean();
-    }
-    public static void ReceiveRPCSyncHack(MessageReader reader)
-    {
-        if (AmongUsClient.Instance.AmHost) return;
-
-        LastHack = long.Parse(reader.ReadString());
-        HackCDTimer = reader.ReadInt32();
-    }
-    public static void ReceiveRPCSyncKill(MessageReader reader)
-    {
-        if (AmongUsClient.Instance.AmHost) return;
-
-        LastKill = long.Parse(reader.ReadString());
-        KCDTimer = reader.ReadInt32();
-    }
-    public static void ReceiveRPCSyncLongs(MessageReader reader)
-    {
-        if (AmongUsClient.Instance.AmHost) return;
-
-        LastKill = long.Parse(reader.ReadString());
-        LastHack = long.Parse(reader.ReadString());
-        LastMimic = long.Parse(reader.ReadString());
-    }
-    public static void ReceiveRPCSyncMimic(MessageReader reader)
-    {
-        if (AmongUsClient.Instance.AmHost) return;
-
-        MimicCDTimer = reader.ReadInt32();
-        MimicDurTimer = reader.ReadInt32();
-        LastMimic = long.Parse(reader.ReadString());
     }
     public static void ReceiveRPCSyncTimers(MessageReader reader)
     {
@@ -204,11 +123,10 @@ public static class Glitch
             pc.RpcShapeshift(playerlist[IRandom.Instance.Next(0, playerlist.Length)], false);
 
             isShifted = true;
-            SendRPCSyncSS(isShifted);
             LastMimic = Utils.GetTimeStamp();
             MimicCDTimer = MimicCooldown.GetInt();
             MimicDurTimer = MimicDuration.GetInt();
-            SendRPCSyncMimic(MimicCDTimer, MimicDurTimer, LastMimic);
+            SendRPCSyncTimers();
         }
         catch (System.Exception ex)
         {
@@ -230,14 +148,14 @@ public static class Glitch
                 HackCDTimer = HackCooldown.GetInt();
                 hackedIdList.TryAdd(target.PlayerId, Utils.GetTimeStamp());
                 LastHack = Utils.GetTimeStamp();
-                SendRPCSyncHack(LastHack, HackCDTimer);
+                SendRPCSyncTimers();
             }
         }))
         {
             if (KCDTimer > 0) return false;
             LastKill = Utils.GetTimeStamp();
             KCDTimer = KillCooldown.GetInt();
-            SendRPCSyncKill(LastKill, KCDTimer);
+            SendRPCSyncTimers();
             return true;
         }
         else return false;
@@ -285,7 +203,6 @@ public static class Glitch
             {
                 player.RpcShapeshift(player, false);
                 isShifted = false;
-                SendRPCSyncSS(isShifted);
             }
             catch (System.Exception ex)
             {
@@ -325,7 +242,7 @@ public static class Glitch
             if ((!NameNotifyManager.Notice.TryGetValue(player.PlayerId, out var a) || a.TEXT != ns) && ns != string.Empty) player.Notify(ns, 1.1f);
         }
 
-        SendRPCSyncTimers(MimicCDTimer, MimicDurTimer, HackCDTimer, KCDTimer);
+        if (player.IsNonHostModClient()) SendRPCSyncTimers();
     }
     public static string GetHudText(PlayerControl player)
     {
@@ -351,7 +268,6 @@ public static class Glitch
         KCDTimer = 10;
         HackCDTimer = 10;
         MimicCDTimer = 10;
-        SendRPCSyncLongs(LastKill, LastHack, LastMimic);
-        SendRPCSyncTimers(MimicCDTimer, MimicDurTimer, HackCDTimer, KCDTimer);
+        SendRPCSyncTimers();
     }
 }

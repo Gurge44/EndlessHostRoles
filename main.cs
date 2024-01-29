@@ -79,7 +79,6 @@ public class Main : BasePlugin
     public static ConfigEntry<string> WebhookURL { get; private set; }
     public static ConfigEntry<string> BetaBuildURL { get; private set; }
     public static ConfigEntry<float> LastKillCooldown { get; private set; }
-    public static ConfigEntry<bool> UseVersionProtocol { get; private set; }
     public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
     public static OptionBackupData RealOptionsData;
     public static Dictionary<byte, float> KillTimers = [];
@@ -266,7 +265,6 @@ public class Main : BasePlugin
         SwitchVanilla = Config.Bind("Client Options", "SwitchVanilla", false);
         VersionCheat = Config.Bind("Client Options", "VersionCheat", false);
         GodMode = Config.Bind("Client Options", "GodMode", false);
-        UseVersionProtocol = Config.Bind("Client Options", "UseVersionProtocol", true);
         DarkTheme = Config.Bind("Client Options", "DarkTheme", false);
 
         Logger = BepInEx.Logging.Logger.CreateLogSource("TOHE");
@@ -348,6 +346,7 @@ public class Main : BasePlugin
                 {CustomRoles.Express, "#00ffff"},
                 {CustomRoles.NiceEraser, "#00a5ff"},
                 {CustomRoles.TaskManager, "#00ffa5"},
+                {CustomRoles.Rabbit, "#88d2ff"},
                 {CustomRoles.Shiftguard, "#eb34cc"},
                 {CustomRoles.Mole, "#00ff80"},
                 {CustomRoles.Sentinel, "#4bc8d6"},
@@ -360,6 +359,9 @@ public class Main : BasePlugin
                 {CustomRoles.Gaulois, "#42d1f5"},
                 {CustomRoles.Druid, "#ffb694"},
                 {CustomRoles.Autocrat, "#e2ed64"},
+                {CustomRoles.Perceiver, "#ebeb34"},
+                {CustomRoles.Convener, "#34eb7a"},
+                {CustomRoles.Mathematician, "#eb3474"},
                 {CustomRoles.Transmitter, "#c9a11e"},
                 {CustomRoles.Doppelganger,"#f6f4a3"},
                 {CustomRoles.Nightmare, "#1e1247"},
@@ -421,7 +423,6 @@ public class Main : BasePlugin
                 {CustomRoles.Spiritualist, "#669999"},
                 {CustomRoles.Chameleon, "#01C834"},
                 {CustomRoles.ParityCop, "#0D57AF"},
-                {CustomRoles.Admirer, "#ee43c3"},
                 {CustomRoles.TimeMaster, "#44baff"},
                 {CustomRoles.Crusader, "#C65C39"},
                 //{CustomRoles.Reverie, "#00BFFF"},
@@ -458,6 +459,8 @@ public class Main : BasePlugin
                 {CustomRoles.VengefulRomantic, "#8B0000"},
                 {CustomRoles.RuthlessRomantic, "#D2691E"},
                 {CustomRoles.Succubus, "#cf6acd"},
+                {CustomRoles.Necromancer, "#f7adcf"},
+                {CustomRoles.Deathknight, "#361d12"},
                 {CustomRoles.HexMaster, "#ff00ff"},
                 {CustomRoles.Wraith, "#4B0082"},
                 {CustomRoles.NSerialKiller, "#233fcc"},
@@ -484,7 +487,6 @@ public class Main : BasePlugin
                 {CustomRoles.Parasite, "#ff1919"},
                 {CustomRoles.Crewpostor, "#ff1919"},
                 {CustomRoles.Refugee, "#ff1919"},
-                {CustomRoles.Infectious, "#7B8968"},
                 {CustomRoles.Virus, "#2E8B57"},
                 {CustomRoles.Farseer, "#BA55D3"},
                 {CustomRoles.Pursuer, "#617218"},
@@ -531,6 +533,7 @@ public class Main : BasePlugin
                 {CustomRoles.Bewilder, "#c894f5"},
                 {CustomRoles.Sunglasses, "#E7C12B"},
                 {CustomRoles.Workhorse, "#00ffff"},
+                {CustomRoles.Undead, "#ed9abd"},
                 {CustomRoles.Cleansed,"#98FF98"},
                 {CustomRoles.Fool, "#e6e7ff"},
                 {CustomRoles.Avanger, "#ffab1c"},
@@ -549,7 +552,6 @@ public class Main : BasePlugin
                 {CustomRoles.Charmed, "#cf6acd"},
                 {CustomRoles.Bait, "#00f7ff"},
                 {CustomRoles.Trapper, "#5a8fd0"},
-                {CustomRoles.Infected, "#7B8968"},
                 {CustomRoles.Onbound, "#BAAAE9"},
                 {CustomRoles.Knighted, "#FFA500"},
                 {CustomRoles.Contagious, "#2E8B57"},
@@ -560,14 +562,12 @@ public class Main : BasePlugin
                 {CustomRoles.DoubleShot, "#19fa8d"},
      //           {CustomRoles.Reflective, "#FFD700"},
                 {CustomRoles.Rascal, "#990000"},
-                {CustomRoles.Soulless, "#531269"},
                 {CustomRoles.Gravestone, "#2EA8E7"},
                 {CustomRoles.Lazy, "#a4dffe"},
                 {CustomRoles.Autopsy, "#80ffdd"},
                 {CustomRoles.Loyal, "#B71556"},
                 {CustomRoles.Visionary, "#ff1919"},
                 {CustomRoles.Recruit, "#00b4eb"},
-                {CustomRoles.Admired, "#ee43c3"},
                 {CustomRoles.Glow, "#E2F147"},
                 {CustomRoles.Diseased, "#AAAAAA"},
                 {CustomRoles.Antidote,"#FF9876"},
@@ -712,6 +712,8 @@ public enum CustomRoles
     Scavenger,
     Sniper,
     ImperiusCurse, // Soul Catcher
+    Swapster,
+    Swiftclaw,
     Swooper,
     Stealth,
     TimeThief,
@@ -741,7 +743,6 @@ public enum CustomRoles
 
     // Crewmate
 
-    Admirer,
     Addict,
     Aid,
     Alchemist,
@@ -809,6 +810,7 @@ public enum CustomRoles
     Paranoia,
     Philantropist,
     Psychic,
+    Rabbit,
     Ricochet,
     Sentinel,
     SecurityGuard,
@@ -844,6 +846,8 @@ public enum CustomRoles
     BloodKnight,
     Bubble,
     Collector,
+    Convener,
+    Deathknight,
     Gamer, // Demon
     Doppelganger,
     Doomsayer,
@@ -857,7 +861,6 @@ public enum CustomRoles
     HexMaster,
     Hookshot,
     Imitator,
-    Infectious,
     Innocent,
     Jackal,
     Jester,
@@ -867,11 +870,14 @@ public enum CustomRoles
     Lawyer,
     Magician,
     Mario,
+    Mathematician,
     Maverick,
     Medusa,
     Mycologist,
+    Necromancer,
     Opportunist,
     Pelican,
+    Perceiver,
     Pestilence,
     Phantom,
     Pickpocket,
@@ -920,7 +926,6 @@ public enum CustomRoles
 
     // Sub-role after 500
     NotAssigned = 500,
-    Admired,
     Antidote,
     Asthmatic,
     Autopsy,
@@ -947,7 +952,6 @@ public enum CustomRoles
     Glow,
     Gravestone,
     Guesser,
-    Infected,
     Knighted,
     LastImpostor,
     Lazy,
@@ -971,7 +975,6 @@ public enum CustomRoles
     DualPersonality, // Schizophrenic
     Seer,
     Sleuth,
-    Soulless,
     TicketsStealer, // Stealer
     Stressed,
     Swift,
@@ -979,6 +982,7 @@ public enum CustomRoles
     Brakar, // Tiebreaker
     Torch,
     Truant,
+    Undead,
     Unlucky,
     Watcher,
     Workhorse,
@@ -1017,6 +1021,7 @@ public enum CustomWinner
     Poisoner = CustomRoles.Poisoner,
     HexMaster = CustomRoles.HexMaster,
     Succubus = CustomRoles.Succubus,
+    Necromancer = CustomRoles.Necromancer,
     Wraith = CustomRoles.Wraith,
     //Pirate = CustomRoles.Pirate,
     SerialKiller = CustomRoles.NSerialKiller,
@@ -1038,7 +1043,6 @@ public enum CustomWinner
     //Witch = CustomRoles.NWitch,
     Juggernaut = CustomRoles.Juggernaut,
     Bandit = CustomRoles.Bandit,
-    Infectious = CustomRoles.Infectious,
     Virus = CustomRoles.Virus,
     Rogue = CustomRoles.Rogue,
     Phantom = CustomRoles.Phantom,

@@ -79,7 +79,7 @@ public static class WeaponMaster
         opt.SetVision(HasImpostorVision.GetBool());
     }
 
-    public static bool CanKill(PlayerControl pc) => Mode != 3;
+    public static bool CanKill() => Mode != 3;
     public static void SwitchMode()
     {
         var id = playerIdList[0];
@@ -143,7 +143,7 @@ public static class WeaponMaster
                 return true;
         }
     }
-    public static bool OnAttack(PlayerControl killer, PlayerControl target)
+    public static bool OnAttack()
     {
         if (Mode == 3 && !shieldUsed)
         {

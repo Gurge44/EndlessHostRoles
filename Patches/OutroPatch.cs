@@ -17,7 +17,7 @@ class EndGamePatch
     public static Dictionary<byte, string> SummaryText = [];
     public static string KillLog = string.Empty;
     public static GameOverReason LastGameOverReason = GameOverReason.ImpostorByKill;
-    public static void Postfix(AmongUsClient __instance, [HarmonyArgument(0)] ref EndGameResult endGameResult)
+    public static void Postfix(/*AmongUsClient __instance,*/ [HarmonyArgument(0)] ref EndGameResult endGameResult)
     {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         GameStates.InGame = false;
@@ -48,7 +48,7 @@ class EndGamePatch
             }
             SummaryText[id] = Utils.SummaryTexts(id, disableColor: false);
         }
-        
+
         var sb = new StringBuilder(GetString("KillLog") + ":");
         foreach (var kvp in Main.PlayerStates.OrderBy(x => x.Value.RealKiller.TIMESTAMP.Ticks))
         {
@@ -120,6 +120,10 @@ class SetEverythingUpPatch
             // ---------- Code from TOR (The Other Roles)! ----------
             if (Options.CurrentGameMode is not CustomGameMode.Standard) goto End;
             int num = Mathf.CeilToInt(7.5f);
+
+            GameOverReason reason = EndGamePatch.LastGameOverReason;
+            bool isCrewWin = reason.Equals(GameOverReason.HumansByVote) || reason.Equals(GameOverReason.HumansByTask);
+
             List<WinningPlayerData> winningPlayerDataList = TempData.winners.ToArray().ToList();
             for (int i = 0; i < winningPlayerDataList.Count; i++)
             {
@@ -145,8 +149,6 @@ class SetEverythingUpPatch
                     poolablePlayer.SetFlipX(i % 2 == 0);
                 }
 
-                GameOverReason reason = EndGamePatch.LastGameOverReason;
-                bool isCrewWin = reason.Equals(GameOverReason.HumansByVote) || reason.Equals(GameOverReason.HumansByTask);
                 bool lowered = isCrewWin && (i is 1 or 2 or 5 or 6 or 9 or 10 or 13 or 14);
 
                 poolablePlayer.cosmetics.nameText.color = Color.white;
@@ -160,8 +162,10 @@ class SetEverythingUpPatch
                     byte id = Main.winnerList[i1];
                     if (Main.winnerNameList[i1].RemoveHtmlTags() != winningPlayerData2?.PlayerName.RemoveHtmlTags()) continue;
                     var role = Main.PlayerStates[id].MainRole;
+
                     var color = Main.roleColors[role];
                     var rolename = Utils.GetRoleName(role);
+
                     poolablePlayer.cosmetics.nameText.text += $"\n<color={color}>{rolename}</color>";
                     poolablePlayer.cosmetics.nameText.transform.localPosition = new Vector3(defaultPos.x, !lowered || role.IsImpostorTeamV3() || role.IsNK() ? defaultPos.y - 0.6f : defaultPos.y - 1.4f, -15f);
                 }

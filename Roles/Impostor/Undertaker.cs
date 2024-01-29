@@ -54,8 +54,8 @@ internal static class Undertaker
         if (targetId != byte.MaxValue)
             MarkedPlayer.Add(playerId, targetId);
     }
-    private static bool Shapeshifting(this PlayerControl pc) => pc.PlayerId.Shapeshifting();
-    private static bool Shapeshifting(this byte id) => Utils.GetPlayerById(id).shapeshifting;
+    private static bool Shapeshifting(this PlayerControl pc) => pc.IsShifted();
+    private static bool Shapeshifting(this byte id) => id.IsPlayerShifted();
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = id.Shapeshifting() ? DefaultKillCooldown : MarkCooldown.GetFloat();
     public static void ApplyGameOptions()
     {
@@ -65,7 +65,7 @@ internal static class Undertaker
     public static bool CanUseKillButton(PlayerControl pc)
     {
         if (pc == null || !pc.IsAlive()) return false;
-        if (!CanKillAfterAssassinate.GetBool() && pc.shapeshifting) return false;
+        if (!CanKillAfterAssassinate.GetBool() && pc.IsShifted()) return false;
         return true;
     }
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)

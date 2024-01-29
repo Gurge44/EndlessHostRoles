@@ -68,21 +68,6 @@ namespace TOHE.Roles.Crewmate
             UseLimit[playerId] = useLimit;
         }
 
-        private static void SendRPCAddPlayerToList(byte playerId)
-        {
-            if (!IsEnable) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.GaulousAddPlayerToList, SendOption.Reliable, -1);
-            writer.Write(playerId);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-
-        public static void ReceiveRPCAddPlayerToList(MessageReader reader)
-        {
-            if (!IsEnable) return;
-            byte playerId = reader.ReadByte();
-            IncreasedSpeedPlayerList.Add(playerId);
-        }
-
         public static void SetKillCooldown(byte playerId)
         {
             if (!IsEnable) return;
@@ -99,7 +84,6 @@ namespace TOHE.Roles.Crewmate
 
             killer.SetKillCooldown();
             SendRPC(killer.PlayerId);
-            SendRPCAddPlayerToList(target.PlayerId);
         }
 
         public static string GetProgressText(byte playerId)
