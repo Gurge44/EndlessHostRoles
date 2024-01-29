@@ -293,6 +293,18 @@ internal class ChatCommands
                         Utils.SendMessage((lp.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + GetString("Message.CanNotUseInLobby"), localPlayerId);
                     break;
 
+                case "/tpout":
+                    canceled = true;
+                    if (!GameStates.IsLobby) break;
+                    PlayerControl.LocalPlayer.TP(new Vector2(0.1f, 3.8f));
+                    break;
+
+                case "/tpin":
+                    canceled = true;
+                    if (!GameStates.IsLobby) break;
+                    PlayerControl.LocalPlayer.TP(new Vector2(-0.2f, 1.3f));
+                    break;
+
                 case "/t":
                 case "/template":
                     canceled = true;
@@ -993,6 +1005,18 @@ internal class ChatCommands
                 {
                     Utils.SendMessage(GetString("DisableUseCommand"), player.PlayerId);
                 }
+                break;
+
+            case "/tpout":
+                canceled = true;
+                if (!GameStates.IsLobby) break;
+                player.TP(new Vector2(0.1f, 3.8f));
+                break;
+
+            case "/tpin":
+                canceled = true;
+                if (!GameStates.IsLobby) break;
+                player.TP(new Vector2(-0.2f, 1.3f));
                 break;
 
             //case "/quit":
