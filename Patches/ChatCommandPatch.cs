@@ -232,7 +232,7 @@ internal class ChatCommands
                     }
                     if (!GuessManager.MsgToPlayerAndRole(subArgs, out byte resultId, out CustomRoles roleToSet, out _))
                     {
-                        Utils.SendMessage("Invalid arguments", localPlayerId);
+                        Utils.SendMessage($"{GetString("InvalidArguments")}", localPlayerId);
                         break;
                     }
                     else
@@ -291,6 +291,18 @@ internal class ChatCommands
                     }
                     else
                         Utils.SendMessage((lp.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + GetString("Message.CanNotUseInLobby"), localPlayerId);
+                    break;
+
+                case "/tpout":
+                    canceled = true;
+                    if (!GameStates.IsLobby) break;
+                    PlayerControl.LocalPlayer.TP(new Vector2(0.1f, 3.8f));
+                    break;
+
+                case "/tpin":
+                    canceled = true;
+                    if (!GameStates.IsLobby) break;
+                    PlayerControl.LocalPlayer.TP(new Vector2(-0.2f, 1.3f));
                     break;
 
                 case "/t":
@@ -845,7 +857,7 @@ internal class ChatCommands
                 var settings = new StringBuilder();
                 if (Options.CustomRoleSpawnChances.ContainsKey(rl))
                 {
-                    settings.AppendLine($"<size=70%><u>Settings for <{Main.roleColors[rl]}>{roleName}</color>:</u>");
+                    settings.AppendLine($"<size=70%><u>{GetString("SettingsForRoleText")} <{Main.roleColors[rl]}>{roleName}</color>:</u>");
                     Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[rl], ref settings, disableColor: false);
                     settings.Append("</size>");
                     var txt = $"<size=90%>{sb}</size>";
@@ -993,6 +1005,18 @@ internal class ChatCommands
                 {
                     Utils.SendMessage(GetString("DisableUseCommand"), player.PlayerId);
                 }
+                break;
+
+            case "/tpout":
+                canceled = true;
+                if (!GameStates.IsLobby) break;
+                player.TP(new Vector2(0.1f, 3.8f));
+                break;
+
+            case "/tpin":
+                canceled = true;
+                if (!GameStates.IsLobby) break;
+                player.TP(new Vector2(-0.2f, 1.3f));
                 break;
 
             //case "/quit":
