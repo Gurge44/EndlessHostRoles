@@ -14,8 +14,8 @@
 
 </p>
 <p align="center">
-  
-<a href="https://toher.dev/" target="_blank"><img src="https://img.shields.io/badge/Website%20-%231DA1F2.svg?&style=for-the-badge&logo=vuedotjs&logoColor=white&color=3aa675"/></a>
+
+<a href="https://sites.google.com/view/toheplus" target="_blank"><img src="https://img.shields.io/badge/Website%20-%231DA1F2.svg?&style=for-the-badge&logo=vuedotjs&logoColor=white&color=3aa675"/></a>
 <a href="https://discord.gg/m3ayxfumC8" target="_blank"><img src="https://img.shields.io/badge/Discord%20-%231DA1F2.svg?&style=for-the-badge&logo=discord&logoColor=white&color=5662f6"/></a>
 <a href="https://github.com/Gurge44/TOHE_PLUS_/releases/latest" target="_blank"><img src="https://img.shields.io/badge/Latest Version%20-%231DA1F2.svg?&style=for-the-badge&logo=github&logoColor=white&color=181717"/></a>
 
@@ -24,8 +24,6 @@
 ---
 
 <br>
-
-### Website: https://sites.google.com/view/toheplus
 
 ## Additions, Changes, and improvements compared to TOHEN
 - Note: The goal with this branch is to improve the existing stuff over adding new roles. If some of the stuff you see below are in TOHRE, they were originally coded by me.
