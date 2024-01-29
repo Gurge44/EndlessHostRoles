@@ -14,8 +14,8 @@
 
 </p>
 <p align="center">
-  
-<a href="https://toher.dev/" target="_blank"><img src="https://img.shields.io/badge/Website%20-%231DA1F2.svg?&style=for-the-badge&logo=vuedotjs&logoColor=white&color=3aa675"/></a>
+
+<a href="https://sites.google.com/view/toheplus" target="_blank"><img src="https://img.shields.io/badge/Website%20-%231DA1F2.svg?&style=for-the-badge&logo=vuedotjs&logoColor=white&color=3aa675"/></a>
 <a href="https://discord.gg/m3ayxfumC8" target="_blank"><img src="https://img.shields.io/badge/Discord%20-%231DA1F2.svg?&style=for-the-badge&logo=discord&logoColor=white&color=5662f6"/></a>
 <a href="https://github.com/Gurge44/TOHE_PLUS_/releases/latest" target="_blank"><img src="https://img.shields.io/badge/Latest Version%20-%231DA1F2.svg?&style=for-the-badge&logo=github&logoColor=white&color=181717"/></a>
 
@@ -58,6 +58,8 @@
 - Everyone knows how many killers remain after each ejection (even if no one was ejected, like it was a skip or a tie)
 - You can chat during the game if the game mode is FFA
 - Simplified and shortened role descriptions
+- Loading animation
+- Set anyone's role for the next game using '/setrole [player ID] [role name]' (replaces /up)
 
 ### Role specific Improvements
 #### Crewmates
@@ -134,6 +136,10 @@
 - Mole (Crewmate)
 - Tornado (Crewmate)
 - Sentinel (Crewmate)
+- Rabbit (Crewmate)
+- Perceiver (Crewmate)
+- Convener (Crewmate)
+- Mathematician (Crewmate)
 - Romantic (Neutral)
 - Werewolf (Neutral)
 - Imitator (Neutral)
@@ -150,6 +156,8 @@
 - Bubble (Neutral)
 - Hookshot (Neutral)
 - Sprayer (Neutral)
+- Soul Hunter (Neutral)
+- Necromancer / Deathknight (Neutral)
 - Undertaker (Impostor)
 - Gambler (Impostor)
 - Mastermind (Impostor)
@@ -162,11 +170,21 @@
 - Yin Yanger (Impostor)
 - Cantankerous (Impostor)
 - Duellist (Impostor)
+- Kamikaze (Impostor)
+- Swapster (Impostor)
+- Swiftclaw (Impostor)
 - Damocles (Impostor-only Add-on)
 - Deadly Quota (Impostor-only Add-on)
 - Nimble (Add-on)
 - Physicist (Add-on)
 - Stressed (Add-on)
+- Giant (Add-on)
+- Magnet (Add-on)
+- Sleuth (Add-on)
+- Asthmatic (Add-on)
+- Disco (Add-on)
+- Truant (Add-on)
+- Busy (Add-on)
 
 ## Note:
 - You can use parts of the code in here, but if you do, you'll have to credit me (Gurge44) or the mod by mentioning its name (TOHE+) and providing a link to this github page. (Or leaving the in-game credits as they are are also fine!)
@@ -191,7 +209,7 @@
 ### :star: [TOHY](https://github.com/Yumenopai/TownOfHost_Y) :
 > 
 > - Many role ideas
-> - Provided roles: AntiAdminer, CursedWolf, Workaholic, Greedier, DarkHide
+> - Provided roles: AntiAdminer, CursedWolf, Workaholic, Greedier, DarkHide, Ignitor, Rabbit
 > - Reference: Modify game announcement
 > 
 ### :star: [TOH:TOR](https://github.com/music-discussion/TownOfHost-TheOtherRoles) :

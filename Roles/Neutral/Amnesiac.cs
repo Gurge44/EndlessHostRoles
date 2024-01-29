@@ -80,12 +80,9 @@ public static class Amnesiac
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 
-            Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Soulless.ToString(), "Assign " + CustomRoles.Soulless.ToString());
-            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
             return;
         }
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
 
         if (CanBeRememberedJackal(target))
         {
@@ -105,12 +102,9 @@ public static class Amnesiac
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 
-            Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Soulless.ToString(), "Assign " + CustomRoles.Soulless.ToString());
-            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
             return;
         }
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
 
         if (CanBeRememberedNeutral(target))
         {
@@ -134,8 +128,6 @@ public static class Amnesiac
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
 
-                Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Soulless.ToString(), "Assign " + CustomRoles.Soulless.ToString());
-                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
                 return;
             }
             if (IncompatibleNeutralMode.GetValue() == 2)
@@ -158,8 +150,6 @@ public static class Amnesiac
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
 
-                Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Soulless.ToString(), "Assign " + CustomRoles.Soulless.ToString());
-                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
                 return;
             }
             if (IncompatibleNeutralMode.GetValue() == 3)
@@ -182,8 +172,6 @@ public static class Amnesiac
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
 
-                Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Soulless.ToString(), "Assign " + CustomRoles.Soulless.ToString());
-                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
                 return;
             }
             if (IncompatibleNeutralMode.GetValue() == 4)
@@ -204,13 +192,11 @@ public static class Amnesiac
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
 
-                Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Soulless.ToString(), "Assign " + CustomRoles.Soulless.ToString());
-                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
                 return;
             }
         }
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
+        
         if (CanBeRememberedImpostor(target))
         {
             RememberLimit--;
@@ -229,12 +215,10 @@ public static class Amnesiac
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 
-            Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Soulless.ToString(), "Assign " + CustomRoles.Soulless.ToString());
-            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
             return;
         }
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
+        
         if (CanBeRememberedCrewmate(target))
         {
             RememberLimit--;
@@ -255,12 +239,10 @@ public static class Amnesiac
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 
-            Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Soulless.ToString(), "Assign " + CustomRoles.Soulless.ToString());
-            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
             return;
         }
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
+        
         if (CanBeRememberedPoisoner(target))
         {
             RememberLimit--;
@@ -281,12 +263,10 @@ public static class Amnesiac
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 
-            Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Soulless.ToString(), "Assign " + CustomRoles.Soulless.ToString());
-            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
             return;
         }
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
+        
         if (CanBeRememberedJuggernaut(target))
         {
             RememberLimit--;
@@ -307,12 +287,10 @@ public static class Amnesiac
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 
-            Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Soulless.ToString(), "Assign " + CustomRoles.Soulless.ToString());
-            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
             return;
         }
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
+        
         if (CanBeRememberedHexMaster(target))
         {
             RememberLimit--;
@@ -333,12 +311,10 @@ public static class Amnesiac
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 
-            Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Soulless.ToString(), "Assign " + CustomRoles.Soulless.ToString());
-            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
             return;
         }
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
+        
         if (CanBeRememberedBloodKnight(target))
         {
             RememberLimit--;
@@ -359,12 +335,9 @@ public static class Amnesiac
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 
-            Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Soulless.ToString(), "Assign " + CustomRoles.Soulless.ToString());
-            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
             return;
         }
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{RememberLimit}次魅惑机会", "Amnesiac");
     }
     public static string GetRememberLimit() => Utils.ColorString(RememberLimit >= 1 ? Utils.GetRoleColor(CustomRoles.Amnesiac) : Color.gray, $"({RememberLimit})");
     public static bool CanBeRememberedNeutralKiller(this PlayerControl pc) => pc != null && pc.GetCustomRole().IsAmneNK();

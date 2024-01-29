@@ -48,10 +48,15 @@ public static class NameColorManager
         if (seer.Is(CustomRoles.Succubus) && target.Is(CustomRoles.Charmed)) color = Main.roleColors[CustomRoles.Charmed];
         if (seer.Is(CustomRoles.Charmed) && target.Is(CustomRoles.Charmed) && Succubus.TargetKnowOtherTarget.GetBool()) color = Main.roleColors[CustomRoles.Charmed];
 
-        //if (seer.Is(CustomRoles.CursedSoul) && target.Is(CustomRoles.Soulless)) color = Main.roleColors[CustomRoles.Soulless];
-
-        if (seer.Is(CustomRoles.Admirer) && target.Is(CustomRoles.Admired)) color = Main.roleColors[CustomRoles.Admirer];
-        if (seer.Is(CustomRoles.Admired) && target.Is(CustomRoles.Admirer)) color = Main.roleColors[CustomRoles.Admirer];
+        if (seer.Is(CustomRoles.Undead))
+        {
+            if (target.Is(CustomRoles.Undead)) color = Main.roleColors[CustomRoles.Undead];
+            if (target.Is(CustomRoles.Necromancer)) color = Main.roleColors[CustomRoles.Necromancer];
+            if (target.Is(CustomRoles.Deathknight)) color = Main.roleColors[CustomRoles.Deathknight];
+        }
+        if (seer.Is(CustomRoles.Deathknight) && target.Is(CustomRoles.Undead)) color = Main.roleColors[CustomRoles.Undead];
+        if (seer.Is(CustomRoles.Necromancer) && target.Is(CustomRoles.Undead)) color = Main.roleColors[CustomRoles.Undead];
+        if ((seer.GetCustomRole() is CustomRoles.Necromancer or CustomRoles.Deathknight) && Necromancer.PartiallyRecruitedIds.Contains(target.PlayerId)) color = Main.roleColors[CustomRoles.Deathknight];
 
         color = (seer.GetCustomRole(), target.GetCustomRole()) switch
         {
@@ -81,7 +86,6 @@ public static class NameColorManager
             (CustomRoles.BloodKnight, CustomRoles.BloodKnight) => Main.roleColors[CustomRoles.BloodKnight],
             (CustomRoles.Pelican, CustomRoles.Pelican) => Main.roleColors[CustomRoles.Pelican],
             (CustomRoles.Poisoner, CustomRoles.Poisoner) => Main.roleColors[CustomRoles.Poisoner],
-            (CustomRoles.Infectious, CustomRoles.Infectious) => Main.roleColors[CustomRoles.Infectious],
             (CustomRoles.Virus, CustomRoles.Virus) => Main.roleColors[CustomRoles.Virus],
             (CustomRoles.Parasite, CustomRoles.Parasite) => Main.roleColors[CustomRoles.Parasite],
             (CustomRoles.Traitor, CustomRoles.Traitor) => Main.roleColors[CustomRoles.Traitor],
@@ -92,7 +96,11 @@ public static class NameColorManager
             (CustomRoles.Ritualist, CustomRoles.Ritualist) => Main.roleColors[CustomRoles.Ritualist],
             (CustomRoles.Glitch, CustomRoles.Glitch) => Main.roleColors[CustomRoles.Glitch],
             (CustomRoles.Succubus, CustomRoles.Succubus) => Main.roleColors[CustomRoles.Succubus],
-            _ => "",
+            (CustomRoles.Necromancer, CustomRoles.Deathknight) => Main.roleColors[CustomRoles.Deathknight],
+            (CustomRoles.Deathknight, CustomRoles.Necromancer) => Main.roleColors[CustomRoles.Necromancer],
+            (CustomRoles.Necromancer, CustomRoles.Necromancer) => Main.roleColors[CustomRoles.Necromancer],
+            (CustomRoles.Deathknight, CustomRoles.Deathknight) => Main.roleColors[CustomRoles.Deathknight],
+            _ => color,
         };
 
         color = seer.GetCustomRole() switch
@@ -114,7 +122,7 @@ public static class NameColorManager
             CustomRoles.Hookshot when Hookshot.MarkedPlayerId == target.PlayerId => Main.roleColors[CustomRoles.Hookshot],
             CustomRoles.SoulHunter when SoulHunter.CurrentTarget.ID == target.PlayerId => Main.roleColors[CustomRoles.SoulHunter],
             CustomRoles.Kamikaze when Kamikaze.MarkedPlayers.TryGetValue(seer.PlayerId, out var targets) && targets.Contains(target.PlayerId) => Main.roleColors[CustomRoles.Electric],
-            _ => "",
+            _ => color,
         };
 
         if (SoulHunter.CurrentTarget.ID == seer.PlayerId && target.Is(CustomRoles.SoulHunter)) color = Main.roleColors[CustomRoles.SoulHunter];
@@ -126,17 +134,12 @@ public static class NameColorManager
         if (seer.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor)) color = Main.roleColors[CustomRoles.ImpostorTOHE];
         if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Refugee)) color = Main.roleColors[CustomRoles.Refugee];
 
-        if (seer.Is(CustomRoles.Infected) && target.Is(CustomRoles.Infectious)) color = Main.roleColors[CustomRoles.Infectious];
-        if (seer.Is(CustomRoles.Infectious) && target.Is(CustomRoles.Infected)) color = Main.roleColors[CustomRoles.Infected];
-        if (seer.Is(CustomRoles.Infected) && target.Is(CustomRoles.Infected) && Infectious.TargetKnowOtherTarget.GetBool()) color = Main.roleColors[CustomRoles.Infectious];
-
         if (seer.Is(CustomRoles.Necroview) && seer.IsAlive())
         {
             if (target.Data.IsDead && !target.IsAlive())
             {
                 if (target.Is(CustomRoleTypes.Impostor)) color = Main.roleColors[CustomRoles.Impostor];
                 if (target.Is(CustomRoles.Madmate)) color = Main.roleColors[CustomRoles.Impostor];
-                if (target.Is(CustomRoles.Admired)) color = Main.roleColors[CustomRoles.Bait];
                 if (target.Is(CustomRoles.Parasite)) color = Main.roleColors[CustomRoles.Impostor];
                 if (target.Is(CustomRoles.Crewpostor)) color = Main.roleColors[CustomRoles.Impostor];
                 if (target.Is(CustomRoles.Convict)) color = Main.roleColors[CustomRoles.Impostor];
@@ -145,11 +148,9 @@ public static class NameColorManager
                 if (target.Is(CustomRoleTypes.Crewmate)) color = Main.roleColors[CustomRoles.Bait];
                 if (target.Is(CustomRoleTypes.Neutral)) color = Main.roleColors[CustomRoles.SwordsMan];
                 if (target.Is(CustomRoles.Charmed)) color = Main.roleColors[CustomRoles.SwordsMan];
-                if (target.Is(CustomRoles.Infected)) color = Main.roleColors[CustomRoles.SwordsMan];
                 if (target.Is(CustomRoles.Contagious)) color = Main.roleColors[CustomRoles.SwordsMan];
                 if (target.Is(CustomRoles.Egoist)) color = Main.roleColors[CustomRoles.SwordsMan];
                 if (target.Is(CustomRoles.Recruit)) color = Main.roleColors[CustomRoles.SwordsMan];
-                if (target.Is(CustomRoles.Soulless)) color = Main.roleColors[CustomRoles.SwordsMan];
             }
         }
 
@@ -159,7 +160,6 @@ public static class NameColorManager
             {
                 if (target.Is(CustomRoleTypes.Impostor)) color = Main.roleColors[CustomRoles.Impostor];
                 if (target.Is(CustomRoles.Madmate)) color = Main.roleColors[CustomRoles.Impostor];
-                if (target.Is(CustomRoles.Admired)) color = Main.roleColors[CustomRoles.Bait];
                 if (target.Is(CustomRoles.Parasite)) color = Main.roleColors[CustomRoles.Impostor];
                 if (target.Is(CustomRoles.Crewpostor)) color = Main.roleColors[CustomRoles.Impostor];
                 if (target.Is(CustomRoles.Convict)) color = Main.roleColors[CustomRoles.Impostor];
@@ -168,11 +168,9 @@ public static class NameColorManager
                 if (target.Is(CustomRoleTypes.Crewmate)) color = Main.roleColors[CustomRoles.Bait];
                 if (target.Is(CustomRoleTypes.Neutral)) color = Main.roleColors[CustomRoles.SwordsMan];
                 if (target.Is(CustomRoles.Charmed)) color = Main.roleColors[CustomRoles.SwordsMan];
-                if (target.Is(CustomRoles.Infected)) color = Main.roleColors[CustomRoles.SwordsMan];
                 if (target.Is(CustomRoles.Contagious)) color = Main.roleColors[CustomRoles.SwordsMan];
                 if (target.Is(CustomRoles.Egoist)) color = Main.roleColors[CustomRoles.SwordsMan];
                 if (target.Is(CustomRoles.Recruit)) color = Main.roleColors[CustomRoles.SwordsMan];
-                if (target.Is(CustomRoles.Soulless)) color = Main.roleColors[CustomRoles.SwordsMan];
             }
         }
 

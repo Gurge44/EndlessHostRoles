@@ -140,7 +140,7 @@ class HudManagerPatch
 
         Utils.CountAlivePlayers();
 
-        bool shapeshifting = player.shapeshifting;
+        bool shapeshifting = player.IsShifted();
 
         if (SetHudActivePatch.IsActive)
         {
@@ -465,9 +465,6 @@ class HudManagerPatch
                     //case CustomRoles.CursedSoul:
                     //    __instance.KillButton?.OverrideText(GetString("CursedSoulKillButtonText"));
                     //    break;
-                    case CustomRoles.Admirer:
-                        __instance.KillButton?.OverrideText(GetString("AdmireButtonText"));
-                        break;
                     case CustomRoles.Amnesiac:
                         __instance.KillButton?.OverrideText(GetString("RememberButtonText"));
                         break;
@@ -476,9 +473,6 @@ class HudManagerPatch
                             __instance.PetButton.buttonLabelText.text = GetString("DovesOfNeaceVentButtonText");
                         else
                             __instance.AbilityButton.buttonLabelText.text = GetString("DovesOfNeaceVentButtonText");
-                        break;
-                    case CustomRoles.Infectious:
-                        __instance.KillButton?.OverrideText(GetString("InfectiousKillButtonText"));
                         break;
                     case CustomRoles.Monarch:
                         __instance.KillButton?.OverrideText(GetString("MonarchKillButtonText"));
@@ -796,7 +790,7 @@ class VentButtonDoClickPatch
         var pc = PlayerControl.LocalPlayer;
         if (pc.MyPhysics.Animations.IsPlayingEnterVentAnimation()) return false;
 
-        if (pc.inVent)
+        if (pc.inVent && pc.PlayerId == 0)
         {
             pc.MyPhysics.RpcExitVent(TryMoveToVentPatch.HostVentTarget.Id);
             TryMoveToVentPatch.HostVentTarget.SetButtons(false);

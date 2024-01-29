@@ -281,15 +281,14 @@ internal class ChangeRoleSettings
             VengefulRomantic.Init();
             RuthlessRomantic.Init();
             Succubus.Init();
+            Necromancer.Init();
             //CursedSoul.Init();
-            Admirer.Init();
             Nullifier.Init();
             Deputy.Init();
             Chronomancer.Init();
             Damocles.Initialize();
             Stressed.Init();
             Amnesiac.Init();
-            Infectious.Init();
             Monarch.Init();
             Virus.Init();
             Bloodhound.Init();

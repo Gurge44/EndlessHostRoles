@@ -268,8 +268,9 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 case CustomRoles.Analyzer:
                 case CustomRoles.Witness:
                 case CustomRoles.Succubus:
+                case CustomRoles.Necromancer:
+                case CustomRoles.Deathknight:
                 //case CustomRoles.CursedSoul:
-                case CustomRoles.Admirer:
                 case CustomRoles.Amnesiac:
                     opt.SetVision(false);
                     break;
@@ -540,9 +541,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     AURoleOptions.EngineerCooldown = 0f;
                     AURoleOptions.EngineerInVentMaxTime = 0f;
                     opt.SetVision(Options.JesterHasImpostorVision.GetBool());
-                    break;
-                case CustomRoles.Infectious:
-                    opt.SetVision(Infectious.HasImpostorVision.GetBool());
                     break;
                 case CustomRoles.Lawyer:
                     //Main.NormalOptions.CrewLightMod = Lawyer.LawyerVision.GetFloat();

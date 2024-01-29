@@ -57,7 +57,8 @@ namespace TOHE.Roles.Crewmate
 
         private static readonly List<CustomRoles> neutralAddons =
         [
-            CustomRoles.Soulless
+            CustomRoles.Undead,
+            CustomRoles.Contagious
         ];
 
         private static readonly List<CustomRoles> experimentalAddons =

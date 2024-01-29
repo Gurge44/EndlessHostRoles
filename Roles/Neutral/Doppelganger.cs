@@ -48,7 +48,7 @@ public static class Doppelganger
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    private static void SendRPC(byte playerId, bool isTargetList = false)
+    private static void SendRPC(byte playerId)
     {
         if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDoppelgangerStealLimit, SendOption.Reliable, -1);
@@ -132,7 +132,7 @@ public static class Doppelganger
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer == null || target == null || !IsEnable || Camouflage.IsCamouflage || Camouflager.IsActive) return;
-        if (target.shapeshifting)
+        if (target.IsShifted())
         {
             Logger.Info("Target was shapeshifting", "Doppelganger");
             return;

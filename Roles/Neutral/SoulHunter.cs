@@ -17,6 +17,7 @@ namespace TOHE.Roles.Neutral
         public static OptionItem NumOfSoulsToWin;
         private static OptionItem WaitingTimeAfterMeeting;
         private static OptionItem TimeToKillTarget;
+        private static OptionItem GetSoulForSuicide;
 
         public static int Souls;
         public static (byte ID, long START_TIMESTAMP, bool FROZEN) CurrentTarget;
@@ -38,6 +39,8 @@ namespace TOHE.Roles.Neutral
             TimeToKillTarget = IntegerOptionItem.Create(Id + 7, "SoulHunterTimeToKillTarget", new(1, 90, 1), 30, TabGroup.NeutralRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.SoulHunter])
                 .SetValueFormat(OptionFormat.Seconds);
+            GetSoulForSuicide = BooleanOptionItem.Create(Id + 8, "SoulHunterGetSoulForSuicide", true, TabGroup.NeutralRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.SoulHunter]);
         }
         public static void Init()
         {
@@ -62,7 +65,7 @@ namespace TOHE.Roles.Neutral
                 Main.ResetCamPlayerList.Add(playerId);
         }
         public static bool IsEnable => SoulHunterId != byte.MaxValue;
-        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = WaitingTimeAfterMeeting.GetFloat() + 0.5f;
+        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = WaitingTimeAfterMeeting.GetFloat() + 1.5f;
         public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
         public static void SendRPC()
         {
@@ -166,12 +169,16 @@ namespace TOHE.Roles.Neutral
                 CurrentTarget.ID = byte.MaxValue;
                 CurrentTarget.START_TIMESTAMP = 0;
                 CurrentTarget.FROZEN = false;
+
                 Main.AllPlayerSpeed[SoulHunterId] = NormalSpeed;
                 SoulHunter_.MarkDirtySettings();
-                Souls++;
+
+                if (GetSoulForSuicide.GetBool()) Souls++;
+
                 SoulHunter_.Notify(GetString("SoulHunterNotifySuccess"));
                 Logger.Info("Target Died/Disconnected", "SoulHunter");
                 SendRPC();
+
                 return;
             }
 
@@ -182,6 +189,7 @@ namespace TOHE.Roles.Neutral
                     CurrentTarget.FROZEN = false;
                     Main.AllPlayerSpeed[SoulHunterId] = NormalSpeed;
                     SoulHunter_.MarkDirtySettings();
+
                     CurrentTarget.START_TIMESTAMP = now;
                     SendRPC();
                 }

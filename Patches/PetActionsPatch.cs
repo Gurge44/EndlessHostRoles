@@ -385,10 +385,6 @@ class ExternalRpcPetPatch
                 pc.AddKCDAsAbilityCD();
                 Deputy.OnCheckMurder(pc, target);
                 break;
-            case CustomRoles.Admirer when hasKillTarget:
-                pc.AddKCDAsAbilityCD();
-                Admirer.OnCheckMurder(pc, target);
-                break;
             case CustomRoles.Crusader when hasKillTarget:
                 pc.AddKCDAsAbilityCD();
                 Crusader.OnCheckMurder(pc, target);
@@ -616,6 +612,15 @@ class ExternalRpcPetPatch
                         break;
                     }
                 }
+                break;
+
+            case CustomRoles.Necromancer when hasKillTarget && Main.KillTimers[pc.PlayerId] <= 0:
+                if (pc.Data.RoleType != AmongUs.GameOptions.RoleTypes.Impostor) pc.AddKCDAsAbilityCD();
+                Necromancer.OnCheckMurder(pc, target);
+                break;
+            case CustomRoles.Deathknight when hasKillTarget:
+                if (pc.Data.RoleType != AmongUs.GameOptions.RoleTypes.Impostor) pc.AddKCDAsAbilityCD();
+                Deathknight.OnCheckMurder(pc, target);
                 break;
 
             // Message when no ability is triggered

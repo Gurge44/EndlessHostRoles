@@ -602,9 +602,6 @@ internal class RPCHandlerPatch
             case CustomRPC.SetJackalRecruitLimit:
                 Jackal.ReceiveRPC(reader);
                 break;
-            case CustomRPC.SetAdmireLimit:
-                Admirer.ReceiveRPC(reader);
-                break;
             case CustomRPC.SetRememberLimit:
                 Amnesiac.ReceiveRPC(reader);
                 break;
@@ -764,9 +761,6 @@ internal class RPCHandlerPatch
             //case CustomRPC.SetCursedSoulCurseLimit:
             //    CursedSoul.ReceiveRPC(reader);
             //    break;
-            case CustomRPC.SetInfectiousBiteLimit:
-                Infectious.ReceiveRPC(reader);
-                break;
             case CustomRPC.SetDrainerLimit:
                 Drainer.ReceiveRPC(reader);
                 break;

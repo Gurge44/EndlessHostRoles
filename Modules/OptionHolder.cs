@@ -1649,9 +1649,7 @@ public static class Options
         TransporterTasks = OverrideTasksData.Create(6211, TabGroup.CrewmateRoles, CustomRoles.Transporter);
 
         LoadingPercentage = 17;
-        RoleLoadingText = "Crewmate roles\nAdmirer";
 
-        Admirer.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nChameleon";
         Chameleon.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nCoroner";
@@ -1989,6 +1987,8 @@ public static class Options
         Collector.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nCultist";
         Succubus.SetupCustomOption();
+        RoleLoadingText = "Neutral roles\nNecromancer";
+        Necromancer.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nPhantom";
         SetupRoleOptions(11400, TabGroup.NeutralRoles, CustomRoles.Phantom);
         PhantomCanVent = BooleanOptionItem.Create(11410, "CanVent", false, TabGroup.NeutralRoles, false)
@@ -2053,8 +2053,6 @@ public static class Options
         Bandit.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nAgitater";
         Agitater.SetupCustomOption();
-        RoleLoadingText = "Neutral roles\nInfectious";
-        Infectious.SetupCustomOption();
 
         LoadingPercentage = 33;
         RoleLoadingText = "Neutral roles\nJackal";

@@ -202,7 +202,7 @@ internal class ChatCommands
                     canceled = true;
                     subArgs = text.Remove(0, 3);
                     if (!PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp) break;
-                    Utils.SendMessage($"{Translator.GetString("UpReplacedMessage")}", localPlayerId);
+                    Utils.SendMessage($"{GetString("UpReplacedMessage")}", localPlayerId);
                     //if (!Options.EnableUpMode.GetBool())
                     //{
                     //    Utils.SendMessage(string.Format(GetString("Message.YTPlanDisabled"), GetString("EnableYTPlan")), localPlayerId);

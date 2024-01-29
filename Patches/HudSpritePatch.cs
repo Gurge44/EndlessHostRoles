@@ -34,7 +34,7 @@ public static class HudSpritePatch
             return;
         }
 
-        bool shapeshifting = player.shapeshifting;
+        bool shapeshifting = player.IsShifted();
 
         if (!Kill) Kill = __instance.KillButton.graphic.sprite;
         if (!Ability) Ability = __instance.AbilityButton.graphic.sprite;

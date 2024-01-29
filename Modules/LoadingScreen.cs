@@ -36,7 +36,7 @@ namespace TOHE.Modules
                 var anims = PlayerControl.LocalPlayer.MyPhysics.Animations;
 
                 bool visible = AmongUsClient.Instance.AmHost && AmongUsClient.Instance.IsGameStarted && !GameStates.IsCanMove && (!GameStates.IsInTask || ExileController.Instance != null) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening && !lp.inVent && !anims.IsPlayingAnyLadderAnimation() && !VentButtonDoClickPatch.Animating && !lp.onLadder;
-                
+
                 if (!visible && LoadingAnimation != null)
                 {
                     Object.Destroy(LoadingAnimation);

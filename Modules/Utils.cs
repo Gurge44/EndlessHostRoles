@@ -81,7 +81,7 @@ public static class Utils
     public static bool TP(CustomNetworkTransform nt, Vector2 location, bool log = true)
     {
         var pc = nt.myPlayer;
-        if (pc.inVent || pc.inMovingPlat || !pc.IsAlive() || pc.onLadder || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation())
+        if (pc.inVent || pc.inMovingPlat || !pc.IsAlive() || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation())
         {
             if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is in an un-teleportable state - Teleporting canceled", "TP");
             return false;
@@ -398,14 +398,15 @@ public static class Utils
 
         if (Options.NameDisplayAddons.GetBool() && !pure && self)
         {
-            bool brackets = Options.AddBracketsToAddons.GetBool();
-            string prefix = brackets ? "<#ffffff>(</color>" : string.Empty;
-            string suffix = brackets ? "<#ffffff>)</color>" : string.Empty;
-
-            foreach (var subRole in targetSubRoles.Where(x => x is not CustomRoles.LastImpostor and not CustomRoles.Madmate and not CustomRoles.Charmed and not CustomRoles.Recruit and not CustomRoles.Admired and not CustomRoles.Soulless and not CustomRoles.Lovers and not CustomRoles.Infected and not CustomRoles.Contagious))
+            foreach (var subRole in targetSubRoles.Where(x => x is not CustomRoles.LastImpostor and not CustomRoles.Madmate and not CustomRoles.Charmed and not CustomRoles.Recruit and not CustomRoles.Lovers and not CustomRoles.Contagious))
             {
-                var str = GetString($"Prefix.{subRole}");
-                RoleText = $"{ColorString(GetRoleColor(subRole), $"{prefix}{str}{suffix} ")}{RoleText}";
+                var str = GetString("Prefix." + subRole.ToString());
+                if (!subRole.IsAdditionRole())
+                {
+                    str = GetString(subRole.ToString());
+                    Logger.Fatal("This is concerning....", "Utils.GetRoleText");
+                }
+                RoleText = ColorString(GetRoleColor(subRole), (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>(</color>" : string.Empty) + str + (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>)</color>" : string.Empty) + " ") + RoleText;
             }
         }
 
@@ -424,25 +425,10 @@ public static class Utils
             RoleColor = GetRoleColor(CustomRoles.Charmed);
             RoleText = GetRoleString("Charmed-") + RoleText;
         }
-        if (targetSubRoles.Contains(CustomRoles.Soulless))
-        {
-            RoleColor = GetRoleColor(CustomRoles.Soulless);
-            RoleText = GetRoleString("Soulless-") + RoleText;
-        }
-        if (targetSubRoles.Contains(CustomRoles.Infected) && (self || pure || seerMainRole == CustomRoles.Infectious || (Infectious.TargetKnowOtherTarget.GetBool() && seerSubRoles.Contains(CustomRoles.Infected))))
-        {
-            RoleColor = GetRoleColor(CustomRoles.Infected);
-            RoleText = GetRoleString("Infected-") + RoleText;
-        }
         if (targetSubRoles.Contains(CustomRoles.Contagious) && (self || pure || seerMainRole == CustomRoles.Virus || (Virus.TargetKnowOtherTarget.GetBool() && seerSubRoles.Contains(CustomRoles.Contagious))))
         {
             RoleColor = GetRoleColor(CustomRoles.Contagious);
             RoleText = GetRoleString("Contagious-") + RoleText;
-        }
-        if (targetSubRoles.Contains(CustomRoles.Admired))
-        {
-            RoleColor = GetRoleColor(CustomRoles.Admired);
-            RoleText = GetRoleString("Admired-") + RoleText;
         }
 
         return (RoleText, RoleColor);
@@ -560,10 +546,10 @@ public static class Utils
             case CustomRoles.VengefulRomantic:
             case CustomRoles.RuthlessRomantic:
             case CustomRoles.Succubus:
+            case CustomRoles.Necromancer:
+            case CustomRoles.Deathknight:
             //case CustomRoles.CursedSoul:
-            case CustomRoles.Admirer when !Options.UsePets.GetBool() || !Admirer.UsePet.GetBool():
             case CustomRoles.Amnesiac:
-            case CustomRoles.Infectious:
             case CustomRoles.Monarch when !Options.UsePets.GetBool() || !Monarch.UsePet.GetBool():
             case CustomRoles.Deputy when !Options.UsePets.GetBool() || !Deputy.UsePet.GetBool():
             case CustomRoles.Virus:
@@ -615,10 +601,8 @@ public static class Utils
                 case CustomRoles.Charmed:
                 case CustomRoles.Recruit:
                 case CustomRoles.Egoist:
-                case CustomRoles.Infected:
                 case CustomRoles.EvilSpirit:
                 case CustomRoles.Contagious:
-                case CustomRoles.Soulless:
                 case CustomRoles.Rascal:
                     //ラバーズはタスクを勝利用にカウントしない
                     hasTasks &= !ForRecompute;
@@ -694,10 +678,9 @@ public static class Utils
         if (Ritualist.IsShowTargetRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Executioner.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Succubus.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
+        if (Necromancer.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         //if (CursedSoul.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
-        if (Admirer.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Amnesiac.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
-        if (Infectious.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Virus.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (PlayerControl.LocalPlayer.IsRevealedPlayer(__instance)) result = true;
         if (PlayerControl.LocalPlayer.Is(CustomRoles.God)) result = true;
@@ -1138,12 +1121,6 @@ public static class Utils
                 //case CustomRoles.CursedSoul:
                 //    ProgressText.Append(CursedSoul.GetCurseLimit());
                 //    break;
-                case CustomRoles.Admirer:
-                    ProgressText.Append(Admirer.GetAdmireLimit());
-                    break;
-                case CustomRoles.Infectious:
-                    ProgressText.Append(Infectious.GetBiteLimit());
-                    break;
                 case CustomRoles.Monarch:
                     ProgressText.Append(Monarch.GetKnightLimit());
                     break;
@@ -1551,11 +1528,11 @@ public static class Utils
                 CustomRoles role = SubRoles[0];
 
                 var RoleText = ColorString(GetRoleColor(role), GetRoleName(role));
-                sb.Append($"{ColorString(Color.gray, Translator.GetString("Modifier"))}{RoleText}");
+                sb.Append($"{ColorString(Color.gray, GetString("Modifier"))}{RoleText}");
             }
             else
             {
-                sb.Append($"{ColorString(Color.gray, Translator.GetString("Modifiers"))}");
+                sb.Append($"{ColorString(Color.gray, GetString("Modifiers"))}");
                 for (int i = 0; i < SubRoles.Count; i++)
                 {
                     if (i != 0) sb.Append(", ");
@@ -1876,7 +1853,7 @@ public static class Utils
             if (!GameStates.IsLobby) return;
             if (player.AmOwner)
             {
-                if (GameStates.IsOnlineGame || GameStates.IsLocalGame)
+                if ((GameStates.IsOnlineGame || GameStates.IsLocalGame))
                     name = $"<color={GetString("HostColor")}>{GetString("HostText")}</color><color={GetString("IconColor")}>{GetString("Icon")}</color><color={GetString("NameColor")}>{name}</color>";
 
 
@@ -2340,10 +2317,9 @@ public static class Utils
                                 Ritualist.IsShowTargetRole(seer, target) ||
                                 Executioner.KnowRole(seer, target) ||
                                 Succubus.KnowRole(seer, target) ||
+                                Necromancer.KnowRole(seer, target) ||
                                 //CursedSoul.KnowRole(seer, target) ||
-                                Admirer.KnowRole(seer, target) ||
                                 Amnesiac.KnowRole(seer, target) ||
-                                Infectious.KnowRole(seer, target) ||
                                 Virus.KnowRole(seer, target) ||
                                 Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop ||
                                 (seer.IsRevealedPlayer(target) && !target.Is(CustomRoles.Trickster)) ||
@@ -2586,9 +2562,6 @@ public static class Utils
                 break;
             case CustomRoles.HexMaster:
                 HexMaster.Add(id);
-                break;
-            case CustomRoles.Perceiver:
-                Perceiver.Add(id);
                 break;
             case CustomRoles.NiceSwapper:
                 NiceSwapper.Add(id);
@@ -2911,17 +2884,11 @@ public static class Utils
             //case CustomRoles.CursedSoul:
             //    CursedSoul.Add(id);
             //    break;
-            case CustomRoles.Admirer:
-                Admirer.Add(id);
-                break;
             case CustomRoles.Amnesiac:
                 Amnesiac.Add(id);
                 break;
             case CustomRoles.DovesOfNeace:
                 Main.DovesOfNeaceNumOfUsed.Add(id, Options.DovesOfNeaceMaxOfUseage.GetInt());
-                break;
-            case CustomRoles.Infectious:
-                Infectious.Add(id);
                 break;
             case CustomRoles.Monarch:
                 Monarch.Add(id);

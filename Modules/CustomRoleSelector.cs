@@ -130,6 +130,9 @@ internal class CustomRoleSelector
                 case CustomRoles.DarkHide when (MapNames)Main.NormalOptions.MapId == MapNames.Fungle:
                 case CustomRoles.Pelican when AllRoles[RoleAssignType.Impostor].Any(x => x.Role == CustomRoles.Duellist):
                 case CustomRoles.Duellist when AllRoles[RoleAssignType.NeutralKilling].Any(x => x.Role == CustomRoles.Pelican):
+                case CustomRoles.VengefulRomantic:
+                case CustomRoles.RuthlessRomantic:
+                case CustomRoles.Deathknight:
                 case CustomRoles.GM:
                 case CustomRoles.NotAssigned:
                     continue;
@@ -607,7 +610,7 @@ internal class CustomRoleSelector
             {
                 case CustomRoles.Mare when (MapNames)Main.NormalOptions.MapId == MapNames.Fungle:
                 case CustomRoles.Madmate when Options.MadmateSpawnMode.GetInt() != 0:
-                case CustomRoles.Lovers or CustomRoles.LastImpostor or CustomRoles.Workhorse:
+                case CustomRoles.Lovers or CustomRoles.LastImpostor or CustomRoles.Workhorse or CustomRoles.Undead:
                 case CustomRoles.Nimble or CustomRoles.Physicist: // Assigned at a different function due to role base change
                     continue;
             }

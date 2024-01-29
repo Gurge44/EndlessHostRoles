@@ -125,7 +125,6 @@ public static class Judge
                 else if (pc.Is(CustomRoles.Madmate)) judgeSuicide = false;
                 else if (pc.Is(CustomRoles.Charmed)) judgeSuicide = false;
                 else if (pc.Is(CustomRoles.Recruit)) judgeSuicide = false;
-                else if (pc.Is(CustomRoles.Infected)) judgeSuicide = false;
                 else if (pc.Is(CustomRoles.Contagious)) judgeSuicide = false;
                 else if (target.Is(CustomRoles.Rascal)) judgeSuicide = false;
                 else if (target.Is(CustomRoles.Pestilence)) judgeSuicide = true;
@@ -237,7 +236,7 @@ public static class Judge
         TrialMsg(pc, $"/tl {PlayerId}", true);
     }
 
-    private static void JudgeOnClick(byte playerId, MeetingHud __instance)
+    private static void JudgeOnClick(byte playerId/*, MeetingHud __instance*/)
     {
         Logger.Msg($"Click: ID {playerId}", "Judge UI");
         var pc = Utils.GetPlayerById(playerId);
@@ -269,7 +268,7 @@ public static class Judge
             renderer.sprite = CustomButton.Get("JudgeIcon");
             PassiveButton button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => JudgeOnClick(pva.TargetPlayerId, __instance)));
+            button.OnClick.AddListener((Action)(() => JudgeOnClick(pva.TargetPlayerId/*, __instance*/)));
         }
     }
 }

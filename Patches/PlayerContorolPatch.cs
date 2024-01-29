@@ -253,7 +253,7 @@ class CheckMurderPatch
                     if (!WeaponMaster.OnCheckMurder(killer, target)) return false;
                     break;
                 case CustomRoles.Cantankerous:
-                    if (Cantankerous.OnCheckMurder(killer)) return false;
+                    if (!Cantankerous.OnCheckMurder(killer)) return false;
                     break;
                 case CustomRoles.Postman:
                     Postman.OnCheckMurder(killer, target);
@@ -347,7 +347,7 @@ class CheckMurderPatch
                     break;
                 case CustomRoles.Warlock:
                     if (!Main.isCurseAndKill.ContainsKey(killer.PlayerId)) Main.isCurseAndKill[killer.PlayerId] = false;
-                    if (!killer.shapeshifting && !Main.isCurseAndKill[killer.PlayerId])
+                    if (!killer.IsShifted() && !Main.isCurseAndKill[killer.PlayerId])
                     { //Warlockが変身時以外にキルしたら、呪われる処理
                         if (target.Is(CustomRoles.Needy) || target.Is(CustomRoles.Lazy)) return false;
                         Main.isCursed = true;
@@ -360,7 +360,7 @@ class CheckMurderPatch
                         //RPC.RpcSyncCurseAndKill();
                         return false;
                     }
-                    if (killer.shapeshifting)
+                    if (killer.IsShifted())
                     {//呪われてる人がいないくて変身してるときに通常キルになる
                         killer.RpcCheckAndMurder(target);
                         return false;
@@ -582,17 +582,17 @@ class CheckMurderPatch
                 case CustomRoles.Succubus:
                     Succubus.OnCheckMurder(killer, target);
                     return false;
+                case CustomRoles.Necromancer:
+                    Necromancer.OnCheckMurder(killer, target);
+                    return false;
+                case CustomRoles.Deathknight:
+                    Deathknight.OnCheckMurder(killer, target);
+                    return false;
                 //case CustomRoles.CursedSoul:
                 //    CursedSoul.OnCheckMurder(killer, target);
                 //    return false;
-                case CustomRoles.Admirer:
-                    Admirer.OnCheckMurder(killer, target);
-                    return false;
                 case CustomRoles.Amnesiac:
                     Amnesiac.OnCheckMurder(killer, target);
-                    return false;
-                case CustomRoles.Infectious:
-                    Infectious.OnCheckMurder(killer, target);
                     return false;
                 case CustomRoles.Monarch:
                     Monarch.OnCheckMurder(killer, target);
@@ -642,7 +642,7 @@ class CheckMurderPatch
         if (!killer.RpcCheckAndMurder(target, true))
             return false;
 
-        if (killer.Is(CustomRoles.Virus)) Virus.OnCheckMurder(killer, target);
+        if (killer.Is(CustomRoles.Virus)) Virus.OnCheckMurder(/*killer,*/ target);
         else if (killer.Is(CustomRoles.Spiritcaller)) Spiritcaller.OnCheckMurder(target);
 
         if (killer.Is(CustomRoles.Unlucky))
@@ -809,15 +809,6 @@ class CheckMurderPatch
         //禁止叛徒刀内鬼
         if (killer.Is(CustomRoles.Madmate) && target.Is(CustomRoleTypes.Impostor) && !Options.MadmateCanKillImp.GetBool())
             return false;
-        //Bitten players cannot kill Vampire
-        if (killer.Is(CustomRoles.Infected) && target.Is(CustomRoles.Infectious))
-            return false;
-        //Vampire cannot kill bitten players
-        if (killer.Is(CustomRoles.Infectious) && target.Is(CustomRoles.Infected))
-            return false;
-        //Bitten players cannot kill each other
-        if (killer.Is(CustomRoles.Infected) && target.Is(CustomRoles.Infected) && !Infectious.TargetKnowOtherTarget.GetBool())
-            return false;
         //Sidekick can kill Sidekick
         if (killer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Sidekick) && !Options.SidekickCanKillSidekick.GetBool())
             return false;
@@ -962,7 +953,7 @@ class CheckMurderPatch
                 }
                 break;
             case CustomRoles.TimeMaster:
-                if (Main.TimeMasterInProtect.ContainsKey(target.PlayerId) && killer.PlayerId != target.PlayerId && Main.TimeMasterInProtect[target.PlayerId] + Options.TimeMasterSkillDuration.GetInt() >= Utils.GetTimeStamp(DateTime.UtcNow))
+                if (Main.TimeMasterInProtect.ContainsKey(target.PlayerId) && killer.PlayerId != target.PlayerId && Main.TimeMasterInProtect[target.PlayerId] + Options.TimeMasterSkillDuration.GetInt() >= GetTimeStamp(DateTime.UtcNow))
                 {
                     foreach (var player in Main.AllPlayerControls)
                     {
@@ -971,7 +962,7 @@ class CheckMurderPatch
                             player.TP(pos);
                         }
                     }
-                    killer.SetKillCooldown(target: target, forceAnime: true);
+                    killer.SetKillCooldown(target: target);
                     return false;
                 }
                 break;
@@ -1173,9 +1164,6 @@ class MurderPlayerPatch
                 break;
             case CustomRoles.Maverick:
                 Maverick.NumOfKills++;
-                break;
-            case CustomRoles.Mafioso:
-                Mafioso.OnMurder();
                 break;
             case CustomRoles.Wildling:
                 Wildling.OnMurderPlayer(killer, target);
@@ -1957,7 +1945,7 @@ class ReportDeadBodyPatch
         MeetingTimeManager.OnReportDeadBody();
 
         NameNotifyManager.Reset();
-        _ = new LateTask(() => { NotifyRoles(isForMeeting: true, NoCache: true, CamouflageIsForMeeting: true, GuesserIsForMeeting: true); }, 0.5f, log: false);
+        NotifyRoles(isForMeeting: true, NoCache: true, CamouflageIsForMeeting: true, GuesserIsForMeeting: true);
 
         _ = new LateTask(SyncAllSettings, 3f, "SyncAllSettings on meeting start");
     }
@@ -2215,6 +2203,8 @@ class FixedUpdatePatch
                 YinYanger.OnFixedUpdate();
                 Duellist.OnFixedUpdate();
                 Kamikaze.OnFixedUpdate();
+                Succubus.OnFixedUpdate();
+                Necromancer.OnFixedUpdate();
             }
         }
 
@@ -3127,9 +3117,8 @@ class ExitVentPatch
         {
             Logger.Info("(Exit)  " + __instance.name, "HostVentTarget");
             TryMoveToVentPatch.HostVentTarget = __instance;
+            __instance.SetButtons(false);
         }
-
-        __instance.SetButtons(false);
 
         if (!AmongUsClient.Instance.AmHost) return;
 
@@ -3155,9 +3144,8 @@ class EnterVentPatch
         {
             Logger.Info("(Enter)  " + __instance.name, "HostVentTarget");
             TryMoveToVentPatch.HostVentTarget = __instance;
+            __instance.SetButtons(true);
         }
-
-        __instance.SetButtons(true);
 
         Drainer.OnAnyoneEnterVent(pc, __instance);
         Analyzer.OnAnyoneEnterVent(pc);
