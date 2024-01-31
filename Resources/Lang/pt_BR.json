@@ -2943,7 +2943,7 @@
   "SoulHunterTargetNotifyNoVent": "<color=#ffff00>Você não pode usar os dutos no tempo de caça</color>",
   "SoulHunterTargetNotifyNoMeeting": "<color=#ffff00>Você não pode chamar uma reunião no tempo de caça</color>",
   "SoulHunterTargetNotifyNoKill": "<color=#ffff00>Você não pode matar o <color=#3f2c61>Ceifador de Almas</color>no tempo de caça</color>",
-  "SoulHunterNotify": "Você tem <color=#00ffa5>{0}s</color> para matar <color=#3f2c61>{1}</color>{0",
+  "SoulHunterNotify": "Você tem <color=#00ffa5>{0}s</color> para matar <color=#3f2c61>{1}</color>",
   "SoulHunterNotifySuccess": "<color=#00ff00>Sucesso!</color>",
   "SoulHunterNotifyFreeze": "Você pode começar a caçar <color=#3f2c61>{0}</color> em <color=#00ffa5>{1}s</color>",
   "Librarian": "Bibliotecário",
