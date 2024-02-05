@@ -21,6 +21,8 @@ class DisableDevice
         ["PolusRightAdmin"] = new(24.66f, -21.52f),
         ["PolusCamera"] = new(2.96f, -12.74f),
         ["PolusVital"] = new(26.70f, -15.94f),
+        ["DleksAdmin"] = new Vector2(-3.48f, -8.62f),
+        ["DleksCamera"] = new Vector2(13.06f, -2.45f),
         ["AirshipCockpitAdmin"] = new(-22.32f, 0.91f),
         ["AirshipRecordsAdmin"] = new(19.89f, 12.60f),
         ["AirshipCamera"] = new(8.10f, -9.63f),
@@ -35,7 +37,7 @@ class DisableDevice
             MapNames.Skeld => 1.8f,
             MapNames.Mira => 2.4f,
             MapNames.Polus => 1.8f,
-            //MapNames.Dleks => 1.5f,
+            MapNames.Dleks => 1.5f,
             MapNames.Airship => 1.8f,
             MapNames.Fungle => 1.8f,
             _ => 0.0f
@@ -86,6 +88,12 @@ class DisableDevice
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["PolusCamera"]) <= UsableDistance();
                             if (Options.DisablePolusVital.GetBool())
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["PolusVital"]) <= UsableDistance();
+                            break;
+                        case 3:
+                            if (Options.DisableSkeldAdmin.GetBool())
+                                doComms |= Vector2.Distance(PlayerPos, DevicePos["DleksAdmin"]) <= UsableDistance();
+                            if (Options.DisableSkeldCamera.GetBool())
+                                doComms |= Vector2.Distance(PlayerPos, DevicePos["DleksCamera"]) <= UsableDistance();
                             break;
                         case 4:
                             if (Options.DisableAirshipCockpitAdmin.GetBool())
@@ -152,6 +160,7 @@ public class RemoveDisableDevicesPatch
         if (admins == null || consoles == null) return;
         switch (Main.NormalOptions.MapId)
         {
+            case 3:
             case 0:
                 if (Options.DisableSkeldAdmin.GetBool())
                     admins[0].gameObject.GetComponent<CircleCollider2D>().enabled = false || ignore;

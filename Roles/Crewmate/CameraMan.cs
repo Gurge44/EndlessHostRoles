@@ -66,13 +66,14 @@ namespace TOHE.Roles.Crewmate
                 UseLimit[pc.PlayerId] -= 1;
                 SendRPC(pc.PlayerId);
 
-                Vector2 pos = Main.NormalOptions.MapId switch
+                Vector2 pos = Main.CurrentMap switch
                 {
-                    0 => new(-13.5f, -5.5f),
-                    1 => new(15.3f, 3.8f),
-                    2 => new(3.0f, -12.0f),
-                    4 => new(5.8f, -10.8f),
-                    5 => new(9.5f, 1.2f),
+                    MapNames.Skeld => new(-13.5f, -5.5f),
+                    MapNames.Mira => new(15.3f, 3.8f),
+                    MapNames.Polus => new(3.0f, -12.0f),
+                    MapNames.Dleks => new(-13.5f, -5.5f),
+                    MapNames.Airship => new(5.8f, -10.8f),
+                    MapNames.Fungle => new(9.5f, 1.2f),
                     _ => throw new NotImplementedException(),
                 };
 

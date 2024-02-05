@@ -37,9 +37,9 @@ public static class MessageReaderUpdateSystemPatch
     {
         try { RepairSystemPatch.Prefix(__instance, systemType, player, MessageReader.Get(reader).ReadByte()); } catch { }
     }
-    public static void Postfix(ShipStatus __instance, [HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] PlayerControl player, [HarmonyArgument(2)] MessageReader reader)
+    public static void Postfix(/*ShipStatus __instance,*/ [HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] PlayerControl player, [HarmonyArgument(2)] MessageReader reader)
     {
-        try { RepairSystemPatch.Postfix(__instance, systemType, player, MessageReader.Get(reader).ReadByte()); } catch { }
+        try { RepairSystemPatch.Postfix(/*__instance,*/ systemType, player, MessageReader.Get(reader).ReadByte()); } catch { }
     }
 }
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(PlayerControl), typeof(byte))]
@@ -98,6 +98,7 @@ class RepairSystemPatch
                 if (Options.DisableAirshipCargoLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(30.56f, 2.12f)) <= 2f) return false;
                 break;
             case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay:
+                if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop) return false;
                 if (Main.BlockSabo.Count > 0) return false;
                 if (Glitch.hackedIdList.ContainsKey(player.PlayerId))
                 {
@@ -158,7 +159,7 @@ class RepairSystemPatch
         }
         return true;
     }
-    public static void Postfix(ShipStatus __instance,
+    public static void Postfix(/*ShipStatus __instance,*/
         [HarmonyArgument(0)] SystemTypes systemType,
         [HarmonyArgument(1)] PlayerControl player,
         [HarmonyArgument(2)] byte amount)
