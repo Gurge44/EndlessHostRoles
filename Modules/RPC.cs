@@ -58,6 +58,7 @@ public enum CustomRPC
 
     //Roles
     SetDrawPlayer,
+    SyncHeadHunter,
     SyncConvener,
     SyncPerceiver,
     SyncRabbit,
@@ -410,6 +411,9 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.setPlaguedPlayer:
                 PlagueBearer.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncHeadHunter:
+                HeadHunter.ReceiveRPC(reader);
                 break;
             case CustomRPC.SyncDamoclesTimer:
                 Damocles.ReceiveRPC(reader);

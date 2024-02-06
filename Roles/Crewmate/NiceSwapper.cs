@@ -18,6 +18,7 @@ public static class NiceSwapper
     public static OptionItem CanSwapSelf;
     public static OptionItem CanStartMeeting;
     public static OptionItem NiceSwapperAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem AbilityChargesWhenFinishedTasks;
 
     public static List<byte> playerIdList = [];
     public static List<byte> Vote = [];
@@ -33,6 +34,9 @@ public static class NiceSwapper
         NiceSwapperAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 6, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.3f, TabGroup.CrewmateRoles, false)
         .SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper])
         .SetValueFormat(OptionFormat.Times);
+        AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 7, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper])
+            .SetValueFormat(OptionFormat.Times);
         HideMsg = BooleanOptionItem.Create(Id + 5, "SwapperHideMsg", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper]);
     }
     public static void Init()

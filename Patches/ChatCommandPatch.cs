@@ -281,6 +281,7 @@ internal class ChatCommands
                         settings.Append("</size>");
                         var txt = sb.ToString();
                         _ = sb.Clear().Append(txt.RemoveHtmlTags());
+                        if (role.PetActivatedAbility()) sb.Append("<size=50%>" + GetString("SupportsPetMessage").RemoveHtmlTags() + "</size>");
                         sb.Append("<size=70%>");
                         foreach (CustomRoles subRole in Main.PlayerStates[localPlayerId].SubRoles.ToArray())
                         {
@@ -508,6 +509,7 @@ internal class ChatCommands
 
                 case "/changerole":
                     //if (!DebugModeManager.AmDebugger) break;
+                    if (GameStates.IsLobby || !PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp) break;
                     canceled = true;
                     subArgs = text.Remove(0, 8);
                     var setRole = FixRoleNameInput(subArgs.Trim());
@@ -519,8 +521,13 @@ internal class ChatCommands
                         {
                             PlayerControl.LocalPlayer.RpcSetRole(rl.GetRoleTypes());
                             PlayerControl.LocalPlayer.RpcSetCustomRole(rl);
+                            PlayerControl.LocalPlayer.SyncSettings();
                             Utils.NotifyRoles(SpecifySeer: PlayerControl.LocalPlayer);
-                            PlayerControl.LocalPlayer.MarkDirtySettings();
+                            Utils.NotifyRoles(SpecifyTarget: PlayerControl.LocalPlayer);
+                            HudManager.Instance.SetHudActive(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.Data.Role, !GameStates.IsMeeting);
+                            Utils.AddRoles(PlayerControl.LocalPlayer.PlayerId, rl);
+                            Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].RemoveSubRole(CustomRoles.NotAssigned);
+                            Main.ChangedRole = true;
                         }
                     }
                     break;
@@ -832,10 +839,9 @@ internal class ChatCommands
             var roleName = GetString(rl.ToString());
             if (role == roleName.ToLower().Trim().TrimStart('*').Replace(" ", string.Empty))
             {
-                string devMark = string.Empty;
                 if ((isDev || isUp) && GameStates.IsLobby)
                 {
-                    devMark = "▲";
+                    string devMark = "▲";
                     if (rl.IsAdditionRole() || rl is CustomRoles.GM) devMark = string.Empty;
                     if (rl.GetCount() < 1 || rl.GetMode() == 0) devMark = string.Empty;
                     if (isUp)
@@ -852,7 +858,7 @@ internal class ChatCommands
                     if (isUp) return;
                 }
                 var sb = new StringBuilder();
-                var title = $"{devMark}<{Main.roleColors[rl]}>{roleName}</color>  {Utils.GetRoleMode(rl)}";
+                var title = $"<{Main.roleColors[rl]}>{roleName}</color> {Utils.GetRoleMode(rl)}";
                 _ = sb.Append($"{GetString($"{rl}InfoLong")}");
                 var settings = new StringBuilder();
                 if (Options.CustomRoleSpawnChances.ContainsKey(rl))
@@ -863,6 +869,7 @@ internal class ChatCommands
                     var txt = $"<size=90%>{sb}</size>";
                     _ = sb.Clear().Append(txt);
                 }
+                if (rl.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
                 Utils.SendMessage(text: "\n", sendTo: playerId, title: settings.ToString());
                 Utils.SendMessage(text: sb.ToString(), sendTo: playerId, title: title);
                 return;
@@ -955,6 +962,7 @@ internal class ChatCommands
                     settings.Append("</size>");
                     var txt = sb.ToString();
                     _ = sb.Clear().Append(txt.RemoveHtmlTags());
+                    if (role.PetActivatedAbility()) sb.Append("<size=50%>" + GetString("SupportsPetMessage").RemoveHtmlTags() + "</size>");
                     sb.Append("<size=70%>");
                     foreach (CustomRoles subRole in Main.PlayerStates[player.PlayerId].SubRoles.ToArray())
                     {

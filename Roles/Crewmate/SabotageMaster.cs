@@ -15,6 +15,7 @@ public static class SabotageMaster
     public static OptionItem FixesComms;
     public static OptionItem FixesElectrical;
     public static OptionItem SMAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem AbilityChargesWhenFinishedTasks;
     public static OptionItem UsesUsedWhenFixingReactorOrO2;
     public static OptionItem UsesUsedWhenFixingLightsOrComms;
     public static float UsedSkillCount;
@@ -32,6 +33,9 @@ public static class SabotageMaster
         FixesComms = BooleanOptionItem.Create(Id + 14, "SabotageMasterFixesCommunications", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
         FixesElectrical = BooleanOptionItem.Create(Id + 15, "SabotageMasterFixesElectrical", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
         SMAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 16, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 3f, TabGroup.CrewmateRoles, false)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster])
+            .SetValueFormat(OptionFormat.Times);
+        AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 19, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster])
             .SetValueFormat(OptionFormat.Times);
         UsesUsedWhenFixingReactorOrO2 = FloatOptionItem.Create(Id + 17, "SMUsesUsedWhenFixingReactorOrO2", new(0f, 5f, 0.1f), 4f, TabGroup.CrewmateRoles, false)

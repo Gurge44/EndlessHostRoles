@@ -213,6 +213,7 @@ public static class Options
     public static OptionItem CheatResponses;
     public static OptionItem LowLoadMode;
     public static OptionItem DeepLowLoad;
+    public static OptionItem DisableVoteBan;
 
     // Dummy Settings
     public static OptionItem SpawnSidekickAlone;
@@ -706,6 +707,15 @@ public static class Options
     public static OptionItem DisableDevicesIgnoreNeutrals;
     public static OptionItem DisableDevicesIgnoreCrewmates;
     public static OptionItem DisableDevicesIgnoreAfterAnyoneDied;
+
+    // Ability Use Gain every 5 seconds
+    public static OptionItem VentguardAbilityChargesWhenFinishedTasks;
+    public static OptionItem GrenadierAbilityChargesWhenFinishedTasks;
+    public static OptionItem LighterAbilityChargesWhenFinishedTasks;
+    public static OptionItem SecurityGuardAbilityChargesWhenFinishedTasks;
+    public static OptionItem DovesOfNeaceAbilityChargesWhenFinishedTasks;
+    public static OptionItem TimeMasterAbilityChargesWhenFinishedTasks;
+    public static OptionItem VeteranAbilityChargesWhenFinishedTasks;
 
     // Maps
     public static OptionItem RandomMapsMode;
@@ -1531,6 +1541,9 @@ public static class Options
         VentguardAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(5527, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard])
             .SetValueFormat(OptionFormat.Times);
+        VentguardAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(5530, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard])
+            .SetValueFormat(OptionFormat.Times);
         VentguardMaxGuards = IntegerOptionItem.Create(5528, "VentguardMaxGuards", new(1, 30, 1), 3, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard]);
         VentguardBlockDoesNotAffectCrew = BooleanOptionItem.Create(5529, "VentguardBlockDoesNotAffectCrew", true, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard]);
         RoleLoadingText = "Crewmate roles\nDemolitionist";
@@ -1685,6 +1698,9 @@ public static class Options
         GrenadierAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(6815, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.5f, TabGroup.CrewmateRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
             .SetValueFormat(OptionFormat.Times);
+        GrenadierAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(6816, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
+            .SetValueFormat(OptionFormat.Times);
 
         LoadingPercentage = 19;
         RoleLoadingText = "Crewmate roles\nLighter";
@@ -1708,6 +1724,9 @@ public static class Options
         LighterAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(6857, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1.5f, TabGroup.CrewmateRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
             .SetValueFormat(OptionFormat.Times);
+        LighterAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(6858, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
+            .SetValueFormat(OptionFormat.Times);
 
         RoleLoadingText = "Crewmate roles\nSecurity Guard";
 
@@ -1722,6 +1741,9 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.SecurityGuard])
             .SetValueFormat(OptionFormat.Times);
         SecurityGuardAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(6867, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.4f, TabGroup.CrewmateRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.SecurityGuard])
+            .SetValueFormat(OptionFormat.Times);
+        SecurityGuardAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(6868, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.SecurityGuard])
             .SetValueFormat(OptionFormat.Times);
 
@@ -1762,6 +1784,9 @@ public static class Options
         DovesOfNeaceAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(7712, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.DovesOfNeace])
             .SetValueFormat(OptionFormat.Times);
+        DovesOfNeaceAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(7713, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.DovesOfNeace])
+            .SetValueFormat(OptionFormat.Times);
         RoleLoadingText = "Crewmate roles\nParanoid";
         SetupRoleOptions(7800, TabGroup.CrewmateRoles, CustomRoles.Paranoia);
         ParanoiaNumOfUseButton = IntegerOptionItem.Create(7810, "ParanoiaNumOfUseButton", new(0, 90, 1), 3, TabGroup.CrewmateRoles, false)
@@ -1793,6 +1818,9 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
             .SetValueFormat(OptionFormat.Times);
         TimeMasterAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(8963, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.4f, TabGroup.CrewmateRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
+            .SetValueFormat(OptionFormat.Times);
+        TimeMasterAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(8964, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
             .SetValueFormat(OptionFormat.Times);
         RoleLoadingText = "Crewmate roles\nTracker";
@@ -1856,6 +1884,9 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
             .SetValueFormat(OptionFormat.Times);
         VeteranAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(8913, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.3f, TabGroup.CrewmateRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
+            .SetValueFormat(OptionFormat.Times);
+        VeteranAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(8914, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
             .SetValueFormat(OptionFormat.Times);
         RoleLoadingText = "Crewmate roles\nNice Guesser";
@@ -2809,6 +2840,8 @@ public static class Options
 
         CheatResponses = StringOptionItem.Create(19319, "CheatResponses", CheatResponsesName, 2, TabGroup.SystemSettings, false)
             .SetHeader(true);
+
+        DisableVoteBan = BooleanOptionItem.Create(19320, "DisableVoteBan", false, TabGroup.SystemSettings, true);
 
         //HighLevelAntiCheat = StringOptionItem.Create(19320, "HighLevelAntiCheat", CheatResponsesName, 0, TabGroup.SystemSettings, false)
         //.SetHeader(true);

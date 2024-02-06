@@ -17,6 +17,7 @@ public static class Chameleon
     private static OptionItem ChameleonDuration;
     public static OptionItem UseLimitOpt;
     public static OptionItem ChameleonAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem AbilityChargesWhenFinishedTasks;
 
     private static Dictionary<byte, long> InvisTime = [];
     private static Dictionary<byte, long> lastTime = [];
@@ -33,8 +34,11 @@ public static class Chameleon
         UseLimitOpt = IntegerOptionItem.Create(Id + 4, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Chameleon])
             .SetValueFormat(OptionFormat.Times);
         ChameleonAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 5, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.5f, TabGroup.CrewmateRoles, false)
-        .SetParent(CustomRoleSpawnChances[CustomRoles.Chameleon])
-        .SetValueFormat(OptionFormat.Times);
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Chameleon])
+            .SetValueFormat(OptionFormat.Times);
+        AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 6, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Chameleon])
+            .SetValueFormat(OptionFormat.Times);
     }
     public static void Init()
     {

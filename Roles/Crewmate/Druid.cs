@@ -19,6 +19,7 @@ namespace TOHE.Roles.Crewmate
         private static OptionItem TriggerPlaceDelay;
         private static OptionItem UseLimitOpt;
         public static OptionItem DruidAbilityUseGainWithEachTaskCompleted;
+        public static OptionItem AbilityChargesWhenFinishedTasks;
 
         private static Dictionary<byte, long> TriggerDelays = [];
         private static Dictionary<byte, Dictionary<Vector2, string>> Triggers = [];
@@ -37,6 +38,9 @@ namespace TOHE.Roles.Crewmate
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Druid])
                 .SetValueFormat(OptionFormat.Times);
             DruidAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 13, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Druid])
+                .SetValueFormat(OptionFormat.Times);
+            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 14, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Druid])
                 .SetValueFormat(OptionFormat.Times);
         }

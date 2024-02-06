@@ -404,7 +404,7 @@ public static class Utils
                 if (!subRole.IsAdditionRole())
                 {
                     str = GetString(subRole.ToString());
-                    Logger.Fatal("This is concerning....", "Utils.GetRoleText");
+                    //Logger.Fatal("This is concerning....", "Utils.GetRoleText");
                 }
                 RoleText = ColorString(GetRoleColor(subRole), (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>(</color>" : string.Empty) + str + (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>)</color>" : string.Empty) + " ") + RoleText;
             }
@@ -1387,7 +1387,7 @@ public static class Utils
             switch (opt.Value.Name)
             {
                 case "Maximum":
-                case "DisableSkeldDevices" when Main.CurrentMap is not MapNames.Skeld and not MapNames.Dleks:
+                case "DisableSkeldDevices" when Main.CurrentMap != MapNames.Skeld:
                 case "DisableMiraHQDevices" when Main.CurrentMap != MapNames.Mira:
                 case "DisablePolusDevices" when Main.CurrentMap != MapNames.Polus:
                 case "DisableAirshipDevices" when Main.CurrentMap != MapNames.Airship:
@@ -1416,7 +1416,7 @@ public static class Utils
 
         var sb = new StringBuilder();
 
-        sb.Append($"<#ffffff>{GetString("RoleSummaryText")}</color><size=70%>");
+        sb.Append("<#ffffff><u>Role Summary:</u></color><size=70%>");
 
         List<byte> cloneRoles = new(Main.PlayerStates.Keys);
         foreach (byte id in Main.winnerList.ToArray())
@@ -3273,6 +3273,13 @@ public static class Utils
             Postman.OnTargetDeath();
         if (Hitman.targetId == target.PlayerId)
             Hitman.targetId = byte.MaxValue;
+
+
+        if (Hacker.IsEnable) Hacker.AddDeadBody(target);
+        if (Mortician.IsEnable) Mortician.OnPlayerDead(target);
+        if (Bloodhound.IsEnable) Bloodhound.OnPlayerDead(target);
+        if (Tracefinder.IsEnable) Tracefinder.OnPlayerDead(target);
+        if (Vulture.IsEnable) Vulture.OnPlayerDead(target);
 
         FixedUpdatePatch.LoversSuicide(target.PlayerId, onMeeting);
     }

@@ -1,4 +1,5 @@
 using AmongUs.GameOptions;
+using Hazel;
 using System.Collections.Generic;
 using System.Linq;
 using static TOHE.Options;
@@ -56,6 +57,19 @@ public static class HeadHunter
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
+    private static void SendRPC()
+    {
+        var writer = Utils.CreateCustomRoleRPC(CustomRPC.SyncHeadHunter);
+        writer.Write(Targets.Count);
+        foreach (var target in Targets.ToArray()) writer.Write(target);
+        Utils.EndRPC(writer);
+    }
+    public static void ReceiveRPC(MessageReader reader)
+    {
+        Targets.Clear();
+        int count = reader.ReadInt32();
+        for (int i = 0; i < count; i++) Targets.Add(reader.ReadByte());
+    }
     public static bool IsEnable => playerIdList.Count > 0;
     public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
     public static void OnReportDeadBody()
@@ -100,6 +114,7 @@ public static class HeadHunter
             }
         }
 
+        SendRPC();
         Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(playerIdList[0]));
     }
 }

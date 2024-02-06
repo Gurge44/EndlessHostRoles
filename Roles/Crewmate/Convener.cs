@@ -10,6 +10,7 @@ namespace TOHE.Roles.Crewmate
         public static OptionItem CD;
         public static OptionItem Limit;
         public static OptionItem ConvenerAbilityUseGainWithEachTaskCompleted;
+        public static OptionItem AbilityChargesWhenFinishedTasks;
         public static readonly Dictionary<byte, float> UseLimit = [];
         public static void SetupCustomOption()
         {
@@ -19,6 +20,9 @@ namespace TOHE.Roles.Crewmate
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Convener])
                 .SetValueFormat(OptionFormat.Times);
             ConvenerAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 4, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.4f, TabGroup.CrewmateRoles, false)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Convener])
+                .SetValueFormat(OptionFormat.Times);
+            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 5, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Convener])
                 .SetValueFormat(OptionFormat.Times);
         }

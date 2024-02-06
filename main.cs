@@ -33,8 +33,8 @@ public class Main : BasePlugin
     public static ConfigEntry<string> DebugKeyInput { get; private set; }
     public static readonly string MainMenuText = " ";
     public const string PluginGuid = "com.gurge44.toheplus";
-    public const string PluginVersion = "2.3.0";
-    public const string PluginDisplayVersion = "2.3.0";
+    public const string PluginVersion = "2.3.1";
+    public const string PluginDisplayVersion = "2.3.1";
     public static readonly string SupportedAUVersion = "2023.10.24";
     public const int PluginCreate = 3;
     public const bool Canary = false;
@@ -80,6 +80,7 @@ public class Main : BasePlugin
     public static ConfigEntry<string> BetaBuildURL { get; private set; }
     public static ConfigEntry<float> LastKillCooldown { get; private set; }
     public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
+    public static bool ChangedRole = false;
     public static OptionBackupData RealOptionsData;
     public static Dictionary<byte, float> KillTimers = [];
     public static Dictionary<byte, PlayerState> PlayerStates = [];

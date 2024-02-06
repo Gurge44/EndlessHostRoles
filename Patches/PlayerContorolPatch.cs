@@ -1211,16 +1211,6 @@ class MurderPlayerPatch
         if (Mediumshiper.IsEnable) foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Mediumshiper)).ToArray())
                 pc.Notify(ColorString(GetRoleColor(CustomRoles.Mediumshiper), GetString("MediumshiperKnowPlayerDead")));
 
-        if (Executioner.Target.ContainsValue(target.PlayerId))
-            Executioner.ChangeRoleByTarget(target);
-        if (Lawyer.Target.ContainsValue(target.PlayerId))
-            Lawyer.ChangeRoleByTarget(target);
-        if (Hacker.IsEnable) Hacker.AddDeadBody(target);
-        if (Mortician.IsEnable) Mortician.OnPlayerDead(target);
-        if (Bloodhound.IsEnable) Bloodhound.OnPlayerDead(target);
-        if (Tracefinder.IsEnable) Tracefinder.OnPlayerDead(target);
-        if (Vulture.IsEnable) Vulture.OnPlayerDead(target);
-
         AfterPlayerDeathTasks(target);
 
         Main.PlayerStates[target.PlayerId].SetDead();
@@ -1967,6 +1957,7 @@ class FixedUpdatePatch
     private static readonly Dictionary<byte, int> BufferTime = [];
     private static readonly Dictionary<byte, int> DeadBufferTime = [];
     private static readonly Dictionary<byte, long> LastUpdate = [];
+    private static long LastAddAbilityTime = 0;
 
     public static async void Postfix(PlayerControl __instance)
     {
@@ -2410,6 +2401,95 @@ class FixedUpdatePatch
         if (!lowLoad)
         {
             long now = GetTimeStamp();
+
+            // Ability Use Gain every 5 seconds
+
+            if (GameStates.IsInTask && player.IsAlive() && Main.PlayerStates.TryGetValue(playerId, out var state) && state.TaskState.IsTaskFinished && LastAddAbilityTime + 5 < now)
+            {
+                LastAddAbilityTime = now;
+                switch (player.GetCustomRole())
+                {
+                    case CustomRoles.Ventguard:
+                        Main.VentguardNumberOfAbilityUses += Options.VentguardAbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.Grenadier:
+                        Main.GrenadierNumOfUsed[playerId] += Options.GrenadierAbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.Lighter:
+                        Main.LighterNumOfUsed[playerId] += Options.LighterAbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.SecurityGuard:
+                        Main.SecurityGuardNumOfUsed[playerId] += Options.SecurityGuardAbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.DovesOfNeace:
+                        Main.DovesOfNeaceNumOfUsed[playerId] += Options.DovesOfNeaceAbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.TimeMaster:
+                        Main.TimeMasterNumOfUsed[playerId] += Options.TimeMasterAbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.Veteran:
+                        Main.VeteranNumOfUsed[playerId] += Options.VeteranAbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.Bloodhound:
+                        Bloodhound.UseLimit[playerId] += Bloodhound.AbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.CameraMan:
+                        CameraMan.UseLimit[playerId] += CameraMan.AbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.Chameleon:
+                        Chameleon.UseLimit[playerId] += Chameleon.AbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.Convener:
+                        Convener.UseLimit[playerId] += Convener.AbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.Divinator:
+                        Divinator.CheckLimit[playerId] += Divinator.AbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.Doormaster:
+                        Doormaster.UseLimit[playerId] += Doormaster.AbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.Drainer:
+                        Drainer.DrainLimit += Drainer.AbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.Druid:
+                        Druid.UseLimit[playerId] += Druid.AbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.Judge:
+                        Judge.TrialLimit[playerId] += Judge.AbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.Mediumshiper:
+                        Mediumshiper.ContactLimit[playerId] += Mediumshiper.AbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.NiceSwapper:
+                        NiceSwapper.NiceSwappermax[playerId] += NiceSwapper.AbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.Oracle:
+                        Oracle.CheckLimit[playerId] += Oracle.AbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.ParityCop:
+                        ParityCop.MaxCheckLimit[playerId] += ParityCop.AbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.Perceiver:
+                        Perceiver.UseLimit[playerId] += Perceiver.AbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.Ricochet:
+                        Ricochet.UseLimit[playerId] += Ricochet.AbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.SabotageMaster:
+                        SabotageMaster.UsedSkillCount -= SabotageMaster.AbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.Spy:
+                        Spy.UseLimit[playerId] += Spy.AbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.Tether:
+                        Tether.UseLimit[playerId] += Tether.AbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                    case CustomRoles.Tracker:
+                        Tracker.TrackLimit[playerId] += Tracker.AbilityChargesWhenFinishedTasks.GetFloat();
+                        break;
+                }
+            }
+
             switch (player.GetCustomRole())
             {
                 case CustomRoles.Veteran when GameStates.IsInTask:
@@ -2614,7 +2694,7 @@ class FixedUpdatePatch
         if (__instance.AmOwner)
         {
             //キルターゲットの上書き処理
-            if (GameStates.IsInTask && !__instance.Is(CustomRoleTypes.Impostor) && __instance.CanUseKillButton() && !__instance.Data.IsDead)
+            if ((Main.ChangedRole && __instance == PlayerControl.LocalPlayer && AmongUsClient.Instance.AmHost) || (GameStates.IsInTask && !__instance.Is(CustomRoleTypes.Impostor) && __instance.CanUseKillButton() && !__instance.Data.IsDead))
             {
                 var players = __instance.GetPlayersInAbilityRangeSorted(false);
                 PlayerControl closest = players.Count == 0 ? null : players[0];
@@ -3537,17 +3617,24 @@ class CoEnterVentPatch
         //(__instance.myPlayer.Is(CustomRoles.DovesOfNeace) && Main.DovesOfNeaceNumOfUsed.TryGetValue(__instance.myPlayer.PlayerId, out var count5) && count5 < 1)
         )
         {
-            //MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.BootFromVent, SendOption.Reliable, -1);
-            //writer.WritePacked(127);
-            //AmongUsClient.Instance.FinishRpcImmediately(writer);
-            _ = new LateTask(() =>
+            try
             {
-                try { __instance?.RpcBootFromVent(id); } catch { }
-                //int clientId = __instance.myPlayer.GetClientId();
-                //MessageWriter writer2 = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.BootFromVent, SendOption.Reliable, clientId);
-                //writer2.Write(id);
-                //AmongUsClient.Instance.FinishRpcImmediately(writer2);
-            }, 0.5f, "Fix DesyncImpostor Stuck");
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.BootFromVent, SendOption.Reliable, -1);
+                writer.WritePacked(127);
+                AmongUsClient.Instance.FinishRpcImmediately(writer);
+                _ = new LateTask(() =>
+                {
+                    try
+                    {
+                        int clientId = __instance.myPlayer.GetClientId();
+                        MessageWriter writer2 = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.BootFromVent, SendOption.Reliable, clientId);
+                        writer2.Write(id);
+                        AmongUsClient.Instance.FinishRpcImmediately(writer2);
+                    }
+                    catch { }
+                }, 0.5f, "Fix DesyncImpostor Stuck");
+            }
+            catch { }
             return true;
         }
 

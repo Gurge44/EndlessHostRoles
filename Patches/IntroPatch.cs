@@ -3,7 +3,6 @@ using HarmonyLib;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Translator;
 
@@ -595,7 +594,6 @@ class IntroCutsceneDestroyPatch
                     0 => new RandomSpawn.SkeldSpawnMap(),
                     1 => new RandomSpawn.MiraHQSpawnMap(),
                     2 => new RandomSpawn.PolusSpawnMap(),
-                    3 => new RandomSpawn.DleksSpawnMap(),
                     5 => new RandomSpawn.FungleSpawnMap(),
                     _ => null,
                 };

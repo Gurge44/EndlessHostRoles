@@ -188,7 +188,7 @@ public class GameOptionsMenuUpdatePatch
             __instance.transform.FindChild("../../GameGroup/Text").GetComponent<TMPro.TextMeshPro>().SetText($"<color={tabcolor}>" + GetString("TabGroup." + tab) + "</color>");
 
             _timer += Time.deltaTime;
-            if (_timer < 0.1f) return;
+            if (_timer < 0.2f) return;
             _timer = 0f;
 
             float numItems = __instance.Children.Length;
@@ -277,6 +277,8 @@ public class StringOptionEnablePatch
         if (option.Id == Options.UsePets.Id) LoadLangs();
         else if (!Options.UsePets.GetBool() && CustomRolesHelper.OnlySpawnsWithPetsRoleList.Any(role => role.ToString().Equals(option.GetName().RemoveHtmlTags())))
             __instance.TitleText.text += GetString("RequiresPetIndicator");
+        else if (Options.UsePets.GetBool() && Enum.TryParse(option.GetName().RemoveHtmlTags(), out CustomRoles enumerable) && enumerable.PetActivatedAbility())
+            __instance.TitleText.text += GetString("SupportsPetIndicator");
         __instance.Value = __instance.oldValue = option.CurrentValue;
         __instance.ValueText.text = option.GetString();
 

@@ -31,6 +31,8 @@ class EndGamePatch
         Main.SetAddOns = [];
         SummaryText = [];
 
+        Main.ChangedRole = false;
+
         foreach (var id in Main.PlayerStates.Keys)
         {
             if (Doppelganger.IsEnable && Doppelganger.DoppelVictim.ContainsKey(id))

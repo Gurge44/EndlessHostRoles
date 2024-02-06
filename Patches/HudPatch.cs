@@ -752,7 +752,6 @@ class SetHudActivePatch
             case CustomRoles.Magician:
                 __instance.SabotageButton?.ToggleVisible(true);
                 break;
-
         }
 
         if (Main.PlayerStates.TryGetValue(player.PlayerId, out var ps) && ps.SubRoles.Contains(CustomRoles.Oblivious))
@@ -761,7 +760,7 @@ class SetHudActivePatch
         }
         __instance.KillButton?.ToggleVisible(player.CanUseKillButton());
         __instance.ImpostorVentButton?.ToggleVisible(player.CanUseImpostorVentButton());
-        __instance.SabotageButton?.ToggleVisible(player.CanUseSabotage() && isActive);
+        __instance.SabotageButton?.ToggleVisible(player.CanUseSabotage());
     }
 }
 [HarmonyPatch(typeof(VentButton), nameof(VentButton.DoClick))]

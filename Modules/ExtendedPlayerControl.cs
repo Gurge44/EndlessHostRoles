@@ -20,9 +20,9 @@ namespace TOHE;
 
 static class ExtendedPlayerControl
 {
-    public static void RpcSetCustomRole(this PlayerControl player, CustomRoles role)
+    public static void RpcSetCustomRole(this PlayerControl player, CustomRoles role, bool isRoleForced = false)
     {
-        if (role < CustomRoles.NotAssigned)
+        if (role < CustomRoles.NotAssigned || isRoleForced)
         {
             Main.PlayerStates[player.PlayerId].SetMainRole(role);
         }

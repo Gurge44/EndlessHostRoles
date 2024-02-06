@@ -14,6 +14,7 @@ namespace TOHE.Roles.Crewmate
         private static OptionItem VentCD;
         private static OptionItem UseLimit;
         public static OptionItem DrainerAbilityUseGainWithEachTaskCompleted;
+        public static OptionItem AbilityChargesWhenFinishedTasks;
 
         public static float DrainLimit;
 
@@ -29,6 +30,9 @@ namespace TOHE.Roles.Crewmate
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Drainer])
                 .SetValueFormat(OptionFormat.Times);
             DrainerAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.5f, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Drainer])
+                .SetValueFormat(OptionFormat.Times);
+            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 13, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Drainer])
                 .SetValueFormat(OptionFormat.Times);
         }

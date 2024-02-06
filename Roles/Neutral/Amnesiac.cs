@@ -196,7 +196,7 @@ public static class Amnesiac
             }
         }
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
-        
+
         if (CanBeRememberedImpostor(target))
         {
             RememberLimit--;
@@ -218,7 +218,7 @@ public static class Amnesiac
             return;
         }
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
-        
+
         if (CanBeRememberedCrewmate(target))
         {
             RememberLimit--;
@@ -242,7 +242,7 @@ public static class Amnesiac
             return;
         }
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
-        
+
         if (CanBeRememberedPoisoner(target))
         {
             RememberLimit--;
@@ -266,7 +266,7 @@ public static class Amnesiac
             return;
         }
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
-        
+
         if (CanBeRememberedJuggernaut(target))
         {
             RememberLimit--;
@@ -290,7 +290,7 @@ public static class Amnesiac
             return;
         }
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
-        
+
         if (CanBeRememberedHexMaster(target))
         {
             RememberLimit--;
@@ -314,7 +314,7 @@ public static class Amnesiac
             return;
         }
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
-        
+
         if (CanBeRememberedBloodKnight(target))
         {
             RememberLimit--;

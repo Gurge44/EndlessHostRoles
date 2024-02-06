@@ -367,6 +367,7 @@ internal class ChangeRoleSettings
             Agitater.Init();
             //Pirate.Init();
 
+            Main.ChangedRole = false;
 
             SoloKombatManager.Init();
             FFAManager.Init();

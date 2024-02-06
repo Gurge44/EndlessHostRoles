@@ -17,6 +17,7 @@ namespace TOHE.Roles.Crewmate
         public static OptionItem VentCooldown;
         public static OptionItem UseLimitOpt;
         public static OptionItem CameraManAbilityUseGainWithEachTaskCompleted;
+        public static OptionItem AbilityChargesWhenFinishedTasks;
 
         public static void SetupCustomOption()
         {
@@ -26,6 +27,9 @@ namespace TOHE.Roles.Crewmate
             UseLimitOpt = IntegerOptionItem.Create(Id + 11, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.CameraMan])
                 .SetValueFormat(OptionFormat.Times);
             CameraManAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.CameraMan])
+                .SetValueFormat(OptionFormat.Times);
+            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 13, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.CameraMan])
                 .SetValueFormat(OptionFormat.Times);
         }

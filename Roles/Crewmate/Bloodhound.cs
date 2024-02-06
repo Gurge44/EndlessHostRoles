@@ -20,6 +20,7 @@
         public static OptionItem LeaveDeadBodyUnreportable;
         public static OptionItem NotifyKiller;
         public static OptionItem BloodhoundAbilityUseGainWithEachTaskCompleted;
+        public static OptionItem AbilityChargesWhenFinishedTasks;
 
         public static void SetupCustomOption()
         {
@@ -32,6 +33,9 @@
             BloodhoundAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 13, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound])
             .SetValueFormat(OptionFormat.Times);
+            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 15, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound])
+                .SetValueFormat(OptionFormat.Times);
         }
         public static void Init()
         {
