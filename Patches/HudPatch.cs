@@ -589,26 +589,9 @@ class HudManagerPatch
                     __instance.KillButton?.ToggleVisible(false);
                 }
 
-                bool CanUseVent = (player.CanUseImpostorVentButton() || player.inVent) && GameStates.IsInTask && !player.MyPhysics.Animations.IsPlayingEnterVentAnimation();
+                bool CanUseVent = (player.CanUseImpostorVentButton() || player.inVent) && GameStates.IsInTask;
                 __instance.ImpostorVentButton?.ToggleVisible(CanUseVent);
                 player.Data.Role.CanVent = CanUseVent;
-
-                var vents = Object.FindObjectsOfType<Vent>().ToArray();
-                if (player.PlayerId == 0 && player.inVent && GameStates.IsInTask) SetVentButtonEnabled(TryMoveToVentPatch.HostVentTarget);
-                else if (CanUseVent && vents.Any(vent => Vector2.Distance(new Vector2(vent.transform.position.x, vent.transform.position.y + 0.3636f), player.Pos()) < 0.4f))
-                {
-                    Vent vent = vents.FirstOrDefault(vent => Vector2.Distance(new Vector2(vent.transform.position.x, vent.transform.position.y + 0.3636f), player.Pos()) < 0.4f);
-                    SetVentButtonEnabled(vent);
-                }
-                void SetVentButtonEnabled(Vent target)
-                {
-                    __instance.ImpostorVentButton.canInteract = true;
-                    __instance.ImpostorVentButton.enabled = true;
-                    __instance.ImpostorVentButton.isCoolingDown = false;
-                    __instance.ImpostorVentButton.SetEnabled();
-                    __instance.ImpostorVentButton.currentTarget = target;
-                    __instance.ImpostorVentButton.SetTarget(target);
-                }
             }
             else
             {
@@ -785,35 +768,10 @@ class SetHudActivePatch
 class VentButtonDoClickPatch
 {
     public static bool Animating = false;
-    public static bool Prefix(VentButton __instance)
+    public static void Prefix()
     {
-        var pc = PlayerControl.LocalPlayer;
-        if (pc.MyPhysics.Animations.IsPlayingEnterVentAnimation()) return false;
-
-        if (pc.inVent && pc.PlayerId == 0)
-        {
-            pc.MyPhysics.RpcExitVent(TryMoveToVentPatch.HostVentTarget.Id);
-            TryMoveToVentPatch.HostVentTarget.SetButtons(false);
-            Animating = true;
-            _ = new LateTask(() => { Animating = false; }, 0.6f, log: false);
-            return false;
-        }
-        if (pc.inVent || !pc.CanMove) return false;
-        var vents = Object.FindObjectsOfType<Vent>().ToArray();
-        if (vents.Any(vent => Vector2.Distance(new Vector2(vent.transform.position.x, vent.transform.position.y + 0.3636f), pc.Pos()) < 0.4f))
-        {
-            Vent vent = vents.FirstOrDefault(vent => Vector2.Distance(new Vector2(vent.transform.position.x, vent.transform.position.y + 0.3636f), pc.Pos()) < 0.4f);
-            pc.MyPhysics.RpcEnterVent(vent.Id);
-            vent.SetButtons(true);
-            Animating = true;
-            _ = new LateTask(() => { Animating = false; }, 0.6f, log: false);
-            return false;
-        }
-        pc?.MyPhysics?.RpcEnterVent(__instance.currentTarget.Id);
-        __instance.currentTarget.SetButtons(true);
         Animating = true;
         _ = new LateTask(() => { Animating = false; }, 0.6f, log: false);
-        return false;
     }
 }
 [HarmonyPatch(typeof(MapBehaviour), nameof(MapBehaviour.Show))]

@@ -363,6 +363,7 @@ public static class Options
     public static OptionItem SkeldChance;
     public static OptionItem MiraChance;
     public static OptionItem PolusChance;
+    public static OptionItem DleksChance;
     public static OptionItem AirshipChance;
     public static OptionItem FungleChance;
 
@@ -2933,10 +2934,13 @@ public static class Options
         PolusChance = IntegerOptionItem.Create(19912, "PolusChance", new(0, 100, 5), 0, TabGroup.GameSettings, false)
             .SetParent(RandomMapsMode)
             .SetValueFormat(OptionFormat.Percent);
+        DleksChance = IntegerOptionItem.Create(19914, "DleksChance", new(0, 100, 5), 0, TabGroup.GameSettings, false)
+            .SetParent(RandomMapsMode)
+            .SetValueFormat(OptionFormat.Percent);
         AirshipChance = IntegerOptionItem.Create(19913, "AirshipChance", new(0, 100, 5), 0, TabGroup.GameSettings, false)
             .SetParent(RandomMapsMode)
             .SetValueFormat(OptionFormat.Percent);
-        FungleChance = IntegerOptionItem.Create(19922, "FungleChance", new(0, 100, 5), 10, TabGroup.GameSettings, false)
+        FungleChance = IntegerOptionItem.Create(19922, "FungleChance", new(0, 100, 5), 0, TabGroup.GameSettings, false)
             .SetParent(RandomMapsMode)
             .SetValueFormat(OptionFormat.Percent);
 

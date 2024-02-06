@@ -1387,7 +1387,7 @@ public static class Utils
             switch (opt.Value.Name)
             {
                 case "Maximum":
-                case "DisableSkeldDevices" when Main.CurrentMap != MapNames.Skeld:
+                case "DisableSkeldDevices" when Main.CurrentMap is not MapNames.Skeld and not MapNames.Dleks:
                 case "DisableMiraHQDevices" when Main.CurrentMap != MapNames.Mira:
                 case "DisablePolusDevices" when Main.CurrentMap != MapNames.Polus:
                 case "DisableAirshipDevices" when Main.CurrentMap != MapNames.Airship:
@@ -1416,7 +1416,7 @@ public static class Utils
 
         var sb = new StringBuilder();
 
-        sb.Append("<#ffffff><u>Role Summary:</u></color><size=70%>");
+        sb.Append($"<#ffffff>{GetString("RoleSummaryText")}</color><size=70%>");
 
         List<byte> cloneRoles = new(Main.PlayerStates.Keys);
         foreach (byte id in Main.winnerList.ToArray())

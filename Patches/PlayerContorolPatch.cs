@@ -253,7 +253,7 @@ class CheckMurderPatch
                     if (!WeaponMaster.OnCheckMurder(killer, target)) return false;
                     break;
                 case CustomRoles.Cantankerous:
-                    if (Cantankerous.OnCheckMurder(killer)) return false;
+                    if (!Cantankerous.OnCheckMurder(killer)) return false;
                     break;
                 case CustomRoles.Postman:
                     Postman.OnCheckMurder(killer, target);
@@ -2204,6 +2204,7 @@ class FixedUpdatePatch
                 Duellist.OnFixedUpdate();
                 Kamikaze.OnFixedUpdate();
                 Succubus.OnFixedUpdate();
+                Necromancer.OnFixedUpdate();
             }
         }
 
@@ -3082,42 +3083,12 @@ class SetColorPatch
     }
 }
 
-[HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.RpcBootFromVent))]
-class BootFromVentPatch
-{
-    public static void Postfix(PlayerPhysics __instance)
-    {
-        if (!AmongUsClient.Instance.AmHost || __instance.myPlayer.PlayerId != 0) return;
-
-        TryMoveToVentPatch.HostVentTarget.SetButtons(false);
-    }
-}
-[HarmonyPatch(typeof(Vent), nameof(Vent.TryMoveToVent))]
-class TryMoveToVentPatch
-{
-    public static Vent HostVentTarget;
-    public static void Postfix(Vent __instance, [HarmonyArgument(0)] Vent otherVent, bool __result)
-    {
-        if (__result && AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer.PlayerId == 0 && PlayerControl.LocalPlayer.inVent && (HostVentTarget.Equals(__instance) || HostVentTarget == __instance))
-        {
-            Logger.Info($"(Move)  {__instance.name} => {otherVent.name}", "HostVentTarget");
-            HostVentTarget = otherVent;
-        }
-    }
-}
 [HarmonyPatch(typeof(Vent), nameof(Vent.ExitVent))]
 class ExitVentPatch
 {
     public static void Postfix(Vent __instance, [HarmonyArgument(0)] PlayerControl pc)
     {
         Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "ExitVent");
-
-        if (pc.PlayerId == 0)
-        {
-            Logger.Info("(Exit)  " + __instance.name, "HostVentTarget");
-            TryMoveToVentPatch.HostVentTarget = __instance;
-            __instance.SetButtons(false);
-        }
 
         if (!AmongUsClient.Instance.AmHost) return;
 
@@ -3138,13 +3109,6 @@ class EnterVentPatch
     public static void Postfix(Vent __instance, [HarmonyArgument(0)] PlayerControl pc)
     {
         Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "EnterVent");
-
-        if (pc.PlayerId == 0)
-        {
-            Logger.Info("(Enter)  " + __instance.name, "HostVentTarget");
-            TryMoveToVentPatch.HostVentTarget = __instance;
-            __instance.SetButtons(true);
-        }
 
         Drainer.OnAnyoneEnterVent(pc, __instance);
         Analyzer.OnAnyoneEnterVent(pc);
@@ -3563,7 +3527,7 @@ class CoEnterVentPatch
         }
 
         //处理弹出管道的阻塞
-        if (((__instance.myPlayer.Data.Role.Role != RoleTypes.Engineer && //不是工程师
+        if (Main.NormalOptions.MapId == (int)MapNames.Dleks || ((__instance.myPlayer.Data.Role.Role != RoleTypes.Engineer && //不是工程师
         !__instance.myPlayer.CanUseImpostorVentButton()) || //不能使用内鬼的跳管按钮
         (__instance.myPlayer.Is(CustomRoles.Mayor) && Main.MayorUsedButtonCount.TryGetValue(__instance.myPlayer.PlayerId, out var count) && count >= Options.MayorNumOfUseButton.GetInt()) ||
         (__instance.myPlayer.Is(CustomRoles.Paranoia) && Main.ParaUsedButtonCount.TryGetValue(__instance.myPlayer.PlayerId, out var count2) && count2 >= Options.ParanoiaNumOfUseButton.GetInt()))

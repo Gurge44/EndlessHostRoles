@@ -160,6 +160,7 @@ class ExileControllerWrapUpPatch
                 0 => new RandomSpawn.SkeldSpawnMap(),
                 1 => new RandomSpawn.MiraHQSpawnMap(),
                 2 => new RandomSpawn.PolusSpawnMap(),
+                3 => new RandomSpawn.DleksSpawnMap(),
                 5 => new RandomSpawn.FungleSpawnMap(),
                 _ => null,
             };

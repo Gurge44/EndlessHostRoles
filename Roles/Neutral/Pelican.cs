@@ -33,7 +33,7 @@ public static class Pelican
             Main.ResetCamPlayerList.Add(playerId);
     }
     public static bool IsEnable => playerIdList.Count > 0;
-    private static void SyncEatenList(byte playerId)
+    private static void SyncEatenList(/*byte playerId*/)
     {
         SendRPC(byte.MaxValue);
         foreach (var el in eatenList)
@@ -92,6 +92,7 @@ public static class Pelican
             0 => new(-27f, 3.3f), // The Skeld
             1 => new(-11.4f, 8.2f), // MIRA HQ
             2 => new(42.6f, -19.9f), // Polus
+            3 => new Vector2(27f, 3.3f), // dlekS ehT
             4 => new(-16.8f, -6.2f), // Airship
             5 => new Vector2(9.6f, 23.2f), // The Fungle
             _ => throw new System.NotImplementedException(),
@@ -112,7 +113,7 @@ public static class Pelican
         if (!eatenList.ContainsKey(pc.PlayerId)) eatenList.Add(pc.PlayerId, []);
         eatenList[pc.PlayerId].Add(target.PlayerId);
 
-        SyncEatenList(pc.PlayerId);
+        SyncEatenList(/*pc.PlayerId*/);
 
         originalSpeed.Remove(target.PlayerId);
         originalSpeed.Add(target.PlayerId, Main.AllPlayerSpeed[target.PlayerId]);
@@ -147,7 +148,7 @@ public static class Pelican
             }
         }
         eatenList.Clear();
-        SyncEatenList(byte.MaxValue);
+        SyncEatenList(/*byte.MaxValue*/);
     }
 
     public static void OnPelicanDied(byte pc)
@@ -168,7 +169,7 @@ public static class Pelican
             Logger.Info($"{Utils.GetPlayerById(pc).GetRealName()} 吐出了 {target.GetRealName()}", "Pelican");
         }
         eatenList.Remove(pc);
-        SyncEatenList(pc);
+        SyncEatenList(/*pc*/);
     }
 
     private static int Count;
@@ -179,7 +180,7 @@ public static class Pelican
             if (eatenList.Count > 0)
             {
                 eatenList.Clear();
-                SyncEatenList(byte.MaxValue);
+                SyncEatenList(/*byte.MaxValue*/);
             }
             return;
         }

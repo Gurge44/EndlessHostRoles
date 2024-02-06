@@ -52,6 +52,7 @@ namespace TOHE.Roles.Crewmate
                 MapNames.Skeld => new RandomSpawn.SkeldSpawnMap(),
                 MapNames.Mira => new RandomSpawn.MiraHQSpawnMap(),
                 MapNames.Polus => new RandomSpawn.PolusSpawnMap(),
+                MapNames.Dleks => new RandomSpawn.DleksSpawnMap(),
                 MapNames.Airship => new RandomSpawn.AirshipSpawnMap(),
                 MapNames.Fungle => new RandomSpawn.FungleSpawnMap(),
                 _ => throw new NotImplementedException(),

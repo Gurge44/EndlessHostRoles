@@ -136,6 +136,7 @@ public static class Sheriff
                         killer.Is(CustomRoles.Madmate)
                      || killer.Is(CustomRoles.Charmed)
                      || killer.Is(CustomRoles.Contagious)
+                     || killer.Is(CustomRoles.Undead)
                     )
                  && ((target.GetCustomRole().IsImpostor() && NonCrewCanKillImp.GetBool()) || (target.GetCustomRole().IsCrewmate() && NonCrewCanKillCrew.GetBool()) || (target.GetCustomRole().IsNeutral() && NonCrewCanKillNeutral.GetBool()))
             ))

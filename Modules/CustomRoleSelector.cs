@@ -3,6 +3,7 @@ using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
 
 namespace TOHE.Modules;
@@ -127,7 +128,7 @@ internal class CustomRoleSelector
             if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool())) continue;
             switch (role)
             {
-                case CustomRoles.DarkHide when (MapNames)Main.NormalOptions.MapId == MapNames.Fungle:
+                case CustomRoles.DarkHide when Main.CurrentMap == MapNames.Fungle:
                 case CustomRoles.Pelican when AllRoles[RoleAssignType.Impostor].Any(x => x.Role == CustomRoles.Duellist):
                 case CustomRoles.Duellist when AllRoles[RoleAssignType.NeutralKilling].Any(x => x.Role == CustomRoles.Pelican):
                 case CustomRoles.VengefulRomantic:

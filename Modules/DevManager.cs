@@ -70,7 +70,7 @@ public static class DevManager
 
         // TOHE+ players
         DevUserList.Add(new(code: "crustzonal#9589", color: "#00FFFF", tag: "Translator PT-BR", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "artyleague01"));
-        DevUserList.Add(new(code: "tinedpun#6584", color: "#0000ff", tag: "Translator PT-BR", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "Dechis")); // if you dont mind
+        DevUserList.Add(new(code: "tinedpun#6584", color: "#0000ff", tag: "Translator PT-BR", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "Dechis"));
         DevUserList.Add(new(code: "swiftlord#0872", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "But What About"));
         DevUserList.Add(new(code: "ovalinstep#2984", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "Seleneous"));
         DevUserList.Add(new(code: "innerruler#4140", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "thewhiskas27"));
@@ -78,6 +78,9 @@ public static class DevManager
         DevUserList.Add(new(code: "crustzonal#9589", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "aviiiv0102"));
         DevUserList.Add(new(code: "tubedilute#9062", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "Xcl4udioX"));
         DevUserList.Add(new(code: "ponyholey#5532", color: "#0000FF", tag: "desenvolvedor", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "DrawingsZz"));
+        DevUserList.Add(new(code: "akinlaptop#2206", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "MR Carr"));
+        DevUserList.Add(new(code: "fursilty#4676", color: "#0000ff", tag: "arthurzin", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "arthurzin"));
+        DevUserList.Add(new(code: "stonefuzzy#8673", color: "#00ffe5", tag: "HyperAtillNotMe", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "HyperAtill"));
 
         // Sponsor
         DevUserList.Add(new(code: "recentduct#6068", color: "#FF00FF", tag: "高冷男模法师", isUp: false, isDev: false, colorCmd: false, deBug: true, upName: null));

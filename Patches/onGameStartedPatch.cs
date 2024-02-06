@@ -713,10 +713,6 @@ internal class SelectRolesPatch
                 _ = new LateTask(() => { PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)); }, 15f, "GM Auto-TP Failsafe"); // TP to Main Hall
             }
 
-            var vents = UnityEngine.Object.FindObjectsOfType<Vent>();
-            var vent = vents[rd.Next(0, vents.Count)];
-            TryMoveToVentPatch.HostVentTarget = vent;
-
             RevivePreventerPatch.Ignore = false;
         }
         catch (Exception ex)

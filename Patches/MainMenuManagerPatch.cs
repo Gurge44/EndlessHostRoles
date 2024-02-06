@@ -133,25 +133,25 @@ public class MainMenuManagerPatch
                 particles.Start();
             }
         }));
-        var DleksButton = Object.Instantiate(bottomTemplate, bottomTemplate.transform.parent);
-        var passiveDleksButton = DleksButton.GetComponent<PassiveButton>();
-        var spriteDleksButton = DleksButton.GetComponent<SpriteRenderer>();
-        if (DleksPatch.isDleks) spriteDleksButton.transform.localScale *= -1;
+        //var DleksButton = Object.Instantiate(bottomTemplate, bottomTemplate.transform.parent);
+        //var passiveDleksButton = DleksButton.GetComponent<PassiveButton>();
+        //var spriteDleksButton = DleksButton.GetComponent<SpriteRenderer>();
+        //if (DleksPatch.isDleks) spriteDleksButton.transform.localScale *= -1;
 
-        spriteDleksButton.sprite = Utils.LoadSprite($"TOHE.Resources.Images.DleksButton.png", 75f);
-        passiveDleksButton.OnClick = new ButtonClickedEvent();
-        passiveDleksButton.OnClick.AddListener((Action)(() =>
-        {
-            RunLoginPatch.ClickCount++;
-            spriteDleksButton.transform.localScale *= -1;
-            DleksPatch.isDleks = !DleksPatch.isDleks;
-            var particles = Object.FindObjectOfType<PlayerParticles>();
-            if (particles != null)
-            {
-                particles.pool.ReclaimAll();
-                particles.Start();
-            }
-        }));
+        //spriteDleksButton.sprite = Utils.LoadSprite($"TOHE.Resources.Images.DleksButton.png", 75f);
+        //passiveDleksButton.OnClick = new ButtonClickedEvent();
+        //passiveDleksButton.OnClick.AddListener((Action)(() =>
+        //{
+        //    RunLoginPatch.ClickCount++;
+        //    spriteDleksButton.transform.localScale *= -1;
+        //    DleksPatch.isDleks = !DleksPatch.isDleks;
+        //    var particles = Object.FindObjectOfType<PlayerParticles>();
+        //    if (particles != null)
+        //    {
+        //        particles.pool.ReclaimAll();
+        //        particles.Start();
+        //    }
+        //}));
 
         var CreditsButton = Object.Instantiate(bottomTemplate, bottomTemplate.transform.parent);
         var passiveCreditsButton = CreditsButton.GetComponent<PassiveButton>();
@@ -165,27 +165,5 @@ public class MainMenuManagerPatch
         }));
 
         Application.targetFrameRate = Main.UnlockFPS.Value ? 165 : 60;
-    }
-}
-
-// 来源：https://github.com/ykundesu/SuperNewRoles/blob/master/SuperNewRoles/Patches/HorseModePatch.cs
-[HarmonyPatch(typeof(Constants), nameof(Constants.ShouldHorseAround))]
-public static class HorseModePatch
-{
-    public static bool isHorseMode;
-    public static bool Prefix(ref bool __result)
-    {
-        __result = isHorseMode;
-        return false;
-    }
-}
-[HarmonyPatch(typeof(Constants), nameof(Constants.ShouldFlipSkeld))]
-public static class DleksPatch
-{
-    public static bool isDleks;
-    public static bool Prefix(ref bool __result)
-    {
-        __result = isDleks;
-        return false;
     }
 }
