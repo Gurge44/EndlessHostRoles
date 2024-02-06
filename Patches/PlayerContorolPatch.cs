@@ -1974,7 +1974,7 @@ class FixedUpdatePatch
         if (!GameStates.IsModHost) return;
 
         byte id = __instance.PlayerId;
-        if (GameStates.IsInTask && ReportDeadBodyPatch.CanReport[id] && ReportDeadBodyPatch.WaitReport[id].Count > 0)
+        if (AmongUsClient.Instance.AmHost && GameStates.IsInTask && ReportDeadBodyPatch.CanReport[id] && ReportDeadBodyPatch.WaitReport[id].Count > 0)
         {
             if (Glitch.hackedIdList.ContainsKey(id))
             {
