@@ -2461,7 +2461,7 @@ class FixedUpdatePatch
                         Mediumshiper.ContactLimit[playerId] += Mediumshiper.AbilityChargesWhenFinishedTasks.GetFloat();
                         break;
                     case CustomRoles.NiceSwapper:
-                        NiceSwapper.NiceSwappermax[playerId] += NiceSwapper.AbilityChargesWhenFinishedTasks.GetFloat();
+                        NiceSwapper.UseLimit += NiceSwapper.AbilityChargesWhenFinishedTasks.GetFloat();
                         break;
                     case CustomRoles.Oracle:
                         Oracle.CheckLimit[playerId] += Oracle.AbilityChargesWhenFinishedTasks.GetFloat();

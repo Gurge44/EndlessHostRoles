@@ -127,7 +127,7 @@ namespace TOHE.Roles.Impostor
                             }
                             break;
                         case CustomRoles.NiceSwapper:
-                            NiceSwapper.NiceSwappermax[target.PlayerId]--;
+                            NiceSwapper.UseLimit--;
                             break;
                         case CustomRoles.Oracle:
                             Oracle.CheckLimit[target.PlayerId]--;

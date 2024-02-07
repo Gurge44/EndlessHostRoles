@@ -191,7 +191,6 @@ internal class ChangeRoleSettings
                 RPC.SyncCustomSettingsRPC();
                 Main.RefixCooldownDelay = 0;
             }
-            Main.NiceSwapSend = false;
             FallFromLadder.Reset();
             BountyHunter.Init();
             SerialKiller.Init();

@@ -195,7 +195,6 @@ public class Main : BasePlugin
     public static Dictionary<byte, string> SleuthMsgs = [];
     public static int AliveImpostorCount;
     public static bool isCursed;
-    public static bool NiceSwapSend;
     public static List<byte> InsightKnownRolesOfPlayerIds = [];
     public static Dictionary<byte, bool> CheckShapeshift = [];
     public static Dictionary<byte, byte> ShapeshiftTarget = [];

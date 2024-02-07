@@ -173,9 +173,6 @@ public static class CopyCat
                 case CustomRoles.Judge:
                     Judge.TrialLimit.Remove(player);
                     break;
-                case CustomRoles.NiceSwapper:
-                    NiceSwapper.NiceSwappermax.Remove(player);
-                    break;
                 case CustomRoles.Mayor:
                     Main.MayorUsedButtonCount.Remove(player);
                     break;
@@ -205,6 +202,7 @@ public static class CopyCat
             CustomRoles.Escort or
             CustomRoles.DonutDelivery or
             CustomRoles.Gaulois or
+            CustomRoles.NiceSwapper or
             CustomRoles.Analyzer or
             //bcoz of arrows
             CustomRoles.Mortician or

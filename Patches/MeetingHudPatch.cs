@@ -201,66 +201,7 @@ class CheckForEndVotingPatch
                     VotedForId = ps.VotedFor
                 });
 
-                if (NiceSwapper.Vote.Count > 0 && NiceSwapper.VoteTwo.Count > 0)
-                {
-                    List<byte> NiceList1 = [];
-                    List<byte> NiceList2 = [];
-                    PlayerVoteArea pva = new();
-                    var meetingHud = MeetingHud.Instance;
-                    PlayerControl swap1 = null;
-                    for (int i1 = 0; i1 < NiceSwapper.Vote.Count; i1++)
-                    {
-                        byte playerId = NiceSwapper.Vote[i1];
-                        var player = Utils.GetPlayerById(playerId);
-                        if (player != null)
-                        {
-                            swap1 = player;
-                            break;
-                        }
-                    }
-                    PlayerControl swap2 = null;
-                    for (int i1 = 0; i1 < NiceSwapper.VoteTwo.Count; i1++)
-                    {
-                        byte playerId = NiceSwapper.VoteTwo[i1];
-                        var player = Utils.GetPlayerById(playerId);
-                        if (player != null)
-                        {
-                            swap2 = player;
-                            break;
-                        }
-                    }
-                    if (swap1 != null && swap2 != null)
-                    {
-                        for (int i1 = 0; i1 < meetingHud.playerStates.Count; i1++)
-                        {
-                            PlayerVoteArea playerVoteArea = meetingHud.playerStates[i1];
-                            if (playerVoteArea.VotedFor != swap1.PlayerId) continue;
-                            var voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
-                            playerVoteArea.UnsetVote();
-                            meetingHud.CastVote(voteAreaPlayer.PlayerId, swap2.PlayerId);
-                            playerVoteArea.VotedFor = swap2.PlayerId;
-                            NiceList1.Add(voteAreaPlayer.PlayerId);
-                        }
-                        for (int i1 = 0; i1 < meetingHud.playerStates.Count; i1++)
-                        {
-                            PlayerVoteArea playerVoteArea = meetingHud.playerStates[i1];
-                            if (playerVoteArea.VotedFor != swap2.PlayerId) continue;
-                            var voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
-                            if (NiceList1.Contains(voteAreaPlayer.PlayerId)) continue;
-                            playerVoteArea.UnsetVote();
-                            meetingHud.CastVote(voteAreaPlayer.PlayerId, swap1.PlayerId);
-                            playerVoteArea.VotedFor = swap1.PlayerId;
-                        }
-                        if (Main.NiceSwapSend == false)
-                        {
-                            Utils.SendMessage(string.Format(GetString("SwapVote"), swap1.GetRealName(), swap2.GetRealName()), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceSwapper), GetString("SwapTitle")));
-                            Main.NiceSwapSend = true;
-                            NiceList1.Clear();
-                        }
-                        NiceSwapper.Vote.Clear();
-                        NiceSwapper.VoteTwo.Clear();
-                    }
-                }
+                statesList = NiceSwapper.OnCheckForEndVoting(statesList);
 
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Mayor) && !Options.MayorHideVote.GetBool()) //Mayorの投票数
                 {
@@ -293,7 +234,7 @@ class CheckForEndVotingPatch
             voteLog.Info("===Decision to expel player processing begins===");
             foreach (var data in VotingData)
             {
-                voteLog.Info($"{data.Key}({Utils.GetVoteName(data.Key)}):{data.Value}票");
+                voteLog.Info($"{data.Key} ({Utils.GetVoteName(data.Key)}): {data.Value} votes");
                 if (data.Value > max)
                 {
                     voteLog.Info(data.Key + " has higher votes (" + data.Value + ")");
@@ -313,7 +254,7 @@ class CheckForEndVotingPatch
             voteLog.Info($"Decide to evict player: {exileId} ({Utils.GetVoteName(exileId)})");
 
             bool braked = false;
-            if (tie) //破平者判断
+            if (tie)
             {
                 byte target = byte.MaxValue;
                 foreach (var data in VotingData.Where(x => x.Key < 15 && x.Value == max))

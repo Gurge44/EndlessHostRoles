@@ -374,7 +374,7 @@ public class TaskState
                         Chameleon.SendRPCPlus(player.PlayerId);
                         break;
                     case CustomRoles.NiceSwapper:
-                        NiceSwapper.NiceSwappermax[player.PlayerId] += NiceSwapper.NiceSwapperAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        NiceSwapper.UseLimit += NiceSwapper.NiceSwapperAbilityUseGainWithEachTaskCompleted.GetFloat();
                         break;
                     case CustomRoles.Doormaster:
                         Doormaster.UseLimit[player.PlayerId] += Doormaster.DoormasterAbilityUseGainWithEachTaskCompleted.GetFloat();

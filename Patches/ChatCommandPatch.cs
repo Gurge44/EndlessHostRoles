@@ -1044,8 +1044,6 @@ internal class ChatCommands
             //    }
             //    break;
             case "/id":
-                if (Options.ApplyModeratorList.GetValue() == 0 || !IsPlayerModerator(player.FriendCode)) break;
-
                 string msgText = GetString("PlayerIdList");
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {

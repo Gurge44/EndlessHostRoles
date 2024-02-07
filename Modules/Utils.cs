@@ -846,7 +846,7 @@ public static class Utils
                     break;
                 case CustomRoles.NiceSwapper:
                     ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(NiceSwapper.GetNiceSwappermax(playerId));
+                    ProgressText.Append(NiceSwapper.ProgressText);
                     break;
                 case CustomRoles.Veteran:
                     Color TextColor21;
