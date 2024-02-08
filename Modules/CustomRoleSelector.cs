@@ -91,6 +91,13 @@ internal class CustomRoleSelector
                     else RoleResult.Add(pc, CustomRoles.Tasker);
                 }
                 return;
+            case CustomGameMode.HotPotato:
+                RoleResult = [];
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                {
+                    RoleResult.Add(pc, CustomRoles.Potato);
+                }
+                return;
         }
 
         RoleResult = [];

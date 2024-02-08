@@ -144,7 +144,7 @@ class HudManagerPatch
 
         if (SetHudActivePatch.IsActive)
         {
-            if (player.IsAlive() || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop)
+            if (player.IsAlive() || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato)
             {
                 //MOD入り用のボタン下テキスト変更
                 switch (player.GetCustomRole())
@@ -531,6 +531,7 @@ class HudManagerPatch
                     CustomGameMode.SoloKombat => SoloKombatManager.GetHudText(),
                     CustomGameMode.FFA when player.PlayerId == 0 => FFAManager.GetHudText(),
                     CustomGameMode.MoveAndStop when player.PlayerId == 0 => MoveAndStopManager.HUDText,
+                    CustomGameMode.HotPotato when player.PlayerId == 0 => HotPotatoManager.GetSuffixText(player.PlayerId),
                     CustomGameMode.Standard => player.GetCustomRole() switch
                     {
                         CustomRoles.BountyHunter => BountyHunter.GetTargetText(player, true),
@@ -688,6 +689,7 @@ class SetHudActivePatch
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.MoveAndStop:
+            case CustomGameMode.HotPotato:
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.KillButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
@@ -924,11 +926,26 @@ class TaskPanelBehaviourPatch
                     List<(int, byte)> list3 = [];
                     foreach (var id in Main.PlayerStates.Keys) list3.Add((MoveAndStopManager.GetRankOfScore(id), id));
                     list3.Sort();
+                    list3 = [.. list3.OrderBy(x => (Utils.GetPlayerById(x.Item2).IsAlive()))];
                     foreach (var id in list3.Where(x => SummaryText3.ContainsKey(x.Item2)).ToArray())
                     {
                         bool alive = Utils.GetPlayerById(id.Item2).IsAlive();
                         AllText += $"{(!alive ? "<#777777>" : string.Empty)}<size=1.6>\r\n{(alive ? SummaryText3[id.Item2] : SummaryText3[id.Item2].RemoveHtmlTags())}{(!alive ? "  <#ff0000>DEAD</color>" : string.Empty)}</size>";
                     }
+
+                    break;
+
+                case CustomGameMode.HotPotato:
+
+                    List<string> SummaryText4 = [];
+                    foreach (var id in Main.PlayerStates.Keys.ToArray())
+                    {
+                        string name = Main.AllPlayerNames[id].RemoveHtmlTags().Replace("\r\n", string.Empty);
+                        string summary = $"{HotPotatoManager.GetIndicator(id)}  {Utils.ColorString(Main.PlayerColors[id], name)}";
+                        SummaryText4.Add(summary);
+                    }
+
+                    AllText += string.Join('\n', SummaryText4);
 
                     break;
             }

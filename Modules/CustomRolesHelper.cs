@@ -306,6 +306,8 @@ internal static class CustomRolesHelper
             CustomRoles.Killer => RoleTypes.Impostor,
             //Move And Stop
             CustomRoles.Tasker => RoleTypes.Crewmate,
+            //Hot Potato
+            CustomRoles.Potato => RoleTypes.Crewmate,
             //Standard
             CustomRoles.Sheriff => UsePets && Sheriff.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Crusader => UsePets && Crusader.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
@@ -838,6 +840,8 @@ internal static class CustomRolesHelper
         CustomRoles.Killer or
         //Move And Stop
         CustomRoles.Tasker or
+        //Hot Potato
+        CustomRoles.Potato or
         //Standard
         CustomRoles.Jester or
         CustomRoles.Doppelganger or

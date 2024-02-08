@@ -19,9 +19,8 @@ class EmergencyMinigamePatch
 {
     public static void Postfix(EmergencyMinigame __instance)
     {
-        if (Options.DisableMeeting.GetBool() || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop)
+        if (Options.DisableMeeting.GetBool() || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato)
             __instance.Close();
-        return;
     }
 }
 [HarmonyPatch(typeof(Vent), nameof(Vent.CanUse))]

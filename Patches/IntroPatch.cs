@@ -49,6 +49,16 @@ class SetUpRoleTextPatch
                         __instance.RoleBlurbText.text = GetString("TaskerInfo");
                         break;
                     }
+                case CustomGameMode.HotPotato:
+                    {
+                        var color = ColorUtility.TryParseHtmlString("#e8cd46", out var c) ? c : new(255, 255, 255, 255);
+                        __instance.YouAreText.transform.gameObject.SetActive(false);
+                        __instance.RoleText.text = GetString("HotPotato");
+                        __instance.RoleText.color = color;
+                        __instance.RoleBlurbText.color = color;
+                        __instance.RoleBlurbText.text = GetString("PotatoInfo");
+                        break;
+                    }
                 default:
                     {
                         CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
@@ -398,6 +408,13 @@ class BeginCrewmatePatch
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("TaskerInfo");
                 break;
+            case CustomGameMode.HotPotato:
+                __instance.TeamTitle.text = GetString("HotPotato");
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(232, 205, 70, byte.MaxValue);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
+                __instance.ImpostorText.gameObject.SetActive(true);
+                __instance.ImpostorText.text = GetString("PotatoInfo");
+                break;
         }
 
         if (Input.GetKey(KeyCode.RightShift))
@@ -525,7 +542,7 @@ class IntroCutsceneDestroyPatch
                         Main.AllPlayerControls.Where(x => Main.AllPlayerKillCooldown[x.PlayerId] != 7f && Main.AllPlayerKillCooldown[x.PlayerId] != 7.5f).Do(pc => pc.SetKillCooldown(Options.StartingKillCooldown.GetInt() - 2));
                     }, 2f, "FixKillCooldownTask");
                 }
-                else if (Options.FixFirstKillCooldown.GetBool() && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop)
+                else if (Options.FixFirstKillCooldown.GetBool() && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato)
                 {
                     _ = new LateTask(() =>
                     {
@@ -587,7 +604,7 @@ class IntroCutsceneDestroyPatch
                 PlayerControl.LocalPlayer.RpcExile();
                 Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SetDead();
             }
-            if (Options.RandomSpawn.GetBool() || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop)
+            if (Options.RandomSpawn.GetBool() || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato)
             {
                 RandomSpawn.SpawnMap map = Main.NormalOptions.MapId switch
                 {

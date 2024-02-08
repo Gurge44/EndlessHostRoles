@@ -58,9 +58,9 @@ class EndGamePatch
             if (date == DateTime.MinValue) continue;
             var killerId = kvp.Value.GetRealKiller();
             var targetId = kvp.Key;
-            sb.Append($"\n{date:T} {Main.AllPlayerNames[targetId]} ({(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop ? string.Empty : Utils.GetDisplayRoleName(targetId, true))}{(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop ? string.Empty : Utils.GetSubRolesText(targetId, summary: true))}) [{Utils.GetVitalText(kvp.Key)}]");
+            sb.Append($"\n{date:T} {Main.AllPlayerNames[targetId]} ({(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato ? string.Empty : Utils.GetDisplayRoleName(targetId, true))}{(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop ? string.Empty : Utils.GetSubRolesText(targetId, summary: true))}) [{Utils.GetVitalText(kvp.Key)}]");
             if (killerId != byte.MaxValue && killerId != targetId)
-                sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop ? string.Empty : Utils.GetDisplayRoleName(killerId, true))}{(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
+                sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato ? string.Empty : Utils.GetDisplayRoleName(killerId, true))}{(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
         }
         KillLog = sb.ToString();
         if (!KillLog.Contains('\n')) KillLog = string.Empty;
@@ -217,6 +217,14 @@ class SetEverythingUpPatch
                 {
                     var winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
                     __instance.BackgroundBar.material.color = new Color32(0, 255, 160, 255);
+                    WinnerText.text = Main.AllPlayerNames[winnerId] + " wins!";
+                    WinnerText.color = Main.PlayerColors[winnerId];
+                    goto EndOfText;
+                }
+            case CustomGameMode.HotPotato:
+                {
+                    var winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
+                    __instance.BackgroundBar.material.color = new Color32(232, 205, 70, 255);
                     WinnerText.text = Main.AllPlayerNames[winnerId] + " wins!";
                     WinnerText.color = Main.PlayerColors[winnerId];
                     goto EndOfText;
@@ -386,6 +394,13 @@ class SetEverythingUpPatch
                     list.Sort();
                     foreach (var id in list.Where(x => EndGamePatch.SummaryText.ContainsKey(x.Item2)))
                         sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id.Item2]);
+                    break;
+                }
+            case CustomGameMode.HotPotato:
+                {
+                    var list = cloneRoles.OrderByDescending(x => HotPotatoManager.GetSurvivalTime(x));
+                    foreach (var id in cloneRoles.Where(EndGamePatch.SummaryText.ContainsKey))
+                        sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id]);
                     break;
                 }
             default:

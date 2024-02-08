@@ -472,6 +472,7 @@ public static class Utils
             case CustomGameMode.SoloKombat: return false;
             case CustomGameMode.FFA: return false;
             case CustomGameMode.MoveAndStop: return true;
+            case CustomGameMode.HotPotato: return false;
         }
         //if (p.IsDead && Options.GhostIgnoreTasks.GetBool()) hasTasks = false;
         var role = States.MainRole;
@@ -644,7 +645,7 @@ public static class Utils
     public static bool IsRoleTextEnabled(PlayerControl __instance)
     {
         bool result = false;
-        if (__instance.AmOwner || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop) result = true; //自分ならロールを表示
+        if (__instance.AmOwner || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato) result = true; //自分ならロールを表示
         if (Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool()) result = true; //他プレイヤーでVisibleTasksCountが有効なおかつ自分が死んでいるならロールを表示
         if (PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) result = true; //他プレイヤーでVisibleTasksCountが有効なおかつ自分が死んでいるならロールを表示
                                                                                                                                                                           //if (__instance.GetCustomRole() == (CustomRoles.Ntr) && Options.LoverKnowRoles.GetBool()) result = true;
@@ -1463,6 +1464,17 @@ public static class Utils
                     sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id.Item2]);
                 }
                 break;
+            case CustomGameMode.HotPotato:
+                List<byte> list4 = [];
+                foreach (byte id in cloneRoles.ToArray())
+                {
+                    list4.Add(id);
+                }
+                foreach (byte id in list4.ToArray())
+                {
+                    sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id]);
+                }
+                break;
             default:
                 foreach (byte id in cloneRoles.ToArray())
                 {
@@ -1495,7 +1507,7 @@ public static class Utils
         var sb = new StringBuilder();
         if (SetEverythingUpPatch.LastWinsText != string.Empty) sb.Append($"<size=90%>{GetString("LastResult")} {SetEverythingUpPatch.LastWinsText}</size>");
         if (SetEverythingUpPatch.LastWinsReason != string.Empty) sb.Append($"\n<size=90%>{GetString("LastEndReason")} {SetEverythingUpPatch.LastWinsReason}</size>");
-        if (sb.Length > 0 && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop) SendMessage("\n", PlayerId, sb.ToString());
+        if (sb.Length > 0 && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato) SendMessage("\n", PlayerId, sb.ToString());
     }
     public static string EmptyMessage() => "<size=0>.</size>";
     public static string GetSubRolesText(byte id, bool disableColor = false, bool intro = false, bool summary = false)
@@ -1870,6 +1882,9 @@ public static class Utils
                     case CustomGameMode.MoveAndStop:
                         name = $"<color=#00ffa5><size=1.7>{GetString("ModeMoveAndStop")}</size></color>\r\n" + name;
                         break;
+                    case CustomGameMode.HotPotato:
+                        name = $"<color=#00ffa5><size=1.7>{GetString("ModeHotPotato")}</size></color>\r\n" + name;
+                        break;
                 }
             }
 
@@ -1971,7 +1986,7 @@ public static class Utils
                 string SelfTaskText = GetProgressText(seer);
                 SelfMark.Clear();
 
-                if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop) goto GameMode0;
+                if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato) goto GameMode0;
 
                 if (Snitch.IsEnable) SelfMark.Append(Snitch.GetWarningArrow(seer));
                 if (seer.Is(CustomRoles.Lovers)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lovers), "♥"));
@@ -1989,7 +2004,7 @@ public static class Utils
 
                 SelfSuffix.Clear();
 
-                if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop) goto GameMode;
+                if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato) goto GameMode;
 
                 if (!isForMeeting)
                 {
@@ -2114,11 +2129,14 @@ public static class Utils
                     case CustomGameMode.MoveAndStop:
                         SelfSuffix.Append(MoveAndStopManager.GetSuffixText(seer));
                         break;
+                    case CustomGameMode.HotPotato:
+                        SelfSuffix.Append(HotPotatoManager.GetSuffixText(seer.PlayerId));
+                        break;
                 }
 
                 string SeerRealName = seer.GetRealName(isForMeeting);
 
-                if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop)
+                if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato)
                 {
                     if (seer.GetCustomRole().IsCrewmate() && !seer.Is(CustomRoles.Madmate))
                     {
@@ -2147,7 +2165,7 @@ public static class Utils
                 string SelfDeathReason = seer.KnowDeathReason(seer) ? $"\n<size=1.7>({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(seer.PlayerId))})</size>" : string.Empty;
                 string SelfName = $"{ColorString(seer.GetRoleColor(), SeerRealName)}{SelfDeathReason}{SelfMark}";
 
-                if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop) goto GameMode2;
+                if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato) goto GameMode2;
 
                 switch (seer.GetCustomRole())
                 {
@@ -2220,7 +2238,7 @@ public static class Utils
                         {
                             TargetMark.Clear();
 
-                            if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop) goto BeforeEnd2;
+                            if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato) goto BeforeEnd2;
 
                             if (Witch.IsEnable) TargetMark.Append(Witch.GetSpelledMark(target.PlayerId, isForMeeting));
                             if (HexMaster.IsEnable) TargetMark.Append(HexMaster.GetHexedMark(target.PlayerId, isForMeeting));
@@ -2321,7 +2339,7 @@ public static class Utils
                                 //CursedSoul.KnowRole(seer, target) ||
                                 Amnesiac.KnowRole(seer, target) ||
                                 Virus.KnowRole(seer, target) ||
-                                Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop ||
+                                Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato ||
                                 (seer.IsRevealedPlayer(target) && !target.Is(CustomRoles.Trickster)) ||
                                 seer.Is(CustomRoles.God) ||
                                 target.Is(CustomRoles.GM)
@@ -2338,7 +2356,7 @@ public static class Utils
 
                             string TargetPlayerName = target.GetRealName(isForMeeting);
 
-                            if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop) goto BeforeEnd;
+                            if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato) goto BeforeEnd;
 
                             switch (seer.GetCustomRole())
                             {
@@ -2442,7 +2460,7 @@ public static class Utils
 
                             TargetPlayerName = TargetPlayerName.ApplyNameColorData(seer, target, isForMeeting);
 
-                            if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop) goto End;
+                            if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato) goto End;
 
                             if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Snitch) && target.Is(CustomRoles.Madmate) && target.GetTaskState().IsTaskFinished)
                                 TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Impostor), "★"));
@@ -3302,7 +3320,7 @@ public static class Utils
         if (sendLog)
         {
             var sb = new StringBuilder(100);
-            if (Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop)
+            if (Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato)
             {
                 foreach (var countTypes in Enum.GetValues(typeof(CountTypes)).Cast<CountTypes>())
                 {
@@ -3425,6 +3443,9 @@ public static class Utils
                 break;
             case CustomGameMode.MoveAndStop:
                 summary = $"{ColorString(Main.PlayerColors[id], name)} -{TaskCount.Replace("(", string.Empty).Replace(")", string.Empty)}  ({GetVitalText(id, true)})";
+                break;
+            case CustomGameMode.HotPotato:
+                summary = $"{ColorString(Main.PlayerColors[id], name)} {HotPotatoManager.GetSurvivalTime(id)}  ({GetVitalText(id, false)})";
                 break;
         }
         return check && GetDisplayRoleName(id, true).RemoveHtmlTags().Contains("INVALID:NotAssigned")

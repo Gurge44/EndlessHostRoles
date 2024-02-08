@@ -23,7 +23,6 @@ public static class NiceSwapper
     private static (byte, byte) SwapTargets;
     public static float UseLimit;
     private static byte NiceSwapperId = byte.MaxValue;
-    private static PlayerControl NiceSwapper_ = null;
 
     public static void SetupCustomOption()
     {
@@ -46,13 +45,11 @@ public static class NiceSwapper
         SwapTargets = (byte.MaxValue, byte.MaxValue);
         UseLimit = 0;
         NiceSwapperId = byte.MaxValue;
-        NiceSwapper_ = null;
     }
 
     public static void Add(byte playerId)
     {
         NiceSwapperId = playerId;
-        NiceSwapper_ = Utils.GetPlayerById(playerId);
         UseLimit = SwapMax.GetInt();
     }
 

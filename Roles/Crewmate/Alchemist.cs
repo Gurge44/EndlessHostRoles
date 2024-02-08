@@ -320,29 +320,29 @@ namespace TOHE.Roles.Crewmate
             var str = new StringBuilder();
             switch (PotionID)
             {
-                case 1: // Shield
-                    str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#00ff97>{GetString("ShieldPotion")}</color>");
-                    break;
-                case 2: // Suicide
-                    str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#ff0000>{GetString("AwkwardPotion")}</color>");
-                    break;
-                case 3: // TP to random player
-                    str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#42d1ff>{GetString("TeleportPotion")}</color>");
-                    break;
-                case 4: // Increased speed
-                    str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#ff8400>{GetString("SpeedPotion")}</color>");
-                    break;
-                case 5: // Quick fix next sabo
-                    str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#3333ff>{GetString("QuickFixPotion")}</color>");
-                    break;
-                case 6: // Invisibility
-                    str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#01c834>{GetString("InvisibilityPotion")}</color>");
-                    break;
-                case 7: // Increased vision
-                    str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#eee5be>{GetString("SightPotion")}</color>");
-                    break;
+                   case 1: // Shield
+                      str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#00ff97>{GetString("ShieldPotion")}</color>");
+                      break;
+                   case 2: // Suicide
+                      str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#ff0000>{GetString("AwkwardPotion")}</color>");
+                      break;
+                   case 3: // TP to random player
+                      str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#42d1ff>{GetString("TeleportPotion")}</color>");
+                      break;
+                   case 4: // Increased speed
+                      str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#ff8400>{GetString("SpeedPotion")}</color>");
+                      break; 
+                   case 5: // Quick fix next sabo
+                      str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#3333ff>{GetString("QuickFixPotion")}</color>");
+                      break;
+                   case 6: // Invisibility
+                      str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#01c834>{GetString("InvisibilityPotion")}</color>");
+                      break;
+                   case 7: // Increased vision
+                      str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#eee5be>{GetString("SightPotion")}</color>");
+                      break;
             }
-            if (FixNextSabo) str.Append($" <color=#777777>({Translator.GetString("QuickFix")})</color>");
+            if (FixNextSabo) str.Append($" <color=#777777>({GetString("QuickFix")})</color>");
             return str.ToString();
         }
         public static void RepairSystem(SystemTypes systemType, byte amount)

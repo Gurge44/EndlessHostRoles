@@ -20,6 +20,7 @@ public enum CustomGameMode
     SoloKombat = 0x02,
     FFA = 0x03,
     MoveAndStop = 0x04,
+    HotPotato = 0x05,
     All = int.MaxValue
 }
 
@@ -60,6 +61,7 @@ public static class Options
             1 => CustomGameMode.SoloKombat,
             2 => CustomGameMode.FFA,
             3 => CustomGameMode.MoveAndStop,
+            4 => CustomGameMode.HotPotato,
             _ => CustomGameMode.Standard
         };
 
@@ -68,7 +70,8 @@ public static class Options
         "Standard",
         "SoloKombat",
         "FFA",
-        "MoveAndStop"
+        "MoveAndStop",
+        "HotPotato"
     ];
 
     // 役職数・確率
@@ -2896,6 +2899,8 @@ public static class Options
         FFAManager.SetupCustomOption();
         //Move And Stop
         MoveAndStopManager.SetupCustomOption();
+        //Hot Potato
+        HotPotatoManager.SetupCustomOption();
 
 
         LoadingPercentage = 65;

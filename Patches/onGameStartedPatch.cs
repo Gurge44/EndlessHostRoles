@@ -371,6 +371,8 @@ internal class ChangeRoleSettings
             SoloKombatManager.Init();
             FFAManager.Init();
             MoveAndStopManager.Init();
+            HotPotatoManager.Init();
+
             CustomWinnerHolder.Reset();
             AntiBlackout.Reset();
             NameNotifyManager.Reset();
@@ -588,7 +590,7 @@ internal class SelectRolesPatch
             }
 
             // For other gamemodes:
-            if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop)
+            if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato)
             {
                 foreach (var pair in Main.PlayerStates)
                     ExtendedPlayerControl.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
@@ -688,6 +690,9 @@ internal class SelectRolesPatch
                 case CustomGameMode.MoveAndStop:
                     GameEndChecker.SetPredicateToMoveAndStop();
                     break;
+                case CustomGameMode.HotPotato:
+                    GameEndChecker.SetPredicateToHotPotato();
+                    break;
             }
 
             GameOptionsSender.AllSenders.Clear();
@@ -697,7 +702,7 @@ internal class SelectRolesPatch
             }
 
             // Added players with unclassified roles to the list of players who require ResetCam.
-            Main.ResetCamPlayerList.AddRange(Main.AllPlayerControls.Where(p => p.GetCustomRole() is CustomRoles.Arsonist or CustomRoles.Revolutionist or CustomRoles.Sidekick or CustomRoles.KB_Normal or CustomRoles.Killer or CustomRoles.Tasker or CustomRoles.Innocent || (p.Is(CustomRoles.Witness) && (!Options.UsePets.GetBool() || Options.WitnessUsePet.GetBool()))).Select(p => p.PlayerId));
+            Main.ResetCamPlayerList.AddRange(Main.AllPlayerControls.Where(p => p.GetCustomRole() is CustomRoles.Arsonist or CustomRoles.Revolutionist or CustomRoles.Sidekick or CustomRoles.KB_Normal or CustomRoles.Killer or CustomRoles.Tasker or CustomRoles.Potato or CustomRoles.Innocent || (p.Is(CustomRoles.Witness) && (!Options.UsePets.GetBool() || Options.WitnessUsePet.GetBool()))).Select(p => p.PlayerId));
             Utils.CountAlivePlayers(true);
             Utils.SyncAllSettings();
             SetColorPatch.IsAntiGlitchDisabled = false;

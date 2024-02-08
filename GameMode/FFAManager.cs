@@ -354,7 +354,7 @@ internal static class FFAManager
     class FixedUpdatePatch
     {
         private static long LastFixedUpdate;
-        public static void Postfix(PlayerControl __instance)
+        public static void Postfix(/*PlayerControl __instance*/)
         {
             if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.FFA) return;
 

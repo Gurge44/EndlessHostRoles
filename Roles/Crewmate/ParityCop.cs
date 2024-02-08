@@ -324,7 +324,7 @@ public static class ParityCop
     //    }
     //    ChatUpdatePatch.DoBlockChat = false;
     //}
-    private static void ParityCopOnClick(byte playerId, MeetingHud __instance)
+    private static void ParityCopOnClick(byte playerId/*, MeetingHud __instance*/)
     {
         Logger.Msg($"Click: ID {playerId}", "Inspector UI");
         var pc = Utils.GetPlayerById(playerId);
@@ -364,7 +364,7 @@ public static class ParityCop
             renderer.sprite = CustomButton.Get("ParityCopIcon");
             PassiveButton button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => ParityCopOnClick(pva.TargetPlayerId, __instance)));
+            button.OnClick.AddListener((Action)(() => ParityCopOnClick(pva.TargetPlayerId/*, __instance*/)));
         }
     }
 }

@@ -202,7 +202,7 @@ internal class MoveAndStopManager
                 limit = 2f;
             }
 
-            FixedUpdatePatch.Limit.TryAdd(pc.PlayerId, limit);
+            FixedUpdatePatch.Limit[pc.PlayerId] = limit;
         }
     }
     public static int GetRankOfScore(byte playerId)

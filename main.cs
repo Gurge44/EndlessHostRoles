@@ -583,7 +583,9 @@ public class Main : BasePlugin
                 //FFA
                 {CustomRoles.Killer, "#00ffff"},
                 //Move And Stop
-                {CustomRoles.Tasker, "#00ffa5"}
+                {CustomRoles.Tasker, "#00ffa5"},
+                //Hot Potato
+                {CustomRoles.Potato, "#e8cd46"}
             };
             Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => roleColors.TryAdd(x, "#ff1919"));
         }
@@ -916,7 +918,10 @@ public enum CustomRoles
     KB_Normal,
     //FFA
     Killer,
+    //MoveAndStop
     Tasker,
+    //HotPotato
+    Potato,
 
     //GM
     GM,

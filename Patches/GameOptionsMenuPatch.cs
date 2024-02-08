@@ -379,6 +379,7 @@ public static class SetRecommendationsPatch
         {
             case CustomGameMode.SoloKombat:
             case CustomGameMode.FFA:
+            case CustomGameMode.HotPotato:
                 __instance.CrewLightMod = __instance.ImpostorLightMod = 1.25f;
                 __instance.NumImpostors = 3;
                 __instance.NumCommonTasks = 0;

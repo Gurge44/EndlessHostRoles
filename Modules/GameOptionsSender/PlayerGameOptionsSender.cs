@@ -132,6 +132,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                         opt.SetFloat(FloatOptionNames.ImpostorLightMod, 1.25f);
                     }
                     break;
+                case CustomGameMode.HotPotato:
                 case CustomGameMode.MoveAndStop:
                     opt.SetVision(true);
                     opt.SetFloat(FloatOptionNames.CrewLightMod, 1.25f);

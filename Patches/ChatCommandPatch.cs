@@ -815,6 +815,9 @@ internal class ChatCommands
             case CustomGameMode.MoveAndStop:
                 Utils.SendMessage(GetString("ModeDescribe.MoveAndStop"), playerId);
                 return;
+            case CustomGameMode.HotPotato:
+                Utils.SendMessage(GetString("ModeDescribe.HotPotato"), playerId);
+                return;
         }
 
         role = role.Trim().ToLower();

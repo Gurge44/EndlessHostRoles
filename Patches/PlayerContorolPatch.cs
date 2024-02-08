@@ -121,7 +121,7 @@ class CheckMurderPatch
             return false;
         }
 
-        var divice = Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop ? 3000f : 2000f;
+        var divice = Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato ? 3000f : 2000f;
         float minTime = Mathf.Max(0.02f, AmongUsClient.Instance.Ping / divice * 6f); // The value of AmongUsClient.Instance.Ping is in milliseconds (ms), so ÷1000
         // No value is stored in TimeSinceLastKill || Stored time is greater than or equal to minTime => Allow kill
         // ↓ If not allowed
@@ -177,6 +177,7 @@ class CheckMurderPatch
                 FFAManager.OnPlayerAttack(killer, target);
                 return true;
             case CustomGameMode.MoveAndStop:
+            case CustomGameMode.HotPotato:
                 return false;
         }
 
@@ -1584,7 +1585,7 @@ class ReportDeadBodyPatch
     {
         if (GameStates.IsMeeting) return false;
         if (Options.DisableMeeting.GetBool()) return false;
-        if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop) return false;
+        if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato) return false;
         if (!CanReport[__instance.PlayerId])
         {
             WaitReport[__instance.PlayerId].Add(target);
@@ -2732,7 +2733,7 @@ class FixedUpdatePatch
                 RoleText.text = RoleTextData.Item1;
                 RoleText.color = RoleTextData.Item2;
 
-                if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop) RoleText.text = string.Empty;
+                if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato) RoleText.text = string.Empty;
 
                 RoleText.enabled = IsRoleTextEnabled(__instance);
 
@@ -3038,6 +3039,9 @@ class FixedUpdatePatch
                         break;
                     case CustomGameMode.MoveAndStop when seer.PlayerId == target.PlayerId:
                         Suffix.Append(MoveAndStopManager.GetSuffixText(seer));
+                        break;
+                    case CustomGameMode.HotPotato when seer.PlayerId == target.PlayerId:
+                        Suffix.Append(HotPotatoManager.GetSuffixText(seer.PlayerId));
                         break;
                 }
 
@@ -3469,32 +3473,30 @@ class CoEnterVentPatch
             Main.KillTimers[__instance.myPlayer.PlayerId] = timer + 0.5f;
         }
 
-        if (Options.CurrentGameMode == CustomGameMode.FFA && FFAManager.FFA_DisableVentingWhenTwoPlayersAlive.GetBool() && Main.AllAlivePlayerControls.Length <= 2)
+        switch (Options.CurrentGameMode)
         {
-            var pc = __instance?.myPlayer;
-            _ = new LateTask(() =>
-            {
-                pc?.Notify(GetString("FFA-NoVentingBecauseTwoPlayers"), 7f);
-                pc?.MyPhysics?.RpcBootFromVent(id);
-            }, 0.5f);
-            return true;
-        }
-        if (Options.CurrentGameMode == CustomGameMode.FFA && FFAManager.FFA_DisableVentingWhenKCDIsUp.GetBool() && Main.KillTimers[__instance.myPlayer.PlayerId] <= 0)
-        {
-            _ = new LateTask(() =>
-            {
-                __instance.myPlayer?.Notify(GetString("FFA-NoVentingBecauseKCDIsUP"), 7f);
-                __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id);
-            }, 0.5f);
-            return true;
-        }
-        if (Options.CurrentGameMode == CustomGameMode.MoveAndStop)
-        {
-            _ = new LateTask(() =>
-            {
-                __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id);
-            }, 0.5f);
-            return true;
+            case CustomGameMode.FFA when FFAManager.FFA_DisableVentingWhenTwoPlayersAlive.GetBool() && Main.AllAlivePlayerControls.Length <= 2:
+                var pc = __instance?.myPlayer;
+                _ = new LateTask(() =>
+                {
+                    pc?.Notify(GetString("FFA-NoVentingBecauseTwoPlayers"), 7f);
+                    pc?.MyPhysics?.RpcBootFromVent(id);
+                }, 0.5f);
+                return true;
+            case CustomGameMode.FFA when FFAManager.FFA_DisableVentingWhenKCDIsUp.GetBool() && Main.KillTimers[__instance.myPlayer.PlayerId] <= 0:
+                _ = new LateTask(() =>
+                {
+                    __instance.myPlayer?.Notify(GetString("FFA-NoVentingBecauseKCDIsUP"), 7f);
+                    __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id);
+                }, 0.5f);
+                return true;
+            case CustomGameMode.MoveAndStop:
+            case CustomGameMode.HotPotato:
+                _ = new LateTask(() =>
+                {
+                    __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id);
+                }, 0.5f);
+                return true;
         }
 
         if (Glitch.hackedIdList.ContainsKey(__instance.myPlayer.PlayerId))
