@@ -2290,6 +2290,8 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Necroview]);
         NeutralCanBeNecroview = BooleanOptionItem.Create(14412, "NeutralCanBeNecroview", true, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Necroview]);
+        RoleLoadingText = "Add-ons\nHaste";
+        SetupAdtRoleOptions(14550, CustomRoles.Haste, canSetNum: true);
         RoleLoadingText = "Add-ons\nReach";
         SetupAdtRoleOptions(14600, CustomRoles.Reach, canSetNum: true);
 

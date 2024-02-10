@@ -2063,8 +2063,10 @@ class FixedUpdatePatch
 
             if (!Main.KillTimers.ContainsKey(playerId))
                 Main.KillTimers.Add(playerId, 10f);
-            else if (!player.inVent && !player.MyPhysics.Animations.IsPlayingEnterVentAnimation() && Main.KillTimers[playerId] > 0)
+            else if (((!player.inVent && !player.MyPhysics.Animations.IsPlayingEnterVentAnimation()) || player.Is(CustomRoles.Haste)) && Main.KillTimers[playerId] > 0)
                 Main.KillTimers[playerId] -= Time.fixedDeltaTime;
+
+            if (!lowLoad && player.IsModClient() && player.Is(CustomRoles.Haste)) player.ForceKillTimerContinue = true;
 
             if (DoubleTrigger.FirstTriggerTimer.Count > 0) DoubleTrigger.OnFixedUpdate(player);
             switch (player.GetCustomRole())
@@ -3040,7 +3042,7 @@ class FixedUpdatePatch
                     case CustomGameMode.MoveAndStop when seer.PlayerId == target.PlayerId:
                         Suffix.Append(MoveAndStopManager.GetSuffixText(seer));
                         break;
-                    case CustomGameMode.HotPotato when seer.PlayerId == target.PlayerId:
+                    case CustomGameMode.HotPotato when !seer.IsModClient() && seer.PlayerId == target.PlayerId && seer.IsAlive():
                         Suffix.Append(HotPotatoManager.GetSuffixText(seer.PlayerId));
                         break;
                 }
@@ -3184,6 +3186,11 @@ class ExitVentPatch
             {
                 pc.TPtoRndVent();
             }, 0.5f, "Whack-A-Mole TP");
+        }
+
+        if (!pc.IsModClient() && pc.Is(CustomRoles.Haste))
+        {
+            pc.SetKillCooldown(Math.Max(Main.KillTimers[pc.PlayerId], 0.1f));
         }
     }
 }

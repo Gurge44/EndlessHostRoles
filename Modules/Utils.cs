@@ -1883,7 +1883,7 @@ public static class Utils
                         name = $"<color=#00ffa5><size=1.7>{GetString("ModeMoveAndStop")}</size></color>\r\n" + name;
                         break;
                     case CustomGameMode.HotPotato:
-                        name = $"<color=#00ffa5><size=1.7>{GetString("ModeHotPotato")}</size></color>\r\n" + name;
+                        name = $"<color=#e8cd46><size=1.7>{GetString("ModeHotPotato")}</size></color>\r\n" + name;
                         break;
                 }
             }
@@ -2129,7 +2129,7 @@ public static class Utils
                     case CustomGameMode.MoveAndStop:
                         SelfSuffix.Append(MoveAndStopManager.GetSuffixText(seer));
                         break;
-                    case CustomGameMode.HotPotato:
+                    case CustomGameMode.HotPotato when seer.IsAlive() && !seer.IsModClient():
                         SelfSuffix.Append(HotPotatoManager.GetSuffixText(seer.PlayerId));
                         break;
                 }
@@ -3445,7 +3445,7 @@ public static class Utils
                 summary = $"{ColorString(Main.PlayerColors[id], name)} -{TaskCount.Replace("(", string.Empty).Replace(")", string.Empty)}  ({GetVitalText(id, true)})";
                 break;
             case CustomGameMode.HotPotato:
-                summary = $"{ColorString(Main.PlayerColors[id], name)} {HotPotatoManager.GetSurvivalTime(id)}  ({GetVitalText(id, false)})";
+                summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>Survived: <#ffffff>{HotPotatoManager.GetSurvivalTime(id)}</color>s</color>  ({GetVitalText(id, true)})";
                 break;
         }
         return check && GetDisplayRoleName(id, true).RemoveHtmlTags().Contains("INVALID:NotAssigned")

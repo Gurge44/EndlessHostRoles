@@ -940,12 +940,12 @@ class TaskPanelBehaviourPatch
                     List<string> SummaryText4 = [];
                     foreach (var id in Main.PlayerStates.Keys.ToArray())
                     {
-                        string name = Main.AllPlayerNames[id].RemoveHtmlTags().Replace("\r\n", string.Empty);
-                        string summary = $"{HotPotatoManager.GetIndicator(id)}  {Utils.ColorString(Main.PlayerColors[id], name)}";
+                        string name = Utils.GetPlayerById(id).GetRealName().RemoveHtmlTags().Replace("\r\n", string.Empty);
+                        string summary = $"{HotPotatoManager.GetIndicator(id)}{Utils.ColorString(Main.PlayerColors[id], name)}";
                         SummaryText4.Add(summary);
                     }
 
-                    AllText += string.Join('\n', SummaryText4);
+                    AllText += $"\r\n\r\n{string.Join('\n', SummaryText4)}";
 
                     break;
             }

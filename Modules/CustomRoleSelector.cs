@@ -177,15 +177,20 @@ internal class CustomRoleSelector
         // Shuffle - Shuffles all roles in the list into a randomized order
         // Take - Takes the first x roles of the list ... x is the maximum number of roles we could need of that team
 
-        AllRoles[RoleAssignType.Impostor] = AllRoles[RoleAssignType.Impostor].DistinctBy(x => x.Role).Shuffle(rd).Take(optImpNum).ToList();
-        AllRoles[RoleAssignType.NeutralKilling] = AllRoles[RoleAssignType.NeutralKilling].DistinctBy(x => x.Role).Shuffle(rd).Take(optNeutralKillingNum).ToList();
-        AllRoles[RoleAssignType.NonKillingNeutral] = AllRoles[RoleAssignType.NonKillingNeutral].DistinctBy(x => x.Role).Shuffle(rd).Take(optNonNeutralKillingNum).ToList();
-        AllRoles[RoleAssignType.Crewmate] = AllRoles[RoleAssignType.Crewmate].DistinctBy(x => x.Role).Shuffle(rd).Take(playerCount).ToList();
+        AllRoles[RoleAssignType.Impostor] = AllRoles[RoleAssignType.Impostor].Shuffle(rd).Take(optImpNum).ToList();
+        AllRoles[RoleAssignType.NeutralKilling] = AllRoles[RoleAssignType.NeutralKilling].Shuffle(rd).Take(optNeutralKillingNum).ToList();
+        AllRoles[RoleAssignType.NonKillingNeutral] = AllRoles[RoleAssignType.NonKillingNeutral].Shuffle(rd).Take(optNonNeutralKillingNum).ToList();
+        AllRoles[RoleAssignType.Crewmate] = AllRoles[RoleAssignType.Crewmate].Shuffle(rd).Take(playerCount).ToList();
 
         AllRoles[RoleAssignType.Impostor].AddRange(TempAlwaysImpRoles);
         AllRoles[RoleAssignType.NeutralKilling].AddRange(TempAlwaysNKRoles);
         AllRoles[RoleAssignType.NonKillingNeutral].AddRange(TempAlwaysNNKRoles);
         AllRoles[RoleAssignType.Crewmate].AddRange(TempAlwaysCrewRoles);
+
+        AllRoles[RoleAssignType.Impostor] = AllRoles[RoleAssignType.Impostor].DistinctBy(x => x.Role).ToList();
+        AllRoles[RoleAssignType.NeutralKilling] = AllRoles[RoleAssignType.NeutralKilling].DistinctBy(x => x.Role).ToList();
+        AllRoles[RoleAssignType.NonKillingNeutral] = AllRoles[RoleAssignType.NonKillingNeutral].DistinctBy(x => x.Role).ToList();
+        AllRoles[RoleAssignType.Crewmate] = AllRoles[RoleAssignType.Crewmate].DistinctBy(x => x.Role).ToList();
 
         Logger.Msg("======================================================", "SelectedRoles");
         Logger.Info(string.Join(", ", AllRoles[RoleAssignType.Impostor].Select(x => x.Role.ToString())), "SelectedImpostorRoles");

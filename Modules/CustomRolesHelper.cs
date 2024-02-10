@@ -396,6 +396,7 @@ internal static class CustomRolesHelper
         CustomRoles.Watcher or
         CustomRoles.Sleuth or
         CustomRoles.Flashman or
+        CustomRoles.Haste or
         CustomRoles.Undead or
         CustomRoles.Busy or
         CustomRoles.Truant or
@@ -1261,7 +1262,7 @@ internal static class CustomRolesHelper
         CustomRoles.Oblivious when mainRole is CustomRoles.Detective or CustomRoles.Cleaner or CustomRoles.Medusa or CustomRoles.Mortician or CustomRoles.Mediumshiper or CustomRoles.GuardianAngelTOHE => false,
         CustomRoles.Youtuber when !mainRole.IsCrewmate() || mainRole is CustomRoles.Madmate or CustomRoles.Sheriff or CustomRoles.GuardianAngelTOHE => false,
         CustomRoles.Egoist when !mainRole.IsImpostor() => false,
-        CustomRoles.Damocles when mainRole is CustomRoles.Bomber or CustomRoles.Nuker or CustomRoles.SerialKiller or CustomRoles.Cantankerous => false,
+        CustomRoles.Damocles when mainRole is CustomRoles.Bomber or CustomRoles.Nuker or CustomRoles.SerialKiller or CustomRoles.Cantankerous or CustomRoles.Sapper => false,
         CustomRoles.Necroview when mainRole is CustomRoles.Visionary => false,
         CustomRoles.Flashman when mainRole is CustomRoles.Swiftclaw => false,
         CustomRoles.Ghoul when mainRole is CustomRoles.Lazy => false,
@@ -1464,6 +1465,7 @@ internal static class CustomRolesHelper
         CustomRoles.Trapper when pc.Is(CustomRoles.GuardianAngelTOHE) => false,
         CustomRoles.Reach when !pc.CanUseKillButton() => false,
         CustomRoles.Magnet when !pc.CanUseKillButton() => false,
+        CustomRoles.Haste when !pc.CanUseKillButton() => false,
         CustomRoles.Watcher when (pc.GetCustomRole().IsCrewmate() && !Options.CrewCanBeWatcher.GetBool()) || (pc.GetCustomRole().IsNeutral() && !Options.NeutralCanBeWatcher.GetBool()) || (pc.GetCustomRole().IsImpostor() && !Options.ImpCanBeWatcher.GetBool()) => false,
         CustomRoles.Diseased when (pc.GetCustomRole().IsCrewmate() && !Options.CrewCanBeDiseased.GetBool()) || (pc.GetCustomRole().IsNeutral() && !Options.NeutralCanBeDiseased.GetBool()) || (pc.GetCustomRole().IsImpostor() && !Options.ImpCanBeDiseased.GetBool()) => false,
         CustomRoles.Antidote when (pc.GetCustomRole().IsCrewmate() && !Options.CrewCanBeAntidote.GetBool()) || (pc.GetCustomRole().IsNeutral() && !Options.NeutralCanBeAntidote.GetBool()) || (pc.GetCustomRole().IsImpostor() && !Options.ImpCanBeAntidote.GetBool()) => false,

@@ -30,10 +30,16 @@ public static class NameColorManager
     {
         color = "";
 
-        if (Options.CurrentGameMode == CustomGameMode.MoveAndStop)
+        switch (Options.CurrentGameMode)
         {
-            color = "#ffffff";
-            return true;
+            case CustomGameMode.MoveAndStop:
+                color = "#ffffff";
+                return true;
+            case CustomGameMode.HotPotato:
+                var (HolderID, LastHolderID, _, _) = HotPotatoManager.GetState();
+                if (target.PlayerId == HolderID) color = "#000000";
+                else if (target.PlayerId == LastHolderID) color = "#777777";
+                return color != "";
         }
 
         if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor)) color = (target.Is(CustomRoles.Egoist) && Options.ImpEgoistVisibalToAllies.GetBool() && seer != target) ? Main.roleColors[CustomRoles.Egoist] : Main.roleColors[CustomRoles.Impostor];
