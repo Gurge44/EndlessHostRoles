@@ -3434,7 +3434,8 @@ public static class Utils
                 summary = $"{ColorString(Main.PlayerColors[id], name)} -{TaskCount.Replace("(", string.Empty).Replace(")", string.Empty)}  ({GetVitalText(id, true)})";
                 break;
             case CustomGameMode.HotPotato:
-                summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>Survived: <#ffffff>{HotPotatoManager.GetSurvivalTime(id)}</color>s</color>  ({GetVitalText(id, true)})";
+                int time = HotPotatoManager.GetSurvivalTime(id);
+                summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>Survived: <#ffffff>{(time == 0 ? "Until The End</color>" : $"{time}</color>s")}</color>  ({GetVitalText(id, true)})";
                 break;
         }
         return check && GetDisplayRoleName(id, true).RemoveHtmlTags().Contains("INVALID:NotAssigned")

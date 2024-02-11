@@ -655,9 +655,9 @@ internal class SelectRolesPatch
             Stressed.Add();
             Asthmatic.Add();
 
-            if (Options.CurrentGameMode == CustomGameMode.HotPotato) HotPotatoManager.OnGameStart();
-
         EndOfSelectRolePatch:
+
+            if (Options.CurrentGameMode == CustomGameMode.HotPotato) HotPotatoManager.OnGameStart();
 
             HudManager.Instance.SetHudActive(true);
             List<PlayerControl> AllPlayers = [];

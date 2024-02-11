@@ -483,9 +483,10 @@ static class ExtendedPlayerControl
     }
     public static bool HasKillButton(this PlayerControl pc)
     {
+        CustomRoles role = pc.GetCustomRole();
         if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel || Pelican.IsEaten(pc.PlayerId)) return false;
-        else if (pc.GetCustomRole().GetDYRole() == RoleTypes.Impostor || pc.GetCustomRole().GetVNRole() is CustomRoles.Impostor or CustomRoles.Shapeshifter) return true;
-        else return pc.Is(CustomRoleTypes.Impostor) || pc.GetCustomRole().IsNK() || pc.GetCustomRole().IsTasklessCrewmate();
+        else if (role.GetDYRole() == RoleTypes.Impostor || role.GetVNRole() is CustomRoles.Impostor or CustomRoles.Shapeshifter) return true;
+        else return pc.Is(CustomRoleTypes.Impostor) || role.IsNK() || role.IsTasklessCrewmate();
     }
     public static bool CanUseKillButton(this PlayerControl pc)
     {

@@ -14,6 +14,7 @@ namespace TOHE
 
         private static (byte HolderID, byte LastHolderID, int TimeLeft, int RoundNum) HotPotatoState;
         private static Dictionary<byte, int> SurvivalTimes;
+        private static float DefaultSpeed;
 
         public static (byte HolderID, byte LastHolderID, int TimeLeft, int RoundNum) GetState() => HotPotatoState;
 
@@ -44,6 +45,8 @@ namespace TOHE
             HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 20, 1);
             SurvivalTimes = [];
             foreach (var pc in Main.AllPlayerControls) SurvivalTimes[pc.PlayerId] = 0;
+
+            DefaultSpeed = Main.AllPlayerSpeed[0];
 
             if (Chat.GetBool()) _ = new LateTask(Utils.SetChatVisible, 10f, "Set Chat Visible for Everyone");
         }
@@ -85,7 +88,7 @@ namespace TOHE
                 if (HotPotatoState.TimeLeft <= 0)
                 {
                     Holder.Suicide();
-                    SurvivalTimes[HotPotatoState.HolderID] = Time.GetInt() * HotPotatoState.RoundNum;
+                    SurvivalTimes[HotPotatoState.HolderID] = Time.GetInt() * (HotPotatoState.RoundNum - 1);
                     PassHotPotato();
                     return;
                 }
@@ -122,9 +125,9 @@ namespace TOHE
                     target.MarkDirtySettings();
 
                     PlayerControl LastHolder = Utils.GetPlayerById(HotPotatoState.LastHolderID);
-                    if (LastHolder != null && !LastHolder.Data.Disconnected && LastHolder.IsAlive())
+                    if (LastHolder != null)
                     {
-                        Main.AllPlayerSpeed[HotPotatoState.LastHolderID] = Main.NormalOptions.PlayerSpeedMod;
+                        Main.AllPlayerSpeed[HotPotatoState.LastHolderID] = DefaultSpeed;
                         LastHolder.MarkDirtySettings();
                         Utils.NotifyRoles(SpecifyTarget: LastHolder);
                     }

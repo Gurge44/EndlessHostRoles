@@ -940,8 +940,10 @@ class TaskPanelBehaviourPatch
                     List<string> SummaryText4 = [];
                     foreach (var id in Main.PlayerStates.Keys.ToArray())
                     {
-                        string name = Utils.GetPlayerById(id).GetRealName().RemoveHtmlTags().Replace("\r\n", string.Empty);
-                        string summary = $"{HotPotatoManager.GetIndicator(id)}{Utils.ColorString(Main.PlayerColors[id], name)}";
+                        PlayerControl pc = Utils.GetPlayerById(id);
+                        string name = pc.GetRealName().RemoveHtmlTags().Replace("\r\n", string.Empty);
+                        bool alive = pc.IsAlive();
+                        string summary = $"{(!alive ? "<size=70%><#777777>" : "<size=80%>")}{HotPotatoManager.GetIndicator(id)}{Utils.ColorString(Main.PlayerColors[id], name)}{(!alive ? "</color>  <#ff0000>DEAD</color></size>" : "</size>")}";
                         SummaryText4.Add(summary);
                     }
 
