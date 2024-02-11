@@ -3191,7 +3191,6 @@ public static class Utils
         if (EvilTracker.IsEnable) EvilTracker.AfterMeetingTasks();
         if (SerialKiller.IsEnable()) SerialKiller.AfterMeetingTasks();
         if (Spiritualist.IsEnable) Spiritualist.AfterMeetingTasks();
-        if (Jailor.IsEnable) Jailor.AfterMeetingTasks();
         if (Mycologist.IsEnable) Mycologist.AfterMeetingTasks();
         if (Sprayer.IsEnable) Sprayer.AfterMeetingTasks();
         if (PlagueDoctor.IsEnable) PlagueDoctor.AfterMeetingTasks();
@@ -3292,7 +3291,6 @@ public static class Utils
         if (Hitman.targetId == target.PlayerId)
             Hitman.targetId = byte.MaxValue;
 
-
         if (Hacker.IsEnable) Hacker.AddDeadBody(target);
         if (Mortician.IsEnable) Mortician.OnPlayerDead(target);
         if (Bloodhound.IsEnable) Bloodhound.OnPlayerDead(target);
@@ -3300,12 +3298,6 @@ public static class Utils
         if (Vulture.IsEnable) Vulture.OnPlayerDead(target);
 
         FixedUpdatePatch.LoversSuicide(target.PlayerId, onMeeting);
-    }
-    public static void ChangeInt(ref int ChangeTo, int input, int max)
-    {
-        var tmp = ChangeTo * 10;
-        tmp += input;
-        ChangeTo = Math.Clamp(tmp, 0, max);
     }
     public static void CountAlivePlayers(bool sendLog = false)
     {
@@ -3359,14 +3351,14 @@ public static class Utils
     }
     public static void DumpLog()
     {
-        string f = $"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}/TOHE-logs/";
+        string f = $"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}/TOHE+_Logs/";
         string t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
         string filename = $"{f}TOHE-v{Main.PluginVersion}-{t}.log";
         if (!Directory.Exists(f)) Directory.CreateDirectory(f);
         FileInfo file = new(@$"{Environment.CurrentDirectory}/BepInEx/LogOutput.log");
         file.CopyTo(@filename);
         if (PlayerControl.LocalPlayer != null)
-            HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), $"TOHE - v{Main.PluginVersion}-{t}.log"));
+            HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), $"TOHE+ v{Main.PluginVersion} {t}.log"));
         System.Diagnostics.ProcessStartInfo psi = new("Explorer.exe")
         { Arguments = "/e,/select," + @filename.Replace("/", "\\") };
         System.Diagnostics.Process.Start(psi);
@@ -3572,40 +3564,40 @@ public static class Utils
         return new Color(R, G, B, color.a);
     }
 
-    /// <summary>
-    /// 乱数の簡易的なヒストグラムを取得する関数
-    /// <params name="nums">生成した乱数を格納したint配列</params>
-    /// <params name="scale">ヒストグラムの倍率 大量の乱数を扱う場合、この値を下げることをお勧めします。</params>
-    /// </summary>
-    public static string WriteRandomHistgram(int[] nums, float scale = 1.0f)
-    {
-        int[] countData = new int[nums.Max() + 1];
-        foreach (int num in nums)
-        {
-            if (0 <= num) countData[num]++;
-        }
-        StringBuilder sb = new();
-        for (int i = 0; i < countData.Length; i++)
-        {
-            // 倍率適用
-            countData[i] = (int)(countData[i] * scale);
+    ///// <summary>
+    ///// 乱数の簡易的なヒストグラムを取得する関数
+    ///// <params name="nums">生成した乱数を格納したint配列</params>
+    ///// <params name="scale">ヒストグラムの倍率 大量の乱数を扱う場合、この値を下げることをお勧めします。</params>
+    ///// </summary>
+    //public static string WriteRandomHistgram(int[] nums, float scale = 1.0f)
+    //{
+    //    int[] countData = new int[nums.Max() + 1];
+    //    foreach (int num in nums)
+    //    {
+    //        if (0 <= num) countData[num]++;
+    //    }
+    //    StringBuilder sb = new();
+    //    for (int i = 0; i < countData.Length; i++)
+    //    {
+    //        // 倍率適用
+    //        countData[i] = (int)(countData[i] * scale);
 
-            // 行タイトル
-            sb.AppendFormat("{0:D2}", i).Append(" : ");
+    //        // 行タイトル
+    //        sb.AppendFormat("{0:D2}", i).Append(" : ");
 
-            // ヒストグラム部分
-            for (int j = 0; j < countData[i]; j++)
-                sb.Append('|');
+    //        // ヒストグラム部分
+    //        for (int j = 0; j < countData[i]; j++)
+    //            sb.Append('|');
 
-            // 改行
-            sb.Append('\n');
-        }
+    //        // 改行
+    //        sb.Append('\n');
+    //    }
 
-        // その他の情報
-        sb.Append("最大数 - 最小数: ").Append(countData.Max() - countData.Min());
+    //    // その他の情報
+    //    sb.Append("最大数 - 最小数: ").Append(countData.Max() - countData.Min());
 
-        return sb.ToString();
-    }
+    //    return sb.ToString();
+    //}
 
     public static void SetChatVisible()
     {
@@ -3627,6 +3619,6 @@ public static class Utils
     public static bool IsAllAlive => Main.PlayerStates.Values.All(state => state.countTypes == CountTypes.OutOfGame || !state.IsDead);
     public static int PlayersCount(CountTypes countTypes) => Main.PlayerStates.Values.Count(state => state.countTypes == countTypes);
     public static int AlivePlayersCount(CountTypes countTypes) => Main.AllAlivePlayerControls.Count(pc => pc.Is(countTypes));
-    public static int IsOneAlive(CountTypes countTypes) => Main.AllAlivePlayerControls.Any(pc => pc.Is(countTypes)) ? 1 : 0;
+    //public static int IsOneAlive(CountTypes countTypes) => Main.AllAlivePlayerControls.Any(pc => pc.Is(countTypes)) ? 1 : 0;
     public static bool IsPlayerModClient(this byte id) => Main.playerVersion.ContainsKey(id);
 }

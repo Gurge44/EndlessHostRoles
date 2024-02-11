@@ -1363,9 +1363,11 @@ static class ExtendedPlayerControl
                 break;
         }
 
+        target.SetRealKiller(killer, NotOverRide: true);
+
         if (killer.PlayerId == target.PlayerId && killer.shapeshifting)
         {
-            _ = new LateTask(() => { killer.RpcMurderPlayerV2(target); }, 1.5f, "Shapeshifting Suicide Delay");
+            _ = new LateTask(() => { killer.RpcMurderPlayer(target, true); }, 1.5f, "Shapeshifting Suicide Delay");
             return;
         }
 
@@ -1470,11 +1472,11 @@ static class ExtendedPlayerControl
     {
         if (target == null)
         {
-            Logger.Info("target=null", "SetRealKiller");
+            Logger.Info("target is null", "SetRealKiller");
             return;
         }
         var State = Main.PlayerStates[target.PlayerId];
-        if (State.RealKiller.TIMESTAMP != DateTime.MinValue && NotOverRide) return; //既に値がある場合上書きしない
+        if (State.RealKiller.TIMESTAMP != DateTime.MinValue && NotOverRide) return; // Do not overwrite if value already exists
         byte killerId = killer == null ? byte.MaxValue : killer.PlayerId;
         RPC.SetRealKiller(target.PlayerId, killerId);
     }

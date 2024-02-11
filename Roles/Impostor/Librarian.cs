@@ -24,7 +24,7 @@ namespace TOHE.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Librarian);
-            Radius = FloatOptionItem.Create(Id + 5, "LibrarianRadius", new(0.5f, 5f, 0.5f), 2f, TabGroup.ImpostorRoles, false)
+            Radius = FloatOptionItem.Create(Id + 5, "LibrarianRadius", new(0.5f, 5f, 0.5f), 3f, TabGroup.ImpostorRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Librarian])
                 .SetValueFormat(OptionFormat.Multiplier);
             ShowSSAnimation = BooleanOptionItem.Create(Id + 6, "LibrarianShowSSAnimation", false, TabGroup.ImpostorRoles, false)

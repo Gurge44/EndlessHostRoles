@@ -238,7 +238,7 @@ public static class Councillor
         MurderMsg(pc, $"/tl {PlayerId}", true);
     }
 
-    private static void CouncillorOnClick(byte playerId, MeetingHud __instance)
+    private static void CouncillorOnClick(byte playerId/*, MeetingHud __instance*/)
     {
         Logger.Msg($"Click: ID {playerId}", "Councillor UI");
         var pc = Utils.GetPlayerById(playerId);
@@ -270,7 +270,7 @@ public static class Councillor
             renderer.sprite = CustomButton.Get("MeetingKillButton");
             PassiveButton button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => CouncillorOnClick(pva.TargetPlayerId, __instance)));
+            button.OnClick.AddListener((Action)(() => CouncillorOnClick(pva.TargetPlayerId/*, __instance*/)));
         }
     }
 }

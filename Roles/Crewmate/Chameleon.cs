@@ -212,13 +212,4 @@ public static class Chameleon
         }
         return str.ToString();
     }
-
-    public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
-    {
-        if (!IsInvis(killer.PlayerId)) return true;
-        killer.SetKillCooldown();
-        target.RpcCheckAndMurder(target);
-        target.SetRealKiller(killer);
-        return false;
-    }
 }

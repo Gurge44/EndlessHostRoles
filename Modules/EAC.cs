@@ -258,9 +258,9 @@ internal class EAC
         }
         catch (System.IO.InvalidDataException) { }
         catch (NullReferenceException) { }
-        catch (Exception e)
+        catch /*(Exception e)*/
         {
-            Logger.Exception(e, "EAC");
+            //Logger.Exception(e, "EAC");
             //throw e;
         }
         WarnHost(-1);

@@ -192,42 +192,41 @@ public static class Romantic
             romantic.Suicide(PlayerState.DeathReason.FollowingSuicide, partner);
             return;
         }
-        else if (partnerRole.IsNonNK() || killer == null) // If partner is NNK or died by themselves, Romantic becomes Ruthless Romantic
+        else if ((partnerRole.IsNonNK() && partnerRole is not CustomRoles.Romantic and not CustomRoles.VengefulRomantic and not CustomRoles.RuthlessRomantic) || killer == null || Main.PlayerStates[partner.PlayerId].IsSuicide) // If partner is NNK or died by themselves, Romantic becomes Ruthless Romantic
         {
-            Logger.Info($"NK Romantic Partner Died / Partner killer is null => changing {romantic.GetNameWithRole().RemoveHtmlTags()} to Ruthless Romantic", "Romantic");
+            Logger.Info($"NNK Romantic Partner Died ({partnerRole.IsNonNK()}) / Partner killer is null ({killer == null}) / Partner commited Suicide ({Main.PlayerStates[partner.PlayerId].IsSuicide}) => Changing {romantic.GetNameWithRole().RemoveHtmlTags()} to Ruthless Romantic", "Romantic");
             romantic.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
             RuthlessRomantic.Add(romanticId);
+        }
+        else if (partner.Is(Team.Impostor)) // If partner is Imp, Romantic joins imp team as Refugee
+        {
+            Logger.Info($"Impostor Romantic Partner Died => Changing {romantic.GetNameWithRole()} to Refugee", "Romantic");
+            romantic.RpcSetCustomRole(CustomRoles.Refugee);
         }
         else if (partner.HasKillButton() || partnerRole.IsNK() || partnerRole.IsCK()) // If partner has a kill button (NK or CK), Romantic becomes the role they were
         {
             try
             {
                 romantic.RpcSetCustomRole(partnerRole);
-                Utils.AddRoles(romantic.PlayerId, partnerRole);
-                Logger.Info($"Romantic Partner With Kill Button Died => changing {romantic.GetNameWithRole()} to {partner.GetAllRoleName().RemoveHtmlTags()}", "Romantic");
+                Utils.AddRoles(romanticId, partnerRole);
+                HudManager.Instance.SetHudActive(romantic, romantic.Data.Role, !GameStates.IsMeeting);
+                Main.PlayerStates[romanticId].RemoveSubRole(CustomRoles.NotAssigned);
+                Logger.Info($"Romantic Partner With Kill Button Died => Changing {romantic.GetNameWithRole()} to {partner.GetAllRoleName().RemoveHtmlTags()}", "Romantic");
             }
             catch
             {
-                Logger.Error($"Romantic Partner With Kill Button Died => changing {romantic.GetNameWithRole()} to {partner.GetAllRoleName().RemoveHtmlTags()} : FAILED ----> changing to Ruthless Romantic instead", "Romantic");
+                Logger.Error($"Romantic Partner With Kill Button Died => Changing {romantic.GetNameWithRole()} to {partner.GetAllRoleName().RemoveHtmlTags()} : FAILED ----> changing to Ruthless Romantic instead", "Romantic");
                 romantic.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
                 RuthlessRomantic.Add(romanticId);
             }
         }
-        else if (partner.Is(Team.Impostor)) // If partner is Imp, Romantic joins imp team as Refugee
-        {
-            Logger.Info($"Impostor Romantic Partner Died => changing {romantic.GetNameWithRole()} to Refugee", "Romantic");
-            romantic.RpcSetCustomRole(CustomRoles.Refugee);
-        }
         else // In every other scenario, Romantic becomes Vengeful Romantic and must kill the killer of their partner
         {
-            _ = new LateTask(() =>
-            {
-                Logger.Info($"Crew/NNK Romantic Partner Died => changing {romantic.GetNameWithRole()} to Vengeful Romantic", "Romantic");
+            Logger.Info($"Non-Killing Crew Romantic Partner Died => Changing {romantic.GetNameWithRole()} to Vengeful Romantic", "Romantic");
 
-                VengefulRomantic.Add(romanticId, killer.PlayerId);
-                VengefulRomantic.SendRPC(romanticId);
-                romantic.RpcSetCustomRole(CustomRoles.VengefulRomantic);
-            }, 0.2f, "Convert to Vengeful romanticId");
+            VengefulRomantic.Add(romanticId, killer.PlayerId);
+            VengefulRomantic.SendRPC(romanticId);
+            romantic.RpcSetCustomRole(CustomRoles.VengefulRomantic);
         }
 
         Utils.NotifyRoles(SpecifySeer: romantic);

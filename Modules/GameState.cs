@@ -503,15 +503,18 @@ public class TaskState
                                     if (!Options.CrewpostorLungeKill.GetBool())
                                     {
                                         target.SetRealKiller(player);
-                                        target.RpcCheckAndMurder(target);
-                                        player.RpcGuardAndKill();
+                                        if (player.RpcCheckAndMurder(target, true))
+                                        {
+                                            target.Suicide(PlayerState.DeathReason.Kill, player);
+                                            player.RpcGuardAndKill();
+                                        }
                                         Logger.Info("No lunge mode kill", "Crewpostor");
                                     }
                                     else
                                     {
                                         player.SetRealKiller(target);
-                                        player.Kill(target);
-                                        player.RpcGuardAndKill();
+                                        player.RpcCheckAndMurder(target);
+                                        //player.RpcGuardAndKill();
                                         Logger.Info("lunge mode kill", "Crewpostor");
 
                                     }

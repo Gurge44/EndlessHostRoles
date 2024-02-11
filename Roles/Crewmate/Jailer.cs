@@ -114,66 +114,19 @@ public static class Jailor
 
     public static void OnReportDeadBody()
     {
+        if (!notifyJailedOnMeeting.GetBool()) return;
         foreach (var targetId in JailorTarget.Values)
         {
             if (targetId == byte.MaxValue) continue;
             var tpc = Utils.GetPlayerById(targetId);
             if (tpc == null) continue;
-            if (notifyJailedOnMeeting.GetBool() && tpc.IsAlive())
+            if (tpc.IsAlive())
+            {
                 _ = new LateTask(() =>
                 {
                     Utils.SendMessage(GetString("JailedNotifyMsg"), targetId, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
                 }, 0.3f, "JailorNotifyJailed");
-        }
-    }
-
-    public static void OnVote(PlayerControl voter, PlayerControl target)
-    {
-        if (voter == null || target == null) return;
-        if (!voter.Is(CustomRoles.Jailor)) return;
-        if (JailorDidVote[voter.PlayerId]) return;
-        if (JailorTarget[voter.PlayerId] == byte.MaxValue) return;
-        JailorDidVote[voter.PlayerId] = true;
-        if (target.PlayerId == JailorTarget[voter.PlayerId])
-        {
-            if (JailorExeLimit[voter.PlayerId] > 0)
-            {
-                JailorExeLimit[voter.PlayerId] = JailorExeLimit[voter.PlayerId] - 1;
-                JailorHasExe[voter.PlayerId] = true;
             }
-            else JailorHasExe[voter.PlayerId] = false;
-        }
-        SendRPC(voter.PlayerId, setTarget: false);
-    }
-
-    public static bool CanBeExecuted(this CustomRoles role)
-    {
-        return false;
-    }
-
-    public static void AfterMeetingTasks()
-    {
-        foreach (var pid in JailorHasExe.Keys)
-        {
-            var targetId = JailorTarget[pid];
-            if (targetId != byte.MaxValue && JailorHasExe[pid])
-            {
-                var tpc = Utils.GetPlayerById(targetId);
-                if (tpc.IsAlive())
-                {
-                    CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Execution, targetId);
-                    tpc.SetRealKiller(Utils.GetPlayerById(pid));
-                }
-                if (!tpc.GetCustomRole().CanBeExecuted())
-                {
-                    JailorExeLimit[pid] = 0;
-                    SendRPC(pid, setTarget: false);
-                }
-            }
-            JailorHasExe[pid] = false;
-            JailorTarget[pid] = byte.MaxValue;
-            JailorDidVote[pid] = false;
-            SendRPC(pid, byte.MaxValue, setTarget: true);
         }
     }
 

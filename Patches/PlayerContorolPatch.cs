@@ -944,7 +944,7 @@ class CheckMurderPatch
                         Logger.Info($"{target.GetRealName()} reverse killed：{killer.GetRealName()}", "Veteran Kill");
                         return false;
                     }
-                    if (killer.Is(CustomRoles.Pestilence))
+                    else
                     {
                         target.SetRealKiller(killer);
                         killer.Kill(target);

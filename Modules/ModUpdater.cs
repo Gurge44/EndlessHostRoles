@@ -93,7 +93,7 @@ public class ModUpdater
                 latestVersion = new(data["tag_name"]?.ToString().TrimStart('v'));
                 latestTitle = $"Ver. {latestVersion}";
                 JArray assets = data["assets"].Cast<JArray>();
-                Logger.Info(assets.ToString(), "ModUpdater");
+                //Logger.Info(assets.ToString(), "ModUpdater");
                 for (int i = 0; i < assets.Count; i++)
                 {
                     if (assets[i]["name"].ToString() == $"TOHE-PLUS.v{latestVersion}.zip")

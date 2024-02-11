@@ -498,15 +498,7 @@ internal class ChatCommands
 
                     Utils.SendMessage(msgText, localPlayerId);
                     break;
-
-                /*
-                case "/qq":
-                    canceled = true;
-                    if (Main.newLobby) Cloud.ShareLobby(true);
-                    else Utils.SendMessage("很抱歉，每个房间车队姬只会发一次", localPlayerId);
-                    break;
-                */
-
+                    
                 case "/changerole":
                     //if (!DebugModeManager.AmDebugger) break;
                     if (GameStates.IsLobby || !PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp) break;
@@ -519,15 +511,17 @@ internal class ChatCommands
                         var roleName = GetString(rl.ToString()).ToLower().Trim();
                         if (setRole.Contains(roleName))
                         {
-                            PlayerControl.LocalPlayer.RpcSetRole(rl.GetRoleTypes());
-                            PlayerControl.LocalPlayer.RpcSetCustomRole(rl);
-                            PlayerControl.LocalPlayer.SyncSettings();
-                            Utils.NotifyRoles(SpecifySeer: PlayerControl.LocalPlayer);
-                            Utils.NotifyRoles(SpecifyTarget: PlayerControl.LocalPlayer);
-                            HudManager.Instance.SetHudActive(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.Data.Role, !GameStates.IsMeeting);
-                            Utils.AddRoles(PlayerControl.LocalPlayer.PlayerId, rl);
-                            Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].RemoveSubRole(CustomRoles.NotAssigned);
+                            PlayerControl pc = PlayerControl.LocalPlayer;
+                            pc.RpcSetRole(rl.GetRoleTypes());
+                            pc.RpcSetCustomRole(rl);
+                            pc.SyncSettings();
+                            Utils.NotifyRoles(SpecifySeer: pc);
+                            Utils.NotifyRoles(SpecifyTarget: pc);
+                            HudManager.Instance.SetHudActive(pc, pc.Data.Role, !GameStates.IsMeeting);
+                            Utils.AddRoles(pc.PlayerId, rl);
+                            Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.NotAssigned);
                             Main.ChangedRole = true;
+                            break;
                         }
                     }
                     break;

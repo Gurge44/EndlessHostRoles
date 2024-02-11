@@ -91,8 +91,8 @@ namespace TOHE.Roles.Neutral
             }
             if (MisFireKillTarget.GetBool() && killer.RpcCheckAndMurder(target, true))
             {
-                killer.Kill(target);
                 target.SetRealKiller(killer);
+                killer.Kill(target);
                 target.Data.IsDead = true;
                 Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Misfire;
             }

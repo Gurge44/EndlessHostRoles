@@ -39,14 +39,19 @@ namespace TOHE
 
         public static void Init()
         {
+            FixedUpdatePatch.Return = true;
+
             HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 20, 1);
             SurvivalTimes = [];
             foreach (var pc in Main.AllPlayerControls) SurvivalTimes[pc.PlayerId] = 0;
 
-            FixedUpdatePatch.Return = true;
-            _ = new LateTask(() => { FixedUpdatePatch.Return = false; }, 10f, log: false);
+            if (Chat.GetBool()) _ = new LateTask(Utils.SetChatVisible, 10f, "Set Chat Visible for Everyone");
+        }
 
-            if (Chat.GetBool()) _ = new LateTask(Utils.SetChatVisible, 7f, "Set Chat Visible for Everyone");
+        public static void OnGameStart()
+        {
+            _ = new LateTask(() => { FixedUpdatePatch.Return = false; }, 7f, log: false);
+            HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 5, 1);
         }
 
         public static int GetSurvivalTime(byte id) => SurvivalTimes.TryGetValue(id, out var time) ? time : 0;
@@ -56,6 +61,7 @@ namespace TOHE
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
         class FixedUpdatePatch
         {
+            private static float UpdateDelay = 0;
             private static long LastFixedUpdate = 0;
             public static bool Return = false;
             public static void Postfix(PlayerControl __instance)
@@ -86,6 +92,10 @@ namespace TOHE
 
                 if (HotPotatoState.HolderID != __instance.PlayerId || !Main.AllAlivePlayerControls.Any(x => x.PlayerId != HotPotatoState.HolderID && (x.PlayerId != HotPotatoState.LastHolderID || Main.AllAlivePlayerControls.Length == 2) && Vector2.Distance(x.Pos(), Holder.Pos()) <= Range.GetFloat())) return;
 
+                UpdateDelay += UnityEngine.Time.fixedDeltaTime;
+                if (UpdateDelay < 0.3f) return;
+                UpdateDelay = 0;
+
                 var Target = Main.AllAlivePlayerControls.OrderBy(x => Vector2.Distance(x.Pos(), Holder.Pos())).FirstOrDefault(x => x.PlayerId != HotPotatoState.HolderID && (x.PlayerId != HotPotatoState.LastHolderID || Main.AllAlivePlayerControls.Length == 2));
                 if (Target == null) return;
 
@@ -93,27 +103,42 @@ namespace TOHE
             }
             private static void PassHotPotato(PlayerControl target = null, bool resetTime = true)
             {
+                if (Return || Main.AllAlivePlayerControls.Length < 2) return;
+
                 if (resetTime)
                 {
                     HotPotatoState.TimeLeft = Time.GetInt();
                     HotPotatoState.RoundNum++;
                 }
 
-                target ??= Main.AllAlivePlayerControls[IRandom.Instance.Next(0, Main.AllAlivePlayerControls.Length)];
+                try
+                {
+                    target ??= Main.AllAlivePlayerControls[IRandom.Instance.Next(0, Main.AllAlivePlayerControls.Length)];
 
-                HotPotatoState.LastHolderID = HotPotatoState.HolderID;
-                HotPotatoState.HolderID = target.PlayerId;
+                    HotPotatoState.LastHolderID = HotPotatoState.HolderID;
+                    HotPotatoState.HolderID = target.PlayerId;
 
-                Main.AllPlayerSpeed[target.PlayerId] = HolderSpeed.GetFloat();
-                target.MarkDirtySettings();
+                    Main.AllPlayerSpeed[target.PlayerId] = HolderSpeed.GetFloat();
+                    target.MarkDirtySettings();
 
-                PlayerControl LastHolder = Utils.GetPlayerById(HotPotatoState.LastHolderID);
-                if (LastHolder != null) Main.AllPlayerSpeed[HotPotatoState.LastHolderID] = Main.NormalOptions.PlayerSpeedMod;
-                LastHolder.MarkDirtySettings();
+                    PlayerControl LastHolder = Utils.GetPlayerById(HotPotatoState.LastHolderID);
+                    if (LastHolder != null && !LastHolder.Data.Disconnected && LastHolder.IsAlive())
+                    {
+                        Main.AllPlayerSpeed[HotPotatoState.LastHolderID] = Main.NormalOptions.PlayerSpeedMod;
+                        LastHolder.MarkDirtySettings();
+                        Utils.NotifyRoles(SpecifyTarget: LastHolder);
+                    }
 
-                Utils.NotifyRoles(ForceLoop: true);
-
-                Logger.Info($"Hot Potato Passed: {LastHolder.GetRealName()} => {target.GetRealName()}", "HotPotato");
+                    Logger.Info($"Hot Potato Passed: {LastHolder.GetRealName()} => {target.GetRealName()}", "HotPotato");
+                }
+                catch (System.Exception ex)
+                {
+                    Logger.Exception(ex, "HotPotatoManager.FixedUpdatePatch.PassHotPotato");
+                }
+                finally
+                {
+                    Utils.NotifyRoles(SpecifyTarget: target);
+                }
             }
         }
     }
