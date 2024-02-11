@@ -1182,7 +1182,7 @@ static class ExtendedPlayerControl
                 Totocalcio.SetKillCooldown(player.PlayerId);
                 break;
             case CustomRoles.Romantic:
-                Romantic.SetKillCooldown(player.PlayerId);
+                Romantic.SetKillCooldown();
                 break;
             case CustomRoles.VengefulRomantic:
                 Main.AllPlayerKillCooldown[player.PlayerId] = Romantic.VengefulKCD.GetFloat();

@@ -165,9 +165,9 @@ public static class NiceSwapper
         }
     }
 
-    public static List<MeetingHud.VoterState> OnCheckForEndVoting(List<MeetingHud.VoterState> votes)
+    public static void OnCheckForEndVoting()
     {
-        if (!(SwapTargets != (byte.MaxValue, byte.MaxValue))) return votes;
+        if (!(SwapTargets != (byte.MaxValue, byte.MaxValue))) return;
 
         var playerStates = MeetingHud.Instance.playerStates;
         var votedFor2 = playerStates.Where(x => x.VotedFor == SwapTargets.Item2).ToList();
@@ -189,11 +189,9 @@ public static class NiceSwapper
 
         PlayerControl Target1 = Utils.GetPlayerById(SwapTargets.Item1);
         PlayerControl Target2 = Utils.GetPlayerById(SwapTargets.Item2);
-        if (Target1 == null || Target2 == null) return votes;
+        if (Target1 == null || Target2 == null) return;
 
         Utils.SendMessage(string.Format(GetString("SwapVote"), Target1.GetRealName(), Target2.GetRealName()), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceSwapper), GetString("SwapTitle")));
-
-        return votes;
     }
 
     private static bool MsgToPlayerAndRole(string msg, out byte id, out string error)

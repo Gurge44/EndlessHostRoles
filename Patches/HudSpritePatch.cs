@@ -232,7 +232,7 @@ public static class HudSpritePatch
                     newAbilityButton = CustomButton.Get("Block");
                     break;
                 case CustomRoles.Romantic:
-                    newKillButton = CustomButton.Get(Romantic.BetTimes.TryGetValue(player.PlayerId, out var times) && times >= 1 ? "Romance" : "RomanticProtect");
+                    newKillButton = CustomButton.Get(!Romantic.HasPickedPartner ? "Romance" : "RomanticProtect");
                     break;
                 case CustomRoles.VengefulRomantic:
                     newKillButton = CustomButton.Get("RomanticKill");

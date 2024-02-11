@@ -201,7 +201,7 @@ class CheckForEndVotingPatch
                     VotedForId = ps.VotedFor
                 });
 
-                statesList = NiceSwapper.OnCheckForEndVoting(statesList);
+                NiceSwapper.OnCheckForEndVoting();
 
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Mayor) && !Options.MayorHideVote.GetBool()) //Mayorの投票数
                 {

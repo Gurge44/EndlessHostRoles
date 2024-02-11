@@ -3271,16 +3271,13 @@ public static class Utils
             case CustomRoles.Pelican:
                 Pelican.OnPelicanDied(target.PlayerId);
                 break;
-            case CustomRoles.Romantic:
-                Romantic.isRomanticAlive = false;
-                break;
             case CustomRoles.Devourer:
                 Devourer.OnDevourerDied(target.PlayerId);
                 break;
         }
 
-        if (Romantic.BetPlayer.ContainsValue(target.PlayerId))
-            Romantic.ChangeRole(target.PlayerId);
+        if (Romantic.PartnerId == target.PlayerId)
+            _ = new LateTask(Romantic.ChangeRole, 0.5f, "Romantic ChangeRole");
 
         if (Executioner.Target.ContainsValue(target.PlayerId))
             Executioner.ChangeRoleByTarget(target);

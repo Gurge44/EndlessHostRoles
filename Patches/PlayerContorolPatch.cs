@@ -781,7 +781,7 @@ class CheckMurderPatch
         //    return false;
 
         // Romantic partner is protected
-        if (Romantic.BetPlayer.ContainsValue(target.PlayerId) && Romantic.isPartnerProtected) return false;
+        if (Romantic.PartnerId == target.PlayerId && Romantic.IsPartnerProtected) return false;
 
         if (Options.OppoImmuneToAttacksWhenTasksDone.GetBool())
         {
