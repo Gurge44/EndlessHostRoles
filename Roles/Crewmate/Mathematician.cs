@@ -31,6 +31,7 @@
             {
                 State.ProtectedPlayerId = pc.PlayerId;
                 Utils.SendMessage(string.Format(Translator.GetString("MathematicianAnsweredString"), pc.GetRealName(), answer), title: Translator.GetString("Mathematician"));
+                State.AskedQuestion = false;
             }
         }
         public static void OnReportDeadBody()
