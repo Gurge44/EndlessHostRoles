@@ -296,6 +296,7 @@ internal class ChangeRoleSettings
             Mastermind.Init();
             Asthmatic.Init();
             Perceiver.Init();
+            Beacon.Init();
             NSerialKiller.Init();
             SoulHunter.Init();
             Enderman.Init();

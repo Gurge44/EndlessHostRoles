@@ -1874,6 +1874,7 @@ class ReportDeadBodyPatch
         if (Reckless.IsEnable) Reckless.OnReportDeadBody();
         Swiftclaw.OnReportDeadBody();
         Mathematician.OnReportDeadBody();
+        Beacon.OnReportDeadBody();
 
         if (Mortician.IsEnable) Mortician.OnReportDeadBody(player, target);
         if (Tracefinder.IsEnable) Tracefinder.OnReportDeadBody(/*player, target*/);
@@ -2167,6 +2168,7 @@ class FixedUpdatePatch
                 Sprayer.OnCheckPlayerPosition(player);
                 Asthmatic.OnCheckPlayerPosition(player);
                 PlagueDoctor.OnCheckPlayerPosition(player);
+                Beacon.OnCheckPlayerPosition(player);
             }
 
             if (!lowLoad && Main.PlayerStates.TryGetValue(playerId, out var playerState) && GameStates.IsInTask)

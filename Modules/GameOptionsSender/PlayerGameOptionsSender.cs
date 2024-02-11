@@ -730,6 +730,12 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 opt.SetFloat(FloatOptionNames.ImpostorLightMod, Sentinel.LoweredVision.GetFloat());
             }
 
+            if (Beacon.IsAffectedPlayer(player.PlayerId))
+            {
+                opt.SetFloat(FloatOptionNames.CrewLightMod, Beacon.IncreasedVision);
+                opt.SetFloat(FloatOptionNames.ImpostorLightMod, Beacon.IncreasedVision);
+            }
+
             /*     if ((Main.FlashbangInProtect.Count > 0 && Main.ForFlashbang.Contains(player.PlayerId) && (!player.GetCustomRole().IsCrewmate())))  
                  {
                          opt.SetVision(false);

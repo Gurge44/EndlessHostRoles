@@ -251,6 +251,7 @@ class BeginCrewmatePatch
                 CustomRoles.DovesOfNeace or
                 CustomRoles.Spiritualist or
                 CustomRoles.Spiritcaller or
+                CustomRoles.Beacon or
                 CustomRoles.Farseer
                 => GetIntroSound(RoleTypes.GuardianAngel),
 

@@ -1,4 +1,5 @@
 using HarmonyLib;
+using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -1558,6 +1559,8 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Demolitionist]);
         RoleLoadingText = "Crewmate roles\nTask Manager";
         SetupRoleOptions(5575, TabGroup.CrewmateRoles, CustomRoles.TaskManager);
+        RoleLoadingText = "Crewmate roles\nBeacon";
+        Beacon.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nRabbit";
         Rabbit.SetupCustomOption();
         RoleLoadingText = "Crewmate roles\nShiftguard";
