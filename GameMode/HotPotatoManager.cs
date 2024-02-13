@@ -83,6 +83,7 @@ namespace TOHE
                 {
                     HotPotatoState.TimeLeft--;
                     LastFixedUpdate = now;
+                    Utils.NotifyRoles();
                 }
 
                 if (HotPotatoState.TimeLeft <= 0)

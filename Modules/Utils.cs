@@ -1957,11 +1957,11 @@ public static class Utils
 
     public static Task DoNotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, PlayerControl SpecifyTarget = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false)
     {
-        var caller = new System.Diagnostics.StackFrame(1, false);
-        var callerMethod = caller.GetMethod();
-        string callerMethodName = callerMethod.Name;
-        string callerClassName = callerMethod.DeclaringType.FullName;
-        Logger.Info("NotifyRoles was called from " + callerClassName + "." + callerMethodName, "NotifyRoles");
+        //var caller = new System.Diagnostics.StackFrame(1, false);
+        //var callerMethod = caller.GetMethod();
+        //string callerMethodName = callerMethod.Name;
+        //string callerClassName = callerMethod.DeclaringType.FullName;
+        //Logger.Info("NotifyRoles was called from " + callerClassName + "." + callerMethodName, "NotifyRoles");
         HudManagerPatch.NowCallNotifyRolesCount++;
         HudManagerPatch.LastSetNameDesyncCount = 0;
 
