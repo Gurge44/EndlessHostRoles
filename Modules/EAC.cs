@@ -4,6 +4,7 @@ using InnerNet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TOHE.Modules;
 using static TOHE.Translator;
 
 namespace TOHE;
@@ -28,6 +29,7 @@ internal class EAC
     {
         if (!AmongUsClient.Instance.AmHost) return false;
         if (pc == null || reader == null) return false;
+        if (RoleBasisChanger.IsChangeInProgress) return false;
         try
         {
             MessageReader sr = MessageReader.Get(reader);
@@ -98,17 +100,6 @@ internal class EAC
                         HandleCheat(pc, "Report body out of game A");
                         Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] has a non-in-game meeting and has been rejected", "EAC");
                         return true;
-                    }
-                    if (ReportTimes.TryGetValue(pc.PlayerId, out int rtimes))
-                    {
-                        if (rtimes > 14)
-                        {
-                            WarnHost();
-                            Report(pc, "Spam report bodies A");
-                            HandleCheat(pc, "Spam report bodies A");
-                            Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] reported corpses 14 times and has been rejected", "EAC");
-                            return true;
-                        }
                     }
                     break;
                 case RpcCalls.SetColor:
@@ -357,51 +348,6 @@ internal class EAC
             Logger.Fatal($"Player【{player.GetClientId()}:{player.GetRealName()}】Bad Sabotage C, rejected", "EAC");
             return true;
         }
-    }
-
-    public static Dictionary<byte, int> ReportTimes = [];
-    public static bool RpcReportDeadBodyCheck(PlayerControl player, GameData.PlayerInfo target)
-    {
-        if (!ReportTimes.ContainsKey(player.PlayerId))
-        {
-            ReportTimes.Add(player.PlayerId, 0);
-        }
-        //target == null , button event
-        if (target == null || !Main.OverDeadPlayerList.Contains(target.PlayerId))
-        {
-            ReportTimes[player.PlayerId]++;
-        }
-
-        if (!GameStates.IsInGame)
-        {
-            WarnHost();
-            Report(player, "Report body out of game");
-            HandleCheat(player, "Report body out of game");
-            Logger.Fatal($"Player [{player.GetClientId()}:{player.GetRealName()}] is not meeting in the game and has been rejected", "EAC");
-            return true;
-        }
-
-        if (ReportTimes[player.PlayerId] >= 14)
-        {
-            //I believe nobody can report 14 different bodies in a single round if host players normally
-            //This check is still not enough to stop spam meeting hacks or crazy hosts that spam kill command
-            WarnHost();
-            Report(player, "Spam report bodies");
-            HandleCheat(player, "Spam report bodies");
-            Logger.Fatal($"Player [{player.GetClientId()}:{player.GetRealName()}] reported corpses 14 times and has been rejected", "EAC");
-            return true;
-        }
-        if (GameStates.IsMeeting)
-        {
-            //Cancel rpc report body if a meeting is already held
-            Logger.Info($"Player [{player.GetClientId()}:{player.GetRealName()}] held a meeting during the meeting and it has been rejected", "EAC");
-            return true;
-        }
-
-        return false;
-        // Niko intended to do report living player check,
-        // but concerning roles like bait, hacker somehow never use report dead body,
-        // Niko gave up
     }
     public static void Report(PlayerControl pc, string reason)
     {

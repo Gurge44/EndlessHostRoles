@@ -15,7 +15,7 @@ public static class ShuffleListExtension
     /// <typeparam name="T">The type of the collection</typeparam>
     /// <param name="collection">The collection to be shuffled</param>
     /// <param name="random">An instance of a randomizer algorithm</param>
-    /// <returns></returns>
+    /// <returns>The shuffled collection</returns>
     public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> collection, IRandom random)
     {
         var list = collection.ToList();

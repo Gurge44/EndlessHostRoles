@@ -23,6 +23,7 @@ namespace TOHE.Roles.Crewmate
         private static RandomSpawn.SpawnMap Map;
         private static readonly Dictionary<(Vector2 LOCATION, string ROOM_NAME), long> Tornados = [];
         private static long LastNotify = GetTimeStamp();
+        private static bool CanUseMap = true;
 
         public static void SetupCustomOption()
         {
@@ -47,16 +48,26 @@ namespace TOHE.Roles.Crewmate
             Tornados.Clear();
             LastNotify = GetTimeStamp();
 
-            Map = (MapNames)Main.NormalOptions.MapId switch
+            try
             {
-                MapNames.Skeld => new RandomSpawn.SkeldSpawnMap(),
-                MapNames.Mira => new RandomSpawn.MiraHQSpawnMap(),
-                MapNames.Polus => new RandomSpawn.PolusSpawnMap(),
-                MapNames.Dleks => new RandomSpawn.DleksSpawnMap(),
-                MapNames.Airship => new RandomSpawn.AirshipSpawnMap(),
-                MapNames.Fungle => new RandomSpawn.FungleSpawnMap(),
-                _ => throw new NotImplementedException(),
-            };
+                Map = Main.CurrentMap switch
+                {
+                    MapNames.Skeld => new RandomSpawn.SkeldSpawnMap(),
+                    MapNames.Mira => new RandomSpawn.MiraHQSpawnMap(),
+                    MapNames.Polus => new RandomSpawn.PolusSpawnMap(),
+                    MapNames.Dleks => new RandomSpawn.DleksSpawnMap(),
+                    MapNames.Airship => new RandomSpawn.AirshipSpawnMap(),
+                    MapNames.Fungle => new RandomSpawn.FungleSpawnMap(),
+                    _ => throw new NotImplementedException(),
+                };
+                CanUseMap = true;
+            }
+            catch (NotImplementedException)
+            {
+                Logger.CurrentMethod(lineNumber: 60);
+                Logger.Error("Unsupported Map", "Torando");
+                CanUseMap = false;
+            }
         }
         public static void Add(byte playerId)
         {
@@ -101,21 +112,22 @@ namespace TOHE.Roles.Crewmate
         }
         public static void OnCheckPlayerPosition(PlayerControl pc)
         {
-            if (!IsEnable || !GameStates.IsInTask || Tornados.Count == 0) return;
+            if (!IsEnable || !GameStates.IsInTask || Tornados.Count == 0 || pc == null) return;
 
-            var Random = IRandom.Instance;
-            var NotifyString = GetString("TeleportedByTornado");
             var now = GetTimeStamp();
-            var tornadoRange = TornadoRange.GetFloat();
-            var tornadoDuration = TornadoDuration.GetInt();
 
-            foreach (var tornadoPc in playerIdList.Select(x => GetPlayerById(x)).Where(x => x.PlayerId != pc.PlayerId).ToArray())
+            if (!pc.Is(CustomRoles.Tornado))
             {
+                var Random = IRandom.Instance;
+                var NotifyString = GetString("TeleportedByTornado");
+                var tornadoRange = TornadoRange.GetFloat();
+                var tornadoDuration = TornadoDuration.GetInt();
+
                 foreach (var tornado in Tornados)
                 {
                     if (Vector2.Distance(tornado.Key.LOCATION, pc.Pos()) <= tornadoRange)
                     {
-                        if (Random.Next(0, 100) < 50)
+                        if (!CanUseMap || Random.Next(0, 100) < 50)
                         {
                             pc.TPtoRndVent();
                         }
@@ -132,9 +144,11 @@ namespace TOHE.Roles.Crewmate
                         SendRPCAddTornado(false, tornado.Key.LOCATION, tornado.Key.ROOM_NAME);
                     }
                 }
-
-                if (tornadoPc == null || LastNotify >= now || !tornadoPc.Is(CustomRoles.Tornado) || tornadoPc.HasAbilityCD()) return;
-                NotifyRoles(SpecifySeer: tornadoPc, SpecifyTarget: tornadoPc);
+            }
+            else
+            {
+                if (LastNotify >= now || pc.HasAbilityCD()) return;
+                NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                 LastNotify = now;
             }
         }

@@ -512,13 +512,16 @@ internal class ChatCommands
                         if (setRole.Contains(roleName))
                         {
                             PlayerControl pc = PlayerControl.LocalPlayer;
-                            pc.RpcSetRole(rl.GetRoleTypes());
+                            if (!rl.IsAdditionRole()) pc.RpcSetRole(rl.GetRoleTypes());
                             pc.RpcSetCustomRole(rl);
                             pc.SyncSettings();
                             Utils.NotifyRoles(SpecifySeer: pc);
                             Utils.NotifyRoles(SpecifyTarget: pc);
-                            HudManager.Instance.SetHudActive(pc, pc.Data.Role, !GameStates.IsMeeting);
-                            Utils.AddRoles(pc.PlayerId, rl);
+                            if (!rl.IsAdditionRole())
+                            {
+                                HudManager.Instance.SetHudActive(pc, pc.Data.Role, !GameStates.IsMeeting);
+                                Utils.AddRoles(pc.PlayerId, rl);
+                            }
                             Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.NotAssigned);
                             Main.ChangedRole = true;
                             break;

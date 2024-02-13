@@ -1,6 +1,8 @@
 using AmongUs.Data;
+using AmongUs.GameOptions;
 using HarmonyLib;
 using System.Linq;
+using TOHE.Modules;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
 using TOHE.Roles.Crewmate;
@@ -157,6 +159,14 @@ class ExileControllerWrapUpPatch
             };
             if (map != null) Main.AllAlivePlayerControls.Do(map.RandomTeleport);
         }
+
+        //if (Options.SpawnAdditionalRefugeeOnImpsDead.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.PlayerId != exiled.PlayerId && x.Is(CustomRoleTypes.Impostor)))
+        //{
+        //    var pc = Main.AllAlivePlayerControls.Shuffle(IRandom.Instance).FirstOrDefault(x => x.PlayerId != exiled.PlayerId && x.Is(CustomRoleTypes.Crewmate));
+        //    pc?.ChangeRoleBasis(RoleTypes.Impostor);
+        //    pc?.RpcSetCustomRole(CustomRoles.Refugee);
+        //    pc?.SetKillCooldown();
+        //}
 
         FallFromLadder.Reset();
         Utils.CountAlivePlayers(true);

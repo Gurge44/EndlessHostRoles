@@ -43,15 +43,16 @@ class Logger
     }
     public static void Disable(string tag) { if (!disableList.Contains(tag)) disableList.Add(tag); }
 
-    public static void SendInGame(string text, bool isAlways = false)
+    public static void SendInGame(string text/*, bool isAlways = false*/)
     {
         if (!isEnable) return;
         if (DestroyableSingleton<HudManager>._instance)
         {
             DestroyableSingleton<HudManager>.Instance.Notifier.AddItem(text);
-            Info(text, "SendInGame");
+            Warn(text, "SendInGame");
         }
     }
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "<Pending>")]
     private static void SendToFile(string text, LogLevel level = LogLevel.Info, string tag = "", bool escapeCRLF = true, int lineNumber = 0, string fileName = "")
     {
         if (!isEnable || disableList.Contains(tag)) return;

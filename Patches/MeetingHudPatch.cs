@@ -326,7 +326,7 @@ class CheckForEndVotingPatch
         }
         catch (Exception ex)
         {
-            Logger.SendInGame(string.Format(GetString("Error.MeetingException"), ex.Message), true);
+            Logger.SendInGame(string.Format(GetString("Error.MeetingException"), ex.Message)/*, true*/);
             throw;
         }
     }

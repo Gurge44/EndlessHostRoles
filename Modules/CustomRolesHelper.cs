@@ -390,70 +390,7 @@ internal static class CustomRolesHelper
             _ => RoleTypes.GuardianAngel
         };
     }
-    public static bool IsAdditionRole(this CustomRoles role) => role is
-        CustomRoles.Lovers or
-        CustomRoles.LastImpostor or
-        CustomRoles.Ntr or
-        CustomRoles.Madmate or
-        CustomRoles.Watcher or
-        CustomRoles.Sleuth or
-        CustomRoles.Flashman or
-        CustomRoles.Haste or
-        CustomRoles.Undead or
-        CustomRoles.Busy or
-        CustomRoles.Truant or
-        CustomRoles.Disco or
-        CustomRoles.Asthmatic or
-        CustomRoles.Giant or
-        CustomRoles.Physicist or
-        CustomRoles.Nimble or
-        CustomRoles.Torch or
-        CustomRoles.Seer or
-        CustomRoles.Bait or
-        CustomRoles.Diseased or
-        CustomRoles.Antidote or
-        CustomRoles.Swift or
-        CustomRoles.Gravestone or
-        CustomRoles.Trapper or
-        CustomRoles.Mare or
-        CustomRoles.Brakar or
-        CustomRoles.Oblivious or
-        CustomRoles.Bewilder or
-        CustomRoles.Sunglasses or
-        CustomRoles.Knighted or
-        CustomRoles.Workhorse or
-        CustomRoles.Fool or
-        CustomRoles.Autopsy or
-        CustomRoles.Necroview or
-        CustomRoles.Avanger or
-        CustomRoles.Youtuber or
-        CustomRoles.Loyal or
-        CustomRoles.Egoist or
-        CustomRoles.Recruit or
-        CustomRoles.Glow or
-        CustomRoles.TicketsStealer or
-        CustomRoles.DualPersonality or
-        CustomRoles.Mimic or
-        CustomRoles.Reach or
-        CustomRoles.Magnet or
-        CustomRoles.DeadlyQuota or
-        CustomRoles.Damocles or
-        CustomRoles.Stressed or
-        CustomRoles.Cleansed or
-        CustomRoles.Charmed or
-        CustomRoles.Onbound or
-        CustomRoles.Lazy or
-        //     CustomRoles.Reflective or
-        CustomRoles.Rascal or
-        CustomRoles.Contagious or
-        CustomRoles.Guesser or
-        CustomRoles.Rogue or
-        CustomRoles.Unreportable or
-        CustomRoles.Lucky or
-        CustomRoles.Unlucky or
-        CustomRoles.DoubleShot or
-        CustomRoles.Ghoul or
-        CustomRoles.EvilSpirit;
+    public static bool IsAdditionRole(this CustomRoles role) => role > CustomRoles.NotAssigned;
     public static bool IsNonNK(this CustomRoles role) // ROLE ASSIGNING, NOT NEUTRAL TYPE
         => role is
         CustomRoles.Jester or

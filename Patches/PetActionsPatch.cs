@@ -405,7 +405,7 @@ class ExternalRpcPetPatch
                     if (!Main.CursedPlayers[pc.PlayerId].Data.IsDead)
                     {
                         var cp = Main.CursedPlayers[pc.PlayerId];
-                        UnityEngine.Vector2 cppos = cp.Pos();
+                        Vector2 cppos = cp.Pos();
                         Dictionary<PlayerControl, float> cpdistance = [];
                         float dis;
                         foreach (PlayerControl p in AllAlivePlayers)
@@ -453,7 +453,7 @@ class ExternalRpcPetPatch
                 {
                     var position = Main.LastEnteredVentLocation[pc.PlayerId];
                     Logger.Msg($"{pc.GetNameWithRole().RemoveHtmlTags()}:{position}", "MinerTeleport");
-                    pc.TP(new UnityEngine.Vector2(position.x, position.y));
+                    pc.TP(new Vector2(position.x, position.y));
                 }
                 break;
             case CustomRoles.Escapee:

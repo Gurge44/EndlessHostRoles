@@ -36,7 +36,7 @@ public static class Utils
             Main.OverrideWelcomeMsg = GetString("AntiBlackOutNotifyInLobby");
             _ = new LateTask(() =>
             {
-                Logger.SendInGame(GetString("AntiBlackOutLoggerSendInGame"), true);
+                Logger.SendInGame(GetString("AntiBlackOutLoggerSendInGame")/*, true*/);
             }, 3f, "Anti-Black Msg SendInGame");
             _ = new LateTask(() =>
             {
@@ -54,14 +54,14 @@ public static class Utils
             {
                 _ = new LateTask(() =>
                 {
-                    Logger.SendInGame(GetString("AntiBlackOutRequestHostToForceEnd"), true);
+                    Logger.SendInGame(GetString("AntiBlackOutRequestHostToForceEnd")/*, true*/);
                 }, 3f, "Anti-Black Msg SendInGame");
             }
             else
             {
                 _ = new LateTask(() =>
                 {
-                    Logger.SendInGame(GetString("AntiBlackOutHostRejectForceEnd"), true);
+                    Logger.SendInGame(GetString("AntiBlackOutHostRejectForceEnd")/*, true*/);
                 }, 3f, "Anti-Black Msg SendInGame");
                 _ = new LateTask(() =>
                 {
@@ -75,7 +75,7 @@ public static class Utils
     {
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            pc.TP(location, log);
+            TP(pc.NetTransform, location, log);
         }
     }
     public static bool TP(CustomNetworkTransform nt, Vector2 location, bool log = true)
@@ -3140,6 +3140,8 @@ public static class Utils
     }
     public static void AfterMeetingTasks()
     {
+        bool needReactorFlash = GameManager.Instance.LogicFlow.IsGameOverDueToDeath();
+
         foreach (var pc in Main.AllAlivePlayerControls)
         {
             pc.AddKillTimerToDict();
@@ -3155,6 +3157,8 @@ public static class Utils
                     pc.MarkDirtySettings();
                 }, Options.TruantWaitingTime.GetFloat(), $"Truant Waiting: {pc.GetNameWithRole()}");
             }
+
+            if (needReactorFlash && !pc.IsModClient()) pc.ReactorFlash(0.2f);
         }
 
         if (Options.DiseasedCDReset.GetBool())

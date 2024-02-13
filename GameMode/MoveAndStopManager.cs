@@ -19,7 +19,7 @@ public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, 
     public bool MoveAndStop { get => moveAndStop; set => moveAndStop = value; }
 
     private static int TotalYellowTime => 3;
-    private static Color Orange => new(255, 165, 0, 255);
+    private static Color32 Orange => new(255, 165, 0, 255);
 
     public int Timer { get => (IsRed ? TotalRedTime : IsYellow ? TotalYellowTime : TotalGreenTime) - (int)Math.Round((double)(Utils.GetTimeStamp() - StartTimeStamp)); }
     public string ColoredTimerString { get => IsYellow ? Utils.ColorString(Color.black, "00") : Utils.ColorString(IsRed ? Color.red : Color.green, Timer < 10 ? $"0{Timer}" : Timer.ToString()); }

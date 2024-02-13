@@ -799,6 +799,8 @@ public static class Options
     public static OptionItem OverrideScientistBasedRoles;
     public static OptionItem WhackAMole;
 
+    public static OptionItem SpawnAdditionalRefugeeOnImpsDead;
+
 
     // 投票モード
     public static OptionItem VoteMode;
@@ -3303,6 +3305,11 @@ public static class Options
         WhackAMole = BooleanOptionItem.Create(23856, "WhackAMole", false, TabGroup.TaskSettings, false)
             .SetGameMode(CustomGameMode.Standard)
             .SetParent(EveryoneCanVent);
+
+        SpawnAdditionalRefugeeOnImpsDead = BooleanOptionItem.Create(23857, "SpawnAdditionalRefugeeOnImpsDead", false, TabGroup.TaskSettings, false)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(Color.magenta)
+            .SetHeader(true);
 
 
         //Disable Short Tasks

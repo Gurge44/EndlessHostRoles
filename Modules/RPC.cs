@@ -271,7 +271,7 @@ internal class RPCHandlerPatch
                     Main.OverrideWelcomeMsg = string.Format(GetString("RpcAntiBlackOutNotifyInLobby"), __instance?.Data?.PlayerName, GetString("EndWhenPlayerBug"));
                     _ = new LateTask(() =>
                     {
-                        Logger.SendInGame(string.Format(GetString("RpcAntiBlackOutEndGame"), __instance?.Data?.PlayerName), true);
+                        Logger.SendInGame(string.Format(GetString("RpcAntiBlackOutEndGame"), __instance?.Data?.PlayerName)/*, true*/);
                     }, 3f, "Anti-Black Msg SendInGame");
                     _ = new LateTask(() =>
                     {
@@ -285,7 +285,7 @@ internal class RPCHandlerPatch
                     Logger.Fatal($"{__instance?.Data?.PlayerName}({__instance.PlayerId}): Change Role Setting Postfix - Error, continue the game according to settings", "Anti-blackout");
                     _ = new LateTask(() =>
                     {
-                        Logger.SendInGame(string.Format(GetString("RpcAntiBlackOutIgnored"), __instance?.Data?.PlayerName), true);
+                        Logger.SendInGame(string.Format(GetString("RpcAntiBlackOutIgnored"), __instance?.Data?.PlayerName)/*, true*/);
                     }, 3f, "Anti-Black Msg SendInGame");
                 }
                 break;
