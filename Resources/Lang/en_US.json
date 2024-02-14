@@ -2798,6 +2798,7 @@
   "OverrideScientistBasedRoles": "Also Override Scientist Based Roles to Engineer",
   "WhackAMole": "Whack-A-Mole",
   "SpawnAdditionalRefugeeOnImpsDead": "Random <#8cffff>Crewmate</color> Turns To <#ff1919>Refugee</color> When All <#ff1919>Impostors</color> Die",
+  "SpawnAdditionalRefugeeWhenNKAlive": "Spawn Even If a <#ffab1b>Neutral Killer</color> is Alive",
   "NoPetActionMsg1": "You just ate a cookie",
   "NoPetActionMsg2": "You look around",
   "NoPetActionMsg3": "You start wondering whether you are sus or not",
