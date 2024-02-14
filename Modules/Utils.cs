@@ -3140,8 +3140,6 @@ public static class Utils
     }
     public static void AfterMeetingTasks()
     {
-        bool needReactorFlash = GameManager.Instance.LogicFlow.IsGameOverDueToDeath();
-
         foreach (var pc in Main.AllAlivePlayerControls)
         {
             pc.AddKillTimerToDict();
@@ -3158,7 +3156,7 @@ public static class Utils
                 }, Options.TruantWaitingTime.GetFloat(), $"Truant Waiting: {pc.GetNameWithRole()}");
             }
 
-            if (needReactorFlash && !pc.IsModClient()) pc.ReactorFlash(0.2f);
+            if (!pc.IsModClient()) pc.ReactorFlash(0.2f); // This should fix black screens
         }
 
         if (Options.DiseasedCDReset.GetBool())

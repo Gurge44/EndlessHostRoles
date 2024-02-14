@@ -1,6 +1,7 @@
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using HarmonyLib;
+using System.Collections.Generic;
 using System.Linq;
 using TOHE.Modules;
 using TOHE.Roles.AddOns.Crewmate;
@@ -160,13 +161,23 @@ class ExileControllerWrapUpPatch
             if (map != null) Main.AllAlivePlayerControls.Do(map.RandomTeleport);
         }
 
-        //if (Options.SpawnAdditionalRefugeeOnImpsDead.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.PlayerId != exiled.PlayerId && x.Is(CustomRoleTypes.Impostor)))
-        //{
-        //    var pc = Main.AllAlivePlayerControls.Shuffle(IRandom.Instance).FirstOrDefault(x => x.PlayerId != exiled.PlayerId && x.Is(CustomRoleTypes.Crewmate));
-        //    pc?.ChangeRoleBasis(RoleTypes.Impostor);
-        //    pc?.RpcSetCustomRole(CustomRoles.Refugee);
-        //    pc?.SetKillCooldown();
-        //}
+        if (Options.SpawnAdditionalRefugeeOnImpsDead.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.PlayerId != exiled.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.Is(CustomRoleTypes.Neutral) && Options.SpawnAdditionalRefugeeWhenNKAlive.GetBool()))))
+        {
+            PlayerControl[] ListToChooseFrom;
+            if (Options.UsePets.GetBool()) ListToChooseFrom = Main.AllAlivePlayerControls.Where(x => x.PlayerId != exiled.PlayerId && x.Is(CustomRoleTypes.Crewmate)).ToArray();
+            else ListToChooseFrom = Main.AllAlivePlayerControls.Where(x => x.PlayerId != exiled.PlayerId && x.Is(CustomRoleTypes.Crewmate) && x.GetCustomRole().GetRoleTypes() == RoleTypes.Impostor).ToArray();
+
+            if (ListToChooseFrom.Length > 0)
+            {
+                var index = IRandom.Instance.Next(0, ListToChooseFrom.Length);
+                var pc = ListToChooseFrom[index];
+                pc.RpcSetCustomRole(CustomRoles.Refugee);
+                pc.ResetKillCooldown();
+                pc.SetKillCooldown();
+                Logger.Warn($"{pc.GetRealName()} is now a Refugee since all Impostors are dead", "Add Refugee");
+            }
+            else Logger.Msg("No Player to change to Refugee.", "Add Refugee");
+        }
 
         FallFromLadder.Reset();
         Utils.CountAlivePlayers(true);

@@ -800,6 +800,7 @@ public static class Options
     public static OptionItem WhackAMole;
 
     public static OptionItem SpawnAdditionalRefugeeOnImpsDead;
+    public static OptionItem SpawnAdditionalRefugeeWhenNKAlive;
 
 
     // 投票モード
@@ -2708,7 +2709,7 @@ public static class Options
         RoleLoadingText = "Experimental roles\nGiant";
         SetupAdtRoleOptions(18750, CustomRoles.Giant, canSetNum: true, tab: TabGroup.OtherRoles);
         GiantSpeed = FloatOptionItem.Create(18753, "GiantSpeed", new(0.25f, 3f, 0.25f), 0.75f, TabGroup.OtherRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Flashman])
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Giant])
             .SetValueFormat(OptionFormat.Multiplier);
 
 
@@ -3310,6 +3311,10 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(Color.magenta)
             .SetHeader(true);
+        SpawnAdditionalRefugeeWhenNKAlive = BooleanOptionItem.Create(23858, "SpawnAdditionalRefugeeWhenNKAlive", false, TabGroup.TaskSettings, false)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(Color.magenta)
+            .SetParent(SpawnAdditionalRefugeeOnImpsDead);
 
 
         //Disable Short Tasks

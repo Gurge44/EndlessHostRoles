@@ -536,6 +536,10 @@ class ExternalRpcPetPatch
                 Swiftclaw.OnPet(pc);
                 break;
 
+            case CustomRoles.Refugee when hasKillTarget:
+
+                break;
+
             // Neutrals
 
             case CustomRoles.Glitch:

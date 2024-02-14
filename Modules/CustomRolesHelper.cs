@@ -627,57 +627,7 @@ internal static class CustomRolesHelper
         CustomRoles.Workaholic or
         CustomRoles.Collector or
         CustomRoles.Provocateur;
-    public static bool IsNeutralKilling(this CustomRoles role) => role is
-        CustomRoles.Terrorist or
-        CustomRoles.Arsonist or
-        CustomRoles.Juggernaut or
-        CustomRoles.Medusa or
-        CustomRoles.Jinx or
-        CustomRoles.Agitater or
-        CustomRoles.Jackal or
-        CustomRoles.Sidekick or
-        CustomRoles.Refugee or
-        CustomRoles.God or
-        CustomRoles.Mario or
-        CustomRoles.Innocent or
-        CustomRoles.Pelican or
-        CustomRoles.Wraith or
-        CustomRoles.HexMaster or
-        CustomRoles.Egoist or
-        CustomRoles.Gamer or
-        CustomRoles.Parasite or
-        CustomRoles.DarkHide or
-        CustomRoles.Workaholic or
-        CustomRoles.Collector or
-        CustomRoles.Traitor or
-        CustomRoles.Poisoner or
-        CustomRoles.NSerialKiller or
-        CustomRoles.Enderman or
-        CustomRoles.Mycologist or
-        CustomRoles.Bubble or
-        CustomRoles.Hookshot or
-        CustomRoles.Sprayer or
-        CustomRoles.Magician or
-        CustomRoles.WeaponMaster or
-        CustomRoles.Reckless or
-        CustomRoles.Eclipse or
-        CustomRoles.Pyromaniac or
-        CustomRoles.Vengeance or
-        CustomRoles.HeadHunter or
-        CustomRoles.Imitator or
-        CustomRoles.Werewolf or
-        CustomRoles.Ritualist or
-        CustomRoles.Pickpocket or
-        CustomRoles.Traitor or
-        CustomRoles.Bandit or
-        CustomRoles.BloodKnight or
-        CustomRoles.PlagueDoctor or
-        CustomRoles.Virus or
-        CustomRoles.Succubus or
-        CustomRoles.Spiritcaller or
-        CustomRoles.RuthlessRomantic or
-        CustomRoles.PlagueBearer or
-        CustomRoles.Pestilence;
+    public static bool IsNeutralKilling(this CustomRoles role) => role.IsNK();
     public static bool IsCK(this CustomRoles role) => role is
         CustomRoles.SwordsMan or
         CustomRoles.Veteran or
@@ -1025,6 +975,8 @@ internal static class CustomRolesHelper
         CustomRoles.Crusader when Crusader.UsePet.GetBool() => true,
         CustomRoles.Witness when Options.WitnessUsePet.GetBool() => true,
 
+        CustomRoles.Refugee => true,
+
         _ => false,
     };
     public static bool UsesPetInsteadOfKill(this CustomRoles role) => Options.UsePets.GetBool() && role switch
@@ -1045,14 +997,16 @@ internal static class CustomRolesHelper
         CustomRoles.Crusader when Crusader.UsePet.GetBool() => true,
         CustomRoles.Witness when Options.WitnessUsePet.GetBool() => true,
 
+        CustomRoles.Refugee => true,
+
         _ => false,
     };
-    public static List<CustomRoles> OnlySpawnsWithPetsRoleList = [
+    public static readonly CustomRoles[] OnlySpawnsWithPetsRoleList = [
         CustomRoles.Tunneler,
         CustomRoles.Tornado,
         CustomRoles.Swiftclaw,
         ];
-    public static bool OnlySpawnsWithPets(this CustomRoles role) => OnlySpawnsWithPetsRoleList.Contains(role);
+    public static bool OnlySpawnsWithPets(this CustomRoles role) => OnlySpawnsWithPetsRoleList.Any(x => x.ToString() == role.ToString());
     public static bool NeedUpdateOnLights(this CustomRoles role) => (!role.UsesPetInsteadOfKill()) && (role.GetDYRole() != RoleTypes.GuardianAngel || role is
         CustomRoles.Sheriff or
         CustomRoles.Medic or
