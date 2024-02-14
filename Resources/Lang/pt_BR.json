@@ -2798,6 +2798,7 @@
   "OverrideScientistBasedRoles": "Também sobrescrever as funções baseadas no cientista para o engenheiro",
   "WhackAMole": "Whack-A-Mole",
   "SpawnAdditionalRefugeeOnImpsDead": "Um <#8cffff>Tripulante</color> aleatório irá virar <#ff1919>Refugiado</color> quando todos os <#ff1919>Impostores</color> morrer",
+  "SpawnAdditionalRefugeeWhenNKAlive": "Spawn Even If a <#ffab1b>Neutral Killer</color> is Alive",
   "NoPetActionMsg1": "Você acabou de comer um biscoito",
   "NoPetActionMsg2": "Você olha em volta",
   "NoPetActionMsg3": "Você começa a se perguntar se é sus ou não",
