@@ -41,7 +41,7 @@ public class AirshipElectricalDoors
 [HarmonyPatch(typeof(ElectricalDoors), nameof(ElectricalDoors.Initialize))]
 class ElectricalDoorsInitializePatch
 {
-    public static void Postfix(ElectricalDoors __instance)
+    public static void Postfix(/*ElectricalDoors __instance*/)
     {
         if (!GameStates.IsInGame) return;
         var closedoors = string.Empty;

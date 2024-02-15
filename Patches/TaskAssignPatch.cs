@@ -8,7 +8,7 @@ namespace TOHE;
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.AddTasksFromList))]
 class AddTasksFromListPatch
 {
-    public static void Prefix(ShipStatus __instance,
+    public static void Prefix(/*ShipStatus __instance,*/
         [HarmonyArgument(4)] Il2CppSystem.Collections.Generic.List<NormalPlayerTask> unusedTasks)
     {
         if (!AmongUsClient.Instance.AmHost) return;
@@ -113,7 +113,7 @@ class RpcSetTasksPatch
 {
     //タスクを割り当ててRPCを送る処理が行われる直前にタスクを上書きするPatch
     //バニラのタスク割り当て処理自体には干渉しない
-    public static void Prefix(GameData __instance,
+    public static void Prefix(/*GameData __instance,*/
     [HarmonyArgument(0)] byte playerId,
     [HarmonyArgument(1)] ref Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray<byte> taskTypeIds)
     {

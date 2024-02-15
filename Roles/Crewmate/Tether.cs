@@ -6,7 +6,6 @@ namespace TOHE.Roles.Crewmate
     using System.Text;
     using UnityEngine;
     using static TOHE.Options;
-    using static TOHE.Utils;
 
     public static class Tether
     {
@@ -50,7 +49,7 @@ namespace TOHE.Roles.Crewmate
         public static bool IsEnable => playerIdList.Count > 0;
         public static void SendRPC(byte playerId)
         {
-            if (!IsEnable || !DoRPC) return;
+            if (!IsEnable || !Utils.DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTetherLimit, SendOption.Reliable, -1);
             writer.Write(playerId);
             writer.Write(UseLimit[playerId]);
@@ -58,7 +57,7 @@ namespace TOHE.Roles.Crewmate
         }
         public static void SendRPCSyncTarget(byte targetId)
         {
-            if (!IsEnable || !DoRPC) return;
+            if (!IsEnable || !Utils.DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTetherTarget, SendOption.Reliable, -1);
             writer.Write(targetId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -88,7 +87,7 @@ namespace TOHE.Roles.Crewmate
                 {
                     if (GameStates.IsInTask)
                     {
-                        TP(pc.NetTransform, GetPlayerById(Target).Pos());
+                        pc.TP(Utils.GetPlayerById(Target).Pos());
                     }
                 }, isPet ? 0.1f : 2f, "Tether TP");
             }
@@ -136,8 +135,8 @@ namespace TOHE.Roles.Crewmate
             if (UseLimit[playerId] < 1) TextColor1 = Color.red;
             else TextColor1 = Color.white;
 
-            sb.Append(ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
-            sb.Append(ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));
+            sb.Append(Utils.ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
+            sb.Append(Utils.ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));
 
             return sb.ToString();
         }

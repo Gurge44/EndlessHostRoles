@@ -75,11 +75,11 @@ namespace TOHE.Roles.Impostor
                 LastTP = GetTimeStamp();
                 if (from == Marks[0])
                 {
-                    TP(player.NetTransform, Marks[1]);
+                    player.TP(Marks[1]);
                 }
                 else if (from == Marks[1])
                 {
-                    TP(player.NetTransform, Marks[0]);
+                    player.TP(Marks[0]);
                 }
                 else
                 {
@@ -104,7 +104,7 @@ namespace TOHE.Roles.Impostor
             }, 0.5f, "RiftMaker-ResetMarks.RpcBootFromVent");
         }
 
-        public static void OnShapeshift(PlayerControl player, bool shapeshifting, bool isPet = false)
+        public static void OnShapeshift(PlayerControl player, bool shapeshifting)
         {
             if (player == null) return;
             if (!shapeshifting) return;
@@ -113,13 +113,8 @@ namespace TOHE.Roles.Impostor
             Marks.Add((Vector2)player.transform.position);
             if (Marks.Count == 2) LastTP = GetTimeStamp();
             player.Notify(GetString("MarkDone"));
-
-            //if (!isPet) _ = new LateTask(() => { player.CmdCheckRevertShapeshift(false); }, 1.5f, "Rift Maker RpcRevertShapeshift");
         }
 
-        public static string GetProgressText()
-        {
-            return $" <color=#777777>-</color> {(Marks.Count == 2 ? "<color=#00ff00>" : "<color=#777777>")}{Marks.Count}/2</color>";
-        }
+        public static string GetProgressText() => $" <color=#777777>-</color> {(Marks.Count == 2 ? "<color=#00ff00>" : "<color=#777777>")}{Marks.Count}/2</color>";
     }
 }

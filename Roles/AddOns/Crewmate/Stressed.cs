@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using static TOHE.Options;
 using static TOHE.Translator;
-using static TOHE.Utils;
 
 namespace TOHE.Roles.AddOns.Crewmate
 {
@@ -83,6 +82,8 @@ namespace TOHE.Roles.AddOns.Crewmate
 
         public static void Add()
         {
+            long now = Utils.GetTimeStamp();
+
             _ = new LateTask(() =>
             {
                 foreach (var pc in Main.AllAlivePlayerControls)
@@ -95,7 +96,7 @@ namespace TOHE.Roles.AddOns.Crewmate
                             continue;
                         }
                         Timers.Add(pc.PlayerId, StartingTime);
-                        LastUpdates.Add(pc.PlayerId, GetTimeStamp() + 1);
+                        LastUpdates.Add(pc.PlayerId, now + 1);
                     }
                 }
             }, 8f, "Add Stressed Timers");
@@ -103,8 +104,9 @@ namespace TOHE.Roles.AddOns.Crewmate
 
         public static void Update(PlayerControl pc)
         {
-            if (pc == null || !LastUpdates.TryGetValue(pc.PlayerId, out var x) || x >= GetTimeStamp() || !Timers.ContainsKey(pc.PlayerId) || !IsEnable || !GameStates.IsInTask || !pc.Is(CustomRoles.Stressed)) return;
-            LastUpdates[pc.PlayerId] = GetTimeStamp();
+            long now = Utils.GetTimeStamp();
+            if (pc == null || !LastUpdates.TryGetValue(pc.PlayerId, out var x) || x >= now || !Timers.ContainsKey(pc.PlayerId) || !IsEnable || !GameStates.IsInTask || !pc.Is(CustomRoles.Stressed)) return;
+            LastUpdates[pc.PlayerId] = now;
 
             if (pc.GetTaskState().IsTaskFinished || !pc.IsAlive())
             {
@@ -123,12 +125,12 @@ namespace TOHE.Roles.AddOns.Crewmate
             }
 
             if (pc.IsNonHostModClient()) SendRPC(pc.PlayerId, Timers[pc.PlayerId], LastUpdates[pc.PlayerId]);
-            if (!pc.IsModClient()) NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            if (!pc.IsModClient()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
         public static void SendRPC(byte id, int time, long lastUpdate)
         {
-            if (!DoRPC || !IsEnable) return;
+            if (!Utils.DoRPC || !IsEnable) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncStressedTimer, SendOption.Reliable, -1);
             writer.Write(id);
             writer.Write(time);

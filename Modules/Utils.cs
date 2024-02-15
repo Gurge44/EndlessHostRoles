@@ -1890,7 +1890,7 @@ public static class Utils
 
             DevUser devUser = player.FriendCode.GetDevUser();
             bool isMod = ChatCommands.IsPlayerModerator(player.FriendCode);
-            if (!name.Contains('\r') && (devUser.HasTag() || isMod))
+            if (devUser.HasTag() || isMod)
             {
                 string tag = devUser.GetTag();
                 if (player.AmOwner || player.IsModClient())

@@ -277,11 +277,11 @@ public static class Magician
                     lastTP = GetTimeStamp();
                     if (from == PortalMarks[0])
                     {
-                        TP(pc.NetTransform, PortalMarks[1]);
+                        pc.TP(PortalMarks[1]);
                     }
                     else if (from == PortalMarks[1])
                     {
-                        TP(pc.NetTransform, PortalMarks[0]);
+                        pc.TP(PortalMarks[0]);
                     }
                     else
                     {

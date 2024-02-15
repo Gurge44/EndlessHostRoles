@@ -85,7 +85,7 @@ public static class Translator
         {
             if (File.Exists(@$"./{LANGUAGE_FOLDER_NAME}/{lang}.dat"))
             {
-                UpdateCustomTranslation($"{lang}.dat", lang);
+                UpdateCustomTranslation($"{lang}.dat"/*, lang*/);
                 LoadCustomTranslation($"{lang}.dat", lang);
             }
         }
@@ -182,7 +182,7 @@ public static class Translator
             return SupportedLangs.English;
         }
     }
-    static void UpdateCustomTranslation(string filename, SupportedLangs lang)
+    static void UpdateCustomTranslation(string filename/*, SupportedLangs lang*/)
     {
         string path = @$"./{LANGUAGE_FOLDER_NAME}/{filename}";
         if (File.Exists(path))

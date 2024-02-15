@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static TOHE.Options;
-using static TOHE.Utils;
 
 namespace TOHE.Roles.AddOns.Common
 {
@@ -23,17 +21,17 @@ namespace TOHE.Roles.AddOns.Common
             LastSuffix.Clear();
             LastPosition.Clear();
 
-            MinRedTime = AsthmaticMinRedTime.GetInt();
-            MaxRedTime = AsthmaticMaxRedTime.GetInt();
-            MinGreenTime = AsthmaticMinGreenTime.GetInt();
-            MaxGreenTime = AsthmaticMaxGreenTime.GetInt();
+            MinRedTime = Options.AsthmaticMinRedTime.GetInt();
+            MaxRedTime = Options.AsthmaticMaxRedTime.GetInt();
+            MinGreenTime = Options.AsthmaticMinGreenTime.GetInt();
+            MaxGreenTime = Options.AsthmaticMaxGreenTime.GetInt();
         }
         public static void Add()
         {
             _ = new LateTask(() =>
             {
                 var r = IRandom.Instance;
-                var now = GetTimeStamp();
+                var now = Utils.GetTimeStamp();
                 foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Asthmatic)).ToArray())
                 {
                     Timers[pc.PlayerId] = new(30, r.Next(MinRedTime, MaxRedTime), now, '●', false);
@@ -101,12 +99,11 @@ namespace TOHE.Roles.AddOns.Common
 
             if (!pc.IsModClient() && (!LastSuffix.TryGetValue(pc.PlayerId, out var beforeSuffix) || beforeSuffix != suffix))
             {
-                NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }
 
             LastSuffix[pc.PlayerId] = suffix;
         }
-        // Why is it not showing up?
         public static string GetSuffixText(byte id) => Timers.TryGetValue(id, out Counter counter) ? $"{counter.ColoredArrow} {counter.ColoredTimerString}" : string.Empty;
     }
 }

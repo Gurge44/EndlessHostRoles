@@ -3274,7 +3274,7 @@ class EnterVentPatch
                 Wraith.OnEnterVent(pc, __instance);
                 break;
             case CustomRoles.Addict:
-                Addict.OnEnterVent(pc, __instance);
+                Addict.OnEnterVent(pc/*, __instance*/);
                 break;
             case CustomRoles.CameraMan when !Options.UsePets.GetBool():
                 CameraMan.OnEnterVent(pc);

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using static TOHE.Options;
 using static TOHE.Translator;
-using static TOHE.Utils;
 
 namespace TOHE.Roles.AddOns.Impostor
 {
@@ -56,13 +55,14 @@ namespace TOHE.Roles.AddOns.Impostor
         public static void Update(PlayerControl pc)
         {
             byte id = pc.PlayerId;
-            if ((lastUpdate.TryGetValue(id, out var ts) && ts >= GetTimeStamp()) || !GameStates.IsInTask || pc == null) return;
+            long now = Utils.GetTimeStamp();
+            if ((lastUpdate.TryGetValue(id, out var ts) && ts >= now) || !GameStates.IsInTask || pc == null) return;
             if (!pc.IsAlive())
             {
                 Main.PlayerStates[id].RemoveSubRole(CustomRoles.Damocles);
                 return;
             }
-            lastUpdate[id] = GetTimeStamp();
+            lastUpdate[id] = now;
             if (!Timer.ContainsKey(id)) Timer[id] = StartingTime + 8;
 
             Timer[id]--;
@@ -74,12 +74,12 @@ namespace TOHE.Roles.AddOns.Impostor
             }
 
             if (pc.IsNonHostModClient()) SendRPC(id);
-            if (!pc.IsModClient()) NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            if (!pc.IsModClient()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
         public static void SendRPC(byte playerId)
         {
-            if (!DoRPC) return;
+            if (!Utils.DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncDamoclesTimer, SendOption.Reliable, -1);
             writer.Write(playerId);
             writer.Write(Timer[playerId]);

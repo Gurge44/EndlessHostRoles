@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using static TOHE.Options;
 using static TOHE.Translator;
-using static TOHE.Utils;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -56,14 +55,14 @@ namespace TOHE.Roles.Crewmate
         private static string GetRoleBasis(CustomRoles role) =>
             SeeRoleBasis.GetBool()
             ? role.GetDYRole() == AmongUs.GameOptions.RoleTypes.Impostor
-                ? ColorString(GetRoleColor(CustomRoles.Impostor), GetString("Impostor"))
+                ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("Impostor"))
                 : role.GetVNRole() switch
                 {
-                    CustomRoles.Impostor => ColorString(GetRoleColor(CustomRoles.Impostor), GetString("Impostor")),
-                    CustomRoles.Shapeshifter => ColorString(GetRoleColor(CustomRoles.Speedrunner), GetString("Shapeshifter")),
-                    CustomRoles.Crewmate => ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("Crewmate")),
-                    CustomRoles.Engineer => ColorString(GetRoleColor(CustomRoles.Autocrat), GetString("Engineer")),
-                    CustomRoles.Scientist => ColorString(GetRoleColor(CustomRoles.Doctor), GetString("Scientist")),
+                    CustomRoles.Impostor => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("Impostor")),
+                    CustomRoles.Shapeshifter => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Speedrunner), GetString("Shapeshifter")),
+                    CustomRoles.Crewmate => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Crewmate), GetString("Crewmate")),
+                    CustomRoles.Engineer => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Autocrat), GetString("Engineer")),
+                    CustomRoles.Scientist => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doctor), GetString("Scientist")),
                     _ => string.Empty
                 }
             : string.Empty;
@@ -79,7 +78,7 @@ namespace TOHE.Roles.Crewmate
             playerId = byte.MaxValue;
             UseLimit = 0;
             VentCount = [];
-            CurrentTarget = (byte.MaxValue, GetTimeStamp());
+            CurrentTarget = (byte.MaxValue, Utils.GetTimeStamp());
         }
 
         public static void Add(byte id)
@@ -123,9 +122,9 @@ namespace TOHE.Roles.Crewmate
             if (UseLimit <= 0) return;
             if (CurrentTarget.ID != byte.MaxValue) return;
 
-            CurrentTarget = (target.PlayerId, GetTimeStamp());
+            CurrentTarget = (target.PlayerId, Utils.GetTimeStamp());
             killer.SetKillCooldown(time: Duration.GetFloat());
-            NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         }
 
         public static void OnFixedUpdate(PlayerControl pc)
@@ -134,17 +133,17 @@ namespace TOHE.Roles.Crewmate
             if (pc == null) return;
             if (CurrentTarget.ID == byte.MaxValue) return;
 
-            PlayerControl target = GetPlayerById(CurrentTarget.ID);
+            PlayerControl target = Utils.GetPlayerById(CurrentTarget.ID);
             if (target == null) return;
 
             if (UnityEngine.Vector2.Distance(target.Pos(), pc.Pos()) > (pc.Is(CustomRoles.Reach) ? 2.5f : 1.5f))
             {
                 CurrentTarget.ID = byte.MaxValue;
-                NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);
+                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);
                 return;
             }
 
-            if (CurrentTarget.TIME + Duration.GetInt() < GetTimeStamp())
+            if (CurrentTarget.TIME + Duration.GetInt() < Utils.GetTimeStamp())
             {
                 CurrentTarget.ID = byte.MaxValue;
                 UseLimit--;

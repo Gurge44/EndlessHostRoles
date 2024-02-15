@@ -9,7 +9,7 @@ namespace TOHE;
 [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.MakePublic))]
 internal class MakePublicPatch
 {
-    public static bool Prefix(GameStartManager __instance)
+    public static bool Prefix(/*GameStartManager __instance*/)
     {
         // 定数設定による公開ルームブロック
         if (!Main.AllowPublicRoom)
@@ -35,7 +35,7 @@ internal class MakePublicPatch
 [HarmonyPatch(typeof(MMOnlineManager), nameof(MMOnlineManager.Start))]
 internal class MMOnlineManagerStartPatch
 {
-    public static void Postfix(MMOnlineManager __instance)
+    public static void Postfix()
     {
         if (!((ModUpdater.hasUpdate && ModUpdater.forceUpdate) || ModUpdater.isBroken)) return;
         var obj = GameObject.Find("FindGameButton");
@@ -101,7 +101,7 @@ internal class InnerNetClientCanBanPatch
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.KickPlayer))]
 internal class KickPlayerPatch
 {
-    public static bool Prefix(InnerNetClient __instance, int clientId, bool ban)
+    public static bool Prefix(/*InnerNetClient __instance,*/ int clientId, bool ban)
     {
         if (!AmongUsClient.Instance.AmHost) return true;
 

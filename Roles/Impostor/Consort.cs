@@ -1,9 +1,7 @@
 ﻿using Hazel;
 using System.Collections.Generic;
 using TOHE.Roles.Neutral;
-using static TOHE.Options;
 using static TOHE.Translator;
-using static TOHE.Utils;
 
 namespace TOHE.Roles.Impostor
 {
@@ -19,12 +17,12 @@ namespace TOHE.Roles.Impostor
 
         public static void SetupCustomOption()
         {
-            SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Consort);
+            Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Consort);
             CD = FloatOptionItem.Create(Id + 10, "EscortCD", new(2.5f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Consort])
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Consort])
                 .SetValueFormat(OptionFormat.Seconds);
             UseLimit = IntegerOptionItem.Create(Id + 11, "AbilityUseLimit", new(1, 20, 1), 3, TabGroup.ImpostorRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Consort])
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Consort])
                 .SetValueFormat(OptionFormat.Times);
         }
 
@@ -41,7 +39,7 @@ namespace TOHE.Roles.Impostor
         public static bool IsEnable => playerIdList.Count > 0;
         public static void SendRPC()
         {
-            if (!IsEnable || !DoRPC) return;
+            if (!IsEnable || !Utils.DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetConsortLimit, SendOption.Reliable, -1);
             writer.Write(BlockLimit);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -62,7 +60,7 @@ namespace TOHE.Roles.Impostor
             return killer.CheckDoubleTrigger(target, () =>
             {
                 BlockLimit--;
-                Glitch.hackedIdList.TryAdd(target.PlayerId, GetTimeStamp());
+                Glitch.hackedIdList.TryAdd(target.PlayerId, Utils.GetTimeStamp());
                 killer.Notify(GetString("EscortTargetHacked"));
                 killer.SetKillCooldown(CD.GetFloat());
                 SendRPC();

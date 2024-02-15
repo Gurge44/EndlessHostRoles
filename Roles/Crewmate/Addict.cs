@@ -90,7 +90,7 @@ namespace TOHE.Roles.Crewmate
             }
         }
 
-        public static void OnEnterVent(PlayerControl pc, Vent vent)
+        public static void OnEnterVent(PlayerControl pc)
         {
             if (!pc.Is(CustomRoles.Addict)) return;
 

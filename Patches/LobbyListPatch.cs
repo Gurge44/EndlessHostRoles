@@ -27,7 +27,7 @@ public static class FindAGameManagerUpdatePatch
 [HarmonyPatch(typeof(FindAGameManager), nameof(FindAGameManager.HandleList))]
 public static class FindAGameManagerHandleListPatch
 {
-    public static void Prefix(FindAGameManager __instance, [HarmonyArgument(0)] InnerNetClient.TotalGameData totalGames, [HarmonyArgument(1)] ref List<GameListing> games)
+    public static void Prefix(/*FindAGameManager __instance,*/ /*[HarmonyArgument(0)] InnerNetClient.TotalGameData totalGames,*/ [HarmonyArgument(1)] ref List<GameListing> games)
     {
         List<GameListing> newList = [];
 

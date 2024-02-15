@@ -30,7 +30,7 @@ class GameManagerSerializeFix
 [HarmonyPatch(typeof(LogicOptions), nameof(LogicOptions.Serialize))]
 class LogicOptionsSerializePatch
 {
-    public static bool Prefix(LogicOptions __instance, ref bool __result, MessageWriter writer, bool initialState)
+    public static bool Prefix(ref bool __result, /*MessageWriter writer,*/ bool initialState)
     {
         // Block all but the first time and synchronize only with CustomSyncSettings
         if (!initialState)
