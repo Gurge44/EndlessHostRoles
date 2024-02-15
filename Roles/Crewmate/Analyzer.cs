@@ -20,10 +20,10 @@ namespace TOHE.Roles.Crewmate
         private static OptionItem SeeRoleBasis;
         public static OptionItem UsePet;
 
-        private static readonly Dictionary<string, string> replacementDict = new() { { "Analyze", ColorString(GetRoleColor(CustomRoles.Analyzer), "Analyze") } };
+        private static readonly Dictionary<string, string> replacementDict = new() { { "Analyze", Utils.ColorString(Utils.GetRoleColor(CustomRoles.Analyzer), "Analyze") } };
 
         public static Dictionary<byte, int> VentCount = [];
-        public static (byte ID, long TIME) CurrentTarget = (byte.MaxValue, GetTimeStamp());
+        public static (byte ID, long TIME) CurrentTarget = (byte.MaxValue, Utils.GetTimeStamp());
 
         public static void SetupCustomOption()
         {

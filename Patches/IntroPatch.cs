@@ -289,6 +289,7 @@ class BeginCrewmatePatch
 
                 CustomRoles.Mastermind or
                 CustomRoles.Shiftguard or
+                CustomRoles.Randomizer or
                 CustomRoles.Gambler
                 => GetIntroSound(RoleTypes.Shapeshifter),
 

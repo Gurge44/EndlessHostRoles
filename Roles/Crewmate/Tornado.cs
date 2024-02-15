@@ -73,7 +73,7 @@ namespace TOHE.Roles.Crewmate
         {
             playerIdList.Add(playerId);
         }
-        public static bool IsEnable => playerIdList.Count > 0;
+        public static bool IsEnable => playerIdList.Count > 0 || Randomizer.IsEnable;
         private static void SendRPCAddTornado(bool add, Vector2 pos, string roomname, long timestamp = 0)
         {
             if (!IsEnable || !DoRPC) return;

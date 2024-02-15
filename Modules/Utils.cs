@@ -3277,7 +3277,7 @@ public static class Utils
                 Devourer.OnDevourerDied(target.PlayerId);
                 break;
         }
-
+        
         if (Romantic.PartnerId == target.PlayerId)
             _ = new LateTask(Romantic.ChangeRole, 0.5f, "Romantic ChangeRole");
 

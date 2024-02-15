@@ -25,7 +25,7 @@ internal class ChatCommands
         if (friendCode == "" || friendCode == string.Empty || !Options.ApplyModeratorList.GetBool()) return false;
         var friendCodesFilePath = @"./TOHE_DATA/Moderators.txt";
         var friendCodes = File.ReadAllLines(friendCodesFilePath);
-        return friendCodes.Any(code => code.Contains(friendCode, StringComparison.CurrentCultureIgnoreCase));
+        return friendCodes.Any(code => code.Contains(friendCode, StringComparison.OrdinalIgnoreCase));
     }
 
     public static List<string> ChatHistory = [];

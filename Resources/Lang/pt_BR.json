@@ -2307,7 +2307,7 @@
   "ThreeImpRemain": "3 <color=#ff1919>Impostores</color> restantes",
   "ImpRemain": "{0} Impostores restantes",
   "NeutralRemain": "\\n{0} <color=#7f8c8d>Neutro Assassino</color> restante",
-  "OneNeutralRemain": "\\n{0} <color=#7f8c8d>Neutros Assassinos</color> restantes",
+  "OneNeutralRemain": "\\n1 <color=#7f8c8d>Neutros Assassinos</color> restantes",
   "IsGood": "{0} era um <color=#8cffff>carinha lega</color> :c",
   "BelongTo": "{0} faz parte de {1}",
   "GG": "GG! Não restam mais assassinos.",
