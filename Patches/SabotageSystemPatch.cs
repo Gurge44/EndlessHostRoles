@@ -171,7 +171,7 @@ public static class ElectricTaskInitializePatch
     private static long LastUpdate = 0;
     public static void Postfix()
     {
-        long now = Utils.GetTimeStamp();
+        long now = Utils.TimeStamp;
         if (LastUpdate >= now) return;
         LastUpdate = now;
 
@@ -198,7 +198,7 @@ public static class ElectricTaskCompletePatch
     private static long LastUpdate = 0;
     public static void Postfix()
     {
-        long now = Utils.GetTimeStamp();
+        long now = Utils.TimeStamp;
         if (LastUpdate >= now) return;
         LastUpdate = now;
 

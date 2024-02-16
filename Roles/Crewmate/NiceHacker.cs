@@ -109,12 +109,12 @@
 
             if (Main.PlayerStates[pc.PlayerId].TaskState.IsTaskFinished)
             {
-                LastUpdate.TryAdd(pc.PlayerId, GetTimeStamp());
-                if (LastUpdate[pc.PlayerId] + 5 < GetTimeStamp())
+                LastUpdate.TryAdd(pc.PlayerId, TimeStamp);
+                if (LastUpdate[pc.PlayerId] + 5 < TimeStamp)
                 {
                     if (pc.IsModClient()) UseLimitSeconds[pc.PlayerId] += AbilityChargesWhenFinishedTasks.GetFloat() * ModdedClientAbilityUseSecondsMultiplier.GetInt();
                     else UseLimit[pc.PlayerId] += AbilityChargesWhenFinishedTasks.GetFloat();
-                    LastUpdate[pc.PlayerId] = GetTimeStamp();
+                    LastUpdate[pc.PlayerId] = TimeStamp;
                 }
             }
         }

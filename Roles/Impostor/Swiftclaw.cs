@@ -27,13 +27,13 @@ namespace TOHE.Roles.Impostor
         {
             if (pc == null || DashStart.ContainsKey(pc.PlayerId)) return;
 
-            DashStart[pc.PlayerId] = (Utils.GetTimeStamp(), Main.AllPlayerSpeed[pc.PlayerId]);
+            DashStart[pc.PlayerId] = (Utils.TimeStamp, Main.AllPlayerSpeed[pc.PlayerId]);
             Main.AllPlayerSpeed[pc.PlayerId] = DashSpeed.GetFloat();
             pc.MarkDirtySettings();
         }
         public static void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || pc == null || !DashStart.TryGetValue(pc.PlayerId, out var dashInfo) || dashInfo.StartTimeStamp + DashDuration.GetInt() > Utils.GetTimeStamp()) return;
+            if (!GameStates.IsInTask || pc == null || !DashStart.TryGetValue(pc.PlayerId, out var dashInfo) || dashInfo.StartTimeStamp + DashDuration.GetInt() > Utils.TimeStamp) return;
 
             Main.AllPlayerSpeed[pc.PlayerId] = dashInfo.NormalSpeed;
             pc.MarkDirtySettings();

@@ -98,7 +98,7 @@ namespace TOHE.Roles.Crewmate
 
             UseLimit[target.PlayerId] -= 1;
             SendRPC(2, id: target.PlayerId);
-            SpyRedNameList.TryAdd(killer.PlayerId, GetTimeStamp());
+            SpyRedNameList.TryAdd(killer.PlayerId, TimeStamp);
             SendRPC(1, id: killer.PlayerId);
             NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
         }
@@ -110,7 +110,7 @@ namespace TOHE.Roles.Crewmate
 
             foreach (var x in SpyRedNameList)
             {
-                if (x.Value + SpyRedNameDur.GetInt() < GetTimeStamp() || !GameStates.IsInTask)
+                if (x.Value + SpyRedNameDur.GetInt() < TimeStamp || !GameStates.IsInTask)
                 {
                     SpyRedNameList.Remove(x.Key);
                     change = true;

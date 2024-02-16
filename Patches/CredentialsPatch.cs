@@ -20,7 +20,7 @@ internal class PingTrackerUpdatePatch
         __instance.text.alignment = TextAlignmentOptions.TopRight;
         __instance.text.text = sb.ToString();
 
-        long now = Utils.GetTimeStamp();
+        long now = Utils.TimeStamp;
         if (now + Delay <= LastUpdate) return; // Only update every 2 seconds
         LastUpdate = now;
 

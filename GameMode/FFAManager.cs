@@ -182,7 +182,7 @@ internal static class FFAManager
         if (FFAShieldedList.TryGetValue(target.PlayerId, out var dur))
         {
             killer.Notify(GetString("FFA_TargetIsShielded"));
-            Logger.Info($"{killer.GetRealName().RemoveHtmlTags()} attacked shielded player {target.GetRealName().RemoveHtmlTags()}, their shield expires in {FFA_ShieldDuration.GetInt() - (Utils.GetTimeStamp() - dur)}s", "FFA");
+            Logger.Info($"{killer.GetRealName().RemoveHtmlTags()} attacked shielded player {target.GetRealName().RemoveHtmlTags()}, their shield expires in {FFA_ShieldDuration.GetInt() - (Utils.TimeStamp - dur)}s", "FFA");
             if (FFA_ShieldIsOneTimeUse.GetBool())
             {
                 FFAShieldedList.Remove(target.PlayerId);
@@ -223,7 +223,7 @@ internal static class FFAManager
                 switch (EffectID)
                 {
                     case 0:
-                        FFAShieldedList.TryAdd(killer.PlayerId, Utils.GetTimeStamp());
+                        FFAShieldedList.TryAdd(killer.PlayerId, Utils.TimeStamp);
                         killer.Notify(GetString("FFA-Event-GetShield"), FFA_ShieldDuration.GetFloat());
                         Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
                         break;
@@ -231,11 +231,11 @@ internal static class FFAManager
                         if (FFAIncreasedSpeedList.ContainsKey(killer.PlayerId))
                         {
                             FFAIncreasedSpeedList.Remove(killer.PlayerId);
-                            FFAIncreasedSpeedList.Add(killer.PlayerId, Utils.GetTimeStamp());
+                            FFAIncreasedSpeedList.Add(killer.PlayerId, Utils.TimeStamp);
                         }
                         else
                         {
-                            FFAIncreasedSpeedList.TryAdd(killer.PlayerId, Utils.GetTimeStamp());
+                            FFAIncreasedSpeedList.TryAdd(killer.PlayerId, Utils.TimeStamp);
                             originalSpeed.TryAdd(killer.PlayerId, Main.AllPlayerSpeed[killer.PlayerId]);
                             Main.AllPlayerSpeed[killer.PlayerId] = FFA_IncreasedSpeed.GetFloat();
                         }
@@ -263,11 +263,11 @@ internal static class FFAManager
                         if (FFADecreasedSpeedList.ContainsKey(killer.PlayerId))
                         {
                             FFADecreasedSpeedList.Remove(killer.PlayerId);
-                            FFADecreasedSpeedList.Add(killer.PlayerId, Utils.GetTimeStamp());
+                            FFADecreasedSpeedList.Add(killer.PlayerId, Utils.TimeStamp);
                         }
                         else
                         {
-                            FFADecreasedSpeedList.TryAdd(killer.PlayerId, Utils.GetTimeStamp());
+                            FFADecreasedSpeedList.TryAdd(killer.PlayerId, Utils.TimeStamp);
                             originalSpeed.TryAdd(killer.PlayerId, Main.AllPlayerSpeed[killer.PlayerId]);
                             Main.AllPlayerSpeed[killer.PlayerId] = FFA_DecreasedSpeed.GetFloat();
                         }
@@ -281,7 +281,7 @@ internal static class FFAManager
                         sync = true;
                         break;
                     case 2:
-                        FFALowerVisionList.TryAdd(killer.PlayerId, Utils.GetTimeStamp());
+                        FFALowerVisionList.TryAdd(killer.PlayerId, Utils.TimeStamp);
                         Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
                         killer.Notify(GetString("FFA-Event-GetLowVision"));
                         mark = true;
@@ -360,7 +360,7 @@ internal static class FFAManager
 
             if (AmongUsClient.Instance.AmHost)
             {
-                var now = Utils.GetTimeStamp();
+                var now = Utils.TimeStamp;
 
                 if (LastFixedUpdate == now) return;
                 LastFixedUpdate = now;

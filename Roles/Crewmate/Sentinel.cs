@@ -29,7 +29,7 @@ namespace TOHE.Roles.Crewmate
             if (IsPatrolling) return;
             IsPatrolling = true;
             StartingPosition = Sentinel.Pos();
-            PatrolStartTimeStamp = GetTimeStamp();
+            PatrolStartTimeStamp = TimeStamp;
             foreach (var pc in NearbyKillers) pc.Notify(string.Format(GetString("KillerNotifyPatrol"), PatrolDuration));
             Sentinel.MarkDirtySettings();
         }
@@ -38,7 +38,7 @@ namespace TOHE.Roles.Crewmate
         {
             if (!IsPatrolling) return;
 
-            long now = GetTimeStamp();
+            long now = TimeStamp;
             if (LastUpdate >= now) return;
             LastUpdate = now;
 
@@ -53,7 +53,7 @@ namespace TOHE.Roles.Crewmate
         {
             if (!IsPatrolling) return;
 
-            long now = GetTimeStamp();
+            long now = TimeStamp;
             if (LastUpdate >= now) return;
             LastUpdate = now;
 
@@ -69,7 +69,7 @@ namespace TOHE.Roles.Crewmate
             }
             if (nowInRange)
             {
-                pc.Notify(string.Format(GetString("KillerNotifyPatrol"), PatrolDuration - (GetTimeStamp() - PatrolStartTimeStamp)));
+                pc.Notify(string.Format(GetString("KillerNotifyPatrol"), PatrolDuration - (TimeStamp - PatrolStartTimeStamp)));
                 LastNearbyKillers.Add(pc.PlayerId);
             }
         }
@@ -94,8 +94,10 @@ namespace TOHE.Roles.Crewmate
         public static OptionItem LoweredVision;
         private static OptionItem PatrolRadius;
 
-        private static readonly List<PatrollingState> PatrolStates = [];
+        private static readonly List<PatrollingState> patrolStates = [];
         private static readonly List<byte> AffectedKillers = [];
+
+        public static List<PatrollingState> PatrolStates => patrolStates;
 
         public static void SetupCustomOption()
         {
@@ -124,6 +126,7 @@ namespace TOHE.Roles.Crewmate
             _ = new LateTask(newPatrolState.SetPlayer, 8f, log: false);
         }
         public static bool IsEnable => PatrolStates.Count > 0 || Randomizer.IsEnable;
+
         public static PatrollingState GetPatrollingState(byte playerId) => PatrolStates.FirstOrDefault(x => x.SentinelId == playerId) ?? new(playerId, PatrolDuration.GetInt(), PatrolRadius.GetInt());
         public static bool IsPatrolling(byte playerId) => GetPatrollingState(playerId).IsPatrolling;
         public static void StartPatrolling(PlayerControl pc) => GetPatrollingState(pc.PlayerId)?.StartPatrolling();

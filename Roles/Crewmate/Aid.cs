@@ -57,7 +57,7 @@ namespace TOHE.Roles.Crewmate
             if (UseLimit[killer.PlayerId] >= 1)
             {
                 UseLimit[killer.PlayerId] -= 1;
-                ShieldedPlayers.TryAdd(target.PlayerId, Utils.GetTimeStamp());
+                ShieldedPlayers.TryAdd(target.PlayerId, Utils.TimeStamp);
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 return false;
             }
@@ -74,7 +74,7 @@ namespace TOHE.Roles.Crewmate
 
             foreach (var x in ShieldedPlayers)
             {
-                if (x.Value + AidDur.GetInt() < Utils.GetTimeStamp() || !GameStates.IsInTask)
+                if (x.Value + AidDur.GetInt() < Utils.TimeStamp || !GameStates.IsInTask)
                 {
                     ShieldedPlayers.Remove(x.Key);
                     change = true;

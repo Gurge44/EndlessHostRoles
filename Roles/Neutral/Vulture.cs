@@ -49,7 +49,7 @@ public static class Vulture
         playerIdList.Add(playerId);
         BodyReportCount[playerId] = 0;
         AbilityLeftInRound[playerId] = MaxEaten.GetInt();
-        LastReport[playerId] = Utils.GetTimeStamp();
+        LastReport[playerId] = Utils.TimeStamp;
         _ = new LateTask(() =>
         {
             if (GameStates.IsInTask)
@@ -105,7 +105,7 @@ public static class Vulture
             if (player.IsAlive())
             {
                 AbilityLeftInRound[apc] = MaxEaten.GetInt();
-                LastReport[apc] = Utils.GetTimeStamp();
+                LastReport[apc] = Utils.TimeStamp;
                 _ = new LateTask(() =>
                 {
                     if (GameStates.IsInTask)

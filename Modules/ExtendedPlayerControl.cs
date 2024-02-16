@@ -206,7 +206,7 @@ static class ExtendedPlayerControl
 
     public static void AddKCDAsAbilityCD(this PlayerControl pc) => AddAbilityCD(pc, (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out var KCD) ? KCD : Options.DefaultKillCooldown));
     public static void AddAbilityCD(this PlayerControl pc, bool includeDuration = true) => Utils.AddAbilityCD(pc.GetCustomRole(), pc.PlayerId, includeDuration);
-    public static void AddAbilityCD(this PlayerControl pc, int CD) => Main.AbilityCD[pc.PlayerId] = (GetTimeStamp(), CD);
+    public static void AddAbilityCD(this PlayerControl pc, int CD) => Main.AbilityCD[pc.PlayerId] = (TimeStamp, CD);
     public static bool HasAbilityCD(this PlayerControl pc) => Main.AbilityCD.ContainsKey(pc.PlayerId);
 
     public static void Suicide(this PlayerControl pc, PlayerState.DeathReason deathReason = PlayerState.DeathReason.Suicide, PlayerControl realKiller = null)
@@ -238,7 +238,7 @@ static class ExtendedPlayerControl
         else Main.AllPlayerKillCooldown[player.PlayerId] *= 2;
         if (player.Is(CustomRoles.Glitch))
         {
-            Glitch.LastKill = GetTimeStamp() + ((int)(time / 2) - Glitch.KillCooldown.GetInt());
+            Glitch.LastKill = TimeStamp + ((int)(time / 2) - Glitch.KillCooldown.GetInt());
             Glitch.KCDTimer = (int)(time / 2);
         }
         else if (forceAnime || !player.IsModClient() || !Options.DisableShieldAnimations.GetBool())
@@ -319,8 +319,8 @@ static class ExtendedPlayerControl
         Logger.Info($"Reset Ability Cooldown for {target.name} (ID: {target.PlayerId})", "RpcResetAbilityCooldown");
         if (target.Is(CustomRoles.Glitch))
         {
-            Glitch.LastHack = GetTimeStamp();
-            Glitch.LastMimic = GetTimeStamp();
+            Glitch.LastHack = TimeStamp;
+            Glitch.LastMimic = TimeStamp;
             Glitch.MimicCDTimer = 10;
             Glitch.HackCDTimer = 10;
         }

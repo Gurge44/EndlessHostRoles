@@ -224,7 +224,7 @@ namespace TOHE.Roles.Crewmate
                 writer.WritePacked(ventId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
 
-                InvisTime.Add(pc.PlayerId, Utils.GetTimeStamp());
+                InvisTime.Add(pc.PlayerId, Utils.TimeStamp);
                 SendRPC(pc);
                 pc.Notify(GetString("ChameleonInvisState"), InvisDuration.GetFloat());
             }, 0.5f, "Alchemist Invis");
@@ -233,7 +233,7 @@ namespace TOHE.Roles.Crewmate
         {
             if (!GameStates.IsInTask || !IsEnable) return;
 
-            var now = Utils.GetTimeStamp();
+            var now = Utils.TimeStamp;
 
             if (lastFixedTime != now)
             {
@@ -270,7 +270,7 @@ namespace TOHE.Roles.Crewmate
             var str = new StringBuilder();
             if (IsInvis(pc.PlayerId))
             {
-                var remainTime = InvisTime[pc.PlayerId] + (long)InvisDuration.GetFloat() - Utils.GetTimeStamp();
+                var remainTime = InvisTime[pc.PlayerId] + (long)InvisDuration.GetFloat() - Utils.TimeStamp;
                 str.Append(string.Format(GetString("ChameleonInvisStateCountdown"), remainTime + 1));
             }
             else
@@ -310,7 +310,7 @@ namespace TOHE.Roles.Crewmate
             }
             if (UsePets.GetBool() && Main.AbilityCD.TryGetValue(pc.PlayerId, out var CD))
             {
-                str.Append($"\n<color=#00ffa5>{GetString("CD")}:</color> <b>{CD.TOTALCD - (Utils.GetTimeStamp() - CD.START_TIMESTAMP) + 1}</b>s");
+                str.Append($"\n<color=#00ffa5>{GetString("CD")}:</color> <b>{CD.TOTALCD - (Utils.TimeStamp - CD.START_TIMESTAMP) + 1}</b>s");
             }
             return str.ToString();
         }

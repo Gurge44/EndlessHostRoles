@@ -108,7 +108,7 @@ namespace TOHE.Roles.Neutral
         {
             if (!IsEnable || !GameStates.IsInTask || Traps.Count == 0) return;
 
-            long now = GetTimeStamp();
+            long now = TimeStamp;
 
             if (pc.PlayerId == SprayerId) return;
 

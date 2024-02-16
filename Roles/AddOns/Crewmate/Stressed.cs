@@ -82,7 +82,7 @@ namespace TOHE.Roles.AddOns.Crewmate
 
         public static void Add()
         {
-            long now = Utils.GetTimeStamp();
+            long now = Utils.TimeStamp;
 
             _ = new LateTask(() =>
             {
@@ -104,7 +104,7 @@ namespace TOHE.Roles.AddOns.Crewmate
 
         public static void Update(PlayerControl pc)
         {
-            long now = Utils.GetTimeStamp();
+            long now = Utils.TimeStamp;
             if (pc == null || !LastUpdates.TryGetValue(pc.PlayerId, out var x) || x >= now || !Timers.ContainsKey(pc.PlayerId) || !IsEnable || !GameStates.IsInTask || !pc.Is(CustomRoles.Stressed)) return;
             LastUpdates[pc.PlayerId] = now;
 

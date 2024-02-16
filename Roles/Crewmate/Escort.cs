@@ -66,7 +66,7 @@ namespace TOHE.Roles.Crewmate
 
             BlockLimit--;
             killer.SetKillCooldown();
-            Glitch.hackedIdList.TryAdd(target.PlayerId, Utils.GetTimeStamp());
+            Glitch.hackedIdList.TryAdd(target.PlayerId, Utils.TimeStamp);
             killer.Notify(GetString("EscortTargetHacked"));
         }
         public static string GetProgressText() => $"<color=#777777>-</color> <color=#ffffff>{BlockLimit}</color>";

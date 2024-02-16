@@ -86,7 +86,7 @@ internal class Cloud
             try
             {
                 if (IP == null || EAC_PORT == 0) throw new("Has no ip or port");
-                LastRepotTimeStamp = Utils.GetTimeStamp();
+                LastRepotTimeStamp = Utils.TimeStamp;
                 EacClientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 EacClientSocket.Connect(IP, EAC_PORT);
                 Logger.Warn("已连接至TOHE服务器", "EAC Cloud");
@@ -120,7 +120,7 @@ internal class Cloud
     {
         public static void Postfix()
         {
-            if (LastRepotTimeStamp != 0 && LastRepotTimeStamp + 8 < Utils.GetTimeStamp() && !GameStates.IsInTask)
+            if (LastRepotTimeStamp != 0 && LastRepotTimeStamp + 8 < Utils.TimeStamp && !GameStates.IsInTask)
             {
                 LastRepotTimeStamp = 0;
                 StopConnect();

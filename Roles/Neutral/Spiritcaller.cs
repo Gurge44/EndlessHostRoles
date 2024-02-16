@@ -68,7 +68,7 @@ namespace TOHE.Roles.Neutral
         }
         public static bool IsEnable => playerIdList.Count > 0;
         public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public static bool InProtect(PlayerControl player) => player.Is(CustomRoles.Spiritcaller) && ProtectTimeStamp > Utils.GetTimeStamp();
+        public static bool InProtect(PlayerControl player) => player.Is(CustomRoles.Spiritcaller) && ProtectTimeStamp > Utils.TimeStamp;
 
         private static void SendRPC()
         {
@@ -116,12 +116,12 @@ namespace TOHE.Roles.Neutral
 
             if (pc.Is(CustomRoles.Spiritcaller))
             {
-                if (ProtectTimeStamp < Utils.GetTimeStamp() && ProtectTimeStamp != 0)
+                if (ProtectTimeStamp < Utils.TimeStamp && ProtectTimeStamp != 0)
                 {
                     ProtectTimeStamp = 0;
                 }
             }
-            else if (PlayersHaunted.ContainsKey(pc.PlayerId) && PlayersHaunted[pc.PlayerId] < Utils.GetTimeStamp())
+            else if (PlayersHaunted.ContainsKey(pc.PlayerId) && PlayersHaunted[pc.PlayerId] < Utils.TimeStamp)
             {
                 PlayersHaunted.Remove(pc.PlayerId);
                 pc.MarkDirtySettings();
@@ -139,7 +139,7 @@ namespace TOHE.Roles.Neutral
 
             if (SpiritCauseVisionTime.GetFloat() > 0 && !PlayersHaunted.ContainsKey(target.PlayerId))
             {
-                long time = Utils.GetTimeStamp() + (long)SpiritCauseVisionTime.GetFloat();
+                long time = Utils.TimeStamp + (long)SpiritCauseVisionTime.GetFloat();
                 PlayersHaunted.Add(target.PlayerId, time);
             }
 
@@ -171,7 +171,7 @@ namespace TOHE.Roles.Neutral
 
         public static void ProtectSpiritcaller()
         {
-            ProtectTimeStamp = Utils.GetTimeStamp() + (long)SpiritProtectTime.GetFloat();
+            ProtectTimeStamp = Utils.TimeStamp + (long)SpiritProtectTime.GetFloat();
         }
     }
 }

@@ -112,7 +112,7 @@ namespace TOHE.Roles.Neutral
             {
                 CurrentTarget.ID = byte.MaxValue;
                 CurrentTarget.START_TIMESTAMP = 0;
-                LastUpdate = GetTimeStamp();
+                LastUpdate = TimeStamp;
                 SoulHunter_.Suicide();
                 target.Notify(GetString("SoulHunterTargetNotifySurvived"));
                 Logger.Info($"Killed Incorrect Player => Suicide", "SoulHunter");
@@ -124,7 +124,7 @@ namespace TOHE.Roles.Neutral
         {
             if (!IsEnable || CurrentTarget.ID == byte.MaxValue) return;
 
-            long now = GetTimeStamp();
+            long now = TimeStamp;
 
             CurrentTarget.FROZEN = true;
             NormalSpeed = Main.AllPlayerSpeed[SoulHunterId];
@@ -155,7 +155,7 @@ namespace TOHE.Roles.Neutral
 
             if (CurrentTarget.START_TIMESTAMP == 0) return;
 
-            long now = GetTimeStamp();
+            long now = TimeStamp;
             if (LastUpdate >= now) return;
             LastUpdate = now;
 
@@ -221,8 +221,8 @@ namespace TOHE.Roles.Neutral
             get
             {
                 if (!IsTargetBlocked) return string.Empty;
-                if (CurrentTarget.FROZEN) return string.Format(GetString("SoulHunterNotifyFreeze"), GetPlayerById(CurrentTarget.ID).GetRealName(), WaitingTimeAfterMeeting.GetInt() - (GetTimeStamp() - CurrentTarget.START_TIMESTAMP) + 1);
-                else return string.Format(GetString("SoulHunterNotify"), TimeToKillTarget.GetInt() - (GetTimeStamp() - CurrentTarget.START_TIMESTAMP) + 1, GetPlayerById(CurrentTarget.ID).GetRealName());
+                if (CurrentTarget.FROZEN) return string.Format(GetString("SoulHunterNotifyFreeze"), GetPlayerById(CurrentTarget.ID).GetRealName(), WaitingTimeAfterMeeting.GetInt() - (TimeStamp - CurrentTarget.START_TIMESTAMP) + 1);
+                else return string.Format(GetString("SoulHunterNotify"), TimeToKillTarget.GetInt() - (TimeStamp - CurrentTarget.START_TIMESTAMP) + 1, GetPlayerById(CurrentTarget.ID).GetRealName());
             }
         }
         public static string ProgressText

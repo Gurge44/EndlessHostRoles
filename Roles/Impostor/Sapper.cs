@@ -55,7 +55,7 @@ namespace TOHE.Roles.Impostor
             if (pc == null) return;
             if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return;
 
-            Bombs.TryAdd(pc.Pos(), GetTimeStamp());
+            Bombs.TryAdd(pc.Pos(), TimeStamp);
 
             //if (!isPet) _ = new LateTask(() => { pc.CmdCheckRevertShapeshift(false); }, 1.5f, "Sapper RpcRevertShapeshift");
         }
@@ -64,7 +64,7 @@ namespace TOHE.Roles.Impostor
         {
             if (pc == null || Bombs.Count == 0 || !GameStates.IsInTask || !pc.IsAlive() || !pc.Is(CustomRoles.Sapper)) return;
 
-            foreach (var bomb in Bombs.Where(bomb => bomb.Value + Delay.GetInt() < GetTimeStamp()))
+            foreach (var bomb in Bombs.Where(bomb => bomb.Value + Delay.GetInt() < TimeStamp))
             {
                 bool b = false;
                 var players = GetPlayersInRadius(Radius.GetFloat(), bomb.Key);
@@ -92,7 +92,7 @@ namespace TOHE.Roles.Impostor
             long[] list = [.. Bombs.Values];
             foreach (long x in list)
             {
-                sb.Append(string.Format(GetString("MagicianBombExlodesIn"), Delay.GetInt() - (GetTimeStamp() - x) + 1));
+                sb.Append(string.Format(GetString("MagicianBombExlodesIn"), Delay.GetInt() - (TimeStamp - x) + 1));
             }
             pc.Notify(sb.ToString());
         }

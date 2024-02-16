@@ -577,7 +577,7 @@ public class Main : BasePlugin
 
                 {CustomRoles.Swift, "#ff1919"},
                 {CustomRoles.Mare, "#ff1919"},
-                {CustomRoles.Ghoul, "#B22222"},
+                //{CustomRoles.Ghoul, "#B22222"},
              //   {CustomRoles.QuickFix, "#3333ff"},
 
 
@@ -957,7 +957,7 @@ public enum CustomRoles
     EvilSpirit,
     Flashman,
     Fool,
-    Ghoul,
+    //Ghoul,
     Giant,
     Glow,
     Gravestone,

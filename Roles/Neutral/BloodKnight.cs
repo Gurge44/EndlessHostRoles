@@ -58,18 +58,18 @@ public static class BloodKnight
         TimeStamp.TryAdd(PlayerId, long.Parse(Time));
         TimeStamp[PlayerId] = long.Parse(Time);
     }
-    public static bool InProtect(byte playerId) => TimeStamp.TryGetValue(playerId, out var time) && time > Utils.GetTimeStamp();
+    public static bool InProtect(byte playerId) => TimeStamp.TryGetValue(playerId, out var time) && time > Utils.TimeStamp;
     public static void OnMurderPlayer(PlayerControl killer, PlayerControl target)
     {
         if (killer.PlayerId == target.PlayerId) return;
-        TimeStamp[killer.PlayerId] = Utils.GetTimeStamp() + (long)ProtectDuration.GetFloat();
+        TimeStamp[killer.PlayerId] = Utils.TimeStamp + (long)ProtectDuration.GetFloat();
         SendRPC(killer.PlayerId);
         killer.Notify(Translator.GetString("BKInProtect"));
     }
     public static void OnFixedUpdate(PlayerControl pc)
     {
         if (!GameStates.IsInTask || !pc.Is(CustomRoles.BloodKnight)) return;
-        if (TimeStamp[pc.PlayerId] < Utils.GetTimeStamp() && TimeStamp[pc.PlayerId] != 0)
+        if (TimeStamp[pc.PlayerId] < Utils.TimeStamp && TimeStamp[pc.PlayerId] != 0)
         {
             TimeStamp[pc.PlayerId] = 0;
             pc.Notify(Translator.GetString("BKProtectOut"));
@@ -81,7 +81,7 @@ public static class BloodKnight
         var str = new StringBuilder();
         if (InProtect(pc.PlayerId))
         {
-            var remainTime = TimeStamp[pc.PlayerId] - Utils.GetTimeStamp();
+            var remainTime = TimeStamp[pc.PlayerId] - Utils.TimeStamp;
             str.Append(string.Format(Translator.GetString("BKSkillTimeRemain"), remainTime));
         }
         else

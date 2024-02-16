@@ -883,7 +883,7 @@ internal class ChatCommands
     {
         canceled = false;
         if (!AmongUsClient.Instance.AmHost) return;
-        long now = Utils.GetTimeStamp();
+        long now = Utils.TimeStamp;
         if (LastSentCommand.TryGetValue(player.PlayerId, out var ts) && ts + 2 >= now) { Logger.Warn("Command Ignored, it was sent too soon after their last command", "ReceiveChat"); return; }
         if (player.PlayerId != 0) ChatManager.SendMessage(player, text);
         if (text.StartsWith("\n")) text = text[1..];

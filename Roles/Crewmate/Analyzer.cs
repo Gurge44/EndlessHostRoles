@@ -23,7 +23,7 @@ namespace TOHE.Roles.Crewmate
         private static readonly Dictionary<string, string> replacementDict = new() { { "Analyze", Utils.ColorString(Utils.GetRoleColor(CustomRoles.Analyzer), "Analyze") } };
 
         public static Dictionary<byte, int> VentCount = [];
-        public static (byte ID, long TIME) CurrentTarget = (byte.MaxValue, Utils.GetTimeStamp());
+        public static (byte ID, long TIME) CurrentTarget = (byte.MaxValue, Utils.TimeStamp);
 
         public static void SetupCustomOption()
         {
@@ -78,7 +78,7 @@ namespace TOHE.Roles.Crewmate
             playerId = byte.MaxValue;
             UseLimit = 0;
             VentCount = [];
-            CurrentTarget = (byte.MaxValue, Utils.GetTimeStamp());
+            CurrentTarget = (byte.MaxValue, Utils.TimeStamp);
         }
 
         public static void Add(byte id)
@@ -122,7 +122,7 @@ namespace TOHE.Roles.Crewmate
             if (UseLimit <= 0) return;
             if (CurrentTarget.ID != byte.MaxValue) return;
 
-            CurrentTarget = (target.PlayerId, Utils.GetTimeStamp());
+            CurrentTarget = (target.PlayerId, Utils.TimeStamp);
             killer.SetKillCooldown(time: Duration.GetFloat());
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         }
@@ -143,7 +143,7 @@ namespace TOHE.Roles.Crewmate
                 return;
             }
 
-            if (CurrentTarget.TIME + Duration.GetInt() < Utils.GetTimeStamp())
+            if (CurrentTarget.TIME + Duration.GetInt() < Utils.TimeStamp)
             {
                 CurrentTarget.ID = byte.MaxValue;
                 UseLimit--;

@@ -46,7 +46,7 @@ namespace TOHE.Roles.Crewmate
 
         private static bool ShowArrow(byte playerId)
         {
-            long timestamp = Utils.GetTimeStamp();
+            long timestamp = Utils.TimeStamp;
 
             if (LastGhostArrowShowTime[playerId] == 0 || LastGhostArrowShowTime[playerId] + (long)ShowGhostArrowEverySeconds.GetFloat() <= timestamp)
             {

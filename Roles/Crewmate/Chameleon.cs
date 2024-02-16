@@ -98,7 +98,7 @@ public static class Chameleon
         InvisTime = [];
         foreach (var pc in Main.AllAlivePlayerControls.Where(x => playerIdList.Contains(x.PlayerId)).ToArray())
         {
-            lastTime.Add(pc.PlayerId, Utils.GetTimeStamp());
+            lastTime.Add(pc.PlayerId, Utils.TimeStamp);
             SendRPC(pc);
         }
     }
@@ -106,7 +106,7 @@ public static class Chameleon
     {
         if (!GameStates.IsInTask || !IsEnable) return;
 
-        var now = Utils.GetTimeStamp();
+        var now = Utils.TimeStamp;
 
         if (lastTime.TryGetValue(player.PlayerId, out var time) && time + (long)ChameleonCooldown.GetFloat() < now)
         {
@@ -162,7 +162,7 @@ public static class Chameleon
                     writer.WritePacked(ventId);
                     AmongUsClient.Instance.FinishRpcImmediately(writer);
 
-                    InvisTime.Add(pc.PlayerId, Utils.GetTimeStamp());
+                    InvisTime.Add(pc.PlayerId, Utils.TimeStamp);
                     SendRPC(pc);
                     pc.Notify(GetString("ChameleonInvisState"), ChameleonDuration.GetFloat());
 
@@ -186,7 +186,7 @@ public static class Chameleon
         if (!pc.Is(CustomRoles.Chameleon) || !IsInvis(pc.PlayerId)) return;
 
         InvisTime.Remove(pc.PlayerId);
-        lastTime.Add(pc.PlayerId, Utils.GetTimeStamp());
+        lastTime.Add(pc.PlayerId, Utils.TimeStamp);
         SendRPC(pc);
 
         pc?.MyPhysics?.RpcBootFromVent(vent.Id);
@@ -198,12 +198,12 @@ public static class Chameleon
         var str = new StringBuilder();
         if (IsInvis(pc.PlayerId))
         {
-            var remainTime = InvisTime[pc.PlayerId] + (long)ChameleonDuration.GetFloat() - Utils.GetTimeStamp();
+            var remainTime = InvisTime[pc.PlayerId] + (long)ChameleonDuration.GetFloat() - Utils.TimeStamp;
             str.Append(string.Format(GetString("ChameleonInvisStateCountdown"), remainTime + 1));
         }
         else if (lastTime.TryGetValue(pc.PlayerId, out var time))
         {
-            var cooldown = time + (long)ChameleonCooldown.GetFloat() - Utils.GetTimeStamp();
+            var cooldown = time + (long)ChameleonCooldown.GetFloat() - Utils.TimeStamp;
             str.Append(string.Format(GetString("ChameleonInvisCooldownRemain"), cooldown + 1));
         }
         else

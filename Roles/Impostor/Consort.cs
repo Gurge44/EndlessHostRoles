@@ -60,7 +60,7 @@ namespace TOHE.Roles.Impostor
             return killer.CheckDoubleTrigger(target, () =>
             {
                 BlockLimit[killer.PlayerId]--;
-                Glitch.hackedIdList.TryAdd(target.PlayerId, Utils.GetTimeStamp());
+                Glitch.hackedIdList.TryAdd(target.PlayerId, Utils.TimeStamp);
                 killer.Notify(GetString("EscortTargetHacked"));
                 killer.SetKillCooldown(CD.GetFloat());
                 SendRPC(killer.PlayerId);

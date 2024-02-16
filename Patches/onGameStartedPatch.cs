@@ -334,6 +334,7 @@ internal class ChangeRoleSettings
             Duellist.Init();
             Druid.Init();
             GuessManagerRole.Init();
+            Randomizer.Init();
             Doppelganger.Init();
             FFF.Init();
             Sapper.Init();

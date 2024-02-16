@@ -86,7 +86,7 @@ namespace TOHE.Roles.Crewmate
             if (clearAll && taskIndex.ContainsKey(benefactorID)) taskIndex[benefactorID].Clear();
             if (IsShield)
             {
-                shieldedPlayers.TryAdd(shieldedId, Utils.GetTimeStamp());
+                shieldedPlayers.TryAdd(shieldedId, Utils.TimeStamp);
             }
             if (shieldExpire)
             {
@@ -117,7 +117,7 @@ namespace TOHE.Roles.Crewmate
         {
             if (!IsEnable) return;
 
-            foreach (var x in shieldedPlayers.Where(x => x.Value + ShieldDuration.GetInt() < Utils.GetTimeStamp()))
+            foreach (var x in shieldedPlayers.Where(x => x.Value + ShieldDuration.GetInt() < Utils.TimeStamp))
             {
                 shieldedPlayers.Remove(x.Key);
                 SendRPC(pc.PlayerId, shieldExpire: true, shieldedId: Utils.GetPlayerById(x.Key).PlayerId);

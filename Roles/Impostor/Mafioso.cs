@@ -68,12 +68,12 @@ namespace TOHE.Roles.Impostor
             XP = 0;
             Pistol1CD = 0;
             Pistol2CD = 0;
-            lastUpdate = GetTimeStamp() + 30;
+            lastUpdate = TimeStamp + 30;
         }
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            lastUpdate = GetTimeStamp() + 8;
+            lastUpdate = TimeStamp + 8;
         }
         public static void ApplyGameOptions(IGameOptions opt)
         {
@@ -139,8 +139,8 @@ namespace TOHE.Roles.Impostor
                 pc.Notify(GetString("MafiosoLevelUp"));
             }
 
-            if (lastUpdate >= GetTimeStamp()) return;
-            lastUpdate = GetTimeStamp();
+            if (lastUpdate >= TimeStamp) return;
+            lastUpdate = TimeStamp;
 
             var before1CD = Pistol1CD;
             var before2CD = Pistol2CD;
@@ -209,7 +209,7 @@ namespace TOHE.Roles.Impostor
             KCD++;
             Pistol1CD = KCD;
             Pistol2CD = KCD;
-            lastUpdate = GetTimeStamp();
+            lastUpdate = TimeStamp;
             SendRPC();
             SendRPCSyncPistolCD();
         }

@@ -429,7 +429,7 @@ public class TaskState
                         if (!Main.ExpressSpeedUp.ContainsKey(player.PlayerId)) Main.ExpressSpeedNormal = Main.AllPlayerSpeed[player.PlayerId];
                         Main.AllPlayerSpeed[player.PlayerId] = Options.ExpressSpeed.GetFloat();
                         Main.ExpressSpeedUp.Remove(player.PlayerId);
-                        Main.ExpressSpeedUp.TryAdd(player.PlayerId, Utils.GetTimeStamp());
+                        Main.ExpressSpeedUp.TryAdd(player.PlayerId, Utils.TimeStamp);
                         player.MarkDirtySettings();
                         break;
                     case CustomRoles.Alchemist:
@@ -538,25 +538,6 @@ public class TaskState
             }
 
             var addons = Main.PlayerStates[player.PlayerId].SubRoles;
-
-            if (addons.Contains(CustomRoles.Ghoul) && (CompletedTasksCount + 1) >= AllTasksCount)
-            {
-                if (alive)
-                {
-                    _ = new LateTask(() =>
-                    {
-                        player.Suicide();
-                    }, 0.2f, "Ghoul Suicide");
-                }
-                else
-                {
-                    foreach (var pc in Main.AllPlayerControls.Where(pc => !pc.Is(CustomRoles.Pestilence) && Main.KillGhoul.Contains(pc.PlayerId) && player.PlayerId != pc.PlayerId && pc.IsAlive()).ToArray())
-                    {
-                        player.Kill(pc);
-                        Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Kill;
-                    }
-                }
-            }
 
             if (addons.Contains(CustomRoles.Stressed))
             {

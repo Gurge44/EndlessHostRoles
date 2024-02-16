@@ -683,10 +683,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 opt.SetFloat(FloatOptionNames.CrewLightMod, Options.BewilderVision.GetFloat());
                 opt.SetFloat(FloatOptionNames.ImpostorLightMod, Options.BewilderVision.GetFloat());
             }
-            if (Main.AllPlayerControls.Any(x => x.Is(CustomRoles.Ghoul) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == player.PlayerId))
-            {
-                Main.KillGhoul.Add(player.PlayerId);
-            }
             if (
                 (Main.GrenadierBlinding.Count > 0 &&
                 (player.GetCustomRole().IsImpostor() ||
@@ -747,6 +743,19 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
             Deathpact.SetDeathpactVision(player, opt);
 
             Spiritcaller.ReduceVision(opt, player);
+
+            if (Randomizer.HasSuperVision(player))
+            {
+                opt.SetVision(true);
+                opt.SetFloat(FloatOptionNames.CrewLightMod, 1.5f);
+                opt.SetFloat(FloatOptionNames.ImpostorLightMod, 1.5f);
+            }
+            else if (Randomizer.IsBlind(player))
+            {
+                opt.SetVision(false);
+                opt.SetFloat(FloatOptionNames.CrewLightMod, 0.01f);
+                opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0.01f);
+            }
 
             var array = Main.PlayerStates[player.PlayerId].SubRoles.ToArray();
             foreach (CustomRoles subRole in array)

@@ -79,7 +79,7 @@ public static class Werewolf
         RampageTime = [];
         foreach (var pc in Main.AllAlivePlayerControls.Where(x => playerIdList.Contains(x.PlayerId)).ToArray())
         {
-            lastTime.Add(pc.PlayerId, Utils.GetTimeStamp());
+            lastTime.Add(pc.PlayerId, Utils.TimeStamp);
             SendRPC(pc);
         }
     }
@@ -89,7 +89,7 @@ public static class Werewolf
         if (player == null) return;
         if (!player.Is(CustomRoles.Werewolf)) return;
 
-        var now = Utils.GetTimeStamp();
+        var now = Utils.TimeStamp;
 
         if (lastTime.TryGetValue(player.PlayerId, out var WWtime) && !player.IsModClient())
         {
@@ -145,7 +145,7 @@ public static class Werewolf
         {
             if (CanRampage(pc.PlayerId))
             {
-                RampageTime.Add(pc.PlayerId, Utils.GetTimeStamp());
+                RampageTime.Add(pc.PlayerId, Utils.TimeStamp);
                 SendRPC(pc);
                 pc.Notify(GetString("WWRampaging"), RampageDur.GetFloat());
             }
@@ -158,12 +158,12 @@ public static class Werewolf
         var str = new StringBuilder();
         if (IsRampaging(pc.PlayerId))
         {
-            var remainTime = RampageTime[pc.PlayerId] + (long)RampageDur.GetFloat() - Utils.GetTimeStamp();
+            var remainTime = RampageTime[pc.PlayerId] + (long)RampageDur.GetFloat() - Utils.TimeStamp;
             str.Append(string.Format(GetString("WWRampageCountdown"), remainTime + 1));
         }
         else if (lastTime.TryGetValue(pc.PlayerId, out var time))
         {
-            var cooldown = time + (long)RampageCD.GetFloat() - Utils.GetTimeStamp();
+            var cooldown = time + (long)RampageCD.GetFloat() - Utils.TimeStamp;
             str.Append(string.Format(GetString("WWCD"), cooldown + 2));
         }
         else

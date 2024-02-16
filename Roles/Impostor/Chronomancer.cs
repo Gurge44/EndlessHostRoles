@@ -50,12 +50,12 @@ namespace TOHE.Roles.Impostor
             playerIdList = [];
             isRampaging = false;
             chargePercent = 0;
-            lastUpdate = Utils.GetTimeStamp() + 30;
+            lastUpdate = Utils.TimeStamp + 30;
         }
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            lastUpdate = Utils.GetTimeStamp() + 10;
+            lastUpdate = Utils.TimeStamp + 10;
         }
         public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = isRampaging ? 0.01f : KCD.GetFloat();
         public static bool IsEnable => playerIdList.Count > 0;
@@ -81,9 +81,9 @@ namespace TOHE.Roles.Impostor
             if (pc == null) return;
             if (!pc.Is(CustomRoles.Chronomancer)) return;
             if (!GameStates.IsInTask) return;
-            if (lastUpdate >= Utils.GetTimeStamp()) return;
+            if (lastUpdate >= Utils.TimeStamp) return;
 
-            lastUpdate = Utils.GetTimeStamp();
+            lastUpdate = Utils.TimeStamp;
 
             bool notify = false;
             var beforeCharge = chargePercent;
@@ -121,7 +121,7 @@ namespace TOHE.Roles.Impostor
         public static string GetHudText() => chargePercent > 0 ? string.Format(Translator.GetString("ChronomancerPercent"), chargePercent) : string.Empty;
         public static void OnReportDeadBody()
         {
-            lastUpdate = Utils.GetTimeStamp();
+            lastUpdate = Utils.TimeStamp;
             chargePercent = 0;
             isRampaging = false;
             SendRPC();

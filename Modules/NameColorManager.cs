@@ -134,7 +134,7 @@ public static class NameColorManager
 
         if (SoulHunter.CurrentTarget.ID == seer.PlayerId && target.Is(CustomRoles.SoulHunter)) color = Main.roleColors[CustomRoles.SoulHunter];
 
-        if (Bubble.EncasedPlayers.TryGetValue(target.PlayerId, out var ts) && ts + Bubble.NotifyDelay.GetInt() < Utils.GetTimeStamp()) color = Main.roleColors[CustomRoles.Bubble];
+        if (Bubble.EncasedPlayers.TryGetValue(target.PlayerId, out var ts) && ts + Bubble.NotifyDelay.GetInt() < Utils.TimeStamp) color = Main.roleColors[CustomRoles.Bubble];
 
         if (target.Is(CustomRoles.Speedrunner) && !seer.Is(Team.Crewmate) && target.GetTaskState().CompletedTasksCount >= Options.SpeedrunnerNotifyAtXTasksLeft.GetInt() && Options.SpeedrunnerNotifyKillers.GetBool()) color = Main.roleColors[CustomRoles.Speedrunner];
 

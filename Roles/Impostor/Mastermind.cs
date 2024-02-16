@@ -63,7 +63,7 @@ namespace TOHE.Roles.Impostor
                 killer.SetKillCooldown(time: ManipulateCD);
                 if (target.HasKillButton() || target.GetTaskState().hasTasks || UsePets.GetBool())
                 {
-                    ManipulateDelays.TryAdd(target.PlayerId, GetTimeStamp());
+                    ManipulateDelays.TryAdd(target.PlayerId, TimeStamp);
                     NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 }
             });
@@ -82,10 +82,10 @@ namespace TOHE.Roles.Impostor
                     ManipulateDelays.Remove(x.Key);
                     continue;
                 }
-                if (x.Value + Delay.GetInt() < GetTimeStamp())
+                if (x.Value + Delay.GetInt() < TimeStamp)
                 {
                     ManipulateDelays.Remove(x.Key);
-                    ManipulatedPlayers.TryAdd(x.Key, GetTimeStamp());
+                    ManipulatedPlayers.TryAdd(x.Key, TimeStamp);
 
                     if (!pc.GetTaskState().hasTasks || UsePets.GetBool())
                     {
@@ -107,7 +107,7 @@ namespace TOHE.Roles.Impostor
                     TempKCDs.Remove(x.Key);
                     continue;
                 }
-                if (x.Value + TimeLimit.GetInt() < GetTimeStamp())
+                if (x.Value + TimeLimit.GetInt() < TimeStamp)
                 {
                     ManipulatedPlayers.Remove(x.Key);
                     TempKCDs.Remove(x.Key);
@@ -115,7 +115,7 @@ namespace TOHE.Roles.Impostor
                     RPC.PlaySoundRPC(MastermindId, Sounds.KillSound);
                 }
 
-                var time = TimeLimit.GetInt() - (GetTimeStamp() - x.Value);
+                var time = TimeLimit.GetInt() - (TimeStamp - x.Value);
 
                 player.Notify(string.Format(GetString(UsePets.GetBool() ? "ManipulatePetNotify" : player.GetTaskState().hasTasks ? "ManipulateTaskNotify" : "ManipulateNotify"), time), 1.1f);
             }

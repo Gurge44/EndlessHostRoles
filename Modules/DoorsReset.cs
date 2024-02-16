@@ -47,7 +47,7 @@ public static class DoorsReset
         DoorsSystem.IsDirty = true;
     }
     /// <summary>Close all doors on the map</summary>
-    private static void CloseAllDoors()
+    public static void CloseAllDoors()
     {
         foreach (var door in ShipStatus.Instance?.AllDoors)
         {
@@ -57,7 +57,7 @@ public static class DoorsReset
         DoorsSystem.IsDirty = true;
     }
     /// <summary>Randomly opens and closes all doors on the map</summary>
-    private static void OpenOrCloseAllDoorsRandomly()
+    public static void OpenOrCloseAllDoorsRandomly()
     {
         foreach (var door in ShipStatus.Instance.AllDoors)
         {

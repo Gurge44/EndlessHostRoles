@@ -78,7 +78,7 @@ namespace TOHE
                     return;
                 }
 
-                long now = Utils.GetTimeStamp();
+                long now = Utils.TimeStamp;
                 if (now > LastFixedUpdate)
                 {
                     HotPotatoState.TimeLeft--;

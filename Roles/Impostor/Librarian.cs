@@ -52,7 +52,7 @@ namespace TOHE.Roles.Impostor
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            isInSilencingMode.Add(playerId, (false, GetTimeStamp()));
+            isInSilencingMode.Add(playerId, (false, TimeStamp));
         }
 
         public static bool IsEnable => playerIdList.Count > 0;
@@ -80,7 +80,7 @@ namespace TOHE.Roles.Impostor
             byte playerId = reader.ReadByte();
             bool isInSilenceMode = reader.ReadBoolean();
 
-            isInSilencingMode[playerId] = (isInSilenceMode, GetTimeStamp());
+            isInSilencingMode[playerId] = (isInSilenceMode, TimeStamp);
         }
 
         public static bool OnAnyoneReport(PlayerControl reporter)
@@ -123,7 +123,7 @@ namespace TOHE.Roles.Impostor
 
             byte id = pc.PlayerId;
 
-            isInSilencingMode[id] = (!isInSilencingMode[id].SILENCING, GetTimeStamp());
+            isInSilencingMode[id] = (!isInSilencingMode[id].SILENCING, TimeStamp);
             SendRPC(id, isInSilencingMode[id].SILENCING);
 
             return !shapeshifting || ShowSSAnimation.GetBool();
@@ -134,10 +134,10 @@ namespace TOHE.Roles.Impostor
             if (!IsEnable) return;
             if (ShowSSAnimation.GetBool()) return;
 
-            foreach (var kvp in isInSilencingMode.Where(x => x.Value.SILENCING && x.Value.LAST_CHANGE + SSDur.GetInt() < GetTimeStamp()).ToArray())
+            foreach (var kvp in isInSilencingMode.Where(x => x.Value.SILENCING && x.Value.LAST_CHANGE + SSDur.GetInt() < TimeStamp).ToArray())
             {
                 var id = kvp.Key;
-                isInSilencingMode[id] = (!isInSilencingMode[id].SILENCING, GetTimeStamp());
+                isInSilencingMode[id] = (!isInSilencingMode[id].SILENCING, TimeStamp);
                 SendRPC(id, isInSilencingMode[id].SILENCING);
             }
         }
@@ -147,7 +147,7 @@ namespace TOHE.Roles.Impostor
             if (!IsEnable) return;
             foreach (var id in isInSilencingMode.Keys.ToArray())
             {
-                isInSilencingMode[id] = (false, GetTimeStamp());
+                isInSilencingMode[id] = (false, TimeStamp);
             }
             sssh.Clear();
         }

@@ -80,12 +80,12 @@ namespace TOHE.Roles.Neutral
             byte id = reader.ReadByte();
             if (clear) EncasedPlayers.Clear();
             else if (remove) EncasedPlayers.Remove(id);
-            else EncasedPlayers.Add(id, GetTimeStamp());
+            else EncasedPlayers.Add(id, TimeStamp);
         }
         public static void OnCheckMurder(PlayerControl target)
         {
             if (!IsEnable || target == null) return;
-            EncasedPlayers.Add(target.PlayerId, GetTimeStamp());
+            EncasedPlayers.Add(target.PlayerId, TimeStamp);
             SendRPC(target.PlayerId);
             Bubble_.SetKillCooldown();
         }
@@ -93,7 +93,7 @@ namespace TOHE.Roles.Neutral
         {
             if (!IsEnable || !GameStates.IsInTask || EncasedPlayers.Count == 0) return;
 
-            long now = GetTimeStamp();
+            long now = TimeStamp;
             foreach (var kvp in EncasedPlayers)
             {
                 var id = kvp.Key;
@@ -138,8 +138,8 @@ namespace TOHE.Roles.Neutral
         }
         public static string GetEncasedPlayerSuffix(PlayerControl target)
         {
-            if (!IsEnable || target == null || !EncasedPlayers.TryGetValue(target.PlayerId, out var ts) || (ts + NotifyDelay.GetInt() >= GetTimeStamp())) return string.Empty;
-            return ColorString(GetRoleColor(CustomRoles.Bubble), $"{ExplodeDelay.GetInt() - (GetTimeStamp() - ts) + 1}s");
+            if (!IsEnable || target == null || !EncasedPlayers.TryGetValue(target.PlayerId, out var ts) || (ts + NotifyDelay.GetInt() >= TimeStamp)) return string.Empty;
+            return ColorString(GetRoleColor(CustomRoles.Bubble), $"{ExplodeDelay.GetInt() - (TimeStamp - ts) + 1}s");
         }
     }
 }

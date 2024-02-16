@@ -51,14 +51,14 @@ namespace TOHE.Roles.Neutral
         {
             if (!IsEnable || Enderman_.HasAbilityCD()) return;
             Enderman_.AddAbilityCD(Time.GetInt() + 2);
-            MarkedPosition.MARK_TIMESTAMP = GetTimeStamp();
+            MarkedPosition.MARK_TIMESTAMP = TimeStamp;
             MarkedPosition.POSITION = Enderman_.Pos();
             MarkedPosition.TP = true;
             Enderman_.Notify(GetString("MarkDone"));
         }
         public static void OnFixedUpdate()
         {
-            if (!IsEnable || !GameStates.IsInTask || !MarkedPosition.TP || !Enderman_.IsAlive() || MarkedPosition.MARK_TIMESTAMP + Time.GetInt() >= GetTimeStamp()) return;
+            if (!IsEnable || !GameStates.IsInTask || !MarkedPosition.TP || !Enderman_.IsAlive() || MarkedPosition.MARK_TIMESTAMP + Time.GetInt() >= TimeStamp) return;
             Enderman_.TP(MarkedPosition.POSITION);
             MarkedPosition.TP = false;
         }

@@ -27,6 +27,7 @@ public static class Utils
 {
     private static readonly DateTime timeStampStartTime = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
     public static long GetTimeStamp(DateTime? dateTime = null) => (long)((dateTime ?? DateTime.Now).ToUniversalTime() - timeStampStartTime).TotalSeconds;
+    public static long TimeStamp => GetTimeStamp();
     public static void ErrorEnd(string text)
     {
         if (AmongUsClient.Instance.AmHost)
@@ -698,7 +699,7 @@ public static class Utils
     public static void GetPetCDSuffix(PlayerControl pc, ref StringBuilder sb)
     {
         if (Options.UsePets.GetBool() && Main.AbilityCD.TryGetValue(pc.PlayerId, out var time) && !pc.IsModClient())
-            sb.Append(string.Format(GetString("CDPT"), time.TOTALCD - (GetTimeStamp() - time.START_TIMESTAMP) + 1));
+            sb.Append(string.Format(GetString("CDPT"), time.TOTALCD - (TimeStamp - time.START_TIMESTAMP) + 1));
     }
     public static string GetFormattedRoomName(string roomName) => roomName == "Outside" ? "<#00ffa5>Outside</color>" : $"<#ffffff>In</color> <#00ffa5>{roomName}</color>";
     public static string GetFormattedVectorText(Vector2 pos) => $"<#777777>(at {pos.ToString().Replace("(", string.Empty).Replace(")", string.Empty)})</color>";
@@ -2257,6 +2258,8 @@ public static class Utils
                                 TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}>♥</color>");
                             }
 
+                            if (Randomizer.IsShielded(target)) TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Randomizer), "✚"));
+
                             switch (seer.GetCustomRole())
                             {
                                 case CustomRoles.PlagueBearer:
@@ -2597,6 +2600,9 @@ public static class Utils
                 break;
             case CustomRoles.Agitater:
                 Agitater.Add(id);
+                break;
+            case CustomRoles.Randomizer:
+                Randomizer.Add(id);
                 break;
             case CustomRoles.TimeThief:
                 TimeThief.Add(id);
@@ -3097,7 +3103,7 @@ public static class Utils
     {
         if (role.UsesPetInsteadOfKill())
         {
-            Main.AbilityCD[playerId] = (GetTimeStamp(), (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(playerId, out var KCD) ? KCD : Options.DefaultKillCooldown));
+            Main.AbilityCD[playerId] = (TimeStamp, (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(playerId, out var KCD) ? KCD : Options.DefaultKillCooldown));
             return;
         }
         int CD = role switch
@@ -3136,7 +3142,7 @@ public static class Utils
         };
         if (CD == -1) return;
 
-        Main.AbilityCD[playerId] = (GetTimeStamp(), CD);
+        Main.AbilityCD[playerId] = (TimeStamp, CD);
     }
     public static void AfterMeetingTasks()
     {
@@ -3189,6 +3195,7 @@ public static class Utils
         if (NiceEraser.IsEnable) NiceEraser.AfterMeetingTasks();
         if (Eraser.IsEnable) Eraser.AfterMeetingTasks();
         if (Cleanser.IsEnable) Cleanser.AfterMeetingTasks();
+        if (Randomizer.IsEnable) Randomizer.AfterMeetingTasks();
         if (BountyHunter.IsEnable) BountyHunter.AfterMeetingTasks();
         if (EvilTracker.IsEnable) EvilTracker.AfterMeetingTasks();
         if (SerialKiller.IsEnable()) SerialKiller.AfterMeetingTasks();

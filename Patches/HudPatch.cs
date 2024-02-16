@@ -568,7 +568,7 @@ class HudManagerPatch
                 if (GetCD_HUDText() != string.Empty) LowerInfoText.text = $"{GetCD_HUDText()}\n{LowerInfoText.text}";
                 string GetCD_HUDText() => !Options.UsePets.GetBool() || !Main.AbilityCD.TryGetValue(player.PlayerId, out var CD)
                         ? string.Empty
-                        : string.Format(GetString("CDPT"), CD.TOTALCD - (Utils.GetTimeStamp() - CD.START_TIMESTAMP) + 1);
+                        : string.Format(GetString("CDPT"), CD.TOTALCD - (Utils.TimeStamp - CD.START_TIMESTAMP) + 1);
 
                 //LowerInfoText.text += "\n" + (int)System.Math.Round(Main.KillTimers[player.PlayerId]);
 

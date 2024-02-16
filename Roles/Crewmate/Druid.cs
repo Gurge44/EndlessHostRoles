@@ -51,13 +51,13 @@ namespace TOHE.Roles.Crewmate
             UseLimit = [];
             TriggerDelays = [];
             Triggers = [];
-            lastUpdate = GetTimeStamp();
+            lastUpdate = TimeStamp;
         }
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
             UseLimit.Add(playerId, UseLimitOpt.GetFloat());
-            lastUpdate = GetTimeStamp();
+            lastUpdate = TimeStamp;
         }
 
         public static bool IsEnable => playerIdList.Count > 0;
@@ -118,7 +118,7 @@ namespace TOHE.Roles.Crewmate
             if (pc == null || !GameStates.IsInTask) return;
             if (!pc.Is(CustomRoles.Druid) || UseLimit[pc.PlayerId] < 1) return;
 
-            long now = GetTimeStamp();
+            long now = TimeStamp;
 
             if (isPet)
             {
@@ -155,7 +155,7 @@ namespace TOHE.Roles.Crewmate
         {
             if (!IsEnable || !GameStates.IsInTask || TriggerDelays.Count <= 0) return;
 
-            long now = GetTimeStamp();
+            long now = TimeStamp;
 
             foreach (var x in TriggerDelays.ToArray())
             {
@@ -211,7 +211,7 @@ namespace TOHE.Roles.Crewmate
 
             string GetCD_HUDText() => !UsePets.GetBool() || !Main.AbilityCD.TryGetValue(id, out var CD)
                     ? string.Empty
-                    : string.Format(GetString("CDPT"), CD.TOTALCD - (GetTimeStamp() - CD.START_TIMESTAMP) + 1);
+                    : string.Format(GetString("CDPT"), CD.TOTALCD - (TimeStamp - CD.START_TIMESTAMP) + 1);
 
             sb.AppendLine($"<#00ffa5>{triggers.Count}</color> trigger{(triggers.Count == 1 ? string.Empty : 's')} active");
             sb.Append(string.Join('\n', triggers.Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));

@@ -34,7 +34,7 @@ namespace TOHE.Roles.Crewmate
         {
             if (!GameStates.IsInTask || pc == null) return;
 
-            long now = Utils.GetTimeStamp();
+            long now = Utils.TimeStamp;
             if (LastChange.TryGetValue(pc.PlayerId, out var ts) && ts == now) return;
 
             bool isBeaconNearby = Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoles.Beacon) && UnityEngine.Vector2.Distance(x.Pos(), pc.Pos()) <= Radius.GetFloat());

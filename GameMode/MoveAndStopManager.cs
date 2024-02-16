@@ -21,7 +21,7 @@ public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, 
     private static int TotalYellowTime => 3;
     private static Color32 Orange => new(255, 165, 0, 255);
 
-    public int Timer { get => (IsRed ? TotalRedTime : IsYellow ? TotalYellowTime : TotalGreenTime) - (int)Math.Round((double)(Utils.GetTimeStamp() - StartTimeStamp)); }
+    public int Timer { get => (IsRed ? TotalRedTime : IsYellow ? TotalYellowTime : TotalGreenTime) - (int)Math.Round((double)(Utils.TimeStamp - StartTimeStamp)); }
     public string ColoredTimerString { get => IsYellow ? Utils.ColorString(Color.black, "00") : Utils.ColorString(IsRed ? Color.red : Color.green, Timer < 10 ? $"0{Timer}" : Timer.ToString()); }
     public string ColoredArrow { get => Utils.ColorString(IsRed ? Timer <= 2 ? Orange : Color.red : IsYellow ? Color.yellow : Color.green, Symbol.ToString()); }
 
@@ -44,7 +44,7 @@ public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, 
                 IsYellow = false;
                 IsRed = true;
             }
-            StartTimeStamp = Utils.GetTimeStamp();
+            StartTimeStamp = Utils.TimeStamp;
         }
     }
 }
@@ -180,7 +180,7 @@ internal class MoveAndStopManager
         FixedUpdatePatch.DoChecks = false;
         _ = new LateTask(() => { FixedUpdatePatch.DoChecks = true; }, 10f, log: false);
 
-        long now = Utils.GetTimeStamp();
+        long now = Utils.TimeStamp;
         float limit;
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
@@ -312,7 +312,7 @@ internal class MoveAndStopManager
 
         NoSuffix:
 
-            long now = Utils.GetTimeStamp();
+            long now = Utils.TimeStamp;
             if (LastFixedUpdate == now) return;
             LastFixedUpdate = now;
 

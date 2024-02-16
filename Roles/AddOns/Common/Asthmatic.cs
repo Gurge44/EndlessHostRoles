@@ -31,7 +31,7 @@ namespace TOHE.Roles.AddOns.Common
             _ = new LateTask(() =>
             {
                 var r = IRandom.Instance;
-                var now = Utils.GetTimeStamp();
+                var now = Utils.TimeStamp;
                 foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Asthmatic)).ToArray())
                 {
                     Timers[pc.PlayerId] = new(30, r.Next(MinRedTime, MaxRedTime), now, '●', false);

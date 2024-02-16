@@ -96,6 +96,11 @@ class OnPlayerJoinedPatch
             Logger.SendInGame(msg);
             Logger.Info(msg, "Android Kick");
         }
+        if (AmongUsClient.Instance.AmHost && client.PlayerName.Contains("Silasticm", StringComparison.OrdinalIgnoreCase))
+        {
+            AmongUsClient.Instance?.KickPlayer(client.Id, false);
+            Logger.SendInGame("They were probably hacking tbh");
+        }
         if (DestroyableSingleton<FriendsListManager>.Instance.IsPlayerBlockedUsername(client.FriendCode) && AmongUsClient.Instance.AmHost)
         {
             AmongUsClient.Instance?.KickPlayer(client.Id, true);

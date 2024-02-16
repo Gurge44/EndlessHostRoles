@@ -81,7 +81,7 @@ public static class Agitater
 
         CurrentBombedPlayer = target.PlayerId;
         LastBombedPlayer = killer.PlayerId;
-        CurrentBombedPlayerTime = Utils.GetTimeStamp();
+        CurrentBombedPlayerTime = Utils.TimeStamp;
         killer.RpcGuardAndKill(killer);
         killer.Notify(GetString("AgitaterPassNotify"));
         target.Notify(GetString("AgitaterTargetNotify"));
@@ -127,7 +127,7 @@ public static class Agitater
         if (!AgitaterHasBombed) return;
         if (target.Data.IsDead) return;
 
-        var now = Utils.GetTimeStamp();
+        var now = Utils.TimeStamp;
         if (now - CurrentBombedPlayerTime < PassCooldown.GetFloat()) return;
         if (target.PlayerId == LastBombedPlayer) return;
         if (!AgitaterCanGetBombed.GetBool() && target.Is(CustomRoles.Agitater)) return;

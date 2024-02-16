@@ -6,7 +6,7 @@ namespace TOHE.Roles.Impostor
     {
         private static readonly int Id = 2500;
 
-        private static OptionItem CamouflageCooldown;
+        public static OptionItem CamouflageCooldown;
         private static OptionItem CamouflageDuration;
         private static OptionItem CamoLimitOpt;
         public static OptionItem CamoAbilityUseGainWithEachKill;

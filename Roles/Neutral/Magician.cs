@@ -42,7 +42,7 @@ public static class Magician
     private static Vector3 snipeBasePosition;
     private static bool isSpeedup;
     private static float originalSpeed;
-    private static long lastTP = GetTimeStamp();
+    private static long lastTP = TimeStamp;
 
     public static void SetupCustomOption()
     {
@@ -85,7 +85,7 @@ public static class Magician
         PortalMarks = [];
         isSniping = false;
         isSpeedup = false;
-        lastTP = GetTimeStamp();
+        lastTP = TimeStamp;
     }
     public static void Add(byte playerId)
     {
@@ -131,7 +131,7 @@ public static class Magician
                     if (x.PlayerId == pc.PlayerId || x == null) continue;
 
                     TempSpeeds.TryAdd(x.PlayerId, Main.AllPlayerSpeed[x.PlayerId]);
-                    SlowPPL.TryAdd(x.PlayerId, GetTimeStamp());
+                    SlowPPL.TryAdd(x.PlayerId, TimeStamp);
                     Main.AllPlayerSpeed[x.PlayerId] = SlownessValue.GetFloat();
                     x.MarkDirtySettings();
                 }
@@ -201,14 +201,14 @@ public static class Magician
                 {
                     if (x.PlayerId == pc.PlayerId || x == null) continue;
 
-                    BlindPPL.TryAdd(x.PlayerId, GetTimeStamp());
+                    BlindPPL.TryAdd(x.PlayerId, TimeStamp);
                     x.MarkDirtySettings();
                 }
                 CardId = byte.MaxValue;
                 pc.Notify(GetString("MagicianCardUsed"));
                 break;
             case 7: // Time bomb: Place, explodes after x seconds, kills everyone nearby
-                Bombs.TryAdd(pc.Pos(), GetTimeStamp());
+                Bombs.TryAdd(pc.Pos(), TimeStamp);
                 CardId = byte.MaxValue;
                 pc.Notify(GetString("MagicianCardUsed"));
                 break;
@@ -249,7 +249,7 @@ public static class Magician
 
         if (TempSpeeds.Count > 0) RevertSpeedChanges(false);
 
-        if (PortalMarks.Count == 2 && lastTP + 5 < GetTimeStamp())
+        if (PortalMarks.Count == 2 && lastTP + 5 < TimeStamp)
         {
             if (Vector2.Distance(PortalMarks[0], PortalMarks[1]) <= 4f)
             {
@@ -274,7 +274,7 @@ public static class Magician
 
                 if (isTP)
                 {
-                    lastTP = GetTimeStamp();
+                    lastTP = TimeStamp;
                     if (from == PortalMarks[0])
                     {
                         pc.TP(PortalMarks[1]);
@@ -293,7 +293,7 @@ public static class Magician
 
         if (BlindPPL.Count > 0)
         {
-            foreach (var x in BlindPPL.Where(x => x.Value + BlindDur.GetInt() < GetTimeStamp()))
+            foreach (var x in BlindPPL.Where(x => x.Value + BlindDur.GetInt() < TimeStamp))
             {
                 BlindPPL.Remove(x.Key);
                 GetPlayerById(x.Key).MarkDirtySettings();
@@ -302,7 +302,7 @@ public static class Magician
 
         if (Bombs.Count > 0)
         {
-            foreach (var bomb in Bombs.Where(bomb => bomb.Value + BombDelay.GetInt() < GetTimeStamp()))
+            foreach (var bomb in Bombs.Where(bomb => bomb.Value + BombDelay.GetInt() < TimeStamp))
             {
                 bool b = false;
                 var players = GetPlayersInRadius(BombRadius.GetFloat(), bomb.Key);
@@ -330,7 +330,7 @@ public static class Magician
             long[] list = [.. Bombs.Values];
             foreach (long x in list)
             {
-                sb.Append(string.Format(GetString("MagicianBombExlodesIn"), BombDelay.GetInt() - (GetTimeStamp() - x) + 1));
+                sb.Append(string.Format(GetString("MagicianBombExlodesIn"), BombDelay.GetInt() - (TimeStamp - x) + 1));
             }
             pc.Notify(sb.ToString());
         }
@@ -350,7 +350,7 @@ public static class Magician
     }
     private static void RevertSpeedChanges(bool force)
     {
-        foreach (var x in TempSpeeds.Where(x => SlowPPL[x.Key] + SlownessDur.GetInt() < GetTimeStamp() || force))
+        foreach (var x in TempSpeeds.Where(x => SlowPPL[x.Key] + SlownessDur.GetInt() < TimeStamp || force))
         {
             Main.AllPlayerSpeed[x.Key] = x.Value;
             SlowPPL.Remove(x.Key);

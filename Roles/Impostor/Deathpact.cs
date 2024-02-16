@@ -107,7 +107,7 @@ namespace TOHE.Roles.Impostor
             }
 
             pc.Notify(GetString("DeathpactComplete"));
-            DeathpactTime[pc.PlayerId] = GetTimeStamp() + DeathpactDuration.GetInt();
+            DeathpactTime[pc.PlayerId] = TimeStamp + DeathpactDuration.GetInt();
             ActiveDeathpacts.Add(pc.PlayerId);
 
             if (ShowArrowsToOtherPlayersInPact.GetBool())
@@ -140,10 +140,10 @@ namespace TOHE.Roles.Impostor
 
         public static void OnFixedUpdate(PlayerControl player)
         {
-            if (!IsEnable || !GameStates.IsInTask || !player.Is(CustomRoles.Deathpact)) return;
+            if (!IsEnable || !GameStates.IsInTask || player.GetCustomRole() is not CustomRoles.Deathpact and not CustomRoles.Randomizer) return;
             if (!ActiveDeathpacts.Contains(player.PlayerId)) return;
             if (CheckCancelDeathpact(player)) return;
-            if (DeathpactTime[player.PlayerId] < GetTimeStamp() && DeathpactTime[player.PlayerId] != 0)
+            if (DeathpactTime[player.PlayerId] < TimeStamp && DeathpactTime[player.PlayerId] != 0)
             {
                 foreach (PlayerControl playerInDeathpact in PlayersInDeathpact[player.PlayerId].ToArray())
                 {
@@ -247,7 +247,7 @@ namespace TOHE.Roles.Impostor
 
                 otherPlayerNames = otherPlayerNames.Remove(otherPlayerNames.Length - 1);
 
-                int countdown = (int)(DeathpactTime[deathpact.Key] - GetTimeStamp());
+                int countdown = (int)(DeathpactTime[deathpact.Key] - TimeStamp);
 
                 result +=
                     $"{ColorString(GetRoleColor(CustomRoles.Impostor), string.Format(GetString("DeathpactActiveDeathpact"), otherPlayerNames, countdown))}";

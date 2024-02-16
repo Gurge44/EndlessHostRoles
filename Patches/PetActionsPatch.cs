@@ -31,12 +31,12 @@ class LocalPetPatch
         if (__instance.petting) return true;
         __instance.petting = true;
 
-        if (!LastProcess.ContainsKey(__instance.PlayerId)) LastProcess.TryAdd(__instance.PlayerId, Utils.GetTimeStamp() - 2);
-        if (LastProcess[__instance.PlayerId] + 1 >= Utils.GetTimeStamp()) return true;
+        if (!LastProcess.ContainsKey(__instance.PlayerId)) LastProcess.TryAdd(__instance.PlayerId, Utils.TimeStamp - 2);
+        if (LastProcess[__instance.PlayerId] + 1 >= Utils.TimeStamp) return true;
 
         ExternalRpcPetPatch.Prefix(__instance.MyPhysics, (byte)RpcCalls.Pet);
 
-        LastProcess[__instance.PlayerId] = Utils.GetTimeStamp();
+        LastProcess[__instance.PlayerId] = Utils.TimeStamp;
         return !__instance.GetCustomRole().PetActivatedAbility();
     }
 
@@ -74,9 +74,9 @@ class ExternalRpcPetPatch
             && pc.GetCustomRole().PetActivatedAbility())
             physics.CancelPet();
 
-        if (!LastProcess.ContainsKey(pc.PlayerId)) LastProcess.TryAdd(pc.PlayerId, Utils.GetTimeStamp() - 2);
-        if (LastProcess[pc.PlayerId] + 1 >= Utils.GetTimeStamp()) return;
-        LastProcess[pc.PlayerId] = Utils.GetTimeStamp();
+        if (!LastProcess.ContainsKey(pc.PlayerId)) LastProcess.TryAdd(pc.PlayerId, Utils.TimeStamp - 2);
+        if (LastProcess[pc.PlayerId] + 1 >= Utils.TimeStamp) return;
+        LastProcess[pc.PlayerId] = Utils.TimeStamp;
 
         Logger.Info($"Player {pc.GetNameWithRole().RemoveHtmlTags()} petted their pet", "PetActionTrigger");
 
@@ -168,13 +168,13 @@ class ExternalRpcPetPatch
                     if (pc.Is(CustomRoles.Madmate))
                     {
                         Main.MadGrenadierBlinding.Remove(pc.PlayerId);
-                        Main.MadGrenadierBlinding.Add(pc.PlayerId, Utils.GetTimeStamp());
+                        Main.MadGrenadierBlinding.Add(pc.PlayerId, Utils.TimeStamp);
                         Main.AllPlayerControls.Where(x => x.IsModClient()).Where(x => !x.GetCustomRole().IsImpostorTeam() && !x.Is(CustomRoles.Madmate)).Do(x => x.RPCPlayCustomSound("FlashBang"));
                     }
                     else
                     {
                         Main.GrenadierBlinding.Remove(pc.PlayerId);
-                        Main.GrenadierBlinding.Add(pc.PlayerId, Utils.GetTimeStamp());
+                        Main.GrenadierBlinding.Add(pc.PlayerId, Utils.TimeStamp);
                         Main.AllPlayerControls.Where(x => x.IsModClient()).Where(x => x.GetCustomRole().IsImpostor() || (x.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool())).Do(x => x.RPCPlayCustomSound("FlashBang"));
                     }
                     pc.RPCPlayCustomSound("FlashBang");
@@ -192,7 +192,7 @@ class ExternalRpcPetPatch
                 if (Main.LighterNumOfUsed[pc.PlayerId] >= 1)
                 {
                     Main.Lighter.Remove(pc.PlayerId);
-                    Main.Lighter.Add(pc.PlayerId, Utils.GetTimeStamp());
+                    Main.Lighter.Add(pc.PlayerId, Utils.TimeStamp);
                     pc.Notify(GetString("LighterSkillInUse"), Options.LighterSkillDuration.GetFloat());
                     Main.LighterNumOfUsed[pc.PlayerId] -= 1;
                     pc.MarkDirtySettings();
@@ -208,7 +208,7 @@ class ExternalRpcPetPatch
                 if (Main.SecurityGuardNumOfUsed[pc.PlayerId] >= 1)
                 {
                     Main.BlockSabo.Remove(pc.PlayerId);
-                    Main.BlockSabo.Add(pc.PlayerId, Utils.GetTimeStamp());
+                    Main.BlockSabo.Add(pc.PlayerId, Utils.TimeStamp);
                     pc.Notify(GetString("SecurityGuardSkillInUse"), Options.SecurityGuardSkillDuration.GetFloat());
                     Main.SecurityGuardNumOfUsed[pc.PlayerId] -= 1;
                 }
@@ -255,7 +255,7 @@ class ExternalRpcPetPatch
                 {
                     Main.TimeMasterNumOfUsed[pc.PlayerId] -= 1;
                     Main.TimeMasterInProtect.Remove(pc.PlayerId);
-                    Main.TimeMasterInProtect.Add(pc.PlayerId, Utils.GetTimeStamp());
+                    Main.TimeMasterInProtect.Add(pc.PlayerId, Utils.TimeStamp);
                     pc.Notify(GetString("TimeMasterOnGuard"), Options.TimeMasterSkillDuration.GetFloat());
                     foreach (PlayerControl player in Main.AllPlayerControls)
                     {

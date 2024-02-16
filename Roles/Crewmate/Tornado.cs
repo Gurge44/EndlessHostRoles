@@ -22,7 +22,7 @@ namespace TOHE.Roles.Crewmate
 
         private static RandomSpawn.SpawnMap Map;
         private static readonly Dictionary<(Vector2 LOCATION, string ROOM_NAME), long> Tornados = [];
-        private static long LastNotify = GetTimeStamp();
+        private static long LastNotify = TimeStamp;
         private static bool CanUseMap = false;
 
         public static void SetupCustomOption()
@@ -46,7 +46,7 @@ namespace TOHE.Roles.Crewmate
         {
             playerIdList.Clear();
             Tornados.Clear();
-            LastNotify = GetTimeStamp();
+            LastNotify = TimeStamp;
 
             try
             {
@@ -106,7 +106,7 @@ namespace TOHE.Roles.Crewmate
         {
             if (pc == null) return;
             var info = pc.GetPositionInfo();
-            var now = GetTimeStamp();
+            var now = TimeStamp;
             Tornados.Add(info, now);
             SendRPCAddTornado(true, info.LOCATION, info.ROOM_NAME, now);
         }
@@ -114,7 +114,7 @@ namespace TOHE.Roles.Crewmate
         {
             if (!IsEnable || !GameStates.IsInTask || Tornados.Count == 0 || pc == null) return;
 
-            var now = GetTimeStamp();
+            var now = TimeStamp;
 
             if (!pc.Is(CustomRoles.Tornado))
             {
@@ -152,6 +152,6 @@ namespace TOHE.Roles.Crewmate
                 LastNotify = now;
             }
         }
-        public static string GetSuffixText(bool isHUD = false) => string.Join(isHUD ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.ROOM_NAME)} {GetFormattedVectorText(x.Key.LOCATION)} ({(int)(TornadoDuration.GetInt() - (GetTimeStamp() - x.Value) + 1)}s)"));
+        public static string GetSuffixText(bool isHUD = false) => string.Join(isHUD ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.ROOM_NAME)} {GetFormattedVectorText(x.Key.LOCATION)} ({(int)(TornadoDuration.GetInt() - (TimeStamp - x.Value) + 1)}s)"));
     }
 }

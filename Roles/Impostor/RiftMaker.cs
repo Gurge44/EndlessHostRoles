@@ -17,7 +17,7 @@ namespace TOHE.Roles.Impostor
         public static OptionItem KillCooldown;
         public static OptionItem ShapeshiftCooldown;
 
-        public static long LastTP = GetTimeStamp();
+        public static long LastTP = TimeStamp;
 
         public static void SetupCustomOption()
         {
@@ -37,7 +37,7 @@ namespace TOHE.Roles.Impostor
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            LastTP = GetTimeStamp();
+            LastTP = TimeStamp;
         }
 
         public static bool IsEnable => playerIdList.Count > 0;
@@ -54,7 +54,7 @@ namespace TOHE.Roles.Impostor
                 Marks.Clear();
                 return;
             }
-            if (LastTP + 5 > GetTimeStamp()) return;
+            if (LastTP + 5 > TimeStamp) return;
 
             Vector2 position = player.transform.position;
 
@@ -72,7 +72,7 @@ namespace TOHE.Roles.Impostor
 
             if (isTP)
             {
-                LastTP = GetTimeStamp();
+                LastTP = TimeStamp;
                 if (from == Marks[0])
                 {
                     player.TP(Marks[1]);
@@ -90,7 +90,7 @@ namespace TOHE.Roles.Impostor
 
         public static void OnReportDeadBody()
         {
-            LastTP = GetTimeStamp();
+            LastTP = TimeStamp;
         }
 
         public static void OnEnterVent(PlayerControl player, int ventId)
@@ -111,7 +111,7 @@ namespace TOHE.Roles.Impostor
             if (Marks.Count >= 2) return;
 
             Marks.Add((Vector2)player.transform.position);
-            if (Marks.Count == 2) LastTP = GetTimeStamp();
+            if (Marks.Count == 2) LastTP = TimeStamp;
             player.Notify(GetString("MarkDone"));
         }
 

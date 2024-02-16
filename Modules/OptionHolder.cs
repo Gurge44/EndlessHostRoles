@@ -2419,8 +2419,6 @@ public static class Options
         PhysicistViewDuration = FloatOptionItem.Create(15656, "VitalsDuration", new(0, 180, 1), 5, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Physicist])
             .SetValueFormat(OptionFormat.Seconds);
-        RoleLoadingText = "Add-ons\nGhoul";
-        SetupAdtRoleOptions(15250, CustomRoles.Ghoul, canSetNum: true);
         RoleLoadingText = "Add-ons\nOblivious";
         SetupAdtRoleOptions(15400, CustomRoles.Oblivious, canSetNum: true);
         ImpCanBeOblivious = BooleanOptionItem.Create(15410, "ImpCanBeOblivious", true, TabGroup.Addons, false)

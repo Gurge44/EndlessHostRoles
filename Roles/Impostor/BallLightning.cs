@@ -70,13 +70,15 @@ public static class BallLightning
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public static bool IsGhost(PlayerControl player) => GhostPlayer.Contains(player.PlayerId);
     public static bool IsGhost(byte id) => GhostPlayer.Contains(id);
-    public static bool CheckMurder(PlayerControl target) => IsGhost(target);
-    public static bool CheckBallLightningMurder(PlayerControl killer, PlayerControl target)
+    public static bool CheckBallLightningMurder(PlayerControl killer, PlayerControl target, bool force = false)
     {
-        if (killer == null || target == null || !killer.Is(CustomRoles.BallLightning)) return false;
+        if (killer == null || target == null || (!killer.Is(CustomRoles.BallLightning) && !force)) return false;
         if (IsGhost(target)) return false;
-        killer.SetKillCooldown();
-        killer.RPCPlayCustomSound("Shield");
+        if (!force)
+        {
+            killer.SetKillCooldown();
+            killer.RPCPlayCustomSound("Shield");
+        }
         StartConvertCountDown(killer, target);
         return true;
     }
@@ -92,7 +94,7 @@ public static class BallLightning
                 if (!killer.inVent) killer.SetKillCooldown();
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
-                Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} 转化为量子幽灵", "BallLightning");
+                Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} is now converted to a 'non-spherical lightning' XD", "BallLightning");
             }
         }, ConvertTime.GetFloat(), "BallLightning Convert Player To Ghost");
     }

@@ -27,7 +27,7 @@ namespace TOHE.Roles.AddOns.Common
         public static void OnFixedUpdate(PlayerControl pc)
         {
             if (!pc.Is(CustomRoles.Disco) || !GameStates.IsInTask) return;
-            long now = Utils.GetTimeStamp();
+            long now = Utils.TimeStamp;
             if (LastChange.TryGetValue(pc.PlayerId, out var change) && change + Options.DiscoChangeInterval.GetInt() > now) return;
             ChangeColor(pc);
             LastChange[pc.PlayerId] = now;

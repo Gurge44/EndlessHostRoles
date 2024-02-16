@@ -66,7 +66,7 @@ public static class Glitch
 
         isShifted = false;
 
-        var ts = Utils.GetTimeStamp();
+        var ts = Utils.TimeStamp;
 
         LastKill = ts;
         LastHack = ts;
@@ -110,11 +110,7 @@ public static class Glitch
     public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
     public static void Mimic(PlayerControl pc)
     {
-        if (pc == null) return;
-        if (!pc.Is(CustomRoles.Glitch)) return;
-        if (!pc.IsAlive()) return;
-        if (MimicCDTimer > 0) return;
-        if (isShifted) return;
+        if (pc == null || !pc.Is(CustomRoles.Glitch) || !pc.IsAlive() || MimicCDTimer > 0 || isShifted) return;
 
         var playerlist = Main.AllAlivePlayerControls.Where(a => a.PlayerId != pc.PlayerId).ToArray();
 
@@ -123,7 +119,7 @@ public static class Glitch
             pc.RpcShapeshift(playerlist[IRandom.Instance.Next(0, playerlist.Length)], false);
 
             isShifted = true;
-            LastMimic = Utils.GetTimeStamp();
+            LastMimic = Utils.TimeStamp;
             MimicCDTimer = MimicCooldown.GetInt();
             MimicDurTimer = MimicDuration.GetInt();
             SendRPCSyncTimers();
@@ -135,10 +131,7 @@ public static class Glitch
     }
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null) return false;
-        if (target == null) return false;
-
-        if (KCDTimer > 0 && HackCDTimer > 0) return false;
+        if (killer == null || target == null || (KCDTimer > 0 && HackCDTimer > 0)) return false;
 
         if (killer.CheckDoubleTrigger(target, () =>
         {
@@ -146,14 +139,14 @@ public static class Glitch
             {
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 HackCDTimer = HackCooldown.GetInt();
-                hackedIdList.TryAdd(target.PlayerId, Utils.GetTimeStamp());
-                LastHack = Utils.GetTimeStamp();
+                hackedIdList.TryAdd(target.PlayerId, Utils.TimeStamp);
+                LastHack = Utils.TimeStamp;
                 SendRPCSyncTimers();
             }
         }))
         {
             if (KCDTimer > 0) return false;
-            LastKill = Utils.GetTimeStamp();
+            LastKill = Utils.TimeStamp;
             KCDTimer = KillCooldown.GetInt();
             SendRPCSyncTimers();
             return true;
@@ -170,7 +163,7 @@ public static class Glitch
         bool change = false;
         foreach (var pc in hackedIdList)
         {
-            if (pc.Value + HackDuration.GetInt() < Utils.GetTimeStamp())
+            if (pc.Value + HackDuration.GetInt() < Utils.TimeStamp)
             {
                 hackedIdList.Remove(pc.Key);
                 change = true;
@@ -193,7 +186,7 @@ public static class Glitch
 
         if (MimicDurTimer > 0)
         {
-            try { MimicDurTimer = (int)(MimicDuration.GetInt() - (Utils.GetTimeStamp() - LastMimic)); }
+            try { MimicDurTimer = (int)(MimicDuration.GetInt() - (Utils.TimeStamp - LastMimic)); }
             catch { MimicDurTimer = 0; }
             if (MimicDurTimer > 180) MimicDurTimer = 0;
         }
@@ -216,15 +209,15 @@ public static class Glitch
 
         if (HackCDTimer <= 0 && KCDTimer <= 0 && MimicCDTimer <= 0 && MimicDurTimer <= 0) return;
 
-        try { HackCDTimer = (int)(HackCooldown.GetInt() - (Utils.GetTimeStamp() - LastHack)); }
+        try { HackCDTimer = (int)(HackCooldown.GetInt() - (Utils.TimeStamp - LastHack)); }
         catch { HackCDTimer = 0; }
         if (HackCDTimer > 180 || HackCDTimer < 0) HackCDTimer = 0;
 
-        try { KCDTimer = (int)(KillCooldown.GetInt() - (Utils.GetTimeStamp() - LastKill)); }
+        try { KCDTimer = (int)(KillCooldown.GetInt() - (Utils.TimeStamp - LastKill)); }
         catch { KCDTimer = 0; }
         if (KCDTimer > 180 || KCDTimer < 0) KCDTimer = 0;
 
-        try { MimicCDTimer = (int)(MimicCooldown.GetInt() + MimicDuration.GetInt() - (Utils.GetTimeStamp() - LastMimic)); }
+        try { MimicCDTimer = (int)(MimicCooldown.GetInt() + MimicDuration.GetInt() - (Utils.TimeStamp - LastMimic)); }
         catch { MimicCDTimer = 0; }
         if (MimicCDTimer > 180 || MimicCDTimer < 0) MimicCDTimer = 0;
 
@@ -261,7 +254,7 @@ public static class Glitch
     }
     public static void AfterMeetingTasks()
     {
-        var timestamp = Utils.GetTimeStamp();
+        var timestamp = Utils.TimeStamp;
         LastKill = timestamp;
         LastHack = timestamp;
         LastMimic = timestamp;

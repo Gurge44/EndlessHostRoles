@@ -55,7 +55,7 @@ namespace TOHE.Roles.AddOns.Impostor
         public static void Update(PlayerControl pc)
         {
             byte id = pc.PlayerId;
-            long now = Utils.GetTimeStamp();
+            long now = Utils.TimeStamp;
             if ((lastUpdate.TryGetValue(id, out var ts) && ts >= now) || !GameStates.IsInTask || pc == null) return;
             if (!pc.IsAlive())
             {

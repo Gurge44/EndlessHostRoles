@@ -146,7 +146,7 @@ public static class Romantic
         {
             if (!BetTargetKnowRomantic.GetBool()) return string.Empty;
 
-            return PartnerId == seer.PlayerId
+            return RomanticId == target.PlayerId
                 ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Romantic), "♥")
                 : string.Empty;
         }

@@ -114,11 +114,11 @@ namespace TOHE.Roles.Impostor
                 {
                     case 1: // Delayed kill
                         killer.Notify(string.Format(GetString("GamblerGet.DelayedKill"), KillDelay.GetInt()));
-                        waitingDelayedKills.TryAdd(target.PlayerId, GetTimeStamp());
+                        waitingDelayedKills.TryAdd(target.PlayerId, TimeStamp);
                         return false;
                     case 2: // Shield
                         killer.Notify(string.Format(GetString("GamblerGet.Shield"), ShieldDur.GetInt()));
-                        isShielded.TryAdd(killer.PlayerId, GetTimeStamp());
+                        isShielded.TryAdd(killer.PlayerId, TimeStamp);
                         break;
                     case 3: // No lunge (Swift kill)
                         killer.Notify(GetString("GamblerGet.NoLunge"));
@@ -166,7 +166,7 @@ namespace TOHE.Roles.Impostor
                         break;
                     case 7: // Speed
                         killer.Notify(string.Format(GetString("GamblerGet.Speedup"), SpeedDur.GetInt(), Speed.GetFloat()));
-                        isSpeedChange.TryAdd(killer.PlayerId, (Main.AllPlayerSpeed[killer.PlayerId], GetTimeStamp()));
+                        isSpeedChange.TryAdd(killer.PlayerId, (Main.AllPlayerSpeed[killer.PlayerId], TimeStamp));
                         Main.AllPlayerSpeed[killer.PlayerId] = Speed.GetFloat();
                         killer.MarkDirtySettings();
                         break;
@@ -190,13 +190,13 @@ namespace TOHE.Roles.Impostor
                         break;
                     case 2: // Freeze
                         killer.Notify(string.Format(GetString("GamblerGet.Freeze"), FreezeDur.GetInt()));
-                        isSpeedChange.TryAdd(killer.PlayerId, (Main.AllPlayerSpeed[killer.PlayerId], GetTimeStamp()));
+                        isSpeedChange.TryAdd(killer.PlayerId, (Main.AllPlayerSpeed[killer.PlayerId], TimeStamp));
                         Main.AllPlayerSpeed[killer.PlayerId] = Main.MinSpeed;
                         killer.MarkDirtySettings();
                         break;
                     case 3: // Low vision
                         killer.Notify(string.Format(GetString("GamblerGet.LowVision"), LowVisionDur.GetInt(), LowVision.GetFloat()));
-                        isVisionChange.TryAdd(killer.PlayerId, GetTimeStamp());
+                        isVisionChange.TryAdd(killer.PlayerId, TimeStamp);
                         killer.MarkDirtySettings();
                         break;
                     case 4: // High KCD
@@ -231,27 +231,27 @@ namespace TOHE.Roles.Impostor
                     waitingDelayedKills.Remove(x.Key);
                     continue;
                 }
-                if (x.Value + KillDelay.GetInt() < GetTimeStamp())
+                if (x.Value + KillDelay.GetInt() < TimeStamp)
                 {
                     pc.Suicide(PlayerState.DeathReason.Poison, player);
                     waitingDelayedKills.Remove(x.Key);
                 }
             }
 
-            if (isSpeedChange.TryGetValue(player.PlayerId, out var p) && p.Item2 + SpeedDur.GetInt() < GetTimeStamp())
+            if (isSpeedChange.TryGetValue(player.PlayerId, out var p) && p.Item2 + SpeedDur.GetInt() < TimeStamp)
             {
                 Main.AllPlayerSpeed[player.PlayerId] = p.Item1;
                 isSpeedChange.Remove(player.PlayerId);
                 sync = true;
             }
 
-            if (isVisionChange.TryGetValue(player.PlayerId, out var v) && v + LowVisionDur.GetInt() < GetTimeStamp())
+            if (isVisionChange.TryGetValue(player.PlayerId, out var v) && v + LowVisionDur.GetInt() < TimeStamp)
             {
                 isVisionChange.Remove(player.PlayerId);
                 sync = true;
             }
 
-            if (isShielded.TryGetValue(player.PlayerId, out var shielded) && shielded + ShieldDur.GetInt() < GetTimeStamp())
+            if (isShielded.TryGetValue(player.PlayerId, out var shielded) && shielded + ShieldDur.GetInt() < TimeStamp)
             {
                 isShielded.Remove(player.PlayerId);
             }

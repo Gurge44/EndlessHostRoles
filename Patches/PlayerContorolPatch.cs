@@ -409,7 +409,7 @@ class CheckMurderPatch
                         if (!killer.CheckDoubleTrigger(target, () =>
                         {
                             Main.PuppeteerList[target.PlayerId] = killer.PlayerId;
-                            Main.PuppeteerDelayList[target.PlayerId] = GetTimeStamp();
+                            Main.PuppeteerDelayList[target.PlayerId] = TimeStamp;
                             Main.PuppeteerDelay[target.PlayerId] = IRandom.Instance.Next(Options.PuppeteerMinDelay.GetInt(), Options.PuppeteerMaxDelay.GetInt());
                             killer.SetKillCooldown(time: Options.PuppeteerCD.GetFloat());
                             if (usesLeft <= 1)
@@ -428,7 +428,7 @@ class CheckMurderPatch
                     else
                     {
                         Main.PuppeteerList[target.PlayerId] = killer.PlayerId;
-                        Main.PuppeteerDelayList[target.PlayerId] = GetTimeStamp();
+                        Main.PuppeteerDelayList[target.PlayerId] = TimeStamp;
                         Main.PuppeteerDelay[target.PlayerId] = IRandom.Instance.Next(Options.PuppeteerMinDelay.GetInt(), Options.PuppeteerMaxDelay.GetInt());
                         killer.SetKillCooldown();
                         if (usesLeft <= 1)
@@ -796,6 +796,8 @@ class CheckMurderPatch
 
         if (Mathematician.State.ProtectedPlayerId == target.PlayerId) return false;
 
+        if (Randomizer.IsShielded(target)) return false;
+
         if (SoulHunter.IsTargetBlocked && SoulHunter.CurrentTarget.ID == killer.PlayerId && target.Is(CustomRoles.SoulHunter))
         {
             killer.Notify(GetString("SoulHunterTargetNotifyNoKill"));
@@ -935,7 +937,7 @@ class CheckMurderPatch
             case CustomRoles.Veteran:
                 if (Main.VeteranInProtect.ContainsKey(target.PlayerId)
                     && killer.PlayerId != target.PlayerId
-                    && Main.VeteranInProtect[target.PlayerId] + Options.VeteranSkillDuration.GetInt() >= GetTimeStamp())
+                    && Main.VeteranInProtect[target.PlayerId] + Options.VeteranSkillDuration.GetInt() >= TimeStamp)
                 {
                     if (!killer.Is(CustomRoles.Pestilence))
                     {
@@ -1096,7 +1098,7 @@ class MurderPlayerPatch
 
         if (killer.Is(CustomRoles.Sniper))
             if (!Options.UsePets.GetBool()) killer.RpcResetAbilityCooldown();
-            else Main.AbilityCD[killer.PlayerId] = (GetTimeStamp(), Options.DefaultShapeshiftCooldown.GetInt());
+            else Main.AbilityCD[killer.PlayerId] = (TimeStamp, Options.DefaultShapeshiftCooldown.GetInt());
 
         if (killer != __instance)
         {
@@ -1133,7 +1135,7 @@ class MurderPlayerPatch
         //    VengefulRomantic.PartnerKiller.Add(killer.PlayerId, 1);
 
         Main.AllKillers.Remove(killer.PlayerId);
-        Main.AllKillers.Add(killer.PlayerId, GetTimeStamp());
+        Main.AllKillers.Add(killer.PlayerId, TimeStamp);
 
         killer.AddKillTimerToDict();
 
@@ -1641,7 +1643,7 @@ class ReportDeadBodyPatch
                         else __instance.Notify(GetString("BloodhoundNoTrack"));
                         return false;
                     case CustomRoles.Vulture:
-                        long now = GetTimeStamp();
+                        long now = TimeStamp;
                         if ((Vulture.AbilityLeftInRound[__instance.PlayerId] > 0) && (now - Vulture.LastReport[__instance.PlayerId] > (long)Vulture.VultureReportCD.GetFloat()))
                         {
                             Vulture.LastReport[__instance.PlayerId] = now;
@@ -1776,7 +1778,6 @@ class ReportDeadBodyPatch
             var tpc = GetPlayerById(target.PlayerId);
             if (tpc != null && !tpc.IsAlive())
             {
-                // 侦探报告
                 if (player.Is(CustomRoles.Detective) && player.PlayerId != target.PlayerId)
                 {
                     string msg;
@@ -1838,6 +1839,7 @@ class ReportDeadBodyPatch
         if (NiceEraser.IsEnable) NiceEraser.OnReportDeadBody();
         if (Librarian.IsEnable) Librarian.OnReportDeadBody();
         if (Hacker.IsEnable) Hacker.OnReportDeadBody();
+        if (Randomizer.IsEnable) Randomizer.OnReportDeadBody();
         if (Analyzer.IsEnable) Analyzer.OnReportDeadBody();
         if (Judge.IsEnable) Judge.OnReportDeadBody();
         //    Councillor.OnReportDeadBody();
@@ -2147,6 +2149,9 @@ class FixedUpdatePatch
                 case CustomRoles.Swiftclaw when !lowLoad:
                     Swiftclaw.OnFixedUpdate(player);
                     break;
+                case CustomRoles.Randomizer when !lowLoad:
+                    Randomizer.OnFixedUpdateForRandomizer(player);
+                    break;
             }
             if (GameStates.IsInTask && player.Is(CustomRoles.PlagueBearer) && PlagueBearer.IsPlaguedAll(player))
             {
@@ -2169,6 +2174,7 @@ class FixedUpdatePatch
                 Asthmatic.OnCheckPlayerPosition(player);
                 PlagueDoctor.OnCheckPlayerPosition(player);
                 Beacon.OnCheckPlayerPosition(player);
+                Randomizer.OnCheckPlayerPosition(player);
             }
 
             if (!lowLoad && Main.PlayerStates.TryGetValue(playerId, out var playerState) && GameStates.IsInTask)
@@ -2180,12 +2186,12 @@ class FixedUpdatePatch
                 if (subRoles.Contains(CustomRoles.Disco)) Disco.OnFixedUpdate(player);
             }
 
-            long now = GetTimeStamp();
+            long now = TimeStamp;
             if (!lowLoad && Options.UsePets.GetBool() && GameStates.IsInTask && (!LastUpdate.TryGetValue(playerId, out var lastPetNotify) || lastPetNotify < now))
             {
                 if (Main.AbilityCD.TryGetValue(playerId, out var timer))
                 {
-                    if (timer.START_TIMESTAMP + timer.TOTALCD < GetTimeStamp() || !player.IsAlive())
+                    if (timer.START_TIMESTAMP + timer.TOTALCD < TimeStamp || !player.IsAlive())
                     {
                         Main.AbilityCD.Remove(playerId);
                     }
@@ -2201,7 +2207,15 @@ class FixedUpdatePatch
                 Kamikaze.OnFixedUpdate();
                 Succubus.OnFixedUpdate();
                 Necromancer.OnFixedUpdate();
+
+                if (Randomizer.IsEnable)
+                {
+                    Sentinel.OnFixedUpdate();
+                    Randomizer.OnFixedUpdateForPlayers(player);
+                }
             }
+
+            Randomizer.GlobalFixedUpdate(lowLoad);
         }
 
         if (GameStates.IsInTask && Agitater.IsEnable && Agitater.AgitaterHasBombed && Agitater.CurrentBombedPlayer == playerId)
@@ -2367,7 +2381,7 @@ class FixedUpdatePatch
             {
                 if (Main.RevolutionistLastTime.ContainsKey(playerId))
                 {
-                    long nowtime = GetTimeStamp();
+                    long nowtime = TimeStamp;
                     if (Main.RevolutionistLastTime[playerId] != nowtime) Main.RevolutionistLastTime[playerId] = nowtime;
                     int time = (int)(Main.RevolutionistLastTime[playerId] - Main.RevolutionistStart[playerId]);
                     int countdown = Options.RevolutionistVentCountDown.GetInt() - time;
@@ -2394,7 +2408,7 @@ class FixedUpdatePatch
             }
             else //如果不存在字典
             {
-                Main.RevolutionistStart.TryAdd(playerId, GetTimeStamp());
+                Main.RevolutionistStart.TryAdd(playerId, TimeStamp);
             }
         }
         #endregion
@@ -2405,7 +2419,7 @@ class FixedUpdatePatch
 
         if (!lowLoad)
         {
-            long now = GetTimeStamp();
+            long now = TimeStamp;
 
             // Ability Use Gain every 5 seconds
 
@@ -3347,13 +3361,13 @@ class EnterVentPatch
                     if (pc.Is(CustomRoles.Madmate))
                     {
                         Main.MadGrenadierBlinding.Remove(pc.PlayerId);
-                        Main.MadGrenadierBlinding.Add(pc.PlayerId, GetTimeStamp());
+                        Main.MadGrenadierBlinding.Add(pc.PlayerId, TimeStamp);
                         Main.AllPlayerControls.Where(x => x.IsModClient()).Where(x => !x.GetCustomRole().IsImpostorTeam() && !x.Is(CustomRoles.Madmate)).Do(x => x.RPCPlayCustomSound("FlashBang"));
                     }
                     else
                     {
                         Main.GrenadierBlinding.Remove(pc.PlayerId);
-                        Main.GrenadierBlinding.Add(pc.PlayerId, GetTimeStamp());
+                        Main.GrenadierBlinding.Add(pc.PlayerId, TimeStamp);
                         Main.AllPlayerControls.Where(x => x.IsModClient()).Where(x => x.GetCustomRole().IsImpostor() || (x.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool())).Do(x => x.RPCPlayCustomSound("FlashBang"));
                     }
                     //pc.RpcGuardAndKill(pc);
@@ -3372,7 +3386,7 @@ class EnterVentPatch
                 if (Main.LighterNumOfUsed[pc.PlayerId] >= 1)
                 {
                     Main.Lighter.Remove(pc.PlayerId);
-                    Main.Lighter.Add(pc.PlayerId, GetTimeStamp());
+                    Main.Lighter.Add(pc.PlayerId, TimeStamp);
                     pc.Notify(GetString("LighterSkillInUse"), Options.LighterSkillDuration.GetFloat());
                     pc.AddAbilityCD();
                     Main.LighterNumOfUsed[pc.PlayerId] -= 1;
@@ -3387,7 +3401,7 @@ class EnterVentPatch
                 if (Main.SecurityGuardNumOfUsed[pc.PlayerId] >= 1)
                 {
                     Main.BlockSabo.Remove(pc.PlayerId);
-                    Main.BlockSabo.Add(pc.PlayerId, GetTimeStamp());
+                    Main.BlockSabo.Add(pc.PlayerId, TimeStamp);
                     pc.Notify(GetString("SecurityGuardSkillInUse"), Options.SecurityGuardSkillDuration.GetFloat());
                     pc.AddAbilityCD();
                     Main.SecurityGuardNumOfUsed[pc.PlayerId] -= 1;
@@ -3431,7 +3445,7 @@ class EnterVentPatch
                     {
                         Main.TimeMasterNumOfUsed[pc.PlayerId] -= 1;
                         Main.TimeMasterInProtect.Remove(pc.PlayerId);
-                        Main.TimeMasterInProtect.Add(pc.PlayerId, GetTimeStamp());
+                        Main.TimeMasterInProtect.Add(pc.PlayerId, TimeStamp);
                         //if (!pc.IsModClient()) pc.RpcGuardAndKill(pc);
                         pc.Notify(GetString("TimeMasterOnGuard"), Options.TimeMasterSkillDuration.GetFloat());
                         pc.AddAbilityCD();
