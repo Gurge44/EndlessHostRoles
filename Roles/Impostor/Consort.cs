@@ -13,7 +13,7 @@ namespace TOHE.Roles.Impostor
         private static OptionItem CD;
         private static OptionItem UseLimit;
 
-        public static int BlockLimit;
+        public static Dictionary<byte, int> BlockLimit;
 
         public static void SetupCustomOption()
         {
@@ -29,43 +29,43 @@ namespace TOHE.Roles.Impostor
         public static void Init()
         {
             playerIdList = [];
-            BlockLimit = 0;
+            BlockLimit = [];
         }
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            BlockLimit = UseLimit.GetInt();
+            BlockLimit[playerId] = UseLimit.GetInt();
         }
         public static bool IsEnable => playerIdList.Count > 0;
-        public static void SendRPC()
+        public static void SendRPC(byte playerId)
         {
             if (!IsEnable || !Utils.DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetConsortLimit, SendOption.Reliable, -1);
-            writer.Write(BlockLimit);
+            writer.Write(playerId);
+            writer.Write(BlockLimit[playerId]);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         public static void ReceiveRPC(MessageReader reader)
         {
             if (!IsEnable) return;
-            BlockLimit = reader.ReadInt32();
+            byte playerId = reader.ReadByte();
+            int limit = reader.ReadInt32();
+            BlockLimit[playerId] = limit;
         }
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable) return false;
-            if (killer == null) return false;
-            if (target == null) return false;
-            if (BlockLimit <= 0) return true;
-            if (!killer.Is(CustomRoles.Consort)) return false;
+            if (!IsEnable || killer == null || target == null) return false;
+            if (BlockLimit[killer.PlayerId] <= 0 || !killer.Is(CustomRoles.Consort)) return true;
 
             return killer.CheckDoubleTrigger(target, () =>
             {
-                BlockLimit--;
+                BlockLimit[killer.PlayerId]--;
                 Glitch.hackedIdList.TryAdd(target.PlayerId, Utils.GetTimeStamp());
                 killer.Notify(GetString("EscortTargetHacked"));
                 killer.SetKillCooldown(CD.GetFloat());
-                SendRPC();
+                SendRPC(killer.PlayerId);
             });
         }
-        public static string GetProgressText() => $"<color=#777777>-</color> <color=#ffffff>{BlockLimit}</color>";
+        public static string GetProgressText(byte id) => BlockLimit.TryGetValue(id, out var limit) ? $"<color=#777777>-</color> <color=#ffffff>{limit}</color>" : string.Empty;
     }
 }
