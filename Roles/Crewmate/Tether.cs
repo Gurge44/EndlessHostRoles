@@ -140,6 +140,6 @@ namespace TOHE.Roles.Crewmate
 
             return sb.ToString();
         }
-        public static string TargetText => Target != byte.MaxValue ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{GetPlayerById(Target).GetRealName()}</color>" : string.Empty;
+        public static string TargetText => Target != byte.MaxValue ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(Target).GetRealName()}</color>" : string.Empty;
     }
 }

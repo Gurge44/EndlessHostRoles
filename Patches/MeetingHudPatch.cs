@@ -428,11 +428,15 @@ class CheckForEndVotingPatch
         else if (Options.ShowImpRemainOnEject.GetBool())
         {
             name += "\n";
+            int actualNeutralnum = neutralnum;
             if (!Options.ShowNKRemainOnEject.GetBool()) neutralnum = 0;
             switch (impnum, neutralnum)
             {
-                case (0, 0): // Crewmates win
+                case (0, 0) when actualNeutralnum == 0: // Crewmates win
                     name += GetString("GG");
+                    break;
+                case (0, 0) when actualNeutralnum > 0:
+                    name += GetString("IWonderWhatsLeft");
                     break;
                 case ( > 0, > 0): // Both imps and neutrals remain
                     name += impnum switch
@@ -473,7 +477,7 @@ class CheckForEndVotingPatch
         }, 3.0f, "Change Exiled Player Name");
         _ = new LateTask(() =>
         {
-            if (GameStates.IsInGame && !player.Data.Disconnected)
+            if (GameStates.IsInGame && player != null && !player.Data.Disconnected)
             {
                 player?.RpcSetName(realName);
                 Main.DoBlockNameChange = false;

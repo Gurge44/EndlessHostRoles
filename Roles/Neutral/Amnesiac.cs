@@ -1,7 +1,7 @@
+using AmongUs.GameOptions;
 using Hazel;
+using System;
 using System.Collections.Generic;
-using TOHE.Roles.Crewmate;
-using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -17,10 +17,10 @@ public static class Amnesiac
     public static OptionItem IncompatibleNeutralMode;
     public static readonly string[] amnesiacIncompatibleNeutralMode =
     [
-        "Role.Amnesiac",
-        "Role.Pursuer",
-        "Role.Follower",
-        "Role.Maverick",
+        "Role.Amnesiac", // 0
+        "Role.Pursuer",  // 1
+        "Role.Follower", // 2
+        "Role.Maverick", // 3
     ];
 
     private static int RememberLimit;
@@ -62,293 +62,71 @@ public static class Amnesiac
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (RememberLimit < 1) return;
-        if (CanBeRememberedNeutralKiller(target))
+
+        CustomRoles? RememberedRole = null;
+        string killerNotifyString = string.Empty;
+
+        CustomRoles targetRole = target.GetCustomRole();
+
+        if (targetRole == CustomRoles.Jackal)
         {
-            RememberLimit--;
-            SendRPC();
-            killer.RpcSetCustomRole(target.GetCustomRole());
+            RememberedRole = CustomRoles.Sidekick;
+            killerNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller"));
+        }
 
-            killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller")));
-            target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
+        else if (targetRole.IsNK())
+        {
+            RememberedRole = targetRole;
+            killerNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller"));
+        }
 
-            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
-            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
+        else if (targetRole.IsNonNK())
+        {
+            string roleString = amnesiacIncompatibleNeutralMode[IncompatibleNeutralMode.GetValue()][6..];
+            RememberedRole = (CustomRoles)Enum.Parse(typeof(CustomRoles), roleString);
+            killerNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString($"Remembered{roleString}"));
+        }
 
-            killer.ResetKillCooldown();
-            killer.SetKillCooldown();
-            //killer.RpcGuardAndKill(target);
-            target.RpcGuardAndKill(killer);
-            target.RpcGuardAndKill(target);
+        else if (target.Is(Team.Impostor))
+        {
+            RememberedRole = CustomRoles.Refugee;
+            killerNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedImpostor"));
+        }
 
+        else if (target.Is(Team.Crewmate))
+        {
+            RememberedRole = targetRole.GetDYRole() == RoleTypes.Impostor ? targetRole : CustomRoles.Sheriff;
+            killerNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedCrewmate"));
+        }
+
+
+        if (RememberedRole == null)
+        {
+            killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
             return;
         }
-        killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
 
-        if (CanBeRememberedJackal(target))
-        {
-            RememberLimit--;
-            SendRPC();
-            killer.RpcSetCustomRole(CustomRoles.Sidekick);
+        var role = (CustomRoles)RememberedRole;
 
-            killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller")));
-            target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
+        RememberLimit--;
+        SendRPC();
 
-            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
-            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
+        killer.RpcSetCustomRole(role);
 
-            killer.ResetKillCooldown();
-            killer.SetKillCooldown();
-            //killer.RpcGuardAndKill(target);
-            target.RpcGuardAndKill(killer);
-            target.RpcGuardAndKill(target);
+        killer.Notify(killerNotifyString);
+        target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
 
-            return;
-        }
-        killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
+        Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+        Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
-        if (CanBeRememberedNeutral(target))
-        {
-            if (IncompatibleNeutralMode.GetValue() == 0)
-            {
-                RememberLimit--;
-                SendRPC();
-                killer.RpcSetCustomRole(CustomRoles.Amnesiac);
+        Utils.AddRoles(killer.PlayerId, role);
 
-                killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedAmnesiac")));
-                target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
+        killer.ResetKillCooldown();
+        killer.SetKillCooldown();
 
-                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
-                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
-
-                Add(killer.PlayerId);
-
-                killer.ResetKillCooldown();
-                killer.SetKillCooldown();
-                //killer.RpcGuardAndKill(target);
-                target.RpcGuardAndKill(killer);
-                target.RpcGuardAndKill(target);
-
-                return;
-            }
-            if (IncompatibleNeutralMode.GetValue() == 2)
-            {
-                RememberLimit--;
-                SendRPC();
-                killer.RpcSetCustomRole(CustomRoles.Pursuer);
-
-                killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedPursuer")));
-                target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
-
-                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
-                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
-
-                Pursuer.Add(killer.PlayerId);
-
-                killer.ResetKillCooldown();
-                killer.SetKillCooldown();
-                //killer.RpcGuardAndKill(target);
-                target.RpcGuardAndKill(killer);
-                target.RpcGuardAndKill(target);
-
-                return;
-            }
-            if (IncompatibleNeutralMode.GetValue() == 3)
-            {
-                RememberLimit--;
-                SendRPC();
-                killer.RpcSetCustomRole(CustomRoles.Totocalcio);
-
-                killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedFollower")));
-                target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
-
-                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
-                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
-
-                Totocalcio.Add(killer.PlayerId);
-
-                killer.ResetKillCooldown();
-                killer.SetKillCooldown();
-                //killer.RpcGuardAndKill(target);
-                target.RpcGuardAndKill(killer);
-                target.RpcGuardAndKill(target);
-
-                return;
-            }
-            if (IncompatibleNeutralMode.GetValue() == 4)
-            {
-                RememberLimit--;
-                SendRPC();
-                killer.RpcSetCustomRole(CustomRoles.Maverick);
-
-                killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedMaverick")));
-                target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
-
-                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
-                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
-
-                killer.ResetKillCooldown();
-                killer.SetKillCooldown();
-                //killer.RpcGuardAndKill(target);
-                target.RpcGuardAndKill(killer);
-                target.RpcGuardAndKill(target);
-
-                return;
-            }
-        }
-        killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
-
-        if (CanBeRememberedImpostor(target))
-        {
-            RememberLimit--;
-            SendRPC();
-            killer.RpcSetCustomRole(CustomRoles.Refugee);
-
-            killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedImpostor")));
-            target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
-
-            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
-            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
-
-            killer.ResetKillCooldown();
-            killer.SetKillCooldown();
-            //killer.RpcGuardAndKill(target);
-            target.RpcGuardAndKill(killer);
-            target.RpcGuardAndKill(target);
-
-            return;
-        }
-        killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
-
-        if (CanBeRememberedCrewmate(target))
-        {
-            RememberLimit--;
-            SendRPC();
-            killer.RpcSetCustomRole(CustomRoles.Sheriff);
-
-            killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedCrewmate")));
-            target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
-
-            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
-            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
-
-            Sheriff.Add(killer.PlayerId);
-
-            killer.ResetKillCooldown();
-            killer.SetKillCooldown();
-            //killer.RpcGuardAndKill(target);
-            target.RpcGuardAndKill(killer);
-            target.RpcGuardAndKill(target);
-
-            return;
-        }
-        killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
-
-        if (CanBeRememberedPoisoner(target))
-        {
-            RememberLimit--;
-            SendRPC();
-            killer.RpcSetCustomRole(CustomRoles.Poisoner);
-
-            killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller")));
-            target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
-
-            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
-            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
-
-            Poisoner.Add(killer.PlayerId);
-
-            killer.ResetKillCooldown();
-            killer.SetKillCooldown();
-            //killer.RpcGuardAndKill(target);
-            target.RpcGuardAndKill(killer);
-            target.RpcGuardAndKill(target);
-
-            return;
-        }
-        killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
-
-        if (CanBeRememberedJuggernaut(target))
-        {
-            RememberLimit--;
-            SendRPC();
-            killer.RpcSetCustomRole(CustomRoles.Juggernaut);
-
-            killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller")));
-            target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
-
-            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
-            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
-
-            Juggernaut.Add(killer.PlayerId);
-
-            killer.ResetKillCooldown();
-            killer.SetKillCooldown();
-            //killer.RpcGuardAndKill(target);
-            target.RpcGuardAndKill(killer);
-            target.RpcGuardAndKill(target);
-
-            return;
-        }
-        killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
-
-        if (CanBeRememberedHexMaster(target))
-        {
-            RememberLimit--;
-            SendRPC();
-            killer.RpcSetCustomRole(CustomRoles.HexMaster);
-
-            killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller")));
-            target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
-
-            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
-            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
-
-            HexMaster.Add(killer.PlayerId);
-
-            killer.ResetKillCooldown();
-            killer.SetKillCooldown();
-            //killer.RpcGuardAndKill(target);
-            target.RpcGuardAndKill(killer);
-            target.RpcGuardAndKill(target);
-
-            return;
-        }
-        killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
-
-        if (CanBeRememberedBloodKnight(target))
-        {
-            RememberLimit--;
-            SendRPC();
-            killer.RpcSetCustomRole(CustomRoles.BloodKnight);
-
-            killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller")));
-            target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
-
-            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
-            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
-
-            BloodKnight.Add(killer.PlayerId);
-
-            killer.ResetKillCooldown();
-            killer.SetKillCooldown();
-            //killer.RpcGuardAndKill(target);
-            target.RpcGuardAndKill(killer);
-            target.RpcGuardAndKill(target);
-
-            return;
-        }
-        killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
+        target.RpcGuardAndKill(killer);
+        target.RpcGuardAndKill(target);
     }
-    public static string GetRememberLimit() => Utils.ColorString(RememberLimit >= 1 ? Utils.GetRoleColor(CustomRoles.Amnesiac) : Color.gray, $"({RememberLimit})");
-    public static bool CanBeRememberedNeutralKiller(this PlayerControl pc) => pc != null && pc.GetCustomRole().IsAmneNK();
-    public static bool CanBeRememberedNeutral(this PlayerControl pc) => pc != null && pc.GetCustomRole().IsAmneMaverick();
-    public static bool CanBeRememberedImpostor(this PlayerControl pc) => pc != null && (pc.GetCustomRole().IsImpostor() || pc.Is(CustomRoles.Madmate));
-    public static bool CanBeRememberedCrewmate(this PlayerControl pc) => pc != null && pc.GetCustomRole().IsCrewmate() && !pc.Is(CustomRoles.Madmate);
-    public static bool CanBeRememberedJackal(this PlayerControl pc) => pc != null && pc.Is(CustomRoles.Jackal);
-    public static bool CanBeRememberedHexMaster(this PlayerControl pc) => pc != null && pc.Is(CustomRoles.HexMaster);
-    public static bool CanBeRememberedPoisoner(this PlayerControl pc) => pc != null && pc.Is(CustomRoles.Poisoner);
-    public static bool CanBeRememberedJuggernaut(this PlayerControl pc) => pc != null && pc.Is(CustomRoles.Juggernaut);
-    public static bool CanBeRememberedBloodKnight(this PlayerControl pc) => pc != null && pc.Is(CustomRoles.BloodKnight);
     public static bool KnowRole(PlayerControl player, PlayerControl target)
     {
         if (player.IsNeutralKiller() && target.IsNeutralKiller() && player.GetCustomRole() == target.GetCustomRole()) return true;
@@ -356,5 +134,4 @@ public static class Amnesiac
         if (player.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Refugee)) return true;
         return false;
     }
-
 }

@@ -7,7 +7,7 @@
     <Description>TOHE+</Description>
     <Authors>Gurge44</Authors>
     <langVersion>preview</langVersion>
-	    <AmongUs>E:\Program Files\AmongUs</AmongUs>
+	    <AmongUs>D:\Epic Games\AmongUs</AmongUs>
 	    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	    <Optimize>True</Optimize>
 	    <AssemblyName>$(MSBuildProjectName)+</AssemblyName>
@@ -47,7 +47,4 @@
     <Target Name="Copy" AfterTargets="Build" Condition="'$(AmongUs)' != ''">
         <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="$(AmongUs)/BepInEx/plugins/" />
     </Target>
-	<Target Name="RunGameAfterBuild" AfterTargets="Build" Condition="'$(AmongUs)' != ''">
-		<Exec Command="$(AmongUs)/Among Us.exe" />
-	</Target>
 </Project>
