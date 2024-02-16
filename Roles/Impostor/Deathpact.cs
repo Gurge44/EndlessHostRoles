@@ -1,6 +1,7 @@
 using AmongUs.GameOptions;
 using System.Collections.Generic;
 using System.Linq;
+using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
 using UnityEngine;
 using static TOHE.Options;
@@ -69,7 +70,7 @@ namespace TOHE.Roles.Impostor
             AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
             AURoleOptions.ShapeshifterDuration = 1f;
         }
-        public static bool IsEnable => playerIdList.Count > 0;
+        public static bool IsEnable => playerIdList.Count > 0 || Randomizer.IsEnable;
 
         public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
 

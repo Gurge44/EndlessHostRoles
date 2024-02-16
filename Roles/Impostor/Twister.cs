@@ -56,18 +56,12 @@ namespace TOHE.Roles.Impostor
             var rd = IRandom.Instance;
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (changePositionPlayers.Contains(pc.PlayerId) || Pelican.IsEaten(pc.PlayerId) || !pc.IsAlive() || pc.onLadder || pc.inVent || GameStates.IsMeeting)
-                {
-                    continue;
-                }
-
-                var filtered = Main.AllAlivePlayerControls.Where(a =>
-                    pc.IsAlive() && !Pelican.IsEaten(pc.PlayerId) && !pc.inVent && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
+                if (changePositionPlayers.Contains(pc.PlayerId) || Pelican.IsEaten(pc.PlayerId) || pc.onLadder || pc.inVent || GameStates.IsMeeting) continue;
+                
+                var filtered = Main.AllAlivePlayerControls.Where(a => !a.inVent && !Pelican.IsEaten(a.PlayerId) && !a.onLadder && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
                 if (filtered.Length == 0) break;
 
                 PlayerControl target = filtered[rd.Next(0, filtered.Length)];
-
-                if (pc.inVent || target.inVent) continue;
 
                 changePositionPlayers.Add(target.PlayerId);
                 changePositionPlayers.Add(pc.PlayerId);

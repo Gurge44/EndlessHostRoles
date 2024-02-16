@@ -1,6 +1,7 @@
 ﻿using AmongUs.GameOptions;
 using Hazel;
 using System.Collections.Generic;
+using TOHE.Roles.Crewmate;
 using static TOHE.Translator;
 
 namespace TOHE.Roles.Neutral;
@@ -8,7 +9,6 @@ public static class Agitater
 {
     private static readonly int Id = 12420;
     public static List<byte> playerIdList = [];
-    public static bool IsEnable;
 
     public static OptionItem BombExplodeCooldown;
     public static OptionItem PassCooldown;
@@ -44,18 +44,18 @@ public static class Agitater
         LastBombedPlayer = byte.MaxValue;
         AgitaterHasBombed = false;
         CurrentBombedPlayerTime = new();
-        IsEnable = false;
     }
 
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        IsEnable = true;
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
+
+    public static bool IsEnable => playerIdList.Count > 0 || Randomizer.IsEnable;
 
     public static void ResetBomb()
     {

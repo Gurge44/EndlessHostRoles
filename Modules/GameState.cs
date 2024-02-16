@@ -217,6 +217,7 @@ public class PlayerState(byte playerId)
         YinYanged,
         Hack,
         Kamikazed,
+        RNG,
 
         etc = -1,
     }

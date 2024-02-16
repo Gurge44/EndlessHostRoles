@@ -76,12 +76,15 @@ namespace TOHE.Roles.Crewmate
             DeliverLimit--;
 
             var num1 = IRandom.Instance.Next(0, 19);
-            var num2 = IRandom.Instance.Next(0, 15);
-
             killer.Notify(GetString($"DonutDelivered-{num1}"));
-            target.Notify(GetString($"DonutGot-{num2}"));
+            RandomNotifyTarget(target);
 
             killer.SetKillCooldown();
+        }
+        public static void RandomNotifyTarget(PlayerControl target)
+        {
+            var num2 = IRandom.Instance.Next(0, 15);
+            target.Notify(GetString($"DonutGot-{num2}"));
         }
         public static string GetProgressText() => $"<color=#777777>-</color> <color=#ffffff>{DeliverLimit}</color>";
     }

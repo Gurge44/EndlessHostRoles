@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -32,7 +33,7 @@ namespace TOHE.Roles.Impostor
             playerIdList.Add(playerId);
         }
 
-        public static bool IsEnable => playerIdList.Count > 0;
+        public static bool IsEnable => playerIdList.Count > 0 || Randomizer.IsEnable;
 
         public static void ApplyGameOptions()
         {

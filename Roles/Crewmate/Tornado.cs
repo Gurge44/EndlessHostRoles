@@ -23,7 +23,7 @@ namespace TOHE.Roles.Crewmate
         private static RandomSpawn.SpawnMap Map;
         private static readonly Dictionary<(Vector2 LOCATION, string ROOM_NAME), long> Tornados = [];
         private static long LastNotify = GetTimeStamp();
-        private static bool CanUseMap = true;
+        private static bool CanUseMap = false;
 
         public static void SetupCustomOption()
         {
@@ -64,7 +64,7 @@ namespace TOHE.Roles.Crewmate
             }
             catch (NotImplementedException)
             {
-                Logger.CurrentMethod(lineNumber: 60);
+                Logger.CurrentMethod();
                 Logger.Error("Unsupported Map", "Torando");
                 CanUseMap = false;
             }

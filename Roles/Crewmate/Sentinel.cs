@@ -8,7 +8,7 @@ using static TOHE.Utils;
 
 namespace TOHE.Roles.Crewmate
 {
-    class PatrollingState(byte sentinelId, int patrolDuration, float patrolRadius, PlayerControl sentinel = null, bool isPatrolling = false, Vector2? startingPosition = null, long patrolStartTimeStamp = 0)
+    public class PatrollingState(byte sentinelId, int patrolDuration, float patrolRadius, PlayerControl sentinel = null, bool isPatrolling = false, Vector2? startingPosition = null, long patrolStartTimeStamp = 0)
     {
         public byte SentinelId { get => sentinelId; set => sentinelId = value; }
         public PlayerControl Sentinel { get => sentinel; set => sentinel = value; }
@@ -123,7 +123,7 @@ namespace TOHE.Roles.Crewmate
             PatrolStates.Add(newPatrolState);
             _ = new LateTask(newPatrolState.SetPlayer, 8f, log: false);
         }
-        public static bool IsEnable => PatrolStates.Count > 0;
+        public static bool IsEnable => PatrolStates.Count > 0 || Randomizer.IsEnable;
         public static PatrollingState GetPatrollingState(byte playerId) => PatrolStates.FirstOrDefault(x => x.SentinelId == playerId) ?? new(playerId, PatrolDuration.GetInt(), PatrolRadius.GetInt());
         public static bool IsPatrolling(byte playerId) => GetPatrollingState(playerId).IsPatrolling;
         public static void StartPatrolling(PlayerControl pc) => GetPatrollingState(pc.PlayerId)?.StartPatrolling();

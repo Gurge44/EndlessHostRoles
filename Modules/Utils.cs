@@ -1056,8 +1056,8 @@ public static class Utils
                 case CustomRoles.Aid:
                     ProgressText.Append(Aid.GetProgressText(playerId, comms));
                     break;
-                case CustomRoles.Mafioso:
-                    if (!pc.IsModClient()) ProgressText.Append(Mafioso.GetProgressText());
+                case CustomRoles.Mafioso when !pc.IsModClient():
+                    ProgressText.Append(Mafioso.GetProgressText());
                     break;
                 case CustomRoles.Consort:
                     ProgressText.Append(Consort.GetProgressText(playerId));

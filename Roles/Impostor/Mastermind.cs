@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TOHE.Roles.Crewmate;
 using static TOHE.Options;
 using static TOHE.Translator;
 using static TOHE.Utils;
@@ -49,7 +50,7 @@ namespace TOHE.Roles.Impostor
             ManipulateCD = KillCooldown.GetFloat() + TimeLimit.GetFloat() + Delay.GetFloat();
         }
 
-        public static bool IsEnable => MastermindId != byte.MaxValue;
+        public static bool IsEnable => MastermindId != byte.MaxValue || Randomizer.IsEnable;
 
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
