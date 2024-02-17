@@ -92,7 +92,8 @@ class ExternalRpcPetPatch
             pc.MyPhysics.Animations.IsPlayingEnterVentAnimation() ||
             pc.MyPhysics.Animations.IsPlayingClimbAnimation() ||
             pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() ||
-            Pelican.IsEaten(pc.PlayerId))
+            Pelican.IsEaten(pc.PlayerId) ||
+            Penguin.IsVictim(pc))
             return;
 
         if (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId))
@@ -537,7 +538,9 @@ class ExternalRpcPetPatch
                 break;
 
             case CustomRoles.Refugee when hasKillTarget:
-
+                pc.AddKCDAsAbilityCD();
+                pc.RpcCheckAndMurder(target);
+                pc.SetKillCooldown();
                 break;
 
             // Neutrals

@@ -8,19 +8,28 @@ namespace TOHE.Roles.Impostor
     public static class Penguin
     {
         private static readonly int Id = 641800;
-        private static List<byte> playerIdList = [];
+
+        private static byte PenguinId = byte.MaxValue;
+        private static PlayerControl Penguin_ = null;
 
         private static OptionItem OptionAbductTimerLimit;
         private static OptionItem OptionMeetingKill;
+        private static OptionItem OptionSpeedDuringDrag;
+        private static OptionItem OptionVictimCanUseAbilities;
 
         private static PlayerControl AbductVictim;
         private static float AbductTimer;
         private static float AbductTimerLimit;
         private static bool stopCount;
         private static bool MeetingKill;
+        private static float SpeedDuringDrag;
+        private static bool VictimCanUseAbilities;
+
+        private static float DefaultSpeed;
 
         // Measures to prevent the opponent who is about to be killed during abduction from using their abilities
-        public static bool IsKiller => AbductVictim == null;
+        public static bool IsVictim(PlayerControl pc) => !VictimCanUseAbilities && AbductVictim != null && AbductVictim.PlayerId == pc.PlayerId;
+
         public static void SetupCustomOption()
         {
             Options.SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Penguin, 1);
@@ -29,22 +38,33 @@ namespace TOHE.Roles.Impostor
                 .SetValueFormat(OptionFormat.Seconds);
             OptionMeetingKill = BooleanOptionItem.Create(Id + 12, "PenguinMeetingKill", false, TabGroup.ImpostorRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Penguin]);
+            OptionSpeedDuringDrag = FloatOptionItem.Create(Id + 13, "PenguinSpeedDuringDrag", new(0.1f, 3f, 0.1f), 1f, TabGroup.ImpostorRoles, false)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Penguin])
+                .SetValueFormat(OptionFormat.Multiplier);
+            OptionVictimCanUseAbilities = BooleanOptionItem.Create(Id + 14, "PenguinVictimCanUseAbilities", false, TabGroup.ImpostorRoles, false)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Penguin]);
         }
         public static void Init()
         {
-            playerIdList = [];
+            PenguinId = byte.MaxValue;
+            Penguin_ = null;
         }
         public static void Add(byte playerId)
         {
             AbductTimerLimit = OptionAbductTimerLimit.GetFloat();
             MeetingKill = OptionMeetingKill.GetBool();
+            SpeedDuringDrag = OptionSpeedDuringDrag.GetFloat();
+            VictimCanUseAbilities = OptionVictimCanUseAbilities.GetBool();
 
-            playerIdList.Add(playerId);
+            DefaultSpeed = Main.AllPlayerSpeed[playerId];
+
+            PenguinId = playerId;
+            Penguin_ = Utils.GetPlayerById(playerId);
 
             AbductTimer = 255f;
             stopCount = false;
         }
-        public static bool IsEnable => playerIdList.Count > 0;
+        public static bool IsEnable => PenguinId != byte.MaxValue;
         public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
         public static void ApplyGameOptions() => AURoleOptions.ShapeshifterCooldown = AbductVictim != null ? AbductTimer : AbductTimerLimit;
         private static void SendRPC()
@@ -75,8 +95,9 @@ namespace TOHE.Roles.Impostor
             //Prevent using of moving platform??
             AbductVictim = target;
             AbductTimer = AbductTimerLimit;
-            Utils.GetPlayerById(playerIdList[0]).MarkDirtySettings();
-            Utils.GetPlayerById(playerIdList[0]).RpcResetAbilityCooldown();
+            Main.AllPlayerSpeed[PenguinId] = SpeedDuringDrag;
+            Penguin_.MarkDirtySettings();
+            Penguin_.RpcResetAbilityCooldown();
             SendRPC();
         }
         private static void RemoveVictim()
@@ -89,8 +110,9 @@ namespace TOHE.Roles.Impostor
             }
             //MyState.CanUseMovingPlatform = true;
             AbductTimer = 255f;
-            Utils.GetPlayerById(playerIdList[0]).MarkDirtySettings();
-            Utils.GetPlayerById(playerIdList[0]).RpcResetAbilityCooldown();
+            Main.AllPlayerSpeed[PenguinId] = DefaultSpeed;
+            Penguin_.MarkDirtySettings();
+            Penguin_.RpcResetAbilityCooldown();
             SendRPC();
         }
         public static bool OnCheckMurderAsKiller(PlayerControl target)
@@ -102,8 +124,8 @@ namespace TOHE.Roles.Impostor
                 if (target != AbductVictim)
                 {
                     // During an abduction, only the abductee can be killed.
-                    Utils.GetPlayerById(playerIdList[0]).Kill(AbductVictim);
-                    Utils.GetPlayerById(playerIdList[0]).ResetKillCooldown();
+                    Penguin_.Kill(AbductVictim);
+                    Penguin_.ResetKillCooldown();
                     doKill = false;
                 }
                 RemoveVictim();
@@ -135,13 +157,13 @@ namespace TOHE.Roles.Impostor
             // If you meet a meeting with time running out, kill it even if you're on a ladder.
             if (AbductVictim != null && AbductTimer <= 0f)
             {
-                Utils.GetPlayerById(playerIdList[0]).Kill(AbductVictim);
+                Penguin_.Kill(AbductVictim);
             }
             if (MeetingKill)
             {
                 if (!AmongUsClient.Instance.AmHost) return;
                 if (AbductVictim == null) return;
-                Utils.GetPlayerById(playerIdList[0]).Kill(AbductVictim);
+                Penguin_.Kill(AbductVictim);
                 RemoveVictim();
             }
         }
@@ -161,8 +183,8 @@ namespace TOHE.Roles.Impostor
             if (!IsEnable) return;
             if (AbductVictim != null)
             {
-                Utils.GetPlayerById(playerIdList[0]).MarkDirtySettings();
-                Utils.GetPlayerById(playerIdList[0]).RpcResetAbilityCooldown();
+                Penguin_.MarkDirtySettings();
+                Penguin_.RpcResetAbilityCooldown();
                 stopCount = false;
             }
         }
@@ -177,12 +199,12 @@ namespace TOHE.Roles.Impostor
 
             if (AbductVictim != null)
             {
-                if (!Utils.GetPlayerById(playerIdList[0]).IsAlive() || !AbductVictim.IsAlive())
+                if (!Penguin_.IsAlive() || !AbductVictim.IsAlive())
                 {
                     RemoveVictim();
                     return;
                 }
-                if (AbductTimer <= 0f && !Utils.GetPlayerById(playerIdList[0]).MyPhysics.Animations.IsPlayingAnyLadderAnimation())
+                if (AbductTimer <= 0f && !Penguin_.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
                 {
                     // Set IsDead to true first (prevents ladder chase)
                     AbductVictim.Data.IsDead = true;
@@ -194,18 +216,18 @@ namespace TOHE.Roles.Impostor
                         _ = new LateTask(() =>
                         {
                             var sId = abductVictim.NetTransform.lastSequenceId + 5;
-                            abductVictim.NetTransform.SnapTo(Utils.GetPlayerById(playerIdList[0]).transform.position, (ushort)sId);
-                            Utils.GetPlayerById(playerIdList[0]).Kill(abductVictim);
+                            abductVictim.NetTransform.SnapTo(Penguin_.transform.position, (ushort)sId);
+                            Penguin_.Kill(abductVictim);
 
                             var sender = CustomRpcSender.Create("PenguinMurder");
                             {
                                 sender.AutoStartRpc(abductVictim.NetTransform.NetId, (byte)RpcCalls.SnapTo);
                                 {
-                                    NetHelpers.WriteVector2(Utils.GetPlayerById(playerIdList[0]).transform.position, sender.stream);
+                                    NetHelpers.WriteVector2(Penguin_.transform.position, sender.stream);
                                     sender.Write(abductVictim.NetTransform.lastSequenceId);
                                 }
                                 sender.EndRpc();
-                                sender.AutoStartRpc(Utils.GetPlayerById(playerIdList[0]).NetId, (byte)RpcCalls.MurderPlayer);
+                                sender.AutoStartRpc(Penguin_.NetId, (byte)RpcCalls.MurderPlayer);
                                 {
                                     sender.WriteNetObject(abductVictim);
                                 }
@@ -219,8 +241,8 @@ namespace TOHE.Roles.Impostor
                 // SnapToRPC does not work for players on top of the ladder, and only the host behaves differently, so teleporting is not done uniformly.
                 else if (!AbductVictim.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
                 {
-                    var position = Utils.GetPlayerById(playerIdList[0]).transform.position;
-                    if (Utils.GetPlayerById(playerIdList[0]).PlayerId != 0)
+                    var position = Penguin_.transform.position;
+                    if (Penguin_.PlayerId != 0)
                     {
                         Utils.TP(AbductVictim.NetTransform, position, log: false);
                     }
@@ -238,7 +260,7 @@ namespace TOHE.Roles.Impostor
             else if (AbductTimer <= 100f)
             {
                 AbductTimer = 255f;
-                Utils.GetPlayerById(playerIdList[0]).RpcResetAbilityCooldown();
+                Penguin_.RpcResetAbilityCooldown();
             }
         }
     }

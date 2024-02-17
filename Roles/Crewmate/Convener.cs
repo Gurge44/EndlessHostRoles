@@ -11,7 +11,6 @@ namespace TOHE.Roles.Crewmate
         public static OptionItem Limit;
         public static OptionItem ConvenerAbilityUseGainWithEachTaskCompleted;
         public static OptionItem AbilityChargesWhenFinishedTasks;
-        public static readonly Dictionary<byte, float> UseLimit = [];
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Convener);

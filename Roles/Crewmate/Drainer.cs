@@ -16,8 +16,6 @@ namespace TOHE.Roles.Crewmate
         public static OptionItem DrainerAbilityUseGainWithEachTaskCompleted;
         public static OptionItem AbilityChargesWhenFinishedTasks;
 
-        public static float DrainLimit;
-
         public static Dictionary<byte, int> playersInVents = [];
 
         public static void SetupCustomOption()

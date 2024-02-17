@@ -323,105 +323,47 @@ public class TaskState
             {
                 switch (player.GetCustomRole())
                 {
-                    case CustomRoles.Divinator:
-                        Divinator.CheckLimit[player.PlayerId] += Divinator.AbilityUseGainWithEachTaskCompleted.GetFloat();
-                        Divinator.SendRPC(player.PlayerId);
-                        break;
-                    case CustomRoles.Veteran:
-                        Main.VeteranNumOfUsed[player.PlayerId] += Options.VeteranAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        break;
-                    case CustomRoles.Grenadier:
-                        Main.GrenadierNumOfUsed[player.PlayerId] += Options.GrenadierAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        break;
-                    case CustomRoles.Lighter:
-                        Main.LighterNumOfUsed[player.PlayerId] += Options.LighterAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        break;
-                    case CustomRoles.SecurityGuard:
-                        Main.SecurityGuardNumOfUsed[player.PlayerId] += Options.SecurityGuardAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        break;
-                    case CustomRoles.Ventguard:
-                        Main.VentguardNumberOfAbilityUses += Options.VentguardAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        break;
-                    case CustomRoles.DovesOfNeace:
-                        Main.DovesOfNeaceNumOfUsed[player.PlayerId] += Options.DovesOfNeaceAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        break;
-                    case CustomRoles.TimeMaster:
-                        Main.TimeMasterNumOfUsed[player.PlayerId] += Options.TimeMasterAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        break;
-                    case CustomRoles.Mediumshiper:
-                        Mediumshiper.ContactLimit[player.PlayerId] += Mediumshiper.MediumAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        Mediumshiper.SendRPC(player.PlayerId);
-                        break;
-                    case CustomRoles.ParityCop:
-                        ParityCop.MaxCheckLimit[player.PlayerId] += ParityCop.ParityAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        break;
-                    case CustomRoles.Oracle:
-                        Oracle.CheckLimit[player.PlayerId] += Oracle.OracleAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        Oracle.SendRPC(player.PlayerId);
-                        break;
                     case CustomRoles.SabotageMaster:
                         SabotageMaster.UsedSkillCount -= SabotageMaster.SMAbilityUseGainWithEachTaskCompleted.GetFloat();
                         SabotageMaster.SendRPC(SabotageMaster.UsedSkillCount);
-                        break;
-                    case CustomRoles.Tracker:
-                        Tracker.TrackLimit[player.PlayerId] += Tracker.TrackerAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        break;
-                    case CustomRoles.Bloodhound:
-                        Bloodhound.UseLimit[player.PlayerId] += Bloodhound.BloodhoundAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        Bloodhound.SendRPCPlus(player.PlayerId);
-                        break;
-                    case CustomRoles.Chameleon:
-                        Chameleon.UseLimit[player.PlayerId] += Chameleon.ChameleonAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        Chameleon.SendRPCPlus(player.PlayerId);
-                        break;
-                    case CustomRoles.NiceSwapper:
-                        NiceSwapper.UseLimit += NiceSwapper.NiceSwapperAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        break;
-                    case CustomRoles.Doormaster:
-                        Doormaster.UseLimit[player.PlayerId] += Doormaster.DoormasterAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        Doormaster.SendRPC(player.PlayerId);
-                        break;
-                    case CustomRoles.Ricochet:
-                        Ricochet.UseLimit[player.PlayerId] += Ricochet.RicochetAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        Ricochet.SendRPC(player.PlayerId);
-                        break;
-                    case CustomRoles.Tether:
-                        Tether.UseLimit[player.PlayerId] += Tether.TetherAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        Tether.SendRPC(player.PlayerId);
-                        break;
-                    case CustomRoles.Spy:
-                        Spy.UseLimit[player.PlayerId] += Spy.SpyAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        Spy.SendRPC(2, id: player.PlayerId);
                         break;
                     case CustomRoles.NiceHacker:
                         if (!player.IsModClient() && NiceHacker.UseLimit.ContainsKey(player.PlayerId)) NiceHacker.UseLimit[player.PlayerId] += NiceHacker.NiceHackerAbilityUseGainWithEachTaskCompleted.GetFloat();
                         else if (NiceHacker.UseLimitSeconds.ContainsKey(player.PlayerId)) NiceHacker.UseLimitSeconds[player.PlayerId] += NiceHacker.NiceHackerAbilityUseGainWithEachTaskCompleted.GetInt() * NiceHacker.ModdedClientAbilityUseSecondsMultiplier.GetInt();
                         if (NiceHacker.UseLimitSeconds.ContainsKey(player.PlayerId)) NiceHacker.SendRPC(player.PlayerId, NiceHacker.UseLimitSeconds[player.PlayerId]);
                         break;
-                    case CustomRoles.CameraMan:
-                        CameraMan.UseLimit[player.PlayerId] += CameraMan.CameraManAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        CameraMan.SendRPC(player.PlayerId);
-                        break;
-                    case CustomRoles.Drainer:
-                        Drainer.DrainLimit += Drainer.DrainerAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        Drainer.SendRPC();
-                        break;
-                    case CustomRoles.Druid:
-                        Druid.UseLimit[player.PlayerId] += Druid.DruidAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        Druid.SendRPCSyncAbilityUse(player.PlayerId);
-                        break;
-                    case CustomRoles.Judge:
-                        Judge.TrialLimit[player.PlayerId] += Judge.JudgeAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        break;
-                    case CustomRoles.Perceiver:
-                        Perceiver.UseLimit[player.PlayerId] += Perceiver.PerceiverAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        Perceiver.SendRPC(player.PlayerId);
-                        break;
-                    case CustomRoles.Convener:
-                        Convener.UseLimit[player.PlayerId] += Convener.ConvenerAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        Convener.SendRPC(player.PlayerId);
-                        break;
                 }
+
+                float add = player.GetCustomRole() switch
+                {
+                    CustomRoles.Divinator => Divinator.AbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.Veteran => Options.VeteranAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.Grenadier => Options.GrenadierAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.Lighter => Options.LighterAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.SecurityGuard => Options.SecurityGuardAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.Ventguard => Options.VentguardAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.DovesOfNeace => Options.DovesOfNeaceAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.TimeMaster => Options.TimeMasterAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.Mediumshiper => Mediumshiper.MediumAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.ParityCop => ParityCop.ParityAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.Oracle => Oracle.OracleAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.Tracker => Tracker.TrackerAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.Bloodhound => Bloodhound.BloodhoundAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.Chameleon => Chameleon.ChameleonAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.NiceSwapper => NiceSwapper.NiceSwapperAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.Doormaster => Doormaster.DoormasterAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.Ricochet => Ricochet.RicochetAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.Tether => Tether.TetherAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.Spy => Spy.SpyAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.CameraMan => CameraMan.CameraManAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.Drainer => Drainer.DrainerAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.Druid => Druid.DruidAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.Judge => Judge.JudgeAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.Perceiver => Perceiver.PerceiverAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    CustomRoles.Convener => Convener.ConvenerAbilityUseGainWithEachTaskCompleted.GetFloat(),
+                    _ => float.MaxValue,
+                };
+                if (add != float.MaxValue && add > 0) player.RpcIncreaseAbilityUseLimitBy(add);
 
                 switch (player.GetCustomRole())
                 {

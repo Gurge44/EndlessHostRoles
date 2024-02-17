@@ -26,7 +26,6 @@ public static class Judge
     private static OptionItem CanTrialNeutralC;
     public static OptionItem JudgeAbilityUseGainWithEachTaskCompleted;
     public static OptionItem AbilityChargesWhenFinishedTasks;
-    public static Dictionary<byte, float> TrialLimit;
 
     public static void SetupCustomOption()
     {

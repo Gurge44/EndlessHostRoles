@@ -2735,6 +2735,8 @@
   "PenguinInfoLong": "(Impostors):\\nPenguins can restrain target by pressing the kill button, and drag around.\\While dragging, the target dies by pressing the kill button again or after a certain period of time.\\nPress the kill button twice for a direct kill.",
   "PenguinAbductTimerLimit": "Dragging Time",
   "PenguinMeetingKill": "Kill the target if a meeting starts during dragging.",
+  "PenguinSpeedDuringDrag": "Speed During Dragging",
+  "PenguinVictimCanUseAbilities": "Victim Can Use Their Abilities While Being Dragged",
   "PenguinKillButtonText": "Drag",
   "PenguinTimerText": "Drag Timer",
   "Stealth": "Stealth",

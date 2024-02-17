@@ -12,7 +12,6 @@ namespace TOHE.Roles.Crewmate
     {
         private static readonly int Id = 640000;
         private static List<byte> playerIdList = [];
-        public static Dictionary<byte, float> UseLimit = [];
 
         public static OptionItem VentCooldown;
         public static OptionItem UseLimitOpt;

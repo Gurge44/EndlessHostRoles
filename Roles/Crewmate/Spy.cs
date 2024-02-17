@@ -13,7 +13,6 @@ namespace TOHE.Roles.Crewmate
         private static readonly int Id = 640400;
         private static List<byte> playerIdList = [];
         public static bool change;
-        public static Dictionary<byte, float> UseLimit = [];
         public static Dictionary<byte, long> SpyRedNameList = [];
 
         public static OptionItem SpyRedNameDur;

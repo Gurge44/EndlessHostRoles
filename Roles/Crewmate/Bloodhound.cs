@@ -13,7 +13,6 @@
 
         public static List<byte> UnreportablePlayers = [];
         public static Dictionary<byte, List<byte>> BloodhoundTargets = [];
-        public static Dictionary<byte, float> UseLimit = [];
 
         public static OptionItem ArrowsPointingToDeadBody;
         public static OptionItem UseLimitOpt;

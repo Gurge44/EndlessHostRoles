@@ -21,7 +21,6 @@ public static class NiceSwapper
     public static OptionItem AbilityChargesWhenFinishedTasks;
 
     private static (byte, byte) SwapTargets;
-    public static float UseLimit;
     private static byte NiceSwapperId = byte.MaxValue;
 
     public static void SetupCustomOption()

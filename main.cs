@@ -95,6 +95,7 @@ public class Main : BasePlugin
     public static float RefixCooldownDelay;
     public static bool ProcessShapeshifts = true;
     public static Dictionary<byte, (long START_TIMESTAMP, int TOTALCD)> AbilityCD = [];
+    public static Dictionary<byte, float> AbilityUseLimit = [];
     public static List<byte> DontCancelVoteList = [];
     private static GameData.PlayerInfo lastVotedPlayerInfo;
     public static string LastVotedPlayer;
@@ -124,7 +125,6 @@ public class Main : BasePlugin
     public static Dictionary<byte, long> ExpressSpeedUp = [];
     public static float ExpressSpeedNormal;
     public static List<int> BlockedVents = [];
-    public static float VentguardNumberOfAbilityUses;
     public static List<byte> WorkaholicAlive = [];
     public static List<byte> SpeedrunnerAlive = [];
     public static List<byte> BaitAlive = [];
@@ -178,12 +178,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, int> ParaUsedButtonCount = [];
     public static Dictionary<byte, int> MarioVentCount = [];
     public static Dictionary<byte, long> VeteranInProtect = [];
-    public static Dictionary<byte, float> VeteranNumOfUsed = [];
     public static Dictionary<byte, long> AllKillers = [];
-    public static Dictionary<byte, float> GrenadierNumOfUsed = [];
-    public static Dictionary<byte, float> LighterNumOfUsed = [];
-    public static Dictionary<byte, float> SecurityGuardNumOfUsed = [];
-    public static Dictionary<byte, float> TimeMasterNumOfUsed = [];
     public static Dictionary<byte, long> GrenadierBlinding = [];
     public static Dictionary<byte, long> Lighter = [];
     public static Dictionary<byte, long> BlockSabo = [];
@@ -218,7 +213,6 @@ public class Main : BasePlugin
     public static int MadmateNum;
     public static int BardCreations;
     public static Dictionary<byte, byte> Provoked = [];
-    public static Dictionary<byte, float> DovesOfNeaceNumOfUsed = [];
 
     public static Dictionary<byte, CustomRoles> DevRole = [];
     public static Dictionary<byte, int> CrewpostorTasksDone = [];

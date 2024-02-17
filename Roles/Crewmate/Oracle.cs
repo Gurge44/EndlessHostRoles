@@ -19,7 +19,6 @@ public static class Oracle
     public static OptionItem CancelVote;
 
     public static List<byte> didVote = [];
-    public static Dictionary<byte, float> CheckLimit = [];
 
     public static void SetupCustomOption()
     {

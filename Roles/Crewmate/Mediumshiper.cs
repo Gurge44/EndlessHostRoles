@@ -16,7 +16,6 @@ public static class Mediumshiper
     public static OptionItem AbilityChargesWhenFinishedTasks;
 
     public static Dictionary<byte, byte> ContactPlayer = [];
-    public static Dictionary<byte, float> ContactLimit = [];
 
     public static void SetupCustomOption()
     {

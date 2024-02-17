@@ -169,31 +169,28 @@ class RepairSystemPatch
         switch (systemType)
         {
             case SystemTypes.Electrical when 0 <= amount && amount <= 4:
+                var SwitchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.Cast<SwitchSystem>();
+                if (SwitchSystem != null && SwitchSystem.IsActive)
                 {
-                    var SwitchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.Cast<SwitchSystem>();
-                    if (SwitchSystem != null && SwitchSystem.IsActive)
+                    switch (player.GetCustomRole())
                     {
-                        switch (player.GetCustomRole())
-                        {
-                            case CustomRoles.SabotageMaster:
-                                Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
-                                SabotageMaster.SwitchSystemRepair(SwitchSystem, amount);
-                                Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
-                                break;
-                            case CustomRoles.Alchemist when Alchemist.FixNextSabo:
-                                Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
-                                SwitchSystem.ActualSwitches = 0;
-                                SwitchSystem.ExpectedSwitches = 0;
-                                Alchemist.FixNextSabo = false;
-                                Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
-                                break;
-                        }
-                        if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage) Damocles.OnRepairSabotage(player.PlayerId);
-                        if (player.Is(CustomRoles.Stressed) && Stressed.countRepairSabotage) Stressed.OnRepairSabotage(player);
+                        case CustomRoles.SabotageMaster:
+                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
+                            SabotageMaster.SwitchSystemRepair(SwitchSystem, amount);
+                            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                            break;
+                        case CustomRoles.Alchemist when Alchemist.FixNextSabo:
+                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
+                            SwitchSystem.ActualSwitches = 0;
+                            SwitchSystem.ExpectedSwitches = 0;
+                            Alchemist.FixNextSabo = false;
+                            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                            break;
                     }
-                    break;
+                    if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage) Damocles.OnRepairSabotage(player.PlayerId);
+                    if (player.Is(CustomRoles.Stressed) && Stressed.countRepairSabotage) Stressed.OnRepairSabotage(player);
                 }
-
+                break;
             case SystemTypes.Reactor:
             case SystemTypes.LifeSupp:
             case SystemTypes.Comms:

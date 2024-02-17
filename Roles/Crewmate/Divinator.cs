@@ -20,7 +20,6 @@ public static class Divinator
     public static OptionItem CancelVote;
 
     public static List<byte> didVote = [];
-    public static Dictionary<byte, float> CheckLimit = [];
 
     private static Dictionary<byte, List<CustomRoles>> AllPlayerRoleList = [];
     private const int RolesPerCategory = 5;

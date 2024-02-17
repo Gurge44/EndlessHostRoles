@@ -188,6 +188,8 @@ class CheckMurderPatch
 
         if (target.Is(CustomRoles.Spy)) Spy.OnKillAttempt(killer, target);
 
+        if (Penguin.IsVictim(target)) return false;
+
         //実際のキラーとkillerが違う場合の入れ替え処理
         if (Sniper.IsEnable) Sniper.TryGetSniper(target.PlayerId, ref killer);
         if (killer != __instance) Logger.Info($"Real Killer: {killer.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
@@ -798,6 +800,10 @@ class CheckMurderPatch
 
         if (Randomizer.IsShielded(target)) return false;
 
+        if (Penguin.IsVictim(target)) return false;
+
+        if (killer.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor)) return false;
+
         if (SoulHunter.IsTargetBlocked && SoulHunter.CurrentTarget.ID == killer.PlayerId && target.Is(CustomRoles.SoulHunter))
         {
             killer.Notify(GetString("SoulHunterTargetNotifyNoKill"));
@@ -831,19 +837,12 @@ class CheckMurderPatch
         if (Jackal.ResetKillCooldownWhenSbGetKilled.GetBool() && !killer.Is(CustomRoles.Sidekick) && !target.Is(CustomRoles.Sidekick) && !killer.Is(CustomRoles.Jackal) && !target.Is(CustomRoles.Jackal) && !GameStates.IsMeeting)
             Jackal.AfterPlayerDiedTask(killer);
 
-
-        if (target.Is(CustomRoles.BoobyTrap) && Options.TrapOnlyWorksOnTheBodyBoobyTrap.GetBool() && !GameStates.IsMeeting)
-        {
-            Main.BoobyTrapBody.Add(target.PlayerId);
-            Main.BoobyTrapKiller.Add(target.PlayerId);
-        }
-
         if (target.Is(CustomRoles.Lucky))
         {
             var rd = IRandom.Instance;
             if (rd.Next(0, 100) < Options.LuckyProbability.GetInt())
             {
-                killer.SetKillCooldown();
+                killer.SetKillCooldown(15f);
                 return false;
             }
         }
@@ -892,6 +891,12 @@ class CheckMurderPatch
                 return false;
             case CustomRoles.Addict when Addict.IsImmortal(target):
                 return false;
+            case CustomRoles.Refugee when killer.Is(CustomRoleTypes.Impostor):
+                return false;
+            case CustomRoles.BoobyTrap when Options.TrapOnlyWorksOnTheBodyBoobyTrap.GetBool() && !GameStates.IsMeeting:
+                Main.BoobyTrapBody.Add(target.PlayerId);
+                Main.BoobyTrapKiller.Add(target.PlayerId);
+                break;
             case CustomRoles.Luckey:
                 var rd = IRandom.Instance;
                 if (rd.Next(0, 100) < Options.LuckeyProbability.GetInt())
@@ -2425,86 +2430,40 @@ class FixedUpdatePatch
             if (GameStates.IsInTask && player.IsAlive() && Main.PlayerStates.TryGetValue(playerId, out var state) && state.TaskState.IsTaskFinished && LastAddAbilityTime + 5 < now)
             {
                 LastAddAbilityTime = now;
-                switch (player.GetCustomRole())
+
+                if (player.Is(CustomRoles.SabotageMaster)) SabotageMaster.UsedSkillCount -= SabotageMaster.AbilityChargesWhenFinishedTasks.GetFloat();
+                else
                 {
-                    case CustomRoles.Ventguard:
-                        Main.VentguardNumberOfAbilityUses += Options.VentguardAbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.Grenadier:
-                        Main.GrenadierNumOfUsed[playerId] += Options.GrenadierAbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.Lighter:
-                        Main.LighterNumOfUsed[playerId] += Options.LighterAbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.SecurityGuard:
-                        Main.SecurityGuardNumOfUsed[playerId] += Options.SecurityGuardAbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.DovesOfNeace:
-                        Main.DovesOfNeaceNumOfUsed[playerId] += Options.DovesOfNeaceAbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.TimeMaster:
-                        Main.TimeMasterNumOfUsed[playerId] += Options.TimeMasterAbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.Veteran:
-                        Main.VeteranNumOfUsed[playerId] += Options.VeteranAbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.Bloodhound:
-                        Bloodhound.UseLimit[playerId] += Bloodhound.AbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.CameraMan:
-                        CameraMan.UseLimit[playerId] += CameraMan.AbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.Chameleon:
-                        Chameleon.UseLimit[playerId] += Chameleon.AbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.Convener:
-                        Convener.UseLimit[playerId] += Convener.AbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.Divinator:
-                        Divinator.CheckLimit[playerId] += Divinator.AbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.Doormaster:
-                        Doormaster.UseLimit[playerId] += Doormaster.AbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.Drainer:
-                        Drainer.DrainLimit += Drainer.AbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.Druid:
-                        Druid.UseLimit[playerId] += Druid.AbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.Judge:
-                        Judge.TrialLimit[playerId] += Judge.AbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.Mediumshiper:
-                        Mediumshiper.ContactLimit[playerId] += Mediumshiper.AbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.NiceSwapper:
-                        NiceSwapper.UseLimit += NiceSwapper.AbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.Oracle:
-                        Oracle.CheckLimit[playerId] += Oracle.AbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.ParityCop:
-                        ParityCop.MaxCheckLimit[playerId] += ParityCop.AbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.Perceiver:
-                        Perceiver.UseLimit[playerId] += Perceiver.AbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.Ricochet:
-                        Ricochet.UseLimit[playerId] += Ricochet.AbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.SabotageMaster:
-                        SabotageMaster.UsedSkillCount -= SabotageMaster.AbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.Spy:
-                        Spy.UseLimit[playerId] += Spy.AbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.Tether:
-                        Tether.UseLimit[playerId] += Tether.AbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
-                    case CustomRoles.Tracker:
-                        Tracker.TrackLimit[playerId] += Tracker.AbilityChargesWhenFinishedTasks.GetFloat();
-                        break;
+                    float add = player.GetCustomRole() switch
+                    {
+                        CustomRoles.Ventguard => Options.VentguardAbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.Grenadier => Options.GrenadierAbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.Lighter => Options.LighterAbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.SecurityGuard => Options.SecurityGuardAbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.DovesOfNeace => Options.DovesOfNeaceAbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.TimeMaster => Options.TimeMasterAbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.Veteran => Options.VeteranAbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.Bloodhound => Bloodhound.AbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.CameraMan => CameraMan.AbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.Chameleon => Chameleon.AbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.Convener => Convener.AbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.Divinator => Divinator.AbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.Doormaster => Doormaster.AbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.Drainer => Drainer.AbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.Druid => Druid.AbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.Judge => Judge.AbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.Mediumshiper => Mediumshiper.AbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.NiceSwapper => NiceSwapper.AbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.Oracle => Oracle.AbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.ParityCop => ParityCop.AbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.Perceiver => Perceiver.AbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.Ricochet => Ricochet.AbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.Spy => Spy.AbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.Tether => Tether.AbilityChargesWhenFinishedTasks.GetFloat(),
+                        CustomRoles.Tracker => Tracker.AbilityChargesWhenFinishedTasks.GetFloat(),
+                        _ => float.MaxValue,
+                    };
+                    if (add != float.MaxValue && add > 0) player.RpcIncreaseAbilityUseLimitBy(add);
                 }
             }
 
@@ -2515,7 +2474,7 @@ class FixedUpdatePatch
                     {
                         Main.VeteranInProtect.Remove(playerId);
                         player.RpcResetAbilityCooldown();
-                        player.Notify(string.Format(GetString("VeteranOffGuard"), (int)Main.VeteranNumOfUsed[playerId]));
+                        player.Notify(string.Format(GetString("VeteranOffGuard"), (int)player.GetAbilityUseLimit()));
                     }
                     break;
 
@@ -2533,14 +2492,14 @@ class FixedUpdatePatch
                     {
                         Main.GrenadierBlinding.Remove(playerId);
                         player.RpcResetAbilityCooldown();
-                        player.Notify(string.Format(GetString("GrenadierSkillStop"), (int)Main.GrenadierNumOfUsed[playerId]));
+                        player.Notify(string.Format(GetString("GrenadierSkillStop"), (int)player.GetAbilityUseLimit()));
                         MarkEveryoneDirtySettingsV3();
                     }
                     if (Main.MadGrenadierBlinding.TryGetValue(playerId, out var mgtime) && mgtime + Options.GrenadierSkillDuration.GetInt() < now)
                     {
                         Main.MadGrenadierBlinding.Remove(playerId);
                         player.RpcResetAbilityCooldown();
-                        player.Notify(string.Format(GetString("GrenadierSkillStop"), (int)Main.GrenadierNumOfUsed[playerId]));
+                        player.Notify(string.Format(GetString("GrenadierSkillStop"), (int)player.GetAbilityUseLimit()));
                         MarkEveryoneDirtySettingsV3();
                     }
                     break;
@@ -2569,7 +2528,7 @@ class FixedUpdatePatch
                     {
                         Main.TimeMasterInProtect.Remove(playerId);
                         player.RpcResetAbilityCooldown();
-                        player.Notify(GetString("TimeMasterSkillStop"), (int)Main.TimeMasterNumOfUsed[playerId]);
+                        player.Notify(GetString("TimeMasterSkillStop"), (int)player.GetAbilityUseLimit());
                     }
                     break;
 
@@ -3328,9 +3287,9 @@ class EnterVentPatch
                 Sentinel.StartPatrolling(pc);
                 break;
             case CustomRoles.Ventguard:
-                if (Main.VentguardNumberOfAbilityUses >= 1)
+                if (pc.GetAbilityUseLimit() >= 1)
                 {
-                    Main.VentguardNumberOfAbilityUses -= 1;
+                    pc.RpcRemoveAbilityUse();
                     if (!Main.BlockedVents.Contains(__instance.Id)) Main.BlockedVents.Add(__instance.Id);
                     pc.Notify(GetString("VentBlockSuccess"));
                 }
@@ -3340,11 +3299,11 @@ class EnterVentPatch
                 }
                 break;
             case CustomRoles.Veteran when !Options.UsePets.GetBool():
-                if (Main.VeteranNumOfUsed[pc.PlayerId] >= 1)
+                if (pc.GetAbilityUseLimit() >= 1)
                 {
                     Main.VeteranInProtect.Remove(pc.PlayerId);
                     Main.VeteranInProtect.Add(pc.PlayerId, GetTimeStamp(DateTime.Now));
-                    Main.VeteranNumOfUsed[pc.PlayerId] -= 1;
+                    pc.RpcRemoveAbilityUse();
                     //pc.RpcGuardAndKill(pc);
                     pc.RPCPlayCustomSound("Gunload");
                     pc.Notify(GetString("VeteranOnGuard"), Options.VeteranSkillDuration.GetFloat());
@@ -3357,7 +3316,7 @@ class EnterVentPatch
                 }
                 break;
             case CustomRoles.Grenadier when !Options.UsePets.GetBool():
-                if (Main.GrenadierNumOfUsed[pc.PlayerId] >= 1)
+                if (pc.GetAbilityUseLimit() >= 1)
                 {
                     if (pc.Is(CustomRoles.Madmate))
                     {
@@ -3375,7 +3334,7 @@ class EnterVentPatch
                     pc.RPCPlayCustomSound("FlashBang");
                     pc.Notify(GetString("GrenadierSkillInUse"), Options.GrenadierSkillDuration.GetFloat());
                     pc.AddAbilityCD();
-                    Main.GrenadierNumOfUsed[pc.PlayerId] -= 1;
+                    pc.RpcRemoveAbilityUse();
                     MarkEveryoneDirtySettingsV3();
                 }
                 else
@@ -3384,13 +3343,13 @@ class EnterVentPatch
                 }
                 break;
             case CustomRoles.Lighter when !Options.UsePets.GetBool():
-                if (Main.LighterNumOfUsed[pc.PlayerId] >= 1)
+                if (pc.GetAbilityUseLimit() >= 1)
                 {
                     Main.Lighter.Remove(pc.PlayerId);
                     Main.Lighter.Add(pc.PlayerId, TimeStamp);
                     pc.Notify(GetString("LighterSkillInUse"), Options.LighterSkillDuration.GetFloat());
                     pc.AddAbilityCD();
-                    Main.LighterNumOfUsed[pc.PlayerId] -= 1;
+                    pc.RpcRemoveAbilityUse();
                     pc.MarkDirtySettings();
                 }
                 else
@@ -3399,13 +3358,13 @@ class EnterVentPatch
                 }
                 break;
             case CustomRoles.SecurityGuard when !Options.UsePets.GetBool():
-                if (Main.SecurityGuardNumOfUsed[pc.PlayerId] >= 1)
+                if (pc.GetAbilityUseLimit() >= 1)
                 {
                     Main.BlockSabo.Remove(pc.PlayerId);
                     Main.BlockSabo.Add(pc.PlayerId, TimeStamp);
                     pc.Notify(GetString("SecurityGuardSkillInUse"), Options.SecurityGuardSkillDuration.GetFloat());
                     pc.AddAbilityCD();
-                    Main.SecurityGuardNumOfUsed[pc.PlayerId] -= 1;
+                    pc.RpcRemoveAbilityUse();
                 }
                 else
                 {
@@ -3413,14 +3372,14 @@ class EnterVentPatch
                 }
                 break;
             case CustomRoles.DovesOfNeace when !Options.UsePets.GetBool():
-                if (Main.DovesOfNeaceNumOfUsed[pc.PlayerId] < 1)
+                if (pc.GetAbilityUseLimit() < 1)
                 {
                     //pc?.MyPhysics?.RpcBootFromVent(__instance.Id);
                     pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
                 }
                 else
                 {
-                    Main.DovesOfNeaceNumOfUsed[pc.PlayerId] -= 1;
+                    pc.RpcRemoveAbilityUse();
                     //pc.RpcGuardAndKill(pc);
                     Main.AllAlivePlayerControls.Where(x =>
                     pc.Is(CustomRoles.Madmate) ?
@@ -3436,15 +3395,15 @@ class EnterVentPatch
                         x.Notify(ColorString(GetRoleColor(CustomRoles.DovesOfNeace), GetString("DovesOfNeaceSkillNotify")));
                     });
                     pc.RPCPlayCustomSound("Dove");
-                    pc.Notify(string.Format(GetString("DovesOfNeaceOnGuard"), Main.DovesOfNeaceNumOfUsed[pc.PlayerId]));
+                    pc.Notify(string.Format(GetString("DovesOfNeaceOnGuard"), pc.GetAbilityUseLimit()));
                     pc.AddAbilityCD();
                 }
                 break;
             case CustomRoles.TimeMaster when !Options.UsePets.GetBool():
                 {
-                    if (Main.TimeMasterNumOfUsed[pc.PlayerId] >= 1)
+                    if (pc.GetAbilityUseLimit() >= 1)
                     {
-                        Main.TimeMasterNumOfUsed[pc.PlayerId] -= 1;
+                        pc.RpcRemoveAbilityUse();
                         Main.TimeMasterInProtect.Remove(pc.PlayerId);
                         Main.TimeMasterInProtect.Add(pc.PlayerId, TimeStamp);
                         //if (!pc.IsModClient()) pc.RpcGuardAndKill(pc);
@@ -3528,6 +3487,15 @@ class CoEnterVentPatch
             _ = new LateTask(() =>
             {
                 __instance.myPlayer?.Notify(string.Format(GetString("HackedByGlitch"), "Vent"));
+                __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id);
+            }, 0.5f);
+            return true;
+        }
+
+        if (Penguin.IsVictim(__instance.myPlayer))
+        {
+            _ = new LateTask(() =>
+            {
                 __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id);
             }, 0.5f);
             return true;

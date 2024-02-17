@@ -22,7 +22,6 @@ namespace TOHE.Roles.Crewmate
 
         public static bool CanSeeLastRoomInMeeting;
 
-        public static Dictionary<byte, float> TrackLimit = [];
         public static Dictionary<byte, List<byte>> TrackerTarget = [];
         public static Dictionary<byte, float> TempTrackLimit = [];
 

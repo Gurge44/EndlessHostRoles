@@ -11,7 +11,6 @@ public static class ParityCop
 {
     private static readonly int Id = 6900;
     private static List<byte> playerIdList = [];
-    public static Dictionary<byte, float> MaxCheckLimit = [];
     public static Dictionary<byte, int> RoundCheckLimit = [];
     public static Dictionary<byte, byte> FirstPick = [];
     public static readonly string[] pcEgoistCountMode =

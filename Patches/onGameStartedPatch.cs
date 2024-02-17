@@ -35,6 +35,8 @@ internal class ChangeRoleSettings
 
             Main.PlayerStates = [];
 
+            Main.AbilityUseLimit = [];
+
             Main.AllPlayerKillCooldown = [];
             Main.AllPlayerSpeed = [];
             Main.KillTimers = [];

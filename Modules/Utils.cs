@@ -456,6 +456,49 @@ public static class Utils
     public static MessageWriter CreateCustomRoleRPC(CustomRPC rpc) => AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)rpc, SendOption.Reliable, -1);
     public static void EndRPC(MessageWriter writer) => AmongUsClient.Instance.FinishRpcImmediately(writer);
 
+    public static void IncreaseAbilityUseLimitOnKill(PlayerControl killer)
+    {
+        switch (killer.GetCustomRole())
+        {
+            case CustomRoles.Hacker:
+                Hacker.HackLimit[killer.PlayerId] += Hacker.HackerAbilityUseGainWithEachKill.GetFloat();
+                Hacker.SendRPC(killer.PlayerId);
+                break;
+            case CustomRoles.Camouflager:
+                Camouflager.CamoLimit[killer.PlayerId] += Camouflager.CamoAbilityUseGainWithEachKill.GetFloat();
+                break;
+            case CustomRoles.Councillor:
+                Councillor.MurderLimit[killer.PlayerId] += Councillor.CouncillorAbilityUseGainWithEachKill.GetFloat();
+                break;
+            case CustomRoles.Dazzler:
+                Dazzler.DazzleLimit[killer.PlayerId] += Dazzler.DazzlerAbilityUseGainWithEachKill.GetFloat();
+                break;
+            case CustomRoles.Disperser:
+                Disperser.DisperserLimit[killer.PlayerId] += Disperser.DisperserAbilityUseGainWithEachKill.GetFloat();
+                break;
+            case CustomRoles.EvilDiviner:
+                EvilDiviner.DivinationCount[killer.PlayerId] += EvilDiviner.EDAbilityUseGainWithEachKill.GetFloat();
+                break;
+            case CustomRoles.Swooper:
+                Swooper.SwoopLimit[killer.PlayerId] += Swooper.SwooperAbilityUseGainWithEachKill.GetFloat();
+                break;
+            case CustomRoles.Hangman:
+                Hangman.HangLimit[killer.PlayerId] += Hangman.HangmanAbilityUseGainWithEachKill.GetFloat();
+                break;
+            case CustomRoles.Twister:
+                Twister.TwistLimit[killer.PlayerId] += Twister.TwisterAbilityUseGainWithEachKill.GetFloat();
+                break;
+            case CustomRoles.Kamikaze:
+                Kamikaze.MarkLimit[killer.PlayerId] += Kamikaze.KamikazeAbilityUseGainWithEachKill.GetFloat();
+                Kamikaze.SendRPCSyncLimit(killer.PlayerId);
+                break;
+
+            case CustomRoles.Mafioso:
+                Mafioso.OnMurder();
+                break;
+        }
+    }
+
     public static bool HasTasks(GameData.PlayerInfo p, bool ForRecompute = true)
     {
         if (GameStates.IsLobby) return false;

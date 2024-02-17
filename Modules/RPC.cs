@@ -55,6 +55,7 @@ public enum CustomRPC
     SyncNameNotify,
     ShowPopUp,
     KillFlash,
+    SyncAbilityUseLimit,
 
     //Roles
     SetDrawPlayer,
@@ -377,6 +378,10 @@ internal class RPCHandlerPatch
                 byte CustomRoleTargetId = reader.ReadByte();
                 CustomRoles role = (CustomRoles)reader.ReadPackedInt32();
                 RPC.SetCustomRole(CustomRoleTargetId, role);
+                break;
+            case CustomRPC.SyncAbilityUseLimit:
+                var pc = Utils.GetPlayerById(reader.ReadByte());
+                pc.SetAbilityUseLimit(reader.ReadSingle(), false);
                 break;
             case CustomRPC.SetBountyTarget:
                 BountyHunter.ReceiveRPC(reader);

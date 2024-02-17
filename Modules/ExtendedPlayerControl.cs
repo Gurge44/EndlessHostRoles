@@ -209,14 +209,34 @@ static class ExtendedPlayerControl
     public static void AddAbilityCD(this PlayerControl pc, int CD) => Main.AbilityCD[pc.PlayerId] = (TimeStamp, CD);
     public static bool HasAbilityCD(this PlayerControl pc) => Main.AbilityCD.ContainsKey(pc.PlayerId);
 
+    public static float GetAbilityUseLimit(this PlayerControl pc) => Main.AbilityUseLimit.TryGetValue(pc.PlayerId, out var limit) ? limit : 0f;
+    public static void RpcRemoveAbilityUse(this PlayerControl pc) => pc.SetAbilityUseLimit(pc.GetAbilityUseLimit() - 1, true);
+    public static void RpcIncreaseAbilityUseLimitBy(this PlayerControl pc, float get) => pc.SetAbilityUseLimit(pc.GetAbilityUseLimit() + get, true);
+    public static void SetAbilityUseLimit(this PlayerControl pc, float limit, bool rpc)
+    {
+        Main.AbilityUseLimit[pc.PlayerId] = limit;
+
+        if (rpc)
+        {
+            var writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAbilityUseLimit, SendOption.Reliable, -1);
+            writer.Write(pc.PlayerId);
+            writer.Write(limit);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+    }
+
     public static void Suicide(this PlayerControl pc, PlayerState.DeathReason deathReason = PlayerState.DeathReason.Suicide, PlayerControl realKiller = null)
     {
         Main.PlayerStates[pc.PlayerId].deathReason = deathReason;
         Main.PlayerStates[pc.PlayerId].SetDead();
-        if (realKiller != null) pc.SetRealKiller(realKiller);
 
         Medic.IsDead(pc);
-        if (realKiller != null && realKiller.Is(CustomRoles.Damocles)) Damocles.OnMurder(realKiller.PlayerId);
+        if (realKiller != null)
+        {
+            pc.SetRealKiller(realKiller);
+            if (realKiller.Is(CustomRoles.Damocles)) Damocles.OnMurder(realKiller.PlayerId);
+            IncreaseAbilityUseLimitOnKill(realKiller);
+        }
 
         pc.Kill(pc);
     }
@@ -491,7 +511,7 @@ static class ExtendedPlayerControl
     public static bool CanUseKillButton(this PlayerControl pc)
     {
         //int playerCount = Main.AllAlivePlayerControls.Count();
-        if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel || Pelican.IsEaten(pc.PlayerId) || Options.CurrentGameMode == CustomGameMode.MoveAndStop) return false;
+        if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel || Pelican.IsEaten(pc.PlayerId) || Options.CurrentGameMode == CustomGameMode.MoveAndStop || Penguin.IsVictim(pc)) return false;
 
         if (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId)) return true;
 
@@ -624,7 +644,7 @@ static class ExtendedPlayerControl
     }
     public static bool CanUseImpostorVentButton(this PlayerControl pc)
     {
-        if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
+        if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel || Penguin.IsVictim(pc)) return false;
         if (CopyCat.playerIdList.Contains(pc.PlayerId)) return true;
 
         if ((pc.Is(CustomRoles.Nimble) || Options.EveryoneCanVent.GetBool()) && pc.GetCustomRole().GetVNRole() != CustomRoles.Engineer) return true;
@@ -1324,45 +1344,7 @@ static class ExtendedPlayerControl
         else if (killer.Is(Team.Impostor)) Damocles.OnOtherImpostorMurder();
         if (target.Is(Team.Impostor)) Damocles.OnImpostorDeath();
 
-        switch (killer.GetCustomRole())
-        {
-            case CustomRoles.Hacker:
-                Hacker.HackLimit[killer.PlayerId] += Hacker.HackerAbilityUseGainWithEachKill.GetFloat();
-                Hacker.SendRPC(killer.PlayerId);
-                break;
-            case CustomRoles.Camouflager:
-                Camouflager.CamoLimit[killer.PlayerId] += Camouflager.CamoAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.Councillor:
-                Councillor.MurderLimit[killer.PlayerId] += Councillor.CouncillorAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.Dazzler:
-                Dazzler.DazzleLimit[killer.PlayerId] += Dazzler.DazzlerAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.Disperser:
-                Disperser.DisperserLimit[killer.PlayerId] += Disperser.DisperserAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.EvilDiviner:
-                EvilDiviner.DivinationCount[killer.PlayerId] += EvilDiviner.EDAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.Swooper:
-                Swooper.SwoopLimit[killer.PlayerId] += Swooper.SwooperAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.Hangman:
-                Hangman.HangLimit[killer.PlayerId] += Hangman.HangmanAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.Twister:
-                Twister.TwistLimit[killer.PlayerId] += Twister.TwisterAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.Kamikaze:
-                Kamikaze.MarkLimit[killer.PlayerId] += Kamikaze.KamikazeAbilityUseGainWithEachKill.GetFloat();
-                Kamikaze.SendRPCSyncLimit(killer.PlayerId);
-                break;
-
-            case CustomRoles.Mafioso:
-                Mafioso.OnMurder();
-                break;
-        }
+        IncreaseAbilityUseLimitOnKill(killer);
 
         target.SetRealKiller(killer, NotOverRide: true);
 

@@ -22,7 +22,6 @@ public static class Chameleon
     private static Dictionary<byte, long> InvisTime = [];
     private static Dictionary<byte, long> lastTime = [];
     private static Dictionary<byte, int> ventedId = [];
-    public static Dictionary<byte, float> UseLimit = [];
 
     public static void SetupCustomOption()
     {
