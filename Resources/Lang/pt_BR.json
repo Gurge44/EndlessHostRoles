@@ -2735,6 +2735,8 @@
   "PenguinInfoLong": "(Impostores):\\nPinguins podem agarrar seus alvos usando o botão matar, e arrasta-lo por onde quiser.\\nEnquanto estiver arrastando, o alvo morre ao pressionar o botão matar novamente ou após um certo periodo.\\nAperte o botão matar duas vezes para fazer um abate direto.",
   "PenguinAbductTimerLimit": "Tempo arrastando",
   "PenguinMeetingKill": "Matar o alvo caso uma reunião for chamada enquanto arrastando",
+  "PenguinSpeedDuringDrag": "Speed During Dragging",
+  "PenguinVictimCanUseAbilities": "Victim Can Use Their Abilities While Being Dragged",
   "PenguinKillButtonText": "Arrastar",
   "PenguinTimerText": "Tempo para arrastar restante",
   "Stealth": "Furtivo",
