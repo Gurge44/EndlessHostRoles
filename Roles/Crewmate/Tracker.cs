@@ -46,7 +46,6 @@ namespace TOHE.Roles.Crewmate
         public static void Init()
         {
             playerIdList = [];
-            TrackLimit = [];
             TrackerTarget = [];
             CanSeeLastRoomInMeeting = OptionCanSeeLastRoomInMeeting.GetBool();
             TempTrackLimit = [];
@@ -55,7 +54,7 @@ namespace TOHE.Roles.Crewmate
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            TrackLimit.Add(playerId, TrackLimitOpt.GetInt());
+            playerId.SetAbilityUseLimit(TrackLimitOpt.GetInt());
             TrackerTarget.Add(playerId, []);
             IsEnable = true;
         }
@@ -72,7 +71,7 @@ namespace TOHE.Roles.Crewmate
             byte trackerId = reader.ReadByte();
             byte targetId = reader.ReadByte();
 
-            TrackLimit[trackerId]--;
+            Utils.GetPlayerById(trackerId).RpcRemoveAbilityUse();
 
             TrackerTarget[trackerId].Add(targetId);
             TargetArrow.Add(trackerId, targetId);
@@ -81,9 +80,9 @@ namespace TOHE.Roles.Crewmate
 
         public static bool OnVote(PlayerControl player, PlayerControl target)
         {
-            if (player == null || target == null || TrackLimit[player.PlayerId] < 1 || player.PlayerId == target.PlayerId || TrackerTarget[player.PlayerId].Contains(target.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
+            if (player == null || target == null || player.GetAbilityUseLimit() < 1f || player.PlayerId == target.PlayerId || TrackerTarget[player.PlayerId].Contains(target.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
 
-            TrackLimit[player.PlayerId]--;
+            player.RpcRemoveAbilityUse();
 
             TrackerTarget[player.PlayerId].Add(target.PlayerId);
             TargetArrow.Add(player.PlayerId, target.PlayerId);
@@ -100,7 +99,7 @@ namespace TOHE.Roles.Crewmate
 
             foreach (var trackerId in playerIdList)
             {
-                TempTrackLimit[trackerId] = TrackLimit[trackerId];
+                TempTrackLimit[trackerId] = trackerId.GetAbilityUseLimit();
             }
         }
 

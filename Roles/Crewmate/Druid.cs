@@ -47,7 +47,6 @@ namespace TOHE.Roles.Crewmate
         public static void Init()
         {
             playerIdList = [];
-            UseLimit = [];
             TriggerDelays = [];
             Triggers = [];
             lastUpdate = TimeStamp;
@@ -55,26 +54,11 @@ namespace TOHE.Roles.Crewmate
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            UseLimit.Add(playerId, UseLimitOpt.GetFloat());
+            playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
             lastUpdate = TimeStamp;
         }
 
         public static bool IsEnable => playerIdList.Count > 0;
-
-        public static void SendRPCSyncAbilityUse(byte playerId)
-        {
-            if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDruidLimit, SendOption.Reliable, -1);
-            writer.Write(playerId);
-            writer.Write(UseLimit[playerId]);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-        public static void ReceiveRPCSyncAbilityUse(MessageReader reader)
-        {
-            if (!IsEnable) return;
-            byte playerId = reader.ReadByte();
-            UseLimit[playerId] = reader.ReadSingle();
-        }
         public static void SendRPCAddTrigger(bool add, byte playerId, Vector2 position, string roomName = "")
         {
             if (!IsEnable || !DoRPC) return;
@@ -115,7 +99,7 @@ namespace TOHE.Roles.Crewmate
         {
             if (!IsEnable) return;
             if (pc == null || !GameStates.IsInTask) return;
-            if (!pc.Is(CustomRoles.Druid) || UseLimit[pc.PlayerId] < 1) return;
+            if (!pc.Is(CustomRoles.Druid) || pc.GetAbilityUseLimit() < 1) return;
 
             long now = TimeStamp;
 
@@ -131,8 +115,7 @@ namespace TOHE.Roles.Crewmate
                 TriggerDelays.TryAdd(pc.PlayerId, now);
             }
 
-            UseLimit[pc.PlayerId]--;
-            SendRPCSyncAbilityUse(pc.PlayerId);
+            pc.RpcRemoveAbilityUse();
         }
 
         public static void OnCheckPlayerPosition(PlayerControl pc)

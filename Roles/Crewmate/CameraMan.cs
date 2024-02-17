@@ -34,39 +34,21 @@ namespace TOHE.Roles.Crewmate
         public static void Init()
         {
             playerIdList = [];
-            UseLimit = [];
         }
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            UseLimit.Add(playerId, UseLimitOpt.GetInt());
+            playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
         }
         public static bool IsEnable => playerIdList.Count > 0;
-        public static void SendRPC(byte playerId)
-        {
-            if (!IsEnable || !Utils.DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCameraManLimit, SendOption.Reliable, -1);
-            writer.Write(playerId);
-            writer.Write(UseLimit[playerId]);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-        public static void ReceiveRPC(MessageReader reader)
-        {
-            if (AmongUsClient.Instance.AmHost) return;
-
-            byte playerId = reader.ReadByte();
-            float uses = reader.ReadSingle();
-            UseLimit[playerId] = uses;
-        }
         public static void OnEnterVent(PlayerControl pc)
         {
             if (pc == null) return;
             if (!pc.Is(CustomRoles.CameraMan)) return;
 
-            if (UseLimit[pc.PlayerId] >= 1)
+            if (pc.GetAbilityUseLimit() >= 1)
             {
-                UseLimit[pc.PlayerId] -= 1;
-                SendRPC(pc.PlayerId);
+                pc.RpcRemoveAbilityUse();
 
                 Vector2 pos = Main.CurrentMap switch
                 {
@@ -99,11 +81,11 @@ namespace TOHE.Roles.Crewmate
             string Completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
 
             Color TextColor1;
-            if (UseLimit[playerId] < 1) TextColor1 = Color.red;
+            if (playerId.GetAbilityUseLimit() < 1) TextColor1 = Color.red;
             else TextColor1 = Color.white;
 
             sb.Append(Utils.ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
-            sb.Append(Utils.ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));
+            sb.Append(Utils.ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(playerId.GetAbilityUseLimit(), 1)}"));
 
             return sb.ToString();
         }

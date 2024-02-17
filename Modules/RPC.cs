@@ -381,7 +381,7 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SyncAbilityUseLimit:
                 var pc = Utils.GetPlayerById(reader.ReadByte());
-                pc.SetAbilityUseLimit(reader.ReadSingle(), false);
+                pc.SetAbilityUseLimit(reader.ReadSingle(), rpc: false);
                 break;
             case CustomRPC.SetBountyTarget:
                 BountyHunter.ReceiveRPC(reader);

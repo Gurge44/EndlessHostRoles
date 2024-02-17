@@ -39,13 +39,12 @@ namespace TOHE.Roles.Crewmate
         {
             playerIdList = [];
             playersInVents = [];
-            DrainLimit = 0;
         }
 
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            DrainLimit = UseLimit.GetInt();
+            playerId.SetAbilityUseLimit(UseLimit.GetInt());
         }
 
         public static void ApplyGameOptions()
@@ -54,20 +53,6 @@ namespace TOHE.Roles.Crewmate
         }
 
         public static bool IsEnable => playerIdList.Count > 0;
-
-        public static void SendRPC()
-        {
-            if (!IsEnable || !Utils.DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDrainerLimit, SendOption.Reliable, -1);
-            writer.Write(DrainLimit);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-
-        public static void ReceiveRPC(MessageReader reader)
-        {
-            if (!IsEnable) return;
-            DrainLimit = reader.ReadInt32();
-        }
 
         public static void OnAnyoneExitVent(PlayerControl pc)
         {
@@ -79,9 +64,9 @@ namespace TOHE.Roles.Crewmate
         {
             if (!IsEnable) return;
             if (!pc.Is(CustomRoles.Drainer)) return;
-            if (DrainLimit <= 0) return;
+            if (pc.GetAbilityUseLimit() <= 0) return;
 
-            DrainLimit--;
+            pc.RpcRemoveAbilityUse();
 
             var vents = vent.NearbyVents.Where(vent => vent != null).AddItem(vent).ToArray();
             foreach (var ventToDrain in vents) KillPlayersInVent(pc, ventToDrain);
@@ -101,7 +86,7 @@ namespace TOHE.Roles.Crewmate
             playersInVents.Add(pc.PlayerId, vent.Id);
         }
 
-        public static string GetProgressText() => $"<color=#777777>-</color> <color=#ff{(DrainLimit < 1 ? "0000" : "ffff")}>{DrainLimit}</color>";
+        public static string GetProgressText() => $"<color=#777777>-</color> <color=#ff{(playerIdList[0].GetAbilityUseLimit() < 1 ? "0000" : "ffff")}>{playerIdList[0].GetAbilityUseLimit()}</color>";
 
         private static void KillPlayersInVent(PlayerControl pc, Vent vent)
         {

@@ -39,14 +39,13 @@ namespace TOHE.Roles.Crewmate
         public static void Init()
         {
             playerIdList = [];
-            UseLimit = [];
             SpyRedNameList = [];
             change = false;
         }
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            UseLimit.Add(playerId, UseLimitOpt.GetInt());
+            playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
         }
         public static bool IsEnable => playerIdList.Count > 0;
         public static void SendRPC(int operate, byte id = byte.MaxValue, bool changeColor = false)
@@ -59,10 +58,6 @@ namespace TOHE.Roles.Crewmate
                 case 1: // Red Name Add
                     writer.Write(id);
                     writer.Write(SpyRedNameList[id].ToString());
-                    break;
-                case 2: // Ability Use
-                    writer.Write(id);
-                    writer.Write(UseLimit[id]);
                     break;
                 case 3: // Red Name Remove
                     writer.Write(id);
@@ -81,10 +76,6 @@ namespace TOHE.Roles.Crewmate
                     string stimeStamp = reader.ReadString();
                     if (long.TryParse(stimeStamp, out long timeStamp)) SpyRedNameList[susId] = timeStamp;
                     return;
-                case 2:
-                    byte spyId = reader.ReadByte();
-                    UseLimit[spyId] = reader.ReadSingle();
-                    return;
                 case 3:
                     SpyRedNameList.Remove(reader.ReadByte());
                     change = reader.ReadBoolean();
@@ -93,10 +84,9 @@ namespace TOHE.Roles.Crewmate
         }
         public static void OnKillAttempt(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null || target == null || !target.Is(CustomRoles.Spy) || killer.PlayerId == target.PlayerId || UseLimit[target.PlayerId] < 1) return;
+            if (killer == null || target == null || !target.Is(CustomRoles.Spy) || killer.PlayerId == target.PlayerId || target.GetAbilityUseLimit() < 1) return;
 
-            UseLimit[target.PlayerId] -= 1;
-            SendRPC(2, id: target.PlayerId);
+            target.RpcRemoveAbilityUse();
             SpyRedNameList.TryAdd(killer.PlayerId, TimeStamp);
             SendRPC(1, id: killer.PlayerId);
             NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
@@ -126,11 +116,11 @@ namespace TOHE.Roles.Crewmate
             var sb = new StringBuilder();
 
             Color TextColor1;
-            if (UseLimit[playerId] < 1) TextColor1 = Color.red;
+            if (playerId.GetAbilityUseLimit() < 1) TextColor1 = Color.red;
             else TextColor1 = Color.white;
 
             sb.Append(GetTaskCount(playerId, comms));
-            sb.Append(ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));
+            sb.Append(ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(playerId.GetAbilityUseLimit(), 1)}"));
 
             return sb.ToString();
         }

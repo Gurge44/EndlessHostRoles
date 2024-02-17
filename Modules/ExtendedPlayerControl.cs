@@ -210,9 +210,10 @@ static class ExtendedPlayerControl
     public static bool HasAbilityCD(this PlayerControl pc) => Main.AbilityCD.ContainsKey(pc.PlayerId);
 
     public static float GetAbilityUseLimit(this PlayerControl pc) => Main.AbilityUseLimit.TryGetValue(pc.PlayerId, out var limit) ? limit : 0f;
+    public static float GetAbilityUseLimit(this byte playerId) => Main.AbilityUseLimit.TryGetValue(playerId, out var limit) ? limit : 0f;
     public static void RpcRemoveAbilityUse(this PlayerControl pc) => pc.SetAbilityUseLimit(pc.GetAbilityUseLimit() - 1, true);
     public static void RpcIncreaseAbilityUseLimitBy(this PlayerControl pc, float get) => pc.SetAbilityUseLimit(pc.GetAbilityUseLimit() + get, true);
-    public static void SetAbilityUseLimit(this PlayerControl pc, float limit, bool rpc)
+    public static void SetAbilityUseLimit(this PlayerControl pc, float limit, bool rpc = true)
     {
         Main.AbilityUseLimit[pc.PlayerId] = limit;
 
@@ -220,6 +221,18 @@ static class ExtendedPlayerControl
         {
             var writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAbilityUseLimit, SendOption.Reliable, -1);
             writer.Write(pc.PlayerId);
+            writer.Write(limit);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+    }
+    public static void SetAbilityUseLimit(this byte playerId, float limit, bool rpc = true)
+    {
+        Main.AbilityUseLimit[playerId] = limit;
+
+        if (rpc)
+        {
+            var writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAbilityUseLimit, SendOption.Reliable, -1);
+            writer.Write(playerId);
             writer.Write(limit);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }

@@ -48,20 +48,19 @@ public static class Judge
     public static void Init()
     {
         playerIdList = [];
-        TrialLimit = [];
     }
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        TrialLimit.Add(playerId, TrialLimitPerMeeting.GetFloat());
+        playerId.SetAbilityUseLimit(TrialLimitPerMeeting.GetInt());
     }
     public static bool IsEnable => playerIdList.Count > 0;
     public static void OnReportDeadBody()
     {
-        byte[] list = [.. TrialLimit.Keys];
+        byte[] list = [.. playerIdList];
         foreach (byte pid in list)
         {
-            TrialLimit[pid] = TrialLimitPerMeeting.GetInt();
+            pid.SetAbilityUseLimit(TrialLimitPerMeeting.GetInt());
         }
     }
     public static bool TrialMsg(PlayerControl pc, string msg, bool isUI = false)
@@ -105,7 +104,7 @@ public static class Judge
             {
                 Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} 审判了 {target.GetNameWithRole().RemoveHtmlTags()}", "Judge");
                 bool judgeSuicide = true;
-                if (TrialLimit[pc.PlayerId] < 1)
+                if (pc.GetAbilityUseLimit() < 1)
                 {
                     if (!isUI) Utils.SendMessage(GetString("JudgeTrialMax"), pc.PlayerId);
                     else pc.ShowPopUp(GetString("JudgeTrialMax"));
@@ -146,7 +145,7 @@ public static class Judge
 
                 string Name = dp.GetRealName();
 
-                TrialLimit[pc.PlayerId]--;
+                pc.RpcRemoveAbilityUse();
 
                 _ = new LateTask(() =>
                 {

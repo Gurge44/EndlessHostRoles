@@ -183,7 +183,6 @@ public static class ElectricTaskInitializePatch
             {
                 if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare))
                 {
-                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                     Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true);
                 }
             }
@@ -210,7 +209,6 @@ public static class ElectricTaskCompletePatch
             {
                 if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare))
                 {
-                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                     Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true);
                 }
             }

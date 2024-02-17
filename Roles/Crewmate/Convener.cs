@@ -25,24 +25,10 @@ namespace TOHE.Roles.Crewmate
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Convener])
                 .SetValueFormat(OptionFormat.Times);
         }
-        public static void Init() => UseLimit.Clear();
-        public static void Add(byte playerId) => UseLimit[playerId] = Limit.GetInt();
-        public static void SendRPC(byte id)
-        {
-            var writer = Utils.CreateCustomRoleRPC(CustomRPC.SyncConvener);
-            writer.Write(id);
-            writer.Write(UseLimit[id]);
-            Utils.EndRPC(writer);
-        }
-        public static void ReceiveRPC(MessageReader reader)
-        {
-            byte id = reader.ReadByte();
-            float limit = reader.ReadSingle();
-            UseLimit[id] = limit;
-        }
+        public static void Add(byte playerId) => playerId.SetAbilityUseLimit(Limit.GetInt());
         public static void UseAbility(PlayerControl pc, int ventId = 0, bool isPet = false)
         {
-            if (pc == null || !UseLimit.TryGetValue(pc.PlayerId, out var limit) || limit < 1f) return;
+            if (pc == null || pc.GetAbilityUseLimit() < 1f) return;
 
             if (isPet)
             {
@@ -54,9 +40,8 @@ namespace TOHE.Roles.Crewmate
                 _ = new LateTask(() => { Utils.TPAll(pc.Pos()); }, 1f, "Convener TP");
             }
 
-            UseLimit[pc.PlayerId]--;
-            SendRPC(pc.PlayerId);
+            pc.RpcRemoveAbilityUse();
         }
-        public static string GetProgressText(byte id) => UseLimit.TryGetValue(id, out var limit) ? $"<#777777>-</color> <#ff{(limit < 1f ? "0000" : "ffff")}>{Math.Round(limit, 1)}</color>" : string.Empty;
+        public static string GetProgressText(byte id) => $"<#777777>-</color> <#ff{(id.GetAbilityUseLimit() < 1f ? "0000" : "ffff")}>{Math.Round(id.GetAbilityUseLimit(), 1)}</color>";
     }
 }
