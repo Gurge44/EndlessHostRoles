@@ -33,6 +33,7 @@ namespace TOHE.Roles.Crewmate
         private static float TimeSinceLastMeeting = 0;
         private static Dictionary<byte, long> LastEffectPick = [];
         private static Dictionary<byte, long> LastTP = [];
+        private static long LastDeathEffect = 0;
 
         private static string RNGString => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Randomizer), Translator.GetString("RNGHasSpoken"));
         private static void NotifyAboutRNG(PlayerControl pc)
@@ -52,14 +53,12 @@ namespace TOHE.Roles.Crewmate
         {
             ShieldRandomPlayer,
             ShieldAll,
-            Death,
             TPEveryoneToVents,
             PullEveryone,
             Twist,
             SuperSpeedForRandomPlayer,
             SuperSpeedForAll,
             FreezeRandomPlayer,
-            FreezeAll,
             SuperVisionForRandomPlayer,
             SuperVisionForAll,
             BlindnessForRandomPlayer,
@@ -92,7 +91,6 @@ namespace TOHE.Roles.Crewmate
             Effect.SuperSpeedForRandomPlayer or
             Effect.SuperSpeedForAll or
             Effect.FreezeRandomPlayer or
-            Effect.FreezeAll or
             Effect.InvertControls;
 
         private static bool IsVisionChangingEffect(this Effect effect) => effect is
@@ -131,6 +129,7 @@ namespace TOHE.Roles.Crewmate
             LastEffectPick = [];
             LastTP = [];
             Main.AllPlayerControls.Do(x => LastTP[x.PlayerId] = now);
+            LastDeathEffect = 0;
 
             EffectFrequency = EffectFrequencyOpt.GetInt();
             MinimumEffectDuration = EffectDurMin.GetInt();
@@ -155,16 +154,28 @@ namespace TOHE.Roles.Crewmate
         private static void AddEffectForPlayer(PlayerControl pc, Effect effect)
         {
             if (pc == null) return;
-            CurrentEffects[pc.PlayerId] ??= [];
+            if (!CurrentEffects.ContainsKey(pc.PlayerId)) CurrentEffects[pc.PlayerId] = [];
             int duration = IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration + 1);
             CurrentEffects[pc.PlayerId].TryAdd(effect, (Utils.TimeStamp, duration));
         }
 
         private static Effect PickRandomEffect(byte id)
         {
-            LastEffectPick[id] = Utils.TimeStamp;
+            long now = Utils.TimeStamp;
+
+            LastEffectPick[id] = now;
+
             var allEffects = EnumHelper.GetAllValues<Effect>();
             var effect = allEffects[IRandom.Instance.Next(0, allEffects.Length)];
+
+            if (effect == Effect.GhostPlayer)
+            {
+                if (LastDeathEffect + 60 > now) return Effect.AddonRemove;
+                else LastDeathEffect = now;
+            }
+
+            Logger.Info($"Effect: {effect}", "Randomizer");
+
             return effect;
         }
 
@@ -187,13 +198,6 @@ namespace TOHE.Roles.Crewmate
                                 AddEffectForPlayer(pc, effect);
                                 NotifyAboutRNG(pc);
                             }
-                        }
-                        break;
-                    case Effect.Death when TimeSinceLastMeeting > Options.DefaultKillCooldown:
-                        {
-                            var pc = PickRandomPlayer();
-                            pc.Suicide(PlayerState.DeathReason.RNG, randomizer);
-                            NotifyAboutRNG(pc);
                         }
                         break;
                     case Effect.TPEveryoneToVents:
@@ -265,18 +269,6 @@ namespace TOHE.Roles.Crewmate
                             Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
                             pc.MarkDirtySettings();
                             NotifyAboutRNG(pc);
-                        }
-                        break;
-                    case Effect.FreezeAll:
-                        {
-                            foreach (var pc in Main.AllAlivePlayerControls)
-                            {
-                                RevertSpeedChangesForPlayer(pc, false);
-                                AddEffectForPlayer(pc, effect);
-                                Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
-                                NotifyAboutRNG(pc);
-                            }
-                            Utils.MarkEveryoneDirtySettings();
                         }
                         break;
                     case Effect.SuperVisionForRandomPlayer:
@@ -385,7 +377,7 @@ namespace TOHE.Roles.Crewmate
                             {
                                 RevertSpeedChangesForPlayer(pc, false);
                                 AddEffectForPlayer(pc, effect);
-                                Main.AllPlayerSpeed[pc.PlayerId] = AllPlayerDefaultSpeed[pc.PlayerId] * -1;
+                                Main.AllPlayerSpeed[pc.PlayerId] = -AllPlayerDefaultSpeed[pc.PlayerId];
                                 NotifyAboutRNG(pc);
                             }
                             Utils.MarkEveryoneDirtySettings();
@@ -396,6 +388,7 @@ namespace TOHE.Roles.Crewmate
                             var addons = EnumHelper.GetAllValues<CustomRoles>().Where(x => x.IsAdditionRole() && x != CustomRoles.NotAssigned).ToArray();
                             var pc = PickRandomPlayer();
                             var addon = addons[IRandom.Instance.Next(0, addons.Length)];
+                            if (Main.PlayerStates[pc.PlayerId].SubRoles.Contains(addon)) break;
                             Main.PlayerStates[pc.PlayerId].SetSubRole(addon);
                             pc.MarkDirtySettings();
                             NotifyAboutRNG(pc);
@@ -405,6 +398,7 @@ namespace TOHE.Roles.Crewmate
                         {
                             var pc = PickRandomPlayer();
                             var addons = Main.PlayerStates[pc.PlayerId].SubRoles;
+                            if (addons.Count == 0) break;
                             var addon = addons[IRandom.Instance.Next(0, addons.Count)];
                             Main.PlayerStates[pc.PlayerId].RemoveSubRole(addon);
                             pc.MarkDirtySettings();
@@ -439,13 +433,13 @@ namespace TOHE.Roles.Crewmate
                         }
                         break;
                     case Effect.AllDoorsOpen:
-                        DoorsReset.OpenAllDoors();
+                        try { DoorsReset.OpenAllDoors(); } catch { }
                         break;
                     case Effect.AllDoorsClose:
-                        DoorsReset.CloseAllDoors();
+                        try { DoorsReset.CloseAllDoors(); } catch { }
                         break;
                     case Effect.SetDoorsRandomly:
-                        DoorsReset.OpenOrCloseAllDoorsRandomly();
+                        try { DoorsReset.OpenOrCloseAllDoorsRandomly(); } catch { }
                         break;
                     case Effect.Patrol:
                         {
@@ -455,7 +449,7 @@ namespace TOHE.Roles.Crewmate
                             state.StartPatrolling();
                         }
                         break;
-                    case Effect.GhostPlayer:
+                    case Effect.GhostPlayer when TimeSinceLastMeeting > Options.DefaultKillCooldown:
                         {
                             var killer = PickRandomPlayer();
                             var allPc = Main.AllAlivePlayerControls.Where(x => x.PlayerId != killer.PlayerId).ToArray();
@@ -548,9 +542,19 @@ namespace TOHE.Roles.Crewmate
             }
         }
 
+        public static void OnAnyoneDeath(PlayerControl pc)
+        {
+            RevertSpeedChangesForPlayer(pc, false);
+            RevertVisionChangesForPlayer(pc, false);
+
+            Main.AllPlayerSpeed[pc.PlayerId] = AllPlayerDefaultSpeed[pc.PlayerId];
+            pc.MarkDirtySettings();
+        }
+
         public static void OnReportDeadBody()
         {
             TimeSinceLastMeeting = 0;
+            LastDeathEffect = Utils.TimeStamp;
             Rifts.Clear();
             Bombs.Clear();
             foreach (var pc in Main.AllPlayerControls)
@@ -563,15 +567,14 @@ namespace TOHE.Roles.Crewmate
         public static void AfterMeetingTasks()
         {
             TimeSinceLastMeeting = 0;
+            LastDeathEffect = Utils.TimeStamp;
         }
 
-        public static void GlobalFixedUpdate(bool lowLoad)
+        public static void GlobalFixedUpdate()
         {
             try
             {
-                if (GameStates.IsInTask) TimeSinceLastMeeting += Time.fixedDeltaTime;
-
-                if (lowLoad) return;
+                if (!IsEnable || !GameStates.IsInTask || Bombs.Count == 0) return;
 
                 var now = Utils.TimeStamp;
                 var randomizer = Utils.GetPlayerById(PlayerIdList.FirstOrDefault());
@@ -596,10 +599,22 @@ namespace TOHE.Roles.Crewmate
             }
         }
 
-        public static void OnFixedUpdateForRandomizer(PlayerControl pc)
+        public static string GetSuffixText(PlayerControl pc, PlayerControl target)
+        {
+            if (!IsEnable || pc == null || pc.PlayerId != target.PlayerId) return string.Empty;
+            var bomb = Bombs.FirstOrDefault(x => Vector2.Distance(x.Key, pc.Pos()) <= 5f);
+            var time = bomb.Value.ExplosionDelay - (Utils.TimeStamp - bomb.Value.PlaceTimeStamp) + 1;
+            if (time < 0) return string.Empty;
+            return $"<#ffff00>⚠ {time}</color>";
+        }
+
+        public static void OnFixedUpdateForRandomizer(PlayerControl pc, bool lowLoad)
         {
             try
             {
+                if (GameStates.IsInTask) TimeSinceLastMeeting += Time.fixedDeltaTime;
+                if (lowLoad) return;
+
                 if (!IsEnable || !GameStates.IsInTask || pc == null || !pc.IsAlive() || !pc.Is(CustomRoles.Randomizer) || TimeSinceLastMeeting <= 10f) return;
 
                 long now = Utils.TimeStamp;
@@ -673,7 +688,7 @@ namespace TOHE.Roles.Crewmate
                             {
                                 RevertVisionChangesForPlayer(pc, true);
                             }
-                            else if (item.Key.IsSpeedChangingEffect())
+                            if (item.Key.IsSpeedChangingEffect())
                             {
                                 RevertSpeedChangesForPlayer(pc, true);
                             }

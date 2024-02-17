@@ -15,7 +15,7 @@ public static class NameNotifyManager
         if (!GameStates.IsInTask) return;
         //if (!text.Contains("<color=#")) text = Utils.ColorString(Utils.GetRoleColor(pc.GetCustomRole()), text);
         if (!text.Contains("<color=") && !text.Contains("</color>")) text = Utils.ColorString(Color.white, text);
-        if (!text.Contains("<size=")) text = "<size=1.8>" + text + "</size>";
+        if (!text.Contains("<size=")) text = "<size=1.9>" + text + "</size>";
         Notice.Remove(pc.PlayerId);
         Notice.Add(pc.PlayerId, new(text, Utils.TimeStamp + (long)time));
         SendRPC(pc.PlayerId);

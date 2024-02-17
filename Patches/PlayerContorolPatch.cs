@@ -2149,8 +2149,8 @@ class FixedUpdatePatch
                 case CustomRoles.Swiftclaw when !lowLoad:
                     Swiftclaw.OnFixedUpdate(player);
                     break;
-                case CustomRoles.Randomizer when !lowLoad:
-                    Randomizer.OnFixedUpdateForRandomizer(player);
+                case CustomRoles.Randomizer:
+                    Randomizer.OnFixedUpdateForRandomizer(player, lowLoad);
                     break;
             }
             if (GameStates.IsInTask && player.Is(CustomRoles.PlagueBearer) && PlagueBearer.IsPlaguedAll(player))
@@ -2212,10 +2212,9 @@ class FixedUpdatePatch
                 {
                     Sentinel.OnFixedUpdate();
                     Randomizer.OnFixedUpdateForPlayers(player);
+                    Randomizer.GlobalFixedUpdate();
                 }
             }
-
-            Randomizer.GlobalFixedUpdate(lowLoad);
         }
 
         if (GameStates.IsInTask && Agitater.IsEnable && Agitater.AgitaterHasBombed && Agitater.CurrentBombedPlayer == playerId)
@@ -2949,6 +2948,7 @@ class FixedUpdatePatch
                 if (Romantic.IsEnable || VengefulRomantic.IsEnable || RuthlessRomantic.IsEnable) Mark.Append(Romantic.TargetMark(seer, target));
                 if (Lawyer.IsEnable()) Mark.Append(Lawyer.LawyerMark(seer, target));
                 if (PlagueDoctor.IsEnable) Mark.Append(PlagueDoctor.GetMarkOthers(seer, target));
+                if (Randomizer.IsEnable && Randomizer.IsShielded(target)) Mark.Append(ColorString(GetRoleColor(CustomRoles.Randomizer), "✚"));
 
                 if (Sniper.IsEnable && target.AmOwner)
                 {
@@ -2991,6 +2991,7 @@ class FixedUpdatePatch
                 if (Stealth.IsEnable) Suffix.Append(Stealth.GetSuffix(seer, target));
                 if (Tracker.IsEnable) Suffix.Append(Tracker.GetTrackerArrow(seer, target));
                 if (Bubble.IsEnable) Suffix.Append(Bubble.GetEncasedPlayerSuffix(target));
+                if (Randomizer.IsEnable) Suffix.Append(Randomizer.GetSuffixText(seer, target));
 
                 if (Deathpact.IsEnable)
                 {

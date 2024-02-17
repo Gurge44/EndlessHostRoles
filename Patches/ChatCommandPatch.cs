@@ -983,6 +983,13 @@ internal class ChatCommands
                 else Utils.SendMessage($"{GetString("ForExample")}:\n{args[0]} test", player.PlayerId);
                 break;
 
+            case "/say":
+            case "/s":
+                if (!IsPlayerModerator(player.FriendCode)) break;
+                if (args.Length > 1)
+                    Utils.SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<color=#ff0000>{GetString("SayTitle")}</color>");
+                break;
+
             case "/death":
                 if (!GameStates.IsInGame || player.IsAlive()) break;
                 var killer = player.GetRealKiller();
