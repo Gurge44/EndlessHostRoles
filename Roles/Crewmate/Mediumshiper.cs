@@ -89,7 +89,8 @@ public static class Mediumshiper
             {
                 return true;
             }
-            else if (msg.StartsWith("/" + str))
+
+            if (msg.StartsWith("/" + str))
             {
                 msg = msg.Replace("/" + str, string.Empty);
                 return true;

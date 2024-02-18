@@ -1,8 +1,9 @@
-using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using HarmonyLib;
+using Rewired;
 using UnityEngine;
 using static TOHE.Translator;
 
@@ -252,7 +253,7 @@ internal class ControllerManagerUpdatePatch
         if (Input.GetKeyDown(KeyCode.Equals))
         {
             Main.VisibleTasksCount = !Main.VisibleTasksCount;
-            DestroyableSingleton<HudManager>.Instance.Notifier.AddItem("VisibleTaskCountが" + Main.VisibleTasksCount.ToString() + "に変更されました。");
+            DestroyableSingleton<HudManager>.Instance.Notifier.AddItem("VisibleTaskCountが" + Main.VisibleTasksCount + "に変更されました。");
         }
 
         //获取现在的坐标
@@ -325,7 +326,7 @@ internal class KeyboardJoystickHandleHUDPatch
 
 internal class HandleHUDPatch
 {
-    public static void Postfix(Rewired.Player player)
+    public static void Postfix(Player player)
     {
         if (player.GetButtonDown(8) && // 8:キルボタンのactionId
         PlayerControl.LocalPlayer.Data?.Role?.IsImpostor == false &&

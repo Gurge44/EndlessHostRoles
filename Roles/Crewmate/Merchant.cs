@@ -112,6 +112,7 @@ namespace TOHE.Roles.Crewmate
 
             OverrideTasksData.Create(Id + 18, TabGroup.CrewmateRoles, CustomRoles.Merchant);
         }
+
         public static void Init()
         {
             playerIdList.Clear();
@@ -141,6 +142,7 @@ namespace TOHE.Roles.Crewmate
             {
                 return;
             }
+
             if (addons.Count == 0)
             {
                 player.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Merchant), GetString("MerchantAddonSellFail")));
@@ -154,16 +156,16 @@ namespace TOHE.Roles.Crewmate
             PlayerControl[] AllAlivePlayer =
                 Main.AllAlivePlayerControls.Where(x =>
                     x.PlayerId != player.PlayerId && !Pelican.IsEaten(x.PlayerId)
-                    && !x.Is(addon)
-                    && !CustomRolesHelper.CheckAddonConflict(addon, x)
-                    && (Cleanser.CleansedCanGetAddon.GetBool() || (!Cleanser.CleansedCanGetAddon.GetBool() && !x.Is(CustomRoles.Cleansed)))
-                    && (
-                        (OptionCanTargetCrew.GetBool() && CustomRolesHelper.IsCrewmate(x.GetCustomRole())) ||
-                        (OptionCanTargetImpostor.GetBool() && CustomRolesHelper.IsImpostor(x.GetCustomRole())) ||
-                        (OptionCanTargetNeutral.GetBool() && (CustomRolesHelper.IsNeutral(x.GetCustomRole()) ||
-                        CustomRolesHelper.IsNeutralKilling(x.GetCustomRole())))
-                       )
-                    ).ToArray();
+                                                  && !x.Is(addon)
+                                                  && !CustomRolesHelper.CheckAddonConflict(addon, x)
+                                                  && (Cleanser.CleansedCanGetAddon.GetBool() || (!Cleanser.CleansedCanGetAddon.GetBool() && !x.Is(CustomRoles.Cleansed)))
+                                                  && (
+                                                      (OptionCanTargetCrew.GetBool() && x.GetCustomRole().IsCrewmate()) ||
+                                                      (OptionCanTargetImpostor.GetBool() && x.GetCustomRole().IsImpostor()) ||
+                                                      (OptionCanTargetNeutral.GetBool() && (x.GetCustomRole().IsNeutral() ||
+                                                                                            x.GetCustomRole().IsNeutralKilling()))
+                                                  )
+                ).ToArray();
 
             if (AllAlivePlayer.Length > 0)
             {
@@ -172,17 +174,17 @@ namespace TOHE.Roles.Crewmate
 
                 if (helpfulAddon && OptionSellOnlyHarmfulToEvil.GetBool())
                 {
-                    AllAlivePlayer = AllAlivePlayer.Where(a => CustomRolesHelper.IsCrewmate(a.GetCustomRole())).ToArray();
+                    AllAlivePlayer = AllAlivePlayer.Where(a => a.GetCustomRole().IsCrewmate()).ToArray();
                 }
 
                 if (harmfulAddon && OptionSellOnlyHelpfulToCrew.GetBool())
                 {
                     AllAlivePlayer = AllAlivePlayer.Where(a =>
-                        CustomRolesHelper.IsImpostor(a.GetCustomRole())
+                        a.GetCustomRole().IsImpostor()
                         ||
-                        CustomRolesHelper.IsNeutral(a.GetCustomRole())
+                        a.GetCustomRole().IsNeutral()
                         ||
-                        CustomRolesHelper.IsNeutralKilling(a.GetCustomRole())
+                        a.GetCustomRole().IsNeutralKilling()
                     ).ToArray();
                 }
 

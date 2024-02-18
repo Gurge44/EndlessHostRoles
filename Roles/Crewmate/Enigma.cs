@@ -280,8 +280,7 @@ namespace TOHE.Roles.Crewmate
                 int random = rd.Next(1, 2);
                 if (random == 1)
                     return string.Format(GetString("EnigmaClueName1"), letter, randomLetter);
-                else
-                    return string.Format(GetString("EnigmaClueName1"), randomLetter, letter);
+                return string.Format(GetString("EnigmaClueName1"), randomLetter, letter);
             }
 
             private static string GetStage2Clue(string letter)

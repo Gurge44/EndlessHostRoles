@@ -1,10 +1,11 @@
-﻿using HarmonyLib;
-using Hazel;
-using System;
+﻿using System;
 using System.Linq;
+using HarmonyLib;
+using Hazel;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Translator;
+using Object = UnityEngine.Object;
 
 namespace TOHE;
 
@@ -35,7 +36,7 @@ public static class MafiaRevengeManager
             string text = GetString("PlayerIdList");
             foreach (PlayerControl npc in Main.AllAlivePlayerControls)
             {
-                text += "\n" + npc.PlayerId.ToString() + " → (" + npc.GetDisplayRoleName() + ") " + npc.GetRealName();
+                text += "\n" + npc.PlayerId + " → (" + npc.GetDisplayRoleName() + ") " + npc.GetRealName();
             }
 
             Utils.SendMessage(text, pc.PlayerId);
@@ -94,7 +95,7 @@ public static class MafiaRevengeManager
 
             if (GameStates.IsMeeting)
             {
-                GuessManager.RpcGuesserMurderPlayer(target);
+                target.RpcGuesserMurderPlayer();
 
                 //死者检查
                 Utils.AfterPlayerDeathTasks(target, true);
@@ -150,7 +151,7 @@ public static class MafiaRevengeManager
             var pc = Utils.GetPlayerById(pva.TargetPlayerId);
             if (pc == null || !pc.IsAlive()) continue;
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
-            GameObject targetBox = UnityEngine.Object.Instantiate(template, pva.transform);
+            GameObject targetBox = Object.Instantiate(template, pva.transform);
             targetBox.name = "ShootButton";
             targetBox.transform.localPosition = new Vector3(-0.95f, 0.03f, -1.31f);
             SpriteRenderer renderer = targetBox.GetComponent<SpriteRenderer>();

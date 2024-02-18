@@ -1,10 +1,11 @@
-﻿using HarmonyLib;
-using Hazel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using HarmonyLib;
+using Hazel;
 using UnityEngine;
 using static TOHE.Translator;
+using Object = UnityEngine.Object;
 
 namespace TOHE.Roles.Crewmate;
 
@@ -15,7 +16,9 @@ public static class Judge
     public static OptionItem TrialLimitPerMeeting;
     private static OptionItem TryHideMsg;
     private static OptionItem CanTrialMadmate;
+
     private static OptionItem CanTrialCharmed;
+
     //private static OptionItem CanTrialSidekick;
     //private static OptionItem CanTrialInfected;
     //private static OptionItem CanTrialContagious;
@@ -45,16 +48,20 @@ public static class Judge
         JudgeAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 19, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.3f, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]).SetValueFormat(OptionFormat.Times);
         AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 20, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]).SetValueFormat(OptionFormat.Times);
     }
+
     public static void Init()
     {
         playerIdList = [];
     }
+
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(TrialLimitPerMeeting.GetInt());
     }
+
     public static bool IsEnable => playerIdList.Count > 0;
+
     public static void OnReportDeadBody()
     {
         byte[] list = [.. playerIdList];
@@ -63,6 +70,7 @@ public static class Judge
             pid.SetAbilityUseLimit(TrialLimitPerMeeting.GetInt());
         }
     }
+
     public static bool TrialMsg(PlayerControl pc, string msg, bool isUI = false)
     {
         var originMsg = msg;
@@ -88,9 +96,9 @@ public static class Judge
             Utils.SendMessage(GuessManager.GetFormatString(), pc.PlayerId);
             return true;
         }
-        else if (operate == 2)
-        {
 
+        if (operate == 2)
+        {
             if (TryHideMsg.GetBool()) /*GuessManager.TryHideMsg();*/ ChatManager.SendPreviousMessagesToAll();
             else if (pc.AmOwner) Utils.SendMessage(originMsg, 255, pc.GetRealName());
 
@@ -99,6 +107,7 @@ public static class Judge
                 Utils.SendMessage(error, pc.PlayerId);
                 return true;
             }
+
             var target = Utils.GetPlayerById(targetId);
             if (target != null)
             {
@@ -110,12 +119,14 @@ public static class Judge
                     else pc.ShowPopUp(GetString("JudgeTrialMax"));
                     return true;
                 }
+
                 if (Jailor.JailorTarget.ContainsValue(target.PlayerId))
                 {
                     if (!isUI) Utils.SendMessage(GetString("CanNotTrialJailed"), pc.PlayerId, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
                     else pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")) + "\n" + GetString("CanNotTrialJailed"));
                     return true;
                 }
+
                 if (pc.PlayerId == target.PlayerId)
                 {
                     if (!isUI) Utils.SendMessage(GetString("LaughToWhoTrialSelf"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromKPD")));
@@ -151,7 +162,7 @@ public static class Judge
                 {
                     Main.PlayerStates[dp.PlayerId].deathReason = PlayerState.DeathReason.Trialed;
                     dp.SetRealKiller(pc);
-                    GuessManager.RpcGuesserMurderPlayer(dp);
+                    dp.RpcGuesserMurderPlayer();
 
                     //死者检查
                     Utils.AfterPlayerDeathTasks(dp, true);
@@ -159,12 +170,13 @@ public static class Judge
                     Utils.NotifyRoles(isForMeeting: false, NoCache: true);
 
                     _ = new LateTask(() => { Utils.SendMessage(string.Format(GetString("TrialKill"), Name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("TrialKillTitle"))); }, 0.6f, "Guess Msg");
-
                 }, 0.2f, "Trial Kill");
             }
         }
+
         return true;
     }
+
     private static bool MsgToPlayerAndRole(string msg, out byte id, out string error)
     {
         if (msg.StartsWith("/")) msg = msg.Replace("/", string.Empty);
@@ -174,7 +186,7 @@ public static class Judge
         string result = string.Empty;
         for (int i = 0; i < mc.Count; i++)
         {
-            result += mc[i];//匹配结果是完整的数字，此处可以不做拼接的
+            result += mc[i]; //匹配结果是完整的数字，此处可以不做拼接的
         }
 
         if (int.TryParse(result, out int num))
@@ -202,6 +214,7 @@ public static class Judge
         error = string.Empty;
         return true;
     }
+
     public static bool CheckCommand(ref string msg, string command, bool exact = true)
     {
         var comList = command.Split('|');
@@ -220,6 +233,7 @@ public static class Judge
                 }
             }
         }
+
         return false;
     }
 
@@ -230,13 +244,14 @@ public static class Judge
         writer.Write(playerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader, PlayerControl pc)
     {
         int PlayerId = reader.ReadByte();
         TrialMsg(pc, $"/tl {PlayerId}", true);
     }
 
-    private static void JudgeOnClick(byte playerId/*, MeetingHud __instance*/)
+    private static void JudgeOnClick(byte playerId /*, MeetingHud __instance*/)
     {
         Logger.Msg($"Click: ID {playerId}", "Judge UI");
         var pc = Utils.GetPlayerById(playerId);
@@ -254,6 +269,7 @@ public static class Judge
                 CreateJudgeButton(__instance);
         }
     }
+
     public static void CreateJudgeButton(MeetingHud __instance)
     {
         foreach (var pva in __instance.playerStates)
@@ -261,14 +277,14 @@ public static class Judge
             var pc = Utils.GetPlayerById(pva.TargetPlayerId);
             if (pc == null || !pc.IsAlive()) continue;
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
-            GameObject targetBox = UnityEngine.Object.Instantiate(template, pva.transform);
+            GameObject targetBox = Object.Instantiate(template, pva.transform);
             targetBox.name = "ShootButton";
             targetBox.transform.localPosition = new Vector3(-0.35f, 0.03f, -1.31f);
             SpriteRenderer renderer = targetBox.GetComponent<SpriteRenderer>();
             renderer.sprite = CustomButton.Get("JudgeIcon");
             PassiveButton button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => JudgeOnClick(pva.TargetPlayerId/*, __instance*/)));
+            button.OnClick.AddListener((Action)(() => JudgeOnClick(pva.TargetPlayerId /*, __instance*/)));
         }
     }
 }

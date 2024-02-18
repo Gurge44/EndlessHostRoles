@@ -1,13 +1,14 @@
-﻿namespace TOHE.Roles.Crewmate
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using Hazel;
+using UnityEngine;
+
+namespace TOHE.Roles.Crewmate
 {
-    using Hazel;
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
-    using TOHE;
-    using static TOHE.Options;
-    using static TOHE.Translator;
-    using static TOHE.Utils;
+    using static Options;
+    using static Translator;
+    using static Utils;
 
     public static class NiceHacker
     {
@@ -46,6 +47,7 @@
             VanillaClientSeesInfoFor = FloatOptionItem.Create(Id + 16, "NiceHackerVanillaClientSeesInfoFor", new(0f, 70f, 1f), 4f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.NiceHacker])
                 .SetValueFormat(OptionFormat.Seconds);
         }
+
         public static void Init()
         {
             playerIdList = [];
@@ -53,13 +55,16 @@
             UseLimitSeconds = [];
             LastUpdate = [];
         }
+
         public static void Add(byte playerId)
         {
             playerIdList.TryAdd(playerId, GetPlayerById(playerId).IsModClient());
             if (!GetPlayerById(playerId).IsModClient()) UseLimit.Add(playerId, UseLimitOpt.GetInt());
             else UseLimitSeconds.Add(playerId, UseLimitOpt.GetInt() * ModdedClientAbilityUseSecondsMultiplier.GetInt());
         }
+
         public static bool IsEnable => playerIdList.Count > 0;
+
         public static void SendRPC(byte playerId, float secondsLeft)
         {
             if (!IsEnable || !DoRPC) return;
@@ -68,6 +73,7 @@
             writer.Write(secondsLeft);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
+
         public static void ReceiveRPC(MessageReader reader)
         {
             if (AmongUsClient.Instance.AmHost) return;
@@ -77,6 +83,7 @@
 
             UseLimitSeconds[playerId] = secondsLeft;
         }
+
         public static void OnEnterVent(PlayerControl pc)
         {
             if (pc == null) return;
@@ -92,8 +99,8 @@
                 {
                     sb.Append($"\n<color=#00ffa5>{location.Key}:</color> {location.Value}");
                 }
-                pc.Notify(sb.ToString(), VanillaClientSeesInfoFor.GetFloat());
 
+                pc.Notify(sb.ToString(), VanillaClientSeesInfoFor.GetFloat());
             }
             else
             {
@@ -101,6 +108,7 @@
                     pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
             }
         }
+
         public static void OnFixedUpdate(PlayerControl pc)
         {
             if (pc == null) return;
@@ -118,6 +126,7 @@
                 }
             }
         }
+
         public static void MapHandle(PlayerControl pc, MapBehaviour map, MapOptions opts)
         {
             if (!pc.Is(CustomRoles.NiceHacker)) return;
@@ -136,15 +145,15 @@
                 opts.Mode = MapOptions.Modes.Normal;
                 pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
             }
-
-            return;
         }
+
         public static void MapCountdown(PlayerControl pc, MapBehaviour map, MapOptions opts, int seconds)
         {
             if (!map.IsOpen)
             {
                 return;
             }
+
             if (seconds <= 0)
             {
                 map.Close();
@@ -152,10 +161,12 @@
                 opts.Mode = MapOptions.Modes.Normal;
                 return;
             }
+
             UseLimitSeconds[pc.PlayerId] -= 1;
             SendRPC(pc.PlayerId, UseLimitSeconds[pc.PlayerId]);
             _ = new LateTask(() => { MapCountdown(pc, map, opts, seconds - 1); }, 1f, "NiceHackerAbilityCountdown");
         }
+
         public static string GetHudText(PlayerControl pc)
         {
             if (pc == null) return string.Empty;
@@ -163,6 +174,7 @@
 
             return $"<color=#00ffa5>{GetString("NiceHackerAbilitySecondsLeft")}:</color> <b>{(int)UseLimitSeconds[pc.PlayerId]}</b>s";
         }
+
         public static string GetProgressText(byte playerId, bool comms)
         {
             if (GetPlayerById(playerId).IsModClient() || !UseLimit.ContainsKey(playerId)) return string.Empty;
@@ -170,16 +182,16 @@
             var sb = new StringBuilder();
 
             var taskState = Main.PlayerStates?[playerId].TaskState;
-            UnityEngine.Color TextColor;
-            var TaskCompleteColor = UnityEngine.Color.green;
-            var NonCompleteColor = UnityEngine.Color.yellow;
+            Color TextColor;
+            var TaskCompleteColor = Color.green;
+            var NonCompleteColor = Color.yellow;
             var NormalColor = taskState.IsTaskFinished ? TaskCompleteColor : NonCompleteColor;
-            TextColor = comms ? UnityEngine.Color.gray : NormalColor;
+            TextColor = comms ? Color.gray : NormalColor;
             string Completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
 
-            UnityEngine.Color TextColor1;
-            if (UseLimit[playerId] < 1) TextColor1 = UnityEngine.Color.red;
-            else TextColor1 = UnityEngine.Color.white;
+            Color TextColor1;
+            if (UseLimit[playerId] < 1) TextColor1 = Color.red;
+            else TextColor1 = Color.white;
 
             sb.Append(ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
             sb.Append(ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));

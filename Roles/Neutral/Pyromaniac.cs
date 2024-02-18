@@ -1,5 +1,5 @@
-using AmongUs.GameOptions;
 using System.Collections.Generic;
+using AmongUs.GameOptions;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral;
@@ -54,9 +54,12 @@ public static class Pyromaniac
             _ = new LateTask(() => { killer.SetKillCooldown(BurnCooldown.GetFloat()); }, 0.1f);
             return true;
         }
-        else
+
+        return killer.CheckDoubleTrigger(target, () =>
         {
-            return killer.CheckDoubleTrigger(target, () => { DousedList.Add(target.PlayerId); killer.SetKillCooldown(DouseCooldown.GetFloat()); Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target); });
-        }
+            DousedList.Add(target.PlayerId);
+            killer.SetKillCooldown(DouseCooldown.GetFloat());
+            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+        });
     }
 }

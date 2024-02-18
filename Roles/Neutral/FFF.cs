@@ -72,17 +72,18 @@ namespace TOHE.Roles.Neutral
                     Logger.Info($"{killer.GetRealName()} killed right target case 1", "FFF");
                     return false;
                 }
-                else if (
+
+                if (
                     ((target.Is(CustomRoles.Madmate) || target.Is(CustomRoles.Gangster)) && CanKillMadmate.GetBool())
                     || ((target.Is(CustomRoles.Charmed) || target.Is(CustomRoles.Succubus)) && CanKillCharmed.GetBool())
                     || ((target.Is(CustomRoles.Undead) || target.Is(CustomRoles.Necromancer) || target.Is(CustomRoles.Deathknight)) && CanKillUndead.GetBool())
                     || ((target.Is(CustomRoles.Lovers) || target.Is(CustomRoles.Ntr)) && CanKillLovers.GetBool())
                     || ((target.Is(CustomRoles.Romantic) || target.Is(CustomRoles.RuthlessRomantic) || target.Is(CustomRoles.VengefulRomantic)
-                        || Romantic.PartnerId == target.PlayerId) && CanKillLovers.GetBool())
+                         || Romantic.PartnerId == target.PlayerId) && CanKillLovers.GetBool())
                     || ((target.Is(CustomRoles.Sidekick) || target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.Recruit)) && CanKillSidekicks.GetBool())
                     || (target.Is(CustomRoles.Egoist) && CanKillEgoists.GetBool())
                     || ((target.Is(CustomRoles.Contagious) || target.Is(CustomRoles.Virus)) && CanKillContagious.GetBool())
-                    )
+                )
                 {
                     if (killer.RpcCheckAndMurder(target)) isWon = true;
                     Logger.Info($"{killer.GetRealName()} killed right target case 2", "FFF");

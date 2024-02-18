@@ -1,8 +1,8 @@
-using HarmonyLib;
-using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using HarmonyLib;
+using Hazel;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Crewmate;
@@ -63,7 +63,7 @@ public static class Psychic
     {
         if (target == null || seer == null) return false;
         if (seer.Is(CustomRoles.Madmate)) return target.GetCustomRole().IsNeutral() || target.GetCustomRole().IsCK();
-        else return RedPlayer != null && RedPlayer.Contains(target.PlayerId);
+        return RedPlayer != null && RedPlayer.Contains(target.PlayerId);
     }
     public static void OnReportDeadBody()
     {

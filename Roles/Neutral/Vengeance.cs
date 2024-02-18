@@ -1,5 +1,5 @@
-using AmongUs.GameOptions;
 using System.Collections.Generic;
+using AmongUs.GameOptions;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -93,7 +93,7 @@ public static class Vengeance
         if (target == null) return false;
 
         if (!IsRevenge) return true;
-        else if (target.PlayerId == Killer)
+        if (target.PlayerId == Killer)
         {
             Success = true;
             killer.Notify(GetString("VengeanceSuccess"));
@@ -101,10 +101,8 @@ public static class Vengeance
             IsRevenge = false;
             return true;
         }
-        else
-        {
-            killer.Kill(killer);
-            return false;
-        }
+
+        killer.Kill(killer);
+        return false;
     }
 }

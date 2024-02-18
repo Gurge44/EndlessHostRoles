@@ -1,12 +1,13 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Hazel;
+using UnityEngine;
+
 namespace TOHE.Roles.Crewmate
 {
-    using Hazel;
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
-    using UnityEngine;
-    using static TOHE.Options;
-    using static TOHE.Utils;
+    using static Options;
+    using static Utils;
 
     public static class Spy
     {

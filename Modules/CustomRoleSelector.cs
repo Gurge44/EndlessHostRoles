@@ -1,7 +1,7 @@
-﻿using AmongUs.GameOptions;
-using HarmonyLib;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using HarmonyLib;
 using TOHE.Roles.Neutral;
 
 namespace TOHE.Modules;
@@ -538,7 +538,7 @@ internal class CustomRoleSelector
             }
         }
 
-    EndOfAssign:
+        EndOfAssign:
 
         if (Imps.Length > 0) Logger.Info(string.Join(", ", Imps.Select(x => $"{x.Role} - {x.AssignedCount}/{x.MaxCount} ({x.SpawnChance}%)")), "ImpRoleResult");
         if (NNKs.Length > 0) Logger.Info(string.Join(", ", NNKs.Select(x => $"{x.Role} - {x.AssignedCount}/{x.MaxCount} ({x.SpawnChance}%)")), "NNKRoleResult");

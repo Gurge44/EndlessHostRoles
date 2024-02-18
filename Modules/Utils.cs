@@ -1,18 +1,20 @@
-using AmongUs.Data;
-using AmongUs.GameOptions;
-using Hazel;
-using Il2CppInterop.Runtime.InteropTypes;
-using InnerNet;
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using AmongUs.Data;
+using AmongUs.GameOptions;
+using Hazel;
+using Il2CppInterop.Runtime.InteropTypes;
+using InnerNet;
 using TOHE.Modules;
+using TOHE.Roles.AddOns.Common;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
 using TOHE.Roles.Crewmate;
@@ -20,6 +22,7 @@ using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
 using UnityEngine;
 using static TOHE.Translator;
+using Object = UnityEngine.Object;
 
 namespace TOHE;
 
@@ -113,7 +116,7 @@ public static class Utils
 
     public static bool TPtoRndVent(CustomNetworkTransform nt, bool log = true)
     {
-        var vents = UnityEngine.Object.FindObjectsOfType<Vent>();
+        var vents = Object.FindObjectsOfType<Vent>();
         var vent = vents[IRandom.Instance.Next(0, vents.Count)];
 
         Logger.Info($"{nt.myPlayer.GetNameWithRole().RemoveHtmlTags()} => {vent.transform.position} (vent)", "TP");
@@ -149,16 +152,14 @@ public static class Utils
             case SystemTypes.Reactor:
             {
                 if (mapId == 2) return false; // if Polus return false
-                else if (mapId is 4) // Only Airhip
+                if (mapId is 4) // Only Airhip
                 {
                     var HeliSabotageSystem = ShipStatus.Instance.Systems[type].Cast<HeliSabotageSystem>();
                     return HeliSabotageSystem != null && HeliSabotageSystem.IsActive;
                 }
-                else
-                {
-                    var ReactorSystemType = ShipStatus.Instance.Systems[type].Cast<ReactorSystemType>();
-                    return ReactorSystemType != null && ReactorSystemType.IsActive;
-                }
+
+                var ReactorSystemType = ShipStatus.Instance.Systems[type].Cast<ReactorSystemType>();
+                return ReactorSystemType != null && ReactorSystemType.IsActive;
             }
             case SystemTypes.Laboratory:
             {
@@ -179,11 +180,9 @@ public static class Utils
                     var HqHudSystemType = ShipStatus.Instance.Systems[type].Cast<HqHudSystemType>();
                     return HqHudSystemType != null && HqHudSystemType.IsActive;
                 }
-                else
-                {
-                    var HudOverrideSystemType = ShipStatus.Instance.Systems[type].Cast<HudOverrideSystemType>();
-                    return HudOverrideSystemType != null && HudOverrideSystemType.IsActive;
-                }
+
+                var HudOverrideSystemType = ShipStatus.Instance.Systems[type].Cast<HudOverrideSystemType>();
+                return HudOverrideSystemType != null && HudOverrideSystemType.IsActive;
             }
             case SystemTypes.HeliSabotage:
             {
@@ -220,19 +219,15 @@ public static class Utils
 
             return;
         }
-        else
+
+        opt.SetFloat(
+            FloatOptionNames.ImpostorLightMod,
+            opt.GetFloat(FloatOptionNames.CrewLightMod));
+        if (IsActive(SystemTypes.Electrical))
         {
             opt.SetFloat(
                 FloatOptionNames.ImpostorLightMod,
-                opt.GetFloat(FloatOptionNames.CrewLightMod));
-            if (IsActive(SystemTypes.Electrical))
-            {
-                opt.SetFloat(
-                    FloatOptionNames.ImpostorLightMod,
-                    opt.GetFloat(FloatOptionNames.ImpostorLightMod) / 5);
-            }
-
-            return;
+                opt.GetFloat(FloatOptionNames.ImpostorLightMod) / 5);
         }
     }
 
@@ -243,8 +238,6 @@ public static class Utils
         {
             opt.SetFloat(FloatOptionNames.ImpostorLightMod, opt.GetFloat(FloatOptionNames.ImpostorLightMod) / 5);
         }
-
-        return;
     }
 
     //誰かが死亡したときのメソッド
@@ -258,7 +251,8 @@ public static class Utils
                 seer.KillFlash();
                 continue;
             }
-            else if (target.Is(CustomRoles.CyberStar))
+
+            if (target.Is(CustomRoles.CyberStar))
             {
                 if (!Options.ImpKnowCyberStarDead.GetBool() && seer.GetCustomRole().IsImpostor()) continue;
                 if (!Options.NeutralKnowCyberStarDead.GetBool() && seer.GetCustomRole().IsNeutral()) continue;
@@ -348,8 +342,6 @@ public static class Utils
             opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0);
             opt.SetFloat(FloatOptionNames.CrewLightMod, 0);
         }
-
-        return;
     }
 
     public static string GetDisplayRoleName(byte playerId, bool pure = false)
@@ -418,7 +410,7 @@ public static class Utils
         {
             foreach (var subRole in targetSubRoles.Where(x => x is not CustomRoles.LastImpostor and not CustomRoles.Madmate and not CustomRoles.Charmed and not CustomRoles.Recruit and not CustomRoles.Lovers and not CustomRoles.Contagious))
             {
-                var str = GetString("Prefix." + subRole.ToString());
+                var str = GetString("Prefix." + subRole);
                 if (!subRole.IsAdditionRole())
                 {
                     str = GetString(subRole.ToString());
@@ -840,7 +832,7 @@ public static class Utils
                 case CustomRoles.BountyHunter:
                     if (BountyHunter.ChangeTimer.ContainsKey(playerId))
                     {
-                        int BHTime = (int)(BountyHunter.TargetChangeTime - (float)BountyHunter.ChangeTimer[playerId]);
+                        int BHTime = (int)(BountyHunter.TargetChangeTime - BountyHunter.ChangeTimer[playerId]);
                         if (BHTime <= 15) ProgressText.Append(ColorString(Color.white, $"<color=#777777>-</color> <color=#00ffa5>SWAP:</color> {BHTime}s"));
                     }
 
@@ -1128,7 +1120,7 @@ public static class Utils
         }
         catch (Exception ex)
         {
-            Logger.Error($"For {pc.GetNameWithRole().RemoveHtmlTags()}, failed to get progress text:  " + ex.ToString(), "Utils.GetProgressText");
+            Logger.Error($"For {pc.GetNameWithRole().RemoveHtmlTags()}, failed to get progress text:  " + ex, "Utils.GetProgressText");
         }
 
         if (pc.Is(CustomRoles.Damocles)) ProgressText.Append(' ' + Damocles.GetProgressText(playerId));
@@ -1172,10 +1164,8 @@ public static class Utils
             string Completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
             return ColorString(TextColor, $"{(moveAndStop ? string.Empty : "<color=#777777>-</color>")} {(moveAndStop ? "<size=1.6>" : string.Empty)}{Completed}/{taskState.AllTasksCount}{(moveAndStop ? "</size>" : string.Empty)}");
         }
-        else
-        {
-            return string.Empty;
-        }
+
+        return string.Empty;
     }
 
     public static void ShowActiveSettingsHelp(byte PlayerId = byte.MaxValue)
@@ -1348,7 +1338,7 @@ public static class Utils
             sb.Clear().Append(text.RemoveHtmlTags());
         }
 
-        sb.Append($"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        sb.Append("\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501");
         ClipboardHelper.PutClipboardString(sb.ToString());
     }
 
@@ -1368,7 +1358,7 @@ public static class Utils
         var crewsb = new StringBuilder();
         var addonsb = new StringBuilder();
         //int headCount = -1;
-        System.Collections.IList list = Enum.GetValues(typeof(CustomRoles));
+        IList list = Enum.GetValues(typeof(CustomRoles));
         for (int i = 0; i < list.Count; i++)
         {
             CustomRoles role = (CustomRoles)list[i];
@@ -1455,7 +1445,7 @@ public static class Utils
         foreach (byte id in Main.winnerList.ToArray())
         {
             if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
-            sb.Append($"\n<#c4aa02>★</color> ").Append(EndGamePatch.SummaryText[id] /*.RemoveHtmlTags()*/);
+            sb.Append("\n<#c4aa02>\u2605</color> ").Append(EndGamePatch.SummaryText[id] /*.RemoveHtmlTags()*/);
             cloneRoles.Remove(id);
         }
 
@@ -1471,7 +1461,7 @@ public static class Utils
                 list.Sort();
                 foreach ((int, byte) id in list.ToArray())
                 {
-                    sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id.Item2]);
+                    sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id.Item2]);
                 }
 
                 break;
@@ -1485,7 +1475,7 @@ public static class Utils
                 list2.Sort();
                 foreach ((int, byte) id in list2.ToArray())
                 {
-                    sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id.Item2]);
+                    sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id.Item2]);
                 }
 
                 break;
@@ -1499,7 +1489,7 @@ public static class Utils
                 list3.Sort();
                 foreach ((int, byte) id in list3.ToArray())
                 {
-                    sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id.Item2]);
+                    sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id.Item2]);
                 }
 
                 break;
@@ -1512,7 +1502,7 @@ public static class Utils
 
                 foreach (byte id in list4.ToArray())
                 {
-                    sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id]);
+                    sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id]);
                 }
 
                 break;
@@ -1521,7 +1511,7 @@ public static class Utils
                 {
                     if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>"))
                         continue;
-                    sb.Append($"\n　 ").Append(EndGamePatch.SummaryText[id]);
+                    sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id]);
                 }
 
                 break;
@@ -2109,7 +2099,7 @@ public static class Utils
                 {
                     GetPetCDSuffix(seer, ref SelfSuffix);
 
-                    if (seer.Is(CustomRoles.Asthmatic)) SelfSuffix.Append(Roles.AddOns.Common.Asthmatic.GetSuffixText(seer.PlayerId));
+                    if (seer.Is(CustomRoles.Asthmatic)) SelfSuffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
 
                     switch (seer.GetCustomRole())
                     {
@@ -3503,12 +3493,12 @@ public static class Utils
         string filename = $"{f}TOHE-v{Main.PluginVersion}-{t}.log";
         if (!Directory.Exists(f)) Directory.CreateDirectory(f);
         FileInfo file = new(@$"{Environment.CurrentDirectory}/BepInEx/LogOutput.log");
-        file.CopyTo(@filename);
+        file.CopyTo(filename);
         if (PlayerControl.LocalPlayer != null)
             HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), $"TOHE+ v{Main.PluginVersion} {t}.log"));
-        System.Diagnostics.ProcessStartInfo psi = new("Explorer.exe")
-            { Arguments = "/e,/select," + @filename.Replace("/", "\\") };
-        System.Diagnostics.Process.Start(psi);
+        ProcessStartInfo psi = new("Explorer.exe")
+            { Arguments = "/e,/select," + filename.Replace("/", "\\") };
+        Process.Start(psi);
     }
 
     public static (int, int) GetDousedPlayerCount(byte playerId)
@@ -3669,11 +3659,11 @@ public static class Utils
         var obj = hud.transform.FindChild("FlashColor_FullScreen")?.gameObject;
         if (obj == null)
         {
-            obj = UnityEngine.Object.Instantiate(hud.FullScreen.gameObject, hud.transform);
+            obj = Object.Instantiate(hud.FullScreen.gameObject, hud.transform);
             obj.name = "FlashColor_FullScreen";
         }
 
-        hud.StartCoroutine(Effects.Lerp(duration, new Action<float>((t) =>
+        hud.StartCoroutine(Effects.Lerp(duration, new Action<float>(t =>
         {
             obj.SetActive(t != 1f);
             obj.GetComponent<SpriteRenderer>().color = new(color.r, color.g, color.b, Mathf.Clamp01((-2f * Mathf.Abs(t - 0.5f) + 1) * color.a / 2)); //アルファ値を0→目標→0に変化させる
@@ -3773,7 +3763,7 @@ public static class Utils
     public static void SetChatVisible()
     {
         if (!GameStates.IsInGame) return;
-        MeetingHud.Instance = UnityEngine.Object.Instantiate(HudManager.Instance.MeetingPrefab);
+        MeetingHud.Instance = Object.Instantiate(HudManager.Instance.MeetingPrefab);
         MeetingHud.Instance.ServerStart(PlayerControl.LocalPlayer.PlayerId);
         AmongUsClient.Instance.Spawn(MeetingHud.Instance);
         MeetingHud.Instance.RpcClose();

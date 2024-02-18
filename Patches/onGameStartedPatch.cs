@@ -1,9 +1,9 @@
-using AmongUs.GameOptions;
-using HarmonyLib;
-using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using HarmonyLib;
+using Hazel;
 using TOHE.Modules;
 using TOHE.Roles.AddOns.Common;
 using TOHE.Roles.AddOns.Crewmate;
@@ -863,7 +863,7 @@ internal class SelectRolesPatch
             Main.LoversPlayers.Add(player);
             allPlayers.Remove(player);
             Main.PlayerStates[player.PlayerId].SetSubRole(role);
-            Logger.Info("Add-on assigned: " + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + role.ToString(), "AssignLovers");
+            Logger.Info("Add-on assigned: " + player?.Data?.PlayerName + " = " + player.GetCustomRole() + " + " + role, "AssignLovers");
         }
         RPC.SyncLoversPlayers();
     }
@@ -896,7 +896,8 @@ internal class SelectRolesPatch
                 StoragedData.Add((__instance, roleType));
                 return false;
             }
-            else return true;
+
+            return true;
         }
         public static void Release()
         {

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -38,7 +39,7 @@ namespace TOHE.Roles.Crewmate
             long now = Utils.TimeStamp;
             if (LastChange.TryGetValue(pc.PlayerId, out var ts) && ts == now) return;
 
-            bool isBeaconNearby = Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoles.Beacon) && UnityEngine.Vector2.Distance(x.Pos(), pc.Pos()) <= Radius.GetFloat());
+            bool isBeaconNearby = Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoles.Beacon) && Vector2.Distance(x.Pos(), pc.Pos()) <= Radius.GetFloat());
             bool isAffectedPlayer = AffectedPlayers.Contains(pc.PlayerId);
 
             if (isAffectedPlayer && !isBeaconNearby)

@@ -1,7 +1,8 @@
-using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using HarmonyLib;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace TOHE;
 
@@ -155,8 +156,8 @@ public class RemoveDisableDevicesPatch
             (Options.DisableDevicesIgnoreNeutrals.GetBool() && player.Is(CustomRoleTypes.Neutral)) ||
             (Options.DisableDevicesIgnoreCrewmates.GetBool() && player.Is(CustomRoleTypes.Crewmate)) ||
             (Options.DisableDevicesIgnoreAfterAnyoneDied.GetBool() && GameStates.AlreadyDied);
-        var admins = UnityEngine.Object.FindObjectsOfType<MapConsole>(true);
-        var consoles = UnityEngine.Object.FindObjectsOfType<SystemConsole>(true);
+        var admins = Object.FindObjectsOfType<MapConsole>(true);
+        var consoles = Object.FindObjectsOfType<SystemConsole>(true);
         if (admins == null || consoles == null) return;
         switch (Main.NormalOptions.MapId)
         {

@@ -1,7 +1,9 @@
 using AmongUs.GameOptions;
 using HarmonyLib;
-using System.Collections.Generic;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using Il2CppSystem.Collections.Generic;
 using TOHE.Roles.AddOns.Crewmate;
+using UnityEngine;
 
 namespace TOHE;
 
@@ -9,12 +11,12 @@ namespace TOHE;
 class AddTasksFromListPatch
 {
     public static void Prefix( /*ShipStatus __instance,*/
-        [HarmonyArgument(4)] Il2CppSystem.Collections.Generic.List<NormalPlayerTask> unusedTasks)
+        [HarmonyArgument(4)] List<NormalPlayerTask> unusedTasks)
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
         if (!Options.DisableShortTasks.GetBool() && !Options.DisableCommonTasks.GetBool() && !Options.DisableLongTasks.GetBool() && !Options.DisableOtherTasks.GetBool()) return;
-        List<NormalPlayerTask> disabledTasks = [];
+        System.Collections.Generic.List<NormalPlayerTask> disabledTasks = [];
         for (var i = 0; i < unusedTasks.Count; i++)
         {
             var task = unusedTasks[i];
@@ -95,15 +97,13 @@ class AddTasksFromListPatch
                 case TaskTypes.CollectShells when Options.DisableCollectShells.GetBool():
                     disabledTasks.Add(task);
                     break;
-                default:
-                    break;
             }
         }
 
         for (int i = 0; i < disabledTasks.Count; i++)
         {
             NormalPlayerTask task = disabledTasks[i];
-            Logger.Msg("Deleted assigned task: " + task.TaskType.ToString(), "AddTask");
+            Logger.Msg("Deleted assigned task: " + task.TaskType, "AddTask");
             unusedTasks.Remove(task);
         }
     }
@@ -116,7 +116,7 @@ class RpcSetTasksPatch
     //バニラのタスク割り当て処理自体には干渉しない
     public static void Prefix( /*GameData __instance,*/
         [HarmonyArgument(0)] byte playerId,
-        [HarmonyArgument(1)] ref Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray<byte> taskTypeIds)
+        [HarmonyArgument(1)] ref Il2CppStructArray<byte> taskTypeIds)
     {
         //null対策
         if (Main.RealOptionsData == null)
@@ -183,7 +183,7 @@ class RpcSetTasksPatch
 
         //割り当て可能なタスクのIDが入ったリスト
         //本来のRpcSetTasksの第二引数のクローン
-        Il2CppSystem.Collections.Generic.List<byte> TasksList = new();
+        List<byte> TasksList = new();
         for (int i1 = 0; i1 < taskTypeIds.Count; i1++)
         {
             byte num = taskTypeIds[i1];
@@ -200,18 +200,18 @@ class RpcSetTasksPatch
 
         //割り当て済みのタスクが入れられるHashSet
         //同じタスクが複数割り当てられるのを防ぐ
-        Il2CppSystem.Collections.Generic.HashSet<TaskTypes> usedTaskTypes = new();
+        HashSet<TaskTypes> usedTaskTypes = new();
         int start2 = 0;
         int start3 = 0;
 
         //割り当て可能なロングタスクのリスト
-        Il2CppSystem.Collections.Generic.List<NormalPlayerTask> LongTasks = new();
+        List<NormalPlayerTask> LongTasks = new();
         foreach (var task in ShipStatus.Instance.LongTasks)
             LongTasks.Add(task);
         Shuffle(LongTasks);
 
         //割り当て可能なショートタスクのリスト
-        Il2CppSystem.Collections.Generic.List<NormalPlayerTask> ShortTasks = new();
+        List<NormalPlayerTask> ShortTasks = new();
         foreach (var task in ShipStatus.Instance.ShortTasks)
             ShortTasks.Add(task);
         Shuffle(ShortTasks);
@@ -233,19 +233,19 @@ class RpcSetTasksPatch
         );
 
         //タスクのリストを配列(Il2CppStructArray)に変換する
-        taskTypeIds = new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray<byte>(TasksList.Count);
+        taskTypeIds = new Il2CppStructArray<byte>(TasksList.Count);
         for (int i = 0; i < TasksList.Count; i++)
         {
             taskTypeIds[i] = TasksList[i];
         }
     }
 
-    public static void Shuffle<T>(Il2CppSystem.Collections.Generic.List<T> list)
+    public static void Shuffle<T>(List<T> list)
     {
         for (int i = 0; i < list.Count - 1; i++)
         {
             T obj = list[i];
-            int rand = UnityEngine.Random.Range(i, list.Count);
+            int rand = Random.Range(i, list.Count);
             list[i] = list[rand];
             list[rand] = obj;
         }

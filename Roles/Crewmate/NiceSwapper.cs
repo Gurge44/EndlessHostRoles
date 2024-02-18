@@ -1,10 +1,11 @@
-﻿using HarmonyLib;
-using Hazel;
-using System;
+﻿using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using HarmonyLib;
+using Hazel;
 using UnityEngine;
 using static TOHE.Translator;
+using Object = UnityEngine.Object;
 
 namespace TOHE.Roles.Crewmate;
 
@@ -30,8 +31,8 @@ public static class NiceSwapper
         CanSwapSelf = BooleanOptionItem.Create(Id + 2, "CanSwapSelfVotes", true, TabGroup.OtherRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper]);
         CanStartMeeting = BooleanOptionItem.Create(Id + 4, "JesterCanUseButton", true, TabGroup.OtherRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper]);
         NiceSwapperAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 6, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.3f, TabGroup.OtherRoles, false)
-        .SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper])
-        .SetValueFormat(OptionFormat.Times);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper])
+            .SetValueFormat(OptionFormat.Times);
         AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 7, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.OtherRoles, false)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper])
             .SetValueFormat(OptionFormat.Times);
@@ -65,6 +66,7 @@ public static class NiceSwapper
             pc.ShowPopUp(GetString("SwapDead"));
             return true;
         }
+
         if (pc.GetAbilityUseLimit() < 1)
         {
             if (!isUI) Utils.SendMessage(GetString("NiceSwapperTrialMax"), pc.PlayerId);
@@ -84,72 +86,73 @@ public static class NiceSwapper
                 Utils.SendMessage(GuessManager.GetFormatString(), pc.PlayerId);
                 return true;
             case 2:
+            {
+                if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
+                else if (pc.AmOwner && !isUI) Utils.SendMessage(originMsg, 255, pc.GetRealName());
+
+                if (!MsgToPlayerAndRole(msg, out byte targetId, out string error))
+                {
+                    Utils.SendMessage(error, pc.PlayerId);
+                    return true;
+                }
+
+                var target = Utils.GetPlayerById(targetId);
+                if (target == null) break;
+
+                bool targetIsntSelected = SwapTargets.Item1 != target.PlayerId && SwapTargets.Item2 != target.PlayerId; // Whether the picked target isn't already being swapped
+
+                bool Vote1Empty = (SwapTargets.Item1 == byte.MaxValue) && targetIsntSelected; // Whether the first swapping slot is suitable to swap this target
+                bool Vote2Available = (SwapTargets.Item1 != byte.MaxValue) && (SwapTargets.Item2 == byte.MaxValue) && targetIsntSelected; // Whether the second swapping slot is suitable to swap this target
+
+                if (Vote1Empty && (CanSwapSelf.GetBool() || target.PlayerId != pc.PlayerId)) // Take first slot
+                {
+                    SwapTargets.Item1 = target.PlayerId;
+
+                    if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
+                    if (!isUI) Utils.SendMessage(GetString("Swap1"), pc.PlayerId);
+                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} chose to swap {target.GetNameWithRole()} (first target)", "Swapper");
+                }
+
+                else if (Vote2Available && (CanSwapSelf.GetBool() || target.PlayerId != pc.PlayerId)) // Take second slot
+                {
+                    SwapTargets.Item2 = target.PlayerId;
+
+                    if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
+                    if (!isUI) Utils.SendMessage(GetString("Swap2"), pc.PlayerId);
+                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} chose to swap {target.GetNameWithRole()} (second target)", "Swapper");
+                }
+
+                else if (target.PlayerId == SwapTargets.Item1) // If this player is already chosen to be swapped in the first slot, cancel it
+                {
+                    SwapTargets.Item1 = byte.MaxValue;
+
+                    if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
+                    if (!isUI) Utils.SendMessage(GetString("CancelSwap1"), pc.PlayerId);
+                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} canceled swapping on {target.GetNameWithRole()} (first target)", "Swapper");
+                }
+
+                else if (target.PlayerId == SwapTargets.Item2) // If this player is already chosen to be swapped in the second slot, cancel it
+                {
+                    SwapTargets.Item2 = byte.MaxValue;
+
+                    if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
+                    if (!isUI) Utils.SendMessage(GetString("CancelSwap2"), pc.PlayerId);
+                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} canceled swapping on {target.GetNameWithRole()} (second target)", "Swapper");
+                }
+
+                else if (pc.PlayerId == target.PlayerId && !CanSwapSelf.GetBool()) // When the Swapper tries to swap themselves but they aren't allowed to
                 {
                     if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
-                    else if (pc.AmOwner && !isUI) Utils.SendMessage(originMsg, 255, pc.GetRealName());
-
-                    if (!MsgToPlayerAndRole(msg, out byte targetId, out string error))
-                    {
-                        Utils.SendMessage(error, pc.PlayerId);
-                        return true;
-                    }
-
-                    var target = Utils.GetPlayerById(targetId);
-                    if (target == null) break;
-
-                    bool targetIsntSelected = SwapTargets.Item1 != target.PlayerId && SwapTargets.Item2 != target.PlayerId; // Whether the picked target isn't already being swapped
-
-                    bool Vote1Empty = (SwapTargets.Item1 == byte.MaxValue) && targetIsntSelected; // Whether the first swapping slot is suitable to swap this target
-                    bool Vote2Available = (SwapTargets.Item1 != byte.MaxValue) && (SwapTargets.Item2 == byte.MaxValue) && targetIsntSelected; // Whether the second swapping slot is suitable to swap this target
-
-                    if (Vote1Empty && (CanSwapSelf.GetBool() || target.PlayerId != pc.PlayerId)) // Take first slot
-                    {
-                        SwapTargets.Item1 = target.PlayerId;
-
-                        if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
-                        if (!isUI) Utils.SendMessage(GetString("Swap1"), pc.PlayerId);
-                        Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} chose to swap {target.GetNameWithRole()} (first target)", "Swapper");
-                    }
-
-                    else if (Vote2Available && (CanSwapSelf.GetBool() || target.PlayerId != pc.PlayerId)) // Take second slot
-                    {
-                        SwapTargets.Item2 = target.PlayerId;
-
-                        if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
-                        if (!isUI) Utils.SendMessage(GetString("Swap2"), pc.PlayerId);
-                        Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} chose to swap {target.GetNameWithRole()} (second target)", "Swapper");
-                    }
-
-                    else if (target.PlayerId == SwapTargets.Item1) // If this player is already chosen to be swapped in the first slot, cancel it
-                    {
-                        SwapTargets.Item1 = byte.MaxValue;
-
-                        if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
-                        if (!isUI) Utils.SendMessage(GetString("CancelSwap1"), pc.PlayerId);
-                        Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} canceled swapping on {target.GetNameWithRole()} (first target)", "Swapper");
-                    }
-
-                    else if (target.PlayerId == SwapTargets.Item2) // If this player is already chosen to be swapped in the second slot, cancel it
-                    {
-                        SwapTargets.Item2 = byte.MaxValue;
-
-                        if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
-                        if (!isUI) Utils.SendMessage(GetString("CancelSwap2"), pc.PlayerId);
-                        Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} canceled swapping on {target.GetNameWithRole()} (second target)", "Swapper");
-                    }
-
-                    else if (pc.PlayerId == target.PlayerId && !CanSwapSelf.GetBool()) // When the Swapper tries to swap themselves but they aren't allowed to
-                    {
-                        if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
-                        if (!isUI) Utils.SendMessage(GetString("CantSwapSelf"), pc.PlayerId);
-                        else pc.ShowPopUp(GetString("CantSwapSelf"));
-                    }
-
-                    _ = new LateTask(() => Utils.NotifyRoles(isForMeeting: true, NoCache: true), 0.2f);
-
-                    break;
+                    if (!isUI) Utils.SendMessage(GetString("CantSwapSelf"), pc.PlayerId);
+                    else pc.ShowPopUp(GetString("CantSwapSelf"));
                 }
+
+                _ = new LateTask(() => Utils.NotifyRoles(isForMeeting: true, NoCache: true), 0.2f);
+
+                break;
+            }
         }
+
         return true;
     }
 
@@ -243,6 +246,7 @@ public static class NiceSwapper
                 }
             }
         }
+
         return false;
     }
 
@@ -273,7 +277,10 @@ public static class NiceSwapper
         if (PlayerControl.LocalPlayer.GetCustomRole() == CustomRoles.NiceSwapper && PlayerControl.LocalPlayer.IsAlive())
         {
             bool forceAll = true;
-            __instance.playerStates.ToList().ForEach(x => { if ((forceAll || !Main.PlayerStates.TryGetValue(x.TargetPlayerId, out var ps) || ps.IsDead) && x.transform.FindChild("ShootButton") != null) UnityEngine.Object.Destroy(x.transform.FindChild("ShootButton").gameObject); });
+            __instance.playerStates.ToList().ForEach(x =>
+            {
+                if ((forceAll || !Main.PlayerStates.TryGetValue(x.TargetPlayerId, out var ps) || ps.IsDead) && x.transform.FindChild("ShootButton") != null) Object.Destroy(x.transform.FindChild("ShootButton").gameObject);
+            });
             CreateSwapperButton(__instance);
         }
     }
@@ -296,7 +303,7 @@ public static class NiceSwapper
             if (pc == null || !pc.IsAlive()) continue;
 
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
-            GameObject targetBox = UnityEngine.Object.Instantiate(template, pva.transform);
+            GameObject targetBox = Object.Instantiate(template, pva.transform);
             targetBox.name = "ShootButton";
             targetBox.transform.localPosition = new Vector3(-0.35f, 0.03f, -1.31f);
             SpriteRenderer renderer = targetBox.GetComponent<SpriteRenderer>();
@@ -310,5 +317,3 @@ public static class NiceSwapper
         }
     }
 }
-
-

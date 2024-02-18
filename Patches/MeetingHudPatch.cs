@@ -1,13 +1,14 @@
-using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using HarmonyLib;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
 using UnityEngine;
 using static TOHE.Translator;
+using Object = UnityEngine.Object;
 
 namespace TOHE;
 
@@ -42,13 +43,13 @@ class CheckForEndVotingPatch
                 // Take the initiative to rebel
                 if (pva.DidVote && pc.PlayerId == pva.VotedFor && pva.VotedFor < 253 && !pc.Data.IsDead)
                 {
-                    if (Options.MadmateSpawnMode.GetInt() == 2 && Main.MadmateNum < CustomRoles.Madmate.GetCount() && Utils.CanBeMadmate(pc))
+                    if (Options.MadmateSpawnMode.GetInt() == 2 && Main.MadmateNum < CustomRoles.Madmate.GetCount() && pc.CanBeMadmate())
                     {
                         Main.MadmateNum++;
                         pc.RpcSetCustomRole(CustomRoles.Madmate);
                         ExtendedPlayerControl.RpcSetCustomRole(pc.PlayerId, CustomRoles.Madmate);
                         Utils.NotifyRoles(isForMeeting: true, SpecifySeer: pc, NoCache: true);
-                        Logger.Info("Set role: " + pc?.Data?.PlayerName + " => " + pc.GetCustomRole().ToString() + " + " + CustomRoles.Madmate.ToString(), "Assign " + CustomRoles.Madmate.ToString());
+                        Logger.Info("Set role: " + pc?.Data?.PlayerName + " => " + pc.GetCustomRole() + " + " + CustomRoles.Madmate, "Assign " + CustomRoles.Madmate);
                     }
                 }
 
@@ -137,7 +138,7 @@ class CheckForEndVotingPatch
             {
                 PlayerVoteArea ps = __instance.playerStates[i];
                 if (ps == null) continue;
-                voteLog.Info(string.Format("{0,-2}{1}:{2,-3}{3}", ps.TargetPlayerId, Utils.PadRightV2($"({Utils.GetVoteName(ps.TargetPlayerId)})", 40), ps.VotedFor, $"({Utils.GetVoteName(ps.VotedFor)})"));
+                voteLog.Info(string.Format("{0,-2}{1}:{2,-3}{3}", ps.TargetPlayerId, $"({Utils.GetVoteName(ps.TargetPlayerId)})".PadRightV2(40), ps.VotedFor, $"({Utils.GetVoteName(ps.VotedFor)})"));
                 var voter = Utils.GetPlayerById(ps.TargetPlayerId);
                 if (voter == null || voter.Data == null || voter.Data.Disconnected) continue;
                 if (Options.VoteMode.GetBool())
@@ -158,8 +159,6 @@ class CheckForEndVotingPatch
                                 ps.VotedFor = ps.TargetPlayerId;
                                 voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} Self-voting due to skipping voting");
                                 break;
-                            default:
-                                break;
                         }
                     }
 
@@ -179,8 +178,6 @@ class CheckForEndVotingPatch
                                 ps.VotedFor = 253;
                                 voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} Skip for not voting");
                                 break;
-                            default:
-                                break;
                         }
                     }
                 }
@@ -198,7 +195,7 @@ class CheckForEndVotingPatch
                 //主动叛变模式下自票无效
                 if (ps.TargetPlayerId == ps.VotedFor && Options.MadmateSpawnMode.GetInt() == 2) continue;
 
-                statesList.Add(new MeetingHud.VoterState()
+                statesList.Add(new MeetingHud.VoterState
                 {
                     VoterId = ps.TargetPlayerId,
                     VotedForId = ps.VotedFor
@@ -210,7 +207,7 @@ class CheckForEndVotingPatch
                 {
                     for (var i2 = 0; i2 < Options.MayorAdditionalVote.GetFloat(); i2++)
                     {
-                        statesList.Add(new MeetingHud.VoterState()
+                        statesList.Add(new MeetingHud.VoterState
                         {
                             VoterId = ps.TargetPlayerId,
                             VotedForId = ps.VotedFor
@@ -222,7 +219,7 @@ class CheckForEndVotingPatch
                 {
                     for (var i2 = 0; i2 < Options.VindicatorAdditionalVote.GetFloat(); i2++)
                     {
-                        statesList.Add(new MeetingHud.VoterState()
+                        statesList.Add(new MeetingHud.VoterState
                         {
                             VoterId = ps.TargetPlayerId,
                             VotedForId = ps.VotedFor
@@ -665,7 +662,7 @@ class MeetingHudStartPatch
                 for (int i = 0; i < Main.PlayerStates[pc.PlayerId].SubRoles.Count; i++)
                 {
                     CustomRoles subRole = Main.PlayerStates[pc.PlayerId].SubRoles[i];
-                    sb.Append($"\n\n" + GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
+                    sb.Append("\n\n" + GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
                 }
 
                 //if (CustomRolesHelper.RoleExist(CustomRoles.Ntr) && (role is not CustomRoles.GM and not CustomRoles.Ntr))
@@ -807,7 +804,7 @@ class MeetingHudStartPatch
         if (!GameStates.IsModHost) return;
 
         //提前储存赌怪游戏组件的模板
-        GuessManager.textTemplate = UnityEngine.Object.Instantiate(__instance.playerStates[0].NameText);
+        GuessManager.textTemplate = Object.Instantiate(__instance.playerStates[0].NameText);
         GuessManager.textTemplate.enabled = false;
 
         for (int i = 0; i < __instance.playerStates.Count; i++)
@@ -816,7 +813,7 @@ class MeetingHudStartPatch
             var pc = Utils.GetPlayerById(pva.TargetPlayerId);
             if (pc == null) continue;
             var RoleTextData = Utils.GetRoleText(PlayerControl.LocalPlayer.PlayerId, pc.PlayerId);
-            var roleTextMeeting = UnityEngine.Object.Instantiate(pva.NameText);
+            var roleTextMeeting = Object.Instantiate(pva.NameText);
             roleTextMeeting.transform.SetParent(pva.NameText.transform);
             roleTextMeeting.transform.localPosition = new Vector3(0f, -0.18f, 0f);
             roleTextMeeting.fontSize = 1.4f;
@@ -1181,7 +1178,7 @@ class MeetingHudUpdatePatch
     private static void ClearShootButton(MeetingHud __instance, bool forceAll = false)
         => __instance.playerStates.ToList().ForEach(x =>
         {
-            if ((forceAll || !Main.PlayerStates.TryGetValue(x.TargetPlayerId, out var ps) || ps.IsDead) && x.transform.FindChild("ShootButton") != null) UnityEngine.Object.Destroy(x.transform.FindChild("ShootButton").gameObject);
+            if ((forceAll || !Main.PlayerStates.TryGetValue(x.TargetPlayerId, out var ps) || ps.IsDead) && x.transform.FindChild("ShootButton") != null) Object.Destroy(x.transform.FindChild("ShootButton").gameObject);
         });
 
     public static void Postfix(MeetingHud __instance)

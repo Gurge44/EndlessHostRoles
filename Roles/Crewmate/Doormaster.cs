@@ -1,9 +1,10 @@
+using System.Collections.Generic;
+using System.Text;
+using TOHE.Modules;
+
 namespace TOHE.Roles.Crewmate
 {
-    using System.Collections.Generic;
-    using System.Text;
-    using TOHE.Modules;
-    using static TOHE.Options;
+    using static Options;
 
     public static class Doormaster
     {

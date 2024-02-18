@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using UnityEngine;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -35,12 +37,12 @@ namespace TOHE.Roles.Crewmate
         {
             if (pc == null || pc.GetAbilityUseLimit() < 1f) return;
 
-            var killers = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Crewmate) && x.HasKillButton() && UnityEngine.Vector2.Distance(x.Pos(), pc.Pos()) <= Radius.GetFloat()).ToArray();
+            var killers = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Crewmate) && x.HasKillButton() && Vector2.Distance(x.Pos(), pc.Pos()) <= Radius.GetFloat()).ToArray();
             pc.Notify(string.Format(Translator.GetString("PerceiverNotify"), killers.Length));
 
             pc.RpcRemoveAbilityUse();
         }
 
-        public static string GetProgressText(byte id) => $"<#777777>-</color> <#ff{(id.GetAbilityUseLimit() < 1f ? "0000" : "ffff")}>{System.Math.Round(id.GetAbilityUseLimit(), 1)}</color>";
+        public static string GetProgressText(byte id) => $"<#777777>-</color> <#ff{(id.GetAbilityUseLimit() < 1f ? "0000" : "ffff")}>{Math.Round(id.GetAbilityUseLimit(), 1)}</color>";
     }
 }

@@ -1,9 +1,10 @@
+using System.Collections.Generic;
+using System.Text;
+using Hazel;
+
 namespace TOHE.Roles.Crewmate
 {
-    using Hazel;
-    using System.Collections.Generic;
-    using System.Text;
-    using static TOHE.Options;
+    using static Options;
 
     public static class Tether
     {

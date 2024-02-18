@@ -1,6 +1,6 @@
+using System.Linq;
 using HarmonyLib;
 using Hazel;
-using System.Linq;
 
 namespace TOHE;
 
@@ -11,6 +11,7 @@ namespace TOHE;
 public static class ReactorSystemTypePatch
 {
     private static bool SetDurationForReactorSabotage = true;
+
     public static void Prefix(ReactorSystemType __instance)
     {
         if (!Options.SabotageTimeControl.GetBool()) return;
@@ -23,6 +24,7 @@ public static class ReactorSystemTypePatch
             {
                 SetDurationForReactorSabotage = true;
             }
+
             return;
         }
 
@@ -49,10 +51,12 @@ public static class ReactorSystemTypePatch
         }
     }
 }
+
 [HarmonyPatch(typeof(HeliSabotageSystem), nameof(HeliSabotageSystem.Deteriorate))]
 public static class HeliSabotageSystemPatch
 {
     private static bool SetDurationForReactorSabotage = true;
+
     public static void Prefix(HeliSabotageSystem __instance)
     {
         if (!Options.SabotageTimeControl.GetBool()) return;
@@ -65,6 +69,7 @@ public static class HeliSabotageSystemPatch
             {
                 SetDurationForReactorSabotage = true;
             }
+
             return;
         }
 
@@ -75,10 +80,12 @@ public static class HeliSabotageSystemPatch
         __instance.Countdown = Options.AirshipReactorTimeLimit.GetFloat();
     }
 }
+
 [HarmonyPatch(typeof(LifeSuppSystemType), nameof(LifeSuppSystemType.Deteriorate))]
 public static class LifeSuppSystemTypePatch
 {
     private static bool SetDurationForO2Sabotage = true;
+
     public static void Prefix(LifeSuppSystemType __instance)
     {
         if (!Options.SabotageTimeControl.GetBool()) return;
@@ -91,6 +98,7 @@ public static class LifeSuppSystemTypePatch
             {
                 SetDurationForO2Sabotage = true;
             }
+
             return;
         }
 
@@ -111,10 +119,12 @@ public static class LifeSuppSystemTypePatch
         }
     }
 }
+
 [HarmonyPatch(typeof(MushroomMixupSabotageSystem), nameof(MushroomMixupSabotageSystem.Deteriorate))]
 public static class MushroomMixupSabotageSystemPatch
 {
     private static bool SetDurationMushroomMixupSabotage = true;
+
     public static void Prefix(MushroomMixupSabotageSystem __instance, ref bool __state)
     {
         __state = __instance.IsActive;
@@ -134,6 +144,7 @@ public static class MushroomMixupSabotageSystemPatch
             {
                 SetDurationMushroomMixupSabotage = true;
             }
+
             return;
         }
 
@@ -143,6 +154,7 @@ public static class MushroomMixupSabotageSystemPatch
 
         __instance.currentSecondsUntilHeal = Options.FungleMushroomMixupDuration.GetFloat();
     }
+
     public static void Postfix(MushroomMixupSabotageSystem __instance, bool __state)
     {
         // When Mushroom Mixup Sabotage ends
@@ -165,10 +177,12 @@ public static class MushroomMixupSabotageSystemPatch
         }
     }
 }
+
 [HarmonyPatch(typeof(ElectricTask), nameof(ElectricTask.Initialize))]
 public static class ElectricTaskInitializePatch
 {
-    private static long LastUpdate = 0;
+    private static long LastUpdate;
+
     public static void Postfix()
     {
         long now = Utils.TimeStamp;
@@ -191,10 +205,12 @@ public static class ElectricTaskInitializePatch
         Logger.Info("Lights sabotage called", "ElectricTask");
     }
 }
+
 [HarmonyPatch(typeof(ElectricTask), nameof(ElectricTask.Complete))]
 public static class ElectricTaskCompletePatch
 {
-    private static long LastUpdate = 0;
+    private static long LastUpdate;
+
     public static void Postfix()
     {
         long now = Utils.TimeStamp;
@@ -217,6 +233,7 @@ public static class ElectricTaskCompletePatch
         Logger.Info("Lights sabotage fixed", "ElectricTask");
     }
 }
+
 // https://github.com/tukasa0001/TownOfHost/blob/357f7b5523e4bdd0bb58cda1e0ff6cceaa84813d/Patches/SabotageSystemPatch.cs
 // Method called when sabotage occurs
 [HarmonyPatch(typeof(SabotageSystemType), nameof(SabotageSystemType.UpdateSystem))]
@@ -237,10 +254,12 @@ public static class SabotageSystemTypeRepairDamagePatch
         {
             return;
         }
+
         __instance.Timer = modifiedCooldownSec;
         __instance.IsDirty = true;
     }
 }
+
 [HarmonyPatch(typeof(SecurityCameraSystemType), nameof(SecurityCameraSystemType.UpdateSystem))]
 public static class SecurityCameraPatch
 {
@@ -263,6 +282,7 @@ public static class SecurityCameraPatch
                 _ => false,
             });
         }
+
         return true;
     }
 }

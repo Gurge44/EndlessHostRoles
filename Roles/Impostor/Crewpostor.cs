@@ -1,12 +1,14 @@
-﻿using Hazel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Hazel;
+using UnityEngine;
 
 namespace TOHE.Roles.Impostor
 {
     internal class Crewpostor
     {
         public static Dictionary<byte, int> TasksDone = [];
+
         public static void OnTaskComplete(PlayerControl player)
         {
             if (!TasksDone.TryAdd(player.PlayerId, 0)) TasksDone[player.PlayerId]++;
@@ -16,7 +18,7 @@ namespace TOHE.Roles.Impostor
             PlayerControl[] list = Main.AllAlivePlayerControls.Where(x => x.PlayerId != player.PlayerId && (Options.CrewpostorCanKillAllies.GetBool() || !x.GetCustomRole().IsImpostorTeam())).ToArray();
             if (list.Length == 0 || list == null)
             {
-                Logger.Info($"No target to kill", "Crewpostor");
+                Logger.Info("No target to kill", "Crewpostor");
             }
             else if (TasksDone[player.PlayerId] % Options.CrewpostorKillAfterTask.GetInt() != 0 && TasksDone[player.PlayerId] != 0)
             {
@@ -24,11 +26,10 @@ namespace TOHE.Roles.Impostor
             }
             else
             {
-                list = [.. list.OrderBy(x => UnityEngine.Vector2.Distance(player.Pos(), x.Pos()))];
+                list = [.. list.OrderBy(x => Vector2.Distance(player.Pos(), x.Pos()))];
                 var target = list[0];
                 if (!target.Is(CustomRoles.Pestilence))
                 {
-
                     if (!Options.CrewpostorLungeKill.GetBool())
                     {
                         target.SetRealKiller(player);
@@ -37,6 +38,7 @@ namespace TOHE.Roles.Impostor
                             target.Suicide(PlayerState.DeathReason.Kill, player);
                             player.RpcGuardAndKill();
                         }
+
                         Logger.Info("No lunge mode kill", "Crewpostor");
                     }
                     else
@@ -45,8 +47,8 @@ namespace TOHE.Roles.Impostor
                         player.RpcCheckAndMurder(target);
                         //player.RpcGuardAndKill();
                         Logger.Info("lunge mode kill", "Crewpostor");
-
                     }
+
                     Logger.Info($"Crewpostor completed task to kill：{player.GetNameWithRole()} => {target.GetNameWithRole()}", "Crewpostor");
                 }
                 else
@@ -58,6 +60,7 @@ namespace TOHE.Roles.Impostor
                 }
             }
         }
+
         public static void SendRPC(byte cpID, int tasksDone)
         {
             if (PlayerControl.LocalPlayer.PlayerId == cpID)
@@ -73,6 +76,7 @@ namespace TOHE.Roles.Impostor
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
             }
         }
+
         public static void RecieveRPC(MessageReader reader)
         {
             byte PlayerId = reader.ReadByte();

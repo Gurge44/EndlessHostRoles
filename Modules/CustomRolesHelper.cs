@@ -1,5 +1,5 @@
-using AmongUs.GameOptions;
 using System.Linq;
+using AmongUs.GameOptions;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
@@ -1070,9 +1070,9 @@ internal static class CustomRolesHelper
     public static Team GetTeam(this CustomRoles role)
     {
         if (role.IsImpostorTeamV3()) return Team.Impostor;
-        else if (role.IsNeutralTeamV2()) return Team.Neutral;
-        else if (role.IsCrewmateTeamV2()) return Team.Crewmate;
-        else return Team.None;
+        if (role.IsNeutralTeamV2()) return Team.Neutral;
+        if (role.IsCrewmateTeamV2()) return Team.Crewmate;
+        return Team.None;
     }
 
     public static bool Is(this CustomRoles role, Team team) => team switch
@@ -1162,10 +1162,8 @@ internal static class CustomRolesHelper
                 _ => 0
             };
         }
-        else
-        {
-            return Options.GetRoleCount(role);
-        }
+
+        return Options.GetRoleCount(role);
     }
 
     public static int GetMode(this CustomRoles role) => Options.GetRoleSpawnMode(role);
@@ -1185,10 +1183,8 @@ internal static class CustomRolesHelper
                 _ => 0
             } / 100f;
         }
-        else
-        {
-            return Options.GetRoleChance(role);
-        }
+
+        return Options.GetRoleChance(role);
     }
 
     public static bool IsEnable(this CustomRoles role) => role.GetCount() > 0;

@@ -8,7 +8,7 @@ namespace TOHE.Roles.Neutral
     {
         private static int Id => 643450;
         public static byte NecromancerId = byte.MaxValue;
-        public static PlayerControl Necromancer_ = null;
+        public static PlayerControl Necromancer_;
 
         private static OptionItem CD;
         public static OptionItem DKCD;
@@ -99,7 +99,7 @@ namespace TOHE.Roles.Neutral
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
 
-                Logger.Info($"Partial Recruit: {target.GetRealName()}", $"Necromancer");
+                Logger.Info($"Partial Recruit: {target.GetRealName()}", "Necromancer");
 
                 return;
             }
@@ -133,7 +133,7 @@ namespace TOHE.Roles.Neutral
     internal class Deathknight
     {
         public static byte DeathknightId = byte.MaxValue;
-        public static PlayerControl Deathknight_ = null;
+        public static PlayerControl Deathknight_;
 
         public static void Init()
         {

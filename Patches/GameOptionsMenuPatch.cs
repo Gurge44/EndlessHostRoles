@@ -1,10 +1,13 @@
+using System;
+using System.Collections;
+using System.Linq;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Il2CppSystem.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using static TOHE.Translator;
 using Object = UnityEngine.Object;
 
@@ -27,7 +30,7 @@ public static class GameSettingMenuPatch
             .GetComponent<KeyValueOption>()?
             .Values?
             // using .Insert will convert managed values and break the struct resulting in crashes
-            .System_Collections_IList_Insert((int)MapNames.Dleks, new Il2CppSystem.Collections.Generic.KeyValuePair<string, int>(Constants.MapNames[(int)MapNames.Dleks], (int)MapNames.Dleks));
+            .System_Collections_IList_Insert((int)MapNames.Dleks, new KeyValuePair<string, int>(Constants.MapNames[(int)MapNames.Dleks], (int)MapNames.Dleks));
     }
 }
 
@@ -52,8 +55,6 @@ public static class GameOptionsMenuPatch
                 case StringNames.GameKillCooldown:
                     ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 180);
                     break;
-                default:
-                    break;
             }
         }
 
@@ -69,21 +70,21 @@ public static class GameOptionsMenuPatch
 
         var gameSettingMenu = Object.FindObjectsOfType<GameSettingMenu>().FirstOrDefault();
         if (gameSettingMenu == null) return;
-        List<GameObject> menus = [gameSettingMenu.RegularGameSettings, gameSettingMenu.RolesSettings.gameObject];
-        List<SpriteRenderer> highlights = [gameSettingMenu.GameSettingsHightlight, gameSettingMenu.RolesSettingsHightlight];
+        System.Collections.Generic.List<GameObject> menus = [gameSettingMenu.RegularGameSettings, gameSettingMenu.RolesSettings.gameObject];
+        System.Collections.Generic.List<SpriteRenderer> highlights = [gameSettingMenu.GameSettingsHightlight, gameSettingMenu.RolesSettingsHightlight];
 
         var roleTab = GameObject.Find("RoleTab");
         var gameTab = GameObject.Find("GameTab");
-        List<GameObject> tabs = [gameTab, roleTab];
+        System.Collections.Generic.List<GameObject> tabs = [gameTab, roleTab];
 
-        System.Collections.IList list = Enum.GetValues(typeof(TabGroup));
+        IList list = Enum.GetValues(typeof(TabGroup));
         for (int i = 0; i < list.Count; i++)
         {
             object tab = list[i];
             var obj = gameSettings.transform.parent.Find(tab + "Tab");
             if (obj != null)
             {
-                obj.transform.FindChild("../../GameGroup/Text").GetComponent<TMPro.TextMeshPro>().SetText(GetString("TabGroup." + tab));
+                obj.transform.FindChild("../../GameGroup/Text").GetComponent<TextMeshPro>().SetText(GetString("TabGroup." + tab));
                 continue;
             }
 
@@ -102,7 +103,7 @@ public static class GameOptionsMenuPatch
             //OptionBehaviourを破棄
             tohMenu.GetComponentsInChildren<OptionBehaviour>().Do(x => Object.Destroy(x.gameObject));
 
-            var scOptions = new List<OptionBehaviour>();
+            var scOptions = new System.Collections.Generic.List<OptionBehaviour>();
             foreach (OptionItem option in OptionItem.AllOptions.ToArray())
             {
                 if (option.Tab != (TabGroup)tab) continue;
@@ -111,7 +112,7 @@ public static class GameOptionsMenuPatch
                     float yoffset = option.IsText ? 100f : 0f;
                     var stringOption = Object.Instantiate(template, tohMenu.transform);
                     scOptions.Add(stringOption);
-                    stringOption.OnValueChanged = new Action<OptionBehaviour>((o) => { });
+                    stringOption.OnValueChanged = new Action<OptionBehaviour>(o => { });
                     stringOption.TitleText.text = option.Name;
                     stringOption.Value = stringOption.oldValue = option.CurrentValue;
                     stringOption.ValueText.text = option.GetString();
@@ -147,7 +148,7 @@ public static class GameOptionsMenuPatch
             var button = tabs[i].GetComponentInChildren<PassiveButton>();
             if (button == null) continue;
             var copiedIndex = i;
-            button.OnClick = new UnityEngine.UI.Button.ButtonClickedEvent();
+            button.OnClick = new Button.ButtonClickedEvent();
             Action value = () =>
             {
                 for (var j = 0; j < menus.Count; j++)
@@ -169,7 +170,7 @@ public class GameOptionsMenuUpdatePatch
     public static void Postfix(GameOptionsMenu __instance)
     {
         if (__instance.transform.parent.parent.name == "Game Settings") return;
-        System.Collections.IList list = Enum.GetValues(typeof(TabGroup));
+        IList list = Enum.GetValues(typeof(TabGroup));
         for (int i = 0; i < list.Count; i++)
         {
             object tab = list[i];
@@ -187,7 +188,7 @@ public class GameOptionsMenuUpdatePatch
                 _ => "#ffffff",
             };
             if (__instance.transform.parent.parent.name != tab + "Tab") continue;
-            __instance.transform.FindChild("../../GameGroup/Text").GetComponent<TMPro.TextMeshPro>().SetText($"<color={tabcolor}>" + GetString("TabGroup." + tab) + "</color>");
+            __instance.transform.FindChild("../../GameGroup/Text").GetComponent<TextMeshPro>().SetText($"<color={tabcolor}>" + GetString("TabGroup." + tab) + "</color>");
 
             _timer += Time.deltaTime;
             if (_timer < 0.2f) return;
@@ -275,7 +276,7 @@ public class StringOptionEnablePatch
         var option = OptionItem.AllOptions.FirstOrDefault(opt => opt.OptionBehaviour == __instance);
         if (option == null) return true;
 
-        __instance.OnValueChanged = new Action<OptionBehaviour>((o) => { });
+        __instance.OnValueChanged = new Action<OptionBehaviour>(o => { });
         __instance.TitleText.text = option.GetName();
         if (option.Id == Options.UsePets.Id) LoadLangs();
         else if (!Options.UsePets.GetBool() && CustomRolesHelper.OnlySpawnsWithPetsRoleList.Any(role => role.ToString().Equals(option.GetName().RemoveHtmlTags().Replace(" ", string.Empty))))
@@ -342,8 +343,6 @@ public static class RolesSettingsMenuPatch
                     break;
                 case StringNames.ShapeshifterCooldown:
                     ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 180);
-                    break;
-                default:
                     break;
             }
         }

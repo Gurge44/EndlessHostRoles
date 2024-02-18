@@ -96,7 +96,8 @@ namespace TOHE.Roles.Neutral
                 SendRPC();
                 return false;
             }
-            else if (CurrentTarget.ID == target.PlayerId && CurrentTarget.START_TIMESTAMP != 0)
+
+            if (CurrentTarget.ID == target.PlayerId && CurrentTarget.START_TIMESTAMP != 0)
             {
                 CurrentTarget.ID = byte.MaxValue;
                 CurrentTarget.START_TIMESTAMP = 0;
@@ -104,21 +105,19 @@ namespace TOHE.Roles.Neutral
                 Souls++;
                 SoulHunter_.Notify(GetString("SoulHunterNotifySuccess"));
                 _ = new LateTask(() => { SoulHunter_.SetKillCooldown(1f); }, 0.1f, log: false);
-                Logger.Info($"Killed Target", "SoulHunter");
+                Logger.Info("Killed Target", "SoulHunter");
                 SendRPC();
                 return true;
             }
-            else
-            {
-                CurrentTarget.ID = byte.MaxValue;
-                CurrentTarget.START_TIMESTAMP = 0;
-                LastUpdate = TimeStamp;
-                SoulHunter_.Suicide();
-                target.Notify(GetString("SoulHunterTargetNotifySurvived"));
-                Logger.Info($"Killed Incorrect Player => Suicide", "SoulHunter");
-                SendRPC();
-                return false;
-            }
+
+            CurrentTarget.ID = byte.MaxValue;
+            CurrentTarget.START_TIMESTAMP = 0;
+            LastUpdate = TimeStamp;
+            SoulHunter_.Suicide();
+            target.Notify(GetString("SoulHunterTargetNotifySurvived"));
+            Logger.Info("Killed Incorrect Player => Suicide", "SoulHunter");
+            SendRPC();
+            return false;
         }
         public static void AfterMeetingTasks()
         {
@@ -222,7 +221,7 @@ namespace TOHE.Roles.Neutral
             {
                 if (!IsTargetBlocked) return string.Empty;
                 if (CurrentTarget.FROZEN) return string.Format(GetString("SoulHunterNotifyFreeze"), GetPlayerById(CurrentTarget.ID).GetRealName(), WaitingTimeAfterMeeting.GetInt() - (TimeStamp - CurrentTarget.START_TIMESTAMP) + 1);
-                else return string.Format(GetString("SoulHunterNotify"), TimeToKillTarget.GetInt() - (TimeStamp - CurrentTarget.START_TIMESTAMP) + 1, GetPlayerById(CurrentTarget.ID).GetRealName());
+                return string.Format(GetString("SoulHunterNotify"), TimeToKillTarget.GetInt() - (TimeStamp - CurrentTarget.START_TIMESTAMP) + 1, GetPlayerById(CurrentTarget.ID).GetRealName());
             }
         }
         public static string ProgressText

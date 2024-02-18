@@ -1,8 +1,8 @@
-using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HarmonyLib;
 using TOHE.Modules;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
@@ -2911,7 +2911,7 @@ public static class Options
             .SetColor(Color.red);
         RoleAssigningAlgorithm = StringOptionItem.Create(19409, "RoleAssigningAlgorithm", roleAssigningAlgorithms, 4, TabGroup.SystemSettings, true)
             .RegisterUpdateValueEvent(
-                (object obj, OptionItem.UpdateValueEventArgs args) => IRandom.SetInstanceById(args.CurrentValue)
+                (obj, args) => IRandom.SetInstanceById(args.CurrentValue)
             );
         KPDCamouflageMode = StringOptionItem.Create(19500, "KPDCamouflageMode", CamouflageMode, 0, TabGroup.SystemSettings, false)
             .SetHeader(true)
@@ -3717,7 +3717,7 @@ public static class Options
         VoteMode = BooleanOptionItem.Create(23600, "VoteMode", false, TabGroup.GameSettings, false)
             .SetColor(new Color32(147, 241, 240, byte.MaxValue))
             .SetGameMode(CustomGameMode.Standard);
-        WhenSkipVote = StringOptionItem.Create(23610, "WhenSkipVote", voteModes[0..3], 0, TabGroup.GameSettings, false)
+        WhenSkipVote = StringOptionItem.Create(23610, "WhenSkipVote", voteModes[..3], 0, TabGroup.GameSettings, false)
             .SetParent(VoteMode)
             .SetGameMode(CustomGameMode.Standard);
         WhenSkipVoteIgnoreFirstMeeting = BooleanOptionItem.Create(23611, "WhenSkipVoteIgnoreFirstMeeting", false, TabGroup.GameSettings, false)

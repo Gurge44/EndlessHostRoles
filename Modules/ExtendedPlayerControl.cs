@@ -1,11 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TOHE.Modules;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
@@ -83,7 +84,7 @@ static class ExtendedPlayerControl
     {
         if (player == null)
         {
-            var callerMethod = new System.Diagnostics.StackFrame(1, false).GetMethod();
+            var callerMethod = new StackFrame(1, false).GetMethod();
             string callerMethodName = callerMethod.Name;
             Logger.Warn(callerMethod.DeclaringType.FullName + "." + callerMethodName + " tried to get a CustomRole, but the target was null.", "GetCustomRole");
             return CustomRoles.Crewmate;
@@ -106,7 +107,7 @@ static class ExtendedPlayerControl
     {
         if (player == null)
         {
-            var caller = new System.Diagnostics.StackFrame(1, false);
+            var caller = new StackFrame(1, false);
             var callerMethod = caller.GetMethod();
             string callerMethodName = callerMethod.Name;
             string callerClassName = callerMethod.DeclaringType.FullName;
@@ -530,8 +531,8 @@ static class ExtendedPlayerControl
     {
         CustomRoles role = pc.GetCustomRole();
         if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel || Pelican.IsEaten(pc.PlayerId)) return false;
-        else if (role.GetDYRole() == RoleTypes.Impostor || role.GetVNRole() is CustomRoles.Impostor or CustomRoles.Shapeshifter) return true;
-        else return pc.Is(CustomRoleTypes.Impostor) || role.IsNK() || role.IsTasklessCrewmate();
+        if (role.GetDYRole() == RoleTypes.Impostor || role.GetVNRole() is CustomRoles.Impostor or CustomRoles.Shapeshifter) return true;
+        return pc.Is(CustomRoleTypes.Impostor) || role.IsNK() || role.IsTasklessCrewmate();
     }
     public static bool CanUseKillButton(this PlayerControl pc)
     {
@@ -1525,9 +1526,9 @@ static class ExtendedPlayerControl
     {
         var role = target.GetCustomRole();
         if (role.IsImpostorTeamV3()) return Team.Impostor;
-        else if (role.IsNeutralTeamV2()) return Team.Neutral;
-        else if (role.IsCrewmateTeamV2()) return Team.Crewmate;
-        else return Team.None;
+        if (role.IsNeutralTeamV2()) return Team.Neutral;
+        if (role.IsCrewmateTeamV2()) return Team.Crewmate;
+        return Team.None;
     }
     public static bool IsAlive(this PlayerControl target)
     {

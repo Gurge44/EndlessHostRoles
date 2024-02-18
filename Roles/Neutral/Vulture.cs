@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using AmongUs.GameOptions;
 using Hazel;
-using System.Collections.Generic;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -31,10 +31,11 @@ public static class Vulture
         NumberOfReportsToWin = IntegerOptionItem.Create(Id + 11, "VultureNumberOfReportsToWin", new(1, 10, 1), 4, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
         CanVent = BooleanOptionItem.Create(Id + 12, "CanVent", true, TabGroup.NeutralRoles, true).SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
         VultureReportCD = FloatOptionItem.Create(Id + 13, "VultureReportCooldown", new(0f, 180f, 2.5f), 15f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Vulture])
-                .SetValueFormat(OptionFormat.Seconds);
+            .SetValueFormat(OptionFormat.Seconds);
         MaxEaten = IntegerOptionItem.Create(Id + 14, "VultureMaxEatenInOneRound", new(1, 10, 1), 2, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
         HasImpVision = BooleanOptionItem.Create(Id + 15, "ImpostorVision", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
     }
+
     public static void Init()
     {
         playerIdList = [];
@@ -42,8 +43,8 @@ public static class Vulture
         BodyReportCount = [];
         AbilityLeftInRound = [];
         LastReport = [];
-
     }
+
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
@@ -57,9 +58,9 @@ public static class Vulture
                 //Utils.GetPlayerById(playerId).RpcGuardAndKill(Utils.GetPlayerById(playerId));
                 Utils.GetPlayerById(playerId).Notify(GetString("VultureCooldownUp"));
             }
-            return;
-        }, VultureReportCD.GetFloat() + 8f, "Vulture CD");  //for some reason that idk vulture cd completes 8s faster when the game starts, so I added 8f for now 
+        }, VultureReportCD.GetFloat() + 8f, "Vulture CD"); //for some reason that idk vulture cd completes 8s faster when the game starts, so I added 8f for now 
     }
+
     public static bool IsEnable => playerIdList.Count > 0;
 
     public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpVision.GetBool());
@@ -76,6 +77,7 @@ public static class Vulture
             writer.Write(loc.y);
             writer.Write(loc.z);
         }
+
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
@@ -97,6 +99,7 @@ public static class Vulture
             SendRPC(apc, false);
         }
     }
+
     public static void AfterMeetingTasks()
     {
         foreach (byte apc in playerIdList.ToArray())
@@ -113,7 +116,6 @@ public static class Vulture
                         //Utils.GetPlayerById(apc).RpcGuardAndKill(Utils.GetPlayerById(apc));
                         Utils.GetPlayerById(apc).Notify(GetString("VultureCooldownUp"));
                     }
-                    return;
                 }, VultureReportCD.GetFloat(), "Vulture CD");
                 SendRPC(apc, false);
             }

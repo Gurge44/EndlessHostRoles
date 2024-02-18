@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using HarmonyLib;
 using Hazel;
-using System.Collections.Generic;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor
@@ -72,7 +72,8 @@ namespace TOHE.Roles.Impostor
             {
                 return killer.CheckDoubleTrigger(target, () => { SetDivination(killer, target); });
             }
-            else return true;
+
+            return true;
         }
 
         public static bool IsDivination(byte seer, byte target)

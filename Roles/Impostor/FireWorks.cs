@@ -1,5 +1,5 @@
-using Hazel;
 using System.Collections.Generic;
+using Hazel;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
 using UnityEngine;
@@ -98,7 +98,7 @@ public static class FireWorks
 
     public static void ShapeShiftState(PlayerControl pc, bool shapeshifting)
     {
-        Logger.Info($"FireWorks ShapeShift", "FireWorks");
+        Logger.Info("FireWorks ShapeShift", "FireWorks");
         if (pc == null || pc.Data.IsDead || !shapeshifting || Pelican.IsEaten(pc.PlayerId) || Medic.ProtectList.Contains(pc.PlayerId)) return;
         switch (state[pc.PlayerId])
         {
@@ -131,6 +131,7 @@ public static class FireWorks
                         }
                     }
                 }
+
                 if (suicide)
                 {
                     var totalAlive = Main.AllAlivePlayerControls.Length;
@@ -139,16 +140,16 @@ public static class FireWorks
                         pc.Suicide();
                     }
                 }
+
                 state[pc.PlayerId] = FireWorksState.FireEnd;
                 break;
-            default:
-                break;
         }
+
         SendRPC(pc.PlayerId);
         Utils.NotifyRoles(ForceLoop: true);
     }
 
-    public static string GetStateText(PlayerControl pc/*, bool isLocal = true*/)
+    public static string GetStateText(PlayerControl pc /*, bool isLocal = true*/)
     {
         string retText = string.Empty;
         if (pc == null || pc.Data.IsDead) return retText;
@@ -160,6 +161,7 @@ public static class FireWorks
             SendRPC(pc.PlayerId);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
+
         switch (state[pc.PlayerId])
         {
             case FireWorksState.Initial:
@@ -175,6 +177,7 @@ public static class FireWorks
             case FireWorksState.FireEnd:
                 break;
         }
+
         return retText;
     }
 }

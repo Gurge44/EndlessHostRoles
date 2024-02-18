@@ -49,12 +49,14 @@ public static class AutoselectDleksPatch
         }
     }
 }
+
 [HarmonyPatch(typeof(Vent), nameof(Vent.SetButtons))]
 public static class VentSetButtonsPatch
 {
-    public static bool ShowButtons = false;
+    public static bool ShowButtons;
+
     // Fix arrows buttons in vent on Dleks map and "Index was outside the bounds of the array" errors
-    private static bool Prefix(/*Vent __instance,*/ [HarmonyArgument(0)] ref bool enabled)
+    private static bool Prefix( /*Vent __instance,*/ [HarmonyArgument(0)] ref bool enabled)
     {
         if (Main.CurrentMap == MapNames.Dleks && Main.introDestroyed)
         {
@@ -62,8 +64,10 @@ public static class VentSetButtonsPatch
             if (GameStates.IsMeeting)
                 ShowButtons = false;
         }
+
         return true;
     }
+
     public static void Postfix(Vent __instance, [HarmonyArgument(0)] bool enabled)
     {
         if (Main.CurrentMap != MapNames.Dleks) return;
@@ -96,6 +100,7 @@ public static class VentSetButtonsPatch
         }
     }
 }
+
 [HarmonyPatch(typeof(Vent), nameof(Vent.TryMoveToVent))]
 class VentTryMoveToVentPatch
 {
@@ -109,6 +114,7 @@ class VentTryMoveToVentPatch
         VentSetButtonsPatch.ShowButtons = false;
     }
 }
+
 [HarmonyPatch(typeof(Vent), nameof(Vent.UpdateArrows))]
 class VentUpdateArrowsPatch
 {

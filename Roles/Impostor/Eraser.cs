@@ -1,5 +1,5 @@
-﻿using Hazel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Hazel;
 using TOHE.Roles.Crewmate;
 using UnityEngine;
 using static TOHE.Translator;
@@ -78,15 +78,12 @@ internal static class Eraser
         if (Medic.ProtectList.Contains(target.PlayerId)) return false;
         if (EraseLimit[killer.PlayerId] < 1) return true;
         if (target.PlayerId == killer.PlayerId) return true;
-        if (CustomRolesHelper.IsNeutral(target.GetCustomRole()) && EraseMethod.GetInt() == 0)
+        if (target.GetCustomRole().IsNeutral() && EraseMethod.GetInt() == 0)
         {
             killer.Notify(GetString("EraserEraseNeutralNotice"));
             if (WhenTargetIsNeutral.GetInt() == 1) return true;
-            else
-            {
-                killer.SetKillCooldown(5f);
-                return false;
-            }
+            killer.SetKillCooldown(5f);
+            return false;
         }
 
         if (EraseMethod.GetInt() == 0)
@@ -148,7 +145,7 @@ internal static class Eraser
         {
             var player = Utils.GetPlayerById(pc);
             if (player == null) continue;
-            player.RpcSetCustomRole(CustomRolesHelper.GetErasedRole(player.GetCustomRole()));
+            player.RpcSetCustomRole(player.GetCustomRole().GetErasedRole());
             player.Notify(GetString("LostRoleByEraser"));
             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} 被擦除了", "Eraser");
             player.MarkDirtySettings();

@@ -1,11 +1,12 @@
-using HarmonyLib;
 using System;
 using System.Linq;
 using System.Text;
+using HarmonyLib;
 using TMPro;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Translator;
+using Object = UnityEngine.Object;
 
 namespace TOHE;
 
@@ -13,7 +14,7 @@ namespace TOHE;
 internal class PingTrackerUpdatePatch
 {
     private static readonly StringBuilder sb = new();
-    private static long LastUpdate = 0;
+    private static long LastUpdate;
     private static int Delay => GameStates.IsInTask ? 8 : 1;
     private static void Postfix(PingTracker __instance)
     {
@@ -61,9 +62,9 @@ internal class VersionShowerStartPatch
         Main.credentialsText = $"<size=1.5><color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginDisplayVersion} <color=#a54aff>by <color=#ffff00>Gurge44</color>";
         string menuText = $"\r\n<color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginDisplayVersion}\r\n<color=#a54aff>By <color=#ffff00>Gurge44</color>";
 
-        if (Main.IsAprilFools) Main.credentialsText = $"\r\n<color=#00bfff>Town Of Host</color> v11.45.14";
+        if (Main.IsAprilFools) Main.credentialsText = "\r\n<color=#00bfff>Town Of Host</color> v11.45.14";
 
-        var credentials = UnityEngine.Object.Instantiate(__instance.text);
+        var credentials = Object.Instantiate(__instance.text);
         credentials.text = menuText;
         credentials.alignment = TextAlignmentOptions.Right;
         credentials.transform.position = new Vector3(1f, 2.79f, -2f);
@@ -216,7 +217,7 @@ internal class TitleLogoPatch
                 if (leftPanel != null) leftPanel.gameObject.GetComponent<SpriteRenderer>().enabled = false;
                 GameObject.Find("LeftPanel")?.transform.Find("Divider")?.gameObject.SetActive(false);
 
-                PlayerParticles particles = UnityEngine.Object.FindObjectOfType<PlayerParticles>();
+                PlayerParticles particles = Object.FindObjectOfType<PlayerParticles>();
                 particles?.gameObject.SetActive(false);
             }
             catch (Exception ex)

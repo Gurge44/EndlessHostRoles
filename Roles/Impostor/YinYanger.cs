@@ -1,5 +1,5 @@
-﻿using Hazel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Hazel;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Utils;
@@ -76,26 +76,23 @@ namespace TOHE.Roles.Impostor
             {
                 return true;
             }
-            else
-            {
-                if (YinYangedPlayers.Contains(target.PlayerId))
-                {
-                    return false;
-                }
-                else
-                {
-                    YinYangedPlayers.Add(target.PlayerId);
-                    SendRPC(false, target.PlayerId);
 
-                    if (YinYangedPlayers.Count == 2)
-                    {
-                        killer.ResetKillCooldown();
-                        killer.SyncSettings();
-                    }
-                    killer.SetKillCooldown();
-                    return false;
-                }
+            if (YinYangedPlayers.Contains(target.PlayerId))
+            {
+                return false;
             }
+
+            YinYangedPlayers.Add(target.PlayerId);
+            SendRPC(false, target.PlayerId);
+
+            if (YinYangedPlayers.Count == 2)
+            {
+                killer.ResetKillCooldown();
+                killer.SyncSettings();
+            }
+
+            killer.SetKillCooldown();
+            return false;
         }
 
         public static void OnReportDeadBody()
@@ -122,12 +119,13 @@ namespace TOHE.Roles.Impostor
             if (Vector2.Distance(pc1.Pos(), pc2.Pos()) <= 2f)
             {
                 if (!yy.RpcCheckAndMurder(pc1, true)
-                 || !yy.RpcCheckAndMurder(pc2, true)) return;
+                    || !yy.RpcCheckAndMurder(pc2, true)) return;
 
                 pc1.Suicide(PlayerState.DeathReason.YinYanged, yy);
                 pc2.Suicide(PlayerState.DeathReason.YinYanged, yy);
             }
         }
+
         public static string ModeText => YinYangedPlayers.Count == 2 ? $"<color=#00ffa5>{Translator.GetString("Mode")}:</color> {Translator.GetString("YinYangModeNormal")}" : $"<color=#00ffa5>{Translator.GetString("Mode")}:</color> {Translator.GetString("YinYangMode")} ({YinYangedPlayers.Count}/2)";
     }
 }

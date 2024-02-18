@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -52,7 +54,7 @@ namespace TOHE.Roles.Crewmate
 
         private static string GetRoleBasis(CustomRoles role) =>
             SeeRoleBasis.GetBool()
-                ? role.GetDYRole() == AmongUs.GameOptions.RoleTypes.Impostor
+                ? role.GetDYRole() == RoleTypes.Impostor
                     ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("Impostor"))
                     : role.GetVNRole() switch
                     {
@@ -117,7 +119,7 @@ namespace TOHE.Roles.Crewmate
             PlayerControl target = Utils.GetPlayerById(CurrentTarget.ID);
             if (target == null) return;
 
-            if (UnityEngine.Vector2.Distance(target.Pos(), pc.Pos()) > (pc.Is(CustomRoles.Reach) ? 2.5f : 1.5f))
+            if (Vector2.Distance(target.Pos(), pc.Pos()) > (pc.Is(CustomRoles.Reach) ? 2.5f : 1.5f))
             {
                 CurrentTarget.ID = byte.MaxValue;
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);

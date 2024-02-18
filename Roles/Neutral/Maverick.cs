@@ -7,7 +7,7 @@ public static class Maverick
 {
     private static readonly int Id = 10000;
     public static byte MaverickId = byte.MaxValue;
-    public static int NumOfKills = 0;
+    public static int NumOfKills;
 
     private static OptionItem KillCooldown;
     public static OptionItem CanVent;

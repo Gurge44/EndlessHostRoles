@@ -1,8 +1,8 @@
+using System.Collections.Generic;
+using System.Text;
+
 namespace TOHE.Roles.Crewmate
 {
-    using System.Collections.Generic;
-    using System.Text;
-
     public static class Aid
     {
         private static readonly int Id = 640200;
@@ -61,10 +61,8 @@ namespace TOHE.Roles.Crewmate
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 return false;
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public static void OnFixedUpdate(PlayerControl pc)

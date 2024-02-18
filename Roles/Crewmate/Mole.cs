@@ -1,4 +1,5 @@
-﻿using static TOHE.Options;
+﻿using UnityEngine;
+using static TOHE.Options;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -12,7 +13,7 @@ namespace TOHE.Roles.Crewmate
             if (pc == null || !pc.Is(CustomRoles.Mole)) return;
             _ = new LateTask(() =>
             {
-                var vents = UnityEngine.Object.FindObjectsOfType<Vent>();
+                var vents = Object.FindObjectsOfType<Vent>();
                 var vent = vents[IRandom.Instance.Next(0, vents.Count)];
                 physics.RpcBootFromVent(vent.Id);
                 _ = new LateTask(() =>

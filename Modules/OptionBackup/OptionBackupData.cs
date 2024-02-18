@@ -1,46 +1,51 @@
-using AmongUs.GameOptions;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-
+using AmongUs.GameOptions;
 
 namespace TOHE;
 
 public class OptionBackupData
 {
     public List<OptionBackupValue> AllValues;
+
     public OptionBackupData(IGameOptions option)
     {
         AllValues = new(32);
 
-        System.Collections.IList list = Enum.GetValues(typeof(ByteOptionNames));
+        IList list = Enum.GetValues(typeof(ByteOptionNames));
         for (int i = 0; i < list.Count; i++)
         {
             ByteOptionNames name = (ByteOptionNames)list[i];
             if (option.TryGetByte(name, out var value))
                 AllValues.Add(new ByteOptionBackupValue(name, value));
         }
-        System.Collections.IList list1 = Enum.GetValues(typeof(BoolOptionNames));
+
+        IList list1 = Enum.GetValues(typeof(BoolOptionNames));
         for (int i = 0; i < list1.Count; i++)
         {
             BoolOptionNames name = (BoolOptionNames)list1[i];
             if (option.TryGetBool(name, out var value) && name != BoolOptionNames.GhostsDoTasks)
                 AllValues.Add(new BoolOptionBackupValue(name, value));
         }
-        System.Collections.IList list2 = Enum.GetValues(typeof(FloatOptionNames));
+
+        IList list2 = Enum.GetValues(typeof(FloatOptionNames));
         for (int i = 0; i < list2.Count; i++)
         {
             FloatOptionNames name = (FloatOptionNames)list2[i];
             if (option.TryGetFloat(name, out var value))
                 AllValues.Add(new FloatOptionBackupValue(name, value));
         }
-        System.Collections.IList list3 = Enum.GetValues(typeof(Int32OptionNames));
+
+        IList list3 = Enum.GetValues(typeof(Int32OptionNames));
         for (int i = 0; i < list3.Count; i++)
         {
             Int32OptionNames name = (Int32OptionNames)list3[i];
             if (option.TryGetInt(name, out var value))
                 AllValues.Add(new IntOptionBackupValue(name, value));
         }
+
         // [バニラ側バグ] GetIntで部屋の人数のみ取得できないため、別で取得する
         AllValues.Add(new IntOptionBackupValue(Int32OptionNames.MaxPlayers, option.MaxPlayers));
         // TryGetUIntが実装されていないため、別で取得する
@@ -59,6 +64,7 @@ public class OptionBackupData
         {
             value.Restore(option);
         }
+
         return option;
     }
 
@@ -67,12 +73,13 @@ public class OptionBackupData
     public float GetFloat(FloatOptionNames name) => Get<FloatOptionNames, float>(name);
     public int GetInt(Int32OptionNames name) => Get<Int32OptionNames, int>(name);
     public uint GetUInt(UInt32OptionNames name) => Get<UInt32OptionNames, uint>(name);
+
     public TValue Get<TKey, TValue>(TKey name)
-    where TKey : Enum
+        where TKey : Enum
     {
         var value = AllValues
             .OfType<OptionBackupValueBase<TKey, TValue>>()
-.FirstOrDefault(val => val.OptionName.Equals(name));
+            .FirstOrDefault(val => val.OptionName.Equals(name));
 
         return value == null ? default : value.Value;
     }

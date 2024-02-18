@@ -1,7 +1,8 @@
+using System;
+using System.Collections.Generic;
 using AmongUs.GameOptions;
 using Hazel;
 using Il2CppSystem.Text;
-using System.Collections.Generic;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -28,7 +29,8 @@ public static class EvilTracker
         OnceInGame,
         EveryMeeting,
         Always,
-    };
+    }
+
     private static readonly string[] TargetModeText =
     [
         "EvilTrackerTargetMode.Never",
@@ -128,6 +130,7 @@ public static class EvilTracker
             {
                 SetTarget();
             }
+
             foreach (byte playerId in playerIdList.ToArray())
             {
                 var pc = Utils.GetPlayerById(playerId);
@@ -139,7 +142,7 @@ public static class EvilTracker
                 target?.MarkDirtySettings();
             }
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             Logger.Error(ex.ToString(), "EvilTracker.AfterMeetingTasks");
         }
@@ -202,7 +205,8 @@ public static class EvilTracker
             {
                 sb.Append(TargetArrow.GetArrows(target, impostorId));
             }
-            sb.Append($"</color>");
+
+            sb.Append("</color>");
         }
 
         var targetId = Target[trackerId];

@@ -9,7 +9,7 @@ namespace TOHE.Roles.Impostor
         private static readonly int Id = 641800;
 
         private static byte PenguinId = byte.MaxValue;
-        private static PlayerControl Penguin_ = null;
+        private static PlayerControl Penguin_;
 
         private static OptionItem OptionAbductTimerLimit;
         private static OptionItem OptionMeetingKill;

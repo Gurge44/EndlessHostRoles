@@ -1,8 +1,9 @@
-using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AmongUs.GameOptions;
+using HarmonyLib;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
@@ -638,19 +639,17 @@ class ExternalRpcPetPatch
                                 }
                             }
                         }
-
-                        break;
                     }
                 }
 
                 break;
 
             case CustomRoles.Necromancer when hasKillTarget && Main.KillTimers[pc.PlayerId] <= 0:
-                if (pc.Data.RoleType != AmongUs.GameOptions.RoleTypes.Impostor) pc.AddKCDAsAbilityCD();
+                if (pc.Data.RoleType != RoleTypes.Impostor) pc.AddKCDAsAbilityCD();
                 Necromancer.OnCheckMurder(pc, target);
                 break;
             case CustomRoles.Deathknight when hasKillTarget:
-                if (pc.Data.RoleType != AmongUs.GameOptions.RoleTypes.Impostor) pc.AddKCDAsAbilityCD();
+                if (pc.Data.RoleType != RoleTypes.Impostor) pc.AddKCDAsAbilityCD();
                 Deathknight.OnCheckMurder(pc, target);
                 break;
 

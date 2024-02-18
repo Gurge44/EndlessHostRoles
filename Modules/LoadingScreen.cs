@@ -1,5 +1,7 @@
-﻿using Rewired.Utils;
+﻿using System;
+using Rewired.Utils;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace TOHE.Modules
 {
@@ -22,7 +24,7 @@ namespace TOHE.Modules
                 var z = basePos.z;
                 LoadingAnimation.transform.position = new Vector3(x, y, z);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Logger.Error(ex.ToString(), "LoadingScreen.UpdateLoadingAnimation");
             }
@@ -42,7 +44,8 @@ namespace TOHE.Modules
                     Object.Destroy(LoadingAnimation);
                     return;
                 }
-                else if (LoadingAnimation == null && visible)
+
+                if (LoadingAnimation == null && visible)
                 {
                     UpdateLoadingAnimation();
                     return;
@@ -63,7 +66,7 @@ namespace TOHE.Modules
                     LoadingAnimation.transform?.Rotate(Vector3.forward, 200f * Time.deltaTime);
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Logger.Error(ex.ToString(), "LoadingScreen.Update");
             }

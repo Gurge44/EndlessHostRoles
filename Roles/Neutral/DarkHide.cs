@@ -1,7 +1,7 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using Hazel;
 using InnerNet;
-using System.Collections.Generic;
 
 namespace TOHE;
 
@@ -80,7 +80,7 @@ public static class DarkHide
         var succeeded = targetRole.IsImpostor();
         if (CanCountNeutralKiller.GetBool() && !Ktarget.Is(CustomRoles.Arsonist) && !Ktarget.Is(CustomRoles.Revolutionist))
         {
-            succeeded = succeeded || ExtendedPlayerControl.IsNeutralKiller(Ktarget);
+            succeeded = succeeded || Ktarget.IsNeutralKiller();
         }
         if (succeeded && SnatchesWin.GetBool())
             IsWinKill[killer.PlayerId] = true;
@@ -88,7 +88,7 @@ public static class DarkHide
         killer.DRpcSetKillCount();
         MessageWriter SabotageFixWriter = AmongUsClient.Instance.StartRpcImmediately(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, SendOption.Reliable, killer.GetClientId());
         SabotageFixWriter.Write((byte)SystemTypes.Electrical);
-        MessageExtensions.WriteNetObject(SabotageFixWriter, killer);
+        SabotageFixWriter.WriteNetObject(killer);
         AmongUsClient.Instance.FinishRpcImmediately(SabotageFixWriter);
 
         foreach (PlayerControl target in Main.AllPlayerControls)
@@ -97,7 +97,7 @@ public static class DarkHide
                 continue;
             SabotageFixWriter = AmongUsClient.Instance.StartRpcImmediately(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, SendOption.Reliable, target.GetClientId());
             SabotageFixWriter.Write((byte)SystemTypes.Electrical);
-            MessageExtensions.WriteNetObject(SabotageFixWriter, target);
+            SabotageFixWriter.WriteNetObject(target);
             AmongUsClient.Instance.FinishRpcImmediately(SabotageFixWriter);
         }
     }

@@ -1,14 +1,15 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using HarmonyLib;
+using Hazel;
+using TOHE.Modules;
+using TOHE.Roles.Neutral;
+
 namespace TOHE.Roles.Crewmate
 {
-    using HarmonyLib;
-    using Hazel;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using TOHE.Modules;
-    using TOHE.Roles.Neutral;
-    using static TOHE.Options;
-    using static TOHE.Translator;
+    using static Options;
+    using static Translator;
 
     public static class Alchemist
     {
@@ -41,7 +42,7 @@ namespace TOHE.Roles.Crewmate
             InvisDuration = FloatOptionItem.Create(Id + 13, "AlchemistInvisDur", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
                 .SetValueFormat(OptionFormat.Seconds);
             Speed = FloatOptionItem.Create(Id + 14, "AlchemistSpeed", new(0.1f, 5f, 0.1f), 1.5f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
-                 .SetValueFormat(OptionFormat.Multiplier);
+                .SetValueFormat(OptionFormat.Multiplier);
             SpeedDuration = FloatOptionItem.Create(Id + 15, "AlchemistSpeedDur", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
                 .SetValueFormat(OptionFormat.Seconds);
             Vision = FloatOptionItem.Create(Id + 16, "AlchemistVision", new(0f, 1f, 0.05f), 0.85f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
@@ -52,6 +53,7 @@ namespace TOHE.Roles.Crewmate
                 .SetValueFormat(OptionFormat.Seconds);
             OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.Alchemist);
         }
+
         public static void Init()
         {
             playerIdList = [];
@@ -62,12 +64,14 @@ namespace TOHE.Roles.Crewmate
             FixNextSabo = false;
             VisionPotionActive = false;
         }
+
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
             PlayerName = Utils.GetPlayerById(playerId).GetRealName();
             _ = new LateTask(() => { SendRPCData(IsProtected, PotionID, PlayerName, VisionPotionActive, FixNextSabo); }, 10f, "Alchemist RPCs");
         }
+
         public static bool IsEnable => playerIdList.Count > 0;
 
         public static void SendRPCData(bool isProtected, byte potionId, string playerName, bool visionPotionActive, bool fixNextSabo)
@@ -81,6 +85,7 @@ namespace TOHE.Roles.Crewmate
             writer.Write(fixNextSabo);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
+
         public static void ReceiveRPCData(MessageReader reader)
         {
             if (AmongUsClient.Instance.AmHost) return;
@@ -121,8 +126,6 @@ namespace TOHE.Roles.Crewmate
                 case 7: // Increased vision
                     pc.Notify(GetString("AlchemistGotSightPotion"), 15f);
                     break;
-                default: // just in case
-                    break;
             }
         }
 
@@ -137,14 +140,15 @@ namespace TOHE.Roles.Crewmate
                 case 1: // Shield
                     IsProtected = true;
                     player.Notify(GetString("AlchemistShielded"), ShieldDuration.GetInt());
-                    _ = new LateTask(() => { IsProtected = false; player.Notify(GetString("AlchemistShieldOut")); }, ShieldDuration.GetInt());
+                    _ = new LateTask(() =>
+                    {
+                        IsProtected = false;
+                        player.Notify(GetString("AlchemistShieldOut"));
+                    }, ShieldDuration.GetInt());
                     break;
                 case 2: // Suicide
                     if (!isPet) player.MyPhysics.RpcBootFromVent(ventId);
-                    _ = new LateTask(() =>
-                    {
-                        player.Suicide(PlayerState.DeathReason.Poison);
-                    }, !isPet ? 1f : 0.1f);
+                    _ = new LateTask(() => { player.Suicide(PlayerState.DeathReason.Poison); }, !isPet ? 1f : 0.1f);
                     break;
                 case 3: // TP to random player
                     _ = new LateTask(() =>
@@ -180,13 +184,16 @@ namespace TOHE.Roles.Crewmate
                     VisionPotionActive = true;
                     player.MarkDirtySettings();
                     player.Notify(GetString("AlchemistHasVision"), VisionDuration.GetFloat());
-                    _ = new LateTask(() => { VisionPotionActive = false; player.MarkDirtySettings(); player.Notify(GetString("AlchemistVisionOut")); }, VisionDuration.GetFloat());
+                    _ = new LateTask(() =>
+                    {
+                        VisionPotionActive = false;
+                        player.MarkDirtySettings();
+                        player.Notify(GetString("AlchemistVisionOut"));
+                    }, VisionDuration.GetFloat());
                     break;
                 case 10:
                     if (!isPet) player.MyPhysics.RpcBootFromVent(ventId);
                     player.Notify(GetString("AlchemistNoPotion"));
-                    break;
-                default: // just in case
                     break;
             }
 
@@ -194,8 +201,10 @@ namespace TOHE.Roles.Crewmate
 
             PotionID = 10;
         }
+
         private static long lastFixedTime;
         public static bool IsInvis(byte id) => InvisTime.ContainsKey(id);
+
         private static void SendRPC(PlayerControl pc)
         {
             if (!IsEnable || !Utils.DoRPC || pc.AmOwner) return;
@@ -203,12 +212,14 @@ namespace TOHE.Roles.Crewmate
             writer.Write((InvisTime.TryGetValue(pc.PlayerId, out var x) ? x : -1).ToString());
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
+
         public static void ReceiveRPC(MessageReader reader)
         {
             InvisTime = [];
             long invis = long.Parse(reader.ReadString());
             if (invis > 0) InvisTime.Add(PlayerControl.LocalPlayer.PlayerId, invis);
         }
+
         public static void OnCoEnterVent(PlayerPhysics __instance, int ventId)
         {
             PotionID = 10;
@@ -229,7 +240,8 @@ namespace TOHE.Roles.Crewmate
                 pc.Notify(GetString("ChameleonInvisState"), InvisDuration.GetFloat());
             }, 0.5f, "Alchemist Invis");
         }
-        public static void OnFixedUpdate(/*PlayerControl player*/)
+
+        public static void OnFixedUpdate( /*PlayerControl player*/)
         {
             if (!GameStates.IsInTask || !IsEnable) return;
 
@@ -253,17 +265,21 @@ namespace TOHE.Roles.Crewmate
                         SendRPC(pc);
                         continue;
                     }
-                    else if (remainTime <= 10)
+
+                    if (remainTime <= 10)
                     {
                         if (!pc.IsModClient()) pc.Notify(string.Format(GetString("ChameleonInvisStateCountdown"), remainTime + 1));
                     }
+
                     newList.Add(it.Key, it.Value);
                 }
+
                 InvisTime.Where(x => !newList.ContainsKey(x.Key)).Do(x => refreshList.Add(x.Key));
                 InvisTime = newList;
                 refreshList.Do(x => SendRPC(Utils.GetPlayerById(x)));
             }
         }
+
         public static string GetHudText(PlayerControl pc)
         {
             if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
@@ -302,18 +318,19 @@ namespace TOHE.Roles.Crewmate
                     case 10:
                         str.Append($"{preText} <color=#888888>{GetString("None")}</color>");
                         break;
-                    default: // just in case
-                        break;
                 }
-                if (FixNextSabo) str.Append($"\n<b><color=#3333ff>{GetString("QuickFixPotionWaitForUse")}</color></b>");
 
+                if (FixNextSabo) str.Append($"\n<b><color=#3333ff>{GetString("QuickFixPotionWaitForUse")}</color></b>");
             }
+
             if (UsePets.GetBool() && Main.AbilityCD.TryGetValue(pc.PlayerId, out var CD))
             {
                 str.Append($"\n<color=#00ffa5>{GetString("CD")}:</color> <b>{CD.TOTALCD - (Utils.TimeStamp - CD.START_TIMESTAMP) + 1}</b>s");
             }
+
             return str.ToString();
         }
+
         public static string GetProgressText(int playerId)
         {
             if (Utils.GetPlayerById(playerId) == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive() || Utils.GetPlayerById(playerId).IsModClient()) return string.Empty;
@@ -342,9 +359,11 @@ namespace TOHE.Roles.Crewmate
                     str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#eee5be>{GetString("SightPotion")}</color>");
                     break;
             }
+
             if (FixNextSabo) str.Append($" <color=#777777>({GetString("QuickFix")})</color>");
             return str.ToString();
         }
+
         public static void RepairSystem(SystemTypes systemType, byte amount)
         {
             FixNextSabo = false;
@@ -356,6 +375,7 @@ namespace TOHE.Roles.Crewmate
                         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Reactor, 16);
                         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Reactor, 17);
                     }
+
                     break;
                 case SystemTypes.Laboratory:
                     if (amount is 64 or 65)
@@ -363,6 +383,7 @@ namespace TOHE.Roles.Crewmate
                         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Laboratory, 67);
                         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Laboratory, 66);
                     }
+
                     break;
                 case SystemTypes.LifeSupp:
                     if (amount is 64 or 65)
@@ -370,6 +391,7 @@ namespace TOHE.Roles.Crewmate
                         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.LifeSupp, 67);
                         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.LifeSupp, 66);
                     }
+
                     break;
                 case SystemTypes.Comms:
                     if (amount is 64 or 65)
@@ -377,6 +399,7 @@ namespace TOHE.Roles.Crewmate
                         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Comms, 16);
                         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Comms, 17);
                     }
+
                     break;
             }
         }

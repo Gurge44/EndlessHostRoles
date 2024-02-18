@@ -1,8 +1,8 @@
-﻿using HarmonyLib;
-using Hazel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using HarmonyLib;
+using Hazel;
 using TOHE.Roles.Crewmate;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -124,7 +124,8 @@ public static class Swooper
                     SendRPC(pc);
                     continue;
                 }
-                else if (remainTime <= 10)
+
+                if (remainTime <= 10)
                 {
                     if (!pc.IsModClient()) pc.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1));
                 }

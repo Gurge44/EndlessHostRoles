@@ -61,7 +61,7 @@ public static class Monarch
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 
-            Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Knighted.ToString(), "Assign " + CustomRoles.Knighted.ToString());
+            Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole() + " + " + CustomRoles.Knighted, "Assign " + CustomRoles.Knighted);
             if (killer.GetAbilityUseLimit() < 0)
                 HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
             return true;

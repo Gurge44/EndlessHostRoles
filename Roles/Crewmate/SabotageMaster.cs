@@ -1,5 +1,5 @@
-using Hazel;
 using System.Collections.Generic;
+using Hazel;
 
 namespace TOHE.Roles.Crewmate;
 
@@ -45,16 +45,20 @@ public static class SabotageMaster
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster])
             .SetValueFormat(OptionFormat.Times);
     }
+
     public static void Init()
     {
         playerIdList = [];
         UsedSkillCount = 0;
     }
+
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
     }
+
     public static bool IsEnable => playerIdList.Count > 0;
+
     public static void SendRPC(float count)
     {
         if (!IsEnable || !Utils.DoRPC) return;
@@ -62,12 +66,14 @@ public static class SabotageMaster
         writer.Write(count);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader)
     {
         if (AmongUsClient.Instance.AmHost) return;
 
         UsedSkillCount = reader.ReadSingle();
     }
+
     public static void RepairSystem(ShipStatus __instance, SystemTypes systemType, byte amount)
     {
         switch (systemType)
@@ -82,6 +88,7 @@ public static class SabotageMaster
                     UsedSkillCount += UsesUsedWhenFixingReactorOrO2.GetFloat();
                     SendRPC(UsedSkillCount);
                 }
+
                 break;
             case SystemTypes.Laboratory:
                 if (!FixesReactors.GetBool()) break;
@@ -93,6 +100,7 @@ public static class SabotageMaster
                     UsedSkillCount += UsesUsedWhenFixingReactorOrO2.GetFloat();
                     SendRPC(UsedSkillCount);
                 }
+
                 break;
             case SystemTypes.LifeSupp:
                 if (!FixesOxygens.GetBool()) break;
@@ -104,6 +112,7 @@ public static class SabotageMaster
                     UsedSkillCount += UsesUsedWhenFixingReactorOrO2.GetFloat();
                     SendRPC(UsedSkillCount);
                 }
+
                 break;
             case SystemTypes.Comms:
                 if (!FixesComms.GetBool()) break;
@@ -115,10 +124,11 @@ public static class SabotageMaster
                     UsedSkillCount += UsesUsedWhenFixingLightsOrComms.GetFloat();
                     SendRPC(UsedSkillCount);
                 }
+
                 break;
             case SystemTypes.Doors:
                 if (!FixesDoors.GetBool()) break;
-                if (DoorsProgressing == true) break;
+                if (DoorsProgressing) break;
 
                 int mapId = Main.NormalOptions.MapId;
                 if (AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay) mapId = AmongUsClient.Instance.TutorialMapId;
@@ -142,10 +152,12 @@ public static class SabotageMaster
                     RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 68, 70);
                     RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 83, 84);
                 }
+
                 DoorsProgressing = false;
                 break;
         }
     }
+
     public static void SwitchSystemRepair(SwitchSystem __instance, byte amount)
     {
         if (!FixesElectrical.GetBool()) return;

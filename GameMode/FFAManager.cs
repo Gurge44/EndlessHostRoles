@@ -1,7 +1,8 @@
-﻿using HarmonyLib;
-using Hazel;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using HarmonyLib;
+using Hazel;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Translator;
@@ -106,6 +107,7 @@ internal static class FFAManager
 
         if (FFA_ChatDuringGame.GetBool()) _ = new LateTask(Utils.SetChatVisible, 7f, "Set Chat Visible for Everyone");
     }
+
     private static void SendRPCSyncFFAPlayer(byte playerId)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncFFAPlayer, SendOption.Reliable);
@@ -113,11 +115,13 @@ internal static class FFAManager
         writer.Write(KillCount[playerId]);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPCSyncFFAPlayer(MessageReader reader)
     {
         byte PlayerId = reader.ReadByte();
         KillCount[PlayerId] = reader.ReadInt32();
     }
+
     public static void SendRPCSyncNameNotify(PlayerControl pc)
     {
         if (pc.AmOwner || !pc.IsModClient()) return;
@@ -127,6 +131,7 @@ internal static class FFAManager
         else writer.Write(string.Empty);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPCSyncNameNotify(MessageReader reader)
     {
         var name = reader.ReadString();
@@ -134,16 +139,18 @@ internal static class FFAManager
         if (name != null && name != string.Empty)
             NameNotify.Add(PlayerControl.LocalPlayer.PlayerId, (name, 0));
     }
+
     public static Dictionary<byte, (string TEXT, long TIMESTAMP)> NameNotify = [];
+
     public static void GetNameNotify(PlayerControl player, ref string name)
     {
         if (Options.CurrentGameMode != CustomGameMode.FFA || player == null) return;
         if (NameNotify.ContainsKey(player.PlayerId))
         {
             name = NameNotify[player.PlayerId].TEXT;
-            return;
         }
     }
+
     public static string GetDisplayScore(byte playerId)
     {
         int rank = GetRankOfScore(playerId);
@@ -152,6 +159,7 @@ internal static class FFAManager
         Color color = Utils.GetRoleColor(CustomRoles.Killer);
         return Utils.ColorString(color, text);
     }
+
     public static int GetRankOfScore(byte playerId)
     {
         try
@@ -166,10 +174,12 @@ internal static class FFAManager
             return Main.AllPlayerControls.Length;
         }
     }
+
     public static string GetHudText()
     {
         return string.Format(GetString("KBTimeRemain"), RoundTime.ToString());
     }
+
     public static void OnPlayerAttack(PlayerControl killer, PlayerControl target)
     {
         if (killer == null || target == null || Options.CurrentGameMode != CustomGameMode.FFA) return;
@@ -178,6 +188,7 @@ internal static class FFAManager
             Logger.Info("Target is in a vent, kill blocked", "FFA");
             return;
         }
+
         var totalalive = Main.AllAlivePlayerControls.Length;
         if (FFAShieldedList.TryGetValue(target.PlayerId, out var dur))
         {
@@ -189,6 +200,7 @@ internal static class FFAManager
                 target.Notify(GetString("FFA_ShieldBroken"));
                 Logger.Info($"{target.GetRealName().RemoveHtmlTags()}'s shield was removed because {killer.GetRealName().RemoveHtmlTags()} tried to kill them and the shield is one-time-use according to settings", "FFA");
             }
+
             return;
         }
 
@@ -205,6 +217,7 @@ internal static class FFAManager
                 TargetArrow.Add(pc.PlayerId, killer.PlayerId);
                 otherPC = pc;
             }
+
             Logger.Info($"The last 2 players ({killer.GetRealName().RemoveHtmlTags()} & {otherPC?.GetRealName().RemoveHtmlTags()}) now have an arrow toward each other", "FFA");
         }
 
@@ -239,12 +252,13 @@ internal static class FFAManager
                             originalSpeed.TryAdd(killer.PlayerId, Main.AllPlayerSpeed[killer.PlayerId]);
                             Main.AllPlayerSpeed[killer.PlayerId] = FFA_IncreasedSpeed.GetFloat();
                         }
+
                         killer.Notify(GetString("FFA-Event-GetIncreasedSpeed"), FFA_ModifiedSpeedDuration.GetFloat());
                         Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
                         mark = true;
                         break;
                     case 2:
-                        Main.AllPlayerKillCooldown[killer.PlayerId] = System.Math.Clamp(FFA_KCD.GetFloat() - 3f, 1f, 60f);
+                        Main.AllPlayerKillCooldown[killer.PlayerId] = Math.Clamp(FFA_KCD.GetFloat() - 3f, 1f, 60f);
                         killer.Notify(GetString("FFA-Event-GetLowKCD"));
                         sync = true;
                         break;
@@ -271,12 +285,13 @@ internal static class FFAManager
                             originalSpeed.TryAdd(killer.PlayerId, Main.AllPlayerSpeed[killer.PlayerId]);
                             Main.AllPlayerSpeed[killer.PlayerId] = FFA_DecreasedSpeed.GetFloat();
                         }
+
                         killer.Notify(GetString("FFA-Event-GetDecreasedSpeed"), FFA_ModifiedSpeedDuration.GetFloat());
                         Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
                         mark = true;
                         break;
                     case 1:
-                        Main.AllPlayerKillCooldown[killer.PlayerId] = System.Math.Clamp(FFA_KCD.GetFloat() + 3f, 1f, 60f);
+                        Main.AllPlayerKillCooldown[killer.PlayerId] = Math.Clamp(FFA_KCD.GetFloat() + 3f, 1f, 60f);
                         killer.Notify(GetString("FFA-Event-GetHighKCD"));
                         sync = true;
                         break;
@@ -303,6 +318,7 @@ internal static class FFAManager
                 mark = false;
                 killer.SyncSettings();
             }
+
             if (mark)
             {
                 killer.MarkDirtySettings();
@@ -333,6 +349,7 @@ internal static class FFAManager
             otherPlayer = pc;
             break;
         }
+
         if (otherPlayer == null) return string.Empty;
 
         var arrow = TargetArrow.GetArrows(seer, otherPlayer.PlayerId);
@@ -354,7 +371,8 @@ internal static class FFAManager
     class FixedUpdatePatch
     {
         private static long LastFixedUpdate;
-        public static void Postfix(/*PlayerControl __instance*/)
+
+        public static void Postfix( /*PlayerControl __instance*/)
         {
             if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.FFA) return;
 
@@ -429,6 +447,7 @@ internal static class FFAManager
                         originalSpeed.Remove(pc.PlayerId);
                         sync = true;
                     }
+
                     if (FFAIncreasedSpeedList.TryGetValue(pc.PlayerId, out var istime) && istime + FFA_ModifiedSpeedDuration.GetInt() < now)
                     {
                         Logger.Info(pc.GetRealName() + "'s increased speed expired", "FFA");
@@ -437,12 +456,14 @@ internal static class FFAManager
                         originalSpeed.Remove(pc.PlayerId);
                         sync = true;
                     }
+
                     if (FFALowerVisionList.TryGetValue(pc.PlayerId, out var lvtime) && lvtime + FFA_ModifiedSpeedDuration.GetInt() < now)
                     {
                         Logger.Info(pc.GetRealName() + "'s lower vision effect expired", "FFA");
                         FFALowerVisionList.Remove(pc.PlayerId);
                         sync = true;
                     }
+
                     if (FFAShieldedList.TryGetValue(pc.PlayerId, out var stime) && stime + FFA_ShieldDuration.GetInt() < now)
                     {
                         Logger.Info(pc.GetRealName() + "'s shield expired", "FFA");

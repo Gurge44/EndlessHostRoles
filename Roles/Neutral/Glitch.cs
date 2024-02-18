@@ -1,8 +1,9 @@
-using AmongUs.GameOptions;
-using Hazel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AmongUs.GameOptions;
+using Hazel;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral;
@@ -124,7 +125,7 @@ public static class Glitch
             MimicDurTimer = MimicDuration.GetInt();
             SendRPCSyncTimers();
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             Logger.Error(ex.ToString(), "Glitch.Mimic.RpcShapeshift");
         }
@@ -151,7 +152,8 @@ public static class Glitch
             SendRPCSyncTimers();
             return true;
         }
-        else return false;
+
+        return false;
     }
     public static void UpdateHackCooldown(PlayerControl player)
     {
@@ -197,7 +199,7 @@ public static class Glitch
                 player.RpcShapeshift(player, false);
                 isShifted = false;
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Logger.Error(ex.ToString(), "Glitch.Mimic.RpcRevertShapeshift");
             }

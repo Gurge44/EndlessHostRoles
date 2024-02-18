@@ -10,7 +10,8 @@ namespace TOHE.Modules
     // https://github.com/Rabek009/MoreGamemodes
     internal static class RoleBasisChanger
     {
-        public static bool IsChangeInProgress = false;
+        public static bool IsChangeInProgress;
+
         public static void ChangeRoleBasis(this PlayerControl player, RoleTypes targetVNRole)
         {
             if (!AmongUsClient.Instance.AmHost) return;

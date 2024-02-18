@@ -1,5 +1,6 @@
 using HarmonyLib;
 using InnerNet;
+using TMPro;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Translator;
@@ -43,7 +44,7 @@ internal class MMOnlineManagerStartPatch
         {
             obj?.SetActive(false);
             var parentObj = obj.transform.parent.gameObject;
-            var textObj = Object.Instantiate(obj.transform.FindChild("Text_TMP").GetComponent<TMPro.TextMeshPro>());
+            var textObj = Object.Instantiate(obj.transform.FindChild("Text_TMP").GetComponent<TextMeshPro>());
             textObj.transform.position = new Vector3(1f, -0.3f, 0);
             textObj.name = "CanNotJoinPublic";
             var message = ModUpdater.isBroken ? $"<size=2>{Utils.ColorString(Color.red, GetString("ModBrokenMessage"))}</size>"

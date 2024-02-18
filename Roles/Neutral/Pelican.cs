@@ -1,7 +1,9 @@
-﻿using Hazel;
+﻿using System;
 using System.Collections.Generic;
+using Hazel;
 using TOHE.Roles.Crewmate;
 using UnityEngine;
+
 namespace TOHE.Roles.Neutral;
 
 public static class Pelican
@@ -95,7 +97,7 @@ public static class Pelican
             3 => new Vector2(27f, 3.3f), // dlekS ehT
             4 => new(-16.8f, -6.2f), // Airship
             5 => new Vector2(9.6f, 23.2f), // The Fungle
-            _ => throw new System.NotImplementedException(),
+            _ => throw new NotImplementedException(),
         };
     }
     public static string GetProgressText(byte playerId)

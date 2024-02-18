@@ -1,7 +1,8 @@
-using AmongUs.GameOptions;
-using Hazel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using Hazel;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral;
@@ -79,8 +80,8 @@ public static class HeadHunter
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         float tempkcd = KCD;
-        if (Targets.Contains(target.PlayerId)) System.Math.Clamp(KCD -= SuccessKillCooldown.GetFloat(), MinKCD.GetFloat(), MaxKCD.GetFloat());
-        else System.Math.Clamp(KCD += FailureKillCooldown.GetFloat(), MinKCD.GetFloat(), MaxKCD.GetFloat());
+        if (Targets.Contains(target.PlayerId)) Math.Clamp(KCD -= SuccessKillCooldown.GetFloat(), MinKCD.GetFloat(), MaxKCD.GetFloat());
+        else Math.Clamp(KCD += FailureKillCooldown.GetFloat(), MinKCD.GetFloat(), MaxKCD.GetFloat());
         if (KCD != tempkcd)
         {
             killer.ResetKillCooldown();
@@ -107,7 +108,7 @@ public static class HeadHunter
                 var target = cTargets[IRandom.Instance.Next(0, cTargets.Count)];
                 Targets.Add(target.PlayerId);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Logger.Warn($"Not enough targets for Head Hunter could be assigned. This may be due to a low player count or the following error:\n\n{ex}", "HeadHunterAssignTargets");
                 break;

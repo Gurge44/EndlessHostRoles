@@ -1,6 +1,6 @@
-﻿using Hazel;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Hazel;
 using UnityEngine;
 
 namespace TOHE.Roles.Impostor;

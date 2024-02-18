@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static TOHE.Options;
@@ -20,7 +19,7 @@ namespace TOHE.Roles.Crewmate
 
         public PlayerControl[] NearbyKillers => GetPlayersInRadius(PatrolRadius, StartingPosition).Where(x => !x.Is(Team.Crewmate) && SentinelId != x.PlayerId).ToArray();
         private readonly List<byte> LastNearbyKillers = [];
-        private long LastUpdate = 0;
+        private long LastUpdate;
 
         public void SetPlayer() => Sentinel = GetPlayerById(SentinelId);
 
@@ -45,7 +44,6 @@ namespace TOHE.Roles.Crewmate
             if (PatrolStartTimeStamp + PatrolDuration < now)
             {
                 FinishPatrolling();
-                return;
             }
         }
 

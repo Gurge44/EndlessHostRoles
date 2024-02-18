@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using UnityEngine;
 
 namespace TOHE;
 internal class GuardAngelPatch
@@ -9,7 +10,7 @@ internal class GuardAngelPatch
         public static bool Prefix(MeetingIntroAnimation __instance)
         {
             __instance.ProtectedRecently.active = false;
-            __instance.ProtectedRecently.transform.localPosition = new UnityEngine.Vector3(100f, 100f, 100f);
+            __instance.ProtectedRecently.transform.localPosition = new Vector3(100f, 100f, 100f);
             __instance.ProtectedRecentlySound = new();
             return true;
         }

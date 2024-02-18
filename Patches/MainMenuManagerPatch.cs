@@ -1,5 +1,5 @@
-using HarmonyLib;
 using System;
+using HarmonyLib;
 using TMPro;
 using TOHE.Modules;
 using UnityEngine;
@@ -116,7 +116,7 @@ public class MainMenuManagerPatch
         var spriteHorseButton = HorseButton.GetComponent<SpriteRenderer>();
         if (HorseModePatch.isHorseMode) spriteHorseButton.transform.localScale *= -1;
 
-        spriteHorseButton.sprite = Utils.LoadSprite($"TOHE.Resources.Images.HorseButton.png", 75f);
+        spriteHorseButton.sprite = Utils.LoadSprite("TOHE.Resources.Images.HorseButton.png", 75f);
         passiveHorseButton.OnClick = new ButtonClickedEvent();
         passiveHorseButton.OnClick.AddListener((Action)(() =>
         {
@@ -157,7 +157,7 @@ public class MainMenuManagerPatch
         var passiveCreditsButton = CreditsButton.GetComponent<PassiveButton>();
         var spriteCreditsButton = CreditsButton.GetComponent<SpriteRenderer>();
 
-        spriteCreditsButton.sprite = Utils.LoadSprite($"TOHE.Resources.Images.CreditsButton.png", 75f);
+        spriteCreditsButton.sprite = Utils.LoadSprite("TOHE.Resources.Images.CreditsButton.png", 75f);
         passiveCreditsButton.OnClick = new ButtonClickedEvent();
         passiveCreditsButton.OnClick.AddListener((Action)(() =>
         {

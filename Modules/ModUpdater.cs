@@ -1,13 +1,15 @@
-﻿using HarmonyLib;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
+using HarmonyLib;
+using Newtonsoft.Json.Linq;
+using Twitch;
 using UnityEngine;
 using static TOHE.Translator;
+using Object = UnityEngine.Object;
 
 namespace TOHE;
 
@@ -15,14 +17,14 @@ namespace TOHE;
 public class ModUpdater
 {
     private static readonly string URL_Github = "https://api.github.com/repos/Gurge44/TOHE_PLUS";
-    public static bool hasUpdate = false;
-    public static bool hasOutdate = false;
+    public static bool hasUpdate;
+    public static bool hasOutdate;
     public static bool forceUpdate = false;
-    public static bool isBroken = false;
-    public static bool isChecked = false;
-    public static Version latestVersion = null;
-    public static string latestTitle = null;
-    public static string downloadUrl = null;
+    public static bool isBroken;
+    public static bool isChecked;
+    public static Version latestVersion;
+    public static string latestTitle;
+    public static string downloadUrl;
     public static string notice = null;
     public static GenericPopup InfoPopup;
 
@@ -32,7 +34,7 @@ public class ModUpdater
     {
         NewVersionCheck();
         DeleteOldFiles();
-        InfoPopup = UnityEngine.Object.Instantiate(Twitch.TwitchManager.Instance.TwitchPopup);
+        InfoPopup = Object.Instantiate(TwitchManager.Instance.TwitchPopup);
         InfoPopup.name = "InfoPopup";
         InfoPopup.TextAreaTMP.GetComponent<RectTransform>().sizeDelta = new(2.5f, 2f);
         if (!isChecked)
@@ -140,8 +142,8 @@ public class ModUpdater
         {
             _ = DownloadDLLGithub(url);
         }
-        return;
     }
+
     public static bool NewVersionCheck()
     {
         try

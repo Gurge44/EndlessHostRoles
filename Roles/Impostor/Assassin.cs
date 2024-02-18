@@ -1,5 +1,5 @@
-﻿using Hazel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Hazel;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
@@ -72,18 +72,16 @@ internal static class Assassin
             killer.SyncSettings();
             return CanUseKillButton(killer);
         }
-        else
-        {
-            MarkedPlayer.Remove(killer.PlayerId);
-            MarkedPlayer.Add(killer.PlayerId, target.PlayerId);
-            SendRPC(killer.PlayerId);
-            killer.ResetKillCooldown();
-            killer.SetKillCooldown();
-            if (killer.IsModClient()) killer.RpcResetAbilityCooldown();
-            killer.SyncSettings();
-            killer.RPCPlayCustomSound("Clothe");
-            return false;
-        }
+
+        MarkedPlayer.Remove(killer.PlayerId);
+        MarkedPlayer.Add(killer.PlayerId, target.PlayerId);
+        SendRPC(killer.PlayerId);
+        killer.ResetKillCooldown();
+        killer.SetKillCooldown();
+        if (killer.IsModClient()) killer.RpcResetAbilityCooldown();
+        killer.SyncSettings();
+        killer.RPCPlayCustomSound("Clothe");
+        return false;
     }
 
     public static void OnShapeshift(PlayerControl pc, bool shapeshifting)
@@ -111,7 +109,6 @@ internal static class Assassin
                     }
                 }
             }, UsePets.GetBool() ? 0.1f : 0.2f, "Assassin Assassinate");
-            return;
         }
     }
     public static void SetKillButtonText(byte playerId)

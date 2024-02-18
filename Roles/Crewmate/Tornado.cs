@@ -1,7 +1,7 @@
-﻿using Hazel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Hazel;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -23,7 +23,7 @@ namespace TOHE.Roles.Crewmate
         private static RandomSpawn.SpawnMap Map;
         private static readonly Dictionary<(Vector2 LOCATION, string ROOM_NAME), long> Tornados = [];
         private static long LastNotify = TimeStamp;
-        private static bool CanUseMap = false;
+        private static bool CanUseMap;
 
         public static void SetupCustomOption()
         {

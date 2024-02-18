@@ -1,6 +1,6 @@
-using Hazel;
 using System.Collections.Generic;
 using System.Linq;
+using Hazel;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
@@ -113,7 +113,7 @@ public static class Sniper
         if (pc.IsShifted()) return false;
         if (!bulletCount.ContainsKey(pc.PlayerId))
         {
-            Logger.Info($" Sniper not Init yet.", "Sniper");
+            Logger.Info(" Sniper not Init yet.", "Sniper");
             return false;
         }
         if (bulletCount[pc.PlayerId] <= 0)

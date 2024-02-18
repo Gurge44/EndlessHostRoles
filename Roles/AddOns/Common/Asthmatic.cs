@@ -89,7 +89,8 @@ namespace TOHE.Roles.AddOns.Common
                     LastPosition.Remove(pc.PlayerId);
                     return;
                 }
-                else if (!counter.IsRed)
+
+                if (!counter.IsRed)
                 {
                     LastPosition[pc.PlayerId] = currentPosition;
                 }

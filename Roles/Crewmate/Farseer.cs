@@ -1,5 +1,6 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
 using UnityEngine;
@@ -20,9 +21,9 @@ namespace TOHE.Roles.Crewmate
         public static OptionItem Vision;
         public static OptionItem UsePet;
 
-        private static System.Collections.Generic.List<CustomRoles> RandomRolesForTrickster => EnumHelper.GetAllValues<CustomRoles>().Where(x => x.IsCrewmate()).ToList();
+        private static List<CustomRoles> RandomRolesForTrickster => EnumHelper.GetAllValues<CustomRoles>().Where(x => x.IsCrewmate()).ToList();
 
-        public static System.Collections.Generic.Dictionary<int, string> RandomRole = [];
+        public static Dictionary<int, string> RandomRole = [];
 
         public static void SetupCustomOption()
         {

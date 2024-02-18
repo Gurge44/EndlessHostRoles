@@ -1,7 +1,7 @@
-using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using HarmonyLib;
 using TOHE.Roles.Impostor;
 using UnityEngine;
 
@@ -172,7 +172,7 @@ class RandomSpawn
         {
             return Options.AirshipAdditionalSpawn.GetBool()
                 ? positions.ToArray().OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault()
-                : positions.ToArray()[0..6].OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault();
+                : positions.ToArray()[..6].OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault();
         }
     }
     public class FungleSpawnMap : SpawnMap

@@ -1,8 +1,8 @@
-﻿using HarmonyLib;
-using Hazel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using HarmonyLib;
+using Hazel;
 using TOHE.Roles.Neutral;
 using UnityEngine;
 using static TOHE.RandomSpawn;
@@ -184,10 +184,10 @@ internal static class SoloKombatManager
             NameNotify.Remove(player.PlayerId);
             return;
         }
+
         if (NameNotify.ContainsKey(player.PlayerId))
         {
             name = NameNotify[player.PlayerId].TEXT;
-            return;
         }
     }
     public static string GetDisplayScore(byte playerId)

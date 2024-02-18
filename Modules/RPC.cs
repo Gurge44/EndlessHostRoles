@@ -1,10 +1,11 @@
-using AmongUs.GameOptions;
-using HarmonyLib;
-using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AmongUs.GameOptions;
+using HarmonyLib;
+using Hazel;
+using InnerNet;
 using TOHE.Modules;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
@@ -151,6 +152,7 @@ public enum CustomRPC
     SyncFFAPlayer,
     SyncFFANameNotify
 }
+
 public enum Sounds
 {
     KillSound,
@@ -160,12 +162,15 @@ public enum Sounds
 
     Test,
 }
+
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.HandleRpc))]
 internal class RPCHandlerPatch
 {
     public static Dictionary<byte, int> ReportDeadBodyRPCs = [];
+
     public static bool TrustedRpc(byte id)
-    => (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.RetributionistRevenge;
+        => (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.RetributionistRevenge;
+
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
     {
         var rpcType = (RpcCalls)callId;
@@ -204,6 +209,7 @@ internal class RPCHandlerPatch
                 Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} petted their pet", "RpcHandlerPatch");
                 break;
         }
+
         if (__instance.PlayerId != 0
             && Enum.IsDefined(typeof(CustomRPC), (int)callId)
             && !TrustedRpc(callId)) //ホストではなく、CustomRPCで、VersionCheckではない
@@ -225,6 +231,7 @@ internal class RPCHandlerPatch
         Logger.SendInGame(string.Format(GetString("Warning.ReportDeadBodyHack"), __instance?.Data?.PlayerName));
         return false;
     }
+
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
     {
         var rpcType = (CustomRPC)callId;
@@ -783,6 +790,7 @@ internal static class RPC
                 return;
             }
         }
+
         if (!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1 || (AmongUsClient.Instance.AmHost == false && PlayerControl.LocalPlayer == null)) return;
 
         var amountAllOptions = OptionItem.AllOptions.Count;
@@ -810,6 +818,7 @@ internal static class RPC
 
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void PlaySoundRPC(byte PlayerID, Sounds sound)
     {
         if (AmongUsClient.Instance.AmHost)
@@ -819,6 +828,7 @@ internal static class RPC
         writer.Write((byte)sound);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void SyncAllPlayerNames()
     {
         if (!AmongUsClient.Instance.AmHost) return;
@@ -829,8 +839,10 @@ internal static class RPC
             writer.Write(name.Key);
             writer.Write(name.Value);
         }
+
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void SendGameData(int clientId = -1)
     {
         MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
@@ -851,6 +863,7 @@ internal static class RPC
         AmongUsClient.Instance.SendOrDisconnect(writer);
         writer.Recycle();
     }
+
     public static void ShowPopUp(this PlayerControl pc, string msg)
     {
         if (!AmongUsClient.Instance.AmHost) return;
@@ -858,12 +871,14 @@ internal static class RPC
         writer.Write(msg);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ExileAsync(PlayerControl player)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.Exiled, SendOption.Reliable);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
         player.Exiled();
     }
+
     public static async void RpcVersionCheck()
     {
         while (PlayerControl.LocalPlayer == null) await Task.Delay(500);
@@ -876,8 +891,10 @@ internal static class RPC
             writer.Write(cheating ? Main.playerVersion[0].forkId : Main.ForkId);
             writer.EndMessage();
         }
+
         Main.playerVersion[PlayerControl.LocalPlayer.PlayerId] = new PlayerVersion(Main.PluginVersion, $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})", Main.ForkId);
     }
+
     public static void SendDeathReason(byte playerId, PlayerState.DeathReason deathReason)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDeathReason, SendOption.Reliable);
@@ -885,6 +902,7 @@ internal static class RPC
         writer.Write((int)deathReason);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void GetDeathReason(MessageReader reader)
     {
         var playerId = reader.ReadByte();
@@ -892,20 +910,39 @@ internal static class RPC
         Main.PlayerStates[playerId].deathReason = deathReason;
         Main.PlayerStates[playerId].IsDead = true;
     }
+
     public static void ForceEndGame(CustomWinner win)
     {
         if (ShipStatus.Instance == null) return;
-        try { CustomWinnerHolder.ResetAndSetWinner(win); }
-        catch { }
+        try
+        {
+            CustomWinnerHolder.ResetAndSetWinner(win);
+        }
+        catch
+        {
+        }
+
         if (AmongUsClient.Instance.AmHost)
         {
             ShipStatus.Instance.enabled = false;
-            try { GameManager.Instance.LogicFlow.CheckEndCriteria(); }
-            catch { }
-            try { GameManager.Instance.RpcEndGame(GameOverReason.ImpostorDisconnect, false); }
-            catch { }
+            try
+            {
+                GameManager.Instance.LogicFlow.CheckEndCriteria();
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                GameManager.Instance.RpcEndGame(GameOverReason.ImpostorDisconnect, false);
+            }
+            catch
+            {
+            }
         }
     }
+
     public static void EndGame(MessageReader reader)
     {
         try
@@ -917,6 +954,7 @@ internal static class RPC
             Logger.Error($"正常にEndGameを行えませんでした。\n{ex}", "EndGame", false);
         }
     }
+
     public static void PlaySound(byte playerID, Sounds sound)
     {
         if (PlayerControl.LocalPlayer.PlayerId == playerID)
@@ -938,13 +976,14 @@ internal static class RPC
             }
         }
     }
+
     public static void SetCustomRole(byte targetId, CustomRoles role)
     {
         if (role < CustomRoles.NotAssigned)
         {
             Main.PlayerStates[targetId].SetMainRole(role);
         }
-        else if (role >= CustomRoles.NotAssigned)   //500:NoSubRole 501~:SubRole
+        else if (role >= CustomRoles.NotAssigned) //500:NoSubRole 501~:SubRole
         {
             Main.PlayerStates[targetId].SetSubRole(role);
         }
@@ -954,6 +993,7 @@ internal static class RPC
         HudManager.Instance.SetHudActive(true);
         if (PlayerControl.LocalPlayer.PlayerId == targetId) RemoveDisableDevicesPatch.UpdateDisableDevices();
     }
+
     public static void RpcDoSpell(byte targetId, byte killerId)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DoSpell, SendOption.Reliable);
@@ -961,6 +1001,7 @@ internal static class RPC
         writer.Write(killerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void SyncLoversPlayers()
     {
         if (!AmongUsClient.Instance.AmHost) return;
@@ -971,8 +1012,10 @@ internal static class RPC
             PlayerControl lp = Main.LoversPlayers[i];
             writer.Write(lp.PlayerId);
         }
+
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void SendRpcLogger(uint targetNetId, byte callId, int targetClientId = -1)
     {
         if (!DebugModeManager.AmDebugger) return;
@@ -984,17 +1027,27 @@ internal static class RPC
             target = targetClientId < 0 ? "All" : AmongUsClient.Instance.GetClient(targetClientId).PlayerName;
             from = Main.AllPlayerControls.FirstOrDefault(c => c.NetId == targetNetId)?.Data?.PlayerName;
         }
-        catch { }
+        catch
+        {
+        }
+
         Logger.Info($"FromNetID: {targetNetId} ({from}) / TargetClientID: {targetClientId} ({target}) / CallID: {callId} ({rpcName})", "SendRPC");
     }
+
     public static string GetRpcName(byte callId)
     {
         string rpcName;
-        if ((rpcName = Enum.GetName(typeof(RpcCalls), callId)) != null) { }
-        else if ((rpcName = Enum.GetName(typeof(CustomRPC), callId)) != null) { }
+        if ((rpcName = Enum.GetName(typeof(RpcCalls), callId)) != null)
+        {
+        }
+        else if ((rpcName = Enum.GetName(typeof(CustomRPC), callId)) != null)
+        {
+        }
         else rpcName = callId.ToString();
+
         return rpcName;
     }
+
     public static void SetCurrentDousingTarget(byte arsonistId, byte targetId)
     {
         if (PlayerControl.LocalPlayer.PlayerId == arsonistId)
@@ -1009,6 +1062,7 @@ internal static class RPC
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
     }
+
     public static void SetCurrentDrawTarget(byte arsonistId, byte targetId)
     {
         if (PlayerControl.LocalPlayer.PlayerId == arsonistId)
@@ -1023,6 +1077,7 @@ internal static class RPC
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
     }
+
     public static void SetCurrentRevealTarget(byte arsonistId, byte targetId)
     {
         if (PlayerControl.LocalPlayer.PlayerId == arsonistId)
@@ -1037,6 +1092,7 @@ internal static class RPC
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
     }
+
     public static void SendRPCCursedWolfSpellCount(byte playerId)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCursedWolfSpellCount, SendOption.Reliable);
@@ -1044,6 +1100,7 @@ internal static class RPC
         writer.Write(Main.CursedWolfSpellCount[playerId]);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void SendRPCJinxSpellCount(byte playerId)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetJinxSpellCount, SendOption.Reliable);
@@ -1051,9 +1108,11 @@ internal static class RPC
         writer.Write(Main.JinxSpellCount[playerId]);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ResetCurrentDousingTarget(byte arsonistId) => SetCurrentDousingTarget(arsonistId, 255);
     public static void ResetCurrentDrawTarget(byte arsonistId) => SetCurrentDrawTarget(arsonistId, 255);
     public static void ResetCurrentRevealTarget(byte arsonistId) => SetCurrentRevealTarget(arsonistId, 255);
+
     public static void SetRealKiller(byte targetId, byte killerId)
     {
         var state = Main.PlayerStates[targetId];
@@ -1067,18 +1126,20 @@ internal static class RPC
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 }
-[HarmonyPatch(typeof(InnerNet.InnerNetClient), nameof(InnerNet.InnerNetClient.StartRpc))]
+
+[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.StartRpc))]
 internal class StartRpcPatch
 {
-    public static void Prefix(/*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId)
+    public static void Prefix( /*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId)
     {
         RPC.SendRpcLogger(targetNetId, callId);
     }
 }
-[HarmonyPatch(typeof(InnerNet.InnerNetClient), nameof(InnerNet.InnerNetClient.StartRpcImmediately))]
+
+[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.StartRpcImmediately))]
 internal class StartRpcImmediatelyPatch
 {
-    public static void Prefix(/*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId, [HarmonyArgument(3)] int targetClientId = -1)
+    public static void Prefix( /*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId, [HarmonyArgument(3)] int targetClientId = -1)
     {
         RPC.SendRpcLogger(targetNetId, callId, targetClientId);
     }

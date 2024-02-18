@@ -1,8 +1,8 @@
-using HarmonyLib;
-using Hazel;
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using BepInEx;
+using HarmonyLib;
+using Hazel;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
 using TOHE.Roles.Crewmate;
@@ -51,9 +51,9 @@ class RepairSystemPatch
         [HarmonyArgument(1)] PlayerControl player,
         [HarmonyArgument(2)] byte amount)
     {
-        Logger.Msg("SystemType: " + systemType.ToString() + ", PlayerName: " + player.GetNameWithRole().RemoveHtmlTags() + ", amount: " + amount, "RepairSystem");
+        Logger.Msg("SystemType: " + systemType + ", PlayerName: " + player.GetNameWithRole().RemoveHtmlTags() + ", amount: " + amount, "RepairSystem");
         if (RepairSender.enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
-            Logger.SendInGame("SystemType: " + systemType.ToString() + ", PlayerName: " + player.GetNameWithRole().RemoveHtmlTags() + ", amount: " + amount);
+            Logger.SendInGame("SystemType: " + systemType + ", PlayerName: " + player.GetNameWithRole().RemoveHtmlTags() + ", amount: " + amount);
 
         if (!AmongUsClient.Instance.AmHost) return true; //Execute the following only on the host
 
@@ -246,14 +246,14 @@ class StartPatch
 
         if (Options.AllowConsole.GetBool())
         {
-            if (!BepInEx.ConsoleManager.ConsoleActive && BepInEx.ConsoleManager.ConsoleEnabled)
-                BepInEx.ConsoleManager.CreateConsole();
+            if (!ConsoleManager.ConsoleActive && ConsoleManager.ConsoleEnabled)
+                ConsoleManager.CreateConsole();
         }
         else
         {
-            if (BepInEx.ConsoleManager.ConsoleActive && !DebugModeManager.AmDebugger)
+            if (ConsoleManager.ConsoleActive && !DebugModeManager.AmDebugger)
             {
-                BepInEx.ConsoleManager.DetachConsole();
+                ConsoleManager.DetachConsole();
                 Logger.SendInGame("Sorry, console use is prohibited in this room, so your console has been turned off");
             }
         }
@@ -265,7 +265,7 @@ class StartMeetingPatch
     public static void Prefix(/*ShipStatus __instance, PlayerControl reporter,*/ GameData.PlayerInfo target)
     {
         MeetingStates.ReportTarget = target;
-        MeetingStates.DeadBodies = UnityEngine.Object.FindObjectsOfType<DeadBody>();
+        MeetingStates.DeadBodies = Object.FindObjectsOfType<DeadBody>();
     }
 }
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Begin))]

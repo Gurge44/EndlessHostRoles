@@ -1,7 +1,7 @@
-using Hazel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Hazel;
 using TOHE.Roles.Crewmate;
 using UnityEngine;
 using static TOHE.Options;
@@ -15,7 +15,8 @@ public static class HexMaster
         Kill,
         Vent,
         DoubleTrigger,
-    };
+    }
+
     public static readonly string[] SwitchTriggerText =
     [
         "TriggerKill",

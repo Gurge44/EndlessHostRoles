@@ -53,7 +53,8 @@ namespace TOHE.Roles.Crewmate
                 ShowGhostArrowUntil[playerId] = timestamp + (long)ShowGhostArrowForSeconds.GetFloat();
                 return true;
             }
-            else if (ShowGhostArrowUntil[playerId] >= timestamp)
+
+            if (ShowGhostArrowUntil[playerId] >= timestamp)
             {
                 return true;
             }

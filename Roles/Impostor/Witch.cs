@@ -1,7 +1,7 @@
-using Hazel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Hazel;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using static TOHE.Options;
@@ -16,7 +16,8 @@ public static class Witch
         Kill,
         Vent,
         DoubleTrigger,
-    };
+    }
+
     public static readonly string[] SwitchTriggerText =
     [
         "TriggerKill",

@@ -1,5 +1,4 @@
 using HarmonyLib;
-using System;
 
 namespace TOHE;
 
@@ -15,7 +14,8 @@ class HashRandomPatch
 
         return false;
     }
-    [HarmonyPatch(nameof(HashRandom.Next), new Type[] { typeof(int) }), HarmonyPrefix]
+
+    [HarmonyPatch(nameof(HashRandom.Next), typeof(int)), HarmonyPrefix]
     static bool MaxNext([HarmonyArgument(0)] int maxInt, ref int __result)
     {
         if (IRandom.Instance is HashRandomWrapper) return true;
@@ -24,7 +24,8 @@ class HashRandomPatch
 
         return false;
     }
-    [HarmonyPatch(nameof(HashRandom.Next), new Type[] { typeof(int), typeof(int) }), HarmonyPrefix]
+
+    [HarmonyPatch(nameof(HashRandom.Next), typeof(int), typeof(int)), HarmonyPrefix]
     static bool MinMaxNext([HarmonyArgument(0)] int minInt, [HarmonyArgument(1)] int maxInt, ref int __result)
     {
         if (IRandom.Instance is HashRandomWrapper) return true;

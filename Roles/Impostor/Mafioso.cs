@@ -1,7 +1,7 @@
-﻿using AmongUs.GameOptions;
-using Hazel;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using AmongUs.GameOptions;
+using Hazel;
 using static TOHE.Options;
 using static TOHE.Translator;
 using static TOHE.Utils;
@@ -223,10 +223,8 @@ namespace TOHE.Roles.Impostor
                 else CD = $"<color=#ff1919>CD:</color> <b>{Math.Min(Pistol1CD, Pistol2CD)}</b>s";
                 return string.Format(GetString("MafiosoHUDTextWithDualPistols"), Tier, XP, CD);
             }
-            else
-            {
-                return string.Format(GetString("MafiosoHUDText"), Tier, XP);
-            }
+
+            return string.Format(GetString("MafiosoHUDText"), Tier, XP);
         }
 
         public static void OnMurder()

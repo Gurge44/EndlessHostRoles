@@ -1,12 +1,13 @@
-﻿using HarmonyLib;
-using Hazel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using HarmonyLib;
+using Hazel;
 using TOHE.Roles.Crewmate;
 using UnityEngine;
 using static TOHE.Translator;
+using Object = UnityEngine.Object;
 
 namespace TOHE.Roles.Impostor;
 
@@ -36,16 +37,20 @@ public static class Councillor
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
             .SetValueFormat(OptionFormat.Times);
     }
+
     public static void Init()
     {
         playerIdList = [];
     }
+
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(MurderLimitPerMeeting.GetInt());
     }
+
     public static bool IsEnable => playerIdList.Count > 0;
+
     public static bool MurderMsg(PlayerControl pc, string msg, bool isUI = false)
     {
         var originMsg = msg;
@@ -71,9 +76,9 @@ public static class Councillor
             Utils.SendMessage(GuessManager.GetFormatString(), pc.PlayerId);
             return true;
         }
-        else if (operate == 2)
-        {
 
+        if (operate == 2)
+        {
             if (TryHideMsg.GetBool()) ChatManager.SendPreviousMessagesToAll();
             else if (pc.AmOwner) Utils.SendMessage(originMsg, 255, pc.GetRealName());
 
@@ -82,6 +87,7 @@ public static class Councillor
                 Utils.SendMessage(error, pc.PlayerId);
                 return true;
             }
+
             var target = Utils.GetPlayerById(targetId);
             if (target != null)
             {
@@ -93,12 +99,14 @@ public static class Councillor
                     else pc.ShowPopUp(GetString("CouncillorMurderMax"));
                     return true;
                 }
+
                 if (Jailor.JailorTarget.ContainsValue(target.PlayerId))
                 {
                     if (!isUI) Utils.SendMessage(GetString("CanNotTrialJailed"), pc.PlayerId, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
                     else pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")) + "\n" + GetString("CanNotTrialJailed"));
                     return true;
                 }
+
                 if (pc.PlayerId == target.PlayerId)
                 {
                     if (!isUI) Utils.SendMessage(GetString("LaughToWhoMurderSelf"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromKPD")));
@@ -132,7 +140,7 @@ public static class Councillor
                 {
                     Main.PlayerStates[dp.PlayerId].deathReason = PlayerState.DeathReason.Trialed;
                     dp.SetRealKiller(pc);
-                    GuessManager.RpcGuesserMurderPlayer(dp);
+                    dp.RpcGuesserMurderPlayer();
 
                     //死者检查
                     Utils.AfterPlayerDeathTasks(dp, true);
@@ -140,12 +148,13 @@ public static class Councillor
                     Utils.NotifyRoles(isForMeeting: false, NoCache: true);
 
                     _ = new LateTask(() => { Utils.SendMessage(string.Format(GetString("MurderKill"), Name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("MurderKillTitle"))); }, 0.6f, "Guess Msg");
-
                 }, 0.2f, "Murder Kill");
             }
         }
+
         return true;
     }
+
     private static bool MsgToPlayerAndRole(string msg, out byte id, out string error)
     {
         if (msg.StartsWith("/")) msg = msg.Replace("/", string.Empty);
@@ -155,7 +164,7 @@ public static class Councillor
         string result = string.Empty;
         for (int i = 0; i < mc.Count; i++)
         {
-            result += mc[i];//匹配结果是完整的数字，此处可以不做拼接的
+            result += mc[i]; //匹配结果是完整的数字，此处可以不做拼接的
         }
 
         if (int.TryParse(result, out int num))
@@ -183,6 +192,7 @@ public static class Councillor
         error = string.Empty;
         return true;
     }
+
     public static void SetKillCooldown(byte id)
     {
         Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
@@ -206,6 +216,7 @@ public static class Councillor
                 }
             }
         }
+
         return false;
     }
 
@@ -216,13 +227,14 @@ public static class Councillor
         writer.Write(playerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader, PlayerControl pc)
     {
         int PlayerId = reader.ReadByte();
         MurderMsg(pc, $"/tl {PlayerId}", true);
     }
 
-    private static void CouncillorOnClick(byte playerId/*, MeetingHud __instance*/)
+    private static void CouncillorOnClick(byte playerId /*, MeetingHud __instance*/)
     {
         Logger.Msg($"Click: ID {playerId}", "Councillor UI");
         var pc = Utils.GetPlayerById(playerId);
@@ -240,6 +252,7 @@ public static class Councillor
                 CreateCouncillorButton(__instance);
         }
     }
+
     public static void CreateCouncillorButton(MeetingHud __instance)
     {
         foreach (PlayerVoteArea pva in __instance.playerStates.ToArray())
@@ -247,14 +260,14 @@ public static class Councillor
             var pc = Utils.GetPlayerById(pva.TargetPlayerId);
             if (pc == null || !pc.IsAlive()) continue;
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
-            GameObject targetBox = UnityEngine.Object.Instantiate(template, pva.transform);
+            GameObject targetBox = Object.Instantiate(template, pva.transform);
             targetBox.name = "ShootButton";
             targetBox.transform.localPosition = new Vector3(-0.35f, 0.03f, -1.31f);
             SpriteRenderer renderer = targetBox.GetComponent<SpriteRenderer>();
             renderer.sprite = CustomButton.Get("MeetingKillButton");
             PassiveButton button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => CouncillorOnClick(pva.TargetPlayerId/*, __instance*/)));
+            button.OnClick.AddListener((Action)(() => CouncillorOnClick(pva.TargetPlayerId /*, __instance*/)));
         }
     }
 }

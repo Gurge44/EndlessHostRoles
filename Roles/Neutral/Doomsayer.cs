@@ -1,5 +1,5 @@
-﻿using Hazel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Hazel;
 using UnityEngine;
 
 namespace TOHE.Roles.Neutral;

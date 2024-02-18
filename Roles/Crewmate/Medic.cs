@@ -1,7 +1,7 @@
-﻿using HarmonyLib;
-using Hazel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using HarmonyLib;
+using Hazel;
 using TOHE.Modules;
 using UnityEngine;
 
@@ -191,8 +191,6 @@ public static class Medic
             case 2:
                 target.RpcGuardAndKill(target);
                 Main.AllPlayerControls.Where(x => ProtectList.Contains(x.PlayerId)).Do(x => x.Notify(Translator.GetString("MedicKillerTryBrokenShieldTargetForTarget")));
-                break;
-            default:
                 break;
         }
 

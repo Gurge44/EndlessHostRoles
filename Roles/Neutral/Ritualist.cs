@@ -1,7 +1,7 @@
+using System.Collections.Generic;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
-using System.Collections.Generic;
 using UnityEngine;
 using static TOHE.Options;
 
@@ -87,7 +87,8 @@ namespace TOHE.Roles.Neutral
             {
                 return killer.CheckDoubleTrigger(target, () => { SetRitual(killer, target); });
             }
-            else return true;
+
+            return true;
         }
 
         public static bool IsRitual(byte seer, byte target)

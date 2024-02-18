@@ -1,10 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine;
+
 namespace TOHE.Roles.Crewmate
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
-    using UnityEngine;
-    using static TOHE.Options;
+    using static Options;
 
     public static class CameraMan
     {

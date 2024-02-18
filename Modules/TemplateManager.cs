@@ -1,5 +1,3 @@
-using AmongUs.Data;
-using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -8,6 +6,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using AmongUs.Data;
+using HarmonyLib;
+using InnerNet;
+using UnityEngine;
 using static TOHE.Translator;
 
 namespace TOHE;
@@ -15,11 +17,12 @@ namespace TOHE;
 public static class TemplateManager
 {
     private static readonly string TEMPLATE_FILE_PATH = "./TOHE_DATA/template.txt";
+
     private static readonly Dictionary<string, Func<string>> _replaceDictionary = new()
     {
-        ["RoomCode"] = () => InnerNet.GameCode.IntToGameName(AmongUsClient.Instance.GameId),
+        ["RoomCode"] = () => GameCode.IntToGameName(AmongUsClient.Instance.GameId),
         ["PlayerName"] = () => DataManager.Player.Customization.Name,
-        ["AmongUsVersion"] = () => UnityEngine.Application.version,
+        ["AmongUsVersion"] = () => Application.version,
         ["InternalVersion"] = () => Main.PluginVersion,
         ["ModVersion"] = () => Main.PluginDisplayVersion,
         ["Map"] = () => Constants.MapNames[Main.NormalOptions.MapId],
@@ -36,7 +39,6 @@ public static class TemplateManager
         ["NumShortTasks"] = () => Main.NormalOptions.NumShortTasks.ToString(),
         ["Date"] = () => DateTime.Now.ToShortDateString(),
         ["Time"] = () => DateTime.Now.ToShortTimeString(),
-
     };
 
     public static void Init()
@@ -105,13 +107,16 @@ public static class TemplateManager
                 if (tmp[0].ToLower() == str.ToLower()) sendList.Add(tmp.Skip(1).Join(delimiter: ":").Replace("\\n", "\n"));
             }
         }
+
         if (sendList.Count == 0 && !noErr)
         {
             if (playerId == 0xff)
                 HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.TemplateNotFoundHost"), str, tags.Join(delimiter: ", ")));
             else Utils.SendMessage(string.Format(GetString("Message.TemplateNotFoundClient"), str), playerId);
         }
-        else foreach (string x in sendList.ToArray()) Utils.SendMessage(ApplyReplaceDictionary(x), playerId);
+        else
+            foreach (string x in sendList.ToArray())
+                Utils.SendMessage(ApplyReplaceDictionary(x), playerId);
     }
 
     private static string ApplyReplaceDictionary(string text)
@@ -120,6 +125,7 @@ public static class TemplateManager
         {
             text = Regex.Replace(text, "{{" + kvp.Key + "}}", kvp.Value.Invoke() ?? "", RegexOptions.IgnoreCase);
         }
+
         return text;
     }
 }

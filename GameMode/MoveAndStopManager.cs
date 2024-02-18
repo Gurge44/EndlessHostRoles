@@ -1,7 +1,7 @@
-﻿using HarmonyLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using HarmonyLib;
 using TOHE.Roles.AddOns.Common;
 using UnityEngine;
 using static TOHE.Translator;
@@ -225,7 +225,7 @@ internal class MoveAndStopManager
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     class FixedUpdatePatch
     {
-        public static bool DoChecks = false;
+        public static bool DoChecks;
         private static long LastFixedUpdate;
         public static Dictionary<byte, string> LastSuffix = [];
         public static Dictionary<byte, float> Limit = [];
@@ -264,7 +264,8 @@ internal class MoveAndStopManager
                         pc.Suicide(); // Player suicides
                         goto End; // Skip the upcoming checks, the player is already dead
                     }
-                    else if (!data.RightCounter.IsRed) // Else If: Right counter is yellow or green
+
+                    if (!data.RightCounter.IsRed) // Else If: Right counter is yellow or green
                     {
                         data.Position_X = currentPosition.x; // Update the player's last position regardless of the distance
                     }
@@ -276,7 +277,8 @@ internal class MoveAndStopManager
                         pc.Suicide();
                         goto End;
                     }
-                    else if (!data.LeftCounter.IsRed)
+
+                    if (!data.LeftCounter.IsRed)
                     {
                         data.Position_X = currentPosition.x;
                     }
@@ -288,7 +290,8 @@ internal class MoveAndStopManager
                         pc.Suicide();
                         goto End;
                     }
-                    else if (!data.MiddleCounter.IsRed)
+
+                    if (!data.MiddleCounter.IsRed)
                     {
                         data.Position_Y = currentPosition.y;
                     }

@@ -1,9 +1,10 @@
+using System;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using InnerNet;
-using System;
-using System.Text.RegularExpressions;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
@@ -16,7 +17,7 @@ class OnGameJoinedPatch
 {
     public static void Postfix(AmongUsClient __instance)
     {
-        while (!Options.IsLoaded) System.Threading.Tasks.Task.Delay(1);
+        while (!Options.IsLoaded) Task.Delay(1);
         Logger.Info($"{__instance.GameId} joined lobby", "OnGameJoined");
         Main.playerVersion = [];
         if (!Main.VersionCheat.Value) RPC.RpcVersionCheck();

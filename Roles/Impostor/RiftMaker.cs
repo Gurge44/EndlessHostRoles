@@ -110,7 +110,7 @@ namespace TOHE.Roles.Impostor
             if (!shapeshifting) return;
             if (Marks.Count >= 2) return;
 
-            Marks.Add((Vector2)player.transform.position);
+            Marks.Add(player.transform.position);
             if (Marks.Count == 2) LastTP = TimeStamp;
             player.Notify(GetString("MarkDone"));
         }

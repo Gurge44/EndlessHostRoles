@@ -1,8 +1,10 @@
+using System;
+using System.Collections;
+using System.Linq;
 using AmongUs.GameOptions;
 using HarmonyLib;
-using System;
-using System.Linq;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace TOHE;
 
@@ -14,7 +16,7 @@ class ShowFolderPatch
     {
         if (__instance.Root == taskFolder && CustomRolesFolder == null)
         {
-            TaskFolder rolesFolder = UnityEngine.Object.Instantiate(
+            TaskFolder rolesFolder = Object.Instantiate(
                 __instance.RootFolderPrefab,
                 __instance.transform
             );
@@ -33,7 +35,7 @@ class ShowFolderPatch
         if (CustomRolesFolder != null && CustomRolesFolder.FolderName == taskFolder.FolderName)
         {
             var crewBehaviour = DestroyableSingleton<RoleManager>.Instance.AllRoles.FirstOrDefault(role => role.Role == RoleTypes.Crewmate);
-            System.Collections.IList list = Enum.GetValues(typeof(CustomRoles));
+            IList list = Enum.GetValues(typeof(CustomRoles));
             for (int i = 0; i < list.Count; i++)
             {
                 object cRoleID = list[i];
@@ -46,7 +48,7 @@ class ShowFolderPatch
                 cRole == CustomRoles.Shapeshifter
                 ) continue;*/
 
-                TaskAddButton button = UnityEngine.Object.Instantiate(__instance.RoleButton);
+                TaskAddButton button = Object.Instantiate(__instance.RoleButton);
                 button.Text.text = Utils.GetRoleName(cRole);
                 __instance.AddFileAsChild(CustomRolesFolder, button, ref xCursor, ref yCursor, ref maxHeight);
                 var roleBehaviour = new RoleBehaviour

@@ -1,9 +1,10 @@
-﻿using AmongUs.GameOptions;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using AmongUs.GameOptions;
 using Hazel;
 using InnerNet;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using TOHE.Modules;
 using static TOHE.Translator;
 
@@ -11,7 +12,8 @@ namespace TOHE;
 
 internal class EAC
 {
-    public static int DeNum = 0;
+    public static int DeNum;
+
     public static void WarnHost(int denum = 1)
     {
         DeNum += denum;
@@ -25,6 +27,7 @@ internal class EAC
                 ErrorText.Instance.Clear();
         }
     }
+
     public static bool ReceiveRpc(PlayerControl pc, byte callId, MessageReader reader)
     {
         if (!AmongUsClient.Instance.AmHost) return false;
@@ -174,6 +177,7 @@ internal class EAC
                     Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] directly shapeshifted and has been rejected", "EAC");
                     return true;
             }
+
             switch (callId)
             {
                 case 101:
@@ -191,6 +195,7 @@ internal class EAC
                         Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] illegally set the color and has been rejected", "EAC");
                         return true;
                     }
+
                     break;
                 case 5:
                     string name = sr.ReadString();
@@ -201,6 +206,7 @@ internal class EAC
                         Logger.Fatal($"Illegal modification of the game name of player [{pc.GetClientId()}:{pc.GetRealName()}] has been rejected", "EAC");
                         return true;
                     }
+
                     break;
                 case 47:
                     if (GameStates.IsLobby)
@@ -210,6 +216,7 @@ internal class EAC
                         Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] illegally killed and has been rejected", "EAC");
                         return true;
                     }
+
                     break;
                 case 38:
                     if (GameStates.IsInGame)
@@ -219,6 +226,7 @@ internal class EAC
                         Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] changed the level in the game and it has been rejected", "EAC");
                         return true;
                     }
+
                     if (sr.ReadPackedUInt32() > 0)
                     {
                         uint ClientDataLevel = pc.GetClient() == null ? pc.GetClient().PlayerLevel : 0;
@@ -232,6 +240,7 @@ internal class EAC
                             return true;
                         }
                     }
+
                     break;
                 case 39:
                 case 40:
@@ -245,6 +254,7 @@ internal class EAC
                         Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] changed the skin in the game and it has been rejected", "EAC");
                         return true;
                     }
+
                     if (pc.AmOwner)
                     {
                         WarnHost();
@@ -252,20 +262,28 @@ internal class EAC
                         Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] changed the owner's skin and it has been rejected", "EAC");
                         return true;
                     }
+
                     break;
             }
         }
-        catch (System.IO.InvalidDataException) { }
-        catch (NullReferenceException) { }
+        catch (InvalidDataException)
+        {
+        }
+        catch (NullReferenceException)
+        {
+        }
         catch /*(Exception e)*/
         {
             //Logger.Exception(e, "EAC");
             //throw e;
         }
+
         WarnHost(-1);
         return false;
     }
+
     public static Dictionary<byte, CustomRoles> OriginalRoles = [];
+
     public static void LogAllRoles()
     {
         foreach (var pc in Main.AllPlayerControls.ToArray())
@@ -280,11 +298,12 @@ internal class EAC
             }
         }
     }
+
     public static bool RpcUpdateSystemCheck(PlayerControl player, SystemTypes systemType, byte amount)
     {
         //Update system rpc can not get received by playercontrol.handlerpc
         var Mapid = Main.NormalOptions.MapId;
-        Logger.Info("Check sabotage RPC" + ", PlayerName: " + player.GetNameWithRole() + ", SabotageType: " + systemType.ToString() + ", amount: " + amount.ToString(), "EAC");
+        Logger.Info("Check sabotage RPC" + ", PlayerName: " + player.GetNameWithRole() + ", SabotageType: " + systemType + ", amount: " + amount, "EAC");
         if (!AmongUsClient.Instance.AmHost) return false;
         switch (systemType) //Normal sabotage using buttons
         {
@@ -297,10 +316,11 @@ internal class EAC
                     Logger.Fatal($"Player【{player.GetClientId()}:{player.GetRealName()}】Bad Sabotage A, rejected", "EAC");
                     return true;
                 }
+
                 break;
             case SystemTypes.LifeSupp:
                 if (Mapid is not 0 and not 1 and not 3) goto YesCheat;
-                else if (amount is not 64 and not 65) goto YesCheat;
+                if (amount is not 64 and not 65) goto YesCheat;
                 break;
             case SystemTypes.Comms:
                 if (amount == 0)
@@ -312,6 +332,7 @@ internal class EAC
                     if (!(Mapid is 1 or 5)) goto YesCheat;
                 }
                 else goto YesCheat;
+
                 break;
             case SystemTypes.Electrical:
                 if (Mapid == 5) goto YesCheat;
@@ -319,19 +340,20 @@ internal class EAC
                 {
                     goto YesCheat;
                 }
+
                 break;
             case SystemTypes.Laboratory:
                 if (Mapid != 2) goto YesCheat;
-                else if (!(amount is 64 or 65 or 32 or 33)) goto YesCheat;
+                if (!(amount is 64 or 65 or 32 or 33)) goto YesCheat;
                 break;
             case SystemTypes.Reactor:
                 if (Mapid is 2 or 4) goto YesCheat;
-                else if (!(amount is 64 or 65 or 32 or 33)) goto YesCheat;
+                if (!(amount is 64 or 65 or 32 or 33)) goto YesCheat;
                 //Airship use heli sabotage /Other use 64,65 | 32,33
                 break;
             case SystemTypes.HeliSabotage:
                 if (Mapid != 4) goto YesCheat;
-                else if (!(amount is 64 or 65 or 16 or 17 or 32 or 33)) goto YesCheat;
+                if (!(amount is 64 or 65 or 16 or 17 or 32 or 33)) goto YesCheat;
                 break;
             case SystemTypes.MushroomMixupSabotage:
                 goto YesCheat;
@@ -348,7 +370,7 @@ internal class EAC
 
         return false;
 
-    YesCheat:
+        YesCheat:
         {
             WarnHost();
             Report(player, "Bad Sabotage C : Hack send RPC");
@@ -357,6 +379,7 @@ internal class EAC
             return true;
         }
     }
+
     public static void Report(PlayerControl pc, string reason)
     {
         string msg = $"{pc.GetClientId()}|{pc.FriendCode}|{pc.Data.PlayerName}|{pc.GetClient().GetHashedPuid()}|{reason}";
@@ -364,6 +387,7 @@ internal class EAC
         Logger.Fatal($"EAC report: {msg}", "EAC Cloud");
         if (Options.CheatResponses.GetInt() != 5) Logger.SendInGame(string.Format(GetString("Message.NoticeByEAC"), $"{pc?.Data?.PlayerName} | {pc.GetClient().GetHashedPuid()}", reason));
     }
+
     public static bool ReceiveInvalidRpc(PlayerControl pc, byte callId)
     {
         switch (callId)
@@ -373,8 +397,10 @@ internal class EAC
                 HandleCheat(pc, GetString("EAC.CheatDetected.EAC"));
                 return true;
         }
+
         return true;
     }
+
     public static void HandleCheat(PlayerControl pc, string text)
     {
         switch (Options.CheatResponses.GetInt())

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using static TOHE.Options;
 using static TOHE.Utils;
@@ -8,7 +9,7 @@ namespace TOHE.Roles.Impostor
     internal class Kamikaze
     {
         private static int Id => 643310;
-        public static bool IsEnable = false;
+        public static bool IsEnable;
 
         public static readonly Dictionary<byte, List<byte>> MarkedPlayers = [];
 
@@ -77,6 +78,6 @@ namespace TOHE.Roles.Impostor
             }
         }
 
-        public static string GetProgressText(byte playerId) => $"<#777777>-</color> <#ffffff>{System.Math.Round(playerId.GetAbilityUseLimit(), 1)}</color>";
+        public static string GetProgressText(byte playerId) => $"<#777777>-</color> <#ffffff>{Math.Round(playerId.GetAbilityUseLimit(), 1)}</color>";
     }
 }

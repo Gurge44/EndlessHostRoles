@@ -1,6 +1,7 @@
-﻿using HarmonyLib;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using HarmonyLib;
 using UnityEngine;
 
 namespace TOHE
@@ -64,9 +65,10 @@ namespace TOHE
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
         class FixedUpdatePatch
         {
-            private static float UpdateDelay = 0;
-            private static long LastFixedUpdate = 0;
-            public static bool Return = false;
+            private static float UpdateDelay;
+            private static long LastFixedUpdate;
+            public static bool Return;
+
             public static void Postfix(PlayerControl __instance)
             {
                 if (Options.CurrentGameMode != CustomGameMode.HotPotato || Return || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask) return;
@@ -105,6 +107,7 @@ namespace TOHE
 
                 PassHotPotato(Target, resetTime: false);
             }
+
             private static void PassHotPotato(PlayerControl target = null, bool resetTime = true)
             {
                 if (Return || Main.AllAlivePlayerControls.Length < 2) return;
@@ -135,7 +138,7 @@ namespace TOHE
 
                     Logger.Info($"Hot Potato Passed: {LastHolder.GetRealName()} => {target.GetRealName()}", "HotPotato");
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     Logger.Exception(ex, "HotPotatoManager.FixedUpdatePatch.PassHotPotato");
                 }

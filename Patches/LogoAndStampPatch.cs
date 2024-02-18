@@ -1,6 +1,6 @@
-﻿using BepInEx.Unity.IL2CPP.Utils;
+﻿using System.Collections;
+using BepInEx.Unity.IL2CPP.Utils;
 using HarmonyLib;
-using System.Collections;
 using TMPro;
 using UnityEngine;
 using static TOHE.Translator;
@@ -57,24 +57,24 @@ public static class CredentialsPatch
             TransData += $"\nSolarFlare - <size=75%>{GetString("TranEN")}</size>";
             TransData += $"\nchill_ultimated - <size=75%>{GetString("TranRU")}</size>";
 
-            BoosterData += $"bunny";
-            BoosterData += $"\nNamra";
-            BoosterData += $"\nKNIGHT";
-            BoosterData += $"\nSolarFlare";
+            BoosterData += "bunny";
+            BoosterData += "\nNamra";
+            BoosterData += "\nKNIGHT";
+            BoosterData += "\nSolarFlare";
             //BoosterData += $"\nLoonie";
 
-            SponsersData += $"罗寄";
-            SponsersData += $"\n鬼";
-            SponsersData += $"\n喜";
-            SponsersData += $"\n小叨院长";
-            SponsersData += $"\n波奇酱";
-            SponsersData += $"\n法师";
-            SponsersData += $"\n沐煊";
-            SponsersData += $"\nSolarFlare";
-            SponsersData += $"\n林林林";
-            SponsersData += $"\n撒币";
-            SponsersData += $"\n斯卡蒂Skadi";
-            SponsersData += $"\nltemten";
+            SponsersData += "罗寄";
+            SponsersData += "\n鬼";
+            SponsersData += "\n喜";
+            SponsersData += "\n小叨院长";
+            SponsersData += "\n波奇酱";
+            SponsersData += "\n法师";
+            SponsersData += "\n沐煊";
+            SponsersData += "\nSolarFlare";
+            SponsersData += "\n林林林";
+            SponsersData += "\n撒币";
+            SponsersData += "\n斯卡蒂Skadi";
+            SponsersData += "\nltemten";
             SponsersData += $"\n\n<size=60%>({GetString("OnlyShowPart")})</size>";
 
         }

@@ -1,5 +1,5 @@
-﻿using Hazel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Hazel;
 using UnityEngine;
 using static TOHE.Options;
 
@@ -100,6 +100,7 @@ public static class Mortician
             if (GameStates.IsMeeting) return string.Empty;
             return Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
         }
-        else return string.Empty;
+
+        return string.Empty;
     }
 }

@@ -1,5 +1,5 @@
-using Hazel;
 using System.Collections.Generic;
+using Hazel;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Options;
@@ -9,15 +9,15 @@ namespace TOHE.Roles.Neutral;
 
 public static class Romantic
 {
-    private static readonly int Id = 9850;
+    private const int Id = 9850;
 
     public static byte RomanticId = byte.MaxValue;
-    public static PlayerControl Romantic_ = null;
+    public static PlayerControl Romantic_;
     public static bool HasPickedPartner => PartnerId != byte.MaxValue;
     public static byte PartnerId = byte.MaxValue;
-    public static PlayerControl Partner = null;
+    public static PlayerControl Partner;
 
-    public static bool IsPartnerProtected = false;
+    public static bool IsPartnerProtected;
 
     public static OptionItem BetCooldown;
     private static OptionItem ProtectCooldown;
@@ -172,7 +172,8 @@ public static class Romantic
             Romantic_.Suicide(PlayerState.DeathReason.FollowingSuicide, Partner);
             return;
         }
-        else if ((partnerRole.IsNonNK() && partnerRole is not CustomRoles.Romantic and not CustomRoles.VengefulRomantic and not CustomRoles.RuthlessRomantic) || killer == null || Main.PlayerStates[PartnerId].IsSuicide) // If Partner is NNK or died by themselves, Romantic becomes Ruthless Romantic
+
+        if ((partnerRole.IsNonNK() && partnerRole is not CustomRoles.Romantic and not CustomRoles.VengefulRomantic and not CustomRoles.RuthlessRomantic) || killer == null || Main.PlayerStates[PartnerId].IsSuicide) // If Partner is NNK or died by themselves, Romantic becomes Ruthless Romantic
         {
             Logger.Info($"NNK Romantic Partner Died ({partnerRole.IsNonNK()}) / Partner killer is null ({killer == null}) / Partner commited Suicide ({Main.PlayerStates[PartnerId].IsSuicide}) => Changing {Romantic_.GetNameWithRole().RemoveHtmlTags()} to Ruthless Romantic", "Romantic");
             Romantic_.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
@@ -222,7 +223,7 @@ public static class Romantic
 public static class VengefulRomantic
 {
     public static byte VengefulRomanticId = byte.MaxValue;
-    public static PlayerControl VengefulRomantic_ = null;
+    public static PlayerControl VengefulRomantic_;
 
     public static bool HasKilledKiller;
     public static byte Target = byte.MaxValue;
@@ -257,11 +258,9 @@ public static class VengefulRomantic
             Utils.NotifyRoles(SpecifySeer: VengefulRomantic_, SpecifyTarget: target);
             return true;
         }
-        else
-        {
-            killer.Suicide(PlayerState.DeathReason.Misfire);
-            return false;
-        }
+
+        killer.Suicide(PlayerState.DeathReason.Misfire);
+        return false;
     }
     public static string GetTargetText(byte playerId)
     {

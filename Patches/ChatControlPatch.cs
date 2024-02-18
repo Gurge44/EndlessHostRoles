@@ -1,8 +1,9 @@
-using AmongUs.Data;
-using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.Data;
+using HarmonyLib;
+using InnerNet;
 using TOHE.Roles.Impostor;
 using UnityEngine;
 
@@ -14,8 +15,8 @@ class ChatControllerUpdatePatch
     public static int CurrentHistorySelection = -1;
     public static void Prefix()
     {
-        if (AmongUsClient.Instance.AmHost && DataManager.Settings.Multiplayer.ChatMode == InnerNet.QuickChatModes.QuickChatOnly)
-            DataManager.Settings.Multiplayer.ChatMode = InnerNet.QuickChatModes.FreeChatOrQuickChat; //コマンドを打つためにホストのみ常時フリーチャット開放
+        if (AmongUsClient.Instance.AmHost && DataManager.Settings.Multiplayer.ChatMode == QuickChatModes.QuickChatOnly)
+            DataManager.Settings.Multiplayer.ChatMode = QuickChatModes.FreeChatOrQuickChat; //コマンドを打つためにホストのみ常時フリーチャット開放
     }
     public static void Postfix(ChatController __instance)
     {
@@ -122,7 +123,7 @@ public static class ChatManager
         switch (operate)
         {
             case 1 when player.IsAlive(): // Guessing Command & Such
-                Logger.Info($"Special Command", "ChatManager");
+                Logger.Info("Special Command", "ChatManager");
                 cancel = true;
                 break;
             case 2: // /up
@@ -160,7 +161,7 @@ public static class ChatManager
         var x = Main.AllAlivePlayerControls;
         var r = IRandom.Instance;
 
-        var filtered = chatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(((string[])a.Split(':'))[0].Trim())).IsAlive()).ToArray();
+        var filtered = chatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(a.Split(':')[0].Trim())).IsAlive()).ToArray();
 
         if (realMessagesOnly && filtered.Length < 5) return;
 

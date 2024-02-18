@@ -1,7 +1,7 @@
-using HarmonyLib;
-using Il2CppSystem.Text;
 using System.Collections.Generic;
 using System.Linq;
+using HarmonyLib;
+using Il2CppSystem.Text;
 using TMPro;
 using TOHE.Modules;
 using TOHE.Roles.AddOns.Common;
@@ -19,12 +19,16 @@ class HudManagerPatch
     //public static bool ShowDebugText;
     //public static int LastCallNotifyRolesPerSecond;
     public static int NowCallNotifyRolesCount;
+
     public static int LastSetNameDesyncCount;
+
     //public static int LastFPS;
     //public static int NowFrameCount;
     //public static float FrameRateTimer;
     public static TextMeshPro LowerInfoText;
+
     private static TextMeshPro OverriddenRolesText;
+
     //public static GameObject TempLowerInfoText;
     public static void Postfix(HudManager __instance)
     {
@@ -49,12 +53,13 @@ class HudManagerPatch
                 player.Collider.offset = new Vector2(0f, -0.3636f);
             }
         }
+
         if (GameStates.IsLobby)
         {
             var POM = GameObject.Find("PlayerOptionsMenu(Clone)");
             __instance.GameSettings.text = POM != null ? string.Empty : OptionShower.GetTextNoFresh();
             __instance.GameSettings.fontSizeMin =
-            __instance.GameSettings.fontSizeMax = 1f;
+                __instance.GameSettings.fontSizeMax = 1f;
         }
 
         if (AmongUsClient.Instance.AmHost)
@@ -84,6 +89,7 @@ class HudManagerPatch
                     resultText[item.Key] = text;
                     first = false;
                 }
+
                 if (Main.SetRoles.Count == 0) first = true;
                 foreach (var item in Main.SetAddOns)
                 {
@@ -105,6 +111,7 @@ class HudManagerPatch
                         }
                     }
                 }
+
                 bool stop = false;
                 foreach (var roles in Main.SetRoles)
                 {
@@ -116,15 +123,18 @@ class HudManagerPatch
                         {
                             if (!CustomRolesHelper.CheckAddonConflictV2(addon, roles.Value))
                             {
-                                resultText[roles.Key] += $" <#ff0000>(!)</color>";
+                                resultText[roles.Key] += " <#ff0000>(!)</color>";
                                 stop = true;
                                 break;
                             }
                         }
+
                         if (stop) break;
                     }
+
                     if (stop) break;
                 }
+
                 OverriddenRolesText.text = string.Join(string.Empty, resultText.Values);
             }
             else
@@ -569,9 +579,10 @@ class HudManagerPatch
                     _ => string.Empty,
                 };
                 if (GetCD_HUDText() != string.Empty) LowerInfoText.text = $"{GetCD_HUDText()}\n{LowerInfoText.text}";
+
                 string GetCD_HUDText() => !Options.UsePets.GetBool() || !Main.AbilityCD.TryGetValue(player.PlayerId, out var CD)
-                        ? string.Empty
-                        : string.Format(GetString("CDPT"), CD.TOTALCD - (Utils.TimeStamp - CD.START_TIMESTAMP) + 1);
+                    ? string.Empty
+                    : string.Format(GetString("CDPT"), CD.TOTALCD - (Utils.TimeStamp - CD.START_TIMESTAMP) + 1);
 
                 //LowerInfoText.text += "\n" + (int)System.Math.Round(Main.KillTimers[player.PlayerId]);
 
@@ -610,7 +621,7 @@ class HudManagerPatch
 
         if (Input.GetKeyDown(KeyCode.Y) && AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay)
         {
-            __instance.ToggleMapVisible(new MapOptions()
+            __instance.ToggleMapVisible(new MapOptions
             {
                 Mode = MapOptions.Modes.Sabotage,
                 AllowMovementWhileMapOpen = true
@@ -628,6 +639,7 @@ class HudManagerPatch
             RepairSender.enabled = !RepairSender.enabled;
             RepairSender.Reset();
         }
+
         if (RepairSender.enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
         {
             if (Input.GetKeyDown(KeyCode.Alpha0)) RepairSender.Input(0);
@@ -644,6 +656,7 @@ class HudManagerPatch
         }
     }
 }
+
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ToggleHighlight))]
 class ToggleHighlightPatch
 {
@@ -658,6 +671,7 @@ class ToggleHighlightPatch
         }
     }
 }
+
 [HarmonyPatch(typeof(Vent), nameof(Vent.SetOutline))]
 class SetVentOutlinePatch
 {
@@ -668,15 +682,17 @@ class SetVentOutlinePatch
         __instance.myRend.material.SetColor("_AddColor", mainTarget ? color : Color.clear);
     }
 }
+
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.SetHudActive), [typeof(PlayerControl), typeof(RoleBehaviour), typeof(bool)])]
 class SetHudActivePatch
 {
     public static bool IsActive;
-    public static void Prefix(/*HudManager __instance,*/ [HarmonyArgument(2)] ref bool isActive)
+
+    public static void Prefix( /*HudManager __instance,*/ [HarmonyArgument(2)] ref bool isActive)
     {
         isActive &= !GameStates.IsMeeting;
-        return;
     }
+
     public static void Postfix(HudManager __instance, [HarmonyArgument(2)] bool isActive)
     {
         __instance?.ReportButton?.ToggleVisible(!GameStates.IsLobby && isActive);
@@ -686,6 +702,7 @@ class SetHudActivePatch
             Logger.Fatal("HudManager __instance ended up being null", "SetHudActivePatch.Postfix");
             return;
         }
+
         IsActive = isActive;
         if (!isActive) return;
 
@@ -763,21 +780,25 @@ class SetHudActivePatch
         {
             __instance.ReportButton?.ToggleVisible(false);
         }
+
         __instance.KillButton?.ToggleVisible(player.CanUseKillButton());
         __instance.ImpostorVentButton?.ToggleVisible(player.CanUseImpostorVentButton());
         __instance.SabotageButton?.ToggleVisible(player.CanUseSabotage());
     }
 }
+
 [HarmonyPatch(typeof(VentButton), nameof(VentButton.DoClick))]
 class VentButtonDoClickPatch
 {
-    public static bool Animating = false;
+    public static bool Animating;
+
     public static void Prefix()
     {
         Animating = true;
         _ = new LateTask(() => { Animating = false; }, 0.6f, log: false);
     }
 }
+
 [HarmonyPatch(typeof(MapBehaviour), nameof(MapBehaviour.Show))]
 class MapBehaviourShowPatch
 {
@@ -803,6 +824,7 @@ class MapBehaviourShowPatch
         return true;
     }
 }
+
 [HarmonyPatch(typeof(TaskPanelBehaviour), nameof(TaskPanelBehaviour.SetTaskText))]
 class TaskPanelBehaviourPatch
 {
@@ -833,6 +855,7 @@ class TaskPanelBehaviourPatch
                         if ((line.StartsWith("<color=#FF1919FF>") || line.StartsWith("<color=#FF0000FF>")) && sb.Length < 1 && !line.Contains('(')) continue;
                         sb.Append(line + "\r\n");
                     }
+
                     if (sb.Length > 1)
                     {
                         var text = sb.ToString().TrimEnd('\n').TrimEnd('\r');
@@ -918,6 +941,7 @@ class TaskPanelBehaviourPatch
                         if ((line.StartsWith("<color=#FF1919FF>") || line.StartsWith("<color=#FF0000FF>")) && sb1.Length < 1 && !line.Contains('(')) continue;
                         sb1.Append(line + "\r\n");
                     }
+
                     if (sb1.Length > 1)
                     {
                         var text = sb1.ToString().TrimEnd('\n').TrimEnd('\r');
@@ -984,6 +1008,7 @@ class RepairSender
             amount += num;
         }
     }
+
     public static void InputEnter()
     {
         if (!TypingAmount)
@@ -995,19 +1020,22 @@ class RepairSender
             Send();
         }
     }
+
     public static void Send()
     {
         ShipStatus.Instance.RpcUpdateSystem((SystemTypes)SystemType, (byte)amount);
         Reset();
     }
+
     public static void Reset()
     {
         TypingAmount = false;
         SystemType = 0;
         amount = 0;
     }
+
     public static string GetText()
     {
-        return SystemType.ToString() + "(" + ((SystemTypes)SystemType).ToString() + ")\r\n" + amount;
+        return SystemType + "(" + ((SystemTypes)SystemType) + ")\r\n" + amount;
     }
 }

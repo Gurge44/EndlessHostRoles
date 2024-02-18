@@ -1,7 +1,8 @@
-using HarmonyLib;
-using Hazel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using HarmonyLib;
+using Hazel;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral;
@@ -25,6 +26,7 @@ public static class Executioner
     /// Key: エクスキューショナーのPlayerId, Value: ターゲットのPlayerId
     /// </summary>
     public static Dictionary<byte, byte> Target = [];
+
     public static readonly string[] ChangeRoles =
     [
         "Role.Crewmate",
@@ -38,6 +40,7 @@ public static class Executioner
         "Role.Doctor",
         //   CustomRoles.Crewmate.ToString(), CustomRoles.Jester.ToString(), CustomRoles.Opportunist.ToString(),
     ];
+
     public static readonly CustomRoles[] CRoleChangeRoles =
     [
         CustomRoles.CrewmateTOHE,
@@ -62,11 +65,13 @@ public static class Executioner
         KnowTargetRole = BooleanOptionItem.Create(Id + 13, "KnowTargetRole", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Executioner]);
         ChangeRolesAfterTargetKilled = StringOptionItem.Create(Id + 11, "ExecutionerChangeRolesAfterTargetKilled", ChangeRoles, 1, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Executioner]);
     }
+
     public static void Init()
     {
         playerIdList = [];
         Target = [];
     }
+
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
@@ -81,33 +86,37 @@ public static class Executioner
                 foreach (PlayerControl target in Main.AllPlayerControls)
                 {
                     if (playerId == target.PlayerId) continue;
-                    else if (!CanTargetImpostor.GetBool() && target.Is(CustomRoleTypes.Impostor)) continue;
-                    else if (!CanTargetNeutralKiller.GetBool() && target.IsNeutralKiller()) continue;
-                    else if (!CanTargetNeutralBenign.GetBool() && target.IsNeutralBenign()) continue;
-                    else if (!CanTargetNeutralEvil.GetBool() && target.IsNeutralEvil()) continue;
-                    else if (!CanTargetNeutralChaos.GetBool() && target.IsNeutralChaos()) continue;
+                    if (!CanTargetImpostor.GetBool() && target.Is(CustomRoleTypes.Impostor)) continue;
+                    if (!CanTargetNeutralKiller.GetBool() && target.IsNeutralKiller()) continue;
+                    if (!CanTargetNeutralBenign.GetBool() && target.IsNeutralBenign()) continue;
+                    if (!CanTargetNeutralEvil.GetBool() && target.IsNeutralEvil()) continue;
+                    if (!CanTargetNeutralChaos.GetBool() && target.IsNeutralChaos()) continue;
                     if (target.GetCustomRole() is CustomRoles.GM or CustomRoles.SuperStar) continue;
                     if (Utils.GetPlayerById(playerId).Is(CustomRoles.Lovers) && target.Is(CustomRoles.Lovers)) continue;
 
                     targetList.Add(target);
                 }
+
                 if (targetList.Count == 0)
                 {
                     ChangeRole(Utils.GetPlayerById(playerId));
                     return;
                 }
+
                 var SelectedTarget = targetList[rand.Next(targetList.Count)];
                 Target.Add(playerId, SelectedTarget.PlayerId);
                 SendRPC(playerId, SelectedTarget.PlayerId, "SetTarget");
                 Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}:{SelectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Executioner");
             }
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             Logger.Error(ex.ToString(), "Executioner.Add");
         }
     }
+
     public static bool IsEnable() => playerIdList.Count > 0;
+
     public static void SendRPC(byte executionerId, byte targetId = 0x73, string Progress = "")
     {
         if (!IsEnable() || !Utils.DoRPC) return;
@@ -133,6 +142,7 @@ public static class Executioner
                 break;
         }
     }
+
     public static void ReceiveRPC(MessageReader reader, bool SetTarget)
     {
         if (SetTarget)
@@ -144,6 +154,7 @@ public static class Executioner
         else
             Target.Remove(reader.ReadByte());
     }
+
     public static void ChangeRoleByTarget(PlayerControl target)
     {
         byte Executioner = 0x73;
@@ -158,6 +169,7 @@ public static class Executioner
         Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(Executioner), SpecifyTarget: target);
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: Utils.GetPlayerById(Executioner));
     }
+
     public static void ChangeRole(PlayerControl executioner)
     {
         executioner.RpcSetCustomRole(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()]);
@@ -167,6 +179,7 @@ public static class Executioner
         text = string.Format(text, Utils.ColorString(Utils.GetRoleColor(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()]), Translator.GetString(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()].ToString())));
         executioner.Notify(text);
     }
+
     public static bool KnowRole(PlayerControl player, PlayerControl target)
     {
         if (!KnowTargetRole.GetBool()) return false;
@@ -178,6 +191,7 @@ public static class Executioner
         var GetValue = Target.TryGetValue(seer.PlayerId, out var targetId);
         return GetValue && targetId == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Executioner), "♦") : string.Empty;
     }
+
     public static bool CheckExileTarget(GameData.PlayerInfo exiled, bool DecidedWinner, bool Check = false)
     {
         foreach (var kvp in Target.Where(x => x.Value == exiled.PlayerId))
@@ -187,8 +201,10 @@ public static class Executioner
             if (!Check) ExeWin(kvp.Key, DecidedWinner);
             return true;
         }
+
         return false;
     }
+
     public static void ExeWin(byte playerId, bool DecidedWinner)
     {
         if (!DecidedWinner)

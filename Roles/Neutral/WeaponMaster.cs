@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using AmongUs.GameOptions;
 using Hazel;
-using System.Collections.Generic;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -151,7 +151,8 @@ public static class WeaponMaster
             SendRPC(Mode, shieldUsed);
             return true;
         }
-        else return false;
+
+        return false;
     }
     public static void OnEnterVent(PlayerControl pc, int ventId)
     {

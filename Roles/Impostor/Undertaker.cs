@@ -1,8 +1,9 @@
-﻿using Hazel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Hazel;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
+using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -74,18 +75,16 @@ internal static class Undertaker
         {
             return CanUseKillButton(killer);
         }
-        else
-        {
-            MarkedPlayer.Remove(killer.PlayerId);
-            MarkedPlayer.Add(killer.PlayerId, target.PlayerId);
-            SendRPC(killer.PlayerId);
-            killer.ResetKillCooldown();
-            killer.SetKillCooldown();
-            if (killer.IsModClient()) killer.RpcResetAbilityCooldown();
-            killer.SyncSettings();
-            killer.RPCPlayCustomSound("Clothe");
-            return false;
-        }
+
+        MarkedPlayer.Remove(killer.PlayerId);
+        MarkedPlayer.Add(killer.PlayerId, target.PlayerId);
+        SendRPC(killer.PlayerId);
+        killer.ResetKillCooldown();
+        killer.SetKillCooldown();
+        if (killer.IsModClient()) killer.RpcResetAbilityCooldown();
+        killer.SyncSettings();
+        killer.RPCPlayCustomSound("Clothe");
+        return false;
     }
     public static void OnShapeshift(PlayerControl pc, bool shapeshifting)
     {
@@ -101,7 +100,7 @@ internal static class Undertaker
             {
                 if (!(target == null || !target.IsAlive() || Pelican.IsEaten(target.PlayerId) || target.inVent || !GameStates.IsInTask))
                 {
-                    target.TP(new UnityEngine.Vector2(pc.Pos().x, pc.Pos().y + 0.3636f));
+                    target.TP(new Vector2(pc.Pos().x, pc.Pos().y + 0.3636f));
                     if (pc.RpcCheckAndMurder(target))
                     {
                         MarkedPlayer.Remove(pc.PlayerId);

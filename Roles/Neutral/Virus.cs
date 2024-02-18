@@ -1,7 +1,6 @@
-﻿using Hazel;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Hazel;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -113,7 +112,7 @@ namespace TOHE.Roles.Neutral
                 Main.VirusNotify.Add(target.PlayerId, GetString("VirusNoticeMessage"));
             }
 
-            Logger.Info("Add-on assigned:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Contagious.ToString(), "Assign " + CustomRoles.Contagious.ToString());
+            Logger.Info("Add-on assigned:" + target?.Data?.PlayerName + " = " + target.GetCustomRole() + " + " + CustomRoles.Contagious, "Assign " + CustomRoles.Contagious);
         }
 
         public static void OnCheckForEndVoting(PlayerState.DeathReason deathReason, params byte[] exileIds)

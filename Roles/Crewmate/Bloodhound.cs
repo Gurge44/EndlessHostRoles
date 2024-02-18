@@ -1,10 +1,11 @@
-﻿namespace TOHE.Roles.Crewmate
+﻿using System.Collections.Generic;
+using Hazel;
+using UnityEngine;
+
+namespace TOHE.Roles.Crewmate
 {
-    using Hazel;
-    using System.Collections.Generic;
-    using UnityEngine;
-    using static TOHE.Options;
-    using static TOHE.Translator;
+    using static Options;
+    using static Translator;
 
     public static class Bloodhound
     {

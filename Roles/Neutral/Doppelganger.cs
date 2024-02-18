@@ -1,5 +1,5 @@
-﻿using Hazel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Hazel;
 using TOHE.Roles.Impostor;
 using UnityEngine;
 using static TOHE.Options;
@@ -168,7 +168,6 @@ public static class Doppelganger
         Utils.NotifyRoles();
         killer.ResetKillCooldown();
         killer.SetKillCooldown();
-        return;
     }
 
     public static string GetStealLimit(byte playerId) => Utils.ColorString(TotalSteals[playerId] < MaxSteals.GetInt() ? Utils.GetRoleColor(CustomRoles.Doppelganger).ShadeColor(0.25f) : Color.gray, TotalSteals.TryGetValue(playerId, out var stealLimit) ? $"({MaxSteals.GetInt() - stealLimit})" : "Invalid");

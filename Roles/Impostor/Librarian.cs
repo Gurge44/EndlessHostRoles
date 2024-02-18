@@ -1,6 +1,7 @@
-﻿using Hazel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Hazel;
+using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
 using static TOHE.Utils;
@@ -95,7 +96,7 @@ namespace TOHE.Roles.Impostor
             {
                 if (!isInSilencingMode.TryGetValue(id, out var x) || !x.SILENCING) continue;
                 var pc = GetPlayerById(id);
-                if (UnityEngine.Vector2.Distance(pc.Pos(), reporter.Pos()) <= silenceRadius)
+                if (Vector2.Distance(pc.Pos(), reporter.Pos()) <= silenceRadius)
                 {
                     librarian = pc;
                 }
