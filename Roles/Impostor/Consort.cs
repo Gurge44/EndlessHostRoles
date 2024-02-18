@@ -13,8 +13,6 @@ namespace TOHE.Roles.Impostor
         private static OptionItem CD;
         private static OptionItem UseLimit;
 
-        public static Dictionary<byte, int> BlockLimit;
-
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Consort);
@@ -29,43 +27,26 @@ namespace TOHE.Roles.Impostor
         public static void Init()
         {
             playerIdList = [];
-            BlockLimit = [];
         }
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            BlockLimit[playerId] = UseLimit.GetInt();
+            playerId.SetAbilityUseLimit(UseLimit.GetInt());
         }
         public static bool IsEnable => playerIdList.Count > 0;
-        public static void SendRPC(byte playerId)
-        {
-            if (!IsEnable || !Utils.DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetConsortLimit, SendOption.Reliable, -1);
-            writer.Write(playerId);
-            writer.Write(BlockLimit[playerId]);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-        public static void ReceiveRPC(MessageReader reader)
-        {
-            if (!IsEnable) return;
-            byte playerId = reader.ReadByte();
-            int limit = reader.ReadInt32();
-            BlockLimit[playerId] = limit;
-        }
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (!IsEnable || killer == null || target == null) return false;
-            if (BlockLimit[killer.PlayerId] <= 0 || !killer.Is(CustomRoles.Consort)) return true;
+            if (killer.GetAbilityUseLimit() <= 0 || !killer.Is(CustomRoles.Consort)) return true;
 
             return killer.CheckDoubleTrigger(target, () =>
             {
-                BlockLimit[killer.PlayerId]--;
+                killer.RpcRemoveAbilityUse();
                 Glitch.hackedIdList.TryAdd(target.PlayerId, Utils.TimeStamp);
                 killer.Notify(GetString("EscortTargetHacked"));
                 killer.SetKillCooldown(CD.GetFloat());
-                SendRPC(killer.PlayerId);
             });
         }
-        public static string GetProgressText(byte id) => BlockLimit.TryGetValue(id, out var limit) ? $"<color=#777777>-</color> <color=#ffffff>{limit}</color>" : string.Empty;
+        public static string GetProgressText(byte id) => $"<color=#777777>-</color> <color=#ffffff>{id.GetAbilityUseLimit()}</color>";
     }
 }

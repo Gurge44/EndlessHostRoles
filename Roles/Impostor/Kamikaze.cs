@@ -12,7 +12,6 @@ namespace TOHE.Roles.Impostor
         public static bool IsEnable = false;
 
         public static readonly Dictionary<byte, List<byte>> MarkedPlayers = [];
-        public static readonly Dictionary<byte, float> MarkLimit = [];
 
         private static OptionItem MarkCD;
         private static OptionItem KamikazeLimitOpt;
@@ -35,43 +34,25 @@ namespace TOHE.Roles.Impostor
         public static void Init()
         {
             MarkedPlayers.Clear();
-            MarkLimit.Clear();
             IsEnable = false;
         }
 
         public static void Add(byte playerId)
         {
             MarkedPlayers[playerId] = [];
-            MarkLimit[playerId] = KamikazeLimitOpt.GetInt();
+            playerId.SetAbilityUseLimit(KamikazeLimitOpt.GetInt());
             IsEnable = true;
-        }
-
-        public static void SendRPCSyncLimit(byte playerId)
-        {
-            if (!IsEnable || !DoRPC || playerId == 0) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncKamikazeLimit, SendOption.Reliable, -1);
-            writer.Write(playerId);
-            writer.Write(MarkLimit[playerId]);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-
-        public static void ReceiveRPCSyncLimit(MessageReader reader)
-        {
-            byte playerId = reader.ReadByte();
-            float limit = reader.ReadSingle();
-            MarkLimit[playerId] = limit;
         }
 
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer == null || target == null) return false;
-            if (MarkLimit.TryGetValue(killer.PlayerId, out var limit) && limit < 1) return true;
+            if (killer.GetAbilityUseLimit() < 1) return true;
             return killer.CheckDoubleTrigger(target, () =>
             {
                 MarkedPlayers[killer.PlayerId].Add(target.PlayerId);
                 killer.SetKillCooldown(MarkCD.GetFloat());
-                MarkLimit[killer.PlayerId]--;
-                SendRPCSyncLimit(killer.PlayerId);
+                killer.RpcRemoveAbilityUse();
             });
         }
 
@@ -97,6 +78,6 @@ namespace TOHE.Roles.Impostor
             }
         }
 
-        public static string GetProgressText(byte playerId) => MarkLimit.TryGetValue(playerId, out var limit) ? $"<#777777>-</color> <#ffffff>{System.Math.Round(limit, 1)}</color>" : string.Empty;
+        public static string GetProgressText(byte playerId) => $"<#777777>-</color> <#ffffff>{System.Math.Round(playerId.GetAbilityUseLimit(), 1)}</color>";
     }
 }

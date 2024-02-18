@@ -42,19 +42,18 @@ public static class NiceSwapper
     public static void Init()
     {
         SwapTargets = (byte.MaxValue, byte.MaxValue);
-        UseLimit = 0;
         NiceSwapperId = byte.MaxValue;
     }
 
     public static void Add(byte playerId)
     {
         NiceSwapperId = playerId;
-        UseLimit = SwapMax.GetInt();
+        playerId.SetAbilityUseLimit(SwapMax.GetInt());
     }
 
     public static bool IsEnable => NiceSwapperId != byte.MaxValue;
 
-    public static string ProgressText => Utils.ColorString((UseLimit >= 1) ? Color.white : Color.red, $" <color=#777777>-</color> {Math.Round(UseLimit, 1)}");
+    public static string ProgressText => Utils.GetAbilityUseLimitDisplay(NiceSwapperId);
 
     public static bool SwapMsg(PlayerControl pc, string msg, bool isUI = false)
     {
@@ -67,7 +66,7 @@ public static class NiceSwapper
             pc.ShowPopUp(GetString("SwapDead"));
             return true;
         }
-        if (UseLimit < 1)
+        if (pc.GetAbilityUseLimit() < 1)
         {
             if (!isUI) Utils.SendMessage(GetString("NiceSwapperTrialMax"), pc.PlayerId);
             pc.ShowPopUp(GetString("NiceSwapperTrialMax"));
@@ -159,7 +158,7 @@ public static class NiceSwapper
     {
         if (SwapTargets != (byte.MaxValue, byte.MaxValue))
         {
-            UseLimit--;
+            Utils.GetPlayerById(NiceSwapperId).RpcRemoveAbilityUse();
             SwapTargets = (byte.MaxValue, byte.MaxValue);
         }
     }

@@ -122,8 +122,6 @@ public class Main : BasePlugin
     //public static Dictionary<byte, long> FlashbangInProtect = new();
     public static List<byte> CyberStarDead = [];
     public static List<byte> DemolitionistDead = [];
-    public static Dictionary<byte, long> ExpressSpeedUp = [];
-    public static float ExpressSpeedNormal;
     public static List<int> BlockedVents = [];
     public static List<byte> WorkaholicAlive = [];
     public static List<byte> SpeedrunnerAlive = [];
@@ -190,7 +188,6 @@ public class Main : BasePlugin
     public static Dictionary<byte, string> SleuthMsgs = [];
     public static int AliveImpostorCount;
     public static bool isCursed;
-    public static List<byte> InsightKnownRolesOfPlayerIds = [];
     public static Dictionary<byte, bool> CheckShapeshift = [];
     public static Dictionary<byte, byte> ShapeshiftTarget = [];
     public static Dictionary<(byte, byte), string> targetArrows = [];
@@ -215,7 +212,6 @@ public class Main : BasePlugin
     public static Dictionary<byte, byte> Provoked = [];
 
     public static Dictionary<byte, CustomRoles> DevRole = [];
-    public static Dictionary<byte, int> CrewpostorTasksDone = [];
     public static byte GodfatherTarget = byte.MaxValue;
 
 

@@ -985,9 +985,8 @@ internal class ChatCommands
 
             case "/say":
             case "/s":
-                if (!IsPlayerModerator(player.FriendCode)) break;
-                if (args.Length > 1)
-                    Utils.SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<color=#ff0000>{GetString("SayTitle")}</color>");
+                if (!IsPlayerModerator(player.FriendCode) && !DebugModeManager.AmDebugger && !player.FriendCode.GetDevUser().IsDev) break;
+                if (args.Length > 1) Utils.SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<color=#ff0000>{GetString("SayTitle")}</color>");
                 break;
 
             case "/death":
@@ -1136,20 +1135,6 @@ internal class ChatCommands
                 ChatUpdatePatch.DoBlockChat = false;
                 Utils.NotifyRoles(isForMeeting: GameStates.IsMeeting, NoCache: true);
                 Utils.SendMessage(GetString("Message.TryFixName"), player.PlayerId);
-                break;
-
-            case "/say":
-            case "/s":
-                if (player.FriendCode.GetDevUser().IsDev)
-                {
-                    if (args.Length > 1)
-                        Utils.SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<color={Main.ModColor}>{GetString("MessageFromDev")}</color>");
-                }
-                else if (player.FriendCode.IsDevUser())
-                {
-                    if (args.Length > 1)
-                        Utils.SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<color=#4bc9b0>{GetString("MessageFromSponsor")}</color>");
-                }
                 break;
 
             case "/kcount":

@@ -199,7 +199,8 @@ public static class Executioner
         }
         else
         {
-            CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Executioner);
+            //CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Executioner);
+            CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.Executioner);
             CustomWinnerHolder.WinnerIds.Add(playerId);
         }
     }

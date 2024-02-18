@@ -14,7 +14,6 @@ namespace TOHE.Roles.Impostor
         private static OptionItem DivinationMaxCount;
         public static OptionItem EDAbilityUseGainWithEachKill;
 
-        public static Dictionary<byte, float> DivinationCount = [];
         public static Dictionary<byte, List<byte>> DivinationTarget = [];
 
 
@@ -32,13 +31,12 @@ namespace TOHE.Roles.Impostor
         public static void Init()
         {
             playerIdList = [];
-            DivinationCount = [];
             DivinationTarget = [];
         }
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            DivinationCount.TryAdd(playerId, DivinationMaxCount.GetInt());
+            playerId.SetAbilityUseLimit(DivinationMaxCount.GetInt());
             DivinationTarget.TryAdd(playerId, []);
             var pc = Utils.GetPlayerById(playerId);
             pc.AddDoubleTrigger();
@@ -49,7 +47,6 @@ namespace TOHE.Roles.Impostor
             if (!IsEnable || !Utils.DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetEvilDiviner, SendOption.Reliable, -1);
             writer.Write(playerId);
-            writer.Write(DivinationCount[playerId]);
             writer.Write(targetId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
@@ -57,16 +54,10 @@ namespace TOHE.Roles.Impostor
         {
             byte playerId = reader.ReadByte();
             {
-                if (DivinationCount.ContainsKey(playerId))
-                    DivinationCount[playerId] = reader.ReadInt32();
-                else
-                    DivinationCount.Add(playerId, DivinationMaxCount.GetInt());
-            }
-            {
-                if (DivinationCount.ContainsKey(playerId))
+                if (DivinationTarget.ContainsKey(playerId))
                     DivinationTarget[playerId].Add(reader.ReadByte());
                 else
-                    DivinationTarget.Add(playerId, []);
+                    DivinationTarget.Add(playerId, [reader.ReadByte()]);
             }
         }
 
@@ -77,7 +68,7 @@ namespace TOHE.Roles.Impostor
         }
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (DivinationCount[killer.PlayerId] >= 1)
+            if (killer.GetAbilityUseLimit() >= 1)
             {
                 return killer.CheckDoubleTrigger(target, () => { SetDivination(killer, target); });
             }
@@ -96,9 +87,9 @@ namespace TOHE.Roles.Impostor
         {
             if (!IsDivination(killer.PlayerId, target.PlayerId))
             {
-                DivinationCount[killer.PlayerId] -= 1;
+                killer.RpcRemoveAbilityUse();
                 DivinationTarget[killer.PlayerId].Add(target.PlayerId);
-                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()}: Divination target → {target.GetNameWithRole().RemoveHtmlTags()} || Remaining: {DivinationCount[killer.PlayerId]} uses", "EvilDiviner");
+                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()}: Divination target → {target.GetNameWithRole().RemoveHtmlTags()} || Remaining: {killer.GetAbilityUseLimit()} uses", "EvilDiviner");
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
 
                 SendRPC(killer.PlayerId, target.PlayerId);

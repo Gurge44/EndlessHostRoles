@@ -10,7 +10,6 @@ namespace TOHE.Roles.Crewmate
     {
         private static readonly int Id = 643100;
         private static byte playerId = byte.MaxValue;
-        public static int UseLimit;
 
         private static OptionItem UseLimitOpt;
         private static OptionItem CD;
@@ -48,7 +47,7 @@ namespace TOHE.Roles.Crewmate
             UsePet = CreatePetUseSetting(Id + 16, CustomRoles.Analyzer);
         }
 
-        public static bool CanUseKillButton => CurrentTarget.ID == byte.MaxValue && UseLimit > 0;
+        public static bool CanUseKillButton(byte id) => CurrentTarget.ID == byte.MaxValue && id.GetAbilityUseLimit() > 0;
 
         public static bool IsEnable => playerId != byte.MaxValue;
 
@@ -76,7 +75,6 @@ namespace TOHE.Roles.Crewmate
         public static void Init()
         {
             playerId = byte.MaxValue;
-            UseLimit = 0;
             VentCount = [];
             CurrentTarget = (byte.MaxValue, Utils.TimeStamp);
         }
@@ -84,29 +82,14 @@ namespace TOHE.Roles.Crewmate
         public static void Add(byte id)
         {
             playerId = id;
-            UseLimit = UseLimitOpt.GetInt();
+            id.SetAbilityUseLimit(UseLimitOpt.GetInt());
 
             if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
             if (!Main.ResetCamPlayerList.Contains(id))
                 Main.ResetCamPlayerList.Add(id);
         }
 
-        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = UseLimit > 0 ? CD.GetFloat() : 300f;
-
-        public static void SendRPC()
-        {
-            if (!IsEnable) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAnalyzer, SendOption.Reliable, -1);
-            writer.Write(UseLimit);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-
-        public static void ReceiveRPC(MessageReader reader)
-        {
-            if (!IsEnable) return;
-
-            UseLimit = reader.ReadInt32();
-        }
+        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = id.GetAbilityUseLimit() > 0 ? CD.GetFloat() : 300f;
 
         public static void OnAnyoneEnterVent(PlayerControl pc)
         {
@@ -119,7 +102,7 @@ namespace TOHE.Roles.Crewmate
         {
             if (!IsEnable) return;
             if (killer == null || target == null) return;
-            if (UseLimit <= 0) return;
+            if (killer.GetAbilityUseLimit() <= 0) return;
             if (CurrentTarget.ID != byte.MaxValue) return;
 
             CurrentTarget = (target.PlayerId, Utils.TimeStamp);
@@ -146,13 +129,13 @@ namespace TOHE.Roles.Crewmate
             if (CurrentTarget.TIME + Duration.GetInt() < Utils.TimeStamp)
             {
                 CurrentTarget.ID = byte.MaxValue;
-                UseLimit--;
+                pc.RpcRemoveAbilityUse();
                 pc.Notify(GetAnalyzeResult(target), 10f);
                 pc.SetKillCooldown();
             }
         }
 
-        public static string GetProgressText() => $" <color=#777777>-</color> <color=#{(UseLimit > 0 ? "ffffff" : "ff0000")}>{UseLimit}</color>";
+        public static string GetProgressText() => $" <color=#777777>-</color> <color=#{(playerId.GetAbilityUseLimit() > 0 ? "ffffff" : "ff0000")}>{playerId.GetAbilityUseLimit()}</color>";
 
         public static void OnReportDeadBody()
         {

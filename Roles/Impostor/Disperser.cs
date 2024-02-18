@@ -15,8 +15,6 @@ public static class Disperser
     private static OptionItem DisperserLimitOpt;
     public static OptionItem DisperserAbilityUseGainWithEachKill;
 
-    public static Dictionary<byte, float> DisperserLimit = [];
-
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.OtherRoles, CustomRoles.Disperser);
@@ -30,14 +28,9 @@ public static class Disperser
             .SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
             .SetValueFormat(OptionFormat.Times);
     }
-    public static void Init()
-    {
-        DisperserLimit = [];
-        //  MurderLimitGame = new();
-    }
     public static void Add(byte playerId)
     {
-        DisperserLimit.Add(playerId, DisperserLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(DisperserLimitOpt.GetInt());
     }
     public static void ApplyGameOptions()
     {
@@ -47,13 +40,13 @@ public static class Disperser
     public static void DispersePlayers(PlayerControl shapeshifter)
     {
         if (shapeshifter == null) return;
-        if (DisperserLimit[shapeshifter.PlayerId] < 1)
+        if (shapeshifter.GetAbilityUseLimit() < 1)
         {
             shapeshifter.SetKillCooldown(DisperserShapeshiftDuration.GetFloat() + 1f);
             return;
         }
 
-        DisperserLimit[shapeshifter.PlayerId] -= 1;
+        shapeshifter.RpcRemoveAbilityUse();
 
         foreach (var pc in PlayerControl.AllPlayerControls)
         {

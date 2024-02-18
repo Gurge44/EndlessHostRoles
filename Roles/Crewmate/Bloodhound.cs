@@ -39,14 +39,13 @@
         public static void Init()
         {
             playerIdList = [];
-            UseLimit = [];
             UnreportablePlayers = [];
             BloodhoundTargets = [];
         }
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            UseLimit.Add(playerId, UseLimitOpt.GetInt());
+            playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
             BloodhoundTargets.Add(playerId, []);
 
         }
@@ -75,24 +74,6 @@
                 LocateArrow.Add(playerId, new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()));
             else
                 LocateArrow.RemoveAllTarget(playerId);
-        }
-
-        public static void SendRPCPlus(byte playerId)
-        {
-            if (!IsEnable || !Utils.DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.BloodhoundIncreaseAbilityUseByOne, SendOption.Reliable, -1);
-            writer.Write(playerId);
-            writer.Write(UseLimit[playerId]);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-
-        public static void ReceiveRPCPlus(MessageReader reader)
-        {
-            if (AmongUsClient.Instance.AmHost) return;
-
-            byte playerId = reader.ReadByte();
-            float uses = reader.ReadSingle();
-            UseLimit[playerId] = uses;
         }
 
         public static void Clear()
@@ -138,14 +119,13 @@
             LocateArrow.Remove(pc.PlayerId, target.Object.transform.position);
             SendRPC(pc.PlayerId, false);
 
-            if (UseLimit[pc.PlayerId] >= 1)
+            if (pc.GetAbilityUseLimit() >= 1)
             {
                 BloodhoundTargets[pc.PlayerId].Add(killer.PlayerId);
                 TargetArrow.Add(pc.PlayerId, killer.PlayerId);
 
                 pc.Notify(GetString("BloodhoundTrackRecorded"));
-                UseLimit[pc.PlayerId] -= 1;
-                SendRPCPlus(pc.PlayerId);
+                pc.RpcRemoveAbilityUse();
 
                 if (LeaveDeadBodyUnreportable.GetBool())
                 {

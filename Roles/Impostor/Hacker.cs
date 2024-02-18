@@ -16,7 +16,6 @@ public static class Hacker
     private static OptionItem KillCooldown;
     public static OptionItem HackerAbilityUseGainWithEachKill;
 
-    public static Dictionary<byte, float> HackLimit = [];
     private static List<byte> DeadBodyList = [];
 
     public static void SetupCustomOption()
@@ -33,43 +32,27 @@ public static class Hacker
     public static void Init()
     {
         playerIdList = [];
-        HackLimit = [];
         DeadBodyList = [];
     }
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        HackLimit.TryAdd(playerId, HackLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(HackLimitOpt.GetInt());
     }
     public static bool IsEnable => playerIdList.Count > 0;
-    public static void SendRPC(byte playerId)
-    {
-        if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetHackerHackLimit, SendOption.Reliable, -1);
-        writer.Write(playerId);
-        writer.Write(HackLimit[playerId]);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-    public static void ReceiveRPC(MessageReader reader)
-    {
-        byte PlayerId = reader.ReadByte();
-        int Limit = reader.ReadInt32();
-        HackLimit.TryAdd(PlayerId, HackLimitOpt.GetInt());
-        HackLimit[PlayerId] = Limit;
-    }
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public static void ApplyGameOptions()
     {
         AURoleOptions.ShapeshifterCooldown = 15f;
         AURoleOptions.ShapeshifterDuration = 1f;
     }
-    public static string GetHackLimit(byte playerId) => Utils.ColorString((HackLimit.TryGetValue(playerId, out var x) && x >= 1) ? Utils.GetRoleColor(CustomRoles.Hacker).ShadeColor(0.25f) : Color.red, HackLimit.TryGetValue(playerId, out var hackLimit) ? $"<color=#777777>-</color> {Math.Round(hackLimit, 1)})" : "Invalid");
+    public static string GetHackLimit(byte playerId) => Utils.GetAbilityUseLimitDisplay(playerId);
     public static void GetAbilityButtonText(HudManager __instance, byte playerId)
     {
-        if (HackLimit.TryGetValue(playerId, out var x) && x >= 1)
+        if (playerId.GetAbilityUseLimit() >= 1)
         {
             __instance.AbilityButton.OverrideText(GetString("HackerShapeshiftText"));
-            __instance.AbilityButton.SetUsesRemaining((int)x);
+            __instance.AbilityButton.SetUsesRemaining((int)playerId.GetAbilityUseLimit());
         }
     }
     public static void OnReportDeadBody() => DeadBodyList = [];
@@ -80,9 +63,8 @@ public static class Hacker
     }
     public static void OnShapeshift(PlayerControl pc, bool shapeshifting, PlayerControl ssTarget)
     {
-        if (!shapeshifting || !HackLimit.TryGetValue(pc.PlayerId, out var x) || x < 1 || ssTarget == null || ssTarget.Is(CustomRoles.Needy) || ssTarget.Is(CustomRoles.Lazy)) return;
-        HackLimit[pc.PlayerId] -= 1;
-        SendRPC(pc.PlayerId);
+        if (!shapeshifting || pc.GetAbilityUseLimit() < 1 || ssTarget == null || ssTarget.Is(CustomRoles.Needy) || ssTarget.Is(CustomRoles.Lazy)) return;
+        pc.RpcRemoveAbilityUse();
 
         var targetId = byte.MaxValue;
 

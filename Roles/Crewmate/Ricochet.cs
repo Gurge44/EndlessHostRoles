@@ -34,37 +34,20 @@ namespace TOHE.Roles.Crewmate
         public static void Init()
         {
             playerIdList = [];
-            UseLimit = [];
             ProtectAgainst = byte.MaxValue;
         }
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            UseLimit.Add(playerId, UseLimitOpt.GetInt());
+            playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
         }
         public static bool IsEnable => playerIdList.Count > 0;
-        public static void SendRPC(byte playerId)
-        {
-            if (!IsEnable || !Utils.DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRicochetLimit, SendOption.Reliable, -1);
-            writer.Write(playerId);
-            writer.Write(UseLimit[playerId]);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
         public static void SendRPCSyncTarget(byte targetId)
         {
             if (!IsEnable || !Utils.DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRicochetTarget, SendOption.Reliable, -1);
             writer.Write(targetId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-        public static void ReceiveRPC(MessageReader reader)
-        {
-            if (AmongUsClient.Instance.AmHost) return;
-
-            byte playerId = reader.ReadByte();
-            float uses = reader.ReadSingle();
-            UseLimit[playerId] = uses;
         }
         public static void ReceiveRPCSyncTarget(MessageReader reader)
         {
@@ -90,11 +73,10 @@ namespace TOHE.Roles.Crewmate
         {
             if (target == null || pc == null || pc.PlayerId == target.PlayerId || !pc.Is(CustomRoles.Ricochet) || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
 
-            if (UseLimit[pc.PlayerId] >= 1)
+            if (pc.GetAbilityUseLimit() >= 1)
             {
-                UseLimit[pc.PlayerId] -= 1;
+                pc.RpcRemoveAbilityUse();
                 ProtectAgainst = target.PlayerId;
-                SendRPC(pc.PlayerId);
                 SendRPCSyncTarget(ProtectAgainst);
                 Main.DontCancelVoteList.Add(pc.PlayerId);
                 return true;
@@ -112,20 +94,8 @@ namespace TOHE.Roles.Crewmate
 
             var sb = new StringBuilder();
 
-            var taskState = Main.PlayerStates?[playerId]?.TaskState;
-            Color TextColor;
-            var TaskCompleteColor = Color.green;
-            var NonCompleteColor = Color.yellow;
-            var NormalColor = taskState.IsTaskFinished ? TaskCompleteColor : NonCompleteColor;
-            TextColor = comms ? Color.gray : NormalColor;
-            string Completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
-
-            Color TextColor1;
-            if (UseLimit[playerId] < 1) TextColor1 = Color.red;
-            else TextColor1 = Color.white;
-
-            sb.Append(Utils.ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
-            sb.Append(Utils.ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));
+            sb.Append(Utils.GetTaskCount(playerId, comms));
+            sb.Append(Utils.GetAbilityUseLimitDisplay(playerId, ProtectAgainst != byte.MaxValue));
 
             return sb.ToString();
         }

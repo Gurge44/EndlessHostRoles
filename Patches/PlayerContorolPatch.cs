@@ -1508,7 +1508,7 @@ class ShapeshiftPatch
                         Camouflager.OnReportDeadBody();
                     break;
                 case CustomRoles.Hangman:
-                    if (Hangman.HangLimit[shapeshifter.PlayerId] < 1 && shapeshifting) shapeshifter.SetKillCooldown(Hangman.ShapeshiftDuration.GetFloat() + 1f);
+                    if (shapeshifter.GetAbilityUseLimit() < 1 && shapeshifting) shapeshifter.SetKillCooldown(Hangman.ShapeshiftDuration.GetFloat() + 1f);
                     break;
                 case CustomRoles.Hacker:
                     Hacker.OnShapeshift(shapeshifter, shapeshifting, target);
@@ -2479,12 +2479,7 @@ class FixedUpdatePatch
                     break;
 
                 case CustomRoles.Express when GameStates.IsInTask:
-                    if (Main.ExpressSpeedUp.TryGetValue(playerId, out var etime) && etime + Options.ExpressSpeedDur.GetInt() < now)
-                    {
-                        Main.ExpressSpeedUp.Remove(playerId);
-                        Main.AllPlayerSpeed[playerId] = Main.ExpressSpeedNormal;
-                        player.MarkDirtySettings();
-                    }
+                    Express.OnFixedUpdate(player);
                     break;
 
                 case CustomRoles.Grenadier when GameStates.IsInTask:

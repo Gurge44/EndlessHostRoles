@@ -749,7 +749,8 @@ class MeetingHudStartPatch
 
         Main.CyberStarDead.Clear();
         Main.DemolitionistDead.Clear();
-        Main.ExpressSpeedUp.Clear();
+        Express.SpeedNormal.Clear();
+        Express.SpeedUp.Clear();
         Main.DetectiveNotify.Clear();
         Main.SleuthMsgs.Clear();
         Main.VirusNotify.Clear();

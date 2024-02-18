@@ -14,8 +14,6 @@ namespace TOHE.Roles.Crewmate
         private static OptionItem UseLimit;
         public static OptionItem UsePet;
 
-        public static int BlockLimit;
-
         public static void SetupCustomOption()
         {
             Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Escort, 1);
@@ -31,44 +29,31 @@ namespace TOHE.Roles.Crewmate
         public static void Init()
         {
             playerIdList = [];
-            BlockLimit = 0;
         }
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
 
-            BlockLimit = UseLimit.GetInt();
+            playerId.SetAbilityUseLimit(UseLimit.GetInt());
 
             if (!AmongUsClient.Instance.AmHost || (Options.UsePets.GetBool() && UsePet.GetBool())) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
         public static bool IsEnable => playerIdList.Count > 0;
-        public static void SendRPC()
-        {
-            if (!IsEnable || !Utils.DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetEscortLimit, SendOption.Reliable, -1);
-            writer.Write(BlockLimit);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-        public static void ReceiveRPC(MessageReader reader)
-        {
-            if (!IsEnable) return;
-            BlockLimit = reader.ReadInt32();
-        }
         public static void SetKillCooldown(byte playerId)
         {
-            Main.AllPlayerKillCooldown[playerId] = BlockLimit > 0 ? CD.GetFloat() : 300f;
+            Main.AllPlayerKillCooldown[playerId] = playerId.GetAbilityUseLimit() > 0 ? CD.GetFloat() : 300f;
         }
         public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable || killer == null || target == null || BlockLimit <= 0 || !killer.Is(CustomRoles.Escort)) return;
+            if (!IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0 || !killer.Is(CustomRoles.Escort)) return;
 
-            BlockLimit--;
+            killer.RpcRemoveAbilityUse();
             killer.SetKillCooldown();
             Glitch.hackedIdList.TryAdd(target.PlayerId, Utils.TimeStamp);
             killer.Notify(GetString("EscortTargetHacked"));
         }
-        public static string GetProgressText() => $"<color=#777777>-</color> <color=#ffffff>{BlockLimit}</color>";
+        public static string GetProgressText(byte id) => $"<color=#777777>-</color> <color=#ffffff>{id.GetAbilityUseLimit()}</color>";
     }
 }

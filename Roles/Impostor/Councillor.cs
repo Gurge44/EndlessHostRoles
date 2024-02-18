@@ -15,14 +15,11 @@ public static class Councillor
     private static readonly int Id = 900;
     private static List<byte> playerIdList = [];
     private static OptionItem MurderLimitPerMeeting;
-    //  private static OptionItem MurderLimitPerGame;
     private static OptionItem TryHideMsg;
     private static OptionItem CanMurderMadmate;
     private static OptionItem CanMurderImpostor;
     public static OptionItem KillCooldown;
-    public static Dictionary<byte, float> MurderLimit;
     public static OptionItem CouncillorAbilityUseGainWithEachKill;
-    // private static Dictionary<byte, int> MurderLimitGame;
 
     public static void SetupCustomOption()
     {
@@ -31,8 +28,6 @@ public static class Councillor
             .SetValueFormat(OptionFormat.Seconds);
         MurderLimitPerMeeting = IntegerOptionItem.Create(Id + 10, "MurderLimitPerMeeting", new(0, 15, 1), 0, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
             .SetValueFormat(OptionFormat.Times);
-        //   MurderLimitPerGame = IntegerOptionItem.Create(Id + 13, "MurderLimitPerGame", new(1, 99, 1), 2, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
-        //     .SetValueFormat(OptionFormat.Times);
         CanMurderMadmate = BooleanOptionItem.Create(Id + 12, "CouncillorCanMurderMadmate", true, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor]);
         CanMurderImpostor = BooleanOptionItem.Create(Id + 16, "CouncillorCanMurderImpostor", true, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor]);
         TryHideMsg = BooleanOptionItem.Create(Id + 11, "CouncillorTryHideMsg", true, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
@@ -44,24 +39,13 @@ public static class Councillor
     public static void Init()
     {
         playerIdList = [];
-        MurderLimit = [];
-        //  MurderLimitGame = new();
     }
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        MurderLimit.Add(playerId, MurderLimitPerMeeting.GetInt());
-        //   MurderLimitGame.Add(playerId, MurderLimitPerGame.GetInt());
+        playerId.SetAbilityUseLimit(MurderLimitPerMeeting.GetInt());
     }
     public static bool IsEnable => playerIdList.Count > 0;
-    public static void OnReportDeadBody()
-    {
-        MurderLimit.Clear();
-        foreach (byte pc in playerIdList.ToArray())
-        {
-            MurderLimit.Add(pc, MurderLimitPerMeeting.GetInt());
-        }
-    }
     public static bool MurderMsg(PlayerControl pc, string msg, bool isUI = false)
     {
         var originMsg = msg;
@@ -70,7 +54,7 @@ public static class Councillor
         if (!GameStates.IsInGame || pc == null) return false;
         if (!pc.Is(CustomRoles.Councillor)) return false;
 
-        int operate = 0; // 1:ID 2:猜测
+        int operate = 0; // 1:ID 2:Kill
         msg = msg.ToLower().TrimStart().TrimEnd();
         if (CheckCommond(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id")) operate = 1;
         else if (CheckCommond(ref msg, "shoot|guess|bet|st|gs|bt|猜|赌|sp|jj|tl|Murder|审判|判|审", false)) operate = 2;
@@ -103,7 +87,7 @@ public static class Councillor
             {
                 Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} 审判了 {target.GetNameWithRole().RemoveHtmlTags()}", "Councillor");
                 bool CouncillorSuicide = true;
-                if (MurderLimit[pc.PlayerId] < 1)
+                if (pc.GetAbilityUseLimit() < 1)
                 {
                     if (!isUI) Utils.SendMessage(GetString("CouncillorMurderMax"), pc.PlayerId);
                     else pc.ShowPopUp(GetString("CouncillorMurderMax"));
@@ -142,7 +126,7 @@ public static class Councillor
 
                 string Name = dp.GetRealName();
 
-                MurderLimit[pc.PlayerId] -= 1;
+                pc.RpcRemoveAbilityUse();
 
                 _ = new LateTask(() =>
                 {

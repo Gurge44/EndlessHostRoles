@@ -32,7 +32,6 @@ public static class Sheriff
     public static OptionItem NonCrewCanKillNeutral;
     public static OptionItem UsePet;
     public static Dictionary<CustomRoles, OptionItem> KillTargetOptions = [];
-    public static Dictionary<byte, int> ShotLimit = [];
     public static Dictionary<byte, float> CurrentKillCooldown = [];
     public static readonly string[] KillOption =
     [
@@ -85,50 +84,31 @@ public static class Sheriff
     public static void Init()
     {
         playerIdList = [];
-        ShotLimit = [];
         CurrentKillCooldown = [];
     }
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         CurrentKillCooldown.Add(playerId, KillCooldown.GetFloat());
+        playerId.SetAbilityUseLimit(ShotLimitOpt.GetInt());
 
-        ShotLimit.TryAdd(playerId, ShotLimitOpt.GetInt());
-        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : Shot Limit - {ShotLimit[playerId]}", "Sheriff");
+        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : Shot Limit - {playerId.GetAbilityUseLimit()}", "Sheriff");
 
         if (!AmongUsClient.Instance.AmHost || (Options.UsePets.GetBool() && UsePet.GetBool())) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
     public static bool IsEnable => playerIdList.Count > 0;
-    public static void SendRPC(byte playerId)
-    {
-        if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetSheriffShotLimit, SendOption.Reliable, -1);
-        writer.Write(playerId);
-        writer.Write(ShotLimit[playerId]);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-    public static void ReceiveRPC(MessageReader reader)
-    {
-        byte SheriffId = reader.ReadByte();
-        int Limit = reader.ReadInt32();
-        if (ShotLimit.ContainsKey(SheriffId))
-            ShotLimit[SheriffId] = Limit;
-        else
-            ShotLimit.Add(SheriffId, ShotLimitOpt.GetInt());
-    }
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanUseKillButton(id) ? CurrentKillCooldown[id] : 15f;
     public static bool CanUseKillButton(byte playerId)
         => !Main.PlayerStates[playerId].IsDead
         && (CanKillAllAlive.GetBool() || GameStates.AlreadyDied)
-        && (!ShotLimit.TryGetValue(playerId, out var x) || x > 0);
+        && (playerId.GetAbilityUseLimit() is float.NaN or > 0);
 
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        ShotLimit[killer.PlayerId]--;
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : Number of kills left: {ShotLimit[killer.PlayerId]}", "Sheriff");
-        SendRPC(killer.PlayerId);
+        killer.RpcRemoveAbilityUse();
+        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : Number of kills left: {killer.GetAbilityUseLimit()}", "Sheriff");
         if (target.CanBeKilledBySheriff()
             || (killer.Is(CustomRoles.Recruit) && SidekickSheriffCanGoBerserk.GetBool())
             || (SetNonCrewCanKill.GetBool() &&
@@ -147,7 +127,7 @@ public static class Sheriff
         killer.Suicide(PlayerState.DeathReason.Misfire);
         return MisfireKillsTarget.GetBool();
     }
-    public static string GetShotLimit(byte playerId) => Utils.ColorString(CanUseKillButton(playerId) ? Utils.GetRoleColor(CustomRoles.Sheriff).ShadeColor(0.25f) : Color.gray, ShotLimit.TryGetValue(playerId, out var shotLimit) ? $"({shotLimit})" : "Invalid");
+    public static string GetShotLimit(byte playerId) => Utils.GetAbilityUseLimitDisplay(playerId);
     public static bool CanBeKilledBySheriff(this PlayerControl player)
     {
         var cRole = player.GetCustomRole();

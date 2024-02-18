@@ -15,8 +15,6 @@ namespace TOHE.Roles.Impostor
         public static OptionItem ShapeshiftCooldown;
         private static OptionItem TwisterLimitOpt;
         public static OptionItem TwisterAbilityUseGainWithEachKill;
-        public static Dictionary<byte, float> TwistLimit = [];
-        //    private static OptionItem ShapeshiftDuration;
 
         public static void SetupCustomOption()
         {
@@ -28,16 +26,10 @@ namespace TOHE.Roles.Impostor
             TwisterAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 12, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.4f, TabGroup.ImpostorRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
                 .SetValueFormat(OptionFormat.Times);
-            //    ShapeshiftDuration = FloatOptionItem.Create(Id + 13, "ShapeshiftDuration", new(1f, 999f, 1f), 15f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
-            //      .SetValueFormat(OptionFormat.Seconds);
-        }
-        public static void Init()
-        {
-            TwistLimit = [];
         }
         public static void Add(byte playerId)
         {
-            TwistLimit.Add(playerId, TwisterLimitOpt.GetInt());
+            playerId.SetAbilityUseLimit(TwisterLimitOpt.GetInt());
         }
         public static void ApplyGameOptions()
         {
@@ -47,11 +39,11 @@ namespace TOHE.Roles.Impostor
         public static void TwistPlayers(PlayerControl shapeshifter, bool shapeshifting)
         {
             if (shapeshifter == null) return;
-            if (TwistLimit[shapeshifter.PlayerId] < 1) return;
+            if (shapeshifter.GetAbilityUseLimit() < 1) return;
             if (!shapeshifting) return;
 
             List<byte> changePositionPlayers = [shapeshifter.PlayerId];
-            TwistLimit[shapeshifter.PlayerId] -= 1;
+            shapeshifter.RpcRemoveAbilityUse();
 
             var rd = IRandom.Instance;
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)

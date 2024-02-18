@@ -23,7 +23,6 @@ public static class Swooper
     private static Dictionary<byte, long> InvisTime = [];
     public static Dictionary<byte, long> lastTime = [];
     private static Dictionary<byte, int> ventedId = [];
-    public static Dictionary<byte, float> SwoopLimit = [];
     private static int CD;
 
     public static void SetupCustomOption()
@@ -46,13 +45,12 @@ public static class Swooper
         InvisTime = [];
         lastTime = [];
         ventedId = [];
-        SwoopLimit = [];
         CD = 0;
     }
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        SwoopLimit.Add(playerId, SwooperLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(SwooperLimitOpt.GetInt());
     }
     public static bool IsEnable => playerIdList.Count > 0;
     private static void SendRPC(PlayerControl pc)
@@ -143,7 +141,7 @@ public static class Swooper
         if (!AmongUsClient.Instance.AmHost || IsInvis(pc.PlayerId)) return;
         _ = new LateTask(() =>
         {
-            if (CanGoInvis(pc.PlayerId) && SwoopLimit[pc.PlayerId] >= 1)
+            if (CanGoInvis(pc.PlayerId) && pc.GetAbilityUseLimit() >= 1)
             {
                 ventedId.Remove(pc.PlayerId);
                 ventedId.Add(pc.PlayerId, ventId);
@@ -153,7 +151,7 @@ public static class Swooper
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
 
                 InvisTime.Add(pc.PlayerId, Utils.TimeStamp);
-                SwoopLimit[pc.PlayerId] -= 1;
+                pc.RpcRemoveAbilityUse();
                 SendRPC(pc);
                 pc.Notify(GetString("SwooperInvisState"), SwooperDuration.GetFloat());
             }

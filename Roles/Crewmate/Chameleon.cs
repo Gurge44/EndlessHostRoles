@@ -45,12 +45,11 @@ public static class Chameleon
         InvisTime = [];
         lastTime = [];
         ventedId = [];
-        UseLimit = [];
     }
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        UseLimit.Add(playerId, UseLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
     }
     public static bool IsEnable => playerIdList.Count > 0;
     private static void SendRPC(PlayerControl pc)
@@ -69,22 +68,6 @@ public static class Chameleon
         long last = long.Parse(reader.ReadString());
         if (invis > 0) InvisTime.Add(PlayerControl.LocalPlayer.PlayerId, invis);
         if (last > 0) lastTime.Add(PlayerControl.LocalPlayer.PlayerId, last);
-    }
-    public static void SendRPCPlus(byte playerId)
-    {
-        if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetChameleonLimit, SendOption.Reliable, -1);
-        writer.Write(playerId);
-        writer.Write(UseLimit[playerId]);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-    public static void ReceiveRPCPlus(MessageReader reader)
-    {
-        if (AmongUsClient.Instance.AmHost) return;
-
-        byte playerId = reader.ReadByte();
-        float uses = reader.ReadSingle();
-        UseLimit[playerId] = uses;
     }
     public static bool CanGoInvis(byte id)
         => GameStates.IsInTask && !InvisTime.ContainsKey(id) && !lastTime.ContainsKey(id);
@@ -152,7 +135,7 @@ public static class Chameleon
         {
             if (CanGoInvis(pc.PlayerId))
             {
-                if (UseLimit[pc.PlayerId] >= 1)
+                if (pc.GetAbilityUseLimit() >= 1)
                 {
                     ventedId.Remove(pc.PlayerId);
                     ventedId.Add(pc.PlayerId, ventId);
@@ -165,8 +148,7 @@ public static class Chameleon
                     SendRPC(pc);
                     pc.Notify(GetString("ChameleonInvisState"), ChameleonDuration.GetFloat());
 
-                    UseLimit[pc.PlayerId] -= 1;
-                    SendRPCPlus(pc.PlayerId);
+                    pc.RpcRemoveAbilityUse();
                 }
                 else
                 {

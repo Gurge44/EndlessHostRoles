@@ -11,7 +11,6 @@ public static class CopyCat
     private static readonly int Id = 666420;
     public static List<byte> playerIdList = [];
     public static Dictionary<byte, float> CurrentKillCooldown = [];
-    public static Dictionary<byte, int> MiscopyLimit = [];
 
     public static OptionItem KillCooldown;
     public static OptionItem CanKill;
@@ -35,14 +34,13 @@ public static class CopyCat
     {
         playerIdList = [];
         CurrentKillCooldown = [];
-        MiscopyLimit = [];
     }
 
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         CurrentKillCooldown.Add(playerId, KillCooldown.GetFloat());
-        MiscopyLimit.TryAdd(playerId, MiscopyLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(MiscopyLimitOpt.GetInt());
 
         if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
@@ -50,24 +48,6 @@ public static class CopyCat
     }
 
     public static bool IsEnable() => playerIdList.Count > 0;
-
-    private static void SendRPC(byte playerId)
-    {
-        if (!IsEnable() || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCopyCatMiscopyLimit, SendOption.Reliable, -1);
-        writer.Write(playerId);
-        writer.Write(MiscopyLimit[playerId]);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-    public static void ReceiveRPC(MessageReader reader)
-    {
-        byte CopyCatId = reader.ReadByte();
-        int Limit = reader.ReadInt32();
-        if (MiscopyLimit.ContainsKey(CopyCatId))
-            MiscopyLimit[CopyCatId] = Limit;
-        else
-            MiscopyLimit.Add(CopyCatId, MiscopyLimitOpt.GetInt());
-    }
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Utils.GetPlayerById(id).IsAlive() ? CurrentKillCooldown[id] : 0f;
 
     public static void AfterMeetingTasks()
@@ -80,17 +60,6 @@ public static class CopyCat
             ////////////           /*remove the settings for current role*/             /////////////////////
             switch (role)
             {
-                //case CustomRoles.Addict:
-                //    Addict.SuicideTimer.Remove(player);
-                //    Addict.ImmortalTimer.Remove(player);
-                //    break;
-                //case CustomRoles.Bloodhound:
-                //    Bloodhound.BloodhoundTargets.Remove(player);
-                //    break;
-                case CustomRoles.ParityCop:
-                    ParityCop.MaxCheckLimit.Remove(player);
-                    ParityCop.RoundCheckLimit.Remove(player);
-                    break;
                 case CustomRoles.Cleanser:
                     Cleanser.CleanserTarget.Remove(pc.PlayerId);
                     Cleanser.CleanserUses.Remove(pc.PlayerId);
@@ -105,79 +74,25 @@ public static class CopyCat
                 case CustomRoles.Medic:
                     Medic.ProtectLimit.Remove(player);
                     break;
-                case CustomRoles.Mediumshiper:
-                    Mediumshiper.ContactLimit.Remove(player);
-                    break;
                 case CustomRoles.Merchant:
                     Merchant.addonsSold.Remove(player);
                     Merchant.bribedKiller.Remove(player);
                     break;
-                case CustomRoles.Oracle:
-                    Oracle.CheckLimit.Remove(player);
-                    break;
-                //case CustomRoles.DovesOfNeace:
-                //    Main.DovesOfNeaceNumOfUsed.Remove(player);
-                //    break;
                 case CustomRoles.Paranoia:
                     Main.ParaUsedButtonCount.Remove(player);
-                    break;
-                case CustomRoles.Aid:
-                    Aid.UseLimit.Remove(player);
                     break;
                 case CustomRoles.Snitch:
                     Snitch.IsExposed.Remove(player);
                     Snitch.IsComplete.Remove(player);
                     break;
-                //case CustomRoles.Spiritualist:
-                //    Spiritualist.LastGhostArrowShowTime.Remove(player);
-                //    Spiritualist.ShowGhostArrowUntil.Remove(player);
-                //    break;
-                //case CustomRoles.Tracker:
-                //    Tracker.TrackLimit.Remove(player);
-                //    Tracker.TrackerTarget.Remove(player);
-                //    break;
-                //case CustomRoles.Counterfeiter:
-                //    Counterfeiter.SeelLimit.Remove(player);
-                //    break;
-                //case CustomRoles.SwordsMan:
-                //    if (!AmongUsClient.Instance.AmHost) break;
-                //    if (!Main.ResetCamPlayerList.Contains(player))
-                //        Main.ResetCamPlayerList.Add(player);
-                //    break;
                 case CustomRoles.Sheriff:
                     Sheriff.CurrentKillCooldown.Remove(player);
-                    Sheriff.ShotLimit.Remove(player);
                     break;
                 case CustomRoles.Crusader:
                     Crusader.CurrentKillCooldown.Remove(player);
-                    Crusader.CrusaderLimit.Remove(player);
-                    break;
-                case CustomRoles.Veteran:
-                    Main.VeteranNumOfUsed.Remove(player);
-                    break;
-                case CustomRoles.Grenadier:
-                    Main.GrenadierNumOfUsed.Remove(player);
-                    break;
-                case CustomRoles.Lighter:
-                    Main.LighterNumOfUsed.Remove(player);
-                    break;
-                case CustomRoles.SecurityGuard:
-                    Main.SecurityGuardNumOfUsed.Remove(player);
-                    break;
-                case CustomRoles.Ventguard:
-                    Main.VentguardNumberOfAbilityUses = 0;
-                    break;
-                case CustomRoles.TimeMaster:
-                    Main.TimeMasterNumOfUsed.Remove(player);
-                    break;
-                case CustomRoles.Judge:
-                    Judge.TrialLimit.Remove(player);
                     break;
                 case CustomRoles.Mayor:
                     Main.MayorUsedButtonCount.Remove(player);
-                    break;
-                case CustomRoles.Divinator:
-                    Divinator.CheckLimit.Remove(pc.PlayerId);
                     break;
             }
             pc.RpcSetCustomRole(CustomRoles.CopyCat);
@@ -244,6 +159,7 @@ public static class CopyCat
             Utils.AddRoles(pc.PlayerId, role);
 
             pc.RpcSetCustomRole(role);
+            pc.SetAbilityUseLimit(tpc.GetAbilityUseLimit());
 
             pc.SetKillCooldown();
             pc.Notify(string.Format(GetString("CopyCatRoleChange"), Utils.GetRoleName(role)));
@@ -251,11 +167,10 @@ public static class CopyCat
         }
         if (CanKill.GetBool())
         {
-            if (MiscopyLimit[pc.PlayerId] >= 1)
+            if (pc.GetAbilityUseLimit() >= 1)
             {
-                MiscopyLimit[pc.PlayerId]--;
+                pc.RpcRemoveAbilityUse();
                 SetKillCooldown(pc.PlayerId);
-                SendRPC(pc.PlayerId);
                 return true;
             }
             pc.Suicide();

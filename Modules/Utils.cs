@@ -458,45 +458,22 @@ public static class Utils
 
     public static void IncreaseAbilityUseLimitOnKill(PlayerControl killer)
     {
-        switch (killer.GetCustomRole())
+        if (killer.Is(CustomRoles.Mafioso)) Mafioso.OnMurder();
+        var add = killer.GetCustomRole() switch
         {
-            case CustomRoles.Hacker:
-                Hacker.HackLimit[killer.PlayerId] += Hacker.HackerAbilityUseGainWithEachKill.GetFloat();
-                Hacker.SendRPC(killer.PlayerId);
-                break;
-            case CustomRoles.Camouflager:
-                Camouflager.CamoLimit[killer.PlayerId] += Camouflager.CamoAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.Councillor:
-                Councillor.MurderLimit[killer.PlayerId] += Councillor.CouncillorAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.Dazzler:
-                Dazzler.DazzleLimit[killer.PlayerId] += Dazzler.DazzlerAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.Disperser:
-                Disperser.DisperserLimit[killer.PlayerId] += Disperser.DisperserAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.EvilDiviner:
-                EvilDiviner.DivinationCount[killer.PlayerId] += EvilDiviner.EDAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.Swooper:
-                Swooper.SwoopLimit[killer.PlayerId] += Swooper.SwooperAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.Hangman:
-                Hangman.HangLimit[killer.PlayerId] += Hangman.HangmanAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.Twister:
-                Twister.TwistLimit[killer.PlayerId] += Twister.TwisterAbilityUseGainWithEachKill.GetFloat();
-                break;
-            case CustomRoles.Kamikaze:
-                Kamikaze.MarkLimit[killer.PlayerId] += Kamikaze.KamikazeAbilityUseGainWithEachKill.GetFloat();
-                Kamikaze.SendRPCSyncLimit(killer.PlayerId);
-                break;
-
-            case CustomRoles.Mafioso:
-                Mafioso.OnMurder();
-                break;
-        }
+            CustomRoles.Hacker => Hacker.HackerAbilityUseGainWithEachKill.GetFloat(),
+            CustomRoles.Camouflager => Camouflager.CamoAbilityUseGainWithEachKill.GetFloat(),
+            CustomRoles.Councillor => Councillor.CouncillorAbilityUseGainWithEachKill.GetFloat(),
+            CustomRoles.Dazzler => Dazzler.DazzlerAbilityUseGainWithEachKill.GetFloat(),
+            CustomRoles.Disperser => Disperser.DisperserAbilityUseGainWithEachKill.GetFloat(),
+            CustomRoles.EvilDiviner => EvilDiviner.EDAbilityUseGainWithEachKill.GetFloat(),
+            CustomRoles.Swooper => Swooper.SwooperAbilityUseGainWithEachKill.GetFloat(),
+            CustomRoles.Hangman => Hangman.HangmanAbilityUseGainWithEachKill.GetFloat(),
+            CustomRoles.Twister => Twister.TwisterAbilityUseGainWithEachKill.GetFloat(),
+            CustomRoles.Kamikaze => Kamikaze.KamikazeAbilityUseGainWithEachKill.GetFloat(),
+            _ => float.MaxValue,
+        };
+        killer.RpcIncreaseAbilityUseLimitBy(add);
     }
 
     public static bool HasTasks(GameData.PlayerInfo p, bool ForRecompute = true)
@@ -815,7 +792,7 @@ public static class Utils
                     ProgressText.Append(Doppelganger.GetStealLimit(playerId));
                     break;
                 case CustomRoles.Druid:
-                    ProgressText.Append(Druid.UseLimit.TryGetValue(playerId, out var uses) ? $"<color=#777777>-</color> <#ffffff>{uses}</color>" : string.Empty);
+                    ProgressText.Append($"<color=#777777>-</color> <#ffffff>{playerId.GetAbilityUseLimit()}</color>");
                     break;
                 case CustomRoles.SerialKiller:
                     if (SerialKiller.SuicideTimer.ContainsKey(playerId))
@@ -836,55 +813,31 @@ public static class Utils
                     }
                     break;
                 case CustomRoles.Camouflager:
-                    Color TextColorCamo;
-                    if (Camouflager.CamoLimit[playerId] < 1) TextColorCamo = Color.grey;
-                    else TextColorCamo = Color.white;
-                    ProgressText.Append(ColorString(TextColorCamo, $"<color=#777777>-</color> {Math.Round(Camouflager.CamoLimit[playerId], 1)}"));
+                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
                     break;
                 case CustomRoles.Councillor:
-                    Color TextColorCoun;
-                    if (Councillor.MurderLimit[playerId] < 1) TextColorCoun = Color.grey;
-                    else TextColorCoun = Color.white;
-                    ProgressText.Append(ColorString(TextColorCoun, $"<color=#777777>-</color> {Math.Round(Councillor.MurderLimit[playerId], 1)}"));
+                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
                     break;
                 case CustomRoles.WeaponMaster:
                     if (!pc.IsModClient()) ProgressText.Append(WeaponMaster.GetHudAndProgressText());
                     break;
                 case CustomRoles.Dazzler:
-                    Color TextColorDazzler;
-                    if (Dazzler.DazzleLimit[playerId] < 1) TextColorDazzler = Color.grey;
-                    else TextColorDazzler = Color.white;
-                    ProgressText.Append(ColorString(TextColorDazzler, $"<color=#777777>-</color> {Math.Round(Dazzler.DazzleLimit[playerId], 1)}"));
+                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
                     break;
                 case CustomRoles.Disperser:
-                    Color TextColorDisperser;
-                    if (Disperser.DisperserLimit[playerId] < 1) TextColorDisperser = Color.grey;
-                    else TextColorDisperser = Color.white;
-                    ProgressText.Append(ColorString(TextColorDisperser, $"<color=#777777>-</color> {Math.Round(Disperser.DisperserLimit[playerId], 1)}"));
+                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
                     break;
                 case CustomRoles.Hangman:
-                    Color TextColorHangman;
-                    if (Hangman.HangLimit[playerId] < 1) TextColorHangman = Color.grey;
-                    else TextColorHangman = Color.white;
-                    ProgressText.Append(ColorString(TextColorHangman, $"<color=#777777>-</color> {Math.Round(Hangman.HangLimit[playerId], 1)}"));
+                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
                     break;
                 case CustomRoles.Twister:
-                    Color TextColorTwister;
-                    if (Twister.TwistLimit[playerId] < 1) TextColorTwister = Color.grey;
-                    else TextColorTwister = Color.white;
-                    ProgressText.Append(ColorString(TextColorTwister, $"<color=#777777>-</color> {Math.Round(Twister.TwistLimit[playerId], 1)}"));
+                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
                     break;
                 case CustomRoles.EvilDiviner:
-                    Color TextColorED;
-                    if (EvilDiviner.DivinationCount[playerId] < 1) TextColorED = Color.grey;
-                    else TextColorED = Color.white;
-                    ProgressText.Append(ColorString(TextColorED, $"<color=#777777>-</color> {Math.Round(EvilDiviner.DivinationCount[playerId], 1)}"));
+                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
                     break;
                 case CustomRoles.Swooper:
-                    Color TextColorSwooper;
-                    if (Swooper.SwoopLimit[playerId] < 1) TextColorSwooper = Color.grey;
-                    else TextColorSwooper = Color.white;
-                    ProgressText.Append(ColorString(TextColorSwooper, $"<color=#777777>-</color> {Math.Round(Swooper.SwoopLimit[playerId], 1)}"));
+                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
                     break;
                 case CustomRoles.Jailor:
                     ProgressText.Append(Jailor.GetProgressText(playerId));
@@ -894,63 +847,36 @@ public static class Utils
                     ProgressText.Append(NiceSwapper.ProgressText);
                     break;
                 case CustomRoles.Veteran:
-                    Color TextColor21;
-                    if (Main.VeteranNumOfUsed[playerId] < 1) TextColor21 = Color.red;
-                    else if (Main.VeteranInProtect.ContainsKey(playerId)) TextColor21 = Color.green;
-                    else TextColor21 = Color.white;
                     ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(ColorString(TextColor21, $" <color=#777777>-</color> {Math.Round(Main.VeteranNumOfUsed[playerId], 1)}"));
+                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId, Main.VeteranInProtect.ContainsKey(playerId)));
                     break;
                 case CustomRoles.Grenadier:
-                    Color TextColor31;
-                    if (Main.GrenadierNumOfUsed[playerId] < 1) TextColor31 = Color.red;
-                    else if (Main.GrenadierBlinding.ContainsKey(playerId)) TextColor31 = Color.green;
-                    else TextColor31 = Color.white;
                     ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(ColorString(TextColor31, $" <color=#777777>-</color> {Math.Round(Main.GrenadierNumOfUsed[playerId], 1)}"));
+                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId, Main.GrenadierBlinding.ContainsKey(playerId)));
                     break;
                 case CustomRoles.Divinator:
-                    Color TextColor41;
-                    if (Divinator.CheckLimit[playerId] < 1) TextColor41 = Color.red;
-                    else TextColor41 = Color.white;
                     ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(ColorString(TextColor41, $" <color=#777777>-</color> {Math.Round(Divinator.CheckLimit[playerId])}"));
+                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
                     break;
                 case CustomRoles.DovesOfNeace:
-                    Color TextColor51;
-                    if (Main.DovesOfNeaceNumOfUsed[playerId] < 1) TextColor51 = Color.red;
-                    else TextColor51 = Color.white;
                     ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(ColorString(TextColor51, $" <color=#777777>-</color> {Math.Round(Main.DovesOfNeaceNumOfUsed[playerId], 1)}"));
+                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
                     break;
                 case CustomRoles.TimeMaster:
-                    Color TextColor61;
-                    if (Main.TimeMasterNumOfUsed[playerId] < 1) TextColor61 = Color.red;
-                    else if (Main.TimeMasterInProtect.ContainsKey(playerId)) TextColor61 = Color.green;
-                    else TextColor61 = Color.white;
                     ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(ColorString(TextColor61, $" <color=#777777>-</color> {Math.Round(Main.TimeMasterNumOfUsed[playerId], 1)}"));
+                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId, Main.TimeMasterInProtect.ContainsKey(playerId)));
                     break;
                 case CustomRoles.Mediumshiper:
-                    Color TextColor71;
-                    if (Mediumshiper.ContactLimit[playerId] < 1) TextColor71 = Color.red;
-                    else TextColor71 = Color.white;
                     ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(ColorString(TextColor71, $" <color=#777777>-</color> {Math.Round(Mediumshiper.ContactLimit[playerId], 1)}"));
+                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
                     break;
                 case CustomRoles.ParityCop:
-                    Color TextColor81;
-                    if (ParityCop.MaxCheckLimit[playerId] < 1) TextColor81 = Color.red;
-                    else TextColor81 = Color.white;
                     ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(ColorString(TextColor81, $" <color=#777777>-</color> {Math.Round(ParityCop.MaxCheckLimit[playerId], 1)}"));
+                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
                     break;
                 case CustomRoles.Oracle:
-                    Color TextColor91;
-                    if (Oracle.CheckLimit[playerId] < 1) TextColor91 = Color.red;
-                    else TextColor91 = Color.white;
                     ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(ColorString(TextColor91, $" <color=#777777>-</color> {Math.Round(Oracle.CheckLimit[playerId], 1)}"));
+                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
                     break;
                 case CustomRoles.SabotageMaster:
                     Color TextColor101;
@@ -960,53 +886,29 @@ public static class Utils
                     ProgressText.Append(ColorString(TextColor101, $" <color=#777777>-</color> {Math.Round(SabotageMaster.SkillLimit.GetFloat() - SabotageMaster.UsedSkillCount, 1)}"));
                     break;
                 case CustomRoles.Tracker:
-                    Color TextColor111;
-                    if (Tracker.TrackLimit[playerId] < 1) TextColor111 = Color.red;
-                    else TextColor111 = Color.white;
                     ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(ColorString(TextColor111, $" <color=#777777>-</color> {Math.Round(Tracker.TrackLimit[playerId], 1)}"));
+                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
                     break;
                 case CustomRoles.Bloodhound:
-                    Color TextColor121;
-                    if (Bloodhound.UseLimit[playerId] < 1) TextColor121 = Color.red;
-                    else TextColor121 = Color.white;
                     ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(ColorString(TextColor121, $" <color=#777777>-</color> {Math.Round(Bloodhound.UseLimit[playerId], 1)}"));
+                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
                     break;
                 case CustomRoles.Chameleon:
-                    Color TextColor131;
-                    if (Chameleon.UseLimit[playerId] < 1) TextColor131 = Color.red;
-                    else if (Chameleon.IsInvis(playerId)) TextColor131 = Color.green;
-                    else TextColor131 = Color.white;
                     ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(ColorString(TextColor131, $" <color=#777777>-</color> {Math.Round(Chameleon.UseLimit[playerId], 1)}"));
+                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId, Chameleon.IsInvis(playerId)));
                     break;
                 case CustomRoles.Lighter:
-                    Color TextColor141;
-                    if (Main.LighterNumOfUsed[playerId] < 1) TextColor141 = Color.red;
-                    else if (Main.Lighter.ContainsKey(playerId)) TextColor141 = Color.green;
-                    else TextColor141 = Color.white;
                     ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(ColorString(TextColor141, $" <color=#777777>-</color> {Math.Round(Main.LighterNumOfUsed[playerId], 1)}"));
+                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId, Main.Lighter.ContainsKey(playerId)));
                     break;
                 case CustomRoles.Ventguard:
-                    Color TextColor151;
-                    if (Main.VentguardNumberOfAbilityUses < 1) TextColor151 = Color.red;
-                    else TextColor151 = Color.white;
                     ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(ColorString(TextColor151, $" <color=#777777>-</color> {Math.Round(Main.VentguardNumberOfAbilityUses, 1)}"));
+                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
                     break;
                 case CustomRoles.SecurityGuard:
-                    Color TextColor161;
-                    if (Main.SecurityGuardNumOfUsed[playerId] < 1) TextColor161 = Color.red;
-                    else if (Main.BlockSabo.ContainsKey(playerId)) TextColor161 = Color.green;
-                    else TextColor161 = Color.white;
                     ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(ColorString(TextColor161, $" <color=#777777>-</color> {Math.Round(Main.SecurityGuardNumOfUsed[playerId], 1)}"));
+                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId, Main.BlockSabo.ContainsKey(playerId)));
                     break;
-                //case CustomRoles.Pirate:
-                //    ProgressText.Append(ColorString(GetRoleColor(CustomRoles.Pirate).ShadeColor(0.25f), $"({Pirate.NumWin}/{Pirate.SuccessfulDuelsToWin.GetInt()})"));
-                //    break;
                 case CustomRoles.Crusader:
                     ProgressText.Append(Crusader.GetSkillLimit(playerId));
                     break;
@@ -1047,7 +949,7 @@ public static class Utils
                     ProgressText.Append(Doormaster.GetProgressText(playerId, comms));
                     break;
                 case CustomRoles.CopyCat:
-                    ProgressText.Append(ColorString(GetRoleColor(CustomRoles.CopyCat).ShadeColor(0.25f), $"({(CopyCat.MiscopyLimit.TryGetValue(playerId, out var count2) ? count2 : 0)})"));
+                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
                     break;
                 case CustomRoles.PlagueBearer:
                     var plagued = PlagueBearer.PlaguedPlayerCount(playerId);
@@ -1110,13 +1012,13 @@ public static class Utils
                     ProgressText.Append(Drainer.GetProgressText());
                     break;
                 case CustomRoles.DonutDelivery when Options.CurrentGameMode != CustomGameMode.MoveAndStop:
-                    ProgressText.Append(DonutDelivery.GetProgressText());
+                    ProgressText.Append(DonutDelivery.GetProgressText(playerId));
                     break;
                 case CustomRoles.Gaulois:
                     ProgressText.Append(Gaulois.GetProgressText(playerId));
                     break;
                 case CustomRoles.Escort:
-                    ProgressText.Append(Escort.GetProgressText());
+                    ProgressText.Append(Escort.GetProgressText(playerId));
                     break;
                 case CustomRoles.Pursuer:
                     ProgressText.Append(Pursuer.GetSeelLimit(playerId));
@@ -1167,10 +1069,10 @@ public static class Utils
                 //    ProgressText.Append(CursedSoul.GetCurseLimit());
                 //    break;
                 case CustomRoles.Monarch:
-                    ProgressText.Append(Monarch.GetKnightLimit());
+                    ProgressText.Append(Monarch.GetKnightLimit(playerId));
                     break;
                 case CustomRoles.Deputy:
-                    ProgressText.Append(Deputy.GetHandcuffLimit());
+                    ProgressText.Append(Deputy.GetHandcuffLimit(playerId));
                     break;
                 case CustomRoles.Virus:
                     ProgressText.Append(Virus.GetInfectLimit());
@@ -1204,6 +1106,17 @@ public static class Utils
 
         return ProgressText.ToString();
     }
+
+    public static string GetAbilityUseLimitDisplay(byte playerId, bool usingAbility = false)
+    {
+        float limit = playerId.GetAbilityUseLimit();
+        if (float.IsNaN(limit)) return string.Empty;
+        Color TextColor;
+        if (limit < 1) TextColor = Color.red;
+        else if (usingAbility) TextColor = Color.green;
+        else TextColor = Color.white;
+        return ColorString(TextColor, $" <color=#777777>-</color> {Math.Round(limit, 1)}");
+    }
     public static string GetTaskCount(byte playerId, bool comms, bool moveAndStop = false)
     {
         var taskState = Main.PlayerStates?[playerId].TaskState;
@@ -1230,6 +1143,7 @@ public static class Utils
             return string.Empty;
         }
     }
+
     public static void ShowActiveSettingsHelp(byte PlayerId = byte.MaxValue)
     {
         SendMessage(GetString("CurrentActiveSettingsHelp") + ":", PlayerId);
@@ -2632,7 +2546,7 @@ public static class Utils
                 break;
             case CustomRoles.Crusader:
                 Crusader.Add(id);
-                Crusader.CrusaderLimit[id] = Crusader.SkillLimitOpt.GetInt();
+                id.SetAbilityUseLimit(Crusader.SkillLimitOpt.GetInt());
                 break;
             case CustomRoles.Warlock:
                 Main.CursedPlayers.Add(id, null);
@@ -2689,7 +2603,7 @@ public static class Utils
                 Blackmailer.Add(id);
                 break;
             case CustomRoles.Crewpostor:
-                Main.CrewpostorTasksDone[id] = 0;
+                Crewpostor.TasksDone[id] = 0;
                 break;
             case CustomRoles.Doppelganger:
                 Doppelganger.Add(id);
@@ -2729,7 +2643,7 @@ public static class Utils
                 break;
             case CustomRoles.TimeMaster:
                 Main.TimeMasterNum[id] = 0;
-                Main.TimeMasterNumOfUsed.Add(id, Options.TimeMasterMaxUses.GetInt());
+                id.SetAbilityUseLimit(Options.TimeMasterMaxUses.GetInt());
                 break;
             case CustomRoles.Paranoia:
                 Main.ParaUsedButtonCount[id] = 0;
@@ -2907,19 +2821,19 @@ public static class Utils
                 Mediumshiper.Add(id);
                 break;
             case CustomRoles.Veteran:
-                Main.VeteranNumOfUsed.Add(id, Options.VeteranSkillMaxOfUseage.GetInt());
+                id.SetAbilityUseLimit(Options.VeteranSkillMaxOfUseage.GetInt());
                 break;
             case CustomRoles.Grenadier:
-                Main.GrenadierNumOfUsed.Add(id, Options.GrenadierSkillMaxOfUseage.GetInt());
+                id.SetAbilityUseLimit(Options.GrenadierSkillMaxOfUseage.GetInt());
                 break;
             case CustomRoles.Lighter:
-                Main.LighterNumOfUsed.Add(id, Options.LighterSkillMaxOfUseage.GetInt());
+                id.SetAbilityUseLimit(Options.LighterSkillMaxOfUseage.GetInt());
                 break;
             case CustomRoles.SecurityGuard:
-                Main.SecurityGuardNumOfUsed.Add(id, Options.SecurityGuardSkillMaxOfUseage.GetInt());
+                id.SetAbilityUseLimit(Options.SecurityGuardSkillMaxOfUseage.GetInt());
                 break;
             case CustomRoles.Ventguard:
-                Main.VentguardNumberOfAbilityUses = Options.VentguardMaxGuards.GetInt();
+                id.SetAbilityUseLimit(Options.VentguardMaxGuards.GetInt());
                 break;
             case CustomRoles.Swooper:
                 Swooper.Add(id);
@@ -2955,7 +2869,7 @@ public static class Utils
                 Amnesiac.Add(id);
                 break;
             case CustomRoles.DovesOfNeace:
-                Main.DovesOfNeaceNumOfUsed.Add(id, Options.DovesOfNeaceMaxOfUseage.GetInt());
+                id.SetAbilityUseLimit(Options.DovesOfNeaceMaxOfUseage.GetInt());
                 break;
             case CustomRoles.Monarch:
                 Monarch.Add(id);
@@ -3329,7 +3243,7 @@ public static class Utils
         }
 
         Randomizer.OnAnyoneDeath(target);
-        
+
         if (Romantic.PartnerId == target.PlayerId)
             _ = new LateTask(Romantic.ChangeRole, 0.5f, "Romantic ChangeRole");
 
@@ -3671,6 +3585,5 @@ public static class Utils
     public static bool IsAllAlive => Main.PlayerStates.Values.All(state => state.countTypes == CountTypes.OutOfGame || !state.IsDead);
     public static int PlayersCount(CountTypes countTypes) => Main.PlayerStates.Values.Count(state => state.countTypes == countTypes);
     public static int AlivePlayersCount(CountTypes countTypes) => Main.AllAlivePlayerControls.Count(pc => pc.Is(countTypes));
-    //public static int IsOneAlive(CountTypes countTypes) => Main.AllAlivePlayerControls.Any(pc => pc.Is(countTypes)) ? 1 : 0;
     public static bool IsPlayerModClient(this byte id) => Main.playerVersion.ContainsKey(id);
 }

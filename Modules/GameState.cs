@@ -8,7 +8,6 @@ using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
-using UnityEngine;
 
 namespace TOHE;
 
@@ -368,11 +367,7 @@ public class TaskState
                 switch (player.GetCustomRole())
                 {
                     case CustomRoles.Express:
-                        if (!Main.ExpressSpeedUp.ContainsKey(player.PlayerId)) Main.ExpressSpeedNormal = Main.AllPlayerSpeed[player.PlayerId];
-                        Main.AllPlayerSpeed[player.PlayerId] = Options.ExpressSpeed.GetFloat();
-                        Main.ExpressSpeedUp.Remove(player.PlayerId);
-                        Main.ExpressSpeedUp.TryAdd(player.PlayerId, Utils.TimeStamp);
-                        player.MarkDirtySettings();
+                        Express.OnTaskComplete(player);
                         break;
                     case CustomRoles.Alchemist:
                         Alchemist.OnTaskComplete(player);
@@ -384,35 +379,13 @@ public class TaskState
                         Autocrat.OnTaskComplete(player);
                         break;
                     case CustomRoles.Speedrunner:
-                        var completedTasks = CompletedTasksCount + 1;
-                        int remainingTasks = AllTasksCount - completedTasks;
-                        if (completedTasks >= AllTasksCount)
-                        {
-                            Logger.Info("Speedrunner finished tasks", "Speedrunner");
-                            player.RPCPlayCustomSound("Congrats");
-                            GameData.Instance.CompletedTasks = GameData.Instance.TotalTasks;
-                        }
-                        else if (completedTasks >= Options.SpeedrunnerNotifyAtXTasksLeft.GetInt() && Options.SpeedrunnerNotifyKillers.GetBool())
-                        {
-                            string speedrunnerName = player.GetRealName().RemoveHtmlTags();
-                            string notifyString = Translator.GetString("SpeedrunnerHasXTasksLeft");
-                            foreach (var pc in Main.AllAlivePlayerControls.Where(pc => !pc.Is(Team.Crewmate)).ToArray())
-                            {
-                                pc.Notify(string.Format(notifyString, speedrunnerName, remainingTasks));
-                            }
-                        }
+                        Speedrunner.OnTaskComplete(player, CompletedTasksCount, AllTasksCount);
                         break;
                     case CustomRoles.Electric:
                         Electric.OnTaskComplete(player);
                         break;
                     case CustomRoles.Insight:
-                        var list2 = Main.AllPlayerControls.Where(x => !Main.InsightKnownRolesOfPlayerIds.Contains(x.PlayerId) && !x.Is(CountTypes.OutOfGame) && !x.Is(CustomRoles.Insight) && !x.Is(CustomRoles.GM) && !x.Is(CustomRoles.NotAssigned))?.ToList();
-                        if (list2 != null && list2.Count != 0)
-                        {
-                            var target = list2[IRandom.Instance.Next(0, list2.Count)];
-                            Main.InsightKnownRolesOfPlayerIds.Add(target.PlayerId);
-                            player.Notify(string.Format(Utils.ColorString(target.GetRoleColor(), Translator.GetString("InsightNotify")), target.GetDisplayRoleName(pure: true)));
-                        }
+                        Insight.OnTaskComplete(player);
                         break;
                     case CustomRoles.Ignitor:
                         Ignitor.OnCompleteTask(player);
@@ -422,56 +395,7 @@ public class TaskState
                         Merchant.OnTaskFinished(player);
                         break;
                     case CustomRoles.Crewpostor:
-                        {
-                            if (Main.CrewpostorTasksDone.ContainsKey(player.PlayerId)) Main.CrewpostorTasksDone[player.PlayerId]++;
-                            else Main.CrewpostorTasksDone[player.PlayerId] = 0;
-                            RPC.CrewpostorTasksSendRPC(player.PlayerId, Main.CrewpostorTasksDone[player.PlayerId]);
-
-                            PlayerControl[] list = Main.AllAlivePlayerControls.Where(x => x.PlayerId != player.PlayerId && (Options.CrewpostorCanKillAllies.GetBool() || !x.GetCustomRole().IsImpostorTeam())).ToArray();
-                            if (list.Length == 0 || list == null)
-                            {
-                                Logger.Info($"No target to kill", "Crewpostor");
-                            }
-                            else if (Main.CrewpostorTasksDone[player.PlayerId] % Options.CrewpostorKillAfterTask.GetInt() != 0 && Main.CrewpostorTasksDone[player.PlayerId] != 0)
-                            {
-                                Logger.Info($"Crewpostor task done but kill skipped, {Main.CrewpostorTasksDone[player.PlayerId]} tasks completed, but it kills after {Options.CrewpostorKillAfterTask.GetInt()} tasks", "Crewpostor");
-                            }
-                            else
-                            {
-                                list = [.. list.OrderBy(x => Vector2.Distance(player.Pos(), x.Pos()))];
-                                var target = list[0];
-                                if (!target.Is(CustomRoles.Pestilence))
-                                {
-
-                                    if (!Options.CrewpostorLungeKill.GetBool())
-                                    {
-                                        target.SetRealKiller(player);
-                                        if (player.RpcCheckAndMurder(target, true))
-                                        {
-                                            target.Suicide(PlayerState.DeathReason.Kill, player);
-                                            player.RpcGuardAndKill();
-                                        }
-                                        Logger.Info("No lunge mode kill", "Crewpostor");
-                                    }
-                                    else
-                                    {
-                                        player.SetRealKiller(target);
-                                        player.RpcCheckAndMurder(target);
-                                        //player.RpcGuardAndKill();
-                                        Logger.Info("lunge mode kill", "Crewpostor");
-
-                                    }
-                                    Logger.Info($"Crewpostor completed task to kill：{player.GetNameWithRole()} => {target.GetNameWithRole()}", "Crewpostor");
-                                }
-                                else
-                                {
-                                    target.SetRealKiller(player);
-                                    target.Kill(player);
-                                    //player.RpcGuardAndKill();
-                                    Logger.Info($"Crewpostor tried to kill Pestilence：{target.GetNameWithRole()} => {player.GetNameWithRole().RemoveHtmlTags()}", "Pestilence Reflect");
-                                }
-                            }
-                        }
+                        Crewpostor.OnTaskComplete(player);
                         break;
                     case CustomRoles.Rabbit:
                         Rabbit.OnTaskComplete(player);
@@ -492,18 +416,9 @@ public class TaskState
                 Utils.NotifyRoles(SpecifySeer: taskmanager, SpecifyTarget: player);
             }
 
-            // Workaholic Task Completion
-            if (player.Is(CustomRoles.Workaholic) && (CompletedTasksCount + 1) >= AllTasksCount && !(Options.WorkaholicCannotWinAtDeath.GetBool() && !alive))
+            if (player.Is(CustomRoles.Workaholic))
             {
-                Logger.Info("Workaholic Tasks Finished", "Workaholic");
-                RPC.PlaySoundRPC(player.PlayerId, Sounds.KillSound);
-                foreach (var pc in Main.AllAlivePlayerControls.Where(pc => pc.PlayerId != player.PlayerId).ToArray())
-                {
-                    pc.Suicide(pc.PlayerId == player.PlayerId ? PlayerState.DeathReason.Overtired : PlayerState.DeathReason.Ashamed, player);
-                }
-
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Workaholic);
-                CustomWinnerHolder.WinnerIds.Add(player.PlayerId);
+                Workaholic.OnTaskComplte(player, CompletedTasksCount, AllTasksCount);
             }
         }
 

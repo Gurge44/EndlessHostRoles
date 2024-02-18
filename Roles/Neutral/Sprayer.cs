@@ -26,7 +26,6 @@ namespace TOHE.Roles.Neutral
         private static OptionItem EffectDuration;
         private static OptionItem MaxTrappedTimes;
 
-        private static int UseLimit = 0;
         private static readonly List<Vector2> Traps = [];
         private static readonly Dictionary<byte, int> TrappedCount = [];
         public static readonly List<byte> LowerVisionList = [];
@@ -68,12 +67,11 @@ namespace TOHE.Roles.Neutral
             TrappedCount.Clear();
             LowerVisionList.Clear();
             LastUpdate.Clear();
-            UseLimit = 0;
         }
         public static void Add(byte playerId)
         {
             SprayerId = playerId;
-            UseLimit = UseLimitOpt.GetInt();
+            playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
 
             foreach (var pc in Main.AllAlivePlayerControls) TrappedCount[pc.PlayerId] = 0;
 
@@ -84,23 +82,14 @@ namespace TOHE.Roles.Neutral
         public static bool IsEnable => SprayerId != byte.MaxValue;
         public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
-        private static void SendRPC()
-        {
-            if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncSprayer, SendOption.Reliable, -1);
-            writer.Write(UseLimit);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-        public static void ReceiveRPC(MessageReader reader) => UseLimit = reader.ReadInt32();
         public static void PlaceTrap()
         {
-            if (!IsEnable || UseLimit <= 0 || Sprayer_.HasAbilityCD()) return;
+            if (!IsEnable || SprayerId.GetAbilityUseLimit() <= 0 || Sprayer_.HasAbilityCD()) return;
 
             Traps.Add(Sprayer_.Pos());
-            UseLimit--;
-            SendRPC();
+            Sprayer_.RpcRemoveAbilityUse();
 
-            if (UseLimit > 0) Sprayer_.AddAbilityCD(CD.GetInt());
+            if (SprayerId.GetAbilityUseLimit() > 0) Sprayer_.AddAbilityCD(CD.GetInt());
 
             Sprayer_.Notify(GetString("SprayerNotify"));
         }
@@ -150,11 +139,11 @@ namespace TOHE.Roles.Neutral
         }
         public static void AfterMeetingTasks()
         {
-            if (UseLimit > 0)
+            if (SprayerId.GetAbilityUseLimit() > 0)
             {
                 Sprayer_.AddAbilityCD(Math.Max(15, CD.GetInt()));
             }
         }
-        public static string ProgressText => $"<#777777>-</color> <#ffffff>{UseLimit}</color>";
+        public static string ProgressText => $"<#777777>-</color> <#ffffff>{SprayerId.GetAbilityUseLimit()}</color>";
     }
 }

@@ -9,7 +9,6 @@ namespace TOHE.Roles.Crewmate
     {
         private static readonly int Id = 640200;
         private static List<byte> playerIdList = [];
-        public static Dictionary<byte, float> UseLimit = [];
         public static Dictionary<byte, long> ShieldedPlayers = [];
 
         public static OptionItem AidDur;
@@ -34,13 +33,12 @@ namespace TOHE.Roles.Crewmate
         public static void Init()
         {
             playerIdList = [];
-            UseLimit = [];
             ShieldedPlayers = [];
         }
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            UseLimit.Add(playerId, UseLimitOpt.GetInt());
+            playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
 
             if (!AmongUsClient.Instance.AmHost || (Options.UsePets.GetBool() && UsePet.GetBool())) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))
@@ -54,9 +52,9 @@ namespace TOHE.Roles.Crewmate
             if (target == null) return false;
             if (!killer.Is(CustomRoles.Aid)) return true;
 
-            if (UseLimit[killer.PlayerId] >= 1)
+            if (killer.GetAbilityUseLimit() >= 1)
             {
-                UseLimit[killer.PlayerId] -= 1;
+                killer.RpcRemoveAbilityUse();
                 ShieldedPlayers.TryAdd(target.PlayerId, Utils.TimeStamp);
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 return false;
@@ -89,20 +87,8 @@ namespace TOHE.Roles.Crewmate
 
             var sb = new StringBuilder();
 
-            var taskState = Main.PlayerStates?[playerId]?.TaskState;
-            Color TextColor;
-            var TaskCompleteColor = Color.green;
-            var NonCompleteColor = Color.yellow;
-            var NormalColor = taskState.IsTaskFinished ? TaskCompleteColor : NonCompleteColor;
-            TextColor = comms ? Color.gray : NormalColor;
-            string Completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
-
-            Color TextColor1;
-            if (UseLimit[playerId] < 1) TextColor1 = Color.red;
-            else TextColor1 = Color.white;
-
-            sb.Append(Utils.ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
-            sb.Append(Utils.ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));
+            sb.Append(Utils.GetTaskCount(playerId, comms));
+            sb.Append(Utils.GetAbilityUseLimitDisplay(playerId));
 
             return sb.ToString();
         }

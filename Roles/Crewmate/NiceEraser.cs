@@ -15,7 +15,6 @@ internal static class NiceEraser
     public static OptionItem CancelVote;
 
     private static List<byte> didVote = [];
-    public static Dictionary<byte, int> EraseLimit = [];
     private static List<byte> PlayerToErase = [];
 
     public static void SetupCustomOption()
@@ -29,33 +28,14 @@ internal static class NiceEraser
     public static void Init()
     {
         playerIdList = [];
-        EraseLimit = [];
     }
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        EraseLimit.TryAdd(playerId, EraseLimitOpt.GetInt());
-        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : 剩余{EraseLimit[playerId]}次", "NiceEraser");
+        playerId.SetAbilityUseLimit(EraseLimitOpt.GetInt());
     }
     public static bool IsEnable => playerIdList.Count > 0;
-    public static void SendRPC(byte playerId)
-    {
-        if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetEraseLimit, SendOption.Reliable, -1);
-        writer.Write(playerId);
-        writer.Write(EraseLimit[playerId]);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-    public static void ReceiveRPC(MessageReader reader)
-    {
-        byte PlayerId = reader.ReadByte();
-        int Limit = reader.ReadInt32();
-        if (EraseLimit.ContainsKey(PlayerId))
-            EraseLimit[PlayerId] = Limit;
-        else
-            EraseLimit.Add(PlayerId, 0);
-    }
-    public static string GetProgressText(byte playerId) => Utils.ColorString(EraseLimit[playerId] > 0 ? Utils.GetRoleColor(CustomRoles.NiceEraser) : Color.gray, EraseLimit.TryGetValue(playerId, out var x) ? $"({x})" : "Invalid");
+    public static string GetProgressText(byte playerId) => Utils.GetAbilityUseLimitDisplay(playerId);
 
     public static bool OnVote(PlayerControl player, PlayerControl target)
     {
@@ -63,7 +43,7 @@ internal static class NiceEraser
         if (didVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
         didVote.Add(player.PlayerId);
 
-        if (EraseLimit.ContainsKey(player.PlayerId) && EraseLimit[player.PlayerId] < 1) return false;
+        if (player.GetAbilityUseLimit() < 1) return false;
 
         if (target.PlayerId == player.PlayerId)
         {
@@ -77,8 +57,7 @@ internal static class NiceEraser
             return false;
         }
 
-        if (EraseLimit.ContainsKey(player.PlayerId)) EraseLimit[player.PlayerId]--;
-        SendRPC(player.PlayerId);
+        player.RpcRemoveAbilityUse();
 
         if (!PlayerToErase.Contains(target.PlayerId))
             PlayerToErase.Add(target.PlayerId);

@@ -13,7 +13,6 @@ public static class Crusader
     public static OptionItem UsePet;
 
     public static Dictionary<byte, float> CurrentKillCooldown = [];
-    public static Dictionary<byte, int> CrusaderLimit = [];
 
     public static void SetupCustomOption()
     {
@@ -27,49 +26,29 @@ public static class Crusader
     public static void Init()
     {
         playerIdList = [];
-        CrusaderLimit = [];
     }
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        CrusaderLimit.TryAdd(playerId, SkillLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(SkillLimitOpt.GetInt());
         CurrentKillCooldown.Add(playerId, SkillCooldown.GetFloat());
 
         if (!AmongUsClient.Instance.AmHost || (Options.UsePets.GetBool() && UsePet.GetBool())) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-
-    public static void Remove(byte playerId)
-    {
-        playerIdList.Remove(playerId);
-        CrusaderLimit.Remove(playerId);
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Remove(playerId);
-    }
     public static bool IsEnable => playerIdList.Count > 0;
-    //public static void ReceiveRPC(MessageReader reader)
-    //{
-    //    byte PlayerId = reader.ReadByte();
-    //    int Limit = reader.ReadInt32();
-    //    if (CrusaderLimit.ContainsKey(PlayerId))
-    //        CrusaderLimit[PlayerId] = Limit;
-    //    else
-    //        CrusaderLimit.Add(PlayerId, SkillLimitOpt.GetInt());
-    //}
     public static bool CanUseKillButton(byte playerId)
         => !Main.PlayerStates[playerId].IsDead
-        && (CrusaderLimit.TryGetValue(playerId, out var x) ? x : 1) >= 1;
+        && (playerId.GetAbilityUseLimit() >= 1;
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanUseKillButton(id) ? CurrentKillCooldown[id] : 0f;
-    public static string GetSkillLimit(byte playerId) => Utils.ColorString(CanUseKillButton(playerId) ? Utils.GetRoleColor(CustomRoles.Crusader).ShadeColor(0.25f) : Color.gray, CrusaderLimit.TryGetValue(playerId, out var constableLimit) ? $"({constableLimit})" : "Invalid");
+    public static string GetSkillLimit(byte playerId) => Utils.GetAbilityUseLimitDisplay(playerId);
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (CrusaderLimit[killer.PlayerId] <= 0) return false;
+        if (killer.GetAbilityUseLimit() <= 0) return false;
         Main.ForCrusade.Remove(target.PlayerId);
         Main.ForCrusade.Add(target.PlayerId);
-        CrusaderLimit[killer.PlayerId]--;
+        killer.RpcRemoveAbilityUse();
         killer.ResetKillCooldown();
         killer.SetKillCooldown();
         //killer.RpcGuardAndKill(target);

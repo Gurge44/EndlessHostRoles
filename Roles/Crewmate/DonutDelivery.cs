@@ -14,8 +14,6 @@ namespace TOHE.Roles.Crewmate
         private static OptionItem UseLimit;
         public static OptionItem UsePet;
 
-        public static int DeliverLimit;
-
         public static void SetupCustomOption()
         {
             SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.DonutDelivery, 1);
@@ -31,7 +29,6 @@ namespace TOHE.Roles.Crewmate
         public static void Init()
         {
             playerIdList = [];
-            DeliverLimit = 0;
         }
         public static void Add(byte playerId)
         {
@@ -39,26 +36,13 @@ namespace TOHE.Roles.Crewmate
 
             playerIdList.Add(playerId);
 
-            DeliverLimit = UseLimit.GetInt();
+            playerId.SetAbilityUseLimit(UseLimit.GetInt());
 
             if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
         public static bool IsEnable => playerIdList.Count > 0;
-        public static void SendRPC()
-        {
-            if (CurrentGameMode == CustomGameMode.MoveAndStop || !IsEnable || !Utils.DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDonutLimit, SendOption.Reliable, -1);
-            writer.Write(DeliverLimit);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-
-        public static void ReceiveRPC(MessageReader reader)
-        {
-            if (CurrentGameMode == CustomGameMode.MoveAndStop || !IsEnable) return;
-            DeliverLimit = reader.ReadInt32();
-        }
         public static void SetKillCooldown(byte playerId)
         {
             if (CurrentGameMode == CustomGameMode.MoveAndStop)
@@ -67,13 +51,13 @@ namespace TOHE.Roles.Crewmate
                 return;
             }
 
-            Main.AllPlayerKillCooldown[playerId] = DeliverLimit > 0 ? CD.GetFloat() : 300f;
+            Main.AllPlayerKillCooldown[playerId] = playerId.GetAbilityUseLimit() > 0 ? CD.GetFloat() : 300f;
         }
         public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (CurrentGameMode == CustomGameMode.MoveAndStop || !IsEnable || killer == null || target == null || DeliverLimit <= 0 || !killer.Is(CustomRoles.DonutDelivery)) return;
+            if (CurrentGameMode == CustomGameMode.MoveAndStop || !IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0 || !killer.Is(CustomRoles.DonutDelivery)) return;
 
-            DeliverLimit--;
+            killer.RpcRemoveAbilityUse();
 
             var num1 = IRandom.Instance.Next(0, 19);
             killer.Notify(GetString($"DonutDelivered-{num1}"));
@@ -86,6 +70,6 @@ namespace TOHE.Roles.Crewmate
             var num2 = IRandom.Instance.Next(0, 15);
             target.Notify(GetString($"DonutGot-{num2}"));
         }
-        public static string GetProgressText() => $"<color=#777777>-</color> <color=#ffffff>{DeliverLimit}</color>";
+        public static string GetProgressText(byte id) => $"<color=#777777>-</color> <color=#ffffff>{id.GetAbilityUseLimit()}</color>";
     }
 }
