@@ -8,7 +8,7 @@ namespace TOHE;
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.AddTasksFromList))]
 class AddTasksFromListPatch
 {
-    public static void Prefix(/*ShipStatus __instance,*/
+    public static void Prefix( /*ShipStatus __instance,*/
         [HarmonyArgument(4)] Il2CppSystem.Collections.Generic.List<NormalPlayerTask> unusedTasks)
     {
         if (!AmongUsClient.Instance.AmHost) return;
@@ -99,6 +99,7 @@ class AddTasksFromListPatch
                     break;
             }
         }
+
         for (int i = 0; i < disabledTasks.Count; i++)
         {
             NormalPlayerTask task = disabledTasks[i];
@@ -113,9 +114,9 @@ class RpcSetTasksPatch
 {
     //タスクを割り当ててRPCを送る処理が行われる直前にタスクを上書きするPatch
     //バニラのタスク割り当て処理自体には干渉しない
-    public static void Prefix(/*GameData __instance,*/
-    [HarmonyArgument(0)] byte playerId,
-    [HarmonyArgument(1)] ref Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray<byte> taskTypeIds)
+    public static void Prefix( /*GameData __instance,*/
+        [HarmonyArgument(0)] byte playerId,
+        [HarmonyArgument(1)] ref Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray<byte> taskTypeIds)
     {
         //null対策
         if (Main.RealOptionsData == null)
@@ -137,10 +138,10 @@ class RpcSetTasksPatch
         if (Options.OverrideTasksData.AllData.TryGetValue(role, out var data) && data.doOverride.GetBool())
         {
             hasCommonTasks = data.assignCommonTasks.GetBool(); // コモンタスク(通常タスク)を割り当てるかどうか
-                                                               // 割り当てる場合でも再割り当てはされず、他のクルーと同じコモンタスクが割り当てられる。
+            // 割り当てる場合でも再割り当てはされず、他のクルーと同じコモンタスクが割り当てられる。
             NumLongTasks = data.numLongTasks.GetInt(); // 割り当てるロングタスクの数
             NumShortTasks = data.numShortTasks.GetInt(); // 割り当てるショートタスクの数
-                                                         // ロングとショートは常時再割り当てが行われる。
+            // ロングとショートは常時再割り当てが行われる。
         }
 
         if (pc.Is(CustomRoles.Busy))
@@ -237,8 +238,8 @@ class RpcSetTasksPatch
         {
             taskTypeIds[i] = TasksList[i];
         }
-
     }
+
     public static void Shuffle<T>(Il2CppSystem.Collections.Generic.List<T> list)
     {
         for (int i = 0; i < list.Count - 1; i++)

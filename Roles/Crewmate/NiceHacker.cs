@@ -63,7 +63,7 @@
         public static void SendRPC(byte playerId, float secondsLeft)
         {
             if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetNiceHackerLimit, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetNiceHackerLimit, SendOption.Reliable);
             writer.Write(playerId);
             writer.Write(secondsLeft);
             AmongUsClient.Instance.FinishRpcImmediately(writer);

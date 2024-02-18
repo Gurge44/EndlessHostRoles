@@ -48,7 +48,7 @@ public static class Utils
         }
         else
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.AntiBlackout, SendOption.Reliable);
+            MessageWriter writer = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.AntiBlackout);
             writer.Write(text);
             writer.EndMessage();
             if (Options.EndWhenPlayerBug.GetBool())
@@ -322,7 +322,8 @@ public static class Utils
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.KillFlash, SendOption.Reliable, player.GetClientId());
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
-        else if (!ReactorCheck) player.ReactorFlash(0f); // Reactor flash
+        else if (!ReactorCheck) player.ReactorFlash(); // Reactor flash
+
         player.MarkDirtySettings();
         _ = new LateTask(() =>
         {
@@ -453,7 +454,7 @@ public static class Utils
         return deathReason;
     }
 
-    public static MessageWriter CreateCustomRoleRPC(CustomRPC rpc) => AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)rpc, SendOption.Reliable, -1);
+    public static MessageWriter CreateCustomRoleRPC(CustomRPC rpc) => AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)rpc, SendOption.Reliable);
     public static void EndRPC(MessageWriter writer) => AmongUsClient.Instance.FinishRpcImmediately(writer);
 
     public static void IncreaseAbilityUseLimitOnKill(PlayerControl killer)
@@ -3570,7 +3571,7 @@ public static class Utils
         if (!GameStates.IsInGame) return;
         MeetingHud.Instance = UnityEngine.Object.Instantiate(HudManager.Instance.MeetingPrefab);
         MeetingHud.Instance.ServerStart(PlayerControl.LocalPlayer.PlayerId);
-        AmongUsClient.Instance.Spawn(MeetingHud.Instance, -2, SpawnFlags.None);
+        AmongUsClient.Instance.Spawn(MeetingHud.Instance);
         MeetingHud.Instance.RpcClose();
     }
 

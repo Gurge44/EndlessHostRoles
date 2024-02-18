@@ -1,5 +1,4 @@
-﻿using Hazel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TOHE.Roles.Neutral;
 using static TOHE.Translator;
 
@@ -28,12 +27,15 @@ namespace TOHE.Roles.Impostor
         {
             playerIdList = [];
         }
+
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimit.GetInt());
         }
+
         public static bool IsEnable => playerIdList.Count > 0;
+
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (!IsEnable || killer == null || target == null) return false;
@@ -47,6 +49,7 @@ namespace TOHE.Roles.Impostor
                 killer.SetKillCooldown(CD.GetFloat());
             });
         }
+
         public static string GetProgressText(byte id) => $"<color=#777777>-</color> <color=#ffffff>{id.GetAbilityUseLimit()}</color>";
     }
 }

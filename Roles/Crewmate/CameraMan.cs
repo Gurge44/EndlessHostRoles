@@ -1,6 +1,5 @@
 namespace TOHE.Roles.Crewmate
 {
-    using Hazel;
     using System;
     using System.Collections.Generic;
     using System.Text;
@@ -31,16 +30,20 @@ namespace TOHE.Roles.Crewmate
                 .SetParent(CustomRoleSpawnChances[CustomRoles.CameraMan])
                 .SetValueFormat(OptionFormat.Times);
         }
+
         public static void Init()
         {
             playerIdList = [];
         }
+
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
         }
+
         public static bool IsEnable => playerIdList.Count > 0;
+
         public static void OnEnterVent(PlayerControl pc)
         {
             if (pc == null) return;
@@ -68,6 +71,7 @@ namespace TOHE.Roles.Crewmate
                 if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
             }
         }
+
         public static string GetProgressText(byte playerId, bool comms)
         {
             var sb = new StringBuilder();

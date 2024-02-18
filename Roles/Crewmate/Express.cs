@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -10,6 +6,7 @@ namespace TOHE.Roles.Crewmate
     {
         public static Dictionary<byte, long> SpeedUp = [];
         public static Dictionary<byte, float> SpeedNormal = [];
+
         public static void OnTaskComplete(PlayerControl player)
         {
             if (!SpeedUp.ContainsKey(player.PlayerId)) SpeedNormal[player.PlayerId] = Main.AllPlayerSpeed[player.PlayerId];
@@ -17,6 +14,7 @@ namespace TOHE.Roles.Crewmate
             SpeedUp[player.PlayerId] = Utils.TimeStamp;
             player.MarkDirtySettings();
         }
+
         public static void OnFixedUpdate(PlayerControl player)
         {
             var playerId = player.PlayerId;

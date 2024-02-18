@@ -1,4 +1,3 @@
-using Hazel;
 using System.Collections.Generic;
 using System.Linq;
 using static TOHE.Options;
@@ -98,7 +97,7 @@ namespace TOHE.Roles.Crewmate
 
                 TargetArrow.Add(spiritualist, target.PlayerId);
 
-                var writer = CustomRpcSender.Create("SpiritualistSendMessage", SendOption.None);
+                var writer = CustomRpcSender.Create("SpiritualistSendMessage");
                 writer.StartMessage(target.GetClientId());
                 writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
                     .Write(GetString("SpiritualistNoticeTitle"))

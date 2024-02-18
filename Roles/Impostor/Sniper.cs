@@ -83,7 +83,7 @@ public static class Sniper
     {
         if (!IsEnable || !Utils.DoRPC) return;
         Logger.Info($"Player{playerId}:SendRPC", "Sniper");
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SniperSync, SendOption.Reliable, -1);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SniperSync, SendOption.Reliable);
         writer.Write(playerId);
         var snList = shotNotify[playerId];
         writer.Write(snList.Count);

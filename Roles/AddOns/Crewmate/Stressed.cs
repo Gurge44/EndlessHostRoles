@@ -131,7 +131,7 @@ namespace TOHE.Roles.AddOns.Crewmate
         public static void SendRPC(byte id, int time, long lastUpdate)
         {
             if (!Utils.DoRPC || !IsEnable) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncStressedTimer, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncStressedTimer, SendOption.Reliable);
             writer.Write(id);
             writer.Write(time);
             writer.Write(lastUpdate.ToString());

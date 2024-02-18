@@ -36,7 +36,7 @@ public abstract class GameOptionsSender
         var opt = BuildGameOptions();
 
         // option => byte[]
-        MessageWriter writer = MessageWriter.Get(SendOption.None);
+        MessageWriter writer = MessageWriter.Get();
         writer.Write(opt.Version);
         writer.StartMessage(0);
         writer.Write((byte)opt.GameMode);

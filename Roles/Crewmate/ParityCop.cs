@@ -52,15 +52,12 @@ public static class ParityCop
             .SetValueFormat(OptionFormat.Times);
         OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.ParityCop);
     }
-    public static int ParityCheckEgoistInt()
-    {
-        if (ParityCheckEgoistCountType.GetString() == "EgoistCountMode.Original") return 0;
-        else return 1;
-    }
+
+    public static int ParityCheckEgoistInt() => ParityCheckEgoistCountType.GetString() == "EgoistCountMode.Original" ? 0 : 1;
+
     public static void Init()
     {
         playerIdList = [];
-        MaxCheckLimit = [];
         RoundCheckLimit = [];
         FirstPick = [];
     }
@@ -68,7 +65,7 @@ public static class ParityCop
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        MaxCheckLimit.Add(playerId, ParityCheckLimitMax.GetInt());
+        playerId.SetAbilityUseLimit(ParityCheckLimitMax.GetInt());
         RoundCheckLimit.Add(playerId, ParityCheckLimitPerMeeting.GetInt());
     }
     public static bool IsEnable => playerIdList.Count > 0;
@@ -123,9 +120,9 @@ public static class ParityCop
             {
                 Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} checked {target1.GetNameWithRole().RemoveHtmlTags()} and {target2.GetNameWithRole().RemoveHtmlTags()}", "ParityCop");
 
-                if (MaxCheckLimit[pc.PlayerId] < 1 || RoundCheckLimit[pc.PlayerId] < 1)
+                if (pc.GetAbilityUseLimit() < 1 || RoundCheckLimit[pc.PlayerId] < 1)
                 {
-                    if (MaxCheckLimit[pc.PlayerId] < 1)
+                    if (pc.GetAbilityUseLimit() < 1)
                     {
                         _ = new LateTask(() =>
                         {
@@ -143,6 +140,7 @@ public static class ParityCop
                             Logger.Msg("Check attempted at max checks per meeting", "Parity Cop");
                         }, 0.2f, "ParityCop");
                     }
+
                     return true;
                 }
                 if (pc.PlayerId == target1.PlayerId || pc.PlayerId == target2.PlayerId)
@@ -227,7 +225,8 @@ public static class ParityCop
                             }, 0.3f, "ParityCop");
                         }
                     }
-                    MaxCheckLimit[pc.PlayerId] -= 1;
+
+                    pc.RpcRemoveAbilityUse();
                     RoundCheckLimit[pc.PlayerId]--;
                 }
             }
@@ -358,7 +357,7 @@ public static class ParityCop
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
             GameObject targetBox = UnityEngine.Object.Instantiate(template, pva.transform);
             targetBox.name = "ShootButton";
-            targetBox.transform.localPosition = new Vector3(-0.35f, 0.03f, -1.31f);
+            targetBox.transform.localPosition = new(-0.35f, 0.03f, -1.31f);
             SpriteRenderer renderer = targetBox.GetComponent<SpriteRenderer>();
             renderer.sprite = CustomButton.Get("ParityCopIcon");
             PassiveButton button = targetBox.GetComponent<PassiveButton>();

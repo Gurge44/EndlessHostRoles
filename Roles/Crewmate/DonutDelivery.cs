@@ -1,5 +1,4 @@
-﻿using Hazel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -30,6 +29,7 @@ namespace TOHE.Roles.Crewmate
         {
             playerIdList = [];
         }
+
         public static void Add(byte playerId)
         {
             if (CurrentGameMode == CustomGameMode.MoveAndStop) return;
@@ -42,7 +42,9 @@ namespace TOHE.Roles.Crewmate
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
+
         public static bool IsEnable => playerIdList.Count > 0;
+
         public static void SetKillCooldown(byte playerId)
         {
             if (CurrentGameMode == CustomGameMode.MoveAndStop)
@@ -53,6 +55,7 @@ namespace TOHE.Roles.Crewmate
 
             Main.AllPlayerKillCooldown[playerId] = playerId.GetAbilityUseLimit() > 0 ? CD.GetFloat() : 300f;
         }
+
         public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (CurrentGameMode == CustomGameMode.MoveAndStop || !IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0 || !killer.Is(CustomRoles.DonutDelivery)) return;
@@ -65,11 +68,13 @@ namespace TOHE.Roles.Crewmate
 
             killer.SetKillCooldown();
         }
+
         public static void RandomNotifyTarget(PlayerControl target)
         {
             var num2 = IRandom.Instance.Next(0, 15);
             target.Notify(GetString($"DonutGot-{num2}"));
         }
+
         public static string GetProgressText(byte id) => $"<color=#777777>-</color> <color=#ffffff>{id.GetAbilityUseLimit()}</color>";
     }
 }

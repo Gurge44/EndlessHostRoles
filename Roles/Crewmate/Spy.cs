@@ -51,7 +51,7 @@ namespace TOHE.Roles.Crewmate
         public static void SendRPC(int operate, byte id = byte.MaxValue, bool changeColor = false)
         {
             if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncSpy, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncSpy, SendOption.Reliable);
             writer.Write(operate);
             switch (operate)
             {

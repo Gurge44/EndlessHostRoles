@@ -1,6 +1,4 @@
-﻿using Hazel;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using static TOHE.Translator;
 
 namespace TOHE.Roles.Crewmate;
@@ -25,15 +23,18 @@ internal static class NiceEraser
         HideVote = BooleanOptionItem.Create(Id + 3, "NiceEraserHideVote", false, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceEraser]);
         CancelVote = Options.CreateVoteCancellingUseSetting(Id + 4, CustomRoles.NiceEraser, TabGroup.CrewmateRoles);
     }
+
     public static void Init()
     {
         playerIdList = [];
     }
+
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(EraseLimitOpt.GetInt());
     }
+
     public static bool IsEnable => playerIdList.Count > 0;
     public static string GetProgressText(byte playerId) => Utils.GetAbilityUseLimitDisplay(playerId);
 
@@ -69,11 +70,13 @@ internal static class NiceEraser
         Main.DontCancelVoteList.Add(player.PlayerId);
         return true;
     }
+
     public static void OnReportDeadBody()
     {
         PlayerToErase = [];
         didVote = [];
     }
+
     public static void AfterMeetingTasks()
     {
         foreach (byte pc in PlayerToErase.ToArray())

@@ -235,12 +235,12 @@ public class ModUpdater
             var fileName = Assembly.GetExecutingAssembly().Location;
             File.Move(fileName, fileName + ".bak");
             File.Move(savePath, fileName);
-            ShowPopup(GetString("updateRestart"), StringNames.Close, true, true);
+            ShowPopup(GetString("updateRestart"), StringNames.Close, true);
         }
         catch (Exception ex)
         {
             Logger.Error($"Update failed\n{ex}", "DownloadDLL", false);
-            ShowPopup(GetString("updateManually"), StringNames.Close, true, true);
+            ShowPopup(GetString("updateManually"), StringNames.Close, true);
             return false;
         }
         return true;
@@ -287,12 +287,12 @@ public class ModUpdater
             var fileName = Assembly.GetExecutingAssembly().Location;
             File.Move(fileName, fileName + ".bak");
             File.Move(savePath, fileName);
-            ShowPopup(GetString("updateRestart"), StringNames.Close, true, true);
+            ShowPopup(GetString("updateRestart"), StringNames.Close, true);
         }
         catch (Exception ex)
         {
             Logger.Error($"Update failed\n{ex}", "DownloadDLL", false);
-            ShowPopup(GetString("updateManually"), StringNames.Close, true, true);
+            ShowPopup(GetString("updateManually"), StringNames.Close, true);
             return false;
         }
         return true;

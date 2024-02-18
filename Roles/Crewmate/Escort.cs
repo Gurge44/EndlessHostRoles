@@ -1,5 +1,4 @@
-﻿using Hazel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TOHE.Roles.Neutral;
 using static TOHE.Translator;
 
@@ -30,6 +29,7 @@ namespace TOHE.Roles.Crewmate
         {
             playerIdList = [];
         }
+
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
@@ -40,11 +40,14 @@ namespace TOHE.Roles.Crewmate
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
+
         public static bool IsEnable => playerIdList.Count > 0;
+
         public static void SetKillCooldown(byte playerId)
         {
             Main.AllPlayerKillCooldown[playerId] = playerId.GetAbilityUseLimit() > 0 ? CD.GetFloat() : 300f;
         }
+
         public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (!IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0 || !killer.Is(CustomRoles.Escort)) return;
@@ -54,6 +57,7 @@ namespace TOHE.Roles.Crewmate
             Glitch.hackedIdList.TryAdd(target.PlayerId, Utils.TimeStamp);
             killer.Notify(GetString("EscortTargetHacked"));
         }
+
         public static string GetProgressText(byte id) => $"<color=#777777>-</color> <color=#ffffff>{id.GetAbilityUseLimit()}</color>";
     }
 }

@@ -80,7 +80,7 @@ namespace TOHE.Roles.AddOns.Impostor
         public static void SendRPC(byte playerId)
         {
             if (!Utils.DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncDamoclesTimer, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncDamoclesTimer, SendOption.Reliable);
             writer.Write(playerId);
             writer.Write(Timer[playerId]);
             writer.Write(lastUpdate[playerId].ToString());

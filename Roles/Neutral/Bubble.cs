@@ -67,7 +67,7 @@ namespace TOHE.Roles.Neutral
         private static void SendRPC(byte id = byte.MaxValue, bool remove = false, bool clear = false)
         {
             if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncBubble, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncBubble, SendOption.Reliable);
             writer.Write(remove);
             writer.Write(clear);
             writer.Write(id);

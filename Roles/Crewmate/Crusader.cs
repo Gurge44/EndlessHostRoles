@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace TOHE.Roles.Crewmate;
 
@@ -38,9 +37,11 @@ public static class Crusader
             Main.ResetCamPlayerList.Add(playerId);
     }
     public static bool IsEnable => playerIdList.Count > 0;
+
     public static bool CanUseKillButton(byte playerId)
         => !Main.PlayerStates[playerId].IsDead
-        && (playerId.GetAbilityUseLimit() >= 1;
+           && (playerId.GetAbilityUseLimit() >= 1);
+
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanUseKillButton(id) ? CurrentKillCooldown[id] : 0f;
     public static string GetSkillLimit(byte playerId) => Utils.GetAbilityUseLimitDisplay(playerId);
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)

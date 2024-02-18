@@ -7,13 +7,14 @@ namespace TOHE;
 [HarmonyPatch(typeof(Console), nameof(Console.CanUse))]
 class CanUsePatch
 {
-    public static bool Prefix(/*ref float __result,*/ Console __instance, /*[HarmonyArgument(0)] GameData.PlayerInfo pc,*/ [HarmonyArgument(1)] out bool canUse, [HarmonyArgument(2)] out bool couldUse)
+    public static bool Prefix( /*ref float __result,*/ Console __instance, /*[HarmonyArgument(0)] GameData.PlayerInfo pc,*/ [HarmonyArgument(1)] out bool canUse, [HarmonyArgument(2)] out bool couldUse)
     {
         canUse = couldUse = false;
         //こいつをfalseでreturnしても、タスク(サボ含む)以外の使用可能な物は使えるまま(ボタンなど)
         return __instance.AllowImpostor || Utils.HasTasks(PlayerControl.LocalPlayer.Data, false);
     }
 }
+
 [HarmonyPatch(typeof(EmergencyMinigame), nameof(EmergencyMinigame.Update))]
 class EmergencyMinigamePatch
 {
@@ -23,6 +24,7 @@ class EmergencyMinigamePatch
             __instance.Close();
     }
 }
+
 [HarmonyPatch(typeof(Vent), nameof(Vent.CanUse))]
 class CanUseVentPatch
 {
@@ -81,10 +83,12 @@ class CanUseVentPatch
             actualDistance = Vector2.Distance(center, ventPosition);
             canUse &= actualDistance <= __instance.UsableDistance && !PhysicsHelpers.AnythingBetween(playerControl.Collider, center, ventPosition, Constants.ShipOnlyMask, false);
         }
+
         __result = actualDistance;
         return false;
     }
 }
+
 [HarmonyPatch(typeof(PlayerPurchasesData), nameof(PlayerPurchasesData.GetPurchase))]
 public static class PlayerPurchasesDataPatch
 {

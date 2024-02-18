@@ -68,6 +68,7 @@ internal class EAC
                         Logger.Fatal($"Illegal setting of the status of player [{pc.GetClientId()}:{pc.GetRealName()}] to ghost, has been rejected", "EAC");
                         return true;
                     }
+
                     break;
                 case RpcCalls.SendChat:
                     var text = sr.ReadString();
@@ -78,12 +79,13 @@ internal class EAC
                         text.Contains('▌') ||
                         text.Contains('▒') ||
                         text.Contains("Xi Jinping")
-                        )
+                    )
                     {
                         Report(pc, "Illegal message");
                         Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] sent an illegal message, which has been rejected", "EAC");
                         return true;
                     }
+
                     break;
                 case RpcCalls.StartMeeting:
                     // Non-Host Clients will never send StartMeeting RPC
@@ -101,6 +103,7 @@ internal class EAC
                         Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] has a non-in-game meeting and has been rejected", "EAC");
                         return true;
                     }
+
                     break;
                 case RpcCalls.SetColor:
                 case RpcCalls.CheckColor:
@@ -113,9 +116,10 @@ internal class EAC
                         Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] sets the color in the game and has been rejected", "EAC");
                         return true;
                     }
+
                     if (pc.Data.DefaultOutfit.ColorId != -1 &&
                         (Main.AllPlayerControls.Count(x => x.Data.DefaultOutfit.ColorId == color) >= 5
-                        || color < 0 || color > 18))
+                         || color < 0 || color > 18))
                     {
                         WarnHost();
                         Report(pc, "Illegal color setting");
@@ -123,6 +127,7 @@ internal class EAC
                         Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] illegally set the color and has been rejected", "EAC");
                         return true;
                     }
+
                     if (pc.AmOwner)
                     {
                         WarnHost();
@@ -130,6 +135,7 @@ internal class EAC
                         Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] illegally set the host's color, which has been rejected", "EAC");
                         return true;
                     }
+
                     break;
                 case RpcCalls.CheckMurder:
                     if (GameStates.IsLobby)
@@ -140,6 +146,7 @@ internal class EAC
                         Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] illegally checked for kill and has been rejected", "EAC");
                         return true;
                     }
+
                     break;
                 case RpcCalls.MurderPlayer:
                     // Calls will only be sent by server / host
@@ -155,10 +162,11 @@ internal class EAC
                         Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] directly shapeshifted and has been rejected", "EAC");
                         return true;
                     }
+
                     break;
                 case RpcCalls.Shapeshift:
                     Report(pc, "Directly Shapeshift");
-                    var swriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.Shapeshift, SendOption.Reliable, -1);
+                    var swriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.Shapeshift, SendOption.Reliable);
                     swriter.WriteNetObject(pc);
                     swriter.Write(false);
                     AmongUsClient.Instance.FinishRpcImmediately(swriter);

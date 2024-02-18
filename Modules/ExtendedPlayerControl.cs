@@ -33,7 +33,7 @@ static class ExtendedPlayerControl
         }
         if (AmongUsClient.Instance.AmHost)
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCustomRole, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCustomRole, SendOption.Reliable);
             writer.Write(player.PlayerId);
             writer.WritePacked((int)role);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -43,7 +43,7 @@ static class ExtendedPlayerControl
     {
         if (AmongUsClient.Instance.AmHost)
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCustomRole, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCustomRole, SendOption.Reliable);
             writer.Write(PlayerId);
             writer.WritePacked((int)role);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -178,7 +178,7 @@ static class ExtendedPlayerControl
         // Other Clients
         if (killer.PlayerId != 0)
         {
-            var sender = CustomRpcSender.Create("GuardAndKill Sender", SendOption.None);
+            var sender = CustomRpcSender.Create("GuardAndKill Sender");
             sender.StartMessage(killer.GetClientId());
             sender.StartRpc(killer.NetId, (byte)RpcCalls.ProtectPlayer)
                 .WriteNetObject(target)
@@ -215,23 +215,23 @@ static class ExtendedPlayerControl
     {
         float current = pc.GetAbilityUseLimit();
         if (float.IsNaN(current)) return;
-        pc.SetAbilityUseLimit(current - 1, true);
+        pc.SetAbilityUseLimit(current - 1);
     }
     public static void RpcIncreaseAbilityUseLimitBy(this PlayerControl pc, float get)
     {
         float current = pc.GetAbilityUseLimit();
         if (float.IsNaN(current)) return;
-        pc.SetAbilityUseLimit(current + get, true);
+        pc.SetAbilityUseLimit(current + get);
     }
     public static void SetAbilityUseLimit(this PlayerControl pc, float limit, bool rpc = true)
     {
         if (limit < -10f)
 
-        Main.AbilityUseLimit[pc.PlayerId] = limit;
+            Main.AbilityUseLimit[pc.PlayerId] = limit;
 
         if (AmongUsClient.Instance.AmHost && pc.IsNonHostModClient() && rpc)
         {
-            var writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAbilityUseLimit, SendOption.Reliable, -1);
+            var writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAbilityUseLimit, SendOption.Reliable);
             writer.Write(pc.PlayerId);
             writer.Write(limit);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -243,7 +243,7 @@ static class ExtendedPlayerControl
 
         if (AmongUsClient.Instance.AmHost && playerId.IsPlayerModClient() && playerId != 0 && rpc)
         {
-            var writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAbilityUseLimit, SendOption.Reliable, -1);
+            var writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAbilityUseLimit, SendOption.Reliable);
             writer.Write(playerId);
             writer.Write(limit);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -627,10 +627,10 @@ static class ExtendedPlayerControl
             CustomRoles.Nuker => false,
             CustomRoles.Innocent => pc.IsAlive(),
             //CustomRoles.Counterfeiter => Counterfeiter.CanUseKillButton(pc.PlayerId),
-            CustomRoles.Aid => pc.IsAlive() && Aid.UseLimit.TryGetValue(pc.PlayerId, out var uses) && uses >= 1,
-            CustomRoles.Escort => pc.IsAlive() && Escort.BlockLimit >= 1,
-            CustomRoles.DonutDelivery => pc.IsAlive() && DonutDelivery.DeliverLimit >= 1,
-            CustomRoles.Gaulois => pc.IsAlive() && Gaulois.UseLimit.TryGetValue(pc.PlayerId, out var uses) && uses >= 1,
+            CustomRoles.Aid => pc.IsAlive() && pc.GetAbilityUseLimit() >= 1,
+            CustomRoles.Escort => pc.IsAlive() && pc.GetAbilityUseLimit() >= 1,
+            CustomRoles.DonutDelivery => pc.IsAlive() && pc.GetAbilityUseLimit() >= 1,
+            CustomRoles.Gaulois => pc.IsAlive() && pc.GetAbilityUseLimit() >= 1,
             CustomRoles.Analyzer => pc.IsAlive() && Analyzer.CanUseKillButton(pc.PlayerId),
             CustomRoles.Witness => pc.IsAlive(),
             CustomRoles.Pursuer => Pursuer.CanUseKillButton(pc.PlayerId),
@@ -893,7 +893,7 @@ static class ExtendedPlayerControl
     }
     public static void RpcSetDousedPlayer(this PlayerControl player, PlayerControl target, bool isDoused)
     {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDousedPlayer, SendOption.Reliable, -1);//RPCによる同期
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDousedPlayer, SendOption.Reliable); //RPCによる同期
         writer.Write(player.PlayerId);
         writer.Write(target.PlayerId);
         writer.Write(isDoused);
@@ -901,7 +901,7 @@ static class ExtendedPlayerControl
     }
     public static void RpcSetDrawPlayer(this PlayerControl player, PlayerControl target, bool isDoused)
     {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDrawPlayer, SendOption.Reliable, -1);//RPCによる同期
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDrawPlayer, SendOption.Reliable); //RPCによる同期
         writer.Write(player.PlayerId);
         writer.Write(target.PlayerId);
         writer.Write(isDoused);
@@ -909,7 +909,7 @@ static class ExtendedPlayerControl
     }
     public static void RpcSetRevealtPlayer(this PlayerControl player, PlayerControl target, bool isDoused)
     {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRevealedPlayer, SendOption.Reliable, -1);//RPCによる同期
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRevealedPlayer, SendOption.Reliable); //RPCによる同期
         writer.Write(player.PlayerId);
         writer.Write(target.PlayerId);
         writer.Write(isDoused);
@@ -1334,7 +1334,7 @@ static class ExtendedPlayerControl
     public static void RpcExileV2(this PlayerControl player)
     {
         player.Exiled();
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.Exiled, SendOption.None, -1);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.Exiled, SendOption.None);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
     public static (Vector2 LOCATION, string ROOM_NAME) GetPositionInfo(this PlayerControl pc)
@@ -1384,7 +1384,7 @@ static class ExtendedPlayerControl
     public static void RpcMurderPlayerV2(this PlayerControl killer, PlayerControl target)
     {
         target.RemoveProtection();
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable, -1);
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable);
         messageWriter.WriteNetObject(target);
         messageWriter.Write((int)MurderResultFlags.FailedProtected);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
@@ -1396,7 +1396,7 @@ static class ExtendedPlayerControl
         else
         {
             killer.MurderPlayer(target, ResultFlags);
-            MessageWriter messageWriter2 = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable, -1);
+            MessageWriter messageWriter2 = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable);
             messageWriter2.WriteNetObject(target);
             messageWriter2.Write((int)ResultFlags);
             AmongUsClient.Instance.FinishRpcImmediately(messageWriter2);

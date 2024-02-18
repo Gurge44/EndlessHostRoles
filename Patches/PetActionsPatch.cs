@@ -59,10 +59,9 @@ class ExternalRpcPetPatch
         var pc = __instance.myPlayer;
         var physics = __instance;
 
-        if (pc == null || physics == null) return;
+        if (pc == null) return;
 
-        if (pc != null
-            && !pc.inVent
+        if (!pc.inVent
             && !pc.inMovingPlat
             && !pc.walkingToVent
             && !pc.onLadder
@@ -129,7 +128,7 @@ class ExternalRpcPetPatch
                 break;
             case CustomRoles.Mayor:
                 if (Main.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count) && count < Options.MayorNumOfUseButton.GetInt())
-                    pc?.ReportDeadBody(null);
+                    pc.ReportDeadBody(null);
                 break;
             case CustomRoles.Paranoia:
                 if (Main.ParaUsedButtonCount.TryGetValue(pc.PlayerId, out var count2) && count2 < Options.ParanoiaNumOfUseButton.GetInt())
@@ -137,22 +136,20 @@ class ExternalRpcPetPatch
                     Main.ParaUsedButtonCount[pc.PlayerId] += 1;
                     if (AmongUsClient.Instance.AmHost)
                     {
-                        _ = new LateTask(() =>
-                        {
-                            Utils.SendMessage(GetString("SkillUsedLeft") + (Options.ParanoiaNumOfUseButton.GetInt() - Main.ParaUsedButtonCount[pc.PlayerId]).ToString(), pc.PlayerId);
-                        }, 4.0f, "Skill Remain Message");
+                        _ = new LateTask(() => { Utils.SendMessage(GetString("SkillUsedLeft") + (Options.ParanoiaNumOfUseButton.GetInt() - Main.ParaUsedButtonCount[pc.PlayerId]), pc.PlayerId); }, 4.0f, "Skill Remain Message");
                     }
 
-                    pc?.NoCheckStartMeeting(pc?.Data);
+                    pc.NoCheckStartMeeting(pc.Data);
                 }
+
                 break;
             case CustomRoles.Veteran:
                 if (Main.VeteranInProtect.ContainsKey(pc.PlayerId)) break;
-                if (Main.VeteranNumOfUsed[pc.PlayerId] >= 1)
+                if (pc.GetAbilityUseLimit() >= 1)
                 {
                     Main.VeteranInProtect.Remove(pc.PlayerId);
                     Main.VeteranInProtect.Add(pc.PlayerId, Utils.GetTimeStamp(DateTime.Now));
-                    Main.VeteranNumOfUsed[pc.PlayerId] -= 1;
+                    pc.RpcRemoveAbilityUse();
                     pc.RPCPlayCustomSound("Gunload");
                     pc.Notify(GetString("VeteranOnGuard"), Options.VeteranSkillDuration.GetFloat());
                     pc.MarkDirtySettings();
@@ -161,10 +158,11 @@ class ExternalRpcPetPatch
                 {
                     if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
                 }
+
                 break;
             case CustomRoles.Grenadier:
                 if (Main.GrenadierBlinding.ContainsKey(pc.PlayerId) || Main.MadGrenadierBlinding.ContainsKey(pc.PlayerId)) break;
-                if (Main.GrenadierNumOfUsed[pc.PlayerId] >= 1)
+                if (pc.GetAbilityUseLimit() >= 1)
                 {
                     if (pc.Is(CustomRoles.Madmate))
                     {
@@ -178,24 +176,26 @@ class ExternalRpcPetPatch
                         Main.GrenadierBlinding.Add(pc.PlayerId, Utils.TimeStamp);
                         Main.AllPlayerControls.Where(x => x.IsModClient()).Where(x => x.GetCustomRole().IsImpostor() || (x.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool())).Do(x => x.RPCPlayCustomSound("FlashBang"));
                     }
+
                     pc.RPCPlayCustomSound("FlashBang");
                     pc.Notify(GetString("GrenadierSkillInUse"), Options.GrenadierSkillDuration.GetFloat());
-                    Main.GrenadierNumOfUsed[pc.PlayerId] -= 1;
+                    pc.RpcRemoveAbilityUse();
                     Utils.MarkEveryoneDirtySettingsV3();
                 }
                 else
                 {
                     if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
                 }
+
                 break;
             case CustomRoles.Lighter:
                 if (Main.Lighter.ContainsKey(pc.PlayerId)) break;
-                if (Main.LighterNumOfUsed[pc.PlayerId] >= 1)
+                if (pc.GetAbilityUseLimit() >= 1)
                 {
                     Main.Lighter.Remove(pc.PlayerId);
                     Main.Lighter.Add(pc.PlayerId, Utils.TimeStamp);
                     pc.Notify(GetString("LighterSkillInUse"), Options.LighterSkillDuration.GetFloat());
-                    Main.LighterNumOfUsed[pc.PlayerId] -= 1;
+                    pc.RpcRemoveAbilityUse();
                     pc.MarkDirtySettings();
                 }
                 else
@@ -203,58 +203,59 @@ class ExternalRpcPetPatch
                     if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
                         pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
                 }
+
                 break;
             case CustomRoles.SecurityGuard:
                 if (Main.BlockSabo.ContainsKey(pc.PlayerId)) break;
-                if (Main.SecurityGuardNumOfUsed[pc.PlayerId] >= 1)
+                if (pc.GetAbilityUseLimit() >= 1)
                 {
                     Main.BlockSabo.Remove(pc.PlayerId);
                     Main.BlockSabo.Add(pc.PlayerId, Utils.TimeStamp);
                     pc.Notify(GetString("SecurityGuardSkillInUse"), Options.SecurityGuardSkillDuration.GetFloat());
-                    Main.SecurityGuardNumOfUsed[pc.PlayerId] -= 1;
+                    pc.RpcRemoveAbilityUse();
                 }
                 else
                 {
                     if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
                         pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
                 }
+
                 break;
             case CustomRoles.DovesOfNeace:
-                if (Main.DovesOfNeaceNumOfUsed[pc.PlayerId] < 1)
+                if (pc.GetAbilityUseLimit() < 1)
                 {
                     if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
                         pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
                     break;
                 }
-                else
+
+                pc.RpcRemoveAbilityUse();
+                //pc.RpcGuardAndKill(pc);
+                AllAlivePlayers.Where(x =>
+                    pc.Is(CustomRoles.Madmate) ? (x.CanUseKillButton() && x.GetCustomRole().IsCrewmate()) : x.CanUseKillButton()
+                ).Do(x =>
                 {
-                    Main.DovesOfNeaceNumOfUsed[pc.PlayerId] -= 1;
-                    //pc.RpcGuardAndKill(pc);
-                    AllAlivePlayers.Where(x =>
-                    pc.Is(CustomRoles.Madmate) ?
-                    (x.CanUseKillButton() && x.GetCustomRole().IsCrewmate()) :
-                    x.CanUseKillButton()
-                    ).Do(x =>
+                    x.RPCPlayCustomSound("Dove");
+                    x.ResetKillCooldown();
+                    x.SetKillCooldown();
+                    if (x.Is(CustomRoles.SerialKiller))
                     {
-                        x.RPCPlayCustomSound("Dove");
-                        x.ResetKillCooldown();
-                        x.SetKillCooldown();
-                        if (x.Is(CustomRoles.SerialKiller))
-                        { SerialKiller.OnReportDeadBody(); }
-                        x.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.DovesOfNeace), GetString("DovesOfNeaceSkillNotify")));
-                    });
-                    pc.RPCPlayCustomSound("Dove");
-                    pc.Notify(string.Format(GetString("DovesOfNeaceOnGuard"), Main.DovesOfNeaceNumOfUsed[pc.PlayerId]));
-                }
+                        SerialKiller.OnReportDeadBody();
+                    }
+
+                    x.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.DovesOfNeace), GetString("DovesOfNeaceSkillNotify")));
+                });
+                pc.RPCPlayCustomSound("Dove");
+                pc.Notify(string.Format(GetString("DovesOfNeaceOnGuard"), pc.GetAbilityUseLimit()));
                 break;
             case CustomRoles.Alchemist:
                 Alchemist.OnEnterVent(pc, 0, true);
                 break;
             case CustomRoles.TimeMaster:
                 if (Main.TimeMasterInProtect.ContainsKey(pc.PlayerId)) break;
-                if (Main.TimeMasterNumOfUsed[pc.PlayerId] >= 1)
+                if (pc.GetAbilityUseLimit() >= 1)
                 {
-                    Main.TimeMasterNumOfUsed[pc.PlayerId] -= 1;
+                    pc.RpcRemoveAbilityUse();
                     Main.TimeMasterInProtect.Remove(pc.PlayerId);
                     Main.TimeMasterInProtect.Add(pc.PlayerId, Utils.TimeStamp);
                     pc.Notify(GetString("TimeMasterOnGuard"), Options.TimeMasterSkillDuration.GetFloat());
@@ -279,6 +280,7 @@ class ExternalRpcPetPatch
                     if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
                         pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
                 }
+
                 break;
             case CustomRoles.NiceHacker:
                 NiceHacker.OnEnterVent(pc);
@@ -293,6 +295,7 @@ class ExternalRpcPetPatch
                     Main.TunnelerPositions.Remove(pc.PlayerId);
                 }
                 else Main.TunnelerPositions[pc.PlayerId] = pc.Pos();
+
                 break;
             case CustomRoles.Tornado:
                 Tornado.SpawnTornado(pc);
@@ -302,7 +305,9 @@ class ExternalRpcPetPatch
                 break;
             case CustomRoles.Lookout:
                 var sb = new StringBuilder();
-                for (int i = 0; i < AllAlivePlayers.Length; i++) if (i % 3 == 0) sb.AppendLine();
+                for (int i = 0; i < AllAlivePlayers.Length; i++)
+                    if (i % 3 == 0)
+                        sb.AppendLine();
                 for (int i = 0; i < AllAlivePlayers.Length; i++)
                 {
                     PlayerControl player = AllAlivePlayers[i];
@@ -314,6 +319,7 @@ class ExternalRpcPetPatch
                     sb.Append($"{name} {id}");
                     if (i % 3 == 0 && i != AllAlivePlayers.Length - 1) sb.AppendLine();
                 }
+
                 pc.Notify(sb.ToString());
                 break;
             case CustomRoles.Convener:
@@ -381,6 +387,7 @@ class ExternalRpcPetPatch
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: target, ForceLoop: true);
                     RPC.SetCurrentRevealTarget(pc.PlayerId, target.PlayerId);
                 }
+
                 break;
             case CustomRoles.Deputy when hasKillTarget:
                 pc.AddKCDAsAbilityCD();
@@ -420,6 +427,7 @@ class ExternalRpcPetPatch
                             cpdistance.Add(p, dis);
                             Logger.Info($"{p?.Data?.PlayerName}'s distance: {dis}", "Warlock");
                         }
+
                         if (cpdistance.Count > 0)
                         {
                             var min = cpdistance.OrderBy(c => c.Value).FirstOrDefault();
@@ -432,16 +440,20 @@ class ExternalRpcPetPatch
                                 pc.SetKillCooldown();
                                 pc.Notify(GetString("WarlockControlKill"));
                             }
+
                             _ = new LateTask(() => { pc.CmdCheckRevertShapeshift(false); }, 1.5f, "Warlock RpcRevertShapeshift");
                         }
                         else
                         {
                             pc.Notify(GetString("WarlockNoTarget"));
                         }
+
                         Main.isCurseAndKill[pc.PlayerId] = false;
                     }
+
                     Main.CursedPlayers[pc.PlayerId] = null;
                 }
+
                 break;
             case CustomRoles.Assassin:
                 Assassin.OnShapeshift(pc, true);
@@ -456,6 +468,7 @@ class ExternalRpcPetPatch
                     Logger.Msg($"{pc.GetNameWithRole().RemoveHtmlTags()}:{position}", "MinerTeleport");
                     pc.TP(new Vector2(position.x, position.y));
                 }
+
                 break;
             case CustomRoles.Escapee:
                 if (Main.EscapeeLocation.ContainsKey(pc.PlayerId))
@@ -470,6 +483,7 @@ class ExternalRpcPetPatch
                 {
                     Main.EscapeeLocation.Add(pc.PlayerId, pc.Pos());
                 }
+
                 break;
             case CustomRoles.RiftMaker:
                 RiftMaker.OnShapeshift(pc, true);
@@ -489,6 +503,7 @@ class ExternalRpcPetPatch
 
                     tg.Suicide(PlayerState.DeathReason.Bombed, pc);
                 }
+
                 _ = new LateTask(() =>
                 {
                     var totalAlive = AllAlivePlayers.Length;
@@ -496,6 +511,7 @@ class ExternalRpcPetPatch
                     {
                         pc.Suicide(PlayerState.DeathReason.Bombed);
                     }
+
                     Utils.NotifyRoles(ForceLoop: true);
                 }, 1.5f, "Bomber Suiscide");
                 break;
@@ -514,6 +530,7 @@ class ExternalRpcPetPatch
 
                     tg.Suicide(PlayerState.DeathReason.Bombed, pc);
                 }
+
                 _ = new LateTask(() =>
                 {
                     var totalAlive = AllAlivePlayers.Length;
@@ -521,6 +538,7 @@ class ExternalRpcPetPatch
                     {
                         pc.Suicide(PlayerState.DeathReason.Bombed);
                     }
+
                     Utils.NotifyRoles(ForceLoop: true);
                 }, 1.5f, "Nuke");
                 break;
@@ -577,6 +595,7 @@ class ExternalRpcPetPatch
                             player.Suicide(PlayerState.DeathReason.Torched, pc);
                         }
                     }
+
                     foreach (PlayerControl player in Main.AllPlayerControls)
                     {
                         player.KillFlash();
@@ -586,7 +605,8 @@ class ExternalRpcPetPatch
                     CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
                     break;
                 }
-                else if (Options.ArsonistCanIgniteAnytime.GetBool())
+
+                if (Options.ArsonistCanIgniteAnytime.GetBool())
                 {
                     var douseCount = Utils.GetDousedPlayerCount(pc.PlayerId).Item1;
                     if (douseCount >= Options.ArsonistMinPlayersToIgnite.GetInt()) // Don't check for max, since the player would not be able to ignite at all if they somehow get more players doused than the max
@@ -599,12 +619,14 @@ class ExternalRpcPetPatch
                             player.KillFlash();
                             player.Suicide(PlayerState.DeathReason.Torched, pc);
                         }
+
                         var apc = Main.AllAlivePlayerControls.Length;
                         if (apc == 1)
                         {
                             CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist);
                             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
                         }
+
                         if (apc == 2)
                         {
                             foreach (var player in Main.AllAlivePlayerControls.Where(p => p.PlayerId != pc.PlayerId).ToArray())
@@ -616,9 +638,11 @@ class ExternalRpcPetPatch
                                 }
                             }
                         }
+
                         break;
                     }
                 }
+
                 break;
 
             case CustomRoles.Necromancer when hasKillTarget && Main.KillTimers[pc.PlayerId] <= 0:
@@ -647,6 +671,7 @@ class ExternalRpcPetPatch
                     };
                 }
                 else suffix = x.ToString();
+
                 pc.Notify(GetString($"NoPetActionMsg{suffix}"));
                 break;
         }

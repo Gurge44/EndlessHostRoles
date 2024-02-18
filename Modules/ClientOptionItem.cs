@@ -43,10 +43,7 @@ public class ClientOptionItem
                 closeButton.Background.color = Palette.DisabledGrey;
                 var closePassiveButton = closeButton.GetComponent<PassiveButton>();
                 closePassiveButton.OnClick = new();
-                closePassiveButton.OnClick.AddListener(new Action(() =>
-                {
-                    CustomBackground.gameObject.SetActive(false);
-                }));
+                closePassiveButton.OnClick.AddListener(new Action(() => { CustomBackground.gameObject.SetActive(false); }));
 
                 UiElement[] selectableButtons = optionsMenuBehaviour.ControllerSelectable.ToArray();
                 PassiveButton leaveButton = null;
@@ -61,6 +58,7 @@ public class ClientOptionItem
                     else if (button.name == "ReturnToGameButton")
                         returnButton = button.GetComponent<PassiveButton>();
                 }
+
                 var generalTab = mouseMoveToggle.transform.parent.parent.parent;
 
                 var modOptionsButton = Object.Instantiate(mouseMoveToggle, generalTab);
@@ -70,10 +68,7 @@ public class ClientOptionItem
                 modOptionsButton.Background.color = new Color32(255, 192, 203, byte.MaxValue);
                 var modOptionsPassiveButton = modOptionsButton.GetComponent<PassiveButton>();
                 modOptionsPassiveButton.OnClick = new();
-                modOptionsPassiveButton.OnClick.AddListener(new Action(() =>
-                {
-                    CustomBackground.gameObject.SetActive(true);
-                }));
+                modOptionsPassiveButton.OnClick.AddListener(new Action(() => { CustomBackground.gameObject.SetActive(true); }));
 
                 if (leaveButton != null)
                     leaveButton.transform.localPosition = new(-1.35f, -2.411f, -1f);
@@ -100,7 +95,10 @@ public class ClientOptionItem
             }));
             UpdateToggle();
         }
-        finally { numOptions++; }
+        finally
+        {
+            numOptions++;
+        }
     }
 
     public static ClientOptionItem Create(

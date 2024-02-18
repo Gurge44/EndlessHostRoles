@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using TOHE.Modules;
+﻿using TOHE.Modules;
 using static TOHE.Options;
 using static TOHE.Translator;
 using static TOHE.Utils;
@@ -28,15 +27,18 @@ public static class Disperser
             .SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
             .SetValueFormat(OptionFormat.Times);
     }
+
     public static void Add(byte playerId)
     {
         playerId.SetAbilityUseLimit(DisperserLimitOpt.GetInt());
     }
+
     public static void ApplyGameOptions()
     {
         AURoleOptions.ShapeshifterCooldown = DisperserShapeshiftCooldown.GetFloat();
         AURoleOptions.ShapeshifterDuration = DisperserShapeshiftDuration.GetFloat();
     }
+
     public static void DispersePlayers(PlayerControl shapeshifter)
     {
         if (shapeshifter == null) return;
@@ -63,6 +65,7 @@ public static class Disperser
             pc.Notify(ColorString(GetRoleColor(CustomRoles.Disperser), string.Format(GetString("TeleportedInRndVentByDisperser"), pc.GetRealName())));
         }
     }
+
     public static void GetAbilityButtonText(HudManager __instance, PlayerControl pc)
     {
         __instance.AbilityButton.ToggleVisible(pc.IsAlive());

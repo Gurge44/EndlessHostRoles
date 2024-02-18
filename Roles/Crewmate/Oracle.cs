@@ -1,4 +1,3 @@
-using Hazel;
 using System.Collections.Generic;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -25,9 +24,7 @@ public static class Oracle
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Oracle);
         CheckLimitOpt = IntegerOptionItem.Create(Id + 10, "OracleSkillLimit", new(0, 10, 1), 0, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Oracle])
             .SetValueFormat(OptionFormat.Times);
-        //    OracleCheckMode = BooleanOptionItem.Create(Id + 11, "AccurateCheckMode", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Oracle]);
         HideVote = BooleanOptionItem.Create(Id + 12, "OracleHideVote", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Oracle]);
-        //  OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.Oracle);
         FailChance = IntegerOptionItem.Create(Id + 13, "FailChance", new(0, 100, 5), 0, TabGroup.CrewmateRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Oracle])
             .SetValueFormat(OptionFormat.Percent);
@@ -42,48 +39,32 @@ public static class Oracle
     public static void Init()
     {
         playerIdList = [];
-        CheckLimit = [];
     }
+
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        CheckLimit.TryAdd(playerId, CheckLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(CheckLimitOpt.GetInt());
     }
     public static bool IsEnable => playerIdList.Count > 0;
-    public static void SendRPC(byte playerId)
-    {
-        if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetOracleLimit, SendOption.Reliable, -1);
-        writer.Write(playerId);
-        writer.Write(CheckLimit[playerId]);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-    public static void ReceiveRPC(MessageReader reader)
-    {
-        if (AmongUsClient.Instance.AmHost) return;
 
-        byte playerId = reader.ReadByte();
-        float uses = reader.ReadSingle();
-        CheckLimit[playerId] = uses;
-    }
     public static bool OnVote(PlayerControl player, PlayerControl target)
     {
         if (player == null || target == null) return false;
         if (didVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
         didVote.Add(player.PlayerId);
 
-        if (CheckLimit[player.PlayerId] < 1)
+        if (player.GetAbilityUseLimit() < 1)
         {
             Utils.SendMessage(GetString("OracleCheckReachLimit"), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Oracle), GetString("OracleCheckMsgTitle")));
             return false;
         }
 
-        CheckLimit[player.PlayerId] -= 1;
-        SendRPC(player.PlayerId);
+        player.RpcRemoveAbilityUse();
 
         if (player.PlayerId == target.PlayerId)
         {
-            Utils.SendMessage(GetString("OracleCheckSelfMsg") + "\n\n" + string.Format(GetString("OracleCheckLimit"), CheckLimit[player.PlayerId]), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Oracle), GetString("OracleCheckMsgTitle")));
+            Utils.SendMessage(GetString("OracleCheckSelfMsg") + "\n\n" + string.Format(GetString("OracleCheckLimit"), player.GetAbilityUseLimit()), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Oracle), GetString("OracleCheckMsgTitle")));
             return false;
         }
 
@@ -119,7 +100,7 @@ public static class Oracle
 
         string msg = string.Format(GetString("OracleCheck." + text), target.GetRealName());
 
-        Utils.SendMessage(GetString("OracleCheck") + "\n" + msg + "\n\n" + string.Format(GetString("OracleCheckLimit"), CheckLimit[player.PlayerId]), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Oracle), GetString("OracleCheckMsgTitle")));
+        Utils.SendMessage(GetString("OracleCheck") + "\n" + msg + "\n\n" + string.Format(GetString("OracleCheckLimit"), player.GetAbilityUseLimit()), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Oracle), GetString("OracleCheckMsgTitle")));
 
         Main.DontCancelVoteList.Add(player.PlayerId);
         return true;

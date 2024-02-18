@@ -315,8 +315,9 @@ class HudManagerPatch
                         else
                         {
                             __instance.AbilityButton?.OverrideText(GetString("TwisterButtonText"));
-                            __instance.AbilityButton?.SetUsesRemaining((int)Twister.TwistLimit[player.PlayerId]);
+                            __instance.AbilityButton?.SetUsesRemaining((int)player.GetAbilityUseLimit());
                         }
+
                         break;
                     case CustomRoles.ImperiusCurse:
                         __instance.AbilityButton?.OverrideText(GetString("ImperiusCurseButtonText"));
@@ -329,15 +330,16 @@ class HudManagerPatch
                         else
                         {
                             __instance.AbilityButton?.OverrideText(GetString("QuickShooterShapeshiftText"));
-                            __instance.AbilityButton?.SetUsesRemaining(QuickShooter.ShotLimit.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var qx) ? qx : 0);
+                            __instance.AbilityButton?.SetUsesRemaining(QuickShooter.ShotLimit.GetValueOrDefault(PlayerControl.LocalPlayer.PlayerId, 0));
                         }
+
                         break;
                     case CustomRoles.Provocateur:
                         __instance.KillButton?.OverrideText(GetString("ProvocateurButtonText"));
                         break;
                     case CustomRoles.Camouflager:
                         __instance.AbilityButton?.OverrideText(GetString("CamouflagerShapeshiftText"));
-                        if (Camouflager.CamoLimit.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var x)) __instance.AbilityButton?.SetUsesRemaining((int)x);
+                        __instance.AbilityButton?.SetUsesRemaining((int)PlayerControl.LocalPlayer.GetAbilityUseLimit());
                         break;
                     case CustomRoles.OverKiller:
                         __instance.KillButton?.OverrideText(GetString("OverKillerButtonText"));
@@ -374,8 +376,9 @@ class HudManagerPatch
                         else
                         {
                             __instance.AbilityButton?.OverrideText(GetString("DisperserVentButtonText"));
-                            __instance.AbilityButton?.SetUsesRemaining((int)Disperser.DisperserLimit[player.PlayerId]);
+                            __instance.AbilityButton?.SetUsesRemaining((int)player.GetAbilityUseLimit());
                         }
+
                         break;
                     case CustomRoles.Swooper:
                         __instance.ImpostorVentButton?.OverrideText(GetString(Swooper.IsInvis(PlayerControl.LocalPlayer.PlayerId) ? "SwooperRevertVentButtonText" : "SwooperVentButtonText"));
@@ -482,7 +485,7 @@ class HudManagerPatch
                         break;
                     case CustomRoles.Hangman:
                         if (shapeshifting) __instance.KillButton?.OverrideText(GetString("HangmanKillButtonTextDuringSS"));
-                        __instance.AbilityButton?.SetUsesRemaining((int)Hangman.HangLimit[player.PlayerId]);
+                        __instance.AbilityButton?.SetUsesRemaining((int)player.GetAbilityUseLimit());
                         break;
                     case CustomRoles.Sidekick:
                         __instance.KillButton?.OverrideText(GetString("KillButtonText"));
@@ -500,7 +503,7 @@ class HudManagerPatch
                         break;
                     case CustomRoles.Dazzler:
                         __instance.AbilityButton?.OverrideText(GetString("DazzleButtonText"));
-                        if (Dazzler.DazzleLimit.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var y)) __instance.AbilityButton?.SetUsesRemaining((int)y);
+                        __instance.AbilityButton?.SetUsesRemaining((int)PlayerControl.LocalPlayer.GetAbilityUseLimit());
                         break;
                     case CustomRoles.Deathpact:
                         __instance.AbilityButton?.OverrideText(GetString("DeathpactButtonText"));

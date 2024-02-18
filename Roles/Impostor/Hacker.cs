@@ -1,7 +1,4 @@
-﻿using Hazel;
-using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -29,24 +26,30 @@ public static class Hacker
             .SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
             .SetValueFormat(OptionFormat.Times);
     }
+
     public static void Init()
     {
         playerIdList = [];
         DeadBodyList = [];
     }
+
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(HackLimitOpt.GetInt());
     }
+
     public static bool IsEnable => playerIdList.Count > 0;
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+
     public static void ApplyGameOptions()
     {
         AURoleOptions.ShapeshifterCooldown = 15f;
         AURoleOptions.ShapeshifterDuration = 1f;
     }
+
     public static string GetHackLimit(byte playerId) => Utils.GetAbilityUseLimitDisplay(playerId);
+
     public static void GetAbilityButtonText(HudManager __instance, byte playerId)
     {
         if (playerId.GetAbilityUseLimit() >= 1)
@@ -55,12 +58,15 @@ public static class Hacker
             __instance.AbilityButton.SetUsesRemaining((int)playerId.GetAbilityUseLimit());
         }
     }
+
     public static void OnReportDeadBody() => DeadBodyList = [];
+
     public static void AddDeadBody(PlayerControl target)
     {
         if (target != null && !DeadBodyList.Contains(target.PlayerId))
             DeadBodyList.Add(target.PlayerId);
     }
+
     public static void OnShapeshift(PlayerControl pc, bool shapeshifting, PlayerControl ssTarget)
     {
         if (!shapeshifting || pc.GetAbilityUseLimit() < 1 || ssTarget == null || ssTarget.Is(CustomRoles.Needy) || ssTarget.Is(CustomRoles.Lazy)) return;

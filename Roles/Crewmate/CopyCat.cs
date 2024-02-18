@@ -1,5 +1,4 @@
-﻿using Hazel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -95,6 +94,7 @@ public static class CopyCat
                     Main.MayorUsedButtonCount.Remove(player);
                     break;
             }
+
             pc.RpcSetCustomRole(CustomRoles.CopyCat);
             SetKillCooldown(player);
         }
@@ -125,7 +125,6 @@ public static class CopyCat
             CustomRoles.Tracefinder or
             CustomRoles.Spiritualist or
             CustomRoles.Tracker;
-
     }
 
     public static bool OnCheckMurder(PlayerControl pc, PlayerControl tpc)
@@ -137,6 +136,7 @@ public static class CopyCat
             SetKillCooldown(pc.PlayerId);
             return false;
         }
+
         if (CopyCrewVar.GetBool())
         {
             role = role switch
@@ -151,6 +151,7 @@ public static class CopyCat
                 _ => role,
             };
         }
+
         if (role.IsCrewmate() && (!tpc.GetCustomSubRoles().Any(x => x == CustomRoles.Rascal)))
         {
             ////////////           /*add the settings for new role*/            ////////////
@@ -165,6 +166,7 @@ public static class CopyCat
             pc.Notify(string.Format(GetString("CopyCatRoleChange"), Utils.GetRoleName(role)));
             return false;
         }
+
         if (CanKill.GetBool())
         {
             if (pc.GetAbilityUseLimit() >= 1)
@@ -173,13 +175,13 @@ public static class CopyCat
                 SetKillCooldown(pc.PlayerId);
                 return true;
             }
+
             pc.Suicide();
             return false;
         }
+
         pc.Notify(GetString("CopyCatCanNotCopy"));
         SetKillCooldown(pc.PlayerId);
         return false;
     }
-
-
 }

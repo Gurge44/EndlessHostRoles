@@ -1,5 +1,4 @@
 ﻿using Hazel;
-using System.Collections.Generic;
 using UnityEngine;
 using static TOHE.Translator;
 
@@ -70,7 +69,7 @@ namespace TOHE.Roles.Impostor
         private static void SendRPC()
         {
             if (!IsEnable || !Utils.DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PenguinSync, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PenguinSync, SendOption.Reliable);
             writer.Write(AbductVictim?.PlayerId ?? 255);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }

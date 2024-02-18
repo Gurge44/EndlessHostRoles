@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace TOHE.Roles.Impostor
+﻿namespace TOHE.Roles.Impostor
 {
     public static class Camouflager
     {
@@ -27,36 +25,44 @@ namespace TOHE.Roles.Impostor
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
                 .SetValueFormat(OptionFormat.Times);
         }
+
         public static void ApplyGameOptions()
         {
             AURoleOptions.ShapeshifterCooldown = CamouflageCooldown.GetFloat();
             AURoleOptions.ShapeshifterDuration = CamouflageDuration.GetFloat();
         }
+
         public static void Init()
         {
             IsActive = false;
             IsEnable = false;
         }
+
         public static void Add(byte playerId)
         {
             playerId.SetAbilityUseLimit(CamoLimitOpt.GetInt());
             IsEnable = true;
         }
+
         public static void OnShapeshift(PlayerControl pc, bool shapeshifting)
         {
             if (shapeshifting && pc.GetAbilityUseLimit() < 1)
             {
                 pc.SetKillCooldown(CamouflageDuration.GetFloat() + 1f);
-            };
+            }
+
+            ;
             if (shapeshifting) pc.RpcRemoveAbilityUse();
             IsActive = true;
             Camouflage.CheckCamouflage();
         }
+
         public static void OnReportDeadBody()
         {
             IsActive = false;
             Camouflage.CheckCamouflage();
         }
+
         public static void IsDead(PlayerControl target)
         {
             if (!target.Data.IsDead || GameStates.IsMeeting) return;

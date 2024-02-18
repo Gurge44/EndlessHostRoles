@@ -1,6 +1,4 @@
-﻿using Hazel;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -24,10 +22,12 @@ public static class Monarch
             .SetValueFormat(OptionFormat.Times);
         UsePet = CreatePetUseSetting(Id + 11, CustomRoles.Monarch);
     }
+
     public static void Init()
     {
         playerIdList = [];
     }
+
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
@@ -37,9 +37,11 @@ public static class Monarch
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
+
     public static bool IsEnable => playerIdList.Count > 0;
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KnightCooldown.GetFloat();
     public static bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && player.GetAbilityUseLimit() >= 1;
+
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer.GetAbilityUseLimit() < 1) return false;
@@ -70,6 +72,7 @@ public static class Monarch
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("MonarchInvalidTarget")));
         return false;
     }
+
     public static string GetKnightLimit(byte id) => Utils.GetAbilityUseLimitDisplay(id);
     public static bool CanBeKnighted(this PlayerControl pc) => pc != null && !pc.GetCustomRole().IsNotKnightable() && !pc.Is(CustomRoles.Knighted) && !pc.Is(CustomRoles.TicketsStealer);
 }

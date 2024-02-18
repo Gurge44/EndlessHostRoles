@@ -59,3 +59,4 @@
 //    public static bool KnowTargetRoleColor(PlayerControl target, bool isMeeting)
 //        => !isMeeting && playerIdList.Contains(target.PlayerId) && Utils.IsActive(SystemTypes.Electrical);
 //}
+

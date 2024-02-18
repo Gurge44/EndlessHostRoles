@@ -129,7 +129,7 @@ internal static class SoloKombatManager
     }
     private static void SendRPCSyncKBPlayer(byte playerId)
     {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncKBPlayer, SendOption.Reliable, -1);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncKBPlayer, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(PlayerHPMax[playerId]);
         writer.Write(PlayerHP[playerId]);

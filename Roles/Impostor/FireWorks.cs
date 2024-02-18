@@ -67,7 +67,7 @@ public static class FireWorks
     {
         if (!IsEnable || !Utils.DoRPC) return;
         Logger.Info($"Player{playerId}:SendRPC", "FireWorks");
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SendFireWorksState, SendOption.Reliable, -1);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SendFireWorksState, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(nowFireWorksCount[playerId]);
         writer.Write((int)state[playerId]);

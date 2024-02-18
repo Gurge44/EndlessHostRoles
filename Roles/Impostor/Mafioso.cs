@@ -92,7 +92,7 @@ namespace TOHE.Roles.Impostor
         public static void SendRPC()
         {
             if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMafiosoData, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMafiosoData, SendOption.Reliable);
             writer.Write(Tier);
             writer.Write(XP);
             writer.Write(PreviouslyUsedVents.Count);
@@ -111,7 +111,7 @@ namespace TOHE.Roles.Impostor
         public static void SendRPCSyncPistolCD()
         {
             if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMafiosoPistolCD, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMafiosoPistolCD, SendOption.Reliable);
             writer.Write(Pistol1CD);
             writer.Write(Pistol2CD);
             writer.Write(lastUpdate.ToString());

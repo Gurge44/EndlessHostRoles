@@ -1,9 +1,7 @@
 namespace TOHE.Roles.Crewmate
 {
-    using System;
     using System.Collections.Generic;
     using System.Text;
-    using UnityEngine;
 
     public static class Aid
     {
@@ -30,11 +28,13 @@ namespace TOHE.Roles.Crewmate
                 .SetValueFormat(OptionFormat.Times);
             UsePet = Options.CreatePetUseSetting(Id + 13, CustomRoles.Aid);
         }
+
         public static void Init()
         {
             playerIdList = [];
             ShieldedPlayers = [];
         }
+
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
@@ -44,8 +44,10 @@ namespace TOHE.Roles.Crewmate
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
+
         public static void SetKillCooldown(byte playerId) => Main.AllPlayerKillCooldown[playerId] = AidCD.GetInt();
         public static bool IsEnable => playerIdList.Count > 0;
+
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer == null) return false;
@@ -64,6 +66,7 @@ namespace TOHE.Roles.Crewmate
                 return false;
             }
         }
+
         public static void OnFixedUpdate(PlayerControl pc)
         {
             if (pc == null || !pc.Is(CustomRoles.Aid) || ShieldedPlayers.Count == 0) return;
@@ -79,8 +82,12 @@ namespace TOHE.Roles.Crewmate
                 }
             }
 
-            if (change && GameStates.IsInTask) { Utils.NotifyRoles(SpecifySeer: pc); }
+            if (change && GameStates.IsInTask)
+            {
+                Utils.NotifyRoles(SpecifySeer: pc);
+            }
         }
+
         public static string GetProgressText(byte playerId, bool comms)
         {
             if (Utils.GetPlayerById(playerId) == null) return string.Empty;

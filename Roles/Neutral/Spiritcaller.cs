@@ -73,7 +73,7 @@ namespace TOHE.Roles.Neutral
         private static void SendRPC()
         {
             if (!IsEnable || !Utils.DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetSpiritcallerSpiritLimit, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetSpiritcallerSpiritLimit, SendOption.Reliable);
             writer.Write(SpiritLimit);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
@@ -94,7 +94,7 @@ namespace TOHE.Roles.Neutral
 
                 target.RpcSetCustomRole(CustomRoles.EvilSpirit);
 
-                var writer = CustomRpcSender.Create("SpiritCallerSendMessage", SendOption.None);
+                var writer = CustomRpcSender.Create("SpiritCallerSendMessage");
                 writer.StartMessage(target.GetClientId());
                 writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
                     .Write(GetString("SpiritcallerNoticeTitle"))

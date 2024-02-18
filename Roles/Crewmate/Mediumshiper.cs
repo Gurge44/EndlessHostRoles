@@ -1,5 +1,4 @@
-﻿using Hazel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using static TOHE.Translator;
 
@@ -34,39 +33,23 @@ public static class Mediumshiper
     {
         playerIdList = [];
         ContactPlayer = [];
-        ContactLimit = [];
     }
+
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        ContactLimit.Add(playerId, ContactLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(ContactLimitOpt.GetInt());
     }
     public static bool IsEnable => playerIdList.Count > 0;
-    public static void SendRPC(byte playerId)
-    {
-        if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMediumshiperLimit, SendOption.Reliable, -1);
-        writer.Write(playerId);
-        writer.Write(ContactLimit[playerId]);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-    public static void ReceiveRPC(MessageReader reader)
-    {
-        if (AmongUsClient.Instance.AmHost) return;
 
-        byte playerId = reader.ReadByte();
-        float uses = reader.ReadSingle();
-        ContactLimit[playerId] = uses;
-    }
     public static void OnReportDeadBody(GameData.PlayerInfo target)
     {
         ContactPlayer = [];
         if (target == null) return;
         foreach (var pc in Main.AllAlivePlayerControls.Where(x => playerIdList.Contains(x.PlayerId) && x.PlayerId != target.PlayerId).ToArray())
         {
-            if (ContactLimit[pc.PlayerId] < 1) continue;
-            ContactLimit[pc.PlayerId] -= 1;
-            SendRPC(pc.PlayerId);
+            if (pc.GetAbilityUseLimit() < 1) continue;
+            pc.RpcRemoveAbilityUse();
             ContactPlayer.TryAdd(target.PlayerId, pc.PlayerId);
             Logger.Info($"Medium Connection：{pc.GetNameWithRole().RemoveHtmlTags()} => {target.PlayerName}", "Mediumshiper");
         }
@@ -102,17 +85,14 @@ public static class Mediumshiper
         var comList = command.Split('|');
         foreach (string str in comList)
         {
-            if (exact)
+            if (exact && msg == "/" + str)
             {
-                if (msg == "/" + str) return true;
+                return true;
             }
-            else
+            else if (msg.StartsWith("/" + str))
             {
-                if (msg.StartsWith("/" + str))
-                {
-                    msg = msg.Replace("/" + str, string.Empty);
-                    return true;
-                }
+                msg = msg.Replace("/" + str, string.Empty);
+                return true;
             }
         }
         return false;

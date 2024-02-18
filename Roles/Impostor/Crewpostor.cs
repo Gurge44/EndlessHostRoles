@@ -1,9 +1,6 @@
 ﻿using Hazel;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TOHE.Roles.Impostor
 {
@@ -71,7 +68,7 @@ namespace TOHE.Roles.Impostor
             }
             else
             {
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCPTasksDone, SendOption.Reliable, -1);
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCPTasksDone, SendOption.Reliable);
                 writer.Write(cpID);
                 writer.Write(tasksDone);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);

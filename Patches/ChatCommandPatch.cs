@@ -144,6 +144,7 @@ internal class ChatCommands
                         Utils.SendMessage(GetString("Message.AllowLevelRange"), localPlayerId);
                         break;
                     }
+
                     var number = Convert.ToUInt32(input);
                     PlayerControl.LocalPlayer.RpcSetLevel(number - 1);
                     break;
@@ -166,6 +167,7 @@ internal class ChatCommands
                             Utils.ShowActiveSettings();
                             break;
                     }
+
                     break;
 
                 case "/dis":
@@ -189,6 +191,7 @@ internal class ChatCommands
                             cancelVal = "/dis";
                             break;
                     }
+
                     ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Admin, 0);
                     break;
 
@@ -225,11 +228,13 @@ internal class ChatCommands
                         Utils.SendMessage(string.Format(GetString("Message.YTPlanDisabled"), GetString("EnableYTPlan")), localPlayerId);
                         break;
                     }
+
                     if (!GameStates.IsLobby)
                     {
                         Utils.SendMessage(GetString("Message.OnlyCanUseInLobby"), localPlayerId);
                         break;
                     }
+
                     if (!GuessManager.MsgToPlayerAndRole(subArgs, out byte resultId, out CustomRoles roleToSet, out _))
                     {
                         Utils.SendMessage($"{GetString("InvalidArguments")}", localPlayerId);
@@ -253,6 +258,7 @@ internal class ChatCommands
                         var rolename = $"<color={Main.roleColors[roleToSet]}> {GetString(roleToSet.ToString())} </color>";
                         Utils.SendMessage("\n", localPlayerId, string.Format(GetString("RoleSelected"), playername, rolename));
                     }
+
                     break;
 
                 case "/h":
@@ -287,11 +293,13 @@ internal class ChatCommands
                         {
                             _ = sb.Append($"\n\n" + GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
                         }
+
                         Utils.SendMessage("\n", localPlayerId, settings.ToString());
                         Utils.SendMessage(sb.ToString(), localPlayerId, string.Empty);
                     }
                     else
                         Utils.SendMessage((lp.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + GetString("Message.CanNotUseInLobby"), localPlayerId);
+
                     break;
 
                 case "/tpout":
@@ -322,6 +330,7 @@ internal class ChatCommands
                         Utils.SendMessage(string.Format(GetString("Message.SetToSeconds"), sec), 0);
                     }
                     else Utils.SendMessage($"{GetString("Message.MessageWaitHelp")}\n{GetString("ForExample")}:\n{args[0]} 3", 0);
+
                     break;
 
                 case "/death":
@@ -348,12 +357,26 @@ internal class ChatCommands
                 case "/ask":
                     canceled = true;
                     if (args.Length < 3) break;
-                    try { Mathematician.Ask(PlayerControl.LocalPlayer, args[1], args[2]); } catch { }
+                    try
+                    {
+                        Mathematician.Ask(PlayerControl.LocalPlayer, args[1], args[2]);
+                    }
+                    catch
+                    {
+                    }
+
                     break;
 
                 case "/answer":
                     if (args.Length < 2) break;
-                    try { Mathematician.Reply(PlayerControl.LocalPlayer, args[1]); } catch { }
+                    try
+                    {
+                        Mathematician.Reply(PlayerControl.LocalPlayer, args[1]);
+                    }
+                    catch
+                    {
+                    }
+
                     break;
 
                 case "/ban":
@@ -408,6 +431,7 @@ internal class ChatCommands
                     {
                         textToSend += $"{GetString("KickCommandKickedRole")} {GetString(kickedPlayer.GetCustomRole().ToString())}";
                     }
+
                     Utils.SendMessage(textToSend);
                     break;
                 case "/exe":
@@ -417,6 +441,7 @@ internal class ChatCommands
                         Utils.SendMessage(GetString("Message.CanNotUseInLobby"), localPlayerId);
                         break;
                     }
+
                     if (args.Length < 2 || !int.TryParse(args[1], out int id)) break;
                     var player = Utils.GetPlayerById(id);
                     if (player != null)
@@ -428,6 +453,7 @@ internal class ChatCommands
                         if (player.AmOwner) Utils.SendMessage(GetString("HostKillSelfByCommand"), title: $"<color=#ff0000>{GetString("DefaultSystemMessageTitle")}</color>");
                         else Utils.SendMessage(string.Format(GetString("Message.Executed"), player.Data.PlayerName));
                     }
+
                     break;
 
                 case "/kill":
@@ -437,6 +463,7 @@ internal class ChatCommands
                         Utils.SendMessage(GetString("Message.CanNotUseInLobby"), localPlayerId);
                         break;
                     }
+
                     if (args.Length < 2 || !int.TryParse(args[1], out int id2)) break;
                     var target = Utils.GetPlayerById(id2);
                     if (target != null)
@@ -445,6 +472,7 @@ internal class ChatCommands
                         if (target.AmOwner) Utils.SendMessage(GetString("HostKillSelfByCommand"), title: $"<color=#ff0000>{GetString("DefaultSystemMessageTitle")}</color>");
                         else Utils.SendMessage(string.Format(GetString("Message.Executed"), target.Data.PlayerName));
                     }
+
                     break;
 
                 case "/colour":
@@ -455,6 +483,7 @@ internal class ChatCommands
                         Utils.SendMessage(GetString("Message.OnlyCanUseInLobby"), localPlayerId);
                         break;
                     }
+
                     subArgs = args.Length < 2 ? string.Empty : args[1];
                     var color = Utils.MsgToColor(subArgs, true);
                     if (color == byte.MaxValue)
@@ -462,6 +491,7 @@ internal class ChatCommands
                         Utils.SendMessage(GetString("IllegalColor"), localPlayerId);
                         break;
                     }
+
                     PlayerControl.LocalPlayer.RpcSetColor(color);
                     Utils.SendMessage(string.Format(GetString("Message.SetColor"), subArgs), localPlayerId);
                     break;
@@ -479,10 +509,12 @@ internal class ChatCommands
                         Utils.SendMessage(GetString("Message.CanNotUseInLobby"), localPlayerId);
                         break;
                     }
+
                     foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                     {
                         pc.RpcSetNameEx(pc.GetRealName(isMeeting: true));
                     }
+
                     ChatUpdatePatch.DoBlockChat = false;
                     Utils.NotifyRoles(isForMeeting: GameStates.IsMeeting, NoCache: true);
                     Utils.SendMessage(GetString("Message.TryFixName"), localPlayerId);
@@ -498,7 +530,7 @@ internal class ChatCommands
 
                     Utils.SendMessage(msgText, localPlayerId);
                     break;
-                    
+
                 case "/changerole":
                     //if (!DebugModeManager.AmDebugger) break;
                     if (GameStates.IsLobby || !PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp) break;
@@ -522,11 +554,13 @@ internal class ChatCommands
                                 HudManager.Instance.SetHudActive(pc, pc.Data.Role, !GameStates.IsMeeting);
                                 Utils.AddRoles(pc.PlayerId, rl);
                             }
+
                             Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.NotAssigned);
                             Main.ChangedRole = true;
                             break;
                         }
                     }
+
                     break;
 
                 case "/end":
@@ -572,6 +606,7 @@ internal class ChatCommands
                         Utils.SendMessage(GetString("GNoCommandInfo"), localPlayerId);
                         break;
                     }
+
                     subArgs = args.Length != 2 ? "" : args[1];
                     if (subArgs == "" || !int.TryParse(subArgs, out int guessedNo))
                     {
@@ -592,6 +627,7 @@ internal class ChatCommands
                             Main.GuessNumber[localPlayerId][0] = rand.Next(0, 100);
                             targetNumber = Main.GuessNumber[localPlayerId][0];
                         }
+
                         Main.GuessNumber[localPlayerId][1]--;
                         if (Main.GuessNumber[localPlayerId][1] == 0 && guessedNo != targetNumber)
                         {
@@ -618,7 +654,6 @@ internal class ChatCommands
                             Main.GuessNumber[localPlayerId][1] = 7;
                             break;
                         }
-
                     }
 
                 default:
@@ -1238,7 +1273,7 @@ internal class ChatUpdatePatch
             player.SetName(name);
         }
 
-        var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
+        var writer = CustomRpcSender.Create("MessagesToSend");
         _ = writer.StartMessage(clientId);
         _ = writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
             .Write(title)

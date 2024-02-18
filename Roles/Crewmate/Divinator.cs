@@ -1,4 +1,3 @@
-using Hazel;
 using System.Collections.Generic;
 using System.Linq;
 using static TOHE.Options;
@@ -43,13 +42,12 @@ public static class Divinator
     public static void Init()
     {
         playerIdList = [];
-        CheckLimit = [];
         AllPlayerRoleList = [];
     }
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        CheckLimit.TryAdd(playerId, CheckLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(CheckLimitOpt.GetInt());
 
         List<CustomRoles> AllRoles = [.. EnumHelper.GetAllValues<CustomRoles>().Where(x => !x.IsAdditionRole() && x is not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.KB_Normal and not CustomRoles.Potato)];
         var r = IRandom.Instance;
@@ -72,40 +70,24 @@ public static class Divinator
         }
     }
     public static bool IsEnable => playerIdList.Count > 0;
-    public static void SendRPC(byte playerId)
-    {
-        if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDivinatorLimit, SendOption.Reliable, -1);
-        writer.Write(playerId);
-        writer.Write(CheckLimit[playerId]);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-    public static void ReceiveRPC(MessageReader reader)
-    {
-        if (AmongUsClient.Instance.AmHost) return;
 
-        byte playerId = reader.ReadByte();
-        float uses = reader.ReadSingle();
-        CheckLimit[playerId] = uses;
-    }
     public static bool OnVote(PlayerControl player, PlayerControl target)
     {
         if (player == null || target == null) return false;
         if (didVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
         didVote.Add(player.PlayerId);
 
-        if (CheckLimit[player.PlayerId] < 1)
+        if (player.GetAbilityUseLimit() < 1)
         {
             Utils.SendMessage(GetString("DivinatorCheckReachLimit"), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Divinator), GetString("DivinatorCheckMsgTitle")));
             return false;
         }
 
-        CheckLimit[player.PlayerId] -= 1;
-        SendRPC(player.PlayerId);
+        player.RpcRemoveAbilityUse();
 
         if (player.PlayerId == target.PlayerId)
         {
-            Utils.SendMessage(GetString("DivinatorCheckSelfMsg") + "\n\n" + string.Format(GetString("DivinatorCheckLimit"), CheckLimit[player.PlayerId]), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Divinator), GetString("DivinatorCheckMsgTitle")));
+            Utils.SendMessage(GetString("DivinatorCheckSelfMsg") + "\n\n" + string.Format(GetString("DivinatorCheckLimit"), player.GetAbilityUseLimit()), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Divinator), GetString("DivinatorCheckMsgTitle")));
             return false;
         }
 
@@ -121,7 +103,7 @@ public static class Divinator
             msg = string.Format(GetString("DivinatorCheckResult"), target.GetRealName(), roles);
         }
 
-        Utils.SendMessage(GetString("DivinatorCheck") + "\n" + msg + "\n\n" + string.Format(GetString("DivinatorCheckLimit"), CheckLimit[player.PlayerId]), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Divinator), GetString("DivinatorCheckMsgTitle")));
+        Utils.SendMessage(GetString("DivinatorCheck") + "\n" + msg + "\n\n" + string.Format(GetString("DivinatorCheckLimit"), player.GetAbilityUseLimit()), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Divinator), GetString("DivinatorCheckMsgTitle")));
 
         Main.DontCancelVoteList.Add(player.PlayerId);
         return true;

@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -13,6 +10,7 @@ namespace TOHE.Roles.Crewmate
         private static OptionItem Radius;
         private static List<byte> AffectedPlayers;
         private static Dictionary<byte, long> LastChange;
+
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Beacon);
@@ -23,13 +21,16 @@ namespace TOHE.Roles.Crewmate
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Beacon])
                 .SetValueFormat(OptionFormat.Multiplier);
         }
+
         public static void Init()
         {
             AffectedPlayers = [];
             LastChange = [];
         }
+
         public static bool IsAffectedPlayer(byte id) => Utils.IsActive(SystemTypes.Electrical) && AffectedPlayers.Contains(id);
         public static float IncreasedVision => VisionIncrease.GetFloat();
+
         public static void OnCheckPlayerPosition(PlayerControl pc)
         {
             if (!GameStates.IsInTask || pc == null) return;
@@ -53,6 +54,7 @@ namespace TOHE.Roles.Crewmate
                 LastChange[pc.PlayerId] = now;
             }
         }
+
         public static void OnReportDeadBody()
         {
             AffectedPlayers.Clear();

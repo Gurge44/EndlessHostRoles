@@ -1,6 +1,4 @@
-﻿using Hazel;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -30,10 +28,12 @@ public static class Deputy
             .SetValueFormat(OptionFormat.Seconds);
         UsePet = CreatePetUseSetting(Id + 13, CustomRoles.Deputy);
     }
+
     public static void Init()
     {
         playerIdList = [];
     }
+
     public static void Add(byte playerId)
     {
         playerIdList.Add(playerId);
@@ -43,9 +43,11 @@ public static class Deputy
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
+
     public static bool IsEnable => playerIdList.Count > 0;
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = HandcuffCooldown.GetFloat();
     public static bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && player.GetAbilityUseLimit() >= 1;
+
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer.GetAbilityUseLimit() < 1) return false;
@@ -79,6 +81,7 @@ public static class Deputy
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("DeputyInvalidTarget")));
         return false;
     }
+
     public static string GetHandcuffLimit(byte id) => Utils.GetAbilityUseLimitDisplay(id);
     public static bool CanBeHandcuffed(this PlayerControl pc) => pc != null && !pc.Is(CustomRoles.Deputy);
 }

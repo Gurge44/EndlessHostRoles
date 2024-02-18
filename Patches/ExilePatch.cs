@@ -1,9 +1,7 @@
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using HarmonyLib;
-using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
 using TOHE.Roles.Crewmate;
@@ -16,7 +14,11 @@ class ExileControllerWrapUpPatch
 {
     private static GameData.PlayerInfo antiBlackout_LastExiled;
 
-    public static GameData.PlayerInfo AntiBlackout_LastExiled { get => antiBlackout_LastExiled; set => antiBlackout_LastExiled = value; }
+    public static GameData.PlayerInfo AntiBlackout_LastExiled
+    {
+        get => antiBlackout_LastExiled;
+        set => antiBlackout_LastExiled = value;
+    }
 
     [HarmonyPatch(typeof(ExileController), nameof(ExileController.WrapUp))]
     class BaseExileControllerPatch
@@ -49,6 +51,7 @@ class ExileControllerWrapUpPatch
             }
         }
     }
+
     static void WrapUpPostfix(GameData.PlayerInfo exiled)
     {
         if (AntiBlackout.OverrideExiledPlayer)
@@ -94,6 +97,7 @@ class ExileControllerWrapUpPatch
             {
                 Stressed.OnCrewmateEjected();
             }
+
             if (role.Is(Team.Impostor))
             {
                 Damocles.OnImpostorEjected();
@@ -122,10 +126,11 @@ class ExileControllerWrapUpPatch
             }
 
             if (Executioner.CheckExileTarget(exiled, DecidedWinner)) DecidedWinner = true;
-            if (Lawyer.CheckExileTarget(exiled/*, DecidedWinner*/)) DecidedWinner = false;
+            if (Lawyer.CheckExileTarget(exiled /*, DecidedWinner*/)) DecidedWinner = false;
 
             if (CustomWinnerHolder.WinnerTeam != CustomWinner.Terrorist) Main.PlayerStates[exiled.PlayerId].SetDead();
         }
+
         if (AmongUsClient.Instance.AmHost && Main.IsFixedCooldown)
             Main.RefixCooldownDelay = Options.DefaultKillCooldown - 3f;
 
@@ -147,6 +152,7 @@ class ExileControllerWrapUpPatch
             pc.RpcResetAbilityCooldown();
             PetsPatch.RpcRemovePet(pc);
         }
+
         if (Options.RandomSpawn.GetBool() || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato)
         {
             RandomSpawn.SpawnMap map = Main.NormalOptions.MapId switch

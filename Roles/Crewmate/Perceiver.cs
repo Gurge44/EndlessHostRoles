@@ -1,6 +1,4 @@
-﻿using Hazel;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -12,6 +10,7 @@ namespace TOHE.Roles.Crewmate
         public static OptionItem Limit;
         public static OptionItem PerceiverAbilityUseGainWithEachTaskCompleted;
         public static OptionItem AbilityChargesWhenFinishedTasks;
+
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Perceiver);
@@ -29,7 +28,9 @@ namespace TOHE.Roles.Crewmate
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Perceiver])
                 .SetValueFormat(OptionFormat.Times);
         }
+
         public static void Add(byte id) => id.SetAbilityUseLimit(Limit.GetInt());
+
         public static void UseAbility(PlayerControl pc)
         {
             if (pc == null || pc.GetAbilityUseLimit() < 1f) return;
@@ -39,6 +40,7 @@ namespace TOHE.Roles.Crewmate
 
             pc.RpcRemoveAbilityUse();
         }
+
         public static string GetProgressText(byte id) => $"<#777777>-</color> <#ff{(id.GetAbilityUseLimit() < 1f ? "0000" : "ffff")}>{System.Math.Round(id.GetAbilityUseLimit(), 1)}</color>";
     }
 }

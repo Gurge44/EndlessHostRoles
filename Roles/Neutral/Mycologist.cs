@@ -69,7 +69,7 @@ namespace TOHE.Roles.Neutral
         private static void SendRPC()
         {
             if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMycologist, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMycologist, SendOption.Reliable);
             writer.Write(InfectedPlayers.Count);
             if (InfectedPlayers.Count > 0) foreach (var x in InfectedPlayers) writer.Write(x);
             AmongUsClient.Instance.FinishRpcImmediately(writer);

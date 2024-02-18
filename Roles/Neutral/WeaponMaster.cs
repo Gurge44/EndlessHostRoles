@@ -58,7 +58,7 @@ public static class WeaponMaster
     public static void SendRPC(byte mode, bool shieldUsed)
     {
         if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetWeaponMasterMode, SendOption.Reliable, -1);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetWeaponMasterMode, SendOption.Reliable);
         writer.Write(mode);
         writer.Write(shieldUsed);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

@@ -27,15 +27,18 @@ namespace TOHE.Roles.Impostor
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
                 .SetValueFormat(OptionFormat.Times);
         }
+
         public static void Add(byte playerId)
         {
             playerId.SetAbilityUseLimit(TwisterLimitOpt.GetInt());
         }
+
         public static void ApplyGameOptions()
         {
             AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
             AURoleOptions.ShapeshifterDuration = 1f;
         }
+
         public static void TwistPlayers(PlayerControl shapeshifter, bool shapeshifting)
         {
             if (shapeshifter == null) return;
@@ -49,7 +52,7 @@ namespace TOHE.Roles.Impostor
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
                 if (changePositionPlayers.Contains(pc.PlayerId) || Pelican.IsEaten(pc.PlayerId) || pc.onLadder || pc.inVent || GameStates.IsMeeting) continue;
-                
+
                 var filtered = Main.AllAlivePlayerControls.Where(a => !a.inVent && !Pelican.IsEaten(a.PlayerId) && !a.onLadder && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
                 if (filtered.Length == 0) break;
 

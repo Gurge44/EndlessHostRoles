@@ -1,7 +1,6 @@
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using HarmonyLib;
-using Hazel;
 using InnerNet;
 using System;
 using System.Text.RegularExpressions;
@@ -182,7 +181,7 @@ class OnPlayerLeftPatch
                 DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
                 player.SetName(name);
 
-                var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
+                var writer = CustomRpcSender.Create("MessagesToSend");
                 writer.StartMessage(clientId);
                 writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
                     .Write(title)

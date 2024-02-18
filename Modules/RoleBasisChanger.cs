@@ -42,7 +42,7 @@ namespace TOHE.Modules
 
             player.TP(Pelican.GetBlackRoomPS());
             AmongUsClient.Instance.Despawn(player);
-            AmongUsClient.Instance.Spawn(newplayer, player.OwnerId, SpawnFlags.None);
+            AmongUsClient.Instance.Spawn(newplayer, player.OwnerId);
             pclient.Character = newplayer;
 
             newplayer.OwnerId = player.OwnerId;

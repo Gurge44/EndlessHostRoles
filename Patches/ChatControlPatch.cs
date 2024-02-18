@@ -1,6 +1,5 @@
 using AmongUs.Data;
 using HarmonyLib;
-using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -196,8 +195,8 @@ public static class ChatManager
     }
     private static void SendRPC(PlayerControl senderPlayer, string senderMessage)
     {
-        var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
-        writer.StartMessage(-1);
+        var writer = CustomRpcSender.Create("MessagesToSend");
+        writer.StartMessage();
         writer.StartRpc(senderPlayer.NetId, (byte)RpcCalls.SendChat)
             .Write(senderMessage)
             .EndRpc();

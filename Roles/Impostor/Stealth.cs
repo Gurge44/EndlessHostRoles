@@ -122,7 +122,7 @@ namespace TOHE.Roles.Impostor
         private static void SendRPC(SystemTypes? roomType)
         {
             if (!IsEnable) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PenguinSync, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PenguinSync, SendOption.Reliable);
             writer.Write((byte?)roomType ?? byte.MaxValue);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }

@@ -57,7 +57,7 @@ public static class Jailor
         MessageWriter writer;
         if (!setTarget)
         {
-            writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetJailorExeLimit, SendOption.Reliable, -1);
+            writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetJailorExeLimit, SendOption.Reliable);
             writer.Write(jailerId);
             writer.Write(JailorExeLimit[jailerId]);
             writer.Write(JailorHasExe[jailerId]);
@@ -65,7 +65,8 @@ public static class Jailor
             AmongUsClient.Instance.FinishRpcImmediately(writer);
             return;
         }
-        writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetJailorTarget, SendOption.Reliable, -1);
+
+        writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetJailorTarget, SendOption.Reliable);
         writer.Write(jailerId);
         writer.Write(targetId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -108,7 +109,7 @@ public static class Jailor
         killer.Notify(GetString("SuccessfullyJailed"));
         killer.ResetKillCooldown();
         killer.SetKillCooldown();
-        SendRPC(killer.PlayerId, target.PlayerId, true);
+        SendRPC(killer.PlayerId, target.PlayerId);
         return false;
     }
 

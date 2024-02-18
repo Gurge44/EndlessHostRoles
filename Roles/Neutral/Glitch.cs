@@ -90,7 +90,7 @@ public static class Glitch
     public static void SendRPCSyncTimers()
     {
         if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGlitchTimers, SendOption.Reliable, -1);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGlitchTimers, SendOption.Reliable);
         writer.Write(MimicCDTimer);
         writer.Write(MimicDurTimer);
         writer.Write(HackCDTimer);

@@ -1,10 +1,8 @@
 namespace TOHE.Roles.Crewmate
 {
     using Hazel;
-    using System;
     using System.Collections.Generic;
     using System.Text;
-    using UnityEngine;
     using static TOHE.Options;
 
     public static class Ricochet
@@ -45,7 +43,7 @@ namespace TOHE.Roles.Crewmate
         public static void SendRPCSyncTarget(byte targetId)
         {
             if (!IsEnable || !Utils.DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRicochetTarget, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRicochetTarget, SendOption.Reliable);
             writer.Write(targetId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }

@@ -24,13 +24,12 @@ public static class GameSettingMenuPatch
     public static void Postfix([HarmonyArgument(0)] Il2CppReferenceArray<Transform> items)
     {
         items.FirstOrDefault(i => i.gameObject.activeSelf && i.name.Equals("MapName", StringComparison.OrdinalIgnoreCase))?
-             .GetComponent<KeyValueOption>()?
-             .Values?
-             // using .Insert will convert managed values and break the struct resulting in crashes
-             .System_Collections_IList_Insert((int)MapNames.Dleks, new Il2CppSystem.Collections.Generic.KeyValuePair<string, int>(Constants.MapNames[(int)MapNames.Dleks], (int)MapNames.Dleks));
+            .GetComponent<KeyValueOption>()?
+            .Values?
+            // using .Insert will convert managed values and break the struct resulting in crashes
+            .System_Collections_IList_Insert((int)MapNames.Dleks, new Il2CppSystem.Collections.Generic.KeyValuePair<string, int>(Constants.MapNames[(int)MapNames.Dleks], (int)MapNames.Dleks));
     }
 }
-
 
 [HarmonyPatch(typeof(GameOptionsMenu), nameof(GameOptionsMenu.Start))]
 [HarmonyPriority(Priority.First)]
@@ -57,6 +56,7 @@ public static class GameOptionsMenuPatch
                     break;
             }
         }
+
         var template = Object.FindObjectsOfType<StringOption>().FirstOrDefault();
         if (template == null) return;
 
@@ -90,7 +90,7 @@ public static class GameOptionsMenuPatch
             var tohSettings = Object.Instantiate(gameSettings, gameSettings.transform.parent);
             tohSettings.name = tab + "Tab";
             tohSettings.transform.FindChild("BackPanel").transform.localScale =
-            tohSettings.transform.FindChild("Bottom Gradient").transform.localScale = new Vector3(1.6f, 1f, 1f);
+                tohSettings.transform.FindChild("Bottom Gradient").transform.localScale = new Vector3(1.6f, 1f, 1f);
             tohSettings.transform.FindChild("BackPanel").transform.localPosition += new Vector3(0.2f, 0f, 0f);
             tohSettings.transform.FindChild("Bottom Gradient").transform.localPosition += new Vector3(0.2f, 0f, 0f);
             tohSettings.transform.FindChild("Background").transform.localScale = new Vector3(1.8f, 1f, 1f);
@@ -126,8 +126,10 @@ public static class GameOptionsMenuPatch
 
                     option.OptionBehaviour = stringOption;
                 }
+
                 option.OptionBehaviour.gameObject.SetActive(true);
             }
+
             tohMenu.Children = scOptions.ToArray();
             tohSettings.gameObject.SetActive(false);
             menus.Add(tohSettings.gameObject);
@@ -203,7 +205,7 @@ public class GameOptionsMenuUpdatePatch
                 var parent = option.Parent;
 
                 enabled = AmongUsClient.Instance.AmHost &&
-                    !option.IsHiddenOn(Options.CurrentGameMode);
+                          !option.IsHiddenOn(Options.CurrentGameMode);
 
                 var opt = option.OptionBehaviour.transform.Find("Background").GetComponent<SpriteRenderer>();
                 opt.size = new(5.0f, 0.45f);
@@ -259,6 +261,7 @@ public class GameOptionsMenuUpdatePatch
                     numItems--;
                 }
             }
+
             __instance.GetComponentInParent<Scroller>().ContentYBounds.max = (-offset) - 1.5f;
         }
     }
@@ -297,7 +300,8 @@ public class StringOptionIncreasePatch
         option.SetValue(option.CurrentValue + (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) ? 5 : 1));
         return false;
     }
-    public static void Postfix(/*StringOption __instance*/) => OptionShower.GetText();
+
+    public static void Postfix( /*StringOption __instance*/) => OptionShower.GetText();
 }
 
 [HarmonyPatch(typeof(StringOption), nameof(StringOption.Decrease))]
@@ -311,7 +315,8 @@ public class StringOptionDecreasePatch
         option.SetValue(option.CurrentValue - (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) ? 5 : 1));
         return false;
     }
-    public static void Postfix(/*StringOption __instance*/) => OptionShower.GetText();
+
+    public static void Postfix( /*StringOption __instance*/) => OptionShower.GetText();
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcSyncSettings))]
@@ -322,6 +327,7 @@ public class RpcSyncSettingsPatch
         OptionItem.SyncAllOptions();
     }
 }
+
 [HarmonyPatch(typeof(RolesSettingsMenu), nameof(RolesSettingsMenu.Start))]
 public static class RolesSettingsMenuPatch
 {
@@ -343,6 +349,7 @@ public static class RolesSettingsMenuPatch
         }
     }
 }
+
 [HarmonyPatch(typeof(NormalGameOptionsV07), nameof(NormalGameOptionsV07.SetRecommendations))]
 public static class SetRecommendationsPatch
 {
@@ -399,6 +406,7 @@ public static class SetRecommendationsPatch
                 __instance.VisualTasks = true;
                 break;
         }
+
         return false;
     }
 }

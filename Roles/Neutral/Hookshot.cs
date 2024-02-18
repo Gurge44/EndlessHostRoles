@@ -49,7 +49,7 @@ namespace TOHE.Roles.Neutral
         private static void SendRPC()
         {
             if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncHookshot, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncHookshot, SendOption.Reliable);
             writer.Write(ToTargetTP);
             writer.Write(MarkedPlayerId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);

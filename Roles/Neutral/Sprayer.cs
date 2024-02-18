@@ -1,5 +1,4 @@
 ﻿using AmongUs.GameOptions;
-using Hazel;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -60,6 +59,7 @@ namespace TOHE.Roles.Neutral
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer])
                 .SetValueFormat(OptionFormat.Times);
         }
+
         public static void Init()
         {
             SprayerId = byte.MaxValue;
@@ -68,6 +68,7 @@ namespace TOHE.Roles.Neutral
             LowerVisionList.Clear();
             LastUpdate.Clear();
         }
+
         public static void Add(byte playerId)
         {
             SprayerId = playerId;
@@ -79,9 +80,11 @@ namespace TOHE.Roles.Neutral
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
+
         public static bool IsEnable => SprayerId != byte.MaxValue;
         public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
+
         public static void PlaceTrap()
         {
             if (!IsEnable || SprayerId.GetAbilityUseLimit() <= 0 || Sprayer_.HasAbilityCD()) return;
@@ -93,6 +96,7 @@ namespace TOHE.Roles.Neutral
 
             Sprayer_.Notify(GetString("SprayerNotify"));
         }
+
         public static void OnCheckPlayerPosition(PlayerControl pc)
         {
             if (!IsEnable || !GameStates.IsInTask || Traps.Count == 0) return;
@@ -137,6 +141,7 @@ namespace TOHE.Roles.Neutral
         {
             Traps.Clear();
         }
+
         public static void AfterMeetingTasks()
         {
             if (SprayerId.GetAbilityUseLimit() > 0)
@@ -144,6 +149,7 @@ namespace TOHE.Roles.Neutral
                 Sprayer_.AddAbilityCD(Math.Max(15, CD.GetInt()));
             }
         }
+
         public static string ProgressText => $"<#777777>-</color> <#ffffff>{SprayerId.GetAbilityUseLimit()}</color>";
     }
 }
