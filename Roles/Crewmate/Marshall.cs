@@ -11,7 +11,9 @@ public static class Marshall
     private static readonly List<byte> playerIdList = [];
     private static Color RoleColor = Utils.GetRoleColor(CustomRoles.Marshall);
 
+/*
     public static OptionItem OptionMadmateCanFindMarshall;
+*/
 
     public static bool MadmateCanFindMarshall;
 
@@ -60,6 +62,8 @@ public static class Marshall
         return IsExposed[marshallId];
     }
     private static bool IsMarshallTarget(PlayerControl target) => IsEnable && (target.Is(CustomRoleTypes.Crewmate) || (target.Is(CustomRoles.Madmate) && MadmateCanFindMarshall));
+
+/*
     public static void CheckTask(PlayerControl marshall)
     {
         if (!marshall.IsAlive() || marshall.Is(CustomRoles.Madmate)) return;
@@ -71,6 +75,7 @@ public static class Marshall
         marshall.Notify(Translator.GetString("MarshallDoneTasks"));
         IsComplete[marshallId] = true;
     }
+*/
     public static string GetWarningMark(PlayerControl seer, PlayerControl target)
         => IsMarshallTarget(seer) && GetExpose(target) ? Utils.ColorString(RoleColor, "★") : string.Empty;
 }

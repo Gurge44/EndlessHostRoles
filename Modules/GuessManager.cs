@@ -168,7 +168,7 @@ public static class GuessManager
                             return true;
                         }
 
-                        if (!Main.GuesserGuessed.ContainsKey(pc.PlayerId)) Main.GuesserGuessed.Add(pc.PlayerId, 0);
+                        Main.GuesserGuessed.TryAdd(pc.PlayerId, 0);
 
                         switch (pc.GetCustomRole())
                         {

@@ -55,10 +55,9 @@ public static class DarkHide
     {
         byte DarkHiderId = msg.ReadByte();
         bool IsKillerKill = msg.ReadBoolean();
-        if (IsWinKill.ContainsKey(DarkHiderId))
+        if (!IsWinKill.TryAdd(DarkHiderId, false))
             IsWinKill[DarkHiderId] = IsKillerKill;
-        else
-            IsWinKill.Add(DarkHiderId, false);
+
         Logger.Info($"Player{DarkHiderId}:ReceiveRPC", "DarkHide");
     }
     public static void DRpcSetKillCount(this PlayerControl player)

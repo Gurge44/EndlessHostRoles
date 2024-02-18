@@ -226,7 +226,6 @@ namespace TOHE.Roles.Neutral
         {
             if (!IsEnable) return string.Empty;
             seen ??= seer;
-            if (!seen.Is(CustomRoles.PlagueDoctor)) return string.Empty;
             if (!seer.Is(CustomRoles.PlagueDoctor) && seer.IsAlive()) return string.Empty;
             if (!isForHud && seer.IsModClient()) return string.Empty;
             var str = new StringBuilder(40);

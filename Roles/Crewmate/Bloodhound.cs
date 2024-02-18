@@ -142,7 +142,6 @@
 
         public static string GetTargetArrow(PlayerControl seer, PlayerControl target = null)
         {
-            if (!seer.Is(CustomRoles.Bloodhound)) return string.Empty;
             if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
             if (GameStates.IsMeeting) return string.Empty;
             if (BloodhoundTargets.ContainsKey(seer.PlayerId) && BloodhoundTargets[seer.PlayerId].Count > 0)

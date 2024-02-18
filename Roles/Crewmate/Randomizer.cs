@@ -1,7 +1,7 @@
-﻿using HarmonyLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using HarmonyLib;
 using TOHE.Modules;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
@@ -30,10 +30,10 @@ namespace TOHE.Roles.Crewmate
         private static Dictionary<Vector2, Vector2> Rifts = [];
         private static Dictionary<Vector2, (long PlaceTimeStamp, int ExplosionDelay)> Bombs = [];
 
-        private static float TimeSinceLastMeeting = 0;
+        private static float TimeSinceLastMeeting;
         private static Dictionary<byte, long> LastEffectPick = [];
         private static Dictionary<byte, long> LastTP = [];
-        private static long LastDeathEffect = 0;
+        private static long LastDeathEffect;
 
         private static string RNGString => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Randomizer), Translator.GetString("RNGHasSpoken"));
         private static void NotifyAboutRNG(PlayerControl pc)
@@ -171,7 +171,7 @@ namespace TOHE.Roles.Crewmate
             if (effect == Effect.GhostPlayer)
             {
                 if (LastDeathEffect + 60 > now) return Effect.AddonRemove;
-                else LastDeathEffect = now;
+                LastDeathEffect = now;
             }
 
             Logger.Info($"Effect: {effect}", "Randomizer");
@@ -345,12 +345,22 @@ namespace TOHE.Roles.Crewmate
                         Rifts.TryAdd(PickRandomPlayer().Pos(), PickRandomPlayer().Pos());
                         try
                         {
-                            var e = Rifts.AsEnumerable();
-                            e.DoIf(x => Vector2.Distance(x.Key, x.Value) <= 4f, x => Rifts.Remove(x.Key));
-                            var keys = Rifts.Keys.AsEnumerable();
-                            keys.DoIf(x => keys.Any(p => Vector2.Distance(x, p) <= 4f), x => Rifts.Remove(x));
-                            var values = Rifts.Values.AsEnumerable();
-                            values.DoIf(x => values.Any(p => Vector2.Distance(x, p) <= 4f), x => Rifts.Remove(Rifts.First(p => p.Value == x).Key));
+                            var riftsToRemove = new List<Vector2>();
+                            foreach (var rift1 in Rifts)
+                            {
+                                foreach (var rift2 in Rifts)
+                                {
+                                    if (rift1.Key != rift2.Key && Vector2.Distance(rift1.Key, rift2.Key) <= 4f)
+                                    {
+                                        riftsToRemove.Add(rift2.Key);
+                                    }
+                                }
+                            }
+
+                            foreach (var rift in riftsToRemove)
+                            {
+                                Rifts.Remove(rift);
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -498,61 +508,66 @@ namespace TOHE.Roles.Crewmate
             }
         }
 
-        private static bool RevertSpeedChangesForPlayer(PlayerControl pc, bool sync)
+        private static void RevertSpeedChangesForPlayer(PlayerControl pc, bool sync)
         {
             try
             {
-                if (pc == null) return false;
+                if (pc == null) return;
                 if (CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && effects.Any(x => x.Key.IsSpeedChangingEffect()))
                 {
                     Main.AllPlayerSpeed[pc.PlayerId] = AllPlayerDefaultSpeed[pc.PlayerId];
                     if (sync) pc.MarkDirtySettings();
                     var keys = effects.Keys.AsEnumerable();
                     keys.DoIf(x => x.IsSpeedChangingEffect(), x => effects.Remove(x));
-                    return true;
                 }
-                return false;
             }
             catch (Exception e)
             {
                 Logger.CurrentMethod();
                 Logger.Exception(e, "Randomizer");
-                return false;
             }
         }
 
-        private static bool RevertVisionChangesForPlayer(PlayerControl pc, bool sync)
+        private static void RevertVisionChangesForPlayer(PlayerControl pc, bool sync)
         {
             try
             {
-                if (pc == null) return false;
+                if (pc == null) return;
                 if (CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && effects.Any(x => x.Key.IsVisionChangingEffect()))
                 {
                     effects.Keys.DoIf(x => x.IsVisionChangingEffect(), x => effects.Remove(x));
                     if (sync) pc.MarkDirtySettings();
-                    return true;
                 }
-                return false;
             }
             catch (Exception e)
             {
                 Logger.CurrentMethod();
                 Logger.Exception(e, "Randomizer");
-                return false;
             }
         }
 
         public static void OnAnyoneDeath(PlayerControl pc)
         {
-            RevertSpeedChangesForPlayer(pc, false);
-            RevertVisionChangesForPlayer(pc, false);
+            try
+            {
+                if (!IsEnable) return;
 
-            Main.AllPlayerSpeed[pc.PlayerId] = AllPlayerDefaultSpeed[pc.PlayerId];
-            pc.MarkDirtySettings();
+                RevertSpeedChangesForPlayer(pc, false);
+                RevertVisionChangesForPlayer(pc, false);
+
+                Main.AllPlayerSpeed[pc.PlayerId] = AllPlayerDefaultSpeed[pc.PlayerId];
+                pc.MarkDirtySettings();
+            }
+            catch (Exception e)
+            {
+                Logger.CurrentMethod();
+                Logger.Exception(e, "Randomizer");
+            }
         }
 
         public static void OnReportDeadBody()
         {
+            if (!IsEnable) return;
             TimeSinceLastMeeting = 0;
             LastDeathEffect = Utils.TimeStamp;
             Rifts.Clear();
@@ -566,6 +581,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void AfterMeetingTasks()
         {
+            if (!IsEnable) return;
             TimeSinceLastMeeting = 0;
             LastDeathEffect = Utils.TimeStamp;
         }
@@ -604,14 +620,15 @@ namespace TOHE.Roles.Crewmate
             if (!IsEnable || pc == null || pc.PlayerId != target.PlayerId) return string.Empty;
             var bomb = Bombs.FirstOrDefault(x => Vector2.Distance(x.Key, pc.Pos()) <= 5f);
             var time = bomb.Value.ExplosionDelay - (Utils.TimeStamp - bomb.Value.PlaceTimeStamp) + 1;
-            if (time < 0) return string.Empty;
-            return $"<#ffff00>⚠ {time}</color>";
+            return time < 0 ? string.Empty : $"<#ffff00>⚠ {time}</color>";
         }
 
         public static void OnFixedUpdateForRandomizer(PlayerControl pc, bool lowLoad)
         {
             try
             {
+                if (!IsEnable) return;
+
                 if (GameStates.IsInTask) TimeSinceLastMeeting += Time.fixedDeltaTime;
                 if (lowLoad) return;
 
@@ -624,10 +641,7 @@ namespace TOHE.Roles.Crewmate
                     Effect effect = PickRandomEffect(pc.PlayerId);
                     effect.Apply(randomizer: pc);
                 }
-                else if (!LastEffectPick.ContainsKey(pc.PlayerId))
-                {
-                    LastEffectPick[pc.PlayerId] = now;
-                }
+                else LastEffectPick.TryAdd(pc.PlayerId, now);
             }
             catch (Exception ex)
             {

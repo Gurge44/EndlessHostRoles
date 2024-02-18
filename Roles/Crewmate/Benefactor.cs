@@ -97,7 +97,7 @@ namespace TOHE.Roles.Crewmate
         public static string GetProgressText(byte playerId)
         {
             if (!IsEnable) return string.Empty;
-            if (!TaskMarkPerRound.ContainsKey(playerId)) TaskMarkPerRound[playerId] = 0;
+            TaskMarkPerRound.TryAdd(playerId, 0);
             int markedTasks = TaskMarkPerRound[playerId];
             int x = Math.Max(maxTasksMarkedPerRound - markedTasks, 0);
             return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Benefactor).ShadeColor(0.25f), $"({x})");
@@ -130,7 +130,7 @@ namespace TOHE.Roles.Crewmate
             byte playerId = player.PlayerId;
             if (player.Is(CustomRoles.Benefactor))
             {
-                if (!TaskMarkPerRound.ContainsKey(playerId)) TaskMarkPerRound[playerId] = 0;
+                TaskMarkPerRound.TryAdd(playerId, 0);
                 if (TaskMarkPerRound[playerId] >= maxTasksMarkedPerRound)
                 {
                     TaskMarkPerRound[playerId] = maxTasksMarkedPerRound;

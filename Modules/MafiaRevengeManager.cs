@@ -42,7 +42,7 @@ public static class MafiaRevengeManager
             return true;
         }
 
-        if (Main.MafiaRevenged.ContainsKey(pc.PlayerId))
+        if (!Main.MafiaRevenged.TryAdd(pc.PlayerId, 0))
         {
             if (Main.MafiaRevenged[pc.PlayerId] >= Options.MafiaCanKillNum.GetInt())
             {
@@ -50,10 +50,6 @@ public static class MafiaRevengeManager
                 else pc.ShowPopUp(GetString("MafiaKillMax"));
                 return true;
             }
-        }
-        else
-        {
-            Main.MafiaRevenged.Add(pc.PlayerId, 0);
         }
 
         int targetId;

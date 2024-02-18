@@ -407,7 +407,7 @@ class ExternalRpcPetPatch
                 FireWorks.ShapeShiftState(pc, true);
                 break;
             case CustomRoles.Warlock:
-                if (!Main.isCurseAndKill.ContainsKey(pc.PlayerId)) Main.isCurseAndKill[pc.PlayerId] = false;
+                Main.isCurseAndKill.TryAdd(pc.PlayerId, false);
                 if (Main.CursedPlayers[pc.PlayerId] != null)
                 {
                     if (!Main.CursedPlayers[pc.PlayerId].Data.IsDead)

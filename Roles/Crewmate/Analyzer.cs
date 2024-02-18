@@ -93,8 +93,7 @@ namespace TOHE.Roles.Crewmate
         public static void OnAnyoneEnterVent(PlayerControl pc)
         {
             if (!IsEnable || !AmongUsClient.Instance.AmHost) return;
-            if (VentCount.ContainsKey(pc.PlayerId)) VentCount[pc.PlayerId]++;
-            else VentCount[pc.PlayerId] = 1;
+            if (!VentCount.TryAdd(pc.PlayerId, 1)) VentCount[pc.PlayerId]++;
         }
 
         public static void OnCheckMurder(PlayerControl killer, PlayerControl target)

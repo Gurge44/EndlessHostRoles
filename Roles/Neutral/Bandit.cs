@@ -75,10 +75,8 @@ public static class Bandit
     {
         byte PlayerId = reader.ReadByte();
         int Limit = reader.ReadInt32();
-        if (TotalSteals.ContainsKey(PlayerId))
+        if (!TotalSteals.TryAdd(PlayerId, 0))
             TotalSteals[PlayerId] = Limit;
-        else
-            TotalSteals.Add(PlayerId, 0);
     }
 
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();

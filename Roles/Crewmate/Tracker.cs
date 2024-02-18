@@ -106,7 +106,6 @@ namespace TOHE.Roles.Crewmate
         public static string GetTrackerArrow(PlayerControl seer, PlayerControl target = null)
         {
             if (seer == null) return string.Empty;
-            if (!seer.Is(CustomRoles.Tracker)) return string.Empty;
             if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
             if (!TrackerTarget.ContainsKey(seer.PlayerId)) return string.Empty;
             if (GameStates.IsMeeting) return string.Empty;

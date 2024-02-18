@@ -96,7 +96,6 @@ public static class Mortician
     {
         if (ShowArrows.GetBool())
         {
-            if (!seer.Is(CustomRoles.Mortician)) return string.Empty;
             if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
             if (GameStates.IsMeeting) return string.Empty;
             return Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));

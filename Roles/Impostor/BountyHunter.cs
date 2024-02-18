@@ -213,7 +213,6 @@ public static class BountyHunter
     }
     public static string GetTargetArrow(PlayerControl seer, PlayerControl target = null)
     {
-        if (!seer.Is(CustomRoles.BountyHunter)) return string.Empty;
         if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
         if (!ShowTargetArrow || GameStates.IsMeeting) return string.Empty;
 

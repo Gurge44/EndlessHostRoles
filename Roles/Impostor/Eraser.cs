@@ -67,11 +67,10 @@ internal static class Eraser
     {
         byte PlayerId = reader.ReadByte();
         int Limit = reader.ReadInt32();
-        if (EraseLimit.ContainsKey(PlayerId))
+        if (!EraseLimit.TryAdd(PlayerId, 0))
             EraseLimit[PlayerId] = Limit;
-        else
-            EraseLimit.Add(PlayerId, 0);
     }
+
     public static string GetProgressText(byte playerId) => Utils.ColorString(EraseLimit[playerId] > 0 ? Utils.GetRoleColor(CustomRoles.Eraser) : Color.gray, EraseLimit.TryGetValue(playerId, out var x) ? $"({x})" : "Invalid");
 
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)

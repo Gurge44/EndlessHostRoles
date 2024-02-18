@@ -69,15 +69,15 @@ public static class SerialKiller
             Timer[player.PlayerId] = TimeLimit.GetInt();
             return;
         }
-        if (!SuicideTimer.ContainsKey(player.PlayerId)) //タイマーがない
+
+        if (SuicideTimer.TryAdd(player.PlayerId, 0f)) //タイマーがない
         {
-            SuicideTimer[player.PlayerId] = 0f;
             //player.RpcResetAbilityCooldown();
         }
         else if (SuicideTimer[player.PlayerId] >= TimeLimit.GetFloat())
         {
             //自爆時間が来たとき //死因：自殺
-            player.Suicide();//自殺させる
+            player.Suicide(); //自殺させる
             SuicideTimer.Remove(player.PlayerId);
             Timer[player.PlayerId] = TimeLimit.GetInt();
         }

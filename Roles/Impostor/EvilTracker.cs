@@ -187,7 +187,7 @@ public static class EvilTracker
     public static string GetTargetMark(PlayerControl seer, PlayerControl target) => GetTargetId(seer.PlayerId) == target.PlayerId ? Utils.ColorString(Palette.ImpostorRed, "◀") : string.Empty;
     public static string GetTargetArrow(PlayerControl seer, PlayerControl target)
     {
-        if (!GameStates.IsInTask || !target.Is(CustomRoles.EvilTracker)) return string.Empty;
+        if (!GameStates.IsInTask) return string.Empty;
 
         var trackerId = target.PlayerId;
         if (seer.PlayerId != trackerId) return string.Empty;

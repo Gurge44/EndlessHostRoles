@@ -104,11 +104,10 @@ public static class Medic
     {
         byte PlayerId = reader.ReadByte();
         int Limit = reader.ReadInt32();
-        if (ProtectLimit.ContainsKey(PlayerId))
+        if (!ProtectLimit.TryAdd(PlayerId, SkillLimit))
             ProtectLimit[PlayerId] = Limit;
-        else
-            ProtectLimit.Add(PlayerId, SkillLimit);
     }
+
     private static void SendRPCForProtectList()
     {
         if (!IsEnable || !Utils.DoRPC) return;

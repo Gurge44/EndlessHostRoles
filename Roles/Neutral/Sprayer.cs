@@ -105,7 +105,7 @@ namespace TOHE.Roles.Neutral
 
             if (pc.PlayerId == SprayerId) return;
 
-            if (!LastUpdate.ContainsKey(pc.PlayerId)) LastUpdate.Add(pc.PlayerId, now);
+            LastUpdate.TryAdd(pc.PlayerId, now);
             if (LastUpdate[pc.PlayerId] + 3 > now) return;
             LastUpdate[pc.PlayerId] = now;
 

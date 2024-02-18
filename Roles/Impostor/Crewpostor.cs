@@ -9,8 +9,8 @@ namespace TOHE.Roles.Impostor
         public static Dictionary<byte, int> TasksDone = [];
         public static void OnTaskComplete(PlayerControl player)
         {
-            if (TasksDone.ContainsKey(player.PlayerId)) TasksDone[player.PlayerId]++;
-            else TasksDone[player.PlayerId] = 0;
+            if (!TasksDone.TryAdd(player.PlayerId, 0)) TasksDone[player.PlayerId]++;
+
             SendRPC(player.PlayerId, TasksDone[player.PlayerId]);
 
             PlayerControl[] list = Main.AllAlivePlayerControls.Where(x => x.PlayerId != player.PlayerId && (Options.CrewpostorCanKillAllies.GetBool() || !x.GetCustomRole().IsImpostorTeam())).ToArray();
@@ -62,9 +62,8 @@ namespace TOHE.Roles.Impostor
         {
             if (PlayerControl.LocalPlayer.PlayerId == cpID)
             {
-                if (TasksDone.ContainsKey(cpID))
+                if (!TasksDone.TryAdd(cpID, 0))
                     TasksDone[cpID] = tasksDone;
-                else TasksDone[cpID] = 0;
             }
             else
             {
@@ -78,10 +77,8 @@ namespace TOHE.Roles.Impostor
         {
             byte PlayerId = reader.ReadByte();
             int tasksDone = reader.ReadInt32();
-            if (TasksDone.ContainsKey(PlayerId))
+            if (!TasksDone.TryAdd(PlayerId, 0))
                 TasksDone[PlayerId] = tasksDone;
-            else
-                TasksDone.Add(PlayerId, 0);
         }
     }
 }

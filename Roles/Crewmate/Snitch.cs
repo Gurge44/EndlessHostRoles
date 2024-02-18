@@ -146,7 +146,7 @@ public static class Snitch
         var exposedSnitch = playerIdList.Where(s => !Main.PlayerStates[s].IsDead && IsExposed[s]);
         if (!exposedSnitch.Any()) return string.Empty;
 
-        var warning = "\nSnitch ";
+        var warning = $"\n{Translator.GetString("Snitch")} ";
         if (EnableTargetArrow)
             warning += TargetArrow.GetArrows(seer, exposedSnitch.ToArray());
 
@@ -160,7 +160,7 @@ public static class Snitch
     /// <returns></returns>
     public static string GetSnitchArrow(PlayerControl seer, PlayerControl target = null)
     {
-        if (!IsThisRole(seer.PlayerId) || seer.Is(CustomRoles.Madmate)) return string.Empty;
+        if (seer.Is(CustomRoles.Madmate)) return string.Empty;
         if (!EnableTargetArrow || GameStates.IsMeeting) return string.Empty;
         if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
         var arrows = string.Empty;

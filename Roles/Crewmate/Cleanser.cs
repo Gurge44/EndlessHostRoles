@@ -68,10 +68,8 @@ public static class Cleanser
     {
         byte CleanserId = reader.ReadByte();
         int Limit = reader.ReadInt32();
-        if (CleanserUses.ContainsKey(CleanserId))
+        if (!CleanserUses.TryAdd(CleanserId, 0))
             CleanserUses[CleanserId] = Limit;
-        else
-            CleanserUses.Add(CleanserId, 0);
     }
 
     public static bool OnVote(PlayerControl voter, PlayerControl target)

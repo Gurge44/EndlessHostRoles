@@ -82,12 +82,10 @@ public static class Jailor
             //else JailorExeLimit.Add(jailerId, MaxExecution.GetInt());
 
             bool executed = reader.ReadBoolean();
-            if (JailorHasExe.ContainsKey(jailerId)) JailorHasExe[jailerId] = executed;
-            else JailorHasExe.Add(jailerId, false);
+            if (!JailorHasExe.TryAdd(jailerId, false)) JailorHasExe[jailerId] = executed;
 
             bool didvote = reader.ReadBoolean();
-            if (JailorDidVote.ContainsKey(jailerId)) JailorDidVote[jailerId] = didvote;
-            else JailorDidVote.Add(jailerId, false);
+            if (!JailorDidVote.TryAdd(jailerId, false)) JailorDidVote[jailerId] = didvote;
 
             return;
         }
