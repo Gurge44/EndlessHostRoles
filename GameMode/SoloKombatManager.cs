@@ -153,8 +153,8 @@ internal static class SoloKombatManager
     {
         if (pc.AmOwner || !pc.IsModClient()) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncKBNameNotify, SendOption.Reliable, pc.GetClientId());
-        if (NameNotify.ContainsKey(pc.PlayerId))
-            writer.Write(NameNotify[pc.PlayerId].TEXT);
+        if (NameNotify.TryGetValue(pc.PlayerId, out (string TEXT, long TIMESTAMP) value))
+            writer.Write(value.TEXT);
         else writer.Write("");
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
@@ -178,16 +178,16 @@ internal static class SoloKombatManager
     public static void GetNameNotify(PlayerControl player, ref string name)
     {
         if (Options.CurrentGameMode != CustomGameMode.SoloKombat || player == null) return;
-        if (BackCountdown.ContainsKey(player.PlayerId))
+        if (BackCountdown.TryGetValue(player.PlayerId, out int value))
         {
-            name = string.Format(Translator.GetString("KBBackCountDown"), BackCountdown[player.PlayerId]);
+            name = string.Format(Translator.GetString("KBBackCountDown"), value);
             NameNotify.Remove(player.PlayerId);
             return;
         }
 
-        if (NameNotify.ContainsKey(player.PlayerId))
+        if (NameNotify.TryGetValue(player.PlayerId, out (string TEXT, long TIMESTAMP) value1))
         {
-            name = NameNotify[player.PlayerId].TEXT;
+            name = value1.TEXT;
         }
     }
     public static string GetDisplayScore(byte playerId)

@@ -126,8 +126,8 @@ internal static class FFAManager
     {
         if (pc.AmOwner || !pc.IsModClient()) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncFFANameNotify, SendOption.Reliable, pc.GetClientId());
-        if (NameNotify.ContainsKey(pc.PlayerId))
-            writer.Write(NameNotify[pc.PlayerId].TEXT);
+        if (NameNotify.TryGetValue(pc.PlayerId, out (string TEXT, long TIMESTAMP) value))
+            writer.Write(value.TEXT);
         else writer.Write(string.Empty);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
@@ -145,9 +145,9 @@ internal static class FFAManager
     public static void GetNameNotify(PlayerControl player, ref string name)
     {
         if (Options.CurrentGameMode != CustomGameMode.FFA || player == null) return;
-        if (NameNotify.ContainsKey(player.PlayerId))
+        if (NameNotify.TryGetValue(player.PlayerId, out (string TEXT, long TIMESTAMP) value))
         {
-            name = NameNotify[player.PlayerId].TEXT;
+            name = value.TEXT;
         }
     }
 

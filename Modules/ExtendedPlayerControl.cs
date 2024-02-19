@@ -1292,14 +1292,14 @@ static class ExtendedPlayerControl
             if (IsActive(SystemTypes.Electrical)) Main.AllPlayerKillCooldown[player.PlayerId] = Options.MareKillCD.GetFloat();
             else Main.AllPlayerKillCooldown[player.PlayerId] = Options.MareKillCDNormally.GetFloat();
 
-        if (Main.KilledDiseased.ContainsKey(player.PlayerId))
+        if (Main.KilledDiseased.TryGetValue(player.PlayerId, out int value))
         {
-            Main.AllPlayerKillCooldown[player.PlayerId] = Main.AllPlayerKillCooldown[player.PlayerId] + Main.KilledDiseased[player.PlayerId] * Options.DiseasedCDOpt.GetFloat();
+            Main.AllPlayerKillCooldown[player.PlayerId] += value * Options.DiseasedCDOpt.GetFloat();
             Logger.Info($"kill cd of player set to {Main.AllPlayerKillCooldown[player.PlayerId]}", "Diseased");
         }
-        if (Main.KilledAntidote.ContainsKey(player.PlayerId))
+        if (Main.KilledAntidote.TryGetValue(player.PlayerId, out int value1))
         {
-            var kcd = Main.AllPlayerKillCooldown[player.PlayerId] - Main.KilledAntidote[player.PlayerId] * Options.AntidoteCDOpt.GetFloat();
+            var kcd = Main.AllPlayerKillCooldown[player.PlayerId] - value1 * Options.AntidoteCDOpt.GetFloat();
             if (kcd < 0) kcd = 0;
             Main.AllPlayerKillCooldown[player.PlayerId] = kcd;
             Logger.Info($"kill cd of player set to {Main.AllPlayerKillCooldown[player.PlayerId]}", "Antidote");

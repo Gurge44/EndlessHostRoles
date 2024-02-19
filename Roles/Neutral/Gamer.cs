@@ -64,8 +64,8 @@ public static class Gamer
         if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGamerHealth, SendOption.Reliable);
         writer.Write(playerId);
-        if (GamerHealth.ContainsKey(playerId))
-            writer.Write(GamerHealth[playerId]);
+        if (GamerHealth.TryGetValue(playerId, out int value))
+            writer.Write(value);
         else
             writer.Write(PlayerHealth[playerId]);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

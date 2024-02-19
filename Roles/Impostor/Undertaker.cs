@@ -43,7 +43,7 @@ internal static class Undertaker
         if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMarkedPlayerV2, SendOption.Reliable);
         writer.Write(playerId);
-        writer.Write(MarkedPlayer.ContainsKey(playerId) ? MarkedPlayer[playerId] : byte.MaxValue);
+        writer.Write(MarkedPlayer.TryGetValue(playerId, out byte value) ? value : byte.MaxValue);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
     public static void ReceiveRPC(MessageReader reader)

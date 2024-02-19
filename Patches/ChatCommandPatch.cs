@@ -907,10 +907,10 @@ internal class ChatCommands
                 var title = $"<{Main.roleColors[rl]}>{roleName}</color> {Utils.GetRoleMode(rl)}";
                 _ = sb.Append($"{GetString($"{rl}InfoLong")}");
                 var settings = new StringBuilder();
-                if (Options.CustomRoleSpawnChances.ContainsKey(rl))
+                if (Options.CustomRoleSpawnChances.TryGetValue(rl, out StringOptionItem chance))
                 {
                     settings.AppendLine($"<size=70%><u>{GetString("SettingsForRoleText")} <{Main.roleColors[rl]}>{roleName}</color>:</u>");
-                    Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[rl], ref settings, disableColor: false);
+                    Utils.ShowChildrenSettings(chance, ref settings, disableColor: false);
                     settings.Append("</size>");
                     var txt = $"<size=90%>{sb}</size>";
                     _ = sb.Clear().Append(txt);

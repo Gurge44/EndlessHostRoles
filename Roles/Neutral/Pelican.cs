@@ -105,8 +105,8 @@ public static class Pelican
         var player = Utils.GetPlayerById(playerId);
         if (player == null) return "Invalid";
         var eatenNum = 0;
-        if (eatenList.ContainsKey(playerId))
-            eatenNum = eatenList[playerId].Count;
+        if (eatenList.TryGetValue(playerId, out List<byte> value))
+            eatenNum = value.Count;
         return Utils.ColorString(eatenNum < 1 ? Color.gray : Utils.GetRoleColor(CustomRoles.Pelican), $"({eatenNum})");
     }
     public static void EatPlayer(PlayerControl pc, PlayerControl target)

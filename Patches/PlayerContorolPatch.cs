@@ -2324,7 +2324,7 @@ class FixedUpdatePatch
                     player.MarkDirtySettings();
                     Main.WarlockTimer.Remove(playerId);
                 }
-                else Main.WarlockTimer[playerId] = Main.WarlockTimer[playerId] + Time.fixedDeltaTime; //時間をカウント
+                else Main.WarlockTimer[playerId] += Time.fixedDeltaTime; //時間をカウント
             }
             else
             {

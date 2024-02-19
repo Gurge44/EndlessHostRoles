@@ -818,9 +818,9 @@ public static class Utils
                     ProgressText.Append($"<color=#777777>-</color> <#ffffff>{playerId.GetAbilityUseLimit()}</color>");
                     break;
                 case CustomRoles.SerialKiller:
-                    if (SerialKiller.SuicideTimer.ContainsKey(playerId))
+                    if (SerialKiller.SuicideTimer.TryGetValue(playerId, out float value))
                     {
-                        int SKTime = SerialKiller.TimeLimit.GetInt() - (int)SerialKiller.SuicideTimer[playerId];
+                        int SKTime = SerialKiller.TimeLimit.GetInt() - (int)value;
                         Color SKColor = SKTime < 10 ? SKTime % 2 == 1 ? Color.yellow : Color.red : Color.white;
                         if (SKTime <= 20) ProgressText.Append(ColorString(SKColor, $"<color=#777777>-</color> {SKTime}s"));
                     }
@@ -830,9 +830,9 @@ public static class Utils
                     ProgressText.Append(PlagueDoctor.GetProgressText());
                     break;
                 case CustomRoles.BountyHunter:
-                    if (BountyHunter.ChangeTimer.ContainsKey(playerId))
+                    if (BountyHunter.ChangeTimer.TryGetValue(playerId, out float value1))
                     {
-                        int BHTime = (int)(BountyHunter.TargetChangeTime - BountyHunter.ChangeTimer[playerId]);
+                        int BHTime = (int)(BountyHunter.TargetChangeTime - value1);
                         if (BHTime <= 15) ProgressText.Append(ColorString(Color.white, $"<color=#777777>-</color> <color=#00ffa5>SWAP:</color> {BHTime}s"));
                     }
 

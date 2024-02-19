@@ -92,7 +92,7 @@ public static class Collector
                 {
                     VoteAmount = data.Value;
                     CollectVote.TryAdd(pc.PlayerId, 0);
-                    CollectVote[pc.PlayerId] = CollectVote[pc.PlayerId] + VoteAmount;
+                    CollectVote[pc.PlayerId] += VoteAmount;
                     SendRPC(pc.PlayerId);
                 }
         }

@@ -148,13 +148,13 @@ public static class Camouflage
                 //シェイプシフターなら今の姿のidに変更
                 id = Main.ShapeshiftTarget[id];
             }
-            if (!GameEnd && Doppelganger.DoppelPresentSkin.ContainsKey(id)) newOutfit = Doppelganger.DoppelPresentSkin[id];
+            if (!GameEnd && Doppelganger.DoppelPresentSkin.TryGetValue(id, out GameData.PlayerOutfit value)) newOutfit = value;
             else
             {
-                if (GameEnd && Doppelganger.DoppelVictim.ContainsKey(id))
+                if (GameEnd && Doppelganger.DoppelVictim.TryGetValue(id, out string value1))
                 {
                     var dpc = Utils.GetPlayerById(id);
-                    dpc?.RpcSetName(Doppelganger.DoppelVictim[id]);
+                    dpc?.RpcSetName(value1);
                 }
                 newOutfit = PlayerSkins[id];
             }
