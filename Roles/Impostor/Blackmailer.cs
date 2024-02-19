@@ -3,14 +3,13 @@ using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor;
 
-public static class Blackmailer
+public class Blackmailer : RoleBase
 {
-    private static readonly int Id = 643050;
+    private const int Id = 643050;
     private static List<byte> playerIdList = [];
     public static OptionItem SkillCooldown;
     public static Dictionary<byte, int> BlackmailerMaxUp;
     public static List<byte> ForBlackmailer = [];
-    public static bool IsEnable;
 
     public static void SetupCustomOption()
     {
@@ -19,21 +18,24 @@ public static class Blackmailer
             .SetParent(CustomRoleSpawnChances[CustomRoles.Blackmailer])
             .SetValueFormat(OptionFormat.Seconds);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
         BlackmailerMaxUp = [];
         ForBlackmailer = [];
-        IsEnable = false;
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        IsEnable = true;
     }
-    public static void ApplyGameOptions()
+
+    public override void ApplyGameOptions(AmongUs.GameOptions.IGameOptions opt)
     {
         AURoleOptions.ShapeshifterCooldown = SkillCooldown.GetFloat();
         AURoleOptions.ShapeshifterDuration = 1f;
     }
+
+    public override bool IsEnable => playerIdList.Count > 0;
 }

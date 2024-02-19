@@ -541,6 +541,8 @@ static class ExtendedPlayerControl
 
         if (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId)) return true;
 
+        return Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.Role.CanUseKillButton(pc);
+
         return pc.GetCustomRole() switch
         {
             //SoloKombat

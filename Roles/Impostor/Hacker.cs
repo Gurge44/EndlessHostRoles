@@ -4,9 +4,9 @@ using static TOHE.Translator;
 
 namespace TOHE.Roles.Impostor;
 
-public static class Hacker
+public class Hacker : RoleBase
 {
-    private static readonly int Id = 2200;
+    private const int Id = 2200;
     private static List<byte> playerIdList = [];
 
     private static OptionItem HackLimitOpt;
@@ -27,22 +27,22 @@ public static class Hacker
             .SetValueFormat(OptionFormat.Times);
     }
 
-    public static void Init()
+    public override void Init()
     {
         playerIdList = [];
         DeadBodyList = [];
     }
 
-    public static void Add(byte playerId)
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(HackLimitOpt.GetInt());
     }
 
-    public static bool IsEnable => playerIdList.Count > 0;
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+    public override bool IsEnable => playerIdList.Count > 0;
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
 
-    public static void ApplyGameOptions()
+    public override void ApplyGameOptions(AmongUs.GameOptions.IGameOptions opt)
     {
         AURoleOptions.ShapeshifterCooldown = 15f;
         AURoleOptions.ShapeshifterDuration = 1f;
@@ -50,7 +50,7 @@ public static class Hacker
 
     public static string GetHackLimit(byte playerId) => Utils.GetAbilityUseLimitDisplay(playerId);
 
-    public static void GetAbilityButtonText(HudManager __instance, byte playerId)
+    public override void SetButtonTexts(HudManager __instance, byte playerId)
     {
         if (playerId.GetAbilityUseLimit() >= 1)
         {
@@ -59,7 +59,7 @@ public static class Hacker
         }
     }
 
-    public static void OnReportDeadBody() => DeadBodyList = [];
+    public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target) => DeadBodyList = [];
 
     public static void AddDeadBody(PlayerControl target)
     {
@@ -67,7 +67,7 @@ public static class Hacker
             DeadBodyList.Add(target.PlayerId);
     }
 
-    public static void OnShapeshift(PlayerControl pc, bool shapeshifting, PlayerControl ssTarget)
+    public override void OnShapeshift(PlayerControl pc, PlayerControl ssTarget, bool shapeshifting)
     {
         if (!shapeshifting || pc.GetAbilityUseLimit() < 1 || ssTarget == null || ssTarget.Is(CustomRoles.Needy) || ssTarget.Is(CustomRoles.Lazy)) return;
         pc.RpcRemoveAbilityUse();
@@ -86,9 +86,6 @@ public static class Hacker
         if (targetId == byte.MaxValue && DeadBodyList.Count > 0)
             targetId = DeadBodyList[IRandom.Instance.Next(0, DeadBodyList.Count)];
 
-        if (targetId == byte.MaxValue)
-            _ = new LateTask(() => ssTarget?.NoCheckStartMeeting(ssTarget?.Data), 0.15f, "Hacker Hacking Report Self");
-        else
-            _ = new LateTask(() => ssTarget?.NoCheckStartMeeting(Utils.GetPlayerById(targetId)?.Data), 0.15f, "Hacker Hacking Report");
+        _ = targetId == byte.MaxValue ? new(() => ssTarget.NoCheckStartMeeting(ssTarget.Data), 0.15f, "Hacker Hacking Report Self") : new LateTask(() => ssTarget.NoCheckStartMeeting(Utils.GetPlayerById(targetId)?.Data), 0.15f, "Hacker Hacking Report");
     }
 }

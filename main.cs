@@ -224,7 +224,6 @@ public class Main : BasePlugin
     public static byte FirstDied = byte.MaxValue;
     public static byte ShieldPlayer = byte.MaxValue;
     public static int MadmateNum;
-    public static int BardCreations;
     public static Dictionary<byte, byte> Provoked = [];
 
     public static Dictionary<byte, CustomRoles> DevRole = [];

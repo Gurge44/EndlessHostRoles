@@ -2,6 +2,7 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using HarmonyLib;
+using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
 
 namespace TOHE.Modules;

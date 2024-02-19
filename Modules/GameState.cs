@@ -15,6 +15,7 @@ namespace TOHE;
 public class PlayerState(byte playerId)
 {
     readonly byte PlayerId = playerId;
+    public RoleBase Role;
     public CustomRoles MainRole = CustomRoles.NotAssigned;
     public List<CustomRoles> SubRoles = [];
     public CountTypes countTypes = CountTypes.OutOfGame;
@@ -53,6 +54,7 @@ public class PlayerState(byte playerId)
             CustomRoles.Arsonist => Options.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Arsonist : CountTypes.Crew,
             _ => role.GetCountTypes(),
         };
+        Role = role.GetRoleClass();
     }
     public void SetSubRole(CustomRoles role, bool AllReplace = false)
     {

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using static TOHE.Options;
 
-namespace TOHE;
+namespace TOHE.Roles.Impostor;
 
-public static class Sans
+public class Sans : RoleBase
 {
     private static readonly int Id = 600;
     public static List<byte> playerIdList = [];
@@ -29,22 +29,27 @@ public static class Sans
             .SetParent(CustomRoleSpawnChances[CustomRoles.Sans])
             .SetValueFormat(OptionFormat.Percent);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
         NowCooldown = [];
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         NowCooldown.TryAdd(playerId, DefaultKillCooldown.GetFloat());
     }
-    public static bool IsEnable() => playerIdList.Count > 0;
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = NowCooldown[id];
-    public static void OnCheckMurder(PlayerControl killer)
+
+    public override bool IsEnable => playerIdList.Count > 0;
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = NowCooldown[id];
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         NowCooldown[killer.PlayerId] = Math.Clamp(NowCooldown[killer.PlayerId] - ReduceKillCooldown.GetFloat(), MinKillCooldown.GetFloat(), DefaultKillCooldown.GetFloat());
         killer.ResetKillCooldown();
         killer.SyncSettings();
+        return base.OnCheckMurder(killer, target);
     }
 }

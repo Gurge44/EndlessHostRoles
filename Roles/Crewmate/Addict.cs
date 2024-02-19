@@ -5,14 +5,16 @@ namespace TOHE.Roles.Crewmate
 {
     using static Options;
 
-    public static class Addict
+    public class Addict : RoleBase
     {
         private static readonly int Id = 5200;
         private static List<byte> playerIdList = [];
 
         public static OptionItem VentCooldown;
         public static OptionItem TimeLimit;
+
         public static OptionItem ImmortalTimeAfterVent;
+
         //     public static OptionItem SpeedWhileImmortal;
         public static OptionItem FreezeTimeAfterImmortal;
 
@@ -35,25 +37,28 @@ namespace TOHE.Roles.Crewmate
             FreezeTimeAfterImmortal = FloatOptionItem.Create(Id + 15, "AddictFreezeTimeAfterInvulnerbility", new(0f, 10f, 1f), 3f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Addict])
                 .SetValueFormat(OptionFormat.Seconds);
         }
-        public static void Init()
+
+        public override void Init()
         {
             playerIdList = [];
             SuicideTimer = [];
             ImmortalTimer = [];
             DefaultSpeed = new();
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
             SuicideTimer.TryAdd(playerId, -10f);
             ImmortalTimer.TryAdd(playerId, 420f);
             DefaultSpeed = Main.AllPlayerSpeed[playerId];
         }
-        public static bool IsEnable => playerIdList.Count > 0;
+
+        public override bool IsEnable => playerIdList.Count > 0;
 
         public static bool IsImmortal(PlayerControl player) => player.Is(CustomRoles.Addict) && ImmortalTimer[player.PlayerId] <= ImmortalTimeAfterVent.GetFloat();
 
-        public static void OnReportDeadBody()
+        public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
         {
             foreach (byte player in playerIdList.ToArray())
             {
@@ -63,7 +68,7 @@ namespace TOHE.Roles.Crewmate
             }
         }
 
-        public static void FixedUpdate(PlayerControl player)
+        public override void OnFixedUpdate(PlayerControl player)
         {
             if (!GameStates.IsInTask || !IsEnable || !SuicideTimer.ContainsKey(player.PlayerId) || !player.IsAlive()) return;
 
@@ -91,7 +96,7 @@ namespace TOHE.Roles.Crewmate
             }
         }
 
-        public static void OnEnterVent(PlayerControl pc)
+        public override void OnEnterVent(PlayerControl pc, Vent vent)
         {
             if (!pc.Is(CustomRoles.Addict)) return;
 

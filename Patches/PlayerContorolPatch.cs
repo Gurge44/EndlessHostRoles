@@ -1871,69 +1871,11 @@ class ReportDeadBodyPatch
         if (Bloodhound.IsEnable) Bloodhound.Clear();
         if (Vulture.IsEnable) Vulture.Clear();
 
-        Camouflager.OnReportDeadBody();
-        if (Bandit.IsEnable) Bandit.OnReportDeadBody();
-        if (Enigma.IsEnable) Enigma.OnReportDeadBody(player, target);
-        if (Psychic.IsEnable) Psychic.OnReportDeadBody();
-        if (BountyHunter.IsEnable) BountyHunter.OnReportDeadBody();
-        if (YinYanger.IsEnable) YinYanger.OnReportDeadBody();
-        if (HeadHunter.IsEnable) HeadHunter.OnReportDeadBody();
-        if (SerialKiller.IsEnable()) SerialKiller.OnReportDeadBody();
-        if (Sniper.IsEnable) Sniper.OnReportDeadBody();
-        if (Vampire.IsEnable) Vampire.OnStartMeeting();
-        if (Poisoner.IsEnable) Poisoner.OnStartMeeting();
-        if (Pelican.IsEnable) Pelican.OnReportDeadBody();
-        if (Agitater.IsEnable) Agitater.OnReportDeadBody();
-        //if (Counterfeiter.IsEnable) Counterfeiter.OnReportDeadBody();
-        if (Tether.IsEnable) Tether.OnReportDeadBody();
-        if (QuickShooter.IsEnable) QuickShooter.OnReportDeadBody();
-        if (Eraser.IsEnable) Eraser.OnReportDeadBody();
-        if (NiceEraser.IsEnable) NiceEraser.OnReportDeadBody();
-        if (Librarian.IsEnable) Librarian.OnReportDeadBody();
-        if (Hacker.IsEnable) Hacker.OnReportDeadBody();
-        if (Randomizer.IsEnable) Randomizer.OnReportDeadBody();
-        if (Analyzer.IsEnable) Analyzer.OnReportDeadBody();
-        if (Judge.IsEnable) Judge.OnReportDeadBody();
-        //    Councillor.OnReportDeadBody();
-        if (Greedier.IsEnable()) Greedier.OnReportDeadBody();
-        if (Imitator.IsEnable()) Imitator.OnReportDeadBody();
-        //if (Tracker.IsEnable) Tracker.OnReportDeadBody();
-        if (Addict.IsEnable) Addict.OnReportDeadBody();
-        if (Deathpact.IsEnable) Deathpact.OnReportDeadBody();
-        if (ParityCop.IsEnable) ParityCop.OnReportDeadBody();
-        if (Doomsayer.IsEnable) Doomsayer.OnReportDeadBody();
-        if (BallLightning.IsEnable) BallLightning.OnReportDeadBody();
-        if (Romantic.IsEnable) Romantic.OnReportDeadBody();
-        if (Jailor.IsEnable) Jailor.OnReportDeadBody();
-        if (Ricochet.IsEnable) Ricochet.OnReportDeadBody();
-        if (Mastermind.IsEnable) Mastermind.OnReportDeadBody();
-        if (Mafioso.IsEnable) Mafioso.OnReportDeadBody();
-        if (RiftMaker.IsEnable) RiftMaker.OnReportDeadBody();
-        if (Hitman.IsEnable) Hitman.OnReportDeadBody();
-        if (Gambler.IsEnable) Gambler.OnReportDeadBody();
-        if (Tracker.IsEnable) Tracker.OnReportDeadBody();
-        if (PlagueDoctor.IsEnable) PlagueDoctor.OnReportDeadBody();
-        if (Penguin.IsEnable) Penguin.OnReportDeadBody();
-        if (Sapper.IsEnable) Sapper.OnReportDeadBody();
-        if (Pursuer.IsEnable) Pursuer.OnReportDeadBody();
-        if (Enderman.IsEnable) Enderman.OnReportDeadBody();
-        if (Bubble.IsEnable) Bubble.OnReportDeadBody();
-        if (Hookshot.IsEnable) Hookshot.OnReportDeadBody();
-        if (Sprayer.IsEnable) Sprayer.OnReportDeadBody();
-        if (Chronomancer.IsEnable) Chronomancer.OnReportDeadBody();
-        if (Sentinel.IsEnable) Sentinel.OnReportDeadBody();
-        if (Magician.IsEnable) Magician.OnReportDeadBody();
-        if (Drainer.IsEnable) Drainer.OnReportDeadBody();
-        if (Stealth.IsEnable) Stealth.OnStartMeeting();
-        if (Reckless.IsEnable) Reckless.OnReportDeadBody();
-        Swiftclaw.OnReportDeadBody();
-        Mathematician.OnReportDeadBody();
-        Beacon.OnReportDeadBody();
 
-        if (Mortician.IsEnable) Mortician.OnReportDeadBody(player, target);
-        if (Tracefinder.IsEnable) Tracefinder.OnReportDeadBody( /*player, target*/);
-        if (Mediumshiper.IsEnable) Mediumshiper.OnReportDeadBody(target);
-        if (Spiritualist.IsEnable) Spiritualist.OnReportDeadBody(target);
+        foreach (var state in Main.PlayerStates.Values)
+        {
+            state.Role.OnReportDeadBody(player, target?.Object);
+        }
 
         Main.AbilityCD.Clear();
 
