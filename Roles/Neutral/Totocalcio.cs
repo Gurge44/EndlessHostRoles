@@ -60,7 +60,7 @@ public static class Totocalcio
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncTotocalcioTargetAndTimes, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(BetTimes.TryGetValue(playerId, out var times) ? times : MaxBetTimes.GetInt());
-        writer.Write(BetPlayer.TryGetValue(playerId, out var player) ? player : byte.MaxValue);
+        writer.Write(BetPlayer.GetValueOrDefault(playerId, byte.MaxValue));
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
     public static void ReceiveRPC(MessageReader reader)

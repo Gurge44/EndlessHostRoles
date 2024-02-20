@@ -376,14 +376,14 @@ public static class Utils
 
     public static Color GetRoleColor(CustomRoles role)
     {
-        if (!Main.roleColors.TryGetValue(role, out var hexColor)) hexColor = "#ffffff";
+        var hexColor = Main.roleColors.GetValueOrDefault(role, "#ffffff");
         _ = ColorUtility.TryParseHtmlString(hexColor, out Color c);
         return c;
     }
 
     public static string GetRoleColorCode(CustomRoles role)
     {
-        if (!Main.roleColors.TryGetValue(role, out var hexColor)) hexColor = "#ffffff";
+        var hexColor = Main.roleColors.GetValueOrDefault(role, "#ffffff");
         return hexColor;
     }
 
@@ -995,10 +995,10 @@ public static class Utils
                     ProgressText.Append(TimeThief.GetProgressText(playerId));
                     break;
                 case CustomRoles.Mario:
-                    ProgressText.Append(ColorString(GetRoleColor(CustomRoles.Mario).ShadeColor(0.25f), $"<color=#777777>-</color> {(Main.MarioVentCount.TryGetValue(playerId, out var count) ? count : 0)}/{Options.MarioVentNumWin.GetInt()}"));
+                    ProgressText.Append(ColorString(GetRoleColor(CustomRoles.Mario).ShadeColor(0.25f), $"<color=#777777>-</color> {(Main.MarioVentCount.GetValueOrDefault(playerId, 0))}/{Options.MarioVentNumWin.GetInt()}"));
                     break;
                 case CustomRoles.Vulture:
-                    ProgressText.Append(ColorString(GetRoleColor(CustomRoles.Vulture).ShadeColor(0.25f), $"<color=#777777>-</color> {(Vulture.BodyReportCount.TryGetValue(playerId, out var count1) ? count1 : 0)}/{Vulture.NumberOfReportsToWin.GetInt()}"));
+                    ProgressText.Append(ColorString(GetRoleColor(CustomRoles.Vulture).ShadeColor(0.25f), $"<color=#777777>-</color> {(Vulture.BodyReportCount.GetValueOrDefault(playerId, 0))}/{Vulture.NumberOfReportsToWin.GetInt()}"));
                     break;
                 //case CustomRoles.Masochist:
                 //    ProgressText.Append(ColorString(GetRoleColor(CustomRoles.Masochist).ShadeColor(0.25f), $"<color=#777777>-</color> {(Main.MasochistKillMax.TryGetValue(playerId, out var count3) ? count3 : 0)}/{Options.MasochistKillMax.GetInt()}"));
@@ -1145,10 +1145,11 @@ public static class Utils
 
     public static string GetTaskCount(byte playerId, bool comms, bool moveAndStop = false)
     {
-        var taskState = Main.PlayerStates?[playerId].TaskState;
-        if (taskState.hasTasks)
+        try
         {
-            Color TextColor;
+            var taskState = Main.PlayerStates[playerId].TaskState;
+            if (!taskState.hasTasks) return string.Empty;
+
             var info = GetPlayerInfoById(playerId);
             var TaskCompleteColor = HasTasks(info) ? Color.green : GetRoleColor(Main.PlayerStates[playerId].MainRole).ShadeColor(0.5f); //タスク完了後の色
             var NonCompleteColor = HasTasks(info) ? Color.yellow : Color.white; //カウントされない人外は白色
@@ -1160,12 +1161,14 @@ public static class Utils
             if (Main.PlayerStates.TryGetValue(playerId, out var ps) && ps.MainRole == CustomRoles.Crewpostor)
                 NormalColor = Color.red;
 
-            TextColor = comms ? Color.gray : NormalColor;
+            Color TextColor = comms ? Color.gray : NormalColor;
             string Completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
             return ColorString(TextColor, $"{(moveAndStop ? string.Empty : "<color=#777777>-</color>")} {(moveAndStop ? "<size=1.6>" : string.Empty)}{Completed}/{taskState.AllTasksCount}{(moveAndStop ? "</size>" : string.Empty)}");
         }
-
-        return string.Empty;
+        catch
+        {
+            return string.Empty;
+        }
     }
 
     public static void ShowActiveSettingsHelp(byte PlayerId = byte.MaxValue)
@@ -2275,7 +2278,7 @@ public static class Utils
                         SelfName = $"{ColorString(seer.GetRoleColor(), GetString("EnterVentToWin"))}";
                         break;
                     case CustomRoles.Revolutionist when seer.IsDrawDone():
-                        SelfName = $">{ColorString(seer.GetRoleColor(), string.Format(GetString("EnterVentWinCountDown"), Main.RevolutionistCountdown.TryGetValue(seer.PlayerId, out var x) ? x : 10))}";
+                        SelfName = $">{ColorString(seer.GetRoleColor(), string.Format(GetString("EnterVentWinCountDown"), Main.RevolutionistCountdown.GetValueOrDefault(seer.PlayerId, 10)))}";
                         break;
                 }
 
@@ -2907,9 +2910,6 @@ public static class Utils
                 break;
             case CustomRoles.Collector:
                 Collector.Add(id);
-                break;
-            case CustomRoles.CursedWolf:
-                Main.CursedWolfSpellCount[id] = Options.GuardSpellTimes.GetInt();
                 break;
             case CustomRoles.Jinx:
                 Main.JinxSpellCount[id] = Jinx.JinxSpellTimes.GetInt();

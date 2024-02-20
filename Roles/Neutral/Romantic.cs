@@ -79,7 +79,7 @@ public static class Romantic
     }
     public static void SetKillCooldown()
     {
-        float beforeCD = Main.AllPlayerKillCooldown.TryGetValue(RomanticId, out var kcd) ? kcd : 0f;
+        float beforeCD = Main.AllPlayerKillCooldown.GetValueOrDefault(RomanticId, 0f);
 
         if (HasPickedPartner) Main.AllPlayerKillCooldown[RomanticId] = ProtectCooldown.GetFloat();
         else Main.AllPlayerKillCooldown[RomanticId] = BetCooldown.GetFloat();

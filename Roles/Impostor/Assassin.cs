@@ -42,7 +42,7 @@ internal static class Assassin
         if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMarkedPlayer, SendOption.Reliable);
         writer.Write(playerId);
-        writer.Write(MarkedPlayer.TryGetValue(playerId, out byte value) ? value : byte.MaxValue);
+        writer.Write(MarkedPlayer.GetValueOrDefault(playerId, byte.MaxValue));
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
     public static void ReceiveRPC(MessageReader reader)

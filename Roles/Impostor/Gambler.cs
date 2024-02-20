@@ -9,9 +9,9 @@ using static TOHE.Utils;
 
 namespace TOHE.Roles.Impostor
 {
-    public static class Gambler
+    public class Gambler : RoleBase
     {
-        private static readonly int Id = 640700;
+        private const int Id = 640700;
         public static List<byte> playerIdList = [];
 
         public static OptionItem KillCooldown;
@@ -33,8 +33,8 @@ namespace TOHE.Roles.Impostor
         public static OptionItem IgnorePestilence;
         public static OptionItem PositiveEffectChance;
 
-        public static Dictionary<byte, byte> EffectID = [];
-        public static Dictionary<byte, bool> isPositiveEffect = [];
+        public byte EffectID = byte.MaxValue;
+        public bool isPositiveEffect;
 
         public static Dictionary<byte, long> waitingDelayedKills = [];
         public static Dictionary<byte, long> isShielded = [];
@@ -78,39 +78,40 @@ namespace TOHE.Roles.Impostor
                 .SetValueFormat(OptionFormat.Percent);
         }
 
-        public static void Init()
+        public override void Init()
         {
             playerIdList = [];
-            EffectID = [];
+            EffectID = byte.MaxValue;
             waitingDelayedKills = [];
             isSpeedChange = [];
             isVisionChange = [];
-            isPositiveEffect = [];
+            isPositiveEffect = true;
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
         }
 
-        public static bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => playerIdList.Count > 0;
 
-        public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer == null) return false;
             if (target == null) return false;
 
-            if (EffectID.TryGetValue(killer.PlayerId, out var id) && id != byte.MaxValue)
+            if (EffectID != byte.MaxValue)
             {
                 return true;
             }
 
             var rd = IRandom.Instance;
-            isPositiveEffect[killer.PlayerId] = rd.Next(1, 101) <= PositiveEffectChance.GetInt();
-            if (isPositiveEffect[killer.PlayerId])
+            isPositiveEffect = rd.Next(1, 101) <= PositiveEffectChance.GetInt();
+
+            if (isPositiveEffect)
             {
-                EffectID[killer.PlayerId] = (byte)rd.Next(1, 8);
-                switch (EffectID[killer.PlayerId])
+                EffectID = (byte)rd.Next(1, 8);
+                switch (EffectID)
                 {
                     case 1: // Delayed kill
                         killer.Notify(string.Format(GetString("GamblerGet.DelayedKill"), KillDelay.GetInt()));
@@ -173,8 +174,8 @@ namespace TOHE.Roles.Impostor
             }
             else
             {
-                EffectID[killer.PlayerId] = (byte)rd.Next(1, 5);
-                switch (EffectID[killer.PlayerId])
+                EffectID = (byte)rd.Next(1, 5);
+                switch (EffectID)
                 {
                     case 1: // BSR
                         var delay = Math.Max(0.15f, BSRDelay.GetFloat());
@@ -209,12 +210,12 @@ namespace TOHE.Roles.Impostor
                 }
             }
 
-            EffectID[killer.PlayerId] = byte.MaxValue;
+            EffectID = byte.MaxValue;
 
             return true;
         }
 
-        public static void OnFixedUpdate(PlayerControl player)
+        public override void OnFixedUpdate(PlayerControl player)
         {
             if (!GameStates.IsInTask || player == null || !player.Is(CustomRoles.Gambler) || (waitingDelayedKills.Count == 0 && isSpeedChange.Count == 0 && isVisionChange.Count == 0 && isShielded.Count == 0)) return;
 
@@ -260,10 +261,11 @@ namespace TOHE.Roles.Impostor
             }
         }
 
-        public static void OnReportDeadBody()
+        public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
         {
-            EffectID.Clear();
-            isPositiveEffect.Clear();
+            EffectID = byte.MaxValue;
+            isPositiveEffect = true;
+
             foreach (var playerId in waitingDelayedKills.Keys.ToArray())
             {
                 var pc = GetPlayerById(playerId);

@@ -24,10 +24,10 @@ namespace TOHE
 
         public virtual bool CanUseImpostorVentButton(PlayerControl pc)
         {
-            return pc.IsAlive();
+            return pc.IsAlive() && pc.GetCustomRole().GetRoleTypes() is not RoleTypes.Crewmate and not RoleTypes.Engineer;
         }
 
-        public virtual void ApplyGameOptions(IGameOptions opt)
+        public virtual void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
         }
 
@@ -60,20 +60,18 @@ namespace TOHE
             return target != null && killer != null;
         }
 
+        public virtual bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
+        {
+            return target != null && killer != null;
+        }
+
         public virtual void OnMurder(PlayerControl killer, PlayerControl target)
         {
         }
 
-        public virtual void OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+        public virtual bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-        }
-
-        public virtual void OnVote(PlayerControl voter, PlayerControl target)
-        {
-        }
-
-        public virtual void OnExile(PlayerControl exiler, PlayerControl target)
-        {
+            return true;
         }
 
         public virtual void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
@@ -94,6 +92,7 @@ namespace TOHE
 
         public virtual void SetButtonTexts(HudManager hud, byte id)
         {
+            hud.KillButton?.OverrideText(Translator.GetString("KillButtonText"));
         }
     }
 }

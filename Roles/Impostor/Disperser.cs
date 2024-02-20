@@ -5,14 +5,17 @@ using static TOHE.Utils;
 
 namespace TOHE.Roles.Impostor;
 
-public static class Disperser
+public class Disperser : RoleBase
 {
-    private static readonly int Id = 17000;
+    private const int Id = 17000;
 
     public static OptionItem DisperserShapeshiftCooldown;
     private static OptionItem DisperserShapeshiftDuration;
     private static OptionItem DisperserLimitOpt;
     public static OptionItem DisperserAbilityUseGainWithEachKill;
+
+    public static bool On;
+    public override bool IsEnable => On;
 
     public static void SetupCustomOption()
     {
@@ -28,24 +31,30 @@ public static class Disperser
             .SetValueFormat(OptionFormat.Times);
     }
 
-    public static void Add(byte playerId)
+    public override void Init()
     {
-        playerId.SetAbilityUseLimit(DisperserLimitOpt.GetInt());
+        On = false;
     }
 
-    public static void ApplyGameOptions()
+    public override void Add(byte playerId)
+    {
+        playerId.SetAbilityUseLimit(DisperserLimitOpt.GetInt());
+        On = true;
+    }
+
+    public override void ApplyGameOptions(AmongUs.GameOptions.IGameOptions opt, byte id)
     {
         AURoleOptions.ShapeshifterCooldown = DisperserShapeshiftCooldown.GetFloat();
         AURoleOptions.ShapeshifterDuration = DisperserShapeshiftDuration.GetFloat();
     }
 
-    public static void DispersePlayers(PlayerControl shapeshifter)
+    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        if (shapeshifter == null) return;
+        if (shapeshifter == null || !shapeshifting) return false;
         if (shapeshifter.GetAbilityUseLimit() < 1)
         {
             shapeshifter.SetKillCooldown(DisperserShapeshiftDuration.GetFloat() + 1f);
-            return;
+            return false;
         }
 
         shapeshifter.RpcRemoveAbilityUse();
@@ -64,11 +73,13 @@ public static class Disperser
             pc.TPtoRndVent();
             pc.Notify(ColorString(GetRoleColor(CustomRoles.Disperser), string.Format(GetString("TeleportedInRndVentByDisperser"), pc.GetRealName())));
         }
+
+        return false;
     }
 
-    public static void GetAbilityButtonText(HudManager __instance, PlayerControl pc)
+    public override void SetButtonTexts(HudManager __instance, byte id)
     {
-        __instance.AbilityButton.ToggleVisible(pc.IsAlive());
+        __instance.AbilityButton.ToggleVisible(GetPlayerById(id).IsAlive());
         __instance.AbilityButton.OverrideText(GetString("DisperserVentButtonText"));
     }
 }

@@ -114,11 +114,11 @@ class CheckForEndVotingPatch
                                 Tracker.OnVote(pc, voteTarget);
                                 break;
                             case CustomRoles.Godfather when !Options.GodfatherCancelVote.GetBool():
-                                Main.GodfatherTarget = voteTarget.PlayerId;
+                                Godfather.GodfatherTarget = voteTarget.PlayerId;
                                 break;
                         }
                     }
-                    else if (pc.Is(CustomRoles.Godfather)) Main.GodfatherTarget = byte.MaxValue;
+                    else if (pc.Is(CustomRoles.Godfather)) Godfather.GodfatherTarget = byte.MaxValue;
                 }
             }
 
@@ -1287,10 +1287,10 @@ class MeetingHudCastVotePatch
         PlayerVoteArea pva_src = null;
         PlayerVoteArea pva_target = null;
         bool isSkip = false;
-        for (int i = 0; i < __instance.playerStates.Count; i++)
+        foreach (var t in __instance.playerStates)
         {
-            if (__instance.playerStates[i].TargetPlayerId == srcPlayerId) pva_src = __instance.playerStates[i];
-            if (__instance.playerStates[i].TargetPlayerId == suspectPlayerId) pva_target = __instance.playerStates[i];
+            if (t.TargetPlayerId == srcPlayerId) pva_src = t;
+            if (t.TargetPlayerId == suspectPlayerId) pva_target = t;
         }
 
         if (pva_src == null)
@@ -1352,22 +1352,22 @@ class MeetingHudCastVotePatch
                         if (Tracker.OnVote(pc_src, pc_target)) CancelVote();
                         break;
                     case CustomRoles.Godfather when Options.GodfatherCancelVote.GetBool():
-                        Main.GodfatherTarget = pc_target.PlayerId;
+                        Godfather.GodfatherTarget = pc_target.PlayerId;
                         CancelVote();
                         break;
                 }
             }
         }
 
+        Logger.Info($"{pc_src.GetNameWithRole().RemoveHtmlTags()} => {(isSkip ? "Skip" : pc_target.GetNameWithRole().RemoveHtmlTags())}{(isVoteCanceled ? " (Canceled)" : string.Empty)}", "Vote");
+
+        return isSkip || !isVoteCanceled; // return false to use the vote as a trigger; skips and invalid votes are never canceled
+
         void CancelVote()
         {
             ShouldCancelVoteList.TryAdd(srcPlayerId, (__instance, pva_src, pc_src));
             isVoteCanceled = true;
         }
-
-        Logger.Info($"{pc_src.GetNameWithRole().RemoveHtmlTags()} => {(isSkip ? "Skip" : pc_target.GetNameWithRole().RemoveHtmlTags())}{(isVoteCanceled ? " (Canceled)" : string.Empty)}", "Vote");
-
-        return isSkip || !isVoteCanceled; // return false to use the vote as a trigger; skips and invalid votes are never canceled
     }
 
     public static void Postfix([HarmonyArgument(0)] byte srcPlayerId)

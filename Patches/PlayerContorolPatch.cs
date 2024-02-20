@@ -213,10 +213,8 @@ class CheckMurderPatch
 
         if (Pursuer.IsEnable && Pursuer.OnClientMurder(killer)) return false;
 
-        //判定凶手技能
         if (killer.PlayerId != target.PlayerId)
         {
-            //非自杀场景下才会触发
             switch (killer.GetCustomRole())
             {
                 case CustomRoles.BountyHunter:
@@ -273,14 +271,6 @@ class CheckMurderPatch
                 case CustomRoles.Stealth:
                     Stealth.OnCheckMurder(killer, target);
                     break;
-                case CustomRoles.Inhibitor:
-                    if (Main.AllPlayerKillCooldown[killer.PlayerId] != Options.InhibitorCD.GetFloat())
-                    {
-                        Main.AllPlayerKillCooldown[killer.PlayerId] = Options.InhibitorCD.GetFloat();
-                        killer.SyncSettings();
-                    }
-
-                    break;
                 case CustomRoles.Consort:
                     if (!Consort.OnCheckMurder(killer, target)) return false;
                     break;
@@ -299,7 +289,7 @@ class CheckMurderPatch
                 case CustomRoles.Sapper:
                     return false;
                 case CustomRoles.Saboteur:
-                    if (Main.AllPlayerKillCooldown[killer.PlayerId] != Options.SaboteurCD.GetFloat())
+                    if (Math.Abs(Main.AllPlayerKillCooldown[killer.PlayerId] - Options.SaboteurCD.GetFloat()) > 0.5f)
                     {
                         Main.AllPlayerKillCooldown[killer.PlayerId] = Options.SaboteurCD.GetFloat();
                         killer.SyncSettings();
@@ -453,19 +443,6 @@ class CheckMurderPatch
                     }
 
                     break;
-                case CustomRoles.Capitalism:
-                    return killer.CheckDoubleTrigger(target, () =>
-                    {
-                        Main.CapitalismAddTask.TryAdd(target.PlayerId, 0);
-                        Main.CapitalismAddTask[target.PlayerId]++;
-                        Main.CapitalismAssignTask.TryAdd(target.PlayerId, 0);
-                        Main.CapitalismAssignTask[target.PlayerId]++;
-                        Logger.Info($"{killer.GetRealName()} added a task for：{target.GetRealName()}", "Capitalism Add Task");
-                        //killer.RpcGuardAndKill(killer);
-                        killer.SetKillCooldown(Options.CapitalismSkillCooldown.GetFloat());
-                    });
-                /*     case CustomRoles.Bomber:
-                         return false; */
                 case CustomRoles.Gangster:
                     if (Gangster.OnCheckMurder(killer, target))
                         return false;
@@ -693,55 +670,6 @@ class CheckMurderPatch
             return false;
         }
 
-        if (killer.Is(CustomRoles.OverKiller) && killer.PlayerId != target.PlayerId)
-        {
-            Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Dismembered;
-            _ = new LateTask(() =>
-            {
-                if (!Main.OverDeadPlayerList.Contains(target.PlayerId)) Main.OverDeadPlayerList.Add(target.PlayerId);
-                if (target.Is(CustomRoles.Avanger))
-                {
-                    foreach (var pc in Main.AllAlivePlayerControls)
-                    {
-                        pc.Suicide(PlayerState.DeathReason.Revenge, target);
-                    }
-
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
-                    return;
-                }
-
-                var ops = target.Pos();
-                var rd = IRandom.Instance;
-                for (int i = 0; i < 20; i++)
-                {
-                    Vector2 location = new(ops.x + ((float)(rd.Next(0, 201) - 100) / 100), ops.y + ((float)(rd.Next(0, 201) - 100) / 100));
-                    location += new Vector2(0, 0.3636f);
-
-                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(target.NetTransform.NetId, (byte)RpcCalls.SnapTo, SendOption.None);
-                    NetHelpers.WriteVector2(location, writer);
-                    writer.Write(target.NetTransform.lastSequenceId);
-                    AmongUsClient.Instance.FinishRpcImmediately(writer);
-
-                    target.NetTransform.SnapTo(location);
-                    killer.MurderPlayer(target, ExtendedPlayerControl.ResultFlags);
-
-                    if (target.Is(CustomRoles.Avanger))
-                    {
-                        var pcList = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId || Pelican.IsEaten(x.PlayerId) || Medic.ProtectList.Contains(x.PlayerId) || target.Is(CustomRoles.Pestilence)).ToArray();
-                        var rp = pcList[IRandom.Instance.Next(0, pcList.Length)];
-                        rp.Suicide(PlayerState.DeathReason.Revenge, target);
-                    }
-
-                    MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.None);
-                    messageWriter.WriteNetObject(target);
-                    messageWriter.Write((byte)ExtendedPlayerControl.ResultFlags);
-                    AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
-                }
-
-                killer.TP(ops);
-            }, 0.05f, "OverKiller Murder");
-        }
-
         if (!DoubleTrigger.FirstTriggerTimer.ContainsKey(killer.PlayerId) && killer.Is(CustomRoles.Swift) && !target.Is(CustomRoles.Pestilence))
         {
             if (killer.RpcCheckAndMurder(target, true))
@@ -920,24 +848,6 @@ class CheckMurderPatch
                 }
 
                 break;
-            case CustomRoles.CursedWolf:
-                if (Main.CursedWolfSpellCount[target.PlayerId] <= 0) break;
-                if (killer.Is(CustomRoles.Pestilence)) break;
-                if (killer == target) break;
-                var kcd = Main.KillTimers[target.PlayerId] + Main.AllPlayerKillCooldown[target.PlayerId];
-                killer.RpcGuardAndKill(target);
-                Main.CursedWolfSpellCount[target.PlayerId] -= 1;
-                RPC.SendRPCCursedWolfSpellCount(target.PlayerId);
-                if (Options.killAttacker.GetBool())
-                {
-                    Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} : {Main.CursedWolfSpellCount[target.PlayerId]} curses remain", "CursedWolf");
-                    Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Curse;
-                    killer.SetRealKiller(target);
-                    target.Kill(killer);
-                }
-
-                target.SetKillCooldown(time: kcd);
-                return false;
             case CustomRoles.Jinx:
                 if (Main.JinxSpellCount[target.PlayerId] <= 0) break;
                 if (killer.Is(CustomRoles.Pestilence)) break;
@@ -1111,7 +1021,7 @@ class MurderPlayerPatch
         if (Main.OverDeadPlayerList.Contains(target.PlayerId)) return;
 
         PlayerControl killer = __instance; // Alternative variable
-        if (target.PlayerId == Main.GodfatherTarget) killer.RpcSetCustomRole(CustomRoles.Refugee);
+        if (target.PlayerId == Godfather.GodfatherTarget) killer.RpcSetCustomRole(CustomRoles.Refugee);
 
         PlagueDoctor.OnAnyMurder();
 
@@ -1411,25 +1321,6 @@ class ShapeshiftPatch
                         }
 
                         Main.CursedPlayers[shapeshifter.PlayerId] = null;
-                    }
-
-                    isSSneeded = false;
-                    break;
-                case CustomRoles.Escapee:
-                    if (shapeshifting)
-                    {
-                        if (Main.EscapeeLocation.ContainsKey(shapeshifter.PlayerId))
-                        {
-                            var position = Main.EscapeeLocation[shapeshifter.PlayerId];
-                            Main.EscapeeLocation.Remove(shapeshifter.PlayerId);
-                            Logger.Msg($"{shapeshifter.GetNameWithRole().RemoveHtmlTags()}:{position}", "EscapeeTeleport");
-                            TP(shapeshifter.NetTransform, position);
-                            shapeshifter.RPCPlayCustomSound("Teleport");
-                        }
-                        else
-                        {
-                            Main.EscapeeLocation.Add(shapeshifter.PlayerId, shapeshifter.Pos());
-                        }
                     }
 
                     isSSneeded = false;
@@ -1893,16 +1784,10 @@ class ReportDeadBodyPatch
 
         Stressed.OnMeetingStart();
 
-        if (Options.InhibitorCDAfterMeetings.GetFloat() != Options.InhibitorCD.GetFloat() || Options.SaboteurCD.GetFloat() != Options.SaboteurCDAfterMeetings.GetFloat())
+        if (Math.Abs(Options.InhibitorCDAfterMeetings.GetFloat() - Options.InhibitorCD.GetFloat()) > 0.5f || Math.Abs(Options.SaboteurCD.GetFloat() - Options.SaboteurCDAfterMeetings.GetFloat()) > 0.5f)
         {
             foreach (PlayerControl x in Main.AllAlivePlayerControls)
             {
-                if (x.Is(CustomRoles.Inhibitor))
-                {
-                    Main.AllPlayerKillCooldown[x.PlayerId] = Options.InhibitorCDAfterMeetings.GetFloat();
-                    continue;
-                }
-
                 if (x.Is(CustomRoles.Saboteur))
                 {
                     Main.AllPlayerKillCooldown[x.PlayerId] = Options.SaboteurCDAfterMeetings.GetFloat();
@@ -2771,7 +2656,7 @@ class FixedUpdatePatch
                     if (target.Is(CustomRoles.Arsonist) && target.IsDouseDone())
                         RealName = ColorString(GetRoleColor(CustomRoles.Arsonist), GetString("EnterVentToWin"));
                     else if (target.Is(CustomRoles.Revolutionist) && target.IsDrawDone())
-                        RealName = ColorString(GetRoleColor(CustomRoles.Revolutionist), string.Format(GetString("EnterVentWinCountDown"), Main.RevolutionistCountdown.TryGetValue(seer.PlayerId, out var x) ? x : 10));
+                        RealName = ColorString(GetRoleColor(CustomRoles.Revolutionist), string.Format(GetString("EnterVentWinCountDown"), Main.RevolutionistCountdown.GetValueOrDefault(seer.PlayerId, 10)));
                     if (Pelican.IsEaten(seer.PlayerId))
                         RealName = ColorString(GetRoleColor(CustomRoles.Pelican), GetString("EatenByPelican"));
 
@@ -3725,25 +3610,7 @@ class PlayerControlCompleteTaskPatch
 {
     public static bool Prefix(PlayerControl __instance)
     {
-        var player = __instance;
-
-        if (Workhorse.OnCompleteTask(player)) // Cancel task win
-            return false;
-
-        // Tasks from Capitalist
-        if (Main.CapitalismAddTask.TryGetValue(player.PlayerId, out var amount))
-        {
-            var taskState = player.GetTaskState();
-            taskState.AllTasksCount += amount;
-            Main.CapitalismAddTask.Remove(player.PlayerId);
-            taskState.CompletedTasksCount++;
-            GameData.Instance.RpcSetTasks(player.PlayerId, Array.Empty<byte>()); // Redistribute tasks
-            player.SyncSettings();
-            NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
-            return false;
-        }
-
-        return true;
+        return !Workhorse.OnCompleteTask(__instance) && Capitalism.AddTaskForPlayer(__instance); // Cancel task win
     }
 
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] uint idx)

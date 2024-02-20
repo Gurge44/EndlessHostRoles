@@ -1,20 +1,21 @@
-﻿using System.Collections.Generic;
-using Hazel;
+﻿using Hazel;
+using System.Collections.Generic;
 using static TOHE.Options;
 using static TOHE.Utils;
 
 namespace TOHE.Roles.Impostor
 {
-    public static class Hitman
+    public class Hitman : RoleBase
     {
-        private static readonly int Id = 640800;
+        private const int Id = 640800;
         public static List<byte> playerIdList = [];
 
         public static OptionItem KillCooldown;
         public static OptionItem SuccessKCD;
         public static OptionItem ShapeshiftCooldown;
 
-        public static byte targetId = byte.MaxValue;
+        public byte TargetId = byte.MaxValue;
+        private byte HitmanId = byte.MaxValue;
 
         public static void SetupCustomOption()
         {
@@ -27,76 +28,75 @@ namespace TOHE.Roles.Impostor
                 .SetValueFormat(OptionFormat.Seconds);
         }
 
-        public static void Init()
+        public override void Init()
         {
             playerIdList = [];
-            targetId = byte.MaxValue;
+            TargetId = byte.MaxValue;
+            HitmanId = byte.MaxValue;
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
+            HitmanId = playerId;
         }
 
-        public static bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void SendRPC(byte targetId)
+        void SendRPC()
         {
-            if (!IsEnable || !DoRPC) return;
+            if (!DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetHitmanTarget, SendOption.Reliable);
-            writer.Write(targetId);
+            writer.Write(HitmanId);
+            writer.Write(TargetId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
-        public static void ReceiveRPC(MessageReader reader)
-        {
-            if (AmongUsClient.Instance.AmHost) return;
 
-            targetId = reader.ReadByte();
+        public void ReceiveRPC(byte id)
+        {
+            TargetId = id;
         }
 
-        public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer == null) return false;
             if (target == null) return false;
 
-            if (target.PlayerId == targetId)
+            if (target.PlayerId == TargetId)
             {
-                targetId = byte.MaxValue;
-                SendRPC(targetId);
-                _ = new LateTask(() =>
-                {
-                    killer.SetKillCooldown(time: SuccessKCD.GetFloat());
-                }, 0.1f, "Hitman Killed Target - SetKillCooldown Task");
+                TargetId = byte.MaxValue;
+                SendRPC();
+                _ = new LateTask(() => { killer.SetKillCooldown(time: SuccessKCD.GetFloat()); }, 0.1f, "Hitman Killed Target - SetKillCooldown Task");
             }
 
             return true;
         }
 
-        public static void OnReportDeadBody()
+        public override void OnReportDeadBody(PlayerControl reporter, PlayerControl _)
         {
-            if (!GetPlayerById(targetId).IsAlive() || GetPlayerById(targetId).Data.Disconnected)
+            var target = GetPlayerById(TargetId);
+            if (!target.IsAlive() || target.Data.Disconnected)
             {
-                targetId = byte.MaxValue;
-                SendRPC(targetId);
+                TargetId = byte.MaxValue;
+                SendRPC();
             }
         }
 
-        public static void OnShapeshift(PlayerControl hitman, PlayerControl target, bool shapeshifting)
+        public override bool OnShapeshift(PlayerControl hitman, PlayerControl target, bool shapeshifting)
         {
-            if (target == null || hitman == null || !shapeshifting || targetId != byte.MaxValue || !target.IsAlive()) return;
+            if (target == null || hitman == null || !shapeshifting || TargetId != byte.MaxValue || !target.IsAlive()) return false;
 
-            targetId = target.PlayerId;
-            SendRPC(targetId);
+            TargetId = target.PlayerId;
+            SendRPC();
             NotifyRoles(SpecifySeer: hitman, SpecifyTarget: target);
 
-            //_ = new LateTask(() => { hitman.CmdCheckRevertShapeshift(false); }, 1.5f, "Hitman RpcRevertShapeshift");
+            return false;
         }
 
-        public static string GetTargetText()
+        public static string GetTargetText(byte hitman)
         {
-            if (targetId == byte.MaxValue) return string.Empty;
-
-            return $"<color=#00ffa5>Target:</color> <color=#ffffff>{GetPlayerById(targetId).GetRealName().RemoveHtmlTags()}</color>";
+            var id = (Main.PlayerStates[hitman].Role as Hitman)?.TargetId ?? byte.MaxValue;
+            return id == byte.MaxValue ? string.Empty : $"<color=#00ffa5>Target:</color> <color=#ffffff>{GetPlayerById(id).GetRealName().RemoveHtmlTags()}</color>";
         }
     }
 }

@@ -112,7 +112,7 @@ internal static class SoloKombatManager
     private static void SendRPCSyncKBBackCountdown(PlayerControl player)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncKBBackCountdown, SendOption.Reliable, player.GetClientId());
-        int x = BackCountdown.TryGetValue(player.PlayerId, out var value) ? value : -1;
+        int x = BackCountdown.GetValueOrDefault(player.PlayerId, -1);
         writer.Write(x);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }

@@ -1,15 +1,12 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using Hazel;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor
 {
-    public static class Cantankerous
+    public class Cantankerous : RoleBase
     {
-        private static readonly int Id = 642860;
+        private const int Id = 642860;
         private static List<byte> playerIdList = [];
-        private static Dictionary<byte, int> Points = [];
 
         private static OptionItem PointsGainedPerEjection;
         private static OptionItem StartingPoints;
@@ -29,67 +26,44 @@ namespace TOHE.Roles.Impostor
                 .SetValueFormat(OptionFormat.Times);
         }
 
-        public static void Init()
+        public override void Init()
         {
             playerIdList = [];
-            Points = [];
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            Points.Add(playerId, StartingPoints.GetInt());
+            playerId.SetAbilityUseLimit(StartingPoints.GetInt());
         }
 
-        public static bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KCD.GetFloat();
+        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KCD.GetFloat();
 
-        public static bool CanUseKillButton(byte playerId) => Points.TryGetValue(playerId, out var point) && point > 0;
-
-        private static void SendRPC(byte playerId, bool isPlus)
-        {
-            if (!IsEnable || !Utils.DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncCantankerousLimit, SendOption.Reliable);
-            writer.Write(playerId);
-            writer.Write(isPlus);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-
-        public static void ReceiveRPC(MessageReader reader)
-        {
-            if (!IsEnable) return;
-            byte playerId = reader.ReadByte();
-            bool isPlus = reader.ReadBoolean();
-
-            if (isPlus) Points[playerId] += PointsGainedPerEjection.GetInt();
-            else Points[playerId]--;
-        }
+        public override bool CanUseKillButton(PlayerControl pc) => pc.GetAbilityUseLimit() > 0;
 
         public static void OnCrewmateEjected()
         {
-            if (!IsEnable) return;
             var value = PointsGainedPerEjection.GetInt();
-            foreach (var x in Points.Keys.ToArray())
+            foreach (var state in Main.PlayerStates)
             {
-                Points[x] += value;
-                SendRPC(x, true);
+                if (state.Value.Role is Cantankerous)
+                {
+                    Utils.GetPlayerById(state.Key).RpcIncreaseAbilityUseLimitBy(value);
+                }
             }
         }
 
-        public static bool OnCheckMurder(PlayerControl killer)
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable) return false;
-            if (killer == null) return false;
+            if (!base.OnCheckMurder(killer, target)) return false;
 
-            if (Points[killer.PlayerId] <= 0) return false;
+            if (killer.GetAbilityUseLimit() <= 0) return false;
 
-            Points[killer.PlayerId]--;
-            SendRPC(killer.PlayerId, false);
+            killer.RpcRemoveAbilityUse();
 
             return true;
         }
-
-        public static string GetProgressText(byte id) => Points.TryGetValue(id, out var limit) ? $"<#777777>-</color> <#ff{(limit < 1 ? "0000" : "ffff")}>{limit}</color>" : string.Empty;
     }
 }

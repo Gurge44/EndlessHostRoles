@@ -83,14 +83,11 @@ internal class ChangeRoleSettings
 
             Main.LastEnteredVent = [];
             Main.LastEnteredVentLocation = [];
-            Main.EscapeeLocation = [];
 
             Main.AfterMeetingDeathPlayers = [];
             Main.ResetCamPlayerList = [];
             Main.clientIdList = [];
 
-            Main.CapitalismAddTask = [];
-            Main.CapitalismAssignTask = [];
             Main.CheckShapeshift = [];
             Main.ShapeshiftTarget = [];
             Main.SpeedBoostTarget = [];
@@ -104,7 +101,6 @@ internal class ChangeRoleSettings
             Main.BlockSabo = [];
             Main.BlockedVents = [];
             Main.MadGrenadierBlinding = [];
-            Main.CursedWolfSpellCount = [];
             Main.JinxSpellCount = [];
             Main.PuppeteerDelay = [];
             Main.PuppeteerMaxPuppets = [];
@@ -113,7 +109,7 @@ internal class ChangeRoleSettings
             Main.ShieldPlayer = Options.ShieldPersonDiedFirst.GetBool() ? Main.FirstDied : byte.MaxValue;
             Main.FirstDied = byte.MaxValue;
             Main.MadmateNum = 0;
-            Main.GodfatherTarget = byte.MaxValue;
+            Godfather.GodfatherTarget = byte.MaxValue;
             ChatManager.ResetHistory();
 
             ReportDeadBodyPatch.CanReport = [];

@@ -293,7 +293,7 @@ public static class Translator
         var lang = TranslationController.Instance.currentLanguage.languageID;
         foreach (var title in translateMaps)
         {
-            if (!title.Value.TryGetValue((int)lang, out var text)) text = "";
+            var text = title.Value.GetValueOrDefault((int)lang, "");
             sb.Append($"{title.Key}:{text.Replace("\n", "\\n").Replace("\r", "\\r")}\n");
         }
 

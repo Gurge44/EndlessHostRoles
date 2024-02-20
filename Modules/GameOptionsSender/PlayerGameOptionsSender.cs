@@ -186,6 +186,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                         opt.SetFloat(FloatOptionNames.CrewLightMod, Gambler.LowVision.GetFloat());
                         opt.SetFloat(FloatOptionNames.ImpostorLightMod, Gambler.LowVision.GetFloat());
                     }
+
                     break;
                 case CustomRoles.NiceHacker:
                     if (Options.UsePets.GetBool()) break;
@@ -199,16 +200,10 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                         AURoleOptions.ShapeshifterCooldown = Main.isCursed ? 1f : Options.DefaultKillCooldown;
                         AURoleOptions.ShapeshifterDuration = Options.WarlockShiftDuration.GetFloat();
                     }
-                    catch { }
-                    break;
-                case CustomRoles.Escapee:
-                    if (Options.UsePets.GetBool()) break;
-                    try
+                    catch
                     {
-                        AURoleOptions.ShapeshifterCooldown = Options.EscapeeSSCD.GetFloat();
-                        AURoleOptions.ShapeshifterDuration = Options.EscapeeSSDuration.GetFloat();
                     }
-                    catch { }
+
                     break;
                 case CustomRoles.Duellist:
                     Duellist.ApplyGameOptions();
@@ -227,7 +222,10 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                             AURoleOptions.ShapeshifterCooldown = 255f;
                         }
                     }
-                    catch { }
+                    catch
+                    {
+                    }
+
                     break;
                 case CustomRoles.Miner:
                     if (Options.UsePets.GetBool()) break;
@@ -236,7 +234,10 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                         AURoleOptions.ShapeshifterCooldown = Options.MinerSSCD.GetFloat();
                         AURoleOptions.ShapeshifterDuration = Options.MinerSSDuration.GetFloat();
                     }
-                    catch { }
+                    catch
+                    {
+                    }
+
                     break;
                 //case CustomRoles.SerialKiller:
                 //    SerialKiller.ApplyGameOptions(player);
@@ -274,7 +275,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 case CustomRoles.Amnesiac:
                     opt.SetVision(false);
                     break;
-                case CustomRoles.Minimalism:
                 case CustomRoles.Agitater:
                     opt.SetVision(true);
                     break;
@@ -312,16 +312,16 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     if (Options.UsePets.GetBool()) break;
                     AURoleOptions.EngineerCooldown =
                         !Main.MayorUsedButtonCount.TryGetValue(player.PlayerId, out var count) || count < Options.MayorNumOfUseButton.GetInt()
-                        ? opt.GetInt(Int32OptionNames.EmergencyCooldown)
-                        : 300f;
+                            ? opt.GetInt(Int32OptionNames.EmergencyCooldown)
+                            : 300f;
                     AURoleOptions.EngineerInVentMaxTime = 1;
                     break;
                 case CustomRoles.Paranoia:
                     if (Options.UsePets.GetBool()) break;
                     AURoleOptions.EngineerCooldown =
                         !Main.ParaUsedButtonCount.TryGetValue(player.PlayerId, out var count2) || count2 < Options.ParanoiaNumOfUseButton.GetInt()
-                        ? Options.ParanoiaVentCooldown.GetFloat()
-                        : 300f;
+                            ? Options.ParanoiaVentCooldown.GetFloat()
+                            : 300f;
                     AURoleOptions.EngineerInVentMaxTime = 1;
                     break;
                 /*     case CustomRoles.Mare:
@@ -347,7 +347,10 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                         AURoleOptions.ShapeshifterCooldown = Options.BombCooldown.GetFloat();
                         AURoleOptions.ShapeshifterDuration = 2f;
                     }
-                    catch { }
+                    catch
+                    {
+                    }
+
                     break;
                 case CustomRoles.Nuker:
                     if (Options.UsePets.GetBool()) break;
@@ -356,7 +359,10 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                         AURoleOptions.ShapeshifterCooldown = Options.NukeCooldown.GetFloat();
                         AURoleOptions.ShapeshifterDuration = 2f;
                     }
-                    catch { }
+                    catch
+                    {
+                    }
+
                     break;
                 case CustomRoles.Hitman:
                     AURoleOptions.ShapeshifterCooldown = Hitman.ShapeshiftCooldown.GetFloat();
@@ -380,6 +386,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                         AURoleOptions.ShapeshifterCooldown = Wildling.ShapeshiftCD.GetFloat();
                         AURoleOptions.ShapeshifterDuration = Wildling.ShapeshiftDur.GetFloat();
                     }
+
                     break;
                 case CustomRoles.Jackal:
                     Jackal.ApplyGameOptions(opt);

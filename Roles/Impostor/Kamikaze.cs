@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using static TOHE.Options;
 using static TOHE.Utils;
 
 namespace TOHE.Roles.Impostor
 {
-    internal class Kamikaze
+    internal class Kamikaze : RoleBase
     {
         private static int Id => 643310;
-        public static bool IsEnable;
+        public static bool On;
 
-        public static readonly Dictionary<byte, List<byte>> MarkedPlayers = [];
+        public List<byte> MarkedPlayers = [];
+        private byte KamikazeId;
 
         private static OptionItem MarkCD;
         private static OptionItem KamikazeLimitOpt;
@@ -31,53 +31,57 @@ namespace TOHE.Roles.Impostor
                 .SetValueFormat(OptionFormat.Times);
         }
 
-        public static void Init()
+        public override void Init()
         {
             MarkedPlayers.Clear();
-            IsEnable = false;
+            On = false;
+            KamikazeId = byte.MaxValue;
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
-            MarkedPlayers[playerId] = [];
+            MarkedPlayers = [];
             playerId.SetAbilityUseLimit(KamikazeLimitOpt.GetInt());
-            IsEnable = true;
+            On = true;
+            KamikazeId = playerId;
         }
 
-        public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        public override bool IsEnable => On;
+
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer == null || target == null) return false;
             if (killer.GetAbilityUseLimit() < 1) return true;
             return killer.CheckDoubleTrigger(target, () =>
             {
-                MarkedPlayers[killer.PlayerId].Add(target.PlayerId);
+                MarkedPlayers.Add(target.PlayerId);
                 killer.SetKillCooldown(MarkCD.GetFloat());
                 killer.RpcRemoveAbilityUse();
             });
         }
 
-        public static void OnFixedUpdate()
+        public static void OnGlobalFixedUpdate(PlayerControl pc)
         {
-            if (!IsEnable) return;
+            if (!On) return;
 
-            foreach (var kvp in MarkedPlayers)
+            foreach (var state in Main.PlayerStates)
             {
-                var kamikazePc = GetPlayerById(kvp.Key);
-                if (kamikazePc.IsAlive()) continue;
-
-                foreach (var id in kvp.Value)
+                if (state.Value.Role is Kamikaze kk)
                 {
-                    var victim = GetPlayerById(id);
-                    if (victim == null || !victim.IsAlive()) continue;
-                    victim.Suicide(PlayerState.DeathReason.Kamikazed, kamikazePc);
-                }
+                    var kamikazePc = GetPlayerById(kk.KamikazeId);
+                    if (kamikazePc.IsAlive()) continue;
 
-                kvp.Value.Clear();
-                MarkedPlayers.Remove(kvp.Key);
-                Logger.Info($"Murder {kamikazePc.GetRealName()}'s targets: {string.Join(", ", kvp.Value.Select(x => GetPlayerById(x).GetNameWithRole()))}", "Kamikaze");
+                    foreach (var id in kk.MarkedPlayers)
+                    {
+                        var victim = GetPlayerById(id);
+                        if (victim == null || !victim.IsAlive()) continue;
+                        victim.Suicide(PlayerState.DeathReason.Kamikazed, kamikazePc);
+                    }
+
+                    kk.MarkedPlayers.Clear();
+                    Logger.Info($"Murder {kamikazePc.GetRealName()}'s targets: {string.Join(", ", kk.MarkedPlayers.Select(x => GetPlayerById(x).GetNameWithRole()))}", "Kamikaze");
+                }
             }
         }
-
-        public static string GetProgressText(byte playerId) => $"<#777777>-</color> <#ffffff>{Math.Round(playerId.GetAbilityUseLimit(), 1)}</color>";
     }
 }

@@ -58,7 +58,7 @@ namespace TOHE
             HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 5, 1);
         }
 
-        public static int GetSurvivalTime(byte id) => SurvivalTimes.TryGetValue(id, out var time) ? time : 0;
+        public static int GetSurvivalTime(byte id) => SurvivalTimes.GetValueOrDefault(id, 0);
         public static string GetIndicator(byte id) => HotPotatoState.HolderID == id ? " ★ " : string.Empty;
         public static string GetSuffixText(byte id) => $"{(HotPotatoState.HolderID == id ? $"{Translator.GetString("HotPotato_HoldingNotify")}\n" : string.Empty)}{Translator.GetString("HotPotato_TimeLeftSuffix")}{HotPotatoState.TimeLeft}s";
 

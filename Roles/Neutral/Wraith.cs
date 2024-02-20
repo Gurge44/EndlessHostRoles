@@ -54,8 +54,8 @@ public static class Wraith
     {
         if (pc.AmOwner || !IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetWraithTimer, SendOption.Reliable, pc.GetClientId());
-        writer.Write((InvisTime.TryGetValue(pc.PlayerId, out var x) ? x : -1).ToString());
-        writer.Write((lastTime.TryGetValue(pc.PlayerId, out var y) ? y : -1).ToString());
+        writer.Write((InvisTime.GetValueOrDefault(pc.PlayerId, -1)).ToString());
+        writer.Write((lastTime.GetValueOrDefault(pc.PlayerId, -1)).ToString());
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
     public static void ReceiveRPC(MessageReader reader)

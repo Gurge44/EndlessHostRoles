@@ -31,7 +31,7 @@ public class Blackmailer : RoleBase
         playerIdList.Add(playerId);
     }
 
-    public override void ApplyGameOptions(AmongUs.GameOptions.IGameOptions opt)
+    public override void ApplyGameOptions(AmongUs.GameOptions.IGameOptions opt, byte id)
     {
         AURoleOptions.ShapeshifterCooldown = SkillCooldown.GetFloat();
         AURoleOptions.ShapeshifterDuration = 1f;

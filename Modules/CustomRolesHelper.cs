@@ -12,11 +12,8 @@ internal static class CustomRolesHelper
 {
     public static RoleBase GetRoleClass(this CustomRoles role) => role switch
     {
-        CustomRoles.Crewmate => new VanillaRole(),
-        CustomRoles.Impostor => new VanillaRole(),
-        CustomRoles.Shapeshifter => new VanillaRole(),
-        CustomRoles.ImpostorTOHE => new VanillaRole(),
-        CustomRoles.ShapeshifterTOHE => new VanillaRole(),
+        // IMPOSTORS ---------------------------------------------------------------
+
         CustomRoles.Hacker => new Hacker(),
         CustomRoles.AntiAdminer => new AntiAdminer(),
         CustomRoles.Sans => new Sans(),
@@ -41,7 +38,6 @@ internal static class CustomRolesHelper
         CustomRoles.Dazzler => new Dazzler(),
         CustomRoles.Escapee => new Escapee(),
         CustomRoles.Eraser => new Eraser(),
-        CustomRoles.EvilGuesser => new EvilGuesser(),
         CustomRoles.EvilTracker => new EvilTracker(),
         CustomRoles.FireWorks => new FireWorks(),
         CustomRoles.Gambler => new Gambler(),
@@ -95,13 +91,9 @@ internal static class CustomRolesHelper
         CustomRoles.Witch => new Witch(),
         CustomRoles.YinYanger => new YinYanger(),
         CustomRoles.Zombie => new Zombie(),
-        CustomRoles.Engineer => new Engineer(),
-        CustomRoles.GuardianAngel => new GuardianAngel(),
-        CustomRoles.Scientist => new Scientist(),
-        CustomRoles.CrewmateTOHE => new CrewmateTOHE(),
-        CustomRoles.EngineerTOHE => new EngineerTOHE(),
-        CustomRoles.GuardianAngelTOHE => new GuardianAngelTOHE(),
-        CustomRoles.ScientistTOHE => new ScientistTOHE(),
+
+        // CREWMATES ---------------------------------------------------------------
+
         CustomRoles.Addict => new Addict(),
         CustomRoles.Aid => new Aid(),
         CustomRoles.Alchemist => new Alchemist(),
@@ -197,6 +189,9 @@ internal static class CustomRolesHelper
         CustomRoles.Veteran => new Veteran(),
         CustomRoles.SwordsMan => new SwordsMan(),
         CustomRoles.Witness => new Witness(),
+
+        // NEUTRALS ---------------------------------------------------------------
+
         CustomRoles.Agitater => new Agitater(),
         CustomRoles.Amnesiac => new Amnesiac(),
         CustomRoles.Arsonist => new Arsonist(),
@@ -269,13 +264,7 @@ internal static class CustomRolesHelper
         CustomRoles.Werewolf => new Werewolf(),
         CustomRoles.WeaponMaster => new WeaponMaster(),
         CustomRoles.Workaholic => new Workaholic(),
-        CustomRoles.KB_Normal => new KB_Normal(),
-        CustomRoles.Killer => new Killer(),
-        CustomRoles.Tasker => new Tasker(),
-        CustomRoles.Potato => new Potato(),
-        CustomRoles.GM => new GM(),
-        CustomRoles.Convict => new Convict(),
-        _ => new NotAssigned(),
+        _ => new VanillaRole(),
     };
 
     public static CustomRoles GetVNRole(this CustomRoles role)
@@ -1355,7 +1344,7 @@ internal static class CustomRolesHelper
     };
 
     public static RoleTypes GetRoleTypes(this CustomRoles role)
-        => GetVNRole(role) switch
+        => role.GetVNRole() switch
         {
             CustomRoles.Impostor => RoleTypes.Impostor,
             CustomRoles.Scientist => RoleTypes.Scientist,

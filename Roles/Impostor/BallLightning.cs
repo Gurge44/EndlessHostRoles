@@ -8,9 +8,9 @@ using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor;
 
-public static class BallLightning
+public class BallLightning : RoleBase
 {
-    private static readonly int Id = 16700;
+    private const int Id = 16700;
     public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
@@ -19,6 +19,7 @@ public static class BallLightning
 
     private static List<byte> GhostPlayer;
     private static Dictionary<byte, PlayerControl> RealKiller;
+
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.OtherRoles, CustomRoles.BallLightning);
@@ -28,20 +29,24 @@ public static class BallLightning
             .SetValueFormat(OptionFormat.Seconds);
         KillerConvertGhost = BooleanOptionItem.Create(Id + 14, "BallLightningKillerConvertGhost", true, TabGroup.OtherRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning]);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
         GhostPlayer = [];
         RealKiller = [];
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0 || Randomizer.IsEnable;
+
+    public override bool IsEnable => playerIdList.Count > 0 || Randomizer.IsEnable;
+
     private static void SendRPC(byte playerId)
     {
-        if (!IsEnable || !Utils.DoRPC) return;
+        if (!Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGhostPlayer, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(IsGhost(playerId));
@@ -67,9 +72,16 @@ public static class BallLightning
                 GhostPlayer.Remove(GhostId);
         }
     }
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public static bool IsGhost(PlayerControl player) => GhostPlayer.Contains(player.PlayerId);
     public static bool IsGhost(byte id) => GhostPlayer.Contains(id);
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    {
+        return CheckBallLightningMurder(killer, target);
+    }
+
     public static bool CheckBallLightningMurder(PlayerControl killer, PlayerControl target, bool force = false)
     {
         if (killer == null || target == null || (!killer.Is(CustomRoles.BallLightning) && !force)) return false;
@@ -107,14 +119,14 @@ public static class BallLightning
     }
     public static void OnCheckPlayerPosition(PlayerControl pc)
     {
-        if (!IsEnable || !GameStates.IsInTask) return;
+        if (!GameStates.IsInTask) return;
         List<byte> deList = [];
         foreach (byte ghost in GhostPlayer.ToArray())
         {
             var gs = Utils.GetPlayerById(ghost);
             if (gs == null || !gs.IsAlive() || gs.Data.Disconnected)
             {
-                deList.Add(gs.PlayerId);
+                //deList.Add(gs.PlayerId); // This will always result in a null reference exception
                 continue;
             }
             if (pc.PlayerId != gs.PlayerId && pc.IsAlive() && !pc.Is(CustomRoles.BallLightning) && !IsGhost(pc) && !Pelican.IsEaten(pc.PlayerId))
@@ -126,7 +138,6 @@ public static class BallLightning
                 deList.Add(gs.PlayerId);
                 gs.Suicide(PlayerState.DeathReason.Quantization, RealKiller[gs.PlayerId]);
 
-                Logger.Info($"{gs.GetNameWithRole().RemoveHtmlTags()} 作为量子幽灵因碰撞而死", "BallLightning");
                 break;
             }
         }
@@ -140,7 +151,8 @@ public static class BallLightning
             }
         }
     }
-    public static void OnReportDeadBody()
+
+    public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
     {
         if (!(IsEnable || CustomRoles.BallLightning.IsEnable())) return;
 
@@ -151,7 +163,6 @@ public static class BallLightning
                 continue;
             CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Quantization, gs.PlayerId);
             gs.SetRealKiller(RealKiller[gs.PlayerId]);
-            Logger.Info($"{gs.GetNameWithRole().RemoveHtmlTags()} 作为量子幽灵参与会议，将在会议后死亡", "BallLightning");
             Utils.NotifyRoles(SpecifySeer: gs);
         }
         GhostPlayer = [];

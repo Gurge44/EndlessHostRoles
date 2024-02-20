@@ -6,7 +6,7 @@ namespace TOHE.Roles.Impostor;
 
 public class Sans : RoleBase
 {
-    private static readonly int Id = 600;
+    private const int Id = 600;
     public static List<byte> playerIdList = [];
 
     private static OptionItem DefaultKillCooldown;
@@ -14,7 +14,7 @@ public class Sans : RoleBase
     private static OptionItem MinKillCooldown;
     public static OptionItem BardChance;
 
-    private static Dictionary<byte, float> NowCooldown;
+    private float NowCooldown;
 
     public static void SetupCustomOption()
     {
@@ -33,21 +33,21 @@ public class Sans : RoleBase
     public override void Init()
     {
         playerIdList = [];
-        NowCooldown = [];
+        NowCooldown = DefaultKillCooldown.GetFloat();
     }
 
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        NowCooldown.TryAdd(playerId, DefaultKillCooldown.GetFloat());
+        NowCooldown = DefaultKillCooldown.GetFloat();
     }
 
     public override bool IsEnable => playerIdList.Count > 0;
-    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = NowCooldown[id];
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = NowCooldown;
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        NowCooldown[killer.PlayerId] = Math.Clamp(NowCooldown[killer.PlayerId] - ReduceKillCooldown.GetFloat(), MinKillCooldown.GetFloat(), DefaultKillCooldown.GetFloat());
+        NowCooldown = Math.Clamp(NowCooldown - ReduceKillCooldown.GetFloat(), MinKillCooldown.GetFloat(), DefaultKillCooldown.GetFloat());
         killer.ResetKillCooldown();
         killer.SyncSettings();
         return base.OnCheckMurder(killer, target);

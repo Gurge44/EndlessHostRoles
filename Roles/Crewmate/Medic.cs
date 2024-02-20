@@ -124,9 +124,11 @@ public static class Medic
         for (int i = 0; i < count; i++)
             ProtectList.Add(reader.ReadByte());
     }
+
     public static bool CanUseKillButton(byte playerId)
         => !Main.PlayerStates[playerId].IsDead
-        && (ProtectLimit.TryGetValue(playerId, out var x) ? x : 1) >= 1;
+           && (ProtectLimit.GetValueOrDefault(playerId, 1)) >= 1;
+
     public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanUseKillButton(id) ? CD.GetFloat() : 300f;
     public static string GetSkillLimit(byte playerId) => Utils.ColorString(CanUseKillButton(playerId) ? Utils.GetRoleColor(CustomRoles.Medic).ShadeColor(0.25f) : Color.gray, ProtectLimit.TryGetValue(playerId, out var protectLimit) ? $"({protectLimit})" : "Invalid");
     public static bool InProtect(byte id) => ProtectList.Contains(id) && Main.PlayerStates.TryGetValue(id, out var ps) && !ps.IsDead;

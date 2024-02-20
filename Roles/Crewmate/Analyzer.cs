@@ -69,7 +69,7 @@ namespace TOHE.Roles.Crewmate
 
         private static int GetKillCount(byte id) => SeeKillCount.GetBool() ? Main.PlayerStates.Count(x => x.Value.GetRealKiller() == id) : 0;
 
-        private static int GetVentCount(byte id) => SeeVentCount.GetBool() ? VentCount.TryGetValue(id, out var count) ? count : 0 : 0;
+        private static int GetVentCount(byte id) => SeeVentCount.GetBool() ? VentCount.GetValueOrDefault(id, 0) : 0;
 
         private static string GetAnalyzeResult(PlayerControl pc) => string.Format(GetString("AnalyzerResult"), pc.GetRealName().RemoveHtmlTags(), GetKillCount(pc.PlayerId), GetVentCount(pc.PlayerId), GetRoleBasis(pc.GetCustomRole()));
 

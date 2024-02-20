@@ -18,10 +18,6 @@ static class DoubleTrigger
         FirstTriggerTimer = [];
         FirstTriggerAction = [];
     }
-    public static void AddDoubleTrigger(this PlayerControl killer)
-    {
-        PlayerIdList.Add(killer.PlayerId);
-    }
 
     /// <summary>
     /// Checks for whether the killer pressed their kill button twice on the same player

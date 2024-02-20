@@ -209,7 +209,7 @@ namespace TOHE.Roles.Crewmate
         {
             if (!IsEnable || !Utils.DoRPC || pc.AmOwner) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAlchemistTimer, SendOption.Reliable, pc.GetClientId());
-            writer.Write((InvisTime.TryGetValue(pc.PlayerId, out var x) ? x : -1).ToString());
+            writer.Write((InvisTime.GetValueOrDefault(pc.PlayerId, -1)).ToString());
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 

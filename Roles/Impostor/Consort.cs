@@ -4,9 +4,9 @@ using static TOHE.Translator;
 
 namespace TOHE.Roles.Impostor
 {
-    public static class Consort
+    public class Consort : RoleBase
     {
-        private static readonly int Id = 642400;
+        private const int Id = 642400;
         private static List<byte> playerIdList = [];
 
         private static OptionItem CD;
@@ -23,20 +23,20 @@ namespace TOHE.Roles.Impostor
                 .SetValueFormat(OptionFormat.Times);
         }
 
-        public static void Init()
+        public override void Init()
         {
             playerIdList = [];
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimit.GetInt());
         }
 
-        public static bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => playerIdList.Count > 0;
 
-        public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (!IsEnable || killer == null || target == null) return false;
             if (killer.GetAbilityUseLimit() <= 0 || !killer.Is(CustomRoles.Consort)) return true;
@@ -49,7 +49,5 @@ namespace TOHE.Roles.Impostor
                 killer.SetKillCooldown(CD.GetFloat());
             });
         }
-
-        public static string GetProgressText(byte id) => $"<color=#777777>-</color> <color=#ffffff>{id.GetAbilityUseLimit()}</color>";
     }
 }

@@ -85,7 +85,7 @@ class HudManagerPatch
                 {
                     var pc = Utils.GetPlayerById(item.Key);
                     string prefix = first ? string.Empty : "\n";
-                    string text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc == null ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <color={(Main.roleColors.TryGetValue(item.Value, out var roleColor) ? roleColor : "#ffffff")}>{GetString(item.Value.ToString())}</color>";
+                    string text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc == null ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <color={(Main.roleColors.GetValueOrDefault(item.Value, "#ffffff"))}>{GetString(item.Value.ToString())}</color>";
                     resultText[item.Key] = text;
                     first = false;
                 }
@@ -99,13 +99,13 @@ class HudManagerPatch
                         var pc = Utils.GetPlayerById(item.Key);
                         if (resultText.ContainsKey(item.Key))
                         {
-                            string text = $" <#ffffff>(</color><color={(Main.roleColors.TryGetValue(role, out var roleColor) ? roleColor : "#ffffff")}>{GetString(role.ToString())}</color><#ffffff>)</color>";
+                            string text = $" <#ffffff>(</color><color={(Main.roleColors.GetValueOrDefault(role, "#ffffff"))}>{GetString(role.ToString())}</color><#ffffff>)</color>";
                             resultText[item.Key] += text;
                         }
                         else
                         {
                             string prefix = first ? string.Empty : "\n";
-                            string text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc == null ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <#ffffff>(</color><color={(Main.roleColors.TryGetValue(role, out var roleColor) ? roleColor : "#ffffff")}>{GetString(role.ToString())}</color><#ffffff>)</color>";
+                            string text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc == null ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <#ffffff>(</color><color={(Main.roleColors.GetValueOrDefault(role, "#ffffff"))}>{GetString(role.ToString())}</color><#ffffff>)</color>";
                             resultText[item.Key] = text;
                             first = false;
                         }
@@ -183,10 +183,6 @@ class HudManagerPatch
                     case CustomRoles.Miner:
                         if (Options.UsePets.GetBool()) __instance.PetButton?.OverrideText(GetString("MinerTeleButtonText"));
                         else __instance.AbilityButton?.OverrideText(GetString("MinerTeleButtonText"));
-                        break;
-                    case CustomRoles.Escapee:
-                        if (Options.UsePets.GetBool()) __instance.PetButton?.OverrideText(GetString("EscapeeAbilityButtonText"));
-                        else __instance.AbilityButton?.OverrideText(GetString("EscapeeAbilityButtonText"));
                         break;
                     case CustomRoles.Pestilence:
                         __instance.KillButton?.OverrideText(GetString("KillButtonText"));
@@ -404,7 +400,7 @@ class HudManagerPatch
                         break;
                     case CustomRoles.Mario:
                         __instance.AbilityButton.buttonLabelText.text = GetString("MarioVentButtonText");
-                        __instance.AbilityButton?.SetUsesRemaining(Options.MarioVentNumWin.GetInt() - (Main.MarioVentCount.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var mx) ? mx : 0));
+                        __instance.AbilityButton?.SetUsesRemaining(Options.MarioVentNumWin.GetInt() - (Main.MarioVentCount.GetValueOrDefault(PlayerControl.LocalPlayer.PlayerId, 0)));
                         break;
                     case CustomRoles.Veteran:
                         if (Options.UsePets.GetBool())
@@ -566,10 +562,10 @@ class HudManagerPatch
                         CustomRoles.Postman => Postman.GetHudText(player),
                         CustomRoles.SoulHunter => SoulHunter.HUDText,
                         CustomRoles.Chronomancer => Chronomancer.GetHudText(),
-                        CustomRoles.Mafioso => Mafioso.GetHUDText(),
+                        CustomRoles.Mafioso => Mafioso.GetHUDText(player),
                         CustomRoles.Druid => Druid.GetHUDText(player),
                         CustomRoles.Rabbit => Rabbit.GetSuffix(player),
-                        CustomRoles.Librarian => Librarian.GetSelfSuffixAndHUDText(player.PlayerId),
+                        CustomRoles.Librarian => Librarian.GetSelfSuffixAndHudText(player.PlayerId),
                         CustomRoles.PlagueDoctor => PlagueDoctor.GetLowerTextOthers(player, isForHud: true),
                         CustomRoles.Stealth => Stealth.GetSuffix(player, isHUD: true),
                         CustomRoles.Hookshot => Hookshot.SuffixText,
@@ -749,7 +745,6 @@ class SetHudActivePatch
                 __instance.ImpostorVentButton?.ToggleVisible(false);
                 break;
 
-            case CustomRoles.Minimalism:
             case CustomRoles.KB_Normal:
                 __instance.SabotageButton?.ToggleVisible(false);
                 __instance.AbilityButton?.ToggleVisible(false);

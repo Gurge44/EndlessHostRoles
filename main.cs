@@ -172,8 +172,6 @@ public class Main : BasePlugin
     public static Dictionary<byte, int> MafiaRevenged = [];
     public static Dictionary<byte, int> RetributionistRevenged = [];
     public static Dictionary<byte, int> GuesserGuessed = [];
-    public static Dictionary<byte, int> CapitalismAddTask = [];
-    public static Dictionary<byte, int> CapitalismAssignTask = [];
     public static Dictionary<byte, Vector2> TunnelerPositions = [];
     public static Dictionary<(byte, byte), bool> isDoused = [];
     public static Dictionary<(byte, byte), bool> isDraw = [];
@@ -197,7 +195,6 @@ public class Main : BasePlugin
     public static Dictionary<byte, long> Lighter = [];
     public static Dictionary<byte, long> BlockSabo = [];
     public static Dictionary<byte, long> MadGrenadierBlinding = [];
-    public static Dictionary<byte, int> CursedWolfSpellCount = [];
     public static Dictionary<byte, int> JinxSpellCount = [];
     public static Dictionary<byte, int> PuppeteerDelay = [];
     public static Dictionary<byte, int> PuppeteerMaxPuppets = [];
@@ -207,7 +204,6 @@ public class Main : BasePlugin
     public static Dictionary<byte, bool> CheckShapeshift = [];
     public static Dictionary<byte, byte> ShapeshiftTarget = [];
     public static Dictionary<(byte, byte), string> targetArrows = [];
-    public static Dictionary<byte, Vector2> EscapeeLocation = [];
     public static Dictionary<byte, Vector2> TimeMasterLocation = [];
     public static bool VisibleTasksCount;
     public static string nickName = "";
@@ -227,7 +223,6 @@ public class Main : BasePlugin
     public static Dictionary<byte, byte> Provoked = [];
 
     public static Dictionary<byte, CustomRoles> DevRole = [];
-    public static byte GodfatherTarget = byte.MaxValue;
 
 
     public static PlayerControl[] AllPlayerControls => PlayerControl.AllPlayerControls.ToArray().Where(p => p != null).ToArray();

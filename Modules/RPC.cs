@@ -353,7 +353,11 @@ internal class RPCHandlerPatch
                 pc.SetAbilityUseLimit(reader.ReadSingle(), rpc: false);
                 break;
             case CustomRPC.SetBountyTarget:
-                BountyHunter.ReceiveRPC(reader);
+            {
+                byte bountyId = reader.ReadByte();
+                byte targetId = reader.ReadByte();
+                (Main.PlayerStates[bountyId].Role as BountyHunter)?.ReceiveRPC(bountyId, targetId);
+            }
                 break;
             case CustomRPC.SetKillOrSpell:
                 Witch.ReceiveRPC(reader, false);
@@ -435,7 +439,11 @@ internal class RPCHandlerPatch
                 Tether.ReceiveRPCSyncTarget(reader);
                 break;
             case CustomRPC.SetHitmanTarget:
-                Hitman.ReceiveRPC(reader);
+            {
+                byte hitmanId = reader.ReadByte();
+                byte targetId = reader.ReadByte();
+                (Main.PlayerStates[hitmanId].Role as Hitman)?.ReceiveRPC(targetId);
+            }
                 break;
             case CustomRPC.SetWeaponMasterMode:
                 WeaponMaster.ReceiveRPC(reader);
@@ -453,10 +461,12 @@ internal class RPCHandlerPatch
                 NiceHacker.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetLoversPlayers:
+            {
                 Main.LoversPlayers.Clear();
                 int count = reader.ReadInt32();
                 for (int i = 0; i < count; i++)
                     Main.LoversPlayers.Add(Utils.GetPlayerById(reader.ReadByte()));
+            }
                 break;
             case CustomRPC.SetExecutionerTarget:
                 Executioner.ReceiveRPC(reader, SetTarget: true);
@@ -471,6 +481,13 @@ internal class RPCHandlerPatch
                 Lawyer.ReceiveRPC(reader, SetTarget: false);
                 break;
             case CustomRPC.SendFireWorksState:
+            {
+                byte id = reader.ReadByte();
+                int count = reader.ReadInt32();
+                int state = reader.ReadInt32();
+                FireWorks.FireWorksState newState = (FireWorks.FireWorksState)state;
+                (Main.PlayerStates[id].Role as FireWorks)?.ReceiveRPC(count, newState);
+            }
                 FireWorks.ReceiveRPC(reader);
                 break;
             case CustomRPC.SyncMycologist:
@@ -501,9 +518,11 @@ internal class RPCHandlerPatch
                 Penguin.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetRealKiller:
+            {
                 byte targetId = reader.ReadByte();
                 byte killerId = reader.ReadByte();
                 RPC.SetRealKiller(targetId, killerId);
+            }
                 break;
             case CustomRPC.SetGamerHealth:
                 Gamer.ReceiveRPC(reader);
@@ -526,9 +545,6 @@ internal class RPCHandlerPatch
             case CustomRPC.SetMedicalerProtectLimit:
                 Medic.ReceiveRPC(reader);
                 break;
-            case CustomRPC.SetGangsterRecruitLimit:
-                Gangster.ReceiveRPC(reader);
-                break;
             case CustomRPC.SetJackalRecruitLimit:
                 Jackal.ReceiveRPC(reader);
                 break;
@@ -545,15 +561,11 @@ internal class RPCHandlerPatch
                 DarkHide.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetGreedierOE:
-                Greedier.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SetCursedWolfSpellCount:
-                byte CursedWolfId = reader.ReadByte();
-                int GuardNum = reader.ReadInt32();
-                if (Main.CursedWolfSpellCount.ContainsKey(CursedWolfId))
-                    Main.CursedWolfSpellCount[CursedWolfId] = GuardNum;
-                else
-                    Main.CursedWolfSpellCount.Add(CursedWolfId, Options.GuardSpellTimes.GetInt());
+            {
+                byte id = reader.ReadByte();
+                bool isOdd = reader.ReadBoolean();
+                (Main.PlayerStates[id].Role as Greedier)?.ReceiveRPC(isOdd);
+            }
                 break;
             case CustomRPC.SetJinxSpellCount:
                 byte JinxId = reader.ReadByte();
@@ -583,7 +595,13 @@ internal class RPCHandlerPatch
                 Assassin.ReceiveRPC(reader);
                 break;
             case CustomRPC.SyncChronomancer:
-                Chronomancer.ReceiveRPC(reader);
+            {
+                byte id = reader.ReadByte();
+                bool isRampaging = reader.ReadBoolean();
+                int chargePercent = reader.ReadInt32();
+                long lastUpdate = long.Parse(reader.ReadString());
+                (Main.PlayerStates[id].Role as Chronomancer)?.ReceiveRPC(isRampaging, chargePercent, lastUpdate);
+            }
                 break;
             case CustomRPC.SetMarkedPlayerV2:
                 Undertaker.ReceiveRPC(reader);
@@ -620,10 +638,16 @@ internal class RPCHandlerPatch
                 FFAManager.ReceiveRPCSyncNameNotify(reader);
                 break;
             case CustomRPC.SyncMafiosoData:
-                Mafioso.ReceiveRPC(reader);
+            {
+                byte id = reader.ReadByte();
+                (Main.PlayerStates[id].Role as Mafioso)?.ReceiveRPC(reader);
+            }
                 break;
             case CustomRPC.SyncMafiosoPistolCD:
-                Mafioso.ReceiveRPCSyncPistolCD(reader);
+            {
+                byte id = reader.ReadByte();
+                (Main.PlayerStates[id].Role as Mafioso)?.ReceiveRPCSyncPistolCD(reader);
+            }
                 break;
             case CustomRPC.SetMorticianArrow:
                 Mortician.ReceiveRPC(reader);
@@ -680,7 +704,11 @@ internal class RPCHandlerPatch
             //    CursedSoul.ReceiveRPC(reader);
             //    break;
             case CustomRPC.SetEvilDiviner:
-                EvilDiviner.ReceiveRPC(reader);
+            {
+                byte id = reader.ReadByte();
+                byte targetId = reader.ReadByte();
+                (Main.PlayerStates[id].Role as EvilDiviner)?.ReceiveRPC(targetId);
+            }
                 break;
             case CustomRPC.SetRitualist:
                 Ritualist.ReceiveRPC(reader);
@@ -983,7 +1011,7 @@ internal static class RPC
         {
             Main.PlayerStates[targetId].SetMainRole(role);
         }
-        else if (role >= CustomRoles.NotAssigned) //500:NoSubRole 501~:SubRole
+        else
         {
             Main.PlayerStates[targetId].SetSubRole(role);
         }
@@ -1091,14 +1119,6 @@ internal static class RPC
             writer.Write(targetId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
-    }
-
-    public static void SendRPCCursedWolfSpellCount(byte playerId)
-    {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCursedWolfSpellCount, SendOption.Reliable);
-        writer.Write(playerId);
-        writer.Write(Main.CursedWolfSpellCount[playerId]);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
     public static void SendRPCJinxSpellCount(byte playerId)

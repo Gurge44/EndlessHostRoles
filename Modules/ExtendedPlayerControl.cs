@@ -210,8 +210,9 @@ static class ExtendedPlayerControl
     public static void AddAbilityCD(this PlayerControl pc, int CD) => Main.AbilityCD[pc.PlayerId] = (TimeStamp, CD);
     public static bool HasAbilityCD(this PlayerControl pc) => Main.AbilityCD.ContainsKey(pc.PlayerId);
 
-    public static float GetAbilityUseLimit(this PlayerControl pc) => Main.AbilityUseLimit.TryGetValue(pc.PlayerId, out var limit) ? limit : float.NaN;
-    public static float GetAbilityUseLimit(this byte playerId) => Main.AbilityUseLimit.TryGetValue(playerId, out var limit) ? limit : float.NaN;
+    public static float GetAbilityUseLimit(this PlayerControl pc) => Main.AbilityUseLimit.GetValueOrDefault(pc.PlayerId, float.NaN);
+    public static float GetAbilityUseLimit(this byte playerId) => Main.AbilityUseLimit.GetValueOrDefault(playerId, float.NaN);
+
     public static void RpcRemoveAbilityUse(this PlayerControl pc)
     {
         float current = pc.GetAbilityUseLimit();
@@ -854,8 +855,7 @@ static class ExtendedPlayerControl
         float resultKCD;
         if (CD == -1f)
         {
-            if (Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out var kcd)) resultKCD = kcd;
-            else resultKCD = 0f;
+            resultKCD = Main.AllPlayerKillCooldown.GetValueOrDefault(pc.PlayerId, 0f);
 
             if (half)
             {
@@ -959,10 +959,7 @@ static class ExtendedPlayerControl
                 Agitater.SetKillCooldown(player.PlayerId);
                 break;
             case CustomRoles.Arsonist:
-                Main.AllPlayerKillCooldown[player.PlayerId] = Options.ArsonistCooldown.GetFloat(); //アーソニストはアーソニストのキルクールに。
-                break;
-            case CustomRoles.Inhibitor:
-                Main.AllPlayerKillCooldown[player.PlayerId] = Options.InhibitorCDAfterMeetings.GetFloat();
+                Main.AllPlayerKillCooldown[player.PlayerId] = Options.ArsonistCooldown.GetFloat();
                 break;
             case CustomRoles.YinYanger:
                 YinYanger.SetKillCooldown(player.PlayerId);
@@ -1115,9 +1112,6 @@ static class ExtendedPlayerControl
             case CustomRoles.CopyCat:
                 CopyCat.SetKillCooldown(player.PlayerId);
                 break;
-            case CustomRoles.Minimalism:
-                Main.AllPlayerKillCooldown[player.PlayerId] = Options.MNKillCooldown.GetFloat();
-                break;
             case CustomRoles.SwordsMan:
                 SwordsMan.SetKillCooldown(player.PlayerId);
                 break;
@@ -1139,9 +1133,6 @@ static class ExtendedPlayerControl
                 break;
             case CustomRoles.Nuker:
                 Main.AllPlayerKillCooldown[player.PlayerId] = 300f;
-                break;
-            case CustomRoles.Capitalism:
-                Main.AllPlayerKillCooldown[player.PlayerId] = Options.CapitalismKillCooldown.GetFloat();
                 break;
             case CustomRoles.Pelican:
                 Main.AllPlayerKillCooldown[player.PlayerId] = Pelican.KillCooldown.GetFloat();

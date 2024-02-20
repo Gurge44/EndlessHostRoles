@@ -171,6 +171,6 @@ namespace TOHE.Roles.AddOns.Impostor
             }
         }
 
-        public static string GetProgressText(byte id) => string.Format(GetString("DamoclesTimeLeft"), Timer.TryGetValue(id, out var time) ? time : StartingTime);
+        public static string GetProgressText(byte id) => string.Format(GetString("DamoclesTimeLeft"), Timer.GetValueOrDefault(id, StartingTime));
     }
 }

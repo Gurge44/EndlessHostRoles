@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using TOHE.Roles.Crewmate;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor;
 
-public static class Hangman
+public class Hangman : RoleBase
 {
-    private static readonly int Id = 1400;
+    private const int Id = 1400;
     private static List<byte> playerIdList = [];
 
     private static OptionItem ShapeshiftCooldown;
@@ -30,22 +31,27 @@ public static class Hangman
             .SetParent(CustomRoleSpawnChances[CustomRoles.Hangman])
             .SetValueFormat(OptionFormat.Times);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(HangmanLimitOpt.GetInt());
     }
-    public static bool IsEnable => playerIdList.Count > 0;
-    public static void ApplyGameOptions()
+
+    public override bool IsEnable => playerIdList.Count > 0;
+
+    public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
         AURoleOptions.ShapeshifterDuration = ShapeshiftDuration.GetFloat();
     }
-    public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (Medic.ProtectList.Contains(target.PlayerId)) return false;
 

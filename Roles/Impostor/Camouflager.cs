@@ -1,8 +1,8 @@
 ﻿namespace TOHE.Roles.Impostor
 {
-    public static class Camouflager
+    public class Camouflager : RoleBase
     {
-        private static readonly int Id = 2500;
+        private const int Id = 2500;
 
         public static OptionItem CamouflageCooldown;
         private static OptionItem CamouflageDuration;
@@ -10,7 +10,7 @@
         public static OptionItem CamoAbilityUseGainWithEachKill;
 
         public static bool IsActive;
-        public static bool IsEnable;
+        public static bool On;
 
         public static void SetupCustomOption()
         {
@@ -32,32 +32,33 @@
             AURoleOptions.ShapeshifterDuration = CamouflageDuration.GetFloat();
         }
 
-        public static void Init()
+        public override void Init()
         {
             IsActive = false;
-            IsEnable = false;
+            On = false;
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             playerId.SetAbilityUseLimit(CamoLimitOpt.GetInt());
-            IsEnable = true;
+            On = true;
         }
 
-        public static void OnShapeshift(PlayerControl pc, bool shapeshifting)
+        public override bool IsEnable => On;
+
+        public override void OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
         {
             if (shapeshifting && pc.GetAbilityUseLimit() < 1)
             {
                 pc.SetKillCooldown(CamouflageDuration.GetFloat() + 1f);
             }
 
-            ;
             if (shapeshifting) pc.RpcRemoveAbilityUse();
             IsActive = true;
             Camouflage.CheckCamouflage();
         }
 
-        public static void OnReportDeadBody()
+        public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
         {
             IsActive = false;
             Camouflage.CheckCamouflage();

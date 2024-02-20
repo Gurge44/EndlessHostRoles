@@ -471,21 +471,6 @@ class ExternalRpcPetPatch
                 }
 
                 break;
-            case CustomRoles.Escapee:
-                if (Main.EscapeeLocation.ContainsKey(pc.PlayerId))
-                {
-                    var position = Main.EscapeeLocation[pc.PlayerId];
-                    Main.EscapeeLocation.Remove(pc.PlayerId);
-                    Logger.Msg($"{pc.GetNameWithRole().RemoveHtmlTags()}:{position}", "EscapeeTeleport");
-                    pc.TP(position);
-                    pc.RPCPlayCustomSound("Teleport");
-                }
-                else
-                {
-                    Main.EscapeeLocation.Add(pc.PlayerId, pc.Pos());
-                }
-
-                break;
             case CustomRoles.RiftMaker:
                 RiftMaker.OnShapeshift(pc, true);
                 break;

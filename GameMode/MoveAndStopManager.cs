@@ -254,7 +254,7 @@ internal class MoveAndStopManager
                 float distanceX = currentPosition.x - previousPosition.x;
                 float distanceY = currentPosition.y - previousPosition.y;
 
-                float limit = Limit.TryGetValue(pc.PlayerId, out var x) ? x : 2f;
+                float limit = Limit.GetValueOrDefault(pc.PlayerId, 2f);
 
                 // Now we can check the components of the direction vector to determine the movement direction
                 if (direction.x > 0) // Player is moving right

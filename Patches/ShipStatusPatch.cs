@@ -91,8 +91,9 @@ class RepairSystemPatch
                     player.Suicide();
                     return false;
                 }
+
                 break;
-            case SystemTypes.Electrical when 0 <= amount && amount <= 4 && Main.NormalOptions.MapId == 4:
+            case SystemTypes.Electrical when amount <= 4 && Main.NormalOptions.MapId == 4:
                 if (Options.DisableAirshipViewingDeckLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(-12.93f, -11.28f)) <= 2f) return false;
                 if (Options.DisableAirshipGapRoomLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(13.92f, 6.43f)) <= 2f) return false;
                 if (Options.DisableAirshipCargoLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(30.56f, 2.12f)) <= 2f) return false;
@@ -105,7 +106,8 @@ class RepairSystemPatch
                     player.Notify(string.Format(Translator.GetString("HackedByGlitch"), "Sabotage"));
                     return false;
                 }
-                if (player.Is(CustomRoles.Mafioso)) Mafioso.OnSabotage();
+
+                if (player.Is(CustomRoles.Mafioso)) Mafioso.OnSabotage(player);
                 if (player.Is(CustomRoleTypes.Impostor) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool()) && !player.Is(CustomRoles.Minimalism)) return true;
                 switch (player.GetCustomRole())
                 {
@@ -155,6 +157,7 @@ class RepairSystemPatch
                 {
                     player.Notify(Translator.GetString("CamerasDisabledNotify"), 15f);
                 }
+
                 return !camerasDisabled;
         }
         return true;

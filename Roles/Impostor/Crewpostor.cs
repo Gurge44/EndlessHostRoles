@@ -5,9 +5,12 @@ using UnityEngine;
 
 namespace TOHE.Roles.Impostor
 {
-    internal class Crewpostor
+    internal class Crewpostor : RoleBase
     {
         public static Dictionary<byte, int> TasksDone = [];
+
+        public static bool On;
+        public override bool IsEnable => On;
 
         public static void OnTaskComplete(PlayerControl player)
         {
@@ -16,7 +19,7 @@ namespace TOHE.Roles.Impostor
             SendRPC(player.PlayerId, TasksDone[player.PlayerId]);
 
             PlayerControl[] list = Main.AllAlivePlayerControls.Where(x => x.PlayerId != player.PlayerId && (Options.CrewpostorCanKillAllies.GetBool() || !x.GetCustomRole().IsImpostorTeam())).ToArray();
-            if (list.Length == 0 || list == null)
+            if (list.Length == 0)
             {
                 Logger.Info("No target to kill", "Crewpostor");
             }
@@ -83,6 +86,16 @@ namespace TOHE.Roles.Impostor
             int tasksDone = reader.ReadInt32();
             if (!TasksDone.TryAdd(PlayerId, 0))
                 TasksDone[PlayerId] = tasksDone;
+        }
+
+        public override void Init()
+        {
+            On = false;
+        }
+
+        public override void Add(byte playerId)
+        {
+            On = true;
         }
     }
 }

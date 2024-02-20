@@ -42,7 +42,7 @@ public class Hacker : RoleBase
     public override bool IsEnable => playerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
 
-    public override void ApplyGameOptions(AmongUs.GameOptions.IGameOptions opt)
+    public override void ApplyGameOptions(AmongUs.GameOptions.IGameOptions opt, byte id)
     {
         AURoleOptions.ShapeshifterCooldown = 15f;
         AURoleOptions.ShapeshifterDuration = 1f;
@@ -67,9 +67,9 @@ public class Hacker : RoleBase
             DeadBodyList.Add(target.PlayerId);
     }
 
-    public override void OnShapeshift(PlayerControl pc, PlayerControl ssTarget, bool shapeshifting)
+    public override bool OnShapeshift(PlayerControl pc, PlayerControl ssTarget, bool shapeshifting)
     {
-        if (!shapeshifting || pc.GetAbilityUseLimit() < 1 || ssTarget == null || ssTarget.Is(CustomRoles.Needy) || ssTarget.Is(CustomRoles.Lazy)) return;
+        if (!shapeshifting || pc.GetAbilityUseLimit() < 1 || ssTarget == null || ssTarget.Is(CustomRoles.Needy) || ssTarget.Is(CustomRoles.Lazy)) return false;
         pc.RpcRemoveAbilityUse();
 
         var targetId = byte.MaxValue;
@@ -87,5 +87,7 @@ public class Hacker : RoleBase
             targetId = DeadBodyList[IRandom.Instance.Next(0, DeadBodyList.Count)];
 
         _ = targetId == byte.MaxValue ? new(() => ssTarget.NoCheckStartMeeting(ssTarget.Data), 0.15f, "Hacker Hacking Report Self") : new LateTask(() => ssTarget.NoCheckStartMeeting(Utils.GetPlayerById(targetId)?.Data), 0.15f, "Hacker Hacking Report");
+
+        return false;
     }
 }
