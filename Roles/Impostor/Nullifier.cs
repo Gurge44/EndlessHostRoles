@@ -4,9 +4,9 @@ using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor
 {
-    internal class Nullifier
+    internal class Nullifier : RoleBase
     {
-        private static readonly int Id = 642000;
+        private const int Id = 642000;
         public static List<byte> playerIdList = [];
 
         public static OptionItem NullCD;
@@ -27,23 +27,23 @@ namespace TOHE.Roles.Impostor
                 .SetValueFormat(OptionFormat.Seconds);
         }
 
-        public static void Init()
+        public override void Init()
         {
             playerIdList = [];
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
         }
 
-        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KCD.GetFloat();
+        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KCD.GetFloat();
 
-        public static bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => playerIdList.Count > 0;
 
-        public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable || killer == null || target == null || !killer.Is(CustomRoles.Nullifier)) return false;
+            if (!IsEnable || killer == null || target == null) return false;
 
             return killer.CheckDoubleTrigger(target, () =>
             {

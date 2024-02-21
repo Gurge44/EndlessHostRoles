@@ -60,7 +60,7 @@ internal static class CustomRolesHelper
         CustomRoles.Miner => new Miner(),
         CustomRoles.Morphling => new Morphling(),
         CustomRoles.Assassin => new Assassin(),
-        CustomRoles.Nuker => new Nuker(),
+        CustomRoles.Nuker => new Bomber(), // Use the same code as Bomber with small modifications
         CustomRoles.Nullifier => new Nullifier(),
         CustomRoles.Parasite => new Parasite(),
         CustomRoles.Penguin => new Penguin(),

@@ -474,7 +474,7 @@ public static class Utils
 
     public static void IncreaseAbilityUseLimitOnKill(PlayerControl killer)
     {
-        if (killer.Is(CustomRoles.Mafioso)) Mafioso.OnMurder();
+        if (Main.PlayerStates[killer.PlayerId].Role is Mafioso { IsEnable: true } mo) mo.OnMurder(killer, null);
         var add = killer.GetCustomRole() switch
         {
             CustomRoles.Hacker => Hacker.HackerAbilityUseGainWithEachKill.GetFloat(),
@@ -490,6 +490,37 @@ public static class Utils
             _ => float.MaxValue,
         };
         killer.RpcIncreaseAbilityUseLimitBy(add);
+    }
+
+    public static void ThrowException()
+    {
+        try
+        {
+            StackTrace st = new(1, true);
+            StackFrame[] stFrames = st.GetFrames();
+
+            StackFrame firstFrame = stFrames.FirstOrDefault();
+
+            var sb = new StringBuilder();
+            sb.Append("Exception");
+
+            bool skip = true;
+            foreach (StackFrame sf in stFrames)
+            {
+                if (skip)
+                {
+                    skip = false;
+                    continue;
+                }
+
+                sb.Append($" at {sf.GetMethod()}");
+            }
+
+            Logger.Error(sb.ToString(), firstFrame?.GetMethod()?.ToString());
+        }
+        catch
+        {
+        }
     }
 
     public static bool HasTasks(GameData.PlayerInfo p, bool ForRecompute = true)

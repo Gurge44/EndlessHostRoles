@@ -478,7 +478,7 @@ internal class SelectRolesPatch
             List<byte> physicistList = [];
             if (nimbleSpawn || physicistSpawn)
             {
-                foreach ((PlayerControl PLAYER, RoleTypes ROLETYPE) in RpcSetRoleReplacer.StoragedData.ToArray())
+                foreach ((PlayerControl PLAYER, RoleTypes _) in RpcSetRoleReplacer.StoragedData.ToArray())
                 {
                     var kp = RoleResult.FirstOrDefault(x => x.Key.PlayerId == PLAYER.PlayerId);
                     if (kp.Value.IsCrewmate())
@@ -547,10 +547,7 @@ internal class SelectRolesPatch
                     }
                 }
                 newList.Add((PLAYER, roleType));
-                if (ROLETYPE == roleType)
-                    Logger.Warn($"Register original role type => {PLAYER.GetRealName()}: {ROLETYPE}", "Override Role Select");
-                else
-                    Logger.Warn($"Register original role type => {PLAYER.GetRealName()}: {ROLETYPE} => {roleType}", "Override Role Select");
+                Logger.Warn(ROLETYPE == roleType ? $"Register original role type => {PLAYER.GetRealName()}: {ROLETYPE}" : $"Register original role type => {PLAYER.GetRealName()}: {ROLETYPE} => {roleType}", "Override Role Select");
             }
             if (Options.EnableGM.GetBool()) newList.Add((PlayerControl.LocalPlayer, RoleTypes.Crewmate));
             RpcSetRoleReplacer.StoragedData = newList;
@@ -748,7 +745,7 @@ internal class SelectRolesPatch
         player.SetRole(othersRole);
         player.Data.IsDead = true;
 
-        Logger.Info($"Register Modded Role：{player?.Data?.PlayerName} => {role}", "AssignRoles");
+        Logger.Info($"Register Modded Role：{player.Data?.PlayerName} => {role}", "AssignRoles");
     }
     public static void MakeDesyncSender(Dictionary<byte, CustomRpcSender> senders, Dictionary<(byte, byte), RoleTypes> rolesMap)
     {
@@ -775,79 +772,61 @@ internal class SelectRolesPatch
 
         SetColorPatch.IsAntiGlitchDisabled = false;
     }
-    private static void ForceAssignRole(/*CustomRoles role,*/ List<PlayerControl> AllPlayers, CustomRpcSender sender, RoleTypes BaseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate, bool skip = false, int Count = -1)
-    {
-        var count = 1;
-
-        if (Count != -1)
-            count = Count;
-        for (var i = 0; i < count; i++)
-        {
-            if (AllPlayers.Count == 0) break;
-            var rand = IRandom.Instance;
-            var player = AllPlayers[rand.Next(0, AllPlayers.Count)];
-            AllPlayers.Remove(player);
-            if (!skip)
-            {
-                if (!player.IsModClient())
-                {
-                    int playerCID = player.GetClientId();
-                    sender.RpcSetRole(player, BaseRole, playerCID);
-                    //Desyncする人視点で他プレイヤーを科学者にするループ
-                    foreach (var pc in PlayerControl.AllPlayerControls)
-                    {
-                        if (pc == player) continue;
-                        sender.RpcSetRole(pc, RoleTypes.Scientist, playerCID);
-                    }
-                    //他視点でDesyncする人の役職を科学者にするループ
-                    foreach (var pc in PlayerControl.AllPlayerControls)
-                    {
-                        if (pc == player) continue;
-                        if (pc.PlayerId == 0) player.SetRole(RoleTypes.Scientist); //ホスト視点用
-                        else sender.RpcSetRole(player, RoleTypes.Scientist, pc.GetClientId());
-                    }
-                }
-                else
-                {
-                    //ホストは別の役職にする
-                    player.SetRole(hostBaseRole); //ホスト視点用
-                    sender.RpcSetRole(player, hostBaseRole);
-                }
-            }
-        }
-    }
+//    private static void ForceAssignRole(/*CustomRoles role,*/ List<PlayerControl> AllPlayers, CustomRpcSender sender, RoleTypes BaseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate, bool skip = false, int Count = -1)
+//    {
+//        var count = 1;
+//
+//        if (Count != -1)
+//            count = Count;
+//        for (var i = 0; i < count; i++)
+//        {
+//            if (AllPlayers.Count == 0) break;
+//            var rand = IRandom.Instance;
+//            var player = AllPlayers[rand.Next(0, AllPlayers.Count)];
+//            AllPlayers.Remove(player);
+//            if (!skip)
+//            {
+//                if (!player.IsModClient())
+//                {
+//                    int playerCID = player.GetClientId();
+//                    sender.RpcSetRole(player, BaseRole, playerCID);
+//                    //Desyncする人視点で他プレイヤーを科学者にするループ
+//                    foreach (var pc in PlayerControl.AllPlayerControls)
+//                    {
+//                        if (pc == player) continue;
+//                        sender.RpcSetRole(pc, RoleTypes.Scientist, playerCID);
+//                    }
+//                    //他視点でDesyncする人の役職を科学者にするループ
+//                    foreach (var pc in PlayerControl.AllPlayerControls)
+//                    {
+//                        if (pc == player) continue;
+//                        if (pc.PlayerId == 0) player.SetRole(RoleTypes.Scientist); //ホスト視点用
+//                        else sender.RpcSetRole(player, RoleTypes.Scientist, pc.GetClientId());
+//                    }
+//                }
+//                else
+//                {
+//                    //ホストは別の役職にする
+//                    player.SetRole(hostBaseRole); //ホスト視点用
+//                    sender.RpcSetRole(player, hostBaseRole);
+//                }
+//            }
+//        }
+//    }
 
     private static void AssignLoversRolesFromList()
     {
         if (CustomRoles.Lovers.IsEnable())
         {
-            //Loversを初期化
             Main.LoversPlayers.Clear();
             Main.isLoversDead = false;
-            //ランダムに2人選出
             AssignLoversRoles();
         }
     }
     private static void AssignLoversRoles(int RawCount = -1)
     {
-        var allPlayers = new List<PlayerControl>();
-        foreach (PlayerControl pc in Main.AllPlayerControls)
-        {
-            if (pc.Is(CustomRoles.GM)
-                || (pc.HasSubRole() && pc.GetCustomSubRoles().Count >= Options.NoLimitAddonsNumMax.GetInt())
-                || pc.Is(CustomRoles.Dictator)
-                || pc.Is(CustomRoles.God)
-                || pc.Is(CustomRoles.FFF)
-                || pc.Is(CustomRoles.Bomber)
-                || pc.Is(CustomRoles.Nuker)
-                || pc.Is(CustomRoles.Provocateur)
-                || (pc.GetCustomRole().IsCrewmate() && !Options.CrewCanBeInLove.GetBool())
-                || (pc.GetCustomRole().IsNeutral() && !Options.NeutralCanBeInLove.GetBool())
-                || (pc.GetCustomRole().IsImpostor() && !Options.ImpCanBeInLove.GetBool()))
-                continue;
-            allPlayers.Add(pc);
-        }
-        var role = CustomRoles.Lovers;
+        var allPlayers = Main.AllPlayerControls.Where(pc => !pc.Is(CustomRoles.GM) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && !pc.Is(CustomRoles.Dictator) && !pc.Is(CustomRoles.God) && !pc.Is(CustomRoles.FFF) && !pc.Is(CustomRoles.Bomber) && !pc.Is(CustomRoles.Nuker) && !pc.Is(CustomRoles.Provocateur) && (!pc.GetCustomRole().IsCrewmate() || Options.CrewCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsNeutral() || Options.NeutralCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsImpostor() || Options.ImpCanBeInLove.GetBool())).ToList();
+        const CustomRoles role = CustomRoles.Lovers;
         var rd = IRandom.Instance;
         var count = Math.Clamp(RawCount, 0, allPlayers.Count);
         if (RawCount == -1) count = Math.Clamp(role.GetCount(), 0, allPlayers.Count);
@@ -879,7 +858,7 @@ internal class SelectRolesPatch
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcSetRole))]
     private class RpcSetRoleReplacer
     {
-        public static bool doReplace;
+        private static bool doReplace;
         public static Dictionary<byte, CustomRpcSender> senders;
         public static List<(PlayerControl, RoleTypes)> StoragedData = [];
         // A list of Senders that does not require additional writing because SetRoleRpc has already been written in another process such as role Desync.

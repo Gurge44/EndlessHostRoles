@@ -2,13 +2,14 @@
 
 namespace TOHE.Roles.Impostor
 {
-    internal class Swiftclaw
+    internal class Swiftclaw : RoleBase
     {
         private static int Id => 643340;
         public static OptionItem DashCD;
         public static OptionItem DashDuration;
         public static OptionItem DashSpeed;
         private static readonly Dictionary<byte, (long StartTimeStamp, float NormalSpeed)> DashStart = [];
+
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Swiftclaw);
@@ -22,8 +23,22 @@ namespace TOHE.Roles.Impostor
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Swiftclaw])
                 .SetValueFormat(OptionFormat.Multiplier);
         }
-        public static void Init() => DashStart.Clear();
-        public static void OnPet(PlayerControl pc)
+
+        public override void Init()
+        {
+            DashStart.Clear();
+            On = false;
+        }
+
+        public override void Add(byte playerId)
+        {
+            On = true;
+        }
+
+        public static bool On;
+        public override bool IsEnable => On;
+
+        public override void OnPet(PlayerControl pc)
         {
             if (pc == null || DashStart.ContainsKey(pc.PlayerId)) return;
 
@@ -31,7 +46,8 @@ namespace TOHE.Roles.Impostor
             Main.AllPlayerSpeed[pc.PlayerId] = DashSpeed.GetFloat();
             pc.MarkDirtySettings();
         }
-        public static void OnFixedUpdate(PlayerControl pc)
+
+        public override void OnFixedUpdate(PlayerControl pc)
         {
             if (!GameStates.IsInTask || pc == null || !DashStart.TryGetValue(pc.PlayerId, out var dashInfo) || dashInfo.StartTimeStamp + DashDuration.GetInt() > Utils.TimeStamp) return;
 
@@ -39,7 +55,8 @@ namespace TOHE.Roles.Impostor
             pc.MarkDirtySettings();
             DashStart.Remove(pc.PlayerId);
         }
-        public static void OnReportDeadBody()
+
+        public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
         {
             foreach (var item in DashStart)
             {

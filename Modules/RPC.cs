@@ -418,7 +418,10 @@ internal class RPCHandlerPatch
                 Bandit.ReceiveRPC(reader);
                 break;
             case CustomRPC.SniperSync:
-                Sniper.ReceiveRPC(reader);
+            {
+                byte id = reader.ReadByte();
+                (Main.PlayerStates[id].Role as Sniper)?.ReceiveRPC(reader);
+            }
                 break;
             case CustomRPC.SyncSpy:
                 Spy.ReceiveRPC(reader);
@@ -515,7 +518,11 @@ internal class RPCHandlerPatch
                 PlagueDoctor.ReceiveRPC(reader);
                 break;
             case CustomRPC.PenguinSync:
-                Penguin.ReceiveRPC(reader);
+            {
+                byte id = reader.ReadByte();
+                byte victim = reader.ReadByte();
+                (Main.PlayerStates[id].Role as Penguin)?.ReceiveRPC(victim);
+            }
                 break;
             case CustomRPC.SetRealKiller:
             {
@@ -668,13 +675,16 @@ internal class RPCHandlerPatch
                 GuessManager.ReceiveRPC(reader, __instance);
                 break;
             case CustomRPC.MafiaRevenge:
-                MafiaRevengeManager.ReceiveRPC(reader, __instance);
+                Mafia.ReceiveRPC(reader, __instance);
                 break;
             //case CustomRPC.RetributionistRevenge:
             //    RetributionistRevengeManager.ReceiveRPC(reader, __instance);
             //    break;
             case CustomRPC.SetSwooperTimer:
-                Swooper.ReceiveRPC(reader);
+            {
+                byte id = reader.ReadByte();
+                (Main.PlayerStates[id].Role as Swooper)?.ReceiveRPC(reader);
+            }
                 break;
             case CustomRPC.SetWraithTimer:
                 Wraith.ReceiveRPC(reader);

@@ -394,55 +394,6 @@ class CheckMurderPatch
                 case CustomRoles.PlagueDoctor:
                     if (!PlagueDoctor.OnPDinfect(killer, target)) return false;
                     break;
-                case CustomRoles.Puppeteer:
-                    if (target.Is(CustomRoles.Needy) && Options.PuppeteerManipulationBypassesLazyGuy.GetBool()) return false;
-                    if (target.Is(CustomRoles.Lazy) && Options.PuppeteerManipulationBypassesLazy.GetBool()) return false;
-                    if (Medic.ProtectList.Contains(target.PlayerId)) return false;
-
-                    if (!Main.PuppeteerMaxPuppets.TryGetValue(killer.PlayerId, out var usesLeft))
-                    {
-                        usesLeft = Options.PuppeteerMaxPuppets.GetInt();
-                        Main.PuppeteerMaxPuppets.Add(killer.PlayerId, usesLeft);
-                    }
-
-                    if (Options.PuppeteerCanKillNormally.GetBool())
-                    {
-                        if (!killer.CheckDoubleTrigger(target, () =>
-                            {
-                                Main.PuppeteerList[target.PlayerId] = killer.PlayerId;
-                                Main.PuppeteerDelayList[target.PlayerId] = TimeStamp;
-                                Main.PuppeteerDelay[target.PlayerId] = IRandom.Instance.Next(Options.PuppeteerMinDelay.GetInt(), Options.PuppeteerMaxDelay.GetInt());
-                                killer.SetKillCooldown(time: Options.PuppeteerCD.GetFloat());
-                                if (usesLeft <= 1)
-                                {
-                                    _ = new LateTask(() => { killer.Suicide(); }, 1.5f, "Puppeteer Max Uses Reached => Suicide");
-                                }
-                                else killer.Notify(string.Format(GetString("PuppeteerUsesRemaining"), usesLeft - 1));
-
-                                Main.PuppeteerMaxPuppets[killer.PlayerId]--;
-                                killer.RPCPlayCustomSound("Line");
-                                NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-                            })) return false;
-                    }
-                    else
-                    {
-                        Main.PuppeteerList[target.PlayerId] = killer.PlayerId;
-                        Main.PuppeteerDelayList[target.PlayerId] = TimeStamp;
-                        Main.PuppeteerDelay[target.PlayerId] = IRandom.Instance.Next(Options.PuppeteerMinDelay.GetInt(), Options.PuppeteerMaxDelay.GetInt());
-                        killer.SetKillCooldown();
-                        if (usesLeft <= 1)
-                        {
-                            _ = new LateTask(() => { killer.Suicide(); }, 1.5f, "Puppeteer Max Uses Reached => Suicide");
-                        }
-                        else killer.Notify(string.Format(GetString("PuppeteerUsesRemaining"), usesLeft - 1));
-
-                        Main.PuppeteerMaxPuppets[killer.PlayerId]--;
-                        killer.RPCPlayCustomSound("Line");
-                        NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-                        return false;
-                    }
-
-                    break;
                 case CustomRoles.Gangster:
                     if (Gangster.OnCheckMurder(killer, target))
                         return false;
@@ -648,28 +599,6 @@ class CheckMurderPatch
             killer.ResetKillCooldown();
         }
 
-        if (killer.Is(CustomRoles.Scavenger))
-        {
-            if (!target.Is(CustomRoles.Pestilence))
-            {
-                float dur = Options.ScavengerKillDuration.GetFloat();
-                killer.Notify("....", dur);
-                _ = new LateTask(() =>
-                {
-                    if (Vector2.Distance(killer.Pos(), target.Pos()) > 2f) return;
-                    target.TP(Pelican.GetBlackRoomPS());
-                    target.Suicide(PlayerState.DeathReason.Kill, killer);
-                    killer.SetKillCooldown();
-                    RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
-                    target.Notify(ColorString(GetRoleColor(CustomRoles.Scavenger), GetString("KilledByScavenger")));
-                }, dur, "Scavenger Kill");
-                return false;
-            }
-
-            killer.Suicide(PlayerState.DeathReason.Kill, target);
-            return false;
-        }
-
         if (!DoubleTrigger.FirstTriggerTimer.ContainsKey(killer.PlayerId) && killer.Is(CustomRoles.Swift) && !target.Is(CustomRoles.Pestilence))
         {
             if (killer.RpcCheckAndMurder(target, true))
@@ -832,8 +761,6 @@ class CheckMurderPatch
             case CustomRoles.Ricochet when !Ricochet.OnKillAttempt(killer, target):
                 return false;
             case CustomRoles.Addict when Addict.IsImmortal(target):
-                return false;
-            case CustomRoles.Refugee when killer.Is(CustomRoleTypes.Impostor):
                 return false;
             case CustomRoles.BoobyTrap when Options.TrapOnlyWorksOnTheBodyBoobyTrap.GetBool() && !GameStates.IsMeeting:
                 Main.BoobyTrapBody.Add(target.PlayerId);
@@ -1325,18 +1252,6 @@ class ShapeshiftPatch
 
                     isSSneeded = false;
                     break;
-                case CustomRoles.Miner:
-                    if (Main.LastEnteredVent.ContainsKey(shapeshifter.PlayerId))
-                    {
-                        int ventId = Main.LastEnteredVent[shapeshifter.PlayerId].Id;
-                        var vent = Main.LastEnteredVent[shapeshifter.PlayerId];
-                        var position = Main.LastEnteredVentLocation[shapeshifter.PlayerId];
-                        Logger.Msg($"{shapeshifter.GetNameWithRole().RemoveHtmlTags()}:{position}", "MinerTeleport");
-                        TP(shapeshifter.NetTransform, new Vector2(position.x, position.y));
-                    }
-
-                    isSSneeded = false;
-                    break;
                 case CustomRoles.Bomber:
                     if (shapeshifting)
                     {
@@ -1415,21 +1330,6 @@ class ShapeshiftPatch
                 case CustomRoles.Undertaker:
                     Undertaker.OnShapeshift(shapeshifter, shapeshifting);
                     isSSneeded = false;
-                    break;
-                case CustomRoles.ImperiusCurse:
-                    if (shapeshifting)
-                    {
-                        _ = new LateTask(() =>
-                        {
-                            if (!(!GameStates.IsInTask || !shapeshifter.IsAlive() || !target.IsAlive() || shapeshifter.inVent || target.inVent))
-                            {
-                                var originPs = target.Pos();
-                                TP(target.NetTransform, shapeshifter.Pos());
-                                TP(shapeshifter.NetTransform, originPs);
-                            }
-                        }, 1.5f, "ImperiusCurse TP");
-                    }
-
                     break;
                 case CustomRoles.QuickShooter:
                     QuickShooter.OnShapeshift(shapeshifter, shapeshifting);
@@ -2484,61 +2384,7 @@ class FixedUpdatePatch
 
             #region 傀儡师处理
 
-            if (GameStates.IsInTask && Main.PuppeteerList.ContainsKey(playerId))
-            {
-                if (!player.IsAlive() || Pelican.IsEaten(playerId))
-                {
-                    Main.PuppeteerList.Remove(playerId);
-                    Main.PuppeteerDelayList.Remove(playerId);
-                    Main.PuppeteerDelay.Remove(playerId);
-                }
-                else if (Main.PuppeteerDelayList[playerId] + Options.PuppeteerManipulationEndsAfterTime.GetInt() < now && Options.PuppeteerManipulationEndsAfterFixedTime.GetBool())
-                {
-                    Main.PuppeteerList.Remove(playerId);
-                    Main.PuppeteerDelayList.Remove(playerId);
-                    Main.PuppeteerDelay.Remove(playerId);
-                    Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Puppeteer)).Do(x => NotifyRoles(SpecifySeer: x, SpecifyTarget: player));
-                }
-                else if (Main.PuppeteerDelayList[playerId] + Main.PuppeteerDelay[playerId] < now)
-                {
-                    Vector2 puppeteerPos = player.transform.position; //PuppeteerListのKeyの位置
-                    Dictionary<byte, float> targetDistance = [];
-                    float dis;
-                    foreach (PlayerControl target in Main.AllAlivePlayerControls)
-                    {
-                        if (target.PlayerId == playerId || target.Is(CustomRoles.Pestilence)) continue;
-                        if (target.Is(CustomRoles.Puppeteer) && !Options.PuppeteerPuppetCanKillPuppeteer.GetBool()) continue;
-                        if (target.Is(CustomRoleTypes.Impostor) && !Options.PuppeteerPuppetCanKillImpostors.GetBool()) continue;
-
-                        dis = Vector2.Distance(puppeteerPos, target.transform.position);
-                        targetDistance.Add(target.PlayerId, dis);
-                    }
-
-                    if (targetDistance.Count > 0)
-                    {
-                        var min = targetDistance.OrderBy(c => c.Value).FirstOrDefault(); //一番値が小さい
-                        PlayerControl target = GetPlayerById(min.Key);
-                        var KillRange = NormalGameOptionsV07.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
-                        if (min.Value <= KillRange && player.CanMove && target.CanMove)
-                        {
-                            if (player.RpcCheckAndMurder(target, true))
-                            {
-                                var puppeteerId = Main.PuppeteerList[playerId];
-                                RPC.PlaySoundRPC(puppeteerId, Sounds.KillSound);
-                                target.SetRealKiller(GetPlayerById(puppeteerId));
-                                player.Kill(target);
-                                player.MarkDirtySettings();
-                                target.MarkDirtySettings();
-                                Main.PuppeteerList.Remove(playerId);
-                                Main.PuppeteerDelayList.Remove(playerId);
-                                Main.PuppeteerDelay.Remove(playerId);
-                                NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
-                                NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
-                            }
-                        }
-                    }
-                }
-            }
+            Puppeteer.OnGlobalFixedUpdate(player);
 
             #endregion
 

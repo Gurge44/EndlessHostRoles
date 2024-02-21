@@ -227,18 +227,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     }
 
                     break;
-                case CustomRoles.Miner:
-                    if (Options.UsePets.GetBool()) break;
-                    try
-                    {
-                        AURoleOptions.ShapeshifterCooldown = Options.MinerSSCD.GetFloat();
-                        AURoleOptions.ShapeshifterDuration = Options.MinerSSDuration.GetFloat();
-                    }
-                    catch
-                    {
-                    }
-
-                    break;
                 //case CustomRoles.SerialKiller:
                 //    SerialKiller.ApplyGameOptions(player);
                 //    break;
@@ -280,9 +268,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     break;
                 case CustomRoles.Pestilence:
                     opt.SetVision(PlagueBearer.PestilenceHasImpostorVision.GetBool());
-                    break;
-                case CustomRoles.Refugee:
-                    opt.SetVision(true);
                     break;
                 case CustomRoles.Doormaster:
                     if (Options.UsePets.GetBool()) break;
@@ -371,10 +356,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 case CustomRoles.CameraMan:
                     AURoleOptions.EngineerCooldown = CameraMan.VentCooldown.GetFloat();
                     AURoleOptions.EngineerInVentMaxTime = 1f;
-                    break;
-                case CustomRoles.Mafia:
-                    AURoleOptions.ShapeshifterCooldown = Options.MafiaShapeshiftCD.GetFloat();
-                    AURoleOptions.ShapeshifterDuration = Options.MafiaShapeshiftDur.GetFloat();
                     break;
                 case CustomRoles.ScientistTOHE:
                     AURoleOptions.ScientistCooldown = Options.ScientistCD.GetFloat();
@@ -554,7 +535,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     break;
                 case CustomRoles.Wraith:
                 case CustomRoles.HexMaster:
-                case CustomRoles.Parasite:
                     opt.SetVision(true);
                     break;
                 /*    case CustomRoles.Chameleon:
@@ -570,11 +550,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 case CustomRoles.Workaholic:
                     AURoleOptions.EngineerCooldown = Options.WorkaholicVentCooldown.GetFloat();
                     AURoleOptions.EngineerInVentMaxTime = 0f;
-                    break;
-                case CustomRoles.ImperiusCurse:
-                    AURoleOptions.ShapeshifterCooldown = Options.ImperiusCurseShapeshiftCooldown.GetFloat();
-                    AURoleOptions.ShapeshifterLeaveSkin = false;
-                    AURoleOptions.ShapeshifterDuration = Options.ShapeImperiusCurseShapeshiftDuration.GetFloat();
                     break;
                 case CustomRoles.QuickShooter:
                     if (Options.UsePets.GetBool()) break;

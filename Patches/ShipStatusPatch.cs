@@ -143,7 +143,7 @@ class RepairSystemPatch
                     case CustomRoles.Refugee when player.IsAlive():
                         return true;
                     default:
-                        return false;
+                        return Main.PlayerStates[player.PlayerId].Role.CanUseSabotage(player);
                 }
             case SystemTypes.Security when amount == 1:
                 var camerasDisabled = (MapNames)Main.NormalOptions.MapId switch

@@ -182,8 +182,6 @@ public class Main : BasePlugin
     public static Dictionary<byte, long> RevolutionistStart = [];
     public static Dictionary<byte, long> RevolutionistLastTime = [];
     public static Dictionary<byte, int> RevolutionistCountdown = [];
-    public static Dictionary<byte, byte> PuppeteerList = [];
-    public static Dictionary<byte, long> PuppeteerDelayList = [];
     public static Dictionary<byte, byte> TaglockedList = [];
     public static Dictionary<byte, byte> SpeedBoostTarget = [];
     public static Dictionary<byte, int> MayorUsedButtonCount = [];
@@ -196,8 +194,6 @@ public class Main : BasePlugin
     public static Dictionary<byte, long> BlockSabo = [];
     public static Dictionary<byte, long> MadGrenadierBlinding = [];
     public static Dictionary<byte, int> JinxSpellCount = [];
-    public static Dictionary<byte, int> PuppeteerDelay = [];
-    public static Dictionary<byte, int> PuppeteerMaxPuppets = [];
     public static Dictionary<byte, string> SleuthMsgs = [];
     public static int AliveImpostorCount;
     public static bool isCursed;

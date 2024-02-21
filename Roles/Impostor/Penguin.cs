@@ -1,37 +1,47 @@
-﻿using Hazel;
+﻿using AmongUs.GameOptions;
+using Hazel;
 using UnityEngine;
 using static TOHE.Translator;
 
 namespace TOHE.Roles.Impostor
 {
-    public static class Penguin
+    public class Penguin : RoleBase
     {
-        private static readonly int Id = 641800;
+        private const int Id = 641800;
 
-        private static byte PenguinId = byte.MaxValue;
-        private static PlayerControl Penguin_;
+        private byte PenguinId = byte.MaxValue;
+        private PlayerControl Penguin_;
 
         private static OptionItem OptionAbductTimerLimit;
         private static OptionItem OptionMeetingKill;
         private static OptionItem OptionSpeedDuringDrag;
         private static OptionItem OptionVictimCanUseAbilities;
 
-        private static PlayerControl AbductVictim;
-        private static float AbductTimer;
-        private static float AbductTimerLimit;
-        private static bool stopCount;
-        private static bool MeetingKill;
-        private static float SpeedDuringDrag;
-        private static bool VictimCanUseAbilities;
+        private PlayerControl AbductVictim;
+        private float AbductTimer;
+        private float AbductTimerLimit;
+        private bool stopCount;
+        private bool MeetingKill;
+        private float SpeedDuringDrag;
+        private bool VictimCanUseAbilities;
 
-        private static float DefaultSpeed;
+        private float DefaultSpeed;
 
         // Measures to prevent the opponent who is about to be killed during abduction from using their abilities
-        public static bool IsVictim(PlayerControl pc) => !VictimCanUseAbilities && AbductVictim != null && AbductVictim.PlayerId == pc.PlayerId;
+        public static bool IsVictim(PlayerControl pc)
+        {
+            foreach (var state in Main.PlayerStates)
+            {
+                if (state.Value.Role is Penguin { IsEnable: true, VictimCanUseAbilities: false } pg && pg.AbductVictim != null && pg.AbductVictim.PlayerId == pc.PlayerId)
+                    return true;
+            }
+
+            return false;
+        }
 
         public static void SetupCustomOption()
         {
-            Options.SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Penguin, 1);
+            Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Penguin);
             OptionAbductTimerLimit = FloatOptionItem.Create(Id + 11, "PenguinAbductTimerLimit", new(1f, 20f, 1f), 10f, TabGroup.ImpostorRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Penguin])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -43,12 +53,14 @@ namespace TOHE.Roles.Impostor
             OptionVictimCanUseAbilities = BooleanOptionItem.Create(Id + 14, "PenguinVictimCanUseAbilities", false, TabGroup.ImpostorRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Penguin]);
         }
-        public static void Init()
+
+        public override void Init()
         {
             PenguinId = byte.MaxValue;
             Penguin_ = null;
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
             AbductTimerLimit = OptionAbductTimerLimit.GetFloat();
             MeetingKill = OptionMeetingKill.GetBool();
@@ -63,20 +75,22 @@ namespace TOHE.Roles.Impostor
             AbductTimer = 255f;
             stopCount = false;
         }
-        public static bool IsEnable => PenguinId != byte.MaxValue;
-        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
-        public static void ApplyGameOptions() => AURoleOptions.ShapeshifterCooldown = AbductVictim != null ? AbductTimer : AbductTimerLimit;
-        private static void SendRPC()
+
+        public override bool IsEnable => PenguinId != byte.MaxValue;
+        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
+        public override void ApplyGameOptions(IGameOptions opt, byte id) => AURoleOptions.ShapeshifterCooldown = AbductVictim != null ? AbductTimer : AbductTimerLimit;
+
+        void SendRPC()
         {
             if (!IsEnable || !Utils.DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PenguinSync, SendOption.Reliable);
+            writer.Write(PenguinId);
             writer.Write(AbductVictim?.PlayerId ?? 255);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
-        public static void ReceiveRPC(MessageReader reader)
-        {
-            var victim = reader.ReadByte();
 
+        public void ReceiveRPC(byte victim)
+        {
             if (victim == 255)
             {
                 AbductVictim = null;
@@ -88,7 +102,8 @@ namespace TOHE.Roles.Impostor
                 AbductTimer = AbductTimerLimit;
             }
         }
-        private static void AddVictim(PlayerControl target)
+
+        void AddVictim(PlayerControl target)
         {
             if (!IsEnable) return;
             //Prevent using of moving platform??
@@ -99,22 +114,19 @@ namespace TOHE.Roles.Impostor
             Penguin_.RpcResetAbilityCooldown();
             SendRPC();
         }
-        private static void RemoveVictim()
+
+        void RemoveVictim()
         {
             if (!IsEnable) return;
-            if (AbductVictim != null)
-            {
-                //PlayerState.GetByPlayerId(AbductVictim.PlayerId).CanUseMovingPlatform = true;
-                AbductVictim = null;
-            }
-            //MyState.CanUseMovingPlatform = true;
+            AbductVictim = null;
             AbductTimer = 255f;
             Main.AllPlayerSpeed[PenguinId] = DefaultSpeed;
             Penguin_.MarkDirtySettings();
             Penguin_.RpcResetAbilityCooldown();
             SendRPC();
         }
-        public static bool OnCheckMurderAsKiller(PlayerControl target)
+
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (!IsEnable) return false;
             bool doKill = true;
@@ -136,20 +148,15 @@ namespace TOHE.Roles.Impostor
             }
             return doKill;
         }
-        public static string OverrideKillButtonText()
+
+        public override void SetButtonTexts(HudManager hud, byte id)
         {
-            if (!IsEnable) return string.Empty;
-            return AbductVictim != null ? GetString("KillButtonText") : GetString("PenguinKillButtonText");
+            hud.KillButton?.OverrideText(AbductVictim != null ? GetString("KillButtonText") : GetString("PenguinKillButtonText"));
+            hud.AbilityButton?.OverrideText(GetString("PenguinTimerText"));
+            hud.AbilityButton?.ToggleVisible(AbductVictim != null);
         }
-        public static string GetAbilityButtonText()
-        {
-            return GetString("PenguinTimerText");
-        }
-        public static bool CanUseAbilityButton()
-        {
-            return AbductVictim != null;
-        }
-        public static void OnReportDeadBody()
+
+        public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
         {
             if (!IsEnable) return;
             stopCount = true;
@@ -166,7 +173,8 @@ namespace TOHE.Roles.Impostor
                 RemoveVictim();
             }
         }
-        public static void AfterMeetingTasks()
+
+        public override void AfterMeetingTasks()
         {
             if (Main.NormalOptions.MapId == 4) return;
 
@@ -175,9 +183,16 @@ namespace TOHE.Roles.Impostor
         }
         public static void OnSpawnAirship()
         {
-            RestartAbduct();
+            foreach (var state in Main.PlayerStates)
+            {
+                if (state.Value.Role is Penguin { IsEnable: true } pg)
+                {
+                    pg.RestartAbduct();
+                }
+            }
         }
-        public static void RestartAbduct()
+
+        void RestartAbduct()
         {
             if (!IsEnable) return;
             if (AbductVictim != null)
@@ -187,7 +202,8 @@ namespace TOHE.Roles.Impostor
                 stopCount = false;
             }
         }
-        public static void OnFixedUpdate()
+
+        public override void OnFixedUpdate(PlayerControl pc)
         {
             if (!IsEnable) return;
             if (!AmongUsClient.Instance.AmHost) return;

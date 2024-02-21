@@ -27,6 +27,11 @@ namespace TOHE
             return pc.IsAlive() && pc.GetCustomRole().GetRoleTypes() is not RoleTypes.Crewmate and not RoleTypes.Engineer;
         }
 
+        public virtual bool CanUseSabotage(PlayerControl pc)
+        {
+            return pc.Is(Team.Impostor);
+        }
+
         public virtual void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
         }

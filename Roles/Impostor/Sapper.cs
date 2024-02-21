@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AmongUs.GameOptions;
 using TOHE.Roles.Neutral;
 using UnityEngine;
 using static TOHE.Options;
@@ -9,9 +10,9 @@ using static TOHE.Utils;
 
 namespace TOHE.Roles.Impostor
 {
-    public static class Sapper
+    public class Sapper : RoleBase
     {
-        private static readonly int Id = 643000;
+        private const int Id = 643000;
         public static List<byte> playerIdList = [];
 
         public static OptionItem ShapeshiftCooldown;
@@ -31,38 +32,48 @@ namespace TOHE.Roles.Impostor
                 .SetValueFormat(OptionFormat.Multiplier);
         }
 
-        public static void Init()
+        public override void Init()
         {
             playerIdList = [];
             Bombs = [];
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
         }
 
-        public static void ApplyGameOptions()
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
             AURoleOptions.ShapeshifterDuration = 1f;
         }
 
-        public static bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void OnShapeshift(PlayerControl pc, bool isPet = false)
+        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (pc == null) return;
-            if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return;
+            return PlaceBomb(shapeshifter);
+        }
+
+        public override void OnPet(PlayerControl pc)
+        {
+            PlaceBomb(pc);
+        }
+
+        public static bool PlaceBomb(PlayerControl pc)
+        {
+            if (pc == null) return false;
+            if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
 
             Bombs.TryAdd(pc.Pos(), TimeStamp);
 
-            //if (!isPet) _ = new LateTask(() => { pc.CmdCheckRevertShapeshift(false); }, 1.5f, "Sapper RpcRevertShapeshift");
+            return false;
         }
 
-        public static void OnFixedUpdate(PlayerControl pc)
+        public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (pc == null || Bombs.Count == 0 || !GameStates.IsInTask || !pc.IsAlive() || !pc.Is(CustomRoles.Sapper)) return;
+            if (pc == null || Bombs.Count == 0 || !GameStates.IsInTask || !pc.IsAlive()) return;
 
             foreach (var bomb in Bombs.Where(bomb => bomb.Value + Delay.GetInt() < TimeStamp))
             {
@@ -89,15 +100,14 @@ namespace TOHE.Roles.Impostor
             }
 
             var sb = new StringBuilder();
-            long[] list = [.. Bombs.Values];
-            foreach (long x in list)
+            foreach (long x in Bombs.Values)
             {
                 sb.Append(string.Format(GetString("MagicianBombExlodesIn"), Delay.GetInt() - (TimeStamp - x) + 1));
             }
             pc.Notify(sb.ToString());
         }
 
-        public static void OnReportDeadBody()
+        public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
         {
             Bombs.Clear();
         }

@@ -119,7 +119,7 @@ class ExternalRpcPetPatch
                 Doormaster.OnEnterVent(pc);
                 break;
             case CustomRoles.Sapper:
-                Sapper.OnShapeshift(pc, true);
+                Sapper.OnShapeshift(pc);
                 break;
             case CustomRoles.Tether:
                 Tether.OnEnterVent(pc, 0, true);
@@ -463,43 +463,11 @@ class ExternalRpcPetPatch
                 Undertaker.OnShapeshift(pc, true);
                 break;
             case CustomRoles.Miner:
-                if (Main.LastEnteredVent.ContainsKey(pc.PlayerId))
-                {
-                    var position = Main.LastEnteredVentLocation[pc.PlayerId];
-                    Logger.Msg($"{pc.GetNameWithRole().RemoveHtmlTags()}:{position}", "MinerTeleport");
-                    pc.TP(new Vector2(position.x, position.y));
-                }
+
 
                 break;
             case CustomRoles.RiftMaker:
                 RiftMaker.OnShapeshift(pc, true);
-                break;
-            case CustomRoles.Bomber:
-                Logger.Info("Bomber explosion", "Boom");
-                CustomSoundsManager.RPCPlayCustomSoundAll("Boom");
-                foreach (PlayerControl tg in Main.AllPlayerControls)
-                {
-                    if (!tg.IsModClient()) tg.KillFlash();
-                    var pos = pc.Pos();
-                    var dis = Vector2.Distance(pos, tg.Pos());
-
-                    if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || (tg.Is(CustomRoleTypes.Impostor) && Options.ImpostorsSurviveBombs.GetBool()) || tg.inVent || tg.Is(CustomRoles.Pestilence)) continue;
-                    if (dis > Options.BomberRadius.GetFloat()) continue;
-                    if (tg.PlayerId == pc.PlayerId) continue;
-
-                    tg.Suicide(PlayerState.DeathReason.Bombed, pc);
-                }
-
-                _ = new LateTask(() =>
-                {
-                    var totalAlive = AllAlivePlayers.Length;
-                    if (Options.BomberDiesInExplosion.GetBool() && totalAlive > 1 && !GameStates.IsEnded)
-                    {
-                        pc.Suicide(PlayerState.DeathReason.Bombed);
-                    }
-
-                    Utils.NotifyRoles(ForceLoop: true);
-                }, 1.5f, "Bomber Suiscide");
                 break;
             case CustomRoles.Nuker:
                 Logger.Info("Nuker explosion", "Boom");

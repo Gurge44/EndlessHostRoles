@@ -180,10 +180,6 @@ class HudManagerPatch
                         if (!shapeshifting && curse)
                             __instance.AbilityButton?.OverrideText(GetString("WarlockShapeshiftButtonText"));
                         break;
-                    case CustomRoles.Miner:
-                        if (Options.UsePets.GetBool()) __instance.PetButton?.OverrideText(GetString("MinerTeleButtonText"));
-                        else __instance.AbilityButton?.OverrideText(GetString("MinerTeleButtonText"));
-                        break;
                     case CustomRoles.Pestilence:
                         __instance.KillButton?.OverrideText(GetString("KillButtonText"));
                         break;
@@ -213,9 +209,6 @@ class HudManagerPatch
                         break;
                     case CustomRoles.Farseer:
                         __instance.KillButton?.OverrideText(GetString("FarseerKillButtonText"));
-                        break;
-                    case CustomRoles.Puppeteer:
-                        __instance.KillButton?.OverrideText(GetString("PuppeteerOperateButtonText"));
                         break;
                     //case CustomRoles.NWitch:
                     //    __instance.KillButton.OverrideText($"{GetString("WitchControlButtonText")}");
@@ -308,8 +301,6 @@ class HudManagerPatch
                         __instance.KillButton?.OverrideText(GetString("BallLightningButtonText"));
                         break;
                     case CustomRoles.Sapper:
-                    case CustomRoles.Bomber:
-                    case CustomRoles.Nuker:
                         if (Options.UsePets.GetBool()) __instance.PetButton?.OverrideText(GetString("BomberShapeshiftText"));
                         else __instance.AbilityButton?.OverrideText(GetString("BomberShapeshiftText"));
                         break;
@@ -324,9 +315,6 @@ class HudManagerPatch
                             __instance.AbilityButton?.SetUsesRemaining((int)player.GetAbilityUseLimit());
                         }
 
-                        break;
-                    case CustomRoles.ImperiusCurse:
-                        __instance.AbilityButton?.OverrideText(GetString("ImperiusCurseButtonText"));
                         break;
                     case CustomRoles.QuickShooter:
                         if (Options.UsePets.GetBool())
