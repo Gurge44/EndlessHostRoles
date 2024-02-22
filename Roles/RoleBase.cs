@@ -79,7 +79,11 @@ namespace TOHE
             return true;
         }
 
-        public virtual void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
+        public virtual void OnReportDeadBody()
+        {
+        }
+
+        public virtual bool CheckReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target, PlayerControl killer)
         {
         }
 

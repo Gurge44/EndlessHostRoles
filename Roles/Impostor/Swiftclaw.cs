@@ -56,7 +56,7 @@ namespace TOHE.Roles.Impostor
             DashStart.Remove(pc.PlayerId);
         }
 
-        public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
+        public override void OnReportDeadBody()
         {
             foreach (var item in DashStart)
             {

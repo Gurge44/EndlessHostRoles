@@ -52,7 +52,7 @@ public class SerialKiller : RoleBase
         return true;
     }
 
-    public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
+    public override void OnReportDeadBody()
     {
         SuicideTimer = float.NaN;
         Timer = TimeLimit.GetInt();

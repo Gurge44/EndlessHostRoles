@@ -2,16 +2,16 @@ using System.Collections.Generic;
 
 namespace TOHE.Roles.Crewmate;
 
-public static class Crusader
+public class Crusader : RoleBase
 {
-    private static readonly int Id = 20050;
+    private const int Id = 20050;
     private static List<byte> playerIdList = [];
 
     public static OptionItem SkillLimitOpt;
     public static OptionItem SkillCooldown;
     public static OptionItem UsePet;
 
-    public static Dictionary<byte, float> CurrentKillCooldown = [];
+    public float CurrentKillCooldown;
 
     public static void SetupCustomOption()
     {
@@ -22,29 +22,33 @@ public static class Crusader
             .SetValueFormat(OptionFormat.Times);
         UsePet = Options.CreatePetUseSetting(Id + 12, CustomRoles.Crusader);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
+        CurrentKillCooldown = SkillCooldown.GetFloat();
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(SkillLimitOpt.GetInt());
-        CurrentKillCooldown.Add(playerId, SkillCooldown.GetFloat());
+        CurrentKillCooldown = SkillCooldown.GetFloat();
 
         if (!AmongUsClient.Instance.AmHost || (Options.UsePets.GetBool() && UsePet.GetBool())) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
 
-    public static bool CanUseKillButton(byte playerId)
-        => !Main.PlayerStates[playerId].IsDead
-           && (playerId.GetAbilityUseLimit() >= 1);
+    public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanUseKillButton(id) ? CurrentKillCooldown[id] : 0f;
-    public static string GetSkillLimit(byte playerId) => Utils.GetAbilityUseLimitDisplay(playerId);
-    public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    public override bool CanUseKillButton(PlayerControl pc)
+        => !Main.PlayerStates[pc.PlayerId].IsDead
+           && (pc.GetAbilityUseLimit() >= 1);
+
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanUseKillButton(Utils.GetPlayerById(id)) ? CurrentKillCooldown : 15f;
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer.GetAbilityUseLimit() <= 0) return false;
         Main.ForCrusade.Remove(target.PlayerId);

@@ -134,7 +134,7 @@ namespace TOHE.Roles.Impostor
             return cm.ChargePercent > 0 ? string.Format(Translator.GetString("ChronomancerPercent"), cm.ChargePercent) : string.Empty;
         }
 
-        public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
+        public override void OnReportDeadBody()
         {
             LastUpdate = Utils.TimeStamp;
             ChargePercent = 0;

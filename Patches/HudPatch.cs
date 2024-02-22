@@ -343,9 +343,6 @@ class HudManagerPatch
                     case CustomRoles.KB_Normal:
                         __instance.KillButton?.OverrideText(GetString("GamerButtonText"));
                         break;
-                    case CustomRoles.Cleaner:
-                        __instance.ReportButton?.OverrideText(GetString("CleanerReportButtonText"));
-                        break;
                     case CustomRoles.Medusa:
                         __instance.KillButton?.OverrideText(GetString("KillButtonText"));
                         __instance.ReportButton?.OverrideText(GetString("MedusaReportButtonText"));
@@ -455,12 +452,6 @@ class HudManagerPatch
                     //    break;
                     case CustomRoles.Amnesiac:
                         __instance.KillButton?.OverrideText(GetString("RememberButtonText"));
-                        break;
-                    case CustomRoles.DovesOfNeace:
-                        if (Options.UsePets.GetBool())
-                            __instance.PetButton.buttonLabelText.text = GetString("DovesOfNeaceVentButtonText");
-                        else
-                            __instance.AbilityButton.buttonLabelText.text = GetString("DovesOfNeaceVentButtonText");
                         break;
                     case CustomRoles.Monarch:
                         __instance.KillButton?.OverrideText(GetString("MonarchKillButtonText"));

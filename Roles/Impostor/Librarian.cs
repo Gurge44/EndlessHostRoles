@@ -110,10 +110,7 @@ namespace TOHE.Roles.Impostor
             if (librarian.RpcCheckAndMurder(reporter))
             {
                 sssh.Add(librarian.PlayerId);
-                _ = new LateTask(() =>
-                {
-                    sssh.Remove(librarian.PlayerId);
-                }, NameDuration.GetInt(), "Librarian sssh text");
+                _ = new LateTask(() => { sssh.Remove(librarian.PlayerId); }, NameDuration.GetInt(), "Librarian sssh text");
             }
 
             return false;
@@ -145,7 +142,7 @@ namespace TOHE.Roles.Impostor
             }
         }
 
-        public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
+        public override void OnReportDeadBody()
         {
             if (!IsEnable) return;
             IsInSilencingMode = (false, TimeStamp);

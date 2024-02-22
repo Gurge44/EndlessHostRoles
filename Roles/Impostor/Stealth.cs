@@ -53,6 +53,7 @@ namespace TOHE.Roles.Impostor
             {
                 return false;
             }
+
             var playersToDarken = FindPlayersInSameRoom(target);
             if (playersToDarken == null)
             {
@@ -64,6 +65,7 @@ namespace TOHE.Roles.Impostor
             {
                 playersToDarken = playersToDarken.Where(player => !player.Is(CustomRoleTypes.Impostor)).ToArray();
             }
+
             DarkenPlayers(playersToDarken);
             return true;
         }
@@ -76,6 +78,7 @@ namespace TOHE.Roles.Impostor
             {
                 return null;
             }
+
             var roomArea = room.roomArea;
             var roomName = room.RoomId;
             RpcDarken(roomName);
@@ -100,6 +103,7 @@ namespace TOHE.Roles.Impostor
             {
                 return;
             }
+
             // when you're darkening someone
             if (darkenedPlayers != null)
             {
@@ -113,7 +117,7 @@ namespace TOHE.Roles.Impostor
             }
         }
 
-        public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
+        public override void OnReportDeadBody()
         {
             if (!IsEnable) return;
             if (AmongUsClient.Instance.AmHost)
@@ -137,6 +141,7 @@ namespace TOHE.Roles.Impostor
             writer.Write((byte?)roomType ?? byte.MaxValue);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
+
         public static void ReceiveRPC(MessageReader reader)
         {
             var roomId = reader.ReadByte();
@@ -154,8 +159,10 @@ namespace TOHE.Roles.Impostor
                     Main.PlayerStates[player.PlayerId].IsBlackOut = false;
                     player.MarkDirtySettings();
                 }
+
                 darkenedPlayers = null;
             }
+
             darkenTimer = darkenDuration;
             RpcDarken(null);
             Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(playerIdList[0]), SpecifyTarget: Utils.GetPlayerById(playerIdList[0]));

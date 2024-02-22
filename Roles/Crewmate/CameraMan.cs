@@ -1,15 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 
 namespace TOHE.Roles.Crewmate
 {
     using static Options;
 
-    public static class CameraMan
+    public class CameraMan : RoleBase
     {
-        private static readonly int Id = 641600;
+        private const int Id = 641600;
         private static List<byte> playerIdList = [];
 
         public static OptionItem VentCooldown;
@@ -32,20 +31,20 @@ namespace TOHE.Roles.Crewmate
                 .SetValueFormat(OptionFormat.Times);
         }
 
-        public static void Init()
+        public override void Init()
         {
             playerIdList = [];
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
         }
 
-        public static bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void OnEnterVent(PlayerControl pc)
+        public override void OnEnterVent(PlayerControl pc, Vent vent)
         {
             if (pc == null) return;
             if (!pc.Is(CustomRoles.CameraMan)) return;
@@ -71,28 +70,6 @@ namespace TOHE.Roles.Crewmate
             {
                 if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
             }
-        }
-
-        public static string GetProgressText(byte playerId, bool comms)
-        {
-            var sb = new StringBuilder();
-
-            var taskState = Main.PlayerStates?[playerId].TaskState;
-            Color TextColor;
-            var TaskCompleteColor = Color.green;
-            var NonCompleteColor = Color.yellow;
-            var NormalColor = taskState.IsTaskFinished ? TaskCompleteColor : NonCompleteColor;
-            TextColor = comms ? Color.gray : NormalColor;
-            string Completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
-
-            Color TextColor1;
-            if (playerId.GetAbilityUseLimit() < 1) TextColor1 = Color.red;
-            else TextColor1 = Color.white;
-
-            sb.Append(Utils.ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
-            sb.Append(Utils.ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(playerId.GetAbilityUseLimit(), 1)}"));
-
-            return sb.ToString();
         }
     }
 }

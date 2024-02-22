@@ -79,6 +79,7 @@ internal class Eraser : RoleBase
                     PlayerToErase.Add(target.PlayerId);
             });
         }
+
         return false;
     }
 
@@ -115,7 +116,7 @@ internal class Eraser : RoleBase
         return true;
     }
 
-    public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
+    public override void OnReportDeadBody()
     {
         didVote = [];
     }
@@ -131,6 +132,7 @@ internal class Eraser : RoleBase
             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} 被擦除了", "Eraser");
             player.MarkDirtySettings();
         }
+
         PlayerToErase = [];
     }
 }

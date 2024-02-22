@@ -101,7 +101,7 @@ public class BountyHunter : RoleBase
         return base.OnCheckMurder(killer, target);
     }
 
-    public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
+    public override void OnReportDeadBody()
     {
         ChangeTimer = TargetChangeTime;
     }
@@ -194,6 +194,7 @@ public class BountyHunter : RoleBase
             }
         }
     }
+
     public static string GetTargetText(PlayerControl bounty, bool hud)
     {
         if (GameStates.IsMeeting) return string.Empty;
@@ -202,6 +203,7 @@ public class BountyHunter : RoleBase
         var targetId = bh.GetTarget(bounty);
         return targetId != 0xff ? $"<color=#00ffa5>{(hud ? GetString("BountyCurrentTarget") : GetString("Target"))}:</color> <b>{Main.AllPlayerNames[targetId].RemoveHtmlTags().Replace("\r\n", string.Empty)}</b>" : string.Empty;
     }
+
     public static string GetTargetArrow(PlayerControl seer, PlayerControl target = null)
     {
         if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;

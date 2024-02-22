@@ -261,7 +261,7 @@ namespace TOHE.Roles.Impostor
             }
         }
 
-        public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
+        public override void OnReportDeadBody()
         {
             EffectID = byte.MaxValue;
             isPositiveEffect = true;

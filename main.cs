@@ -34,18 +34,10 @@ public class Main : BasePlugin
     public const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     public const string DebugKeySalt = "59687b";
     public static ConfigEntry<string> DebugKeyInput { get; private set; }
-    public static readonly string MainMenuText = " ";
     public const string PluginGuid = "com.gurge44.toheplus";
     public const string PluginVersion = "2.4.0";
     public const string PluginDisplayVersion = "2.4.0";
     public static readonly string SupportedAUVersion = "2023.10.24";
-    public const int PluginCreate = 3;
-    public const bool Canary = false;
-
-    public static readonly bool ShowQQButton = true;
-    public static readonly string QQInviteUrl = "https://jq.qq.com/?_wv=1027&k=2RpigaN6";
-    public static readonly bool ShowDiscordButton = true;
-    public static readonly string DiscordInviteUrl = "https://discord.gg/hkk2p9ggv4";
 
     public Harmony Harmony { get; } = new Harmony(PluginGuid);
     public static Version version = Version.Parse(PluginVersion);
@@ -53,7 +45,6 @@ public class Main : BasePlugin
     public static bool hasArgumentException;
     public static string ExceptionMessage;
     public static bool ExceptionMessageIsShown;
-    public static bool AlreadyShowMsgBox;
     public static string credentialsText;
 
     public static NormalGameOptionsV07 NormalOptions => GameOptionsManager.Instance.currentNormalGameOptions;
@@ -105,7 +96,6 @@ public class Main : BasePlugin
     public static Dictionary<byte, (long START_TIMESTAMP, int TOTALCD)> AbilityCD = [];
     public static Dictionary<byte, float> AbilityUseLimit = [];
     public static List<byte> DontCancelVoteList = [];
-    private static GameData.PlayerInfo lastVotedPlayerInfo;
     public static string LastVotedPlayer;
     public static byte NimblePlayer = byte.MaxValue;
     public static byte PhysicistPlayer = byte.MaxValue;
@@ -166,7 +156,6 @@ public class Main : BasePlugin
     public static Dictionary<byte, PlayerControl> CursedPlayers = [];
     public static Dictionary<byte, bool> isCurseAndKill = [];
     public static Dictionary<byte, int> MafiaRevenged = [];
-    public static Dictionary<byte, int> RetributionistRevenged = [];
     public static Dictionary<byte, int> GuesserGuessed = [];
     public static Dictionary<byte, Vector2> TunnelerPositions = [];
     public static Dictionary<(byte, byte), bool> isDoused = [];
@@ -230,14 +219,14 @@ public class Main : BasePlugin
     public static Dictionary<byte, List<int>> GuessNumber = [];
 
     public static List<string> TName_Snacks_CN = ["冰激凌", "奶茶", "巧克力", "蛋糕", "甜甜圈", "可乐", "柠檬水", "冰糖葫芦", "果冻", "糖果", "牛奶", "抹茶", "烧仙草", "菠萝包", "布丁", "椰子冻", "曲奇", "红豆土司", "三彩团子", "艾草团子", "泡芙", "可丽饼", "桃酥", "麻薯", "鸡蛋仔", "马卡龙", "雪梅娘", "炒酸奶", "蛋挞", "松饼", "西米露", "奶冻", "奶酥", "可颂", "奶糖"];
+
+    // ReSharper disable once StringLiteralTypo
     public static List<string> TName_Snacks_EN = ["Ice cream", "Milk tea", "Chocolate", "Cake", "Donut", "Coke", "Lemonade", "Candied haws", "Jelly", "Candy", "Milk", "Matcha", "Burning Grass Jelly", "Pineapple Bun", "Pudding", "Coconut Jelly", "Cookies", "Red Bean Toast", "Three Color Dumplings", "Wormwood Dumplings", "Puffs", "Can be Crepe", "Peach Crisp", "Mochi", "Egg Waffle", "Macaron", "Snow Plum Niang", "Fried Yogurt", "Egg Tart", "Muffin", "Sago Dew", "panna cotta", "soufflé", "croissant", "toffee"];
+
+    // ReSharper disable once InconsistentNaming
     public static string Get_TName_Snacks => TranslationController.Instance.currentLanguage.languageID is SupportedLangs.SChinese or SupportedLangs.TChinese ? TName_Snacks_CN[IRandom.Instance.Next(0, TName_Snacks_CN.Count)] : TName_Snacks_EN[IRandom.Instance.Next(0, TName_Snacks_EN.Count)];
 
-    public static GameData.PlayerInfo LastVotedPlayerInfo
-    {
-        get => lastVotedPlayerInfo;
-        set => lastVotedPlayerInfo = value;
-    }
+    public static GameData.PlayerInfo LastVotedPlayerInfo { get; set; }
 
     public static MapNames CurrentMap => (MapNames)NormalOptions.MapId;
 
@@ -666,6 +655,7 @@ public enum CustomRoles
     Capitalism,
     Cantankerous,
     Chronomancer,
+    Cleaner,
     EvilDiviner, // Consigliere
     Consort,
     Councillor,
@@ -758,7 +748,6 @@ public enum CustomRoles
     CameraMan,
     CyberStar, // Celebrity
     Chameleon,
-    Cleaner,
     Cleanser,
     CopyCat,
     Bloodhound, // Coroner

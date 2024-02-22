@@ -77,7 +77,7 @@ class RepairSystemPatch
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 break;
             case CustomRoles.Alchemist when Alchemist.FixNextSabo:
-                Alchemist.RepairSystem(systemType, amount);
+                Alchemist.RepairSystem(player, systemType, amount);
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 break;
         }

@@ -86,17 +86,20 @@ namespace TOHE.Roles.Impostor
                         b = true;
                         continue;
                     }
+
                     tg.Suicide(PlayerState.DeathReason.Bombed, pc);
                 }
+
                 Bombs.Remove(bomb.Key);
                 pc.Notify(GetString("MagicianBombExploded"));
-                if (b) _ = new LateTask(() =>
-                {
-                    if (!GameStates.IsEnded)
+                if (b)
+                    _ = new LateTask(() =>
                     {
-                        pc.Suicide(PlayerState.DeathReason.Bombed);
-                    }
-                }, 0.5f, "Sapper Bomb Suicide");
+                        if (!GameStates.IsEnded)
+                        {
+                            pc.Suicide(PlayerState.DeathReason.Bombed);
+                        }
+                    }, 0.5f, "Sapper Bomb Suicide");
             }
 
             var sb = new StringBuilder();
@@ -104,10 +107,11 @@ namespace TOHE.Roles.Impostor
             {
                 sb.Append(string.Format(GetString("MagicianBombExlodesIn"), Delay.GetInt() - (TimeStamp - x) + 1));
             }
+
             pc.Notify(sb.ToString());
         }
 
-        public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
+        public override void OnReportDeadBody()
         {
             Bombs.Clear();
         }

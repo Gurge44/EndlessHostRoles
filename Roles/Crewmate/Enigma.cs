@@ -5,9 +5,9 @@ using static TOHE.Translator;
 
 namespace TOHE.Roles.Crewmate
 {
-    public class Enigma
+    public class Enigma : RoleBase
     {
-        private static readonly int Id = 8460;
+        private const int Id = 8460;
         private static List<byte> playerIdList = [];
         private static Dictionary<byte, List<EnigmaClue>> ShownClues = [];
 
@@ -66,19 +66,22 @@ namespace TOHE.Roles.Crewmate
 
             OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.Enigma);
         }
-        public static void Init()
+
+        public override void Init()
         {
             playerIdList = [];
             ShownClues = [];
             MsgToSend = [];
             MsgToSendTitle = [];
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
             ShownClues.Add(playerId, []);
         }
-        public static bool IsEnable => playerIdList.Count > 0;
+
+        public override bool IsEnable => playerIdList.Count > 0;
 
         public static void OnReportDeadBody(PlayerControl player, GameData.PlayerInfo targetInfo)
         {
@@ -90,11 +93,9 @@ namespace TOHE.Roles.Crewmate
             PlayerControl killer = target.GetRealKiller();
             if (killer == null) return;
 
-            string title;
-            string msg;
             var rd = IRandom.Instance;
 
-            foreach (byte playerId in playerIdList.ToArray())
+            foreach (byte playerId in playerIdList)
             {
                 if (!EnigmaGetCluesWithoutReporting.GetBool() && playerId != player.PlayerId) continue;
 
@@ -119,34 +120,28 @@ namespace TOHE.Roles.Crewmate
                     stage = 1;
 
                 var clues = EnigmaClues.Where(a => a.ClueStage <= stage &&
-                    !ShownClues[playerId].Any(b => b.EnigmaClueType == a.EnigmaClueType && b.ClueStage == a.ClueStage))
+                                                   !ShownClues[playerId].Any(b => b.EnigmaClueType == a.EnigmaClueType && b.ClueStage == a.ClueStage))
                     .ToList();
                 if (clues.Count == 0) continue;
                 if (showStageClue && clues.Any(a => a.ClueStage == stage))
                     clues = clues.Where(a => a.ClueStage == stage).ToList();
 
                 EnigmaClue clue = clues[rd.Next(0, clues.Count - 1)];
-                title = clue.Title;
-                msg = clue.GetMessage(killer, showStageClue);
+                string title = clue.Title;
+                string msg = clue.GetMessage(killer, showStageClue);
 
                 ShownClues[playerId].Add(clue);
 
-                if (MsgToSend.ContainsKey(playerId))
-                    MsgToSend[playerId] = msg;
-                else
-                    MsgToSend.Add(playerId, msg);
+                MsgToSend[playerId] = msg;
 
-                if (MsgToSendTitle.ContainsKey(playerId))
-                    MsgToSendTitle[playerId] = title;
-                else
-                    MsgToSendTitle.Add(playerId, title);
+                MsgToSendTitle[playerId] = title;
             }
         }
 
         private abstract class EnigmaClue
         {
-            public int ClueStage { get; set; }
-            public EnigmaClueType EnigmaClueType { get; set; }
+            public int ClueStage { get; init; }
+            public EnigmaClueType EnigmaClueType { get; init; }
 
             public abstract string Title { get; }
             public abstract string GetMessage(PlayerControl killer, bool showStageClue);
@@ -161,18 +156,13 @@ namespace TOHE.Roles.Crewmate
                 if (killerOutfit.HatId == "hat_EmptyHat")
                     return GetString("EnigmaClueHat2");
 
-                switch (ClueStage)
+                return ClueStage switch
                 {
-                    case 1:
-                    case 2:
-                        return GetString("EnigmaClueHat1");
-                    case 3:
-                        if (showStageClue)
-                            return string.Format(GetString("EnigmaClueHat3"), killerOutfit.HatId);
-                        return GetString("EnigmaClueHat1");
-                }
-
-                return null;
+                    1 => GetString("EnigmaClueHat1"),
+                    2 => GetString("EnigmaClueHat1"),
+                    3 => showStageClue ? string.Format(GetString("EnigmaClueHat3"), killerOutfit.HatId) : GetString("EnigmaClueHat1"),
+                    _ => null
+                };
             }
         }
         private class EnigmaVisorClue : EnigmaClue
@@ -185,18 +175,13 @@ namespace TOHE.Roles.Crewmate
                 if (killerOutfit.VisorId == "visor_EmptyVisor")
                     return GetString("EnigmaClueVisor2");
 
-                switch (ClueStage)
+                return ClueStage switch
                 {
-                    case 1:
-                    case 2:
-                        return GetString("EnigmaClueVisor1");
-                    case 3:
-                        if (showStageClue)
-                            return string.Format(GetString("EnigmaClueVisor3"), killerOutfit.VisorId);
-                        return GetString("EnigmaClueVisor1");
-                }
-
-                return null;
+                    1 => GetString("EnigmaClueVisor1"),
+                    2 => GetString("EnigmaClueVisor1"),
+                    3 => showStageClue ? string.Format(GetString("EnigmaClueVisor3"), killerOutfit.VisorId) : GetString("EnigmaClueVisor1"),
+                    _ => null
+                };
             }
         }
         private class EnigmaSkinClue : EnigmaClue
@@ -209,18 +194,13 @@ namespace TOHE.Roles.Crewmate
                 if (killerOutfit.SkinId == "skin_EmptySkin")
                     return GetString("EnigmaClueSkin2");
 
-                switch (ClueStage)
+                return ClueStage switch
                 {
-                    case 1:
-                    case 2:
-                        return GetString("EnigmaClueSkin1");
-                    case 3:
-                        if (showStageClue)
-                            return string.Format(GetString("EnigmaClueSkin3"), killerOutfit.SkinId);
-                        return GetString("EnigmaClueSkin1");
-                }
-
-                return null;
+                    1 => GetString("EnigmaClueSkin1"),
+                    2 => GetString("EnigmaClueSkin1"),
+                    3 => showStageClue ? string.Format(GetString("EnigmaClueSkin3"), killerOutfit.SkinId) : GetString("EnigmaClueSkin1"),
+                    _ => null
+                };
             }
         }
         private class EnigmaPetClue : EnigmaClue
@@ -233,18 +213,13 @@ namespace TOHE.Roles.Crewmate
                 if (killerOutfit.PetId == "pet_EmptyPet")
                     return GetString("EnigmaCluePet2");
 
-                switch (ClueStage)
+                return ClueStage switch
                 {
-                    case 1:
-                    case 2:
-                        return GetString("EnigmaCluePet1");
-                    case 3:
-                        if (showStageClue)
-                            return string.Format(GetString("EnigmaCluePet3"), killerOutfit.PetId);
-                        return GetString("EnigmaCluePet1");
-                }
-
-                return null;
+                    1 => GetString("EnigmaCluePet1"),
+                    2 => GetString("EnigmaCluePet1"),
+                    3 => showStageClue ? string.Format(GetString("EnigmaCluePet3"), killerOutfit.PetId) : GetString("EnigmaCluePet1"),
+                    _ => null
+                };
             }
         }
         private class EnigmaNameClue : EnigmaClue
@@ -278,9 +253,7 @@ namespace TOHE.Roles.Crewmate
             {
                 string randomLetter = GetRandomLetter(killer, letter);
                 int random = rd.Next(1, 2);
-                if (random == 1)
-                    return string.Format(GetString("EnigmaClueName1"), letter, randomLetter);
-                return string.Format(GetString("EnigmaClueName1"), randomLetter, letter);
+                return random == 1 ? string.Format(GetString("EnigmaClueName1"), letter, randomLetter) : string.Format(GetString("EnigmaClueName1"), randomLetter, letter);
             }
 
             private static string GetStage2Clue(string letter)
@@ -319,20 +292,14 @@ namespace TOHE.Roles.Crewmate
             {
                 int length = killer.GetRealName().Length;
 
-                switch (ClueStage)
+                return ClueStage switch
                 {
-                    case 1:
-                        return GetStage1Clue(length);
-                    case 2:
-                        if (showStageClue) return GetStage2Clue(length);
-                        return GetStage1Clue(length);
-                    case 3:
-                        if (showStageClue) return GetStage3Clue(length);
-                        if (rd.Next(0, 100) < EnigmaClueStage2Probability.GetInt()) return GetStage2Clue(length);
-                        return GetStage1Clue(length);
-                    default:
-                        return null;
-                }
+                    1 => GetStage1Clue(length),
+                    2 => showStageClue ? GetStage2Clue(length) : GetStage1Clue(length),
+                    3 when showStageClue => GetStage3Clue(length),
+                    3 => rd.Next(0, 100) < EnigmaClueStage2Probability.GetInt() ? GetStage2Clue(length) : GetStage1Clue(length),
+                    _ => null
+                };
             }
 
             private string GetStage1Clue(int length)
@@ -370,17 +337,13 @@ namespace TOHE.Roles.Crewmate
             {
                 var killerOutfit = Camouflage.PlayerSkins[killer.PlayerId];
 
-                switch (ClueStage)
+                return ClueStage switch
                 {
-                    case 1:
-                    case 2:
-                        return GetStage1Clue(killerOutfit.ColorId);
-                    case 3:
-                        if (showStageClue) return string.Format(GetString("EnigmaClueColor3"), killer.Data.ColorName);
-                        return GetStage1Clue(killerOutfit.ColorId);
-                }
-
-                return GetStage1Clue(killerOutfit.ColorId);
+                    1 => GetStage1Clue(killerOutfit.ColorId),
+                    2 => GetStage1Clue(killerOutfit.ColorId),
+                    3 => showStageClue ? string.Format(GetString("EnigmaClueColor3"), killer.Data.ColorName) : GetStage1Clue(killerOutfit.ColorId),
+                    _ => GetStage1Clue(killerOutfit.ColorId)
+                };
             }
 
             private static string GetStage1Clue(int colorId)
@@ -412,13 +375,7 @@ namespace TOHE.Roles.Crewmate
 
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
-                if (killer.inVent)
-                    return GetString("EnigmaClueStatus1");
-                if (killer.onLadder)
-                    return GetString("EnigmaClueStatus2");
-                if (killer.Data.IsDead)
-                    return GetString("EnigmaClueStatus3");
-                return GetString("EnigmaClueStatus4");
+                return killer.inVent ? GetString("EnigmaClueStatus1") : killer.onLadder ? GetString("EnigmaClueStatus2") : GetString(killer.Data.IsDead ? "EnigmaClueStatus3" : "EnigmaClueStatus4");
             }
         }
         private class EnigmaKillerRoleClue : EnigmaClue
@@ -428,20 +385,13 @@ namespace TOHE.Roles.Crewmate
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
                 CustomRoles role = killer.GetCustomRole();
-                switch (ClueStage)
+                return ClueStage switch
                 {
-                    case 1:
-                        if (role.IsImpostor()) return GetString("EnigmaClueRole1");
-                        if (role.IsNeutral()) return GetString("EnigmaClueRole2");
-                        return GetString("EnigmaClueRole3");
-                    case 2:
-                        if (showStageClue) return string.Format(GetString("EnigmaClueRole4"), killer.GetDisplayRoleName());
-                        if (role.IsImpostor()) return GetString("EnigmaClueRole1");
-                        if (role.IsNeutral()) return GetString("EnigmaClueRole2");
-                        return GetString("EnigmaClueRole3");
-                }
-
-                return null;
+                    1 => role.IsImpostor() ? GetString("EnigmaClueRole1") : GetString(role.IsNeutral() ? "EnigmaClueRole2" : "EnigmaClueRole3"),
+                    2 when showStageClue => string.Format(GetString("EnigmaClueRole4"), killer.GetDisplayRoleName()),
+                    2 => role.IsImpostor() ? GetString("EnigmaClueRole1") : GetString(role.IsNeutral() ? "EnigmaClueRole2" : "EnigmaClueRole3"),
+                    _ => null
+                };
             }
         }
         private class EnigmaKillerLevelClue : EnigmaClue
@@ -454,26 +404,19 @@ namespace TOHE.Roles.Crewmate
             {
                 int level = (int)killer.Data.PlayerLevel;
 
-                switch (ClueStage)
+                return ClueStage switch
                 {
-                    case 1:
-                        return GetStage1Clue(level);
-                    case 2:
-                        if (showStageClue) return GetStage2Clue(level);
-                        return GetStage1Clue(level);
-                    case 3:
-                        if (showStageClue) return GetStage3Clue(level);
-                        if (rd.Next(0, 100) < EnigmaClueStage2Probability.GetInt()) return GetStage2Clue(level);
-                        return GetStage1Clue(level);
-                }
-
-                return null;
+                    1 => GetStage1Clue(level),
+                    2 => showStageClue ? GetStage2Clue(level) : GetStage1Clue(level),
+                    3 when showStageClue => GetStage3Clue(level),
+                    3 => rd.Next(0, 100) < EnigmaClueStage2Probability.GetInt() ? GetStage2Clue(level) : GetStage1Clue(level),
+                    _ => null
+                };
             }
 
             private static string GetStage1Clue(int level)
             {
-                if (level > 50) return GetString("EnigmaClueLevel1");
-                return GetString("EnigmaClueLevel2");
+                return GetString(level > 50 ? "EnigmaClueLevel1" : "EnigmaClueLevel2");
             }
 
             private static string GetStage2Clue(int level)
@@ -494,8 +437,8 @@ namespace TOHE.Roles.Crewmate
 
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
-                string friendcode = killer.Data.FriendCode;
-                return string.Format(GetString("EnigmaClueFriendCode"), friendcode);
+                string friendCode = killer.Data.FriendCode;
+                return string.Format(GetString("EnigmaClueFriendCode"), friendCode);
             }
         }
 

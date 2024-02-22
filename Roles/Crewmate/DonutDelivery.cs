@@ -4,9 +4,9 @@ using static TOHE.Translator;
 
 namespace TOHE.Roles.Crewmate
 {
-    public static class DonutDelivery
+    public class DonutDelivery : RoleBase
     {
-        private static readonly int Id = 642700;
+        private const int Id = 642700;
         private static List<byte> playerIdList = [];
 
         private static OptionItem CD;
@@ -25,15 +25,13 @@ namespace TOHE.Roles.Crewmate
             UsePet = CreatePetUseSetting(Id + 13, CustomRoles.DonutDelivery);
         }
 
-        public static void Init()
+        public override void Init()
         {
             playerIdList = [];
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
-            if (CurrentGameMode == CustomGameMode.MoveAndStop) return;
-
             playerIdList.Add(playerId);
 
             playerId.SetAbilityUseLimit(UseLimit.GetInt());
@@ -43,22 +41,16 @@ namespace TOHE.Roles.Crewmate
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public static bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void SetKillCooldown(byte playerId)
+        public override void SetKillCooldown(byte playerId)
         {
-            if (CurrentGameMode == CustomGameMode.MoveAndStop)
-            {
-                Main.AllPlayerKillCooldown[playerId] = MoveAndStopManager.RoundTime + 10;
-                return;
-            }
-
             Main.AllPlayerKillCooldown[playerId] = playerId.GetAbilityUseLimit() > 0 ? CD.GetFloat() : 300f;
         }
 
-        public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (CurrentGameMode == CustomGameMode.MoveAndStop || !IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0 || !killer.Is(CustomRoles.DonutDelivery)) return;
+            if (!IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0) return true;
 
             killer.RpcRemoveAbilityUse();
 
@@ -67,6 +59,8 @@ namespace TOHE.Roles.Crewmate
             RandomNotifyTarget(target);
 
             killer.SetKillCooldown();
+
+            return false;
         }
 
         public static void RandomNotifyTarget(PlayerControl target)
@@ -74,7 +68,5 @@ namespace TOHE.Roles.Crewmate
             var num2 = IRandom.Instance.Next(0, 15);
             target.Notify(GetString($"DonutGot-{num2}"));
         }
-
-        public static string GetProgressText(byte id) => $"<color=#777777>-</color> <color=#ffffff>{id.GetAbilityUseLimit()}</color>";
     }
 }

@@ -86,6 +86,7 @@ namespace TOHE.Roles.Impostor
                     ManipulateDelays.Remove(x.Key);
                     continue;
                 }
+
                 if (x.Value + Delay.GetInt() < TimeStamp)
                 {
                     ManipulateDelays.Remove(x.Key);
@@ -111,6 +112,7 @@ namespace TOHE.Roles.Impostor
                     TempKCDs.Remove(x.Key);
                     continue;
                 }
+
                 if (x.Value + TimeLimit.GetInt() < TimeStamp)
                 {
                     ManipulatedPlayers.Remove(x.Key);
@@ -125,7 +127,7 @@ namespace TOHE.Roles.Impostor
             }
         }
 
-        public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
+        public override void OnReportDeadBody()
         {
             if (!IsEnable) return;
             foreach (var x in ManipulatedPlayers)
@@ -133,6 +135,7 @@ namespace TOHE.Roles.Impostor
                 var pc = GetPlayerById(x.Key);
                 if (pc.IsAlive()) pc.Suicide(realKiller: Mastermind_);
             }
+
             ManipulateDelays.Clear();
             ManipulatedPlayers.Clear();
             TempKCDs.Clear();

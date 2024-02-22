@@ -102,7 +102,7 @@ class CheckMurderPatch
         if (target.Is(CustomRoles.Detour))
         {
             var tempTarget = target;
-            target = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId && x.PlayerId != killer.PlayerId).OrderBy(x => Vector2.Distance(x.Pos(), target.Pos())).FirstOrDefault();
+            target = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId && x.PlayerId != killer.PlayerId).MinBy(x => Vector2.Distance(x.Pos(), target.Pos()));
             Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
         }
 
@@ -734,8 +734,6 @@ class CheckMurderPatch
                 return false;
             case CustomRoles.Ricochet when !Ricochet.OnKillAttempt(killer, target):
                 return false;
-            case CustomRoles.Addict when Addict.IsImmortal(target):
-                return false;
             case CustomRoles.Luckey:
                 var rd = IRandom.Instance;
                 if (rd.Next(0, 100) < Options.LuckeyProbability.GetInt())
@@ -828,27 +826,10 @@ class CheckMurderPatch
                 break;
         }
 
-        if (killer.PlayerId != target.PlayerId)
+        // Bodyguard
+        if (killer.PlayerId != target.PlayerId && (from pc1 in Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId) let pos1 = target.Pos() let dis = Vector2.Distance(pos, pc.Pos()) where !(dis > Options.BodyguardProtectRadius.GetFloat()) select pc).Any(pc => pc.Is(CustomRoles.Bodyguard) && !Bodyguard.OnCheckMurderAsTarget(pc, killer)))
         {
-            foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId).ToArray())
-            {
-                var pos = target.Pos();
-                var dis = Vector2.Distance(pos, pc.Pos());
-                if (dis > Options.BodyguardProtectRadius.GetFloat()) continue;
-                if (pc.Is(CustomRoles.Bodyguard))
-                {
-                    if (pc.Is(CustomRoles.Madmate) && killer.Is(Team.Impostor))
-                        Logger.Info($"{pc.GetRealName()} is a madmate, so they chose to ignore the murder scene", "Bodyguard");
-                    else
-                    {
-                        if (Options.BodyguardKillsKiller.GetBool()) pc.Kill(killer);
-                        else killer.SetKillCooldown();
-                        pc.Suicide(PlayerState.DeathReason.Sacrifice, killer);
-                        Logger.Info($"{pc.GetRealName()} stood up and died for {killer.GetRealName()}", "Bodyguard");
-                        return false;
-                    }
-                }
-            }
+            return false;
         }
 
         if (Main.ShieldPlayer != byte.MaxValue && Main.ShieldPlayer == target.PlayerId && IsAllAlive)
@@ -1373,12 +1354,10 @@ class ReportDeadBodyPatch
 
                 if (!Librarian.OnAnyoneReport(__instance)) return false;
 
+                if (!Main.PlayerStates[__instance.PlayerId].Role.CheckReportDeadBody(__instance, target, killer)) return false;
+
                 switch (__instance.GetCustomRole())
                 {
-                    case CustomRoles.Bloodhound:
-                        if (killer != null) Bloodhound.OnReportDeadBody(__instance, target, killer);
-                        else __instance.Notify(GetString("BloodhoundNoTrack"));
-                        return false;
                     case CustomRoles.Vulture:
                         long now = TimeStamp;
                         if ((Vulture.AbilityLeftInRound[__instance.PlayerId] > 0) && (now - Vulture.LastReport[__instance.PlayerId] > (long)Vulture.VultureReportCD.GetFloat()))
@@ -1402,13 +1381,6 @@ class ReportDeadBodyPatch
                         }
 
                         break;
-                    case CustomRoles.Cleaner when Main.KillTimers[__instance.PlayerId] > 0:
-                        Main.CleanerBodies.Remove(target.PlayerId);
-                        Main.CleanerBodies.Add(target.PlayerId);
-                        __instance.Notify(GetString("CleanerCleanBody"));
-                        __instance.SetKillCooldown(Options.KillCooldownAfterCleaning.GetFloat());
-                        Logger.Info($"{__instance.GetRealName()} cleans up the corpse of {target.PlayerName}", "Cleaner");
-                        return false;
                     case CustomRoles.Medusa when Main.KillTimers[__instance.PlayerId] > 0:
                         Main.MedusaBodies.Remove(target.PlayerId);
                         Main.MedusaBodies.Add(target.PlayerId);
@@ -1477,7 +1449,7 @@ class ReportDeadBodyPatch
                 }
 
                 Options.UsedButtonCount++;
-                if (Options.SyncedButtonCount.GetFloat() == Options.UsedButtonCount)
+                if (Math.Abs(Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) < 0.5f)
                 {
                     Logger.Info("使用可能ボタン回数が最大数に達しました。", "ReportDeadBody");
                 }
@@ -1517,16 +1489,7 @@ class ReportDeadBodyPatch
             {
                 if (player.Is(CustomRoles.Detective) && player.PlayerId != target.PlayerId)
                 {
-                    string msg;
-                    msg = string.Format(GetString("DetectiveNoticeVictim"), tpc.GetRealName(), tpc.GetDisplayRoleName());
-                    if (Options.DetectiveCanknowKiller.GetBool())
-                    {
-                        var realKiller = tpc.GetRealKiller();
-                        if (realKiller == null) msg += "；" + GetString("DetectiveNoticeKillerNotFound");
-                        else msg += "；" + string.Format(GetString("DetectiveNoticeKiller"), realKiller.GetDisplayRoleName());
-                    }
-
-                    Main.DetectiveNotify.Add(player.PlayerId, msg);
+                    Detective.OnReportDeadBody(player, target.Object);
                 }
                 else if (player.Is(CustomRoles.Sleuth) && player.PlayerId != target.PlayerId)
                 {
@@ -1538,12 +1501,14 @@ class ReportDeadBodyPatch
             if (Main.InfectedBodies.Contains(target.PlayerId)) Virus.OnKilledBodyReport(player);
         }
 
+        Enigma.OnReportDeadBody(player, target);
+
         Main.LastVotedPlayerInfo = null;
         Main.AllKillers.Clear();
         Main.ArsonistTimer.Clear();
         if (Farseer.isEnable) Main.FarseerTimer.Clear();
-        Main.PuppeteerList.Clear();
-        Main.PuppeteerDelayList.Clear();
+        Puppeteer.PuppeteerList.Clear();
+        Puppeteer.PuppeteerDelayList.Clear();
         Main.TaglockedList.Clear();
         Main.GuesserGuessed.Clear();
         Main.VeteranInProtect.Clear();
@@ -3356,22 +3321,20 @@ class PlayerControlCompleteTaskPatch
 
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] uint idx)
     {
-        var pc = __instance;
+        if (__instance != null && __instance.IsAlive()) Benefactor.OnTaskComplete(__instance, __instance.myTasks[(Index)Convert.ToInt32(idx)] as PlayerTask);
 
-        if (pc != null && pc.IsAlive()) Benefactor.OnTaskComplete(pc, pc.myTasks[(Index)Convert.ToInt32(idx)] as PlayerTask);
+        Snitch.OnCompleteTask(__instance);
 
-        Snitch.OnCompleteTask(pc);
-
-        var isTaskFinish = pc.GetTaskState().IsTaskFinished;
-        if (isTaskFinish && pc.Is(CustomRoles.Snitch) && pc.Is(CustomRoles.Madmate))
+        var isTaskFinish = __instance.GetTaskState().IsTaskFinished;
+        if (isTaskFinish && __instance.Is(CustomRoles.Snitch) && __instance.Is(CustomRoles.Madmate))
         {
             foreach (var impostor in Main.AllAlivePlayerControls.Where(pc => pc.Is(CustomRoleTypes.Impostor)).ToArray())
-                NameColorManager.Add(impostor.PlayerId, pc.PlayerId, "#ff1919");
-            NotifyRoles(SpecifySeer: pc, ForceLoop: true);
+                NameColorManager.Add(impostor.PlayerId, __instance.PlayerId, "#ff1919");
+            NotifyRoles(SpecifySeer: __instance, ForceLoop: true);
         }
 
         if (isTaskFinish &&
-            pc.GetCustomRole() is CustomRoles.Doctor or CustomRoles.Sunnyboy or CustomRoles.SpeedBooster)
+            __instance.GetCustomRole() is CustomRoles.Doctor or CustomRoles.Sunnyboy or CustomRoles.SpeedBooster)
         {
             // Execute CustomSyncAllSettings at the end of the task only for matches with sunnyboy, speed booster, or doctor.
             MarkEveryoneDirtySettings();

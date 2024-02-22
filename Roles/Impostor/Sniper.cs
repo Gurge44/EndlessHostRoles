@@ -34,6 +34,7 @@ public class Sniper : RoleBase
     private static bool precisionShooting;
     private static bool AimAssist;
     private static bool AimAssistOneshot;
+
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Sniper);
@@ -97,6 +98,7 @@ public class Sniper : RoleBase
         {
             writer.Write(sn);
         }
+
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
@@ -120,6 +122,7 @@ public class Sniper : RoleBase
         {
             canUse = true;
         }
+
         if (CanKillWithBullets.GetBool())
         {
             canUse = true;
@@ -159,8 +162,8 @@ public class Sniper : RoleBase
                 targets.Add(target, err);
             }
         }
-        return targets;
 
+        return targets;
     }
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
@@ -277,7 +280,7 @@ public class Sniper : RoleBase
         }
     }
 
-    public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
+    public override void OnReportDeadBody()
     {
         meetingReset = true;
     }
@@ -298,6 +301,7 @@ public class Sniper : RoleBase
 
         return false;
     }
+
     public static string GetShotNotify(byte seerId)
     {
         if (AimAssist && IsThisRole(seerId))
@@ -323,6 +327,7 @@ public class Sniper : RoleBase
                 }
             }
         }
+
         return string.Empty;
     }
 

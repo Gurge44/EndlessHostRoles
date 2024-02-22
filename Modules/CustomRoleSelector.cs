@@ -87,7 +87,7 @@ internal class CustomRoleSelector
                 RoleResult = [];
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
-                    RoleResult.Add(pc, pc.IsModClient() ? CustomRoles.DonutDelivery : CustomRoles.Tasker);
+                    RoleResult.Add(pc, CustomRoles.Tasker);
                 }
                 return;
             case CustomGameMode.HotPotato:

@@ -1141,9 +1141,6 @@ static class ExtendedPlayerControl
             case CustomRoles.Medusa:
                 Medusa.SetKillCooldown(player.PlayerId);
                 break;
-            case CustomRoles.Cleaner:
-                Main.AllPlayerKillCooldown[player.PlayerId] = Options.CleanerKillCooldown.GetFloat();
-                break;
             case CustomRoles.Medic:
                 Medic.SetKillCooldown(player.PlayerId);
                 break;

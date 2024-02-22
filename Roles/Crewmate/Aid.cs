@@ -3,9 +3,9 @@ using System.Text;
 
 namespace TOHE.Roles.Crewmate
 {
-    public static class Aid
+    public class Aid : RoleBase
     {
-        private static readonly int Id = 640200;
+        private const int Id = 640200;
         private static List<byte> playerIdList = [];
         public static Dictionary<byte, long> ShieldedPlayers = [];
 
@@ -29,13 +29,13 @@ namespace TOHE.Roles.Crewmate
             UsePet = Options.CreatePetUseSetting(Id + 13, CustomRoles.Aid);
         }
 
-        public static void Init()
+        public override void Init()
         {
             playerIdList = [];
             ShieldedPlayers = [];
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
@@ -45,10 +45,10 @@ namespace TOHE.Roles.Crewmate
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public static void SetKillCooldown(byte playerId) => Main.AllPlayerKillCooldown[playerId] = AidCD.GetInt();
-        public static bool IsEnable => playerIdList.Count > 0;
+        public override void SetKillCooldown(byte playerId) => Main.AllPlayerKillCooldown[playerId] = AidCD.GetInt();
+        public override bool IsEnable => playerIdList.Count > 0;
 
-        public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer == null) return false;
             if (target == null) return false;
@@ -65,7 +65,7 @@ namespace TOHE.Roles.Crewmate
             return false;
         }
 
-        public static void OnFixedUpdate(PlayerControl pc)
+        public override void OnFixedUpdate(PlayerControl pc)
         {
             if (pc == null || !pc.Is(CustomRoles.Aid) || ShieldedPlayers.Count == 0) return;
 
@@ -86,7 +86,7 @@ namespace TOHE.Roles.Crewmate
             }
         }
 
-        public static string GetProgressText(byte playerId, bool comms)
+        public override string GetProgressText(byte playerId, bool comms)
         {
             if (Utils.GetPlayerById(playerId) == null) return string.Empty;
 

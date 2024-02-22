@@ -48,6 +48,7 @@ internal class QuickShooter : RoleBase
         writer.Write(ShotLimit[playerId]);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader)
     {
         byte QuickShooterId = reader.ReadByte();
@@ -77,7 +78,7 @@ internal class QuickShooter : RoleBase
         Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     }
 
-    public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
+    public override void OnReportDeadBody()
     {
         Dictionary<byte, int> NewSL = [];
         foreach (var sl in ShotLimit)

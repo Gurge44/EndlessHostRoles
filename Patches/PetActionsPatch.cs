@@ -222,33 +222,6 @@ class ExternalRpcPetPatch
                 }
 
                 break;
-            case CustomRoles.DovesOfNeace:
-                if (pc.GetAbilityUseLimit() < 1)
-                {
-                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
-                        pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
-                    break;
-                }
-
-                pc.RpcRemoveAbilityUse();
-                //pc.RpcGuardAndKill(pc);
-                AllAlivePlayers.Where(x =>
-                    pc.Is(CustomRoles.Madmate) ? (x.CanUseKillButton() && x.GetCustomRole().IsCrewmate()) : x.CanUseKillButton()
-                ).Do(x =>
-                {
-                    x.RPCPlayCustomSound("Dove");
-                    x.ResetKillCooldown();
-                    x.SetKillCooldown();
-                    if (x.Is(CustomRoles.SerialKiller))
-                    {
-                        SerialKiller.OnReportDeadBody();
-                    }
-
-                    x.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.DovesOfNeace), GetString("DovesOfNeaceSkillNotify")));
-                });
-                pc.RPCPlayCustomSound("Dove");
-                pc.Notify(string.Format(GetString("DovesOfNeaceOnGuard"), pc.GetAbilityUseLimit()));
-                break;
             case CustomRoles.Alchemist:
                 Alchemist.OnEnterVent(pc, 0, true);
                 break;

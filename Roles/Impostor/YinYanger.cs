@@ -98,7 +98,7 @@ namespace TOHE.Roles.Impostor
             return false;
         }
 
-        public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
+        public override void OnReportDeadBody()
         {
             if (!IsEnable) return;
             YinYangedPlayers.Clear();

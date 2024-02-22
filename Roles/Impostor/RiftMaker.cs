@@ -54,6 +54,7 @@ namespace TOHE.Roles.Impostor
                 Marks.Clear();
                 return;
             }
+
             if (LastTP + 5 > TimeStamp) return;
 
             Vector2 position = player.transform.position;
@@ -88,7 +89,7 @@ namespace TOHE.Roles.Impostor
             }
         }
 
-        public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
+        public override void OnReportDeadBody()
         {
             LastTP = TimeStamp;
         }
@@ -98,10 +99,7 @@ namespace TOHE.Roles.Impostor
             Marks.Clear();
             player.Notify(GetString("MarksCleared"));
 
-            _ = new LateTask(() =>
-            {
-                player.MyPhysics?.RpcBootFromVent(ventId);
-            }, 0.5f, "RiftMaker-ResetMarks.RpcBootFromVent");
+            _ = new LateTask(() => { player.MyPhysics?.RpcBootFromVent(ventId); }, 0.5f, "RiftMaker-ResetMarks.RpcBootFromVent");
         }
 
         public override bool OnShapeshift(PlayerControl player, PlayerControl target, bool shapeshifting)

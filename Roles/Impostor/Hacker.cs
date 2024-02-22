@@ -59,7 +59,7 @@ public class Hacker : RoleBase
         }
     }
 
-    public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target) => DeadBodyList = [];
+    public override void OnReportDeadBody() => DeadBodyList = [];
 
     public static void AddDeadBody(PlayerControl target)
     {

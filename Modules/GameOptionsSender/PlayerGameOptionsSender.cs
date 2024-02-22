@@ -274,10 +274,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 case CustomRoles.Virus:
                     opt.SetVision(Virus.ImpostorVision.GetBool());
                     break;
-                case CustomRoles.Doctor:
-                    AURoleOptions.ScientistCooldown = 0f;
-                    AURoleOptions.ScientistBatteryCharge = Options.DoctorTaskCompletedBatteryCharge.GetFloat();
-                    break;
                 case CustomRoles.Mayor:
                     if (Options.UsePets.GetBool()) break;
                     AURoleOptions.EngineerCooldown =
@@ -564,11 +560,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     break;
                 case CustomRoles.BloodKnight:
                     BloodKnight.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.DovesOfNeace:
-                    if (Options.UsePets.GetBool()) break;
-                    AURoleOptions.EngineerCooldown = Options.DovesOfNeaceCooldown.GetFloat();
-                    AURoleOptions.EngineerInVentMaxTime = 1f;
                     break;
                 case CustomRoles.Disperser:
                     if (Options.UsePets.GetBool()) break;

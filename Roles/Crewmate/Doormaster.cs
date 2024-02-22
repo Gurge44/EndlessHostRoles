@@ -1,14 +1,13 @@
 using System.Collections.Generic;
-using System.Text;
 using TOHE.Modules;
 
 namespace TOHE.Roles.Crewmate
 {
     using static Options;
 
-    public static class Doormaster
+    public class Doormaster : RoleBase
     {
-        private static readonly int Id = 640000;
+        private const int Id = 640000;
         private static List<byte> playerIdList = [];
 
         public static OptionItem VentCooldown;
@@ -31,20 +30,30 @@ namespace TOHE.Roles.Crewmate
                 .SetValueFormat(OptionFormat.Times);
         }
 
-        public static void Init()
+        public override void Init()
         {
             playerIdList = [];
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
         }
 
-        public static bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void OnEnterVent(PlayerControl pc)
+        public override void OnPet(PlayerControl pc)
+        {
+            OpenDoors(pc);
+        }
+
+        public override void OnEnterVent(PlayerControl pc, Vent vent)
+        {
+            OpenDoors(pc);
+        }
+
+        static void OpenDoors(PlayerControl pc)
         {
             if (pc == null) return;
             if (!pc.Is(CustomRoles.Doormaster)) return;
@@ -58,16 +67,6 @@ namespace TOHE.Roles.Crewmate
             {
                 if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
             }
-        }
-
-        public static string GetProgressText(byte playerId, bool comms)
-        {
-            var sb = new StringBuilder();
-
-            sb.Append(Utils.GetTaskCount(playerId, comms));
-            sb.Append(Utils.GetAbilityUseLimitDisplay(playerId));
-
-            return sb.ToString();
         }
     }
 }

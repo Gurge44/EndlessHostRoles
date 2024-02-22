@@ -9,9 +9,9 @@ using static TOHE.Utils;
 
 namespace TOHE.Roles.Crewmate
 {
-    public static class Druid
+    public class Druid : RoleBase
     {
-        private static readonly int Id = 642800;
+        private const int Id = 642800;
         private static List<byte> playerIdList = [];
 
         public static OptionItem VentCooldown;
@@ -44,24 +44,26 @@ namespace TOHE.Roles.Crewmate
                 .SetValueFormat(OptionFormat.Times);
         }
 
-        public static void Init()
+        public override void Init()
         {
             playerIdList = [];
             TriggerDelays = [];
             Triggers = [];
             lastUpdate = TimeStamp;
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
             lastUpdate = TimeStamp;
         }
 
-        public static bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => playerIdList.Count > 0;
+
         public static void SendRPCAddTrigger(bool add, byte playerId, Vector2 position, string roomName = "")
         {
-            if (!IsEnable || !DoRPC) return;
+            if (!DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DruidAddTrigger, SendOption.Reliable);
             writer.Write(add);
             writer.Write(playerId);
@@ -72,10 +74,11 @@ namespace TOHE.Roles.Crewmate
         }
         public static void ReceiveRPCAddTrigger(MessageReader reader)
         {
-            if (!IsEnable) return;
-
             bool add = reader.ReadBoolean();
             byte playerId = reader.ReadByte();
+
+            if (Main.PlayerStates[playerId].Role is not Druid { IsEnable: true }) return;
+
             float x = reader.ReadSingle();
             float y = reader.ReadSingle();
 
@@ -95,17 +98,27 @@ namespace TOHE.Roles.Crewmate
             }
         }
 
-        public static void OnEnterVent(PlayerControl pc, bool isPet = false)
+        public override void OnPet(PlayerControl pc)
+        {
+            PlaceTrigger(pc, true);
+        }
+
+        public override void OnEnterVent(PlayerControl pc, Vent vent)
+        {
+            PlaceTrigger(pc);
+        }
+
+        void PlaceTrigger(PlayerControl pc, bool isPet = false)
         {
             if (!IsEnable) return;
             if (pc == null || !GameStates.IsInTask) return;
-            if (!pc.Is(CustomRoles.Druid) || pc.GetAbilityUseLimit() < 1) return;
+            if (pc.GetAbilityUseLimit() < 1) return;
 
             long now = TimeStamp;
 
             if (isPet)
             {
-                var (LOCATION, ROOM_NAME) = pc.GetPositionInfo();
+                (Vector2 LOCATION, string ROOM_NAME) = pc.GetPositionInfo();
                 if (!Triggers.ContainsKey(pc.PlayerId)) Triggers.Add(pc.PlayerId, []);
                 Triggers[pc.PlayerId].TryAdd(LOCATION, ROOM_NAME);
                 SendRPCAddTrigger(true, pc.PlayerId, LOCATION, ROOM_NAME);
@@ -120,7 +133,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void OnCheckPlayerPosition(PlayerControl pc)
         {
-            if (!IsEnable || !GameStates.IsInTask || Triggers.Count <= 0 || playerIdList.Contains(pc.PlayerId)) return;
+            if (!GameStates.IsInTask || Triggers.Count <= 0 || playerIdList.Contains(pc.PlayerId)) return;
 
             foreach (var triggers in Triggers.ToArray()) // Check for all Druids' traps - Most likely just 1 loop
             {
@@ -133,29 +146,28 @@ namespace TOHE.Roles.Crewmate
             }
         }
 
-        public static void OnFixedUpdate()
+        public override void OnFixedUpdate(PlayerControl _)
         {
             if (!IsEnable || !GameStates.IsInTask || TriggerDelays.Count <= 0) return;
 
             long now = TimeStamp;
 
-            foreach (var x in TriggerDelays.ToArray())
+            foreach ((byte id, long ts) in TriggerDelays)
             {
-                var id = x.Key;
                 var pc = GetPlayerById(id);
                 if (pc == null) continue;
 
-                if (x.Value + TriggerPlaceDelay.GetInt() < now)
+                if (ts + TriggerPlaceDelay.GetInt() < now)
                 {
                     TriggerDelays.Remove(id);
-                    var (LOCATION, ROOM_NAME) = pc.GetPositionInfo();
+                    (Vector2 LOCATION, string ROOM_NAME) = pc.GetPositionInfo();
                     if (!Triggers.ContainsKey(id)) Triggers.Add(id, []);
                     Triggers[id].TryAdd(LOCATION, ROOM_NAME);
                     SendRPCAddTrigger(true, id, LOCATION, ROOM_NAME);
                     continue;
                 }
 
-                var timeLeft = TriggerPlaceDelay.GetInt() - (now - x.Value);
+                var timeLeft = TriggerPlaceDelay.GetInt() - (now - ts);
                 if (lastUpdate < now) pc.Notify(string.Format(GetString("DruidTimeLeft"), timeLeft, 2f));
             }
 
@@ -164,7 +176,6 @@ namespace TOHE.Roles.Crewmate
 
         public static string GetSuffixText(byte playerId)
         {
-            if (!IsEnable) return string.Empty;
             if (GetPlayerById(playerId) == null) return string.Empty;
 
             if (!Triggers.TryGetValue(playerId, out var triggers)) return string.Empty;
@@ -181,7 +192,6 @@ namespace TOHE.Roles.Crewmate
 
         public static string GetHUDText(PlayerControl pc)
         {
-            if (!IsEnable) return string.Empty;
             if (pc == null) return string.Empty;
 
             var id = pc.PlayerId;

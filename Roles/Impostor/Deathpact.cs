@@ -285,7 +285,7 @@ namespace TOHE.Roles.Impostor
             }
         }
 
-        public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
+        public override void OnReportDeadBody()
         {
             foreach (byte deathpact in ActiveDeathpacts)
             {

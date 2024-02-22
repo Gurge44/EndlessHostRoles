@@ -139,6 +139,7 @@ namespace TOHE.Roles.Impostor
                     Penguin_.ResetKillCooldown();
                     doKill = false;
                 }
+
                 RemoveVictim();
             }
             else
@@ -146,6 +147,7 @@ namespace TOHE.Roles.Impostor
                 doKill = false;
                 AddVictim(target);
             }
+
             return doKill;
         }
 
@@ -156,7 +158,7 @@ namespace TOHE.Roles.Impostor
             hud.AbilityButton?.ToggleVisible(AbductVictim != null);
         }
 
-        public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
+        public override void OnReportDeadBody()
         {
             if (!IsEnable) return;
             stopCount = true;
@@ -165,6 +167,7 @@ namespace TOHE.Roles.Impostor
             {
                 Penguin_.Kill(AbductVictim);
             }
+
             if (MeetingKill)
             {
                 if (!AmongUsClient.Instance.AmHost) return;
@@ -181,6 +184,7 @@ namespace TOHE.Roles.Impostor
             //Maps other than Airship
             RestartAbduct();
         }
+
         public static void OnSpawnAirship()
         {
             foreach (var state in Main.PlayerStates)
@@ -219,6 +223,7 @@ namespace TOHE.Roles.Impostor
                     RemoveVictim();
                     return;
                 }
+
                 if (AbductTimer <= 0f && !Penguin_.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
                 {
                     // Set IsDead to true first (prevents ladder chase)
@@ -264,11 +269,11 @@ namespace TOHE.Roles.Impostor
                     else
                     {
                         _ = new LateTask(() =>
-                        {
-                            if (AbductVictim != null)
-                                Utils.TP(AbductVictim.NetTransform, position, log: false);
-                        }
-                        , 0.25f, "");
+                            {
+                                if (AbductVictim != null)
+                                    Utils.TP(AbductVictim.NetTransform, position, log: false);
+                            }
+                            , 0.25f, "");
                     }
                 }
             }

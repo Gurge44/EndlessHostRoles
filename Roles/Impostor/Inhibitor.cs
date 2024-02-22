@@ -41,7 +41,7 @@ namespace TOHE.Roles.Impostor
             return base.OnCheckMurder(killer, target);
         }
 
-        public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
+        public override void OnReportDeadBody()
         {
             Main.AllPlayerKillCooldown[InhibitorId] = Options.InhibitorCDAfterMeetings.GetFloat();
         }

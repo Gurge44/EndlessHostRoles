@@ -450,15 +450,15 @@ public static class Utils
 
     public static string GetKillCountText(byte playerId, bool ffa = false)
     {
-        if (!Main.PlayerStates.Any(x => x.Value.GetRealKiller() == playerId) && !ffa) return string.Empty;
+        if (Main.PlayerStates.All(x => x.Value.GetRealKiller() != playerId) && !ffa) return string.Empty;
         return ' ' + ColorString(new Color32(255, 69, 0, byte.MaxValue), string.Format(GetString("KillCount"), Main.PlayerStates.Count(x => x.Value.GetRealKiller() == playerId)));
     }
 
-    public static string GetVitalText(byte playerId, bool RealKillerColor = false)
+    public static string GetVitalText(byte playerId, bool realKillerColor = false)
     {
         var state = Main.PlayerStates[playerId];
         string deathReason = state.IsDead ? GetString("DeathReason." + state.deathReason) : GetString("Alive");
-        if (RealKillerColor)
+        if (realKillerColor)
         {
             var KillerId = state.GetRealKiller();
             Color color = KillerId != byte.MaxValue ? Main.PlayerColors[KillerId] : GetRoleColor(CustomRoles.Doctor);
@@ -714,11 +714,8 @@ public static class Utils
 
     public static bool IsRoleTextEnabled(PlayerControl __instance)
     {
-        bool result = false;
-        if (__instance.AmOwner || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato) result = true; //自分ならロールを表示
-        if (Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool()) result = true; //他プレイヤーでVisibleTasksCountが有効なおかつ自分が死んでいるならロールを表示
-        if (PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) result = true; //他プレイヤーでVisibleTasksCountが有効なおかつ自分が死んでいるならロールを表示
-        //if (__instance.GetCustomRole() == (CustomRoles.Ntr) && Options.LoverKnowRoles.GetBool()) result = true;
+        bool result = __instance.AmOwner || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato || Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool() || PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool();
+
         switch (__instance.GetCustomRole())
         {
             case CustomRoles.Crewpostor when PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.CrewpostorKnowsAllies.GetBool():
@@ -803,8 +800,7 @@ public static class Utils
             {
                 case CustomRoles.Arsonist:
                     var doused = GetDousedPlayerCount(playerId);
-                    if (!Options.ArsonistCanIgniteAnytime.GetBool()) ProgressText.Append(ColorString(GetRoleColor(CustomRoles.Arsonist).ShadeColor(0.25f), $"<color=#777777>-</color> {doused.Item1}/{doused.Item2}"));
-                    else ProgressText.Append(ColorString(GetRoleColor(CustomRoles.Arsonist).ShadeColor(0.25f), $"<color=#777777>-</color> {doused.Item1}/{Options.ArsonistMaxPlayersToIgnite.GetInt()}"));
+                    ProgressText.Append(!Options.ArsonistCanIgniteAnytime.GetBool() ? ColorString(GetRoleColor(CustomRoles.Arsonist).ShadeColor(0.25f), $"<color=#777777>-</color> {doused.Item1}/{doused.Item2}") : ColorString(GetRoleColor(CustomRoles.Arsonist).ShadeColor(0.25f), $"<color=#777777>-</color> {doused.Item1}/{Options.ArsonistMaxPlayersToIgnite.GetInt()}"));
                     break;
                 case CustomRoles.Sheriff:
                     if (Sheriff.ShowShotLimit.GetBool()) ProgressText.Append(Sheriff.GetShotLimit(playerId));
@@ -845,9 +841,6 @@ public static class Utils
                 case CustomRoles.Doppelganger:
                     ProgressText.Append(Doppelganger.GetStealLimit(playerId));
                     break;
-                case CustomRoles.Druid:
-                    ProgressText.Append($"<color=#777777>-</color> <#ffffff>{playerId.GetAbilityUseLimit()}</color>");
-                    break;
                 case CustomRoles.SerialKiller:
                     if (SerialKiller.SuicideTimer.TryGetValue(playerId, out float value))
                     {
@@ -868,32 +861,8 @@ public static class Utils
                     }
 
                     break;
-                case CustomRoles.Camouflager:
-                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
-                    break;
-                case CustomRoles.Councillor:
-                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
-                    break;
                 case CustomRoles.WeaponMaster:
                     if (!pc.IsModClient()) ProgressText.Append(WeaponMaster.GetHudAndProgressText());
-                    break;
-                case CustomRoles.Dazzler:
-                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
-                    break;
-                case CustomRoles.Disperser:
-                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
-                    break;
-                case CustomRoles.Hangman:
-                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
-                    break;
-                case CustomRoles.Twister:
-                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
-                    break;
-                case CustomRoles.EvilDiviner:
-                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
-                    break;
-                case CustomRoles.Swooper:
-                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
                     break;
                 case CustomRoles.Jailor:
                     ProgressText.Append(Jailor.GetProgressText(playerId));
@@ -910,29 +879,9 @@ public static class Utils
                     ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(GetAbilityUseLimitDisplay(playerId, Main.GrenadierBlinding.ContainsKey(playerId)));
                     break;
-                case CustomRoles.Divinator:
-                    ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
-                    break;
-                case CustomRoles.DovesOfNeace:
-                    ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
-                    break;
                 case CustomRoles.TimeMaster:
                     ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(GetAbilityUseLimitDisplay(playerId, Main.TimeMasterInProtect.ContainsKey(playerId)));
-                    break;
-                case CustomRoles.Mediumshiper:
-                    ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
-                    break;
-                case CustomRoles.ParityCop:
-                    ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
-                    break;
-                case CustomRoles.Oracle:
-                    ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
                     break;
                 case CustomRoles.SabotageMaster:
                     Color TextColor101;
@@ -941,14 +890,6 @@ public static class Utils
                     ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(ColorString(TextColor101, $" <color=#777777>-</color> {Math.Round(SabotageMaster.SkillLimit.GetFloat() - SabotageMaster.UsedSkillCount, 1)}"));
                     break;
-                case CustomRoles.Tracker:
-                    ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
-                    break;
-                case CustomRoles.Bloodhound:
-                    ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
-                    break;
                 case CustomRoles.Chameleon:
                     ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(GetAbilityUseLimitDisplay(playerId, Chameleon.IsInvis(playerId)));
@@ -956,10 +897,6 @@ public static class Utils
                 case CustomRoles.Lighter:
                     ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(GetAbilityUseLimitDisplay(playerId, Main.Lighter.ContainsKey(playerId)));
-                    break;
-                case CustomRoles.Ventguard:
-                    ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
                     break;
                 case CustomRoles.SecurityGuard:
                     ProgressText.Append(GetTaskCount(playerId, comms));
@@ -3043,9 +2980,6 @@ public static class Utils
             //    break;
             case CustomRoles.Amnesiac:
                 Amnesiac.Add(id);
-                break;
-            case CustomRoles.DovesOfNeace:
-                id.SetAbilityUseLimit(Options.DovesOfNeaceMaxOfUseage.GetInt());
                 break;
             case CustomRoles.Monarch:
                 Monarch.Add(id);

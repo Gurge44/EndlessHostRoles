@@ -3,10 +3,23 @@ using UnityEngine;
 
 namespace TOHE.Roles.Crewmate
 {
-    internal class Autocrat
+    internal class Autocrat : RoleBase
     {
+        public static bool On;
+        public override bool IsEnable => On;
+
+        public override void Add(byte playerId)
+        {
+            On = true;
+        }
+
+        public override void Init()
+        {
+            On = false;
+        }
+
         public static void SetupCustomOption() => Options.SetupRoleOptions(642620, TabGroup.CrewmateRoles, CustomRoles.Autocrat);
 
-        public static void OnTaskComplete(PlayerControl pc) => Main.AllAlivePlayerControls.OrderBy(x => Vector2.Distance(x.Pos(), pc.Pos())).FirstOrDefault(x => x.PlayerId != pc.PlayerId).TP(pc);
+        public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount) => Main.AllAlivePlayerControls.OrderBy(x => Vector2.Distance(x.Pos(), pc.Pos())).FirstOrDefault(x => x.PlayerId != pc.PlayerId)?.TP(pc);
     }
 }

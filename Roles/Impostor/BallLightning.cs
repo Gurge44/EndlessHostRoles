@@ -52,6 +52,7 @@ public class BallLightning : RoleBase
         writer.Write(IsGhost(playerId));
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader)
     {
         byte GhostId = reader.ReadByte();
@@ -61,6 +62,7 @@ public class BallLightning : RoleBase
             GhostPlayer = [];
             return;
         }
+
         if (isGhost)
         {
             if (!GhostPlayer.Contains(GhostId))
@@ -91,9 +93,11 @@ public class BallLightning : RoleBase
             killer.SetKillCooldown();
             killer.RPCPlayCustomSound("Shield");
         }
+
         StartConvertCountDown(killer, target);
         return true;
     }
+
     private static void StartConvertCountDown(PlayerControl killer, PlayerControl target)
     {
         _ = new LateTask(() =>
@@ -110,6 +114,7 @@ public class BallLightning : RoleBase
             }
         }, ConvertTime.GetFloat(), "BallLightning Convert Player To Ghost");
     }
+
     public static void MurderPlayer(PlayerControl killer, PlayerControl target)
     {
         if (killer == null || target == null || !target.Is(CustomRoles.BallLightning)) return;
@@ -117,6 +122,7 @@ public class BallLightning : RoleBase
         RealKiller.TryAdd(killer.PlayerId, target);
         StartConvertCountDown(target, killer);
     }
+
     public static void OnCheckPlayerPosition(PlayerControl pc)
     {
         if (!GameStates.IsInTask) return;
@@ -129,6 +135,7 @@ public class BallLightning : RoleBase
                 //deList.Add(gs.PlayerId); // This will always result in a null reference exception
                 continue;
             }
+
             if (pc.PlayerId != gs.PlayerId && pc.IsAlive() && !pc.Is(CustomRoles.BallLightning) && !IsGhost(pc) && !Pelican.IsEaten(pc.PlayerId))
             {
                 var pos = gs.transform.position;
@@ -141,6 +148,7 @@ public class BallLightning : RoleBase
                 break;
             }
         }
+
         if (deList.Count > 0)
         {
             GhostPlayer.RemoveAll(deList.Contains);
@@ -152,7 +160,7 @@ public class BallLightning : RoleBase
         }
     }
 
-    public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
+    public override void OnReportDeadBody()
     {
         if (!(IsEnable || CustomRoles.BallLightning.IsEnable())) return;
 
@@ -165,6 +173,7 @@ public class BallLightning : RoleBase
             gs.SetRealKiller(RealKiller[gs.PlayerId]);
             Utils.NotifyRoles(SpecifySeer: gs);
         }
+
         GhostPlayer = [];
         SendRPC(byte.MaxValue);
     }

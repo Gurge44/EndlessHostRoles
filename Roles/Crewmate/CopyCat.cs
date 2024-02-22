@@ -5,11 +5,12 @@ using static TOHE.Translator;
 
 namespace TOHE.Roles.Crewmate;
 
-public static class CopyCat
+public class CopyCat : RoleBase
 {
-    private static readonly int Id = 666420;
+    private const int Id = 666420;
     public static List<byte> playerIdList = [];
-    public static Dictionary<byte, float> CurrentKillCooldown = [];
+
+    public float CurrentKillCooldown = DefaultKillCooldown;
 
     public static OptionItem KillCooldown;
     public static OptionItem CanKill;
@@ -29,16 +30,16 @@ public static class CopyCat
         UsePet = CreatePetUseSetting(Id + 14, CustomRoles.CopyCat);
     }
 
-    public static void Init()
+    public override void Init()
     {
         playerIdList = [];
-        CurrentKillCooldown = [];
+        CurrentKillCooldown = DefaultKillCooldown;
     }
 
-    public static void Add(byte playerId)
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        CurrentKillCooldown.Add(playerId, KillCooldown.GetFloat());
+        CurrentKillCooldown = KillCooldown.GetFloat();
         playerId.SetAbilityUseLimit(MiscopyLimitOpt.GetInt());
 
         if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
@@ -46,22 +47,19 @@ public static class CopyCat
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public static bool IsEnable() => playerIdList.Count > 0;
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Utils.GetPlayerById(id).IsAlive() ? CurrentKillCooldown[id] : 0f;
+    public override bool IsEnable => playerIdList.Count > 0;
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Utils.GetPlayerById(id).IsAlive() ? CurrentKillCooldown[id] : 0f;
 
-    public static void AfterMeetingTasks()
+    public override void AfterMeetingTasks()
     {
-        for (int i = 0; i < playerIdList.Count; i++)
+        foreach (var player in playerIdList)
         {
-            byte player = playerIdList[i];
             var pc = Utils.GetPlayerById(player);
             var role = pc.GetCustomRole();
             ////////////           /*remove the settings for current role*/             /////////////////////
             switch (role)
             {
                 case CustomRoles.Cleanser:
-                    Cleanser.CleanserTarget.Remove(pc.PlayerId);
-                    Cleanser.CleanserUses.Remove(pc.PlayerId);
                     Cleanser.DidVote.Remove(pc.PlayerId);
                     break;
                 case CustomRoles.Jailor:
@@ -100,37 +98,35 @@ public static class CopyCat
         }
     }
 
-    public static bool BlacklList(this CustomRoles role)
-    {
-        return role is CustomRoles.CopyCat or
-            //bcoz of vent cd
-            CustomRoles.Grenadier or
-            CustomRoles.Lighter or
-            CustomRoles.SecurityGuard or
-            CustomRoles.Ventguard or
-            CustomRoles.DovesOfNeace or
-            CustomRoles.Veteran or
-            CustomRoles.Addict or
-            CustomRoles.Alchemist or
-            CustomRoles.Chameleon or
-            //bcoz im lazy
-            CustomRoles.Escort or
-            CustomRoles.DonutDelivery or
-            CustomRoles.Gaulois or
-            CustomRoles.NiceSwapper or
-            CustomRoles.Analyzer or
-            //bcoz of arrows
-            CustomRoles.Mortician or
-            CustomRoles.Bloodhound or
-            CustomRoles.Tracefinder or
-            CustomRoles.Spiritualist or
-            CustomRoles.Tracker;
-    }
+    public static bool BlacklList(CustomRoles role) => role is
+        CustomRoles.CopyCat or
+        //bcoz of vent cd
+        CustomRoles.Grenadier or
+        CustomRoles.Lighter or
+        CustomRoles.SecurityGuard or
+        CustomRoles.Ventguard or
+        CustomRoles.DovesOfNeace or
+        CustomRoles.Veteran or
+        CustomRoles.Addict or
+        CustomRoles.Alchemist or
+        CustomRoles.Chameleon or
+        //bcoz im lazy
+        CustomRoles.Escort or
+        CustomRoles.DonutDelivery or
+        CustomRoles.Gaulois or
+        CustomRoles.NiceSwapper or
+        CustomRoles.Analyzer or
+        //bcoz of arrows
+        CustomRoles.Mortician or
+        CustomRoles.Bloodhound or
+        CustomRoles.Tracefinder or
+        CustomRoles.Spiritualist or
+        CustomRoles.Tracker;
 
-    public static bool OnCheckMurder(PlayerControl pc, PlayerControl tpc)
+    public override bool OnCheckMurder(PlayerControl pc, PlayerControl tpc)
     {
         CustomRoles role = tpc.GetCustomRole();
-        if (role.BlacklList())
+        if (BlacklList(role))
         {
             pc.Notify(GetString("CopyCatCanNotCopy"));
             SetKillCooldown(pc.PlayerId);
@@ -152,7 +148,7 @@ public static class CopyCat
             };
         }
 
-        if (role.IsCrewmate() && (!tpc.GetCustomSubRoles().Any(x => x == CustomRoles.Rascal)))
+        if (role.IsCrewmate() && tpc.GetCustomSubRoles().All(x => x != CustomRoles.Rascal))
         {
             ////////////           /*add the settings for new role*/            ////////////
             /* anything that is assigned in onGameStartedPatch.cs comes here */

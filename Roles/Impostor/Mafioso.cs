@@ -218,7 +218,7 @@ namespace TOHE.Roles.Impostor
 
         public override bool IsEnable => playerIdList.Count > 0;
 
-        public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
+        public override void OnReportDeadBody()
         {
             if (!IsEnable) return;
             PreviouslyUsedVents.Clear();

@@ -66,7 +66,7 @@ public class Greedier : RoleBase // Also used for Imitator as the NK version of 
         Main.AllPlayerKillCooldown[id] = OddKillCooldown.GetFloat();
     }
 
-    public override void OnReportDeadBody(PlayerControl reporter, PlayerControl target)
+    public override void OnReportDeadBody()
     {
         foreach (var pc in Main.AllAlivePlayerControls.Where(x => playerIdList.Contains(x.PlayerId)).ToArray())
         {
