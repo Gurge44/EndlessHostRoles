@@ -1,7 +1,6 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Hazel;
+using System.Collections.Generic;
+using System.Text;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using static TOHE.Options;
@@ -161,40 +160,48 @@ public class Witch : RoleBase
     }
     public static void OnCheckForEndVoting(PlayerState.DeathReason deathReason, params byte[] exileIds)
     {
-        if (!IsEnable || deathReason != PlayerState.DeathReason.Vote) return;
+        if (deathReason != PlayerState.DeathReason.Vote) return;
         foreach (byte id in exileIds)
         {
-            if (SpelledPlayer.ContainsKey(id))
-                SpelledPlayer[id].Clear();
+            if (playerIdList.Contains(id))
+            {
+                if (Main.PlayerStates[id].Role is not Witch wc) continue;
+                wc.SpelledPlayer.Clear();
+            }
         }
         var spelledIdList = new List<byte>();
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            var dic = SpelledPlayer.Where(x => x.Value.Contains(pc.PlayerId));
-            if (!dic.Any()) continue;
-            var whichId = dic.FirstOrDefault().Key;
-            var witch = Utils.GetPlayerById(whichId);
-            if (witch != null && witch.IsAlive())
+            foreach (var witchId in playerIdList)
             {
-                if (!Main.AfterMeetingDeathPlayers.ContainsKey(pc.PlayerId))
+                if (Main.AfterMeetingDeathPlayers.ContainsKey(pc.PlayerId)) continue;
+                if (Main.PlayerStates[witchId].Role is not Witch wc) continue;
+
+                var witch = Utils.GetPlayerById(witchId);
+                if (wc.SpelledPlayer.Contains(pc.PlayerId) && witch != null && witch.IsAlive())
                 {
                     pc.SetRealKiller(witch);
                     spelledIdList.Add(pc.PlayerId);
                 }
-            }
-            else
-            {
-                Main.AfterMeetingDeathPlayers.Remove(pc.PlayerId);
+                else
+                {
+                    Main.AfterMeetingDeathPlayers.Remove(pc.PlayerId);
+                }
             }
         }
+
         CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Spell, [.. spelledIdList]);
         RemoveSpelledPlayer();
     }
     public static string GetSpelledMark(byte target, bool isMeeting)
     {
-        if (isMeeting && IsEnable && IsSpelled(target))
+        if (!isMeeting) return string.Empty;
+        foreach (var id in playerIdList)
         {
-            return Utils.ColorString(Palette.ImpostorRed, "†");
+            if (Main.PlayerStates[id].Role is Witch { IsEnable: true } wc && wc.IsSpelled(target))
+            {
+                return Utils.ColorString(Palette.ImpostorRed, "†");
+            }
         }
         return string.Empty;
     }

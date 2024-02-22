@@ -1099,10 +1099,6 @@ static class ExtendedPlayerControl
             case CustomRoles.SwordsMan:
                 SwordsMan.SetKillCooldown(player.PlayerId);
                 break;
-            case CustomRoles.Zombie:
-                Main.AllPlayerKillCooldown[player.PlayerId] = Options.ZombieKillCooldown.GetFloat();
-                Main.AllPlayerSpeed[player.PlayerId] = Math.Clamp(Main.AllPlayerSpeed[player.PlayerId] - Options.ZombieSpeedReduce.GetFloat(), 0.1f, 3f);
-                break;
             case CustomRoles.Bomber:
                 if (Options.BomberCanKill.GetBool())
                     Main.AllPlayerKillCooldown[player.PlayerId] = Options.BomberKillCD.GetFloat();

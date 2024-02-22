@@ -274,9 +274,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 case CustomRoles.Virus:
                     opt.SetVision(Virus.ImpostorVision.GetBool());
                     break;
-                case CustomRoles.Zombie:
-                    opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0.2f);
-                    break;
                 case CustomRoles.Doctor:
                     AURoleOptions.ScientistCooldown = 0f;
                     AURoleOptions.ScientistBatteryCharge = Options.DoctorTaskCompletedBatteryCharge.GetFloat();
