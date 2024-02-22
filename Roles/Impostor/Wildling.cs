@@ -6,9 +6,9 @@ using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor;
 
-public static class Wildling
+public class Wildling : RoleBase
 {
-    private static readonly int Id = 4700;
+    private const int Id = 4700;
     public static List<byte> playerIdList = [];
 
     private static OptionItem ProtectDuration;
@@ -17,7 +17,7 @@ public static class Wildling
     public static OptionItem ShapeshiftCD;
     public static OptionItem ShapeshiftDur;
 
-    private static Dictionary<byte, long> TimeStamp = [];
+    private long TimeStamp;
 
     public static void SetupCustomOption()
     {
@@ -31,56 +31,78 @@ public static class Wildling
         ShapeshiftDur = FloatOptionItem.Create(Id + 18, "ShapeshiftDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles, false).SetParent(CanShapeshift)
             .SetValueFormat(OptionFormat.Seconds);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
-        TimeStamp = [];
+        TimeStamp = 0;
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        TimeStamp.TryAdd(playerId, 0);
+        TimeStamp = 0;
     }
-    public static bool IsEnable => playerIdList.Count > 0;
-    private static void SendRPC(byte playerId)
+
+    public override bool IsEnable => playerIdList.Count > 0;
+
+    void SendRPC(byte playerId)
     {
         if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBKTimer, SendOption.Reliable);
         writer.Write(playerId);
-        writer.Write(TimeStamp[playerId].ToString());
+        writer.Write(TimeStamp.ToString());
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
     public static void ReceiveRPC(MessageReader reader)
     {
         byte PlayerId = reader.ReadByte();
         string Time = reader.ReadString();
-        TimeStamp.TryAdd(PlayerId, long.Parse(Time));
-        TimeStamp[PlayerId] = long.Parse(Time);
+
+        if (Main.PlayerStates[PlayerId].Role is not Wildling wl) return;
+        wl.TimeStamp = long.Parse(Time);
     }
-    public static bool InProtect(byte playerId) => TimeStamp.TryGetValue(playerId, out var time) && time > Utils.GetTimeStamp(DateTime.Now);
-    public static void OnMurderPlayer(PlayerControl killer, PlayerControl target)
+
+    bool InProtect => TimeStamp > Utils.GetTimeStamp(DateTime.Now);
+
+    public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer.PlayerId == target.PlayerId) return;
-        TimeStamp[killer.PlayerId] = Utils.GetTimeStamp(DateTime.Now) + (long)ProtectDuration.GetFloat();
+        TimeStamp = Utils.GetTimeStamp(DateTime.Now) + (long)ProtectDuration.GetFloat();
         SendRPC(killer.PlayerId);
         killer.Notify(Translator.GetString("BKInProtect"));
     }
-    public static void OnFixedUpdate(PlayerControl pc)
+
+    public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
+    {
+        if (InProtect)
+        {
+            killer.RpcGuardAndKill(target);
+            target.Notify(Translator.GetString("BKOffsetKill"));
+            return false;
+        }
+
+        return true;
+    }
+
+    public override void OnFixedUpdate(PlayerControl pc)
     {
         if (!GameStates.IsInTask || !pc.Is(CustomRoles.Wildling)) return;
-        if (TimeStamp[pc.PlayerId] < Utils.GetTimeStamp(DateTime.Now) && TimeStamp[pc.PlayerId] != 0)
+        if (TimeStamp < Utils.GetTimeStamp(DateTime.Now) && TimeStamp != 0)
         {
-            TimeStamp[pc.PlayerId] = 0;
+            TimeStamp = 0;
             pc.Notify(Translator.GetString("BKProtectOut"));
         }
     }
     public static string GetHudText(PlayerControl pc)
     {
         if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
+        if (Main.PlayerStates[pc.PlayerId].Role is not Wildling wl) return string.Empty;
+
         var str = new StringBuilder();
-        if (InProtect(pc.PlayerId))
+        if (wl.InProtect)
         {
-            var remainTime = TimeStamp[pc.PlayerId] - Utils.GetTimeStamp(DateTime.Now);
+            var remainTime = wl.TimeStamp - Utils.GetTimeStamp(DateTime.Now);
             str.Append(string.Format(Translator.GetString("BKSkillTimeRemain"), remainTime));
         }
         else

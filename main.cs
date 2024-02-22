@@ -138,9 +138,6 @@ public class Main : BasePlugin
     public static List<byte> WorkaholicAlive = [];
     public static List<byte> SpeedrunnerAlive = [];
     public static List<byte> BaitAlive = [];
-    public static List<byte> BoobyTrapBody = [];
-
-    public static List<byte> BoobyTrapKiller = [];
 
     //public static List<byte> KilledDiseased = new();
     public static Dictionary<byte, int> KilledDiseased = [];
@@ -148,7 +145,6 @@ public class Main : BasePlugin
     public static Dictionary<byte, int> KilledAntidote = [];
 
     //public static List<byte> ForFlashbang = new();
-    public static Dictionary<byte, byte> KillerOfBoobyTrapBody = [];
     public static Dictionary<byte, string> DetectiveNotify = [];
     public static Dictionary<byte, string> VirusNotify = [];
     public static List<byte> OverDeadPlayerList = [];

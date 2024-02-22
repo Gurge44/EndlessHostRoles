@@ -407,64 +407,11 @@ class ExternalRpcPetPatch
             case CustomRoles.FireWorks:
                 FireWorks.ShapeShiftState(pc, true);
                 break;
-            case CustomRoles.Warlock:
-                Main.isCurseAndKill.TryAdd(pc.PlayerId, false);
-                if (Main.CursedPlayers[pc.PlayerId] != null)
-                {
-                    if (!Main.CursedPlayers[pc.PlayerId].Data.IsDead)
-                    {
-                        var cp = Main.CursedPlayers[pc.PlayerId];
-                        Vector2 cppos = cp.Pos();
-                        Dictionary<PlayerControl, float> cpdistance = [];
-                        float dis;
-                        foreach (PlayerControl p in AllAlivePlayers)
-                        {
-                            if (p.PlayerId == cp.PlayerId) continue;
-                            if (!Options.WarlockCanKillSelf.GetBool() && p.PlayerId == pc.PlayerId) continue;
-                            if (!Options.WarlockCanKillAllies.GetBool() && p.GetCustomRole().IsImpostor()) continue;
-                            if (p.Is(CustomRoles.Pestilence)) continue;
-                            if (Pelican.IsEaten(p.PlayerId) || Medic.ProtectList.Contains(p.PlayerId)) continue;
-                            dis = Vector2.Distance(cppos, p.Pos());
-                            cpdistance.Add(p, dis);
-                            Logger.Info($"{p?.Data?.PlayerName}'s distance: {dis}", "Warlock");
-                        }
-
-                        if (cpdistance.Count > 0)
-                        {
-                            var min = cpdistance.OrderBy(c => c.Value).FirstOrDefault();
-                            PlayerControl targetw = min.Key;
-                            if (cp.RpcCheckAndMurder(targetw, true))
-                            {
-                                targetw.SetRealKiller(pc);
-                                Logger.Info($"{targetw.GetNameWithRole().RemoveHtmlTags()} was killed", "Warlock");
-                                cp.Kill(targetw);
-                                pc.SetKillCooldown();
-                                pc.Notify(GetString("WarlockControlKill"));
-                            }
-
-                            _ = new LateTask(() => { pc.CmdCheckRevertShapeshift(false); }, 1.5f, "Warlock RpcRevertShapeshift");
-                        }
-                        else
-                        {
-                            pc.Notify(GetString("WarlockNoTarget"));
-                        }
-
-                        Main.isCurseAndKill[pc.PlayerId] = false;
-                    }
-
-                    Main.CursedPlayers[pc.PlayerId] = null;
-                }
-
-                break;
             case CustomRoles.Assassin:
                 Assassin.OnShapeshift(pc, true);
                 break;
             case CustomRoles.Undertaker:
                 Undertaker.OnShapeshift(pc, true);
-                break;
-            case CustomRoles.Miner:
-
-
                 break;
             case CustomRoles.RiftMaker:
                 RiftMaker.OnShapeshift(pc, true);

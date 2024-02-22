@@ -343,32 +343,6 @@ class CheckMurderPatch
                 case CustomRoles.Poisoner:
                     if (!Poisoner.OnCheckMurder(killer, target)) return false;
                     break;
-                case CustomRoles.Warlock:
-                    Main.isCurseAndKill.TryAdd(killer.PlayerId, false);
-                    if (!killer.IsShifted() && !Main.isCurseAndKill[killer.PlayerId])
-                    {
-                        //Warlockが変身時以外にキルしたら、呪われる処理
-                        if (target.Is(CustomRoles.Needy) || target.Is(CustomRoles.Lazy)) return false;
-                        Main.isCursed = true;
-                        killer.SetKillCooldown();
-                        RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
-                        killer.RPCPlayCustomSound("Line");
-                        Main.CursedPlayers[killer.PlayerId] = target;
-                        Main.WarlockTimer.Add(killer.PlayerId, 0f);
-                        Main.isCurseAndKill[killer.PlayerId] = true;
-                        //RPC.RpcSyncCurseAndKill();
-                        return false;
-                    }
-
-                    if (killer.IsShifted())
-                    {
-                        //呪われてる人がいないくて変身してるときに通常キルになる
-                        killer.RpcCheckAndMurder(target);
-                        return false;
-                    }
-
-                    if (Main.isCurseAndKill[killer.PlayerId]) killer.RpcGuardAndKill(target);
-                    return false;
                 case CustomRoles.Witness:
                     killer.SetKillCooldown();
                     if (Main.AllKillers.ContainsKey(target.PlayerId))
@@ -762,10 +736,6 @@ class CheckMurderPatch
                 return false;
             case CustomRoles.Addict when Addict.IsImmortal(target):
                 return false;
-            case CustomRoles.BoobyTrap when Options.TrapOnlyWorksOnTheBodyBoobyTrap.GetBool() && !GameStates.IsMeeting:
-                Main.BoobyTrapBody.Add(target.PlayerId);
-                Main.BoobyTrapKiller.Add(target.PlayerId);
-                break;
             case CustomRoles.Luckey:
                 var rd = IRandom.Instance;
                 if (rd.Next(0, 100) < Options.LuckeyProbability.GetInt())
@@ -841,15 +811,6 @@ class CheckMurderPatch
                 break;
             case CustomRoles.BloodKnight:
                 if (BloodKnight.InProtect(target.PlayerId))
-                {
-                    killer.RpcGuardAndKill(target);
-                    target.Notify(GetString("BKOffsetKill"));
-                    return false;
-                }
-
-                break;
-            case CustomRoles.Wildling:
-                if (Wildling.InProtect(target.PlayerId))
                 {
                     killer.RpcGuardAndKill(target);
                     target.Notify(GetString("BKOffsetKill"));
@@ -1016,15 +977,6 @@ class MurderPlayerPatch
 
         switch (killer.GetCustomRole())
         {
-            case CustomRoles.BoobyTrap:
-                if (!Options.TrapOnlyWorksOnTheBodyBoobyTrap.GetBool() && killer != target)
-                {
-                    if (!Main.BoobyTrapBody.Contains(target.PlayerId)) Main.BoobyTrapBody.Add(target.PlayerId);
-                    if (!Main.KillerOfBoobyTrapBody.ContainsKey(target.PlayerId)) Main.KillerOfBoobyTrapBody.Add(target.PlayerId, killer.PlayerId);
-                    killer.Suicide();
-                }
-
-                break;
             case CustomRoles.SwordsMan:
                 if (killer != target)
                     SwordsMan.OnMurder(killer);
@@ -1037,12 +989,6 @@ class MurderPlayerPatch
                 break;
             case CustomRoles.Wildling:
                 Wildling.OnMurderPlayer(killer, target);
-                break;
-            case CustomRoles.Underdog:
-                int playerCount = Main.AllAlivePlayerControls.Length;
-                if (playerCount < Options.UnderdogMaximumPlayersNeededToKill.GetInt())
-                    Main.AllPlayerKillCooldown[killer.PlayerId] = Options.UnderdogKillCooldown.GetFloat();
-                else Main.AllPlayerKillCooldown[killer.PlayerId] = Options.UnderdogKillCooldownWithMorePlayersAlive.GetFloat();
                 break;
         }
 
@@ -1200,57 +1146,6 @@ class ShapeshiftPatch
                     break;
                 case CustomRoles.Librarian:
                     isSSneeded = Librarian.OnShapeshift(shapeshifter, shapeshifting);
-                    break;
-                case CustomRoles.Warlock:
-                    if (Main.CursedPlayers[shapeshifter.PlayerId] != null) //呪われた人がいるか確認
-                    {
-                        if (shapeshifting && !Main.CursedPlayers[shapeshifter.PlayerId].Data.IsDead) //変身解除の時に反応しない
-                        {
-                            var cp = Main.CursedPlayers[shapeshifter.PlayerId];
-                            Vector2 cppos = cp.transform.position; //呪われた人の位置
-                            Dictionary<PlayerControl, float> cpdistance = [];
-                            float dis;
-                            foreach (PlayerControl p in Main.AllAlivePlayerControls)
-                            {
-                                if (p.PlayerId == cp.PlayerId
-                                    || (!Options.WarlockCanKillSelf.GetBool() && p.PlayerId == shapeshifter.PlayerId)
-                                    || (!Options.WarlockCanKillAllies.GetBool() && p.GetCustomRole().IsImpostor())
-                                    || p.Is(CustomRoles.Pestilence)
-                                    || Pelican.IsEaten(p.PlayerId)
-                                    || Medic.ProtectList.Contains(p.PlayerId))
-                                    continue;
-
-                                dis = Vector2.Distance(cppos, p.transform.position);
-                                cpdistance.Add(p, dis);
-                                Logger.Info($"{p?.Data?.PlayerName}の位置{dis}", "Warlock");
-                            }
-
-                            if (cpdistance.Count > 0)
-                            {
-                                var min = cpdistance.OrderBy(c => c.Value).FirstOrDefault();
-                                PlayerControl targetw = min.Key;
-                                if (cp.RpcCheckAndMurder(targetw, true))
-                                {
-                                    targetw.SetRealKiller(shapeshifter);
-                                    Logger.Info($"{targetw.GetNameWithRole().RemoveHtmlTags()}was killed", "Warlock");
-                                    cp.Kill(targetw);
-                                    shapeshifter.SetKillCooldown();
-                                    shapeshifter.Notify(GetString("WarlockControlKill"));
-                                }
-                                //_ = new LateTask(() => { shapeshifter.CmdCheckRevertShapeshift(false); }, 1.5f, "Warlock RpcRevertShapeshift");
-                            }
-                            else
-                            {
-                                shapeshifter.Notify(GetString("WarlockNoTarget"));
-                            }
-
-                            Main.isCurseAndKill[shapeshifter.PlayerId] = false;
-                        }
-
-                        Main.CursedPlayers[shapeshifter.PlayerId] = null;
-                    }
-
-                    isSSneeded = false;
                     break;
                 case CustomRoles.Bomber:
                     if (shapeshifting)
@@ -1552,13 +1447,13 @@ class ReportDeadBodyPatch
                 {
                     if (!Options.TrapOnlyWorksOnTheBodyBoobyTrap.GetBool())
                     {
-                        var killerID = Main.KillerOfBoobyTrapBody[target.PlayerId];
+                        var killerID = BoobyTrap.KillerOfBoobyTrapBody[target.PlayerId];
 
                         __instance.Suicide(PlayerState.DeathReason.Bombed, GetPlayerById(killerID));
                         RPC.PlaySoundRPC(killerID, Sounds.KillSound);
 
                         if (!Main.BoobyTrapBody.Contains(__instance.PlayerId)) Main.BoobyTrapBody.Add(__instance.PlayerId);
-                        Main.KillerOfBoobyTrapBody.TryAdd(__instance.PlayerId, killerID);
+                        BoobyTrap.KillerOfBoobyTrapBody.TryAdd(__instance.PlayerId, killerID);
                         return false;
                     }
 

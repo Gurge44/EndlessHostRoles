@@ -193,18 +193,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     AURoleOptions.EngineerCooldown = NiceHacker.AbilityCD.GetFloat();
                     AURoleOptions.EngineerInVentMaxTime = 1f;
                     break;
-                case CustomRoles.Warlock:
-                    if (Options.UsePets.GetBool()) break;
-                    try
-                    {
-                        AURoleOptions.ShapeshifterCooldown = Main.isCursed ? 1f : Options.DefaultKillCooldown;
-                        AURoleOptions.ShapeshifterDuration = Options.WarlockShiftDuration.GetFloat();
-                    }
-                    catch
-                    {
-                    }
-
-                    break;
                 case CustomRoles.Duellist:
                     Duellist.ApplyGameOptions();
                     break;

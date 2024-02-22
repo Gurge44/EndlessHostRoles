@@ -696,7 +696,7 @@ internal class RPCHandlerPatch
                 Alchemist.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetBKTimer:
-                BloodKnight.ReceiveRPC(reader);
+                Wildling.ReceiveRPC(reader);
                 break;
             case CustomRPC.SyncTotocalcioTargetAndTimes:
                 Totocalcio.ReceiveRPC(reader);

@@ -1,3 +1,4 @@
+using AmongUs.GameOptions;
 using System.Collections.Generic;
 using System.Linq;
 using TOHE.Modules;
@@ -8,9 +9,9 @@ using static TOHE.Utils;
 
 namespace TOHE.Roles.Impostor
 {
-    public static class Twister
+    public class Twister : RoleBase
     {
-        private static readonly int Id = 4400;
+        private const int Id = 4400;
 
         public static OptionItem ShapeshiftCooldown;
         private static OptionItem TwisterLimitOpt;
@@ -28,18 +29,39 @@ namespace TOHE.Roles.Impostor
                 .SetValueFormat(OptionFormat.Times);
         }
 
-        public static void Add(byte playerId)
+        public static bool On;
+        public override bool IsEnable => On;
+
+        public override void Init()
         {
-            playerId.SetAbilityUseLimit(TwisterLimitOpt.GetInt());
+            On = false;
         }
 
-        public static void ApplyGameOptions()
+        public override void Add(byte playerId)
+        {
+            playerId.SetAbilityUseLimit(TwisterLimitOpt.GetInt());
+            On = true;
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
             AURoleOptions.ShapeshifterDuration = 1f;
         }
 
-        public static void TwistPlayers(PlayerControl shapeshifter, bool shapeshifting)
+        public override void OnPet(PlayerControl pc)
+        {
+            TwistPlayers(pc, true);
+        }
+
+        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+        {
+            TwistPlayers(shapeshifter, shapeshifting);
+
+            return false;
+        }
+
+        static void TwistPlayers(PlayerControl shapeshifter, bool shapeshifting)
         {
             if (shapeshifter == null) return;
             if (shapeshifter.GetAbilityUseLimit() < 1) return;

@@ -7,44 +7,44 @@ using static TOHE.Translator;
 
 namespace TOHE.Roles.Impostor;
 
-public static class Vampire
+public class Vampire : RoleBase
 {
     private class BittenInfo(byte vampierId, float killTimer)
     {
-        public byte VampireId = vampierId;
+        public readonly byte VampireId = vampierId;
         public float KillTimer = killTimer;
     }
 
-    private static readonly int Id = 4500;
+    private const int Id = 4500;
     private static readonly List<byte> PlayerIdList = [];
     private static OptionItem OptionKillDelay;
     private static float KillDelay;
     private static readonly Dictionary<byte, BittenInfo> BittenPlayers = [];
+
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Vampire);
         OptionKillDelay = FloatOptionItem.Create(Id + 10, "VampireKillDelay", new(1f, 30f, 1f), 3f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Vampire])
             .SetValueFormat(OptionFormat.Seconds);
     }
-    public static void Init()
+
+    public override void Init()
     {
-        IsEnable = false;
         PlayerIdList.Clear();
         BittenPlayers.Clear();
 
         KillDelay = OptionKillDelay.GetFloat();
     }
 
-    public static void Add(byte playerId)
+    public override void Add(byte playerId)
     {
-        IsEnable = true;
         PlayerIdList.Add(playerId);
     }
 
-    public static bool IsEnable;
+    public override bool IsEnable => PlayerIdList.Count > 0;
     public static bool IsThisRole(byte playerId) => PlayerIdList.Contains(playerId);
 
-    public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (!IsThisRole(killer.PlayerId)) return true;
         if (target.Is(CustomRoles.Bait)) return true;
@@ -55,10 +55,13 @@ public static class Vampire
         if (Medic.ProtectList.Contains(target.PlayerId)) return false;
 
         killer.SetKillCooldown();
-        _ = new LateTask(() => { killer.SetKillCooldown(); }, OptionKillDelay.GetFloat());
+        _ = new LateTask(() =>
+        {
+            if (GameStates.IsInTask)
+                killer.SetKillCooldown();
+        }, OptionKillDelay.GetFloat());
         killer.RPCPlayCustomSound("Bite");
 
-        //誰かに噛まれていなければ登録
         if (!BittenPlayers.ContainsKey(target.PlayerId))
         {
             BittenPlayers.Add(target.PlayerId, new(killer.PlayerId, 0f));
@@ -66,14 +69,14 @@ public static class Vampire
         return false;
     }
 
-    public static void OnFixedUpdate(PlayerControl vampire)
+    public override void OnFixedUpdate(PlayerControl vampire)
     {
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask) return;
 
         var vampireID = vampire.PlayerId;
         if (!IsThisRole(vampire.PlayerId)) return;
 
-        List<byte> targetList = new(BittenPlayers.Where(b => b.Value.VampireId == vampireID).Select(b => b.Key));
+        List<byte> targetList = [..BittenPlayers.Where(b => b.Value.VampireId == vampireID).Select(b => b.Key)];
 
         foreach (byte targetId in targetList.ToArray())
         {
@@ -97,7 +100,6 @@ public static class Vampire
         if (target.IsAlive())
         {
             target.Suicide(PlayerState.DeathReason.Bite, vampire);
-            Logger.Info($"Vampireに噛まれている{target.name}を自爆させました。", "Vampire");
             if (!isButton && vampire.IsAlive())
             {
                 RPC.PlaySoundRPC(vampire.PlayerId, Sounds.KillSound);
@@ -106,13 +108,9 @@ public static class Vampire
                 vampire.Notify(GetString("VampireTargetDead"));
             }
         }
-        else
-        {
-            Logger.Info("Vampireに噛まれている" + target.name + "はすでに死んでいました。", "Vampire");
-        }
     }
 
-    public static void OnStartMeeting()
+    public override void OnReportDeadBody(PlayerControl reporter, PlayerControl _)
     {
         foreach (var targetId in BittenPlayers.Keys)
         {
@@ -122,8 +120,9 @@ public static class Vampire
         }
         BittenPlayers.Clear();
     }
-    public static void SetKillButtonText()
+
+    public override void SetButtonTexts(HudManager hud, byte id)
     {
-        HudManager.Instance.KillButton.OverrideText(GetString("VampireBiteButtonText"));
+        hud.KillButton.OverrideText(GetString("VampireBiteButtonText"));
     }
 }

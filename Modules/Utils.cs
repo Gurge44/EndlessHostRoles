@@ -2728,10 +2728,6 @@ public static class Utils
                 Crusader.Add(id);
                 id.SetAbilityUseLimit(Crusader.SkillLimitOpt.GetInt());
                 break;
-            case CustomRoles.Warlock:
-                Main.CursedPlayers.Add(id, null);
-                Main.isCurseAndKill.Add(id, false);
-                break;
             case CustomRoles.FireWorks:
                 FireWorks.Add(id);
                 break;

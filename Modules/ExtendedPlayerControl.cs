@@ -993,9 +993,6 @@ static class ExtendedPlayerControl
             case CustomRoles.Revolutionist:
                 Main.AllPlayerKillCooldown[player.PlayerId] = Options.RevolutionistCooldown.GetFloat();
                 break;
-            case CustomRoles.Underdog:
-                Main.AllPlayerKillCooldown[player.PlayerId] = Options.UnderdogKillCooldownWithMorePlayersAlive.GetFloat();
-                break;
             case CustomRoles.Jackal:
                 Jackal.SetKillCooldown(player.PlayerId);
                 break;
@@ -1105,9 +1102,6 @@ static class ExtendedPlayerControl
             case CustomRoles.Zombie:
                 Main.AllPlayerKillCooldown[player.PlayerId] = Options.ZombieKillCooldown.GetFloat();
                 Main.AllPlayerSpeed[player.PlayerId] = Math.Clamp(Main.AllPlayerSpeed[player.PlayerId] - Options.ZombieSpeedReduce.GetFloat(), 0.1f, 3f);
-                break;
-            case CustomRoles.BoobyTrap:
-                Main.AllPlayerKillCooldown[player.PlayerId] = Options.BTKillCooldown.GetFloat();
                 break;
             case CustomRoles.Bomber:
                 if (Options.BomberCanKill.GetBool())
@@ -1424,17 +1418,7 @@ static class ExtendedPlayerControl
         => ((seer.Is(CustomRoles.Doctor) || seer.Is(CustomRoles.Autopsy)
         || (seer.Data.IsDead && Options.GhostCanSeeDeathReason.GetBool()))
         && target.Data.IsDead) || (target.Is(CustomRoles.Gravestone) && target.Data.IsDead);
-/*
-    public static bool KnowDeadTeam(this PlayerControl seer, PlayerControl target)
-        => seer.Is(CustomRoles.Necroview)
-        && target.Data.IsDead;
-*/
 
-/*
-    public static bool KnowLivingTeam(this PlayerControl seer, PlayerControl target)
-        => seer.Is(CustomRoles.Visionary)
-        && !target.Data.IsDead;
-*/
     public static string GetRoleInfo(this PlayerControl player, bool InfoLong = false)
     {
         var role = player.GetCustomRole();

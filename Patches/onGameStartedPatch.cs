@@ -74,7 +74,7 @@ internal class ChangeRoleSettings
             Main.SpeedrunnerAlive = [];
             Main.BaitAlive = [];
             Main.BoobyTrapBody = [];
-            Main.KillerOfBoobyTrapBody = [];
+            BoobyTrap.KillerOfBoobyTrapBody = [];
             Main.CleanerBodies = [];
             Main.MedusaBodies = [];
             Main.InfectedBodies = [];

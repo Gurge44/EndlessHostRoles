@@ -171,15 +171,6 @@ class HudManagerPatch
                     //case CustomRoles.SerialKiller:
                     //    SerialKiller.GetAbilityButtonText(__instance, player);
                     //    break;
-                    case CustomRoles.Warlock:
-                        bool curse = Main.isCurseAndKill.TryGetValue(player.PlayerId, out bool wcs) && wcs;
-                        if (!shapeshifting && !curse)
-                            __instance.KillButton?.OverrideText(GetString("WarlockCurseButtonText"));
-                        else
-                            __instance.KillButton?.OverrideText(GetString("KillButtonText"));
-                        if (!shapeshifting && curse)
-                            __instance.AbilityButton?.OverrideText(GetString("WarlockShapeshiftButtonText"));
-                        break;
                     case CustomRoles.Pestilence:
                         __instance.KillButton?.OverrideText(GetString("KillButtonText"));
                         break;

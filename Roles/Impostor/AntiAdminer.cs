@@ -9,7 +9,7 @@ namespace TOHE.Roles.Impostor;
 // 贡献：https://github.com/Yumenopai/TownOfHost_Y/tree/AntiAdminer
 internal class AntiAdminer : RoleBase
 {
-    private static readonly int Id = 2300;
+    private const int Id = 2300;
     private static List<byte> playerIdList = [];
 
     private static OptionItem CanCheckCamera;
@@ -40,7 +40,7 @@ internal class AntiAdminer : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    private static int Count;
+    private int Count;
 
     public override void OnFixedUpdate(PlayerControl player)
     {
