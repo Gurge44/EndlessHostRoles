@@ -875,10 +875,6 @@ public static class Utils
                     ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(GetAbilityUseLimitDisplay(playerId, Main.VeteranInProtect.ContainsKey(playerId)));
                     break;
-                case CustomRoles.Grenadier:
-                    ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId, Main.GrenadierBlinding.ContainsKey(playerId)));
-                    break;
                 case CustomRoles.TimeMaster:
                     ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(GetAbilityUseLimitDisplay(playerId, Main.TimeMasterInProtect.ContainsKey(playerId)));
@@ -893,10 +889,6 @@ public static class Utils
                 case CustomRoles.Chameleon:
                     ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(GetAbilityUseLimitDisplay(playerId, Chameleon.IsInvis(playerId)));
-                    break;
-                case CustomRoles.Lighter:
-                    ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId, Main.Lighter.ContainsKey(playerId)));
                     break;
                 case CustomRoles.SecurityGuard:
                     ProgressText.Append(GetTaskCount(playerId, comms));
@@ -2358,7 +2350,7 @@ public static class Utils
 
                                     break;
                                 case CustomRoles.Farseer:
-                                    if (Main.FarseerTimer.TryGetValue(seer.PlayerId, out var ar_kvp2) && ar_kvp2.PLAYER == target)
+                                    if (Farseer.FarseerTimer.TryGetValue(seer.PlayerId, out var ar_kvp2) && ar_kvp2.PLAYER == target)
                                     {
                                         TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Farseer)}>○</color>");
                                     }
@@ -2935,12 +2927,6 @@ public static class Utils
                 break;
             case CustomRoles.Veteran:
                 id.SetAbilityUseLimit(Options.VeteranSkillMaxOfUseage.GetInt());
-                break;
-            case CustomRoles.Grenadier:
-                id.SetAbilityUseLimit(Options.GrenadierSkillMaxOfUseage.GetInt());
-                break;
-            case CustomRoles.Lighter:
-                id.SetAbilityUseLimit(Options.LighterSkillMaxOfUseage.GetInt());
                 break;
             case CustomRoles.SecurityGuard:
                 id.SetAbilityUseLimit(Options.SecurityGuardSkillMaxOfUseage.GetInt());

@@ -3,6 +3,7 @@ using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using Il2CppSystem.Collections.Generic;
 using TOHE.Roles.AddOns.Crewmate;
+using TOHE.Roles.Impostor;
 using UnityEngine;
 
 namespace TOHE;
@@ -171,22 +172,27 @@ class RpcSetTasksPatch
             (hasCommonTasks, NumLongTasks, NumShortTasks) = Workhorse.TaskData;
 
         //资本主义要祸害人咯~
-        if (Main.CapitalismAssignTask.ContainsKey(playerId))
+        if (Capitalism.CapitalismAssignTask.ContainsKey(playerId))
         {
-            NumShortTasks += Main.CapitalismAssignTask[playerId];
-            Main.CapitalismAssignTask.Remove(playerId);
+            NumShortTasks += Capitalism.CapitalismAssignTask[playerId];
+            Capitalism.CapitalismAssignTask.Remove(playerId);
         }
 
         if (taskTypeIds.Length == 0) hasCommonTasks = false; //タスク再配布時はコモンを0に
-        if (!hasCommonTasks && NumLongTasks == 0 && NumShortTasks == 0) NumShortTasks = 1; //タスク0対策
-        if (hasCommonTasks && NumLongTasks == Main.NormalOptions.NumLongTasks && NumShortTasks == Main.NormalOptions.NumShortTasks) return; //変更点がない場合
+        switch (hasCommonTasks)
+        {
+            case false when NumLongTasks == 0 && NumShortTasks == 0:
+                NumShortTasks = 1; //タスク0対策
+                break;
+            case true when NumLongTasks == Main.NormalOptions.NumLongTasks && NumShortTasks == Main.NormalOptions.NumShortTasks:
+                return; //変更点がない場合
+        }
 
         //割り当て可能なタスクのIDが入ったリスト
         //本来のRpcSetTasksの第二引数のクローン
         List<byte> TasksList = new();
-        for (int i1 = 0; i1 < taskTypeIds.Count; i1++)
+        foreach (var num in taskTypeIds)
         {
-            byte num = taskTypeIds[i1];
             TasksList.Add(num);
         }
 

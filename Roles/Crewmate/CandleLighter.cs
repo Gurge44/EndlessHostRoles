@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using AmongUs.GameOptions;
 using UnityEngine;
 
@@ -6,9 +7,9 @@ namespace TOHE.Roles.Crewmate
 {
     using static Options;
 
-    public static class Ignitor // Candle Lighter from TOHY
+    public class Ignitor : RoleBase // Candle Lighter from TOHY
     {
-        private static readonly int Id = 5280;
+        private const int Id = 5280;
         private static List<byte> playerIdList = [];
 
         private static OptionItem OptionTaskStartVision;
@@ -18,13 +19,13 @@ namespace TOHE.Roles.Crewmate
         private static OptionItem OptionTaskTimeMoveMeeting;
         private static OptionItem OptionTasksFinishedVision;
 
-        private static float UpdateTime;
-        private static float ElapsedTime;
-        private static bool Active = true;
+        private float UpdateTime;
+        private float ElapsedTime;
+        private bool Active = true;
 
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Ignitor, 1);
+            SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Ignitor);
             OptionTaskStartVision = FloatOptionItem.Create(Id + 2, "CandleLighterStartVision", new(0.5f, 5f, 0.1f), 0.8f, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ignitor])
                 .SetValueFormat(OptionFormat.Multiplier);
@@ -44,18 +45,21 @@ namespace TOHE.Roles.Crewmate
                 .SetValueFormat(OptionFormat.Multiplier);
             OverrideTasksData.Create(Id + 8, TabGroup.CrewmateRoles, CustomRoles.Ignitor);
         }
-        public static void Init()
+
+        public override void Init()
         {
             playerIdList = [];
             Active = true;
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
             UpdateTime = 1.0f;
             ElapsedTime = OptionTaskEndVisionTime.GetInt() + OptionCountStartTime.GetInt();
         }
-        public static void ApplyGameOptions(IGameOptions opt)
+
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             float Vision;
             if (!Active) Vision = OptionTasksFinishedVision.GetFloat();
@@ -68,19 +72,17 @@ namespace TOHE.Roles.Crewmate
             if (Utils.IsActive(SystemTypes.Electrical))
                 opt.SetFloat(FloatOptionNames.CrewLightMod, Vision * 5);
         }
-        public static bool IsEnable => playerIdList.Count > 0;
-        public static bool OnCompleteTask(PlayerControl pc)
+
+        public override bool IsEnable => playerIdList.Count > 0;
+
+        public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
         {
-            ElapsedTime = OptionTaskEndVisionTime.GetInt();
-            pc.MarkDirtySettings();
-            return true;
-        }
-        public static void OnTasksFinished(PlayerControl pc)
-        {
-            Active = false;
+            if ((completedTaskCount + 1) >= totalTaskCount) Active = false;
+            else ElapsedTime = OptionTaskEndVisionTime.GetInt();
             pc.MarkDirtySettings();
         }
-        public static void OnFixedUpdate(PlayerControl player)
+
+        public override void OnFixedUpdate(PlayerControl player)
         {
             if (!GameStates.IsInTask && !OptionTaskTimeMoveMeeting.GetBool()) return;
             if (!Active) return;
@@ -92,7 +94,7 @@ namespace TOHE.Roles.Crewmate
             {
                 ElapsedTime -= Time.fixedDeltaTime;
 
-                if (UpdateTime == 1.0f) player.MarkDirtySettings();
+                if (Math.Abs(UpdateTime - 1.0f) < 0.01f) player.MarkDirtySettings();
             }
         }
     }

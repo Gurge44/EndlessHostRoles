@@ -3,14 +3,27 @@ using System.Linq;
 
 namespace TOHE.Roles.Crewmate
 {
-    internal class Insight
+    internal class Insight : RoleBase
     {
         public static List<byte> KnownRolesOfPlayerIds = [];
 
-        public static void OnTaskComplete(PlayerControl player)
+        public static bool On;
+        public override bool IsEnable => On;
+
+        public override void Add(byte playerId)
+        {
+            On = true;
+        }
+
+        public override void Init()
+        {
+            On = false;
+        }
+
+        public override void OnTaskComplete(PlayerControl player, int completedTaskCount, int totalTaskCount)
         {
             var list = Main.AllPlayerControls.Where(x => !KnownRolesOfPlayerIds.Contains(x.PlayerId) && !x.Is(CountTypes.OutOfGame) && !x.Is(CustomRoles.Insight) && !x.Is(CustomRoles.GM) && !x.Is(CustomRoles.NotAssigned))?.ToList();
-            if (list != null && list.Count != 0)
+            if (list.Count != 0)
             {
                 var target = list[IRandom.Instance.Next(0, list.Count)];
                 KnownRolesOfPlayerIds.Add(target.PlayerId);

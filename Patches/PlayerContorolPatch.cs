@@ -445,9 +445,9 @@ class CheckMurderPatch
                     return false;
                 case CustomRoles.Farseer:
                     killer.SetKillCooldown(Farseer.FarseerRevealTime.GetFloat());
-                    if (!Main.isRevealed[(killer.PlayerId, target.PlayerId)] && !Main.FarseerTimer.ContainsKey(killer.PlayerId))
+                    if (!Main.isRevealed[(killer.PlayerId, target.PlayerId)] && !Farseer.FarseerTimer.ContainsKey(killer.PlayerId))
                     {
-                        Main.FarseerTimer.TryAdd(killer.PlayerId, (target, 0f));
+                        Farseer.FarseerTimer.TryAdd(killer.PlayerId, (target, 0f));
                         NotifyRoles(SpecifySeer: __instance, SpecifyTarget: target, ForceLoop: true);
                         RPC.SetCurrentRevealTarget(killer.PlayerId, target.PlayerId);
                     }
@@ -720,8 +720,6 @@ class CheckMurderPatch
             case CustomRoles.Medic:
                 Medic.IsDead(target);
                 break;
-            case CustomRoles.Guardian when target.AllTasksCompleted():
-                return false;
             case CustomRoles.Monarch when killer.Is(CustomRoles.Knighted):
                 return false;
             case CustomRoles.WeaponMaster when WeaponMaster.OnAttack():
@@ -1506,7 +1504,7 @@ class ReportDeadBodyPatch
         Main.LastVotedPlayerInfo = null;
         Main.AllKillers.Clear();
         Main.ArsonistTimer.Clear();
-        if (Farseer.isEnable) Main.FarseerTimer.Clear();
+        if (Farseer.isEnable) Farseer.FarseerTimer.Clear();
         Puppeteer.PuppeteerList.Clear();
         Puppeteer.PuppeteerDelayList.Clear();
         Main.TaglockedList.Clear();
@@ -1516,7 +1514,7 @@ class ReportDeadBodyPatch
         Main.Lighter.Clear();
         Main.BlockSabo.Clear();
         Main.BlockedVents.Clear();
-        Main.MadGrenadierBlinding.Clear();
+        Grenadier.MadGrenadierBlinding.Clear();
         if (Divinator.IsEnable) Divinator.didVote.Clear();
         if (Oracle.IsEnable) Oracle.didVote.Clear();
         if (Bloodhound.IsEnable) Bloodhound.Clear();
@@ -2133,36 +2131,6 @@ class FixedUpdatePatch
 
                 case CustomRoles.Express when GameStates.IsInTask:
                     Express.OnFixedUpdate(player);
-                    break;
-
-                case CustomRoles.Grenadier when GameStates.IsInTask:
-                    if (Main.GrenadierBlinding.TryGetValue(playerId, out var gtime) && gtime + Options.GrenadierSkillDuration.GetInt() < now)
-                    {
-                        Main.GrenadierBlinding.Remove(playerId);
-                        player.RpcResetAbilityCooldown();
-                        player.Notify(string.Format(GetString("GrenadierSkillStop"), (int)player.GetAbilityUseLimit()));
-                        MarkEveryoneDirtySettingsV3();
-                    }
-
-                    if (Main.MadGrenadierBlinding.TryGetValue(playerId, out var mgtime) && mgtime + Options.GrenadierSkillDuration.GetInt() < now)
-                    {
-                        Main.MadGrenadierBlinding.Remove(playerId);
-                        player.RpcResetAbilityCooldown();
-                        player.Notify(string.Format(GetString("GrenadierSkillStop"), (int)player.GetAbilityUseLimit()));
-                        MarkEveryoneDirtySettingsV3();
-                    }
-
-                    break;
-
-                case CustomRoles.Lighter when GameStates.IsInTask:
-                    if (Main.Lighter.TryGetValue(playerId, out var ltime) && ltime + Options.LighterSkillDuration.GetInt() < now)
-                    {
-                        Main.Lighter.Remove(playerId);
-                        player.RpcResetAbilityCooldown();
-                        player.Notify(GetString("LighterSkillStop"));
-                        player.MarkDirtySettings();
-                    }
-
                     break;
 
                 case CustomRoles.SecurityGuard when GameStates.IsInTask:
@@ -2914,51 +2882,6 @@ class EnterVentPatch
                     pc.RPCPlayCustomSound("Gunload");
                     pc.Notify(GetString("VeteranOnGuard"), Options.VeteranSkillDuration.GetFloat());
                     pc.AddAbilityCD();
-                    pc.MarkDirtySettings();
-                }
-                else
-                {
-                    pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
-                }
-
-                break;
-            case CustomRoles.Grenadier when !Options.UsePets.GetBool():
-                if (pc.GetAbilityUseLimit() >= 1)
-                {
-                    if (pc.Is(CustomRoles.Madmate))
-                    {
-                        Main.MadGrenadierBlinding.Remove(pc.PlayerId);
-                        Main.MadGrenadierBlinding.Add(pc.PlayerId, TimeStamp);
-                        Main.AllPlayerControls.Where(x => x.IsModClient()).Where(x => !x.GetCustomRole().IsImpostorTeam() && !x.Is(CustomRoles.Madmate)).Do(x => x.RPCPlayCustomSound("FlashBang"));
-                    }
-                    else
-                    {
-                        Main.GrenadierBlinding.Remove(pc.PlayerId);
-                        Main.GrenadierBlinding.Add(pc.PlayerId, TimeStamp);
-                        Main.AllPlayerControls.Where(x => x.IsModClient()).Where(x => x.GetCustomRole().IsImpostor() || (x.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool())).Do(x => x.RPCPlayCustomSound("FlashBang"));
-                    }
-
-                    //pc.RpcGuardAndKill(pc);
-                    pc.RPCPlayCustomSound("FlashBang");
-                    pc.Notify(GetString("GrenadierSkillInUse"), Options.GrenadierSkillDuration.GetFloat());
-                    pc.AddAbilityCD();
-                    pc.RpcRemoveAbilityUse();
-                    MarkEveryoneDirtySettingsV3();
-                }
-                else
-                {
-                    pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
-                }
-
-                break;
-            case CustomRoles.Lighter when !Options.UsePets.GetBool():
-                if (pc.GetAbilityUseLimit() >= 1)
-                {
-                    Main.Lighter.Remove(pc.PlayerId);
-                    Main.Lighter.Add(pc.PlayerId, TimeStamp);
-                    pc.Notify(GetString("LighterSkillInUse"), Options.LighterSkillDuration.GetFloat());
-                    pc.AddAbilityCD();
-                    pc.RpcRemoveAbilityUse();
                     pc.MarkDirtySettings();
                 }
                 else

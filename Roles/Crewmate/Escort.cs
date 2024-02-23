@@ -4,9 +4,9 @@ using static TOHE.Translator;
 
 namespace TOHE.Roles.Crewmate
 {
-    public static class Escort
+    public class Escort : RoleBase
     {
-        private static readonly int Id = 642300;
+        private const int Id = 642300;
         private static List<byte> playerIdList = [];
 
         private static OptionItem CD;
@@ -25,12 +25,12 @@ namespace TOHE.Roles.Crewmate
             UsePet = Options.CreatePetUseSetting(Id + 12, CustomRoles.Escort);
         }
 
-        public static void Init()
+        public override void Init()
         {
             playerIdList = [];
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
 
@@ -41,23 +41,23 @@ namespace TOHE.Roles.Crewmate
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public static bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void SetKillCooldown(byte playerId)
+        public override void SetKillCooldown(byte playerId)
         {
             Main.AllPlayerKillCooldown[playerId] = playerId.GetAbilityUseLimit() > 0 ? CD.GetFloat() : 300f;
         }
 
-        public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0 || !killer.Is(CustomRoles.Escort)) return;
+            if (!IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0) return false;
 
             killer.RpcRemoveAbilityUse();
             killer.SetKillCooldown();
             Glitch.hackedIdList.TryAdd(target.PlayerId, Utils.TimeStamp);
             killer.Notify(GetString("EscortTargetHacked"));
-        }
 
-        public static string GetProgressText(byte id) => $"<color=#777777>-</color> <color=#ffffff>{id.GetAbilityUseLimit()}</color>";
+            return false;
+        }
     }
 }

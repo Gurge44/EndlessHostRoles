@@ -5,14 +5,13 @@ using static TOHE.Translator;
 
 namespace TOHE.Roles.Crewmate;
 
-public static class Jailor
+public class Jailor : RoleBase
 {
-    private static readonly int Id = 63420;
+    private const int Id = 63420;
     public static List<byte> playerIdList = [];
-    public static Dictionary<byte, byte> JailorTarget = [];
-    public static Dictionary<byte, int> JailorExeLimit = [];
-    public static Dictionary<byte, bool> JailorHasExe = [];
-    public static Dictionary<byte, bool> JailorDidVote = [];
+
+    public byte JailorTarget;
+    public bool JailorDidVote;
 
     public static OptionItem JailCooldown;
     public static OptionItem notifyJailedOnMeeting;
@@ -27,41 +26,36 @@ public static class Jailor
         UsePet = CreatePetUseSetting(Id + 11, CustomRoles.Jailor);
     }
 
-    public static void Init()
+    public override void Init()
     {
         playerIdList = [];
-        JailorExeLimit = [];
-        JailorTarget = [];
-        JailorHasExe = [];
-        JailorDidVote = [];
+        JailorTarget = byte.MaxValue;
+        JailorDidVote = false;
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        JailorTarget.Add(playerId, byte.MaxValue);
-        JailorHasExe.Add(playerId, false);
-        JailorDidVote.Add(playerId, false);
+        JailorTarget = byte.MaxValue;
+        JailorDidVote = false;
 
         if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Utils.GetPlayerById(id).IsAlive() ? JailCooldown.GetFloat() : 0f;
-    public static string GetProgressText(byte playerId) => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor).ShadeColor(0.25f), JailorExeLimit.TryGetValue(playerId, out var exeLimit) ? $"({exeLimit})" : "Invalid");
 
+    public override bool IsEnable => playerIdList.Count > 0;
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Utils.GetPlayerById(id).IsAlive() ? JailCooldown.GetFloat() : 0f;
 
-    public static void SendRPC(byte jailerId, byte targetId = byte.MaxValue, bool setTarget = true)
+    void SendRPC(byte jailerId, byte targetId = byte.MaxValue, bool setTarget = true)
     {
-        if (!IsEnable || !Utils.DoRPC) return;
+        if (!Utils.DoRPC) return;
         MessageWriter writer;
         if (!setTarget)
         {
             writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetJailorExeLimit, SendOption.Reliable);
             writer.Write(jailerId);
-            writer.Write(JailorExeLimit[jailerId]);
-            writer.Write(JailorHasExe[jailerId]);
-            writer.Write(JailorDidVote[jailerId]);
+            writer.Write(JailorDidVote);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
             return;
         }
@@ -75,35 +69,28 @@ public static class Jailor
     public static void ReceiveRPC(MessageReader reader, bool setTarget = true)
     {
         byte jailerId = reader.ReadByte();
+        if (Main.PlayerStates[jailerId].Role is not Jailor jl) return;
+
         if (!setTarget)
         {
-            _ = reader.ReadInt32();
-            //if (JailorExeLimit.ContainsKey(jailerId)) JailorExeLimit[jailerId] = points;
-            //else JailorExeLimit.Add(jailerId, MaxExecution.GetInt());
-
-            bool executed = reader.ReadBoolean();
-            if (!JailorHasExe.TryAdd(jailerId, false)) JailorHasExe[jailerId] = executed;
-
             bool didvote = reader.ReadBoolean();
-            if (!JailorDidVote.TryAdd(jailerId, false)) JailorDidVote[jailerId] = didvote;
-
-            return;
+            jl.JailorDidVote = didvote;
         }
 
         byte targetId = reader.ReadByte();
-        JailorTarget[jailerId] = targetId;
+        jl.JailorTarget = targetId;
     }
 
-    public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!killer.Is(CustomRoles.Jailor)) return true;
         if (killer == null || target == null) return true;
-        if (JailorTarget[killer.PlayerId] != byte.MaxValue)
+        if (JailorTarget != byte.MaxValue)
         {
             killer.Notify(GetString("JailorTargetAlreadySelected"));
             return false;
         }
-        JailorTarget[killer.PlayerId] = target.PlayerId;
+
+        JailorTarget = target.PlayerId;
         killer.Notify(GetString("SuccessfullyJailed"));
         killer.ResetKillCooldown();
         killer.SetKillCooldown();
@@ -111,21 +98,16 @@ public static class Jailor
         return false;
     }
 
-    public static void OnReportDeadBody()
+    public override void OnReportDeadBody()
     {
         if (!notifyJailedOnMeeting.GetBool()) return;
-        foreach (var targetId in JailorTarget.Values)
+        if (JailorTarget == byte.MaxValue) return;
+        var tpc = Utils.GetPlayerById(JailorTarget);
+        if (tpc == null) return;
+
+        if (tpc.IsAlive())
         {
-            if (targetId == byte.MaxValue) continue;
-            var tpc = Utils.GetPlayerById(targetId);
-            if (tpc == null) continue;
-            if (tpc.IsAlive())
-            {
-                _ = new LateTask(() =>
-                {
-                    Utils.SendMessage(GetString("JailedNotifyMsg"), targetId, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
-                }, 0.3f, "JailorNotifyJailed");
-            }
+            _ = new LateTask(() => { Utils.SendMessage(GetString("JailedNotifyMsg"), JailorTarget, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle"))); }, 0.3f, "JailorNotifyJailed");
         }
     }
 

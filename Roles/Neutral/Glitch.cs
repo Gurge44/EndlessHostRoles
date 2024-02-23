@@ -8,9 +8,9 @@ using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral;
 
-public static class Glitch
+public class Glitch : RoleBase
 {
-    private static readonly int Id = 18125;
+    private const int Id = 18125;
     public static List<byte> playerIdList = [];
 
     public static Dictionary<byte, long> hackedIdList = [];
@@ -24,15 +24,18 @@ public static class Glitch
     public static OptionItem CanVote;
     private static OptionItem HasImpostorVision;
 
-    public static int HackCDTimer;
-    public static int KCDTimer;
-    public static int MimicCDTimer;
-    public static int MimicDurTimer;
-    public static long LastHack;
-    public static long LastKill;
-    public static long LastMimic;
+    private byte GlitchId;
 
-    private static bool isShifted;
+    public int HackCDTimer;
+    public int KCDTimer;
+    public int MimicCDTimer;
+    public int MimicDurTimer;
+
+    public long LastHack;
+    public long LastKill;
+    public long LastMimic;
+
+    private bool isShifted;
 
     public static void SetupCustomOption()
     {
@@ -51,14 +54,18 @@ public static class Glitch
         CanVote = BooleanOptionItem.Create(Id + 17, "CanVote", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Glitch]);
         HasImpostorVision = BooleanOptionItem.Create(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Glitch]);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
         hackedIdList = [];
+        GlitchId = byte.MaxValue;
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
+        GlitchId = playerId;
 
         HackCDTimer = 10;
         KCDTimer = 10;
@@ -73,25 +80,23 @@ public static class Glitch
         LastHack = ts;
         LastMimic = ts;
 
-        _ = new LateTask(() =>
-        {
-            SendRPCSyncTimers();
-        }, 7f, "Glitch RPCs");
-
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static void SetHudActive(HudManager __instance)
+
+    public override void SetButtonTexts(HudManager hud, byte id)
     {
-        __instance.SabotageButton.ToggleVisible(true);
+        hud.SabotageButton.ToggleVisible(true);
     }
 
-    public static bool IsEnable => playerIdList.Count > 0;
-    public static void SendRPCSyncTimers()
+    public override bool IsEnable => playerIdList.Count > 0;
+
+    void SendRPCSyncTimers()
     {
         if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGlitchTimers, SendOption.Reliable);
+        writer.Write(GlitchId);
         writer.Write(MimicCDTimer);
         writer.Write(MimicDurTimer);
         writer.Write(HackCDTimer);
@@ -100,16 +105,19 @@ public static class Glitch
     }
     public static void ReceiveRPCSyncTimers(MessageReader reader)
     {
-        if (AmongUsClient.Instance.AmHost) return;
+        byte id = reader.ReadByte();
+        if (Main.PlayerStates[id].Role is not Glitch gc) return;
 
-        MimicCDTimer = reader.ReadInt32();
-        MimicDurTimer = reader.ReadInt32();
-        HackCDTimer = reader.ReadInt32();
-        KCDTimer = reader.ReadInt32();
+        gc.MimicCDTimer = reader.ReadInt32();
+        gc.MimicDurTimer = reader.ReadInt32();
+        gc.HackCDTimer = reader.ReadInt32();
+        gc.KCDTimer = reader.ReadInt32();
     }
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = 1f;
-    public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
-    public static void Mimic(PlayerControl pc)
+
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = 1f;
+    public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+
+    void Mimic(PlayerControl pc)
     {
         if (pc == null || !pc.Is(CustomRoles.Glitch) || !pc.IsAlive() || MimicCDTimer > 0 || isShifted) return;
 
@@ -130,7 +138,18 @@ public static class Glitch
             Logger.Error(ex.ToString(), "Glitch.Mimic.RpcShapeshift");
         }
     }
-    public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+
+    public override void OnPet(PlayerControl pc)
+    {
+        Mimic(pc);
+    }
+
+    public override void OnSabotage(PlayerControl pc)
+    {
+        Mimic(pc);
+    }
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer == null || target == null || (KCDTimer > 0 && HackCDTimer > 0)) return false;
 
@@ -155,12 +174,13 @@ public static class Glitch
 
         return false;
     }
-    public static void UpdateHackCooldown(PlayerControl player)
+
+    public override void OnFixedUpdate(PlayerControl player)
     {
-        if (HackCDTimer > 180 || HackCDTimer < 0) HackCDTimer = 0;
-        if (KCDTimer > 180 || KCDTimer < 0) KCDTimer = 0;
-        if (MimicCDTimer > 180 || MimicCDTimer < 0) MimicCDTimer = 0;
-        if (MimicDurTimer > 180 || MimicDurTimer < 0) MimicDurTimer = 0;
+        if (HackCDTimer is > 180 or < 0) HackCDTimer = 0;
+        if (KCDTimer is > 180 or < 0) KCDTimer = 0;
+        if (MimicCDTimer is > 180 or < 0) MimicCDTimer = 0;
+        if (MimicDurTimer is > 180 or < 0) MimicDurTimer = 0;
 
         bool change = false;
         foreach (var pc in hackedIdList)
@@ -173,9 +193,11 @@ public static class Glitch
         }
 
         if (player == null) return;
-        if (!player.Is(CustomRoles.Glitch)) return;
 
-        if (change) { Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player); }
+        if (change)
+        {
+            Utils.NotifyRoles(SpecifySeer: player);
+        }
 
         if (!player.IsAlive())
         {
@@ -213,15 +235,18 @@ public static class Glitch
 
         try { HackCDTimer = (int)(HackCooldown.GetInt() - (Utils.TimeStamp - LastHack)); }
         catch { HackCDTimer = 0; }
-        if (HackCDTimer > 180 || HackCDTimer < 0) HackCDTimer = 0;
+
+        if (HackCDTimer is > 180 or < 0) HackCDTimer = 0;
 
         try { KCDTimer = (int)(KillCooldown.GetInt() - (Utils.TimeStamp - LastKill)); }
         catch { KCDTimer = 0; }
-        if (KCDTimer > 180 || KCDTimer < 0) KCDTimer = 0;
+
+        if (KCDTimer is > 180 or < 0) KCDTimer = 0;
 
         try { MimicCDTimer = (int)(MimicCooldown.GetInt() + MimicDuration.GetInt() - (Utils.TimeStamp - LastMimic)); }
         catch { MimicCDTimer = 0; }
-        if (MimicCDTimer > 180 || MimicCDTimer < 0) MimicCDTimer = 0;
+
+        if (MimicCDTimer is > 180 or < 0) MimicCDTimer = 0;
 
         if (!player.IsModClient())
         {
@@ -241,20 +266,20 @@ public static class Glitch
     }
     public static string GetHudText(PlayerControl player)
     {
-        if (player == null) return string.Empty;
-        if (!player.Is(CustomRoles.Glitch)) return string.Empty;
-        if (!player.IsAlive()) return string.Empty;
+        if (player == null || !player.IsAlive()) return string.Empty;
+        if (Main.PlayerStates[player.PlayerId].Role is not Glitch gc) return string.Empty;
 
         var sb = new StringBuilder();
 
-        if (MimicDurTimer > 0) sb.Append($"{string.Format(Translator.GetString("MimicDur"), MimicDurTimer)}\n");
-        if (MimicCDTimer > 0 && MimicDurTimer <= 0) sb.Append($"{string.Format(Translator.GetString("MimicCD"), MimicCDTimer)}\n");
-        if (HackCDTimer > 0) sb.Append($"{string.Format(Translator.GetString("HackCD"), HackCDTimer)}\n");
-        if (KCDTimer > 0) sb.Append($"{string.Format(Translator.GetString("KCD"), KCDTimer)}\n");
+        if (gc.MimicDurTimer > 0) sb.Append($"{string.Format(Translator.GetString("MimicDur"), gc.MimicDurTimer)}\n");
+        if (gc.MimicCDTimer > 0 && gc.MimicDurTimer <= 0) sb.Append($"{string.Format(Translator.GetString("MimicCD"), gc.MimicCDTimer)}\n");
+        if (gc.HackCDTimer > 0) sb.Append($"{string.Format(Translator.GetString("HackCD"), gc.HackCDTimer)}\n");
+        if (gc.KCDTimer > 0) sb.Append($"{string.Format(Translator.GetString("KCD"), gc.KCDTimer)}\n");
 
         return sb.ToString();
     }
-    public static void AfterMeetingTasks()
+
+    public override void AfterMeetingTasks()
     {
         var timestamp = Utils.TimeStamp;
         LastKill = timestamp;

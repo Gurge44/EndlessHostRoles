@@ -5,9 +5,9 @@ using static TOHE.Translator;
 
 namespace TOHE.Roles.Crewmate;
 
-public static class Divinator
+public class Divinator : RoleBase
 {
-    private static readonly int Id = 6700;
+    private const int Id = 6700;
     private static List<byte> playerIdList = [];
 
     public static OptionItem CheckLimitOpt;
@@ -39,12 +39,14 @@ public static class Divinator
         CancelVote = CreateVoteCancellingUseSetting(Id + 11, CustomRoles.Divinator, TabGroup.CrewmateRoles);
         OverrideTasksData.Create(Id + 21, TabGroup.CrewmateRoles, CustomRoles.Divinator);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
         AllPlayerRoleList = [];
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(CheckLimitOpt.GetInt());
@@ -69,7 +71,8 @@ public static class Divinator
             }
         }
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static bool OnVote(PlayerControl player, PlayerControl target)
     {

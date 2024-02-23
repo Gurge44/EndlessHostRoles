@@ -53,7 +53,7 @@ internal class ChangeRoleSettings
             Main.RevolutionistCountdown = [];
             Main.TimeMasterBackTrack = [];
             Main.TimeMasterNum = [];
-            Main.FarseerTimer = [];
+            Farseer.FarseerTimer = [];
             Main.CursedPlayers = [];
             Main.MafiaRevenged = [];
             Main.RetributionistRevenged = [];
@@ -100,7 +100,7 @@ internal class ChangeRoleSettings
             Main.Lighter = [];
             Main.BlockSabo = [];
             Main.BlockedVents = [];
-            Main.MadGrenadierBlinding = [];
+            Grenadier.MadGrenadierBlinding = [];
             Main.JinxSpellCount = [];
             Main.PuppeteerDelay = [];
             Main.PuppeteerMaxPuppets = [];

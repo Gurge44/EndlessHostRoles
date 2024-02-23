@@ -161,51 +161,6 @@ class ExternalRpcPetPatch
                 }
 
                 break;
-            case CustomRoles.Grenadier:
-                if (Main.GrenadierBlinding.ContainsKey(pc.PlayerId) || Main.MadGrenadierBlinding.ContainsKey(pc.PlayerId)) break;
-                if (pc.GetAbilityUseLimit() >= 1)
-                {
-                    if (pc.Is(CustomRoles.Madmate))
-                    {
-                        Main.MadGrenadierBlinding.Remove(pc.PlayerId);
-                        Main.MadGrenadierBlinding.Add(pc.PlayerId, Utils.TimeStamp);
-                        Main.AllPlayerControls.Where(x => x.IsModClient()).Where(x => !x.GetCustomRole().IsImpostorTeam() && !x.Is(CustomRoles.Madmate)).Do(x => x.RPCPlayCustomSound("FlashBang"));
-                    }
-                    else
-                    {
-                        Main.GrenadierBlinding.Remove(pc.PlayerId);
-                        Main.GrenadierBlinding.Add(pc.PlayerId, Utils.TimeStamp);
-                        Main.AllPlayerControls.Where(x => x.IsModClient()).Where(x => x.GetCustomRole().IsImpostor() || (x.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool())).Do(x => x.RPCPlayCustomSound("FlashBang"));
-                    }
-
-                    pc.RPCPlayCustomSound("FlashBang");
-                    pc.Notify(GetString("GrenadierSkillInUse"), Options.GrenadierSkillDuration.GetFloat());
-                    pc.RpcRemoveAbilityUse();
-                    Utils.MarkEveryoneDirtySettingsV3();
-                }
-                else
-                {
-                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
-                }
-
-                break;
-            case CustomRoles.Lighter:
-                if (Main.Lighter.ContainsKey(pc.PlayerId)) break;
-                if (pc.GetAbilityUseLimit() >= 1)
-                {
-                    Main.Lighter.Remove(pc.PlayerId);
-                    Main.Lighter.Add(pc.PlayerId, Utils.TimeStamp);
-                    pc.Notify(GetString("LighterSkillInUse"), Options.LighterSkillDuration.GetFloat());
-                    pc.RpcRemoveAbilityUse();
-                    pc.MarkDirtySettings();
-                }
-                else
-                {
-                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
-                        pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
-                }
-
-                break;
             case CustomRoles.SecurityGuard:
                 if (Main.BlockSabo.ContainsKey(pc.PlayerId)) break;
                 if (pc.GetAbilityUseLimit() >= 1)
@@ -355,9 +310,9 @@ class ExternalRpcPetPatch
                 break;
             case CustomRoles.Farseer when hasKillTarget:
                 pc.AddAbilityCD(Farseer.FarseerRevealTime.GetInt());
-                if (!Main.isRevealed[(pc.PlayerId, target.PlayerId)] && !Main.FarseerTimer.ContainsKey(pc.PlayerId))
+                if (!Main.isRevealed[(pc.PlayerId, target.PlayerId)] && !Farseer.FarseerTimer.ContainsKey(pc.PlayerId))
                 {
-                    Main.FarseerTimer.TryAdd(pc.PlayerId, (target, 0f));
+                    Farseer.FarseerTimer.TryAdd(pc.PlayerId, (target, 0f));
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: target, ForceLoop: true);
                     RPC.SetCurrentRevealTarget(pc.PlayerId, target.PlayerId);
                 }

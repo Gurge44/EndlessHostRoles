@@ -40,7 +40,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 
     public static void SetDirtyToAllV3()
     {
-        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().Where(sender => !sender.IsDirty && sender.player.IsAlive() && ((Main.GrenadierBlinding.Count > 0 && (sender.player.GetCustomRole().IsImpostor() || (sender.player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))) || (Main.MadGrenadierBlinding.Count > 0 && !sender.player.GetCustomRole().IsImpostorTeam() && !sender.player.Is(CustomRoles.Madmate)))).ToArray())
+        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().Where(sender => !sender.IsDirty && sender.player.IsAlive() && ((Main.GrenadierBlinding.Count > 0 && (sender.player.GetCustomRole().IsImpostor() || (sender.player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))) || (Grenadier.MadGrenadierBlinding.Count > 0 && !sender.player.GetCustomRole().IsImpostorTeam() && !sender.player.Is(CustomRoles.Madmate)))).ToArray())
         {
             sender.SetDirty();
         }
@@ -378,20 +378,10 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     AURoleOptions.EngineerCooldown = Options.VeteranSkillCooldown.GetFloat();
                     AURoleOptions.EngineerInVentMaxTime = 1;
                     break;
-                case CustomRoles.Grenadier:
-                    if (Options.UsePets.GetBool()) break;
-                    AURoleOptions.EngineerCooldown = Options.GrenadierSkillCooldown.GetFloat();
-                    AURoleOptions.EngineerInVentMaxTime = 1;
-                    break;
                 /*       case CustomRoles.Flashbang:
                            AURoleOptions.ShapeshifterCooldown = Options.FlashbangSkillCooldown.GetFloat();
                            AURoleOptions.ShapeshifterDuration = Options.FlashbangSkillDuration.GetFloat();
                            break; */
-                case CustomRoles.Lighter:
-                    if (Options.UsePets.GetBool()) break;
-                    AURoleOptions.EngineerInVentMaxTime = 1;
-                    AURoleOptions.EngineerCooldown = Options.LighterSkillCooldown.GetFloat();
-                    break;
                 case CustomRoles.SecurityGuard:
                     if (Options.UsePets.GetBool()) break;
                     AURoleOptions.EngineerInVentMaxTime = 1;
@@ -640,13 +630,14 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 opt.SetFloat(FloatOptionNames.CrewLightMod, Options.BewilderVision.GetFloat());
                 opt.SetFloat(FloatOptionNames.ImpostorLightMod, Options.BewilderVision.GetFloat());
             }
+
             if (
                 (Main.GrenadierBlinding.Count > 0 &&
-                (player.GetCustomRole().IsImpostor() ||
-                (player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))
+                 (player.GetCustomRole().IsImpostor() ||
+                  (player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))
                 ) || (
-                Main.MadGrenadierBlinding.Count > 0 && !player.GetCustomRole().IsImpostorTeam() && !player.Is(CustomRoles.Madmate))
-                )
+                    Grenadier.MadGrenadierBlinding.Count > 0 && !player.GetCustomRole().IsImpostorTeam() && !player.Is(CustomRoles.Madmate))
+            )
             {
                 {
                     opt.SetVision(false);
@@ -657,11 +648,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 
             switch (player.GetCustomRole())
             {
-                case CustomRoles.Lighter when Main.Lighter.Count > 0:
-                    opt.SetVisionV2();
-                    if (Utils.IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.CrewLightMod, Options.LighterVisionOnLightsOut.GetFloat() * 5);
-                    else opt.SetFloat(FloatOptionNames.CrewLightMod, Options.LighterVisionNormal.GetFloat());
-                    break;
                 case CustomRoles.Alchemist when Alchemist.VisionPotionActive:
                     opt.SetVisionV2();
                     if (Utils.IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.CrewLightMod, Alchemist.VisionOnLightsOut.GetFloat() * 5);

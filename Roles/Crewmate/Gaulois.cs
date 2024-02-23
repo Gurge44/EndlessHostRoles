@@ -3,9 +3,9 @@ using static TOHE.Options;
 
 namespace TOHE.Roles.Crewmate
 {
-    public static class Gaulois
+    public class Gaulois : RoleBase
     {
-        private static readonly int Id = 643070;
+        private const int Id = 643070;
         private static List<byte> playerIdList = [];
 
         private static OptionItem CD;
@@ -30,13 +30,13 @@ namespace TOHE.Roles.Crewmate
             UsePet = CreatePetUseSetting(Id + 8, CustomRoles.Gaulois);
         }
 
-        public static void Init()
+        public override void Init()
         {
             playerIdList = [];
             IncreasedSpeedPlayerList = [];
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
@@ -46,25 +46,25 @@ namespace TOHE.Roles.Crewmate
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public static bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void SetKillCooldown(byte playerId)
+        public override void SetKillCooldown(byte playerId)
         {
             if (!IsEnable) return;
             Main.AllPlayerKillCooldown[playerId] = playerId.GetAbilityUseLimit() > 0 ? CD.GetFloat() : 300f;
         }
 
-        public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0) return;
+            if (!IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0) return false;
 
             Main.AllPlayerSpeed[target.PlayerId] += AdditionalSpeed.GetFloat();
             IncreasedSpeedPlayerList.Add(target.PlayerId);
 
             killer.RpcRemoveAbilityUse();
             killer.SetKillCooldown();
-        }
 
-        public static string GetProgressText(byte playerId) => !IsEnable ? string.Empty : $" <color=#777777>-</color> <color=#ffffff>{playerId.GetAbilityUseLimit()}</color>";
+            return false;
+        }
     }
 }

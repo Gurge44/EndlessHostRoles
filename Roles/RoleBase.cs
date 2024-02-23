@@ -60,6 +60,10 @@ namespace TOHE
         {
         }
 
+        public virtual void OnSabotage(PlayerControl pc)
+        {
+        }
+
         public virtual bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             return target != null && killer != null;

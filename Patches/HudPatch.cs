@@ -390,18 +390,6 @@ class HudManagerPatch
                         else
                             __instance.AbilityButton.buttonLabelText.text = GetString("TimeMasterVentButtonText");
                         break;
-                    case CustomRoles.Grenadier:
-                        if (Options.UsePets.GetBool())
-                            __instance.PetButton.buttonLabelText.text = GetString("GrenadierVentButtonText");
-                        else
-                            __instance.AbilityButton.buttonLabelText.text = GetString("GrenadierVentButtonText");
-                        break;
-                    case CustomRoles.Lighter:
-                        if (Options.UsePets.GetBool())
-                            __instance.PetButton.buttonLabelText.text = GetString("LighterVentButtonText");
-                        else
-                            __instance.AbilityButton.buttonLabelText.text = GetString("LighterVentButtonText");
-                        break;
                     case CustomRoles.SecurityGuard:
                         if (Options.UsePets.GetBool())
                             __instance.PetButton.buttonLabelText.text = GetString("SecurityGuardVentButtonText");
