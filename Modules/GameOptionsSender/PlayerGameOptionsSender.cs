@@ -274,14 +274,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 case CustomRoles.Virus:
                     opt.SetVision(Virus.ImpostorVision.GetBool());
                     break;
-                case CustomRoles.Mayor:
-                    if (Options.UsePets.GetBool()) break;
-                    AURoleOptions.EngineerCooldown =
-                        !Main.MayorUsedButtonCount.TryGetValue(player.PlayerId, out var count) || count < Options.MayorNumOfUseButton.GetInt()
-                            ? opt.GetInt(Int32OptionNames.EmergencyCooldown)
-                            : 300f;
-                    AURoleOptions.EngineerInVentMaxTime = 1;
-                    break;
                 case CustomRoles.Paranoia:
                     if (Options.UsePets.GetBool()) break;
                     AURoleOptions.EngineerCooldown =

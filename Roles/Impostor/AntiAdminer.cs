@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
 using UnityEngine;
 
@@ -17,6 +18,8 @@ internal class AntiAdminer : RoleBase
     public static bool IsVitalWatch;
     public static bool IsDoorLogWatch;
     public static bool IsCameraWatch;
+
+    private bool IsMonitor;
 
     public static void SetupCustomOption()
     {
@@ -36,6 +39,7 @@ internal class AntiAdminer : RoleBase
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
+        IsMonitor = Main.PlayerStates[playerId].MainRole == CustomRoles.Monitor;
     }
 
     public override bool IsEnable => playerIdList.Count > 0;
@@ -119,7 +123,7 @@ internal class AntiAdminer : RoleBase
         IsVitalWatch = Vital;
         isChange |= IsDoorLogWatch != DoorLog;
         IsDoorLogWatch = DoorLog;
-        if (CanCheckCamera.GetBool())
+        if (IsMonitor ? Monitor.CanCheckCamera.GetBool() : CanCheckCamera.GetBool())
         {
             isChange |= IsCameraWatch != Camera;
             IsCameraWatch = Camera;
@@ -127,12 +131,8 @@ internal class AntiAdminer : RoleBase
 
         if (isChange)
         {
-            foreach (byte id in playerIdList.ToArray())
-            {
-                PlayerControl pc = Utils.GetPlayerById(id);
-                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                FixedUpdatePatch.DoPostfix(pc);
-            }
+            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+            FixedUpdatePatch.DoPostfix(player);
         }
     }
 }

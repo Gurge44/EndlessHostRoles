@@ -73,10 +73,10 @@ class RepairSystemPatch
         switch (player.GetCustomRole())
         {
             case CustomRoles.SabotageMaster:
-                SabotageMaster.RepairSystem(__instance, systemType, amount);
+                SabotageMaster.RepairSystem(player.PlayerId, __instance, systemType, amount);
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 break;
-            case CustomRoles.Alchemist when Alchemist.FixNextSabo:
+            case CustomRoles.Alchemist when Main.PlayerStates[player.PlayerId].Role is Alchemist { IsEnable: true, FixNextSabo: true }:
                 Alchemist.RepairSystem(player, systemType, amount);
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 break;
@@ -179,7 +179,7 @@ class RepairSystemPatch
                     {
                         case CustomRoles.SabotageMaster:
                             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
-                            SabotageMaster.SwitchSystemRepair(SwitchSystem, amount);
+                            SabotageMaster.SwitchSystemRepair(player.PlayerId, SwitchSystem, amount);
                             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                             break;
                         case CustomRoles.Alchemist when Alchemist.FixNextSabo:

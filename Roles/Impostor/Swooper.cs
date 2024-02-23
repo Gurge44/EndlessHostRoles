@@ -1,7 +1,10 @@
-﻿using Hazel;
+﻿using System;
+using Hazel;
 using System.Collections.Generic;
 using System.Text;
+using AmongUs.GameOptions;
 using TOHE.Roles.Crewmate;
+using TOHE.Roles.Neutral;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -17,6 +20,12 @@ public class Swooper : RoleBase
     private static OptionItem SwooperVentNormallyOnCooldown;
     private static OptionItem SwooperLimitOpt;
     public static OptionItem SwooperAbilityUseGainWithEachKill;
+
+    private float Cooldown;
+    private float Duration;
+    private bool VentNormallyOnCooldown;
+
+    private CustomRoles UsedRole;
 
     private long InvisTime;
     public long lastTime;
@@ -52,8 +61,46 @@ public class Swooper : RoleBase
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(SwooperLimitOpt.GetInt());
         SwooperId = playerId;
+
+        UsedRole = Main.PlayerStates[playerId].MainRole;
+
+        switch (UsedRole)
+        {
+            case CustomRoles.Swooper:
+                playerId.SetAbilityUseLimit(SwooperLimitOpt.GetInt());
+                Cooldown = SwooperCooldown.GetFloat();
+                Duration = SwooperDuration.GetFloat();
+                VentNormallyOnCooldown = SwooperVentNormallyOnCooldown.GetBool();
+                break;
+            case CustomRoles.Chameleon:
+                playerId.SetAbilityUseLimit(Chameleon.UseLimitOpt.GetInt());
+                Cooldown = Chameleon.ChameleonCooldown.GetFloat();
+                Duration = Chameleon.ChameleonDuration.GetFloat();
+                VentNormallyOnCooldown = true;
+                break;
+            case CustomRoles.Wraith:
+                Cooldown = Wraith.WraithCooldown.GetFloat();
+                Duration = Wraith.WraithDuration.GetFloat();
+                VentNormallyOnCooldown = Wraith.WraithVentNormallyOnCooldown.GetBool();
+                break;
+        }
+    }
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        try
+        {
+            if (UsedRole == CustomRoles.Chameleon)
+            {
+                AURoleOptions.EngineerCooldown = Cooldown;
+                AURoleOptions.EngineerInVentMaxTime = Duration;
+            }
+        }
+        catch (Exception e)
+        {
+            Utils.ThrowException(e);
+        }
     }
 
     public override bool IsEnable => playerIdList.Count > 0;
@@ -95,12 +142,12 @@ public class Swooper : RoleBase
 
         if (lastTime != -10 && !player.IsModClient())
         {
-            var cooldown = lastTime + (long)SwooperCooldown.GetFloat() - now;
+            var cooldown = lastTime + (long)Cooldown - now;
             if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f);
             CD = (int)cooldown;
         }
 
-        if (lastTime + (long)SwooperCooldown.GetFloat() < now)
+        if (lastTime + (long)Cooldown < now)
         {
             lastTime = -10;
             if (!player.IsModClient()) player.Notify(GetString("SwooperCanVent"));
@@ -112,7 +159,7 @@ public class Swooper : RoleBase
         {
             lastFixedTime = now;
             bool refresh = false;
-            var remainTime = InvisTime + (long)SwooperDuration.GetFloat() - now;
+            var remainTime = InvisTime + (long)Duration - now;
             switch (remainTime)
             {
                 case < 0:
@@ -131,7 +178,7 @@ public class Swooper : RoleBase
         }
     }
 
-    public override void OnCoEnterVent(PlayerPhysics __instance, Vent vent)
+    public override void OnCoEnterVent(PlayerPhysics __instance, int ventId)
     {
         if (!AmongUsClient.Instance.AmHost || IsInvis) return;
 
@@ -140,20 +187,20 @@ public class Swooper : RoleBase
         {
             if (CanGoInvis && pc.GetAbilityUseLimit() >= 1)
             {
-                ventedId = vent.Id;
+                ventedId = ventId;
 
                 MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, 34, SendOption.Reliable, pc.GetClientId());
-                writer.WritePacked(vent.Id);
+                writer.WritePacked(ventId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
 
                 InvisTime = Utils.TimeStamp;
                 pc.RpcRemoveAbilityUse();
                 SendRPC();
-                pc.Notify(GetString("SwooperInvisState"), SwooperDuration.GetFloat());
+                pc.Notify(GetString("SwooperInvisState"), Duration);
             }
             else
             {
-                if (!SwooperVentNormallyOnCooldown.GetBool())
+                if (!VentNormallyOnCooldown)
                 {
                     __instance.RpcBootFromVent(vent.Id);
                     pc.Notify(GetString("SwooperInvisInCooldown"));
@@ -164,7 +211,7 @@ public class Swooper : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        if (!pc.Is(CustomRoles.Swooper) || !IsInvis) return;
+        if (!IsInvis) return;
 
         InvisTime = -10;
         lastTime = Utils.TimeStamp;
@@ -181,12 +228,12 @@ public class Swooper : RoleBase
         var str = new StringBuilder();
         if (sw.IsInvis)
         {
-            var remainTime = sw.InvisTime + (long)SwooperDuration.GetFloat() - Utils.TimeStamp;
+            var remainTime = sw.InvisTime + (long)sw.Duration - Utils.TimeStamp;
             str.Append(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1));
         }
         else if (sw.lastTime != -10)
         {
-            var cooldown = sw.lastTime + (long)SwooperCooldown.GetFloat() - Utils.TimeStamp;
+            var cooldown = sw.lastTime + (long)sw.Cooldown - Utils.TimeStamp;
             str.Append(string.Format(GetString("SwooperInvisCooldownRemain"), cooldown + 2));
         }
         else

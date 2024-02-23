@@ -234,7 +234,7 @@ namespace TOHE.Roles.Crewmate
             am.InvisTime = long.Parse(reader.ReadString());
         }
 
-        public override void OnCoEnterVent(PlayerPhysics instance, Vent vent)
+        public override void OnCoEnterVent(PlayerPhysics instance, int ventId)
         {
             PotionID = 10;
             var pc = instance.myPlayer;
@@ -242,10 +242,10 @@ namespace TOHE.Roles.Crewmate
             if (!AmongUsClient.Instance.AmHost) return;
             _ = new LateTask(() =>
             {
-                ventedId = vent.Id;
+                ventedId = ventId;
 
                 MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(instance.NetId, 34, SendOption.Reliable, pc.GetClientId());
-                writer.WritePacked(vent.Id);
+                writer.WritePacked(ventId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
 
                 InvisTime = Utils.TimeStamp;

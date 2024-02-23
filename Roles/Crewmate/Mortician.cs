@@ -4,9 +4,10 @@ using UnityEngine;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Crewmate;
-public static class Mortician
+
+public class Mortician : RoleBase
 {
-    private static readonly int Id = 7400;
+    private const int Id = 7400;
     private static List<byte> playerIdList = [];
 
     private static OptionItem ShowArrows;
@@ -19,20 +20,24 @@ public static class Mortician
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mortician);
         ShowArrows = BooleanOptionItem.Create(Id + 2, "ShowArrows", true, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Mortician]);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
         lastPlayerName = [];
         msgToSend = [];
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+
+    public override bool IsEnable => playerIdList.Count > 0;
+
     private static void SendRPC(byte playerId, bool add, Vector3 loc = new())
     {
-        if (!IsEnable || !Utils.DoRPC) return;
+        if (!Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMorticianArrow, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(add);
@@ -81,7 +86,7 @@ public static class Mortician
     }
     public static void OnReportDeadBody(PlayerControl pc, GameData.PlayerInfo target)
     {
-        foreach (byte apc in playerIdList.ToArray())
+        foreach (byte apc in playerIdList)
         {
             LocateArrow.RemoveAllTarget(apc);
             SendRPC(apc, false);
@@ -89,16 +94,14 @@ public static class Mortician
 
         if (!pc.Is(CustomRoles.Mortician) || target == null || pc.PlayerId == target.PlayerId) return;
         lastPlayerName.TryGetValue(target.PlayerId, out var name);
-        if (name == "") msgToSend.Add(pc.PlayerId, string.Format(Translator.GetString("MorticianGetNoInfo"), target.PlayerName));
-        else msgToSend.Add(pc.PlayerId, string.Format(Translator.GetString("MorticianGetInfo"), target.PlayerName, name));
+        msgToSend.Add(pc.PlayerId, name == "" ? string.Format(Translator.GetString("MorticianGetNoInfo"), target.PlayerName) : string.Format(Translator.GetString("MorticianGetInfo"), target.PlayerName, name));
     }
     public static string GetTargetArrow(PlayerControl seer, PlayerControl target = null)
     {
         if (ShowArrows.GetBool())
         {
             if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
-            if (GameStates.IsMeeting) return string.Empty;
-            return Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
+            return GameStates.IsMeeting ? string.Empty : Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
         }
 
         return string.Empty;

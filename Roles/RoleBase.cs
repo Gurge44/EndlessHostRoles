@@ -44,7 +44,7 @@ namespace TOHE
         {
         }
 
-        public virtual void OnCoEnterVent(PlayerPhysics physics, Vent vent)
+        public virtual void OnCoEnterVent(PlayerPhysics physics, int ventId)
         {
         }
 

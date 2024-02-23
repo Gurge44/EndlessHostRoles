@@ -399,12 +399,6 @@ class HudManagerPatch
                     case CustomRoles.Ventguard:
                         __instance.AbilityButton.buttonLabelText.text = GetString("VentguardVentButtonText");
                         break;
-                    case CustomRoles.Mayor:
-                        if (Options.UsePets.GetBool())
-                            __instance.PetButton.buttonLabelText.text = GetString("MayorVentButtonText");
-                        else
-                            __instance.AbilityButton.buttonLabelText.text = GetString("MayorVentButtonText");
-                        break;
                     case CustomRoles.Paranoia:
                         if (Options.UsePets.GetBool())
                             __instance.PetButton.buttonLabelText.text = GetString("ParanoiaVentButtonText");

@@ -1,19 +1,17 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using HarmonyLib;
+﻿using HarmonyLib;
 using Hazel;
+using System.Collections.Generic;
+using System.Linq;
 using TOHE.Modules;
-using UnityEngine;
 
 namespace TOHE.Roles.Crewmate;
 
-public static class Medic
+public class Medic : RoleBase
 {
-    private static readonly int Id = 7100;
+    private const int Id = 7100;
     public static List<byte> playerIdList = [];
     public static List<byte> ProtectList = [];
     public static byte TempMarkProtected;
-    public static Dictionary<byte, int> ProtectLimit = [];
     public static int SkillLimit;
 
     public static OptionItem WhoCanSeeProtect;
@@ -72,45 +70,30 @@ public static class Medic
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic])
             .SetValueFormat(OptionFormat.Seconds);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
         ProtectList = [];
-        ProtectLimit = [];
         TempMarkProtected = byte.MaxValue;
         SkillLimit = AmountOfShields.GetInt();
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        ProtectLimit.TryAdd(playerId, SkillLimit);
-
-        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : {ProtectLimit[playerId]} shields left", "Medicaler");
+        playerId.SetAbilityUseLimit(SkillLimit);
 
         if (!AmongUsClient.Instance.AmHost || (Options.UsePets.GetBool() && UsePet.GetBool())) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
-    private static void SendRPC(byte playerId)
-    {
-        if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMedicalerProtectLimit, SendOption.Reliable);
-        writer.Write(playerId);
-        writer.Write(ProtectLimit[playerId]);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-    public static void ReceiveRPC(MessageReader reader)
-    {
-        byte PlayerId = reader.ReadByte();
-        int Limit = reader.ReadInt32();
-        if (!ProtectLimit.TryAdd(PlayerId, SkillLimit))
-            ProtectLimit[PlayerId] = Limit;
-    }
+
+    public override bool IsEnable => playerIdList.Count > 0;
 
     private static void SendRPCForProtectList()
     {
-        if (!IsEnable || !Utils.DoRPC) return;
+        if (!Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMedicalerProtectList, SendOption.Reliable);
         writer.Write(ProtectList.Count);
         foreach (byte x in ProtectList.ToArray())
@@ -127,20 +110,19 @@ public static class Medic
 
     public static bool CanUseKillButton(byte playerId)
         => !Main.PlayerStates[playerId].IsDead
-           && (ProtectLimit.GetValueOrDefault(playerId, 1)) >= 1;
+           && playerId.GetAbilityUseLimit() >= 1;
 
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanUseKillButton(id) ? CD.GetFloat() : 300f;
-    public static string GetSkillLimit(byte playerId) => Utils.ColorString(CanUseKillButton(playerId) ? Utils.GetRoleColor(CustomRoles.Medic).ShadeColor(0.25f) : Color.gray, ProtectLimit.TryGetValue(playerId, out var protectLimit) ? $"({protectLimit})" : "Invalid");
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanUseKillButton(id) ? CD.GetFloat() : 300f;
     public static bool InProtect(byte id) => ProtectList.Contains(id) && Main.PlayerStates.TryGetValue(id, out var ps) && !ps.IsDead;
-    public static void OnCheckMurderFormedicaler(PlayerControl killer, PlayerControl target)
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null) return;
-        if (!CanUseKillButton(killer.PlayerId)) return;
-        if (ProtectList.Contains(target.PlayerId)) return;
+        if (killer == null || target == null) return false;
+        if (!CanUseKillButton(killer.PlayerId)) return false;
+        if (ProtectList.Contains(target.PlayerId)) return false;
 
-        ProtectLimit[killer.PlayerId]--;
+        killer.RpcRemoveAbilityUse();
 
-        SendRPC(killer.PlayerId);
         ProtectList.Add(target.PlayerId);
         TempMarkProtected = target.PlayerId;
         SendRPCForProtectList();
@@ -166,16 +148,16 @@ public static class Medic
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : {ProtectLimit[killer.PlayerId]} shields left", "Medic");
+        return false;
     }
-    public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+
+    public static bool OnAnyoneCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer == null || target == null) return false;
         if (!ProtectList.Contains(target.PlayerId)) return false;
 
         SendRPCForProtectList();
 
-        //killer.RpcGuardAndKill(target);
         killer.SetKillCooldown(ResetCooldown.GetFloat());
 
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
@@ -196,7 +178,6 @@ public static class Medic
                 break;
         }
 
-        Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} : Shield Shatter from the Medic", "Medic");
         return true;
     }
     public static void OnCheckMark()
@@ -220,7 +201,7 @@ public static class Medic
         if (!target.Is(CustomRoles.Medic)) return;
         if (!ShieldDeactivatesWhenMedicDies.GetBool()) return;
 
-        if (!playerIdList.All(x => !Utils.GetPlayerById(x).IsAlive())) return; // If not all Medic-s are dead, return
+        if (playerIdList.Any(x => Utils.GetPlayerById(x).IsAlive())) return; // If not all Medic-s are dead, return
 
         foreach (byte pc in ProtectList.ToArray())
         {

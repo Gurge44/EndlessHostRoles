@@ -492,7 +492,7 @@ public static class Utils
         killer.RpcIncreaseAbilityUseLimitBy(add);
     }
 
-    public static void ThrowException()
+    public static void ThrowException(Exception ex)
     {
         try
         {
@@ -502,7 +502,7 @@ public static class Utils
             StackFrame firstFrame = stFrames.FirstOrDefault();
 
             var sb = new StringBuilder();
-            sb.Append("Exception");
+            sb.Append($"Exception: {ex.Message} ----\n");
 
             bool skip = true;
             foreach (StackFrame sf in stFrames)
@@ -2745,9 +2745,6 @@ public static class Utils
                 break;
             case CustomRoles.QuickShooter:
                 QuickShooter.Add(id);
-                break;
-            case CustomRoles.Mayor:
-                Main.MayorUsedButtonCount[id] = 0;
                 break;
             case CustomRoles.TimeMaster:
                 Main.TimeMasterNum[id] = 0;

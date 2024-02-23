@@ -3,9 +3,9 @@ using static TOHE.Translator;
 
 namespace TOHE.Roles.Crewmate;
 
-internal static class NiceEraser
+internal class NiceEraser : RoleBase
 {
-    private static readonly int Id = 5580;
+    private const int Id = 5580;
     public static List<byte> playerIdList = [];
 
     private static OptionItem EraseLimitOpt;
@@ -24,19 +24,18 @@ internal static class NiceEraser
         CancelVote = Options.CreateVoteCancellingUseSetting(Id + 4, CustomRoles.NiceEraser, TabGroup.CrewmateRoles);
     }
 
-    public static void Init()
+    public override void Init()
     {
         playerIdList = [];
     }
 
-    public static void Add(byte playerId)
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(EraseLimitOpt.GetInt());
     }
 
-    public static bool IsEnable => playerIdList.Count > 0;
-    public static string GetProgressText(byte playerId) => Utils.GetAbilityUseLimitDisplay(playerId);
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static bool OnVote(PlayerControl player, PlayerControl target)
     {
@@ -71,13 +70,13 @@ internal static class NiceEraser
         return true;
     }
 
-    public static void OnReportDeadBody()
+    public override void OnReportDeadBody()
     {
         PlayerToErase = [];
         didVote = [];
     }
 
-    public static void AfterMeetingTasks()
+    public override void AfterMeetingTasks()
     {
         foreach (byte pc in PlayerToErase.ToArray())
         {

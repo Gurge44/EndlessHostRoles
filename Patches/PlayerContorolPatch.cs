@@ -633,7 +633,7 @@ class CheckMurderPatch
 
         if (Merchant.OnClientMurder(killer, target)) return false;
 
-        if (Medic.OnCheckMurder(killer, target))
+        if (Medic.OnAnyoneCheckMurder(killer, target))
             return false;
 
         if (Mathematician.State.ProtectedPlayerId == target.PlayerId) return false;
@@ -732,15 +732,6 @@ class CheckMurderPatch
                 return false;
             case CustomRoles.Ricochet when !Ricochet.OnKillAttempt(killer, target):
                 return false;
-            case CustomRoles.Luckey:
-                var rd = IRandom.Instance;
-                if (rd.Next(0, 100) < Options.LuckeyProbability.GetInt())
-                {
-                    killer.SetKillCooldown(15f);
-                    return false;
-                }
-
-                break;
             case CustomRoles.Jinx:
                 if (Main.JinxSpellCount[target.PlayerId] <= 0) break;
                 if (killer.Is(CustomRoles.Pestilence)) break;
@@ -1473,7 +1464,7 @@ class ReportDeadBodyPatch
         Damocles.countRepairSabotage = false;
         Stressed.countRepairSabotage = false;
 
-        if (target == null) //ボタン
+        if (target == null)
         {
             if (player.Is(CustomRoles.Mayor))
             {
@@ -1500,6 +1491,8 @@ class ReportDeadBodyPatch
         }
 
         Enigma.OnReportDeadBody(player, target);
+        Mediumshiper.OnReportDeadBody(target);
+        Mortician.OnReportDeadBody(player, target);
 
         Main.LastVotedPlayerInfo = null;
         Main.AllKillers.Clear();
@@ -1520,10 +1513,9 @@ class ReportDeadBodyPatch
         if (Bloodhound.IsEnable) Bloodhound.Clear();
         if (Vulture.IsEnable) Vulture.Clear();
 
-
         foreach (var state in Main.PlayerStates.Values)
         {
-            state.Role.OnReportDeadBody(player, target?.Object);
+            state.Role.OnReportDeadBody();
         }
 
         Main.AbilityCD.Clear();
@@ -2759,8 +2751,8 @@ class EnterVentPatch
         switch (pc.GetCustomRole())
         {
             case CustomRoles.Mayor when !Options.UsePets.GetBool() && Main.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count2) && count2 < Options.MayorNumOfUseButton.GetInt():
-                pc?.MyPhysics?.RpcBootFromVent(__instance.Id);
-                pc?.ReportDeadBody(null);
+                pc.MyPhysics?.RpcBootFromVent(__instance.Id);
+                pc.ReportDeadBody(null);
                 break;
             case CustomRoles.Paranoia when !Options.UsePets.GetBool() && Main.ParaUsedButtonCount.TryGetValue(pc.PlayerId, out var count) && count < Options.ParanoiaNumOfUseButton.GetInt():
                 Main.ParaUsedButtonCount[pc.PlayerId] += 1;
@@ -2769,8 +2761,8 @@ class EnterVentPatch
                     _ = new LateTask(() => { SendMessage(GetString("SkillUsedLeft") + (Options.ParanoiaNumOfUseButton.GetInt() - Main.ParaUsedButtonCount[pc.PlayerId]), pc.PlayerId); }, 4.0f, "Skill Remain Message");
                 }
 
-                pc?.MyPhysics?.RpcBootFromVent(__instance.Id);
-                pc?.NoCheckStartMeeting(pc?.Data);
+                pc.MyPhysics?.RpcBootFromVent(__instance.Id);
+                pc.NoCheckStartMeeting(pc?.Data);
                 break;
             case CustomRoles.Mario:
                 Main.MarioVentCount.TryAdd(pc.PlayerId, 0);
@@ -3107,21 +3099,24 @@ class CoEnterVentPatch
                     }
 
                     var apc = Main.AllAlivePlayerControls.Length;
-                    if (apc == 1)
+                    switch (apc)
                     {
-                        CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist);
-                        CustomWinnerHolder.WinnerIds.Add(__instance.myPlayer.PlayerId);
-                    }
-
-                    if (apc == 2)
-                    {
-                        foreach (var x in Main.AllAlivePlayerControls.Where(p => p.PlayerId != __instance.myPlayer.PlayerId).ToArray())
+                        case 1:
+                            CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist);
+                            CustomWinnerHolder.WinnerIds.Add(__instance.myPlayer.PlayerId);
+                            break;
+                        case 2:
                         {
-                            if (!x.GetCustomRole().IsImpostor() && !x.GetCustomRole().IsNeutralKilling())
+                            foreach (var x in Main.AllAlivePlayerControls.Where(p => p.PlayerId != __instance.myPlayer.PlayerId).ToArray())
                             {
-                                CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist);
-                                CustomWinnerHolder.WinnerIds.Add(__instance.myPlayer.PlayerId);
+                                if (!x.GetCustomRole().IsImpostor() && !x.GetCustomRole().IsNeutralKilling())
+                                {
+                                    CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist);
+                                    CustomWinnerHolder.WinnerIds.Add(__instance.myPlayer.PlayerId);
+                                }
                             }
+
+                            break;
                         }
                     }
 
@@ -3141,6 +3136,11 @@ class CoEnterVentPatch
             }
 
             return true;
+        }
+
+        if (__instance.myPlayer.GetCustomRole().GetDYRole() == RoleTypes.Impostor && !Main.PlayerStates[__instance.myPlayer.PlayerId].Role.CanUseImpostorVentButton(__instance.myPlayer))
+        {
+            _ = new LateTask(() => { __instance.RpcBootFromVent(id); }, 0.5f);
         }
 
         //处理弹出管道的阻塞

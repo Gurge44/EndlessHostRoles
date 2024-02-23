@@ -14,9 +14,13 @@ internal class Assassin : RoleBase
     private const int Id = 700;
     public static List<byte> playerIdList = [];
 
-    private static OptionItem MarkCooldown;
-    public static OptionItem AssassinateCooldown;
-    private static OptionItem CanKillAfterAssassinate;
+    private static OptionItem MarkCooldownOpt;
+    public static OptionItem AssassinateCooldownOpt;
+    private static OptionItem CanKillAfterAssassinateOpt;
+
+    private float MarkCooldown;
+    private float AssassinateCooldown;
+    private bool CanKillAfterAssassinate;
 
     public byte MarkedPlayer;
     private bool IsUndertaker;
@@ -24,11 +28,11 @@ internal class Assassin : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Assassin);
-        MarkCooldown = FloatOptionItem.Create(Id + 10, "AssassinMarkCooldown", new(0f, 180f, 0.5f), 1f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Assassin])
+        MarkCooldownOpt = FloatOptionItem.Create(Id + 10, "AssassinMarkCooldown", new(0f, 180f, 0.5f), 1f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Assassin])
             .SetValueFormat(OptionFormat.Seconds);
-        AssassinateCooldown = FloatOptionItem.Create(Id + 11, "AssassinAssassinateCooldown", new(0f, 180f, 0.5f), 18.5f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Assassin])
+        AssassinateCooldownOpt = FloatOptionItem.Create(Id + 11, "AssassinAssassinateCooldown", new(0f, 180f, 0.5f), 18.5f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Assassin])
             .SetValueFormat(OptionFormat.Seconds);
-        CanKillAfterAssassinate = BooleanOptionItem.Create(Id + 12, "AssassinCanKillAfterAssassinate", true, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Assassin]);
+        CanKillAfterAssassinateOpt = BooleanOptionItem.Create(Id + 12, "AssassinCanKillAfterAssassinate", true, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Assassin]);
     }
 
     public override void Init()
@@ -42,6 +46,19 @@ internal class Assassin : RoleBase
     {
         playerIdList.Add(playerId);
         IsUndertaker = Main.PlayerStates[playerId].MainRole == CustomRoles.Undertaker;
+
+        if (IsUndertaker)
+        {
+            MarkCooldown = Undertaker.MarkCooldown.GetFloat();
+            AssassinateCooldown = Undertaker.AssassinateCooldown.GetFloat();
+            CanKillAfterAssassinate = Undertaker.CanKillAfterAssassinate.GetBool();
+        }
+        else
+        {
+            MarkCooldown = MarkCooldownOpt.GetFloat();
+            AssassinateCooldown = AssassinateCooldownOpt.GetFloat();
+            CanKillAfterAssassinate = CanKillAfterAssassinateOpt.GetBool();
+        }
     }
 
     public override bool IsEnable => playerIdList.Count > 0;
@@ -63,13 +80,13 @@ internal class Assassin : RoleBase
         assassin.MarkedPlayer = targetId;
     }
 
-    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = id.IsPlayerShifted() ? DefaultKillCooldown : MarkCooldown.GetFloat();
-    public override void ApplyGameOptions(IGameOptions opt, byte id) => AURoleOptions.ShapeshifterCooldown = AssassinateCooldown.GetFloat();
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = id.IsPlayerShifted() ? DefaultKillCooldown : MarkCooldown;
+    public override void ApplyGameOptions(IGameOptions opt, byte id) => AURoleOptions.ShapeshifterCooldown = AssassinateCooldown;
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
         if (pc == null || !pc.IsAlive()) return false;
-        return CanKillAfterAssassinate.GetBool() || !pc.IsShifted();
+        return CanKillAfterAssassinate || !pc.IsShifted();
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)

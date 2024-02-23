@@ -1,11 +1,11 @@
-using System.Collections.Generic;
 using Hazel;
+using System.Collections.Generic;
 
 namespace TOHE.Roles.Crewmate;
 
-public static class SabotageMaster
+public class SabotageMaster : RoleBase
 {
-    private static readonly int Id = 7000;
+    private const int Id = 7000;
     public static List<byte> playerIdList = [];
 
     public static OptionItem SkillLimit;
@@ -18,7 +18,9 @@ public static class SabotageMaster
     public static OptionItem AbilityChargesWhenFinishedTasks;
     public static OptionItem UsesUsedWhenFixingReactorOrO2;
     public static OptionItem UsesUsedWhenFixingLightsOrComms;
-    public static float UsedSkillCount;
+
+    public float UsedSkillCount;
+    private byte SMId;
 
     private static bool DoorsProgressing;
 
@@ -46,83 +48,88 @@ public static class SabotageMaster
             .SetValueFormat(OptionFormat.Times);
     }
 
-    public static void Init()
+    public override void Init()
     {
         playerIdList = [];
         UsedSkillCount = 0;
+        SMId = byte.MaxValue;
     }
 
-    public static void Add(byte playerId)
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
+        SMId = playerId;
     }
 
-    public static bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SendRPC(float count)
+    void SendRPC()
     {
         if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetSabotageMasterLimit, SendOption.Reliable);
-        writer.Write(count);
+        writer.Write(SMId);
+        writer.Write(UsedSkillCount);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
     public static void ReceiveRPC(MessageReader reader)
     {
-        if (AmongUsClient.Instance.AmHost) return;
-
-        UsedSkillCount = reader.ReadSingle();
+        byte id = reader.ReadByte();
+        if (Main.PlayerStates[id].Role is not SabotageMaster sm) return;
+        sm.UsedSkillCount = reader.ReadSingle();
     }
 
-    public static void RepairSystem(ShipStatus __instance, SystemTypes systemType, byte amount)
+    public static void RepairSystem(byte playerId, ShipStatus __instance, SystemTypes systemType, byte amount)
     {
+        if (Main.PlayerStates[playerId].Role is not SabotageMaster sm) return;
+
         switch (systemType)
         {
             case SystemTypes.Reactor:
                 if (!FixesReactors.GetBool()) break;
-                if (SkillLimit.GetFloat() > 0 && UsedSkillCount + UsesUsedWhenFixingReactorOrO2.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
+                if (SkillLimit.GetFloat() > 0 && sm.UsedSkillCount + UsesUsedWhenFixingReactorOrO2.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
                 if (amount is 64 or 65)
                 {
                     ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Reactor, 16);
                     ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Reactor, 17);
-                    UsedSkillCount += UsesUsedWhenFixingReactorOrO2.GetFloat();
-                    SendRPC(UsedSkillCount);
+                    sm.UsedSkillCount += UsesUsedWhenFixingReactorOrO2.GetFloat();
+                    sm.SendRPC();
                 }
 
                 break;
             case SystemTypes.Laboratory:
                 if (!FixesReactors.GetBool()) break;
-                if (SkillLimit.GetFloat() > 0 && UsedSkillCount + UsesUsedWhenFixingReactorOrO2.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
+                if (SkillLimit.GetFloat() > 0 && sm.UsedSkillCount + UsesUsedWhenFixingReactorOrO2.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
                 if (amount is 64 or 65)
                 {
                     ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Laboratory, 67);
                     ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Laboratory, 66);
-                    UsedSkillCount += UsesUsedWhenFixingReactorOrO2.GetFloat();
-                    SendRPC(UsedSkillCount);
+                    sm.UsedSkillCount += UsesUsedWhenFixingReactorOrO2.GetFloat();
+                    sm.SendRPC();
                 }
 
                 break;
             case SystemTypes.LifeSupp:
                 if (!FixesOxygens.GetBool()) break;
-                if (SkillLimit.GetFloat() > 0 && UsedSkillCount + UsesUsedWhenFixingReactorOrO2.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
+                if (SkillLimit.GetFloat() > 0 && sm.UsedSkillCount + UsesUsedWhenFixingReactorOrO2.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
                 if (amount is 64 or 65)
                 {
                     ShipStatus.Instance.RpcUpdateSystem(SystemTypes.LifeSupp, 67);
                     ShipStatus.Instance.RpcUpdateSystem(SystemTypes.LifeSupp, 66);
-                    UsedSkillCount += UsesUsedWhenFixingReactorOrO2.GetFloat();
-                    SendRPC(UsedSkillCount);
+                    sm.UsedSkillCount += UsesUsedWhenFixingReactorOrO2.GetFloat();
+                    sm.SendRPC();
                 }
 
                 break;
             case SystemTypes.Comms:
                 if (!FixesComms.GetBool()) break;
-                if (SkillLimit.GetFloat() > 0 && UsedSkillCount + UsesUsedWhenFixingLightsOrComms.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
+                if (SkillLimit.GetFloat() > 0 && sm.UsedSkillCount + UsesUsedWhenFixingLightsOrComms.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
                 if (amount is 64 or 65)
                 {
                     ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Comms, 16);
                     ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Comms, 17);
-                    UsedSkillCount += UsesUsedWhenFixingLightsOrComms.GetFloat();
-                    SendRPC(UsedSkillCount);
+                    sm.UsedSkillCount += UsesUsedWhenFixingLightsOrComms.GetFloat();
+                    sm.SendRPC();
                 }
 
                 break;
@@ -134,23 +141,24 @@ public static class SabotageMaster
                 if (AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay) mapId = AmongUsClient.Instance.TutorialMapId;
 
                 DoorsProgressing = true;
-                if (mapId == 2)
+                switch (mapId)
                 {
-                    //Polus
-                    RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 71, 72);
-                    RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 67, 68);
-                    RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 64, 66);
-                    RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 73, 74);
-                }
-                else if (mapId == 4)
-                {
-                    //Airship
-                    RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 64, 67);
-                    RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 71, 73);
-                    RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 74, 75);
-                    RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 76, 78);
-                    RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 68, 70);
-                    RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 83, 84);
+                    case 2:
+                        //Polus
+                        RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 71, 72);
+                        RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 67, 68);
+                        RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 64, 66);
+                        RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 73, 74);
+                        break;
+                    case 4:
+                        //Airship
+                        RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 64, 67);
+                        RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 71, 73);
+                        RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 74, 75);
+                        RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 76, 78);
+                        RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 68, 70);
+                        RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 83, 84);
+                        break;
                 }
 
                 DoorsProgressing = false;
@@ -158,19 +166,19 @@ public static class SabotageMaster
         }
     }
 
-    public static void SwitchSystemRepair(SwitchSystem __instance, byte amount)
+    public static void SwitchSystemRepair(byte playerId, SwitchSystem __instance, byte amount)
     {
-        if (!FixesElectrical.GetBool()) return;
+        if (!FixesElectrical.GetBool() || Main.PlayerStates[playerId].Role is not SabotageMaster sm) return;
         if (SkillLimit.GetFloat() > 0 &&
-            UsedSkillCount + UsesUsedWhenFixingLightsOrComms.GetFloat() - 1 >= SkillLimit.GetFloat())
+            sm.UsedSkillCount + UsesUsedWhenFixingLightsOrComms.GetFloat() - 1 >= SkillLimit.GetFloat())
             return;
 
-        if (amount is >= 0 and <= 4)
+        if (amount <= 4)
         {
             __instance.ActualSwitches = 0;
             __instance.ExpectedSwitches = 0;
-            UsedSkillCount += UsesUsedWhenFixingLightsOrComms.GetFloat();
-            SendRPC(UsedSkillCount);
+            sm.UsedSkillCount += UsesUsedWhenFixingLightsOrComms.GetFloat();
+            sm.SendRPC();
         }
     }
 }

@@ -2428,6 +2428,7 @@
   "RandomizerEffectDurMin": "Minimum Effect Duration",
   "RandomizerEffectDurMax": "Maximum Effect Duration",
   "RandomizerNotifyOpt": "Notify When RNG Event Happens (turn off if events are frequent)",
+  "MadmateCanFindMarshall": "Reveal to <#ff1919>MadMates</color>",
   "Jailor": "Jailor",
   "JailorInfo": "Lock up your target in Jail",
   "JailorInfoLong": "(Crewmates):\\nAs the Jailor, use your kill button to lock a player in jail. Jailed players cannot be guessed or judged and jailed players can only guess Jailor.",

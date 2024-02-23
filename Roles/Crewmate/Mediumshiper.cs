@@ -4,9 +4,9 @@ using static TOHE.Translator;
 
 namespace TOHE.Roles.Crewmate;
 
-public static class Mediumshiper
+public class Mediumshiper : RoleBase
 {
-    private static readonly int Id = 7200;
+    private const int Id = 7200;
     public static List<byte> playerIdList = [];
 
     public static OptionItem ContactLimitOpt;
@@ -29,18 +29,20 @@ public static class Mediumshiper
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Mediumshiper])
             .SetValueFormat(OptionFormat.Times);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
         ContactPlayer = [];
     }
 
-    public static void Add(byte playerId)
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(ContactLimitOpt.GetInt());
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void OnReportDeadBody(GameData.PlayerInfo target)
     {
