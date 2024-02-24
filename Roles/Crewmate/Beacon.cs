@@ -41,7 +41,7 @@ namespace TOHE.Roles.Crewmate
         public static bool IsAffectedPlayer(byte id) => Utils.IsActive(SystemTypes.Electrical) && AffectedPlayers.Contains(id);
         public static float IncreasedVision => VisionIncrease.GetFloat();
 
-        public static void OnCheckPlayerPosition(PlayerControl pc)
+        public override void OnCheckPlayerPosition(PlayerControl pc)
         {
             if (!GameStates.IsInTask || pc == null) return;
 

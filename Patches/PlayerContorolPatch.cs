@@ -1699,15 +1699,20 @@ class FixedUpdatePatch
                 }
             }
 
-            if (Main.KillTimers.TryAdd(playerId, 10f))
+            if (!Main.KillTimers.TryAdd(playerId, 10f) && ((!player.inVent && !player.MyPhysics.Animations.IsPlayingEnterVentAnimation()) || player.Is(CustomRoles.Haste)) && Main.KillTimers[playerId] > 0)
             {
-            }
-            else if (((!player.inVent && !player.MyPhysics.Animations.IsPlayingEnterVentAnimation()) || player.Is(CustomRoles.Haste)) && Main.KillTimers[playerId] > 0)
                 Main.KillTimers[playerId] -= Time.fixedDeltaTime;
+            }
 
             if (!lowLoad && player.IsModClient() && player.Is(CustomRoles.Haste)) player.ForceKillTimerContinue = true;
 
             if (DoubleTrigger.FirstTriggerTimer.Count > 0) DoubleTrigger.OnFixedUpdate(player);
+
+            if (Main.PlayerStates.TryGetValue(playerId, out var s) && s.Role.IsEnable)
+            {
+                s.Role.OnFixedUpdate(player);
+            }
+
             switch (player.GetCustomRole())
             {
                 case CustomRoles.Vampire:
@@ -1803,6 +1808,14 @@ class FixedUpdatePatch
 
             if (GameStates.IsInTask && player != null && player.IsAlive())
             {
+                foreach (var state in Main.PlayerStates.Values)
+                {
+                    if (state.Role.IsEnable)
+                    {
+                        state.Role.OnCheckPlayerPosition(player);
+                    }
+                }
+
                 Druid.OnCheckPlayerPosition(player);
                 Sentinel.OnCheckPlayerPosition(player);
                 Tornado.OnCheckPlayerPosition(player);
@@ -1840,6 +1853,14 @@ class FixedUpdatePatch
 
             if (!lowLoad)
             {
+                foreach (var state in Main.PlayerStates.Values)
+                {
+                    if (state.Role.IsEnable)
+                    {
+                        state.Role.OnGlobalFixedUpdate();
+                    }
+                }
+
                 YinYanger.OnFixedUpdate();
                 Duellist.OnFixedUpdate();
                 Kamikaze.OnFixedUpdate();
@@ -2123,16 +2144,6 @@ class FixedUpdatePatch
 
                 case CustomRoles.Express when GameStates.IsInTask:
                     Express.OnFixedUpdate(player);
-                    break;
-
-                case CustomRoles.SecurityGuard when GameStates.IsInTask:
-                    if (Main.BlockSabo.TryGetValue(playerId, out var stime) && stime + Options.SecurityGuardSkillDuration.GetInt() < now)
-                    {
-                        Main.BlockSabo.Remove(playerId);
-                        player.RpcResetAbilityCooldown();
-                        player.Notify(GetString("SecurityGuardSkillStop"));
-                    }
-
                     break;
 
                 case CustomRoles.TimeMaster when GameStates.IsInTask:
@@ -2554,7 +2565,7 @@ class FixedUpdatePatch
                             Suffix.Append(Romantic.GetTargetText(seer.PlayerId));
                             break;
                         case CustomRoles.Ricochet:
-                            Suffix.Append(Ricochet.TargetText);
+                            Suffix.Append(Ricochet.TargetText(seer.PlayerId));
                             break;
                         case CustomRoles.Hitman:
                             Suffix.Append(Hitman.GetTargetText());
@@ -2742,6 +2753,12 @@ class EnterVentPatch
     {
         Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "EnterVent");
 
+        if (pc.GetCustomRole().GetRoleTypes() != RoleTypes.Engineer && !Main.PlayerStates[pc.PlayerId].Role.CanUseImpostorVentButton(pc))
+        {
+            pc.MyPhysics?.RpcBootFromVent(__instance.Id);
+            return;
+        }
+
         Drainer.OnAnyoneEnterVent(pc, __instance);
         Analyzer.OnAnyoneEnterVent(pc);
 
@@ -2753,16 +2770,6 @@ class EnterVentPatch
             case CustomRoles.Mayor when !Options.UsePets.GetBool() && Main.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count2) && count2 < Options.MayorNumOfUseButton.GetInt():
                 pc.MyPhysics?.RpcBootFromVent(__instance.Id);
                 pc.ReportDeadBody(null);
-                break;
-            case CustomRoles.Paranoia when !Options.UsePets.GetBool() && Main.ParaUsedButtonCount.TryGetValue(pc.PlayerId, out var count) && count < Options.ParanoiaNumOfUseButton.GetInt():
-                Main.ParaUsedButtonCount[pc.PlayerId] += 1;
-                if (AmongUsClient.Instance.AmHost)
-                {
-                    _ = new LateTask(() => { SendMessage(GetString("SkillUsedLeft") + (Options.ParanoiaNumOfUseButton.GetInt() - Main.ParaUsedButtonCount[pc.PlayerId]), pc.PlayerId); }, 4.0f, "Skill Remain Message");
-                }
-
-                pc.MyPhysics?.RpcBootFromVent(__instance.Id);
-                pc.NoCheckStartMeeting(pc?.Data);
                 break;
             case CustomRoles.Mario:
                 Main.MarioVentCount.TryAdd(pc.PlayerId, 0);
@@ -2875,21 +2882,6 @@ class EnterVentPatch
                     pc.Notify(GetString("VeteranOnGuard"), Options.VeteranSkillDuration.GetFloat());
                     pc.AddAbilityCD();
                     pc.MarkDirtySettings();
-                }
-                else
-                {
-                    pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
-                }
-
-                break;
-            case CustomRoles.SecurityGuard when !Options.UsePets.GetBool():
-                if (pc.GetAbilityUseLimit() >= 1)
-                {
-                    Main.BlockSabo.Remove(pc.PlayerId);
-                    Main.BlockSabo.Add(pc.PlayerId, TimeStamp);
-                    pc.Notify(GetString("SecurityGuardSkillInUse"), Options.SecurityGuardSkillDuration.GetFloat());
-                    pc.AddAbilityCD();
-                    pc.RpcRemoveAbilityUse();
                 }
                 else
                 {

@@ -123,7 +123,7 @@ public class BallLightning : RoleBase
         StartConvertCountDown(target, killer);
     }
 
-    public static void OnCheckPlayerPosition(PlayerControl pc)
+    public override void OnCheckPlayerPosition(PlayerControl pc)
     {
         if (!GameStates.IsInTask) return;
         List<byte> deList = [];

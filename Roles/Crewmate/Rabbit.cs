@@ -4,11 +4,11 @@ using Hazel;
 
 namespace TOHE.Roles.Crewmate
 {
-    internal class Rabbit
+    internal class Rabbit : RoleBase
     {
         class RabbitState(PlayerControl player)
         {
-            public PlayerControl Player { get => player; set => player = value; }
+            private PlayerControl Player => player;
             private TaskState MyTaskState => Player.GetTaskState();
 
             private (bool HasArrow, byte Target) Arrow = (false, byte.MaxValue);
@@ -35,7 +35,7 @@ namespace TOHE.Roles.Crewmate
                 }, 5f, "Rabbit ShowArrow Empty");
             }
 
-            public void SendRPC()
+            void SendRPC()
             {
                 var writer = Utils.CreateCustomRoleRPC(CustomRPC.SyncRabbit);
                 writer.Write(Player.PlayerId);
@@ -65,12 +65,16 @@ namespace TOHE.Roles.Crewmate
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Rabbit]);
             Options.OverrideTasksData.Create(Id + 3, TabGroup.CrewmateRoles, CustomRoles.Rabbit);
         }
-        public static void Init()
+
+        public override void Init()
         {
             RabbitStates.Clear();
             TaskTrigger = OptionTaskTrigger.GetInt();
         }
-        public static void Add(byte playerId) => RabbitStates[playerId] = new(Utils.GetPlayerById(playerId));
+
+        public override void Add(byte playerId) => RabbitStates[playerId] = new(Utils.GetPlayerById(playerId));
+        public override bool IsEnable => RabbitStates.Count > 0;
+
         public static void ReceiveRPC(MessageReader reader)
         {
             byte id = reader.ReadByte();
@@ -78,7 +82,8 @@ namespace TOHE.Roles.Crewmate
             byte target = reader.ReadByte();
             RabbitStates[id].ReceiveRPC(hasArrow, target);
         }
-        public static void OnTaskComplete(PlayerControl pc)
+
+        public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
         {
             if (pc == null || !RabbitStates.TryGetValue(pc.PlayerId, out RabbitState state)) return;
             state.OnTaskComplete();

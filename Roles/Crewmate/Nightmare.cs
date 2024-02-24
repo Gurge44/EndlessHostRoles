@@ -1,9 +1,25 @@
 ﻿namespace TOHE.Roles.Crewmate
 {
-    public static class Nightmare
+    public class Nightmare : RoleBase
     {
+        public static bool On;
+        public override bool IsEnable => On;
+
+        public override void Add(byte playerId)
+        {
+            On = true;
+        }
+
+        public override void Init()
+        {
+            On = false;
+        }
+
         public static void SetupCustomOption() => Options.SetupRoleOptions(642630, TabGroup.CrewmateRoles, CustomRoles.Nightmare);
 
-        public static bool CanBeKilled => !Utils.IsActive(SystemTypes.Electrical);
+        public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
+        {
+            return !Utils.IsActive(SystemTypes.Electrical);
+        }
     }
 }

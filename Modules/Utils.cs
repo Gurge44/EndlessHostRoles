@@ -890,10 +890,6 @@ public static class Utils
                     ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(GetAbilityUseLimitDisplay(playerId, Chameleon.IsInvis(playerId)));
                     break;
-                case CustomRoles.SecurityGuard:
-                    ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId, Main.BlockSabo.ContainsKey(playerId)));
-                    break;
                 case CustomRoles.Crusader:
                     ProgressText.Append(Crusader.GetSkillLimit(playerId));
                     break;
@@ -2091,7 +2087,7 @@ public static class Utils
                             SelfSuffix.Append(Hookshot.SuffixText);
                             break;
                         case CustomRoles.Ricochet:
-                            SelfSuffix.Append(Ricochet.TargetText);
+                            SelfSuffix.Append(Ricochet.TargetText(seer.PlayerId));
                             break;
                         case CustomRoles.Hitman:
                             SelfSuffix.Append(Hitman.GetTargetText());
@@ -2436,7 +2432,7 @@ public static class Utils
                                     if (isForMeeting && Tracker.IsTrackTarget(seer, target) && Tracker.CanSeeLastRoomInMeeting)
                                         TargetRoleText = $"<size={fontSize}>{Tracker.GetArrowAndLastRoom(seer, target)}</size>\r\n";
                                     break;
-                                case CustomRoles.Psychic when seer.IsAlive() && target.IsRedForPsy(seer) && isForMeeting:
+                                case CustomRoles.Psychic when seer.IsAlive() && Psychic.IsRedForPsy(target, seer) && isForMeeting:
                                     TargetPlayerName = ColorString(GetRoleColor(CustomRoles.Impostor), TargetPlayerName);
                                     break;
                                 case CustomRoles.Mafia when !seer.IsAlive() && target.IsAlive():
@@ -2750,9 +2746,6 @@ public static class Utils
                 Main.TimeMasterNum[id] = 0;
                 id.SetAbilityUseLimit(Options.TimeMasterMaxUses.GetInt());
                 break;
-            case CustomRoles.Paranoia:
-                Main.ParaUsedButtonCount[id] = 0;
-                break;
             case CustomRoles.SabotageMaster:
                 SabotageMaster.Add(id);
                 break;
@@ -2924,9 +2917,6 @@ public static class Utils
                 break;
             case CustomRoles.Veteran:
                 id.SetAbilityUseLimit(Options.VeteranSkillMaxOfUseage.GetInt());
-                break;
-            case CustomRoles.SecurityGuard:
-                id.SetAbilityUseLimit(Options.SecurityGuardSkillMaxOfUseage.GetInt());
                 break;
             case CustomRoles.Ventguard:
                 id.SetAbilityUseLimit(Options.VentguardMaxGuards.GetInt());

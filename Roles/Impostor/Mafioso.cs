@@ -265,7 +265,7 @@ namespace TOHE.Roles.Impostor
             SendRPC();
         }
 
-        public static void OnSabotage(PlayerControl pc)
+        public override void OnSabotage(PlayerControl pc)
         {
             if (Main.PlayerStates[pc.PlayerId].Role is not Mafioso { IsEnable: true } mo) return;
             mo.XP += RewardForSabotaging.GetInt();

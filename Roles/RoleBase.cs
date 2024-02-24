@@ -40,6 +40,14 @@ namespace TOHE
         {
         }
 
+        public virtual void OnCheckPlayerPosition(PlayerControl pc)
+        {
+        }
+
+        public virtual void OnGlobalFixedUpdate()
+        {
+        }
+
         public virtual void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
         {
         }

@@ -1,16 +1,17 @@
-using System.Collections.Generic;
-using System.Text;
 using Hazel;
+using System.Collections.Generic;
 
 namespace TOHE.Roles.Crewmate
 {
     using static Options;
 
-    public static class Ricochet
+    public class Ricochet : RoleBase
     {
-        private static readonly int Id = 640100;
+        private const int Id = 640100;
         public static List<byte> playerIdList = [];
-        public static byte ProtectAgainst = byte.MaxValue;
+
+        public byte ProtectAgainst = byte.MaxValue;
+        private byte RicochetId;
 
         public static OptionItem UseLimitOpt;
         public static OptionItem RicochetAbilityUseGainWithEachTaskCompleted;
@@ -19,7 +20,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Ricochet, 1);
+            SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Ricochet);
             UseLimitOpt = IntegerOptionItem.Create(Id + 10, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Ricochet])
                 .SetValueFormat(OptionFormat.Times);
             RicochetAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 11, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.5f, TabGroup.CrewmateRoles, false)
@@ -30,35 +31,43 @@ namespace TOHE.Roles.Crewmate
                 .SetValueFormat(OptionFormat.Times);
             CancelVote = CreateVoteCancellingUseSetting(Id + 12, CustomRoles.Ricochet, TabGroup.CrewmateRoles);
         }
-        public static void Init()
+
+        public override void Init()
         {
             playerIdList = [];
             ProtectAgainst = byte.MaxValue;
+            RicochetId = byte.MaxValue;
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
+            RicochetId = playerId;
         }
-        public static bool IsEnable => playerIdList.Count > 0;
-        public static void SendRPCSyncTarget(byte targetId)
+
+        public override bool IsEnable => playerIdList.Count > 0;
+
+        void SendRPCSyncTarget(byte targetId)
         {
             if (!IsEnable || !Utils.DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRicochetTarget, SendOption.Reliable);
+            writer.Write(RicochetId);
             writer.Write(targetId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         public static void ReceiveRPCSyncTarget(MessageReader reader)
         {
-            if (AmongUsClient.Instance.AmHost) return;
+            byte id = reader.ReadByte();
+            if (Main.PlayerStates[id].Role is not Ricochet rc) return;
 
-            ProtectAgainst = reader.ReadByte();
+            rc.ProtectAgainst = reader.ReadByte();
         }
-        public static bool OnKillAttempt(PlayerControl killer, PlayerControl target)
+
+        public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {
             if (killer == null) return false;
             if (target == null) return false;
-            if (!target.Is(CustomRoles.Ricochet)) return true;
 
             if (ProtectAgainst == killer.PlayerId)
             {
@@ -70,34 +79,25 @@ namespace TOHE.Roles.Crewmate
         }
         public static bool OnVote(PlayerControl pc, PlayerControl target)
         {
-            if (target == null || pc == null || pc.PlayerId == target.PlayerId || !pc.Is(CustomRoles.Ricochet) || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
+            if (target == null || pc == null || pc.PlayerId == target.PlayerId || Main.PlayerStates[pc.PlayerId].Role is not Ricochet rc || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
 
             if (pc.GetAbilityUseLimit() >= 1)
             {
                 pc.RpcRemoveAbilityUse();
-                ProtectAgainst = target.PlayerId;
-                SendRPCSyncTarget(ProtectAgainst);
+                rc.ProtectAgainst = target.PlayerId;
+                rc.SendRPCSyncTarget(rc.ProtectAgainst);
                 Main.DontCancelVoteList.Add(pc.PlayerId);
                 return true;
             }
             return false;
         }
-        public static void OnReportDeadBody()
+
+        public override void OnReportDeadBody()
         {
             ProtectAgainst = byte.MaxValue;
             SendRPCSyncTarget(ProtectAgainst);
         }
-        public static string GetProgressText(byte playerId, bool comms)
-        {
-            if (Utils.GetPlayerById(playerId) == null) return string.Empty;
 
-            var sb = new StringBuilder();
-
-            sb.Append(Utils.GetTaskCount(playerId, comms));
-            sb.Append(Utils.GetAbilityUseLimitDisplay(playerId, ProtectAgainst != byte.MaxValue));
-
-            return sb.ToString();
-        }
-        public static string TargetText => ProtectAgainst != byte.MaxValue ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(ProtectAgainst).GetRealName()}</color>" : string.Empty;
+        public static string TargetText(byte id) => Main.PlayerStates[id].Role is Ricochet rc && rc.ProtectAgainst != byte.MaxValue ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(rc.ProtectAgainst).GetRealName()}</color>" : string.Empty;
     }
 }

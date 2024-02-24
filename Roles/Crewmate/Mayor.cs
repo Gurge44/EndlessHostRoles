@@ -43,6 +43,17 @@ namespace TOHE.Roles.Crewmate
 
         public override void OnPet(PlayerControl pc)
         {
+            Button(pc);
+        }
+
+        public override void OnEnterVent(PlayerControl pc, Vent vent)
+        {
+            pc.MyPhysics?.RpcBootFromVent(vent.Id);
+            Button(pc);
+        }
+
+        private static void Button(PlayerControl pc)
+        {
             if (Main.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count) && count < Options.MayorNumOfUseButton.GetInt())
             {
                 pc.ReportDeadBody(null);

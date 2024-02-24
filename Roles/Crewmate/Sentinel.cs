@@ -83,7 +83,8 @@ namespace TOHE.Roles.Crewmate
             Sentinel.MarkDirtySettings();
         }
     }
-    internal class Sentinel
+
+    internal class Sentinel : RoleBase
     {
         private static int Id => 64430;
 
@@ -92,10 +93,7 @@ namespace TOHE.Roles.Crewmate
         public static OptionItem LoweredVision;
         private static OptionItem PatrolRadius;
 
-        private static readonly List<PatrollingState> patrolStates = [];
-        private static readonly List<byte> AffectedKillers = [];
-
-        public static List<PatrollingState> PatrolStates => patrolStates;
+        public static List<PatrollingState> PatrolStates { get; } = [];
 
         public static void SetupCustomOption()
         {
@@ -112,25 +110,26 @@ namespace TOHE.Roles.Crewmate
                 .SetValueFormat(OptionFormat.Multiplier);
         }
 
-        public static void Init()
+        public override void Init()
         {
             PatrolStates.Clear();
-            AffectedKillers.Clear();
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
             var newPatrolState = new PatrollingState(playerId, PatrolDuration.GetInt(), PatrolRadius.GetFloat());
             PatrolStates.Add(newPatrolState);
             _ = new LateTask(newPatrolState.SetPlayer, 8f, log: false);
         }
-        public static bool IsEnable => PatrolStates.Count > 0 || Randomizer.IsEnable;
+
+        public override bool IsEnable => PatrolStates.Count > 0 || Randomizer.Exists;
 
         public static PatrollingState GetPatrollingState(byte playerId) => PatrolStates.FirstOrDefault(x => x.SentinelId == playerId) ?? new(playerId, PatrolDuration.GetInt(), PatrolRadius.GetInt());
         public static bool IsPatrolling(byte playerId) => GetPatrollingState(playerId).IsPatrolling;
         public static void StartPatrolling(PlayerControl pc) => GetPatrollingState(pc.PlayerId)?.StartPatrolling();
         public static bool OnAnyoneCheckMurder(PlayerControl killer)
         {
-            if (killer == null || !IsEnable || !PatrolStates.Any(x => x.IsPatrolling)) return true;
+            if (killer == null || !PatrolStates.Any(x => x.IsPatrolling)) return true;
             foreach (PatrollingState state in PatrolStates)
             {
                 if (!state.IsPatrolling) continue;
@@ -142,7 +141,8 @@ namespace TOHE.Roles.Crewmate
             }
             return true;
         }
-        public static void OnFixedUpdate()
+
+        public override void OnFixedUpdate(PlayerControl pc)
         {
             if (!IsEnable) return;
             foreach (PatrollingState state in PatrolStates)
@@ -150,7 +150,8 @@ namespace TOHE.Roles.Crewmate
                 state.Update();
             }
         }
-        public static void OnCheckPlayerPosition(PlayerControl pc)
+
+        public override void OnCheckPlayerPosition(PlayerControl pc)
         {
             if (!IsEnable) return;
             foreach (PatrollingState state in PatrolStates)
@@ -158,7 +159,8 @@ namespace TOHE.Roles.Crewmate
                 state.OnCheckPlayerPosition(pc);
             }
         }
-        public static void OnReportDeadBody()
+
+        public override void OnReportDeadBody()
         {
             if (!IsEnable) return;
             _ = new LateTask(() =>

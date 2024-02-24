@@ -106,7 +106,7 @@ namespace TOHE.Roles.Impostor
             SendRPC(true);
         }
 
-        public static void OnGlobalFixedUpdate()
+        public override void OnGlobalFixedUpdate()
         {
             if (!GameStates.IsInTask) return;
 

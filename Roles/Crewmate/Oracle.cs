@@ -4,13 +4,12 @@ using static TOHE.Translator;
 
 namespace TOHE.Roles.Crewmate;
 
-public static class Oracle
+public class Oracle : RoleBase
 {
-    private static readonly int Id = 7600;
+    private const int Id = 7600;
     private static List<byte> playerIdList = [];
 
     public static OptionItem CheckLimitOpt;
-    //  private static OptionItem OracleCheckMode;
     public static OptionItem HideVote;
     public static OptionItem FailChance;
     public static OptionItem OracleAbilityUseGainWithEachTaskCompleted;
@@ -36,17 +35,19 @@ public static class Oracle
             .SetValueFormat(OptionFormat.Times);
         CancelVote = CreateVoteCancellingUseSetting(Id + 11, CustomRoles.Oracle, TabGroup.CrewmateRoles);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
     }
 
-    public static void Add(byte playerId)
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(CheckLimitOpt.GetInt());
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static bool OnVote(PlayerControl player, PlayerControl target)
     {

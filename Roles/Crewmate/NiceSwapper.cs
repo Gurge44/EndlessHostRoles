@@ -1,17 +1,17 @@
-﻿using System;
+﻿using HarmonyLib;
+using Hazel;
+using System;
 using System.Linq;
 using System.Text.RegularExpressions;
-using HarmonyLib;
-using Hazel;
 using UnityEngine;
 using static TOHE.Translator;
 using Object = UnityEngine.Object;
 
 namespace TOHE.Roles.Crewmate;
 
-public static class NiceSwapper
+public class NiceSwapper : RoleBase
 {
-    private static readonly int Id = 1986523;
+    private const int Id = 642680;
 
     public static OptionItem SwapMax;
     public static OptionItem HideMsg;
@@ -39,21 +39,19 @@ public static class NiceSwapper
         HideMsg = BooleanOptionItem.Create(Id + 5, "SwapperHideMsg", true, TabGroup.OtherRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper]);
     }
 
-    public static void Init()
+    public override void Init()
     {
         SwapTargets = (byte.MaxValue, byte.MaxValue);
         NiceSwapperId = byte.MaxValue;
     }
 
-    public static void Add(byte playerId)
+    public override void Add(byte playerId)
     {
         NiceSwapperId = playerId;
         playerId.SetAbilityUseLimit(SwapMax.GetInt());
     }
 
-    public static bool IsEnable => NiceSwapperId != byte.MaxValue;
-
-    public static string ProgressText => Utils.GetAbilityUseLimitDisplay(NiceSwapperId);
+    public override bool IsEnable => NiceSwapperId != byte.MaxValue;
 
     public static bool SwapMsg(PlayerControl pc, string msg, bool isUI = false)
     {
@@ -74,7 +72,7 @@ public static class NiceSwapper
             return true;
         }
 
-        int operate = 0;
+        int operate;
         msg = msg.ToLower().TrimStart().TrimEnd();
         if (CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id")) operate = 1;
         else if (CheckCommand(ref msg, "sw|换票|换|swap|st", false)) operate = 2;
@@ -140,7 +138,7 @@ public static class NiceSwapper
                     Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} canceled swapping on {target.GetNameWithRole()} (second target)", "Swapper");
                 }
 
-                else if (pc.PlayerId == target.PlayerId && !CanSwapSelf.GetBool()) // When the Swapper tries to swap themselves but they aren't allowed to
+                else if (pc.PlayerId == target.PlayerId && !CanSwapSelf.GetBool()) // When the Swapper tries to swap themselves, but they aren't allowed to
                 {
                     if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
                     if (!isUI) Utils.SendMessage(GetString("CantSwapSelf"), pc.PlayerId);
@@ -167,7 +165,7 @@ public static class NiceSwapper
 
     public static void OnCheckForEndVoting()
     {
-        if (!(SwapTargets != (byte.MaxValue, byte.MaxValue))) return;
+        if (SwapTargets.Item1 == byte.MaxValue || SwapTargets.Item2 == byte.MaxValue) return;
 
         var playerStates = MeetingHud.Instance.playerStates;
         var votedFor2 = playerStates.Where(x => x.VotedFor == SwapTargets.Item2).ToList();
@@ -252,7 +250,7 @@ public static class NiceSwapper
 
     private static void SendRPC(byte playerId)
     {
-        if (!IsEnable || !Utils.DoRPC) return;
+        if (!Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetNiceSwapperVotes, SendOption.Reliable);
         writer.Write(playerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -276,10 +274,10 @@ public static class NiceSwapper
 
         if (PlayerControl.LocalPlayer.GetCustomRole() == CustomRoles.NiceSwapper && PlayerControl.LocalPlayer.IsAlive())
         {
-            bool forceAll = true;
             __instance.playerStates.ToList().ForEach(x =>
             {
-                if ((forceAll || !Main.PlayerStates.TryGetValue(x.TargetPlayerId, out var ps) || ps.IsDead) && x.transform.FindChild("ShootButton") != null) Object.Destroy(x.transform.FindChild("ShootButton").gameObject);
+                var swapButton = x.transform.FindChild("ShootButton");
+                if (swapButton != null) Object.Destroy(swapButton.gameObject);
             });
             CreateSwapperButton(__instance);
         }
@@ -288,6 +286,7 @@ public static class NiceSwapper
     [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
     class StartMeetingPatch
     {
+        // ReSharper disable once UnusedMember.Local
         public static void Postfix(MeetingHud __instance)
         {
             if (PlayerControl.LocalPlayer.GetCustomRole() == CustomRoles.NiceSwapper && PlayerControl.LocalPlayer.IsAlive())
@@ -305,7 +304,7 @@ public static class NiceSwapper
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
             GameObject targetBox = Object.Instantiate(template, pva.transform);
             targetBox.name = "ShootButton";
-            targetBox.transform.localPosition = new Vector3(-0.35f, 0.03f, -1.31f);
+            targetBox.transform.localPosition = new(-0.35f, 0.03f, -1.31f);
             SpriteRenderer renderer = targetBox.GetComponent<SpriteRenderer>();
 
             if ((pc.PlayerId == pva.TargetPlayerId) && (SwapTargets.Item1 == pc.PlayerId || SwapTargets.Item2 == pc.PlayerId)) renderer.sprite = CustomButton.Get("SwapYes");

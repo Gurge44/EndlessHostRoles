@@ -127,19 +127,6 @@ class ExternalRpcPetPatch
             case CustomRoles.CameraMan:
                 CameraMan.OnEnterVent(pc);
                 break;
-            case CustomRoles.Paranoia:
-                if (Main.ParaUsedButtonCount.TryGetValue(pc.PlayerId, out var count2) && count2 < Options.ParanoiaNumOfUseButton.GetInt())
-                {
-                    Main.ParaUsedButtonCount[pc.PlayerId] += 1;
-                    if (AmongUsClient.Instance.AmHost)
-                    {
-                        _ = new LateTask(() => { Utils.SendMessage(GetString("SkillUsedLeft") + (Options.ParanoiaNumOfUseButton.GetInt() - Main.ParaUsedButtonCount[pc.PlayerId]), pc.PlayerId); }, 4.0f, "Skill Remain Message");
-                    }
-
-                    pc.NoCheckStartMeeting(pc.Data);
-                }
-
-                break;
             case CustomRoles.Veteran:
                 if (Main.VeteranInProtect.ContainsKey(pc.PlayerId)) break;
                 if (pc.GetAbilityUseLimit() >= 1)
@@ -154,22 +141,6 @@ class ExternalRpcPetPatch
                 else
                 {
                     if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
-                }
-
-                break;
-            case CustomRoles.SecurityGuard:
-                if (Main.BlockSabo.ContainsKey(pc.PlayerId)) break;
-                if (pc.GetAbilityUseLimit() >= 1)
-                {
-                    Main.BlockSabo.Remove(pc.PlayerId);
-                    Main.BlockSabo.Add(pc.PlayerId, Utils.TimeStamp);
-                    pc.Notify(GetString("SecurityGuardSkillInUse"), Options.SecurityGuardSkillDuration.GetFloat());
-                    pc.RpcRemoveAbilityUse();
-                }
-                else
-                {
-                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
-                        pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
                 }
 
                 break;

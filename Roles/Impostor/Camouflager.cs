@@ -46,7 +46,7 @@
 
         public override bool IsEnable => On;
 
-        public override void OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
+        public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
         {
             if (shapeshifting && pc.GetAbilityUseLimit() < 1)
             {
@@ -56,6 +56,8 @@
             if (shapeshifting) pc.RpcRemoveAbilityUse();
             IsActive = true;
             Camouflage.CheckCamouflage();
+
+            return true;
         }
 
         public override void OnReportDeadBody()

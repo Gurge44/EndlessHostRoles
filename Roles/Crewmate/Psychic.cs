@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Crewmate;
 
-public static class Psychic
+public class Psychic : RoleBase
 {
-    private static readonly int Id = 7900;
+    private const int Id = 7900;
     private static List<byte> playerIdList = [];
 
     private static OptionItem CanSeeNum;
@@ -18,7 +19,8 @@ public static class Psychic
     private static OptionItem NBshowEvil;
     private static OptionItem NEshowEvil;
 
-    private static List<byte> RedPlayer;
+    private List<byte> RedPlayer;
+    private byte PsychicId;
 
     public static void SetupCustomOption()
     {
@@ -30,22 +32,29 @@ public static class Psychic
         NBshowEvil = BooleanOptionItem.Create(Id + 4, "NBareRed", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Psychic]);
         NEshowEvil = BooleanOptionItem.Create(Id + 5, "NEareRed", true, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Psychic]);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
         RedPlayer = [];
+        PsychicId = byte.MaxValue;
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
+        PsychicId = playerId;
     }
-    public static bool IsEnable => playerIdList.Count > 0;
-    private static void SendRPC()
+
+    public override bool IsEnable => playerIdList.Count > 0;
+
+    void SendRPC()
     {
         if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncPsychicRedList, SendOption.Reliable);
+        writer.Write(PsychicId);
         writer.Write(RedPlayer.Count);
-        foreach (byte pc in RedPlayer.ToArray())
+        foreach (byte pc in RedPlayer)
         {
             writer.Write(pc);
         }
@@ -54,23 +63,29 @@ public static class Psychic
     }
     public static void ReceiveRPC(MessageReader reader)
     {
+        byte playerId = reader.ReadByte();
+        if (Main.PlayerStates[playerId].Role is not Psychic ph) return;
         int count = reader.ReadInt32();
-        RedPlayer = [];
+        ph.RedPlayer = [];
         for (int i = 0; i < count; i++)
-            RedPlayer.Add(reader.ReadByte());
+            ph.RedPlayer.Add(reader.ReadByte());
     }
-    public static bool IsRedForPsy(this PlayerControl target, PlayerControl seer)
+
+    public static bool IsRedForPsy(PlayerControl target, PlayerControl seer)
     {
         if (target == null || seer == null) return false;
-        if (seer.Is(CustomRoles.Madmate)) return target.GetCustomRole().IsNeutral() || target.GetCustomRole().IsCK();
-        return RedPlayer != null && RedPlayer.Contains(target.PlayerId);
+        if (Main.PlayerStates[seer.PlayerId].Role is not Psychic ph) return false;
+        if (seer.Is(CustomRoles.Madmate)) return target.GetCustomRole().IsNeutral() || target.GetCustomRole().GetDYRole() == RoleTypes.Impostor;
+        return ph.RedPlayer != null && ph.RedPlayer.Contains(target.PlayerId);
     }
-    public static void OnReportDeadBody()
+
+    public override void OnReportDeadBody()
     {
         if (Fresh.GetBool() || RedPlayer == null || RedPlayer.Count == 0)
             GetRedName();
     }
-    public static void GetRedName()
+
+    void GetRedName()
     {
         if (!IsEnable || !AmongUsClient.Instance.AmHost) return;
 
@@ -109,11 +124,10 @@ public static class Psychic
             AllList.RemoveAll(RedPlayer.Contains);
         }
 
-    EndOfSelect:
+        EndOfSelect:
 
-        Logger.Info($"需要{CanSeeNum.GetInt()}个红名，其中需要{ENum}个邪恶。计算后显示红名{RedPlayer.Count}个", "Psychic");
-        RedPlayer.Do(x => Logger.Info($"红名：{x}: {Main.AllPlayerNames[x]}", "Psychic"));
-        SendRPC(); //RPC同步红名名单
-
+        Logger.Info($"Requires {CanSeeNum.GetInt()} red names, of which {ENum} evil names are required. After calculation, {RedPlayer.Count} red names are displayed.", "Psychic");
+        RedPlayer.Do(x => Logger.Info($"Red for Psychic：{x}: {Main.AllPlayerNames[x]}", "Psychic"));
+        SendRPC();
     }
 }

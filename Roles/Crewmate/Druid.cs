@@ -131,7 +131,7 @@ namespace TOHE.Roles.Crewmate
             pc.RpcRemoveAbilityUse();
         }
 
-        public static void OnCheckPlayerPosition(PlayerControl pc)
+        public override void OnCheckPlayerPosition(PlayerControl pc)
         {
             if (!GameStates.IsInTask || Triggers.Count <= 0 || playerIdList.Contains(pc.PlayerId)) return;
 

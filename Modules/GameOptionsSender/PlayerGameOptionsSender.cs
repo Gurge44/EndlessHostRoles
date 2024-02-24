@@ -274,14 +274,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 case CustomRoles.Virus:
                     opt.SetVision(Virus.ImpostorVision.GetBool());
                     break;
-                case CustomRoles.Paranoia:
-                    if (Options.UsePets.GetBool()) break;
-                    AURoleOptions.EngineerCooldown =
-                        !Main.ParaUsedButtonCount.TryGetValue(player.PlayerId, out var count2) || count2 < Options.ParanoiaNumOfUseButton.GetInt()
-                            ? Options.ParanoiaVentCooldown.GetFloat()
-                            : 300f;
-                    AURoleOptions.EngineerInVentMaxTime = 1;
-                    break;
                 /*     case CustomRoles.Mare:
                          Mare.ApplyGameOptions(player.PlayerId);
                          break; */
@@ -374,11 +366,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                            AURoleOptions.ShapeshifterCooldown = Options.FlashbangSkillCooldown.GetFloat();
                            AURoleOptions.ShapeshifterDuration = Options.FlashbangSkillDuration.GetFloat();
                            break; */
-                case CustomRoles.SecurityGuard:
-                    if (Options.UsePets.GetBool()) break;
-                    AURoleOptions.EngineerInVentMaxTime = 1;
-                    AURoleOptions.EngineerCooldown = Options.SecurityGuardSkillCooldown.GetFloat();
-                    break;
                 case CustomRoles.Ventguard:
                     AURoleOptions.EngineerInVentMaxTime = 1;
                     AURoleOptions.EngineerCooldown = 15;

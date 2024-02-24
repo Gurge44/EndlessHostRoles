@@ -1015,7 +1015,7 @@ class MeetingHudStartPatch
                         sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Revolutionist), "●"));
                     break;
                 case CustomRoles.Psychic:
-                    if (target.IsRedForPsy(seer) && !seer.Data.IsDead)
+                    if (Psychic.IsRedForPsy(target, seer) && !seer.Data.IsDead)
                         pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), pva.NameText.text);
                     break;
                 case CustomRoles.Mafia:
