@@ -2428,7 +2428,7 @@
   "RandomizerEffectDurMin": "Duração mínima do efeito",
   "RandomizerEffectDurMax": "Duração máxima do efeito",
   "RandomizerNotifyOpt": "Notificar quando o evento da RNG aparecer (desligar se os eventos forem frequentes)",
-  "MadmateCanFindMarshall": "Reveal to <#ff1919>MadMates</color>",
+  "MadmateCanFindMarshall": "Mostrar para os <#ff1919>Cúmplices</color>",
   "Jailor": "Carcereiro",
   "JailorInfo": "Enjaule jogadores suspeitos",
   "JailorInfoLong": "(Tripulantes):\\n★Como o Carcereiro, use seu botão de abate para enjaular um jogador na cadeia. \\n★Durante a próxima reunião, o jogador enjaulado não pode votar ou ser ejetado. \\n★O Carcereiro pode escolher executar o prisioneiro votando nele. \\n★Se o Carcereiro executar um jogador inocente, ele perde sua habilidade. \\n★Se o jogador for malvado, então ele pode executar qualquer um.",
