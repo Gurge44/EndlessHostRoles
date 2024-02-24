@@ -1129,9 +1129,6 @@ static class ExtendedPlayerControl
             case CustomRoles.Analyzer:
                 Analyzer.SetKillCooldown(player.PlayerId);
                 break;
-            case CustomRoles.Witness:
-                Main.AllPlayerKillCooldown[player.PlayerId] = Options.WitnessCD.GetFloat();
-                break;
             case CustomRoles.Pursuer:
                 Pursuer.SetKillCooldown(player.PlayerId);
                 break;

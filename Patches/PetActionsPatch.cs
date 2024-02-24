@@ -127,71 +127,14 @@ class ExternalRpcPetPatch
             case CustomRoles.CameraMan:
                 CameraMan.OnEnterVent(pc);
                 break;
-            case CustomRoles.Veteran:
-                if (Main.VeteranInProtect.ContainsKey(pc.PlayerId)) break;
-                if (pc.GetAbilityUseLimit() >= 1)
-                {
-                    Main.VeteranInProtect.Remove(pc.PlayerId);
-                    Main.VeteranInProtect.Add(pc.PlayerId, Utils.GetTimeStamp(DateTime.Now));
-                    pc.RpcRemoveAbilityUse();
-                    pc.RPCPlayCustomSound("Gunload");
-                    pc.Notify(GetString("VeteranOnGuard"), Options.VeteranSkillDuration.GetFloat());
-                    pc.MarkDirtySettings();
-                }
-                else
-                {
-                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
-                }
-
-                break;
             case CustomRoles.Alchemist:
                 Alchemist.OnEnterVent(pc, 0, true);
-                break;
-            case CustomRoles.TimeMaster:
-                if (Main.TimeMasterInProtect.ContainsKey(pc.PlayerId)) break;
-                if (pc.GetAbilityUseLimit() >= 1)
-                {
-                    pc.RpcRemoveAbilityUse();
-                    Main.TimeMasterInProtect.Remove(pc.PlayerId);
-                    Main.TimeMasterInProtect.Add(pc.PlayerId, Utils.TimeStamp);
-                    pc.Notify(GetString("TimeMasterOnGuard"), Options.TimeMasterSkillDuration.GetFloat());
-                    foreach (PlayerControl player in Main.AllPlayerControls)
-                    {
-                        if (Main.TimeMasterBackTrack.ContainsKey(player.PlayerId))
-                        {
-                            var position = Main.TimeMasterBackTrack[player.PlayerId];
-                            player.TP(position);
-                            if (pc != player)
-                                player?.MyPhysics?.RpcBootFromVent(player.PlayerId);
-                            Main.TimeMasterBackTrack.Remove(player.PlayerId);
-                        }
-                        else
-                        {
-                            Main.TimeMasterBackTrack.Add(player.PlayerId, player.Pos());
-                        }
-                    }
-                }
-                else
-                {
-                    if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
-                        pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
-                }
-
                 break;
             case CustomRoles.NiceHacker:
                 NiceHacker.OnEnterVent(pc);
                 break;
             case CustomRoles.Druid:
                 Druid.OnEnterVent(pc, isPet: true);
-                break;
-            case CustomRoles.Tunneler:
-                if (Main.TunnelerPositions.TryGetValue(pc.PlayerId, out var ps))
-                {
-                    pc.TP(ps);
-                    Main.TunnelerPositions.Remove(pc.PlayerId);
-                }
-                else Main.TunnelerPositions[pc.PlayerId] = pc.Pos();
-
                 break;
             case CustomRoles.Tornado:
                 Tornado.SpawnTornado(pc);
@@ -240,12 +183,12 @@ class ExternalRpcPetPatch
                 break;
             case CustomRoles.Witness when hasKillTarget:
                 pc.AddKCDAsAbilityCD();
-                if (Main.AllKillers.ContainsKey(target.PlayerId))
+                if (Witness.AllKillers.ContainsKey(target.PlayerId)) // Done with OnCheckMurder
                     pc.Notify(GetString("WitnessFoundKiller"));
                 else pc.Notify(GetString("WitnessFoundInnocent"));
                 break;
             case CustomRoles.Medic when hasKillTarget:
-                Medic.OnCheckMurderFormedicaler(pc, target);
+                Medic.OnCheckMurderFormedicaler(pc, target); // Done with OnCheckMurder
                 pc.AddKCDAsAbilityCD();
                 break;
             case CustomRoles.Monarch when hasKillTarget:
@@ -256,7 +199,7 @@ class ExternalRpcPetPatch
                 pc.AddKCDAsAbilityCD();
                 if (CopyCat.OnCheckMurder(pc, target)) pc.RpcCheckAndMurder(target);
                 break;
-            case CustomRoles.Farseer when hasKillTarget:
+            case CustomRoles.Farseer when hasKillTarget: // Done with OnCheckMurder
                 pc.AddAbilityCD(Farseer.FarseerRevealTime.GetInt());
                 if (!Main.isRevealed[(pc.PlayerId, target.PlayerId)] && !Farseer.FarseerTimer.ContainsKey(pc.PlayerId))
                 {

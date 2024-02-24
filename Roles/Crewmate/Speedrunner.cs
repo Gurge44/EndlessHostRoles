@@ -3,9 +3,22 @@ using TOHE.Modules;
 
 namespace TOHE.Roles.Crewmate
 {
-    internal static class Speedrunner
+    internal class Speedrunner : RoleBase
     {
-        public static void OnTaskComplete(PlayerControl player, int CompletedTasksCount, int AllTasksCount)
+        public static bool On;
+        public override bool IsEnable => On;
+
+        public override void Add(byte playerId)
+        {
+            On = true;
+        }
+
+        public override void Init()
+        {
+            On = false;
+        }
+
+        public override void OnTaskComplete(PlayerControl player, int CompletedTasksCount, int AllTasksCount)
         {
             var completedTasks = CompletedTasksCount + 1;
             int remainingTasks = AllTasksCount - completedTasks;

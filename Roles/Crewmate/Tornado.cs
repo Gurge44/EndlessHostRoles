@@ -9,16 +9,16 @@ using static TOHE.Utils;
 
 namespace TOHE.Roles.Crewmate
 {
-    internal class Tornado
+    internal class Tornado : RoleBase
     {
         private static int Id => 64420;
-        private static readonly List<byte> playerIdList = [];
+        private static readonly List<byte> PlayerIdList = [];
 
         public static OptionItem TornadoCooldown;
         private static OptionItem TornadoDuration;
         private static OptionItem TornadoRange;
 
-        private static readonly Dictionary<string, string> replacementDict = new() { { "Tornado", ColorString(GetRoleColor(CustomRoles.Tornado), "Tornado") } };
+        private static readonly Dictionary<string, string> ReplacementDict = new() { { "Tornado", ColorString(GetRoleColor(CustomRoles.Tornado), "Tornado") } };
 
         private static RandomSpawn.SpawnMap Map;
         private static readonly Dictionary<(Vector2 LOCATION, string ROOM_NAME), long> Tornados = [];
@@ -38,13 +38,14 @@ namespace TOHE.Roles.Crewmate
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Tornado])
                 .SetValueFormat(OptionFormat.Multiplier);
 
-            TornadoCooldown.ReplacementDictionary = replacementDict;
-            TornadoDuration.ReplacementDictionary = replacementDict;
-            TornadoRange.ReplacementDictionary = replacementDict;
+            TornadoCooldown.ReplacementDictionary = ReplacementDict;
+            TornadoDuration.ReplacementDictionary = ReplacementDict;
+            TornadoRange.ReplacementDictionary = ReplacementDict;
         }
-        public static void Init()
+
+        public override void Init()
         {
-            playerIdList.Clear();
+            PlayerIdList.Clear();
             Tornados.Clear();
             LastNotify = TimeStamp;
 
@@ -69,14 +70,17 @@ namespace TOHE.Roles.Crewmate
                 CanUseMap = false;
             }
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
         }
-        public static bool IsEnable => playerIdList.Count > 0 || Randomizer.IsEnable;
+
+        public override bool IsEnable => PlayerIdList.Count > 0 || Randomizer.Exists;
+
         private static void SendRPCAddTornado(bool add, Vector2 pos, string roomname, long timestamp = 0)
         {
-            if (!IsEnable || !DoRPC) return;
+            if (!DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.AddTornado, SendOption.Reliable);
             writer.Write(add);
             writer.Write(pos.x);
@@ -102,6 +106,12 @@ namespace TOHE.Roles.Crewmate
                 Tornados.Remove((new(x, y), roomname));
             }
         }
+
+        public override void OnPet(PlayerControl pc)
+        {
+            SpawnTornado(pc);
+        }
+
         public static void SpawnTornado(PlayerControl pc)
         {
             if (pc == null) return;
@@ -110,7 +120,8 @@ namespace TOHE.Roles.Crewmate
             Tornados.Add(info, now);
             SendRPCAddTornado(true, info.LOCATION, info.ROOM_NAME, now);
         }
-        public static void OnCheckPlayerPosition(PlayerControl pc)
+
+        public override void OnCheckPlayerPosition(PlayerControl pc)
         {
             if (!IsEnable || !GameStates.IsInTask || Tornados.Count == 0 || pc == null) return;
 

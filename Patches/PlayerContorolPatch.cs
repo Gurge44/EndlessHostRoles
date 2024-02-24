@@ -343,12 +343,6 @@ class CheckMurderPatch
                 case CustomRoles.Poisoner:
                     if (!Poisoner.OnCheckMurder(killer, target)) return false;
                     break;
-                case CustomRoles.Witness:
-                    killer.SetKillCooldown();
-                    if (Main.AllKillers.ContainsKey(target.PlayerId))
-                        killer.Notify(GetString("WitnessFoundKiller"));
-                    else killer.Notify(GetString("WitnessFoundInnocent"));
-                    return false;
                 case CustomRoles.Assassin:
                     if (!Assassin.OnCheckMurder(killer, target)) return false;
                     break;
@@ -440,16 +434,6 @@ class CheckMurderPatch
                         Main.RevolutionistTimer.TryAdd(killer.PlayerId, (target, 0f));
                         NotifyRoles(SpecifySeer: __instance, SpecifyTarget: target, ForceLoop: true);
                         RPC.SetCurrentDrawTarget(killer.PlayerId, target.PlayerId);
-                    }
-
-                    return false;
-                case CustomRoles.Farseer:
-                    killer.SetKillCooldown(Farseer.FarseerRevealTime.GetFloat());
-                    if (!Main.isRevealed[(killer.PlayerId, target.PlayerId)] && !Farseer.FarseerTimer.ContainsKey(killer.PlayerId))
-                    {
-                        Farseer.FarseerTimer.TryAdd(killer.PlayerId, (target, 0f));
-                        NotifyRoles(SpecifySeer: __instance, SpecifyTarget: target, ForceLoop: true);
-                        RPC.SetCurrentRevealTarget(killer.PlayerId, target.PlayerId);
                     }
 
                     return false;
@@ -750,48 +734,6 @@ class CheckMurderPatch
 
                 target.SetKillCooldown(time: kcd2);
                 return false;
-            case CustomRoles.Veteran:
-                if (Main.VeteranInProtect.ContainsKey(target.PlayerId)
-                    && killer.PlayerId != target.PlayerId
-                    && Main.VeteranInProtect[target.PlayerId] + Options.VeteranSkillDuration.GetInt() >= TimeStamp)
-                {
-                    if (!killer.Is(CustomRoles.Pestilence))
-                    {
-                        killer.SetRealKiller(target);
-                        target.Kill(killer);
-                        Logger.Info($"{target.GetRealName()} reverse killed：{killer.GetRealName()}", "Veteran Kill");
-                        return false;
-                    }
-
-                    target.SetRealKiller(killer);
-                    killer.Kill(target);
-                    Logger.Info($"{target.GetRealName()} reverse reverse killed：{target.GetRealName()}", "Pestilence Reflect");
-                    return false;
-                }
-
-                break;
-            case CustomRoles.TimeMaster:
-                if (Main.TimeMasterInProtect.ContainsKey(target.PlayerId) && killer.PlayerId != target.PlayerId && Main.TimeMasterInProtect[target.PlayerId] + Options.TimeMasterSkillDuration.GetInt() >= GetTimeStamp(DateTime.UtcNow))
-                {
-                    foreach (var player in Main.AllPlayerControls)
-                    {
-                        if (!killer.Is(CustomRoles.Pestilence) && Main.TimeMasterBackTrack.TryGetValue(player.PlayerId, out var pos))
-                        {
-                            player.TP(pos);
-                        }
-                    }
-
-                    killer.SetKillCooldown(target: target);
-                    return false;
-                }
-
-                break;
-            case CustomRoles.SuperStar:
-                if (Main.AllAlivePlayerControls.Any(x =>
-                        x.PlayerId != killer.PlayerId &&
-                        x.PlayerId != target.PlayerId &&
-                        Vector2.Distance(x.Pos(), target.Pos()) < 2f)) return false;
-                break;
             case CustomRoles.Gamer:
                 if (!Gamer.CheckMurder(killer, target))
                     return false;
@@ -930,8 +872,8 @@ class MurderPlayerPatch
         //if ((Romantic.BetPlayer.TryGetValue(target.PlayerId, out var RomanticPartner) && target.PlayerId == RomanticPartner) && target.PlayerId != killer.PlayerId)
         //    VengefulRomantic.PartnerKiller.Add(killer.PlayerId, 1);
 
-        Main.AllKillers.Remove(killer.PlayerId);
-        Main.AllKillers.Add(killer.PlayerId, TimeStamp);
+        Witness.AllKillers.Remove(killer.PlayerId);
+        Witness.AllKillers.Add(killer.PlayerId, TimeStamp);
 
         killer.AddKillTimerToDict();
 
@@ -1273,8 +1215,7 @@ class ShapeshiftPatch
         {
             if (pc.Is(CustomRoles.Shiftguard))
             {
-                if (shapeshifting) pc.Notify(GetString("ShiftguardNotifySS"));
-                else pc.Notify("ShiftguardNotifyUnshift");
+                pc.Notify(shapeshifting ? GetString("ShiftguardNotifySS") : "ShiftguardNotifyUnshift");
             }
         }
     }
@@ -1493,9 +1434,10 @@ class ReportDeadBodyPatch
         Enigma.OnReportDeadBody(player, target);
         Mediumshiper.OnReportDeadBody(target);
         Mortician.OnReportDeadBody(player, target);
+        Spiritualist.OnReportDeadBody(target);
 
         Main.LastVotedPlayerInfo = null;
-        Main.AllKillers.Clear();
+        Witness.AllKillers.Clear();
         Main.ArsonistTimer.Clear();
         if (Farseer.isEnable) Farseer.FarseerTimer.Clear();
         Puppeteer.PuppeteerList.Clear();
@@ -2132,28 +2074,8 @@ class FixedUpdatePatch
 
             switch (player.GetCustomRole())
             {
-                case CustomRoles.Veteran when GameStates.IsInTask:
-                    if (Main.VeteranInProtect.TryGetValue(playerId, out var vtime) && vtime + Options.VeteranSkillDuration.GetInt() < now)
-                    {
-                        Main.VeteranInProtect.Remove(playerId);
-                        player.RpcResetAbilityCooldown();
-                        player.Notify(string.Format(GetString("VeteranOffGuard"), (int)player.GetAbilityUseLimit()));
-                    }
-
-                    break;
-
                 case CustomRoles.Express when GameStates.IsInTask:
                     Express.OnFixedUpdate(player);
-                    break;
-
-                case CustomRoles.TimeMaster when GameStates.IsInTask:
-                    if (Main.TimeMasterInProtect.TryGetValue(playerId, out var ttime) && ttime + Options.TimeMasterSkillDuration.GetInt() < now)
-                    {
-                        Main.TimeMasterInProtect.Remove(playerId);
-                        player.RpcResetAbilityCooldown();
-                        player.Notify(GetString("TimeMasterSkillStop"), (int)player.GetAbilityUseLimit());
-                    }
-
                     break;
 
                 case CustomRoles.Mario when Main.MarioVentCount[playerId] > Options.MarioVentNumWin.GetInt() && GameStates.IsInTask:
@@ -2209,7 +2131,7 @@ class FixedUpdatePatch
                     break;
             }
 
-            if (Main.AllKillers.TryGetValue(playerId, out var ktime) && ktime + Options.WitnessTime.GetInt() < now) Main.AllKillers.Remove(playerId);
+            if (Witness.AllKillers.TryGetValue(playerId, out var ktime) && ktime + Options.WitnessTime.GetInt() < now) Witness.AllKillers.Remove(playerId);
             if (GameStates.IsInTask && player.IsAlive() && Options.LadderDeath.GetBool()) FallFromLadder.FixedUpdate(player);
             if (GameStates.IsInGame) LoversSuicide();
 
@@ -2858,19 +2780,6 @@ class EnterVentPatch
             case CustomRoles.Sentinel when !Options.UsePets.GetBool():
                 Sentinel.StartPatrolling(pc);
                 break;
-            case CustomRoles.Ventguard:
-                if (pc.GetAbilityUseLimit() >= 1)
-                {
-                    pc.RpcRemoveAbilityUse();
-                    if (!Main.BlockedVents.Contains(__instance.Id)) Main.BlockedVents.Add(__instance.Id);
-                    pc.Notify(GetString("VentBlockSuccess"));
-                }
-                else
-                {
-                    pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
-                }
-
-                break;
             case CustomRoles.Veteran when !Options.UsePets.GetBool():
                 if (pc.GetAbilityUseLimit() >= 1)
                 {
@@ -2919,44 +2828,7 @@ class EnterVentPatch
                 }
 
                 break;
-            case CustomRoles.TimeMaster when !Options.UsePets.GetBool():
-            {
-                if (pc.GetAbilityUseLimit() >= 1)
-                {
-                    pc.RpcRemoveAbilityUse();
-                    Main.TimeMasterInProtect.Remove(pc.PlayerId);
-                    Main.TimeMasterInProtect.Add(pc.PlayerId, TimeStamp);
-                    //if (!pc.IsModClient()) pc.RpcGuardAndKill(pc);
-                    pc.Notify(GetString("TimeMasterOnGuard"), Options.TimeMasterSkillDuration.GetFloat());
-                    pc.AddAbilityCD();
-                    foreach (PlayerControl player in Main.AllPlayerControls)
-                    {
-                        if (Main.TimeMasterBackTrack.TryGetValue(player.PlayerId, out var position))
-                        {
-                            if ((!pc.inVent && !pc.inMovingPlat && pc.IsAlive() && !pc.onLadder && !pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() && !pc.MyPhysics.Animations.IsPlayingEnterVentAnimation()) && player.PlayerId != pc.PlayerId)
-                            {
-                                player.TP(position);
-                            }
-                            else if (pc.PlayerId == player.PlayerId)
-                            {
-                                player.MyPhysics?.RpcBootFromVent(Main.LastEnteredVent.TryGetValue(player.PlayerId, out var vent) ? vent.Id : player.PlayerId);
-                            }
 
-                            Main.TimeMasterBackTrack.Remove(player.PlayerId);
-                        }
-                        else
-                        {
-                            Main.TimeMasterBackTrack.Add(player.PlayerId, player.Pos());
-                        }
-                    }
-                }
-                else
-                {
-                    pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
-                }
-
-                break;
-            }
             case CustomRoles.Perceiver when !Options.UsePets.GetBool():
                 Perceiver.UseAbility(pc);
                 break;

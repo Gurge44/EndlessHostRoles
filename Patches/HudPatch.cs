@@ -225,9 +225,6 @@ class HudManagerPatch
                     case CustomRoles.Analyzer:
                         __instance.KillButton?.OverrideText(GetString("AnalyzerKillButtonText"));
                         break;
-                    case CustomRoles.Witness:
-                        __instance.KillButton?.OverrideText(GetString("WitnessButtonText"));
-                        break;
                     case CustomRoles.Pursuer:
                         __instance.KillButton?.OverrideText(GetString("PursuerButtonText"));
                         break;
@@ -377,21 +374,6 @@ class HudManagerPatch
                     case CustomRoles.Mario:
                         __instance.AbilityButton.buttonLabelText.text = GetString("MarioVentButtonText");
                         __instance.AbilityButton?.SetUsesRemaining(Options.MarioVentNumWin.GetInt() - (Main.MarioVentCount.GetValueOrDefault(PlayerControl.LocalPlayer.PlayerId, 0)));
-                        break;
-                    case CustomRoles.Veteran:
-                        if (Options.UsePets.GetBool())
-                            __instance.PetButton.buttonLabelText.text = GetString("VeteranVentButtonText");
-                        else
-                            __instance.AbilityButton.buttonLabelText.text = GetString("VeteranVentButtonText");
-                        break;
-                    case CustomRoles.TimeMaster:
-                        if (Options.UsePets.GetBool())
-                            __instance.PetButton.buttonLabelText.text = GetString("TimeMasterVentButtonText");
-                        else
-                            __instance.AbilityButton.buttonLabelText.text = GetString("TimeMasterVentButtonText");
-                        break;
-                    case CustomRoles.Ventguard:
-                        __instance.AbilityButton.buttonLabelText.text = GetString("VentguardVentButtonText");
                         break;
                     case CustomRoles.Sheriff:
                         __instance.KillButton?.OverrideText(GetString("SheriffKillButtonText"));

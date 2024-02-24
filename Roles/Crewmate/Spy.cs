@@ -1,17 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Hazel;
-using UnityEngine;
+using System.Collections.Generic;
 
 namespace TOHE.Roles.Crewmate
 {
     using static Options;
     using static Utils;
 
-    public static class Spy
+    public class Spy : RoleBase
     {
-        private static readonly int Id = 640400;
+        private const int Id = 640400;
         private static List<byte> playerIdList = [];
         public static bool change;
         public static Dictionary<byte, long> SpyRedNameList = [];
@@ -37,21 +34,25 @@ namespace TOHE.Roles.Crewmate
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Spy])
                 .SetValueFormat(OptionFormat.Times);
         }
-        public static void Init()
+
+        public override void Init()
         {
             playerIdList = [];
             SpyRedNameList = [];
             change = false;
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
         }
-        public static bool IsEnable => playerIdList.Count > 0;
+
+        public override bool IsEnable => playerIdList.Count > 0;
+
         public static void SendRPC(int operate, byte id = byte.MaxValue, bool changeColor = false)
         {
-            if (!IsEnable || !DoRPC) return;
+            if (!DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncSpy, SendOption.Reliable);
             writer.Write(operate);
             switch (operate)
@@ -83,7 +84,8 @@ namespace TOHE.Roles.Crewmate
                     return;
             }
         }
-        public static void OnKillAttempt(PlayerControl killer, PlayerControl target)
+
+        public static void OnKillAttempt(PlayerControl killer, PlayerControl target) // Special handling for Spy ---- remains as a static method
         {
             if (killer == null || target == null || !target.Is(CustomRoles.Spy) || killer.PlayerId == target.PlayerId || target.GetAbilityUseLimit() < 1) return;
 
@@ -92,11 +94,10 @@ namespace TOHE.Roles.Crewmate
             SendRPC(1, id: killer.PlayerId);
             NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
         }
-        public static void OnFixedUpdate(PlayerControl pc)
+
+        public override void OnFixedUpdate(PlayerControl pc)
         {
             if (pc == null || !pc.Is(CustomRoles.Spy) || SpyRedNameList.Count == 0) return;
-
-            bool change = false;
 
             foreach (var x in SpyRedNameList)
             {
@@ -104,26 +105,11 @@ namespace TOHE.Roles.Crewmate
                 {
                     SpyRedNameList.Remove(x.Key);
                     change = true;
-                    SendRPC(3, id: x.Key, changeColor: change);
+                    SendRPC(3, id: x.Key, changeColor: true);
                 }
             }
 
             if (change && GameStates.IsInTask) { NotifyRoles(SpecifySeer: pc); }
-        }
-        public static string GetProgressText(byte playerId, bool comms)
-        {
-            if (GetPlayerById(playerId) == null) return string.Empty;
-
-            var sb = new StringBuilder();
-
-            Color TextColor1;
-            if (playerId.GetAbilityUseLimit() < 1) TextColor1 = Color.red;
-            else TextColor1 = Color.white;
-
-            sb.Append(GetTaskCount(playerId, comms));
-            sb.Append(ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(playerId.GetAbilityUseLimit(), 1)}"));
-
-            return sb.ToString();
         }
     }
 }

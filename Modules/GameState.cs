@@ -1,10 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using InnerNet;
-using TOHE.Modules;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
@@ -21,6 +20,7 @@ public class PlayerState(byte playerId)
     public CountTypes countTypes = CountTypes.OutOfGame;
     public bool IsDead { get; set; }
 #pragma warning disable IDE1006 // Naming Styles
+    // ReSharper disable once InconsistentNaming
     public DeathReason deathReason { get; set; } = DeathReason.etc;
 #pragma warning restore IDE1006 // Naming Styles
     public TaskState taskState = new();
@@ -61,7 +61,7 @@ public class PlayerState(byte playerId)
         if (role == CustomRoles.Cleansed)
             AllReplace = true;
         if (AllReplace)
-            SubRoles.ToArray().Do(role => SubRoles.Remove(role));
+            SubRoles.ToArray().Do(item => SubRoles.Remove(item));
 
         if (!SubRoles.Contains(role))
             SubRoles.Add(role);
@@ -182,6 +182,7 @@ public class PlayerState(byte playerId)
     public TaskState TaskState => taskState;
     public void InitTask(PlayerControl player) => taskState.Init(player);
     public void UpdateTask(PlayerControl player) => taskState.Update(player);
+
     public enum DeathReason
     {
         Kill,
@@ -217,7 +218,6 @@ public class PlayerState(byte playerId)
         Jinx,
         Demolished,
         YinYanged,
-        Hack,
         Kamikazed,
         RNG,
 
@@ -229,23 +229,16 @@ public class PlayerState(byte playerId)
 public class TaskState
 {
     public static int InitialTotalTasks;
-    public int AllTasksCount;
+    public int AllTasksCount = -1;
     public int CompletedTasksCount;
     public bool hasTasks;
     public int RemainingTasksCount => AllTasksCount - CompletedTasksCount;
-    public bool DoExpose => RemainingTasksCount <= Options.SnitchExposeTaskLeft && hasTasks;
     public bool IsTaskFinished => RemainingTasksCount <= 0 && hasTasks;
-    public TaskState()
-    {
-        AllTasksCount = -1;
-        CompletedTasksCount = 0;
-        hasTasks = false;
-    }
 
     public void Init(PlayerControl player)
     {
         Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags().RemoveHtmlTags()}: InitTask", "TaskState.Init");
-        if (player == null || player.Data == null || player.Data.Tasks == null) return;
+        if (player == null || player.Data?.Tasks == null) return;
         if (!Utils.HasTasks(player.Data, false))
         {
             AllTasksCount = 0;
@@ -261,57 +254,20 @@ public class TaskState
         GameData.Instance.RecomputeTaskCounts();
         Logger.Info($"TotalTaskCounts = {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}", "TaskState.Update");
 
-        //初期化出来ていなかったら初期化
         if (AllTasksCount == -1) Init(player);
 
         if (!hasTasks) return;
 
         if (AmongUsClient.Instance.AmHost)
         {
-            //FIXME:SpeedBooster class transplant
             bool alive = player.IsAlive();
-            if (alive
-            && player.Is(CustomRoles.SpeedBooster)
-            && ((CompletedTasksCount + 1) <= Options.SpeedBoosterTimes.GetInt()))
-            {
-                Logger.Info("增速者触发加速:" + player.GetNameWithRole().RemoveHtmlTags(), "SpeedBooster");
-                Main.AllPlayerSpeed[player.PlayerId] += Options.SpeedBoosterUpSpeed.GetFloat();
-                if (Main.AllPlayerSpeed[player.PlayerId] > 3) player.Notify(Translator.GetString("SpeedBoosterSpeedLimit"));
-                else player.Notify(string.Format(Translator.GetString("SpeedBoosterTaskDone"), Main.AllPlayerSpeed[player.PlayerId].ToString("0.0#####")));
-            }
 
-            if (alive
-            && player.Is(CustomRoles.Transporter)
-            && ((CompletedTasksCount + 1) <= Options.TransporterTeleportMax.GetInt()))
-            {
-                Logger.Info("传送师触发传送:" + player.GetNameWithRole().RemoveHtmlTags(), "Transporter");
-                var rd = IRandom.Instance;
-                List<PlayerControl> AllAlivePlayer = Main.AllAlivePlayerControls.Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder).ToList();
-                if (AllAlivePlayer.Count >= 2)
-                {
-                    var tar1 = AllAlivePlayer[rd.Next(0, AllAlivePlayer.Count)];
-                    AllAlivePlayer.Remove(tar1);
-                    var tar2 = AllAlivePlayer[rd.Next(0, AllAlivePlayer.Count)];
-                    var pos = tar1.Pos();
-                    tar1.TP(tar2);
-                    tar2.TP(pos);
-                    tar1.RPCPlayCustomSound("Teleport");
-                    tar2.RPCPlayCustomSound("Teleport");
-                    tar1.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Transporter), string.Format(Translator.GetString("TeleportedByTransporter"), tar2.GetRealName())));
-                    tar2.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Transporter), string.Format(Translator.GetString("TeleportedByTransporter"), tar1.GetRealName())));
-                }
-                else if (player.Is(CustomRoles.Transporter))
-                {
-                    player.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), string.Format(Translator.GetString("ErrorTeleport"), player.GetRealName())));
-                }
-            }
             if (player.Is(CustomRoles.Unlucky) && alive)
             {
                 var Ue = IRandom.Instance;
                 if (Ue.Next(0, 100) < Options.UnluckyTaskSuicideChance.GetInt())
                 {
                     player.Suicide();
-
                 }
             }
 
@@ -365,7 +321,7 @@ public class TaskState
                     CustomRoles.Convener => Convener.ConvenerAbilityUseGainWithEachTaskCompleted.GetFloat(),
                     _ => float.MaxValue,
                 };
-                if (add != float.MaxValue && add > 0) player.RpcIncreaseAbilityUseLimitBy(add);
+                if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0) player.RpcIncreaseAbilityUseLimitBy(add);
 
                 switch (player.GetCustomRole())
                 {
@@ -473,11 +429,10 @@ public static class GameStates
 public static class MeetingStates
 {
     public static DeadBody[] DeadBodies;
-    private static GameData.PlayerInfo reportTarget;
     public static bool IsEmergencyMeeting => ReportTarget == null;
     public static bool IsExistDeadBody => DeadBodies.Length > 0;
 
-    public static GameData.PlayerInfo ReportTarget { get => reportTarget; set => reportTarget = value; }
+    public static GameData.PlayerInfo ReportTarget { get; set; }
 
     public static bool MeetingCalled;
     public static bool FirstMeeting = true;

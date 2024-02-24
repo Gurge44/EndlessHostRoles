@@ -61,6 +61,19 @@ namespace TOHE.Roles.Crewmate
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = FarseerCooldown.GetFloat();
 
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        {
+            killer.SetKillCooldown(FarseerRevealTime.GetFloat());
+            if (!Main.isRevealed[(killer.PlayerId, target.PlayerId)] && !FarseerTimer.ContainsKey(killer.PlayerId))
+            {
+                FarseerTimer.TryAdd(killer.PlayerId, (target, 0f));
+                NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
+                RPC.SetCurrentRevealTarget(killer.PlayerId, target.PlayerId);
+            }
+
+            return false;
+        }
+
         public override void OnFixedUpdate(PlayerControl player)
         {
             if (GameStates.IsInTask && FarseerTimer.ContainsKey(player.PlayerId))
@@ -75,7 +88,7 @@ namespace TOHE.Roles.Crewmate
                 {
                     var ar_target = FarseerTimer[player.PlayerId].PLAYER;
                     var ar_time = FarseerTimer[player.PlayerId].TIMER;
-                    if (!ExtendedPlayerControl.IsAlive(ar_target))
+                    if (!ar_target.IsAlive())
                     {
                         FarseerTimer.Remove(player.PlayerId);
                     }

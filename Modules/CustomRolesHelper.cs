@@ -1,5 +1,4 @@
 using AmongUs.GameOptions;
-using MonoMod.RuntimeDetour;
 using System.Linq;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
@@ -152,7 +151,6 @@ internal static class CustomRolesHelper
         CustomRoles.Sentinel => new Sentinel(),
         CustomRoles.SecurityGuard => new SecurityGuard(),
         CustomRoles.Sheriff => new Sheriff(),
-        CustomRoles.Shiftguard => new Shiftguard(),
         CustomRoles.Snitch => new Snitch(),
         CustomRoles.Spiritualist => new Spiritualist(),
         CustomRoles.Speedrunner => new Speedrunner(),

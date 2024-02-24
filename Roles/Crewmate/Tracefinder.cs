@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Generic;
+using AmongUs.GameOptions;
 using Hazel;
 using UnityEngine;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Crewmate;
-public static class Tracefinder
+
+public class Tracefinder : RoleBase
 {
-    private static readonly int Id = 6100;
+    private const int Id = 6100;
     private static List<byte> playerIdList = [];
     private static OptionItem VitalsDuration;
     private static OptionItem VitalsCooldown;
@@ -30,18 +32,22 @@ public static class Tracefinder
             .SetParent(CustomRoleSpawnChances[CustomRoles.Tracefinder])
             .SetValueFormat(OptionFormat.Seconds);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+
+    public override bool IsEnable => playerIdList.Count > 0;
+
     private static void SendRPC(byte playerId, bool add, Vector3 loc = new())
     {
-        if (!IsEnable || !Utils.DoRPC) return;
+        if (!Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTracefinderArrow, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(add);
@@ -53,7 +59,8 @@ public static class Tracefinder
         }
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
-    public static void ApplyGameOptions()
+
+    public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         AURoleOptions.ScientistCooldown = VitalsCooldown.GetFloat();
         AURoleOptions.ScientistBatteryCharge = VitalsDuration.GetFloat();
@@ -63,11 +70,12 @@ public static class Tracefinder
         byte playerId = reader.ReadByte();
         bool add = reader.ReadBoolean();
         if (add)
-            LocateArrow.Add(playerId, new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()));
+            LocateArrow.Add(playerId, new(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()));
         else
             LocateArrow.RemoveAllTarget(playerId);
     }
-    public static void OnReportDeadBody(/*PlayerControl pc, GameData.PlayerInfo target*/)
+
+    public override void OnReportDeadBody( /*PlayerControl pc, GameData.PlayerInfo target*/)
     {
         foreach (byte apc in playerIdList.ToArray())
         {
@@ -79,7 +87,6 @@ public static class Tracefinder
     {
         var pos = target.Pos();
         float minDis = float.MaxValue;
-        string minName = string.Empty;
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
             if (pc.PlayerId == target.PlayerId) continue;
@@ -87,7 +94,7 @@ public static class Tracefinder
             if (dis < minDis && dis < 1.5f)
             {
                 minDis = dis;
-                minName = pc.GetRealName();
+                pc.GetRealName();
             }
         }
 

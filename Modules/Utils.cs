@@ -871,14 +871,6 @@ public static class Utils
                     ProgressText.Append(GetTaskCount(playerId, comms));
                     ProgressText.Append(NiceSwapper.ProgressText);
                     break;
-                case CustomRoles.Veteran:
-                    ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId, Main.VeteranInProtect.ContainsKey(playerId)));
-                    break;
-                case CustomRoles.TimeMaster:
-                    ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId, Main.TimeMasterInProtect.ContainsKey(playerId)));
-                    break;
                 case CustomRoles.SabotageMaster:
                     Color TextColor101;
                     if (SabotageMaster.SkillLimit.GetFloat() - SabotageMaster.UsedSkillCount < 1) TextColor101 = Color.red;
@@ -895,21 +887,6 @@ public static class Utils
                     break;
                 case CustomRoles.Benefactor:
                     ProgressText.Append(Benefactor.GetProgressText(playerId));
-                    break;
-                case CustomRoles.Tunneler:
-                    if (Main.TunnelerPositions.ContainsKey(playerId)) ProgressText.Append('●');
-                    break;
-                case CustomRoles.TaskManager:
-                    var taskState1 = Main.PlayerStates?[playerId].TaskState;
-                    Color TextColor1;
-                    var TaskCompleteColor1 = Color.green;
-                    var NonCompleteColor1 = Color.yellow;
-                    var NormalColor1 = taskState1.IsTaskFinished ? TaskCompleteColor1 : NonCompleteColor1;
-                    TextColor1 = comms ? Color.gray : NormalColor1;
-                    string Completed1 = comms ? "?" : $"{taskState1.CompletedTasksCount}";
-                    string totalCompleted1 = comms ? "?" : $"{GameData.Instance.CompletedTasks}";
-                    ProgressText.Append(ColorString(TextColor1, $"<color=#777777>-</color> {Completed1}/{taskState1.AllTasksCount}"));
-                    ProgressText.Append($" <color=#777777>-</color> <color=#00ffa5>{totalCompleted1}</color><color=#ffffff>/{GameData.Instance.TotalTasks}</color>");
                     break;
                 case CustomRoles.Philantropist:
                     //ProgressText.Append(Philantropist.GetProgressText(playerId));
@@ -2063,8 +2040,8 @@ public static class Utils
                     switch (seer.GetCustomRole())
                     {
                         case CustomRoles.Tether when !seer.IsModClient():
-                            if (SelfSuffix.Length > 0 && Tether.TargetText != string.Empty) SelfSuffix.Append(", ");
-                            SelfSuffix.Append(Tether.TargetText);
+                            if (SelfSuffix.Length > 0 && Tether.TargetText(seer.PlayerId) != string.Empty) SelfSuffix.Append(", ");
+                            SelfSuffix.Append(Tether.TargetText(seer.PlayerId));
                             break;
                         case CustomRoles.Druid when !seer.IsModClient():
                             if (SelfSuffix.Length > 0 && Druid.GetSuffixText(seer.PlayerId) != string.Empty) SelfSuffix.Append(", ");
@@ -2742,10 +2719,6 @@ public static class Utils
             case CustomRoles.QuickShooter:
                 QuickShooter.Add(id);
                 break;
-            case CustomRoles.TimeMaster:
-                Main.TimeMasterNum[id] = 0;
-                id.SetAbilityUseLimit(Options.TimeMasterMaxUses.GetInt());
-                break;
             case CustomRoles.SabotageMaster:
                 SabotageMaster.Add(id);
                 break;
@@ -2914,12 +2887,6 @@ public static class Utils
                 break;
             case CustomRoles.Mediumshiper:
                 Mediumshiper.Add(id);
-                break;
-            case CustomRoles.Veteran:
-                id.SetAbilityUseLimit(Options.VeteranSkillMaxOfUseage.GetInt());
-                break;
-            case CustomRoles.Ventguard:
-                id.SetAbilityUseLimit(Options.VentguardMaxGuards.GetInt());
                 break;
             case CustomRoles.Swooper:
                 Swooper.Add(id);

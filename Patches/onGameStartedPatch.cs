@@ -95,7 +95,7 @@ internal class ChangeRoleSettings
             Main.ParaUsedButtonCount = [];
             Main.MarioVentCount = [];
             Main.VeteranInProtect = [];
-            Main.AllKillers = [];
+            Witness.AllKillers = [];
             Main.GrenadierBlinding = [];
             Main.Lighter = [];
             Main.BlockSabo = [];

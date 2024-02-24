@@ -357,24 +357,10 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 case CustomRoles.Poisoner:
                     Poisoner.ApplyGameOptions(opt);
                     break;
-                case CustomRoles.Veteran:
-                    if (Options.UsePets.GetBool()) break;
-                    AURoleOptions.EngineerCooldown = Options.VeteranSkillCooldown.GetFloat();
-                    AURoleOptions.EngineerInVentMaxTime = 1;
-                    break;
                 /*       case CustomRoles.Flashbang:
                            AURoleOptions.ShapeshifterCooldown = Options.FlashbangSkillCooldown.GetFloat();
                            AURoleOptions.ShapeshifterDuration = Options.FlashbangSkillDuration.GetFloat();
                            break; */
-                case CustomRoles.Ventguard:
-                    AURoleOptions.EngineerInVentMaxTime = 1;
-                    AURoleOptions.EngineerCooldown = 15;
-                    break;
-                case CustomRoles.TimeMaster:
-                    if (Options.UsePets.GetBool()) break;
-                    AURoleOptions.EngineerCooldown = Options.TimeMasterSkillCooldown.GetFloat();
-                    AURoleOptions.EngineerInVentMaxTime = 1;
-                    break;
                 case CustomRoles.FFF:
                 case CustomRoles.Pursuer:
                     opt.SetVision(true);

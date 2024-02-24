@@ -157,7 +157,6 @@ public class Main : BasePlugin
     public static Dictionary<byte, bool> isCurseAndKill = [];
     public static Dictionary<byte, int> MafiaRevenged = [];
     public static Dictionary<byte, int> GuesserGuessed = [];
-    public static Dictionary<byte, Vector2> TunnelerPositions = [];
     public static Dictionary<(byte, byte), bool> isDoused = [];
     public static Dictionary<(byte, byte), bool> isDraw = [];
     public static Dictionary<(byte, byte), bool> isRevealed = [];
@@ -172,7 +171,6 @@ public class Main : BasePlugin
     public static Dictionary<byte, int> ParaUsedButtonCount = [];
     public static Dictionary<byte, int> MarioVentCount = [];
     public static Dictionary<byte, long> VeteranInProtect = [];
-    public static Dictionary<byte, long> AllKillers = [];
     public static Dictionary<byte, long> BlockSabo = [];
     public static Dictionary<byte, int> JinxSpellCount = [];
     public static Dictionary<byte, string> SleuthMsgs = [];

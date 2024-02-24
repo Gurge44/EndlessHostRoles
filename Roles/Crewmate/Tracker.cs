@@ -6,11 +6,10 @@ using static TOHE.Translator;
 
 namespace TOHE.Roles.Crewmate
 {
-    public static class Tracker
+    public class Tracker : RoleBase
     {
-        private static readonly int Id = 8300;
+        private const int Id = 8300;
         private static List<byte> playerIdList = [];
-        public static bool IsEnable;
 
         private static OptionItem TrackLimitOpt;
         private static OptionItem OptionCanSeeLastRoomInMeeting;
@@ -23,7 +22,6 @@ namespace TOHE.Roles.Crewmate
         public static bool CanSeeLastRoomInMeeting;
 
         public static Dictionary<byte, List<byte>> TrackerTarget = [];
-        public static Dictionary<byte, float> TempTrackLimit = [];
 
         public static void SetupCustomOption()
         {
@@ -43,24 +41,26 @@ namespace TOHE.Roles.Crewmate
                 .SetValueFormat(OptionFormat.Times);
             CancelVote = CreateVoteCancellingUseSetting(Id + 4, CustomRoles.Tracker, TabGroup.CrewmateRoles);
         }
-        public static void Init()
+
+        public override void Init()
         {
             playerIdList = [];
             TrackerTarget = [];
             CanSeeLastRoomInMeeting = OptionCanSeeLastRoomInMeeting.GetBool();
-            TempTrackLimit = [];
-            IsEnable = false;
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(TrackLimitOpt.GetInt());
             TrackerTarget.Add(playerId, []);
-            IsEnable = true;
         }
+
+        public override bool IsEnable => playerIdList.Count > 0;
+
         public static void SendRPC(byte trackerId = byte.MaxValue, byte targetId = byte.MaxValue)
         {
-            if (!IsEnable || !Utils.DoRPC) return;
+            if (!Utils.DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTrackerTarget, SendOption.Reliable);
             writer.Write(trackerId);
             writer.Write(targetId);
@@ -91,16 +91,6 @@ namespace TOHE.Roles.Crewmate
 
             Main.DontCancelVoteList.Add(player.PlayerId);
             return true;
-        }
-
-        public static void OnReportDeadBody()
-        {
-            if (!IsEnable) return;
-
-            foreach (var trackerId in playerIdList)
-            {
-                TempTrackLimit[trackerId] = trackerId.GetAbilityUseLimit();
-            }
         }
 
         public static string GetTrackerArrow(PlayerControl seer, PlayerControl target = null)
