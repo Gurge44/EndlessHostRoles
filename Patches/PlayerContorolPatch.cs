@@ -3272,17 +3272,3 @@ class PlayerControlLocalSetRolePatch
         }
     }
 }
-
-[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Revive))]
-class RevivePreventerPatch
-{
-    public static bool Ignore = false;
-
-    public static bool Prefix(ref PlayerControl __instance)
-    {
-        if (Ignore) return true;
-        Logger.Warn("Revive attempted", "RevivePreventerPatch");
-        __instance = null;
-        return false;
-    }
-}

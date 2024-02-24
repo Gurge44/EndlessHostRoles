@@ -502,7 +502,7 @@ public static class Utils
             StackFrame firstFrame = stFrames.FirstOrDefault();
 
             var sb = new StringBuilder();
-            sb.Append($"Exception: {ex.Message} ----\n");
+            sb.Append($"Exception: {ex.Message} ----");
 
             bool skip = true;
             foreach (StackFrame sf in stFrames)
@@ -513,7 +513,7 @@ public static class Utils
                     continue;
                 }
 
-                sb.Append($" at {sf.GetMethod()}");
+                sb.Append($",      at {sf.GetMethod()}");
             }
 
             Logger.Error(sb.ToString(), firstFrame?.GetMethod()?.ToString());
@@ -3513,23 +3513,27 @@ public static class Utils
             }
         }
 
-        return (notify ? "<#777777>" : string.Empty) +
-               (impnum == 1 ? GetString("RemainingText.Prefix.SingleImp") : GetString("RemainingText.Prefix.PluralImp")) +
-               (notify ? " " : "\n") +
-               (notify ? "<#ffffff>" : "<b>") +
-               impnum +
-               (notify ? "</color>" : "</b>") +
-               " " +
-               $"<#ff1919>{(impnum == 1 ? GetString("RemainingText.ImpSingle") : GetString("RemainingText.ImpPlural"))}</color>" +
-               " & " +
-               (notify ? "<#ffffff>" : "<b>") +
-               neutralnum +
-               (notify ? "</color>" : "</b>") +
-               " " +
-               $"<#ffab1b>{(neutralnum == 1 ? GetString("RemainingText.NKSingle") : GetString("RemainingText.NKPlural"))}</color>" +
-               GetString("RemainingText.Suffix") +
-               "." +
-               (notify ? "</color>" : string.Empty);
+        var sb = new StringBuilder();
+
+        sb.Append(notify ? "<#777777>" : string.Empty);
+        sb.Append(impnum == 1 ? GetString("RemainingText.Prefix.SingleImp") : GetString("RemainingText.Prefix.PluralImp"));
+        sb.Append(notify ? " " : "\n");
+        sb.Append(notify ? "<#ffffff>" : "<b>");
+        sb.Append(impnum);
+        sb.Append(notify ? "</color>" : "</b>");
+        sb.Append(' ');
+        sb.Append($"<#ff1919>{(impnum == 1 ? GetString("RemainingText.ImpSingle") : GetString("RemainingText.ImpPlural"))}</color>");
+        sb.Append(" & ");
+        sb.Append(notify ? "<#ffffff>" : "<b>");
+        sb.Append(neutralnum);
+        sb.Append(notify ? "</color>" : "</b>");
+        sb.Append(' ');
+        sb.Append($"<#ffab1b>{(neutralnum == 1 ? GetString("RemainingText.NKSingle") : GetString("RemainingText.NKPlural"))}</color>");
+        sb.Append(GetString("RemainingText.Suffix"));
+        sb.Append('.');
+        sb.Append(notify ? "</color>" : string.Empty);
+
+        return sb.ToString();
     }
 
     public static string RemoveHtmlTagsTemplate(this string str) => Regex.Replace(str, string.Empty, string.Empty);
@@ -3538,19 +3542,7 @@ public static class Utils
     public static bool CanMafiaKill()
     {
         if (Main.PlayerStates == null) return false;
-        //マフィアを除いた生きているインポスターの人数  Number of Living Impostors excluding mafia
-        int LivingImpostorsNum = 0;
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-        {
-            var role = pc.GetCustomRole();
-            if (role != CustomRoles.Mafia && role.IsImpostor())
-            {
-                LivingImpostorsNum++;
-                break;
-            }
-        }
-
-        return LivingImpostorsNum <= 0;
+        return !Main.AllAlivePlayerControls.Select(pc => pc.GetCustomRole()).Any(role => role != CustomRoles.Mafia && role.IsImpostor());
     }
 
     public static void FlashColor(Color color, float duration = 1f)

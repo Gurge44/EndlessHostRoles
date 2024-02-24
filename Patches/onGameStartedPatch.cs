@@ -37,6 +37,8 @@ internal class ChangeRoleSettings
 
             Main.AbilityUseLimit = [];
 
+            Main.HasJustStarted = true;
+
             Main.AllPlayerKillCooldown = [];
             Main.AllPlayerSpeed = [];
             Main.KillTimers = [];
@@ -711,7 +713,7 @@ internal class SelectRolesPatch
                 _ = new LateTask(() => { PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)); }, 15f, "GM Auto-TP Failsafe"); // TP to Main Hall
             }
 
-            RevivePreventerPatch.Ignore = false;
+            _ = new LateTask(() => { Main.HasJustStarted = false; }, 13f, "HasJustStarted to false");
         }
         catch (Exception ex)
         {

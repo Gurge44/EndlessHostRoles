@@ -575,7 +575,8 @@ namespace TOHE.Roles.Crewmate
                 if (pc == null) return;
                 if (CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && effects.Any(x => x.Key.IsVisionChangingEffect()))
                 {
-                    effects.Keys.DoIf(x => x.IsVisionChangingEffect(), x => effects.Remove(x));
+                    var keys = effects.Keys.AsEnumerable();
+                    keys.DoIf(x => x.IsVisionChangingEffect(), x => effects.Remove(x));
                     if (sync) pc.MarkDirtySettings();
                 }
             }

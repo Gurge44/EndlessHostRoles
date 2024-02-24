@@ -242,7 +242,13 @@ class ExileControllerWrapUpPatch
                 var r = IRandom.Instance;
                 foreach (var pc in Main.AllAlivePlayerControls)
                 {
-                    pc?.Notify(text, r.Next(7, 13));
+                    string finalText = text;
+                    if (NameNotifyManager.Notice.TryGetValue(pc.PlayerId, out var notify))
+                    {
+                        finalText = $"\n{notify.TEXT}\n{finalText}";
+                    }
+
+                    pc.Notify(finalText, r.Next(7, 13));
                 }
             }, 0.5f, log: false);
         }

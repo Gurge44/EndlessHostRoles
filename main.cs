@@ -174,6 +174,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, long> BlockSabo = [];
     public static Dictionary<byte, int> JinxSpellCount = [];
     public static Dictionary<byte, string> SleuthMsgs = [];
+    public static bool HasJustStarted;
     public static int AliveImpostorCount;
     public static bool isCursed;
     public static Dictionary<byte, bool> CheckShapeshift = [];

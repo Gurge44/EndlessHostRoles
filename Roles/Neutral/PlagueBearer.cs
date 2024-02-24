@@ -60,7 +60,7 @@ public static class PlagueBearer
     {
         if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer;
-        writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.setPlaguedPlayer, SendOption.Reliable); //RPCによる同期
+        writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetPlaguedPlayer, SendOption.Reliable); //RPCによる同期
         writer.Write(player.PlayerId);
         writer.Write(target.PlayerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
