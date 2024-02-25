@@ -100,6 +100,7 @@ internal static class CustomRolesHelper
         CustomRoles.CameraMan => new CameraMan(),
         CustomRoles.Chameleon => new Swooper(), // Use the same code as Swooper with small modifications
         CustomRoles.Cleanser => new Cleanser(),
+        CustomRoles.Convener => new Convener(),
         CustomRoles.CopyCat => new CopyCat(),
         CustomRoles.Bloodhound => new Bloodhound(),
         CustomRoles.Crusader => new Crusader(),
@@ -178,10 +179,9 @@ internal static class CustomRolesHelper
         CustomRoles.Amnesiac => new Amnesiac(),
         CustomRoles.Arsonist => new Arsonist(),
         CustomRoles.Bandit => new Bandit(),
-        CustomRoles.BloodKnight => new BloodKnight(),
+        CustomRoles.BloodKnight => new Wildling(), // Use the same code as Wildling with small modifications
         CustomRoles.Bubble => new Bubble(),
         CustomRoles.Collector => new Collector(),
-        CustomRoles.Convener => new Convener(),
         CustomRoles.Deathknight => new Deathknight(),
         CustomRoles.Gamer => new Gamer(),
         CustomRoles.Doppelganger => new Doppelganger(),

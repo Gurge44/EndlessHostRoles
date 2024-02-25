@@ -744,6 +744,7 @@ public enum CustomRoles
     CyberStar, // Celebrity
     Chameleon,
     Cleanser,
+    Convener,
     CopyCat,
     Bloodhound, // Coroner
     Crusader,
@@ -834,7 +835,6 @@ public enum CustomRoles
     BloodKnight,
     Bubble,
     Collector,
-    Convener,
     Deathknight,
     Gamer, // Demon
     Doppelganger,

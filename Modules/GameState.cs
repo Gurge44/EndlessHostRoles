@@ -55,6 +55,8 @@ public class PlayerState(byte playerId)
             _ => role.GetCountTypes(),
         };
         Role = role.GetRoleClass();
+        Role.Init();
+        Role.Add(PlayerId);
     }
     public void SetSubRole(CustomRoles role, bool AllReplace = false)
     {

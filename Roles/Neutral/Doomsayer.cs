@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace TOHE.Roles.Neutral;
 
-public static class Doomsayer
+public class Doomsayer : RoleBase
 {
-    private static readonly int Id = 27000;
+    private const int Id = 27000;
     public static List<byte> playerIdList = [];
     public static List<CustomRoles> GuessedRoles = [];
     public static Dictionary<byte, int> GuessingToWin = [];
@@ -29,7 +29,7 @@ public static class Doomsayer
 
     public static void SetupCustomOption()
     {
-        Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Doomsayer);
+        Options.SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Doomsayer, 1);
         DoomsayerAmountOfGuessesToWin = IntegerOptionItem.Create(Id + 10, "DoomsayerAmountOfGuessesToWin", new(1, 10, 1), 3, TabGroup.NeutralRoles, false)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer])
             .SetValueFormat(OptionFormat.Times);
@@ -57,7 +57,8 @@ public static class Doomsayer
             .SetColor(Color.green)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
         GuessedRoles = [];
@@ -66,15 +67,18 @@ public static class Doomsayer
         GuessesCountPerMeeting = 0;
         CantGuess = false;
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         GuessingToWin.TryAdd(playerId, GuessesCount);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SendRPC(PlayerControl player)
     {
-        if (!IsEnable || !Utils.DoRPC) return;
+        if (!Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDoomsayerProgress, SendOption.Reliable);
         writer.Write(player.PlayerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -99,7 +103,8 @@ public static class Doomsayer
         CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Doomsayer);
         CustomWinnerHolder.WinnerIds.Add(doomsayer.PlayerId);
     }
-    public static void OnReportDeadBody()
+
+    public override void OnReportDeadBody()
     {
         if (!(IsEnable && AdvancedSettings.GetBool())) return;
 

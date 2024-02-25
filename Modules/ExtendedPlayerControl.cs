@@ -583,7 +583,6 @@ static class ExtendedPlayerControl
             CustomRoles.CopyCat => pc.IsAlive(),
             CustomRoles.Jailor => pc.IsAlive(),
             CustomRoles.Pelican => pc.IsAlive(),
-            CustomRoles.Arsonist => Options.ArsonistCanIgniteAnytime.GetBool() ? GetDousedPlayerCount(pc.PlayerId).Item1 < Options.ArsonistMaxPlayersToIgnite.GetInt() : !pc.IsDouseDone(),
             CustomRoles.Revolutionist => !pc.IsDrawDone(),
             CustomRoles.SwordsMan => pc.IsAlive() && !SwordsMan.IsKilled(pc.PlayerId),
             CustomRoles.Jackal => pc.IsAlive(),
@@ -677,27 +676,27 @@ static class ExtendedPlayerControl
         return pc.GetCustomRole() switch
         {
             CustomRoles.Minimalism or
-            CustomRoles.Sheriff or
-            CustomRoles.Deputy or
-            CustomRoles.Innocent or
-            //    CustomRoles.SwordsMan or
-            CustomRoles.FFF or
-            CustomRoles.Medic or
-            //      CustomRoles.NWitch or
-            CustomRoles.Monarch or
-            CustomRoles.Provocateur or
-            CustomRoles.Totocalcio or
-            CustomRoles.Romantic or
-            CustomRoles.Succubus or
-            CustomRoles.Deathknight or
-            CustomRoles.Necromancer or
-            CustomRoles.Doppelganger or
-            //CustomRoles.CursedSoul or
-            CustomRoles.PlagueBearer or
-            CustomRoles.Amnesiac or
-            CustomRoles.PlagueDoctor or
-            CustomRoles.Crusader
-            => false,
+                CustomRoles.Sheriff or
+                CustomRoles.Deputy or
+                CustomRoles.Innocent or
+                //    CustomRoles.SwordsMan or
+                CustomRoles.FFF or
+                CustomRoles.Medic or
+                //      CustomRoles.NWitch or
+                CustomRoles.Monarch or
+                CustomRoles.Provocateur or
+                CustomRoles.Totocalcio or
+                CustomRoles.Romantic or
+                CustomRoles.Succubus or
+                CustomRoles.Deathknight or
+                CustomRoles.Necromancer or
+                CustomRoles.Doppelganger or
+                //CustomRoles.CursedSoul or
+                CustomRoles.PlagueBearer or
+                CustomRoles.Amnesiac or
+                CustomRoles.PlagueDoctor or
+                CustomRoles.Crusader
+                => false,
 
             CustomRoles.Jackal => Jackal.CanVent.GetBool(),
             CustomRoles.VengefulRomantic => Romantic.VengefulCanVent.GetBool(),
@@ -746,7 +745,6 @@ static class ExtendedPlayerControl
             CustomRoles.Wildling => Wildling.CanVent.GetBool(),
             CustomRoles.Spiritcaller => Spiritcaller.CanVent.GetBool(),
 
-            CustomRoles.Arsonist => pc.IsDouseDone() || (Options.ArsonistCanIgniteAnytime.GetBool() && (GetDousedPlayerCount(pc.PlayerId).Item1 >= Options.ArsonistMinPlayersToIgnite.GetInt() || pc.inVent)),
             CustomRoles.Revolutionist => pc.IsDrawDone(),
 
             //SoloKombat
@@ -953,9 +951,6 @@ static class ExtendedPlayerControl
                 break;
             case CustomRoles.Agitater:
                 Agitater.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Arsonist:
-                Main.AllPlayerKillCooldown[player.PlayerId] = Options.ArsonistCooldown.GetFloat();
                 break;
             case CustomRoles.YinYanger:
                 YinYanger.SetKillCooldown(player.PlayerId);

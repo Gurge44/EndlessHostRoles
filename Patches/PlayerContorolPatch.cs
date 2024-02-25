@@ -1818,38 +1818,6 @@ class FixedUpdatePatch
             }
         }
 
-        if (GameStates.IsInTask && Agitater.IsEnable && Agitater.AgitaterHasBombed && Agitater.CurrentBombedPlayer == playerId)
-        {
-            if (!player.IsAlive())
-            {
-                Agitater.ResetBomb();
-            }
-            else
-            {
-                Vector2 agitaterPos = player.transform.position;
-                Dictionary<byte, float> targetDistance = [];
-                float dis;
-                foreach (var target in PlayerControl.AllPlayerControls)
-                {
-                    if (!target.IsAlive()) continue;
-                    if (target.PlayerId != playerId && target.PlayerId != Agitater.LastBombedPlayer && !target.Data.IsDead)
-                    {
-                        dis = Vector2.Distance(agitaterPos, target.transform.position);
-                        targetDistance.Add(target.PlayerId, dis);
-                    }
-                }
-
-                if (targetDistance.Count > 0)
-                {
-                    var min = targetDistance.OrderBy(c => c.Value).FirstOrDefault();
-                    PlayerControl target = GetPlayerById(min.Key);
-                    var KillRange = GameOptionsData.KillDistances[Mathf.Clamp(GameOptionsManager.Instance.currentNormalGameOptions.KillDistance, 0, 2)];
-                    if (min.Value <= KillRange && player.CanMove && target.CanMove)
-                        Agitater.PassBomb(player, target);
-                }
-            }
-        }
-
 
         #region 女巫处理
 

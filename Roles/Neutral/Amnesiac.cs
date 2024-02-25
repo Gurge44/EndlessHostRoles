@@ -7,18 +7,19 @@ using static TOHE.Translator;
 
 namespace TOHE.Roles.Neutral;
 
-public static class Amnesiac
+public class Amnesiac : RoleBase
 {
-    private static readonly int Id = 35000;
+    private const int Id = 35000;
     private static List<byte> playerIdList = [];
 
     public static OptionItem RememberCooldown;
     public static OptionItem RefugeeKillCD;
     public static OptionItem IncompatibleNeutralMode;
-    public static readonly string[] amnesiacIncompatibleNeutralMode =
+
+    public static readonly string[] AmnesiacIncompatibleNeutralMode =
     [
         "Role.Amnesiac", // 0
-        "Role.Pursuer",  // 1
+        "Role.Pursuer", // 1
         "Role.Follower", // 2
         "Role.Maverick", // 3
     ];
@@ -32,14 +33,16 @@ public static class Amnesiac
             .SetValueFormat(OptionFormat.Seconds);
         RefugeeKillCD = FloatOptionItem.Create(Id + 11, "RefugeeKillCD", new(0f, 180f, 2.5f), 25f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac])
             .SetValueFormat(OptionFormat.Seconds);
-        IncompatibleNeutralMode = StringOptionItem.Create(Id + 12, "IncompatibleNeutralMode", amnesiacIncompatibleNeutralMode, 0, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
+        IncompatibleNeutralMode = StringOptionItem.Create(Id + 12, "IncompatibleNeutralMode", AmnesiacIncompatibleNeutralMode, 0, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
         RememberLimit = new();
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         RememberLimit = 1;
@@ -48,7 +51,8 @@ public static class Amnesiac
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+
+    public override bool IsEnable => playerIdList.Count > 0;
 
     private static void SendRPC()
     {
@@ -57,11 +61,12 @@ public static class Amnesiac
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
     public static void ReceiveRPC(MessageReader reader) => RememberLimit = reader.ReadInt32();
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = RememberLimit >= 1 ? RememberCooldown.GetFloat() : 300f;
-    public static bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && RememberLimit >= 1;
-    public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = RememberLimit >= 1 ? RememberCooldown.GetFloat() : 300f;
+    public override bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && RememberLimit >= 1;
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (RememberLimit < 1) return;
+        if (RememberLimit < 1) return false;
 
         CustomRoles? RememberedRole = null;
         string killerNotifyString = string.Empty;
@@ -82,7 +87,7 @@ public static class Amnesiac
 
         else if (targetRole.IsNonNK())
         {
-            string roleString = amnesiacIncompatibleNeutralMode[IncompatibleNeutralMode.GetValue()][6..];
+            string roleString = AmnesiacIncompatibleNeutralMode[IncompatibleNeutralMode.GetValue()][6..];
             RememberedRole = (CustomRoles)Enum.Parse(typeof(CustomRoles), roleString);
             killerNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString($"Remembered{roleString}"));
         }
@@ -103,7 +108,7 @@ public static class Amnesiac
         if (RememberedRole == null)
         {
             killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
-            return;
+            return false;
         }
 
         var role = (CustomRoles)RememberedRole;
@@ -126,12 +131,13 @@ public static class Amnesiac
 
         target.RpcGuardAndKill(killer);
         target.RpcGuardAndKill(target);
+
+        return false;
     }
     public static bool KnowRole(PlayerControl player, PlayerControl target)
     {
         if (player.IsNeutralKiller() && target.IsNeutralKiller() && player.GetCustomRole() == target.GetCustomRole()) return true;
         if (player.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor)) return true;
-        if (player.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Refugee)) return true;
-        return false;
+        return player.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Refugee);
     }
 }

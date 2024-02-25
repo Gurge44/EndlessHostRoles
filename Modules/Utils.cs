@@ -663,7 +663,7 @@ public static class Utils
                 break;
         }
 
-        foreach (CustomRoles subRole in States.SubRoles.ToArray())
+        foreach (CustomRoles subRole in States.SubRoles)
         {
             switch (subRole)
             {
@@ -798,10 +798,6 @@ public static class Utils
         {
             switch (role)
             {
-                case CustomRoles.Arsonist:
-                    var doused = GetDousedPlayerCount(playerId);
-                    ProgressText.Append(!Options.ArsonistCanIgniteAnytime.GetBool() ? ColorString(GetRoleColor(CustomRoles.Arsonist).ShadeColor(0.25f), $"<color=#777777>-</color> {doused.Item1}/{doused.Item2}") : ColorString(GetRoleColor(CustomRoles.Arsonist).ShadeColor(0.25f), $"<color=#777777>-</color> {doused.Item1}/{Options.ArsonistMaxPlayersToIgnite.GetInt()}"));
-                    break;
                 case CustomRoles.Sheriff:
                     if (Sheriff.ShowShotLimit.GetBool()) ProgressText.Append(Sheriff.GetShotLimit(playerId));
                     break;
@@ -2304,7 +2300,7 @@ public static class Utils
                                         TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Arsonist)}>▲</color>");
                                     }
 
-                                    if (Main.ArsonistTimer.TryGetValue(seer.PlayerId, out var ar_kvp) && ar_kvp.PLAYER == target)
+                                    else if (Main.ArsonistTimer.TryGetValue(seer.PlayerId, out var ar_kvp) && ar_kvp.PLAYER == target)
                                     {
                                         TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Arsonist)}>△</color>");
                                     }
@@ -2650,13 +2646,6 @@ public static class Utils
                 break;
             case CustomRoles.SwordsMan:
                 SwordsMan.Add(id);
-                break;
-            case CustomRoles.Arsonist:
-                foreach (PlayerControl ar in Main.AllPlayerControls)
-                {
-                    Main.isDoused.Add((id, ar.PlayerId), false);
-                }
-
                 break;
             case CustomRoles.Revolutionist:
                 foreach (PlayerControl ar in Main.AllPlayerControls)

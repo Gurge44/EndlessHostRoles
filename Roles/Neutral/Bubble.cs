@@ -9,12 +9,12 @@ using static TOHE.Utils;
 
 namespace TOHE.Roles.Neutral
 {
-    internal class Bubble
+    internal class Bubble : RoleBase
     {
         private static int Id => 643220;
 
-        private static PlayerControl Bubble_ => GetPlayerById(BubbleId);
-        private static byte BubbleId = byte.MaxValue;
+        private PlayerControl Bubble_ => GetPlayerById(BubbleId);
+        private byte BubbleId = byte.MaxValue;
 
         private static OptionItem KillCooldown;
         private static OptionItem HasImpostorVision;
@@ -28,7 +28,7 @@ namespace TOHE.Roles.Neutral
 
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Bubble, 1, zeroOne: false);
+            SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Bubble);
             KillCooldown = FloatOptionItem.Create(Id + 2, "BubbleCD", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bubble])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -48,12 +48,14 @@ namespace TOHE.Roles.Neutral
             CanVent = BooleanOptionItem.Create(Id + 8, "CanVent", true, TabGroup.NeutralRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bubble]);
         }
-        public static void Init()
+
+        public override void Init()
         {
             BubbleId = byte.MaxValue;
             EncasedPlayers.Clear();
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
             BubbleId = playerId;
 
@@ -61,10 +63,12 @@ namespace TOHE.Roles.Neutral
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
-        public static bool IsEnable => BubbleId != byte.MaxValue;
-        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
-        private static void SendRPC(byte id = byte.MaxValue, bool remove = false, bool clear = false)
+
+        public override bool IsEnable => BubbleId != byte.MaxValue;
+        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+
+        void SendRPC(byte id = byte.MaxValue, bool remove = false, bool clear = false)
         {
             if (!IsEnable || !DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncBubble, SendOption.Reliable);
@@ -82,54 +86,64 @@ namespace TOHE.Roles.Neutral
             else if (remove) EncasedPlayers.Remove(id);
             else EncasedPlayers.Add(id, TimeStamp);
         }
-        public static void OnCheckMurder(PlayerControl target)
+
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable || target == null) return;
+            if (!IsEnable || target == null) return false;
             EncasedPlayers.Add(target.PlayerId, TimeStamp);
             SendRPC(target.PlayerId);
             Bubble_.SetKillCooldown();
+            return false;
         }
-        public static void OnFixedUpdate()
+
+        public override void OnGlobalFixedUpdate(PlayerControl encasedPc)
         {
-            if (!IsEnable || !GameStates.IsInTask || EncasedPlayers.Count == 0) return;
+            if (!IsEnable || !GameStates.IsInTask || !EncasedPlayers.TryGetValue(encasedPc.PlayerId, out var ts)) return;
 
             long now = TimeStamp;
-            foreach (var kvp in EncasedPlayers)
-            {
-                var id = kvp.Key;
-                var encasedPc = GetPlayerById(id);
+            var id = encasedPc.PlayerId;
 
-                if (kvp.Value + ExplodeDelay.GetInt() < now)
+            if (ts + ExplodeDelay.GetInt() < now)
+            {
+                if (!encasedPc.IsAlive())
                 {
-                    if (!encasedPc.IsAlive())
-                    {
-                        EncasedPlayers.Remove(id);
-                        SendRPC(id, remove: true);
-                        continue;
-                    }
-                    var players = GetPlayersInRadius(ExplosionRadius.GetFloat(), encasedPc.Pos());
-                    foreach (var pc in players)
-                    {
-                        if (pc == null) continue;
-                        if (pc.PlayerId == BubbleId)
-                        {
-                            if (BubbleDiesIfInRange.GetBool()) _ = new LateTask(() => { if (GameStates.IsInTask) pc.Suicide(PlayerState.DeathReason.Bombed); }, 0.5f, log: false);
-                            continue;
-                        }
-                        pc.Suicide(PlayerState.DeathReason.Bombed, Bubble_);
-                    }
                     EncasedPlayers.Remove(id);
                     SendRPC(id, remove: true);
-                    continue;
+                    return;
                 }
 
-                if (kvp.Value + NotifyDelay.GetInt() < now)
+                var players = GetPlayersInRadius(ExplosionRadius.GetFloat(), encasedPc.Pos());
+                foreach (var pc in players)
                 {
-                    Main.AllAlivePlayerControls.Where(x => Vector2.Distance(x.Pos(), encasedPc.Pos()) < 5f).Do(x => NotifyRoles(SpecifySeer: x, SpecifyTarget: encasedPc));
+                    if (pc == null) continue;
+                    if (pc.PlayerId == BubbleId)
+                    {
+                        if (BubbleDiesIfInRange.GetBool())
+                        {
+                            _ = new LateTask(() =>
+                            {
+                                if (GameStates.IsInTask) pc.Suicide(PlayerState.DeathReason.Bombed);
+                            }, 0.5f, log: false);
+                        }
+
+                        continue;
+                    }
+
+                    pc.Suicide(PlayerState.DeathReason.Bombed, Bubble_);
                 }
+
+                EncasedPlayers.Remove(id);
+                SendRPC(id, remove: true);
+                return;
+            }
+
+            if (ts + NotifyDelay.GetInt() < now)
+            {
+                Main.AllAlivePlayerControls.Where(x => Vector2.Distance(x.Pos(), encasedPc.Pos()) < 5f).Do(x => NotifyRoles(SpecifySeer: x, SpecifyTarget: encasedPc));
             }
         }
-        public static void OnReportDeadBody()
+
+        public override void OnReportDeadBody()
         {
             if (!IsEnable) return;
             foreach (var pc in EncasedPlayers.Keys.Select(x => GetPlayerById(x)).Where(x => x != null && x.IsAlive())) pc.Suicide(PlayerState.DeathReason.Bombed, Bubble_);
@@ -138,7 +152,7 @@ namespace TOHE.Roles.Neutral
         }
         public static string GetEncasedPlayerSuffix(PlayerControl target)
         {
-            if (!IsEnable || target == null || !EncasedPlayers.TryGetValue(target.PlayerId, out var ts) || (ts + NotifyDelay.GetInt() >= TimeStamp)) return string.Empty;
+            if (target == null || !EncasedPlayers.TryGetValue(target.PlayerId, out var ts) || (ts + NotifyDelay.GetInt() >= TimeStamp)) return string.Empty;
             return ColorString(GetRoleColor(CustomRoles.Bubble), $"{ExplodeDelay.GetInt() - (TimeStamp - ts) + 1}s");
         }
     }

@@ -226,7 +226,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 //    break;
                 case CustomRoles.Sheriff:
                 case CustomRoles.SwordsMan:
-                case CustomRoles.Arsonist:
                 //     case CustomRoles.Minimalism:
                 case CustomRoles.Innocent:
                 case CustomRoles.Pelican:
@@ -325,14 +324,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 case CustomRoles.ScientistTOHE:
                     AURoleOptions.ScientistCooldown = Options.ScientistCD.GetFloat();
                     AURoleOptions.ScientistBatteryCharge = Options.ScientistDur.GetFloat();
-                    break;
-                case CustomRoles.Wildling:
-                    if (Wildling.CanShapeshift.GetBool())
-                    {
-                        AURoleOptions.ShapeshifterCooldown = Wildling.ShapeshiftCD.GetFloat();
-                        AURoleOptions.ShapeshifterDuration = Wildling.ShapeshiftDur.GetFloat();
-                    }
-
                     break;
                 case CustomRoles.Jackal:
                     Jackal.ApplyGameOptions(opt);

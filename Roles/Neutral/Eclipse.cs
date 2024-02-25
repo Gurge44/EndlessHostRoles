@@ -1,12 +1,13 @@
+using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral;
 
-public static class Eclipse
+public class Eclipse : RoleBase
 {
-    private static readonly int Id = 128000;
+    private const int Id = 128000;
     public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
@@ -15,7 +16,7 @@ public static class Eclipse
     private static OptionItem StartVision;
     private static OptionItem MaxVision;
 
-    private static float Vision;
+    private float Vision;
 
     public static void SetupCustomOption()
     {
@@ -33,11 +34,13 @@ public static class Eclipse
             .SetValueFormat(OptionFormat.Multiplier);
         CanVent = BooleanOptionItem.Create(Id + 14, "CanVent", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Eclipse]);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         Vision = StartVision.GetFloat();
@@ -46,15 +49,18 @@ public static class Eclipse
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-    public static void ApplyGameOptions(IGameOptions opt)
+
+    public override bool IsEnable => playerIdList.Count > 0;
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+
+    public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         opt.SetVision(true);
         opt.SetFloat(FloatOptionNames.CrewLightMod, Vision);
         opt.SetFloat(FloatOptionNames.ImpostorLightMod, Vision);
     }
-    public static void OnCheckMurder(PlayerControl pc)
+
+    public override void OnMurder(PlayerControl pc, PlayerControl target)
     {
         if (pc == null) return;
 
@@ -62,7 +68,7 @@ public static class Eclipse
         Vision += VisionIncrease.GetFloat();
         if (Vision > MaxVision.GetFloat()) Vision = MaxVision.GetFloat();
 
-        if (Vision != currentVision)
+        if (Math.Abs(Vision - currentVision) > 0.1f)
         {
             pc.MarkDirtySettings();
         }

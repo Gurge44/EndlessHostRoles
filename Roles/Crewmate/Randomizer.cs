@@ -591,7 +591,7 @@ namespace TOHE.Roles.Crewmate
         {
             try
             {
-                if (!Main.PlayerStates.Values.Any(x => x.Role is Randomizer { IsEnable: true })) return;
+                if (!Exists) return;
 
                 RevertSpeedChangesForPlayer(pc, false);
                 RevertVisionChangesForPlayer(pc, false);
@@ -627,7 +627,7 @@ namespace TOHE.Roles.Crewmate
             LastDeathEffect = Utils.TimeStamp;
         }
 
-        public override void OnGlobalFixedUpdate()
+        public override void OnGlobalFixedUpdate(PlayerControl player)
         {
             try
             {

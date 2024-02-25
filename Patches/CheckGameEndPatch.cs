@@ -1,10 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using HarmonyLib;
 using Hazel;
+using InnerNet;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
 using UnityEngine;
@@ -27,9 +28,7 @@ class GameEndChecker
 
         if (Options.NoGameEnd.GetBool() && WinnerTeam is not CustomWinner.Draw and not CustomWinner.Error) return false;
 
-        var reason = GameOverReason.ImpostorByKill;
-
-        predicate.CheckForEndGame(out reason);
+        predicate.CheckForEndGame(out GameOverReason reason);
 
         if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato)
         {
@@ -111,7 +110,7 @@ class GameEndChecker
                             ResetAndSetWinner(CustomWinner.DarkHide);
                             WinnerIds.Add(pc.PlayerId);
                             break;
-                        case CustomRoles.Phantom when pc.GetTaskState().IsTaskFinished && pc.Data.IsDead && (WinnerTeam is CustomWinner.Impostor or CustomWinner.Crewmate or CustomWinner.Jackal or CustomWinner.BloodKnight or CustomWinner.SerialKiller or CustomWinner.Juggernaut or CustomWinner.Ritualist or CustomWinner.Poisoner or CustomWinner.Succubus or CustomWinner.Jinx or CustomWinner.Virus or CustomWinner.Arsonist or CustomWinner.Pelican or CustomWinner.HexMaster or CustomWinner.Wraith or CustomWinner.Pestilence or CustomWinner.Rogue or CustomWinner.Doppelganger or CustomWinner.Spiritcaller) && Options.PhantomSnatchesWin.GetBool():
+                        case CustomRoles.Phantom when pc.GetTaskState().IsTaskFinished && pc.Data.IsDead && Options.PhantomSnatchesWin.GetBool():
                             reason = GameOverReason.ImpostorByKill;
                             ResetAndSetWinner(CustomWinner.Phantom);
                             WinnerIds.Add(pc.PlayerId);
@@ -124,7 +123,7 @@ class GameEndChecker
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.Opportunist);
                             break;
-                        case CustomRoles.Pursuer when pc.IsAlive() && WinnerTeam != CustomWinner.Jester && WinnerTeam != CustomWinner.Lovers && WinnerTeam != CustomWinner.Terrorist && WinnerTeam != CustomWinner.Executioner && WinnerTeam != CustomWinner.Collector && WinnerTeam != CustomWinner.Innocent && WinnerTeam != CustomWinner.Youtuber:
+                        case CustomRoles.Pursuer when pc.IsAlive() && WinnerTeam is not CustomWinner.Jester and not CustomWinner.Lovers and not CustomWinner.Terrorist and not CustomWinner.Executioner and not CustomWinner.Collector and not CustomWinner.Innocent and not CustomWinner.Youtuber:
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.Pursuer);
                             break;
@@ -175,20 +174,24 @@ class GameEndChecker
                 if (WinnerTeam == CustomWinner.Impostor)
                 {
                     var aliveImps = Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoleTypes.Impostor));
-                    var aliveImpCount = aliveImps.Count();
+                    var imps = aliveImps as PlayerControl[] ?? aliveImps.ToArray();
+                    var aliveImpCount = imps.Length;
 
-                    // If there's an Egoist, and there is at least 1 non-Egoist impostor alive, Egoist loses
-                    if (aliveImpCount > 1 && WinnerIds.Any(x => GetPlayerById(x).Is(CustomRoles.Egoist)))
+                    switch (aliveImpCount)
                     {
-                        WinnerIds.RemoveWhere(x => GetPlayerById(x).Is(CustomRoles.Egoist));
-                    }
-                    // If there's only 1 impostor alive, and all alive impostors are Egoists, the Egoist wins alone
-                    else if (aliveImpCount == 1 && aliveImps.All(x => x.Is(CustomRoles.Egoist)))
-                    {
-                        var pc = aliveImps.FirstOrDefault();
-                        reason = GameOverReason.ImpostorByKill;
-                        ResetAndSetWinner(CustomWinner.Egoist);
-                        WinnerIds.Add(pc.PlayerId);
+                        // If there's an Egoist, and there is at least 1 non-Egoist impostor alive, Egoist loses
+                        case > 1 when WinnerIds.Any(x => GetPlayerById(x).Is(CustomRoles.Egoist)):
+                            WinnerIds.RemoveWhere(x => GetPlayerById(x).Is(CustomRoles.Egoist));
+                            break;
+                        // If there's only 1 impostor alive, and all alive impostors are Egoists, the Egoist wins alone
+                        case 1 when imps.All(x => x.Is(CustomRoles.Egoist)):
+                        {
+                            var pc = imps.FirstOrDefault();
+                            reason = GameOverReason.ImpostorByKill;
+                            ResetAndSetWinner(CustomWinner.Egoist);
+                            WinnerIds.Add(pc.PlayerId);
+                            break;
+                        }
                     }
                 }
 
@@ -212,7 +215,7 @@ class GameEndChecker
                 {
                     foreach (PlayerControl pc in Main.AllPlayerControls)
                     {
-                        if (pc.GetCustomRole().IsNeutral() && !WinnerIds.Contains(pc.PlayerId))
+                        if (pc.GetCustomRole().IsNeutral())
                             WinnerIds.Add(pc.PlayerId);
                     }
                 }
@@ -244,9 +247,9 @@ class GameEndChecker
         AmongUsClient.Instance.StartCoroutine(CoEndGame(AmongUsClient.Instance, reason).WrapToIl2Cpp());
     }
 
-    private static IEnumerator CoEndGame(AmongUsClient self, GameOverReason reason)
+    private static IEnumerator CoEndGame(InnerNetClient self, GameOverReason reason)
     {
-        if (Blackmailer.IsEnable) Blackmailer.ForBlackmailer.Clear();
+        Blackmailer.ForBlackmailer.Clear();
 
         // Set ghost role
         List<byte> ReviveRequiredPlayerIds = [];
@@ -263,6 +266,9 @@ class GameEndChecker
             bool isCrewmateWin = reason.Equals(GameOverReason.HumansByVote) || reason.Equals(GameOverReason.HumansByTask);
             SetGhostRole(ToGhostImpostor: canWin ^ isCrewmateWin); // XOR
 
+            SetEverythingUpPatch.LastWinsReason = winner is CustomWinner.Crewmate or CustomWinner.Impostor ? GetString($"GameOverReason.{reason}") : string.Empty;
+            continue;
+
             void SetGhostRole(bool ToGhostImpostor)
             {
                 if (!pc.Data.IsDead) ReviveRequiredPlayerIds.Add(pc.PlayerId);
@@ -277,8 +283,6 @@ class GameEndChecker
                     pc.RpcSetRole(RoleTypes.CrewmateGhost);
                 }
             }
-
-            SetEverythingUpPatch.LastWinsReason = winner is CustomWinner.Crewmate or CustomWinner.Impostor ? GetString($"GameOverReason.{reason}") : string.Empty;
         }
 
         // Sync of CustomWinnerHolder info
@@ -292,9 +296,8 @@ class GameEndChecker
         if (ReviveRequiredPlayerIds.Count > 0)
         {
             // Resuscitation Resuscitate one person per transmission to prevent the packet from swelling up and dying
-            for (int i = 0; i < ReviveRequiredPlayerIds.Count; i++)
+            foreach (var playerId in ReviveRequiredPlayerIds)
             {
-                var playerId = ReviveRequiredPlayerIds[i];
                 var playerInfo = GameData.Instance.GetPlayerById(playerId);
                 // resuscitation
                 playerInfo.IsDead = false;
@@ -325,11 +328,10 @@ class GameEndChecker
         {
             reason = GameOverReason.ImpostorByKill;
             if (WinnerTeam != CustomWinner.Default) return false;
-            if (CheckGameEndBySabotage(out reason) || CheckGameEndByTask(out reason) || CheckGameEndByLivingPlayers(out reason)) return true;
-            return false;
+            return CheckGameEndBySabotage(out reason) || CheckGameEndByTask(out reason) || CheckGameEndByLivingPlayers(out reason);
         }
 
-        public static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
 
@@ -429,7 +431,7 @@ class GameEndChecker
                 }
                 else return false;
 
-                if (winner != null) ResetAndSetWinner((CustomWinner)winner);
+                ResetAndSetWinner((CustomWinner)winner);
                 return true;
             }
 
@@ -437,24 +439,29 @@ class GameEndChecker
             if (Crew > totalNKAlive) return false; // Imps are dead, but crew still outnumbers NKs, game must continue
             // Imps dead, Crew <= NK, Checking if all NKs alive are in 1 team
             var aliveCounts = roleCounts.Values.Where(x => x > 0).ToList();
-            if (aliveCounts.Count > 1) return false; // There are multiple types of NKs alive, game must continue
-            if (aliveCounts.Count == 1) // There is only one type of NK alive, they've won
+            switch (aliveCounts.Count)
             {
-                if (aliveCounts[0] != roleCounts.Values.Max()) Logger.Warn("There is something wrong here.", "CheckGameEndPatch");
-                foreach (var keyValuePair in roleCounts.Where(keyValuePair => keyValuePair.Value == aliveCounts[0]))
+                case > 1:
+                    return false; // There are multiple types of NKs alive, game must continue
+                // There is only one type of NK alive, they've won
+                case 1:
                 {
-                    reason = GameOverReason.ImpostorByKill;
-                    winner = keyValuePair.Key.WINNER;
-                    rl = keyValuePair.Key.ROLE;
+                    if (aliveCounts[0] != roleCounts.Values.Max()) Logger.Warn("There is something wrong here.", "CheckGameEndPatch");
+                    foreach (var keyValuePair in roleCounts.Where(keyValuePair => keyValuePair.Value == aliveCounts[0]))
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = keyValuePair.Key.WINNER;
+                        rl = keyValuePair.Key.ROLE;
+                        break;
+                    }
+
                     break;
                 }
-            }
-            else
-            {
-                Logger.Fatal("Error while selecting NK winner", "CheckGameEndPatch.CheckGameEndByLivingPlayers");
-                Logger.SendInGame("There was an error while selecting the winner. Please report this bug to the developer! (Do /dump to get logs)");
-                ResetAndSetWinner(CustomWinner.Error);
-                return true;
+                default:
+                    Logger.Fatal("Error while selecting NK winner", "CheckGameEndPatch.CheckGameEndByLivingPlayers");
+                    Logger.SendInGame("There was an error while selecting the winner. Please report this bug to the developer! (Do /dump to get logs)");
+                    ResetAndSetWinner(CustomWinner.Error);
+                    return true;
             }
 
             if (winner != null) ResetAndSetWinner((CustomWinner)winner);
@@ -469,18 +476,16 @@ class GameEndChecker
         public override bool CheckForEndGame(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
-            if (WinnerIds.Count > 0) return false;
-            if (CheckGameEndByLivingPlayers(out reason)) return true;
-            return false;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
         }
 
-        public static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
 
             if (SoloKombatManager.RoundTime > 0) return false;
 
-            var winner = Main.AllPlayerControls.FirstOrDefault(x => !x.Is(CustomRoles.GM) && SoloKombatManager.GetRankOfScore(x.PlayerId) == 1);
+            var winner = Main.AllPlayerControls.FirstOrDefault(x => !x.Is(CustomRoles.GM) && SoloKombatManager.GetRankOfScore(x.PlayerId) == 1) ?? Main.AllAlivePlayerControls[0];
 
             WinnerIds =
             [
@@ -498,12 +503,10 @@ class GameEndChecker
         public override bool CheckForEndGame(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
-            if (WinnerIds.Count > 0) return false;
-            if (CheckGameEndByLivingPlayers(out reason)) return true;
-            return false;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
         }
 
-        public static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
 
@@ -511,11 +514,9 @@ class GameEndChecker
             {
                 var winner = Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => FFAManager.GetRankOfScore(x.PlayerId)).First();
 
-                byte winnerId;
-                if (winner == null) winnerId = 0;
-                else winnerId = winner.PlayerId;
+                byte winnerId = winner.PlayerId;
 
-                Logger.Warn($"Winner: {GetPlayerById(winnerId).GetRealName().RemoveHtmlTags()}", "FFA");
+                Logger.Warn($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "FFA");
 
                 WinnerIds =
                 [
@@ -527,30 +528,30 @@ class GameEndChecker
                 return true;
             }
 
-            if (Main.AllAlivePlayerControls.Length == 1)
+            switch (Main.AllAlivePlayerControls.Length)
             {
-                var winner = Main.AllAlivePlayerControls.FirstOrDefault();
+                case 1:
+                {
+                    var winner = Main.AllAlivePlayerControls.First();
 
-                Logger.Info($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "FFA");
+                    Logger.Info($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "FFA");
 
-                WinnerIds =
-                [
-                    winner.PlayerId
-                ];
+                    WinnerIds =
+                    [
+                        winner.PlayerId
+                    ];
 
-                Main.DoBlockNameChange = true;
+                    Main.DoBlockNameChange = true;
 
-                return true;
+                    return true;
+                }
+                case 0:
+                    FFAManager.RoundTime = 0;
+                    Logger.Warn("No players alive. Force ending the game", "FFA");
+                    return false;
+                default:
+                    return false;
             }
-
-            if (Main.AllAlivePlayerControls.Length == 0)
-            {
-                FFAManager.RoundTime = 0;
-                Logger.Warn("No players alive. Force ending the game", "FFA");
-                return false;
-            }
-
-            return false;
         }
     }
 
@@ -559,24 +560,20 @@ class GameEndChecker
         public override bool CheckForEndGame(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
-            if (WinnerIds.Count > 0) return false;
-            if (CheckGameEndByLivingPlayers(out reason)) return true;
-            return false;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
         }
 
-        public static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
 
             if (MoveAndStopManager.RoundTime <= 0)
             {
-                var winner = Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => MoveAndStopManager.GetRankOfScore(x.PlayerId)).OrderBy(x => x.IsAlive()).First();
+                var winner = Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => MoveAndStopManager.GetRankOfScore(x.PlayerId)).ThenBy(x => x.IsAlive()).First();
 
-                byte winnerId;
-                if (winner == null) winnerId = 0;
-                else winnerId = winner.PlayerId;
+                byte winnerId = winner.PlayerId;
 
-                Logger.Warn($"Winner: {GetPlayerById(winnerId).GetRealName().RemoveHtmlTags()}", "MoveAndStop");
+                Logger.Warn($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "MoveAndStop");
 
                 WinnerIds =
                 [
@@ -590,7 +587,7 @@ class GameEndChecker
 
             if (Main.AllAlivePlayerControls.Any(x => x.GetTaskState().IsTaskFinished))
             {
-                var winner = Main.AllAlivePlayerControls.FirstOrDefault(x => x.GetTaskState().IsTaskFinished);
+                var winner = Main.AllAlivePlayerControls.First(x => x.GetTaskState().IsTaskFinished);
 
                 Logger.Info($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "MoveAndStop");
 
@@ -620,12 +617,10 @@ class GameEndChecker
         public override bool CheckForEndGame(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
-            if (WinnerIds.Count > 0) return false;
-            if (CheckGameEndByLivingPlayers(out reason)) return true;
-            return false;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
         }
 
-        public static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
 

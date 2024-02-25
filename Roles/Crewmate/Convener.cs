@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace TOHE.Roles.Crewmate
+﻿namespace TOHE.Roles.Crewmate
 {
-    internal class Convener
+    internal class Convener : RoleBase
     {
         private static int Id => 643350;
         public static OptionItem CD;
@@ -25,9 +23,31 @@ namespace TOHE.Roles.Crewmate
                 .SetValueFormat(OptionFormat.Times);
         }
 
-        public static void Add(byte playerId) => playerId.SetAbilityUseLimit(Limit.GetInt());
+        public static bool On;
+        public override bool IsEnable => On;
 
-        public static void UseAbility(PlayerControl pc, int ventId = 0, bool isPet = false)
+        public override void Add(byte playerId)
+        {
+            On = true;
+            playerId.SetAbilityUseLimit(Limit.GetInt());
+        }
+
+        public override void Init()
+        {
+            On = false;
+        }
+
+        public override void OnPet(PlayerControl pc)
+        {
+            PullEveryone(pc, isPet: true);
+        }
+
+        public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+        {
+            PullEveryone(physics.myPlayer, ventId);
+        }
+
+        public static void PullEveryone(PlayerControl pc, int ventId = 0, bool isPet = false)
         {
             if (pc == null || pc.GetAbilityUseLimit() < 1f) return;
 
@@ -43,7 +63,5 @@ namespace TOHE.Roles.Crewmate
 
             pc.RpcRemoveAbilityUse();
         }
-
-        public static string GetProgressText(byte id) => $"<#777777>-</color> <#ff{(id.GetAbilityUseLimit() < 1f ? "0000" : "ffff")}>{Math.Round(id.GetAbilityUseLimit(), 1)}</color>";
     }
 }

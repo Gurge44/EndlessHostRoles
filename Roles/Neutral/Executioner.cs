@@ -7,11 +7,10 @@ using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral;
 
-public static class Executioner
+public class Executioner : RoleBase
 {
-    private static readonly int Id = 10700;
+    private const int Id = 10700;
     public static List<byte> playerIdList = [];
-    public static byte WinnerID;
 
     private static OptionItem CanTargetImpostor;
     private static OptionItem CanTargetNeutralKiller;
@@ -66,13 +65,13 @@ public static class Executioner
         ChangeRolesAfterTargetKilled = StringOptionItem.Create(Id + 11, "ExecutionerChangeRolesAfterTargetKilled", ChangeRoles, 1, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Executioner]);
     }
 
-    public static void Init()
+    public override void Init()
     {
         playerIdList = [];
         Target = [];
     }
 
-    public static void Add(byte playerId)
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
 
@@ -83,19 +82,7 @@ public static class Executioner
             {
                 List<PlayerControl> targetList = [];
                 var rand = IRandom.Instance;
-                foreach (PlayerControl target in Main.AllPlayerControls)
-                {
-                    if (playerId == target.PlayerId) continue;
-                    if (!CanTargetImpostor.GetBool() && target.Is(CustomRoleTypes.Impostor)) continue;
-                    if (!CanTargetNeutralKiller.GetBool() && target.IsNeutralKiller()) continue;
-                    if (!CanTargetNeutralBenign.GetBool() && target.IsNeutralBenign()) continue;
-                    if (!CanTargetNeutralEvil.GetBool() && target.IsNeutralEvil()) continue;
-                    if (!CanTargetNeutralChaos.GetBool() && target.IsNeutralChaos()) continue;
-                    if (target.GetCustomRole() is CustomRoles.GM or CustomRoles.SuperStar) continue;
-                    if (Utils.GetPlayerById(playerId).Is(CustomRoles.Lovers) && target.Is(CustomRoles.Lovers)) continue;
-
-                    targetList.Add(target);
-                }
+                targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetNeutralBenign.GetBool() || !target.IsNeutralBenign() where CanTargetNeutralEvil.GetBool() || !target.IsNeutralEvil() where CanTargetNeutralChaos.GetBool() || !target.IsNeutralChaos() where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar) where !Utils.GetPlayerById(playerId).Is(CustomRoles.Lovers) || !target.Is(CustomRoles.Lovers) select target);
 
                 if (targetList.Count == 0)
                 {
@@ -115,11 +102,11 @@ public static class Executioner
         }
     }
 
-    public static bool IsEnable() => playerIdList.Count > 0;
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SendRPC(byte executionerId, byte targetId = 0x73, string Progress = "")
     {
-        if (!IsEnable() || !Utils.DoRPC) return;
+        if (!Utils.DoRPC) return;
         MessageWriter writer;
         switch (Progress)
         {
