@@ -1,13 +1,15 @@
 using AmongUs.GameOptions;
+using UnityEngine;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral;
 
-public static class Maverick
+public class Maverick : RoleBase
 {
-    private static readonly int Id = 10000;
-    public static byte MaverickId = byte.MaxValue;
-    public static int NumOfKills;
+    private const int Id = 10000;
+
+    public byte MaverickId = byte.MaxValue;
+    public int NumOfKills;
 
     private static OptionItem KillCooldown;
     public static OptionItem CanVent;
@@ -16,7 +18,7 @@ public static class Maverick
 
     public static void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Maverick, 1, zeroOne: false);
+        SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Maverick);
         KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 35f, TabGroup.NeutralRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Maverick])
             .SetValueFormat(OptionFormat.Seconds);
@@ -27,12 +29,14 @@ public static class Maverick
         MinKillsToWin = IntegerOptionItem.Create(Id + 12, "DQNumOfKillsNeeded", new(0, 14, 1), 2, TabGroup.NeutralRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Maverick]);
     }
-    public static void Init()
+
+    public override void Init()
     {
         MaverickId = byte.MaxValue;
         NumOfKills = 0;
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         MaverickId = playerId;
         NumOfKills = 0;
@@ -41,7 +45,27 @@ public static class Maverick
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => MaverickId != byte.MaxValue;
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-    public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
+
+    public override bool IsEnable => MaverickId != byte.MaxValue;
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+    public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return CanVent.GetBool();
+    }
+
+    public override bool CanUseSabotage(PlayerControl pc)
+    {
+        return false;
+    }
+
+    public override string GetProgressText(byte playerId, bool comms)
+    {
+        if (Main.PlayerStates[playerId].Role is not Maverick mr) return string.Empty;
+        int kills = mr.NumOfKills;
+        int min = MinKillsToWin.GetInt();
+        Color color = kills >= min ? Color.green : Color.red;
+        return Utils.ColorString(color, $"{kills}/{min}");
+    }
 }

@@ -210,9 +210,6 @@ class HudManagerPatch
                     case CustomRoles.EvilTracker:
                         EvilTracker.GetAbilityButtonText(__instance, player.PlayerId);
                         break;
-                    case CustomRoles.Innocent:
-                        __instance.KillButton?.OverrideText(GetString("InnocentButtonText"));
-                        break;
                     case CustomRoles.Capitalism:
                         __instance.KillButton?.OverrideText(GetString("CapitalismButtonText"));
                         break;
@@ -371,10 +368,6 @@ class HudManagerPatch
                     case CustomRoles.Chameleon:
                         __instance.AbilityButton?.OverrideText(GetString(Chameleon.IsInvis(PlayerControl.LocalPlayer.PlayerId) ? "ChameleonRevertDisguise" : "ChameleonDisguise"));
                         break;
-                    case CustomRoles.Mario:
-                        __instance.AbilityButton.buttonLabelText.text = GetString("MarioVentButtonText");
-                        __instance.AbilityButton?.SetUsesRemaining(Options.MarioVentNumWin.GetInt() - (Main.MarioVentCount.GetValueOrDefault(PlayerControl.LocalPlayer.PlayerId, 0)));
-                        break;
                     case CustomRoles.Sheriff:
                         __instance.KillButton?.OverrideText(GetString("SheriffKillButtonText"));
                         break;
@@ -490,7 +483,7 @@ class HudManagerPatch
                         CustomRoles.Librarian => Librarian.GetSelfSuffixAndHudText(player.PlayerId),
                         CustomRoles.PlagueDoctor => PlagueDoctor.GetLowerTextOthers(player, isForHud: true),
                         CustomRoles.Stealth => Stealth.GetSuffix(player, isHUD: true),
-                        CustomRoles.Hookshot => Hookshot.SuffixText,
+                        CustomRoles.Hookshot => Hookshot.SuffixText(player.PlayerId),
                         CustomRoles.Tornado => Tornado.GetSuffixText(isHUD: true),
                         _ => player.Is(CustomRoles.Asthmatic) ? Asthmatic.GetSuffixText(player.PlayerId) : string.Empty,
                     },
@@ -651,7 +644,6 @@ class SetHudActivePatch
             case CustomRoles.Deputy:
             case CustomRoles.Monarch:
             //case CustomRoles.NWitch:
-            case CustomRoles.Innocent:
             //case CustomRoles.Reverie:
             case CustomRoles.Pelican:
             case CustomRoles.Revolutionist:

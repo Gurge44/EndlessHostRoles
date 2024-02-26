@@ -1,10 +1,9 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using UnityEngine;
 
 namespace TOHE.Roles.Crewmate
 {
-    internal class Perceiver
+    internal class Perceiver : RoleBase
     {
         private static int Id => 643360;
         private static OptionItem Radius;
@@ -31,18 +30,39 @@ namespace TOHE.Roles.Crewmate
                 .SetValueFormat(OptionFormat.Times);
         }
 
-        public static void Add(byte id) => id.SetAbilityUseLimit(Limit.GetInt());
+        public static bool On;
+
+        public override void Init()
+        {
+            On = false;
+        }
+
+        public override void Add(byte id)
+        {
+            On = true;
+            id.SetAbilityUseLimit(Limit.GetInt());
+        }
+
+        public override bool IsEnable => On;
+
+        public override void OnPet(PlayerControl pc)
+        {
+            UseAbility(pc);
+        }
+
+        public override void OnEnterVent(PlayerControl pc, Vent vent)
+        {
+            UseAbility(pc);
+        }
 
         public static void UseAbility(PlayerControl pc)
         {
             if (pc == null || pc.GetAbilityUseLimit() < 1f) return;
 
             var killers = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Crewmate) && x.HasKillButton() && Vector2.Distance(x.Pos(), pc.Pos()) <= Radius.GetFloat()).ToArray();
-            pc.Notify(string.Format(Translator.GetString("PerceiverNotify"), killers.Length));
+            pc.Notify(string.Format(Translator.GetString("PerceiverNotify"), killers.Length), 7f);
 
             pc.RpcRemoveAbilityUse();
         }
-
-        public static string GetProgressText(byte id) => $"<#777777>-</color> <#ff{(id.GetAbilityUseLimit() < 1f ? "0000" : "ffff")}>{Math.Round(id.GetAbilityUseLimit(), 1)}</color>";
     }
 }

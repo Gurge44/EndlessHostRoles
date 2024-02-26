@@ -81,8 +81,7 @@ class ExileControllerWrapUpPatch
                 }
                 else
                 {
-                    if (DecidedWinner) CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Innocent);
-                    else CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Innocent);
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Innocent);
                     Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Innocent) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == exiled.PlayerId)
                         .Do(x => CustomWinnerHolder.WinnerIds.Add(x.PlayerId));
                     DecidedWinner = true;

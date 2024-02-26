@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using Hazel;
+using TOHE.Roles.Neutral;
 
 namespace TOHE.Roles.Impostor;
 
@@ -13,6 +15,13 @@ public class Greedier : RoleBase // Also used for Imitator as the NK version of 
     private static OptionItem OddKillCooldown;
     private static OptionItem EvenKillCooldown;
     private static OptionItem AfterMeetingKillCooldown;
+
+    private float OddKCD;
+    private float EvenKCD;
+    private float AfterMeetingKCD;
+    private bool HasImpVision;
+
+    private bool IsImitator;
 
     public bool IsOdd = true;
 
@@ -37,15 +46,36 @@ public class Greedier : RoleBase // Also used for Imitator as the NK version of 
         playerIdList.Add(playerId);
         IsOdd = true;
 
+        IsImitator = Main.PlayerStates[playerId].MainRole == CustomRoles.Imitator;
+        if (IsImitator)
+        {
+            OddKCD = Imitator.OddKillCooldown.GetFloat();
+            EvenKCD = Imitator.EvenKillCooldown.GetFloat();
+            AfterMeetingKCD = Imitator.AfterMeetingKillCooldown.GetFloat();
+            HasImpVision = Imitator.HasImpostorVision.GetBool();
+        }
+        else
+        {
+            OddKCD = OddKillCooldown.GetFloat();
+            EvenKCD = EvenKillCooldown.GetFloat();
+            AfterMeetingKCD = AfterMeetingKillCooldown.GetFloat();
+            HasImpVision = true;
+        }
+
         if (!AmongUsClient.Instance.AmHost) return;
 
-        if (!Main.ResetCamPlayerList.Contains(playerId) && Main.PlayerStates[playerId].MainRole == CustomRoles.Imitator)
+        if (!Main.ResetCamPlayerList.Contains(playerId) && IsImitator)
         {
             Main.ResetCamPlayerList.Add(playerId);
         }
     }
 
     public override bool IsEnable => playerIdList.Count > 0;
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        opt.SetVision(HasImpVision);
+    }
 
     void SendRPC(byte playerId)
     {
@@ -63,16 +93,16 @@ public class Greedier : RoleBase // Also used for Imitator as the NK version of 
 
     public override void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = OddKillCooldown.GetFloat();
+        Main.AllPlayerKillCooldown[id] = OddKCD;
     }
 
     public override void OnReportDeadBody()
     {
-        foreach (var pc in Main.AllAlivePlayerControls.Where(x => playerIdList.Contains(x.PlayerId)).ToArray())
+        foreach (var pc in Main.AllAlivePlayerControls.Where(x => playerIdList.Contains(x.PlayerId)))
         {
             IsOdd = true;
             SendRPC(pc.PlayerId);
-            Main.AllPlayerKillCooldown[pc.PlayerId] = AfterMeetingKillCooldown.GetFloat();
+            Main.AllPlayerKillCooldown[pc.PlayerId] = AfterMeetingKCD;
         }
     }
 
@@ -82,11 +112,11 @@ public class Greedier : RoleBase // Also used for Imitator as the NK version of 
         {
             case true:
                 Logger.Info($"{killer.Data?.PlayerName}: Odd-Kill", "Greedier");
-                Main.AllPlayerKillCooldown[killer.PlayerId] = EvenKillCooldown.GetFloat();
+                Main.AllPlayerKillCooldown[killer.PlayerId] = EvenKCD;
                 break;
             case false:
                 Logger.Info($"{killer.Data?.PlayerName}: Even-Kill", "Greedier");
-                Main.AllPlayerKillCooldown[killer.PlayerId] = OddKillCooldown.GetFloat();
+                Main.AllPlayerKillCooldown[killer.PlayerId] = OddKCD;
                 break;
         }
 

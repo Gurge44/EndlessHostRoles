@@ -1,14 +1,59 @@
-﻿namespace TOHE.Roles.Impostor
+﻿using AmongUs.GameOptions;
+using TOHE.Roles.Neutral;
+
+namespace TOHE.Roles.Impostor
 {
     internal class CursedWolf : RoleBase
     {
+        private bool IsJinx;
+
+        private float KillCooldown;
+        private bool CanVent;
+        private bool HasImpostorVision;
+        private bool KillAttacker;
+
         public static bool On;
         public override bool IsEnable => On;
 
         public override void Add(byte playerId)
         {
             On = true;
-            playerId.SetAbilityUseLimit(Options.GuardSpellTimes.GetInt());
+            IsJinx = Main.PlayerStates[playerId].MainRole == CustomRoles.Jinx;
+            playerId.SetAbilityUseLimit(IsJinx ? Jinx.JinxSpellTimes.GetInt() : Options.GuardSpellTimes.GetInt());
+
+            if (IsJinx)
+            {
+                KillCooldown = Jinx.KillCooldown.GetFloat();
+                CanVent = Jinx.CanVent.GetBool();
+                HasImpostorVision = Jinx.HasImpostorVision.GetBool();
+                KillAttacker = Jinx.KillAttacker.GetBool();
+            }
+            else
+            {
+                KillCooldown = Options.DefaultKillCooldown;
+                CanVent = true;
+                HasImpostorVision = true;
+                KillAttacker = Options.killAttacker.GetBool();
+            }
+
+            if (!AmongUsClient.Instance.AmHost || !IsJinx) return;
+            if (!Main.ResetCamPlayerList.Contains(playerId))
+                Main.ResetCamPlayerList.Add(playerId);
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            opt.SetVision(HasImpostorVision);
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return CanVent;
+        }
+
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = KillCooldown;
         }
 
         public override void Init()
@@ -21,19 +66,21 @@
             if (target.GetAbilityUseLimit() <= 0) return true;
             if (killer.Is(CustomRoles.Pestilence)) return true;
             if (killer == target) return true;
+
             var kcd = Main.KillTimers[target.PlayerId] + Main.AllPlayerKillCooldown[target.PlayerId];
+
             killer.RpcGuardAndKill(target);
             target.RpcRemoveAbilityUse();
-            RPC.SendRPCCursedWolfSpellCount(target.PlayerId);
-            if (Options.killAttacker.GetBool())
+            Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} : {target.GetAbilityUseLimit()} curses remain", "CursedWolf");
+
+            if (KillAttacker)
             {
-                Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} : {target.GetAbilityUseLimit()} curses remain", "CursedWolf");
                 Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Curse;
                 killer.SetRealKiller(target);
                 target.Kill(killer);
+                _ = new LateTask(() => { target.SetKillCooldown(time: kcd); }, 0.1f, log: false);
             }
 
-            target.SetKillCooldown(time: kcd);
             return false;
         }
     }

@@ -5,19 +5,19 @@ using static TOHE.Utils;
 
 namespace TOHE.Roles.Neutral
 {
-    internal class Hookshot
+    internal class Hookshot : RoleBase
     {
         private static int Id => 643230;
 
-        private static PlayerControl Hookshot_ => GetPlayerById(HookshotId);
-        private static byte HookshotId = byte.MaxValue;
+        private PlayerControl Hookshot_ => GetPlayerById(HookshotId);
+        private byte HookshotId = byte.MaxValue;
 
         private static OptionItem KillCooldown;
         private static OptionItem HasImpostorVision;
         public static OptionItem CanVent;
 
-        private static bool ToTargetTP;
-        public static byte MarkedPlayerId = byte.MaxValue;
+        private bool ToTargetTP;
+        public byte MarkedPlayerId = byte.MaxValue;
 
         public static void SetupCustomOption()
         {
@@ -30,12 +30,14 @@ namespace TOHE.Roles.Neutral
             CanVent = BooleanOptionItem.Create(Id + 4, "CanVent", true, TabGroup.NeutralRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Hookshot]);
         }
-        public static void Init()
+
+        public override void Init()
         {
             HookshotId = byte.MaxValue;
             MarkedPlayerId = byte.MaxValue;
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
             HookshotId = playerId;
 
@@ -43,23 +45,39 @@ namespace TOHE.Roles.Neutral
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
-        public static bool IsEnable => HookshotId != byte.MaxValue;
-        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
-        private static void SendRPC()
+
+        public override bool IsEnable => HookshotId != byte.MaxValue;
+        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+
+        void SendRPC()
         {
             if (!IsEnable || !DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncHookshot, SendOption.Reliable);
+            writer.Write(HookshotId);
             writer.Write(ToTargetTP);
             writer.Write(MarkedPlayerId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         public static void ReceiveRPC(MessageReader reader)
         {
-            ToTargetTP = reader.ReadBoolean();
-            MarkedPlayerId = reader.ReadByte();
+            var playerId = reader.ReadByte();
+            if (Main.PlayerStates[playerId].Role is not Hookshot hs) return;
+            hs.ToTargetTP = reader.ReadBoolean();
+            hs.MarkedPlayerId = reader.ReadByte();
         }
-        public static void ExecuteAction()
+
+        public override void OnPet(PlayerControl pc)
+        {
+            ExecuteAction();
+        }
+
+        public override void OnSabotage(PlayerControl pc)
+        {
+            ExecuteAction();
+        }
+
+        void ExecuteAction()
         {
             if (MarkedPlayerId == byte.MaxValue) return;
 
@@ -71,10 +89,7 @@ namespace TOHE.Roles.Neutral
                 return;
             }
 
-            bool isTPsuccess;
-
-            if (ToTargetTP) isTPsuccess = Hookshot_.TP(markedPlayer);
-            else isTPsuccess = markedPlayer.TP(Hookshot_);
+            bool isTPsuccess = ToTargetTP ? Hookshot_.TP(markedPlayer) : markedPlayer.TP(Hookshot_);
 
             if (isTPsuccess)
             {
@@ -82,13 +97,15 @@ namespace TOHE.Roles.Neutral
                 SendRPC();
             }
         }
-        public static void SwitchActionMode()
+
+        public override void OnEnterVent(PlayerControl pc, Vent vent)
         {
             ToTargetTP = !ToTargetTP;
             SendRPC();
             NotifyRoles(SpecifySeer: Hookshot_, SpecifyTarget: Hookshot_);
         }
-        public static bool OnCheckMurder(PlayerControl target)
+
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (target == null) return false;
 
@@ -99,11 +116,13 @@ namespace TOHE.Roles.Neutral
                 Hookshot_.SetKillCooldown(5f);
             });
         }
-        public static void OnReportDeadBody()
+
+        public override void OnReportDeadBody()
         {
             MarkedPlayerId = byte.MaxValue;
             SendRPC();
         }
-        public static string SuffixText => $"<#00ffa5>{Translator.GetString("Mode")}:</color> <#ffffff>{(ToTargetTP ? Translator.GetString("HookshotTpToTarget") : Translator.GetString("HookshotPullTarget"))}</color>";
+
+        public static string SuffixText(byte id) => Main.PlayerStates[id].Role is Hookshot hs ? $"<#00ffa5>{Translator.GetString("Mode")}:</color> <#ffffff>{(hs.ToTargetTP ? Translator.GetString("HookshotTpToTarget") : Translator.GetString("HookshotPullTarget"))}</color>" : string.Empty;
     }
 }

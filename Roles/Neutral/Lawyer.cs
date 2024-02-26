@@ -7,25 +7,19 @@ using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral;
 
-public static class Lawyer
+public class Lawyer : RoleBase
 {
-    private static readonly int Id = 9900;
+    private const int Id = 9900;
     public static List<byte> playerIdList = [];
-    public static byte WinnerID;
 
     private static OptionItem CanTargetImpostor;
     private static OptionItem CanTargetNeutralKiller;
     private static OptionItem CanTargetCrewmate;
     private static OptionItem CanTargetJester;
     public static OptionItem ChangeRolesAfterTargetKilled;
-    public static OptionItem LawyerVision;
     public static OptionItem KnowTargetRole;
     public static OptionItem TargetKnowsLawyer;
 
-
-    /// <summary>
-    /// Key: エクスキューショナーのPlayerId, Value: ターゲットのPlayerId
-    /// </summary>
     public static Dictionary<byte, byte> Target = [];
 
     public static readonly string[] ChangeRoles =
@@ -39,7 +33,6 @@ public static class Lawyer
         "Role.Dictator",
         "Role.Mayor",
         "Role.Doctor",
-        //   CustomRoles.Crewmate.ToString(), CustomRoles.Jester.ToString(), CustomRoles.Opportunist.ToString(),
     ];
 
     public static readonly CustomRoles[] CRoleChangeRoles =
@@ -58,8 +51,6 @@ public static class Lawyer
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Lawyer);
-        //    LawyerVision = FloatOptionItem.Create(Id + 14, "LawyerVision", new(0f, 5f, 0.05f), 1.25f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer])
-        //        .SetValueFormat(OptionFormat.Multiplier);
         CanTargetImpostor = BooleanOptionItem.Create(Id + 10, "LawyerCanTargetImpostor", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
         CanTargetNeutralKiller = BooleanOptionItem.Create(Id + 11, "LawyerCanTargetNeutralKiller", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
         CanTargetCrewmate = BooleanOptionItem.Create(Id + 12, "LawyerCanTargetCrewmate", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
@@ -69,36 +60,23 @@ public static class Lawyer
         ChangeRolesAfterTargetKilled = StringOptionItem.Create(Id + 16, "LawyerChangeRolesAfterTargetKilled", ChangeRoles, 2, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
     }
 
-    public static void Init()
+    public override void Init()
     {
         playerIdList = [];
         Target = [];
     }
 
-    public static void Add(byte playerId)
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
 
-        //ターゲット割り当て
         try
         {
             if (AmongUsClient.Instance.AmHost)
             {
                 List<PlayerControl> targetList = [];
                 var rand = IRandom.Instance;
-                foreach (PlayerControl target in Main.AllPlayerControls)
-                {
-                    if (playerId == target.PlayerId) continue;
-                    if (!CanTargetImpostor.GetBool() && target.Is(CustomRoleTypes.Impostor)) continue;
-                    if (!CanTargetNeutralKiller.GetBool() && target.IsNeutralKiller()) continue;
-                    if (!CanTargetCrewmate.GetBool() && target.Is(CustomRoleTypes.Crewmate)) continue;
-                    if (!CanTargetJester.GetBool() && target.Is(CustomRoles.Jester)) continue;
-                    if (target.Is(CustomRoleTypes.Neutral) && !target.IsNeutralKiller() && !target.Is(CustomRoles.Jester)) continue;
-                    if (target.GetCustomRole() is CustomRoles.GM or CustomRoles.SuperStar) continue;
-                    if (Utils.GetPlayerById(playerId).Is(CustomRoles.Lovers) && target.Is(CustomRoles.Lovers)) continue;
-
-                    targetList.Add(target);
-                }
+                targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetCrewmate.GetBool() || !target.Is(CustomRoleTypes.Crewmate) where CanTargetJester.GetBool() || !target.Is(CustomRoles.Jester) where !target.Is(CustomRoleTypes.Neutral) || target.IsNeutralKiller() || target.Is(CustomRoles.Jester) where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar) where !Utils.GetPlayerById(playerId).Is(CustomRoles.Lovers) || !target.Is(CustomRoles.Lovers) select target);
 
                 if (targetList.Count == 0)
                 {
@@ -118,11 +96,11 @@ public static class Lawyer
         }
     }
 
-    public static bool IsEnable() => playerIdList.Count > 0;
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SendRPC(byte lawyerId, byte targetId = 0x73, string Progress = "")
     {
-        if (!IsEnable() || !Utils.DoRPC) return;
+        if (!Utils.DoRPC) return;
         MessageWriter writer;
         switch (Progress)
         {
@@ -199,13 +177,6 @@ public static class Lawyer
 
     public static bool CheckExileTarget(GameData.PlayerInfo exiled /*, bool DecidedWinner, bool Check = false*/)
     {
-        foreach (var kvp in Target.Where(x => x.Value == exiled.PlayerId))
-        {
-            var lawyer = Utils.GetPlayerById(kvp.Key);
-            if (lawyer == null || lawyer.Data.Disconnected) continue;
-            return true;
-        }
-
-        return false;
+        return Target.Where(x => x.Value == exiled.PlayerId).Select(kvp => Utils.GetPlayerById(kvp.Key)).Any(lawyer => lawyer != null && !lawyer.Data.Disconnected);
     }
 }

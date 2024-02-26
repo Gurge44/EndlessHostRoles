@@ -437,9 +437,6 @@ class CheckMurderPatch
                     }
 
                     return false;
-                case CustomRoles.Innocent:
-                    target.Kill(killer);
-                    return false;
                 case CustomRoles.Pelican:
                     if (Pelican.CanEat(killer, target.PlayerId))
                     {
@@ -2046,12 +2043,6 @@ class FixedUpdatePatch
                     Express.OnFixedUpdate(player);
                     break;
 
-                case CustomRoles.Mario when Main.MarioVentCount[playerId] > Options.MarioVentNumWin.GetInt() && GameStates.IsInTask:
-                    Main.MarioVentCount[playerId] = Options.MarioVentNumWin.GetInt();
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Mario); //马里奥这个多动症赢了
-                    CustomWinnerHolder.WinnerIds.Add(playerId);
-                    break;
-
                 case CustomRoles.Vulture when Vulture.BodyReportCount[playerId] >= Vulture.NumberOfReportsToWin.GetInt() && GameStates.IsInTask:
                     Vulture.BodyReportCount[playerId] = Vulture.NumberOfReportsToWin.GetInt();
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Vulture);
@@ -2652,31 +2643,11 @@ class EnterVentPatch
         Drainer.OnAnyoneEnterVent(pc, __instance);
         Analyzer.OnAnyoneEnterVent(pc);
 
-        if (Witch.IsEnable) Witch.OnEnterVent(pc);
-        if (HexMaster.IsEnable) HexMaster.OnEnterVent(pc);
-
         switch (pc.GetCustomRole())
         {
             case CustomRoles.Mayor when !Options.UsePets.GetBool() && Main.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count2) && count2 < Options.MayorNumOfUseButton.GetInt():
                 pc.MyPhysics?.RpcBootFromVent(__instance.Id);
                 pc.ReportDeadBody(null);
-                break;
-            case CustomRoles.Mario:
-                Main.MarioVentCount.TryAdd(pc.PlayerId, 0);
-                Main.MarioVentCount[pc.PlayerId]++;
-                NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                if (pc.AmOwner)
-                {
-                    //     if (Main.MarioVentCount[pc.PlayerId] % 5 == 0) CustomSoundsManager.Play("MarioCoin");
-                    //     else CustomSoundsManager.Play("MarioJump");
-                }
-
-                if (AmongUsClient.Instance.AmHost && Main.MarioVentCount[pc.PlayerId] >= Options.MarioVentNumWin.GetInt())
-                {
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Mario); //马里奥这个多动症赢了
-                    CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
-                }
-
                 break;
         }
 
@@ -2738,9 +2709,6 @@ class EnterVentPatch
                 break;
             case CustomRoles.Doormaster when !Options.UsePets.GetBool():
                 Doormaster.OnEnterVent(pc);
-                break;
-            case CustomRoles.Mycologist when Mycologist.SpreadAction.GetValue() == 0:
-                Mycologist.SpreadSpores();
                 break;
             case CustomRoles.Hookshot:
                 Hookshot.SwitchActionMode();

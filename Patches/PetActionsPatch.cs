@@ -295,9 +295,6 @@ class ExternalRpcPetPatch
             case CustomRoles.Enderman:
                 Enderman.MarkPosition();
                 break;
-            case CustomRoles.Mycologist when Mycologist.SpreadAction.GetValue() == 2:
-                Mycologist.SpreadSpores();
-                break;
             case CustomRoles.Hookshot:
                 Hookshot.ExecuteAction();
                 break;

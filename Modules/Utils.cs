@@ -819,12 +819,6 @@ public static class Utils
                 case CustomRoles.Sprayer:
                     ProgressText.Append(Sprayer.ProgressText);
                     break;
-                case CustomRoles.Maverick:
-                    int kills = Maverick.NumOfKills;
-                    int min = Maverick.MinKillsToWin.GetInt();
-                    Color color = kills >= min ? Color.green : Color.red;
-                    ProgressText.Append(ColorString(color, $"{kills}/{min}"));
-                    break;
                 case CustomRoles.Alchemist:
                     ProgressText.Append(Alchemist.GetProgressText(playerId));
                     break;
@@ -922,9 +916,6 @@ public static class Utils
                     break;
                 case CustomRoles.TimeThief:
                     ProgressText.Append(TimeThief.GetProgressText(playerId));
-                    break;
-                case CustomRoles.Mario:
-                    ProgressText.Append(ColorString(GetRoleColor(CustomRoles.Mario).ShadeColor(0.25f), $"<color=#777777>-</color> {(Main.MarioVentCount.GetValueOrDefault(playerId, 0))}/{Options.MarioVentNumWin.GetInt()}"));
                     break;
                 case CustomRoles.Vulture:
                     ProgressText.Append(ColorString(GetRoleColor(CustomRoles.Vulture).ShadeColor(0.25f), $"<color=#777777>-</color> {(Vulture.BodyReportCount.GetValueOrDefault(playerId, 0))}/{Vulture.NumberOfReportsToWin.GetInt()}"));
@@ -2057,7 +2048,7 @@ public static class Utils
                             SelfSuffix.Append(BountyHunter.GetTargetArrow(seer));
                             break;
                         case CustomRoles.Hookshot:
-                            SelfSuffix.Append(Hookshot.SuffixText);
+                            SelfSuffix.Append(Hookshot.SuffixText(seer.PlayerId));
                             break;
                         case CustomRoles.Ricochet:
                             SelfSuffix.Append(Ricochet.TargetText(seer.PlayerId));
@@ -2719,9 +2710,6 @@ public static class Utils
                 break;
             case CustomRoles.AntiAdminer:
                 AntiAdminer.Add(id);
-                break;
-            case CustomRoles.Mario:
-                Main.MarioVentCount[id] = 0;
                 break;
             case CustomRoles.TimeManager:
                 TimeManager.Add(id);

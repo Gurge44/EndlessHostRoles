@@ -8,17 +8,18 @@ using static TOHE.Utils;
 
 namespace TOHE.Roles.Neutral
 {
-    internal class Mycologist
+    internal class Mycologist : RoleBase
     {
         private static int Id => 643210;
 
-        private static PlayerControl Mycologist_ => GetPlayerById(MycologistId);
-        private static byte MycologistId = byte.MaxValue;
+        private PlayerControl Mycologist_ => GetPlayerById(MycologistId);
+        private byte MycologistId = byte.MaxValue;
 
-        private static readonly string[] SpreadMode = [
-            "VentButtonText",     // 0
+        private static readonly string[] SpreadMode =
+        [
+            "VentButtonText", // 0
             "SabotageButtonText", // 1
-            "PetButtonText"       // 2
+            "PetButtonText" // 2
         ];
 
         private static OptionItem KillCooldown;
@@ -28,11 +29,11 @@ namespace TOHE.Roles.Neutral
         private static OptionItem InfectRadius;
         private static OptionItem InfectTime;
 
-        public static readonly List<byte> InfectedPlayers = [];
+        public readonly List<byte> InfectedPlayers = [];
 
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Mycologist, 1, zeroOne: false);
+            SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Mycologist);
             KillCooldown = FloatOptionItem.Create(Id + 2, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mycologist])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -50,12 +51,14 @@ namespace TOHE.Roles.Neutral
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mycologist])
                 .SetValueFormat(OptionFormat.Seconds);
         }
-        public static void Init()
+
+        public override void Init()
         {
             MycologistId = byte.MaxValue;
             InfectedPlayers.Clear();
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
             MycologistId = playerId;
 
@@ -63,27 +66,60 @@ namespace TOHE.Roles.Neutral
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
-        public static bool IsEnable => MycologistId != byte.MaxValue;
-        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
-        private static void SendRPC()
+
+        public override bool IsEnable => MycologistId != byte.MaxValue;
+        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+
+        void SendRPC()
         {
             if (!IsEnable || !DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMycologist, SendOption.Reliable);
+            writer.Write(MycologistId);
             writer.Write(InfectedPlayers.Count);
-            if (InfectedPlayers.Count > 0) foreach (var x in InfectedPlayers) writer.Write(x);
+            if (InfectedPlayers.Count > 0)
+                foreach (var x in InfectedPlayers)
+                    writer.Write(x);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
+
         public static void ReceiveRPC(MessageReader reader)
         {
-            InfectedPlayers.Clear();
+            var playerId = reader.ReadByte();
+            if (Main.PlayerStates[playerId].Role is not Mycologist mg) return;
+            mg.InfectedPlayers.Clear();
             var length = reader.ReadInt32();
             for (int i = 0; i < length; i++)
             {
-                InfectedPlayers.Add(reader.ReadByte());
+                mg.InfectedPlayers.Add(reader.ReadByte());
             }
         }
-        public static void SpreadSpores()
+
+        public override void OnPet(PlayerControl pc)
+        {
+            if (SpreadAction.GetValue() == 2)
+            {
+                SpreadSpores();
+            }
+        }
+
+        public override void OnSabotage(PlayerControl pc)
+        {
+            if (SpreadAction.GetValue() == 1)
+            {
+                SpreadSpores();
+            }
+        }
+
+        public override void OnEnterVent(PlayerControl pc, Vent vent)
+        {
+            if (SpreadAction.GetValue() == 0 || (SpreadAction.GetValue() == 2 && !UsePets.GetBool()))
+            {
+                SpreadSpores();
+            }
+        }
+
+        void SpreadSpores()
         {
             if (!IsEnable || Mycologist_.HasAbilityCD()) return;
             Mycologist_.AddAbilityCD(CD.GetInt());
@@ -95,7 +131,8 @@ namespace TOHE.Roles.Neutral
             }, InfectTime.GetFloat(), "Mycologist Infect Time");
             Mycologist_.Notify(GetString("MycologistNotify"));
         }
-        public static bool OnCheckMurder(PlayerControl target) => IsEnable && target != null && InfectedPlayers.Contains(target.PlayerId);
-        public static void AfterMeetingTasks() => Mycologist_.AddAbilityCD(CD.GetInt());
+
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target) => IsEnable && target != null && InfectedPlayers.Contains(target.PlayerId);
+        public override void AfterMeetingTasks() => Mycologist_.AddAbilityCD(CD.GetInt());
     }
 }

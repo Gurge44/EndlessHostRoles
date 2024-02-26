@@ -4,11 +4,11 @@ using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral
 {
-    public static class FFF
+    public class FFF : RoleBase
     {
-        private static readonly int Id = 11300;
+        private const int Id = 11300;
         public static List<byte> playerIdList = [];
-        public static bool IsEnable;
+        public static bool On;
 
         public static OptionItem CanVent;
         public static OptionItem ChooseConverted;
@@ -41,24 +41,26 @@ namespace TOHE.Roles.Neutral
             CanKillUndead = BooleanOptionItem.Create(Id + 21, "FFFCanKillUndead", true, TabGroup.NeutralRoles, false).SetParent(ChooseConverted);
         }
 
-        public static void Init()
+        public override void Init()
         {
             playerIdList = [];
-            IsEnable = false;
+            On = false;
             isWon = false;
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            IsEnable = true;
+            On = true;
 
             if (!AmongUsClient.Instance.AmHost) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        public override bool IsEnable => On;
+
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer == null || target == null) return false;
             if (killer.PlayerId == target.PlayerId) return true;

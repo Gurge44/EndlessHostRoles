@@ -6,14 +6,13 @@ namespace TOHE.Roles.Neutral;
 
 public static class Jinx
 {
-    private static readonly int Id = 12200;
-    public static List<byte> playerIdList = [];
+    private const int Id = 12200;
 
-    private static OptionItem KillCooldown;
+    public static OptionItem KillCooldown;
     public static OptionItem CanVent;
-    private static OptionItem HasImpostorVision;
+    public static OptionItem HasImpostorVision;
     public static OptionItem JinxSpellTimes;
-    public static OptionItem killAttacker;
+    public static OptionItem KillAttacker;
 
     public static void SetupCustomOption()
     {
@@ -25,21 +24,6 @@ public static class Jinx
         JinxSpellTimes = IntegerOptionItem.Create(Id + 14, "JinxSpellTimes", new(0, 15, 1), 1, TabGroup.NeutralRoles, false)
         .SetParent(CustomRoleSpawnChances[CustomRoles.Jinx])
         .SetValueFormat(OptionFormat.Times);
-        killAttacker = BooleanOptionItem.Create(Id + 12, "killAttacker", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jinx]);
+        KillAttacker = BooleanOptionItem.Create(Id + 12, "killAttacker", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jinx]);
     }
-    public static void Init()
-    {
-        playerIdList = [];
-    }
-    public static void Add(byte playerId)
-    {
-        playerIdList.Add(playerId);
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
-    }
-    public static bool IsEnable => playerIdList.Count > 0;
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-    public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
 }

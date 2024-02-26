@@ -11,9 +11,9 @@ using static TOHE.Utils;
 
 namespace TOHE.Roles.Neutral;
 
-public static class Magician
+public class Magician : RoleBase
 {
-    private static readonly int Id = 641300;
+    private const int Id = 641300;
     public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
@@ -75,7 +75,8 @@ public static class Magician
         CanVent = BooleanOptionItem.Create(Id + 22, "CanVent", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Magician]);
         HasImpostorVision = BooleanOptionItem.Create(Id + 23, "ImpostorVision", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Magician]);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
         CardId = byte.MaxValue;
@@ -87,7 +88,8 @@ public static class Magician
         isSpeedup = false;
         lastTP = TimeStamp;
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         originalSpeed = Main.AllPlayerSpeed[playerId];
@@ -96,10 +98,12 @@ public static class Magician
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-    public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
-    public static void OnCheckMurder(PlayerControl killer)
+
+    public override bool IsEnable => playerIdList.Count > 0;
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+    public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+
+    public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer == null) return;
 
@@ -114,6 +118,17 @@ public static class Magician
 
         killer.Notify(sb.ToString(), 15f);
     }
+
+    public override void OnPet(PlayerControl pc)
+    {
+        UseCard(pc);
+    }
+
+    public override void OnSabotage(PlayerControl pc)
+    {
+        UseCard(pc);
+    }
+
     public static void UseCard(PlayerControl pc)
     {
         if (pc == null) return;
@@ -128,13 +143,14 @@ public static class Magician
                 var list = GetPlayersInRadius(SlownessRadius.GetFloat(), pc.Pos());
                 foreach (var x in list)
                 {
-                    if (x.PlayerId == pc.PlayerId || x == null) continue;
+                    if (x.PlayerId == pc.PlayerId) continue;
 
                     TempSpeeds.TryAdd(x.PlayerId, Main.AllPlayerSpeed[x.PlayerId]);
                     SlowPPL.TryAdd(x.PlayerId, TimeStamp);
                     Main.AllPlayerSpeed[x.PlayerId] = SlownessValue.GetFloat();
                     x.MarkDirtySettings();
                 }
+
                 CardId = byte.MaxValue;
                 pc.Notify(GetString("MagicianCardUsed"));
                 break;
@@ -152,10 +168,9 @@ public static class Magician
                 if (PortalMarks.Count == 2) CardId = byte.MaxValue;
                 break;
             case 5: // Snipe
-                var sniper = pc;
                 if (!isSniping)
                 {
-                    snipeBasePosition = sniper.transform.position;
+                    snipeBasePosition = pc.transform.position;
                     isSniping = true;
                     pc.Notify(GetString("MarkDone"));
                     return;
@@ -166,16 +181,16 @@ public static class Magician
                 pc.Notify(GetString("MagicianCardUsed"));
 
                 if (!AmongUsClient.Instance.AmHost || Pelican.IsEaten(pc.PlayerId) || Medic.ProtectList.Contains(pc.PlayerId)) return;
-                sniper.RPCPlayCustomSound("AWP");
+                pc.RPCPlayCustomSound("AWP");
 
-                var targets = GetSnipeTargets(sniper);
+                var targets = GetSnipeTargets(pc);
 
                 if (targets.Count > 0)
                 {
-                    var snipedTarget = targets.OrderBy(c => c.Value).First().Key;
+                    var snipedTarget = targets.MinBy(c => c.Value).Key;
                     snipedTarget.CheckMurder(snipedTarget);
-                    var temp = Main.KillTimers[sniper.PlayerId];
-                    sniper.SetKillCooldown(time: Main.AllPlayerKillCooldown[sniper.PlayerId] + temp);
+                    var temp = Main.KillTimers[pc.PlayerId];
+                    pc.SetKillCooldown(time: Main.AllPlayerKillCooldown[pc.PlayerId] + temp);
 
                     targets.Remove(snipedTarget);
                     PlayerControl[] list1 = [.. targets.Keys];
@@ -183,27 +198,27 @@ public static class Magician
                     {
                         NotifyRoles(SpecifySeer: x);
                     }
-                    _ = new LateTask(
-                        () =>
+
+                    _ = new LateTask(() =>
+                    {
+                        foreach (PlayerControl x in list1)
                         {
-                            foreach (PlayerControl x in list1)
-                            {
-                                NotifyRoles(SpecifySeer: x);
-                            }
-                        },
-                        0.5f, "Sniper shot Notify"
-                        );
+                            NotifyRoles(SpecifySeer: x);
+                        }
+                    }, 0.5f, "Sniper shot Notify");
                 }
+
                 break;
             case 6: // Blind everyone nearby
                 var players = GetPlayersInRadius(BlindRadius.GetFloat(), pc.Pos());
                 foreach (PlayerControl x in players)
                 {
-                    if (x.PlayerId == pc.PlayerId || x == null) continue;
+                    if (x.PlayerId == pc.PlayerId) continue;
 
                     BlindPPL.TryAdd(x.PlayerId, TimeStamp);
                     x.MarkDirtySettings();
                 }
+
                 CardId = byte.MaxValue;
                 pc.Notify(GetString("MagicianCardUsed"));
                 break;
@@ -216,7 +231,12 @@ public static class Magician
                 Main.AllPlayerSpeed[pc.PlayerId] = Speed.GetFloat();
                 isSpeedup = true;
                 sync = true;
-                _ = new LateTask(() => { Main.AllPlayerSpeed[pc.PlayerId] = originalSpeed; pc.MarkDirtySettings(); isSpeedup = false; }, SpeedDur.GetInt(), "Revert Magician Speed");
+                _ = new LateTask(() =>
+                {
+                    Main.AllPlayerSpeed[pc.PlayerId] = originalSpeed;
+                    pc.MarkDirtySettings();
+                    isSpeedup = false;
+                }, SpeedDur.GetInt(), "Revert Magician Speed");
                 CardId = byte.MaxValue;
                 break;
             case 9: // Call meeting
@@ -231,6 +251,7 @@ public static class Magician
                 {
                     sb.Append($"\n<color=#00ffa5>{location.Key}:</color> {location.Value}");
                 }
+
                 pc.Notify(sb.ToString(), 10f);
                 break;
             default:
@@ -240,10 +261,10 @@ public static class Magician
 
         if (sync) pc.MarkDirtySettings();
     }
-    public static void OnFixedUpdate(PlayerControl pc)
+
+    public override void OnFixedUpdate(PlayerControl pc)
     {
         if (pc == null) return;
-        if (pc.GetCustomRole() != CustomRoles.Magician) return;
         if (!GameStates.IsInTask) return;
         if (Pelican.IsEaten(pc.PlayerId) || pc.Data.IsDead) return;
 
@@ -335,7 +356,8 @@ public static class Magician
             pc.Notify(sb.ToString());
         }
     }
-    public static void OnReportDeadBody()
+
+    public override void OnReportDeadBody()
     {
         SlowPPL.Clear();
         BlindPPL.Clear();

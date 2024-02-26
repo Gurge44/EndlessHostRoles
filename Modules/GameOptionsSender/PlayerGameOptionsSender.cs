@@ -227,7 +227,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 case CustomRoles.Sheriff:
                 case CustomRoles.SwordsMan:
                 //     case CustomRoles.Minimalism:
-                case CustomRoles.Innocent:
                 case CustomRoles.Pelican:
                 case CustomRoles.Revolutionist:
                 case CustomRoles.Medic:
@@ -452,11 +451,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 case CustomRoles.Capitalism:
                     AURoleOptions.KillCooldown = Options.CapitalismKillCooldown.GetFloat();
                     break;
-                case CustomRoles.Jester:
-                    AURoleOptions.EngineerCooldown = 0f;
-                    AURoleOptions.EngineerInVentMaxTime = 0f;
-                    opt.SetVision(Options.JesterHasImpostorVision.GetBool());
-                    break;
                 case CustomRoles.Lawyer:
                     //Main.NormalOptions.CrewLightMod = Lawyer.LawyerVision.GetFloat();
                     break;
@@ -529,10 +523,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 case CustomRoles.Alchemist:
                     if (Options.UsePets.GetBool()) break;
                     AURoleOptions.EngineerCooldown = Alchemist.VentCooldown.GetFloat();
-                    AURoleOptions.EngineerInVentMaxTime = 1f;
-                    break;
-                case CustomRoles.Mario:
-                    AURoleOptions.EngineerCooldown = Options.MarioVentCD.GetFloat();
                     AURoleOptions.EngineerInVentMaxTime = 1f;
                     break;
                 case CustomRoles.Deathpact:

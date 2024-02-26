@@ -678,7 +678,6 @@ static class ExtendedPlayerControl
             CustomRoles.Minimalism or
                 CustomRoles.Sheriff or
                 CustomRoles.Deputy or
-                CustomRoles.Innocent or
                 //    CustomRoles.SwordsMan or
                 CustomRoles.FFF or
                 CustomRoles.Medic or

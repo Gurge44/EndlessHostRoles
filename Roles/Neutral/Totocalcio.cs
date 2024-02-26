@@ -131,16 +131,19 @@ public class Totocalcio : RoleBase
         if (!seer.Is(CustomRoles.Totocalcio))
         {
             if (!BetTargetKnowTotocalcio.GetBool()) return string.Empty;
-            return (BetPlayer.TryGetValue(target.PlayerId, out var x) && seer.PlayerId == x) ?
-                Utils.ColorString(Utils.GetRoleColor(CustomRoles.Totocalcio), "♦") : string.Empty;
+            if (Main.PlayerStates[target.PlayerId].Role is not Totocalcio tc) return string.Empty;
+            return seer.PlayerId == tc.BetPlayer ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Totocalcio), "♦") : string.Empty;
         }
-        var GetValue = BetPlayer.TryGetValue(seer.PlayerId, out var targetId);
-        return GetValue && targetId == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Totocalcio), "♦") : string.Empty;
+        else
+        {
+            if (Main.PlayerStates[seer.PlayerId].Role is not Totocalcio tc) return string.Empty;
+            return tc.BetPlayer == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Totocalcio), "♦") : string.Empty;
+        }
     }
     public static string GetProgressText(byte playerId)
     {
         var player = Utils.GetPlayerById(playerId);
-        if (player == null) return null;
-        return Utils.ColorString(CanUseKillButton(player) ? Utils.GetRoleColor(CustomRoles.Totocalcio) : Color.gray, $"({(BetTimes.TryGetValue(playerId, out var times) ? times : "0")})");
+        if (Main.PlayerStates[playerId].Role is not Totocalcio tc) return string.Empty;
+        return player == null ? string.Empty : Utils.ColorString(tc.CanUseKillButton(player) ? Utils.GetRoleColor(CustomRoles.Totocalcio) : Color.gray, $"({tc.BetTimes})");
     }
 }

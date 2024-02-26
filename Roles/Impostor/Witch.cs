@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
+using TOHE.Roles.Neutral;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -32,6 +33,9 @@ public class Witch : RoleBase
 
     public static OptionItem ModeSwitchAction;
     public static SwitchTrigger NowSwitchTrigger;
+
+    private bool IsHM;
+
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Witch);
@@ -43,6 +47,7 @@ public class Witch : RoleBase
         playerIdList = [];
         SpellMode = false;
         SpelledPlayer = [];
+        IsHM = false;
     }
 
     public override void Add(byte playerId)
@@ -50,7 +55,13 @@ public class Witch : RoleBase
         playerIdList.Add(playerId);
         SpellMode = false;
         SpelledPlayer = [];
-        NowSwitchTrigger = (SwitchTrigger)ModeSwitchAction.GetValue();
+
+        IsHM = Main.PlayerStates[playerId].MainRole == CustomRoles.HexMaster;
+        NowSwitchTrigger = IsHM ? (SwitchTrigger)HexMaster.ModeSwitchAction.GetValue() : (SwitchTrigger)ModeSwitchAction.GetValue();
+
+        if (!AmongUsClient.Instance.AmHost || !IsHM) return;
+        if (!Main.ResetCamPlayerList.Contains(playerId))
+            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override bool IsEnable => playerIdList.Count > 0;
@@ -130,7 +141,7 @@ public class Witch : RoleBase
     }
     public static void RemoveSpelledPlayer()
     {
-        foreach (byte witch in playerIdList.ToArray())
+        foreach (byte witch in playerIdList)
         {
             if (Main.PlayerStates[witch].Role is not Witch wc) continue;
             wc.SpelledPlayer.Clear();
