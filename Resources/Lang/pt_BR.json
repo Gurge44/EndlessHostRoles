@@ -2678,7 +2678,7 @@
   "PlagueDoctorInfectWhenKilled": "Infectar assassino ao morrer",
   "PlagueDoctorInfectTime": "Tempo de infecção",
   "PlagueDoctorInfectDistance": "Distancia de Infecção",
-  "PlagueDoctorInfectInactiveTime": "Tempo invalido de Infecção",
+  "PlagueDoctorInfectInactiveTime": "Meeting Infection Onset Delay",
   "PlagueDoctorCanInfectSelf": "Pode se infectar",
   "PlagueDoctorCanInfectVent": "Pode Infectar nos Dutos",
   "Enderman": "Enderman",
