@@ -746,7 +746,10 @@ internal class RPCHandlerPatch
                 Jailor.ReceiveRPC(reader, setTarget: true);
                 break;
             case CustomRPC.SetWWTimer:
-                Werewolf.ReceiveRPC(reader);
+            {
+                byte id = reader.ReadByte();
+                (Main.PlayerStates[id].Role as Werewolf)?.ReceiveRPC(reader);
+            }
                 break;
             case CustomRPC.SetNiceSwapperVotes:
                 NiceSwapper.ReceiveRPC(reader, __instance);

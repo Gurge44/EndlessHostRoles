@@ -1,4 +1,6 @@
 ﻿using AmongUs.GameOptions;
+using System.Linq;
+using TOHE.Modules;
 
 namespace TOHE.Roles.Neutral
 {
@@ -45,6 +47,71 @@ namespace TOHE.Roles.Neutral
         {
             var doused = Utils.GetDousedPlayerCount(playerId);
             return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Arsonist).ShadeColor(0.25f), !Options.ArsonistCanIgniteAnytime.GetBool() ? $"<color=#777777>-</color> {doused.Item1}/{doused.Item2}" : $"<color=#777777>-</color> {doused.Item1}/{Options.ArsonistMaxPlayersToIgnite.GetInt()}");
+        }
+
+        public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+        {
+            if (AmongUsClient.Instance.IsGameStarted)
+            {
+                if (physics.myPlayer.IsDouseDone())
+                {
+                    CustomSoundsManager.RPCPlayCustomSoundAll("Boom");
+                    foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                    {
+                        if (pc != physics.myPlayer)
+                        {
+                            pc.Suicide(PlayerState.DeathReason.Torched, physics.myPlayer);
+                        }
+                    }
+
+                    foreach (PlayerControl pc in Main.AllPlayerControls)
+                    {
+                        pc.KillFlash();
+                    }
+
+                    CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist); //焼殺で勝利した人も勝利させる
+                    CustomWinnerHolder.WinnerIds.Add(physics.myPlayer.PlayerId);
+                    return;
+                }
+
+                if (Options.ArsonistCanIgniteAnytime.GetBool())
+                {
+                    var douseCount = Utils.GetDousedPlayerCount(physics.myPlayer.PlayerId).Item1;
+                    if (douseCount >= Options.ArsonistMinPlayersToIgnite.GetInt()) // Don't check for max, since the player would not be able to ignite at all if they somehow get more players doused than the max
+                    {
+                        if (douseCount > Options.ArsonistMaxPlayersToIgnite.GetInt()) Logger.Warn("Arsonist Ignited with more players doused than the maximum amount in the settings", "Arsonist Ignite");
+                        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                        {
+                            if (!physics.myPlayer.IsDousedPlayer(pc))
+                                continue;
+                            pc.KillFlash();
+                            pc.Suicide(PlayerState.DeathReason.Torched, physics.myPlayer);
+                        }
+
+                        var apc = Main.AllAlivePlayerControls.Length;
+                        switch (apc)
+                        {
+                            case 1:
+                                CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist);
+                                CustomWinnerHolder.WinnerIds.Add(physics.myPlayer.PlayerId);
+                                break;
+                            case 2:
+                            {
+                                foreach (var x in Main.AllAlivePlayerControls.Where(p => p.PlayerId != physics.myPlayer.PlayerId).ToArray())
+                                {
+                                    if (!x.GetCustomRole().IsImpostor() && !x.GetCustomRole().IsNeutralKilling())
+                                    {
+                                        CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist);
+                                        CustomWinnerHolder.WinnerIds.Add(physics.myPlayer.PlayerId);
+                                    }
+                                }
+
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

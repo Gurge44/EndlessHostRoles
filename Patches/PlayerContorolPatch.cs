@@ -360,7 +360,7 @@ class CheckMurderPatch
                     if (!HexMaster.OnCheckMurder(killer, target)) return false;
                     break;
                 case CustomRoles.PlagueDoctor:
-                    if (!PlagueDoctor.OnPDinfect(killer, target)) return false;
+                    if (!PlagueDoctor.OnCheckMurder(killer, target)) return false;
                     break;
                 case CustomRoles.Gangster:
                     if (Gangster.OnCheckMurder(killer, target))
@@ -427,16 +427,6 @@ class CheckMurderPatch
                     }
 
                     return false;
-                case CustomRoles.Revolutionist:
-                    killer.SetKillCooldown(Options.RevolutionistDrawTime.GetFloat());
-                    if (!Main.isDraw[(killer.PlayerId, target.PlayerId)] && !Main.RevolutionistTimer.ContainsKey(killer.PlayerId))
-                    {
-                        Main.RevolutionistTimer.TryAdd(killer.PlayerId, (target, 0f));
-                        NotifyRoles(SpecifySeer: __instance, SpecifyTarget: target, ForceLoop: true);
-                        RPC.SetCurrentDrawTarget(killer.PlayerId, target.PlayerId);
-                    }
-
-                    return false;
                 case CustomRoles.Pelican:
                     if (Pelican.CanEat(killer, target.PlayerId))
                     {
@@ -457,13 +447,6 @@ class CheckMurderPatch
                 case CustomRoles.DarkHide:
                     DarkHide.OnCheckMurder(killer, target);
                     break;
-                case CustomRoles.Provocateur:
-                    Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.PissedOff;
-                    killer.Kill(target);
-                    //killer.Kill(killer);
-                    //killer.SetRealKiller(target);
-                    Main.Provoked.TryAdd(killer.PlayerId, target.PlayerId);
-                    return false;
                 case CustomRoles.Totocalcio:
                     Totocalcio.OnCheckMurder(killer, target);
                     return false;
@@ -520,10 +503,6 @@ class CheckMurderPatch
                 //    if (Counterfeiter.CanBeClient(target) && Counterfeiter.CanSeel(killer.PlayerId))
                 //        Counterfeiter.SeelToClient(killer, target);
                 //    return false;
-                case CustomRoles.Pursuer:
-                    if (Pursuer.CanBeClient(target) && Pursuer.CanSeel(killer.PlayerId))
-                        Pursuer.SeelToClient(killer, target);
-                    return false;
                 case CustomRoles.EvilDiviner:
                     if (!EvilDiviner.OnCheckMurder(killer, target)) return false;
                     break;
@@ -606,11 +585,6 @@ class CheckMurderPatch
         // Romantic partner is protected
         if (Romantic.PartnerId == target.PlayerId && Romantic.IsPartnerProtected) return false;
 
-        if (Options.OppoImmuneToAttacksWhenTasksDone.GetBool())
-        {
-            if (target.Is(CustomRoles.Opportunist) && target.AllTasksCompleted())
-                return false;
-        }
 
         if (Merchant.OnClientMurder(killer, target)) return false;
 
@@ -655,7 +629,7 @@ class CheckMurderPatch
         if (killer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Recruit) && !Options.SidekickCanKillSidekick.GetBool())
             return false;
 
-        if (PlagueBearer.OnCheckMurderPestilence(killer, target))
+        if (Pestilence.OnCheckMurderPestilence(killer, target))
             return false;
 
         if (Jackal.ResetKillCooldownWhenSbGetKilled.GetBool() && !killer.Is(CustomRoles.Sidekick) && !target.Is(CustomRoles.Sidekick) && !killer.Is(CustomRoles.Jackal) && !target.Is(CustomRoles.Jackal) && !GameStates.IsMeeting)
@@ -858,10 +832,7 @@ class MurderPlayerPatch
         if (Main.FirstDied == byte.MaxValue)
             Main.FirstDied = target.PlayerId;
 
-        if (Postman.Target == target.PlayerId)
-        {
-            Postman.OnTargetDeath();
-        }
+        Postman.CheckAndResetTargets(target, isDeath: true);
 
         if (target.Is(CustomRoles.Trapper) && killer != target)
             killer.TrapperKilled(target);
@@ -1179,6 +1150,8 @@ class ShapeshiftPatch
             }
         }
 
+        if (shapeshifter.Is(CustomRoles.Camouflager) && !shapeshifting) Camouflager.Reset();
+
         // Forced rewriting in case the name cannot be corrected due to the timing of canceling the transformation being off.
         if (!shapeshifting && !shapeshifter.Is(CustomRoles.Glitch))
         {
@@ -1484,21 +1457,6 @@ class ReportDeadBodyPatch
             }
         }
 
-        foreach (var x in Main.RevolutionistStart)
-        {
-            var tar = GetPlayerById(x.Key);
-            if (tar == null) continue;
-            tar.Data.IsDead = true;
-            Main.PlayerStates[tar.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
-            tar.RpcExileV2();
-            Main.PlayerStates[tar.PlayerId].SetDead();
-            Logger.Info($"{tar.GetRealName()} 因会议革命失败", "Revolutionist");
-        }
-
-        Main.RevolutionistTimer.Clear();
-        Main.RevolutionistStart.Clear();
-        Main.RevolutionistLastTime.Clear();
-
         foreach (var pc in Main.AllPlayerControls)
         {
             if (Main.CheckShapeshift.ContainsKey(pc.PlayerId) && !Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId))
@@ -1741,8 +1699,9 @@ class FixedUpdatePatch
                 player.RpcGuardAndKill(player);
                 if (!PlagueBearer.PestilenceList.Contains(playerId))
                     PlagueBearer.PestilenceList.Add(playerId);
-                PlagueBearer.SetKillCooldownPestilence(playerId);
+                player.ResetKillCooldown();
                 PlagueBearer.playerIdList.Remove(playerId);
+                player.SyncSettings();
             }
 
             if (GameStates.IsInTask && player != null && player.IsAlive())
@@ -1886,102 +1845,6 @@ class FixedUpdatePatch
                         Logger.Info($"Canceled: {player.GetNameWithRole().RemoveHtmlTags()}", "Arsonist");
                     }
                 }
-            }
-        }
-
-        #endregion
-
-        #region 革命家拉人处理
-
-        if (GameStates.IsInTask && Main.RevolutionistTimer.ContainsKey(playerId)) //当革命家拉拢一个玩家时
-        {
-            var rvTarget = Main.RevolutionistTimer[playerId].PLAYER;
-            if (!player.IsAlive() || Pelican.IsEaten(playerId))
-            {
-                Main.RevolutionistTimer.Remove(playerId);
-                NotifyRoles(SpecifySeer: player, SpecifyTarget: rvTarget, ForceLoop: true);
-                RPC.ResetCurrentDrawTarget(playerId);
-            }
-            else
-            {
-                var rv_target = Main.RevolutionistTimer[playerId].PLAYER; //拉拢的人
-                var rv_time = Main.RevolutionistTimer[playerId].TIMER; //拉拢时间
-                if (!rv_target.IsAlive())
-                {
-                    Main.RevolutionistTimer.Remove(playerId);
-                }
-                else if (rv_time >= Options.RevolutionistDrawTime.GetFloat()) //在一起时间超过多久
-                {
-                    player.SetKillCooldown();
-                    Main.RevolutionistTimer.Remove(playerId); //拉拢完成从字典中删除
-                    Main.isDraw[(playerId, rv_target.PlayerId)] = true; //完成拉拢
-                    player.RpcSetDrawPlayer(rv_target, true);
-                    NotifyRoles(SpecifySeer: player, SpecifyTarget: rv_target, ForceLoop: true);
-                    RPC.ResetCurrentDrawTarget(playerId);
-                    if (IRandom.Instance.Next(1, 100) <= Options.RevolutionistKillProbability.GetInt())
-                    {
-                        rv_target.SetRealKiller(player);
-                        Main.PlayerStates[rv_target.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
-                        player.Kill(rv_target);
-                        Main.PlayerStates[rv_target.PlayerId].SetDead();
-                        Logger.Info($"Revolutionist: {player.GetNameWithRole().RemoveHtmlTags()} killed {rv_target.GetNameWithRole().RemoveHtmlTags()}", "Revolutionist");
-                    }
-                }
-                else
-                {
-                    float range = NormalGameOptionsV07.KillDistances[Mathf.Clamp(player.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f;
-                    float dis = Vector2.Distance(player.transform.position, rv_target.transform.position); //超出距离
-                    if (dis <= range) //在一定距离内则计算时间
-                    {
-                        Main.RevolutionistTimer[playerId] = (rv_target, rv_time + Time.fixedDeltaTime);
-                    }
-                    else //否则删除
-                    {
-                        Main.RevolutionistTimer.Remove(playerId);
-                        NotifyRoles(SpecifySeer: __instance, SpecifyTarget: rv_target);
-                        RPC.ResetCurrentDrawTarget(playerId);
-
-                        Logger.Info($"Canceled: {__instance.GetNameWithRole().RemoveHtmlTags()}", "Revolutionist");
-                    }
-                }
-            }
-        }
-
-        if (GameStates.IsInTask && player.IsDrawDone() && player.IsAlive())
-        {
-            if (Main.RevolutionistStart.ContainsKey(playerId)) //如果存在字典
-            {
-                if (Main.RevolutionistLastTime.ContainsKey(playerId))
-                {
-                    long nowtime = TimeStamp;
-                    if (Main.RevolutionistLastTime[playerId] != nowtime) Main.RevolutionistLastTime[playerId] = nowtime;
-                    int time = (int)(Main.RevolutionistLastTime[playerId] - Main.RevolutionistStart[playerId]);
-                    int countdown = Options.RevolutionistVentCountDown.GetInt() - time;
-                    Main.RevolutionistCountdown.Clear();
-                    if (countdown <= 0) //倒计时结束
-                    {
-                        GetDrawPlayerCount(playerId, out var y);
-                        foreach (var pc in y.Where(x => x != null && x.IsAlive()))
-                        {
-                            pc.Suicide(PlayerState.DeathReason.Sacrifice);
-                            NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                        }
-
-                        player.Suicide(PlayerState.DeathReason.Sacrifice);
-                    }
-                    else
-                    {
-                        Main.RevolutionistCountdown.Add(playerId, countdown);
-                    }
-                }
-                else
-                {
-                    Main.RevolutionistLastTime.TryAdd(playerId, Main.RevolutionistStart[playerId]);
-                }
-            }
-            else //如果不存在字典
-            {
-                Main.RevolutionistStart.TryAdd(playerId, TimeStamp);
             }
         }
 
@@ -2825,7 +2688,7 @@ class CoEnterVentPatch
             return true;
         }
 
-        if (SoulHunter.IsTargetBlocked && SoulHunter.CurrentTarget.ID == __instance.myPlayer.PlayerId)
+        if (SoulHunter.IsSoulHunterTarget(__instance.myPlayer.PlayerId))
         {
             _ = new LateTask(() =>
             {
@@ -2833,7 +2696,7 @@ class CoEnterVentPatch
                 __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id);
                 _ = new LateTask(() =>
                 {
-                    if (SoulHunter.CurrentTarget.ID == __instance.myPlayer.PlayerId) __instance.myPlayer.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter.SoulHunter_.GetRealName()), 300f);
+                    if (SoulHunter.IsSoulHunterTarget(__instance.myPlayer.PlayerId)) __instance.myPlayer.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter.GetSoulHunter(__instance.myPlayer.PlayerId).SoulHunter_.GetRealName()), 300f);
                 }, 4f, log: false);
             }, 0.5f);
             return true;
@@ -2859,83 +2722,6 @@ class CoEnterVentPatch
 
                 return true;
             }
-        }
-
-        if (AmongUsClient.Instance.IsGameStarted)
-        {
-            if (__instance.myPlayer.IsDouseDone())
-            {
-                CustomSoundsManager.RPCPlayCustomSoundAll("Boom");
-                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                {
-                    if (pc != __instance.myPlayer)
-                    {
-                        pc.Suicide(PlayerState.DeathReason.Torched, __instance.myPlayer);
-                    }
-                }
-
-                foreach (PlayerControl pc in Main.AllPlayerControls)
-                {
-                    pc.KillFlash();
-                }
-
-                CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist); //焼殺で勝利した人も勝利させる
-                CustomWinnerHolder.WinnerIds.Add(__instance.myPlayer.PlayerId);
-                return true;
-            }
-
-            if (Options.ArsonistCanIgniteAnytime.GetBool())
-            {
-                var douseCount = GetDousedPlayerCount(__instance.myPlayer.PlayerId).Item1;
-                if (douseCount >= Options.ArsonistMinPlayersToIgnite.GetInt()) // Don't check for max, since the player would not be able to ignite at all if they somehow get more players doused than the max
-                {
-                    if (douseCount > Options.ArsonistMaxPlayersToIgnite.GetInt()) Logger.Warn("Arsonist Ignited with more players doused than the maximum amount in the settings", "Arsonist Ignite");
-                    foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                    {
-                        if (!__instance.myPlayer.IsDousedPlayer(pc))
-                            continue;
-                        pc.KillFlash();
-                        pc.Suicide(PlayerState.DeathReason.Torched, __instance.myPlayer);
-                    }
-
-                    var apc = Main.AllAlivePlayerControls.Length;
-                    switch (apc)
-                    {
-                        case 1:
-                            CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist);
-                            CustomWinnerHolder.WinnerIds.Add(__instance.myPlayer.PlayerId);
-                            break;
-                        case 2:
-                        {
-                            foreach (var x in Main.AllAlivePlayerControls.Where(p => p.PlayerId != __instance.myPlayer.PlayerId).ToArray())
-                            {
-                                if (!x.GetCustomRole().IsImpostor() && !x.GetCustomRole().IsNeutralKilling())
-                                {
-                                    CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist);
-                                    CustomWinnerHolder.WinnerIds.Add(__instance.myPlayer.PlayerId);
-                                }
-                            }
-
-                            break;
-                        }
-                    }
-
-                    return true;
-                }
-            }
-        }
-
-        if (AmongUsClient.Instance.IsGameStarted && __instance.myPlayer.IsDrawDone()) //完成拉拢任务的玩家跳管后
-        {
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Revolutionist); //革命者胜利
-            GetDrawPlayerCount(__instance.myPlayer.PlayerId, out var x);
-            CustomWinnerHolder.WinnerIds.Add(__instance.myPlayer.PlayerId);
-            foreach (PlayerControl apc in x.ToArray())
-            {
-                CustomWinnerHolder.WinnerIds.Add(apc.PlayerId);
-            }
-
-            return true;
         }
 
         if (__instance.myPlayer.GetCustomRole().GetDYRole() == RoleTypes.Impostor && !Main.PlayerStates[__instance.myPlayer.PlayerId].Role.CanUseImpostorVentButton(__instance.myPlayer))

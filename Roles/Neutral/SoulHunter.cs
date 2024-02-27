@@ -1,4 +1,6 @@
-﻿using AmongUs.GameOptions;
+﻿using System;
+using System.Linq;
+using AmongUs.GameOptions;
 using Hazel;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -6,11 +8,9 @@ using static TOHE.Utils;
 
 namespace TOHE.Roles.Neutral
 {
-    internal class SoulHunter
+    internal class SoulHunter : RoleBase
     {
         private static int Id => 643400;
-        private static byte SoulHunterId;
-        public static PlayerControl SoulHunter_;
 
         public static OptionItem CanVent;
         private static OptionItem HasImpostorVision;
@@ -19,14 +19,16 @@ namespace TOHE.Roles.Neutral
         private static OptionItem TimeToKillTarget;
         private static OptionItem GetSoulForSuicide;
 
-        public static int Souls;
-        public static (byte ID, long START_TIMESTAMP, bool FROZEN) CurrentTarget;
-        private static long LastUpdate;
-        private static float NormalSpeed;
+        private byte SoulHunterId;
+        public PlayerControl SoulHunter_;
+        public int Souls;
+        public (byte ID, long START_TIMESTAMP, bool FROZEN) CurrentTarget;
+        private long LastUpdate;
+        private float NormalSpeed;
 
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.SoulHunter, 1, zeroOne: false);
+            SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.SoulHunter);
             CanVent = BooleanOptionItem.Create(Id + 3, "CanVent", true, TabGroup.NeutralRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.SoulHunter]);
             HasImpostorVision = BooleanOptionItem.Create(Id + 4, "ImpostorVision", true, TabGroup.NeutralRoles, false)
@@ -42,7 +44,8 @@ namespace TOHE.Roles.Neutral
             GetSoulForSuicide = BooleanOptionItem.Create(Id + 8, "SoulHunterGetSoulForSuicide", true, TabGroup.NeutralRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.SoulHunter]);
         }
-        public static void Init()
+
+        public override void Init()
         {
             SoulHunterId = byte.MaxValue;
             SoulHunter_ = null;
@@ -51,7 +54,8 @@ namespace TOHE.Roles.Neutral
             LastUpdate = 0;
             NormalSpeed = Main.NormalOptions.PlayerSpeedMod;
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
             SoulHunterId = playerId;
             _ = new LateTask(() => { SoulHunter_ = GetPlayerById(playerId); }, 3f, log: false);
@@ -64,12 +68,17 @@ namespace TOHE.Roles.Neutral
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
-        public static bool IsEnable => SoulHunterId != byte.MaxValue;
-        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = WaitingTimeAfterMeeting.GetFloat() + 1.5f;
-        public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
-        public static void SendRPC()
+
+        public override bool IsEnable => SoulHunterId != byte.MaxValue;
+        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = WaitingTimeAfterMeeting.GetFloat() + 1.5f;
+        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+        public static bool IsSoulHunterTarget(byte id) => Main.PlayerStates.Any(x => x.Value.Role is SoulHunter { IsEnable: true } sh && sh.IsTargetBlocked && sh.CurrentTarget.ID == id);
+        public static SoulHunter GetSoulHunter(byte targetId) => Main.PlayerStates.FirstOrDefault(x => x.Value.Role is SoulHunter { IsEnable: true } sh && sh.IsTargetBlocked && sh.CurrentTarget.ID == targetId).Value.Role as SoulHunter;
+
+        void SendRPC()
         {
             var writer = CreateCustomRoleRPC(CustomRPC.SyncSoulHunter);
+            writer.Write(SoulHunterId);
             writer.Write(Souls);
             writer.Write(CurrentTarget.ID);
             writer.Write(CurrentTarget.START_TIMESTAMP.ToString());
@@ -78,12 +87,15 @@ namespace TOHE.Roles.Neutral
         }
         public static void ReceiveRPC(MessageReader reader)
         {
-            Souls = reader.ReadInt32();
-            CurrentTarget.ID = reader.ReadByte();
-            CurrentTarget.START_TIMESTAMP = long.Parse(reader.ReadString());
-            CurrentTarget.FROZEN = reader.ReadBoolean();
+            byte id = reader.ReadByte();
+            if (Main.PlayerStates[id].Role is not SoulHunter sh) return;
+            sh.Souls = reader.ReadInt32();
+            sh.CurrentTarget.ID = reader.ReadByte();
+            sh.CurrentTarget.START_TIMESTAMP = long.Parse(reader.ReadString());
+            sh.CurrentTarget.FROZEN = reader.ReadBoolean();
         }
-        public static bool OnCheckMurder(PlayerControl target)
+
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (SoulHunter_ == null || target == null) return false;
 
@@ -119,7 +131,8 @@ namespace TOHE.Roles.Neutral
             SendRPC();
             return false;
         }
-        public static void AfterMeetingTasks()
+
+        public override void AfterMeetingTasks()
         {
             if (!IsEnable || CurrentTarget.ID == byte.MaxValue) return;
 
@@ -142,11 +155,12 @@ namespace TOHE.Roles.Neutral
             SendRPC();
             Logger.Info($"Waiting to being hunting (in {waitingTime}s)", "SoulHunter");
         }
-        public static void OnFixedUpdate()
+
+        public override void OnFixedUpdate(PlayerControl pc)
         {
             if (!IsEnable || !GameStates.IsInTask || !SoulHunter_.IsAlive() || CurrentTarget.ID == byte.MaxValue) return;
 
-            if (!CurrentTarget.FROZEN && Main.AllPlayerSpeed[SoulHunterId] != NormalSpeed)
+            if (!CurrentTarget.FROZEN && Math.Abs(Main.AllPlayerSpeed[SoulHunterId] - NormalSpeed) > 0.1f)
             {
                 Main.AllPlayerSpeed[SoulHunterId] = NormalSpeed;
                 SoulHunter_.MarkDirtySettings();
@@ -212,26 +226,22 @@ namespace TOHE.Roles.Neutral
                     SoulHunter_.Notify(string.Format(GetString("SoulHunterNotify"), timeToKill - (now - CurrentTarget.START_TIMESTAMP) + 1, targetName));
                 }
             }
+        }
 
-        }
-        public static bool IsTargetBlocked => IsEnable && CurrentTarget.ID != byte.MaxValue && CurrentTarget.START_TIMESTAMP != 0;
-        public static string HUDText
+        bool IsTargetBlocked => IsEnable && CurrentTarget.ID != byte.MaxValue && CurrentTarget.START_TIMESTAMP != 0;
+
+        public static string HUDText(byte id)
         {
-            get
-            {
-                if (!IsTargetBlocked) return string.Empty;
-                if (CurrentTarget.FROZEN) return string.Format(GetString("SoulHunterNotifyFreeze"), GetPlayerById(CurrentTarget.ID).GetRealName(), WaitingTimeAfterMeeting.GetInt() - (TimeStamp - CurrentTarget.START_TIMESTAMP) + 1);
-                return string.Format(GetString("SoulHunterNotify"), TimeToKillTarget.GetInt() - (TimeStamp - CurrentTarget.START_TIMESTAMP) + 1, GetPlayerById(CurrentTarget.ID).GetRealName());
-            }
+            if (Main.PlayerStates[id].Role is not SoulHunter { IsEnable: true } sh) return string.Empty;
+            if (!sh.IsTargetBlocked) return string.Empty;
+            return sh.CurrentTarget.FROZEN ? string.Format(GetString("SoulHunterNotifyFreeze"), GetPlayerById(sh.CurrentTarget.ID).GetRealName(), WaitingTimeAfterMeeting.GetInt() - (TimeStamp - sh.CurrentTarget.START_TIMESTAMP) + 1) : string.Format(GetString("SoulHunterNotify"), TimeToKillTarget.GetInt() - (TimeStamp - sh.CurrentTarget.START_TIMESTAMP) + 1, GetPlayerById(sh.CurrentTarget.ID).GetRealName());
         }
-        public static string ProgressText
+
+        public override string GetProgressText(byte id, bool comms)
         {
-            get
-            {
-                if (!IsEnable) return string.Empty;
-                int souldsNeeded = NumOfSoulsToWin.GetInt();
-                return $"<#777777>-</color> <#{(Souls >= souldsNeeded ? "00ff00" : "ffffff")}>{Souls}/{souldsNeeded}</color>";
-            }
+            if (Main.PlayerStates[id].Role is not SoulHunter { IsEnable: true } sh) return string.Empty;
+            int souldsNeeded = NumOfSoulsToWin.GetInt();
+            return $"<#777777>-</color> <#{(sh.Souls >= souldsNeeded ? "00ff00" : "ffffff")}>{sh.Souls}/{souldsNeeded}</color>";
         }
     }
 }

@@ -4,11 +4,12 @@ using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral;
 
-public static class Pyromaniac
+public class Pyromaniac : RoleBase
 {
-    private static readonly int Id = 128020;
+    private const int Id = 128020;
     public static List<byte> playerIdList = [];
-    public static List<byte> DousedList = [];
+
+    public List<byte> DousedList = [];
 
     private static OptionItem KillCooldown;
     private static OptionItem DouseCooldown;
@@ -18,7 +19,7 @@ public static class Pyromaniac
 
     public static void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Pyromaniac, 1, zeroOne: false);
+        SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Pyromaniac);
         KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Pyromaniac])
             .SetValueFormat(OptionFormat.Seconds);
         DouseCooldown = FloatOptionItem.Create(Id + 11, "PyroDouseCooldown", new(0f, 180f, 2.5f), 20f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Pyromaniac])
@@ -28,12 +29,14 @@ public static class Pyromaniac
         CanVent = BooleanOptionItem.Create(Id + 13, "CanVent", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Pyromaniac]);
         HasImpostorVision = BooleanOptionItem.Create(Id + 14, "ImpostorVision", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Pyromaniac]);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
         DousedList = [];
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
 
@@ -41,10 +44,12 @@ public static class Pyromaniac
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-    public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
-    public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+
+    public override bool IsEnable => playerIdList.Count > 0;
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+    public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer == null) return true;
         if (target == null) return true;

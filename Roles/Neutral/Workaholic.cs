@@ -2,9 +2,22 @@
 
 namespace TOHE.Roles.Neutral
 {
-    internal class Workaholic
+    internal class Workaholic : RoleBase
     {
-        public static void OnTaskComplte(PlayerControl player, int CompletedTasksCount, int AllTasksCount)
+        public static bool On;
+        public override bool IsEnable => On;
+
+        public override void Add(byte playerId)
+        {
+            On = true;
+        }
+
+        public override void Init()
+        {
+            On = false;
+        }
+
+        public override void OnTaskComplete(PlayerControl player, int CompletedTasksCount, int AllTasksCount)
         {
             var alive = player.IsAlive();
             if ((CompletedTasksCount + 1) >= AllTasksCount && !(Options.WorkaholicCannotWinAtDeath.GetBool() && !alive))

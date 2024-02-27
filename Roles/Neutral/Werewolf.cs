@@ -1,18 +1,16 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using AmongUs.GameOptions;
-using HarmonyLib;
 using Hazel;
+using System.Collections.Generic;
+using System.Text;
 using TOHE.Roles.Crewmate;
 using static TOHE.Options;
 using static TOHE.Translator;
 
 namespace TOHE.Roles.Neutral;
 
-public static class Werewolf
+public class Werewolf : RoleBase
 {
-    private static readonly int Id = 12850;
+    private const int Id = 12850;
     public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
@@ -20,9 +18,10 @@ public static class Werewolf
     public static OptionItem RampageCD;
     public static OptionItem RampageDur;
 
-    private static Dictionary<byte, long> RampageTime = [];
-    public static Dictionary<byte, long> lastTime = [];
+    private long RampageTime;
+    public long lastTime;
     private static int CD;
+    private byte WWId;
 
     public static void SetupCustomOption()
     {
@@ -35,136 +34,128 @@ public static class Werewolf
         RampageDur = FloatOptionItem.Create(Id + 13, "WWRampageDur", new(0f, 180f, 1f), 12f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Werewolf])
             .SetValueFormat(OptionFormat.Seconds);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
+        RampageTime = -10;
+        lastTime = -10;
         CD = 0;
+        WWId = byte.MaxValue;
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
+        WWId = playerId;
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-    public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
-    private static void SendRPC(PlayerControl pc)
+
+    public override bool IsEnable => playerIdList.Count > 0;
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+    public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+
+    void SendRPC()
     {
-        if (pc.AmOwner || !IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetWWTimer, SendOption.Reliable, pc.GetClientId());
-        writer.Write((RampageTime.GetValueOrDefault(pc.PlayerId, -1)).ToString());
-        writer.Write((lastTime.GetValueOrDefault(pc.PlayerId, -1)).ToString());
+        if (!IsEnable || !Utils.DoRPC) return;
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetWWTimer, SendOption.Reliable);
+        writer.Write(WWId);
+        writer.Write(RampageTime.ToString());
+        writer.Write(lastTime.ToString());
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
-    public static void ReceiveRPC(MessageReader reader)
+
+    public void ReceiveRPC(MessageReader reader)
     {
-        RampageTime = [];
-        lastTime = [];
-        long rampage = long.Parse(reader.ReadString());
-        long last = long.Parse(reader.ReadString());
-        if (rampage > 0) RampageTime.Add(PlayerControl.LocalPlayer.PlayerId, rampage);
-        if (last > 0) lastTime.Add(PlayerControl.LocalPlayer.PlayerId, last);
+        RampageTime = long.Parse(reader.ReadString());
+        lastTime = long.Parse(reader.ReadString());
     }
-    public static bool CanRampage(byte id)
-        => GameStates.IsInTask && !RampageTime.ContainsKey(id) && !lastTime.ContainsKey(id);
-    public static bool IsRampaging(byte id) => RampageTime.ContainsKey(id);
+
+    bool CanRampage => GameStates.IsInTask && RampageTime == -10 && lastTime == -10;
+    bool IsRampaging => RampageTime != -10;
 
     private static long lastFixedTime;
-    public static void AfterMeetingTasks()
+
+    public override void AfterMeetingTasks()
     {
-        lastTime = [];
-        RampageTime = [];
-        foreach (var pc in Main.AllAlivePlayerControls.Where(x => playerIdList.Contains(x.PlayerId)).ToArray())
-        {
-            lastTime.Add(pc.PlayerId, Utils.TimeStamp);
-            SendRPC(pc);
-        }
+        RampageTime = -10;
+        lastTime = Utils.TimeStamp;
+        SendRPC();
     }
-    public static void OnFixedUpdate(PlayerControl player)
+
+    public override void OnFixedUpdate(PlayerControl player)
     {
-        if (!GameStates.IsInTask || !IsEnable) return;
-        if (player == null) return;
-        if (!player.Is(CustomRoles.Werewolf)) return;
+        if (!GameStates.IsInTask || !IsEnable || player == null) return;
 
         var now = Utils.TimeStamp;
 
-        if (lastTime.TryGetValue(player.PlayerId, out var WWtime) && !player.IsModClient())
+        if (lastTime != -10 && !player.IsModClient())
         {
-            var cooldown = WWtime + (long)RampageCD.GetFloat() - now;
+            var cooldown = lastTime + (long)RampageCD.GetFloat() - now;
             if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f);
             CD = (int)cooldown;
         }
 
-        if (lastTime.TryGetValue(player.PlayerId, out var time) && time + (long)RampageCD.GetFloat() < now)
+        if (lastTime + (long)RampageCD.GetFloat() < now)
         {
-            lastTime.Remove(player.PlayerId);
+            lastTime = -10;
             if (!player.IsModClient()) player.Notify(GetString("WWCanRampage"));
-            SendRPC(player);
+            SendRPC();
             CD = 0;
         }
 
         if (lastFixedTime != now)
         {
             lastFixedTime = now;
-            Dictionary<byte, long> newList = [];
-            List<byte> refreshList = [];
-            foreach (var it in RampageTime)
+            bool refresh = false;
+            var remainTime = RampageTime + (long)RampageDur.GetFloat() - now;
+            switch (remainTime)
             {
-                var pc = Utils.GetPlayerById(it.Key);
-                if (pc == null) continue;
-                var remainTime = it.Value + (long)RampageDur.GetFloat() - now;
-                if (remainTime < 0)
-                {
-                    lastTime.Add(pc.PlayerId, now);
-                    pc.Notify(GetString("WWRampageOut"));
-                    SendRPC(pc);
-                    continue;
-                }
-
-                if (remainTime <= 10)
-                {
-                    if (!pc.IsModClient()) pc.Notify(string.Format(GetString("WWRampageCountdown"), remainTime + 1));
-                }
-                newList.Add(it.Key, it.Value);
+                case < 0:
+                    lastTime = now;
+                    player.Notify(GetString("WWRampageOut"));
+                    SendRPC();
+                    refresh = true;
+                    break;
+                case <= 10 when !player.IsModClient():
+                    player.Notify(string.Format(GetString("WWRampageCountdown"), remainTime + 1));
+                    break;
             }
-            RampageTime.Where(x => !newList.ContainsKey(x.Key)).Do(x => refreshList.Add(x.Key));
-            RampageTime = newList;
-            refreshList.Do(x => SendRPC(Utils.GetPlayerById(x)));
+
+            if (refresh) SendRPC();
         }
     }
 
-    public static void OnEnterVent(PlayerControl pc)
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
         if (pc == null) return;
-        if (!pc.Is(CustomRoles.Werewolf)) return;
 
-        if (!AmongUsClient.Instance.AmHost || IsRampaging(pc.PlayerId)) return;
+        if (!AmongUsClient.Instance.AmHost || IsRampaging) return;
         _ = new LateTask(() =>
         {
-            if (CanRampage(pc.PlayerId))
+            if (CanRampage)
             {
-                RampageTime.Add(pc.PlayerId, Utils.TimeStamp);
-                SendRPC(pc);
+                RampageTime = Utils.TimeStamp;
+                SendRPC();
                 pc.Notify(GetString("WWRampaging"), RampageDur.GetFloat());
             }
-            else return;
         }, 0.5f, "Werewolf Vent");
     }
     public static string GetHudText(PlayerControl pc)
     {
-        if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive() || !pc.Is(CustomRoles.Werewolf)) return string.Empty;
+        if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive() || Main.PlayerStates[pc.PlayerId].Role is not Werewolf { IsEnable: true } ww) return string.Empty;
         var str = new StringBuilder();
-        if (IsRampaging(pc.PlayerId))
+        if (ww.IsRampaging)
         {
-            var remainTime = RampageTime[pc.PlayerId] + (long)RampageDur.GetFloat() - Utils.TimeStamp;
+            var remainTime = ww.RampageTime + (long)RampageDur.GetFloat() - Utils.TimeStamp;
             str.Append(string.Format(GetString("WWRampageCountdown"), remainTime + 1));
         }
-        else if (lastTime.TryGetValue(pc.PlayerId, out var time))
+        else if (ww.lastTime != -10)
         {
-            var cooldown = time + (long)RampageCD.GetFloat() - Utils.TimeStamp;
+            var cooldown = ww.lastTime + (long)RampageCD.GetFloat() - Utils.TimeStamp;
             str.Append(string.Format(GetString("WWCD"), cooldown + 2));
         }
         else
@@ -174,10 +165,8 @@ public static class Werewolf
         return str.ToString();
     }
 
-    public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (Medic.ProtectList.Contains(target.PlayerId)) return false;
-        if (!IsRampaging(killer.PlayerId)) return false;
-        return true;
+        return !Medic.ProtectList.Contains(target.PlayerId) && IsRampaging;
     }
 }

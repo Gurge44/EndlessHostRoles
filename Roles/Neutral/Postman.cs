@@ -6,9 +6,9 @@ using static TOHE.Translator;
 
 namespace TOHE.Roles.Neutral;
 
-public static class Postman
+public class Postman : RoleBase
 {
-    private static readonly int Id = 641400;
+    private const int Id = 641400;
     public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
@@ -16,27 +16,29 @@ public static class Postman
     private static OptionItem HasImpostorVision;
     private static OptionItem DieWhenTargetDies;
 
-    public static bool IsFinished;
-    public static byte Target;
-    private static List<byte> wereTargets = [];
+    public bool IsFinished;
+    public byte Target;
+    private List<byte> wereTargets = [];
 
     public static void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Postman, 1, zeroOne: false);
+        SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Postman);
         KillCooldown = FloatOptionItem.Create(Id + 10, "DeliverCooldown", new(0f, 180f, 2.5f), 10f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Postman])
             .SetValueFormat(OptionFormat.Seconds);
         CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Postman]);
         HasImpostorVision = BooleanOptionItem.Create(Id + 13, "ImpostorVision", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Postman]);
         DieWhenTargetDies = BooleanOptionItem.Create(Id + 12, "PostmanDiesWhenTargetDies", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Postman]);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
         Target = byte.MaxValue;
         IsFinished = false;
         wereTargets = [];
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         _ = new LateTask(SetNewTarget, 8f, "Set Postman First Target");
@@ -45,10 +47,32 @@ public static class Postman
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-    public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
-    public static void SetNewTarget()
+
+    public override bool IsEnable => playerIdList.Count > 0;
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+    public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+
+    public static void CheckAndResetTargets(PlayerControl deadPc, bool isDeath = false)
+    {
+        foreach (var id in playerIdList)
+        {
+            if (Main.PlayerStates[id].Role is Postman { IsEnable: true } pm && pm.Target == deadPc.PlayerId)
+            {
+                if (isDeath && DieWhenTargetDies.GetBool())
+                {
+                    Utils.GetPlayerById(id).Suicide();
+                }
+                else
+                {
+                    pm.SetNewTarget();
+                    if (!isDeath) continue;
+                    pm.NotifyPostman(Utils.GetPlayerById(id), GetString("PostmanTargetDied"));
+                }
+            }
+        }
+    }
+
+    void SetNewTarget()
     {
         if (!IsEnable) return;
         byte tempTarget = byte.MaxValue;
@@ -71,61 +95,53 @@ public static class Postman
         wereTargets.Add(Target);
     }
 
-    public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!IsEnable) return;
-        if (killer == null) return;
-        if (target == null) return;
-        if (IsFinished) return;
+        if (!IsEnable) return false;
+        if (killer == null) return false;
+        if (target == null) return false;
+        if (IsFinished) return false;
         if (Target == byte.MaxValue)
         {
             SetNewTarget();
-            return;
+            return false;
         }
 
         if (target.PlayerId == Target)
         {
             SetNewTarget();
             killer.SetKillCooldown();
-            killer.NotifyPostman(GetString("PostmanCorrectDeliver"));
+            NotifyPostman(killer, GetString("PostmanCorrectDeliver"));
         }
         else
         {
             killer.Suicide();
         }
+
+        return false;
     }
 
-    public static void OnTargetDeath()
-    {
-        if (!IsEnable) return;
-        if (IsFinished) return;
-        var postman = Utils.GetPlayerById(playerIdList[0]);
-
-        if (DieWhenTargetDies.GetBool())
-        {
-            postman.Suicide();
-        }
-        else
-        {
-            SetNewTarget();
-            postman.NotifyPostman(GetString("PostmanTargetDied"));
-        }
-    }
-
-    private static void NotifyPostman(this PlayerControl pc, string baseText)
+    void NotifyPostman(PlayerControl pc, string baseText)
     {
         if (!IsEnable) return;
         var sb = new StringBuilder();
 
         sb.Append("\r\n\r\n");
         sb.AppendLine(baseText);
-        if (!IsFinished) sb.Append(string.Format(GetString("PostmanGetNewTarget"), Utils.GetPlayerById(Target).GetRealName()));
-        else sb.Append(GetString("PostmanDone"));
+        sb.Append(!IsFinished ? string.Format(GetString("PostmanGetNewTarget"), Utils.GetPlayerById(Target).GetRealName()) : GetString("PostmanDone"));
 
         pc.Notify(sb.ToString());
     }
 
-    public static string GetHudText(PlayerControl pc) => !IsFinished ? string.Format(GetString("PostmanTarget"), Utils.GetPlayerById(Target).GetRealName()) : GetString("PostmanDone");
+    public static string GetHudText(PlayerControl pc)
+    {
+        if (Main.PlayerStates[pc.PlayerId].Role is not Postman { IsEnable: true } pm) return string.Empty;
+        return !pm.IsFinished ? string.Format(GetString("PostmanTarget"), Utils.GetPlayerById(pm.Target).GetRealName()) : GetString("PostmanDone");
+    }
 
-    public static string TargetText => !IsFinished ? string.Format(GetString("PostmanTarget"), Utils.GetPlayerById(Target).GetRealName()) : "<color=#00ff00>✓</color>";
+    public static string TargetText(byte id)
+    {
+        if (Main.PlayerStates[id].Role is not Postman { IsEnable: true } pm) return string.Empty;
+        return !pm.IsFinished ? string.Format(GetString("PostmanTarget"), Utils.GetPlayerById(pm.Target).GetRealName()) : "<color=#00ff00>✓</color>";
+    }
 }

@@ -8,7 +8,7 @@ using static TOHE.Utils;
 
 namespace TOHE.Roles.Neutral
 {
-    internal class Sprayer
+    internal class Sprayer : RoleBase
     {
         private static int Id => 643240;
 
@@ -60,7 +60,7 @@ namespace TOHE.Roles.Neutral
                 .SetValueFormat(OptionFormat.Times);
         }
 
-        public static void Init()
+        public override void Init()
         {
             SprayerId = byte.MaxValue;
             Traps.Clear();
@@ -69,7 +69,7 @@ namespace TOHE.Roles.Neutral
             LastUpdate.Clear();
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             SprayerId = playerId;
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
@@ -81,11 +81,21 @@ namespace TOHE.Roles.Neutral
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public static bool IsEnable => SprayerId != byte.MaxValue;
-        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
+        public override bool IsEnable => SprayerId != byte.MaxValue;
+        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
 
-        public static void PlaceTrap()
+        public override void OnSabotage(PlayerControl pc)
+        {
+            PlaceTrap();
+        }
+
+        public override void OnPet(PlayerControl pc)
+        {
+            PlaceTrap();
+        }
+
+        void PlaceTrap()
         {
             if (!IsEnable || SprayerId.GetAbilityUseLimit() <= 0 || Sprayer_.HasAbilityCD()) return;
 
@@ -97,7 +107,7 @@ namespace TOHE.Roles.Neutral
             Sprayer_.Notify(GetString("SprayerNotify"));
         }
 
-        public static void OnCheckPlayerPosition(PlayerControl pc)
+        public override void OnCheckPlayerPosition(PlayerControl pc)
         {
             if (!IsEnable || !GameStates.IsInTask || Traps.Count == 0) return;
 
@@ -109,7 +119,7 @@ namespace TOHE.Roles.Neutral
             if (LastUpdate[pc.PlayerId] + 3 > now) return;
             LastUpdate[pc.PlayerId] = now;
 
-            foreach (var trap in Traps.ToArray())
+            foreach (var trap in Traps)
             {
                 if (Vector2.Distance(pc.Pos(), trap) <= 2f)
                 {
@@ -137,19 +147,17 @@ namespace TOHE.Roles.Neutral
             }
         }
 
-        public static void OnReportDeadBody()
+        public override void OnReportDeadBody()
         {
             Traps.Clear();
         }
 
-        public static void AfterMeetingTasks()
+        public override void AfterMeetingTasks()
         {
             if (SprayerId.GetAbilityUseLimit() > 0)
             {
                 Sprayer_.AddAbilityCD(Math.Max(15, CD.GetInt()));
             }
         }
-
-        public static string ProgressText => $"<#777777>-</color> <#ffffff>{SprayerId.GetAbilityUseLimit()}</color>";
     }
 }

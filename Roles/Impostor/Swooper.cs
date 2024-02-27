@@ -85,6 +85,10 @@ public class Swooper : RoleBase
                 VentNormallyOnCooldown = Wraith.WraithVentNormallyOnCooldown.GetBool();
                 break;
         }
+
+        if (!AmongUsClient.Instance.AmHost || UsedRole == CustomRoles.Swooper) return;
+        if (!Main.ResetCamPlayerList.Contains(playerId))
+            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -128,7 +132,6 @@ public class Swooper : RoleBase
 
     public override void AfterMeetingTasks()
     {
-        lastTime = -10;
         InvisTime = -10;
         lastTime = Utils.TimeStamp;
         SendRPC();

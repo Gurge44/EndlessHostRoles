@@ -194,10 +194,6 @@ class HudManagerPatch
                         __instance.KillButton?.OverrideText(GetString("ArsonistDouseButtonText"));
                         __instance.ImpostorVentButton.buttonLabelText.text = GetString("ArsonistVentButtonText");
                         break;
-                    case CustomRoles.Revolutionist:
-                        __instance.KillButton?.OverrideText(GetString("RevolutionistDrawButtonText"));
-                        __instance.ImpostorVentButton.buttonLabelText.text = GetString("RevolutionistVentButtonText");
-                        break;
                     case CustomRoles.Farseer:
                         __instance.KillButton?.OverrideText(GetString("FarseerKillButtonText"));
                         break;
@@ -312,9 +308,6 @@ class HudManagerPatch
                             __instance.AbilityButton?.SetUsesRemaining(QuickShooter.ShotLimit.GetValueOrDefault(PlayerControl.LocalPlayer.PlayerId, 0));
                         }
 
-                        break;
-                    case CustomRoles.Provocateur:
-                        __instance.KillButton?.OverrideText(GetString("ProvocateurButtonText"));
                         break;
                     case CustomRoles.Camouflager:
                         __instance.AbilityButton?.OverrideText(GetString("CamouflagerShapeshiftText"));
@@ -646,12 +639,10 @@ class SetHudActivePatch
             //case CustomRoles.NWitch:
             //case CustomRoles.Reverie:
             case CustomRoles.Pelican:
-            case CustomRoles.Revolutionist:
             case CustomRoles.FFF:
             case CustomRoles.Medic:
             case CustomRoles.Gamer:
             case CustomRoles.DarkHide:
-            case CustomRoles.Provocateur:
             case CustomRoles.Farseer:
             case CustomRoles.Crusader:
                 __instance.SabotageButton?.ToggleVisible(false);

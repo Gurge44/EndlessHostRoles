@@ -6,12 +6,12 @@ using UnityEngine;
 
 namespace TOHE.Roles.Neutral;
 
-public static class Pelican
+public class Pelican : RoleBase
 {
-    private static readonly int Id = 12500;
+    private const int Id = 12500;
     private static List<byte> playerIdList = [];
     private static Dictionary<byte, List<byte>> eatenList = [];
-    private static readonly Dictionary<byte, float> originalSpeed = [];
+    private static readonly Dictionary<byte, float> OriginalSpeed = [];
     public static OptionItem KillCooldown;
     public static OptionItem CanVent;
     public static void SetupCustomOption()
@@ -21,12 +21,14 @@ public static class Pelican
             .SetValueFormat(OptionFormat.Seconds);
         CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", true, TabGroup.NeutralRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pelican]);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
         eatenList = [];
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
 
@@ -34,7 +36,9 @@ public static class Pelican
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+
+    public override bool IsEnable => playerIdList.Count > 0;
+
     private static void SyncEatenList(/*byte playerId*/)
     {
         SendRPC(byte.MaxValue);
@@ -43,7 +47,7 @@ public static class Pelican
     }
     private static void SendRPC(byte playerId)
     {
-        if (!IsEnable || !Utils.DoRPC) return;
+        if (!Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetPelicanEtenNum, SendOption.Reliable);
         writer.Write(playerId);
         if (playerId != byte.MaxValue)
@@ -94,9 +98,9 @@ public static class Pelican
             0 => new(-27f, 3.3f), // The Skeld
             1 => new(-11.4f, 8.2f), // MIRA HQ
             2 => new(42.6f, -19.9f), // Polus
-            3 => new Vector2(27f, 3.3f), // dlekS ehT
+            3 => new(27f, 3.3f), // dlekS ehT
             4 => new(-16.8f, -6.2f), // Airship
-            5 => new Vector2(9.6f, 23.2f), // The Fungle
+            5 => new(9.6f, 23.2f), // The Fungle
             _ => throw new NotImplementedException(),
         };
     }
@@ -117,8 +121,8 @@ public static class Pelican
 
         SyncEatenList(/*pc.PlayerId*/);
 
-        originalSpeed.Remove(target.PlayerId);
-        originalSpeed.Add(target.PlayerId, Main.AllPlayerSpeed[target.PlayerId]);
+        OriginalSpeed.Remove(target.PlayerId);
+        OriginalSpeed.Add(target.PlayerId, Main.AllPlayerSpeed[target.PlayerId]);
 
         target.TP(GetBlackRoomPS());
         Main.AllPlayerSpeed[target.PlayerId] = 0.5f;
@@ -130,16 +134,16 @@ public static class Pelican
         Logger.Info($"{pc.GetRealName()} 吞掉了 {target.GetRealName()}", "Pelican");
     }
 
-    public static void OnReportDeadBody()
+    public override void OnReportDeadBody()
     {
         foreach (var pc in eatenList)
         {
-            foreach (byte tar in pc.Value.ToArray())
+            foreach (byte tar in pc.Value)
             {
                 var target = Utils.GetPlayerById(tar);
                 var killer = Utils.GetPlayerById(pc.Key);
                 if (killer == null || target == null) continue;
-                Main.AllPlayerSpeed[tar] = Main.AllPlayerSpeed[tar] - 0.5f + originalSpeed[tar];
+                Main.AllPlayerSpeed[tar] = Main.AllPlayerSpeed[tar] - 0.5f + OriginalSpeed[tar];
                 ReportDeadBodyPatch.CanReport[tar] = true;
                 target.RpcExileV2();
                 target.SetRealKiller(killer);
@@ -156,14 +160,14 @@ public static class Pelican
     public static void OnPelicanDied(byte pc)
     {
         if (!eatenList.ContainsKey(pc)) return;
-        foreach (byte tar in eatenList[pc].ToArray())
+        foreach (byte tar in eatenList[pc])
         {
             var target = Utils.GetPlayerById(tar);
             var player = Utils.GetPlayerById(pc);
             if (player == null || target == null)
                 continue;
             target.TP(player);
-            Main.AllPlayerSpeed[tar] = Main.AllPlayerSpeed[tar] - 0.5f + originalSpeed[tar];
+            Main.AllPlayerSpeed[tar] = Main.AllPlayerSpeed[tar] - 0.5f + OriginalSpeed[tar];
             ReportDeadBodyPatch.CanReport[tar] = true;
             target.MarkDirtySettings();
             RPC.PlaySoundRPC(tar, Sounds.TaskComplete);
@@ -174,8 +178,9 @@ public static class Pelican
         SyncEatenList(/*pc*/);
     }
 
-    private static int Count;
-    public static void OnFixedUpdate()
+    private int Count;
+
+    public override void OnFixedUpdate(PlayerControl pc)
     {
         if (!GameStates.IsInTask)
         {
@@ -187,20 +192,20 @@ public static class Pelican
             return;
         }
 
-        if (!IsEnable) return; Count--; if (Count > 0) return; Count = 30;
+        if (!IsEnable) return;
+        Count--;
+        if (Count > 0) return;
+        Count = 10;
 
-        foreach (var pc in eatenList)
+        foreach (byte tar in eatenList[pc.PlayerId])
         {
-            foreach (byte tar in pc.Value.ToArray())
-            {
-                var target = Utils.GetPlayerById(tar);
-                if (target == null) continue;
-                var pos = GetBlackRoomPS();
-                var dis = Vector2.Distance(pos, target.Pos());
-                if (dis < 1f) continue;
-                target.TP(pos, log: false);
-                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: Utils.GetPlayerById(pc.Key));
-            }
+            var target = Utils.GetPlayerById(tar);
+            if (target == null) continue;
+            var pos = GetBlackRoomPS();
+            var dis = Vector2.Distance(pos, target.Pos());
+            if (dis < 2f) continue;
+            target.TP(pos, log: false);
+            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: pc);
         }
     }
 }

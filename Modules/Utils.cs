@@ -968,10 +968,6 @@ public static class Utils
                 case CustomRoles.Pursuer:
                     ProgressText.Append(Pursuer.GetSeelLimit(playerId));
                     break;
-                case CustomRoles.Revolutionist:
-                    var draw = GetDrawPlayerCount(playerId, out var _);
-                    ProgressText.Append(ColorString(GetRoleColor(CustomRoles.Revolutionist).ShadeColor(0.25f), $"<color=#777777>-</color> {draw.Item1}/{draw.Item2}"));
-                    break;
                 case CustomRoles.Gangster:
                     ProgressText.Append(Gangster.GetRecruitLimit(playerId));
                     break;
@@ -2063,7 +2059,7 @@ public static class Utils
                             SelfSuffix.Append(VengefulRomantic.GetTargetText(seer.PlayerId));
                             break;
                         case CustomRoles.Postman when !seer.IsModClient():
-                            SelfSuffix.Append(Postman.TargetText);
+                            SelfSuffix.Append(Postman.TargetText(seer.PlayerId));
                             break;
                         case CustomRoles.Tornado when !seer.IsModClient():
                             SelfSuffix.Append(Tornado.GetSuffixText());
@@ -2185,15 +2181,6 @@ public static class Utils
 
                 switch (seer.GetCustomRole())
                 {
-                    case CustomRoles.PlagueBearer when PlagueBearer.IsPlaguedAll(seer):
-                        seer.RpcSetCustomRole(CustomRoles.Pestilence);
-                        seer.Notify(GetString("PlagueBearerToPestilence"));
-                        seer.RpcGuardAndKill(seer);
-                        if (!PlagueBearer.PestilenceList.Contains(seer.PlayerId))
-                            PlagueBearer.PestilenceList.Add(seer.PlayerId);
-                        PlagueBearer.SetKillCooldownPestilence(seer.PlayerId);
-                        PlagueBearer.playerIdList.Remove(seer.PlayerId);
-                        break;
                     case CustomRoles.Arsonist when seer.IsDouseDone():
                         SelfName = $"{ColorString(seer.GetRoleColor(), GetString("EnterVentToWin"))}";
                         break;
@@ -2637,13 +2624,6 @@ public static class Utils
                 break;
             case CustomRoles.SwordsMan:
                 SwordsMan.Add(id);
-                break;
-            case CustomRoles.Revolutionist:
-                foreach (PlayerControl ar in Main.AllPlayerControls)
-                {
-                    Main.isDraw.Add((id, ar.PlayerId), false);
-                }
-
                 break;
             case CustomRoles.Farseer:
                 foreach (PlayerControl ar in Main.AllPlayerControls)
@@ -3252,7 +3232,7 @@ public static class Utils
 
                     break;
                 case CustomRoles.PlagueDoctor:
-                    PlagueDoctor.OnPDdeath(target.GetRealKiller());
+                    PlagueDoctor.OnPDdeath(target.GetRealKiller(), target);
                     break;
                 case CustomRoles.CyberStar:
                     if (GameStates.IsMeeting)
@@ -3291,7 +3271,7 @@ public static class Utils
             if (Lawyer.Target.ContainsValue(target.PlayerId))
                 Lawyer.ChangeRoleByTarget(target);
             if (Postman.Target == target.PlayerId)
-                Postman.OnTargetDeath();
+                Postman.CheckAndResetTargets(target, isDeath: true);
             if (Hitman.targetId == target.PlayerId)
                 Hitman.targetId = byte.MaxValue;
 

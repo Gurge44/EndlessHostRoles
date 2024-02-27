@@ -148,8 +148,7 @@ class OnPlayerLeftPatch
                     Pelican.OnPelicanDied(data.Character.PlayerId);
                 if (Spiritualist.SpiritualistTarget == data.Character.PlayerId)
                     Spiritualist.RemoveTarget();
-                if (data.Character.PlayerId == Postman.Target)
-                    Postman.SetNewTarget();
+                Postman.CheckAndResetTargets(data.Character);
 
                 Utils.AfterPlayerDeathTasks(data.Character, GameStates.IsMeeting);
 

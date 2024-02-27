@@ -1,17 +1,14 @@
-﻿using System.Collections.Generic;
-using AmongUs.GameOptions;
-using Hazel;
-using UnityEngine;
+﻿using AmongUs.GameOptions;
+using System.Collections.Generic;
 using static TOHE.Options;
 using static TOHE.Translator;
 
 namespace TOHE.Roles.Neutral
 {
-    public static class Spiritcaller
+    public class Spiritcaller : RoleBase
     {
-        private static readonly int Id = 13400;
+        private const int Id = 13400;
         private static List<byte> playerIdList = [];
-        private static int SpiritLimit;
 
         private static Dictionary<byte, long> PlayersHaunted = [];
 
@@ -48,49 +45,35 @@ namespace TOHE.Roles.Neutral
                 .SetValueFormat(OptionFormat.Seconds);
         }
 
-        public static void Init()
+        public override void Init()
         {
             playerIdList = [];
-            SpiritLimit = new();
             ProtectTimeStamp = new();
             PlayersHaunted = [];
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            SpiritLimit = SpiritMax.GetInt();
+            playerId.SetAbilityUseLimit(SpiritMax.GetInt());
             ProtectTimeStamp = 0;
 
             if (!AmongUsClient.Instance.AmHost) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
-        public static bool IsEnable => playerIdList.Count > 0;
-        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+
+        public override bool IsEnable => playerIdList.Count > 0;
+        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         public static bool InProtect(PlayerControl player) => player.Is(CustomRoles.Spiritcaller) && ProtectTimeStamp > Utils.TimeStamp;
 
-        private static void SendRPC()
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable || !Utils.DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetSpiritcallerSpiritLimit, SendOption.Reliable);
-            writer.Write(SpiritLimit);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
+            if (killer.GetAbilityUseLimit() < 1) return true;
 
-        public static void ReceiveRPC(MessageReader reader)
-        {
-            SpiritLimit = reader.ReadInt32();
-        }
-
-        public static void OnCheckMurder(PlayerControl target)
-        {
             if (!target.GetCustomRole().IsAbleToBeSidekicked() && !target.GetCustomRole().IsImpostor())
             {
-                if (SpiritLimit < 1) return;
-
-                SpiritLimit--;
-                SendRPC();
+                killer.RpcRemoveAbilityUse();
 
                 target.RpcSetCustomRole(CustomRoles.EvilSpirit);
 
@@ -108,9 +91,11 @@ namespace TOHE.Roles.Neutral
                 writer.EndMessage();
                 writer.SendMessage();
             }
+
+            return true;
         }
 
-        public static void OnFixedUpdate(PlayerControl pc)
+        public override void OnFixedUpdate(PlayerControl pc)
         {
             if (!GameStates.IsInTask) return;
 
@@ -127,8 +112,6 @@ namespace TOHE.Roles.Neutral
                 pc.MarkDirtySettings();
             }
         }
-
-        public static string GetSpiritLimit() => Utils.ColorString(SpiritLimit >= 1 ? Utils.GetRoleColor(CustomRoles.Spiritcaller) : Color.gray, $"({SpiritLimit})");
 
         public static void HauntPlayer(PlayerControl target)
         {

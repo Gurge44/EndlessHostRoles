@@ -62,6 +62,11 @@
 
         public override void OnReportDeadBody()
         {
+            Reset();
+        }
+
+        public static void Reset()
+        {
             IsActive = false;
             Camouflage.CheckCamouflage();
         }

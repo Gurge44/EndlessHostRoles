@@ -7,9 +7,9 @@ using static TOHE.Translator;
 
 namespace TOHE.Roles.Neutral;
 
-public static class Vulture
+public class Vulture : RoleBase
 {
-    private static readonly int Id = 11600;
+    private const int Id = 11600;
     private static List<byte> playerIdList = [];
 
     public static List<byte> UnreportablePlayers = [];
@@ -36,7 +36,7 @@ public static class Vulture
         HasImpVision = BooleanOptionItem.Create(Id + 15, "ImpostorVision", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
     }
 
-    public static void Init()
+    public override void Init()
     {
         playerIdList = [];
         UnreportablePlayers = [];
@@ -45,7 +45,7 @@ public static class Vulture
         LastReport = [];
     }
 
-    public static void Add(byte playerId)
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         BodyReportCount[playerId] = 0;
@@ -55,19 +55,18 @@ public static class Vulture
         {
             if (GameStates.IsInTask)
             {
-                //Utils.GetPlayerById(playerId).RpcGuardAndKill(Utils.GetPlayerById(playerId));
                 Utils.GetPlayerById(playerId).Notify(GetString("VultureCooldownUp"));
             }
         }, VultureReportCD.GetFloat() + 8f, "Vulture CD"); //for some reason that idk vulture cd completes 8s faster when the game starts, so I added 8f for now 
     }
 
-    public static bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpVision.GetBool());
+    public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpVision.GetBool());
 
     private static void SendRPC(byte playerId, bool add, Vector3 loc = new())
     {
-        if (!IsEnable || !Utils.DoRPC) return;
+        if (!Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetVultureArrow, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(add);
@@ -86,23 +85,23 @@ public static class Vulture
         byte playerId = reader.ReadByte();
         bool add = reader.ReadBoolean();
         if (add)
-            LocateArrow.Add(playerId, new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()));
+            LocateArrow.Add(playerId, new(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()));
         else
             LocateArrow.RemoveAllTarget(playerId);
     }
 
     public static void Clear()
     {
-        foreach (byte apc in playerIdList.ToArray())
+        foreach (byte apc in playerIdList)
         {
             LocateArrow.RemoveAllTarget(apc);
             SendRPC(apc, false);
         }
     }
 
-    public static void AfterMeetingTasks()
+    public override void AfterMeetingTasks()
     {
-        foreach (byte apc in playerIdList.ToArray())
+        foreach (byte apc in playerIdList)
         {
             var player = Utils.GetPlayerById(apc);
             if (player.IsAlive())
@@ -138,7 +137,7 @@ public static class Vulture
             }
         }
 
-        foreach (byte pc in playerIdList.ToArray())
+        foreach (byte pc in playerIdList)
         {
             var player = Utils.GetPlayerById(pc);
             if (player == null || !player.IsAlive()) continue;
@@ -147,14 +146,14 @@ public static class Vulture
         }
     }
 
-    public static void OnReportDeadBody(PlayerControl pc, GameData.PlayerInfo target)
+    public override bool CheckReportDeadBody(PlayerControl pc, GameData.PlayerInfo target, PlayerControl killer)
     {
         BodyReportCount[pc.PlayerId]++;
         AbilityLeftInRound[pc.PlayerId]--;
         Logger.Msg($"target.object {target.Object}, is null? {target.Object == null}", "VultureNull");
         if (target.Object != null)
         {
-            foreach (byte apc in playerIdList.ToArray())
+            foreach (byte apc in playerIdList)
             {
                 LocateArrow.Remove(apc, target.Object.transform.position);
                 SendRPC(apc, false);
@@ -165,6 +164,7 @@ public static class Vulture
         UnreportablePlayers.Remove(target.PlayerId);
         UnreportablePlayers.Add(target.PlayerId);
         //playerIdList.Remove(target.PlayerId);
+        return false;
     }
 
     public static string GetTargetArrow(PlayerControl seer, PlayerControl target = null)

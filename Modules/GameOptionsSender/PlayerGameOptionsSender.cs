@@ -228,10 +228,8 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 case CustomRoles.SwordsMan:
                 //     case CustomRoles.Minimalism:
                 case CustomRoles.Pelican:
-                case CustomRoles.Revolutionist:
                 case CustomRoles.Medic:
                 case CustomRoles.Crusader:
-                case CustomRoles.Provocateur:
                 case CustomRoles.Monarch:
                 case CustomRoles.Jailor:
                 case CustomRoles.Deputy:
@@ -493,10 +491,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     break;
                 case CustomRoles.Hangman:
                     Hangman.ApplyGameOptions();
-                    break;
-                case CustomRoles.Sunnyboy:
-                    AURoleOptions.ScientistCooldown = 0f;
-                    AURoleOptions.ScientistBatteryCharge = 60f;
                     break;
                 case CustomRoles.BloodKnight:
                     BloodKnight.ApplyGameOptions(opt);

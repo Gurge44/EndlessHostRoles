@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
+using TOHE.Roles.Neutral;
 using UnityEngine;
 using static TOHE.Translator;
 
@@ -18,8 +19,13 @@ public class Vampire : RoleBase
     private const int Id = 4500;
     private static readonly List<byte> PlayerIdList = [];
     private static OptionItem OptionKillDelay;
-    private static float KillDelay;
     private static readonly Dictionary<byte, BittenInfo> BittenPlayers = [];
+
+    private float KillCooldown;
+    private float KillDelay;
+    private bool CanVent;
+
+    private bool IsPoisoner;
 
     public static void SetupCustomOption()
     {
@@ -32,17 +38,43 @@ public class Vampire : RoleBase
     {
         PlayerIdList.Clear();
         BittenPlayers.Clear();
-
-        KillDelay = OptionKillDelay.GetFloat();
     }
 
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
+
+        IsPoisoner = Main.PlayerStates[playerId].MainRole == CustomRoles.Poisoner;
+        if (IsPoisoner)
+        {
+            KillCooldown = Options.DefaultKillCooldown;
+            KillDelay = OptionKillDelay.GetFloat();
+            CanVent = true;
+        }
+        else
+        {
+            KillCooldown = Poisoner.KillCooldown.GetFloat();
+            KillDelay = Poisoner.OptionKillDelay.GetFloat();
+            CanVent = Poisoner.CanVent.GetBool();
+        }
+
+        if (!AmongUsClient.Instance.AmHost || !IsPoisoner) return;
+        if (!Main.ResetCamPlayerList.Contains(playerId))
+            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override bool IsEnable => PlayerIdList.Count > 0;
     public static bool IsThisRole(byte playerId) => PlayerIdList.Contains(playerId);
+
+    public override void SetKillCooldown(byte id)
+    {
+        Main.AllPlayerKillCooldown[id] = KillCooldown;
+    }
+
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return CanVent;
+    }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
@@ -110,7 +142,7 @@ public class Vampire : RoleBase
         }
     }
 
-    public override void OnReportDeadBody(PlayerControl reporter, PlayerControl _)
+    public override void OnReportDeadBody()
     {
         foreach (var targetId in BittenPlayers.Keys)
         {
