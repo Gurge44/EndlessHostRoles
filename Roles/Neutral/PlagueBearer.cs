@@ -53,6 +53,7 @@ public class PlagueBearer : RoleBase
     public override bool IsEnable => playerIdList.Count > 0;
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = PlagueBearerCD[id];
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
 
     public static bool IsPlagued(byte pc, byte target) => PlaguedList.TryGetValue(pc, out var x) && x.Contains(target);
     public static void SendRPC(PlayerControl player, PlayerControl target)
@@ -123,6 +124,7 @@ public class Pestilence : RoleBase
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = PlagueBearer.PestilenceCDOpt.GetFloat();
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => PlagueBearer.PestilenceCanVent.GetBool();
 
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
     {

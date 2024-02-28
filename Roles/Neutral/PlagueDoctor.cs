@@ -1,9 +1,9 @@
-﻿using System;
+﻿using AmongUs.GameOptions;
+using Hazel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using AmongUs.GameOptions;
-using Hazel;
 using UnityEngine;
 
 namespace TOHE.Roles.Neutral
@@ -88,6 +88,7 @@ namespace TOHE.Roles.Neutral
         public override bool IsEnable => playerIdList.Count > 0;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
         public override bool CanUseKillButton(PlayerControl pc) => pc.GetAbilityUseLimit() != 0;
+        public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
 
         public override string GetProgressText(byte id, bool comms)
         {

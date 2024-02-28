@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using AmongUs.GameOptions;
+using System.Collections.Generic;
 using System.Linq;
-using AmongUs.GameOptions;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
 using UnityEngine;
@@ -50,6 +50,13 @@ namespace TOHE.Roles.Crewmate
         public override void Add(byte playerId)
         {
             On = true;
+
+            foreach (PlayerControl ar in Main.AllPlayerControls)
+            {
+                Main.isRevealed.Add((playerId, ar.PlayerId), false);
+            }
+
+            RandomRole.Add(playerId, GetRandomCrewRoleString());
 
             if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))

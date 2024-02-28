@@ -59,6 +59,7 @@ namespace TOHE.Roles.Neutral
         }
 
         public override bool IsEnable => On;
+        public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {

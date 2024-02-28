@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 using static TOHE.Translator;
 
 namespace TOHE.Roles.Impostor;
@@ -158,8 +157,6 @@ public class Gangster : RoleBase
         Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{killer.GetAbilityUseLimit()}次招募机会", "Gangster");
         return false;
     }
-
-    public static string GetRecruitLimit(byte playerId) => Utils.ColorString(CanRecruit(playerId) ? Utils.GetRoleColor(CustomRoles.Gangster).ShadeColor(0.25f) : Color.gray, $"({playerId.GetAbilityUseLimit()})");
 
     public static bool CanBeMadmate(PlayerControl pc)
     {

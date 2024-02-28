@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Utils;
@@ -67,6 +67,7 @@ namespace TOHE.Roles.Neutral
         public override bool IsEnable => BubbleId != byte.MaxValue;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+        public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
 
         void SendRPC(byte id = byte.MaxValue, bool remove = false, bool clear = false)
         {
@@ -77,6 +78,7 @@ namespace TOHE.Roles.Neutral
             writer.Write(id);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
+
         public static void ReceiveRPC(MessageReader reader)
         {
             bool remove = reader.ReadBoolean();
@@ -150,6 +152,7 @@ namespace TOHE.Roles.Neutral
             EncasedPlayers.Clear();
             SendRPC(clear: true);
         }
+
         public static string GetEncasedPlayerSuffix(PlayerControl target)
         {
             if (target == null || !EncasedPlayers.TryGetValue(target.PlayerId, out var ts) || (ts + NotifyDelay.GetInt() >= TimeStamp)) return string.Empty;

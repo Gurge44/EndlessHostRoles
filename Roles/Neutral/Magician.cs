@@ -1,7 +1,7 @@
+using AmongUs.GameOptions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using AmongUs.GameOptions;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using UnityEngine;
@@ -102,6 +102,8 @@ public class Magician : RoleBase
     public override bool IsEnable => playerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+    public override bool CanUseSabotage(PlayerControl pc) => true;
 
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
@@ -334,17 +336,20 @@ public class Magician : RoleBase
                         b = true;
                         continue;
                     }
+
                     tg.Suicide(PlayerState.DeathReason.Bombed, pc);
                 }
+
                 Bombs.Remove(bomb.Key);
                 pc.Notify(GetString("MagicianBombExploded"));
-                if (b) _ = new LateTask(() =>
-                {
-                    if (!GameStates.IsEnded)
+                if (b)
+                    _ = new LateTask(() =>
                     {
-                        pc.Suicide(PlayerState.DeathReason.Bombed);
-                    }
-                }, 0.5f, "Magician Bomb Suicide");
+                        if (!GameStates.IsEnded)
+                        {
+                            pc.Suicide(PlayerState.DeathReason.Bombed);
+                        }
+                    }, 0.5f, "Magician Bomb Suicide");
             }
 
             var sb = new StringBuilder();
@@ -353,6 +358,7 @@ public class Magician : RoleBase
             {
                 sb.Append(string.Format(GetString("MagicianBombExlodesIn"), BombDelay.GetInt() - (TimeStamp - x) + 1));
             }
+
             pc.Notify(sb.ToString());
         }
     }
@@ -370,6 +376,7 @@ public class Magician : RoleBase
             Main.AllPlayerSpeed[playerIdList[0]] = originalSpeed;
         }
     }
+
     private static void RevertSpeedChanges(bool force)
     {
         foreach (var x in TempSpeeds.Where(x => SlowPPL[x.Key] + SlownessDur.GetInt() < TimeStamp || force))
@@ -380,6 +387,7 @@ public class Magician : RoleBase
             GetPlayerById(x.Key).MarkDirtySettings();
         }
     }
+
     private static Dictionary<PlayerControl, float> GetSnipeTargets(PlayerControl sniper)
     {
         var targets = new Dictionary<PlayerControl, float>();
@@ -402,6 +410,7 @@ public class Magician : RoleBase
             var err = target_pos.magnitude;
             targets.Add(target, err);
         }
+
         return targets;
     }
 }

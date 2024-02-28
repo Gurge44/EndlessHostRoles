@@ -1,6 +1,6 @@
+using AmongUs.GameOptions;
 using System;
 using System.Collections.Generic;
-using AmongUs.GameOptions;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral;
@@ -52,6 +52,7 @@ public class Eclipse : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {

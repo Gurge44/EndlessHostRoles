@@ -16,6 +16,7 @@ public static class NameColorManager
             if (KnowTargetRoleColor(seer, target, isMeeting, out var color))
                 colorCode = color == "" ? target.GetRoleColorCode() : color;
         }
+
         string openTag = "", closeTag = "";
         if (colorCode != "")
         {
@@ -24,8 +25,10 @@ public static class NameColorManager
             openTag = $"<{colorCode}>";
             closeTag = "</color>";
         }
+
         return openTag + name + closeTag;
     }
+
     private static bool KnowTargetRoleColor(PlayerControl seer, PlayerControl target, bool isMeeting, out string color)
     {
         color = "";
@@ -61,6 +64,7 @@ public static class NameColorManager
             if (target.Is(CustomRoles.Necromancer)) color = Main.roleColors[CustomRoles.Necromancer];
             if (target.Is(CustomRoles.Deathknight)) color = Main.roleColors[CustomRoles.Deathknight];
         }
+
         if (seer.Is(CustomRoles.Deathknight) && target.Is(CustomRoles.Undead)) color = Main.roleColors[CustomRoles.Undead];
         if (seer.Is(CustomRoles.Necromancer) && target.Is(CustomRoles.Undead)) color = Main.roleColors[CustomRoles.Undead];
         if ((seer.GetCustomRole() is CustomRoles.Necromancer or CustomRoles.Deathknight) && Necromancer.PartiallyRecruitedIds.Contains(target.PlayerId)) color = Main.roleColors[CustomRoles.Deathknight];
@@ -239,6 +243,7 @@ public static class NameColorManager
                || EvilDiviner.IsShowTargetRole(seer, target)
                || Ritualist.IsShowTargetRole(seer, target);
     }
+
     public static bool TryGetData(PlayerControl seer, PlayerControl target, out string colorCode)
     {
         colorCode = "";
@@ -263,6 +268,7 @@ public static class NameColorManager
 
         SendRPC(seerId, targetId, colorCode);
     }
+
     public static void Remove(byte seerId, byte targetId)
     {
         var state = Main.PlayerStates[seerId];
@@ -271,12 +277,14 @@ public static class NameColorManager
 
         SendRPC(seerId, targetId);
     }
+
     public static void RemoveAll(byte seerId)
     {
         Main.PlayerStates[seerId].TargetColorData.Clear();
 
         SendRPC(seerId);
     }
+
     private static void SendRPC(byte seerId, byte targetId = byte.MaxValue, string colorCode = "")
     {
         if (!AmongUsClient.Instance.AmHost) return;
@@ -287,6 +295,7 @@ public static class NameColorManager
         writer.Write(colorCode);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader)
     {
         byte seerId = reader.ReadByte();

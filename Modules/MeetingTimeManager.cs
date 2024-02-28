@@ -1,5 +1,5 @@
-using System;
 using AmongUs.GameOptions;
+using System;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 
@@ -19,16 +19,19 @@ public class MeetingTimeManager
         Logger.Info($"DefaultDiscussionTime: {DefaultDiscussionTime}s, DefaultVotingTime: {DefaultVotingTime}s", "MeetingTimeManager.Init");
         ResetMeetingTime();
     }
+
     public static void ApplyGameOptions(IGameOptions opt)
     {
         opt.SetInt(Int32OptionNames.DiscussionTime, DiscussionTime);
         opt.SetInt(Int32OptionNames.VotingTime, VotingTime);
     }
+
     private static void ResetMeetingTime()
     {
         DiscussionTime = DefaultDiscussionTime;
         VotingTime = DefaultVotingTime;
     }
+
     public static void OnReportDeadBody()
     {
         if (Options.AllAliveMeeting.GetBool() && Utils.IsAllAlive)
@@ -50,6 +53,7 @@ public class MeetingTimeManager
             MeetingTimeMinTimeThief = TimeThief.LowerLimitVotingTime.GetInt();
             BonusMeetingTime += TimeThief.TotalDecreasedMeetingTime();
         }
+
         if (TimeManager.IsEnable)
         {
             MeetingTimeMinTimeManager = TimeManager.MadMinMeetingTimeLimit.GetInt();
@@ -74,6 +78,7 @@ public class MeetingTimeManager
                 DiscussionTime = 0;
             }
         }
+
         Logger.Info($"Discussion Time: {DiscussionTime}s, Voting Time: {VotingTime}s", "MeetingTimeManager.OnReportDeadBody");
     }
 }

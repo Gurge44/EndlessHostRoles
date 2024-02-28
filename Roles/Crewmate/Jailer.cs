@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using Hazel;
+using System.Collections.Generic;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -110,5 +110,4 @@ public class Jailor : RoleBase
             _ = new LateTask(() => { Utils.SendMessage(GetString("JailedNotifyMsg"), JailorTarget, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle"))); }, 0.3f, "JailorNotifyJailed");
         }
     }
-
 }

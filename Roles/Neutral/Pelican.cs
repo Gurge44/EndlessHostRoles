@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Hazel;
+using System;
 using System.Collections.Generic;
-using Hazel;
+using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using UnityEngine;
 
@@ -38,6 +39,12 @@ public class Pelican : RoleBase
     }
 
     public override bool IsEnable => playerIdList.Count > 0;
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+
+    public override void SetKillCooldown(byte id)
+    {
+        Main.AllPlayerKillCooldown[id] = Pelican.KillCooldown.GetFloat();
+    }
 
     private static void SyncEatenList(/*byte playerId*/)
     {
@@ -104,7 +111,8 @@ public class Pelican : RoleBase
             _ => throw new NotImplementedException(),
         };
     }
-    public static string GetProgressText(byte playerId)
+
+    public override string GetProgressText(byte playerId, bool comms)
     {
         var player = Utils.GetPlayerById(playerId);
         if (player == null) return "Invalid";
@@ -207,5 +215,19 @@ public class Pelican : RoleBase
             target.TP(pos, log: false);
             Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: pc);
         }
+    }
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    {
+        if (CanEat(killer, target.PlayerId))
+        {
+            EatPlayer(killer, target);
+            //killer.RpcGuardAndKill(killer);
+            killer.SetKillCooldown();
+            killer.RPCPlayCustomSound("Eat");
+            target.RPCPlayCustomSound("Eat");
+        }
+
+        return false;
     }
 }

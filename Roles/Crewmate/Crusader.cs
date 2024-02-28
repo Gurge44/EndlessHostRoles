@@ -47,6 +47,7 @@ public class Crusader : RoleBase
            && (pc.GetAbilityUseLimit() >= 1);
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanUseKillButton(Utils.GetPlayerById(id)) ? CurrentKillCooldown : 15f;
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {

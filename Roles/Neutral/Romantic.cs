@@ -1,6 +1,6 @@
+using Hazel;
 using System;
 using System.Collections.Generic;
-using Hazel;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Options;
@@ -77,6 +77,7 @@ public class Romantic : RoleBase
         writer.Write(PartnerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader)
     {
         PartnerId = reader.ReadByte();
@@ -92,6 +93,7 @@ public class Romantic : RoleBase
 
         if (Math.Abs(beforeCD - Main.AllPlayerKillCooldown[RomanticId]) > 0.5f) Romantic_?.SyncSettings();
     }
+
     public static bool KnowRole(PlayerControl player, PlayerControl target)
     {
         if (!KnowTargetRole.GetBool()) return false;
@@ -146,6 +148,7 @@ public class Romantic : RoleBase
 
         return false;
     }
+
     public static string TargetMark(PlayerControl seer, PlayerControl target)
     {
         if (!seer.Is(CustomRoles.Romantic))
@@ -161,11 +164,13 @@ public class Romantic : RoleBase
             ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Romantic), "♥")
             : string.Empty;
     }
+
     public static string GetTargetText(byte playerId) => playerId != RomanticId
         ? null
         : Utils.ColorString(!HasPickedPartner ? Color.white : Utils.GetRoleColor(CustomRoles.Romantic), $"{(!HasPickedPartner ? "PICK PARTNER" : "♥")}");
 
     public override void OnReportDeadBody() => IsPartnerProtected = false;
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
 
     public static void ChangeRole()
     {
@@ -254,6 +259,12 @@ public class VengefulRomantic : RoleBase
 
     public override bool IsEnable => VengefulRomanticId != byte.MaxValue;
     public override bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && !HasKilledKiller;
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => Romantic.VengefulCanVent.GetBool();
+
+    public override void SetKillCooldown(byte id)
+    {
+        Main.AllPlayerKillCooldown[id] = Romantic.VengefulKCD.GetFloat();
+    }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
@@ -269,11 +280,13 @@ public class VengefulRomantic : RoleBase
         killer.Suicide(PlayerState.DeathReason.Misfire);
         return false;
     }
+
     public static string GetTargetText(byte playerId)
     {
         var player = Utils.GetPlayerById(playerId);
         return player == null ? null : Utils.ColorString(HasKilledKiller ? Color.green : Utils.GetRoleColor(CustomRoles.VengefulRomantic), $"{(HasKilledKiller ? "✓" : "☹️")}");
     }
+
     public static void SendRPC()
     {
         if (!Utils.DoRPC) return;
@@ -281,6 +294,7 @@ public class VengefulRomantic : RoleBase
         writer.Write(Target);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader)
     {
         byte target = reader.ReadByte();
@@ -307,4 +321,10 @@ public class RuthlessRomantic : RoleBase
     }
 
     public override bool IsEnable => playerIdList.Count > 0;
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => Romantic.RuthlessCanVent.GetBool();
+
+    public override void SetKillCooldown(byte id)
+    {
+        Main.AllPlayerKillCooldown[id] = Romantic.RuthlessKCD.GetFloat();
+    }
 }

@@ -66,6 +66,22 @@ namespace TOHE
 
         public virtual void OnPet(PlayerControl pc)
         {
+            int x = IRandom.Instance.Next(1, 16);
+            string suffix;
+            if (x >= 14)
+            {
+                x -= 13;
+                suffix = pc.GetCustomRole().GetCustomRoleTypes() switch
+                {
+                    CustomRoleTypes.Impostor => $"Imp{x}",
+                    CustomRoleTypes.Neutral => $"Neutral{x}",
+                    CustomRoleTypes.Crewmate => x == 1 ? "Crew" : pc.GetTaskState().hasTasks && pc.GetTaskState().IsTaskFinished ? "CrewTaskDone" : "CrewWithTasksLeft",
+                    _ => x.ToString(),
+                };
+            }
+            else suffix = x.ToString();
+
+            pc.Notify(Translator.GetString($"NoPetActionMsg{suffix}"));
         }
 
         public virtual void OnSabotage(PlayerControl pc)
@@ -97,6 +113,7 @@ namespace TOHE
 
         public virtual bool CheckReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target, PlayerControl killer)
         {
+            return true;
         }
 
         public virtual void AfterMeetingTasks()

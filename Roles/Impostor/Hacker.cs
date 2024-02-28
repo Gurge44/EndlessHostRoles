@@ -48,8 +48,6 @@ public class Hacker : RoleBase
         AURoleOptions.ShapeshifterDuration = 1f;
     }
 
-    public static string GetHackLimit(byte playerId) => Utils.GetAbilityUseLimitDisplay(playerId);
-
     public override void SetButtonTexts(HudManager __instance, byte playerId)
     {
         if (playerId.GetAbilityUseLimit() >= 1)

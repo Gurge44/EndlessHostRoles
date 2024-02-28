@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using HarmonyLib;
+using System.Collections.Generic;
 
 namespace TOHE;
 
@@ -13,6 +13,7 @@ public class AirshipElectricalDoors
         if (Main.NormalOptions.MapId != 4) return;
         Instance.Initialize();
     }
+
     public static byte[] GetClosedDoors()
     {
         List<byte> DoorsArray = [];
@@ -23,6 +24,7 @@ public class AirshipElectricalDoors
             if (door != null && !door.IsOpen)
                 DoorsArray.Add(i);
         }
+
         return DoorsArray?.ToArray();
     }
     // 0: BottomRightHort
@@ -38,10 +40,11 @@ public class AirshipElectricalDoors
     // 10: LeftDoorTop
     // 11: LeftDoorBottom
 }
+
 [HarmonyPatch(typeof(ElectricalDoors), nameof(ElectricalDoors.Initialize))]
 class ElectricalDoorsInitializePatch
 {
-    public static void Postfix(/*ElectricalDoors __instance*/)
+    public static void Postfix( /*ElectricalDoors __instance*/)
     {
         if (!GameStates.IsInGame) return;
         var closedoors = string.Empty;
@@ -57,6 +60,7 @@ class ElectricalDoorsInitializePatch
             else
                 closedoors += $", {num}";
         }
+
         Logger.Info($"Closed Doors: {closedoors}", "ElectricalDoors Initialize");
     }
 }

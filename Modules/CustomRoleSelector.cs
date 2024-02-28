@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using HarmonyLib;
+using System.Collections.Generic;
+using System.Linq;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
 
@@ -26,9 +26,11 @@ public static class ShuffleListExtension
             int k = random.Next(n + 1);
             (list[n], list[k]) = (list[k], list[n]);
         }
+
         return list;
     }
 }
+
 internal class CustomRoleSelector
 {
     public static Dictionary<PlayerControl, CustomRoles> RoleResult;
@@ -44,10 +46,29 @@ internal class CustomRoleSelector
 
     public class RoleAssignInfo(CustomRoles role, int spawnChance, int maxCount, int assignedCount = 0)
     {
-        public CustomRoles Role { get => role; set => role = value; }
-        public int SpawnChance { get => spawnChance; set => spawnChance = value; }
-        public int MaxCount { get => maxCount; set => maxCount = value; }
-        public int AssignedCount { get => assignedCount; set => assignedCount = value; }
+        public CustomRoles Role
+        {
+            get => role;
+            set => role = value;
+        }
+
+        public int SpawnChance
+        {
+            get => spawnChance;
+            set => spawnChance = value;
+        }
+
+        public int MaxCount
+        {
+            get => maxCount;
+            set => maxCount = value;
+        }
+
+        public int AssignedCount
+        {
+            get => assignedCount;
+            set => assignedCount = value;
+        }
     }
 
     public static void GetNeutralCounts(int NKmaxOpt, int NKminOpt, int NNKmaxOpt, int NNKminOpt, ref int ResultNKnum, ref int ResultNNKnum)
@@ -75,6 +96,7 @@ internal class CustomRoleSelector
                 {
                     RoleResult.Add(pc, CustomRoles.KB_Normal);
                 }
+
                 return;
             case CustomGameMode.FFA:
                 RoleResult = [];
@@ -82,6 +104,7 @@ internal class CustomRoleSelector
                 {
                     RoleResult.Add(pc, CustomRoles.Killer);
                 }
+
                 return;
             case CustomGameMode.MoveAndStop:
                 RoleResult = [];
@@ -89,6 +112,7 @@ internal class CustomRoleSelector
                 {
                     RoleResult.Add(pc, CustomRoles.Tasker);
                 }
+
                 return;
             case CustomGameMode.HotPotato:
                 RoleResult = [];
@@ -96,6 +120,7 @@ internal class CustomRoleSelector
                 {
                     RoleResult.Add(pc, CustomRoles.Potato);
                 }
+
                 return;
         }
 
@@ -307,7 +332,9 @@ internal class CustomRoleSelector
 
                     Imps = ImpRoleCounts;
 
-                    if (info.AssignedCount >= info.MaxCount) while (ChanceImpRoles.Contains(selected)) ChanceImpRoles.Remove(selected);
+                    if (info.AssignedCount >= info.MaxCount)
+                        while (ChanceImpRoles.Contains(selected))
+                            ChanceImpRoles.Remove(selected);
 
                     if (readyRoleNum >= playerCount) goto EndOfAssign;
                     if (readyImpNum >= optImpNum) break;
@@ -384,7 +411,9 @@ internal class CustomRoleSelector
 
                         NNKs = NNKRoleCounts;
 
-                        if (info.AssignedCount >= info.MaxCount) while (ChanceNNKRoles.Contains(selected)) ChanceNNKRoles.Remove(selected);
+                        if (info.AssignedCount >= info.MaxCount)
+                            while (ChanceNNKRoles.Contains(selected))
+                                ChanceNNKRoles.Remove(selected);
 
                         if (readyRoleNum >= playerCount) goto EndOfAssign;
                         if (readyNonNeutralKillingNum >= optNonNeutralKillingNum) break;
@@ -459,7 +488,9 @@ internal class CustomRoleSelector
 
                         NKs = NKRoleCounts;
 
-                        if (info.AssignedCount >= info.MaxCount) while (ChanceNKRoles.Contains(selected)) ChanceNKRoles.Remove(selected);
+                        if (info.AssignedCount >= info.MaxCount)
+                            while (ChanceNKRoles.Contains(selected))
+                                ChanceNKRoles.Remove(selected);
 
                         if (readyRoleNum >= playerCount) goto EndOfAssign;
                         if (readyNeutralKillingNum >= optNeutralKillingNum) break;
@@ -532,7 +563,9 @@ internal class CustomRoleSelector
 
                     Crews = CrewRoleCounts;
 
-                    if (info.AssignedCount >= info.MaxCount) while (ChanceCrewRoles.Contains(selected)) ChanceCrewRoles.Remove(selected);
+                    if (info.AssignedCount >= info.MaxCount)
+                        while (ChanceCrewRoles.Contains(selected))
+                            ChanceCrewRoles.Remove(selected);
 
                     if (readyRoleNum >= playerCount) goto EndOfAssign;
                 }
@@ -549,12 +582,6 @@ internal class CustomRoleSelector
         if (rd.Next(0, 100) < Options.SunnyboyChance.GetInt() && FinalRolesList.Remove(CustomRoles.Jester)) FinalRolesList.Add(CustomRoles.Sunnyboy);
         if (rd.Next(0, 100) < Sans.BardChance.GetInt() && FinalRolesList.Remove(CustomRoles.Sans)) FinalRolesList.Add(CustomRoles.Bard);
         if (rd.Next(0, 100) < Options.NukerChance.GetInt() && FinalRolesList.Remove(CustomRoles.Bomber)) FinalRolesList.Add(CustomRoles.Nuker);
-
-        if (Romantic.IsEnable)
-        {
-            if (FinalRolesList.Contains(CustomRoles.Romantic) && FinalRolesList.Contains(CustomRoles.Lovers))
-                FinalRolesList.Remove(CustomRoles.Lovers);
-        }
 
         Logger.Info(string.Join(", ", FinalRolesList.Select(x => x.ToString())), "RoleResults");
 
@@ -583,6 +610,7 @@ internal class CustomRoleSelector
     public static int addScientistNum;
     public static int addEngineerNum;
     public static int addShapeshifterNum;
+
     public static void CalculateVanillaRoleCount()
     {
         // Calculate the number of base roles
@@ -607,6 +635,7 @@ internal class CustomRoleSelector
     }
 
     public static List<CustomRoles> AddonRolesList = [];
+
     public static void SelectAddonRoles()
     {
         if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop) return;

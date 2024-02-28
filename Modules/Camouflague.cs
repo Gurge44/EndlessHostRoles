@@ -1,5 +1,6 @@
-using System.Collections.Generic;
 using AmongUs.Data;
+using System.Collections.Generic;
+using System.Linq;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
 
@@ -18,20 +19,22 @@ static class PlayerOutfitExtension
         instance.NamePlateId = nameplateId;
         return instance;
     }
+
     public static bool Compare(this GameData.PlayerOutfit instance, GameData.PlayerOutfit targetOutfit)
     {
         return instance.ColorId == targetOutfit.ColorId &&
-                instance.HatId == targetOutfit.HatId &&
-                instance.SkinId == targetOutfit.SkinId &&
-                instance.VisorId == targetOutfit.VisorId &&
-                instance.PetId == targetOutfit.PetId;
-
+               instance.HatId == targetOutfit.HatId &&
+               instance.SkinId == targetOutfit.SkinId &&
+               instance.VisorId == targetOutfit.VisorId &&
+               instance.PetId == targetOutfit.PetId;
     }
+
     public static string GetString(this GameData.PlayerOutfit instance)
     {
         return $"{instance.PlayerName} Color:{instance.ColorId} {instance.HatId} {instance.SkinId} {instance.VisorId} {instance.PetId}";
     }
 }
+
 public static class Camouflage
 {
     static GameData.PlayerOutfit CamouflageOutfit = new GameData.PlayerOutfit().Set("", 15, "", "", "", "", ""); // Default
@@ -103,9 +106,10 @@ public static class Camouflage
             CamouflageOutfit.PetId = petId;
         }
     }
+
     public static void CheckCamouflage()
     {
-        if (!(AmongUsClient.Instance.AmHost && (Options.CommsCamouflage.GetBool() || Camouflager.IsEnable))) return;
+        if (!(AmongUsClient.Instance.AmHost && (Options.CommsCamouflage.GetBool() || Main.PlayerStates.Any(x => x.Value.Role is Camouflager { IsEnable: true })))) return;
 
         var oldIsCamouflage = IsCamouflage;
 
@@ -122,12 +126,14 @@ public static class Camouflage
                     PetsPatch.RpcRemovePet(pc);
                 }
             }
+
             Utils.NotifyRoles(NoCache: true);
         }
     }
+
     public static void RpcSetSkin(PlayerControl target, bool ForceRevert = false, bool RevertToDefault = false, bool GameEnd = false)
     {
-        if (!(AmongUsClient.Instance.AmHost && (Options.CommsCamouflage.GetBool() || Camouflager.IsEnable))) return;
+        if (!(AmongUsClient.Instance.AmHost && (Options.CommsCamouflage.GetBool() || Main.PlayerStates.Any(x => x.Value.Role is Camouflager { IsEnable: true })))) return;
         if (target == null) return;
 
         var id = target.PlayerId;
@@ -148,6 +154,7 @@ public static class Camouflage
                 //シェイプシフターなら今の姿のidに変更
                 id = Main.ShapeshiftTarget[id];
             }
+
             if (!GameEnd && Doppelganger.DoppelPresentSkin.TryGetValue(id, out GameData.PlayerOutfit value)) newOutfit = value;
             else
             {
@@ -156,9 +163,11 @@ public static class Camouflage
                     var dpc = Utils.GetPlayerById(id);
                     dpc?.RpcSetName(value1);
                 }
+
                 newOutfit = PlayerSkins[id];
             }
         }
+
         // if the current Outfit is the same, return it
         if (newOutfit.Compare(target.Data.DefaultOutfit)) return;
 

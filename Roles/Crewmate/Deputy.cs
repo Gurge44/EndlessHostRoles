@@ -47,6 +47,7 @@ public class Deputy : RoleBase
     public override bool IsEnable => playerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = HandcuffCooldown.GetFloat();
     public override bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && player.GetAbilityUseLimit() >= 1;
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {

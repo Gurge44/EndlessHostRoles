@@ -1,8 +1,8 @@
+using AmongUs.GameOptions;
+using HarmonyLib;
 using System;
 using System.Collections;
 using System.Linq;
-using AmongUs.GameOptions;
-using HarmonyLib;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -12,6 +12,7 @@ namespace TOHE;
 class ShowFolderPatch
 {
     private static TaskFolder CustomRolesFolder;
+
     public static void Prefix(TaskAdderGame __instance, [HarmonyArgument(0)] TaskFolder taskFolder)
     {
         if (__instance.Root == taskFolder && CustomRolesFolder == null)
@@ -26,6 +27,7 @@ class ShowFolderPatch
             __instance.Root.SubFolders.Add(rolesFolder);
         }
     }
+
     public static void Postfix(TaskAdderGame __instance, [HarmonyArgument(0)] TaskFolder taskFolder)
     {
         Logger.Info("Opened " + taskFolder.FolderName, "TaskFolder");
@@ -82,10 +84,14 @@ class TaskAddButtonUpdatePatch
                 __instance.Overlay.enabled = PlayerCustomRole == FileCustomRole;
             }
         }
-        catch { }
+        catch
+        {
+        }
+
         return true;
     }
 }
+
 [HarmonyPatch(typeof(TaskAddButton), nameof(TaskAddButton.AddTask))]
 class AddTaskButtonPatch
 {
@@ -101,7 +107,10 @@ class AddTaskButtonPatch
                 return false;
             }
         }
-        catch { }
+        catch
+        {
+        }
+
         return true;
     }
 }

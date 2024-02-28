@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using AmongUs.GameOptions;
+using System.Collections.Generic;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -54,6 +54,7 @@ public class Vengeance : RoleBase
     public override bool IsEnable => playerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
 
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
     {
@@ -84,7 +85,12 @@ public class Vengeance : RoleBase
             return;
         }
 
-        if ((seconds <= 0 || GameStates.IsMeeting) && player.IsAlive()) { player.Kill(player); return; }
+        if ((seconds <= 0 || GameStates.IsMeeting) && player.IsAlive())
+        {
+            player.Kill(player);
+            return;
+        }
+
         player.Notify(string.Format(GetString("VengeanceRevenge"), seconds), 1.1f);
         Timer = seconds;
 

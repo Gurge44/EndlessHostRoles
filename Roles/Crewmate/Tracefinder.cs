@@ -1,7 +1,7 @@
-using System;
-using System.Collections.Generic;
 using AmongUs.GameOptions;
 using Hazel;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using static TOHE.Options;
 
@@ -57,6 +57,7 @@ public class Tracefinder : RoleBase
             writer.Write(loc.y);
             writer.Write(loc.z);
         }
+
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
@@ -65,6 +66,7 @@ public class Tracefinder : RoleBase
         AURoleOptions.ScientistCooldown = VitalsCooldown.GetFloat();
         AURoleOptions.ScientistBatteryCharge = VitalsDuration.GetFloat();
     }
+
     public static void ReceiveRPC(MessageReader reader)
     {
         byte playerId = reader.ReadByte();
@@ -83,6 +85,7 @@ public class Tracefinder : RoleBase
             SendRPC(apc, false);
         }
     }
+
     public static void OnPlayerDead(PlayerControl target)
     {
         var pos = target.Pos();
@@ -119,6 +122,7 @@ public class Tracefinder : RoleBase
             }
         }, delay, "Tracefinder arrow delay");
     }
+
     public static string GetTargetArrow(PlayerControl seer, PlayerControl target = null)
     {
         if (!seer.Is(CustomRoles.Tracefinder)) return string.Empty;

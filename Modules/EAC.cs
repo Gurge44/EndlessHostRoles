@@ -1,10 +1,10 @@
-﻿using System;
+﻿using AmongUs.GameOptions;
+using Hazel;
+using InnerNet;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using AmongUs.GameOptions;
-using Hazel;
-using InnerNet;
 using TOHE.Modules;
 using static TOHE.Translator;
 

@@ -70,6 +70,7 @@ public class Succubus : RoleBase
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = id.GetAbilityUseLimit() >= 1 ? CharmCooldown.GetFloat() + (CharmMax.GetInt() - id.GetAbilityUseLimit()) * CharmCooldownIncrese.GetFloat() : 300f;
     public override bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && player.GetAbilityUseLimit() >= 1;
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {

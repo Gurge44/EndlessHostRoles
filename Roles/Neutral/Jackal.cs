@@ -86,6 +86,8 @@ public class Jackal : RoleBase
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public static bool CanRecruit(byte id) => id.GetAbilityUseLimit() > 0;
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+    public override bool CanUseSabotage(PlayerControl pc) => CanSabotage.GetBool();
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {

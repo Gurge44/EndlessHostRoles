@@ -1,5 +1,5 @@
-using System;
 using AmongUs.GameOptions;
+using System;
 
 namespace TOHE.Modules;
 
@@ -7,6 +7,7 @@ public class NormalGameOptionsSender : GameOptionsSender
 {
     public override IGameOptions BasedGameOptions =>
         GameOptionsManager.Instance.CurrentGameOptions;
+
     public override bool IsDirty
     {
         get
@@ -19,6 +20,7 @@ public class NormalGameOptionsSender : GameOptionsSender
                         if (glc.TryCast<LogicOptions>(out var lo))
                             _logicOptions = lo;
                 }
+
                 return _logicOptions != null && _logicOptions.IsDirty;
             }
             catch (Exception ex)
@@ -27,11 +29,9 @@ public class NormalGameOptionsSender : GameOptionsSender
                 return _logicOptions != null && _logicOptions.IsDirty;
             }
         }
-        protected set
-        {
-            _logicOptions?.ClearDirtyFlag();
-        }
+        protected set { _logicOptions?.ClearDirtyFlag(); }
     }
+
     private LogicOptions _logicOptions;
 
     public override IGameOptions BuildGameOptions()

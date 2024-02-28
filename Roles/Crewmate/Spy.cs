@@ -85,14 +85,16 @@ namespace TOHE.Roles.Crewmate
             }
         }
 
-        public static void OnKillAttempt(PlayerControl killer, PlayerControl target) // Special handling for Spy ---- remains as a static method
+        public static bool OnKillAttempt(PlayerControl killer, PlayerControl target) // Special handling for Spy ---- remains as a static method
         {
-            if (killer == null || target == null || !target.Is(CustomRoles.Spy) || killer.PlayerId == target.PlayerId || target.GetAbilityUseLimit() < 1) return;
+            if (killer == null || target == null || !target.Is(CustomRoles.Spy) || killer.PlayerId == target.PlayerId || target.GetAbilityUseLimit() < 1) return true;
 
             target.RpcRemoveAbilityUse();
             SpyRedNameList.TryAdd(killer.PlayerId, TimeStamp);
             SendRPC(1, id: killer.PlayerId);
             NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
+
+            return false;
         }
 
         public override void OnFixedUpdate(PlayerControl pc)

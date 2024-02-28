@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Hazel;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Hazel;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -72,6 +72,7 @@ namespace TOHE.Roles.Crewmate
             if (add) writer.Write(roomName);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
+
         public static void ReceiveRPCAddTrigger(MessageReader reader)
         {
             bool add = reader.ReadBoolean();
@@ -202,8 +203,8 @@ namespace TOHE.Roles.Crewmate
             if (!Triggers.TryGetValue(id, out var triggers)) return sb.ToString();
 
             string GetCD_HUDText() => !UsePets.GetBool() || !Main.AbilityCD.TryGetValue(id, out var CD)
-                    ? string.Empty
-                    : string.Format(GetString("CDPT"), CD.TOTALCD - (TimeStamp - CD.START_TIMESTAMP) + 1);
+                ? string.Empty
+                : string.Format(GetString("CDPT"), CD.TOTALCD - (TimeStamp - CD.START_TIMESTAMP) + 1);
 
             sb.AppendLine($"<#00ffa5>{triggers.Count}</color> trigger{(triggers.Count == 1 ? string.Empty : 's')} active");
             sb.Append(string.Join('\n', triggers.Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));

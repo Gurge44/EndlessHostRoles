@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Hazel;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using Hazel;
 using UnityEngine;
 
 namespace TOHE.Roles.Crewmate

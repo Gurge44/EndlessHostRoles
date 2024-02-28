@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using Hazel;
+using System;
+using System.Collections.Generic;
 using static TOHE.Options;
 using static TOHE.Translator;
 using static TOHE.Utils;

@@ -1,6 +1,6 @@
-﻿using System.Collections;
-using BepInEx.Unity.IL2CPP.Utils;
+﻿using BepInEx.Unity.IL2CPP.Utils;
 using HarmonyLib;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using static TOHE.Translator;
@@ -25,9 +25,11 @@ public static class CredentialsPatch
                 {
                     ViewBoosterPatch(__instance);
                 }
+
                 break;
             }
         }
+
         public static string BoosterData = string.Empty;
         public static string SponsersData = string.Empty;
         public static string DevsData = string.Empty;
@@ -76,10 +78,10 @@ public static class CredentialsPatch
             SponsersData += "\n斯卡蒂Skadi";
             SponsersData += "\nltemten";
             SponsersData += $"\n\n<size=60%>({GetString("OnlyShowPart")})</size>";
-
         }
 
         public static GameObject CreditsPopup;
+
         static void ViewBoosterPatch(MainMenuManager __instance)
         {
             var template = __instance.transform.FindChild("StatsPopup");
@@ -144,7 +146,9 @@ public static class CredentialsPatch
             obj.transform.FindChild("Background").localScale = new Vector3(1.5f, 1f, 1f);
             obj.transform.FindChild("CloseButton").localPosition = new Vector3(-3.75f, 2.65f, 0);
         }
+
         public static MainMenuManager instance;
+
         public static void Postfix(MainMenuManager __instance)
         {
             InitCredentialsData();

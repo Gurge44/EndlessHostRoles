@@ -66,6 +66,8 @@ namespace TOHE.Roles.Neutral
 
         public override bool CanUseKillButton(PlayerControl player) => player.IsAlive();
 
+        public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
+
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (Deathknight.DeathknightId == byte.MaxValue)
@@ -157,6 +159,8 @@ namespace TOHE.Roles.Neutral
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Necromancer.DKCD.GetFloat();
 
         public override bool CanUseKillButton(PlayerControl player) => player.IsAlive();
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {

@@ -1,7 +1,7 @@
-﻿using System;
-using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using Hazel;
+using System;
+using System.Linq;
 using static TOHE.Options;
 using static TOHE.Translator;
 using static TOHE.Utils;
@@ -72,6 +72,7 @@ namespace TOHE.Roles.Neutral
         public override bool IsEnable => SoulHunterId != byte.MaxValue;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = WaitingTimeAfterMeeting.GetFloat() + 1.5f;
         public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+        public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
         public static bool IsSoulHunterTarget(byte id) => Main.PlayerStates.Any(x => x.Value.Role is SoulHunter { IsEnable: true } sh && sh.IsTargetBlocked && sh.CurrentTarget.ID == id);
         public static SoulHunter GetSoulHunter(byte targetId) => Main.PlayerStates.FirstOrDefault(x => x.Value.Role is SoulHunter { IsEnable: true } sh && sh.IsTargetBlocked && sh.CurrentTarget.ID == targetId).Value.Role as SoulHunter;
 
@@ -85,6 +86,7 @@ namespace TOHE.Roles.Neutral
             writer.Write(CurrentTarget.FROZEN);
             EndRPC(writer);
         }
+
         public static void ReceiveRPC(MessageReader reader)
         {
             byte id = reader.ReadByte();

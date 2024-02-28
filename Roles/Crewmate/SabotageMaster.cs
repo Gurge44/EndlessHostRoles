@@ -63,7 +63,7 @@ public class SabotageMaster : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    void SendRPC()
+    public void SendRPC()
     {
         if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetSabotageMasterLimit, SendOption.Reliable);

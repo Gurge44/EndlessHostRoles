@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Hazel;
+﻿using Hazel;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace TOHE.Roles.Neutral;
@@ -83,17 +83,20 @@ public class Doomsayer : RoleBase
         writer.Write(player.PlayerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader)
     {
         byte DoomsayerId = reader.ReadByte();
         GuessingToWin[DoomsayerId]++;
     }
+
     public static (int, int) GuessedPlayerCount(byte doomsayerId)
     {
         int doomsayerguess = GuessingToWin[doomsayerId], GuessesToWin = DoomsayerAmountOfGuessesToWin.GetInt();
 
         return (doomsayerguess, GuessesToWin);
     }
+
     public static void CheckCountGuess(PlayerControl doomsayer)
     {
         if (!(GuessingToWin[doomsayer.PlayerId] >= DoomsayerAmountOfGuessesToWin.GetInt())) return;

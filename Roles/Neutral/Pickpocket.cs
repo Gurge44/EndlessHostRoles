@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using AmongUs.GameOptions;
+using System.Collections.Generic;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral;
@@ -22,7 +22,7 @@ public class Pickpocket : RoleBase
         CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Pickpocket]);
         HasImpostorVision = BooleanOptionItem.Create(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Pickpocket]);
         VotesPerKill = FloatOptionItem.Create(Id + 12, "VotesPerKill", new(0.1f, 10f, 0.1f), 0.3f, TabGroup.NeutralRoles, false)
-        .SetParent(CustomRoleSpawnChances[CustomRoles.Pickpocket]);
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Pickpocket]);
     }
 
     public override void Init()
@@ -42,4 +42,5 @@ public class Pickpocket : RoleBase
     public override bool IsEnable => playerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
 }

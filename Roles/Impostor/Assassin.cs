@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using Hazel;
+using System.Collections.Generic;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
@@ -71,6 +71,7 @@ internal class Assassin : RoleBase
         writer.Write(MarkedPlayer);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader)
     {
         byte playerId = reader.ReadByte();

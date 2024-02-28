@@ -38,4 +38,10 @@ public class Blackmailer : RoleBase
     }
 
     public override bool IsEnable => playerIdList.Count > 0;
+
+    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+    {
+        ForBlackmailer.Add(target.PlayerId);
+        return false;
+    }
 }

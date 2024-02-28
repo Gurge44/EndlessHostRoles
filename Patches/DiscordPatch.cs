@@ -1,7 +1,7 @@
-using System;
 using AmongUs.Data;
 using Discord;
 using HarmonyLib;
+using System;
 
 namespace TOHE.Patches
 {
@@ -11,6 +11,7 @@ namespace TOHE.Patches
     {
         private static string lobbycode = "";
         private static string region = "";
+
         public static void Prefix([HarmonyArgument(0)] Activity activity)
         {
             var details = $"TOHE+ v{Main.PluginDisplayVersion}";

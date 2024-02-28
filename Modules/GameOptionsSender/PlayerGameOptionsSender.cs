@@ -1,9 +1,9 @@
-using System;
-using System.Linq;
 using AmongUs.GameOptions;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
+using System;
+using System.Linq;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
@@ -14,6 +14,7 @@ namespace TOHE.Modules;
 public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 {
     public static void SetDirty(PlayerControl player) => SetDirty(player.PlayerId);
+
     public static void SetDirty(byte playerId)
     {
         foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().Where(sender => sender.player.PlayerId == playerId).ToArray())
@@ -40,7 +41,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 
     public static void SetDirtyToAllV3()
     {
-        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().Where(sender => !sender.IsDirty && sender.player.IsAlive() && ((Main.GrenadierBlinding.Count > 0 && (sender.player.GetCustomRole().IsImpostor() || (sender.player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))) || (Grenadier.MadGrenadierBlinding.Count > 0 && !sender.player.GetCustomRole().IsImpostorTeam() && !sender.player.Is(CustomRoles.Madmate)))).ToArray())
+        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().Where(sender => !sender.IsDirty && sender.player.IsAlive() && ((Grenadier.GrenadierBlinding.Count > 0 && (sender.player.GetCustomRole().IsImpostor() || (sender.player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))) || (Grenadier.MadGrenadierBlinding.Count > 0 && !sender.player.GetCustomRole().IsImpostorTeam() && !sender.player.Is(CustomRoles.Madmate)))).ToArray())
         {
             sender.SetDirty();
         }
@@ -56,6 +57,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 
     public override IGameOptions BasedGameOptions =>
         Main.RealOptionsData.Restore(new NormalGameOptionsV07(new UnityLogger().Cast<ILogger>()).Cast<IGameOptions>());
+
     public override bool IsDirty { get; protected set; }
 
     public PlayerControl player = player;
@@ -72,6 +74,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 if (com.TryCast<LogicOptions>(out var lo))
                     lo.SetGameOptions(opt);
             }
+
             GameOptionsManager.Instance.CurrentGameOptions = opt;
         }
         else base.SendGameOptions();
@@ -94,14 +97,16 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
             Logger.Fatal(ex.ToString(), "PlayerGameOptionsSender.SendOptionsArray");
         }
     }
+
     public static void RemoveSender(PlayerControl player)
     {
         var sender = AllSenders.OfType<PlayerGameOptionsSender>()
-        .FirstOrDefault(sender => sender.player.PlayerId == player.PlayerId);
+            .FirstOrDefault(sender => sender.player.PlayerId == player.PlayerId);
         if (sender == null) return;
         sender.player = null;
         AllSenders.Remove(sender);
     }
+
     public override IGameOptions BuildGameOptions()
     {
         try
@@ -130,6 +135,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                         opt.SetFloat(FloatOptionNames.CrewLightMod, 1.25f);
                         opt.SetFloat(FloatOptionNames.ImpostorLightMod, 1.25f);
                     }
+
                     break;
                 case CustomGameMode.HotPotato:
                 case CustomGameMode.MoveAndStop:
@@ -572,7 +578,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
             }
 
             if (
-                (Main.GrenadierBlinding.Count > 0 &&
+                (Grenadier.GrenadierBlinding.Count > 0 &&
                  (player.GetCustomRole().IsImpostor() ||
                   (player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))
                 ) || (
@@ -588,7 +594,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 
             switch (player.GetCustomRole())
             {
-                case CustomRoles.Alchemist when Alchemist.VisionPotionActive:
+                case CustomRoles.Alchemist when (Main.PlayerStates[player.PlayerId].Role as Alchemist).VisionPotionActive:
                     opt.SetVisionV2();
                     if (Utils.IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.CrewLightMod, Alchemist.VisionOnLightsOut.GetFloat() * 5);
                     else opt.SetFloat(FloatOptionNames.CrewLightMod, Alchemist.Vision.GetFloat());
@@ -615,7 +621,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 opt.SetFloat(FloatOptionNames.ImpostorLightMod, Beacon.IncreasedVision);
             }
 
-            /*     if ((Main.FlashbangInProtect.Count > 0 && Main.ForFlashbang.Contains(player.PlayerId) && (!player.GetCustomRole().IsCrewmate())))  
+            /*     if ((Main.FlashbangInProtect.Count > 0 && Main.ForFlashbang.Contains(player.PlayerId) && (!player.GetCustomRole().IsCrewmate())))
                  {
                          opt.SetVision(false);
                          opt.SetFloat(FloatOptionNames.CrewLightMod, Options.FlashbangVision.GetFloat());
@@ -724,10 +730,12 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     Int32OptionNames.EmergencyCooldown,
                     Options.AdditionalEmergencyCooldownTime.GetInt());
             }
+
             if (Options.SyncButtonMode.GetBool() && Options.SyncedButtonCount.GetValue() <= Options.UsedButtonCount)
             {
                 opt.SetInt(Int32OptionNames.EmergencyCooldown, 3600);
             }
+
             MeetingTimeManager.ApplyGameOptions(opt);
 
             AURoleOptions.ShapeshifterCooldown = Mathf.Max(1f, AURoleOptions.ShapeshifterCooldown);

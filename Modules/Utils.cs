@@ -1,5 +1,9 @@
+using AmongUs.Data;
+using AmongUs.GameOptions;
+using Hazel;
+using Il2CppInterop.Runtime.InteropTypes;
+using InnerNet;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -8,12 +12,8 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using AmongUs.Data;
-using AmongUs.GameOptions;
-using Hazel;
-using Il2CppInterop.Runtime.InteropTypes;
-using InnerNet;
 using TOHE.Modules;
+using TOHE.Patches;
 using TOHE.Roles.AddOns.Common;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
@@ -121,7 +121,7 @@ public static class Utils
 
         Logger.Info($"{nt.myPlayer.GetNameWithRole().RemoveHtmlTags()} => {vent.transform.position} (vent)", "TP");
 
-        return TP(nt, new Vector2(vent.transform.position.x, vent.transform.position.y + 0.3636f), log);
+        return TP(nt, new(vent.transform.position.x, vent.transform.position.y + 0.3636f), log);
     }
 
     public static ClientData GetClientById(int id)
@@ -147,42 +147,49 @@ public static class Utils
             {
                 if (mapId == 5) return false; // if The Fungle return false
                 var SwitchSystem = ShipStatus.Instance.Systems[type].Cast<SwitchSystem>();
-                return SwitchSystem != null && SwitchSystem.IsActive;
+                return SwitchSystem is { IsActive: true };
             }
             case SystemTypes.Reactor:
             {
-                if (mapId == 2) return false; // if Polus return false
-                if (mapId is 4) // Only Airhip
+                switch (mapId)
                 {
-                    var HeliSabotageSystem = ShipStatus.Instance.Systems[type].Cast<HeliSabotageSystem>();
-                    return HeliSabotageSystem != null && HeliSabotageSystem.IsActive;
+                    case 2:
+                        return false; // if Polus return false
+                    // Only Airhip
+                    case 4:
+                    {
+                        var HeliSabotageSystem = ShipStatus.Instance.Systems[type].Cast<HeliSabotageSystem>();
+                        return HeliSabotageSystem != null && HeliSabotageSystem.IsActive;
+                    }
+                    default:
+                    {
+                        var ReactorSystemType = ShipStatus.Instance.Systems[type].Cast<ReactorSystemType>();
+                        return ReactorSystemType is { IsActive: true };
+                    }
                 }
-
-                var ReactorSystemType = ShipStatus.Instance.Systems[type].Cast<ReactorSystemType>();
-                return ReactorSystemType != null && ReactorSystemType.IsActive;
             }
             case SystemTypes.Laboratory:
             {
                 if (mapId != 2) return false; // Only Polus
                 var ReactorSystemType = ShipStatus.Instance.Systems[type].Cast<ReactorSystemType>();
-                return ReactorSystemType != null && ReactorSystemType.IsActive;
+                return ReactorSystemType is { IsActive: true };
             }
             case SystemTypes.LifeSupp:
             {
                 if (mapId is 2 or 4 or 5) return false; // Only Skeld & Mira HQ
                 var LifeSuppSystemType = ShipStatus.Instance.Systems[type].Cast<LifeSuppSystemType>();
-                return LifeSuppSystemType != null && LifeSuppSystemType.IsActive;
+                return LifeSuppSystemType is { IsActive: true };
             }
             case SystemTypes.Comms:
             {
                 if (mapId is 1 or 5) // Only Mira HQ & The Fungle
                 {
                     var HqHudSystemType = ShipStatus.Instance.Systems[type].Cast<HqHudSystemType>();
-                    return HqHudSystemType != null && HqHudSystemType.IsActive;
+                    return HqHudSystemType is { IsActive: true };
                 }
 
                 var HudOverrideSystemType = ShipStatus.Instance.Systems[type].Cast<HudOverrideSystemType>();
-                return HudOverrideSystemType != null && HudOverrideSystemType.IsActive;
+                return HudOverrideSystemType is { IsActive: true };
             }
             case SystemTypes.HeliSabotage:
             {
@@ -291,14 +298,12 @@ public static class Utils
     {
         if (seer.Is(CustomRoles.GM) || seer.Is(CustomRoles.Seer)) return true;
         if (seer.Data.IsDead || killer == seer || target == seer) return false;
-        if (seer.Is(CustomRoles.EvilTracker)) return EvilTracker.KillFlashCheck(killer, target);
-        return false;
+        return seer.Is(CustomRoles.EvilTracker) && EvilTracker.KillFlashCheck(killer, target);
     }
 
     public static void KillFlash(this PlayerControl player)
     {
         //Kill flash (blackout + reactor flash) processing
-        bool ReactorCheck = false; //Checking whether the reactor sabotage is active
 
         var systemtypes = (MapNames)Main.NormalOptions.MapId switch
         {
@@ -306,7 +311,7 @@ public static class Utils
             MapNames.Airship => SystemTypes.HeliSabotage,
             _ => SystemTypes.Reactor,
         };
-        ReactorCheck = IsActive(systemtypes);
+        bool ReactorCheck = IsActive(systemtypes); //Checking whether the reactor sabotage is active
 
         var Duration = Options.KillFlashDuration.GetFloat();
         if (ReactorCheck) Duration += 0.2f; // Extend blackout during reactor
@@ -330,7 +335,7 @@ public static class Utils
         {
             Main.PlayerStates[player.PlayerId].IsBlackOut = false; // Cancel blackout
             player.MarkDirtySettings();
-        }, Options.KillFlashDuration.GetFloat(), "RemoveKillFlash");
+        }, Duration, "RemoveKillFlash");
     }
 
     public static void BlackOut(this IGameOptions opt, bool IsBlackOut)
@@ -389,9 +394,6 @@ public static class Utils
 
     public static (string, Color) GetRoleText(byte seerId, byte targetId, bool pure = false)
     {
-        string RoleText = "Invalid Role";
-        Color RoleColor;
-
         var seerMainRole = Main.PlayerStates[seerId].MainRole;
         var seerSubRoles = Main.PlayerStates[seerId].SubRoles;
 
@@ -400,8 +402,8 @@ public static class Utils
 
         var self = seerId == targetId || Main.PlayerStates[seerId].IsDead;
 
-        RoleText = GetRoleName(targetMainRole);
-        RoleColor = GetRoleColor(targetMainRole);
+        string RoleText = GetRoleName(targetMainRole);
+        Color RoleColor = GetRoleColor(targetMainRole);
 
         if (LastImpostor.currentId == targetId)
             RoleText = GetRoleString("Last-") + RoleText;
@@ -743,7 +745,6 @@ public static class Utils
         if (Romantic.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Lawyer.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (EvilDiviner.IsShowTargetRole(PlayerControl.LocalPlayer, __instance)) result = true;
-        if (Ritualist.IsShowTargetRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Executioner.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Succubus.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Necromancer.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
@@ -756,7 +757,6 @@ public static class Utils
         if (Totocalcio.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Lawyer.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (EvilDiviner.IsShowTargetRole(PlayerControl.LocalPlayer, __instance)) result = true;
-        if (Ritualist.IsShowTargetRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Executioner.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Main.GodMode.Value) result = true;
 
@@ -792,247 +792,10 @@ public static class Utils
         if (!Main.playerVersion.ContainsKey(0)) return string.Empty; //ホストがMODを入れていなければ未記入を返す
         if (Options.CurrentGameMode == CustomGameMode.MoveAndStop) return GetTaskCount(playerId, comms, moveAndStop: true);
         var ProgressText = new StringBuilder();
-        var role = Main.PlayerStates[playerId].MainRole;
         PlayerControl pc = GetPlayerById(playerId);
         try
         {
-            switch (role)
-            {
-                case CustomRoles.Sheriff:
-                    if (Sheriff.ShowShotLimit.GetBool()) ProgressText.Append(Sheriff.GetShotLimit(playerId));
-                    break;
-                case CustomRoles.Perceiver:
-                    ProgressText.Append(Perceiver.GetProgressText(playerId));
-                    break;
-                case CustomRoles.Convener:
-                    ProgressText.Append(Convener.GetProgressText(playerId));
-                    break;
-                case CustomRoles.Kamikaze:
-                    ProgressText.Append(Kamikaze.GetProgressText(playerId));
-                    break;
-                case CustomRoles.Analyzer:
-                    ProgressText.Append(Analyzer.GetProgressText());
-                    break;
-                case CustomRoles.SoulHunter:
-                    ProgressText.Append(SoulHunter.ProgressText);
-                    break;
-                case CustomRoles.Sprayer:
-                    ProgressText.Append(Sprayer.ProgressText);
-                    break;
-                case CustomRoles.Alchemist:
-                    ProgressText.Append(Alchemist.GetProgressText(playerId));
-                    break;
-                case CustomRoles.Bandit:
-                    ProgressText.Append(Bandit.GetStealLimit(playerId));
-                    break;
-                case CustomRoles.Cleanser:
-                    ProgressText.Append(Cleanser.GetProgressText(playerId));
-                    break;
-                case CustomRoles.Doppelganger:
-                    ProgressText.Append(Doppelganger.GetStealLimit(playerId));
-                    break;
-                case CustomRoles.SerialKiller:
-                    if (SerialKiller.SuicideTimer.TryGetValue(playerId, out float value))
-                    {
-                        int SKTime = SerialKiller.TimeLimit.GetInt() - (int)value;
-                        Color SKColor = SKTime < 10 ? SKTime % 2 == 1 ? Color.yellow : Color.red : Color.white;
-                        if (SKTime <= 20) ProgressText.Append(ColorString(SKColor, $"<color=#777777>-</color> {SKTime}s"));
-                    }
-
-                    break;
-                case CustomRoles.PlagueDoctor:
-                    ProgressText.Append(PlagueDoctor.GetProgressText());
-                    break;
-                case CustomRoles.BountyHunter:
-                    if (BountyHunter.ChangeTimer.TryGetValue(playerId, out float value1))
-                    {
-                        int BHTime = (int)(BountyHunter.TargetChangeTime - value1);
-                        if (BHTime <= 15) ProgressText.Append(ColorString(Color.white, $"<color=#777777>-</color> <color=#00ffa5>SWAP:</color> {BHTime}s"));
-                    }
-
-                    break;
-                case CustomRoles.WeaponMaster:
-                    if (!pc.IsModClient()) ProgressText.Append(WeaponMaster.GetHudAndProgressText());
-                    break;
-                case CustomRoles.Jailor:
-                    ProgressText.Append(Jailor.GetProgressText(playerId));
-                    break;
-                case CustomRoles.NiceSwapper:
-                    ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(NiceSwapper.ProgressText);
-                    break;
-                case CustomRoles.SabotageMaster:
-                    Color TextColor101;
-                    if (SabotageMaster.SkillLimit.GetFloat() - SabotageMaster.UsedSkillCount < 1) TextColor101 = Color.red;
-                    else TextColor101 = Color.white;
-                    ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(ColorString(TextColor101, $" <color=#777777>-</color> {Math.Round(SabotageMaster.SkillLimit.GetFloat() - SabotageMaster.UsedSkillCount, 1)}"));
-                    break;
-                case CustomRoles.Chameleon:
-                    ProgressText.Append(GetTaskCount(playerId, comms));
-                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId, Chameleon.IsInvis(playerId)));
-                    break;
-                case CustomRoles.Crusader:
-                    ProgressText.Append(Crusader.GetSkillLimit(playerId));
-                    break;
-                case CustomRoles.Benefactor:
-                    ProgressText.Append(Benefactor.GetProgressText(playerId));
-                    break;
-                case CustomRoles.Philantropist:
-                    //ProgressText.Append(Philantropist.GetProgressText(playerId));
-                    break;
-                case CustomRoles.CameraMan:
-                    ProgressText.Append(CameraMan.GetProgressText(playerId, comms));
-                    break;
-                case CustomRoles.NiceHacker:
-                    ProgressText.Append(NiceHacker.GetProgressText(playerId, comms));
-                    break;
-                case CustomRoles.RiftMaker:
-                    ProgressText.Append(RiftMaker.GetProgressText());
-                    break;
-                case CustomRoles.Ricochet:
-                    ProgressText.Append(Ricochet.GetProgressText(playerId, comms));
-                    break;
-                case CustomRoles.Doormaster:
-                    ProgressText.Append(Doormaster.GetProgressText(playerId, comms));
-                    break;
-                case CustomRoles.CopyCat:
-                    ProgressText.Append(GetAbilityUseLimitDisplay(playerId));
-                    break;
-                case CustomRoles.PlagueBearer:
-                    var plagued = PlagueBearer.PlaguedPlayerCount(playerId);
-                    ProgressText.Append(ColorString(GetRoleColor(CustomRoles.PlagueBearer).ShadeColor(0.25f), $"<color=#777777>-</color> {plagued.Item1}/{plagued.Item2}"));
-                    break;
-                case CustomRoles.Doomsayer:
-                    var doomsayerguess = Doomsayer.GuessedPlayerCount(playerId);
-                    ProgressText.Append(ColorString(GetRoleColor(CustomRoles.Doomsayer).ShadeColor(0.25f), $"<color=#777777>-</color> {doomsayerguess.Item1}/{doomsayerguess.Item2}"));
-                    break;
-
-                case CustomRoles.Sniper:
-                    ProgressText.Append(Sniper.GetBulletCount(playerId));
-                    break;
-                case CustomRoles.EvilTracker:
-                    ProgressText.Append(EvilTracker.GetMarker(playerId));
-                    break;
-                case CustomRoles.TimeThief:
-                    ProgressText.Append(TimeThief.GetProgressText(playerId));
-                    break;
-                case CustomRoles.Vulture:
-                    ProgressText.Append(ColorString(GetRoleColor(CustomRoles.Vulture).ShadeColor(0.25f), $"<color=#777777>-</color> {(Vulture.BodyReportCount.GetValueOrDefault(playerId, 0))}/{Vulture.NumberOfReportsToWin.GetInt()}"));
-                    break;
-                //case CustomRoles.Masochist:
-                //    ProgressText.Append(ColorString(GetRoleColor(CustomRoles.Masochist).ShadeColor(0.25f), $"<color=#777777>-</color> {(Main.MasochistKillMax.TryGetValue(playerId, out var count3) ? count3 : 0)}/{Options.MasochistKillMax.GetInt()}"));
-                //    break;
-                case CustomRoles.QuickShooter:
-                    ProgressText.Append(QuickShooter.GetShotLimit(playerId));
-                    break;
-                case CustomRoles.Cantankerous:
-                    ProgressText.Append(Cantankerous.GetProgressText(playerId));
-                    break;
-                case CustomRoles.SwordsMan:
-                    ProgressText.Append(SwordsMan.GetKillLimit(playerId));
-                    break;
-                case CustomRoles.Pelican:
-                    ProgressText.Append(Pelican.GetProgressText(playerId));
-                    break;
-                //case CustomRoles.Counterfeiter:
-                //    ProgressText.Append(Counterfeiter.GetSeelLimit(playerId));
-                //    break;
-                case CustomRoles.Tether:
-                    ProgressText.Append(Tether.GetProgressText(playerId, comms));
-                    break;
-                case CustomRoles.Spy:
-                    ProgressText.Append(Spy.GetProgressText(playerId, comms));
-                    break;
-                case CustomRoles.Aid:
-                    ProgressText.Append(Aid.GetProgressText(playerId, comms));
-                    break;
-                case CustomRoles.Mafioso when !pc.IsModClient():
-                    ProgressText.Append(Mafioso.GetProgressText());
-                    break;
-                case CustomRoles.Consort:
-                    ProgressText.Append(Consort.GetProgressText(playerId));
-                    break;
-                case CustomRoles.Drainer:
-                    ProgressText.Append(Drainer.GetProgressText());
-                    break;
-                case CustomRoles.DonutDelivery when Options.CurrentGameMode != CustomGameMode.MoveAndStop:
-                    ProgressText.Append(DonutDelivery.GetProgressText(playerId));
-                    break;
-                case CustomRoles.Gaulois:
-                    ProgressText.Append(Gaulois.GetProgressText(playerId));
-                    break;
-                case CustomRoles.Escort:
-                    ProgressText.Append(Escort.GetProgressText(playerId));
-                    break;
-                case CustomRoles.Pursuer:
-                    ProgressText.Append(Pursuer.GetSeelLimit(playerId));
-                    break;
-                case CustomRoles.Gangster:
-                    ProgressText.Append(Gangster.GetRecruitLimit(playerId));
-                    break;
-                case CustomRoles.Medic:
-                    ProgressText.Append(Medic.GetSkillLimit(playerId));
-                    break;
-                case CustomRoles.CursedWolf:
-                    int SpellCount = Main.CursedWolfSpellCount[playerId];
-                    ProgressText.Append(ColorString(GetRoleColor(CustomRoles.CursedWolf), $"({SpellCount})"));
-                    break;
-                case CustomRoles.Jinx:
-                    int JinxSpellCount = Main.JinxSpellCount[playerId];
-                    ProgressText.Append(ColorString(GetRoleColor(CustomRoles.Jinx), $"({JinxSpellCount})"));
-                    break;
-                case CustomRoles.Collector:
-                    ProgressText.Append(Collector.GetProgressText(playerId));
-                    break;
-                case CustomRoles.Eraser:
-                    ProgressText.Append(Eraser.GetProgressText(playerId));
-                    break;
-                //case CustomRoles.NiceEraser:
-                //    ProgressText.Append(NiceEraser.GetProgressText(playerId));
-                //    break;
-                case CustomRoles.Hacker:
-                    ProgressText.Append(Hacker.GetHackLimit(playerId));
-                    break;
-                case CustomRoles.KB_Normal:
-                    ProgressText.Append(SoloKombatManager.GetDisplayScore(playerId));
-                    break;
-                case CustomRoles.Killer:
-                    ProgressText.Append(FFAManager.GetDisplayScore(playerId));
-                    break;
-                case CustomRoles.Totocalcio:
-                    ProgressText.Append(Totocalcio.GetProgressText(playerId));
-                    break;
-                case CustomRoles.Succubus:
-                    ProgressText.Append(Succubus.GetCharmLimit());
-                    break;
-                //case CustomRoles.CursedSoul:
-                //    ProgressText.Append(CursedSoul.GetCurseLimit());
-                //    break;
-                case CustomRoles.Monarch:
-                    ProgressText.Append(Monarch.GetKnightLimit(playerId));
-                    break;
-                case CustomRoles.Deputy:
-                    ProgressText.Append(Deputy.GetHandcuffLimit(playerId));
-                    break;
-                case CustomRoles.Virus:
-                    ProgressText.Append(Virus.GetInfectLimit());
-                    break;
-                case CustomRoles.Ritualist:
-                    ProgressText.Append(Ritualist.GetRitualCount(playerId));
-                    break;
-                case CustomRoles.Jackal:
-                    if (Jackal.CanRecruitSidekick.GetBool())
-                        ProgressText.Append(Jackal.GetRecruitLimit(playerId));
-                    break;
-                case CustomRoles.Spiritcaller:
-                    ProgressText.Append(Spiritcaller.GetSpiritLimit());
-                    break;
-                default:
-                    //タスクテキスト
-                    ProgressText.Append(GetTaskCount(playerId, comms));
-                    break;
-            }
+            ProgressText.Append(Main.PlayerStates[playerId].Role.GetProgressText(playerId, comms));
         }
         catch (Exception ex)
         {
@@ -1135,14 +898,7 @@ public static class Utils
     /// <returns>A list containing all PlayerControls within the specified range from the specified location</returns>
     public static PlayerControl[] GetPlayersInRadius(float radius, Vector2 from)
     {
-        var list = new List<PlayerControl>();
-        foreach (PlayerControl tg in Main.AllAlivePlayerControls)
-        {
-            var dis = Vector2.Distance(from, tg.Pos());
-            if (Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || tg.inVent) continue;
-            if (dis > radius) continue;
-            list.Add(tg);
-        }
+        var list = (from tg in Main.AllAlivePlayerControls let dis = Vector2.Distance(@from, tg.Pos()) where !Pelican.IsEaten(tg.PlayerId) && !Medic.ProtectList.Contains(tg.PlayerId) && !tg.inVent where !(dis > radius) select tg).ToList();
 
         return [.. list];
     }
@@ -1185,7 +941,6 @@ public static class Utils
 
     public static void ShowAllActiveSettings(byte PlayerId = byte.MaxValue)
     {
-        var mapId = Main.NormalOptions.MapId;
         if (Options.HideGameSettings.GetBool() && PlayerId != byte.MaxValue)
         {
             SendMessage(GetString("Message.HideGameSettings"), PlayerId);
@@ -1270,17 +1025,15 @@ public static class Utils
         }
 
         var sb = new StringBuilder();
-        sb.AppendFormat("\n{0}: {1}", GetRoleName(CustomRoles.GM), Options.EnableGM.GetString().RemoveHtmlTags());
+        sb.Append($"\n{GetRoleName(CustomRoles.GM)}: {Options.EnableGM.GetString().RemoveHtmlTags()}");
 
         var impsb = new StringBuilder();
         var neutralsb = new StringBuilder();
         var crewsb = new StringBuilder();
         var addonsb = new StringBuilder();
         //int headCount = -1;
-        IList list = Enum.GetValues(typeof(CustomRoles));
-        for (int i = 0; i < list.Count; i++)
+        foreach (var role in EnumHelper.GetAllValues<CustomRoles>())
         {
-            CustomRoles role = (CustomRoles)list[i];
             string mode = GetString($"Rate{role.GetMode()}");
             if (role.IsEnable())
             {
@@ -1360,7 +1113,7 @@ public static class Utils
 
         sb.Append("<#ffffff><u>Role Summary:</u></color><size=70%>");
 
-        List<byte> cloneRoles = new(Main.PlayerStates.Keys);
+        List<byte> cloneRoles = [..Main.PlayerStates.Keys];
         foreach (byte id in Main.winnerList.ToArray())
         {
             if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
@@ -1372,10 +1125,7 @@ public static class Utils
         {
             case CustomGameMode.SoloKombat:
                 List<(int, byte)> list = [];
-                foreach (byte id in cloneRoles.ToArray())
-                {
-                    list.Add((SoloKombatManager.GetRankOfScore(id), id));
-                }
+                list.AddRange(cloneRoles.ToArray().Select(id => (SoloKombatManager.GetRankOfScore(id), id)));
 
                 list.Sort();
                 foreach ((int, byte) id in list.ToArray())
@@ -1386,10 +1136,7 @@ public static class Utils
                 break;
             case CustomGameMode.FFA:
                 List<(int, byte)> list2 = [];
-                foreach (byte id in cloneRoles.ToArray())
-                {
-                    list2.Add((FFAManager.GetRankOfScore(id), id));
-                }
+                list2.AddRange(cloneRoles.ToArray().Select(id => (FFAManager.GetRankOfScore(id), id)));
 
                 list2.Sort();
                 foreach ((int, byte) id in list2.ToArray())
@@ -1400,10 +1147,7 @@ public static class Utils
                 break;
             case CustomGameMode.MoveAndStop:
                 List<(int, byte)> list3 = [];
-                foreach (byte id in cloneRoles.ToArray())
-                {
-                    list3.Add((MoveAndStopManager.GetRankOfScore(id), id));
-                }
+                list3.AddRange(cloneRoles.ToArray().Select(id => (MoveAndStopManager.GetRankOfScore(id), id)));
 
                 list3.Sort();
                 foreach ((int, byte) id in list3.ToArray())
@@ -1414,10 +1158,7 @@ public static class Utils
                 break;
             case CustomGameMode.HotPotato:
                 List<byte> list4 = [];
-                foreach (byte id in cloneRoles.ToArray())
-                {
-                    list4.Add(id);
-                }
+                list4.AddRange(cloneRoles.ToArray());
 
                 foreach (byte id in list4.ToArray())
                 {
@@ -1476,17 +1217,22 @@ public static class Utils
         bool isLovers = false;
         if (intro)
         {
-            foreach (CustomRoles role in SubRoles.ToArray())
+            foreach (CustomRoles role in SubRoles)
             {
-                if (role is CustomRoles.NotAssigned or CustomRoles.LastImpostor) SubRoles.Remove(role);
-                if (role is CustomRoles.Lovers)
+                switch (role)
                 {
-                    SubRoles.Remove(role);
-                    isLovers = true;
+                    case CustomRoles.NotAssigned:
+                    case CustomRoles.LastImpostor:
+                        SubRoles.Remove(role);
+                        break;
+                    case CustomRoles.Lovers:
+                        SubRoles.Remove(role);
+                        isLovers = true;
+                        break;
                 }
             }
 
-            if (intro && isLovers)
+            if (isLovers)
             {
                 //var RoleText = disableColor ? GetRoleName(CustomRoles.Lovers) : ColorString(GetRoleColor(CustomRoles.Lovers), GetRoleName(CustomRoles.Lovers));
                 sb.Append($"{ColorString(GetRoleColor(CustomRoles.Lovers), " ♥")}");
@@ -1816,14 +1562,7 @@ public static class Utils
             {
                 if (pc.Is(CustomRoles.Terrorist))
                 {
-                    if (Main.PlayerStates[pc.PlayerId].deathReason == PlayerState.DeathReason.Vote)
-                    {
-                        Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.etc;
-                    }
-                    else
-                    {
-                        Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
-                    }
+                    Main.PlayerStates[pc.PlayerId].deathReason = Main.PlayerStates[pc.PlayerId].deathReason == PlayerState.DeathReason.Vote ? PlayerState.DeathReason.etc : PlayerState.DeathReason.Suicide;
                 }
                 else if (!pc.Data.IsDead)
                 {
@@ -1935,6 +1674,7 @@ public static class Utils
 
     public static PlayerControl GetPlayerById(int PlayerId)
     {
+        // ReSharper disable once LoopCanBeConvertedToQuery ---- Leave it like this for better performance
         foreach (var pc in Main.AllPlayerControls)
         {
             if (pc.PlayerId == PlayerId)
@@ -1996,16 +1736,15 @@ public static class Utils
 
                 if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato) goto GameMode0;
 
-                if (Snitch.IsEnable) SelfMark.Append(Snitch.GetWarningArrow(seer));
+                SelfMark.Append(Snitch.GetWarningArrow(seer));
                 if (seer.Is(CustomRoles.Lovers)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lovers), "♥"));
-                if (BallLightning.IsGhost(seer) && BallLightning.IsEnable) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.BallLightning), "■"));
-                if (Medic.IsEnable
-                    && (Medic.InProtect(seer.PlayerId) || Medic.TempMarkProtected == seer.PlayerId)
+                if (BallLightning.IsGhost(seer)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.BallLightning), "■"));
+                if ((Medic.InProtect(seer.PlayerId) || Medic.TempMarkProtected == seer.PlayerId)
                     && !seer.Is(CustomRoles.Medic)
                     && (Medic.WhoCanSeeProtect.GetInt() == 0 || Medic.WhoCanSeeProtect.GetInt() == 2))
                     SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Medic), " ●"));
-                if (Gamer.IsEnable) SelfMark.Append(Gamer.TargetMark(seer, seer));
-                if (Sniper.IsEnable) SelfMark.Append(Sniper.GetShotNotify(seer.PlayerId));
+                SelfMark.Append(Gamer.TargetMark(seer, seer));
+                SelfMark.Append(Sniper.GetShotNotify(seer.PlayerId));
                 if (Blackmailer.ForBlackmailer.Contains(seer.PlayerId)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Blackmailer), "╳"));
 
                 GameMode0:
@@ -2050,7 +1789,7 @@ public static class Utils
                             SelfSuffix.Append(Ricochet.TargetText(seer.PlayerId));
                             break;
                         case CustomRoles.Hitman:
-                            SelfSuffix.Append(Hitman.GetTargetText());
+                            SelfSuffix.Append(Hitman.GetTargetText(seer.PlayerId));
                             break;
                         case CustomRoles.Romantic:
                             SelfSuffix.Append(Romantic.GetTargetText(seer.PlayerId));
@@ -2074,28 +1813,21 @@ public static class Utils
                             SelfSuffix.Append(Vulture.GetTargetArrow(seer));
                             break;
                         case CustomRoles.YinYanger when !seer.IsModClient():
-                            SelfSuffix.Append(YinYanger.ModeText);
+                            SelfSuffix.Append(YinYanger.ModeText(seer));
                             break;
                         case CustomRoles.FireWorks:
                             SelfSuffix.Append(FireWorks.GetStateText(seer));
                             break;
+                        case CustomRoles.HexMaster:
                         case CustomRoles.Witch:
                             SelfSuffix.Append(Witch.GetSpellModeText(seer, false, isForMeeting));
                             break;
-                        case CustomRoles.HexMaster:
-                            SelfSuffix.Append(HexMaster.GetHexModeText(seer, false, isForMeeting));
-                            break;
+                        case CustomRoles.Monitor:
                         case CustomRoles.AntiAdminer:
                             if (AntiAdminer.IsAdminWatch) SelfSuffix.Append(GetString("AntiAdminerAD"));
                             if (AntiAdminer.IsVitalWatch) SelfSuffix.Append(GetString("AntiAdminerVI"));
                             if (AntiAdminer.IsDoorLogWatch) SelfSuffix.Append(GetString("AntiAdminerDL"));
                             if (AntiAdminer.IsCameraWatch) SelfSuffix.Append(GetString("AntiAdminerCA"));
-                            break;
-                        case CustomRoles.Monitor:
-                            if (Monitor.IsAdminWatch) SelfSuffix.Append(ColorString(GetRoleColor(CustomRoles.Monitor), GetString("AdminWarning")));
-                            if (Monitor.IsVitalWatch) SelfSuffix.Append(ColorString(GetRoleColor(CustomRoles.Monitor), GetString("VitalsWarning")));
-                            if (Monitor.IsDoorLogWatch) SelfSuffix.Append(ColorString(GetRoleColor(CustomRoles.Monitor), GetString("DoorlogWarning")));
-                            if (Monitor.IsCameraWatch) SelfSuffix.Append(ColorString(GetRoleColor(CustomRoles.Monitor), GetString("CameraWarning")));
                             break;
                         case CustomRoles.Bloodhound:
                             SelfSuffix.Append(Bloodhound.GetTargetArrow(seer));
@@ -2116,12 +1848,10 @@ public static class Utils
                 }
                 else
                 {
-                    if (Witch.IsEnable) SelfMark.Append(Witch.GetSpelledMark(seer.PlayerId, isForMeeting));
-                    if (HexMaster.IsEnable) SelfMark.Append(HexMaster.GetHexedMark(seer.PlayerId, isForMeeting));
+                    SelfMark.Append(Witch.GetSpelledMark(seer.PlayerId, isForMeeting));
                 }
 
-                if (Deathpact.IsEnable)
-                    SelfSuffix.Append(Deathpact.GetDeathpactPlayerArrow(seer));
+                SelfSuffix.Append(Deathpact.GetDeathpactPlayerArrow(seer));
 
                 GameMode:
 
@@ -2146,29 +1876,24 @@ public static class Utils
 
                 if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato)
                 {
-                    if (seer.GetCustomRole().IsCrewmate() && !seer.Is(CustomRoles.Madmate))
+                    if (seer.GetCustomRole().IsMadmate() || seer.Is(CustomRoles.Madmate))
+                    {
+                        SeerRealName = $"<color=#ff1919>{GetString("YouAreMadmate")}</color>\n<size=90%>{seer.GetRoleInfo()}</size>";
+                    }
+
+                    else if (seer.GetCustomRole().IsCrewmate())
                     {
                         SeerRealName = $"<color=#8cffff>{GetString("YouAreCrewmate")}</color>\n{seer.GetRoleInfo()}";
                     }
 
-                    if (seer.GetCustomRole().IsImpostor())
+                    else if (seer.GetCustomRole().IsImpostor())
                     {
                         SeerRealName = $"<color=#ff1919></color>\n<size=90%>{seer.GetRoleInfo()}</size>";
                     }
 
-                    if (seer.GetCustomRole().IsNeutral() && !seer.GetCustomRole().IsMadmate())
+                    else if (seer.GetCustomRole().IsNeutral())
                     {
                         SeerRealName = $"<color=#7f8c8d>{GetString("YouAreNeutral")}</color>\n<size=90%>{seer.GetRoleInfo()}</size>";
-                    }
-
-                    if (seer.GetCustomRole().IsMadmate())
-                    {
-                        SeerRealName = $"<color=#ff1919>{GetString("YouAreMadmate")}</color>\n<size=90%>{seer.GetRoleInfo()}</size>";
-                    }
-
-                    if (seer.Is(CustomRoles.Madmate))
-                    {
-                        SeerRealName = $"<color=#ff1919>{GetString("YouAreMadmate")}</color>\n<size=90%>{seer.GetRoleInfo()}</size>";
                     }
                 }
 
@@ -2179,15 +1904,12 @@ public static class Utils
 
                 if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato) goto GameMode2;
 
-                switch (seer.GetCustomRole())
+                SelfName = seer.GetCustomRole() switch
                 {
-                    case CustomRoles.Arsonist when seer.IsDouseDone():
-                        SelfName = $"{ColorString(seer.GetRoleColor(), GetString("EnterVentToWin"))}";
-                        break;
-                    case CustomRoles.Revolutionist when seer.IsDrawDone():
-                        SelfName = $">{ColorString(seer.GetRoleColor(), string.Format(GetString("EnterVentWinCountDown"), Main.RevolutionistCountdown.GetValueOrDefault(seer.PlayerId, 10)))}";
-                        break;
-                }
+                    CustomRoles.Arsonist when seer.IsDouseDone() => $"{ColorString(seer.GetRoleColor(), GetString("EnterVentToWin"))}",
+                    CustomRoles.Revolutionist when seer.IsDrawDone() => $">{ColorString(seer.GetRoleColor(), string.Format(GetString("EnterVentWinCountDown"), Main.RevolutionistCountdown.GetValueOrDefault(seer.PlayerId, 10)))}",
+                    _ => SelfName
+                };
 
                 if (Pelican.IsEaten(seer.PlayerId))
                     SelfName = $"{ColorString(GetRoleColor(CustomRoles.Pelican), GetString("EatenByPelican"))}";
@@ -2197,7 +1919,7 @@ public static class Utils
                     SelfName = name;
 
                 // Devourer
-                if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerSkinsCosumed.Any(a => a.Value.Contains(seer.PlayerId)) && !CamouflageIsForMeeting)
+                if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.playerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId)) && !CamouflageIsForMeeting)
                     SelfName = GetString("DevouredName");
                 // Camouflage
                 if (((IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool() && (Main.NormalOptions.MapId != 5 || !Options.CommsCamouflageDisableOnFungle.GetBool())) || Camouflager.IsActive) && !CamouflageIsForMeeting)
@@ -2243,16 +1965,15 @@ public static class Utils
 
                             if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato) goto BeforeEnd2;
 
-                            if (Witch.IsEnable) TargetMark.Append(Witch.GetSpelledMark(target.PlayerId, isForMeeting));
-                            if (HexMaster.IsEnable) TargetMark.Append(HexMaster.GetHexedMark(target.PlayerId, isForMeeting));
+                            TargetMark.Append(Witch.GetSpelledMark(target.PlayerId, isForMeeting));
 
                             if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
                                 TargetMark.Append(ColorString(GetRoleColor(CustomRoles.SuperStar), "★"));
 
-                            if (BallLightning.IsGhost(target) && BallLightning.IsEnable)
+                            if (BallLightning.IsGhost(target))
                                 TargetMark.Append(ColorString(GetRoleColor(CustomRoles.BallLightning), "■"));
 
-                            if (Snitch.IsEnable) TargetMark.Append(Snitch.GetWarningMark(seer, target));
+                            TargetMark.Append(Snitch.GetWarningMark(seer, target));
 
                             if ((seer.Is(CustomRoles.Lovers) && target.Is(CustomRoles.Lovers))
                                 || (seer.Data.IsDead && !seer.Is(CustomRoles.Lovers) && target.Is(CustomRoles.Lovers)))
@@ -2304,13 +2025,13 @@ public static class Utils
 
                                     break;
                                 case CustomRoles.Analyzer:
-                                    if (Analyzer.CurrentTarget.ID == target.PlayerId)
+                                    if ((Main.PlayerStates[seer.PlayerId].Role as Analyzer).CurrentTarget.ID == target.PlayerId)
                                     {
                                         TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Analyzer)}>○</color>");
                                     }
 
                                     break;
-                                case CustomRoles.Puppeteer when Main.PuppeteerList.ContainsValue(seer.PlayerId) && Main.PuppeteerList.ContainsKey(target.PlayerId):
+                                case CustomRoles.Puppeteer when Puppeteer.PuppeteerList.ContainsValue(seer.PlayerId) && Puppeteer.PuppeteerList.ContainsKey(target.PlayerId):
                                     TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Impostor)}>◆</color>");
                                     break;
                             }
@@ -2344,7 +2065,6 @@ public static class Utils
                                 Romantic.KnowRole(seer, target) ||
                                 Lawyer.KnowRole(seer, target) ||
                                 EvilDiviner.IsShowTargetRole(seer, target) ||
-                                Ritualist.IsShowTargetRole(seer, target) ||
                                 Executioner.KnowRole(seer, target) ||
                                 Succubus.KnowRole(seer, target) ||
                                 Necromancer.KnowRole(seer, target) ||
@@ -2395,10 +2115,10 @@ public static class Utils
                                 case CustomRoles.NiceSwapper when seer.IsAlive() && target.IsAlive() && isForMeeting:
                                     TargetPlayerName = $"{ColorString(GetRoleColor(CustomRoles.NiceSwapper), target.PlayerId.ToString())} {TargetPlayerName}";
                                     break;
-                                case CustomRoles.HeadHunter when HeadHunter.Targets.Contains(target.PlayerId) && seer.IsAlive():
+                                case CustomRoles.HeadHunter when (Main.PlayerStates[seer.PlayerId].Role as HeadHunter).Targets.Contains(target.PlayerId) && seer.IsAlive():
                                     TargetPlayerName = $"<color=#000000>{TargetPlayerName}</size>";
                                     break;
-                                case CustomRoles.BountyHunter when BountyHunter.GetTarget(seer) == target.PlayerId && seer.IsAlive():
+                                case CustomRoles.BountyHunter when (Main.PlayerStates[seer.PlayerId].Role as BountyHunter).GetTarget(seer) == target.PlayerId && seer.IsAlive():
                                     TargetPlayerName = $"<color=#000000>{TargetPlayerName}</size>";
                                     break;
                                 case CustomRoles.ParityCop when seer.IsAlive() && target.IsAlive() && GuesserIsForMeeting:
@@ -2524,7 +2244,7 @@ public static class Utils
                                 TargetDeathReason = $"\n<size=1.7>({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))})</size>";
 
                             // Devourer
-                            if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerSkinsCosumed.Any(a => a.Value.Contains(target.PlayerId)) && !CamouflageIsForMeeting)
+                            if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.playerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId)) && !CamouflageIsForMeeting)
                                 TargetPlayerName = GetString("DevouredName");
 
                             // Camouflage
@@ -2578,492 +2298,6 @@ public static class Utils
         GameOptionsSender.SendAllGameOptions();
     }
 
-    public static void AddRoles(byte id, CustomRoles role)
-    {
-        switch (role)
-        {
-            case CustomRoles.BountyHunter:
-                BountyHunter.Add(id);
-                break;
-            case CustomRoles.SerialKiller:
-                SerialKiller.Add(id);
-                break;
-            case CustomRoles.Bandit:
-                Bandit.Add(id);
-                break;
-            case CustomRoles.Witch:
-                Witch.Add(id);
-                break;
-            case CustomRoles.HexMaster:
-                HexMaster.Add(id);
-                break;
-            case CustomRoles.NiceSwapper:
-                NiceSwapper.Add(id);
-                break;
-            case CustomRoles.Crusader:
-                Crusader.Add(id);
-                id.SetAbilityUseLimit(Crusader.SkillLimitOpt.GetInt());
-                break;
-            case CustomRoles.FireWorks:
-                FireWorks.Add(id);
-                break;
-            case CustomRoles.Agitater:
-                Agitater.Add(id);
-                break;
-            case CustomRoles.Randomizer:
-                Randomizer.Add(id);
-                break;
-            case CustomRoles.TimeThief:
-                TimeThief.Add(id);
-                break;
-            case CustomRoles.Sniper:
-                Sniper.Add(id);
-                break;
-            case CustomRoles.Vampire:
-                Vampire.Add(id);
-                break;
-            case CustomRoles.SwordsMan:
-                SwordsMan.Add(id);
-                break;
-            case CustomRoles.Farseer:
-                foreach (PlayerControl ar in Main.AllPlayerControls)
-                {
-                    Main.isRevealed.Add((id, ar.PlayerId), false);
-                }
-
-                Farseer.RandomRole.Add(id, Farseer.GetRandomCrewRoleString());
-                Farseer.Add(id);
-                break;
-            case CustomRoles.Executioner:
-                Executioner.Add(id);
-                break;
-            case CustomRoles.Lawyer:
-                Lawyer.Add(id);
-                break;
-            case CustomRoles.Blackmailer:
-                Blackmailer.Add(id);
-                break;
-            case CustomRoles.Crewpostor:
-                Crewpostor.TasksDone[id] = 0;
-                break;
-            case CustomRoles.Doppelganger:
-                Doppelganger.Add(id);
-                break;
-            case CustomRoles.Jackal:
-                Jackal.Add(id);
-                break;
-            case CustomRoles.Sidekick:
-                Sidekick.Add(id);
-                break;
-            case CustomRoles.Cleanser:
-                Cleanser.Add(id);
-                break;
-            case CustomRoles.Pickpocket:
-                Pickpocket.Add(id);
-                break;
-            case CustomRoles.Jailor:
-                Jailor.Add(id);
-                break;
-            case CustomRoles.Monitor:
-                Monitor.Add(id);
-                break;
-            case CustomRoles.Poisoner:
-                Poisoner.Add(id);
-                break;
-            case CustomRoles.Sheriff:
-                Sheriff.Add(id);
-                break;
-            case CustomRoles.CopyCat:
-                CopyCat.Add(id);
-                break;
-            case CustomRoles.QuickShooter:
-                QuickShooter.Add(id);
-                break;
-            case CustomRoles.SabotageMaster:
-                SabotageMaster.Add(id);
-                break;
-            case CustomRoles.EvilTracker:
-                EvilTracker.Add(id);
-                break;
-            case CustomRoles.Snitch:
-                Snitch.Add(id);
-                break;
-            case CustomRoles.AntiAdminer:
-                AntiAdminer.Add(id);
-                break;
-            case CustomRoles.TimeManager:
-                TimeManager.Add(id);
-                break;
-            case CustomRoles.Pelican:
-                Pelican.Add(id);
-                break;
-            case CustomRoles.Tether:
-                Tether.Add(id);
-                break;
-            case CustomRoles.Benefactor:
-                Benefactor.Add(id);
-                break;
-            case CustomRoles.Librarian:
-                Librarian.Add(id);
-                break;
-            case CustomRoles.Aid:
-                Aid.Add(id);
-                break;
-            case CustomRoles.Escort:
-                Escort.Add(id);
-                break;
-            case CustomRoles.Marshall:
-                Marshall.Add(id);
-                break;
-            case CustomRoles.Consort:
-                Consort.Add(id);
-                break;
-            case CustomRoles.Drainer:
-                Drainer.Add(id);
-                break;
-            case CustomRoles.DonutDelivery:
-                DonutDelivery.Add(id);
-                break;
-            case CustomRoles.Rabbit:
-                Rabbit.Add(id);
-                break;
-            case CustomRoles.Gaulois:
-                Gaulois.Add(id);
-                break;
-            case CustomRoles.Analyzer:
-                Analyzer.Add(id);
-                break;
-            case CustomRoles.Pursuer:
-                Pursuer.Add(id);
-                break;
-            case CustomRoles.Gangster:
-                Gangster.Add(id);
-                break;
-            case CustomRoles.Medic:
-                Medic.Add(id);
-                break;
-            case CustomRoles.EvilDiviner:
-                EvilDiviner.Add(id);
-                break;
-            case CustomRoles.Kamikaze:
-                Kamikaze.Add(id);
-                break;
-            case CustomRoles.Ritualist:
-                Ritualist.Add(id);
-                break;
-            case CustomRoles.Divinator:
-                Divinator.Add(id);
-                break;
-            case CustomRoles.Ricochet:
-                Ricochet.Add(id);
-                break;
-            case CustomRoles.Doormaster:
-                Doormaster.Add(id);
-                break;
-            case CustomRoles.Oracle:
-                Oracle.Add(id);
-                break;
-            case CustomRoles.Gamer:
-                Gamer.Add(id);
-                break;
-            case CustomRoles.BallLightning:
-                BallLightning.Add(id);
-                break;
-            case CustomRoles.DarkHide:
-                DarkHide.Add(id);
-                break;
-            case CustomRoles.Greedier:
-                Greedier.Add(id);
-                break;
-            case CustomRoles.Glitch:
-                Glitch.Add(id);
-                break;
-            case CustomRoles.Imitator:
-                Imitator.Add(id);
-                break;
-            case CustomRoles.Ignitor:
-                Ignitor.Add(id);
-                break;
-            case CustomRoles.Collector:
-                Collector.Add(id);
-                break;
-            case CustomRoles.Jinx:
-                Main.JinxSpellCount[id] = Jinx.JinxSpellTimes.GetInt();
-                Jinx.Add(id);
-                break;
-            case CustomRoles.Eraser:
-                Eraser.Add(id);
-                break;
-            case CustomRoles.Spy:
-                Spy.Add(id);
-                break;
-            case CustomRoles.NiceEraser:
-                NiceEraser.Add(id);
-                break;
-            case CustomRoles.Assassin:
-                Assassin.Add(id);
-                break;
-            case CustomRoles.Undertaker:
-                Undertaker.Add(id);
-                break;
-            case CustomRoles.Sans:
-                Sans.Add(id);
-                break;
-            case CustomRoles.Juggernaut:
-                Juggernaut.Add(id);
-                break;
-            case CustomRoles.Hacker:
-                Hacker.Add(id);
-                break;
-            case CustomRoles.NiceHacker:
-                NiceHacker.Add(id);
-                break;
-            case CustomRoles.Psychic:
-                Psychic.Add(id);
-                break;
-            case CustomRoles.Hangman:
-                Hangman.Add(id);
-                break;
-            case CustomRoles.Judge:
-                Judge.Add(id);
-                break;
-            case CustomRoles.Councillor:
-                Councillor.Add(id);
-                break;
-            case CustomRoles.Camouflager:
-                Camouflager.Add(id);
-                break;
-            case CustomRoles.Twister:
-                Twister.Add(id);
-                break;
-            case CustomRoles.Mortician:
-                Mortician.Add(id);
-                break;
-            case CustomRoles.Tracefinder:
-                Tracefinder.Add(id);
-                break;
-            case CustomRoles.Mediumshiper:
-                Mediumshiper.Add(id);
-                break;
-            case CustomRoles.Swooper:
-                Swooper.Add(id);
-                break;
-            case CustomRoles.Wraith:
-                Wraith.Add(id);
-                break;
-            case CustomRoles.Chameleon:
-                Chameleon.Add(id);
-                break;
-            case CustomRoles.BloodKnight:
-                BloodKnight.Add(id);
-                break;
-            case CustomRoles.Totocalcio:
-                Totocalcio.Add(id);
-                break;
-            case CustomRoles.Romantic:
-                Romantic.Add(id);
-                break;
-            case CustomRoles.VengefulRomantic:
-                VengefulRomantic.Add(id);
-                break;
-            case CustomRoles.RuthlessRomantic:
-                RuthlessRomantic.Add(id);
-                break;
-            case CustomRoles.Succubus:
-                Succubus.Add(id);
-                break;
-            //case CustomRoles.CursedSoul:
-            //    CursedSoul.Add(id);
-            //    break;
-            case CustomRoles.Amnesiac:
-                Amnesiac.Add(id);
-                break;
-            case CustomRoles.Monarch:
-                Monarch.Add(id);
-                break;
-            case CustomRoles.Deputy:
-                Deputy.Add(id);
-                break;
-            case CustomRoles.Chronomancer:
-                Chronomancer.Add(id);
-                break;
-            case CustomRoles.Nullifier:
-                Nullifier.Add(id);
-                break;
-            case CustomRoles.Virus:
-                Virus.Add(id);
-                break;
-            case CustomRoles.Wildling:
-                Wildling.Add(id);
-                break;
-            case CustomRoles.Bloodhound:
-                Bloodhound.Add(id);
-                break;
-            case CustomRoles.Tracker:
-                Tracker.Add(id);
-                break;
-            case CustomRoles.Merchant:
-                Merchant.Add(id);
-                break;
-            case CustomRoles.NSerialKiller:
-                NSerialKiller.Add(id);
-                break;
-            case CustomRoles.SoulHunter:
-                SoulHunter.Add(id);
-                break;
-            case CustomRoles.Enderman:
-                Enderman.Add(id);
-                break;
-            case CustomRoles.Sentinel:
-                Sentinel.Add(id);
-                break;
-            case CustomRoles.Mycologist:
-                Mycologist.Add(id);
-                break;
-            case CustomRoles.Bubble:
-                Bubble.Add(id);
-                break;
-            case CustomRoles.Tornado:
-                Tornado.Add(id);
-                break;
-            case CustomRoles.Hookshot:
-                Hookshot.Add(id);
-                break;
-            case CustomRoles.Sprayer:
-                Sprayer.Add(id);
-                break;
-            case CustomRoles.PlagueDoctor:
-                PlagueDoctor.Add(id);
-                break;
-            case CustomRoles.Penguin:
-                Penguin.Add(id);
-                break;
-            case CustomRoles.Stealth:
-                Stealth.Add(id);
-                break;
-            case CustomRoles.Postman:
-                Postman.Add(id);
-                break;
-            case CustomRoles.Mafioso:
-                Mafioso.Add(id);
-                break;
-            case CustomRoles.Magician:
-                Magician.Add(id);
-                break;
-            case CustomRoles.WeaponMaster:
-                WeaponMaster.Add(id);
-                break;
-            case CustomRoles.Reckless:
-                Reckless.Add(id);
-                break;
-            case CustomRoles.Eclipse:
-                Eclipse.Add(id);
-                break;
-            case CustomRoles.Pyromaniac:
-                Pyromaniac.Add(id);
-                break;
-            case CustomRoles.Vengeance:
-                Vengeance.Add(id);
-                break;
-            case CustomRoles.HeadHunter:
-                HeadHunter.Add(id);
-                break;
-            case CustomRoles.Werewolf:
-                Werewolf.Add(id);
-                break;
-            case CustomRoles.Traitor:
-                Traitor.Add(id);
-                break;
-            case CustomRoles.Maverick:
-                Maverick.Add(id);
-                break;
-            case CustomRoles.Dazzler:
-                Dazzler.Add(id);
-                break;
-            case CustomRoles.YinYanger:
-                YinYanger.Add(id);
-                break;
-            case CustomRoles.Cantankerous:
-                Cantankerous.Add(id);
-                break;
-            case CustomRoles.Duellist:
-                Duellist.Add(id);
-                break;
-            case CustomRoles.Druid:
-                Druid.Add(id);
-                break;
-            case CustomRoles.Convener:
-                Convener.Add(id);
-                break;
-            case CustomRoles.FFF:
-                FFF.Add(id);
-                break;
-            case CustomRoles.Sapper:
-                Sapper.Add(id);
-                break;
-            case CustomRoles.CameraMan:
-                CameraMan.Add(id);
-                break;
-            case CustomRoles.Hitman:
-                Hitman.Add(id);
-                break;
-            case CustomRoles.Enigma:
-                Enigma.Add(id);
-                break;
-            case CustomRoles.Gambler:
-                Gambler.Add(id);
-                break;
-            case CustomRoles.RiftMaker:
-                RiftMaker.Add(id);
-                break;
-            case CustomRoles.Mastermind:
-                Mastermind.Add(id);
-                break;
-            case CustomRoles.Addict:
-                Addict.Add(id);
-                break;
-            case CustomRoles.Alchemist:
-                Alchemist.Add(id);
-                break;
-            case CustomRoles.Deathpact:
-                Deathpact.Add(id);
-                break;
-            case CustomRoles.Morphling:
-                Morphling.Add(id);
-                break;
-            case CustomRoles.Devourer:
-                Devourer.Add(id);
-                break;
-            case CustomRoles.Spiritualist:
-                Spiritualist.Add(id);
-                break;
-            case CustomRoles.Vulture:
-                Vulture.Add(id);
-                break;
-            case CustomRoles.GuessManager:
-                GuessManagerRole.Add(id);
-                break;
-            case CustomRoles.PlagueBearer:
-                PlagueBearer.Add(id);
-                break;
-            case CustomRoles.ParityCop:
-                ParityCop.Add(id);
-                break;
-            case CustomRoles.Spiritcaller:
-                Spiritcaller.Add(id);
-                break;
-            case CustomRoles.Lurker:
-                Lurker.Add(id);
-                break;
-            case CustomRoles.Doomsayer:
-                Doomsayer.Add(id);
-                break;
-            case CustomRoles.Disperser:
-                Disperser.Add(id);
-                break;
-        }
-    }
-
     public static void AddAbilityCD(CustomRoles role, byte playerId, bool includeDuration = true)
     {
         if (role.UsesPetInsteadOfKill())
@@ -3092,7 +2326,7 @@ public static class Utils
             CustomRoles.Tornado => Tornado.TornadoCooldown.GetInt(),
             CustomRoles.Sentinel => Sentinel.PatrolCooldown.GetInt(),
             CustomRoles.Sniper => Options.DefaultShapeshiftCooldown.GetInt(),
-            CustomRoles.Assassin => Assassin.AssassinateCooldown.GetInt(),
+            CustomRoles.Assassin => Assassin.AssassinateCooldownOpt.GetInt(),
             CustomRoles.Undertaker => Undertaker.AssassinateCooldown.GetInt(),
             CustomRoles.Bomber => Options.BombCooldown.GetInt(),
             CustomRoles.Nuker => Options.NukeCooldown.GetInt(),
@@ -3130,7 +2364,13 @@ public static class Utils
             }
 
             if (!pc.IsModClient()) pc.ReactorFlash(0.2f); // This should fix black screens
+
+            if (Options.UsePets.GetBool()) pc.AddAbilityCD(includeDuration: false);
+
+            Main.PlayerStates[pc.PlayerId].Role.AfterMeetingTasks();
         }
+
+        CopyCat.ResetRole();
 
         if (Options.DiseasedCDReset.GetBool())
         {
@@ -3156,41 +2396,10 @@ public static class Utils
             Main.KilledAntidote.Clear();
         }
 
-        if (Blackmailer.IsEnable) Blackmailer.ForBlackmailer.Clear();
-        if (Glitch.IsEnable) Glitch.AfterMeetingTasks();
-        if (Swooper.IsEnable) Swooper.AfterMeetingTasks();
-        if (Wraith.IsEnable) Wraith.AfterMeetingTasks();
-        if (Werewolf.IsEnable) Werewolf.AfterMeetingTasks();
-        if (Chameleon.IsEnable) Chameleon.AfterMeetingTasks();
-        if (NiceEraser.IsEnable) NiceEraser.AfterMeetingTasks();
-        if (Eraser.IsEnable) Eraser.AfterMeetingTasks();
-        if (Cleanser.IsEnable) Cleanser.AfterMeetingTasks();
-        if (Randomizer.IsEnable) Randomizer.AfterMeetingTasks();
-        if (BountyHunter.IsEnable) BountyHunter.AfterMeetingTasks();
-        if (EvilTracker.IsEnable) EvilTracker.AfterMeetingTasks();
-        if (SerialKiller.IsEnable()) SerialKiller.AfterMeetingTasks();
-        if (Spiritualist.IsEnable) Spiritualist.AfterMeetingTasks();
-        if (Mycologist.IsEnable) Mycologist.AfterMeetingTasks();
-        if (Sprayer.IsEnable) Sprayer.AfterMeetingTasks();
-        if (PlagueDoctor.IsEnable) PlagueDoctor.AfterMeetingTasks();
-        if (SoulHunter.IsEnable) SoulHunter.AfterMeetingTasks();
-        if (Penguin.IsEnable) Penguin.AfterMeetingTasks();
-        if (Chronomancer.IsEnable) Chronomancer.OnReportDeadBody();
-        if (Benefactor.IsEnable) Benefactor.AfterMeetingTasks();
-        if (Vulture.IsEnable) Vulture.AfterMeetingTasks();
-        //if (Baker.IsEnable()) Baker.AfterMeetingTasks();
-        if (CopyCat.IsEnable()) CopyCat.AfterMeetingTasks();
-        //Pirate.AfterMeetingTask();
+        Blackmailer.ForBlackmailer.Clear();
+
         Damocles.AfterMeetingTasks();
         Stressed.AfterMeetingTasks();
-
-        if (Options.UsePets.GetBool())
-        {
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-            {
-                pc.AddAbilityCD(includeDuration: false);
-            }
-        }
 
         if (Options.AirshipVariableElectrical.GetBool())
             AirshipElectricalDoors.Initialize();
@@ -3213,7 +2422,7 @@ public static class Utils
             {
                 case CustomRoles.Terrorist:
                     Logger.Info(target?.Data?.PlayerName + "はTerroristだった", "MurderPlayer");
-                    CheckTerroristWin(target.Data);
+                    CheckTerroristWin(target?.Data);
                     break;
                 case CustomRoles.Executioner:
                     if (Executioner.Target.ContainsKey(target.PlayerId))
@@ -3261,6 +2470,8 @@ public static class Utils
                     break;
             }
 
+            if (target == null) return;
+
             Randomizer.OnAnyoneDeath(target);
 
             if (Romantic.PartnerId == target.PlayerId)
@@ -3270,16 +2481,15 @@ public static class Utils
                 Executioner.ChangeRoleByTarget(target);
             if (Lawyer.Target.ContainsValue(target.PlayerId))
                 Lawyer.ChangeRoleByTarget(target);
-            if (Postman.Target == target.PlayerId)
-                Postman.CheckAndResetTargets(target, isDeath: true);
-            if (Hitman.targetId == target.PlayerId)
-                Hitman.targetId = byte.MaxValue;
 
-            if (Hacker.IsEnable) Hacker.AddDeadBody(target);
-            if (Mortician.IsEnable) Mortician.OnPlayerDead(target);
-            if (Bloodhound.IsEnable) Bloodhound.OnPlayerDead(target);
-            if (Tracefinder.IsEnable) Tracefinder.OnPlayerDead(target);
-            if (Vulture.IsEnable) Vulture.OnPlayerDead(target);
+            Postman.CheckAndResetTargets(target, isDeath: true);
+            Hitman.CheckAndResetTargets();
+
+            Hacker.AddDeadBody(target);
+            Mortician.OnPlayerDead(target);
+            Bloodhound.OnPlayerDead(target);
+            Tracefinder.OnPlayerDead(target);
+            Vulture.OnPlayerDead(target);
 
             FixedUpdatePatch.LoversSuicide(target.PlayerId, onMeeting);
         }
@@ -3323,7 +2533,7 @@ public static class Utils
         var player = GetPlayerById(num);
         return num switch
         {
-            < 15 when player != null => player?.GetNameWithRole().RemoveHtmlTags(),
+            < 15 when player != null => player.GetNameWithRole().RemoveHtmlTags(),
             253 => "Skip",
             254 => "None",
             255 => "Dead",
@@ -3333,15 +2543,11 @@ public static class Utils
 
     public static string PadRightV2(this object text, int num)
     {
-        int bc = 0;
         var t = text.ToString();
-        for (int i = 0; i < t.Length; i++)
-        {
-            char c = t[i];
-            bc += Encoding.GetEncoding("UTF-8").GetByteCount(c.ToString()) == 1 ? 1 : 2;
-        }
+        if (t == null) return string.Empty;
+        int bc = t.Sum(c => Encoding.GetEncoding("UTF-8").GetByteCount(c.ToString()) == 1 ? 1 : 2);
 
-        return t?.PadRight(Mathf.Max(num - (bc - t.Length), 0));
+        return t.PadRight(Mathf.Max(num - (bc - t.Length), 0));
     }
 
     public static void DumpLog()
@@ -3350,7 +2556,7 @@ public static class Utils
         string t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
         string filename = $"{f}TOHE-v{Main.PluginVersion}-{t}.log";
         if (!Directory.Exists(f)) Directory.CreateDirectory(f);
-        FileInfo file = new(@$"{Environment.CurrentDirectory}/BepInEx/LogOutput.log");
+        FileInfo file = new($"{Environment.CurrentDirectory}/BepInEx/LogOutput.log");
         file.CopyTo(filename);
         if (PlayerControl.LocalPlayer != null)
             HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), $"TOHE+ v{Main.PluginVersion} {t}.log"));
@@ -3398,11 +2604,10 @@ public static class Utils
         var name = Main.AllPlayerNames[id].RemoveHtmlTags().Replace("\r\n", string.Empty);
         if (id == PlayerControl.LocalPlayer.PlayerId) name = DataManager.player.Customization.Name;
         else name = GetPlayerById(id)?.Data.PlayerName ?? name;
-        var taskState = Main.PlayerStates?[id].TaskState;
+        var taskState = Main.PlayerStates[id].TaskState;
         string TaskCount;
         if (taskState.hasTasks)
         {
-            Color TextColor;
             var info = GetPlayerInfoById(id);
             var TaskCompleteColor = HasTasks(info) ? Color.green : Color.cyan; //タスク完了後の色
             var NonCompleteColor = HasTasks(info) ? Color.yellow : Color.white; //カウントされない人外は白色
@@ -3414,7 +2619,7 @@ public static class Utils
             if (Main.PlayerStates.TryGetValue(id, out var ps) && ps.MainRole == CustomRoles.Crewpostor)
                 NormalColor = Color.red;
 
-            TextColor = NormalColor;
+            Color TextColor = NormalColor;
             string Completed = $"{taskState.CompletedTasksCount}";
             TaskCount = ColorString(TextColor, $" ({Completed}/{taskState.AllTasksCount})");
         }
@@ -3427,9 +2632,7 @@ public static class Utils
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.SoloKombat:
-                if (TranslationController.Instance.currentLanguage.languageID is SupportedLangs.SChinese or SupportedLangs.TChinese)
-                    summary = $"{GetProgressText(id)}\t<pos=22%>{ColorString(Main.PlayerColors[id], name)}</pos>";
-                else summary = $"{ColorString(Main.PlayerColors[id], name)}<pos=30%>{GetProgressText(id)}</pos>";
+                summary = TranslationController.Instance.currentLanguage.languageID is SupportedLangs.SChinese or SupportedLangs.TChinese ? $"{GetProgressText(id)}\t<pos=22%>{ColorString(Main.PlayerColors[id], name)}</pos>" : $"{ColorString(Main.PlayerColors[id], name)}<pos=30%>{GetProgressText(id)}</pos>";
                 if (GetProgressText(id).Trim() == string.Empty) return string.Empty;
                 break;
             case CustomGameMode.FFA:
@@ -3515,7 +2718,7 @@ public static class Utils
 
         hud.StartCoroutine(Effects.Lerp(duration, new Action<float>(t =>
         {
-            obj.SetActive(t != 1f);
+            obj.SetActive(Math.Abs(t - 1f) > 0.1f);
             obj.GetComponent<SpriteRenderer>().color = new(color.r, color.g, color.b, Mathf.Clamp01((-2f * Mathf.Abs(t - 0.5f) + 1) * color.a / 2)); //アルファ値を0→目標→0に変化させる
         })));
     }
@@ -3547,7 +2750,7 @@ public static class Utils
             var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
             var texture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
             using MemoryStream ms = new();
-            stream.CopyTo(ms);
+            stream?.CopyTo(ms);
             ImageConversion.LoadImage(texture, ms.ToArray(), false);
             return texture;
         }

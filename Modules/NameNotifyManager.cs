@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Hazel;
+﻿using Hazel;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace TOHE;
@@ -22,6 +22,7 @@ public static class NameNotifyManager
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         if (log) Logger.Info($"New name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
     }
+
     public static void OnFixedUpdate(PlayerControl player)
     {
         if (!GameStates.IsInTask)
@@ -29,12 +30,14 @@ public static class NameNotifyManager
             if (Notice.Count > 0) Notice = [];
             return;
         }
+
         if (Notice.ContainsKey(player.PlayerId) && Notice[player.PlayerId].TIMESTAMP < Utils.TimeStamp)
         {
             Notice.Remove(player.PlayerId);
             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
         }
     }
+
     public static bool GetNameNotify(PlayerControl player, out string name)
     {
         name = string.Empty;
@@ -42,6 +45,7 @@ public static class NameNotifyManager
         name = Notice[player.PlayerId].TEXT;
         return true;
     }
+
     private static void SendRPC(byte playerId)
     {
         if (!AmongUsClient.Instance.AmHost) return;
@@ -54,8 +58,10 @@ public static class NameNotifyManager
             writer.Write(Notice[playerId].TIMESTAMP - Utils.TimeStamp);
         }
         else writer.Write(false);
+
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader)
     {
         byte PlayerId = reader.ReadByte();

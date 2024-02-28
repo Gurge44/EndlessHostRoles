@@ -1,10 +1,10 @@
-using System;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using InnerNet;
+using System;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
@@ -53,6 +53,7 @@ class OnGameJoinedPatch
                     AmongUsClient.Instance.ExitGame(DisconnectReasons.Banned);
                     SceneChanger.ChangeScene("MainMenu");
                 }
+
                 var client = PlayerControl.LocalPlayer.GetClient();
                 Logger.Info($"{client.PlayerName.RemoveHtmlTags()} (ClientID: {client.Id} / FriendCode: {client.FriendCode} / HashPuid: {client.GetHashedPuid()} / Platform: {client.PlatformData.Platform}) Hosted room", "Session");
             }, 1f, "OnGameJoinedPatch");
@@ -62,10 +63,11 @@ class OnGameJoinedPatch
         }
     }
 }
+
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.DisconnectInternal))]
 class DisconnectInternalPatch
 {
-    public static void Prefix(/*InnerNetClient __instance,*/ DisconnectReasons reason, string stringReason)
+    public static void Prefix( /*InnerNetClient __instance,*/ DisconnectReasons reason, string stringReason)
     {
         ShowDisconnectPopupPatch.Reason = reason;
         ShowDisconnectPopupPatch.StringReason = stringReason;
@@ -75,10 +77,11 @@ class DisconnectInternalPatch
         Cloud.StopConnect();
     }
 }
+
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnPlayerJoined))]
 class OnPlayerJoinedPatch
 {
-    public static void Postfix(/*AmongUsClient __instance,*/ [HarmonyArgument(0)] ClientData client)
+    public static void Postfix( /*AmongUsClient __instance,*/ [HarmonyArgument(0)] ClientData client)
     {
         Logger.Info($"{client.PlayerName} (ClientID: {client.Id} / FriendCode: {client.FriendCode}) joined the lobby", "Session");
         if (AmongUsClient.Instance.AmHost && client.FriendCode == "" && Options.KickPlayerFriendCodeNotExist.GetBool() && !GameStates.IsLocalGame)
@@ -89,6 +92,7 @@ class OnPlayerJoinedPatch
             Logger.SendInGame(string.Format(GetString("Message.KickedByNoFriendCode"), client.PlayerName));
             Logger.Info($"TempBanned a player {client?.PlayerName} without a friend code", "Temp Ban");
         }
+
         if (AmongUsClient.Instance.AmHost && client.PlatformData.Platform == (Platforms.Android | Platforms.IPhone) && Options.KickAndroidPlayer.GetBool())
         {
             AmongUsClient.Instance?.KickPlayer(client.Id, false);
@@ -96,16 +100,19 @@ class OnPlayerJoinedPatch
             Logger.SendInGame(msg);
             Logger.Info(msg, "Android Kick");
         }
+
         if (AmongUsClient.Instance.AmHost && client.PlayerName.Contains("Silasticm", StringComparison.OrdinalIgnoreCase))
         {
             AmongUsClient.Instance?.KickPlayer(client.Id, false);
             Logger.SendInGame("They were probably hacking tbh");
         }
+
         if (DestroyableSingleton<FriendsListManager>.Instance.IsPlayerBlockedUsername(client.FriendCode) && AmongUsClient.Instance.AmHost)
         {
             AmongUsClient.Instance?.KickPlayer(client.Id, true);
             Logger.Info($"Ban Player ー {client?.PlayerName}({client.FriendCode}) has been banned.", "BAN");
         }
+
         BanManager.CheckBanPlayer(client);
         BanManager.CheckDenyNamePlayer(client);
         RPC.RpcVersionCheck();
@@ -117,6 +124,7 @@ class OnPlayerJoinedPatch
         }
     }
 }
+
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnPlayerLeft))]
 class OnPlayerLeftPatch
 {
@@ -227,17 +235,20 @@ class OnPlayerLeftPatch
 
             data.Character.Data.Disconnected = true;
         }
-        catch (NullReferenceException) { }
+        catch (NullReferenceException)
+        {
+        }
         catch (Exception ex)
         {
             Logger.Error(ex.ToString(), "OnPlayerLeftPatch.Postfix");
         }
     }
 }
+
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CreatePlayer))]
 class CreatePlayerPatch
 {
-    public static void Postfix(/*AmongUsClient __instance,*/ [HarmonyArgument(0)] ClientData client)
+    public static void Postfix( /*AmongUsClient __instance,*/ [HarmonyArgument(0)] ClientData client)
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
@@ -254,6 +265,7 @@ class CreatePlayerPatch
             if (Options.DisableEmojiName.GetBool()) name = Regex.Replace(name, @"\p{Cs}", string.Empty);
             if (Regex.Replace(Regex.Replace(name, @"\s", string.Empty), @"[\x01-\x1F,\x7F]", string.Empty).Length < 1) name = Main.Get_TName_Snacks;
         }
+
         Main.AllPlayerNames.Remove(client.Character.PlayerId);
         Main.AllPlayerNames.TryAdd(client.Character.PlayerId, name);
         if (!name.Equals(client.PlayerName))
@@ -266,7 +278,11 @@ class CreatePlayerPatch
             }, 1f, "Name Format");
         }
 
-        _ = new LateTask(() => { if (client.Character == null || !GameStates.IsLobby) return; OptionItem.SyncAllOptions(client.Id); }, 3f, "Sync All Options For New Player");
+        _ = new LateTask(() =>
+        {
+            if (client.Character == null || !GameStates.IsLobby) return;
+            OptionItem.SyncAllOptions(client.Id);
+        }, 3f, "Sync All Options For New Player");
 
         Main.GuessNumber[client.Character.PlayerId] = [-1, 7];
 
@@ -289,6 +305,7 @@ class CreatePlayerPatch
                     }
                 }, 1f, "DisplayKillLog");
             }
+
             if (Options.AutoDisplayLastRoles.GetBool())
             {
                 _ = new LateTask(() =>
@@ -300,6 +317,7 @@ class CreatePlayerPatch
                     }
                 }, 1.1f, "DisplayLastRoles");
             }
+
             if (Options.AutoDisplayLastResult.GetBool())
             {
                 _ = new LateTask(() =>
@@ -311,6 +329,7 @@ class CreatePlayerPatch
                     }
                 }, 1.2f, "DisplayLastResult");
             }
+
             if (PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp && Options.EnableUpMode.GetBool())
             {
                 _ = new LateTask(() =>

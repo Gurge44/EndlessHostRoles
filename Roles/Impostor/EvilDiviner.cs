@@ -1,5 +1,7 @@
+using AmongUs.GameOptions;
 using Hazel;
 using System.Collections.Generic;
+using TOHE.Roles.Neutral;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor
@@ -14,6 +16,11 @@ namespace TOHE.Roles.Impostor
         public static OptionItem EDAbilityUseGainWithEachKill;
 
         public List<byte> DivinationTarget = [];
+        private bool IsRitualist;
+
+        private bool CanVent;
+        private bool HasImpVision;
+        private float KCD;
 
         public static void SetupCustomOption()
         {
@@ -36,8 +43,38 @@ namespace TOHE.Roles.Impostor
         public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            playerId.SetAbilityUseLimit(DivinationMaxCount.GetInt());
             DivinationTarget = [];
+
+            IsRitualist = Main.PlayerStates[playerId].MainRole == CustomRoles.Ritualist;
+            playerId.SetAbilityUseLimit(IsRitualist ? Ritualist.RitualMaxCount.GetInt() : DivinationMaxCount.GetInt());
+            if (IsRitualist)
+            {
+                KCD = Ritualist.KillCooldown.GetFloat();
+                CanVent = Ritualist.CanVent.GetBool();
+                HasImpVision = Ritualist.HasImpostorVision.GetBool();
+            }
+            else
+            {
+                KCD = KillCooldown.GetFloat();
+                CanVent = true;
+                HasImpVision = true;
+            }
+
+            if (!AmongUsClient.Instance.AmHost || !IsRitualist) return;
+            if (!Main.ResetCamPlayerList.Contains(playerId))
+            {
+                Main.ResetCamPlayerList.Add(playerId);
+            }
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return CanVent;
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            opt.SetVision(HasImpVision);
         }
 
         static void SendRPC(byte playerId, byte targetId)
@@ -58,7 +95,7 @@ namespace TOHE.Roles.Impostor
 
         public override void SetKillCooldown(byte id)
         {
-            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+            Main.AllPlayerKillCooldown[id] = KCD;
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)

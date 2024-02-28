@@ -43,6 +43,11 @@ namespace TOHE.Roles.Impostor
 
         public override bool IsEnable => playerIdList.Count > 0;
 
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        }
+
         void SendRPC()
         {
             if (!DoRPC) return;
@@ -72,7 +77,18 @@ namespace TOHE.Roles.Impostor
             return true;
         }
 
-        public override void OnReportDeadBody(PlayerControl reporter, PlayerControl _)
+        public static void CheckAndResetTargets()
+        {
+            foreach (var id in playerIdList)
+            {
+                if (Main.PlayerStates[id].Role is Hitman { IsEnable: true } hm)
+                {
+                    hm.OnReportDeadBody();
+                }
+            }
+        }
+
+        public override void OnReportDeadBody()
         {
             var target = GetPlayerById(TargetId);
             if (!target.IsAlive() || target.Data.Disconnected)

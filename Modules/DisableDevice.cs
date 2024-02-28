@@ -1,6 +1,6 @@
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
-using HarmonyLib;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -12,6 +12,7 @@ class DisableDevice
     public static bool DoDisable => Options.DisableDevices.GetBool();
     private static readonly List<byte> DesyncComms = [];
     private static int frame;
+
     public static readonly Dictionary<string, Vector2> DevicePos = new()
     {
         ["SkeldAdmin"] = new(3.48f, -8.62f),
@@ -31,6 +32,7 @@ class DisableDevice
         ["FungleCamera"] = new(6.20f, 0.10f),
         ["FungleVital"] = new(-2.50f, -9.80f)
     };
+
     public static float UsableDistance()
     {
         return (MapNames)Main.NormalOptions.MapId switch
@@ -44,6 +46,7 @@ class DisableDevice
             _ => 0.0f
         };
     }
+
     public static void FixedUpdate()
     {
         frame = frame == 3 ? 0 : ++frame;
@@ -85,6 +88,7 @@ class DisableDevice
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["PolusLeftAdmin"]) <= UsableDistance();
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["PolusRightAdmin"]) <= UsableDistance();
                             }
+
                             if (Options.DisablePolusCamera.GetBool())
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["PolusCamera"]) <= UsableDistance();
                             if (Options.DisablePolusVital.GetBool())
@@ -114,6 +118,7 @@ class DisableDevice
                             break;
                     }
                 }
+
                 doComms &= !ignore;
                 if (doComms && !pc.inVent)
                 {
@@ -138,6 +143,7 @@ class DisableDevice
         }
     }
 }
+
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Start))]
 public class RemoveDisableDevicesPatch
 {
@@ -151,11 +157,11 @@ public class RemoveDisableDevicesPatch
     {
         var player = PlayerControl.LocalPlayer;
         bool ignore = player.Is(CustomRoles.GM) ||
-            !player.IsAlive() ||
-            (Options.DisableDevicesIgnoreImpostors.GetBool() && player.Is(CustomRoleTypes.Impostor)) ||
-            (Options.DisableDevicesIgnoreNeutrals.GetBool() && player.Is(CustomRoleTypes.Neutral)) ||
-            (Options.DisableDevicesIgnoreCrewmates.GetBool() && player.Is(CustomRoleTypes.Crewmate)) ||
-            (Options.DisableDevicesIgnoreAfterAnyoneDied.GetBool() && GameStates.AlreadyDied);
+                      !player.IsAlive() ||
+                      (Options.DisableDevicesIgnoreImpostors.GetBool() && player.Is(CustomRoleTypes.Impostor)) ||
+                      (Options.DisableDevicesIgnoreNeutrals.GetBool() && player.Is(CustomRoleTypes.Neutral)) ||
+                      (Options.DisableDevicesIgnoreCrewmates.GetBool() && player.Is(CustomRoleTypes.Crewmate)) ||
+                      (Options.DisableDevicesIgnoreAfterAnyoneDied.GetBool() && GameStates.AlreadyDied);
         var admins = Object.FindObjectsOfType<MapConsole>(true);
         var consoles = Object.FindObjectsOfType<SystemConsole>(true);
         if (admins == null || consoles == null) return;

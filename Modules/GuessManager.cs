@@ -1,10 +1,10 @@
-﻿using System;
+﻿using HarmonyLib;
+using Hazel;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using HarmonyLib;
-using Hazel;
 using TMPro;
 using TOHE.Modules;
 using TOHE.Roles.AddOns.Common;

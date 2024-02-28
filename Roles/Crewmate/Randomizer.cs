@@ -645,6 +645,7 @@ namespace TOHE.Roles.Crewmate
                         {
                             pc.Suicide(PlayerState.DeathReason.RNG, randomizer);
                         }
+
                         Bombs.Remove(bomb.Key);
                     }
                 }
@@ -709,6 +710,7 @@ namespace TOHE.Roles.Crewmate
                         LastTP[pc.PlayerId] = now;
                         return;
                     }
+
                     if (Vector2.Distance(pos, rift.Value) < 2f)
                     {
                         pc.TP(rift.Key);
@@ -742,6 +744,7 @@ namespace TOHE.Roles.Crewmate
                             {
                                 RevertVisionChangesForPlayer(pc, true);
                             }
+
                             if (item.Key.IsSpeedChangingEffect())
                             {
                                 RevertSpeedChangesForPlayer(pc, true);

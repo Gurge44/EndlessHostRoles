@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Hazel;
+using System.Collections.Generic;
 using System.Linq;
-using Hazel;
 using UnityEngine;
 
 namespace TOHE.Roles.Impostor
@@ -12,7 +12,7 @@ namespace TOHE.Roles.Impostor
         public static bool On;
         public override bool IsEnable => On;
 
-        public static void OnTaskComplete(PlayerControl player)
+        public override void OnTaskComplete(PlayerControl player, int completedTaskCount, int totalTaskCount)
         {
             if (!TasksDone.TryAdd(player.PlayerId, 0)) TasksDone[player.PlayerId]++;
 
@@ -64,6 +64,11 @@ namespace TOHE.Roles.Impostor
             }
         }
 
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return false;
+        }
+
         public static void SendRPC(byte cpID, int tasksDone)
         {
             if (PlayerControl.LocalPlayer.PlayerId == cpID)
@@ -96,6 +101,7 @@ namespace TOHE.Roles.Impostor
         public override void Add(byte playerId)
         {
             On = true;
+            TasksDone[playerId] = 0;
         }
     }
 }

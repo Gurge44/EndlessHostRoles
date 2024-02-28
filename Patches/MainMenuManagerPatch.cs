@@ -1,5 +1,5 @@
-using System;
 using HarmonyLib;
+using System;
 using TMPro;
 using TOHE.Modules;
 using UnityEngine;
@@ -13,6 +13,7 @@ namespace TOHE;
 public class MainMenuManagerPatch
 {
     public static GameObject template;
+
     //public static GameObject qqButton;
     //public static GameObject discordButton;
     public static GameObject updateButton;
@@ -28,7 +29,9 @@ public class MainMenuManagerPatch
             TitleLogoPatch.LoadingHint.SetActive(!Options.IsLoaded);
             TitleLogoPatch.LoadingHint.GetComponent<TextMeshPro>().text = string.Format(GetString("LoadingWithPercentage"), Options.LoadingPercentage, Options.MainLoadingText, Options.RoleLoadingText);
         }
-        catch { }
+        catch
+        {
+        }
     }
 
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPrefix]
@@ -159,10 +162,7 @@ public class MainMenuManagerPatch
 
         spriteCreditsButton.sprite = Utils.LoadSprite("TOHE.Resources.Images.CreditsButton.png", 75f);
         passiveCreditsButton.OnClick = new ButtonClickedEvent();
-        passiveCreditsButton.OnClick.AddListener((Action)(() =>
-        {
-            CredentialsPatch.LogoPatch.CreditsPopup?.SetActive(true);
-        }));
+        passiveCreditsButton.OnClick.AddListener((Action)(() => { CredentialsPatch.LogoPatch.CreditsPopup?.SetActive(true); }));
 
         Application.targetFrameRate = Main.UnlockFPS.Value ? 165 : 60;
     }

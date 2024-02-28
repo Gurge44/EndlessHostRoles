@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Hazel;
+﻿using Hazel;
+using System.Collections.Generic;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor
@@ -140,6 +140,11 @@ namespace TOHE.Roles.Impostor
             ChargePercent = 0;
             IsRampaging = false;
             SendRPC();
+        }
+
+        public override void AfterMeetingTasks()
+        {
+            OnReportDeadBody();
         }
     }
 }

@@ -1,9 +1,9 @@
-using System;
-using System.Diagnostics.CodeAnalysis;
 using AmongUs.GameOptions;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
+using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TOHE;
 

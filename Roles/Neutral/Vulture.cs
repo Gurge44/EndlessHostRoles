@@ -1,6 +1,6 @@
-using System.Collections.Generic;
 using AmongUs.GameOptions;
 using Hazel;
+using System.Collections.Generic;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -171,7 +171,17 @@ public class Vulture : RoleBase
     {
         if (!seer.Is(CustomRoles.Vulture)) return string.Empty;
         if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
-        if (GameStates.IsMeeting) return string.Empty;
-        return Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
+        return GameStates.IsMeeting ? string.Empty : Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
+    }
+
+    public override void OnFixedUpdate(PlayerControl pc)
+    {
+        var playerId = pc.PlayerId;
+        if (BodyReportCount[playerId] >= NumberOfReportsToWin.GetInt() && GameStates.IsInTask)
+        {
+            BodyReportCount[playerId] = NumberOfReportsToWin.GetInt();
+            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Vulture);
+            CustomWinnerHolder.WinnerIds.Add(playerId);
+        }
     }
 }

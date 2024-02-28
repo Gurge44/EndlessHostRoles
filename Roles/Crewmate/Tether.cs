@@ -1,6 +1,6 @@
+using Hazel;
 using System.Collections.Generic;
 using System.Text;
-using Hazel;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -60,6 +60,7 @@ namespace TOHE.Roles.Crewmate
             writer.Write(Target);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
+
         public static void ReceiveRPCSyncTarget(MessageReader reader)
         {
             byte id = reader.ReadByte();
@@ -94,12 +95,10 @@ namespace TOHE.Roles.Crewmate
             }
             else if (!isPet)
             {
-                _ = new LateTask(() =>
-                {
-                    pc.MyPhysics?.RpcBootFromVent(ventId);
-                }, 0.5f, "Tether No Target Boot From Vent");
+                _ = new LateTask(() => { pc.MyPhysics?.RpcBootFromVent(ventId); }, 0.5f, "Tether No Target Boot From Vent");
             }
         }
+
         public static bool OnVote(PlayerControl pc, PlayerControl target)
         {
             if (pc == null || target == null || Main.PlayerStates[pc.PlayerId].Role is not Tether th || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
@@ -112,6 +111,7 @@ namespace TOHE.Roles.Crewmate
                 Main.DontCancelVoteList.Add(pc.PlayerId);
                 return true;
             }
+
             return false;
         }
 

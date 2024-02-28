@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Hazel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Hazel;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -62,6 +62,7 @@ namespace TOHE.Roles.AddOns.Impostor
                 Main.PlayerStates[id].RemoveSubRole(CustomRoles.Damocles);
                 return;
             }
+
             lastUpdate[id] = now;
             if (!Timer.ContainsKey(id)) Timer[id] = StartingTime + 8;
 
@@ -85,7 +86,9 @@ namespace TOHE.Roles.AddOns.Impostor
             writer.Write(Timer[playerId]);
             writer.Write(lastUpdate[playerId].ToString());
             writer.Write(PreviouslyEnteredVents[playerId].Count);
-            if (PreviouslyEnteredVents[playerId].Count > 0) foreach (var vent in PreviouslyEnteredVents[playerId].ToArray()) writer.Write(vent);
+            if (PreviouslyEnteredVents[playerId].Count > 0)
+                foreach (var vent in PreviouslyEnteredVents[playerId].ToArray())
+                    writer.Write(vent);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 
@@ -95,7 +98,9 @@ namespace TOHE.Roles.AddOns.Impostor
             Timer[playerId] = reader.ReadInt32();
             lastUpdate[playerId] = long.Parse(reader.ReadString());
             var elements = reader.ReadInt32();
-            if (elements > 0) for (int i = 0; i < elements; i++) PreviouslyEnteredVents[playerId].Add(reader.ReadInt32());
+            if (elements > 0)
+                for (int i = 0; i < elements; i++)
+                    PreviouslyEnteredVents[playerId].Add(reader.ReadInt32());
         }
 
         public static void OnMurder(byte id)

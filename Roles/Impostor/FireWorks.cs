@@ -1,6 +1,6 @@
+using Hazel;
 using System;
 using System.Collections.Generic;
-using Hazel;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
 using UnityEngine;

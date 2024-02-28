@@ -57,6 +57,8 @@ public class Werewolf : RoleBase
     public override bool IsEnable => playerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => CanRampage || IsRampaging || pc.inVent;
+    public override bool CanUseKillButton(PlayerControl pc) => IsRampaging;
 
     void SendRPC()
     {

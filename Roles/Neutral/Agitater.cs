@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using Hazel;
+using System.Collections.Generic;
+using System.Linq;
 using TOHE.Roles.Crewmate;
 using UnityEngine;
 using static TOHE.Translator;
@@ -106,7 +106,6 @@ public class Agitater : RoleBase
                     Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} bombed {pc.GetNameWithRole().RemoveHtmlTags()}, bomb cd complete", "Agitater");
                     ResetBomb();
                 }
-
             }
         }, BombExplodeCooldown.GetFloat(), "AgitaterBombKill");
         return false;
@@ -182,6 +181,7 @@ public class Agitater : RoleBase
             ResetBomb();
             return;
         }
+
         LastBombedPlayer = CurrentBombedPlayer;
         CurrentBombedPlayer = target.PlayerId;
         CurrentBombedPlayerTime = now;

@@ -1,8 +1,8 @@
-﻿using System;
+﻿using AmongUs.GameOptions;
 using Hazel;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using AmongUs.GameOptions;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
 using static TOHE.Options;
@@ -223,6 +223,7 @@ public class Swooper : RoleBase
         pc?.MyPhysics?.RpcBootFromVent(vent.Id);
         pc.Notify(GetString("SwooperInvisStateOut"));
     }
+
     public static string GetHudText(PlayerControl pc)
     {
         if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
@@ -243,6 +244,7 @@ public class Swooper : RoleBase
         {
             str.Append(GetString("SwooperCanVent"));
         }
+
         return str.ToString();
     }
 

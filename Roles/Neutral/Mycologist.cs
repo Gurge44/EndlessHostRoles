@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using Hazel;
+using System.Collections.Generic;
+using System.Linq;
 using static TOHE.Options;
 using static TOHE.Translator;
 using static TOHE.Utils;
@@ -134,5 +134,7 @@ namespace TOHE.Roles.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target) => IsEnable && target != null && InfectedPlayers.Contains(target.PlayerId);
         public override void AfterMeetingTasks() => Mycologist_.AddAbilityCD(CD.GetInt());
+        public override bool CanUseImpostorVentButton(PlayerControl pc) => true;
+        public override bool CanUseSabotage(PlayerControl pc) => SpreadAction.GetValue() == 1;
     }
 }

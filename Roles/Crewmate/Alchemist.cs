@@ -236,6 +236,7 @@ namespace TOHE.Roles.Crewmate
 
         public override void OnCoEnterVent(PlayerPhysics instance, int ventId)
         {
+            if (PotionID != 6) return;
             PotionID = 10;
             var pc = instance.myPlayer;
             NameNotifyManager.Notice.Remove(pc.PlayerId);
@@ -407,6 +408,11 @@ namespace TOHE.Roles.Crewmate
 
                     break;
             }
+        }
+
+        public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
+        {
+            return !IsProtected;
         }
     }
 }

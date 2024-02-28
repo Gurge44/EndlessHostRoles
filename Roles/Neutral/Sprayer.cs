@@ -1,6 +1,6 @@
-﻿using System;
+﻿using AmongUs.GameOptions;
+using System;
 using System.Collections.Generic;
-using AmongUs.GameOptions;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -84,6 +84,8 @@ namespace TOHE.Roles.Neutral
         public override bool IsEnable => SprayerId != byte.MaxValue;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+        public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+        public override bool CanUseSabotage(PlayerControl pc) => true;
 
         public override void OnSabotage(PlayerControl pc)
         {

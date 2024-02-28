@@ -56,6 +56,11 @@ namespace TOHE.Roles.Impostor
 
         public override bool IsEnable => MastermindId != byte.MaxValue || Randomizer.IsEnable;
 
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = Mastermind.KillCooldown.GetFloat();
+        }
+
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (!IsEnable) return false;

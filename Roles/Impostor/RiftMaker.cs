@@ -42,6 +42,11 @@ namespace TOHE.Roles.Impostor
 
         public override bool IsEnable => playerIdList.Count > 0;
 
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = RiftMaker.KillCooldown.GetFloat();
+        }
+
         public override void OnFixedUpdate(PlayerControl player)
         {
             if (!GameStates.IsInTask) return;
@@ -99,7 +104,7 @@ namespace TOHE.Roles.Impostor
             Marks.Clear();
             player.Notify(GetString("MarksCleared"));
 
-            _ = new LateTask(() => { player.MyPhysics?.RpcBootFromVent(ventId); }, 0.5f, "RiftMaker-ResetMarks.RpcBootFromVent");
+            player.MyPhysics?.RpcBootFromVent(vent.Id);
         }
 
         public override bool OnShapeshift(PlayerControl player, PlayerControl target, bool shapeshifting)

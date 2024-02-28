@@ -1,10 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using AmongUs.GameOptions;
 using Hazel;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using TOHE.Modules;
-using TOHE.Roles.Neutral;
 
 namespace TOHE;
 
@@ -14,26 +14,17 @@ public static class AntiBlackout
     ///Whether to override the ejection process
     ///</summary>
     public static bool OverrideExiledPlayer => IsRequired && (IsSingleImpostor || Diff_CrewImp == 1);
+
     ///<summary>
     ///Is there only one impostor?
     ///</summary>
     public static bool IsSingleImpostor => Main.RealOptionsData != null ? Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors) <= 1 : Main.NormalOptions.NumImpostors <= 1;
+
     ///<summary>
     ///Whether processing within AntiBlackout is required
     ///</summary>
-    public static bool IsRequired => Options.NoGameEnd.GetBool()
-        || Jackal.IsEnable || Pelican.IsEnable || Magician.IsEnable || Enderman.IsEnable
-        || Gamer.IsEnable || BloodKnight.IsEnable || WeaponMaster.IsEnable || SoulHunter.IsEnable
-        || Succubus.IsEnable || Poisoner.IsEnable || Reckless.IsEnable || Bubble.IsEnable
-        || Juggernaut.IsEnable || HeadHunter.IsEnable || Necromancer.IsEnable
-        || Ritualist.IsEnable || Virus.IsEnable || Vengeance.IsEnable || Doppelganger.IsEnable
-        || Wraith.IsEnable || HexMaster.IsEnable || Imitator.IsEnable() || Mycologist.IsEnable
-        || Traitor.IsEnable || Pickpocket.IsEnable || Werewolf.IsEnable || Sprayer.IsEnable
-        || NSerialKiller.IsEnable || RuthlessRomantic.IsEnable || Hookshot.IsEnable
-        || Maverick.IsEnable || Jinx.IsEnable || Eclipse.IsEnable || PlagueDoctor.IsEnable
-        || Medusa.IsEnable || Spiritcaller.IsEnable || Pyromaniac.IsEnable
-        || PlagueBearer.IsEnable || CustomRoles.Sidekick.RoleExist(true)
-        || CustomRoles.Pestilence.RoleExist(true);
+    public static bool IsRequired => Options.NoGameEnd.GetBool() || Main.AllPlayerControls.Any(x => x.GetCustomRole().GetCountTypes() is not CountTypes.Crew and not CountTypes.Impostor and not CountTypes.OutOfGame);
+
     //|| Pirate.IsEnable;
     ///<summary>
     ///Difference between the number of non-impostors and the number of impostors
@@ -49,21 +40,24 @@ public static class AntiBlackout
                 if (pc.Data.Role.IsImpostor) numImpostors++;
                 else numCrewmates++;
             }
+
             return numCrewmates - numImpostors;
         }
     }
+
     public static bool IsCached { get; private set; }
     private static Dictionary<byte, (bool isDead, bool Disconnected)> isDeadCache = [];
-    private readonly static LogHandler logger = Logger.Handler("AntiBlackout");
+    private static readonly LogHandler Logger = TOHE.Logger.Handler("AntiBlackout");
 
     public static void SetIsDead(bool doSend = true, [CallerMemberName] string callerMethodName = "")
     {
-        logger.Info($"SetIsDead is called from {callerMethodName}");
+        Logger.Info($"SetIsDead is called from {callerMethodName}");
         if (IsCached)
         {
-            logger.Info("Please run RestoreIsDead before running SetIsDead again.");
+            Logger.Info("Please run RestoreIsDead before running SetIsDead again.");
             return;
         }
+
         isDeadCache.Clear();
         foreach (var info in GameData.Instance.AllPlayers)
         {
@@ -72,12 +66,14 @@ public static class AntiBlackout
             info.IsDead = false;
             info.Disconnected = false;
         }
+
         IsCached = true;
         if (doSend) SendGameData();
     }
+
     public static void RestoreIsDead(bool doSend = true, [CallerMemberName] string callerMethodName = "")
     {
-        logger.Info($"RestoreIsDead is called from {callerMethodName}");
+        Logger.Info($"RestoreIsDead is called from {callerMethodName}");
         foreach (var info in GameData.Instance.AllPlayers)
         {
             if (info == null) continue;
@@ -87,6 +83,7 @@ public static class AntiBlackout
                 info.Disconnected = val.Disconnected;
             }
         }
+
         isDeadCache.Clear();
         IsCached = false;
         if (doSend) SendGameData();
@@ -94,7 +91,7 @@ public static class AntiBlackout
 
     public static void SendGameData([CallerMemberName] string callerMethodName = "")
     {
-        logger.Info($"SendGameData is called from {callerMethodName}");
+        Logger.Info($"SendGameData is called from {callerMethodName}");
         MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
         // {} is for readability.
         writer.StartMessage(5); //0x05 GameData
@@ -112,6 +109,7 @@ public static class AntiBlackout
         AmongUsClient.Instance.SendOrDisconnect(writer);
         writer.Recycle();
     }
+
     public static void OnDisconnect(GameData.PlayerInfo player)
     {
         // Execution conditions: client is host, IsDead is overwritten, player is disconnected
@@ -121,13 +119,14 @@ public static class AntiBlackout
         SendGameData();
     }
 
+/*
     ///<summary>
     ///Run the code with IsDead temporarily restored to its original value
     ///<param name="action">Execution details</param>
     ///</summary>
     public static void TempRestore(Action action)
     {
-        logger.Info("==Temp Restore==");
+        Logger.Info("==Temp Restore==");
         //Whether TempRestore was executed with IsDead overwritten
         bool before_IsCached = IsCached;
         try
@@ -137,19 +136,20 @@ public static class AntiBlackout
         }
         catch (Exception ex)
         {
-            logger.Warn("An exception occurred within AntiBlackout.TempRestore");
-            logger.Exception(ex);
+            Logger.Warn("An exception occurred within AntiBlackout.TempRestore");
+            Logger.Exception(ex);
         }
         finally
         {
             if (before_IsCached) SetIsDead(doSend: false);
-            logger.Info("==/Temp Restore==");
+            Logger.Info("==/Temp Restore==");
         }
     }
+*/
 
     public static void Reset()
     {
-        logger.Info("==Reset==");
+        Logger.Info("==Reset==");
         isDeadCache ??= [];
         isDeadCache.Clear();
         IsCached = false;

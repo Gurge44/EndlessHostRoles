@@ -1,7 +1,7 @@
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using HarmonyLib;
 using TOHE.Roles.Impostor;
 using UnityEngine;
 
@@ -13,6 +13,7 @@ class RandomSpawn
     public class CustomNetworkTransformPatch
     {
         public static Dictionary<byte, int> NumOfTP = [];
+
         public static void Postfix(CustomNetworkTransform __instance, [HarmonyArgument(0)] Vector2 position)
         {
             if (!AmongUsClient.Instance.AmHost) return;
@@ -25,6 +26,7 @@ class RandomSpawn
                     Logger.Warn("Player is null", "RandomSpawn");
                     return;
                 }
+
                 if (player.Is(CustomRoles.GM)) return;
 
                 NumOfTP[player.PlayerId]++;
@@ -42,6 +44,7 @@ class RandomSpawn
             }
         }
     }
+
     public static void TP(CustomNetworkTransform nt, Vector2 location)
     {
         //if (AmongUsClient.Instance.AmHost) nt.SnapTo(location);
@@ -60,6 +63,7 @@ class RandomSpawn
             Logger.Info($"{player.Data.PlayerName} => {spawn.Key} {spawn.Value}", "RandomSpawn");
             player.TP(spawn.Value, log: false);
         }
+
         public abstract KeyValuePair<string, Vector2> GetLocation();
     }
 
@@ -82,11 +86,13 @@ class RandomSpawn
             ["Reactor"] = new(-20.5f, -5.5f),
             ["MedBay"] = new(-9.0f, -4.0f)
         };
+
         public override KeyValuePair<string, Vector2> GetLocation()
         {
             return positions.ToArray().OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault();
         }
     }
+
     public class MiraHQSpawnMap : SpawnMap
     {
         public Dictionary<string, Vector2> positions = new()
@@ -106,11 +112,13 @@ class RandomSpawn
             ["Office"] = new(15.0f, 19.0f),
             ["Greenhouse"] = new(17.8f, 23.0f)
         };
+
         public override KeyValuePair<string, Vector2> GetLocation()
         {
             return positions.ToArray().OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault();
         }
     }
+
     public class PolusSpawnMap : SpawnMap
     {
         public Dictionary<string, Vector2> positions = new()
@@ -131,19 +139,23 @@ class RandomSpawn
             ["Toilet"] = new(34.0f, -10.0f),
             ["SpecimenRoom"] = new(36.5f, -22.0f)
         };
+
         public override KeyValuePair<string, Vector2> GetLocation()
         {
             return positions.ToArray().OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault();
         }
     }
+
     public class DleksSpawnMap : SpawnMap
     {
         public Dictionary<string, Vector2> positions = new SkeldSpawnMap().positions.ToDictionary(e => e.Key, e => new Vector2(-e.Value.x, e.Value.y));
+
         public override KeyValuePair<string, Vector2> GetLocation()
         {
             return positions.ToArray().OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault();
         }
     }
+
     public class AirshipSpawnMap : SpawnMap
     {
         public Dictionary<string, Vector2> positions = new()
@@ -168,6 +180,7 @@ class RandomSpawn
             ["Toilet"] = new(30.9f, 6.8f),
             ["Showers"] = new(21.2f, -0.8f)
         };
+
         public override KeyValuePair<string, Vector2> GetLocation()
         {
             return Options.AirshipAdditionalSpawn.GetBool()
@@ -175,6 +188,7 @@ class RandomSpawn
                 : positions.ToArray()[..6].OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault();
         }
     }
+
     public class FungleSpawnMap : SpawnMap
     {
         public Dictionary<string, Vector2> positions = new()
@@ -198,6 +212,7 @@ class RandomSpawn
             ["UpperEngine"] = new(22.4f, 3.4f),
             ["Communications"] = new(22.2f, 13.7f)
         };
+
         public override KeyValuePair<string, Vector2> GetLocation()
         {
             return positions.ToArray().OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault();

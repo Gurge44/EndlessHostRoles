@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Crewmate;
@@ -61,6 +61,7 @@ public class Psychic : RoleBase
 
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader)
     {
         byte playerId = reader.ReadByte();
@@ -90,10 +91,10 @@ public class Psychic : RoleBase
         if (!IsEnable || !AmongUsClient.Instance.AmHost) return;
 
         List<PlayerControl> BadListPc = Main.AllAlivePlayerControls.Where(x =>
-        (x.Is(CustomRoleTypes.Impostor) && !x.Is(CustomRoles.Trickster)) || x.Is(CustomRoles.Madmate) || x.Is(CustomRoles.Rascal) || x.Is(CustomRoles.Recruit) || x.Is(CustomRoles.Charmed) || x.Is(CustomRoles.Contagious) ||
-        (x.GetCustomRole().IsCK() && CkshowEvil.GetBool()) ||
-        (x.GetCustomRole().IsNE() && NEshowEvil.GetBool()) ||
-        (x.GetCustomRole().IsNB() && NBshowEvil.GetBool())
+            (x.Is(CustomRoleTypes.Impostor) && !x.Is(CustomRoles.Trickster)) || x.Is(CustomRoles.Madmate) || x.Is(CustomRoles.Rascal) || x.Is(CustomRoles.Recruit) || x.Is(CustomRoles.Charmed) || x.Is(CustomRoles.Contagious) ||
+            (x.GetCustomRole().IsCK() && CkshowEvil.GetBool()) ||
+            (x.GetCustomRole().IsNE() && NEshowEvil.GetBool()) ||
+            (x.GetCustomRole().IsNB() && NBshowEvil.GetBool())
         ).ToList();
 
         List<byte> BadList = [];
@@ -103,7 +104,8 @@ public class Psychic : RoleBase
 
         int ENum = 1;
         for (int i = 1; i < CanSeeNum.GetInt(); i++)
-            if (IRandom.Instance.Next(0, 100) < 18) ENum++;
+            if (IRandom.Instance.Next(0, 100) < 18)
+                ENum++;
         int BNum = CanSeeNum.GetInt() - ENum;
         ENum = Math.Min(ENum, BadList.Count);
         BNum = Math.Min(BNum, AllList.Count);

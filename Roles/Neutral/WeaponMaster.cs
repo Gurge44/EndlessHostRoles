@@ -1,6 +1,6 @@
-using System.Collections.Generic;
 using AmongUs.GameOptions;
 using Hazel;
+using System.Collections.Generic;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -81,6 +81,8 @@ public class WeaponMaster : RoleBase
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+    public override bool CanUseSabotage(PlayerControl pc) => true;
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
@@ -183,14 +185,18 @@ public class WeaponMaster : RoleBase
     {
         if (Mode == 2)
         {
-            _ = new LateTask(() => { pc?.MyPhysics?.RpcBootFromVent(vent.Id); }, 0.5f);
+            pc?.MyPhysics?.RpcBootFromVent(vent.Id);
         }
+    }
+
+    public override string GetProgressText(byte playerId, bool comms)
+    {
+        return !playerId.IsPlayerModClient() ? GetHudAndProgressText(playerId) : string.Empty;
     }
 
     public static string GetHudAndProgressText(byte id)
     {
-        if (Main.PlayerStates[id].Role is not WeaponMaster { IsEnable: true } wm) return string.Empty;
-        return string.Format(GetString("WMMode"), ModeToText(wm.Mode));
+        return Main.PlayerStates[id].Role is not WeaponMaster { IsEnable: true } wm ? string.Empty : string.Format(GetString("WMMode"), ModeToText(wm.Mode));
     }
     public static string ModeToText(byte mode)
     {

@@ -95,6 +95,11 @@ namespace TOHE.Roles.Impostor
 
         public override bool IsEnable => playerIdList.Count > 0;
 
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = Gambler.KillCooldown.GetFloat();
+        }
+
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer == null) return false;

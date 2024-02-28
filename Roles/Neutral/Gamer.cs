@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using Hazel;
+using System.Collections.Generic;
 using UnityEngine;
 using static TOHE.Options;
+
 namespace TOHE.Roles.Neutral;
 
 public class Gamer : RoleBase
@@ -62,6 +63,7 @@ public class Gamer : RoleBase
     public override bool IsEnable => playerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
 
     void SendRPC(byte playerId)
     {
@@ -71,6 +73,7 @@ public class Gamer : RoleBase
         writer.Write(GamerHealth.TryGetValue(playerId, out int value) ? value : PlayerHealth[playerId]);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader)
     {
         byte PlayerId = reader.ReadByte();
@@ -125,6 +128,7 @@ public class Gamer : RoleBase
         Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} 对玩家 {target.GetNameWithRole().RemoveHtmlTags()} 造成了 {SelfDamage.GetInt()} 点伤害", "Gamer");
         return false;
     }
+
     public static string TargetMark(PlayerControl seer, PlayerControl target)
     {
         if (!seer.IsAlive()) return string.Empty;
@@ -139,11 +143,15 @@ public class Gamer : RoleBase
             return GetValue && value > 0 ? Utils.ColorString(GetColor(value), $"【{value}/{HealthMax.GetInt()}】") : string.Empty;
         }
     }
+
     private static Color32 GetColor(float Health, bool self = false)
     {
         var x = (int)(Health / (self ? SelfHealthMax.GetInt() : HealthMax.GetInt()) * 10 * 50);
-        int R = 255; int G = 255; int B = 0;
-        if (x > 255) R -= x - 255; else G = x;
+        int R = 255;
+        int G = 255;
+        int B = 0;
+        if (x > 255) R -= x - 255;
+        else G = x;
         return new Color32((byte)R, (byte)G, (byte)B, byte.MaxValue);
     }
 }

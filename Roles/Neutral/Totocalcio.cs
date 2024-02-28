@@ -1,7 +1,7 @@
-using System.Collections.Generic;
-using System.Linq;
 using Hazel;
 using Il2CppSystem;
+using System.Collections.Generic;
+using System.Linq;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Options;
@@ -79,6 +79,7 @@ public class Totocalcio : RoleBase
     }
 
     public override bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && (BetTimes >= 1);
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
 
     public override void SetKillCooldown(byte id)
     {
@@ -140,7 +141,8 @@ public class Totocalcio : RoleBase
             return tc.BetPlayer == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Totocalcio), "♦") : string.Empty;
         }
     }
-    public static string GetProgressText(byte playerId)
+
+    public override string GetProgressText(byte playerId, bool comms)
     {
         var player = Utils.GetPlayerById(playerId);
         if (Main.PlayerStates[playerId].Role is not Totocalcio tc) return string.Empty;

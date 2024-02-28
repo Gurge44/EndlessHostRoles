@@ -47,6 +47,7 @@ namespace TOHE.Roles.Crewmate
 
         public override void SetKillCooldown(byte playerId) => Main.AllPlayerKillCooldown[playerId] = AidCD.GetInt();
         public override bool IsEnable => playerIdList.Count > 0;
+        public override bool CanUseKillButton(PlayerControl pc) => pc.GetAbilityUseLimit() >= 1;
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {

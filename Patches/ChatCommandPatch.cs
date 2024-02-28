@@ -1,3 +1,6 @@
+using Assets.CoreScripts;
+using HarmonyLib;
+using Hazel;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -5,9 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Assets.CoreScripts;
-using HarmonyLib;
-using Hazel;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
@@ -557,7 +557,6 @@ internal class ChatCommands
                             if (!rl.IsAdditionRole())
                             {
                                 HudManager.Instance.SetHudActive(pc, pc.Data.Role, !GameStates.IsMeeting);
-                                Utils.AddRoles(pc.PlayerId, rl);
                             }
 
                             Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.NotAssigned);

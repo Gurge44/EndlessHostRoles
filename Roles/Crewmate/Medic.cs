@@ -108,17 +108,18 @@ public class Medic : RoleBase
             ProtectList.Add(reader.ReadByte());
     }
 
-    public static bool CanUseKillButton(byte playerId)
-        => !Main.PlayerStates[playerId].IsDead
-           && playerId.GetAbilityUseLimit() >= 1;
+    public override bool CanUseKillButton(PlayerControl pc)
+        => !Main.PlayerStates[pc.PlayerId].IsDead
+           && pc.GetAbilityUseLimit() >= 1;
 
-    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanUseKillButton(id) ? CD.GetFloat() : 300f;
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanUseKillButton(Utils.GetPlayerById(id)) ? CD.GetFloat() : 300f;
     public static bool InProtect(byte id) => ProtectList.Contains(id) && Main.PlayerStates.TryGetValue(id, out var ps) && !ps.IsDead;
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer == null || target == null) return false;
-        if (!CanUseKillButton(killer.PlayerId)) return false;
+        if (!CanUseKillButton(killer)) return false;
         if (ProtectList.Contains(target.PlayerId)) return false;
 
         killer.RpcRemoveAbilityUse();

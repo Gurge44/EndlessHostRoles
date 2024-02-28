@@ -54,9 +54,24 @@ public class PlayerState(byte playerId)
             CustomRoles.Arsonist => Options.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Arsonist : CountTypes.Crew,
             _ => role.GetCountTypes(),
         };
+
         Role = role.GetRoleClass();
         Role.Init();
         Role.Add(PlayerId);
+
+        if (!Main.HasJustStarted)
+        {
+            var pc = Utils.GetPlayerById(PlayerId);
+            pc.ResetKillCooldown();
+            pc.SyncSettings();
+            Utils.NotifyRoles(SpecifySeer: pc);
+            Utils.NotifyRoles(SpecifyTarget: pc);
+            if (PlayerId == PlayerControl.LocalPlayer.PlayerId && GameStates.IsInTask)
+            {
+                HudManager.Instance.SetHudActive(true);
+                RemoveDisableDevicesPatch.UpdateDisableDevices();
+            }
+        }
     }
     public void SetSubRole(CustomRoles role, bool AllReplace = false)
     {
@@ -192,7 +207,6 @@ public class PlayerState(byte playerId)
         Suicide,
         Spell,
         Curse,
-        Hex,
         FollowingSuicide,
         Bite,
         Poison,
@@ -217,7 +231,6 @@ public class PlayerState(byte playerId)
         LossOfHead,
         Trialed,
         Infected,
-        Jinx,
         Demolished,
         YinYanged,
         Kamikazed,
@@ -284,8 +297,9 @@ public class TaskState
                 switch (player.GetCustomRole())
                 {
                     case CustomRoles.SabotageMaster:
-                        SabotageMaster.UsedSkillCount -= SabotageMaster.SMAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        SabotageMaster.SendRPC(SabotageMaster.UsedSkillCount);
+                        if (Main.PlayerStates[player.PlayerId].Role is not SabotageMaster sm) break;
+                        sm.UsedSkillCount -= SabotageMaster.SMAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        sm.SendRPC();
                         break;
                     case CustomRoles.NiceHacker:
                         if (!player.IsModClient() && NiceHacker.UseLimit.ContainsKey(player.PlayerId)) NiceHacker.UseLimit[player.PlayerId] += NiceHacker.NiceHackerAbilityUseGainWithEachTaskCompleted.GetFloat();
@@ -324,45 +338,9 @@ public class TaskState
                     _ => float.MaxValue,
                 };
                 if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0) player.RpcIncreaseAbilityUseLimitBy(add);
-
-                switch (player.GetCustomRole())
-                {
-                    case CustomRoles.Express:
-                        Express.OnTaskComplete(player);
-                        break;
-                    case CustomRoles.Alchemist:
-                        Alchemist.OnTaskComplete(player);
-                        break;
-                    case CustomRoles.Transmitter:
-                        Transmitter.OnTaskComplete(player);
-                        break;
-                    case CustomRoles.Autocrat:
-                        Autocrat.OnTaskComplete(player);
-                        break;
-                    case CustomRoles.Speedrunner:
-                        Speedrunner.OnTaskComplete(player, CompletedTasksCount, AllTasksCount);
-                        break;
-                    case CustomRoles.Electric:
-                        Electric.OnTaskComplete(player);
-                        break;
-                    case CustomRoles.Insight:
-                        Insight.OnTaskComplete(player);
-                        break;
-                    case CustomRoles.Ignitor:
-                        Ignitor.OnCompleteTask(player);
-                        if ((CompletedTasksCount + 1) >= AllTasksCount) Ignitor.OnTasksFinished(player);
-                        break;
-                    case CustomRoles.Merchant:
-                        Merchant.OnTaskFinished(player);
-                        break;
-                    case CustomRoles.Crewpostor:
-                        Crewpostor.OnTaskComplete(player);
-                        break;
-                    case CustomRoles.Rabbit:
-                        Rabbit.OnTaskComplete(player);
-                        break;
-                }
             }
+
+            Main.PlayerStates[player.PlayerId].Role.OnTaskComplete(player, CompletedTasksCount, AllTasksCount);
 
             var addons = Main.PlayerStates[player.PlayerId].SubRoles;
 

@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Hazel;
+using System.Collections.Generic;
 using System.Linq;
-using Hazel;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -51,13 +51,15 @@ namespace TOHE.Roles.Crewmate
             }
 
             public string Suffix => !GameStates.IsInTask || !Arrow.HasArrow
-                    ? string.Empty
-                    : Utils.ColorString(Utils.GetRoleColor(CustomRoles.Rabbit), TargetArrow.GetArrows(Player, Arrow.Target));
+                ? string.Empty
+                : Utils.ColorString(Utils.GetRoleColor(CustomRoles.Rabbit), TargetArrow.GetArrows(Player, Arrow.Target));
         }
+
         private static int Id => 643330;
         private static readonly Dictionary<byte, RabbitState> RabbitStates = [];
         private static OptionItem OptionTaskTrigger;
         private static int TaskTrigger;
+
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Rabbit);
@@ -88,6 +90,7 @@ namespace TOHE.Roles.Crewmate
             if (pc == null || !RabbitStates.TryGetValue(pc.PlayerId, out RabbitState state)) return;
             state.OnTaskComplete();
         }
+
         public static string GetSuffix(PlayerControl pc, bool HUD = false)
         {
             if (pc == null || !RabbitStates.TryGetValue(pc.PlayerId, out RabbitState state)) return string.Empty;

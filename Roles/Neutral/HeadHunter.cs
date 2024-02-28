@@ -1,8 +1,8 @@
+using AmongUs.GameOptions;
+using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AmongUs.GameOptions;
-using Hazel;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral;
@@ -72,6 +72,7 @@ public class HeadHunter : RoleBase
         foreach (var target in Targets.ToArray()) writer.Write(target);
         Utils.EndRPC(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader)
     {
         var playerId = reader.ReadByte();
@@ -83,6 +84,12 @@ public class HeadHunter : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
     public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+
+    public override void SetKillCooldown(byte id)
+    {
+        Main.AllPlayerKillCooldown[id] = KCD;
+    }
 
     public override void OnReportDeadBody()
     {
@@ -102,6 +109,7 @@ public class HeadHunter : RoleBase
 
         return true;
     }
+
     public static string GetHudText(PlayerControl player)
     {
         var targetId = player.PlayerId;

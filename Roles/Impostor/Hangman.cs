@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
+using System.Collections.Generic;
 using TOHE.Roles.Crewmate;
 using static TOHE.Options;
 
@@ -73,6 +73,7 @@ public class Hangman : RoleBase
             killer.SetKillCooldown(time: KCD.GetFloat());
             return false;
         }
+
         return true;
     }
 }

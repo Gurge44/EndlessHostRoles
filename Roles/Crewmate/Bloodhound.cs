@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Hazel;
+using System.Collections.Generic;
 using System.Linq;
-using Hazel;
 using UnityEngine;
 
 namespace TOHE.Roles.Crewmate
@@ -83,7 +83,7 @@ namespace TOHE.Roles.Crewmate
 
         public override void OnReportDeadBody()
         {
-            foreach (byte apc in playerIdList.ToArray())
+            foreach (byte apc in playerIdList)
             {
                 LocateArrow.RemoveAllTarget(apc);
                 SendRPC(apc, false);
@@ -96,7 +96,7 @@ namespace TOHE.Roles.Crewmate
         {
             if (!ArrowsPointingToDeadBody.GetBool()) return;
 
-            foreach (byte pc in playerIdList.ToArray())
+            foreach (byte pc in playerIdList)
             {
                 var player = Utils.GetPlayerById(pc);
                 if (player == null || !player.IsAlive())

@@ -221,9 +221,9 @@ internal static class CustomRolesHelper
         CustomRoles.Provocateur => new Provocateur(),
         CustomRoles.Pursuer => new Pursuer(),
         CustomRoles.Pyromaniac => new Pyromaniac(),
-        CustomRoles.Reckless => new Sans(),
+        CustomRoles.Reckless => new Sans(), // Use the same code as Sans with small modifications
         CustomRoles.Revolutionist => new Revolutionist(),
-        CustomRoles.Ritualist => new Ritualist(),
+        CustomRoles.Ritualist => new EvilDiviner(), // Use the same code as EvilDiviner with small modifications
         CustomRoles.Romantic => new Romantic(),
         CustomRoles.RuthlessRomantic => new RuthlessRomantic(),
         CustomRoles.NSerialKiller => new NSerialKiller(),
@@ -281,7 +281,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Agitater => CustomRoles.Impostor,
                 CustomRoles.ImpostorTOHE => CustomRoles.Impostor,
                 CustomRoles.EvilDiviner => CustomRoles.Impostor,
-                CustomRoles.Wildling => Wildling.CanShapeshift.GetBool() ? CustomRoles.Shapeshifter : CustomRoles.Impostor,
+                CustomRoles.Wildling => Wildling.CanShapeshiftOpt.GetBool() ? CustomRoles.Shapeshifter : CustomRoles.Impostor,
                 CustomRoles.Morphling => CustomRoles.Shapeshifter,
                 CustomRoles.Warlock => CustomRoles.Impostor,
                 CustomRoles.SerialKiller => CustomRoles.Impostor,
@@ -902,6 +902,8 @@ internal static class CustomRolesHelper
         CustomRoles.Witness when Options.WitnessUsePet.GetBool() => true,
 
         CustomRoles.Refugee => true,
+        CustomRoles.Necromancer => true,
+        CustomRoles.Deathknight => true,
 
         _ => false,
     };

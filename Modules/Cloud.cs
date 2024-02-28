@@ -1,20 +1,23 @@
-﻿using System;
+﻿using HarmonyLib;
+using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
-using HarmonyLib;
 
 namespace TOHE;
 
 internal class Cloud
 {
     private static string IP;
+
     //private static int LOBBY_PORT = 0;
     private static int EAC_PORT;
+
     //private static Socket ClientSocket;
     private static Socket EacClientSocket;
     private static long LastRepotTimeStamp;
+
     public static void Init()
     {
         try
@@ -30,6 +33,7 @@ internal class Cloud
             Logger.Exception(e, "Cloud Init");
         }
     }
+
     private static string GetResourcesTxt(string path)
     {
         var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
@@ -72,6 +76,7 @@ internal class Cloud
     }*/
 
     private static bool connecting;
+
     public static void StartConnect()
     {
         if (connecting || (EacClientSocket != null && EacClientSocket.Connected)) return;
@@ -83,6 +88,7 @@ internal class Cloud
                 connecting = false;
                 return;
             }
+
             try
             {
                 if (IP == null || EAC_PORT == 0) throw new("Has no ip or port");
@@ -97,14 +103,17 @@ internal class Cloud
                 Logger.Exception(e, "EAC Cloud");
                 throw;
             }
+
             connecting = false;
         }, 3.5f, "EAC Cloud Connect");
     }
+
     public static void StopConnect()
     {
         if (EacClientSocket != null && EacClientSocket.Connected)
             EacClientSocket.Close();
     }
+
     public static void SendData(string msg)
     {
         StartConnect();
@@ -113,8 +122,10 @@ internal class Cloud
             Logger.Warn("未连接至TOHE服务器，报告被取消", "EAC Cloud");
             return;
         }
+
         EacClientSocket.Send(Encoding.Default.GetBytes(msg));
     }
+
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     class EACConnectTimeOut
     {

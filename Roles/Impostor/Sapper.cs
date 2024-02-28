@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using AmongUs.GameOptions;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using AmongUs.GameOptions;
 using TOHE.Roles.Neutral;
 using UnityEngine;
 using static TOHE.Options;
@@ -49,11 +49,26 @@ namespace TOHE.Roles.Impostor
             AURoleOptions.ShapeshifterDuration = 1f;
         }
 
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = 300f;
+        }
+
         public override bool IsEnable => playerIdList.Count > 0;
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
             return PlaceBomb(shapeshifter);
+        }
+
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        {
+            return false;
+        }
+
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return false;
         }
 
         public override void OnPet(PlayerControl pc)

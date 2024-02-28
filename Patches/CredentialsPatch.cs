@@ -1,7 +1,7 @@
+using HarmonyLib;
 using System;
 using System.Linq;
 using System.Text;
-using HarmonyLib;
 using TMPro;
 using TOHE.Modules;
 using UnityEngine;
@@ -16,6 +16,7 @@ internal class PingTrackerUpdatePatch
     private static readonly StringBuilder sb = new();
     private static long LastUpdate;
     private static int Delay => GameStates.IsInTask ? 8 : 1;
+
     private static void Postfix(PingTracker __instance)
     {
         __instance.text.alignment = TextAlignmentOptions.TopRight;
@@ -50,6 +51,7 @@ internal class PingTrackerUpdatePatch
         __instance.GetComponent<AspectPosition>().DistanceFromEdge = new Vector3(offset_x, 0f, 0f);
     }
 }
+
 [HarmonyPatch(typeof(VersionShower), nameof(VersionShower.Start))]
 internal class VersionShowerStartPatch
 {
@@ -122,6 +124,7 @@ internal class TitleLogoPatch
             LoadingHintText.fontSize = 5f;
             __instance.playButton.transform.gameObject.SetActive(false);
         }
+
         if ((Ambience = GameObject.Find("Ambience")) != null)
         {
             try
@@ -197,6 +200,7 @@ internal class TitleLogoPatch
                     __instance.screenTint.gameObject.transform.localPosition += new Vector3(1000f, 0f);
                     __instance.screenTint.enabled = false;
                 }
+
                 __instance.rightPanelMask?.SetActive(true);
 
                 GameObject leftPanel = GameObject.Find("LeftPanel")?.transform.gameObject;
@@ -227,6 +231,7 @@ internal class TitleLogoPatch
         }
     }
 }
+
 [HarmonyPatch(typeof(ModManager), nameof(ModManager.LateUpdate))]
 internal class ModManagerLateUpdatePatch
 {
@@ -237,6 +242,7 @@ internal class ModManagerLateUpdatePatch
         LateTask.Update(Time.deltaTime);
         CheckMurderPatch.Update();
     }
+
     public static void Postfix(ModManager __instance)
     {
         var offset_y = HudManager.InstanceExists ? 1.6f : 0.9f;

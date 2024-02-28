@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using Hazel;
 using InnerNet;
+using System.Collections.Generic;
 
 namespace TOHE.Roles.Neutral;
 
@@ -29,7 +29,6 @@ public class DarkHide : RoleBase
         HasImpostorVision = BooleanOptionItem.Create(Id + 11, "ImpostorVision", false, TabGroup.NeutralRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.DarkHide]);
         CanCountNeutralKiller = BooleanOptionItem.Create(Id + 12, "CanCountNeutralKiller", false, TabGroup.NeutralRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.DarkHide]);
         SnatchesWin = BooleanOptionItem.Create(Id + 13, "SnatchesWin", false, TabGroup.NeutralRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.DarkHide]);
-
     }
 
     public override void Init()
@@ -73,6 +72,7 @@ public class DarkHide : RoleBase
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CurrentKillCooldown;
     public override bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead;
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
 
     public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
 
@@ -105,5 +105,4 @@ public class DarkHide : RoleBase
 
         return true;
     }
-
 }

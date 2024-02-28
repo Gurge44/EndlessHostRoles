@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Hazel;
+using System.Collections.Generic;
 using System.Linq;
-using Hazel;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -95,6 +95,7 @@ namespace TOHE.Roles.AddOns.Crewmate
                             Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Stressed);
                             continue;
                         }
+
                         Timers.Add(pc.PlayerId, StartingTime);
                         LastUpdates.Add(pc.PlayerId, now + 1);
                     }

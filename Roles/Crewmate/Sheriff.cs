@@ -103,6 +103,8 @@ public class Sheriff : RoleBase
     public override bool IsEnable => playerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanUseKillButton(Utils.GetPlayerById(id)) ? KillCooldown.GetFloat() : 15f;
 
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
+
     public override bool CanUseKillButton(PlayerControl pc)
         => !Main.PlayerStates[pc.PlayerId].IsDead
            && (CanKillAllAlive.GetBool() || GameStates.AlreadyDied)

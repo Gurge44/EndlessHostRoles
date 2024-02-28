@@ -98,6 +98,7 @@ public class Vampire : RoleBase
         {
             BittenPlayers.Add(target.PlayerId, new(killer.PlayerId, 0f));
         }
+
         return false;
     }
 
@@ -108,7 +109,7 @@ public class Vampire : RoleBase
         var vampireID = vampire.PlayerId;
         if (!IsThisRole(vampire.PlayerId)) return;
 
-        List<byte> targetList = [..BittenPlayers.Where(b => b.Value.VampireId == vampireID).Select(b => b.Key)];
+        List<byte> targetList = [.. BittenPlayers.Where(b => b.Value.VampireId == vampireID).Select(b => b.Key)];
 
         foreach (byte targetId in targetList.ToArray())
         {
@@ -126,6 +127,7 @@ public class Vampire : RoleBase
             }
         }
     }
+
     public static void KillBitten(PlayerControl vampire, PlayerControl target, bool isButton = false)
     {
         if (vampire == null || target == null || target.Data.Disconnected) return;
@@ -150,6 +152,7 @@ public class Vampire : RoleBase
             var vampire = Utils.GetPlayerById(BittenPlayers[targetId].VampireId);
             KillBitten(vampire, target);
         }
+
         BittenPlayers.Clear();
     }
 

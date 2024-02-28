@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Hazel;
+﻿using Hazel;
+using System.Collections.Generic;
 using TOHE.Roles.Impostor;
 using UnityEngine;
 using static TOHE.Options;
@@ -67,6 +67,7 @@ public class Doppelganger : RoleBase
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
 
     //overloading
     public static GameData.PlayerOutfit Set(GameData.PlayerOutfit instance, string playerName, int colorId, string hatId, string skinId, string visorId, string petId, string nameplateId)
@@ -89,29 +90,29 @@ public class Doppelganger : RoleBase
         pc.SetName(newOutfit.PlayerName);
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetName)
             .Write(newOutfit.PlayerName)
-        .EndRpc();
+            .EndRpc();
         //pc.RpcSetName(newOutfit.PlayerName); 
         Main.AllPlayerNames[pc.PlayerId] = newOutfit.PlayerName;
 
         pc.SetColor(newOutfit.ColorId);
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetColor)
             .Write(newOutfit.ColorId)
-        .EndRpc();
+            .EndRpc();
 
         pc.SetHat(newOutfit.HatId, newOutfit.ColorId);
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetHatStr)
             .Write(newOutfit.HatId)
-        .EndRpc();
+            .EndRpc();
 
         pc.SetSkin(newOutfit.SkinId, newOutfit.ColorId);
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetSkinStr)
             .Write(newOutfit.SkinId)
-        .EndRpc();
+            .EndRpc();
 
         pc.SetVisor(newOutfit.VisorId, newOutfit.ColorId);
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetVisorStr)
             .Write(newOutfit.VisorId)
-        .EndRpc();
+            .EndRpc();
 
         pc.SetPet(newOutfit.PetId);
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetPetStr)
@@ -135,6 +136,7 @@ public class Doppelganger : RoleBase
             Logger.Info("Target was shapeshifting", "Doppelganger");
             return true;
         }
+
         if (TotalSteals[killer.PlayerId] >= MaxSteals.GetInt())
         {
             TotalSteals[killer.PlayerId] = MaxSteals.GetInt();

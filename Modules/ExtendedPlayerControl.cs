@@ -1,13 +1,14 @@
+using AmongUs.GameOptions;
+using HarmonyLib;
+using Hazel;
+using InnerNet;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using AmongUs.GameOptions;
-using HarmonyLib;
-using Hazel;
-using InnerNet;
 using TOHE.Modules;
+using TOHE.Patches;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
 using TOHE.Roles.Crewmate;
@@ -138,7 +139,7 @@ static class ExtendedPlayerControl
 
         Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
         HudManagerPatch.LastSetNameDesyncCount++;
-        Logger.Info($"Set:{player?.Data?.PlayerName}:{name} for {seer.GetNameWithRole().RemoveHtmlTags()}", "RpcSetNamePrivate");
+        Logger.Info($"Set:{player.Data?.PlayerName}:{name} for {seer.GetNameWithRole().RemoveHtmlTags()}", "RpcSetNamePrivate");
 
         var clientId = seer.GetClientId();
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetName, SendOption.Reliable, clientId);
@@ -281,10 +282,10 @@ static class ExtendedPlayerControl
         if (target == null) target = player;
         if (time >= 0f) Main.AllPlayerKillCooldown[player.PlayerId] = time * 2;
         else Main.AllPlayerKillCooldown[player.PlayerId] *= 2;
-        if (player.Is(CustomRoles.Glitch))
+        if (player.Is(CustomRoles.Glitch) && Main.PlayerStates[player.PlayerId].Role is Glitch gc)
         {
-            Glitch.LastKill = TimeStamp + ((int)(time / 2) - Glitch.KillCooldown.GetInt());
-            Glitch.KCDTimer = (int)(time / 2);
+            gc.LastKill = TimeStamp + ((int)(time / 2) - Glitch.KillCooldown.GetInt());
+            gc.KCDTimer = (int)(time / 2);
         }
         else if (forceAnime || !player.IsModClient() || !Options.DisableShieldAnimations.GetBool())
         {
@@ -301,6 +302,7 @@ static class ExtendedPlayerControl
                 writer.Write(time);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
             }
+
             Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Observer) && target.PlayerId != x.PlayerId).Do(x => x.RpcGuardAndKill(target, 11, true, fromSetKCD: true));
         }
         if (player.GetCustomRole() is not CustomRoles.Inhibitor and not CustomRoles.Saboteur) player.ResetKillCooldown();
@@ -347,30 +349,30 @@ static class ExtendedPlayerControl
         }
     }
 
-/*
-    [Obsolete]
-    public static void RpcSpecificProtectPlayer(this PlayerControl killer, PlayerControl target = null, int colorId = 0)
-    {
-        if (AmongUsClient.Instance.AmClient)
+    /*
+        [Obsolete]
+        public static void RpcSpecificProtectPlayer(this PlayerControl killer, PlayerControl target = null, int colorId = 0)
         {
-            killer.ProtectPlayer(target, colorId);
+            if (AmongUsClient.Instance.AmClient)
+            {
+                killer.ProtectPlayer(target, colorId);
+            }
+            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.ProtectPlayer, SendOption.Reliable, killer.GetClientId());
+            messageWriter.WriteNetObject(target);
+            messageWriter.Write(colorId);
+            AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
         }
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.ProtectPlayer, SendOption.Reliable, killer.GetClientId());
-        messageWriter.WriteNetObject(target);
-        messageWriter.Write(colorId);
-        AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
-    }
-*/
+    */
     public static void RpcResetAbilityCooldown(this PlayerControl target)
     {
         if (!AmongUsClient.Instance.AmHost) return; //ホスト以外が実行しても何も起こさない
         Logger.Info($"Reset Ability Cooldown for {target.name} (ID: {target.PlayerId})", "RpcResetAbilityCooldown");
-        if (target.Is(CustomRoles.Glitch))
+        if (target.Is(CustomRoles.Glitch) && Main.PlayerStates[target.PlayerId].Role is Glitch gc)
         {
-            Glitch.LastHack = TimeStamp;
-            Glitch.LastMimic = TimeStamp;
-            Glitch.MimicCDTimer = 10;
-            Glitch.HackCDTimer = 10;
+            gc.LastHack = TimeStamp;
+            gc.LastMimic = TimeStamp;
+            gc.MimicCDTimer = 10;
+            gc.HackCDTimer = 10;
         }
         else if (PlayerControl.LocalPlayer == target)
         {
@@ -538,7 +540,12 @@ static class ExtendedPlayerControl
     }
     public static bool CanUseKillButton(this PlayerControl pc)
     {
-        return pc.IsAlive() && pc.Data.Role.Role != RoleTypes.GuardianAngel && !Pelican.IsEaten(pc.PlayerId) && Options.CurrentGameMode is not (CustomGameMode.MoveAndStop or CustomGameMode.HotPotato) && !Penguin.IsVictim(pc) && (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId) || Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.Role.CanUseKillButton(pc));
+        if (!pc.IsAlive()) return false;
+        if (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId)) return true;
+        if (Penguin.IsVictim(pc)) return false;
+        if (Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.MoveAndStop) return false;
+        if (Pelican.IsEaten(pc.PlayerId)) return false;
+        if (pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
 
         return pc.GetCustomRole() switch
         {
@@ -550,120 +557,11 @@ static class ExtendedPlayerControl
             CustomRoles.Tasker => false,
             //Hot Potato
             CustomRoles.Potato => false,
-            //Standard
-            CustomRoles.FireWorks => FireWorks.CanUseKillButton(pc),
-            CustomRoles.Mafia => CanMafiaKill(),
-            //       CustomRoles.Mare => pc.IsAlive(),
-            //CustomRoles.Underdog => playerCount <= Options.UnderdogMaximumPlayersNeededToKill.GetInt(),
-            CustomRoles.Underdog => pc.IsAlive(),
-            CustomRoles.Mastermind => pc.IsAlive(),
-            CustomRoles.Gambler => pc.IsAlive(),
-            CustomRoles.RiftMaker => pc.IsAlive(),
-            CustomRoles.Hitman => pc.IsAlive(),
-            CustomRoles.Sapper => false,
-            CustomRoles.Penguin => pc.IsAlive(),
-            CustomRoles.Stealth => pc.IsAlive(),
-            CustomRoles.Nullifier => pc.IsAlive(),
-            CustomRoles.Chronomancer => pc.IsAlive(),
-            CustomRoles.Mafioso => pc.IsAlive(),
-            CustomRoles.Consort => pc.IsAlive(),
-            CustomRoles.Duellist => pc.IsAlive(),
-            CustomRoles.YinYanger => pc.IsAlive(),
-            CustomRoles.Librarian => pc.IsAlive() && Librarian.CanUseKillButton(pc),
-            CustomRoles.Cantankerous => pc.IsAlive() && Cantankerous.CanUseKillButton(pc.PlayerId),
-            CustomRoles.Swiftclaw => pc.IsAlive(),
-            CustomRoles.Kidnapper => pc.IsAlive(),
-            CustomRoles.Swapster => pc.IsAlive(),
-            CustomRoles.Kamikaze => pc.IsAlive(),
-            CustomRoles.Inhibitor => !IsActive(SystemTypes.Electrical) && !IsActive(SystemTypes.Comms) && !IsActive(SystemTypes.MushroomMixupSabotage) && !IsActive(SystemTypes.Laboratory) && !IsActive(SystemTypes.LifeSupp) && !IsActive(SystemTypes.Reactor) && !IsActive(SystemTypes.HeliSabotage),
-            CustomRoles.Saboteur => IsActive(SystemTypes.Electrical) || IsActive(SystemTypes.Comms) || IsActive(SystemTypes.MushroomMixupSabotage) || IsActive(SystemTypes.Laboratory) || IsActive(SystemTypes.LifeSupp) || IsActive(SystemTypes.Reactor) || IsActive(SystemTypes.HeliSabotage),
-            CustomRoles.Sniper => Sniper.CanUseKillButton(pc),
-            CustomRoles.Sheriff => Sheriff.CanUseKillButton(pc.PlayerId),
-            CustomRoles.Crusader => Crusader.CanUseKillButton(pc.PlayerId),
-            CustomRoles.CopyCat => pc.IsAlive(),
-            CustomRoles.Jailor => pc.IsAlive(),
-            CustomRoles.Pelican => pc.IsAlive(),
-            CustomRoles.SwordsMan => pc.IsAlive() && !SwordsMan.IsKilled(pc.PlayerId),
-            CustomRoles.Jackal => pc.IsAlive(),
-            CustomRoles.Sidekick => pc.IsAlive(),
-            CustomRoles.HexMaster => pc.IsAlive(),
-            CustomRoles.Bandit => pc.IsAlive(),
-            CustomRoles.Agitater => pc.IsAlive(),
-            CustomRoles.Poisoner => pc.IsAlive(),
-            CustomRoles.Juggernaut => pc.IsAlive(),
-            //CustomRoles.Reverie => pc.IsAlive(),
-            CustomRoles.Ritualist => pc.IsAlive(),
-            CustomRoles.Pyromaniac => pc.IsAlive(),
-            CustomRoles.Eclipse => pc.IsAlive(),
-            CustomRoles.NSerialKiller => pc.IsAlive(),
-            CustomRoles.SoulHunter => pc.IsAlive(),
-            CustomRoles.Enderman => pc.IsAlive(),
-            CustomRoles.Mycologist => pc.IsAlive(),
-            CustomRoles.Bubble => pc.IsAlive(),
-            CustomRoles.Hookshot => pc.IsAlive(),
-            CustomRoles.Sprayer => pc.IsAlive(),
-            CustomRoles.PlagueDoctor => pc.IsAlive() && PlagueDoctor.CanUseKillButton(),
-            CustomRoles.Postman => pc.IsAlive() && !Postman.IsFinished,
-            CustomRoles.Magician => pc.IsAlive(),
-            CustomRoles.WeaponMaster => pc.IsAlive() && WeaponMaster.CanKill(),
-            CustomRoles.Reckless => pc.IsAlive(),
-            CustomRoles.Vengeance => pc.IsAlive(),
-            CustomRoles.HeadHunter => pc.IsAlive(),
-            CustomRoles.Imitator => pc.IsAlive(),
-            CustomRoles.Werewolf => Werewolf.IsRampaging(pc.PlayerId) && pc.IsAlive(),
-            CustomRoles.Medusa => pc.IsAlive(),
-            CustomRoles.Traitor => pc.IsAlive(),
-            CustomRoles.Glitch => pc.IsAlive(),
-            CustomRoles.Pickpocket => pc.IsAlive(),
-            CustomRoles.Maverick => pc.IsAlive(),
-            CustomRoles.Jinx => pc.IsAlive(),
-            CustomRoles.Parasite => pc.IsAlive(),
-            CustomRoles.Refugee => pc.IsAlive(),
-            //CustomRoles.NWitch => pc.IsAlive(),
-            CustomRoles.Wraith => pc.IsAlive(),
-            CustomRoles.Bomber => Options.BomberCanKill.GetBool() && pc.IsAlive(),
-            CustomRoles.Nuker => false,
-            CustomRoles.Innocent => pc.IsAlive(),
-            //CustomRoles.Counterfeiter => Counterfeiter.CanUseKillButton(pc.PlayerId),
-            CustomRoles.Aid => pc.IsAlive() && pc.GetAbilityUseLimit() >= 1,
-            CustomRoles.Escort => pc.IsAlive() && pc.GetAbilityUseLimit() >= 1,
-            CustomRoles.DonutDelivery => pc.IsAlive() && pc.GetAbilityUseLimit() >= 1,
-            CustomRoles.Gaulois => pc.IsAlive() && pc.GetAbilityUseLimit() >= 1,
-            CustomRoles.Analyzer => pc.IsAlive() && Analyzer.CanUseKillButton(pc.PlayerId),
-            CustomRoles.Witness => pc.IsAlive(),
-            CustomRoles.Pursuer => Pursuer.CanUseKillButton(pc.PlayerId),
-            CustomRoles.Morphling => Morphling.CanUseKillButton(pc.PlayerId),
-            CustomRoles.FFF => pc.IsAlive(),
-            CustomRoles.Medic => Medic.CanUseKillButton(pc.PlayerId),
-            CustomRoles.Gamer => pc.IsAlive(),
-            CustomRoles.DarkHide => DarkHide.CanUseKillButton(pc),
-            CustomRoles.Assassin => Assassin.CanUseKillButton(pc),
-            CustomRoles.Undertaker => Undertaker.CanUseKillButton(pc),
-            CustomRoles.BloodKnight => pc.IsAlive(),
-            CustomRoles.Doppelganger => pc.IsAlive(),
-            CustomRoles.Crewpostor => false,
-            CustomRoles.Totocalcio => Totocalcio.CanUseKillButton(pc),
-            CustomRoles.Romantic => pc.IsAlive(),
-            CustomRoles.RuthlessRomantic => pc.IsAlive(),
-            CustomRoles.VengefulRomantic => VengefulRomantic.CanUseKillButton(pc),
-            CustomRoles.Succubus => Succubus.CanUseKillButton(pc),
-            CustomRoles.Necromancer => Necromancer.CanUseKillButton(pc),
-            CustomRoles.Deathknight => Deathknight.CanUseKillButton(pc),
-            //CustomRoles.CursedSoul => CursedSoul.CanUseKillButton(pc),
-            CustomRoles.Amnesiac => Amnesiac.CanUseKillButton(pc),
-            //CustomRoles.Warlock => !Main.isCurseAndKill.TryGetValue(pc.PlayerId, out bool wcs) || !wcs,
-            CustomRoles.Monarch => Monarch.CanUseKillButton(pc),
-            CustomRoles.Deputy => Deputy.CanUseKillButton(pc),
-            CustomRoles.Virus => pc.IsAlive(),
-            CustomRoles.Farseer => pc.IsAlive(),
-            CustomRoles.Spiritcaller => pc.IsAlive(),
-            CustomRoles.PlagueBearer => pc.IsAlive(),
-            CustomRoles.Pestilence => pc.IsAlive(),
-            //CustomRoles.Pirate => pc.IsAlive(),
 
-            _ => pc.Is(CustomRoleTypes.Impostor),
+            _ => Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.Role.CanUseKillButton(pc)
         };
     }
+
     public static bool CanUseImpostorVentButton(this PlayerControl pc)
     {
         if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel || Penguin.IsVictim(pc)) return false;
@@ -673,73 +571,6 @@ static class ExtendedPlayerControl
 
         return pc.GetCustomRole() switch
         {
-            CustomRoles.Minimalism or
-                CustomRoles.Sheriff or
-                CustomRoles.Deputy or
-                //    CustomRoles.SwordsMan or
-                CustomRoles.FFF or
-                CustomRoles.Medic or
-                //      CustomRoles.NWitch or
-                CustomRoles.Monarch or
-                CustomRoles.Totocalcio or
-                CustomRoles.Romantic or
-                CustomRoles.Succubus or
-                CustomRoles.Deathknight or
-                CustomRoles.Necromancer or
-                CustomRoles.Doppelganger or
-                //CustomRoles.CursedSoul or
-                CustomRoles.PlagueBearer or
-                CustomRoles.Amnesiac or
-                CustomRoles.PlagueDoctor or
-                CustomRoles.Crusader
-                => false,
-
-            CustomRoles.Jackal => Jackal.CanVent.GetBool(),
-            CustomRoles.VengefulRomantic => Romantic.VengefulCanVent.GetBool(),
-            CustomRoles.RuthlessRomantic => Romantic.RuthlessCanVent.GetBool(),
-            CustomRoles.Sidekick => Jackal.CanVentSK.GetBool(),
-            CustomRoles.Glitch => Glitch.CanVent.GetBool(),
-            CustomRoles.Poisoner => Poisoner.CanVent.GetBool(),
-            CustomRoles.SoulHunter => SoulHunter.CanVent.GetBool(),
-            CustomRoles.Enderman => Enderman.CanVent.GetBool(),
-            CustomRoles.Mycologist => true,
-            CustomRoles.Bubble => Bubble.CanVent.GetBool(),
-            CustomRoles.Hookshot => Hookshot.CanVent.GetBool(),
-            CustomRoles.Sprayer => Sprayer.CanVent.GetBool(),
-            CustomRoles.Magician => Magician.CanVent.GetBool(),
-            CustomRoles.Reckless => Reckless.CanVent.GetBool(),
-            CustomRoles.WeaponMaster => WeaponMaster.CanVent.GetBool(),
-            CustomRoles.Postman => Postman.CanVent.GetBool(),
-            CustomRoles.Pyromaniac => Pyromaniac.CanVent.GetBool(),
-            CustomRoles.Eclipse => Eclipse.CanVent.GetBool(),
-            CustomRoles.Vengeance => Vengeance.CanVent.GetBool(),
-            CustomRoles.HeadHunter => HeadHunter.CanVent.GetBool(),
-            CustomRoles.Imitator => Imitator.CanVent.GetBool(),
-            CustomRoles.DarkHide => DarkHide.CanVent.GetBool(),
-            CustomRoles.Werewolf => Werewolf.CanRampage(pc.PlayerId) || pc.inVent || Werewolf.IsRampaging(pc.PlayerId),
-            CustomRoles.Pestilence => PlagueBearer.PestilenceCanVent.GetBool(),
-            CustomRoles.Medusa => Medusa.CanVent.GetBool(),
-            CustomRoles.Traitor => Traitor.CanVent.GetBool(),
-            //CustomRoles.NWitch => NWitch.CanVent.GetBool(),
-            CustomRoles.Maverick => Maverick.CanVent.GetBool(),
-            CustomRoles.Jinx => Jinx.CanVent.GetBool(),
-            CustomRoles.Pelican => Pelican.CanVent.GetBool(),
-            CustomRoles.Gamer => Gamer.CanVent.GetBool(),
-            CustomRoles.BloodKnight => BloodKnight.CanVent.GetBool(),
-            CustomRoles.Juggernaut => Juggernaut.CanVent.GetBool(),
-            CustomRoles.Ritualist => Ritualist.CanVent.GetBool(),
-            CustomRoles.Virus => Virus.CanVent.GetBool(),
-            CustomRoles.SwordsMan => SwordsMan.CanVent.GetBool(),
-            CustomRoles.Pickpocket => Pickpocket.CanVent.GetBool(),
-            CustomRoles.Bandit => Bandit.CanVent.GetBool(),
-            CustomRoles.HexMaster => true,
-            CustomRoles.Wraith => true,
-            //   CustomRoles.Chameleon => true,
-            CustomRoles.Parasite => true,
-            CustomRoles.Refugee => true,
-            CustomRoles.Wildling => Wildling.CanVent.GetBool(),
-            CustomRoles.Spiritcaller => Spiritcaller.CanVent.GetBool(),
-
             //SoloKombat
             CustomRoles.KB_Normal => true,
             //FFA
@@ -749,89 +580,14 @@ static class ExtendedPlayerControl
             //Hot Potato
             CustomRoles.Potato => false,
 
-            _ => pc.Is(CustomRoleTypes.Impostor),
+            _ => Main.PlayerStates[pc.PlayerId].Role.CanUseImpostorVentButton(pc),
         };
     }
     public static bool CanUseSabotage(this PlayerControl pc) // NOTE: THIS IS FOR THE HUD FOR MODDED CLIENTS, THIS DOES NOT DETERMINE WHETHER A ROLE CAN SABOTAGE
     {
         if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
 
-        return pc.GetCustomRole() switch
-        {
-            CustomRoles.Sheriff or
-                CustomRoles.Crusader or
-                CustomRoles.CopyCat or
-                //CustomRoles.CursedSoul or
-                CustomRoles.Amnesiac or
-                CustomRoles.Monarch or
-                CustomRoles.Deputy or
-                CustomRoles.Arsonist or
-                CustomRoles.Medusa or
-                CustomRoles.SwordsMan or
-                //CustomRoles.Reverie or
-                CustomRoles.Innocent or
-                CustomRoles.Pelican or
-                //CustomRoles.Counterfeiter or
-                CustomRoles.Aid or
-                CustomRoles.DonutDelivery or
-                CustomRoles.Gaulois or
-                CustomRoles.Analyzer or
-                CustomRoles.Escort or
-                CustomRoles.Pursuer or
-                CustomRoles.FFF or
-                CustomRoles.Medic or
-                CustomRoles.Gamer or
-                CustomRoles.HexMaster or
-                CustomRoles.Wraith or
-                CustomRoles.Juggernaut or
-                CustomRoles.Jinx or
-                CustomRoles.DarkHide or
-                CustomRoles.BloodKnight or
-                CustomRoles.Poisoner or
-                CustomRoles.Pyromaniac or
-                CustomRoles.Eclipse or
-                CustomRoles.NSerialKiller or
-                CustomRoles.SoulHunter or
-                CustomRoles.Bubble or
-                CustomRoles.PlagueDoctor or
-                CustomRoles.Reckless or
-                CustomRoles.Postman or
-                CustomRoles.Vengeance or
-                CustomRoles.HeadHunter or
-                CustomRoles.Imitator or
-                CustomRoles.Maverick or
-                //CustomRoles.NWitch or
-                CustomRoles.Ritualist or
-                CustomRoles.Totocalcio or
-                CustomRoles.Succubus or
-                CustomRoles.Necromancer or
-                CustomRoles.Deathknight or
-                CustomRoles.Virus or
-                CustomRoles.Farseer or
-                CustomRoles.Pickpocket or
-                CustomRoles.PlagueBearer or
-                CustomRoles.Pestilence or
-                CustomRoles.Romantic or
-                CustomRoles.VengefulRomantic or
-                CustomRoles.RuthlessRomantic or
-                CustomRoles.Werewolf or
-                CustomRoles.Spiritcaller
-                => false,
-
-            CustomRoles.Jackal => Jackal.CanUseSabotage.GetBool(),
-            CustomRoles.Sidekick => Jackal.CanUseSabotageSK.GetBool(),
-            CustomRoles.Parasite => true,
-            CustomRoles.Enderman => true,
-            CustomRoles.Mycologist => Mycologist.SpreadAction.GetValue() == 1,
-            CustomRoles.Hookshot => true,
-            CustomRoles.Sprayer => true,
-            CustomRoles.Glitch => true,
-            CustomRoles.Refugee => true,
-            CustomRoles.Magician => true,
-            CustomRoles.WeaponMaster => true,
-
-            _ => pc.Is(CustomRoleTypes.Impostor),
-        };
+        return Main.PlayerStates[pc.PlayerId].Role.CanUseSabotage(pc);
     }
     public static Vector2 Pos(this PlayerControl pc) => new(pc.transform.position.x, pc.transform.position.y);
     public static void AddKillTimerToDict(this PlayerControl pc, bool half = false, float CD = -1f)
@@ -906,326 +662,14 @@ static class ExtendedPlayerControl
     public static bool IsPlayerShifted(this byte id) => Main.CheckShapeshift.TryGetValue(id, out var shifted) && shifted;
     public static void ResetKillCooldown(this PlayerControl player)
     {
-        Main.AllPlayerKillCooldown[player.PlayerId] = Options.DefaultKillCooldown; //キルクールをデフォルトキルクールに変更
-        switch (player.GetCustomRole())
+        Main.PlayerStates[player.PlayerId].Role.SetKillCooldown(player.PlayerId);
+
+        Main.AllPlayerKillCooldown[player.PlayerId] = player.GetCustomRole() switch
         {
-            case CustomRoles.SerialKiller:
-                SerialKiller.ApplyKillCooldown(player.PlayerId); //シリアルキラーはシリアルキラーのキルクールに。
-                break;
-            case CustomRoles.TimeThief:
-                TimeThief.SetKillCooldown(player.PlayerId); //タイムシーフはタイムシーフのキルクールに。
-                break;
-            /*    case CustomRoles.Mare:
-                    Mare.SetKillCooldown(player.PlayerId);
-                    break; */
-            case CustomRoles.EvilDiviner:
-                EvilDiviner.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Jailor:
-                Jailor.SetKillCooldown(player.PlayerId); //シリアルキラーはシリアルキラーのキルクールに。
-                break;
-            case CustomRoles.Morphling:
-                Morphling.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Cantankerous:
-                Cantankerous.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Doppelganger:
-                Doppelganger.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Ritualist:
-                Ritualist.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Pickpocket:
-                Pickpocket.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Agitater:
-                Agitater.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.YinYanger:
-                YinYanger.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Mafioso:
-                Mafioso.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Chronomancer:
-                Chronomancer.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Nullifier:
-                Nullifier.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Stealth:
-                Stealth.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Sapper:
-                Main.AllPlayerKillCooldown[player.PlayerId] = 300f;
-                break;
-            case CustomRoles.Hitman:
-                Main.AllPlayerKillCooldown[player.PlayerId] = Hitman.KillCooldown.GetFloat();
-                break;
-            case CustomRoles.Mastermind:
-                Main.AllPlayerKillCooldown[player.PlayerId] = Mastermind.KillCooldown.GetFloat();
-                break;
-            case CustomRoles.Gambler:
-                Main.AllPlayerKillCooldown[player.PlayerId] = Gambler.KillCooldown.GetFloat();
-                break;
-            case CustomRoles.RiftMaker:
-                Main.AllPlayerKillCooldown[player.PlayerId] = RiftMaker.KillCooldown.GetFloat();
-                break;
-            case CustomRoles.Saboteur:
-                Main.AllPlayerKillCooldown[player.PlayerId] = Options.SaboteurCDAfterMeetings.GetFloat();
-                break;
-            case CustomRoles.Jackal:
-                Jackal.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Sidekick:
-                Sidekick.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.PlagueBearer:
-                PlagueBearer.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Bandit:
-                Bandit.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Pestilence:
-                Pestilence.SetKillCooldownPestilence(player.PlayerId);
-                break;
-            case CustomRoles.Councillor:
-                Councillor.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.HexMaster:
-            case CustomRoles.Wraith:
-                Main.AllPlayerKillCooldown[player.PlayerId] = Options.DefaultKillCooldown;
-                break;
-            case CustomRoles.NSerialKiller:
-                NSerialKiller.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.SoulHunter:
-                SoulHunter.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Enderman:
-                Enderman.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Mycologist:
-                Mycologist.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Bubble:
-                Bubble.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Hookshot:
-                Hookshot.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Sprayer:
-                Sprayer.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.PlagueDoctor:
-                PlagueDoctor.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Penguin:
-                Penguin.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.WeaponMaster:
-                WeaponMaster.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Magician:
-                Magician.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Reckless:
-                Reckless.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Postman:
-                Postman.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.HeadHunter:
-                Main.AllPlayerKillCooldown[player.PlayerId] = HeadHunter.KCD;
-                break;
-            case CustomRoles.Pyromaniac:
-                Pyromaniac.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Eclipse:
-                Eclipse.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Vengeance:
-                Vengeance.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Imitator:
-                Imitator.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Werewolf:
-                Werewolf.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Traitor:
-                Traitor.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Glitch:
-                Glitch.SetKillCooldown(player.PlayerId);
-                break;
-            //case CustomRoles.NWitch:
-            //    NWitch.SetKillCooldown(player.PlayerId);
-            //    break;
-            case CustomRoles.Maverick:
-                Maverick.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Jinx:
-                Jinx.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Poisoner:
-                Poisoner.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Sheriff:
-                Sheriff.SetKillCooldown(player.PlayerId); //シェリフはシェリフのキルクールに。
-                break;
-            case CustomRoles.CopyCat:
-                CopyCat.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.SwordsMan:
-                SwordsMan.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Bomber:
-                if (Options.BomberCanKill.GetBool())
-                    Main.AllPlayerKillCooldown[player.PlayerId] = Options.BomberKillCD.GetFloat();
-                else
-                    Main.AllPlayerKillCooldown[player.PlayerId] = 300f;
-                break;
-            case CustomRoles.Nuker:
-                Main.AllPlayerKillCooldown[player.PlayerId] = 300f;
-                break;
-            case CustomRoles.Pelican:
-                Main.AllPlayerKillCooldown[player.PlayerId] = Pelican.KillCooldown.GetFloat();
-                break;
-            //case CustomRoles.Counterfeiter:
-            //    Counterfeiter.SetKillCooldown(player.PlayerId);
-            //    break;
-            case CustomRoles.Aid:
-                Aid.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Escort:
-                Escort.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.DonutDelivery:
-                DonutDelivery.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Gaulois:
-                Gaulois.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Analyzer:
-                Analyzer.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Pursuer:
-                Pursuer.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.FFF:
-                Main.AllPlayerKillCooldown[player.PlayerId] = 15f;
-                break;
-            case CustomRoles.Medusa:
-                Medusa.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Medic:
-                Medic.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Gamer:
-                Gamer.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.BallLightning:
-                BallLightning.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.DarkHide:
-                DarkHide.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Greedier:
-                Greedier.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.QuickShooter:
-                QuickShooter.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Assassin:
-                Assassin.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Undertaker:
-                Undertaker.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Sans:
-                Sans.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Juggernaut:
-                Juggernaut.SetKillCooldown(player.PlayerId);
-                break;
-            //case CustomRoles.Reverie:
-            //    Reverie.SetKillCooldown(player.PlayerId);
-            //    break;
-            case CustomRoles.Hacker:
-                Hacker.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.KB_Normal:
-                Main.AllPlayerKillCooldown[player.PlayerId] = SoloKombatManager.KB_ATKCooldown.GetFloat();
-                break;
-            case CustomRoles.Killer:
-                Main.AllPlayerKillCooldown[player.PlayerId] = FFAManager.FFA_KCD.GetFloat();
-                break;
-            case CustomRoles.BloodKnight:
-                BloodKnight.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Totocalcio:
-                Totocalcio.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Romantic:
-                Romantic.SetKillCooldown();
-                break;
-            case CustomRoles.VengefulRomantic:
-                Main.AllPlayerKillCooldown[player.PlayerId] = Romantic.VengefulKCD.GetFloat();
-                break;
-            case CustomRoles.RuthlessRomantic:
-                Main.AllPlayerKillCooldown[player.PlayerId] = Romantic.RuthlessKCD.GetFloat();
-                break;
-            case CustomRoles.Gangster:
-                Gangster.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Succubus:
-                Succubus.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Deathknight:
-                Deathknight.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Necromancer:
-                Necromancer.SetKillCooldown(player.PlayerId);
-                break;
-            //case CustomRoles.CursedSoul:
-            //    CursedSoul.SetKillCooldown(player.PlayerId);
-            //    break;
-            case CustomRoles.Amnesiac:
-                Amnesiac.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Monarch:
-                Monarch.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Deputy:
-                Deputy.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Virus:
-                Virus.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Farseer:
-                Farseer.SetCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Dazzler:
-                Dazzler.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Deathpact:
-                Deathpact.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Devourer:
-                Devourer.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Spiritcaller:
-                Spiritcaller.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Lurker:
-                Lurker.SetKillCooldown(player.PlayerId);
-                break;
-            case CustomRoles.Crusader:
-                Crusader.SetKillCooldown(player.PlayerId);
-                break;
-        }
+            CustomRoles.KB_Normal => SoloKombatManager.KB_ATKCooldown.GetFloat(),
+            CustomRoles.Killer => FFAManager.FFA_KCD.GetFloat(),
+            _ => Main.AllPlayerKillCooldown[player.PlayerId]
+        };
         if (player.PlayerId == LastImpostor.currentId)
             LastImpostor.SetKillCooldown();
         if (player.Is(CustomRoles.Mare))
@@ -1325,33 +769,33 @@ static class ExtendedPlayerControl
         killer.RpcMurderPlayer(target, true);
     }
 
-/*
-    public static void RpcMurderPlayerV2(this PlayerControl killer, PlayerControl target)
-    {
-        target.RemoveProtection();
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable);
-        messageWriter.WriteNetObject(target);
-        messageWriter.Write((int)MurderResultFlags.FailedProtected);
-        AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
-
-        if (killer.AmOwner)
+    /*
+        public static void RpcMurderPlayerV2(this PlayerControl killer, PlayerControl target)
         {
-            killer.RpcMurderPlayer(target, true);
-        }
-        else
-        {
-            killer.MurderPlayer(target, ResultFlags);
-            MessageWriter messageWriter2 = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable);
-            messageWriter2.WriteNetObject(target);
-            messageWriter2.Write((int)ResultFlags);
-            AmongUsClient.Instance.FinishRpcImmediately(messageWriter2);
-        }
-        target.Data.IsDead = true;
+            target.RemoveProtection();
+            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable);
+            messageWriter.WriteNetObject(target);
+            messageWriter.Write((int)MurderResultFlags.FailedProtected);
+            AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
 
-        NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-        NotifyRoles(SpecifySeer: target);
-    }
-*/
+            if (killer.AmOwner)
+            {
+                killer.RpcMurderPlayer(target, true);
+            }
+            else
+            {
+                killer.MurderPlayer(target, ResultFlags);
+                MessageWriter messageWriter2 = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable);
+                messageWriter2.WriteNetObject(target);
+                messageWriter2.Write((int)ResultFlags);
+                AmongUsClient.Instance.FinishRpcImmediately(messageWriter2);
+            }
+            target.Data.IsDead = true;
+
+            NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+            NotifyRoles(SpecifySeer: target);
+        }
+    */
     public static bool RpcCheckAndMurder(this PlayerControl killer, PlayerControl target, bool check = false) => CheckMurderPatch.RpcCheckAndMurder(killer, target, check);
 
     public static void NoCheckStartMeeting(this PlayerControl reporter, GameData.PlayerInfo target, bool force = false)
@@ -1364,7 +808,7 @@ static class ExtendedPlayerControl
     }
     public static bool IsModClient(this PlayerControl player) => Main.playerVersion.ContainsKey(player.PlayerId);
 
-    public static List<PlayerControl> GetPlayersInAbilityRangeSorted(this PlayerControl player, bool ignoreColliders = false) => GetPlayersInAbilityRangeSorted(player, pc => true, ignoreColliders);
+    public static List<PlayerControl> GetPlayersInAbilityRangeSorted(this PlayerControl player, bool ignoreColliders = false) => GetPlayersInAbilityRangeSorted(player, _ => true, ignoreColliders);
 
     public static List<PlayerControl> GetPlayersInAbilityRangeSorted(this PlayerControl player, Predicate<PlayerControl> predicate, bool ignoreColliders = false)
     {
@@ -1462,12 +906,12 @@ static class ExtendedPlayerControl
         if (target == null || target.Is(CustomRoles.GM)) return false;
         return GameStates.IsLobby || !Main.PlayerStates.TryGetValue(target.PlayerId, out var ps) || !ps.IsDead;
     }
-/*
-    public static bool IsExiled(this PlayerControl target)
-    {
-        return GameStates.InGame || (target != null && (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Vote));
-    }
-*/
+    /*
+        public static bool IsExiled(this PlayerControl target)
+        {
+            return GameStates.InGame || (target != null && (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Vote));
+        }
+    */
 
     ///<summary>Is the player currently protected</summary>
     public static bool IsProtected(this PlayerControl self) => self.protectedByGuardianId > -1;

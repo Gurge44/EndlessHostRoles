@@ -1,8 +1,9 @@
-using System.Collections.Generic;
-using System.Linq;
 using BepInEx;
 using HarmonyLib;
 using Hazel;
+using System.Collections.Generic;
+using System.Linq;
+using TOHE.Patches;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
 using TOHE.Roles.Crewmate;
@@ -15,7 +16,7 @@ namespace TOHE;
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.FixedUpdate))]
 class ShipFixedUpdatePatch
 {
-    public static void Postfix(/*ShipStatus __instance*/)
+    public static void Postfix( /*ShipStatus __instance*/)
     {
         if (!AmongUsClient.Instance.AmHost) return;
         if (Main.IsFixedCooldown && Main.RefixCooldownDelay >= 0)
@@ -30,22 +31,38 @@ class ShipFixedUpdatePatch
         }
     }
 }
+
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(PlayerControl), typeof(MessageReader))]
 public static class MessageReaderUpdateSystemPatch
 {
     public static void Prefix(ShipStatus __instance, [HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] PlayerControl player, [HarmonyArgument(2)] MessageReader reader)
     {
-        try { RepairSystemPatch.Prefix(__instance, systemType, player, MessageReader.Get(reader).ReadByte()); } catch { }
+        try
+        {
+            RepairSystemPatch.Prefix(__instance, systemType, player, MessageReader.Get(reader).ReadByte());
+        }
+        catch
+        {
+        }
     }
-    public static void Postfix(/*ShipStatus __instance,*/ [HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] PlayerControl player, [HarmonyArgument(2)] MessageReader reader)
+
+    public static void Postfix( /*ShipStatus __instance,*/ [HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] PlayerControl player, [HarmonyArgument(2)] MessageReader reader)
     {
-        try { RepairSystemPatch.Postfix(/*__instance,*/ systemType, player, MessageReader.Get(reader).ReadByte()); } catch { }
+        try
+        {
+            RepairSystemPatch.Postfix( /*__instance,*/ systemType, player, MessageReader.Get(reader).ReadByte());
+        }
+        catch
+        {
+        }
     }
 }
+
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(PlayerControl), typeof(byte))]
 class RepairSystemPatch
 {
     public static bool IsComms;
+
     public static bool Prefix(ShipStatus __instance,
         [HarmonyArgument(0)] SystemTypes systemType,
         [HarmonyArgument(1)] PlayerControl player,
@@ -66,9 +83,11 @@ class RepairSystemPatch
         //Note: "SystemTypes.Laboratory" сauses bugs in the Host, it is better not to use
         if (player.Is(CustomRoles.Fool) &&
             (systemType is
-            SystemTypes.Comms or
-            SystemTypes.Electrical))
-        { return false; }
+                SystemTypes.Comms or
+                SystemTypes.Electrical))
+        {
+            return false;
+        }
 
         switch (player.GetCustomRole())
         {
@@ -107,41 +126,19 @@ class RepairSystemPatch
                     return false;
                 }
 
-                if (player.Is(CustomRoles.Mafioso)) Mafioso.OnSabotage(player);
+                Main.PlayerStates[player.PlayerId].Role.OnSabotage(player);
+
+                if (player.Is(CustomRoleTypes.Impostor) && !player.IsAlive() && Options.DeadImpCantSabotage.GetBool()) return false;
                 if (player.Is(CustomRoleTypes.Impostor) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool()) && !player.Is(CustomRoles.Minimalism)) return true;
-                switch (player.GetCustomRole())
+                return player.GetCustomRole() switch
                 {
-                    case CustomRoles.Glitch:
-                        Glitch.Mimic(player);
-                        return false;
-                    case CustomRoles.Magician:
-                        Magician.UseCard(player);
-                        return false;
-                    case CustomRoles.WeaponMaster:
-                        WeaponMaster.SwitchMode();
-                        return false;
-                    case CustomRoles.Enderman:
-                        Enderman.MarkPosition();
-                        return false;
-                    case CustomRoles.Hookshot:
-                        Hookshot.ExecuteAction();
-                        return false;
-                    case CustomRoles.Sprayer:
-                        Sprayer.PlaceTrap();
-                        return false;
-                    case CustomRoles.Jackal when Jackal.CanUseSabotage.GetBool():
-                        return true;
-                    case CustomRoles.Sidekick when Jackal.CanUseSabotageSK.GetBool():
-                        return true;
-                    case CustomRoles.Traitor when Traitor.CanUseSabotage.GetBool():
-                        return true;
-                    case CustomRoles.Parasite when player.IsAlive():
-                        return true;
-                    case CustomRoles.Refugee when player.IsAlive():
-                        return true;
-                    default:
-                        return Main.PlayerStates[player.PlayerId].Role.CanUseSabotage(player);
-                }
+                    CustomRoles.Jackal when Jackal.CanSabotage.GetBool() => true,
+                    CustomRoles.Sidekick when Jackal.CanSabotageSK.GetBool() => true,
+                    CustomRoles.Traitor when Traitor.CanSabotage.GetBool() => true,
+                    CustomRoles.Parasite when player.IsAlive() => true,
+                    CustomRoles.Refugee when player.IsAlive() => true,
+                    _ => Main.PlayerStates[player.PlayerId].Role.CanUseSabotage(player)
+                };
             case SystemTypes.Security when amount == 1:
                 var camerasDisabled = (MapNames)Main.NormalOptions.MapId switch
                 {
@@ -157,9 +154,11 @@ class RepairSystemPatch
 
                 return !camerasDisabled;
         }
+
         return true;
     }
-    public static void Postfix(/*ShipStatus __instance,*/
+
+    public static void Postfix( /*ShipStatus __instance,*/
         [HarmonyArgument(0)] SystemTypes systemType,
         [HarmonyArgument(1)] PlayerControl player,
         [HarmonyArgument(2)] byte amount)
@@ -187,9 +186,11 @@ class RepairSystemPatch
                             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                             break;
                     }
+
                     if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage) Damocles.OnRepairSabotage(player.PlayerId);
                     if (player.Is(CustomRoles.Stressed) && Stressed.countRepairSabotage) Stressed.OnRepairSabotage(player);
                 }
+
                 break;
             case SystemTypes.Reactor:
             case SystemTypes.LifeSupp:
@@ -202,6 +203,7 @@ class RepairSystemPatch
                 break;
         }
     }
+
     public static void CheckAndOpenDoorsRange(ShipStatus __instance, int amount, int min, int max)
     {
         var Ids = new List<int>();
@@ -209,8 +211,10 @@ class RepairSystemPatch
         {
             Ids.Add(i);
         }
+
         CheckAndOpenDoors(__instance, amount, [.. Ids]);
     }
+
     private static void CheckAndOpenDoors(ShipStatus __instance, int amount, params int[] DoorIds)
     {
         if (!DoorIds.Contains(amount)) return;
@@ -220,10 +224,11 @@ class RepairSystemPatch
         }
     }
 }
+
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.CloseDoorsOfType))]
 class CloseDoorsPatch
 {
-    public static bool Prefix(/*ShipStatus __instance, */[HarmonyArgument(0)] SystemTypes room)
+    public static bool Prefix( /*ShipStatus __instance, */ [HarmonyArgument(0)] SystemTypes room)
     {
         bool allow = !Options.DisableSabotage.GetBool() && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop;
 
@@ -234,6 +239,7 @@ class CloseDoorsPatch
         return allow;
     }
 }
+
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Start))]
 class StartPatch
 {
@@ -259,15 +265,17 @@ class StartPatch
         }
     }
 }
+
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.StartMeeting))]
 class StartMeetingPatch
 {
-    public static void Prefix(/*ShipStatus __instance, PlayerControl reporter,*/ GameData.PlayerInfo target)
+    public static void Prefix( /*ShipStatus __instance, PlayerControl reporter,*/ GameData.PlayerInfo target)
     {
         MeetingStates.ReportTarget = target;
         MeetingStates.DeadBodies = Object.FindObjectsOfType<DeadBody>();
     }
 }
+
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Begin))]
 class BeginPatch
 {
@@ -278,6 +286,7 @@ class BeginPatch
         //Should I initialize the host role here?
     }
 }
+
 [HarmonyPatch(typeof(GameManager), nameof(GameManager.CheckTaskCompletion))]
 class CheckTaskCompletionPatch
 {
@@ -288,6 +297,7 @@ class CheckTaskCompletionPatch
             __result = false;
             return false;
         }
+
         return true;
     }
 }

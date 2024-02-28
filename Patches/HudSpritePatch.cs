@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using TOHE.Patches;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
 using UnityEngine;

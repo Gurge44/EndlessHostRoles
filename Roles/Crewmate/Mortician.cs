@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Hazel;
+﻿using Hazel;
+using System.Collections.Generic;
 using UnityEngine;
 using static TOHE.Options;
 
@@ -47,6 +47,7 @@ public class Mortician : RoleBase
             writer.Write(loc.y);
             writer.Write(loc.z);
         }
+
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
@@ -59,6 +60,7 @@ public class Mortician : RoleBase
         else
             LocateArrow.RemoveAllTarget(playerId);
     }
+
     public static void OnPlayerDead(PlayerControl target)
     {
         var pos = target.Pos();
@@ -84,6 +86,7 @@ public class Mortician : RoleBase
             SendRPC(pc, true, target.transform.position);
         }
     }
+
     public static void OnReportDeadBody(PlayerControl pc, GameData.PlayerInfo target)
     {
         foreach (byte apc in playerIdList)
@@ -96,6 +99,7 @@ public class Mortician : RoleBase
         lastPlayerName.TryGetValue(target.PlayerId, out var name);
         msgToSend.Add(pc.PlayerId, name == "" ? string.Format(Translator.GetString("MorticianGetNoInfo"), target.PlayerName) : string.Format(Translator.GetString("MorticianGetInfo"), target.PlayerName, name));
     }
+
     public static string GetTargetArrow(PlayerControl seer, PlayerControl target = null)
     {
         if (ShowArrows.GetBool())

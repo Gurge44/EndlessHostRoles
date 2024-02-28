@@ -1,9 +1,9 @@
+using AmongUs.GameOptions;
+using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using AmongUs.GameOptions;
-using Hazel;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral;
@@ -91,6 +91,8 @@ public class Glitch : RoleBase
     }
 
     public override bool IsEnable => playerIdList.Count > 0;
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+    public override bool CanUseSabotage(PlayerControl pc) => true;
 
     void SendRPCSyncTimers()
     {
@@ -103,6 +105,7 @@ public class Glitch : RoleBase
         writer.Write(KCDTimer);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPCSyncTimers(MessageReader reader)
     {
         byte id = reader.ReadByte();
@@ -154,16 +157,16 @@ public class Glitch : RoleBase
         if (killer == null || target == null || (KCDTimer > 0 && HackCDTimer > 0)) return false;
 
         if (killer.CheckDoubleTrigger(target, () =>
-        {
-            if (HackCDTimer <= 0)
             {
-                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-                HackCDTimer = HackCooldown.GetInt();
-                hackedIdList.TryAdd(target.PlayerId, Utils.TimeStamp);
-                LastHack = Utils.TimeStamp;
-                SendRPCSyncTimers();
-            }
-        }))
+                if (HackCDTimer <= 0)
+                {
+                    Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                    HackCDTimer = HackCooldown.GetInt();
+                    hackedIdList.TryAdd(target.PlayerId, Utils.TimeStamp);
+                    LastHack = Utils.TimeStamp;
+                    SendRPCSyncTimers();
+                }
+            }))
         {
             if (KCDTimer > 0) return false;
             LastKill = Utils.TimeStamp;
@@ -210,10 +213,18 @@ public class Glitch : RoleBase
 
         if (MimicDurTimer > 0)
         {
-            try { MimicDurTimer = (int)(MimicDuration.GetInt() - (Utils.TimeStamp - LastMimic)); }
-            catch { MimicDurTimer = 0; }
+            try
+            {
+                MimicDurTimer = (int)(MimicDuration.GetInt() - (Utils.TimeStamp - LastMimic));
+            }
+            catch
+            {
+                MimicDurTimer = 0;
+            }
+
             if (MimicDurTimer > 180) MimicDurTimer = 0;
         }
+
         if ((MimicDurTimer <= 0 || !GameStates.IsInTask) && isShifted)
         {
             try
@@ -225,6 +236,7 @@ public class Glitch : RoleBase
             {
                 Logger.Error(ex.ToString(), "Glitch.Mimic.RpcRevertShapeshift");
             }
+
             if (!GameStates.IsInTask)
             {
                 MimicDurTimer = 0;
@@ -233,18 +245,36 @@ public class Glitch : RoleBase
 
         if (HackCDTimer <= 0 && KCDTimer <= 0 && MimicCDTimer <= 0 && MimicDurTimer <= 0) return;
 
-        try { HackCDTimer = (int)(HackCooldown.GetInt() - (Utils.TimeStamp - LastHack)); }
-        catch { HackCDTimer = 0; }
+        try
+        {
+            HackCDTimer = (int)(HackCooldown.GetInt() - (Utils.TimeStamp - LastHack));
+        }
+        catch
+        {
+            HackCDTimer = 0;
+        }
 
         if (HackCDTimer is > 180 or < 0) HackCDTimer = 0;
 
-        try { KCDTimer = (int)(KillCooldown.GetInt() - (Utils.TimeStamp - LastKill)); }
-        catch { KCDTimer = 0; }
+        try
+        {
+            KCDTimer = (int)(KillCooldown.GetInt() - (Utils.TimeStamp - LastKill));
+        }
+        catch
+        {
+            KCDTimer = 0;
+        }
 
         if (KCDTimer is > 180 or < 0) KCDTimer = 0;
 
-        try { MimicCDTimer = (int)(MimicCooldown.GetInt() + MimicDuration.GetInt() - (Utils.TimeStamp - LastMimic)); }
-        catch { MimicCDTimer = 0; }
+        try
+        {
+            MimicCDTimer = (int)(MimicCooldown.GetInt() + MimicDuration.GetInt() - (Utils.TimeStamp - LastMimic));
+        }
+        catch
+        {
+            MimicCDTimer = 0;
+        }
 
         if (MimicCDTimer is > 180 or < 0) MimicCDTimer = 0;
 
@@ -264,6 +294,7 @@ public class Glitch : RoleBase
 
         if (player.IsNonHostModClient()) SendRPCSyncTimers();
     }
+
     public static string GetHudText(PlayerControl player)
     {
         if (player == null || !player.IsAlive()) return string.Empty;

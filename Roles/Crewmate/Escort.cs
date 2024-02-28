@@ -48,6 +48,8 @@ namespace TOHE.Roles.Crewmate
             Main.AllPlayerKillCooldown[playerId] = playerId.GetAbilityUseLimit() > 0 ? CD.GetFloat() : 300f;
         }
 
+        public override bool CanUseKillButton(PlayerControl pc) => pc.GetAbilityUseLimit() >= 1;
+
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (!IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0) return false;

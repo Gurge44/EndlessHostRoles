@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
@@ -10,8 +11,9 @@ using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
 using UnityEngine;
 using static TOHE.Translator;
+using Object = UnityEngine.Object;
 
-namespace TOHE;
+namespace TOHE.Patches;
 
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
 class HudManagerPatch
@@ -46,7 +48,7 @@ class HudManagerPatch
             }
         }
 
-        if (player.Collider.offset.y == 127f)
+        if (Math.Abs(player.Collider.offset.y - 127f) < 0.1f)
         {
             if (!Input.GetKey(KeyCode.LeftControl) || (AmongUsClient.Instance.IsGameStarted && GameStates.IsOnlineGame))
             {
@@ -93,9 +95,8 @@ class HudManagerPatch
                 if (Main.SetRoles.Count == 0) first = true;
                 foreach (var item in Main.SetAddOns)
                 {
-                    for (int i = 0; i < item.Value.Count; i++)
+                    foreach (var role in item.Value)
                     {
-                        CustomRoles role = item.Value[i];
                         var pc = Utils.GetPlayerById(item.Key);
                         if (resultText.ContainsKey(item.Key))
                         {
@@ -156,17 +157,12 @@ class HudManagerPatch
         {
             if (player.IsAlive() || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato)
             {
-                //MOD入り用のボタン下テキスト変更
+                Main.PlayerStates[player.PlayerId].Role.SetButtonTexts(__instance, player.PlayerId);
+
                 switch (player.GetCustomRole())
                 {
-                    case CustomRoles.Sniper:
-                        Sniper.OverrideShapeText(player.PlayerId);
-                        break;
                     case CustomRoles.FireWorks:
-                        if (FireWorks.nowFireWorksCount[player.PlayerId] == 0)
-                            __instance.AbilityButton?.OverrideText(GetString("FireWorksExplosionButtonText"));
-                        else
-                            __instance.AbilityButton?.OverrideText(GetString("FireWorksInstallAtionButtonText"));
+                        __instance.AbilityButton?.OverrideText((Main.PlayerStates[player.PlayerId].Role as FireWorks).nowFireWorksCount == 0 ? GetString("FireWorksExplosionButtonText") : GetString("FireWorksInstallAtionButtonText"));
                         break;
                     //case CustomRoles.SerialKiller:
                     //    SerialKiller.GetAbilityButtonText(__instance, player);
@@ -181,15 +177,6 @@ class HudManagerPatch
                     case CustomRoles.Witch:
                         Witch.GetAbilityButtonText(__instance);
                         break;
-                    case CustomRoles.HexMaster:
-                        HexMaster.GetAbilityButtonText(__instance);
-                        break;
-                    case CustomRoles.Vampire:
-                        Vampire.SetKillButtonText();
-                        break;
-                    case CustomRoles.Poisoner:
-                        Poisoner.SetKillButtonText();
-                        break;
                     case CustomRoles.Arsonist:
                         __instance.KillButton?.OverrideText(GetString("ArsonistDouseButtonText"));
                         __instance.ImpostorVentButton.buttonLabelText.text = GetString("ArsonistVentButtonText");
@@ -203,9 +190,6 @@ class HudManagerPatch
                     //case CustomRoles.BountyHunter:
                     //    BountyHunter.SetAbilityButtonText(__instance);
                     //    break;
-                    case CustomRoles.EvilTracker:
-                        EvilTracker.GetAbilityButtonText(__instance, player.PlayerId);
-                        break;
                     case CustomRoles.Capitalism:
                         __instance.KillButton?.OverrideText(GetString("CapitalismButtonText"));
                         break;
@@ -220,40 +204,6 @@ class HudManagerPatch
                         break;
                     case CustomRoles.Pursuer:
                         __instance.KillButton?.OverrideText(GetString("PursuerButtonText"));
-                        break;
-                    case CustomRoles.Gangster:
-                        Gangster.SetKillButtonText(player.PlayerId);
-                        break;
-                    case CustomRoles.NSerialKiller:
-                    case CustomRoles.SoulHunter:
-                    case CustomRoles.Enderman:
-                    case CustomRoles.Mycologist:
-                    case CustomRoles.Bubble:
-                    case CustomRoles.Hookshot:
-                    case CustomRoles.Sprayer:
-                    case CustomRoles.Magician:
-                    case CustomRoles.WeaponMaster:
-                    case CustomRoles.Reckless:
-                    case CustomRoles.Pyromaniac:
-                    case CustomRoles.Eclipse:
-                    case CustomRoles.Vengeance:
-                    case CustomRoles.HeadHunter:
-                    case CustomRoles.Imitator:
-                    case CustomRoles.Werewolf:
-                    case CustomRoles.RuthlessRomantic:
-                    case CustomRoles.Juggernaut:
-                    case CustomRoles.Jackal:
-                    case CustomRoles.Virus:
-                    case CustomRoles.BloodKnight:
-                    case CustomRoles.SwordsMan:
-                    case CustomRoles.Parasite:
-                    case CustomRoles.Refugee:
-                    case CustomRoles.Traitor:
-                    case CustomRoles.Ritualist:
-                    case CustomRoles.Spiritcaller:
-                    case CustomRoles.DarkHide:
-                    case CustomRoles.Maverick:
-                        __instance.KillButton?.OverrideText(GetString("KillButtonText"));
                         break;
                     case CustomRoles.Postman:
                         __instance.KillButton?.OverrideText(GetString("PostmanKillButtonText"));
@@ -316,17 +266,6 @@ class HudManagerPatch
                     case CustomRoles.OverKiller:
                         __instance.KillButton?.OverrideText(GetString("OverKillerButtonText"));
                         break;
-                    case CustomRoles.Assassin:
-                        Assassin.SetKillButtonText(player.PlayerId);
-                        Assassin.GetAbilityButtonText(__instance, player.PlayerId);
-                        break;
-                    case CustomRoles.Undertaker:
-                        Undertaker.SetKillButtonText(player.PlayerId);
-                        Undertaker.GetAbilityButtonText(__instance, player.PlayerId);
-                        break;
-                    case CustomRoles.Hacker:
-                        Hacker.GetAbilityButtonText(__instance, player.PlayerId);
-                        break;
                     case CustomRoles.KB_Normal:
                         __instance.KillButton?.OverrideText(GetString("GamerButtonText"));
                         break;
@@ -349,18 +288,6 @@ class HudManagerPatch
                         }
 
                         break;
-                    case CustomRoles.Swooper:
-                        __instance.ImpostorVentButton?.OverrideText(GetString(Swooper.IsInvis(PlayerControl.LocalPlayer.PlayerId) ? "SwooperRevertVentButtonText" : "SwooperVentButtonText"));
-                        __instance.ImpostorVentButton?.OverrideText(GetString(Swooper.CanGoInvis(PlayerControl.LocalPlayer.PlayerId) ? "SwooperVentButtonText" : "VentButtonText"));
-                        break;
-                    case CustomRoles.Wraith:
-                        __instance.KillButton?.OverrideText(GetString("KillButtonText"));
-                        __instance.ImpostorVentButton?.OverrideText(GetString(Wraith.IsInvis(PlayerControl.LocalPlayer.PlayerId) ? "WraithRevertVentButtonText" : "WraithVentButtonText"));
-                        __instance.ImpostorVentButton?.OverrideText(GetString(Swooper.CanGoInvis(PlayerControl.LocalPlayer.PlayerId) ? "WraithVentButtonText" : "VentButtonText"));
-                        break;
-                    case CustomRoles.Chameleon:
-                        __instance.AbilityButton?.OverrideText(GetString(Chameleon.IsInvis(PlayerControl.LocalPlayer.PlayerId) ? "ChameleonRevertDisguise" : "ChameleonDisguise"));
-                        break;
                     case CustomRoles.Sheriff:
                         __instance.KillButton?.OverrideText(GetString("SheriffKillButtonText"));
                         break;
@@ -376,11 +303,6 @@ class HudManagerPatch
                         break;
                     case CustomRoles.VengefulRomantic:
                         __instance.KillButton?.OverrideText(GetString("VengefulRomanticKillButtonText"));
-                        break;
-                    case CustomRoles.Penguin:
-                        __instance.KillButton?.OverrideText(Penguin.OverrideKillButtonText());
-                        __instance.AbilityButton?.OverrideText(Penguin.GetAbilityButtonText());
-                        __instance.AbilityButton?.ToggleVisible(Penguin.CanUseAbilityButton());
                         break;
                     case CustomRoles.Succubus:
                         __instance.KillButton?.OverrideText(GetString("SuccubusKillButtonText"));
@@ -452,24 +374,20 @@ class HudManagerPatch
                     CustomGameMode.Standard => player.GetCustomRole() switch
                     {
                         CustomRoles.BountyHunter => BountyHunter.GetTargetText(player, true),
-                        CustomRoles.Witch => Witch.GetSpellModeText(player, true),
-                        CustomRoles.HexMaster => HexMaster.GetHexModeText(player, true),
+                        CustomRoles.Witch or CustomRoles.HexMaster => Witch.GetSpellModeText(player, true),
                         CustomRoles.FireWorks => FireWorks.GetStateText(player),
-                        CustomRoles.Swooper => Swooper.GetHudText(player),
-                        CustomRoles.Wraith => Wraith.GetHudText(player),
+                        CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Chameleon => Swooper.GetHudText(player),
                         CustomRoles.HeadHunter => HeadHunter.GetHudText(player),
                         CustomRoles.Alchemist => Alchemist.GetHudText(player),
-                        CustomRoles.Chameleon => Chameleon.GetHudText(player),
                         CustomRoles.Werewolf => Werewolf.GetHudText(player),
-                        CustomRoles.BloodKnight => BloodKnight.GetHudText(player),
                         CustomRoles.Glitch => Glitch.GetHudText(player),
                         CustomRoles.NiceHacker => NiceHacker.GetHudText(player),
-                        CustomRoles.Wildling => Wildling.GetHudText(player),
-                        CustomRoles.YinYanger => YinYanger.ModeText,
-                        CustomRoles.WeaponMaster => WeaponMaster.GetHudAndProgressText(),
+                        CustomRoles.Wildling or CustomRoles.BloodKnight => Wildling.GetHudText(player),
+                        CustomRoles.YinYanger => YinYanger.ModeText(player),
+                        CustomRoles.WeaponMaster => WeaponMaster.GetHudAndProgressText(player.PlayerId),
                         CustomRoles.Postman => Postman.GetHudText(player),
-                        CustomRoles.SoulHunter => SoulHunter.HUDText,
-                        CustomRoles.Chronomancer => Chronomancer.GetHudText(),
+                        CustomRoles.SoulHunter => SoulHunter.HUDText(player.PlayerId),
+                        CustomRoles.Chronomancer => Chronomancer.GetHudText(player.PlayerId),
                         CustomRoles.Mafioso => Mafioso.GetHUDText(player),
                         CustomRoles.Druid => Druid.GetHUDText(player),
                         CustomRoles.Rabbit => Rabbit.GetSuffix(player),
@@ -659,18 +577,6 @@ class SetHudActivePatch
             case CustomRoles.Refugee:
                 __instance.SabotageButton?.ToggleVisible(true);
                 break;
-            case CustomRoles.Jackal:
-                Jackal.SetHudActive(__instance, isActive);
-                break;
-            case CustomRoles.Sidekick:
-                Sidekick.SetHudActive(__instance, isActive);
-                break;
-            case CustomRoles.Traitor:
-                Traitor.SetHudActive(__instance, isActive);
-                break;
-            case CustomRoles.Glitch:
-                Glitch.SetHudActive(__instance);
-                break;
             case CustomRoles.Magician:
                 __instance.SabotageButton?.ToggleVisible(true);
                 break;
@@ -715,7 +621,7 @@ class MapBehaviourShowPatch
         }
         else if (opts.Mode is MapOptions.Modes.Normal or MapOptions.Modes.Sabotage)
         {
-            if (player.Is(CustomRoleTypes.Impostor) || player.CanUseSabotage() || player.Is(CustomRoles.Glitch) || player.Is(CustomRoles.WeaponMaster) || player.Is(CustomRoles.Magician) || player.Is(CustomRoles.Parasite) || player.Is(CustomRoles.Refugee) || (player.Is(CustomRoles.Jackal) && Jackal.CanUseSabotage.GetBool()) || (player.Is(CustomRoles.Traitor) && Traitor.CanUseSabotage.GetBool()))
+            if (player.Is(CustomRoleTypes.Impostor) || player.CanUseSabotage() || player.Is(CustomRoles.Glitch) || player.Is(CustomRoles.WeaponMaster) || player.Is(CustomRoles.Magician) || player.Is(CustomRoles.Parasite) || player.Is(CustomRoles.Refugee) || (player.Is(CustomRoles.Jackal) && Jackal.CanSabotage.GetBool()) || (player.Is(CustomRoles.Traitor) && Traitor.CanSabotage.GetBool()))
                 opts.Mode = MapOptions.Modes.Sabotage;
             else
                 opts.Mode = MapOptions.Modes.Normal;
@@ -796,7 +702,7 @@ class TaskPanelBehaviourPatch
                     List<(int, byte)> list = [];
                     foreach (var id in Main.PlayerStates.Keys) list.Add((SoloKombatManager.GetRankOfScore(id), id));
                     list.Sort();
-                    foreach (var id in list.Where(x => SummaryText.ContainsKey(x.Item2))) AllText += "\r\n" + SummaryText[id.Item2];
+                    AllText = list.Where(x => SummaryText.ContainsKey(x.Item2)).Aggregate(AllText, (current, id) => current + ("\r\n" + SummaryText[id.Item2]));
 
                     AllText = $"<size=70%>{AllText}</size>";
 
@@ -816,7 +722,7 @@ class TaskPanelBehaviourPatch
                     List<(int, byte)> list2 = [];
                     foreach (var id in Main.PlayerStates.Keys) list2.Add((FFAManager.GetRankOfScore(id), id));
                     list2.Sort();
-                    foreach (var id in list2.Where(x => SummaryText2.ContainsKey(x.Item2))) AllText += "\r\n" + SummaryText2[id.Item2];
+                    AllText = list2.Where(x => SummaryText2.ContainsKey(x.Item2)).Aggregate(AllText, (current, id) => current + ("\r\n" + SummaryText2[id.Item2]));
 
                     AllText = $"<size=70%>{AllText}</size>";
 
@@ -865,14 +771,7 @@ class TaskPanelBehaviourPatch
                 case CustomGameMode.HotPotato:
 
                     List<string> SummaryText4 = [];
-                    foreach (var id in Main.PlayerStates.Keys.ToArray())
-                    {
-                        PlayerControl pc = Utils.GetPlayerById(id);
-                        string name = pc.GetRealName().RemoveHtmlTags().Replace("\r\n", string.Empty);
-                        bool alive = pc.IsAlive();
-                        string summary = $"{(!alive ? "<size=70%><#777777>" : "<size=80%>")}{HotPotatoManager.GetIndicator(id)}{Utils.ColorString(Main.PlayerColors[id], name)}{(!alive ? "</color>  <#ff0000>DEAD</color></size>" : "</size>")}";
-                        SummaryText4.Add(summary);
-                    }
+                    SummaryText4.AddRange(from id in Main.PlayerStates.Keys.ToArray() let pc = Utils.GetPlayerById(id) let name = pc.GetRealName().RemoveHtmlTags().Replace("\r\n", string.Empty) let alive = pc.IsAlive() select $"{(!alive ? "<size=70%><#777777>" : "<size=80%>")}{HotPotatoManager.GetIndicator(id)}{Utils.ColorString(Main.PlayerColors[id], name)}{(!alive ? "</color>  <#ff0000>DEAD</color></size>" : "</size>")}");
 
                     AllText += $"\r\n\r\n{string.Join('\n', SummaryText4)}";
 

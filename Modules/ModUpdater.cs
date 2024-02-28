@@ -1,11 +1,11 @@
-﻿using System;
+﻿using HarmonyLib;
+using Newtonsoft.Json.Linq;
+using System;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
-using HarmonyLib;
-using Newtonsoft.Json.Linq;
 using Twitch;
 using UnityEngine;
 using static TOHE.Translator;
@@ -63,8 +63,10 @@ public class ModUpdater
         {
             stream.Close();
         }
+
         return result;
     }
+
     public static async Task<bool> CheckReleaseFromGithub(bool beta = false)
     {
         Logger.Warn("Checking GitHub Release", "CheckRelease");
@@ -81,8 +83,10 @@ public class ModUpdater
                     Logger.Error($"Response Status Code: {response.StatusCode}", "CheckRelease");
                     return false;
                 }
+
                 result = await response.Content.ReadAsStringAsync();
             }
+
             JObject data = JObject.Parse(result);
             if (beta)
             {
@@ -104,6 +108,7 @@ public class ModUpdater
                         break;
                     }
                 }
+
                 hasUpdate = latestVersion.CompareTo(Main.version) > 0;
                 hasOutdate = latestVersion.CompareTo(Main.version) < 0;
             }
@@ -120,6 +125,7 @@ public class ModUpdater
                 Logger.Error("No Download URL", "CheckRelease");
                 return false;
             }
+
             isChecked = true;
             isBroken = false;
         }
@@ -129,8 +135,10 @@ public class ModUpdater
             Logger.Error($"Error while checking release from GitHub:\n{ex}", "CheckRelease", false);
             return false;
         }
+
         return true;
     }
+
     public static void StartUpdate(string url, bool github)
     {
         ShowPopup(GetString("updatePleaseWait"), StringNames.Cancel, true, false);
@@ -161,8 +169,10 @@ public class ModUpdater
             Logger.Exception(ex, "NewVersionCheck");
             return false;
         }
+
         return true;
     }
+
     public static void DeleteOldFiles()
     {
         string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -184,7 +194,9 @@ public class ModUpdater
             Logger.Error($"Failed to clear update residue\n{e}", "DeleteOldFiles");
         }
     }
+
     private static readonly object downloadLock = new();
+
     public static async Task<bool> DownloadDLL(string url)
     {
         try
@@ -245,8 +257,10 @@ public class ModUpdater
             ShowPopup(GetString("updateManually"), StringNames.Close, true);
             return false;
         }
+
         return true;
     }
+
     public static async Task<bool> DownloadDLLGithub(string url)
     {
         try
@@ -297,9 +311,14 @@ public class ModUpdater
             ShowPopup(GetString("updateManually"), StringNames.Close, true);
             return false;
         }
+
         return true;
     }
-    private static void DownloadCallBack(long total, long downloaded, double progress) { }
+
+    private static void DownloadCallBack(long total, long downloaded, double progress)
+    {
+    }
+
     private static void ShowPopup(string message, StringNames buttonText, bool showButton = false, bool buttonIsExit = true)
     {
         if (InfoPopup == null) return;

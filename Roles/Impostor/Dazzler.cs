@@ -1,6 +1,5 @@
-using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
+using System.Collections.Generic;
 using TOHE.Roles.Neutral;
 using static TOHE.Options;
 using static TOHE.Translator;

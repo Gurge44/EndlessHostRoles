@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Hazel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Hazel;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -89,6 +89,7 @@ namespace TOHE.Roles.Crewmate
             if (add) writer.Write(timestamp.ToString());
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
+
         public static void ReceiveRPCAddTornado(MessageReader reader)
         {
             bool add = reader.ReadBoolean();
@@ -146,6 +147,7 @@ namespace TOHE.Roles.Crewmate
                         {
                             Map.RandomTeleport(pc);
                         }
+
                         pc.Notify(NotifyString);
                     }
 
@@ -163,6 +165,7 @@ namespace TOHE.Roles.Crewmate
                 LastNotify = now;
             }
         }
+
         public static string GetSuffixText(bool isHUD = false) => string.Join(isHUD ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.ROOM_NAME)} {GetFormattedVectorText(x.Key.LOCATION)} ({(int)(TornadoDuration.GetInt() - (TimeStamp - x.Value) + 1)}s)"));
     }
 }

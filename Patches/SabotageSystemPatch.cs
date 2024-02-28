@@ -1,6 +1,6 @@
-using System.Linq;
 using HarmonyLib;
 using Hazel;
+using System.Linq;
 
 namespace TOHE;
 

@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Hazel;
+﻿using Hazel;
+using System.Collections.Generic;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -66,6 +66,7 @@ namespace TOHE.Roles.Crewmate
             writer.Write(targetId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
+
         public static void ReceiveRPC(MessageReader reader)
         {
             byte trackerId = reader.ReadByte();
@@ -76,6 +77,7 @@ namespace TOHE.Roles.Crewmate
             TrackerTarget[trackerId].Add(targetId);
             TargetArrow.Add(trackerId, targetId);
         }
+
         public static string GetTargetMark(PlayerControl seer, PlayerControl target) => !(seer == null || target == null) && TrackerTarget.ContainsKey(seer.PlayerId) && TrackerTarget[seer.PlayerId].Contains(target.PlayerId) ? Utils.ColorString(seer.GetRoleColor(), "◀") : string.Empty;
 
         public static bool OnVote(PlayerControl player, PlayerControl target)
@@ -112,13 +114,14 @@ namespace TOHE.Roles.Crewmate
                 var arrow = TargetArrow.GetArrows(seer, trackTarget);
                 arrows += Utils.ColorString(CanGetColoredArrow.GetBool() ? Palette.PlayerColors[targetData.Data.DefaultOutfit.ColorId] : Color.white, arrow);
             }
+
             return arrows;
         }
 
         public static bool IsTrackTarget(PlayerControl seer, PlayerControl target)
             => seer.IsAlive() && playerIdList.Contains(seer.PlayerId)
-                && TrackerTarget[seer.PlayerId].Contains(target.PlayerId)
-                && target.IsAlive();
+                              && TrackerTarget[seer.PlayerId].Contains(target.PlayerId)
+                              && target.IsAlive();
 
         public static string GetArrowAndLastRoom(PlayerControl seer, PlayerControl target)
         {

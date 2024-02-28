@@ -1,7 +1,7 @@
-using System;
-using System.Collections.Generic;
 using AmongUs.GameOptions;
 using Hazel;
+using System;
+using System.Collections.Generic;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -60,9 +60,11 @@ public class Amnesiac : RoleBase
         writer.Write(RememberLimit);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader) => RememberLimit = reader.ReadInt32();
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = RememberLimit >= 1 ? RememberCooldown.GetFloat() : 300f;
     public override bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && RememberLimit >= 1;
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
@@ -124,8 +126,6 @@ public class Amnesiac : RoleBase
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
-        Utils.AddRoles(killer.PlayerId, role);
-
         killer.ResetKillCooldown();
         killer.SetKillCooldown();
 
@@ -134,6 +134,7 @@ public class Amnesiac : RoleBase
 
         return false;
     }
+
     public static bool KnowRole(PlayerControl player, PlayerControl target)
     {
         if (player.IsNeutralKiller() && target.IsNeutralKiller() && player.GetCustomRole() == target.GetCustomRole()) return true;

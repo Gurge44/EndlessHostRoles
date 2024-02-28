@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using AmongUs.GameOptions;
+using System.Collections.Generic;
 using System.Text;
-using AmongUs.GameOptions;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -51,6 +51,8 @@ public class Postman : RoleBase
     public override bool IsEnable => playerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+    public override bool CanUseKillButton(PlayerControl pc) => !IsFinished;
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
 
     public static void CheckAndResetTargets(PlayerControl deadPc, bool isDeath = false)
     {

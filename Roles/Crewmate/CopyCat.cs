@@ -50,7 +50,7 @@ public class CopyCat : RoleBase
     public override bool IsEnable => playerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Utils.GetPlayerById(id).IsAlive() ? CurrentKillCooldown[id] : 0f;
 
-    public override void AfterMeetingTasks()
+    public static void ResetRole()
     {
         foreach (var player in playerIdList)
         {
@@ -61,15 +61,6 @@ public class CopyCat : RoleBase
             {
                 case CustomRoles.Cleanser:
                     Cleanser.DidVote.Remove(pc.PlayerId);
-                    break;
-                case CustomRoles.Jailor:
-                    Jailor.JailorExeLimit.Remove(pc.PlayerId);
-                    Jailor.JailorTarget.Remove(pc.PlayerId);
-                    Jailor.JailorHasExe.Remove(pc.PlayerId);
-                    Jailor.JailorDidVote.Remove(pc.PlayerId);
-                    break;
-                case CustomRoles.Medic:
-                    Medic.ProtectLimit.Remove(player);
                     break;
                 case CustomRoles.Merchant:
                     Merchant.addonsSold.Remove(player);
@@ -82,19 +73,13 @@ public class CopyCat : RoleBase
                     Snitch.IsExposed.Remove(player);
                     Snitch.IsComplete.Remove(player);
                     break;
-                case CustomRoles.Sheriff:
-                    Sheriff.CurrentKillCooldown.Remove(player);
-                    break;
-                case CustomRoles.Crusader:
-                    Crusader.CurrentKillCooldown.Remove(player);
-                    break;
                 case CustomRoles.Mayor:
                     Main.MayorUsedButtonCount.Remove(player);
                     break;
             }
 
             pc.RpcSetCustomRole(CustomRoles.CopyCat);
-            SetKillCooldown(player);
+            (Main.PlayerStates[player].Role as CopyCat)?.SetKillCooldown(player);
         }
     }
 
@@ -152,8 +137,6 @@ public class CopyCat : RoleBase
         {
             ////////////           /*add the settings for new role*/            ////////////
             /* anything that is assigned in onGameStartedPatch.cs comes here */
-
-            Utils.AddRoles(pc.PlayerId, role);
 
             pc.RpcSetCustomRole(role);
             pc.SetAbilityUseLimit(tpc.GetAbilityUseLimit());

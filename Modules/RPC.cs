@@ -1005,8 +1005,6 @@ internal static class RPC
             Main.PlayerStates[targetId].SetSubRole(role);
         }
 
-        Utils.AddRoles(targetId, role);
-
         HudManager.Instance.SetHudActive(true);
         if (PlayerControl.LocalPlayer.PlayerId == targetId) RemoveDisableDevicesPatch.UpdateDisableDevices();
     }

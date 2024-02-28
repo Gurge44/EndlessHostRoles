@@ -1,10 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using InnerNet;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using TOHE.Roles.Neutral;
 using UnityEngine;
@@ -18,18 +18,28 @@ public static class GameStartManagerUpdatePatch
 {
     public static void Prefix(GameStartManager __instance)
     {
-        try { __instance.MinPlayers = 1; } catch (Exception ex) { Logger.Error(ex.ToString(), "Surely this can't be causing an issue, right?"); }
+        try
+        {
+            __instance.MinPlayers = 1;
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex.ToString(), "Surely this can't be causing an issue, right?");
+        }
     }
 }
+
 //タイマーとコード隠し
 public class GameStartManagerPatch
 {
     private static SpriteRenderer cancelButton;
     private static float timer = 600f;
+
     [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.Start))]
     public class GameStartManagerStartPatch
     {
         public static TextMeshPro HideName;
+
         public static void Postfix(GameStartManager __instance)
         {
             try
@@ -42,8 +52,8 @@ public class GameStartManagerPatch
 
                 HideName = Object.Instantiate(__instance.GameRoomNameCode, __instance.GameRoomNameCode.transform);
                 HideName.text = ColorUtility.TryParseHtmlString(Main.HideColor.Value, out _)
-                        ? $"<color={Main.HideColor.Value}>{Main.HideName.Value}</color>"
-                        : $"<color={Main.ModColor}>{Main.HideName.Value}</color>";
+                    ? $"<color={Main.HideColor.Value}>{Main.HideName.Value}</color>"
+                    : $"<color={Main.ModColor}>{Main.HideName.Value}</color>";
 
                 cancelButton = Object.Instantiate(__instance.StartButton, __instance.transform);
                 cancelButton.name = "CancelButton";
@@ -92,6 +102,7 @@ public class GameStartManagerPatch
         public static float exitTimer = -1f;
         private static float minWait, maxWait;
         private static int minPlayer;
+
         public static void Prefix(GameStartManager __instance)
         {
             try
@@ -147,10 +158,12 @@ public class GameStartManagerPatch
                                 msg += "\n" + string.Join(",", invalidColor.Select(p => $"{p.GetRealName()}"));
                                 Utils.SendMessage(msg);
                             }
+
                             if (Options.RandomMapsMode.GetBool())
                             {
                                 Main.NormalOptions.MapId = GameStartRandomMap.SelectRandomMap();
                             }
+
                             GameStartManager.Instance.startState = GameStartManager.StartingStates.Countdown;
                             GameStartManager.Instance.countDownTimer = Options.AutoStartTimer.GetInt();
                             __instance.StartButton.gameObject.SetActive(false);
@@ -158,12 +171,15 @@ public class GameStartManagerPatch
                     }
                 }
             }
-            catch (NullReferenceException) { }
+            catch (NullReferenceException)
+            {
+            }
             catch (Exception ex)
             {
                 Logger.Error(ex.ToString(), "GameStartManagerUpdatePatch.Prefix (2)");
             }
         }
+
         public static void Postfix(GameStartManager __instance)
         {
             try
@@ -187,11 +203,13 @@ public class GameStartManagerPatch
                             mismatchedPlayerNameList.Add(Utils.ColorString(Palette.PlayerColors[client.ColorId], client.Character.Data.PlayerName));
                         }
                     }
+
                     if (!canStartGame)
                     {
                         __instance.StartButton.gameObject.SetActive(false);
                         warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.MismatchedVersion"), string.Join(" ", mismatchedPlayerNameList), $"<color={Main.ModColor}>{Main.ModName}</color>"));
                     }
+
                     cancelButton.gameObject.SetActive(__instance.startState == GameStartManager.StartingStates.Countdown);
                 }
                 else
@@ -207,10 +225,12 @@ public class GameStartManagerPatch
                             AmongUsClient.Instance.ExitGame(DisconnectReasons.ExitGame);
                             SceneChanger.ChangeScene("MainMenu");
                         }
+
                         if (exitTimer != 0)
                             warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.AutoExitAtMismatchedVersion"), $"<color={Main.ModColor}>{Main.ModName}</color>", Math.Round(5 - exitTimer).ToString()));
                     }
                 }
+
                 if (warningMessage != "")
                 {
                     __instance.GameStartText.text = warningMessage;
@@ -235,20 +255,24 @@ public class GameStartManagerPatch
                 __instance.PlayerCounter.text = currentText + suffix;
                 __instance.PlayerCounter.autoSizeTextContainer = true;
             }
-            catch (NullReferenceException) { }
+            catch (NullReferenceException)
+            {
+            }
             catch (Exception e)
             {
                 Logger.Error(e.ToString(), "GameStartManagerUpdatePatch.Postfix (3)");
             }
         }
+
         private static bool MatchVersions(byte playerId, bool acceptVanilla = false)
         {
             if (!Main.playerVersion.TryGetValue(playerId, out var version)) return acceptVanilla;
             return Main.ForkId == version.forkId
-                && Main.version.CompareTo(version.version) == 0
-                && version.tag == $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})";
+                   && Main.version.CompareTo(version.version) == 0
+                   && version.tag == $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})";
         }
     }
+
     [HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.SetText))]
     public static class HiddenTextPatch
     {
@@ -258,6 +282,7 @@ public class GameStartManagerPatch
         }
     }
 }
+
 [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.BeginGame))]
 public class GameStartRandomMap
 {
@@ -288,15 +313,18 @@ public class GameStartRandomMap
         __instance.ReallyBegin(false);
         return false;
     }
-    public static bool Prefix(/*GameStartRandomMap __instance*/)
+
+    public static bool Prefix( /*GameStartRandomMap __instance*/)
     {
         bool continueStart = true;
         if (Options.RandomMapsMode.GetBool())
         {
             Main.NormalOptions.MapId = SelectRandomMap();
         }
+
         return continueStart;
     }
+
     public static byte SelectRandomMap()
     {
         var rand = IRandom.Instance;
@@ -334,6 +362,7 @@ public class GameStartRandomMap
         }
     }
 }
+
 [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.ResetStartState))]
 class ResetStartStatePatch
 {
@@ -346,6 +375,7 @@ class ResetStartStatePatch
         }
     }
 }
+
 [HarmonyPatch(typeof(IGameOptionsExtensions), nameof(IGameOptionsExtensions.GetAdjustedNumImpostors))]
 class UnrestrictedNumImpostorsPatch
 {

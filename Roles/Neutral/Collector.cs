@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Hazel;
+using System.Collections.Generic;
 using System.Linq;
-using Hazel;
 
 namespace TOHE.Roles.Neutral;
 
@@ -42,6 +42,7 @@ public class Collector : RoleBase
         writer.Write(CollectVote[playerId]);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader)
     {
         byte PlayerId = reader.ReadByte();
@@ -56,6 +57,7 @@ public class Collector : RoleBase
         int CollectNum = CollectorCollectAmount.GetInt();
         return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Collector).ShadeColor(0.25f), $"({VoteAmount}/{CollectNum})");
     }
+
     public static bool CollectorWin(bool check = true)
     {
         var pc = Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Collector) && x.IsAlive() && CollectDone(x)).ToArray();
@@ -66,8 +68,10 @@ public class Collector : RoleBase
             foreach (var winner in pc) CustomWinnerHolder.WinnerIds.Add(winner.PlayerId);
             return true;
         }
+
         return false;
     }
+
     public static bool CollectDone(PlayerControl player)
     {
         if (player.Is(CustomRoles.Collector))
@@ -77,14 +81,17 @@ public class Collector : RoleBase
             int CollectNum = CollectorCollectAmount.GetInt();
             if (VoteAmount >= CollectNum) return true;
         }
+
         return false;
     }
-    public static void CollectorVotes(PlayerControl target, PlayerVoteArea ps)//集票者投票给谁
+
+    public static void CollectorVotes(PlayerControl target, PlayerVoteArea ps) //集票者投票给谁
     {
         if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Collector))
             CollectorVoteFor.TryAdd(target.PlayerId, ps.TargetPlayerId);
     }
-    public static void CollectAmount(Dictionary<byte, int> VotingData, MeetingHud __instance)//得到集票者收集到的票
+
+    public static void CollectAmount(Dictionary<byte, int> VotingData, MeetingHud __instance) //得到集票者收集到的票
     {
         foreach (PlayerVoteArea pva in __instance.playerStates.ToArray())
         {

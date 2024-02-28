@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using AmongUs.Data;
 using HarmonyLib;
 using InnerNet;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using TOHE.Roles.Impostor;
 using UnityEngine;
 
@@ -13,11 +13,13 @@ namespace TOHE;
 class ChatControllerUpdatePatch
 {
     public static int CurrentHistorySelection = -1;
+
     public static void Prefix()
     {
         if (AmongUsClient.Instance.AmHost && DataManager.Settings.Multiplayer.ChatMode == QuickChatModes.QuickChatOnly)
             DataManager.Settings.Multiplayer.ChatMode = QuickChatModes.FreeChatOrQuickChat; //コマンドを打つためにホストのみ常時フリーチャット開放
     }
+
     public static void Postfix(ChatController __instance)
     {
         if (!__instance.freeChatField.textArea.hasFocus) return;
@@ -32,11 +34,13 @@ class ChatControllerUpdatePatch
             ClipboardHelper.PutClipboardString(__instance.freeChatField.textArea.text);
             __instance.freeChatField.textArea.SetText("");
         }
+
         if (Input.GetKeyDown(KeyCode.UpArrow) && ChatCommands.ChatHistory.Count > 0)
         {
             CurrentHistorySelection = Mathf.Clamp(--CurrentHistorySelection, 0, ChatCommands.ChatHistory.Count - 1);
             __instance.freeChatField.textArea.SetText(ChatCommands.ChatHistory[CurrentHistorySelection]);
         }
+
         if (Input.GetKeyDown(KeyCode.DownArrow) && ChatCommands.ChatHistory.Count > 0)
         {
             CurrentHistorySelection++;
@@ -52,10 +56,12 @@ public static class ChatManager
     public static bool cancel;
     private static readonly List<string> chatHistory = [];
     private const int maxHistorySize = 20;
+
     public static void ResetHistory()
     {
         chatHistory.Clear();
     }
+
     public static bool CheckCommand(ref string msg, string command, bool exact = true)
     {
         var comList = command.Split('|');
@@ -74,8 +80,10 @@ public static class ChatManager
                 }
             }
         }
+
         return false;
     }
+
     public static bool CheckName(ref string msg, string command, bool exact = true)
     {
         var comList = command.Split('|');
@@ -98,8 +106,10 @@ public static class ChatManager
                 }
             }
         }
+
         return false;
     }
+
     public static void SendMessage(PlayerControl player, string message)
     {
         int operate;
@@ -194,6 +204,7 @@ public static class ChatManager
 
         ChatUpdatePatch.DoBlockChat = false;
     }
+
     private static void SendRPC(PlayerControl senderPlayer, string senderMessage)
     {
         var writer = CustomRpcSender.Create("MessagesToSend");

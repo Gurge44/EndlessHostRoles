@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using Hazel;
+using System.Collections.Generic;
 using UnityEngine;
 using static TOHE.Options;
 
@@ -61,8 +61,9 @@ public class Bandit : RoleBase
 
     public override bool IsEnable => On;
     public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
 
-    private static void SendRPC(byte playerId/*, bool isTargetList = false*/)
+    private static void SendRPC(byte playerId /*, bool isTargetList = false*/)
     {
         if (!On || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBanditStealLimit, SendOption.Reliable);
@@ -104,6 +105,7 @@ public class Bandit : RoleBase
             Logger.Info("No stealable addons found on the target.", "Bandit");
             return null;
         }
+
         var rand = IRandom.Instance;
         var addon = AllSubRoles[rand.Next(0, AllSubRoles.Count)];
         return addon;
@@ -139,6 +141,7 @@ public class Bandit : RoleBase
                 Targets[killer.PlayerId][target.PlayerId] = (CustomRoles)SelectedAddOn;
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} will steal {SelectedAddOn} addon from {target.GetNameWithRole().RemoveHtmlTags()} after meeting starts", "Bandit");
             }
+
             TotalSteals[killer.PlayerId]++;
             SendRPC(killer.PlayerId);
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
@@ -172,6 +175,7 @@ public class Bandit : RoleBase
                 Logger.Info($"Successfully Added {role} addon to {banditpc.GetNameWithRole().RemoveHtmlTags()}", "Bandit");
                 Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: banditpc);
             }
+
             Targets[banditId].Clear();
         }
     }

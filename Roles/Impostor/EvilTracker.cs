@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using Hazel;
 using Il2CppSystem.Text;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -177,7 +177,7 @@ public class EvilTracker : RoleBase
         (Main.PlayerStates[trackerId].Role as EvilTracker)?.SetTarget(trackerId, targetId);
     }
 
-    public static string GetMarker(byte playerId) => Main.PlayerStates[playerId].Role is not EvilTracker et ? null : et.CanTarget(playerId) ? Utils.ColorString(Palette.ImpostorRed.ShadeColor(0.5f), "◁") : string.Empty;
+    public override string GetProgressText(byte playerId, bool comms) => Main.PlayerStates[playerId].Role is not EvilTracker et ? null : et.CanTarget(playerId) ? Utils.ColorString(Palette.ImpostorRed.ShadeColor(0.5f), "◁") : string.Empty;
     public static string GetTargetMark(PlayerControl seer, PlayerControl target) => Main.PlayerStates[seer.PlayerId].Role is not EvilTracker et ? string.Empty : et.Target == target.PlayerId ? Utils.ColorString(Palette.ImpostorRed, "◀") : string.Empty;
 
     public static string GetTargetArrow(PlayerControl seer, PlayerControl target)

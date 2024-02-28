@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using TOHE.Modules;
 using TOHE.Roles.AddOns.Common;
 using TOHE.Roles.AddOns.Crewmate;
@@ -159,6 +159,7 @@ internal class ChangeRoleSettings
                     Main.LastNotifyNames[pair] = target.name;
                 }
             }
+
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
                 var colorId = pc.Data.DefaultOutfit.ColorId;
@@ -175,17 +176,18 @@ internal class ChangeRoleSettings
                 Camouflage.PlayerSkins[pc.PlayerId] = new GameData.PlayerOutfit().Set(outfit.PlayerName, outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId, outfit.NamePlateId);
                 Main.clientIdList.Add(pc.GetClientId());
             }
+
             Main.VisibleTasksCount = true;
             if (__instance.AmHost)
             {
                 RPC.SyncCustomSettingsRPC();
                 Main.RefixCooldownDelay = 0;
             }
+
             FallFromLadder.Reset();
 
             try
             {
-
                 BountyHunter.Init();
                 SerialKiller.Init();
                 EvilDiviner.Init();
@@ -388,6 +390,7 @@ internal class ChangeRoleSettings
         }
     }
 }
+
 [HarmonyPatch(typeof(RoleManager), nameof(RoleManager.SelectRoles))]
 internal class SelectRolesPatch
 {
@@ -403,6 +406,7 @@ internal class SelectRolesPatch
             {
                 senders[pc.PlayerId] = new CustomRpcSender($"{pc.name}'s SetRole Sender", SendOption.Reliable, false).StartMessage(pc.GetClientId());
             }
+
             RpcSetRoleReplacer.StartReplace(senders);
 
             if (Options.EnableGM.GetBool())
@@ -435,7 +439,6 @@ internal class SelectRolesPatch
 
 
             MakeDesyncSender(senders, rolesMap);
-
         }
         catch (Exception e)
         {
@@ -465,6 +468,7 @@ internal class SelectRolesPatch
             {
                 physicistSpawn = true;
             }
+
             if (rd.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Nimble, out var x2) ? x2.GetFloat() : 0) && CustomRoles.Nimble.IsEnable())
             {
                 nimbleSpawn = true;
@@ -512,7 +516,8 @@ internal class SelectRolesPatch
             }
 
             if (nimbleSpawn) Main.NimblePlayer = nimbleList[rd.Next(0, nimbleList.Count)];
-            if (physicistSpawn) while (Main.PhysicistPlayer == byte.MaxValue || Main.PhysicistPlayer == Main.NimblePlayer)
+            if (physicistSpawn)
+                while (Main.PhysicistPlayer == byte.MaxValue || Main.PhysicistPlayer == Main.NimblePlayer)
                     Main.PhysicistPlayer = physicistList[rd.Next(0, physicistList.Count)];
 
             List<(PlayerControl, RoleTypes)> newList = [];
@@ -540,6 +545,7 @@ internal class SelectRolesPatch
                         Logger.Warn($"{PLAYER.GetRealName()} was assigned Physicist, their role basis was changed to Scientist", "Physicist");
                     }
                 }
+
                 if (Options.EveryoneCanVent.GetBool())
                 {
                     if (roleType == RoleTypes.Crewmate || (roleType == RoleTypes.Scientist && Options.OverrideScientistBasedRoles.GetBool()))
@@ -548,9 +554,11 @@ internal class SelectRolesPatch
                         Logger.Info($"Everyone can vent => {PLAYER.GetRealName()}'s role was changed to Engineer", "SetRoleReplacer");
                     }
                 }
+
                 newList.Add((PLAYER, roleType));
                 Logger.Warn(ROLETYPE == roleType ? $"Register original role type => {PLAYER.GetRealName()}: {ROLETYPE}" : $"Register original role type => {PLAYER.GetRealName()}: {ROLETYPE} => {roleType}", "Override Role Select");
             }
+
             if (Options.EnableGM.GetBool()) newList.Add((PlayerControl.LocalPlayer, RoleTypes.Crewmate));
             RpcSetRoleReplacer.StoragedData = newList;
 
@@ -615,7 +623,8 @@ internal class SelectRolesPatch
             foreach (CustomRoles role in AddonRolesList.ToArray())
             {
                 if (rd.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(role, out var sc) ? sc.GetFloat() : 0))
-                    if (role.IsEnable()) AssignSubRoles(role);
+                    if (role.IsEnable())
+                        AssignSubRoles(role);
             }
 
             //RPCによる同期
@@ -623,7 +632,7 @@ internal class SelectRolesPatch
             {
                 ExtendedPlayerControl.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
 
-                foreach (CustomRoles subRole in pair.Value.SubRoles.ToArray())
+                foreach (CustomRoles subRole in pair.Value.SubRoles)
                 {
                     ExtendedPlayerControl.RpcSetCustomRole(pair.Key, subRole);
                 }
@@ -635,8 +644,6 @@ internal class SelectRolesPatch
                 {
                     if (pc.Data.Role.Role == RoleTypes.Shapeshifter)
                         Main.CheckShapeshift.Add(pc.PlayerId, false);
-
-                    Utils.AddRoles(pc.PlayerId, pc.GetCustomRole());
                 }
                 catch (Exception ex)
                 {
@@ -647,7 +654,7 @@ internal class SelectRolesPatch
             Stressed.Add();
             Asthmatic.Add();
 
-        EndOfSelectRolePatch:
+            EndOfSelectRolePatch:
 
             if (Options.CurrentGameMode == CustomGameMode.HotPotato) HotPotatoManager.OnGameStart();
 
@@ -721,6 +728,7 @@ internal class SelectRolesPatch
             Logger.Fatal(ex.ToString(), "Select Role Postfix");
         }
     }
+
     private static void AssignDesyncRole(CustomRoles role, PlayerControl player, Dictionary<byte, CustomRpcSender> senders, Dictionary<(byte, byte), RoleTypes> rolesMap, RoleTypes BaseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate)
     {
         if (player == null) return;
@@ -749,6 +757,7 @@ internal class SelectRolesPatch
 
         Logger.Info($"Register Modded Role：{player.Data?.PlayerName} => {role}", "AssignRoles");
     }
+
     public static void MakeDesyncSender(Dictionary<byte, CustomRpcSender> senders, Dictionary<(byte, byte), RoleTypes> rolesMap)
     {
         foreach (PlayerControl seer in Main.AllPlayerControls)
@@ -774,47 +783,47 @@ internal class SelectRolesPatch
 
         SetColorPatch.IsAntiGlitchDisabled = false;
     }
-//    private static void ForceAssignRole(/*CustomRoles role,*/ List<PlayerControl> AllPlayers, CustomRpcSender sender, RoleTypes BaseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate, bool skip = false, int Count = -1)
-//    {
-//        var count = 1;
-//
-//        if (Count != -1)
-//            count = Count;
-//        for (var i = 0; i < count; i++)
-//        {
-//            if (AllPlayers.Count == 0) break;
-//            var rand = IRandom.Instance;
-//            var player = AllPlayers[rand.Next(0, AllPlayers.Count)];
-//            AllPlayers.Remove(player);
-//            if (!skip)
-//            {
-//                if (!player.IsModClient())
-//                {
-//                    int playerCID = player.GetClientId();
-//                    sender.RpcSetRole(player, BaseRole, playerCID);
-//                    //Desyncする人視点で他プレイヤーを科学者にするループ
-//                    foreach (var pc in PlayerControl.AllPlayerControls)
-//                    {
-//                        if (pc == player) continue;
-//                        sender.RpcSetRole(pc, RoleTypes.Scientist, playerCID);
-//                    }
-//                    //他視点でDesyncする人の役職を科学者にするループ
-//                    foreach (var pc in PlayerControl.AllPlayerControls)
-//                    {
-//                        if (pc == player) continue;
-//                        if (pc.PlayerId == 0) player.SetRole(RoleTypes.Scientist); //ホスト視点用
-//                        else sender.RpcSetRole(player, RoleTypes.Scientist, pc.GetClientId());
-//                    }
-//                }
-//                else
-//                {
-//                    //ホストは別の役職にする
-//                    player.SetRole(hostBaseRole); //ホスト視点用
-//                    sender.RpcSetRole(player, hostBaseRole);
-//                }
-//            }
-//        }
-//    }
+    //    private static void ForceAssignRole(/*CustomRoles role,*/ List<PlayerControl> AllPlayers, CustomRpcSender sender, RoleTypes BaseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate, bool skip = false, int Count = -1)
+    //    {
+    //        var count = 1;
+    //
+    //        if (Count != -1)
+    //            count = Count;
+    //        for (var i = 0; i < count; i++)
+    //        {
+    //            if (AllPlayers.Count == 0) break;
+    //            var rand = IRandom.Instance;
+    //            var player = AllPlayers[rand.Next(0, AllPlayers.Count)];
+    //            AllPlayers.Remove(player);
+    //            if (!skip)
+    //            {
+    //                if (!player.IsModClient())
+    //                {
+    //                    int playerCID = player.GetClientId();
+    //                    sender.RpcSetRole(player, BaseRole, playerCID);
+    //                    //Desyncする人視点で他プレイヤーを科学者にするループ
+    //                    foreach (var pc in PlayerControl.AllPlayerControls)
+    //                    {
+    //                        if (pc == player) continue;
+    //                        sender.RpcSetRole(pc, RoleTypes.Scientist, playerCID);
+    //                    }
+    //                    //他視点でDesyncする人の役職を科学者にするループ
+    //                    foreach (var pc in PlayerControl.AllPlayerControls)
+    //                    {
+    //                        if (pc == player) continue;
+    //                        if (pc.PlayerId == 0) player.SetRole(RoleTypes.Scientist); //ホスト視点用
+    //                        else sender.RpcSetRole(player, RoleTypes.Scientist, pc.GetClientId());
+    //                    }
+    //                }
+    //                else
+    //                {
+    //                    //ホストは別の役職にする
+    //                    player.SetRole(hostBaseRole); //ホスト視点用
+    //                    sender.RpcSetRole(player, hostBaseRole);
+    //                }
+    //            }
+    //        }
+    //    }
 
     private static void AssignLoversRolesFromList()
     {
@@ -825,6 +834,7 @@ internal class SelectRolesPatch
             AssignLoversRoles();
         }
     }
+
     private static void AssignLoversRoles(int RawCount = -1)
     {
         var allPlayers = Main.AllPlayerControls.Where(pc => !pc.Is(CustomRoles.GM) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && !pc.Is(CustomRoles.Dictator) && !pc.Is(CustomRoles.God) && !pc.Is(CustomRoles.FFF) && !pc.Is(CustomRoles.Bomber) && !pc.Is(CustomRoles.Nuker) && !pc.Is(CustomRoles.Provocateur) && (!pc.GetCustomRole().IsCrewmate() || Options.CrewCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsNeutral() || Options.NeutralCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsImpostor() || Options.ImpCanBeInLove.GetBool())).ToList();
@@ -841,8 +851,10 @@ internal class SelectRolesPatch
             Main.PlayerStates[player.PlayerId].SetSubRole(role);
             Logger.Info("Add-on assigned: " + player?.Data?.PlayerName + " = " + player.GetCustomRole() + " + " + role, "AssignLovers");
         }
+
         RPC.SyncLoversPlayers();
     }
+
     private static void AssignSubRoles(CustomRoles role, int RawCount = -1)
     {
         var allPlayers = Main.AllAlivePlayerControls.Where(x => CustomRolesHelper.CheckAddonConflict(role, x)).ToArray();
@@ -862,9 +874,12 @@ internal class SelectRolesPatch
     {
         private static bool doReplace;
         public static Dictionary<byte, CustomRpcSender> senders;
+
         public static List<(PlayerControl, RoleTypes)> StoragedData = [];
+
         // A list of Senders that does not require additional writing because SetRoleRpc has already been written in another process such as role Desync.
         public static List<CustomRpcSender> OverriddenSenderList;
+
         public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] RoleTypes roleType)
         {
             if (doReplace && senders != null)
@@ -875,6 +890,7 @@ internal class SelectRolesPatch
 
             return true;
         }
+
         public static void Release()
         {
             foreach (var sender in senders)
@@ -890,10 +906,13 @@ internal class SelectRolesPatch
                         .Write((ushort)ROLETYPE)
                         .EndRpc();
                 }
+
                 sender.Value.EndMessage();
             }
+
             doReplace = false;
         }
+
         public static void StartReplace(Dictionary<byte, CustomRpcSender> senders)
         {
             RpcSetRoleReplacer.senders = senders;
