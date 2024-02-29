@@ -12,8 +12,8 @@ public class Gamer : RoleBase
     private const int Id = 10600;
     public static List<byte> playerIdList = [];
 
-    private static Dictionary<byte, int> PlayerHealth;
-    private static Dictionary<byte, int> GamerHealth;
+    private static Dictionary<byte, int> PlayerHealth = [];
+    private static Dictionary<byte, int> GamerHealth = [];
 
     private static OptionItem KillCooldown;
     public static OptionItem CanVent;

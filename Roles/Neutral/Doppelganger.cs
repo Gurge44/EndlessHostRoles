@@ -1,5 +1,6 @@
 ﻿using Hazel;
 using System.Collections.Generic;
+using System.Linq;
 using TOHE.Modules;
 using TOHE.Roles.Impostor;
 using UnityEngine;
@@ -14,17 +15,32 @@ public class Doppelganger : RoleBase
 
     private static OptionItem KillCooldown;
     public static OptionItem MaxSteals;
+    private static OptionItem ResetMode;
+    private static OptionItem ResetTimer;
 
     public static Dictionary<byte, string> DoppelVictim = [];
     public static Dictionary<byte, GameData.PlayerOutfit> DoppelPresentSkin = [];
     public static Dictionary<byte, int> TotalSteals = [];
+    public static Dictionary<byte, GameData.PlayerOutfit> DoppelDefaultSkin = [];
 
+    private byte DGId;
+    private long StealTimeStamp;
+
+    private static readonly string[] ResetModes =
+    [
+        "DGRM.None",
+        "DGRM.OnMeeting",
+        "DGRM.AfterTime"
+    ];
 
     public static void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.OtherRoles, CustomRoles.Doppelganger, 1, zeroOne: false);
         MaxSteals = IntegerOptionItem.Create(Id + 10, "DoppelMaxSteals", new(1, 14, 1), 9, TabGroup.OtherRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger]);
         KillCooldown = FloatOptionItem.Create(Id + 11, "KillCooldown", new(0f, 180f, 2.5f), 20f, TabGroup.OtherRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger])
+            .SetValueFormat(OptionFormat.Seconds);
+        ResetMode = StringOptionItem.Create(Id + 12, "DGResetMode", ResetModes, 0, TabGroup.OtherRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger]);
+        ResetTimer = FloatOptionItem.Create(Id + 13, "DGResetTimer", new(0f, 60f, 1f), 30f, TabGroup.OtherRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger])
             .SetValueFormat(OptionFormat.Seconds);
     }
 
@@ -34,14 +50,21 @@ public class Doppelganger : RoleBase
         DoppelVictim = [];
         TotalSteals = [];
         DoppelPresentSkin = [];
+        DoppelDefaultSkin = [];
+        DGId = byte.MaxValue;
+        StealTimeStamp = 0;
     }
 
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
+        DGId = playerId;
         TotalSteals.Add(playerId, 0);
+        var pc = Utils.GetPlayerById(playerId);
         if (playerId == PlayerControl.LocalPlayer.PlayerId && Main.nickName.Length != 0) DoppelVictim[playerId] = Main.nickName;
-        else DoppelVictim[playerId] = Utils.GetPlayerById(playerId).Data.PlayerName;
+        else DoppelVictim[playerId] = pc.Data.PlayerName;
+        DoppelDefaultSkin[playerId] = pc.CurrentOutfit;
+        StealTimeStamp = 0;
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
@@ -146,6 +169,8 @@ public class Doppelganger : RoleBase
 
         TotalSteals[killer.PlayerId]++;
 
+        StealTimeStamp = Utils.TimeStamp;
+
         string kname;
         if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId && Main.nickName.Length != 0) kname = Main.nickName;
         else kname = killer.Data.PlayerName;
@@ -171,6 +196,38 @@ public class Doppelganger : RoleBase
         killer.SetKillCooldown();
 
         return true;
+    }
+
+    public override void OnReportDeadBody()
+    {
+        if (ResetMode.GetValue() == 1 && TotalSteals[DGId] > 0)
+        {
+            var pc = Utils.GetPlayerById(DGId);
+            var currentTarget = Main.AllPlayerControls.FirstOrDefault(x => x.GetRealName() == DoppelVictim[pc.PlayerId]);
+            if (currentTarget != null)
+            {
+                RpcChangeSkin(currentTarget, DoppelPresentSkin[currentTarget.PlayerId]);
+                RpcChangeSkin(pc, DoppelDefaultSkin[pc.PlayerId]);
+            }
+        }
+    }
+
+    public override void OnFixedUpdate(PlayerControl pc)
+    {
+        if (ResetMode.GetValue() == 2 && TotalSteals[pc.PlayerId] > 0 && Utils.TimeStamp - StealTimeStamp > ResetTimer.GetInt())
+        {
+            var currentTarget = Main.AllPlayerControls.FirstOrDefault(x => x.GetRealName() == DoppelVictim[pc.PlayerId]);
+            if (currentTarget != null)
+            {
+                RpcChangeSkin(currentTarget, DoppelPresentSkin[currentTarget.PlayerId]);
+                RpcChangeSkin(pc, DoppelDefaultSkin[pc.PlayerId]);
+            }
+
+            if (GameStates.IsInTask)
+            {
+                Utils.NotifyRoles();
+            }
+        }
     }
 
     public override string GetProgressText(byte playerId, bool comms) => Utils.ColorString(TotalSteals[playerId] < MaxSteals.GetInt() ? Utils.GetRoleColor(CustomRoles.Doppelganger).ShadeColor(0.25f) : Color.gray, TotalSteals.TryGetValue(playerId, out var stealLimit) ? $"({MaxSteals.GetInt() - stealLimit})" : "Invalid");

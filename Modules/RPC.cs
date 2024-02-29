@@ -129,7 +129,6 @@ public enum CustomRPC
     SyncKBPlayer,
     SyncKBBackCountdown,
     SyncKBNameNotify,
-    SetRememberLimit,
     SyncFFAPlayer,
     SyncFFANameNotify
 }
@@ -190,6 +189,7 @@ internal class RPCHandlerPatch
                 Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} petted their pet", "RpcHandlerPatch");
                 break;
             case RpcCalls.SetScanner when Main.HasJustStarted:
+                Logger.Fatal($"{__instance.GetNameWithRole().RemoveHtmlTags()} triggered this bs ---- revive was attempted", "RpcHandlerPatch");
                 __instance?.Revive();
                 return false;
         }
@@ -518,9 +518,6 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SwordsManKill:
                 SwordsMan.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SetRememberLimit:
-                Amnesiac.ReceiveRPC(reader);
                 break;
             case CustomRPC.PlayCustomSound:
                 CustomSoundsManager.ReceiveRPC(reader);

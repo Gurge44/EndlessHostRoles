@@ -519,7 +519,7 @@ class MurderPlayerPatch
 
         if (target.Is(CustomRoles.Bait))
         {
-            if (killer.PlayerId != target.PlayerId || (target.GetRealKiller()?.GetCustomRole() is CustomRoles.Swooper or CustomRoles.Wraith) || !killer.Is(CustomRoles.Oblivious) || (killer.Is(CustomRoles.Oblivious) && !Options.ObliviousBaitImmune.GetBool()))
+            if (killer.PlayerId != target.PlayerId || (target.GetRealKiller()?.GetCustomRole() is CustomRoles.Swooper or CustomRoles.Wraith) || !killer.Is(CustomRoles.Oblivious) || !Options.ObliviousBaitImmune.GetBool())
             {
                 killer.RPCPlayCustomSound("Congrats");
                 target.RPCPlayCustomSound("Congrats");
@@ -531,7 +531,17 @@ class MurderPlayerPatch
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} 击杀诱饵 => {target.GetNameWithRole().RemoveHtmlTags()}", "MurderPlayer");
                 _ = new LateTask(() =>
                 {
-                    if (GameStates.IsInTask) killer.CmdReportDeadBody(target.Data);
+                    if (GameStates.IsInTask)
+                    {
+                        if (!Options.ReportBaitAtAllCost.GetBool())
+                        {
+                            killer.CmdReportDeadBody(target.Data);
+                        }
+                        else
+                        {
+                            killer.NoCheckStartMeeting(target.Data, force: true);
+                        }
+                    }
                 }, delay, "Bait Self Report");
             }
         }
@@ -544,7 +554,7 @@ class MurderPlayerPatch
         AfterPlayerDeathTasks(target);
 
         Main.PlayerStates[target.PlayerId].SetDead();
-        target.SetRealKiller(killer, true); //既に追加されてたらスキップ
+        target.SetRealKiller(killer, true);
         CountAlivePlayers(true);
 
         Camouflager.IsDead(target);
@@ -859,7 +869,10 @@ class ReportDeadBodyPatch
 
         foreach (var state in Main.PlayerStates.Values)
         {
-            state.Role.OnReportDeadBody();
+            if (state.Role.IsEnable)
+            {
+                state.Role.OnReportDeadBody();
+            }
         }
 
         Main.AbilityCD.Clear();
@@ -952,7 +965,7 @@ class FixedUpdatePatch
         }
         catch (Exception ex)
         {
-            Logger.Error($"Error for {__instance.GetNameWithRole().RemoveHtmlTags()}:  {ex}", "FixedUpdatePatch");
+            ThrowException(ex);
         }
     }
 
@@ -1303,7 +1316,6 @@ class FixedUpdatePatch
 
                 if (Main.VisibleTasksCount) //他プレイヤーでVisibleTasksCountは有効なら
                     RoleText.text += progressText; //ロールの横にタスクなど進行状況表示
-
 
                 //変数定義
                 var seer = PlayerControl.LocalPlayer;

@@ -116,6 +116,7 @@ namespace TOHE.Roles.Neutral
             writer.Write(rate);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
+
         public static void ReceiveRPC(MessageReader reader)
         {
             var targetId = reader.ReadByte();
@@ -131,6 +132,7 @@ namespace TOHE.Roles.Neutral
                 killer.RpcGuardAndKill(target);
                 DirectInfect(target);
             }
+
             return false;
         }
 
@@ -143,6 +145,7 @@ namespace TOHE.Roles.Neutral
                 pd.DirectInfect(killer);
             }
         }
+
         public static void OnAnyMurder()
         {
             // You may win if an uninfected person dies.
@@ -166,6 +169,7 @@ namespace TOHE.Roles.Neutral
                 LateCheckWin = false;
                 CheckWin();
             }
+
             if (!player.IsAlive() || !InfectActive) return;
 
             if (InfectInfos.TryGetValue(player.PlayerId, out var rate) && rate >= 100)
@@ -200,6 +204,7 @@ namespace TOHE.Roles.Neutral
                         SendRPC(target.PlayerId, newRate);
                     }
                 }
+
                 if (changed)
                 {
                     //If someone is infected
@@ -218,11 +223,11 @@ namespace TOHE.Roles.Neutral
             LateCheckWin = true;
 
             _ = new LateTask(() =>
-            {
-                Logger.Info("Infect Active", "PlagueDoctor");
-                InfectActive = true;
-            },
-            InfectInactiveTime, "ResetInfectInactiveTime");
+                {
+                    Logger.Info("Infect Active", "PlagueDoctor");
+                    InfectActive = true;
+                },
+                InfectInactiveTime, "ResetInfectInactiveTime");
         }
 
         public static string GetMarkOthers(PlayerControl seer, PlayerControl seen = null)
@@ -233,7 +238,9 @@ namespace TOHE.Roles.Neutral
             if (!seer.Is(CustomRoles.PlagueDoctor) && seer.IsAlive()) return string.Empty;
             return Utils.ColorString(Utils.GetRoleColor(CustomRoles.PlagueDoctor), GetInfectRateCharactor(seen, pd));
         }
+#pragma warning disable IDE0060
         public static string GetLowerTextOthers(PlayerControl seer, PlayerControl seen = null, bool isForHud = false)
+#pragma warning restore IDE0060
         {
             if (!seer.Is(CustomRoles.PlagueDoctor) && seer.IsAlive()) return string.Empty;
             if (!isForHud && seer.IsModClient()) return string.Empty;
@@ -244,8 +251,10 @@ namespace TOHE.Roles.Neutral
                 if (!player.Is(CustomRoles.PlagueDoctor))
                     str.Append(GetInfectRateCharactor(player, pd));
             }
+
             return Utils.ColorString(Utils.GetRoleColor(CustomRoles.PlagueDoctor), str.ToString());
         }
+
         public static bool IsInfected(byte playerId)
         {
             InfectInfos.TryGetValue(playerId, out var rate);
@@ -293,6 +302,7 @@ namespace TOHE.Roles.Neutral
                     if (player.Is(CustomRoles.PlagueDoctor)) continue;
                     player.Suicide(PlayerState.DeathReason.Curse);
                 }
+
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.PlagueDoctor);
                 foreach (var plagueDoctor in Main.AllPlayerControls.Where(p => p.Is(CustomRoles.PlagueDoctor)).ToArray())
                 {

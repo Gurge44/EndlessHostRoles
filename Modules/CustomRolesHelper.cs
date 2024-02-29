@@ -302,7 +302,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Chronomancer => CustomRoles.Impostor,
                 CustomRoles.Nullifier => CustomRoles.Impostor,
                 CustomRoles.Stealth => CustomRoles.Impostor,
-                CustomRoles.Penguin => CustomRoles.Shapeshifter,
+                CustomRoles.Penguin => CustomRoles.Impostor,
                 CustomRoles.Sapper => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Mastermind => CustomRoles.Impostor,
                 CustomRoles.RiftMaker => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
@@ -443,9 +443,12 @@ internal static class CustomRolesHelper
             };
     }
 
-    public static CustomRoles GetErasedRole(this CustomRoles role) => role.IsVanilla()
-        ? role
-        : role.GetVNRole() switch
+    public static CustomRoles GetErasedRole(this CustomRoles role)
+    {
+        if (role.IsVanilla()) return role;
+        var vnRole = role.GetVNRole();
+        if (role.GetDYRole() == RoleTypes.Impostor) vnRole = CustomRoles.Impostor;
+        return vnRole switch
         {
             CustomRoles.Crewmate => CustomRoles.CrewmateTOHE,
             CustomRoles.Engineer => CustomRoles.EngineerTOHE,
@@ -455,6 +458,7 @@ internal static class CustomRolesHelper
             CustomRoles.Shapeshifter => CustomRoles.ShapeshifterTOHE,
             _ => role.IsImpostor() ? CustomRoles.ImpostorTOHE : CustomRoles.CrewmateTOHE
         };
+    }
 
     public static RoleTypes GetDYRole(this CustomRoles role)
     {
@@ -1320,7 +1324,9 @@ internal static class CustomRolesHelper
     };
 
     public static RoleTypes GetRoleTypes(this CustomRoles role)
-        => role.GetVNRole() switch
+    {
+        if (role.GetDYRole() == RoleTypes.Impostor) return RoleTypes.Impostor;
+        return role.GetVNRole() switch
         {
             CustomRoles.Impostor => RoleTypes.Impostor,
             CustomRoles.Scientist => RoleTypes.Scientist,
@@ -1330,6 +1336,7 @@ internal static class CustomRolesHelper
             CustomRoles.Crewmate => RoleTypes.Crewmate,
             _ => role.IsImpostor() ? RoleTypes.Impostor : RoleTypes.Crewmate,
         };
+    }
 
     public static bool IsDesyncRole(this CustomRoles role) => role.GetDYRole() != RoleTypes.GuardianAngel;
     public static bool IsImpostorTeam(this CustomRoles role) => role.IsImpostor() || role == CustomRoles.Madmate;

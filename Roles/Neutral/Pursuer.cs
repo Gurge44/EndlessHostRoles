@@ -70,6 +70,7 @@ public class Pursuer : RoleBase
     {
         foreach (var id in playerIdList)
         {
+            if (!Main.PlayerStates.ContainsKey(id)) continue;
             if (Main.PlayerStates[id].Role is not Pursuer { IsEnable: true } ps) continue;
             if (!ps.clientList.Contains(pc.PlayerId) || notActiveList.Contains(pc.PlayerId)) continue;
 

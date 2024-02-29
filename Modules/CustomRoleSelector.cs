@@ -155,6 +155,7 @@ internal class CustomRoleSelector
             if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool())) continue;
             switch (role)
             {
+                case CustomRoles.Camouflager when Camouflager.DoesntSpawnOnFungle.GetBool() && Main.CurrentMap == MapNames.Fungle:
                 case CustomRoles.DarkHide when Main.CurrentMap == MapNames.Fungle:
                 case CustomRoles.Pelican when Roles[RoleAssignType.Impostor].Any(x => x.Role == CustomRoles.Duellist):
                 case CustomRoles.Duellist when Roles[RoleAssignType.NeutralKilling].Any(x => x.Role == CustomRoles.Pelican):

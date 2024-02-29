@@ -376,6 +376,7 @@ public static class Options
     public static OptionItem NukeCooldown;
     public static OptionItem SpeedrunnerNotifyKillers;
     public static OptionItem SpeedrunnerNotifyAtXTasksLeft;
+    public static OptionItem ReportBaitAtAllCost;
 
     public static OptionItem SkeldChance;
     public static OptionItem MiraChance;
@@ -2250,6 +2251,8 @@ public static class Options
         BaitDelayNotify = BooleanOptionItem.Create(13715, "BaitDelayNotify", true, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Bait]);
         BaitNotification = BooleanOptionItem.Create(13716, "BaitNotification", false, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Bait]);
+        ReportBaitAtAllCost = BooleanOptionItem.Create(13717, "ReportBaitAtAllCost", false, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Bait]);
         RoleLoadingText = "Add-ons\nBeartrap";
         SetupAdtRoleOptions(13800, CustomRoles.Trapper, canSetNum: true);

@@ -124,7 +124,7 @@ internal class ChatCommands
                 case "/rename":
                     canceled = true;
                     if (args.Length < 1) break;
-                    if (args[1].Length is > 10 or < 1)
+                    if (args[1].Length is > 50 or < 1)
                         Utils.SendMessage(GetString("Message.AllowNameLength"), localPlayerId);
                     else Main.nickName = args[1];
                     break;
