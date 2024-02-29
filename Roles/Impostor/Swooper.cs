@@ -3,6 +3,7 @@ using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
 using static TOHE.Options;
@@ -205,7 +206,7 @@ public class Swooper : RoleBase
             {
                 if (!VentNormallyOnCooldown)
                 {
-                    __instance.RpcBootFromVent(vent.Id);
+                    __instance.RpcBootFromVent(ventId);
                     pc.Notify(GetString("SwooperInvisInCooldown"));
                 }
             }

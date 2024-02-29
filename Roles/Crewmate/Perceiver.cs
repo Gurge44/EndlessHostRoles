@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using AmongUs.GameOptions;
 using UnityEngine;
 
 namespace TOHE.Roles.Crewmate
@@ -44,6 +45,13 @@ namespace TOHE.Roles.Crewmate
         }
 
         public override bool IsEnable => On;
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            if (Options.UsePets.GetBool()) return;
+            AURoleOptions.EngineerCooldown = CD.GetFloat();
+            AURoleOptions.EngineerInVentMaxTime = 1f;
+        }
 
         public override void OnPet(PlayerControl pc)
         {

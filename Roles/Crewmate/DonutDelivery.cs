@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -49,6 +50,7 @@ namespace TOHE.Roles.Crewmate
         }
 
         public override bool CanUseKillButton(PlayerControl pc) => pc.GetAbilityUseLimit() >= 1;
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {

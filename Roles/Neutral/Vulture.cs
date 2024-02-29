@@ -1,6 +1,7 @@
 using AmongUs.GameOptions;
 using Hazel;
 using System.Collections.Generic;
+using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -62,7 +63,12 @@ public class Vulture : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpVision.GetBool());
+    public override void ApplyGameOptions(IGameOptions opt, byte id)
+    {
+        opt.SetVision(HasImpVision.GetBool());
+        AURoleOptions.EngineerCooldown = 0f;
+        AURoleOptions.EngineerInVentMaxTime = 0f;
+    }
 
     private static void SendRPC(byte playerId, bool add, Vector3 loc = new())
     {

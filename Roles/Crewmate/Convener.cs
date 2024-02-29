@@ -1,4 +1,6 @@
-﻿namespace TOHE.Roles.Crewmate
+﻿using AmongUs.GameOptions;
+
+namespace TOHE.Roles.Crewmate
 {
     internal class Convener : RoleBase
     {
@@ -35,6 +37,13 @@
         public override void Init()
         {
             On = false;
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            if (Options.UsePets.GetBool()) return;
+            AURoleOptions.EngineerCooldown = CD.GetFloat();
+            AURoleOptions.EngineerInVentMaxTime = 1f;
         }
 
         public override void OnPet(PlayerControl pc)

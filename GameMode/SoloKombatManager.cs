@@ -3,6 +3,7 @@ using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TOHE.Modules;
 using TOHE.Roles.Neutral;
 using UnityEngine;
 using static TOHE.RandomSpawn;
@@ -183,7 +184,7 @@ internal static class SoloKombatManager
         int B = 0;
         if (x > 255) R -= x - 255;
         else G = x;
-        return new Color32((byte)R, (byte)G, (byte)B, byte.MaxValue);
+        return new((byte)R, (byte)G, (byte)B, byte.MaxValue);
     }
 
     public static Dictionary<byte, (string TEXT, long TIMESTAMP)> NameNotify = [];

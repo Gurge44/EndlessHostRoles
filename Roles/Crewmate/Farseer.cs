@@ -1,6 +1,7 @@
 ﻿using AmongUs.GameOptions;
 using System.Collections.Generic;
 using System.Linq;
+using TOHE.Modules;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
 using UnityEngine;
@@ -65,6 +66,13 @@ namespace TOHE.Roles.Crewmate
 
         public static bool On;
         public override bool IsEnable => On;
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            opt.SetVision(false);
+            opt.SetFloat(FloatOptionNames.CrewLightMod, Vision.GetFloat());
+            opt.SetFloat(FloatOptionNames.ImpostorLightMod, Vision.GetFloat());
+        }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = FarseerCooldown.GetFloat();
 

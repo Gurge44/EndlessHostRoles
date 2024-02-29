@@ -2,6 +2,7 @@
 using Hazel;
 using System.Collections.Generic;
 using System.Linq;
+using TOHE.Modules;
 using TOHE.Roles.Neutral;
 
 namespace TOHE.Roles.Impostor;

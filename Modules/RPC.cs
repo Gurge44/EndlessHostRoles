@@ -1,21 +1,19 @@
-using AmongUs.GameOptions;
-using HarmonyLib;
-using Hazel;
-using InnerNet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TOHE.Modules;
+using AmongUs.GameOptions;
+using HarmonyLib;
+using Hazel;
+using InnerNet;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
-using UnityEngine;
 using static TOHE.Translator;
 
-namespace TOHE;
+namespace TOHE.Modules;
 
 public enum CustomRPC
 {
@@ -28,12 +26,10 @@ public enum CustomRPC
     SetCustomRole,
     SetBountyTarget,
     SetKillOrSpell,
-    SetKillOrHex,
     SetDousedPlayer,
     SetPlaguedPlayer,
     SetNameColorData,
     DoSpell,
-    DoHex,
     SniperSync,
     SetLoversPlayers,
     SetExecutionerTarget,
@@ -90,12 +86,10 @@ public enum CustomRPC
     SetGamerHealth,
     SetPelicanEtenNum,
     SwordsManKill,
-    SetPursuerSellLimit,
     SetGhostPlayer,
     SetDarkHiderKillCount,
     SetEvilDiviner,
     SetGreedierOE,
-    SetImitatorOE,
     SetJinxSpellCount,
     SetCollectorVotes,
     SetQuickShooterShotLimit,
@@ -122,14 +116,10 @@ public enum CustomRPC
     SyncTotocalcioTargetAndTimes,
     SyncRomanticTarget,
     SyncVengefulRomanticTarget,
-    SetSuccubusCharmLimit,
-    SetVirusInfectLimit,
     SetRevealedPlayer,
     SetCurrentRevealTarget,
-    SetJackalRecruitLimit,
     SetBloodhoundArrow,
     SetVultureArrow,
-    SetSpiritcallerSpiritLimit,
     SetDoomsayerProgress,
     SetTrackerTarget,
     RpcPassBomb,
@@ -139,7 +129,6 @@ public enum CustomRPC
     SyncKBPlayer,
     SyncKBBackCountdown,
     SyncKBNameNotify,
-    SetRitualist,
     SetRememberLimit,
     SyncFFAPlayer,
     SyncFFANameNotify
@@ -357,10 +346,6 @@ internal class RPCHandlerPatch
             case CustomRPC.SetKillOrSpell:
                 Witch.ReceiveRPC(reader, false);
                 break;
-            case CustomRPC.SetKillOrHex:
-                HexMaster.ReceiveRPC(reader, false);
-                break;
-
             case CustomRPC.SetCPTasksDone:
                 Crewpostor.RecieveRPC(reader);
                 break;
@@ -405,9 +390,6 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.DoSpell:
                 Witch.ReceiveRPC(reader, true);
-                break;
-            case CustomRPC.DoHex:
-                HexMaster.ReceiveRPC(reader, true);
                 break;
             case CustomRPC.SetBanditStealLimit:
                 Bandit.ReceiveRPC(reader);
@@ -536,15 +518,6 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SwordsManKill:
                 SwordsMan.ReceiveRPC(reader);
-                break;
-            //case CustomRPC.SetCounterfeiterSellLimit:
-            //    Counterfeiter.ReceiveRPC(reader);
-            //    break;
-            case CustomRPC.SetPursuerSellLimit:
-                Pursuer.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SetJackalRecruitLimit:
-                Jackal.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetRememberLimit:
                 Amnesiac.ReceiveRPC(reader);
@@ -686,9 +659,6 @@ internal class RPCHandlerPatch
             case CustomRPC.SyncVengefulRomanticTarget:
                 VengefulRomantic.ReceiveRPC(reader);
                 break;
-            case CustomRPC.SetSuccubusCharmLimit:
-                Succubus.ReceiveRPC(reader);
-                break;
             //case CustomRPC.SetCursedSoulCurseLimit:
             //    CursedSoul.ReceiveRPC(reader);
             //    break;
@@ -698,9 +668,6 @@ internal class RPCHandlerPatch
                 byte targetId = reader.ReadByte();
                 (Main.PlayerStates[id].Role as EvilDiviner)?.ReceiveRPC(targetId);
             }
-                break;
-            case CustomRPC.SetRitualist:
-                Ritualist.ReceiveRPC(reader);
                 break;
             case CustomRPC.SyncHookshot:
                 Hookshot.ReceiveRPC(reader);
@@ -717,11 +684,8 @@ internal class RPCHandlerPatch
             case CustomRPC.SyncStressedTimer:
                 Stressed.ReceiveRPC(reader);
                 break;
-            case CustomRPC.SetVirusInfectLimit:
-                Virus.ReceiveRPC(reader);
-                break;
             case CustomRPC.KillFlash:
-                Utils.FlashColor(new Color(1f, 0f, 0f, 0.3f));
+                Utils.FlashColor(new(1f, 0f, 0f, 0.3f));
                 if (Constants.ShouldPlaySfx()) RPC.PlaySound(PlayerControl.LocalPlayer.PlayerId, Sounds.KillSound);
                 break;
             case CustomRPC.SetBloodhoundArrow:
@@ -753,12 +717,6 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SetNiceSwapperVotes:
                 NiceSwapper.ReceiveRPC(reader, __instance);
-                break;
-            case CustomRPC.SetImitatorOE:
-                Imitator.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SetSpiritcallerSpiritLimit:
-                Spiritcaller.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetTrackerTarget:
                 Tracker.ReceiveRPC(reader);
@@ -909,7 +867,7 @@ internal static class RPC
             writer.EndMessage();
         }
 
-        Main.playerVersion[PlayerControl.LocalPlayer.PlayerId] = new PlayerVersion(Main.PluginVersion, $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})", Main.ForkId);
+        Main.playerVersion[PlayerControl.LocalPlayer.PlayerId] = new(Main.PluginVersion, $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})", Main.ForkId);
     }
 
     public static void SendDeathReason(byte playerId, PlayerState.DeathReason deathReason)
@@ -1097,14 +1055,6 @@ internal static class RPC
             writer.Write(targetId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
-    }
-
-    public static void SendRPCJinxSpellCount(byte playerId)
-    {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetJinxSpellCount, SendOption.Reliable);
-        writer.Write(playerId);
-        writer.Write(Main.JinxSpellCount[playerId]);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
     public static void ResetCurrentDousingTarget(byte arsonistId) => SetCurrentDousingTarget(arsonistId, 255);

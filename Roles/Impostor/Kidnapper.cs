@@ -1,4 +1,6 @@
-﻿namespace TOHE.Roles.Impostor
+﻿using AmongUs.GameOptions;
+
+namespace TOHE.Roles.Impostor
 {
     internal class Kidnapper : RoleBase
     {
@@ -14,6 +16,12 @@
             SSCD = FloatOptionItem.Create(Id + 2, "ShapeshiftCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Kidnapper])
                 .SetValueFormat(OptionFormat.Seconds);
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            AURoleOptions.ShapeshifterCooldown = SSCD.GetFloat();
+            AURoleOptions.ShapeshifterDuration = 1f;
         }
 
         public override bool OnShapeshift(PlayerControl kidnapper, PlayerControl target, bool shapeshifting)

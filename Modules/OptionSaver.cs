@@ -60,7 +60,7 @@ public static class OptionSaver
             }
         }
         DefaultPresetNumber = singleOptions[0];
-        return new SerializableOptionsData
+        return new()
         {
             Version = Version,
             SingleOptions = singleOptions,

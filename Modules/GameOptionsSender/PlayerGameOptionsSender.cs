@@ -13,11 +13,9 @@ namespace TOHE.Modules;
 
 public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 {
-    public static void SetDirty(PlayerControl player) => SetDirty(player.PlayerId);
-
     public static void SetDirty(byte playerId)
     {
-        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().Where(sender => sender.player.PlayerId == playerId).ToArray())
+        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().Where(sender => sender.player.PlayerId == playerId))
         {
             sender.SetDirty();
         }
@@ -25,7 +23,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 
     public static void SetDirtyToAll()
     {
-        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().ToArray())
+        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>())
         {
             sender.SetDirty();
         }
@@ -33,7 +31,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 
     public static void SetDirtyToAllV2()
     {
-        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().Where(sender => !sender.IsDirty && sender.player.IsAlive() && sender.player.GetCustomRole().NeedUpdateOnLights()).ToArray())
+        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().Where(sender => !sender.IsDirty && sender.player.IsAlive() && sender.player.GetCustomRole().NeedUpdateOnLights()))
         {
             sender.SetDirty();
         }
@@ -41,7 +39,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 
     public static void SetDirtyToAllV3()
     {
-        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().Where(sender => !sender.IsDirty && sender.player.IsAlive() && ((Grenadier.GrenadierBlinding.Count > 0 && (sender.player.GetCustomRole().IsImpostor() || (sender.player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))) || (Grenadier.MadGrenadierBlinding.Count > 0 && !sender.player.GetCustomRole().IsImpostorTeam() && !sender.player.Is(CustomRoles.Madmate)))).ToArray())
+        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().Where(sender => !sender.IsDirty && sender.player.IsAlive() && ((Grenadier.GrenadierBlinding.Count > 0 && (sender.player.GetCustomRole().IsImpostor() || (sender.player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))) || (Grenadier.MadGrenadierBlinding.Count > 0 && !sender.player.GetCustomRole().IsImpostorTeam() && !sender.player.Is(CustomRoles.Madmate)))))
         {
             sender.SetDirty();
         }
@@ -69,10 +67,13 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
         if (player.AmOwner)
         {
             var opt = BuildGameOptions();
-            foreach (var com in GameManager.Instance?.LogicComponents)
+            if (GameManager.Instance?.LogicComponents != null)
             {
-                if (com.TryCast<LogicOptions>(out var lo))
-                    lo.SetGameOptions(opt);
+                foreach (var com in GameManager.Instance.LogicComponents)
+                {
+                    if (com.TryCast<LogicOptions>(out var lo))
+                        lo.SetGameOptions(opt);
+                }
             }
 
             GameOptionsManager.Instance.CurrentGameOptions = opt;
@@ -111,7 +112,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
     {
         try
         {
-            Main.RealOptionsData ??= new OptionBackupData(GameOptionsManager.Instance.CurrentGameOptions);
+            Main.RealOptionsData ??= new(GameOptionsManager.Instance.CurrentGameOptions);
 
             var opt = BasedGameOptions;
             AURoleOptions.SetOpt(opt);
@@ -161,414 +162,17 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 
             switch (role)
             {
-                //case CustomRoles.Terrorist:
-                case CustomRoles.SabotageMaster:
-                //     case CustomRoles.Mario:
-                //case CustomRoles.EngineerTOHE:
-                //case CustomRoles.Phantom:
-                case CustomRoles.Crewpostor:
-                    //  case CustomRoles.Jester:
-                    AURoleOptions.EngineerCooldown = 0f;
-                    AURoleOptions.EngineerInVentMaxTime = 0f;
-                    break;
-                case CustomRoles.Chameleon:
-                    AURoleOptions.EngineerCooldown = Chameleon.ChameleonCooldown.GetFloat();
-                    AURoleOptions.EngineerInVentMaxTime = 0f;
-                    break;
-                //case CustomRoles.ShapeMaster:
-                //    AURoleOptions.ShapeshifterCooldown = 1f;
-                //    AURoleOptions.ShapeshifterLeaveSkin = false;
-                //    AURoleOptions.ShapeshifterDuration = Options.ShapeMasterShapeshiftDuration.GetFloat();
-                //    break;
-                case CustomRoles.RiftMaker:
-                    if (Options.UsePets.GetBool()) break;
-                    AURoleOptions.ShapeshifterDuration = 1f;
-                    AURoleOptions.ShapeshifterCooldown = RiftMaker.ShapeshiftCooldown.GetFloat();
-                    AURoleOptions.ShapeshifterLeaveSkin = true;
-                    break;
-                case CustomRoles.Gambler:
-                    if (Gambler.isVisionChange.ContainsKey(player.PlayerId))
-                    {
-                        opt.SetFloat(FloatOptionNames.CrewLightMod, Gambler.LowVision.GetFloat());
-                        opt.SetFloat(FloatOptionNames.ImpostorLightMod, Gambler.LowVision.GetFloat());
-                    }
-
-                    break;
-                case CustomRoles.NiceHacker:
-                    if (Options.UsePets.GetBool()) break;
-                    AURoleOptions.EngineerCooldown = NiceHacker.AbilityCD.GetFloat();
-                    AURoleOptions.EngineerInVentMaxTime = 1f;
-                    break;
-                case CustomRoles.Duellist:
-                    Duellist.ApplyGameOptions();
-                    break;
-                case CustomRoles.Sniper:
-                    if (Options.UsePets.GetBool()) break;
-                    try
-                    {
-                        if (Sniper.bulletCount[player.PlayerId] > 0)
-                        {
-                            AURoleOptions.ShapeshifterDuration = Sniper.ShapeshiftDuration.GetFloat();
-                        }
-                        else
-                        {
-                            AURoleOptions.ShapeshifterDuration = 1f;
-                            AURoleOptions.ShapeshifterCooldown = 255f;
-                        }
-                    }
-                    catch
-                    {
-                    }
-
-                    break;
-                //case CustomRoles.SerialKiller:
-                //    SerialKiller.ApplyGameOptions(player);
-                //    break;
-                case CustomRoles.Tracefinder:
-                    Tracefinder.ApplyGameOptions();
-                    break;
-                //case CustomRoles.BountyHunter:
-                //    BountyHunter.ApplyGameOptions();
-                //    break;
-                case CustomRoles.Sheriff:
-                case CustomRoles.SwordsMan:
-                //     case CustomRoles.Minimalism:
-                case CustomRoles.Pelican:
-                case CustomRoles.Medic:
-                case CustomRoles.Crusader:
-                case CustomRoles.Monarch:
-                case CustomRoles.Jailor:
-                case CustomRoles.Deputy:
-                //case CustomRoles.Counterfeiter:
-                case CustomRoles.Aid:
-                case CustomRoles.Escort:
-                case CustomRoles.DonutDelivery:
-                case CustomRoles.Gaulois:
-                case CustomRoles.Analyzer:
-                case CustomRoles.Witness:
-                case CustomRoles.Succubus:
-                case CustomRoles.Necromancer:
-                case CustomRoles.Deathknight:
-                //case CustomRoles.CursedSoul:
-                case CustomRoles.Amnesiac:
-                    opt.SetVision(false);
-                    break;
-                case CustomRoles.Agitater:
-                    opt.SetVision(true);
-                    break;
-                case CustomRoles.Pestilence:
-                    opt.SetVision(PlagueBearer.PestilenceHasImpostorVision.GetBool());
-                    break;
-                case CustomRoles.Doormaster:
-                    if (Options.UsePets.GetBool()) break;
-                    AURoleOptions.EngineerCooldown = Doormaster.VentCooldown.GetFloat();
-                    AURoleOptions.EngineerInVentMaxTime = 1f;
-                    break;
-                case CustomRoles.Tether:
-                    if (Options.UsePets.GetBool()) break;
-                    AURoleOptions.EngineerCooldown = Tether.VentCooldown.GetFloat();
-                    AURoleOptions.EngineerInVentMaxTime = 1f;
-                    break;
-                case CustomRoles.Monitor:
-                    AURoleOptions.EngineerCooldown = 0f;
-                    AURoleOptions.EngineerInVentMaxTime = 0f;
-                    break;
-                case CustomRoles.Virus:
-                    opt.SetVision(Virus.ImpostorVision.GetBool());
-                    break;
-                /*     case CustomRoles.Mare:
-                         Mare.ApplyGameOptions(player.PlayerId);
-                         break; */
-                case CustomRoles.EvilTracker:
-                    EvilTracker.ApplyGameOptions(player.PlayerId);
-                    break;
-                case CustomRoles.Blackmailer:
-                    Blackmailer.ApplyGameOptions();
-                    break;
                 case CustomRoles.ShapeshifterTOHE:
                     AURoleOptions.ShapeshifterCooldown = Options.ShapeshiftCD.GetFloat();
                     AURoleOptions.ShapeshifterDuration = Options.ShapeshiftDur.GetFloat();
-                    break;
-                case CustomRoles.Bandit:
-                    Bandit.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Bomber:
-                    if (Options.UsePets.GetBool()) break;
-                    try
-                    {
-                        AURoleOptions.ShapeshifterCooldown = Options.BombCooldown.GetFloat();
-                        AURoleOptions.ShapeshifterDuration = 2f;
-                    }
-                    catch
-                    {
-                    }
-
-                    break;
-                case CustomRoles.Nuker:
-                    if (Options.UsePets.GetBool()) break;
-                    try
-                    {
-                        AURoleOptions.ShapeshifterCooldown = Options.NukeCooldown.GetFloat();
-                        AURoleOptions.ShapeshifterDuration = 2f;
-                    }
-                    catch
-                    {
-                    }
-
-                    break;
-                case CustomRoles.Hitman:
-                    AURoleOptions.ShapeshifterCooldown = Hitman.ShapeshiftCooldown.GetFloat();
-                    AURoleOptions.ShapeshifterDuration = 1f;
-                    break;
-                case CustomRoles.CameraMan:
-                    AURoleOptions.EngineerCooldown = CameraMan.VentCooldown.GetFloat();
-                    AURoleOptions.EngineerInVentMaxTime = 1f;
                     break;
                 case CustomRoles.ScientistTOHE:
                     AURoleOptions.ScientistCooldown = Options.ScientistCD.GetFloat();
                     AURoleOptions.ScientistBatteryCharge = Options.ScientistDur.GetFloat();
                     break;
-                case CustomRoles.Jackal:
-                    Jackal.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Sidekick:
-                    Sidekick.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Librarian:
-                    Librarian.ApplyGameOptions();
-                    break;
-                case CustomRoles.Vulture:
-                    Vulture.ApplyGameOptions(opt);
-                    AURoleOptions.EngineerCooldown = 0f;
-                    AURoleOptions.EngineerInVentMaxTime = 0f;
-                    break;
-                case CustomRoles.Mafioso:
-                    Mafioso.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Drainer:
-                    Drainer.ApplyGameOptions();
-                    break;
-                case CustomRoles.Poisoner:
-                    Poisoner.ApplyGameOptions(opt);
-                    break;
-                /*       case CustomRoles.Flashbang:
-                           AURoleOptions.ShapeshifterCooldown = Options.FlashbangSkillCooldown.GetFloat();
-                           AURoleOptions.ShapeshifterDuration = Options.FlashbangSkillDuration.GetFloat();
-                           break; */
-                case CustomRoles.FFF:
-                case CustomRoles.Pursuer:
-                    opt.SetVision(true);
-                    break;
-                case CustomRoles.NSerialKiller:
-                    NSerialKiller.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.SoulHunter:
-                    SoulHunter.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Enderman:
-                    Enderman.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Mycologist:
-                    Mycologist.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Bubble:
-                    Bubble.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Hookshot:
-                    Hookshot.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Sprayer:
-                    Sprayer.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Penguin:
-                    Penguin.ApplyGameOptions();
-                    break;
-                case CustomRoles.PlagueDoctor:
-                    PlagueDoctor.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Magician:
-                    Magician.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Reckless:
-                    Reckless.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.WeaponMaster:
-                    WeaponMaster.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Postman:
-                    Postman.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Pyromaniac:
-                    Pyromaniac.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Eclipse:
-                    Eclipse.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Vengeance:
-                    Vengeance.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.HeadHunter:
-                    HeadHunter.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Imitator:
-                    Imitator.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Ignitor:
-                    Ignitor.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Werewolf:
-                    Werewolf.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Morphling:
-                    Morphling.ApplyGameOptions();
-                    break;
-                case CustomRoles.Traitor:
-                    Traitor.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Glitch:
-                    Glitch.ApplyGameOptions(opt);
-                    break;
-                //case CustomRoles.NWitch:
-                //    NWitch.ApplyGameOptions(opt);
-                //    break;
-                case CustomRoles.Maverick:
-                    Maverick.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Medusa:
-                    Medusa.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Jinx:
-                    Jinx.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Ritualist:
-                    Ritualist.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Pickpocket:
-                    Pickpocket.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Juggernaut:
-                    opt.SetVision(Juggernaut.HasImpostorVision.GetBool());
-                    break;
-                //case CustomRoles.Reverie:
-                //    opt.SetVision(false);
-                //    break;
-                case CustomRoles.Capitalism:
-                    AURoleOptions.KillCooldown = Options.CapitalismKillCooldown.GetFloat();
-                    break;
-                case CustomRoles.Lawyer:
-                    //Main.NormalOptions.CrewLightMod = Lawyer.LawyerVision.GetFloat();
-                    break;
-                case CustomRoles.Wraith:
-                case CustomRoles.HexMaster:
-                    opt.SetVision(true);
-                    break;
-                /*    case CustomRoles.Chameleon:
-                        opt.SetVision(false);
-                        break; */
-
-                case CustomRoles.Gamer:
-                    Gamer.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.DarkHide:
-                    DarkHide.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Workaholic:
-                    AURoleOptions.EngineerCooldown = Options.WorkaholicVentCooldown.GetFloat();
-                    AURoleOptions.EngineerInVentMaxTime = 0f;
-                    break;
-                case CustomRoles.QuickShooter:
-                    if (Options.UsePets.GetBool()) break;
-                    AURoleOptions.ShapeshifterCooldown = QuickShooter.ShapeshiftCooldown.GetFloat();
-                    AURoleOptions.ShapeshifterDuration = 1f;
-                    break;
-                case CustomRoles.Camouflager:
-                    Camouflager.ApplyGameOptions();
-                    break;
-                case CustomRoles.Assassin:
-                    if (Options.UsePets.GetBool()) break;
-                    Assassin.ApplyGameOptions();
-                    break;
-                case CustomRoles.Undertaker:
-                    if (Options.UsePets.GetBool()) break;
-                    Undertaker.ApplyGameOptions();
-                    break;
-                case CustomRoles.Hacker:
-                    Hacker.ApplyGameOptions();
-                    break;
-                case CustomRoles.Hangman:
-                    Hangman.ApplyGameOptions();
-                    break;
-                case CustomRoles.BloodKnight:
-                    BloodKnight.ApplyGameOptions(opt);
-                    break;
-                case CustomRoles.Disperser:
-                    if (Options.UsePets.GetBool()) break;
-                    Disperser.ApplyGameOptions();
-                    break;
-                case CustomRoles.Farseer:
-                    opt.SetVision(false);
-                    opt.SetFloat(FloatOptionNames.CrewLightMod, Farseer.Vision.GetFloat());
-                    opt.SetFloat(FloatOptionNames.ImpostorLightMod, Farseer.Vision.GetFloat());
-                    break;
-                case CustomRoles.Dazzler:
-                    Dazzler.ApplyGameOptions();
-                    break;
-                case CustomRoles.Devourer:
-                    Devourer.ApplyGameOptions();
-                    break;
-                case CustomRoles.Addict:
-                    AURoleOptions.EngineerCooldown = Addict.VentCooldown.GetFloat();
-                    AURoleOptions.EngineerInVentMaxTime = 1f;
-                    break;
-                case CustomRoles.Alchemist:
-                    if (Options.UsePets.GetBool()) break;
-                    AURoleOptions.EngineerCooldown = Alchemist.VentCooldown.GetFloat();
-                    AURoleOptions.EngineerInVentMaxTime = 1f;
-                    break;
-                case CustomRoles.Deathpact:
-                    Deathpact.ApplyGameOptions();
-                    break;
-                case CustomRoles.Twister:
-                    if (Options.UsePets.GetBool()) break;
-                    Twister.ApplyGameOptions();
-                    break;
-                case CustomRoles.Sapper:
-                    Sapper.ApplyGameOptions();
-                    break;
-                case CustomRoles.Druid:
-                    AURoleOptions.EngineerCooldown = Druid.VentCooldown.GetInt();
-                    AURoleOptions.EngineerInVentMaxTime = 1f;
-                    break;
-                case CustomRoles.Mole:
-                    AURoleOptions.EngineerInVentMaxTime = 1f;
-                    AURoleOptions.EngineerCooldown = 5f;
-                    break;
-                case CustomRoles.Sentinel:
-                    AURoleOptions.EngineerCooldown = Sentinel.PatrolCooldown.GetFloat();
-                    AURoleOptions.EngineerInVentMaxTime = 1f;
-                    break;
-                case CustomRoles.Kidnapper:
-                    AURoleOptions.ShapeshifterCooldown = Kidnapper.SSCD.GetFloat();
-                    AURoleOptions.ShapeshifterDuration = 1f;
-                    break;
-                case CustomRoles.Swapster:
-                    AURoleOptions.ShapeshifterCooldown = Swapster.SSCD.GetFloat();
-                    AURoleOptions.ShapeshifterDuration = 1f;
-                    break;
-                case CustomRoles.Spiritcaller:
-                    opt.SetVision(Spiritcaller.ImpostorVision.GetBool());
-                    break;
-                case CustomRoles.Perceiver:
-                    if (Options.UsePets.GetBool()) break;
-                    AURoleOptions.EngineerCooldown = Perceiver.CD.GetFloat();
-                    AURoleOptions.EngineerInVentMaxTime = 1f;
-                    break;
-                case CustomRoles.Convener:
-                    if (Options.UsePets.GetBool()) break;
-                    AURoleOptions.EngineerCooldown = Convener.CD.GetFloat();
-                    AURoleOptions.EngineerInVentMaxTime = 1f;
-                    break;
             }
+
+            Main.PlayerStates[player.PlayerId].Role.ApplyGameOptions(opt, player.PlayerId);
 
             if (Main.AllPlayerControls.Any(x => x.Is(CustomRoles.Bewilder) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == player.PlayerId && !x.Is(CustomRoles.Hangman)))
             {
@@ -594,7 +198,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 
             switch (player.GetCustomRole())
             {
-                case CustomRoles.Alchemist when (Main.PlayerStates[player.PlayerId].Role as Alchemist).VisionPotionActive:
+                case CustomRoles.Alchemist when ((Alchemist)Main.PlayerStates[player.PlayerId].Role).VisionPotionActive:
                     opt.SetVisionV2();
                     if (Utils.IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.CrewLightMod, Alchemist.VisionOnLightsOut.GetFloat() * 5);
                     else opt.SetFloat(FloatOptionNames.CrewLightMod, Alchemist.Vision.GetFloat());

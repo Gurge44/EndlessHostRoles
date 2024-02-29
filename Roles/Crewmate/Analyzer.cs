@@ -49,6 +49,7 @@ namespace TOHE.Roles.Crewmate
         }
 
         public override bool CanUseKillButton(PlayerControl pc) => CurrentTarget.ID == byte.MaxValue && pc.GetAbilityUseLimit() > 0;
+        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(false);
 
         public override bool IsEnable => playerId != byte.MaxValue;
 

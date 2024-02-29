@@ -1,5 +1,6 @@
 ﻿using Hazel;
 using System.Collections.Generic;
+using TOHE.Modules;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor

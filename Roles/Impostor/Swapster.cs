@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 
 namespace TOHE.Roles.Impostor
 {
@@ -24,6 +25,12 @@ namespace TOHE.Roles.Impostor
             SSCD = FloatOptionItem.Create(Id + 2, "ShapeshiftCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Swapster])
                 .SetValueFormat(OptionFormat.Seconds);
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            AURoleOptions.ShapeshifterCooldown = SSCD.GetFloat();
+            AURoleOptions.ShapeshifterDuration = 1f;
         }
 
         public override bool OnShapeshift(PlayerControl swapster, PlayerControl target, bool shapeshifting)

@@ -82,7 +82,12 @@ internal class Assassin : RoleBase
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = id.IsPlayerShifted() ? DefaultKillCooldown : MarkCooldown;
-    public override void ApplyGameOptions(IGameOptions opt, byte id) => AURoleOptions.ShapeshifterCooldown = AssassinateCooldown;
+
+    public override void ApplyGameOptions(IGameOptions opt, byte id)
+    {
+        if (UsePets.GetBool()) return;
+        AURoleOptions.ShapeshifterCooldown = AssassinateCooldown;
+    }
 
     public override bool CanUseKillButton(PlayerControl pc)
     {

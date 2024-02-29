@@ -6,7 +6,7 @@ namespace TOHE.Roles.Impostor;
 public class TimeThief : RoleBase
 {
     private const int Id = 3300;
-    private static List<byte> playerIdList = [];
+    public static List<byte> playerIdList = [];
     public static OptionItem KillCooldown;
     public static OptionItem DecreaseMeetingTime;
     public static OptionItem LowerLimitVotingTime;

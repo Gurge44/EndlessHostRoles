@@ -332,14 +332,14 @@ public static class GuessManager
                         return true;
                     }
 
-                    if (Jailor.JailorTarget.ContainsValue(target.PlayerId))
+                    if (Jailor.playerIdList.Any(x => Main.PlayerStates[x].Role is Jailor { IsEnable: true } jl && jl.JailorTarget == target.PlayerId))
                     {
                         if (!isUI) Utils.SendMessage(GetString("CantGuessJailed"), pc.PlayerId, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
                         else pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")) + "\n" + GetString("CantGuessJailed"));
                         return true;
                     }
 
-                    if (Jailor.JailorTarget.ContainsValue(pc.PlayerId) && role != CustomRoles.Jailor)
+                    if (Jailor.playerIdList.Any(x => Main.PlayerStates[x].Role is Jailor { IsEnable: true } jl && jl.JailorTarget == pc.PlayerId && role != CustomRoles.Jailor))
                     {
                         if (!isUI) Utils.SendMessage(GetString("JailedCanOnlyGuessJailor"), pc.PlayerId, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
                         else pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")) + "\n" + GetString("JailedCanOnlyGuessJailor"));
@@ -820,7 +820,7 @@ public static class GuessManager
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
             GameObject targetBox = Object.Instantiate(template, pva.transform);
             targetBox.name = "ShootButton";
-            targetBox.transform.localPosition = new Vector3(-0.95f, 0.03f, -1.31f);
+            targetBox.transform.localPosition = new(-0.95f, 0.03f, -1.31f);
             SpriteRenderer renderer = targetBox.GetComponent<SpriteRenderer>();
             renderer.sprite = CustomButton.Get("TargetIcon");
             PassiveButton button = targetBox.GetComponent<PassiveButton>();
@@ -889,7 +889,7 @@ public static class GuessManager
             __instance.playerStates.ToList().ForEach(x => x.gameObject.SetActive(false));
 
             Transform container = Object.Instantiate(GameObject.Find("PhoneUI").transform, __instance.transform);
-            container.transform.localPosition = new Vector3(0, 0, -200f);
+            container.transform.localPosition = new(0, 0, -200f);
             guesserUI = container.gameObject;
 
             List<int> i = [0, 0, 0, 0];
@@ -904,11 +904,11 @@ public static class GuessManager
             Transform exitButton = Object.Instantiate(buttonTemplate, exitButtonParent);
             exitButton.FindChild("ControllerHighlight").gameObject.SetActive(false);
             Transform exitButtonMask = Object.Instantiate(maskTemplate, exitButtonParent);
-            exitButtonMask.transform.localScale = new Vector3(2.88f, 0.8f, 1f);
-            exitButtonMask.transform.localPosition = new Vector3(0f, 0f, 1f);
+            exitButtonMask.transform.localScale = new(2.88f, 0.8f, 1f);
+            exitButtonMask.transform.localPosition = new(0f, 0f, 1f);
             exitButton.gameObject.GetComponent<SpriteRenderer>().sprite = smallButtonTemplate.GetComponent<SpriteRenderer>().sprite;
-            exitButtonParent.transform.localPosition = new Vector3(3.88f, 2.12f, -200f);
-            exitButtonParent.transform.localScale = new Vector3(0.22f, 0.9f, 1f);
+            exitButtonParent.transform.localPosition = new(3.88f, 2.12f, -200f);
+            exitButtonParent.transform.localScale = new(0.22f, 0.9f, 1f);
             exitButtonParent.transform.SetAsFirstSibling();
             exitButton.GetComponent<PassiveButton>().OnClick.RemoveAllListeners();
             exitButton.GetComponent<PassiveButton>().OnClick.AddListener((Action)(() =>
@@ -967,9 +967,9 @@ public static class GuessManager
                 TeambuttonParent.localScale = new(0.53f, 0.53f, 1f);
                 Teamlabel.color = (CustomRoleTypes)index switch
                 {
-                    CustomRoleTypes.Crewmate => new Color32(140, 255, 255, byte.MaxValue),
-                    CustomRoleTypes.Impostor => new Color32(255, 25, 25, byte.MaxValue),
-                    CustomRoleTypes.Neutral => new Color32(127, 140, 141, byte.MaxValue),
+                    CustomRoleTypes.Crewmate => new(140, 255, 255, byte.MaxValue),
+                    CustomRoleTypes.Impostor => new(255, 25, 25, byte.MaxValue),
+                    CustomRoleTypes.Neutral => new(127, 140, 141, byte.MaxValue),
                     //       CustomRoleTypes.Madmate => new Color32(255, 25, 25, byte.MaxValue),
                     CustomRoleTypes.Addon => new Color32(255, 154, 206, byte.MaxValue),
                     _ => throw new NotImplementedException(),
@@ -977,7 +977,7 @@ public static class GuessManager
                 Logger.Info(Teamlabel.color.ToString(), ((CustomRoleTypes)index).ToString());
                 Teamlabel.text = GetString("Type" + ((CustomRoleTypes)index));
                 Teamlabel.alignment = TextAlignmentOptions.Center;
-                Teamlabel.transform.localPosition = new Vector3(0, 0, Teamlabel.transform.localPosition.z);
+                Teamlabel.transform.localPosition = new(0, 0, Teamlabel.transform.localPosition.z);
                 Teamlabel.transform.localScale *= 1.6f;
                 Teamlabel.autoSizeTextContainer = true;
 
@@ -1033,7 +1033,7 @@ public static class GuessManager
                 Pagelabel.color = Color.white;
                 Pagelabel.text = GetString(IsNext ? "NextPage" : "PreviousPage");
                 Pagelabel.alignment = TextAlignmentOptions.Center;
-                Pagelabel.transform.localPosition = new Vector3(0, 0, Pagelabel.transform.localPosition.z);
+                Pagelabel.transform.localPosition = new(0, 0, Pagelabel.transform.localPosition.z);
                 Pagelabel.transform.localScale *= 1.6f;
                 Pagelabel.autoSizeTextContainer = true;
                 if (!IsNext && Page <= 1) Pagebutton.GetComponent<SpriteRenderer>().color = new(1, 1, 1, 0.1f);
@@ -1111,12 +1111,12 @@ public static class GuessManager
                 buttons.Add(button);
                 int row = i[(int)role.GetCustomRoleTypes()] / 5;
                 int col = i[(int)role.GetCustomRoleTypes()] % 5;
-                buttonParent.localPosition = new Vector3(-3.47f + 1.75f * col, 1.5f - 0.45f * row, -200f);
-                buttonParent.localScale = new Vector3(0.55f, 0.55f, 1f);
+                buttonParent.localPosition = new(-3.47f + 1.75f * col, 1.5f - 0.45f * row, -200f);
+                buttonParent.localScale = new(0.55f, 0.55f, 1f);
                 label.text = GetString(role.ToString());
                 label.color = Utils.GetRoleColor(role);
                 label.alignment = TextAlignmentOptions.Center;
-                label.transform.localPosition = new Vector3(0, 0, label.transform.localPosition.z);
+                label.transform.localPosition = new(0, 0, label.transform.localPosition.z);
                 label.transform.localScale *= 1.6f;
                 label.autoSizeTextContainer = true;
                 int copiedIndex = i[(int)role.GetCustomRoleTypes()];

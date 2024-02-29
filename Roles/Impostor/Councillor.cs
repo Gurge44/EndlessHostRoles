@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using UnityEngine;
 using static TOHE.Translator;
@@ -91,7 +92,7 @@ public class Councillor : RoleBase
                 if (target != null)
                 {
                     Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} 审判了 {target.GetNameWithRole().RemoveHtmlTags()}", "Councillor");
-                    bool CouncillorSuicide = true;
+                    bool CouncillorSuicide;
                     if (pc.GetAbilityUseLimit() < 1)
                     {
                         if (!isUI) Utils.SendMessage(GetString("CouncillorMurderMax"), pc.PlayerId);
@@ -99,14 +100,14 @@ public class Councillor : RoleBase
                         return true;
                     }
 
-                    if (Jailor.JailorTarget.ContainsValue(target.PlayerId))
+                    if (Jailor.playerIdList.Any(x => Main.PlayerStates[x].Role is Jailor { IsEnable: true } jl && jl.JailorTarget == targetId))
                     {
                         if (!isUI) Utils.SendMessage(GetString("CanNotTrialJailed"), pc.PlayerId, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
                         else pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")) + "\n" + GetString("CanNotTrialJailed"));
                         return true;
                     }
 
-                    if (pc.PlayerId == target.PlayerId)
+                    if (pc.PlayerId == targetId)
                     {
                         if (!isUI) Utils.SendMessage(GetString("LaughToWhoMurderSelf"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromKPD")));
                         else pc.ShowPopUp(Utils.ColorString(Color.cyan, GetString("MessageFromKPD")) + "\n" + GetString("LaughToWhoMurderSelf"));

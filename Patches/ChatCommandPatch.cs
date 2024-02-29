@@ -65,11 +65,9 @@ internal class ChatCommands
         if (Judge.TrialMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (NiceSwapper.SwapMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (ParityCop.ParityCheckMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-        //if (Pirate.DuelCheckMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (Councillor.MurderMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (Mediumshiper.MsMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-        if (MafiaRevengeManager.MafiaMsgCheck(PlayerControl.LocalPlayer, text)) goto Canceled;
-        //if (RetributionistRevengeManager.RetributionistMsgCheck(PlayerControl.LocalPlayer, text)) goto Canceled;
+        if (Mafia.MafiaMsgCheck(PlayerControl.LocalPlayer, text)) goto Canceled;
 
         if (Blackmailer.ForBlackmailer.Contains(PlayerControl.LocalPlayer.PlayerId) && PlayerControl.LocalPlayer.IsAlive())
         {
@@ -986,7 +984,7 @@ internal class ChatCommands
             return;
         }
 
-        if (MafiaRevengeManager.MafiaMsgCheck(player, text))
+        if (Mafia.MafiaMsgCheck(player, text))
         {
             LastSentCommand[player.PlayerId] = now;
             return;
@@ -1400,7 +1398,7 @@ internal class UpdateCharCountPatch
         if (length < (AmongUsClient.Instance.AmHost ? 1700 : 250))
             __instance.charCountText.color = Color.black;
         else if (length < (AmongUsClient.Instance.AmHost ? 2000 : 300))
-            __instance.charCountText.color = new Color(1f, 1f, 0f, 1f);
+            __instance.charCountText.color = new(1f, 1f, 0f, 1f);
         else
             __instance.charCountText.color = Color.red;
     }

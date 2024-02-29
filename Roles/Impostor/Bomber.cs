@@ -1,4 +1,5 @@
-﻿using TOHE.Modules;
+﻿using AmongUs.GameOptions;
+using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
 using UnityEngine;
@@ -31,6 +32,19 @@ namespace TOHE.Roles.Impostor
         public override void SetKillCooldown(byte id)
         {
             Main.AllPlayerKillCooldown[id] = !IsNuker && Options.BomberCanKill.GetBool() ? Options.BomberKillCD.GetFloat() : 300f;
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            if (Options.UsePets.GetBool()) return;
+            try
+            {
+                AURoleOptions.ShapeshifterCooldown = IsNuker ? Options.NukeCooldown.GetFloat() : Options.BombCooldown.GetFloat();
+                AURoleOptions.ShapeshifterDuration = 2f;
+            }
+            catch
+            {
+            }
         }
 
         public override void SetButtonTexts(HudManager hud, byte id)

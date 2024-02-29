@@ -3,6 +3,7 @@ using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using TOHE.Modules;
 using TOHE.Roles.Neutral;
 using static TOHE.Options;
 

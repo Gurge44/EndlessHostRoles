@@ -4,6 +4,7 @@ using InnerNet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TOHE.Modules;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
@@ -56,10 +57,12 @@ public class PlayerState(byte playerId)
         };
 
         Role = role.GetRoleClass();
-        Role.Init();
-        Role.Add(PlayerId);
 
-        if (!Main.HasJustStarted)
+        if (Main.HasJustStarted)
+        {
+            Role.Init();
+        }
+        else
         {
             var pc = Utils.GetPlayerById(PlayerId);
             pc.ResetKillCooldown();
@@ -72,6 +75,8 @@ public class PlayerState(byte playerId)
                 RemoveDisableDevicesPatch.UpdateDisableDevices();
             }
         }
+
+        Role.Add(PlayerId);
     }
     public void SetSubRole(CustomRoles role, bool AllReplace = false)
     {
@@ -350,14 +355,12 @@ public class TaskState
             }
 
             // Update the player's task count for Task Managers
-            foreach (var taskmanager in Main.AllAlivePlayerControls.Where(pc => pc.Is(CustomRoles.TaskManager)).ToArray())
+            foreach (var pc in Main.AllAlivePlayerControls)
             {
-                Utils.NotifyRoles(SpecifySeer: taskmanager, SpecifyTarget: player);
-            }
-
-            if (player.Is(CustomRoles.Workaholic))
-            {
-                Workaholic.OnTaskComplte(player, CompletedTasksCount, AllTasksCount);
+                if (pc.Is(CustomRoles.TaskManager) && pc.PlayerId != player.PlayerId)
+                {
+                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);
+                }
             }
         }
 

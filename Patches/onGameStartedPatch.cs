@@ -58,11 +58,8 @@ internal class ChangeRoleSettings
             Farseer.FarseerTimer = [];
             Main.CursedPlayers = [];
             Main.MafiaRevenged = [];
-            Main.RetributionistRevenged = [];
             Main.isCurseAndKill = [];
             Main.isCursed = false;
-            Main.PuppeteerList = [];
-            Main.PuppeteerDelayList = [];
             Main.TaglockedList = [];
             Main.DetectiveNotify = [];
             Main.SleuthMsgs = [];
@@ -75,8 +72,6 @@ internal class ChangeRoleSettings
             Main.WorkaholicAlive = [];
             Main.SpeedrunnerAlive = [];
             Main.BaitAlive = [];
-            Main.BoobyTrapBody = [];
-            BoobyTrap.KillerOfBoobyTrapBody = [];
             Main.CleanerBodies = [];
             Main.MedusaBodies = [];
             Main.InfectedBodies = [];
@@ -98,14 +93,11 @@ internal class ChangeRoleSettings
             Main.MarioVentCount = [];
             Main.VeteranInProtect = [];
             Witness.AllKillers = [];
-            Main.GrenadierBlinding = [];
-            Main.Lighter = [];
+            Grenadier.GrenadierBlinding = [];
             Main.BlockSabo = [];
             Main.BlockedVents = [];
             Grenadier.MadGrenadierBlinding = [];
             Main.JinxSpellCount = [];
-            Main.PuppeteerDelay = [];
-            Main.PuppeteerMaxPuppets = [];
             Main.OverDeadPlayerList = [];
             Main.Provoked = [];
             Main.ShieldPlayer = Options.ShieldPersonDiedFirst.GetBool() ? Main.FirstDied : byte.MaxValue;
@@ -120,7 +112,7 @@ internal class ChangeRoleSettings
 
             GameOptionsManager.Instance.currentNormalGameOptions.ConfirmImpostor = false;
             if (Options.CurrentGameMode == CustomGameMode.MoveAndStop) GameOptionsManager.Instance.currentNormalGameOptions.NumImpostors = 0;
-            Main.RealOptionsData = new OptionBackupData(GameOptionsManager.Instance.CurrentGameOptions);
+            Main.RealOptionsData = new(GameOptionsManager.Instance.CurrentGameOptions);
 
             Main.introDestroyed = false;
 
@@ -188,171 +180,15 @@ internal class ChangeRoleSettings
 
             try
             {
-                BountyHunter.Init();
-                SerialKiller.Init();
-                EvilDiviner.Init();
-                Kamikaze.Init();
-                FireWorks.Init();
-                NiceSwapper.Init();
-                Pickpocket.Init();
-                Sniper.Init();
-                Farseer.Init();
-                Jailor.Init();
-                Monitor.Init();
-                Cleanser.Init();
-                TimeThief.Init();
-                Witch.Init();
-                HexMaster.Init();
-                SabotageMaster.Init();
-                Executioner.Init();
-                Lawyer.Init();
-                Jackal.Init();
-                Sidekick.Init();
-                Bandit.Init();
-                Sheriff.Init();
-                CopyCat.Init();
-                SwordsMan.Init();
-                EvilTracker.Init();
-                Snitch.Init();
-                Vampire.Init();
-                Poisoner.Init();
-                AntiAdminer.Init();
-                TimeManager.Init();
                 LastImpostor.Init();
                 TargetArrow.Init();
                 LocateArrow.Init();
                 DoubleTrigger.Init();
                 Workhorse.Init();
-                Pelican.Init();
-                Tether.Init();
-                Librarian.Init();
-                Benefactor.Init();
-                Aid.Init();
-                DonutDelivery.Init();
-                Rabbit.Init();
-                Gaulois.Init();
-                Analyzer.Init();
-                Escort.Init();
-                Marshall.Init();
-                Consort.Init();
-                Drainer.Init();
-                Crusader.Init();
-                Pursuer.Init();
-                Gangster.Init();
-                Medic.Init();
-                Gamer.Init();
-                BallLightning.Init();
-                DarkHide.Init();
-                Greedier.Init();
-                Glitch.Init();
-                Collector.Init();
-                QuickShooter.Init();
-                Camouflager.Init();
-                Divinator.Init();
-                Doormaster.Init();
-                Ricochet.Init();
-                Oracle.Init();
-                Eraser.Init();
-                Spy.Init();
-                NiceEraser.Init();
-                Assassin.Init();
-                Undertaker.Init();
-                Sans.Init();
-                Juggernaut.Init();
-                Hacker.Init();
-                NiceHacker.Init();
-                Psychic.Init();
-                Hangman.Init();
-                Judge.Init();
-                Councillor.Init();
-                Mortician.Init();
-                Mediumshiper.Init();
-                Swooper.Init();
-                Wraith.Init();
-                BloodKnight.Init();
-                Totocalcio.Init();
-                Romantic.Init();
-                VengefulRomantic.Init();
-                RuthlessRomantic.Init();
-                Succubus.Init();
-                Necromancer.Init();
-                Nullifier.Init();
-                Deputy.Init();
-                Chronomancer.Init();
                 Damocles.Initialize();
                 Stressed.Init();
-                Amnesiac.Init();
-                Monarch.Init();
-                Virus.Init();
-                Bloodhound.Init();
-                Tracker.Init();
-                Merchant.Init();
-                Mastermind.Init();
                 Asthmatic.Init();
-                Beacon.Init();
-                NSerialKiller.Init();
-                SoulHunter.Init();
-                Enderman.Init();
-                Mycologist.Init();
-                Bubble.Init();
-                Tornado.Init();
-                Sentinel.Init();
-                Hookshot.Init();
-                Sprayer.Init();
-                PlagueDoctor.Init();
-                Penguin.Init();
-                Stealth.Init();
-                Postman.Init();
-                Mafioso.Init();
-                Magician.Init();
-                WeaponMaster.Init();
-                Reckless.Init();
-                Pyromaniac.Init();
-                Eclipse.Init();
-                Vengeance.Init();
-                HeadHunter.Init();
-                Imitator.Init();
-                Ignitor.Init();
-                Werewolf.Init();
-                Maverick.Init();
-                Jinx.Init();
                 DoubleShot.Init();
-                Dazzler.Init();
-                YinYanger.Init();
-                Blackmailer.Init();
-                Cantankerous.Init();
-                Swiftclaw.Init();
-                Mathematician.Init();
-                Duellist.Init();
-                Druid.Init();
-                GuessManagerRole.Init();
-                Randomizer.Init();
-                Doppelganger.Init();
-                FFF.Init();
-                Sapper.Init();
-                CameraMan.Init();
-                Hitman.Init();
-                Gambler.Init();
-                RiftMaker.Init();
-                Addict.Init();
-                Alchemist.Init();
-                Deathpact.Init();
-                Tracefinder.Init();
-                Devourer.Init();
-                Ritualist.Init();
-                Traitor.Init();
-                Spiritualist.Init();
-                Vulture.Init();
-                Chameleon.Init();
-                Wildling.Init();
-                Morphling.Init();
-                ParityCop.Init(); // *giggle* party cop
-                Spiritcaller.Init();
-                Enigma.Init();
-                Lurker.Init();
-                PlagueBearer.Init();
-                Doomsayer.Init();
-                Agitater.Init();
             }
             catch (Exception ex)
             {
@@ -454,8 +290,6 @@ internal class SelectRolesPatch
 
         try
         {
-            RevivePreventerPatch.Ignore = true;
-
             var rd = IRandom.Instance;
 
             Main.NimblePlayer = byte.MaxValue;
@@ -484,7 +318,7 @@ internal class SelectRolesPatch
             List<byte> physicistList = [];
             if (nimbleSpawn || physicistSpawn)
             {
-                foreach ((PlayerControl PLAYER, RoleTypes _) in RpcSetRoleReplacer.StoragedData.ToArray())
+                foreach ((PlayerControl PLAYER, RoleTypes _) in RpcSetRoleReplacer.StoragedData)
                 {
                     var kp = RoleResult.FirstOrDefault(x => x.Key.PlayerId == PLAYER.PlayerId);
                     if (kp.Value.IsCrewmate())
@@ -521,7 +355,7 @@ internal class SelectRolesPatch
                     Main.PhysicistPlayer = physicistList[rd.Next(0, physicistList.Count)];
 
             List<(PlayerControl, RoleTypes)> newList = [];
-            foreach ((PlayerControl PLAYER, RoleTypes ROLETYPE) in RpcSetRoleReplacer.StoragedData.ToArray())
+            foreach ((PlayerControl PLAYER, RoleTypes ROLETYPE) in RpcSetRoleReplacer.StoragedData)
             {
                 var kp = RoleResult.FirstOrDefault(x => x.Key.PlayerId == PLAYER.PlayerId);
                 RoleTypes roleType = kp.Value.GetRoleTypes();
@@ -620,7 +454,7 @@ internal class SelectRolesPatch
             }
 
             if (CustomRoles.Lovers.IsEnable() && (CustomRoles.FFF.IsEnable() ? -1 : rd.Next(1, 100)) <= Options.LoverSpawnChances.GetInt()) AssignLoversRolesFromList();
-            foreach (CustomRoles role in AddonRolesList.ToArray())
+            foreach (CustomRoles role in AddonRolesList)
             {
                 if (rd.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(role, out var sc) ? sc.GetFloat() : 0))
                     if (role.IsEnable())

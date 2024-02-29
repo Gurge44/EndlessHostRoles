@@ -48,7 +48,7 @@ public class CopyCat : RoleBase
     }
 
     public override bool IsEnable => playerIdList.Count > 0;
-    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Utils.GetPlayerById(id).IsAlive() ? CurrentKillCooldown[id] : 0f;
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Utils.GetPlayerById(id).IsAlive() ? CurrentKillCooldown : 0f;
 
     public static void ResetRole()
     {

@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using AmongUs.GameOptions;
+using TOHE.Modules;
 using UnityEngine;
 
 namespace TOHE.Roles.Crewmate
@@ -64,6 +66,13 @@ namespace TOHE.Roles.Crewmate
         }
 
         public override bool IsEnable => playerIdList.Count > 0;
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            if (Options.UsePets.GetBool()) return;
+            AURoleOptions.EngineerCooldown = NiceHacker.AbilityCD.GetFloat();
+            AURoleOptions.EngineerInVentMaxTime = 1f;
+        }
 
         public static void SendRPC(byte playerId, float secondsLeft)
         {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using AmongUs.GameOptions;
 using UnityEngine;
 
 namespace TOHE.Roles.Crewmate
@@ -43,6 +44,12 @@ namespace TOHE.Roles.Crewmate
         }
 
         public override bool IsEnable => playerIdList.Count > 0;
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
+            AURoleOptions.EngineerInVentMaxTime = 1f;
+        }
 
         public override void OnEnterVent(PlayerControl pc, Vent vent)
         {

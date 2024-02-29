@@ -1,4 +1,5 @@
-﻿using TOHE.Roles.Neutral;
+﻿using TOHE.Modules;
+using TOHE.Roles.Neutral;
 using UnityEngine;
 
 namespace TOHE.Roles.Impostor

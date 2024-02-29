@@ -1,3 +1,4 @@
+using AmongUs.GameOptions;
 using System.Collections.Generic;
 
 namespace TOHE.Roles.Crewmate;
@@ -48,6 +49,7 @@ public class Crusader : RoleBase
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanUseKillButton(Utils.GetPlayerById(id)) ? CurrentKillCooldown : 15f;
     public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {

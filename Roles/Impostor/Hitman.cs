@@ -1,5 +1,7 @@
 ﻿using Hazel;
 using System.Collections.Generic;
+using AmongUs.GameOptions;
+using TOHE.Modules;
 using static TOHE.Options;
 using static TOHE.Utils;
 
@@ -46,6 +48,12 @@ namespace TOHE.Roles.Impostor
         public override void SetKillCooldown(byte id)
         {
             Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
+            AURoleOptions.ShapeshifterDuration = 1f;
         }
 
         void SendRPC()

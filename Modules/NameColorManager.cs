@@ -1,4 +1,5 @@
 using Hazel;
+using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
@@ -116,9 +117,9 @@ public static class NameColorManager
 
         color = seer.GetCustomRole() switch
         {
-            CustomRoles.HeadHunter when HeadHunter.Targets.Contains(target.PlayerId) => "000000",
-            CustomRoles.BountyHunter when BountyHunter.GetTarget(seer) == target.PlayerId => "000000",
-            CustomRoles.Pyromaniac when Pyromaniac.DousedList.Contains(target.PlayerId) => "#BA4A00",
+            CustomRoles.HeadHunter when (Main.PlayerStates[seer.PlayerId].Role as HeadHunter).Targets.Contains(target.PlayerId) => "000000",
+            CustomRoles.BountyHunter when (Main.PlayerStates[seer.PlayerId].Role as BountyHunter).GetTarget(seer) == target.PlayerId => "000000",
+            CustomRoles.Pyromaniac when (Main.PlayerStates[seer.PlayerId].Role as Pyromaniac).DousedList.Contains(target.PlayerId) => "#BA4A00",
             CustomRoles.Glitch when Glitch.hackedIdList.ContainsKey(target.PlayerId) => Main.roleColors[CustomRoles.Glitch],
             CustomRoles.Escort when Glitch.hackedIdList.ContainsKey(target.PlayerId) => Main.roleColors[CustomRoles.Escort],
             CustomRoles.Consort when Glitch.hackedIdList.ContainsKey(target.PlayerId) => Main.roleColors[CustomRoles.Glitch],
@@ -126,17 +127,17 @@ public static class NameColorManager
             CustomRoles.Spy when Spy.SpyRedNameList.ContainsKey(target.PlayerId) => "#BA4A00",
             CustomRoles.Mastermind when Mastermind.ManipulateDelays.ContainsKey(target.PlayerId) => "#00ffa5",
             CustomRoles.Mastermind when Mastermind.ManipulatedPlayers.ContainsKey(target.PlayerId) => Main.roleColors[CustomRoles.Arsonist],
-            CustomRoles.Hitman when Hitman.targetId == target.PlayerId => "000000",
-            CustomRoles.Postman when Postman.Target == target.PlayerId => Main.roleColors[CustomRoles.Postman],
-            CustomRoles.Mycologist when Mycologist.InfectedPlayers.Contains(target.PlayerId) => Main.roleColors[CustomRoles.Mycologist],
+            CustomRoles.Hitman when (Main.PlayerStates[seer.PlayerId].Role as Hitman).TargetId == target.PlayerId => "000000",
+            CustomRoles.Postman when (Main.PlayerStates[seer.PlayerId].Role as Postman).Target == target.PlayerId => Main.roleColors[CustomRoles.Postman],
+            CustomRoles.Mycologist when (Main.PlayerStates[seer.PlayerId].Role as Mycologist).InfectedPlayers.Contains(target.PlayerId) => Main.roleColors[CustomRoles.Mycologist],
             CustomRoles.Bubble when Bubble.EncasedPlayers.ContainsKey(target.PlayerId) => Main.roleColors[CustomRoles.Bubble],
-            CustomRoles.Hookshot when Hookshot.MarkedPlayerId == target.PlayerId => Main.roleColors[CustomRoles.Hookshot],
-            CustomRoles.SoulHunter when SoulHunter.CurrentTarget.ID == target.PlayerId => Main.roleColors[CustomRoles.SoulHunter],
-            CustomRoles.Kamikaze when Kamikaze.MarkedPlayers.TryGetValue(seer.PlayerId, out var targets) && targets.Contains(target.PlayerId) => Main.roleColors[CustomRoles.Electric],
+            CustomRoles.Hookshot when (Main.PlayerStates[seer.PlayerId].Role as Hookshot).MarkedPlayerId == target.PlayerId => Main.roleColors[CustomRoles.Hookshot],
+            CustomRoles.SoulHunter when SoulHunter.IsSoulHunterTarget(target.PlayerId) => Main.roleColors[CustomRoles.SoulHunter],
+            CustomRoles.Kamikaze when (Main.PlayerStates[seer.PlayerId].Role as Kamikaze).MarkedPlayers.Contains(target.PlayerId) => Main.roleColors[CustomRoles.Electric],
             _ => color,
         };
 
-        if (SoulHunter.CurrentTarget.ID == seer.PlayerId && target.Is(CustomRoles.SoulHunter)) color = Main.roleColors[CustomRoles.SoulHunter];
+        if (SoulHunter.IsSoulHunterTarget(seer.PlayerId) && target.Is(CustomRoles.SoulHunter)) color = Main.roleColors[CustomRoles.SoulHunter];
 
         if (Bubble.EncasedPlayers.TryGetValue(target.PlayerId, out var ts) && ts + Bubble.NotifyDelay.GetInt() < Utils.TimeStamp) color = Main.roleColors[CustomRoles.Bubble];
 
@@ -239,9 +240,7 @@ public static class NameColorManager
                || (target.Is(CustomRoles.Gravestone) && Main.PlayerStates[target.Data.PlayerId].IsDead)
                || (target.Is(CustomRoles.Mayor) && Options.MayorRevealWhenDoneTasks.GetBool() && target.GetTaskState().IsTaskFinished)
                || (seer.Is(CustomRoleTypes.Crewmate) && target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished)
-               //   || Mare.KnowTargetRoleColor(target, isMeeting)
-               || EvilDiviner.IsShowTargetRole(seer, target)
-               || Ritualist.IsShowTargetRole(seer, target);
+               || EvilDiviner.IsShowTargetRole(seer, target);
     }
 
     public static bool TryGetData(PlayerControl seer, PlayerControl target, out string colorCode)

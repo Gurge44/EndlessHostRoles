@@ -64,7 +64,7 @@ class ShowFolderPatch
 
                 button.FileImage.color = roleColor;
                 button.RolloverHandler.OutColor = roleColor;
-                button.RolloverHandler.OverColor = new Color(roleColor.r * 0.5f, roleColor.g * 0.5f, roleColor.b * 0.5f);
+                button.RolloverHandler.OverColor = new(roleColor.r * 0.5f, roleColor.g * 0.5f, roleColor.b * 0.5f);
             }
         }
     }

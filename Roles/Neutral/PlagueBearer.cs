@@ -1,5 +1,7 @@
 ﻿using Hazel;
 using System.Collections.Generic;
+using AmongUs.GameOptions;
+using TOHE.Modules;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -125,6 +127,11 @@ public class Pestilence : RoleBase
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = PlagueBearer.PestilenceCDOpt.GetFloat();
     public override bool CanUseImpostorVentButton(PlayerControl pc) => PlagueBearer.PestilenceCanVent.GetBool();
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        opt.SetVision(PlagueBearer.PestilenceHasImpostorVision.GetBool());
+    }
 
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
     {

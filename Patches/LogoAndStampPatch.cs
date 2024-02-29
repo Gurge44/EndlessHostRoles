@@ -92,59 +92,59 @@ public static class CredentialsPatch
             var devtitletext = obj.transform.FindChild("StatNumsText_TMP");
             devtitletext.GetComponent<TextMeshPro>().text = GetString("Developer");
             devtitletext.GetComponent<TextMeshPro>().alignment = TextAlignmentOptions.Center;
-            devtitletext.localPosition = new Vector3(-2.4f, 1.65f, -2f);
-            devtitletext.localScale = new Vector3(0.8f, 0.8f, 0.8f);
+            devtitletext.localPosition = new(-2.4f, 1.65f, -2f);
+            devtitletext.localScale = new(0.8f, 0.8f, 0.8f);
 
             var devtext = obj.transform.FindChild("StatsText_TMP");
             devtext.GetComponent<TextMeshPro>().text = DevsData;
             devtext.GetComponent<TextMeshPro>().alignment = TextAlignmentOptions.Capline;
-            devtext.localPosition = new Vector3(-2.4f, 1.27f, -2f);
-            devtext.localScale = new Vector3(0.5f, 0.5f, 1f);
+            devtext.localPosition = new(-2.4f, 1.27f, -2f);
+            devtext.localScale = new(0.5f, 0.5f, 1f);
 
             var transtitletext = Object.Instantiate(devtitletext, obj.transform);
             transtitletext.GetComponent<TextMeshPro>().text = GetString("Translator");
             transtitletext.GetComponent<TextMeshPro>().alignment = TextAlignmentOptions.Center;
-            transtitletext.localPosition = new Vector3(0f, 1.65f, -2f);
-            transtitletext.localScale = new Vector3(0.8f, 0.8f, 1f);
+            transtitletext.localPosition = new(0f, 1.65f, -2f);
+            transtitletext.localScale = new(0.8f, 0.8f, 1f);
 
             var transtext = Object.Instantiate(devtext, obj.transform);
             transtext.GetComponent<TextMeshPro>().text = TransData;
             transtext.GetComponent<TextMeshPro>().alignment = TextAlignmentOptions.Capline;
-            transtext.localPosition = new Vector3(0f, 1.27f, -2f);
-            transtext.localScale = new Vector3(0.5f, 0.5f, 1f);
+            transtext.localPosition = new(0f, 1.27f, -2f);
+            transtext.localScale = new(0.5f, 0.5f, 1f);
 
             var boostertitletext = Object.Instantiate(devtitletext, obj.transform);
             boostertitletext.GetComponent<TextMeshPro>().text = GetString("Booster");
             boostertitletext.GetComponent<TextMeshPro>().alignment = TextAlignmentOptions.Center;
-            boostertitletext.localPosition = new Vector3(-2.4f, -1f, -2f);
-            boostertitletext.localScale = new Vector3(0.8f, 0.8f, 1f);
+            boostertitletext.localPosition = new(-2.4f, -1f, -2f);
+            boostertitletext.localScale = new(0.8f, 0.8f, 1f);
 
             var boostertext = Object.Instantiate(devtext, obj.transform);
             boostertext.GetComponent<TextMeshPro>().text = BoosterData;
             boostertext.GetComponent<TextMeshPro>().alignment = TextAlignmentOptions.Capline;
-            boostertext.localPosition = new Vector3(-2.4f, -1.38f, -2f);
-            boostertext.localScale = new Vector3(0.5f, 0.5f, 1f);
+            boostertext.localPosition = new(-2.4f, -1.38f, -2f);
+            boostertext.localScale = new(0.5f, 0.5f, 1f);
 
             var sponsortitletext = Object.Instantiate(devtitletext, obj.transform);
             sponsortitletext.GetComponent<TextMeshPro>().text = GetString("Sponsor");
             sponsortitletext.GetComponent<TextMeshPro>().alignment = TextAlignmentOptions.Center;
-            sponsortitletext.localPosition = new Vector3(2.4f, 1.65f, -2f);
-            sponsortitletext.localScale = new Vector3(0.8f, 0.8f, 1f);
+            sponsortitletext.localPosition = new(2.4f, 1.65f, -2f);
+            sponsortitletext.localScale = new(0.8f, 0.8f, 1f);
 
             var sponsortext = Object.Instantiate(devtext, obj.transform);
             sponsortext.GetComponent<TextMeshPro>().text = SponsersData;
             sponsortext.GetComponent<TextMeshPro>().alignment = TextAlignmentOptions.Capline;
-            sponsortext.localPosition = new Vector3(2.4f, 1.27f, -2f);
-            sponsortext.localScale = new Vector3(0.5f, 0.5f, 1f);
+            sponsortext.localPosition = new(2.4f, 1.27f, -2f);
+            sponsortext.localScale = new(0.5f, 0.5f, 1f);
 
             var textobj = obj.transform.FindChild("Title_TMP");
             Object.Destroy(textobj.GetComponent<TextTranslatorTMP>());
             textobj.GetComponent<TextMeshPro>().text = GetString("DevAndSpnTitle");
             textobj.GetComponent<TextMeshPro>().alignment = TextAlignmentOptions.Center;
-            textobj.localScale = new Vector3(1.2f, 1.2f, 1f);
-            textobj.localPosition = new Vector3(0f, 2.2f, -2f);
-            obj.transform.FindChild("Background").localScale = new Vector3(1.5f, 1f, 1f);
-            obj.transform.FindChild("CloseButton").localPosition = new Vector3(-3.75f, 2.65f, 0);
+            textobj.localScale = new(1.2f, 1.2f, 1f);
+            textobj.localPosition = new(0f, 2.2f, -2f);
+            obj.transform.FindChild("Background").localScale = new(1.5f, 1f, 1f);
+            obj.transform.FindChild("CloseButton").localPosition = new(-3.75f, 2.65f, 0);
         }
 
         public static MainMenuManager instance;

@@ -453,7 +453,7 @@ public static class Utils
     public static string GetKillCountText(byte playerId, bool ffa = false)
     {
         if (Main.PlayerStates.All(x => x.Value.GetRealKiller() != playerId) && !ffa) return string.Empty;
-        return ' ' + ColorString(new Color32(255, 69, 0, byte.MaxValue), string.Format(GetString("KillCount"), Main.PlayerStates.Count(x => x.Value.GetRealKiller() == playerId)));
+        return ' ' + ColorString(new(255, 69, 0, byte.MaxValue), string.Format(GetString("KillCount"), Main.PlayerStates.Count(x => x.Value.GetRealKiller() == playerId)));
     }
 
     public static string GetVitalText(byte playerId, bool realKillerColor = false)
@@ -464,7 +464,7 @@ public static class Utils
         {
             var KillerId = state.GetRealKiller();
             Color color = KillerId != byte.MaxValue ? Main.PlayerColors[KillerId] : GetRoleColor(CustomRoles.Doctor);
-            if (state.deathReason == PlayerState.DeathReason.Disconnected) color = new Color(255, 255, 255, 50);
+            if (state.deathReason == PlayerState.DeathReason.Disconnected) color = new(255, 255, 255, 50);
             deathReason = ColorString(color, deathReason);
         }
 
@@ -2731,7 +2731,7 @@ public static class Utils
         {
             if (CachedSprites.TryGetValue(path + pixelsPerUnit, out var sprite)) return sprite;
             Texture2D texture = LoadTextureFromResources(path);
-            sprite = Sprite.Create(texture, new(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), pixelsPerUnit);
+            sprite = Sprite.Create(texture, new(0, 0, texture.width, texture.height), new(0.5f, 0.5f), pixelsPerUnit);
             sprite.hideFlags |= HideFlags.HideAndDontSave | HideFlags.DontSaveInEditor;
             return CachedSprites[path + pixelsPerUnit] = sprite;
         }
@@ -2775,7 +2775,7 @@ public static class Utils
         float R = (color.r + Weight) / (Darkness + 1);
         float G = (color.g + Weight) / (Darkness + 1);
         float B = (color.b + Weight) / (Darkness + 1);
-        return new Color(R, G, B, color.a);
+        return new(R, G, B, color.a);
     }
 
     ///// <summary>

@@ -1,6 +1,8 @@
 using Hazel;
 using System.Collections.Generic;
 using System.Text;
+using AmongUs.GameOptions;
+using TOHE.Modules;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -97,6 +99,13 @@ namespace TOHE.Roles.Crewmate
             {
                 _ = new LateTask(() => { pc.MyPhysics?.RpcBootFromVent(ventId); }, 0.5f, "Tether No Target Boot From Vent");
             }
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            if (UsePets.GetBool()) return;
+            AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
+            AURoleOptions.EngineerInVentMaxTime = 1f;
         }
 
         public static bool OnVote(PlayerControl pc, PlayerControl target)

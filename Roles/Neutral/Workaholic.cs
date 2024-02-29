@@ -1,4 +1,6 @@
 ﻿using System.Linq;
+using AmongUs.GameOptions;
+using TOHE.Modules;
 
 namespace TOHE.Roles.Neutral
 {
@@ -15,6 +17,12 @@ namespace TOHE.Roles.Neutral
         public override void Init()
         {
             On = false;
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            AURoleOptions.EngineerCooldown = Options.WorkaholicVentCooldown.GetFloat();
+            AURoleOptions.EngineerInVentMaxTime = 0f;
         }
 
         public override void OnTaskComplete(PlayerControl player, int CompletedTasksCount, int AllTasksCount)

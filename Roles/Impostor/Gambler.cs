@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
 using static TOHE.Options;
@@ -97,7 +98,16 @@ namespace TOHE.Roles.Impostor
 
         public override void SetKillCooldown(byte id)
         {
-            Main.AllPlayerKillCooldown[id] = Gambler.KillCooldown.GetFloat();
+            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            if (Gambler.isVisionChange.ContainsKey(playerId))
+            {
+                opt.SetFloat(FloatOptionNames.CrewLightMod, Gambler.LowVision.GetFloat());
+                opt.SetFloat(FloatOptionNames.ImpostorLightMod, Gambler.LowVision.GetFloat());
+            }
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)

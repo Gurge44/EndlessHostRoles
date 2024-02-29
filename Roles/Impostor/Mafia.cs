@@ -176,7 +176,7 @@ namespace TOHE.Roles.Impostor
                 GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
                 GameObject targetBox = Object.Instantiate(template, pva.transform);
                 targetBox.name = "ShootButton";
-                targetBox.transform.localPosition = new Vector3(-0.95f, 0.03f, -1.31f);
+                targetBox.transform.localPosition = new(-0.95f, 0.03f, -1.31f);
                 SpriteRenderer renderer = targetBox.GetComponent<SpriteRenderer>();
                 renderer.sprite = CustomButton.Get("TargetIcon");
                 PassiveButton button = targetBox.GetComponent<PassiveButton>();

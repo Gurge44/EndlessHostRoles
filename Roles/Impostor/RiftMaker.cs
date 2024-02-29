@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using TOHE.Roles.Neutral;
 using UnityEngine;
 using static TOHE.Options;
@@ -44,7 +45,15 @@ namespace TOHE.Roles.Impostor
 
         public override void SetKillCooldown(byte id)
         {
-            Main.AllPlayerKillCooldown[id] = RiftMaker.KillCooldown.GetFloat();
+            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            if (Options.UsePets.GetBool()) return;
+            AURoleOptions.ShapeshifterDuration = 1f;
+            AURoleOptions.ShapeshifterCooldown = RiftMaker.ShapeshiftCooldown.GetFloat();
+            AURoleOptions.ShapeshifterLeaveSkin = true;
         }
 
         public override void OnFixedUpdate(PlayerControl player)
@@ -116,6 +125,8 @@ namespace TOHE.Roles.Impostor
             Marks.Add(player.transform.position);
             if (Marks.Count == 2) LastTP = TimeStamp;
             player.Notify(GetString("MarkDone"));
+
+            return false;
         }
 
         public override string GetProgressText(byte playerId, bool comms) => $" <color=#777777>-</color> {(Marks.Count == 2 ? "<color=#00ff00>" : "<color=#777777>")}{Marks.Count}/2</color>";

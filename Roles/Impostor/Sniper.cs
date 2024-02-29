@@ -1,6 +1,7 @@
 using Hazel;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
@@ -250,6 +251,26 @@ public class Sniper : RoleBase
         }
 
         return false;
+    }
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        if (Options.UsePets.GetBool()) return;
+        try
+        {
+            if (bulletCount > 0)
+            {
+                AURoleOptions.ShapeshifterDuration = ShapeshiftDuration.GetFloat();
+            }
+            else
+            {
+                AURoleOptions.ShapeshifterDuration = 1f;
+                AURoleOptions.ShapeshifterCooldown = 255f;
+            }
+        }
+        catch
+        {
+        }
     }
 
     public override void OnFixedUpdate(PlayerControl sniper)

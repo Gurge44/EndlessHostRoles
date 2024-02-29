@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TMPro;
 using TOHE.Modules;
+using TOHE.Patches;
 using TOHE.Roles.AddOns.Common;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
@@ -1213,12 +1214,6 @@ class FixedUpdatePatch
             if (GameStates.IsInTask && player.IsAlive() && Options.LadderDeath.GetBool()) FallFromLadder.FixedUpdate(player);
             if (GameStates.IsInGame) LoversSuicide();
 
-            #region 傀儡师处理
-
-            Puppeteer.OnGlobalFixedUpdate(player);
-
-            #endregion
-
             if (GameStates.IsInTask && player == PlayerControl.LocalPlayer && Options.DisableDevices.GetBool())
             {
                 DisableDevice.FixedUpdate();
@@ -1680,7 +1675,7 @@ class PlayerStartPatch
     {
         var roleText = Object.Instantiate(__instance.cosmetics.nameText);
         roleText.transform.SetParent(__instance.cosmetics.nameText.transform);
-        roleText.transform.localPosition = new Vector3(0f, 0.2f, 0f);
+        roleText.transform.localPosition = new(0f, 0.2f, 0f);
         roleText.fontSize -= 1.2f;
         roleText.text = "RoleText";
         roleText.gameObject.name = "RoleText";

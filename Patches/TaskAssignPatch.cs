@@ -239,7 +239,7 @@ class RpcSetTasksPatch
         );
 
         //タスクのリストを配列(Il2CppStructArray)に変換する
-        taskTypeIds = new Il2CppStructArray<byte>(TasksList.Count);
+        taskTypeIds = new(TasksList.Count);
         for (int i = 0; i < TasksList.Count; i++)
         {
             taskTypeIds[i] = TasksList[i];

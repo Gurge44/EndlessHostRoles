@@ -1,6 +1,7 @@
 ﻿using Hazel;
 using System.Collections.Generic;
 using TOHE.Modules;
+using TOHE.Patches;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
 using UnityEngine;
@@ -42,7 +43,7 @@ public class BallLightning : RoleBase
         playerIdList.Add(playerId);
     }
 
-    public override bool IsEnable => playerIdList.Count > 0 || Randomizer.IsEnable;
+    public override bool IsEnable => playerIdList.Count > 0 || Randomizer.Exists;
 
     private static void SendRPC(byte playerId)
     {

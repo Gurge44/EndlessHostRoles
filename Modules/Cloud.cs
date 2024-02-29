@@ -93,7 +93,7 @@ internal class Cloud
             {
                 if (IP == null || EAC_PORT == 0) throw new("Has no ip or port");
                 LastRepotTimeStamp = Utils.TimeStamp;
-                EacClientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                EacClientSocket = new(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 EacClientSocket.Connect(IP, EAC_PORT);
                 Logger.Warn("已连接至TOHE服务器", "EAC Cloud");
             }

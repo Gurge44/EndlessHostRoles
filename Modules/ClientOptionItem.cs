@@ -78,7 +78,7 @@ public class ClientOptionItem
 
             // ボタン生成
             ToggleButton = Object.Instantiate(mouseMoveToggle, CustomBackground.transform);
-            ToggleButton.transform.localPosition = new Vector3(
+            ToggleButton.transform.localPosition = new(
                 // 現在のオプション数を基に位置を計算
                 numOptions % 2 == 0 ? -1.3f : 1.3f,
                 2.2f - (0.5f * (numOptions / 2)),
@@ -114,7 +114,7 @@ public class ClientOptionItem
     {
         if (ToggleButton == null) return;
 
-        var color = Config.Value ? new Color32(255, 192, 203, byte.MaxValue) : new Color32(77, 77, 77, byte.MaxValue);
+        var color = Config.Value ? new(255, 192, 203, byte.MaxValue) : new Color32(77, 77, 77, byte.MaxValue);
         ToggleButton.Background.color = color;
         ToggleButton.Rollover?.ChangeOutColor(color);
     }

@@ -16,7 +16,7 @@ public class TextOptionItem : OptionItem
         int id, string name, TabGroup tab, bool isSingleValue = false
     )
     {
-        return new TextOptionItem(
+        return new(
             id, name, 0, tab, isSingleValue
         );
     }

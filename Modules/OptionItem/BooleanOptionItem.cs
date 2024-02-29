@@ -9,7 +9,7 @@ public class BooleanOptionItem(int id, string name, bool defaultValue, TabGroup 
         int id, string name, bool defaultValue, TabGroup tab, bool isSingleValue
     )
     {
-        return new BooleanOptionItem(
+        return new(
             id, name, defaultValue, tab, isSingleValue
         );
     }

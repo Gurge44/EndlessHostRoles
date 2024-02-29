@@ -2,6 +2,7 @@ using Hazel;
 using System.Collections.Generic;
 using System.Text;
 using TOHE.Modules;
+using TOHE.Patches;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
 using static TOHE.Options;

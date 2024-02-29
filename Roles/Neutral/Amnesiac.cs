@@ -2,6 +2,7 @@ using AmongUs.GameOptions;
 using Hazel;
 using System;
 using System.Collections.Generic;
+using TOHE.Modules;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -65,6 +66,7 @@ public class Amnesiac : RoleBase
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = RememberLimit >= 1 ? RememberCooldown.GetFloat() : 300f;
     public override bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && RememberLimit >= 1;
     public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {

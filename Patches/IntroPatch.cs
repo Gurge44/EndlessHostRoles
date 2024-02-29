@@ -154,18 +154,18 @@ class BeginCrewmatePatch
     {
         if (PlayerControl.LocalPlayer.Is(CustomRoleTypes.Neutral) && !PlayerControl.LocalPlayer.Is(CustomRoles.Parasite))
         {
-            teamToDisplay = new List<PlayerControl>();
+            teamToDisplay = new();
             teamToDisplay.Add(PlayerControl.LocalPlayer);
         }
 
         if (PlayerControl.LocalPlayer.Is(CustomRoleTypes.Neutral) && !PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor))
         {
-            teamToDisplay = new List<PlayerControl>();
+            teamToDisplay = new();
             teamToDisplay.Add(PlayerControl.LocalPlayer);
         }
         else if (PlayerControl.LocalPlayer.Is(CustomRoles.Madmate))
         {
-            teamToDisplay = new List<PlayerControl>();
+            teamToDisplay = new();
             teamToDisplay.Add(PlayerControl.LocalPlayer);
             __instance.BeginImpostor(teamToDisplay);
             __instance.overlayHandle.color = Palette.ImpostorRed;
@@ -173,7 +173,7 @@ class BeginCrewmatePatch
         }
         else if (PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor))
         {
-            teamToDisplay = new List<PlayerControl>();
+            teamToDisplay = new();
             teamToDisplay.Add(PlayerControl.LocalPlayer);
             __instance.BeginImpostor(teamToDisplay);
             __instance.overlayHandle.color = Palette.ImpostorRed;
@@ -181,7 +181,7 @@ class BeginCrewmatePatch
         }
         else if (PlayerControl.LocalPlayer.GetCustomRole().IsMadmate())
         {
-            teamToDisplay = new List<PlayerControl>();
+            teamToDisplay = new();
             teamToDisplay.Add(PlayerControl.LocalPlayer);
             __instance.BeginImpostor(teamToDisplay);
             __instance.overlayHandle.color = Palette.ImpostorRed;
@@ -485,7 +485,7 @@ class BeginImpostorPatch
         var role = PlayerControl.LocalPlayer.GetCustomRole();
         if (role is CustomRoles.Crewpostor)
         {
-            yourTeam = new List<PlayerControl>();
+            yourTeam = new();
             yourTeam.Add(PlayerControl.LocalPlayer);
             __instance.overlayHandle.color = Palette.ImpostorRed;
             return true;
@@ -493,7 +493,7 @@ class BeginImpostorPatch
 
         if (PlayerControl.LocalPlayer.Is(CustomRoles.Madmate))
         {
-            yourTeam = new List<PlayerControl>();
+            yourTeam = new();
             yourTeam.Add(PlayerControl.LocalPlayer);
             __instance.overlayHandle.color = Palette.ImpostorRed;
             return true;
@@ -501,7 +501,7 @@ class BeginImpostorPatch
 
         if (PlayerControl.LocalPlayer.Is(CustomRoles.Parasite))
         {
-            yourTeam = new List<PlayerControl>();
+            yourTeam = new();
             yourTeam.Add(PlayerControl.LocalPlayer);
             __instance.overlayHandle.color = Palette.ImpostorRed;
             return true;
@@ -509,7 +509,7 @@ class BeginImpostorPatch
 
         if (PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor))
         {
-            yourTeam = new List<PlayerControl>();
+            yourTeam = new();
             yourTeam.Add(PlayerControl.LocalPlayer);
             __instance.overlayHandle.color = Palette.ImpostorRed;
             return true;
@@ -517,7 +517,7 @@ class BeginImpostorPatch
 
         if (role is CustomRoles.Sheriff or CustomRoles.Jailor or CustomRoles.SwordsMan or CustomRoles.Medic /* or CustomRoles.Counterfeiter*/ or CustomRoles.Witness or CustomRoles.Analyzer or CustomRoles.Aid or CustomRoles.Escort or CustomRoles.DonutDelivery or CustomRoles.Gaulois or CustomRoles.Monarch or CustomRoles.Farseer or CustomRoles.Deputy)
         {
-            yourTeam = new List<PlayerControl>();
+            yourTeam = new();
             yourTeam.Add(PlayerControl.LocalPlayer);
             foreach (var pc in Main.AllPlayerControls.Where(x => !x.AmOwner).ToArray()) yourTeam.Add(pc);
             __instance.BeginCrewmate(yourTeam);
@@ -527,7 +527,7 @@ class BeginImpostorPatch
 
         if (role is CustomRoles.Romantic or CustomRoles.RuthlessRomantic or CustomRoles.VengefulRomantic or CustomRoles.Agitater or CustomRoles.Doppelganger or CustomRoles.NSerialKiller or CustomRoles.SoulHunter or CustomRoles.Enderman or CustomRoles.Mycologist or CustomRoles.Bubble or CustomRoles.Hookshot or CustomRoles.Sprayer or CustomRoles.PlagueDoctor or CustomRoles.Postman or CustomRoles.Magician or CustomRoles.WeaponMaster or CustomRoles.Reckless or CustomRoles.Eclipse or CustomRoles.Pyromaniac or CustomRoles.HeadHunter or CustomRoles.Vengeance or CustomRoles.Imitator or CustomRoles.Werewolf or CustomRoles.Jackal /* or CustomRoles.CursedSoul*/ or CustomRoles.Amnesiac or CustomRoles.Necromancer or CustomRoles.Arsonist or CustomRoles.Sidekick or CustomRoles.Innocent or CustomRoles.Pelican or CustomRoles.Pursuer or CustomRoles.Revolutionist or CustomRoles.FFF or CustomRoles.Gamer or CustomRoles.Glitch or CustomRoles.Juggernaut or CustomRoles.DarkHide or CustomRoles.Provocateur or CustomRoles.BloodKnight or CustomRoles.NSerialKiller or CustomRoles.Maverick /* or CustomRoles.NWitch*/ or CustomRoles.Totocalcio or CustomRoles.Succubus or CustomRoles.Pelican or CustomRoles.Virus or CustomRoles.Pickpocket or CustomRoles.Traitor or CustomRoles.PlagueBearer or CustomRoles.Pestilence or CustomRoles.Spiritcaller)
         {
-            yourTeam = new List<PlayerControl>();
+            yourTeam = new();
             yourTeam.Add(PlayerControl.LocalPlayer);
             foreach (var pc in Main.AllPlayerControls.Where(x => !x.AmOwner).ToArray()) yourTeam.Add(pc);
             __instance.BeginCrewmate(yourTeam);

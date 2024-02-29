@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -67,6 +68,8 @@ namespace TOHE.Roles.Neutral
         public override bool CanUseKillButton(PlayerControl player) => player.IsAlive();
 
         public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
@@ -161,6 +164,8 @@ namespace TOHE.Roles.Neutral
         public override bool CanUseKillButton(PlayerControl player) => player.IsAlive();
 
         public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {

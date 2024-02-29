@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AmongUs.GameOptions;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
 using UnityEngine;
@@ -43,6 +44,13 @@ internal class AntiAdminer : RoleBase
     }
 
     public override bool IsEnable => playerIdList.Count > 0;
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        if (!IsMonitor) return;
+        AURoleOptions.EngineerCooldown = 0f;
+        AURoleOptions.EngineerInVentMaxTime = 0f;
+    }
 
     private int Count;
 

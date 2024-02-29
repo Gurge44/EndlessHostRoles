@@ -256,7 +256,7 @@ public abstract class OptionItem
         if (UpdateValueEvent == null) return;
         try
         {
-            UpdateValueEvent(this, new UpdateValueEventArgs(beforeValue, currentValue));
+            UpdateValueEvent(this, new(beforeValue, currentValue));
         }
         catch (Exception ex)
         {

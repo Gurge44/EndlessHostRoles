@@ -23,7 +23,7 @@ namespace TOHE.Modules
                 var x = basePos.x - 9.5f;
                 var y = basePos.y - 3.5f;
                 var z = basePos.z;
-                LoadingAnimation.transform.position = new Vector3(x, y, z);
+                LoadingAnimation.transform.position = new(x, y, z);
             }
             catch (Exception ex)
             {
@@ -62,7 +62,7 @@ namespace TOHE.Modules
                     var y = basePos.y - 3.5f;
                     var z = basePos.z;
 
-                    if (LoadingAnimation.transform.position != new Vector3(x, y, z)) LoadingAnimation.transform.position = new Vector3(x, y, z);
+                    if (LoadingAnimation.transform.position != new Vector3(x, y, z)) LoadingAnimation.transform.position = new(x, y, z);
 
                     LoadingAnimation.transform?.Rotate(Vector3.forward, 200f * Time.deltaTime);
                 }

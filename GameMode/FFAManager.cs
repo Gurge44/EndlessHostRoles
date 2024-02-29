@@ -424,8 +424,8 @@ internal static class FFAManager
                         target.TP(pc.Pos());
                         pc.TP(originPs);
 
-                        target.Notify(Utils.ColorString(new Color32(0, 255, 165, byte.MaxValue), string.Format(GetString("FFA-Event-RandomTP"), pc.GetRealName())));
-                        pc.Notify(Utils.ColorString(new Color32(0, 255, 165, byte.MaxValue), string.Format(GetString("FFA-Event-RandomTP"), target.GetRealName())));
+                        target.Notify(Utils.ColorString(new(0, 255, 165, byte.MaxValue), string.Format(GetString("FFA-Event-RandomTP"), pc.GetRealName())));
+                        pc.Notify(Utils.ColorString(new(0, 255, 165, byte.MaxValue), string.Format(GetString("FFA-Event-RandomTP"), target.GetRealName())));
                     }
 
                     changePositionPlayers.Clear();

@@ -1,5 +1,7 @@
-﻿using Hazel;
+﻿using AmongUs.GameOptions;
+using Hazel;
 using System.Collections.Generic;
+using TOHE.Modules;
 using UnityEngine;
 
 namespace TOHE.Roles.Crewmate;
@@ -28,6 +30,7 @@ public class SwordsMan : RoleBase
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = IsKilled(id) ? 300f : Options.DefaultKillCooldown;
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
     public override string GetProgressText(byte id, bool comms) => Utils.ColorString(!IsKilled(id) ? Utils.GetRoleColor(CustomRoles.SwordsMan).ShadeColor(0.25f) : Color.gray, !IsKilled(id) ? "(1)" : "(0)");
 
     public override bool CanUseKillButton(PlayerControl pc)

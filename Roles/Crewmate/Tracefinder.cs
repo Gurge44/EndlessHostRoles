@@ -2,6 +2,7 @@ using AmongUs.GameOptions;
 using Hazel;
 using System;
 using System.Collections.Generic;
+using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Options;
 

@@ -9,7 +9,7 @@ public class FloatOptionItem(int id, string name, float defaultValue, TabGroup t
         int id, string name, FloatValueRule rule, float defaultValue, TabGroup tab, bool isSingleValue
     )
     {
-        return new FloatOptionItem(
+        return new(
             id, name, defaultValue, tab, isSingleValue, rule
         );
     }

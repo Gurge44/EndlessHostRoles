@@ -22,7 +22,7 @@ public class ModNews
 
     public Announcement ToAnnouncement()
     {
-        return new Announcement
+        return new()
         {
             Number = Number,
             Title = Title,

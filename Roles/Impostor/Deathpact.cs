@@ -71,7 +71,7 @@ namespace TOHE.Roles.Impostor
             AURoleOptions.ShapeshifterDuration = 1f;
         }
 
-        public override bool IsEnable => playerIdList.Count > 0 || Randomizer.IsEnable;
+        public override bool IsEnable => playerIdList.Count > 0 || Randomizer.Exists;
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
 

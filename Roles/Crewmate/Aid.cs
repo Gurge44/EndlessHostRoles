@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Text;
+using AmongUs.GameOptions;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -46,6 +47,7 @@ namespace TOHE.Roles.Crewmate
         }
 
         public override void SetKillCooldown(byte playerId) => Main.AllPlayerKillCooldown[playerId] = AidCD.GetInt();
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
         public override bool IsEnable => playerIdList.Count > 0;
         public override bool CanUseKillButton(PlayerControl pc) => pc.GetAbilityUseLimit() >= 1;
 

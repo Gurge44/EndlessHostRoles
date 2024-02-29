@@ -120,7 +120,7 @@ public class MainMenuManagerPatch
         if (HorseModePatch.isHorseMode) spriteHorseButton.transform.localScale *= -1;
 
         spriteHorseButton.sprite = Utils.LoadSprite("TOHE.Resources.Images.HorseButton.png", 75f);
-        passiveHorseButton.OnClick = new ButtonClickedEvent();
+        passiveHorseButton.OnClick = new();
         passiveHorseButton.OnClick.AddListener((Action)(() =>
         {
             RunLoginPatch.ClickCount++;
@@ -161,7 +161,7 @@ public class MainMenuManagerPatch
         var spriteCreditsButton = CreditsButton.GetComponent<SpriteRenderer>();
 
         spriteCreditsButton.sprite = Utils.LoadSprite("TOHE.Resources.Images.CreditsButton.png", 75f);
-        passiveCreditsButton.OnClick = new ButtonClickedEvent();
+        passiveCreditsButton.OnClick = new();
         passiveCreditsButton.OnClick.AddListener((Action)(() => { CredentialsPatch.LogoPatch.CreditsPopup?.SetActive(true); }));
 
         Application.targetFrameRate = Main.UnlockFPS.Value ? 165 : 60;

@@ -39,7 +39,7 @@ public class Main : BasePlugin
     public const string PluginDisplayVersion = "2.4.0";
     public static readonly string SupportedAUVersion = "2023.10.24";
 
-    public Harmony Harmony { get; } = new Harmony(PluginGuid);
+    public Harmony Harmony { get; } = new(PluginGuid);
     public static Version version = Version.Parse(PluginVersion);
     public static ManualLogSource Logger;
     public static bool hasArgumentException;
@@ -274,7 +274,7 @@ public class Main : BasePlugin
         //TOHE.Logger.isDetail = true;
 
         // 認証関連-初期化
-        DebugKeyAuth = new HashAuth(DebugKeyHash, DebugKeySalt);
+        DebugKeyAuth = new(DebugKeyHash, DebugKeySalt);
 
         // 認証関連-認証
         DebugModeManager.Auth(DebugKeyAuth, DebugKeyInput.Value);
@@ -294,7 +294,7 @@ public class Main : BasePlugin
         ExceptionMessage = string.Empty;
         try
         {
-            roleColors = new Dictionary<CustomRoles, string>
+            roleColors = new()
             {
                 //Vanilla
                 { CustomRoles.Crewmate, "#8cffff" },

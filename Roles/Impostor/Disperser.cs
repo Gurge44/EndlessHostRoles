@@ -44,6 +44,7 @@ public class Disperser : RoleBase
 
     public override void ApplyGameOptions(AmongUs.GameOptions.IGameOptions opt, byte id)
     {
+        if (UsePets.GetBool()) return;
         AURoleOptions.ShapeshifterCooldown = DisperserShapeshiftCooldown.GetFloat();
         AURoleOptions.ShapeshifterDuration = DisperserShapeshiftDuration.GetFloat();
     }

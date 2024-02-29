@@ -1,5 +1,7 @@
 using Hazel;
 using System.Collections.Generic;
+using AmongUs.GameOptions;
+using TOHE.Modules;
 
 namespace TOHE.Roles.Crewmate;
 
@@ -62,6 +64,12 @@ public class SabotageMaster : RoleBase
     }
 
     public override bool IsEnable => playerIdList.Count > 0;
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        AURoleOptions.EngineerCooldown = 0f;
+        AURoleOptions.EngineerInVentMaxTime = 0f;
+    }
 
     public void SendRPC()
     {

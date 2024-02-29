@@ -2,6 +2,7 @@ using Hazel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AmongUs.GameOptions;
 using TOHE.Modules;
 using TOHE.Roles.Neutral;
 
@@ -232,6 +233,13 @@ namespace TOHE.Roles.Crewmate
             byte id = reader.ReadByte();
             if (Main.PlayerStates[id].Role is not Alchemist am) return;
             am.InvisTime = long.Parse(reader.ReadString());
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            if (UsePets.GetBool()) return;
+            AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
+            AURoleOptions.EngineerInVentMaxTime = 1f;
         }
 
         public override void OnCoEnterVent(PlayerPhysics instance, int ventId)

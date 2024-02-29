@@ -1,5 +1,6 @@
 ﻿using Hazel;
 using System.Collections.Generic;
+using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Options;
 
@@ -56,7 +57,7 @@ public class Mortician : RoleBase
         byte playerId = reader.ReadByte();
         bool add = reader.ReadBoolean();
         if (add)
-            LocateArrow.Add(playerId, new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()));
+            LocateArrow.Add(playerId, new(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()));
         else
             LocateArrow.RemoveAllTarget(playerId);
     }

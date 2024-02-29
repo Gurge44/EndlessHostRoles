@@ -8,6 +8,7 @@ namespace TOHE.Roles.Impostor
     internal class Kamikaze : RoleBase
     {
         private static int Id => 643310;
+        private static List<byte> PlayerIdList = [];
         public static bool On;
 
         public List<byte> MarkedPlayers = [];
@@ -33,6 +34,7 @@ namespace TOHE.Roles.Impostor
 
         public override void Init()
         {
+            PlayerIdList = [];
             MarkedPlayers.Clear();
             On = false;
             KamikazeId = byte.MaxValue;
@@ -40,6 +42,7 @@ namespace TOHE.Roles.Impostor
 
         public override void Add(byte playerId)
         {
+            PlayerIdList.Add(playerId);
             MarkedPlayers = [];
             playerId.SetAbilityUseLimit(KamikazeLimitOpt.GetInt());
             On = true;
@@ -60,13 +63,13 @@ namespace TOHE.Roles.Impostor
             });
         }
 
-        public static void OnGlobalFixedUpdate(PlayerControl pc)
+        public override void OnGlobalFixedUpdate(PlayerControl pc)
         {
             if (!On) return;
 
-            foreach (var state in Main.PlayerStates)
+            foreach (var kkId in PlayerIdList)
             {
-                if (state.Value.Role is Kamikaze kk)
+                if (Main.PlayerStates[kkId].Role is Kamikaze { IsEnable: true } kk)
                 {
                     var kamikazePc = GetPlayerById(kk.KamikazeId);
                     if (kamikazePc.IsAlive()) continue;

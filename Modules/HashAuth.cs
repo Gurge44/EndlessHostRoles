@@ -57,6 +57,6 @@ public class HashAuth(string hashValue, string salt = null, HashAlgorithm algori
         Logger.Warn("以上の値をソースコード上にペーストしてください。", "HashAuth");
 
         // 3.HashAuthインスタンスの生成・リターン
-        return new HashAuth(hashValue, salt, algorithm);
+        return new(hashValue, salt, algorithm);
     }
 }

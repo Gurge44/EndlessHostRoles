@@ -278,7 +278,7 @@ public class GameStartManagerPatch
     {
         private static void Postfix(TextBoxTMP __instance)
         {
-            if (__instance.name == "GameIdText") __instance.outputText.text = new string('*', __instance.text.Length);
+            if (__instance.name == "GameIdText") __instance.outputText.text = new('*', __instance.text.Length);
         }
     }
 }

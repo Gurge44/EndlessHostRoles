@@ -1,4 +1,6 @@
-﻿namespace TOHE.Roles.Impostor
+﻿using AmongUs.GameOptions;
+
+namespace TOHE.Roles.Impostor
 {
     public class Camouflager : RoleBase
     {
@@ -26,7 +28,7 @@
                 .SetValueFormat(OptionFormat.Times);
         }
 
-        public static void ApplyGameOptions()
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             AURoleOptions.ShapeshifterCooldown = CamouflageCooldown.GetFloat();
             AURoleOptions.ShapeshifterDuration = CamouflageDuration.GetFloat();

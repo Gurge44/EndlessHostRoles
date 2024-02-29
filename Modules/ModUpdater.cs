@@ -219,7 +219,7 @@ public class ModUpdater
 
             if (response == null || !response.IsSuccessStatusCode)
             {
-                throw new Exception($"File retrieval failed with status code: {response?.StatusCode}");
+                throw new($"File retrieval failed with status code: {response?.StatusCode}");
             }
 
             var total = response.Content.Headers.ContentLength ?? 0;
@@ -283,7 +283,7 @@ public class ModUpdater
 
             if (response == null || !response.IsSuccessStatusCode)
             {
-                throw new Exception($"File retrieval failed with status code: {response?.StatusCode}");
+                throw new($"File retrieval failed with status code: {response?.StatusCode}");
             }
 
             var total = response.Content.Headers.ContentLength ?? 0;
@@ -292,7 +292,7 @@ public class ModUpdater
             {
                 // Specify the relative path within the ZIP archive where "TOHE+.dll" is located
                 var entryPath = "BepInEx/plugins/TOHE+.dll";
-                var entry = archive.GetEntry(entryPath) ?? throw new Exception($"'{entryPath}' not found in the ZIP archive");
+                var entry = archive.GetEntry(entryPath) ?? throw new($"'{entryPath}' not found in the ZIP archive");
 
                 // Extract "TOHE+.dll" to the temporary file
                 using var entryStream = entry.Open();

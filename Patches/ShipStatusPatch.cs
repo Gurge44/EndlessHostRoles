@@ -167,9 +167,9 @@ class RepairSystemPatch
 
         switch (systemType)
         {
-            case SystemTypes.Electrical when 0 <= amount && amount <= 4:
+            case SystemTypes.Electrical when amount <= 4:
                 var SwitchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.Cast<SwitchSystem>();
-                if (SwitchSystem != null && SwitchSystem.IsActive)
+                if (SwitchSystem is { IsActive: true })
                 {
                     switch (player.GetCustomRole())
                     {
@@ -178,11 +178,11 @@ class RepairSystemPatch
                             SabotageMaster.SwitchSystemRepair(player.PlayerId, SwitchSystem, amount);
                             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                             break;
-                        case CustomRoles.Alchemist when Alchemist.FixNextSabo:
+                        case CustomRoles.Alchemist when Main.PlayerStates[player.PlayerId].Role is Alchemist { FixNextSabo: true } am:
                             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
                             SwitchSystem.ActualSwitches = 0;
                             SwitchSystem.ExpectedSwitches = 0;
-                            Alchemist.FixNextSabo = false;
+                            am.FixNextSabo = false;
                             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                             break;
                     }

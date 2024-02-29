@@ -34,7 +34,7 @@ namespace TOHE.Roles.Impostor
             playerIdList.Add(playerId);
         }
 
-        public override bool IsEnable => playerIdList.Count > 0 || Randomizer.IsEnable;
+        public override bool IsEnable => playerIdList.Count > 0 || Randomizer.Exists;
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {

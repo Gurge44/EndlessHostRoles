@@ -38,7 +38,7 @@ class EndGamePatch
 
         foreach (var id in Main.PlayerStates.Keys)
         {
-            if (Doppelganger.IsEnable && Doppelganger.DoppelVictim.ContainsKey(id))
+            if (Doppelganger.playerIdList.Count > 0 && Doppelganger.DoppelVictim.ContainsKey(id))
             {
                 var dpc = Utils.GetPlayerById(id);
                 if (dpc != null)
@@ -72,7 +72,7 @@ class EndGamePatch
 
         Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
         //winnerListリセット
-        TempData.winners = new Il2CppSystem.Collections.Generic.List<WinningPlayerData>();
+        TempData.winners = new();
 
         var winner = Main.AllPlayerControls.Where(pc => CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId)).ToList();
 
@@ -88,13 +88,12 @@ class EndGamePatch
         {
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw && pc.Is(CustomRoles.GM)) continue;
 
-            TempData.winners.Add(new WinningPlayerData(pc.Data));
+            TempData.winners.Add(new(pc.Data));
             Main.winnerList.Add(pc.PlayerId);
             Main.winnerNameList.Add(pc.GetRealName());
             Main.winnerRolesList.Add(pc.GetCustomRole());
         }
 
-        BountyHunter.ChangeTimer = [];
         Main.isDoused = [];
         Main.isDraw = [];
         Main.isRevealed = [];
@@ -160,7 +159,7 @@ class SetEverythingUpPatch
                 bool lowered = isCrewWin && (i is 1 or 2 or 5 or 6 or 9 or 10 or 13 or 14);
 
                 poolablePlayer.cosmetics.nameText.color = Color.white;
-                poolablePlayer.cosmetics.nameText.transform.localScale = new Vector3(1f / vector.x, 1f / vector.y, 1f / vector.z);
+                poolablePlayer.cosmetics.nameText.transform.localScale = new(1f / vector.x, 1f / vector.y, 1f / vector.z);
                 poolablePlayer.cosmetics.nameText.text = winningPlayerData2.PlayerName;
 
                 Vector3 defaultPos = poolablePlayer.cosmetics.nameText.transform.localPosition;
@@ -175,7 +174,7 @@ class SetEverythingUpPatch
                     var rolename = Utils.GetRoleName(role);
 
                     poolablePlayer.cosmetics.nameText.text += $"\n<color={color}>{rolename}</color>";
-                    poolablePlayer.cosmetics.nameText.transform.localPosition = new Vector3(defaultPos.x, !lowered || role.IsImpostorTeamV3() || role.IsNK() ? defaultPos.y - 0.6f : defaultPos.y - 1.4f, -15f);
+                    poolablePlayer.cosmetics.nameText.transform.localPosition = new(defaultPos.x, !lowered || role.IsImpostorTeamV3() || role.IsNK() ? defaultPos.y - 0.6f : defaultPos.y - 1.4f, -15f);
                 }
             }
         }
@@ -352,10 +351,10 @@ class SetEverythingUpPatch
         //     ==The final result indicates==
         //########################################
 
-        var Pos = Camera.main.ViewportToWorldPoint(new Vector3(0f, 1f, Camera.main.nearClipPlane));
+        var Pos = Camera.main.ViewportToWorldPoint(new(0f, 1f, Camera.main.nearClipPlane));
         var RoleSummaryObject = Object.Instantiate(__instance.WinText.gameObject);
-        RoleSummaryObject.transform.position = new Vector3(__instance.Navigation.ExitButton.transform.position.x + 0.1f, Pos.y - 0.1f, -15f);
-        RoleSummaryObject.transform.localScale = new Vector3(1f, 1f, 1f);
+        RoleSummaryObject.transform.position = new(__instance.Navigation.ExitButton.transform.position.x + 0.1f, Pos.y - 0.1f, -15f);
+        RoleSummaryObject.transform.localScale = new(1f, 1f, 1f);
 
         StringBuilder sb = new($"{GetString("RoleSummaryText")}\n<b>");
         List<byte> cloneRoles = new(Main.PlayerStates.Keys);
@@ -434,7 +433,7 @@ class SetEverythingUpPatch
         RoleSummary.fontSizeMin = RoleSummary.fontSizeMax = RoleSummary.fontSize = 1.25f;
 
         var RoleSummaryRectTransform = RoleSummary.GetComponent<RectTransform>();
-        RoleSummaryRectTransform.anchoredPosition = new Vector2(Pos.x + 3.5f, Pos.y - 0.1f);
+        RoleSummaryRectTransform.anchoredPosition = new(Pos.x + 3.5f, Pos.y - 0.1f);
         RoleSummary.text = sb.ToString();
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

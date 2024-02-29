@@ -1,4 +1,6 @@
-﻿namespace TOHE;
+﻿using TOHE.Modules;
+
+namespace TOHE;
 
 public static class PetsPatch
 {

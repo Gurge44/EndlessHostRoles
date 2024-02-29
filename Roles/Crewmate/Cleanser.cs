@@ -1,5 +1,6 @@
 ﻿using Hazel;
 using System.Collections.Generic;
+using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -58,7 +59,7 @@ public class Cleanser : RoleBase
         return Utils.ColorString(x, $"({CleanserUsesOpt.GetInt() - CleanserUses})");
     }
 
-    void SendRPC(byte playerId)
+    public void SendRPC(byte playerId)
     {
         if (!IsEnable || !Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCleanserCleanLimit, SendOption.Reliable);

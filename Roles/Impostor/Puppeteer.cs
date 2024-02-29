@@ -27,6 +27,10 @@ namespace TOHE.Roles.Impostor
         public override void Init()
         {
             On = false;
+            PuppeteerList = [];
+            PuppeteerDelayList = [];
+            PuppeteerDelay = [];
+            PuppeteerMaxPuppets = [];
         }
 
         public override void SetKillCooldown(byte id)
@@ -87,7 +91,7 @@ namespace TOHE.Roles.Impostor
             return false;
         }
 
-        public static void OnGlobalFixedUpdate(PlayerControl player)
+        public override void OnGlobalFixedUpdate(PlayerControl player)
         {
             if (player == null) return;
 

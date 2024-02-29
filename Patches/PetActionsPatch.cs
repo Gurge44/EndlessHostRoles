@@ -21,7 +21,7 @@ class LocalPetPatch
     {
         if (!Options.UsePets.GetBool()) return true;
         if (!(AmongUsClient.Instance.AmHost && AmongUsClient.Instance.AmClient)) return true;
-        if (GameStates.IsLobby) return true;
+        if (GameStates.IsLobby || !__instance.IsAlive()) return true;
 
         if (__instance.petting) return true;
         __instance.petting = true;
@@ -55,7 +55,7 @@ class ExternalRpcPetPatch
         var pc = __instance.myPlayer;
         var physics = __instance;
 
-        if (pc == null) return;
+        if (pc == null || !pc.IsAlive()) return;
 
         if (!pc.inVent
             && !pc.inMovingPlat

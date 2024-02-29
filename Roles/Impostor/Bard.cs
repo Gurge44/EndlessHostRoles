@@ -26,10 +26,10 @@
             }
             catch
             {
-                name = GetString("ByBardGetFailed");
+                name = Translator.GetString("ByBardGetFailed");
             }
 
-            name += "\n\t\t——" + GetString("ByBard");
+            name += "\n\t\t——" + Translator.GetString("ByBard");
         }
     }
 }

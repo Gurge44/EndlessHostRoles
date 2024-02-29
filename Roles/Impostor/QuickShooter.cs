@@ -1,6 +1,8 @@
 ﻿using Hazel;
 using System;
 using System.Collections.Generic;
+using AmongUs.GameOptions;
+using TOHE.Modules;
 using UnityEngine;
 
 namespace TOHE.Roles.Impostor;
@@ -55,6 +57,13 @@ internal class QuickShooter : RoleBase
         int Limit = reader.ReadInt32();
         ShotLimit.TryAdd(QuickShooterId, Limit);
         ShotLimit[QuickShooterId] = Limit;
+    }
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        if (Options.UsePets.GetBool()) return;
+        AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
+        AURoleOptions.ShapeshifterDuration = 1f;
     }
 
     public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)

@@ -54,8 +54,9 @@ namespace TOHE.Roles.Impostor
                     switch (target.GetCustomRole())
                     {
                         case CustomRoles.Cleanser:
-                            Cleanser.CleanserUses[target.PlayerId]++;
-                            Cleanser.SendRPC(target.PlayerId);
+                            if (Main.PlayerStates[target.PlayerId].Role is not Cleanser { IsEnable: true } cs) return;
+                            cs.CleanserUses++;
+                            cs.SendRPC(target.PlayerId);
                             break;
                         case CustomRoles.NiceHacker:
                             if (target.IsModClient())
@@ -67,10 +68,12 @@ namespace TOHE.Roles.Impostor
                             {
                                 NiceHacker.UseLimit[target.PlayerId]--;
                             }
+
                             break;
                         case CustomRoles.SabotageMaster:
-                            SabotageMaster.UsedSkillCount++;
-                            SabotageMaster.SendRPC(SabotageMaster.UsedSkillCount);
+                            if (Main.PlayerStates[target.PlayerId].Role is not SabotageMaster { IsEnable: true } sm) return;
+                            sm.UsedSkillCount++;
+                            sm.SendRPC();
                             break;
                         case CustomRoles.SwordsMan:
                             SwordsMan.killed.Add(target.PlayerId);

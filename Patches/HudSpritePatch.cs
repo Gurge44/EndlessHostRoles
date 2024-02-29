@@ -56,27 +56,12 @@ public static class HudSpritePatch
             switch (player.GetCustomRole())
             {
                 case CustomRoles.Assassin:
-                    if (Options.UsePets.GetBool())
-                    {
-                        newKillButton = CustomButton.Get("Mark");
-                        if (Assassin.MarkedPlayer.ContainsKey(player.PlayerId))
-                            newPetButton = CustomButton.Get("Assassinate");
-                    }
-                    else
-                    {
-                        if (!shapeshifting)
-                        {
-                            newKillButton = CustomButton.Get("Mark");
-                            if (Assassin.MarkedPlayer.ContainsKey(player.PlayerId))
-                                newAbilityButton = CustomButton.Get("Assassinate");
-                        }
-                    }
-                    break;
                 case CustomRoles.Undertaker:
+                    if (Main.PlayerStates[player.PlayerId].Role is not Assassin assassin) break;
                     if (Options.UsePets.GetBool())
                     {
                         newKillButton = CustomButton.Get("Mark");
-                        if (Undertaker.MarkedPlayer.ContainsKey(player.PlayerId))
+                        if (assassin.MarkedPlayer != byte.MaxValue)
                             newPetButton = CustomButton.Get("Assassinate");
                     }
                     else
@@ -84,13 +69,15 @@ public static class HudSpritePatch
                         if (!shapeshifting)
                         {
                             newKillButton = CustomButton.Get("Mark");
-                            if (Undertaker.MarkedPlayer.ContainsKey(player.PlayerId))
+                            if (assassin.MarkedPlayer != byte.MaxValue)
                                 newAbilityButton = CustomButton.Get("Assassinate");
                         }
                     }
+
                     break;
                 case CustomRoles.Glitch:
-                    if (Glitch.KCDTimer > 0 && Glitch.HackCDTimer <= 0) newKillButton = CustomButton.Get("GlitchHack");
+                    if (Main.PlayerStates[player.PlayerId].Role is not Glitch gc) break;
+                    if (gc.KCDTimer > 0 && gc.HackCDTimer <= 0) newKillButton = CustomButton.Get("GlitchHack");
                     newSabotageButton = CustomButton.Get("GlitchMimic");
                     break;
                 case CustomRoles.Jester:
@@ -105,6 +92,7 @@ public static class HudSpritePatch
                     {
                         newAbilityButton = CustomButton.Get("Disperse");
                     }
+
                     break;
                 case CustomRoles.ImperiusCurse:
                 case CustomRoles.Twister:
@@ -116,6 +104,7 @@ public static class HudSpritePatch
                     {
                         newAbilityButton = CustomButton.Get("Transport");
                     }
+
                     break;
                 case CustomRoles.Deputy:
                     newKillButton = CustomButton.Get("Handcuff");
@@ -166,10 +155,8 @@ public static class HudSpritePatch
                     newKillButton = CustomButton.Get("Pyromaniac");
                     break;
                 case CustomRoles.FireWorks:
-                    if (FireWorks.nowFireWorksCount[player.PlayerId] == 0)
-                        newAbilityButton = CustomButton.Get("FireworkD");
-                    else
-                        newAbilityButton = CustomButton.Get("FireworkP");
+                    if (Main.PlayerStates[player.PlayerId].Role is not FireWorks fw) break;
+                    newAbilityButton = CustomButton.Get(fw.nowFireWorksCount == 0 ? "FireworkD" : "FireworkP");
                     break;
                 case CustomRoles.Hacker:
                     newAbilityButton = CustomButton.Get("Hack");
@@ -300,6 +287,7 @@ public static class HudSpritePatch
                         if (Main.isCurseAndKill.TryGetValue(player.PlayerId, out bool curse) && curse)
                             newAbilityButton = CustomButton.Get("CurseKill");
                     }
+
                     break;
             }
         }

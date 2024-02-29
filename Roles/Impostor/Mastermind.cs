@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -54,11 +55,11 @@ namespace TOHE.Roles.Impostor
             PlayerIdList.Add(playerId);
         }
 
-        public override bool IsEnable => MastermindId != byte.MaxValue || Randomizer.IsEnable;
+        public override bool IsEnable => MastermindId != byte.MaxValue || Randomizer.Exists;
 
         public override void SetKillCooldown(byte id)
         {
-            Main.AllPlayerKillCooldown[id] = Mastermind.KillCooldown.GetFloat();
+            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)

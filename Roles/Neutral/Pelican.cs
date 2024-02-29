@@ -1,4 +1,5 @@
-﻿using Hazel;
+﻿using AmongUs.GameOptions;
+using Hazel;
 using System;
 using System.Collections.Generic;
 using TOHE.Modules;
@@ -40,10 +41,11 @@ public class Pelican : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
 
     public override void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = Pelican.KillCooldown.GetFloat();
+        Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     }
 
     private static void SyncEatenList(/*byte playerId*/)

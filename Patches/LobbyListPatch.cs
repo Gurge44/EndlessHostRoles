@@ -16,9 +16,9 @@ public static class FindAGameManagerUpdatePatch
     public static void Postfix(FindAGameManager __instance)
     {
         if ((RefreshButton = GameObject.Find("RefreshButton")) != null)
-            RefreshButton.transform.localPosition = new Vector3(100f, 100f, 100f);
+            RefreshButton.transform.localPosition = new(100f, 100f, 100f);
         if ((InputDisplayGlyph = GameObject.Find("InputDisplayGlyph")) != null)
-            InputDisplayGlyph.transform.localPosition = new Vector3(100f, 100f, 100f);
+            InputDisplayGlyph.transform.localPosition = new(100f, 100f, 100f);
 
         buffer--;
         if (buffer > 0) return;

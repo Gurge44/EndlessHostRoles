@@ -44,7 +44,7 @@ class HudManagerPatch
         {
             if ((!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame) && player.CanMove)
             {
-                player.Collider.offset = new Vector2(0f, 127f);
+                player.Collider.offset = new(0f, 127f);
             }
         }
 
@@ -52,7 +52,7 @@ class HudManagerPatch
         {
             if (!Input.GetKey(KeyCode.LeftControl) || (AmongUsClient.Instance.IsGameStarted && GameStates.IsOnlineGame))
             {
-                player.Collider.offset = new Vector2(0f, -0.3636f);
+                player.Collider.offset = new(0f, -0.3636f);
             }
         }
 
@@ -72,7 +72,7 @@ class HudManagerPatch
                 OverriddenRolesText.alignment = TextAlignmentOptions.Right;
                 OverriddenRolesText.verticalAlignment = VerticalAlignmentOptions.Top;
                 OverriddenRolesText.transform.parent = __instance.transform;
-                OverriddenRolesText.transform.localPosition = new Vector3(4.9f, 0.8f, 0);
+                OverriddenRolesText.transform.localPosition = new(4.9f, 0.8f, 0);
                 OverriddenRolesText.overflowMode = TextOverflowModes.Overflow;
                 OverriddenRolesText.enableWordWrapping = false;
                 OverriddenRolesText.color = Color.white;
@@ -358,7 +358,7 @@ class HudManagerPatch
                     LowerInfoText = Object.Instantiate(__instance.KillButton.cooldownTimerText);
                     LowerInfoText.alignment = TextAlignmentOptions.Center;
                     LowerInfoText.transform.parent = __instance.transform;
-                    LowerInfoText.transform.localPosition = new Vector3(0, -2f, 0);
+                    LowerInfoText.transform.localPosition = new(0, -2f, 0);
                     LowerInfoText.overflowMode = TextOverflowModes.Overflow;
                     LowerInfoText.enableWordWrapping = false;
                     LowerInfoText.color = Color.white;
@@ -443,7 +443,7 @@ class HudManagerPatch
 
         if (Input.GetKeyDown(KeyCode.Y) && AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay)
         {
-            __instance.ToggleMapVisible(new MapOptions
+            __instance.ToggleMapVisible(new()
             {
                 Mode = MapOptions.Modes.Sabotage,
                 AllowMovementWhileMapOpen = true

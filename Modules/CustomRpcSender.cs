@@ -55,7 +55,7 @@ public class CustomRpcSender
 
     public static CustomRpcSender Create(string name = "No Name Sender", SendOption sendOption = SendOption.None, bool isUnsafe = false)
     {
-        return new CustomRpcSender(name, sendOption, isUnsafe);
+        return new(name, sendOption, isUnsafe);
     }
 
     #region Start/End Message

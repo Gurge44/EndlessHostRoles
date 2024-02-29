@@ -1,5 +1,7 @@
+using AmongUs.GameOptions;
 using Hazel;
 using System.Collections.Generic;
+using TOHE.Modules;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -45,6 +47,7 @@ public class Jailor : RoleBase
     }
 
     public override bool IsEnable => playerIdList.Count > 0;
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Utils.GetPlayerById(id).IsAlive() ? JailCooldown.GetFloat() : 0f;
 
     void SendRPC(byte jailerId, byte targetId = byte.MaxValue, bool setTarget = true)

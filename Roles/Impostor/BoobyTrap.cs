@@ -19,6 +19,8 @@ namespace TOHE.Roles.Impostor
         public override void Init()
         {
             On = false;
+            BoobyTrap.BoobyTrapBody = [];
+            BoobyTrap.KillerOfBoobyTrapBody = [];
         }
 
         public override void SetKillCooldown(byte id)

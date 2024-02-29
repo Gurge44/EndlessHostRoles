@@ -1,6 +1,8 @@
 ﻿using Hazel;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using TOHE.Modules;
 using UnityEngine;
 
 namespace TOHE.Roles.Impostor
@@ -11,6 +13,12 @@ namespace TOHE.Roles.Impostor
 
         public static bool On;
         public override bool IsEnable => On;
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            AURoleOptions.EngineerCooldown = 0f;
+            AURoleOptions.EngineerInVentMaxTime = 0f;
+        }
 
         public override void OnTaskComplete(PlayerControl player, int completedTaskCount, int totalTaskCount)
         {

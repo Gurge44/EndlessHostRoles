@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral
@@ -60,6 +61,11 @@ namespace TOHE.Roles.Neutral
 
         public override bool IsEnable => On;
         public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            opt.SetVision(true);
+        }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {

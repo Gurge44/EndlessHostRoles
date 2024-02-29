@@ -1,6 +1,7 @@
 ﻿using Hazel;
 using System.Collections.Generic;
 using System.Linq;
+using TOHE.Modules;
 using UnityEngine;
 
 namespace TOHE.Roles.Impostor
@@ -46,19 +47,19 @@ namespace TOHE.Roles.Impostor
         public override bool IsEnable => playerIdList.Count > 0;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
 
-        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        public override void OnMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable) return true;
+            if (!IsEnable) return;
             if (!killer.CanUseKillButton() || killer == null || target == null)
             {
-                return false;
+                return;
             }
 
             var playersToDarken = FindPlayersInSameRoom(target);
             if (playersToDarken == null)
             {
                 Logger.Info("The room will not dim because the hit detection for the room cannot be obtained.", "Stealth");
-                return true;
+                return;
             }
 
             if (excludeImpostors)
@@ -67,11 +68,10 @@ namespace TOHE.Roles.Impostor
             }
 
             DarkenPlayers(playersToDarken);
-            return true;
         }
 
         /// <summary>Get all players in the same room as you</summary>
-        static PlayerControl[] FindPlayersInSameRoom(PlayerControl killedPlayer)
+        PlayerControl[] FindPlayersInSameRoom(PlayerControl killedPlayer)
         {
             var room = killedPlayer.GetPlainShipRoom();
             if (room == null)

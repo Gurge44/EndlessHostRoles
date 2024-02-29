@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -141,6 +142,12 @@ namespace TOHE.Roles.Crewmate
                 }
             }
             return true;
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            AURoleOptions.EngineerCooldown = PatrolCooldown.GetFloat();
+            AURoleOptions.EngineerInVentMaxTime = 1f;
         }
 
         public override void OnFixedUpdate(PlayerControl pc)

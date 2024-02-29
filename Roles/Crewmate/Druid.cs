@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AmongUs.GameOptions;
+using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -60,6 +62,12 @@ namespace TOHE.Roles.Crewmate
         }
 
         public override bool IsEnable => playerIdList.Count > 0;
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            AURoleOptions.EngineerCooldown = VentCooldown.GetInt();
+            AURoleOptions.EngineerInVentMaxTime = 1f;
+        }
 
         public static void SendRPCAddTrigger(bool add, byte playerId, Vector2 position, string roomName = "")
         {

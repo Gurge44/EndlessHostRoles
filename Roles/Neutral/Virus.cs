@@ -1,6 +1,9 @@
 ﻿using Hazel;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using TOHE.Modules;
+using TOHE.Patches;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -61,6 +64,11 @@ namespace TOHE.Roles.Neutral
         public override bool IsEnable => playerIdList.Count > 0;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            opt.SetVision(ImpostorVision.GetBool());
+        }
 
         private static void SendRPCInfectKill(byte virusId, byte target = 255)
         {

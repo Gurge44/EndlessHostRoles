@@ -48,7 +48,7 @@ internal class PingTrackerUpdatePatch
         var offset_x = 1.2f; //右端からのオフセット
         if (HudManager.InstanceExists && HudManager._instance.Chat.chatButton.active) offset_x += 0.8f; //チャットボタンがある場合の追加オフセット
         if (FriendsListManager.InstanceExists && FriendsListManager._instance.FriendsListButton.Button.active) offset_x += 0.8f; //フレンドリストボタンがある場合の追加オフセット
-        __instance.GetComponent<AspectPosition>().DistanceFromEdge = new Vector3(offset_x, 0f, 0f);
+        __instance.GetComponent<AspectPosition>().DistanceFromEdge = new(offset_x, 0f, 0f);
     }
 }
 
@@ -69,7 +69,7 @@ internal class VersionShowerStartPatch
         var credentials = Object.Instantiate(__instance.text);
         credentials.text = menuText;
         credentials.alignment = TextAlignmentOptions.Right;
-        credentials.transform.position = new Vector3(1f, 2.79f, -2f);
+        credentials.transform.position = new(1f, 2.79f, -2f);
         credentials.fontSize = credentials.fontSizeMax = credentials.fontSizeMin = 2f;
 
         ErrorText.Create(__instance.text);
@@ -116,7 +116,7 @@ internal class TitleLogoPatch
     {
         if (!Options.IsLoaded)
         {
-            LoadingHint = new GameObject("LoadingHint");
+            LoadingHint = new("LoadingHint");
             LoadingHint.transform.position = Vector3.down;
             var LoadingHintText = LoadingHint.AddComponent<TextMeshPro>();
             LoadingHintText.text = GetString("Loading");
@@ -191,7 +191,7 @@ internal class TitleLogoPatch
 
                 Ambience.SetActive(false);
                 var CustomBG = new GameObject("CustomBG");
-                CustomBG.transform.position = new Vector3(0f, 0f, 520f);
+                CustomBG.transform.position = new(0f, 0f, 520f);
                 var bgRenderer = CustomBG.AddComponent<SpriteRenderer>();
                 bgRenderer.sprite = Utils.LoadSprite("TOHE.Resources.Images.WinterBG.jpg", 180f);
 
@@ -210,13 +210,13 @@ internal class TitleLogoPatch
                 if (maskedBlackScreen != null)
                 {
                     maskedBlackScreen.GetComponent<SpriteRenderer>().enabled = false;
-                    maskedBlackScreen.transform.localPosition = new Vector3(-2.5f, 0.6f);
-                    maskedBlackScreen.transform.localScale = new Vector3(7.35f, 4.5f, 4f);
+                    maskedBlackScreen.transform.localPosition = new(-2.5f, 0.6f);
+                    maskedBlackScreen.transform.localScale = new(7.35f, 4.5f, 4f);
                 }
 
                 GameObject.Find("Shine")?.transform.gameObject.SetActive(false);
 
-                leftPanel?.GetComponentsInChildren<SpriteRenderer>(true).Where(r => r.name == "Shine").Do(r => r.color = new Color(0f, 0f, 1f, 0.1f));
+                leftPanel?.GetComponentsInChildren<SpriteRenderer>(true).Where(r => r.name == "Shine").Do(r => r.color = new(0f, 0f, 1f, 0.1f));
 
                 if (leftPanel != null) leftPanel.gameObject.GetComponent<SpriteRenderer>().enabled = false;
                 GameObject.Find("LeftPanel")?.transform.Find("Divider")?.gameObject.SetActive(false);
@@ -248,6 +248,6 @@ internal class ModManagerLateUpdatePatch
         var offset_y = HudManager.InstanceExists ? 1.6f : 0.9f;
         __instance.ModStamp.transform.position = AspectPosition.ComputeWorldPosition(
             __instance.localCamera, AspectPosition.EdgeAlignments.RightTop,
-            new Vector3(0.4f, offset_y, __instance.localCamera.nearClipPlane + 0.1f));
+            new(0.4f, offset_y, __instance.localCamera.nearClipPlane + 0.1f));
     }
 }

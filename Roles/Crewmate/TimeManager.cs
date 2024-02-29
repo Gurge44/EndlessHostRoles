@@ -5,7 +5,7 @@ namespace TOHE.Roles.Crewmate;
 public class TimeManager : RoleBase
 {
     private const int Id = 8200;
-    private static List<byte> playerIdList = [];
+    public static List<byte> playerIdList = [];
     public static OptionItem IncreaseMeetingTime;
     public static OptionItem MeetingTimeLimit;
     public static OptionItem MadMinMeetingTimeLimit;

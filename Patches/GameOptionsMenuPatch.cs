@@ -20,7 +20,7 @@ public static class GameSettingMenuPatch
     {
         // Unlocks map/impostor amount changing in online (for testing on your custom servers)
         // オンラインモードで部屋を立て直さなくてもマップを変更できるように変更
-        __instance.HideForOnline = new Il2CppReferenceArray<Transform>(0);
+        __instance.HideForOnline = new(0);
     }
 
     // Add dleks to map selection
@@ -45,15 +45,15 @@ public static class GameOptionsMenuPatch
             switch (ob.Title)
             {
                 case StringNames.GameVotingTime:
-                    ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 600);
+                    ob.Cast<NumberOption>().ValidRange = new(0, 600);
                     break;
                 case StringNames.GameShortTasks:
                 case StringNames.GameLongTasks:
                 case StringNames.GameCommonTasks:
-                    ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 99);
+                    ob.Cast<NumberOption>().ValidRange = new(0, 99);
                     break;
                 case StringNames.GameKillCooldown:
-                    ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 180);
+                    ob.Cast<NumberOption>().ValidRange = new(0, 180);
                     break;
             }
         }
@@ -91,10 +91,10 @@ public static class GameOptionsMenuPatch
             var tohSettings = Object.Instantiate(gameSettings, gameSettings.transform.parent);
             tohSettings.name = tab + "Tab";
             tohSettings.transform.FindChild("BackPanel").transform.localScale =
-                tohSettings.transform.FindChild("Bottom Gradient").transform.localScale = new Vector3(1.6f, 1f, 1f);
+                tohSettings.transform.FindChild("Bottom Gradient").transform.localScale = new(1.6f, 1f, 1f);
             tohSettings.transform.FindChild("BackPanel").transform.localPosition += new Vector3(0.2f, 0f, 0f);
             tohSettings.transform.FindChild("Bottom Gradient").transform.localPosition += new Vector3(0.2f, 0f, 0f);
-            tohSettings.transform.FindChild("Background").transform.localScale = new Vector3(1.8f, 1f, 1f);
+            tohSettings.transform.FindChild("Background").transform.localScale = new(1.8f, 1f, 1f);
             tohSettings.transform.FindChild("UI_Scrollbar").transform.localPosition += new Vector3(1.4f, 0f, 0f);
             tohSettings.transform.FindChild("UI_ScrollbarTrack").transform.localPosition += new Vector3(1.4f, 0f, 0f);
             tohSettings.transform.FindChild("GameGroup/SliderInner").transform.localPosition += new Vector3(-0.3f, 0f, 0f);
@@ -117,13 +117,13 @@ public static class GameOptionsMenuPatch
                     stringOption.Value = stringOption.oldValue = option.CurrentValue;
                     stringOption.ValueText.text = option.GetString();
                     stringOption.name = option.Name;
-                    stringOption.transform.FindChild("Background").localScale = new Vector3(1.6f, 1f, 1f);
+                    stringOption.transform.FindChild("Background").localScale = new(1.6f, 1f, 1f);
                     stringOption.transform.FindChild("Plus_TMP").localPosition += new Vector3(1.4f, yoffset, 0f);
                     stringOption.transform.FindChild("Minus_TMP").localPosition += new Vector3(1.0f, yoffset, 0f);
                     stringOption.transform.FindChild("Value_TMP").localPosition += new Vector3(1.2f, yoffset, 0f);
-                    stringOption.transform.FindChild("Value_TMP").GetComponent<RectTransform>().sizeDelta = new Vector2(1.6f, 0.26f);
+                    stringOption.transform.FindChild("Value_TMP").GetComponent<RectTransform>().sizeDelta = new(1.6f, 0.26f);
                     stringOption.transform.FindChild("Title_TMP").localPosition += new Vector3(option.IsText ? 0.25f : 0.1f, option.IsText ? -0.1f : 0f, 0f);
-                    stringOption.transform.FindChild("Title_TMP").GetComponent<RectTransform>().sizeDelta = new Vector2(5.5f, 0.37f);
+                    stringOption.transform.FindChild("Title_TMP").GetComponent<RectTransform>().sizeDelta = new(5.5f, 0.37f);
 
                     option.OptionBehaviour = stringOption;
                 }
@@ -148,7 +148,7 @@ public static class GameOptionsMenuPatch
             var button = tabs[i].GetComponentInChildren<PassiveButton>();
             if (button == null) continue;
             var copiedIndex = i;
-            button.OnClick = new Button.ButtonClickedEvent();
+            button.OnClick = new();
             Action value = () =>
             {
                 for (var j = 0; j < menus.Count; j++)
@@ -216,23 +216,23 @@ public class GameOptionsMenuUpdatePatch
                     parent = parent.Parent;
                     opt.color = new(0f, 1f, 0f);
                     opt.size = new(4.8f, 0.45f);
-                    opt.transform.localPosition = new Vector3(0.11f, 0f);
-                    option.OptionBehaviour.transform.Find("Title_TMP").transform.localPosition = new Vector3(-1.08f, 0f);
-                    option.OptionBehaviour.transform.FindChild("Title_TMP").GetComponent<RectTransform>().sizeDelta = new Vector2(5.1f, 0.28f);
+                    opt.transform.localPosition = new(0.11f, 0f);
+                    option.OptionBehaviour.transform.Find("Title_TMP").transform.localPosition = new(-1.08f, 0f);
+                    option.OptionBehaviour.transform.FindChild("Title_TMP").GetComponent<RectTransform>().sizeDelta = new(5.1f, 0.28f);
                     if (option.Parent?.Parent != null)
                     {
                         opt.color = new(0f, 0f, 1f);
                         opt.size = new(4.6f, 0.45f);
-                        opt.transform.localPosition = new Vector3(0.24f, 0f);
-                        option.OptionBehaviour.transform.Find("Title_TMP").transform.localPosition = new Vector3(-0.88f, 0f);
-                        option.OptionBehaviour.transform.FindChild("Title_TMP").GetComponent<RectTransform>().sizeDelta = new Vector2(4.9f, 0.28f);
+                        opt.transform.localPosition = new(0.24f, 0f);
+                        option.OptionBehaviour.transform.Find("Title_TMP").transform.localPosition = new(-0.88f, 0f);
+                        option.OptionBehaviour.transform.FindChild("Title_TMP").GetComponent<RectTransform>().sizeDelta = new(4.9f, 0.28f);
                         if (option.Parent?.Parent?.Parent != null)
                         {
                             opt.color = new(1f, 0f, 0f);
                             opt.size = new(4.4f, 0.45f);
-                            opt.transform.localPosition = new Vector3(0.37f, 0f);
-                            option.OptionBehaviour.transform.Find("Title_TMP").transform.localPosition = new Vector3(-0.68f, 0f);
-                            option.OptionBehaviour.transform.FindChild("Title_TMP").GetComponent<RectTransform>().sizeDelta = new Vector2(4.7f, 0.28f);
+                            opt.transform.localPosition = new(0.37f, 0f);
+                            option.OptionBehaviour.transform.Find("Title_TMP").transform.localPosition = new(-0.68f, 0f);
+                            option.OptionBehaviour.transform.FindChild("Title_TMP").GetComponent<RectTransform>().sizeDelta = new(4.7f, 0.28f);
                         }
                     }
                 }
@@ -247,7 +247,7 @@ public class GameOptionsMenuUpdatePatch
                 if (enabled)
                 {
                     offset -= option.IsHeader ? 0.7f : 0.5f;
-                    option.OptionBehaviour.transform.localPosition = new Vector3(
+                    option.OptionBehaviour.transform.localPosition = new(
                         option.OptionBehaviour.transform.localPosition.x,
                         offset,
                         option.OptionBehaviour.transform.localPosition.z);
@@ -339,10 +339,10 @@ public static class RolesSettingsMenuPatch
             switch (ob.Title)
             {
                 case StringNames.EngineerCooldown:
-                    ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 180);
+                    ob.Cast<NumberOption>().ValidRange = new(0, 180);
                     break;
                 case StringNames.ShapeshifterCooldown:
-                    ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 180);
+                    ob.Cast<NumberOption>().ValidRange = new(0, 180);
                     break;
             }
         }
