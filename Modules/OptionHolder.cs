@@ -2610,22 +2610,9 @@ public static class Options
         SetupAdtRoleOptions(14650, CustomRoles.DeadlyQuota, canSetNum: true);
         DQNumOfKillsNeeded = IntegerOptionItem.Create(14660, "DQNumOfKillsNeeded", new(1, 14, 1), 3, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.DeadlyQuota]);
-        //    SetupAdtRoleOptions(16300, CustomRoles.Minimalism, canSetNum: true, tab: TabGroup.Addons);
 
 
         SetupLoversRoleOptionsToggle(16200);
-
-
-        /*   SetupAdtRoleOptions(6050900, CustomRoles.Rogue, canSetNum: true);
-           ImpCanBeRogue = BooleanOptionItem.Create(6050903, "ImpCanBeRogue", true, TabGroup.Addons, false)
-           .SetParent(CustomRoleSpawnChances[CustomRoles.Rogue]);
-           CrewCanBeRogue = BooleanOptionItem.Create(6050904, "CrewCanBeRogue", true, TabGroup.Addons, false)
-           .SetParent(CustomRoleSpawnChances[CustomRoles.Rogue]);
-           NeutralCanBeRogue = BooleanOptionItem.Create(6050905, "NeutralCanBeRogue", true, TabGroup.Addons, false)
-           .SetParent(CustomRoleSpawnChances[CustomRoles.Rogue]);
-           RogueKnowEachOther = BooleanOptionItem.Create(6050906, "RogueKnowEachOther", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Rogue]);
-           RogueKnowEachOtherRoles = BooleanOptionItem.Create(6050907, "RogueKnowEachOtherRoles", false, TabGroup.Addons, false).SetParent(RogueKnowEachOther);
-   */
 
         LoadingPercentage = 50;
         RoleLoadingText = "Experimental roles\nKilling Machine";
@@ -2676,19 +2663,6 @@ public static class Options
         Disperser.SetupCustomOption();
         RoleLoadingText = "Experimental roles\nCopyCat";
 
-        /*   SetupRoleOptions(18000, TabGroup.OtherRoles, CustomRoles.SpeedBooster);
-           SpeedBoosterUpSpeed = FloatOptionItem.Create(18010, "SpeedBoosterUpSpeed", new(0.1f, 1.0f, 0.1f), 0.2f, TabGroup.OtherRoles, false)
-           .SetParent(CustomRoleSpawnChances[CustomRoles.SpeedBooster])
-               .SetValueFormat(OptionFormat.Multiplier);
-           SpeedBoosterTimes = IntegerOptionItem.Create(18011, "SpeedBoosterTimes", new(1, 99, 1), 5, TabGroup.OtherRoles, false)
-           .SetParent(CustomRoleSpawnChances[CustomRoles.SpeedBooster])
-               .SetValueFormat(OptionFormat.Times); */
-        /*   SetupRoleOptions(18100, TabGroup.OtherRoles, CustomRoles.Glitch);
-           GlitchCanVote = BooleanOptionItem.Create(18110, "GlitchCanVote", true, TabGroup.OtherRoles, false)
-               .SetParent(CustomRoleSpawnChances[CustomRoles.Glitch]); */
-        //     Divinator.SetupCustomOption();
-        // 中立
-
 
         CopyCat.SetupCustomOption();
 
@@ -2712,24 +2686,24 @@ public static class Options
         LoadingPercentage = 54;
         RoleLoadingText = "Experimental roles\nRevolutionist";
 
-        SetupRoleOptions(18400, TabGroup.OtherRoles, CustomRoles.Revolutionist);
-        RevolutionistDrawTime = FloatOptionItem.Create(18410, "RevolutionistDrawTime", new(0f, 90f, 1f), 3f, TabGroup.OtherRoles, false)
+        SetupRoleOptions(18400, TabGroup.NeutralRoles, CustomRoles.Revolutionist);
+        RevolutionistDrawTime = FloatOptionItem.Create(18410, "RevolutionistDrawTime", new(0f, 90f, 1f), 3f, TabGroup.NeutralRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Revolutionist])
             .SetValueFormat(OptionFormat.Seconds);
-        RevolutionistCooldown = FloatOptionItem.Create(18411, "RevolutionistCooldown", new(0f, 100f, 1f), 10f, TabGroup.OtherRoles, false)
+        RevolutionistCooldown = FloatOptionItem.Create(18411, "RevolutionistCooldown", new(0f, 100f, 1f), 10f, TabGroup.NeutralRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Revolutionist])
             .SetValueFormat(OptionFormat.Seconds);
-        RevolutionistDrawCount = IntegerOptionItem.Create(18412, "RevolutionistDrawCount", new(0, 14, 1), 6, TabGroup.OtherRoles, false)
+        RevolutionistDrawCount = IntegerOptionItem.Create(18412, "RevolutionistDrawCount", new(0, 14, 1), 6, TabGroup.NeutralRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Revolutionist])
             .SetValueFormat(OptionFormat.Players);
-        RevolutionistKillProbability = IntegerOptionItem.Create(18413, "RevolutionistKillProbability", new(0, 100, 5), 15, TabGroup.OtherRoles, false)
+        RevolutionistKillProbability = IntegerOptionItem.Create(18413, "RevolutionistKillProbability", new(0, 100, 5), 15, TabGroup.NeutralRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Revolutionist])
             .SetValueFormat(OptionFormat.Percent);
-        RevolutionistVentCountDown = FloatOptionItem.Create(18414, "RevolutionistVentCountDown", new(0f, 180f, 1f), 15f, TabGroup.OtherRoles, false)
+        RevolutionistVentCountDown = FloatOptionItem.Create(18414, "RevolutionistVentCountDown", new(0f, 180f, 1f), 15f, TabGroup.NeutralRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Revolutionist])
             .SetValueFormat(OptionFormat.Seconds);
         RoleLoadingText = "Experimental roles\nProvocateur";
-        SetupRoleOptions(18500, TabGroup.OtherRoles, CustomRoles.Provocateur);
+        SetupRoleOptions(18500, TabGroup.NeutralRoles, CustomRoles.Provocateur);
         RoleLoadingText = "Experimental roles\nSpiritcaller";
         Spiritcaller.SetupCustomOption();
 
@@ -2739,55 +2713,36 @@ public static class Options
 
         //SetupAdtRoleOptions(18600, CustomRoles.Ntr, tab: TabGroup.OtherRoles);
         RoleLoadingText = "Experimental roles\nFlash";
-        SetupAdtRoleOptions(18700, CustomRoles.Flashman, canSetNum: true, tab: TabGroup.OtherRoles);
-        FlashmanSpeed = FloatOptionItem.Create(18703, "FlashmanSpeed", new(0.25f, 3f, 0.25f), 2.5f, TabGroup.OtherRoles, false)
+        SetupAdtRoleOptions(18700, CustomRoles.Flashman, canSetNum: true, tab: TabGroup.Addons);
+        FlashmanSpeed = FloatOptionItem.Create(18703, "FlashmanSpeed", new(0.25f, 3f, 0.25f), 2.5f, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Flashman])
             .SetValueFormat(OptionFormat.Multiplier);
         RoleLoadingText = "Experimental roles\nGiant";
-        SetupAdtRoleOptions(18750, CustomRoles.Giant, canSetNum: true, tab: TabGroup.OtherRoles);
-        GiantSpeed = FloatOptionItem.Create(18753, "GiantSpeed", new(0.25f, 3f, 0.25f), 0.75f, TabGroup.OtherRoles, false)
+        SetupAdtRoleOptions(18750, CustomRoles.Giant, canSetNum: true, tab: TabGroup.Addons);
+        GiantSpeed = FloatOptionItem.Create(18753, "GiantSpeed", new(0.25f, 3f, 0.25f), 0.75f, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Giant])
             .SetValueFormat(OptionFormat.Multiplier);
 
 
         RoleLoadingText = "Experimental roles\nYouTuber";
-        SetupAdtRoleOptions(18800, CustomRoles.Youtuber, canSetNum: true, tab: TabGroup.OtherRoles);
+        SetupAdtRoleOptions(18800, CustomRoles.Youtuber, canSetNum: true, tab: TabGroup.Addons);
 
         LoadingPercentage = 56;
         RoleLoadingText = "Experimental roles\nEgoist";
 
-        SetupAdtRoleOptions(18900, CustomRoles.Egoist, canSetNum: true, tab: TabGroup.OtherRoles);
-        ImpEgoistVisibalToAllies = BooleanOptionItem.Create(18912, "ImpEgoistVisibalToAllies", true, TabGroup.OtherRoles, false)
+        SetupAdtRoleOptions(18900, CustomRoles.Egoist, canSetNum: true, tab: TabGroup.Addons);
+        ImpEgoistVisibalToAllies = BooleanOptionItem.Create(18912, "ImpEgoistVisibalToAllies", true, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Egoist]);
-        /*    SetupAdtRoleOptions(19000, CustomRoles.Sidekick, canSetNum: true, tab: TabGroup.OtherRoles);
-            SidekickCountMode = StringOptionItem.Create(19010, "SidekickCountMode", sidekickCountMode, 0, TabGroup.OtherRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Sidekick]);
-            CrewmateCanBeSidekick = BooleanOptionItem.Create(19011, "CrewmatesCanBeSidekick", true, TabGroup.OtherRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Sidekick]);
-            NeutralCanBeSidekick = BooleanOptionItem.Create(19012, "NeutralsCanBeSidekick", true, TabGroup.OtherRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Sidekick]);
-            ImpostorCanBeSidekick = BooleanOptionItem.Create(19013, "ImpostorsCanBeSidekick", false, TabGroup.OtherRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Sidekick]);
-            SidekickCanKillJackal = BooleanOptionItem.Create(19014, "SidekickCanKillJackal", false, TabGroup.OtherRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Sidekick]);
-         //   JackalWinWithSidekick = BooleanOptionItem.Create(19015, "JackalWinWithSidekick", true, TabGroup.OtherRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Sidekick]);
-            SidekickKnowOtherSidekick = BooleanOptionItem.Create(19016, "SidekickKnowOtherSidekick", false, TabGroup.OtherRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Sidekick]);
-            SidekickKnowOtherSidekickRole = BooleanOptionItem.Create(19017, "SidekickKnowOtherSidekickRole", false, TabGroup.OtherRoles, false)
-            .SetParent(SidekickKnowOtherSidekick);
-            SidekickCanKillSidekick = BooleanOptionItem.Create(19018, "SidekickCanKillSidekick", false, TabGroup.OtherRoles, false)
-            .SetParent(SidekickKnowOtherSidekick); */
 
         LoadingPercentage = 57;
         RoleLoadingText = "Experimental roles\nGuesser";
 
-        SetupAdtRoleOptions(19100, CustomRoles.Guesser, canSetNum: true, tab: TabGroup.OtherRoles);
-        ImpCanBeGuesser = BooleanOptionItem.Create(19110, "ImpCanBeGuesser", true, TabGroup.OtherRoles, false)
+        SetupAdtRoleOptions(19100, CustomRoles.Guesser, canSetNum: true, tab: TabGroup.Addons);
+        ImpCanBeGuesser = BooleanOptionItem.Create(19110, "ImpCanBeGuesser", true, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Guesser]);
-        CrewCanBeGuesser = BooleanOptionItem.Create(19111, "CrewCanBeGuesser", true, TabGroup.OtherRoles, false)
+        CrewCanBeGuesser = BooleanOptionItem.Create(19111, "CrewCanBeGuesser", true, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Guesser]);
-        NeutralCanBeGuesser = BooleanOptionItem.Create(19112, "NeutralCanBeGuesser", true, TabGroup.OtherRoles, false)
+        NeutralCanBeGuesser = BooleanOptionItem.Create(19112, "NeutralCanBeGuesser", true, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Guesser]);
 
         LoadingPercentage = 58;

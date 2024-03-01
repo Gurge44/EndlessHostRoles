@@ -32,23 +32,23 @@ namespace TOHE.Roles.Neutral
 
         public static void SetupCustomOption()
         {
-            Options.SetupRoleOptions(Id, TabGroup.OtherRoles, CustomRoles.PlagueDoctor);
-            OptionInfectLimit = IntegerOptionItem.Create(Id + 10, "PlagueDoctorInfectLimit", new(1, 3, 1), 1, TabGroup.OtherRoles, false)
+            Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.PlagueDoctor);
+            OptionInfectLimit = IntegerOptionItem.Create(Id + 10, "PlagueDoctorInfectLimit", new(1, 3, 1), 1, TabGroup.NeutralRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.PlagueDoctor])
                 .SetValueFormat(OptionFormat.Times);
-            OptionInfectWhenKilled = BooleanOptionItem.Create(Id + 11, "PlagueDoctorInfectWhenKilled", false, TabGroup.OtherRoles, false)
+            OptionInfectWhenKilled = BooleanOptionItem.Create(Id + 11, "PlagueDoctorInfectWhenKilled", false, TabGroup.NeutralRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.PlagueDoctor]);
-            OptionInfectTime = FloatOptionItem.Create(Id + 12, "PlagueDoctorInfectTime", new(3f, 20f, 1f), 8f, TabGroup.OtherRoles, false)
+            OptionInfectTime = FloatOptionItem.Create(Id + 12, "PlagueDoctorInfectTime", new(3f, 20f, 1f), 8f, TabGroup.NeutralRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.PlagueDoctor])
                 .SetValueFormat(OptionFormat.Seconds);
-            OptionInfectDistance = FloatOptionItem.Create(Id + 13, "PlagueDoctorInfectDistance", new(0.5f, 2f, 0.25f), 1.5f, TabGroup.OtherRoles, false)
+            OptionInfectDistance = FloatOptionItem.Create(Id + 13, "PlagueDoctorInfectDistance", new(0.5f, 2f, 0.25f), 1.5f, TabGroup.NeutralRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.PlagueDoctor]);
-            OptionInfectInactiveTime = FloatOptionItem.Create(Id + 14, "PlagueDoctorInfectInactiveTime", new(0.5f, 10f, 0.5f), 5f, TabGroup.OtherRoles, false)
+            OptionInfectInactiveTime = FloatOptionItem.Create(Id + 14, "PlagueDoctorInfectInactiveTime", new(0.5f, 10f, 0.5f), 5f, TabGroup.NeutralRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.PlagueDoctor])
                 .SetValueFormat(OptionFormat.Seconds);
-            OptionInfectCanInfectSelf = BooleanOptionItem.Create(Id + 15, "PlagueDoctorCanInfectSelf", false, TabGroup.OtherRoles, false)
+            OptionInfectCanInfectSelf = BooleanOptionItem.Create(Id + 15, "PlagueDoctorCanInfectSelf", false, TabGroup.NeutralRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.PlagueDoctor]);
-            OptionInfectCanInfectVent = BooleanOptionItem.Create(Id + 16, "PlagueDoctorCanInfectVent", false, TabGroup.OtherRoles, false)
+            OptionInfectCanInfectVent = BooleanOptionItem.Create(Id + 16, "PlagueDoctorCanInfectVent", false, TabGroup.NeutralRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.PlagueDoctor]);
         }
 
