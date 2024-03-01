@@ -2891,7 +2891,7 @@ public static class Options
         CheatResponses = StringOptionItem.Create(19319, "CheatResponses", CheatResponsesName, 2, TabGroup.SystemSettings, false)
             .SetHeader(true);
 
-        DisableVoteBan = BooleanOptionItem.Create(19320, "DisableVoteBan", false, TabGroup.SystemSettings, true);
+        DisableVoteBan = BooleanOptionItem.Create(19320, "DisableVoteBan", true, TabGroup.SystemSettings, true);
 
         //HighLevelAntiCheat = StringOptionItem.Create(19320, "HighLevelAntiCheat", CheatResponsesName, 0, TabGroup.SystemSettings, false)
         //.SetHeader(true);

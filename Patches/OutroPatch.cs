@@ -56,7 +56,7 @@ class EndGamePatch
 
         if (Options.DumpLogAfterGameEnd.GetBool())
         {
-            Utils.DumpLog();
+            Utils.DumpLog(open: false);
         }
 
         var sb = new StringBuilder(GetString("KillLog") + ":");

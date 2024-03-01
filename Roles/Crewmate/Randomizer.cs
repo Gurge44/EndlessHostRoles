@@ -226,6 +226,7 @@ namespace TOHE.Roles.Crewmate
                     case Effect.RevertToBaseRole when TimeSinceLastMeeting > 40f: // To make this less frequent than the others
                     {
                         var pc = PickRandomPlayer();
+                        if (pc.PlayerId == randomizer.PlayerId) break;
                         pc.RpcSetCustomRole(pc.GetCustomRole().GetErasedRole());
                         pc.SyncSettings();
                         NotifyAboutRNG(pc);

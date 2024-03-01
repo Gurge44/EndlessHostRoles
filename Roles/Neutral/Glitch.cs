@@ -26,6 +26,7 @@ public class Glitch : RoleBase
     private static OptionItem HasImpostorVision;
 
     private byte GlitchId;
+    private long LastUpdate;
 
     public int HackCDTimer;
     public int KCDTimer;
@@ -36,7 +37,7 @@ public class Glitch : RoleBase
     public long LastKill;
     public long LastMimic;
 
-    private bool isShifted;
+    private bool IsShifted;
 
     public static void SetupCustomOption()
     {
@@ -73,13 +74,15 @@ public class Glitch : RoleBase
         MimicCDTimer = 10;
         MimicDurTimer = 0;
 
-        isShifted = false;
+        IsShifted = false;
 
         var ts = Utils.TimeStamp;
 
         LastKill = ts;
         LastHack = ts;
         LastMimic = ts;
+
+        LastUpdate = ts;
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
@@ -123,7 +126,7 @@ public class Glitch : RoleBase
 
     void Mimic(PlayerControl pc)
     {
-        if (pc == null || !pc.Is(CustomRoles.Glitch) || !pc.IsAlive() || MimicCDTimer > 0 || isShifted) return;
+        if (pc == null || !pc.Is(CustomRoles.Glitch) || !pc.IsAlive() || MimicCDTimer > 0 || IsShifted) return;
 
         var playerlist = Main.AllAlivePlayerControls.Where(a => a.PlayerId != pc.PlayerId).ToArray();
 
@@ -131,7 +134,7 @@ public class Glitch : RoleBase
         {
             pc.RpcShapeshift(playerlist[IRandom.Instance.Next(0, playerlist.Length)], false);
 
-            isShifted = true;
+            IsShifted = true;
             LastMimic = Utils.TimeStamp;
             MimicCDTimer = MimicCooldown.GetInt();
             MimicDurTimer = MimicDuration.GetInt();
@@ -181,6 +184,10 @@ public class Glitch : RoleBase
 
     public override void OnFixedUpdate(PlayerControl player)
     {
+        long now = Utils.TimeStamp;
+        if (LastUpdate == now) return;
+        LastUpdate = now;
+
         if (HackCDTimer is > 180 or < 0) HackCDTimer = 0;
         if (KCDTimer is > 180 or < 0) KCDTimer = 0;
         if (MimicCDTimer is > 180 or < 0) MimicCDTimer = 0;
@@ -189,7 +196,7 @@ public class Glitch : RoleBase
         bool change = false;
         foreach (var pc in hackedIdList)
         {
-            if (pc.Value + HackDuration.GetInt() < Utils.TimeStamp)
+            if (pc.Value + HackDuration.GetInt() < now)
             {
                 hackedIdList.Remove(pc.Key);
                 change = true;
@@ -216,7 +223,7 @@ public class Glitch : RoleBase
         {
             try
             {
-                MimicDurTimer = (int)(MimicDuration.GetInt() - (Utils.TimeStamp - LastMimic));
+                MimicDurTimer = (int)(MimicDuration.GetInt() - (now - LastMimic));
             }
             catch
             {
@@ -226,12 +233,12 @@ public class Glitch : RoleBase
             if (MimicDurTimer > 180) MimicDurTimer = 0;
         }
 
-        if ((MimicDurTimer <= 0 || !GameStates.IsInTask) && isShifted)
+        if ((MimicDurTimer <= 0 || !GameStates.IsInTask) && IsShifted)
         {
             try
             {
                 player.RpcShapeshift(player, false);
-                isShifted = false;
+                IsShifted = false;
             }
             catch (Exception ex)
             {
@@ -248,7 +255,7 @@ public class Glitch : RoleBase
 
         try
         {
-            HackCDTimer = (int)(HackCooldown.GetInt() - (Utils.TimeStamp - LastHack));
+            HackCDTimer = (int)(HackCooldown.GetInt() - (now - LastHack));
         }
         catch
         {
@@ -259,7 +266,7 @@ public class Glitch : RoleBase
 
         try
         {
-            KCDTimer = (int)(KillCooldown.GetInt() - (Utils.TimeStamp - LastKill));
+            KCDTimer = (int)(KillCooldown.GetInt() - (now - LastKill));
         }
         catch
         {
@@ -270,7 +277,7 @@ public class Glitch : RoleBase
 
         try
         {
-            MimicCDTimer = (int)(MimicCooldown.GetInt() + MimicDuration.GetInt() - (Utils.TimeStamp - LastMimic));
+            MimicCDTimer = (int)(MimicCooldown.GetInt() + MimicDuration.GetInt() - (now - LastMimic));
         }
         catch
         {
