@@ -10,6 +10,7 @@ namespace TOHE.Roles.Impostor
         private static OptionItem CamouflageDuration;
         private static OptionItem CamoLimitOpt;
         public static OptionItem CamoAbilityUseGainWithEachKill;
+        public static OptionItem DoesntSpawnOnFungle;
 
         public static bool IsActive;
         public static bool On;
@@ -26,6 +27,8 @@ namespace TOHE.Roles.Impostor
             CamoAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 5, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.3f, TabGroup.ImpostorRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
                 .SetValueFormat(OptionFormat.Times);
+            DoesntSpawnOnFungle = BooleanOptionItem.Create(Id + 6, "DoesntSpawnOnFungle", false, TabGroup.ImpostorRoles, false)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager]);
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)

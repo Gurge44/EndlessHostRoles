@@ -580,14 +580,14 @@ static class ExtendedPlayerControl
             //Hot Potato
             CustomRoles.Potato => false,
 
-            _ => Main.PlayerStates[pc.PlayerId].Role.CanUseImpostorVentButton(pc),
+            _ => Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.Role.CanUseImpostorVentButton(pc),
         };
     }
     public static bool CanUseSabotage(this PlayerControl pc) // NOTE: THIS IS FOR THE HUD FOR MODDED CLIENTS, THIS DOES NOT DETERMINE WHETHER A ROLE CAN SABOTAGE
     {
         if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
 
-        return Main.PlayerStates[pc.PlayerId].Role.CanUseSabotage(pc);
+        return Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.Role.CanUseSabotage(pc);
     }
     public static Vector2 Pos(this PlayerControl pc) => new(pc.transform.position.x, pc.transform.position.y);
     public static void AddKillTimerToDict(this PlayerControl pc, bool half = false, float CD = -1f)

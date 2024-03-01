@@ -266,32 +266,32 @@ public static class Utils
                 seer.KillFlash();
                 seer.Notify(ColorString(GetRoleColor(CustomRoles.CyberStar), GetString("OnCyberStarDead")));
             }
-            else if (target.Is(CustomRoles.Demolitionist))
-            {
-                killer.Notify(ColorString(GetRoleColor(CustomRoles.Demolitionist), GetString("OnDemolitionistDead")));
-                _ = new LateTask(() =>
-                    {
-                        if (!killer.inVent && (killer.PlayerId != target.PlayerId))
-                        {
-                            if ((Options.DemolitionistKillerDiesOnMeetingCall.GetBool() || GameStates.IsInTask) && killer.IsAlive())
-                            {
-                                killer.Suicide(PlayerState.DeathReason.Demolished, target);
-                                RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
-                            }
-                        }
-                        else
-                        {
-                            if (killer.IsModClient()) RPC.PlaySoundRPC(killer.PlayerId, Sounds.TaskComplete);
-                            else killer.RpcGuardAndKill(killer);
-                            killer.SetKillCooldown(Main.AllPlayerKillCooldown[killer.PlayerId] - Options.DemolitionistVentTime.GetFloat());
-                        }
-                    }, Options.DemolitionistVentTime.GetFloat() + 0.5f
-                );
-            }
         }
 
         if (target.Is(CustomRoles.CyberStar) && !Main.CyberStarDead.Contains(target.PlayerId)) Main.CyberStarDead.Add(target.PlayerId);
         if (target.Is(CustomRoles.Demolitionist) && !Main.DemolitionistDead.Contains(target.PlayerId)) Main.DemolitionistDead.Add(target.PlayerId);
+        if (target.Is(CustomRoles.Demolitionist))
+        {
+            killer.Notify(ColorString(GetRoleColor(CustomRoles.Demolitionist), GetString("OnDemolitionistDead")));
+            killer.KillFlash();
+            _ = new LateTask(() =>
+            {
+                if (!killer.inVent && (killer.PlayerId != target.PlayerId))
+                {
+                    if ((Options.DemolitionistKillerDiesOnMeetingCall.GetBool() || GameStates.IsInTask) && killer.IsAlive())
+                    {
+                        killer.Suicide(PlayerState.DeathReason.Demolished, target);
+                        RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
+                    }
+                }
+                else
+                {
+                    if (killer.IsModClient()) RPC.PlaySoundRPC(killer.PlayerId, Sounds.TaskComplete);
+                    else killer.RpcGuardAndKill(killer);
+                    killer.SetKillCooldown(Main.AllPlayerKillCooldown[killer.PlayerId] - Options.DemolitionistVentTime.GetFloat());
+                }
+            }, Options.DemolitionistVentTime.GetFloat() + 0.5f);
+        }
     }
 
     public static bool KillFlashCheck(PlayerControl killer, PlayerControl target, PlayerControl seer)
@@ -515,7 +515,12 @@ public static class Utils
                     continue;
                 }
 
-                sb.Append($",      at {sf.GetMethod()}");
+                var callerMethod = sf.GetMethod();
+
+                string callerMethodName = callerMethod?.Name;
+                string callerClassName = callerMethod?.DeclaringType?.FullName;
+
+                sb.Append($",      at {callerClassName}.{callerMethodName}");
             }
 
             Logger.Error(sb.ToString(), firstFrame?.GetMethod()?.ToString());
@@ -1158,7 +1163,7 @@ public static class Utils
                 break;
             case CustomGameMode.HotPotato:
                 List<byte> list4 = [];
-                list4.AddRange([.. cloneRoles]);
+                list4.AddRange(cloneRoles);
 
                 foreach (byte id in list4.ToArray())
                 {
@@ -1214,23 +1219,10 @@ public static class Utils
         var SubRoles = Main.PlayerStates[id].SubRoles;
         if (SubRoles.Count == 0) return string.Empty;
         var sb = new StringBuilder();
-        bool isLovers = false;
         if (intro)
         {
-            foreach (CustomRoles role in SubRoles)
-            {
-                switch (role)
-                {
-                    case CustomRoles.NotAssigned:
-                    case CustomRoles.LastImpostor:
-                        SubRoles.Remove(role);
-                        break;
-                    case CustomRoles.Lovers:
-                        SubRoles.Remove(role);
-                        isLovers = true;
-                        break;
-                }
-            }
+            bool isLovers = SubRoles.Contains(CustomRoles.Lovers);
+            SubRoles.RemoveAll(x => x is CustomRoles.NotAssigned or CustomRoles.LastImpostor or CustomRoles.Lovers);
 
             if (isLovers)
             {
@@ -1777,6 +1769,9 @@ public static class Utils
                             break;
                         case CustomRoles.Rabbit:
                             SelfSuffix.Append(Rabbit.GetSuffix(seer));
+                            break;
+                        case CustomRoles.Penguin:
+                            SelfSuffix.Append(Penguin.GetSuffix(seer));
                             break;
                         case CustomRoles.BountyHunter:
                             SelfSuffix.Append(BountyHunter.GetTargetText(seer, false));

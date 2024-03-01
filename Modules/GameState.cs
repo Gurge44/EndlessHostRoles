@@ -15,7 +15,7 @@ namespace TOHE;
 public class PlayerState(byte playerId)
 {
     readonly byte PlayerId = playerId;
-    public RoleBase Role;
+    public RoleBase Role = new VanillaRole();
     public CustomRoles MainRole = CustomRoles.NotAssigned;
     public List<CustomRoles> SubRoles = [];
     public CountTypes countTypes = CountTypes.OutOfGame;

@@ -26,6 +26,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void Apply(this Effect effect, PlayerControl randomizer)
         {
+            if (!Exists) return;
             try
             {
                 switch (effect)
@@ -420,11 +421,11 @@ namespace TOHE.Roles.Crewmate
             pc.Notify(text: RNGString, time: IRandom.Instance.Next(2, 7), log: false);
         }
 
-        public static bool Exists => Main.PlayerStates.Values.Any(x => x.Role is Randomizer { IsEnable: true });
+        public static bool Exists;
 
         public static float RandomFloat => IRandom.Instance.Next(0, 5) + (IRandom.Instance.Next(0, 10) / 10f);
 
-        public override bool IsEnable => PlayerIdList.Count > 0;
+        public override bool IsEnable => Exists;
 
         public static bool IsShielded(PlayerControl pc) => CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && (effects.ContainsKey(Effect.ShieldRandomPlayer) || effects.ContainsKey(Effect.ShieldAll));
         public static bool HasSuperVision(PlayerControl pc) => CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && (effects.ContainsKey(Effect.SuperVisionForRandomPlayer) || effects.ContainsKey(Effect.SuperVisionForAll));
@@ -504,10 +505,13 @@ namespace TOHE.Roles.Crewmate
             MinimumEffectDuration = EffectDurMin.GetInt();
             MaximumEffectDuration = EffectDurMax.GetInt();
             Notify = NotifyOpt.GetBool();
+
+            Exists = false;
         }
 
         public override void Add(byte playerId)
         {
+            Exists = true;
             PlayerIdList.Add(playerId);
             AllPlayerDefaultSpeed = Main.AllPlayerSpeed;
         }
@@ -522,7 +526,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void AddEffectForPlayer(PlayerControl pc, Effect effect)
         {
-            if (pc == null) return;
+            if (pc == null || !Exists) return;
             if (!CurrentEffects.ContainsKey(pc.PlayerId)) CurrentEffects[pc.PlayerId] = [];
             int duration = IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration + 1);
             CurrentEffects[pc.PlayerId].TryAdd(effect, (Utils.TimeStamp, duration));
@@ -552,7 +556,7 @@ namespace TOHE.Roles.Crewmate
         {
             try
             {
-                if (pc == null) return;
+                if (pc == null || !Exists) return;
                 if (CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && effects.Any(x => x.Key.IsSpeedChangingEffect()))
                 {
                     Main.AllPlayerSpeed[pc.PlayerId] = AllPlayerDefaultSpeed[pc.PlayerId];
@@ -572,7 +576,7 @@ namespace TOHE.Roles.Crewmate
         {
             try
             {
-                if (pc == null) return;
+                if (pc == null || !Exists) return;
                 if (CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && effects.Any(x => x.Key.IsVisionChangingEffect()))
                 {
                     var keys = effects.Keys.AsEnumerable();
@@ -631,7 +635,7 @@ namespace TOHE.Roles.Crewmate
         {
             try
             {
-                if (!GameStates.IsInTask || Bombs.Count == 0) return;
+                if (!Exists || !GameStates.IsInTask || Bombs.Count == 0) return;
 
                 var now = Utils.TimeStamp;
                 var randomizer = Utils.GetPlayerById(PlayerIdList.FirstOrDefault());
@@ -730,7 +734,7 @@ namespace TOHE.Roles.Crewmate
         {
             try
             {
-                if (pc == null || !pc.IsAlive() || !GameStates.IsInTask) return;
+                if (!Exists || pc == null || !pc.IsAlive() || !GameStates.IsInTask) return;
 
                 if (CurrentEffects.TryGetValue(pc.PlayerId, out var effects))
                 {

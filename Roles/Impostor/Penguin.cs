@@ -1,5 +1,4 @@
-﻿using AmongUs.GameOptions;
-using Hazel;
+﻿using Hazel;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Translator;
@@ -79,7 +78,6 @@ namespace TOHE.Roles.Impostor
 
         public override bool IsEnable => PenguinId != byte.MaxValue;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
-        public override void ApplyGameOptions(IGameOptions opt, byte id) => AURoleOptions.ShapeshifterCooldown = AbductVictim != null ? AbductTimer : AbductTimerLimit;
 
         void SendRPC()
         {
@@ -112,7 +110,7 @@ namespace TOHE.Roles.Impostor
             AbductTimer = AbductTimerLimit;
             Main.AllPlayerSpeed[PenguinId] = SpeedDuringDrag;
             Penguin_.MarkDirtySettings();
-            Penguin_.RpcResetAbilityCooldown();
+            //Penguin_.RpcResetAbilityCooldown();
             SendRPC();
         }
 
@@ -123,7 +121,7 @@ namespace TOHE.Roles.Impostor
             AbductTimer = 255f;
             Main.AllPlayerSpeed[PenguinId] = DefaultSpeed;
             Penguin_.MarkDirtySettings();
-            Penguin_.RpcResetAbilityCooldown();
+            //Penguin_.RpcResetAbilityCooldown();
             SendRPC();
         }
 
@@ -203,7 +201,7 @@ namespace TOHE.Roles.Impostor
             if (AbductVictim != null)
             {
                 Penguin_.MarkDirtySettings();
-                Penguin_.RpcResetAbilityCooldown();
+                //Penguin_.RpcResetAbilityCooldown();
                 stopCount = false;
             }
         }
@@ -281,8 +279,19 @@ namespace TOHE.Roles.Impostor
             else if (AbductTimer <= 100f)
             {
                 AbductTimer = 255f;
-                Penguin_.RpcResetAbilityCooldown();
+                //Penguin_.RpcResetAbilityCooldown();
             }
+        }
+
+        public static string GetSuffix(PlayerControl seer)
+        {
+            if (seer == null) return string.Empty;
+            if (Main.PlayerStates.TryGetValue(seer.PlayerId, out var state) && state.Role is Penguin { IsEnable: true } pg && pg.AbductVictim != null)
+            {
+                return $"\u21b9 {pg.AbductTimer}s";
+            }
+
+            return string.Empty;
         }
     }
 }
