@@ -266,11 +266,10 @@ namespace TOHE.Roles.Impostor
                     else
                     {
                         _ = new LateTask(() =>
-                            {
-                                if (AbductVictim != null)
-                                    Utils.TP(AbductVictim.NetTransform, position, log: false);
-                            }
-                            , 0.25f, "");
+                        {
+                            if (AbductVictim != null)
+                                Utils.TP(AbductVictim.NetTransform, position, log: false);
+                        }, 0.25f, log: false);
                     }
                 }
             }
@@ -284,9 +283,9 @@ namespace TOHE.Roles.Impostor
         public static string GetSuffix(PlayerControl seer)
         {
             if (seer == null) return string.Empty;
-            if (Main.PlayerStates.TryGetValue(seer.PlayerId, out var state) && state.Role is Penguin { IsEnable: true } pg && pg.AbductVictim != null)
+            if (Main.PlayerStates.TryGetValue(seer.PlayerId, out var state) && state.Role is Penguin pg && pg.AbductVictim != null)
             {
-                return $"\u21b9 {pg.AbductTimer}s";
+                return $"\u21b9 {(int)(pg.AbductTimer + 1f)}s";
             }
 
             return string.Empty;

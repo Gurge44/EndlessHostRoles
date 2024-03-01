@@ -1389,7 +1389,7 @@ class FixedUpdatePatch
                         Mark.Append($"<color={GetRoleColorCode(CustomRoles.PlagueBearer)}>●</color>");
                         //   PlagueBearer.SendRPC(seer, target);
                         break;
-                    case CustomRoles.Penguin:
+                    case CustomRoles.Penguin when target.PlayerId == seer.PlayerId:
                         Suffix.Append(Penguin.GetSuffix(seer));
                         break;
                     case CustomRoles.Arsonist:
@@ -1595,7 +1595,7 @@ class FixedUpdatePatch
                 //Mark・Suffixの適用
 
                 var currentText = target.cosmetics.nameText.text;
-                var changeTo = $"{RealName}{DeathReason}{Mark}";
+                var changeTo = $"{RealName}{DeathReason}{Mark}\r\n{Suffix}";
                 bool needUpdate = currentText != changeTo;
 
                 if (needUpdate)
@@ -1614,7 +1614,6 @@ class FixedUpdatePatch
                         // If the name is on two lines, the job title text needs to be moved up.
                         //RoleText.transform.SetLocalY(0.35f);
                         offset += 0.15f;
-                        target.cosmetics.nameText.text += "\r\n" + Suffix;
                     }
 
                     if (!seer.IsAlive())
