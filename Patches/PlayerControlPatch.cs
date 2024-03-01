@@ -295,6 +295,12 @@ class CheckMurderPatch
             return false;
         }
 
+        if (Glitch.hackedIdList.ContainsKey(killer.PlayerId))
+        {
+            killer.Notify(string.Format(GetString("HackedByGlitch"), "Kill"));
+            return false;
+        }
+
         // Traitor can't kill Impostors but Impostors can kill it
         if (killer.Is(CustomRoles.Traitor) && target.Is(CustomRoleTypes.Impostor))
             return false;
