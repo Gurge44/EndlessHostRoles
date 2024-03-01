@@ -1,8 +1,8 @@
-﻿using Hazel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using AmongUs.GameOptions;
+using Hazel;
 using TOHE.Modules;
 using UnityEngine;
 
@@ -94,6 +94,16 @@ namespace TOHE.Roles.Crewmate
         }
 
         public override void OnEnterVent(PlayerControl pc, Vent vent)
+        {
+            UseAbility(pc);
+        }
+
+        public override void OnPet(PlayerControl pc)
+        {
+            UseAbility(pc);
+        }
+
+        private static void UseAbility(PlayerControl pc)
         {
             if (pc == null) return;
             if (pc.IsModClient() || !UseLimit.ContainsKey(pc.PlayerId)) return;

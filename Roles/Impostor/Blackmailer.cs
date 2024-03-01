@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor;
@@ -31,7 +32,7 @@ public class Blackmailer : RoleBase
         playerIdList.Add(playerId);
     }
 
-    public override void ApplyGameOptions(AmongUs.GameOptions.IGameOptions opt, byte id)
+    public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         AURoleOptions.ShapeshifterCooldown = SkillCooldown.GetFloat();
         AURoleOptions.ShapeshifterDuration = 1f;

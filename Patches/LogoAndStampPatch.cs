@@ -1,6 +1,6 @@
-﻿using BepInEx.Unity.IL2CPP.Utils;
+﻿using System.Collections;
+using BepInEx.Unity.IL2CPP.Utils;
 using HarmonyLib;
-using System.Collections;
 using TMPro;
 using UnityEngine;
 using static TOHE.Translator;

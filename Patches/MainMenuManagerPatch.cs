@@ -1,10 +1,9 @@
-using HarmonyLib;
 using System;
+using HarmonyLib;
 using TMPro;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Translator;
-using static UnityEngine.UI.Button;
 using Object = UnityEngine.Object;
 
 namespace TOHE;

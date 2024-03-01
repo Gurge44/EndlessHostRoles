@@ -1,4 +1,5 @@
-﻿using TOHE.Modules;
+﻿using AmongUs.GameOptions;
+using TOHE.Modules;
 using static TOHE.Options;
 using static TOHE.Translator;
 using static TOHE.Utils;
@@ -42,7 +43,7 @@ public class Disperser : RoleBase
         On = true;
     }
 
-    public override void ApplyGameOptions(AmongUs.GameOptions.IGameOptions opt, byte id)
+    public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         if (UsePets.GetBool()) return;
         AURoleOptions.ShapeshifterCooldown = DisperserShapeshiftCooldown.GetFloat();

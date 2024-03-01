@@ -7,7 +7,7 @@
     <Description>TOHE+</Description>
     <Authors>Gurge44</Authors>
     <langVersion>preview</langVersion>
-	    <AmongUs>D:\Epic Games\AmongUs</AmongUs>
+	    <AmongUs>E:\Program Files\AmongUs</AmongUs>
 	    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	    <Optimize>True</Optimize>
 	    <AssemblyName>$(MSBuildProjectName)+</AssemblyName>
@@ -34,12 +34,12 @@
 	</ItemGroup>
 
     <ItemGroup>
-    <PackageReference Include="Costura.Fody" Version="5.7.0">
+    <!--<PackageReference Include="Costura.Fody" Version="5.7.0">
         <IncludeAssets>runtime; compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
+    </PackageReference>-->
     <PackageReference Include="csv" Version="2.0.93" />
-    <PackageReference Include="GitInfo" Version="3.3.3">
+    <PackageReference Include="GitInfo" Version="3.3.4">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

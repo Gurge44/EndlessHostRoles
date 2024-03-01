@@ -1,6 +1,6 @@
-﻿using Hazel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Hazel;
 using TOHE.Modules;
 using TOHE.Roles.Impostor;
 using UnityEngine;
@@ -221,6 +221,7 @@ public class Doppelganger : RoleBase
             {
                 RpcChangeSkin(currentTarget, DoppelPresentSkin[currentTarget.PlayerId]);
                 RpcChangeSkin(pc, DoppelDefaultSkin[pc.PlayerId]);
+                DoppelVictim[pc.PlayerId] = string.Empty;
             }
 
             if (GameStates.IsInTask)

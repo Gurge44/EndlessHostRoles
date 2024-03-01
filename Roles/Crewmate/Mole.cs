@@ -28,16 +28,9 @@ namespace TOHE.Roles.Crewmate
             AURoleOptions.EngineerCooldown = 5f;
         }
 
-        public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+        public override void OnExitVent(PlayerControl pc, Vent vent)
         {
-            var pc = physics.myPlayer;
-            if (pc == null) return;
-            _ = new LateTask(() =>
-            {
-                var vents = Object.FindObjectsOfType<Vent>();
-                var vent = vents[IRandom.Instance.Next(0, vents.Count)];
-                physics.RpcBootFromVent(vent.Id); // This boots them from the vent which is randomly selected (and they teleport to it automatically)
-            }, 0.5f, "Mole BootFromVent");
+            _ = new LateTask(() => { pc.TPtoRndVent(); }, 0.5f, "Mole TP");
         }
     }
 }

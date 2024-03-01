@@ -1,3 +1,4 @@
+#pragma warning disable CA1822
 namespace TOHE;
 
 public class HashRandomWrapper : IRandom

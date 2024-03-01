@@ -1,8 +1,8 @@
-﻿using AmongUs.GameOptions;
+﻿using System;
+using System.Linq;
+using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
-using System;
-using System.Linq;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Translator;

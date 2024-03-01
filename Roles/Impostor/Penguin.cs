@@ -127,11 +127,11 @@ namespace TOHE.Roles.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable) return false;
+            if (!IsEnable) return true;
             bool doKill = true;
             if (AbductVictim != null)
             {
-                if (target != AbductVictim)
+                if (target.PlayerId != AbductVictim.PlayerId)
                 {
                     // During an abduction, only the abductee can be killed.
                     Penguin_.Kill(AbductVictim);
@@ -153,8 +153,6 @@ namespace TOHE.Roles.Impostor
         public override void SetButtonTexts(HudManager hud, byte id)
         {
             hud.KillButton?.OverrideText(AbductVictim != null ? GetString("KillButtonText") : GetString("PenguinKillButtonText"));
-            hud.AbilityButton?.OverrideText(GetString("PenguinTimerText"));
-            hud.AbilityButton?.ToggleVisible(AbductVictim != null);
         }
 
         public override void OnReportDeadBody()

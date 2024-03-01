@@ -1,5 +1,5 @@
-using AmongUs.GameOptions;
 using System;
+using AmongUs.GameOptions;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 

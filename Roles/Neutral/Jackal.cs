@@ -1,7 +1,7 @@
-using AmongUs.GameOptions;
-using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using HarmonyLib;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -17,7 +17,6 @@ public class Jackal : RoleBase
     public static OptionItem CanSabotage;
     public static OptionItem CanWinBySabotageWhenNoImpAlive;
     public static OptionItem HasImpostorVision;
-    private static OptionItem OptionResetKillCooldownWhenSbGetKilled;
     public static OptionItem ResetKillCooldownWhenSbGetKilled;
     private static OptionItem ResetKillCooldownOn;
     public static OptionItem CanRecruitSidekick;
@@ -35,6 +34,7 @@ public class Jackal : RoleBase
         "SidekickAssignMode.Recruit",
     ];
 
+    public static bool On;
 
     public static void SetupCustomOption()
     {
@@ -45,9 +45,9 @@ public class Jackal : RoleBase
         CanSabotage = BooleanOptionItem.Create(Id + 12, "CanSabotage", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
         CanWinBySabotageWhenNoImpAlive = BooleanOptionItem.Create(Id + 14, "JackalCanWinBySabotageWhenNoImpAlive", true, TabGroup.NeutralRoles, false).SetParent(CanSabotage);
         HasImpostorVision = BooleanOptionItem.Create(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
-        OptionResetKillCooldownWhenSbGetKilled = BooleanOptionItem.Create(Id + 16, "ResetKillCooldownWhenPlayerGetKilled", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
+        ResetKillCooldownWhenSbGetKilled = BooleanOptionItem.Create(Id + 16, "ResetKillCooldownWhenPlayerGetKilled", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
         ResetKillCooldownOn = FloatOptionItem.Create(Id + 28, "ResetKillCooldownOn", new(0f, 180f, 2.5f), 15f, TabGroup.NeutralRoles, false)
-            .SetParent(OptionResetKillCooldownWhenSbGetKilled)
+            .SetParent(ResetKillCooldownWhenSbGetKilled)
             .SetValueFormat(OptionFormat.Seconds);
         JackalCanKillSidekick = BooleanOptionItem.Create(Id + 15, "JackalCanKillSidekick", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
         CanRecruitSidekick = BooleanOptionItem.Create(Id + 17, "JackalCanRecruitSidekick", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
@@ -69,11 +69,12 @@ public class Jackal : RoleBase
     public override void Init()
     {
         playerIdList = [];
-        ResetKillCooldownWhenSbGetKilled = OptionResetKillCooldownWhenSbGetKilled;
+        On = false;
     }
 
     public override void Add(byte playerId)
     {
+        On = true;
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(SidekickRecruitLimitOpt.GetInt());
 
@@ -99,8 +100,9 @@ public class Jackal : RoleBase
 
     public static void AfterPlayerDiedTask(PlayerControl target)
     {
+        if (target.Is(CustomRoles.Jackal)) return;
         Main.AllAlivePlayerControls
-            .Where(x => !target.Is(CustomRoles.Jackal) && x.Is(CustomRoles.Jackal))
+            .Where(x => x.Is(CustomRoles.Jackal))
             .Do(x => x.SetKillCooldown(ResetKillCooldownOn.GetFloat()));
     }
 

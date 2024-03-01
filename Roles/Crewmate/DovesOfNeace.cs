@@ -1,6 +1,6 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Linq;
+using AmongUs.GameOptions;
 using HarmonyLib;
-using System.Linq;
 using TOHE.Modules;
 using TOHE.Roles.Impostor;
 

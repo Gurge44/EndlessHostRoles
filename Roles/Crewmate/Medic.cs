@@ -1,8 +1,8 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections.Generic;
+using System.Linq;
+using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
-using System.Collections.Generic;
-using System.Linq;
 using TOHE.Modules;
 
 namespace TOHE.Roles.Crewmate;
@@ -12,7 +12,7 @@ public class Medic : RoleBase
     private const int Id = 7100;
     public static List<byte> playerIdList = [];
     public static List<byte> ProtectList = [];
-    public static byte TempMarkProtected;
+    public static byte TempMarkProtected = byte.MaxValue;
     public static int SkillLimit;
 
     public static OptionItem WhoCanSeeProtect;

@@ -1,5 +1,5 @@
-﻿using AmongUs.GameOptions;
-using System.Text;
+﻿using System.Text;
+using AmongUs.GameOptions;
 
 namespace TOHE
 {
@@ -19,12 +19,12 @@ namespace TOHE
 
         public virtual bool CanUseKillButton(PlayerControl pc)
         {
-            return pc.IsAlive();
+            return pc.IsAlive() && (pc.Is(CustomRoleTypes.Impostor) || pc.GetCustomRole().IsNK());
         }
 
         public virtual bool CanUseImpostorVentButton(PlayerControl pc)
         {
-            return pc.IsAlive() && pc.GetCustomRole().GetRoleTypes() is not RoleTypes.Crewmate and not RoleTypes.Engineer;
+            return pc.IsAlive() && pc.Data.Role.Role is not RoleTypes.Crewmate and not RoleTypes.Engineer;
         }
 
         public virtual bool CanUseSabotage(PlayerControl pc)

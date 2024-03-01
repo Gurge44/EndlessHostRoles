@@ -1,8 +1,7 @@
-﻿using AmongUs.GameOptions;
-using Hazel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
+using AmongUs.GameOptions;
+using Hazel;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using UnityEngine;

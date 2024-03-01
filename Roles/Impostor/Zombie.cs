@@ -1,5 +1,5 @@
-﻿using AmongUs.GameOptions;
-using System;
+﻿using System;
+using AmongUs.GameOptions;
 
 namespace TOHE.Roles.Impostor
 {

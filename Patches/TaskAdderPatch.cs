@@ -1,8 +1,8 @@
-using AmongUs.GameOptions;
-using HarmonyLib;
 using System;
 using System.Collections;
 using System.Linq;
+using AmongUs.GameOptions;
+using HarmonyLib;
 using UnityEngine;
 using Object = UnityEngine.Object;
 

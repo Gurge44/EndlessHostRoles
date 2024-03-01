@@ -1,5 +1,5 @@
-﻿using AmongUs.GameOptions;
-using System.Text;
+﻿using System.Text;
+using AmongUs.GameOptions;
 
 namespace TOHE.Roles.Crewmate
 {

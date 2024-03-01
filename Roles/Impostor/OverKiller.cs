@@ -1,6 +1,6 @@
-﻿using Hazel;
+﻿using System.Linq;
+using Hazel;
 using InnerNet;
-using System.Linq;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
 using UnityEngine;

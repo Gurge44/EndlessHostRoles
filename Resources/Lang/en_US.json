@@ -2433,6 +2433,7 @@
   "DGRM.None": "None",
   "DGRM.OnMeeting": "On Meeting",
   "DGRM.AfterTime": "Timer",
+  "DoppelMaxSteals": "Maximum Steals",
   "DGResetMode": "Skin Reset Mode",
   "DGResetTimer": "If Resetting Skin by Timer, Reset Skin After",
   "RememberMode": "Role Remembering Mode",
