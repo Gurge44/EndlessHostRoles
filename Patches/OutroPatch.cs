@@ -54,15 +54,19 @@ class EndGamePatch
             SummaryText[id] = Utils.SummaryTexts(id, disableColor: false);
         }
 
-        var sb = new StringBuilder(GetString("KillLog") + ":");
-        foreach (var kvp in Main.PlayerStates.OrderBy(x => x.Value.RealKiller.TIMESTAMP.Ticks))
+        if (Options.DumpLogAfterGameEnd.GetBool())
         {
-            var date = kvp.Value.RealKiller.TIMESTAMP;
+            Utils.DumpLog();
+        }
+
+        var sb = new StringBuilder(GetString("KillLog") + ":");
+        foreach ((byte key, PlayerState value) in Main.PlayerStates.OrderBy(x => x.Value.RealKiller.TIMESTAMP.Ticks))
+        {
+            var date = value.RealKiller.TIMESTAMP;
             if (date == DateTime.MinValue) continue;
-            var killerId = kvp.Value.GetRealKiller();
-            var targetId = kvp.Key;
-            sb.Append($"\n{date:T} {Main.AllPlayerNames[targetId]} ({(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato ? string.Empty : Utils.GetDisplayRoleName(targetId, true))}{(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop ? string.Empty : Utils.GetSubRolesText(targetId, summary: true))}) [{Utils.GetVitalText(kvp.Key)}]");
-            if (killerId != byte.MaxValue && killerId != targetId)
+            var killerId = value.GetRealKiller();
+            sb.Append($"\n{date:T} {Main.AllPlayerNames[key]} ({(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato ? string.Empty : Utils.GetDisplayRoleName(key, true))}{(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop ? string.Empty : Utils.GetSubRolesText(key, summary: true))}) [{Utils.GetVitalText(key)}]");
+            if (killerId != byte.MaxValue && killerId != key)
                 sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato ? string.Empty : Utils.GetDisplayRoleName(killerId, true))}{(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
         }
 
@@ -166,7 +170,7 @@ class SetEverythingUpPatch
                 for (int i1 = 0; i1 < Main.winnerList.Count; i1++)
                 {
                     byte id = Main.winnerList[i1];
-                    if (Main.winnerNameList[i1].RemoveHtmlTags() != winningPlayerData2?.PlayerName.RemoveHtmlTags()) continue;
+                    if (Main.winnerNameList[i1].RemoveHtmlTags() != winningPlayerData2.PlayerName.RemoveHtmlTags()) continue;
                     var role = Main.PlayerStates[id].MainRole;
 
                     var color = Main.roleColors[role];
@@ -322,22 +326,7 @@ class SetEverythingUpPatch
 
         if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw and not CustomWinner.None and not CustomWinner.Error)
         {
-            if (AdditionalWinnerText == string.Empty) WinnerText.text = $"<size=100%><color={CustomWinnerColor}>{CustomWinnerText}</color></size>";
-            else WinnerText.text = $"<size=100%><color={CustomWinnerColor}>{CustomWinnerText}</color></size><size=50%>{AdditionalWinnerText}</size>";
-        }
-
-        static string GetWinnerRoleName(CustomRoles role)
-        {
-            var name = GetString($"WinnerRoleText.{Enum.GetName(typeof(CustomRoles), role)}");
-            if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID")) name = Utils.GetRoleName(role);
-            return name;
-        }
-
-        static string GetAdditionalWinnerRoleName(CustomRoles role)
-        {
-            var name = GetString($"AdditionalWinnerRoleText.{Enum.GetName(typeof(CustomRoles), role)}");
-            if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID")) name = Utils.GetRoleName(role);
-            return name;
+            WinnerText.text = AdditionalWinnerText == string.Empty ? $"<size=100%><color={CustomWinnerColor}>{CustomWinnerText}</color></size>" : $"<size=100%><color={CustomWinnerColor}>{CustomWinnerText}</color></size><size=50%>{AdditionalWinnerText}</size>";
         }
 
         EndOfText:
@@ -356,7 +345,7 @@ class SetEverythingUpPatch
         RoleSummaryObject.transform.localScale = new(1f, 1f, 1f);
 
         StringBuilder sb = new($"{GetString("RoleSummaryText")}\n<b>");
-        List<byte> cloneRoles = new(Main.PlayerStates.Keys);
+        List<byte> cloneRoles = [..Main.PlayerStates.Keys];
         foreach (byte id in Main.winnerList.ToArray())
         {
             if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
@@ -369,10 +358,7 @@ class SetEverythingUpPatch
             case CustomGameMode.SoloKombat:
             {
                 List<(int, byte)> list = [];
-                foreach (byte id in cloneRoles.ToArray())
-                {
-                    list.Add((SoloKombatManager.GetRankOfScore(id), id));
-                }
+                list.AddRange(cloneRoles.Select(id => (SoloKombatManager.GetRankOfScore(id), id)));
 
                 list.Sort();
                 foreach (var id in list.Where(x => EndGamePatch.SummaryText.ContainsKey(x.Item2)))
@@ -382,10 +368,7 @@ class SetEverythingUpPatch
             case CustomGameMode.FFA:
             {
                 List<(int, byte)> list = [];
-                foreach (byte id in cloneRoles.ToArray())
-                {
-                    list.Add((FFAManager.GetRankOfScore(id), id));
-                }
+                list.AddRange(cloneRoles.Select(id => (FFAManager.GetRankOfScore(id), id)));
 
                 list.Sort();
                 foreach (var id in list.Where(x => EndGamePatch.SummaryText.ContainsKey(x.Item2)))
@@ -395,10 +378,7 @@ class SetEverythingUpPatch
             case CustomGameMode.MoveAndStop:
             {
                 List<(int, byte)> list = [];
-                foreach (byte id in cloneRoles.ToArray())
-                {
-                    list.Add((MoveAndStopManager.GetRankOfScore(id), id));
-                }
+                list.AddRange(cloneRoles.Select(id => (MoveAndStopManager.GetRankOfScore(id), id)));
 
                 list.Sort();
                 foreach (var id in list.Where(x => EndGamePatch.SummaryText.ContainsKey(x.Item2)))
@@ -407,7 +387,7 @@ class SetEverythingUpPatch
             }
             case CustomGameMode.HotPotato:
             {
-                var list = cloneRoles.OrderByDescending(x => HotPotatoManager.GetSurvivalTime(x));
+                var list = cloneRoles.OrderByDescending(HotPotatoManager.GetSurvivalTime);
                 foreach (var id in cloneRoles.Where(EndGamePatch.SummaryText.ContainsKey))
                     sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id]);
                 break;
@@ -434,9 +414,22 @@ class SetEverythingUpPatch
         var RoleSummaryRectTransform = RoleSummary.GetComponent<RectTransform>();
         RoleSummaryRectTransform.anchoredPosition = new(Pos.x + 3.5f, Pos.y - 0.1f);
         RoleSummary.text = sb.ToString();
+        return;
+
+        static string GetAdditionalWinnerRoleName(CustomRoles role)
+        {
+            var name = GetString($"AdditionalWinnerRoleText.{Enum.GetName(typeof(CustomRoles), role)}");
+            if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID")) name = Utils.GetRoleName(role);
+            return name;
+        }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
         //Utils.ApplySuffix();
+        static string GetWinnerRoleName(CustomRoles role)
+        {
+            var name = GetString($"WinnerRoleText.{Enum.GetName(typeof(CustomRoles), role)}");
+            if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID")) name = Utils.GetRoleName(role);
+            return name;
+        }
     }
 }

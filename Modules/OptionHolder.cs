@@ -1008,6 +1008,8 @@ public static class Options
     public static OptionItem PlayerAutoStart;
     //public static OptionItem SidekickCountMode;
 
+    public static OptionItem DumpLogAfterGameEnd;
+
     public static readonly string[] suffixModes =
     [
         "SuffixMode.None",
@@ -2875,6 +2877,9 @@ public static class Options
 
         DontUpdateDeadPlayers = BooleanOptionItem.Create(19326, "DontUpdateDeadPlayers", true, TabGroup.SystemSettings, false)
             .SetColor(Color.red);
+
+        DumpLogAfterGameEnd = BooleanOptionItem.Create(19327, "DumpLogAfterGameEnd", true, TabGroup.SystemSettings, false)
+            .SetColor(Color.yellow);
 
         EndWhenPlayerBug = BooleanOptionItem.Create(19318, "EndWhenPlayerBug", true, TabGroup.SystemSettings, false)
             .SetHeader(true)
