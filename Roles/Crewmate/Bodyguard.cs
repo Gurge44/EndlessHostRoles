@@ -1,19 +1,39 @@
-﻿namespace TOHE.Roles.Crewmate
+﻿using UnityEngine;
+
+namespace TOHE.Roles.Crewmate
 {
-    internal static class Bodyguard
+    internal class Bodyguard : RoleBase
     {
-        public static bool OnCheckMurderAsTarget(PlayerControl pc, PlayerControl killer)
+        public static bool On;
+        public override bool IsEnable => On;
+
+        public override void Init()
         {
-            if (pc.Is(CustomRoles.Madmate) && killer.Is(Team.Impostor))
+            On = false;
+        }
+
+        public override void Add(byte playerId)
+        {
+            On = true;
+        }
+
+        public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
+        {
+            if (killer.PlayerId != target.PlayerId)
             {
-                Logger.Info($"{pc.GetRealName()} is a madmate, so they chose to ignore the murder scene", "Bodyguard");
-            }
-            else
-            {
-                if (Options.BodyguardKillsKiller.GetBool()) pc.Kill(killer);
+                float dis = Vector2.Distance(target.Pos(), killer.Pos());
+                if (dis > Options.BodyguardProtectRadius.GetFloat()) return true;
+
+                if (target.Is(CustomRoles.Madmate) && killer.Is(Team.Impostor))
+                {
+                    Logger.Info($"{target.GetRealName()} is a madmate, so they chose to ignore the murder scene", "Bodyguard");
+                    return true;
+                }
+
+                if (Options.BodyguardKillsKiller.GetBool()) target.Kill(killer);
                 else killer.SetKillCooldown();
-                pc.Suicide(PlayerState.DeathReason.Sacrifice, killer);
-                Logger.Info($"{pc.GetRealName()} stood up and died for {killer.GetRealName()}", "Bodyguard");
+                target.Suicide(PlayerState.DeathReason.Sacrifice, killer);
+                Logger.Info($"{target.GetRealName()} stood up and died for {killer.GetRealName()}", "Bodyguard");
                 return false;
             }
 

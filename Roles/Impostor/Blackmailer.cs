@@ -8,7 +8,7 @@ public class Blackmailer : RoleBase
     private const int Id = 643050;
     private static List<byte> playerIdList = [];
     public static OptionItem SkillCooldown;
-    public static Dictionary<byte, int> BlackmailerMaxUp;
+    public static Dictionary<byte, int> BlackmailerMaxUp = [];
     public static List<byte> ForBlackmailer = [];
 
     public static void SetupCustomOption()

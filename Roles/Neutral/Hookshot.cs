@@ -17,7 +17,7 @@ namespace TOHE.Roles.Neutral
         private static OptionItem HasImpostorVision;
         public static OptionItem CanVent;
 
-        private bool ToTargetTP;
+        private bool ToTargetTP = true;
         public byte MarkedPlayerId = byte.MaxValue;
 
         public static void SetupCustomOption()

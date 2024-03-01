@@ -50,9 +50,9 @@ namespace TOHE.Roles.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (Options.UsePets.GetBool()) return;
+            if (UsePets.GetBool()) return;
             AURoleOptions.ShapeshifterDuration = 1f;
-            AURoleOptions.ShapeshifterCooldown = RiftMaker.ShapeshiftCooldown.GetFloat();
+            AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
             AURoleOptions.ShapeshifterLeaveSkin = true;
         }
 

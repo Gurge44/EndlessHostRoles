@@ -103,10 +103,10 @@ namespace TOHE.Roles.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (Gambler.isVisionChange.ContainsKey(playerId))
+            if (isVisionChange.ContainsKey(playerId))
             {
-                opt.SetFloat(FloatOptionNames.CrewLightMod, Gambler.LowVision.GetFloat());
-                opt.SetFloat(FloatOptionNames.ImpostorLightMod, Gambler.LowVision.GetFloat());
+                opt.SetFloat(FloatOptionNames.CrewLightMod, LowVision.GetFloat());
+                opt.SetFloat(FloatOptionNames.ImpostorLightMod, LowVision.GetFloat());
             }
         }
 

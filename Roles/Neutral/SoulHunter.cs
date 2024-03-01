@@ -23,7 +23,7 @@ namespace TOHE.Roles.Neutral
         private byte SoulHunterId;
         public PlayerControl SoulHunter_;
         public int Souls;
-        public (byte ID, long START_TIMESTAMP, bool FROZEN) CurrentTarget;
+        public (byte ID, long START_TIMESTAMP, bool FROZEN) CurrentTarget = (byte.MaxValue, 0, false);
         private long LastUpdate;
         private float NormalSpeed;
 
@@ -63,7 +63,7 @@ namespace TOHE.Roles.Neutral
             Souls = 0;
             CurrentTarget = (byte.MaxValue, 0, false);
             LastUpdate = 0;
-            NormalSpeed = Main.NormalOptions.PlayerSpeedMod;
+            NormalSpeed = Main.AllPlayerSpeed[playerId];
 
             if (!AmongUsClient.Instance.AmHost) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))
@@ -74,8 +74,8 @@ namespace TOHE.Roles.Neutral
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = WaitingTimeAfterMeeting.GetFloat() + 1.5f;
         public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
         public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
-        public static bool IsSoulHunterTarget(byte id) => Main.PlayerStates.Any(x => x.Value.Role is SoulHunter { IsEnable: true } sh && sh.IsTargetBlocked && sh.CurrentTarget.ID == id);
-        public static SoulHunter GetSoulHunter(byte targetId) => Main.PlayerStates.FirstOrDefault(x => x.Value.Role is SoulHunter { IsEnable: true } sh && sh.IsTargetBlocked && sh.CurrentTarget.ID == targetId).Value.Role as SoulHunter;
+        public static bool IsSoulHunterTarget(byte id) => Main.PlayerStates.Any(x => x.Value.Role is SoulHunter { IsEnable: true, IsTargetBlocked: true } sh && sh.CurrentTarget.ID == id);
+        public static SoulHunter GetSoulHunter(byte targetId) => Main.PlayerStates.FirstOrDefault(x => x.Value.Role is SoulHunter { IsEnable: true, IsTargetBlocked: true } sh && sh.CurrentTarget.ID == targetId).Value.Role as SoulHunter;
 
         void SendRPC()
         {

@@ -49,7 +49,7 @@ namespace TOHE.Roles.Neutral
         public override void Init()
         {
             playerIdList = [];
-            ProtectTimeStamp = new();
+            ProtectTimeStamp = 0;
             PlayersHaunted = [];
         }
 

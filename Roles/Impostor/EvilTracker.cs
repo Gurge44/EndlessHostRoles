@@ -83,6 +83,7 @@ public class EvilTracker : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
+        if (RoleTypes != RoleTypes.Shapeshifter) return;
         AURoleOptions.ShapeshifterCooldown = CanTarget(playerId) ? 1f : 255f;
         AURoleOptions.ShapeshifterDuration = 1f;
     }

@@ -376,12 +376,6 @@ class CheckMurderPatch
                 break;
         }
 
-        // Bodyguard
-        if (killer.PlayerId != target.PlayerId && (from pc in Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId) let pos = target.Pos() let dis = Vector2.Distance(pos, pc.Pos()) where !(dis > Options.BodyguardProtectRadius.GetFloat()) select pc).Any(pc => pc.Is(CustomRoles.Bodyguard) && !Bodyguard.OnCheckMurderAsTarget(pc, killer)))
-        {
-            return false;
-        }
-
         if (Main.ShieldPlayer != byte.MaxValue && Main.ShieldPlayer == target.PlayerId && IsAllAlive)
         {
             Main.ShieldPlayer = byte.MaxValue;
@@ -1521,7 +1515,7 @@ class FixedUpdatePatch
                     }
                 }
 
-                Suffix.Append(Bubble.GetEncasedPlayerSuffix(target));
+                Suffix.Append(Bubble.GetEncasedPlayerSuffix(seer, target));
                 Suffix.Append(Randomizer.GetSuffixText(seer, target));
                 Suffix.Append(Deathpact.GetDeathpactPlayerArrow(seer, target));
                 Suffix.Append(Deathpact.GetDeathpactMark(seer, target));

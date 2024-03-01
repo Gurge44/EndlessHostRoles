@@ -1,6 +1,6 @@
 ﻿namespace TOHE.Roles.Crewmate
 {
-    internal class Detective
+    internal static class Detective
     {
         public static void OnReportDeadBody(PlayerControl player, PlayerControl tpc)
         {

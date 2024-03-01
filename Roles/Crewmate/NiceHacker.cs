@@ -69,8 +69,8 @@ namespace TOHE.Roles.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (Options.UsePets.GetBool()) return;
-            AURoleOptions.EngineerCooldown = NiceHacker.AbilityCD.GetFloat();
+            if (UsePets.GetBool()) return;
+            AURoleOptions.EngineerCooldown = AbilityCD.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 1f;
         }
 

@@ -50,6 +50,7 @@ public class Totocalcio : RoleBase
     {
         playerIdList.Add(playerId);
         BetTimes = MaxBetTimes.GetInt();
+        BetPlayer = byte.MaxValue;
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))

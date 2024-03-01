@@ -154,10 +154,10 @@ namespace TOHE.Roles.Neutral
             SendRPC(clear: true);
         }
 
-        public static string GetEncasedPlayerSuffix(PlayerControl target)
+        public static string GetEncasedPlayerSuffix(PlayerControl seer, PlayerControl target)
         {
-            if (target == null || !EncasedPlayers.TryGetValue(target.PlayerId, out var ts) || (ts + NotifyDelay.GetInt() >= TimeStamp)) return string.Empty;
-            return ColorString(GetRoleColor(CustomRoles.Bubble), $"{ExplodeDelay.GetInt() - (TimeStamp - ts) + 1}s");
+            if (target == null || !EncasedPlayers.TryGetValue(target.PlayerId, out var ts) || ((ts + NotifyDelay.GetInt() >= TimeStamp) && !seer.Is(CustomRoles.Bubble))) return string.Empty;
+            return ColorString(GetRoleColor(CustomRoles.Bubble), $"⚠ {ExplodeDelay.GetInt() - (TimeStamp - ts) + 1}");
         }
     }
 }

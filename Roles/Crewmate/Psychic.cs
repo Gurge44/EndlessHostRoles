@@ -20,7 +20,7 @@ public class Psychic : RoleBase
     private static OptionItem NBshowEvil;
     private static OptionItem NEshowEvil;
 
-    private List<byte> RedPlayer;
+    private List<byte> RedPlayer = [];
     private byte PsychicId;
 
     public static void SetupCustomOption()

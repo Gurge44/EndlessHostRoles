@@ -21,7 +21,7 @@ public class NiceSwapper : RoleBase
     public static OptionItem NiceSwapperAbilityUseGainWithEachTaskCompleted;
     public static OptionItem AbilityChargesWhenFinishedTasks;
 
-    private static (byte, byte) SwapTargets;
+    private static (byte, byte) SwapTargets = (byte.MaxValue, byte.MaxValue);
     private static byte NiceSwapperId = byte.MaxValue;
 
     public static void SetupCustomOption()

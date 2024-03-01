@@ -19,7 +19,7 @@ namespace TOHE.Roles.Impostor
         private static OptionItem Delay;
         private static OptionItem Radius;
 
-        public static Dictionary<Vector2, long> Bombs;
+        public static Dictionary<Vector2, long> Bombs = [];
 
         public static void SetupCustomOption()
         {

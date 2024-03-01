@@ -1,12 +1,9 @@
-﻿using System.Collections.Generic;
-
-namespace TOHE.Roles.Neutral;
+﻿namespace TOHE.Roles.Neutral;
 
 // 来源：https://github.com/Yumenopai/TownOfHost_Y
 public static class Imitator
 {
     private const int Id = 11950;
-    public static List<byte> playerIdList = [];
 
     public static OptionItem OddKillCooldown;
     public static OptionItem EvenKillCooldown;

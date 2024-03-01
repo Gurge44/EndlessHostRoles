@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using TOHE.Roles.Impostor;
 using static TOHE.Options;
 
@@ -7,7 +6,6 @@ namespace TOHE.Roles.Neutral;
 public static class HexMaster
 {
     private const int Id = 11900;
-    public static List<byte> playerIdList = [];
     public static OptionItem ModeSwitchAction;
 
     public static void SetupCustomOption()

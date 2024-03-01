@@ -9,8 +9,8 @@ namespace TOHE.Roles.Crewmate
         private static int Id => 643480;
         private static OptionItem VisionIncrease;
         private static OptionItem Radius;
-        private static List<byte> AffectedPlayers;
-        private static Dictionary<byte, long> LastChange;
+        private static List<byte> AffectedPlayers = [];
+        private static Dictionary<byte, long> LastChange = [];
 
         public static bool On;
         public override bool IsEnable => On;

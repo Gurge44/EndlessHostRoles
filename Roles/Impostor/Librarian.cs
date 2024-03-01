@@ -13,7 +13,7 @@ namespace TOHE.Roles.Impostor
     {
         private const int Id = 643150;
         private static List<byte> playerIdList = [];
-        private (bool SILENCING, long LAST_CHANGE) IsInSilencingMode;
+        private (bool SILENCING, long LAST_CHANGE) IsInSilencingMode = (false, 0);
         private static List<byte> sssh = [];
 
         private static OptionItem Radius;

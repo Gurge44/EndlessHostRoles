@@ -27,7 +27,7 @@ namespace TOHE.Roles.Impostor
         private static bool excludeImpostors;
         private static float darkenDuration;
         private static float darkenTimer;
-        private static PlayerControl[] darkenedPlayers;
+        private static PlayerControl[] darkenedPlayers = [];
         private static SystemTypes? darkenedRoom;
 
         public override void Init()

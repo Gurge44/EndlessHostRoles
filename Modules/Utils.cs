@@ -1158,7 +1158,7 @@ public static class Utils
                 break;
             case CustomGameMode.HotPotato:
                 List<byte> list4 = [];
-                list4.AddRange(cloneRoles.ToArray());
+                list4.AddRange([.. cloneRoles]);
 
                 foreach (byte id in list4.ToArray())
                 {
@@ -2227,7 +2227,6 @@ public static class Utils
 
                             End:
 
-                            //KB目标玩家名字后缀
                             TargetSuffix.Clear();
 
                             if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
@@ -2235,7 +2234,7 @@ public static class Utils
 
                             TargetSuffix.Append(PlagueDoctor.GetLowerTextOthers(seer, target));
                             TargetSuffix.Append(Stealth.GetSuffix(seer, target));
-                            TargetSuffix.Append(Bubble.GetEncasedPlayerSuffix(target));
+                            TargetSuffix.Append(Bubble.GetEncasedPlayerSuffix(seer, target));
 
                             if (target.Is(CustomRoles.Librarian)) TargetSuffix.Append(Librarian.GetNameTextForSuffix(target.PlayerId));
 

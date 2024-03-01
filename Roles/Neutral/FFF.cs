@@ -25,7 +25,8 @@ namespace TOHE.Roles.Neutral
         public static OptionItem CanKillContagious;
         public static OptionItem CanKillUndead;
 
-        public static bool isWon;
+        public bool isWon;
+
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.FFF, zeroOne: false);

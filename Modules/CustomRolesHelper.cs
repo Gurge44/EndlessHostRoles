@@ -103,6 +103,7 @@ internal static class CustomRolesHelper
         CustomRoles.Convener => new Convener(),
         CustomRoles.CopyCat => new CopyCat(),
         CustomRoles.Bloodhound => new Bloodhound(),
+        CustomRoles.Bodyguard => new Bodyguard(),
         CustomRoles.Crusader => new Crusader(),
         CustomRoles.Deputy => new Deputy(),
         CustomRoles.Doctor => new Doctor(),
