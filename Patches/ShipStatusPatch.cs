@@ -125,8 +125,6 @@ class RepairSystemPatch
                     return false;
                 }
 
-                Main.PlayerStates[player.PlayerId].Role.OnSabotage(player);
-
                 if (player.Is(CustomRoleTypes.Impostor) && !player.IsAlive() && Options.DeadImpCantSabotage.GetBool()) return false;
                 if (player.Is(CustomRoleTypes.Impostor) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool()) && !player.Is(CustomRoles.Minimalism)) return true;
                 return player.GetCustomRole() switch
@@ -136,7 +134,7 @@ class RepairSystemPatch
                     CustomRoles.Traitor when Traitor.CanSabotage.GetBool() => true,
                     CustomRoles.Parasite when player.IsAlive() => true,
                     CustomRoles.Refugee when player.IsAlive() => true,
-                    _ => Main.PlayerStates[player.PlayerId].Role.CanUseSabotage(player)
+                    _ => Main.PlayerStates[player.PlayerId].Role.OnSabotage(player)
                 };
             case SystemTypes.Security when amount == 1:
                 var camerasDisabled = (MapNames)Main.NormalOptions.MapId switch

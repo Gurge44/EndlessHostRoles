@@ -1,13 +1,12 @@
+using Assets.CoreScripts;
+using HarmonyLib;
+using Hazel;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Assets.CoreScripts;
-using HarmonyLib;
-using Hazel;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
@@ -24,7 +23,7 @@ internal class ChatCommands
     public static bool IsPlayerModerator(string friendCode)
     {
         if (friendCode == "" || friendCode == string.Empty || !Options.ApplyModeratorList.GetBool()) return false;
-        var friendCodesFilePath = @"./TOHE_DATA/Moderators.txt";
+        const string friendCodesFilePath = "./TOHE_DATA/Moderators.txt";
         var friendCodes = File.ReadAllLines(friendCodesFilePath);
         return friendCodes.Any(code => code.Contains(friendCode, StringComparison.OrdinalIgnoreCase));
     }
@@ -45,7 +44,6 @@ internal class ChatCommands
         ChatControllerUpdatePatch.CurrentHistorySelection = ChatHistory.Count;
 
         string[] args = text.Split(' ');
-        string subArgs = string.Empty;
         var canceled = false;
         var cancelVal = string.Empty;
         Main.isChatCommand = true;
@@ -85,11 +83,7 @@ internal class ChatCommands
             case "/v":
             case "/version":
                 canceled = true;
-                string version_text = string.Empty;
-                foreach (var kvp in Main.playerVersion.OrderBy(pair => pair.Key))
-                {
-                    version_text += $"{kvp.Key}:{Main.AllPlayerNames[kvp.Key]}:{kvp.Value.forkId}/{kvp.Value.version}({kvp.Value.tag})\n";
-                }
+                string version_text = Main.playerVersion.OrderBy(pair => pair.Key).Aggregate(string.Empty, (current, kvp) => current + $"{kvp.Key}:{Main.AllPlayerNames[kvp.Key]}:{kvp.Value.forkId}/{kvp.Value.version}({kvp.Value.tag})\n");
 
                 if (version_text != string.Empty) HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, (PlayerControl.LocalPlayer.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + version_text);
                 break;
@@ -102,6 +96,7 @@ internal class ChatCommands
         {
             var localPlayerId = PlayerControl.LocalPlayer.PlayerId;
             Main.isChatCommand = true;
+            string subArgs;
             switch (args[0])
             {
                 case "/w":
@@ -208,7 +203,6 @@ internal class ChatCommands
 
                 case "/up":
                     canceled = true;
-                    subArgs = text.Remove(0, 3);
                     if (!PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp) break;
                     Utils.SendMessage($"{GetString("UpReplacedMessage")}", localPlayerId);
                     //if (!Options.EnableUpMode.GetBool())
@@ -269,11 +263,24 @@ internal class ChatCommands
                     canceled = true;
                     Utils.ShowHelp(localPlayerId);
                     break;
+
                 case "/kcount":
                     canceled = true;
                     if (GameStates.IsLobby || !Options.EnableKillerLeftCommand.GetBool()) break;
                     Utils.SendMessage(Utils.GetRemainingKillers(), localPlayerId);
                     break;
+
+                case "/eff":
+                case "/effect":
+                    canceled = true;
+                    if (args.Length < 2 || !GameStates.IsInTask || !Randomizer.Exists) break;
+                    if (Enum.TryParse(args[1], ignoreCase: true, out Randomizer.Effect enumerable))
+                    {
+                        enumerable.Apply(PlayerControl.LocalPlayer);
+                    }
+
+                    break;
+
                 case "/m":
                 case "/myrole":
                     canceled = true;
@@ -526,10 +533,7 @@ internal class ChatCommands
                 case "/id":
                     canceled = true;
                     string msgText = GetString("PlayerIdList");
-                    foreach (PlayerControl pc in Main.AllPlayerControls)
-                    {
-                        msgText += "\n" + pc.PlayerId + " → " + Main.AllPlayerNames[pc.PlayerId];
-                    }
+                    msgText = Main.AllPlayerControls.Aggregate(msgText, (current, pc) => current + ("\n" + pc.PlayerId + " → " + Main.AllPlayerNames[pc.PlayerId]));
 
                     Utils.SendMessage(msgText, localPlayerId);
                     break;
@@ -596,7 +600,6 @@ internal class ChatCommands
 
                 case "/sd":
                     canceled = true;
-                    subArgs = text.Remove(0, 3);
                     if (args.Length < 1 || !int.TryParse(args[1], out int sound1)) break;
                     RPC.PlaySoundRPC(localPlayerId, (Sounds)sound1);
                     break;
@@ -822,10 +825,8 @@ internal class ChatCommands
         }
         else name = name.Trim().ToLower();
 
-        IList list = Enum.GetValues(typeof(CustomRoles));
-        for (int i = 0; i < list.Count; i++)
+        foreach (var rl in EnumHelper.GetAllValues<CustomRoles>())
         {
-            CustomRoles rl = (CustomRoles)list[i];
             if (rl.IsVanilla()) continue;
             var roleName = GetString(rl.ToString()).ToLower().Trim().Replace(" ", string.Empty);
             string nameWithoutId = Regex.Replace(name.Replace(" ", string.Empty), @"^\d+", string.Empty);
@@ -871,10 +872,8 @@ internal class ChatCommands
 
         role = FixRoleNameInput(role).ToLower().Trim().Replace(" ", string.Empty);
 
-        IList list = Enum.GetValues(typeof(CustomRoles));
-        for (int i = 0; i < list.Count; i++)
+        foreach (var rl in EnumHelper.GetAllValues<CustomRoles>())
         {
-            CustomRoles rl = (CustomRoles)list[i];
             if (rl.IsVanilla()) continue;
             var roleName = GetString(rl.ToString());
             if (role == roleName.ToLower().Trim().TrimStart('*').Replace(" ", string.Empty))
@@ -886,8 +885,7 @@ internal class ChatCommands
                     if (rl.GetCount() < 1 || rl.GetMode() == 0) devMark = string.Empty;
                     if (isUp)
                     {
-                        if (devMark == "▲") Utils.SendMessage(string.Format(GetString("Message.YTPlanSelected"), roleName), playerId);
-                        else Utils.SendMessage(string.Format(GetString("Message.YTPlanSelectFailed"), roleName), playerId);
+                        Utils.SendMessage(devMark == "▲" ? string.Format(GetString("Message.YTPlanSelected"), roleName) : string.Format(GetString("Message.YTPlanSelectFailed"), roleName), playerId);
                     }
 
                     if (devMark == "▲")
@@ -920,8 +918,7 @@ internal class ChatCommands
             }
         }
 
-        if (isUp) Utils.SendMessage(GetString("Message.YTPlanCanNotFindRoleThePlayerEnter"), playerId);
-        else Utils.SendMessage(GetString("Message.CanNotFindRoleThePlayerEnter"), playerId);
+        Utils.SendMessage(isUp ? GetString("Message.YTPlanCanNotFindRoleThePlayerEnter") : GetString("Message.CanNotFindRoleThePlayerEnter"), playerId);
     }
 
     public static void OnReceiveChat(PlayerControl player, string text, out bool canceled)
@@ -939,7 +936,7 @@ internal class ChatCommands
         if (text.StartsWith("\n")) text = text[1..];
         //if (!text.StartsWith("/")) return;
         string[] args = text.Split(' ');
-        string subArgs = string.Empty;
+        string subArgs;
         //if (text.Length >= 3) if (text[..2] == "/r" && text[..3] != "/rn") args[0] = "/r";
         //   if (SpamManager.CheckSpam(player, text)) return;
         if (GuessManager.GuesserMsg(player, text))
@@ -1148,10 +1145,7 @@ internal class ChatCommands
             //    break;
             case "/id":
                 string msgText = GetString("PlayerIdList");
-                foreach (PlayerControl pc in Main.AllPlayerControls)
-                {
-                    msgText += "\n" + pc.PlayerId + " → " + Main.AllPlayerNames[pc.PlayerId];
-                }
+                msgText = Main.AllPlayerControls.Aggregate(msgText, (current, pc) => current + ("\n" + pc.PlayerId + " → " + Main.AllPlayerNames[pc.PlayerId]));
 
                 Utils.SendMessage(msgText, player.PlayerId);
                 break;
@@ -1317,7 +1311,7 @@ internal class ChatCommands
         }
 
         if (isCommand) LastSentCommand[player.PlayerId] = now;
-        if (SpamManager.CheckSpam(player, text)) return;
+        //if (SpamManager.CheckSpam(player, text)) return;
     }
 }
 
@@ -1338,7 +1332,7 @@ internal class ChatUpdatePatch
 
         if (!AmongUsClient.Instance.AmHost || Main.MessagesToSend.Count == 0 || (Main.MessagesToSend[0].RECEIVER_ID == byte.MaxValue && Main.MessageWait.Value > __instance.timeSinceLastMessage) || DoBlockChat) return;
 
-        var player = Main.AllAlivePlayerControls.OrderBy(x => x.PlayerId).FirstOrDefault() ?? Main.AllPlayerControls.OrderBy(x => x.PlayerId).FirstOrDefault() ?? PlayerControl.LocalPlayer;
+        var player = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
         if (player == null) return;
 
         (string msg, byte sendTo, string title) = Main.MessagesToSend[0];

@@ -75,9 +75,10 @@ namespace TOHE.Roles.Neutral
             ExecuteAction();
         }
 
-        public override void OnSabotage(PlayerControl pc)
+        public override bool OnSabotage(PlayerControl pc)
         {
             ExecuteAction();
+            return false;
         }
 
         void ExecuteAction()

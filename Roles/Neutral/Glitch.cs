@@ -151,9 +151,10 @@ public class Glitch : RoleBase
         Mimic(pc);
     }
 
-    public override void OnSabotage(PlayerControl pc)
+    public override bool OnSabotage(PlayerControl pc)
     {
         Mimic(pc);
+        return false;
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)

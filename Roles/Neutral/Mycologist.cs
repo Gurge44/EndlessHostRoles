@@ -104,12 +104,14 @@ namespace TOHE.Roles.Neutral
             }
         }
 
-        public override void OnSabotage(PlayerControl pc)
+        public override bool OnSabotage(PlayerControl pc)
         {
             if (SpreadAction.GetValue() == 1)
             {
                 SpreadSpores();
             }
+
+            return false;
         }
 
         public override void OnEnterVent(PlayerControl pc, Vent vent)

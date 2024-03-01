@@ -114,6 +114,11 @@ internal class Assassin : RoleBase
         return false;
     }
 
+    public override void OnPet(PlayerControl pc)
+    {
+        OnShapeshift(pc, null, true);
+    }
+
     public override bool OnShapeshift(PlayerControl pc, PlayerControl t, bool shapeshifting)
     {
         if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId) || Medic.ProtectList.Contains(pc.PlayerId)) return false;

@@ -84,8 +84,9 @@ namespace TOHE
             pc.Notify(Translator.GetString($"NoPetActionMsg{suffix}"));
         }
 
-        public virtual void OnSabotage(PlayerControl pc)
+        public virtual bool OnSabotage(PlayerControl pc)
         {
+            return CanUseSabotage(pc);
         }
 
         public virtual bool OnCheckMurder(PlayerControl killer, PlayerControl target)

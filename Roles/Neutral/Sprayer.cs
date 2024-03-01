@@ -87,9 +87,10 @@ namespace TOHE.Roles.Neutral
         public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
         public override bool CanUseSabotage(PlayerControl pc) => true;
 
-        public override void OnSabotage(PlayerControl pc)
+        public override bool OnSabotage(PlayerControl pc)
         {
             PlaceTrap();
+            return false;
         }
 
         public override void OnPet(PlayerControl pc)

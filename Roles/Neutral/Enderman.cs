@@ -58,9 +58,10 @@ namespace TOHE.Roles.Neutral
             MarkPosition();
         }
 
-        public override void OnSabotage(PlayerControl pc)
+        public override bool OnSabotage(PlayerControl pc)
         {
             MarkPosition();
+            return false;
         }
 
         void MarkPosition()

@@ -126,9 +126,10 @@ public class Magician : RoleBase
         UseCard(pc);
     }
 
-    public override void OnSabotage(PlayerControl pc)
+    public override bool OnSabotage(PlayerControl pc)
     {
         UseCard(pc);
+        return false;
     }
 
     public static void UseCard(PlayerControl pc)

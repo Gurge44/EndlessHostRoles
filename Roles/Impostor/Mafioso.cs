@@ -266,11 +266,12 @@ namespace TOHE.Roles.Impostor
             SendRPC();
         }
 
-        public override void OnSabotage(PlayerControl pc)
+        public override bool OnSabotage(PlayerControl pc)
         {
-            if (Main.PlayerStates[pc.PlayerId].Role is not Mafioso { IsEnable: true } mo) return;
+            if (Main.PlayerStates[pc.PlayerId].Role is not Mafioso { IsEnable: true } mo) return true;
             mo.XP += RewardForSabotaging.GetInt();
             mo.SendRPC();
+            return true;
         }
 
         public static void OnCrewmateEjected()

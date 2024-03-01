@@ -100,9 +100,10 @@ public class WeaponMaster : RoleBase
         SwitchMode();
     }
 
-    public override void OnSabotage(PlayerControl pc)
+    public override bool OnSabotage(PlayerControl pc)
     {
         SwitchMode();
+        return false;
     }
 
     void SwitchMode()
