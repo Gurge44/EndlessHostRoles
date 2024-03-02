@@ -43,6 +43,10 @@ public class Postman : RoleBase
         playerIdList.Add(playerId);
         _ = new LateTask(SetNewTarget, 8f, "Set Postman First Target");
 
+        Target = byte.MaxValue;
+        IsFinished = false;
+        wereTargets = [];
+
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);

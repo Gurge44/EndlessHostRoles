@@ -468,7 +468,7 @@ class CheckForEndVotingPatch
         {
             Main.DoBlockNameChange = true;
             if (GameStates.IsInGame) player?.RpcSetName(name);
-        }, 3.0f, "Change Exiled Player Name");
+        }, 2.5f, "Change Exiled Player Name");
         _ = new LateTask(() =>
         {
             if (GameStates.IsInGame && player != null && !player.Data.Disconnected)
@@ -501,7 +501,8 @@ class CheckForEndVotingPatch
             var id = playerId;
             if (CustomRoles.Lovers.IsEnable() && !Main.isLoversDead && Main.LoversPlayers.Find(lp => lp.PlayerId == id) != null)
                 FixedUpdatePatch.LoversSuicide(playerId, true);
-            RevengeOnExile(playerId /*, deathReason*/);
+            if (Main.PlayerStates.TryGetValue(id, out var state) && state.SubRoles.Contains(CustomRoles.Avanger))
+                RevengeOnExile(playerId /*, deathReason*/);
         }
     }
 

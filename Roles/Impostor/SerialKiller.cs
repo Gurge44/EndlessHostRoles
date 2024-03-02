@@ -36,6 +36,7 @@ public class SerialKiller : RoleBase
     {
         playerIdList.Add(serial);
         Timer = TimeLimit.GetInt();
+        SuicideTimer = TimeLimit.GetFloat();
     }
 
     public override bool IsEnable => playerIdList.Count > 0;

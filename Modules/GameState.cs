@@ -58,11 +58,14 @@ public class PlayerState(byte playerId)
 
         Role = role.GetRoleClass();
 
-        if (Main.HasJustStarted)
+        if (!role.RoleExist(countDead: true))
         {
             Role.Init();
         }
-        else
+
+        Role.Add(PlayerId);
+
+        if (!Main.HasJustStarted)
         {
             var pc = Utils.GetPlayerById(PlayerId);
             pc.ResetKillCooldown();
@@ -75,9 +78,8 @@ public class PlayerState(byte playerId)
                 RemoveDisableDevicesPatch.UpdateDisableDevices();
             }
         }
-
-        Role.Add(PlayerId);
     }
+
     public void SetSubRole(CustomRoles role, bool AllReplace = false)
     {
         if (role == CustomRoles.Cleansed)

@@ -32,6 +32,15 @@ internal class ChangeRoleSettings
                 Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Shapeshifter, 0, 0);
             }
 
+            // Reset previous roles
+            if (Main.PlayerStates != null)
+            {
+                foreach (var state in Main.PlayerStates.Values)
+                {
+                    state.Role.Init();
+                }
+            }
+
             Main.PlayerStates = [];
 
             Main.AbilityUseLimit = [];
@@ -194,7 +203,6 @@ internal class ChangeRoleSettings
                 Logger.Exception(ex, "Init Roles");
             }
 
-            Insight.KnownRolesOfPlayerIds = [];
             Crewpostor.TasksDone = [];
             Express.SpeedNormal = [];
             Express.SpeedUp = [];
@@ -492,8 +500,7 @@ internal class SelectRolesPatch
             if (Options.CurrentGameMode == CustomGameMode.HotPotato) HotPotatoManager.OnGameStart();
 
             HudManager.Instance.SetHudActive(true);
-            List<PlayerControl> AllPlayers = [];
-            CustomRpcSender sender = CustomRpcSender.Create("SelectRoles Sender", SendOption.Reliable);
+
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
                 pc.ResetKillCooldown();
@@ -553,7 +560,7 @@ internal class SelectRolesPatch
                 _ = new LateTask(() => { PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)); }, 15f, "GM Auto-TP Failsafe"); // TP to Main Hall
             }
 
-            _ = new LateTask(() => { Main.HasJustStarted = false; }, 13f, "HasJustStarted to false");
+            _ = new LateTask(() => { Main.HasJustStarted = false; }, 10f, "HasJustStarted to false");
         }
         catch (Exception ex)
         {

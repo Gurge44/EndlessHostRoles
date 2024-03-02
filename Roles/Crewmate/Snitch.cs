@@ -44,12 +44,6 @@ public class Snitch : RoleBase
     {
         PlayerIdList.Clear();
 
-        EnableTargetArrow = OptionEnableTargetArrow.GetBool();
-        CanGetColoredArrow = OptionCanGetColoredArrow.GetBool();
-        CanFindNeutralKiller = OptionCanFindNeutralKiller.GetBool();
-        CanFindMadmate = OptionCanFindMadmate.GetBool();
-        RemainingTasksToBeFound = OptionRemainingTasks.GetInt();
-
         IsExposed.Clear();
         IsComplete.Clear();
 
@@ -60,6 +54,12 @@ public class Snitch : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
+
+        EnableTargetArrow = OptionEnableTargetArrow.GetBool();
+        CanGetColoredArrow = OptionCanGetColoredArrow.GetBool();
+        CanFindNeutralKiller = OptionCanFindNeutralKiller.GetBool();
+        CanFindMadmate = OptionCanFindMadmate.GetBool();
+        RemainingTasksToBeFound = OptionRemainingTasks.GetInt();
 
         IsExposed[playerId] = false;
         IsComplete[playerId] = false;

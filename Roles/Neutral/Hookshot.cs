@@ -41,6 +41,8 @@ namespace TOHE.Roles.Neutral
         public override void Add(byte playerId)
         {
             HookshotId = playerId;
+            ToTargetTP = true;
+            MarkedPlayerId = byte.MaxValue;
 
             if (!AmongUsClient.Instance.AmHost) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))

@@ -14,11 +14,10 @@ namespace TOHE.Roles.Impostor
         public static List<byte> playerIdList = [];
 
         public List<Vector2> Marks = [];
+        public long LastTP = TimeStamp;
 
         public static OptionItem KillCooldown;
         public static OptionItem ShapeshiftCooldown;
-
-        public long LastTP = TimeStamp;
 
         public static void SetupCustomOption()
         {
@@ -39,6 +38,7 @@ namespace TOHE.Roles.Impostor
         {
             playerIdList.Add(playerId);
             LastTP = TimeStamp;
+            Marks = [];
         }
 
         public override bool IsEnable => playerIdList.Count > 0;

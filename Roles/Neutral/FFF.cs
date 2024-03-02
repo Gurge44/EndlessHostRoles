@@ -54,6 +54,7 @@ namespace TOHE.Roles.Neutral
         {
             playerIdList.Add(playerId);
             On = true;
+            isWon = false;
 
             if (!AmongUsClient.Instance.AmHost) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))

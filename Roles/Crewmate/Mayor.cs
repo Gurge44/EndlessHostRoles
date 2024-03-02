@@ -49,6 +49,8 @@ namespace TOHE.Roles.Crewmate
 
         private static void Button(PlayerControl pc)
         {
+            if (!Options.MayorHasPortableButton.GetBool()) return;
+
             if (Main.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count) && count < Options.MayorNumOfUseButton.GetInt())
             {
                 pc.ReportDeadBody(null);

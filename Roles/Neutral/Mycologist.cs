@@ -62,6 +62,7 @@ namespace TOHE.Roles.Neutral
         public override void Add(byte playerId)
         {
             MycologistId = playerId;
+            InfectedPlayers.Clear();
 
             if (!AmongUsClient.Instance.AmHost) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))

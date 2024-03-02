@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using TOHE.Modules;
 using static TOHE.Options;
 using static TOHE.Translator;
 
@@ -20,7 +21,7 @@ public class Divinator : RoleBase
 
     public static List<byte> didVote = [];
 
-    private static Dictionary<byte, List<CustomRoles>> AllPlayerRoleList = [];
+    private static Dictionary<byte, CustomRoles[]> AllPlayerRoleList = [];
     private const int RolesPerCategory = 5;
 
     public static void SetupCustomOption()
@@ -51,24 +52,19 @@ public class Divinator : RoleBase
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(CheckLimitOpt.GetInt());
 
-        List<CustomRoles> AllRoles = [.. EnumHelper.GetAllValues<CustomRoles>().Where(x => !x.IsAdditionRole() && x is not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.KB_Normal and not CustomRoles.Potato)];
         var r = IRandom.Instance;
+        CustomRoles[][] chunked = EnumHelper.GetAllValues<CustomRoles>()
+            .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.KB_Normal and not CustomRoles.Potato)
+            .Shuffle(r)
+            .Chunk(RolesPerCategory)
+            .ToArray();
 
+        int index = 0;
         foreach (var pc in Main.AllAlivePlayerControls)
         {
-            AllPlayerRoleList[pc.PlayerId] = [];
-            if (pc.PlayerId == playerId) continue;
-            for (int i = 0; i < RolesPerCategory; i++)
-            {
-                if (AllRoles.Count == 0)
-                {
-                    Logger.Error("Not enough roles", "Divinator.Add");
-                    return;
-                }
-                CustomRoles role = AllRoles[r.Next(0, AllRoles.Count)];
-                AllPlayerRoleList[pc.PlayerId].Add(role);
-                AllRoles.Remove(role);
-            }
+            if (index >= chunked.Length) break;
+            AllPlayerRoleList[pc.PlayerId] = chunked[index];
+            index++;
         }
     }
 

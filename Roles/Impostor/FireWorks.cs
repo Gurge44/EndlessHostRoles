@@ -51,13 +51,13 @@ public class FireWorks : RoleBase
         nowFireWorksCount = 0;
         fireWorksPosition = [];
         state = FireWorksState.Initial;
-        fireWorksCount = FireWorksCount.GetInt();
-        fireWorksRadius = FireWorksRadius.GetFloat();
     }
 
     public override void Add(byte playerId)
     {
         On = true;
+        fireWorksCount = FireWorksCount.GetInt();
+        fireWorksRadius = FireWorksRadius.GetFloat();
         nowFireWorksCount = fireWorksCount;
         fireWorksPosition = [];
         state = FireWorksState.Initial;

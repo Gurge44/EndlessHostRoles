@@ -26,6 +26,7 @@ namespace TOHE.Roles.Impostor
         private bool VictimCanUseAbilities;
 
         private float DefaultSpeed;
+        private long LastNotify;
 
         // Measures to prevent the opponent who is about to be killed during abduction from using their abilities
         public static bool IsVictim(PlayerControl pc)
@@ -74,10 +75,12 @@ namespace TOHE.Roles.Impostor
 
             AbductTimer = 255f;
             stopCount = false;
+            LastNotify = 0;
         }
 
         public override bool IsEnable => PenguinId != byte.MaxValue;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
+        public override bool CanUseImpostorVentButton(PlayerControl pc) => AbductVictim == null;
 
         void SendRPC()
         {
@@ -110,7 +113,7 @@ namespace TOHE.Roles.Impostor
             AbductTimer = AbductTimerLimit;
             Main.AllPlayerSpeed[PenguinId] = SpeedDuringDrag;
             Penguin_.MarkDirtySettings();
-            //Penguin_.RpcResetAbilityCooldown();
+            Utils.NotifyRoles(SpecifySeer: Penguin_, SpecifyTarget: Penguin_);
             SendRPC();
         }
 
@@ -121,13 +124,14 @@ namespace TOHE.Roles.Impostor
             AbductTimer = 255f;
             Main.AllPlayerSpeed[PenguinId] = DefaultSpeed;
             Penguin_.MarkDirtySettings();
-            //Penguin_.RpcResetAbilityCooldown();
+            Utils.NotifyRoles(SpecifySeer: Penguin_, SpecifyTarget: Penguin_);
             SendRPC();
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (!IsEnable) return true;
+
             bool doKill = true;
             if (AbductVictim != null)
             {
@@ -143,6 +147,7 @@ namespace TOHE.Roles.Impostor
             }
             else
             {
+                if (!killer.RpcCheckAndMurder(target, check: true)) return false;
                 doKill = false;
                 AddVictim(target);
             }
@@ -199,7 +204,6 @@ namespace TOHE.Roles.Impostor
             if (AbductVictim != null)
             {
                 Penguin_.MarkDirtySettings();
-                //Penguin_.RpcResetAbilityCooldown();
                 stopCount = false;
             }
         }
@@ -219,6 +223,12 @@ namespace TOHE.Roles.Impostor
                 {
                     RemoveVictim();
                     return;
+                }
+
+                if (LastNotify != Utils.TimeStamp)
+                {
+                    Utils.NotifyRoles(SpecifySeer: Penguin_, SpecifyTarget: Penguin_);
+                    LastNotify = Utils.TimeStamp;
                 }
 
                 if (AbductTimer <= 0f && !Penguin_.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
@@ -276,7 +286,6 @@ namespace TOHE.Roles.Impostor
             else if (AbductTimer <= 100f)
             {
                 AbductTimer = 255f;
-                //Penguin_.RpcResetAbilityCooldown();
             }
         }
 

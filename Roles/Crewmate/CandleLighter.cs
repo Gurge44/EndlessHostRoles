@@ -55,6 +55,7 @@ namespace TOHE.Roles.Crewmate
         public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
+            Active = true;
             UpdateTime = 1.0f;
             ElapsedTime = OptionTaskEndVisionTime.GetInt() + OptionCountStartTime.GetInt();
         }

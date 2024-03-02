@@ -15,7 +15,10 @@ public class Judge : RoleBase
 {
     private const int Id = 9300;
     private static List<byte> playerIdList = [];
+
     public static OptionItem TrialLimitPerMeeting;
+    public static OptionItem TrialLimitPerGame;
+
     private static OptionItem TryHideMsg;
     private static OptionItem CanTrialMadmate;
 
@@ -32,10 +35,13 @@ public class Judge : RoleBase
     public static OptionItem JudgeAbilityUseGainWithEachTaskCompleted;
     public static OptionItem AbilityChargesWhenFinishedTasks;
 
+    private static Dictionary<byte, int> GlobalUseLimit = [];
+
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Judge);
         TrialLimitPerMeeting = FloatOptionItem.Create(Id + 10, "TrialLimitPerMeeting", new(0f, 15f, 1f), 1f, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]).SetValueFormat(OptionFormat.Times);
+        TrialLimitPerGame = FloatOptionItem.Create(Id + 9, "TrialLimitPerGame", new(0f, 30f, 1f), 3f, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]).SetValueFormat(OptionFormat.Times);
         CanTrialMadmate = BooleanOptionItem.Create(Id + 12, "JudgeCanTrialMadmate", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
         CanTrialCharmed = BooleanOptionItem.Create(Id + 16, "JudgeCanTrialCharmed", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
         //CanTrialSidekick = BooleanOptionItem.Create(Id + 19, "JudgeCanTrialSidekick", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
@@ -54,12 +60,14 @@ public class Judge : RoleBase
     public override void Init()
     {
         playerIdList = [];
+        GlobalUseLimit = [];
     }
 
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(TrialLimitPerMeeting.GetInt());
+        GlobalUseLimit[playerId] = TrialLimitPerGame.GetInt();
     }
 
     public override bool IsEnable => playerIdList.Count > 0;
@@ -81,7 +89,7 @@ public class Judge : RoleBase
         if (!GameStates.IsInGame || pc == null) return false;
         if (!pc.Is(CustomRoles.Judge)) return false;
 
-        int operate; // 1:ID 2:猜测
+        int operate; // 1:ID 2:Trial
         msg = msg.ToLower().TrimStart().TrimEnd();
         if (CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id")) operate = 1;
         else if (CheckCommand(ref msg, "shoot|guess|bet|st|gs|bt|猜|赌|sp|jj|tl|trial|审判|判|审", false)) operate = 2;
@@ -114,7 +122,7 @@ public class Judge : RoleBase
                 {
                     Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} 审判了 {target.GetNameWithRole().RemoveHtmlTags()}", "Judge");
                     bool judgeSuicide;
-                    if (pc.GetAbilityUseLimit() < 1)
+                    if (pc.GetAbilityUseLimit() < 1 || GlobalUseLimit[pc.PlayerId] < 1)
                     {
                         if (!isUI) Utils.SendMessage(GetString("JudgeTrialMax"), pc.PlayerId);
                         else pc.ShowPopUp(GetString("JudgeTrialMax"));
@@ -157,6 +165,7 @@ public class Judge : RoleBase
                     string Name = dp.GetRealName();
 
                     pc.RpcRemoveAbilityUse();
+                    GlobalUseLimit[pc.PlayerId]--;
 
                     _ = new LateTask(() =>
                     {
@@ -188,7 +197,7 @@ public class Judge : RoleBase
         string result = string.Empty;
         for (int i = 0; i < mc.Count; i++)
         {
-            result += mc[i]; //匹配结果是完整的数字，此处可以不做拼接的
+            result += mc[i];
         }
 
         if (int.TryParse(result, out int num))
@@ -197,15 +206,11 @@ public class Judge : RoleBase
         }
         else
         {
-            //并不是玩家编号，判断是否颜色
-            //byte color = GetColorFromMsg(msg);
-            //好吧我不知道怎么取某位玩家的颜色，等会了的时候再来把这里补上
             id = byte.MaxValue;
             error = GetString("TrialHelp");
             return false;
         }
 
-        //判断选择的玩家是否合理
         PlayerControl target = Utils.GetPlayerById(id);
         if (target == null || target.Data.IsDead)
         {

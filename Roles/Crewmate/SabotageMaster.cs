@@ -60,6 +60,7 @@ public class SabotageMaster : RoleBase
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
+        UsedSkillCount = 0;
         SMId = playerId;
     }
 

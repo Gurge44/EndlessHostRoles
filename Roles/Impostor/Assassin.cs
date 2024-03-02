@@ -45,6 +45,7 @@ internal class Assassin : RoleBase
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
+        MarkedPlayer = byte.MaxValue;
         IsUndertaker = Main.PlayerStates[playerId].MainRole == CustomRoles.Undertaker;
 
         if (IsUndertaker)

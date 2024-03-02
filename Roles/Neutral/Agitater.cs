@@ -56,6 +56,11 @@ public class Agitater : RoleBase
         playerIdList.Add(playerId);
         AgitaterId = playerId;
 
+        CurrentBombedPlayer = byte.MaxValue;
+        LastBombedPlayer = byte.MaxValue;
+        AgitaterHasBombed = false;
+        CurrentBombedPlayerTime = new();
+
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);

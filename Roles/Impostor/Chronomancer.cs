@@ -63,6 +63,8 @@ namespace TOHE.Roles.Impostor
         public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
+            IsRampaging = false;
+            ChargePercent = 0;
             LastUpdate = Utils.TimeStamp + 10;
             ChronomancerId = playerId;
         }

@@ -61,6 +61,9 @@ public class BountyHunter : RoleBase
 
         Timer = (int)TargetChangeTime;
 
+        Target = byte.MaxValue;
+        ChangeTimer = TargetChangeTime;
+
         if (AmongUsClient.Instance.AmHost)
             ResetTarget(Utils.GetPlayerById(playerId));
     }

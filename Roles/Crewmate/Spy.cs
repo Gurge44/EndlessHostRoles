@@ -47,6 +47,7 @@ namespace TOHE.Roles.Crewmate
         {
             playerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
+            change = false;
         }
 
         public override bool IsEnable => playerIdList.Count > 0;

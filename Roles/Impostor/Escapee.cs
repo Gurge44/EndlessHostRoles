@@ -13,6 +13,7 @@ namespace TOHE.Roles.Impostor
         public override void Add(byte playerId)
         {
             On = true;
+            EscapeeLocation = null;
         }
 
         public override void Init()

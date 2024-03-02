@@ -73,6 +73,10 @@ public class Doomsayer : RoleBase
     {
         playerIdList.Add(playerId);
         GuessingToWin.TryAdd(playerId, GuessesCount);
+
+        GuessesCount = 0;
+        GuessesCountPerMeeting = 0;
+        CantGuess = false;
     }
 
     public override bool IsEnable => playerIdList.Count > 0;

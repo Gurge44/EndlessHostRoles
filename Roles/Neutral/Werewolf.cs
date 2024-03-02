@@ -50,6 +50,10 @@ public class Werewolf : RoleBase
         playerIdList.Add(playerId);
         WWId = playerId;
 
+        RampageTime = -10;
+        lastTime = -10;
+        CD = 0;
+
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
@@ -110,7 +114,7 @@ public class Werewolf : RoleBase
             CD = 0;
         }
 
-        if (lastFixedTime != now)
+        if (lastFixedTime != now && RampageTime != -10)
         {
             lastFixedTime = now;
             bool refresh = false;
@@ -120,6 +124,7 @@ public class Werewolf : RoleBase
                 case < 0:
                     lastTime = now;
                     player.Notify(GetString("WWRampageOut"));
+                    RampageTime = -10;
                     SendRPC();
                     refresh = true;
                     break;

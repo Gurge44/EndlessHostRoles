@@ -41,6 +41,7 @@ namespace TOHE.Roles.Impostor
         {
             playerIdList.Add(playerId);
             HitmanId = playerId;
+            TargetId = byte.MaxValue;
         }
 
         public override bool IsEnable => playerIdList.Count > 0;

@@ -44,8 +44,8 @@ namespace TOHE.Roles.Crewmate
         {
             var ProgressText = new StringBuilder();
 
-            ProgressText.Append(Utils.GetTaskCount(playerId, comms));
             ProgressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, IsAbilityActive));
+            ProgressText.Append(Utils.GetTaskCount(playerId, comms));
 
             return ProgressText.ToString();
         }

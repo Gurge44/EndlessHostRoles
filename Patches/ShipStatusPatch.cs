@@ -134,7 +134,7 @@ class RepairSystemPatch
                     CustomRoles.Traitor when Traitor.CanSabotage.GetBool() => true,
                     CustomRoles.Parasite when player.IsAlive() => true,
                     CustomRoles.Refugee when player.IsAlive() => true,
-                    _ => Main.PlayerStates[player.PlayerId].Role.OnSabotage(player)
+                    _ => Main.PlayerStates[player.PlayerId].Role.OnSabotage(player) && Main.PlayerStates[player.PlayerId].Role.CanUseSabotage(player)
                 };
             case SystemTypes.Security when amount == 1:
                 var camerasDisabled = (MapNames)Main.NormalOptions.MapId switch

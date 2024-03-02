@@ -166,7 +166,7 @@ public class Romantic : RoleBase
     }
 
     public static string GetTargetText(byte playerId) => playerId != RomanticId
-        ? null
+        ? string.Empty
         : Utils.ColorString(!HasPickedPartner ? Color.white : Utils.GetRoleColor(CustomRoles.Romantic), $"{(!HasPickedPartner ? "PICK PARTNER" : "♥")}");
 
     public override void OnReportDeadBody() => IsPartnerProtected = false;
@@ -284,7 +284,7 @@ public class VengefulRomantic : RoleBase
     public static string GetTargetText(byte playerId)
     {
         var player = Utils.GetPlayerById(playerId);
-        return player == null ? null : Utils.ColorString(HasKilledKiller ? Color.green : Utils.GetRoleColor(CustomRoles.VengefulRomantic), $"{(HasKilledKiller ? "✓" : "☹️")}");
+        return player == null ? string.Empty : Utils.ColorString(HasKilledKiller ? Color.green : Utils.GetRoleColor(CustomRoles.VengefulRomantic), $"{(HasKilledKiller ? "✓" : "☹️")}");
     }
 
     public static void SendRPC()

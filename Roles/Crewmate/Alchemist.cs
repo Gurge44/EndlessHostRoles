@@ -73,6 +73,11 @@ namespace TOHE.Roles.Crewmate
             playerIdList.Add(playerId);
             PlayerName = Utils.GetPlayerById(playerId).GetRealName();
             AlchemistId = playerId;
+            PotionID = 10;
+            ventedId = -10;
+            InvisTime = -10;
+            FixNextSabo = false;
+            VisionPotionActive = false;
         }
 
         public override bool IsEnable => playerIdList.Count > 0;

@@ -88,17 +88,5 @@ namespace TOHE.Roles.Crewmate
                 Utils.NotifyRoles(SpecifySeer: pc);
             }
         }
-
-        public override string GetProgressText(byte playerId, bool comms)
-        {
-            if (Utils.GetPlayerById(playerId) == null) return string.Empty;
-
-            var sb = new StringBuilder();
-
-            sb.Append(Utils.GetTaskCount(playerId, comms));
-            sb.Append(Utils.GetAbilityUseLimitDisplay(playerId));
-
-            return sb.ToString();
-        }
     }
 }

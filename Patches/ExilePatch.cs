@@ -219,7 +219,7 @@ class ExileControllerWrapUpPatch
                     Utils.AfterPlayerDeathTasks(player);
                 });
                 Main.AfterMeetingDeathPlayers.Clear();
-            }, 0.8f, "AfterMeetingDeathPlayers Task");
+            }, 0.9f, "AfterMeetingDeathPlayers Task");
         }
 
         GameStates.AlreadyDied |= !Utils.IsAllAlive;

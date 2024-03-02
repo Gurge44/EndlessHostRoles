@@ -23,6 +23,7 @@ internal static class CustomRolesHelper
         CustomRoles.Camouflager => new Camouflager(),
         CustomRoles.Capitalism => new Capitalism(),
         CustomRoles.Cantankerous => new Cantankerous(),
+        CustomRoles.Changeling => new Changeling(),
         CustomRoles.Chronomancer => new Chronomancer(),
         CustomRoles.Cleaner => new Cleaner(),
         CustomRoles.EvilDiviner => new EvilDiviner(),
@@ -291,6 +292,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Dictator => CustomRoles.Crewmate,
                 CustomRoles.Inhibitor => CustomRoles.Impostor,
                 CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
+                CustomRoles.Changeling => CustomRoles.Shapeshifter,
                 CustomRoles.Swapster => CustomRoles.Shapeshifter,
                 CustomRoles.Kamikaze => CustomRoles.Impostor,
                 CustomRoles.Librarian => CustomRoles.Shapeshifter,
@@ -722,6 +724,7 @@ internal static class CustomRolesHelper
             CustomRoles.Underdog or
             CustomRoles.Inhibitor or
             CustomRoles.Kidnapper or
+            CustomRoles.Changeling or
             CustomRoles.Swapster or
             CustomRoles.Kamikaze or
             CustomRoles.Librarian or

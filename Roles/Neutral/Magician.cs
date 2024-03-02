@@ -94,6 +94,10 @@ public class Magician : RoleBase
         playerIdList.Add(playerId);
         originalSpeed = Main.AllPlayerSpeed[playerId];
 
+        isSniping = false;
+        isSpeedup = false;
+        lastTP = TimeStamp;
+
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);

@@ -107,7 +107,6 @@ public class Executioner : RoleBase
 
     public static void SendRPC(byte executionerId, byte targetId = 0x73, string Progress = "")
     {
-        if (!Utils.DoRPC) return;
         MessageWriter writer;
         switch (Progress)
         {
@@ -124,8 +123,7 @@ public class Executioner : RoleBase
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
                 break;
             case "WinCheck":
-                if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) break; //まだ勝者が設定されていない場合
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Executioner);
+                CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.Executioner);
                 CustomWinnerHolder.WinnerIds.Add(executionerId);
                 break;
         }

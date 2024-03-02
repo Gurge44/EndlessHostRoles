@@ -80,6 +80,11 @@ namespace TOHE.Roles.Impostor
             playerIdList.Add(playerId);
             lastUpdate = TimeStamp + 8;
             MafiosoId = playerId;
+            PreviouslyUsedVents = [];
+            Tier = 0;
+            XP = 0;
+            Pistol1CD = 0;
+            Pistol2CD = 0;
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)

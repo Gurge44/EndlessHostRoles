@@ -44,7 +44,13 @@ public class Vengeance : RoleBase
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
+
         Timer = RevengeTime.GetInt();
+
+        IsRevenge = false;
+        Success = false;
+        Killer = byte.MaxValue;
+        tempKillTimer = 0;
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))

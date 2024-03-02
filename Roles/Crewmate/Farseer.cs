@@ -54,10 +54,10 @@ namespace TOHE.Roles.Crewmate
 
             foreach (PlayerControl ar in Main.AllPlayerControls)
             {
-                Main.isRevealed.Add((playerId, ar.PlayerId), false);
+                Main.isRevealed[(playerId, ar.PlayerId)] = false;
             }
 
-            RandomRole.Add(playerId, GetRandomCrewRoleString());
+            RandomRole[playerId] = GetRandomCrewRoleString();
 
             if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))

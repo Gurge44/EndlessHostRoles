@@ -5,7 +5,7 @@ namespace TOHE.Roles.Crewmate
 {
     internal class Insight : RoleBase
     {
-        public static List<byte> KnownRolesOfPlayerIds = [];
+        public List<byte> KnownRolesOfPlayerIds = [];
 
         public static bool On;
         public override bool IsEnable => On;
@@ -13,6 +13,7 @@ namespace TOHE.Roles.Crewmate
         public override void Add(byte playerId)
         {
             On = true;
+            KnownRolesOfPlayerIds = [];
         }
 
         public override void Init()

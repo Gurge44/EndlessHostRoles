@@ -114,6 +114,7 @@ public static class Utils
         return true;
     }
 
+    // ReSharper disable once InconsistentNaming
     public static bool TPtoRndVent(CustomNetworkTransform nt, bool log = true)
     {
         var vents = Object.FindObjectsOfType<Vent>();
@@ -810,21 +811,28 @@ public static class Utils
         if (pc.Is(CustomRoles.Damocles)) ProgressText.Append(' ' + Damocles.GetProgressText(playerId));
         if (pc.Is(CustomRoles.Stressed)) ProgressText.Append(' ' + Stressed.GetProgressText(playerId));
 
-        if (ProgressText.Length != 0 && !ProgressText.ToString().StartsWith(' '))
-            ProgressText.Insert(0, ' '); //空じゃなければ空白を追加
+        if (ProgressText.Length != 0 && !ProgressText.ToString().RemoveHtmlTags().StartsWith(' '))
+            ProgressText.Insert(0, ' ');
 
         return ProgressText.ToString();
     }
 
     public static string GetAbilityUseLimitDisplay(byte playerId, bool usingAbility = false)
     {
-        float limit = playerId.GetAbilityUseLimit();
-        if (float.IsNaN(limit)) return string.Empty;
-        Color TextColor;
-        if (limit < 1) TextColor = Color.red;
-        else if (usingAbility) TextColor = Color.green;
-        else TextColor = Color.white;
-        return ColorString(TextColor, $" <color=#777777>-</color> {Math.Round(limit, 1)}");
+        try
+        {
+            float limit = playerId.GetAbilityUseLimit();
+            if (float.IsNaN(limit)) return string.Empty;
+            Color TextColor;
+            if (limit < 1) TextColor = Color.red;
+            else if (usingAbility) TextColor = Color.green;
+            else TextColor = GetRoleColor(Main.PlayerStates[playerId].MainRole).ShadeColor(0.25f);
+            return ColorString(TextColor, $" ({Math.Round(limit, 1)})");
+        }
+        catch
+        {
+            return string.Empty;
+        }
     }
 
     public static string GetTaskCount(byte playerId, bool comms, bool moveAndStop = false)
@@ -835,8 +843,8 @@ public static class Utils
             if (!taskState.hasTasks) return string.Empty;
 
             var info = GetPlayerInfoById(playerId);
-            var TaskCompleteColor = HasTasks(info) ? Color.green : GetRoleColor(Main.PlayerStates[playerId].MainRole).ShadeColor(0.5f); //タスク完了後の色
-            var NonCompleteColor = HasTasks(info) ? Color.yellow : Color.white; //カウントされない人外は白色
+            var TaskCompleteColor = HasTasks(info) ? Color.green : GetRoleColor(Main.PlayerStates[playerId].MainRole).ShadeColor(0.5f);
+            var NonCompleteColor = HasTasks(info) ? Color.yellow : Color.white;
 
             if (Workhorse.IsThisRole(playerId))
                 NonCompleteColor = Workhorse.RoleColor;
@@ -847,7 +855,7 @@ public static class Utils
 
             Color TextColor = comms ? Color.gray : NormalColor;
             string Completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
-            return ColorString(TextColor, $"{(moveAndStop ? string.Empty : "<color=#777777>-</color>")} {(moveAndStop ? "<size=1.6>" : string.Empty)}{Completed}/{taskState.AllTasksCount}{(moveAndStop ? "</size>" : string.Empty)}");
+            return ColorString(TextColor, $" {(moveAndStop ? "<size=1.6>" : string.Empty)}{Completed}/{taskState.AllTasksCount}{(moveAndStop ? "</size>" : string.Empty)}");
         }
         catch
         {

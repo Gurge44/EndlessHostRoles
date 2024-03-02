@@ -64,6 +64,11 @@ public class Swooper : RoleBase
         playerIdList.Add(playerId);
         SwooperId = playerId;
 
+        InvisTime = -10;
+        lastTime = -10;
+        ventedId = -10;
+        CD = 0;
+
         UsedRole = Main.PlayerStates[playerId].MainRole;
 
         switch (UsedRole)
@@ -159,7 +164,7 @@ public class Swooper : RoleBase
             CD = 0;
         }
 
-        if (lastFixedTime != now)
+        if (lastFixedTime != now && InvisTime != -10)
         {
             lastFixedTime = now;
             bool refresh = false;
@@ -168,10 +173,13 @@ public class Swooper : RoleBase
             {
                 case < 0:
                     lastTime = now;
+                    var pos = player.Pos();
                     player.MyPhysics?.RpcBootFromVent(ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId);
                     player.Notify(GetString("SwooperInvisStateOut"));
+                    InvisTime = -10;
                     SendRPC();
                     refresh = true;
+                    _ = new LateTask(() => { player.TP(pos); }, 0.5f, log: false);
                     break;
                 case <= 10 when !player.IsModClient():
                     player.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1));
@@ -239,7 +247,7 @@ public class Swooper : RoleBase
         else if (sw.lastTime != -10)
         {
             var cooldown = sw.lastTime + (long)sw.Cooldown - Utils.TimeStamp;
-            str.Append(string.Format(GetString("SwooperInvisCooldownRemain"), cooldown + 2));
+            str.Append(string.Format(GetString("SwooperInvisCooldownRemain"), cooldown + 1));
         }
         else
         {

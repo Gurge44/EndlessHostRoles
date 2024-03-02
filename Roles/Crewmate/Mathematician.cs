@@ -13,7 +13,12 @@
             State = (false, int.MaxValue, byte.MaxValue, byte.MaxValue);
         }
 
-        public override void Add(byte playerId) => On = true;
+        public override void Add(byte playerId)
+        {
+            On = true;
+            State = (false, int.MaxValue, byte.MaxValue, byte.MaxValue);
+        }
+
         public override bool IsEnable => On;
 
         public static void Ask(PlayerControl pc, string num1Str, string num2Str)

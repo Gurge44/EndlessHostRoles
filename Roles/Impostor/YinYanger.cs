@@ -10,14 +10,14 @@ namespace TOHE.Roles.Impostor
     public class YinYanger : RoleBase
     {
         private const int Id = 642870;
-        private byte YinYangerId = byte.MaxValue;
-        private List<byte> YinYangedPlayers = [];
 
         private static OptionItem YinYangCD;
         private static OptionItem KCD;
 
         // ReSharper disable once InconsistentNaming
         private PlayerControl YinYanger_ => GetPlayerById(YinYangerId);
+        private byte YinYangerId = byte.MaxValue;
+        private List<byte> YinYangedPlayers = [];
 
         public static void SetupCustomOption()
         {
@@ -39,6 +39,7 @@ namespace TOHE.Roles.Impostor
         public override void Add(byte playerId)
         {
             YinYangerId = playerId;
+            YinYangedPlayers = [];
         }
 
         public override bool IsEnable => YinYangerId != byte.MaxValue;

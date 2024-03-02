@@ -962,7 +962,7 @@ class FixedUpdatePatch
         }
         catch (Exception ex)
         {
-            ThrowException(ex);
+            Logger.Error($"Error for {__instance.GetNameWithRole()}: {ex}", "FixedUpdatePatch");
         }
     }
 

@@ -41,6 +41,7 @@ namespace TOHE.Roles.Neutral
         public override void Add(byte playerId)
         {
             EndermanId = playerId;
+            MarkedPosition = (Vector2.zero, 0, false);
 
             if (!AmongUsClient.Instance.AmHost) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))

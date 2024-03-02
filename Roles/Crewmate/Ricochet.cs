@@ -44,6 +44,7 @@ namespace TOHE.Roles.Crewmate
         {
             playerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
+            ProtectAgainst = byte.MaxValue;
             RicochetId = playerId;
         }
 

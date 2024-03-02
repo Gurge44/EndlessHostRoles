@@ -11,7 +11,6 @@ namespace TOHE.Roles.Impostor
     public class Mastermind : RoleBase
     {
         private const int Id = 640600;
-        public byte MastermindId = byte.MaxValue;
 
         private static List<byte> PlayerIdList = [];
 
@@ -26,6 +25,7 @@ namespace TOHE.Roles.Impostor
         public static float ManipulateCD;
 
         private PlayerControl Mastermind_ => GetPlayerById(MastermindId);
+        public byte MastermindId = byte.MaxValue;
 
         public static void SetupCustomOption()
         {

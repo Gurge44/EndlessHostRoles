@@ -24,7 +24,7 @@ namespace TOHE
 
         public virtual bool CanUseImpostorVentButton(PlayerControl pc)
         {
-            return pc.IsAlive() && pc.Data.Role.Role is not RoleTypes.Crewmate and not RoleTypes.Engineer;
+            return pc.IsAlive() && pc.Is(CustomRoleTypes.Impostor) && pc.Data.Role.Role is not RoleTypes.Crewmate and not RoleTypes.Engineer;
         }
 
         public virtual bool CanUseSabotage(PlayerControl pc)
@@ -124,8 +124,8 @@ namespace TOHE
         public virtual string GetProgressText(byte playerId, bool comms)
         {
             var sb = new StringBuilder();
-            sb.Append(Utils.GetTaskCount(playerId, comms));
             sb.Append(Utils.GetAbilityUseLimitDisplay(playerId));
+            sb.Append(Utils.GetTaskCount(playerId, comms));
             return sb.ToString();
         }
 

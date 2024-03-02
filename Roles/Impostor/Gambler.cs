@@ -92,6 +92,8 @@ namespace TOHE.Roles.Impostor
         public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
+            EffectID = byte.MaxValue;
+            isPositiveEffect = true;
         }
 
         public override bool IsEnable => playerIdList.Count > 0;

@@ -49,6 +49,7 @@ namespace TOHE.Roles.Crewmate
         {
             playerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
+            Target = byte.MaxValue;
             TetherId = playerId;
         }
 
@@ -134,8 +135,8 @@ namespace TOHE.Roles.Crewmate
         {
             var sb = new StringBuilder();
 
-            sb.Append(Utils.GetTaskCount(playerId, comms));
             sb.Append(Utils.GetAbilityUseLimitDisplay(playerId, Target != byte.MaxValue));
+            sb.Append(Utils.GetTaskCount(playerId, comms));
 
             return sb.ToString();
         }

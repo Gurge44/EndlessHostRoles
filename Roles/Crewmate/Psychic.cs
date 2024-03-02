@@ -44,6 +44,7 @@ public class Psychic : RoleBase
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
+        RedPlayer = [];
         PsychicId = playerId;
     }
 

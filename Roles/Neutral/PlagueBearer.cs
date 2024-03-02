@@ -47,6 +47,7 @@ public class PlagueBearer : RoleBase
         playerIdList.Add(playerId);
         PlagueBearerCD.Add(playerId, PlagueBearerCDOpt.GetFloat());
         PlaguedList[playerId] = [];
+
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);

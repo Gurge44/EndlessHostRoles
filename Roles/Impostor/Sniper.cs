@@ -59,22 +59,22 @@ public class Sniper : RoleBase
         snipeBasePosition = new();
         LastPosition = new();
         snipeTarget = 0x7F;
-        bulletCount = maxBulletCount;
+        bulletCount = SniperBulletCount.GetInt();
         shotNotify = [];
         IsAim = false;
         AimTime = 0f;
         meetingReset = false;
-
-        maxBulletCount = SniperBulletCount.GetInt();
-        precisionShooting = SniperPrecisionShooting.GetBool();
-        AimAssist = SniperAimAssist.GetBool();
-        AimAssistOneshot = SniperAimAssistOnshot.GetBool();
     }
 
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
         On = true;
+
+        maxBulletCount = SniperBulletCount.GetInt();
+        precisionShooting = SniperPrecisionShooting.GetBool();
+        AimAssist = SniperAimAssist.GetBool();
+        AimAssistOneshot = SniperAimAssistOnshot.GetBool();
 
         snipeBasePosition = new();
         LastPosition = new();
@@ -83,6 +83,7 @@ public class Sniper : RoleBase
         shotNotify = [];
         IsAim = false;
         AimTime = 0f;
+        meetingReset = false;
     }
 
     public static bool On;

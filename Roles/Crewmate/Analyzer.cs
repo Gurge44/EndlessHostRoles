@@ -85,6 +85,7 @@ namespace TOHE.Roles.Crewmate
         {
             playerId = id;
             id.SetAbilityUseLimit(UseLimitOpt.GetInt());
+            CurrentTarget = (byte.MaxValue, Utils.TimeStamp);
 
             if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
             if (!Main.ResetCamPlayerList.Contains(id))

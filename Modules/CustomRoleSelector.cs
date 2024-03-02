@@ -154,6 +154,7 @@ internal class CustomRoleSelector
             if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool())) continue;
             switch (role)
             {
+                case CustomRoles.Changeling when Changeling.GetAvailableRoles(check: true).Count == 0:
                 case CustomRoles.Camouflager when Camouflager.DoesntSpawnOnFungle.GetBool() && Main.CurrentMap == MapNames.Fungle:
                 case CustomRoles.DarkHide when Main.CurrentMap == MapNames.Fungle:
                 case CustomRoles.Pelican when Roles[RoleAssignType.Impostor].Any(x => x.Role == CustomRoles.Duellist):
@@ -177,7 +178,7 @@ internal class CustomRoleSelector
 
         if (Roles[RoleAssignType.Impostor].Count == 0 && !Main.SetRoles.Values.Any(x => x.IsImpostor()))
         {
-            Roles[RoleAssignType.Impostor].Add(new(CustomRoles.ImpostorTOHE, 100, 1));
+            Roles[RoleAssignType.Impostor].Add(new(CustomRoles.ImpostorTOHE, 100, optImpNum));
             Logger.Warn("Adding Vanilla Impostor", "CustomRoleSelector");
         }
 

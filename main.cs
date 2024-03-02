@@ -412,7 +412,7 @@ public class Main : BasePlugin
                 { CustomRoles.Pestilence, "#343136" },
                 { CustomRoles.Jester, "#ec62a5" },
                 { CustomRoles.Terrorist, "#00e600" },
-                { CustomRoles.Executioner, "#c0c0c0" },
+                { CustomRoles.Executioner, "#611c3a" },
                 { CustomRoles.Lawyer, "#008080" },
                 { CustomRoles.God, "#f96464" },
                 { CustomRoles.Opportunist, "#4dff4d" },
@@ -648,6 +648,7 @@ public enum CustomRoles
     Camouflager,
     Capitalism,
     Cantankerous,
+    Changeling,
     Chronomancer,
     Cleaner,
     EvilDiviner, // Consigliere

@@ -43,7 +43,6 @@ class GameEndChecker
             return false;
         }
 
-        //ゲーム終了時
         if (WinnerTeam != CustomWinner.Default)
         {
             NameNotifyManager.Reset();
@@ -68,7 +67,7 @@ class GameEndChecker
                     break;
                 case CustomWinner.Impostor:
                     Main.AllPlayerControls
-                        .Where(pc => ((pc.Is(CustomRoleTypes.Impostor) && (!pc.Is(CustomRoles.DeadlyQuota) || Main.PlayerStates.Count(x => x.Value.GetRealKiller() == pc.PlayerId) >= Options.DQNumOfKillsNeeded.GetInt())) || pc.Is(CustomRoles.Madmate) || pc.Is(CustomRoles.Refugee)) && !pc.Is(CustomRoles.Lovers) && !pc.Is(CustomRoles.Rogue) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Recruit) && !pc.Is(CustomRoles.Contagious) && !pc.Is(CustomRoles.EvilSpirit) && !pc.Is(CustomRoles.Recruit))
+                        .Where(pc => ((pc.Is(CustomRoleTypes.Impostor) && (!pc.Is(CustomRoles.DeadlyQuota) || Main.PlayerStates.Count(x => x.Value.GetRealKiller() == pc.PlayerId) >= Options.DQNumOfKillsNeeded.GetInt())) || pc.Is(CustomRoles.Madmate) || pc.Is(CustomRoles.Crewpostor) || pc.Is(CustomRoles.Refugee)) && !pc.Is(CustomRoles.Lovers) && !pc.Is(CustomRoles.Rogue) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Recruit) && !pc.Is(CustomRoles.Contagious) && !pc.Is(CustomRoles.EvilSpirit) && !pc.Is(CustomRoles.Recruit))
                         .Do(pc => WinnerIds.Add(pc.PlayerId));
                     break;
                 case CustomWinner.Succubus:
@@ -385,7 +384,7 @@ class GameEndChecker
                 { (CustomRoles.Arsonist, CustomWinner.Arsonist), AlivePlayersCount(CountTypes.Arsonist) },
                 { (CustomRoles.Bandit, CustomWinner.Bandit), AlivePlayersCount(CountTypes.Bandit) },
                 { (CustomRoles.Doppelganger, CustomWinner.Doppelganger), AlivePlayersCount(CountTypes.Doppelganger) },
-                { (CustomRoles.Agitater, CustomWinner.Agitater), AlivePlayersCount(CountTypes.Agitater) },
+                { (CustomRoles.Agitater, CustomWinner.Agitater), AlivePlayersCount(CountTypes.Agitater) }
             };
 
             foreach (PlayerControl x in Main.AllAlivePlayerControls)

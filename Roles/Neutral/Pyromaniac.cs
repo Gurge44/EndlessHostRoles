@@ -39,6 +39,7 @@ public class Pyromaniac : RoleBase
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
+        DousedList = [];
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
