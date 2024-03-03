@@ -2004,6 +2004,8 @@
   "ErrorLevel2": "Isso pode ser um bug.",
   "ErrorLevel3": "Esta versão não deveria ter sido lançada.",
   "TerminateCommand": "Abortar Comando",
+  "AlwaysComboListTitle": "<u>Roles and Add-ons that Always Spawn Together:</u>",
+  "NeverComboListTitle": "<u>Roles and Add-ons that Never Spawn Together:</u>",
   "ERR-000-000-0": "Sem Erro",
   "ERR-000-900-0": "Erro de Teste Lv. 0",
   "ERR-000-910-1": "Erro de Teste Lv. 1",
