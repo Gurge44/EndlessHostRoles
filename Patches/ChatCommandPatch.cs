@@ -304,7 +304,7 @@ internal class ChatCommands
                                 if (mainRole.IsAdditionRole() || !addOn.IsAdditionRole()) break;
                                 if (args[1] == "add") Main.AlwaysSpawnTogetherCombos[mainRole] = addOn;
                                 else Main.NeverSpawnTogetherCombos[mainRole] = addOn;
-                                Utils.SendMessage(string.Format(GetString("ComboAdd"), GetString(mainRole.ToString()), GetString(addOn.ToString())), localPlayerId);
+                                Utils.SendMessage(string.Format(args[1] == "add" ? GetString("ComboAdd") : GetString("ComboBan"), GetString(mainRole.ToString()), GetString(addOn.ToString())), localPlayerId);
                             }
 
                             break;
