@@ -96,6 +96,11 @@ public class FireWorks : RoleBase
         }
     }
 
+    public override void OnPet(PlayerControl pc)
+    {
+        OnShapeshift(pc, null, true);
+    }
+
     public override bool OnShapeshift(PlayerControl pc, PlayerControl _, bool shapeshifting)
     {
         Logger.Info("FireWorks ShapeShift", "FireWorks");
