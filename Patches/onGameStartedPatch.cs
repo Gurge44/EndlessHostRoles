@@ -252,7 +252,7 @@ internal class SelectRolesPatch
 
             RpcSetRoleReplacer.StartReplace(senders);
 
-            if (Options.EnableGM.GetBool())
+            if (Main.GM.Value)
             {
                 PlayerControl.LocalPlayer.RpcSetCustomRole(CustomRoles.GM);
                 PlayerControl.LocalPlayer.RpcSetRole(RoleTypes.Crewmate);
@@ -400,7 +400,7 @@ internal class SelectRolesPatch
                 Logger.Warn(ROLETYPE == roleType ? $"Register original role type => {PLAYER.GetRealName()}: {ROLETYPE}" : $"Register original role type => {PLAYER.GetRealName()}: {ROLETYPE} => {roleType}", "Override Role Select");
             }
 
-            if (Options.EnableGM.GetBool()) newList.Add((PlayerControl.LocalPlayer, RoleTypes.Crewmate));
+            if (Main.GM.Value) newList.Add((PlayerControl.LocalPlayer, RoleTypes.Crewmate));
             RpcSetRoleReplacer.StoragedData = newList;
 
             RpcSetRoleReplacer.Release(); // Write the saved SetRoleRpc all at once
@@ -569,7 +569,7 @@ internal class SelectRolesPatch
                 Main.SetAddOns = [];
             }, 7f, log: false);
 
-            if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && Options.EnableGM.GetBool())
+            if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && Main.GM.Value)
             {
                 _ = new LateTask(() => { PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)); }, 15f, "GM Auto-TP Failsafe"); // TP to Main Hall
             }
@@ -633,7 +633,7 @@ internal class SelectRolesPatch
         SetColorPatch.IsAntiGlitchDisabled = true;
 
         Main.PlayerStates[player.PlayerId].SetMainRole(role);
-        Logger.Info($"Register Modded Role：{player?.Data?.PlayerName} => {role}", "AssignRoles");
+        Logger.Info($"Register Modded Role：{player.Data?.PlayerName} => {role}", "AssignRoles");
 
         SetColorPatch.IsAntiGlitchDisabled = false;
     }
@@ -703,7 +703,7 @@ internal class SelectRolesPatch
             Main.LoversPlayers.Add(player);
             allPlayers.Remove(player);
             Main.PlayerStates[player.PlayerId].SetSubRole(role);
-            Logger.Info("Add-on assigned: " + player?.Data?.PlayerName + " = " + player.GetCustomRole() + " + " + role, "AssignLovers");
+            Logger.Info("Add-on assigned: " + player.Data?.PlayerName + " = " + player.GetCustomRole() + " + " + role, "AssignLovers");
         }
 
         RPC.SyncLoversPlayers();
@@ -719,7 +719,7 @@ internal class SelectRolesPatch
         {
             var player = allPlayers[IRandom.Instance.Next(0, allPlayers.Length)];
             Main.PlayerStates[player.PlayerId].SetSubRole(role);
-            Logger.Info($"Assigned add-on: {player?.Data?.PlayerName} = {player.GetCustomRole()} + {role}", $"Assign {role}");
+            Logger.Info($"Assigned add-on: {player.Data?.PlayerName} = {player.GetCustomRole()} + {role}", $"Assign {role}");
         }
     }
 

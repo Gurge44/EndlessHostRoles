@@ -274,7 +274,7 @@ namespace TOHE.Roles.Crewmate
 
             var now = Utils.TimeStamp;
 
-            if (lastFixedTime != now)
+            if (lastFixedTime != now && InvisTime != -10)
             {
                 lastFixedTime = now;
                 bool refresh = false;
@@ -282,10 +282,11 @@ namespace TOHE.Roles.Crewmate
                 switch (remainTime)
                 {
                     case < 0:
-                        player.MyPhysics?.RpcBootFromVent(ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId);
+                        player.MyPhysics?.RpcBootFromVent(ventedId == -10 ? Main.LastEnteredVent.TryGetValue(player.PlayerId, out Vent vent) ? vent.Id : player.PlayerId : ventedId);
                         player.Notify(GetString("SwooperInvisStateOut"));
                         SendRPC();
                         refresh = true;
+                        InvisTime = -10;
                         break;
                     case <= 10 when !player.IsModClient():
                         player.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1));

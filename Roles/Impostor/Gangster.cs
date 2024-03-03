@@ -58,7 +58,7 @@ public class Gangster : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer.GetAbilityUseLimit() < 1) return false;
+        if (killer.GetAbilityUseLimit() < 1) return true;
         if (CanBeMadmate(target))
         {
             if (!killer.Is(CustomRoles.Recruit) && !killer.Is(CustomRoles.Charmed) && !killer.Is(CustomRoles.Contagious))
@@ -72,6 +72,7 @@ public class Gangster : RoleBase
                 Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
                 killer.ResetKillCooldown();
+                killer.SyncSettings();
                 killer.SetKillCooldown();
                 //killer.RpcGuardAndKill(target);
                 target.RpcGuardAndKill(killer);
@@ -81,7 +82,7 @@ public class Gangster : RoleBase
                 if (killer.GetAbilityUseLimit() < 0)
                     HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{killer.GetAbilityUseLimit()}次招募机会", "Gangster");
-                return true;
+                return false;
             }
             if (killer.Is(CustomRoles.Recruit))
             {
@@ -94,6 +95,7 @@ public class Gangster : RoleBase
                 Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
                 killer.ResetKillCooldown();
+                killer.SyncSettings();
                 killer.SetKillCooldown();
                 //killer.RpcGuardAndKill(target);
                 target.RpcGuardAndKill(killer);
@@ -103,7 +105,7 @@ public class Gangster : RoleBase
                 if (killer.GetAbilityUseLimit() < 0)
                     HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{killer.GetAbilityUseLimit()}次招募机会", "Gangster");
-                return true;
+                return false;
             }
             if (killer.Is(CustomRoles.Charmed))
             {
@@ -116,6 +118,7 @@ public class Gangster : RoleBase
                 Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
                 killer.ResetKillCooldown();
+                killer.SyncSettings();
                 killer.SetKillCooldown();
                 //killer.RpcGuardAndKill(target);
                 target.RpcGuardAndKill(killer);
@@ -125,7 +128,7 @@ public class Gangster : RoleBase
                 if (killer.GetAbilityUseLimit() < 0)
                     HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{killer.GetAbilityUseLimit()}次招募机会", "Gangster");
-                return true;
+                return false;
             }
             if (killer.Is(CustomRoles.Contagious))
             {
@@ -138,6 +141,7 @@ public class Gangster : RoleBase
                 Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
                 killer.ResetKillCooldown();
+                killer.SyncSettings();
                 killer.SetKillCooldown();
                 //killer.RpcGuardAndKill(target);
                 target.RpcGuardAndKill(killer);
@@ -147,7 +151,7 @@ public class Gangster : RoleBase
                 if (killer.GetAbilityUseLimit() < 0)
                     HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{killer.GetAbilityUseLimit()}次招募机会", "Gangster");
-                return true;
+                return false;
             }
         }
 
@@ -155,29 +159,28 @@ public class Gangster : RoleBase
             HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Gangster), GetString("GangsterRecruitmentFailure")));
         Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{killer.GetAbilityUseLimit()}次招募机会", "Gangster");
-        return false;
+        return true;
     }
 
     public static bool CanBeMadmate(PlayerControl pc)
     {
         return pc != null && pc.GetCustomRole().IsCrewmate() && !pc.Is(CustomRoles.Madmate)
-        && !(
-            (pc.Is(CustomRoles.Sheriff) && !SheriffCanBeMadmate.GetBool()) ||
-            (pc.Is(CustomRoles.Mayor) && !MayorCanBeMadmate.GetBool()) ||
-            (pc.Is(CustomRoles.NiceGuesser) && !NGuesserCanBeMadmate.GetBool()) ||
-            (pc.Is(CustomRoles.Judge) && !JudgeCanBeMadmate.GetBool()) ||
-            (pc.Is(CustomRoles.Marshall) && !MarshallCanBeMadmate.GetBool()) ||
-            (pc.Is(CustomRoles.Farseer) && !FarseerCanBeMadmate.GetBool()) ||
-            //(pc.Is(CustomRoles.Retributionist) && !RetributionistCanBeMadmate.GetBool()) ||
-            pc.Is(CustomRoles.NiceSwapper) ||
-            pc.Is(CustomRoles.Snitch) ||
-            pc.Is(CustomRoles.Needy) ||
-            pc.Is(CustomRoles.Lazy) ||
-            pc.Is(CustomRoles.Loyal) ||
-            pc.Is(CustomRoles.CyberStar) ||
-            pc.Is(CustomRoles.Demolitionist) ||
-            pc.Is(CustomRoles.NiceEraser) ||
-            pc.Is(CustomRoles.Egoist)
-            );
+               && !(
+                   (pc.Is(CustomRoles.Sheriff) && !SheriffCanBeMadmate.GetBool()) ||
+                   (pc.Is(CustomRoles.Mayor) && !MayorCanBeMadmate.GetBool()) ||
+                   (pc.Is(CustomRoles.NiceGuesser) && !NGuesserCanBeMadmate.GetBool()) ||
+                   (pc.Is(CustomRoles.Judge) && !JudgeCanBeMadmate.GetBool()) ||
+                   (pc.Is(CustomRoles.Marshall) && !MarshallCanBeMadmate.GetBool()) ||
+                   (pc.Is(CustomRoles.Farseer) && !FarseerCanBeMadmate.GetBool()) ||
+                   pc.Is(CustomRoles.NiceSwapper) ||
+                   pc.Is(CustomRoles.Snitch) ||
+                   pc.Is(CustomRoles.Needy) ||
+                   pc.Is(CustomRoles.Lazy) ||
+                   pc.Is(CustomRoles.Loyal) ||
+                   pc.Is(CustomRoles.CyberStar) ||
+                   pc.Is(CustomRoles.Demolitionist) ||
+                   pc.Is(CustomRoles.NiceEraser) ||
+                   pc.Is(CustomRoles.Egoist)
+               );
     }
 }

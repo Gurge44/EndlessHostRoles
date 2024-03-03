@@ -157,6 +157,11 @@ class HudManagerPatch
         {
             if (player.IsAlive() || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato)
             {
+                if (player.GetCustomRole().UsesPetInsteadOfKill())
+                {
+                    __instance.PetButton?.OverrideText("KillButtonText");
+                }
+
                 Main.PlayerStates[player.PlayerId].Role.SetButtonTexts(__instance, player.PlayerId);
 
                 switch (player.GetCustomRole())

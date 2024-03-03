@@ -66,7 +66,7 @@ namespace TOHE.Roles.Impostor
             return false;
         }
 
-        public static void OnFixedUpdate()
+        public override void OnGlobalFixedUpdate(PlayerControl pc)
         {
             if (DuelPair.Count == 0) return;
 

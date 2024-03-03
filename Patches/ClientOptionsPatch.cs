@@ -7,6 +7,7 @@ namespace TOHE;
 [HarmonyPatch(typeof(OptionsMenuBehaviour), nameof(OptionsMenuBehaviour.Start))]
 public static class OptionsMenuBehaviourStartPatch
 {
+    private static ClientOptionItem GM;
     private static ClientOptionItem UnlockFPS;
     private static ClientOptionItem AutoStart;
     private static ClientOptionItem ForceOwnLanguage;
@@ -30,6 +31,11 @@ public static class OptionsMenuBehaviourStartPatch
             Main.ResetOptions = false;
             Main.VersionCheat.Value = false;
             Main.GodMode.Value = false;
+        }
+
+        if (GM == null || GM.ToggleButton == null)
+        {
+            GM = ClientOptionItem.Create("GM", Main.GM, __instance);
         }
 
         if (UnlockFPS == null || UnlockFPS.ToggleButton == null)

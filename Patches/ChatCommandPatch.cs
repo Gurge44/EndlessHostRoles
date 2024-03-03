@@ -270,7 +270,7 @@ internal class ChatCommands
                     Utils.SendMessage(Utils.GetRemainingKillers(), localPlayerId);
                     break;
 
-                case "/combo": // Format: /combo add/ban/remove/allow mainrole addon
+                case "/combo": // Format: /combo [add/ban/remove/allow] [main role] [addon]
                     canceled = true;
                     if (args.Length < 4)
                     {
@@ -327,6 +327,10 @@ internal class ChatCommands
 
                             break;
                     }
+
+                    break;
+
+                case "/xor":
 
                     break;
 
@@ -1371,7 +1375,7 @@ internal class ChatCommands
         }
 
         if (isCommand) LastSentCommand[player.PlayerId] = now;
-        //if (SpamManager.CheckSpam(player, text)) return;
+        SpamManager.CheckSpam(player, text);
     }
 }
 

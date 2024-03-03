@@ -133,5 +133,28 @@ namespace TOHE.Roles.Impostor
                 Main.CursedPlayers[pc.PlayerId] = null;
             }
         }
+
+        public override void OnGlobalFixedUpdate(PlayerControl player)
+        {
+            byte playerId = player.PlayerId;
+            if (GameStates.IsInTask && Main.WarlockTimer.ContainsKey(playerId))
+            {
+                if (player.IsAlive())
+                {
+                    if (Main.WarlockTimer[playerId] >= 1f)
+                    {
+                        player.RpcResetAbilityCooldown();
+                        Main.isCursed = false;
+                        player.MarkDirtySettings();
+                        Main.WarlockTimer.Remove(playerId);
+                    }
+                    else Main.WarlockTimer[playerId] += Time.fixedDeltaTime;
+                }
+                else
+                {
+                    Main.WarlockTimer.Remove(playerId);
+                }
+            }
+        }
     }
 }

@@ -850,38 +850,37 @@ class MeetingHudStartPatch
 
             var sb = new StringBuilder();
 
-            //会議画面での名前変更
-            //自分自身の名前の色を変更
-            //NameColorManager準拠の処理
+            // Name Color Manager
             pva.NameText.text = pva.NameText.text.ApplyNameColorData(seer, target, true);
 
+
+            var seerRole = seer.GetCustomRole();
 
             // Guesser Mode //
             if (Options.GuesserMode.GetBool())
             {
-                if (Options.CrewmatesCanGuess.GetBool() && seer.GetCustomRole().IsCrewmate() && !seer.Is(CustomRoles.Judge) && !seer.Is(CustomRoles.NiceSwapper) && !seer.Is(CustomRoles.Lookout) && !seer.Is(CustomRoles.ParityCop))
+                if (Options.CrewmatesCanGuess.GetBool() && seerRole.IsCrewmate() && !seer.Is(CustomRoles.Judge) && !seer.Is(CustomRoles.NiceSwapper) && !seer.Is(CustomRoles.Lookout) && !seer.Is(CustomRoles.ParityCop))
                     if (!seer.Data.IsDead && !target.Data.IsDead)
-                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(seer.GetCustomRole()), target.PlayerId.ToString()) + " " + pva.NameText.text;
-                if (Options.ImpostorsCanGuess.GetBool() && seer.GetCustomRole().IsImpostor() && !seer.Is(CustomRoles.Councillor))
+                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(seerRole), target.PlayerId.ToString()) + " " + pva.NameText.text;
+                if (Options.ImpostorsCanGuess.GetBool() && seerRole.IsImpostor() && !seer.Is(CustomRoles.Councillor))
                     if (!seer.Data.IsDead && !target.Data.IsDead)
-                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(seer.GetCustomRole()), target.PlayerId.ToString()) + " " + pva.NameText.text;
-                if (Options.NeutralKillersCanGuess.GetBool() && seer.GetCustomRole().IsNK())
+                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(seerRole), target.PlayerId.ToString()) + " " + pva.NameText.text;
+                if (Options.NeutralKillersCanGuess.GetBool() && seerRole.IsNK())
                     if (!seer.Data.IsDead && !target.Data.IsDead)
-                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(seer.GetCustomRole()), target.PlayerId.ToString()) + " " + pva.NameText.text;
-                if (Options.PassiveNeutralsCanGuess.GetBool() && seer.GetCustomRole().IsNonNK() && !seer.Is(CustomRoles.Doomsayer))
+                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(seerRole), target.PlayerId.ToString()) + " " + pva.NameText.text;
+                if (Options.PassiveNeutralsCanGuess.GetBool() && seerRole.IsNonNK() && !seer.Is(CustomRoles.Doomsayer))
                     if (!seer.Data.IsDead && !target.Data.IsDead)
-                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(seer.GetCustomRole()), target.PlayerId.ToString()) + " " + pva.NameText.text;
+                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(seerRole), target.PlayerId.ToString()) + " " + pva.NameText.text;
             }
 
             if (seer.KnowDeathReason(target))
                 sb.Append($"({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doctor), Utils.GetVitalText(target.PlayerId))})");
 
-            switch (seer.GetCustomRole().GetCustomRoleTypes())
+            switch (seerRole.GetCustomRoleTypes())
             {
                 case CustomRoleTypes.Impostor:
                     if (target.Is(CustomRoles.Snitch) && target.Is(CustomRoles.Madmate) && target.GetTaskState().IsTaskFinished)
                         sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), "★")); //変更対象にSnitchマークをつける
-                    sb.Append(Snitch.GetWarningMark(seer, target));
                     break;
                 case CustomRoleTypes.Crewmate:
                     if (target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished)
@@ -890,7 +889,12 @@ class MeetingHudStartPatch
                     break;
             }
 
-            switch (seer.GetCustomRole())
+            if (seerRole.IsSnitchTarget())
+            {
+                sb.Append(Snitch.GetWarningMark(seer, target));
+            }
+
+            switch (seerRole)
             {
                 case CustomRoles.Arsonist:
                     if (seer.IsDousedPlayer(target))
@@ -899,57 +903,11 @@ class MeetingHudStartPatch
                 case CustomRoles.Executioner:
                     sb.Append(Executioner.TargetMark(seer, target));
                     break;
-                case CustomRoles.Lawyer:
-                    //   sb.Append(Lawyer.TargetMark(seer, target));
-                    break;
-                //   case CustomRoles.Jackal:
-                //   case CustomRoles.Sidekick:
-                case CustomRoles.Poisoner:
-                case CustomRoles.NSerialKiller:
-                case CustomRoles.SoulHunter:
-                case CustomRoles.Enderman:
-                case CustomRoles.Mycologist:
-                case CustomRoles.Bubble:
-                case CustomRoles.Hookshot:
-                case CustomRoles.Sprayer:
-                case CustomRoles.PlagueDoctor:
-                case CustomRoles.Reckless:
-                case CustomRoles.Magician:
-                case CustomRoles.WeaponMaster:
-                case CustomRoles.Pyromaniac:
-                case CustomRoles.Eclipse:
-                case CustomRoles.Vengeance:
-                case CustomRoles.HeadHunter:
-                case CustomRoles.Imitator:
-                case CustomRoles.Werewolf:
-                case CustomRoles.RuthlessRomantic:
-                case CustomRoles.Pelican:
-                case CustomRoles.DarkHide:
-                case CustomRoles.BloodKnight:
-                case CustomRoles.Virus:
-                case CustomRoles.Medusa:
-                case CustomRoles.Succubus:
-                case CustomRoles.Pickpocket:
-                case CustomRoles.Ritualist:
-                case CustomRoles.Traitor:
-                case CustomRoles.Spiritcaller:
-                    sb.Append(Snitch.GetWarningMark(seer, target));
-                    break;
-                case CustomRoles.Jackal:
-                case CustomRoles.Sidekick:
-                    //         if (target.Is(CustomRoles.Sidekick))
-                    //       sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), " ♥")); //変更対象にSnitchマークをつける
-                    sb.Append(Snitch.GetWarningMark(seer, target));
-                    break;
-                /*         case CustomRoles.Monarch:
-                             if (target.Is(CustomRoles.Knighted))
-                             sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Knighted), " 亗")); //変更対象にSnitchマークをつける
-                             break; */
                 case CustomRoles.EvilTracker:
                     sb.Append(EvilTracker.GetTargetMark(seer, target));
                     break;
                 case CustomRoles.Revolutionist:
-                    if (seer.IsDrawPlayer(target)) //seerがtargetに既にオイルを塗っている(完了)
+                    if (seer.IsDrawPlayer(target))
                         sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Revolutionist), "●"));
                     break;
                 case CustomRoles.Psychic:
@@ -960,10 +918,6 @@ class MeetingHudStartPatch
                     if (seer.Data.IsDead && !target.Data.IsDead)
                         pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mafia), target.PlayerId.ToString()) + " " + pva.NameText.text;
                     break;
-                //case CustomRoles.Retributionist:
-                //    if (seer.Data.IsDead && !target.Data.IsDead)
-                //        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Retributionist), target.PlayerId.ToString()) + " " + pva.NameText.text;
-                //    break;
                 case CustomRoles.NiceGuesser:
                 case CustomRoles.EvilGuesser:
                     if (!seer.Data.IsDead && !target.Data.IsDead)

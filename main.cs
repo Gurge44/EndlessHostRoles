@@ -52,6 +52,7 @@ public class Main : BasePlugin
     public static ConfigEntry<string> HideName { get; private set; }
     public static ConfigEntry<string> HideColor { get; private set; }
     public static ConfigEntry<int> MessageWait { get; private set; }
+    public static ConfigEntry<bool> GM { get; private set; }
     public static ConfigEntry<bool> UnlockFPS { get; private set; }
     public static ConfigEntry<bool> AutoStart { get; private set; }
     public static ConfigEntry<bool> ForceOwnLanguage { get; private set; }
@@ -150,7 +151,6 @@ public class Main : BasePlugin
     public static List<byte> MedusaBodies = [];
     public static List<byte> InfectedBodies = [];
     public static List<byte> BrakarVoteFor = [];
-    public static Dictionary<byte, (byte, float)> BitPlayers = [];
     public static Dictionary<byte, float> WarlockTimer = [];
     public static Dictionary<byte, float> AssassinTimer = [];
     public static Dictionary<byte, float> UndertakerTimer = [];
@@ -180,18 +180,13 @@ public class Main : BasePlugin
     public static bool isCursed;
     public static Dictionary<byte, bool> CheckShapeshift = [];
     public static Dictionary<byte, byte> ShapeshiftTarget = [];
-    public static Dictionary<(byte, byte), string> targetArrows = [];
-    public static Dictionary<byte, Vector2> TimeMasterLocation = [];
     public static bool VisibleTasksCount;
     public static string nickName = "";
     public static bool introDestroyed;
-    public static int DiscussionTime;
-    public static int VotingTime;
     public static byte currentDousingTarget = byte.MaxValue;
     public static byte currentDrawTarget = byte.MaxValue;
     public static float DefaultCrewmateVision;
     public static float DefaultImpostorVision;
-    public static bool IsInitialRelease = DateTime.Now.Month == 1 && DateTime.Now.Day is 17;
     public static bool IsAprilFools = DateTime.Now.Month == 4 && DateTime.Now.Day is 1;
     public static bool ResetOptions = true;
     public static byte FirstDied = byte.MaxValue;
@@ -235,6 +230,7 @@ public class Main : BasePlugin
         HideColor = Config.Bind("Client Options", "Hide Game Code Color", $"{ModColor}");
         DebugKeyInput = Config.Bind("Authentication", "Debug Key", string.Empty);
         AutoStart = Config.Bind("Client Options", "AutoStart", false);
+        GM = Config.Bind("Client Options", "GM", false);
         UnlockFPS = Config.Bind("Client Options", "UnlockFPS", false);
         AutoStart = Config.Bind("Client Options", "AutoStart", false);
         ForceOwnLanguage = Config.Bind("Client Options", "ForceOwnLanguage", false);
@@ -445,6 +441,7 @@ public class Main : BasePlugin
                 { CustomRoles.HexMaster, "#ff00ff" },
                 { CustomRoles.Wraith, "#4B0082" },
                 { CustomRoles.NSerialKiller, "#233fcc" },
+                { CustomRoles.Tiger, "#fcba03" },
                 { CustomRoles.SoulHunter, "#3f2c61" },
                 { CustomRoles.Enderman, "#3c008a" },
                 { CustomRoles.Mycologist, "#0043de" },
@@ -893,6 +890,7 @@ public enum CustomRoles
     Succubus,
     Sunnyboy,
     Terrorist,
+    Tiger,
     Traitor,
     Vengeance,
     VengefulRomantic,
@@ -1005,7 +1003,6 @@ public enum CustomWinner
     Arsonist = CustomRoles.Arsonist,
     Revolutionist = CustomRoles.Revolutionist,
     Jackal = CustomRoles.Jackal,
-    Sidekick = CustomRoles.Sidekick,
     God = CustomRoles.God,
     Mario = CustomRoles.Mario,
     Innocent = CustomRoles.Innocent,
@@ -1015,7 +1012,6 @@ public enum CustomWinner
     Gamer = CustomRoles.Gamer,
     DarkHide = CustomRoles.DarkHide,
     Workaholic = CustomRoles.Workaholic,
-    Speedrunner = CustomRoles.Speedrunner,
     Collector = CustomRoles.Collector,
     BloodKnight = CustomRoles.BloodKnight,
     Poisoner = CustomRoles.Poisoner,
@@ -1023,9 +1019,8 @@ public enum CustomWinner
     Succubus = CustomRoles.Succubus,
     Necromancer = CustomRoles.Necromancer,
     Wraith = CustomRoles.Wraith,
-
-    //Pirate = CustomRoles.Pirate,
     SerialKiller = CustomRoles.NSerialKiller,
+    Tiger = CustomRoles.Tiger,
     Enderman = CustomRoles.Enderman,
     Mycologist = CustomRoles.Mycologist,
     Bubble = CustomRoles.Bubble,
@@ -1041,29 +1036,21 @@ public enum CustomWinner
     Agitater = CustomRoles.Agitater,
     Vengeance = CustomRoles.Vengeance,
     Werewolf = CustomRoles.Werewolf,
-
-    //Witch = CustomRoles.NWitch,
     Juggernaut = CustomRoles.Juggernaut,
     Bandit = CustomRoles.Bandit,
     Virus = CustomRoles.Virus,
     Rogue = CustomRoles.Rogue,
     Phantom = CustomRoles.Phantom,
     Jinx = CustomRoles.Jinx,
-
-    //CursedSoul = CustomRoles.CursedSoul,
     Ritualist = CustomRoles.Ritualist,
     Pickpocket = CustomRoles.Pickpocket,
     Traitor = CustomRoles.Traitor,
     Vulture = CustomRoles.Vulture,
     Pestilence = CustomRoles.Pestilence,
     Medusa = CustomRoles.Medusa,
-
-    //Famine = CustomRoles.Famine,
     Spiritcaller = CustomRoles.Spiritcaller,
     Glitch = CustomRoles.Glitch,
     Plaguebearer = CustomRoles.PlagueBearer,
-
-    //Masochist = CustomRoles.Masochist,
     Doomsayer = CustomRoles.Doomsayer,
     RuthlessRomantic = CustomRoles.RuthlessRomantic,
     Doppelganger = CustomRoles.Doppelganger,

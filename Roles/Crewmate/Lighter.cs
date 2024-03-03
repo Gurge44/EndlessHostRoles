@@ -28,13 +28,15 @@ namespace TOHE.Roles.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (Options.UsePets.GetBool()) return;
-            AURoleOptions.EngineerInVentMaxTime = 1;
-            AURoleOptions.EngineerCooldown = Options.LighterSkillCooldown.GetFloat();
+            if (!Options.UsePets.GetBool())
+            {
+                AURoleOptions.EngineerInVentMaxTime = 1;
+                AURoleOptions.EngineerCooldown = Options.LighterSkillCooldown.GetFloat();
+            }
 
             if (IsAbilityActive)
             {
-                opt.SetVisionV2();
+                opt.SetVision(false);
                 if (Utils.IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.CrewLightMod, Options.LighterVisionOnLightsOut.GetFloat() * 5);
                 else opt.SetFloat(FloatOptionNames.CrewLightMod, Options.LighterVisionNormal.GetFloat());
             }

@@ -340,52 +340,18 @@ class GameEndChecker
             int Imp = AlivePlayersCount(CountTypes.Impostor);
             int Crew = AlivePlayersCount(CountTypes.Crew);
 
-            Dictionary<(CustomRoles? ROLE, CustomWinner WINNER), int> roleCounts = new() // Self Note: If you're adding a new NK, you just have to add it into this dictionary and that's it
+            Dictionary<(CustomRoles? ROLE, CustomWinner WINNER), int> roleCounts = [];
+
+            foreach (var role in EnumHelper.GetAllValues<CustomRoles>())
             {
-                { (null, CustomWinner.Jackal), AlivePlayersCount(CountTypes.Jackal) },
-                { (CustomRoles.Pelican, CustomWinner.Pelican), AlivePlayersCount(CountTypes.Pelican) },
-                { (CustomRoles.Gamer, CustomWinner.Gamer), AlivePlayersCount(CountTypes.Gamer) },
-                { (CustomRoles.Poisoner, CustomWinner.Poisoner), AlivePlayersCount(CountTypes.Poisoner) },
-                { (CustomRoles.BloodKnight, CustomWinner.BloodKnight), AlivePlayersCount(CountTypes.BloodKnight) },
-                { (null, CustomWinner.Succubus), AlivePlayersCount(CountTypes.Succubus) },
-                { (null, CustomWinner.Necromancer), AlivePlayersCount(CountTypes.Necromancer) },
-                { (CustomRoles.HexMaster, CustomWinner.HexMaster), AlivePlayersCount(CountTypes.HexMaster) },
-                { (CustomRoles.Wraith, CustomWinner.Wraith), AlivePlayersCount(CountTypes.Wraith) },
-                { (CustomRoles.Pestilence, CustomWinner.Pestilence), AlivePlayersCount(CountTypes.Pestilence) },
-                { (CustomRoles.PlagueBearer, CustomWinner.Plaguebearer), AlivePlayersCount(CountTypes.PlagueBearer) },
-                { (CustomRoles.NSerialKiller, CustomWinner.SerialKiller), AlivePlayersCount(CountTypes.NSerialKiller) },
-                { (CustomRoles.Enderman, CustomWinner.Enderman), AlivePlayersCount(CountTypes.Enderman) },
-                { (CustomRoles.Mycologist, CustomWinner.Mycologist), AlivePlayersCount(CountTypes.Mycologist) },
-                { (CustomRoles.Bubble, CustomWinner.Bubble), AlivePlayersCount(CountTypes.Bubble) },
-                { (CustomRoles.Hookshot, CustomWinner.Hookshot), AlivePlayersCount(CountTypes.Hookshot) },
-                { (CustomRoles.Sprayer, CustomWinner.Sprayer), AlivePlayersCount(CountTypes.Sprayer) },
-                { (CustomRoles.PlagueDoctor, CustomWinner.PlagueDoctor), AlivePlayersCount(CountTypes.PlagueDoctor) },
-                { (CustomRoles.WeaponMaster, CustomWinner.WeaponMaster), AlivePlayersCount(CountTypes.WeaponMaster) },
-                { (CustomRoles.Magician, CustomWinner.Magician), AlivePlayersCount(CountTypes.Magician) },
-                { (CustomRoles.Reckless, CustomWinner.Reckless), AlivePlayersCount(CountTypes.Reckless) },
-                { (CustomRoles.Eclipse, CustomWinner.Eclipse), AlivePlayersCount(CountTypes.Eclipse) },
-                { (CustomRoles.Pyromaniac, CustomWinner.Pyromaniac), AlivePlayersCount(CountTypes.Pyromaniac) },
-                { (CustomRoles.HeadHunter, CustomWinner.HeadHunter), AlivePlayersCount(CountTypes.HeadHunter) },
-                { (CustomRoles.Vengeance, CustomWinner.Vengeance), AlivePlayersCount(CountTypes.Vengeance) },
-                { (CustomRoles.Imitator, CustomWinner.Imitator), AlivePlayersCount(CountTypes.Imitator) },
-                { (CustomRoles.Werewolf, CustomWinner.Werewolf), AlivePlayersCount(CountTypes.Werewolf) },
-                { (CustomRoles.RuthlessRomantic, CustomWinner.RuthlessRomantic), AlivePlayersCount(CountTypes.RuthlessRomantic) },
-                { (CustomRoles.Juggernaut, CustomWinner.Juggernaut), AlivePlayersCount(CountTypes.Juggernaut) },
-                { (null, CustomWinner.Virus), AlivePlayersCount(CountTypes.Virus) },
-                { (null, CustomWinner.Rogue), AlivePlayersCount(CountTypes.Rogue) },
-                { (CustomRoles.DarkHide, CustomWinner.DarkHide), AlivePlayersCount(CountTypes.DarkHide) },
-                { (CustomRoles.Jinx, CustomWinner.Jinx), AlivePlayersCount(CountTypes.Jinx) },
-                { (CustomRoles.Ritualist, CustomWinner.Ritualist), AlivePlayersCount(CountTypes.Ritualist) },
-                { (CustomRoles.Pickpocket, CustomWinner.Pickpocket), AlivePlayersCount(CountTypes.Pickpocket) },
-                { (CustomRoles.Traitor, CustomWinner.Traitor), AlivePlayersCount(CountTypes.Traitor) },
-                { (CustomRoles.Medusa, CustomWinner.Medusa), AlivePlayersCount(CountTypes.Medusa) },
-                { (null, CustomWinner.Spiritcaller), AlivePlayersCount(CountTypes.Spiritcaller) },
-                { (CustomRoles.Glitch, CustomWinner.Glitch), AlivePlayersCount(CountTypes.Glitch) },
-                { (CustomRoles.Arsonist, CustomWinner.Arsonist), AlivePlayersCount(CountTypes.Arsonist) },
-                { (CustomRoles.Bandit, CustomWinner.Bandit), AlivePlayersCount(CountTypes.Bandit) },
-                { (CustomRoles.Doppelganger, CustomWinner.Doppelganger), AlivePlayersCount(CountTypes.Doppelganger) },
-                { (CustomRoles.Agitater, CustomWinner.Agitater), AlivePlayersCount(CountTypes.Agitater) }
-            };
+                if (!role.IsNK() || role.IsMadmate() || role is CustomRoles.Sidekick) continue;
+
+                CustomRoles? keyRole = role.IsRecruitingRole() ? null : role;
+                CustomWinner keyWinner = (CustomWinner)role;
+                int value = AlivePlayersCount(role.GetCountTypes());
+
+                roleCounts[(keyRole, keyWinner)] = value;
+            }
 
             foreach (PlayerControl x in Main.AllAlivePlayerControls)
             {
@@ -470,7 +436,6 @@ class GameEndChecker
         }
     }
 
-    // 个人竞技模式用
     class SoloKombatGameEndPredicate : GameEndPredicate
     {
         public override bool CheckForEndGame(out GameOverReason reason)
@@ -654,6 +619,7 @@ class GameEndChecker
         {
             reason = GameOverReason.ImpostorByKill;
             if (Options.DisableTaskWin.GetBool() || TaskState.InitialTotalTasks == 0) return false;
+            if (Options.DisableTaskWinIfAllCrewsAreDead.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoleTypes.Crewmate))) return false;
 
             if (GameData.Instance.TotalTasks <= GameData.Instance.CompletedTasks)
             {
@@ -676,7 +642,7 @@ class GameEndChecker
             LifeSuppSystemType LifeSupp;
             if (systems.ContainsKey(SystemTypes.LifeSupp) && // Confirmation of sabotage existence
                 (LifeSupp = systems[SystemTypes.LifeSupp].TryCast<LifeSuppSystemType>()) != null && // Confirmation that cast is possible
-                LifeSupp.Countdown < 0f) // Time up confirmation
+                LifeSupp.Countdown <= 0f) // Time up confirmation
             {
                 // oxygen sabotage
                 ResetAndSetWinner(CustomWinner.Impostor);
@@ -693,7 +659,7 @@ class GameEndChecker
             ICriticalSabotage critical;
             if (sys != null && // Confirmation of sabotage existence
                 (critical = sys.TryCast<ICriticalSabotage>()) != null && // Confirmation that cast is possible
-                critical.Countdown < 0f) // Time up confirmation
+                critical.Countdown <= 0f) // Time up confirmation
             {
                 // reactor sabotage
                 ResetAndSetWinner(CustomWinner.Impostor);

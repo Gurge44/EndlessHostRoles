@@ -213,7 +213,7 @@ static class ExtendedPlayerControl
     public static void RpcRemoveAbilityUse(this PlayerControl pc)
     {
         float current = pc.GetAbilityUseLimit();
-        if (float.IsNaN(current)) return;
+        if (float.IsNaN(current) || current <= 0f) return;
         pc.SetAbilityUseLimit(current - 1);
     }
     public static void RpcIncreaseAbilityUseLimitBy(this PlayerControl pc, float get)
@@ -224,7 +224,7 @@ static class ExtendedPlayerControl
     }
     public static void SetAbilityUseLimit(this PlayerControl pc, float limit, bool rpc = true)
     {
-        if (float.IsNaN(limit)) return;
+        if (float.IsNaN(limit) || limit is < 0f or > 100f) return;
 
         Main.AbilityUseLimit[pc.PlayerId] = limit;
 
@@ -238,7 +238,7 @@ static class ExtendedPlayerControl
     }
     public static void SetAbilityUseLimit(this byte playerId, float limit, bool rpc = true)
     {
-        if (float.IsNaN(limit)) return;
+        if (float.IsNaN(limit) || limit is < 0f or > 100f) return;
 
         Main.AbilityUseLimit[playerId] = limit;
 
@@ -906,12 +906,6 @@ static class ExtendedPlayerControl
         if (target == null || target.Is(CustomRoles.GM)) return false;
         return GameStates.IsLobby || !Main.PlayerStates.TryGetValue(target.PlayerId, out var ps) || !ps.IsDead;
     }
-    /*
-        public static bool IsExiled(this PlayerControl target)
-        {
-            return GameStates.InGame || (target != null && (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Vote));
-        }
-    */
 
     ///<summary>Is the player currently protected</summary>
     public static bool IsProtected(this PlayerControl self) => self.protectedByGuardianId > -1;

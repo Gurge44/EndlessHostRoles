@@ -26,6 +26,19 @@ using Object = UnityEngine.Object;
 
 namespace TOHE;
 
+/*
+List of symbols that work in game
+
+1-stars: ★ ☆ ⁂ ⁑ ✽
+2-arrows: ☝ ☞ ☟ ☜ ↑ ↓ → ← ↔ ↕  ⬆ ↗ ➡ ↘ ⬇ ↙ ⬅ ↖ ↕ ↔  ⤴ ⤵ ￩ ￪ ￫ ￬ ⇦ ⇧ ⇨ ⇩ ⇵ ⇄ ⇅ ⇆  ↹
+3- shapes • ○ ◦ ⦿ ▲ ▼ ♠ ♥ ♣ ♦ ♤ ♡ ♧ ♢ ■ □ ▢ ▣ ▤ ▥ ▦ ▧ ▨ ▩ ▪ ▫  ◌ ● ◐ ◑ ◒ ◓ ◯ ⦿ ◆ ◇ ◈ ❖  ▩  ▱ ▶ ◀
+4- symbols: ✓ ∞ † ✚ ♫ ♪ ♲ ♳ ♴ ♵ ♶ ♷ ♸ ♹ ♺ ♻ ♼ ♽☎ ☏ ✂ ♀♂ ⚠
+5- emojis:  😂☹️😆☺️😎😉😅😊😋😀😁😂😃😄😅😍😎😋😊😉😆☺️☁️☂️☀️
+6- random: ‰ § ¶ © ™ ¥ $ ¢ € ƒ  £ Æ
+
+other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ ╖ ╕ ╣ ║ ╗ ╝ ╜ ╛ ┐ └ ┴ ┬ ─ ┼ ╞ ╟ ╚ ╔ ╩ ╦ ╠ ═ ╬ ╧ ╨ ╤ ╥ ╙ ╘ ╒ ╓ ╫ ╪ ┘ ┌ Θ ∩ ¿
+*/
+
 public static class Utils
 {
     private static readonly DateTime timeStampStartTime = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -564,6 +577,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.NSerialKiller:
+            case CustomRoles.Tiger:
             case CustomRoles.SoulHunter:
             case CustomRoles.Enderman:
             case CustomRoles.Mycologist:
@@ -822,7 +836,7 @@ public static class Utils
         try
         {
             float limit = playerId.GetAbilityUseLimit();
-            if (float.IsNaN(limit)) return string.Empty;
+            if (float.IsNaN(limit) /* || limit is > 100 or < 0*/) return string.Empty;
             Color TextColor;
             if (limit < 1) TextColor = Color.red;
             else if (usingAbility) TextColor = Color.green;
@@ -887,7 +901,7 @@ public static class Utils
             SendMessage(GetString("RandomMapsModeInfo"), PlayerId);
         }
 
-        if (Options.EnableGM.GetBool())
+        if (Main.GM.Value)
         {
             SendMessage(GetRoleName(CustomRoles.GM) + GetString("GMInfoLong"), PlayerId);
         }
@@ -1038,7 +1052,7 @@ public static class Utils
         }
 
         var sb = new StringBuilder();
-        sb.Append($"\n{GetRoleName(CustomRoles.GM)}: {Options.EnableGM.GetString().RemoveHtmlTags()}");
+        sb.Append($"\n{GetRoleName(CustomRoles.GM)}: {(Main.GM.Value ? GetString("RoleRate") : GetString("RoleOff"))}");
 
         var impsb = new StringBuilder();
         var neutralsb = new StringBuilder();
@@ -1761,6 +1775,12 @@ public static class Utils
                         case CustomRoles.SuperStar when Options.EveryOneKnowSuperStar.GetBool():
                             SelfMark.Append(ColorString(GetRoleColor(CustomRoles.SuperStar), "★"));
                             break;
+                        case CustomRoles.Changeling:
+                            SelfMark.Append(Changeling.GetSuffix(seer));
+                            break;
+                        case CustomRoles.Tiger:
+                            SelfSuffix.Append(Tiger.GetSuffix(seer));
+                            break;
                         case CustomRoles.Rabbit:
                             SelfSuffix.Append(Rabbit.GetSuffix(seer));
                             break;
@@ -2313,19 +2333,20 @@ public static class Utils
             CustomRoles.CameraMan => CameraMan.VentCooldown.GetInt(),
             CustomRoles.Tornado => Tornado.TornadoCooldown.GetInt(),
             CustomRoles.Sentinel => Sentinel.PatrolCooldown.GetInt(),
+            CustomRoles.Druid => Druid.VentCooldown.GetInt(),
             CustomRoles.Sniper => Options.DefaultShapeshiftCooldown.GetInt(),
             CustomRoles.Assassin => Assassin.AssassinateCooldownOpt.GetInt(),
             CustomRoles.Undertaker => Undertaker.AssassinateCooldown.GetInt(),
             CustomRoles.Bomber => Options.BombCooldown.GetInt(),
             CustomRoles.Nuker => Options.NukeCooldown.GetInt(),
             CustomRoles.Sapper => Sapper.ShapeshiftCooldown.GetInt(),
-            CustomRoles.Druid => Druid.VentCooldown.GetInt(),
             CustomRoles.Miner => Options.MinerSSCD.GetInt(),
             CustomRoles.Escapee => Options.EscapeeSSCD.GetInt(),
             CustomRoles.QuickShooter => QuickShooter.ShapeshiftCooldown.GetInt(),
             CustomRoles.Disperser => Disperser.DisperserShapeshiftCooldown.GetInt(),
             CustomRoles.Twister => Twister.ShapeshiftCooldown.GetInt(),
             CustomRoles.Swiftclaw => Swiftclaw.DashCD.GetInt() + (includeDuration ? Swiftclaw.DashDuration.GetInt() : 0),
+            CustomRoles.Tiger => Tiger.EnrageCooldown.GetInt() + (includeDuration ? Tiger.EnrageDuration.GetInt() : 0),
             _ => -1,
         };
         if (CD == -1) return;

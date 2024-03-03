@@ -226,7 +226,7 @@ internal class CustomRoleSelector
         // Players on the EAC banned list will be assigned as GM when opening rooms
         if (BanManager.CheckEACList(PlayerControl.LocalPlayer.FriendCode, PlayerControl.LocalPlayer.GetClient().GetHashedPuid()))
         {
-            Options.EnableGM.SetValue(1);
+            Main.GM.Value = true;
             RoleResult[PlayerControl.LocalPlayer] = CustomRoles.GM;
             AllPlayers.Remove(PlayerControl.LocalPlayer);
         }
@@ -275,7 +275,7 @@ internal class CustomRoleSelector
                 RoleAssignInfo item = Roles[RoleAssignType.Impostor][i];
                 if (item.SpawnChance == 100)
                 {
-                    for (int j = 0; j < item.MaxCount; j++)
+                    for (int j = 0; j < item.MaxCount - item.AssignedCount; j++)
                     {
                         AlwaysImpRoles.Add(item.Role);
                     }
@@ -284,7 +284,7 @@ internal class CustomRoleSelector
                 {
                     for (int j = 0; j < item.SpawnChance / 5; j++)
                     {
-                        for (int k = 0; k < item.MaxCount; k++)
+                        for (int k = 0; k < item.MaxCount - item.AssignedCount; k++)
                         {
                             ChanceImpRoles.Add(item.Role);
                         }
@@ -354,7 +354,7 @@ internal class CustomRoleSelector
                     RoleAssignInfo item = Roles[RoleAssignType.NonKillingNeutral][i];
                     if (item.SpawnChance == 100)
                     {
-                        for (int j = 0; j < item.MaxCount; j++)
+                        for (int j = 0; j < item.MaxCount - item.AssignedCount; j++)
                         {
                             AlwaysNNKRoles.Add(item.Role);
                         }
@@ -363,7 +363,7 @@ internal class CustomRoleSelector
                     {
                         for (int j = 0; j < item.SpawnChance / 5; j++)
                         {
-                            for (int k = 0; k < item.MaxCount; k++)
+                            for (int k = 0; k < item.MaxCount - item.AssignedCount; k++)
                             {
                                 ChanceNNKRoles.Add(item.Role);
                             }
@@ -431,7 +431,7 @@ internal class CustomRoleSelector
                     RoleAssignInfo item = Roles[RoleAssignType.NeutralKilling][i];
                     if (item.SpawnChance == 100)
                     {
-                        for (int j = 0; j < item.MaxCount; j++)
+                        for (int j = 0; j < item.MaxCount - item.AssignedCount; j++)
                         {
                             AlwaysNKRoles.Add(item.Role);
                         }
@@ -440,7 +440,7 @@ internal class CustomRoleSelector
                     {
                         for (int j = 0; j < item.SpawnChance / 5; j++)
                         {
-                            for (int k = 0; k < item.MaxCount; k++)
+                            for (int k = 0; k < item.MaxCount - item.AssignedCount; k++)
                             {
                                 ChanceNKRoles.Add(item.Role);
                             }
@@ -509,7 +509,7 @@ internal class CustomRoleSelector
                 RoleAssignInfo item = Roles[RoleAssignType.Crewmate][i];
                 if (item.SpawnChance == 100)
                 {
-                    for (int j = 0; j < item.MaxCount; j++)
+                    for (int j = 0; j < item.MaxCount - item.AssignedCount; j++)
                     {
                         AlwaysCrewRoles.Add(item.Role);
                     }
@@ -518,7 +518,7 @@ internal class CustomRoleSelector
                 {
                     for (int j = 0; j < item.SpawnChance / 5; j++)
                     {
-                        for (int k = 0; k < item.MaxCount; k++)
+                        for (int k = 0; k < item.MaxCount - item.AssignedCount; k++)
                         {
                             ChanceCrewRoles.Add(item.Role);
                         }

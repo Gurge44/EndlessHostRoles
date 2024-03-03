@@ -51,6 +51,11 @@ public static class HudSpritePatch
 
         if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts) goto EndOfSelectImg;
 
+        if (player.GetCustomRole().UsesPetInsteadOfKill())
+        {
+            newPetButton = __instance.KillButton.graphic.sprite;
+        }
+
         if (!Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId))
         {
             switch (player.GetCustomRole())

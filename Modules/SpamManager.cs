@@ -76,18 +76,15 @@ public static class SpamManager
         {
             if (ContainsStart(text) && GameStates.IsLobby)
             {
-                msg = string.Format(GetString("Message.KickWhoSayStart"), name);
-                if (Options.AutoKickStart.GetBool())
+                if (!Main.SayStartTimes.ContainsKey(player.GetClientId())) Main.SayStartTimes.Add(player.GetClientId(), 0);
+                Main.SayStartTimes[player.GetClientId()]++;
+                msg = string.Format(GetString("Message.WarnWhoSayStart"), name, Main.SayStartTimes[player.GetClientId()]);
+                if (Main.SayStartTimes[player.GetClientId()] > Options.AutoKickStartTimes.GetInt())
                 {
-                    if (!Main.SayStartTimes.ContainsKey(player.GetClientId())) Main.SayStartTimes.Add(player.GetClientId(), 0);
-                    Main.SayStartTimes[player.GetClientId()]++;
-                    msg = string.Format(GetString("Message.WarnWhoSayStart"), name, Main.SayStartTimes[player.GetClientId()]);
-                    if (Main.SayStartTimes[player.GetClientId()] > Options.AutoKickStartTimes.GetInt())
-                    {
-                        msg = string.Format(GetString("Message.KickStartAfterWarn"), name, Main.SayStartTimes[player.GetClientId()]);
-                        kick = true;
-                    }
+                    msg = string.Format(GetString("Message.KickStartAfterWarn"), name, Main.SayStartTimes[player.GetClientId()]);
+                    kick = true;
                 }
+
                 if (msg != string.Empty && msg != "") Utils.SendMessage(msg);
                 if (kick) AmongUsClient.Instance.KickPlayer(player.GetClientId(), Options.AutoKickStartAsBan.GetBool());
                 return true;

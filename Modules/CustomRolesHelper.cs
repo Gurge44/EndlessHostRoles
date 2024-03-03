@@ -236,6 +236,7 @@ internal static class CustomRolesHelper
         CustomRoles.DarkHide => new DarkHide(),
         CustomRoles.Succubus => new Succubus(),
         CustomRoles.Sunnyboy => new Sunnyboy(),
+        CustomRoles.Tiger => new Tiger(),
         CustomRoles.Traitor => new Traitor(),
         CustomRoles.Vengeance => new Vengeance(),
         CustomRoles.VengefulRomantic => new VengefulRomantic(),
@@ -318,9 +319,9 @@ internal static class CustomRolesHelper
                 CustomRoles.Puppeteer => CustomRoles.Impostor,
                 CustomRoles.TimeThief => CustomRoles.Impostor,
                 CustomRoles.EvilTracker => CustomRoles.Shapeshifter,
-                CustomRoles.Paranoia => CustomRoles.Engineer,
+                CustomRoles.Paranoia => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
                 CustomRoles.EngineerTOHE => CustomRoles.Engineer,
-                CustomRoles.TimeMaster => CustomRoles.Engineer,
+                CustomRoles.TimeMaster => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
                 CustomRoles.CrewmateTOHE => CustomRoles.Crewmate,
                 CustomRoles.Cleanser => CustomRoles.Crewmate,
                 CustomRoles.Miner => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
@@ -387,12 +388,12 @@ internal static class CustomRolesHelper
                 CustomRoles.BoobyTrap => CustomRoles.Impostor,
                 CustomRoles.Scavenger => CustomRoles.Impostor,
                 CustomRoles.Transporter => CustomRoles.Crewmate,
-                CustomRoles.Veteran => CustomRoles.Engineer,
+                CustomRoles.Veteran => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
                 CustomRoles.Capitalism => CustomRoles.Impostor,
                 CustomRoles.Bodyguard => CustomRoles.Crewmate,
-                CustomRoles.Grenadier => CustomRoles.Engineer,
-                CustomRoles.Lighter => CustomRoles.Engineer,
-                CustomRoles.SecurityGuard => CustomRoles.Engineer,
+                CustomRoles.Grenadier => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
+                CustomRoles.Lighter => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
+                CustomRoles.SecurityGuard => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
                 CustomRoles.Gangster => CustomRoles.Impostor,
                 CustomRoles.Cleaner => CustomRoles.Impostor,
                 CustomRoles.Konan => CustomRoles.Crewmate,
@@ -419,7 +420,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Swooper => CustomRoles.Impostor,
                 CustomRoles.Crewpostor => CustomRoles.Engineer,
                 CustomRoles.Observer => CustomRoles.Crewmate,
-                CustomRoles.DovesOfNeace => CustomRoles.Engineer,
+                CustomRoles.DovesOfNeace => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
                 CustomRoles.Disperser => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Camouflager => CustomRoles.Shapeshifter,
                 CustomRoles.Dazzler => CustomRoles.Shapeshifter,
@@ -434,7 +435,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Guardian => CustomRoles.Crewmate,
                 CustomRoles.Enigma => CustomRoles.Crewmate,
                 CustomRoles.Addict => CustomRoles.Engineer,
-                CustomRoles.Alchemist => CustomRoles.Engineer,
+                CustomRoles.Alchemist => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
                 CustomRoles.Chameleon => CustomRoles.Engineer,
                 CustomRoles.EvilSpirit => CustomRoles.GuardianAngel,
                 CustomRoles.Lurker => CustomRoles.Impostor,
@@ -517,6 +518,7 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.NSerialKiller => RoleTypes.Impostor,
+            CustomRoles.Tiger => RoleTypes.Impostor,
             CustomRoles.SoulHunter => RoleTypes.Impostor,
             CustomRoles.Enderman => RoleTypes.Impostor,
             CustomRoles.Mycologist => RoleTypes.Impostor,
@@ -566,35 +568,27 @@ internal static class CustomRolesHelper
             CustomRoles.SoulHunter or
             CustomRoles.Terrorist or
             CustomRoles.Opportunist or
-            //CustomRoles.Masochist or
             CustomRoles.Executioner or
             CustomRoles.Mario or
-            CustomRoles.Crewpostor or
             CustomRoles.Lawyer or
             CustomRoles.God or
             CustomRoles.Amnesiac or
             CustomRoles.Innocent or
             CustomRoles.Vulture or
-            //CustomRoles.NWitch or
             CustomRoles.Pursuer or
             CustomRoles.Revolutionist or
             CustomRoles.Provocateur or
-            CustomRoles.Gamer or
             CustomRoles.FFF or
             CustomRoles.Workaholic or
-            //    CustomRoles.Pelican or
             CustomRoles.Collector or
             CustomRoles.Sunnyboy or
             CustomRoles.Maverick or
-            //CustomRoles.CursedSoul or
             CustomRoles.Phantom or
             CustomRoles.Totocalcio or
             CustomRoles.Romantic or
             CustomRoles.VengefulRomantic or
             CustomRoles.Doomsayer or
-            CustomRoles.Necromancer or
-            CustomRoles.Deathknight or
-            CustomRoles.Succubus;
+            CustomRoles.Deathknight;
 
     public static bool IsNK(this CustomRoles role) => role is
         CustomRoles.Jackal or
@@ -602,12 +596,16 @@ internal static class CustomRolesHelper
         CustomRoles.Sidekick or
         CustomRoles.HexMaster or
         CustomRoles.Doppelganger or
+        CustomRoles.Succubus or
+        CustomRoles.Gamer or
+        CustomRoles.Crewpostor or
+        CustomRoles.Necromancer or
         CustomRoles.Agitater or
         CustomRoles.Wraith or
         CustomRoles.Bandit or
         CustomRoles.Medusa or
         CustomRoles.Pelican or
-        //CustomRoles.Pirate or
+        CustomRoles.Convict or
         CustomRoles.DarkHide or
         CustomRoles.Juggernaut or
         CustomRoles.Jinx or
@@ -615,6 +613,7 @@ internal static class CustomRolesHelper
         CustomRoles.Refugee or
         CustomRoles.Parasite or
         CustomRoles.NSerialKiller or
+        CustomRoles.Tiger or
         CustomRoles.Enderman or
         CustomRoles.Mycologist or
         CustomRoles.Bubble or
@@ -696,90 +695,89 @@ internal static class CustomRolesHelper
         CustomRoles.Sheriff or
         CustomRoles.Jailor;
 
-    public static bool IsImpostor(this CustomRoles role) // IsImp
-        => role is
-            CustomRoles.Impostor or
-            CustomRoles.Godfather or
-            CustomRoles.Shapeshifter or
-            CustomRoles.ShapeshifterTOHE or
-            CustomRoles.ImpostorTOHE or
-            CustomRoles.EvilDiviner or
-            CustomRoles.Wildling or
-            CustomRoles.Blackmailer or
-            CustomRoles.Morphling or
-            CustomRoles.BountyHunter or
-            CustomRoles.Vampire or
-            CustomRoles.Witch or
-            CustomRoles.Vindicator or
-            //CustomRoles.ShapeMaster or
-            CustomRoles.Zombie or
-            CustomRoles.Warlock or
-            CustomRoles.Assassin or
-            CustomRoles.Undertaker or
-            CustomRoles.Hacker or
-            CustomRoles.Visionary or
-            CustomRoles.Miner or
-            CustomRoles.Escapee or
-            CustomRoles.SerialKiller or
-            CustomRoles.Underdog or
-            CustomRoles.Inhibitor or
-            CustomRoles.Kidnapper or
-            CustomRoles.Changeling or
-            CustomRoles.Swapster or
-            CustomRoles.Kamikaze or
-            CustomRoles.Librarian or
-            CustomRoles.Cantankerous or
-            CustomRoles.Swiftclaw or
-            CustomRoles.Duellist or
-            CustomRoles.YinYanger or
-            CustomRoles.Consort or
-            CustomRoles.Mafioso or
-            CustomRoles.Nullifier or
-            CustomRoles.Chronomancer or
-            CustomRoles.Stealth or
-            CustomRoles.Penguin or
-            CustomRoles.Sapper or
-            CustomRoles.Hitman or
-            CustomRoles.RiftMaker or
-            CustomRoles.Mastermind or
-            CustomRoles.Gambler or
-            CustomRoles.Councillor or
-            CustomRoles.Saboteur or
-            CustomRoles.Puppeteer or
-            CustomRoles.TimeThief or
-            CustomRoles.Trickster or
-            CustomRoles.Mafia or
-            CustomRoles.Minimalism or
-            CustomRoles.FireWorks or
-            CustomRoles.Sniper or
-            CustomRoles.EvilTracker or
-            CustomRoles.EvilGuesser or
-            CustomRoles.AntiAdminer or
-            CustomRoles.Sans or
-            CustomRoles.Bomber or
-            CustomRoles.Nuker or
-            CustomRoles.Scavenger or
-            CustomRoles.BoobyTrap or
-            CustomRoles.Capitalism or
-            CustomRoles.Gangster or
-            CustomRoles.Cleaner or
-            CustomRoles.BallLightning or
-            CustomRoles.Greedier or
-            CustomRoles.CursedWolf or
-            CustomRoles.ImperiusCurse or
-            CustomRoles.QuickShooter or
-            CustomRoles.Eraser or
-            CustomRoles.OverKiller or
-            CustomRoles.Hangman or
-            CustomRoles.Bard or
-            CustomRoles.Swooper or
-            CustomRoles.Disperser or
-            CustomRoles.Dazzler or
-            CustomRoles.Deathpact or
-            CustomRoles.Devourer or
-            CustomRoles.Camouflager or
-            CustomRoles.Twister or
-            CustomRoles.Lurker;
+    public static bool IsImpostor(this CustomRoles role) => role is
+        CustomRoles.Impostor or
+        CustomRoles.Godfather or
+        CustomRoles.Shapeshifter or
+        CustomRoles.ShapeshifterTOHE or
+        CustomRoles.ImpostorTOHE or
+        CustomRoles.EvilDiviner or
+        CustomRoles.Wildling or
+        CustomRoles.Blackmailer or
+        CustomRoles.Morphling or
+        CustomRoles.BountyHunter or
+        CustomRoles.Vampire or
+        CustomRoles.Witch or
+        CustomRoles.Vindicator or
+        //CustomRoles.ShapeMaster or
+        CustomRoles.Zombie or
+        CustomRoles.Warlock or
+        CustomRoles.Assassin or
+        CustomRoles.Undertaker or
+        CustomRoles.Hacker or
+        CustomRoles.Visionary or
+        CustomRoles.Miner or
+        CustomRoles.Escapee or
+        CustomRoles.SerialKiller or
+        CustomRoles.Underdog or
+        CustomRoles.Inhibitor or
+        CustomRoles.Kidnapper or
+        CustomRoles.Changeling or
+        CustomRoles.Swapster or
+        CustomRoles.Kamikaze or
+        CustomRoles.Librarian or
+        CustomRoles.Cantankerous or
+        CustomRoles.Swiftclaw or
+        CustomRoles.Duellist or
+        CustomRoles.YinYanger or
+        CustomRoles.Consort or
+        CustomRoles.Mafioso or
+        CustomRoles.Nullifier or
+        CustomRoles.Chronomancer or
+        CustomRoles.Stealth or
+        CustomRoles.Penguin or
+        CustomRoles.Sapper or
+        CustomRoles.Hitman or
+        CustomRoles.RiftMaker or
+        CustomRoles.Mastermind or
+        CustomRoles.Gambler or
+        CustomRoles.Councillor or
+        CustomRoles.Saboteur or
+        CustomRoles.Puppeteer or
+        CustomRoles.TimeThief or
+        CustomRoles.Trickster or
+        CustomRoles.Mafia or
+        CustomRoles.Minimalism or
+        CustomRoles.FireWorks or
+        CustomRoles.Sniper or
+        CustomRoles.EvilTracker or
+        CustomRoles.EvilGuesser or
+        CustomRoles.AntiAdminer or
+        CustomRoles.Sans or
+        CustomRoles.Bomber or
+        CustomRoles.Nuker or
+        CustomRoles.Scavenger or
+        CustomRoles.BoobyTrap or
+        CustomRoles.Capitalism or
+        CustomRoles.Gangster or
+        CustomRoles.Cleaner or
+        CustomRoles.BallLightning or
+        CustomRoles.Greedier or
+        CustomRoles.CursedWolf or
+        CustomRoles.ImperiusCurse or
+        CustomRoles.QuickShooter or
+        CustomRoles.Eraser or
+        CustomRoles.OverKiller or
+        CustomRoles.Hangman or
+        CustomRoles.Bard or
+        CustomRoles.Swooper or
+        CustomRoles.Disperser or
+        CustomRoles.Dazzler or
+        CustomRoles.Deathpact or
+        CustomRoles.Devourer or
+        CustomRoles.Camouflager or
+        CustomRoles.Twister or
+        CustomRoles.Lurker;
 
     public static bool IsNeutral(this CustomRoles role) => role.IsNK() || role.IsNonNK();
 
@@ -798,6 +796,14 @@ internal static class CustomRolesHelper
         CustomRoles.Contagious or
         CustomRoles.Rogue or
         CustomRoles.Rascal;
+
+    public static bool IsRecruitingRole(this CustomRoles role) => role is
+        CustomRoles.Jackal or
+        CustomRoles.Succubus or
+        CustomRoles.Necromancer or
+        CustomRoles.Virus or
+        CustomRoles.Rogue or
+        CustomRoles.Spiritcaller;
 
     public static bool IsMadmate(this CustomRoles role) => role is
         CustomRoles.Crewpostor or
@@ -824,72 +830,14 @@ internal static class CustomRolesHelper
         CustomRoles.SwordsMan or
         CustomRoles.Deputy;
 
-    public static bool PetActivatedAbility(this CustomRoles role) => Options.UsePets.GetBool() && role switch
+    public static bool PetActivatedAbility(this CustomRoles role)
     {
-        CustomRoles.Doormaster or
-            CustomRoles.Tether or
-            CustomRoles.Mayor or
-            CustomRoles.Paranoia or
-            CustomRoles.Grenadier or
-            CustomRoles.Veteran or
-            CustomRoles.Lighter or
-            CustomRoles.SecurityGuard or
-            CustomRoles.DovesOfNeace or
-            CustomRoles.Alchemist or
-            CustomRoles.TimeMaster or
-            CustomRoles.Sapper or
-            CustomRoles.CameraMan or
-            CustomRoles.NiceHacker or
-            CustomRoles.Druid or
-            CustomRoles.Tunneler or
-            CustomRoles.Tornado or
-            CustomRoles.Sentinel or
-            CustomRoles.Lookout or
-            CustomRoles.Sniper or
-            CustomRoles.FireWorks or
-            CustomRoles.Warlock or
-            CustomRoles.Assassin or
-            CustomRoles.Undertaker or
-            CustomRoles.Disperser or
-            CustomRoles.Twister or
-            CustomRoles.QuickShooter or
-            CustomRoles.Miner or
-            CustomRoles.Escapee or
-            CustomRoles.RiftMaker or
-            CustomRoles.Bomber or
-            CustomRoles.Nuker or
-            CustomRoles.Necromancer or
-            CustomRoles.Deathknight or
-            CustomRoles.Arsonist or
-            CustomRoles.Glitch or
-            CustomRoles.Magician or
-            CustomRoles.WeaponMaster or
-            CustomRoles.Enderman or
-            CustomRoles.Mycologist or
-            CustomRoles.Hookshot or
-            CustomRoles.Sprayer
-            => true,
+        if (!Options.UsePets.GetBool()) return false;
+        if (role.UsesPetInsteadOfKill()) return true;
 
-        CustomRoles.Gaulois when Gaulois.UsePet.GetBool() => true,
-        CustomRoles.Aid when Aid.UsePet.GetBool() => true,
-        CustomRoles.Escort when Escort.UsePet.GetBool() => true,
-        CustomRoles.DonutDelivery when DonutDelivery.UsePet.GetBool() => true,
-        CustomRoles.Analyzer when Analyzer.UsePet.GetBool() => true,
-        CustomRoles.Jailor when Jailor.UsePet.GetBool() => true,
-        CustomRoles.Sheriff when Sheriff.UsePet.GetBool() => true,
-        CustomRoles.SwordsMan when SwordsMan.UsePet.GetBool() => true,
-        CustomRoles.Medic when Medic.UsePet.GetBool() => true,
-        CustomRoles.Monarch when Monarch.UsePet.GetBool() => true,
-        CustomRoles.CopyCat when CopyCat.UsePet.GetBool() => true,
-        CustomRoles.Farseer when Farseer.UsePet.GetBool() => true,
-        CustomRoles.Deputy when Deputy.UsePet.GetBool() => true,
-        CustomRoles.Crusader when Crusader.UsePet.GetBool() => true,
-        CustomRoles.Witness when Options.WitnessUsePet.GetBool() => true,
-
-        CustomRoles.Refugee => true,
-
-        _ => false,
-    };
+        var type = role.GetRoleClass().GetType();
+        return type.GetMethod("OnPet")?.DeclaringType == type;
+    }
 
     public static bool UsesPetInsteadOfKill(this CustomRoles role) => Options.UsePets.GetBool() && role switch
     {
@@ -926,90 +874,15 @@ internal static class CustomRolesHelper
     public static bool OnlySpawnsWithPets(this CustomRoles role) => OnlySpawnsWithPetsRoleList.Any(x => x.ToString() == role.ToString());
 
     public static bool NeedUpdateOnLights(this CustomRoles role) => (!role.UsesPetInsteadOfKill()) && (role.GetDYRole() != RoleTypes.GuardianAngel || role is
-        CustomRoles.Sheriff or
-        CustomRoles.Medic or
-        CustomRoles.CopyCat or
-        //CustomRoles.Reverie or
-        CustomRoles.Crusader or
-        //CustomRoles.Counterfeiter or
-        CustomRoles.Aid or
-        CustomRoles.DonutDelivery or
-        CustomRoles.Gaulois or
-        CustomRoles.Analyzer or
-        CustomRoles.Escort or
-        CustomRoles.Witness or
-        CustomRoles.Monarch or
-        CustomRoles.Jailor or
-        CustomRoles.Farseer or
-        CustomRoles.SwordsMan or
-        CustomRoles.Alchemist or
         CustomRoles.Convict or
-        CustomRoles.Torch or
-        CustomRoles.Amnesiac or
-        CustomRoles.Medusa or
-        CustomRoles.HexMaster or
-        CustomRoles.Glitch or
-        //CustomRoles.NWitch or
-        CustomRoles.Wraith or
         CustomRoles.Parasite or
-        CustomRoles.Juggernaut or
         CustomRoles.Refugee or
-        CustomRoles.Jinx or
-        CustomRoles.Arsonist or
-        CustomRoles.Jackal or
-        CustomRoles.Innocent or
-        CustomRoles.PlagueBearer or
-        CustomRoles.Pestilence or
-        CustomRoles.Poisoner or
-        CustomRoles.NSerialKiller or
-        CustomRoles.SoulHunter or
-        CustomRoles.Enderman or
-        CustomRoles.Mycologist or
-        CustomRoles.Bubble or
-        CustomRoles.Hookshot or
-        CustomRoles.Sprayer or
-        CustomRoles.PlagueDoctor or
-        CustomRoles.Magician or
-        CustomRoles.WeaponMaster or
-        CustomRoles.Reckless or
-        CustomRoles.Postman or
-        CustomRoles.Eclipse or
-        CustomRoles.Pyromaniac or
-        CustomRoles.Vengeance or
-        CustomRoles.HeadHunter or
-        CustomRoles.Imitator or
-        CustomRoles.Werewolf or
-        CustomRoles.Ritualist or
-        CustomRoles.Pickpocket or
-        CustomRoles.Pelican or
-        CustomRoles.Traitor or
-        CustomRoles.Revolutionist or
-        CustomRoles.FFF or
-        CustomRoles.Gamer or
-        CustomRoles.Maverick or
-        //CustomRoles.CursedSoul or
-        CustomRoles.DarkHide or
-        CustomRoles.Provocateur or
-        CustomRoles.BloodKnight or
-        CustomRoles.Romantic or
-        CustomRoles.VengefulRomantic or
-        CustomRoles.RuthlessRomantic or
-        CustomRoles.Totocalcio or
-        CustomRoles.Virus or
-        CustomRoles.Succubus or
-        CustomRoles.Necromancer or
-        CustomRoles.Spiritcaller or
-        CustomRoles.Refugee or
-        CustomRoles.Parasite or
         CustomRoles.Lighter or
         CustomRoles.SecurityGuard or
         CustomRoles.Ignitor or
         CustomRoles.Saboteur or
         CustomRoles.Inhibitor or
         CustomRoles.Gambler or
-        CustomRoles.Mare or
-        CustomRoles.Bandit or
-        CustomRoles.Agitater or
         CustomRoles.Deputy);
 
     public static bool IsBetrayalAddon(this CustomRoles role) => role is
@@ -1455,6 +1328,7 @@ internal static class CustomRolesHelper
             CustomRoles.PlagueBearer => CountTypes.PlagueBearer,
             CustomRoles.Parasite => CountTypes.Impostor,
             CustomRoles.NSerialKiller => CountTypes.NSerialKiller,
+            CustomRoles.Tiger => CountTypes.Tiger,
             CustomRoles.Enderman => CountTypes.Enderman,
             CustomRoles.Mycologist => CountTypes.Mycologist,
             CustomRoles.Bubble => CountTypes.Bubble,
@@ -1518,6 +1392,7 @@ public enum CountTypes
     NWitch,
     Wraith,
     NSerialKiller,
+    Tiger,
     Enderman,
     Mycologist,
     Bubble,

@@ -126,7 +126,7 @@ class RepairSystemPatch
                 }
 
                 if (player.Is(CustomRoleTypes.Impostor) && !player.IsAlive() && Options.DeadImpCantSabotage.GetBool()) return false;
-                if (player.Is(CustomRoleTypes.Impostor) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool()) && !player.Is(CustomRoles.Minimalism)) return true;
+                if (player.Is(CustomRoleTypes.Impostor) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool()) && !player.Is(CustomRoles.Minimalism) && !player.Is(CustomRoles.Mafioso)) return true;
                 return player.GetCustomRole() switch
                 {
                     CustomRoles.Jackal when Jackal.CanSabotage.GetBool() => true,

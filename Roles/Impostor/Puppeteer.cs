@@ -115,7 +115,7 @@ namespace TOHE.Roles.Impostor
                 }
                 else if (PuppeteerDelayList[playerId] + PuppeteerDelay[playerId] < now)
                 {
-                    Vector2 puppeteerPos = player.transform.position; //PuppeteerListのKeyの位置
+                    Vector2 puppeteerPos = player.transform.position;
                     Dictionary<byte, float> targetDistance = [];
                     foreach (PlayerControl target in Main.AllAlivePlayerControls)
                     {

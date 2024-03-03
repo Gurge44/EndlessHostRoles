@@ -26,6 +26,7 @@ public class FireWorks : RoleBase
     private static OptionItem FireWorksCount;
     private static OptionItem FireWorksRadius;
     public static OptionItem CanKill;
+    public static OptionItem CanIgniteBeforePlacingAllFireworks;
 
     public static bool On;
 
@@ -43,6 +44,7 @@ public class FireWorks : RoleBase
         FireWorksRadius = FloatOptionItem.Create(Id + 11, "FireWorksRadius", new(0.5f, 5f, 0.5f), 2f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks])
             .SetValueFormat(OptionFormat.Multiplier);
         CanKill = BooleanOptionItem.Create(Id + 12, "CanKill", false, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks]);
+        CanIgniteBeforePlacingAllFireworks = BooleanOptionItem.Create(Id + 13, "CanIgniteBeforePlacingAllFireworks", false, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks]);
     }
 
     public override void Init()
@@ -98,7 +100,13 @@ public class FireWorks : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
+        var beforeState = state;
+        if (CanIgniteBeforePlacingAllFireworks.GetBool()) state = FireWorksState.ReadyFire;
+
         OnShapeshift(pc, null, true);
+
+        if (beforeState == FireWorksState.ReadyFire) return;
+        state = beforeState;
     }
 
     public override bool OnShapeshift(PlayerControl pc, PlayerControl _, bool shapeshifting)

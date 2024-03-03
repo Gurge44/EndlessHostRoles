@@ -75,6 +75,7 @@ public static class NameColorManager
             (CustomRoles.Jackal, CustomRoles.Jackal) => Main.roleColors[CustomRoles.Jackal],
             (CustomRoles.Juggernaut, CustomRoles.Juggernaut) => Main.roleColors[CustomRoles.Juggernaut],
             (CustomRoles.NSerialKiller, CustomRoles.NSerialKiller) => Main.roleColors[CustomRoles.NSerialKiller],
+            (CustomRoles.Tiger, CustomRoles.Tiger) => Main.roleColors[CustomRoles.Tiger],
             (CustomRoles.SoulHunter, CustomRoles.SoulHunter) => Main.roleColors[CustomRoles.SoulHunter],
             (CustomRoles.Enderman, CustomRoles.Enderman) => Main.roleColors[CustomRoles.Enderman],
             (CustomRoles.Mycologist, CustomRoles.Mycologist) => Main.roleColors[CustomRoles.Mycologist],

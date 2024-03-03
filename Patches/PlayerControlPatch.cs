@@ -909,7 +909,7 @@ class ReportDeadBodyPatch
 class FixedUpdatePatch
 {
     private static readonly StringBuilder Mark = new(20);
-    private static StringBuilder Suffix = new(120);
+    private static readonly StringBuilder Suffix = new(120);
     private static int LevelKickBufferTime = 10;
     private static readonly Dictionary<byte, int> BufferTime = [];
     private static readonly Dictionary<byte, int> DeadBufferTime = [];
@@ -1042,7 +1042,7 @@ class FixedUpdatePatch
                 PlagueBearer.playerIdList.Remove(playerId);
             }
 
-            if (GameStates.IsInTask && player != null && player.IsAlive())
+            if (GameStates.IsInTask && player != null && player.IsAlive() && !Pelican.IsEaten(player.PlayerId))
             {
                 foreach (var state in Main.PlayerStates.Values)
                 {
@@ -1092,82 +1092,6 @@ class FixedUpdatePatch
                 Randomizer.OnFixedUpdateForPlayers(player);
             }
         }
-
-
-        #region 女巫处理
-
-        if (GameStates.IsInTask && Main.WarlockTimer.ContainsKey(playerId)) //処理を1秒遅らせる
-        {
-            if (player.IsAlive())
-            {
-                if (Main.WarlockTimer[playerId] >= 1f)
-                {
-                    player.RpcResetAbilityCooldown();
-                    Main.isCursed = false; //変身クールを１秒に変更
-                    player.MarkDirtySettings();
-                    Main.WarlockTimer.Remove(playerId);
-                }
-                else Main.WarlockTimer[playerId] += Time.fixedDeltaTime; //時間をカウント
-            }
-            else
-            {
-                Main.WarlockTimer.Remove(playerId);
-            }
-        }
-
-        //ターゲットのリセット
-
-        #endregion
-
-        #region 纵火犯浇油处理
-
-        if (GameStates.IsInTask && Main.ArsonistTimer.ContainsKey(playerId)) //アーソニストが誰かを塗っているとき
-        {
-            var arTarget = Main.ArsonistTimer[playerId].PLAYER;
-            if (!player.IsAlive() || Pelican.IsEaten(playerId))
-            {
-                Main.ArsonistTimer.Remove(playerId);
-                NotifyRoles(SpecifySeer: __instance, SpecifyTarget: arTarget, ForceLoop: true);
-                RPC.ResetCurrentDousingTarget(playerId);
-            }
-            else
-            {
-                var ar_target = Main.ArsonistTimer[playerId].PLAYER; //塗られる人
-                var ar_time = Main.ArsonistTimer[playerId].TIMER; //塗った時間
-                if (!ar_target.IsAlive())
-                {
-                    Main.ArsonistTimer.Remove(playerId);
-                }
-                else if (ar_time >= Options.ArsonistDouseTime.GetFloat()) //時間以上一緒にいて塗れた時
-                {
-                    player.SetKillCooldown();
-                    Main.ArsonistTimer.Remove(playerId); //塗が完了したのでDictionaryから削除
-                    Main.isDoused[(playerId, ar_target.PlayerId)] = true; //塗り完了
-                    player.RpcSetDousedPlayer(ar_target, true);
-                    NotifyRoles(SpecifySeer: player, SpecifyTarget: arTarget, ForceLoop: true); //名前変更
-                    RPC.ResetCurrentDousingTarget(playerId);
-                }
-                else
-                {
-                    float range = NormalGameOptionsV07.KillDistances[Mathf.Clamp(player.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f;
-                    float dis = Vector2.Distance(player.transform.position, ar_target.transform.position); //距離を出す
-                    if (dis <= range) //一定の距離にターゲットがいるならば時間をカウント
-                    {
-                        Main.ArsonistTimer[playerId] = (ar_target, ar_time + Time.fixedDeltaTime);
-                    }
-                    else //それ以外は削除
-                    {
-                        Main.ArsonistTimer.Remove(playerId);
-                        NotifyRoles(SpecifySeer: player, SpecifyTarget: arTarget, ForceLoop: true);
-                        RPC.ResetCurrentDousingTarget(playerId);
-
-                        Logger.Info($"Canceled: {player.GetNameWithRole().RemoveHtmlTags()}", "Arsonist");
-                    }
-                }
-            }
-        }
-
-        #endregion
 
         if (!lowLoad)
         {
@@ -1242,11 +1166,8 @@ class FixedUpdatePatch
                 ApplySuffix(__instance);
         }
 
-
-        //LocalPlayer専用
         if (__instance.AmOwner)
         {
-            //キルターゲットの上書き処理
             if ((Main.ChangedRole && __instance == PlayerControl.LocalPlayer && AmongUsClient.Instance.AmHost) || (GameStates.IsInTask && !__instance.Is(CustomRoleTypes.Impostor) && __instance.CanUseKillButton() && !__instance.Data.IsDead))
             {
                 var players = __instance.GetPlayersInAbilityRangeSorted();
@@ -1255,7 +1176,6 @@ class FixedUpdatePatch
             }
         }
 
-        //役職テキストの表示
         var RoleTextTransform = __instance.cosmetics.nameText.transform.Find("RoleText");
         var RoleText = RoleTextTransform.GetComponent<TextMeshPro>();
 
@@ -1265,7 +1185,7 @@ class FixedUpdatePatch
             {
                 if (Main.playerVersion.TryGetValue(playerId, out var ver))
                 {
-                    if (Main.ForkId != ver.forkId) // フォークIDが違う場合
+                    if (Main.ForkId != ver.forkId)
                         __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.2>{ver.forkId}</size>\n{__instance?.name}</color>";
                     else if (Main.version.CompareTo(ver.version) == 0)
                         __instance.cosmetics.nameText.text = ver.tag == $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" ? $"<color=#87cefa>{__instance.name}</color>" : $"<color=#ffff00><size=1.2>{ver.tag}</size>\n{__instance?.name}</color>";
@@ -1278,11 +1198,6 @@ class FixedUpdatePatch
             {
                 var RoleTextData = GetRoleText(PlayerControl.LocalPlayer.PlayerId, playerId);
 
-                //if (Options.CurrentGameMode == CustomGameMode.HideAndSeek)
-                //{
-                //    var hasRole = main.AllPlayerCustomRoles.TryGetValue(playerId, out var role);
-                //    if (hasRole) RoleTextData = Utils.GetRoleTextHideAndSeek(__instance.Data.Role.Role, role);
-                //}
                 RoleText.text = RoleTextData.Item1;
                 RoleText.color = RoleTextData.Item2;
 
@@ -1298,7 +1213,7 @@ class FixedUpdatePatch
 
                 if (!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay)
                 {
-                    RoleText.enabled = false; //ゲームが始まっておらずフリープレイでなければロールを非表示
+                    RoleText.enabled = false;
                     if (!__instance.AmOwner) __instance.cosmetics.nameText.text = __instance?.Data?.PlayerName;
                 }
 
@@ -1311,22 +1226,17 @@ class FixedUpdatePatch
                     progressText = $"\n{progressText}";
                 }
 
-                if (Main.VisibleTasksCount) //他プレイヤーでVisibleTasksCountは有効なら
-                    RoleText.text += progressText; //ロールの横にタスクなど進行状況表示
+                if (Main.VisibleTasksCount)
+                    RoleText.text += progressText;
 
-                //変数定義
                 var seer = PlayerControl.LocalPlayer;
                 var target = __instance;
 
-                //    string SeerRealName;
                 Mark.Clear();
                 Suffix.Clear();
 
-                //名前変更
                 string RealName = target.GetRealName();
-                //   SeerRealName = seer.GetRealName();
-                //名前色変更処理
-                //自分自身の名前の色を変更
+
                 if (target.AmOwner && GameStates.IsInTask)
                 {
                     //targetが自分自身
@@ -1394,9 +1304,6 @@ class FixedUpdatePatch
                     case CustomRoles.PlagueBearer when PlagueBearer.IsPlagued(seer.PlayerId, target.PlayerId):
                         Mark.Append($"<color={GetRoleColorCode(CustomRoles.PlagueBearer)}>●</color>");
                         //   PlagueBearer.SendRPC(seer, target);
-                        break;
-                    case CustomRoles.Penguin when target.PlayerId == seer.PlayerId:
-                        Suffix.Append(Penguin.GetSuffix(seer));
                         break;
                     case CustomRoles.Arsonist:
                         if (seer.IsDousedPlayer(target))
@@ -1487,6 +1394,27 @@ class FixedUpdatePatch
                     case CustomRoles.Snitch:
                         Suffix.Append(Snitch.GetSnitchArrow(seer, target));
                         break;
+                    case CustomRoles.VengefulRomantic when seer.PlayerId == target.PlayerId:
+                        Suffix.Append(VengefulRomantic.GetTargetText(seer.PlayerId));
+                        break;
+                    case CustomRoles.Romantic when seer.PlayerId == target.PlayerId:
+                        Suffix.Append(Romantic.GetTargetText(seer.PlayerId));
+                        break;
+                    case CustomRoles.Ricochet when seer.PlayerId == target.PlayerId:
+                        Suffix.Append(Ricochet.TargetText(seer.PlayerId));
+                        break;
+                    case CustomRoles.Hitman when seer.PlayerId == target.PlayerId:
+                        Suffix.Append(Hitman.GetTargetText(seer.PlayerId));
+                        break;
+                    case CustomRoles.Penguin when target.PlayerId == seer.PlayerId:
+                        Suffix.Append(Penguin.GetSuffix(seer));
+                        break;
+                    case CustomRoles.Changeling when target.PlayerId == seer.PlayerId:
+                        Suffix.Append(Changeling.GetSuffix(seer));
+                        break;
+                    case CustomRoles.Tiger when target.PlayerId == seer.PlayerId:
+                        Suffix.Append(Tiger.GetSuffix(seer));
+                        break;
                 }
 
                 Mark.Append(Totocalcio.TargetMark(seer, target));
@@ -1538,26 +1466,7 @@ class FixedUpdatePatch
                 Suffix.Append(Deathpact.GetDeathpactPlayerArrow(seer, target));
                 Suffix.Append(Deathpact.GetDeathpactMark(seer, target));
 
-                if (seer.PlayerId == target.PlayerId)
-                {
-                    if (!seer.IsModClient()) GetPetCDSuffix(seer, ref Suffix);
-                    if (seer.Is(CustomRoles.Asthmatic)) Suffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
-                    switch (seer.GetCustomRole())
-                    {
-                        case CustomRoles.VengefulRomantic:
-                            Suffix.Append(VengefulRomantic.GetTargetText(seer.PlayerId));
-                            break;
-                        case CustomRoles.Romantic:
-                            Suffix.Append(Romantic.GetTargetText(seer.PlayerId));
-                            break;
-                        case CustomRoles.Ricochet:
-                            Suffix.Append(Ricochet.TargetText(seer.PlayerId));
-                            break;
-                        case CustomRoles.Hitman:
-                            Suffix.Append(Hitman.GetTargetText(seer.PlayerId));
-                            break;
-                    }
-                }
+                if (seer.Is(CustomRoles.Asthmatic) && seer.PlayerId == target.PlayerId) Suffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
 
                 if (target.Is(CustomRoles.Librarian)) Suffix.Append(Librarian.GetNameTextForSuffix(target.PlayerId));
 

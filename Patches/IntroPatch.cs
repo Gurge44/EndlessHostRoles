@@ -215,7 +215,7 @@ class BeginCrewmatePatch
                 break;
             case CustomRoleTypes.Neutral:
                 __instance.TeamTitle.text = GetString("TeamNeutral");
-                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(127, 140, 141, byte.MaxValue);
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(255, 171, 27, byte.MaxValue);
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("SubText.Neutral");
@@ -453,7 +453,7 @@ class BeginCrewmatePatch
 
     public static AudioClip GetIntroSound(RoleTypes roleType)
     {
-        return RoleManager.Instance.AllRoles.FirstOrDefault(role => role.Role == roleType).IntroSound;
+        return RoleManager.Instance.AllRoles.FirstOrDefault(role => role.Role == roleType)?.IntroSound;
     }
 
     private static async void StartFadeIntro(IntroCutscene __instance, Color start, Color end)
@@ -483,7 +483,7 @@ class BeginImpostorPatch
     public static bool Prefix(IntroCutscene __instance, ref List<PlayerControl> yourTeam)
     {
         var role = PlayerControl.LocalPlayer.GetCustomRole();
-        if (role is CustomRoles.Crewpostor)
+        if (PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) || role.IsMadmate())
         {
             yourTeam = new();
             yourTeam.Add(PlayerControl.LocalPlayer);
@@ -491,47 +491,23 @@ class BeginImpostorPatch
             return true;
         }
 
-        if (PlayerControl.LocalPlayer.Is(CustomRoles.Madmate))
+        if (role.IsCrewmate() && role.GetDYRole() == RoleTypes.Impostor)
         {
             yourTeam = new();
             yourTeam.Add(PlayerControl.LocalPlayer);
-            __instance.overlayHandle.color = Palette.ImpostorRed;
-            return true;
-        }
-
-        if (PlayerControl.LocalPlayer.Is(CustomRoles.Parasite))
-        {
-            yourTeam = new();
-            yourTeam.Add(PlayerControl.LocalPlayer);
-            __instance.overlayHandle.color = Palette.ImpostorRed;
-            return true;
-        }
-
-        if (PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor))
-        {
-            yourTeam = new();
-            yourTeam.Add(PlayerControl.LocalPlayer);
-            __instance.overlayHandle.color = Palette.ImpostorRed;
-            return true;
-        }
-
-        if (role is CustomRoles.Sheriff or CustomRoles.Jailor or CustomRoles.SwordsMan or CustomRoles.Medic /* or CustomRoles.Counterfeiter*/ or CustomRoles.Witness or CustomRoles.Analyzer or CustomRoles.Aid or CustomRoles.Escort or CustomRoles.DonutDelivery or CustomRoles.Gaulois or CustomRoles.Monarch or CustomRoles.Farseer or CustomRoles.Deputy)
-        {
-            yourTeam = new();
-            yourTeam.Add(PlayerControl.LocalPlayer);
-            foreach (var pc in Main.AllPlayerControls.Where(x => !x.AmOwner).ToArray()) yourTeam.Add(pc);
+            foreach (var pc in Main.AllPlayerControls.Where(x => !x.AmOwner)) yourTeam.Add(pc);
             __instance.BeginCrewmate(yourTeam);
             __instance.overlayHandle.color = Palette.CrewmateBlue;
             return false;
         }
 
-        if (role is CustomRoles.Romantic or CustomRoles.RuthlessRomantic or CustomRoles.VengefulRomantic or CustomRoles.Agitater or CustomRoles.Doppelganger or CustomRoles.NSerialKiller or CustomRoles.SoulHunter or CustomRoles.Enderman or CustomRoles.Mycologist or CustomRoles.Bubble or CustomRoles.Hookshot or CustomRoles.Sprayer or CustomRoles.PlagueDoctor or CustomRoles.Postman or CustomRoles.Magician or CustomRoles.WeaponMaster or CustomRoles.Reckless or CustomRoles.Eclipse or CustomRoles.Pyromaniac or CustomRoles.HeadHunter or CustomRoles.Vengeance or CustomRoles.Imitator or CustomRoles.Werewolf or CustomRoles.Jackal /* or CustomRoles.CursedSoul*/ or CustomRoles.Amnesiac or CustomRoles.Necromancer or CustomRoles.Arsonist or CustomRoles.Sidekick or CustomRoles.Innocent or CustomRoles.Pelican or CustomRoles.Pursuer or CustomRoles.Revolutionist or CustomRoles.FFF or CustomRoles.Gamer or CustomRoles.Glitch or CustomRoles.Juggernaut or CustomRoles.DarkHide or CustomRoles.Provocateur or CustomRoles.BloodKnight or CustomRoles.NSerialKiller or CustomRoles.Maverick /* or CustomRoles.NWitch*/ or CustomRoles.Totocalcio or CustomRoles.Succubus or CustomRoles.Pelican or CustomRoles.Virus or CustomRoles.Pickpocket or CustomRoles.Traitor or CustomRoles.PlagueBearer or CustomRoles.Pestilence or CustomRoles.Spiritcaller)
+        if (role.IsNeutral())
         {
             yourTeam = new();
             yourTeam.Add(PlayerControl.LocalPlayer);
-            foreach (var pc in Main.AllPlayerControls.Where(x => !x.AmOwner).ToArray()) yourTeam.Add(pc);
+            foreach (var pc in Main.AllPlayerControls.Where(x => !x.AmOwner)) yourTeam.Add(pc);
             __instance.BeginCrewmate(yourTeam);
-            __instance.overlayHandle.color = new Color32(127, 140, 141, byte.MaxValue);
+            __instance.overlayHandle.color = new Color32(255, 171, 27, byte.MaxValue);
             return false;
         }
 
@@ -560,7 +536,7 @@ class IntroCutsceneDestroyPatch
                 {
                     pc.RpcResetAbilityCooldown();
                     if (pc.GetCustomRole().UsesPetInsteadOfKill()) pc.AddAbilityCD(10);
-                    else pc.AddAbilityCD();
+                    else pc.AddAbilityCD(includeDuration: false);
                 }
 
                 if (Options.StartingKillCooldown.GetInt() != 10 && Options.StartingKillCooldown.GetInt() > 0)
@@ -568,7 +544,7 @@ class IntroCutsceneDestroyPatch
                     _ = new LateTask(() =>
                     {
                         Main.AllPlayerControls.Do(x => x.ResetKillCooldown());
-                        Main.AllPlayerControls.Where(x => Main.AllPlayerKillCooldown[x.PlayerId] != 7f && Main.AllPlayerKillCooldown[x.PlayerId] != 7.5f).Do(pc => pc.SetKillCooldown(Options.StartingKillCooldown.GetInt() - 2));
+                        Main.AllPlayerControls.Do(pc => pc.SetKillCooldown(Options.StartingKillCooldown.GetInt() - 2));
                     }, 2f, "FixKillCooldownTask");
                 }
                 else if (Options.FixFirstKillCooldown.GetBool() && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato)

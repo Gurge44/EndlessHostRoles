@@ -40,10 +40,9 @@ public static class OptionShower
             if (Options.CurrentGameMode == CustomGameMode.Standard)
             {
                 //有効な役職一覧
-                sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GM)}>{Utils.GetRoleName(CustomRoles.GM)}:</color> {Options.EnableGM.GetString()}\n\n");
+                sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GM)}>{Utils.GetRoleName(CustomRoles.GM)}:</color> {(Main.GM.Value ? GetString("RoleRate") : GetString("RoleOff"))}\n\n");
                 sb.Append(GetString("ActiveRolesList")).Append('\n');
-                foreach (var kvp in Options.CustomRoleSpawnChances.Where(kvp => kvp.Value.GameMode is CustomGameMode.Standard or CustomGameMode.All && kvp.Value.GetBool()//スタンダードか全てのゲームモードで表示する役職
-                ))
+                foreach (var kvp in Options.CustomRoleSpawnChances.Where(kvp => kvp.Value.GameMode is CustomGameMode.Standard or CustomGameMode.All && kvp.Value.GetBool()))
                 {
                     sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}\n");
                 }
@@ -53,34 +52,31 @@ public static class OptionShower
             }
             //有効な役職と詳細設定一覧
             pages.Add("");
-            nameAndValue(Options.EnableGM);
+            sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GM)}>{Utils.GetRoleName(CustomRoles.GM)}:</color> {(Main.GM.Value ? GetString("RoleRate") : GetString("RoleOff"))}\n\n");
             foreach (var kvp in Options.CustomRoleSpawnChances)
             {
                 if (!kvp.Key.IsEnable() || kvp.Value.IsHiddenOn(Options.CurrentGameMode)) continue;
                 sb.Append('\n');
                 sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}\n");
                 ShowChildren(kvp.Value, ref sb, Utils.GetRoleColor(kvp.Key).ShadeColor(-0.5f), 1);
-                string rule = Utils.ColorString(Palette.ImpostorRed.ShadeColor(-0.5f), "┣ ");
-                string ruleFooter = Utils.ColorString(Palette.ImpostorRed.ShadeColor(-0.5f), "┗ ");
             }
 
-            foreach (var opt in OptionItem.AllOptions.Where(x => x.Id >= 90000 && x.Id < 600000 && x.Id > 700000 && !x.IsHiddenOn(Options.CurrentGameMode) && x.Parent == null && !x.IsText))
+            foreach (var opt in OptionItem.AllOptions.Where(x => x.Id is >= 90000 and (< 600000 or > 700000) && !x.IsHiddenOn(Options.CurrentGameMode) && x.Parent == null && !x.IsText))
             {
                 if (opt.IsHeader) sb.Append('\n');
                 sb.Append($"{opt.GetName()}: {opt.GetString()}\n");
                 if (opt.GetBool())
                     ShowChildren(opt, ref sb, Color.white, 1);
             }
-            //Onの時に子要素まで表示するメソッド
-            void nameAndValue(OptionItem o) => sb.Append($"{o.GetName()}: {o.GetString()}\n");
         }
+
         //1ページにつき35行までにする処理
-        List<string> tmp = new(sb.ToString().Split("\n\n"));
-        for (var i = 0; i < tmp.Count; i++)
+        List<string> tmp = [..sb.ToString().Split("\n\n")];
+        foreach (var str in tmp)
         {
-            if (pages[^1].Count(c => c == '\n') + 1 + tmp[i].Count(c => c == '\n') + 1 > 35)
-                pages.Add(tmp[i] + "\n\n");
-            else pages[^1] += tmp[i] + "\n\n";
+            if (pages[^1].Count(c => c == '\n') + 1 + str.Count(c => c == '\n') + 1 > 35)
+                pages.Add(str + "\n\n");
+            else pages[^1] += str + "\n\n";
         }
         if (currentPage >= pages.Count) currentPage = pages.Count - 1; //現在のページが最大ページ数を超えていれば最後のページに修正
         return $"{pages[currentPage]}{GetString("PressTabToNextPage")}({currentPage + 1}/{pages.Count})";

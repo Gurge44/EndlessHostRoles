@@ -31,7 +31,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 
     public static void SetDirtyToAllV2()
     {
-        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().Where(sender => !sender.IsDirty && sender.player.IsAlive() && sender.player.GetCustomRole().NeedUpdateOnLights()))
+        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().Where(sender => !sender.IsDirty && sender.player.IsAlive() && (sender.player.GetCustomRole().NeedUpdateOnLights() || sender.player.Is(CustomRoles.Torch) || sender.player.Is(CustomRoles.Mare))))
         {
             sender.SetDirty();
         }

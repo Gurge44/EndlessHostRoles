@@ -188,8 +188,6 @@ public static class Options
         "pet_RANDOM_FOR_EVERYONE"
     ];
 
-    // 各役職の詳細設定
-    public static OptionItem EnableGM;
     public static float DefaultKillCooldown = Main.NormalOptions?.KillCooldown ?? 25;
 
     public static OptionItem DisableMeeting;
@@ -604,6 +602,7 @@ public static class Options
     // Masochist
     //public static OptionItem MasochistKillMax;
 
+    public static OptionItem DisableTaskWinIfAllCrewsAreDead;
 
     //Task Management
     public static OptionItem DisableShortTasks;
@@ -1114,10 +1113,6 @@ public static class Options
         CustomRoleSpawnChances = [];
         CustomAdtRoleSpawnRate = [];
 
-        // GM
-        EnableGM = BooleanOptionItem.Create(100, "GM", false, TabGroup.GameSettings, false)
-            .SetColor(Utils.GetRoleColor(CustomRoles.GM))
-            .SetHeader(true);
 
         MainLoadingText = "Building general settings";
 
@@ -2160,6 +2155,8 @@ public static class Options
         RoleLoadingText = "Neutral roles\nSerial Killer";
 
         NSerialKiller.SetupCustomOption();
+        RoleLoadingText = "Neutral roles\nTiger";
+        Tiger.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nSoulHunter";
         SoulHunter.SetupCustomOption();
         RoleLoadingText = "Neutral roles\nEnderman";
@@ -3194,6 +3191,9 @@ public static class Options
                .SetParent(DisableHiddenRoles)
                .SetColor(new Color32(255, 153, 153, byte.MaxValue)); */
         DisableTaskWin = BooleanOptionItem.Create(22650, "DisableTaskWin", false, TabGroup.GameSettings, false)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+        DisableTaskWinIfAllCrewsAreDead = BooleanOptionItem.Create(22651, "DisableTaskWinIfAllCrewsAreDead", false, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 

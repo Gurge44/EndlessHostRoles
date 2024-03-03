@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor
 {
     internal class Changeling : RoleBase
     {
-        private const int Id = 644400;
+        private const int Id = 643510;
         public static readonly Dictionary<byte, bool> ChangedRole = [];
 
         private static OptionItem CanPickPartnerRole;
@@ -86,22 +84,23 @@ namespace TOHE.Roles.Impostor
             Roles = GetAvailableRoles();
         }
 
-        void SelectNextRole()
+        void SelectNextRole(PlayerControl pc)
         {
             var currentIndex = Roles.IndexOf(CurrentRole);
             CurrentRole = currentIndex == Roles.Count - 1 ? Roles.First() : Roles[currentIndex + 1];
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
         public override bool CanUseKillButton(PlayerControl pc) => CanKillBeforeRoleChange.GetBool();
 
         public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
         {
-            SelectNextRole();
+            SelectNextRole(physics.myPlayer);
         }
 
         public override void OnPet(PlayerControl pc)
         {
-            SelectNextRole();
+            SelectNextRole(pc);
         }
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
@@ -109,5 +108,7 @@ namespace TOHE.Roles.Impostor
             shapeshifter.RpcSetCustomRole(CurrentRole);
             return false;
         }
+
+        public static string GetSuffix(PlayerControl seer) => Main.PlayerStates[seer.PlayerId].Role is not Changeling { IsEnable: true } cl ? string.Empty : string.Format(Translator.GetString("ChangelingCurrentRole"), Translator.GetString($"{cl.CurrentRole}"));
     }
 }

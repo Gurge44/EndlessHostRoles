@@ -65,6 +65,11 @@ namespace TOHE.Roles.Neutral
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
 
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return pc.IsAlive() && pc.GetAbilityUseLimit() > 0;
+        }
+
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
             opt.SetVision(ImpostorVision.GetBool());

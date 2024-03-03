@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using AmongUs.GameOptions;
 using TOHE.Modules;
+using UnityEngine;
 
 namespace TOHE.Roles.Neutral
 {
@@ -131,6 +132,56 @@ namespace TOHE.Roles.Neutral
                             }
 
                             break;
+                        }
+                    }
+                }
+            }
+        }
+
+        public override void OnGlobalFixedUpdate(PlayerControl player)
+        {
+            var playerId = player.PlayerId;
+            if (GameStates.IsInTask && Main.ArsonistTimer.ContainsKey(playerId))
+            {
+                var arTarget = Main.ArsonistTimer[playerId].PLAYER;
+                if (!player.IsAlive() || Pelican.IsEaten(playerId))
+                {
+                    Main.ArsonistTimer.Remove(playerId);
+                    Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: arTarget, ForceLoop: true);
+                    RPC.ResetCurrentDousingTarget(playerId);
+                }
+                else
+                {
+                    var ar_target = Main.ArsonistTimer[playerId].PLAYER;
+                    var ar_time = Main.ArsonistTimer[playerId].TIMER;
+                    if (!ar_target.IsAlive())
+                    {
+                        Main.ArsonistTimer.Remove(playerId);
+                    }
+                    else if (ar_time >= Options.ArsonistDouseTime.GetFloat())
+                    {
+                        player.SetKillCooldown();
+                        Main.ArsonistTimer.Remove(playerId);
+                        Main.isDoused[(playerId, ar_target.PlayerId)] = true;
+                        player.RpcSetDousedPlayer(ar_target, true);
+                        Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: arTarget, ForceLoop: true);
+                        RPC.ResetCurrentDousingTarget(playerId);
+                    }
+                    else
+                    {
+                        float range = NormalGameOptionsV07.KillDistances[Mathf.Clamp(player.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f;
+                        float dis = Vector2.Distance(player.transform.position, ar_target.transform.position);
+                        if (dis <= range)
+                        {
+                            Main.ArsonistTimer[playerId] = (ar_target, ar_time + Time.fixedDeltaTime);
+                        }
+                        else
+                        {
+                            Main.ArsonistTimer.Remove(playerId);
+                            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: arTarget, ForceLoop: true);
+                            RPC.ResetCurrentDousingTarget(playerId);
+
+                            Logger.Info($"Canceled: {player.GetNameWithRole().RemoveHtmlTags()}", "Arsonist");
                         }
                     }
                 }
