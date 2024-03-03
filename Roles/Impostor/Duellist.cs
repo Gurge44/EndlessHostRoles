@@ -45,16 +45,23 @@ namespace TOHE.Roles.Impostor
         {
             if (!IsEnable) return false;
             if (duellist == null || target == null) return false;
-            if (target.inMovingPlat || target.onLadder || target.MyPhysics.Animations.IsPlayingEnterVentAnimation() || target.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || !target.IsAlive())
-            {
-                duellist.Notify(GetString("TargetCannotBeTeleported"));
-                return false;
-            }
 
             var pos = Pelican.GetBlackRoomPS();
-            duellist.TP(pos);
-            target.TP(pos);
-            DuelPair[duellist.PlayerId] = target.PlayerId;
+
+            if (target.TP(pos))
+            {
+                if (Main.KillTimers[duellist.PlayerId] < 1f)
+                {
+                    duellist.SetKillCooldown(1f); // Give the other player a chance to kill
+                }
+
+                duellist.TP(pos);
+                DuelPair[duellist.PlayerId] = target.PlayerId;
+            }
+            else
+            {
+                duellist.Notify(GetString("TargetCannotBeTeleported"));
+            }
 
             return false;
         }

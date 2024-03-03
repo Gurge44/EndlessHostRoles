@@ -68,7 +68,15 @@ namespace TOHE.Roles.Impostor
         {
             On = true;
             ChangedRole[playerId] = false;
-            CurrentRole = Roles.First();
+            try
+            {
+                CurrentRole = Roles.First();
+            }
+            catch (InvalidOperationException)
+            {
+                Logger.Error("No roles for Changeling", "Changeling");
+                Utils.GetPlayerById(playerId).RpcSetCustomRole(CustomRoles.ImpostorTOHE);
+            }
         }
 
         public override void Init()

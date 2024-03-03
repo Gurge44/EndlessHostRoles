@@ -89,7 +89,9 @@ class ExternalRpcPetPatch
             pc.MyPhysics.Animations.IsPlayingClimbAnimation() ||
             pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() ||
             Pelican.IsEaten(pc.PlayerId) ||
-            Penguin.IsVictim(pc))
+            Penguin.IsVictim(pc) ||
+            !AmongUsClient.Instance.AmHost
+           )
             return;
 
         if (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId))

@@ -468,6 +468,20 @@ internal class SelectRolesPatch
                         AssignSubRoles(role);
             }
 
+            foreach (var state in Main.PlayerStates.Values)
+            {
+                if (Main.NeverSpawnTogetherCombos.TryGetValue(state.MainRole, out var bannedAddon))
+                {
+                    state.RemoveSubRole(bannedAddon);
+                    continue;
+                }
+
+                if (Main.AlwaysSpawnTogetherCombos.TryGetValue(state.MainRole, out var addon))
+                {
+                    state.SetSubRole(addon);
+                }
+            }
+
             //RPCによる同期
             foreach (var pair in Main.PlayerStates)
             {

@@ -270,6 +270,66 @@ internal class ChatCommands
                     Utils.SendMessage(Utils.GetRemainingKillers(), localPlayerId);
                     break;
 
+                case "/combo": // Format: /combo add/ban/remove/allow mainrole addon
+                    canceled = true;
+                    if (args.Length < 4)
+                    {
+                        if (Main.AlwaysSpawnTogetherCombos.Count == 0 && Main.NeverSpawnTogetherCombos.Count == 0) break;
+                        var sb = new StringBuilder();
+                        sb.Append("<size=70%>");
+                        if (Main.AlwaysSpawnTogetherCombos.Count > 0)
+                        {
+                            sb.AppendLine(GetString("AlwaysComboListTitle"));
+                            sb.AppendLine(Main.AlwaysSpawnTogetherCombos.Join(x => $"{Utils.ColorString(Utils.GetRoleColor(x.Key), GetString($"{x.Key}"))} \u00a7 {Utils.ColorString(Utils.GetRoleColor(x.Value), GetString($"{x.Value}"))}", "\n"));
+                            sb.AppendLine();
+                        }
+
+                        if (Main.NeverSpawnTogetherCombos.Count > 0)
+                        {
+                            sb.AppendLine(GetString("NeverComboListTitle"));
+                            sb.AppendLine(Main.NeverSpawnTogetherCombos.Join(x => $"{Utils.ColorString(Utils.GetRoleColor(x.Key), GetString($"{x.Key}"))} \u2194 {Utils.ColorString(Utils.GetRoleColor(x.Value), GetString($"{x.Value}"))}", "\n"));
+                            sb.AppendLine();
+                        }
+
+                        Utils.SendMessage("\n", localPlayerId, sb.ToString());
+                        break;
+                    }
+
+                    switch (args[1])
+                    {
+                        case "add":
+                        case "ban":
+                            if (GetRoleByName(args[2], out CustomRoles mainRole) && GetRoleByName(args[3], out CustomRoles addOn))
+                            {
+                                if (mainRole.IsAdditionRole() || !addOn.IsAdditionRole()) break;
+                                if (args[1] == "add") Main.AlwaysSpawnTogetherCombos[mainRole] = addOn;
+                                else Main.NeverSpawnTogetherCombos[mainRole] = addOn;
+                                Utils.SendMessage(string.Format(GetString("ComboAdd"), GetString(mainRole.ToString()), GetString(addOn.ToString())), localPlayerId);
+                            }
+
+                            break;
+                        case "remove":
+                        case "allow":
+                            if (GetRoleByName(args[2], out CustomRoles mainRole2) && GetRoleByName(args[3], out CustomRoles addOn2))
+                            {
+                                if (mainRole2.IsAdditionRole() || !addOn2.IsAdditionRole()) break;
+                                if (args[1] == "remove" && Main.AlwaysSpawnTogetherCombos.TryGetValue(mainRole2, out var comboAddon) && comboAddon == addOn2)
+                                {
+                                    Main.AlwaysSpawnTogetherCombos.Remove(mainRole2);
+                                    Utils.SendMessage(string.Format(GetString("ComboRemove"), GetString(mainRole2.ToString()), GetString(addOn2.ToString())), localPlayerId);
+                                }
+                                else if (Main.NeverSpawnTogetherCombos.TryGetValue(mainRole2, out var comboAddon2) && comboAddon2 == addOn2)
+                                {
+                                    Main.NeverSpawnTogetherCombos.Remove(mainRole2);
+                                    Utils.SendMessage(string.Format(GetString("ComboAllow"), GetString(mainRole2.ToString()), GetString(addOn2.ToString())), localPlayerId);
+                                }
+                            }
+
+                            break;
+                    }
+
+                    break;
+
                 case "/eff":
                 case "/effect":
                     canceled = true;
@@ -808,7 +868,7 @@ internal class ChatCommands
     public static bool GetRoleByName(string name, out CustomRoles role)
     {
         role = new();
-        if (name == "" || name == string.Empty) return false;
+        if (name is "" or "") return false;
 
         if ((TranslationController.InstanceExists ? TranslationController.Instance.currentLanguage.languageID : SupportedLangs.SChinese) == SupportedLangs.SChinese)
         {

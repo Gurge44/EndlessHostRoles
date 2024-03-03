@@ -79,7 +79,7 @@ public static class Utils
     public static bool TP(CustomNetworkTransform nt, Vector2 location, bool log = true)
     {
         var pc = nt.myPlayer;
-        if (pc.inVent || pc.inMovingPlat || !pc.IsAlive() || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation())
+        if (pc.inVent || pc.inMovingPlat || pc.onLadder || !pc.IsAlive() || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation())
         {
             if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is in an un-teleportable state - Teleporting canceled", "TP");
             return false;

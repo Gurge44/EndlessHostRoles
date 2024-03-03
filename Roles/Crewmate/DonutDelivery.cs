@@ -69,7 +69,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void RandomNotifyTarget(PlayerControl target)
         {
-            var num2 = IRandom.Instance.Next(0, 15);
+            var num2 = IRandom.Instance.Next(0, 6);
             target.Notify(GetString($"DonutGot-{num2}"));
         }
     }

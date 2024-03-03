@@ -89,6 +89,8 @@ public class Main : BasePlugin
     public static Dictionary<CustomRoles, string> roleColors;
     public static Dictionary<byte, CustomRoles> SetRoles = [];
     public static Dictionary<byte, List<CustomRoles>> SetAddOns = [];
+    public static Dictionary<CustomRoles, CustomRoles> AlwaysSpawnTogetherCombos = [];
+    public static Dictionary<CustomRoles, CustomRoles> NeverSpawnTogetherCombos = [];
     public static bool IsFixedCooldown => CustomRoles.Vampire.IsEnable() || CustomRoles.Poisoner.IsEnable();
     public static float RefixCooldownDelay;
     public static bool ProcessShapeshifts = true;

@@ -144,14 +144,13 @@ public static class Translator
         {
             if (translateMaps.TryGetValue(str, out var dic) && (!dic.TryGetValue((int)langId, out res) || res == "" || (langId is not SupportedLangs.SChinese and not SupportedLangs.TChinese && Regex.IsMatch(res, @"[\u4e00-\u9fa5]") && res == GetString(str, SupportedLangs.SChinese)))) //strに該当する&無効なlangIdかresが空
             {
-                if (langId == SupportedLangs.English) res = $"*{str}";
-                else res = GetString(str, SupportedLangs.English);
+                res = langId == SupportedLangs.English ? $"*{str}" : GetString(str, SupportedLangs.English);
             }
 
             if (!translateMaps.ContainsKey(str)) //translateMapsにない場合、StringNamesにあれば取得する
             {
                 var stringNames = EnumHelper.GetAllValues<StringNames>().Where(x => x.ToString() == str).ToArray();
-                if (stringNames != null && stringNames.Length > 0)
+                if (stringNames.Length > 0)
                     res = GetString(stringNames.FirstOrDefault());
             }
         }

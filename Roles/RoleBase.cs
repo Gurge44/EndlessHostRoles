@@ -66,6 +66,8 @@ namespace TOHE
 
         public virtual void OnPet(PlayerControl pc)
         {
+            if (!AmongUsClient.Instance.AmHost) return;
+
             int x = IRandom.Instance.Next(1, 16);
             string suffix;
             if (x >= 14)

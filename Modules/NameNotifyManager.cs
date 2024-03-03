@@ -65,6 +65,7 @@ public static class NameNotifyManager
 
     public static void ReceiveRPC(MessageReader reader)
     {
+        if (AmongUsClient.Instance.AmHost) return;
         byte PlayerId = reader.ReadByte();
         Notice.Remove(PlayerId);
         long now = Utils.TimeStamp;
