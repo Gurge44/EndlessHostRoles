@@ -3067,6 +3067,7 @@
   "CanPickPartnerRole": "Can Pick Roles that Already Exist in the Game",
   "CanKillBeforeRoleChange": "Can Kill Before Picking a Role",
   "AvailableRoles": "Available Impostor-Teamed Role List to Choose From",
+  "ChangelingCurrentRole": "Selected Role: {0}",
   "Doormaster": "Door Master",
   "DoormasterInfo": "Open All Doors Anytime",
   "DoormasterInfoLong": "(Crewmates):\\nAs the Door Master, you can vent/pet to open all closed doors.\\n\\nDue to technical difficulties, this may not work on some maps.",

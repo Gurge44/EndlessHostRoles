@@ -1317,7 +1317,6 @@ internal static class CustomRolesHelper
             CustomRoles.Necromancer => CountTypes.Necromancer,
             CustomRoles.Deathknight => CountTypes.Necromancer,
             CustomRoles.HexMaster => CountTypes.HexMaster,
-            //CustomRoles.NWitch => CountTypes.NWitch,
             CustomRoles.Wraith => CountTypes.Wraith,
             CustomRoles.Pestilence => CountTypes.Pestilence,
             CustomRoles.PlagueBearer => CountTypes.PlagueBearer,
@@ -1351,10 +1350,8 @@ internal static class CustomRolesHelper
             CustomRoles.Medusa => CountTypes.Medusa,
             CustomRoles.Refugee => CountTypes.Impostor,
             CustomRoles.Glitch => CountTypes.Glitch,
-            // CustomRoles.Phantom => CountTypes.OutOfGame,
-            //   CustomRoles.CursedSoul => CountTypes.OutOfGame, // if they count as OutOfGame, it prevents them from winning lmao
-
             CustomRoles.Spiritcaller => CountTypes.Spiritcaller,
+
             _ => role.IsImpostorTeam() ? CountTypes.Impostor : CountTypes.Crew,
         };
 

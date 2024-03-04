@@ -48,7 +48,6 @@ public class PlayerState(byte playerId)
     }
     public void SetMainRole(CustomRoles role)
     {
-        MainRole = role;
         countTypes = role switch
         {
             CustomRoles.DarkHide => !DarkHide.SnatchesWin.GetBool() ? CountTypes.DarkHide : CountTypes.Crew,
@@ -62,6 +61,8 @@ public class PlayerState(byte playerId)
         {
             Role.Init();
         }
+
+        MainRole = role;
 
         Role.Add(PlayerId);
 
@@ -85,7 +86,7 @@ public class PlayerState(byte playerId)
         if (role == CustomRoles.Cleansed)
             AllReplace = true;
         if (AllReplace)
-            SubRoles.ToArray().Do(item => SubRoles.Remove(item));
+            SubRoles.Do(item => SubRoles.Remove(item));
 
         if (!SubRoles.Contains(role))
             SubRoles.Add(role);

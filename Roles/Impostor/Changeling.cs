@@ -42,13 +42,13 @@ namespace TOHE.Roles.Impostor
 
             IEnumerable<CustomRoles> result = AvailableRoles.GetValue() switch
             {
-                0 => allRoles.Where(x => x.IsImpostor()),
-                1 => allRoles.Where(x => x.IsImpostor() && x.GetVNRole() is CustomRoles.Impostor or CustomRoles.ImpostorTOHE),
-                2 => allRoles.Where(x => x.IsImpostor() && x.GetVNRole() is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterTOHE),
-                3 => allRoles.Where(x => x.IsImpostor() && x.GetMode() != 0),
-                4 => allRoles.Where(x => x.IsImpostor() && x.GetVNRole() is CustomRoles.Impostor or CustomRoles.ImpostorTOHE && x.GetMode() != 0),
-                5 => allRoles.Where(x => x.IsImpostor() && x.GetVNRole() is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterTOHE && x.GetMode() != 0),
-                _ => allRoles.Where(x => x.IsImpostor())
+                0 => allRoles,
+                1 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Impostor or CustomRoles.ImpostorTOHE),
+                2 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterTOHE),
+                3 => allRoles.Where(x => x.GetMode() != 0),
+                4 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Impostor or CustomRoles.ImpostorTOHE && x.GetMode() != 0),
+                5 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterTOHE && x.GetMode() != 0),
+                _ => allRoles
             };
 
             if (!CanPickPartnerRole.GetBool() && !check)
@@ -56,7 +56,10 @@ namespace TOHE.Roles.Impostor
                 result = result.Where(x => !Main.AllPlayerControls.Any(p => p.Is(x)));
             }
 
-            return result.ToList();
+            var rolesList = result.ToList();
+            rolesList.Remove(CustomRoles.Changeling);
+            rolesList.RemoveAll(x => !x.IsImpostor() || x.IsVanilla());
+            return rolesList;
         }
 
         public static bool On;
@@ -109,6 +112,6 @@ namespace TOHE.Roles.Impostor
             return false;
         }
 
-        public static string GetSuffix(PlayerControl seer) => Main.PlayerStates[seer.PlayerId].Role is not Changeling { IsEnable: true } cl ? string.Empty : string.Format(Translator.GetString("ChangelingCurrentRole"), Translator.GetString($"{cl.CurrentRole}"));
+        public static string GetSuffix(PlayerControl seer) => Main.PlayerStates[seer.PlayerId].Role is not Changeling { IsEnable: true } cl ? string.Empty : string.Format(Translator.GetString("ChangelingCurrentRole"), Utils.ColorString(Utils.GetRoleColor(cl.CurrentRole), Translator.GetString($"{cl.CurrentRole}")));
     }
 }
