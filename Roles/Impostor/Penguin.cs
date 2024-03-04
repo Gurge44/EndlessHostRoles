@@ -204,8 +204,9 @@ namespace TOHE.Roles.Impostor
             if (AbductVictim != null)
             {
                 Penguin_.MarkDirtySettings();
-                stopCount = false;
             }
+
+            stopCount = false;
         }
 
         public override void OnFixedUpdate(PlayerControl pc)

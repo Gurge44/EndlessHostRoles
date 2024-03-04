@@ -40,6 +40,11 @@ namespace TOHE.Roles.Neutral
             hud.ImpostorVentButton?.ToggleVisible(false);
         }
 
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return pc.IsAlive();
+        }
+
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             target.Kill(killer);

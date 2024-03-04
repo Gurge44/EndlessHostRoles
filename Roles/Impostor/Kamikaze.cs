@@ -63,9 +63,9 @@ namespace TOHE.Roles.Impostor
             });
         }
 
-        public override void OnGlobalFixedUpdate(PlayerControl pc)
+        public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
         {
-            if (!On) return;
+            if (lowLoad || !On) return;
 
             foreach (var kkId in PlayerIdList)
             {

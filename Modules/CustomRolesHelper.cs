@@ -104,7 +104,6 @@ internal static class CustomRolesHelper
         CustomRoles.Convener => new Convener(),
         CustomRoles.CopyCat => new CopyCat(),
         CustomRoles.Bloodhound => new Bloodhound(),
-        CustomRoles.Bodyguard => new Bodyguard(),
         CustomRoles.Crusader => new Crusader(),
         CustomRoles.Deputy => new Deputy(),
         CustomRoles.Doctor => new Doctor(),
@@ -561,34 +560,33 @@ internal static class CustomRolesHelper
 
     public static bool IsAdditionRole(this CustomRoles role) => role > CustomRoles.NotAssigned;
 
-    public static bool IsNonNK(this CustomRoles role) // ROLE ASSIGNING, NOT NEUTRAL TYPE
-        => role is
-            CustomRoles.Jester or
-            CustomRoles.Postman or
-            CustomRoles.SoulHunter or
-            CustomRoles.Terrorist or
-            CustomRoles.Opportunist or
-            CustomRoles.Executioner or
-            CustomRoles.Mario or
-            CustomRoles.Lawyer or
-            CustomRoles.God or
-            CustomRoles.Amnesiac or
-            CustomRoles.Innocent or
-            CustomRoles.Vulture or
-            CustomRoles.Pursuer or
-            CustomRoles.Revolutionist or
-            CustomRoles.Provocateur or
-            CustomRoles.FFF or
-            CustomRoles.Workaholic or
-            CustomRoles.Collector or
-            CustomRoles.Sunnyboy or
-            CustomRoles.Maverick or
-            CustomRoles.Phantom or
-            CustomRoles.Totocalcio or
-            CustomRoles.Romantic or
-            CustomRoles.VengefulRomantic or
-            CustomRoles.Doomsayer or
-            CustomRoles.Deathknight;
+    public static bool IsNonNK(this CustomRoles role) => role is
+        CustomRoles.Jester or
+        CustomRoles.Postman or
+        CustomRoles.SoulHunter or
+        CustomRoles.Terrorist or
+        CustomRoles.Opportunist or
+        CustomRoles.Executioner or
+        CustomRoles.Mario or
+        CustomRoles.Lawyer or
+        CustomRoles.God or
+        CustomRoles.Amnesiac or
+        CustomRoles.Innocent or
+        CustomRoles.Vulture or
+        CustomRoles.Pursuer or
+        CustomRoles.Revolutionist or
+        CustomRoles.Provocateur or
+        CustomRoles.FFF or
+        CustomRoles.Workaholic or
+        CustomRoles.Collector or
+        CustomRoles.Sunnyboy or
+        CustomRoles.Maverick or
+        CustomRoles.Phantom or
+        CustomRoles.Totocalcio or
+        CustomRoles.Romantic or
+        CustomRoles.VengefulRomantic or
+        CustomRoles.Doomsayer or
+        CustomRoles.Deathknight;
 
     public static bool IsNK(this CustomRoles role) => role is
         CustomRoles.Jackal or
@@ -781,11 +779,8 @@ internal static class CustomRolesHelper
 
     public static bool IsNeutral(this CustomRoles role) => role.IsNK() || role.IsNonNK();
 
-    public static bool IsAbleToBeSidekicked(this CustomRoles role) => role.GetDYRole() == RoleTypes.Impostor && !role.IsImpostor() && role is not
-        CustomRoles.Succubus and not
-        CustomRoles.Necromancer and not
+    public static bool IsAbleToBeSidekicked(this CustomRoles role) => role.GetDYRole() == RoleTypes.Impostor && !role.IsImpostor() && !role.IsRecruitingRole() && role is not
         CustomRoles.Deathknight and not
-        CustomRoles.Virus and not
         CustomRoles.Gangster;
 
     public static bool IsEvilAddons(this CustomRoles role) => role is
@@ -913,6 +908,7 @@ internal static class CustomRolesHelper
         CustomRoles.Guardian or
         CustomRoles.Merchant or
         CustomRoles.Mayor or
+        CustomRoles.Insight or
         CustomRoles.Transporter;
 
     public static bool IsNotKnightable(this CustomRoles role) => role is
@@ -1187,8 +1183,7 @@ internal static class CustomRolesHelper
     {
         if (role.IsImpostorTeamV3()) return Team.Impostor;
         if (role.IsNeutralTeamV2()) return Team.Neutral;
-        if (role.IsCrewmateTeamV2()) return Team.Crewmate;
-        return Team.None;
+        return role.IsCrewmateTeamV2() ? Team.Crewmate : Team.None;
     }
 
     public static bool Is(this CustomRoles role, Team team) => team switch
@@ -1261,7 +1256,7 @@ internal static class CustomRolesHelper
         return type;
     }
 
-    public static bool RoleExist(this CustomRoles role, bool countDead = false) => Main.AllPlayerControls.Any(x => x.Is(role) && (x.IsAlive() || countDead));
+    public static bool RoleExist(this CustomRoles role, bool countDead = false) => Main.AllPlayerControls.Any(x => x.Is(role) && (countDead || x.IsAlive()));
 
     public static int GetCount(this CustomRoles role)
     {

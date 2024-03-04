@@ -134,7 +134,7 @@ namespace TOHE.Roles.Impostor
             }
         }
 
-        public override void OnGlobalFixedUpdate(PlayerControl player)
+        public override void OnGlobalFixedUpdate(PlayerControl player, bool lowLoad)
         {
             byte playerId = player.PlayerId;
             if (GameStates.IsInTask && Main.WarlockTimer.ContainsKey(playerId))

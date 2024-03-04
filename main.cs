@@ -1062,25 +1062,18 @@ public enum AdditionalWinners
     None = -1,
     Lovers = CustomRoles.Lovers,
     Opportunist = CustomRoles.Opportunist,
-    Executioner = CustomRoles.Executioner,
     Lawyer = CustomRoles.Lawyer,
     FFF = CustomRoles.FFF,
     Provocateur = CustomRoles.Provocateur,
     Sunnyboy = CustomRoles.Sunnyboy,
-
-    //Witch = CustomRoles.NWitch,
     Totocalcio = CustomRoles.Totocalcio,
     Romantic = CustomRoles.Romantic,
     VengefulRomantic = CustomRoles.VengefulRomantic,
-    RuthlessRomantic = CustomRoles.RuthlessRomantic,
-    Jackal = CustomRoles.Jackal,
-    Sidekick = CustomRoles.Sidekick,
     Pursuer = CustomRoles.Pursuer,
     Phantom = CustomRoles.Phantom,
     Maverick = CustomRoles.Maverick,
     Postman = CustomRoles.Postman,
     SoulHunter = CustomRoles.SoulHunter,
-    //   Baker = CustomRoles.Baker,
 }
 
 public enum SuffixModes

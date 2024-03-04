@@ -632,11 +632,11 @@ namespace TOHE.Roles.Crewmate
             LastDeathEffect = Utils.TimeStamp;
         }
 
-        public override void OnGlobalFixedUpdate(PlayerControl player)
+        public override void OnGlobalFixedUpdate(PlayerControl player, bool lowLoad)
         {
             try
             {
-                if (!Exists || !GameStates.IsInTask || Bombs.Count == 0) return;
+                if (lowLoad || !Exists || !GameStates.IsInTask || Bombs.Count == 0) return;
 
                 var now = Utils.TimeStamp;
                 var randomizer = Utils.GetPlayerById(PlayerIdList.FirstOrDefault());

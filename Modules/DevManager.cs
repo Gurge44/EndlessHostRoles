@@ -87,6 +87,7 @@ public static class DevManager
         DevUserList.Add(new(code: "modestspan#7071", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "Shark"));
         DevUserList.Add(new(code: "divotbusy#0624", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "PreCeptorBR"));
         DevUserList.Add(new(code: "pinsrustic#5496", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "FHgameplay"));
+        DevUserList.Add(new(code: "opaquedot#5610", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "Deh_66"));
 
         // Sponsor
         DevUserList.Add(new(code: "recentduct#6068", color: "#FF00FF", tag: "高冷男模法师", isUp: false, isDev: false, colorCmd: false, deBug: true, upName: null));

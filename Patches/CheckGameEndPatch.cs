@@ -344,7 +344,7 @@ class GameEndChecker
 
             foreach (var role in EnumHelper.GetAllValues<CustomRoles>())
             {
-                if (!role.IsNK() || role.IsMadmate() || role is CustomRoles.Sidekick) continue;
+                if (!role.IsNK() || role.IsMadmate() || role is CustomRoles.Sidekick || (role == CustomRoles.Arsonist && !Options.ArsonistCanIgniteAnytime.GetBool())) continue;
 
                 CustomRoles? keyRole = role.IsRecruitingRole() ? null : role;
                 CustomWinner keyWinner = (CustomWinner)role;

@@ -133,11 +133,11 @@ public class Agitater : RoleBase
         Logger.Info($"{killer.GetRealName()} bombed {target.GetRealName()} on report", "Agitater");
     }
 
-    public override void OnGlobalFixedUpdate(PlayerControl player)
+    public override void OnGlobalFixedUpdate(PlayerControl player, bool lowLoad)
     {
         var playerId = player.PlayerId;
 
-        if (GameStates.IsInTask && IsEnable && AgitaterHasBombed && CurrentBombedPlayer == playerId)
+        if (!lowLoad && GameStates.IsInTask && IsEnable && AgitaterHasBombed && CurrentBombedPlayer == playerId)
         {
             if (!player.IsAlive())
             {

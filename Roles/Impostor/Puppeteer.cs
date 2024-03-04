@@ -91,9 +91,9 @@ namespace TOHE.Roles.Impostor
             return false;
         }
 
-        public override void OnGlobalFixedUpdate(PlayerControl player)
+        public override void OnGlobalFixedUpdate(PlayerControl player, bool lowLoad)
         {
-            if (player == null) return;
+            if (player == null || lowLoad) return;
 
             byte playerId = player.PlayerId;
             long now = Utils.TimeStamp;

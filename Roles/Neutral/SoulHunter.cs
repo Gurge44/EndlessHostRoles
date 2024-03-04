@@ -74,6 +74,8 @@ namespace TOHE.Roles.Neutral
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = WaitingTimeAfterMeeting.GetFloat() + 1.5f;
         public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
         public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+        public override bool CanUseKillButton(PlayerControl pc) => pc.IsAlive();
+
         public static bool IsSoulHunterTarget(byte id) => Main.PlayerStates.Any(x => x.Value.Role is SoulHunter { IsEnable: true, IsTargetBlocked: true } sh && sh.CurrentTarget.ID == id);
         public static SoulHunter GetSoulHunter(byte targetId) => Main.PlayerStates.FirstOrDefault(x => x.Value.Role is SoulHunter { IsEnable: true, IsTargetBlocked: true } sh && sh.CurrentTarget.ID == targetId).Value.Role as SoulHunter;
 
@@ -151,7 +153,7 @@ namespace TOHE.Roles.Neutral
             PlayerControl target = GetPlayerById(CurrentTarget.ID);
             int waitingTime = WaitingTimeAfterMeeting.GetInt();
 
-            SoulHunter_.Notify(string.Format(GetString("SoulHunterNotifyFreeze"), target.GetRealName(), waitingTime + 1));
+            if (!SoulHunter_.IsModClient()) SoulHunter_.Notify(string.Format(GetString("SoulHunterNotifyFreeze"), target.GetRealName(), waitingTime + 1));
             target.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter_.GetRealName()), 300f);
             LastUpdate = now;
 

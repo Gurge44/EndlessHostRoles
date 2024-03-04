@@ -44,7 +44,7 @@ namespace TOHE
         {
         }
 
-        public virtual void OnGlobalFixedUpdate(PlayerControl pc)
+        public virtual void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
         {
         }
 

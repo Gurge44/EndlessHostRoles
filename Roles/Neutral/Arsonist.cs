@@ -138,7 +138,7 @@ namespace TOHE.Roles.Neutral
             }
         }
 
-        public override void OnGlobalFixedUpdate(PlayerControl player)
+        public override void OnGlobalFixedUpdate(PlayerControl player, bool lowLoad)
         {
             var playerId = player.PlayerId;
             if (GameStates.IsInTask && Main.ArsonistTimer.ContainsKey(playerId))

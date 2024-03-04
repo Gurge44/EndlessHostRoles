@@ -99,9 +99,9 @@ namespace TOHE.Roles.Neutral
             return false;
         }
 
-        public override void OnGlobalFixedUpdate(PlayerControl encasedPc)
+        public override void OnGlobalFixedUpdate(PlayerControl encasedPc, bool lowLoad)
         {
-            if (!IsEnable || !GameStates.IsInTask || !EncasedPlayers.TryGetValue(encasedPc.PlayerId, out var ts)) return;
+            if (lowLoad || !IsEnable || !GameStates.IsInTask || !EncasedPlayers.TryGetValue(encasedPc.PlayerId, out var ts)) return;
 
             long now = TimeStamp;
             var id = encasedPc.PlayerId;

@@ -3676,6 +3676,8 @@
   "AdditionalWinnerRoleText.Romantic": "The Romantic wins along",
   "AdditionalWinnerRoleText.VengefulRomantic": "The Vengeful Romantic avenged their lover",
   "AdditionalWinnerRoleText.Postman": "The Postman delivered mail to everyone",
+  "AdditionalWinnerRoleText.SoulHunter": "Soul Hunter wins along",
+  "AdditionalWinnerRoleText.Default": "{0} wins along",
   "ErrorEndText": "An error occurred",
   "ErrorEndTextDescription": "To avoid crashing, the game was forcibly ended.",
   "ForceEnd": "Aborted",

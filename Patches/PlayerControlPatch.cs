@@ -1079,18 +1079,15 @@ class FixedUpdatePatch
                 }
             }
 
-            if (!lowLoad)
+            foreach (var state in Main.PlayerStates.Values)
             {
-                foreach (var state in Main.PlayerStates.Values)
+                if (state.Role.IsEnable)
                 {
-                    if (state.Role.IsEnable)
-                    {
-                        state.Role.OnGlobalFixedUpdate(player);
-                    }
+                    state.Role.OnGlobalFixedUpdate(player, lowLoad);
                 }
-
-                Randomizer.OnFixedUpdateForPlayers(player);
             }
+
+            if (!lowLoad) Randomizer.OnFixedUpdateForPlayers(player);
         }
 
         if (!lowLoad)
