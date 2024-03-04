@@ -344,7 +344,7 @@ class GameEndChecker
 
             foreach (var role in EnumHelper.GetAllValues<CustomRoles>())
             {
-                if (!role.IsNK() || role.IsMadmate() || role is CustomRoles.Sidekick || (role == CustomRoles.Arsonist && !Options.ArsonistCanIgniteAnytime.GetBool())) continue;
+                if (!role.IsNK() || role.IsMadmate() || role is CustomRoles.Sidekick || (role == CustomRoles.Arsonist && !Options.ArsonistCanIgniteAnytime.GetBool()) || (role == CustomRoles.DarkHide && DarkHide.SnatchesWin.GetBool())) continue;
 
                 CustomRoles? keyRole = role.IsRecruitingRole() ? null : role;
                 CustomWinner keyWinner = (CustomWinner)role;
@@ -353,17 +353,20 @@ class GameEndChecker
                 roleCounts[(keyRole, keyWinner)] = value;
             }
 
-            foreach (PlayerControl x in Main.AllAlivePlayerControls)
+            if (CustomRoles.DualPersonality.IsEnable())
             {
-                CustomRoles role = x.GetCustomRole();
-                if ((x.Is(CustomRoles.Madmate) && x.Is(CustomRoles.DualPersonality)) ||
-                    (role.IsImpostor() && x.Is(CustomRoles.DualPersonality))) Imp++;
-                if (role.IsCrewmate() && x.Is(CustomRoles.DualPersonality)) Crew++;
-                if (x.Is(CustomRoles.Charmed) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Succubus)]++;
-                if (x.Is(CustomRoles.Undead) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Necromancer)]++;
-                if (x.Is(CustomRoles.Sidekick) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Jackal)]++;
-                if (x.Is(CustomRoles.Recruit) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Jackal)]++;
-                if (x.Is(CustomRoles.Contagious) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Virus)]++;
+                foreach (PlayerControl x in Main.AllAlivePlayerControls)
+                {
+                    CustomRoles role = x.GetCustomRole();
+                    if ((x.Is(CustomRoles.Madmate) && x.Is(CustomRoles.DualPersonality)) ||
+                        (role.IsImpostor() && x.Is(CustomRoles.DualPersonality))) Imp++;
+                    if (role.IsCrewmate() && x.Is(CustomRoles.DualPersonality)) Crew++;
+                    if (x.Is(CustomRoles.Charmed) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Succubus)]++;
+                    if (x.Is(CustomRoles.Undead) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Necromancer)]++;
+                    if (x.Is(CustomRoles.Sidekick) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Jackal)]++;
+                    if (x.Is(CustomRoles.Recruit) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Jackal)]++;
+                    if (x.Is(CustomRoles.Contagious) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Virus)]++;
+                }
             }
 
             int totalNKAlive = roleCounts.Values.Sum();

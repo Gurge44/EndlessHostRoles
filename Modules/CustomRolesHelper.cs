@@ -1351,8 +1351,9 @@ internal static class CustomRolesHelper
             CustomRoles.Refugee => CountTypes.Impostor,
             CustomRoles.Glitch => CountTypes.Glitch,
             CustomRoles.Spiritcaller => CountTypes.Spiritcaller,
+            CustomRoles.DarkHide => DarkHide.SnatchesWin.GetBool() ? CountTypes.Crew : CountTypes.DarkHide,
 
-            _ => role.IsImpostorTeam() ? CountTypes.Impostor : CountTypes.Crew,
+            _ => role.Is(Team.Impostor) ? CountTypes.Impostor : CountTypes.Crew
         };
 
     public static bool HasSubRole(this PlayerControl pc) => Main.PlayerStates[pc.PlayerId].SubRoles.Count > 0;
