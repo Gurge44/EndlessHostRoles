@@ -171,6 +171,7 @@ public class Romantic : RoleBase
 
     public override void OnReportDeadBody() => IsPartnerProtected = false;
     public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
+    public override bool CanUseKillButton(PlayerControl pc) => pc.IsAlive();
 
     public static void ChangeRole()
     {

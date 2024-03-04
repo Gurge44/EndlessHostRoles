@@ -64,6 +64,11 @@ namespace TOHE.Roles.Neutral
         public override bool IsEnable => On;
         public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
 
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return pc.IsAlive() && !isWon;
+        }
+
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
             opt.SetVision(true);
