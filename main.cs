@@ -36,7 +36,7 @@ public class Main : BasePlugin
     public const string PluginGuid = "com.gurge44.toheplus";
     public const string PluginVersion = "3.0.0";
     public const string PluginDisplayVersion = "3.0.0";
-    public static readonly string SupportedAUVersion = "2023.10.24";
+    public static readonly string SupportedAUVersion = "2024.3.5";
 
     public Harmony Harmony { get; } = new(PluginGuid);
     public static Version version = Version.Parse(PluginVersion);
