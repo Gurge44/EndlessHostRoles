@@ -10,6 +10,14 @@ namespace TOHE.Roles.Impostor
         public static bool On;
         public override bool IsEnable => On;
 
+        public static void SetupCustomOption()
+        {
+            Options.SetupRoleOptions(3600, TabGroup.ImpostorRoles, CustomRoles.Escapee);
+            Options.EscapeeSSCD = FloatOptionItem.Create(3611, "ShapeshiftCooldown", new(1f, 180f, 1f), 5f, TabGroup.ImpostorRoles, false)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Escapee])
+                .SetValueFormat(OptionFormat.Seconds);
+        }
+
         public override void Add(byte playerId)
         {
             On = true;

@@ -10,6 +10,12 @@ namespace TOHE.Roles.Crewmate
         public static bool On;
         public override bool IsEnable => On;
 
+        public static void SetupCustomOption()
+        {
+            Options.SetupRoleOptions(5650, TabGroup.CrewmateRoles, CustomRoles.Insight);
+            Options.InsightTasks = Options.OverrideTasksData.Create(5653, TabGroup.CrewmateRoles, CustomRoles.Insight);
+        }
+
         public override void Add(byte playerId)
         {
             On = true;

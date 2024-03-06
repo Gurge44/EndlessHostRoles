@@ -4,6 +4,7 @@ using System.Text;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using TOHE.Modules;
+using static TOHE.Options;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -14,6 +15,31 @@ namespace TOHE.Roles.Crewmate
 
         public static bool On;
         public override bool IsEnable => On;
+
+        public static void SetupCustomOption()
+        {
+            SetupRoleOptions(6800, TabGroup.CrewmateRoles, CustomRoles.Grenadier);
+            GrenadierSkillCooldown = FloatOptionItem.Create(6810, "GrenadierSkillCooldown", new(0f, 180f, 1f), 25f, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
+                .SetValueFormat(OptionFormat.Seconds);
+            GrenadierSkillDuration = FloatOptionItem.Create(6811, "GrenadierSkillDuration", new(0f, 180f, 1f), 10f, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
+                .SetValueFormat(OptionFormat.Seconds);
+            GrenadierCauseVision = FloatOptionItem.Create(6812, "GrenadierCauseVision", new(0f, 5f, 0.05f), 0.3f, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
+                .SetValueFormat(OptionFormat.Multiplier);
+            GrenadierCanAffectNeutral = BooleanOptionItem.Create(6813, "GrenadierCanAffectNeutral", false, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier]);
+            GrenadierSkillMaxOfUseage = IntegerOptionItem.Create(6814, "GrenadierSkillMaxOfUseage", new(0, 180, 1), 2, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
+                .SetValueFormat(OptionFormat.Times);
+            GrenadierAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(6815, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.5f, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
+                .SetValueFormat(OptionFormat.Times);
+            GrenadierAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(6816, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
+                .SetValueFormat(OptionFormat.Times);
+        }
 
         public override void Add(byte playerId)
         {

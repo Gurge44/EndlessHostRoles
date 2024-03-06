@@ -109,6 +109,8 @@ namespace TOHE.Roles.Impostor
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
             shapeshifter.RpcSetCustomRole(CurrentRole);
+            ChangedRole[shapeshifter.PlayerId] = true;
+            shapeshifter.RpcResetAbilityCooldown();
             return false;
         }
 

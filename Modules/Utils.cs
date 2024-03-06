@@ -2839,6 +2839,27 @@ public static class Utils
         return casted != null;
     }
 
+    public static IEnumerable<T> GetEnumerableOfType<T>(params object[] constructorArgs) where T : class, IComparable<T>
+    {
+        List<T> objects = [];
+        try
+        {
+            var assembly = Assembly.GetAssembly(typeof(T));
+            if (assembly == null) return objects;
+            objects.AddRange(assembly
+                .GetTypes()
+                .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(T)))
+                .Select(type => (T)Activator.CreateInstance(type, constructorArgs)));
+            objects.Sort();
+        }
+        catch (Exception e)
+        {
+            ThrowException(e);
+        }
+
+        return objects;
+    }
+
     public static int AllPlayersCount => Main.PlayerStates.Values.Count(state => state.countTypes != CountTypes.OutOfGame);
     public static int AllAlivePlayersCount => Main.AllAlivePlayerControls.Count(pc => !pc.Is(CountTypes.OutOfGame));
     public static bool IsAllAlive => Main.PlayerStates.Values.All(state => state.countTypes == CountTypes.OutOfGame || !state.IsDead);

@@ -108,7 +108,6 @@ public class Doppelganger : RoleBase
 
     void RpcChangeSkin(PlayerControl pc, GameData.PlayerOutfit newOutfit)
     {
-        if (!IsEnable) return;
         var sender = CustomRpcSender.Create(name: $"Doppelganger.RpcChangeSkin({pc.Data.PlayerName})");
         //if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) Main.nickName = newOutfit.PlayerName;
         pc.SetName(newOutfit.PlayerName);

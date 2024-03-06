@@ -8,6 +8,14 @@ namespace TOHE.Roles.Impostor
         public static bool On;
         public override bool IsEnable => On;
 
+        public static void SetupCustomOption()
+        {
+            Options.SetupRoleOptions(3800, TabGroup.ImpostorRoles, CustomRoles.Miner);
+            Options.MinerSSCD = FloatOptionItem.Create(3811, "ShapeshiftCooldown", new(1f, 180f, 1f), 15f, TabGroup.ImpostorRoles, false)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Miner])
+                .SetValueFormat(OptionFormat.Seconds);
+        }
+
         public override void Add(byte playerId)
         {
             On = true;

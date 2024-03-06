@@ -51,11 +51,6 @@ public static class HudSpritePatch
 
         if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts) goto EndOfSelectImg;
 
-        if (player.GetCustomRole().UsesPetInsteadOfKill())
-        {
-            newPetButton = __instance.KillButton.graphic.sprite;
-        }
-
         if (!Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId))
         {
             switch (player.GetCustomRole())
@@ -79,6 +74,9 @@ public static class HudSpritePatch
                         }
                     }
 
+                    break;
+                case CustomRoles.Gaulois:
+                    newKillButton = CustomButton.Get("Gaulois");
                     break;
                 case CustomRoles.Glitch:
                     if (Main.PlayerStates[player.PlayerId].Role is not Glitch gc) break;
@@ -294,10 +292,22 @@ public static class HudSpritePatch
                     }
 
                     break;
+                default:
+                    if (player.GetCustomRole().UsesPetInsteadOfKill())
+                    {
+                        newPetButton = __instance.KillButton.graphic.sprite;
+                    }
+
+                    break;
+            }
+
+            if (player.GetCustomRole().UsesPetInsteadOfKill())
+            {
+                newPetButton = newKillButton;
             }
         }
 
-    EndOfSelectImg:
+        EndOfSelectImg:
 
         __instance.KillButton.graphic.sprite = newKillButton;
         __instance.AbilityButton.graphic.sprite = newAbilityButton;

@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using static TOHE.Options;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -6,6 +7,17 @@ namespace TOHE.Roles.Crewmate
     {
         public static bool On;
         public override bool IsEnable => On;
+
+        public static void SetupCustomOption()
+        {
+            SetupRoleOptions(7800, TabGroup.CrewmateRoles, CustomRoles.Paranoia);
+            ParanoiaNumOfUseButton = IntegerOptionItem.Create(7810, "ParanoiaNumOfUseButton", new(0, 90, 1), 3, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Paranoia])
+                .SetValueFormat(OptionFormat.Times);
+            ParanoiaVentCooldown = FloatOptionItem.Create(7811, "ParanoiaVentCooldown", new(0, 180, 1), 10, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Paranoia])
+                .SetValueFormat(OptionFormat.Seconds);
+        }
 
         public override void Add(byte playerId)
         {

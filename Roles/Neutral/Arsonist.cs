@@ -2,6 +2,7 @@
 using AmongUs.GameOptions;
 using TOHE.Modules;
 using UnityEngine;
+using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral
 {
@@ -9,6 +10,25 @@ namespace TOHE.Roles.Neutral
     {
         public static bool On;
         public override bool IsEnable => On;
+
+        public static void SetupCustomOption()
+        {
+            SetupRoleOptions(10400, TabGroup.NeutralRoles, CustomRoles.Arsonist);
+            ArsonistDouseTime = FloatOptionItem.Create(10410, "ArsonistDouseTime", new(0f, 90f, 1f), 3f, TabGroup.NeutralRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Arsonist])
+                .SetValueFormat(OptionFormat.Seconds);
+            ArsonistCooldown = FloatOptionItem.Create(10411, "Cooldown", new(0f, 60f, 1f), 10f, TabGroup.NeutralRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Arsonist])
+                .SetValueFormat(OptionFormat.Seconds);
+            ArsonistCanIgniteAnytime = BooleanOptionItem.Create(10413, "ArsonistCanIgniteAnytime", false, TabGroup.NeutralRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Arsonist]);
+            ArsonistMinPlayersToIgnite = IntegerOptionItem.Create(10414, "ArsonistMinPlayersToIgnite", new(1, 14, 1), 1, TabGroup.NeutralRoles, false)
+                .SetParent(ArsonistCanIgniteAnytime);
+            ArsonistMaxPlayersToIgnite = IntegerOptionItem.Create(10415, "ArsonistMaxPlayersToIgnite", new(1, 14, 1), 3, TabGroup.NeutralRoles, false)
+                .SetParent(ArsonistCanIgniteAnytime);
+            ArsonistKeepsGameGoing = BooleanOptionItem.Create(10412, "ArsonistKeepsGameGoing", false, TabGroup.NeutralRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Arsonist]);
+        }
 
         public override void Add(byte playerId)
         {

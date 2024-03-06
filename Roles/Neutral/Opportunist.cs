@@ -19,5 +19,13 @@
         {
             return !Options.OppoImmuneToAttacksWhenTasksDone.GetBool() || !target.Is(CustomRoles.Opportunist) || !target.AllTasksCompleted();
         }
+
+        public static void SetupCustomOption()
+        {
+            Options.SetupRoleOptions(10100, TabGroup.NeutralRoles, CustomRoles.Opportunist);
+            Options.OppoImmuneToAttacksWhenTasksDone = BooleanOptionItem.Create(10110, "ImmuneToAttacksWhenTasksDone", false, TabGroup.NeutralRoles, false)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Opportunist]);
+            Options.OpportunistTasks = Options.OverrideTasksData.Create(10111, TabGroup.NeutralRoles, CustomRoles.Opportunist);
+        }
     }
 }

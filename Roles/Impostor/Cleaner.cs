@@ -1,5 +1,6 @@
 ﻿using AmongUs.GameOptions;
 using TOHE.Roles.Neutral;
+using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor
 {
@@ -14,6 +15,17 @@ namespace TOHE.Roles.Impostor
 
         public static bool On;
         public override bool IsEnable => On;
+
+        public static void SetupCustomOption()
+        {
+            SetupRoleOptions(2600, TabGroup.ImpostorRoles, CustomRoles.Cleaner);
+            CleanerKillCooldown = FloatOptionItem.Create(2610, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Cleaner])
+                .SetValueFormat(OptionFormat.Seconds);
+            KillCooldownAfterCleaning = FloatOptionItem.Create(2611, "KillCooldownAfterCleaning", new(0f, 180f, 2.5f), 60f, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Cleaner])
+                .SetValueFormat(OptionFormat.Seconds);
+        }
 
         public override void Add(byte playerId)
         {

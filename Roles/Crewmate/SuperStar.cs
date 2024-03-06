@@ -8,6 +8,13 @@ namespace TOHE.Roles.Crewmate
         public static bool On;
         public override bool IsEnable => On;
 
+        public static void SetupCustomOption()
+        {
+            Options.SetupRoleOptions(6000, TabGroup.CrewmateRoles, CustomRoles.SuperStar);
+            Options.EveryOneKnowSuperStar = BooleanOptionItem.Create(6010, "EveryOneKnowSuperStar", true, TabGroup.CrewmateRoles, false)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SuperStar]);
+        }
+
         public override void Add(byte playerId)
         {
             On = true;

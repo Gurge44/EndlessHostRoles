@@ -1,10 +1,18 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using AmongUs.GameOptions;
 
 namespace TOHE
 {
-    public abstract class RoleBase
+    public abstract class RoleBase : IComparable<RoleBase>
     {
+        public int CompareTo(RoleBase other)
+        {
+            var thisName = GetType().Name;
+            var otherName = other.GetType().Name;
+            return string.Compare(thisName, otherName, StringComparison.Ordinal);
+        }
+
         // This is a base class for all roles. It contains some common methods and properties that are used by all roles.
         public abstract void Init();
         public abstract void Add(byte playerId);

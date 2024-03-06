@@ -5,6 +5,7 @@ using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
 using UnityEngine;
+using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor
 {
@@ -12,6 +13,18 @@ namespace TOHE.Roles.Impostor
     {
         public static bool On;
         public override bool IsEnable => On;
+
+        public static void SetupCustomOption()
+        {
+            SetupRoleOptions(4600, TabGroup.ImpostorRoles, CustomRoles.Warlock);
+            WarlockCanKillAllies = BooleanOptionItem.Create(4610, "CanKillAllies", true, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock]);
+            WarlockCanKillSelf = BooleanOptionItem.Create(4611, "CanKillSelf", false, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock]);
+            WarlockShiftDuration = FloatOptionItem.Create(4612, "ShapeshiftDuration", new(0, 180, 1), 1, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock])
+                .SetValueFormat(OptionFormat.Seconds);
+        }
 
         public override void Add(byte playerId)
         {

@@ -7,6 +7,13 @@ namespace TOHE.Roles.Neutral
         public static bool On;
         public override bool IsEnable => On;
 
+        public static void SetupCustomOption()
+        {
+            Options.SetupRoleOptions(10800, TabGroup.NeutralRoles, CustomRoles.Innocent);
+            Options.InnocentCanWinByImp = BooleanOptionItem.Create(10810, "InnocentCanWinByImp", false, TabGroup.NeutralRoles, false)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Innocent]);
+        }
+
         public override void Add(byte playerId)
         {
             On = true;

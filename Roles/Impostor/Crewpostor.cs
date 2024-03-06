@@ -4,6 +4,7 @@ using AmongUs.GameOptions;
 using Hazel;
 using TOHE.Modules;
 using UnityEngine;
+using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor
 {
@@ -13,6 +14,22 @@ namespace TOHE.Roles.Impostor
 
         public static bool On;
         public override bool IsEnable => On;
+
+        public static void SetupCustomOption()
+        {
+            SetupRoleOptions(4800, TabGroup.ImpostorRoles, CustomRoles.Crewpostor);
+            CrewpostorCanKillAllies = BooleanOptionItem.Create(4810, "CanKillAllies", true, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
+            CrewpostorKnowsAllies = BooleanOptionItem.Create(4811, "CrewpostorKnowsAllies", true, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
+            AlliesKnowCrewpostor = BooleanOptionItem.Create(4812, "AlliesKnowCrewpostor", true, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
+            CrewpostorLungeKill = BooleanOptionItem.Create(4813, "CrewpostorLungeKill", true, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
+            CrewpostorKillAfterTask = IntegerOptionItem.Create(4814, "CrewpostorKillAfterTask", new(1, 50, 1), 1, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
+            CrewpostorTasks = OverrideTasksData.Create(4815, TabGroup.ImpostorRoles, CustomRoles.Crewpostor);
+        }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {

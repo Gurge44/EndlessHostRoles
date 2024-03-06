@@ -68,15 +68,15 @@ public class EvilTracker : RoleBase
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
-        Target = byte.MaxValue;
-        CanSetTarget = CurrentTargetMode != TargetMode.Never;
-        EvilTrackerId = playerId;
-
         CanSeeKillFlash = OptionCanSeeKillFlash.GetBool();
         CurrentTargetMode = (TargetMode)OptionTargetMode.GetValue();
         RoleTypes = CurrentTargetMode == TargetMode.Never ? RoleTypes.Impostor : RoleTypes.Shapeshifter;
         CanSeeLastRoomInMeeting = OptionCanSeeLastRoomInMeeting.GetBool();
+
+        playerIdList.Add(playerId);
+        Target = byte.MaxValue;
+        CanSetTarget = CurrentTargetMode != TargetMode.Never;
+        EvilTrackerId = playerId;
     }
 
     public override bool IsEnable => playerIdList.Count > 0;

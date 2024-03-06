@@ -1,10 +1,11 @@
-﻿using System;
-using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
+using System;
+using System.Linq;
 using TOHE.Modules;
 using UnityEngine;
+using static TOHE.Options;
 using static TOHE.Translator;
 using Object = UnityEngine.Object;
 
@@ -14,6 +15,22 @@ namespace TOHE.Roles.Impostor
     {
         public static bool On;
         public override bool IsEnable => On;
+
+        public static void SetupCustomOption()
+        {
+            SetupRoleOptions(3100, TabGroup.ImpostorRoles, CustomRoles.Mafia);
+            MafiaCanKillNum = IntegerOptionItem.Create(3200, "MafiaCanKillNum", new(0, 15, 1), 1, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Mafia])
+                .SetValueFormat(OptionFormat.Players);
+            LegacyMafia = BooleanOptionItem.Create(3210, "LegacyMafia", false, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Mafia]);
+            MafiaShapeshiftCD = FloatOptionItem.Create(3211, "ShapeshiftCooldown", new(1f, 180f, 1f), 15f, TabGroup.ImpostorRoles, false)
+                .SetParent(LegacyMafia)
+                .SetValueFormat(OptionFormat.Seconds);
+            MafiaShapeshiftDur = FloatOptionItem.Create(3212, "ShapeshiftDuration", new(1f, 180f, 1f), 30f, TabGroup.ImpostorRoles, false)
+                .SetParent(LegacyMafia)
+                .SetValueFormat(OptionFormat.Seconds);
+        }
 
         public override void Add(byte playerId)
         {

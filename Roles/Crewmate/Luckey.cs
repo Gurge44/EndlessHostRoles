@@ -5,6 +5,14 @@
         public static bool On;
         public override bool IsEnable => On;
 
+        public static void SetupCustomOption()
+        {
+            Options.SetupRoleOptions(5800, TabGroup.CrewmateRoles, CustomRoles.Luckey);
+            Options.LuckeyProbability = IntegerOptionItem.Create(5900, "LuckeyProbability", new(0, 100, 5), 50, TabGroup.CrewmateRoles, false)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Luckey])
+                .SetValueFormat(OptionFormat.Percent);
+        }
+
         public override void Add(byte playerId)
         {
             On = true;

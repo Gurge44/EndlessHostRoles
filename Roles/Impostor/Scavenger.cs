@@ -1,6 +1,7 @@
 ﻿using TOHE.Modules;
 using TOHE.Roles.Neutral;
 using UnityEngine;
+using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor
 {
@@ -8,6 +9,17 @@ namespace TOHE.Roles.Impostor
     {
         public static bool On;
         public override bool IsEnable => On;
+
+        public static void SetupCustomOption()
+        {
+            SetupRoleOptions(4000, TabGroup.ImpostorRoles, CustomRoles.Scavenger);
+            ScavengerKillCooldown = FloatOptionItem.Create(4010, "KillCooldown", new(0f, 180f, 2.5f), 40f, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Scavenger])
+                .SetValueFormat(OptionFormat.Seconds);
+            ScavengerKillDuration = FloatOptionItem.Create(4011, "ScavengerKillDuration", new(0f, 90f, 0.5f), 5f, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Scavenger])
+                .SetValueFormat(OptionFormat.Seconds);
+        }
 
         public override void Add(byte playerId)
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor
 {
@@ -9,6 +10,17 @@ namespace TOHE.Roles.Impostor
         public static Dictionary<byte, int> CapitalismAssignTask = [];
         public static bool On;
         public override bool IsEnable => On;
+
+        public static void SetupCustomOption()
+        {
+            SetupRoleOptions(16600, TabGroup.OtherRoles, CustomRoles.Capitalism);
+            CapitalismSkillCooldown = FloatOptionItem.Create(16610, "CapitalismSkillCooldown", new(0f, 60f, 1f), 10f, TabGroup.OtherRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Capitalism])
+                .SetValueFormat(OptionFormat.Seconds);
+            CapitalismKillCooldown = FloatOptionItem.Create(16611, "KillCooldown", new(2.5f, 60f, 2.5f), 25f, TabGroup.OtherRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Capitalism])
+                .SetValueFormat(OptionFormat.Seconds);
+        }
 
         public override void Add(byte playerId)
         {

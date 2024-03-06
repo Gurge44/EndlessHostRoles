@@ -7,6 +7,14 @@ namespace TOHE.Roles.Impostor
         public static bool On;
         public override bool IsEnable => On;
 
+        public static void SetupCustomOption()
+        {
+            Options.SetupRoleOptions(16300, TabGroup.OtherRoles, CustomRoles.Minimalism);
+            Options.MNKillCooldown = FloatOptionItem.Create(16310, "KillCooldown", new(2.5f, 180f, 2.5f), 10f, TabGroup.OtherRoles, false)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Minimalism])
+                .SetValueFormat(OptionFormat.Seconds);
+        }
+
         public override void Add(byte playerId)
         {
             On = true;

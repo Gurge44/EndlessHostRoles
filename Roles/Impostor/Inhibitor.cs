@@ -1,4 +1,5 @@
 ﻿using System;
+using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor
 {
@@ -7,6 +8,17 @@ namespace TOHE.Roles.Impostor
         private byte InhibitorId;
         public static bool On;
         public override bool IsEnable => On;
+
+        public static void SetupCustomOption()
+        {
+            SetupRoleOptions(1500, TabGroup.ImpostorRoles, CustomRoles.Inhibitor);
+            InhibitorCD = FloatOptionItem.Create(1510, "KillCooldown", new(0f, 180f, 2.5f), 20f, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Inhibitor])
+                .SetValueFormat(OptionFormat.Seconds);
+            InhibitorCDAfterMeetings = FloatOptionItem.Create(1511, "AfterMeetingKillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Inhibitor])
+                .SetValueFormat(OptionFormat.Seconds);
+        }
 
         public override void Add(byte playerId)
         {

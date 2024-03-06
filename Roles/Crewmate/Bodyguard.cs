@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using static TOHE.Options;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -17,12 +18,22 @@ namespace TOHE.Roles.Crewmate
             On = true;
         }
 
+        public static void SetupCustomOption()
+        {
+            SetupRoleOptions(8400, TabGroup.CrewmateRoles, CustomRoles.Bodyguard);
+            BodyguardProtectRadius = FloatOptionItem.Create(8410, "BodyguardProtectRadius", new(0.5f, 5f, 0.5f), 1.5f, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Bodyguard])
+                .SetValueFormat(OptionFormat.Multiplier);
+            BodyguardKillsKiller = BooleanOptionItem.Create(8411, "BodyguardKillsKiller", false, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Bodyguard]);
+        }
+
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {
             if (killer.PlayerId != target.PlayerId)
             {
                 float dis = Vector2.Distance(target.Pos(), killer.Pos());
-                if (dis > Options.BodyguardProtectRadius.GetFloat()) return true;
+                if (dis > BodyguardProtectRadius.GetFloat()) return true;
 
                 if (target.Is(CustomRoles.Madmate) && killer.Is(Team.Impostor))
                 {
@@ -30,7 +41,7 @@ namespace TOHE.Roles.Crewmate
                     return true;
                 }
 
-                if (Options.BodyguardKillsKiller.GetBool()) target.Kill(killer);
+                if (BodyguardKillsKiller.GetBool()) target.Kill(killer);
                 else killer.SetKillCooldown();
                 target.Suicide(PlayerState.DeathReason.Sacrifice, killer);
                 Logger.Info($"{target.GetRealName()} stood up and died for {killer.GetRealName()}", "Bodyguard");

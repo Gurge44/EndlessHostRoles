@@ -17,6 +17,11 @@ namespace TOHE.Roles.Crewmate
             On = false;
         }
 
+        public static void SetupCustomOption()
+        {
+            Options.SetupRoleOptions(9150, TabGroup.CrewmateRoles, CustomRoles.Lookout);
+        }
+
         public override void OnPet(PlayerControl pc)
         {
             var AllAlivePlayers = Main.AllAlivePlayerControls;

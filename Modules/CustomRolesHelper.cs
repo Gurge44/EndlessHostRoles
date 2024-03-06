@@ -17,6 +17,7 @@ internal static class CustomRolesHelper
         CustomRoles.Sans => new Sans(),
         CustomRoles.Bard => new Bard(),
         CustomRoles.Blackmailer => new Blackmailer(),
+        CustomRoles.Bodyguard => new Bodyguard(),
         CustomRoles.Bomber => new Bomber(),
         CustomRoles.BountyHunter => new BountyHunter(),
         CustomRoles.OverKiller => new OverKiller(),

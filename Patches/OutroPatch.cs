@@ -261,7 +261,6 @@ class SetEverythingUpPatch
 
         switch (CustomWinnerHolder.WinnerTeam)
         {
-            //通常勝利
             case CustomWinner.Crewmate:
                 CustomWinnerColor = Utils.GetRoleColorCode(CustomRoles.Engineer);
                 __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Engineer);
@@ -278,14 +277,12 @@ class SetEverythingUpPatch
                 CustomWinnerColor = Utils.GetRoleColorCode(CustomRoles.Egoist);
                 __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Egoist);
                 break;
-            //特殊勝利
             case CustomWinner.Terrorist:
                 __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Terrorist);
                 break;
             case CustomWinner.Lovers:
                 __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Lovers);
                 break;
-            //引き分け処理
             case CustomWinner.Draw:
                 __instance.WinText.text = GetString("ForceEnd");
                 __instance.WinText.color = Color.white;
@@ -300,7 +297,6 @@ class SetEverythingUpPatch
                 WinnerText.text = GetString("NeutralsLeftText");
                 WinnerText.color = Utils.GetRoleColor(CustomRoles.Executioner);
                 break;
-            //全滅
             case CustomWinner.None:
                 __instance.WinText.text = string.Empty;
                 __instance.WinText.color = Color.black;
@@ -423,12 +419,10 @@ class SetEverythingUpPatch
             return name;
         }
 
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //Utils.ApplySuffix();
         static string GetWinnerRoleName(CustomRoles role)
         {
             var name = GetString($"WinnerRoleText.{Enum.GetName(typeof(CustomRoles), role)}");
-            if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID")) name = Utils.GetRoleName(role);
+            if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID")) name = string.Format(GetString("WinnerRoleText.Default"), Utils.GetRoleName(role));
             return name;
         }
     }

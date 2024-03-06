@@ -10,6 +10,8 @@ namespace TOHE.Roles.Crewmate
         public static bool On;
         public override bool IsEnable => On;
 
+        public static void SetupCustomOption() => Options.SetupRoleOptions(5592, TabGroup.CrewmateRoles, CustomRoles.Tunneler);
+
         public override void Add(byte playerId)
         {
             On = true;

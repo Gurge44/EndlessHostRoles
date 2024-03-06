@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor
 {
@@ -10,6 +11,16 @@ namespace TOHE.Roles.Impostor
 
         public static bool On;
         public override bool IsEnable => On;
+
+        public static void SetupCustomOption()
+        {
+            SetupRoleOptions(16500, TabGroup.OtherRoles, CustomRoles.BoobyTrap);
+            BTKillCooldown = FloatOptionItem.Create(16510, "KillCooldown", new(2.5f, 180f, 2.5f), 20f, TabGroup.OtherRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.BoobyTrap])
+                .SetValueFormat(OptionFormat.Seconds);
+            TrapOnlyWorksOnTheBodyBoobyTrap = BooleanOptionItem.Create(16511, "TrapOnlyWorksOnTheBodyBoobyTrap", true, TabGroup.OtherRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.BoobyTrap]);
+        }
 
         public override void Add(byte playerId)
         {

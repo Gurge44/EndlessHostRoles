@@ -626,12 +626,14 @@ class ShapeshiftPatch
 
         if (shapeshifter.Is(CustomRoles.Hangman) && shapeshifter.GetAbilityUseLimit() < 1 && shapeshifting) shapeshifter.SetKillCooldown(Hangman.ShapeshiftDuration.GetFloat() + 1f);
         if (shapeshifter.Is(CustomRoles.Camouflager) && !shapeshifting) Camouflager.Reset();
+        if (Changeling.ChangedRole.TryGetValue(shapeshifter.PlayerId, out var changed) && changed) isSSneeded = false;
+
+        // ==============================================================================================================================
 
         // Forced rewriting in case the name cannot be corrected due to the timing of canceling the transformation being off.
         if (!shapeshifting && !shapeshifter.Is(CustomRoles.Glitch) && isSSneeded)
         {
-            _ = new LateTask(() => { NotifyRoles(NoCache: true); },
-                1.2f, "ShapeShiftNotify");
+            _ = new LateTask(() => { NotifyRoles(NoCache: true); }, 1.2f, "ShapeShiftNotify");
         }
 
         if ((!shapeshifting || !isSSneeded) && !Swapster.FirstSwapTarget.ContainsKey(shapeshifter.PlayerId))

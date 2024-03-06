@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
 using UnityEngine;
+using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral
 {
@@ -8,6 +9,17 @@ namespace TOHE.Roles.Neutral
     {
         public static bool On;
         public override bool IsEnable => On;
+
+        public static void SetupCustomOption()
+        {
+            SetupRoleOptions(18300, TabGroup.OtherRoles, CustomRoles.Mario);
+            MarioVentNumWin = IntegerOptionItem.Create(18310, "MarioVentNumWin", new(0, 900, 5), 40, TabGroup.OtherRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Mario])
+                .SetValueFormat(OptionFormat.Times);
+            MarioVentCD = FloatOptionItem.Create(18311, "VentCooldown", new(0f, 180f, 1f), 15f, TabGroup.OtherRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Mario])
+                .SetValueFormat(OptionFormat.Seconds);
+        }
 
         public override void Add(byte playerId)
         {

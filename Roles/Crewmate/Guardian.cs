@@ -19,5 +19,11 @@
         {
             return !target.AllTasksCompleted();
         }
+
+        public static void SetupCustomOption()
+        {
+            Options.SetupRoleOptions(9200, TabGroup.CrewmateRoles, CustomRoles.Guardian);
+            Options.GuardianTasks = Options.OverrideTasksData.Create(9210, TabGroup.CrewmateRoles, CustomRoles.Guardian);
+        }
     }
 }

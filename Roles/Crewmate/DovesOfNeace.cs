@@ -3,6 +3,7 @@ using AmongUs.GameOptions;
 using HarmonyLib;
 using TOHE.Modules;
 using TOHE.Roles.Impostor;
+using static TOHE.Options;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -10,6 +11,23 @@ namespace TOHE.Roles.Crewmate
     {
         public static bool On;
         public override bool IsEnable => On;
+
+        public static void SetupCustomOption()
+        {
+            SetupRoleOptions(7700, TabGroup.CrewmateRoles, CustomRoles.DovesOfNeace);
+            DovesOfNeaceCooldown = FloatOptionItem.Create(7710, "DovesOfNeaceCooldown", new(0f, 180f, 1f), 7f, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.DovesOfNeace])
+                .SetValueFormat(OptionFormat.Seconds);
+            DovesOfNeaceMaxOfUseage = IntegerOptionItem.Create(7711, "DovesOfNeaceMaxOfUseage", new(0, 180, 1), 0, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.DovesOfNeace])
+                .SetValueFormat(OptionFormat.Times);
+            DovesOfNeaceAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(7712, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.DovesOfNeace])
+                .SetValueFormat(OptionFormat.Times);
+            DovesOfNeaceAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(7713, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.DovesOfNeace])
+                .SetValueFormat(OptionFormat.Times);
+        }
 
         public override void Add(byte playerId)
         {

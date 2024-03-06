@@ -10,6 +10,15 @@ namespace TOHE.Roles.Crewmate
         public static bool On;
         public override bool IsEnable => On;
 
+        public static void SetupCustomOption()
+        {
+            Options.SetupRoleOptions(6200, TabGroup.CrewmateRoles, CustomRoles.Transporter);
+            Options.TransporterTeleportMax = IntegerOptionItem.Create(6210, "TransporterTeleportMax", new(0, 90, 1), 5, TabGroup.CrewmateRoles, false)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Transporter])
+                .SetValueFormat(OptionFormat.Times);
+            Options.TransporterTasks = Options.OverrideTasksData.Create(6211, TabGroup.CrewmateRoles, CustomRoles.Transporter);
+        }
+
         public override void Add(byte playerId)
         {
             On = true;

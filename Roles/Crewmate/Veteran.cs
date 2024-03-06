@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using AmongUs.GameOptions;
 using TOHE.Modules;
+using static TOHE.Options;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -18,6 +19,26 @@ namespace TOHE.Roles.Crewmate
         public override void Init()
         {
             On = false;
+        }
+
+        public static void SetupCustomOption()
+        {
+            SetupRoleOptions(8908, TabGroup.CrewmateRoles, CustomRoles.Veteran);
+            VeteranSkillCooldown = FloatOptionItem.Create(8910, "VeteranSkillCooldown", new(0f, 180f, 1f), 20f, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
+                .SetValueFormat(OptionFormat.Seconds);
+            VeteranSkillDuration = FloatOptionItem.Create(8911, "VeteranSkillDuration", new(0f, 180f, 1f), 10f, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
+                .SetValueFormat(OptionFormat.Seconds);
+            VeteranSkillMaxOfUseage = IntegerOptionItem.Create(8912, "VeteranSkillMaxOfUseage", new(0, 180, 1), 1, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
+                .SetValueFormat(OptionFormat.Times);
+            VeteranAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(8913, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.3f, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
+                .SetValueFormat(OptionFormat.Times);
+            VeteranAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(8914, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
+                .SetValueFormat(OptionFormat.Times);
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)

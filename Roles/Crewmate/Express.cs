@@ -10,6 +10,17 @@ namespace TOHE.Roles.Crewmate
         public static bool On;
         public override bool IsEnable => On;
 
+        public static void SetupCustomOption()
+        {
+            Options.SetupRoleOptions(5585, TabGroup.CrewmateRoles, CustomRoles.Express);
+            Options.ExpressSpeed = FloatOptionItem.Create(5587, "ExpressSpeed", new(0.25f, 5f, 0.25f), 1.5f, TabGroup.CrewmateRoles, false)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Express])
+                .SetValueFormat(OptionFormat.Multiplier);
+            Options.ExpressSpeedDur = IntegerOptionItem.Create(5588, "ExpressSpeedDur", new(0, 90, 1), 5, TabGroup.CrewmateRoles, false)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Express])
+                .SetValueFormat(OptionFormat.Seconds);
+        }
+
         public override void Add(byte playerId)
         {
             On = true;

@@ -45,7 +45,7 @@ public class Vampire : RoleBase
         PlayerIdList.Add(playerId);
 
         IsPoisoner = Main.PlayerStates[playerId].MainRole == CustomRoles.Poisoner;
-        if (IsPoisoner)
+        if (!IsPoisoner)
         {
             KillCooldown = Options.DefaultKillCooldown;
             KillDelay = OptionKillDelay.GetFloat();
