@@ -41,7 +41,7 @@ namespace TOHE.Roles.Crewmate
         public override void Add(byte playerId)
         {
             On = true;
-            playerId.SetAbilityUseLimit(Options.LighterSkillMaxOfUseage.GetInt());
+            playerId.SetAbilityUseLimit(LighterSkillMaxOfUseage.GetInt());
             IsAbilityActive = false;
             ActivateTimeStamp = 0;
         }
@@ -55,17 +55,17 @@ namespace TOHE.Roles.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (!Options.UsePets.GetBool())
+            if (!UsePets.GetBool())
             {
                 AURoleOptions.EngineerInVentMaxTime = 1;
-                AURoleOptions.EngineerCooldown = Options.LighterSkillCooldown.GetFloat();
+                AURoleOptions.EngineerCooldown = LighterSkillCooldown.GetFloat();
             }
 
             if (IsAbilityActive)
             {
                 opt.SetVision(false);
-                if (Utils.IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.CrewLightMod, Options.LighterVisionOnLightsOut.GetFloat() * 5);
-                else opt.SetFloat(FloatOptionNames.CrewLightMod, Options.LighterVisionNormal.GetFloat());
+                if (Utils.IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.CrewLightMod, LighterVisionOnLightsOut.GetFloat() * 5);
+                else opt.SetFloat(FloatOptionNames.CrewLightMod, LighterVisionNormal.GetFloat());
             }
         }
 
@@ -81,7 +81,7 @@ namespace TOHE.Roles.Crewmate
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            if (Options.UsePets.GetBool())
+            if (UsePets.GetBool())
                 hud.PetButton.buttonLabelText.text = Translator.GetString("LighterVentButtonText");
             else
                 hud.AbilityButton.buttonLabelText.text = Translator.GetString("LighterVentButtonText");
@@ -105,7 +105,7 @@ namespace TOHE.Roles.Crewmate
                 IsAbilityActive = true;
                 ActivateTimeStamp = Utils.TimeStamp;
 
-                pc.Notify(Translator.GetString("LighterSkillInUse"), Options.LighterSkillDuration.GetFloat());
+                pc.Notify(Translator.GetString("LighterSkillInUse"), LighterSkillDuration.GetFloat());
                 pc.RpcRemoveAbilityUse();
                 pc.MarkDirtySettings();
             }
@@ -126,7 +126,7 @@ namespace TOHE.Roles.Crewmate
         {
             if (!GameStates.IsInTask) return;
 
-            if (IsAbilityActive && ActivateTimeStamp + Options.LighterSkillDuration.GetInt() < Utils.TimeStamp)
+            if (IsAbilityActive && ActivateTimeStamp + LighterSkillDuration.GetInt() < Utils.TimeStamp)
             {
                 IsAbilityActive = false;
                 player.RpcResetAbilityCooldown();

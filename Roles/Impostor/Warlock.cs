@@ -40,11 +40,11 @@ namespace TOHE.Roles.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (Options.UsePets.GetBool()) return;
+            if (UsePets.GetBool()) return;
             try
             {
-                AURoleOptions.ShapeshifterCooldown = Main.isCursed ? 1f : Options.DefaultKillCooldown;
-                AURoleOptions.ShapeshifterDuration = Options.WarlockShiftDuration.GetFloat();
+                AURoleOptions.ShapeshifterCooldown = Main.isCursed ? 1f : DefaultKillCooldown;
+                AURoleOptions.ShapeshifterDuration = WarlockShiftDuration.GetFloat();
             }
             catch
             {
@@ -111,8 +111,8 @@ namespace TOHE.Roles.Impostor
                     foreach (PlayerControl p in Main.AllAlivePlayerControls)
                     {
                         if (p.PlayerId == cp.PlayerId) continue;
-                        if (!Options.WarlockCanKillSelf.GetBool() && p.PlayerId == pc.PlayerId) continue;
-                        if (!Options.WarlockCanKillAllies.GetBool() && p.GetCustomRole().IsImpostor()) continue;
+                        if (!WarlockCanKillSelf.GetBool() && p.PlayerId == pc.PlayerId) continue;
+                        if (!WarlockCanKillAllies.GetBool() && p.GetCustomRole().IsImpostor()) continue;
                         if (p.Is(CustomRoles.Pestilence)) continue;
                         if (Pelican.IsEaten(p.PlayerId) || Medic.ProtectList.Contains(p.PlayerId)) continue;
                         float dis = Vector2.Distance(cppos, p.Pos());

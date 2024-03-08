@@ -318,7 +318,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0.01f);
             }
 
-            if (Changeling.ChangedRole.TryGetValue(player.PlayerId, out var changed) && changed)
+            if (Changeling.ChangedRole.TryGetValue(player.PlayerId, out var changed) && changed && player.GetCustomRole().GetRoleTypes() != RoleTypes.Shapeshifter)
             {
                 AURoleOptions.ShapeshifterCooldown = 300f;
                 AURoleOptions.ShapeshifterDuration = 1f;

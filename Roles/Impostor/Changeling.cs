@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TOHE.Modules;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor
@@ -53,7 +54,7 @@ namespace TOHE.Roles.Impostor
 
             if (!CanPickPartnerRole.GetBool() && !check)
             {
-                result = result.Where(x => !Main.AllPlayerControls.Any(p => p.Is(x)));
+                result = result.Where(x => !CustomRoleSelector.RoleResult.ContainsValue(x));
             }
 
             var rolesList = result.ToList();
@@ -108,9 +109,16 @@ namespace TOHE.Roles.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            shapeshifter.RpcSetCustomRole(CurrentRole);
-            ChangedRole[shapeshifter.PlayerId] = true;
-            shapeshifter.RpcResetAbilityCooldown();
+            _ = new LateTask(() =>
+            {
+                shapeshifter.RpcSetCustomRole(CurrentRole);
+                ChangedRole[shapeshifter.PlayerId] = true;
+                shapeshifter.RpcResetAbilityCooldown();
+                if (!DisableShapeshiftAnimations.GetBool())
+                {
+                    _ = new LateTask(() => { shapeshifter.RpcShapeshift(shapeshifter, false); }, 1f, log: false);
+                }
+            }, 0.3f, log: false);
             return false;
         }
 

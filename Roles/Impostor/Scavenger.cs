@@ -33,14 +33,14 @@ namespace TOHE.Roles.Impostor
 
         public override void SetKillCooldown(byte id)
         {
-            Main.AllPlayerKillCooldown[id] = Options.ScavengerKillCooldown.GetFloat();
+            Main.AllPlayerKillCooldown[id] = ScavengerKillCooldown.GetFloat();
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (!target.Is(CustomRoles.Pestilence))
             {
-                float dur = Options.ScavengerKillDuration.GetFloat();
+                float dur = ScavengerKillDuration.GetFloat();
                 killer.Notify("....", dur);
                 killer.SetKillCooldown(dur + 0.5f);
                 _ = new LateTask(() =>

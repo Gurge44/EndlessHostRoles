@@ -251,7 +251,7 @@ namespace TOHE.Roles.Impostor
                 {
                     if (!ActiveDeathpacts.Contains(dp.DeathPactId) || dp.PlayersInDeathpact.All(b => b.PlayerId != player.PlayerId)) continue;
 
-                    string otherPlayerNames = dp.PlayersInDeathpact.Where(a => a.PlayerId != player.PlayerId).Aggregate(string.Empty, (current, otherPlayerInPact) => current + (otherPlayerInPact.name.ToUpper() + ","));
+                    string otherPlayerNames = dp.PlayersInDeathpact.Where(a => a.PlayerId != player.PlayerId).Aggregate(string.Empty, (current, otherPlayerInPact) => current + otherPlayerInPact.name.ToUpper() + ",");
                     otherPlayerNames = otherPlayerNames.Remove(otherPlayerNames.Length - 1);
 
                     int countdown = (int)(dp.DeathpactTime - TimeStamp);

@@ -36,12 +36,12 @@ namespace TOHE.Roles.Impostor
 
         public override void SetKillCooldown(byte id)
         {
-            Main.AllPlayerKillCooldown[id] = Options.BTKillCooldown.GetFloat();
+            Main.AllPlayerKillCooldown[id] = BTKillCooldown.GetFloat();
         }
 
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {
-            if (Options.TrapOnlyWorksOnTheBodyBoobyTrap.GetBool() && !GameStates.IsMeeting)
+            if (TrapOnlyWorksOnTheBodyBoobyTrap.GetBool() && !GameStates.IsMeeting)
             {
                 BoobyTrapBody.Add(target.PlayerId);
                 BoobyTrapKiller.Add(target.PlayerId);
@@ -52,7 +52,7 @@ namespace TOHE.Roles.Impostor
 
         public override void OnMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!Options.TrapOnlyWorksOnTheBodyBoobyTrap.GetBool() && killer != target)
+            if (!TrapOnlyWorksOnTheBodyBoobyTrap.GetBool() && killer != target)
             {
                 if (!BoobyTrapBody.Contains(target.PlayerId)) BoobyTrapBody.Add(target.PlayerId);
                 if (!KillerOfBoobyTrapBody.ContainsKey(target.PlayerId)) KillerOfBoobyTrapBody.Add(target.PlayerId, killer.PlayerId);

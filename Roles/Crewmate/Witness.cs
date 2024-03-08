@@ -35,7 +35,7 @@ namespace TOHE.Roles.Crewmate
 
         public override void SetKillCooldown(byte id)
         {
-            Main.AllPlayerKillCooldown[id] = Options.WitnessCD.GetFloat();
+            Main.AllPlayerKillCooldown[id] = WitnessCD.GetFloat();
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)

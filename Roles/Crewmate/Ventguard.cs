@@ -24,7 +24,7 @@ namespace TOHE.Roles.Crewmate
         public override void Add(byte playerId)
         {
             On = true;
-            playerId.SetAbilityUseLimit(Options.VentguardMaxGuards.GetInt());
+            playerId.SetAbilityUseLimit(VentguardMaxGuards.GetInt());
         }
 
         public override void Init()

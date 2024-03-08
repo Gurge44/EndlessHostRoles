@@ -39,7 +39,7 @@ namespace TOHE.Roles.Crewmate
                 player.RPCPlayCustomSound("Congrats");
                 GameData.Instance.CompletedTasks = GameData.Instance.TotalTasks;
             }
-            else if (completedTasks >= Options.SpeedrunnerNotifyAtXTasksLeft.GetInt() && Options.SpeedrunnerNotifyKillers.GetBool())
+            else if (completedTasks >= SpeedrunnerNotifyAtXTasksLeft.GetInt() && SpeedrunnerNotifyKillers.GetBool())
             {
                 string speedrunnerName = player.GetRealName().RemoveHtmlTags();
                 string notifyString = Translator.GetString("SpeedrunnerHasXTasksLeft");

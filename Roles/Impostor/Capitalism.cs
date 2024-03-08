@@ -39,7 +39,7 @@ namespace TOHE.Roles.Impostor
 
         public override void SetKillCooldown(byte id)
         {
-            Main.AllPlayerKillCooldown[id] = Options.CapitalismKillCooldown.GetFloat();
+            Main.AllPlayerKillCooldown[id] = CapitalismKillCooldown.GetFloat();
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -52,7 +52,7 @@ namespace TOHE.Roles.Impostor
                 CapitalismAssignTask[target.PlayerId]++;
                 Logger.Info($"{killer.GetRealName()} added a task for：{target.GetRealName()}", "Capitalism Add Task");
                 //killer.RpcGuardAndKill(killer);
-                killer.SetKillCooldown(Options.CapitalismSkillCooldown.GetFloat());
+                killer.SetKillCooldown(CapitalismSkillCooldown.GetFloat());
             });
         }
 

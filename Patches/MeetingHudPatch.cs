@@ -73,7 +73,7 @@ class CheckForEndVotingPatch
                     voteTarget.SetRealKiller(pc);
                     Main.LastVotedPlayerInfo = voteTarget.Data;
                     if (Main.LastVotedPlayerInfo != null)
-                        ConfirmEjections(Main.LastVotedPlayerInfo);
+                        ConfirmEjections(Main.LastVotedPlayerInfo, false);
                     return true;
                 }
 
@@ -107,6 +107,9 @@ class CheckForEndVotingPatch
                                 break;
                             case CustomRoles.Tracker when !Tracker.CancelVote.GetBool():
                                 Tracker.OnVote(pc, voteTarget);
+                                break;
+                            case CustomRoles.Markseeker when !Markseeker.CancelVote.GetBool():
+                                Markseeker.OnVote(pc, voteTarget);
                                 break;
                             case CustomRoles.Godfather when !Options.GodfatherCancelVote.GetBool():
                                 Godfather.GodfatherTarget = voteTarget.PlayerId;
@@ -315,7 +318,7 @@ class CheckForEndVotingPatch
 
             Main.LastVotedPlayerInfo = exiledPlayer;
             if (Main.LastVotedPlayerInfo != null)
-                ConfirmEjections(Main.LastVotedPlayerInfo);
+                ConfirmEjections(Main.LastVotedPlayerInfo, braked);
 
             return false;
         }
@@ -326,8 +329,8 @@ class CheckForEndVotingPatch
         }
     }
 
-    // 参考：https://github.com/music-discussion/TownOfHost-TheOtherRoles
-    private static void ConfirmEjections(GameData.PlayerInfo exiledPlayer)
+    // Reference：https://github.com/music-discussion/TownOfHost-TheOtherRoles
+    private static void ConfirmEjections(GameData.PlayerInfo exiledPlayer, bool tiebreaker)
     {
         if (!AmongUsClient.Instance.AmHost) return;
         if (exiledPlayer == null) return;
@@ -375,7 +378,7 @@ class CheckForEndVotingPatch
                 else if (player.GetCustomRole().IsCrewmate())
                     name = string.Format(GetString("IsGood"), coloredRealName);
                 else if (player.GetCustomRole().IsNeutral() && !player.Is(CustomRoles.Parasite) && !player.Is(CustomRoles.Refugee) && !player.Is(CustomRoles.Crewpostor) && !player.Is(CustomRoles.Convict))
-                    name = string.Format(GetString("BelongTo"), coloredRealName, Utils.ColorString(new(127, 140, 141, byte.MaxValue), GetString("TeamNeutral")));
+                    name = string.Format(GetString("BelongTo"), coloredRealName, Utils.ColorString(new(255, 171, 27, byte.MaxValue), GetString("TeamNeutral")));
                 break;
             case 2:
                 name = string.Format(GetString("PlayerIsRole"), coloredRealName, coloredRole);
@@ -385,13 +388,18 @@ class CheckForEndVotingPatch
                     if (player.GetCustomRole().IsImpostor() || player.Is(CustomRoles.Madmate))
                         name += Utils.ColorString(new(255, 25, 25, byte.MaxValue), GetString("TeamImpostor"));
                     else if (player.GetCustomRole().IsNeutral() || player.Is(CustomRoles.Charmed))
-                        name += Utils.ColorString(new(127, 140, 141, byte.MaxValue), GetString("TeamNeutral"));
+                        name += Utils.ColorString(new(255, 171, 27, byte.MaxValue), GetString("TeamNeutral"));
                     else if (player.GetCustomRole().IsCrewmate())
                         name += Utils.ColorString(new(140, 255, 255, byte.MaxValue), GetString("TeamCrewmate"));
                     name += ")";
                 }
 
                 break;
+        }
+
+        if (tiebreaker)
+        {
+            name += $" ({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Brakar), GetString("Brakar"))})";
         }
 
         var DecidedWinner = false;
@@ -785,6 +793,7 @@ class MeetingHudStartPatch
                 //CursedSoul.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Amnesiac.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Virus.KnowRole(PlayerControl.LocalPlayer, pc) ||
+                Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == pc.PlayerId) ||
                 PlayerControl.LocalPlayer.IsRevealedPlayer(pc) ||
                 PlayerControl.LocalPlayer.Is(CustomRoles.God) ||
                 PlayerControl.LocalPlayer.Is(CustomRoles.GM) ||
@@ -1210,6 +1219,9 @@ class MeetingHudCastVotePatch
                         break;
                     case CustomRoles.Tracker when Tracker.CancelVote.GetBool():
                         if (Tracker.OnVote(pc_src, pc_target)) CancelVote();
+                        break;
+                    case CustomRoles.Markseeker when Markseeker.CancelVote.GetBool():
+                        if (Markseeker.OnVote(pc_src, pc_target)) CancelVote();
                         break;
                     case CustomRoles.Godfather when Options.GodfatherCancelVote.GetBool():
                         Godfather.GodfatherTarget = pc_target.PlayerId;

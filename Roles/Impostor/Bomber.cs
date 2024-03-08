@@ -56,20 +56,20 @@ namespace TOHE.Roles.Impostor
 
         public override bool CanUseKillButton(PlayerControl pc)
         {
-            return base.CanUseKillButton(pc) && !IsNuker && Options.BomberCanKill.GetBool();
+            return base.CanUseKillButton(pc) && !IsNuker && BomberCanKill.GetBool();
         }
 
         public override void SetKillCooldown(byte id)
         {
-            Main.AllPlayerKillCooldown[id] = !IsNuker && Options.BomberCanKill.GetBool() ? Options.BomberKillCD.GetFloat() : 300f;
+            Main.AllPlayerKillCooldown[id] = !IsNuker && BomberCanKill.GetBool() ? BomberKillCD.GetFloat() : 300f;
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (Options.UsePets.GetBool()) return;
+            if (UsePets.GetBool()) return;
             try
             {
-                AURoleOptions.ShapeshifterCooldown = IsNuker ? Options.NukeCooldown.GetFloat() : Options.BombCooldown.GetFloat();
+                AURoleOptions.ShapeshifterCooldown = IsNuker ? NukeCooldown.GetFloat() : BombCooldown.GetFloat();
                 AURoleOptions.ShapeshifterDuration = 2f;
             }
             catch
@@ -79,7 +79,7 @@ namespace TOHE.Roles.Impostor
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            if (Options.UsePets.GetBool()) hud.PetButton?.OverrideText(Translator.GetString("BomberShapeshiftText"));
+            if (UsePets.GetBool()) hud.PetButton?.OverrideText(Translator.GetString("BomberShapeshiftText"));
             else hud.AbilityButton?.OverrideText(Translator.GetString("BomberShapeshiftText"));
         }
 
@@ -101,14 +101,14 @@ namespace TOHE.Roles.Impostor
             Logger.Info("Bomber explosion", "Boom");
             CustomSoundsManager.RPCPlayCustomSoundAll("Boom");
 
-            float radius = IsNuker ? Options.NukeRadius.GetFloat() : Options.BomberRadius.GetFloat();
+            float radius = IsNuker ? NukeRadius.GetFloat() : BomberRadius.GetFloat();
             foreach (PlayerControl tg in Main.AllPlayerControls)
             {
                 if (!tg.IsModClient()) tg.KillFlash();
                 var pos = pc.Pos();
                 var dis = Vector2.Distance(pos, tg.Pos());
 
-                if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || (tg.Is(CustomRoleTypes.Impostor) && Options.ImpostorsSurviveBombs.GetBool()) || tg.inVent || tg.Is(CustomRoles.Pestilence)) continue;
+                if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || (tg.Is(CustomRoleTypes.Impostor) && ImpostorsSurviveBombs.GetBool()) || tg.inVent || tg.Is(CustomRoles.Pestilence)) continue;
                 if (dis > radius) continue;
                 if (tg.PlayerId == pc.PlayerId) continue;
 
@@ -118,7 +118,7 @@ namespace TOHE.Roles.Impostor
             _ = new LateTask(() =>
             {
                 var totalAlive = Main.AllAlivePlayerControls.Length;
-                if (Options.BomberDiesInExplosion.GetBool() && totalAlive > 1 && !GameStates.IsEnded)
+                if (BomberDiesInExplosion.GetBool() && totalAlive > 1 && !GameStates.IsEnded)
                 {
                     pc.Suicide(PlayerState.DeathReason.Bombed);
                 }

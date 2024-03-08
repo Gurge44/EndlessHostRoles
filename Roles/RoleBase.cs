@@ -9,7 +9,19 @@ namespace TOHE
         public int CompareTo(RoleBase other)
         {
             var thisName = GetType().Name;
+            var translatedName = Translator.GetString(thisName);
+            if (translatedName != string.Empty && !translatedName.StartsWith("*") && !translatedName.StartsWith("<INVALID"))
+            {
+                thisName = translatedName;
+            }
+
             var otherName = other.GetType().Name;
+            var translatedOtherName = Translator.GetString(otherName);
+            if (translatedOtherName != string.Empty && !translatedOtherName.StartsWith("*") && !translatedOtherName.StartsWith("<INVALID"))
+            {
+                otherName = translatedOtherName;
+            }
+
             return string.Compare(thisName, otherName, StringComparison.Ordinal);
         }
 

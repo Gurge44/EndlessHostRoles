@@ -49,8 +49,8 @@ namespace TOHE.Roles.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            AURoleOptions.ShapeshifterCooldown = Options.MafiaShapeshiftCD.GetFloat();
-            AURoleOptions.ShapeshifterDuration = Options.MafiaShapeshiftDur.GetFloat();
+            AURoleOptions.ShapeshifterCooldown = MafiaShapeshiftCD.GetFloat();
+            AURoleOptions.ShapeshifterDuration = MafiaShapeshiftDur.GetFloat();
         }
 
         public static bool MafiaMsgCheck(PlayerControl pc, string msg, bool isUI = false)
@@ -60,7 +60,7 @@ namespace TOHE.Roles.Impostor
             if (!pc.Is(CustomRoles.Mafia)) return false;
             msg = msg.Trim().ToLower();
             if (msg.Length < 3 || msg[..3] != "/rv") return false;
-            if (Options.MafiaCanKillNum.GetInt() < 1)
+            if (MafiaCanKillNum.GetInt() < 1)
             {
                 if (!isUI) Utils.SendMessage(GetString("MafiaKillDisable"), pc.PlayerId);
                 else pc.ShowPopUp(GetString("MafiaKillDisable"));
@@ -76,7 +76,7 @@ namespace TOHE.Roles.Impostor
             if (msg == "/rv")
             {
                 string text = GetString("PlayerIdList");
-                text = Main.AllAlivePlayerControls.Aggregate(text, (current, npc) => current + ("\n" + npc.PlayerId + " → (" + npc.GetDisplayRoleName() + ") " + npc.GetRealName()));
+                text = Main.AllAlivePlayerControls.Aggregate(text, (current, npc) => current + "\n" + npc.PlayerId + " → (" + npc.GetDisplayRoleName() + ") " + npc.GetRealName());
 
                 Utils.SendMessage(text, pc.PlayerId);
                 return true;
@@ -84,7 +84,7 @@ namespace TOHE.Roles.Impostor
 
             if (!Main.MafiaRevenged.TryAdd(pc.PlayerId, 0))
             {
-                if (Main.MafiaRevenged[pc.PlayerId] >= Options.MafiaCanKillNum.GetInt())
+                if (Main.MafiaRevenged[pc.PlayerId] >= MafiaCanKillNum.GetInt())
                 {
                     if (!isUI) Utils.SendMessage(GetString("MafiaKillMax"), pc.PlayerId);
                     else pc.ShowPopUp(GetString("MafiaKillMax"));

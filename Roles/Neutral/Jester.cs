@@ -36,7 +36,7 @@ namespace TOHE.Roles.Neutral
         {
             AURoleOptions.EngineerCooldown = 0f;
             AURoleOptions.EngineerInVentMaxTime = 0f;
-            opt.SetVision(Options.JesterHasImpostorVision.GetBool());
+            opt.SetVision(JesterHasImpostorVision.GetBool());
         }
     }
 }

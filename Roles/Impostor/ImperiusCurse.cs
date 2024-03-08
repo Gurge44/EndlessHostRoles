@@ -31,9 +31,9 @@ namespace TOHE.Roles.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            AURoleOptions.ShapeshifterCooldown = Options.ImperiusCurseShapeshiftCooldown.GetFloat();
+            AURoleOptions.ShapeshifterCooldown = ImperiusCurseShapeshiftCooldown.GetFloat();
             AURoleOptions.ShapeshifterLeaveSkin = false;
-            AURoleOptions.ShapeshifterDuration = Options.ShapeImperiusCurseShapeshiftDuration.GetFloat();
+            AURoleOptions.ShapeshifterDuration = ShapeImperiusCurseShapeshiftDuration.GetFloat();
         }
 
         public override void SetButtonTexts(HudManager hud, byte id)

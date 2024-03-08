@@ -587,6 +587,7 @@ public static class Utils
             case CustomRoles.Doppelganger:
             case CustomRoles.PlagueDoctor:
             case CustomRoles.Postman:
+            case CustomRoles.Predator:
             case CustomRoles.Reckless:
             case CustomRoles.WeaponMaster:
             case CustomRoles.Magician:
@@ -778,6 +779,7 @@ public static class Utils
         if (Lawyer.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (EvilDiviner.IsShowTargetRole(PlayerControl.LocalPlayer, __instance)) result = true;
         if (Executioner.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
+        if (Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == __instance.PlayerId)) result = true;
         if (Main.GodMode.Value) result = true;
 
         return result;
@@ -1599,7 +1601,7 @@ public static class Utils
             if (!GameStates.IsLobby) return;
             if (player.AmOwner)
             {
-                if ((GameStates.IsOnlineGame || GameStates.IsLocalGame))
+                if (GameStates.IsOnlineGame || GameStates.IsLocalGame)
                     name = $"<color={GetString("HostColor")}>{GetString("HostText")}</color><color={GetString("IconColor")}>{GetString("Icon")}</color><color={GetString("NameColor")}>{name}</color>";
 
 
@@ -1853,6 +1855,9 @@ public static class Utils
                         case CustomRoles.EvilTracker:
                             SelfSuffix.Append(EvilTracker.GetTargetArrow(seer, seer));
                             break;
+                        case CustomRoles.Predator:
+                            SelfSuffix.Append(Predator.GetSuffixAndHudText(seer));
+                            break;
                     }
                 }
                 else
@@ -1868,7 +1873,7 @@ public static class Utils
                 {
                     case CustomGameMode.FFA:
                         SelfSuffix.Append(FFAManager.GetPlayerArrow(seer));
-                        SelfSuffix.Append(SelfSuffix.Length > 0 && FFAManager.LatestChatMessage != string.Empty ? "\n" : string.Empty).Append(FFAManager.LatestChatMessage);
+                        if (FFAManager.FFA_ChatDuringGame.GetBool()) SelfSuffix.Append(SelfSuffix.Length > 0 && FFAManager.LatestChatMessage != string.Empty ? "\n" : string.Empty).Append(FFAManager.LatestChatMessage);
                         break;
                     case CustomGameMode.SoloKombat:
                         SelfSuffix.Append(SoloKombatManager.GetDisplayHealth(seer));
@@ -2080,6 +2085,7 @@ public static class Utils
                                 //CursedSoul.KnowRole(seer, target) ||
                                 Amnesiac.KnowRole(seer, target) ||
                                 Virus.KnowRole(seer, target) ||
+                                Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == target.PlayerId) ||
                                 Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato ||
                                 (seer.IsRevealedPlayer(target) && !target.Is(CustomRoles.Trickster)) ||
                                 seer.Is(CustomRoles.God) ||
@@ -2476,6 +2482,9 @@ public static class Utils
                     break;
                 case CustomRoles.Devourer:
                     Devourer.OnDevourerDied(target.PlayerId);
+                    break;
+                case CustomRoles.Markseeker:
+                    Markseeker.OnDeath(target);
                     break;
             }
 

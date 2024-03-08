@@ -44,8 +44,8 @@ namespace TOHE.Roles.Impostor
             {
                 HasImpostorVision = true;
                 CanVent = true;
-                KillCooldown = Options.CleanerKillCooldown.GetFloat();
-                KCDAfterClean = Options.KillCooldownAfterCleaning.GetFloat();
+                KillCooldown = CleanerKillCooldown.GetFloat();
+                KCDAfterClean = KillCooldownAfterCleaning.GetFloat();
             }
         }
 

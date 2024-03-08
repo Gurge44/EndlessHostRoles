@@ -1023,30 +1023,6 @@ public static class Options
         CustomRoleSpawnChances = [];
         CustomAdtRoleSpawnRate = [];
 
-        MainLoadingText = "Building Role Settings";
-
-        try
-        {
-            var roleClasses = Utils.GetEnumerableOfType<RoleBase>().ToArray();
-
-            int allRoles = roleClasses.Length;
-            int index = 0;
-
-            foreach (var roleClass in roleClasses)
-            {
-                index++;
-                RoleLoadingText = $"{index}/{allRoles}";
-                roleClass.GetType().GetMethod("SetupCustomOption")?.Invoke(roleClass, null);
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.Exception(ex, "Options");
-        }
-
-
-        LoadingPercentage = 60;
-
         MainLoadingText = "Building general settings";
 
 
@@ -1676,6 +1652,83 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Fool]);
         NeutralCanBeFool = BooleanOptionItem.Create(19212, "NeutralCanBeFool", true, TabGroup.OtherRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Fool]);
+
+        MainLoadingText = "Building Role Settings";
+
+        try
+        {
+            var roleClassesDict = Utils.GetEnumerableOfType<RoleBase>()
+                .Where(x => x.GetType().Name != "VanillaRole")
+                .GroupBy(x => ((CustomRoles)Enum.Parse(typeof(CustomRoles), ignoreCase: true, value: x.GetType().Name)).GetCustomRoleTypes())
+                .ToDictionary(x => x.Key, x => x.ToArray());
+
+            foreach (var roleClasses in roleClassesDict)
+            {
+                MainLoadingText = $"Building Role Settings: {roleClasses.Key} Roles";
+                int allRoles = roleClasses.Value.Length;
+                int index = 0;
+
+                foreach (var roleClass in roleClasses.Value)
+                {
+                    index++;
+                    var type = roleClass.GetType();
+                    RoleLoadingText = $"{index}/{allRoles} ({type.Name})";
+                    try
+                    {
+                        type.GetMethod("SetupCustomOption")?.Invoke(roleClass, null);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Exception(e, $"{MainLoadingText} - {RoleLoadingText}");
+                    }
+
+                    if (roleClasses.Key != CustomRoleTypes.Impostor) continue;
+
+                    switch (roleClass)
+                    {
+                        case Assassin:
+                            Undertaker.SetupCustomOption();
+                            break;
+                        case Swooper:
+                            Chameleon.SetupCustomOption();
+                            Wraith.SetupCustomOption();
+                            break;
+                        case Wildling:
+                            BloodKnight.SetupCustomOption();
+                            break;
+                        case Witch:
+                            HexMaster.SetupCustomOption();
+                            break;
+                        case Greedier:
+                            Imitator.SetupCustomOption();
+                            break;
+                        case CursedWolf:
+                            Jinx.SetupCustomOption();
+                            break;
+                        case Sans:
+                            Juggernaut.SetupCustomOption();
+                            Reckless.SetupCustomOption();
+                            break;
+                        case Cleaner:
+                            Medusa.SetupCustomOption();
+                            break;
+                        case Vampire:
+                            Poisoner.SetupCustomOption();
+                            break;
+                        case EvilDiviner:
+                            Ritualist.SetupCustomOption();
+                            break;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Exception(ex, "Options");
+        }
+
+
+        LoadingPercentage = 60;
 
         RoleLoadingText = string.Empty;
 

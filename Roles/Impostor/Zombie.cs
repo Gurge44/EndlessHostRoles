@@ -32,8 +32,8 @@ namespace TOHE.Roles.Impostor
 
         public override void SetKillCooldown(byte id)
         {
-            Main.AllPlayerKillCooldown[id] = Options.ZombieKillCooldown.GetFloat();
-            Main.AllPlayerSpeed[id] = Math.Clamp(Main.AllPlayerSpeed[id] - Options.ZombieSpeedReduce.GetFloat(), 0.1f, 3f);
+            Main.AllPlayerKillCooldown[id] = ZombieKillCooldown.GetFloat();
+            Main.AllPlayerSpeed[id] = Math.Clamp(Main.AllPlayerSpeed[id] - ZombieSpeedReduce.GetFloat(), 0.1f, 3f);
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)

@@ -39,14 +39,14 @@ namespace TOHE.Roles.Impostor
 
         public override void SetKillCooldown(byte id)
         {
-            Main.AllPlayerKillCooldown[id] = Options.SaboteurCDAfterMeetings.GetFloat();
+            Main.AllPlayerKillCooldown[id] = SaboteurCDAfterMeetings.GetFloat();
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (Math.Abs(Main.AllPlayerKillCooldown[killer.PlayerId] - Options.SaboteurCD.GetFloat()) > 0.5f)
+            if (Math.Abs(Main.AllPlayerKillCooldown[killer.PlayerId] - SaboteurCD.GetFloat()) > 0.5f)
             {
-                Main.AllPlayerKillCooldown[killer.PlayerId] = Options.SaboteurCD.GetFloat();
+                Main.AllPlayerKillCooldown[killer.PlayerId] = SaboteurCD.GetFloat();
                 killer.SyncSettings();
             }
 
@@ -55,7 +55,7 @@ namespace TOHE.Roles.Impostor
 
         public override void OnReportDeadBody()
         {
-            Main.AllPlayerKillCooldown[SaboteurId] = Options.SaboteurCDAfterMeetings.GetFloat();
+            Main.AllPlayerKillCooldown[SaboteurId] = SaboteurCDAfterMeetings.GetFloat();
         }
     }
 }

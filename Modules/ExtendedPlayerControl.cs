@@ -427,7 +427,8 @@ static class ExtendedPlayerControl
         PlayerGameOptionsSender.SetDirty(player.PlayerId);
         GameOptionsSender.SendAllGameOptions();
     }
-    public static TaskState GetTaskState(this PlayerControl player) => Main.PlayerStates[player.PlayerId].TaskState;
+
+    public static TaskState GetTaskState(this PlayerControl player) => Main.PlayerStates.TryGetValue(player.PlayerId, out var state) ? state.TaskState : new();
 
     /*public static GameOptionsData DeepCopy(this GameOptionsData opt)
     {

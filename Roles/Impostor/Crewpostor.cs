@@ -43,14 +43,14 @@ namespace TOHE.Roles.Impostor
 
             SendRPC(player.PlayerId, TasksDone[player.PlayerId]);
 
-            PlayerControl[] list = Main.AllAlivePlayerControls.Where(x => x.PlayerId != player.PlayerId && (Options.CrewpostorCanKillAllies.GetBool() || !x.GetCustomRole().IsImpostorTeam())).ToArray();
+            PlayerControl[] list = Main.AllAlivePlayerControls.Where(x => x.PlayerId != player.PlayerId && (CrewpostorCanKillAllies.GetBool() || !x.GetCustomRole().IsImpostorTeam())).ToArray();
             if (list.Length == 0)
             {
                 Logger.Info("No target to kill", "Crewpostor");
             }
-            else if (TasksDone[player.PlayerId] % Options.CrewpostorKillAfterTask.GetInt() != 0 && TasksDone[player.PlayerId] != 0)
+            else if (TasksDone[player.PlayerId] % CrewpostorKillAfterTask.GetInt() != 0 && TasksDone[player.PlayerId] != 0)
             {
-                Logger.Info($"Crewpostor task done but kill skipped, {TasksDone[player.PlayerId]} tasks completed, but it kills after {Options.CrewpostorKillAfterTask.GetInt()} tasks", "Crewpostor");
+                Logger.Info($"Crewpostor task done but kill skipped, {TasksDone[player.PlayerId]} tasks completed, but it kills after {CrewpostorKillAfterTask.GetInt()} tasks", "Crewpostor");
             }
             else
             {
@@ -58,7 +58,7 @@ namespace TOHE.Roles.Impostor
                 var target = list[0];
                 if (!target.Is(CustomRoles.Pestilence))
                 {
-                    if (!Options.CrewpostorLungeKill.GetBool())
+                    if (!CrewpostorLungeKill.GetBool())
                     {
                         target.SetRealKiller(player);
                         if (player.RpcCheckAndMurder(target, true))

@@ -7,7 +7,7 @@ namespace TOHE.Roles.Crewmate
     {
         public static List<byte> playerIdList = [];
 
-        public static void SetupCustomOption() => Options.SetupRoleOptions(642640, TabGroup.CrewmateRoles, CustomRoles.GuessManager);
+        public static void SetupCustomOption() => Options.SetupRoleOptions(642640, TabGroup.CrewmateRoles, CustomRoles.GuessManagerRole);
 
         public override bool IsEnable => playerIdList.Count > 0;
         public override void Init() => playerIdList = [];

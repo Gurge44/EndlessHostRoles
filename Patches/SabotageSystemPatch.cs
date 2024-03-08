@@ -1,6 +1,7 @@
 using System.Linq;
 using HarmonyLib;
 using Hazel;
+using TOHE.Roles.Neutral;
 
 namespace TOHE;
 
@@ -246,6 +247,29 @@ public static class SabotageSystemTypeRepairDamagePatch
     {
         isCooldownModificationEnabled = Options.SabotageCooldownControl.GetBool();
         modifiedCooldownSec = Options.SabotageCooldown.GetFloat();
+    }
+
+    public static bool Prefix([HarmonyArgument(0)] PlayerControl player)
+    {
+        if (Options.DisableSabotage.GetBool() || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato) return false;
+        if (Main.BlockSabo.Count > 0) return false;
+        if (Glitch.hackedIdList.ContainsKey(player.PlayerId))
+        {
+            player.Notify(string.Format(Translator.GetString("HackedByGlitch"), "Sabotage"));
+            return false;
+        }
+
+        if (player.Is(CustomRoleTypes.Impostor) && !player.IsAlive() && Options.DeadImpCantSabotage.GetBool()) return false;
+        if (player.Is(CustomRoleTypes.Impostor) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool()) && !player.Is(CustomRoles.Minimalism) && !player.Is(CustomRoles.Mafioso)) return true;
+        return player.GetCustomRole() switch
+        {
+            CustomRoles.Jackal when Jackal.CanSabotage.GetBool() => true,
+            CustomRoles.Sidekick when Jackal.CanSabotageSK.GetBool() => true,
+            CustomRoles.Traitor when Traitor.CanSabotage.GetBool() => true,
+            CustomRoles.Parasite when player.IsAlive() => true,
+            CustomRoles.Refugee when player.IsAlive() => true,
+            _ => Main.PlayerStates[player.PlayerId].Role.OnSabotage(player) && Main.PlayerStates[player.PlayerId].Role.CanUseSabotage(player)
+        };
     }
 
     public static void Postfix(SabotageSystemType __instance)

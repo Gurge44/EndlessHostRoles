@@ -62,7 +62,7 @@ namespace TOHE.Roles.Neutral
 
         public override void SetKillCooldown(byte id)
         {
-            Main.AllPlayerKillCooldown[id] = Options.RevolutionistCooldown.GetFloat();
+            Main.AllPlayerKillCooldown[id] = RevolutionistCooldown.GetFloat();
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -88,7 +88,7 @@ namespace TOHE.Roles.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            killer.SetKillCooldown(Options.RevolutionistDrawTime.GetFloat());
+            killer.SetKillCooldown(RevolutionistDrawTime.GetFloat());
             if (!Main.isDraw[(killer.PlayerId, target.PlayerId)] && !Main.RevolutionistTimer.ContainsKey(killer.PlayerId))
             {
                 Main.RevolutionistTimer.TryAdd(killer.PlayerId, (target, 0f));
@@ -137,7 +137,7 @@ namespace TOHE.Roles.Neutral
                     {
                         Main.RevolutionistTimer.Remove(playerId);
                     }
-                    else if (rv_time >= Options.RevolutionistDrawTime.GetFloat())
+                    else if (rv_time >= RevolutionistDrawTime.GetFloat())
                     {
                         player.SetKillCooldown();
                         Main.RevolutionistTimer.Remove(playerId);
@@ -145,7 +145,7 @@ namespace TOHE.Roles.Neutral
                         player.RpcSetDrawPlayer(rv_target, true);
                         Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: rv_target, ForceLoop: true);
                         RPC.ResetCurrentDrawTarget(playerId);
-                        if (IRandom.Instance.Next(1, 100) <= Options.RevolutionistKillProbability.GetInt())
+                        if (IRandom.Instance.Next(1, 100) <= RevolutionistKillProbability.GetInt())
                         {
                             rv_target.SetRealKiller(player);
                             Main.PlayerStates[rv_target.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
@@ -183,7 +183,7 @@ namespace TOHE.Roles.Neutral
                         long nowtime = Utils.TimeStamp;
                         Main.RevolutionistLastTime[playerId] = nowtime;
                         int time = (int)(Main.RevolutionistLastTime[playerId] - Main.RevolutionistStart[playerId]);
-                        int countdown = Options.RevolutionistVentCountDown.GetInt() - time;
+                        int countdown = RevolutionistVentCountDown.GetInt() - time;
                         Main.RevolutionistCountdown.Clear();
                         if (countdown <= 0)
                         {

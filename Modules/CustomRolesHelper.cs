@@ -41,6 +41,7 @@ internal static class CustomRolesHelper
         CustomRoles.Eraser => new Eraser(),
         CustomRoles.EvilTracker => new EvilTracker(),
         CustomRoles.FireWorks => new FireWorks(),
+        CustomRoles.Freezer => new Freezer(),
         CustomRoles.Gambler => new Gambler(),
         CustomRoles.Gangster => new Gangster(),
         CustomRoles.Godfather => new Godfather(),
@@ -121,7 +122,7 @@ internal static class CustomRolesHelper
         CustomRoles.Divinator => new Divinator(),
         CustomRoles.Gaulois => new Gaulois(),
         CustomRoles.Grenadier => new Grenadier(),
-        CustomRoles.GuessManager => new GuessManagerRole(),
+        CustomRoles.GuessManagerRole => new GuessManagerRole(),
         CustomRoles.Guardian => new Guardian(),
         CustomRoles.Ignitor => new Ignitor(),
         CustomRoles.Insight => new Insight(),
@@ -140,6 +141,7 @@ internal static class CustomRolesHelper
         CustomRoles.Merchant => new Merchant(),
         CustomRoles.Monitor => new AntiAdminer(),
         CustomRoles.Mole => new Mole(),
+        CustomRoles.Markseeker => new Markseeker(),
         CustomRoles.Monarch => new Monarch(),
         CustomRoles.Mortician => new Mortician(),
         CustomRoles.NiceEraser => new NiceEraser(),
@@ -220,6 +222,7 @@ internal static class CustomRolesHelper
         CustomRoles.PlagueDoctor => new PlagueDoctor(),
         CustomRoles.Poisoner => new Vampire(), // Use the same code as Vampire with small modifications
         CustomRoles.Postman => new Postman(),
+        CustomRoles.Predator => new Predator(),
         CustomRoles.Provocateur => new Provocateur(),
         CustomRoles.Pursuer => new Pursuer(),
         CustomRoles.Pyromaniac => new Pyromaniac(),
@@ -293,6 +296,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Dictator => CustomRoles.Crewmate,
                 CustomRoles.Inhibitor => CustomRoles.Impostor,
                 CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
+                CustomRoles.Freezer => CustomRoles.Shapeshifter,
                 CustomRoles.Changeling => CustomRoles.Shapeshifter,
                 CustomRoles.Swapster => CustomRoles.Shapeshifter,
                 CustomRoles.Kamikaze => CustomRoles.Impostor,
@@ -345,6 +349,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Rabbit => CustomRoles.Crewmate,
                 CustomRoles.Shiftguard => CustomRoles.Crewmate,
                 CustomRoles.Mole => CustomRoles.Engineer,
+                CustomRoles.Markseeker => CustomRoles.Crewmate,
                 CustomRoles.Sentinel => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
                 CustomRoles.Electric => CustomRoles.Crewmate,
                 CustomRoles.Philantropist => CustomRoles.Crewmate,
@@ -355,7 +360,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Detour => CustomRoles.Crewmate,
                 CustomRoles.Drainer => CustomRoles.Engineer,
                 CustomRoles.Benefactor => CustomRoles.Crewmate,
-                CustomRoles.GuessManager => CustomRoles.Crewmate,
+                CustomRoles.GuessManagerRole => CustomRoles.Crewmate,
                 CustomRoles.Altruist => CustomRoles.Crewmate,
                 CustomRoles.Transmitter => CustomRoles.Crewmate,
                 CustomRoles.Autocrat => CustomRoles.Crewmate,
@@ -431,11 +436,10 @@ internal static class CustomRolesHelper
                 CustomRoles.Deathknight => CustomRoles.Crewmate,
                 CustomRoles.Merchant => CustomRoles.Crewmate,
                 CustomRoles.Lookout => CustomRoles.Crewmate,
-                //CustomRoles.Retributionist => CustomRoles.Crewmate,
                 CustomRoles.Guardian => CustomRoles.Crewmate,
                 CustomRoles.Enigma => CustomRoles.Crewmate,
                 CustomRoles.Addict => CustomRoles.Engineer,
-                CustomRoles.Alchemist => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
+                CustomRoles.Alchemist => CustomRoles.Engineer, // Needs to vent to use invisibility potion
                 CustomRoles.Chameleon => CustomRoles.Engineer,
                 CustomRoles.EvilSpirit => CustomRoles.GuardianAngel,
                 CustomRoles.Lurker => CustomRoles.Impostor,
@@ -527,6 +531,7 @@ internal static class CustomRolesHelper
             CustomRoles.Sprayer => RoleTypes.Impostor,
             CustomRoles.PlagueDoctor => RoleTypes.Impostor,
             CustomRoles.Postman => RoleTypes.Impostor,
+            CustomRoles.Predator => RoleTypes.Impostor,
             CustomRoles.Reckless => RoleTypes.Impostor,
             CustomRoles.Magician => RoleTypes.Impostor,
             CustomRoles.WeaponMaster => RoleTypes.Impostor,
@@ -564,6 +569,7 @@ internal static class CustomRolesHelper
     public static bool IsNonNK(this CustomRoles role) => role is
         CustomRoles.Jester or
         CustomRoles.Postman or
+        CustomRoles.Predator or
         CustomRoles.SoulHunter or
         CustomRoles.Terrorist or
         CustomRoles.Opportunist or
@@ -644,7 +650,6 @@ internal static class CustomRolesHelper
     public static bool IsNE(this CustomRoles role) => role is
         CustomRoles.Jester or
         CustomRoles.Gamer or
-        //CustomRoles.Masochist or
         CustomRoles.Arsonist or
         CustomRoles.Executioner or
         CustomRoles.Doomsayer or
@@ -654,9 +659,9 @@ internal static class CustomRolesHelper
         CustomRoles.Opportunist or
         CustomRoles.Lawyer or
         CustomRoles.Amnesiac or
-        //CustomRoles.NWitch or
         CustomRoles.God or
         CustomRoles.Postman or
+        CustomRoles.Predator or
         CustomRoles.Pursuer or
         CustomRoles.FFF or
         CustomRoles.Sunnyboy or
@@ -668,12 +673,8 @@ internal static class CustomRolesHelper
     public static bool IsNC(this CustomRoles role) => role is
         CustomRoles.Mario or
         CustomRoles.Terrorist or
-        //CustomRoles.Pirate or
         CustomRoles.Revolutionist or
         CustomRoles.Vulture or
-        //CustomRoles.Famine or
-        //CustomRoles.Baker or
-        //CustomRoles.CursedSoul or
         CustomRoles.Phantom or
         CustomRoles.Workaholic or
         CustomRoles.Collector or
@@ -686,11 +687,8 @@ internal static class CustomRolesHelper
         CustomRoles.Veteran or
         CustomRoles.CopyCat or
         CustomRoles.Bodyguard or
-        //CustomRoles.Reverie or
         CustomRoles.Crusader or
         CustomRoles.NiceGuesser or
-        //CustomRoles.Counterfeiter or
-        //CustomRoles.Retributionist or
         CustomRoles.Sheriff or
         CustomRoles.Jailor;
 
@@ -708,7 +706,6 @@ internal static class CustomRolesHelper
         CustomRoles.Vampire or
         CustomRoles.Witch or
         CustomRoles.Vindicator or
-        //CustomRoles.ShapeMaster or
         CustomRoles.Zombie or
         CustomRoles.Warlock or
         CustomRoles.Assassin or
@@ -721,6 +718,7 @@ internal static class CustomRolesHelper
         CustomRoles.Underdog or
         CustomRoles.Inhibitor or
         CustomRoles.Kidnapper or
+        CustomRoles.Freezer or
         CustomRoles.Changeling or
         CustomRoles.Swapster or
         CustomRoles.Kamikaze or

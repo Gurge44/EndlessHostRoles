@@ -32,7 +32,7 @@ namespace TOHE.Roles.Crewmate
         public override void Add(byte playerId)
         {
             On = true;
-            playerId.SetAbilityUseLimit(Options.DovesOfNeaceMaxOfUseage.GetInt());
+            playerId.SetAbilityUseLimit(DovesOfNeaceMaxOfUseage.GetInt());
         }
 
         public override void Init()
@@ -42,14 +42,14 @@ namespace TOHE.Roles.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (Options.UsePets.GetBool()) return;
-            AURoleOptions.EngineerCooldown = Options.DovesOfNeaceCooldown.GetFloat();
+            if (UsePets.GetBool()) return;
+            AURoleOptions.EngineerCooldown = DovesOfNeaceCooldown.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 1f;
         }
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            if (Options.UsePets.GetBool())
+            if (UsePets.GetBool())
                 hud.PetButton.buttonLabelText.text = Translator.GetString("DovesOfNeaceVentButtonText");
             else
                 hud.AbilityButton.buttonLabelText.text = Translator.GetString("DovesOfNeaceVentButtonText");

@@ -33,7 +33,7 @@ namespace TOHE.Roles.Impostor
 
         public override void SetKillCooldown(byte id)
         {
-            Main.AllPlayerKillCooldown[id] = Main.AllAlivePlayerControls.Length < Options.UnderdogMaximumPlayersNeededToKill.GetInt() ? Options.UnderdogKillCooldown.GetFloat() : Options.UnderdogKillCooldownWithMorePlayersAlive.GetFloat();
+            Main.AllPlayerKillCooldown[id] = Main.AllAlivePlayerControls.Length < UnderdogMaximumPlayersNeededToKill.GetInt() ? UnderdogKillCooldown.GetFloat() : UnderdogKillCooldownWithMorePlayersAlive.GetFloat();
         }
 
         public override void OnMurder(PlayerControl killer, PlayerControl target)

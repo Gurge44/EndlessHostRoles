@@ -326,6 +326,7 @@ public class Main : BasePlugin
                 { CustomRoles.Rabbit, "#88d2ff" },
                 { CustomRoles.Shiftguard, "#eb34cc" },
                 { CustomRoles.Mole, "#00ff80" },
+                { CustomRoles.Markseeker, "#f2a0f1" },
                 { CustomRoles.Sentinel, "#4bc8d6" },
                 { CustomRoles.Electric, "#fbff00" },
                 { CustomRoles.Philantropist, "#e3b384" },
@@ -344,7 +345,7 @@ public class Main : BasePlugin
                 { CustomRoles.Nightmare, "#1e1247" },
                 { CustomRoles.Altruist, "#300000" },
                 { CustomRoles.Benefactor, "#4aeaff" },
-                { CustomRoles.GuessManager, "#d4ff00" },
+                { CustomRoles.GuessManagerRole, "#d4ff00" },
                 { CustomRoles.Drainer, "#149627" },
                 { CustomRoles.NiceHacker, "#75fa4c" },
                 { CustomRoles.Aid, "#D7BDE2" },
@@ -450,6 +451,7 @@ public class Main : BasePlugin
                 { CustomRoles.Sprayer, "#ffc038" },
                 { CustomRoles.PlagueDoctor, "#ff6633" },
                 { CustomRoles.Postman, "#00b893" },
+                { CustomRoles.Predator, "#c73906" },
                 { CustomRoles.Reckless, "#6e000d" },
                 { CustomRoles.Magician, "#BF5FFF" },
                 { CustomRoles.WeaponMaster, "#6f02bd" },
@@ -665,6 +667,7 @@ public enum CustomRoles
     EvilGuesser,
     EvilTracker,
     FireWorks,
+    Freezer,
     Gambler,
     Gangster,
     Godfather,
@@ -766,7 +769,7 @@ public enum CustomRoles
     Divinator, // Fortune Teller
     Gaulois,
     Grenadier,
-    GuessManager,
+    GuessManagerRole,
     Guardian,
     Ignitor,
     Insight,
@@ -777,6 +780,7 @@ public enum CustomRoles
     Lighter,
     Lookout,
     Luckey,
+    Markseeker,
     Marshall,
     Mathematician,
     Mayor,
@@ -873,6 +877,7 @@ public enum CustomRoles
     PlagueDoctor,
     Poisoner,
     Postman,
+    Predator,
     Provocateur,
     Pursuer,
     Pyromaniac,
@@ -1073,7 +1078,8 @@ public enum AdditionalWinners
     Phantom = CustomRoles.Phantom,
     Maverick = CustomRoles.Maverick,
     Postman = CustomRoles.Postman,
-    SoulHunter = CustomRoles.SoulHunter,
+    Predator = CustomRoles.Predator,
+    SoulHunter = CustomRoles.SoulHunter
 }
 
 public enum SuffixModes

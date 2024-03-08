@@ -39,14 +39,14 @@ namespace TOHE.Roles.Neutral
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            AURoleOptions.EngineerCooldown = Options.WorkaholicVentCooldown.GetFloat();
+            AURoleOptions.EngineerCooldown = WorkaholicVentCooldown.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 0f;
         }
 
         public override void OnTaskComplete(PlayerControl player, int CompletedTasksCount, int AllTasksCount)
         {
             var alive = player.IsAlive();
-            if ((CompletedTasksCount + 1) >= AllTasksCount && !(Options.WorkaholicCannotWinAtDeath.GetBool() && !alive))
+            if ((CompletedTasksCount + 1) >= AllTasksCount && !(WorkaholicCannotWinAtDeath.GetBool() && !alive))
             {
                 Logger.Info("Workaholic Tasks Finished", "Workaholic");
                 RPC.PlaySoundRPC(player.PlayerId, Sounds.KillSound);

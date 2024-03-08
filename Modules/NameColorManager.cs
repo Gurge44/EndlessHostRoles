@@ -66,49 +66,20 @@ public static class NameColorManager
             if (target.Is(CustomRoles.Deathknight)) color = Main.roleColors[CustomRoles.Deathknight];
         }
 
+        var seerRole = seer.GetCustomRole();
+        var targetRole = target.GetCustomRole();
+
         if (seer.Is(CustomRoles.Deathknight) && target.Is(CustomRoles.Undead)) color = Main.roleColors[CustomRoles.Undead];
         if (seer.Is(CustomRoles.Necromancer) && target.Is(CustomRoles.Undead)) color = Main.roleColors[CustomRoles.Undead];
-        if ((seer.GetCustomRole() is CustomRoles.Necromancer or CustomRoles.Deathknight) && Necromancer.PartiallyRecruitedIds.Contains(target.PlayerId)) color = Main.roleColors[CustomRoles.Deathknight];
+        if ((seerRole is CustomRoles.Necromancer or CustomRoles.Deathknight) && Necromancer.PartiallyRecruitedIds.Contains(target.PlayerId)) color = Main.roleColors[CustomRoles.Deathknight];
 
-        color = (seer.GetCustomRole(), target.GetCustomRole()) switch
+        if (seerRole.IsNK() && seerRole == targetRole)
         {
-            (CustomRoles.Jackal, CustomRoles.Jackal) => Main.roleColors[CustomRoles.Jackal],
-            (CustomRoles.Juggernaut, CustomRoles.Juggernaut) => Main.roleColors[CustomRoles.Juggernaut],
-            (CustomRoles.NSerialKiller, CustomRoles.NSerialKiller) => Main.roleColors[CustomRoles.NSerialKiller],
-            (CustomRoles.Tiger, CustomRoles.Tiger) => Main.roleColors[CustomRoles.Tiger],
-            (CustomRoles.SoulHunter, CustomRoles.SoulHunter) => Main.roleColors[CustomRoles.SoulHunter],
-            (CustomRoles.Enderman, CustomRoles.Enderman) => Main.roleColors[CustomRoles.Enderman],
-            (CustomRoles.Mycologist, CustomRoles.Mycologist) => Main.roleColors[CustomRoles.Mycologist],
-            (CustomRoles.Bubble, CustomRoles.Bubble) => Main.roleColors[CustomRoles.Bubble],
-            (CustomRoles.Hookshot, CustomRoles.Hookshot) => Main.roleColors[CustomRoles.Hookshot],
-            (CustomRoles.Sprayer, CustomRoles.Sprayer) => Main.roleColors[CustomRoles.Sprayer],
-            (CustomRoles.PlagueDoctor, CustomRoles.PlagueDoctor) => Main.roleColors[CustomRoles.PlagueDoctor],
-            (CustomRoles.Postman, CustomRoles.Postman) => Main.roleColors[CustomRoles.Postman],
-            (CustomRoles.WeaponMaster, CustomRoles.WeaponMaster) => Main.roleColors[CustomRoles.WeaponMaster],
-            (CustomRoles.Magician, CustomRoles.Magician) => Main.roleColors[CustomRoles.Magician],
-            (CustomRoles.Reckless, CustomRoles.Reckless) => Main.roleColors[CustomRoles.Reckless],
-            (CustomRoles.Pyromaniac, CustomRoles.Pyromaniac) => Main.roleColors[CustomRoles.Pyromaniac],
-            (CustomRoles.Eclipse, CustomRoles.Eclipse) => Main.roleColors[CustomRoles.Eclipse],
-            (CustomRoles.Vengeance, CustomRoles.Vengeance) => Main.roleColors[CustomRoles.Vengeance],
-            (CustomRoles.HeadHunter, CustomRoles.HeadHunter) => Main.roleColors[CustomRoles.HeadHunter],
-            (CustomRoles.Imitator, CustomRoles.Imitator) => Main.roleColors[CustomRoles.Imitator],
-            (CustomRoles.Werewolf, CustomRoles.Werewolf) => Main.roleColors[CustomRoles.Werewolf],
-            (CustomRoles.Jinx, CustomRoles.Jinx) => Main.roleColors[CustomRoles.Jinx],
-            (CustomRoles.Wraith, CustomRoles.Wraith) => Main.roleColors[CustomRoles.Wraith],
-            (CustomRoles.HexMaster, CustomRoles.HexMaster) => Main.roleColors[CustomRoles.HexMaster],
-            (CustomRoles.BloodKnight, CustomRoles.BloodKnight) => Main.roleColors[CustomRoles.BloodKnight],
-            (CustomRoles.Pelican, CustomRoles.Pelican) => Main.roleColors[CustomRoles.Pelican],
-            (CustomRoles.Poisoner, CustomRoles.Poisoner) => Main.roleColors[CustomRoles.Poisoner],
-            (CustomRoles.Virus, CustomRoles.Virus) => Main.roleColors[CustomRoles.Virus],
-            (CustomRoles.Parasite, CustomRoles.Parasite) => Main.roleColors[CustomRoles.Parasite],
-            (CustomRoles.Traitor, CustomRoles.Traitor) => Main.roleColors[CustomRoles.Traitor],
-            (CustomRoles.DarkHide, CustomRoles.DarkHide) => Main.roleColors[CustomRoles.DarkHide],
-            (CustomRoles.Pickpocket, CustomRoles.Pickpocket) => Main.roleColors[CustomRoles.Pickpocket],
-            (CustomRoles.Spiritcaller, CustomRoles.Spiritcaller) => Main.roleColors[CustomRoles.Spiritcaller],
-            (CustomRoles.Medusa, CustomRoles.Medusa) => Main.roleColors[CustomRoles.Medusa],
-            (CustomRoles.Ritualist, CustomRoles.Ritualist) => Main.roleColors[CustomRoles.Ritualist],
-            (CustomRoles.Glitch, CustomRoles.Glitch) => Main.roleColors[CustomRoles.Glitch],
-            (CustomRoles.Succubus, CustomRoles.Succubus) => Main.roleColors[CustomRoles.Succubus],
+            color = Main.roleColors[seerRole];
+        }
+
+        color = (seerRole, targetRole) switch
+        {
             (CustomRoles.Necromancer, CustomRoles.Deathknight) => Main.roleColors[CustomRoles.Deathknight],
             (CustomRoles.Deathknight, CustomRoles.Necromancer) => Main.roleColors[CustomRoles.Necromancer],
             (CustomRoles.Necromancer, CustomRoles.Necromancer) => Main.roleColors[CustomRoles.Necromancer],
@@ -116,7 +87,7 @@ public static class NameColorManager
             _ => color,
         };
 
-        color = seer.GetCustomRole() switch
+        color = seerRole switch
         {
             CustomRoles.HeadHunter when (Main.PlayerStates[seer.PlayerId].Role as HeadHunter).Targets.Contains(target.PlayerId) => "000000",
             CustomRoles.BountyHunter when (Main.PlayerStates[seer.PlayerId].Role as BountyHunter).GetTarget(seer) == target.PlayerId => "000000",
@@ -237,7 +208,7 @@ public static class NameColorManager
                || (seer.Is(CustomRoles.Rogue) && target.Is(CustomRoles.Rogue) && Options.RogueKnowEachOther.GetBool())
                || (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
                || (target.Is(CustomRoles.Workaholic) && Options.WorkaholicVisibleToEveryone.GetBool())
-               || (target.Is(CustomRoles.Doctor) && !target.GetCustomRole().IsEvilAddons() && Options.DoctorVisibleToEveryone.GetBool())
+               || (target.Is(CustomRoles.Doctor) && !targetRole.IsEvilAddons() && Options.DoctorVisibleToEveryone.GetBool())
                || (target.Is(CustomRoles.Gravestone) && Main.PlayerStates[target.Data.PlayerId].IsDead)
                || (target.Is(CustomRoles.Mayor) && Options.MayorRevealWhenDoneTasks.GetBool() && target.GetTaskState().IsTaskFinished)
                || (seer.Is(CustomRoleTypes.Crewmate) && target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished)

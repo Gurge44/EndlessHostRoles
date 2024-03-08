@@ -93,7 +93,7 @@ class HudManagerPatch
                     {
                         var pc = Utils.GetPlayerById(item.Key);
                         string prefix = first ? string.Empty : "\n";
-                        string text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc == null ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <color={(Main.roleColors.GetValueOrDefault(item.Value, "#ffffff"))}>{GetString(item.Value.ToString())}</color>";
+                        string text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc == null ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <color={Main.roleColors.GetValueOrDefault(item.Value, "#ffffff")}>{GetString(item.Value.ToString())}</color>";
                         resultText[item.Key] = text;
                         first = false;
                     }
@@ -106,13 +106,13 @@ class HudManagerPatch
                             var pc = Utils.GetPlayerById(item.Key);
                             if (resultText.ContainsKey(item.Key))
                             {
-                                string text = $" <#ffffff>(</color><color={(Main.roleColors.GetValueOrDefault(role, "#ffffff"))}>{GetString(role.ToString())}</color><#ffffff>)</color>";
+                                string text = $" <#ffffff>(</color><color={Main.roleColors.GetValueOrDefault(role, "#ffffff")}>{GetString(role.ToString())}</color><#ffffff>)</color>";
                                 resultText[item.Key] += text;
                             }
                             else
                             {
                                 string prefix = first ? string.Empty : "\n";
-                                string text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc == null ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <#ffffff>(</color><color={(Main.roleColors.GetValueOrDefault(role, "#ffffff"))}>{GetString(role.ToString())}</color><#ffffff>)</color>";
+                                string text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc == null ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <#ffffff>(</color><color={Main.roleColors.GetValueOrDefault(role, "#ffffff")}>{GetString(role.ToString())}</color><#ffffff>)</color>";
                                 resultText[item.Key] = text;
                                 first = false;
                             }
@@ -161,10 +161,15 @@ class HudManagerPatch
             {
                 if (player.IsAlive() || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato)
                 {
+                    bool usesPetInsteadOfKill = false;
                     if (player.GetCustomRole().UsesPetInsteadOfKill())
                     {
-                        __instance.PetButton?.OverrideText("KillButtonText");
+                        __instance.PetButton?.OverrideText(GetString("KillButtonText"));
+                        usesPetInsteadOfKill = true;
                     }
+
+                    ActionButton usedButton = __instance.KillButton;
+                    if (usesPetInsteadOfKill) usedButton = __instance.PetButton;
 
                     Main.PlayerStates[player.PlayerId].Role.SetButtonTexts(__instance, player.PlayerId);
 
@@ -173,9 +178,6 @@ class HudManagerPatch
                         case CustomRoles.FireWorks:
                             __instance.AbilityButton?.OverrideText((Main.PlayerStates[player.PlayerId].Role as FireWorks).nowFireWorksCount == 0 ? GetString("FireWorksExplosionButtonText") : GetString("FireWorksInstallAtionButtonText"));
                             break;
-                        //case CustomRoles.SerialKiller:
-                        //    SerialKiller.GetAbilityButtonText(__instance, player);
-                        //    break;
                         case CustomRoles.Pestilence:
                             __instance.KillButton?.OverrideText(GetString("KillButtonText"));
                             break;
@@ -191,25 +193,16 @@ class HudManagerPatch
                             __instance.ImpostorVentButton.buttonLabelText.text = GetString("ArsonistVentButtonText");
                             break;
                         case CustomRoles.Farseer:
-                            __instance.KillButton?.OverrideText(GetString("FarseerKillButtonText"));
+                            usedButton?.OverrideText(GetString("FarseerKillButtonText"));
                             break;
-                        //case CustomRoles.NWitch:
-                        //    __instance.KillButton.OverrideText($"{GetString("WitchControlButtonText")}");
-                        //    break;
-                        //case CustomRoles.BountyHunter:
-                        //    BountyHunter.SetAbilityButtonText(__instance);
-                        //    break;
                         case CustomRoles.Capitalism:
                             __instance.KillButton?.OverrideText(GetString("CapitalismButtonText"));
                             break;
                         case CustomRoles.Pelican:
                             __instance.KillButton?.OverrideText(GetString("PelicanButtonText"));
                             break;
-                        //case CustomRoles.Counterfeiter:
-                        //    __instance.KillButton.OverrideText(GetString("CounterfeiterButtonText"));
-                        //    break;
                         case CustomRoles.Analyzer:
-                            __instance.KillButton?.OverrideText(GetString("AnalyzerKillButtonText"));
+                            usedButton?.OverrideText(GetString("AnalyzerKillButtonText"));
                             break;
                         case CustomRoles.Pursuer:
                             __instance.KillButton?.OverrideText(GetString("PursuerButtonText"));
@@ -227,12 +220,12 @@ class HudManagerPatch
                             __instance.KillButton?.OverrideText(GetString("FFFButtonText"));
                             break;
                         case CustomRoles.Gaulois:
-                            __instance.KillButton?.OverrideText(GetString("GauloisKillButtonText"));
+                            usedButton?.OverrideText(GetString("GauloisKillButtonText"));
                             break;
                         case CustomRoles.Aid:
                         case CustomRoles.DonutDelivery:
                         case CustomRoles.Medic:
-                            __instance.KillButton?.OverrideText(GetString("MedicalerButtonText"));
+                            usedButton?.OverrideText(GetString("MedicalerButtonText"));
                             break;
                         case CustomRoles.Gamer:
                             __instance.KillButton?.OverrideText(GetString("GamerButtonText"));
@@ -298,10 +291,10 @@ class HudManagerPatch
 
                             break;
                         case CustomRoles.Sheriff:
-                            __instance.KillButton?.OverrideText(GetString("SheriffKillButtonText"));
+                            usedButton?.OverrideText(GetString("SheriffKillButtonText"));
                             break;
                         case CustomRoles.Crusader:
-                            __instance.KillButton?.OverrideText(GetString("CrusaderKillButtonText"));
+                            usedButton?.OverrideText(GetString("CrusaderKillButtonText"));
                             break;
                         case CustomRoles.Totocalcio:
                             __instance.KillButton?.OverrideText(GetString("TotocalcioKillButtonText"));
@@ -323,10 +316,10 @@ class HudManagerPatch
                             __instance.KillButton?.OverrideText(GetString("RememberButtonText"));
                             break;
                         case CustomRoles.Monarch:
-                            __instance.KillButton?.OverrideText(GetString("MonarchKillButtonText"));
+                            usedButton?.OverrideText(GetString("MonarchKillButtonText"));
                             break;
                         case CustomRoles.Deputy:
-                            __instance.KillButton?.OverrideText(GetString("DeputyHandcuffText"));
+                            usedButton?.OverrideText(GetString("DeputyHandcuffText"));
                             break;
                         case CustomRoles.Hangman:
                             if (shapeshifting) __instance.KillButton?.OverrideText(GetString("HangmanKillButtonTextDuringSS"));
@@ -395,6 +388,7 @@ class HudManagerPatch
                             CustomRoles.YinYanger => YinYanger.ModeText(player),
                             CustomRoles.WeaponMaster => WeaponMaster.GetHudAndProgressText(player.PlayerId),
                             CustomRoles.Postman => Postman.GetHudText(player),
+                            CustomRoles.Predator => Predator.GetSuffixAndHudText(player),
                             CustomRoles.SoulHunter => SoulHunter.HUDText(player.PlayerId),
                             CustomRoles.Chronomancer => Chronomancer.GetHudText(player.PlayerId),
                             CustomRoles.Mafioso => Mafioso.GetHUDText(player),
@@ -722,7 +716,7 @@ class TaskPanelBehaviourPatch
                     List<(int, byte)> list = [];
                     foreach (var id in Main.PlayerStates.Keys) list.Add((SoloKombatManager.GetRankOfScore(id), id));
                     list.Sort();
-                    AllText = list.Where(x => SummaryText.ContainsKey(x.Item2)).Aggregate(AllText, (current, id) => current + ("\r\n" + SummaryText[id.Item2]));
+                    AllText = list.Where(x => SummaryText.ContainsKey(x.Item2)).Aggregate(AllText, (current, id) => current + "\r\n" + SummaryText[id.Item2]);
 
                     AllText = $"<size=70%>{AllText}</size>";
 
@@ -742,7 +736,7 @@ class TaskPanelBehaviourPatch
                     List<(int, byte)> list2 = [];
                     foreach (var id in Main.PlayerStates.Keys) list2.Add((FFAManager.GetRankOfScore(id), id));
                     list2.Sort();
-                    AllText = list2.Where(x => SummaryText2.ContainsKey(x.Item2)).Aggregate(AllText, (current, id) => current + ("\r\n" + SummaryText2[id.Item2]));
+                    AllText = list2.Where(x => SummaryText2.ContainsKey(x.Item2)).Aggregate(AllText, (current, id) => current + "\r\n" + SummaryText2[id.Item2]);
 
                     AllText = $"<size=70%>{AllText}</size>";
 
@@ -779,7 +773,7 @@ class TaskPanelBehaviourPatch
                     List<(int, byte)> list3 = [];
                     foreach (var id in Main.PlayerStates.Keys) list3.Add((MoveAndStopManager.GetRankOfScore(id), id));
                     list3.Sort();
-                    list3 = [.. list3.OrderBy(x => (Utils.GetPlayerById(x.Item2).IsAlive()))];
+                    list3 = [.. list3.OrderBy(x => Utils.GetPlayerById(x.Item2).IsAlive())];
                     foreach (var id in list3.Where(x => SummaryText3.ContainsKey(x.Item2)).ToArray())
                     {
                         bool alive = Utils.GetPlayerById(id.Item2).IsAlive();

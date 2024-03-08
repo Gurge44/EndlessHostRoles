@@ -21,9 +21,9 @@ namespace TOHE.Roles.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (Options.UsePets.GetBool()) return;
+            if (UsePets.GetBool()) return;
             AURoleOptions.EngineerCooldown =
-                !Main.MayorUsedButtonCount.TryGetValue(playerId, out var count) || count < Options.MayorNumOfUseButton.GetInt()
+                !Main.MayorUsedButtonCount.TryGetValue(playerId, out var count) || count < MayorNumOfUseButton.GetInt()
                     ? opt.GetInt(Int32OptionNames.EmergencyCooldown)
                     : 300f;
             AURoleOptions.EngineerInVentMaxTime = 1f;
@@ -31,7 +31,7 @@ namespace TOHE.Roles.Crewmate
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            if (Options.UsePets.GetBool())
+            if (UsePets.GetBool())
                 hud.PetButton.buttonLabelText.text = Translator.GetString("MayorVentButtonText");
             else
                 hud.AbilityButton.buttonLabelText.text = Translator.GetString("MayorVentButtonText");
@@ -50,9 +50,9 @@ namespace TOHE.Roles.Crewmate
 
         private static void Button(PlayerControl pc)
         {
-            if (!Options.MayorHasPortableButton.GetBool()) return;
+            if (!MayorHasPortableButton.GetBool()) return;
 
-            if (Main.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count) && count < Options.MayorNumOfUseButton.GetInt())
+            if (Main.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count) && count < MayorNumOfUseButton.GetInt())
             {
                 pc.ReportDeadBody(null);
             }

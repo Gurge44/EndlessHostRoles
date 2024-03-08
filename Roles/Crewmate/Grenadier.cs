@@ -44,7 +44,7 @@ namespace TOHE.Roles.Crewmate
         public override void Add(byte playerId)
         {
             On = true;
-            playerId.SetAbilityUseLimit(Options.GrenadierSkillMaxOfUseage.GetInt());
+            playerId.SetAbilityUseLimit(GrenadierSkillMaxOfUseage.GetInt());
         }
 
         public override void Init()
@@ -54,8 +54,8 @@ namespace TOHE.Roles.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (Options.UsePets.GetBool()) return;
-            AURoleOptions.EngineerCooldown = Options.GrenadierSkillCooldown.GetFloat();
+            if (UsePets.GetBool()) return;
+            AURoleOptions.EngineerCooldown = GrenadierSkillCooldown.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 1;
         }
 
@@ -71,7 +71,7 @@ namespace TOHE.Roles.Crewmate
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            if (Options.UsePets.GetBool())
+            if (UsePets.GetBool())
                 hud.PetButton.buttonLabelText.text = Translator.GetString("GrenadierVentButtonText");
             else
                 hud.AbilityButton.buttonLabelText.text = Translator.GetString("GrenadierVentButtonText");
@@ -94,7 +94,7 @@ namespace TOHE.Roles.Crewmate
             var playerId = player.PlayerId;
             var now = Utils.TimeStamp;
 
-            if (GrenadierBlinding.TryGetValue(playerId, out var gtime) && gtime + Options.GrenadierSkillDuration.GetInt() < now)
+            if (GrenadierBlinding.TryGetValue(playerId, out var gtime) && gtime + GrenadierSkillDuration.GetInt() < now)
             {
                 GrenadierBlinding.Remove(playerId);
                 player.RpcResetAbilityCooldown();
@@ -102,7 +102,7 @@ namespace TOHE.Roles.Crewmate
                 Utils.MarkEveryoneDirtySettingsV3();
             }
 
-            if (MadGrenadierBlinding.TryGetValue(playerId, out var mgtime) && mgtime + Options.GrenadierSkillDuration.GetInt() < now)
+            if (MadGrenadierBlinding.TryGetValue(playerId, out var mgtime) && mgtime + GrenadierSkillDuration.GetInt() < now)
             {
                 MadGrenadierBlinding.Remove(playerId);
                 player.RpcResetAbilityCooldown();
@@ -126,11 +126,11 @@ namespace TOHE.Roles.Crewmate
                 {
                     GrenadierBlinding.Remove(pc.PlayerId);
                     GrenadierBlinding.Add(pc.PlayerId, Utils.TimeStamp);
-                    Main.AllPlayerControls.Where(x => x.IsModClient()).Where(x => x.GetCustomRole().IsImpostor() || (x.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool())).Do(x => x.RPCPlayCustomSound("FlashBang"));
+                    Main.AllPlayerControls.Where(x => x.IsModClient()).Where(x => x.GetCustomRole().IsImpostor() || (x.GetCustomRole().IsNeutral() && GrenadierCanAffectNeutral.GetBool())).Do(x => x.RPCPlayCustomSound("FlashBang"));
                 }
 
                 pc.RPCPlayCustomSound("FlashBang");
-                pc.Notify(Translator.GetString("GrenadierSkillInUse"), Options.GrenadierSkillDuration.GetFloat());
+                pc.Notify(Translator.GetString("GrenadierSkillInUse"), GrenadierSkillDuration.GetFloat());
                 pc.RpcRemoveAbilityUse();
                 Utils.MarkEveryoneDirtySettingsV3();
             }

@@ -72,7 +72,7 @@ namespace TOHE.Modules
             {
                 if (!IsChangeInProgress) return true;
 
-                ownerId = ((ownerId == -3) ? __instance.ClientId : ownerId);
+                ownerId = (ownerId == -3) ? __instance.ClientId : ownerId;
                 MessageWriter messageWriter = __instance.Streams[0];
                 __instance.WriteSpawnMessage(netObjParent, ownerId, flags, messageWriter);
                 return false;

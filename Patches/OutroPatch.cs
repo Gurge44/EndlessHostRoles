@@ -171,8 +171,8 @@ class SetEverythingUpPatch
                 {
                     byte id = Main.winnerList[i1];
                     if (Main.winnerNameList[i1].RemoveHtmlTags() != winningPlayerData2.PlayerName.RemoveHtmlTags()) continue;
-                    var role = Main.PlayerStates[id].MainRole;
 
+                    var role = Main.PlayerStates[id].MainRole;
                     var color = Main.roleColors[role];
                     var rolename = Utils.GetRoleName(role);
 
