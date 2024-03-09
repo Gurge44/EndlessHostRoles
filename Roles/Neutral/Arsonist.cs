@@ -1,7 +1,8 @@
-﻿using AmongUs.GameOptions;
-using System.Linq;
+﻿using System.Linq;
+using AmongUs.GameOptions;
 using TOHE.Modules;
 using UnityEngine;
+using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral
 {
@@ -9,6 +10,25 @@ namespace TOHE.Roles.Neutral
     {
         public static bool On;
         public override bool IsEnable => On;
+
+        public static void SetupCustomOption()
+        {
+            SetupRoleOptions(10400, TabGroup.NeutralRoles, CustomRoles.Arsonist);
+            ArsonistDouseTime = FloatOptionItem.Create(10410, "ArsonistDouseTime", new(0f, 90f, 1f), 3f, TabGroup.NeutralRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Arsonist])
+                .SetValueFormat(OptionFormat.Seconds);
+            ArsonistCooldown = FloatOptionItem.Create(10411, "Cooldown", new(0f, 60f, 1f), 10f, TabGroup.NeutralRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Arsonist])
+                .SetValueFormat(OptionFormat.Seconds);
+            ArsonistCanIgniteAnytime = BooleanOptionItem.Create(10413, "ArsonistCanIgniteAnytime", false, TabGroup.NeutralRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Arsonist]);
+            ArsonistMinPlayersToIgnite = IntegerOptionItem.Create(10414, "ArsonistMinPlayersToIgnite", new(1, 14, 1), 1, TabGroup.NeutralRoles, false)
+                .SetParent(ArsonistCanIgniteAnytime);
+            ArsonistMaxPlayersToIgnite = IntegerOptionItem.Create(10415, "ArsonistMaxPlayersToIgnite", new(1, 14, 1), 3, TabGroup.NeutralRoles, false)
+                .SetParent(ArsonistCanIgniteAnytime);
+            ArsonistKeepsGameGoing = BooleanOptionItem.Create(10412, "ArsonistKeepsGameGoing", false, TabGroup.NeutralRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Arsonist]);
+        }
 
         public override void Add(byte playerId)
         {
@@ -26,17 +46,17 @@ namespace TOHE.Roles.Neutral
 
         public override bool CanUseKillButton(PlayerControl pc)
         {
-            return Options.ArsonistCanIgniteAnytime.GetBool() ? Utils.GetDousedPlayerCount(pc.PlayerId).Item1 < Options.ArsonistMaxPlayersToIgnite.GetInt() : !pc.IsDouseDone();
+            return ArsonistCanIgniteAnytime.GetBool() ? Utils.GetDousedPlayerCount(pc.PlayerId).Item1 < ArsonistMaxPlayersToIgnite.GetInt() : !pc.IsDouseDone();
         }
 
         public override bool CanUseImpostorVentButton(PlayerControl pc)
         {
-            return pc.IsDouseDone() || (Options.ArsonistCanIgniteAnytime.GetBool() && (Utils.GetDousedPlayerCount(pc.PlayerId).Item1 >= Options.ArsonistMinPlayersToIgnite.GetInt() || pc.inVent));
+            return pc.IsDouseDone() || (ArsonistCanIgniteAnytime.GetBool() && (Utils.GetDousedPlayerCount(pc.PlayerId).Item1 >= ArsonistMinPlayersToIgnite.GetInt() || pc.inVent));
         }
 
         public override void SetKillCooldown(byte id)
         {
-            Main.AllPlayerKillCooldown[id] = Options.ArsonistCooldown.GetFloat();
+            Main.AllPlayerKillCooldown[id] = ArsonistCooldown.GetFloat();
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -47,12 +67,12 @@ namespace TOHE.Roles.Neutral
         public override string GetProgressText(byte playerId, bool comms)
         {
             var doused = Utils.GetDousedPlayerCount(playerId);
-            return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Arsonist).ShadeColor(0.25f), !Options.ArsonistCanIgniteAnytime.GetBool() ? $"<color=#777777>-</color> {doused.Item1}/{doused.Item2}" : $"<color=#777777>-</color> {doused.Item1}/{Options.ArsonistMaxPlayersToIgnite.GetInt()}");
+            return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Arsonist).ShadeColor(0.25f), !ArsonistCanIgniteAnytime.GetBool() ? $"<color=#777777>-</color> {doused.Item1}/{doused.Item2}" : $"<color=#777777>-</color> {doused.Item1}/{ArsonistMaxPlayersToIgnite.GetInt()}");
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            killer.SetKillCooldown(Options.ArsonistDouseTime.GetFloat());
+            killer.SetKillCooldown(ArsonistDouseTime.GetFloat());
             if (!Main.isDoused[(killer.PlayerId, target.PlayerId)] && !Main.ArsonistTimer.ContainsKey(killer.PlayerId))
             {
                 Main.ArsonistTimer.Add(killer.PlayerId, (target, 0f));
@@ -99,16 +119,15 @@ namespace TOHE.Roles.Neutral
                 return;
             }
 
-            if (Options.ArsonistCanIgniteAnytime.GetBool())
+            if (ArsonistCanIgniteAnytime.GetBool())
             {
                 var douseCount = Utils.GetDousedPlayerCount(physics.myPlayer.PlayerId).Item1;
-                if (douseCount >= Options.ArsonistMinPlayersToIgnite.GetInt()) // Don't check for max, since the player would not be able to ignite at all if they somehow get more players doused than the max
+                if (douseCount >= ArsonistMinPlayersToIgnite.GetInt()) // Don't check for max, since the player would not be able to ignite at all if they somehow get more players doused than the max
                 {
-                    if (douseCount > Options.ArsonistMaxPlayersToIgnite.GetInt()) Logger.Warn("Arsonist Ignited with more players doused than the maximum amount in the settings", "Arsonist Ignite");
+                    if (douseCount > ArsonistMaxPlayersToIgnite.GetInt()) Logger.Warn("Arsonist Ignited with more players doused than the maximum amount in the settings", "Arsonist Ignite");
                     foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                     {
-                        if (!physics.myPlayer.IsDousedPlayer(pc))
-                            continue;
+                        if (!physics.myPlayer.IsDousedPlayer(pc)) continue;
                         pc.KillFlash();
                         pc.Suicide(PlayerState.DeathReason.Torched, physics.myPlayer);
                     }
@@ -120,19 +139,14 @@ namespace TOHE.Roles.Neutral
                             CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist);
                             CustomWinnerHolder.WinnerIds.Add(physics.myPlayer.PlayerId);
                             break;
-                        case 2:
-                        {
-                            foreach (var x in Main.AllAlivePlayerControls.Where(p => p.PlayerId != physics.myPlayer.PlayerId).ToArray())
+                        default:
+                            if (Main.AllAlivePlayerControls.Where(x => x.PlayerId != physics.myPlayer.PlayerId).All(x => x.GetCountTypes() == CountTypes.Crew))
                             {
-                                if (!x.GetCustomRole().IsImpostor() && !x.GetCustomRole().IsNeutralKilling())
-                                {
-                                    CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist);
-                                    CustomWinnerHolder.WinnerIds.Add(physics.myPlayer.PlayerId);
-                                }
+                                CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist);
+                                CustomWinnerHolder.WinnerIds.Add(physics.myPlayer.PlayerId);
                             }
 
                             break;
-                        }
                     }
                 }
             }
@@ -158,7 +172,7 @@ namespace TOHE.Roles.Neutral
                     {
                         Main.ArsonistTimer.Remove(playerId);
                     }
-                    else if (ar_time >= Options.ArsonistDouseTime.GetFloat())
+                    else if (ar_time >= ArsonistDouseTime.GetFloat())
                     {
                         player.SetKillCooldown();
                         Main.ArsonistTimer.Remove(playerId);

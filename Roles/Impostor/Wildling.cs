@@ -1,8 +1,8 @@
-using AmongUs.GameOptions;
-using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using AmongUs.GameOptions;
+using Hazel;
 using TOHE.Modules;
 using TOHE.Roles.Neutral;
 using static TOHE.Options;
@@ -109,7 +109,6 @@ public class Wildling : RoleBase
         writer.Write(TimeStamp.ToString());
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
-
     public static void ReceiveRPC(MessageReader reader)
     {
         byte PlayerId = reader.ReadByte();
@@ -150,7 +149,6 @@ public class Wildling : RoleBase
             pc.Notify(Translator.GetString("BKProtectOut"));
         }
     }
-
     public static string GetHudText(PlayerControl pc)
     {
         if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
@@ -166,7 +164,6 @@ public class Wildling : RoleBase
         {
             str.Append(Translator.GetString("BKSkillNotice"));
         }
-
         return str.ToString();
     }
 }

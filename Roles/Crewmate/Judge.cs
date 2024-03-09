@@ -1,9 +1,9 @@
-﻿using HarmonyLib;
-using Hazel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using HarmonyLib;
+using Hazel;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Translator;

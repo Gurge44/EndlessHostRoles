@@ -1,8 +1,8 @@
-using AmongUs.GameOptions;
-using Hazel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AmongUs.GameOptions;
+using Hazel;
 using TOHE.Modules;
 using TOHE.Roles.Neutral;
 
@@ -340,17 +340,12 @@ namespace TOHE.Roles.Crewmate
                 if (am.FixNextSabo) str.Append($"\n<b><color=#3333ff>{GetString("QuickFixPotionWaitForUse")}</color></b>");
             }
 
-            if (UsePets.GetBool() && Main.AbilityCD.TryGetValue(pc.PlayerId, out var CD))
-            {
-                str.Append($"\n<color=#00ffa5>{GetString("CD")}:</color> <b>{CD.TOTALCD - (Utils.TimeStamp - CD.START_TIMESTAMP) + 1}</b>s");
-            }
-
             return str.ToString();
         }
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            if (Utils.GetPlayerById(playerId) == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive() || Utils.GetPlayerById(playerId).IsModClient()) return string.Empty;
+            if (Utils.GetPlayerById(playerId) == null || !GameStates.IsInTask || Utils.GetPlayerById(playerId).IsModClient()) return string.Empty;
             var str = new StringBuilder();
             switch (PotionID)
             {

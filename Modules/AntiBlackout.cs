@@ -1,8 +1,8 @@
-using AmongUs.GameOptions;
-using Hazel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using AmongUs.GameOptions;
+using Hazel;
 using TOHE.Modules;
 
 namespace TOHE;
@@ -118,33 +118,33 @@ public static class AntiBlackout
         SendGameData();
     }
 
-    /*
-        ///<summary>
-        ///Run the code with IsDead temporarily restored to its original value
-        ///<param name="action">Execution details</param>
-        ///</summary>
-        public static void TempRestore(Action action)
+/*
+    ///<summary>
+    ///Run the code with IsDead temporarily restored to its original value
+    ///<param name="action">Execution details</param>
+    ///</summary>
+    public static void TempRestore(Action action)
+    {
+        Logger.Info("==Temp Restore==");
+        //Whether TempRestore was executed with IsDead overwritten
+        bool before_IsCached = IsCached;
+        try
         {
-            Logger.Info("==Temp Restore==");
-            //Whether TempRestore was executed with IsDead overwritten
-            bool before_IsCached = IsCached;
-            try
-            {
-                if (before_IsCached) RestoreIsDead(doSend: false);
-                action();
-            }
-            catch (Exception ex)
-            {
-                Logger.Warn("An exception occurred within AntiBlackout.TempRestore");
-                Logger.Exception(ex);
-            }
-            finally
-            {
-                if (before_IsCached) SetIsDead(doSend: false);
-                Logger.Info("==/Temp Restore==");
-            }
+            if (before_IsCached) RestoreIsDead(doSend: false);
+            action();
         }
-    */
+        catch (Exception ex)
+        {
+            Logger.Warn("An exception occurred within AntiBlackout.TempRestore");
+            Logger.Exception(ex);
+        }
+        finally
+        {
+            if (before_IsCached) SetIsDead(doSend: false);
+            Logger.Info("==/Temp Restore==");
+        }
+    }
+*/
 
     public static void Reset()
     {

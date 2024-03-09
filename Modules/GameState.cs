@@ -1,9 +1,9 @@
-using AmongUs.GameOptions;
-using HarmonyLib;
-using InnerNet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using HarmonyLib;
+using InnerNet;
 using TOHE.Modules;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.Crewmate;
@@ -46,7 +46,6 @@ public class PlayerState(byte playerId)
                 _ => CustomRoles.Crewmate,
             };
     }
-
     public void SetMainRole(CustomRoles role)
     {
         countTypes = role switch
@@ -190,7 +189,6 @@ public class PlayerState(byte playerId)
                 break;
         }
     }
-
     public void RemoveSubRole(CustomRoles role)
     {
         if (SubRoles.Contains(role))
@@ -205,7 +203,6 @@ public class PlayerState(byte playerId)
             RPC.SendDeathReason(PlayerId, deathReason);
         }
     }
-
     public bool IsSuicide => deathReason == DeathReason.Suicide;
     public TaskState TaskState => taskState;
     public void InitTask(PlayerControl player) => taskState.Init(player);
@@ -249,11 +246,9 @@ public class PlayerState(byte playerId)
 
         etc = -1,
     }
-
     public byte GetRealKiller() => IsDead && RealKiller.TIMESTAMP != DateTime.MinValue ? RealKiller.ID : byte.MaxValue;
     public int GetKillCount(bool ExcludeSelfKill = false) => Main.PlayerStates.Values.Where(state => !(ExcludeSelfKill && state.PlayerId == PlayerId) && state.GetRealKiller() == PlayerId).ToArray().Length;
 }
-
 public class TaskState
 {
     public static int InitialTotalTasks;
@@ -272,12 +267,10 @@ public class TaskState
             AllTasksCount = 0;
             return;
         }
-
         hasTasks = true;
         AllTasksCount = player.Data.Tasks.Count;
         Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags().RemoveHtmlTags()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Init");
     }
-
     public void Update(PlayerControl player)
     {
         Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags().RemoveHtmlTags()}: UpdateTask", "TaskState.Update");
@@ -382,33 +375,22 @@ public class TaskState
         Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Update");
     }
 }
-
 public class PlayerVersion(Version ver, string tag_str, string forkId)
 {
     public readonly Version version = ver;
     public readonly string tag = tag_str;
     public readonly string forkId = forkId;
 #pragma warning disable CA1041 // Provide ObsoleteAttribute message
-    [Obsolete]
-    public PlayerVersion(string ver, string tag_str) : this(Version.Parse(ver), tag_str, string.Empty)
-    {
-    }
-
-    [Obsolete]
-    public PlayerVersion(Version ver, string tag_str) : this(ver, tag_str, string.Empty)
-    {
-    }
+    [Obsolete] public PlayerVersion(string ver, string tag_str) : this(Version.Parse(ver), tag_str, string.Empty) { }
+    [Obsolete] public PlayerVersion(Version ver, string tag_str) : this(ver, tag_str, string.Empty) { }
 #pragma warning restore CA1041 // Provide ObsoleteAttribute message
-    public PlayerVersion(string ver, string tag_str, string forkId) : this(Version.Parse(ver), tag_str, forkId)
-    {
-    }
+    public PlayerVersion(string ver, string tag_str, string forkId) : this(Version.Parse(ver), tag_str, forkId) { }
 
     public bool IsEqual(PlayerVersion pv)
     {
         return pv.version == version && pv.tag == tag;
     }
 }
-
 public static class GameStates
 {
     public static bool InGame;
@@ -424,15 +406,12 @@ public static class GameStates
     public static bool IsInTask => InGame && !MeetingHud.Instance;
     public static bool IsMeeting => InGame && MeetingHud.Instance;
     public static bool IsVoting => IsMeeting && MeetingHud.Instance.state is MeetingHud.VoteStates.Voted or MeetingHud.VoteStates.NotVoted;
-
     public static bool IsCountDown => GameStartManager.InstanceExists && GameStartManager.Instance.startState == GameStartManager.StartingStates.Countdown;
-
     /**********TOP ZOOM.cs***********/
     public static bool IsShip => ShipStatus.Instance != null;
     public static bool IsCanMove => PlayerControl.LocalPlayer?.CanMove is true;
     public static bool IsDead => PlayerControl.LocalPlayer?.Data?.IsDead is true;
 }
-
 public static class MeetingStates
 {
     public static DeadBody[] DeadBodies;

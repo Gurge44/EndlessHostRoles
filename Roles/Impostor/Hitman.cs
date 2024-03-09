@@ -1,6 +1,6 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using Hazel;
-using System.Collections.Generic;
 using TOHE.Modules;
 using static TOHE.Options;
 using static TOHE.Utils;

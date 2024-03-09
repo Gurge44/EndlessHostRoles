@@ -1,6 +1,6 @@
-using Hazel;
 using System.Collections.Generic;
 using System.Text;
+using Hazel;
 using TOHE.Modules;
 using TOHE.Patches;
 using TOHE.Roles.Crewmate;
@@ -83,6 +83,7 @@ public class Witch : RoleBase
             writer.Write(witchId);
             writer.Write(spellMode);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
+
         }
     }
 
@@ -139,7 +140,6 @@ public class Witch : RoleBase
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
         }
     }
-
     public static void RemoveSpelledPlayer()
     {
         foreach (byte witch in playerIdList)
@@ -164,14 +164,12 @@ public class Witch : RoleBase
             SwitchSpellMode(killer.PlayerId, true);
             return true;
         }
-
         SetSpelled(killer, target);
 
         SwitchSpellMode(killer.PlayerId, true);
 
         return false;
     }
-
     public static void OnCheckForEndVoting(PlayerState.DeathReason deathReason, params byte[] exileIds)
     {
         if (deathReason != PlayerState.DeathReason.Vote) return;
@@ -183,7 +181,6 @@ public class Witch : RoleBase
                 wc.SpelledPlayer.Clear();
             }
         }
-
         var spelledIdList = new List<byte>();
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
@@ -208,7 +205,6 @@ public class Witch : RoleBase
         CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Spell, [.. spelledIdList]);
         RemoveSpelledPlayer();
     }
-
     public static string GetSpelledMark(byte target, bool isMeeting)
     {
         if (!isMeeting) return string.Empty;
@@ -219,10 +215,8 @@ public class Witch : RoleBase
                 return Utils.ColorString(Palette.ImpostorRed, "†");
             }
         }
-
         return string.Empty;
     }
-
     public static string GetSpellModeText(PlayerControl witch, bool hud, bool isMeeting = false)
     {
         if (witch == null || isMeeting) return string.Empty;
@@ -236,7 +230,6 @@ public class Witch : RoleBase
         {
             str.Append($"{GetString("Mode")}: ");
         }
-
         if (NowSwitchTrigger == SwitchTrigger.DoubleTrigger)
         {
             str.Append(GetString("WitchModeDouble"));
@@ -245,10 +238,8 @@ public class Witch : RoleBase
         {
             str.Append(IsSpellMode(witch.PlayerId) ? GetString("WitchModeSpell") : GetString("WitchModeKill"));
         }
-
         return str.ToString();
     }
-
     public static void GetAbilityButtonText(HudManager hud)
     {
         if (IsSpellMode(PlayerControl.LocalPlayer.PlayerId) && NowSwitchTrigger != SwitchTrigger.DoubleTrigger)

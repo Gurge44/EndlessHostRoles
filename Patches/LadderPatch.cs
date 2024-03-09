@@ -1,6 +1,6 @@
-﻿using HarmonyLib;
+﻿using System.Collections.Generic;
+using HarmonyLib;
 using Hazel;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace TOHE;

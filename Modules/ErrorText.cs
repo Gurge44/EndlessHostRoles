@@ -79,10 +79,11 @@ public class ErrorText : MonoBehaviour
     {
         var error = new ErrorData(code);
         if (0 < error.ErrorLevel)
-            Logger.Error($"Error: {error}: {error.Message}", "ErrorText");
+            Logger.Error($"エラー発生: {error}: {error.Message}", "ErrorText");
 
-        if (AllErrors.All(e => e.Code != code))
+        if (!AllErrors.Any(e => e.Code == code))
         {
+            //まだ出ていないエラー
             AllErrors.Add(error);
         }
 

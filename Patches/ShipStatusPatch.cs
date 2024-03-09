@@ -1,8 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
 using BepInEx;
 using HarmonyLib;
 using Hazel;
-using System.Collections.Generic;
-using System.Linq;
 using TOHE.Patches;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
@@ -134,7 +134,7 @@ class RepairSystemPatch
                     CustomRoles.Traitor when Traitor.CanSabotage.GetBool() => true,
                     CustomRoles.Parasite when player.IsAlive() => true,
                     CustomRoles.Refugee when player.IsAlive() => true,
-                    _ => Main.PlayerStates[player.PlayerId].Role.OnSabotage(player) && Main.PlayerStates[player.PlayerId].Role.CanUseSabotage(player)
+                    _ => Main.PlayerStates[player.PlayerId].Role.CanUseSabotage(player)
                 };
             case SystemTypes.Security when amount == 1:
                 var camerasDisabled = (MapNames)Main.NormalOptions.MapId switch
@@ -280,7 +280,7 @@ class BeginPatch
     {
         Logger.CurrentMethod();
 
-        //Should I initialize the host role here?
+        //Should I initialize the host role here? - no
     }
 }
 
@@ -289,7 +289,7 @@ class CheckTaskCompletionPatch
 {
     public static bool Prefix(ref bool __result)
     {
-        if (Options.DisableTaskWin.GetBool() || Options.NoGameEnd.GetBool() || TaskState.InitialTotalTasks == 0 || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato)
+        if (Options.DisableTaskWin.GetBool() || Options.NoGameEnd.GetBool() || TaskState.InitialTotalTasks == 0 || (Options.DisableTaskWinIfAllCrewsAreDead.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoleTypes.Crewmate))) || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato)
         {
             __result = false;
             return false;

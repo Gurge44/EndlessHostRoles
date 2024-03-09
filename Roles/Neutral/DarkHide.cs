@@ -1,7 +1,7 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using Hazel;
 using InnerNet;
-using System.Collections.Generic;
 using TOHE.Modules;
 
 namespace TOHE.Roles.Neutral;

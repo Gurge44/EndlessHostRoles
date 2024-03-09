@@ -1,10 +1,10 @@
+using System;
+using System.Collections;
+using System.Linq;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using Il2CppSystem.Collections.Generic;
-using System;
-using System.Collections;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using static TOHE.Translator;

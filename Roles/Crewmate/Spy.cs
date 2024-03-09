@@ -1,5 +1,5 @@
-using Hazel;
 using System.Collections.Generic;
+using Hazel;
 using TOHE.Modules;
 
 namespace TOHE.Roles.Crewmate
@@ -68,10 +68,8 @@ namespace TOHE.Roles.Crewmate
                     writer.Write(changeColor);
                     break;
             }
-
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
-
         public static void ReceiveRPC(MessageReader reader)
         {
             int operate = reader.ReadInt32();
@@ -115,10 +113,7 @@ namespace TOHE.Roles.Crewmate
                 }
             }
 
-            if (change && GameStates.IsInTask)
-            {
-                NotifyRoles(SpecifySeer: pc);
-            }
+            if (change && GameStates.IsInTask) { NotifyRoles(SpecifySeer: pc); }
         }
     }
 }

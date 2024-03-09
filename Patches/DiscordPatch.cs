@@ -1,7 +1,7 @@
+using System;
 using AmongUs.Data;
 using Discord;
 using HarmonyLib;
-using System;
 
 namespace TOHE.Patches
 {
@@ -14,6 +14,8 @@ namespace TOHE.Patches
 
         public static void Prefix([HarmonyArgument(0)] Activity activity)
         {
+         if (activity == null) return;
+            
             var details = $"TOHE+ v{Main.PluginDisplayVersion}";
             activity.Details = details;
 

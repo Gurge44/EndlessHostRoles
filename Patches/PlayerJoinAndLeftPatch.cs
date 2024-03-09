@@ -1,10 +1,10 @@
+using System;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using InnerNet;
-using System;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
@@ -143,17 +143,27 @@ class OnPlayerLeftPatch
                         Main.PlayerStates[lovers.PlayerId].RemoveSubRole(CustomRoles.Lovers);
                     }
                 }
-
-                if (data.Character.Is(CustomRoles.Executioner) && Executioner.Target.ContainsKey(data.Character.PlayerId))
-                    Executioner.ChangeRole(data.Character);
+                
+                switch (data.Character.GetCustomRole())
+                {
+                    case CustomRoles.Executioner when Executioner.Target.ContainsKey(data.Character.PlayerId):
+                        Executioner.ChangeRole(data.Character);
+                        break;
+                    case CustomRoles.Lawyer when Lawyer.Target.ContainsKey(data.Character.PlayerId):
+                        Lawyer.ChangeRole(data.Character);
+                        break;
+                    case CustomRoles.Pelican:
+                        Pelican.OnPelicanDied(data.Character.PlayerId);
+                        break;
+                    case CustomRoles.Markseeker:
+                        Markseeker.OnDeath(data.Character);
+                        break;
+                }
+                
                 if (Executioner.Target.ContainsValue(data.Character.PlayerId))
                     Executioner.ChangeRoleByTarget(data.Character);
-                if (data.Character.Is(CustomRoles.Lawyer) && Lawyer.Target.ContainsKey(data.Character.PlayerId))
-                    Lawyer.ChangeRole(data.Character);
                 if (Lawyer.Target.ContainsValue(data.Character.PlayerId))
                     Lawyer.ChangeRoleByTarget(data.Character);
-                if (data.Character.Is(CustomRoles.Pelican))
-                    Pelican.OnPelicanDied(data.Character.PlayerId);
                 if (Spiritualist.SpiritualistTarget == data.Character.PlayerId)
                     Spiritualist.RemoveTarget();
                 Postman.CheckAndResetTargets(data.Character);

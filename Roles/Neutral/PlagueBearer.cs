@@ -1,6 +1,6 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using Hazel;
-using System.Collections.Generic;
 using TOHE.Modules;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -25,9 +25,9 @@ public class PlagueBearer : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.PlagueBearer);
         PlagueBearerCDOpt = FloatOptionItem.Create(Id + 10, "PlagueBearerCD", new(0f, 180f, 2.5f), 17.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer])
-            .SetValueFormat(OptionFormat.Seconds);
+                .SetValueFormat(OptionFormat.Seconds);
         PestilenceCDOpt = FloatOptionItem.Create(Id + 11, "PestilenceCD", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer])
-            .SetValueFormat(OptionFormat.Seconds);
+                .SetValueFormat(OptionFormat.Seconds);
         PestilenceCanVent = BooleanOptionItem.Create(Id + 12, "PestilenceCanVent", true, TabGroup.NeutralRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer]);
         PestilenceHasImpostorVision = BooleanOptionItem.Create(Id + 13, "PestilenceHasImpostorVision", true, TabGroup.NeutralRoles, false)
@@ -59,7 +59,6 @@ public class PlagueBearer : RoleBase
     public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
 
     public static bool IsPlagued(byte pc, byte target) => PlaguedList.TryGetValue(pc, out var x) && x.Contains(target);
-
     public static void SendRPC(PlayerControl player, PlayerControl target)
     {
         if (!Utils.DoRPC) return;
@@ -68,7 +67,6 @@ public class PlagueBearer : RoleBase
         writer.Write(target.PlayerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
-
     public static void ReceiveRPC(MessageReader reader)
     {
         byte PlagueBearerId = reader.ReadByte();
@@ -87,7 +85,6 @@ public class PlagueBearer : RoleBase
             if (IsPlagued(playerId, pc.PlayerId))
                 plagued++;
         }
-
         return (plagued, all);
     }
 
@@ -105,7 +102,6 @@ public class PlagueBearer : RoleBase
             killer.Notify(GetString("PlagueBearerAlreadyPlagued"));
             return false;
         }
-
         PlaguedList[killer.PlayerId].Add(target.PlayerId);
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         killer.ResetKillCooldown();

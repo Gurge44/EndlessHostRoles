@@ -1,5 +1,5 @@
-﻿using AmongUs.GameOptions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Crewmate
@@ -10,7 +10,7 @@ namespace TOHE.Roles.Crewmate
         private static List<byte> playerIdList = [];
 
         private static OptionItem CD;
-        private static OptionItem AdditionalSpeed;
+        public static OptionItem AdditionalSpeed;
         private static OptionItem UseLimitOpt;
         public static OptionItem UsePet;
 
@@ -67,6 +67,8 @@ namespace TOHE.Roles.Crewmate
 
             killer.RpcRemoveAbilityUse();
             killer.SetKillCooldown();
+
+            target.MarkDirtySettings();
 
             return false;
         }

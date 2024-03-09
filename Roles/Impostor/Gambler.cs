@@ -1,7 +1,7 @@
-﻿using AmongUs.GameOptions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
 using static TOHE.Options;

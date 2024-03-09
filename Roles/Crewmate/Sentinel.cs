@@ -1,6 +1,6 @@
-﻿using AmongUs.GameOptions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using UnityEngine;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -10,47 +10,13 @@ namespace TOHE.Roles.Crewmate
 {
     public class PatrollingState(byte sentinelId, int patrolDuration, float patrolRadius, PlayerControl sentinel = null, bool isPatrolling = false, Vector2? startingPosition = null, long patrolStartTimeStamp = 0)
     {
-        public byte SentinelId
-        {
-            get => sentinelId;
-            set => sentinelId = value;
-        }
-
-        public PlayerControl Sentinel
-        {
-            get => sentinel;
-            set => sentinel = value;
-        }
-
-        public bool IsPatrolling
-        {
-            get => isPatrolling;
-            set => isPatrolling = value;
-        }
-
-        public Vector2 StartingPosition
-        {
-            get => startingPosition ?? Vector2.zero;
-            set => startingPosition = value;
-        }
-
-        public long PatrolStartTimeStamp
-        {
-            get => patrolStartTimeStamp;
-            set => patrolStartTimeStamp = value;
-        }
-
-        public int PatrolDuration
-        {
-            get => patrolDuration;
-            set => patrolDuration = value;
-        }
-
-        public float PatrolRadius
-        {
-            get => patrolRadius;
-            set => patrolRadius = value;
-        }
+        public byte SentinelId { get => sentinelId; set => sentinelId = value; }
+        public PlayerControl Sentinel { get => sentinel; set => sentinel = value; }
+        public bool IsPatrolling { get => isPatrolling; set => isPatrolling = value; }
+        public Vector2 StartingPosition { get => startingPosition ?? Vector2.zero; set => startingPosition = value; }
+        public long PatrolStartTimeStamp { get => patrolStartTimeStamp; set => patrolStartTimeStamp = value; }
+        public int PatrolDuration { get => patrolDuration; set => patrolDuration = value; }
+        public float PatrolRadius { get => patrolRadius; set => patrolRadius = value; }
 
         public PlayerControl[] NearbyKillers => GetPlayersInRadius(PatrolRadius, StartingPosition).Where(x => !x.Is(Team.Crewmate) && SentinelId != x.PlayerId).ToArray();
         private readonly List<byte> LastNearbyKillers = [];
@@ -100,7 +66,6 @@ namespace TOHE.Roles.Crewmate
                 pc.Notify(GetString("KillerEscapedFromSentinel"));
                 LastNearbyKillers.Remove(pc.PlayerId);
             }
-
             if (nowInRange)
             {
                 pc.Notify(string.Format(GetString("KillerNotifyPatrol"), PatrolDuration - (TimeStamp - PatrolStartTimeStamp)));
@@ -116,7 +81,6 @@ namespace TOHE.Roles.Crewmate
             {
                 pc.Suicide(realKiller: Sentinel);
             }
-
             Sentinel.MarkDirtySettings();
         }
     }
@@ -177,7 +141,6 @@ namespace TOHE.Roles.Crewmate
                     return false;
                 }
             }
-
             return true;
         }
 

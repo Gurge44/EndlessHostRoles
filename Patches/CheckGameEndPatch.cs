@@ -1,11 +1,11 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using TOHE.Modules;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;

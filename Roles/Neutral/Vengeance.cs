@@ -1,5 +1,5 @@
-using AmongUs.GameOptions;
 using System.Collections.Generic;
+using AmongUs.GameOptions;
 using static TOHE.Options;
 using static TOHE.Translator;
 

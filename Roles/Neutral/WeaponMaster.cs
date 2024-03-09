@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using AmongUs.GameOptions;
 using Hazel;
-using System.Collections.Generic;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Options;
@@ -75,7 +75,6 @@ public class WeaponMaster : RoleBase
         writer.Write(shieldUsed);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
-
     public static void ReceiveRPC(MessageReader reader)
     {
         var id = reader.ReadByte();
@@ -157,7 +156,6 @@ public class WeaponMaster : RoleBase
                             player.Suicide(PlayerState.DeathReason.Kill, killer);
                         }
                     }
-
                     killer.SetKillCooldown(time: HighKCD.GetFloat());
                 }, 0.1f, "Weapon Master Axe Kill");
                 return true;
@@ -167,7 +165,6 @@ public class WeaponMaster : RoleBase
                     target.Suicide(PlayerState.DeathReason.Kill, killer);
                     killer.SetKillCooldown();
                 }
-
                 return false;
             case 3:
                 return false;
@@ -206,7 +203,6 @@ public class WeaponMaster : RoleBase
     {
         return Main.PlayerStates[id].Role is not WeaponMaster { IsEnable: true } wm ? string.Empty : string.Format(GetString("WMMode"), ModeToText(wm.Mode));
     }
-
     public static string ModeToText(byte mode)
     {
         return mode switch

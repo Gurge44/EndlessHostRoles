@@ -1,7 +1,7 @@
-using Hazel;
-using Il2CppSystem;
 using System.Collections.Generic;
 using System.Linq;
+using Hazel;
+using Il2CppSystem;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Options;
@@ -68,7 +68,6 @@ public class Totocalcio : RoleBase
         writer.Write(BetPlayer);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
-
     public static void ReceiveRPC(MessageReader reader)
     {
         byte PlayerId = reader.ReadByte();
@@ -90,13 +89,11 @@ public class Totocalcio : RoleBase
             Main.AllPlayerKillCooldown[id] = 300f;
             return;
         }
-
         float cd = BetCooldown.GetFloat();
         cd += Main.AllPlayerControls.Count(x => !x.IsAlive()) * BetCooldownIncrese.GetFloat();
         cd = Math.Min(cd, MaxBetCooldown.GetFloat());
         Main.AllPlayerKillCooldown[id] = cd;
     }
-
     public static bool KnowRole(PlayerControl player, PlayerControl target)
     {
         if (!KnowTargetRole.GetBool()) return false;
@@ -131,7 +128,6 @@ public class Totocalcio : RoleBase
         Logger.Info($"Target selected：{killer.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "Totocalcio");
         return false;
     }
-
     public static string TargetMark(PlayerControl seer, PlayerControl target)
     {
         if (!seer.Is(CustomRoles.Totocalcio))

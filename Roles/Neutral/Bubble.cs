@@ -1,8 +1,8 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections.Generic;
+using System.Linq;
+using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
-using System.Collections.Generic;
-using System.Linq;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Options;
@@ -26,6 +26,7 @@ namespace TOHE.Roles.Neutral
         private static OptionItem ExplosionRadius;
 
         public static readonly Dictionary<byte, long> EncasedPlayers = [];
+        private static readonly Dictionary<byte, long> LastUpdates = [];
 
         public static void SetupCustomOption()
         {
@@ -54,6 +55,7 @@ namespace TOHE.Roles.Neutral
         {
             BubbleId = byte.MaxValue;
             EncasedPlayers.Clear();
+            LastUpdates.Clear();
         }
 
         public override void Add(byte playerId)
@@ -142,7 +144,11 @@ namespace TOHE.Roles.Neutral
 
             if (ts + NotifyDelay.GetInt() < now)
             {
-                Main.AllAlivePlayerControls.Where(x => Vector2.Distance(x.Pos(), encasedPc.Pos()) < 5f).Do(x => NotifyRoles(SpecifySeer: x, SpecifyTarget: encasedPc));
+                Main.AllAlivePlayerControls.Where(x => (!LastUpdates.TryGetValue(x.PlayerId, out var la) || la != now) && Vector2.Distance(x.Pos(), encasedPc.Pos()) < 5f).Do(x =>
+                {
+                    NotifyRoles(SpecifySeer: x, SpecifyTarget: encasedPc);
+                    LastUpdates[x.PlayerId] = now;
+                });
             }
         }
 

@@ -1,11 +1,12 @@
-﻿using AmongUs.GameOptions;
-using HarmonyLib;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using HarmonyLib;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
 using UnityEngine;
+using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor
 {
@@ -18,6 +19,43 @@ namespace TOHE.Roles.Impostor
 
         public static bool On;
         public override bool IsEnable => On;
+
+        public static void SetupCustomOption()
+        {
+            SetupRoleOptions(3900, TabGroup.ImpostorRoles, CustomRoles.Puppeteer);
+            PuppeteerCD = FloatOptionItem.Create(3911, "PuppeteerCD", new(2.5f, 60f, 2.5f), 22.5f, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer])
+                .SetValueFormat(OptionFormat.Seconds);
+            PuppeteerCanKillNormally = BooleanOptionItem.Create(3917, "PuppeteerCanKillNormally", true, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
+            PuppeteerKCD = FloatOptionItem.Create(3912, "PuppeteerKCD", new(2.5f, 60f, 2.5f), 25f, TabGroup.ImpostorRoles, false)
+                .SetParent(PuppeteerCanKillNormally)
+                .SetValueFormat(OptionFormat.Seconds);
+            PuppeteerMinDelay = IntegerOptionItem.Create(3913, "PuppeteerMinDelay", new(0, 90, 1), 3, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer])
+                .SetValueFormat(OptionFormat.Seconds);
+            PuppeteerMaxDelay = IntegerOptionItem.Create(3914, "PuppeteerMaxDelay", new(0, 90, 1), 7, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer])
+                .SetValueFormat(OptionFormat.Seconds);
+            PuppeteerManipulationEndsAfterFixedTime = BooleanOptionItem.Create(3915, "PuppeteerManipulationEndsAfterFixedTime", false, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
+            PuppeteerManipulationEndsAfterTime = IntegerOptionItem.Create(3916, "PuppeteerManipulationEndsAfterTime", new(0, 90, 1), 30, TabGroup.ImpostorRoles, false)
+                .SetParent(PuppeteerManipulationEndsAfterFixedTime)
+                .SetValueFormat(OptionFormat.Seconds);
+            PuppeteerManipulationBypassesLazy = BooleanOptionItem.Create(3918, "PuppeteerManipulationBypassesLazy", false, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
+            PuppeteerManipulationBypassesLazyGuy = BooleanOptionItem.Create(3922, "PuppeteerManipulationBypassesLazyGuy", false, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
+            PuppeteerPuppetCanKillImpostors = BooleanOptionItem.Create(3919, "PuppeteerPuppetCanKillImpostors", false, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
+            PuppeteerPuppetCanKillPuppeteer = BooleanOptionItem.Create(3920, "PuppeteerPuppetCanKillPuppeteer", false, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
+            Options.PuppeteerMaxPuppets = IntegerOptionItem.Create(3921, "PuppeteerMaxPuppets", new(0, 30, 1), 5, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer])
+                .SetValueFormat(OptionFormat.Times);
+            PuppeteerDiesAfterMaxPuppets = BooleanOptionItem.Create(3923, "PuppeteerDiesAfterMaxPuppets", false, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
+        }
 
         public override void Add(byte playerId)
         {
@@ -35,7 +73,7 @@ namespace TOHE.Roles.Impostor
 
         public override void SetKillCooldown(byte id)
         {
-            Main.AllPlayerKillCooldown[id] = Options.PuppeteerCanKillNormally.GetBool() ? Options.PuppeteerKCD.GetFloat() : Options.PuppeteerCD.GetFloat();
+            Main.AllPlayerKillCooldown[id] = PuppeteerCanKillNormally.GetBool() ? PuppeteerKCD.GetFloat() : PuppeteerCD.GetFloat();
         }
 
         public override void SetButtonTexts(HudManager hud, byte id)
@@ -45,8 +83,8 @@ namespace TOHE.Roles.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (target.Is(CustomRoles.Needy) && Options.PuppeteerManipulationBypassesLazyGuy.GetBool()) return false;
-            if (target.Is(CustomRoles.Lazy) && Options.PuppeteerManipulationBypassesLazy.GetBool()) return false;
+            if (target.Is(CustomRoles.Needy) && PuppeteerManipulationBypassesLazyGuy.GetBool()) return false;
+            if (target.Is(CustomRoles.Lazy) && PuppeteerManipulationBypassesLazy.GetBool()) return false;
             if (Medic.ProtectList.Contains(target.PlayerId)) return false;
 
             if (!PuppeteerMaxPuppets.TryGetValue(killer.PlayerId, out var usesLeft))
@@ -55,14 +93,14 @@ namespace TOHE.Roles.Impostor
                 PuppeteerMaxPuppets.Add(killer.PlayerId, usesLeft);
             }
 
-            if (Options.PuppeteerCanKillNormally.GetBool())
+            if (PuppeteerCanKillNormally.GetBool())
             {
                 return killer.CheckDoubleTrigger(target, () =>
                 {
                     PuppeteerList[target.PlayerId] = killer.PlayerId;
                     PuppeteerDelayList[target.PlayerId] = Utils.TimeStamp;
-                    PuppeteerDelay[target.PlayerId] = IRandom.Instance.Next(Options.PuppeteerMinDelay.GetInt(), Options.PuppeteerMaxDelay.GetInt());
-                    killer.SetKillCooldown(time: Options.PuppeteerCD.GetFloat());
+                    PuppeteerDelay[target.PlayerId] = IRandom.Instance.Next(PuppeteerMinDelay.GetInt(), PuppeteerMaxDelay.GetInt());
+                    killer.SetKillCooldown(time: PuppeteerCD.GetFloat());
                     if (usesLeft <= 1)
                     {
                         _ = new LateTask(() => { killer.Suicide(); }, 1.5f, "Puppeteer Max Uses Reached => Suicide");
@@ -77,7 +115,7 @@ namespace TOHE.Roles.Impostor
 
             PuppeteerList[target.PlayerId] = killer.PlayerId;
             PuppeteerDelayList[target.PlayerId] = Utils.TimeStamp;
-            PuppeteerDelay[target.PlayerId] = IRandom.Instance.Next(Options.PuppeteerMinDelay.GetInt(), Options.PuppeteerMaxDelay.GetInt());
+            PuppeteerDelay[target.PlayerId] = IRandom.Instance.Next(PuppeteerMinDelay.GetInt(), PuppeteerMaxDelay.GetInt());
             killer.SetKillCooldown();
             if (usesLeft <= 1)
             {
@@ -106,7 +144,7 @@ namespace TOHE.Roles.Impostor
                     PuppeteerDelayList.Remove(playerId);
                     PuppeteerDelay.Remove(playerId);
                 }
-                else if (PuppeteerDelayList[playerId] + Options.PuppeteerManipulationEndsAfterTime.GetInt() < now && Options.PuppeteerManipulationEndsAfterFixedTime.GetBool())
+                else if (PuppeteerDelayList[playerId] + PuppeteerManipulationEndsAfterTime.GetInt() < now && PuppeteerManipulationEndsAfterFixedTime.GetBool())
                 {
                     PuppeteerList.Remove(playerId);
                     PuppeteerDelayList.Remove(playerId);
@@ -120,8 +158,8 @@ namespace TOHE.Roles.Impostor
                     foreach (PlayerControl target in Main.AllAlivePlayerControls)
                     {
                         if (target.PlayerId == playerId || target.Is(CustomRoles.Pestilence)) continue;
-                        if (target.Is(CustomRoles.Puppeteer) && !Options.PuppeteerPuppetCanKillPuppeteer.GetBool()) continue;
-                        if (target.Is(CustomRoleTypes.Impostor) && !Options.PuppeteerPuppetCanKillImpostors.GetBool()) continue;
+                        if (target.Is(CustomRoles.Puppeteer) && !PuppeteerPuppetCanKillPuppeteer.GetBool()) continue;
+                        if (target.Is(CustomRoleTypes.Impostor) && !PuppeteerPuppetCanKillImpostors.GetBool()) continue;
 
                         float dis = Vector2.Distance(puppeteerPos, target.transform.position);
                         targetDistance.Add(target.PlayerId, dis);

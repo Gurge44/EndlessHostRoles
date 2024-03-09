@@ -1,9 +1,9 @@
-using AmongUs.GameOptions;
-using HarmonyLib;
-using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using HarmonyLib;
+using Hazel;
 using TOHE.Modules;
 using TOHE.Roles.AddOns.Common;
 using TOHE.Roles.AddOns.Crewmate;
@@ -74,6 +74,7 @@ internal class ChangeRoleSettings
             Main.ForCrusade = [];
             Main.KillGhoul = [];
             Main.CyberStarDead = [];
+            Main.DemolitionistDead = [];
             Main.KilledDiseased = [];
             Main.KilledAntidote = [];
             Main.WorkaholicAlive = [];

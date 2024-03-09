@@ -1,7 +1,7 @@
+using System.Linq;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using HarmonyLib;
-using System.Linq;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
 using TOHE.Roles.Crewmate;

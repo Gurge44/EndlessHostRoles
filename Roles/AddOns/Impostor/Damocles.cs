@@ -1,7 +1,7 @@
-﻿using Hazel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Hazel;
 using TOHE.Modules;
 using static TOHE.Options;
 using static TOHE.Translator;

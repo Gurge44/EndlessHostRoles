@@ -1,5 +1,3 @@
-using HarmonyLib;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -9,6 +7,8 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using HarmonyLib;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using Object = Il2CppSystem.Object;
 
 namespace TOHE;

@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using AmongUs.GameOptions;
 using Hazel;
-using System.Collections.Generic;
 using TOHE.Modules;
 using TOHE.Roles.Neutral;
 using static TOHE.Options;
@@ -119,7 +119,6 @@ namespace TOHE.Roles.Impostor
                 killer.SetKillCooldown();
             }
         }
-
         public static bool IsShowTargetRole(PlayerControl seer, PlayerControl target)
         {
             return Main.PlayerStates[seer.PlayerId].Role is EvilDiviner ed && ed.DivinationTarget.Contains(target.PlayerId);

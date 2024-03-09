@@ -1,12 +1,12 @@
-using AmongUs.GameOptions;
-using HarmonyLib;
-using Hazel;
-using InnerNet;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using AmongUs.GameOptions;
+using HarmonyLib;
+using Hazel;
+using InnerNet;
 using TOHE.Modules;
 using TOHE.Patches;
 using TOHE.Roles.AddOns.Crewmate;
@@ -661,8 +661,6 @@ static class ExtendedPlayerControl
     }
     public static bool IsShifted(this PlayerControl pc) => Main.CheckShapeshift.TryGetValue(pc.PlayerId, out var shifted) && shifted;
     public static bool IsPlayerShifted(this byte id) => Main.CheckShapeshift.TryGetValue(id, out var shifted) && shifted;
-    public static bool HasSubRole(this PlayerControl pc) => Main.PlayerStates[pc.PlayerId].SubRoles.Count > 0;
-
     public static void ResetKillCooldown(this PlayerControl player)
     {
         Main.PlayerStates[player.PlayerId].Role.SetKillCooldown(player.PlayerId);
@@ -832,8 +830,8 @@ static class ExtendedPlayerControl
 
     public static bool KnowDeathReason(this PlayerControl seer, PlayerControl target)
         => ((seer.Is(CustomRoles.Doctor) || seer.Is(CustomRoles.Autopsy)
-                                         || (seer.Data.IsDead && Options.GhostCanSeeDeathReason.GetBool()))
-            && target.Data.IsDead) || (target.Is(CustomRoles.Gravestone) && target.Data.IsDead);
+        || (seer.Data.IsDead && Options.GhostCanSeeDeathReason.GetBool()))
+        && target.Data.IsDead) || (target.Is(CustomRoles.Gravestone) && target.Data.IsDead);
 
     public static string GetRoleInfo(this PlayerControl player, bool InfoLong = false)
     {

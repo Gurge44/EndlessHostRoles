@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using AmongUs.GameOptions;
 using Hazel;
-using System.Collections.Generic;
 using TOHE.Modules;
 
 namespace TOHE.Roles.Crewmate;

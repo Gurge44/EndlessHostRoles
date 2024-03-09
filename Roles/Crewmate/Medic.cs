@@ -1,8 +1,8 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections.Generic;
+using System.Linq;
+using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
-using System.Collections.Generic;
-using System.Linq;
 using TOHE.Modules;
 
 namespace TOHE.Roles.Crewmate;
@@ -101,7 +101,6 @@ public class Medic : RoleBase
             writer.Write(x);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
-
     public static void ReceiveRPCForProtectList(MessageReader reader)
     {
         int count = reader.ReadInt32();
@@ -184,7 +183,6 @@ public class Medic : RoleBase
 
         return true;
     }
-
     public static void OnCheckMark()
     {
         if (!ShieldDeactivatesWhenMedicDies.GetBool()) return;
@@ -201,7 +199,6 @@ public class Medic : RoleBase
             }
         }
     }
-
     public static void IsDead(PlayerControl target)
     {
         if (!target.Is(CustomRoles.Medic)) return;
@@ -213,7 +210,6 @@ public class Medic : RoleBase
         {
             Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc), SpecifyTarget: target);
         }
-
         Utils.NotifyRoles(SpecifySeer: target);
 
         ProtectList.Clear();
