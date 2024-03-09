@@ -392,7 +392,6 @@ public class Main : BasePlugin
                 { CustomRoles.TimeManager, "#6495ed" },
                 { CustomRoles.Veteran, "#a77738" },
                 { CustomRoles.Bodyguard, "#185abd" },
-                //{CustomRoles.Counterfeiter, "#BE29EC"},
                 { CustomRoles.Witness, "#e70052" },
                 { CustomRoles.Lookout, "#2a52be" },
                 { CustomRoles.Grenadier, "#3c4a16" },
@@ -413,7 +412,6 @@ public class Main : BasePlugin
                 { CustomRoles.Tracker, "#3CB371" },
                 { CustomRoles.CameraMan, "#000930" },
                 { CustomRoles.Merchant, "#D27D2D" },
-                //{CustomRoles.Retributionist, "#228B22"},
                 { CustomRoles.Monitor, "#7223DA" },
                 { CustomRoles.Deputy, "#df9026" },
                 { CustomRoles.Cleanser, "#98FF98" },
@@ -429,7 +427,6 @@ public class Main : BasePlugin
                 { CustomRoles.ParityCop, "#0D57AF" },
                 { CustomRoles.TimeMaster, "#44baff" },
                 { CustomRoles.Crusader, "#C65C39" },
-                //{CustomRoles.Reverie, "#00BFFF"},
                 //Neutrals
                 { CustomRoles.Arsonist, "#ff6633" },
                 { CustomRoles.Pyromaniac, "#ff6633" },
@@ -498,21 +495,16 @@ public class Main : BasePlugin
                 { CustomRoles.Phantom, "#662962" },
                 { CustomRoles.Jinx, "#ed2f91" },
                 { CustomRoles.Maverick, "#781717" },
-                //{CustomRoles.CursedSoul, "#531269"},
                 { CustomRoles.Ritualist, "#663399" },
                 { CustomRoles.Pickpocket, "#47008B" },
                 { CustomRoles.Traitor, "#BA2E05" },
                 { CustomRoles.Vulture, "#556B2F" },
                 { CustomRoles.Medusa, "#9900CC" },
-                //{CustomRoles.Baker, "#b58428"},
-                //{CustomRoles.Famine, "#cb4d4d"},
                 { CustomRoles.Spiritcaller, "#003366" },
                 { CustomRoles.EvilSpirit, "#003366" },
                 { CustomRoles.Convict, "#ff1919" },
                 { CustomRoles.Amnesiac, "#7FBFFF" },
                 { CustomRoles.Doomsayer, "#14f786" },
-                //{CustomRoles.Masochist, "#684405"},
-                //{CustomRoles.Pirate,"#EDC240"},
                 // GM
                 { CustomRoles.GM, "#ff5b70" },
                 //Add-ons
@@ -566,7 +558,6 @@ public class Main : BasePlugin
                 { CustomRoles.Lucky, "#b8d7a3" },
                 { CustomRoles.Unlucky, "#d7a3a3" },
                 { CustomRoles.DoubleShot, "#19fa8d" },
-                //           {CustomRoles.Reflective, "#FFD700"},
                 { CustomRoles.Rascal, "#990000" },
                 { CustomRoles.Gravestone, "#2EA8E7" },
                 { CustomRoles.Lazy, "#a4dffe" },
@@ -580,8 +571,6 @@ public class Main : BasePlugin
 
                 { CustomRoles.Swift, "#ff1919" },
                 { CustomRoles.Mare, "#ff1919" },
-                //{CustomRoles.Ghoul, "#B22222"},
-                //   {CustomRoles.QuickFix, "#3333ff"},
 
 
                 //SoloKombat
@@ -617,20 +606,6 @@ public class Main : BasePlugin
         DevManager.Init();
         Cloud.Init();
 
-        AllRoleClasses = [];
-        try
-        {
-            AllRoleClasses.AddRange(Assembly.GetAssembly(typeof(RoleBase))!
-                .GetTypes()
-                .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(RoleBase)))
-                .Select(type => (RoleBase)Activator.CreateInstance(type, null)));
-            AllRoleClasses.Sort();
-        }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
-
         IRandom.SetInstance(new NetRandomWrapper());
 
         TOHE.Logger.Info($"{Application.version}", "AmongUs Version");
@@ -651,6 +626,23 @@ public class Main : BasePlugin
         else ConsoleManager.CreateConsole();
 
         TOHE.Logger.Msg("========= TOHE+ loaded! =========", "Plugin Load");
+    }
+
+    public static void LoadRoleClasses()
+    {
+        AllRoleClasses = [];
+        try
+        {
+            AllRoleClasses.AddRange(Assembly.GetAssembly(typeof(RoleBase))!
+                .GetTypes()
+                .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(RoleBase)))
+                .Select(type => (RoleBase)Activator.CreateInstance(type, null)));
+            AllRoleClasses.Sort();
+        }
+        catch (Exception e)
+        {
+            Utils.ThrowException(e);
+        }
     }
 }
 

@@ -33,6 +33,7 @@ public static class Options
     public static void OptionsLoadStart()
     {
         Logger.Info("Options.Load Start", "Options");
+        Main.LoadRoleClasses();
         taskOptionsLoad = Task.Run(Load);
         taskOptionsLoad.ContinueWith(t => { Logger.Info("Options.Load End", "Load Options"); });
     }
@@ -1535,7 +1536,13 @@ public static class Options
                 .GroupBy(x => ((CustomRoles)Enum.Parse(typeof(CustomRoles), ignoreCase: true, value: x.GetType().Name)).GetRoleOptionType())
                 .ToDictionary(x => x.Key, x => x.ToArray());
 
-            int titleId = 100000;
+            int titleId = 100100;
+
+            TextOptionItem.Create(titleId, "ROT.MadMates", TabGroup.ImpostorRoles)
+                .SetHeader(true)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetColor(Palette.ImpostorRed);
+            titleId += 10;
 
             foreach (var roleClasses in roleClassesDict)
             {
@@ -1685,9 +1692,7 @@ public static class Options
         AllowConsole = BooleanOptionItem.Create(19408, "AllowConsole", false, TabGroup.SystemSettings, false)
             .SetColor(Color.red);
         RoleAssigningAlgorithm = StringOptionItem.Create(19409, "RoleAssigningAlgorithm", roleAssigningAlgorithms, 4, TabGroup.SystemSettings, true)
-            .RegisterUpdateValueEvent(
-                (obj, args) => IRandom.SetInstanceById(args.CurrentValue)
-            );
+            .RegisterUpdateValueEvent((_, args) => IRandom.SetInstanceById(args.CurrentValue));
         KPDCamouflageMode = StringOptionItem.Create(19500, "KPDCamouflageMode", CamouflageMode, 0, TabGroup.SystemSettings, false)
             .SetHeader(true)
             .SetColor(new Color32(255, 192, 203, byte.MaxValue));
@@ -2588,7 +2593,7 @@ public static class Options
 
         static void SetupBasicNonKillingNeutralRoleSettings(ref int titleId)
         {
-            TextOptionItem.Create(100030, "ROT.BasicNNK", TabGroup.NeutralRoles)
+            TextOptionItem.Create(titleId, "ROT.BasicNNK", TabGroup.NeutralRoles)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(Color.gray)
                 .SetHeader(true);
@@ -2600,7 +2605,7 @@ public static class Options
 
         static void SetupBasicKillingNeutralRoleSettings(ref int titleId)
         {
-            TextOptionItem.Create(100030, "ROT.BasicNK", TabGroup.NeutralRoles)
+            TextOptionItem.Create(titleId, "ROT.BasicNK", TabGroup.NeutralRoles)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(Color.gray)
                 .SetHeader(true);

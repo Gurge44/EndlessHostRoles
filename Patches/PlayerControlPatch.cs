@@ -1522,7 +1522,10 @@ class FixedUpdatePatch
 
                     if (NameNotifyManager.Notice.TryGetValue(seer.PlayerId, out var notify) && notify.TEXT.Contains('\n'))
                     {
-                        offset += 0.1f;
+                        for (int i = 0; i < notify.TEXT.Count(x => x == '\n'); i++)
+                        {
+                            offset += 0.1f;
+                        }
                     }
 
                     if (Suffix.ToString() != string.Empty)

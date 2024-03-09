@@ -469,9 +469,9 @@ internal static class CustomRolesHelper
         };
     }
 
-    public static RoleTypes GetDYRole(this CustomRoles role)
+    public static RoleTypes GetDYRole(this CustomRoles role, bool load = false)
     {
-        bool UsePets = Options.UsePets.GetBool();
+        bool UsePets = !load && Options.UsePets.GetBool();
         return role switch
         {
             //SoloKombat
@@ -1359,7 +1359,7 @@ internal static class CustomRolesHelper
     public static RoleOptionType GetRoleOptionType(this CustomRoles role)
     {
         if (role.IsImpostor()) return RoleOptionType.Impostor;
-        if (role.IsCrewmate()) return role.GetDYRole() == RoleTypes.Impostor ? RoleOptionType.Crewmate_ImpostorBased : RoleOptionType.Crewmate_Normal;
+        if (role.IsCrewmate()) return role.GetDYRole(load: true) == RoleTypes.Impostor ? RoleOptionType.Crewmate_ImpostorBased : RoleOptionType.Crewmate_Normal;
         if (role.IsNeutral()) return role.IsNK() ? RoleOptionType.Neutral_Killing : RoleOptionType.Neutral_NonKilling;
         return RoleOptionType.Crewmate_Normal;
     }
