@@ -192,7 +192,7 @@ class SetEverythingUpPatch
         var WinnerTextObject = Object.Instantiate(__instance.WinText.gameObject);
         WinnerTextObject.transform.position = new(__instance.WinText.transform.position.x, __instance.WinText.transform.position.y - 0.5f, __instance.WinText.transform.position.z);
         WinnerTextObject.transform.localScale = new(0.6f, 0.6f, 0.6f);
-        var WinnerText = WinnerTextObject.GetComponent<TextMeshPro>(); //WinTextと同じ型のコンポーネントを取得
+        var WinnerText = WinnerTextObject.GetComponent<TextMeshPro>();
         WinnerText.fontSizeMin = 3f;
         WinnerText.text = string.Empty;
 
@@ -244,7 +244,6 @@ class SetEverythingUpPatch
         {
             CustomWinnerText = GetWinnerRoleName(winnerRole);
             CustomWinnerColor = Utils.GetRoleColorCode(winnerRole);
-            //     __instance.WinText.color = Utils.GetRoleColor(winnerRole);
             __instance.BackgroundBar.material.color = Utils.GetRoleColor(winnerRole);
             if (winnerRole.IsNeutral())
             {
@@ -261,7 +260,6 @@ class SetEverythingUpPatch
 
         switch (CustomWinnerHolder.WinnerTeam)
         {
-            //通常勝利
             case CustomWinner.Crewmate:
                 CustomWinnerColor = Utils.GetRoleColorCode(CustomRoles.Engineer);
                 __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Engineer);
@@ -278,14 +276,12 @@ class SetEverythingUpPatch
                 CustomWinnerColor = Utils.GetRoleColorCode(CustomRoles.Egoist);
                 __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Egoist);
                 break;
-            //特殊勝利
             case CustomWinner.Terrorist:
                 __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Terrorist);
                 break;
             case CustomWinner.Lovers:
                 __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Lovers);
                 break;
-            //引き分け処理
             case CustomWinner.Draw:
                 __instance.WinText.text = GetString("ForceEnd");
                 __instance.WinText.color = Color.white;
@@ -300,7 +296,6 @@ class SetEverythingUpPatch
                 WinnerText.text = GetString("NeutralsLeftText");
                 WinnerText.color = Utils.GetRoleColor(CustomRoles.Executioner);
                 break;
-            //全滅
             case CustomWinner.None:
                 __instance.WinText.text = string.Empty;
                 __instance.WinText.color = Color.black;

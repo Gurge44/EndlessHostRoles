@@ -969,7 +969,7 @@ public static class GuessManager
                 {
                     CustomRoleTypes.Crewmate => new(140, 255, 255, byte.MaxValue),
                     CustomRoleTypes.Impostor => new(255, 25, 25, byte.MaxValue),
-                    CustomRoleTypes.Neutral => new(127, 140, 141, byte.MaxValue),
+                    CustomRoleTypes.Neutral => new(255, 171, 27, byte.MaxValue),
                     //       CustomRoleTypes.Madmate => new Color32(255, 25, 25, byte.MaxValue),
                     CustomRoleTypes.Addon => new Color32(255, 154, 206, byte.MaxValue),
                     _ => throw new NotImplementedException(),
