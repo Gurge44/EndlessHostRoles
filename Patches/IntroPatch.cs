@@ -215,7 +215,7 @@ class BeginCrewmatePatch
                 break;
             case CustomRoleTypes.Neutral:
                 __instance.TeamTitle.text = GetString("TeamNeutral");
-                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(255, 171, 27, byte.MaxValue);
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(127, 140, 141, byte.MaxValue);
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("SubText.Neutral");
@@ -507,7 +507,7 @@ class BeginImpostorPatch
             yourTeam.Add(PlayerControl.LocalPlayer);
             foreach (var pc in Main.AllPlayerControls.Where(x => !x.AmOwner)) yourTeam.Add(pc);
             __instance.BeginCrewmate(yourTeam);
-            __instance.overlayHandle.color = new Color32(255, 171, 27, byte.MaxValue);
+            __instance.overlayHandle.color = new Color32(127, 140, 141, byte.MaxValue);
             return false;
         }
 

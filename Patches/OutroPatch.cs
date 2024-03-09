@@ -423,12 +423,10 @@ class SetEverythingUpPatch
             return name;
         }
 
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //Utils.ApplySuffix();
         static string GetWinnerRoleName(CustomRoles role)
         {
             var name = GetString($"WinnerRoleText.{Enum.GetName(typeof(CustomRoles), role)}");
-            if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID")) name = Utils.GetRoleName(role);
+            if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID")) name = string.Format(GetString("WinnerRoleText.Default"), Utils.GetRoleName(role));
             return name;
         }
     }

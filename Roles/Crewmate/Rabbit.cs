@@ -12,7 +12,7 @@ namespace TOHE.Roles.Crewmate
             private PlayerControl Player => player;
             private TaskState MyTaskState => Player.GetTaskState();
 
-            private (bool HasArrow, byte Target) Arrow = (false, byte.MaxValue);
+            private bool HasArrow;
 
             public void OnTaskComplete()
             {
@@ -21,16 +21,17 @@ namespace TOHE.Roles.Crewmate
                 var Impostors = Main.AllAlivePlayerControls.Where(pc => pc.Is(CustomRoleTypes.Impostor)).ToArray();
                 var target = Impostors[IRandom.Instance.Next(Impostors.Length)];
 
-                TargetArrow.Add(Player.PlayerId, target.PlayerId, update: false);
-                Arrow = (true, target.PlayerId);
+                var pos = target.Pos();
+                LocateArrow.Add(Player.PlayerId, pos);
+                HasArrow = true;
                 SendRPC();
                 Utils.NotifyRoles(SpecifySeer: Player, SpecifyTarget: Player);
                 Logger.Info($"{Player.GetNameWithRole()}'s target: {target.GetNameWithRole()}", "Rabbit");
 
                 _ = new LateTask(() =>
                 {
-                    TargetArrow.Remove(Player.PlayerId, target.PlayerId);
-                    Arrow = (false, byte.MaxValue);
+                    LocateArrow.Remove(Player.PlayerId, pos);
+                    HasArrow = false;
                     SendRPC();
                     Utils.NotifyRoles(SpecifySeer: Player, SpecifyTarget: Player);
                 }, 5f, "Rabbit ShowArrow Empty");
@@ -40,20 +41,18 @@ namespace TOHE.Roles.Crewmate
             {
                 var writer = Utils.CreateCustomRoleRPC(CustomRPC.SyncRabbit);
                 writer.Write(Player.PlayerId);
-                writer.Write(Arrow.HasArrow);
-                writer.Write(Arrow.Target);
+                writer.Write(HasArrow);
                 Utils.EndRPC(writer);
             }
 
-            public void ReceiveRPC(bool hasArrow, byte target)
+            public void ReceiveRPC(bool hasArrow)
             {
-                Arrow.HasArrow = hasArrow;
-                Arrow.Target = target;
+                HasArrow = hasArrow;
             }
 
-            public string Suffix => !GameStates.IsInTask || !Arrow.HasArrow
+            public string Suffix => !GameStates.IsInTask || !HasArrow
                 ? string.Empty
-                : Utils.ColorString(Utils.GetRoleColor(CustomRoles.Rabbit), TargetArrow.GetArrows(Player, Arrow.Target));
+                : Utils.ColorString(Utils.GetRoleColor(CustomRoles.Rabbit), LocateArrow.GetArrows(Player));
         }
 
         private static int Id => 643330;
@@ -82,8 +81,7 @@ namespace TOHE.Roles.Crewmate
         {
             byte id = reader.ReadByte();
             bool hasArrow = reader.ReadBoolean();
-            byte target = reader.ReadByte();
-            RabbitStates[id].ReceiveRPC(hasArrow, target);
+            RabbitStates[id].ReceiveRPC(hasArrow);
         }
 
         public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)

@@ -378,7 +378,7 @@ class CheckForEndVotingPatch
                 else if (player.GetCustomRole().IsCrewmate())
                     name = string.Format(GetString("IsGood"), coloredRealName);
                 else if (player.GetCustomRole().IsNeutral() && !player.Is(CustomRoles.Parasite) && !player.Is(CustomRoles.Refugee) && !player.Is(CustomRoles.Crewpostor) && !player.Is(CustomRoles.Convict))
-                    name = string.Format(GetString("BelongTo"), coloredRealName, Utils.ColorString(new(255, 171, 27, byte.MaxValue), GetString("TeamNeutral")));
+                    name = string.Format(GetString("BelongTo"), coloredRealName, Utils.ColorString(new(127, 140, 141, byte.MaxValue), GetString("TeamNeutral")));
                 break;
             case 2:
                 name = string.Format(GetString("PlayerIsRole"), coloredRealName, coloredRole);
@@ -388,7 +388,7 @@ class CheckForEndVotingPatch
                     if (player.GetCustomRole().IsImpostor() || player.Is(CustomRoles.Madmate))
                         name += Utils.ColorString(new(255, 25, 25, byte.MaxValue), GetString("TeamImpostor"));
                     else if (player.GetCustomRole().IsNeutral() || player.Is(CustomRoles.Charmed))
-                        name += Utils.ColorString(new(255, 171, 27, byte.MaxValue), GetString("TeamNeutral"));
+                        name += Utils.ColorString(new(127, 140, 141, byte.MaxValue), GetString("TeamNeutral"));
                     else if (player.GetCustomRole().IsCrewmate())
                         name += Utils.ColorString(new(140, 255, 255, byte.MaxValue), GetString("TeamCrewmate"));
                     name += ")";

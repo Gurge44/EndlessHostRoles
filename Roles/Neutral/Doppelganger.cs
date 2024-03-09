@@ -106,16 +106,15 @@ public class Doppelganger : RoleBase
         return instance;
     }
 
-    void RpcChangeSkin(PlayerControl pc, GameData.PlayerOutfit newOutfit)
+    static void RpcChangeSkin(PlayerControl pc, GameData.PlayerOutfit newOutfit)
     {
-        if (!IsEnable) return;
         var sender = CustomRpcSender.Create(name: $"Doppelganger.RpcChangeSkin({pc.Data.PlayerName})");
-        //if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) Main.nickName = newOutfit.PlayerName;
+
         pc.SetName(newOutfit.PlayerName);
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetName)
             .Write(newOutfit.PlayerName)
             .EndRpc();
-        //pc.RpcSetName(newOutfit.PlayerName); 
+
         Main.AllPlayerNames[pc.PlayerId] = newOutfit.PlayerName;
 
         pc.SetColor(newOutfit.ColorId);
@@ -152,9 +151,9 @@ public class Doppelganger : RoleBase
         DoppelPresentSkin[pc.PlayerId] = newOutfit;
     }
 
-    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    public static bool OnCheckMurderEnd(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null || !IsEnable || Camouflage.IsCamouflage || Camouflager.IsActive) return true;
+        if (killer == null || target == null || Camouflage.IsCamouflage || Camouflager.IsActive || Main.PlayerStates[killer.PlayerId].Role is not Doppelganger { IsEnable: true } dg) return true;
         if (target.IsShifted())
         {
             Logger.Info("Target was shapeshifting", "Doppelganger");
@@ -169,7 +168,7 @@ public class Doppelganger : RoleBase
 
         TotalSteals[killer.PlayerId]++;
 
-        StealTimeStamp = Utils.TimeStamp;
+        dg.StealTimeStamp = Utils.TimeStamp;
 
         string kname;
         if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId && Main.nickName.Length != 0) kname = Main.nickName;
@@ -190,7 +189,7 @@ public class Doppelganger : RoleBase
         RpcChangeSkin(killer, targetSkin);
         Logger.Info("Changed killer skin", "Doppelganger");
 
-        SendRPC(killer.PlayerId);
+        dg.SendRPC(killer.PlayerId);
         Utils.NotifyRoles();
         killer.ResetKillCooldown();
         killer.SetKillCooldown();
@@ -208,6 +207,7 @@ public class Doppelganger : RoleBase
             {
                 RpcChangeSkin(currentTarget, DoppelPresentSkin[currentTarget.PlayerId]);
                 RpcChangeSkin(pc, DoppelDefaultSkin[pc.PlayerId]);
+                DoppelVictim[pc.PlayerId] = string.Empty;
             }
         }
     }
@@ -222,11 +222,11 @@ public class Doppelganger : RoleBase
                 RpcChangeSkin(currentTarget, DoppelPresentSkin[currentTarget.PlayerId]);
                 RpcChangeSkin(pc, DoppelDefaultSkin[pc.PlayerId]);
                 DoppelVictim[pc.PlayerId] = string.Empty;
-            }
 
-            if (GameStates.IsInTask)
-            {
-                Utils.NotifyRoles();
+                if (GameStates.IsInTask)
+                {
+                    Utils.NotifyRoles();
+                }
             }
         }
     }

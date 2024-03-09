@@ -68,6 +68,8 @@ namespace TOHE.Roles.Crewmate
             killer.RpcRemoveAbilityUse();
             killer.SetKillCooldown();
 
+            target.MarkDirtySettings();
+
             return false;
         }
     }

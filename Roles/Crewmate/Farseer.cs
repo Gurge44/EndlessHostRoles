@@ -74,6 +74,11 @@ namespace TOHE.Roles.Crewmate
             opt.SetFloat(FloatOptionNames.ImpostorLightMod, Vision.GetFloat());
         }
 
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return pc.IsAlive();
+        }
+
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = FarseerCooldown.GetFloat();
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)

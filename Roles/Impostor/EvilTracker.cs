@@ -68,15 +68,23 @@ public class EvilTracker : RoleBase
 
     public override void Add(byte playerId)
     {
+        CanSeeKillFlash = OptionCanSeeKillFlash.GetBool();
+        CurrentTargetMode = (TargetMode)OptionTargetMode.GetValue();
+        RoleTypes = CurrentTargetMode == TargetMode.Never ? RoleTypes.Impostor : RoleTypes.Shapeshifter;
+        CanSeeLastRoomInMeeting = OptionCanSeeLastRoomInMeeting.GetBool();
+
         playerIdList.Add(playerId);
         Target = byte.MaxValue;
         CanSetTarget = CurrentTargetMode != TargetMode.Never;
         EvilTrackerId = playerId;
 
-        CanSeeKillFlash = OptionCanSeeKillFlash.GetBool();
-        CurrentTargetMode = (TargetMode)OptionTargetMode.GetValue();
-        RoleTypes = CurrentTargetMode == TargetMode.Never ? RoleTypes.Impostor : RoleTypes.Shapeshifter;
-        CanSeeLastRoomInMeeting = OptionCanSeeLastRoomInMeeting.GetBool();
+        _ = new LateTask(() =>
+        {
+            foreach (var id in ImpostorsId)
+            {
+                TargetArrow.Add(playerId, id);
+            }
+        }, 3f, "Add Evil Tracker Arrows");
     }
 
     public override bool IsEnable => playerIdList.Count > 0;
@@ -149,11 +157,6 @@ public class EvilTracker : RoleBase
         }
     }
 
-    ///<summary>
-    ///引数が両方空：再設定可能に,
-    ///trackerIdのみ：該当IDのターゲット削除,
-    ///trackerIdとtargetId両方あり：該当IDのプレイヤーをターゲットに設定
-    ///</summary>
     public void SetTarget(byte trackerId = byte.MaxValue, byte targetId = byte.MaxValue)
     {
         if (trackerId == byte.MaxValue) CanSetTarget = true;

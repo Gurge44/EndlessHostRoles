@@ -14,6 +14,8 @@ namespace TOHE.Patches
 
         public static void Prefix([HarmonyArgument(0)] Activity activity)
         {
+            if (activity == null) return;
+
             var details = $"TOHE+ v{Main.PluginDisplayVersion}";
             activity.Details = details;
 
