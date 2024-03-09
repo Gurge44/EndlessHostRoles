@@ -644,9 +644,9 @@ class MeetingHudStartPatch
         if (MeetingStates.FirstMeeting && CustomRoles.Workaholic.RoleExist() && Options.WorkaholicGiveAdviceAlive.GetBool() && !Options.WorkaholicCannotWinAtDeath.GetBool() /* && !Options.GhostIgnoreTasks.GetBool()*/)
         {
             foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Workaholic)).ToArray())
-                Main.WorkaholicAlive.Add(pc.PlayerId);
+                Workaholic.WorkaholicAlive.Add(pc.PlayerId);
             List<string> workaholicAliveList = [];
-            workaholicAliveList.AddRange(Main.WorkaholicAlive.Select(whId => Main.AllPlayerNames[whId]));
+            workaholicAliveList.AddRange(Workaholic.WorkaholicAlive.Select(whId => Main.AllPlayerNames[whId]));
 
             string separator = TranslationController.Instance.currentLanguage.languageID is SupportedLangs.English or SupportedLangs.Russian ? "], [" : "】, 【";
             AddMsg(string.Format(GetString("WorkaholicAdviceAlive"), string.Join(separator, workaholicAliveList)), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Workaholic), GetString("WorkaholicAliveTitle")));
@@ -684,7 +684,7 @@ class MeetingHudStartPatch
                 AddMsg(string.Format(GetString("BlackmailerDead"), playername, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Blackmailer), GetString("BlackmaileKillTitle"))));
             }
 
-            if (Main.DetectiveNotify.TryGetValue(pc.PlayerId, out string value1))
+            if (Detective.DetectiveNotify.TryGetValue(pc.PlayerId, out string value1))
                 AddMsg(value1, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Detective), GetString("DetectiveNoticeTitle")));
             if (Main.SleuthMsgs.TryGetValue(pc.PlayerId, out string msg))
                 AddMsg(msg, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Sleuth), GetString("Sleuth")));
@@ -701,7 +701,7 @@ class MeetingHudStartPatch
                 AddMsg(string.Format(GetString("MediumshipNotifySelf"), Main.AllPlayerNames[Mediumshiper.ContactPlayer.FirstOrDefault(x => x.Value == pc.PlayerId).Key], pc.GetAbilityUseLimit()), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mediumshiper), GetString("MediumshipTitle")));
             if (Mediumshiper.ContactPlayer.ContainsKey(pc.PlayerId) && (!Mediumshiper.OnlyReceiveMsgFromCrew.GetBool() || pc.GetCustomRole().IsCrewmate()))
                 AddMsg(string.Format(GetString("MediumshipNotifyTarget"), Main.AllPlayerNames[Mediumshiper.ContactPlayer[pc.PlayerId]]), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mediumshiper), GetString("MediumshipTitle")));
-            if (Main.VirusNotify.TryGetValue(pc.PlayerId, out string value3))
+            if (Virus.VirusNotify.TryGetValue(pc.PlayerId, out string value3))
                 AddMsg(value3, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Virus), GetString("VirusNoticeTitle")));
             if (Enigma.MsgToSend.TryGetValue(pc.PlayerId, out string value4))
                 AddMsg(value4, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Enigma), Enigma.MsgToSendTitle[pc.PlayerId]));
@@ -717,9 +717,9 @@ class MeetingHudStartPatch
         Main.CyberStarDead.Clear();
         Express.SpeedNormal.Clear();
         Express.SpeedUp.Clear();
-        Main.DetectiveNotify.Clear();
+        Detective.DetectiveNotify.Clear();
         Main.SleuthMsgs.Clear();
-        Main.VirusNotify.Clear();
+        Virus.VirusNotify.Clear();
         Mortician.msgToSend.Clear();
         Enigma.MsgToSend.Clear();
         return;

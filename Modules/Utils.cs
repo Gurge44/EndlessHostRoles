@@ -773,12 +773,6 @@ public static class Utils
         return result;
     }
 
-    public static void GetPetCDSuffix(PlayerControl pc, ref StringBuilder sb)
-    {
-        if (Options.UsePets.GetBool() && Main.AbilityCD.TryGetValue(pc.PlayerId, out var time) && !pc.IsModClient())
-            sb.Append(string.Format(GetString("CDPT"), time.TOTALCD - (TimeStamp - time.START_TIMESTAMP) + 1));
-    }
-
     public static string GetFormattedRoomName(string roomName) => roomName == "Outside" ? "<#00ffa5>Outside</color>" : $"<#ffffff>In</color> <#00ffa5>{roomName}</color>";
     public static string GetFormattedVectorText(Vector2 pos) => $"<#777777>(at {pos.ToString().Replace("(", string.Empty).Replace(")", string.Empty)})</color>";
 
@@ -1678,7 +1672,7 @@ public static class Utils
 
     public static GameData.PlayerInfo GetPlayerInfoById(int PlayerId) => GameData.Instance.AllPlayers.ToArray().FirstOrDefault(info => info.PlayerId == PlayerId);
 
-    private static StringBuilder SelfSuffix = new();
+    private static readonly StringBuilder SelfSuffix = new();
     private static readonly StringBuilder SelfMark = new(20);
     private static readonly StringBuilder TargetSuffix = new();
     private static readonly StringBuilder TargetMark = new(20);
@@ -1745,7 +1739,8 @@ public static class Utils
 
                 if (!isForMeeting)
                 {
-                    GetPetCDSuffix(seer, ref SelfSuffix);
+                    if (Options.UsePets.GetBool() && Main.AbilityCD.TryGetValue(seer.PlayerId, out var time) && !seer.IsModClient())
+                        SelfSuffix.Append(string.Format(GetString("CDPT"), time.TOTALCD - (TimeStamp - time.START_TIMESTAMP) + 1));
 
                     if (seer.Is(CustomRoles.Asthmatic)) SelfSuffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
 
@@ -1846,6 +1841,9 @@ public static class Utils
                         case CustomRoles.Predator:
                             SelfSuffix.Append(Predator.GetSuffixAndHudText(seer));
                             break;
+                        case CustomRoles.Warlock:
+                            SelfSuffix.Append(Warlock.GetSuffixAndHudText(seer));
+                            break;
                     }
                 }
                 else
@@ -1909,7 +1907,7 @@ public static class Utils
                 SelfName = seer.GetCustomRole() switch
                 {
                     CustomRoles.Arsonist when seer.IsDouseDone() => $"{ColorString(seer.GetRoleColor(), GetString("EnterVentToWin"))}",
-                    CustomRoles.Revolutionist when seer.IsDrawDone() => $">{ColorString(seer.GetRoleColor(), string.Format(GetString("EnterVentWinCountDown"), Main.RevolutionistCountdown.GetValueOrDefault(seer.PlayerId, 10)))}",
+                    CustomRoles.Revolutionist when seer.IsDrawDone() => $">{ColorString(seer.GetRoleColor(), string.Format(GetString("EnterVentWinCountDown"), Revolutionist.RevolutionistCountdown.GetValueOrDefault(seer.PlayerId, 10)))}",
                     _ => SelfName
                 };
 
@@ -2001,7 +1999,7 @@ public static class Utils
                                         TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Arsonist)}>▲</color>");
                                     }
 
-                                    else if (Main.ArsonistTimer.TryGetValue(seer.PlayerId, out var ar_kvp) && ar_kvp.PLAYER == target)
+                                    else if (Arsonist.ArsonistTimer.TryGetValue(seer.PlayerId, out var ar_kvp) && ar_kvp.PLAYER == target)
                                     {
                                         TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Arsonist)}>△</color>");
                                     }
@@ -2013,7 +2011,7 @@ public static class Utils
                                         TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Revolutionist)}>●</color>");
                                     }
 
-                                    if (Main.RevolutionistTimer.TryGetValue(seer.PlayerId, out var ar_kvp1) && ar_kvp1.PLAYER == target)
+                                    if (Revolutionist.RevolutionistTimer.TryGetValue(seer.PlayerId, out var ar_kvp1) && ar_kvp1.PLAYER == target)
                                     {
                                         TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Revolutionist)}>○</color>");
                                     }
@@ -2580,7 +2578,7 @@ public static class Utils
             if (pc.PlayerId == playerId)
                 continue;
             all++;
-            if (Main.isDoused.TryGetValue((playerId, pc.PlayerId), out var isDoused) && isDoused)
+            if (Arsonist.isDoused.TryGetValue((playerId, pc.PlayerId), out var isDoused) && isDoused)
                 doused++;
         }
 
@@ -2595,7 +2593,7 @@ public static class Utils
         if (!Main.PlayerStates[playerId].IsDead) max--;
         winnerList = [];
         if (all > max) all = max;
-        foreach (var pc in Main.AllPlayerControls.Where(pc => Main.isDraw.TryGetValue((playerId, pc.PlayerId), out var isDraw) && isDraw).ToArray())
+        foreach (var pc in Main.AllPlayerControls.Where(pc => Revolutionist.isDraw.TryGetValue((playerId, pc.PlayerId), out var isDraw) && isDraw).ToArray())
         {
             winnerList.Add(pc);
             draw++;

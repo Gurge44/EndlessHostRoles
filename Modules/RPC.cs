@@ -90,7 +90,6 @@ public enum CustomRPC
     SetDarkHiderKillCount,
     SetEvilDiviner,
     SetGreedierOE,
-    SetJinxSpellCount,
     SetCollectorVotes,
     SetQuickShooterShotLimit,
     GuessKill,
@@ -359,7 +358,7 @@ internal class RPCHandlerPatch
                 byte ArsonistId = reader.ReadByte();
                 byte dousedId = reader.ReadByte();
                 bool doused = reader.ReadBoolean();
-                Main.isDoused[(ArsonistId, dousedId)] = doused;
+                Arsonist.isDoused[(ArsonistId, dousedId)] = doused;
                 break;
             case CustomRPC.SetPlaguedPlayer:
                 PlagueBearer.ReceiveRPC(reader);
@@ -374,13 +373,13 @@ internal class RPCHandlerPatch
                 byte RevolutionistId = reader.ReadByte();
                 byte DrawId = reader.ReadByte();
                 bool drawed = reader.ReadBoolean();
-                Main.isDraw[(RevolutionistId, DrawId)] = drawed;
+                Revolutionist.isDraw[(RevolutionistId, DrawId)] = drawed;
                 break;
             case CustomRPC.SetRevealedPlayer:
                 byte FarseerId = reader.ReadByte();
                 byte RevealId = reader.ReadByte();
                 bool revealed = reader.ReadBoolean();
-                Main.isRevealed[(FarseerId, RevealId)] = revealed;
+                Farseer.isRevealed[(FarseerId, RevealId)] = revealed;
                 break;
             case CustomRPC.SetNameColorData:
                 NameColorManager.ReceiveRPC(reader);
@@ -479,13 +478,13 @@ internal class RPCHandlerPatch
                 byte arsonistId = reader.ReadByte();
                 byte dousingTargetId = reader.ReadByte();
                 if (PlayerControl.LocalPlayer.PlayerId == arsonistId)
-                    Main.currentDousingTarget = dousingTargetId;
+                    Arsonist.currentDousingTarget = dousingTargetId;
                 break;
             case CustomRPC.SetCurrentDrawTarget:
                 byte arsonistId1 = reader.ReadByte();
                 byte doTargetId = reader.ReadByte();
                 if (PlayerControl.LocalPlayer.PlayerId == arsonistId1)
-                    Main.currentDrawTarget = doTargetId;
+                    Revolutionist.currentDrawTarget = doTargetId;
                 break;
             case CustomRPC.SetEvilTrackerTarget:
                 EvilTracker.ReceiveRPC(reader);
@@ -535,24 +534,12 @@ internal class RPCHandlerPatch
                 (Main.PlayerStates[id].Role as Greedier)?.ReceiveRPC(isOdd);
             }
                 break;
-            case CustomRPC.SetJinxSpellCount:
-                byte JinxId = reader.ReadByte();
-                int JinxGuardNum = reader.ReadInt32();
-                if (Main.JinxSpellCount.ContainsKey(JinxId))
-                    Main.JinxSpellCount[JinxId] = JinxGuardNum;
-                else
-                    Main.JinxSpellCount.Add(JinxId, Jinx.JinxSpellTimes.GetInt());
-                break;
             case CustomRPC.SetCollectorVotes:
                 Collector.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetQuickShooterShotLimit:
                 QuickShooter.ReceiveRPC(reader);
                 break;
-            //case CustomRPC.RestTOHESetting:
-            //    OptionItem.AllOptions.ToArray().Where(x => x.Id > 0).Do(x => x.SetValueNoRpc(x.DefaultValue));
-            //    OptionShower.GetText();
-            //    break;
             case CustomRPC.GuessKill:
                 GuessManager.RpcClientGuess(Utils.GetPlayerById(reader.ReadByte()));
                 break;
@@ -1013,7 +1000,7 @@ internal static class RPC
     {
         if (PlayerControl.LocalPlayer.PlayerId == arsonistId)
         {
-            Main.currentDousingTarget = targetId;
+            Arsonist.currentDousingTarget = targetId;
         }
         else
         {
@@ -1028,7 +1015,7 @@ internal static class RPC
     {
         if (PlayerControl.LocalPlayer.PlayerId == arsonistId)
         {
-            Main.currentDrawTarget = targetId;
+            Revolutionist.currentDrawTarget = targetId;
         }
         else
         {
@@ -1043,7 +1030,7 @@ internal static class RPC
     {
         if (PlayerControl.LocalPlayer.PlayerId == arsonistId)
         {
-            Main.currentDrawTarget = targetId;
+            Revolutionist.currentDrawTarget = targetId;
         }
         else
         {

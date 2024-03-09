@@ -1,5 +1,6 @@
 ﻿using AmongUs.GameOptions;
 using System.Linq;
+using System.Collections.Generic;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Options;
@@ -8,6 +9,13 @@ namespace TOHE.Roles.Neutral
 {
     internal class Revolutionist : RoleBase
     {
+        public static Dictionary<(byte, byte), bool> isDraw = [];
+        public static Dictionary<byte, (PlayerControl PLAYER, float TIMER)> RevolutionistTimer = [];
+        public static Dictionary<byte, long> RevolutionistStart = [];
+        public static Dictionary<byte, long> RevolutionistLastTime = [];
+        public static Dictionary<byte, int> RevolutionistCountdown = [];
+        public static byte currentDrawTarget = byte.MaxValue;
+
         public static bool On;
         public override bool IsEnable => On;
 
@@ -37,7 +45,7 @@ namespace TOHE.Roles.Neutral
             On = true;
             foreach (PlayerControl ar in Main.AllPlayerControls)
             {
-                Main.isDraw.Add((playerId, ar.PlayerId), false);
+                isDraw.Add((playerId, ar.PlayerId), false);
             }
         }
 
@@ -90,9 +98,9 @@ namespace TOHE.Roles.Neutral
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             killer.SetKillCooldown(RevolutionistDrawTime.GetFloat());
-            if (!Main.isDraw[(killer.PlayerId, target.PlayerId)] && !Main.RevolutionistTimer.ContainsKey(killer.PlayerId))
+            if (!isDraw[(killer.PlayerId, target.PlayerId)] && !RevolutionistTimer.ContainsKey(killer.PlayerId))
             {
-                Main.RevolutionistTimer.TryAdd(killer.PlayerId, (target, 0f));
+                RevolutionistTimer.TryAdd(killer.PlayerId, (target, 0f));
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
                 RPC.SetCurrentDrawTarget(killer.PlayerId, target.PlayerId);
             }
@@ -102,7 +110,7 @@ namespace TOHE.Roles.Neutral
 
         public override void OnReportDeadBody()
         {
-            foreach (var x in Main.RevolutionistStart)
+            foreach (var x in RevolutionistStart)
             {
                 var tar = Utils.GetPlayerById(x.Key);
                 if (tar == null) continue;
@@ -112,47 +120,47 @@ namespace TOHE.Roles.Neutral
                 Main.PlayerStates[tar.PlayerId].SetDead();
             }
 
-            Main.RevolutionistTimer.Clear();
-            Main.RevolutionistStart.Clear();
-            Main.RevolutionistLastTime.Clear();
+            RevolutionistTimer.Clear();
+            RevolutionistStart.Clear();
+            RevolutionistLastTime.Clear();
         }
 
         public override void OnFixedUpdate(PlayerControl player)
         {
             var playerId = player.PlayerId;
 
-            if (GameStates.IsInTask && Main.RevolutionistTimer.ContainsKey(playerId))
+            if (GameStates.IsInTask && RevolutionistTimer.ContainsKey(playerId))
             {
-                var rvTarget = Main.RevolutionistTimer[playerId].PLAYER;
+                var rvTarget = RevolutionistTimer[playerId].PLAYER;
                 if (!player.IsAlive() || Pelican.IsEaten(playerId))
                 {
-                    Main.RevolutionistTimer.Remove(playerId);
+                    RevolutionistTimer.Remove(playerId);
                     Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: rvTarget, ForceLoop: true);
                     RPC.ResetCurrentDrawTarget(playerId);
                 }
                 else
                 {
-                    var rv_target = Main.RevolutionistTimer[playerId].PLAYER;
-                    var rv_time = Main.RevolutionistTimer[playerId].TIMER;
-                    if (!rv_target.IsAlive())
+                    var rv_target = RevolutionistTimer[playerId].PLAYER;
+                    var rv_time = RevolutionistTimer[playerId].TIMER;
+                    if (!ExtendedPlayerControl.IsAlive(rv_target))
                     {
-                        Main.RevolutionistTimer.Remove(playerId);
+                        RevolutionistTimer.Remove(playerId);
                     }
                     else if (rv_time >= RevolutionistDrawTime.GetFloat())
                     {
                         player.SetKillCooldown();
-                        Main.RevolutionistTimer.Remove(playerId);
-                        Main.isDraw[(playerId, rv_target.PlayerId)] = true;
+                        RevolutionistTimer.Remove(playerId);
+                        isDraw[(playerId, rv_target.PlayerId)] = true;
                         player.RpcSetDrawPlayer(rv_target, true);
                         Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: rv_target, ForceLoop: true);
                         RPC.ResetCurrentDrawTarget(playerId);
                         if (IRandom.Instance.Next(1, 100) <= RevolutionistKillProbability.GetInt())
                         {
-                            rv_target.SetRealKiller(player);
+                            ExtendedPlayerControl.SetRealKiller(rv_target, player);
                             Main.PlayerStates[rv_target.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
                             player.Kill(rv_target);
                             Main.PlayerStates[rv_target.PlayerId].SetDead();
-                            Logger.Info($"Revolutionist: {player.GetNameWithRole().RemoveHtmlTags()} killed {rv_target.GetNameWithRole().RemoveHtmlTags()}", "Revolutionist");
+                            Logger.Info($"Revolutionist: {player.GetNameWithRole().RemoveHtmlTags()} killed {ExtendedPlayerControl.GetNameWithRole(rv_target).RemoveHtmlTags()}", "Revolutionist");
                         }
                     }
                     else
@@ -161,11 +169,11 @@ namespace TOHE.Roles.Neutral
                         float dis = Vector2.Distance(player.transform.position, rv_target.transform.position);
                         if (dis <= range)
                         {
-                            Main.RevolutionistTimer[playerId] = (rv_target, rv_time + Time.fixedDeltaTime);
+                            RevolutionistTimer[playerId] = (rv_target, rv_time + Time.fixedDeltaTime);
                         }
                         else
                         {
-                            Main.RevolutionistTimer.Remove(playerId);
+                            RevolutionistTimer.Remove(playerId);
                             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: rv_target);
                             RPC.ResetCurrentDrawTarget(playerId);
 
@@ -177,15 +185,15 @@ namespace TOHE.Roles.Neutral
 
             if (GameStates.IsInTask && player.IsDrawDone() && player.IsAlive())
             {
-                if (Main.RevolutionistStart.ContainsKey(playerId))
+                if (RevolutionistStart.ContainsKey(playerId))
                 {
-                    if (Main.RevolutionistLastTime.ContainsKey(playerId))
+                    if (RevolutionistLastTime.ContainsKey(playerId))
                     {
                         long nowtime = Utils.TimeStamp;
-                        Main.RevolutionistLastTime[playerId] = nowtime;
-                        int time = (int)(Main.RevolutionistLastTime[playerId] - Main.RevolutionistStart[playerId]);
+                        RevolutionistLastTime[playerId] = nowtime;
+                        int time = (int)(RevolutionistLastTime[playerId] - RevolutionistStart[playerId]);
                         int countdown = RevolutionistVentCountDown.GetInt() - time;
-                        Main.RevolutionistCountdown.Clear();
+                        RevolutionistCountdown.Clear();
                         if (countdown <= 0)
                         {
                             Utils.GetDrawPlayerCount(playerId, out var y);
@@ -199,17 +207,17 @@ namespace TOHE.Roles.Neutral
                         }
                         else
                         {
-                            Main.RevolutionistCountdown.Add(playerId, countdown);
+                            RevolutionistCountdown.Add(playerId, countdown);
                         }
                     }
                     else
                     {
-                        Main.RevolutionistLastTime.TryAdd(playerId, Main.RevolutionistStart[playerId]);
+                        RevolutionistLastTime.TryAdd(playerId, RevolutionistStart[playerId]);
                     }
                 }
                 else
                 {
-                    Main.RevolutionistStart.TryAdd(playerId, Utils.TimeStamp);
+                    RevolutionistStart.TryAdd(playerId, Utils.TimeStamp);
                 }
             }
         }

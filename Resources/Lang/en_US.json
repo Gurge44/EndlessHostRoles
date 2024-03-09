@@ -1125,6 +1125,7 @@
   "RemainingText.EjectionSuffix.NKSingle": "remains.",
   "RemainingText.EjectionSuffix.NKPlural": "remain.",
   "Cooldown": "Cooldown",
+  "CurseCooldown": "Curse Cooldown",
   "KillCooldown": "Kill Cooldown",
   "VentCooldown": "Vent Cooldown",
   "MaxInVentTime": "Max In-Vent Time",

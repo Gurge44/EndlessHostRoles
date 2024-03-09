@@ -14,6 +14,8 @@ namespace TOHE.Roles.Neutral
         private const int Id = 13200;
         private static List<byte> playerIdList = [];
         public static List<byte> InfectedPlayer = [];
+        public static Dictionary<byte, string> VirusNotify = [];
+        public static List<byte> InfectedBodies = [];
 
         private static OptionItem KillCooldown;
         private static OptionItem InfectMax;
@@ -86,7 +88,7 @@ namespace TOHE.Roles.Neutral
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer.GetAbilityUseLimit() < 1) return false;
-            Main.InfectedBodies.Add(target.PlayerId);
+            InfectedBodies.Add(target.PlayerId);
             return false;
         }
 
@@ -100,7 +102,7 @@ namespace TOHE.Roles.Neutral
             {
                 InfectedPlayer.Add(target.PlayerId);
 
-                Main.VirusNotify.Add(target.PlayerId, GetString("VirusNoticeMessage2"));
+                VirusNotify.Add(target.PlayerId, GetString("VirusNoticeMessage2"));
             }
             else
             {
@@ -108,7 +110,7 @@ namespace TOHE.Roles.Neutral
 
                 Utils.NotifyRoles(ForceLoop: true);
 
-                Main.VirusNotify.Add(target.PlayerId, GetString("VirusNoticeMessage"));
+                VirusNotify.Add(target.PlayerId, GetString("VirusNoticeMessage"));
             }
 
             Logger.Info("Add-on assigned:" + target.Data?.PlayerName + " = " + target.GetCustomRole() + " + " + CustomRoles.Contagious, "Assign " + CustomRoles.Contagious);

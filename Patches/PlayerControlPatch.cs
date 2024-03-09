@@ -334,14 +334,14 @@ class CheckMurderPatch
             }
         }
 
-        if (Main.ForCrusade.Contains(target.PlayerId))
+        if (Crusader.ForCrusade.Contains(target.PlayerId))
         {
             foreach (PlayerControl player in Main.AllPlayerControls)
             {
                 if (player.Is(CustomRoles.Crusader) && player.IsAlive() && !killer.Is(CustomRoles.Pestilence) && !killer.Is(CustomRoles.Minimalism))
                 {
                     player.Kill(killer);
-                    Main.ForCrusade.Remove(target.PlayerId);
+                    Crusader.ForCrusade.Remove(target.PlayerId);
                     killer.RpcGuardAndKill(target);
                     return false;
                 }
@@ -349,7 +349,7 @@ class CheckMurderPatch
                 if (player.Is(CustomRoles.Crusader) && player.IsAlive() && killer.Is(CustomRoles.Pestilence))
                 {
                     killer.Kill(player);
-                    Main.ForCrusade.Remove(target.PlayerId);
+                    Crusader.ForCrusade.Remove(target.PlayerId);
                     target.RpcGuardAndKill(killer);
                     Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.PissedOff;
                     return false;
@@ -433,7 +433,7 @@ class MurderPlayerPatch
         if (target.AmOwner) RemoveDisableDevicesPatch.UpdateDisableDevices();
         if (!target.Data.IsDead || !AmongUsClient.Instance.AmHost) return;
 
-        if (Main.OverDeadPlayerList.Contains(target.PlayerId)) return;
+        if (OverKiller.OverDeadPlayerList.Contains(target.PlayerId)) return;
 
         PlayerControl killer = __instance; // Alternative variable
         if (target.PlayerId == Godfather.GodfatherTarget) killer.RpcSetCustomRole(CustomRoles.Refugee);
@@ -741,8 +741,7 @@ class ReportDeadBodyPatch
 
                 if (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Gambled
                     || killerRole == CustomRoles.Scavenger
-                    || Main.CleanerBodies.Contains(target.PlayerId)
-                    || Main.MedusaBodies.Contains(target.PlayerId)) return false;
+                    || Cleaner.CleanerBodies.Contains(target.PlayerId)) return false;
 
                 var tpc = GetPlayerById(target.PlayerId);
 
@@ -828,7 +827,7 @@ class ReportDeadBodyPatch
         {
             if (player.Is(CustomRoles.Mayor))
             {
-                Main.MayorUsedButtonCount[player.PlayerId] += 1;
+                Mayor.MayorUsedButtonCount[player.PlayerId] += 1;
             }
         }
         else
@@ -847,7 +846,7 @@ class ReportDeadBodyPatch
                 }
             }
 
-            if (Main.InfectedBodies.Contains(target.PlayerId)) Virus.OnKilledBodyReport(player);
+            if (Virus.InfectedBodies.Contains(target.PlayerId)) Virus.OnKilledBodyReport(player);
         }
 
         Enigma.OnReportDeadBody(player, target);
@@ -857,16 +856,15 @@ class ReportDeadBodyPatch
 
         Main.LastVotedPlayerInfo = null;
         Witness.AllKillers.Clear();
-        Main.ArsonistTimer.Clear();
+        Arsonist.ArsonistTimer.Clear();
         Farseer.FarseerTimer.Clear();
         Puppeteer.PuppeteerList.Clear();
         Puppeteer.PuppeteerDelayList.Clear();
-        Main.TaglockedList.Clear();
         Main.GuesserGuessed.Clear();
-        Main.VeteranInProtect.Clear();
+        Veteran.VeteranInProtect.Clear();
         Grenadier.GrenadierBlinding.Clear();
-        Main.BlockSabo.Clear();
-        Main.BlockedVents.Clear();
+        SecurityGuard.BlockSabo.Clear();
+        Ventguard.BlockedVents.Clear();
         Grenadier.MadGrenadierBlinding.Clear();
         Divinator.didVote.Clear();
         Oracle.didVote.Clear();
@@ -1247,7 +1245,7 @@ class FixedUpdatePatch
                     if (target.Is(CustomRoles.Arsonist) && target.IsDouseDone())
                         RealName = ColorString(GetRoleColor(CustomRoles.Arsonist), GetString("EnterVentToWin"));
                     else if (target.Is(CustomRoles.Revolutionist) && target.IsDrawDone())
-                        RealName = ColorString(GetRoleColor(CustomRoles.Revolutionist), string.Format(GetString("EnterVentWinCountDown"), Main.RevolutionistCountdown.GetValueOrDefault(seer.PlayerId, 10)));
+                        RealName = ColorString(GetRoleColor(CustomRoles.Revolutionist), string.Format(GetString("EnterVentWinCountDown"), Revolutionist.RevolutionistCountdown.GetValueOrDefault(seer.PlayerId, 10)));
                     if (Pelican.IsEaten(seer.PlayerId))
                         RealName = ColorString(GetRoleColor(CustomRoles.Pelican), GetString("EatenByPelican"));
 
@@ -1314,8 +1312,8 @@ class FixedUpdatePatch
                             Mark.Append($"<color={GetRoleColorCode(CustomRoles.Arsonist)}>▲</color>");
                         }
                         else if (
-                            Main.currentDousingTarget != byte.MaxValue &&
-                            Main.currentDousingTarget == target.PlayerId
+                            Arsonist.currentDousingTarget != byte.MaxValue &&
+                            Arsonist.currentDousingTarget == target.PlayerId
                         )
                         {
                             Mark.Append($"<color={GetRoleColorCode(CustomRoles.Arsonist)}>△</color>");
@@ -1328,8 +1326,8 @@ class FixedUpdatePatch
                             Mark.Append($"<color={GetRoleColorCode(CustomRoles.Revolutionist)}>●</color>");
                         }
                         else if (
-                            Main.currentDrawTarget != byte.MaxValue &&
-                            Main.currentDrawTarget == target.PlayerId
+                            Revolutionist.currentDrawTarget != byte.MaxValue &&
+                            Revolutionist.currentDrawTarget == target.PlayerId
                         )
                         {
                             Mark.Append($"<color={GetRoleColorCode(CustomRoles.Revolutionist)}>○</color>");
@@ -1337,8 +1335,8 @@ class FixedUpdatePatch
 
                         break;
                     case CustomRoles.Farseer:
-                        if (Main.currentDrawTarget != byte.MaxValue &&
-                            Main.currentDrawTarget == target.PlayerId)
+                        if (Revolutionist.currentDrawTarget != byte.MaxValue &&
+                            Revolutionist.currentDrawTarget == target.PlayerId)
                         {
                             Mark.Append($"<color={GetRoleColorCode(CustomRoles.Farseer)}>○</color>");
                         }
@@ -1420,6 +1418,9 @@ class FixedUpdatePatch
                         break;
                     case CustomRoles.Predator when seer.PlayerId == target.PlayerId:
                         Suffix.Append(Predator.GetSuffixAndHudText(seer));
+                        break;
+                    case CustomRoles.Warlock when seer.PlayerId == target.PlayerId:
+                        Suffix.Append(Warlock.GetSuffixAndHudText(seer));
                         break;
                 }
 
@@ -1663,7 +1664,7 @@ class EnterVentPatch
 
         switch (pc.GetCustomRole())
         {
-            case CustomRoles.Mayor when !Options.UsePets.GetBool() && Main.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count2) && count2 < Options.MayorNumOfUseButton.GetInt():
+            case CustomRoles.Mayor when !Options.UsePets.GetBool() && Mayor.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count2) && count2 < Options.MayorNumOfUseButton.GetInt():
                 pc.MyPhysics?.RpcBootFromVent(__instance.Id);
                 pc.ReportDeadBody(null);
                 break;
@@ -1761,7 +1762,7 @@ class CoEnterVentPatch
             return true;
         }
 
-        if (Main.BlockedVents.Contains(id))
+        if (Ventguard.BlockedVents.Contains(id))
         {
             var pc = __instance.myPlayer;
             if (Options.VentguardBlockDoesNotAffectCrew.GetBool() && pc.GetCustomRole().IsCrewmate())
@@ -1790,8 +1791,8 @@ class CoEnterVentPatch
 
         if (Main.NormalOptions.MapId == (int)MapNames.Dleks || ((__instance.myPlayer.Data.Role.Role != RoleTypes.Engineer &&
                                                                  !__instance.myPlayer.CanUseImpostorVentButton()) ||
-                                                                (__instance.myPlayer.Is(CustomRoles.Mayor) && Main.MayorUsedButtonCount.TryGetValue(__instance.myPlayer.PlayerId, out var count) && count >= Options.MayorNumOfUseButton.GetInt()) ||
-                                                                (__instance.myPlayer.Is(CustomRoles.Paranoia) && Main.ParaUsedButtonCount.TryGetValue(__instance.myPlayer.PlayerId, out var count2) && count2 >= Options.ParanoiaNumOfUseButton.GetInt()))
+                                                                (__instance.myPlayer.Is(CustomRoles.Mayor) && Mayor.MayorUsedButtonCount.TryGetValue(__instance.myPlayer.PlayerId, out var count) && count >= Options.MayorNumOfUseButton.GetInt()) ||
+                                                                (__instance.myPlayer.Is(CustomRoles.Paranoia) && Paranoia.ParaUsedButtonCount.TryGetValue(__instance.myPlayer.PlayerId, out var count2) && count2 >= Options.ParanoiaNumOfUseButton.GetInt()))
             && !__instance.myPlayer.Is(CustomRoles.Nimble))
         {
             try

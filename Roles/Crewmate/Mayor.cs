@@ -1,17 +1,20 @@
 ﻿using AmongUs.GameOptions;
+using System.Collections.Generic;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Crewmate
 {
     internal class Mayor : RoleBase
     {
+        public static Dictionary<byte, int> MayorUsedButtonCount = [];
+
         public static bool On;
         public override bool IsEnable => On;
 
         public override void Add(byte playerId)
         {
             On = true;
-            Main.MayorUsedButtonCount[playerId] = 0;
+            MayorUsedButtonCount[playerId] = 0;
         }
 
         public override void Init()
@@ -23,7 +26,7 @@ namespace TOHE.Roles.Crewmate
         {
             if (UsePets.GetBool()) return;
             AURoleOptions.EngineerCooldown =
-                !Main.MayorUsedButtonCount.TryGetValue(playerId, out var count) || count < MayorNumOfUseButton.GetInt()
+                !MayorUsedButtonCount.TryGetValue(playerId, out var count) || count < MayorNumOfUseButton.GetInt()
                     ? opt.GetInt(Int32OptionNames.EmergencyCooldown)
                     : 300f;
             AURoleOptions.EngineerInVentMaxTime = 1f;
@@ -52,7 +55,7 @@ namespace TOHE.Roles.Crewmate
         {
             if (!MayorHasPortableButton.GetBool()) return;
 
-            if (Main.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count) && count < MayorNumOfUseButton.GetInt())
+            if (MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count) && count < MayorNumOfUseButton.GetInt())
             {
                 pc.ReportDeadBody(null);
             }

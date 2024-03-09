@@ -2,6 +2,7 @@
 using HarmonyLib;
 using Hazel;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using TOHE.Modules;
 using UnityEngine;
@@ -15,6 +16,8 @@ namespace TOHE.Roles.Impostor
     {
         public static bool On;
         public override bool IsEnable => On;
+
+        public static Dictionary<byte, int> MafiaRevenged = [];
 
         public static void SetupCustomOption()
         {
@@ -82,9 +85,9 @@ namespace TOHE.Roles.Impostor
                 return true;
             }
 
-            if (!Main.MafiaRevenged.TryAdd(pc.PlayerId, 0))
+            if (!MafiaRevenged.TryAdd(pc.PlayerId, 0))
             {
-                if (Main.MafiaRevenged[pc.PlayerId] >= MafiaCanKillNum.GetInt())
+                if (MafiaRevenged[pc.PlayerId] >= MafiaCanKillNum.GetInt())
                 {
                     if (!isUI) Utils.SendMessage(GetString("MafiaKillMax"), pc.PlayerId);
                     else pc.ShowPopUp(GetString("MafiaKillMax"));
@@ -123,7 +126,7 @@ namespace TOHE.Roles.Impostor
 
             string Name = target.GetRealName();
 
-            Main.MafiaRevenged[pc.PlayerId]++;
+            MafiaRevenged[pc.PlayerId]++;
 
             CustomSoundsManager.RPCPlayCustomSoundAll("AWP");
 

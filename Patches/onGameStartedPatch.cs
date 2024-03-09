@@ -10,6 +10,7 @@ using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
+using TOHE.Roles.Neutral;
 using static TOHE.Modules.CustomRoleSelector;
 using static TOHE.Translator;
 
@@ -23,7 +24,6 @@ internal class ChangeRoleSettings
         Main.OverrideWelcomeMsg = string.Empty;
         try
         {
-            //注:この時点では役職は設定されていません。
             Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.GuardianAngel, 0, 0);
             if (Options.DisableVanillaRoles.GetBool())
             {
@@ -50,39 +50,33 @@ internal class ChangeRoleSettings
             Main.AllPlayerKillCooldown = [];
             Main.AllPlayerSpeed = [];
             Main.KillTimers = [];
-            Main.WarlockTimer = [];
-            Main.AssassinTimer = [];
-            Main.UndertakerTimer = [];
-            Main.isDoused = [];
-            Main.isDraw = [];
-            Main.isRevealed = [];
-            Main.ArsonistTimer = [];
-            Main.RevolutionistTimer = [];
-            Main.RevolutionistStart = [];
-            Main.RevolutionistLastTime = [];
-            Main.RevolutionistCountdown = [];
-            Main.TimeMasterBackTrack = [];
-            Main.TimeMasterNum = [];
+            Warlock.WarlockTimer = [];
+            Arsonist.isDoused = [];
+            Revolutionist.isDraw = [];
+            Farseer.isRevealed = [];
+            Arsonist.ArsonistTimer = [];
+            Revolutionist.RevolutionistTimer = [];
+            Revolutionist.RevolutionistStart = [];
+            Revolutionist.RevolutionistLastTime = [];
+            Revolutionist.RevolutionistCountdown = [];
+            TimeMaster.TimeMasterBackTrack = [];
+            TimeMaster.TimeMasterNum = [];
             Farseer.FarseerTimer = [];
-            Main.CursedPlayers = [];
-            Main.MafiaRevenged = [];
-            Main.isCurseAndKill = [];
-            Main.isCursed = false;
-            Main.TaglockedList = [];
-            Main.DetectiveNotify = [];
+            Warlock.CursedPlayers = [];
+            Mafia.MafiaRevenged = [];
+            Warlock.isCurseAndKill = [];
+            Warlock.isCursed = false;
+            Detective.DetectiveNotify = [];
             Main.SleuthMsgs = [];
-            Main.ForCrusade = [];
-            Main.KillGhoul = [];
+            Crusader.ForCrusade = [];
             Main.CyberStarDead = [];
             Main.KilledDiseased = [];
             Main.KilledAntidote = [];
-            Main.WorkaholicAlive = [];
-            Main.SpeedrunnerAlive = [];
+            Workaholic.WorkaholicAlive = [];
             Main.BaitAlive = [];
-            Main.CleanerBodies = [];
-            Main.MedusaBodies = [];
-            Main.InfectedBodies = [];
-            Main.VirusNotify = [];
+            Cleaner.CleanerBodies = [];
+            Virus.InfectedBodies = [];
+            Virus.VirusNotify = [];
             Main.DontCancelVoteList = [];
 
             Main.LastEnteredVent = [];
@@ -94,19 +88,17 @@ internal class ChangeRoleSettings
 
             Main.CheckShapeshift = [];
             Main.ShapeshiftTarget = [];
-            Main.SpeedBoostTarget = [];
-            Main.MayorUsedButtonCount = [];
-            Main.ParaUsedButtonCount = [];
-            Main.MarioVentCount = [];
-            Main.VeteranInProtect = [];
+            Mayor.MayorUsedButtonCount = [];
+            Paranoia.ParaUsedButtonCount = [];
+            Mario.MarioVentCount = [];
+            Veteran.VeteranInProtect = [];
             Witness.AllKillers = [];
             Grenadier.GrenadierBlinding = [];
-            Main.BlockSabo = [];
-            Main.BlockedVents = [];
+            SecurityGuard.BlockSabo = [];
+            Ventguard.BlockedVents = [];
             Grenadier.MadGrenadierBlinding = [];
-            Main.JinxSpellCount = [];
-            Main.OverDeadPlayerList = [];
-            Main.Provoked = [];
+            OverKiller.OverDeadPlayerList = [];
+            Provocateur.Provoked = [];
             Main.ShieldPlayer = Options.ShieldPersonDiedFirst.GetBool() ? Main.FirstDied : byte.MaxValue;
             Main.FirstDied = byte.MaxValue;
             Main.MadmateNum = 0;
@@ -131,8 +123,8 @@ internal class ChangeRoleSettings
 
             Main.LastNotifyNames = [];
 
-            Main.currentDousingTarget = byte.MaxValue;
-            Main.currentDrawTarget = byte.MaxValue;
+            Arsonist.currentDousingTarget = byte.MaxValue;
+            Revolutionist.currentDrawTarget = byte.MaxValue;
             Main.PlayerColors = [];
 
             //名前の記録

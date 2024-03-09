@@ -72,14 +72,14 @@ public class CopyCat : RoleBase
                     Merchant.bribedKiller.Remove(player);
                     break;
                 case CustomRoles.Paranoia:
-                    Main.ParaUsedButtonCount.Remove(player);
+                    Paranoia.ParaUsedButtonCount.Remove(player);
                     break;
                 case CustomRoles.Snitch:
                     Snitch.IsExposed.Remove(player);
                     Snitch.IsComplete.Remove(player);
                     break;
                 case CustomRoles.Mayor:
-                    Main.MayorUsedButtonCount.Remove(player);
+                    Mayor.MayorUsedButtonCount.Remove(player);
                     break;
             }
 

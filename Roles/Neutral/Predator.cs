@@ -118,6 +118,7 @@ namespace TOHE.Roles.Neutral
 
         public static string GetSuffixAndHudText(PlayerControl seer, bool hud = false)
         {
+            if (seer.IsModClient() && !hud) return string.Empty;
             if (Main.PlayerStates[seer.PlayerId].Role is not Predator { IsEnable: true } pt) return string.Empty;
             if (pt.IsWon) return !hud ? "<#00ff00>\u2713</color>" : Translator.GetString("PredatorDone");
             var text = pt.RolesToKill.Join(x => Utils.ColorString(Utils.GetRoleColor(x), Translator.GetString($"{x}")));

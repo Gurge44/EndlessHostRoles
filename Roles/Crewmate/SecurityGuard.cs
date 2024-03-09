@@ -1,11 +1,14 @@
 ﻿using AmongUs.GameOptions;
 using System.Text;
+using System.Collections.Generic;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Crewmate
 {
     internal class SecurityGuard : RoleBase
     {
+        public static Dictionary<byte, long> BlockSabo = [];
+
         public static bool On;
         public override bool IsEnable => On;
 
@@ -51,7 +54,7 @@ namespace TOHE.Roles.Crewmate
         {
             var ProgressText = new StringBuilder();
 
-            ProgressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, Main.BlockSabo.ContainsKey(playerId)));
+            ProgressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, BlockSabo.ContainsKey(playerId)));
             ProgressText.Append(Utils.GetTaskCount(playerId, comms));
 
             return ProgressText.ToString();
@@ -72,11 +75,11 @@ namespace TOHE.Roles.Crewmate
 
         static void Guard(PlayerControl pc)
         {
-            if (Main.BlockSabo.ContainsKey(pc.PlayerId)) return;
+            if (BlockSabo.ContainsKey(pc.PlayerId)) return;
             if (pc.GetAbilityUseLimit() >= 1)
             {
-                Main.BlockSabo.Remove(pc.PlayerId);
-                Main.BlockSabo.Add(pc.PlayerId, Utils.TimeStamp);
+                BlockSabo.Remove(pc.PlayerId);
+                BlockSabo.Add(pc.PlayerId, Utils.TimeStamp);
                 pc.Notify(Translator.GetString("SecurityGuardSkillInUse"), SecurityGuardSkillDuration.GetFloat());
                 pc.RpcRemoveAbilityUse();
             }
@@ -90,9 +93,9 @@ namespace TOHE.Roles.Crewmate
         public override void OnFixedUpdate(PlayerControl player)
         {
             var playerId = player.PlayerId;
-            if (Main.BlockSabo.TryGetValue(playerId, out var stime) && stime + SecurityGuardSkillDuration.GetInt() < Utils.TimeStamp)
+            if (BlockSabo.TryGetValue(playerId, out var stime) && stime + SecurityGuardSkillDuration.GetInt() < Utils.TimeStamp)
             {
-                Main.BlockSabo.Remove(playerId);
+                BlockSabo.Remove(playerId);
                 player.RpcResetAbilityCooldown();
                 player.Notify(Translator.GetString("SecurityGuardSkillStop"));
             }

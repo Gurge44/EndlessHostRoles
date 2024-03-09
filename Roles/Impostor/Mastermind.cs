@@ -159,7 +159,7 @@ namespace TOHE.Roles.Impostor
                 (Main.PlayerStates[id].Role as Mastermind)?.NotifyMastermindTargetSurvived();
             }
 
-            if (target.Is(CustomRoles.Pestilence) || Main.VeteranInProtect.ContainsKey(target.PlayerId) || target.Is(CustomRoles.Mastermind))
+            if (target.Is(CustomRoles.Pestilence) || Veteran.VeteranInProtect.ContainsKey(target.PlayerId) || target.Is(CustomRoles.Mastermind))
             {
                 Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
                 Main.PlayerStates[killer.PlayerId].SetDead();

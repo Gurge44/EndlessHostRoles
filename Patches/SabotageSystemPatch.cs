@@ -1,6 +1,7 @@
 using HarmonyLib;
 using Hazel;
 using System.Linq;
+using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
 
 namespace TOHE;
@@ -252,7 +253,7 @@ public static class SabotageSystemTypeRepairDamagePatch
     public static bool Prefix([HarmonyArgument(0)] PlayerControl player)
     {
         if (Options.DisableSabotage.GetBool() || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato) return false;
-        if (Main.BlockSabo.Count > 0) return false;
+        if (SecurityGuard.BlockSabo.Count > 0) return false;
         if (Glitch.hackedIdList.ContainsKey(player.PlayerId))
         {
             player.Notify(string.Format(Translator.GetString("HackedByGlitch"), "Sabotage"));

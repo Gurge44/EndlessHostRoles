@@ -1,11 +1,14 @@
 ﻿using AmongUs.GameOptions;
 using TOHE.Roles.Neutral;
+using System.Collections.Generic;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor
 {
     internal class Cleaner : RoleBase
     {
+        public static List<byte> CleanerBodies = [];
+
         private bool HasImpostorVision;
         private bool CanVent;
         private float KillCooldown;
@@ -78,8 +81,8 @@ namespace TOHE.Roles.Impostor
         {
             if (Main.KillTimers[cleaner.PlayerId] > 0f) return true;
 
-            Main.CleanerBodies.Remove(target.PlayerId);
-            Main.CleanerBodies.Add(target.PlayerId);
+            CleanerBodies.Remove(target.PlayerId);
+            CleanerBodies.Add(target.PlayerId);
 
             cleaner.Notify(Translator.GetString("CleanerCleanBody"));
             cleaner.SetKillCooldown(KCDAfterClean);

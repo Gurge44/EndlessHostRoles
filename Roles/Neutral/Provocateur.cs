@@ -1,9 +1,12 @@
 ﻿using AmongUs.GameOptions;
+using System.Collections.Generic;
 
 namespace TOHE.Roles.Neutral
 {
     internal class Provocateur : RoleBase
     {
+        public static Dictionary<byte, byte> Provoked = [];
+
         public static bool On;
         public override bool IsEnable => On;
 
@@ -21,7 +24,7 @@ namespace TOHE.Roles.Neutral
 
         public override bool CanUseKillButton(PlayerControl pc)
         {
-            return pc.IsAlive() && !Main.Provoked.ContainsKey(pc.PlayerId);
+            return pc.IsAlive() && !Provoked.ContainsKey(pc.PlayerId);
         }
 
         public override bool CanUseImpostorVentButton(PlayerControl pc)
@@ -56,7 +59,7 @@ namespace TOHE.Roles.Neutral
         {
             Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.PissedOff;
             killer.Kill(target);
-            Main.Provoked.TryAdd(killer.PlayerId, target.PlayerId);
+            Provoked.TryAdd(killer.PlayerId, target.PlayerId);
             return false;
         }
     }

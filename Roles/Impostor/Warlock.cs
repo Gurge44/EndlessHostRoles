@@ -1,4 +1,5 @@
-﻿using AmongUs.GameOptions;
+﻿using System;
+using AmongUs.GameOptions;
 using System.Collections.Generic;
 using System.Linq;
 using TOHE.Modules;
@@ -14,6 +15,20 @@ namespace TOHE.Roles.Impostor
         public static bool On;
         public override bool IsEnable => On;
 
+        public static OptionItem WarlockCanKillAllies;
+        public static OptionItem WarlockCanKillSelf;
+        public static OptionItem KillCooldown;
+        public static OptionItem CurseCooldown;
+
+        public static Dictionary<byte, float> WarlockTimer = [];
+        public static Dictionary<byte, PlayerControl> CursedPlayers = [];
+        public static Dictionary<byte, bool> isCurseAndKill = [];
+        public static bool isCursed;
+
+        private float KCD;
+        private float CurseCD;
+        private long LastNotify;
+
         public static void SetupCustomOption()
         {
             SetupRoleOptions(4600, TabGroup.ImpostorRoles, CustomRoles.Warlock);
@@ -21,7 +36,10 @@ namespace TOHE.Roles.Impostor
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock]);
             WarlockCanKillSelf = BooleanOptionItem.Create(4611, "CanKillSelf", false, TabGroup.ImpostorRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock]);
-            WarlockShiftDuration = FloatOptionItem.Create(4612, "ShapeshiftDuration", new(0, 180, 1), 1, TabGroup.ImpostorRoles, false)
+            KillCooldown = FloatOptionItem.Create(4613, "KillCooldown", new(0f, 180f, 1f), 30f, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock])
+                .SetValueFormat(OptionFormat.Seconds);
+            CurseCooldown = FloatOptionItem.Create(4614, "CurseCooldown", new(0f, 180f, 1f), 30f, TabGroup.ImpostorRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock])
                 .SetValueFormat(OptionFormat.Seconds);
         }
@@ -29,8 +47,11 @@ namespace TOHE.Roles.Impostor
         public override void Add(byte playerId)
         {
             On = true;
-            Main.CursedPlayers.Add(playerId, null);
-            Main.isCurseAndKill.Add(playerId, false);
+            CursedPlayers.Add(playerId, null);
+            isCurseAndKill.Add(playerId, false);
+            KCD = KillCooldown.GetFloat();
+            CurseCD = CurseCooldown.GetFloat();
+            LastNotify = 0;
         }
 
         public override void Init()
@@ -43,17 +64,22 @@ namespace TOHE.Roles.Impostor
             if (UsePets.GetBool()) return;
             try
             {
-                AURoleOptions.ShapeshifterCooldown = Main.isCursed ? 1f : DefaultKillCooldown;
-                AURoleOptions.ShapeshifterDuration = WarlockShiftDuration.GetFloat();
+                AURoleOptions.ShapeshifterCooldown = isCursed ? 1f : DefaultKillCooldown;
+                AURoleOptions.ShapeshifterDuration = 1f;
             }
             catch
             {
             }
         }
 
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = 1f;
+        }
+
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            bool curse = Main.isCurseAndKill.TryGetValue(id, out bool wcs) && wcs;
+            bool curse = isCurseAndKill.TryGetValue(id, out bool wcs) && wcs;
             bool shapeshifting = id.IsPlayerShifted();
             if (!shapeshifting && !curse)
                 hud.KillButton?.OverrideText(Translator.GetString("WarlockCurseButtonText"));
@@ -65,24 +91,36 @@ namespace TOHE.Roles.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            Main.isCurseAndKill.TryAdd(killer.PlayerId, false);
+            if (killer.IsShifted()) return false;
 
-            if (!killer.IsShifted() && !Main.isCurseAndKill[killer.PlayerId])
+            if (killer.CheckDoubleTrigger(target, () =>
+                {
+                    if (CurseCD > 0f) return;
+
+                    isCurseAndKill.TryAdd(killer.PlayerId, false);
+
+                    if (!killer.IsShifted() && !isCurseAndKill[killer.PlayerId])
+                    {
+                        if (target.Is(CustomRoles.Needy) || target.Is(CustomRoles.Lazy)) return;
+                        isCursed = true;
+                        killer.SetKillCooldown();
+                        RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
+                        killer.RPCPlayCustomSound("Line");
+                        CursedPlayers[killer.PlayerId] = target;
+                        WarlockTimer.Add(killer.PlayerId, 0f);
+                        isCurseAndKill[killer.PlayerId] = true;
+                        CurseCD = CurseCooldown.GetFloat();
+                        return;
+                    }
+
+                    if (isCurseAndKill[killer.PlayerId]) killer.RpcGuardAndKill(target);
+                }))
             {
-                if (target.Is(CustomRoles.Needy) || target.Is(CustomRoles.Lazy)) return false;
-                Main.isCursed = true;
-                killer.SetKillCooldown();
-                RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
-                killer.RPCPlayCustomSound("Line");
-                Main.CursedPlayers[killer.PlayerId] = target;
-                Main.WarlockTimer.Add(killer.PlayerId, 0f);
-                Main.isCurseAndKill[killer.PlayerId] = true;
-                return false;
+                if (KCD > 0f) return false;
+                KCD = KillCooldown.GetFloat();
+                return true;
             }
 
-            if (killer.IsShifted()) return true;
-
-            if (Main.isCurseAndKill[killer.PlayerId]) killer.RpcGuardAndKill(target);
             return false;
         }
 
@@ -100,12 +138,12 @@ namespace TOHE.Roles.Impostor
 
         static void Curse(PlayerControl pc)
         {
-            Main.isCurseAndKill.TryAdd(pc.PlayerId, false);
-            if (Main.CursedPlayers[pc.PlayerId] != null)
+            isCurseAndKill.TryAdd(pc.PlayerId, false);
+            if (CursedPlayers[pc.PlayerId] != null)
             {
-                if (!Main.CursedPlayers[pc.PlayerId].Data.IsDead)
+                if (!CursedPlayers[pc.PlayerId].Data.IsDead)
                 {
-                    var cp = Main.CursedPlayers[pc.PlayerId];
+                    var cp = CursedPlayers[pc.PlayerId];
                     Vector2 cppos = cp.Pos();
                     Dictionary<PlayerControl, float> cpdistance = [];
                     foreach (PlayerControl p in Main.AllAlivePlayerControls)
@@ -140,34 +178,62 @@ namespace TOHE.Roles.Impostor
                         pc.Notify(Translator.GetString("WarlockNoTarget"));
                     }
 
-                    Main.isCurseAndKill[pc.PlayerId] = false;
+                    isCurseAndKill[pc.PlayerId] = false;
                 }
 
-                Main.CursedPlayers[pc.PlayerId] = null;
+                CursedPlayers[pc.PlayerId] = null;
             }
         }
 
         public override void OnGlobalFixedUpdate(PlayerControl player, bool lowLoad)
         {
             byte playerId = player.PlayerId;
-            if (GameStates.IsInTask && Main.WarlockTimer.ContainsKey(playerId))
+            if (GameStates.IsInTask && WarlockTimer.ContainsKey(playerId))
             {
                 if (player.IsAlive())
                 {
-                    if (Main.WarlockTimer[playerId] >= 1f)
+                    if (WarlockTimer[playerId] >= 1f)
                     {
                         player.RpcResetAbilityCooldown();
-                        Main.isCursed = false;
+                        isCursed = false;
                         player.MarkDirtySettings();
-                        Main.WarlockTimer.Remove(playerId);
+                        WarlockTimer.Remove(playerId);
                     }
-                    else Main.WarlockTimer[playerId] += Time.fixedDeltaTime;
+                    else WarlockTimer[playerId] += Time.fixedDeltaTime;
                 }
                 else
                 {
-                    Main.WarlockTimer.Remove(playerId);
+                    WarlockTimer.Remove(playerId);
                 }
             }
+        }
+
+        public override void OnFixedUpdate(PlayerControl pc)
+        {
+            if (!GameStates.IsInTask || !pc.IsAlive()) return;
+
+            var beforeKCD = KCD;
+            var beforeCCD = CurseCD;
+
+            if (KCD > 0f) KCD -= Time.fixedDeltaTime;
+            if (CurseCD > 0f) CurseCD -= Time.fixedDeltaTime;
+
+            if (!pc.IsModClient() && (Math.Abs(KCD - beforeKCD) > 0.5f || Math.Abs(beforeCCD - CurseCD) > 0.5f) && LastNotify != Utils.TimeStamp)
+            {
+                LastNotify = Utils.TimeStamp;
+                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            }
+        }
+
+        public static string GetSuffixAndHudText(PlayerControl seer, bool hud = false)
+        {
+            if (seer.IsModClient() && !hud) return string.Empty;
+            if (Main.PlayerStates[seer.PlayerId].Role is not Warlock { IsEnable: true } wl) return string.Empty;
+
+            var sb = new System.Text.StringBuilder();
+            if (wl.KCD > 0f) sb.Append($"<#ffa500>{Translator.GetString("KillCooldown")}:</color> <#ffffff>{(int)Math.Round(wl.KCD)}s</color>");
+            if (wl.CurseCD > 0f) sb.Append($"{(sb.Length > 0 ? "\n" : string.Empty)}<#00ffa5>{Translator.GetString("CurseCooldown")}:</color> <#ffffff>{(int)Math.Round(wl.CurseCD)}s</color>");
+            return hud ? sb.ToString() : $"<size=1.7>{sb}</size>";
         }
     }
 }

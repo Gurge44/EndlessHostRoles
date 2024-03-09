@@ -619,20 +619,20 @@ static class ExtendedPlayerControl
 
     public static bool IsDousedPlayer(this PlayerControl arsonist, PlayerControl target)
     {
-        if (arsonist == null || target == null || Main.isDoused == null) return false;
-        Main.isDoused.TryGetValue((arsonist.PlayerId, target.PlayerId), out bool isDoused);
+        if (arsonist == null || target == null || Arsonist.isDoused == null) return false;
+        Arsonist.isDoused.TryGetValue((arsonist.PlayerId, target.PlayerId), out bool isDoused);
         return isDoused;
     }
     public static bool IsDrawPlayer(this PlayerControl arsonist, PlayerControl target)
     {
-        if (arsonist == null || target == null || Main.isDraw == null) return false;
-        Main.isDraw.TryGetValue((arsonist.PlayerId, target.PlayerId), out bool isDraw);
+        if (arsonist == null || target == null || Revolutionist.isDraw == null) return false;
+        Revolutionist.isDraw.TryGetValue((arsonist.PlayerId, target.PlayerId), out bool isDraw);
         return isDraw;
     }
     public static bool IsRevealedPlayer(this PlayerControl player, PlayerControl target)
     {
-        if (player == null || target == null || Main.isRevealed == null) return false;
-        Main.isRevealed.TryGetValue((player.PlayerId, target.PlayerId), out bool isDoused);
+        if (player == null || target == null || Farseer.isRevealed == null) return false;
+        Farseer.isRevealed.TryGetValue((player.PlayerId, target.PlayerId), out bool isDoused);
         return isDoused;
     }
     public static void RpcSetDousedPlayer(this PlayerControl player, PlayerControl target, bool isDoused)

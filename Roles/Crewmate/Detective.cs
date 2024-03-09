@@ -1,7 +1,11 @@
-﻿namespace TOHE.Roles.Crewmate
+﻿using System.Collections.Generic;
+
+namespace TOHE.Roles.Crewmate
 {
     internal static class Detective
     {
+        public static Dictionary<byte, string> DetectiveNotify = [];
+
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(6600, TabGroup.CrewmateRoles, CustomRoles.Detective);
@@ -19,7 +23,7 @@
                 else msg += "；" + string.Format(Translator.GetString("DetectiveNoticeKiller"), realKiller.GetDisplayRoleName());
             }
 
-            Main.DetectiveNotify.Add(player.PlayerId, msg);
+            DetectiveNotify.Add(player.PlayerId, msg);
         }
     }
 }

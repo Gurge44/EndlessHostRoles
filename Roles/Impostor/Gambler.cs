@@ -156,7 +156,7 @@ namespace TOHE.Roles.Impostor
                     case 5: // Ignore defense
                         killer.Notify(GetString("GamblerGet.IgnoreDefense"));
                         if ((target.Is(CustomRoles.Pestilence) && IgnorePestilence.GetBool())
-                            || (Main.VeteranInProtect.ContainsKey(target.PlayerId) && IgnoreVeteranAlert.GetBool())
+                            || (Veteran.VeteranInProtect.ContainsKey(target.PlayerId) && IgnoreVeteranAlert.GetBool())
                             || (Medic.InProtect(target.PlayerId) && IgnoreMedicShield.GetBool())
                             || ((target.Is(CustomRoles.Jinx) || target.Is(CustomRoles.CursedWolf)) && IgnoreCursedWolfAndJinx.GetBool()))
                         {
@@ -165,7 +165,7 @@ namespace TOHE.Roles.Impostor
                         }
 
                         if ((target.Is(CustomRoles.Pestilence) && !IgnorePestilence.GetBool())
-                            || (Main.VeteranInProtect.ContainsKey(target.PlayerId) && !IgnoreVeteranAlert.GetBool())
+                            || (Veteran.VeteranInProtect.ContainsKey(target.PlayerId) && !IgnoreVeteranAlert.GetBool())
                             || (Medic.InProtect(target.PlayerId) && !IgnoreMedicShield.GetBool())
                             || ((target.Is(CustomRoles.Jinx) || target.Is(CustomRoles.CursedWolf)) && !IgnoreCursedWolfAndJinx.GetBool()))
                         {

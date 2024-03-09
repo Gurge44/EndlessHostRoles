@@ -62,7 +62,7 @@ public class Hangman : RoleBase
         if (killer.IsShifted())
         {
             if (target.Is(CustomRoles.Pestilence)) return false;
-            if (target.Is(CustomRoles.Veteran) && Main.VeteranInProtect.ContainsKey(target.PlayerId)) return false;
+            if (target.Is(CustomRoles.Veteran) && Veteran.VeteranInProtect.ContainsKey(target.PlayerId)) return false;
             killer.RpcRemoveAbilityUse();
             target.Data.IsDead = true;
             target.SetRealKiller(killer);

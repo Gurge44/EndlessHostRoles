@@ -35,7 +35,6 @@ class OnGameJoinedPatch
             GameStartManagerPatch.GameStartManagerUpdatePatch.exitTimer = -1;
             Main.DoBlockNameChange = false;
             Main.newLobby = true;
-            Main.DevRole = [];
             EAC.DeNum = new();
             Main.AllPlayerNames = [];
 

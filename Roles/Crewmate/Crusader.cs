@@ -8,6 +8,8 @@ public class Crusader : RoleBase
     private const int Id = 20050;
     private static List<byte> playerIdList = [];
 
+    public static List<byte> ForCrusade = [];
+
     public static OptionItem SkillLimitOpt;
     public static OptionItem SkillCooldown;
     public static OptionItem UsePet;
@@ -54,8 +56,8 @@ public class Crusader : RoleBase
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer.GetAbilityUseLimit() <= 0) return false;
-        Main.ForCrusade.Remove(target.PlayerId);
-        Main.ForCrusade.Add(target.PlayerId);
+        ForCrusade.Remove(target.PlayerId);
+        ForCrusade.Add(target.PlayerId);
         killer.RpcRemoveAbilityUse();
         killer.ResetKillCooldown();
         killer.SetKillCooldown();

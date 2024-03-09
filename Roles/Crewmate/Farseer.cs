@@ -14,6 +14,7 @@ namespace TOHE.Roles.Crewmate
     public class Farseer : RoleBase
     {
         public static Dictionary<byte, (PlayerControl PLAYER, float TIMER)> FarseerTimer = [];
+        public static Dictionary<(byte, byte), bool> isRevealed = [];
 
         private const int Id = 9700;
 
@@ -54,7 +55,7 @@ namespace TOHE.Roles.Crewmate
 
             foreach (PlayerControl ar in Main.AllPlayerControls)
             {
-                Main.isRevealed[(playerId, ar.PlayerId)] = false;
+                isRevealed[(playerId, ar.PlayerId)] = false;
             }
 
             RandomRole[playerId] = GetRandomCrewRoleString();
@@ -84,7 +85,7 @@ namespace TOHE.Roles.Crewmate
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             killer.SetKillCooldown(FarseerRevealTime.GetFloat());
-            if (!Main.isRevealed[(killer.PlayerId, target.PlayerId)] && !FarseerTimer.ContainsKey(killer.PlayerId))
+            if (!isRevealed[(killer.PlayerId, target.PlayerId)] && !FarseerTimer.ContainsKey(killer.PlayerId))
             {
                 FarseerTimer.TryAdd(killer.PlayerId, (target, 0f));
                 NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
@@ -117,7 +118,7 @@ namespace TOHE.Roles.Crewmate
                         if (UsePets.GetBool()) player.AddKCDAsAbilityCD();
                         else player.SetKillCooldown();
                         FarseerTimer.Remove(player.PlayerId);
-                        Main.isRevealed[(player.PlayerId, ar_target.PlayerId)] = true;
+                        isRevealed[(player.PlayerId, ar_target.PlayerId)] = true;
                         player.RpcSetRevealtPlayer(ar_target, true);
                         NotifyRoles(SpecifySeer: player, SpecifyTarget: ar_target);
                         RPC.ResetCurrentRevealTarget(player.PlayerId);

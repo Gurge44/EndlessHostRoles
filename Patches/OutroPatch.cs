@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using TMPro;
 using TOHE.Modules;
+using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
 using UnityEngine;
 using static TOHE.Translator;
@@ -97,9 +98,9 @@ class EndGamePatch
             Main.winnerRolesList.Add(pc.GetCustomRole());
         }
 
-        Main.isDoused = [];
-        Main.isDraw = [];
-        Main.isRevealed = [];
+        Arsonist.isDoused = [];
+        Revolutionist.isDraw = [];
+        Farseer.isRevealed = [];
 
         Main.VisibleTasksCount = false;
         if (AmongUsClient.Instance.AmHost)

@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using System.Collections.Generic;
 using System.Linq;
 using TOHE.Modules;
 using static TOHE.Options;
@@ -9,6 +10,8 @@ namespace TOHE.Roles.Neutral
     {
         public static bool On;
         public override bool IsEnable => On;
+
+        public static List<byte> WorkaholicAlive = [];
 
         public static void SetupCustomOption()
         {

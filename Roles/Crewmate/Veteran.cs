@@ -1,5 +1,6 @@
 ﻿using AmongUs.GameOptions;
 using System.Text;
+using System.Collections.Generic;
 using TOHE.Modules;
 using static TOHE.Options;
 
@@ -7,6 +8,8 @@ namespace TOHE.Roles.Crewmate
 {
     internal class Veteran : RoleBase
     {
+        public static Dictionary<byte, long> VeteranInProtect = [];
+
         public static bool On;
         public override bool IsEnable => On;
 
@@ -52,7 +55,7 @@ namespace TOHE.Roles.Crewmate
         {
             var ProgressText = new StringBuilder();
 
-            ProgressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, Main.VeteranInProtect.ContainsKey(playerId)));
+            ProgressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, VeteranInProtect.ContainsKey(playerId)));
             ProgressText.Append(Utils.GetTaskCount(playerId, comms));
 
             return ProgressText.ToString();
@@ -78,10 +81,10 @@ namespace TOHE.Roles.Crewmate
 
         static void Alert(PlayerControl pc)
         {
-            if (Main.VeteranInProtect.ContainsKey(pc.PlayerId)) return;
+            if (VeteranInProtect.ContainsKey(pc.PlayerId)) return;
             if (pc.GetAbilityUseLimit() >= 1)
             {
-                Main.VeteranInProtect[pc.PlayerId] = Utils.TimeStamp;
+                VeteranInProtect[pc.PlayerId] = Utils.TimeStamp;
                 pc.RpcRemoveAbilityUse();
                 pc.RPCPlayCustomSound("Gunload");
                 pc.Notify(Translator.GetString("VeteranOnGuard"), VeteranSkillDuration.GetFloat());
@@ -95,9 +98,9 @@ namespace TOHE.Roles.Crewmate
 
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {
-            if (Main.VeteranInProtect.ContainsKey(target.PlayerId)
+            if (VeteranInProtect.ContainsKey(target.PlayerId)
                 && killer.PlayerId != target.PlayerId
-                && Main.VeteranInProtect[target.PlayerId] + VeteranSkillDuration.GetInt() >= Utils.TimeStamp)
+                && VeteranInProtect[target.PlayerId] + VeteranSkillDuration.GetInt() >= Utils.TimeStamp)
             {
                 if (!killer.Is(CustomRoles.Pestilence))
                 {
@@ -119,9 +122,9 @@ namespace TOHE.Roles.Crewmate
         public override void OnFixedUpdate(PlayerControl player)
         {
             var playerId = player.PlayerId;
-            if (Main.VeteranInProtect.TryGetValue(playerId, out var vtime) && vtime + VeteranSkillDuration.GetInt() < Utils.TimeStamp)
+            if (VeteranInProtect.TryGetValue(playerId, out var vtime) && vtime + VeteranSkillDuration.GetInt() < Utils.TimeStamp)
             {
-                Main.VeteranInProtect.Remove(playerId);
+                VeteranInProtect.Remove(playerId);
                 player.RpcResetAbilityCooldown();
                 player.Notify(string.Format(Translator.GetString("VeteranOffGuard"), (int)player.GetAbilityUseLimit()));
             }

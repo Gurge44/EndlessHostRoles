@@ -1,10 +1,13 @@
 ﻿using AmongUs.GameOptions;
+using System.Collections.Generic;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Crewmate
 {
     internal class Paranoia : RoleBase
     {
+        public static Dictionary<byte, int> ParaUsedButtonCount = [];
+
         public static bool On;
         public override bool IsEnable => On;
 
@@ -22,7 +25,7 @@ namespace TOHE.Roles.Crewmate
         public override void Add(byte playerId)
         {
             On = true;
-            Main.ParaUsedButtonCount[playerId] = 0;
+            ParaUsedButtonCount[playerId] = 0;
         }
 
         public override void Init()
@@ -34,7 +37,7 @@ namespace TOHE.Roles.Crewmate
         {
             if (UsePets.GetBool()) return;
             AURoleOptions.EngineerCooldown =
-                !Main.ParaUsedButtonCount.TryGetValue(playerId, out var count2) || count2 < ParanoiaNumOfUseButton.GetInt()
+                !ParaUsedButtonCount.TryGetValue(playerId, out var count2) || count2 < ParanoiaNumOfUseButton.GetInt()
                     ? ParanoiaVentCooldown.GetFloat()
                     : 300f;
             AURoleOptions.EngineerInVentMaxTime = 1f;
@@ -61,12 +64,12 @@ namespace TOHE.Roles.Crewmate
 
         static void Panic(PlayerControl pc)
         {
-            if (Main.ParaUsedButtonCount.TryGetValue(pc.PlayerId, out var count2) && count2 < ParanoiaNumOfUseButton.GetInt())
+            if (ParaUsedButtonCount.TryGetValue(pc.PlayerId, out var count2) && count2 < ParanoiaNumOfUseButton.GetInt())
             {
-                Main.ParaUsedButtonCount[pc.PlayerId] += 1;
+                ParaUsedButtonCount[pc.PlayerId] += 1;
                 if (AmongUsClient.Instance.AmHost)
                 {
-                    _ = new LateTask(() => { Utils.SendMessage(Translator.GetString("SkillUsedLeft") + (ParanoiaNumOfUseButton.GetInt() - Main.ParaUsedButtonCount[pc.PlayerId]), pc.PlayerId); }, 4.0f, "Paranoia Skill Remain Message");
+                    _ = new LateTask(() => { Utils.SendMessage(Translator.GetString("SkillUsedLeft") + (ParanoiaNumOfUseButton.GetInt() - ParaUsedButtonCount[pc.PlayerId]), pc.PlayerId); }, 4.0f, "Paranoia Skill Remain Message");
                 }
 
                 pc.NoCheckStartMeeting(pc.Data);

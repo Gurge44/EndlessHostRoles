@@ -1,4 +1,5 @@
-﻿using Hazel;
+﻿using System.Collections.Generic;
+using Hazel;
 using InnerNet;
 using System.Linq;
 using TOHE.Roles.Crewmate;
@@ -11,6 +12,8 @@ namespace TOHE.Roles.Impostor
     {
         public static bool On;
         public override bool IsEnable => On;
+
+        public static List<byte> OverDeadPlayerList = [];
 
         public override void Add(byte playerId)
         {
@@ -39,7 +42,7 @@ namespace TOHE.Roles.Impostor
                 Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Dismembered;
                 _ = new LateTask(() =>
                 {
-                    if (!Main.OverDeadPlayerList.Contains(target.PlayerId)) Main.OverDeadPlayerList.Add(target.PlayerId);
+                    if (!OverDeadPlayerList.Contains(target.PlayerId)) OverDeadPlayerList.Add(target.PlayerId);
                     if (target.Is(CustomRoles.Avanger))
                     {
                         foreach (var pc in Main.AllAlivePlayerControls)
@@ -52,6 +55,7 @@ namespace TOHE.Roles.Impostor
                     }
 
                     var ops = target.Pos();
+                    var originPos = killer.Pos();
                     var rd = IRandom.Instance;
                     for (int i = 0; i < 20; i++)
                     {
@@ -79,7 +83,7 @@ namespace TOHE.Roles.Impostor
                         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
                     }
 
-                    killer.TP(ops);
+                    killer.TP(originPos);
                 }, 0.05f, "OverKiller Murder");
             }
 

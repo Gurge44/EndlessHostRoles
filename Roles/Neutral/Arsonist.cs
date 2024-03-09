@@ -1,5 +1,6 @@
 ﻿using AmongUs.GameOptions;
 using System.Linq;
+using System.Collections.Generic;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Options;
@@ -8,6 +9,10 @@ namespace TOHE.Roles.Neutral
 {
     internal class Arsonist : RoleBase
     {
+        public static Dictionary<byte, (PlayerControl PLAYER, float TIMER)> ArsonistTimer = [];
+        public static Dictionary<(byte, byte), bool> isDoused = [];
+        public static byte currentDousingTarget = byte.MaxValue;
+
         public static bool On;
         public override bool IsEnable => On;
 
@@ -35,7 +40,7 @@ namespace TOHE.Roles.Neutral
             On = true;
             foreach (PlayerControl ar in Main.AllPlayerControls)
             {
-                Main.isDoused.Add((playerId, ar.PlayerId), false);
+                isDoused.Add((playerId, ar.PlayerId), false);
             }
         }
 
@@ -73,9 +78,9 @@ namespace TOHE.Roles.Neutral
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             killer.SetKillCooldown(ArsonistDouseTime.GetFloat());
-            if (!Main.isDoused[(killer.PlayerId, target.PlayerId)] && !Main.ArsonistTimer.ContainsKey(killer.PlayerId))
+            if (!isDoused[(killer.PlayerId, target.PlayerId)] && !ArsonistTimer.ContainsKey(killer.PlayerId))
             {
-                Main.ArsonistTimer.Add(killer.PlayerId, (target, 0f));
+                ArsonistTimer.Add(killer.PlayerId, (target, 0f));
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
                 RPC.SetCurrentDousingTarget(killer.PlayerId, target.PlayerId);
             }
@@ -155,28 +160,28 @@ namespace TOHE.Roles.Neutral
         public override void OnGlobalFixedUpdate(PlayerControl player, bool lowLoad)
         {
             var playerId = player.PlayerId;
-            if (GameStates.IsInTask && Main.ArsonistTimer.ContainsKey(playerId))
+            if (GameStates.IsInTask && ArsonistTimer.ContainsKey(playerId))
             {
-                var arTarget = Main.ArsonistTimer[playerId].PLAYER;
+                var arTarget = ArsonistTimer[playerId].PLAYER;
                 if (!player.IsAlive() || Pelican.IsEaten(playerId))
                 {
-                    Main.ArsonistTimer.Remove(playerId);
+                    ArsonistTimer.Remove(playerId);
                     Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: arTarget, ForceLoop: true);
                     RPC.ResetCurrentDousingTarget(playerId);
                 }
                 else
                 {
-                    var ar_target = Main.ArsonistTimer[playerId].PLAYER;
-                    var ar_time = Main.ArsonistTimer[playerId].TIMER;
-                    if (!ar_target.IsAlive())
+                    var ar_target = ArsonistTimer[playerId].PLAYER;
+                    var ar_time = ArsonistTimer[playerId].TIMER;
+                    if (!ExtendedPlayerControl.IsAlive(ar_target))
                     {
-                        Main.ArsonistTimer.Remove(playerId);
+                        ArsonistTimer.Remove(playerId);
                     }
                     else if (ar_time >= ArsonistDouseTime.GetFloat())
                     {
                         player.SetKillCooldown();
-                        Main.ArsonistTimer.Remove(playerId);
-                        Main.isDoused[(playerId, ar_target.PlayerId)] = true;
+                        ArsonistTimer.Remove(playerId);
+                        isDoused[(playerId, ar_target.PlayerId)] = true;
                         player.RpcSetDousedPlayer(ar_target, true);
                         Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: arTarget, ForceLoop: true);
                         RPC.ResetCurrentDousingTarget(playerId);
@@ -187,11 +192,11 @@ namespace TOHE.Roles.Neutral
                         float dis = Vector2.Distance(player.transform.position, ar_target.transform.position);
                         if (dis <= range)
                         {
-                            Main.ArsonistTimer[playerId] = (ar_target, ar_time + Time.fixedDeltaTime);
+                            ArsonistTimer[playerId] = (ar_target, ar_time + Time.fixedDeltaTime);
                         }
                         else
                         {
-                            Main.ArsonistTimer.Remove(playerId);
+                            ArsonistTimer.Remove(playerId);
                             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: arTarget, ForceLoop: true);
                             RPC.ResetCurrentDousingTarget(playerId);
 

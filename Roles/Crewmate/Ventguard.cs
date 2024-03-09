@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using System.Collections.Generic;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Crewmate
@@ -7,6 +8,8 @@ namespace TOHE.Roles.Crewmate
     {
         public static bool On;
         public override bool IsEnable => On;
+
+        public static List<int> BlockedVents = [];
 
         public static void SetupCustomOption()
         {
@@ -48,7 +51,7 @@ namespace TOHE.Roles.Crewmate
             if (pc.GetAbilityUseLimit() >= 1)
             {
                 pc.RpcRemoveAbilityUse();
-                if (!Main.BlockedVents.Contains(vent.Id)) Main.BlockedVents.Add(vent.Id);
+                if (!BlockedVents.Contains(vent.Id)) BlockedVents.Add(vent.Id);
                 pc.Notify(Translator.GetString("VentBlockSuccess"));
             }
             else

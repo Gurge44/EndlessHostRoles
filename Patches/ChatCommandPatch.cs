@@ -952,12 +952,12 @@ internal class ChatCommands
                         Utils.SendMessage(devMark == "▲" ? string.Format(GetString("Message.YTPlanSelected"), roleName) : string.Format(GetString("Message.YTPlanSelectFailed"), roleName), playerId);
                     }
 
-                    if (devMark == "▲")
-                    {
-                        byte pid = playerId == 255 ? (byte)0 : playerId;
-                        _ = Main.DevRole.Remove(pid);
-                        Main.DevRole.Add(pid, rl);
-                    }
+                    //if (devMark == "▲")
+                    //{
+                    //    byte pid = playerId == 255 ? (byte)0 : playerId;
+                    //    _ = Main.DevRole.Remove(pid);
+                    //    Main.DevRole.Add(pid, rl);
+                    //}
 
                     if (isUp) return;
                 }

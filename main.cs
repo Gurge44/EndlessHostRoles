@@ -79,6 +79,7 @@ public class Main : BasePlugin
     public static ConfigEntry<string> BetaBuildURL { get; private set; }
     public static ConfigEntry<float> LastKillCooldown { get; private set; }
     public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
+    public static bool IsFixedCooldown => CustomRoles.Vampire.IsEnable() || CustomRoles.Poisoner.IsEnable();
     public static bool ChangedRole = false;
     public static OptionBackupData RealOptionsData;
     public static Dictionary<byte, float> KillTimers = [];
@@ -93,7 +94,6 @@ public class Main : BasePlugin
     public static Dictionary<CustomRoles, CustomRoles> AlwaysSpawnTogetherCombos = [];
     public static Dictionary<CustomRoles, CustomRoles> NeverSpawnTogetherCombos = [];
     public static List<RoleBase> AllRoleClasses;
-    public static bool IsFixedCooldown => CustomRoles.Vampire.IsEnable() || CustomRoles.Poisoner.IsEnable();
     public static float RefixCooldownDelay;
     public static bool ProcessShapeshifts = true;
     public static Dictionary<byte, (long START_TIMESTAMP, int TOTALCD)> AbilityCD = [];
@@ -105,41 +105,13 @@ public class Main : BasePlugin
     public static List<byte> ResetCamPlayerList = [];
     public static List<byte> winnerList = [];
     public static List<CustomRoles> winnerRolesList = [];
-    public static List<byte> ForCrusade = [];
-    public static List<byte> KillGhoul = [];
     public static List<string> winnerNameList = [];
     public static List<int> clientIdList = [];
-    public static List<(string MESSAGE, byte RECEIVER_ID, string TITLE)> MessagesToSend = [];
-    public static bool isChatCommand;
-    public static List<PlayerControl> LoversPlayers = [];
-    public static bool isLoversDead = true;
     public static Dictionary<byte, float> AllPlayerKillCooldown = [];
     public static Dictionary<byte, Vent> LastEnteredVent = [];
     public static Dictionary<byte, Vector2> LastEnteredVentLocation = [];
-
-    public static Dictionary<byte, Vector2> TimeMasterBackTrack = [];
-
-    //public static Dictionary<byte, int> MasochistKillMax = new();
-    public static Dictionary<byte, int> TimeMasterNum = [];
-
-    public static Dictionary<byte, long> TimeMasterInProtect = [];
-
-    //public static Dictionary<byte, long> FlashbangInProtect = new();
-    public static List<byte> CyberStarDead = [];
-    public static List<int> BlockedVents = [];
-    public static List<byte> WorkaholicAlive = [];
-    public static List<byte> SpeedrunnerAlive = [];
-    public static List<byte> BaitAlive = [];
-
-    //public static List<byte> KilledDiseased = new();
-    public static Dictionary<byte, int> KilledDiseased = [];
-
-    public static Dictionary<byte, int> KilledAntidote = [];
-
-    //public static List<byte> ForFlashbang = new();
-    public static Dictionary<byte, string> DetectiveNotify = [];
-    public static Dictionary<byte, string> VirusNotify = [];
-    public static List<byte> OverDeadPlayerList = [];
+    public static List<(string MESSAGE, byte RECEIVER_ID, string TITLE)> MessagesToSend = [];
+    public static bool isChatCommand;
     public static bool DoBlockNameChange;
     public static int updateTime;
     public static bool newLobby;
@@ -147,54 +119,30 @@ public class Main : BasePlugin
     public static Dictionary<int, int> SayBanwordsTimes = [];
     public static Dictionary<byte, float> AllPlayerSpeed = [];
     public const float MinSpeed = 0.0001f;
-    public static List<byte> CleanerBodies = [];
-    public static List<byte> MedusaBodies = [];
-    public static List<byte> InfectedBodies = [];
-    public static List<byte> BrakarVoteFor = [];
-    public static Dictionary<byte, float> WarlockTimer = [];
-    public static Dictionary<byte, float> AssassinTimer = [];
-    public static Dictionary<byte, float> UndertakerTimer = [];
-    public static Dictionary<byte, PlayerControl> CursedPlayers = [];
-    public static Dictionary<byte, bool> isCurseAndKill = [];
-    public static Dictionary<byte, int> MafiaRevenged = [];
     public static Dictionary<byte, int> GuesserGuessed = [];
-    public static Dictionary<(byte, byte), bool> isDoused = [];
-    public static Dictionary<(byte, byte), bool> isDraw = [];
-    public static Dictionary<(byte, byte), bool> isRevealed = [];
-    public static Dictionary<byte, (PlayerControl PLAYER, float TIMER)> ArsonistTimer = [];
-    public static Dictionary<byte, (PlayerControl PLAYER, float TIMER)> RevolutionistTimer = [];
-    public static Dictionary<byte, long> RevolutionistStart = [];
-    public static Dictionary<byte, long> RevolutionistLastTime = [];
-    public static Dictionary<byte, int> RevolutionistCountdown = [];
-    public static Dictionary<byte, byte> TaglockedList = [];
-    public static Dictionary<byte, byte> SpeedBoostTarget = [];
-    public static Dictionary<byte, int> MayorUsedButtonCount = [];
-    public static Dictionary<byte, int> ParaUsedButtonCount = [];
-    public static Dictionary<byte, int> MarioVentCount = [];
-    public static Dictionary<byte, long> VeteranInProtect = [];
-    public static Dictionary<byte, long> BlockSabo = [];
-    public static Dictionary<byte, int> JinxSpellCount = [];
-    public static Dictionary<byte, string> SleuthMsgs = [];
     public static bool HasJustStarted;
     public static int AliveImpostorCount;
-    public static bool isCursed;
     public static Dictionary<byte, bool> CheckShapeshift = [];
     public static Dictionary<byte, byte> ShapeshiftTarget = [];
     public static bool VisibleTasksCount;
     public static string nickName = "";
     public static bool introDestroyed;
-    public static byte currentDousingTarget = byte.MaxValue;
-    public static byte currentDrawTarget = byte.MaxValue;
     public static float DefaultCrewmateVision;
     public static float DefaultImpostorVision;
     public static bool IsAprilFools = DateTime.Now.Month == 4 && DateTime.Now.Day is 1;
     public static bool ResetOptions = true;
     public static byte FirstDied = byte.MaxValue;
     public static byte ShieldPlayer = byte.MaxValue;
-    public static int MadmateNum;
-    public static Dictionary<byte, byte> Provoked = [];
 
-    public static Dictionary<byte, CustomRoles> DevRole = [];
+    public static List<PlayerControl> LoversPlayers = [];
+    public static bool isLoversDead = true;
+    public static List<byte> CyberStarDead = [];
+    public static List<byte> BaitAlive = [];
+    public static Dictionary<byte, int> KilledDiseased = [];
+    public static Dictionary<byte, int> KilledAntidote = [];
+    public static List<byte> BrakarVoteFor = [];
+    public static Dictionary<byte, string> SleuthMsgs = [];
+    public static int MadmateNum;
 
 
     public static PlayerControl[] AllPlayerControls

@@ -255,9 +255,6 @@ public static class Options
     public static OptionItem EGCanGuessTaskDoneSnitch;
     public static OptionItem EGCanGuessTime;
     public static OptionItem EGTryHideMsg;
-    public static OptionItem WarlockCanKillAllies;
-    public static OptionItem WarlockCanKillSelf;
-    public static OptionItem WarlockShiftDuration;
     public static OptionItem ScavengerKillCooldown;
     public static OptionItem ScavengerKillDuration;
     public static OptionItem ZombieKillCooldown;
