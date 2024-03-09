@@ -22,7 +22,6 @@ class EndGamePatch
 
     public static void Postfix( /*AmongUsClient __instance,*/ [HarmonyArgument(0)] ref EndGameResult endGameResult)
     {
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         GameStates.InGame = false;
 
         Logger.Info("-----------Game over-----------", "Phase");
@@ -75,7 +74,7 @@ class EndGamePatch
         if (!KillLog.Contains('\n')) KillLog = string.Empty;
 
         Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
-        //winnerListリセット
+
         TempData.winners = new();
 
         var winner = Main.AllPlayerControls.Where(pc => CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId)).ToList();

@@ -1262,6 +1262,8 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Avanger]);
         RoleLoadingText = "Add-ons\nSleuth";
         SetupAdtRoleOptions(15150, CustomRoles.Sleuth, canSetNum: true);
+        RoleLoadingText = "Add-ons\nMischievous";
+        SetupAdtRoleOptions(15160, CustomRoles.Mischievous, canSetNum: true);
         RoleLoadingText = "Add-ons\nBewilder";
         SetupAdtRoleOptions(15200, CustomRoles.Bewilder, canSetNum: true);
         BewilderVision = FloatOptionItem.Create(15210, "BewilderVision", new(0f, 5f, 0.05f), 0.6f, TabGroup.Addons, false)

@@ -463,6 +463,7 @@ public class Main : BasePlugin
                 { CustomRoles.Madmate, "#ff1919" },
                 { CustomRoles.Watcher, "#800080" },
                 { CustomRoles.Sleuth, "#30221c" },
+                { CustomRoles.Mischievous, "#30221c" },
                 { CustomRoles.Flashman, "#ff8400" },
                 { CustomRoles.Haste, "#f0ec22" },
                 { CustomRoles.Busy, "#32a852" },
@@ -926,8 +927,6 @@ public enum CustomRoles
     EvilSpirit,
     Flashman,
     Fool,
-
-    //Ghoul,
     Giant,
     Glow,
     Gravestone,
@@ -943,6 +942,7 @@ public enum CustomRoles
     Magnet,
     Mare,
     Mimic,
+    Mischievous,
     Necroview,
     Ntr, // Neptune
     Nimble,

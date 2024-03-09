@@ -49,7 +49,7 @@ namespace TOHE
 
         public virtual bool CanUseSabotage(PlayerControl pc)
         {
-            return pc.Is(Team.Impostor);
+            return pc.Is(Team.Impostor) || pc.Is(CustomRoles.Mischievous);
         }
 
         public virtual void ApplyGameOptions(IGameOptions opt, byte playerId)

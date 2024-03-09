@@ -34,6 +34,7 @@ namespace TOHE.Roles.Crewmate
         [
             CustomRoles.Watcher,
             CustomRoles.Sleuth,
+            CustomRoles.Mischievous,
             CustomRoles.Seer,
             CustomRoles.Busy,
             CustomRoles.Disco,

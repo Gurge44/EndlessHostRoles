@@ -46,7 +46,7 @@ namespace TOHE.Roles.Neutral
                 RolesToKill = [];
 
                 var allRoles = EnumHelper.GetAllValues<CustomRoles>().ToList();
-                allRoles.RemoveAll(x => x >= CustomRoles.NotAssigned || !x.RoleExist(countDead: true));
+                allRoles.RemoveAll(x => x == CustomRoles.Predator || x >= CustomRoles.NotAssigned || !x.RoleExist(countDead: true));
 
                 var r = IRandom.Instance;
                 var impRoles = 0;
@@ -55,6 +55,7 @@ namespace TOHE.Roles.Neutral
                 {
                     var index = r.Next(allRoles.Count);
                     var role = allRoles[index];
+                    allRoles.RemoveAt(index);
 
                     if (role.Is(Team.Impostor))
                     {
@@ -67,7 +68,6 @@ namespace TOHE.Roles.Neutral
                         impRoles++;
                     }
 
-                    allRoles.RemoveAt(index);
                     RolesToKill.Add(role);
                 }
 

@@ -3,7 +3,6 @@ using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using Il2CppSystem.Collections.Generic;
 using System;
-using System.Collections;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -18,7 +17,6 @@ public static class GameSettingMenuPatch
     public static void Prefix(GameSettingMenu __instance)
     {
         // Unlocks map/impostor amount changing in online (for testing on your custom servers)
-        // オンラインモードで部屋を立て直さなくてもマップを変更できるように変更
         __instance.HideForOnline = new(0);
     }
 
@@ -39,7 +37,7 @@ public static class GameOptionsMenuPatch
 {
     public static void Postfix(GameOptionsMenu __instance)
     {
-        foreach (OptionBehaviour ob in __instance.Children.ToArray())
+        foreach (OptionBehaviour ob in __instance.Children)
         {
             switch (ob.Title)
             {
@@ -49,10 +47,16 @@ public static class GameOptionsMenuPatch
                 case StringNames.GameShortTasks:
                 case StringNames.GameLongTasks:
                 case StringNames.GameCommonTasks:
-                    ob.Cast<NumberOption>().ValidRange = new(0, 99);
+                    ob.Cast<NumberOption>().ValidRange = new(0, 90);
                     break;
                 case StringNames.GameKillCooldown:
                     ob.Cast<NumberOption>().ValidRange = new(0, 180);
+                    ob.Cast<NumberOption>().Increment = 0.5f;
+                    break;
+                case StringNames.GamePlayerSpeed:
+                case StringNames.GameCrewLight:
+                case StringNames.GameImpostorLight:
+                    ob.Cast<NumberOption>().Increment = 0.05f;
                     break;
             }
         }
@@ -76,10 +80,8 @@ public static class GameOptionsMenuPatch
         var gameTab = GameObject.Find("GameTab");
         System.Collections.Generic.List<GameObject> tabs = [gameTab, roleTab];
 
-        IList list = Enum.GetValues(typeof(TabGroup));
-        for (int i = 0; i < list.Count; i++)
+        foreach (var tab in EnumHelper.GetAllValues<TabGroup>())
         {
-            object tab = list[i];
             var obj = gameSettings.transform.parent.Find(tab + "Tab");
             if (obj != null)
             {
@@ -99,19 +101,18 @@ public static class GameOptionsMenuPatch
             tohSettings.transform.FindChild("GameGroup/SliderInner").transform.localPosition += new Vector3(-0.3f, 0f, 0f);
             var tohMenu = tohSettings.transform.FindChild("GameGroup/SliderInner").GetComponent<GameOptionsMenu>();
 
-            //OptionBehaviourを破棄
             tohMenu.GetComponentsInChildren<OptionBehaviour>().Do(x => Object.Destroy(x.gameObject));
 
             var scOptions = new System.Collections.Generic.List<OptionBehaviour>();
             foreach (OptionItem option in OptionItem.AllOptions.ToArray())
             {
-                if (option.Tab != (TabGroup)tab) continue;
+                if (option.Tab != tab) continue;
                 if (option.OptionBehaviour == null)
                 {
                     float yoffset = option.IsText ? 100f : 0f;
                     var stringOption = Object.Instantiate(template, tohMenu.transform);
                     scOptions.Add(stringOption);
-                    stringOption.OnValueChanged = new Action<OptionBehaviour>(o => { });
+                    stringOption.OnValueChanged = new Action<OptionBehaviour>(_ => { });
                     stringOption.TitleText.text = option.Name;
                     stringOption.Value = stringOption.oldValue = option.CurrentValue;
                     stringOption.ValueText.text = option.GetString();
@@ -148,15 +149,18 @@ public static class GameOptionsMenuPatch
             if (button == null) continue;
             var copiedIndex = i;
             button.OnClick = new();
-            Action value = () =>
+
+            button.OnClick.AddListener((Action)Value);
+            continue;
+
+            void Value()
             {
                 for (var j = 0; j < menus.Count; j++)
                 {
                     menus[j].SetActive(j == copiedIndex);
                     highlights[j].enabled = j == copiedIndex;
                 }
-            };
-            button.OnClick.AddListener(value);
+            }
         }
     }
 }
@@ -169,10 +173,8 @@ public class GameOptionsMenuUpdatePatch
     public static void Postfix(GameOptionsMenu __instance)
     {
         if (__instance.transform.parent.parent.name == "Game Settings") return;
-        IList list = Enum.GetValues(typeof(TabGroup));
-        for (int i = 0; i < list.Count; i++)
+        foreach (var tab in EnumHelper.GetAllValues<TabGroup>())
         {
-            object tab = list[i];
             string tabcolor = tab switch
             {
                 TabGroup.SystemSettings => Main.ModColor,
@@ -183,7 +185,6 @@ public class GameOptionsMenuUpdatePatch
                 TabGroup.NeutralRoles => "#7f8c8d",
                 TabGroup.Addons => "#ff9ace",
                 TabGroup.OtherRoles => "#76b8e0",
-                //      TabGroup.CovenRoles => "#8e44ad",
                 _ => "#ffffff",
             };
             if (__instance.transform.parent.parent.name != tab + "Tab") continue;
@@ -193,19 +194,17 @@ public class GameOptionsMenuUpdatePatch
             if (_timer < 0.2f) return;
             _timer = 0f;
 
-            float numItems = __instance.Children.Length;
             var offset = 2.7f;
 
             foreach (OptionItem option in OptionItem.AllOptions.ToArray())
             {
-                if ((TabGroup)tab != option.Tab) continue;
-                if (option?.OptionBehaviour == null || option.OptionBehaviour.gameObject == null) continue;
+                if (tab != option.Tab) continue;
+                if (option.OptionBehaviour == null || option.OptionBehaviour.gameObject == null) continue;
 
-                var enabled = true;
                 var parent = option.Parent;
 
-                enabled = AmongUsClient.Instance.AmHost &&
-                          !option.IsHiddenOn(Options.CurrentGameMode);
+                bool enabled = AmongUsClient.Instance.AmHost &&
+                               !option.IsHiddenOn(Options.CurrentGameMode);
 
                 var opt = option.OptionBehaviour.transform.Find("Background").GetComponent<SpriteRenderer>();
                 opt.size = new(5.0f, 0.45f);
@@ -253,12 +252,7 @@ public class GameOptionsMenuUpdatePatch
 
                     if (option.IsHeader)
                     {
-                        numItems += 0.3f;
                     }
-                }
-                else
-                {
-                    numItems--;
                 }
             }
 
@@ -275,7 +269,7 @@ public class StringOptionEnablePatch
         var option = OptionItem.AllOptions.FirstOrDefault(opt => opt.OptionBehaviour == __instance);
         if (option == null) return true;
 
-        __instance.OnValueChanged = new Action<OptionBehaviour>(o => { });
+        __instance.OnValueChanged = new Action<OptionBehaviour>(_ => { });
         __instance.TitleText.text = option.GetName();
         if (option.Id == Options.UsePets.Id) LoadLangs();
         else if (!Options.UsePets.GetBool() && CustomRolesHelper.OnlySpawnsWithPetsRoleList.Any(role => role.ToString().Equals(option.GetName().RemoveHtmlTags().Replace(" ", string.Empty))))
@@ -333,8 +327,9 @@ public static class RolesSettingsMenuPatch
 {
     public static void Postfix(RolesSettingsMenu __instance)
     {
-        foreach (OptionBehaviour ob in __instance.Children.ToArray())
+        foreach (OptionBehaviour ob in __instance.Children)
         {
+            // ReSharper disable once ConvertSwitchStatementToSwitchExpression
             switch (ob.Title)
             {
                 case StringNames.EngineerCooldown:

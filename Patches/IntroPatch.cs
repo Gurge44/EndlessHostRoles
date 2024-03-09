@@ -230,25 +230,25 @@ class BeginCrewmatePatch
                     CustomRoles.Sapper or
                     CustomRoles.Bomber or
                     CustomRoles.Nuker
-                    => ShipStatus.Instance.CommonTasks.FirstOrDefault(task => task.TaskType == TaskTypes.FixWiring).MinigamePrefab.OpenSound,
+                    => ShipStatus.Instance.CommonTasks.FirstOrDefault(task => task.TaskType == TaskTypes.FixWiring)?.MinigamePrefab.OpenSound,
 
                 CustomRoles.Sheriff or
                     CustomRoles.Veteran
-                    => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.PutAwayPistols).MinigamePrefab.OpenSound,
+                    => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.PutAwayPistols)?.MinigamePrefab.OpenSound,
 
                 CustomRoles.Cleaner or
                     CustomRoles.Cleanser
-                    => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.PolishRuby).MinigamePrefab.OpenSound,
+                    => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.PolishRuby)?.MinigamePrefab.OpenSound,
 
                 CustomRoles.Dictator or
                     CustomRoles.Lawyer or
                     CustomRoles.Judge or
                     CustomRoles.Mayor
-                    => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.FixShower).MinigamePrefab.OpenSound,
+                    => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.FixShower)?.MinigamePrefab.OpenSound,
 
                 CustomRoles.Monitor or
                     CustomRoles.AntiAdminer
-                    => ShipStatus.Instance.LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.ResetBreakers).MinigamePrefab.OpenSound,
+                    => ShipStatus.Instance.LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.ResetBreakers)?.MinigamePrefab.OpenSound,
 
                 CustomRoles.EvilTracker or
                     CustomRoles.Tracefinder or
@@ -256,7 +256,7 @@ class BeginCrewmatePatch
                     CustomRoles.Bloodhound or
                     CustomRoles.Mortician or
                     CustomRoles.Lighter
-                    => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.DivertPower).MinigamePrefab.OpenSound,
+                    => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.DivertPower)?.MinigamePrefab.OpenSound,
 
                 CustomRoles.Oracle or
                     CustomRoles.Divinator or
@@ -269,11 +269,11 @@ class BeginCrewmatePatch
                     => GetIntroSound(RoleTypes.GuardianAngel),
 
                 CustomRoles.Alchemist
-                    => ShipStatus.Instance.LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.DevelopPhotos).MinigamePrefab.OpenSound,
+                    => ShipStatus.Instance.LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.DevelopPhotos)?.MinigamePrefab.OpenSound,
 
                 CustomRoles.Deputy or
                     CustomRoles.Jailor
-                    => ShipStatus.Instance.LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.UnlockSafe).MinigamePrefab.OpenSound,
+                    => ShipStatus.Instance.LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.UnlockSafe)?.MinigamePrefab.OpenSound,
 
                 CustomRoles.Workaholic or
                     CustomRoles.Speedrunner or
