@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Hazel;
+﻿using Hazel;
+using System.Collections.Generic;
 using TOHE.Modules;
 using TOHE.Patches;
 using TOHE.Roles.Crewmate;

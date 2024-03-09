@@ -1,3 +1,8 @@
+using AmongUs.Data;
+using AmongUs.GameOptions;
+using Hazel;
+using Il2CppInterop.Runtime.InteropTypes;
+using InnerNet;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,11 +12,6 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using AmongUs.Data;
-using AmongUs.GameOptions;
-using Hazel;
-using Il2CppInterop.Runtime.InteropTypes;
-using InnerNet;
 using TOHE.Modules;
 using TOHE.Patches;
 using TOHE.Roles.AddOns.Common;
@@ -265,6 +265,9 @@ public static class Utils
     public static void TargetDies(PlayerControl killer, PlayerControl target)
     {
         if (!target.Data.IsDead || GameStates.IsMeeting) return;
+
+        var targetRole = target.GetCustomRole();
+
         foreach (PlayerControl seer in Main.AllPlayerControls)
         {
             if (KillFlashCheck(killer, target, seer))
@@ -273,7 +276,7 @@ public static class Utils
                 continue;
             }
 
-            if (target.Is(CustomRoles.CyberStar))
+            if (targetRole == CustomRoles.CyberStar)
             {
                 if (!Options.ImpKnowCyberStarDead.GetBool() && seer.GetCustomRole().IsImpostor()) continue;
                 if (!Options.NeutralKnowCyberStarDead.GetBool() && seer.GetCustomRole().IsNeutral()) continue;
@@ -282,29 +285,14 @@ public static class Utils
             }
         }
 
-        if (target.Is(CustomRoles.CyberStar) && !Main.CyberStarDead.Contains(target.PlayerId)) Main.CyberStarDead.Add(target.PlayerId);
-        if (target.Is(CustomRoles.Demolitionist) && !Main.DemolitionistDead.Contains(target.PlayerId)) Main.DemolitionistDead.Add(target.PlayerId);
-        if (target.Is(CustomRoles.Demolitionist))
+        switch (targetRole)
         {
-            killer.Notify(ColorString(GetRoleColor(CustomRoles.Demolitionist), GetString("OnDemolitionistDead")));
-            killer.KillFlash();
-            _ = new LateTask(() =>
-            {
-                if (!killer.inVent && (killer.PlayerId != target.PlayerId))
-                {
-                    if ((Options.DemolitionistKillerDiesOnMeetingCall.GetBool() || GameStates.IsInTask) && killer.IsAlive())
-                    {
-                        killer.Suicide(PlayerState.DeathReason.Demolished, target);
-                        RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
-                    }
-                }
-                else
-                {
-                    if (killer.IsModClient()) RPC.PlaySoundRPC(killer.PlayerId, Sounds.TaskComplete);
-                    else killer.RpcGuardAndKill(killer);
-                    killer.SetKillCooldown(Main.AllPlayerKillCooldown[killer.PlayerId] - Options.DemolitionistVentTime.GetFloat());
-                }
-            }, Options.DemolitionistVentTime.GetFloat() + 0.5f);
+            case CustomRoles.CyberStar when !Main.CyberStarDead.Contains(target.PlayerId):
+                Main.CyberStarDead.Add(target.PlayerId);
+                break;
+            case CustomRoles.Demolitionist:
+                Demolitionist.OnDeath(killer, target);
+                break;
         }
     }
 
@@ -1128,7 +1116,7 @@ public static class Utils
 
         sb.Append("<#ffffff><u>Role Summary:</u></color><size=70%>");
 
-        List<byte> cloneRoles = [..Main.PlayerStates.Keys];
+        List<byte> cloneRoles = [.. Main.PlayerStates.Keys];
         foreach (byte id in Main.winnerList.ToArray())
         {
             if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
@@ -2342,7 +2330,7 @@ public static class Utils
             CustomRoles.Druid => Druid.VentCooldown.GetInt(),
             CustomRoles.Sniper => Options.DefaultShapeshiftCooldown.GetInt(),
             CustomRoles.Assassin => Assassin.AssassinateCooldownOpt.GetInt(),
-            CustomRoles.Undertaker => Undertaker.AssassinateCooldown.GetInt(),
+            CustomRoles.Undertaker => Assassin.UndertakerAssassinateCooldown.GetInt(),
             CustomRoles.Bomber => Options.BombCooldown.GetInt(),
             CustomRoles.Nuker => Options.NukeCooldown.GetInt(),
             CustomRoles.Sapper => Sapper.ShapeshiftCooldown.GetInt(),
@@ -2846,27 +2834,6 @@ public static class Utils
     {
         casted = obj.TryCast<T>();
         return casted != null;
-    }
-
-    public static IEnumerable<T> GetEnumerableOfType<T>(params object[] constructorArgs) where T : class, IComparable<T>
-    {
-        List<T> objects = [];
-        try
-        {
-            var assembly = Assembly.GetAssembly(typeof(T));
-            if (assembly == null) return objects;
-            objects.AddRange(assembly
-                .GetTypes()
-                .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(T)))
-                .Select(type => (T)Activator.CreateInstance(type, constructorArgs)));
-            objects.Sort();
-        }
-        catch (Exception e)
-        {
-            ThrowException(e);
-        }
-
-        return objects;
     }
 
     public static int AllPlayersCount => Main.PlayerStates.Values.Count(state => state.countTypes != CountTypes.OutOfGame);

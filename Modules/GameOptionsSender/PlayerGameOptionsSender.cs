@@ -1,9 +1,9 @@
-using System;
-using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
+using System;
+using System.Linq;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
@@ -268,21 +268,14 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                         Main.AllPlayerSpeed[player.PlayerId] = Options.MareSpeedDuringLightsOut.GetFloat();
                         break;
                     case CustomRoles.Torch:
-
                         if (!Utils.IsActive(SystemTypes.Electrical))
-                        {
                             opt.SetVision(true);
-                            opt.SetFloat(FloatOptionNames.CrewLightMod, Options.TorchVision.GetFloat());
-                            opt.SetFloat(FloatOptionNames.ImpostorLightMod, Options.TorchVision.GetFloat());
-                        }
-
-                        else if (!Options.TorchAffectedByLights.GetBool())
-                        {
+                        opt.SetFloat(FloatOptionNames.CrewLightMod, Options.TorchVision.GetFloat());
+                        opt.SetFloat(FloatOptionNames.ImpostorLightMod, Options.TorchVision.GetFloat());
+                        if (Utils.IsActive(SystemTypes.Electrical) && !Options.TorchAffectedByLights.GetBool())
                             opt.SetVision(true);
-                            opt.SetFloat(FloatOptionNames.CrewLightMod, Options.TorchVision.GetFloat() * 5);
-                            opt.SetFloat(FloatOptionNames.ImpostorLightMod, Options.TorchVision.GetFloat() * 5);
-                        }
-
+                        opt.SetFloat(FloatOptionNames.CrewLightMod, Options.TorchVision.GetFloat() * 5);
+                        opt.SetFloat(FloatOptionNames.ImpostorLightMod, Options.TorchVision.GetFloat() * 5);
                         break;
                     case CustomRoles.Bewilder:
                         opt.SetVision(false);
@@ -318,14 +311,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0.01f);
             }
 
-            if (Changeling.ChangedRole.TryGetValue(player.PlayerId, out var changed) && changed && player.GetCustomRole().GetRoleTypes() != RoleTypes.Shapeshifter)
-            {
-                AURoleOptions.ShapeshifterCooldown = 300f;
-                AURoleOptions.ShapeshifterDuration = 1f;
-            }
-
-            // ===================================================================================================================
-
+            // ������������ȴΪ0ʱ�޷�������ʾͼ��
             AURoleOptions.EngineerCooldown = Mathf.Max(0.01f, AURoleOptions.EngineerCooldown);
 
             if (Main.AllPlayerKillCooldown.TryGetValue(player.PlayerId, out var killCooldown))

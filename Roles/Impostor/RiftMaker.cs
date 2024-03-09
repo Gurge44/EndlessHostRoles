@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
+using System.Collections.Generic;
 using TOHE.Roles.Neutral;
 using UnityEngine;
 using static TOHE.Options;

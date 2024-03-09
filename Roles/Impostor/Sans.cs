@@ -1,6 +1,6 @@
-﻿using System;
+﻿using AmongUs.GameOptions;
+using System;
 using System.Collections.Generic;
-using AmongUs.GameOptions;
 using TOHE.Roles.Neutral;
 using static TOHE.Options;
 

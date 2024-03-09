@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using AmongUs.GameOptions;
+using System.Collections.Generic;
 using System.Linq;
-using AmongUs.GameOptions;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
 using UnityEngine;
-using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor
 {
@@ -13,18 +12,6 @@ namespace TOHE.Roles.Impostor
     {
         public static bool On;
         public override bool IsEnable => On;
-
-        public static void SetupCustomOption()
-        {
-            SetupRoleOptions(4600, TabGroup.ImpostorRoles, CustomRoles.Warlock);
-            WarlockCanKillAllies = BooleanOptionItem.Create(4610, "CanKillAllies", true, TabGroup.ImpostorRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock]);
-            WarlockCanKillSelf = BooleanOptionItem.Create(4611, "CanKillSelf", false, TabGroup.ImpostorRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock]);
-            WarlockShiftDuration = FloatOptionItem.Create(4612, "ShapeshiftDuration", new(0, 180, 1), 1, TabGroup.ImpostorRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock])
-                .SetValueFormat(OptionFormat.Seconds);
-        }
 
         public override void Add(byte playerId)
         {
@@ -40,11 +27,11 @@ namespace TOHE.Roles.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool()) return;
+            if (Options.UsePets.GetBool()) return;
             try
             {
-                AURoleOptions.ShapeshifterCooldown = Main.isCursed ? 1f : DefaultKillCooldown;
-                AURoleOptions.ShapeshifterDuration = WarlockShiftDuration.GetFloat();
+                AURoleOptions.ShapeshifterCooldown = Main.isCursed ? 1f : Options.DefaultKillCooldown;
+                AURoleOptions.ShapeshifterDuration = Options.WarlockShiftDuration.GetFloat();
             }
             catch
             {
@@ -111,8 +98,8 @@ namespace TOHE.Roles.Impostor
                     foreach (PlayerControl p in Main.AllAlivePlayerControls)
                     {
                         if (p.PlayerId == cp.PlayerId) continue;
-                        if (!WarlockCanKillSelf.GetBool() && p.PlayerId == pc.PlayerId) continue;
-                        if (!WarlockCanKillAllies.GetBool() && p.GetCustomRole().IsImpostor()) continue;
+                        if (!Options.WarlockCanKillSelf.GetBool() && p.PlayerId == pc.PlayerId) continue;
+                        if (!Options.WarlockCanKillAllies.GetBool() && p.GetCustomRole().IsImpostor()) continue;
                         if (p.Is(CustomRoles.Pestilence)) continue;
                         if (Pelican.IsEaten(p.PlayerId) || Medic.ProtectList.Contains(p.PlayerId)) continue;
                         float dis = Vector2.Distance(cppos, p.Pos());

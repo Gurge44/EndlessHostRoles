@@ -1,6 +1,6 @@
+using AmongUs.GameOptions;
 using System;
 using System.Collections.Generic;
-using AmongUs.GameOptions;
 using UnityEngine;
 
 namespace TOHE.Roles.Crewmate

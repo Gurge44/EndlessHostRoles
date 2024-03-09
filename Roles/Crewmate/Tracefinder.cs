@@ -1,7 +1,7 @@
-using System;
-using System.Collections.Generic;
 using AmongUs.GameOptions;
 using Hazel;
+using System;
+using System.Collections.Generic;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Options;
@@ -16,8 +16,6 @@ public class Tracefinder : RoleBase
     private static OptionItem VitalsCooldown;
     private static OptionItem ArrowDelayMin;
     private static OptionItem ArrowDelayMax;
-
-    public static bool On;
 
     public static void SetupCustomOption()
     {
@@ -39,13 +37,11 @@ public class Tracefinder : RoleBase
     public override void Init()
     {
         playerIdList = [];
-        On = false;
     }
 
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        On = true;
     }
 
     public override bool IsEnable => playerIdList.Count > 0;
@@ -93,8 +89,6 @@ public class Tracefinder : RoleBase
 
     public static void OnPlayerDead(PlayerControl target)
     {
-        if (!On || !GameStates.IsInTask || target == null) return;
-
         var pos = target.Pos();
         float minDis = float.MaxValue;
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
@@ -117,7 +111,7 @@ public class Tracefinder : RoleBase
         {
             if (GameStates.IsInTask)
             {
-                foreach (byte id in playerIdList)
+                foreach (byte id in playerIdList.ToArray())
                 {
                     PlayerControl pc = Utils.GetPlayerById(id);
                     if (pc == null || !pc.IsAlive())

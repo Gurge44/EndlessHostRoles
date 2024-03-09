@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using AmongUs.GameOptions;
 using BepInEx;
 using BepInEx.Configuration;
@@ -9,6 +5,10 @@ using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
 using Il2CppInterop.Runtime.Injection;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using TOHE;
 using TOHE.Roles.Neutral;
 using UnityEngine;
@@ -92,6 +92,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, List<CustomRoles>> SetAddOns = [];
     public static Dictionary<CustomRoles, CustomRoles> AlwaysSpawnTogetherCombos = [];
     public static Dictionary<CustomRoles, CustomRoles> NeverSpawnTogetherCombos = [];
+    public static List<RoleBase> AllRoleClasses;
     public static bool IsFixedCooldown => CustomRoles.Vampire.IsEnable() || CustomRoles.Poisoner.IsEnable();
     public static float RefixCooldownDelay;
     public static bool ProcessShapeshifts = true;
@@ -125,7 +126,6 @@ public class Main : BasePlugin
 
     //public static Dictionary<byte, long> FlashbangInProtect = new();
     public static List<byte> CyberStarDead = [];
-    public static List<byte> DemolitionistDead = [];
     public static List<int> BlockedVents = [];
     public static List<byte> WorkaholicAlive = [];
     public static List<byte> SpeedrunnerAlive = [];
@@ -197,12 +197,38 @@ public class Main : BasePlugin
     public static Dictionary<byte, CustomRoles> DevRole = [];
 
 
-    public static PlayerControl[] AllPlayerControls => PlayerControl.AllPlayerControls.ToArray().Where(p => p != null).ToArray();
-    public static PlayerControl[] AllAlivePlayerControls => PlayerControl.AllPlayerControls.ToArray().Where(p => p != null && p.IsAlive() && !p.Data.Disconnected && !Pelican.IsEaten(p.PlayerId)).ToArray();
+    public static PlayerControl[] AllPlayerControls
+    {
+        get
+        {
+            List<PlayerControl> result = [];
+            foreach (var pc in PlayerControl.AllPlayerControls)
+            {
+                if (pc == null) continue;
+                result.Add(pc);
+            }
+
+            return [.. result];
+        }
+    }
+
+    public static PlayerControl[] AllAlivePlayerControls
+    {
+        get
+        {
+            List<PlayerControl> result = [];
+            foreach (var pc in PlayerControl.AllPlayerControls)
+            {
+                if (pc == null || !pc.IsAlive() || pc.Data.Disconnected || Pelican.IsEaten(pc.PlayerId)) continue;
+                result.Add(pc);
+            }
+
+            return [.. result];
+        }
+    }
 
     public static Main Instance;
 
-    //一些很新的东东
 
     public static string OverrideWelcomeMsg = string.Empty;
     public static int HostClientId;
@@ -431,7 +457,6 @@ public class Main : BasePlugin
                 { CustomRoles.Provocateur, "#74ba43" },
                 { CustomRoles.Sunnyboy, "#ff9902" },
                 { CustomRoles.Poisoner, "#e70052" },
-                //{CustomRoles.NWitch, "#BF5FFF"},
                 { CustomRoles.Totocalcio, "#ff9409" },
                 { CustomRoles.Romantic, "#FF1493" },
                 { CustomRoles.VengefulRomantic, "#8B0000" },
@@ -592,6 +617,20 @@ public class Main : BasePlugin
         DevManager.Init();
         Cloud.Init();
 
+        AllRoleClasses = [];
+        try
+        {
+            AllRoleClasses.AddRange(Assembly.GetAssembly(typeof(RoleBase))!
+                .GetTypes()
+                .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(RoleBase)))
+                .Select(type => (RoleBase)Activator.CreateInstance(type, null)));
+            AllRoleClasses.Sort();
+        }
+        catch (Exception e)
+        {
+            Utils.ThrowException(e);
+        }
+
         IRandom.SetInstance(new NetRandomWrapper());
 
         TOHE.Logger.Info($"{Application.version}", "AmongUs Version");
@@ -611,7 +650,7 @@ public class Main : BasePlugin
         if (!DebugModeManager.AmDebugger) ConsoleManager.DetachConsole();
         else ConsoleManager.CreateConsole();
 
-        TOHE.Logger.Msg("========= TOHE loaded! =========", "Plugin Load");
+        TOHE.Logger.Msg("========= TOHE+ loaded! =========", "Plugin Load");
     }
 }
 

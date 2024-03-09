@@ -1,7 +1,6 @@
-﻿using System.Text;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
+using System.Text;
 using TOHE.Modules;
-using static TOHE.Options;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -13,7 +12,7 @@ namespace TOHE.Roles.Crewmate
         public override void Add(byte playerId)
         {
             On = true;
-            playerId.SetAbilityUseLimit(VeteranSkillMaxOfUseage.GetInt());
+            playerId.SetAbilityUseLimit(Options.VeteranSkillMaxOfUseage.GetInt());
         }
 
         public override void Init()
@@ -21,30 +20,10 @@ namespace TOHE.Roles.Crewmate
             On = false;
         }
 
-        public static void SetupCustomOption()
-        {
-            SetupRoleOptions(8908, TabGroup.CrewmateRoles, CustomRoles.Veteran);
-            VeteranSkillCooldown = FloatOptionItem.Create(8910, "VeteranSkillCooldown", new(0f, 180f, 1f), 20f, TabGroup.CrewmateRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
-                .SetValueFormat(OptionFormat.Seconds);
-            VeteranSkillDuration = FloatOptionItem.Create(8911, "VeteranSkillDuration", new(0f, 180f, 1f), 10f, TabGroup.CrewmateRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
-                .SetValueFormat(OptionFormat.Seconds);
-            VeteranSkillMaxOfUseage = IntegerOptionItem.Create(8912, "VeteranSkillMaxOfUseage", new(0, 180, 1), 1, TabGroup.CrewmateRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
-                .SetValueFormat(OptionFormat.Times);
-            VeteranAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(8913, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.3f, TabGroup.CrewmateRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
-                .SetValueFormat(OptionFormat.Times);
-            VeteranAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(8914, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
-                .SetValueFormat(OptionFormat.Times);
-        }
-
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool()) return;
-            AURoleOptions.EngineerCooldown = VeteranSkillCooldown.GetFloat();
+            if (Options.UsePets.GetBool()) return;
+            AURoleOptions.EngineerCooldown = Options.VeteranSkillCooldown.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 1;
         }
 
@@ -60,7 +39,7 @@ namespace TOHE.Roles.Crewmate
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            if (UsePets.GetBool())
+            if (Options.UsePets.GetBool())
                 hud.PetButton.buttonLabelText.text = Translator.GetString("VeteranVentButtonText");
             else
                 hud.AbilityButton.buttonLabelText.text = Translator.GetString("VeteranVentButtonText");
@@ -84,7 +63,7 @@ namespace TOHE.Roles.Crewmate
                 Main.VeteranInProtect[pc.PlayerId] = Utils.TimeStamp;
                 pc.RpcRemoveAbilityUse();
                 pc.RPCPlayCustomSound("Gunload");
-                pc.Notify(Translator.GetString("VeteranOnGuard"), VeteranSkillDuration.GetFloat());
+                pc.Notify(Translator.GetString("VeteranOnGuard"), Options.VeteranSkillDuration.GetFloat());
                 pc.MarkDirtySettings();
             }
             else
@@ -97,7 +76,7 @@ namespace TOHE.Roles.Crewmate
         {
             if (Main.VeteranInProtect.ContainsKey(target.PlayerId)
                 && killer.PlayerId != target.PlayerId
-                && Main.VeteranInProtect[target.PlayerId] + VeteranSkillDuration.GetInt() >= Utils.TimeStamp)
+                && Main.VeteranInProtect[target.PlayerId] + Options.VeteranSkillDuration.GetInt() >= Utils.TimeStamp)
             {
                 if (!killer.Is(CustomRoles.Pestilence))
                 {
@@ -119,7 +98,7 @@ namespace TOHE.Roles.Crewmate
         public override void OnFixedUpdate(PlayerControl player)
         {
             var playerId = player.PlayerId;
-            if (Main.VeteranInProtect.TryGetValue(playerId, out var vtime) && vtime + VeteranSkillDuration.GetInt() < Utils.TimeStamp)
+            if (Main.VeteranInProtect.TryGetValue(playerId, out var vtime) && vtime + Options.VeteranSkillDuration.GetInt() < Utils.TimeStamp)
             {
                 Main.VeteranInProtect.Remove(playerId);
                 player.RpcResetAbilityCooldown();

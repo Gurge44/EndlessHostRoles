@@ -1,8 +1,8 @@
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HarmonyLib;
 using TOHE.Modules;
 using TOHE.Roles.AddOns.Crewmate;
 using TOHE.Roles.AddOns.Impostor;
@@ -1080,138 +1080,11 @@ public static class Options
         NoLimitAddonsNumMax = IntegerOptionItem.Create(211, "NoLimitAddonsNumMax", new(1, 90, 1), 1, TabGroup.Addons, false)
             .SetGameMode(CustomGameMode.Standard);
 
-        //==================================================================================================================================//
-
-
-        MainLoadingText = "Building role settings";
-        RoleLoadingText = "Vanilla roles\nImpostor";
-
-
-        // Impostor
-
-        SetupRoleOptions(300, TabGroup.ImpostorRoles, CustomRoles.ImpostorTOHE);
-        RoleLoadingText = "Vanilla roles\nShapeshifter";
-        SetupRoleOptions(400, TabGroup.ImpostorRoles, CustomRoles.ShapeshifterTOHE);
-        ShapeshiftCD = FloatOptionItem.Create(402, "ShapeshiftCooldown", new(1f, 180f, 1f), 30f, TabGroup.ImpostorRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.ShapeshifterTOHE])
-            .SetValueFormat(OptionFormat.Seconds);
-        ShapeshiftDur = FloatOptionItem.Create(403, "ShapeshiftDuration", new(1f, 60f, 1f), 10f, TabGroup.ImpostorRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.ShapeshifterTOHE])
-            .SetValueFormat(OptionFormat.Seconds);
-
-        RoleLoadingText = "Impostor roles\nEvil Guesser";
-        SetupRoleOptions(1200, TabGroup.ImpostorRoles, CustomRoles.EvilGuesser);
-        EGCanGuessTime = IntegerOptionItem.Create(1205, "GuesserCanGuessTimes", new(1, 15, 1), 15, TabGroup.ImpostorRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.EvilGuesser])
-            .SetValueFormat(OptionFormat.Times);
-        EGCanGuessImp = BooleanOptionItem.Create(1206, "EGCanGuessImp", true, TabGroup.ImpostorRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.EvilGuesser]);
-        EGCanGuessAdt = BooleanOptionItem.Create(1207, "EGCanGuessAdt", false, TabGroup.ImpostorRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.EvilGuesser]);
-        EGCanGuessTaskDoneSnitch = BooleanOptionItem.Create(1208, "EGCanGuessTaskDoneSnitch", true, TabGroup.ImpostorRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.EvilGuesser]);
-        EGTryHideMsg = BooleanOptionItem.Create(1209, "GuesserTryHideMsg", true, TabGroup.ImpostorRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.EvilGuesser])
-            .SetColor(Color.green);
-
-        RoleLoadingText = "Impostor roles\nVindicator";
-        SetupRoleOptions(3400, TabGroup.ImpostorRoles, CustomRoles.Vindicator);
-        VindicatorAdditionalVote = IntegerOptionItem.Create(3410, "MayorAdditionalVote", new(1, 30, 1), 1, TabGroup.ImpostorRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Vindicator])
-            .SetValueFormat(OptionFormat.Votes);
-        VindicatorHideVote = BooleanOptionItem.Create(3411, "MayorHideVote", false, TabGroup.ImpostorRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Vindicator]);
-        RoleLoadingText = "Impostor roles\nVisionary";
-
-        SetupRoleOptions(16150, TabGroup.ImpostorRoles, CustomRoles.Visionary);
-
-        RoleLoadingText = "Impostor roles\nTrickster";
-        SetupRoleOptions(4300, TabGroup.ImpostorRoles, CustomRoles.Trickster);
-
-
-        // Crewmates =====================================================================================================================
-
-
-        RoleLoadingText = "Vanilla roles\nCrewmate";
-
-        SetupRoleOptions(5050, TabGroup.CrewmateRoles, CustomRoles.CrewmateTOHE);
-        RoleLoadingText = "Vanilla roles\nEngineer";
-        SetupRoleOptions(5000, TabGroup.CrewmateRoles, CustomRoles.EngineerTOHE);
-        RoleLoadingText = "Vanilla roles\nScientist";
-        SetupRoleOptions(5100, TabGroup.CrewmateRoles, CustomRoles.ScientistTOHE);
-        ScientistCD = FloatOptionItem.Create(5110, "VitalsCooldown", new(1f, 250f, 1f), 3f, TabGroup.CrewmateRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.ScientistTOHE])
-            .SetValueFormat(OptionFormat.Seconds);
-        ScientistDur = FloatOptionItem.Create(5111, "VitalsDuration", new(1f, 250f, 1f), 15f, TabGroup.CrewmateRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.ScientistTOHE])
-            .SetValueFormat(OptionFormat.Seconds);
-
-        RoleLoadingText = "Crewmate roles\nCelebrity";
-
-        SetupRoleOptions(5300, TabGroup.CrewmateRoles, CustomRoles.CyberStar);
-        ImpKnowCyberStarDead = BooleanOptionItem.Create(5400, "ImpKnowCyberStarDead", false, TabGroup.CrewmateRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.CyberStar]);
-        NeutralKnowCyberStarDead = BooleanOptionItem.Create(5500, "NeutralKnowCyberStarDead", false, TabGroup.CrewmateRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.CyberStar]);
-        RoleLoadingText = "Crewmate roles\nDemolitionist";
-        SetupSingleRoleOptions(5550, TabGroup.CrewmateRoles, CustomRoles.Demolitionist, 1);
-        DemolitionistVentTime = FloatOptionItem.Create(5552, "DemolitionistVentTime", new(0f, 90f, 1f), 5f, TabGroup.CrewmateRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Demolitionist])
-            .SetValueFormat(OptionFormat.Seconds);
-        DemolitionistKillerDiesOnMeetingCall = BooleanOptionItem.Create(5553, "DemolitionistKillerDiesOnMeetingCall", false, TabGroup.CrewmateRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Demolitionist]);
-        RoleLoadingText = "Crewmate roles\nShiftguard";
-        SetupRoleOptions(5594, TabGroup.CrewmateRoles, CustomRoles.Shiftguard);
-        RoleLoadingText = "Crewmate roles\nDetour";
-        SetupRoleOptions(5590, TabGroup.CrewmateRoles, CustomRoles.Detour);
-        RoleLoadingText = "Crewmate roles\nLazy Guy";
-        SetupRoleOptions(5700, TabGroup.CrewmateRoles, CustomRoles.Needy);
-
-        RoleLoadingText = "Crewmate roles\nDetective";
-        SetupRoleOptions(6600, TabGroup.CrewmateRoles, CustomRoles.Detective);
-        DetectiveCanknowKiller = BooleanOptionItem.Create(6610, "DetectiveCanknowKiller", true, TabGroup.CrewmateRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Detective]);
-
-        RoleLoadingText = "Crewmate roles\nObserver";
-        SetupRoleOptions(7500, TabGroup.CrewmateRoles, CustomRoles.Observer);
-
-        RoleLoadingText = "Crewmate roles\nNice Guesser";
-        SetupRoleOptions(8600, TabGroup.CrewmateRoles, CustomRoles.NiceGuesser);
-        GGCanGuessTime = IntegerOptionItem.Create(8610, "GuesserCanGuessTimes", new(0, 15, 1), 15, TabGroup.CrewmateRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.NiceGuesser])
-            .SetValueFormat(OptionFormat.Times);
-        GGCanGuessCrew = BooleanOptionItem.Create(8611, "GGCanGuessCrew", true, TabGroup.CrewmateRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.NiceGuesser]);
-        GGCanGuessAdt = BooleanOptionItem.Create(8612, "GGCanGuessAdt", false, TabGroup.CrewmateRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.NiceGuesser]);
-        GGTryHideMsg = BooleanOptionItem.Create(8613, "GuesserTryHideMsg", true, TabGroup.CrewmateRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.NiceGuesser])
-            .SetColor(Color.green);
-
-        RoleLoadingText = "Crewmate roles\nDictator";
-        SetupRoleOptions(9100, TabGroup.CrewmateRoles, CustomRoles.Dictator);
-
-        RoleLoadingText = "Neutral roles\nPhantom";
-        SetupRoleOptions(11400, TabGroup.NeutralRoles, CustomRoles.Phantom);
-        PhantomCanVent = BooleanOptionItem.Create(11410, "CanVent", false, TabGroup.NeutralRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Phantom]);
-        PhantomSnatchesWin = BooleanOptionItem.Create(11411, "SnatchesWin", false, TabGroup.NeutralRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Phantom]);
-        PhantomCanGuess = BooleanOptionItem.Create(11412, "CanGuess", false, TabGroup.NeutralRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Phantom]);
-        PhantomTasks = OverrideTasksData.Create(11413, TabGroup.NeutralRoles, CustomRoles.Phantom);
-        RoleLoadingText = "Neutral roles\nTerrorist";
-        SetupRoleOptions(11500, TabGroup.NeutralRoles, CustomRoles.Terrorist);
-        CanTerroristSuicideWin = BooleanOptionItem.Create(11510, "CanTerroristSuicideWin", false, TabGroup.NeutralRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Terrorist]);
-        TerroristCanGuess = BooleanOptionItem.Create(11511, "CanGuess", true, TabGroup.NeutralRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Terrorist]);
-        TerroristTasks = OverrideTasksData.Create(11512, TabGroup.NeutralRoles, CustomRoles.Terrorist);
-
-        RoleLoadingText = "Add-ons\n.";
-
 
         // Add-Ons =====================================================================================================================
+
+
+        RoleLoadingText = "Add-ons\n.";
 
 
         AddBracketsToAddons = BooleanOptionItem.Create(13500, "BracketAddons", false, TabGroup.Addons, false)
@@ -1657,16 +1530,40 @@ public static class Options
 
         try
         {
-            var roleClassesDict = Utils.GetEnumerableOfType<RoleBase>()
+            var roleClassesDict = Main.AllRoleClasses
                 .Where(x => x.GetType().Name != "VanillaRole")
-                .GroupBy(x => ((CustomRoles)Enum.Parse(typeof(CustomRoles), ignoreCase: true, value: x.GetType().Name)).GetCustomRoleTypes())
+                .GroupBy(x => ((CustomRoles)Enum.Parse(typeof(CustomRoles), ignoreCase: true, value: x.GetType().Name)).GetRoleOptionType())
                 .ToDictionary(x => x.Key, x => x.ToArray());
+
+            int titleId = 100000;
 
             foreach (var roleClasses in roleClassesDict)
             {
                 MainLoadingText = $"Building Role Settings: {roleClasses.Key} Roles";
                 int allRoles = roleClasses.Value.Length;
                 int index = 0;
+
+                switch (roleClasses.Key)
+                {
+                    case RoleOptionType.Impostor:
+                        SetupBasicImpostorRoleSettings(ref titleId);
+                        break;
+                    case RoleOptionType.Crewmate_Normal:
+                        SetupBasicNonKillingCrewmateRoleSettings(ref titleId);
+                        break;
+                    case RoleOptionType.Neutral_NonKilling:
+                        SetupBasicNonKillingNeutralRoleSettings(ref titleId);
+                        break;
+                    case RoleOptionType.Neutral_Killing:
+                        SetupBasicKillingNeutralRoleSettings(ref titleId);
+                        break;
+                }
+
+                TextOptionItem.Create(titleId, $"ROT.{roleClasses.Key}", roleClasses.Key.GetTabFromOptionType())
+                    .SetHeader(true)
+                    .SetGameMode(CustomGameMode.Standard)
+                    .SetColor(roleClasses.Key.GetRoleOptionTypeColor());
+                titleId += 10;
 
                 foreach (var roleClass in roleClasses.Value)
                 {
@@ -1680,44 +1577,6 @@ public static class Options
                     catch (Exception e)
                     {
                         Logger.Exception(e, $"{MainLoadingText} - {RoleLoadingText}");
-                    }
-
-                    if (roleClasses.Key != CustomRoleTypes.Impostor) continue;
-
-                    switch (roleClass)
-                    {
-                        case Assassin:
-                            Undertaker.SetupCustomOption();
-                            break;
-                        case Swooper:
-                            Chameleon.SetupCustomOption();
-                            Wraith.SetupCustomOption();
-                            break;
-                        case Wildling:
-                            BloodKnight.SetupCustomOption();
-                            break;
-                        case Witch:
-                            HexMaster.SetupCustomOption();
-                            break;
-                        case Greedier:
-                            Imitator.SetupCustomOption();
-                            break;
-                        case CursedWolf:
-                            Jinx.SetupCustomOption();
-                            break;
-                        case Sans:
-                            Juggernaut.SetupCustomOption();
-                            Reckless.SetupCustomOption();
-                            break;
-                        case Cleaner:
-                            Medusa.SetupCustomOption();
-                            break;
-                        case Vampire:
-                            Poisoner.SetupCustomOption();
-                            break;
-                        case EvilDiviner:
-                            Ritualist.SetupCustomOption();
-                            break;
                     }
                 }
             }
@@ -2675,6 +2534,89 @@ public static class Options
         OptionSaver.Load();
 
         IsLoaded = true;
+        return;
+
+        static void SetupBasicNonKillingCrewmateRoleSettings(ref int titleId)
+        {
+            TextOptionItem.Create(titleId, "ROT.Vanilla", TabGroup.CrewmateRoles)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetColor(Color.white)
+                .SetHeader(true);
+            titleId += 10;
+
+            CrewmateVanillaRoles.SetupCustomOption();
+
+            TextOptionItem.Create(titleId, "ROT.Basic", TabGroup.CrewmateRoles)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetColor(Color.gray)
+                .SetHeader(true);
+            titleId += 10;
+
+            CyberStar.SetupCustomOption(); // Celebrity
+            Chameleon.SetupCustomOption();
+            Demolitionist.SetupCustomOption();
+            Detective.SetupCustomOption();
+            SetupRoleOptions(5590, TabGroup.CrewmateRoles, CustomRoles.Detour);
+            SetupRoleOptions(9100, TabGroup.CrewmateRoles, CustomRoles.Dictator);
+            SetupRoleOptions(5700, TabGroup.CrewmateRoles, CustomRoles.Needy); // Lazy guy
+            SetupRoleOptions(7500, TabGroup.CrewmateRoles, CustomRoles.Observer);
+            NiceGuesser.SetupCustomOption();
+            SetupRoleOptions(5594, TabGroup.CrewmateRoles, CustomRoles.Shiftguard);
+        }
+
+        static void SetupBasicImpostorRoleSettings(ref int titleId)
+        {
+            TextOptionItem.Create(titleId, "ROT.Vanilla", TabGroup.ImpostorRoles)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetColor(Color.white)
+                .SetHeader(true);
+            titleId += 10;
+
+            ImpostorVanillaRoles.SetupCustomOption();
+
+            TextOptionItem.Create(100030, "ROT.Basic", TabGroup.ImpostorRoles)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetColor(Color.gray)
+                .SetHeader(true);
+            titleId += 10;
+
+            EvilGuesser.SetupCustomOption();
+            Vindicator.SetupCustomOption();
+            SetupRoleOptions(16150, TabGroup.ImpostorRoles, CustomRoles.Visionary);
+            SetupRoleOptions(4300, TabGroup.ImpostorRoles, CustomRoles.Trickster);
+        }
+
+        static void SetupBasicNonKillingNeutralRoleSettings(ref int titleId)
+        {
+            TextOptionItem.Create(100030, "ROT.BasicNNK", TabGroup.NeutralRoles)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetColor(Color.gray)
+                .SetHeader(true);
+            titleId += 10;
+
+            Phantom.SetupCustomOption();
+            Terrorist.SetupCustomOption();
+        }
+
+        static void SetupBasicKillingNeutralRoleSettings(ref int titleId)
+        {
+            TextOptionItem.Create(100030, "ROT.BasicNK", TabGroup.NeutralRoles)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetColor(Color.gray)
+                .SetHeader(true);
+            titleId += 10;
+
+            BloodKnight.SetupCustomOption();
+            HexMaster.SetupCustomOption();
+            Imitator.SetupCustomOption();
+            Jinx.SetupCustomOption();
+            Juggernaut.SetupCustomOption();
+            Medusa.SetupCustomOption();
+            Poisoner.SetupCustomOption();
+            Reckless.SetupCustomOption();
+            Ritualist.SetupCustomOption();
+            Wraith.SetupCustomOption();
+        }
     }
 
     public static void SetupRoleOptions(int id, TabGroup tab, CustomRoles role, CustomGameMode customGameMode = CustomGameMode.Standard, bool zeroOne = false)

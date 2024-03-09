@@ -597,7 +597,7 @@ internal class ChatCommands
                 case "/id":
                     canceled = true;
                     string msgText = GetString("PlayerIdList");
-                    msgText = Main.AllPlayerControls.Aggregate(msgText, (current, pc) => current + "\n" + pc.PlayerId + " → " + Main.AllPlayerNames[pc.PlayerId]);
+                    msgText = Main.AllPlayerControls.Aggregate(msgText, (current, pc) => current + ("\n" + pc.PlayerId + " → " + Main.AllPlayerNames[pc.PlayerId]));
 
                     Utils.SendMessage(msgText, localPlayerId);
                     break;
@@ -1209,7 +1209,7 @@ internal class ChatCommands
             //    break;
             case "/id":
                 string msgText = GetString("PlayerIdList");
-                msgText = Main.AllPlayerControls.Aggregate(msgText, (current, pc) => current + "\n" + pc.PlayerId + " → " + Main.AllPlayerNames[pc.PlayerId]);
+                msgText = Main.AllPlayerControls.Aggregate(msgText, (current, pc) => current + ("\n" + pc.PlayerId + " → " + Main.AllPlayerNames[pc.PlayerId]));
 
                 Utils.SendMessage(msgText, player.PlayerId);
                 break;

@@ -1,3 +1,5 @@
+using HarmonyLib;
+using InnerNet;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,8 +8,6 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using HarmonyLib;
-using InnerNet;
 using static TOHE.Translator;
 
 namespace TOHE;

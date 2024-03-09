@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-using AmongUs.GameOptions;
-using static TOHE.Options;
+﻿using AmongUs.GameOptions;
+using System.Collections.Generic;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -21,21 +20,9 @@ namespace TOHE.Roles.Crewmate
             On = false;
         }
 
-        public static void SetupCustomOption()
-        {
-            SetupSingleRoleOptions(8550, TabGroup.CrewmateRoles, CustomRoles.Witness, 1);
-            WitnessCD = FloatOptionItem.Create(8552, "AbilityCD", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Witness])
-                .SetValueFormat(OptionFormat.Seconds);
-            WitnessTime = IntegerOptionItem.Create(8553, "WitnessTime", new(0, 90, 1), 10, TabGroup.CrewmateRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Witness])
-                .SetValueFormat(OptionFormat.Seconds);
-            WitnessUsePet = CreatePetUseSetting(8554, CustomRoles.Witness);
-        }
-
         public override void SetKillCooldown(byte id)
         {
-            Main.AllPlayerKillCooldown[id] = WitnessCD.GetFloat();
+            Main.AllPlayerKillCooldown[id] = Options.WitnessCD.GetFloat();
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)

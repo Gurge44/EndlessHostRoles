@@ -1,7 +1,7 @@
-using System.Collections.Generic;
-using System.Text;
 using AmongUs.GameOptions;
 using Hazel;
+using System.Collections.Generic;
+using System.Text;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using static TOHE.Options;
@@ -152,6 +152,7 @@ public class Werewolf : RoleBase
             }
         }, 0.5f, "Werewolf Vent");
     }
+
     public static string GetHudText(PlayerControl pc)
     {
         if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive() || Main.PlayerStates[pc.PlayerId].Role is not Werewolf { IsEnable: true } ww) return string.Empty;
@@ -170,6 +171,7 @@ public class Werewolf : RoleBase
         {
             str.Append(GetString("WWCanRampage"));
         }
+
         return str.ToString();
     }
 

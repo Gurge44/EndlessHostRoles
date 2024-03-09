@@ -1,8 +1,8 @@
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using HarmonyLib;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
@@ -715,7 +715,6 @@ class MeetingHudStartPatch
         }
 
         Main.CyberStarDead.Clear();
-        Main.DemolitionistDead.Clear();
         Express.SpeedNormal.Clear();
         Express.SpeedUp.Clear();
         Main.DetectiveNotify.Clear();

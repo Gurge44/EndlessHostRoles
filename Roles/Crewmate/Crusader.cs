@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using AmongUs.GameOptions;
+using System.Collections.Generic;
 
 namespace TOHE.Roles.Crewmate;
 

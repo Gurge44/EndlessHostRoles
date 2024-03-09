@@ -1,11 +1,11 @@
+using AmongUs.GameOptions;
+using HarmonyLib;
+using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AmongUs.GameOptions;
-using HarmonyLib;
-using Hazel;
 using TMPro;
 using TOHE.Modules;
 using TOHE.Patches;
@@ -407,7 +407,7 @@ class CheckMurderPatch
         if (!Main.PlayerStates[target.PlayerId].Role.OnCheckMurderAsTarget(killer, target)) return false;
 
         if (!check) killer.Kill(target);
-        if (killer.Is(CustomRoles.Doppelganger)) Doppelganger.OnCheckMurderEnd(killer, target);
+        if (killer.Is(CustomRoles.Doppelganger)) (Main.PlayerStates[killer.PlayerId].Role as Doppelganger)?.OnCheckMurder(killer, target);
         return true;
     }
 }
@@ -493,9 +493,6 @@ class MurderPlayerPatch
                 break;
             case CustomRoles.Altruist:
                 if (killer != target) Altruist.OnKilled(killer);
-                break;
-            case CustomRoles.Markseeker:
-                Markseeker.OnDeath(target);
                 break;
         }
 
@@ -627,21 +624,14 @@ class ShapeshiftPatch
             isSSneeded = Main.PlayerStates[shapeshifter.PlayerId].Role.OnShapeshift(shapeshifter, target, shapeshifting);
         }
 
-        if (shapeshifter.Is(CustomRoles.Hangman) && shapeshifter.GetAbilityUseLimit() < 1 && shapeshifting)
-        {
-            shapeshifter.SetKillCooldown(Hangman.ShapeshiftDuration.GetFloat() + 1f);
-            isSSneeded = false;
-        }
-
+        if (shapeshifter.Is(CustomRoles.Hangman) && shapeshifter.GetAbilityUseLimit() < 1 && shapeshifting) shapeshifter.SetKillCooldown(Hangman.ShapeshiftDuration.GetFloat() + 1f);
         if (shapeshifter.Is(CustomRoles.Camouflager) && !shapeshifting) Camouflager.Reset();
-        if (Changeling.ChangedRole.TryGetValue(shapeshifter.PlayerId, out var changed) && changed && shapeshifter.GetCustomRole().GetRoleTypes() != RoleTypes.Shapeshifter) isSSneeded = false;
-
-        // ==============================================================================================================================
 
         // Forced rewriting in case the name cannot be corrected due to the timing of canceling the transformation being off.
         if (!shapeshifting && !shapeshifter.Is(CustomRoles.Glitch) && isSSneeded)
         {
-            _ = new LateTask(() => { NotifyRoles(NoCache: true); }, 1.2f, "ShapeShiftNotify");
+            _ = new LateTask(() => { NotifyRoles(NoCache: true); },
+                1.2f, "ShapeShiftNotify");
         }
 
         if ((!shapeshifting || !isSSneeded) && !Swapster.FirstSwapTarget.ContainsKey(shapeshifter.PlayerId))
@@ -1246,6 +1236,7 @@ class FixedUpdatePatch
 
                 if (target.AmOwner && GameStates.IsInTask)
                 {
+                    //targetが自分自身
                     if (target.Is(CustomRoles.Arsonist) && target.IsDouseDone())
                         RealName = ColorString(GetRoleColor(CustomRoles.Arsonist), GetString("EnterVentToWin"));
                     else if (target.Is(CustomRoles.Revolutionist) && target.IsDrawDone())
@@ -1272,19 +1263,19 @@ class FixedUpdatePatch
                 // Name Color Manager
                 RealName = RealName.ApplyNameColorData(seer, target, false);
 
-                if (seer.GetCustomRole().IsCrewmate() && seer.Is(CustomRoles.Madmate) && Marshall.MadmateCanFindMarshall)
+                if (seer.GetCustomRole().IsCrewmate() && seer.Is(CustomRoles.Madmate) && Marshall.MadmateCanFindMarshall) //seerがインポスター
                 {
-                    if (target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished)
-                        Mark.Append(ColorString(GetRoleColor(CustomRoles.Marshall), "★"));
+                    if (target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished) //targetがタスクを終わらせたマッドスニッチ
+                        Mark.Append(ColorString(GetRoleColor(CustomRoles.Marshall), "★")); //targetにマーク付与
                 }
 
-                switch (target.GetCustomRole())
+                switch (target.GetCustomRole()) //seerがインポスター
                 {
                     case CustomRoles.Snitch when seer.GetCustomRole().IsImpostor() && target.Is(CustomRoles.Madmate) && target.GetTaskState().IsTaskFinished:
-                        Mark.Append(ColorString(GetRoleColor(CustomRoles.Impostor), "★"));
+                        Mark.Append(ColorString(GetRoleColor(CustomRoles.Impostor), "★")); //targetにマーク付与
                         break;
                     case CustomRoles.Marshall when seer.GetCustomRole().IsCrewmate() && target.GetTaskState().IsTaskFinished:
-                        Mark.Append(ColorString(GetRoleColor(CustomRoles.Marshall), "★"));
+                        Mark.Append(ColorString(GetRoleColor(CustomRoles.Marshall), "★")); //targetにマーク付与
                         break;
                     case CustomRoles.SuperStar when Options.EveryOneKnowSuperStar.GetBool():
                         Mark.Append(ColorString(GetRoleColor(CustomRoles.SuperStar), "★"));
@@ -1421,9 +1412,6 @@ class FixedUpdatePatch
                     case CustomRoles.Tiger when target.PlayerId == seer.PlayerId:
                         Suffix.Append(Tiger.GetSuffix(seer));
                         break;
-                    case CustomRoles.Predator when seer.PlayerId == target.PlayerId:
-                        Suffix.Append(Predator.GetSuffixAndHudText(seer));
-                        break;
                 }
 
                 Mark.Append(Totocalcio.TargetMark(seer, target));
@@ -1503,7 +1491,11 @@ class FixedUpdatePatch
                 if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
                     Suffix.Append(SoloKombatManager.GetDisplayHealth(target));
 
-                // Devourer
+                /*if(main.AmDebugger.Value && main.BlockKilling.TryGetValue(target.PlayerId, out var isBlocked)) {
+                    Mark = isBlocked ? "(true)" : "(false)";
+                }*/
+
+                //Devourer
                 if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.playerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId)))
                     RealName = GetString("DevouredName");
 
@@ -1512,6 +1504,7 @@ class FixedUpdatePatch
                     RealName = $"<size=0>{RealName}</size> ";
 
                 string DeathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"\n<size=1.7>({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))})</size>" : string.Empty;
+                //Mark・Suffixの適用
 
                 var currentText = target.cosmetics.nameText.text;
                 var changeTo = $"{RealName}{DeathReason}{Mark}\r\n{Suffix}";

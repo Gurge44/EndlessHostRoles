@@ -1,6 +1,6 @@
-using System.Collections.Generic;
 using AmongUs.GameOptions;
 using HarmonyLib;
+using System.Collections.Generic;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
 

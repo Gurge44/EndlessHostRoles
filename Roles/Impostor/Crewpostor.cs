@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using Hazel;
+using System.Collections.Generic;
+using System.Linq;
 using TOHE.Modules;
 using UnityEngine;
-using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor
 {
@@ -14,22 +13,6 @@ namespace TOHE.Roles.Impostor
 
         public static bool On;
         public override bool IsEnable => On;
-
-        public static void SetupCustomOption()
-        {
-            SetupRoleOptions(4800, TabGroup.ImpostorRoles, CustomRoles.Crewpostor);
-            CrewpostorCanKillAllies = BooleanOptionItem.Create(4810, "CanKillAllies", true, TabGroup.ImpostorRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
-            CrewpostorKnowsAllies = BooleanOptionItem.Create(4811, "CrewpostorKnowsAllies", true, TabGroup.ImpostorRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
-            AlliesKnowCrewpostor = BooleanOptionItem.Create(4812, "AlliesKnowCrewpostor", true, TabGroup.ImpostorRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
-            CrewpostorLungeKill = BooleanOptionItem.Create(4813, "CrewpostorLungeKill", true, TabGroup.ImpostorRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
-            CrewpostorKillAfterTask = IntegerOptionItem.Create(4814, "CrewpostorKillAfterTask", new(1, 50, 1), 1, TabGroup.ImpostorRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
-            CrewpostorTasks = OverrideTasksData.Create(4815, TabGroup.ImpostorRoles, CustomRoles.Crewpostor);
-        }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
@@ -43,14 +26,14 @@ namespace TOHE.Roles.Impostor
 
             SendRPC(player.PlayerId, TasksDone[player.PlayerId]);
 
-            PlayerControl[] list = Main.AllAlivePlayerControls.Where(x => x.PlayerId != player.PlayerId && (CrewpostorCanKillAllies.GetBool() || !x.GetCustomRole().IsImpostorTeam())).ToArray();
+            PlayerControl[] list = Main.AllAlivePlayerControls.Where(x => x.PlayerId != player.PlayerId && (Options.CrewpostorCanKillAllies.GetBool() || !x.GetCustomRole().IsImpostorTeam())).ToArray();
             if (list.Length == 0)
             {
                 Logger.Info("No target to kill", "Crewpostor");
             }
-            else if (TasksDone[player.PlayerId] % CrewpostorKillAfterTask.GetInt() != 0 && TasksDone[player.PlayerId] != 0)
+            else if (TasksDone[player.PlayerId] % Options.CrewpostorKillAfterTask.GetInt() != 0 && TasksDone[player.PlayerId] != 0)
             {
-                Logger.Info($"Crewpostor task done but kill skipped, {TasksDone[player.PlayerId]} tasks completed, but it kills after {CrewpostorKillAfterTask.GetInt()} tasks", "Crewpostor");
+                Logger.Info($"Crewpostor task done but kill skipped, {TasksDone[player.PlayerId]} tasks completed, but it kills after {Options.CrewpostorKillAfterTask.GetInt()} tasks", "Crewpostor");
             }
             else
             {
@@ -58,7 +41,7 @@ namespace TOHE.Roles.Impostor
                 var target = list[0];
                 if (!target.Is(CustomRoles.Pestilence))
                 {
-                    if (!CrewpostorLungeKill.GetBool())
+                    if (!Options.CrewpostorLungeKill.GetBool())
                     {
                         target.SetRealKiller(player);
                         if (player.RpcCheckAndMurder(target, true))

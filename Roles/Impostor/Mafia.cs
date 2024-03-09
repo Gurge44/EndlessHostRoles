@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using TOHE.Modules;
 using UnityEngine;
-using static TOHE.Options;
 using static TOHE.Translator;
 using Object = UnityEngine.Object;
 
@@ -15,22 +14,6 @@ namespace TOHE.Roles.Impostor
     {
         public static bool On;
         public override bool IsEnable => On;
-
-        public static void SetupCustomOption()
-        {
-            SetupRoleOptions(3100, TabGroup.ImpostorRoles, CustomRoles.Mafia);
-            MafiaCanKillNum = IntegerOptionItem.Create(3200, "MafiaCanKillNum", new(0, 15, 1), 1, TabGroup.ImpostorRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Mafia])
-                .SetValueFormat(OptionFormat.Players);
-            LegacyMafia = BooleanOptionItem.Create(3210, "LegacyMafia", false, TabGroup.ImpostorRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Mafia]);
-            MafiaShapeshiftCD = FloatOptionItem.Create(3211, "ShapeshiftCooldown", new(1f, 180f, 1f), 15f, TabGroup.ImpostorRoles, false)
-                .SetParent(LegacyMafia)
-                .SetValueFormat(OptionFormat.Seconds);
-            MafiaShapeshiftDur = FloatOptionItem.Create(3212, "ShapeshiftDuration", new(1f, 180f, 1f), 30f, TabGroup.ImpostorRoles, false)
-                .SetParent(LegacyMafia)
-                .SetValueFormat(OptionFormat.Seconds);
-        }
 
         public override void Add(byte playerId)
         {
@@ -49,8 +32,8 @@ namespace TOHE.Roles.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            AURoleOptions.ShapeshifterCooldown = MafiaShapeshiftCD.GetFloat();
-            AURoleOptions.ShapeshifterDuration = MafiaShapeshiftDur.GetFloat();
+            AURoleOptions.ShapeshifterCooldown = Options.MafiaShapeshiftCD.GetFloat();
+            AURoleOptions.ShapeshifterDuration = Options.MafiaShapeshiftDur.GetFloat();
         }
 
         public static bool MafiaMsgCheck(PlayerControl pc, string msg, bool isUI = false)
@@ -60,7 +43,7 @@ namespace TOHE.Roles.Impostor
             if (!pc.Is(CustomRoles.Mafia)) return false;
             msg = msg.Trim().ToLower();
             if (msg.Length < 3 || msg[..3] != "/rv") return false;
-            if (MafiaCanKillNum.GetInt() < 1)
+            if (Options.MafiaCanKillNum.GetInt() < 1)
             {
                 if (!isUI) Utils.SendMessage(GetString("MafiaKillDisable"), pc.PlayerId);
                 else pc.ShowPopUp(GetString("MafiaKillDisable"));
@@ -76,7 +59,7 @@ namespace TOHE.Roles.Impostor
             if (msg == "/rv")
             {
                 string text = GetString("PlayerIdList");
-                text = Main.AllAlivePlayerControls.Aggregate(text, (current, npc) => current + "\n" + npc.PlayerId + " → (" + npc.GetDisplayRoleName() + ") " + npc.GetRealName());
+                text = Main.AllAlivePlayerControls.Aggregate(text, (current, npc) => current + ("\n" + npc.PlayerId + " → (" + npc.GetDisplayRoleName() + ") " + npc.GetRealName()));
 
                 Utils.SendMessage(text, pc.PlayerId);
                 return true;
@@ -84,7 +67,7 @@ namespace TOHE.Roles.Impostor
 
             if (!Main.MafiaRevenged.TryAdd(pc.PlayerId, 0))
             {
-                if (Main.MafiaRevenged[pc.PlayerId] >= MafiaCanKillNum.GetInt())
+                if (Main.MafiaRevenged[pc.PlayerId] >= Options.MafiaCanKillNum.GetInt())
                 {
                     if (!isUI) Utils.SendMessage(GetString("MafiaKillMax"), pc.PlayerId);
                     else pc.ShowPopUp(GetString("MafiaKillMax"));
