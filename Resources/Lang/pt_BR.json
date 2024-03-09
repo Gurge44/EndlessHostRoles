@@ -1125,6 +1125,7 @@
   "RemainingText.EjectionSuffix.NKSingle": "restante.",
   "RemainingText.EjectionSuffix.NKPlural": "restantes.",
   "Cooldown": "Recarga",
+  "CurseCooldown": "Curse Cooldown",
   "KillCooldown": "Recarga de Abate",
   "VentCooldown": "Recarga de Duto",
   "MaxInVentTime": "Tempo Máximo no duto",
