@@ -662,6 +662,7 @@ static class ExtendedPlayerControl
     public static bool IsShifted(this PlayerControl pc) => Main.CheckShapeshift.TryGetValue(pc.PlayerId, out var shifted) && shifted;
     public static bool IsPlayerShifted(this byte id) => Main.CheckShapeshift.TryGetValue(id, out var shifted) && shifted;
     public static bool HasSubRole(this PlayerControl pc) => Main.PlayerStates[pc.PlayerId].SubRoles.Count > 0;
+    public static bool HasEvilAddon(this PlayerControl pc) => Main.PlayerStates[pc.PlayerId].SubRoles.Any(x => x.IsEvilAddon());
 
     public static void ResetKillCooldown(this PlayerControl player)
     {

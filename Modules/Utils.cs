@@ -733,7 +733,7 @@ public static class Utils
             case CustomRoles.Jackal when PlayerControl.LocalPlayer.Is(CustomRoles.Sidekick):
             case CustomRoles.Jackal when PlayerControl.LocalPlayer.Is(CustomRoles.Recruit):
             case CustomRoles.Workaholic when Options.WorkaholicVisibleToEveryone.GetBool():
-            case CustomRoles.Doctor when !__instance.GetCustomRole().IsEvilAddons() && Options.DoctorVisibleToEveryone.GetBool():
+            case CustomRoles.Doctor when !__instance.HasEvilAddon() && Options.DoctorVisibleToEveryone.GetBool():
             case CustomRoles.Mayor when Options.MayorRevealWhenDoneTasks.GetBool() && __instance.GetTaskState().IsTaskFinished:
             case CustomRoles.Marshall when PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && __instance.GetTaskState().IsTaskFinished:
                 result = true;
@@ -2059,7 +2059,7 @@ public static class Utils
                                 (seer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Jackal)) ||
                                 (seer.Is(CustomRoles.Recruit) && target.Is(CustomRoles.Jackal)) ||
                                 (target.Is(CustomRoles.Workaholic) && Options.WorkaholicVisibleToEveryone.GetBool()) ||
-                                (target.Is(CustomRoles.Doctor) && !target.GetCustomRole().IsEvilAddons() && Options.DoctorVisibleToEveryone.GetBool()) ||
+                                (target.Is(CustomRoles.Doctor) && !target.HasEvilAddon() && Options.DoctorVisibleToEveryone.GetBool()) ||
                                 (target.Is(CustomRoles.Mayor) && Options.MayorRevealWhenDoneTasks.GetBool() && target.GetTaskState().IsTaskFinished) ||
                                 (seer.Is(CustomRoleTypes.Crewmate) && target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished) ||
                                 (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Vote && Options.SeeEjectedRolesInMeeting.GetBool()) ||

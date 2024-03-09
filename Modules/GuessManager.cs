@@ -263,7 +263,7 @@ public static class GuessManager
                             if (!isUI) Utils.SendMessage(GetString("GuessWorkaholic"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessWorkaholic"));
                             return true;
-                        case CustomRoles.Doctor when Options.DoctorVisibleToEveryone.GetBool() && !target.GetCustomRole().IsEvilAddons():
+                        case CustomRoles.Doctor when Options.DoctorVisibleToEveryone.GetBool() && !target.HasEvilAddon():
                             if (!isUI) Utils.SendMessage(GetString("GuessDoctor"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessDoctor"));
                             return true;

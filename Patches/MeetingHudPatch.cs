@@ -741,7 +741,6 @@ class MeetingHudStartPatch
         SoundManager.Instance.ChangeAmbienceVolume(0f);
         if (!GameStates.IsModHost) return;
 
-        //提前储存赌怪游戏组件的模板
         GuessManager.textTemplate = Object.Instantiate(__instance.playerStates[0].NameText);
         GuessManager.textTemplate.enabled = false;
 
@@ -760,12 +759,11 @@ class MeetingHudStartPatch
             roleTextMeeting.gameObject.name = "RoleTextMeeting";
             roleTextMeeting.enableWordWrapping = false;
             roleTextMeeting.enabled =
-                pc.AmOwner || //対象がLocalPlayer
-                (Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool()) || //LocalPlayerが死亡していて幽霊が他人の役職を見れるとき
-                (PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && pc.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) || //LocalPlayerが死亡していて幽霊が他人の役職を見れるとき
-                (pc.Is(CustomRoles.Gravestone) && Main.VisibleTasksCount && pc.Data.IsDead) || //LocalPlayerが死亡していて幽霊が他人の役職を見れるとき
+                pc.AmOwner ||
+                (Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool()) ||
+                (PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && pc.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) ||
+                (pc.Is(CustomRoles.Gravestone) && Main.VisibleTasksCount && pc.Data.IsDead) ||
                 (pc.Is(CustomRoles.Lovers) && PlayerControl.LocalPlayer.Is(CustomRoles.Lovers) && Options.LoverKnowRoles.GetBool()) ||
-                //(pc.Is(CustomRoles.Ntr) && Options.LoverKnowRoles.GetBool()) ||
                 (pc.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool()) ||
                 (pc.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosImp.GetBool()) ||
                 (pc.Is(CustomRoles.Madmate) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowWhosMadmate.GetBool()) ||
@@ -778,7 +776,7 @@ class MeetingHudStartPatch
                 (pc.Is(CustomRoles.Sidekick) && PlayerControl.LocalPlayer.Is(CustomRoles.Sidekick)) ||
                 (pc.Is(CustomRoles.Sidekick) && PlayerControl.LocalPlayer.Is(CustomRoles.Jackal)) ||
                 (pc.Is(CustomRoles.Workaholic) && Options.WorkaholicVisibleToEveryone.GetBool()) ||
-                (pc.Is(CustomRoles.Doctor) && !pc.GetCustomRole().IsEvilAddons() && Options.DoctorVisibleToEveryone.GetBool()) ||
+                (pc.Is(CustomRoles.Doctor) && !pc.HasEvilAddon() && Options.DoctorVisibleToEveryone.GetBool()) ||
                 (pc.Is(CustomRoles.Mayor) && Options.MayorRevealWhenDoneTasks.GetBool() && pc.GetTaskState().IsTaskFinished) ||
                 (pc.Is(CustomRoles.Marshall) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && pc.GetTaskState().IsTaskFinished) ||
                 (Main.PlayerStates[pc.PlayerId].deathReason == PlayerState.DeathReason.Vote && Options.SeeEjectedRolesInMeeting.GetBool()) ||
@@ -789,7 +787,6 @@ class MeetingHudStartPatch
                 Executioner.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Succubus.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Necromancer.KnowRole(PlayerControl.LocalPlayer, pc) ||
-                //CursedSoul.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Amnesiac.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Virus.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == pc.PlayerId) ||
@@ -798,7 +795,6 @@ class MeetingHudStartPatch
                 PlayerControl.LocalPlayer.Is(CustomRoles.GM) ||
                 Main.GodMode.Value;
 
-            //Baker.SendAliveMessage(pc);
 
             if (!PlayerControl.LocalPlayer.Data.IsDead && PlayerControl.LocalPlayer.IsRevealedPlayer(pc) && pc.Is(CustomRoles.Trickster))
             {

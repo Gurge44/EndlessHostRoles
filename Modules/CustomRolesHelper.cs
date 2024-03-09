@@ -1,3 +1,4 @@
+using System;
 using AmongUs.GameOptions;
 using System.Linq;
 using TOHE.Roles.Crewmate;
@@ -7,251 +8,30 @@ using UnityEngine;
 
 namespace TOHE;
 
+/*
+ * Roles that use the same code as another role:
+ * Nuker = Bomber
+ * Undertaker = Assassin
+ * Chameleon = Swooper
+ * BloodKnight = Wildling
+ * HexMaster = Witch
+ * Imitator = Greedier
+ * Jinx = CursedWolf
+ * Juggernaut = Sans
+ * Medusa = Cleaner
+ * Poisoner = Vampire
+ * Reckless = Sans
+ * Ritualist = EvilDiviner
+ * Wraith = Swooper
+ */
+
 internal static class CustomRolesHelper
 {
-    public static RoleBase GetRoleClass(this CustomRoles role) => role switch
+    public static RoleBase GetRoleClass(this CustomRoles role)
     {
-        // IMPOSTORS ---------------------------------------------------------------
-
-        CustomRoles.Hacker => new Hacker(),
-        CustomRoles.AntiAdminer => new AntiAdminer(),
-        CustomRoles.Sans => new Sans(),
-        CustomRoles.Bard => new Bard(),
-        CustomRoles.Blackmailer => new Blackmailer(),
-        CustomRoles.Bodyguard => new Bodyguard(),
-        CustomRoles.Bomber => new Bomber(),
-        CustomRoles.BountyHunter => new BountyHunter(),
-        CustomRoles.OverKiller => new OverKiller(),
-        CustomRoles.Camouflager => new Camouflager(),
-        CustomRoles.Capitalism => new Capitalism(),
-        CustomRoles.Cantankerous => new Cantankerous(),
-        CustomRoles.Changeling => new Changeling(),
-        CustomRoles.Chronomancer => new Chronomancer(),
-        CustomRoles.Cleaner => new Cleaner(),
-        CustomRoles.EvilDiviner => new EvilDiviner(),
-        CustomRoles.Consort => new Consort(),
-        CustomRoles.Councillor => new Councillor(),
-        CustomRoles.Crewpostor => new Crewpostor(),
-        CustomRoles.CursedWolf => new CursedWolf(),
-        CustomRoles.Deathpact => new Deathpact(),
-        CustomRoles.Devourer => new Devourer(),
-        CustomRoles.Disperser => new Disperser(),
-        CustomRoles.Duellist => new Duellist(),
-        CustomRoles.Dazzler => new Dazzler(),
-        CustomRoles.Escapee => new Escapee(),
-        CustomRoles.Eraser => new Eraser(),
-        CustomRoles.EvilTracker => new EvilTracker(),
-        CustomRoles.FireWorks => new FireWorks(),
-        CustomRoles.Freezer => new Freezer(),
-        CustomRoles.Gambler => new Gambler(),
-        CustomRoles.Gangster => new Gangster(),
-        CustomRoles.Godfather => new Godfather(),
-        CustomRoles.Greedier => new Greedier(),
-        CustomRoles.Hangman => new Hangman(),
-        CustomRoles.Hitman => new Hitman(),
-        CustomRoles.Inhibitor => new Inhibitor(),
-        CustomRoles.Kamikaze => new Kamikaze(),
-        CustomRoles.Kidnapper => new Kidnapper(),
-        CustomRoles.Minimalism => new Minimalism(),
-        CustomRoles.BallLightning => new BallLightning(),
-        CustomRoles.Librarian => new Librarian(),
-        CustomRoles.Lurker => new Lurker(),
-        CustomRoles.Mafioso => new Mafioso(),
-        CustomRoles.Mastermind => new Mastermind(),
-        CustomRoles.Mafia => new Mafia(),
-        CustomRoles.SerialKiller => new SerialKiller(),
-        CustomRoles.Miner => new Miner(),
-        CustomRoles.Morphling => new Morphling(),
-        CustomRoles.Assassin => new Assassin(),
-        CustomRoles.Nuker => new Bomber(), // Use the same code as Bomber with small modifications
-        CustomRoles.Nullifier => new Nullifier(),
-        CustomRoles.Parasite => new Parasite(),
-        CustomRoles.Penguin => new Penguin(),
-        CustomRoles.Puppeteer => new Puppeteer(),
-        CustomRoles.QuickShooter => new QuickShooter(),
-        CustomRoles.Refugee => new Refugee(),
-        CustomRoles.RiftMaker => new RiftMaker(),
-        CustomRoles.Saboteur => new Saboteur(),
-        CustomRoles.Sapper => new Sapper(),
-        CustomRoles.Scavenger => new Scavenger(),
-        CustomRoles.Sniper => new Sniper(),
-        CustomRoles.ImperiusCurse => new ImperiusCurse(),
-        CustomRoles.Swapster => new Swapster(),
-        CustomRoles.Swiftclaw => new Swiftclaw(),
-        CustomRoles.Swooper => new Swooper(),
-        CustomRoles.Stealth => new Stealth(),
-        CustomRoles.TimeThief => new TimeThief(),
-        CustomRoles.BoobyTrap => new BoobyTrap(),
-        CustomRoles.Twister => new Twister(),
-        CustomRoles.Underdog => new Underdog(),
-        CustomRoles.Undertaker => new Assassin(), // Use the same code as Assassin with small modifications
-        CustomRoles.Vampire => new Vampire(),
-        CustomRoles.Warlock => new Warlock(),
-        CustomRoles.Wildling => new Wildling(),
-        CustomRoles.Witch => new Witch(),
-        CustomRoles.YinYanger => new YinYanger(),
-        CustomRoles.Zombie => new Zombie(),
-
-        // CREWMATES ---------------------------------------------------------------
-
-        CustomRoles.Addict => new Addict(),
-        CustomRoles.Aid => new Aid(),
-        CustomRoles.Alchemist => new Alchemist(),
-        CustomRoles.Analyzer => new Analyzer(),
-        CustomRoles.Autocrat => new Autocrat(),
-        CustomRoles.Beacon => new Beacon(),
-        CustomRoles.Benefactor => new Benefactor(),
-        CustomRoles.CameraMan => new CameraMan(),
-        CustomRoles.Chameleon => new Swooper(), // Use the same code as Swooper with small modifications
-        CustomRoles.Cleanser => new Cleanser(),
-        CustomRoles.Convener => new Convener(),
-        CustomRoles.CopyCat => new CopyCat(),
-        CustomRoles.Bloodhound => new Bloodhound(),
-        CustomRoles.Crusader => new Crusader(),
-        CustomRoles.Deputy => new Deputy(),
-        CustomRoles.Doctor => new Doctor(),
-        CustomRoles.DonutDelivery => new DonutDelivery(),
-        CustomRoles.Doormaster => new Doormaster(),
-        CustomRoles.DovesOfNeace => new DovesOfNeace(),
-        CustomRoles.Drainer => new Drainer(),
-        CustomRoles.Druid => new Druid(),
-        CustomRoles.Electric => new Electric(),
-        CustomRoles.Enigma => new Enigma(),
-        CustomRoles.Escort => new Escort(),
-        CustomRoles.Express => new Express(),
-        CustomRoles.Farseer => new Farseer(),
-        CustomRoles.Divinator => new Divinator(),
-        CustomRoles.Gaulois => new Gaulois(),
-        CustomRoles.Grenadier => new Grenadier(),
-        CustomRoles.GuessManagerRole => new GuessManagerRole(),
-        CustomRoles.Guardian => new Guardian(),
-        CustomRoles.Ignitor => new Ignitor(),
-        CustomRoles.Insight => new Insight(),
-        CustomRoles.ParityCop => new ParityCop(),
-        CustomRoles.Jailor => new Jailor(),
-        CustomRoles.Judge => new Judge(),
-        CustomRoles.Lighter => new Lighter(),
-        CustomRoles.Lookout => new Lookout(),
-        CustomRoles.Luckey => new Luckey(),
-        CustomRoles.Marshall => new Marshall(),
-        CustomRoles.Mathematician => new Mathematician(),
-        CustomRoles.Mayor => new Mayor(),
-        CustomRoles.SabotageMaster => new SabotageMaster(),
-        CustomRoles.Medic => new Medic(),
-        CustomRoles.Mediumshiper => new Mediumshiper(),
-        CustomRoles.Merchant => new Merchant(),
-        CustomRoles.Monitor => new AntiAdminer(),
-        CustomRoles.Mole => new Mole(),
-        CustomRoles.Markseeker => new Markseeker(),
-        CustomRoles.Monarch => new Monarch(),
-        CustomRoles.Mortician => new Mortician(),
-        CustomRoles.NiceEraser => new NiceEraser(),
-        CustomRoles.NiceHacker => new NiceHacker(),
-        CustomRoles.NiceSwapper => new NiceSwapper(),
-        CustomRoles.Nightmare => new Nightmare(),
-        CustomRoles.Oracle => new Oracle(),
-        CustomRoles.Paranoia => new Paranoia(),
-        CustomRoles.Perceiver => new Perceiver(),
-        CustomRoles.Psychic => new Psychic(),
-        CustomRoles.Rabbit => new Rabbit(),
-        CustomRoles.Randomizer => new Randomizer(),
-        CustomRoles.Ricochet => new Ricochet(),
-        CustomRoles.Sentinel => new Sentinel(),
-        CustomRoles.SecurityGuard => new SecurityGuard(),
-        CustomRoles.Sheriff => new Sheriff(),
-        CustomRoles.Snitch => new Snitch(),
-        CustomRoles.Spiritualist => new Spiritualist(),
-        CustomRoles.Speedrunner => new Speedrunner(),
-        CustomRoles.SpeedBooster => new SpeedBooster(),
-        CustomRoles.Spy => new Spy(),
-        CustomRoles.SuperStar => new SuperStar(),
-        CustomRoles.TaskManager => new TaskManager(),
-        CustomRoles.Tether => new Tether(),
-        CustomRoles.TimeManager => new TimeManager(),
-        CustomRoles.TimeMaster => new TimeMaster(),
-        CustomRoles.Tornado => new Tornado(),
-        CustomRoles.Tracker => new Tracker(),
-        CustomRoles.Transmitter => new Transmitter(),
-        CustomRoles.Transporter => new Transporter(),
-        CustomRoles.Tracefinder => new Tracefinder(),
-        CustomRoles.Tunneler => new Tunneler(),
-        CustomRoles.Ventguard => new Ventguard(),
-        CustomRoles.Veteran => new Veteran(),
-        CustomRoles.SwordsMan => new SwordsMan(),
-        CustomRoles.Witness => new Witness(),
-
-        // NEUTRALS ---------------------------------------------------------------
-
-        CustomRoles.Agitater => new Agitater(),
-        CustomRoles.Amnesiac => new Amnesiac(),
-        CustomRoles.Arsonist => new Arsonist(),
-        CustomRoles.Bandit => new Bandit(),
-        CustomRoles.BloodKnight => new Wildling(), // Use the same code as Wildling with small modifications
-        CustomRoles.Bubble => new Bubble(),
-        CustomRoles.Collector => new Collector(),
-        CustomRoles.Deathknight => new Deathknight(),
-        CustomRoles.Gamer => new Gamer(),
-        CustomRoles.Doppelganger => new Doppelganger(),
-        CustomRoles.Doomsayer => new Doomsayer(),
-        CustomRoles.Eclipse => new Eclipse(),
-        CustomRoles.Enderman => new Enderman(),
-        CustomRoles.Executioner => new Executioner(),
-        CustomRoles.Totocalcio => new Totocalcio(),
-        CustomRoles.Glitch => new Glitch(),
-        CustomRoles.FFF => new FFF(),
-        CustomRoles.HeadHunter => new HeadHunter(),
-        CustomRoles.HexMaster => new Witch(), // Use the same code as Witch with small modifications
-        CustomRoles.Hookshot => new Hookshot(),
-        CustomRoles.Imitator => new Greedier(), // Use the same code as Greedier with small modifications
-        CustomRoles.Innocent => new Innocent(),
-        CustomRoles.Jackal => new Jackal(),
-        CustomRoles.Jester => new Jester(),
-        CustomRoles.Jinx => new CursedWolf(), // Use the same code as CursedWolf with small modifications
-        CustomRoles.Juggernaut => new Sans(), // Use the same code as Sans with small modifications
-        CustomRoles.Lawyer => new Lawyer(),
-        CustomRoles.Magician => new Magician(),
-        CustomRoles.Mario => new Mario(),
-        CustomRoles.Maverick => new Maverick(),
-        CustomRoles.Medusa => new Cleaner(), // Use the same code as Cleaner with small modifications
-        CustomRoles.Mycologist => new Mycologist(),
-        CustomRoles.Necromancer => new Necromancer(),
-        CustomRoles.Opportunist => new Opportunist(),
-        CustomRoles.Pelican => new Pelican(),
-        CustomRoles.Pestilence => new Pestilence(),
-        CustomRoles.Pickpocket => new Pickpocket(),
-        CustomRoles.PlagueBearer => new PlagueBearer(),
-        CustomRoles.PlagueDoctor => new PlagueDoctor(),
-        CustomRoles.Poisoner => new Vampire(), // Use the same code as Vampire with small modifications
-        CustomRoles.Postman => new Postman(),
-        CustomRoles.Predator => new Predator(),
-        CustomRoles.Provocateur => new Provocateur(),
-        CustomRoles.Pursuer => new Pursuer(),
-        CustomRoles.Pyromaniac => new Pyromaniac(),
-        CustomRoles.Reckless => new Sans(), // Use the same code as Sans with small modifications
-        CustomRoles.Revolutionist => new Revolutionist(),
-        CustomRoles.Ritualist => new EvilDiviner(), // Use the same code as EvilDiviner with small modifications
-        CustomRoles.Romantic => new Romantic(),
-        CustomRoles.RuthlessRomantic => new RuthlessRomantic(),
-        CustomRoles.NSerialKiller => new NSerialKiller(),
-        CustomRoles.Sidekick => new Sidekick(),
-        CustomRoles.SoulHunter => new SoulHunter(),
-        CustomRoles.Spiritcaller => new Spiritcaller(),
-        CustomRoles.Sprayer => new Sprayer(),
-        CustomRoles.DarkHide => new DarkHide(),
-        CustomRoles.Succubus => new Succubus(),
-        CustomRoles.Sunnyboy => new Sunnyboy(),
-        CustomRoles.Tiger => new Tiger(),
-        CustomRoles.Traitor => new Traitor(),
-        CustomRoles.Vengeance => new Vengeance(),
-        CustomRoles.VengefulRomantic => new VengefulRomantic(),
-        CustomRoles.Virus => new Virus(),
-        CustomRoles.Vulture => new Vulture(),
-        CustomRoles.Wraith => new Swooper(), // Use the same code as Swooper with small modifications
-        CustomRoles.Werewolf => new Werewolf(),
-        CustomRoles.WeaponMaster => new WeaponMaster(),
-        CustomRoles.Workaholic => new Workaholic(),
-        _ => new VanillaRole(),
-    };
+        var roleClass = Main.AllRoleClasses.FirstOrDefault(x => x.GetType().Name.Equals(role.ToString(), StringComparison.OrdinalIgnoreCase)) ?? new VanillaRole();
+        return Activator.CreateInstance(roleClass.GetType()) as RoleBase;
+    }
 
     public static CustomRoles GetVNRole(this CustomRoles role)
     {
@@ -268,7 +48,6 @@ internal static class CustomRolesHelper
                 CustomRoles.Opportunist => CustomRoles.Engineer,
                 CustomRoles.Vindicator => CustomRoles.Impostor,
                 CustomRoles.Snitch => CustomRoles.Crewmate,
-                //CustomRoles.Masochist => CustomRoles.Crewmate,
                 CustomRoles.ParityCop => CustomRoles.Crewmate,
                 CustomRoles.Marshall => CustomRoles.Crewmate,
                 CustomRoles.SabotageMaster => CustomRoles.Engineer,
@@ -283,7 +62,6 @@ internal static class CustomRolesHelper
                 CustomRoles.BountyHunter => CustomRoles.Impostor,
                 CustomRoles.Trickster => CustomRoles.Impostor,
                 CustomRoles.Witch => CustomRoles.Impostor,
-                //CustomRoles.ShapeMaster => CustomRoles.Shapeshifter,
                 CustomRoles.ShapeshifterTOHE => CustomRoles.Shapeshifter,
                 CustomRoles.Agitater => CustomRoles.Impostor,
                 CustomRoles.ImpostorTOHE => CustomRoles.Impostor,
@@ -486,7 +264,6 @@ internal static class CustomRolesHelper
             CustomRoles.Sheriff => UsePets && Sheriff.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Crusader => UsePets && Crusader.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.CopyCat => UsePets && CopyCat.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
-            //CustomRoles.CursedSoul => RoleTypes.Impostor,
             CustomRoles.Refugee => RoleTypes.Impostor,
             CustomRoles.Amnesiac => RoleTypes.Impostor,
             CustomRoles.Agitater => RoleTypes.Impostor,
@@ -497,10 +274,8 @@ internal static class CustomRolesHelper
             CustomRoles.Medusa => RoleTypes.Impostor,
             CustomRoles.Sidekick => RoleTypes.Impostor,
             CustomRoles.SwordsMan => UsePets && SwordsMan.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
-            //CustomRoles.Reverie => RoleTypes.Impostor,
             CustomRoles.Innocent => RoleTypes.Impostor,
             CustomRoles.Pelican => RoleTypes.Impostor,
-            //CustomRoles.Counterfeiter => RoleTypes.Impostor,
             CustomRoles.Aid => UsePets && Aid.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Escort => UsePets && Escort.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.DonutDelivery => UsePets && DonutDelivery.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
@@ -545,7 +320,6 @@ internal static class CustomRolesHelper
             CustomRoles.Bandit => RoleTypes.Impostor,
             CustomRoles.Maverick => RoleTypes.Impostor,
             CustomRoles.Parasite => RoleTypes.Impostor,
-            //CustomRoles.NWitch => RoleTypes.Impostor,
             CustomRoles.Totocalcio => RoleTypes.Impostor,
             CustomRoles.Romantic => RoleTypes.Impostor,
             CustomRoles.VengefulRomantic => RoleTypes.Impostor,
@@ -783,7 +557,7 @@ internal static class CustomRolesHelper
         CustomRoles.Deathknight and not
         CustomRoles.Gangster;
 
-    public static bool IsEvilAddons(this CustomRoles role) => role is
+    public static bool IsEvilAddon(this CustomRoles role) => role is
         CustomRoles.Madmate or
         CustomRoles.Egoist or
         CustomRoles.Charmed or
@@ -810,9 +584,7 @@ internal static class CustomRolesHelper
         CustomRoles.Sheriff or
         CustomRoles.Medic or
         CustomRoles.CopyCat or
-        //CustomRoles.Reverie or
         CustomRoles.Crusader or
-        //CustomRoles.Counterfeiter or
         CustomRoles.Aid or
         CustomRoles.Escort or
         CustomRoles.DonutDelivery or
