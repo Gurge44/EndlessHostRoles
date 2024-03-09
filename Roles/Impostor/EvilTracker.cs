@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using Hazel;
 using Il2CppSystem.Text;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Options;
@@ -68,23 +68,15 @@ public class EvilTracker : RoleBase
 
     public override void Add(byte playerId)
     {
-        CanSeeKillFlash = OptionCanSeeKillFlash.GetBool();
-        CurrentTargetMode = (TargetMode)OptionTargetMode.GetValue();
-        RoleTypes = CurrentTargetMode == TargetMode.Never ? RoleTypes.Impostor : RoleTypes.Shapeshifter;
-        CanSeeLastRoomInMeeting = OptionCanSeeLastRoomInMeeting.GetBool();
-
         playerIdList.Add(playerId);
         Target = byte.MaxValue;
         CanSetTarget = CurrentTargetMode != TargetMode.Never;
         EvilTrackerId = playerId;
 
-        _ = new LateTask(() =>
-        {
-            foreach (var id in ImpostorsId)
-            {
-                TargetArrow.Add(playerId, id);
-            }
-        }, 3f, "Add Evil Tracker Arrows");
+        CanSeeKillFlash = OptionCanSeeKillFlash.GetBool();
+        CurrentTargetMode = (TargetMode)OptionTargetMode.GetValue();
+        RoleTypes = CurrentTargetMode == TargetMode.Never ? RoleTypes.Impostor : RoleTypes.Shapeshifter;
+        CanSeeLastRoomInMeeting = OptionCanSeeLastRoomInMeeting.GetBool();
     }
 
     public override bool IsEnable => playerIdList.Count > 0;
@@ -157,6 +149,11 @@ public class EvilTracker : RoleBase
         }
     }
 
+    ///<summary>
+    ///引数が両方空：再設定可能に,
+    ///trackerIdのみ：該当IDのターゲット削除,
+    ///trackerIdとtargetId両方あり：該当IDのプレイヤーをターゲットに設定
+    ///</summary>
     public void SetTarget(byte trackerId = byte.MaxValue, byte targetId = byte.MaxValue)
     {
         if (trackerId == byte.MaxValue) CanSetTarget = true;
@@ -175,6 +172,7 @@ public class EvilTracker : RoleBase
         writer.Write(targetId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader)
     {
         byte trackerId = reader.ReadByte();
@@ -212,8 +210,10 @@ public class EvilTracker : RoleBase
         {
             sb.Append(Utils.ColorString(Color.white, TargetArrow.GetArrows(target, targetId)));
         }
+
         return sb.ToString();
     }
+
     public static string GetArrowAndLastRoom(PlayerControl seer, PlayerControl target)
     {
         string text = Utils.ColorString(Palette.ImpostorRed, TargetArrow.GetArrows(seer, target.PlayerId));

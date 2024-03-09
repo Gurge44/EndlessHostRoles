@@ -1,9 +1,8 @@
-﻿using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using HarmonyLib;
+using System.Linq;
 using TOHE.Modules;
 using TOHE.Roles.Impostor;
-using static TOHE.Options;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -12,27 +11,10 @@ namespace TOHE.Roles.Crewmate
         public static bool On;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
-        {
-            SetupRoleOptions(7700, TabGroup.CrewmateRoles, CustomRoles.DovesOfNeace);
-            DovesOfNeaceCooldown = FloatOptionItem.Create(7710, "DovesOfNeaceCooldown", new(0f, 180f, 1f), 7f, TabGroup.CrewmateRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.DovesOfNeace])
-                .SetValueFormat(OptionFormat.Seconds);
-            DovesOfNeaceMaxOfUseage = IntegerOptionItem.Create(7711, "DovesOfNeaceMaxOfUseage", new(0, 180, 1), 0, TabGroup.CrewmateRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.DovesOfNeace])
-                .SetValueFormat(OptionFormat.Times);
-            DovesOfNeaceAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(7712, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.DovesOfNeace])
-                .SetValueFormat(OptionFormat.Times);
-            DovesOfNeaceAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(7713, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.DovesOfNeace])
-                .SetValueFormat(OptionFormat.Times);
-        }
-
         public override void Add(byte playerId)
         {
             On = true;
-            playerId.SetAbilityUseLimit(DovesOfNeaceMaxOfUseage.GetInt());
+            playerId.SetAbilityUseLimit(Options.DovesOfNeaceMaxOfUseage.GetInt());
         }
 
         public override void Init()
@@ -42,14 +24,14 @@ namespace TOHE.Roles.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool()) return;
-            AURoleOptions.EngineerCooldown = DovesOfNeaceCooldown.GetFloat();
+            if (Options.UsePets.GetBool()) return;
+            AURoleOptions.EngineerCooldown = Options.DovesOfNeaceCooldown.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 1f;
         }
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            if (UsePets.GetBool())
+            if (Options.UsePets.GetBool())
                 hud.PetButton.buttonLabelText.text = Translator.GetString("DovesOfNeaceVentButtonText");
             else
                 hud.AbilityButton.buttonLabelText.text = Translator.GetString("DovesOfNeaceVentButtonText");

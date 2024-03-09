@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Hazel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Hazel;
 using TOHE.Modules;
 using static TOHE.Translator;
 
@@ -62,6 +62,7 @@ namespace TOHE.Roles.Crewmate
             if (!isShield) writer.Write(TaskMarkPerRound[benefactorId]);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
+
         public static void ReceiveRPC(MessageReader reader)
         {
             byte benefactorID = reader.ReadByte();
@@ -86,15 +87,18 @@ namespace TOHE.Roles.Crewmate
             {
                 if (taskIndex.ContainsKey(benefactorID)) taskIndex[benefactorID].Remove(taskInd);
             }
+
             if (clearAll && taskIndex.ContainsKey(benefactorID)) taskIndex[benefactorID].Clear();
             if (IsShield)
             {
                 shieldedPlayers.TryAdd(shieldedId, Utils.TimeStamp);
             }
+
             if (shieldExpire)
             {
                 shieldedPlayers.Remove(shieldedId);
             }
+
             if (clearAll && shieldedPlayers.Count > 0) shieldedPlayers.Clear();
         }
 
@@ -143,6 +147,7 @@ namespace TOHE.Roles.Crewmate
                     Logger.Info($"Max task per round ({TaskMarkPerRound[playerId]}) reached for {player.GetNameWithRole()}", "Benefactor");
                     return;
                 }
+
                 TaskMarkPerRound[playerId]++;
                 if (!taskIndex.ContainsKey(playerId)) taskIndex[playerId] = [];
                 taskIndex[playerId].Add(task.Index);

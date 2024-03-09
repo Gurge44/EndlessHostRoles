@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using AmongUs.GameOptions;
+using System.Collections.Generic;
 using System.Linq;
-using AmongUs.GameOptions;
 using TOHE.Modules;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
@@ -75,11 +75,6 @@ namespace TOHE.Roles.Crewmate
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = FarseerCooldown.GetFloat();
-
-        public override bool CanUseKillButton(PlayerControl pc)
-        {
-            return pc.IsAlive();
-        }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {

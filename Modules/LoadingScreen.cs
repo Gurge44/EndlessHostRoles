@@ -1,5 +1,5 @@
-﻿using System;
-using Rewired.Utils;
+﻿using Rewired.Utils;
+using System;
 using TOHE.Patches;
 using UnityEngine;
 using Object = UnityEngine.Object;

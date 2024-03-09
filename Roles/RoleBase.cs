@@ -1,30 +1,10 @@
-﻿using System;
+﻿using AmongUs.GameOptions;
 using System.Text;
-using AmongUs.GameOptions;
 
 namespace TOHE
 {
-    public abstract class RoleBase : IComparable<RoleBase>
+    public abstract class RoleBase
     {
-        public int CompareTo(RoleBase other)
-        {
-            var thisName = GetType().Name;
-            var translatedName = Translator.GetString(thisName);
-            if (translatedName != string.Empty && !translatedName.StartsWith("*") && !translatedName.StartsWith("<INVALID"))
-            {
-                thisName = translatedName;
-            }
-
-            var otherName = other.GetType().Name;
-            var translatedOtherName = Translator.GetString(otherName);
-            if (translatedOtherName != string.Empty && !translatedOtherName.StartsWith("*") && !translatedOtherName.StartsWith("<INVALID"))
-            {
-                otherName = translatedOtherName;
-            }
-
-            return string.Compare(thisName, otherName, StringComparison.Ordinal);
-        }
-
         // This is a base class for all roles. It contains some common methods and properties that are used by all roles.
         public abstract void Init();
         public abstract void Add(byte playerId);

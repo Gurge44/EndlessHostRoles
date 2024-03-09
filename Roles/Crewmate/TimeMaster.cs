@@ -1,6 +1,5 @@
-﻿using System.Text;
-using AmongUs.GameOptions;
-using static TOHE.Options;
+﻿using AmongUs.GameOptions;
+using System.Text;
 
 namespace TOHE.Roles.Crewmate
 {
@@ -9,31 +8,11 @@ namespace TOHE.Roles.Crewmate
         public static bool On;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
-        {
-            SetupRoleOptions(8950, TabGroup.CrewmateRoles, CustomRoles.TimeMaster);
-            TimeMasterSkillCooldown = FloatOptionItem.Create(8960, "TimeMasterSkillCooldown", new(0f, 180f, 1f), 20f, TabGroup.CrewmateRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
-                .SetValueFormat(OptionFormat.Seconds);
-            TimeMasterSkillDuration = FloatOptionItem.Create(8961, "TimeMasterSkillDuration", new(0f, 180f, 1f), 10f, TabGroup.CrewmateRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
-                .SetValueFormat(OptionFormat.Seconds);
-            TimeMasterMaxUses = IntegerOptionItem.Create(8962, "TimeMasterMaxUses", new(0, 180, 1), 1, TabGroup.CrewmateRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
-                .SetValueFormat(OptionFormat.Times);
-            TimeMasterAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(8963, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.4f, TabGroup.CrewmateRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
-                .SetValueFormat(OptionFormat.Times);
-            TimeMasterAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(8964, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
-                .SetValueFormat(OptionFormat.Times);
-        }
-
         public override void Add(byte playerId)
         {
             On = true;
             Main.TimeMasterNum[playerId] = 0;
-            playerId.SetAbilityUseLimit(TimeMasterMaxUses.GetInt());
+            playerId.SetAbilityUseLimit(Options.TimeMasterMaxUses.GetInt());
         }
 
         public override void Init()
@@ -43,8 +22,8 @@ namespace TOHE.Roles.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool()) return;
-            AURoleOptions.EngineerCooldown = TimeMasterSkillCooldown.GetFloat();
+            if (Options.UsePets.GetBool()) return;
+            AURoleOptions.EngineerCooldown = Options.TimeMasterSkillCooldown.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 1f;
         }
 
@@ -60,7 +39,7 @@ namespace TOHE.Roles.Crewmate
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            if (UsePets.GetBool())
+            if (Options.UsePets.GetBool())
                 hud.PetButton.buttonLabelText.text = Translator.GetString("TimeMasterVentButtonText");
             else
                 hud.AbilityButton.buttonLabelText.text = Translator.GetString("TimeMasterVentButtonText");
@@ -85,7 +64,7 @@ namespace TOHE.Roles.Crewmate
                 pc.RpcRemoveAbilityUse();
                 Main.TimeMasterInProtect.Remove(pc.PlayerId);
                 Main.TimeMasterInProtect.Add(pc.PlayerId, Utils.TimeStamp);
-                pc.Notify(Translator.GetString("TimeMasterOnGuard"), TimeMasterSkillDuration.GetFloat());
+                pc.Notify(Translator.GetString("TimeMasterOnGuard"), Options.TimeMasterSkillDuration.GetFloat());
                 foreach (PlayerControl player in Main.AllPlayerControls)
                 {
                     if (Main.TimeMasterBackTrack.TryGetValue(player.PlayerId, out var position))
@@ -116,7 +95,7 @@ namespace TOHE.Roles.Crewmate
 
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {
-            if (killer.PlayerId != target.PlayerId && Main.TimeMasterInProtect.TryGetValue(target.PlayerId, out var ts) && ts + TimeMasterSkillDuration.GetInt() >= Utils.TimeStamp)
+            if (killer.PlayerId != target.PlayerId && Main.TimeMasterInProtect.TryGetValue(target.PlayerId, out var ts) && ts + Options.TimeMasterSkillDuration.GetInt() >= Utils.TimeStamp)
             {
                 foreach (var player in Main.AllPlayerControls)
                 {
@@ -136,7 +115,7 @@ namespace TOHE.Roles.Crewmate
         public override void OnFixedUpdate(PlayerControl player)
         {
             var playerId = player.PlayerId;
-            if (Main.TimeMasterInProtect.TryGetValue(playerId, out var ttime) && ttime + TimeMasterSkillDuration.GetInt() < Utils.TimeStamp)
+            if (Main.TimeMasterInProtect.TryGetValue(playerId, out var ttime) && ttime + Options.TimeMasterSkillDuration.GetInt() < Utils.TimeStamp)
             {
                 Main.TimeMasterInProtect.Remove(playerId);
                 player.RpcResetAbilityCooldown();

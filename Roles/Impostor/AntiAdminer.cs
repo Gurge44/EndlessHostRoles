@@ -1,6 +1,6 @@
-﻿using System;
+﻿using AmongUs.GameOptions;
+using System;
 using System.Collections.Generic;
-using AmongUs.GameOptions;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
 using UnityEngine;
@@ -58,7 +58,9 @@ internal class AntiAdminer : RoleBase
     {
         if (!IsEnable) return;
 
-        Count--; if (Count > 0) return; Count = 5;
+        Count--;
+        if (Count > 0) return;
+        Count = 5;
 
         bool Admin = false, Camera = false, DoorLog = false, Vital = false;
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
@@ -88,6 +90,7 @@ internal class AntiAdminer : RoleBase
                             Admin |= Vector2.Distance(PlayerPos, DisableDevice.DevicePos["PolusLeftAdmin"]) <= DisableDevice.UsableDistance();
                             Admin |= Vector2.Distance(PlayerPos, DisableDevice.DevicePos["PolusRightAdmin"]) <= DisableDevice.UsableDistance();
                         }
+
                         if (!Options.DisablePolusCamera.GetBool())
                             Camera |= Vector2.Distance(PlayerPos, DisableDevice.DevicePos["PolusCamera"]) <= DisableDevice.UsableDistance();
                         if (!Options.DisablePolusVital.GetBool())

@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using AmongUs.GameOptions;
+using System.Collections.Generic;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor;
@@ -28,7 +28,6 @@ public class Morphling : RoleBase
     public override void Init()
     {
         playerIdList = [];
-
     }
 
     public override void Add(byte playerId)

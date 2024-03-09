@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using Hazel;
+using System;
+using System.Collections.Generic;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
 using UnityEngine;
@@ -16,6 +16,7 @@ public class Pelican : RoleBase
     private static readonly Dictionary<byte, float> OriginalSpeed = [];
     public static OptionItem KillCooldown;
     public static OptionItem CanVent;
+
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Pelican);
@@ -48,12 +49,13 @@ public class Pelican : RoleBase
         Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     }
 
-    private static void SyncEatenList(/*byte playerId*/)
+    private static void SyncEatenList( /*byte playerId*/)
     {
         SendRPC(byte.MaxValue);
         foreach (var el in eatenList)
             SendRPC(el.Key);
     }
+
     private static void SendRPC(byte playerId)
     {
         if (!Utils.DoRPC) return;
@@ -67,8 +69,10 @@ public class Pelican : RoleBase
                 writer.Write(el);
             }
         }
+
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader)
     {
         byte playerId = reader.ReadByte();
@@ -86,7 +90,9 @@ public class Pelican : RoleBase
             eatenList.Add(playerId, list);
         }
     }
+
     public static bool IsEaten(PlayerControl pc, byte id) => eatenList.ContainsKey(pc.PlayerId) && eatenList[pc.PlayerId].Contains(id);
+
     public static bool IsEaten(byte id)
     {
         foreach (var el in eatenList)
@@ -94,12 +100,14 @@ public class Pelican : RoleBase
                 return true;
         return false;
     }
+
     public static bool CanEat(PlayerControl pc, byte id)
     {
         if (!pc.Is(CustomRoles.Pelican) || GameStates.IsMeeting) return false;
         var target = Utils.GetPlayerById(id);
         return target != null && target.IsAlive() && !target.inVent && !Medic.ProtectList.Contains(target.PlayerId) && !target.Is(CustomRoles.GM) && !IsEaten(pc, id) && !IsEaten(id);
     }
+
     public static Vector2 GetBlackRoomPS()
     {
         return Main.NormalOptions.MapId switch
@@ -123,13 +131,14 @@ public class Pelican : RoleBase
             eatenNum = value.Count;
         return Utils.ColorString(eatenNum < 1 ? Color.gray : Utils.GetRoleColor(CustomRoles.Pelican), $"({eatenNum})");
     }
+
     public static void EatPlayer(PlayerControl pc, PlayerControl target)
     {
         if (pc == null || target == null || !CanEat(pc, target.PlayerId)) return;
         if (!eatenList.ContainsKey(pc.PlayerId)) eatenList.Add(pc.PlayerId, []);
         eatenList[pc.PlayerId].Add(target.PlayerId);
 
-        SyncEatenList(/*pc.PlayerId*/);
+        SyncEatenList( /*pc.PlayerId*/);
 
         OriginalSpeed.Remove(target.PlayerId);
         OriginalSpeed.Add(target.PlayerId, Main.AllPlayerSpeed[target.PlayerId]);
@@ -163,8 +172,9 @@ public class Pelican : RoleBase
                 Logger.Info($"{killer.GetRealName()} 消化了 {target.GetRealName()}", "Pelican");
             }
         }
+
         eatenList.Clear();
-        SyncEatenList(/*byte.MaxValue*/);
+        SyncEatenList( /*byte.MaxValue*/);
     }
 
     public static void OnPelicanDied(byte pc)
@@ -184,8 +194,9 @@ public class Pelican : RoleBase
             Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: player);
             Logger.Info($"{Utils.GetPlayerById(pc).GetRealName()} 吐出了 {target.GetRealName()}", "Pelican");
         }
+
         eatenList.Remove(pc);
-        SyncEatenList(/*pc*/);
+        SyncEatenList( /*pc*/);
     }
 
     private int Count;
@@ -197,8 +208,9 @@ public class Pelican : RoleBase
             if (eatenList.Count > 0)
             {
                 eatenList.Clear();
-                SyncEatenList(/*byte.MaxValue*/);
+                SyncEatenList( /*byte.MaxValue*/);
             }
+
             return;
         }
 

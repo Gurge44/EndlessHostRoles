@@ -1,9 +1,9 @@
+using HarmonyLib;
+using Rewired;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using HarmonyLib;
-using Rewired;
 using TOHE.Modules;
 using UnityEngine;
 using static TOHE.Translator;

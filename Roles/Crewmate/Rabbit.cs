@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Hazel;
+using System.Collections.Generic;
 using System.Linq;
-using Hazel;
 using TOHE.Modules;
 
 namespace TOHE.Roles.Crewmate
@@ -19,10 +19,9 @@ namespace TOHE.Roles.Crewmate
                 if (!Player.IsAlive() || (MyTaskState.CompletedTasksCount < TaskTrigger && !MyTaskState.IsTaskFinished)) return;
 
                 var Impostors = Main.AllAlivePlayerControls.Where(pc => pc.Is(CustomRoleTypes.Impostor)).ToArray();
-                if (Impostors.Length == 0) return;
                 var target = Impostors[IRandom.Instance.Next(Impostors.Length)];
 
-                LocateArrow.Add(Player.PlayerId, target.Pos());
+                TargetArrow.Add(Player.PlayerId, target.PlayerId, update: false);
                 Arrow = (true, target.PlayerId);
                 SendRPC();
                 Utils.NotifyRoles(SpecifySeer: Player, SpecifyTarget: Player);
@@ -30,7 +29,7 @@ namespace TOHE.Roles.Crewmate
 
                 _ = new LateTask(() =>
                 {
-                    LocateArrow.Remove(Player.PlayerId, target.Pos());
+                    TargetArrow.Remove(Player.PlayerId, target.PlayerId);
                     Arrow = (false, byte.MaxValue);
                     SendRPC();
                     Utils.NotifyRoles(SpecifySeer: Player, SpecifyTarget: Player);
@@ -54,7 +53,7 @@ namespace TOHE.Roles.Crewmate
 
             public string Suffix => !GameStates.IsInTask || !Arrow.HasArrow
                 ? string.Empty
-                : Utils.ColorString(Utils.GetRoleColor(CustomRoles.Rabbit), LocateArrow.GetArrows(Player));
+                : Utils.ColorString(Utils.GetRoleColor(CustomRoles.Rabbit), TargetArrow.GetArrows(Player, Arrow.Target));
         }
 
         private static int Id => 643330;

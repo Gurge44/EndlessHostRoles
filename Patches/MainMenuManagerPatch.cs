@@ -1,5 +1,5 @@
-using System;
 using HarmonyLib;
+using System;
 using TMPro;
 using TOHE.Modules;
 using UnityEngine;
@@ -112,18 +112,29 @@ public class MainMenuManagerPatch
 
         var bottomTemplate = GameObject.Find("InventoryButton");
         if (bottomTemplate == null) return;
+
+        var HorseButton = Object.Instantiate(bottomTemplate, bottomTemplate.transform.parent);
+        var passiveHorseButton = HorseButton.GetComponent<PassiveButton>();
+        var spriteHorseButton = HorseButton.GetComponent<SpriteRenderer>();
+        if (HorseModePatch.isHorseMode) spriteHorseButton.transform.localScale *= -1;
+
+        spriteHorseButton.sprite = Utils.LoadSprite("TOHE.Resources.Images.HorseButton.png", 75f);
+        passiveHorseButton.OnClick = new();
+        passiveHorseButton.OnClick.AddListener((Action)(() =>
         {
             RunLoginPatch.ClickCount++;
             if (RunLoginPatch.ClickCount == 10) PlayerControl.LocalPlayer.RPCPlayCustomSound("Gunload", true);
             if (RunLoginPatch.ClickCount == 20) PlayerControl.LocalPlayer.RPCPlayCustomSound("AWP", true);
 
+            spriteHorseButton.transform.localScale *= -1;
+            HorseModePatch.isHorseMode = !HorseModePatch.isHorseMode;
             var particles = Object.FindObjectOfType<PlayerParticles>();
             if (particles != null)
             {
                 particles.pool.ReclaimAll();
                 particles.Start();
             }
-        }
+        }));
         //var DleksButton = Object.Instantiate(bottomTemplate, bottomTemplate.transform.parent);
         //var passiveDleksButton = DleksButton.GetComponent<PassiveButton>();
         //var spriteDleksButton = DleksButton.GetComponent<SpriteRenderer>();

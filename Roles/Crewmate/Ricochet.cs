@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using Hazel;
+using System.Collections.Generic;
 using TOHE.Modules;
 
 namespace TOHE.Roles.Crewmate
@@ -58,6 +58,7 @@ namespace TOHE.Roles.Crewmate
             writer.Write(targetId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
+
         public static void ReceiveRPCSyncTarget(MessageReader reader)
         {
             byte id = reader.ReadByte();
@@ -79,6 +80,7 @@ namespace TOHE.Roles.Crewmate
 
             return true;
         }
+
         public static bool OnVote(PlayerControl pc, PlayerControl target)
         {
             if (target == null || pc == null || pc.PlayerId == target.PlayerId || Main.PlayerStates[pc.PlayerId].Role is not Ricochet rc || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
@@ -91,6 +93,7 @@ namespace TOHE.Roles.Crewmate
                 Main.DontCancelVoteList.Add(pc.PlayerId);
                 return true;
             }
+
             return false;
         }
 

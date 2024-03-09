@@ -1,8 +1,9 @@
-using System.Linq;
 using AmongUs.GameOptions;
+using System.Linq;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
+using UnityEngine;
 
 namespace TOHE;
 
@@ -1355,7 +1356,42 @@ internal static class CustomRolesHelper
             _ => role.Is(Team.Impostor) ? CountTypes.Impostor : CountTypes.Crew
         };
 
-    public static bool HasSubRole(this PlayerControl pc) => Main.PlayerStates[pc.PlayerId].SubRoles.Count > 0;
+    public static RoleOptionType GetRoleOptionType(this CustomRoles role)
+    {
+        if (role.IsImpostor()) return RoleOptionType.Impostor;
+        if (role.IsCrewmate()) return role.GetDYRole() == RoleTypes.Impostor ? RoleOptionType.Crewmate_ImpostorBased : RoleOptionType.Crewmate_Normal;
+        if (role.IsNeutral()) return role.IsNK() ? RoleOptionType.Neutral_Killing : RoleOptionType.Neutral_NonKilling;
+        return RoleOptionType.Crewmate_Normal;
+    }
+
+    public static Color GetRoleOptionTypeColor(this RoleOptionType type) => type switch
+    {
+        RoleOptionType.Impostor => Palette.ImpostorRed,
+        RoleOptionType.Crewmate_Normal => Palette.CrewmateBlue,
+        RoleOptionType.Crewmate_ImpostorBased => Utils.GetRoleColor(CustomRoles.Sheriff),
+        RoleOptionType.Neutral_NonKilling => Utils.GetRoleColor(CustomRoles.Sprayer),
+        RoleOptionType.Neutral_Killing => Utils.GetRoleColor(CustomRoles.Traitor),
+        _ => Utils.GetRoleColor(CustomRoles.SwordsMan)
+    };
+
+    public static TabGroup GetTabFromOptionType(this RoleOptionType type) => type switch
+    {
+        RoleOptionType.Impostor => TabGroup.ImpostorRoles,
+        RoleOptionType.Crewmate_Normal => TabGroup.CrewmateRoles,
+        RoleOptionType.Crewmate_ImpostorBased => TabGroup.CrewmateRoles,
+        RoleOptionType.Neutral_NonKilling => TabGroup.NeutralRoles,
+        RoleOptionType.Neutral_Killing => TabGroup.NeutralRoles,
+        _ => TabGroup.OtherRoles
+    };
+}
+
+public enum RoleOptionType
+{
+    Impostor,
+    Crewmate_Normal,
+    Crewmate_ImpostorBased,
+    Neutral_NonKilling,
+    Neutral_Killing
 }
 
 public enum CustomRoleTypes

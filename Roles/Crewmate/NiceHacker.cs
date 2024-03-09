@@ -1,8 +1,8 @@
-﻿using System;
+﻿using AmongUs.GameOptions;
+using Hazel;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using AmongUs.GameOptions;
-using Hazel;
 using TOHE.Modules;
 using UnityEngine;
 

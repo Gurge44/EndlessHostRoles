@@ -1,5 +1,5 @@
+﻿using AmongUs.GameOptions;
 using System;
-using AmongUs.GameOptions;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 
@@ -62,21 +62,19 @@ public class MeetingTimeManager
         }
 
         int TotalMeetingTime = DiscussionTime + VotingTime;
-
+        //時間の下限、上限で刈り込み
         if (TimeManager.playerIdList.Count > 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeManager, MeetingTimeMax) - TotalMeetingTime;
         if (TimeThief.playerIdList.Count > 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeThief, MeetingTimeMax) - TotalMeetingTime;
         if (TimeManager.playerIdList.Count == 0 && TimeThief.playerIdList.Count == 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeThief, MeetingTimeMax) - TotalMeetingTime;
 
         if (BonusMeetingTime >= 0)
-        {
-            VotingTime += BonusMeetingTime;
-        }
+            VotingTime += BonusMeetingTime; //投票時間を延長
         else
         {
-            DiscussionTime += BonusMeetingTime;
-            if (DiscussionTime < 0)
+            DiscussionTime += BonusMeetingTime; //会議時間を優先的に短縮
+            if (DiscussionTime < 0) //会議時間だけでは賄えない場合
             {
-                VotingTime += DiscussionTime;
+                VotingTime += DiscussionTime; //足りない分投票時間を短縮
                 DiscussionTime = 0;
             }
         }
