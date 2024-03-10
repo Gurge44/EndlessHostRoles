@@ -225,6 +225,8 @@ public static class Options
     public static OptionItem ConfirmEgoistOnEject;
     public static OptionItem ConfirmLoversOnEject;
 
+    public static OptionItem UniqueNeutralRevealScreen;
+
 
     public static OptionItem NonNeutralKillingRolesMinPlayer;
     public static OptionItem NonNeutralKillingRolesMaxPlayer;
@@ -1529,6 +1531,7 @@ public static class Options
         NeutralCanBeFool = BooleanOptionItem.Create(19212, "NeutralCanBeFool", true, TabGroup.OtherRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Fool]);
 
+        LoadingPercentage = 10;
         MainLoadingText = "Building Role Settings";
 
         try
@@ -2530,7 +2533,10 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(217, 218, 255, byte.MaxValue));
         GhostCanSeeDeathReason = BooleanOptionItem.Create(24500, "GhostCanSeeDeathReason", true, TabGroup.GameSettings, false)
-            .SetHeader(true)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(217, 218, 255, byte.MaxValue));
+
+        UniqueNeutralRevealScreen = BooleanOptionItem.Create(24450, "UniqueNeutralRevealScreen", false, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(217, 218, 255, byte.MaxValue));
 

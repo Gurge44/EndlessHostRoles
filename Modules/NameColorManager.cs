@@ -1,3 +1,4 @@
+using System.Linq;
 using Hazel;
 using TOHE.Modules;
 using TOHE.Roles.AddOns.Common;
@@ -57,6 +58,8 @@ public static class NameColorManager
         if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool()) color = Main.roleColors[CustomRoles.Madmate];
         if (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosMadmate.GetBool()) color = Main.roleColors[CustomRoles.Madmate];
         if (seer.Is(CustomRoles.Gangster) && target.Is(CustomRoles.Madmate)) color = Main.roleColors[CustomRoles.Madmate];
+
+        if (Commander.On && seer.Is(Team.Impostor) && Commander.PlayerList.Any(x => x.MarkedPlayer == target.PlayerId)) color = Main.roleColors[CustomRoles.Sprayer];
 
         if (seer.Is(CustomRoles.Charmed) && target.Is(CustomRoles.Succubus)) color = Main.roleColors[CustomRoles.Succubus];
         if (seer.Is(CustomRoles.Succubus) && target.Is(CustomRoles.Charmed)) color = Main.roleColors[CustomRoles.Charmed];

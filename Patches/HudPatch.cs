@@ -386,6 +386,7 @@ class HudManagerPatch
                             CustomRoles.Rabbit => Rabbit.GetSuffix(player),
                             CustomRoles.Predator => Predator.GetSuffixAndHudText(player, hud: true),
                             CustomRoles.Warlock => Warlock.GetSuffixAndHudText(player, hud: true),
+                            CustomRoles.Commander => Commander.GetSuffixText(player, player, hud: true),
                             CustomRoles.Librarian => Librarian.GetSelfSuffixAndHudText(player.PlayerId),
                             CustomRoles.PlagueDoctor => PlagueDoctor.GetLowerTextOthers(player, isForHud: true),
                             CustomRoles.Stealth => Stealth.GetSuffix(player, isHUD: true),

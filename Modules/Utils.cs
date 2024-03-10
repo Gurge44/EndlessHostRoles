@@ -1744,6 +1744,9 @@ public static class Utils
 
                     if (seer.Is(CustomRoles.Asthmatic)) SelfSuffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
 
+                    SelfSuffix.Append(Deathpact.GetDeathpactPlayerArrow(seer));
+                    SelfSuffix.Append(Commander.GetSuffixText(seer, seer));
+
                     switch (seer.GetCustomRole())
                     {
                         case CustomRoles.Tether when !seer.IsModClient():
@@ -1850,8 +1853,6 @@ public static class Utils
                 {
                     SelfMark.Append(Witch.GetSpelledMark(seer.PlayerId, isForMeeting));
                 }
-
-                SelfSuffix.Append(Deathpact.GetDeathpactPlayerArrow(seer));
 
                 GameMode:
 
@@ -2186,7 +2187,6 @@ public static class Utils
                                     }
                                 }
                             }
-                            //ターゲットのプレイヤー名の色を書き換えます。
 
                             BeforeEnd:
 
@@ -2198,17 +2198,8 @@ public static class Utils
                                 TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Impostor), "★"));
                             if (seer.Is(CustomRoleTypes.Crewmate) && target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished)
                                 TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Marshall), "★"));
-                            /*if (seer.Is(CustomRoles.Jackal) && target.Is(CustomRoles.Sidekick))
-                                TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Jackal), " ♥"));
-                            //   if (seer.Is(CustomRoles.Monarch) && target.Is(CustomRoles.Knighted))
-                            // TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Knighted), " 亗"));
-                            if (seer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Sidekick) && Options.SidekickKnowOtherSidekick.GetBool())
-                                TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Jackal), " ♥")); */
 
                             TargetMark.Append(Executioner.TargetMark(seer, target));
-
-                            //   TargetMark.Append(Lawyer.TargetMark(seer, target));
-
                             TargetMark.Append(Gamer.TargetMark(seer, target));
 
                             if (seer.Is(CustomRoles.Medic) && (Medic.InProtect(target.PlayerId) || Medic.TempMarkProtected == target.PlayerId) && (Medic.WhoCanSeeProtect.GetInt() is 0 or 1))
@@ -2236,6 +2227,7 @@ public static class Utils
                             TargetSuffix.Append(PlagueDoctor.GetLowerTextOthers(seer, target));
                             TargetSuffix.Append(Stealth.GetSuffix(seer, target));
                             TargetSuffix.Append(Bubble.GetEncasedPlayerSuffix(seer, target));
+                            TargetSuffix.Append(Commander.GetSuffixText(seer, target));
 
                             if (target.Is(CustomRoles.Librarian)) TargetSuffix.Append(Librarian.GetNameTextForSuffix(target.PlayerId));
 
