@@ -164,31 +164,38 @@ static class ExtendedPlayerControl
 
     public static void RpcGuardAndKill(this PlayerControl killer, PlayerControl target = null, int colorId = 0, bool forObserver = false, bool fromSetKCD = false)
     {
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            var caller = new System.Diagnostics.StackFrame(1, false);
+            var callerMethod = caller.GetMethod();
+            string callerMethodName = callerMethod.Name;
+            string callerClassName = callerMethod.DeclaringType.FullName;
+            Logger.Warn($"Modded non-host client activated RpcGuardAndKill from {callerClassName}.{callerMethodName}", "RpcGuardAndKill");
+            return;
+        }
+
         if (target == null) target = killer;
-        if (!forObserver && !MeetingStates.FirstMeeting) Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Observer) && killer.PlayerId != x.PlayerId).Do(x => x.RpcGuardAndKill(target, colorId, true));
+
+        // Check Observer
+        if (!forObserver && !MeetingStates.FirstMeeting)
+        {
+            Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Observer) && killer.PlayerId != x.PlayerId).Do(x => x.RpcGuardAndKill(target, colorId, true));
+        }
+
         // Host
         if (killer.AmOwner)
         {
-            killer.ProtectPlayer(target, colorId);
-            killer.MurderPlayer(target, ResultFlags);
+            killer.MurderPlayer(target, MurderResultFlags.FailedProtected);
         }
         // Other Clients
         if (killer.PlayerId != 0)
         {
-            var sender = CustomRpcSender.Create("GuardAndKill Sender");
-            sender.StartMessage(killer.GetClientId());
-            sender.StartRpc(killer.NetId, (byte)RpcCalls.ProtectPlayer)
-                .WriteNetObject(target)
-                .Write(colorId)
-                .EndRpc();
-            sender.StartRpc(killer.NetId, (byte)RpcCalls.MurderPlayer)
-                .WriteNetObject(target)
-                .Write((byte)ResultFlags)
-                .EndRpc();
-            sender.EndMessage();
-            sender.SendMessage();
+            var writer = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable);
+            writer.WriteNetObject(target);
+            writer.Write((int)MurderResultFlags.FailedProtected);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
+
         if (!fromSetKCD) killer.AddKillTimerToDict(half: true);
     }
     //public static void SetKillCooldownV2(this PlayerControl player, float time = -1f)
@@ -914,5 +921,5 @@ static class ExtendedPlayerControl
     ///<summary>Is the player currently protected</summary>
     public static bool IsProtected(this PlayerControl self) => self.protectedByGuardianId > -1;
 
-    public const MurderResultFlags ResultFlags = MurderResultFlags.Succeeded | MurderResultFlags.DecisionByHost;
+    public const MurderResultFlags ResultFlags = MurderResultFlags.Succeeded;
 }

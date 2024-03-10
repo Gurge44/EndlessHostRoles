@@ -1,6 +1,7 @@
 using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
+using InnerNet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,13 +59,45 @@ class CheckProtectPatch
     }
 }
 
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcMurderPlayer))]
+class RpcMurderPlayerPatch
+{
+    public static bool Prefix(PlayerControl __instance, PlayerControl target, bool didSucceed)
+    {
+        if (!AmongUsClient.Instance.AmHost) Logger.Error("Client is calling RpcMurderPlayer, are you Hacking?", "RpcMurderPlayerPatch..Prefix");
+
+        MurderResultFlags murderResultFlags = didSucceed ? MurderResultFlags.Succeeded : MurderResultFlags.FailedError;
+        if (AmongUsClient.Instance.AmClient)
+        {
+            __instance.MurderPlayer(target, murderResultFlags);
+        }
+
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable, -1);
+        messageWriter.WriteNetObject(target);
+        messageWriter.Write((int)murderResultFlags);
+        AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+
+        return false;
+    }
+}
+
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdCheckMurder))] // Modded
 class CmdCheckMurderPatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
-        if (!AmongUsClient.Instance.AmHost) return true;
-        return CheckMurderPatch.Prefix(__instance, target);
+        if (AmongUsClient.Instance.AmHost && GameStates.IsModHost)
+        {
+            __instance.CheckMurder(target);
+        }
+        else
+        {
+            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.CheckMurder, SendOption.Reliable);
+            messageWriter.WriteNetObject(target);
+            AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+        }
+
+        return false;
     }
 }
 

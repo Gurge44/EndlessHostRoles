@@ -103,7 +103,7 @@ class CoBeginPatch
         logger.Info("------------Roles------------");
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
-            logger.Info($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc?.Data?.PlayerName?.PadRightV2(20)}:{pc.GetAllRoleName().RemoveHtmlTags().Replace("\n", " + ")}");
+            logger.Info($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc.Data?.PlayerName?.PadRightV2(20)}:{pc.GetAllRoleName().RemoveHtmlTags().Replace("\n", " + ")}");
         }
 
         logger.Info("------------Platforms------------");
@@ -112,7 +112,7 @@ class CoBeginPatch
             try
             {
                 var text = pc.AmOwner ? "[*]" : "   ";
-                text += $"{pc.PlayerId,-2}:{pc.Data?.PlayerName?.PadRightV2(20)}:{pc.GetClient()?.PlatformData?.Platform.ToString()?.Replace("Standalone", string.Empty),-11}";
+                text += $"{pc.PlayerId,-2}:{pc.Data?.PlayerName?.PadRightV2(20)}:{pc.GetClient()?.PlatformData?.Platform.ToString().Replace("Standalone", string.Empty),-11}";
                 if (Main.playerVersion.TryGetValue(pc.PlayerId, out PlayerVersion pv))
                     text += $":Mod({pv.forkId}/{pv.version}:{pv.tag})";
                 else
@@ -129,9 +129,9 @@ class CoBeginPatch
         var tmp = GameOptionsManager.Instance.CurrentGameOptions.ToHudString(GameData.Instance ? GameData.Instance.PlayerCount : 10).Split("\r\n").Skip(1);
         foreach (var t in tmp) logger.Info(t);
         logger.Info("------------Modded Settings------------");
-        foreach (OptionItem o in OptionItem.AllOptions.ToArray())
+        foreach (OptionItem o in OptionItem.AllOptions)
         {
-            if (!o.IsHiddenOn(Options.CurrentGameMode) && (o.Parent == null ? !o.GetString().Equals("0%") : o.Parent.GetBool()))
+            if (!o.IsHiddenOn(Options.CurrentGameMode) && (o.Parent?.GetBool() ?? !o.GetString().Equals("0%")))
                 logger.Info($"{(o.Parent == null ? o.GetName(true, true).RemoveHtmlTags().PadRightV2(40) : $"┗ {o.GetName(true, true).RemoveHtmlTags()}".PadRightV2(41))}:{o.GetString().RemoveHtmlTags()}");
         }
 
@@ -587,17 +587,14 @@ class IntroCutsceneDestroyPatch
                             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                             {
                                 if (pc.PlayerId == 0) continue; // Skip the host
-                                if (pc != null)
+                                try
                                 {
-                                    try
-                                    {
-                                        pc.RpcShapeshift(pc, false);
-                                        pc.Notify("Good Luck & Have Fun!", 1f);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift");
-                                    }
+                                    pc.RpcShapeshift(pc, false);
+                                    pc.Notify("Good Luck & Have Fun!", 1f);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift");
                                 }
                             }
                         }
