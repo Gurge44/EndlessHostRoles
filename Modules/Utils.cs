@@ -2485,6 +2485,8 @@ public static class Utils
                 Executioner.ChangeRoleByTarget(target);
             if (Lawyer.Target.ContainsValue(target.PlayerId))
                 Lawyer.ChangeRoleByTarget(target);
+            if (target.Is(CustomRoles.Stained))
+                Stained.OnDeath(target, target.GetRealKiller());
 
             Postman.CheckAndResetTargets(target, isDeath: true);
             Hitman.CheckAndResetTargets();

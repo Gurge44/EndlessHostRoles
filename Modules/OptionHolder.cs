@@ -338,7 +338,6 @@ public static class Options
     public static OptionItem ExpressSpeed;
     public static OptionItem ExpressSpeedDur;
     public static OptionItem EveryOneKnowSuperStar;
-    public static OptionItem MNKillCooldown;
     public static OptionItem MafiaCanKillNum;
     public static OptionItem BomberRadius;
     public static OptionItem BomberCanKill;
@@ -1262,6 +1261,10 @@ public static class Options
             .SetParent(CustomRoleSpawnChances[CustomRoles.Avanger]);
         RoleLoadingText = "Add-ons\nSleuth";
         SetupAdtRoleOptions(15150, CustomRoles.Sleuth, canSetNum: true);
+        RoleLoadingText = "Add-ons\nClumsy";
+        SetupAdtRoleOptions(15170, CustomRoles.Clumsy, canSetNum: true);
+        RoleLoadingText = "Add-ons\nStained";
+        SetupAdtRoleOptions(15180, CustomRoles.Stained, canSetNum: true);
         RoleLoadingText = "Add-ons\nMischievous";
         SetupAdtRoleOptions(15160, CustomRoles.Mischievous, canSetNum: true);
         RoleLoadingText = "Add-ons\nBewilder";

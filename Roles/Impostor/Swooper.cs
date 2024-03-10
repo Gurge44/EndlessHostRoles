@@ -149,19 +149,22 @@ public class Swooper : RoleBase
 
         var now = Utils.TimeStamp;
 
-        if (lastTime != -10 && !player.IsModClient())
+        if (lastTime != -10)
         {
-            var cooldown = lastTime + (long)Cooldown - now;
-            if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f);
-            CD = (int)cooldown;
-        }
+            if (!player.IsModClient())
+            {
+                var cooldown = lastTime + (long)Cooldown - now;
+                if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f);
+                CD = (int)cooldown;
+            }
 
-        if (lastTime + (long)Cooldown < now)
-        {
-            lastTime = -10;
-            if (!player.IsModClient()) player.Notify(GetString("SwooperCanVent"));
-            SendRPC();
-            CD = 0;
+            if (lastTime + (long)Cooldown < now)
+            {
+                lastTime = -10;
+                if (!player.IsModClient()) player.Notify(GetString("SwooperCanVent"), 300f);
+                SendRPC();
+                CD = 0;
+            }
         }
 
         if (lastFixedTime != now && InvisTime != -10)

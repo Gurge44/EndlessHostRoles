@@ -348,11 +348,14 @@ class GameEndChecker
 
             foreach (var role in EnumHelper.GetAllValues<CustomRoles>())
             {
-                if (!role.IsNK() || role.IsMadmate() || role is CustomRoles.Sidekick || (role == CustomRoles.Arsonist && !Options.ArsonistCanIgniteAnytime.GetBool()) || (role == CustomRoles.DarkHide && DarkHide.SnatchesWin.GetBool())) continue;
+                if (!role.IsNK() || role.IsMadmate() || role is CustomRoles.Sidekick) continue;
+
+                var countTypes = role.GetCountTypes();
+                if (countTypes is CountTypes.Crew or CountTypes.Impostor or CountTypes.None or CountTypes.OutOfGame) continue;
 
                 CustomRoles? keyRole = role.IsRecruitingRole() ? null : role;
                 CustomWinner keyWinner = (CustomWinner)role;
-                int value = AlivePlayersCount(role.GetCountTypes());
+                int value = AlivePlayersCount(countTypes);
 
                 roleCounts[(keyRole, keyWinner)] = value;
             }
@@ -361,15 +364,18 @@ class GameEndChecker
             {
                 foreach (PlayerControl x in Main.AllAlivePlayerControls)
                 {
+                    if (!x.Is(CustomRoles.DualPersonality)) continue;
+
                     CustomRoles role = x.GetCustomRole();
-                    if ((x.Is(CustomRoles.Madmate) && x.Is(CustomRoles.DualPersonality)) ||
-                        (role.IsImpostor() && x.Is(CustomRoles.DualPersonality))) Imp++;
-                    if (role.IsCrewmate() && x.Is(CustomRoles.DualPersonality)) Crew++;
-                    if (x.Is(CustomRoles.Charmed) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Succubus)]++;
-                    if (x.Is(CustomRoles.Undead) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Necromancer)]++;
-                    if (x.Is(CustomRoles.Sidekick) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Jackal)]++;
-                    if (x.Is(CustomRoles.Recruit) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Jackal)]++;
-                    if (x.Is(CustomRoles.Contagious) && x.Is(CustomRoles.DualPersonality)) roleCounts[(null, CustomWinner.Virus)]++;
+
+                    if (role.Is(Team.Crewmate)) Crew++;
+                    if (role.Is(Team.Impostor)) Imp++;
+
+                    if (x.Is(CustomRoles.Charmed)) roleCounts[(null, CustomWinner.Succubus)]++;
+                    if (x.Is(CustomRoles.Undead)) roleCounts[(null, CustomWinner.Necromancer)]++;
+                    if (x.Is(CustomRoles.Sidekick)) roleCounts[(null, CustomWinner.Jackal)]++;
+                    if (x.Is(CustomRoles.Recruit)) roleCounts[(null, CustomWinner.Jackal)]++;
+                    if (x.Is(CustomRoles.Contagious)) roleCounts[(null, CustomWinner.Virus)]++;
                 }
             }
 

@@ -1,0 +1,21 @@
+﻿namespace TOHE.Roles.AddOns.Common
+{
+    internal static class Clumsy
+    {
+        public static void OnFixedUpdate(PlayerControl pc)
+        {
+            if (IRandom.Instance.Next(300) == 0 && !pc.inVent && !pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() && !pc.MyPhysics.Animations.IsPlayingEnterVentAnimation() && !pc.inMovingPlat && pc.MyPhysics.Animations.IsPlayingSomeAnimation())
+            {
+                float duration = IRandom.Instance.Next(1, 4);
+                float speed = Main.AllPlayerSpeed[pc.PlayerId];
+                Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
+                pc.MarkDirtySettings();
+                _ = new LateTask(() =>
+                {
+                    Main.AllPlayerSpeed[pc.PlayerId] = speed;
+                    pc.MarkDirtySettings();
+                }, duration, "Clumsy Trip");
+            }
+        }
+    }
+}

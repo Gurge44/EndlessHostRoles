@@ -1,5 +1,6 @@
 using Hazel;
 using TOHE.Modules;
+using TOHE.Roles.AddOns.Common;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
@@ -40,12 +41,14 @@ public static class NameColorManager
                 color = "#ffffff";
                 return true;
             case CustomGameMode.HotPotato:
-                var (HolderID, LastHolderID, _, _) = HotPotatoManager.GetState();
+                (byte HolderID, byte LastHolderID, _, _) = HotPotatoManager.GetState();
                 if (target.PlayerId == HolderID) color = "#000000";
                 else if (target.PlayerId == LastHolderID) color = "#00ffff";
                 else color = "#ffffff";
                 return true;
         }
+
+        if (Stained.VioletNameList.Contains(target.PlayerId)) color = "#ff00ff";
 
         if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor)) color = (target.Is(CustomRoles.Egoist) && Options.ImpEgoistVisibalToAllies.GetBool() && seer != target) ? Main.roleColors[CustomRoles.Egoist] : Main.roleColors[CustomRoles.Impostor];
         if (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoleTypes.Impostor) && Options.MadmateKnowWhosImp.GetBool()) color = Main.roleColors[CustomRoles.Impostor];

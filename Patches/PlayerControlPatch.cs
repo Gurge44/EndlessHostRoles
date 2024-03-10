@@ -478,6 +478,9 @@ class MurderPlayerPatch
         if (target.Is(CustomRoles.Trapper) && killer != target)
             killer.TrapperKilled(target);
 
+        if (target.Is(CustomRoles.Stained))
+            Stained.OnDeath(target, killer);
+
         //if ((Romantic.BetPlayer.TryGetValue(target.PlayerId, out var RomanticPartner) && target.PlayerId == RomanticPartner) && target.PlayerId != killer.PlayerId)
         //    VengefulRomantic.PartnerKiller.Add(killer.PlayerId, 1);
 
@@ -1061,13 +1064,14 @@ class FixedUpdatePatch
                 Asthmatic.OnCheckPlayerPosition(player);
             }
 
-            if (!lowLoad && Main.PlayerStates.TryGetValue(playerId, out var playerState) && GameStates.IsInTask)
+            if (!lowLoad && Main.PlayerStates.TryGetValue(playerId, out var playerState) && GameStates.IsInTask && player.IsAlive())
             {
                 var subRoles = playerState.SubRoles;
                 if (subRoles.Contains(CustomRoles.Damocles)) Damocles.Update(player);
                 if (subRoles.Contains(CustomRoles.Stressed)) Stressed.Update(player);
                 if (subRoles.Contains(CustomRoles.Asthmatic)) Asthmatic.OnFixedUpdate();
                 if (subRoles.Contains(CustomRoles.Disco)) Disco.OnFixedUpdate(player);
+                if (subRoles.Contains(CustomRoles.Clumsy)) Clumsy.OnFixedUpdate(player);
             }
 
             long now = TimeStamp;

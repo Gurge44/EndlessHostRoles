@@ -463,6 +463,8 @@ public class Main : BasePlugin
                 { CustomRoles.Madmate, "#ff1919" },
                 { CustomRoles.Watcher, "#800080" },
                 { CustomRoles.Sleuth, "#30221c" },
+                { CustomRoles.Stained, "#e6bf91" },
+                { CustomRoles.Clumsy, "#b8b8b8" },
                 { CustomRoles.Mischievous, "#30221c" },
                 { CustomRoles.Flashman, "#ff8400" },
                 { CustomRoles.Haste, "#f0ec22" },
@@ -916,6 +918,7 @@ public enum CustomRoles
     Bewilder,
     Charmed,
     Cleansed,
+    Clumsy,
     Contagious,
     Damocles,
     DeadlyQuota,
@@ -956,6 +959,7 @@ public enum CustomRoles
     DualPersonality, // Schizophrenic
     Seer,
     Sleuth,
+    Stained,
     TicketsStealer, // Stealer
     Stressed,
     Swift,

@@ -19,6 +19,8 @@ namespace TOHE.Roles.Impostor
         public static OptionItem WarlockCanKillSelf;
         public static OptionItem KillCooldown;
         public static OptionItem CurseCooldown;
+        public static OptionItem FreezeAfterCurseKill;
+        public static OptionItem FreezeDurationAfterCurseKill;
 
         public static Dictionary<byte, float> WarlockTimer = [];
         public static Dictionary<byte, PlayerControl> CursedPlayers = [];
@@ -40,6 +42,11 @@ namespace TOHE.Roles.Impostor
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock])
                 .SetValueFormat(OptionFormat.Seconds);
             CurseCooldown = FloatOptionItem.Create(4614, "CurseCooldown", new(0f, 180f, 1f), 30f, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock])
+                .SetValueFormat(OptionFormat.Seconds);
+            FreezeAfterCurseKill = BooleanOptionItem.Create(4615, "FreezeAfterCurseKill", true, TabGroup.ImpostorRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock]);
+            FreezeDurationAfterCurseKill = FloatOptionItem.Create(4616, "FreezeDuration", new(0f, 60f, 1f), 4f, TabGroup.ImpostorRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock])
                 .SetValueFormat(OptionFormat.Seconds);
         }
@@ -89,6 +96,18 @@ namespace TOHE.Roles.Impostor
                 hud.AbilityButton?.OverrideText(Translator.GetString("WarlockShapeshiftButtonText"));
         }
 
+        void ResetCooldowns(bool killCooldown = false, bool curseCooldown = false, bool shapeshiftCooldown = false, PlayerControl warlock = null)
+        {
+            if (killCooldown) KCD = KillCooldown.GetFloat();
+            if (curseCooldown) CurseCD = CurseCooldown.GetFloat();
+            if (shapeshiftCooldown) warlock?.RpcResetAbilityCooldown();
+
+            if (KCD > 0f && CurseCD > 0f)
+            {
+                _ = new LateTask(() => { warlock?.SetKillCooldown(Math.Min(KCD, CurseCD) - 1f); }, 0.1f, log: false);
+            }
+        }
+
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer.IsShifted()) return false;
@@ -109,7 +128,9 @@ namespace TOHE.Roles.Impostor
                         CursedPlayers[killer.PlayerId] = target;
                         WarlockTimer.Add(killer.PlayerId, 0f);
                         isCurseAndKill[killer.PlayerId] = true;
-                        CurseCD = CurseCooldown.GetFloat();
+
+                        ResetCooldowns(killCooldown: true, curseCooldown: true, warlock: killer);
+
                         return;
                     }
 
@@ -117,7 +138,9 @@ namespace TOHE.Roles.Impostor
                 }))
             {
                 if (KCD > 0f) return false;
-                KCD = KillCooldown.GetFloat();
+
+                ResetCooldowns(killCooldown: true, curseCooldown: true, shapeshiftCooldown: true, warlock: killer);
+
                 return true;
             }
 
@@ -136,7 +159,7 @@ namespace TOHE.Roles.Impostor
             return false;
         }
 
-        static void Curse(PlayerControl pc)
+        void Curse(PlayerControl pc)
         {
             isCurseAndKill.TryAdd(pc.PlayerId, false);
             if (CursedPlayers[pc.PlayerId] != null)
@@ -167,11 +190,24 @@ namespace TOHE.Roles.Impostor
                             targetw.SetRealKiller(pc);
                             Logger.Info($"{targetw.GetNameWithRole().RemoveHtmlTags()} was killed", "Warlock");
                             cp.Kill(targetw);
-                            pc.SetKillCooldown();
                             pc.Notify(Translator.GetString("WarlockControlKill"));
+
+                            ResetCooldowns(killCooldown: true, curseCooldown: true, shapeshiftCooldown: true, warlock: pc);
+
+                            if (FreezeAfterCurseKill.GetBool())
+                            {
+                                float speed = Main.AllPlayerSpeed[pc.PlayerId];
+                                Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
+                                pc.MarkDirtySettings();
+                                _ = new LateTask(() =>
+                                {
+                                    Main.AllPlayerSpeed[pc.PlayerId] = speed;
+                                    pc.MarkDirtySettings();
+                                }, FreezeDurationAfterCurseKill.GetFloat(), "Warlock Freeze");
+                            }
                         }
 
-                        _ = new LateTask(() => { pc.CmdCheckRevertShapeshift(false); }, 1.5f, "Warlock RpcRevertShapeshift");
+                        if (!UsePets.GetBool()) _ = new LateTask(() => { pc.RpcShapeshift(pc, false); }, 1.5f, "Warlock RpcRevertShapeshift");
                     }
                     else
                     {
@@ -223,6 +259,11 @@ namespace TOHE.Roles.Impostor
                 LastNotify = Utils.TimeStamp;
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }
+        }
+
+        public override void AfterMeetingTasks()
+        {
+            ResetCooldowns(killCooldown: true, curseCooldown: true);
         }
 
         public static string GetSuffixAndHudText(PlayerControl seer, bool hud = false)

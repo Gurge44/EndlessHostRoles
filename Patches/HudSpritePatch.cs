@@ -244,20 +244,20 @@ public static class HudSpritePatch
                 case CustomRoles.Pelican:
                     newKillButton = CustomButton.Get("Vulture");
                     break;
-                //case CustomRoles.CursedSoul:
-                //    newKillButton = CustomButton.Get("Soul");
-                //    break;
                 case CustomRoles.TimeMaster:
                     if (Options.UsePets.GetBool())
                         newPetButton = CustomButton.Get("Time Master");
                     else
                         newAbilityButton = CustomButton.Get("Time Master");
                     break;
-                //case CustomRoles.Mario:
-                //    newAbilityButton = CustomButton.Get("Happy");
-                //    break;
                 case CustomRoles.Sheriff:
                     newKillButton = CustomButton.Get("Kill");
+                    break;
+                case CustomRoles.Swiftclaw:
+                    if (Options.UsePets.GetBool())
+                        newPetButton = CustomButton.Get("Dash");
+                    else
+                        newAbilityButton = CustomButton.Get("Dash");
                     break;
                 case CustomRoles.Swooper:
                     newAbilityButton = CustomButton.Get("invisible");
