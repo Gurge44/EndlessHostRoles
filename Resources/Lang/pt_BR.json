@@ -3623,7 +3623,7 @@
   "DCNotify.Auth": "Você não está autenticado.\\n\\nVocê talvez precise reiniciar o jogo.",
   "DCNotify.DupeLogin": "Um jogador com essa conta já está na sala.",
   "DCNotify.InvalidSettings": "Foram detectadas configurações invalidas.\\n\\nEntre em uma partida local e tente de novo.",
-  "ModeDescribe.SoloKombat": "O Modo atual é [Batte Royale]\\n★ Não há funções. Todos tem uma certa quantidade de vida e podem usar o botão de matar para causar dano em outros jogadores. O jogador com o maior número de abates até o final do jogo vence.",
+  "ModeDescribe.SoloKombat": "O Modo atual é [Battle Royale]\\n★ Não há funções. Todos tem uma certa quantidade de vida e podem usar o botão de matar para causar dano em outros jogadores. O jogador com o maior número de abates até o final do jogo vence.",
   "RoleType.VanillaRoles": "★ Funções Normais",
   "RoleType.ImpKilling": "<color=#6a0000>★</color> Impostores <color=#6a0000>Assassinos</color>",
   "RoleType.ImpSupport": "<color=#00ffff>★</color> Impostores <color=#00ffff>Ajudantes</color>",
