@@ -1,36 +1,52 @@
 ﻿using AmongUs.GameOptions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
 using UnityEngine;
 
 namespace TOHE.Roles.Impostor;
 
-// 参考 : https://github.com/ykundesu/SuperNewRoles/blob/master/SuperNewRoles/Mode/SuperHostRoles/BlockTool.cs
-// 贡献：https://github.com/Yumenopai/TownOfHost_Y/tree/AntiAdminer
+// Reference: https://github.com/ykundesu/SuperNewRoles/blob/master/SuperNewRoles/Mode/SuperHostRoles/BlockTool.cs
+// Reference：https://github.com/Yumenopai/TownOfHost_Y/tree/AntiAdminer
 internal class AntiAdminer : RoleBase
 {
     private const int Id = 2300;
     private static List<byte> playerIdList = [];
 
     private static OptionItem CanCheckCamera;
+    public static OptionItem EnableExtraAbility;
+    private static OptionItem CanOnlyUseWhileAnyWatch;
+    private static OptionItem Delay;
+
     public static bool IsAdminWatch;
     public static bool IsVitalWatch;
     public static bool IsDoorLogWatch;
     public static bool IsCameraWatch;
+    public static List<byte> PlayersNearDevices = [];
 
     private bool IsMonitor;
+    private long ExtraAbilityStartTimeStamp;
 
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.AntiAdminer);
-        CanCheckCamera = BooleanOptionItem.Create(Id + 10, "CanCheckCamera", true, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.AntiAdminer]);
+        CanCheckCamera = BooleanOptionItem.Create(Id + 10, "CanCheckCamera", true, TabGroup.ImpostorRoles, false)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.AntiAdminer]);
+        EnableExtraAbility = BooleanOptionItem.Create(Id + 11, "EnableExtraAbility", true, TabGroup.ImpostorRoles, false)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.AntiAdminer]);
+        CanOnlyUseWhileAnyWatch = BooleanOptionItem.Create(Id + 12, "CanOnlyUseWhileAnyWatch", true, TabGroup.ImpostorRoles, false)
+            .SetParent(EnableExtraAbility);
+        Delay = FloatOptionItem.Create(Id + 13, "AADelay", new(0f, 20f, 0.5f), 5f, TabGroup.ImpostorRoles, false)
+            .SetParent(EnableExtraAbility)
+            .SetValueFormat(OptionFormat.Seconds);
     }
 
     public override void Init()
     {
         playerIdList = [];
+        PlayersNearDevices = [];
         IsAdminWatch = false;
         IsVitalWatch = false;
         IsDoorLogWatch = false;
@@ -41,13 +57,41 @@ internal class AntiAdminer : RoleBase
     {
         playerIdList.Add(playerId);
         IsMonitor = Main.PlayerStates[playerId].MainRole == CustomRoles.Monitor;
+        ExtraAbilityStartTimeStamp = 0;
     }
 
     public override bool IsEnable => playerIdList.Count > 0;
 
+    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+    {
+        if (!shapeshifting) return true;
+        if (IsMonitor || !EnableExtraAbility.GetBool() || ExtraAbilityStartTimeStamp > 0 || (CanOnlyUseWhileAnyWatch.GetBool() && !IsAdminWatch && !IsVitalWatch && !IsDoorLogWatch && !IsCameraWatch)) return false;
+
+        ExtraAbilityStartTimeStamp = Utils.TimeStamp;
+        shapeshifter.RpcResetAbilityCooldown();
+        Utils.NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: shapeshifter);
+
+        foreach (var pc in PlayersNearDevices.Select(x => Utils.GetPlayerById(x)).Where(x => x != null && x.IsAlive()))
+        {
+            pc.Notify(Translator.GetString("AAWarning"), Delay.GetFloat());
+        }
+
+        return false;
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
-        if (!IsMonitor) return;
+        if (!IsMonitor)
+        {
+            if (EnableExtraAbility.GetBool())
+            {
+                AURoleOptions.ShapeshifterCooldown = Math.Clamp(Options.DefaultKillCooldown - Delay.GetFloat() - 2f, Delay.GetFloat() + 1f, Options.DefaultKillCooldown);
+                AURoleOptions.ShapeshifterDuration = 1f;
+            }
+
+            return;
+        }
+
         AURoleOptions.EngineerCooldown = 0f;
         AURoleOptions.EngineerInVentMaxTime = 0f;
     }
@@ -58,71 +102,178 @@ internal class AntiAdminer : RoleBase
     {
         if (!IsEnable) return;
 
+        bool notify = false;
+
+        if (!IsMonitor && ExtraAbilityStartTimeStamp > 0 && EnableExtraAbility.GetBool())
+        {
+            if (ExtraAbilityStartTimeStamp + Delay.GetInt() < Utils.TimeStamp)
+            {
+                ExtraAbilityStartTimeStamp = 0;
+                player.RpcResetAbilityCooldown();
+                player.Notify(Translator.GetString("AADone"));
+
+                foreach (var pc in PlayersNearDevices.Select(x => Utils.GetPlayerById(x)).Where(x => x != null && x.IsAlive() && player.RpcCheckAndMurder(x, check: true)))
+                {
+                    pc.Suicide(realKiller: player);
+                }
+            }
+            else
+            {
+                notify = true;
+                foreach (var pc in PlayersNearDevices.Select(x => Utils.GetPlayerById(x)).Where(x => x != null && x.IsAlive()))
+                {
+                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                }
+            }
+        }
+
         Count--;
         if (Count > 0) return;
-        Count = 5;
+        Count = notify || ExtraAbilityStartTimeStamp > 0 ? 1 : 5;
 
+        PlayersNearDevices = [];
         bool Admin = false, Camera = false, DoorLog = false, Vital = false;
+        float usableDistance = DisableDevice.UsableDistance();
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
             if (Pelican.IsEaten(pc.PlayerId) || pc.inVent || pc.GetCustomRole().IsImpostor()) continue;
             try
             {
                 Vector2 PlayerPos = pc.Pos();
+                bool isNearDevice = false;
 
                 switch (Main.NormalOptions.MapId)
                 {
                     case 0:
                         if (!Options.DisableSkeldAdmin.GetBool())
-                            Admin |= Vector2.Distance(PlayerPos, DisableDevice.DevicePos["SkeldAdmin"]) <= DisableDevice.UsableDistance();
+                        {
+                            bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["SkeldAdmin"]) <= usableDistance;
+                            Admin |= near;
+                            isNearDevice |= near;
+                        }
+
                         if (!Options.DisableSkeldCamera.GetBool())
-                            Camera |= Vector2.Distance(PlayerPos, DisableDevice.DevicePos["SkeldCamera"]) <= DisableDevice.UsableDistance();
+                        {
+                            bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["SkeldCamera"]) <= usableDistance;
+                            Camera |= near;
+                            isNearDevice |= near;
+                        }
+
                         break;
                     case 1:
                         if (!Options.DisableMiraHQAdmin.GetBool())
-                            Admin |= Vector2.Distance(PlayerPos, DisableDevice.DevicePos["MiraHQAdmin"]) <= DisableDevice.UsableDistance();
+                        {
+                            bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["MiraHQAdmin"]) <= usableDistance;
+                            Admin |= near;
+                            isNearDevice |= near;
+                        }
+
                         if (!Options.DisableMiraHQDoorLog.GetBool())
-                            DoorLog |= Vector2.Distance(PlayerPos, DisableDevice.DevicePos["MiraHQDoorLog"]) <= DisableDevice.UsableDistance();
+                        {
+                            bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["MiraHQDoorLog"]) <= usableDistance;
+                            DoorLog |= near;
+                            isNearDevice |= near;
+                        }
+
                         break;
                     case 2:
                         if (!Options.DisablePolusAdmin.GetBool())
                         {
-                            Admin |= Vector2.Distance(PlayerPos, DisableDevice.DevicePos["PolusLeftAdmin"]) <= DisableDevice.UsableDistance();
-                            Admin |= Vector2.Distance(PlayerPos, DisableDevice.DevicePos["PolusRightAdmin"]) <= DisableDevice.UsableDistance();
+                            bool nearLeft = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["PolusLeftAdmin"]) <= usableDistance;
+                            Admin |= nearLeft;
+                            isNearDevice |= nearLeft;
+                            bool nearRight = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["PolusRightAdmin"]) <= usableDistance;
+                            Admin |= nearRight;
+                            isNearDevice |= nearRight;
                         }
 
                         if (!Options.DisablePolusCamera.GetBool())
-                            Camera |= Vector2.Distance(PlayerPos, DisableDevice.DevicePos["PolusCamera"]) <= DisableDevice.UsableDistance();
+                        {
+                            bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["PolusCamera"]) <= usableDistance;
+                            Camera |= near;
+                            isNearDevice |= near;
+                        }
+
                         if (!Options.DisablePolusVital.GetBool())
-                            Vital |= Vector2.Distance(PlayerPos, DisableDevice.DevicePos["PolusVital"]) <= DisableDevice.UsableDistance();
+                        {
+                            bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["PolusVital"]) <= usableDistance;
+                            Vital |= near;
+                            isNearDevice |= near;
+                        }
+
                         break;
                     case 3:
                         if (!Options.DisableSkeldAdmin.GetBool())
-                            Admin |= Vector2.Distance(PlayerPos, DisableDevice.DevicePos["DleksAdmin"]) <= DisableDevice.UsableDistance();
+                        {
+                            bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["DleksAdmin"]) <= usableDistance;
+                            Admin |= near;
+                            isNearDevice |= near;
+                        }
+
                         if (!Options.DisableSkeldCamera.GetBool())
-                            Camera |= Vector2.Distance(PlayerPos, DisableDevice.DevicePos["DleksCamera"]) <= DisableDevice.UsableDistance();
+                        {
+                            bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["DleksCamera"]) <= usableDistance;
+                            Camera |= near;
+                            isNearDevice |= near;
+                        }
+
                         break;
                     case 4:
                         if (!Options.DisableAirshipCockpitAdmin.GetBool())
-                            Admin |= Vector2.Distance(PlayerPos, DisableDevice.DevicePos["AirshipCockpitAdmin"]) <= DisableDevice.UsableDistance();
+                        {
+                            bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["AirshipCockpitAdmin"]) <= usableDistance;
+                            Admin |= near;
+                            isNearDevice |= near;
+                        }
+
                         if (!Options.DisableAirshipRecordsAdmin.GetBool())
-                            Admin |= Vector2.Distance(PlayerPos, DisableDevice.DevicePos["AirshipRecordsAdmin"]) <= DisableDevice.UsableDistance();
+                        {
+                            bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["AirshipRecordsAdmin"]) <= usableDistance;
+                            Admin |= near;
+                            isNearDevice |= near;
+                        }
+
                         if (!Options.DisableAirshipCamera.GetBool())
-                            Camera |= Vector2.Distance(PlayerPos, DisableDevice.DevicePos["AirshipCamera"]) <= DisableDevice.UsableDistance();
+                        {
+                            bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["AirshipCamera"]) <= usableDistance;
+                            Camera |= near;
+                            isNearDevice |= near;
+                        }
+
                         if (!Options.DisableAirshipVital.GetBool())
-                            Vital |= Vector2.Distance(PlayerPos, DisableDevice.DevicePos["AirshipVital"]) <= DisableDevice.UsableDistance();
+                        {
+                            bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["AirshipVital"]) <= usableDistance;
+                            Vital |= near;
+                            isNearDevice |= near;
+                        }
+
                         break;
                     case 5:
                         if (!Options.DisableFungleCamera.GetBool())
-                            Camera |= Vector2.Distance(PlayerPos, DisableDevice.DevicePos["FungleCamera"]) <= DisableDevice.UsableDistance();
+                        {
+                            bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["FungleCamera"]) <= usableDistance;
+                            Camera |= near;
+                            isNearDevice |= near;
+                        }
+
                         if (!Options.DisableFungleVital.GetBool())
-                            Vital |= Vector2.Distance(PlayerPos, DisableDevice.DevicePos["FungleVital"]) <= DisableDevice.UsableDistance();
+                        {
+                            bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["FungleVital"]) <= usableDistance;
+                            Vital |= near;
+                            isNearDevice |= near;
+                        }
+
                         break;
+                }
+
+                if (isNearDevice)
+                {
+                    PlayersNearDevices.Add(pc.PlayerId);
                 }
             }
             catch (Exception ex)
             {
-                Logger.Error(ex.ToString(), "AntiAdmin");
+                Logger.Error(ex.ToString(), "AntiAdminer");
             }
         }
 
@@ -140,10 +291,36 @@ internal class AntiAdminer : RoleBase
             IsCameraWatch = Camera;
         }
 
-        if (isChange)
+        if (notify || isChange)
         {
             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+        }
+
+        if (isChange)
+        {
             FixedUpdatePatch.DoPostfix(player);
         }
+    }
+
+    public static string GetSuffixText(PlayerControl seer)
+    {
+        if (Main.PlayerStates[seer.PlayerId].Role is AntiAdminer self)
+        {
+            return self.ExtraAbilityStartTimeStamp > 0
+                ? $"<#ffffff>▩ {Delay.GetInt() - (Utils.TimeStamp - self.ExtraAbilityStartTimeStamp):N0}</color>"
+                : string.Empty;
+        }
+
+        if (!PlayersNearDevices.Contains(seer.PlayerId)) return string.Empty;
+
+        AntiAdminer aa = null;
+        foreach (byte id in playerIdList)
+        {
+            if (Main.PlayerStates[id].Role is not AntiAdminer { IsEnable: true, IsMonitor: false } x || x.ExtraAbilityStartTimeStamp == 0) continue;
+            if (aa != null && x.ExtraAbilityStartTimeStamp >= aa.ExtraAbilityStartTimeStamp) continue;
+            aa = x;
+        }
+
+        return aa == null ? string.Empty : $"<#ffff00>\u26a0 {Delay.GetInt() - (Utils.TimeStamp - aa.ExtraAbilityStartTimeStamp):N0}</color>";
     }
 }

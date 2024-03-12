@@ -1511,6 +1511,8 @@ class FixedUpdatePatch
                 Suffix.Append(Deathpact.GetDeathpactPlayerArrow(seer, target));
                 Suffix.Append(Deathpact.GetDeathpactMark(seer, target));
 
+                if (seer.PlayerId == target.PlayerId) Suffix.Append(AntiAdminer.GetSuffixText(seer));
+
                 if (seer.Is(CustomRoles.Asthmatic) && seer.PlayerId == target.PlayerId) Suffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
 
                 if (target.Is(CustomRoles.Librarian)) Suffix.Append(Librarian.GetNameTextForSuffix(target.PlayerId));

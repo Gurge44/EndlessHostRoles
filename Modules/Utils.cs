@@ -1775,6 +1775,7 @@ public static class Utils
 
                     SelfSuffix.Append(Deathpact.GetDeathpactPlayerArrow(seer));
                     SelfSuffix.Append(Commander.GetSuffixText(seer, seer));
+                    SelfSuffix.Append(AntiAdminer.GetSuffixText(seer));
 
                     switch (seer.GetCustomRole())
                     {
