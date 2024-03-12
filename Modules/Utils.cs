@@ -366,13 +366,16 @@ public static class Utils
     {
         if (Options.HideGameSettings.GetBool() && Main.AllPlayerControls.Length > 1)
             return string.Empty;
-        string mode = GetString($"Rate{role.GetMode()}").RemoveHtmlTags();
-        //string mode = role.GetMode() switch
-        //{
-        //    0 => GetString("RoleOffNoColor"),
-        //    1 => GetString("RoleRateNoColor"),
-        //    _ => GetString("RoleOnNoColor")
-        //};
+
+        string mode = !role.IsAdditionRole()
+            ? GetString($"Rate{role.GetMode()}").RemoveHtmlTags()
+            : role.GetMode() switch
+            {
+                0 => GetString("RoleOffNoColor"),
+                1 => GetString("RoleRateNoColor"),
+                _ => GetString("RoleOnNoColor")
+            };
+
         return parentheses ? $"({mode})" : mode;
     }
 
@@ -970,7 +973,16 @@ public static class Utils
         foreach (var role in Options.CustomRoleCounts)
         {
             if (!role.Key.IsEnable()) continue;
-            string mode = GetString($"Rate{role.Key.GetMode()}");
+
+            string mode = !role.Key.IsAdditionRole()
+                ? GetString($"Rate{role.Key.GetMode()}").RemoveHtmlTags()
+                : role.Key.GetMode() switch
+                {
+                    0 => GetString("RoleOffNoColor"),
+                    1 => GetString("RoleRateNoColor"),
+                    _ => GetString("RoleOnNoColor")
+                };
+
             sb.Append($"\n【{GetRoleName(role.Key)}:{mode} ×{role.Key.GetCount()}】\n");
             ShowChildrenSettings(Options.CustomRoleSpawnChances[role.Key], ref sb);
             var text = sb.ToString();
@@ -1004,7 +1016,16 @@ public static class Utils
         foreach (var role in Options.CustomRoleCounts)
         {
             if (!role.Key.IsEnable()) continue;
-            string mode = GetString($"Rate{role.Key.GetMode()}");
+
+            string mode = !role.Key.IsAdditionRole()
+                ? GetString($"Rate{role.Key.GetMode()}").RemoveHtmlTags()
+                : role.Key.GetMode() switch
+                {
+                    0 => GetString("RoleOffNoColor"),
+                    1 => GetString("RoleRateNoColor"),
+                    _ => GetString("RoleOnNoColor")
+                };
+
             sb.Append($"\n【{GetRoleName(role.Key)}:{mode} ×{role.Key.GetCount()}】\n");
             ShowChildrenSettings(Options.CustomRoleSpawnChances[role.Key], ref sb);
             var text = sb.ToString();
@@ -1042,10 +1063,18 @@ public static class Utils
         var neutralsb = new StringBuilder();
         var crewsb = new StringBuilder();
         var addonsb = new StringBuilder();
-        //int headCount = -1;
+
         foreach (var role in EnumHelper.GetAllValues<CustomRoles>())
         {
-            string mode = GetString($"Rate{role.GetMode()}");
+            string mode = !role.IsAdditionRole()
+                ? GetString($"Rate{role.GetMode()}").RemoveHtmlTags()
+                : role.GetMode() switch
+                {
+                    0 => GetString("RoleOffNoColor"),
+                    1 => GetString("RoleRateNoColor"),
+                    _ => GetString("RoleOnNoColor")
+                };
+
             if (role.IsEnable())
             {
                 var roleDisplay = $"\n{GetRoleName(role)}: {mode} x{role.GetCount()}";
@@ -1059,7 +1088,7 @@ public static class Utils
         SendMessage(sb.Append("\n.").ToString(), PlayerId, "<color=#ff5b70>【 ★ Roles ★ 】</color>");
         SendMessage(impsb.Append("\n.").ToString(), PlayerId, ColorString(GetRoleColor(CustomRoles.Impostor), "【 ★ Impostor Roles ★ 】"));
         SendMessage(crewsb.Append("\n.").ToString(), PlayerId, ColorString(GetRoleColor(CustomRoles.Crewmate), "【 ★ Crewmate Roles ★ 】"));
-        SendMessage(neutralsb.Append("\n.").ToString(), PlayerId, "<color=#7f8c8d>【 ★ Neutral Roles ★ 】</color>");
+        SendMessage(neutralsb.Append("\n.").ToString(), PlayerId, "<color=#ffab1b>【 ★ Neutral Roles ★ 】</color>");
         SendMessage(addonsb.Append("\n.").ToString(), PlayerId, "<color=#ff9ace>【 ★ Add-ons ★ 】</color>");
     }
 
@@ -1894,7 +1923,7 @@ public static class Utils
 
                     else if (seer.GetCustomRole().IsNeutral())
                     {
-                        SeerRealName = $"<color=#7f8c8d>{GetString("YouAreNeutral")}</color>\n<size=90%>{seer.GetRoleInfo()}</size>";
+                        SeerRealName = $"<color=#ffab1b>{GetString("YouAreNeutral")}</color>\n<size=90%>{seer.GetRoleInfo()}</size>";
                     }
                 }
 

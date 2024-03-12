@@ -13,6 +13,7 @@ namespace TOHE.Roles.Impostor
         public override bool IsEnable => On;
 
         private const int Id = 643560;
+        public static OptionItem CannotSpawnAsSoloImp;
 
         public bool IsWhistling;
         public byte MarkedPlayer;
@@ -22,6 +23,8 @@ namespace TOHE.Roles.Impostor
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Commander);
+            CannotSpawnAsSoloImp = BooleanOptionItem.Create(Id + 2, "CannotSpawnAsSoloImp", true, TabGroup.ImpostorRoles, false)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Commander]);
         }
 
         public override void Add(byte playerId)

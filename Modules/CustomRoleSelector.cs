@@ -30,7 +30,7 @@ public static class ShuffleListExtension
     }
 }
 
-internal class CustomRoleSelector
+internal static class CustomRoleSelector
 {
     public static Dictionary<PlayerControl, CustomRoles> RoleResult;
     public static IReadOnlyList<CustomRoles> AllRoles => [.. RoleResult.Values];
@@ -154,6 +154,7 @@ internal class CustomRoleSelector
             if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool())) continue;
             switch (role)
             {
+                case CustomRoles.Commander when optImpNum <= 1 && Commander.CannotSpawnAsSoloImp.GetBool():
                 case CustomRoles.Changeling when Changeling.GetAvailableRoles(check: true).Count == 0:
                 case CustomRoles.Camouflager when Camouflager.DoesntSpawnOnFungle.GetBool() && Main.CurrentMap == MapNames.Fungle:
                 case CustomRoles.DarkHide when Main.CurrentMap == MapNames.Fungle:
@@ -230,6 +231,8 @@ internal class CustomRoleSelector
             RoleResult[PlayerControl.LocalPlayer] = CustomRoles.GM;
             AllPlayers.Remove(PlayerControl.LocalPlayer);
         }
+
+        if (Main.GM.Value) Logger.Warn("Host: GM", "CustomRoleSelector");
 
         // Pre-Assigned Roles By Host Are Selected First
         foreach (var item in Main.SetRoles)

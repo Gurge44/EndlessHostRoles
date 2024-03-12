@@ -187,12 +187,12 @@ namespace TOHE.Roles.Impostor
                         PlayerControl targetw = min.Key;
                         if (cp.RpcCheckAndMurder(targetw, true))
                         {
+                            ResetCooldowns(killCooldown: true, curseCooldown: true, shapeshiftCooldown: true, warlock: pc);
+
                             targetw.SetRealKiller(pc);
                             Logger.Info($"{targetw.GetNameWithRole().RemoveHtmlTags()} was killed", "Warlock");
                             cp.Kill(targetw);
                             pc.Notify(Translator.GetString("WarlockControlKill"));
-
-                            ResetCooldowns(killCooldown: true, curseCooldown: true, shapeshiftCooldown: true, warlock: pc);
 
                             if (FreezeAfterCurseKill.GetBool())
                             {

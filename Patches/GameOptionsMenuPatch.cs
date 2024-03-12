@@ -182,7 +182,7 @@ public class GameOptionsMenuUpdatePatch
                 TabGroup.TaskSettings => "#EF59AF",
                 TabGroup.ImpostorRoles => "#f74631",
                 TabGroup.CrewmateRoles => "#8cffff",
-                TabGroup.NeutralRoles => "#7f8c8d",
+                TabGroup.NeutralRoles => "#ffab1b",
                 TabGroup.Addons => "#ff9ace",
                 TabGroup.OtherRoles => "#76b8e0",
                 _ => "#ffffff",
