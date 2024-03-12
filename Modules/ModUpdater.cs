@@ -319,7 +319,7 @@ public class ModUpdater
     {
     }
 
-    private static void ShowPopup(string message, StringNames buttonText, bool showButton = false, bool buttonIsExit = true)
+    public static void ShowPopup(string message, StringNames buttonText, bool showButton = false, bool buttonIsExit = true)
     {
         if (InfoPopup == null) return;
 
