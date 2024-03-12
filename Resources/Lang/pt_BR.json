@@ -2068,6 +2068,7 @@
   "announcementChangelog": "<size=3f>Mudanças v{0}</size>\\n{1}",
   "updateRestart": "Atualização Finalizada!\\nPor favor reinicie o jogo.",
   "updateFailed": "Falha na Atualização.",
+  "AppIDAdded": "Já que não havia nenhum arquivo chamado steam_appid.txt, um novo foi criado para prevenir erros. \\nPor favor reinicie o jogo para aplicar as alterações.",
   "downloadFailed": "Falha em baixar o arquivo! \\nTente de novo mais tarde ou reinicie o jogo...",
   "onSetPublicNoLatest": "Salas públicas só estão disponíveis na última versão.\\nPor favor atualize.",
   "CanNotJoinPublicRoomNoLatest": "Você não pode entrar em salas públicas com essa versão.\\nPor favor atualize.",

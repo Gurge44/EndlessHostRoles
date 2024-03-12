@@ -2100,6 +2100,7 @@
   "announcementChangelog": "<size=3f>ChangeLogs v{0}</size>\\n{1}",
   "updateRestart": "Update Finished!\\nPlease restart the game.",
   "updateFailed": "Update failed.",
+  "AppIDAdded": "Since there was no steam_appid.txt file, a new one was created to prevent errors. \\nPlease restart the game to apply changes.",
   "downloadFailed": "Failed to upload file! \\nPlease try again later or restart the game...",
   "onSetPublicNoLatest": "Public rooms are only available in the latest version.\\nPlease update.",
   "CanNotJoinPublicRoomNoLatest": "You can't join public rooms without the latest version.\\nPlease update.",
