@@ -670,7 +670,7 @@ class ShapeshiftPatch
         }
 
         if (shapeshifter.Is(CustomRoles.Camouflager) && !shapeshifting) Camouflager.Reset();
-        if (Changeling.ChangedRole.TryGetValue(shapeshifter.PlayerId, out var changed) && changed && shapeshifter.GetCustomRole().GetRoleTypes() != RoleTypes.Shapeshifter) isSSneeded = false;
+        if (Changeling.ChangedRole.TryGetValue(shapeshifter.PlayerId, out var changed) && changed && shapeshifter.GetRoleTypes() != RoleTypes.Shapeshifter) isSSneeded = false;
 
         // Forced rewriting in case the name cannot be corrected due to the timing of canceling the transformation being off.
         if (!shapeshifting && !shapeshifter.Is(CustomRoles.Glitch) && isSSneeded)
@@ -1305,7 +1305,7 @@ class FixedUpdatePatch
                 // Name Color Manager
                 RealName = RealName.ApplyNameColorData(seer, target, false);
 
-                if (seer.GetCustomRole().IsCrewmate() && seer.Is(CustomRoles.Madmate) && Marshall.MadmateCanFindMarshall)
+                if (seer.IsCrewmate() && seer.Is(CustomRoles.Madmate) && Marshall.MadmateCanFindMarshall)
                 {
                     if (target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished)
                         Mark.Append(ColorString(GetRoleColor(CustomRoles.Marshall), "★"));
@@ -1316,7 +1316,7 @@ class FixedUpdatePatch
                     case CustomRoles.Snitch when seer.GetCustomRole().IsImpostor() && target.Is(CustomRoles.Madmate) && target.GetTaskState().IsTaskFinished:
                         Mark.Append(ColorString(GetRoleColor(CustomRoles.Impostor), "★"));
                         break;
-                    case CustomRoles.Marshall when seer.GetCustomRole().IsCrewmate() && target.GetTaskState().IsTaskFinished:
+                    case CustomRoles.Marshall when seer.IsCrewmate() && target.GetTaskState().IsTaskFinished:
                         Mark.Append(ColorString(GetRoleColor(CustomRoles.Marshall), "★"));
                         break;
                     case CustomRoles.SuperStar when Options.EveryOneKnowSuperStar.GetBool():
@@ -1648,18 +1648,16 @@ class PlayerStartPatch
     }
 }
 
-[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.SetColor))]
-class SetColorPatch
-{
-    public static bool IsAntiGlitchDisabled;
+//[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.SetColor))]
+//class SetColorPatch
+//{
+//    public static bool IsAntiGlitchDisabled;
 
-    public static bool Prefix(PlayerControl __instance, int bodyColor)
-    {
-        //色変更バグ対策
-        if (!AmongUsClient.Instance.AmHost || __instance.CurrentOutfit.ColorId == bodyColor || IsAntiGlitchDisabled) return true;
-        return true;
-    }
-}
+//    public static bool Prefix(PlayerControl __instance, int bodyColor)
+//    {
+//        return true;
+//    }
+//}
 
 [HarmonyPatch(typeof(Vent), nameof(Vent.ExitVent))]
 class ExitVentPatch
@@ -1693,7 +1691,7 @@ class EnterVentPatch
     {
         Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "EnterVent");
 
-        if (pc.GetCustomRole().GetRoleTypes() != RoleTypes.Engineer && !Main.PlayerStates[pc.PlayerId].Role.CanUseImpostorVentButton(pc))
+        if (pc.GetRoleTypes() != RoleTypes.Engineer && !Main.PlayerStates[pc.PlayerId].Role.CanUseImpostorVentButton(pc))
         {
             pc.MyPhysics?.RpcBootFromVent(__instance.Id);
             return;
@@ -1805,7 +1803,7 @@ class CoEnterVentPatch
         if (Ventguard.BlockedVents.Contains(id))
         {
             var pc = __instance.myPlayer;
-            if (Options.VentguardBlockDoesNotAffectCrew.GetBool() && pc.GetCustomRole().IsCrewmate())
+            if (Options.VentguardBlockDoesNotAffectCrew.GetBool() && pc.IsCrewmate())
             {
             }
             else
@@ -1833,7 +1831,7 @@ class CoEnterVentPatch
                                                                  !__instance.myPlayer.CanUseImpostorVentButton()) ||
                                                                 (__instance.myPlayer.Is(CustomRoles.Mayor) && Mayor.MayorUsedButtonCount.TryGetValue(__instance.myPlayer.PlayerId, out var count) && count >= Options.MayorNumOfUseButton.GetInt()) ||
                                                                 (__instance.myPlayer.Is(CustomRoles.Paranoia) && Paranoia.ParaUsedButtonCount.TryGetValue(__instance.myPlayer.PlayerId, out var count2) && count2 >= Options.ParanoiaNumOfUseButton.GetInt()))
-            && !__instance.myPlayer.Is(CustomRoles.Nimble))
+            && !__instance.myPlayer.Is(CustomRoles.Nimble) && !__instance.myPlayer.Is(CustomRoles.Bloodlust))
         {
             try
             {
@@ -1954,7 +1952,7 @@ public static class PlayerControlCheckUseZiplinePatch
 
             if (__instance.GetCustomRole().IsImpostor() && Options.DisableZiplineForImps.GetBool()) return false;
             if (__instance.GetCustomRole().IsNeutral() && Options.DisableZiplineForNeutrals.GetBool()) return false;
-            if (__instance.GetCustomRole().IsCrewmate() && Options.DisableZiplineForCrew.GetBool()) return false;
+            if (__instance.IsCrewmate() && Options.DisableZiplineForCrew.GetBool()) return false;
         }
 
         return true;

@@ -146,7 +146,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     break;
             }
 
-            switch (role.GetCustomRoleTypes())
+            switch (player.GetCustomRoleTypes())
             {
                 case CustomRoleTypes.Impostor:
                     AURoleOptions.ShapeshifterCooldown = Options.DefaultShapeshiftCooldown.GetFloat();
@@ -225,7 +225,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 opt.SetFloat(FloatOptionNames.ImpostorLightMod, Beacon.IncreasedVision);
             }
 
-            /*     if ((Main.FlashbangInProtect.Count > 0 && Main.ForFlashbang.Contains(player.PlayerId) && (!player.GetCustomRole().IsCrewmate())))
+            /*     if ((Main.FlashbangInProtect.Count > 0 && Main.ForFlashbang.Contains(player.PlayerId) && (!player.IsCrewmate())))
                  {
                          opt.SetVision(false);
                          opt.SetFloat(FloatOptionNames.CrewLightMod, Options.FlashbangVision.GetFloat());
@@ -298,11 +298,11 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     case CustomRoles.Madmate:
                         opt.SetVision(Options.MadmateHasImpostorVision.GetBool());
                         break;
-                    case CustomRoles.Nimble when role.GetRoleTypes() == RoleTypes.Engineer:
+                    case CustomRoles.Nimble when player.GetRoleTypes() == RoleTypes.Engineer:
                         AURoleOptions.EngineerCooldown = Options.NimbleCD.GetFloat();
                         AURoleOptions.EngineerInVentMaxTime = Options.NimbleInVentTime.GetFloat();
                         break;
-                    case CustomRoles.Physicist when role.GetRoleTypes() == RoleTypes.Scientist:
+                    case CustomRoles.Physicist when player.GetRoleTypes() == RoleTypes.Scientist:
                         AURoleOptions.ScientistCooldown = Options.PhysicistCD.GetFloat();
                         AURoleOptions.ScientistBatteryCharge = Options.PhysicistViewDuration.GetFloat();
                         break;
@@ -316,7 +316,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0.01f);
             }
 
-            if (Changeling.ChangedRole.TryGetValue(player.PlayerId, out var changed) && changed && player.GetCustomRole().GetRoleTypes() != RoleTypes.Shapeshifter)
+            if (Changeling.ChangedRole.TryGetValue(player.PlayerId, out var changed) && changed && player.GetRoleTypes() != RoleTypes.Shapeshifter)
             {
                 AURoleOptions.ShapeshifterCooldown = 300f;
                 AURoleOptions.ShapeshifterDuration = 1f;

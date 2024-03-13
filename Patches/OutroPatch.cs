@@ -177,7 +177,7 @@ class SetEverythingUpPatch
                     var rolename = Utils.GetRoleName(role);
 
                     poolablePlayer.cosmetics.nameText.text += $"\n<color={color}>{rolename}</color>";
-                    poolablePlayer.cosmetics.nameText.transform.localPosition = new(defaultPos.x, !lowered || role.IsImpostorTeamV3() || role.IsNK() ? defaultPos.y - 0.6f : defaultPos.y - 1.4f, -15f);
+                    poolablePlayer.cosmetics.nameText.transform.localPosition = new(defaultPos.x, !lowered || role.IsImpostorTeamV3() || role.IsNK() || role == CustomRoles.Bloodlust ? defaultPos.y - 0.6f : defaultPos.y - 1.4f, -15f);
                 }
             }
         }

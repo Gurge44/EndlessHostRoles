@@ -59,7 +59,8 @@ namespace TOHE.Roles.Crewmate
         private static readonly List<CustomRoles> NeutralAddons =
         [
             CustomRoles.Undead,
-            CustomRoles.Contagious
+            CustomRoles.Contagious,
+            CustomRoles.Charmed
         ];
 
         private static readonly List<CustomRoles> ExperimentalAddons =
@@ -127,7 +128,10 @@ namespace TOHE.Roles.Crewmate
             if (OptionCanSellHarmful.GetBool()) addons.AddRange(HarmfulAddons);
             if (OptionCanSellNeutral.GetBool()) addons.AddRange(NeutralAddons);
             if (OptionCanSellExperimental.GetBool()) addons.AddRange(ExperimentalAddons);
-            if (OptionSellOnlyEnabledAddons.GetBool()) addons = addons.Where(role => role.GetMode() != 0).ToList();
+
+            if (OptionSellOnlyEnabledAddons.GetBool()) addons.RemoveAll(x => x.GetMode() == 0);
+
+            addons.RemoveAll(x => x is CustomRoles.Nimble or CustomRoles.Physicist or CustomRoles.Bloodlust);
         }
 
         public override void Add(byte playerId)
@@ -162,12 +166,10 @@ namespace TOHE.Roles.Crewmate
                                                   && !x.Is(addon)
                                                   && !CustomRolesHelper.CheckAddonConflict(addon, x)
                                                   && (Cleanser.CleansedCanGetAddon.GetBool() || (!Cleanser.CleansedCanGetAddon.GetBool() && !x.Is(CustomRoles.Cleansed)))
-                                                  && (
-                                                      (OptionCanTargetCrew.GetBool() && x.GetCustomRole().IsCrewmate()) ||
+                                                  && ((OptionCanTargetCrew.GetBool() && x.IsCrewmate()) ||
                                                       (OptionCanTargetImpostor.GetBool() && x.GetCustomRole().IsImpostor()) ||
                                                       (OptionCanTargetNeutral.GetBool() && (x.GetCustomRole().IsNeutral() ||
-                                                                                            x.GetCustomRole().IsNeutralKilling()))
-                                                  )
+                                                                                            x.IsNeutralKiller())))
                 ).ToArray();
 
             if (AllAlivePlayer.Length > 0)
@@ -177,17 +179,15 @@ namespace TOHE.Roles.Crewmate
 
                 if (helpfulAddon && OptionSellOnlyHarmfulToEvil.GetBool())
                 {
-                    AllAlivePlayer = AllAlivePlayer.Where(a => a.GetCustomRole().IsCrewmate()).ToArray();
+                    AllAlivePlayer = AllAlivePlayer.Where(a => a.IsCrewmate()).ToArray();
                 }
 
                 if (harmfulAddon && OptionSellOnlyHelpfulToCrew.GetBool())
                 {
                     AllAlivePlayer = AllAlivePlayer.Where(a =>
-                        a.GetCustomRole().IsImpostor()
-                        ||
-                        a.GetCustomRole().IsNeutral()
-                        ||
-                        a.GetCustomRole().IsNeutralKilling()
+                        a.GetCustomRole().IsImpostor() ||
+                        a.GetCustomRole().IsNeutral() ||
+                        a.IsNeutralKiller()
                     ).ToArray();
                 }
 

@@ -94,6 +94,9 @@ public class PlayerState(byte playerId)
 
         switch (role)
         {
+            case CustomRoles.Bloodlust:
+                countTypes = CountTypes.Bloodlust;
+                break;
             case CustomRoles.Madmate:
                 countTypes = Options.MadmateCountMode.GetInt() switch
                 {

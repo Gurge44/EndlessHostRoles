@@ -125,7 +125,7 @@ public class Sheriff : RoleBase
                     || killer.Is(CustomRoles.Contagious)
                     || killer.Is(CustomRoles.Undead)
                 )
-                && ((target.GetCustomRole().IsImpostor() && NonCrewCanKillImp.GetBool()) || (target.GetCustomRole().IsCrewmate() && NonCrewCanKillCrew.GetBool()) || (target.GetCustomRole().IsNeutral() && NonCrewCanKillNeutral.GetBool()))
+                && ((target.GetCustomRole().IsImpostor() && NonCrewCanKillImp.GetBool()) || (target.IsCrewmate() && NonCrewCanKillCrew.GetBool()) || (target.GetCustomRole().IsNeutral() && NonCrewCanKillNeutral.GetBool()))
             ))
         {
             SetKillCooldown(killer.PlayerId);
@@ -156,12 +156,11 @@ public class Sheriff : RoleBase
             };
         }
 
-
         return cRole switch
         {
             CustomRoles.Trickster => false,
             CustomRoles.Pestilence => true,
-            _ => cRole.GetCustomRoleTypes() switch
+            _ => player.GetCustomRoleTypes() switch
             {
                 CustomRoleTypes.Impostor => true,
                 CustomRoleTypes.Neutral => CanKillNeutrals.GetBool() && (CanKillNeutralsMode.GetValue() == 0 || !KillTargetOptions.TryGetValue(cRole, out var option) || option.GetBool()),

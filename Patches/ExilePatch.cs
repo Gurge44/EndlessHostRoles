@@ -163,7 +163,7 @@ class ExileControllerWrapUpPatch
             if (map != null) Main.AllAlivePlayerControls.Do(map.RandomTeleport);
         }
 
-        if (exiled != null && Options.SpawnAdditionalRefugeeOnImpsDead.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.PlayerId != exiled.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.GetCustomRole().IsNK() && Options.SpawnAdditionalRefugeeWhenNKAlive.GetBool()))))
+        if (exiled != null && Options.SpawnAdditionalRefugeeOnImpsDead.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.PlayerId != exiled.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.IsNeutralKiller() && Options.SpawnAdditionalRefugeeWhenNKAlive.GetBool()))))
         {
             PlayerControl[] ListToChooseFrom = Options.UsePets.GetBool() ? Main.AllAlivePlayerControls.Where(x => x.PlayerId != exiled.PlayerId && x.Is(CustomRoleTypes.Crewmate)).ToArray() : Main.AllAlivePlayerControls.Where(x => x.PlayerId != exiled.PlayerId && x.Is(CustomRoleTypes.Crewmate) && x.GetCustomRole().GetRoleTypes() == RoleTypes.Impostor).ToArray();
 

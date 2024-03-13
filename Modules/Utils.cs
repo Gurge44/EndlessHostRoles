@@ -703,7 +703,7 @@ public static class Utils
 
     public static bool CanBeMadmate(this PlayerControl pc)
     {
-        return pc != null && pc.GetCustomRole().IsCrewmate() && !pc.Is(CustomRoles.Madmate)
+        return pc != null && pc.IsCrewmate() && !pc.Is(CustomRoles.Madmate)
                && !(
                    (pc.Is(CustomRoles.Sheriff) && !Options.SheriffCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.Mayor) && !Options.MayorCanBeMadmate.GetBool()) ||
@@ -1912,7 +1912,7 @@ public static class Utils
                         SeerRealName = $"<color=#ff1919>{GetString("YouAreMadmate")}</color>\n<size=90%>{seer.GetRoleInfo()}</size>";
                     }
 
-                    else if (seer.GetCustomRole().IsCrewmate())
+                    else if (seer.IsCrewmate())
                     {
                         SeerRealName = $"<color=#8cffff>{GetString("YouAreCrewmate")}</color>\n{seer.GetRoleInfo()}";
                     }
@@ -2171,7 +2171,7 @@ public static class Utils
                             if (Options.GuesserMode.GetBool())
                             {
                                 //Crewmates
-                                if (seer.IsAlive() && target.IsAlive() && GuesserIsForMeeting && !seer.Is(CustomRoles.Judge) && !seer.Is(CustomRoles.NiceSwapper) && !seer.Is(CustomRoles.ParityCop) && !seer.Is(CustomRoles.Lookout) && Options.CrewmatesCanGuess.GetBool() && seer.GetCustomRole().IsCrewmate())
+                                if (seer.IsAlive() && target.IsAlive() && GuesserIsForMeeting && !seer.Is(CustomRoles.Judge) && !seer.Is(CustomRoles.NiceSwapper) && !seer.Is(CustomRoles.ParityCop) && !seer.Is(CustomRoles.Lookout) && Options.CrewmatesCanGuess.GetBool() && seer.IsCrewmate())
                                 {
                                     TargetPlayerName = $"{ColorString(GetRoleColor(seer.GetCustomRole()), target.PlayerId.ToString())} {TargetPlayerName}";
                                 }
@@ -2197,7 +2197,7 @@ public static class Utils
                                 }
 
                                 // Neutrals
-                                if (seer.IsAlive() && target.IsAlive() && GuesserIsForMeeting && Options.NeutralKillersCanGuess.GetBool() && seer.GetCustomRole().IsNK())
+                                if (seer.IsAlive() && target.IsAlive() && GuesserIsForMeeting && Options.NeutralKillersCanGuess.GetBool() && seer.IsNeutralKiller())
                                 {
                                     TargetPlayerName = $"{ColorString(GetRoleColor(seer.GetCustomRole()), target.PlayerId.ToString())} {TargetPlayerName}";
                                 }
@@ -2697,7 +2697,7 @@ public static class Utils
 
             if (Options.ShowNKRemainOnEject.GetBool())
             {
-                if (pc.GetCustomRole().IsNK())
+                if (pc.IsNeutralKiller())
                     neutralnum++;
             }
         }

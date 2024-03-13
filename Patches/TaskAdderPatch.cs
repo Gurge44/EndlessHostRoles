@@ -38,9 +38,8 @@ class ShowFolderPatch
         {
             var crewBehaviour = DestroyableSingleton<RoleManager>.Instance.AllRoles.FirstOrDefault(role => role.Role == RoleTypes.Crewmate);
             IList list = Enum.GetValues(typeof(CustomRoles));
-            for (int i = 0; i < list.Count; i++)
+            foreach (var cRoleID in list)
             {
-                object cRoleID = list[i];
                 CustomRoles cRole = (CustomRoles)cRoleID;
                 /*if(cRole == CustomRoles.Crewmate ||
                 cRole == CustomRoles.Impostor ||

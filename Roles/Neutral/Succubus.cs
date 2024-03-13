@@ -110,12 +110,10 @@ public class Succubus : RoleBase
         return TargetKnowOtherTarget.GetBool() && player.Is(CustomRoles.Charmed) && target.Is(CustomRoles.Charmed);
     }
 
-    public static string GetCharmLimit(byte id) => Utils.ColorString(id.GetAbilityUseLimit() >= 1 ? Utils.GetRoleColor(CustomRoles.Succubus).ShadeColor(0.25f) : Color.gray, $"({id.GetAbilityUseLimit()})");
-
     public static bool CanBeCharmed(PlayerControl pc)
     {
-        return pc != null && (pc.GetCustomRole().IsCrewmate() || pc.GetCustomRole().IsImpostor() ||
-                              (CanCharmNeutral.GetBool() && (pc.GetCustomRole().IsNeutral() || pc.GetCustomRole().IsNeutralKilling()))) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Loyal);
+        return pc != null && (pc.IsCrewmate() || pc.GetCustomRole().IsImpostor() ||
+                              (CanCharmNeutral.GetBool() && (pc.GetCustomRole().IsNeutral() || pc.IsNeutralKiller()))) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Loyal);
     }
 
     public override void OnFixedUpdate(PlayerControl pc)

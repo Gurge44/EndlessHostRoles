@@ -11,6 +11,7 @@ public class CopyCat : RoleBase
     public static List<byte> playerIdList = [];
 
     public float CurrentKillCooldown = DefaultKillCooldown;
+    private float TempLimit;
 
     public static OptionItem KillCooldown;
     public static OptionItem CanKill;
@@ -84,13 +85,17 @@ public class CopyCat : RoleBase
             }
 
             pc.RpcSetCustomRole(CustomRoles.CopyCat);
-            (Main.PlayerStates[player].Role as CopyCat)?.SetKillCooldown(player);
+            if (Main.PlayerStates[player].Role is CopyCat cc)
+            {
+                pc.SetAbilityUseLimit(cc.TempLimit);
+                cc.SetKillCooldown(player);
+            }
         }
     }
 
     public static bool BlacklList(CustomRoles role) => role is
         CustomRoles.CopyCat or
-        //bcoz of vent cd
+        // can't copy due to vent cooldown
         CustomRoles.Grenadier or
         CustomRoles.Lighter or
         CustomRoles.SecurityGuard or
@@ -98,24 +103,12 @@ public class CopyCat : RoleBase
         CustomRoles.DovesOfNeace or
         CustomRoles.Veteran or
         CustomRoles.Addict or
-        CustomRoles.Alchemist or
-        CustomRoles.Chameleon or
-        //bcoz im lazy
-        CustomRoles.Escort or
-        CustomRoles.DonutDelivery or
-        CustomRoles.Gaulois or
-        CustomRoles.NiceSwapper or
-        CustomRoles.Analyzer or
-        //bcoz of arrows
-        CustomRoles.Mortician or
-        CustomRoles.Bloodhound or
-        CustomRoles.Tracefinder or
-        CustomRoles.Spiritualist or
-        CustomRoles.Tracker;
+        CustomRoles.Chameleon;
 
     public override bool OnCheckMurder(PlayerControl pc, PlayerControl tpc)
     {
         CustomRoles role = tpc.GetCustomRole();
+
         if (BlacklList(role))
         {
             pc.Notify(GetString("CopyCatCanNotCopy"));
@@ -138,10 +131,12 @@ public class CopyCat : RoleBase
             };
         }
 
-        if (role.IsCrewmate() && tpc.GetCustomSubRoles().All(x => x != CustomRoles.Rascal))
+        if (tpc.IsCrewmate() && tpc.GetCustomSubRoles().All(x => x != CustomRoles.Rascal))
         {
             ////////////           /*add the settings for new role*/            ////////////
             /* anything that is assigned in onGameStartedPatch.cs comes here */
+
+            TempLimit = pc.GetAbilityUseLimit();
 
             pc.RpcSetCustomRole(role);
             pc.SetAbilityUseLimit(tpc.GetAbilityUseLimit());

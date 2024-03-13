@@ -102,6 +102,7 @@ public class Main : BasePlugin
     public static string LastVotedPlayer;
     public static byte NimblePlayer = byte.MaxValue;
     public static byte PhysicistPlayer = byte.MaxValue;
+    public static byte BloodlustPlayer = byte.MaxValue;
     public static List<byte> ResetCamPlayerList = [];
     public static List<byte> winnerList = [];
     public static List<CustomRoles> winnerRolesList = [];
@@ -459,6 +460,7 @@ public class Main : BasePlugin
                 { CustomRoles.NotAssigned, "#ffffff" },
                 { CustomRoles.LastImpostor, "#ff1919" },
                 { CustomRoles.Lovers, "#ff9ace" },
+                { CustomRoles.Bloodlust, "#630000" },
                 { CustomRoles.Ntr, "#00a4ff" },
                 { CustomRoles.Madmate, "#ff1919" },
                 { CustomRoles.Watcher, "#800080" },
@@ -917,6 +919,7 @@ public enum CustomRoles
     Busy,
     Trapper, // Beartrap
     Bewilder,
+    Bloodlust,
     Charmed,
     Cleansed,
     Clumsy,

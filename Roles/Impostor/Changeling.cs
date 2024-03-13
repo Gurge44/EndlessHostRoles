@@ -59,7 +59,7 @@ namespace TOHE.Roles.Impostor
 
             var rolesList = result.ToList();
             rolesList.Remove(CustomRoles.Changeling);
-            rolesList.RemoveAll(x => !x.IsImpostor() || x.IsVanilla());
+            rolesList.RemoveAll(x => !x.IsImpostor() || x.IsVanilla() || x.IsAdditionRole());
             return rolesList;
         }
 

@@ -78,7 +78,7 @@ namespace TOHE.Roles.Crewmate
             pc.RpcRemoveAbilityUse();
             bool isMadMate = pc.Is(CustomRoles.Madmate);
             Main.AllAlivePlayerControls
-                .Where(x => isMadMate ? (x.CanUseKillButton() && x.GetCustomRole().IsCrewmate()) : x.CanUseKillButton())
+                .Where(x => isMadMate ? (x.CanUseKillButton() && x.IsCrewmate()) : x.CanUseKillButton())
                 .Do(x =>
                 {
                     x.RPCPlayCustomSound("Dove");

@@ -61,7 +61,7 @@ public class Mediumshiper : RoleBase
         if (!AmongUsClient.Instance.AmHost) return false;
         if (!GameStates.IsMeeting || pc == null) return false;
         if (!ContactPlayer.ContainsKey(pc.PlayerId)) return false;
-        if (OnlyReceiveMsgFromCrew.GetBool() && !pc.GetCustomRole().IsCrewmate()) return false;
+        if (OnlyReceiveMsgFromCrew.GetBool() && !pc.IsCrewmate()) return false;
         if (pc.IsAlive()) return false;
         msg = msg.ToLower().Trim();
         if (!CheckCommond(ref msg, "通灵|ms|mediumship|medium", false)) return false;

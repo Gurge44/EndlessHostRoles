@@ -348,7 +348,7 @@ class GameEndChecker
 
             foreach (var role in EnumHelper.GetAllValues<CustomRoles>())
             {
-                if (!role.IsNK() || role.IsMadmate() || role is CustomRoles.Sidekick) continue;
+                if ((!role.IsNK() && role != CustomRoles.Bloodlust) || role.IsMadmate() || role is CustomRoles.Sidekick) continue;
 
                 var countTypes = role.GetCountTypes();
                 if (countTypes is CountTypes.Crew or CountTypes.Impostor or CountTypes.None or CountTypes.OutOfGame) continue;

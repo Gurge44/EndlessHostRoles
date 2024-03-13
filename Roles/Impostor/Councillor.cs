@@ -125,7 +125,7 @@ public class Councillor : RoleBase
                     else if (target.Is(CustomRoles.Guardian) && target.AllTasksCompleted()) CouncillorSuicide = true;
                     else if (target.Is(CustomRoles.Merchant) && Merchant.IsBribedKiller(pc, target)) CouncillorSuicide = true;
                     else if (target.GetCustomRole().IsImpostor() && CanMurderImpostor.GetBool()) CouncillorSuicide = false;
-                    else if (target.GetCustomRole().IsCrewmate()) CouncillorSuicide = false;
+                    else if (target.IsCrewmate()) CouncillorSuicide = false;
                     else if (target.GetCustomRole().IsNeutral()) CouncillorSuicide = false;
                     else CouncillorSuicide = true;
 

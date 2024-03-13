@@ -256,7 +256,7 @@ internal class SelectRolesPatch
             SelectAddonRoles();
             CalculateVanillaRoleCount();
 
-            //指定原版特殊职业数量
+
             var roleOpt = Main.NormalOptions.roleOptions;
             int ScientistNum = Options.DisableVanillaRoles.GetBool() ? 0 : roleOpt.GetNumPerGame(RoleTypes.Scientist);
             roleOpt.SetRoleRate(RoleTypes.Scientist, ScientistNum + addScientistNum, addScientistNum > 0 ? 100 : roleOpt.GetChancePerGame(RoleTypes.Scientist));
@@ -265,11 +265,26 @@ internal class SelectRolesPatch
             int ShapeshifterNum = Options.DisableVanillaRoles.GetBool() ? 0 : roleOpt.GetNumPerGame(RoleTypes.Shapeshifter);
             roleOpt.SetRoleRate(RoleTypes.Shapeshifter, ShapeshifterNum + addShapeshifterNum, addShapeshifterNum > 0 ? 100 : roleOpt.GetChancePerGame(RoleTypes.Shapeshifter));
 
+
+            var rd = IRandom.Instance;
+            Main.BloodlustPlayer = byte.MaxValue;
+            bool bloodlustSpawn = rd.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Bloodlust, out var option3) ? option3.GetFloat() : 0) && CustomRoles.Bloodlust.IsEnable();
+            List<byte> bloodlustList = RoleResult.Where(x => x.Value.IsCrewmate()).Select(x => x.Key.PlayerId).ToList();
+            if (bloodlustList.Count == 0) bloodlustSpawn = false;
+            if (Main.SetAddOns.Values.Any(x => x.Contains(CustomRoles.Bloodlust)))
+            {
+                bloodlustSpawn = true;
+                bloodlustList = Main.SetAddOns.Where(x => x.Value.Contains(CustomRoles.Bloodlust)).Select(x => x.Key).ToList();
+            }
+
+            if (bloodlustSpawn) Main.BloodlustPlayer = bloodlustList[rd.Next(0, bloodlustList.Count)];
+
+
             Dictionary<(byte, byte), RoleTypes> rolesMap = [];
 
             // Register Desync Impostor Roles
-            foreach (var kv in RoleResult.Where(x => x.Value.IsDesyncRole()))
-                AssignDesyncRole(kv.Value, kv.Key, senders, rolesMap, BaseRole: kv.Value.GetDYRole());
+            foreach (var kv in RoleResult.Where(x => x.Value.IsDesyncRole() || x.Key.PlayerId == Main.BloodlustPlayer))
+                AssignDesyncRole(kv.Value, kv.Key, senders, rolesMap, BaseRole: kv.Key.PlayerId == Main.BloodlustPlayer ? RoleTypes.Impostor : kv.Value.GetDYRole());
 
 
             MakeDesyncSender(senders, rolesMap);
@@ -293,18 +308,8 @@ internal class SelectRolesPatch
             Main.NimblePlayer = byte.MaxValue;
             Main.PhysicistPlayer = byte.MaxValue;
 
-            bool physicistSpawn = false;
-            bool nimbleSpawn = false;
-
-            if (rd.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Physicist, out var x) ? x.GetFloat() : 0) && CustomRoles.Physicist.IsEnable())
-            {
-                physicistSpawn = true;
-            }
-
-            if (rd.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Nimble, out var x2) ? x2.GetFloat() : 0) && CustomRoles.Nimble.IsEnable())
-            {
-                nimbleSpawn = true;
-            }
+            bool physicistSpawn = rd.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Physicist, out var option1) ? option1.GetFloat() : 0) && CustomRoles.Physicist.IsEnable();
+            bool nimbleSpawn = rd.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Nimble, out var option2) ? option2.GetFloat() : 0) && CustomRoles.Nimble.IsEnable();
 
             if (Options.EveryoneCanVent.GetBool())
             {
@@ -318,6 +323,7 @@ internal class SelectRolesPatch
             {
                 foreach ((PlayerControl PLAYER, RoleTypes _) in RpcSetRoleReplacer.StoragedData)
                 {
+                    if (PLAYER.PlayerId == Main.BloodlustPlayer) continue;
                     var kp = RoleResult.FirstOrDefault(x => x.Key.PlayerId == PLAYER.PlayerId);
                     if (kp.Value.IsCrewmate())
                     {
@@ -347,17 +353,39 @@ internal class SelectRolesPatch
                 }
             }
 
-            if (nimbleSpawn) Main.NimblePlayer = nimbleList[rd.Next(0, nimbleList.Count)];
+            if (nimbleSpawn)
+            {
+                Main.NimblePlayer = nimbleList[rd.Next(0, nimbleList.Count)];
+            }
+
             if (physicistSpawn)
-                while (Main.PhysicistPlayer == byte.MaxValue || Main.PhysicistPlayer == Main.NimblePlayer)
+            {
+                int i = 0;
+                while ((Main.PhysicistPlayer == byte.MaxValue || Main.PhysicistPlayer == Main.NimblePlayer) && i <= 50)
+                {
                     Main.PhysicistPlayer = physicistList[rd.Next(0, physicistList.Count)];
+                    i++;
+                }
+
+                if (i > 50)
+                {
+                    Main.PhysicistPlayer = byte.MaxValue;
+                    Logger.Error("Physicist player was not assigned", "SelectRolesPatch");
+                }
+            }
 
             List<(PlayerControl, RoleTypes)> newList = [];
             foreach ((PlayerControl PLAYER, RoleTypes ROLETYPE) in RpcSetRoleReplacer.StoragedData)
             {
                 var kp = RoleResult.FirstOrDefault(x => x.Key.PlayerId == PLAYER.PlayerId);
                 RoleTypes roleType = kp.Value.GetRoleTypes();
-                if (Main.NimblePlayer == PLAYER.PlayerId)
+
+                if (Main.BloodlustPlayer == PLAYER.PlayerId)
+                {
+                    roleType = RoleTypes.Impostor;
+                    Logger.Warn($"{PLAYER.GetRealName()} was assigned Bloodlust, their role basis was changed to Impostor", "Bloodlust");
+                }
+                else if (Main.NimblePlayer == PLAYER.PlayerId)
                 {
                     if (roleType == RoleTypes.Crewmate)
                     {
@@ -432,12 +460,13 @@ internal class SelectRolesPatch
 
             foreach (var kv in RoleResult)
             {
-                if (kv.Value.IsDesyncRole()) continue;
+                if (kv.Value.IsDesyncRole() || kv.Key.PlayerId == Main.BloodlustPlayer) continue;
                 AssignCustomRole(kv.Value, kv.Key);
             }
 
             if (Main.PlayerStates.TryGetValue(Main.NimblePlayer, out var nimbleState)) nimbleState.SetSubRole(CustomRoles.Nimble);
             if (Main.PlayerStates.TryGetValue(Main.PhysicistPlayer, out var physicistState)) physicistState.SetSubRole(CustomRoles.Physicist);
+            if (Main.PlayerStates.TryGetValue(Main.BloodlustPlayer, out var bloodlustState)) bloodlustState.SetSubRole(CustomRoles.Bloodlust);
 
             foreach (var item in Main.SetAddOns)
             {
@@ -445,7 +474,7 @@ internal class SelectRolesPatch
                 {
                     foreach (var role in item.Value)
                     {
-                        if (role is CustomRoles.Nimble or CustomRoles.Physicist) continue;
+                        if (role is CustomRoles.Nimble or CustomRoles.Physicist or CustomRoles.Bloodlust) continue;
                         state.SetSubRole(role);
                     }
                 }
@@ -552,7 +581,7 @@ internal class SelectRolesPatch
             Main.ResetCamPlayerList.AddRange(Main.AllPlayerControls.Where(p => p.GetCustomRole() is CustomRoles.Arsonist or CustomRoles.Revolutionist or CustomRoles.Sidekick or CustomRoles.KB_Normal or CustomRoles.Killer or CustomRoles.Tasker or CustomRoles.Potato or CustomRoles.Innocent || (p.Is(CustomRoles.Witness) && (!Options.UsePets.GetBool() || Options.WitnessUsePet.GetBool()))).Select(p => p.PlayerId));
             Utils.CountAlivePlayers(true);
             Utils.SyncAllSettings();
-            SetColorPatch.IsAntiGlitchDisabled = false;
+            //SetColorPatch.IsAntiGlitchDisabled = false;
 
             _ = new LateTask(() =>
             {
@@ -621,12 +650,12 @@ internal class SelectRolesPatch
     private static void AssignCustomRole(CustomRoles role, PlayerControl player)
     {
         if (player == null) return;
-        SetColorPatch.IsAntiGlitchDisabled = true;
+        //SetColorPatch.IsAntiGlitchDisabled = true;
 
         Main.PlayerStates[player.PlayerId].SetMainRole(role);
         Logger.Info($"Register Modded Role：{player.Data?.PlayerName} => {role}", "AssignRoles");
 
-        SetColorPatch.IsAntiGlitchDisabled = false;
+        //SetColorPatch.IsAntiGlitchDisabled = false;
     }
     //    private static void ForceAssignRole(/*CustomRoles role,*/ List<PlayerControl> AllPlayers, CustomRpcSender sender, RoleTypes BaseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate, bool skip = false, int Count = -1)
     //    {
@@ -682,7 +711,7 @@ internal class SelectRolesPatch
 
     private static void AssignLoversRoles(int RawCount = -1)
     {
-        var allPlayers = Main.AllPlayerControls.Where(pc => !pc.Is(CustomRoles.GM) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && !pc.Is(CustomRoles.Dictator) && !pc.Is(CustomRoles.God) && !pc.Is(CustomRoles.FFF) && !pc.Is(CustomRoles.Bomber) && !pc.Is(CustomRoles.Nuker) && !pc.Is(CustomRoles.Provocateur) && (!pc.GetCustomRole().IsCrewmate() || Options.CrewCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsNeutral() || Options.NeutralCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsImpostor() || Options.ImpCanBeInLove.GetBool())).ToList();
+        var allPlayers = Main.AllPlayerControls.Where(pc => !pc.Is(CustomRoles.GM) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && !pc.Is(CustomRoles.Dictator) && !pc.Is(CustomRoles.God) && !pc.Is(CustomRoles.FFF) && !pc.Is(CustomRoles.Bomber) && !pc.Is(CustomRoles.Nuker) && !pc.Is(CustomRoles.Provocateur) && (!pc.IsCrewmate() || Options.CrewCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsNeutral() || Options.NeutralCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsImpostor() || Options.ImpCanBeInLove.GetBool())).ToList();
         const CustomRoles role = CustomRoles.Lovers;
         var rd = IRandom.Instance;
         var count = Math.Clamp(RawCount, 0, allPlayers.Count);

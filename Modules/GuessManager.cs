@@ -114,7 +114,7 @@ public static class GuessManager
 
         if (!pc.Is(CustomRoles.NiceGuesser))
         {
-            if (pc.GetCustomRole().IsCrewmate() && !Options.CrewmatesCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Judge) && !pc.Is(CustomRoles.NiceSwapper))
+            if (pc.IsCrewmate() && !Options.CrewmatesCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Judge) && !pc.Is(CustomRoles.NiceSwapper))
             {
                 if (!isUI) Utils.SendMessage(GetString("GuessNotAllowed"), pc.PlayerId);
                 else pc.ShowPopUp(GetString("GuessNotAllowed"));
@@ -132,7 +132,7 @@ public static class GuessManager
             }
         }
 
-        if (pc.GetCustomRole().IsNK() && !Options.NeutralKillersCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser))
+        if (pc.IsNeutralKiller() && !Options.NeutralKillersCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser))
         {
             if (!isUI) Utils.SendMessage(GetString("GuessNotAllowed"), pc.PlayerId);
             else pc.ShowPopUp(GetString("GuessNotAllowed"));
@@ -226,7 +226,7 @@ public static class GuessManager
                                 return true;
                             }
 
-                            if (role.IsCrewmate() && !Doomsayer.DCanGuessCrewmates.GetBool())
+                            if (target.IsCrewmate() && !Doomsayer.DCanGuessCrewmates.GetBool())
                             {
                                 if (!isUI) Utils.SendMessage(GetString("GuessNotAllowed"), pc.PlayerId);
                                 else pc.ShowPopUp(GetString("GuessNotAllowed"));
@@ -781,12 +781,12 @@ public static class GuessManager
                 else if (role is CustomRoles.EvilGuesser && !Options.ImpostorsCanGuess.GetBool())
                     CreateGuesserButton(__instance);
 
-                if (alive && role.IsCrewmate() && Options.CrewmatesCanGuess.GetBool())
+                if (alive && lp.IsCrewmate() && Options.CrewmatesCanGuess.GetBool())
                     CreateGuesserButton(__instance);
                 else if (role is CustomRoles.NiceGuesser && !Options.CrewmatesCanGuess.GetBool())
                     CreateGuesserButton(__instance);
 
-                if (alive && role.IsNK() && Options.NeutralKillersCanGuess.GetBool())
+                if (alive && lp.IsNeutralKiller() && Options.NeutralKillersCanGuess.GetBool())
                     CreateGuesserButton(__instance);
                 if (alive && role.IsNonNK() && Options.PassiveNeutralsCanGuess.GetBool())
                     CreateGuesserButton(__instance);
@@ -1057,18 +1057,13 @@ public static class GuessManager
             }
 
             int ind = 0;
-            IList list = Enum.GetValues(typeof(CustomRoles));
-            for (int i1 = 0; i1 < list.Count; i1++)
+            foreach (var role in EnumHelper.GetAllValues<CustomRoles>())
             {
-                CustomRoles role = (CustomRoles)list[i1];
                 if (role is CustomRoles.GM
                     or CustomRoles.SpeedBooster
                     or CustomRoles.Engineer
                     or CustomRoles.Crewmate
-                    //   or CustomRoles.Loyal
                     or CustomRoles.Oblivious
-                    //or CustomRoles.Baker
-                    //or CustomRoles.Famine
                     or CustomRoles.Rogue
                     or CustomRoles.Scientist
                     or CustomRoles.Impostor
@@ -1078,12 +1073,10 @@ public static class GuessManager
                     or CustomRoles.Giant
                     or CustomRoles.NotAssigned
                     or CustomRoles.KB_Normal
-                    //     or CustomRoles.Marshall 
                     or CustomRoles.Paranoia
                     or CustomRoles.SuperStar
                     or CustomRoles.Konan
                     or CustomRoles.Oblivious
-                    //     or CustomRoles.Reflective
                     or CustomRoles.GuardianAngelTOHE
                    ) continue;
 

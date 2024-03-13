@@ -1261,6 +1261,8 @@ public static class Options
         SetupAdtRoleOptions(15100, CustomRoles.Avanger, canSetNum: true);
         ImpCanBeAvanger = BooleanOptionItem.Create(15110, "ImpCanBeAvanger", false, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Avanger]);
+        RoleLoadingText = "Add-ons\nBloodlust";
+        Bloodlust.SetupCustomOption();
         RoleLoadingText = "Add-ons\nSleuth";
         SetupAdtRoleOptions(15150, CustomRoles.Sleuth, canSetNum: true);
         RoleLoadingText = "Add-ons\nClumsy";

@@ -1,6 +1,7 @@
 ﻿using AmongUs.GameOptions;
 using System;
 using System.Text;
+using TOHE.Roles.AddOns.Crewmate;
 
 namespace TOHE
 {
@@ -39,17 +40,17 @@ namespace TOHE
 
         public virtual bool CanUseKillButton(PlayerControl pc)
         {
-            return pc.IsAlive() && (pc.Is(CustomRoleTypes.Impostor) || pc.GetCustomRole().IsNK());
+            return pc.IsAlive() && (pc.Is(CustomRoleTypes.Impostor) || pc.IsNeutralKiller());
         }
 
         public virtual bool CanUseImpostorVentButton(PlayerControl pc)
         {
-            return pc.IsAlive() && pc.Is(CustomRoleTypes.Impostor) && pc.Data.Role.Role is not RoleTypes.Crewmate and not RoleTypes.Engineer;
+            return pc.IsAlive() && (pc.Is(CustomRoleTypes.Impostor) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.CanVent.GetBool())) && pc.Data.Role.Role is not RoleTypes.Crewmate and not RoleTypes.Engineer;
         }
 
         public virtual bool CanUseSabotage(PlayerControl pc)
         {
-            return pc.Is(Team.Impostor) || pc.Is(CustomRoles.Mischievous);
+            return pc.Is(Team.Impostor) || pc.Is(CustomRoles.Mischievous) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool());
         }
 
         public virtual void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -93,12 +94,12 @@ namespace TOHE
             if (x >= 14)
             {
                 x -= 13;
-                suffix = pc.GetCustomRole().GetCustomRoleTypes() switch
+                suffix = pc.GetCustomRoleTypes() switch
                 {
                     CustomRoleTypes.Impostor => $"Imp{x}",
                     CustomRoleTypes.Neutral => $"Neutral{x}",
                     CustomRoleTypes.Crewmate => x == 1 ? "Crew" : pc.GetTaskState().hasTasks && pc.GetTaskState().IsTaskFinished ? "CrewTaskDone" : "CrewWithTasksLeft",
-                    _ => x.ToString(),
+                    _ => x.ToString()
                 };
             }
             else suffix = x.ToString();

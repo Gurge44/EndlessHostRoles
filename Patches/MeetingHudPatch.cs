@@ -363,7 +363,7 @@ class CheckForEndVotingPatch
             var pc_role = pc.GetCustomRole();
 
             if (pc_role.IsImpostor()) impnum++;
-            else if (pc_role.IsNeutralKilling()) neutralnum++;
+            else if (pc.IsNeutralKiller()) neutralnum++;
         }
 
         string coloredRealName = Utils.ColorString(Main.PlayerColors[player.PlayerId], realName);
@@ -375,7 +375,7 @@ class CheckForEndVotingPatch
             case 1:
                 if (player.GetCustomRole().IsImpostor() || player.Is(CustomRoles.Parasite) || player.Is(CustomRoles.Crewpostor) || player.Is(CustomRoles.Refugee) || player.Is(CustomRoles.Convict))
                     name = string.Format(GetString("BelongTo"), coloredRealName, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("TeamImpostor")));
-                else if (player.GetCustomRole().IsCrewmate())
+                else if (player.IsCrewmate())
                     name = string.Format(GetString("IsGood"), coloredRealName);
                 else if (player.GetCustomRole().IsNeutral() && !player.Is(CustomRoles.Parasite) && !player.Is(CustomRoles.Refugee) && !player.Is(CustomRoles.Crewpostor) && !player.Is(CustomRoles.Convict))
                     name = string.Format(GetString("BelongTo"), coloredRealName, Utils.ColorString(new(255, 171, 27, byte.MaxValue), GetString("TeamNeutral")));
@@ -389,7 +389,7 @@ class CheckForEndVotingPatch
                         name += Utils.ColorString(new(255, 25, 25, byte.MaxValue), GetString("TeamImpostor"));
                     else if (player.GetCustomRole().IsNeutral() || player.Is(CustomRoles.Charmed))
                         name += Utils.ColorString(new(255, 171, 27, byte.MaxValue), GetString("TeamNeutral"));
-                    else if (player.GetCustomRole().IsCrewmate())
+                    else if (player.IsCrewmate())
                         name += Utils.ColorString(new(140, 255, 255, byte.MaxValue), GetString("TeamCrewmate"));
                     name += ")";
                 }
@@ -699,7 +699,7 @@ class MeetingHudStartPatch
                 AddMsg(value2, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mortician), GetString("MorticianCheckTitle")));
             if (Mediumshiper.ContactPlayer.ContainsValue(pc.PlayerId))
                 AddMsg(string.Format(GetString("MediumshipNotifySelf"), Main.AllPlayerNames[Mediumshiper.ContactPlayer.FirstOrDefault(x => x.Value == pc.PlayerId).Key], pc.GetAbilityUseLimit()), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mediumshiper), GetString("MediumshipTitle")));
-            if (Mediumshiper.ContactPlayer.ContainsKey(pc.PlayerId) && (!Mediumshiper.OnlyReceiveMsgFromCrew.GetBool() || pc.GetCustomRole().IsCrewmate()))
+            if (Mediumshiper.ContactPlayer.ContainsKey(pc.PlayerId) && (!Mediumshiper.OnlyReceiveMsgFromCrew.GetBool() || pc.IsCrewmate()))
                 AddMsg(string.Format(GetString("MediumshipNotifyTarget"), Main.AllPlayerNames[Mediumshiper.ContactPlayer[pc.PlayerId]]), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mediumshiper), GetString("MediumshipTitle")));
             if (Virus.VirusNotify.TryGetValue(pc.PlayerId, out string value3))
                 AddMsg(value3, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Virus), GetString("VirusNoticeTitle")));
@@ -863,13 +863,13 @@ class MeetingHudStartPatch
             // Guesser Mode //
             if (Options.GuesserMode.GetBool())
             {
-                if (Options.CrewmatesCanGuess.GetBool() && seerRole.IsCrewmate() && !seer.Is(CustomRoles.Judge) && !seer.Is(CustomRoles.NiceSwapper) && !seer.Is(CustomRoles.Lookout) && !seer.Is(CustomRoles.ParityCop))
+                if (Options.CrewmatesCanGuess.GetBool() && seer.IsCrewmate() && !seer.Is(CustomRoles.Judge) && !seer.Is(CustomRoles.NiceSwapper) && !seer.Is(CustomRoles.Lookout) && !seer.Is(CustomRoles.ParityCop))
                     if (!seer.Data.IsDead && !target.Data.IsDead)
                         pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(seerRole), target.PlayerId.ToString()) + " " + pva.NameText.text;
                 if (Options.ImpostorsCanGuess.GetBool() && seerRole.IsImpostor() && !seer.Is(CustomRoles.Councillor))
                     if (!seer.Data.IsDead && !target.Data.IsDead)
                         pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(seerRole), target.PlayerId.ToString()) + " " + pva.NameText.text;
-                if (Options.NeutralKillersCanGuess.GetBool() && seerRole.IsNK())
+                if (Options.NeutralKillersCanGuess.GetBool() && seer.IsNeutralKiller())
                     if (!seer.Data.IsDead && !target.Data.IsDead)
                         pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(seerRole), target.PlayerId.ToString()) + " " + pva.NameText.text;
                 if (Options.PassiveNeutralsCanGuess.GetBool() && seerRole.IsNonNK() && !seer.Is(CustomRoles.Doomsayer))
@@ -880,20 +880,20 @@ class MeetingHudStartPatch
             if (seer.KnowDeathReason(target))
                 sb.Append($"({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doctor), Utils.GetVitalText(target.PlayerId))})");
 
-            switch (seerRole.GetCustomRoleTypes())
+            switch (seer.GetCustomRoleTypes())
             {
                 case CustomRoleTypes.Impostor:
                     if (target.Is(CustomRoles.Snitch) && target.Is(CustomRoles.Madmate) && target.GetTaskState().IsTaskFinished)
-                        sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), "★")); //変更対象にSnitchマークをつける
+                        sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), "★"));
                     break;
                 case CustomRoleTypes.Crewmate:
                     if (target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished)
-                        sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Marshall), "★")); //変更対象にSnitchマークをつける
+                        sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Marshall), "★"));
                     sb.Append(Marshall.GetWarningMark(seer, target));
                     break;
             }
 
-            if (seerRole.IsSnitchTarget())
+            if (seer.IsSnitchTarget())
             {
                 sb.Append(Snitch.GetWarningMark(seer, target));
             }

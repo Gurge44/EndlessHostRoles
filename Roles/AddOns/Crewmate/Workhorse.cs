@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using AmongUs.GameOptions;
 using UnityEngine;
 using static TOHE.Options;
 
@@ -47,14 +48,15 @@ public static class Workhorse
     private static bool IsAssignTarget(PlayerControl pc)
     {
         if (!pc.IsAlive() || IsThisRole(pc.PlayerId)) return false;
-        if (pc.Is(CustomRoles.Needy)) return false;
-        if (pc.Is(CustomRoles.Lazy)) return false;
+        if (pc.Is(CustomRoles.Needy) || pc.Is(CustomRoles.Lazy) || pc.Is(CustomRoles.Bloodlust)) return false;
+        if (pc.GetCustomRole().GetDYRole() == RoleTypes.Impostor || pc.GetCustomRole().GetVNRole() is CustomRoles.Impostor or CustomRoles.Shapeshifter) return false;
+
         var taskState = pc.GetTaskState();
         if (taskState.CompletedTasksCount + 1 < taskState.AllTasksCount) return false;
-        if (AssignOnlyToCrewmate) //クルーメイトのみ
-            return pc.Is(CustomRoleTypes.Crewmate);
-        return Utils.HasTasks(pc.Data) //タスクがある
-            && !OverrideTasksData.AllData.ContainsKey(pc.GetCustomRole()); //タスク上書きオプションが無い
+
+        bool canBeTarget = Utils.HasTasks(pc.Data) && !OverrideTasksData.AllData.ContainsKey(pc.GetCustomRole());
+        if (AssignOnlyToCrewmate) return canBeTarget && pc.Is(CustomRoleTypes.Crewmate);
+        return canBeTarget;
     }
     public static bool OnCompleteTask(PlayerControl pc)
     {
