@@ -4,7 +4,7 @@
     {
         private static int Id => 643370;
         public static (bool AskedQuestion, int Answer, byte ProtectedPlayerId, byte MathematicianPlayerId) State = (false, int.MaxValue, byte.MaxValue, byte.MaxValue);
-        public static void SetupCustomOption() => Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mathematician, 1);
+        public static void SetupCustomOption() => Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mathematician);
         public static bool On;
 
         public override void Init()

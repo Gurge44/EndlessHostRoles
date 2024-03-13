@@ -1741,7 +1741,7 @@ public static class Utils
                 SelfMark.Append(Snitch.GetWarningArrow(seer));
                 if (seer.Is(CustomRoles.Lovers)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lovers), "♥"));
                 if (BallLightning.IsGhost(seer)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.BallLightning), "■"));
-                if ((Medic.InProtect(seer.PlayerId) || Medic.TempMarkProtected == seer.PlayerId)
+                if ((Medic.InProtect(seer.PlayerId) || Medic.TempMarkProtectedList.Contains(seer.PlayerId))
                     && !seer.Is(CustomRoles.Medic)
                     && (Medic.WhoCanSeeProtect.GetInt() == 0 || Medic.WhoCanSeeProtect.GetInt() == 2))
                     SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Medic), " ●"));
@@ -2221,7 +2221,7 @@ public static class Utils
                             TargetMark.Append(Executioner.TargetMark(seer, target));
                             TargetMark.Append(Gamer.TargetMark(seer, target));
 
-                            if (seer.Is(CustomRoles.Medic) && (Medic.InProtect(target.PlayerId) || Medic.TempMarkProtected == target.PlayerId) && (Medic.WhoCanSeeProtect.GetInt() is 0 or 1))
+                            if (seer.Is(CustomRoles.Medic) && (Medic.InProtect(target.PlayerId) || Medic.TempMarkProtectedList.Contains(target.PlayerId)) && (Medic.WhoCanSeeProtect.GetInt() is 0 or 1))
                             {
                                 TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Medic), " ●"));
                             }

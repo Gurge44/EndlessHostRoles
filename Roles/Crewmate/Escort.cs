@@ -16,7 +16,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void SetupCustomOption()
         {
-            Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Escort, 1);
+            Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Escort);
             CD = FloatOptionItem.Create(Id + 10, "EscortCD", new(2.5f, 60f, 2.5f), 30f, TabGroup.CrewmateRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Escort])
                 .SetValueFormat(OptionFormat.Seconds);

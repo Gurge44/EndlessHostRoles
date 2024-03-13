@@ -72,7 +72,7 @@ class RpcMurderPlayerPatch
             __instance.MurderPlayer(target, murderResultFlags);
         }
 
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable, -1);
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable);
         messageWriter.WriteNetObject(target);
         messageWriter.Write((int)murderResultFlags);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
@@ -1139,49 +1139,11 @@ class FixedUpdatePatch
 
             // Ability Use Gain every 5 seconds
 
-            if (GameStates.IsInTask && player.IsAlive() && Main.PlayerStates.TryGetValue(playerId, out var state) && (!state.TaskState.hasTasks || state.TaskState.IsTaskFinished) && LastAddAbilityTime + 5 < now)
+            if (GameStates.IsInTask && player.IsAlive() && Main.PlayerStates.TryGetValue(playerId, out var state) && state.TaskState.IsTaskFinished && LastAddAbilityTime + 5 < now)
             {
                 LastAddAbilityTime = now;
 
-                if (player.Is(CustomRoles.SabotageMaster))
-                {
-                    var sm = Main.PlayerStates[playerId].Role as SabotageMaster;
-                    sm.UsedSkillCount -= SabotageMaster.AbilityChargesWhenFinishedTasks.GetFloat();
-                    sm.SendRPC();
-                }
-                else
-                {
-                    float add = player.GetCustomRole() switch
-                    {
-                        CustomRoles.Ventguard => Options.VentguardAbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.Grenadier => Options.GrenadierAbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.Lighter => Options.LighterAbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.SecurityGuard => Options.SecurityGuardAbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.DovesOfNeace => Options.DovesOfNeaceAbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.TimeMaster => Options.TimeMasterAbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.Veteran => Options.VeteranAbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.Bloodhound => Bloodhound.AbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.CameraMan => CameraMan.AbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.Chameleon => Chameleon.AbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.Convener => Convener.AbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.Divinator => Divinator.AbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.Doormaster => Doormaster.AbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.Drainer => Drainer.AbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.Druid => Druid.AbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.Judge => Judge.AbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.Mediumshiper => Mediumshiper.AbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.NiceSwapper => NiceSwapper.AbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.Oracle => Oracle.AbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.ParityCop => ParityCop.AbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.Perceiver => Perceiver.AbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.Ricochet => Ricochet.AbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.Spy => Spy.AbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.Tether => Tether.AbilityChargesWhenFinishedTasks.GetFloat(),
-                        CustomRoles.Tracker => Tracker.AbilityChargesWhenFinishedTasks.GetFloat(),
-                        _ => float.MaxValue,
-                    };
-                    if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0) player.RpcIncreaseAbilityUseLimitBy(add);
-                }
+                AddExtraAbilityUsesOnFinishedTasks(player);
             }
 
             if (Witness.AllKillers.TryGetValue(playerId, out var ktime) && ktime + Options.WitnessTime.GetInt() < now) Witness.AllKillers.Remove(playerId);
@@ -1477,10 +1439,10 @@ class FixedUpdatePatch
                     bool seerIsMedic = seer.Is(CustomRoles.Medic);
                     bool targetProtected = Medic.InProtect(target.PlayerId);
 
-                    if (seer.PlayerId == target.PlayerId && (Medic.InProtect(seer.PlayerId) || Medic.TempMarkProtected == seer.PlayerId) && (Medic.WhoCanSeeProtect.GetInt() is 0 or 2))
+                    if (seer.PlayerId == target.PlayerId && (Medic.InProtect(seer.PlayerId) || Medic.TempMarkProtectedList.Contains(seer.PlayerId)) && (Medic.WhoCanSeeProtect.GetInt() is 0 or 2))
                         Mark.Append(shieldMark);
 
-                    else if (seerIsMedic && (targetProtected || Medic.TempMarkProtected == target.PlayerId) && (Medic.WhoCanSeeProtect.GetInt() is 0 or 1))
+                    else if (seerIsMedic && (targetProtected || Medic.TempMarkProtectedList.Contains(target.PlayerId)) && (Medic.WhoCanSeeProtect.GetInt() is 0 or 1))
                         Mark.Append(shieldMark);
 
                     else if (seer.Data.IsDead && targetProtected && !seerIsMedic)
@@ -1602,6 +1564,52 @@ class FixedUpdatePatch
         }
 
         return Task.CompletedTask;
+    }
+
+    public static void AddExtraAbilityUsesOnFinishedTasks(PlayerControl player)
+    {
+        if (Main.PlayerStates[player.PlayerId].Role is SabotageMaster sm)
+        {
+            sm.UsedSkillCount -= SabotageMaster.AbilityChargesWhenFinishedTasks.GetFloat();
+            sm.SendRPC();
+        }
+        else
+        {
+            float add = player.GetCustomRole() switch
+            {
+                CustomRoles.Ventguard => Options.VentguardAbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.Grenadier => Options.GrenadierAbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.Lighter => Options.LighterAbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.SecurityGuard => Options.SecurityGuardAbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.DovesOfNeace => Options.DovesOfNeaceAbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.TimeMaster => Options.TimeMasterAbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.Veteran => Options.VeteranAbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.Bloodhound => Bloodhound.AbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.CameraMan => CameraMan.AbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.Chameleon => Chameleon.AbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.Convener => Convener.AbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.Divinator => Divinator.AbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.Doormaster => Doormaster.AbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.Drainer => Drainer.AbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.Druid => Druid.AbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.Judge => Judge.AbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.Mediumshiper => Mediumshiper.AbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.NiceSwapper => NiceSwapper.AbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.Oracle => Oracle.AbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.ParityCop => ParityCop.AbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.Perceiver => Perceiver.AbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.Ricochet => Ricochet.AbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.Spy => Spy.AbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.Tether => Tether.AbilityChargesWhenFinishedTasks.GetFloat(),
+                CustomRoles.Tracker => Tracker.AbilityChargesWhenFinishedTasks.GetFloat(),
+                _ => float.MaxValue
+            };
+            if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0)
+            {
+                if (player.Is(CustomRoles.Bloodlust)) add *= 5;
+                player.RpcIncreaseAbilityUseLimitBy(add);
+            }
+        }
     }
 
     public static void LoversSuicide(byte deathId = 0x7f, bool isExiled = false)

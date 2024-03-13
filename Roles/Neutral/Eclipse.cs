@@ -20,7 +20,7 @@ public class Eclipse : RoleBase
 
     public static void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Eclipse, 1, zeroOne: false);
+        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Eclipse);
         KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Eclipse])
             .SetValueFormat(OptionFormat.Seconds);
         StartVision = FloatOptionItem.Create(Id + 11, "EclipseStartVision", new(0.1f, 5f, 0.1f), 0.5f, TabGroup.NeutralRoles, false)

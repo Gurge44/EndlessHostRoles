@@ -14,7 +14,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(6850, TabGroup.CrewmateRoles, CustomRoles.Lighter, 1);
+            SetupSingleRoleOptions(6850, TabGroup.CrewmateRoles, CustomRoles.Lighter);
             LighterSkillCooldown = FloatOptionItem.Create(6852, "LighterSkillCooldown", new(0f, 180f, 1f), 25f, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
                 .SetValueFormat(OptionFormat.Seconds);

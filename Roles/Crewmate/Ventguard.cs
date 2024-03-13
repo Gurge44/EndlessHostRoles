@@ -13,7 +13,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(5525, TabGroup.CrewmateRoles, CustomRoles.Ventguard, 1);
+            SetupSingleRoleOptions(5525, TabGroup.CrewmateRoles, CustomRoles.Ventguard);
             VentguardAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(5527, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard])
                 .SetValueFormat(OptionFormat.Times);

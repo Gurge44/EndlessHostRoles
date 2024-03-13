@@ -80,12 +80,7 @@ public static class GuessManager
     private static bool ConfirmIncludeMsg(string msg, string key)
     {
         var keys = key.Split('|');
-        foreach (string str in keys)
-        {
-            if (msg.Contains(str)) return true;
-        }
-
-        return false;
+        return keys.Any(msg.Contains);
     }
 
     public static bool GuesserMsg(PlayerControl pc, string msg, bool isUI = false)
@@ -288,7 +283,7 @@ public static class GuessManager
                             if (!isUI) Utils.SendMessage(GetString("GuessPhantom"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessPhantom"));
                             return true;
-                        case CustomRoles.Snitch when target.GetTaskState().IsTaskFinished:
+                        case CustomRoles.Snitch when target.GetTaskState().RemainingTasksCount <= Snitch.RemainingTasksToBeFound:
                             if (!isUI) Utils.SendMessage(GetString("EGGuessSnitchTaskDone"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("EGGuessSnitchTaskDone"));
                             return true;

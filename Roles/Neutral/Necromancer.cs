@@ -27,7 +27,7 @@ namespace TOHE.Roles.Neutral
 
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Necromancer, 1, zeroOne: false);
+            SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Necromancer);
             CD = FloatOptionItem.Create(Id + 2, "NecromancerCD", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Necromancer])
                 .SetValueFormat(OptionFormat.Seconds);

@@ -724,10 +724,11 @@ static class ExtendedPlayerControl
         var count = GetDousedPlayerCount(player.PlayerId);
         return count.Item1 >= count.Item2;
     }
-    public static bool IsDrawDone(this PlayerControl player) //Determine whether the conditions to win are met
+
+    public static bool IsDrawDone(this PlayerControl player) // Determine whether the conditions to win are met
     {
         if (!player.Is(CustomRoles.Revolutionist)) return false;
-        var count = GetDrawPlayerCount(player.PlayerId, out var _);
+        var count = GetDrawPlayerCount(player.PlayerId, out _);
         return count.Item1 >= count.Item2;
     }
     public static void RpcExileV2(this PlayerControl player)
@@ -739,7 +740,7 @@ static class ExtendedPlayerControl
     public static (Vector2 LOCATION, string ROOM_NAME) GetPositionInfo(this PlayerControl pc)
     {
         PlainShipRoom room = pc.GetPlainShipRoom();
-        string roomName = room == null ? "Outside" : room.name;
+        string roomName = room == null ? "Outside" : $"@{GetString($"{room.RoomId}")}";
         Vector2 pos = pc.Pos();
 
         return (pos, roomName);
@@ -760,9 +761,8 @@ static class ExtendedPlayerControl
     }
     public static void Kill(this PlayerControl killer, PlayerControl target)
     {
-        //Used for TOHE's pre-kill judgment
-
-        if (Options.CurrentGameMode == CustomGameMode.SoloKombat) return; if (target == null) target = killer;
+        if (Options.CurrentGameMode == CustomGameMode.SoloKombat) return;
+        if (target == null) target = killer;
 
         if (target.GetTeam() is Team.Impostor or Team.Neutral) Stressed.OnNonCrewmateDead();
 
@@ -770,7 +770,8 @@ static class ExtendedPlayerControl
         else if (killer.Is(Team.Impostor)) Damocles.OnOtherImpostorMurder();
         if (target.Is(Team.Impostor)) Damocles.OnImpostorDeath();
 
-        IncreaseAbilityUseLimitOnKill(killer);
+        if (killer.Is(CustomRoles.Bloodlust)) FixedUpdatePatch.AddExtraAbilityUsesOnFinishedTasks(killer);
+        else IncreaseAbilityUseLimitOnKill(killer);
 
         target.SetRealKiller(killer, NotOverRide: true);
 

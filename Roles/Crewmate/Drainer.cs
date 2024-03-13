@@ -20,7 +20,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Drainer, 1);
+            SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Drainer);
             VentCD = IntegerOptionItem.Create(Id + 10, "VentCooldown", new(1, 60, 1), 30, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Drainer])
                 .SetValueFormat(OptionFormat.Seconds);

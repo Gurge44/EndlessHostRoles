@@ -32,7 +32,7 @@ namespace TOHE.Roles.Neutral
 
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Sprayer, 1, zeroOne: false);
+            SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Sprayer);
             KillCooldown = FloatOptionItem.Create(Id + 2, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer])
                 .SetValueFormat(OptionFormat.Seconds);

@@ -2652,7 +2652,7 @@ public static class Options
 
     private static void SetupLoversRoleOptionsToggle(int id, CustomGameMode customGameMode = CustomGameMode.Standard)
     {
-        var role = CustomRoles.Lovers;
+        const CustomRoles role = CustomRoles.Lovers;
         var spawnOption = StringOptionItem.Create(id, role.ToString(), ratesZeroOne, 0, TabGroup.Addons, false).SetColor(Utils.GetRoleColor(role))
             .SetHeader(true)
             .SetGameMode(customGameMode) as StringOptionItem;
@@ -2715,14 +2715,15 @@ public static class Options
         CustomRoleCounts.Add(role, countOption);
     }
 
-    public static void SetupSingleRoleOptions(int id, TabGroup tab, CustomRoles role, int count, CustomGameMode customGameMode = CustomGameMode.Standard, bool zeroOne = false)
+    public static void SetupSingleRoleOptions(int id, TabGroup tab, CustomRoles role, int count = 1, CustomGameMode customGameMode = CustomGameMode.Standard, bool zeroOne = false, bool hideMaxSetting = true)
     {
         var spawnOption = StringOptionItem.Create(id, role.ToString(), zeroOne ? ratesZeroOne : rates, 0, tab, false).SetColor(Utils.GetRoleColor(role))
             .SetHeader(true)
             .SetGameMode(customGameMode) as StringOptionItem;
-        // 初期値,最大値,最小値が同じで、stepが0のどうやっても変えることができない個数オプション
+
         var countOption = IntegerOptionItem.Create(id + 1, "Maximum", new(count, count, count), count, tab, false)
             .SetParent(spawnOption)
+            .SetHidden(hideMaxSetting)
             .SetGameMode(customGameMode);
 
         CustomRoleSpawnChances.Add(role, spawnOption);

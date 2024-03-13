@@ -21,7 +21,7 @@ namespace TOHE.Roles.Impostor
 
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Hitman, 1);
+            SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Hitman);
             KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Hitman])
                 .SetValueFormat(OptionFormat.Seconds);
             SuccessKCD = FloatOptionItem.Create(Id + 11, "HitmanLowKCD", new(0f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Hitman])

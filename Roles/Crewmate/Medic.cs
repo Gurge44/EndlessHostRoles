@@ -12,13 +12,15 @@ public class Medic : RoleBase
     private const int Id = 7100;
     public static List<byte> playerIdList = [];
     public static List<byte> ProtectList = [];
-    public static byte TempMarkProtected = byte.MaxValue;
+    public static List<byte> TempMarkProtectedList = [];
     public static int SkillLimit;
 
     public static OptionItem WhoCanSeeProtect;
     private static OptionItem KnowShieldBroken;
     private static OptionItem ShieldDeactivatesWhenMedicDies;
     private static OptionItem ShieldDeactivationIsVisible;
+    private static OptionItem ShieldBreaksOnKillAttempt;
+    private static OptionItem ShieldBreakIsVisible;
     private static OptionItem ResetCooldown;
     public static OptionItem GuesserIgnoreShield;
     private static OptionItem AmountOfShields;
@@ -33,14 +35,6 @@ public class Medic : RoleBase
         "SeeNoone",
     ];
 
-    public static readonly string[] KnowShieldBrokenOption =
-    [
-        "SeeMedicAndTarget",
-        "SeeMedic",
-        "SeeTarget",
-        "SeeNoone",
-    ];
-
     public static readonly string[] ShieldDeactivationIsVisibleOption =
     [
         "DeactivationImmediately",
@@ -48,26 +42,37 @@ public class Medic : RoleBase
         "DeactivationIsVisibleOFF",
     ];
 
+    enum Visible
+    {
+        Immediately,
+        AfterMeeting,
+        OFF,
+    }
+
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Medic);
-        WhoCanSeeProtect = StringOptionItem.Create(Id + 10, "MedicWhoCanSeeProtect", MedicWhoCanSeeProtectName, 0, TabGroup.CrewmateRoles, false)
+        WhoCanSeeProtect = StringOptionItem.Create(Id + 2, "MedicWhoCanSeeProtect", MedicWhoCanSeeProtectName, 0, TabGroup.CrewmateRoles, false)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
-        KnowShieldBroken = StringOptionItem.Create(Id + 16, "MedicKnowShieldBroken", KnowShieldBrokenOption, 1, TabGroup.CrewmateRoles, false)
+        KnowShieldBroken = StringOptionItem.Create(Id + 3, "MedicKnowShieldBroken", MedicWhoCanSeeProtectName, 1, TabGroup.CrewmateRoles, false)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
-        ShieldDeactivatesWhenMedicDies = BooleanOptionItem.Create(Id + 24, "MedicShieldDeactivatesWhenMedicDies", true, TabGroup.CrewmateRoles, false)
+        ShieldDeactivatesWhenMedicDies = BooleanOptionItem.Create(Id + 4, "MedicShieldDeactivatesWhenMedicDies", true, TabGroup.CrewmateRoles, false)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
-        ShieldDeactivationIsVisible = StringOptionItem.Create(Id + 25, "MedicShielDeactivationIsVisible", ShieldDeactivationIsVisibleOption, 0, TabGroup.CrewmateRoles, false)
+        ShieldDeactivationIsVisible = StringOptionItem.Create(Id + 5, "MedicShielDeactivationIsVisible", ShieldDeactivationIsVisibleOption, 0, TabGroup.CrewmateRoles, false)
             .SetParent(ShieldDeactivatesWhenMedicDies);
-        ResetCooldown = FloatOptionItem.Create(Id + 30, "MedicResetCooldown", new(0f, 120f, 1f), 15f, TabGroup.CrewmateRoles, false)
+        ShieldBreaksOnKillAttempt = BooleanOptionItem.Create(Id + 6, "MedicShieldBreaksOnKillAttempt", true, TabGroup.CrewmateRoles, false)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
+        ShieldBreakIsVisible = StringOptionItem.Create(Id + 7, "MedicShieldBreakIsVisible", ShieldDeactivationIsVisibleOption, 0, TabGroup.CrewmateRoles, false)
+            .SetParent(ShieldBreaksOnKillAttempt);
+        ResetCooldown = FloatOptionItem.Create(Id + 8, "MedicResetCooldown", new(0f, 120f, 1f), 15f, TabGroup.CrewmateRoles, false)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic])
             .SetValueFormat(OptionFormat.Seconds);
-        GuesserIgnoreShield = BooleanOptionItem.Create(Id + 32, "MedicShieldedCanBeGuessed", true, TabGroup.CrewmateRoles, false)
+        GuesserIgnoreShield = BooleanOptionItem.Create(Id + 9, "MedicShieldedCanBeGuessed", true, TabGroup.CrewmateRoles, false)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
-        AmountOfShields = IntegerOptionItem.Create(Id + 34, "MedicAmountOfShields", new(1, 14, 1), 1, TabGroup.CrewmateRoles, false)
+        AmountOfShields = IntegerOptionItem.Create(Id + 10, "MedicAmountOfShields", new(1, 14, 1), 1, TabGroup.CrewmateRoles, false)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
-        UsePet = Options.CreatePetUseSetting(Id + 36, CustomRoles.Medic);
-        CD = FloatOptionItem.Create(Id + 38, "AbilityCooldown", new(0f, 180f, 2.5f), 7.5f, TabGroup.CrewmateRoles, false)
+        UsePet = Options.CreatePetUseSetting(Id + 11, CustomRoles.Medic);
+        CD = FloatOptionItem.Create(Id + 12, "AbilityCooldown", new(0f, 180f, 2.5f), 7.5f, TabGroup.CrewmateRoles, false)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic])
             .SetValueFormat(OptionFormat.Seconds);
     }
@@ -76,7 +81,7 @@ public class Medic : RoleBase
     {
         playerIdList = [];
         ProtectList = [];
-        TempMarkProtected = byte.MaxValue;
+        TempMarkProtectedList = [];
         SkillLimit = AmountOfShields.GetInt();
     }
 
@@ -128,7 +133,7 @@ public class Medic : RoleBase
         killer.RpcRemoveAbilityUse();
 
         ProtectList.Add(target.PlayerId);
-        TempMarkProtected = target.PlayerId;
+        TempMarkProtectedList.Add(target.PlayerId);
         SendRPCForProtectList();
 
         killer.SetKillCooldown();
@@ -182,24 +187,63 @@ public class Medic : RoleBase
                 break;
         }
 
+        if (ShieldBreaksOnKillAttempt.GetBool())
+        {
+            ProtectList.Remove(target.PlayerId);
+            SendRPCForProtectList();
+
+            if ((Visible)ShieldBreakIsVisible.GetInt() is Visible.Immediately or Visible.AfterMeeting)
+            {
+                TempMarkProtectedList.Remove(target.PlayerId);
+                if ((Visible)ShieldBreakIsVisible.GetInt() == Visible.Immediately) Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+            }
+        }
+
         return true;
     }
 
     public static void OnCheckMark()
     {
-        if (!ShieldDeactivatesWhenMedicDies.GetBool()) return;
+        bool notify = false;
+        notify |= CheckMedicDeath();
+        notify |= CheckShieldBreak();
 
-        if (ShieldDeactivationIsVisible.GetInt() == 1)
+        if (notify)
         {
-            TempMarkProtected = byte.MaxValue;
-            foreach (byte id in playerIdList.ToArray())
+            foreach (byte id in playerIdList)
             {
-                foreach (byte id2 in ProtectList.ToArray())
+                foreach (byte id2 in ProtectList)
                 {
                     Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(id), SpecifyTarget: Utils.GetPlayerById(id2));
                 }
             }
         }
+    }
+
+    private static bool CheckMedicDeath()
+    {
+        if (!ShieldDeactivatesWhenMedicDies.GetBool()) return false;
+
+        if ((Visible)ShieldDeactivationIsVisible.GetInt() == Visible.AfterMeeting)
+        {
+            TempMarkProtectedList = [];
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool CheckShieldBreak()
+    {
+        if (!ShieldBreaksOnKillAttempt.GetBool()) return false;
+
+        if ((Visible)ShieldBreakIsVisible.GetInt() == Visible.AfterMeeting)
+        {
+            TempMarkProtectedList = [];
+            return true;
+        }
+
+        return false;
     }
 
     public static void IsDead(PlayerControl target)
@@ -209,19 +253,19 @@ public class Medic : RoleBase
 
         if (playerIdList.Any(x => Utils.GetPlayerById(x).IsAlive())) return; // If not all Medic-s are dead, return
 
-        foreach (byte pc in ProtectList.ToArray())
-        {
-            Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc), SpecifyTarget: target);
-        }
-
         Utils.NotifyRoles(SpecifySeer: target);
 
         ProtectList.Clear();
         Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} : Medic is dead", "Medic");
 
-        if (ShieldDeactivationIsVisible.GetInt() == 0)
+        if ((Visible)ShieldDeactivationIsVisible.GetInt() == Visible.Immediately)
         {
-            TempMarkProtected = byte.MaxValue;
+            TempMarkProtectedList = [];
+
+            foreach (byte pc in ProtectList.ToArray())
+            {
+                Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc), SpecifyTarget: target);
+            }
         }
     }
 }

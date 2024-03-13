@@ -7,7 +7,7 @@ namespace TOHE.Roles.Crewmate
     {
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(5550, TabGroup.CrewmateRoles, CustomRoles.Demolitionist, 1);
+            SetupRoleOptions(5550, TabGroup.CrewmateRoles, CustomRoles.Demolitionist);
             DemolitionistVentTime = FloatOptionItem.Create(5552, "DemolitionistVentTime", new(0f, 90f, 1f), 5f, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Demolitionist])
                 .SetValueFormat(OptionFormat.Seconds);

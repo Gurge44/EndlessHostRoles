@@ -21,7 +21,7 @@ public class Snitch : RoleBase
     private static bool CanGetColoredArrow;
     private static bool CanFindNeutralKiller;
     private static bool CanFindMadmate;
-    private static int RemainingTasksToBeFound;
+    public static int RemainingTasksToBeFound;
 
     public static readonly Dictionary<byte, bool> IsExposed = [];
     public static readonly Dictionary<byte, bool> IsComplete = [];
