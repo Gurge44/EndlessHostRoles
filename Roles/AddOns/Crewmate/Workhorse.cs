@@ -12,6 +12,7 @@ public static class Workhorse
     public static Color RoleColor = Utils.GetRoleColor(CustomRoles.Workhorse);
     public static List<byte> playerIdList = [];
 
+    private static OptionItem SpawnChance;
     private static OptionItem OptionAssignOnlyToCrewmate;
     private static OptionItem OptionNumLongTasks;
     private static OptionItem OptionNumShortTasks;
@@ -20,9 +21,13 @@ public static class Workhorse
     public static bool AssignOnlyToCrewmate;
     public static int NumLongTasks;
     public static int NumShortTasks;
+
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Workhorse, zeroOne: true);
+        SpawnChance = IntegerOptionItem.Create(Id + 13, "WorkhorseSpawnChance", new(0, 100, 1), 65, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse])
+            .SetValueFormat(OptionFormat.Percent);
         OptionAssignOnlyToCrewmate = BooleanOptionItem.Create(Id + 10, "AssignOnlyToCrewmate", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse]);
         OptionNumLongTasks = IntegerOptionItem.Create(Id + 11, "WorkhorseNumLongTasks", new(0, 5, 1), 1, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse])
             .SetValueFormat(OptionFormat.Pieces);
@@ -63,6 +68,7 @@ public static class Workhorse
         if (!CustomRoles.Workhorse.IsEnable() || playerIdList.Count >= CustomRoles.Workhorse.GetCount()) return false;
         if (pc.Is(CustomRoles.Snitch) && !OptionSnitchCanBeWorkhorse.GetBool()) return false;
         if (!IsAssignTarget(pc)) return false;
+        if (IRandom.Instance.Next(100) >= SpawnChance.GetInt()) return false;
 
         pc.RpcSetCustomRole(CustomRoles.Workhorse);
         var taskState = pc.GetTaskState();
