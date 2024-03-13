@@ -269,7 +269,7 @@ internal class SelectRolesPatch
             var rd = IRandom.Instance;
             Main.BloodlustPlayer = byte.MaxValue;
             bool bloodlustSpawn = rd.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Bloodlust, out var option3) ? option3.GetFloat() : 0) && CustomRoles.Bloodlust.IsEnable();
-            List<byte> bloodlustList = RoleResult.Where(x => x.Value.IsCrewmate()).Select(x => x.Key.PlayerId).ToList();
+            List<byte> bloodlustList = RoleResult.Where(x => x.Value.IsCrewmate() && !x.Value.IsTaskBasedCrewmate()).Select(x => x.Key.PlayerId).ToList();
             if (bloodlustList.Count == 0) bloodlustSpawn = false;
             if (Main.SetAddOns.Values.Any(x => x.Contains(CustomRoles.Bloodlust)))
             {

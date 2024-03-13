@@ -538,7 +538,6 @@ public static class Utils
     public static bool HasTasks(GameData.PlayerInfo p, bool ForRecompute = true)
     {
         if (GameStates.IsLobby) return false;
-        //Tasksがnullの場合があるのでその場合タスク無しとする
         if (p.Tasks == null) return false;
         if (p.Role == null) return false;
 
@@ -546,7 +545,7 @@ public static class Utils
         var States = Main.PlayerStates[p.PlayerId];
         if (p.Disconnected) return false;
         if (p.Role.IsImpostor)
-            hasTasks = false; //タスクはCustomRoleを元に判定する
+            hasTasks = false;
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.SoloKombat: return false;
@@ -555,7 +554,6 @@ public static class Utils
             case CustomGameMode.HotPotato: return false;
         }
 
-        //if (p.IsDead && Options.GhostIgnoreTasks.GetBool()) hasTasks = false;
         var role = States.MainRole;
         switch (role)
         {
@@ -598,10 +596,6 @@ public static class Utils
             case CustomRoles.Crusader when !Options.UsePets.GetBool() || !Crusader.UsePet.GetBool():
             case CustomRoles.Refugee:
             case CustomRoles.Jester:
-            //case CustomRoles.Pirate:
-            //   case CustomRoles.Baker:
-            //case CustomRoles.Famine:
-            //case CustomRoles.NWitch:
             case CustomRoles.Mario:
             case CustomRoles.Vulture:
             case CustomRoles.God:
@@ -614,9 +608,7 @@ public static class Utils
             case CustomRoles.Gamer:
             case CustomRoles.HexMaster:
             case CustomRoles.Wraith:
-            //      case CustomRoles.Chameleon:
             case CustomRoles.Juggernaut:
-            //case CustomRoles.Reverie:
             case CustomRoles.Ritualist:
             case CustomRoles.DarkHide:
             case CustomRoles.Collector:
@@ -632,13 +624,11 @@ public static class Utils
             case CustomRoles.Succubus:
             case CustomRoles.Necromancer:
             case CustomRoles.Deathknight:
-            //case CustomRoles.CursedSoul:
             case CustomRoles.Amnesiac:
             case CustomRoles.Monarch when !Options.UsePets.GetBool() || !Monarch.UsePet.GetBool():
             case CustomRoles.Deputy when !Options.UsePets.GetBool() || !Deputy.UsePet.GetBool():
             case CustomRoles.Virus:
             case CustomRoles.Farseer when !Options.UsePets.GetBool() || !Farseer.UsePet.GetBool():
-            //case CustomRoles.Counterfeiter:
             case CustomRoles.Aid when !Options.UsePets.GetBool() || !Aid.UsePet.GetBool():
             case CustomRoles.Escort when !Options.UsePets.GetBool() || !Escort.UsePet.GetBool():
             case CustomRoles.DonutDelivery when !Options.UsePets.GetBool() || !DonutDelivery.UsePet.GetBool():
@@ -649,7 +639,6 @@ public static class Utils
             case CustomRoles.Spiritcaller:
             case CustomRoles.PlagueBearer:
             case CustomRoles.Pestilence:
-            //case CustomRoles.Masochist:
             case CustomRoles.Doomsayer:
                 hasTasks = false;
                 break;
@@ -661,8 +650,6 @@ public static class Utils
             case CustomRoles.Executioner:
             case CustomRoles.Lawyer:
             case CustomRoles.Phantom:
-                //case CustomRoles.Baker:
-                //   case CustomRoles.Famine:
                 if (ForRecompute)
                     hasTasks = false;
                 break;
@@ -688,8 +675,10 @@ public static class Utils
                 case CustomRoles.EvilSpirit:
                 case CustomRoles.Contagious:
                 case CustomRoles.Rascal:
-                    //ラバーズはタスクを勝利用にカウントしない
                     hasTasks &= !ForRecompute;
+                    break;
+                case CustomRoles.Bloodlust:
+                    hasTasks = false;
                     break;
             }
         }

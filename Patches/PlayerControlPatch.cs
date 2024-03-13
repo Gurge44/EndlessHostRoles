@@ -1139,7 +1139,7 @@ class FixedUpdatePatch
 
             // Ability Use Gain every 5 seconds
 
-            if (GameStates.IsInTask && player.IsAlive() && Main.PlayerStates.TryGetValue(playerId, out var state) && state.TaskState.IsTaskFinished && LastAddAbilityTime + 5 < now)
+            if (GameStates.IsInTask && player.IsAlive() && Main.PlayerStates.TryGetValue(playerId, out var state) && (!state.TaskState.hasTasks || state.TaskState.IsTaskFinished) && LastAddAbilityTime + 5 < now)
             {
                 LastAddAbilityTime = now;
 
