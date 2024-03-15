@@ -3228,6 +3228,8 @@
   "CommanderInfoLong": "(Impostores):\\nComo o Comandante, você pode alternar entre 2 modos usando os dutos: Assobiar e Marcar. Você pode executar a ação selecionada metamorfando/acariciando seu pet.\\n\\nMarcar: marca seu alvo que você se metamorfoseou com uma cor exclusiva visível para todos os impostores. Use isto para ordená-los a matar aquele jogador!\\n\\nAssobiar: Isto diz a todos os impostores para virem até você e dá a cada um deles uma seta apontando para você.",
   "CommanderNotify": "O Comandante quer que você se encontre com ele",
   "CommanderTarget": "<size=1.7>Alvo do Comandante</color>",
+  "CommanderWhistleMode": "Whistle",
+  "CommanderMarkMode": "Mark Target",
   "CannotSpawnAsSoloImp": "Não pode aparecer como Impostor Solo",
   "EnableExtraAbility": "Ativar Habilidade Extra",
   "CanOnlyUseWhileAnyWatch": "Só pode usar a habilidade quando houver um alerta de uso de dispositivo",
