@@ -1088,13 +1088,14 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true);
 
-
-        LoadingPercentage = 5;
-        MainLoadingText = "Building Add-on Settings";
+        #region Roles/AddOns_Settings
 
         try
         {
             int titleId = 100100;
+
+            LoadingPercentage = 5;
+            MainLoadingText = "Building Add-on Settings";
 
             var IAddonType = typeof(IAddon);
             Dictionary<AddonTypes, IAddon[]> addonTypes = Assembly
@@ -1220,6 +1221,8 @@ public static class Options
         {
             Logger.Exception(ex, "Options");
         }
+
+        #endregion
 
 
         LoadingPercentage = 60;

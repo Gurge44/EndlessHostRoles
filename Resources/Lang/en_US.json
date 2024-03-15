@@ -3228,6 +3228,8 @@
   "CommanderInfoLong": "(Impostors):\\nAs the Commander, you can switch between 2 modes by venting: Whistle and Mark. You can execute the selected action by shapeshifting/petting your pet.\\n\\nMark: Marks your shapeshift target with a unique color visible to all impostors. Use this to command them to kill that player!\\n\\nWhistle: This tells all impostors to come to you and gives them each an arrow pointing towards you.",
   "CommanderNotify": "The Commander wants you to meet with them",
   "CommanderTarget": "<size=1.7>Commander's target</color>",
+  "CommanderWhistleMode": "Whistle",
+  "CommanderMarkMode": "Mark Target",
   "CannotSpawnAsSoloImp": "Cannot Spawn as Solo Impostor",
   "EnableExtraAbility": "Enable Extra Ability",
   "CanOnlyUseWhileAnyWatch": "Can Only Use Ability When There is a Device Usage Alert",

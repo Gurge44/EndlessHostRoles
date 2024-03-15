@@ -75,7 +75,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Dictator => CustomRoles.Crewmate,
                 CustomRoles.Inhibitor => CustomRoles.Impostor,
                 CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
-                CustomRoles.Commander => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
+                CustomRoles.Commander => CustomRoles.Shapeshifter,
                 CustomRoles.Freezer => CustomRoles.Shapeshifter,
                 CustomRoles.Changeling => CustomRoles.Shapeshifter,
                 CustomRoles.Swapster => CustomRoles.Shapeshifter,

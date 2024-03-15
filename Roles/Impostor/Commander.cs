@@ -43,6 +43,7 @@ namespace TOHE.Roles.Impostor
         public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
         {
             IsModeWhistle = !IsModeWhistle;
+            Utils.NotifyRoles(SpecifySeer: physics.myPlayer, SpecifyTarget: physics.myPlayer);
         }
 
         public override void OnPet(PlayerControl pc)
@@ -67,7 +68,7 @@ namespace TOHE.Roles.Impostor
             IsWhistling = true;
             foreach (var pc in Main.AllAlivePlayerControls)
             {
-                if (!pc.Is(Team.Impostor)) continue;
+                if (!pc.Is(Team.Impostor) || pc.Is(CustomRoles.Commander)) continue;
                 TargetArrow.Add(pc.PlayerId, commander.PlayerId);
                 pc.Notify(Translator.GetString("CommanderNotify"));
             }

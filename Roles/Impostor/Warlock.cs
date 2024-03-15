@@ -198,6 +198,7 @@ namespace TOHE.Roles.Impostor
                             Logger.Info($"{targetw.GetNameWithRole().RemoveHtmlTags()} was killed", "Warlock");
                             cp.Kill(targetw);
                             pc.Notify(Translator.GetString("WarlockControlKill"));
+                            RPC.PlaySoundRPC(pc.PlayerId, Sounds.KillSound);
 
                             if (FreezeAfterCurseKill.GetBool())
                             {
@@ -251,7 +252,7 @@ namespace TOHE.Roles.Impostor
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || !pc.IsAlive()) return;
+            if (!GameStates.IsInTask || !pc.IsAlive() || pc.inVent) return;
 
             var beforeKCD = KCD;
             var beforeCCD = CurseCD;
