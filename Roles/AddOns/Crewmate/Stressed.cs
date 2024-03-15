@@ -7,9 +7,11 @@ using static TOHE.Translator;
 
 namespace TOHE.Roles.AddOns.Crewmate
 {
-    public static class Stressed
+    public class Stressed : IAddon
     {
-        private static readonly int Id = 14685;
+        public AddonTypes Type => AddonTypes.Harmful;
+
+        private const int Id = 14685;
 
         private static OptionItem StressedExtraTimeAfterTaskComplete;
         private static OptionItem StressedExtraTimeAfterMeeting;
@@ -36,7 +38,7 @@ namespace TOHE.Roles.AddOns.Crewmate
 
         private static bool IsEnable => Timers.Count > 0;
 
-        public static void SetupCustomOption()
+        public void SetupCustomOption()
         {
             SetupAdtRoleOptions(Id, CustomRoles.Stressed, canSetNum: true);
             StressedExtraTimeAfterTaskComplete = IntegerOptionItem.Create(Id + 3, "StressedExtraTimeAfterTask", new(0, 60, 1), 30, TabGroup.Addons, false)

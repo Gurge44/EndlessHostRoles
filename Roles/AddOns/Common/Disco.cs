@@ -1,9 +1,20 @@
 ﻿using System.Collections.Generic;
+using static TOHE.Options;
 
 namespace TOHE.Roles.AddOns.Common
 {
-    internal class Disco
+    internal class Disco : IAddon
     {
+        public AddonTypes Type => AddonTypes.Mixed;
+
+        public void SetupCustomOption()
+        {
+            SetupAdtRoleOptions(15430, CustomRoles.Disco, canSetNum: true);
+            DiscoChangeInterval = IntegerOptionItem.Create(15433, "DiscoChangeInterval", new(1, 90, 1), 5, TabGroup.Addons, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Disco])
+                .SetValueFormat(OptionFormat.Seconds);
+        }
+
         private static readonly Dictionary<byte, long> LastChange = [];
         private static void ChangeColor(PlayerControl pc)
         {

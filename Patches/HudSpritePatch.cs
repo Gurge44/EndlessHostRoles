@@ -20,6 +20,7 @@ public static class HudSpritePatch
     private static Sprite Vent;
     private static Sprite Sabotage;
     private static Sprite Pet;
+
     public static void Postfix(HudManager __instance)
     {
         var player = PlayerControl.LocalPlayer;
@@ -314,6 +315,5 @@ public static class HudSpritePatch
         __instance.ImpostorVentButton.graphic.sprite = newVentButton;
         __instance.SabotageButton.graphic.sprite = newSabotageButton;
         __instance.PetButton.graphic.sprite = newPetButton;
-
     }
 }

@@ -1,6 +1,6 @@
 ﻿using AmongUs.GameOptions;
-using TOHE.Roles.Neutral;
 using System.Collections.Generic;
+using TOHE.Roles.Neutral;
 using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor

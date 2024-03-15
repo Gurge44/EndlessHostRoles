@@ -1,14 +1,16 @@
+using AmongUs.GameOptions;
 using System;
 using System.Collections.Generic;
-using AmongUs.GameOptions;
 using UnityEngine;
 using static TOHE.Options;
 
 namespace TOHE.Roles.AddOns.Crewmate;
 
-public static class Workhorse
+public class Workhorse : IAddon
 {
-    private static readonly int Id = 15700;
+    public AddonTypes Type => AddonTypes.Harmful;
+
+    private const int Id = 15700;
     public static Color RoleColor = Utils.GetRoleColor(CustomRoles.Workhorse);
     public static List<byte> playerIdList = [];
 
@@ -22,7 +24,7 @@ public static class Workhorse
     public static int NumLongTasks;
     public static int NumShortTasks;
 
-    public static void SetupCustomOption()
+    public void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Workhorse, zeroOne: true);
         SpawnChance = IntegerOptionItem.Create(Id + 13, "WorkhorseSpawnChance", new(0, 100, 1), 65, TabGroup.Addons, false)

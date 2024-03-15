@@ -8,9 +8,11 @@ using static TOHE.Translator;
 
 namespace TOHE.Roles.AddOns.Impostor
 {
-    public static class Damocles
+    public class Damocles : IAddon
     {
-        private static readonly int Id = 14670;
+        public AddonTypes Type => AddonTypes.ImpOnly;
+
+        private const int Id = 14670;
 
         private static OptionItem DamoclesExtraTimeAfterKill;
         private static OptionItem DamoclesExtraTimeAfterMeeting;
@@ -27,7 +29,7 @@ namespace TOHE.Roles.AddOns.Impostor
 
         public static bool countRepairSabotage;
 
-        public static void SetupCustomOption()
+        public void SetupCustomOption()
         {
             SetupAdtRoleOptions(Id, CustomRoles.Damocles, canSetNum: true);
             DamoclesExtraTimeAfterKill = IntegerOptionItem.Create(Id + 10, "DamoclesExtraTimeAfterKill", new(0, 60, 1), 30, TabGroup.Addons, false)

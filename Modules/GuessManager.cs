@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using Hazel;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -715,47 +714,47 @@ public static class GuessManager
         return true;
     }
 
-/*
-    public static void TryHideMsg()
-    {
-        ChatUpdatePatch.DoBlockChat = true;
-        List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x is not CustomRoles.NotAssigned and not CustomRoles.KB_Normal).ToList();
-        var rd = IRandom.Instance;
-        string msg = Utils.EmptyMessage();
-        string[] command = ["bet", "bt", "guess", "gs", "shoot", "st", "赌", "猜", "审判", "tl", "判", "审"];
-        var x = Main.AllAlivePlayerControls;
-        var totalAlive = Main.AllAlivePlayerControls.Length;
-        for (int i = 0; i < 20; i++)
+    /*
+        public static void TryHideMsg()
         {
-            //msg = "/";
-            //if (rd.Next(1, 100) < 20)
-            //{
-            //    msg += "id";
-            //}
-            //else
-            //{
-            //    msg += command[rd.Next(0, command.Length - 1)];
-            //    msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
-            //    msg += rd.Next(0, 15).ToString();
-            //    msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
-            //    CustomRoles role = roles[rd.Next(0, roles.Count)];
-            //    msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
-            //    msg += Utils.GetRoleName(role);
-            //}
-            var player = x[rd.Next(0, totalAlive)];
-            DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
-            var writer = CustomRpcSender.Create("MessagesToSend");
-            writer.StartMessage();
-            writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
-                .Write(msg)
-                .EndRpc();
-            writer.EndMessage();
-            writer.SendMessage();
-        }
+            ChatUpdatePatch.DoBlockChat = true;
+            List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x is not CustomRoles.NotAssigned and not CustomRoles.KB_Normal).ToList();
+            var rd = IRandom.Instance;
+            string msg = Utils.EmptyMessage();
+            string[] command = ["bet", "bt", "guess", "gs", "shoot", "st", "赌", "猜", "审判", "tl", "判", "审"];
+            var x = Main.AllAlivePlayerControls;
+            var totalAlive = Main.AllAlivePlayerControls.Length;
+            for (int i = 0; i < 20; i++)
+            {
+                //msg = "/";
+                //if (rd.Next(1, 100) < 20)
+                //{
+                //    msg += "id";
+                //}
+                //else
+                //{
+                //    msg += command[rd.Next(0, command.Length - 1)];
+                //    msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
+                //    msg += rd.Next(0, 15).ToString();
+                //    msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
+                //    CustomRoles role = roles[rd.Next(0, roles.Count)];
+                //    msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
+                //    msg += Utils.GetRoleName(role);
+                //}
+                var player = x[rd.Next(0, totalAlive)];
+                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
+                var writer = CustomRpcSender.Create("MessagesToSend");
+                writer.StartMessage();
+                writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+                    .Write(msg)
+                    .EndRpc();
+                writer.EndMessage();
+                writer.SendMessage();
+            }
 
-        ChatUpdatePatch.DoBlockChat = false;
-    }
-*/
+            ChatUpdatePatch.DoBlockChat = false;
+        }
+    */
 
     [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
     class StartMeetingPatch

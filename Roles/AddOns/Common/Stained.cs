@@ -2,8 +2,15 @@
 
 namespace TOHE.Roles.AddOns.Common
 {
-    internal static class Stained
+    internal class Stained : IAddon
     {
+        public AddonTypes Type => AddonTypes.Mixed;
+
+        public void SetupCustomOption()
+        {
+            Options.SetupAdtRoleOptions(15180, CustomRoles.Stained, canSetNum: true);
+        }
+
         public static List<byte> VioletNameList = [];
 
         public static void OnDeath(PlayerControl pc, PlayerControl killer)

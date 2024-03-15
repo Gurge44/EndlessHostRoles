@@ -1,11 +1,31 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static TOHE.Options;
 
 namespace TOHE.Roles.AddOns.Common
 {
-    internal class Asthmatic
+    internal class Asthmatic : IAddon
     {
+        public AddonTypes Type => AddonTypes.Harmful;
+
+        public void SetupCustomOption()
+        {
+            SetupAdtRoleOptions(15420, CustomRoles.Asthmatic, canSetNum: true);
+            AsthmaticMinRedTime = IntegerOptionItem.Create(15423, "AsthmaticMinRedTime", new(1, 90, 1), 5, TabGroup.Addons, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
+                .SetValueFormat(OptionFormat.Seconds);
+            AsthmaticMaxRedTime = IntegerOptionItem.Create(15424, "AsthmaticMaxRedTime", new(1, 90, 1), 30, TabGroup.Addons, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
+                .SetValueFormat(OptionFormat.Seconds);
+            AsthmaticMinGreenTime = IntegerOptionItem.Create(15425, "AsthmaticMinGreenTime", new(1, 90, 1), 5, TabGroup.Addons, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
+                .SetValueFormat(OptionFormat.Seconds);
+            AsthmaticMaxGreenTime = IntegerOptionItem.Create(15426, "AsthmaticMaxGreenTime", new(1, 90, 1), 30, TabGroup.Addons, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
+                .SetValueFormat(OptionFormat.Seconds);
+        }
+
         private static readonly Dictionary<byte, Counter> Timers = [];
         private static readonly Dictionary<byte, string> LastSuffix = [];
         private static readonly Dictionary<byte, Vector2> LastPosition = [];

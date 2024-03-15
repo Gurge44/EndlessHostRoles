@@ -2,14 +2,16 @@
 
 namespace TOHE.Roles.AddOns.Crewmate
 {
-    internal static class Bloodlust
+    internal class Bloodlust : IAddon
     {
+        public AddonTypes Type => AddonTypes.Mixed;
+
         private const int Id = 15790;
         public static OptionItem KCD;
         public static OptionItem CanVent;
         public static OptionItem HasImpVision;
 
-        public static void SetupCustomOption()
+        public void SetupCustomOption()
         {
             SetupAdtRoleOptions(Id, CustomRoles.Bloodlust);
             KCD = FloatOptionItem.Create(Id + 3, "KillCooldown", new(0f, 60f, 2.5f), 30f, TabGroup.Addons, false)

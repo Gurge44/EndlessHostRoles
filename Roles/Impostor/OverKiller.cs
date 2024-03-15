@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using Hazel;
+﻿using Hazel;
 using InnerNet;
+using System.Collections.Generic;
 using System.Linq;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Neutral;
@@ -12,6 +12,11 @@ namespace TOHE.Roles.Impostor
     {
         public static bool On;
         public override bool IsEnable => On;
+
+        public static void SetupCustomOption()
+        {
+            Options.SetupRoleOptions(16900, TabGroup.OtherRoles, CustomRoles.OverKiller);
+        }
 
         public static List<byte> OverDeadPlayerList = [];
 

@@ -1,5 +1,5 @@
-using System;
 using AmongUs.GameOptions;
+using System;
 using System.Linq;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
@@ -1171,7 +1171,6 @@ internal static class CustomRolesHelper
         _ => SimpleRoleOptionType.Crewmate
     };
 
-    // Get Simple Role Option Type
     public static SimpleRoleOptionType GetSimpleRoleOptionType(this CustomRoles role)
     {
         if (role.IsImpostor()) return SimpleRoleOptionType.Impostor;
@@ -1179,6 +1178,15 @@ internal static class CustomRolesHelper
         if (role.IsNeutral()) return role.IsNK() ? SimpleRoleOptionType.NK : SimpleRoleOptionType.NNK;
         return SimpleRoleOptionType.Crewmate;
     }
+
+    public static Color GetAddonTypeColor(this AddonTypes type) => type switch
+    {
+        AddonTypes.ImpOnly => Palette.ImpostorRed,
+        AddonTypes.Helpful => Palette.CrewmateBlue,
+        AddonTypes.Harmful => Utils.GetRoleColor(CustomRoles.Sprayer),
+        AddonTypes.Mixed => Utils.GetRoleColor(CustomRoles.TaskManager),
+        _ => Palette.CrewmateBlue
+    };
 }
 
 public enum RoleOptionType
@@ -1195,7 +1203,15 @@ public enum SimpleRoleOptionType
     Crewmate,
     Impostor,
     NK,
-    NNK,
+    NNK
+}
+
+public enum AddonTypes
+{
+    ImpOnly,
+    Helpful,
+    Harmful,
+    Mixed
 }
 
 public enum CustomRoleTypes
