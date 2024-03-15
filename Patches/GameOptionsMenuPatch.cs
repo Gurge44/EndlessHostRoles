@@ -139,6 +139,7 @@ public static class GameOptionsMenuPatch
             tohTab.transform.FindChild("Hat Button").FindChild("Icon").GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite($"TOHE.Resources.Images.TabIcon_{tab}.png", 100f);
             tabs.Add(tohTab);
             var tohTabHighlight = tohTab.transform.FindChild("Hat Button").FindChild("Tab Background").GetComponent<SpriteRenderer>();
+            tohTabHighlight.color = new(0.1f, 0.1f, 0.1f, 1f);
             highlights.Add(tohTabHighlight);
         }
 

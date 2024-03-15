@@ -2,47 +2,43 @@ using AmongUs.GameOptions;
 using HarmonyLib;
 using static TOHE.Translator;
 
-namespace TOHE;
+namespace TOHE.Patches;
 
 [HarmonyPatch(typeof(RoleOptionSetting), nameof(RoleOptionSetting.UpdateValuesAndText))]
 class ChanceChangePatch
 {
     public static void Postfix(RoleOptionSetting __instance)
     {
-        bool forced = true;
         string DisableText = $" ({GetString("Disabled")})";
-        if (__instance.Role.Role == RoleTypes.Scientist)
+        switch (__instance.Role.Role)
         {
-            __instance.TitleText.color = Utils.GetRoleColor(CustomRoles.Scientist);
-        }
-        if (__instance.Role.Role == RoleTypes.Engineer)
-        {
-            __instance.TitleText.color = Utils.GetRoleColor(CustomRoles.Engineer);
-        }
-        if (__instance.Role.Role == RoleTypes.GuardianAngel)
-        {
-            //+-ボタン, 設定値, 詳細設定ボタンを非表示
-            var tf = __instance.transform;
-            tf.Find("Count Plus_TMP").gameObject.active
-                = tf.Find("Chance Minus_TMP").gameObject.active
-                = tf.Find("Chance Value_TMP").gameObject.active
-                = tf.Find("Chance Plus_TMP").gameObject.active
-                = tf.Find("More Options").gameObject.active
-                = false;
+            case RoleTypes.Scientist:
+                __instance.TitleText.color = Utils.GetRoleColor(CustomRoles.Scientist);
+                break;
+            case RoleTypes.Engineer:
+                __instance.TitleText.color = Utils.GetRoleColor(CustomRoles.Engineer);
+                break;
+            case RoleTypes.GuardianAngel:
+            {
+                var tf = __instance.transform;
+                tf.Find("Count Plus_TMP").gameObject.active
+                    = tf.Find("Chance Minus_TMP").gameObject.active
+                        = tf.Find("Chance Value_TMP").gameObject.active
+                            = tf.Find("Chance Plus_TMP").gameObject.active
+                                = tf.Find("More Options").gameObject.active
+                                    = false;
 
-            if (!__instance.TitleText.text.Contains(DisableText))
-                __instance.TitleText.text += DisableText;
-            __instance.TitleText.color = Utils.GetRoleColor(CustomRoles.GuardianAngel);
-        }
-        if (__instance.Role.Role == RoleTypes.Shapeshifter)
-        {
-            __instance.TitleText.color = Utils.GetRoleColor(CustomRoles.Shapeshifter);
+                if (!__instance.TitleText.text.Contains(DisableText))
+                    __instance.TitleText.text += DisableText;
+                __instance.TitleText.color = Utils.GetRoleColor(CustomRoles.GuardianAngel);
+                break;
+            }
+            case RoleTypes.Shapeshifter:
+                __instance.TitleText.color = Utils.GetRoleColor(CustomRoles.Shapeshifter);
+                break;
         }
 
-        if (forced)
-        {
-            __instance.ChanceText.text = DisableText;
-        }
+        __instance.ChanceText.text = DisableText;
     }
 }
 
