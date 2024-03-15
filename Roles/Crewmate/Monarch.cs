@@ -60,12 +60,12 @@ public class Monarch : RoleBase
 
             killer.ResetKillCooldown();
             killer.SetKillCooldown();
-            //      killer.RpcGuardAndKill(target);
+
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 
             Logger.Info("SetRole:" + target.Data?.PlayerName + " = " + target.GetCustomRole() + " + " + CustomRoles.Knighted, "Assign " + CustomRoles.Knighted);
-            return true;
+            return false;
         }
 
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("MonarchInvalidTarget")));

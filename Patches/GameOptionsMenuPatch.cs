@@ -69,7 +69,8 @@ public static class GameOptionsMenuPatch
 
         var gameSettings = GameObject.Find("Game Settings");
         if (gameSettings == null) return;
-        gameSettings.transform.FindChild("GameGroup").GetComponent<Scroller>().ScrollWheelSpeed = 1.3f;
+        if (Main.DarkTheme.Value) gameSettings.transform.FindChild("BackPanel").transform.FindChild("baseColor").GetComponent<SpriteRenderer>().color = new(0.25f, 0.25f, 0.25f, 1f);
+        gameSettings.transform.FindChild("GameGroup").GetComponent<Scroller>().ScrollWheelSpeed = 1.1f;
 
         var gameSettingMenu = Object.FindObjectsOfType<GameSettingMenu>().FirstOrDefault();
         if (gameSettingMenu == null) return;
@@ -117,7 +118,9 @@ public static class GameOptionsMenuPatch
                     stringOption.Value = stringOption.oldValue = option.CurrentValue;
                     stringOption.ValueText.text = option.GetString();
                     stringOption.name = option.Name;
-                    stringOption.transform.FindChild("Background").localScale = new(1.6f, 1f, 1f);
+                    var bg = stringOption.transform.FindChild("Background");
+                    bg.localScale = new(1.6f, 1f, 1f);
+                    if (Main.DarkTheme.Value) bg.GetComponent<SpriteRenderer>().color = new(0f, 0f, 0f, 1f);
                     stringOption.transform.FindChild("Plus_TMP").localPosition += new Vector3(1.4f, yoffset, 0f);
                     stringOption.transform.FindChild("Minus_TMP").localPosition += new Vector3(1.0f, yoffset, 0f);
                     stringOption.transform.FindChild("Value_TMP").localPosition += new Vector3(1.2f, yoffset, 0f);
@@ -139,7 +142,6 @@ public static class GameOptionsMenuPatch
             tohTab.transform.FindChild("Hat Button").FindChild("Icon").GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite($"TOHE.Resources.Images.TabIcon_{tab}.png", 100f);
             tabs.Add(tohTab);
             var tohTabHighlight = tohTab.transform.FindChild("Hat Button").FindChild("Tab Background").GetComponent<SpriteRenderer>();
-            tohTabHighlight.color = new(0.1f, 0.1f, 0.1f, 1f);
             highlights.Add(tohTabHighlight);
         }
 
@@ -208,29 +210,39 @@ public class GameOptionsMenuUpdatePatch
 
                 var opt = option.OptionBehaviour.transform.Find("Background").GetComponent<SpriteRenderer>();
                 opt.size = new(5.0f, 0.45f);
+
                 while (parent != null && enabled)
                 {
                     enabled = parent.GetBool() && !parent.IsHiddenOn(Options.CurrentGameMode);
                     parent = parent.Parent;
-                    opt.color = new(0f, 1f, 0f);
+
+                    opt.color = new(0f, 0f, 1f, 1f);
                     opt.size = new(4.8f, 0.45f);
                     opt.transform.localPosition = new(0.11f, 0f);
-                    option.OptionBehaviour.transform.Find("Title_TMP").transform.localPosition = new(-1.08f, 0f);
-                    option.OptionBehaviour.transform.FindChild("Title_TMP").GetComponent<RectTransform>().sizeDelta = new(5.1f, 0.28f);
+
+                    var titleTMP = option.OptionBehaviour.transform.Find("Title_TMP");
+                    var rectTransform = option.OptionBehaviour.transform.FindChild("Title_TMP").GetComponent<RectTransform>();
+
+                    titleTMP.transform.localPosition = new(-1.08f, 0f);
+                    rectTransform.sizeDelta = new(5.1f, 0.28f);
+
                     if (option.Parent?.Parent != null)
                     {
-                        opt.color = new(0f, 0f, 1f);
+                        opt.color = new(1f, 0f, 0f, 1f);
                         opt.size = new(4.6f, 0.45f);
                         opt.transform.localPosition = new(0.24f, 0f);
-                        option.OptionBehaviour.transform.Find("Title_TMP").transform.localPosition = new(-0.88f, 0f);
-                        option.OptionBehaviour.transform.FindChild("Title_TMP").GetComponent<RectTransform>().sizeDelta = new(4.9f, 0.28f);
+
+                        titleTMP.transform.localPosition = new(-0.88f, 0f);
+                        rectTransform.sizeDelta = new(4.9f, 0.28f);
+
                         if (option.Parent?.Parent?.Parent != null)
                         {
-                            opt.color = new(1f, 0f, 0f);
+                            opt.color = new(0f, 1f, 0f, 1f);
                             opt.size = new(4.4f, 0.45f);
                             opt.transform.localPosition = new(0.37f, 0f);
-                            option.OptionBehaviour.transform.Find("Title_TMP").transform.localPosition = new(-0.68f, 0f);
-                            option.OptionBehaviour.transform.FindChild("Title_TMP").GetComponent<RectTransform>().sizeDelta = new(4.7f, 0.28f);
+
+                            titleTMP.transform.localPosition = new(-0.68f, 0f);
+                            rectTransform.sizeDelta = new(4.7f, 0.28f);
                         }
                     }
                 }
