@@ -104,7 +104,7 @@ public static class GameOptionsMenuPatch
             tohMenu.GetComponentsInChildren<OptionBehaviour>().Do(x => Object.Destroy(x.gameObject));
 
             var scOptions = new System.Collections.Generic.List<OptionBehaviour>();
-            foreach (OptionItem option in OptionItem.AllOptions.ToArray())
+            foreach (OptionItem option in OptionItem.AllOptions)
             {
                 if (option.Tab != tab) continue;
                 if (option.OptionBehaviour == null)
@@ -197,15 +197,14 @@ public class GameOptionsMenuUpdatePatch
 
             var offset = 2.7f;
 
-            foreach (OptionItem option in OptionItem.AllOptions.ToArray())
+            foreach (OptionItem option in OptionItem.AllOptions)
             {
                 if (tab != option.Tab) continue;
                 if (option.OptionBehaviour == null || option.OptionBehaviour.gameObject == null) continue;
 
                 var parent = option.Parent;
 
-                bool enabled = AmongUsClient.Instance.AmHost &&
-                               !option.IsHiddenOn(Options.CurrentGameMode);
+                bool enabled = AmongUsClient.Instance.AmHost && !option.IsHiddenOn(Options.CurrentGameMode);
 
                 var opt = option.OptionBehaviour.transform.Find("Background").GetComponent<SpriteRenderer>();
                 opt.size = new(5.0f, 0.45f);
@@ -250,10 +249,6 @@ public class GameOptionsMenuUpdatePatch
                         option.OptionBehaviour.transform.localPosition.x,
                         offset,
                         option.OptionBehaviour.transform.localPosition.z);
-
-                    if (option.IsHeader)
-                    {
-                    }
                 }
             }
 

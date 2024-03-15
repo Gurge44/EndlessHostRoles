@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using TMPro;
 using TOHE.Modules;
 using TOHE.Roles.Crewmate;
@@ -128,28 +129,39 @@ class SetEverythingUpPatch
         try
         {
             // ---------- Code from TOR (The Other Roles)! ----------
+            // https://github.com/TheOtherRolesAU/TheOtherRoles/blob/main/TheOtherRoles/Patches/EndGamePatch.cs
+
             if (Options.CurrentGameMode is not CustomGameMode.Standard) goto End;
             int num = Mathf.CeilToInt(7.5f);
 
             GameOverReason reason = EndGamePatch.LastGameOverReason;
             bool isCrewWin = reason.Equals(GameOverReason.HumansByVote) || reason.Equals(GameOverReason.HumansByTask);
 
-            List<WinningPlayerData> winningPlayerDataList = TempData.winners.ToArray().ToList();
-            for (int i = 0; i < winningPlayerDataList.Count; i++)
+            var pbs = __instance?.transform?.GetComponentsInChildren<PoolablePlayer>();
+            if (pbs != null)
             {
-                WinningPlayerData winningPlayerData2 = winningPlayerDataList[i];
+                foreach (PoolablePlayer pb in pbs)
+                {
+                    pb.ToggleName(false);
+                }
+            }
+
+            List<WinningPlayerData> list = TempData.winners.ToArray().ToList();
+            for (int i = 0; i < list.Count; i++)
+            {
+                WinningPlayerData data = list[i];
                 int num2 = (i % 2 == 0) ? -1 : 1;
                 int num3 = (i + 1) / 2;
                 float num4 = num3 / (float)num;
                 float num5 = Mathf.Lerp(1f, 0.75f, num4);
                 float num6 = (i == 0) ? -8 : -1;
-                PoolablePlayer poolablePlayer = Object.Instantiate(__instance.PlayerPrefab, __instance.transform);
+                PoolablePlayer poolablePlayer = Object.Instantiate(__instance?.PlayerPrefab, __instance?.transform);
                 poolablePlayer.transform.localPosition = new Vector3(1f * num2 * num3 * num5, FloatRange.SpreadToEdges(-1.125f, 0f, num3, num), num6 + num3 * 0.01f) * 0.9f;
                 float num7 = Mathf.Lerp(1f, 0.65f, num4) * 0.9f;
                 Vector3 vector = new(num7, num7, 1f);
                 poolablePlayer.transform.localScale = vector;
-                poolablePlayer.UpdateFromPlayerOutfit(winningPlayerData2, PlayerMaterial.MaskType.ComplexUI, winningPlayerData2.IsDead, true);
-                if (winningPlayerData2.IsDead)
+                poolablePlayer.UpdateFromPlayerOutfit(data, PlayerMaterial.MaskType.ComplexUI, data.IsDead, true);
+                if (data.IsDead)
                 {
                     poolablePlayer.cosmetics.currentBodySprite.BodySprite.sprite = poolablePlayer.cosmetics.currentBodySprite.GhostSprite;
                     poolablePlayer.SetDeadFlipX(i % 2 == 0);
@@ -159,25 +171,25 @@ class SetEverythingUpPatch
                     poolablePlayer.SetFlipX(i % 2 == 0);
                 }
 
-                bool lowered = isCrewWin && (i is 1 or 2 or 5 or 6 or 9 or 10 or 13 or 14);
+                bool lowered = i is 1 or 2 or 5 or 6 or 9 or 10 or 13 or 14;
 
                 poolablePlayer.cosmetics.nameText.color = Color.white;
                 poolablePlayer.cosmetics.nameText.transform.localScale = new(1f / vector.x, 1f / vector.y, 1f / vector.z);
-                poolablePlayer.cosmetics.nameText.text = winningPlayerData2.PlayerName;
+                poolablePlayer.cosmetics.nameText.text = data.PlayerName;
 
                 Vector3 defaultPos = poolablePlayer.cosmetics.nameText.transform.localPosition;
 
-                for (int i1 = 0; i1 < Main.winnerList.Count; i1++)
+                for (int j = 0; j < Main.winnerList.Count; j++)
                 {
-                    byte id = Main.winnerList[i1];
-                    if (Main.winnerNameList[i1].RemoveHtmlTags() != winningPlayerData2.PlayerName.RemoveHtmlTags()) continue;
+                    byte id = Main.winnerList[j];
+                    if (Main.winnerNameList[j].RemoveHtmlTags() != data.PlayerName.RemoveHtmlTags()) continue;
                     var role = Main.PlayerStates[id].MainRole;
 
                     var color = Main.roleColors[role];
                     var rolename = Utils.GetRoleName(role);
 
                     poolablePlayer.cosmetics.nameText.text += $"\n<color={color}>{rolename}</color>";
-                    poolablePlayer.cosmetics.nameText.transform.localPosition = new(defaultPos.x, !lowered || role.IsImpostorTeamV3() || role.IsNK() || role == CustomRoles.Bloodlust ? defaultPos.y - 0.6f : defaultPos.y - 1.4f, -15f);
+                    poolablePlayer.cosmetics.nameText.transform.localPosition = new(defaultPos.x, !lowered ? defaultPos.y - 0.6f : defaultPos.y - 1.4f, -15f);
                 }
             }
         }
@@ -383,14 +395,14 @@ class SetEverythingUpPatch
             case CustomGameMode.HotPotato:
             {
                 var list = cloneRoles.OrderByDescending(HotPotatoManager.GetSurvivalTime);
-                foreach (var id in cloneRoles.Where(EndGamePatch.SummaryText.ContainsKey))
+                foreach (var id in list.Where(EndGamePatch.SummaryText.ContainsKey))
                     sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id]);
                 break;
             }
             default:
             {
                 sb.Append("</b>\n");
-                foreach (byte id in cloneRoles.ToArray())
+                foreach (byte id in cloneRoles)
                 {
                     if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
                     sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
