@@ -67,6 +67,11 @@ public class Witch : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return true;
+    }
+
     private static void SendRPC(bool doSpell, byte witchId, byte target = 255, bool spellMode = false)
     {
         if (!Utils.DoRPC) return;

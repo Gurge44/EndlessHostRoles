@@ -2,7 +2,7 @@
 
 namespace TOHE.Roles.Neutral;
 
-public static class Wraith
+public class Wraith : ISettingHolder
 {
     private const int Id = 13300;
 
@@ -10,7 +10,7 @@ public static class Wraith
     public static OptionItem WraithDuration;
     public static OptionItem WraithVentNormallyOnCooldown;
 
-    public static void SetupCustomOption()
+    public void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Wraith);
         WraithCooldown = FloatOptionItem.Create(Id + 2, "WraithCooldown", new(1f, 60f, 1f), 20f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Wraith])

@@ -2,7 +2,7 @@ using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral
 {
-    public static class Ritualist
+    public class Ritualist : ISettingHolder
     {
         private const int Id = 13000;
 
@@ -11,7 +11,7 @@ namespace TOHE.Roles.Neutral
         public static OptionItem CanVent;
         public static OptionItem HasImpostorVision;
 
-        public static void SetupCustomOption()
+        public void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Ritualist);
             KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Ritualist])

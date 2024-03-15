@@ -100,12 +100,17 @@ namespace TOHE.Roles.Impostor
         {
             if (killCooldown) KCD = KillCooldown.GetFloat();
             if (curseCooldown) CurseCD = CurseCooldown.GetFloat();
-            if (shapeshiftCooldown) warlock?.RpcResetAbilityCooldown();
+
+            if (warlock == null) return;
+
+            if (shapeshiftCooldown) warlock.RpcResetAbilityCooldown();
 
             if (KCD > 0f && CurseCD > 0f)
             {
-                _ = new LateTask(() => { warlock?.SetKillCooldown(Math.Min(KCD, CurseCD) - 1f); }, 0.1f, log: false);
+                _ = new LateTask(() => { warlock.SetKillCooldown(Math.Min(KCD, CurseCD) - 1f); }, 0.1f, log: false);
             }
+
+            Utils.NotifyRoles(SpecifySeer: warlock, SpecifyTarget: warlock);
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)

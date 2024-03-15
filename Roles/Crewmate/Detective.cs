@@ -2,11 +2,11 @@
 
 namespace TOHE.Roles.Crewmate
 {
-    internal static class Detective
+    internal class Detective : ISettingHolder
     {
         public static Dictionary<byte, string> DetectiveNotify = [];
 
-        public static void SetupCustomOption()
+        public void SetupCustomOption()
         {
             Options.SetupRoleOptions(6600, TabGroup.CrewmateRoles, CustomRoles.Detective);
             Options.DetectiveCanknowKiller = BooleanOptionItem.Create(6610, "DetectiveCanknowKiller", true, TabGroup.CrewmateRoles, false)

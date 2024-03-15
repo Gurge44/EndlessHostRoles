@@ -3,9 +3,9 @@ using static TOHE.Options;
 
 namespace TOHE.Roles.Impostor
 {
-    internal static class EvilGuesser
+    internal class EvilGuesser : ISettingHolder
     {
-        public static void SetupCustomOption()
+        public void SetupCustomOption()
         {
             SetupRoleOptions(1200, TabGroup.ImpostorRoles, CustomRoles.EvilGuesser);
             EGCanGuessTime = IntegerOptionItem.Create(1205, "GuesserCanGuessTimes", new(1, 15, 1), 15, TabGroup.ImpostorRoles, false)

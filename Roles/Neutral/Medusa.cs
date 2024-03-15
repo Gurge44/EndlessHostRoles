@@ -2,7 +2,7 @@ using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral;
 
-public static class Medusa
+public class Medusa : ISettingHolder
 {
     private const int Id = 12400;
 
@@ -11,7 +11,7 @@ public static class Medusa
     public static OptionItem CanVent;
     public static OptionItem HasImpostorVision;
 
-    public static void SetupCustomOption()
+    public void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Medusa);
         KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Medusa])

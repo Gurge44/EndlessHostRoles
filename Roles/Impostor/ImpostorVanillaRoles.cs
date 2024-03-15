@@ -2,16 +2,18 @@
 
 namespace TOHE.Roles.Impostor
 {
-    internal static class ImpostorVanillaRoles
+    internal class ImpostorVanillaRoles : IVanillaSettingHolder
     {
-        public static void SetupCustomOption()
+        public TabGroup Tab => TabGroup.ImpostorRoles;
+
+        public void SetupCustomOption()
         {
-            SetupRoleOptions(300, TabGroup.ImpostorRoles, CustomRoles.ImpostorTOHE);
-            SetupRoleOptions(400, TabGroup.ImpostorRoles, CustomRoles.ShapeshifterTOHE);
-            ShapeshiftCD = FloatOptionItem.Create(402, "ShapeshiftCooldown", new(1f, 180f, 1f), 30f, TabGroup.ImpostorRoles, false)
+            SetupRoleOptions(300, Tab, CustomRoles.ImpostorTOHE);
+            SetupRoleOptions(400, Tab, CustomRoles.ShapeshifterTOHE);
+            ShapeshiftCD = FloatOptionItem.Create(402, "ShapeshiftCooldown", new(1f, 180f, 1f), 30f, Tab, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ShapeshifterTOHE])
                 .SetValueFormat(OptionFormat.Seconds);
-            ShapeshiftDur = FloatOptionItem.Create(403, "ShapeshiftDuration", new(1f, 60f, 1f), 10f, TabGroup.ImpostorRoles, false)
+            ShapeshiftDur = FloatOptionItem.Create(403, "ShapeshiftDuration", new(1f, 60f, 1f), 10f, Tab, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ShapeshifterTOHE])
                 .SetValueFormat(OptionFormat.Seconds);
         }

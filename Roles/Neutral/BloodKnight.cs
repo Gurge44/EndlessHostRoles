@@ -2,7 +2,7 @@ using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral;
 
-public static class BloodKnight
+public class BloodKnight : ISettingHolder
 {
     private const int Id = 11800;
 
@@ -11,7 +11,7 @@ public static class BloodKnight
     public static OptionItem HasImpostorVision;
     public static OptionItem ProtectDuration;
 
-    public static void SetupCustomOption()
+    public void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.BloodKnight);
         KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.BloodKnight])

@@ -2339,7 +2339,7 @@ public static class Utils
             CustomRoles.Druid => Druid.VentCooldown.GetInt(),
             CustomRoles.Sniper => Options.DefaultShapeshiftCooldown.GetInt(),
             CustomRoles.Assassin => Assassin.AssassinateCooldownOpt.GetInt(),
-            CustomRoles.Undertaker => Assassin.UndertakerAssassinateCooldown.GetInt(),
+            CustomRoles.Undertaker => Undertaker.UndertakerAssassinateCooldown.GetInt(),
             CustomRoles.Bomber => Options.BombCooldown.GetInt(),
             CustomRoles.Nuker => Options.NukeCooldown.GetInt(),
             CustomRoles.Sapper => Sapper.ShapeshiftCooldown.GetInt(),

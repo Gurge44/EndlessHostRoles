@@ -1,7 +1,7 @@
 ﻿namespace TOHE.Roles.Neutral;
 
 // 来源：https://github.com/Yumenopai/TownOfHost_Y
-public static class Imitator
+public class Imitator : ISettingHolder
 {
     private const int Id = 11950;
 
@@ -11,7 +11,7 @@ public static class Imitator
     public static OptionItem CanVent;
     public static OptionItem HasImpostorVision;
 
-    public static void SetupCustomOption()
+    public void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Imitator);
         OddKillCooldown = FloatOptionItem.Create(Id + 10, "OddKillCooldown", new(0f, 60f, 2.5f), 27.5f, TabGroup.NeutralRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Imitator])

@@ -17,9 +17,6 @@ internal class Assassin : RoleBase
     private static OptionItem MarkCooldownOpt;
     public static OptionItem AssassinateCooldownOpt;
     private static OptionItem CanKillAfterAssassinateOpt;
-    public static OptionItem UndertakerMarkCooldown;
-    public static OptionItem UndertakerAssassinateCooldown;
-    public static OptionItem UndertakerCanKillAfterAssassinate;
 
     private float MarkCooldown;
     private float AssassinateCooldown;
@@ -39,16 +36,6 @@ internal class Assassin : RoleBase
             .SetValueFormat(OptionFormat.Seconds);
         CanKillAfterAssassinateOpt = BooleanOptionItem.Create(Id + 12, "AssassinCanKillAfterAssassinate", true, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Assassin]);
-
-        SetupRoleOptions(Id + 20, TabGroup.ImpostorRoles, CustomRoles.Undertaker);
-        UndertakerMarkCooldown = FloatOptionItem.Create(Id + 30, "UndertakerMarkCooldown", new(0f, 180f, 0.5f), 1f, TabGroup.ImpostorRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Undertaker])
-            .SetValueFormat(OptionFormat.Seconds);
-        UndertakerAssassinateCooldown = FloatOptionItem.Create(Id + 31, "UndertakerAssassinateCooldown", new(0f, 180f, 0.5f), 18.5f, TabGroup.ImpostorRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Undertaker])
-            .SetValueFormat(OptionFormat.Seconds);
-        UndertakerCanKillAfterAssassinate = BooleanOptionItem.Create(Id + 32, "UndertakerCanKillAfterAssassinate", true, TabGroup.ImpostorRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Undertaker]);
     }
 
     public override void Init()
@@ -66,9 +53,9 @@ internal class Assassin : RoleBase
 
         if (IsUndertaker)
         {
-            MarkCooldown = UndertakerMarkCooldown.GetFloat();
-            AssassinateCooldown = UndertakerAssassinateCooldown.GetFloat();
-            CanKillAfterAssassinate = UndertakerCanKillAfterAssassinate.GetBool();
+            MarkCooldown = Undertaker.UndertakerMarkCooldown.GetFloat();
+            AssassinateCooldown = Undertaker.UndertakerAssassinateCooldown.GetFloat();
+            CanKillAfterAssassinate = Undertaker.UndertakerCanKillAfterAssassinate.GetBool();
         }
         else
         {

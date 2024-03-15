@@ -115,6 +115,11 @@ public class Swooper : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return true;
+    }
+
     void SendRPC()
     {
         if (!IsEnable || !Utils.DoRPC) return;

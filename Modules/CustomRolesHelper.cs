@@ -697,7 +697,7 @@ internal static class CustomRolesHelper
         CustomRoles.Autopsy when mainRole is CustomRoles.Doctor or CustomRoles.Tracefinder or CustomRoles.Scientist or CustomRoles.ScientistTOHE or CustomRoles.Sunnyboy => false,
         CustomRoles.Necroview when mainRole is CustomRoles.Doctor => false,
         CustomRoles.Lazy when mainRole is CustomRoles.Speedrunner => false,
-        CustomRoles.Mischievous when mainRole.Is(Team.Impostor) || mainRole.GetDYRole() != RoleTypes.Impostor || mainRole.IsNK() => false,
+        CustomRoles.Mischievous when mainRole.Is(Team.Impostor) || mainRole.GetDYRole() != RoleTypes.Impostor || !mainRole.IsNK() => false,
         CustomRoles.Loyal when mainRole.IsCrewmate() && !Options.CrewCanBeLoyal.GetBool() => false,
         CustomRoles.DualPersonality when mainRole.IsCrewmate() && !Options.CrewCanBeDualPersonality.GetBool() => false,
         CustomRoles.Lazy when mainRole is CustomRoles.Needy or CustomRoles.Snitch or CustomRoles.Marshall or CustomRoles.Transporter or CustomRoles.Guardian => false,
@@ -826,7 +826,7 @@ internal static class CustomRolesHelper
         CustomRoles.Autopsy when pc.Is(CustomRoles.Doctor) || pc.Is(CustomRoles.Tracefinder) || pc.Is(CustomRoles.Scientist) || pc.Is(CustomRoles.ScientistTOHE) || pc.Is(CustomRoles.Sunnyboy) => false,
         CustomRoles.Necroview when pc.Is(CustomRoles.Doctor) => false,
         CustomRoles.Lazy when pc.Is(CustomRoles.Speedrunner) => false,
-        CustomRoles.Mischievous when pc.Is(Team.Impostor) || pc.GetCustomRole().GetDYRole() != RoleTypes.Impostor || pc.IsNeutralKiller() => false,
+        CustomRoles.Mischievous when pc.Is(Team.Impostor) || pc.GetCustomRole().GetDYRole() != RoleTypes.Impostor || !pc.IsNeutralKiller() => false,
         CustomRoles.Loyal when pc.IsCrewmate() && !Options.CrewCanBeLoyal.GetBool() => false,
         CustomRoles.DualPersonality when pc.IsCrewmate() && !Options.CrewCanBeDualPersonality.GetBool() => false,
         CustomRoles.Lazy when pc.Is(CustomRoles.Needy) || pc.Is(CustomRoles.Snitch) || pc.Is(CustomRoles.Marshall) || pc.Is(CustomRoles.Transporter) || pc.Is(CustomRoles.Guardian) => false,
@@ -1160,6 +1160,25 @@ internal static class CustomRolesHelper
         RoleOptionType.Neutral_Killing => TabGroup.NeutralRoles,
         _ => TabGroup.OtherRoles
     };
+
+    public static SimpleRoleOptionType GetSimpleRoleOptionType(this RoleOptionType type) => type switch
+    {
+        RoleOptionType.Impostor => SimpleRoleOptionType.Impostor,
+        RoleOptionType.Crewmate_Normal => SimpleRoleOptionType.Crewmate,
+        RoleOptionType.Crewmate_ImpostorBased => SimpleRoleOptionType.Crewmate,
+        RoleOptionType.Neutral_NonKilling => SimpleRoleOptionType.NNK,
+        RoleOptionType.Neutral_Killing => SimpleRoleOptionType.NK,
+        _ => SimpleRoleOptionType.Crewmate
+    };
+
+    // Get Simple Role Option Type
+    public static SimpleRoleOptionType GetSimpleRoleOptionType(this CustomRoles role)
+    {
+        if (role.IsImpostor()) return SimpleRoleOptionType.Impostor;
+        if (role.IsCrewmate()) return SimpleRoleOptionType.Crewmate;
+        if (role.IsNeutral()) return role.IsNK() ? SimpleRoleOptionType.NK : SimpleRoleOptionType.NNK;
+        return SimpleRoleOptionType.Crewmate;
+    }
 }
 
 public enum RoleOptionType
@@ -1169,6 +1188,14 @@ public enum RoleOptionType
     Crewmate_ImpostorBased,
     Neutral_NonKilling,
     Neutral_Killing
+}
+
+public enum SimpleRoleOptionType
+{
+    Crewmate,
+    Impostor,
+    NK,
+    NNK,
 }
 
 public enum CustomRoleTypes

@@ -2,7 +2,7 @@ using static TOHE.Options;
 
 namespace TOHE.Roles.Crewmate;
 
-public static class Chameleon
+public class Chameleon : ISettingHolder
 {
     private const int Id = 6300;
 
@@ -12,7 +12,7 @@ public static class Chameleon
     public static OptionItem ChameleonAbilityUseGainWithEachTaskCompleted;
     public static OptionItem AbilityChargesWhenFinishedTasks;
 
-    public static void SetupCustomOption()
+    public void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Chameleon);
         ChameleonCooldown = FloatOptionItem.Create(Id + 2, "ChameleonCooldown", new(1f, 60f, 1f), 20f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Chameleon])

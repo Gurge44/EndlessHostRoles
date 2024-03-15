@@ -2,9 +2,9 @@
 
 namespace TOHE.Roles.Neutral
 {
-    internal static class Phantom
+    internal class Phantom : ISettingHolder
     {
-        public static void SetupCustomOption()
+        public void SetupCustomOption()
         {
             SetupRoleOptions(11400, TabGroup.NeutralRoles, CustomRoles.Phantom);
             PhantomCanVent = BooleanOptionItem.Create(11410, "CanVent", false, TabGroup.NeutralRoles, false)

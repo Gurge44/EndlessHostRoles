@@ -59,19 +59,6 @@ public class NiceSwapper : RoleBase
         var originMsg = msg;
 
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || pc == null || pc.GetCustomRole() != CustomRoles.NiceSwapper) return false;
-        if (!pc.IsAlive())
-        {
-            if (!isUI) Utils.SendMessage(GetString("SwapDead"), pc.PlayerId);
-            pc.ShowPopUp(GetString("SwapDead"));
-            return true;
-        }
-
-        if (pc.GetAbilityUseLimit() < 1)
-        {
-            if (!isUI) Utils.SendMessage(GetString("NiceSwapperTrialMax"), pc.PlayerId);
-            pc.ShowPopUp(GetString("NiceSwapperTrialMax"));
-            return true;
-        }
 
         int operate;
         msg = msg.ToLower().TrimStart().TrimEnd();
@@ -86,6 +73,20 @@ public class NiceSwapper : RoleBase
                 return true;
             case 2:
             {
+                if (!pc.IsAlive())
+                {
+                    if (!isUI) Utils.SendMessage(GetString("SwapDead"), pc.PlayerId);
+                    pc.ShowPopUp(GetString("SwapDead"));
+                    return true;
+                }
+
+                if (pc.GetAbilityUseLimit() < 1)
+                {
+                    if (!isUI) Utils.SendMessage(GetString("NiceSwapperTrialMax"), pc.PlayerId);
+                    pc.ShowPopUp(GetString("NiceSwapperTrialMax"));
+                    return true;
+                }
+
                 if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
                 else if (pc.AmOwner && !isUI) Utils.SendMessage(originMsg, 255, pc.GetRealName());
 

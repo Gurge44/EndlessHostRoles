@@ -3,9 +3,9 @@ using static TOHE.Options;
 
 namespace TOHE.Roles.Crewmate
 {
-    internal static class NiceGuesser
+    internal class NiceGuesser : ISettingHolder
     {
-        public static void SetupCustomOption()
+        public void SetupCustomOption()
         {
             SetupRoleOptions(8600, TabGroup.CrewmateRoles, CustomRoles.NiceGuesser);
             GGCanGuessTime = IntegerOptionItem.Create(8610, "GuesserCanGuessTimes", new(0, 15, 1), 15, TabGroup.CrewmateRoles, false)

@@ -3,9 +3,9 @@ using static TOHE.Options;
 
 namespace TOHE.Roles.Crewmate
 {
-    internal static class Demolitionist
+    internal class Demolitionist : ISettingHolder
     {
-        public static void SetupCustomOption()
+        public void SetupCustomOption()
         {
             SetupRoleOptions(5550, TabGroup.CrewmateRoles, CustomRoles.Demolitionist);
             DemolitionistVentTime = FloatOptionItem.Create(5552, "DemolitionistVentTime", new(0f, 90f, 1f), 5f, TabGroup.CrewmateRoles, false)

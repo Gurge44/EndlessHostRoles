@@ -2,9 +2,9 @@
 
 namespace TOHE.Roles.Neutral
 {
-    internal static class Terrorist
+    internal class Terrorist : ISettingHolder
     {
-        public static void SetupCustomOption()
+        public void SetupCustomOption()
         {
             SetupRoleOptions(11500, TabGroup.NeutralRoles, CustomRoles.Terrorist);
             CanTerroristSuicideWin = BooleanOptionItem.Create(11510, "CanTerroristSuicideWin", false, TabGroup.NeutralRoles, false)

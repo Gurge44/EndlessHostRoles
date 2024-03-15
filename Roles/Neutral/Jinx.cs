@@ -2,7 +2,7 @@ using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral;
 
-public static class Jinx
+public class Jinx : ISettingHolder
 {
     private const int Id = 12200;
 
@@ -12,7 +12,7 @@ public static class Jinx
     public static OptionItem JinxSpellTimes;
     public static OptionItem KillAttacker;
 
-    public static void SetupCustomOption()
+    public void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Jinx);
         KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jinx])

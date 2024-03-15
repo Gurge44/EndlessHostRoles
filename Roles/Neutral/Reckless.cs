@@ -2,7 +2,7 @@ using static TOHE.Options;
 
 namespace TOHE.Roles.Neutral;
 
-public static class Reckless
+public class Reckless : ISettingHolder
 {
     private const int Id = 640500;
 
@@ -12,7 +12,7 @@ public static class Reckless
     public static OptionItem HasImpostorVision;
     public static OptionItem CanVent;
 
-    public static void SetupCustomOption()
+    public void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Reckless);
         DefaultKillCooldown = FloatOptionItem.Create(Id + 10, "SansDefaultKillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Reckless])

@@ -1,7 +1,9 @@
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using TOHE.Modules;
 using TOHE.Roles.AddOns.Crewmate;
@@ -999,6 +1001,7 @@ public static class Options
         return CustomRoleSpawnChances.TryGetValue(role, out var option) ? option.GetValue() /* / 10f */ : roleSpawnChances[role];
     }
 
+    [SuppressMessage("ReSharper", "AccessToModifiedClosure")]
     public static void Load()
     {
         LoadingPercentage = 0;
@@ -1538,12 +1541,39 @@ public static class Options
 
         try
         {
-            var roleClassesDict = Main.AllRoleClasses
+            int titleId = 100100;
+
+            var IVanillaType = typeof(IVanillaSettingHolder);
+            Assembly
+                .GetExecutingAssembly()
+                .GetTypes()
+                .Where(t => IVanillaType.IsAssignableFrom(t) && !t.IsInterface)
+                .OrderBy(t => t.Name)
+                .Select(type => (IVanillaSettingHolder)Activator.CreateInstance(type))
+                .Do(x =>
+                {
+                    TextOptionItem.Create(titleId, "ROT.Vanilla", x.Tab)
+                        .SetGameMode(CustomGameMode.Standard)
+                        .SetColor(Color.white)
+                        .SetHeader(true);
+                    titleId += 10;
+
+                    x.SetupCustomOption();
+                });
+
+            var IType = typeof(ISettingHolder);
+            Dictionary<SimpleRoleOptionType, ISettingHolder[]> simpleRoleClasses = Assembly
+                .GetExecutingAssembly()
+                .GetTypes()
+                .Where(t => IType.IsAssignableFrom(t) && !t.IsInterface)
+                .OrderBy(t => t.Name)
+                .GroupBy(x => ((CustomRoles)Enum.Parse(typeof(CustomRoles), ignoreCase: true, value: x.Name)).GetSimpleRoleOptionType())
+                .ToDictionary(x => x.Key, x => x.Select(type => (ISettingHolder)Activator.CreateInstance(type)).ToArray());
+
+            Dictionary<RoleOptionType, RoleBase[]> roleClassesDict = Main.AllRoleClasses
                 .Where(x => x.GetType().Name != "VanillaRole")
                 .GroupBy(x => ((CustomRoles)Enum.Parse(typeof(CustomRoles), ignoreCase: true, value: x.GetType().Name)).GetRoleOptionType())
                 .ToDictionary(x => x.Key, x => x.ToArray());
-
-            int titleId = 100100;
 
             TextOptionItem.Create(titleId, "ROT.MadMates", TabGroup.ImpostorRoles)
                 .SetHeader(true)
@@ -1551,29 +1581,40 @@ public static class Options
                 .SetColor(Palette.ImpostorRed);
             titleId += 10;
 
+            List<SimpleRoleOptionType> DoneTypes = [];
+
             foreach (var roleClasses in roleClassesDict)
             {
                 MainLoadingText = $"Building Role Settings: {roleClasses.Key} Roles";
                 int allRoles = roleClasses.Value.Length;
                 int index = 0;
 
-                switch (roleClasses.Key)
+                var tab = roleClasses.Key.GetTabFromOptionType();
+
+                var categorySuffix = roleClasses.Key switch
                 {
-                    case RoleOptionType.Impostor:
-                        SetupBasicImpostorRoleSettings(ref titleId);
-                        break;
-                    case RoleOptionType.Crewmate_Normal:
-                        SetupBasicNonKillingCrewmateRoleSettings(ref titleId);
-                        break;
-                    case RoleOptionType.Neutral_NonKilling:
-                        SetupBasicNonKillingNeutralRoleSettings(ref titleId);
-                        break;
-                    case RoleOptionType.Neutral_Killing:
-                        SetupBasicKillingNeutralRoleSettings(ref titleId);
-                        break;
+                    RoleOptionType.Neutral_Killing => "NK",
+                    RoleOptionType.Neutral_NonKilling => "NNK",
+                    _ => string.Empty
+                };
+                TextOptionItem.Create(titleId, $"ROT.Basic{categorySuffix}", tab)
+                    .SetGameMode(CustomGameMode.Standard)
+                    .SetColor(Color.gray)
+                    .SetHeader(true);
+                titleId += 10;
+
+                var key = roleClasses.Key.GetSimpleRoleOptionType();
+                if (!DoneTypes.Contains(key) && simpleRoleClasses.TryGetValue(key, out ISettingHolder[] value))
+                {
+                    foreach (ISettingHolder holder in value)
+                    {
+                        holder.SetupCustomOption();
+                    }
+
+                    DoneTypes.Add(key);
                 }
 
-                TextOptionItem.Create(titleId, $"ROT.{roleClasses.Key}", roleClasses.Key.GetTabFromOptionType())
+                TextOptionItem.Create(titleId, $"ROT.{roleClasses.Key}", tab)
                     .SetHeader(true)
                     .SetGameMode(CustomGameMode.Standard)
                     .SetColor(roleClasses.Key.GetRoleOptionTypeColor());
@@ -2549,89 +2590,6 @@ public static class Options
         OptionSaver.Load();
 
         IsLoaded = true;
-        return;
-
-        static void SetupBasicNonKillingCrewmateRoleSettings(ref int titleId)
-        {
-            TextOptionItem.Create(titleId, "ROT.Vanilla", TabGroup.CrewmateRoles)
-                .SetGameMode(CustomGameMode.Standard)
-                .SetColor(Color.white)
-                .SetHeader(true);
-            titleId += 10;
-
-            CrewmateVanillaRoles.SetupCustomOption();
-
-            TextOptionItem.Create(titleId, "ROT.Basic", TabGroup.CrewmateRoles)
-                .SetGameMode(CustomGameMode.Standard)
-                .SetColor(Color.gray)
-                .SetHeader(true);
-            titleId += 10;
-
-            CyberStar.SetupCustomOption(); // Celebrity
-            Chameleon.SetupCustomOption();
-            Demolitionist.SetupCustomOption();
-            Detective.SetupCustomOption();
-            SetupRoleOptions(5590, TabGroup.CrewmateRoles, CustomRoles.Detour);
-            SetupRoleOptions(9100, TabGroup.CrewmateRoles, CustomRoles.Dictator);
-            SetupRoleOptions(5700, TabGroup.CrewmateRoles, CustomRoles.Needy); // Lazy guy
-            SetupRoleOptions(7500, TabGroup.CrewmateRoles, CustomRoles.Observer);
-            NiceGuesser.SetupCustomOption();
-            SetupRoleOptions(5594, TabGroup.CrewmateRoles, CustomRoles.Shiftguard);
-        }
-
-        static void SetupBasicImpostorRoleSettings(ref int titleId)
-        {
-            TextOptionItem.Create(titleId, "ROT.Vanilla", TabGroup.ImpostorRoles)
-                .SetGameMode(CustomGameMode.Standard)
-                .SetColor(Color.white)
-                .SetHeader(true);
-            titleId += 10;
-
-            ImpostorVanillaRoles.SetupCustomOption();
-
-            TextOptionItem.Create(100030, "ROT.Basic", TabGroup.ImpostorRoles)
-                .SetGameMode(CustomGameMode.Standard)
-                .SetColor(Color.gray)
-                .SetHeader(true);
-            titleId += 10;
-
-            EvilGuesser.SetupCustomOption();
-            Vindicator.SetupCustomOption();
-            SetupRoleOptions(16150, TabGroup.ImpostorRoles, CustomRoles.Visionary);
-            SetupRoleOptions(4300, TabGroup.ImpostorRoles, CustomRoles.Trickster);
-        }
-
-        static void SetupBasicNonKillingNeutralRoleSettings(ref int titleId)
-        {
-            TextOptionItem.Create(titleId, "ROT.BasicNNK", TabGroup.NeutralRoles)
-                .SetGameMode(CustomGameMode.Standard)
-                .SetColor(Color.gray)
-                .SetHeader(true);
-            titleId += 10;
-
-            Phantom.SetupCustomOption();
-            Terrorist.SetupCustomOption();
-        }
-
-        static void SetupBasicKillingNeutralRoleSettings(ref int titleId)
-        {
-            TextOptionItem.Create(titleId, "ROT.BasicNK", TabGroup.NeutralRoles)
-                .SetGameMode(CustomGameMode.Standard)
-                .SetColor(Color.gray)
-                .SetHeader(true);
-            titleId += 10;
-
-            BloodKnight.SetupCustomOption();
-            HexMaster.SetupCustomOption();
-            Imitator.SetupCustomOption();
-            Jinx.SetupCustomOption();
-            Juggernaut.SetupCustomOption();
-            Medusa.SetupCustomOption();
-            Poisoner.SetupCustomOption();
-            Reckless.SetupCustomOption();
-            Ritualist.SetupCustomOption();
-            Wraith.SetupCustomOption();
-        }
     }
 
     public static void SetupRoleOptions(int id, TabGroup tab, CustomRoles role, CustomGameMode customGameMode = CustomGameMode.Standard, bool zeroOne = false)

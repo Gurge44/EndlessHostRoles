@@ -32,6 +32,7 @@ namespace TOHE.Roles.Impostor
             On = true;
             IsWhistling = false;
             MarkedPlayer = byte.MaxValue;
+            IsModeWhistle = true;
             CommanderId = playerId;
             PlayerList.Add(this);
         }
