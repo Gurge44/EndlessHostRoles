@@ -188,7 +188,7 @@ public static class ChatManager
     {
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsModHost) return;
         ChatUpdatePatch.DoBlockChat = true;
-        string msg = Utils.EmptyMessage();
+        string msg = Utils.EmptyMessage;
         var totalAlive = Main.AllAlivePlayerControls.Length;
         var x = Main.AllAlivePlayerControls;
         var r = IRandom.Instance;

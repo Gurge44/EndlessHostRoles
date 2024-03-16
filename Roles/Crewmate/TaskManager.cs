@@ -23,8 +23,9 @@ namespace TOHE.Roles.Crewmate
         {
             var ProgressText = new StringBuilder();
 
-            string totalCompleted = comms ? "?" : $"{GameData.Instance.CompletedTasks}";
             ProgressText.Append(Utils.GetTaskCount(playerId, comms));
+
+            string totalCompleted = comms ? "?" : $"{GameData.Instance.CompletedTasks}";
             ProgressText.Append($" <color=#777777>-</color> <color=#00ffa5>{totalCompleted}</color><color=#ffffff>/{GameData.Instance.TotalTasks}</color>");
 
             return ProgressText.ToString();

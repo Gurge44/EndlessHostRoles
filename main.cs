@@ -425,6 +425,7 @@ public class Main : BasePlugin
                 { CustomRoles.Sprayer, "#ffc038" },
                 { CustomRoles.PlagueDoctor, "#ff6633" },
                 { CustomRoles.Postman, "#00b893" },
+                { CustomRoles.Impartial, "#4287f5" },
                 { CustomRoles.Predator, "#c73906" },
                 { CustomRoles.Reckless, "#6e000d" },
                 { CustomRoles.Magician, "#BF5FFF" },
@@ -468,6 +469,7 @@ public class Main : BasePlugin
                 { CustomRoles.Madmate, "#ff1919" },
                 { CustomRoles.Watcher, "#800080" },
                 { CustomRoles.Sleuth, "#30221c" },
+                { CustomRoles.Taskcounter, "#ff1919" },
                 { CustomRoles.Stained, "#e6bf91" },
                 { CustomRoles.Clumsy, "#b8b8b8" },
                 { CustomRoles.Mischievous, "#30221c" },
@@ -843,6 +845,7 @@ public enum CustomRoles
     HexMaster,
     Hookshot,
     Imitator,
+    Impartial,
     Innocent,
     Jackal,
     Jester,
@@ -912,6 +915,7 @@ public enum CustomRoles
     // ????
     Convict,
 
+
     // Sub-role after 500
     NotAssigned = 500,
     Antidote,
@@ -967,6 +971,7 @@ public enum CustomRoles
     Seer,
     Sleuth,
     Stained,
+    Taskcounter,
     TicketsStealer, // Stealer
     Stressed,
     Swift,
@@ -1068,6 +1073,7 @@ public enum AdditionalWinners
     Phantom = CustomRoles.Phantom,
     Maverick = CustomRoles.Maverick,
     Postman = CustomRoles.Postman,
+    Impartial = CustomRoles.Impartial,
     Predator = CustomRoles.Predator,
     SoulHunter = CustomRoles.SoulHunter
 }

@@ -308,6 +308,7 @@ internal static class CustomRolesHelper
             CustomRoles.Sprayer => RoleTypes.Impostor,
             CustomRoles.PlagueDoctor => RoleTypes.Impostor,
             CustomRoles.Postman => RoleTypes.Impostor,
+            CustomRoles.Impartial => RoleTypes.Impostor,
             CustomRoles.Predator => RoleTypes.Impostor,
             CustomRoles.Reckless => RoleTypes.Impostor,
             CustomRoles.Magician => RoleTypes.Impostor,
@@ -345,6 +346,7 @@ internal static class CustomRolesHelper
     public static bool IsNonNK(this CustomRoles role) => role is
         CustomRoles.Jester or
         CustomRoles.Postman or
+        CustomRoles.Impartial or
         CustomRoles.Predator or
         CustomRoles.SoulHunter or
         CustomRoles.Terrorist or
@@ -450,6 +452,7 @@ internal static class CustomRolesHelper
         CustomRoles.Mario or
         CustomRoles.Terrorist or
         CustomRoles.Revolutionist or
+        CustomRoles.Impartial or
         CustomRoles.Vulture or
         CustomRoles.Phantom or
         CustomRoles.Workaholic or
@@ -669,6 +672,7 @@ internal static class CustomRolesHelper
         CustomRoles.Damocles or
         CustomRoles.DeadlyQuota or
         CustomRoles.TicketsStealer or
+        CustomRoles.Taskcounter or
         CustomRoles.Swift;
 
     public static bool IsTaskBasedCrewmate(this CustomRoles role) => role is
@@ -992,17 +996,15 @@ internal static class CustomRolesHelper
 
     public static bool IsImpostorTeamV2(this CustomRoles role) => (role.IsImpostorTeam() && role != CustomRoles.Trickster && !role.IsConverted()) || role == CustomRoles.Rascal;
     public static bool IsNeutralTeamV2(this CustomRoles role) => role.IsConverted() || (role.IsNeutral() && role != CustomRoles.Madmate);
-
     public static bool IsCrewmateTeamV2(this CustomRoles role) => (!role.IsImpostorTeamV2() && !role.IsNeutralTeamV2()) || (role == CustomRoles.Trickster && !role.IsConverted());
 
-    public static bool IsConverted(this CustomRoles role) => role is
-                                                                 CustomRoles.Charmed
-                                                                 or CustomRoles.Recruit
-                                                                 or CustomRoles.Contagious
-                                                                 or CustomRoles.Sidekick
-                                                                 or CustomRoles.Undead
-                                                                 or CustomRoles.Lovers
-                                                             || ((role is CustomRoles.Egoist) && (ParityCop.ParityCheckEgoistInt() == 1));
+    public static bool IsConverted(this CustomRoles role) => ((role is CustomRoles.Egoist) && (ParityCop.ParityCheckEgoistInt() == 1)) || role is
+        CustomRoles.Charmed or
+        CustomRoles.Recruit or
+        CustomRoles.Contagious or
+        CustomRoles.Sidekick or
+        CustomRoles.Undead or
+        CustomRoles.Lovers;
 
     public static bool IsRevealingRole(this CustomRoles role, PlayerControl target) =>
         ((role is CustomRoles.Mayor) && Options.MayorRevealWhenDoneTasks.GetBool() && target.AllTasksCompleted()) ||

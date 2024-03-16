@@ -164,6 +164,10 @@ class GameEndChecker
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.Postman);
                             break;
+                        case CustomRoles.Impartial when (Main.PlayerStates[pc.PlayerId].Role as Impartial).IsWon:
+                            WinnerIds.Add(pc.PlayerId);
+                            AdditionalWinnerTeams.Add(AdditionalWinners.Impartial);
+                            break;
                         case CustomRoles.Predator when (Main.PlayerStates[pc.PlayerId].Role as Predator).IsWon:
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.Predator);

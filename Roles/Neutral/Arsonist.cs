@@ -144,7 +144,7 @@ namespace TOHE.Roles.Neutral
                             CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist);
                             CustomWinnerHolder.WinnerIds.Add(physics.myPlayer.PlayerId);
                             break;
-                        default:
+                        case 2:
                             if (Main.AllAlivePlayerControls.Where(x => x.PlayerId != physics.myPlayer.PlayerId).All(x => x.GetCountTypes() == CountTypes.Crew))
                             {
                                 CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist);
@@ -173,7 +173,7 @@ namespace TOHE.Roles.Neutral
                 {
                     var ar_target = ArsonistTimer[playerId].PLAYER;
                     var ar_time = ArsonistTimer[playerId].TIMER;
-                    if (!ExtendedPlayerControl.IsAlive(ar_target))
+                    if (!ar_target.IsAlive())
                     {
                         ArsonistTimer.Remove(playerId);
                     }

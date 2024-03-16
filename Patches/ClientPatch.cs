@@ -67,7 +67,8 @@ internal class SplashLogoAnimatorPatch
 [HarmonyPatch(typeof(EOSManager), nameof(EOSManager.IsAllowedOnline))]
 internal class RunLoginPatch
 {
-    public static int ClickCount;
+    public static int ClickCount = 0;
+
     public static void Prefix(ref bool canOnline)
     {
 #if DEBUG
@@ -115,7 +116,7 @@ internal class KickPlayerPatch
 
         if (AmongUsClient.Instance.ClientId == clientId)
         {
-            Logger.SendInGame(string.Format("Game Attempting to {0} Host, Blocked the attempt.", ban ? "Ban" : "Kick"));
+            Logger.SendInGame($"Game Attempting to {(ban ? "Ban" : "Kick")} Host, Blocked the attempt.");
             Logger.Info("Game attempted to kick/ban host....", "KickPlayerPatch");
             return false;
         }

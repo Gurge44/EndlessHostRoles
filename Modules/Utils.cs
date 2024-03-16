@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using HarmonyLib;
 using TOHE.Modules;
 using TOHE.Patches;
 using TOHE.Roles.AddOns.Common;
@@ -576,6 +577,7 @@ public static class Utils
             case CustomRoles.Doppelganger:
             case CustomRoles.PlagueDoctor:
             case CustomRoles.Postman:
+                case CustomRoles.Impartial:
             case CustomRoles.Predator:
             case CustomRoles.Reckless:
             case CustomRoles.WeaponMaster:
@@ -798,8 +800,13 @@ public static class Utils
             Logger.Error($"For {pc.GetNameWithRole().RemoveHtmlTags()}, failed to get progress text:  " + ex, "Utils.GetProgressText");
         }
 
-        if (pc.Is(CustomRoles.Damocles)) ProgressText.Append(' ' + Damocles.GetProgressText(playerId));
-        if (pc.Is(CustomRoles.Stressed)) ProgressText.Append(' ' + Stressed.GetProgressText(playerId));
+        if (pc.Is(CustomRoles.Damocles)) ProgressText.Append($" {Damocles.GetProgressText(playerId)}");
+        if (pc.Is(CustomRoles.Stressed)) ProgressText.Append($" {Stressed.GetProgressText(playerId)}");
+        if (pc.Is(CustomRoles.Taskcounter))
+        {
+            string totalCompleted = comms ? "?" : $"{GameData.Instance.CompletedTasks}";
+            ProgressText.Append($" <#00ffa5>{totalCompleted}</color><#ffffff>/{GameData.Instance.TotalTasks}</color>");
+        }
 
         if (ProgressText.Length != 0 && !ProgressText.ToString().RemoveHtmlTags().StartsWith(' '))
             ProgressText.Insert(0, ' ');
@@ -1222,7 +1229,21 @@ public static class Utils
         if (sb.Length > 0 && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato) SendMessage("\n", PlayerId, sb.ToString());
     }
 
-    public static string EmptyMessage() => "<size=0>.</size>";
+    public static void ShowLastAddOns(byte PlayerId = byte.MaxValue)
+    {
+        if (GameStates.IsInGame)
+        {
+            SendMessage(GetString("CantUse.lastresult"), PlayerId);
+            return;
+        }
+
+        var result = Main.PlayerStates
+            .Where(s => s.Value.SubRoles.Count > 0)
+            .Join(s => $"{ColorString(Main.PlayerColors.GetValueOrDefault(s.Key, Color.white), Main.AllPlayerNames.GetValueOrDefault(s.Key, $"ID {s.Key}"))}: {s.Value.SubRoles.Join(x => GetString($"{x}"))}", "\n");
+        SendMessage("\n", PlayerId, result);
+    }
+
+    public static string EmptyMessage => "<size=0>.</size>";
 
     public static string GetSubRolesText(byte id, bool disableColor = false, bool intro = false, bool summary = false)
     {
@@ -1236,7 +1257,6 @@ public static class Utils
 
             if (isLovers)
             {
-                //var RoleText = disableColor ? GetRoleName(CustomRoles.Lovers) : ColorString(GetRoleColor(CustomRoles.Lovers), GetRoleName(CustomRoles.Lovers));
                 sb.Append($"{ColorString(GetRoleColor(CustomRoles.Lovers), " ♥")}");
             }
 
@@ -1255,10 +1275,9 @@ public static class Utils
                 {
                     if (i != 0) sb.Append(", ");
                     CustomRoles role = SubRoles[i];
-                    if (role is CustomRoles.NotAssigned or CustomRoles.LastImpostor) continue;
 
                     var RoleText = ColorString(GetRoleColor(role), GetRoleName(role));
-                    sb.Append($"{RoleText}");
+                    sb.Append(RoleText);
                 }
             }
 
@@ -1266,10 +1285,9 @@ public static class Utils
         }
         else if (!summary)
         {
-            foreach (CustomRoles role in SubRoles.ToArray())
+            foreach (CustomRoles role in SubRoles)
             {
-                if (role is CustomRoles.NotAssigned or CustomRoles.LastImpostor)
-                    continue;
+                if (role is CustomRoles.NotAssigned or CustomRoles.LastImpostor) continue;
                 var RoleText = disableColor ? GetRoleName(role) : ColorString(GetRoleColor(role), GetRoleName(role));
                 sb.Append($"{ColorString(Color.gray, " + ")}{RoleText}");
             }

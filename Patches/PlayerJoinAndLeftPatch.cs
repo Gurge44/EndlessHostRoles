@@ -315,6 +315,18 @@ class CreatePlayerPatch
                 }, 1f, "DisplayKillLog");
             }
 
+            if (Options.AutoDisplayLastAddOns.GetBool())
+            {
+                _ = new LateTask(() =>
+                {
+                    if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
+                    {
+                        Main.isChatCommand = true;
+                        Utils.ShowLastAddOns(client.Character.PlayerId);
+                    }
+                }, 1.1f, "DisplayLastAddOns");
+            }
+
             if (Options.AutoDisplayLastRoles.GetBool())
             {
                 _ = new LateTask(() =>
@@ -324,7 +336,7 @@ class CreatePlayerPatch
                         Main.isChatCommand = true;
                         Utils.ShowLastRoles(client.Character.PlayerId);
                     }
-                }, 1.1f, "DisplayLastRoles");
+                }, 1.2f, "DisplayLastRoles");
             }
 
             if (Options.AutoDisplayLastResult.GetBool())
@@ -336,7 +348,7 @@ class CreatePlayerPatch
                         Main.isChatCommand = true;
                         Utils.ShowLastResult(client.Character.PlayerId);
                     }
-                }, 1.2f, "DisplayLastResult");
+                }, 1.3f, "DisplayLastResult");
             }
 
             if (PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp && Options.EnableUpMode.GetBool())
@@ -348,7 +360,7 @@ class CreatePlayerPatch
                         Main.isChatCommand = true;
                         //     Utils.SendMessage($"{GetString("Message.YTPlanNotice")} {PlayerControl.LocalPlayer.FriendCode.GetDevUser().UpName}", client.Character.PlayerId);
                     }
-                }, 1.3f, "DisplayUpWarnning");
+                }, 1.4f, "DisplayUpWarnning");
             }
         }
     }

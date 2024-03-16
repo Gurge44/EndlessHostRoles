@@ -847,6 +847,7 @@ public static class Options
     public static OptionItem NoGameEnd;
     public static OptionItem DontUpdateDeadPlayers;
     public static OptionItem AutoDisplayLastRoles;
+    public static OptionItem AutoDisplayLastAddOns;
     public static OptionItem AutoDisplayKillLog;
     public static OptionItem AutoDisplayLastResult;
     public static OptionItem SuffixMode;
@@ -1307,6 +1308,7 @@ public static class Options
         AutoDisplayKillLog = BooleanOptionItem.Create(19321, "AutoDisplayKillLog", true, TabGroup.SystemSettings, false)
             .SetHeader(true);
         AutoDisplayLastRoles = BooleanOptionItem.Create(19322, "AutoDisplayLastRoles", true, TabGroup.SystemSettings, false);
+        AutoDisplayLastAddOns = BooleanOptionItem.Create(19325, "AutoDisplayLastAddOns", true, TabGroup.SystemSettings, false);
         AutoDisplayLastResult = BooleanOptionItem.Create(19323, "AutoDisplayLastResult", true, TabGroup.SystemSettings, false);
 
         SuffixMode = StringOptionItem.Create(19324, "SuffixMode", suffixModes, 0, TabGroup.SystemSettings, true)
