@@ -856,7 +856,7 @@ internal static class CustomRolesHelper
         CustomRoles.Rascal when !pc.IsCrewmate() => false,
         CustomRoles.Needy when pc.GetCustomRole().IsAdditionRole() => false,
         CustomRoles.TicketsStealer when pc.Is(CustomRoles.Vindicator) => false,
-        CustomRoles.Bloodlust when !pc.IsCrewmate() || pc.GetCustomRole().IsTaskBasedCrewmate() => false,
+        CustomRoles.Bloodlust when !pc.GetCustomRole().IsCrewmate() || pc.GetCustomRole().IsTaskBasedCrewmate() => false,
         CustomRoles.Mare when pc.Is(CustomRoles.Underdog) => false,
         CustomRoles.Mare when pc.Is(CustomRoles.Inhibitor) => false,
         CustomRoles.Mare when pc.Is(CustomRoles.Saboteur) => false,
