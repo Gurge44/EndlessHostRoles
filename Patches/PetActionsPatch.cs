@@ -50,7 +50,7 @@ class ExternalRpcPetPatch
 
     public static void Prefix(PlayerPhysics __instance, [HarmonyArgument(0)] byte callID)
     {
-        if (!Options.UsePets.GetBool() || !AmongUsClient.Instance.AmHost || (RpcCalls)callID != RpcCalls.Pet) return;
+        if (GameStates.IsLobby || !Options.UsePets.GetBool() || !AmongUsClient.Instance.AmHost || (RpcCalls)callID != RpcCalls.Pet) return;
 
         var pc = __instance.myPlayer;
         var physics = __instance;
@@ -90,7 +90,8 @@ class ExternalRpcPetPatch
             pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() ||
             Pelican.IsEaten(pc.PlayerId) ||
             Penguin.IsVictim(pc) ||
-            !AmongUsClient.Instance.AmHost
+            !AmongUsClient.Instance.AmHost ||
+            GameStates.IsLobby
            )
             return;
 
@@ -98,6 +99,7 @@ class ExternalRpcPetPatch
         {
             var killTarget = SelectKillButtonTarget(pc);
             if (killTarget != null) Mastermind.ForceKillForManipulatedPlayer(pc, killTarget);
+            return;
         }
 
         if (pc.HasAbilityCD()) return;
@@ -122,7 +124,7 @@ class ExternalRpcPetPatch
             Main.PlayerStates[pc.PlayerId].Role.OnPet(pc);
         }
 
-        if (pc.HasAbilityCD() || (pc.Is(CustomRoles.Sniper) && Main.PlayerStates[pc.PlayerId].Role is Sniper { IsAim: true })) return;
+        if (pc.HasAbilityCD() || (Main.PlayerStates[pc.PlayerId].Role is Sniper { IsAim: true })) return;
 
         pc.AddAbilityCD();
     }

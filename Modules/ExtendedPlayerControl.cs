@@ -166,10 +166,10 @@ static class ExtendedPlayerControl
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            var caller = new System.Diagnostics.StackFrame(1, false);
+            var caller = new StackFrame(1, false);
             var callerMethod = caller.GetMethod();
-            string callerMethodName = callerMethod.Name;
-            string callerClassName = callerMethod.DeclaringType.FullName;
+            string callerMethodName = callerMethod?.Name;
+            string callerClassName = callerMethod?.DeclaringType?.FullName;
             Logger.Warn($"Modded non-host client activated RpcGuardAndKill from {callerClassName}.{callerMethodName}", "RpcGuardAndKill");
             return;
         }
@@ -229,23 +229,12 @@ static class ExtendedPlayerControl
         if (float.IsNaN(current)) return;
         pc.SetAbilityUseLimit(current + get);
     }
-    public static void SetAbilityUseLimit(this PlayerControl pc, float limit, bool rpc = true)
-    {
-        if (float.IsNaN(limit) || limit is < 0f or > 100f) return;
 
-        Main.AbilityUseLimit[pc.PlayerId] = limit;
+    public static void SetAbilityUseLimit(this PlayerControl pc, float limit, bool rpc = true) => pc.PlayerId.SetAbilityUseLimit(limit, rpc);
 
-        if (AmongUsClient.Instance.AmHost && pc.IsNonHostModClient() && rpc)
-        {
-            var writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAbilityUseLimit, SendOption.Reliable);
-            writer.Write(pc.PlayerId);
-            writer.Write(limit);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-    }
     public static void SetAbilityUseLimit(this byte playerId, float limit, bool rpc = true)
     {
-        if (float.IsNaN(limit) || limit is < 0f or > 100f) return;
+        if (float.IsNaN(limit) || limit is < 0f or > 100f || (Main.AbilityUseLimit.TryGetValue(playerId, out var beforeLimit) && Math.Abs(beforeLimit - limit) < 0.01f)) return;
 
         Main.AbilityUseLimit[playerId] = limit;
 
@@ -256,6 +245,9 @@ static class ExtendedPlayerControl
             writer.Write(limit);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
+
+        var pc = GetPlayerById(playerId);
+        NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
     public static void Suicide(this PlayerControl pc, PlayerState.DeathReason deathReason = PlayerState.DeathReason.Suicide, PlayerControl realKiller = null)
@@ -768,7 +760,7 @@ static class ExtendedPlayerControl
 
         if (killer.Is(CustomRoles.Damocles)) Damocles.OnMurder(killer.PlayerId);
         else if (killer.Is(Team.Impostor)) Damocles.OnOtherImpostorMurder();
-        if (target.Is(Team.Impostor)) Damocles.OnImpostorDeath();
+        else if (target.Is(Team.Impostor)) Damocles.OnImpostorDeath();
 
         if (killer.Is(CustomRoles.Bloodlust)) FixedUpdatePatch.AddExtraAbilityUsesOnFinishedTasks(killer);
         else IncreaseAbilityUseLimitOnKill(killer);

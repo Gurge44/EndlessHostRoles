@@ -103,7 +103,11 @@ namespace TOHE.Roles.Impostor
 
             if (warlock == null) return;
 
-            if (shapeshiftCooldown) warlock.RpcResetAbilityCooldown();
+            if (shapeshiftCooldown)
+            {
+                if (!UsePets.GetBool()) warlock.RpcResetAbilityCooldown();
+                else warlock.AddAbilityCD();
+            }
 
             if (KCD > 0f && CurseCD > 0f)
             {
@@ -159,6 +163,8 @@ namespace TOHE.Roles.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
+            if (!shapeshifting) return true;
+
             Curse(shapeshifter);
 
             return false;

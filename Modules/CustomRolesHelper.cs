@@ -114,7 +114,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Twister => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.SuperStar => CustomRoles.Crewmate,
                 CustomRoles.Hacker => CustomRoles.Shapeshifter,
-                CustomRoles.Visionary => CustomRoles.Impostor,
+                CustomRoles.Visionary => CustomRoles.Shapeshifter,
                 CustomRoles.Assassin => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Undertaker => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Luckey => CustomRoles.Crewmate,

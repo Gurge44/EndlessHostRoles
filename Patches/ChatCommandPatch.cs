@@ -872,7 +872,7 @@ internal class ChatCommands
     public static bool GetRoleByName(string name, out CustomRoles role)
     {
         role = new();
-        if (name is "" or "") return false;
+        if (name == "") return false;
 
         if ((TranslationController.InstanceExists ? TranslationController.Instance.currentLanguage.languageID : SupportedLangs.SChinese) == SupportedLangs.SChinese)
         {
@@ -906,20 +906,10 @@ internal class ChatCommands
 
     public static void SendRolesInfo(string role, byte playerId, bool isDev = false, bool isUp = false)
     {
-        switch (Options.CurrentGameMode)
+        if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
-            case CustomGameMode.SoloKombat:
-                Utils.SendMessage(GetString("ModeDescribe.SoloKombat"), playerId);
-                return;
-            case CustomGameMode.FFA:
-                Utils.SendMessage(GetString("ModeDescribe.FFA"), playerId);
-                return;
-            case CustomGameMode.MoveAndStop:
-                Utils.SendMessage(GetString("ModeDescribe.MoveAndStop"), playerId);
-                return;
-            case CustomGameMode.HotPotato:
-                Utils.SendMessage(GetString("ModeDescribe.HotPotato"), playerId);
-                return;
+            Utils.SendMessage(GetString($"ModeDescribe.{Options.CurrentGameMode}"), playerId);
+            return;
         }
 
         role = role.Trim().ToLower();
@@ -928,7 +918,7 @@ internal class ChatCommands
         if (role.EndsWith("\r\n")) _ = role.Replace("\r\n", string.Empty);
         if (role.EndsWith("\n")) _ = role.Replace("\n", string.Empty);
 
-        if (role == "" || role == string.Empty)
+        if (role == "")
         {
             Utils.ShowActiveRoles(playerId);
             return;

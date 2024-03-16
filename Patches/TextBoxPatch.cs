@@ -2,7 +2,19 @@ using HarmonyLib;
 
 namespace TOHE.Patches;
 
-/* Originally by Kap. Reference: https://github.com/KARPED1EM/TownOfNext/blob/TONX/TONX/Patches/TextBoxPatch.cs */
+[HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.IsCharAllowed))]
+class TextBoxTMPCharAllowedPatch
+{
+    public static bool Prefix([HarmonyArgument(0)] char i, ref bool __result)
+    {
+        if (i is not ('+' or '<' or '>' or '"' or '*' or '#' or '@' or '$' or '%' or '^' or '&' or '(' or ')' or '-' or '=' or '_' or '{' or '}' or '[' or ']' or ':' or ';' or ',' or '.' or '?' or '/' or '|' or '\\' or '`' or '~')) return true;
+
+        __result = true;
+        return false;
+    }
+}
+
+/* Originally by KARPED1EM. Reference: https://github.com/KARPED1EM/TownOfNext/blob/TONX/TONX/Patches/TextBoxPatch.cs */
 [HarmonyPatch(typeof(TextBoxTMP))]
 public class TextBoxPatch
 {

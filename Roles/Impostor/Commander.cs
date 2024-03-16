@@ -83,6 +83,8 @@ namespace TOHE.Roles.Impostor
             }
 
             MarkedPlayer = target.PlayerId;
+
+            Utils.NotifyRoles(SpecifyTarget: target);
         }
 
         public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)

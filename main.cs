@@ -79,6 +79,9 @@ public class Main : BasePlugin
     public static ConfigEntry<string> BetaBuildURL { get; private set; }
     public static ConfigEntry<float> LastKillCooldown { get; private set; }
     public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
+    public const string NeutralColor = "#ffab1b";
+    public const string ImpostorColor = "#ff1919";
+    public const string CrewmateColor = "#8cffff";
     public static bool IsFixedCooldown => CustomRoles.Vampire.IsEnable() || CustomRoles.Poisoner.IsEnable();
     public static bool ChangedRole = false;
     public static OptionBackupData RealOptionsData;

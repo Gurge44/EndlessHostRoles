@@ -28,17 +28,16 @@ namespace TOHE.Roles.Impostor
             killer.RpcIncreaseAbilityUseLimitBy(1);
         }
 
-        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!base.OnCheckMurder(killer, target)) return false;
+            if (!shapeshifting) return true;
+            if (RevealedPlayerIds.Contains(target.PlayerId) || shapeshifter.GetAbilityUseLimit() < 1) return false;
 
-            if (killer.GetAbilityUseLimit() < 1) return true;
+            RevealedPlayerIds.Add(target.PlayerId);
+            shapeshifter.RpcRemoveAbilityUse();
+            Utils.NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: target);
 
-            return killer.CheckDoubleTrigger(target, () =>
-            {
-                RevealedPlayerIds.Add(target.PlayerId);
-                killer.RpcRemoveAbilityUse();
-            });
+            return false;
         }
     }
 }

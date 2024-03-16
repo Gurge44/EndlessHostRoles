@@ -2348,6 +2348,7 @@ public static class Utils
             CustomRoles.QuickShooter => QuickShooter.ShapeshiftCooldown.GetInt(),
             CustomRoles.Disperser => Disperser.DisperserShapeshiftCooldown.GetInt(),
             CustomRoles.Twister => Twister.ShapeshiftCooldown.GetInt(),
+            CustomRoles.Warlock => Warlock.isCursed ? -1 : (int)Options.DefaultKillCooldown,
             CustomRoles.Swiftclaw => Swiftclaw.DashCD.GetInt() + (includeDuration ? Swiftclaw.DashDuration.GetInt() : 0),
             CustomRoles.Tiger => Tiger.EnrageCooldown.GetInt() + (includeDuration ? Tiger.EnrageDuration.GetInt() : 0),
             _ => -1,
