@@ -87,43 +87,43 @@ internal static class CustomRoleSelector
 
     public static void SelectCustomRoles()
     {
+        RoleResult = [];
+
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.SoloKombat:
-                RoleResult = [];
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
-                    RoleResult.Add(pc, CustomRoles.KB_Normal);
+                    RoleResult[pc] = CustomRoles.KB_Normal;
                 }
 
                 return;
             case CustomGameMode.FFA:
-                RoleResult = [];
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
-                    RoleResult.Add(pc, CustomRoles.Killer);
+                    RoleResult[pc] = CustomRoles.Killer;
                 }
 
                 return;
             case CustomGameMode.MoveAndStop:
-                RoleResult = [];
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
-                    RoleResult.Add(pc, CustomRoles.Tasker);
+                    RoleResult[pc] = CustomRoles.Tasker;
                 }
 
                 return;
             case CustomGameMode.HotPotato:
-                RoleResult = [];
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
-                    RoleResult.Add(pc, CustomRoles.Potato);
+                    RoleResult[pc] = CustomRoles.Potato;
                 }
 
                 return;
+            case CustomGameMode.HideAndSeek:
+                CustomHideAndSeekManager.AssignRoles(ref RoleResult);
+                return;
         }
 
-        RoleResult = [];
         var rd = IRandom.Instance;
         int playerCount = Main.AllAlivePlayerControls.Length;
         int optImpNum = Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors);

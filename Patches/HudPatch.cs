@@ -159,7 +159,7 @@ class HudManagerPatch
 
             if (SetHudActivePatch.IsActive)
             {
-                if (player.IsAlive() || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato)
+                if (player.IsAlive() || Options.CurrentGameMode != CustomGameMode.Standard)
                 {
                     bool usesPetInsteadOfKill = player.GetCustomRole().UsesPetInsteadOfKill();
                     if (usesPetInsteadOfKill)
@@ -364,6 +364,7 @@ class HudManagerPatch
                         CustomGameMode.FFA when player.PlayerId == 0 => FFAManager.GetHudText(),
                         CustomGameMode.MoveAndStop when player.PlayerId == 0 => MoveAndStopManager.HUDText,
                         CustomGameMode.HotPotato when player.PlayerId == 0 => HotPotatoManager.GetSuffixText(player.PlayerId),
+                        CustomGameMode.HideAndSeek when player.PlayerId == 0 => CustomHideAndSeekManager.GetSuffixText(player, player, isHUD: true),
                         CustomGameMode.Standard => player.GetCustomRole() switch
                         {
                             CustomRoles.BountyHunter => BountyHunter.GetTargetText(player, true),
@@ -547,6 +548,10 @@ class SetHudActivePatch
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
                 __instance.AbilityButton?.ToggleVisible(false);
+                return;
+            case CustomGameMode.HideAndSeek:
+                __instance.ReportButton?.ToggleVisible(false);
+                __instance.SabotageButton?.ToggleVisible(false);
                 return;
         }
 
@@ -776,9 +781,15 @@ class TaskPanelBehaviourPatch
                 case CustomGameMode.HotPotato:
 
                     List<string> SummaryText4 = [];
-                    SummaryText4.AddRange(from id in Main.PlayerStates.Keys.ToArray() let pc = Utils.GetPlayerById(id) let name = pc.GetRealName().RemoveHtmlTags().Replace("\r\n", string.Empty) let alive = pc.IsAlive() select $"{(!alive ? "<size=70%><#777777>" : "<size=80%>")}{HotPotatoManager.GetIndicator(id)}{Utils.ColorString(Main.PlayerColors[id], name)}{(!alive ? "</color>  <#ff0000>DEAD</color></size>" : "</size>")}");
+                    SummaryText4.AddRange(from id in Main.PlayerStates.Keys let pc = Utils.GetPlayerById(id) let name = pc.GetRealName().RemoveHtmlTags().Replace("\r\n", string.Empty) let alive = pc.IsAlive() select $"{(!alive ? "<size=70%><#777777>" : "<size=80%>")}{HotPotatoManager.GetIndicator(id)}{Utils.ColorString(Main.PlayerColors[id], name)}{(!alive ? "</color>  <#ff0000>DEAD</color></size>" : "</size>")}");
 
                     AllText += $"\r\n\r\n{string.Join('\n', SummaryText4)}";
+
+                    break;
+
+                case CustomGameMode.HideAndSeek:
+
+                    AllText += $"\r\n\r\n{CustomHideAndSeekManager.GetTaskBarText()}";
 
                     break;
             }

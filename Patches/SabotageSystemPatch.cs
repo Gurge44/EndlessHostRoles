@@ -252,7 +252,7 @@ public static class SabotageSystemTypeRepairDamagePatch
 
     public static bool Prefix([HarmonyArgument(0)] PlayerControl player)
     {
-        if (Options.DisableSabotage.GetBool() || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato) return false;
+        if (Options.DisableSabotage.GetBool() || Options.CurrentGameMode != CustomGameMode.Standard) return false;
         if (SecurityGuard.BlockSabo.Count > 0) return false;
         if (Glitch.hackedIdList.ContainsKey(player.PlayerId))
         {

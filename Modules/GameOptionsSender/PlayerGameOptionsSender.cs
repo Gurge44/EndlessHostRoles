@@ -144,6 +144,9 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     opt.SetFloat(FloatOptionNames.CrewLightMod, 1.25f);
                     opt.SetFloat(FloatOptionNames.ImpostorLightMod, 1.25f);
                     break;
+                case CustomGameMode.HideAndSeek:
+                    CustomHideAndSeekManager.ApplyGameOptions(opt, player);
+                    break;
             }
 
             switch (player.GetCustomRoleTypes())

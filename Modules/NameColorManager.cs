@@ -47,6 +47,8 @@ public static class NameColorManager
                 else if (target.PlayerId == LastHolderID) color = "#00ffff";
                 else color = "#ffffff";
                 return true;
+            case CustomGameMode.HideAndSeek:
+                return CustomHideAndSeekManager.KnowTargetRoleColor(seer, target, ref color);
         }
 
         // Global (low priority)

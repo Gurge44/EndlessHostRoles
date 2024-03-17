@@ -451,7 +451,7 @@ internal class SelectRolesPatch
             }
 
             // For other gamemodes:
-            if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato)
+            if (Options.CurrentGameMode != CustomGameMode.Standard)
             {
                 foreach (var pair in Main.PlayerStates)
                     ExtendedPlayerControl.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
@@ -568,6 +568,9 @@ internal class SelectRolesPatch
                     break;
                 case CustomGameMode.HotPotato:
                     GameEndChecker.SetPredicateToHotPotato();
+                    break;
+                case CustomGameMode.HideAndSeek:
+                    GameEndChecker.SetPredicateToHideAndSeek();
                     break;
             }
 

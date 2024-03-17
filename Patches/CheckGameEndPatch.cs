@@ -31,7 +31,7 @@ class GameEndChecker
 
         predicate.CheckForEndGame(out GameOverReason reason);
 
-        if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato)
+        if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
             if (WinnerIds.Count > 0 || WinnerTeam != CustomWinner.Default)
             {
@@ -329,6 +329,7 @@ class GameEndChecker
     public static void SetPredicateToFFA() => predicate = new FFAGameEndPredicate();
     public static void SetPredicateToMoveAndStop() => predicate = new MoveAndStopGameEndPredicate();
     public static void SetPredicateToHotPotato() => predicate = new HotPotatoGameEndPredicate();
+    public static void SetPredicateToHideAndSeek() => predicate = new HideAndSeekGameEndPredicate();
 
     class NormalGameEndPredicate : GameEndPredicate
     {
@@ -621,6 +622,20 @@ class GameEndChecker
                 default:
                     return false;
             }
+        }
+    }
+
+    class HideAndSeekGameEndPredicate : GameEndPredicate
+    {
+        public override bool CheckForEndGame(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorByKill;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
+        }
+
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        {
+            return CustomHideAndSeekManager.CheckForGameEnd(out reason);
         }
     }
 

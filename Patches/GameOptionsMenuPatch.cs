@@ -406,6 +406,16 @@ public static class SetRecommendationsPatch
                 __instance.NumEmergencyMeetings = 0;
                 __instance.VisualTasks = true;
                 break;
+            case CustomGameMode.HideAndSeek:
+                __instance.CrewLightMod = 1.25f;
+                __instance.ImpostorLightMod = 0.5f;
+                __instance.KillCooldown = 10f;
+                __instance.NumCommonTasks = 2;
+                __instance.NumLongTasks = 3;
+                __instance.NumShortTasks = 5;
+                __instance.NumEmergencyMeetings = 0;
+                __instance.VisualTasks = true;
+                break;
         }
 
         return false;

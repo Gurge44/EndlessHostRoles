@@ -20,7 +20,7 @@ class EmergencyMinigamePatch
 {
     public static void Postfix(EmergencyMinigame __instance)
     {
-        if (Options.DisableMeeting.GetBool() || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato)
+        if (Options.DisableMeeting.GetBool() || Options.CurrentGameMode != CustomGameMode.Standard)
             __instance.Close();
     }
 }

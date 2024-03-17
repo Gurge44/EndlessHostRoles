@@ -149,7 +149,7 @@ class ExileControllerWrapUpPatch
             PetsPatch.RpcRemovePet(pc);
         }
 
-        if (Options.RandomSpawn.GetBool() || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato)
+        if (Options.RandomSpawn.GetBool() || Options.CurrentGameMode != CustomGameMode.Standard)
         {
             RandomSpawn.SpawnMap map = Main.NormalOptions.MapId switch
             {

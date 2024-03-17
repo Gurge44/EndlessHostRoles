@@ -19,6 +19,7 @@ public enum CustomGameMode
     FFA = 0x03,
     MoveAndStop = 0x04,
     HotPotato = 0x05,
+    HideAndSeek = 0x06,
     All = int.MaxValue
 }
 
@@ -63,6 +64,7 @@ public static class Options
             2 => CustomGameMode.FFA,
             3 => CustomGameMode.MoveAndStop,
             4 => CustomGameMode.HotPotato,
+            5 => CustomGameMode.HideAndSeek,
             _ => CustomGameMode.Standard
         };
 
@@ -72,7 +74,8 @@ public static class Options
         "SoloKombat",
         "FFA",
         "MoveAndStop",
-        "HotPotato"
+        "HotPotato",
+        "HideAndSeek"
     ];
 
     // 役職数・確率

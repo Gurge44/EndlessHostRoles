@@ -162,7 +162,7 @@ class CheckMurderPatch
             return false;
         }
 
-        var divice = Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato ? 3000f : 2000f;
+        var divice = Options.CurrentGameMode != CustomGameMode.Standard ? 3000f : 2000f;
         float minTime = Mathf.Max(0.02f, AmongUsClient.Instance.Ping / divice * 6f); // The value of AmongUsClient.Instance.Ping is in milliseconds (ms), so ÷1000
         // No value is stored in TimeSinceLastKill || Stored time is greater than or equal to minTime => Allow kill
         // ↓ If not allowed
@@ -212,6 +212,9 @@ class CheckMurderPatch
                 return true;
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
+                return false;
+            case CustomGameMode.HideAndSeek:
+                CustomHideAndSeekManager.OnCheckMurder(killer, target);
                 return false;
         }
 
@@ -720,7 +723,7 @@ class ReportDeadBodyPatch
     {
         if (GameStates.IsMeeting) return false;
         if (Options.DisableMeeting.GetBool()) return false;
-        if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato) return false;
+        if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
         if (!CanReport[__instance.PlayerId])
         {
             WaitReport[__instance.PlayerId].Add(target);
@@ -1203,7 +1206,7 @@ class FixedUpdatePatch
                 RoleText.text = RoleTextData.Item1;
                 RoleText.color = RoleTextData.Item2;
 
-                if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato) RoleText.text = string.Empty;
+                if (Options.CurrentGameMode != CustomGameMode.Standard) RoleText.text = string.Empty;
 
                 RoleText.enabled = IsRoleTextEnabled(__instance);
 
@@ -1493,6 +1496,9 @@ class FixedUpdatePatch
                     case CustomGameMode.HotPotato when !seer.IsModClient() && seer.PlayerId == target.PlayerId && seer.IsAlive():
                         Suffix.Append(HotPotatoManager.GetSuffixText(seer.PlayerId));
                         break;
+                    case CustomGameMode.HideAndSeek:
+                        Suffix.Append(CustomHideAndSeekManager.GetSuffixText(seer, target));
+                        break;
                 }
 
                 if (Vulture.ArrowsPointingToDeadBody.GetBool())
@@ -1775,6 +1781,9 @@ class CoEnterVentPatch
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
                 _ = new LateTask(() => { __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id); }, 0.5f);
+                return true;
+            case CustomGameMode.HideAndSeek:
+                CustomHideAndSeekManager.OnCoEnterVent(__instance, id);
                 return true;
         }
 

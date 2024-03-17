@@ -96,6 +96,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, List<CustomRoles>> SetAddOns = [];
     public static Dictionary<CustomRoles, CustomRoles> AlwaysSpawnTogetherCombos = [];
     public static Dictionary<CustomRoles, CustomRoles> NeverSpawnTogetherCombos = [];
+    public static Dictionary<byte, string> LastAddOns = [];
     public static List<RoleBase> AllRoleClasses;
     public static float RefixCooldownDelay;
     public static bool ProcessShapeshifts = true;
@@ -909,6 +910,12 @@ public enum CustomRoles
     //HotPotato
     Potato,
 
+    //H&S
+    Hider,
+    Seeker,
+    Fox,
+    Troll,
+
     //GM
     GM,
 
@@ -994,6 +1001,11 @@ public enum CustomWinner
     None = -3,
     Error = -4,
     Neutrals = -5,
+
+    // Hide And Seek
+    Hider = -6,
+    Seeker = -7,
+    Troll = -8,
     Impostor = CustomRoles.Impostor,
     Crewmate = CustomRoles.Crewmate,
     Jester = CustomRoles.Jester,

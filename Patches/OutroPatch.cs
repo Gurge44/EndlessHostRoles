@@ -32,26 +32,25 @@ class EndGamePatch
         Main.SetRoles = [];
         Main.SetAddOns = [];
         SummaryText = [];
+        Main.LastAddOns = [];
 
         Main.ChangedRole = false;
 
-        foreach (var id in Main.PlayerStates.Keys)
+        foreach ((byte id, PlayerState state) in Main.PlayerStates)
         {
             if (Doppelganger.playerIdList.Count > 0 && Doppelganger.DoppelVictim.ContainsKey(id))
             {
                 var dpc = Utils.GetPlayerById(id);
                 if (dpc != null)
                 {
-                    //if (id == PlayerControl.LocalPlayer.PlayerId) Main.nickName = Doppelganger.DoppelVictim[id];
-                    //else
-                    //{ 
                     dpc.RpcSetName(Doppelganger.DoppelVictim[id]);
-                    //}
                     Main.AllPlayerNames[id] = Doppelganger.DoppelVictim[id];
                 }
             }
 
             SummaryText[id] = Utils.SummaryTexts(id, disableColor: false);
+            if (state.SubRoles.Count == 0) continue;
+            Main.LastAddOns[id] = $"<size=70%>{Utils.ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), Main.AllPlayerNames.GetValueOrDefault(id, $"ID {id}"))}: {state.SubRoles.Join(x => Utils.ColorString(Utils.GetRoleColor(x), GetString($"{x}")))}</size>";
         }
 
         if (Options.DumpLogAfterGameEnd.GetBool())
@@ -65,9 +64,9 @@ class EndGamePatch
             var date = value.RealKiller.TIMESTAMP;
             if (date == DateTime.MinValue) continue;
             var killerId = value.GetRealKiller();
-            sb.Append($"\n{date:T} {Main.AllPlayerNames[key]} ({(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato ? string.Empty : Utils.GetDisplayRoleName(key, true))}{(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop ? string.Empty : Utils.GetSubRolesText(key, summary: true))}) [{Utils.GetVitalText(key)}]");
+            sb.Append($"\n{date:T} {Main.AllPlayerNames[key]} ({(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.HideAndSeek ? string.Empty : Utils.GetDisplayRoleName(key, true))}{(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop ? string.Empty : Utils.GetSubRolesText(key, summary: true))}) [{Utils.GetVitalText(key)}]");
             if (killerId != byte.MaxValue && killerId != key)
-                sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato ? string.Empty : Utils.GetDisplayRoleName(killerId, true))}{(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
+                sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.HideAndSeek ? string.Empty : Utils.GetDisplayRoleName(killerId, true))}{(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
         }
 
         KillLog = sb.ToString();

@@ -32,9 +32,7 @@ public class LastImpostor : IAddon
     public static void SetSubRole()
     {
         if (currentId != byte.MaxValue || !AmongUsClient.Instance.AmHost) return;
-        if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato
-            || !CustomRoles.LastImpostor.IsEnable() || Main.AliveImpostorCount != 1)
-            return;
+        if (Options.CurrentGameMode != CustomGameMode.Standard || !CustomRoles.LastImpostor.IsEnable() || Main.AliveImpostorCount != 1) return;
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
             if (CanBeLastImpostor(pc))
