@@ -2,7 +2,7 @@
 
 namespace TOHE.GameMode.HideAndSeekRoles
 {
-    internal class Seeker : RoleBase
+    internal class Seeker : RoleBase, IHideAndSeekRole
     {
         public static bool On;
         public override bool IsEnable => On;

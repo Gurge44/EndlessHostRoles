@@ -2,7 +2,7 @@
 
 namespace TOHE.GameMode.HideAndSeekRoles
 {
-    internal class Fox : RoleBase
+    internal class Fox : RoleBase, IHideAndSeekRole
     {
         public static bool On;
         public override bool IsEnable => On;
@@ -12,7 +12,7 @@ namespace TOHE.GameMode.HideAndSeekRoles
 
         public static void SetupCustomOption()
         {
-            Options.SetupRoleOptions(69_211_301, TabGroup.NeutralRoles, CustomRoles.Fox, CustomGameMode.HideAndSeek);
+            Options.SetupRoleOptions(69_211_301, TabGroup.NeutralRoles, CustomRoles.Fox, CustomGameMode.HideAndSeek, true);
             Vision = FloatOptionItem.Create(69_211_303, "FoxVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.NeutralRoles, false)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)

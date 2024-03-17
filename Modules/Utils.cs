@@ -99,29 +99,29 @@ public static class Utils
             return false;
         }
 
-        var numHost = (ushort)(nt.lastSequenceId + 6);
-        var numLocalClient = (ushort)(nt.lastSequenceId + 48);
-        var numGlobal = (ushort)(nt.lastSequenceId + 100);
+        var newSidForHost = (ushort)(nt.lastSequenceId + 20);
+        var newSidForLocal = (ushort)(nt.lastSequenceId + 18);
+        var newSidForGlobal = (ushort)(nt.lastSequenceId + 26);
 
         // Host side
         if (AmongUsClient.Instance.AmHost)
         {
-            nt.SnapTo(location, numHost);
+            nt.SnapTo(location, newSidForHost);
         }
 
         if (PlayerControl.LocalPlayer.PlayerId != pc.PlayerId)
         {
             // Local Teleport For Client
-            MessageWriter localMessageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.None, pc.GetClientId());
+            MessageWriter localMessageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.Reliable, pc.GetClientId());
             NetHelpers.WriteVector2(location, localMessageWriter);
-            localMessageWriter.Write(numLocalClient);
+            localMessageWriter.Write(newSidForLocal);
             AmongUsClient.Instance.FinishRpcImmediately(localMessageWriter);
         }
 
         // Global Teleport
-        MessageWriter globalMessageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.None);
+        MessageWriter globalMessageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.Reliable);
         NetHelpers.WriteVector2(location, globalMessageWriter);
-        globalMessageWriter.Write(numGlobal);
+        globalMessageWriter.Write(newSidForGlobal);
         AmongUsClient.Instance.FinishRpcImmediately(globalMessageWriter);
 
         if (log) Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} => {location}", "TP");

@@ -2,13 +2,14 @@
 
 namespace TOHE.GameMode.HideAndSeekRoles
 {
-    internal class Hider : RoleBase
+    internal class Hider : RoleBase, IHideAndSeekRole
     {
         public static bool On;
         public override bool IsEnable => On;
 
         public static OptionItem Vision;
         public static OptionItem Speed;
+        public static OptionItem TimeDecreaseOnTaskComplete;
 
         public static void SetupCustomOption()
         {
@@ -19,6 +20,10 @@ namespace TOHE.GameMode.HideAndSeekRoles
             Speed = FloatOptionItem.Create(69_211_102, "HiderSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles, false)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
+                .SetColor(new(52, 94, 235, byte.MaxValue));
+            TimeDecreaseOnTaskComplete = IntegerOptionItem.Create(69_211_102, "TimeDecreaseOnTaskComplete", new(0, 60, 1), 5, TabGroup.CrewmateRoles, false)
+                .SetGameMode(CustomGameMode.HideAndSeek)
+                .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new(52, 94, 235, byte.MaxValue));
         }
 
@@ -38,6 +43,12 @@ namespace TOHE.GameMode.HideAndSeekRoles
             opt.SetFloat(FloatOptionNames.CrewLightMod, Vision.GetFloat());
             opt.SetFloat(FloatOptionNames.ImpostorLightMod, Vision.GetFloat());
             opt.SetFloat(FloatOptionNames.PlayerSpeedMod, Speed.GetFloat());
+        }
+
+        public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
+        {
+            CustomHideAndSeekManager.TimeLeft -= 5;
+            pc.Notify(Translator.GetString("TimeDecreased"));
         }
     }
 }

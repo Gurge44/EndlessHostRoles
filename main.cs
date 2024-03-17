@@ -539,7 +539,12 @@ public class Main : BasePlugin
                 //Move And Stop
                 { CustomRoles.Tasker, "#00ffa5" },
                 //Hot Potato
-                { CustomRoles.Potato, "#e8cd46" }
+                { CustomRoles.Potato, "#e8cd46" },
+                //Hide And Seek
+                { CustomRoles.Seeker, "#ff1919" },
+                { CustomRoles.Hider, "#345eeb" },
+                { CustomRoles.Fox, "#00ff00" },
+                { CustomRoles.Troll, "#ff00ff" }
             };
             Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => roleColors.TryAdd(x, "#ff1919"));
         }
@@ -993,7 +998,6 @@ public enum CustomRoles
     Youtuber
 }
 
-//WinData
 public enum CustomWinner
 {
     Draw = -1,
@@ -1006,6 +1010,8 @@ public enum CustomWinner
     Hider = -6,
     Seeker = -7,
     Troll = -8,
+
+    // -------------
     Impostor = CustomRoles.Impostor,
     Crewmate = CustomRoles.Crewmate,
     Jester = CustomRoles.Jester,
@@ -1072,6 +1078,11 @@ public enum CustomWinner
 public enum AdditionalWinners
 {
     None = -1,
+
+    // Hide And Seek
+    Fox = -2,
+
+    // -------------
     Lovers = CustomRoles.Lovers,
     Opportunist = CustomRoles.Opportunist,
     Lawyer = CustomRoles.Lawyer,
