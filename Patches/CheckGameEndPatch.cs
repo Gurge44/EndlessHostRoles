@@ -425,8 +425,9 @@ class GameEndChecker
             var aliveCounts = roleCounts.Values.Where(x => x > 0).ToList();
             switch (aliveCounts.Count)
             {
+                // There are multiple types of NKs alive, game must continue
                 case > 1:
-                    return false; // There are multiple types of NKs alive, game must continue
+                    return false;
                 // There is only one type of NK alive, they've won
                 case 1:
                 {

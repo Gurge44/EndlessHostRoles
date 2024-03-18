@@ -1,15 +1,12 @@
-﻿using System;
+﻿using AmongUs.GameOptions;
+using HarmonyLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using AmongUs.GameOptions;
-using HarmonyLib;
 using TOHE.GameMode.HideAndSeekRoles;
 using TOHE.Modules;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 
 namespace TOHE
 {
@@ -83,7 +80,7 @@ namespace TOHE
                 if (stop) break;
             }
 
-            if (allPlayers.Count == 0) return;
+            if (stop) return;
 
             foreach (var pc in allPlayers)
             {
@@ -155,7 +152,6 @@ namespace TOHE
             {
                 reason = GameOverReason.HumansByTask;
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Hider);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Hider);
                 CustomWinnerHolder.WinnerIds.UnionWith(Main.PlayerStates.Where(x => x.Value.MainRole == CustomRoles.Hider).Select(x => x.Key));
                 AddFoxesToWinners();
                 return true;
@@ -165,7 +161,6 @@ namespace TOHE
             if (alivePlayers.All(x => x.GetCustomRole() != CustomRoles.Hider))
             {
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Seeker);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Seeker);
                 CustomWinnerHolder.WinnerIds.UnionWith(Main.PlayerStates.Where(x => x.Value.MainRole == CustomRoles.Seeker).Select(x => x.Key));
                 AddFoxesToWinners();
                 return true;
@@ -184,7 +179,6 @@ namespace TOHE
             });
             if (foxes.Count == 0) return;
             CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Fox);
-            CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Fox);
             CustomWinnerHolder.WinnerIds.UnionWith(foxes);
         }
 
@@ -208,7 +202,7 @@ namespace TOHE
 
         public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null || target == null) return;
+            if (killer == null || target == null || !killer.Is(CustomRoles.Seeker)) return;
 
             killer.Kill(target);
 

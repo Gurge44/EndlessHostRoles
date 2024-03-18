@@ -578,7 +578,7 @@ public static class Utils
             case CustomRoles.Doppelganger:
             case CustomRoles.PlagueDoctor:
             case CustomRoles.Postman:
-                case CustomRoles.Impartial:
+            case CustomRoles.Impartial:
             case CustomRoles.Predator:
             case CustomRoles.Reckless:
             case CustomRoles.WeaponMaster:
