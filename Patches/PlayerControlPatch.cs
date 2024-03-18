@@ -46,6 +46,13 @@ class CheckProtectPatch
             return true;
         }
 
+        if (__instance.HasGhostRole())
+        {
+            CreateGhostRoleInstance(__instance).OnProtect(__instance, target);
+            __instance.RpcResetAbilityCooldown();
+            return true;
+        }
+
         if (__instance.Is(CustomRoles.Sheriff))
         {
             if (__instance.Data.IsDead)
@@ -1171,6 +1178,15 @@ class FixedUpdatePatch
                 ApplySuffix(__instance);
         }
 
+        // Assign ghost roles to first dead players
+        if (!lowLoad)
+        {
+            if (GhostRolesManager.ShouldHaveGhostRole(player))
+            {
+                GhostRolesManager.AssignGhostRole(player);
+            }
+        }
+
         if (__instance.AmOwner)
         {
             if ((Main.ChangedRole && __instance == PlayerControl.LocalPlayer && AmongUsClient.Instance.AmHost) || (GameStates.IsInTask && !__instance.Is(CustomRoleTypes.Impostor) && __instance.CanUseKillButton() && !__instance.Data.IsDead))
@@ -2010,7 +2026,7 @@ class PlayerControlSetRolePatch
             {
                 var self = seer.PlayerId == target.PlayerId;
                 var seerIsKiller = seer.Is(CustomRoleTypes.Impostor) || Main.ResetCamPlayerList.Contains(seer.PlayerId);
-                if (target.Is(CustomRoles.EvilSpirit))
+                if (target.HasGhostRole())
                 {
                     ghostRoles[seer] = RoleTypes.GuardianAngel;
                 }
@@ -2024,7 +2040,7 @@ class PlayerControlSetRolePatch
                 }
             }
 
-            if (target.Is(CustomRoles.EvilSpirit))
+            if (target.HasGhostRole())
             {
                 roleType = RoleTypes.GuardianAngel;
             }

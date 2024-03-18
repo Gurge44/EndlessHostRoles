@@ -6,10 +6,10 @@ namespace TOHE.Roles.Neutral
     {
         public void SetupCustomOption()
         {
-            SetupRoleOptions(18200, TabGroup.OtherRoles, CustomRoles.God);
-            NotifyGodAlive = BooleanOptionItem.Create(18210, "NotifyGodAlive", true, TabGroup.OtherRoles, false)
+            SetupRoleOptions(18200, TabGroup.NeutralRoles, CustomRoles.God);
+            NotifyGodAlive = BooleanOptionItem.Create(18210, "NotifyGodAlive", true, TabGroup.NeutralRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.God]);
-            GodCanGuess = BooleanOptionItem.Create(18211, "CanGuess", false, TabGroup.OtherRoles, false)
+            GodCanGuess = BooleanOptionItem.Create(18211, "CanGuess", false, TabGroup.NeutralRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.God]);
         }
     }

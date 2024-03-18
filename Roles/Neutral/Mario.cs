@@ -14,11 +14,11 @@ namespace TOHE.Roles.Neutral
 
         public static void SetupCustomOption()
         {
-            SetupRoleOptions(18300, TabGroup.OtherRoles, CustomRoles.Mario);
-            MarioVentNumWin = IntegerOptionItem.Create(18310, "MarioVentNumWin", new(0, 900, 5), 40, TabGroup.OtherRoles, false)
+            SetupRoleOptions(18300, TabGroup.NeutralRoles, CustomRoles.Mario);
+            MarioVentNumWin = IntegerOptionItem.Create(18310, "MarioVentNumWin", new(0, 900, 5), 40, TabGroup.NeutralRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mario])
                 .SetValueFormat(OptionFormat.Times);
-            MarioVentCD = FloatOptionItem.Create(18311, "VentCooldown", new(0f, 180f, 1f), 15f, TabGroup.OtherRoles, false)
+            MarioVentCD = FloatOptionItem.Create(18311, "VentCooldown", new(0f, 180f, 1f), 15f, TabGroup.NeutralRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mario])
                 .SetValueFormat(OptionFormat.Seconds);
         }

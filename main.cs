@@ -272,7 +272,7 @@ public class Main : BasePlugin
         {
             roleColors = new()
             {
-                //Vanilla
+                // Vanilla
                 { CustomRoles.Crewmate, "#8cffff" },
                 { CustomRoles.Engineer, "#8cffff" },
                 { CustomRoles.Scientist, "#8cffff" },
@@ -282,7 +282,7 @@ public class Main : BasePlugin
                 { CustomRoles.EngineerTOHE, "#FF6A00" },
                 { CustomRoles.ScientistTOHE, "#8ee98e" },
                 { CustomRoles.GuardianAngelTOHE, "#77e6d1" },
-                //Crewmates
+                // Crewmates
                 { CustomRoles.Luckey, "#b8d7a3" },
                 { CustomRoles.Needy, "#a4dffe" },
                 { CustomRoles.SabotageMaster, "#3333ff" },
@@ -380,7 +380,7 @@ public class Main : BasePlugin
                 { CustomRoles.ParityCop, "#0D57AF" },
                 { CustomRoles.TimeMaster, "#44baff" },
                 { CustomRoles.Crusader, "#C65C39" },
-                //Neutrals
+                // Neutrals
                 { CustomRoles.Arsonist, "#ff6633" },
                 { CustomRoles.Pyromaniac, "#ff6633" },
                 { CustomRoles.PlagueBearer, "#e5f6b4" },
@@ -459,9 +459,14 @@ public class Main : BasePlugin
                 { CustomRoles.Convict, "#ff1919" },
                 { CustomRoles.Amnesiac, "#7FBFFF" },
                 { CustomRoles.Doomsayer, "#14f786" },
+                // Ghost roles
+                { CustomRoles.Warden, "#32a852" },
+                { CustomRoles.Minion, "#ff1919" },
+                { CustomRoles.Specter, "#b446e3" },
+                { CustomRoles.Haunter, "#d1b1de" },
                 // GM
                 { CustomRoles.GM, "#ff5b70" },
-                //Add-ons
+                // Add-ons
                 { CustomRoles.NotAssigned, "#ffffff" },
                 { CustomRoles.LastImpostor, "#ff1919" },
                 { CustomRoles.Lovers, "#ff9ace" },
@@ -958,6 +963,7 @@ public enum CustomRoles
     Gravestone,
     Guesser,
     Haste,
+    Haunter, // Ghost role
     Knighted,
     LastImpostor,
     Lazy,
@@ -968,12 +974,14 @@ public enum CustomRoles
     Magnet,
     Mare,
     Mimic,
+    Minion, // Ghost role
     Mischievous,
     Necroview,
     Ntr, // Neptune
     Nimble,
     Oblivious,
     Onbound,
+    Specter, // Ghost role
     Physicist,
     Rascal,
     Reach,
@@ -993,6 +1001,7 @@ public enum CustomRoles
     Truant,
     Undead,
     Unlucky,
+    Warden, // Ghost role
     Watcher,
     Workhorse,
     Youtuber

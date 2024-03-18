@@ -210,6 +210,7 @@ internal class ChangeRoleSettings
             NameNotifyManager.Reset();
             SabotageSystemTypeRepairDamagePatch.Initialize();
             DoorsReset.Initialize();
+            GhostRolesManager.Initialize();
 
             IRandom.SetInstanceById(Options.RoleAssigningAlgorithm.GetValue());
 
@@ -476,6 +477,7 @@ internal class SelectRolesPatch
                     {
                         if (role is CustomRoles.Nimble or CustomRoles.Physicist or CustomRoles.Bloodlust) continue;
                         state.SetSubRole(role);
+                        if (role.IsGhostRole()) GhostRolesManager.SpecificAssignGhostRole(item.Key, role, false);
                     }
                 }
             }
@@ -502,7 +504,6 @@ internal class SelectRolesPatch
                 }
             }
 
-            //RPCによる同期
             foreach (var pair in Main.PlayerStates)
             {
                 ExtendedPlayerControl.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
