@@ -52,9 +52,9 @@ namespace TOHE.GameMode.HideAndSeekRoles
 
         public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
         {
-            CustomHideAndSeekManager.TimeLeft -= 5;
+            CustomHideAndSeekManager.TimeLeft -= TimeDecreaseOnTaskComplete.GetInt();
             pc.Notify(Translator.GetString("TimeDecreased"));
-            if (60 - (CustomHideAndSeekManager.TimeLeft % 60) <= 5 /* Same as the time 2 lines above */) Utils.NotifyRoles();
+            if (60 - (CustomHideAndSeekManager.TimeLeft % 60) <= TimeDecreaseOnTaskComplete.GetInt()) Utils.NotifyRoles();
         }
     }
 }
