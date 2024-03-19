@@ -68,7 +68,7 @@ public class Sheriff : RoleBase
 
     public static void SetUpNeutralOptions(int id)
     {
-        foreach (var neutral in Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x.IsNeutral() && x is not CustomRoles.KB_Normal and not CustomRoles.Konan and not CustomRoles.Pestilence and not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.Potato))
+        foreach (var neutral in Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x.IsNeutral() && x is not CustomRoles.KB_Normal and not CustomRoles.Konan and not CustomRoles.Pestilence and not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.Potato and not CustomRoles.Hider and not CustomRoles.Seeker and not CustomRoles.Fox and not CustomRoles.Troll))
         {
             SetUpKillTargetOption(neutral, id, true, CanKillNeutralsMode);
             id++;

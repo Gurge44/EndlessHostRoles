@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using TOHE.GameMode.HideAndSeekRoles;
 using TOHE.Modules;
 using static TOHE.Options;
 using static TOHE.Translator;
@@ -54,7 +55,7 @@ public class Divinator : RoleBase
 
         var r = IRandom.Instance;
         CustomRoles[][] chunked = EnumHelper.GetAllValues<CustomRoles>()
-            .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.KB_Normal and not CustomRoles.Potato)
+            .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.KB_Normal and not CustomRoles.Potato and not CustomRoles.Hider and not CustomRoles.Seeker and not CustomRoles.Fox and not CustomRoles.Troll)
             .Shuffle(r)
             .Chunk(RolesPerCategory)
             .ToArray();

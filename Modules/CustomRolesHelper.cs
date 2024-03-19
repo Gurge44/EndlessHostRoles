@@ -261,6 +261,11 @@ internal static class CustomRolesHelper
             CustomRoles.Tasker => RoleTypes.Crewmate,
             //Hot Potato
             CustomRoles.Potato => RoleTypes.Crewmate,
+            //Hide And Seek
+            CustomRoles.Hider => RoleTypes.Crewmate,
+            CustomRoles.Seeker => RoleTypes.Impostor,
+            CustomRoles.Fox => RoleTypes.Crewmate,
+            CustomRoles.Troll => RoleTypes.Crewmate,
             //Standard
             CustomRoles.Sheriff => UsePets && Sheriff.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Crusader => UsePets && Crusader.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,

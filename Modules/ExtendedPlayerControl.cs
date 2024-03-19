@@ -557,6 +557,11 @@ static class ExtendedPlayerControl
             CustomRoles.Tasker => false,
             //Hot Potato
             CustomRoles.Potato => false,
+            //Hide And Seek
+            CustomRoles.Seeker => true,
+            CustomRoles.Hider => false,
+            CustomRoles.Troll => false,
+            CustomRoles.Fox => false,
 
             _ => Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.Role.CanUseKillButton(pc)
         };

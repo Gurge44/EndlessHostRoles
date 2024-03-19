@@ -14,6 +14,11 @@ namespace TOHE.GameMode.HideAndSeekRoles
 
         public static void SetupCustomOption()
         {
+            TextOptionItem.Create(69_211_205, "Seeker", TabGroup.ImpostorRoles)
+                .SetGameMode(CustomGameMode.HideAndSeek)
+                .SetHeader(true)
+                .SetColor(new(255, 25, 25, byte.MaxValue));
+
             Vision = FloatOptionItem.Create(69_211_201, "SeekerVision", new(0.05f, 5f, 0.05f), 0.5f, TabGroup.ImpostorRoles, false)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
@@ -26,7 +31,7 @@ namespace TOHE.GameMode.HideAndSeekRoles
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new(255, 25, 25, byte.MaxValue));
-            CanVent = BooleanOptionItem.Create(69_211_204, "SeekerCanVent", false, TabGroup.ImpostorRoles, false)
+            CanVent = BooleanOptionItem.Create(69_211_204, "CanVent", false, TabGroup.ImpostorRoles, false)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(new(255, 25, 25, byte.MaxValue));
         }

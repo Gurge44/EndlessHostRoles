@@ -1354,6 +1354,8 @@ public static class Options
         MoveAndStopManager.SetupCustomOption();
         //Hot Potato
         HotPotatoManager.SetupCustomOption();
+        //Hide And Seek
+        CustomHideAndSeekManager.SetupCustomOption();
 
 
         LoadingPercentage = 65;

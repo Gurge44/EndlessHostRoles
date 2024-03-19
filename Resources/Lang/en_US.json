@@ -3229,6 +3229,7 @@
   "ModeHideAndSeek": "Gamemode: Hide And Seek",
   "ModeDescribe.HideAndSeek": "In the Hide And Seek gamemode, seekers have to kill all hiders, while hiders have to complete all tasks without being killed in order to win.\\nIf the time limit reaches 0, hiders win.\\n\\n<b><u>Roles:</u></b>\\n\\n<#00ff00><b>Fox</b></color>:\\n<size=70%>Wins as long as they're alive at the end.</size>\\n\\n<#ff00ff><b>Troll</b></color>:\\n<size=70%>Wins if they die. Seekers and hiders lose.</size>",
   "HideAndSeek_MaxGameTime": "Maximum Game Length",
+  "SubText.HideAndSeek": "Hide And Seek",
   "TimeLeft": "Time Left",
   "MinutesLeft": "{0} <color=#00ffa5>Minutes Left</color>",
   "TimeDecreased": "Time was decreased by 5s",

@@ -13,6 +13,11 @@ namespace TOHE.GameMode.HideAndSeekRoles
 
         public static void SetupCustomOption()
         {
+            TextOptionItem.Create(69_211_105, "Hider", TabGroup.CrewmateRoles)
+                .SetGameMode(CustomGameMode.HideAndSeek)
+                .SetHeader(true)
+                .SetColor(new(52, 94, 235, byte.MaxValue));
+
             Vision = FloatOptionItem.Create(69_211_101, "HiderVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles, false)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)

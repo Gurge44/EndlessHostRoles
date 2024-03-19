@@ -1,15 +1,12 @@
-﻿using System;
+﻿using AmongUs.GameOptions;
+using HarmonyLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using AmongUs.GameOptions;
-using HarmonyLib;
 using TOHE.GameMode.HideAndSeekRoles;
 using TOHE.Modules;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 
 namespace TOHE
 {
@@ -190,20 +187,22 @@ namespace TOHE
 
         public static string GetTaskBarText()
         {
-            var text = string.Empty;
-            foreach (var state in Main.PlayerStates)
+            var text = Main.PlayerStates.Aggregate("<size=80%>", (current, state) => $"{current}{GetStateText(state)}\n");
+            return $"{text}</size>";
+
+            static string GetStateText(KeyValuePair<byte, PlayerState> state)
             {
-                string name = Main.AllPlayerNames.GetValueOrDefault(state.Key, string.Empty);
-                if (name == string.Empty) continue;
+                string name = Main.AllPlayerNames.GetValueOrDefault(state.Key, $"ID {state.Key}");
                 name = Utils.ColorString(Main.PlayerColors.GetValueOrDefault(state.Key, Color.white), name);
                 bool isSeeker = state.Value.MainRole == CustomRoles.Seeker;
                 bool alive = !state.Value.IsDead;
                 string taskCount = Utils.GetTaskCount(state.Key, false);
-                string stateText = isSeeker ? $"({Translator.GetString("Seeker")})" : $"{taskCount}";
-                text += $"{name} {stateText}";
+                string stateText;
+                if (isSeeker) stateText = $"({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Seeker), Translator.GetString("Seeker"))})";
+                else stateText = alive ? $"{taskCount}" : "<#ff1313>DEAD</color>";
+                stateText = $"{name} {stateText}";
+                return stateText;
             }
-
-            return text;
         }
 
         public static void OnCheckMurder(PlayerControl killer, PlayerControl target)

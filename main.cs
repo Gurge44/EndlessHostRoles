@@ -409,7 +409,7 @@ public class Main : BasePlugin
                 { CustomRoles.Poisoner, "#e70052" },
                 { CustomRoles.Totocalcio, "#ff9409" },
                 { CustomRoles.Romantic, "#FF1493" },
-                { CustomRoles.VengefulRomantic, "#8B0000" },
+                { CustomRoles.VengefulRomantic, "#ba2749" },
                 { CustomRoles.RuthlessRomantic, "#D2691E" },
                 { CustomRoles.Succubus, "#cf6acd" },
                 { CustomRoles.Necromancer, "#f7adcf" },
