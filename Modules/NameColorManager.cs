@@ -72,27 +72,23 @@ public static class NameColorManager
         if (seer.Is(CustomRoles.Contagious) && target.Is(CustomRoles.Contagious) && Virus.TargetKnowOtherTarget.GetBool()) color = Main.roleColors[CustomRoles.Virus];
         if (seer.Is(CustomRoles.Charmed) && target.Is(CustomRoles.Charmed) && Succubus.TargetKnowOtherTarget.GetBool()) color = Main.roleColors[CustomRoles.Charmed];
         if (seer.Is(CustomRoles.Undead) && target.Is(CustomRoles.Undead)) color = Main.roleColors[CustomRoles.Undead];
-        if (target.HasGhostRole())
+
+        // Ghost roles
+        if (GhostRolesManager.AssignedGhostRoles.TryGetValue(target.PlayerId, out var ghostRole))
         {
-            try
+            if (seer.GetTeam() == ghostRole.Instance.Team)
             {
-                IGhostRole ghostRoleInstance = Utils.CreateGhostRoleInstance(target);
-                if (seer.GetTeam() == ghostRoleInstance.Team)
+                color = ghostRole.Instance.Team switch
                 {
-                    color = ghostRoleInstance.Team switch
-                    {
-                        Team.Impostor => Main.ImpostorColor,
-                        Team.Crewmate => Main.CrewmateColor,
-                        Team.Neutral => Main.NeutralColor,
-                        _ => color
-                    };
-                }
-            }
-            catch (Exception e)
-            {
-                Utils.ThrowException(e);
+                    Team.Impostor => Main.ImpostorColor,
+                    Team.Crewmate => Main.CrewmateColor,
+                    Team.Neutral => Main.NeutralColor,
+                    _ => color
+                };
             }
         }
+
+        if (isMeeting && Haunter.AllHauntedPlayers.Contains(target.PlayerId)) color = Main.ImpostorColor;
 
         var seerRole = seer.GetCustomRole();
         var targetRole = target.GetCustomRole();

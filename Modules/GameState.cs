@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TOHE.Modules;
 using TOHE.Roles.AddOns.Crewmate;
+using TOHE.Roles.AddOns.GhostRoles;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
@@ -362,9 +363,15 @@ public class TaskState
 
             var addons = Main.PlayerStates[player.PlayerId].SubRoles;
 
-            if (addons.Contains(CustomRoles.Stressed))
+            if (addons.Contains(CustomRoles.Stressed)) Stressed.OnTaskComplete(player);
+            if (GhostRolesManager.AssignedGhostRoles.TryGetValue(player.PlayerId, out var ghostRole))
             {
-                Stressed.OnTaskComplete(player);
+                if (ghostRole is { Role: CustomRoles.Specter, Instance: Specter specter } && (CompletedTasksCount + 1 >= AllTasksCount)) specter.OnFinishedTasks(player);
+                if (ghostRole is { Role: CustomRoles.Haunter, Instance: Haunter haunter })
+                {
+                    if (CompletedTasksCount + 1 >= AllTasksCount) haunter.OnFinishedTasks(player);
+                    if (CompletedTasksCount == AllTasksCount) haunter.OnOneTaskLeft(player);
+                }
             }
 
             // Update the player's task count for Task Managers

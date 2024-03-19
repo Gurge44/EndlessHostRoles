@@ -75,12 +75,12 @@ public class Workhorse : IAddon
         pc.RpcSetCustomRole(CustomRoles.Workhorse);
         var taskState = pc.GetTaskState();
         taskState.AllTasksCount += NumLongTasks + NumShortTasks;
-        taskState.CompletedTasksCount++; //今回の完了分加算
+        taskState.CompletedTasksCount++;
 
         if (AmongUsClient.Instance.AmHost)
         {
             Add(pc.PlayerId);
-            GameData.Instance.RpcSetTasks(pc.PlayerId, Array.Empty<byte>()); //タスクを再配布
+            GameData.Instance.RpcSetTasks(pc.PlayerId, Array.Empty<byte>()); // Redistribute tasks
             pc.SyncSettings();
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }

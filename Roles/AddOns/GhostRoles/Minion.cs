@@ -35,5 +35,9 @@ namespace TOHE.Roles.AddOns.GhostRoles
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Minion])
                 .SetValueFormat(OptionFormat.Seconds);
         }
+
+        public void OnAssign(PlayerControl pc)
+        {
+        }
     }
 }

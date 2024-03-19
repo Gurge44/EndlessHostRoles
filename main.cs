@@ -1019,8 +1019,9 @@ public enum CustomWinner
     Hider = -6,
     Seeker = -7,
     Troll = -8,
+    Specter = -9,
 
-    // -------------
+    // Standard
     Impostor = CustomRoles.Impostor,
     Crewmate = CustomRoles.Crewmate,
     Jester = CustomRoles.Jester,
@@ -1090,6 +1091,7 @@ public enum AdditionalWinners
 
     // Hide And Seek
     Fox = -2,
+    Specter = -3,
 
     // -------------
     Lovers = CustomRoles.Lovers,

@@ -12,6 +12,7 @@ using TOHE.Modules;
 using TOHE.Patches;
 using TOHE.Roles.AddOns.Common;
 using TOHE.Roles.AddOns.Crewmate;
+using TOHE.Roles.AddOns.GhostRoles;
 using TOHE.Roles.AddOns.Impostor;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
@@ -1115,6 +1116,14 @@ class FixedUpdatePatch
                 if (subRoles.Contains(CustomRoles.Asthmatic)) Asthmatic.OnFixedUpdate();
                 if (subRoles.Contains(CustomRoles.Disco)) Disco.OnFixedUpdate(player);
                 if (subRoles.Contains(CustomRoles.Clumsy)) Clumsy.OnFixedUpdate(player);
+            }
+
+            if (GhostRolesManager.AssignedGhostRoles.TryGetValue(player.PlayerId, out var ghostRole))
+            {
+                if (ghostRole is { Role: CustomRoles.Haunter, Instance: Haunter haunter })
+                {
+                    haunter.Update(player);
+                }
             }
 
             long now = TimeStamp;

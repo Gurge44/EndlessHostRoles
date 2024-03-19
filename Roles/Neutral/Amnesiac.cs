@@ -95,35 +95,44 @@ public class Amnesiac : RoleBase
 
         CustomRoles targetRole = target.GetCustomRole();
 
-        if (targetRole == CustomRoles.Jackal)
+        switch (targetRole)
         {
-            RememberedRole = CustomRoles.Sidekick;
-            killerNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller"));
-        }
+            case CustomRoles.Jackal:
+                RememberedRole = CustomRoles.Sidekick;
+                killerNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller"));
+                break;
+            case CustomRoles.Necromancer:
+                RememberedRole = CustomRoles.Deathknight;
+                killerNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller"));
+                break;
+            default:
+                switch (target.GetTeam())
+                {
+                    case Team.Impostor:
+                        RememberedRole = CustomRoles.Refugee;
+                        killerNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedImpostor"));
+                        break;
+                    case Team.Crewmate:
+                        RememberedRole = !targetRole.IsTaskBasedCrewmate() ? targetRole : CustomRoles.Sheriff;
+                        killerNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedCrewmate"));
+                        break;
+                    case Team.Neutral:
+                        if (targetRole.IsNK())
+                        {
+                            RememberedRole = targetRole;
+                            killerNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller"));
+                        }
+                        else if (targetRole.IsNonNK())
+                        {
+                            string roleString = AmnesiacIncompatibleNeutralMode[IncompatibleNeutralMode.GetValue()][6..];
+                            RememberedRole = (CustomRoles)Enum.Parse(typeof(CustomRoles), roleString);
+                            killerNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString($"Remembered{roleString}"));
+                        }
 
-        else if (targetRole.IsNK())
-        {
-            RememberedRole = targetRole;
-            killerNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller"));
-        }
+                        break;
+                }
 
-        else if (targetRole.IsNonNK())
-        {
-            string roleString = AmnesiacIncompatibleNeutralMode[IncompatibleNeutralMode.GetValue()][6..];
-            RememberedRole = (CustomRoles)Enum.Parse(typeof(CustomRoles), roleString);
-            killerNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString($"Remembered{roleString}"));
-        }
-
-        else if (target.Is(Team.Impostor))
-        {
-            RememberedRole = CustomRoles.Refugee;
-            killerNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedImpostor"));
-        }
-
-        else if (target.Is(Team.Crewmate))
-        {
-            RememberedRole = targetRole.GetDYRole() == RoleTypes.Impostor ? targetRole : CustomRoles.Sheriff;
-            killerNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedCrewmate"));
+                break;
         }
 
 
@@ -142,10 +151,6 @@ public class Amnesiac : RoleBase
         killer.Notify(killerNotifyString);
         target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
 
-        Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-        Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
-
-        killer.ResetKillCooldown();
         killer.SetKillCooldown();
 
         target.RpcGuardAndKill(killer);

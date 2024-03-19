@@ -18,6 +18,7 @@ namespace TOHE.Roles.AddOns.GhostRoles
             float speed = Main.AllPlayerSpeed[target.PlayerId];
             Main.AllPlayerSpeed[target.PlayerId] += ExtraSpeed.GetFloat();
             target.MarkDirtySettings();
+            target.Notify(Translator.GetString("WardenNotify"));
 
             _ = new LateTask(() =>
             {
@@ -28,13 +29,17 @@ namespace TOHE.Roles.AddOns.GhostRoles
 
         public void SetupCustomOption()
         {
-            Options.SetupRoleOptions(649000, TabGroup.OtherRoles, CustomRoles.Warden);
-            ExtraSpeedDuration = IntegerOptionItem.Create(649002, "ExpressSpeedDur", new(1, 90, 1), 5, TabGroup.OtherRoles, false)
+            Options.SetupRoleOptions(649200, TabGroup.OtherRoles, CustomRoles.Warden);
+            ExtraSpeedDuration = IntegerOptionItem.Create(649202, "ExpressSpeedDur", new(1, 90, 1), 5, TabGroup.OtherRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Warden])
                 .SetValueFormat(OptionFormat.Seconds);
-            ExtraSpeed = FloatOptionItem.Create(649001, "ExpressSpeed", new(0.5f, 3f, 0.1f), 1.5f, TabGroup.OtherRoles, false)
+            ExtraSpeed = FloatOptionItem.Create(649203, "ExpressSpeed", new(0.5f, 3f, 0.1f), 1.5f, TabGroup.OtherRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Warden])
                 .SetValueFormat(OptionFormat.Multiplier);
+        }
+
+        public void OnAssign(PlayerControl pc)
+        {
         }
     }
 }

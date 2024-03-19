@@ -167,11 +167,7 @@ class OnPlayerLeftPatch
                 if (Spiritualist.SpiritualistTarget == data.Character.PlayerId)
                     Spiritualist.RemoveTarget();
                 Postman.CheckAndResetTargets(data.Character);
-
-                if (GhostRolesManager.AssignedGhostRoles.ContainsValue(data.Character.PlayerId))
-                {
-                    GhostRolesManager.AssignedGhostRoles.Remove(GhostRolesManager.AssignedGhostRoles.FirstOrDefault(x => x.Value == data.Character.PlayerId).Key);
-                }
+                GhostRolesManager.AssignedGhostRoles.Remove(data.Character.PlayerId);
 
                 Utils.AfterPlayerDeathTasks(data.Character, GameStates.IsMeeting);
 

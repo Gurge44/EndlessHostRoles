@@ -840,7 +840,7 @@ static class ExtendedPlayerControl
     public static bool IsNeutralChaos(this PlayerControl player) => player.GetCustomRole().IsNC();
     public static bool IsSnitchTarget(this PlayerControl player) => player.Is(CustomRoles.Bloodlust) || player.GetCustomRole().IsSnitchTarget();
 
-    public static bool HasGhostRole(this PlayerControl player) => Main.PlayerStates.TryGetValue(player.PlayerId, out var state) && state.SubRoles.Any(x => x.IsGhostRole());
+    public static bool HasGhostRole(this PlayerControl player) => GhostRolesManager.AssignedGhostRoles.ContainsKey(player.PlayerId) || Main.PlayerStates.TryGetValue(player.PlayerId, out var state) && state.SubRoles.Any(x => x.IsGhostRole());
 
     public static bool KnowDeathReason(this PlayerControl seer, PlayerControl target)
         => ((seer.Is(CustomRoles.Doctor) || seer.Is(CustomRoles.Autopsy)
