@@ -424,14 +424,14 @@ class SetEverythingUpPatch
         static string GetAdditionalWinnerRoleName(CustomRoles role)
         {
             var name = GetString($"AdditionalWinnerRoleText.{Enum.GetName(typeof(CustomRoles), role)}");
-            if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID")) name = string.Format(GetString("AdditionalWinnerRoleText.Default"), Utils.GetRoleName(role));
+            if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID")) name = string.Format(GetString("AdditionalWinnerRoleText.Default"), GetString($"{role}"));
             return name;
         }
 
         static string GetWinnerRoleName(CustomRoles role)
         {
             var name = GetString($"WinnerRoleText.{Enum.GetName(typeof(CustomRoles), role)}");
-            if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID")) name = string.Format(GetString("WinnerRoleText.Default"), Utils.GetRoleName(role));
+            if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID")) name = string.Format(GetString("WinnerRoleText.Default"), GetString($"{role}"));
             return name;
         }
     }

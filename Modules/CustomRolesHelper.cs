@@ -432,6 +432,8 @@ internal static class CustomRolesHelper
     public static bool IsGhostRole(this CustomRoles role) => role is
         CustomRoles.Warden or
         CustomRoles.Minion or
+        CustomRoles.Specter or
+        CustomRoles.Haunter or
         CustomRoles.EvilSpirit;
 
     public static bool IsNE(this CustomRoles role) => role is

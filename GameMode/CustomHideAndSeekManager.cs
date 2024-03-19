@@ -49,6 +49,20 @@ namespace TOHE
                 .Where(role => role.GetMode() != 0)
                 .ToDictionary(x => x, x => x.GetCount());
 
+            foreach (var item in Main.SetRoles)
+            {
+                PlayerControl pc = allPlayers.FirstOrDefault(x => x.PlayerId == item.Key);
+                if (pc == null) continue;
+
+                result[pc] = item.Value;
+                allPlayers.Remove(pc);
+
+                if (item.Value == CustomRoles.Seeker) seekerNum--;
+                else if (roles.ContainsKey(item.Value)) roles[item.Value]--;
+
+                Logger.Warn($"Pre-Set Role Assigned: {pc.GetRealName()} => {item.Value}", "CustomRoleSelector");
+            }
+
             while (seekerNum > 0 && allPlayers.Count > 0)
             {
                 var pc = allPlayers[0];
@@ -56,6 +70,8 @@ namespace TOHE
                 allPlayers.Remove(pc);
                 seekerNum--;
             }
+
+            Logger.Info($"Seekers: {result.Where(x => x.Value == CustomRoles.Seeker).Join(x => x.Key.GetRealName())}", "HideAndSeekRoleSelector");
 
             if (allPlayers.Count == 0) return;
 
@@ -80,12 +96,16 @@ namespace TOHE
                 if (stop) break;
             }
 
+            Logger.Info($"Roles: {result.Where(x => x.Value != CustomRoles.Seeker).Join(x => $"{x.Key.GetRealName()} => {x.Value}")}", "HideAndSeekRoleSelector");
+
             if (stop) return;
 
             foreach (var pc in allPlayers)
             {
                 result[pc] = CustomRoles.Hider;
             }
+
+            Logger.Info($"Hiders: {result.Where(x => x.Value == CustomRoles.Hider).Join(x => x.Key.GetRealName())}", "HideAndSeekRoleSelector");
         }
 
         public static void ApplyGameOptions(IGameOptions opt, PlayerControl pc)

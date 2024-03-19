@@ -670,10 +670,10 @@ public static class Utils
 
         foreach (CustomRoles subRole in States.SubRoles)
         {
-            if (subRole.IsGhostRole())
+            if (subRole.IsGhostRole() && subRole != CustomRoles.EvilSpirit)
             {
-                hasTasks &= !ForRecompute;
-                continue;
+                hasTasks = true;
+                break;
             }
 
             switch (subRole)
@@ -684,6 +684,7 @@ public static class Utils
                 case CustomRoles.Egoist:
                 case CustomRoles.Contagious:
                 case CustomRoles.Rascal:
+                case CustomRoles.EvilSpirit:
                     hasTasks &= !ForRecompute;
                     break;
                 case CustomRoles.Bloodlust:
@@ -699,19 +700,9 @@ public static class Utils
         return hasTasks;
     }
 
-    public static IGhostRole CreateGhostRoleInstance(PlayerControl target)
-    {
-        if (!target.HasGhostRole()) return null;
-        var ghostRole = target.GetCustomSubRoles().First(x => x.IsGhostRole());
-        var ghostRoleClass = Assembly.GetExecutingAssembly().GetTypes().First(x => x.IsAssignableFrom(typeof(IGhostRole)) && !x.IsInterface && x.Name.Equals($"{ghostRole}", StringComparison.OrdinalIgnoreCase));
-        var ghostRoleInstance = (IGhostRole)Activator.CreateInstance(ghostRoleClass);
-        return ghostRoleInstance;
-    }
-
-    // Create an overload for the above method that takes the ghost role as a parameter
     public static IGhostRole CreateGhostRoleInstance(CustomRoles ghostRole)
     {
-        var ghostRoleClass = Assembly.GetExecutingAssembly().GetTypes().First(x => x.IsAssignableFrom(typeof(IGhostRole)) && !x.IsInterface && x.Name.Equals($"{ghostRole}", StringComparison.OrdinalIgnoreCase));
+        var ghostRoleClass = Assembly.GetExecutingAssembly().GetTypes().First(x => typeof(IGhostRole).IsAssignableFrom(x) && !x.IsInterface && x.Name == $"{ghostRole}");
         var ghostRoleInstance = (IGhostRole)Activator.CreateInstance(ghostRoleClass);
         return ghostRoleInstance;
     }
@@ -727,7 +718,6 @@ public static class Utils
                    (pc.Is(CustomRoles.Judge) && !Options.JudgeCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.Marshall) && !Options.MarshallCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.Farseer) && !Options.FarseerCanBeMadmate.GetBool()) ||
-                   //(pc.Is(CustomRoles.Retributionist) && !Options.RetributionistCanBeMadmate.GetBool()) ||
                    pc.Is(CustomRoles.NiceSwapper) ||
                    pc.Is(CustomRoles.Needy) ||
                    pc.Is(CustomRoles.Lazy) ||

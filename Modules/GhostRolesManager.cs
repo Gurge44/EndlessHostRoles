@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using HarmonyLib;
 using TOHE.Roles.AddOns.GhostRoles;
 
 namespace TOHE.Modules
@@ -13,8 +15,9 @@ namespace TOHE.Modules
         {
             AssignedGhostRoles = [];
             if (GhostRoles.Count > 0) return;
-            GhostRoles = EnumHelper.GetAllValues<CustomRoles>().Where(x => x.IsGhostRole() && x.IsEnable()).ToList();
+            GhostRoles = EnumHelper.GetAllValues<CustomRoles>().Where(x => x != CustomRoles.EvilSpirit && x.IsGhostRole() && x.IsEnable()).ToList();
 
+            Logger.Warn($"Ghost roles: {GhostRoles.Join()}", "GhostRoles");
             Haunter.AllHauntedPlayers = [];
         }
 
@@ -23,8 +26,10 @@ namespace TOHE.Modules
             if (GhostRoles.Count == 0) return;
 
             var suitableRole = GetSuitableGhostRole(pc);
+            Logger.Warn($"Assigning Ghost Role: {pc.GetNameWithRole()} => {suitableRole}", "GhostRolesManager");
 
             pc.RpcSetCustomRole(suitableRole);
+            pc.RpcSetRole(RoleTypes.GuardianAngel);
             IGhostRole instance = Utils.CreateGhostRoleInstance(suitableRole);
             instance.OnAssign(pc);
             AssignedGhostRoles[pc.PlayerId] = (suitableRole, instance);
@@ -34,22 +39,28 @@ namespace TOHE.Modules
         {
             if (AssignedGhostRoles.Any(x => x.Key == id || x.Value.Role == role)) return;
 
-            if (set) Utils.GetPlayerById(id).RpcSetCustomRole(role);
+            var pc = Utils.GetPlayerById(id);
+            if (set)
+            {
+                pc.RpcSetCustomRole(role);
+                pc.RpcSetRole(RoleTypes.GuardianAngel);
+            }
+
             IGhostRole instance = Utils.CreateGhostRoleInstance(role);
-            instance.OnAssign(Utils.GetPlayerById(id));
+            instance.OnAssign(pc);
             AssignedGhostRoles[id] = (role, instance);
         }
 
         public static bool ShouldHaveGhostRole(PlayerControl pc)
         {
-            if (pc.IsAlive() || pc.GetCountTypes() is CountTypes.Crew or CountTypes.OutOfGame) return false;
+            if (pc.GetCountTypes() is CountTypes.None or CountTypes.OutOfGame) return false;
             var suitableRole = GetSuitableGhostRole(pc);
             return !AssignedGhostRoles.Any(x => x.Key == pc.PlayerId || x.Value.Role == suitableRole);
         }
 
         public static CustomRoles GetSuitableGhostRole(PlayerControl pc)
         {
-            return GhostRoles.FirstOrDefault(x => AssignedGhostRoles.All(r => r.Value.Role != x) && Utils.CreateGhostRoleInstance(x).Team == pc.GetTeam());
+            return GhostRoles.FirstOrDefault(x => AssignedGhostRoles.All(r => r.Value.Role != x) && Utils.CreateGhostRoleInstance(x)?.Team == pc.GetTeam());
         }
     }
 }

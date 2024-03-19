@@ -13,7 +13,6 @@ namespace TOHE.Roles.AddOns.GhostRoles
         public HashSet<byte> WarnedImps = [];
         public static HashSet<byte> AllHauntedPlayers = [];
 
-
         public void OnProtect(PlayerControl pc, PlayerControl target)
         {
         }
@@ -25,14 +24,17 @@ namespace TOHE.Roles.AddOns.GhostRoles
 
         public void OnAssign(PlayerControl pc)
         {
-            HauntedPlayer = byte.MaxValue;
-            var taskState = pc.GetTaskState();
-            if (taskState == null) return;
-            taskState.hasTasks = true;
-            taskState.CompletedTasksCount = 0;
-            GameData.Instance.RpcSetTasks(pc.PlayerId, Array.Empty<byte>());
-            pc.SyncSettings();
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            _ = new LateTask(() =>
+            {
+                HauntedPlayer = byte.MaxValue;
+                var taskState = pc.GetTaskState();
+                if (taskState == null) return;
+                taskState.hasTasks = true;
+                taskState.CompletedTasksCount = 0;
+                GameData.Instance.RpcSetTasks(pc.PlayerId, Array.Empty<byte>());
+                pc.SyncSettings();
+                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            }, 1f, "Haunter Assign");
         }
 
         public void OnOneTaskLeft(PlayerControl pc)

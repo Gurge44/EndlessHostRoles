@@ -47,9 +47,9 @@ class CheckProtectPatch
             return true;
         }
 
-        if (__instance.HasGhostRole())
+        if (GhostRolesManager.AssignedGhostRoles.TryGetValue(__instance.PlayerId, out var ghostRole))
         {
-            CreateGhostRoleInstance(__instance).OnProtect(__instance, target);
+            ghostRole.Instance.OnProtect(__instance, target);
             __instance.RpcResetAbilityCooldown();
             return true;
         }
@@ -286,6 +286,11 @@ class CheckMurderPatch
             target.TP(killer);
             _ = new LateTask(() => { killer.RpcCheckAndMurder(target); }, 0.1f, log: false);
             return false;
+        }
+
+        if (GhostRolesManager.ShouldHaveGhostRole(target))
+        {
+            GhostRolesManager.AssignGhostRole(target);
         }
 
         //==Kill processing==
@@ -1185,15 +1190,6 @@ class FixedUpdatePatch
 
             if (!Main.DoBlockNameChange && AmongUsClient.Instance.AmHost)
                 ApplySuffix(__instance);
-        }
-
-        // Assign ghost roles to first dead players
-        if (!lowLoad)
-        {
-            if (GhostRolesManager.ShouldHaveGhostRole(player))
-            {
-                GhostRolesManager.AssignGhostRole(player);
-            }
         }
 
         if (__instance.AmOwner)

@@ -604,7 +604,6 @@ internal class ChatCommands
                     break;
 
                 case "/changerole":
-                    //if (!DebugModeManager.AmDebugger) break;
                     if (GameStates.IsLobby || !PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp) break;
                     canceled = true;
                     subArgs = text.Remove(0, 8);
@@ -618,13 +617,8 @@ internal class ChatCommands
                             PlayerControl pc = PlayerControl.LocalPlayer;
                             if (!rl.IsAdditionRole()) pc.RpcSetRole(rl.GetRoleTypes());
                             pc.RpcSetCustomRole(rl);
-                            pc.SyncSettings();
-                            Utils.NotifyRoles(SpecifySeer: pc);
-                            Utils.NotifyRoles(SpecifyTarget: pc);
-                            if (!rl.IsAdditionRole())
-                            {
-                                HudManager.Instance.SetHudActive(pc, pc.Data.Role, !GameStates.IsMeeting);
-                            }
+
+                            if (rl.IsGhostRole()) GhostRolesManager.SpecificAssignGhostRole(pc.PlayerId, rl, false);
 
                             Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.NotAssigned);
                             Main.ChangedRole = true;

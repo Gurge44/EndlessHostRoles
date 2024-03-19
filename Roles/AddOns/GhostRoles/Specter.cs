@@ -13,14 +13,17 @@ namespace TOHE.Roles.AddOns.GhostRoles
 
         public void OnAssign(PlayerControl pc)
         {
-            IsWon = false;
-            var taskState = pc.GetTaskState();
-            if (taskState == null) return;
-            taskState.hasTasks = true;
-            taskState.CompletedTasksCount = 0;
-            GameData.Instance.RpcSetTasks(pc.PlayerId, Array.Empty<byte>());
-            pc.SyncSettings();
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            _ = new LateTask(() =>
+            {
+                IsWon = false;
+                var taskState = pc.GetTaskState();
+                if (taskState == null) return;
+                taskState.hasTasks = true;
+                taskState.CompletedTasksCount = 0;
+                GameData.Instance.RpcSetTasks(pc.PlayerId, Array.Empty<byte>());
+                pc.SyncSettings();
+                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            }, 1f, "Specter Assign");
         }
 
         public void OnProtect(PlayerControl pc, PlayerControl target)
@@ -36,8 +39,11 @@ namespace TOHE.Roles.AddOns.GhostRoles
 
         public void OnFinishedTasks(PlayerControl pc)
         {
-            IsWon = true;
-            if (!SnatchWin.GetBool()) return;
+            if (!SnatchWin.GetBool())
+            {
+                IsWon = true;
+                return;
+            }
 
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Specter);
             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
