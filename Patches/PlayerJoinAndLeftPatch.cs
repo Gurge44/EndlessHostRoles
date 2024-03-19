@@ -3,6 +3,7 @@ using AmongUs.GameOptions;
 using HarmonyLib;
 using InnerNet;
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TOHE.Modules;
@@ -166,6 +167,11 @@ class OnPlayerLeftPatch
                 if (Spiritualist.SpiritualistTarget == data.Character.PlayerId)
                     Spiritualist.RemoveTarget();
                 Postman.CheckAndResetTargets(data.Character);
+
+                if (GhostRolesManager.AssignedGhostRoles.ContainsValue(data.Character.PlayerId))
+                {
+                    GhostRolesManager.AssignedGhostRoles.Remove(GhostRolesManager.AssignedGhostRoles.FirstOrDefault(x => x.Value == data.Character.PlayerId).Key);
+                }
 
                 Utils.AfterPlayerDeathTasks(data.Character, GameStates.IsMeeting);
 

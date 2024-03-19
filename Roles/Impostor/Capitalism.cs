@@ -13,11 +13,11 @@ namespace TOHE.Roles.Impostor
 
         public static void SetupCustomOption()
         {
-            SetupRoleOptions(16600, TabGroup.OtherRoles, CustomRoles.Capitalism);
-            CapitalismSkillCooldown = FloatOptionItem.Create(16610, "CapitalismSkillCooldown", new(0f, 60f, 1f), 10f, TabGroup.OtherRoles, false)
+            SetupRoleOptions(16600, TabGroup.ImpostorRoles, CustomRoles.Capitalism);
+            CapitalismSkillCooldown = FloatOptionItem.Create(16610, "CapitalismSkillCooldown", new(0f, 60f, 1f), 10f, TabGroup.ImpostorRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Capitalism])
                 .SetValueFormat(OptionFormat.Seconds);
-            CapitalismKillCooldown = FloatOptionItem.Create(16611, "KillCooldown", new(2.5f, 60f, 2.5f), 25f, TabGroup.OtherRoles, false)
+            CapitalismKillCooldown = FloatOptionItem.Create(16611, "KillCooldown", new(2.5f, 60f, 2.5f), 25f, TabGroup.ImpostorRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Capitalism])
                 .SetValueFormat(OptionFormat.Seconds);
         }

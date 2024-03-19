@@ -1,7 +1,10 @@
+using System;
 using Hazel;
 using System.Linq;
+using System.Reflection;
 using TOHE.Modules;
 using TOHE.Roles.AddOns.Common;
+using TOHE.Roles.AddOns.GhostRoles;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
@@ -69,6 +72,27 @@ public static class NameColorManager
         if (seer.Is(CustomRoles.Contagious) && target.Is(CustomRoles.Contagious) && Virus.TargetKnowOtherTarget.GetBool()) color = Main.roleColors[CustomRoles.Virus];
         if (seer.Is(CustomRoles.Charmed) && target.Is(CustomRoles.Charmed) && Succubus.TargetKnowOtherTarget.GetBool()) color = Main.roleColors[CustomRoles.Charmed];
         if (seer.Is(CustomRoles.Undead) && target.Is(CustomRoles.Undead)) color = Main.roleColors[CustomRoles.Undead];
+        if (target.HasGhostRole())
+        {
+            try
+            {
+                IGhostRole ghostRoleInstance = Utils.CreateGhostRoleInstance(target);
+                if (seer.GetTeam() == ghostRoleInstance.Team)
+                {
+                    color = ghostRoleInstance.Team switch
+                    {
+                        Team.Impostor => Main.ImpostorColor,
+                        Team.Crewmate => Main.CrewmateColor,
+                        Team.Neutral => Main.NeutralColor,
+                        _ => color
+                    };
+                }
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+            }
+        }
 
         var seerRole = seer.GetCustomRole();
         var targetRole = target.GetCustomRole();

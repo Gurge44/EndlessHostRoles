@@ -15,7 +15,7 @@ namespace TOHE.Roles.Impostor
 
         public static void SetupCustomOption()
         {
-            Options.SetupRoleOptions(16900, TabGroup.OtherRoles, CustomRoles.OverKiller);
+            Options.SetupRoleOptions(16900, TabGroup.ImpostorRoles, CustomRoles.OverKiller);
         }
 
         public static List<byte> OverDeadPlayerList = [];

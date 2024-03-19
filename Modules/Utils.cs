@@ -24,6 +24,7 @@ using TOHE.Roles.Neutral;
 using UnityEngine;
 using static TOHE.Translator;
 using Object = UnityEngine.Object;
+using TOHE.Roles.AddOns.GhostRoles;
 
 namespace TOHE;
 
@@ -578,7 +579,7 @@ public static class Utils
             case CustomRoles.Doppelganger:
             case CustomRoles.PlagueDoctor:
             case CustomRoles.Postman:
-                case CustomRoles.Impartial:
+            case CustomRoles.Impartial:
             case CustomRoles.Predator:
             case CustomRoles.Reckless:
             case CustomRoles.WeaponMaster:
@@ -669,13 +670,18 @@ public static class Utils
 
         foreach (CustomRoles subRole in States.SubRoles)
         {
+            if (subRole.IsGhostRole())
+            {
+                hasTasks &= !ForRecompute;
+                continue;
+            }
+
             switch (subRole)
             {
                 case CustomRoles.Madmate:
                 case CustomRoles.Charmed:
                 case CustomRoles.Recruit:
                 case CustomRoles.Egoist:
-                case CustomRoles.EvilSpirit:
                 case CustomRoles.Contagious:
                 case CustomRoles.Rascal:
                     hasTasks &= !ForRecompute;
@@ -691,6 +697,23 @@ public static class Utils
         if (!hasTasks && role.UsesPetInsteadOfKill()) hasTasks = true;
 
         return hasTasks;
+    }
+
+    public static IGhostRole CreateGhostRoleInstance(PlayerControl target)
+    {
+        if (!target.HasGhostRole()) return null;
+        var ghostRole = target.GetCustomSubRoles().First(x => x.IsGhostRole());
+        var ghostRoleClass = Assembly.GetExecutingAssembly().GetTypes().First(x => x.IsAssignableFrom(typeof(IGhostRole)) && !x.IsInterface && x.Name.Equals($"{ghostRole}", StringComparison.OrdinalIgnoreCase));
+        var ghostRoleInstance = (IGhostRole)Activator.CreateInstance(ghostRoleClass);
+        return ghostRoleInstance;
+    }
+
+    // Create an overload for the above method that takes the ghost role as a parameter
+    public static IGhostRole CreateGhostRoleInstance(CustomRoles ghostRole)
+    {
+        var ghostRoleClass = Assembly.GetExecutingAssembly().GetTypes().First(x => x.IsAssignableFrom(typeof(IGhostRole)) && !x.IsInterface && x.Name.Equals($"{ghostRole}", StringComparison.OrdinalIgnoreCase));
+        var ghostRoleInstance = (IGhostRole)Activator.CreateInstance(ghostRoleClass);
+        return ghostRoleInstance;
     }
 
     public static bool CanBeMadmate(this PlayerControl pc)

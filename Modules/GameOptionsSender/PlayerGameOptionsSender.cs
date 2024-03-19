@@ -4,6 +4,7 @@ using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
 using System;
 using System.Linq;
+using TOHE.Roles.AddOns.GhostRoles;
 using TOHE.Roles.Crewmate;
 using TOHE.Roles.Impostor;
 using TOHE.Roles.Neutral;
@@ -213,6 +214,13 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 opt.SetVision(false);
                 opt.SetFloat(FloatOptionNames.CrewLightMod, Sprayer.LoweredVision.GetFloat());
                 opt.SetFloat(FloatOptionNames.ImpostorLightMod, Sprayer.LoweredVision.GetFloat());
+            }
+
+            if (Minion.BlindPlayers.Contains(player.PlayerId))
+            {
+                opt.SetVision(false);
+                opt.SetFloat(FloatOptionNames.CrewLightMod, 0.01f);
+                opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0.01f);
             }
 
             if (Sentinel.IsPatrolling(player.PlayerId))

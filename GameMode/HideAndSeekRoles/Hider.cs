@@ -54,6 +54,7 @@ namespace TOHE.GameMode.HideAndSeekRoles
         {
             CustomHideAndSeekManager.TimeLeft -= 5;
             pc.Notify(Translator.GetString("TimeDecreased"));
+            if (60 - (CustomHideAndSeekManager.TimeLeft % 60) <= 5 /* Same as the time 2 lines above */) Utils.NotifyRoles();
         }
     }
 }

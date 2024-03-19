@@ -1046,7 +1046,8 @@ public static class GuessManager
                 CreatePage(true, __instance, container);
             }
 
-            foreach (var role in EnumHelper.GetAllValues<CustomRoles>())
+            var sortedRoles = EnumHelper.GetAllValues<CustomRoles>().OrderBy(x => GetString($"{x}")).ToArray();
+            foreach (var role in sortedRoles)
             {
                 if (role is CustomRoles.GM
                     or CustomRoles.SpeedBooster
