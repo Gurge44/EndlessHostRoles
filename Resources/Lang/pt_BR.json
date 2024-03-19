@@ -3233,7 +3233,7 @@
   "ModeHideAndSeek": "Modo de Jogo: Esconde Esconde",
   "ModeDescribe.HideAndSeek": "No Modo de Jogo Esconde Esconde, procuradores devem matar todos os escondidos, enquanto os escondidos devem completar todas as tarefas sem serem mortos para vencer.\\nCaso o tempo limite chegue a 0, os Escondidos vencem.\\n\\n<b><u>Funções:</u></b>\\n\\n<#00ff00><b>Raposa</b></color>:\\n<size=70%>Vence caso permaneça viva.</size>\\n\\n<#ff00ff><b>Troll</b></color>:\\n<size=70%>Vence se for morto. Procuradores e escondidos perdem.</size>",
   "HideAndSeek_MaxGameTime": "Duração máxima do jogo",
-  "SubText.HideAndSeek": "Hide And Seek",
+  "SubText.HideAndSeek": "Esconde Esconde",
   "TimeLeft": "Tempo Restante",
   "MinutesLeft": "{0}<color=#00ffa5>Minutos Restantes</color>",
   "TimeDecreased": "Tempo foi Reduzido em 5s",
