@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 
 namespace TOHE.Roles.Impostor
 {
@@ -9,13 +10,29 @@ namespace TOHE.Roles.Impostor
 
         public List<byte> RevealedPlayerIds = [];
 
-        public static void SetupCustomOption() => Options.SetupRoleOptions(16150, TabGroup.ImpostorRoles, CustomRoles.Visionary);
+        private static OptionItem UseLimit;
+        private static OptionItem VisionaryAbilityUseGainWithEachKill;
+        private static OptionItem ShapeshiftCooldown;
+
+        public static void SetupCustomOption()
+        {
+            Options.SetupRoleOptions(16150, TabGroup.ImpostorRoles, CustomRoles.Visionary);
+            UseLimit = IntegerOptionItem.Create(16152, "AbilityUseLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles, false)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Visionary])
+                .SetValueFormat(OptionFormat.Times);
+            VisionaryAbilityUseGainWithEachKill = FloatOptionItem.Create(16153, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 1f, TabGroup.ImpostorRoles, false)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Visionary])
+                .SetValueFormat(OptionFormat.Times);
+            ShapeshiftCooldown = FloatOptionItem.Create(16154, "ShapeshiftCooldown", new(1f, 60f, 1f), 15f, TabGroup.ImpostorRoles, false)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Visionary])
+                .SetValueFormat(OptionFormat.Seconds);
+        }
 
         public override void Add(byte playerId)
         {
             On = true;
             RevealedPlayerIds = [];
-            playerId.SetAbilityUseLimit(0);
+            playerId.SetAbilityUseLimit(UseLimit.GetInt());
         }
 
         public override void Init()
@@ -23,9 +40,15 @@ namespace TOHE.Roles.Impostor
             On = false;
         }
 
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
+            AURoleOptions.ShapeshifterDuration = 1f;
+        }
+
         public override void OnMurder(PlayerControl killer, PlayerControl target)
         {
-            killer.RpcIncreaseAbilityUseLimitBy(1);
+            killer.RpcIncreaseAbilityUseLimitBy(VisionaryAbilityUseGainWithEachKill.GetFloat());
         }
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)

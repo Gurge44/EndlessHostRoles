@@ -94,17 +94,16 @@ public static class TemplateManager
     {
         CreateIfNotExists();
         using StreamReader sr = new(TEMPLATE_FILE_PATH, Encoding.GetEncoding("UTF-8"));
-        string text;
-        string[] tmp = [];
         List<string> sendList = [];
         HashSet<string> tags = [];
-        while ((text = sr.ReadLine()) != null)
+        while (sr.ReadLine() is { } text)
         {
-            tmp = text.Split(":");
+            string[] tmp = text.Split(":");
             if (tmp.Length > 1 && tmp[1] != "")
             {
                 tags.Add(tmp[0]);
-                if (tmp[0].ToLower() == str.ToLower()) sendList.Add(tmp.Skip(1).Join(delimiter: ":").Replace("\\n", "\n"));
+                if (string.Equals(tmp[0], str, StringComparison.CurrentCultureIgnoreCase))
+                    sendList.Add(tmp.Skip(1).Join(delimiter: ":").Replace("\\n", "\n"));
             }
         }
 
@@ -115,7 +114,7 @@ public static class TemplateManager
             else Utils.SendMessage(string.Format(GetString("Message.TemplateNotFoundClient"), str), playerId);
         }
         else
-            foreach (string x in sendList.ToArray())
+            foreach (string x in sendList)
                 Utils.SendMessage(ApplyReplaceDictionary(x), playerId);
     }
 

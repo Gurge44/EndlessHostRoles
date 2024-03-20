@@ -61,6 +61,7 @@ namespace TOHE.Modules
             GameData.Instance.SetDirty();
             newplayer.ReactorFlash(0.2f);
             newplayer.TP(position);
+            newplayer.ResetPlayerCam();
 
             _ = new LateTask(() => { IsChangeInProgress = false; }, 5f, log: false);
         }
