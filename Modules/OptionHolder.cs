@@ -1106,7 +1106,7 @@ public static class Options
                 .GetExecutingAssembly()
                 .GetTypes()
                 .Where(t => IAddonType.IsAssignableFrom(t) && !t.IsInterface)
-                .OrderBy(t => t.Name)
+                .OrderBy(t => Translator.GetString(t.Name))
                 .Select(type => (IAddon)Activator.CreateInstance(type))
                 .Where(x => x != null)
                 .GroupBy(x => x.Type)
@@ -1134,7 +1134,7 @@ public static class Options
                 .GetExecutingAssembly()
                 .GetTypes()
                 .Where(t => IVanillaType.IsAssignableFrom(t) && !t.IsInterface)
-                .OrderBy(t => t.Name)
+                .OrderBy(t => Translator.GetString(t.Name))
                 .Select(type => (IVanillaSettingHolder)Activator.CreateInstance(type))
                 .Do(x =>
                 {
@@ -1152,7 +1152,7 @@ public static class Options
                 .GetExecutingAssembly()
                 .GetTypes()
                 .Where(t => IType.IsAssignableFrom(t) && !t.IsInterface)
-                .OrderBy(t => t.Name)
+                .OrderBy(t => Translator.GetString(t.Name))
                 .GroupBy(x => ((CustomRoles)Enum.Parse(typeof(CustomRoles), ignoreCase: true, value: x.Name)).GetSimpleRoleOptionType())
                 .ToDictionary(x => x.Key, x => x.Select(type => (ISettingHolder)Activator.CreateInstance(type)).ToArray());
 
