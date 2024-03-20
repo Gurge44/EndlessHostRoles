@@ -188,6 +188,7 @@ internal class ChangeRoleSettings
                 Stressed.Init();
                 Asthmatic.Init();
                 DoubleShot.Init();
+                Circumvent.Init();
             }
             catch (Exception ex)
             {
@@ -530,6 +531,7 @@ internal class SelectRolesPatch
 
             Stressed.Add();
             Asthmatic.Add();
+            Circumvent.Add();
 
             EndOfSelectRolePatch:
 

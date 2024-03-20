@@ -815,6 +815,7 @@ public static class Utils
 
         if (pc.Is(CustomRoles.Damocles)) ProgressText.Append($" {Damocles.GetProgressText(playerId)}");
         if (pc.Is(CustomRoles.Stressed)) ProgressText.Append($" {Stressed.GetProgressText(playerId)}");
+        if (pc.Is(CustomRoles.Circumvent)) ProgressText.Append($" {Circumvent.GetProgressText(playerId)}");
         if (pc.Is(CustomRoles.Taskcounter))
         {
             string totalCompleted = comms ? "?" : $"{GameData.Instance.CompletedTasks}";
@@ -2455,6 +2456,7 @@ public static class Utils
 
         Damocles.AfterMeetingTasks();
         Stressed.AfterMeetingTasks();
+        Circumvent.AfterMeetingTasks();
 
         if (Options.AirshipVariableElectrical.GetBool())
             AirshipElectricalDoors.Initialize();
@@ -2531,9 +2533,6 @@ public static class Utils
             if (target == null) return;
 
             Randomizer.OnAnyoneDeath(target);
-
-            if (Romantic.PartnerId == target.PlayerId)
-                _ = new LateTask(Romantic.ChangeRole, 0.5f, "Romantic ChangeRole");
 
             if (Executioner.Target.ContainsValue(target.PlayerId))
                 Executioner.ChangeRoleByTarget(target);

@@ -149,6 +149,14 @@ public class Romantic : RoleBase
         return false;
     }
 
+    public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
+    {
+        if (!lowLoad && (Partner.Data.Disconnected || !Partner.IsAlive()) && Romantic_.IsAlive() && Romantic_.Is(CustomRoles.Romantic))
+        {
+            ChangeRole();
+        }
+    }
+
     public static string TargetMark(PlayerControl seer, PlayerControl target)
     {
         if (!seer.Is(CustomRoles.Romantic))
@@ -203,7 +211,6 @@ public class Romantic : RoleBase
             try
             {
                 Romantic_.RpcSetCustomRole(partnerRole);
-                HudManager.Instance.SetHudActive(Romantic_, Romantic_.Data.Role, !GameStates.IsMeeting);
                 Main.PlayerStates[RomanticId].RemoveSubRole(CustomRoles.NotAssigned);
                 Logger.Info($"Romantic Partner With Kill Button Died => Changing {Romantic_.GetNameWithRole()} to {Partner.GetAllRoleName().RemoveHtmlTags()}", "Romantic");
             }
@@ -222,13 +229,7 @@ public class Romantic : RoleBase
             VengefulRomantic.SendRPC();
         }
 
-        Utils.NotifyRoles(SpecifySeer: Romantic_);
-        Utils.NotifyRoles(SpecifyTarget: Romantic_);
-
-        Romantic_.ResetKillCooldown();
         Romantic_.SetKillCooldown();
-
-        Romantic_.SyncSettings();
     }
 }
 

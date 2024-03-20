@@ -702,6 +702,7 @@ internal static class CustomRolesHelper
         CustomRoles.Mimic or
         CustomRoles.Damocles or
         CustomRoles.DeadlyQuota or
+        CustomRoles.Circumvent or
         CustomRoles.TicketsStealer or
         CustomRoles.Taskcounter or
         CustomRoles.Swift;
@@ -741,7 +742,7 @@ internal static class CustomRolesHelper
         CustomRoles.Avanger when mainRole.IsImpostor() && !Options.ImpCanBeAvanger.GetBool() => false,
         CustomRoles.Lazy when mainRole.IsNeutral() || mainRole.IsImpostor() || (mainRole.IsTasklessCrewmate() && !Options.TasklessCrewCanBeLazy.GetBool()) || (mainRole.IsTaskBasedCrewmate() && !Options.TaskBasedCrewCanBeLazy.GetBool()) => false,
         CustomRoles.TicketsStealer or CustomRoles.Swift or CustomRoles.DeadlyQuota or CustomRoles.Damocles or CustomRoles.Mare when mainRole is CustomRoles.Bomber or CustomRoles.Nuker or CustomRoles.BoobyTrap or CustomRoles.Capitalism => false,
-        CustomRoles.TicketsStealer or CustomRoles.Mimic or CustomRoles.Swift or CustomRoles.DeadlyQuota or CustomRoles.Damocles or CustomRoles.Mare when !mainRole.IsImpostor() => false,
+        CustomRoles.TicketsStealer or CustomRoles.Mimic or CustomRoles.Swift or CustomRoles.DeadlyQuota or CustomRoles.Circumvent or CustomRoles.Damocles or CustomRoles.Mare when !mainRole.IsImpostor() => false,
         CustomRoles.Torch when !mainRole.IsCrewmate() || mainRole is CustomRoles.Bewilder or CustomRoles.Sunglasses or CustomRoles.GuardianAngelTOHE => false,
         CustomRoles.Bewilder when mainRole is CustomRoles.Torch or CustomRoles.GuardianAngelTOHE or CustomRoles.Sunglasses => false,
         CustomRoles.Sunglasses when mainRole is CustomRoles.Torch or CustomRoles.GuardianAngelTOHE or CustomRoles.Bewilder => false,
@@ -870,7 +871,7 @@ internal static class CustomRolesHelper
         CustomRoles.Avanger when pc.GetCustomRole().IsImpostor() && !Options.ImpCanBeAvanger.GetBool() => false,
         CustomRoles.Lazy when pc.GetCustomRole().IsNeutral() || pc.GetCustomRole().IsImpostor() || (pc.GetCustomRole().IsTasklessCrewmate() && !Options.TasklessCrewCanBeLazy.GetBool()) || (pc.GetCustomRole().IsTaskBasedCrewmate() && !Options.TaskBasedCrewCanBeLazy.GetBool()) => false,
         CustomRoles.TicketsStealer or CustomRoles.Swift or CustomRoles.DeadlyQuota or CustomRoles.Damocles or CustomRoles.Mare when pc.Is(CustomRoles.Bomber) || pc.Is(CustomRoles.Nuker) || pc.Is(CustomRoles.BoobyTrap) || pc.Is(CustomRoles.Capitalism) => false,
-        CustomRoles.TicketsStealer or CustomRoles.Mimic or CustomRoles.Swift or CustomRoles.DeadlyQuota or CustomRoles.Damocles or CustomRoles.Mare when !pc.GetCustomRole().IsImpostor() => false,
+        CustomRoles.TicketsStealer or CustomRoles.Mimic or CustomRoles.Swift or CustomRoles.DeadlyQuota or CustomRoles.Circumvent or CustomRoles.Damocles or CustomRoles.Mare when !pc.GetCustomRole().IsImpostor() => false,
         CustomRoles.Torch when !pc.IsCrewmate() || pc.Is(CustomRoles.Bewilder) || pc.Is(CustomRoles.Sunglasses) || pc.Is(CustomRoles.GuardianAngelTOHE) => false,
         CustomRoles.Bewilder when pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.GuardianAngelTOHE) || pc.Is(CustomRoles.Sunglasses) => false,
         CustomRoles.Sunglasses when pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.GuardianAngelTOHE) || pc.Is(CustomRoles.Bewilder) => false,

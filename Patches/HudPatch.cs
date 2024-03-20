@@ -308,7 +308,8 @@ class HudManagerPatch
                             __instance.KillButton?.OverrideText(GetString("SuccubusKillButtonText"));
                             break;
                         case CustomRoles.Amnesiac:
-                            __instance.KillButton?.OverrideText(GetString("RememberButtonText"));
+                            ActionButton amneButton = Amnesiac.RememberMode.GetValue() == 0 ? __instance.KillButton : __instance.ReportButton;
+                            amneButton?.OverrideText(GetString("RememberButtonText"));
                             break;
                         case CustomRoles.Monarch:
                             usedButton?.OverrideText(GetString("MonarchKillButtonText"));

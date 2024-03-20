@@ -9,8 +9,15 @@ public class Blackmailer : RoleBase
     private const int Id = 643050;
     private static List<byte> playerIdList = [];
     public static OptionItem SkillCooldown;
+    public static OptionItem BlackmailMode;
     public static Dictionary<byte, int> BlackmailerMaxUp = [];
     public static List<byte> ForBlackmailer = [];
+
+    private static readonly string[] BlackmailModes =
+    [
+        "EKill",
+        "Shapeshift"
+    ];
 
     public static void SetupCustomOption()
     {
@@ -18,6 +25,8 @@ public class Blackmailer : RoleBase
         SkillCooldown = FloatOptionItem.Create(Id + 5, "BlackmailerSkillCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Blackmailer])
             .SetValueFormat(OptionFormat.Seconds);
+        BlackmailMode = StringOptionItem.Create(Id + 4, "BlackmailMode", BlackmailModes, 1, TabGroup.ImpostorRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Blackmailer]);
     }
 
     public override void Init()
@@ -40,9 +49,20 @@ public class Blackmailer : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    {
+        if (BlackmailMode.GetValue() == 1 || ForBlackmailer.Contains(target.PlayerId)) return true;
+
+        return killer.CheckDoubleTrigger(target, () =>
+        {
+            ForBlackmailer.Add(target.PlayerId);
+            killer.SetKillCooldown(3f);
+        });
+    }
+
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        ForBlackmailer.Add(target.PlayerId);
+        if (BlackmailMode.GetValue() == 1 && !ForBlackmailer.Contains(target.PlayerId)) ForBlackmailer.Add(target.PlayerId);
         return false;
     }
 }

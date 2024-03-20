@@ -1859,6 +1859,11 @@ class CoEnterVentPatch
             }
         }
 
+        if (__instance.myPlayer.Is(CustomRoles.Circumvent))
+        {
+            Circumvent.OnCoEnterVent(__instance, id);
+        }
+
         if (__instance.myPlayer.GetCustomRole().GetDYRole() == RoleTypes.Impostor && !Main.PlayerStates[__instance.myPlayer.PlayerId].Role.CanUseImpostorVentButton(__instance.myPlayer))
         {
             _ = new LateTask(() => { __instance.RpcBootFromVent(id); }, 0.5f);

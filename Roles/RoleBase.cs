@@ -2,6 +2,7 @@
 using System;
 using System.Text;
 using TOHE.Roles.AddOns.Crewmate;
+using TOHE.Roles.AddOns.Impostor;
 
 namespace TOHE
 {
@@ -45,7 +46,7 @@ namespace TOHE
 
         public virtual bool CanUseImpostorVentButton(PlayerControl pc)
         {
-            return pc.IsAlive() && (pc.Is(CustomRoleTypes.Impostor) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.CanVent.GetBool())) && pc.Data.Role.Role is not RoleTypes.Crewmate and not RoleTypes.Engineer;
+            return pc.IsAlive() && (pc.Is(CustomRoleTypes.Impostor) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.CanVent.GetBool())) && Circumvent.CanUseImpostorVentButton(pc) && pc.Data.Role.Role is not RoleTypes.Crewmate and not RoleTypes.Engineer;
         }
 
         public virtual bool CanUseSabotage(PlayerControl pc)
