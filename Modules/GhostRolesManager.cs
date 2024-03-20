@@ -40,11 +40,7 @@ namespace TOHE.Modules
             if (AssignedGhostRoles.Any(x => x.Key == id || x.Value.Role == role)) return;
 
             var pc = Utils.GetPlayerById(id);
-            if (set)
-            {
-                pc.RpcSetCustomRole(role);
-                pc.RpcSetRole(RoleTypes.GuardianAngel);
-            }
+            if (set) pc.RpcSetRole(RoleTypes.GuardianAngel);
 
             IGhostRole instance = Utils.CreateGhostRoleInstance(role);
             instance.OnAssign(pc);

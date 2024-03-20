@@ -3400,6 +3400,7 @@
   "HaunterStopped": "The Haunter was successfully stopped!",
   "HaunterStoppedSelf": "An impostor came too close to you, your role was removed.",
   "Prefix.Haunter": "Haunter",
+  "NumOfTasks": "Number of Tasks to Finish",
   "MasochistKillMax": "Amount of attacks needed to win",
   "GuessMasochist": "You just tried to guess a Masochist!\\nThey're now one step closer to winning!\\n\\nDo not guess them again.",
   "MasochistKill": "You were attacked!",

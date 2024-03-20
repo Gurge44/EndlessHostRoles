@@ -97,7 +97,7 @@ public class Romantic : RoleBase
     public static bool KnowRole(PlayerControl player, PlayerControl target)
     {
         if (!KnowTargetRole.GetBool()) return false;
-        return player.Is(CustomRoles.Romantic) && PartnerId == target.PlayerId;
+        return (player.Is(CustomRoles.Romantic) && PartnerId == target.PlayerId) || (BetTargetKnowRomantic.GetBool() && target.Is(CustomRoles.Romantic) && player.PlayerId == PartnerId);
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)

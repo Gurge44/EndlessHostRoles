@@ -288,11 +288,6 @@ class CheckMurderPatch
             return false;
         }
 
-        if (GhostRolesManager.ShouldHaveGhostRole(target))
-        {
-            GhostRolesManager.AssignGhostRole(target);
-        }
-
         //==Kill processing==
         __instance.Kill(target);
         //===================
@@ -1129,6 +1124,10 @@ class FixedUpdatePatch
                 {
                     haunter.Update(player);
                 }
+            }
+            else if (!lowLoad && GhostRolesManager.ShouldHaveGhostRole(player))
+            {
+                GhostRolesManager.AssignGhostRole(player);
             }
 
             long now = TimeStamp;

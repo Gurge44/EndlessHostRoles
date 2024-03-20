@@ -248,6 +248,7 @@ static class ExtendedPlayerControl
 
         var pc = GetPlayerById(playerId);
         NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        Logger.Info($" {pc.GetNameWithRole()} => {Math.Round(limit, 1)}", "SetAbilityUseLimit");
     }
 
     public static void Suicide(this PlayerControl pc, PlayerState.DeathReason deathReason = PlayerState.DeathReason.Suicide, PlayerControl realKiller = null)

@@ -618,7 +618,7 @@ internal class ChatCommands
                             if (!rl.IsAdditionRole()) pc.RpcSetRole(rl.GetRoleTypes());
                             pc.RpcSetCustomRole(rl);
 
-                            if (rl.IsGhostRole()) GhostRolesManager.SpecificAssignGhostRole(pc.PlayerId, rl, false);
+                            if (rl.IsGhostRole()) GhostRolesManager.SpecificAssignGhostRole(pc.PlayerId, rl, true);
 
                             Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.NotAssigned);
                             Main.ChangedRole = true;

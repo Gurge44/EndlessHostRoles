@@ -478,7 +478,7 @@ internal class SelectRolesPatch
                     {
                         if (role is CustomRoles.Nimble or CustomRoles.Physicist or CustomRoles.Bloodlust) continue;
                         state.SetSubRole(role);
-                        if (role.IsGhostRole()) GhostRolesManager.SpecificAssignGhostRole(item.Key, role, false);
+                        if (role.IsGhostRole()) GhostRolesManager.SpecificAssignGhostRole(item.Key, role, true);
                     }
                 }
             }

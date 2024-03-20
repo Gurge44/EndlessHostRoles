@@ -29,7 +29,27 @@ internal static class CustomRolesHelper
 {
     public static RoleBase GetRoleClass(this CustomRoles role)
     {
-        var roleClass = Main.AllRoleClasses.FirstOrDefault(x => x.GetType().Name.Equals(role.ToString(), StringComparison.OrdinalIgnoreCase)) ?? new VanillaRole();
+        var roleClass = role switch
+        {
+            // Roles that use the same code as another role need to be handled here
+            CustomRoles.Nuker => new Bomber(),
+            CustomRoles.Undertaker => new Assassin(),
+            CustomRoles.Chameleon => new Swooper(),
+            CustomRoles.BloodKnight => new Wildling(),
+            CustomRoles.HexMaster => new Witch(),
+            CustomRoles.Imitator => new Greedier(),
+            CustomRoles.Jinx => new CursedWolf(),
+            CustomRoles.Juggernaut => new Sans(),
+            CustomRoles.Medusa => new Cleaner(),
+            CustomRoles.Poisoner => new Vampire(),
+            CustomRoles.Reckless => new Sans(),
+            CustomRoles.Ritualist => new EvilDiviner(),
+            CustomRoles.Wraith => new Swooper(),
+
+            // Else, the role class is the role name - if the class doesn't exist, it defaults to VanillaRole
+            _ => Main.AllRoleClasses.FirstOrDefault(x => x.GetType().Name.Equals(role.ToString(), StringComparison.OrdinalIgnoreCase)) ?? new VanillaRole()
+        };
+
         return Activator.CreateInstance(roleClass.GetType()) as RoleBase;
     }
 

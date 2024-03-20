@@ -8,18 +8,22 @@ namespace TOHE.Roles.AddOns.GhostRoles
         public Team Team => Team.Neutral;
 
         private static OptionItem SnatchWin;
+        private static OptionItem NumOfTasks;
 
         public bool IsWon;
 
         public void OnAssign(PlayerControl pc)
         {
+            IsWon = false;
             _ = new LateTask(() =>
             {
-                IsWon = false;
                 var taskState = pc.GetTaskState();
                 if (taskState == null) return;
+
                 taskState.hasTasks = true;
                 taskState.CompletedTasksCount = 0;
+                taskState.AllTasksCount = NumOfTasks.GetInt();
+
                 GameData.Instance.RpcSetTasks(pc.PlayerId, Array.Empty<byte>());
                 pc.SyncSettings();
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -34,6 +38,8 @@ namespace TOHE.Roles.AddOns.GhostRoles
         {
             Options.SetupRoleOptions(649100, TabGroup.OtherRoles, CustomRoles.Specter);
             SnatchWin = BooleanOptionItem.Create(649102, "SnatchWin", false, TabGroup.OtherRoles, false)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Specter]);
+            NumOfTasks = IntegerOptionItem.Create(649103, "NumOfTasks", new(0, 90, 1), 10, TabGroup.OtherRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Specter]);
         }
 

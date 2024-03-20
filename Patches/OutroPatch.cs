@@ -86,7 +86,7 @@ class EndGamePatch
         Main.winnerNameList = [];
         Main.winnerList = [];
         Main.winnerRolesList = [];
-        foreach (PlayerControl pc in winner.ToArray())
+        foreach (PlayerControl pc in winner)
         {
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw && pc.Is(CustomRoles.GM)) continue;
 
@@ -107,6 +107,11 @@ class EndGamePatch
             GameOptionsSender.AllSenders.Clear();
             GameOptionsSender.AllSenders.Add(new NormalGameOptionsSender());
             /* Send SyncSettings RPC */
+        }
+
+        foreach (var state in Main.PlayerStates.Values)
+        {
+            state.Role.Init();
         }
     }
 }

@@ -117,7 +117,7 @@ public class Swooper : RoleBase
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
     {
-        return true;
+        return pc.Data.RoleType != RoleTypes.Engineer;
     }
 
     void SendRPC()
