@@ -1,4 +1,4 @@
-namespace TOHE;
+namespace EHR;
 
 public class FloatOptionItem(int id, string name, float defaultValue, TabGroup tab, bool isSingleValue, FloatValueRule rule) : OptionItem(id, name, rule.GetNearestIndex(defaultValue), tab, isSingleValue)
 {

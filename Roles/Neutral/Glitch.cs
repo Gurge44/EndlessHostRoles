@@ -1,13 +1,13 @@
 using AmongUs.GameOptions;
+using EHR.Modules;
 using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TOHE.Modules;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Neutral;
+namespace EHR.Roles.Neutral;
 
 public class Glitch : RoleBase
 {

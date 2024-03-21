@@ -1,9 +1,9 @@
-﻿using TOHE.Modules;
-using TOHE.Roles.Neutral;
+﻿using EHR.Modules;
+using EHR.Roles.Neutral;
 using UnityEngine;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
     internal class Scavenger : RoleBase
     {

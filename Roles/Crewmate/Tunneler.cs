@@ -2,7 +2,7 @@
 using System.Text;
 using UnityEngine;
 
-namespace TOHE.Roles.Crewmate
+namespace EHR.Roles.Crewmate
 {
     internal class Tunneler : RoleBase
     {

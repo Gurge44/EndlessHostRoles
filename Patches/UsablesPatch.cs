@@ -2,7 +2,7 @@ using AmongUs.GameOptions;
 using HarmonyLib;
 using UnityEngine;
 
-namespace TOHE;
+namespace EHR;
 
 [HarmonyPatch(typeof(Console), nameof(Console.CanUse))]
 class CanUsePatch

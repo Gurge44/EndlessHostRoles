@@ -1,17 +1,17 @@
 using AmongUs.GameOptions;
+using EHR.Modules;
+using EHR.Roles.AddOns.Crewmate;
+using EHR.Roles.AddOns.GhostRoles;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Impostor;
+using EHR.Roles.Neutral;
 using HarmonyLib;
 using InnerNet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
-using TOHE.Roles.AddOns.Crewmate;
-using TOHE.Roles.AddOns.GhostRoles;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Impostor;
-using TOHE.Roles.Neutral;
 
-namespace TOHE;
+namespace EHR;
 
 public class PlayerState(byte playerId)
 {
@@ -234,7 +234,7 @@ public class PlayerState(byte playerId)
         Disconnected,
         Fall,
 
-        // TOHE
+        // EHR
         Gambled,
         Eaten,
         Sacrifice,

@@ -1,16 +1,16 @@
+using EHR.Roles.Crewmate;
+using EHR.Roles.Impostor;
+using EHR.Roles.Neutral;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Impostor;
-using TOHE.Roles.Neutral;
 using UnityEngine;
-using static TOHE.Translator;
+using static EHR.Translator;
 using Object = UnityEngine.Object;
 
-namespace TOHE.Patches;
+namespace EHR.Patches;
 
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CheckForEndVoting))]
 class CheckForEndVotingPatch

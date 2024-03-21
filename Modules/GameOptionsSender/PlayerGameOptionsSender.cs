@@ -1,16 +1,16 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Roles.AddOns.GhostRoles;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Impostor;
+using EHR.Roles.Neutral;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
 using System;
 using System.Linq;
-using TOHE.Roles.AddOns.GhostRoles;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Impostor;
-using TOHE.Roles.Neutral;
 using Mathf = UnityEngine.Mathf;
 
-namespace TOHE.Modules;
+namespace EHR.Modules;
 
 public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 {

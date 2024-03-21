@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using Array = Il2CppSystem.Array;
 using Buffer = Il2CppSystem.Buffer;
 
-namespace TOHE.Modules;
+namespace EHR.Modules;
 
 public abstract class GameOptionsSender
 {

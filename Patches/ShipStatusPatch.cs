@@ -1,16 +1,16 @@
 using BepInEx;
+using EHR.Patches;
+using EHR.Roles.AddOns.Crewmate;
+using EHR.Roles.AddOns.Impostor;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Neutral;
 using HarmonyLib;
 using Hazel;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Patches;
-using TOHE.Roles.AddOns.Crewmate;
-using TOHE.Roles.AddOns.Impostor;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Neutral;
 using UnityEngine;
 
-namespace TOHE;
+namespace EHR;
 
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.FixedUpdate))]
 class ShipFixedUpdatePatch

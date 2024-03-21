@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
+using System.Collections.Generic;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
     internal class Visionary : RoleBase
     {

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using static TOHE.Options;
-using static TOHE.Utils;
+using static EHR.Options;
+using static EHR.Utils;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
     internal class Kamikaze : RoleBase
     {

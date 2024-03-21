@@ -1,12 +1,12 @@
-﻿using Hazel;
+﻿using EHR.Roles.Crewmate;
+using EHR.Roles.Neutral;
+using Hazel;
 using InnerNet;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Neutral;
 using UnityEngine;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
     internal class OverKiller : RoleBase
     {

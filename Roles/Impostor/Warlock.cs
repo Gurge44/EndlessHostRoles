@@ -1,14 +1,14 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Neutral;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Neutral;
 using UnityEngine;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
     internal class Warlock : RoleBase
     {

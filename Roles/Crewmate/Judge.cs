@@ -1,15 +1,15 @@
-﻿using HarmonyLib;
+﻿using EHR.Modules;
+using HarmonyLib;
 using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using TOHE.Modules;
 using UnityEngine;
-using static TOHE.Translator;
+using static EHR.Translator;
 using Object = UnityEngine.Object;
 
-namespace TOHE.Roles.Crewmate;
+namespace EHR.Roles.Crewmate;
 
 public class Judge : RoleBase
 {

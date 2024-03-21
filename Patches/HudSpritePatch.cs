@@ -1,14 +1,14 @@
-﻿using HarmonyLib;
-using TOHE.Patches;
-using TOHE.Roles.Impostor;
-using TOHE.Roles.Neutral;
+﻿using EHR.Patches;
+using EHR.Roles.Impostor;
+using EHR.Roles.Neutral;
+using HarmonyLib;
 using UnityEngine;
 
-namespace TOHE;
+namespace EHR;
 
 public static class CustomButton
 {
-    public static Sprite Get(string name) => Utils.LoadSprite($"TOHE.Resources.Images.Skills.{name}.png", 115f);
+    public static Sprite Get(string name) => Utils.LoadSprite($"EHR.Resources.Images.Skills.{name}.png", 115f);
 }
 
 [HarmonyPriority(520)]

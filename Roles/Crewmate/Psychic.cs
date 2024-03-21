@@ -1,13 +1,13 @@
 using AmongUs.GameOptions;
+using EHR.Modules;
 using HarmonyLib;
 using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Crewmate;
+namespace EHR.Roles.Crewmate;
 
 public class Psychic : RoleBase
 {

@@ -1,16 +1,16 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
 using HarmonyLib;
 using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
 using UnityEngine;
-using static TOHE.Options;
-using static TOHE.Translator;
+using static EHR.Options;
+using static EHR.Translator;
 using Object = UnityEngine.Object;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
     internal class Mafia : RoleBase
     {

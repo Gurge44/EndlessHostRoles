@@ -1,9 +1,9 @@
 ﻿using AmongUs.GameOptions;
 using System.Collections.Generic;
 using UnityEngine;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Neutral
+namespace EHR.Roles.Neutral
 {
     internal class Mario : RoleBase
     {

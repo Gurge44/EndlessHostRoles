@@ -1,11 +1,11 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
+using EHR.Roles.Impostor;
 using HarmonyLib;
 using System.Linq;
-using TOHE.Modules;
-using TOHE.Roles.Impostor;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Crewmate
+namespace EHR.Roles.Crewmate
 {
     internal class DovesOfNeace : RoleBase
     {

@@ -1,4 +1,13 @@
 using AmongUs.GameOptions;
+using EHR.Modules;
+using EHR.Patches;
+using EHR.Roles.AddOns.Common;
+using EHR.Roles.AddOns.Crewmate;
+using EHR.Roles.AddOns.GhostRoles;
+using EHR.Roles.AddOns.Impostor;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Impostor;
+using EHR.Roles.Neutral;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -8,21 +17,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TMPro;
-using TOHE.Modules;
-using TOHE.Patches;
-using TOHE.Roles.AddOns.Common;
-using TOHE.Roles.AddOns.Crewmate;
-using TOHE.Roles.AddOns.GhostRoles;
-using TOHE.Roles.AddOns.Impostor;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Impostor;
-using TOHE.Roles.Neutral;
 using UnityEngine;
-using static TOHE.Translator;
-using static TOHE.Utils;
+using static EHR.Translator;
+using static EHR.Utils;
 using Object = UnityEngine.Object;
 
-namespace TOHE;
+namespace EHR;
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckProtect))]
 class CheckProtectPatch
@@ -1125,7 +1125,7 @@ class FixedUpdatePatch
                     haunter.Update(player);
                 }
             }
-            else if (!lowLoad && GhostRolesManager.ShouldHaveGhostRole(player))
+            else if (!lowLoad && !Main.HasJustStarted && GameStates.IsInTask && GhostRolesManager.ShouldHaveGhostRole(player))
             {
                 GhostRolesManager.AssignGhostRole(player);
             }

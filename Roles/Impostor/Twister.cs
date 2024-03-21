@@ -1,13 +1,13 @@
 using AmongUs.GameOptions;
+using EHR.Modules;
+using EHR.Roles.Neutral;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
-using TOHE.Roles.Neutral;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+using static EHR.Options;
+using static EHR.Translator;
+using static EHR.Utils;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
     public class Twister : RoleBase
     {

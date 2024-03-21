@@ -1,7 +1,7 @@
 using AmongUs.GameOptions;
 using System;
 
-namespace TOHE;
+namespace EHR;
 
 public abstract class OptionBackupValue
 {

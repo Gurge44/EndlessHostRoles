@@ -1,10 +1,10 @@
-﻿using Hazel;
+﻿using EHR.Modules;
+using Hazel;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
 using UnityEngine;
 
-namespace TOHE.Roles.Crewmate
+namespace EHR.Roles.Crewmate
 {
     using static Options;
     using static Translator;

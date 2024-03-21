@@ -1,9 +1,10 @@
 
-<h1 align="center">Town of Host Edited Plus</h1>
+<h1 align="center">Endless Host Roles</h1>
+<h4 align="center">Previously known as TOHE+</h4>
 
 <br>
 
-<img align="left" alt="Cover" src="Resources/Images/TOHE-BG.jpg" width="50%" height="250" /> 
+<img align="left" alt="Cover" src="Resources/Images/EHR-BG.jpg" width="50%" height="250" /> 
 
 <p align="right">
   
@@ -15,7 +16,7 @@
 </p>
 <p align="center">
 
-<a href="https://sites.google.com/view/toheplus" target="_blank"><img src="https://img.shields.io/badge/Website%20-%231DA1F2.svg?&style=for-the-badge&logo=vuedotjs&logoColor=white&color=3aa675"/></a>
+<a href="https://sites.google.com/view/ehr-au" target="_blank"><img src="https://img.shields.io/badge/Website%20-%231DA1F2.svg?&style=for-the-badge&logo=vuedotjs&logoColor=white&color=3aa675"/></a>
 <a href="https://discord.gg/m3ayxfumC8" target="_blank"><img src="https://img.shields.io/badge/Discord%20-%231DA1F2.svg?&style=for-the-badge&logo=discord&logoColor=white&color=5662f6"/></a>
 <a href="https://github.com/Gurge44/TOHE_PLUS_/releases/latest" target="_blank"><img src="https://img.shields.io/badge/Latest Version%20-%231DA1F2.svg?&style=for-the-badge&logo=github&logoColor=white&color=181717"/></a>
 
@@ -25,7 +26,8 @@
 
 <br>
 
-## Additions, Changes, and improvements compared to TOHEN
+## Visit our website for more information: [EHR](https://sites.google.com/view/ehr-au)
+## Main Features
 - Note: The goal with this branch is to improve the existing stuff over adding new roles. If some of the stuff you see below are in TOHRE, they were originally coded by me.
 ### New gamemode
 - A brand new official gamemode, Basic FFA (Free For All)
@@ -187,7 +189,7 @@
 - Busy (Add-on)
 
 ## Note:
-- You can use parts of the code in here, but if you do, you'll have to credit me (Gurge44) or the mod by mentioning its name (TOHE+) and providing a link to this github page. (Or leaving the in-game credits as they are are also fine!)
+- You can use parts of the code in here, but if you do, you'll have to credit me (Gurge44) or the mod by mentioning its name (EHR) and providing a link to this github page. (Or leaving the in-game credits as they are is also fine!)
 - To play the mod, use the given dll in the release section.
 
 <br>

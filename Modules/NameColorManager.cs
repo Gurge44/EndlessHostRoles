@@ -1,15 +1,13 @@
-using System;
+using EHR.Modules;
+using EHR.Roles.AddOns.Common;
+using EHR.Roles.AddOns.GhostRoles;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Impostor;
+using EHR.Roles.Neutral;
 using Hazel;
 using System.Linq;
-using System.Reflection;
-using TOHE.Modules;
-using TOHE.Roles.AddOns.Common;
-using TOHE.Roles.AddOns.GhostRoles;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Impostor;
-using TOHE.Roles.Neutral;
 
-namespace TOHE;
+namespace EHR;
 
 public static class NameColorManager
 {

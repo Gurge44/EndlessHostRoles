@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 
-namespace TOHE.Patches;
+namespace EHR.Patches;
 
 [HarmonyPatch(typeof(DeconSystem), nameof(DeconSystem.UpdateSystem))]
 public static class DeconSystemUpdateSystemPatch

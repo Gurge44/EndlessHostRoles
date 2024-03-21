@@ -1,9 +1,9 @@
-﻿using Hazel;
+﻿using EHR.Modules;
+using Hazel;
 using System.Collections.Generic;
-using TOHE.Modules;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
     public class Chronomancer : RoleBase
     {

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TOHE.Roles.AddOns.GhostRoles
+﻿namespace EHR.Roles.AddOns.GhostRoles
 {
     internal class Warden : IGhostRole, ISettingHolder
     {

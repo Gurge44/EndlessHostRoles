@@ -1,9 +1,9 @@
-﻿using Hazel;
-using TOHE.Modules;
+﻿using EHR.Modules;
+using Hazel;
 using UnityEngine;
-using static TOHE.Translator;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
     public class Penguin : RoleBase
     {

@@ -1,8 +1,8 @@
+using EHR.Modules;
 using Hazel;
 using System.Collections.Generic;
-using TOHE.Modules;
 
-namespace TOHE.Roles.Crewmate
+namespace EHR.Roles.Crewmate
 {
     using static Options;
     using static Utils;

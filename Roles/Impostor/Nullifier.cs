@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using TOHE.Roles.Crewmate;
-using static TOHE.Options;
+﻿using EHR.Roles.Crewmate;
+using System.Collections.Generic;
+using static EHR.Options;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
     internal class Nullifier : RoleBase
     {
@@ -83,6 +83,7 @@ namespace TOHE.Roles.Impostor
                             target.RpcRemoveAbilityUse();
                             break;
                     }
+
                     if (GameStates.IsInTask) Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
                 }, Delay.GetInt(), "Nullifier Remove Ability Use");
             });

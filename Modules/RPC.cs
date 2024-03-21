@@ -1,4 +1,9 @@
 using AmongUs.GameOptions;
+using EHR.Roles.AddOns.Crewmate;
+using EHR.Roles.AddOns.Impostor;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Impostor;
+using EHR.Roles.Neutral;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -6,14 +11,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TOHE.Roles.AddOns.Crewmate;
-using TOHE.Roles.AddOns.Impostor;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Impostor;
-using TOHE.Roles.Neutral;
-using static TOHE.Translator;
+using static EHR.Translator;
 
-namespace TOHE.Modules;
+namespace EHR.Modules;
 
 public enum CustomRPC
 {
@@ -41,7 +41,7 @@ public enum CustomRPC
     SetEvilTrackerTarget,
     SetRealKiller,
 
-    // TOHE
+    // EHR
     AntiBlackout,
     PlayCustomSound,
     SetKillTimer,

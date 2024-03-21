@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using TOHE.Roles.Crewmate;
-using static TOHE.Translator;
+﻿using EHR.Roles.Crewmate;
+using System.Collections.Generic;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Impostor;
+namespace EHR.Roles.Impostor;
 
 internal class Eraser : RoleBase
 {

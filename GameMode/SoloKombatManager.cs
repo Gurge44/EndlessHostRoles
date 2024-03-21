@@ -1,14 +1,14 @@
-﻿using HarmonyLib;
+﻿using EHR.Modules;
+using EHR.Roles.Neutral;
+using HarmonyLib;
 using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
-using TOHE.Roles.Neutral;
 using UnityEngine;
-using static TOHE.RandomSpawn;
+using static EHR.RandomSpawn;
 
-namespace TOHE;
+namespace EHR;
 
 internal static class SoloKombatManager
 {

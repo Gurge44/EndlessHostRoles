@@ -1,19 +1,19 @@
+using EHR.Modules;
+using EHR.Roles.AddOns.Common;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Impostor;
+using EHR.Roles.Neutral;
 using HarmonyLib;
 using Il2CppSystem.Text;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
-using TOHE.Modules;
-using TOHE.Roles.AddOns.Common;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Impostor;
-using TOHE.Roles.Neutral;
 using UnityEngine;
-using static TOHE.Translator;
+using static EHR.Translator;
 using Object = UnityEngine.Object;
 
-namespace TOHE.Patches;
+namespace EHR.Patches;
 
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
 class HudManagerPatch

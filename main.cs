@@ -3,37 +3,37 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
+using EHR;
+using EHR.Roles.Neutral;
 using HarmonyLib;
 using Il2CppInterop.Runtime.Injection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using TOHE;
-using TOHE.Roles.Neutral;
 using UnityEngine;
 
 [assembly: AssemblyFileVersion(Main.PluginVersion)]
 [assembly: AssemblyInformationalVersion(Main.PluginVersion)]
 [assembly: AssemblyVersion(Main.PluginVersion)]
 
-namespace TOHE;
+namespace EHR;
 
-[BepInPlugin(PluginGuid, "TOHE+", PluginVersion)]
+[BepInPlugin(PluginGuid, "EHR", PluginVersion)]
 [BepInIncompatibility("jp.ykundesu.supernewroles")]
 [BepInProcess("Among Us.exe")]
 public class Main : BasePlugin
 {
     // == プログラム設定 / Program Config ==
-    public static readonly string ModName = "TOHE+";
+    public static readonly string ModName = "EHR";
     public static readonly string ModColor = "#00ffff";
     public static readonly bool AllowPublicRoom = true;
-    public static readonly string ForkId = "TOHE+";
+    public static readonly string ForkId = "EHR";
     public static HashAuth DebugKeyAuth { get; private set; }
     public const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     public const string DebugKeySalt = "59687b";
     public static ConfigEntry<string> DebugKeyInput { get; private set; }
-    public const string PluginGuid = "com.gurge44.toheplus";
+    public const string PluginGuid = "com.gurge44.endlesshostroles";
     public const string PluginVersion = "3.0.0";
     public const string PluginDisplayVersion = "3.0.0";
     public static readonly string SupportedAUVersion = "2024.3.5";
@@ -205,7 +205,7 @@ public class Main : BasePlugin
         Instance = this;
 
         //Client Options
-        HideName = Config.Bind("Client Options", "Hide Game Code Name", "TOHE");
+        HideName = Config.Bind("Client Options", "Hide Game Code Name", "EHR");
         HideColor = Config.Bind("Client Options", "Hide Game Code Color", $"{ModColor}");
         DebugKeyInput = Config.Bind("Authentication", "Debug Key", string.Empty);
         AutoStart = Config.Bind("Client Options", "AutoStart", false);
@@ -221,33 +221,33 @@ public class Main : BasePlugin
         GodMode = Config.Bind("Client Options", "GodMode", false);
         DarkTheme = Config.Bind("Client Options", "DarkTheme", false);
 
-        Logger = BepInEx.Logging.Logger.CreateLogSource("TOHE");
-        TOHE.Logger.Enable();
-        TOHE.Logger.Disable("NotifyRoles");
-        TOHE.Logger.Disable("SwitchSystem");
-        TOHE.Logger.Disable("ModNews");
+        Logger = BepInEx.Logging.Logger.CreateLogSource("EHR");
+        EHR.Logger.Enable();
+        EHR.Logger.Disable("NotifyRoles");
+        EHR.Logger.Disable("SwitchSystem");
+        EHR.Logger.Disable("ModNews");
         if (!DebugModeManager.AmDebugger)
         {
-            TOHE.Logger.Disable("2018k");
-            TOHE.Logger.Disable("Github");
-            TOHE.Logger.Disable("CustomRpcSender");
-            //TOHE.Logger.Disable("ReceiveRPC");
-            TOHE.Logger.Disable("SendRPC");
-            TOHE.Logger.Disable("SetRole");
-            TOHE.Logger.Disable("Info.Role");
-            TOHE.Logger.Disable("TaskState.Init");
-            //TOHE.Logger.Disable("Vote");
-            TOHE.Logger.Disable("RpcSetNamePrivate");
-            //TOHE.Logger.Disable("SendChat");
-            TOHE.Logger.Disable("SetName");
-            //TOHE.Logger.Disable("AssignRoles");
-            //TOHE.Logger.Disable("RepairSystem");
-            //TOHE.Logger.Disable("MurderPlayer");
-            //TOHE.Logger.Disable("CheckMurder");
-            TOHE.Logger.Disable("PlayerControl.RpcSetRole");
-            TOHE.Logger.Disable("SyncCustomSettings");
+            EHR.Logger.Disable("2018k");
+            EHR.Logger.Disable("Github");
+            EHR.Logger.Disable("CustomRpcSender");
+            //EHR.Logger.Disable("ReceiveRPC");
+            EHR.Logger.Disable("SendRPC");
+            EHR.Logger.Disable("SetRole");
+            EHR.Logger.Disable("Info.Role");
+            EHR.Logger.Disable("TaskState.Init");
+            //EHR.Logger.Disable("Vote");
+            EHR.Logger.Disable("RpcSetNamePrivate");
+            //EHR.Logger.Disable("SendChat");
+            EHR.Logger.Disable("SetName");
+            //EHR.Logger.Disable("AssignRoles");
+            //EHR.Logger.Disable("RepairSystem");
+            //EHR.Logger.Disable("MurderPlayer");
+            //EHR.Logger.Disable("CheckMurder");
+            EHR.Logger.Disable("PlayerControl.RpcSetRole");
+            EHR.Logger.Disable("SyncCustomSettings");
         }
-        //TOHE.Logger.isDetail = true;
+        //EHR.Logger.isDetail = true;
 
         // 認証関連-初期化
         DebugKeyAuth = new(DebugKeyHash, DebugKeySalt);
@@ -556,15 +556,15 @@ public class Main : BasePlugin
         }
         catch (ArgumentException ex)
         {
-            TOHE.Logger.Error("错误：字典出现重复项", "LoadDictionary");
-            TOHE.Logger.Exception(ex, "LoadDictionary");
+            EHR.Logger.Error("错误：字典出现重复项", "LoadDictionary");
+            EHR.Logger.Exception(ex, "LoadDictionary");
             hasArgumentException = true;
             ExceptionMessage = ex.Message;
             ExceptionMessageIsShown = false;
         }
         catch (Exception ex)
         {
-            TOHE.Logger.Fatal(ex.ToString(), "Main");
+            EHR.Logger.Fatal(ex.ToString(), "Main");
         }
 
         CustomWinnerHolder.Reset();
@@ -578,9 +578,9 @@ public class Main : BasePlugin
 
         IRandom.SetInstance(new NetRandomWrapper());
 
-        TOHE.Logger.Info($"{Application.version}", "AmongUs Version");
+        EHR.Logger.Info($"{Application.version}", "AmongUs Version");
 
-        var handler = TOHE.Logger.Handler("GitVersion");
+        var handler = EHR.Logger.Handler("GitVersion");
         handler.Info($"{nameof(ThisAssembly.Git.BaseTag)}: {ThisAssembly.Git.BaseTag}");
         handler.Info($"{nameof(ThisAssembly.Git.Commit)}: {ThisAssembly.Git.Commit}");
         handler.Info($"{nameof(ThisAssembly.Git.Commits)}: {ThisAssembly.Git.Commits}");
@@ -595,7 +595,7 @@ public class Main : BasePlugin
         if (!DebugModeManager.AmDebugger) ConsoleManager.DetachConsole();
         else ConsoleManager.CreateConsole();
 
-        TOHE.Logger.Msg("========= TOHE+ loaded! =========", "Plugin Load");
+        EHR.Logger.Msg("========= EHR loaded! =========", "Plugin Load");
     }
 
     public static void LoadRoleClasses()
@@ -1117,7 +1117,7 @@ public enum AdditionalWinners
 public enum SuffixModes
 {
     None = 0,
-    TOHE,
+    EHR,
     Streaming,
     Recording,
     RoomHost,

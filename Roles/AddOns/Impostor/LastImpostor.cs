@@ -1,4 +1,4 @@
-namespace TOHE.Roles.AddOns.Impostor;
+namespace EHR.Roles.AddOns.Impostor;
 
 public class LastImpostor : IAddon
 {

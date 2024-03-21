@@ -1,14 +1,14 @@
 ﻿using AmongUs.GameOptions;
+using EHR.GameMode.HideAndSeekRoles;
+using EHR.Modules;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using TOHE.GameMode.HideAndSeekRoles;
-using TOHE.Modules;
 using UnityEngine;
 
-namespace TOHE
+namespace EHR
 {
     internal static class CustomHideAndSeekManager
     {

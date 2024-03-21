@@ -1,12 +1,12 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Roles.Neutral;
 using System.Collections.Generic;
-using TOHE.Roles.Neutral;
 using UnityEngine;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+using static EHR.Options;
+using static EHR.Translator;
+using static EHR.Utils;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
     public class RiftMaker : RoleBase
     {

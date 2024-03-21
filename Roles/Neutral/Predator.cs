@@ -3,7 +3,7 @@ using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace TOHE.Roles.Neutral
+namespace EHR.Roles.Neutral
 {
     internal class Predator : RoleBase
     {

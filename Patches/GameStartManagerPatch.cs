@@ -1,17 +1,17 @@
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using EHR.Roles.Neutral;
 using HarmonyLib;
 using InnerNet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
-using TOHE.Roles.Neutral;
 using UnityEngine;
-using static TOHE.Translator;
+using static EHR.Translator;
 using Object = UnityEngine.Object;
 
-namespace TOHE;
+namespace EHR;
 
 [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.Update))]
 public static class GameStartManagerUpdatePatch

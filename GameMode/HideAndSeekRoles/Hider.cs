@@ -1,6 +1,6 @@
 ﻿using AmongUs.GameOptions;
 
-namespace TOHE.GameMode.HideAndSeekRoles
+namespace EHR.GameMode.HideAndSeekRoles
 {
     internal class Hider : RoleBase, IHideAndSeekRole
     {

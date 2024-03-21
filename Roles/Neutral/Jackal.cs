@@ -2,10 +2,10 @@ using AmongUs.GameOptions;
 using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
-using static TOHE.Options;
-using static TOHE.Translator;
+using static EHR.Options;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Neutral;
+namespace EHR.Roles.Neutral;
 
 public class Jackal : RoleBase
 {

@@ -1,4 +1,4 @@
-namespace TOHE.Roles.Neutral;
+namespace EHR.Roles.Neutral;
 
 public class Poisoner : ISettingHolder
 {

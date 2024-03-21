@@ -1,6 +1,6 @@
 using HarmonyLib;
 
-namespace TOHE;
+namespace EHR;
 
 [HarmonyPatch(typeof(ChatController), nameof(ChatController.Toggle))]
 class CancelBanMenuStuckPatch

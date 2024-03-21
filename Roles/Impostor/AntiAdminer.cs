@@ -1,12 +1,12 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Neutral;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Neutral;
 using UnityEngine;
 
-namespace TOHE.Roles.Impostor;
+namespace EHR.Roles.Impostor;
 
 // Reference: https://github.com/ykundesu/SuperNewRoles/blob/master/SuperNewRoles/Mode/SuperHostRoles/BlockTool.cs
 // Reference：https://github.com/Yumenopai/TownOfHost_Y/tree/AntiAdminer

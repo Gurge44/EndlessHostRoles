@@ -1,11 +1,11 @@
 ﻿#Number:100069
-#Title:TOHE PLUS v1.4.0
+#Title:EHR PLUS v1.4.0
 #SubTitle:★★★★New Roles and Settings★★★★
-#ShortTitle:★TOHE+ v1.4.0
+#ShortTitle:★EHR v1.4.0
 #Date:2023-11-19T00:00:00Z
 #-----------------------------
 
-## Thank you for using TOHE+!
+## Thank you for using EHR!
 
 ## Major bug fixes:
 - Fixed all sorts of issues with Postman (it now finally works)

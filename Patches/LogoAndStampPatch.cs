@@ -3,9 +3,9 @@ using HarmonyLib;
 using System.Collections;
 using TMPro;
 using UnityEngine;
-using static TOHE.Translator;
+using static EHR.Translator;
 
-namespace TOHE;
+namespace EHR;
 
 //参考：https://github.com/ykundesu/SuperNewRoles/blob/master/SuperNewRoles/Patches/LogoAndStampPatch.cs
 [HarmonyPatch]

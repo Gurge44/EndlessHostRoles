@@ -1,7 +1,7 @@
 ﻿using System.IO;
-using static TOHE.Translator;
+using static EHR.Translator;
 
-namespace TOHE;
+namespace EHR;
 
 public class AddSteamID
 {

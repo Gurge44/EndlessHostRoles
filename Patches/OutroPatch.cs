@@ -1,17 +1,17 @@
+using EHR.Modules;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Neutral;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TMPro;
-using TOHE.Modules;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Neutral;
 using UnityEngine;
-using static TOHE.Translator;
+using static EHR.Translator;
 using Object = UnityEngine.Object;
 
-namespace TOHE;
+namespace EHR;
 
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnGameEnd))]
 class EndGamePatch
@@ -356,7 +356,7 @@ class SetEverythingUpPatch
 
         StringBuilder sb = new($"{GetString("RoleSummaryText")}\n<b>");
         List<byte> cloneRoles = [.. Main.PlayerStates.Keys];
-        foreach (byte id in Main.winnerList.ToArray())
+        foreach (byte id in Main.winnerList)
         {
             if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
             sb.Append('\n').Append(EndGamePatch.SummaryText[id]);

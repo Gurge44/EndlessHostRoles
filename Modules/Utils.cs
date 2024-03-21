@@ -1,5 +1,15 @@
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using EHR.Modules;
+using EHR.Patches;
+using EHR.Roles.AddOns.Common;
+using EHR.Roles.AddOns.Crewmate;
+using EHR.Roles.AddOns.GhostRoles;
+using EHR.Roles.AddOns.Impostor;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Impostor;
+using EHR.Roles.Neutral;
+using HarmonyLib;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes;
 using InnerNet;
@@ -12,21 +22,11 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using HarmonyLib;
-using TOHE.Modules;
-using TOHE.Patches;
-using TOHE.Roles.AddOns.Common;
-using TOHE.Roles.AddOns.Crewmate;
-using TOHE.Roles.AddOns.Impostor;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Impostor;
-using TOHE.Roles.Neutral;
 using UnityEngine;
-using static TOHE.Translator;
+using static EHR.Translator;
 using Object = UnityEngine.Object;
-using TOHE.Roles.AddOns.GhostRoles;
 
-namespace TOHE;
+namespace EHR;
 
 /*
 List of symbols that work in game
@@ -100,30 +100,13 @@ public static class Utils
             return false;
         }
 
-        var newSidForHost = (ushort)(nt.lastSequenceId + 20);
-        var newSidForLocal = (ushort)(nt.lastSequenceId + 18);
-        var newSidForGlobal = (ushort)(nt.lastSequenceId + 26);
+        if (AmongUsClient.Instance.AmClient) nt.SnapTo(location, (ushort)(nt.lastSequenceId + 128));
 
-        // Host side
-        if (AmongUsClient.Instance.AmHost)
-        {
-            nt.SnapTo(location, newSidForHost);
-        }
-
-        if (PlayerControl.LocalPlayer.PlayerId != pc.PlayerId)
-        {
-            // Local Teleport For Client
-            MessageWriter localMessageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.Reliable, pc.GetClientId());
-            NetHelpers.WriteVector2(location, localMessageWriter);
-            localMessageWriter.Write(newSidForLocal);
-            AmongUsClient.Instance.FinishRpcImmediately(localMessageWriter);
-        }
-
-        // Global Teleport
-        MessageWriter globalMessageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.Reliable);
-        NetHelpers.WriteVector2(location, globalMessageWriter);
-        globalMessageWriter.Write(newSidForGlobal);
-        AmongUsClient.Instance.FinishRpcImmediately(globalMessageWriter);
+        ushort newSid = (ushort)(nt.lastSequenceId + 2);
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.Reliable);
+        NetHelpers.WriteVector2(location, messageWriter);
+        messageWriter.Write(newSid);
+        AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
 
         if (log) Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} => {location}", "TP");
         return true;
@@ -670,12 +653,6 @@ public static class Utils
 
         foreach (CustomRoles subRole in States.SubRoles)
         {
-            if (subRole.IsGhostRole() && subRole != CustomRoles.EvilSpirit)
-            {
-                hasTasks = true;
-                break;
-            }
-
             switch (subRole)
             {
                 case CustomRoles.Madmate:
@@ -690,15 +667,20 @@ public static class Utils
                 case CustomRoles.Bloodlust:
                     hasTasks = false;
                     break;
+                default:
+                    if (subRole.IsGhostRole()) hasTasks = true;
+                    break;
             }
         }
 
         if (CopyCat.playerIdList.Contains(p.PlayerId) && ForRecompute && (!Options.UsePets.GetBool() || CopyCat.UsePet.GetBool())) hasTasks = false;
 
-        if (!hasTasks && role.UsesPetInsteadOfKill()) hasTasks = true;
+        hasTasks |= role.UsesPetInsteadOfKill();
 
         return hasTasks;
     }
+
+    public static int TotalTaskCount => Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumLongTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumShortTasks);
 
     public static IGhostRole CreateGhostRoleInstance(CustomRoles ghostRole)
     {
@@ -1667,7 +1649,7 @@ public static class Utils
             {
                 name = Options.GetSuffixMode() switch
                 {
-                    SuffixModes.TOHE => name + $"\r\n<color={Main.ModColor}>TOHE+ v{Main.PluginDisplayVersion}</color>",
+                    SuffixModes.EHR => name + $"\r\n<color={Main.ModColor}>EHR v{Main.PluginDisplayVersion}</color>",
                     SuffixModes.Streaming => name + $"\r\n<size=1.7><color={Main.ModColor}>{GetString("SuffixMode.Streaming")}</color></size>",
                     SuffixModes.Recording => name + $"\r\n<size=1.7><color={Main.ModColor}>{GetString("SuffixMode.Recording")}</color></size>",
                     SuffixModes.RoomHost => name + $"\r\n<size=1.7><color={Main.ModColor}>{GetString("SuffixMode.RoomHost")}</color></size>",
@@ -2611,15 +2593,15 @@ public static class Utils
 
     public static void DumpLog(bool open = true)
     {
-        string f = $"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}/TOHE+_Logs/";
+        string f = $"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}/EHR_Logs/";
         string t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
-        string filename = $"{f}TOHE-v{Main.PluginVersion}-{t}.log";
+        string filename = $"{f}EHR-v{Main.PluginVersion}-{t}.log";
         if (!Directory.Exists(f)) Directory.CreateDirectory(f);
         FileInfo file = new($"{Environment.CurrentDirectory}/BepInEx/LogOutput.log");
         file.CopyTo(filename);
         if (!open) return;
         if (PlayerControl.LocalPlayer != null)
-            HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), $"TOHE+ v{Main.PluginVersion} {t}.log"));
+            HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), $"EHR v{Main.PluginVersion} {t}.log"));
         ProcessStartInfo psi = new("Explorer.exe")
             { Arguments = "/e,/select," + filename.Replace("/", "\\") };
         Process.Start(psi);

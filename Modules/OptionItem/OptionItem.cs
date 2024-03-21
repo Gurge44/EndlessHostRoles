@@ -1,19 +1,21 @@
+using EHR.Modules;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
 using UnityEngine;
 
-namespace TOHE;
+namespace EHR;
 
 public abstract class OptionItem
 {
     #region static
+
     public static IReadOnlyList<OptionItem> AllOptions => _allOptions;
     private static readonly List<OptionItem> _allOptions = new(1024);
     public static IReadOnlyDictionary<int, OptionItem> FastOptions => _fastOptions;
     private static readonly Dictionary<int, OptionItem> _fastOptions = new(1024);
     public static int CurrentPreset { get; set; }
+
     #endregion
 
     // 必須情報 (コンストラクタで必ず設定させる必要がある値)
@@ -30,6 +32,7 @@ public abstract class OptionItem
     public bool IsHeader { get; protected set; }
     public bool IsHidden { get; protected set; }
     public bool IsText { get; protected set; }
+
     public Dictionary<string, string> ReplacementDictionary
     {
         get => _replacementDictionary;
@@ -39,14 +42,17 @@ public abstract class OptionItem
             else _replacementDictionary = value;
         }
     }
+
     private Dictionary<string, string> _replacementDictionary;
 
     public int[] AllValues { get; private set; } = new int[NumPresets];
+
     public int CurrentValue
     {
         get => GetValue();
         set => SetValue(value);
     }
+
     public int SingleValue { get; private set; }
 
     // 親子情報
@@ -133,10 +139,13 @@ public abstract class OptionItem
             ReplacementDictionary.TryAdd(roleName, Utils.ColorString(Utils.GetRoleColor(role.Key), roleName));
             break;
         }
+
         i.Parent = parent;
         parent.SetChild(i);
     });
+
     public OptionItem SetChild(OptionItem child) => Do(i => i.Children.Add(child));
+
     public OptionItem RegisterUpdateValueEvent(EventHandler<UpdateValueEventArgs> handler)
         => Do(i => UpdateValueEvent += handler);
 
@@ -147,23 +156,25 @@ public abstract class OptionItem
             ReplacementDictionary ??= [];
             ReplacementDictionary.Add(kvp.key, kvp.value);
         });
+
     public OptionItem RemoveReplacement(string key)
         => Do(i => ReplacementDictionary?.Remove(key));
 
     // Getter
     public virtual string GetName(bool disableColor = false, bool console = false)
     {
-        return disableColor ?
-            Translator.GetString(Name, ReplacementDictionary, console) :
-            Utils.ColorString(NameColor, Translator.GetString(Name, ReplacementDictionary));
+        return disableColor ? Translator.GetString(Name, ReplacementDictionary, console) : Utils.ColorString(NameColor, Translator.GetString(Name, ReplacementDictionary));
     }
+
     public virtual bool GetBool() => CurrentValue != 0 && (Parent == null || Parent.GetBool());
     public virtual int GetInt() => CurrentValue;
     public virtual float GetFloat() => CurrentValue;
+
     public virtual string GetString()
     {
         return ApplyFormat(CurrentValue.ToString());
     }
+
     public virtual int GetValue() => IsSingleValue ? SingleValue : AllValues[CurrentPreset];
 
     // 旧IsHidden関数
@@ -188,6 +199,7 @@ public abstract class OptionItem
             opt.oldValue = opt.Value = CurrentValue;
         }
     }
+
     public void SetValue(int afterValue, bool doSave, bool doSync = true)
     {
         int beforeValue = CurrentValue;
@@ -206,15 +218,18 @@ public abstract class OptionItem
         {
             SyncAllOptions();
         }
+
         if (doSave)
         {
             OptionSaver.Save();
         }
     }
+
     public virtual void SetValue(int afterValue, bool doSync = true)
     {
         SetValue(afterValue, true, doSync);
     }
+
     public void SetAllValues(int[] values)
     {
         AllValues = values;
@@ -223,6 +238,7 @@ public abstract class OptionItem
     // 演算子オーバーロード
     public static OptionItem operator ++(OptionItem item)
         => item.Do(item => item.SetValue(item.CurrentValue + 1));
+
     public static OptionItem operator --(OptionItem item)
         => item.Do(item => item.SetValue(item.CurrentValue - 1));
 
@@ -238,6 +254,7 @@ public abstract class OptionItem
 
         SyncAllOptions();
     }
+
     public static void SyncAllOptions(int targetId = -1)
     {
         if (
@@ -286,6 +303,7 @@ public enum TabGroup
     Addons,
     OtherRoles
 }
+
 public enum OptionFormat
 {
     None,

@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 
-namespace TOHE.Patches;
+namespace EHR.Patches;
 
 [HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.IsCharAllowed))]
 class TextBoxTMPCharAllowedPatch

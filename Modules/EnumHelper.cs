@@ -1,6 +1,6 @@
 using System;
 
-namespace TOHE;
+namespace EHR;
 
 public static class EnumHelper
 {

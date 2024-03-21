@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace TOHE.Roles.Crewmate;
+namespace EHR.Roles.Crewmate;
 
 public class TimeManager : RoleBase
 {

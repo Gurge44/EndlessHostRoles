@@ -1,11 +1,11 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
 using HarmonyLib;
 using Hazel;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
 
-namespace TOHE.Roles.Crewmate;
+namespace EHR.Roles.Crewmate;
 
 public class Medic : RoleBase
 {

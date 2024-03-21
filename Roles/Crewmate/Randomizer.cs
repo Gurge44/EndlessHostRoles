@@ -1,14 +1,14 @@
-﻿using HarmonyLib;
+﻿using EHR.Modules;
+using EHR.Roles.Impostor;
+using EHR.Roles.Neutral;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
-using TOHE.Roles.Impostor;
-using TOHE.Roles.Neutral;
 using UnityEngine;
-using static TOHE.Roles.Crewmate.Randomizer;
+using static EHR.Roles.Crewmate.Randomizer;
 
-namespace TOHE.Roles.Crewmate
+namespace EHR.Roles.Crewmate
 {
     internal static class EffectExtenstions
     {

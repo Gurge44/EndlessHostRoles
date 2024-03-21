@@ -1,11 +1,11 @@
+using EHR.Modules;
 using Hazel;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
 using UnityEngine;
-using static TOHE.Translator;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Impostor;
+namespace EHR.Roles.Impostor;
 
 public class BountyHunter : RoleBase
 {

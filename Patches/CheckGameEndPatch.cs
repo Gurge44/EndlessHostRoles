@@ -1,21 +1,21 @@
 using AmongUs.GameOptions;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
+using EHR.Modules;
+using EHR.Roles.AddOns.GhostRoles;
+using EHR.Roles.Impostor;
+using EHR.Roles.Neutral;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
-using TOHE.Roles.AddOns.GhostRoles;
-using TOHE.Roles.Impostor;
-using TOHE.Roles.Neutral;
 using UnityEngine;
-using static TOHE.CustomWinnerHolder;
-using static TOHE.Translator;
-using static TOHE.Utils;
+using static EHR.CustomWinnerHolder;
+using static EHR.Translator;
+using static EHR.Utils;
 
-namespace TOHE;
+namespace EHR;
 
 [HarmonyPatch(typeof(LogicGameFlowNormal), nameof(LogicGameFlowNormal.CheckEndCriteria))]
 class GameEndChecker

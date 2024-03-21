@@ -2,9 +2,9 @@
 using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Crewmate
+namespace EHR.Roles.Crewmate
 {
     public class Drainer : RoleBase
     {

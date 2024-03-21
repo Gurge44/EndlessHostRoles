@@ -1,10 +1,10 @@
-﻿using System;
+﻿using EHR.Modules;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
     internal class Changeling : RoleBase
     {

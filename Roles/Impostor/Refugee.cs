@@ -1,7 +1,7 @@
 ﻿using AmongUs.GameOptions;
-using TOHE.Roles.Neutral;
+using EHR.Roles.Neutral;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
     internal class Refugee : RoleBase
     {

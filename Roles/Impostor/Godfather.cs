@@ -1,4 +1,4 @@
-﻿namespace TOHE.Roles.Impostor
+﻿namespace EHR.Roles.Impostor
 {
     internal class Godfather : RoleBase
     {

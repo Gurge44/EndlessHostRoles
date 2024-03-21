@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
     internal class Capitalism : RoleBase
     {

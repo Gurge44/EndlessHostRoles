@@ -1,14 +1,14 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
 using Hazel;
 using InnerNet;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using TOHE.Modules;
-using static TOHE.Translator;
+using static EHR.Translator;
 
-namespace TOHE;
+namespace EHR;
 
 internal class EAC
 {

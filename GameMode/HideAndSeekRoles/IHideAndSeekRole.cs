@@ -1,4 +1,4 @@
-﻿namespace TOHE.GameMode.HideAndSeekRoles
+﻿namespace EHR.GameMode.HideAndSeekRoles
 {
     internal interface IHideAndSeekRole
     {

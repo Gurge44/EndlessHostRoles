@@ -1,13 +1,13 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
 using Hazel;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+using static EHR.Options;
+using static EHR.Translator;
+using static EHR.Utils;
 
-namespace TOHE.Roles.Neutral
+namespace EHR.Roles.Neutral
 {
     internal class Mycologist : RoleBase
     {

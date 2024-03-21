@@ -1,4 +1,7 @@
 using Assets.CoreScripts;
+using EHR.Modules;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Impostor;
 using HarmonyLib;
 using Hazel;
 using System;
@@ -7,14 +10,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using TOHE.Modules;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Impostor;
 using UnityEngine;
-using static TOHE.Translator;
+using static EHR.Translator;
 
 
-namespace TOHE;
+namespace EHR;
 
 [HarmonyPatch(typeof(ChatController), nameof(ChatController.SendChat))]
 internal class ChatCommands
@@ -23,7 +23,7 @@ internal class ChatCommands
     public static bool IsPlayerModerator(string friendCode)
     {
         if (friendCode == "" || friendCode == string.Empty || !Options.ApplyModeratorList.GetBool()) return false;
-        const string friendCodesFilePath = "./TOHE_DATA/Moderators.txt";
+        const string friendCodesFilePath = "./EHR_DATA/Moderators.txt";
         var friendCodes = File.ReadAllLines(friendCodesFilePath);
         return friendCodes.Any(code => code.Contains(friendCode, StringComparison.OrdinalIgnoreCase));
     }
@@ -1437,7 +1437,7 @@ internal class UpdateCharCountPatch
     public static void Postfix(FreeChatInputField __instance)
     {
         int length = __instance.textArea.text.Length;
-        __instance.charCountText.SetText(length <= 0 ? "Thank you for using TOHE+!" : $"{length}/{__instance.textArea.characterLimit}");
+        __instance.charCountText.SetText(length <= 0 ? "Thank you for using EHR!" : $"{length}/{__instance.textArea.characterLimit}");
         __instance.charCountText.enableWordWrapping = false;
         if (length < (AmongUsClient.Instance.AmHost ? 1700 : 250))
             __instance.charCountText.color = Color.black;

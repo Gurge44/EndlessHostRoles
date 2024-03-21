@@ -1,9 +1,10 @@
-﻿using System;
+﻿using AmongUs.GameOptions;
+using EHR.Modules;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
 
-namespace TOHE.Roles.AddOns.GhostRoles
+namespace EHR.Roles.AddOns.GhostRoles
 {
     internal class Haunter : IGhostRole, ISettingHolder
     {
@@ -13,8 +14,6 @@ namespace TOHE.Roles.AddOns.GhostRoles
         public HashSet<byte> WarnedImps = [];
         public static HashSet<byte> AllHauntedPlayers = [];
 
-        private static OptionItem NumOfTasks;
-
         public void OnProtect(PlayerControl pc, PlayerControl target)
         {
         }
@@ -22,8 +21,6 @@ namespace TOHE.Roles.AddOns.GhostRoles
         public void SetupCustomOption()
         {
             Options.SetupRoleOptions(649300, TabGroup.OtherRoles, CustomRoles.Haunter);
-            NumOfTasks = IntegerOptionItem.Create(649302, "NumOfTasks", new(0, 90, 1), 10, TabGroup.OtherRoles, false)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
         }
 
         public void OnAssign(PlayerControl pc)
@@ -36,7 +33,7 @@ namespace TOHE.Roles.AddOns.GhostRoles
 
                 taskState.hasTasks = true;
                 taskState.CompletedTasksCount = 0;
-                taskState.AllTasksCount = NumOfTasks.GetInt();
+                taskState.AllTasksCount = Utils.TotalTaskCount - Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks);
 
                 GameData.Instance.RpcSetTasks(pc.PlayerId, Array.Empty<byte>());
                 pc.SyncSettings();

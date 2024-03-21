@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace TOHE.Roles.AddOns.Impostor
+namespace EHR.Roles.AddOns.Impostor
 {
     internal class Circumvent : IAddon
     {
@@ -21,10 +21,11 @@ namespace TOHE.Roles.AddOns.Impostor
 
         public void SetupCustomOption()
         {
-            Options.SetupAdtRoleOptions(14690, CustomRoles.Circumvent, canSetNum: true);
-            VentPreventionMode = StringOptionItem.Create(14693, "VentPreventionMode", VentPreventionModes, 1, TabGroup.Addons, false)
+            const int id = 14680;
+            Options.SetupAdtRoleOptions(id, CustomRoles.Circumvent, canSetNum: true);
+            VentPreventionMode = StringOptionItem.Create(id + 3, "VentPreventionMode", VentPreventionModes, 1, TabGroup.Addons, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Circumvent]);
-            Limit = IntegerOptionItem.Create(14694, "VentLimit", new(1, 90, 1), 8, TabGroup.Addons, false)
+            Limit = IntegerOptionItem.Create(id + 4, "VentLimit", new(1, 90, 1), 8, TabGroup.Addons, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Circumvent]);
         }
 
@@ -99,7 +100,7 @@ namespace TOHE.Roles.AddOns.Impostor
 
         public static bool CanUseImpostorVentButton(PlayerControl pc)
         {
-            return pc.inVent || (!Limits.TryGetValue(pc.PlayerId, out var limit) && VentPreventionMode.GetValue() != 0) || limit > 0;
+            return !pc.Is(CustomRoles.Circumvent) && pc.inVent || (!Limits.TryGetValue(pc.PlayerId, out var limit) && VentPreventionMode.GetValue() != 0) || limit > 0;
         }
     }
 }

@@ -1,14 +1,14 @@
+using EHR.Modules;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
 using UnityEngine;
-using static TOHE.Options;
-using static TOHE.Translator;
+using static EHR.Options;
+using static EHR.Translator;
 using Object = UnityEngine.Object;
 
-namespace TOHE.Roles.Crewmate;
+namespace EHR.Roles.Crewmate;
 
 public class ParityCop : RoleBase
 {

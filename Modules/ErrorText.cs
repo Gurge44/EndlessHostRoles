@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
-using static TOHE.Translator;
+using static EHR.Translator;
 
-namespace TOHE;
+namespace EHR;
 
 public class ErrorText : MonoBehaviour
 {

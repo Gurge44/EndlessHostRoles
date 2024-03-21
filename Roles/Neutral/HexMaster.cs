@@ -1,7 +1,7 @@
-using TOHE.Roles.Impostor;
-using static TOHE.Options;
+using EHR.Roles.Impostor;
+using static EHR.Options;
 
-namespace TOHE.Roles.Neutral;
+namespace EHR.Roles.Neutral;
 
 public class HexMaster : ISettingHolder
 {

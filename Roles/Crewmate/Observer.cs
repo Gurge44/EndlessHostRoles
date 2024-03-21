@@ -1,4 +1,4 @@
-﻿namespace TOHE.Roles.Crewmate
+﻿namespace EHR.Roles.Crewmate
 {
     internal class Observer : ISettingHolder
     {

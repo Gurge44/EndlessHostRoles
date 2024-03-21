@@ -1,11 +1,11 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
 using Hazel;
 using System.Collections.Generic;
-using TOHE.Modules;
-using static TOHE.Options;
-using static TOHE.Utils;
+using static EHR.Options;
+using static EHR.Utils;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
     public class Hitman : RoleBase
     {

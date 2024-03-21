@@ -1,12 +1,12 @@
 ﻿
 #Number:100067
-#Title:TOHE PLUS v1.2.0
+#Title:EHR PLUS v1.2.0
 #SubTitle:★★★★Compatibility with Fungle★★★★
-#ShortTitle:★TOHE+ v1.2.0
+#ShortTitle:★EHR v1.2.0
 #Date:2023-10-28T00:00:00Z
 #-----------------------------
 
-## Thank you for using TOHE+!
+## Thank you for using EHR!
 
 ## Fixes
 - This version is fully compatible with the new and loved Fungle map!

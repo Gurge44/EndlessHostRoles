@@ -1,10 +1,10 @@
 ﻿using AmongUs.GameOptions;
-using TOHE.Modules;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+using EHR.Modules;
+using static EHR.Options;
+using static EHR.Translator;
+using static EHR.Utils;
 
-namespace TOHE.Roles.Impostor;
+namespace EHR.Roles.Impostor;
 
 public class Disperser : RoleBase
 {

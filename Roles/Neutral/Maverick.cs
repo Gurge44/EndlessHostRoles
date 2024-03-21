@@ -1,8 +1,8 @@
 using AmongUs.GameOptions;
 using UnityEngine;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Neutral;
+namespace EHR.Roles.Neutral;
 
 public class Maverick : RoleBase
 {

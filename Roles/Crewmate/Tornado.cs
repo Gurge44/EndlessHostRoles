@@ -1,14 +1,14 @@
-﻿using Hazel;
+﻿using EHR.Modules;
+using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
 using UnityEngine;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+using static EHR.Options;
+using static EHR.Translator;
+using static EHR.Utils;
 
-namespace TOHE.Roles.Crewmate
+namespace EHR.Roles.Crewmate
 {
     internal class Tornado : RoleBase
     {

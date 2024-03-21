@@ -1,5 +1,5 @@
 #pragma warning disable CA1822
-namespace TOHE;
+namespace EHR;
 
 public class HashRandomWrapper : IRandom
 {

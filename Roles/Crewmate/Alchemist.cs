@@ -1,12 +1,12 @@
 using AmongUs.GameOptions;
+using EHR.Modules;
+using EHR.Roles.Neutral;
 using Hazel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TOHE.Modules;
-using TOHE.Roles.Neutral;
 
-namespace TOHE.Roles.Crewmate
+namespace EHR.Roles.Crewmate
 {
     using static Options;
     using static Translator;

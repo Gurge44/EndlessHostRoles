@@ -1,10 +1,10 @@
+using EHR.Roles.Crewmate;
+using EHR.Roles.Neutral;
 using HarmonyLib;
 using Hazel;
 using System.Linq;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Neutral;
 
-namespace TOHE;
+namespace EHR;
 
 //参考
 //https://github.com/Koke1024/Town-Of-Moss/blob/main/TownOfMoss/Patches/MeltDownBoost.cs

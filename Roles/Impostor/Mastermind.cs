@@ -1,12 +1,12 @@
-﻿using System;
+﻿using EHR.Modules;
+using EHR.Roles.Crewmate;
+using System;
 using System.Collections.Generic;
-using TOHE.Modules;
-using TOHE.Roles.Crewmate;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+using static EHR.Options;
+using static EHR.Translator;
+using static EHR.Utils;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
     public class Mastermind : RoleBase
     {

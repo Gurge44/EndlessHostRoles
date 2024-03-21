@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.AddOns.Common
+namespace EHR.Roles.AddOns.Common
 {
     internal class Guesser : IAddon
     {

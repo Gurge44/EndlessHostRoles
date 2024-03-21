@@ -1,12 +1,12 @@
-﻿using HarmonyLib;
+﻿using EHR.Roles.AddOns.Common;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Roles.AddOns.Common;
 using UnityEngine;
-using static TOHE.Translator;
+using static EHR.Translator;
 
-namespace TOHE;
+namespace EHR;
 
 public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, char symbol, bool isRed, bool isYellow = false, bool moveAndStop = true)
 {

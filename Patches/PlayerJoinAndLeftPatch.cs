@@ -1,17 +1,16 @@
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using EHR.Modules;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Neutral;
 using HarmonyLib;
 using InnerNet;
 using System;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using TOHE.Modules;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Neutral;
-using static TOHE.Translator;
+using static EHR.Translator;
 
-namespace TOHE;
+namespace EHR;
 
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnGameJoined))]
 class OnGameJoinedPatch

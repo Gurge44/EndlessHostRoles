@@ -1,9 +1,9 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Roles.Neutral;
 using System.Collections.Generic;
-using TOHE.Roles.Neutral;
-using static TOHE.Translator;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Crewmate
+namespace EHR.Roles.Crewmate
 {
     public class Escort : RoleBase
     {

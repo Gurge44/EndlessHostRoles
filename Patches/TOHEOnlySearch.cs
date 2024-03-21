@@ -1,12 +1,12 @@
 using AmongUs.Data;
 using HarmonyLib;
 
-namespace TOHE;
+namespace EHR;
 
 // ²Î¿¼£ºhttps://github.com/ykundesu/SuperNewRoles/blob/master/SuperNewRoles/Patches/SNROnlySearch.cs
 public static class TOHEOnlySearch
 {
-    public const string FilterText = "TOHE";
+    public const string FilterText = "EHR";
     [HarmonyPatch(typeof(FilterTagManager), nameof(FilterTagManager.RefreshTags))]
     public static class FilterTagManagerPatch
     {

@@ -5,7 +5,7 @@ using InnerNet;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace TOHE;
+namespace EHR;
 
 public class CustomRpcSender
 {

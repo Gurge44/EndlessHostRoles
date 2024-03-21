@@ -1,10 +1,10 @@
-﻿using Hazel;
+﻿using EHR.Modules;
+using Hazel;
 using System.Collections.Generic;
-using TOHE.Modules;
 using UnityEngine;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Crewmate;
+namespace EHR.Roles.Crewmate;
 
 public class Mortician : RoleBase
 {

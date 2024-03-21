@@ -1,11 +1,11 @@
+using EHR.Modules;
 using HarmonyLib;
 using InnerNet;
 using TMPro;
-using TOHE.Modules;
 using UnityEngine;
-using static TOHE.Translator;
+using static EHR.Translator;
 
-namespace TOHE;
+namespace EHR;
 
 [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.MakePublic))]
 internal class MakePublicPatch

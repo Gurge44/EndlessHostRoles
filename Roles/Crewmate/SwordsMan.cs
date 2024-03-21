@@ -1,10 +1,10 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
 using Hazel;
 using System.Collections.Generic;
-using TOHE.Modules;
 using UnityEngine;
 
-namespace TOHE.Roles.Crewmate;
+namespace EHR.Roles.Crewmate;
 
 public class SwordsMan : RoleBase
 {

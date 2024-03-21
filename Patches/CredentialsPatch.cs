@@ -1,14 +1,14 @@
+using EHR.Modules;
 using HarmonyLib;
 using System;
 using System.Linq;
 using System.Text;
 using TMPro;
-using TOHE.Modules;
 using UnityEngine;
-using static TOHE.Translator;
+using static EHR.Translator;
 using Object = UnityEngine.Object;
 
-namespace TOHE;
+namespace EHR;
 
 [HarmonyPatch(typeof(PingTracker), nameof(PingTracker.Update))]
 internal class PingTrackerUpdatePatch
@@ -193,7 +193,7 @@ internal class TitleLogoPatch
                 var CustomBG = new GameObject("CustomBG");
                 CustomBG.transform.position = new(0f, 0f, 520f);
                 var bgRenderer = CustomBG.AddComponent<SpriteRenderer>();
-                bgRenderer.sprite = Utils.LoadSprite("TOHE.Resources.Images.WinterBG.jpg", 180f);
+                bgRenderer.sprite = Utils.LoadSprite("EHR.Resources.Images.WinterBG.jpg", 180f);
 
                 if (__instance.screenTint != null)
                 {

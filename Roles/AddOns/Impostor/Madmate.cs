@@ -1,6 +1,6 @@
-﻿using static TOHE.Options;
+﻿using static EHR.Options;
 
-namespace TOHE.Roles.AddOns.Impostor
+namespace EHR.Roles.AddOns.Impostor
 {
     internal class Madmate : IAddon
     {

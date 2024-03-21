@@ -1,13 +1,13 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
+using EHR.Roles.Crewmate;
 using Hazel;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
-using TOHE.Roles.Crewmate;
 using UnityEngine;
-using static TOHE.Translator;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Neutral;
+namespace EHR.Roles.Neutral;
 
 public class Agitater : RoleBase
 {

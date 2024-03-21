@@ -2,9 +2,9 @@ using AmongUs.GameOptions;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.AddOns.Crewmate;
+namespace EHR.Roles.AddOns.Crewmate;
 
 public class Workhorse : IAddon
 {

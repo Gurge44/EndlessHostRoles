@@ -1,11 +1,11 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Roles.Neutral;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
-using TOHE.Roles.Neutral;
 using UnityEngine;
 
-namespace TOHE.Modules
+namespace EHR.Modules
 {
     // https://github.com/Rabek009/MoreGamemodes
     internal static class RoleBasisChanger

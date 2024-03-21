@@ -10,13 +10,13 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
-using static TOHE.Translator;
+using static EHR.Translator;
 
-namespace TOHE;
+namespace EHR;
 
 public static class TemplateManager
 {
-    private static readonly string TEMPLATE_FILE_PATH = "./TOHE_DATA/template.txt";
+    private static readonly string TEMPLATE_FILE_PATH = "./EHR_DATA/template.txt";
 
     private static readonly Dictionary<string, Func<string>> _replaceDictionary = new()
     {
@@ -52,7 +52,7 @@ public static class TemplateManager
         {
             try
             {
-                if (!Directory.Exists(@"TOHE_DATA")) Directory.CreateDirectory(@"TOHE_DATA");
+                if (!Directory.Exists(@"EHR_DATA")) Directory.CreateDirectory(@"EHR_DATA");
                 if (File.Exists(@"./template.txt")) File.Move(@"./template.txt", TEMPLATE_FILE_PATH);
                 else
                 {
@@ -67,7 +67,7 @@ public static class TemplateManager
                         };
                     else fileName = "English";
                     Logger.Warn($"创建新的 Template 文件：{fileName}", "TemplateManager");
-                    File.WriteAllText(TEMPLATE_FILE_PATH, GetResourcesTxt($"TOHE.Resources.Config.template.{fileName}.txt"));
+                    File.WriteAllText(TEMPLATE_FILE_PATH, GetResourcesTxt($"EHR.Resources.Config.template.{fileName}.txt"));
                 }
             }
             catch (Exception ex)

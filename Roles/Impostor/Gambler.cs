@@ -1,14 +1,14 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Neutral;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Neutral;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+using static EHR.Options;
+using static EHR.Translator;
+using static EHR.Utils;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
     public class Gambler : RoleBase
     {

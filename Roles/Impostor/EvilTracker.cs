@@ -1,15 +1,15 @@
 using AmongUs.GameOptions;
+using EHR.Modules;
 using Hazel;
 using Il2CppSystem.Text;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
 using UnityEngine;
-using static TOHE.Options;
-using static TOHE.Translator;
+using static EHR.Options;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Impostor;
+namespace EHR.Roles.Impostor;
 
 public class EvilTracker : RoleBase
 {

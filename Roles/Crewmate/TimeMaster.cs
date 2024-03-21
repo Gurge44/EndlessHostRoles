@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Crewmate
+namespace EHR.Roles.Crewmate
 {
     internal class TimeMaster : RoleBase
     {

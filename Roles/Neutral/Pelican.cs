@@ -1,12 +1,12 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
+using EHR.Roles.Crewmate;
 using Hazel;
 using System;
 using System.Collections.Generic;
-using TOHE.Modules;
-using TOHE.Roles.Crewmate;
 using UnityEngine;
 
-namespace TOHE.Roles.Neutral;
+namespace EHR.Roles.Neutral;
 
 public class Pelican : RoleBase
 {

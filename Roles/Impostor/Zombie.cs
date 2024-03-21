@@ -1,8 +1,8 @@
 ﻿using AmongUs.GameOptions;
 using System;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
     internal class Zombie : RoleBase
     {

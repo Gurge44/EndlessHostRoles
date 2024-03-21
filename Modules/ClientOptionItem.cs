@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace TOHE;
+namespace EHR;
 
 //来源：https://github.com/tukasa0001/TownOfHost/pull/1265
 public class ClientOptionItem

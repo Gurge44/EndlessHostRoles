@@ -1,9 +1,9 @@
-﻿using Hazel;
+﻿using EHR.Modules;
+using Hazel;
 using System.Collections.Generic;
-using TOHE.Modules;
 using UnityEngine;
 
-namespace TOHE;
+namespace EHR;
 
 public static class NameNotifyManager
 {

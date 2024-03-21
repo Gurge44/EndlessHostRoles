@@ -1,8 +1,8 @@
 ﻿using AmongUs.GameOptions;
-using TOHE.Modules;
+using EHR.Modules;
 using UnityEngine;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
     internal class Escapee : RoleBase
     {

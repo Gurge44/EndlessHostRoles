@@ -1,10 +1,10 @@
 using AmongUs.GameOptions;
+using EHR.Roles.Impostor;
+using EHR.Roles.Neutral;
 using HarmonyLib;
 using System.Collections.Generic;
-using TOHE.Roles.Impostor;
-using TOHE.Roles.Neutral;
 
-namespace TOHE.Patches;
+namespace EHR.Patches;
 
 /*
  * HUGE THANKS TO

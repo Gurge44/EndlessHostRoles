@@ -1,11 +1,11 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
 using Hazel;
 using System;
 using System.Collections.Generic;
-using TOHE.Modules;
 using UnityEngine;
 
-namespace TOHE.Roles.Impostor;
+namespace EHR.Roles.Impostor;
 
 internal class QuickShooter : RoleBase
 {

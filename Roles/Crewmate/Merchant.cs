@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using EHR.Roles.Neutral;
+using System.Collections.Generic;
 using System.Linq;
-using TOHE.Roles.Neutral;
-using static TOHE.Options;
-using static TOHE.Translator;
+using static EHR.Options;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Crewmate
+namespace EHR.Roles.Crewmate
 {
     internal class Merchant : RoleBase
     {

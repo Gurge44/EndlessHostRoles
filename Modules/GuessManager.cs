@@ -1,20 +1,20 @@
-﻿using HarmonyLib;
+﻿using EHR.Modules;
+using EHR.Roles.AddOns.Common;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Neutral;
+using HarmonyLib;
 using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using TMPro;
-using TOHE.Modules;
-using TOHE.Roles.AddOns.Common;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Neutral;
 using UnityEngine;
 using UnityEngine.Events;
-using static TOHE.Translator;
+using static EHR.Translator;
 using Object = UnityEngine.Object;
 
-namespace TOHE;
+namespace EHR;
 
 public static class GuessManager
 {

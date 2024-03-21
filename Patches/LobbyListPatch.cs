@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace TOHE;
+namespace EHR;
 
 [HarmonyPatch(typeof(FindAGameManager), nameof(FindAGameManager.Update))]
 public static class FindAGameManagerUpdatePatch

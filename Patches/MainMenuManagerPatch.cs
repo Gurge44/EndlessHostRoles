@@ -2,10 +2,10 @@ using HarmonyLib;
 using System;
 using TMPro;
 using UnityEngine;
-using static TOHE.Translator;
+using static EHR.Translator;
 using Object = UnityEngine.Object;
 
-namespace TOHE;
+namespace EHR;
 
 [HarmonyPatch]
 public class MainMenuManagerPatch
@@ -115,7 +115,7 @@ public class MainMenuManagerPatch
         var passiveCreditsButton = CreditsButton.GetComponent<PassiveButton>();
         var spriteCreditsButton = CreditsButton.GetComponent<SpriteRenderer>();
 
-        spriteCreditsButton.sprite = Utils.LoadSprite("TOHE.Resources.Images.CreditsButton.png", 75f);
+        spriteCreditsButton.sprite = Utils.LoadSprite("EHR.Resources.Images.CreditsButton.png", 75f);
         passiveCreditsButton.OnClick = new();
         passiveCreditsButton.OnClick.AddListener((Action)(() => { CredentialsPatch.LogoPatch.CreditsPopup?.SetActive(true); }));
 

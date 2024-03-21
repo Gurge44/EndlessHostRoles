@@ -11,7 +11,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Object = Il2CppSystem.Object;
 
-namespace TOHE;
+namespace EHR;
 
 public static class Translator
 {
@@ -29,8 +29,8 @@ public static class Translator
     {
         try
         {
-            // Get the directory containing the JSON files (e.g., TOHE.Resources.Lang)
-            string jsonDirectory = "TOHE.Resources.Lang";
+            // Get the directory containing the JSON files (e.g., EHR.Resources.Lang)
+            string jsonDirectory = "EHR.Resources.Lang";
             // Get the assembly containing the resources
             var assembly = Assembly.GetExecutingAssembly();
             string[] jsonFileNames = GetJsonFileNames(assembly, jsonDirectory);

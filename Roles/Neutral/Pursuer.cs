@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using TOHE.Modules;
+﻿using EHR.Modules;
+using System.Collections.Generic;
 
-namespace TOHE.Roles.Neutral;
+namespace EHR.Roles.Neutral;
 
 public class Pursuer : RoleBase
 {

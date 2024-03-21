@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 
-namespace TOHE.Patches
+namespace EHR.Patches
 {
     [HarmonyPatch(typeof(VoteBanSystem), nameof(VoteBanSystem.AddVote))]
     class VoteBanSystemPatch

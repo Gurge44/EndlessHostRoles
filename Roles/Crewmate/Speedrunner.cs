@@ -1,8 +1,8 @@
-﻿using System.Linq;
-using TOHE.Modules;
-using static TOHE.Options;
+﻿using EHR.Modules;
+using System.Linq;
+using static EHR.Options;
 
-namespace TOHE.Roles.Crewmate
+namespace EHR.Roles.Crewmate
 {
     internal class Speedrunner : RoleBase
     {

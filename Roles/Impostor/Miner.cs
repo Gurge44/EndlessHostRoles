@@ -1,7 +1,7 @@
 ﻿using AmongUs.GameOptions;
 using UnityEngine;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
     internal class Miner : RoleBase
     {

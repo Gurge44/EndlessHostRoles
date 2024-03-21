@@ -1,11 +1,11 @@
 ﻿using AmongUs.GameOptions;
-using TOHE.Modules;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Neutral;
+using EHR.Modules;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Neutral;
 using UnityEngine;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
     internal class Bomber : RoleBase
     {

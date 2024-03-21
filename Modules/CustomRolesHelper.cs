@@ -1,12 +1,12 @@
 using AmongUs.GameOptions;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Impostor;
+using EHR.Roles.Neutral;
 using System;
 using System.Linq;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Impostor;
-using TOHE.Roles.Neutral;
 using UnityEngine;
 
-namespace TOHE;
+namespace EHR;
 
 /*
  * Roles that use the same code as another role:

@@ -1,10 +1,10 @@
 ﻿using AmongUs.GameOptions;
 using UnityEngine;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+using static EHR.Options;
+using static EHR.Translator;
+using static EHR.Utils;
 
-namespace TOHE.Roles.Neutral
+namespace EHR.Roles.Neutral
 {
     internal class Enderman : RoleBase
     {

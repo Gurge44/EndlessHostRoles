@@ -1,3 +1,5 @@
+using EHR.Modules;
+using EHR.Roles.AddOns;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
@@ -5,11 +7,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using TOHE.Modules;
-using TOHE.Roles.AddOns;
 using UnityEngine;
 
-namespace TOHE;
+namespace EHR;
 
 [Flags]
 public enum CustomGameMode
@@ -1237,7 +1237,7 @@ public static class Options
 
         #region TOHESettings
 
-        MainLoadingText = "Building TOHE settings";
+        MainLoadingText = "Building EHR settings";
 
         KickLowLevelPlayer = IntegerOptionItem.Create(19300, "KickLowLevelPlayer", new(0, 100, 1), 0, TabGroup.SystemSettings, false)
             .SetValueFormat(OptionFormat.Level)

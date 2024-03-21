@@ -1,14 +1,14 @@
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using EHR.Roles.AddOns.Crewmate;
+using EHR.Roles.AddOns.Impostor;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Impostor;
+using EHR.Roles.Neutral;
 using HarmonyLib;
 using System.Linq;
-using TOHE.Roles.AddOns.Crewmate;
-using TOHE.Roles.AddOns.Impostor;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Impostor;
-using TOHE.Roles.Neutral;
 
-namespace TOHE.Patches;
+namespace EHR.Patches;
 
 class ExileControllerWrapUpPatch
 {

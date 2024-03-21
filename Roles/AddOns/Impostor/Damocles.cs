@@ -1,12 +1,12 @@
-﻿using Hazel;
+﻿using EHR.Modules;
+using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
-using static TOHE.Options;
-using static TOHE.Translator;
+using static EHR.Options;
+using static EHR.Translator;
 
-namespace TOHE.Roles.AddOns.Impostor
+namespace EHR.Roles.AddOns.Impostor
 {
     public class Damocles : IAddon
     {
@@ -32,13 +32,13 @@ namespace TOHE.Roles.AddOns.Impostor
         public void SetupCustomOption()
         {
             SetupAdtRoleOptions(Id, CustomRoles.Damocles, canSetNum: true);
-            DamoclesExtraTimeAfterKill = IntegerOptionItem.Create(Id + 10, "DamoclesExtraTimeAfterKill", new(0, 60, 1), 30, TabGroup.Addons, false)
+            DamoclesExtraTimeAfterKill = IntegerOptionItem.Create(Id + 3, "DamoclesExtraTimeAfterKill", new(0, 60, 1), 30, TabGroup.Addons, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Damocles])
                 .SetValueFormat(OptionFormat.Seconds);
-            DamoclesExtraTimeAfterMeeting = IntegerOptionItem.Create(Id + 11, "DamoclesExtraTimeAfterMeeting", new(0, 60, 1), 30, TabGroup.Addons, false)
+            DamoclesExtraTimeAfterMeeting = IntegerOptionItem.Create(Id + 4, "DamoclesExtraTimeAfterMeeting", new(0, 60, 1), 30, TabGroup.Addons, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Damocles])
                 .SetValueFormat(OptionFormat.Seconds);
-            DamoclesStartingTime = IntegerOptionItem.Create(Id + 12, "DamoclesStartingTime", new(0, 60, 1), 30, TabGroup.Addons, false)
+            DamoclesStartingTime = IntegerOptionItem.Create(Id + 5, "DamoclesStartingTime", new(0, 60, 1), 30, TabGroup.Addons, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Damocles])
                 .SetValueFormat(OptionFormat.Seconds);
         }

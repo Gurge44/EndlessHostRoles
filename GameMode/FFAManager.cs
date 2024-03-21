@@ -1,13 +1,13 @@
-﻿using HarmonyLib;
+﻿using EHR.Modules;
+using HarmonyLib;
 using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
 using UnityEngine;
-using static TOHE.Translator;
+using static EHR.Translator;
 
-namespace TOHE;
+namespace EHR;
 
 internal static class FFAManager
 {

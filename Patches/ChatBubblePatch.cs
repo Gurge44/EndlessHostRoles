@@ -1,7 +1,7 @@
 using HarmonyLib;
 using UnityEngine;
 
-namespace TOHE.Patches;
+namespace EHR.Patches;
 
 [HarmonyPatch(typeof(ChatBubble), nameof(ChatBubble.SetRight))]
 class ChatBubbleSetRightPatch

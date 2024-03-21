@@ -1,4 +1,4 @@
-﻿namespace TOHE
+﻿namespace EHR
 {
     internal class VanillaRole : RoleBase
     {

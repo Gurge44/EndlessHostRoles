@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TOHE.Roles.AddOns.Common
+namespace EHR.Roles.AddOns.Common
 {
     internal class Stained : IAddon
     {

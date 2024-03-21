@@ -1,4 +1,4 @@
-﻿namespace TOHE.Roles.Neutral;
+﻿namespace EHR.Roles.Neutral;
 
 // 来源：https://github.com/Yumenopai/TownOfHost_Y
 public class Imitator : ISettingHolder

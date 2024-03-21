@@ -1,9 +1,9 @@
 using AmongUs.Data;
+using EHR.Roles.Impostor;
+using EHR.Roles.Neutral;
 using System.Collections.Generic;
-using TOHE.Roles.Impostor;
-using TOHE.Roles.Neutral;
 
-namespace TOHE;
+namespace EHR;
 
 static class PlayerOutfitExtension
 {

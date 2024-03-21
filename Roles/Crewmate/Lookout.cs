@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace TOHE.Roles.Crewmate
+namespace EHR.Roles.Crewmate
 {
     internal class Lookout : RoleBase
     {

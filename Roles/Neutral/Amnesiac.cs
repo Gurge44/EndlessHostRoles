@@ -1,10 +1,10 @@
 using AmongUs.GameOptions;
 using System;
 using System.Collections.Generic;
-using static TOHE.Options;
-using static TOHE.Translator;
+using static EHR.Options;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Neutral;
+namespace EHR.Roles.Neutral;
 
 public class Amnesiac : RoleBase
 {

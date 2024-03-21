@@ -1,10 +1,10 @@
-﻿using Rewired.Utils;
+﻿using EHR.Patches;
+using Rewired.Utils;
 using System;
-using TOHE.Patches;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace TOHE.Modules
+namespace EHR.Modules
 {
     internal class LoadingScreen
     {
@@ -17,7 +17,7 @@ namespace TOHE.Modules
                 if (!LoadingAnimation.IsNullOrDestroyed()) Object.Destroy(LoadingAnimation);
 
                 LoadingAnimation = Object.Instantiate(ModManager.Instance.ModStamp);
-                LoadingAnimation.sprite = Utils.LoadSprite("TOHE.Resources.Loading.png", 300f);
+                LoadingAnimation.sprite = Utils.LoadSprite("EHR.Resources.Loading.png", 300f);
 
                 var basePos = LoadingAnimation.transform.position;
                 var x = basePos.x - 9.5f;

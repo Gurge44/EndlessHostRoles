@@ -1,12 +1,12 @@
+using EHR.Modules;
 using Hazel;
 using System;
 using System.Collections.Generic;
-using TOHE.Modules;
 using UnityEngine;
-using static TOHE.Options;
-using static TOHE.Translator;
+using static EHR.Options;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Neutral;
+namespace EHR.Roles.Neutral;
 
 public class Romantic : RoleBase
 {

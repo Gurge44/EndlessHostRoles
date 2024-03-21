@@ -1,6 +1,7 @@
-﻿using System;
+﻿using AmongUs.GameOptions;
+using System;
 
-namespace TOHE.Roles.AddOns.GhostRoles
+namespace EHR.Roles.AddOns.GhostRoles
 {
     // TOU-R Phantom
     internal class Specter : IGhostRole, ISettingHolder
@@ -8,7 +9,6 @@ namespace TOHE.Roles.AddOns.GhostRoles
         public Team Team => Team.Neutral;
 
         private static OptionItem SnatchWin;
-        private static OptionItem NumOfTasks;
 
         public bool IsWon;
 
@@ -22,7 +22,7 @@ namespace TOHE.Roles.AddOns.GhostRoles
 
                 taskState.hasTasks = true;
                 taskState.CompletedTasksCount = 0;
-                taskState.AllTasksCount = NumOfTasks.GetInt();
+                taskState.AllTasksCount = Utils.TotalTaskCount - Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks);
 
                 GameData.Instance.RpcSetTasks(pc.PlayerId, Array.Empty<byte>());
                 pc.SyncSettings();
@@ -38,8 +38,6 @@ namespace TOHE.Roles.AddOns.GhostRoles
         {
             Options.SetupRoleOptions(649100, TabGroup.OtherRoles, CustomRoles.Specter);
             SnatchWin = BooleanOptionItem.Create(649102, "SnatchWin", false, TabGroup.OtherRoles, false)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Specter]);
-            NumOfTasks = IntegerOptionItem.Create(649103, "NumOfTasks", new(0, 90, 1), 10, TabGroup.OtherRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Specter]);
         }
 

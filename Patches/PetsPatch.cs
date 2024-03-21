@@ -1,6 +1,6 @@
-﻿using TOHE.Modules;
+﻿using EHR.Modules;
 
-namespace TOHE;
+namespace EHR;
 
 public static class PetsPatch
 {

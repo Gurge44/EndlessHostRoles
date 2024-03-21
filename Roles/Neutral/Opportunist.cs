@@ -1,4 +1,4 @@
-﻿namespace TOHE.Roles.Neutral
+﻿namespace EHR.Roles.Neutral
 {
     internal class Opportunist : RoleBase
     {

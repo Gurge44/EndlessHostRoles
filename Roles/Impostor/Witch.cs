@@ -1,14 +1,14 @@
+using EHR.Modules;
+using EHR.Patches;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Neutral;
 using Hazel;
 using System.Collections.Generic;
 using System.Text;
-using TOHE.Modules;
-using TOHE.Patches;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Neutral;
-using static TOHE.Options;
-using static TOHE.Translator;
+using static EHR.Options;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Impostor;
+namespace EHR.Roles.Impostor;
 
 public class Witch : RoleBase
 {

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Crewmate;
+namespace EHR.Roles.Crewmate;
 
 public class Marshall : RoleBase
 {

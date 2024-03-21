@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using UnityEngine;
 
-namespace TOHE;
+namespace EHR;
 
 [HarmonyPatch(typeof(LobbyBehaviour), nameof(LobbyBehaviour.FixedUpdate))]
 public class LobbyFixedUpdatePatch
@@ -18,7 +18,7 @@ public class LobbyFixedUpdatePatch
                 Paint.name = "Lobby Paint";
                 Paint.transform.localPosition = new(0.042f, -2.59f, -10.5f);
                 SpriteRenderer renderer = Paint.GetComponent<SpriteRenderer>();
-                renderer.sprite = Utils.LoadSprite("TOHE.Resources.Images.LobbyPaint.png", 290f);
+                renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.LobbyPaint.png", 290f);
             }
         }
     }

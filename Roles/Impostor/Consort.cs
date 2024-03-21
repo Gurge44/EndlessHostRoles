@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using TOHE.Roles.Neutral;
-using static TOHE.Translator;
+﻿using EHR.Roles.Neutral;
+using System.Collections.Generic;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
     public class Consort : RoleBase
     {

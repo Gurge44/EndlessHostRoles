@@ -1,13 +1,13 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
+using EHR.Patches;
 using Hazel;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
-using TOHE.Patches;
-using static TOHE.Options;
-using static TOHE.Translator;
+using static EHR.Options;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Neutral
+namespace EHR.Roles.Neutral
 {
     public class Virus : RoleBase
     {

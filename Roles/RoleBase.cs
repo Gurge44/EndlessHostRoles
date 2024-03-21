@@ -1,10 +1,10 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Roles.AddOns.Crewmate;
+using EHR.Roles.AddOns.Impostor;
 using System;
 using System.Text;
-using TOHE.Roles.AddOns.Crewmate;
-using TOHE.Roles.AddOns.Impostor;
 
-namespace TOHE
+namespace EHR
 {
     public abstract class RoleBase : IComparable<RoleBase>
     {

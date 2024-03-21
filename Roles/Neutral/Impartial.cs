@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using AmongUs.GameOptions;
+using System.Collections.Generic;
 using System.Text;
-using AmongUs.GameOptions;
 
-namespace TOHE.Roles.Neutral
+namespace EHR.Roles.Neutral
 {
     internal class Impartial : RoleBase
     {

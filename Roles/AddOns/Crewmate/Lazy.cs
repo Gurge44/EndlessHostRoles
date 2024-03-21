@@ -1,6 +1,6 @@
-﻿using static TOHE.Options;
+﻿using static EHR.Options;
 
-namespace TOHE.Roles.AddOns.Crewmate
+namespace EHR.Roles.AddOns.Crewmate
 {
     internal class Lazy : IAddon
     {

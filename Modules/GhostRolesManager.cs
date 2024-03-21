@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
+using EHR.Roles.AddOns.GhostRoles;
 using HarmonyLib;
-using TOHE.Roles.AddOns.GhostRoles;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace TOHE.Modules
+namespace EHR.Modules
 {
     internal static class GhostRolesManager
     {
@@ -17,7 +17,7 @@ namespace TOHE.Modules
             if (GhostRoles.Count > 0) return;
             GhostRoles = EnumHelper.GetAllValues<CustomRoles>().Where(x => x != CustomRoles.EvilSpirit && x.IsGhostRole() && x.IsEnable()).ToList();
 
-            Logger.Warn($"Ghost roles: {GhostRoles.Join()}", "GhostRoles");
+            Logger.Msg($"Ghost roles: {GhostRoles.Join()}", "GhostRoles");
             Haunter.AllHauntedPlayers = [];
         }
 
@@ -49,9 +49,18 @@ namespace TOHE.Modules
 
         public static bool ShouldHaveGhostRole(PlayerControl pc)
         {
-            if (pc.GetCountTypes() is CountTypes.None or CountTypes.OutOfGame) return false;
-            var suitableRole = GetSuitableGhostRole(pc);
-            return !AssignedGhostRoles.Any(x => x.Key == pc.PlayerId || x.Value.Role == suitableRole);
+            try
+            {
+                if (AssignedGhostRoles.Count >= GhostRoles.Count) return false;
+                if (pc.IsAlive() || pc.GetCountTypes() is CountTypes.None or CountTypes.OutOfGame) return false;
+                var suitableRole = GetSuitableGhostRole(pc);
+                return !AssignedGhostRoles.Any(x => x.Key == pc.PlayerId || x.Value.Role == suitableRole);
+            }
+            catch (System.Exception e)
+            {
+                Utils.ThrowException(e);
+                return false;
+            }
         }
 
         public static CustomRoles GetSuitableGhostRole(PlayerControl pc)

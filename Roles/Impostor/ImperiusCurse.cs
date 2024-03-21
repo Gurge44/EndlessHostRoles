@@ -1,7 +1,7 @@
 ﻿using AmongUs.GameOptions;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
     internal class ImperiusCurse : RoleBase
     {

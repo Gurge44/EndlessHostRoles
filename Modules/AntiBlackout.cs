@@ -1,11 +1,11 @@
 using AmongUs.GameOptions;
+using EHR.Modules;
 using Hazel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using TOHE.Modules;
 
-namespace TOHE;
+namespace EHR;
 
 public static class AntiBlackout
 {
@@ -46,7 +46,7 @@ public static class AntiBlackout
 
     public static bool IsCached { get; private set; }
     private static Dictionary<byte, (bool isDead, bool Disconnected)> isDeadCache = [];
-    private static readonly LogHandler Logger = TOHE.Logger.Handler("AntiBlackout");
+    private static readonly LogHandler Logger = EHR.Logger.Handler("AntiBlackout");
 
     public static void SetIsDead(bool doSend = true, [CallerMemberName] string callerMethodName = "")
     {

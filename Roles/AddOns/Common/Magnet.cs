@@ -1,4 +1,4 @@
-﻿namespace TOHE.Roles.AddOns.Common
+﻿namespace EHR.Roles.AddOns.Common
 {
     internal class Magnet : IAddon
     {
