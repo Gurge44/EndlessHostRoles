@@ -32,7 +32,7 @@ namespace TOHE.Roles.Neutral
                 .SetValueFormat(OptionFormat.Seconds);
             CanVent = BooleanOptionItem.Create(Id + 5, "CanVent", true, TabGroup.NeutralRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Predator]);
-            HasImpVision = BooleanOptionItem.Create(Id + 6, "HasImpostorVision", false, TabGroup.NeutralRoles, false)
+            HasImpVision = BooleanOptionItem.Create(Id + 6, "ImpostorVision", false, TabGroup.NeutralRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Predator]);
         }
 

@@ -1751,6 +1751,7 @@
   "CircumventInfo": "You can't vent",
   "CircumventInfoLong": "(Add-ons):\\nCircumvent is an add-on that only impostors can get. The holder of this add-on will not be able to use vents (or only limited times per game or round).",
   "Prefix.Circumvent": "Circumvent",
+  "VentPreventionMode": "Vent Prevention Mode",
   "NoVenting": "Block Venting",
   "VentLimit": "Vent Entering Limit",
   "LimitPerGame": "Limit Per Game",
