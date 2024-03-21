@@ -1751,6 +1751,7 @@
   "CircumventInfo": "Você não pode usar dutos",
   "CircumventInfoLong": "(Atributos):\\\\nApenas Impostores podem obter este atributo. Quem possuir este atributo não poderá usar dutos (ou apenas vezes limitadas por jogo ou rodada).",
   "Prefix.Circumvent": "Claustrofóbico",
+  "VentPreventionMode": "Vent Prevention Mode",
   "NoVenting": "Bloquear uso de dutos",
   "VentLimit": "Limite de Entrada em dutos",
   "LimitPerGame": "Limite por Jogo",
