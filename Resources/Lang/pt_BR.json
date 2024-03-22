@@ -2014,7 +2014,7 @@
   "ERR-000-910-1": "Erro de Teste Lv. 1",
   "ERR-000-920-2": "Erro de Teste Lv. 2",
   "ERR-000-930-3": "Erro de Teste Lv. 3",
-  "ERR-000-804-1": "Town of Host Enhanced não suporta HnS Vanilla, portanto foi descarregado.",
+  "ERR-000-804-1": "EHR não suporta HnS Vanilla, portanto foi descarregado.",
   "ERR-001-000-3": "O dicionário principal possui chaves duplicadas.",
   "DeathCommand": "<#ffffff>Você foi Morto por </color>{0}<#ffffff>\\nA função dele é </color>{1}",
   "DefaultSystemMessageTitle": "Sistema",

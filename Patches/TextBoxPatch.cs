@@ -1,16 +1,68 @@
 ﻿using HarmonyLib;
+using System;
 
 namespace EHR.Patches;
 
-[HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.IsCharAllowed))]
-class TextBoxTMPCharAllowedPatch
+[HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.SetText))]
+class TextBoxTMPSetTextPatch
 {
-    public static bool Prefix(TextBoxTMP __instance, [HarmonyArgument(0)] char i, ref bool __result)
+    public static bool Prefix(TextBoxTMP __instance, [HarmonyArgument(0)] string input, [HarmonyArgument(1)] string inputCompo = "")
     {
-        if (__instance.IpMode ? i is >= '0' and <= '9' or '.' : i == ' ' || i is >= 'A' and <= 'Z' || i is >= 'a' and <= 'z' || i is >= '0' and <= '9' || i is >= 'À' and <= 'ÿ' || i is >= 'Ѐ' and <= 'џ' || i is >= '\u3040' and <= '㆟' || i is >= 'ⱡ' and <= '힣' || __instance.AllowSymbols && TextBoxTMP.SymbolChars.Contains(i) || __instance.AllowEmail && TextBoxTMP.EmailChars.Contains(i)) return true;
-        if (i is not ('+' or '<' or '>' or '"' or '*' or '#' or '@' or '$' or '%' or '^' or '&' or '(' or ')' or '-' or '=' or '_' or '{' or '}' or '[' or ']' or ':' or ';' or ',' or '.' or '?' or '/' or '|' or '\\' or '`' or '~' or 'Н' or 'Г' or 'З' or 'В' or 'А' or 'П' or 'О' or 'Л' or 'Д' or 'Ж' or 'М' or 'И' or 'Б' or 'å' or 'ø' or 'æ' or 'ñ' or 'ä' or 'ö' or 'ü' or 'ß')) return true;
+        bool flag = false;
+        char ch = ' ';
+        __instance.tempTxt.Clear();
 
-        __result = true;
+        foreach (var str in input)
+        {
+            char upperInvariant = str;
+            if (ch != ' ' || upperInvariant != ' ')
+            {
+                switch (upperInvariant)
+                {
+                    case '\r' or '\n':
+                        flag = true;
+                        break;
+                    case '\b':
+                        __instance.tempTxt.Length = Math.Max(__instance.tempTxt.Length - 1, 0);
+                        break;
+                }
+
+                if (__instance.ForceUppercase) upperInvariant = char.ToUpperInvariant(upperInvariant);
+                if (!char.IsWhiteSpace(upperInvariant))
+                {
+                    __instance.tempTxt.Append(upperInvariant);
+                    ch = upperInvariant;
+                }
+            }
+        }
+
+        if (!__instance.tempTxt.ToString().Equals(DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.EnterName), StringComparison.OrdinalIgnoreCase) && __instance.characterLimit > 0)
+            __instance.tempTxt.Length = Math.Min(__instance.tempTxt.Length, __instance.characterLimit);
+        input = __instance.tempTxt.ToString();
+
+        if (!input.Equals(__instance.text) || !inputCompo.Equals(__instance.compoText))
+        {
+            __instance.text = input;
+            __instance.compoText = inputCompo;
+            string str = __instance.text;
+            string compoText = __instance.compoText;
+
+            if (__instance.Hidden)
+            {
+                str = "";
+                for (int index = 0; index < __instance.text.Length; ++index)
+                    str += "*";
+            }
+
+            __instance.outputText.text = str + compoText;
+            __instance.outputText.ForceMeshUpdate(true, true);
+            if (__instance.keyboard != null) __instance.keyboard.text = __instance.text;
+            __instance.OnChange.Invoke();
+        }
+
+        if (flag) __instance.OnEnter.Invoke();
+        __instance.Pipe.transform.localPosition = __instance.outputText.CursorPos();
+
         return false;
     }
 }
