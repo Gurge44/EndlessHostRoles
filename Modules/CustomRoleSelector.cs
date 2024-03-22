@@ -89,35 +89,21 @@ internal static class CustomRoleSelector
     {
         RoleResult = [];
 
+        if (Main.GM.Value && Main.AllPlayerControls.Length == 1) return;
+
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.SoloKombat:
-                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                {
-                    RoleResult[pc] = CustomRoles.KB_Normal;
-                }
-
+                AssignRoleToEveryone(CustomRoles.KB_Normal);
                 return;
             case CustomGameMode.FFA:
-                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                {
-                    RoleResult[pc] = CustomRoles.Killer;
-                }
-
+                AssignRoleToEveryone(CustomRoles.Killer);
                 return;
             case CustomGameMode.MoveAndStop:
-                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                {
-                    RoleResult[pc] = CustomRoles.Tasker;
-                }
-
+                AssignRoleToEveryone(CustomRoles.Tasker);
                 return;
             case CustomGameMode.HotPotato:
-                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                {
-                    RoleResult[pc] = CustomRoles.Potato;
-                }
-
+                AssignRoleToEveryone(CustomRoles.Potato);
                 return;
             case CustomGameMode.HideAndSeek:
                 CustomHideAndSeekManager.AssignRoles(ref RoleResult);
@@ -606,33 +592,43 @@ internal static class CustomRoleSelector
             Logger.Error("Role assignment error: There are players who have not been assigned a role", "CustomRoleSelector");
         if (FinalRolesList.Count > 0)
             Logger.Error("Team assignment error: There is an unassigned team", "CustomRoleSelector");
+
         return;
+
+        void AssignRoleToEveryone(CustomRoles role)
+        {
+            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            {
+                if (Main.GM.Value && pc.PlayerId == 0) continue;
+                RoleResult[pc] = role;
+            }
+        }
 
         RoleAssignInfo GetAssignInfo(CustomRoles role) => Roles.Values.FirstOrDefault(x => x.Any(y => y.Role == role))?.FirstOrDefault(x => x.Role == role);
     }
 
-    public static int addScientistNum;
-    public static int addEngineerNum;
-    public static int addShapeshifterNum;
+    public static int AddScientistNum;
+    public static int AddEngineerNum;
+    public static int AddShapeshifterNum;
 
     public static void CalculateVanillaRoleCount()
     {
         // Calculate the number of base roles
-        addEngineerNum = 0;
-        addScientistNum = 0;
-        addShapeshifterNum = 0;
+        AddEngineerNum = 0;
+        AddScientistNum = 0;
+        AddShapeshifterNum = 0;
         foreach (var role in AllRoles)
         {
             switch (role.GetVNRole())
             {
                 case CustomRoles.Scientist:
-                    addScientistNum++;
+                    AddScientistNum++;
                     break;
                 case CustomRoles.Engineer:
-                    addEngineerNum++;
+                    AddEngineerNum++;
                     break;
                 case CustomRoles.Shapeshifter:
-                    addShapeshifterNum++;
+                    AddShapeshifterNum++;
                     break;
             }
         }

@@ -54,7 +54,7 @@ namespace EHR.Roles.Crewmate
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0) return true;
+            if (!IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0) return false;
 
             killer.RpcRemoveAbilityUse();
 

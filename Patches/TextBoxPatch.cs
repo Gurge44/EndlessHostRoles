@@ -28,7 +28,7 @@ class TextBoxTMPSetTextPatch
                 }
 
                 if (__instance.ForceUppercase) upperInvariant = char.ToUpperInvariant(upperInvariant);
-                if (!char.IsWhiteSpace(upperInvariant))
+                if (upperInvariant is not '\b' and not '\n' and not '\r')
                 {
                     __instance.tempTxt.Append(upperInvariant);
                     ch = upperInvariant;

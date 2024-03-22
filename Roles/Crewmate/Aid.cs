@@ -54,7 +54,6 @@ namespace EHR.Roles.Crewmate
         {
             if (killer == null) return false;
             if (target == null) return false;
-            if (!killer.Is(CustomRoles.Aid)) return true;
 
             if (killer.GetAbilityUseLimit() >= 1)
             {

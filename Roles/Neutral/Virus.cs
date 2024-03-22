@@ -89,7 +89,7 @@ namespace EHR.Roles.Neutral
         {
             if (killer.GetAbilityUseLimit() < 1) return false;
             InfectedBodies.Add(target.PlayerId);
-            return false;
+            return true;
         }
 
         public static void OnKilledBodyReport(PlayerControl target)

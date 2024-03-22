@@ -86,7 +86,7 @@ public class Jailor : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null) return true;
+        if (killer == null || target == null) return false;
         if (JailorTarget != byte.MaxValue)
         {
             killer.Notify(GetString("JailorTargetAlreadySelected"));

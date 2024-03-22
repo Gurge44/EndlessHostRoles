@@ -379,7 +379,7 @@ internal class RPCHandlerPatch
                 byte FarseerId = reader.ReadByte();
                 byte RevealId = reader.ReadByte();
                 bool revealed = reader.ReadBoolean();
-                Farseer.isRevealed[(FarseerId, RevealId)] = revealed;
+                Farseer.IsRevealed[(FarseerId, RevealId)] = revealed;
                 break;
             case CustomRPC.SetNameColorData:
                 NameColorManager.ReceiveRPC(reader);

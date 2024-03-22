@@ -14,7 +14,7 @@ namespace EHR.Roles.Crewmate
     public class Farseer : RoleBase
     {
         public static Dictionary<byte, (PlayerControl PLAYER, float TIMER)> FarseerTimer = [];
-        public static Dictionary<(byte, byte), bool> isRevealed = [];
+        public static Dictionary<(byte, byte), bool> IsRevealed = [];
 
         private const int Id = 9700;
 
@@ -55,7 +55,7 @@ namespace EHR.Roles.Crewmate
 
             foreach (PlayerControl ar in Main.AllPlayerControls)
             {
-                isRevealed[(playerId, ar.PlayerId)] = false;
+                IsRevealed[(playerId, ar.PlayerId)] = false;
             }
 
             RandomRole[playerId] = GetRandomCrewRoleString();
@@ -85,7 +85,7 @@ namespace EHR.Roles.Crewmate
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             killer.SetKillCooldown(FarseerRevealTime.GetFloat());
-            if (!isRevealed[(killer.PlayerId, target.PlayerId)] && !FarseerTimer.ContainsKey(killer.PlayerId))
+            if (!IsRevealed[(killer.PlayerId, target.PlayerId)] && !FarseerTimer.ContainsKey(killer.PlayerId))
             {
                 FarseerTimer.TryAdd(killer.PlayerId, (target, 0f));
                 NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
@@ -107,34 +107,34 @@ namespace EHR.Roles.Crewmate
                 }
                 else
                 {
-                    var ar_target = FarseerTimer[player.PlayerId].PLAYER;
-                    var ar_time = FarseerTimer[player.PlayerId].TIMER;
-                    if (!ar_target.IsAlive())
+                    var arTarget = FarseerTimer[player.PlayerId].PLAYER;
+                    var arTime = FarseerTimer[player.PlayerId].TIMER;
+                    if (!arTarget.IsAlive())
                     {
                         FarseerTimer.Remove(player.PlayerId);
                     }
-                    else if (ar_time >= FarseerRevealTime.GetFloat())
+                    else if (arTime >= FarseerRevealTime.GetFloat())
                     {
                         if (UsePets.GetBool()) player.AddKCDAsAbilityCD();
                         else player.SetKillCooldown();
                         FarseerTimer.Remove(player.PlayerId);
-                        isRevealed[(player.PlayerId, ar_target.PlayerId)] = true;
-                        player.RpcSetRevealtPlayer(ar_target, true);
-                        NotifyRoles(SpecifySeer: player, SpecifyTarget: ar_target);
+                        IsRevealed[(player.PlayerId, arTarget.PlayerId)] = true;
+                        player.RpcSetRevealtPlayer(arTarget, true);
+                        NotifyRoles(SpecifySeer: player, SpecifyTarget: arTarget);
                         RPC.ResetCurrentRevealTarget(player.PlayerId);
                     }
                     else
                     {
                         float range = NormalGameOptionsV07.KillDistances[Mathf.Clamp(player.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f;
-                        float dis = Vector2.Distance(player.transform.position, ar_target.transform.position);
+                        float dis = Vector2.Distance(player.transform.position, arTarget.transform.position);
                         if (dis <= range)
                         {
-                            FarseerTimer[player.PlayerId] = (ar_target, ar_time + Time.fixedDeltaTime);
+                            FarseerTimer[player.PlayerId] = (arTarget, arTime + Time.fixedDeltaTime);
                         }
                         else
                         {
                             FarseerTimer.Remove(player.PlayerId);
-                            NotifyRoles(SpecifySeer: player, SpecifyTarget: ar_target, ForceLoop: true);
+                            NotifyRoles(SpecifySeer: player, SpecifyTarget: arTarget, ForceLoop: true);
                             RPC.ResetCurrentRevealTarget(player.PlayerId);
 
                             Logger.Info($"Canceled: {player.GetNameWithRole().RemoveHtmlTags()}", "Arsonist");
@@ -164,14 +164,14 @@ namespace EHR.Roles.Crewmate
             var randomPlayer = playersWithTasks[rd.Next(0, playersWithTasks.Length)];
             var taskState = randomPlayer.Value.TaskState;
 
-            var TaskCompleteColor = Color.green;
-            var NonCompleteColor = Color.yellow;
-            var NormalColor = taskState.IsTaskFinished ? TaskCompleteColor : NonCompleteColor;
+            var taskCompleteColor = Color.green;
+            var nonCompleteColor = Color.yellow;
+            var normalColor = taskState.IsTaskFinished ? taskCompleteColor : nonCompleteColor;
 
-            Color TextColor = Camouflager.IsActive ? Color.gray : NormalColor;
-            string Completed = Camouflager.IsActive ? "?" : $"{taskState.CompletedTasksCount}";
+            Color textColor = Camouflager.IsActive ? Color.gray : normalColor;
+            string completed = Camouflager.IsActive ? "?" : $"{taskState.CompletedTasksCount}";
 
-            return $" <size={FontSize}>" + ColorString(TextColor, $"({Completed}/{taskState.AllTasksCount})") + "</size>\r\n";
+            return $" <size={FontSize}>" + ColorString(textColor, $"({completed}/{taskState.AllTasksCount})") + "</size>\r\n";
         }
     }
 }

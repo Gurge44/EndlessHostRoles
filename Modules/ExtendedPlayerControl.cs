@@ -571,7 +571,7 @@ static class ExtendedPlayerControl
     public static bool CanUseImpostorVentButton(this PlayerControl pc)
     {
         if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel || Penguin.IsVictim(pc)) return false;
-        if (CopyCat.playerIdList.Contains(pc.PlayerId)) return true;
+        if (CopyCat.PlayerIdList.Contains(pc.PlayerId)) return true;
 
         if ((pc.Is(CustomRoles.Nimble) || Options.EveryoneCanVent.GetBool()) && pc.GetCustomRole().GetVNRole() != CustomRoles.Engineer) return true;
         if (pc.Is(CustomRoles.Bloodlust)) return true;
@@ -637,8 +637,8 @@ static class ExtendedPlayerControl
     }
     public static bool IsRevealedPlayer(this PlayerControl player, PlayerControl target)
     {
-        if (player == null || target == null || Farseer.isRevealed == null) return false;
-        Farseer.isRevealed.TryGetValue((player.PlayerId, target.PlayerId), out bool isDoused);
+        if (player == null || target == null || Farseer.IsRevealed == null) return false;
+        Farseer.IsRevealed.TryGetValue((player.PlayerId, target.PlayerId), out bool isDoused);
         return isDoused;
     }
     public static void RpcSetDousedPlayer(this PlayerControl player, PlayerControl target, bool isDoused)

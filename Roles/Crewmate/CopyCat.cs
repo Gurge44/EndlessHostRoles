@@ -8,7 +8,7 @@ namespace EHR.Roles.Crewmate;
 public class CopyCat : RoleBase
 {
     private const int Id = 666420;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
     public float CurrentKillCooldown = DefaultKillCooldown;
     private float TempLimit;
@@ -33,13 +33,13 @@ public class CopyCat : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         CurrentKillCooldown = DefaultKillCooldown;
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         CurrentKillCooldown = KillCooldown.GetFloat();
         playerId.SetAbilityUseLimit(MiscopyLimitOpt.GetInt());
 
@@ -48,7 +48,7 @@ public class CopyCat : RoleBase
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Utils.GetPlayerById(id).IsAlive() ? CurrentKillCooldown : 0f;
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -58,7 +58,7 @@ public class CopyCat : RoleBase
 
     public static void ResetRole()
     {
-        foreach (var player in playerIdList)
+        foreach (var player in PlayerIdList)
         {
             var pc = Utils.GetPlayerById(player);
             var role = pc.GetCustomRole();

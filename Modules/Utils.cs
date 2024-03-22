@@ -673,7 +673,7 @@ public static class Utils
             }
         }
 
-        if (CopyCat.playerIdList.Contains(p.PlayerId) && ForRecompute && (!Options.UsePets.GetBool() || CopyCat.UsePet.GetBool())) hasTasks = false;
+        if (CopyCat.PlayerIdList.Contains(p.PlayerId) && ForRecompute && (!Options.UsePets.GetBool() || CopyCat.UsePet.GetBool())) hasTasks = false;
 
         hasTasks |= role.UsesPetInsteadOfKill();
 
@@ -1260,6 +1260,8 @@ public static class Utils
             {
                 sb.Append($"{ColorString(GetRoleColor(CustomRoles.Lovers), " ♥")}");
             }
+
+            if (SubRoles.Count == 0) return sb.ToString();
 
             sb.Append("<size=15%>");
             if (SubRoles.Count == 1)

@@ -61,7 +61,6 @@ public class Crusader : RoleBase
         killer.RpcRemoveAbilityUse();
         killer.ResetKillCooldown();
         killer.SetKillCooldown();
-        //killer.RpcGuardAndKill(target);
         target.RpcGuardAndKill(killer);
         return false;
     }

@@ -1479,11 +1479,11 @@ class FixedUpdatePatch
                 {
                     if (__instance.Is(CustomRoles.Lovers))
                     {
-                        if (PlayerControl.LocalPlayer.Is(CustomRoles.Lovers))
+                        if (seer.Is(CustomRoles.Lovers))
                         {
                             Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}>♥</color>");
                         }
-                        else if (PlayerControl.LocalPlayer.Data.IsDead)
+                        else if (!seer.IsAlive())
                         {
                             Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}>♥</color>");
                         }

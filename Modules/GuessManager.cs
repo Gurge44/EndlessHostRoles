@@ -166,7 +166,7 @@ public static class GuessManager
                 if (target != null)
                 {
                     bool guesserSuicide = false;
-                    if (CopyCat.playerIdList.Contains(pc.PlayerId))
+                    if (CopyCat.PlayerIdList.Contains(pc.PlayerId))
                     {
                         if (!isUI) Utils.SendMessage(GetString("GuessDisabled"), pc.PlayerId);
                         else pc.ShowPopUp(GetString("GuessDisabled"));

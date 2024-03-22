@@ -108,7 +108,7 @@ public class Jackal : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!CanRecruitSidekick.GetBool() || killer.GetAbilityUseLimit() < 1) return false;
+        if (!CanRecruitSidekick.GetBool() || killer.GetAbilityUseLimit() < 1) return true;
         if (SidekickAssignMode.GetValue() != 2)
         {
             if (CanBeSidekick(target))
@@ -132,7 +132,7 @@ public class Jackal : RoleBase
                 target.RpcGuardAndKill(target);
 
                 Logger.Info("SetRole:" + target.Data?.PlayerName + " = " + target.GetCustomRole() + " + " + CustomRoles.Sidekick, "Assign " + CustomRoles.Sidekick);
-                return true;
+                return false;
             }
         }
 
@@ -156,7 +156,7 @@ public class Jackal : RoleBase
                 target.RpcGuardAndKill(target);
 
                 Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole() + " + " + CustomRoles.Sidekick, "Assign " + CustomRoles.Sidekick);
-                return true;
+                return false;
             }
         }
 

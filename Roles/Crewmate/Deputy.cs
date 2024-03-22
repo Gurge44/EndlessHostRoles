@@ -73,7 +73,7 @@ public class Deputy : RoleBase
 
             killer.SetKillCooldown();
 
-            return true;
+            return false;
         }
 
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("DeputyInvalidTarget")));

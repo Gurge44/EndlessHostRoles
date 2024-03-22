@@ -503,7 +503,7 @@ class GameEndChecker
 
             if (FFAManager.RoundTime <= 0)
             {
-                var winner = Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => FFAManager.GetRankOfScore(x.PlayerId)).First();
+                var winner = Main.GM.Value && Main.AllPlayerControls.Length == 1 ? PlayerControl.LocalPlayer : Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => FFAManager.GetRankOfScore(x.PlayerId)).First();
 
                 byte winnerId = winner.PlayerId;
 
@@ -560,7 +560,7 @@ class GameEndChecker
 
             if (MoveAndStopManager.RoundTime <= 0)
             {
-                var winner = Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => MoveAndStopManager.GetRankOfScore(x.PlayerId)).ThenBy(x => x.IsAlive()).First();
+                var winner = Main.GM.Value && Main.AllPlayerControls.Length == 1 ? PlayerControl.LocalPlayer : Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => MoveAndStopManager.GetRankOfScore(x.PlayerId)).ThenBy(x => x.IsAlive()).First();
 
                 byte winnerId = winner.PlayerId;
 

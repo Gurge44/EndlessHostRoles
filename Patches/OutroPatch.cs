@@ -98,7 +98,7 @@ class EndGamePatch
 
         Arsonist.isDoused = [];
         Revolutionist.isDraw = [];
-        Farseer.isRevealed = [];
+        Farseer.IsRevealed = [];
 
         Main.VisibleTasksCount = false;
         if (AmongUsClient.Instance.AmHost)
