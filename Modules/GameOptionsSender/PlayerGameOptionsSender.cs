@@ -264,6 +264,12 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
             var array = Main.PlayerStates[player.PlayerId].SubRoles.ToArray();
             foreach (CustomRoles subRole in array)
             {
+                if (subRole.IsGhostRole() && subRole != CustomRoles.EvilSpirit)
+                {
+                    AURoleOptions.GuardianAngelCooldown = 30f;
+                    continue;
+                }
+
                 switch (subRole)
                 {
                     case CustomRoles.Watcher:
@@ -367,6 +373,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 
             AURoleOptions.ShapeshifterCooldown = Mathf.Max(1f, AURoleOptions.ShapeshifterCooldown);
             AURoleOptions.ProtectionDurationSeconds = 0f;
+            AURoleOptions.ImpostorsCanSeeProtect = false;
 
             return opt;
         }
