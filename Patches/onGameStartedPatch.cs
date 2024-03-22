@@ -127,17 +127,15 @@ internal class ChangeRoleSettings
             Revolutionist.currentDrawTarget = byte.MaxValue;
             Main.PlayerColors = [];
 
-            //名前の記録
-            //Main.AllPlayerNames = new();
             RPC.SyncAllPlayerNames();
 
             Camouflage.Init();
-            var invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId);
-            if (invalidColor.Any())
+            var invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).Select(p => $"{p.name}").ToArray();
+            if (invalidColor.Length > 0)
             {
                 var msg = GetString("Error.InvalidColor");
                 Logger.SendInGame(msg);
-                msg += "\n" + string.Join(",", invalidColor.Select(p => $"{p.name}"));
+                msg += "\n" + string.Join(",", invalidColor);
                 Utils.SendMessage(msg);
                 Logger.Error(msg, "CoStartGame");
             }
@@ -477,6 +475,7 @@ internal class SelectRolesPatch
                 Main.LoversPlayers.Clear();
                 Main.isLoversDead = false;
                 overrideLovers = true;
+                Logger.Warn("Lovers overridden by host's pre-set add-ons", "CustomRoleSelector");
             }
 
             foreach (var item in Main.SetAddOns)
@@ -534,7 +533,7 @@ internal class SelectRolesPatch
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error(ex.ToString(), "onGameStartedPatch Add methods");
+                    Logger.Error(ex.ToString(), "OnGameStartedPatch Add methods");
                 }
             }
 
@@ -553,7 +552,6 @@ internal class SelectRolesPatch
                 pc.ResetKillCooldown();
             }
 
-            //役職の人数を戻す
             var roleOpt = Main.NormalOptions.roleOptions;
             int ScientistNum = Options.DisableVanillaRoles.GetBool() ? 0 : roleOpt.GetNumPerGame(RoleTypes.Scientist);
             ScientistNum -= AddScientistNum;
@@ -611,6 +609,8 @@ internal class SelectRolesPatch
             }
 
             _ = new LateTask(() => { Main.HasJustStarted = false; }, 10f, "HasJustStarted to false");
+
+            Logger.Warn(Main.LoversPlayers.Join(x => x.GetRealName()), "Lovers");
         }
         catch (Exception ex)
         {
@@ -619,7 +619,7 @@ internal class SelectRolesPatch
         }
     }
 
-    private static void AssignDesyncRole(CustomRoles role, PlayerControl player, Dictionary<byte, CustomRpcSender> senders, Dictionary<(byte, byte), RoleTypes> rolesMap, RoleTypes BaseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate)
+    private static void AssignDesyncRole(CustomRoles role, PlayerControl player, IReadOnlyDictionary<byte, CustomRpcSender> senders, IDictionary<(byte, byte), RoleTypes> rolesMap, RoleTypes BaseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate)
     {
         if (player == null) return;
 

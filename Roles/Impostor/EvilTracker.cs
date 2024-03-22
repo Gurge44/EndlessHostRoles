@@ -4,6 +4,7 @@ using Hazel;
 using Il2CppSystem.Text;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using UnityEngine;
 using static EHR.Options;
@@ -25,13 +26,15 @@ public class EvilTracker : RoleBase
     public static RoleTypes RoleTypes;
     public static bool CanSeeLastRoomInMeeting;
 
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
+#pragma warning restore IDE0079 // Remove unnecessary suppression
     private enum TargetMode
     {
         Never,
-
-        //OnceInGame,
+        OnceInGame,
         EveryMeeting,
-        Always,
+        Always
     }
 
     private static readonly string[] TargetModeText =
@@ -140,12 +143,19 @@ public class EvilTracker : RoleBase
                 SetTarget();
             }
 
-            foreach (byte playerId in playerIdList.ToArray())
+            foreach (byte playerId in playerIdList)
             {
                 var pc = Utils.GetPlayerById(playerId);
                 var target = Utils.GetPlayerById(Target);
-                if (!pc.IsAlive() || !target.IsAlive())
-                    SetTarget(playerId);
+                try
+                {
+                    if (!pc.IsAlive() || !target.IsAlive())
+                        SetTarget(playerId);
+                }
+                catch (NullReferenceException)
+                {
+                }
+
                 pc?.SyncSettings();
                 pc?.RpcResetAbilityCooldown();
                 target?.MarkDirtySettings();

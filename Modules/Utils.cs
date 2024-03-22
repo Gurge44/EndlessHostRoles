@@ -100,9 +100,9 @@ public static class Utils
             return false;
         }
 
-        if (AmongUsClient.Instance.AmClient) nt.SnapTo(location, (ushort)(nt.lastSequenceId + 128));
+        if (AmongUsClient.Instance.AmClient) nt.SnapTo(location, (ushort)(nt.lastSequenceId + 328));
 
-        ushort newSid = (ushort)(nt.lastSequenceId + 2);
+        ushort newSid = (ushort)(nt.lastSequenceId + 8);
         MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.Reliable);
         NetHelpers.WriteVector2(location, messageWriter);
         messageWriter.Write(newSid);

@@ -87,29 +87,29 @@ class OnPlayerJoinedPatch
         {
             if (!BanManager.TempBanWhiteList.Contains(client.GetHashedPuid()))
                 BanManager.TempBanWhiteList.Add(client.GetHashedPuid());
-            AmongUsClient.Instance?.KickPlayer(client.Id, true);
+            AmongUsClient.Instance.KickPlayer(client.Id, true);
             Logger.SendInGame(string.Format(GetString("Message.KickedByNoFriendCode"), client.PlayerName));
-            Logger.Info($"TempBanned a player {client?.PlayerName} without a friend code", "Temp Ban");
+            Logger.Info($"TempBanned a player {client.PlayerName} without a friend code", "Temp Ban");
         }
 
         if (AmongUsClient.Instance.AmHost && client.PlatformData.Platform == (Platforms.Android | Platforms.IPhone) && Options.KickAndroidPlayer.GetBool())
         {
-            AmongUsClient.Instance?.KickPlayer(client.Id, false);
-            string msg = string.Format(GetString("KickAndriodPlayer"), client?.PlayerName);
+            AmongUsClient.Instance.KickPlayer(client.Id, false);
+            string msg = string.Format(GetString("KickAndriodPlayer"), client.PlayerName);
             Logger.SendInGame(msg);
             Logger.Info(msg, "Android Kick");
         }
 
         if (AmongUsClient.Instance.AmHost && client.PlayerName.Contains("Silasticm", StringComparison.OrdinalIgnoreCase))
         {
-            AmongUsClient.Instance?.KickPlayer(client.Id, false);
+            AmongUsClient.Instance.KickPlayer(client.Id, false);
             Logger.SendInGame("They were probably hacking tbh");
         }
 
         if (DestroyableSingleton<FriendsListManager>.Instance.IsPlayerBlockedUsername(client.FriendCode) && AmongUsClient.Instance.AmHost)
         {
-            AmongUsClient.Instance?.KickPlayer(client.Id, true);
-            Logger.Info($"Ban Player ー {client?.PlayerName}({client.FriendCode}) has been banned.", "BAN");
+            AmongUsClient.Instance.KickPlayer(client.Id, true);
+            Logger.Info($"Ban Player ー {client.PlayerName}({client.FriendCode}) has been banned.", "BAN");
         }
 
         BanManager.CheckBanPlayer(client);
@@ -135,7 +135,7 @@ class OnPlayerLeftPatch
             {
                 if (data.Character.Is(CustomRoles.Lovers) && !data.Character.Data.IsDead)
                 {
-                    foreach (var lovers in Main.LoversPlayers.ToArray())
+                    foreach (var lovers in Main.LoversPlayers)
                     {
                         Main.isLoversDead = true;
                         Main.LoversPlayers.Remove(lovers);

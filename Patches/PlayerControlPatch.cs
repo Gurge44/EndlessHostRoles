@@ -1475,18 +1475,15 @@ class FixedUpdatePatch
                 Mark.Append(Snitch.GetWarningArrow(seer, target));
                 Mark.Append(Snitch.GetWarningMark(seer, target));
 
-                if (Main.LoversPlayers.Count > 0)
+                if (target.Is(CustomRoles.Lovers) || Main.LoversPlayers.Any(x => x.PlayerId == target.PlayerId))
                 {
-                    if (__instance.Is(CustomRoles.Lovers))
+                    if (seer.Is(CustomRoles.Lovers) || Main.LoversPlayers.Any(x => x.PlayerId == seer.PlayerId))
                     {
-                        if (seer.Is(CustomRoles.Lovers))
-                        {
-                            Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}>♥</color>");
-                        }
-                        else if (!seer.IsAlive())
-                        {
-                            Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}>♥</color>");
-                        }
+                        Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}>♥</color>");
+                    }
+                    else if (!seer.IsAlive())
+                    {
+                        Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}>♥</color>");
                     }
                 }
 
@@ -1643,7 +1640,7 @@ class FixedUpdatePatch
         if (Main.LoversPlayers.Count == 0) return;
         if (Options.LoverSuicide.GetBool() && Main.isLoversDead == false)
         {
-            foreach (PlayerControl loversPlayer in Main.LoversPlayers.ToArray())
+            foreach (PlayerControl loversPlayer in Main.LoversPlayers)
             {
                 if (!loversPlayer.Data.IsDead && loversPlayer.PlayerId != deathId) continue;
                 Main.isLoversDead = true;
