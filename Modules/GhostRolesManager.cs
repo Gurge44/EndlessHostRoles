@@ -65,7 +65,7 @@ namespace EHR.Modules
 
         public static CustomRoles GetSuitableGhostRole(PlayerControl pc)
         {
-            return GhostRoles.FirstOrDefault(x => AssignedGhostRoles.All(r => r.Value.Role != x) && Utils.CreateGhostRoleInstance(x)?.Team == pc.GetTeam());
+            return GhostRoles.FirstOrDefault(x => AssignedGhostRoles.All(r => r.Value.Role != x) && (Utils.CreateGhostRoleInstance(x)?.Team & pc.GetTeam()) != 0);
         }
     }
 }

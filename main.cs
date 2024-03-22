@@ -616,12 +616,13 @@ public class Main : BasePlugin
     }
 }
 
+[Flags]
 public enum Team
 {
-    None,
-    Impostor,
-    Neutral,
-    Crewmate
+    None = 0,
+    Impostor = 1,
+    Neutral = 2,
+    Crewmate = 4
 }
 
 public enum CustomRoles

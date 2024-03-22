@@ -8,7 +8,7 @@ namespace EHR.Roles.AddOns.GhostRoles
 {
     internal class Haunter : IGhostRole, ISettingHolder
     {
-        public Team Team => Team.Crewmate;
+        public Team Team => Team.Crewmate | Team.Neutral;
 
         public byte HauntedPlayer = byte.MaxValue;
         public HashSet<byte> WarnedImps = [];

@@ -56,6 +56,9 @@ public static class HudSpritePatch
         {
             switch (player.GetCustomRole())
             {
+                case CustomRoles.Commander:
+                    newAbilityButton = CustomButton.Get("Commander");
+                    break;
                 case CustomRoles.Assassin:
                 case CustomRoles.Undertaker:
                     if (Main.PlayerStates[player.PlayerId].Role is not Assassin assassin) break;
