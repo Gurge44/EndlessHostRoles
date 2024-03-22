@@ -55,10 +55,6 @@ internal class PingTrackerUpdatePatch
 [HarmonyPatch(typeof(VersionShower), nameof(VersionShower.Start))]
 internal class VersionShowerStartPatch
 {
-    //public static GameObject OVersionShower;
-    //private static TextMeshPro SpecialEventText;
-    //private static TextMeshPro VisitText;
-
     private static void Postfix(VersionShower __instance)
     {
         Main.credentialsText = $"<size=1.5><color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion} <color=#a54aff>by</color> <color=#ffff00>Gurge44</color>";
@@ -112,7 +108,7 @@ internal class TitleLogoPatch
     private static readonly Color ThemeColor10 = ThemeColor4.ShadeColor(0.1f);
     private static readonly Color ThemeColor11 = ThemeColor6.ShadeColor(0.1f);
 
-    private static void Postfix(MainMenuManager instance)
+    private static void Postfix(MainMenuManager __instance)
     {
         if (!Options.IsLoaded)
         {
@@ -127,68 +123,68 @@ internal class TitleLogoPatch
             loadingHintText.text = GetString("Loading");
             loadingHintText.alignment = TextAlignmentOptions.Center;
             loadingHintText.fontSize = 5f;
-            instance.playButton.transform.gameObject.SetActive(false);
+            __instance.playButton.transform.gameObject.SetActive(false);
         }
 
         if ((Ambience = GameObject.Find("Ambience")) != null)
         {
             try
             {
-                if (Options.IsLoaded) instance.playButton.transform.gameObject.SetActive(true);
+                if (Options.IsLoaded) __instance.playButton.transform.gameObject.SetActive(true);
 
-                SpriteRenderer activeSpriteRender = instance.playButton.activeSprites.GetComponent<SpriteRenderer>();
+                SpriteRenderer activeSpriteRender = __instance.playButton.activeSprites.GetComponent<SpriteRenderer>();
                 activeSpriteRender.color = ThemeColor1;
 
-                SpriteRenderer inactiveSpriteRender = instance.playButton.inactiveSprites.GetComponent<SpriteRenderer>();
+                SpriteRenderer inactiveSpriteRender = __instance.playButton.inactiveSprites.GetComponent<SpriteRenderer>();
                 inactiveSpriteRender.color = ThemeColor2;
                 inactiveSpriteRender.sprite = activeSpriteRender.sprite;
 
-                instance.playLocalButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.yellow;
-                instance.PlayOnlineButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.yellow;
+                __instance.playLocalButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.yellow;
+                __instance.PlayOnlineButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.yellow;
 
-                instance.howToPlayButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.magenta;
-                instance.howToPlayButton.inactiveSprites.GetComponent<SpriteRenderer>().color = Color.blue;
-                instance.howToPlayButton.activeTextColor = Color.white;
-                instance.howToPlayButton.inactiveTextColor = Color.white;
-                instance.accountCTAButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.yellow;
+                __instance.howToPlayButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.magenta;
+                __instance.howToPlayButton.inactiveSprites.GetComponent<SpriteRenderer>().color = Color.blue;
+                __instance.howToPlayButton.activeTextColor = Color.white;
+                __instance.howToPlayButton.inactiveTextColor = Color.white;
+                __instance.accountCTAButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.yellow;
 
-                instance.playButton.activeTextColor = ThemeColor3;
-                instance.playButton.inactiveTextColor = ThemeColor3;
+                __instance.playButton.activeTextColor = ThemeColor3;
+                __instance.playButton.inactiveTextColor = ThemeColor3;
 
-                instance.inventoryButton.inactiveSprites.GetComponent<SpriteRenderer>().color = ThemeColor4;
-                instance.inventoryButton.activeSprites.GetComponent<SpriteRenderer>().color = ThemeColor5;
-                instance.inventoryButton.activeTextColor = Color.white;
-                instance.inventoryButton.inactiveTextColor = Color.white;
+                __instance.inventoryButton.inactiveSprites.GetComponent<SpriteRenderer>().color = ThemeColor4;
+                __instance.inventoryButton.activeSprites.GetComponent<SpriteRenderer>().color = ThemeColor5;
+                __instance.inventoryButton.activeTextColor = Color.white;
+                __instance.inventoryButton.inactiveTextColor = Color.white;
 
-                instance.shopButton.inactiveSprites.GetComponent<SpriteRenderer>().color = ThemeColor4;
-                instance.shopButton.activeSprites.GetComponent<SpriteRenderer>().color = ThemeColor5;
-                instance.shopButton.activeTextColor = Color.white;
-                instance.shopButton.inactiveTextColor = Color.white;
+                __instance.shopButton.inactiveSprites.GetComponent<SpriteRenderer>().color = ThemeColor4;
+                __instance.shopButton.activeSprites.GetComponent<SpriteRenderer>().color = ThemeColor5;
+                __instance.shopButton.activeTextColor = Color.white;
+                __instance.shopButton.inactiveTextColor = Color.white;
 
-                instance.newsButton.inactiveSprites.GetComponent<SpriteRenderer>().color = ThemeColor6;
-                instance.newsButton.activeSprites.GetComponent<SpriteRenderer>().color = ThemeColor7;
-                instance.newsButton.activeTextColor = Color.white;
-                instance.newsButton.inactiveTextColor = Color.white;
+                __instance.newsButton.inactiveSprites.GetComponent<SpriteRenderer>().color = ThemeColor6;
+                __instance.newsButton.activeSprites.GetComponent<SpriteRenderer>().color = ThemeColor7;
+                __instance.newsButton.activeTextColor = Color.white;
+                __instance.newsButton.inactiveTextColor = Color.white;
 
-                instance.myAccountButton.inactiveSprites.GetComponent<SpriteRenderer>().color = ThemeColor6;
-                instance.myAccountButton.activeSprites.GetComponent<SpriteRenderer>().color = ThemeColor7;
-                instance.myAccountButton.activeTextColor = Color.white;
-                instance.myAccountButton.inactiveTextColor = Color.white;
+                __instance.myAccountButton.inactiveSprites.GetComponent<SpriteRenderer>().color = ThemeColor6;
+                __instance.myAccountButton.activeSprites.GetComponent<SpriteRenderer>().color = ThemeColor7;
+                __instance.myAccountButton.activeTextColor = Color.white;
+                __instance.myAccountButton.inactiveTextColor = Color.white;
 
-                instance.settingsButton.inactiveSprites.GetComponent<SpriteRenderer>().color = ThemeColor6;
-                instance.settingsButton.activeSprites.GetComponent<SpriteRenderer>().color = ThemeColor7;
-                instance.settingsButton.activeTextColor = Color.white;
-                instance.settingsButton.inactiveTextColor = Color.white;
+                __instance.settingsButton.inactiveSprites.GetComponent<SpriteRenderer>().color = ThemeColor6;
+                __instance.settingsButton.activeSprites.GetComponent<SpriteRenderer>().color = ThemeColor7;
+                __instance.settingsButton.activeTextColor = Color.white;
+                __instance.settingsButton.inactiveTextColor = Color.white;
 
-                instance.quitButton.inactiveSprites.GetComponent<SpriteRenderer>().color = ThemeColor8;
-                instance.quitButton.activeSprites.GetComponent<SpriteRenderer>().color = ThemeColor9;
-                instance.quitButton.activeTextColor = Color.white;
-                instance.quitButton.inactiveTextColor = Color.white;
+                __instance.quitButton.inactiveSprites.GetComponent<SpriteRenderer>().color = ThemeColor8;
+                __instance.quitButton.activeSprites.GetComponent<SpriteRenderer>().color = ThemeColor9;
+                __instance.quitButton.activeTextColor = Color.white;
+                __instance.quitButton.inactiveTextColor = Color.white;
 
-                instance.creditsButton.inactiveSprites.GetComponent<SpriteRenderer>().color = ThemeColor10;
-                instance.creditsButton.activeSprites.GetComponent<SpriteRenderer>().color = ThemeColor11;
-                instance.creditsButton.activeTextColor = Color.white;
-                instance.creditsButton.inactiveTextColor = Color.white;
+                __instance.creditsButton.inactiveSprites.GetComponent<SpriteRenderer>().color = ThemeColor10;
+                __instance.creditsButton.activeSprites.GetComponent<SpriteRenderer>().color = ThemeColor11;
+                __instance.creditsButton.activeTextColor = Color.white;
+                __instance.creditsButton.inactiveTextColor = Color.white;
 
                 GameObject.Find("WindowShine")?.transform.gameObject.SetActive(false);
                 GameObject.Find("ScreenCover")?.transform.gameObject.SetActive(false);
@@ -205,13 +201,13 @@ internal class TitleLogoPatch
                 var bgRenderer = customBg.AddComponent<SpriteRenderer>();
                 bgRenderer.sprite = Utils.LoadSprite("EHR.Resources.Images.WinterBG.jpg", 180f);
 
-                if (instance.screenTint != null)
+                if (__instance.screenTint != null)
                 {
-                    instance.screenTint.gameObject.transform.localPosition += new Vector3(1000f, 0f);
-                    instance.screenTint.enabled = false;
+                    __instance.screenTint.gameObject.transform.localPosition += new Vector3(1000f, 0f);
+                    __instance.screenTint.enabled = false;
                 }
 
-                instance.rightPanelMask?.SetActive(true);
+                __instance.rightPanelMask?.SetActive(true);
 
                 GameObject leftPanel = GameObject.Find("LeftPanel")?.transform.gameObject;
                 GameObject rightPanel = GameObject.Find("RightPanel")?.transform.gameObject;
