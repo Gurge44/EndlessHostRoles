@@ -4,7 +4,9 @@
 
 <br>
 
-<img align="left" alt="Cover" src="Resources/Images/EHR-BG.png" width="50%" height="250" /> 
+<img align="left" alt="Cover" src="Resources/Images/EHR-BG.png" width="50%" height="250" />
+// Make a credit text for the image
+<p align="left" style="font-size: 10px"><i>Image by oCelestino on Discord</i></p>
 
 <p align="right">
   
