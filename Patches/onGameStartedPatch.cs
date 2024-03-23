@@ -541,6 +541,8 @@ internal class SelectRolesPatch
             Asthmatic.Add();
             Circumvent.Add();
 
+            if (overrideLovers) Logger.Msg(Main.LoversPlayers.Join(x => x?.GetRealName()), "Lovers");
+
             EndOfSelectRolePatch:
 
             if (Options.CurrentGameMode == CustomGameMode.HotPotato) HotPotatoManager.OnGameStart();
@@ -609,8 +611,6 @@ internal class SelectRolesPatch
             }
 
             _ = new LateTask(() => { Main.HasJustStarted = false; }, 10f, "HasJustStarted to false");
-
-            Logger.Warn(Main.LoversPlayers.Join(x => x.GetRealName()), "Lovers");
         }
         catch (Exception ex)
         {
@@ -630,18 +630,18 @@ internal class SelectRolesPatch
         var selfRole = player.PlayerId == hostId ? hostBaseRole : BaseRole;
         var othersRole = player.PlayerId == hostId ? RoleTypes.Crewmate : RoleTypes.Scientist;
 
-        //Desync役職視点
+        // Desync position perspective
         foreach (PlayerControl target in Main.AllPlayerControls)
         {
             rolesMap[(player.PlayerId, target.PlayerId)] = player.PlayerId != target.PlayerId ? othersRole : selfRole;
         }
 
-        //他者視点
-        foreach (var seer in Main.AllPlayerControls.Where(x => player.PlayerId != x.PlayerId).ToArray())
+        // Other's point of view
+        foreach (var seer in Main.AllPlayerControls.Where(x => player.PlayerId != x.PlayerId))
             rolesMap[(seer.PlayerId, player.PlayerId)] = othersRole;
 
         RpcSetRoleReplacer.OverriddenSenderList.Add(senders[player.PlayerId]);
-        //ホスト視点はロール決定
+        // Host perspective determines role
         player.SetRole(othersRole);
         player.Data.IsDead = true;
 

@@ -327,35 +327,7 @@ public class TaskState
                         break;
                 }
 
-                float add = player.GetCustomRole() switch
-                {
-                    CustomRoles.Divinator => Divinator.AbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.Veteran => Options.VeteranAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.Grenadier => Options.GrenadierAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.Lighter => Options.LighterAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.SecurityGuard => Options.SecurityGuardAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.Ventguard => Options.VentguardAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.DovesOfNeace => Options.DovesOfNeaceAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.TimeMaster => Options.TimeMasterAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.Mediumshiper => Mediumshiper.MediumAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.ParityCop => ParityCop.ParityAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.Oracle => Oracle.OracleAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.Tracker => Tracker.TrackerAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.Bloodhound => Bloodhound.BloodhoundAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.Chameleon => Chameleon.ChameleonAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.NiceSwapper => NiceSwapper.NiceSwapperAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.Doormaster => Doormaster.DoormasterAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.Ricochet => Ricochet.RicochetAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.Tether => Tether.TetherAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.Spy => Spy.SpyAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.CameraMan => CameraMan.CameraManAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.Drainer => Drainer.DrainerAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.Druid => Druid.DruidAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.Judge => Judge.JudgeAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.Perceiver => Perceiver.PerceiverAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    CustomRoles.Convener => Convener.ConvenerAbilityUseGainWithEachTaskCompleted.GetFloat(),
-                    _ => float.MaxValue,
-                };
+                float add = Utils.GetSettingNameAndValueForRole(player.GetCustomRole(), "AbilityUseGainWithEachTaskCompleted");
                 if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0) player.RpcIncreaseAbilityUseLimitBy(add);
             }
 

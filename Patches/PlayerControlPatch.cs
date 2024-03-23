@@ -14,6 +14,7 @@ using InnerNet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TMPro;
@@ -1475,10 +1476,13 @@ class FixedUpdatePatch
                 Mark.Append(Snitch.GetWarningArrow(seer, target));
                 Mark.Append(Snitch.GetWarningMark(seer, target));
 
-                if (target.Is(CustomRoles.Lovers) || Main.LoversPlayers.Any(x => x.PlayerId == target.PlayerId))
+                if (Main.LoversPlayers.Any(x => x.PlayerId == target.PlayerId))
                 {
-                    if (seer.Is(CustomRoles.Lovers) || Main.LoversPlayers.Any(x => x.PlayerId == seer.PlayerId))
+                    if (!target.Is(CustomRoles.Lovers)) target.RpcSetCustomRole(CustomRoles.Lovers);
+
+                    if (Main.LoversPlayers.Any(x => x.PlayerId == seer.PlayerId))
                     {
+                        if (!seer.Is(CustomRoles.Lovers)) seer.RpcSetCustomRole(CustomRoles.Lovers);
                         Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}>♥</color>");
                     }
                     else if (!seer.IsAlive())
@@ -1598,35 +1602,8 @@ class FixedUpdatePatch
         }
         else
         {
-            float add = player.GetCustomRole() switch
-            {
-                CustomRoles.Ventguard => Options.VentguardAbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.Grenadier => Options.GrenadierAbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.Lighter => Options.LighterAbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.SecurityGuard => Options.SecurityGuardAbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.DovesOfNeace => Options.DovesOfNeaceAbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.TimeMaster => Options.TimeMasterAbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.Veteran => Options.VeteranAbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.Bloodhound => Bloodhound.AbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.CameraMan => CameraMan.AbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.Chameleon => Chameleon.AbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.Convener => Convener.AbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.Divinator => Divinator.AbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.Doormaster => Doormaster.AbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.Drainer => Drainer.AbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.Druid => Druid.AbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.Judge => Judge.AbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.Mediumshiper => Mediumshiper.AbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.NiceSwapper => NiceSwapper.AbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.Oracle => Oracle.AbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.ParityCop => ParityCop.AbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.Perceiver => Perceiver.AbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.Ricochet => Ricochet.AbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.Spy => Spy.AbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.Tether => Tether.AbilityChargesWhenFinishedTasks.GetFloat(),
-                CustomRoles.Tracker => Tracker.AbilityChargesWhenFinishedTasks.GetFloat(),
-                _ => float.MaxValue
-            };
+            float add = GetSettingNameAndValueForRole(player.GetCustomRole(), "AbilityChargesWhenFinishedTasks");
+
             if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0)
             {
                 if (player.Is(CustomRoles.Bloodlust)) add *= 5;
@@ -1638,7 +1615,7 @@ class FixedUpdatePatch
     public static void LoversSuicide(byte deathId = 0x7f, bool isExiled = false)
     {
         if (Main.LoversPlayers.Count == 0) return;
-        if (Options.LoverSuicide.GetBool() && Main.isLoversDead == false)
+        if (Options.LoverSuicide.GetBool() && !Main.isLoversDead)
         {
             foreach (PlayerControl loversPlayer in Main.LoversPlayers)
             {
@@ -1655,7 +1632,7 @@ class FixedUpdatePatch
                             if (isExiled)
                                 CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.FollowingSuicide, partnerPlayer.PlayerId);
                             else
-                                partnerPlayer.Kill(partnerPlayer);
+                                partnerPlayer.Suicide(PlayerState.DeathReason.FollowingSuicide);
                         }
                     }
                 }

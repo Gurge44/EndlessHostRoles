@@ -442,7 +442,8 @@ static class ExtendedPlayerControl
     {
         return Utils.GetDisplayRoleName(player.PlayerId, pure);
     }
-    public static string GetSubRoleName(this PlayerControl player, bool forUser = false)
+
+    public static string GetSubRoleNames(this PlayerControl player, bool forUser = false)
     {
         var SubRoles = Main.PlayerStates[player.PlayerId].SubRoles.ToArray();
         if (SubRoles.Length == 0) return string.Empty;
@@ -459,7 +460,7 @@ static class ExtendedPlayerControl
     {
         if (!player) return null;
         var text = GetRoleName(player.GetCustomRole(), forUser);
-        text += player.GetSubRoleName(forUser);
+        text += player.GetSubRoleNames(forUser);
         return text;
     }
     public static string GetNameWithRole(this PlayerControl player, bool forUser = false)
@@ -530,7 +531,20 @@ static class ExtendedPlayerControl
 
     public static string GetRealName(this PlayerControl player, bool isMeeting = false)
     {
-        return isMeeting ? player?.Data?.PlayerName : player?.name;
+        try
+        {
+            return isMeeting ? player.Data.PlayerName : player.name;
+        }
+        catch (NullReferenceException nullReferenceException)
+        {
+            Logger.Error($"{nullReferenceException.Message} - player is null? {player == null}", "GetRealName");
+            return string.Empty;
+        }
+        catch (Exception exception)
+        {
+            ThrowException(exception);
+            return string.Empty;
+        }
     }
     public static bool HasKillButton(this PlayerControl pc)
     {
@@ -901,18 +915,20 @@ static class ExtendedPlayerControl
         role > CustomRoles.NotAssigned ? target.GetCustomSubRoles().Contains(role) : target.GetCustomRole() == role;
 
     public static bool Is(this PlayerControl target, CustomRoleTypes type) => target.GetCustomRoleTypes() == type;
-    public static bool Is(this PlayerControl target, RoleTypes type) => target.GetCustomRole().GetRoleTypes() == type;
+    public static bool Is(this PlayerControl target, RoleTypes type) => (target.Is(CustomRoles.Bloodlust) && type == RoleTypes.Impostor) || target.GetCustomRole().GetRoleTypes() == type;
     public static bool Is(this PlayerControl target, CountTypes type) => target.GetCountTypes() == type;
+
     public static bool Is(this PlayerControl target, Team team) => team switch
     {
-        Team.Impostor => target.GetCustomRole().IsImpostorTeamV3(),
-        Team.Neutral => target.GetCustomRole().IsNeutralTeamV2(),
+        Team.Impostor => target.GetCustomRole().IsImpostorTeamV3() && !target.Is(CustomRoles.Bloodlust),
+        Team.Neutral => target.GetCustomRole().IsNeutralTeamV2() || target.Is(CustomRoles.Bloodlust),
         Team.Crewmate => target.GetCustomRole().IsCrewmateTeamV2(),
         Team.None => target.Is(CustomRoles.GM) || target.Is(CountTypes.None) || target.Is(CountTypes.OutOfGame),
         _ => false,
     };
     public static Team GetTeam(this PlayerControl target)
     {
+        if (target.Is(CustomRoles.Bloodlust)) return Team.Neutral;
         var role = target.GetCustomRole();
         if (role.IsImpostorTeamV3()) return Team.Impostor;
         if (role.IsNeutralTeamV2()) return Team.Neutral;
@@ -920,9 +936,7 @@ static class ExtendedPlayerControl
     }
     public static bool IsAlive(this PlayerControl target)
     {
-        //ロビーなら生きている
-        //targetがnullならば切断者なので生きていない
-        //targetがnullでなく取得できない場合は登録前なので生きているとする
+        // If target is not null and cannot be obtained, it is assumed to be alive because it has not been registered
         if (target == null || target.Is(CustomRoles.GM)) return false;
         return GameStates.IsLobby || !Main.PlayerStates.TryGetValue(target.PlayerId, out var ps) || !ps.IsDead;
     }

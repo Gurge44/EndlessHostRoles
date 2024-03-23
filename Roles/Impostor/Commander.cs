@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using UnityEngine;
 
 namespace EHR.Roles.Impostor
 {
@@ -21,7 +22,8 @@ namespace EHR.Roles.Impostor
             Mark,
             KillAnyone,
             DontKillMark,
-            DontSabotage
+            DontSabotage,
+            UseAbility
         }
 
         public bool IsWhistling;
@@ -85,7 +87,7 @@ namespace EHR.Roles.Impostor
             switch (CurrentMode)
             {
                 case Mode.Whistle:
-                    Whistle(shapeshifter);
+                    Whistle(shapeshifter, target.Is(Team.Impostor) ? target : null);
                     break;
                 case Mode.Mark:
                     MarkPlayer(target);
@@ -113,19 +115,45 @@ namespace EHR.Roles.Impostor
                     }
 
                     break;
+                case Mode.UseAbility:
+                    if (target.Is(Team.Impostor)) target.Notify(Translator.GetString("CommanderUseAbilityNotify"), 7f);
+                    else
+                    {
+                        foreach (var pc in Main.AllAlivePlayerControls)
+                        {
+                            if (!pc.Is(Team.Impostor) || pc.PlayerId == shapeshifter.PlayerId) continue;
+                            pc.Notify(Translator.GetString("CommanderUseAbilityNotify"), 7f);
+                        }
+                    }
+
+                    break;
             }
 
             return false;
         }
 
-        void Whistle(PlayerControl commander)
+        void Whistle(PlayerControl commander, PlayerControl target = null)
         {
             if (IsWhistling) return;
 
             IsWhistling = true;
+
+            if (target != null)
+            {
+                AddArrowAndNotify(target);
+                return;
+            }
+
             foreach (var pc in Main.AllAlivePlayerControls)
             {
                 if (!pc.Is(Team.Impostor) || pc.Is(CustomRoles.Commander)) continue;
+                AddArrowAndNotify(pc);
+            }
+
+            return;
+
+            void AddArrowAndNotify(PlayerControl pc)
+            {
                 TargetArrow.Add(pc.PlayerId, commander.PlayerId);
                 pc.Notify(Translator.GetString("CommanderNotify"));
             }
@@ -161,6 +189,8 @@ namespace EHR.Roles.Impostor
                 TargetArrow.Remove(pc.PlayerId, CommanderId);
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }
+
+            if (Main.AllPlayerControls.Where(x => x.Is(Team.Impostor)).All(x => TargetArrow.GetArrows(x, CommanderId) == string.Empty)) IsWhistling = false;
         }
 
         public override void OnReportDeadBody()
@@ -197,7 +227,7 @@ namespace EHR.Roles.Impostor
             }
             else if (isTargetDontKill)
             {
-                return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Electric), Translator.GetString("CommanderDontKill"));
+                return Utils.ColorString(ColorUtility.TryParseHtmlString("#0daeff", out Color color) ? color : Utils.GetRoleColor(CustomRoles.TaskManager), Translator.GetString("CommanderDontKill"));
             }
 
             return string.Empty;
