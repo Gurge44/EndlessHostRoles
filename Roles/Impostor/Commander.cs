@@ -105,7 +105,8 @@ namespace EHR.Roles.Impostor
 
                     break;
                 case Mode.DontKillMark:
-                    MarkPlayerAsDontKill(target);
+                    if (target.Is(Team.Impostor)) target.Notify(Translator.GetString("CommanderDontKillAnyoneNotify"), 7f);
+                    else MarkPlayerAsDontKill(target);
                     break;
                 case Mode.DontSabotage:
                     foreach (var pc in Main.AllAlivePlayerControls)
@@ -207,7 +208,8 @@ namespace EHR.Roles.Impostor
             if (seer.PlayerId == target.PlayerId && Main.PlayerStates[seer.PlayerId].Role is Commander { IsEnable: true } cm)
             {
                 if (seer.IsModClient() && !hud) return string.Empty;
-                return string.Format(Translator.GetString("WMMode"), Translator.GetString($"Commander{cm.CurrentMode}Mode"));
+                string whistlingText = cm.IsWhistling ? $"\n<size=70%>{Translator.GetString("CommanderWhistling")}</size>" : string.Empty;
+                return $"{string.Format(Translator.GetString("WMMode"), Translator.GetString($"Commander{cm.CurrentMode}Mode"))}{whistlingText}";
             }
 
             bool isTargetTarget = PlayerList.Any(x => x.MarkedPlayer == target.PlayerId);

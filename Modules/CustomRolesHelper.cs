@@ -728,7 +728,7 @@ internal static class CustomRolesHelper
         CustomRoles.Pickpocket or
         CustomRoles.TicketsStealer;
 
-    public static bool CheckAddonConflictV2(CustomRoles addon, CustomRoles mainRole) => addon.IsAdditionRole() && mainRole is not CustomRoles.GuardianAngelTOHE and not CustomRoles.God and not CustomRoles.GM && addon is not CustomRoles.Lovers && addon switch
+    public static bool CheckAddonConflictV2(CustomRoles addon, CustomRoles mainRole) => addon.IsAdditionRole() && mainRole is not CustomRoles.GuardianAngelTOHE and not CustomRoles.God and not CustomRoles.GM && addon switch
     {
         CustomRoles.Autopsy when mainRole is CustomRoles.Doctor or CustomRoles.Tracefinder or CustomRoles.Scientist or CustomRoles.ScientistTOHE or CustomRoles.Sunnyboy => false,
         CustomRoles.Necroview when mainRole is CustomRoles.Doctor => false,

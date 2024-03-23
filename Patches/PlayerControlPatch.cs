@@ -1483,11 +1483,11 @@ class FixedUpdatePatch
                     if (Main.LoversPlayers.Any(x => x.PlayerId == seer.PlayerId))
                     {
                         if (!seer.Is(CustomRoles.Lovers)) seer.RpcSetCustomRole(CustomRoles.Lovers);
-                        Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}>♥</color>");
+                        Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
                     }
                     else if (!seer.IsAlive())
                     {
-                        Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}>♥</color>");
+                        Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
                     }
                 }
 
