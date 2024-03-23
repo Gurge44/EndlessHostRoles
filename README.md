@@ -5,7 +5,6 @@
 <br>
 
 <img align="left" alt="Cover" src="Resources/Images/EHR-BG.png" width="50%" height="250" />
-<p align="left" style="font-size: 10px"><i>Image by oCelestino on Discord</i></p>
 
 <p align="right">
   
@@ -23,6 +22,7 @@
 
 </p>
 
+<p align="left" style="font-size: 10px"><i>Image by oCelestino on Discord</i></p>
 ---
 
 <br>
