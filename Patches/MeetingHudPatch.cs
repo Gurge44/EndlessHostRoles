@@ -194,6 +194,7 @@ class CheckForEndVotingPatch
                     VotedForId = ps.VotedFor
                 });
 
+                Blackmailer.OnCheckForEndVoting();
                 NiceSwapper.OnCheckForEndVoting();
 
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Mayor) && !Options.MayorHideVote.GetBool()) //Mayorの投票数
@@ -1085,11 +1086,6 @@ class MeetingHudUpdatePatch
                         Mafia.CreateJudgeButton(__instance);
                         break;
                 }
-
-                //if (myRole is CustomRoles.Retributionist && !PlayerControl.LocalPlayer.IsAlive() && GameObject.Find("ShootButton") == null)
-                //    RetributionistRevengeManager.CreateJudgeButton(__instance);
-                //if (myRole is CustomRoles.NiceSwapper && PlayerControl.LocalPlayer.IsAlive())
-                //    NiceSwapper.CreateSwapperButton(__instance);
 
                 ClearShootButton(__instance);
             }

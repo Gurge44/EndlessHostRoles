@@ -645,7 +645,7 @@ public enum CustomRoles
     AntiAdminer,
     Sans, // Arrogance
     Bard,
-    Silencer,
+    Blackmailer,
     Bomber,
     BountyHunter,
     OverKiller, // Butcher
@@ -703,6 +703,7 @@ public enum CustomRoles
     Saboteur,
     Sapper,
     Scavenger,
+    Silencer,
     Sniper,
     ImperiusCurse, // Soul Catcher
     Swapster,
