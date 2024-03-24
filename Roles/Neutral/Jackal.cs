@@ -10,7 +10,7 @@ namespace EHR.Roles.Neutral;
 public class Jackal : RoleBase
 {
     private const int Id = 12100;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
     public static OptionItem KillCooldown;
     public static OptionItem CanVent;
@@ -68,14 +68,14 @@ public class Jackal : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         On = false;
     }
 
     public override void Add(byte playerId)
     {
         On = true;
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(SidekickRecruitLimitOpt.GetInt());
 
         if (!AmongUsClient.Instance.AmHost) return;
@@ -83,7 +83,7 @@ public class Jackal : RoleBase
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public static bool CanRecruit(byte id) => id.GetAbilityUseLimit() > 0;

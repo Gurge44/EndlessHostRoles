@@ -26,6 +26,7 @@ namespace EHR.Roles.AddOns.GhostRoles
 
                 GameData.Instance.RpcSetTasks(pc.PlayerId, Array.Empty<byte>());
                 pc.SyncSettings();
+                pc.RpcResetAbilityCooldown();
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }, 1f, "Specter Assign");
         }

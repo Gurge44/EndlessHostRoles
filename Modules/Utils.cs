@@ -715,51 +715,53 @@ public static class Utils
 
     public static bool IsRoleTextEnabled(PlayerControl __instance)
     {
-        bool result = __instance.AmOwner || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato || Options.CurrentGameMode == CustomGameMode.HideAndSeek && CustomHideAndSeekManager.IsRoleTextEnabled(PlayerControl.LocalPlayer, __instance) || Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool() || PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool();
+        if (__instance.AmOwner || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato || Options.CurrentGameMode == CustomGameMode.HideAndSeek && CustomHideAndSeekManager.IsRoleTextEnabled(PlayerControl.LocalPlayer, __instance) || Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool() || PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) return true;
 
         switch (__instance.GetCustomRole())
         {
             case CustomRoles.Crewpostor when PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.CrewpostorKnowsAllies.GetBool():
+            case CustomRoles.Jackal when PlayerControl.LocalPlayer.Is(CustomRoles.Jackal):
             case CustomRoles.Jackal when PlayerControl.LocalPlayer.Is(CustomRoles.Sidekick):
             case CustomRoles.Jackal when PlayerControl.LocalPlayer.Is(CustomRoles.Recruit):
+            case CustomRoles.Recruit when PlayerControl.LocalPlayer.Is(CustomRoles.Jackal):
+            case CustomRoles.Recruit when PlayerControl.LocalPlayer.Is(CustomRoles.Sidekick):
+            case CustomRoles.Recruit when PlayerControl.LocalPlayer.Is(CustomRoles.Recruit):
+            case CustomRoles.Sidekick when PlayerControl.LocalPlayer.Is(CustomRoles.Jackal):
+            case CustomRoles.Sidekick when PlayerControl.LocalPlayer.Is(CustomRoles.Sidekick):
+            case CustomRoles.Sidekick when PlayerControl.LocalPlayer.Is(CustomRoles.Recruit):
             case CustomRoles.Workaholic when Options.WorkaholicVisibleToEveryone.GetBool():
             case CustomRoles.Doctor when !__instance.HasEvilAddon() && Options.DoctorVisibleToEveryone.GetBool():
             case CustomRoles.Mayor when Options.MayorRevealWhenDoneTasks.GetBool() && __instance.GetTaskState().IsTaskFinished:
             case CustomRoles.Marshall when PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && __instance.GetTaskState().IsTaskFinished:
-                result = true;
-                break;
+                return true;
         }
 
-        if (__instance.Is(CustomRoles.Sidekick) && PlayerControl.LocalPlayer.Is(CustomRoles.Jackal)) result = true;
-        if (__instance.Is(CustomRoles.Madmate) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosMadmate.GetBool()) result = true;
-        if (__instance.Is(CustomRoles.Rogue) && PlayerControl.LocalPlayer.Is(CustomRoles.Rogue) && Options.RogueKnowEachOther.GetBool() && Options.RogueKnowEachOtherRoles.GetBool()) result = true;
-        if (__instance.Is(CustomRoles.Sidekick) && PlayerControl.LocalPlayer.Is(CustomRoles.Sidekick)) result = true;
-        if (__instance.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead) result = true;
-        if (__instance.Is(CustomRoles.Lovers) && PlayerControl.LocalPlayer.Is(CustomRoles.Lovers) && Options.LoverKnowRoles.GetBool()) result = true;
-        if (__instance.Is(CustomRoles.Madmate) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowWhosMadmate.GetBool()) result = true;
-        if (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool()) result = true;
-        if (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool()) result = true;
-        if (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosImp.GetBool()) result = true;
-        if (Totocalcio.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
-        if (Romantic.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
-        if (Lawyer.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
-        if (EvilDiviner.IsShowTargetRole(PlayerControl.LocalPlayer, __instance)) result = true;
-        if (Executioner.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
-        if (Succubus.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
-        if (Necromancer.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
-        if (Amnesiac.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
-        if (Virus.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
-        if (PlayerControl.LocalPlayer.IsRevealedPlayer(__instance)) result = true;
-        if (PlayerControl.LocalPlayer.Is(CustomRoles.God)) result = true;
-        if (PlayerControl.LocalPlayer.Is(CustomRoles.GM)) result = true;
-        if (Totocalcio.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
-        if (Lawyer.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
-        if (EvilDiviner.IsShowTargetRole(PlayerControl.LocalPlayer, __instance)) result = true;
-        if (Executioner.KnowRole(PlayerControl.LocalPlayer, __instance)) result = true;
-        if (Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == __instance.PlayerId)) result = true;
-        if (Main.GodMode.Value) result = true;
-
-        return result;
+        return __instance.Is(CustomRoles.Madmate) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosMadmate.GetBool() ||
+               __instance.Is(CustomRoles.Rogue) && PlayerControl.LocalPlayer.Is(CustomRoles.Rogue) && Options.RogueKnowEachOther.GetBool() && Options.RogueKnowEachOtherRoles.GetBool() ||
+               __instance.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead ||
+               __instance.Is(CustomRoles.Lovers) && PlayerControl.LocalPlayer.Is(CustomRoles.Lovers) && Options.LoverKnowRoles.GetBool() ||
+               __instance.Is(CustomRoles.Madmate) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowWhosMadmate.GetBool() ||
+               __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool() ||
+               __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() ||
+               __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosImp.GetBool() ||
+               Totocalcio.KnowRole(PlayerControl.LocalPlayer, __instance) ||
+               Romantic.KnowRole(PlayerControl.LocalPlayer, __instance) ||
+               Lawyer.KnowRole(PlayerControl.LocalPlayer, __instance) ||
+               EvilDiviner.IsShowTargetRole(PlayerControl.LocalPlayer, __instance) ||
+               Executioner.KnowRole(PlayerControl.LocalPlayer, __instance) ||
+               Succubus.KnowRole(PlayerControl.LocalPlayer, __instance) ||
+               Necromancer.KnowRole(PlayerControl.LocalPlayer, __instance) ||
+               Amnesiac.KnowRole(PlayerControl.LocalPlayer, __instance) ||
+               Virus.KnowRole(PlayerControl.LocalPlayer, __instance) ||
+               PlayerControl.LocalPlayer.IsRevealedPlayer(__instance) ||
+               PlayerControl.LocalPlayer.Is(CustomRoles.God) ||
+               PlayerControl.LocalPlayer.Is(CustomRoles.GM) ||
+               Totocalcio.KnowRole(PlayerControl.LocalPlayer, __instance) ||
+               Lawyer.KnowRole(PlayerControl.LocalPlayer, __instance) ||
+               EvilDiviner.IsShowTargetRole(PlayerControl.LocalPlayer, __instance) ||
+               Executioner.KnowRole(PlayerControl.LocalPlayer, __instance) ||
+               Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == __instance.PlayerId) ||
+               Main.GodMode.Value;
     }
 
     public static string GetFormattedRoomName(string roomName) => roomName == "Outside" ? "<#00ffa5>Outside</color>" : $"<#ffffff>In</color> <#00ffa5>{roomName}</color>";
@@ -1803,7 +1805,7 @@ public static class Utils
                     SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Medic), " ●"));
                 SelfMark.Append(Gamer.TargetMark(seer, seer));
                 SelfMark.Append(Sniper.GetShotNotify(seer.PlayerId));
-                if (Blackmailer.ForBlackmailer.Contains(seer.PlayerId)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Blackmailer), "╳"));
+                if (Silencer.ForSilencer.Contains(seer.PlayerId)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Silencer), "╳"));
 
                 GameMode0:
 
@@ -2137,10 +2139,7 @@ public static class Utils
                                 (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool()) ||
                                 (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosMadmate.GetBool()) ||
                                 (seer.Is(CustomRoles.Rogue) && target.Is(CustomRoles.Rogue) && Options.RogueKnowEachOther.GetBool() && Options.RogueKnowEachOtherRoles.GetBool()) ||
-                                (seer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Sidekick)) ||
-                                (seer.Is(CustomRoles.Jackal) && target.Is(CustomRoles.Sidekick)) ||
-                                (seer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Jackal)) ||
-                                (seer.Is(CustomRoles.Recruit) && target.Is(CustomRoles.Jackal)) ||
+                                ((seer.Is(CustomRoles.Sidekick) || seer.Is(CustomRoles.Recruit) || seer.Is(CustomRoles.Jackal)) && (target.Is(CustomRoles.Sidekick) || target.Is(CustomRoles.Recruit) || target.Is(CustomRoles.Jackal))) ||
                                 (target.Is(CustomRoles.Workaholic) && Options.WorkaholicVisibleToEveryone.GetBool()) ||
                                 (target.Is(CustomRoles.Doctor) && !target.HasEvilAddon() && Options.DoctorVisibleToEveryone.GetBool()) ||
                                 (target.Is(CustomRoles.Mayor) && Options.MayorRevealWhenDoneTasks.GetBool() && target.GetTaskState().IsTaskFinished) ||
@@ -2153,7 +2152,6 @@ public static class Utils
                                 Executioner.KnowRole(seer, target) ||
                                 Succubus.KnowRole(seer, target) ||
                                 Necromancer.KnowRole(seer, target) ||
-                                //CursedSoul.KnowRole(seer, target) ||
                                 Amnesiac.KnowRole(seer, target) ||
                                 Virus.KnowRole(seer, target) ||
                                 Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == target.PlayerId) ||
@@ -2477,8 +2475,6 @@ public static class Utils
 
             Main.KilledAntidote.Clear();
         }
-
-        Blackmailer.ForBlackmailer.Clear();
 
         Damocles.AfterMeetingTasks();
         Stressed.AfterMeetingTasks();

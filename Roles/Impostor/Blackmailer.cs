@@ -4,16 +4,17 @@ using static EHR.Options;
 
 namespace EHR.Roles.Impostor;
 
-public class Blackmailer : RoleBase
+public class Silencer : RoleBase
 {
     private const int Id = 643050;
     private static List<byte> playerIdList = [];
-    public static OptionItem SkillCooldown;
-    public static OptionItem BlackmailMode;
-    public static Dictionary<byte, int> BlackmailerMaxUp = [];
-    public static List<byte> ForBlackmailer = [];
 
-    private static readonly string[] BlackmailModes =
+    public static OptionItem SkillCooldown;
+    public static OptionItem SilenceMode;
+
+    public static List<byte> ForSilencer = [];
+
+    private static readonly string[] SilenceModes =
     [
         "EKill",
         "Shapeshift"
@@ -21,19 +22,18 @@ public class Blackmailer : RoleBase
 
     public static void SetupCustomOption()
     {
-        SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Blackmailer);
-        SkillCooldown = FloatOptionItem.Create(Id + 5, "BlackmailerSkillCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Blackmailer])
+        SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Silencer);
+        SkillCooldown = FloatOptionItem.Create(Id + 5, "SilencerSkillCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Silencer])
             .SetValueFormat(OptionFormat.Seconds);
-        BlackmailMode = StringOptionItem.Create(Id + 4, "BlackmailMode", BlackmailModes, 1, TabGroup.ImpostorRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Blackmailer]);
+        SilenceMode = StringOptionItem.Create(Id + 4, "SilenceMode", SilenceModes, 1, TabGroup.ImpostorRoles, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Silencer]);
     }
 
     public override void Init()
     {
         playerIdList = [];
-        BlackmailerMaxUp = [];
-        ForBlackmailer = [];
+        ForSilencer = [];
     }
 
     public override void Add(byte playerId)
@@ -51,18 +51,23 @@ public class Blackmailer : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (BlackmailMode.GetValue() == 1 || ForBlackmailer.Contains(target.PlayerId)) return true;
+        if (SilenceMode.GetValue() == 1 || ForSilencer.Count >= 1) return true;
 
         return killer.CheckDoubleTrigger(target, () =>
         {
-            ForBlackmailer.Add(target.PlayerId);
+            ForSilencer.Add(target.PlayerId);
             killer.SetKillCooldown(3f);
         });
     }
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        if (BlackmailMode.GetValue() == 1 && !ForBlackmailer.Contains(target.PlayerId)) ForBlackmailer.Add(target.PlayerId);
+        if (SilenceMode.GetValue() == 1 && ForSilencer.Count == 0) ForSilencer.Add(target.PlayerId);
         return false;
+    }
+
+    public override void AfterMeetingTasks()
+    {
+        ForSilencer.Clear();
     }
 }
