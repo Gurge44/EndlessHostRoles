@@ -141,12 +141,10 @@ public class Medic : RoleBase
         switch (WhoCanSeeProtect.GetInt())
         {
             case 0:
-                //killer.RpcGuardAndKill(target);
                 killer.RPCPlayCustomSound("Shield");
                 target.RPCPlayCustomSound("Shield");
                 break;
             case 1:
-                //killer.RpcGuardAndKill(target);
                 killer.RPCPlayCustomSound("Shield");
                 break;
             case 2:
@@ -164,8 +162,6 @@ public class Medic : RoleBase
     {
         if (killer == null || target == null) return false;
         if (!ProtectList.Contains(target.PlayerId)) return false;
-
-        SendRPCForProtectList();
 
         killer.SetKillCooldown(ResetCooldown.GetFloat());
 
@@ -192,10 +188,10 @@ public class Medic : RoleBase
             ProtectList.Remove(target.PlayerId);
             SendRPCForProtectList();
 
-            if ((Visible)ShieldBreakIsVisible.GetInt() is Visible.Immediately or Visible.AfterMeeting)
+            if ((Visible)ShieldBreakIsVisible.GetInt() == Visible.Immediately)
             {
                 TempMarkProtectedList.Remove(target.PlayerId);
-                if ((Visible)ShieldBreakIsVisible.GetInt() == Visible.Immediately) Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             }
         }
 
@@ -256,16 +252,45 @@ public class Medic : RoleBase
         Utils.NotifyRoles(SpecifySeer: target);
 
         ProtectList.Clear();
+        SendRPCForProtectList();
         Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} : Medic is dead", "Medic");
 
         if ((Visible)ShieldDeactivationIsVisible.GetInt() == Visible.Immediately)
         {
             TempMarkProtectedList = [];
 
-            foreach (byte pc in ProtectList.ToArray())
+            foreach (byte pc in ProtectList)
             {
                 Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc), SpecifyTarget: target);
             }
         }
+    }
+
+    public static string GetMark(PlayerControl seer, PlayerControl target)
+    {
+        if (ProtectList.Count > 0)
+        {
+            var shieldMark = $"<color={Utils.GetRoleColorCode(CustomRoles.Medic)}> ●</color>";
+
+            bool self = seer.PlayerId == target.PlayerId;
+            bool seerIsMedic = seer.Is(CustomRoles.Medic);
+            bool targetProtected = InProtect(target.PlayerId);
+            bool seerProtected = InProtect(seer.PlayerId);
+            bool targetSeesProtection = WhoCanSeeProtect.GetInt() is 0 or 2;
+            bool medicSeesProtection = WhoCanSeeProtect.GetInt() is 0 or 1;
+            bool seerHasMark = TempMarkProtectedList.Contains(seer.PlayerId);
+            bool targetHasMark = TempMarkProtectedList.Contains(target.PlayerId);
+
+            if (self && (seerProtected || seerHasMark) && targetSeesProtection)
+                return shieldMark;
+
+            if (seerIsMedic && (targetProtected || targetHasMark) && medicSeesProtection)
+                return shieldMark;
+
+            if (seer.Data.IsDead && targetProtected && !seerIsMedic)
+                return shieldMark;
+        }
+
+        return string.Empty;
     }
 }

@@ -3285,7 +3285,7 @@
   "BanditCanStealImpOnlyAddon": "Can Steal <color=#ff1919>Impostor</color> Only Addons",
   "Commander": "Commander",
   "CommanderInfo": "Command your team",
-  "CommanderInfoLong": "(Impostors):\\nAs the Commander, you can switch between 2 modes by venting: Whistle and Mark. You can execute the selected action by shapeshifting/petting your pet.\\n\\nMark: Marks your shapeshift target with a unique color visible to all impostors. Use this to command them to kill that player!\\n\\nWhistle: This tells all impostors to come to you and gives them each an arrow pointing towards you.",
+  "CommanderInfoLong": "(Impostors):\\nAs the Commander, you can switch between 6 modes by venting/petting your pet. You can execute the selected action by shapeshifting.<size=70%>\\n\\n<b><u>Mark:</u></b> Marks your shapeshift target with a unique color visible to all impostors. Use this to command them to kill that player!\\n\\n<b><u>Whistle:</u></b> This tells all or 1 specific<sup>*</sup> impostor(s) to come to you and gives them (each) an arrow pointing towards you.</size>",
   "CommanderNotify": "The Commander wants you to meet with them",
   "CommanderTarget": "<size=1.7>Commander's target</color>",
   "CommanderDontKill": "<size=1.7>Don't kill this player</color>",

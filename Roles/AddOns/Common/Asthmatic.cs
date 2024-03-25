@@ -41,10 +41,10 @@ namespace EHR.Roles.AddOns.Common
             LastSuffix.Clear();
             LastPosition.Clear();
 
-            MinRedTime = Options.AsthmaticMinRedTime.GetInt();
-            MaxRedTime = Options.AsthmaticMaxRedTime.GetInt();
-            MinGreenTime = Options.AsthmaticMinGreenTime.GetInt();
-            MaxGreenTime = Options.AsthmaticMaxGreenTime.GetInt();
+            MinRedTime = AsthmaticMinRedTime.GetInt();
+            MaxRedTime = AsthmaticMaxRedTime.GetInt();
+            MinGreenTime = AsthmaticMinGreenTime.GetInt();
+            MaxGreenTime = AsthmaticMaxGreenTime.GetInt();
         }
         public static void Add()
         {

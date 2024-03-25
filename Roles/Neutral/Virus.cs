@@ -69,7 +69,7 @@ namespace EHR.Roles.Neutral
 
         public override bool CanUseKillButton(PlayerControl pc)
         {
-            return pc.IsAlive() && pc.GetAbilityUseLimit() > 0;
+            return pc.IsAlive();
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -87,7 +87,7 @@ namespace EHR.Roles.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer.GetAbilityUseLimit() < 1) return false;
+            if (killer.GetAbilityUseLimit() < 1) return true;
             InfectedBodies.Add(target.PlayerId);
             return true;
         }

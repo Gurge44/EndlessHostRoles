@@ -353,14 +353,10 @@ public static class Utils
             return string.Empty;
 
         string mode = !role.IsAdditionRole()
-            ? GetString($"Rate{role.GetMode()}").RemoveHtmlTags()
-            : role.GetMode() switch
-            {
-                0 => GetString("RoleOffNoColor"),
-                1 => GetString("RoleRateNoColor"),
-                _ => GetString("RoleOnNoColor")
-            };
+            ? GetString($"Rate{role.GetMode()}")
+            : GetString($"Rate{Options.CustomAdtRoleSpawnRate[role].GetInt()}");
 
+        mode = mode.Replace("color=", string.Empty);
         return parentheses ? $"({mode})" : mode;
     }
 
@@ -684,9 +680,22 @@ public static class Utils
 
     public static IGhostRole CreateGhostRoleInstance(CustomRoles ghostRole)
     {
-        var ghostRoleClass = Assembly.GetExecutingAssembly().GetTypes().First(x => typeof(IGhostRole).IsAssignableFrom(x) && !x.IsInterface && x.Name == $"{ghostRole}");
-        var ghostRoleInstance = (IGhostRole)Activator.CreateInstance(ghostRoleClass);
-        return ghostRoleInstance;
+        try
+        {
+            var ghostRoleClass = Assembly.GetExecutingAssembly().GetTypes().First(x => typeof(IGhostRole).IsAssignableFrom(x) && !x.IsInterface && x.Name == $"{ghostRole}");
+            var ghostRoleInstance = (IGhostRole)Activator.CreateInstance(ghostRoleClass);
+            return ghostRoleInstance;
+        }
+        catch (InvalidOperationException)
+        {
+            Logger.Error($"Ghost role {ghostRole} not found", "CreateGhostRoleInstance");
+            return null;
+        }
+        catch (Exception e)
+        {
+            ThrowException(e);
+            return null;
+        }
     }
 
     public static bool CanBeMadmate(this PlayerControl pc)
@@ -967,13 +976,10 @@ public static class Utils
             if (!role.Key.IsEnable()) continue;
 
             string mode = !role.Key.IsAdditionRole()
-                ? GetString($"Rate{role.Key.GetMode()}").RemoveHtmlTags()
-                : role.Key.GetMode() switch
-                {
-                    0 => GetString("RoleOffNoColor"),
-                    1 => GetString("RoleRateNoColor"),
-                    _ => GetString("RoleOnNoColor")
-                };
+                ? GetString($"Rate{role.Key.GetMode()}")
+                : GetString($"Rate{Options.CustomAdtRoleSpawnRate[role.Key].GetInt()}");
+
+            mode = mode.Replace("color=", string.Empty);
 
             sb.Append($"\n【{GetRoleName(role.Key)}:{mode} ×{role.Key.GetCount()}】\n");
             ShowChildrenSettings(Options.CustomRoleSpawnChances[role.Key], ref sb);
@@ -1010,13 +1016,10 @@ public static class Utils
             if (!role.Key.IsEnable()) continue;
 
             string mode = !role.Key.IsAdditionRole()
-                ? GetString($"Rate{role.Key.GetMode()}").RemoveHtmlTags()
-                : role.Key.GetMode() switch
-                {
-                    0 => GetString("RoleOffNoColor"),
-                    1 => GetString("RoleRateNoColor"),
-                    _ => GetString("RoleOnNoColor")
-                };
+                ? GetString($"Rate{role.Key.GetMode()}")
+                : GetString($"Rate{Options.CustomAdtRoleSpawnRate[role.Key].GetInt()}");
+
+            mode = mode.Replace("color=", string.Empty);
 
             sb.Append($"\n【{GetRoleName(role.Key)}:{mode} ×{role.Key.GetCount()}】\n");
             ShowChildrenSettings(Options.CustomRoleSpawnChances[role.Key], ref sb);
@@ -1059,13 +1062,10 @@ public static class Utils
         foreach (var role in EnumHelper.GetAllValues<CustomRoles>())
         {
             string mode = !role.IsAdditionRole()
-                ? GetString($"Rate{role.GetMode()}").RemoveHtmlTags()
-                : role.GetMode() switch
-                {
-                    0 => GetString("RoleOffNoColor"),
-                    1 => GetString("RoleRateNoColor"),
-                    _ => GetString("RoleOnNoColor")
-                };
+                ? GetString($"Rate{role.GetMode()}")
+                : GetString($"Rate{Options.CustomAdtRoleSpawnRate[role].GetInt()}");
+
+            mode = mode.Replace("color=", string.Empty);
 
             if (role.IsEnable())
             {
@@ -1797,10 +1797,7 @@ public static class Utils
                 SelfMark.Append(Snitch.GetWarningArrow(seer));
                 if (seer.Is(CustomRoles.Lovers)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lovers), " ♥"));
                 if (BallLightning.IsGhost(seer)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.BallLightning), "■"));
-                if ((Medic.InProtect(seer.PlayerId) || Medic.TempMarkProtectedList.Contains(seer.PlayerId))
-                    && !seer.Is(CustomRoles.Medic)
-                    && (Medic.WhoCanSeeProtect.GetInt() == 0 || Medic.WhoCanSeeProtect.GetInt() == 2))
-                    SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Medic), " ●"));
+                SelfMark.Append(Medic.GetMark(seer, seer));
                 SelfMark.Append(Gamer.TargetMark(seer, seer));
                 SelfMark.Append(Sniper.GetShotNotify(seer.PlayerId));
                 if (Blackmailer.ForBlackmailer.Contains(seer.PlayerId)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Blackmailer), "╳"));
@@ -1814,7 +1811,10 @@ public static class Utils
                 if (!isForMeeting)
                 {
                     if (Options.UsePets.GetBool() && Main.AbilityCD.TryGetValue(seer.PlayerId, out var time) && !seer.IsModClient())
-                        SelfSuffix.Append(string.Format(GetString("CDPT"), time.TOTALCD - (TimeStamp - time.START_TIMESTAMP) + 1));
+                    {
+                        var remainingCD = time.TOTALCD - (TimeStamp - time.START_TIMESTAMP) + 1;
+                        SelfSuffix.Append(string.Format(GetString("CDPT"), remainingCD > 60 ? "> 60s" : remainingCD));
+                    }
 
                     if (seer.Is(CustomRoles.Asthmatic)) SelfSuffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
 
@@ -2286,16 +2286,7 @@ public static class Utils
 
                             TargetMark.Append(Executioner.TargetMark(seer, target));
                             TargetMark.Append(Gamer.TargetMark(seer, target));
-
-                            if (seer.Is(CustomRoles.Medic) && (Medic.InProtect(target.PlayerId) || Medic.TempMarkProtectedList.Contains(target.PlayerId)) && (Medic.WhoCanSeeProtect.GetInt() is 0 or 1))
-                            {
-                                TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Medic), " ●"));
-                            }
-                            else if (seer.Data.IsDead && Medic.InProtect(target.PlayerId) && !seer.Is(CustomRoles.Medic))
-                            {
-                                TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Medic), " ●"));
-                            }
-
+                            TargetMark.Append(Medic.GetMark(seer, target));
                             TargetMark.Append(Totocalcio.TargetMark(seer, target));
                             TargetMark.Append(Romantic.TargetMark(seer, target));
                             TargetMark.Append(Lawyer.LawyerMark(seer, target));
