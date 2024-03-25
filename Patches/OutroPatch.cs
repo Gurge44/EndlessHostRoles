@@ -109,6 +109,8 @@ class EndGamePatch
             /* Send SyncSettings RPC */
         }
 
+        Main.LoversPlayers.Clear();
+
         foreach (var state in Main.PlayerStates.Values)
         {
             state.Role.Init();
@@ -136,9 +138,6 @@ class SetEverythingUpPatch
 
             if (Options.CurrentGameMode is not CustomGameMode.Standard) goto End;
             int num = Mathf.CeilToInt(7.5f);
-
-            GameOverReason reason = EndGamePatch.LastGameOverReason;
-            bool isCrewWin = reason.Equals(GameOverReason.HumansByVote) || reason.Equals(GameOverReason.HumansByTask);
 
             var pbs = __instance?.transform?.GetComponentsInChildren<PoolablePlayer>();
             if (pbs != null)
@@ -260,10 +259,6 @@ class SetEverythingUpPatch
             CustomWinnerText = GetWinnerRoleName(winnerRole);
             CustomWinnerColor = Utils.GetRoleColorCode(winnerRole);
             __instance.BackgroundBar.material.color = Utils.GetRoleColor(winnerRole);
-            if (winnerRole.IsNeutral())
-            {
-                __instance.BackgroundBar.material.color = Utils.GetRoleColor(winnerRole);
-            }
         }
 
         if (AmongUsClient.Instance.AmHost && Main.PlayerStates[0].MainRole == CustomRoles.GM)
@@ -296,6 +291,9 @@ class SetEverythingUpPatch
                 break;
             case CustomWinner.Lovers:
                 __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Lovers);
+                break;
+            case CustomWinner.Specter:
+                __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Specter);
                 break;
             case CustomWinner.Draw:
                 __instance.WinText.text = GetString("ForceEnd");
@@ -330,6 +328,7 @@ class SetEverythingUpPatch
         foreach (var additionalWinners in CustomWinnerHolder.AdditionalWinnerTeams)
         {
             var addWinnerRole = (CustomRoles)additionalWinners;
+            Logger.Warn(additionalWinners.ToString(), "AdditionalWinner");
             if (addWinnerRole == CustomRoles.Sidekick) continue;
             AdditionalWinnerText += "\n" + Utils.ColorString(Utils.GetRoleColor(addWinnerRole), GetAdditionalWinnerRoleName(addWinnerRole));
         }
@@ -424,18 +423,19 @@ class SetEverythingUpPatch
         var RoleSummaryRectTransform = RoleSummary.GetComponent<RectTransform>();
         RoleSummaryRectTransform.anchoredPosition = new(Pos.x + 3.5f, Pos.y - 0.1f);
         RoleSummary.text = sb.ToString();
+
         return;
 
         static string GetAdditionalWinnerRoleName(CustomRoles role)
         {
-            var name = GetString($"AdditionalWinnerRoleText.{Enum.GetName(typeof(CustomRoles), role)}");
+            var name = GetString($"AdditionalWinnerRoleText.{role}");
             if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID")) name = string.Format(GetString("AdditionalWinnerRoleText.Default"), GetString($"{role}"));
             return name;
         }
 
         static string GetWinnerRoleName(CustomRoles role)
         {
-            var name = GetString($"WinnerRoleText.{Enum.GetName(typeof(CustomRoles), role)}");
+            var name = GetString($"WinnerRoleText.{role}");
             if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID")) name = string.Format(GetString("WinnerRoleText.Default"), GetString($"{role}"));
             return name;
         }

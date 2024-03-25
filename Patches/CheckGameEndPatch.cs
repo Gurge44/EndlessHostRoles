@@ -264,7 +264,7 @@ class GameEndChecker
 
     private static IEnumerator CoEndGame(InnerNetClient self, GameOverReason reason)
     {
-        Blackmailer.ForBlackmailer.Clear();
+        Silencer.ForSilencer.Clear();
 
         // Set ghost role
         List<byte> ReviveRequiredPlayerIds = [];

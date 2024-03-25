@@ -67,13 +67,6 @@ internal class ChatCommands
         if (Mediumshiper.MsMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (Mafia.MafiaMsgCheck(PlayerControl.LocalPlayer, text)) goto Canceled;
 
-        if (Blackmailer.ForBlackmailer.Contains(PlayerControl.LocalPlayer.PlayerId) && PlayerControl.LocalPlayer.IsAlive())
-        {
-            ChatManager.SendPreviousMessagesToAll();
-            ChatManager.cancel = false;
-            goto Canceled;
-        }
-
         switch (args[0])
         {
             case "/dump":
@@ -725,6 +718,13 @@ internal class ChatCommands
             }
         }
 
+        if (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) && PlayerControl.LocalPlayer.IsAlive())
+        {
+            ChatManager.SendPreviousMessagesToAll();
+            ChatManager.cancel = false;
+            goto Canceled;
+        }
+
         goto Skip;
         Canceled:
         Main.isChatCommand = false;
@@ -983,42 +983,23 @@ internal class ChatCommands
 
         if (player.PlayerId != 0) ChatManager.SendMessage(player, text);
         if (text.StartsWith("\n")) text = text[1..];
-        //if (!text.StartsWith("/")) return;
+
         string[] args = text.Split(' ');
         string subArgs;
-        //if (text.Length >= 3) if (text[..2] == "/r" && text[..3] != "/rn") args[0] = "/r";
-        //   if (SpamManager.CheckSpam(player, text)) return;
+
         if (GuessManager.GuesserMsg(player, text))
         {
-            canceled = true;
-            LastSentCommand[player.PlayerId] = now;
-            return;
-        }
+            if (GuessManager.GuesserMsg(player, text) ||
+                Judge.TrialMsg(player, text) ||
+                NiceSwapper.SwapMsg(player, text) ||
+                ParityCop.ParityCheckMsg(player, text) ||
+                Councillor.MurderMsg(player, text))
+            {
+                canceled = true;
+                LastSentCommand[player.PlayerId] = now;
+                return;
+            }
 
-        if (Judge.TrialMsg(player, text))
-        {
-            canceled = true;
-            LastSentCommand[player.PlayerId] = now;
-            return;
-        }
-
-        if (NiceSwapper.SwapMsg(player, text))
-        {
-            canceled = true;
-            LastSentCommand[player.PlayerId] = now;
-            return;
-        }
-
-        if (ParityCop.ParityCheckMsg(player, text))
-        {
-            canceled = true;
-            LastSentCommand[player.PlayerId] = now;
-            return;
-        }
-
-        //if (Pirate.DuelCheckMsg(player, text)) { canceled = true; return; }
-        if (Councillor.MurderMsg(player, text))
-        {
             canceled = true;
             LastSentCommand[player.PlayerId] = now;
             return;
@@ -1032,16 +1013,6 @@ internal class ChatCommands
 
         if (Mafia.MafiaMsgCheck(player, text))
         {
-            LastSentCommand[player.PlayerId] = now;
-            return;
-        }
-
-        //if (RetributionistRevengeManager.RetributionistMsgCheck(player, text)) return;
-        if (Blackmailer.ForBlackmailer.Contains(player.PlayerId) && player.IsAlive() && player.PlayerId != 0)
-        {
-            ChatManager.SendPreviousMessagesToAll();
-            ChatManager.cancel = false;
-            canceled = true;
             LastSentCommand[player.PlayerId] = now;
             return;
         }
@@ -1358,6 +1329,15 @@ internal class ChatCommands
             default:
                 isCommand = false;
                 break;
+        }
+
+        if (Silencer.ForSilencer.Contains(player.PlayerId) && player.IsAlive() && player.PlayerId != 0)
+        {
+            ChatManager.SendPreviousMessagesToAll();
+            ChatManager.cancel = false;
+            canceled = true;
+            LastSentCommand[player.PlayerId] = now;
+            return;
         }
 
         if (isCommand) LastSentCommand[player.PlayerId] = now;

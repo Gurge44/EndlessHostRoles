@@ -139,7 +139,7 @@ public static class ChatManager
 
         if (!player.IsAlive() || !AmongUsClient.Instance.AmHost) return;
 
-        if (Blackmailer.ForBlackmailer.Contains(player.PlayerId) && player.IsAlive())
+        if (Silencer.ForSilencer.Contains(player.PlayerId) && player.IsAlive())
         {
             cancel = true;
             return;

@@ -9,6 +9,7 @@ using HarmonyLib;
 using Il2CppInterop.Runtime.Injection;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
@@ -702,6 +703,7 @@ public enum CustomRoles
     Saboteur,
     Sapper,
     Scavenger,
+    Silencer,
     Sniper,
     ImperiusCurse, // Soul Catcher
     Swapster,
@@ -1010,6 +1012,9 @@ public enum CustomRoles
     Youtuber
 }
 
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+[SuppressMessage("ReSharper", "UnusedMember.Global")]
+#pragma warning restore IDE0079 // Remove unnecessary suppression
 public enum CustomWinner
 {
     Draw = -1,
@@ -1019,10 +1024,10 @@ public enum CustomWinner
     Neutrals = -5,
 
     // Hide And Seek
-    Hider = -6,
-    Seeker = -7,
-    Troll = -8,
-    Specter = -9,
+    Hider = CustomRoles.Hider,
+    Seeker = CustomRoles.Seeker,
+    Troll = CustomRoles.Troll,
+    Specter = CustomRoles.Specter,
 
     // Standard
     Impostor = CustomRoles.Impostor,
@@ -1093,8 +1098,8 @@ public enum AdditionalWinners
     None = -1,
 
     // Hide And Seek
-    Fox = -2,
-    Specter = -3,
+    Fox = CustomRoles.Fox,
+    Specter = CustomRoles.Specter,
 
     // -------------
     Lovers = CustomRoles.Lovers,

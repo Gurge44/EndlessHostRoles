@@ -266,7 +266,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
             {
                 if (subRole.IsGhostRole() && subRole != CustomRoles.EvilSpirit)
                 {
-                    AURoleOptions.GuardianAngelCooldown = 30f;
+                    AURoleOptions.GuardianAngelCooldown = subRole is CustomRoles.Specter or CustomRoles.Haunter ? 900f : 30f;
                     continue;
                 }
 
