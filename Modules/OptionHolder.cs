@@ -283,11 +283,6 @@ public static class Options
     public static OptionItem PuppeteerManipulationEndsAfterTime;
     public static OptionItem VindicatorAdditionalVote;
     public static OptionItem VindicatorHideVote;
-    public static OptionItem MayorAdditionalVote;
-    public static OptionItem MayorHasPortableButton;
-    public static OptionItem MayorNumOfUseButton;
-    public static OptionItem MayorHideVote;
-    public static OptionItem MayorRevealWhenDoneTasks;
     public static OptionItem OppoImmuneToAttacksWhenTasksDone;
     public static OptionItem DoctorTaskCompletedBatteryCharge;
     public static OptionItem SpeedBoosterUpSpeed;

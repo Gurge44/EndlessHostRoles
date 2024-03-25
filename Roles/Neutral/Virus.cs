@@ -24,6 +24,7 @@ namespace EHR.Roles.Neutral
         public static OptionItem KnowTargetRole;
         public static OptionItem TargetKnowOtherTarget;
         public static OptionItem KillInfectedPlayerAfterMeeting;
+        public static OptionItem ContagiousPlayersCanKillEachOther;
         public static OptionItem ContagiousCountMode;
 
         public static readonly string[] ContagiousCountModeStrings =
@@ -45,6 +46,7 @@ namespace EHR.Roles.Neutral
             KnowTargetRole = BooleanOptionItem.Create(Id + 13, "VirusKnowTargetRole", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Virus]);
             TargetKnowOtherTarget = BooleanOptionItem.Create(Id + 14, "VirusTargetKnowOtherTarget", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Virus]);
             KillInfectedPlayerAfterMeeting = BooleanOptionItem.Create(Id + 15, "VirusKillInfectedPlayerAfterMeeting", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Virus]);
+            ContagiousPlayersCanKillEachOther = BooleanOptionItem.Create(Id + 18, "ContagiousPlayersCanKillEachOther", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Virus]);
             ContagiousCountMode = StringOptionItem.Create(Id + 17, "ContagiousCountMode", ContagiousCountModeStrings, 0, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Virus]);
         }
 
@@ -75,14 +77,6 @@ namespace EHR.Roles.Neutral
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
             opt.SetVision(ImpostorVision.GetBool());
-        }
-
-        private static void SendRPCInfectKill(byte virusId, byte target = 255)
-        {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DoSpell, SendOption.Reliable);
-            writer.Write(virusId);
-            writer.Write(target);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -157,7 +151,6 @@ namespace EHR.Roles.Neutral
         public static void RemoveInfectedPlayer(PlayerControl virus)
         {
             InfectedPlayer.Clear();
-            SendRPCInfectKill(virus.PlayerId);
         }
 
         public static bool KnowRole(PlayerControl player, PlayerControl target)

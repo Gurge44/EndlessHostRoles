@@ -185,27 +185,25 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 opt.SetFloat(FloatOptionNames.ImpostorLightMod, Options.BewilderVision.GetFloat());
             }
 
-            if (
-                (Grenadier.GrenadierBlinding.Count > 0 &&
-                 (player.GetCustomRole().IsImpostor() ||
-                  (player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))
-                ) || (
-                    Grenadier.MadGrenadierBlinding.Count > 0 && !player.GetCustomRole().IsImpostorTeam() && !player.Is(CustomRoles.Madmate))
-            )
+            if ((Grenadier.GrenadierBlinding.Count > 0 &&
+                 (role.IsImpostor() ||
+                  (role.IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))) ||
+                (Grenadier.MadGrenadierBlinding.Count > 0 && !role.IsImpostorTeam() && !player.Is(CustomRoles.Madmate)))
             {
-                {
-                    opt.SetVision(false);
-                    opt.SetFloat(FloatOptionNames.CrewLightMod, Options.GrenadierCauseVision.GetFloat());
-                    opt.SetFloat(FloatOptionNames.ImpostorLightMod, Options.GrenadierCauseVision.GetFloat());
-                }
+                opt.SetVision(false);
+                opt.SetFloat(FloatOptionNames.CrewLightMod, Options.GrenadierCauseVision.GetFloat());
+                opt.SetFloat(FloatOptionNames.ImpostorLightMod, Options.GrenadierCauseVision.GetFloat());
             }
 
-            switch (player.GetCustomRole())
+            switch (role)
             {
                 case CustomRoles.Alchemist when ((Alchemist)Main.PlayerStates[player.PlayerId].Role).VisionPotionActive:
                     opt.SetVisionV2();
                     if (Utils.IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.CrewLightMod, Alchemist.VisionOnLightsOut.GetFloat() * 5);
                     else opt.SetFloat(FloatOptionNames.CrewLightMod, Alchemist.Vision.GetFloat());
+                    break;
+                case CustomRoles.Mayor when Mayor.MayorSeesVoteColorsWhenDoneTasks.GetBool() && player.GetTaskState().IsTaskFinished:
+                    opt.SetBool(BoolOptionNames.AnonymousVotes, false);
                     break;
             }
 
@@ -235,13 +233,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 opt.SetFloat(FloatOptionNames.CrewLightMod, Beacon.IncreasedVision);
                 opt.SetFloat(FloatOptionNames.ImpostorLightMod, Beacon.IncreasedVision);
             }
-
-            /*     if ((Main.FlashbangInProtect.Count > 0 && Main.ForFlashbang.Contains(player.PlayerId) && (!player.IsCrewmate())))
-                 {
-                         opt.SetVision(false);
-                         opt.SetFloat(FloatOptionNames.CrewLightMod, Options.FlashbangVision.GetFloat());
-                         opt.SetFloat(FloatOptionNames.ImpostorLightMod, Options.FlashbangVision.GetFloat());
-                 } */
 
             Dazzler.SetDazzled(player, opt);
             Deathpact.SetDeathpactVision(player, opt);

@@ -265,7 +265,7 @@ public static class GuessManager
                             if (!isUI) Utils.SendMessage(GetString("GuessMonarch"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessMonarch"));
                             return true;
-                        case CustomRoles.Mayor when Options.MayorRevealWhenDoneTasks.GetBool() && target.GetTaskState().IsTaskFinished:
+                        case CustomRoles.Mayor when Mayor.MayorRevealWhenDoneTasks.GetBool() && target.GetTaskState().IsTaskFinished:
                             if (!isUI) Utils.SendMessage(GetString("GuessMayor"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessMayor"));
                             return true;

@@ -11,6 +11,13 @@ namespace EHR.Roles.Crewmate
         public static bool On;
         public override bool IsEnable => On;
 
+        public static OptionItem MayorAdditionalVote;
+        public static OptionItem MayorHasPortableButton;
+        public static OptionItem MayorNumOfUseButton;
+        public static OptionItem MayorHideVote;
+        public static OptionItem MayorRevealWhenDoneTasks;
+        public static OptionItem MayorSeesVoteColorsWhenDoneTasks;
+
         public override void Add(byte playerId)
         {
             On = true;
@@ -76,7 +83,9 @@ namespace EHR.Roles.Crewmate
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor]);
             MayorRevealWhenDoneTasks = BooleanOptionItem.Create(9514, "MayorRevealWhenDoneTasks", false, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor]);
-            MayorTasks = OverrideTasksData.Create(9515, TabGroup.CrewmateRoles, CustomRoles.Mayor);
+            MayorSeesVoteColorsWhenDoneTasks = BooleanOptionItem.Create(9515, "MayorSeesVoteColorsWhenDoneTasks", false, TabGroup.CrewmateRoles, false)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor]);
+            MayorTasks = OverrideTasksData.Create(9516, TabGroup.CrewmateRoles, CustomRoles.Mayor);
         }
     }
 }
