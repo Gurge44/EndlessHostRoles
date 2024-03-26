@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace TOHE;
+namespace EHR;
 
 static class DoubleTrigger
 {
@@ -17,10 +17,6 @@ static class DoubleTrigger
         PlayerIdList = [];
         FirstTriggerTimer = [];
         FirstTriggerAction = [];
-    }
-    public static void AddDoubleTrigger(this PlayerControl killer)
-    {
-        PlayerIdList.Add(killer.PlayerId);
     }
 
     /// <summary>

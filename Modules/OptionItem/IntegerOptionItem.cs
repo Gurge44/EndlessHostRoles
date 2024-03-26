@@ -1,4 +1,4 @@
-namespace TOHE;
+namespace EHR;
 
 public class IntegerOptionItem(int id, string name, int defaultValue, TabGroup tab, bool isSingleValue, IntegerValueRule rule) : OptionItem(id, name, rule.GetNearestIndex(defaultValue), tab, isSingleValue)
 {
@@ -9,7 +9,7 @@ public class IntegerOptionItem(int id, string name, int defaultValue, TabGroup t
         int id, string name, IntegerValueRule rule, int defaultValue, TabGroup tab, bool isSingleValue
     )
     {
-        return new IntegerOptionItem(
+        return new(
             id, name, defaultValue, tab, isSingleValue, rule
         );
     }

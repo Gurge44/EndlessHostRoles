@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 
-namespace TOHE.Roles.Crewmate;
+namespace EHR.Roles.Crewmate;
 
-public static class TimeManager
+public class TimeManager : RoleBase
 {
-    private static readonly int Id = 8200;
-    private static List<byte> playerIdList = [];
+    private const int Id = 8200;
+    public static List<byte> playerIdList = [];
     public static OptionItem IncreaseMeetingTime;
     public static OptionItem MeetingTimeLimit;
     public static OptionItem MadMinMeetingTimeLimit;
@@ -21,15 +21,19 @@ public static class TimeManager
             .SetValueFormat(OptionFormat.Seconds);
         Options.OverrideTasksData.Create(Id + 13, TabGroup.CrewmateRoles, CustomRoles.TimeManager);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+
+    public override bool IsEnable => playerIdList.Count > 0;
+
     private static int AdditionalTime(byte id)
     {
         var pc = Utils.GetPlayerById(id);

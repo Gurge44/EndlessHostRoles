@@ -1,9 +1,9 @@
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
-using static TOHE.Translator;
+using static EHR.Translator;
 
-namespace TOHE.Patches;
+namespace EHR.Patches;
 
 [HarmonyPatch(typeof(EndGameManager), nameof(EndGameManager.ShowButtons))]
 public class EndGameManagerPatch
@@ -38,8 +38,8 @@ public class EndGameManagerPatch
 
         if (seconds == Options.AutoPlayAgainCountdown.GetInt())
         {
-            CountdownText = new GameObject("CountdownText");
-            CountdownText.transform.position = new Vector3(0f, 2.5f, 10f);
+            CountdownText = new("CountdownText");
+            CountdownText.transform.position = new(0f, 2.5f, 10f);
             var CountdownTextText = CountdownText.AddComponent<TextMeshPro>();
             CountdownTextText.text = string.Format(GetString("CountdownText"), seconds);
             CountdownTextText.alignment = TextAlignmentOptions.Center;

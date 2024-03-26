@@ -1,25 +1,27 @@
-﻿using Hazel;
+﻿using EHR.Modules;
+using Hazel;
 using System.Collections.Generic;
 using UnityEngine;
-using static TOHE.Options;
-using static TOHE.Utils;
+using static EHR.Options;
+using static EHR.Utils;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
-    public static class YinYanger
+    public class YinYanger : RoleBase
     {
-        private static readonly int Id = 642870;
-        private static byte YinYangerId = byte.MaxValue;
-        private static List<byte> YinYangedPlayers = [];
+        private const int Id = 642870;
 
         private static OptionItem YinYangCD;
         private static OptionItem KCD;
 
-        private static PlayerControl YinYanger_ => GetPlayerById(YinYangerId);
+        // ReSharper disable once InconsistentNaming
+        private PlayerControl YinYanger_ => GetPlayerById(YinYangerId);
+        private byte YinYangerId = byte.MaxValue;
+        private List<byte> YinYangedPlayers = [];
 
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.YinYanger, 1);
+            SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.YinYanger);
             YinYangCD = FloatOptionItem.Create(Id + 5, "YinYangCD", new(0f, 60f, 2.5f), 12.5f, TabGroup.ImpostorRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.YinYanger])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -28,28 +30,30 @@ namespace TOHE.Roles.Impostor
                 .SetValueFormat(OptionFormat.Seconds);
         }
 
-        public static void Init()
+        public override void Init()
         {
             YinYangerId = byte.MaxValue;
             YinYangedPlayers = [];
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             YinYangerId = playerId;
+            YinYangedPlayers = [];
         }
 
-        public static bool IsEnable => YinYangerId != byte.MaxValue;
+        public override bool IsEnable => YinYangerId != byte.MaxValue;
 
-        public static void SetKillCooldown(byte playerId)
+        public override void SetKillCooldown(byte playerId)
         {
             Main.AllPlayerKillCooldown[playerId] = YinYangedPlayers.Count == 2 ? KCD.GetFloat() : YinYangCD.GetFloat();
         }
 
-        public static void SendRPC(bool isClear, byte playerId = byte.MaxValue)
+        void SendRPC(bool isClear, byte playerId = byte.MaxValue)
         {
-            if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncYinYanger, SendOption.Reliable, -1);
+            if (!DoRPC) return;
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncYinYanger, SendOption.Reliable);
+            writer.Write(YinYangerId);
             writer.Write(isClear);
             if (!isClear) writer.Write(playerId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -57,17 +61,18 @@ namespace TOHE.Roles.Impostor
 
         public static void ReceiveRPC(MessageReader reader)
         {
-            if (!IsEnable) return;
+            byte yyId = reader.ReadByte();
+            if (Main.PlayerStates[yyId].Role is not YinYanger yy) return;
             bool isClear = reader.ReadBoolean();
             if (!isClear)
             {
                 byte playerId = reader.ReadByte();
-                YinYangedPlayers.Add(playerId);
+                yy.YinYangedPlayers.Add(playerId);
             }
-            else YinYangedPlayers.Clear();
+            else yy.YinYangedPlayers.Clear();
         }
 
-        public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (!IsEnable) return false;
             if (killer == null || target == null || !killer.Is(CustomRoles.YinYanger)) return false;
@@ -76,29 +81,26 @@ namespace TOHE.Roles.Impostor
             {
                 return true;
             }
-            else
-            {
-                if (YinYangedPlayers.Contains(target.PlayerId))
-                {
-                    return false;
-                }
-                else
-                {
-                    YinYangedPlayers.Add(target.PlayerId);
-                    SendRPC(false, target.PlayerId);
 
-                    if (YinYangedPlayers.Count == 2)
-                    {
-                        killer.ResetKillCooldown();
-                        killer.SyncSettings();
-                    }
-                    killer.SetKillCooldown();
-                    return false;
-                }
+            if (YinYangedPlayers.Contains(target.PlayerId))
+            {
+                return false;
             }
+
+            YinYangedPlayers.Add(target.PlayerId);
+            SendRPC(false, target.PlayerId);
+
+            if (YinYangedPlayers.Count == 2)
+            {
+                killer.ResetKillCooldown();
+                killer.SyncSettings();
+            }
+
+            killer.SetKillCooldown();
+            return false;
         }
 
-        public static void OnReportDeadBody()
+        public override void OnReportDeadBody()
         {
             if (!IsEnable) return;
             YinYangedPlayers.Clear();
@@ -106,28 +108,40 @@ namespace TOHE.Roles.Impostor
             SendRPC(true);
         }
 
-        public static void OnFixedUpdate()
+        public override void OnGlobalFixedUpdate(PlayerControl player, bool lowLoad)
         {
-            if (!IsEnable) return;
             if (!GameStates.IsInTask) return;
-            if (YinYangedPlayers.Count < 2) return;
 
-            var yy = YinYanger_;
-            var pc1 = GetPlayerById(YinYangedPlayers[0]);
-            var pc2 = GetPlayerById(YinYangedPlayers[1]);
-
-            if (pc1 == null || pc2 == null || yy == null) return;
-            if (!pc1.IsAlive() || !pc2.IsAlive() || !yy.IsAlive()) return;
-
-            if (Vector2.Distance(pc1.Pos(), pc2.Pos()) <= 2f)
+            foreach (var state in Main.PlayerStates)
             {
-                if (!yy.RpcCheckAndMurder(pc1, true)
-                 || !yy.RpcCheckAndMurder(pc2, true)) return;
+                if (state.Value.Role is not YinYanger { IsEnable: true, YinYangedPlayers.Count: 2 } yy) continue;
 
-                pc1.Suicide(PlayerState.DeathReason.YinYanged, yy);
-                pc2.Suicide(PlayerState.DeathReason.YinYanged, yy);
+                var yyPc = yy.YinYanger_;
+                var pc1 = GetPlayerById(yy.YinYangedPlayers[0]);
+                var pc2 = GetPlayerById(yy.YinYangedPlayers[1]);
+
+                if (pc1 == null || pc2 == null || yyPc == null) return;
+                if (!pc1.IsAlive() || !pc2.IsAlive() || !yyPc.IsAlive()) return;
+
+                if (Vector2.Distance(pc1.Pos(), pc2.Pos()) <= 2f)
+                {
+                    if (!yyPc.RpcCheckAndMurder(pc1, true)
+                        || !yyPc.RpcCheckAndMurder(pc2, true)) return;
+
+                    pc1.Suicide(PlayerState.DeathReason.YinYanged, yyPc);
+                    pc2.Suicide(PlayerState.DeathReason.YinYanged, yyPc);
+                }
             }
         }
-        public static string ModeText => YinYangedPlayers.Count == 2 ? $"<color=#00ffa5>{Translator.GetString("Mode")}:</color> {Translator.GetString("YinYangModeNormal")}" : $"<color=#00ffa5>{Translator.GetString("Mode")}:</color> {Translator.GetString("YinYangMode")} ({YinYangedPlayers.Count}/2)";
+
+        public static string ModeText(PlayerControl pc)
+        {
+            if (Main.PlayerStates[pc.PlayerId].Role is YinYanger { IsEnable: true } yy)
+            {
+                return yy.YinYangedPlayers.Count == 2 ? $"<color=#00ffa5>{Translator.GetString("Mode")}:</color> {Translator.GetString("YinYangModeNormal")}" : $"<color=#00ffa5>{Translator.GetString("Mode")}:</color> {Translator.GetString("YinYangMode")} ({yy.YinYangedPlayers.Count}/2)";
+            }
+
+            return string.Empty;
+        }
     }
 }

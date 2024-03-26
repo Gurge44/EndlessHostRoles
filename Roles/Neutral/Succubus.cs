@@ -1,15 +1,14 @@
-﻿using Hazel;
+﻿using AmongUs.GameOptions;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
-using static TOHE.Options;
-using static TOHE.Translator;
+using static EHR.Options;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Neutral;
+namespace EHR.Roles.Neutral;
 
-public static class Succubus
+public class Succubus : RoleBase
 {
-    private static readonly int Id = 11200;
+    private const int Id = 11200;
     private static List<byte> playerIdList = [];
 
     public static OptionItem CharmCooldown;
@@ -21,18 +20,16 @@ public static class Succubus
     public static OptionItem CharmedCountMode;
     public static OptionItem CharmedDiesOnSuccubusDeath;
 
-    public static readonly string[] charmedCountMode =
+    public static readonly string[] CharmedCountModeStrings =
     [
         "CharmedCountMode.None",
         "CharmedCountMode.Succubus",
         "CharmedCountMode.Original",
     ];
 
-    private static int CharmLimit;
-
     public static void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Succubus, 1, zeroOne: false);
+        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Succubus);
         CharmCooldown = FloatOptionItem.Create(Id + 10, "SuccubusCharmCooldown", new(0f, 60f, 2.5f), 30f, TabGroup.NeutralRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Succubus])
             .SetValueFormat(OptionFormat.Seconds);
@@ -46,49 +43,43 @@ public static class Succubus
             .SetParent(CustomRoleSpawnChances[CustomRoles.Succubus]);
         TargetKnowOtherTarget = BooleanOptionItem.Create(Id + 14, "SuccubusTargetKnowOtherTarget", true, TabGroup.NeutralRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Succubus]);
-        CharmedCountMode = StringOptionItem.Create(Id + 15, "CharmedCountMode", charmedCountMode, 0, TabGroup.NeutralRoles, false)
+        CharmedCountMode = StringOptionItem.Create(Id + 15, "CharmedCountMode", CharmedCountModeStrings, 0, TabGroup.NeutralRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Succubus]);
         CanCharmNeutral = BooleanOptionItem.Create(Id + 16, "SuccubusCanCharmNeutral", false, TabGroup.NeutralRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Succubus]);
         CharmedDiesOnSuccubusDeath = BooleanOptionItem.Create(Id + 17, "CharmedDiesOnSuccubusDeath", false, TabGroup.NeutralRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Succubus]);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
-        CharmLimit = new();
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        CharmLimit = CharmMax.GetInt();
+        playerId.SetAbilityUseLimit(CharmMax.GetInt());
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
 
-    private static void SendRPC()
+    public override bool IsEnable => playerIdList.Count > 0;
+
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = id.GetAbilityUseLimit() >= 1 ? CharmCooldown.GetFloat() + (CharmMax.GetInt() - id.GetAbilityUseLimit()) * CharmCooldownIncrese.GetFloat() : 300f;
+    public override bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && player.GetAbilityUseLimit() >= 1;
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetSuccubusCharmLimit, SendOption.Reliable, -1);
-        writer.Write(CharmLimit);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-    public static void ReceiveRPC(MessageReader reader)
-    {
-        CharmLimit = reader.ReadInt32();
-    }
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CharmLimit >= 1 ? CharmCooldown.GetFloat() + (CharmMax.GetInt() - CharmLimit) * CharmCooldownIncrese.GetFloat() : 300f;
-    public static bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && CharmLimit >= 1;
-    public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
-    {
-        if (CharmLimit < 1) return;
+        if (killer.GetAbilityUseLimit() < 1) return false;
         if (CanBeCharmed(target))
         {
-            CharmLimit--;
-            SendRPC();
+            killer.RpcRemoveAbilityUse();
+
             target.RpcSetCustomRole(CustomRoles.Charmed);
 
             killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Succubus), GetString("SuccubusCharmedPlayer")));
@@ -102,34 +93,34 @@ public static class Succubus
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 
-            Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Charmed.ToString(), "Assign " + CustomRoles.Charmed.ToString());
-            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{CharmLimit}次魅惑机会", "Succubus");
-            return;
+            Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole() + " + " + CustomRoles.Charmed, "Assign " + CustomRoles.Charmed);
+            return false;
         }
+
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Succubus), GetString("SuccubusInvalidTarget")));
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{CharmLimit}次魅惑机会", "Succubus");
-        return;
+
+        return false;
     }
+
     public static bool KnowRole(PlayerControl player, PlayerControl target)
     {
         if (player.Is(CustomRoles.Charmed) && target.Is(CustomRoles.Succubus)) return true;
         if (KnowTargetRole.GetBool() && player.Is(CustomRoles.Succubus) && target.Is(CustomRoles.Charmed)) return true;
-        if (TargetKnowOtherTarget.GetBool() && player.Is(CustomRoles.Charmed) && target.Is(CustomRoles.Charmed)) return true;
-        return false;
+        return TargetKnowOtherTarget.GetBool() && player.Is(CustomRoles.Charmed) && target.Is(CustomRoles.Charmed);
     }
-    public static string GetCharmLimit() => Utils.ColorString(CharmLimit >= 1 ? Utils.GetRoleColor(CustomRoles.Succubus).ShadeColor(0.25f) : Color.gray, $"({CharmLimit})");
-    public static bool CanBeCharmed(this PlayerControl pc)
-    {
-        return pc != null && (pc.GetCustomRole().IsCrewmate() || pc.GetCustomRole().IsImpostor() ||
-            (CanCharmNeutral.GetBool() && (pc.GetCustomRole().IsNeutral() || pc.GetCustomRole().IsNeutralKilling()))) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Loyal);
-    }
-    public static void OnFixedUpdate()
-    {
-        if (!GameStates.IsInTask || !IsEnable) return;
-        var pc = Utils.GetPlayerById(playerIdList[0]);
-        if (pc == null || pc.IsAlive() || !pc.Is(CustomRoles.Succubus)) return;
 
-        foreach (var charmed in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Charmed)).ToArray())
+    public static bool CanBeCharmed(PlayerControl pc)
+    {
+        return pc != null && (pc.IsCrewmate() || pc.GetCustomRole().IsImpostor() ||
+                              (CanCharmNeutral.GetBool() && (pc.GetCustomRole().IsNeutral() || pc.IsNeutralKiller()))) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Loyal);
+    }
+
+    public override void OnFixedUpdate(PlayerControl pc)
+    {
+        if (!CharmedDiesOnSuccubusDeath.GetBool() || !GameStates.IsInTask || !IsEnable) return;
+        if (pc == null || pc.IsAlive()) return;
+
+        foreach (var charmed in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Charmed)))
         {
             charmed.Suicide(realKiller: pc);
         }

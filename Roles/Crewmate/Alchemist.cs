@@ -1,26 +1,29 @@
-namespace TOHE.Roles.Crewmate
-{
-    using HarmonyLib;
-    using Hazel;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using TOHE.Modules;
-    using TOHE.Roles.Neutral;
-    using static TOHE.Options;
-    using static TOHE.Translator;
+using AmongUs.GameOptions;
+using EHR.Modules;
+using EHR.Roles.Neutral;
+using Hazel;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
-    public static class Alchemist
+namespace EHR.Roles.Crewmate
+{
+    using static Options;
+    using static Translator;
+
+    public class Alchemist : RoleBase
     {
-        private static readonly int Id = 5250;
-        public static bool IsProtected;
+        private const int Id = 5250;
         private static List<byte> playerIdList = [];
-        private static Dictionary<byte, int> ventedId = [];
-        public static byte PotionID = 10;
-        public static string PlayerName = string.Empty;
-        private static Dictionary<byte, long> InvisTime = [];
-        public static bool VisionPotionActive;
-        public static bool FixNextSabo;
+
+        public bool IsProtected;
+        private int ventedId = -10;
+        public byte PotionID = 10;
+        public string PlayerName = string.Empty;
+        private long InvisTime = -10;
+        public bool VisionPotionActive;
+        public bool FixNextSabo;
+        private byte AlchemistId;
 
         public static OptionItem VentCooldown;
         public static OptionItem ShieldDuration;
@@ -33,7 +36,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Alchemist, 1);
+            SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Alchemist);
             VentCooldown = FloatOptionItem.Create(Id + 11, "VentCooldown", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
                 .SetValueFormat(OptionFormat.Seconds);
             ShieldDuration = FloatOptionItem.Create(Id + 12, "AlchemistShieldDur", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
@@ -41,7 +44,7 @@ namespace TOHE.Roles.Crewmate
             InvisDuration = FloatOptionItem.Create(Id + 13, "AlchemistInvisDur", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
                 .SetValueFormat(OptionFormat.Seconds);
             Speed = FloatOptionItem.Create(Id + 14, "AlchemistSpeed", new(0.1f, 5f, 0.1f), 1.5f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
-                 .SetValueFormat(OptionFormat.Multiplier);
+                .SetValueFormat(OptionFormat.Multiplier);
             SpeedDuration = FloatOptionItem.Create(Id + 15, "AlchemistSpeedDur", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
                 .SetValueFormat(OptionFormat.Seconds);
             Vision = FloatOptionItem.Create(Id + 16, "AlchemistVision", new(0f, 1f, 0.05f), 0.85f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
@@ -52,47 +55,58 @@ namespace TOHE.Roles.Crewmate
                 .SetValueFormat(OptionFormat.Seconds);
             OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.Alchemist);
         }
-        public static void Init()
+
+        public override void Init()
         {
             playerIdList = [];
             PotionID = 10;
             PlayerName = string.Empty;
-            ventedId = [];
-            InvisTime = [];
+            ventedId = -10;
+            InvisTime = -10;
             FixNextSabo = false;
             VisionPotionActive = false;
+            AlchemistId = byte.MaxValue;
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
             PlayerName = Utils.GetPlayerById(playerId).GetRealName();
-            _ = new LateTask(() => { SendRPCData(IsProtected, PotionID, PlayerName, VisionPotionActive, FixNextSabo); }, 10f, "Alchemist RPCs");
+            AlchemistId = playerId;
+            PotionID = 10;
+            ventedId = -10;
+            InvisTime = -10;
+            FixNextSabo = false;
+            VisionPotionActive = false;
         }
-        public static bool IsEnable => playerIdList.Count > 0;
 
-        public static void SendRPCData(bool isProtected, byte potionId, string playerName, bool visionPotionActive, bool fixNextSabo)
+        public override bool IsEnable => playerIdList.Count > 0;
+
+        void SendRPCData()
         {
             if (!IsEnable || !Utils.DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAlchemistPotion, SendOption.Reliable, -1);
-            writer.Write(isProtected);
-            writer.Write(potionId);
-            writer.Write(playerName);
-            writer.Write(visionPotionActive);
-            writer.Write(fixNextSabo);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAlchemistPotion, SendOption.Reliable);
+            writer.Write(AlchemistId);
+            writer.Write(IsProtected);
+            writer.Write(PotionID);
+            writer.Write(PlayerName);
+            writer.Write(VisionPotionActive);
+            writer.Write(FixNextSabo);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
+
         public static void ReceiveRPCData(MessageReader reader)
         {
-            if (AmongUsClient.Instance.AmHost) return;
-
-            IsProtected = reader.ReadBoolean();
-            PotionID = reader.ReadByte();
-            PlayerName = reader.ReadString();
-            VisionPotionActive = reader.ReadBoolean();
-            FixNextSabo = reader.ReadBoolean();
+            byte id = reader.ReadByte();
+            if (Main.PlayerStates[id].Role is not Alchemist am) return;
+            am.IsProtected = reader.ReadBoolean();
+            am.PotionID = reader.ReadByte();
+            am.PlayerName = reader.ReadString();
+            am.VisionPotionActive = reader.ReadBoolean();
+            am.FixNextSabo = reader.ReadBoolean();
         }
 
-        public static void OnTaskComplete(PlayerControl pc)
+        public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
         {
             PotionID = (byte)HashRandom.Next(1, 8);
 
@@ -121,39 +135,48 @@ namespace TOHE.Roles.Crewmate
                 case 7: // Increased vision
                     pc.Notify(GetString("AlchemistGotSightPotion"), 15f);
                     break;
-                default: // just in case
-                    break;
             }
         }
 
-        public static void OnEnterVent(PlayerControl player, int ventId, bool isPet = false)
+        public override void OnPet(PlayerControl pc)
         {
-            if (!player.Is(CustomRoles.Alchemist)) return;
+            DrinkPotion(pc, 0, true);
+        }
+
+        public override void OnEnterVent(PlayerControl pc, Vent vent)
+        {
+            DrinkPotion(pc, vent.Id);
+        }
+
+        public static void DrinkPotion(PlayerControl player, int ventId, bool isPet = false)
+        {
+            if (Main.PlayerStates[player.PlayerId].Role is not Alchemist am) return;
 
             NameNotifyManager.Notice.Remove(player.PlayerId);
 
-            switch (PotionID)
+            switch (am.PotionID)
             {
                 case 1: // Shield
-                    IsProtected = true;
+                    am.IsProtected = true;
                     player.Notify(GetString("AlchemistShielded"), ShieldDuration.GetInt());
-                    _ = new LateTask(() => { IsProtected = false; player.Notify(GetString("AlchemistShieldOut")); }, ShieldDuration.GetInt());
+                    _ = new LateTask(() =>
+                    {
+                        am.IsProtected = false;
+                        player.Notify(GetString("AlchemistShieldOut"));
+                    }, ShieldDuration.GetInt());
                     break;
                 case 2: // Suicide
                     if (!isPet) player.MyPhysics.RpcBootFromVent(ventId);
-                    _ = new LateTask(() =>
-                    {
-                        player.Suicide(PlayerState.DeathReason.Poison);
-                    }, !isPet ? 1f : 0.1f);
+                    _ = new LateTask(() => { player.Suicide(PlayerState.DeathReason.Poison); }, !isPet ? 1f : 0.1f);
                     break;
                 case 3: // TP to random player
                     _ = new LateTask(() =>
                     {
                         var rd = IRandom.Instance;
-                        List<PlayerControl> AllAlivePlayer = [.. Main.AllAlivePlayerControls.Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder).ToArray()];
-                        var tar1 = AllAlivePlayer[player.PlayerId];
-                        AllAlivePlayer.Remove(tar1);
-                        var tar2 = AllAlivePlayer[rd.Next(0, AllAlivePlayer.Count)];
+                        List<PlayerControl> allAlivePlayer = [.. Main.AllAlivePlayerControls.Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder).ToArray()];
+                        var tar1 = allAlivePlayer[player.PlayerId];
+                        allAlivePlayer.Remove(tar1);
+                        var tar2 = allAlivePlayer[rd.Next(0, allAlivePlayer.Count)];
                         tar1.TP(tar2);
                         tar1.RPCPlayCustomSound("Teleport");
                     }, !isPet ? 2f : 0.1f);
@@ -177,106 +200,116 @@ namespace TOHE.Roles.Crewmate
                     // Handled by OnCoEnterVent
                     break;
                 case 7: // Increased vision
-                    VisionPotionActive = true;
+                    am.VisionPotionActive = true;
                     player.MarkDirtySettings();
                     player.Notify(GetString("AlchemistHasVision"), VisionDuration.GetFloat());
-                    _ = new LateTask(() => { VisionPotionActive = false; player.MarkDirtySettings(); player.Notify(GetString("AlchemistVisionOut")); }, VisionDuration.GetFloat());
+                    _ = new LateTask(() =>
+                    {
+                        am.VisionPotionActive = false;
+                        player.MarkDirtySettings();
+                        player.Notify(GetString("AlchemistVisionOut"));
+                    }, VisionDuration.GetFloat());
                     break;
                 case 10:
                     if (!isPet) player.MyPhysics.RpcBootFromVent(ventId);
                     player.Notify(GetString("AlchemistNoPotion"));
                     break;
-                default: // just in case
-                    break;
             }
 
-            SendRPCData(IsProtected, PotionID, PlayerName, VisionPotionActive, FixNextSabo);
+            am.SendRPCData();
 
-            PotionID = 10;
+            am.PotionID = 10;
         }
-        private static long lastFixedTime;
-        public static bool IsInvis(byte id) => InvisTime.ContainsKey(id);
-        private static void SendRPC(PlayerControl pc)
+
+        private long lastFixedTime;
+        bool IsInvis => InvisTime != -10;
+
+        void SendRPC()
         {
-            if (!IsEnable || !Utils.DoRPC || pc.AmOwner) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAlchemistTimer, SendOption.Reliable, pc.GetClientId());
-            writer.Write((InvisTime.TryGetValue(pc.PlayerId, out var x) ? x : -1).ToString());
+            if (!IsEnable || !Utils.DoRPC) return;
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAlchemistTimer, SendOption.Reliable);
+            writer.Write(AlchemistId);
+            writer.Write(InvisTime.ToString());
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
+
         public static void ReceiveRPC(MessageReader reader)
         {
-            InvisTime = [];
-            long invis = long.Parse(reader.ReadString());
-            if (invis > 0) InvisTime.Add(PlayerControl.LocalPlayer.PlayerId, invis);
+            byte id = reader.ReadByte();
+            if (Main.PlayerStates[id].Role is not Alchemist am) return;
+            am.InvisTime = long.Parse(reader.ReadString());
         }
-        public static void OnCoEnterVent(PlayerPhysics __instance, int ventId)
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
+            if (UsePets.GetBool()) return;
+            AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
+            AURoleOptions.EngineerInVentMaxTime = 1f;
+        }
+
+        public override void OnCoEnterVent(PlayerPhysics instance, int ventId)
+        {
+            if (PotionID != 6) return;
             PotionID = 10;
-            var pc = __instance.myPlayer;
+            var pc = instance.myPlayer;
             NameNotifyManager.Notice.Remove(pc.PlayerId);
             if (!AmongUsClient.Instance.AmHost) return;
             _ = new LateTask(() =>
             {
-                ventedId.Remove(pc.PlayerId);
-                ventedId.Add(pc.PlayerId, ventId);
+                ventedId = ventId;
 
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, 34, SendOption.Reliable, pc.GetClientId());
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(instance.NetId, 34, SendOption.Reliable, pc.GetClientId());
                 writer.WritePacked(ventId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
 
-                InvisTime.Add(pc.PlayerId, Utils.GetTimeStamp());
-                SendRPC(pc);
+                InvisTime = Utils.TimeStamp;
+                SendRPC();
                 pc.Notify(GetString("ChameleonInvisState"), InvisDuration.GetFloat());
             }, 0.5f, "Alchemist Invis");
         }
-        public static void OnFixedUpdate(/*PlayerControl player*/)
+
+        public override void OnFixedUpdate(PlayerControl player)
         {
             if (!GameStates.IsInTask || !IsEnable) return;
 
-            var now = Utils.GetTimeStamp();
+            var now = Utils.TimeStamp;
 
-            if (lastFixedTime != now)
+            if (lastFixedTime != now && InvisTime != -10)
             {
                 lastFixedTime = now;
-                Dictionary<byte, long> newList = [];
-                List<byte> refreshList = [];
-                foreach (var it in InvisTime)
+                bool refresh = false;
+                var remainTime = InvisTime + (long)InvisDuration.GetFloat() - now;
+                switch (remainTime)
                 {
-                    var pc = Utils.GetPlayerById(it.Key);
-                    if (pc == null) continue;
-                    var remainTime = it.Value + (long)InvisDuration.GetFloat() - now;
-                    if (remainTime < 0)
-                    {
-                        pc?.MyPhysics?.RpcBootFromVent(ventedId.TryGetValue(pc.PlayerId, out var id) ? id : Main.LastEnteredVent[pc.PlayerId].Id);
-                        pc.Notify(GetString("ChameleonInvisStateOut"));
-                        pc.RpcResetAbilityCooldown();
-                        SendRPC(pc);
-                        continue;
-                    }
-                    else if (remainTime <= 10)
-                    {
-                        if (!pc.IsModClient()) pc.Notify(string.Format(GetString("ChameleonInvisStateCountdown"), remainTime + 1));
-                    }
-                    newList.Add(it.Key, it.Value);
+                    case < 0:
+                        player.MyPhysics?.RpcBootFromVent(ventedId == -10 ? Main.LastEnteredVent.TryGetValue(player.PlayerId, out Vent vent) ? vent.Id : player.PlayerId : ventedId);
+                        player.Notify(GetString("SwooperInvisStateOut"));
+                        SendRPC();
+                        refresh = true;
+                        InvisTime = -10;
+                        break;
+                    case <= 10 when !player.IsModClient():
+                        player.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1));
+                        break;
                 }
-                InvisTime.Where(x => !newList.ContainsKey(x.Key)).Do(x => refreshList.Add(x.Key));
-                InvisTime = newList;
-                refreshList.Do(x => SendRPC(Utils.GetPlayerById(x)));
+
+                if (refresh) SendRPC();
             }
         }
+
         public static string GetHudText(PlayerControl pc)
         {
-            if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
+            if (pc == null || !GameStates.IsInTask || Main.PlayerStates[pc.PlayerId].Role is not Alchemist { IsEnable: true } am) return string.Empty;
             var str = new StringBuilder();
-            if (IsInvis(pc.PlayerId))
+            if (am.IsInvis)
             {
-                var remainTime = InvisTime[pc.PlayerId] + (long)InvisDuration.GetFloat() - Utils.GetTimeStamp();
+                var remainTime = am.InvisTime + (long)InvisDuration.GetFloat() - Utils.TimeStamp;
                 str.Append(string.Format(GetString("ChameleonInvisStateCountdown"), remainTime + 1));
             }
             else
             {
                 var preText = $"<color=#00ffa5>{GetString("PotionInStore")}:</color>";
-                switch (PotionID)
+                switch (am.PotionID)
                 {
                     case 1: // Shield
                         str.Append($"{preText} <b><color=#00ff97>{GetString("ShieldPotion")}</color></b>");
@@ -302,52 +335,53 @@ namespace TOHE.Roles.Crewmate
                     case 10:
                         str.Append($"{preText} <color=#888888>{GetString("None")}</color>");
                         break;
-                    default: // just in case
-                        break;
                 }
-                if (FixNextSabo) str.Append($"\n<b><color=#3333ff>{GetString("QuickFixPotionWaitForUse")}</color></b>");
 
+                if (am.FixNextSabo) str.Append($"\n<b><color=#3333ff>{GetString("QuickFixPotionWaitForUse")}</color></b>");
             }
-            if (UsePets.GetBool() && Main.AbilityCD.TryGetValue(pc.PlayerId, out var CD))
-            {
-                str.Append($"\n<color=#00ffa5>{GetString("CD")}:</color> <b>{CD.TOTALCD - (Utils.GetTimeStamp() - CD.START_TIMESTAMP) + 1}</b>s");
-            }
+
             return str.ToString();
         }
-        public static string GetProgressText(int playerId)
+
+        public override string GetProgressText(byte playerId, bool comms)
         {
-            if (Utils.GetPlayerById(playerId) == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive() || Utils.GetPlayerById(playerId).IsModClient()) return string.Empty;
+            if (Utils.GetPlayerById(playerId) == null || !GameStates.IsInTask || Utils.GetPlayerById(playerId).IsModClient()) return string.Empty;
             var str = new StringBuilder();
             switch (PotionID)
             {
-                   case 1: // Shield
-                      str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#00ff97>{GetString("ShieldPotion")}</color>");
-                      break;
-                   case 2: // Suicide
-                      str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#ff0000>{GetString("AwkwardPotion")}</color>");
-                      break;
-                   case 3: // TP to random player
-                      str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#42d1ff>{GetString("TeleportPotion")}</color>");
-                      break;
-                   case 4: // Increased speed
-                      str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#ff8400>{GetString("SpeedPotion")}</color>");
-                      break; 
-                   case 5: // Quick fix next sabo
-                      str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#3333ff>{GetString("QuickFixPotion")}</color>");
-                      break;
-                   case 6: // Invisibility
-                      str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#01c834>{GetString("InvisibilityPotion")}</color>");
-                      break;
-                   case 7: // Increased vision
-                      str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#eee5be>{GetString("SightPotion")}</color>");
-                      break;
+                case 1: // Shield
+                    str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#00ff97>{GetString("ShieldPotion")}</color>");
+                    break;
+                case 2: // Suicide
+                    str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#ff0000>{GetString("AwkwardPotion")}</color>");
+                    break;
+                case 3: // TP to random player
+                    str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#42d1ff>{GetString("TeleportPotion")}</color>");
+                    break;
+                case 4: // Increased speed
+                    str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#ff8400>{GetString("SpeedPotion")}</color>");
+                    break;
+                case 5: // Quick fix next sabo
+                    str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#3333ff>{GetString("QuickFixPotion")}</color>");
+                    break;
+                case 6: // Invisibility
+                    str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#01c834>{GetString("InvisibilityPotion")}</color>");
+                    break;
+                case 7: // Increased vision
+                    str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#eee5be>{GetString("SightPotion")}</color>");
+                    break;
             }
+
             if (FixNextSabo) str.Append($" <color=#777777>({GetString("QuickFix")})</color>");
             return str.ToString();
         }
-        public static void RepairSystem(SystemTypes systemType, byte amount)
+
+        public static void RepairSystem(PlayerControl pc, SystemTypes systemType, byte amount)
         {
-            FixNextSabo = false;
+            if (Main.PlayerStates[pc.PlayerId].Role is not Alchemist { IsEnable: true } am) return;
+
+            am.FixNextSabo = false;
+
             switch (systemType)
             {
                 case SystemTypes.Reactor:
@@ -356,6 +390,7 @@ namespace TOHE.Roles.Crewmate
                         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Reactor, 16);
                         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Reactor, 17);
                     }
+
                     break;
                 case SystemTypes.Laboratory:
                     if (amount is 64 or 65)
@@ -363,6 +398,7 @@ namespace TOHE.Roles.Crewmate
                         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Laboratory, 67);
                         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Laboratory, 66);
                     }
+
                     break;
                 case SystemTypes.LifeSupp:
                     if (amount is 64 or 65)
@@ -370,6 +406,7 @@ namespace TOHE.Roles.Crewmate
                         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.LifeSupp, 67);
                         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.LifeSupp, 66);
                     }
+
                     break;
                 case SystemTypes.Comms:
                     if (amount is 64 or 65)
@@ -377,8 +414,14 @@ namespace TOHE.Roles.Crewmate
                         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Comms, 16);
                         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Comms, 17);
                     }
+
                     break;
             }
+        }
+
+        public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
+        {
+            return !IsProtected;
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace TOHE.Roles.Crewmate
+﻿using AmongUs.GameOptions;
+
+namespace EHR.Roles.Crewmate
 {
     public static class Altruist
     {
@@ -9,7 +11,7 @@
             if (killer == null) return;
             if (!killer.GetCustomRole().IsImpostor()) return;
 
-            killer.RpcSetCustomRole(killer.Is(AmongUs.GameOptions.RoleTypes.Shapeshifter) ? CustomRoles.ShapeshifterTOHE : CustomRoles.ImpostorTOHE);
+            killer.RpcSetCustomRole(killer.Is(RoleTypes.Shapeshifter) ? CustomRoles.ShapeshifterTOHE : CustomRoles.ImpostorTOHE);
         }
     }
 }

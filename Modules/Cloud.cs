@@ -5,21 +5,24 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 
-namespace TOHE;
+namespace EHR;
 
 internal class Cloud
 {
     private static string IP;
+
     //private static int LOBBY_PORT = 0;
     private static int EAC_PORT;
+
     //private static Socket ClientSocket;
     private static Socket EacClientSocket;
     private static long LastRepotTimeStamp;
+
     public static void Init()
     {
         try
         {
-            var content = GetResourcesTxt("TOHE.Resources.Config.Port.txt");
+            var content = GetResourcesTxt("EHR.Resources.Config.Port.txt");
             string[] ar = content.Split('|');
             IP = ar[0];
             //LOBBY_PORT = int.Parse(ar[1]);
@@ -30,6 +33,7 @@ internal class Cloud
             Logger.Exception(e, "Cloud Init");
         }
     }
+
     private static string GetResourcesTxt(string path)
     {
         var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
@@ -72,6 +76,7 @@ internal class Cloud
     }*/
 
     private static bool connecting;
+
     public static void StartConnect()
     {
         if (connecting || (EacClientSocket != null && EacClientSocket.Connected)) return;
@@ -83,13 +88,14 @@ internal class Cloud
                 connecting = false;
                 return;
             }
+
             try
             {
                 if (IP == null || EAC_PORT == 0) throw new("Has no ip or port");
-                LastRepotTimeStamp = Utils.GetTimeStamp();
-                EacClientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                LastRepotTimeStamp = Utils.TimeStamp;
+                EacClientSocket = new(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 EacClientSocket.Connect(IP, EAC_PORT);
-                Logger.Warn("已连接至TOHE服务器", "EAC Cloud");
+                Logger.Warn("已连接至EHR服务器", "EAC Cloud");
             }
             catch (Exception e)
             {
@@ -97,34 +103,39 @@ internal class Cloud
                 Logger.Exception(e, "EAC Cloud");
                 throw;
             }
+
             connecting = false;
         }, 3.5f, "EAC Cloud Connect");
     }
+
     public static void StopConnect()
     {
         if (EacClientSocket != null && EacClientSocket.Connected)
             EacClientSocket.Close();
     }
+
     public static void SendData(string msg)
     {
         StartConnect();
         if (EacClientSocket == null || !EacClientSocket.Connected)
         {
-            Logger.Warn("未连接至TOHE服务器，报告被取消", "EAC Cloud");
+            Logger.Warn("未连接至EHR服务器，报告被取消", "EAC Cloud");
             return;
         }
+
         EacClientSocket.Send(Encoding.Default.GetBytes(msg));
     }
+
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     class EACConnectTimeOut
     {
         public static void Postfix()
         {
-            if (LastRepotTimeStamp != 0 && LastRepotTimeStamp + 8 < Utils.GetTimeStamp() && !GameStates.IsInTask)
+            if (LastRepotTimeStamp != 0 && LastRepotTimeStamp + 8 < Utils.TimeStamp && !GameStates.IsInTask)
             {
                 LastRepotTimeStamp = 0;
                 StopConnect();
-                Logger.Warn("超时自动断开与TOHE服务器的连接", "EAC Cloud");
+                Logger.Warn("超时自动断开与EHR服务器的连接", "EAC Cloud");
             }
         }
     }

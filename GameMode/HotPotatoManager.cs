@@ -1,9 +1,10 @@
 ﻿using HarmonyLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace TOHE
+namespace EHR
 {
     internal class HotPotatoManager
     {
@@ -57,16 +58,17 @@ namespace TOHE
             HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 5, 1);
         }
 
-        public static int GetSurvivalTime(byte id) => SurvivalTimes.TryGetValue(id, out var time) ? time : 0;
+        public static int GetSurvivalTime(byte id) => SurvivalTimes.GetValueOrDefault(id, 0);
         public static string GetIndicator(byte id) => HotPotatoState.HolderID == id ? " ★ " : string.Empty;
         public static string GetSuffixText(byte id) => $"{(HotPotatoState.HolderID == id ? $"{Translator.GetString("HotPotato_HoldingNotify")}\n" : string.Empty)}{Translator.GetString("HotPotato_TimeLeftSuffix")}{HotPotatoState.TimeLeft}s";
 
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
         class FixedUpdatePatch
         {
-            private static float UpdateDelay = 0;
-            private static long LastFixedUpdate = 0;
-            public static bool Return = false;
+            private static float UpdateDelay;
+            private static long LastFixedUpdate;
+            public static bool Return;
+
             public static void Postfix(PlayerControl __instance)
             {
                 if (Options.CurrentGameMode != CustomGameMode.HotPotato || Return || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask) return;
@@ -78,7 +80,7 @@ namespace TOHE
                     return;
                 }
 
-                long now = Utils.GetTimeStamp();
+                long now = Utils.TimeStamp;
                 if (now > LastFixedUpdate)
                 {
                     HotPotatoState.TimeLeft--;
@@ -105,6 +107,7 @@ namespace TOHE
 
                 PassHotPotato(Target, resetTime: false);
             }
+
             private static void PassHotPotato(PlayerControl target = null, bool resetTime = true)
             {
                 if (Return || Main.AllAlivePlayerControls.Length < 2) return;
@@ -135,7 +138,7 @@ namespace TOHE
 
                     Logger.Info($"Hot Potato Passed: {LastHolder.GetRealName()} => {target.GetRealName()}", "HotPotato");
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     Logger.Exception(ex, "HotPotatoManager.FixedUpdatePatch.PassHotPotato");
                 }

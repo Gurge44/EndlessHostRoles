@@ -1,29 +1,30 @@
-﻿using Hazel;
+﻿using EHR.Modules;
+using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+using static EHR.Options;
+using static EHR.Translator;
+using static EHR.Utils;
 
-namespace TOHE.Roles.Crewmate
+namespace EHR.Roles.Crewmate
 {
-    internal class Tornado
+    internal class Tornado : RoleBase
     {
         private static int Id => 64420;
-        private static readonly List<byte> playerIdList = [];
+        private static readonly List<byte> PlayerIdList = [];
 
         public static OptionItem TornadoCooldown;
         private static OptionItem TornadoDuration;
         private static OptionItem TornadoRange;
 
-        private static readonly Dictionary<string, string> replacementDict = new() { { "Tornado", ColorString(GetRoleColor(CustomRoles.Tornado), "Tornado") } };
+        private static readonly Dictionary<string, string> ReplacementDict = new() { { "Tornado", ColorString(GetRoleColor(CustomRoles.Tornado), "Tornado") } };
 
         private static RandomSpawn.SpawnMap Map;
         private static readonly Dictionary<(Vector2 LOCATION, string ROOM_NAME), long> Tornados = [];
-        private static long LastNotify = GetTimeStamp();
-        private static bool CanUseMap = true;
+        private static long LastNotify = TimeStamp;
+        private static bool CanUseMap;
 
         public static void SetupCustomOption()
         {
@@ -38,15 +39,16 @@ namespace TOHE.Roles.Crewmate
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Tornado])
                 .SetValueFormat(OptionFormat.Multiplier);
 
-            TornadoCooldown.ReplacementDictionary = replacementDict;
-            TornadoDuration.ReplacementDictionary = replacementDict;
-            TornadoRange.ReplacementDictionary = replacementDict;
+            TornadoCooldown.ReplacementDictionary = ReplacementDict;
+            TornadoDuration.ReplacementDictionary = ReplacementDict;
+            TornadoRange.ReplacementDictionary = ReplacementDict;
         }
-        public static void Init()
+
+        public override void Init()
         {
-            playerIdList.Clear();
+            PlayerIdList.Clear();
             Tornados.Clear();
-            LastNotify = GetTimeStamp();
+            LastNotify = TimeStamp;
 
             try
             {
@@ -64,20 +66,23 @@ namespace TOHE.Roles.Crewmate
             }
             catch (NotImplementedException)
             {
-                Logger.CurrentMethod(lineNumber: 60);
+                Logger.CurrentMethod();
                 Logger.Error("Unsupported Map", "Torando");
                 CanUseMap = false;
             }
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
         }
-        public static bool IsEnable => playerIdList.Count > 0;
+
+        public override bool IsEnable => PlayerIdList.Count > 0 || Randomizer.Exists;
+
         private static void SendRPCAddTornado(bool add, Vector2 pos, string roomname, long timestamp = 0)
         {
-            if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.AddTornado, SendOption.Reliable, -1);
+            if (!DoRPC) return;
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.AddTornado, SendOption.Reliable);
             writer.Write(add);
             writer.Write(pos.x);
             writer.Write(pos.y);
@@ -85,6 +90,7 @@ namespace TOHE.Roles.Crewmate
             if (add) writer.Write(timestamp.ToString());
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
+
         public static void ReceiveRPCAddTornado(MessageReader reader)
         {
             bool add = reader.ReadBoolean();
@@ -102,19 +108,26 @@ namespace TOHE.Roles.Crewmate
                 Tornados.Remove((new(x, y), roomname));
             }
         }
+
+        public override void OnPet(PlayerControl pc)
+        {
+            SpawnTornado(pc);
+        }
+
         public static void SpawnTornado(PlayerControl pc)
         {
             if (pc == null) return;
             var info = pc.GetPositionInfo();
-            var now = GetTimeStamp();
+            var now = TimeStamp;
             Tornados.Add(info, now);
             SendRPCAddTornado(true, info.LOCATION, info.ROOM_NAME, now);
         }
-        public static void OnCheckPlayerPosition(PlayerControl pc)
+
+        public override void OnCheckPlayerPosition(PlayerControl pc)
         {
             if (!IsEnable || !GameStates.IsInTask || Tornados.Count == 0 || pc == null) return;
 
-            var now = GetTimeStamp();
+            var now = TimeStamp;
 
             if (!pc.Is(CustomRoles.Tornado))
             {
@@ -135,6 +148,7 @@ namespace TOHE.Roles.Crewmate
                         {
                             Map.RandomTeleport(pc);
                         }
+
                         pc.Notify(NotifyString);
                     }
 
@@ -152,6 +166,7 @@ namespace TOHE.Roles.Crewmate
                 LastNotify = now;
             }
         }
-        public static string GetSuffixText(bool isHUD = false) => string.Join(isHUD ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.ROOM_NAME)} {GetFormattedVectorText(x.Key.LOCATION)} ({(int)(TornadoDuration.GetInt() - (GetTimeStamp() - x.Value) + 1)}s)"));
+
+        public static string GetSuffixText(bool isHUD = false) => string.Join(isHUD ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.ROOM_NAME)} {GetFormattedVectorText(x.Key.LOCATION)} ({(int)(TornadoDuration.GetInt() - (TimeStamp - x.Value) + 1)}s)"));
     }
 }

@@ -1,15 +1,16 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
 using Hazel;
 using System.Collections.Generic;
 using UnityEngine;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Neutral;
-public static class Bandit
+namespace EHR.Roles.Neutral;
+
+public class Bandit : RoleBase
 {
-    private static readonly int Id = 18420;
-    private static List<byte> playerIdList = [];
-    public static bool IsEnable;
+    private const int Id = 18420;
+    public static bool On;
 
     private static OptionItem KillCooldown;
     public static OptionItem MaxSteals;
@@ -41,18 +42,16 @@ public static class Bandit
         HasImpostorVision = BooleanOptionItem.Create(Id + 17, "ImpostorVision", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
     }
 
-    public static void Init()
+    public override void Init()
     {
-        playerIdList = [];
         Targets = [];
         TotalSteals = [];
-        IsEnable = false;
+        On = false;
     }
 
-    public static void Add(byte playerId)
+    public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
-        IsEnable = true;
+        On = true;
         TotalSteals.Add(playerId, 0);
         Targets[playerId] = [];
 
@@ -60,12 +59,15 @@ public static class Bandit
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
 
-    private static void SendRPC(byte playerId/*, bool isTargetList = false*/)
+    public override bool IsEnable => On;
+    public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+
+    private static void SendRPC(byte playerId /*, bool isTargetList = false*/)
     {
-        if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBanditStealLimit, SendOption.Reliable, -1);
+        if (!On || !Utils.DoRPC) return;
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBanditStealLimit, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(TotalSteals[playerId]);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -75,13 +77,11 @@ public static class Bandit
     {
         byte PlayerId = reader.ReadByte();
         int Limit = reader.ReadInt32();
-        if (TotalSteals.ContainsKey(PlayerId))
+        if (!TotalSteals.TryAdd(PlayerId, 0))
             TotalSteals[PlayerId] = Limit;
-        else
-            TotalSteals.Add(PlayerId, 0);
     }
 
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
 
     private static CustomRoles? SelectRandomAddon(PlayerControl Target)
     {
@@ -106,14 +106,15 @@ public static class Bandit
             Logger.Info("No stealable addons found on the target.", "Bandit");
             return null;
         }
+
         var rand = IRandom.Instance;
         var addon = AllSubRoles[rand.Next(0, AllSubRoles.Count)];
         return addon;
     }
 
-    public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!IsEnable) return true;
+        if (!On) return true;
         if (!target.HasSubRole()) return true;
         if (TotalSteals[killer.PlayerId] >= MaxSteals.GetInt())
         {
@@ -141,6 +142,7 @@ public static class Bandit
                 Targets[killer.PlayerId][target.PlayerId] = (CustomRoles)SelectedAddOn;
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} will steal {SelectedAddOn} addon from {target.GetNameWithRole().RemoveHtmlTags()} after meeting starts", "Bandit");
             }
+
             TotalSteals[killer.PlayerId]++;
             SendRPC(killer.PlayerId);
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
@@ -151,9 +153,9 @@ public static class Bandit
         });
     }
 
-    public static void OnReportDeadBody()
+    public override void OnReportDeadBody()
     {
-        if (!IsEnable) return;
+        if (!On) return;
         if (StealMode.GetValue() == 1) return;
         foreach (var kvp1 in Targets)
         {
@@ -174,9 +176,10 @@ public static class Bandit
                 Logger.Info($"Successfully Added {role} addon to {banditpc.GetNameWithRole().RemoveHtmlTags()}", "Bandit");
                 Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: banditpc);
             }
+
             Targets[banditId].Clear();
         }
     }
 
-    public static string GetStealLimit(byte playerId) => Utils.ColorString(TotalSteals[playerId] < MaxSteals.GetInt() ? Utils.GetRoleColor(CustomRoles.Bandit).ShadeColor(0.25f) : Color.gray, TotalSteals.TryGetValue(playerId, out var stealLimit) ? $"({MaxSteals.GetInt() - stealLimit})" : "Invalid");
+    public override string GetProgressText(byte playerId, bool comms) => Utils.ColorString(TotalSteals[playerId] < MaxSteals.GetInt() ? Utils.GetRoleColor(CustomRoles.Bandit).ShadeColor(0.25f) : Color.gray, TotalSteals.TryGetValue(playerId, out var stealLimit) ? $"({MaxSteals.GetInt() - stealLimit})" : "Invalid");
 }

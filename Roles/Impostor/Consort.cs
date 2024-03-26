@@ -1,73 +1,53 @@
-﻿using Hazel;
+﻿using EHR.Roles.Neutral;
 using System.Collections.Generic;
-using TOHE.Roles.Neutral;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
-    public static class Consort
+    public class Consort : RoleBase
     {
-        private static readonly int Id = 642400;
+        private const int Id = 642400;
         private static List<byte> playerIdList = [];
 
         private static OptionItem CD;
         private static OptionItem UseLimit;
 
-        public static int BlockLimit;
-
         public static void SetupCustomOption()
         {
-            SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Consort);
+            Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Consort);
             CD = FloatOptionItem.Create(Id + 10, "EscortCD", new(2.5f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Consort])
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Consort])
                 .SetValueFormat(OptionFormat.Seconds);
             UseLimit = IntegerOptionItem.Create(Id + 11, "AbilityUseLimit", new(1, 20, 1), 3, TabGroup.ImpostorRoles, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Consort])
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Consort])
                 .SetValueFormat(OptionFormat.Times);
         }
 
-        public static void Init()
+        public override void Init()
         {
             playerIdList = [];
-            BlockLimit = 0;
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            BlockLimit = UseLimit.GetInt();
+            playerId.SetAbilityUseLimit(UseLimit.GetInt());
         }
-        public static bool IsEnable => playerIdList.Count > 0;
-        public static void SendRPC()
+
+        public override bool IsEnable => playerIdList.Count > 0;
+
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetConsortLimit, SendOption.Reliable, -1);
-            writer.Write(BlockLimit);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-        public static void ReceiveRPC(MessageReader reader)
-        {
-            if (!IsEnable) return;
-            BlockLimit = reader.ReadInt32();
-        }
-        public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
-        {
-            if (!IsEnable) return false;
-            if (killer == null) return false;
-            if (target == null) return false;
-            if (BlockLimit <= 0) return true;
-            if (!killer.Is(CustomRoles.Consort)) return false;
+            if (!IsEnable || killer == null || target == null) return false;
+            if (killer.GetAbilityUseLimit() <= 0 || !killer.Is(CustomRoles.Consort)) return true;
 
             return killer.CheckDoubleTrigger(target, () =>
             {
-                BlockLimit--;
-                Glitch.hackedIdList.TryAdd(target.PlayerId, GetTimeStamp());
+                killer.RpcRemoveAbilityUse();
+                Glitch.hackedIdList.TryAdd(target.PlayerId, Utils.TimeStamp);
                 killer.Notify(GetString("EscortTargetHacked"));
                 killer.SetKillCooldown(CD.GetFloat());
-                SendRPC();
             });
         }
-        public static string GetProgressText() => $"<color=#777777>-</color> <color=#ffffff>{BlockLimit}</color>";
     }
 }

@@ -1,9 +1,9 @@
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Impostor;
 using System;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Impostor;
 
-namespace TOHE.Modules;
+namespace EHR.Modules;
 
 public class MeetingTimeManager
 {
@@ -19,16 +19,19 @@ public class MeetingTimeManager
         Logger.Info($"DefaultDiscussionTime: {DefaultDiscussionTime}s, DefaultVotingTime: {DefaultVotingTime}s", "MeetingTimeManager.Init");
         ResetMeetingTime();
     }
+
     public static void ApplyGameOptions(IGameOptions opt)
     {
         opt.SetInt(Int32OptionNames.DiscussionTime, DiscussionTime);
         opt.SetInt(Int32OptionNames.VotingTime, VotingTime);
     }
+
     private static void ResetMeetingTime()
     {
         DiscussionTime = DefaultDiscussionTime;
         VotingTime = DefaultVotingTime;
     }
+
     public static void OnReportDeadBody()
     {
         if (Options.AllAliveMeeting.GetBool() && Utils.IsAllAlive)
@@ -45,12 +48,13 @@ public class MeetingTimeManager
         int MeetingTimeMinTimeManager = 0;
         int MeetingTimeMax = 300;
 
-        if (TimeThief.IsEnable)
+        if (TimeThief.playerIdList.Count > 0)
         {
             MeetingTimeMinTimeThief = TimeThief.LowerLimitVotingTime.GetInt();
             BonusMeetingTime += TimeThief.TotalDecreasedMeetingTime();
         }
-        if (TimeManager.IsEnable)
+
+        if (TimeManager.playerIdList.Count > 0)
         {
             MeetingTimeMinTimeManager = TimeManager.MadMinMeetingTimeLimit.GetInt();
             MeetingTimeMax = TimeManager.MeetingTimeLimit.GetInt();
@@ -58,22 +62,25 @@ public class MeetingTimeManager
         }
 
         int TotalMeetingTime = DiscussionTime + VotingTime;
-        //時間の下限、上限で刈り込み
-        if (TimeManager.IsEnable) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeManager, MeetingTimeMax) - TotalMeetingTime;
-        if (TimeThief.IsEnable) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeThief, MeetingTimeMax) - TotalMeetingTime;
-        if (!TimeManager.IsEnable && !TimeThief.IsEnable) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeThief, MeetingTimeMax) - TotalMeetingTime;
+
+        if (TimeManager.playerIdList.Count > 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeManager, MeetingTimeMax) - TotalMeetingTime;
+        if (TimeThief.playerIdList.Count > 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeThief, MeetingTimeMax) - TotalMeetingTime;
+        if (TimeManager.playerIdList.Count == 0 && TimeThief.playerIdList.Count == 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeThief, MeetingTimeMax) - TotalMeetingTime;
 
         if (BonusMeetingTime >= 0)
-            VotingTime += BonusMeetingTime; //投票時間を延長
+        {
+            VotingTime += BonusMeetingTime;
+        }
         else
         {
-            DiscussionTime += BonusMeetingTime; //会議時間を優先的に短縮
-            if (DiscussionTime < 0) //会議時間だけでは賄えない場合
+            DiscussionTime += BonusMeetingTime;
+            if (DiscussionTime < 0)
             {
-                VotingTime += DiscussionTime; //足りない分投票時間を短縮
+                VotingTime += DiscussionTime;
                 DiscussionTime = 0;
             }
         }
+
         Logger.Info($"Discussion Time: {DiscussionTime}s, Voting Time: {VotingTime}s", "MeetingTimeManager.OnReportDeadBody");
     }
 }

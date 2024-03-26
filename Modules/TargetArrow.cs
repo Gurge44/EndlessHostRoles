@@ -1,18 +1,15 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace TOHE;
+namespace EHR;
 
 static class TargetArrow
 {
-    class ArrowInfo(byte from, byte to, bool update = true)
+    class ArrowInfo(byte from, byte to)
     {
-        public byte From = from;
-        public byte To = to;
-
-        public bool Update = update;
+        public readonly byte From = from;
+        public readonly byte To = to;
 
         public bool Equals(ArrowInfo obj)
         {
@@ -41,19 +38,18 @@ static class TargetArrow
     {
         TargetArrows.Clear();
     }
+
     /// <summary>
     /// Register a new target arrow object
     /// </summary>
     /// <param name="seer"></param>
     /// <param name="target"></param>
-    /// <param name="coloredArrow"></param>
-    public static void Add(byte seer, byte target, bool update = true)
+    public static void Add(byte seer, byte target)
     {
-        var arrowInfo = new ArrowInfo(seer, target, update);
+        var arrowInfo = new ArrowInfo(seer, target);
         if (!TargetArrows.Any(a => a.Key.Equals(arrowInfo)))
         {
             TargetArrows[arrowInfo] = "・";
-            if (!update) OnFixedUpdate(Utils.GetPlayerById(seer), forceUpdate: true);
         }
     }
     /// <summary>
@@ -82,33 +78,30 @@ static class TargetArrow
             TargetArrows.Remove(arrowInfo);
         }
     }
+
     /// <summary>
     /// Get all visible target arrows
     /// </summary>
     /// <param name="seer"></param>
+    /// <param name="targets"></param>
     /// <returns></returns>
     public static string GetArrows(PlayerControl seer, params byte[] targets)
     {
-        var arrows = string.Empty;
-        foreach (var arrowInfo in TargetArrows.Keys.Where(ai => ai.From == seer.PlayerId && targets.Contains(ai.To)))
-        {
-            arrows += TargetArrows[arrowInfo];
-        }
-        return arrows;
+        return TargetArrows.Keys.Where(ai => ai.From == seer.PlayerId && targets.Contains(ai.To)).Aggregate(string.Empty, (current, arrowInfo) => current + TargetArrows[arrowInfo]);
     }
+
     /// <summary>
     /// Check target arrow every FixedUpdate
     /// Issue NotifyRoles when there are updates
     /// </summary>
     /// <param name="seer"></param>
-    public static void OnFixedUpdate(PlayerControl seer, bool forceUpdate = false)
+    public static void OnFixedUpdate(PlayerControl seer)
     {
         if (!GameStates.IsInTask) return;
 
-        var seerId = seer.PlayerId;
         var seerIsDead = !seer.IsAlive();
 
-        var arrowList = new List<ArrowInfo>(TargetArrows.Keys.Where(a => (a.Update || forceUpdate) && a.From == seer.PlayerId));
+        var arrowList = new List<ArrowInfo>(TargetArrows.Keys.Where(a => a.From == seer.PlayerId));
         if (arrowList.Count == 0) return;
 
         var update = false;

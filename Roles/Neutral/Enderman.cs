@@ -1,27 +1,27 @@
 ﻿using AmongUs.GameOptions;
 using UnityEngine;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+using static EHR.Options;
+using static EHR.Translator;
+using static EHR.Utils;
 
-namespace TOHE.Roles.Neutral
+namespace EHR.Roles.Neutral
 {
-    internal class Enderman
+    internal class Enderman : RoleBase
     {
         private static int Id => 643200;
 
-        private static PlayerControl Enderman_ => GetPlayerById(EndermanId);
-        private static byte EndermanId = byte.MaxValue;
+        private PlayerControl Enderman_ => GetPlayerById(EndermanId);
+        private byte EndermanId = byte.MaxValue;
 
         private static OptionItem KillCooldown;
         public static OptionItem CanVent;
         private static OptionItem Time;
 
-        private static (Vector2 POSITION, long MARK_TIMESTAMP, bool TP) MarkedPosition = (Vector2.zero, 0, false);
+        private (Vector2 POSITION, long MARK_TIMESTAMP, bool TP) MarkedPosition = (Vector2.zero, 0, false);
 
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Enderman, 1, zeroOne: false);
+            SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Enderman);
             KillCooldown = FloatOptionItem.Create(Id + 2, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Enderman])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -31,38 +31,58 @@ namespace TOHE.Roles.Neutral
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Enderman])
                 .SetValueFormat(OptionFormat.Seconds);
         }
-        public static void Init()
+
+        public override void Init()
         {
             EndermanId = byte.MaxValue;
             MarkedPosition.TP = false;
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
             EndermanId = playerId;
+            MarkedPosition = (Vector2.zero, 0, false);
 
             if (!AmongUsClient.Instance.AmHost) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
-        public static bool IsEnable => EndermanId != byte.MaxValue;
-        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(true);
-        public static void MarkPosition()
+
+        public override bool IsEnable => EndermanId != byte.MaxValue;
+        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(true);
+        public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+        public override bool CanUseSabotage(PlayerControl pc) => true;
+
+        public override void OnPet(PlayerControl pc)
+        {
+            MarkPosition();
+        }
+
+        public override bool OnSabotage(PlayerControl pc)
+        {
+            MarkPosition();
+            return false;
+        }
+
+        void MarkPosition()
         {
             if (!IsEnable || Enderman_.HasAbilityCD()) return;
             Enderman_.AddAbilityCD(Time.GetInt() + 2);
-            MarkedPosition.MARK_TIMESTAMP = GetTimeStamp();
+            MarkedPosition.MARK_TIMESTAMP = TimeStamp;
             MarkedPosition.POSITION = Enderman_.Pos();
             MarkedPosition.TP = true;
             Enderman_.Notify(GetString("MarkDone"));
         }
-        public static void OnFixedUpdate()
+
+        public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!IsEnable || !GameStates.IsInTask || !MarkedPosition.TP || !Enderman_.IsAlive() || MarkedPosition.MARK_TIMESTAMP + Time.GetInt() >= GetTimeStamp()) return;
+            if (!IsEnable || !GameStates.IsInTask || !MarkedPosition.TP || !Enderman_.IsAlive() || MarkedPosition.MARK_TIMESTAMP + Time.GetInt() >= TimeStamp) return;
             Enderman_.TP(MarkedPosition.POSITION);
             MarkedPosition.TP = false;
         }
-        public static void OnReportDeadBody()
+
+        public override void OnReportDeadBody()
         {
             if (!IsEnable) return;
             MarkedPosition.TP = false;

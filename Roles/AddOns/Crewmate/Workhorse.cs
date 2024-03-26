@@ -1,15 +1,20 @@
+using AmongUs.GameOptions;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.AddOns.Crewmate;
+namespace EHR.Roles.AddOns.Crewmate;
 
-public static class Workhorse
+public class Workhorse : IAddon
 {
-    private static readonly int Id = 15700;
+    public AddonTypes Type => AddonTypes.Harmful;
+
+    private const int Id = 15700;
     public static Color RoleColor = Utils.GetRoleColor(CustomRoles.Workhorse);
     public static List<byte> playerIdList = [];
 
+    private static OptionItem SpawnChance;
     private static OptionItem OptionAssignOnlyToCrewmate;
     private static OptionItem OptionNumLongTasks;
     private static OptionItem OptionNumShortTasks;
@@ -18,9 +23,13 @@ public static class Workhorse
     public static bool AssignOnlyToCrewmate;
     public static int NumLongTasks;
     public static int NumShortTasks;
-    public static void SetupCustomOption()
+
+    public void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Workhorse, zeroOne: true);
+        SpawnChance = IntegerOptionItem.Create(Id + 13, "WorkhorseSpawnChance", new(0, 100, 1), 65, TabGroup.Addons, false)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse])
+            .SetValueFormat(OptionFormat.Percent);
         OptionAssignOnlyToCrewmate = BooleanOptionItem.Create(Id + 10, "AssignOnlyToCrewmate", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse]);
         OptionNumLongTasks = IntegerOptionItem.Create(Id + 11, "WorkhorseNumLongTasks", new(0, 5, 1), 1, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse])
             .SetValueFormat(OptionFormat.Pieces);
@@ -46,30 +55,32 @@ public static class Workhorse
     private static bool IsAssignTarget(PlayerControl pc)
     {
         if (!pc.IsAlive() || IsThisRole(pc.PlayerId)) return false;
-        if (pc.Is(CustomRoles.Needy)) return false;
-        if (pc.Is(CustomRoles.Lazy)) return false;
+        if (pc.Is(CustomRoles.Needy) || pc.Is(CustomRoles.Lazy) || pc.Is(CustomRoles.Bloodlust)) return false;
+        if (pc.GetCustomRole().GetDYRole() == RoleTypes.Impostor || pc.GetCustomRole().GetVNRole() is CustomRoles.Impostor or CustomRoles.Shapeshifter) return false;
+
         var taskState = pc.GetTaskState();
         if (taskState.CompletedTasksCount + 1 < taskState.AllTasksCount) return false;
-        if (AssignOnlyToCrewmate) //クルーメイトのみ
-            return pc.Is(CustomRoleTypes.Crewmate);
-        return Utils.HasTasks(pc.Data) //タスクがある
-            && !OverrideTasksData.AllData.ContainsKey(pc.GetCustomRole()); //タスク上書きオプションが無い
+
+        bool canBeTarget = Utils.HasTasks(pc.Data) && !OverrideTasksData.AllData.ContainsKey(pc.GetCustomRole());
+        if (AssignOnlyToCrewmate) return canBeTarget && pc.Is(CustomRoleTypes.Crewmate);
+        return canBeTarget;
     }
     public static bool OnCompleteTask(PlayerControl pc)
     {
         if (!CustomRoles.Workhorse.IsEnable() || playerIdList.Count >= CustomRoles.Workhorse.GetCount()) return false;
         if (pc.Is(CustomRoles.Snitch) && !OptionSnitchCanBeWorkhorse.GetBool()) return false;
         if (!IsAssignTarget(pc)) return false;
+        if (IRandom.Instance.Next(100) >= SpawnChance.GetInt()) return false;
 
         pc.RpcSetCustomRole(CustomRoles.Workhorse);
         var taskState = pc.GetTaskState();
         taskState.AllTasksCount += NumLongTasks + NumShortTasks;
-        taskState.CompletedTasksCount++; //今回の完了分加算
+        taskState.CompletedTasksCount++;
 
         if (AmongUsClient.Instance.AmHost)
         {
             Add(pc.PlayerId);
-            GameData.Instance.RpcSetTasks(pc.PlayerId, System.Array.Empty<byte>()); //タスクを再配布
+            GameData.Instance.RpcSetTasks(pc.PlayerId, Array.Empty<byte>()); // Redistribute tasks
             pc.SyncSettings();
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }

@@ -1,14 +1,16 @@
-﻿using System.Collections.Generic;
-using TOHE.Roles.Neutral;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+﻿using AmongUs.GameOptions;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Neutral;
+using System.Collections.Generic;
+using static EHR.Options;
+using static EHR.Translator;
+using static EHR.Utils;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
-    public static class Duellist
+    public class Duellist : RoleBase
     {
-        private static readonly int Id = 642850;
+        private const int Id = 642850;
         private static List<byte> playerIdList = [];
         private static Dictionary<byte, byte> DuelPair = [];
         private static OptionItem SSCD;
@@ -21,44 +23,52 @@ namespace TOHE.Roles.Impostor
                 .SetValueFormat(OptionFormat.Seconds);
         }
 
-        public static void Init()
+        public override void Init()
         {
             playerIdList = [];
             DuelPair = [];
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
         }
 
-        public static bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => playerIdList.Count > 0 || Randomizer.Exists;
 
-        public static void ApplyGameOptions()
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             AURoleOptions.ShapeshifterCooldown = SSCD.GetFloat();
         }
 
-        public static void OnShapeshift(PlayerControl duellist, PlayerControl target)
+        public override bool OnShapeshift(PlayerControl duellist, PlayerControl target, bool shapeshifting)
         {
-            if (!IsEnable) return;
-            if (duellist == null || target == null) return;
-            if (target.inMovingPlat || target.onLadder || target.MyPhysics.Animations.IsPlayingEnterVentAnimation() || target.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || !target.IsAlive())
-            {
-                duellist.Notify(GetString("TargetCannotBeTeleported"));
-                return;
-            }
+            if (!IsEnable) return false;
+            if (duellist == null || target == null) return false;
 
             var pos = Pelican.GetBlackRoomPS();
-            duellist.TP(pos);
-            target.TP(pos);
-            DuelPair[duellist.PlayerId] = target.PlayerId;
+
+            if (target.TP(pos))
+            {
+                if (Main.KillTimers[duellist.PlayerId] < 1f)
+                {
+                    duellist.SetKillCooldown(1f); // Give the other player a chance to kill
+                }
+
+                duellist.TP(pos);
+                DuelPair[duellist.PlayerId] = target.PlayerId;
+            }
+            else
+            {
+                duellist.Notify(GetString("TargetCannotBeTeleported"));
+            }
+
+            return false;
         }
 
-        public static void OnFixedUpdate()
+        public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
         {
-            if (!IsEnable) return;
-            if (DuelPair.Count == 0) return;
+            if (lowLoad || DuelPair.Count == 0) return;
 
             foreach (var pair in DuelPair)
             {
@@ -67,19 +77,19 @@ namespace TOHE.Roles.Impostor
                 var DAlive = duellist.IsAlive();
                 var TAlive = target.IsAlive();
 
-                if (!DAlive && !TAlive)
+                switch (DAlive)
                 {
-                    DuelPair.Remove(pair.Key);
-                }
-                else if (DAlive && !TAlive)
-                {
-                    DuelPair.Remove(pair.Key);
-                    _ = new LateTask(() => { duellist.TPtoRndVent(); }, 0.5f, log: false);
-                }
-                else if (TAlive && !DAlive)
-                {
-                    DuelPair.Remove(pair.Key);
-                    _ = new LateTask(() => { target.TPtoRndVent(); }, 0.5f, log: false);
+                    case false when !TAlive:
+                        DuelPair.Remove(pair.Key);
+                        break;
+                    case true when !TAlive:
+                        DuelPair.Remove(pair.Key);
+                        _ = new LateTask(() => { duellist.TPtoRndVent(); }, 0.5f, log: false);
+                        break;
+                    case false:
+                        DuelPair.Remove(pair.Key);
+                        _ = new LateTask(() => { target.TPtoRndVent(); }, 0.5f, log: false);
+                        break;
                 }
             }
         }

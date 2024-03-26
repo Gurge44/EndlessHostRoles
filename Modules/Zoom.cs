@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace TOHE;
+namespace EHR;
 
 // 来源：https://github.com/tugaru1975/TownOfPlus/TOPmods/Zoom.cs 
 // 参考：https://github.com/Yumenopai/TownOfHost_Y
@@ -11,6 +11,7 @@ namespace TOHE;
 public static class Zoom
 {
     private static bool ResetButtons;
+
     public static void Postfix()
     {
         //if (PlayerControl.LocalPlayer.Is(RoleType.Impostor) && Options.OperateVisibilityImpostor.GetBool()) return;
@@ -25,8 +26,8 @@ public static class Zoom
                 {
                     SetZoomSize(times: false);
                 }
-
             }
+
             if (Input.mouseScrollDelta.y < 0)
             {
                 if (GameStates.IsDead || GameStates.IsFreePlay || DebugModeManager.AmDebugger || GameStates.IsLobby ||
@@ -38,14 +39,12 @@ public static class Zoom
                     }
                 }
             }
+
             Flag.NewFlag("Zoom");
         }
         else
         {
-            Flag.Run(() =>
-            {
-                SetZoomSize(reset: true);
-            }, "Zoom");
+            Flag.Run(() => { SetZoomSize(reset: true); }, "Zoom");
         }
     }
 
@@ -65,6 +64,7 @@ public static class Zoom
             Camera.main.orthographicSize *= size;
             HudManager.Instance.UICamera.orthographicSize *= size;
         }
+
         DestroyableSingleton<HudManager>.Instance?.ShadowQuad?.gameObject?.SetActive((reset || Camera.main.orthographicSize == 3.0f) && PlayerControl.LocalPlayer.IsAlive());
 
         if (ResetButtons)
@@ -82,6 +82,7 @@ public static class Flag
 {
     private static readonly List<string> OneTimeList = [];
     private static readonly List<string> FirstRunList = [];
+
     public static void Run(Action action, string type, bool firstrun = false)
     {
         if (OneTimeList.Contains(type) || (firstrun && !FirstRunList.Contains(type)))
@@ -90,8 +91,8 @@ public static class Flag
             OneTimeList.Remove(type);
             action();
         }
-
     }
+
     public static void NewFlag(string type)
     {
         if (!OneTimeList.Contains(type)) OneTimeList.Add(type);

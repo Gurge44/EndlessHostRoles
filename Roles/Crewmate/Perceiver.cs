@@ -1,10 +1,10 @@
-﻿using Hazel;
-using System.Collections.Generic;
+﻿using AmongUs.GameOptions;
 using System.Linq;
+using UnityEngine;
 
-namespace TOHE.Roles.Crewmate
+namespace EHR.Roles.Crewmate
 {
-    internal class Perceiver
+    internal class Perceiver : RoleBase
     {
         private static int Id => 643360;
         private static OptionItem Radius;
@@ -12,7 +12,7 @@ namespace TOHE.Roles.Crewmate
         public static OptionItem Limit;
         public static OptionItem PerceiverAbilityUseGainWithEachTaskCompleted;
         public static OptionItem AbilityChargesWhenFinishedTasks;
-        public static readonly Dictionary<byte, float> UseLimit = [];
+
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Perceiver);
@@ -30,31 +30,47 @@ namespace TOHE.Roles.Crewmate
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Perceiver])
                 .SetValueFormat(OptionFormat.Times);
         }
-        public static void Init() => UseLimit.Clear();
-        public static void Add(byte id) => UseLimit[id] = Limit.GetInt();
-        public static void SendRPC(byte id)
+
+        public static bool On;
+
+        public override void Init()
         {
-            var writer = Utils.CreateCustomRoleRPC(CustomRPC.SyncPerceiver);
-            writer.Write(id);
-            writer.Write(UseLimit[id]);
-            Utils.EndRPC(writer);
+            On = false;
         }
-        public static void ReceiveRPC(MessageReader reader)
+
+        public override void Add(byte id)
         {
-            byte id = reader.ReadByte();
-            float limit = reader.ReadSingle();
-            UseLimit[id] = limit;
+            On = true;
+            id.SetAbilityUseLimit(Limit.GetInt());
         }
+
+        public override bool IsEnable => On;
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            if (Options.UsePets.GetBool()) return;
+            AURoleOptions.EngineerCooldown = CD.GetFloat();
+            AURoleOptions.EngineerInVentMaxTime = 1f;
+        }
+
+        public override void OnPet(PlayerControl pc)
+        {
+            UseAbility(pc);
+        }
+
+        public override void OnEnterVent(PlayerControl pc, Vent vent)
+        {
+            UseAbility(pc);
+        }
+
         public static void UseAbility(PlayerControl pc)
         {
-            if (pc == null || !UseLimit.TryGetValue(pc.PlayerId, out var limit) || limit < 1f) return;
+            if (pc == null || pc.GetAbilityUseLimit() < 1f) return;
 
-            var killers = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Crewmate) && x.HasKillButton() && UnityEngine.Vector2.Distance(x.Pos(), pc.Pos()) <= Radius.GetFloat()).ToArray();
-            pc.Notify(string.Format(Translator.GetString("PerceiverNotify"), killers.Length));
+            var killers = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Crewmate) && x.HasKillButton() && Vector2.Distance(x.Pos(), pc.Pos()) <= Radius.GetFloat()).ToArray();
+            pc.Notify(string.Format(Translator.GetString("PerceiverNotify"), killers.Length), 7f);
 
-            UseLimit[pc.PlayerId]--;
-            SendRPC(pc.PlayerId);
+            pc.RpcRemoveAbilityUse();
         }
-        public static string GetProgressText(byte id) => UseLimit.TryGetValue(id, out var limit) ? $"<#777777>-</color> <#ff{(limit < 1f ? "0000" : "ffff")}>{System.Math.Round(limit, 1)}</color>" : string.Empty;
     }
 }

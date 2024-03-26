@@ -3,7 +3,7 @@ using Discord;
 using HarmonyLib;
 using System;
 
-namespace TOHE.Patches
+namespace EHR.Patches
 {
     // Originally from Town of Us Rewritten, by Det
     [HarmonyPatch(typeof(ActivityManager), nameof(ActivityManager.UpdateActivity))]
@@ -11,9 +11,12 @@ namespace TOHE.Patches
     {
         private static string lobbycode = "";
         private static string region = "";
+
         public static void Prefix([HarmonyArgument(0)] Activity activity)
         {
-            var details = $"TOHE+ v{Main.PluginDisplayVersion}";
+            if (activity == null) return;
+
+            var details = $"EHR v{Main.PluginDisplayVersion}";
             activity.Details = details;
 
             try
@@ -38,14 +41,14 @@ namespace TOHE.Patches
 
                         if (lobbycode != "" && region != "")
                         {
-                            details = $"TOHE+ - {lobbycode} ({region})";
+                            details = $"EHR - {lobbycode} ({region})";
                         }
 
                         activity.Details = details;
                     }
                     else
                     {
-                        details = $"TOHE+ v{Main.PluginDisplayVersion}";
+                        details = $"EHR v{Main.PluginDisplayVersion}";
 
                         activity.Details = details;
                     }
@@ -56,7 +59,7 @@ namespace TOHE.Patches
             {
                 Logger.Error("Error in updating discord rpc", "DiscordPatch");
                 Logger.Exception(ex, "DiscordPatch");
-                details = $"TOHE+ v{Main.PluginDisplayVersion}";
+                details = $"EHR v{Main.PluginDisplayVersion}";
                 activity.Details = details;
             }
         }

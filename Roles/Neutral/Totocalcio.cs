@@ -1,17 +1,17 @@
+using EHR.Modules;
 using Hazel;
 using Il2CppSystem;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
 using UnityEngine;
-using static TOHE.Options;
-using static TOHE.Translator;
+using static EHR.Options;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Neutral;
+namespace EHR.Roles.Neutral;
 
-public static class Totocalcio
+public class Totocalcio : RoleBase
 {
-    private static readonly int Id = 9800;
+    private const int Id = 9800;
     public static List<byte> playerIdList = [];
 
     private static OptionItem MaxBetTimes;
@@ -21,12 +21,12 @@ public static class Totocalcio
     private static OptionItem KnowTargetRole;
     private static OptionItem BetTargetKnowTotocalcio;
 
-    private static Dictionary<byte, int> BetTimes = [];
-    public static Dictionary<byte, byte> BetPlayer = [];
+    private int BetTimes;
+    public byte BetPlayer;
 
     public static void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Totocalcio, 1, zeroOne: false);
+        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Totocalcio);
         MaxBetTimes = IntegerOptionItem.Create(Id + 10, "TotocalcioMaxBetTimes", new(1, 5, 1), 3, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Totocalcio])
             .SetValueFormat(OptionFormat.Times);
         BetCooldown = FloatOptionItem.Create(Id + 12, "TotocalcioBetCooldown", new(0f, 60f, 2.5f), 10f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Totocalcio])
@@ -38,74 +38,86 @@ public static class Totocalcio
         KnowTargetRole = BooleanOptionItem.Create(Id + 18, "TotocalcioKnowTargetRole", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Totocalcio]);
         BetTargetKnowTotocalcio = BooleanOptionItem.Create(Id + 20, "TotocalcioBetTargetKnowTotocalcio", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Totocalcio]);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
-        BetTimes = [];
-        BetPlayer = [];
+        BetTimes = MaxBetTimes.GetInt();
+        BetPlayer = byte.MaxValue;
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        BetTimes.Add(playerId, MaxBetTimes.GetInt());
+        BetTimes = MaxBetTimes.GetInt();
+        BetPlayer = byte.MaxValue;
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
-    private static void SendRPC(byte playerId)
+
+    public override bool IsEnable => playerIdList.Count > 0;
+
+    void SendRPC(byte playerId)
     {
         if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncTotocalcioTargetAndTimes, SendOption.Reliable, -1);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncTotocalcioTargetAndTimes, SendOption.Reliable);
         writer.Write(playerId);
-        writer.Write(BetTimes.TryGetValue(playerId, out var times) ? times : MaxBetTimes.GetInt());
-        writer.Write(BetPlayer.TryGetValue(playerId, out var player) ? player : byte.MaxValue);
+        writer.Write(BetTimes);
+        writer.Write(BetPlayer);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader)
     {
         byte PlayerId = reader.ReadByte();
+        if (Main.PlayerStates[PlayerId].Role is not Totocalcio tc) return;
         int Times = reader.ReadInt32();
         byte Target = reader.ReadByte();
-        BetTimes.Remove(PlayerId);
-        BetPlayer.Remove(PlayerId);
-        BetTimes.Add(PlayerId, Times);
+        tc.BetTimes = Times;
         if (Target != byte.MaxValue)
-            BetPlayer.Add(PlayerId, Target);
+            tc.BetPlayer = Target;
     }
-    public static bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && (!BetTimes.TryGetValue(player.PlayerId, out var times) || times >= 1);
-    public static void SetKillCooldown(byte id)
+
+    public override bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && (BetTimes >= 1);
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
+
+    public override void SetKillCooldown(byte id)
     {
-        if (BetTimes.TryGetValue(id, out var times) && times < 1)
+        if (BetTimes < 1)
         {
-            Main.AllPlayerKillCooldown[id] = 300;
+            Main.AllPlayerKillCooldown[id] = 300f;
             return;
         }
+
         float cd = BetCooldown.GetFloat();
         cd += Main.AllPlayerControls.Count(x => !x.IsAlive()) * BetCooldownIncrese.GetFloat();
         cd = Math.Min(cd, MaxBetCooldown.GetFloat());
         Main.AllPlayerKillCooldown[id] = cd;
     }
+
     public static bool KnowRole(PlayerControl player, PlayerControl target)
     {
         if (!KnowTargetRole.GetBool()) return false;
-        return player.Is(CustomRoles.Totocalcio) && BetPlayer.TryGetValue(player.PlayerId, out var tar) && tar == target.PlayerId;
+        return Main.PlayerStates[player.PlayerId].Role is Totocalcio { IsEnable: true } tc && tc.BetPlayer == target.PlayerId;
     }
-    public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer.PlayerId == target.PlayerId) return true;
-        if (BetPlayer.TryGetValue(killer.PlayerId, out var tar) && tar == target.PlayerId) return false;
-        if (!BetTimes.TryGetValue(killer.PlayerId, out var times) || times < 1) return false;
+        if (BetPlayer == target.PlayerId) return false;
+        if (BetTimes < 1) return false;
 
-        BetTimes[killer.PlayerId]--;
-        if (BetPlayer.TryGetValue(killer.PlayerId, out var originalTarget) && Utils.GetPlayerById(originalTarget) != null)
+        BetTimes--;
+        var betPlayer = Utils.GetPlayerById(BetPlayer);
+        if (betPlayer != null)
         {
-            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: Utils.GetPlayerById(originalTarget), ForceLoop: true);
-            Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(originalTarget), SpecifyTarget: killer, ForceLoop: true);
+            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: betPlayer, ForceLoop: true);
+            Utils.NotifyRoles(SpecifySeer: betPlayer, SpecifyTarget: killer, ForceLoop: true);
         }
-        BetPlayer.Remove(killer.PlayerId);
-        BetPlayer.Add(killer.PlayerId, target.PlayerId);
+
+        BetPlayer = target.PlayerId;
         SendRPC(killer.PlayerId);
 
         killer.ResetKillCooldown();
@@ -119,21 +131,26 @@ public static class Totocalcio
         Logger.Info($"Target selected：{killer.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "Totocalcio");
         return false;
     }
+
     public static string TargetMark(PlayerControl seer, PlayerControl target)
     {
         if (!seer.Is(CustomRoles.Totocalcio))
         {
             if (!BetTargetKnowTotocalcio.GetBool()) return string.Empty;
-            return (BetPlayer.TryGetValue(target.PlayerId, out var x) && seer.PlayerId == x) ?
-                Utils.ColorString(Utils.GetRoleColor(CustomRoles.Totocalcio), "♦") : string.Empty;
+            if (Main.PlayerStates[target.PlayerId].Role is not Totocalcio tc) return string.Empty;
+            return seer.PlayerId == tc.BetPlayer ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Totocalcio), "♦") : string.Empty;
         }
-        var GetValue = BetPlayer.TryGetValue(seer.PlayerId, out var targetId);
-        return GetValue && targetId == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Totocalcio), "♦") : string.Empty;
+        else
+        {
+            if (Main.PlayerStates[seer.PlayerId].Role is not Totocalcio tc) return string.Empty;
+            return tc.BetPlayer == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Totocalcio), "♦") : string.Empty;
+        }
     }
-    public static string GetProgressText(byte playerId)
+
+    public override string GetProgressText(byte playerId, bool comms)
     {
         var player = Utils.GetPlayerById(playerId);
-        if (player == null) return null;
-        return Utils.ColorString(CanUseKillButton(player) ? Utils.GetRoleColor(CustomRoles.Totocalcio) : Color.gray, $"({(BetTimes.TryGetValue(playerId, out var times) ? times : "0")})");
+        if (Main.PlayerStates[playerId].Role is not Totocalcio tc) return string.Empty;
+        return player == null ? string.Empty : Utils.ColorString(tc.CanUseKillButton(player) ? Utils.GetRoleColor(CustomRoles.Totocalcio) : Color.gray, $"({tc.BetTimes})");
     }
 }

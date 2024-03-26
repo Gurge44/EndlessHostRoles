@@ -1,15 +1,14 @@
 ﻿using AmongUs.GameOptions;
-using Hazel;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+using static EHR.Options;
+using static EHR.Translator;
+using static EHR.Utils;
 
-namespace TOHE.Roles.Neutral
+namespace EHR.Roles.Neutral
 {
-    internal class Sprayer
+    internal class Sprayer : RoleBase
     {
         private static int Id => 643240;
 
@@ -26,7 +25,6 @@ namespace TOHE.Roles.Neutral
         private static OptionItem EffectDuration;
         private static OptionItem MaxTrappedTimes;
 
-        private static int UseLimit = 0;
         private static readonly List<Vector2> Traps = [];
         private static readonly Dictionary<byte, int> TrappedCount = [];
         public static readonly List<byte> LowerVisionList = [];
@@ -34,7 +32,7 @@ namespace TOHE.Roles.Neutral
 
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Sprayer, 1, zeroOne: false);
+            SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Sprayer);
             KillCooldown = FloatOptionItem.Create(Id + 2, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -61,19 +59,20 @@ namespace TOHE.Roles.Neutral
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer])
                 .SetValueFormat(OptionFormat.Times);
         }
-        public static void Init()
+
+        public override void Init()
         {
             SprayerId = byte.MaxValue;
             Traps.Clear();
             TrappedCount.Clear();
             LowerVisionList.Clear();
             LastUpdate.Clear();
-            UseLimit = 0;
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
             SprayerId = playerId;
-            UseLimit = UseLimitOpt.GetInt();
+            playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
 
             foreach (var pc in Main.AllAlivePlayerControls) TrappedCount[pc.PlayerId] = 0;
 
@@ -81,42 +80,49 @@ namespace TOHE.Roles.Neutral
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
-        public static bool IsEnable => SprayerId != byte.MaxValue;
-        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
-        private static void SendRPC()
+
+        public override bool IsEnable => SprayerId != byte.MaxValue;
+        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+        public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+        public override bool CanUseSabotage(PlayerControl pc) => true;
+
+        public override bool OnSabotage(PlayerControl pc)
         {
-            if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncSprayer, SendOption.Reliable, -1);
-            writer.Write(UseLimit);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
+            PlaceTrap();
+            return false;
         }
-        public static void ReceiveRPC(MessageReader reader) => UseLimit = reader.ReadInt32();
-        public static void PlaceTrap()
+
+        public override void OnPet(PlayerControl pc)
         {
-            if (!IsEnable || UseLimit <= 0 || Sprayer_.HasAbilityCD()) return;
+            PlaceTrap();
+        }
+
+        void PlaceTrap()
+        {
+            if (!IsEnable || SprayerId.GetAbilityUseLimit() <= 0 || Sprayer_.HasAbilityCD()) return;
 
             Traps.Add(Sprayer_.Pos());
-            UseLimit--;
-            SendRPC();
+            Sprayer_.RpcRemoveAbilityUse();
 
-            if (UseLimit > 0) Sprayer_.AddAbilityCD(CD.GetInt());
+            if (SprayerId.GetAbilityUseLimit() > 0) Sprayer_.AddAbilityCD(CD.GetInt());
 
             Sprayer_.Notify(GetString("SprayerNotify"));
         }
-        public static void OnCheckPlayerPosition(PlayerControl pc)
+
+        public override void OnCheckPlayerPosition(PlayerControl pc)
         {
             if (!IsEnable || !GameStates.IsInTask || Traps.Count == 0) return;
 
-            long now = GetTimeStamp();
+            long now = TimeStamp;
 
             if (pc.PlayerId == SprayerId) return;
 
-            if (!LastUpdate.ContainsKey(pc.PlayerId)) LastUpdate.Add(pc.PlayerId, now);
+            LastUpdate.TryAdd(pc.PlayerId, now);
             if (LastUpdate[pc.PlayerId] + 3 > now) return;
             LastUpdate[pc.PlayerId] = now;
 
-            foreach (var trap in Traps.ToArray())
+            foreach (var trap in Traps)
             {
                 if (Vector2.Distance(pc.Pos(), trap) <= 2f)
                 {
@@ -144,17 +150,17 @@ namespace TOHE.Roles.Neutral
             }
         }
 
-        public static void OnReportDeadBody()
+        public override void OnReportDeadBody()
         {
             Traps.Clear();
         }
-        public static void AfterMeetingTasks()
+
+        public override void AfterMeetingTasks()
         {
-            if (UseLimit > 0)
+            if (SprayerId.GetAbilityUseLimit() > 0)
             {
                 Sprayer_.AddAbilityCD(Math.Max(15, CD.GetInt()));
             }
         }
-        public static string ProgressText => $"<#777777>-</color> <#ffffff>{UseLimit}</color>";
     }
 }

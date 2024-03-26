@@ -1,4 +1,6 @@
-﻿namespace TOHE;
+﻿using EHR.Modules;
+
+namespace EHR;
 
 public static class PetsPatch
 {

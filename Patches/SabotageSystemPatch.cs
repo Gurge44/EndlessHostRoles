@@ -1,8 +1,10 @@
+using EHR.Roles.Crewmate;
+using EHR.Roles.Neutral;
 using HarmonyLib;
 using Hazel;
 using System.Linq;
 
-namespace TOHE;
+namespace EHR;
 
 //参考
 //https://github.com/Koke1024/Town-Of-Moss/blob/main/TownOfMoss/Patches/MeltDownBoost.cs
@@ -11,6 +13,7 @@ namespace TOHE;
 public static class ReactorSystemTypePatch
 {
     private static bool SetDurationForReactorSabotage = true;
+
     public static void Prefix(ReactorSystemType __instance)
     {
         if (!Options.SabotageTimeControl.GetBool()) return;
@@ -23,6 +26,7 @@ public static class ReactorSystemTypePatch
             {
                 SetDurationForReactorSabotage = true;
             }
+
             return;
         }
 
@@ -49,10 +53,12 @@ public static class ReactorSystemTypePatch
         }
     }
 }
+
 [HarmonyPatch(typeof(HeliSabotageSystem), nameof(HeliSabotageSystem.Deteriorate))]
 public static class HeliSabotageSystemPatch
 {
     private static bool SetDurationForReactorSabotage = true;
+
     public static void Prefix(HeliSabotageSystem __instance)
     {
         if (!Options.SabotageTimeControl.GetBool()) return;
@@ -65,6 +71,7 @@ public static class HeliSabotageSystemPatch
             {
                 SetDurationForReactorSabotage = true;
             }
+
             return;
         }
 
@@ -75,10 +82,12 @@ public static class HeliSabotageSystemPatch
         __instance.Countdown = Options.AirshipReactorTimeLimit.GetFloat();
     }
 }
+
 [HarmonyPatch(typeof(LifeSuppSystemType), nameof(LifeSuppSystemType.Deteriorate))]
 public static class LifeSuppSystemTypePatch
 {
     private static bool SetDurationForO2Sabotage = true;
+
     public static void Prefix(LifeSuppSystemType __instance)
     {
         if (!Options.SabotageTimeControl.GetBool()) return;
@@ -91,6 +100,7 @@ public static class LifeSuppSystemTypePatch
             {
                 SetDurationForO2Sabotage = true;
             }
+
             return;
         }
 
@@ -111,10 +121,12 @@ public static class LifeSuppSystemTypePatch
         }
     }
 }
+
 [HarmonyPatch(typeof(MushroomMixupSabotageSystem), nameof(MushroomMixupSabotageSystem.Deteriorate))]
 public static class MushroomMixupSabotageSystemPatch
 {
     private static bool SetDurationMushroomMixupSabotage = true;
+
     public static void Prefix(MushroomMixupSabotageSystem __instance, ref bool __state)
     {
         __state = __instance.IsActive;
@@ -134,6 +146,7 @@ public static class MushroomMixupSabotageSystemPatch
             {
                 SetDurationMushroomMixupSabotage = true;
             }
+
             return;
         }
 
@@ -143,6 +156,7 @@ public static class MushroomMixupSabotageSystemPatch
 
         __instance.currentSecondsUntilHeal = Options.FungleMushroomMixupDuration.GetFloat();
     }
+
     public static void Postfix(MushroomMixupSabotageSystem __instance, bool __state)
     {
         // When Mushroom Mixup Sabotage ends
@@ -165,13 +179,15 @@ public static class MushroomMixupSabotageSystemPatch
         }
     }
 }
+
 [HarmonyPatch(typeof(ElectricTask), nameof(ElectricTask.Initialize))]
 public static class ElectricTaskInitializePatch
 {
-    private static long LastUpdate = 0;
+    private static long LastUpdate;
+
     public static void Postfix()
     {
-        long now = Utils.GetTimeStamp();
+        long now = Utils.TimeStamp;
         if (LastUpdate >= now) return;
         LastUpdate = now;
 
@@ -181,9 +197,8 @@ public static class ElectricTaskInitializePatch
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare))
+                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare) || pc.Is(CustomRoles.Torch))
                 {
-                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                     Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true);
                 }
             }
@@ -192,13 +207,15 @@ public static class ElectricTaskInitializePatch
         Logger.Info("Lights sabotage called", "ElectricTask");
     }
 }
+
 [HarmonyPatch(typeof(ElectricTask), nameof(ElectricTask.Complete))]
 public static class ElectricTaskCompletePatch
 {
-    private static long LastUpdate = 0;
+    private static long LastUpdate;
+
     public static void Postfix()
     {
-        long now = Utils.GetTimeStamp();
+        long now = Utils.TimeStamp;
         if (LastUpdate >= now) return;
         LastUpdate = now;
 
@@ -208,9 +225,8 @@ public static class ElectricTaskCompletePatch
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare))
+                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare) || pc.Is(CustomRoles.Torch))
                 {
-                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                     Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true);
                 }
             }
@@ -219,6 +235,7 @@ public static class ElectricTaskCompletePatch
         Logger.Info("Lights sabotage fixed", "ElectricTask");
     }
 }
+
 // https://github.com/tukasa0001/TownOfHost/blob/357f7b5523e4bdd0bb58cda1e0ff6cceaa84813d/Patches/SabotageSystemPatch.cs
 // Method called when sabotage occurs
 [HarmonyPatch(typeof(SabotageSystemType), nameof(SabotageSystemType.UpdateSystem))]
@@ -233,16 +250,42 @@ public static class SabotageSystemTypeRepairDamagePatch
         modifiedCooldownSec = Options.SabotageCooldown.GetFloat();
     }
 
+    public static bool Prefix([HarmonyArgument(0)] PlayerControl player)
+    {
+        if (Options.DisableSabotage.GetBool() || Options.CurrentGameMode != CustomGameMode.Standard) return false;
+        if (SecurityGuard.BlockSabo.Count > 0) return false;
+        if (Glitch.hackedIdList.ContainsKey(player.PlayerId))
+        {
+            player.Notify(string.Format(Translator.GetString("HackedByGlitch"), "Sabotage"));
+            return false;
+        }
+
+        if (player.Is(CustomRoleTypes.Impostor) && !player.IsAlive() && Options.DeadImpCantSabotage.GetBool()) return false;
+        if (player.Is(CustomRoleTypes.Impostor) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool()) && !player.Is(CustomRoles.Minimalism) && !player.Is(CustomRoles.Mafioso)) return true;
+        return player.GetCustomRole() switch
+        {
+            CustomRoles.Jackal when Jackal.CanSabotage.GetBool() => true,
+            CustomRoles.Sidekick when Jackal.CanSabotageSK.GetBool() => true,
+            CustomRoles.Traitor when Traitor.CanSabotage.GetBool() => true,
+            CustomRoles.Parasite when player.IsAlive() => true,
+            CustomRoles.Refugee when player.IsAlive() => true,
+            _ => Main.PlayerStates[player.PlayerId].Role.OnSabotage(player) && Main.PlayerStates[player.PlayerId].Role.CanUseSabotage(player)
+        };
+    }
+
+
     public static void Postfix(SabotageSystemType __instance)
     {
         if (!isCooldownModificationEnabled || !AmongUsClient.Instance.AmHost)
         {
             return;
         }
+
         __instance.Timer = modifiedCooldownSec;
         __instance.IsDirty = true;
     }
 }
+
 [HarmonyPatch(typeof(SecurityCameraSystemType), nameof(SecurityCameraSystemType.UpdateSystem))]
 public static class SecurityCameraPatch
 {
@@ -265,6 +308,7 @@ public static class SecurityCameraPatch
                 _ => false,
             });
         }
+
         return true;
     }
 }

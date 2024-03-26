@@ -1,17 +1,15 @@
-﻿using Hazel;
-using System;
-using System.Collections.Generic;
+﻿using AmongUs.GameOptions;
 
-namespace TOHE.Roles.Crewmate
+namespace EHR.Roles.Crewmate
 {
-    internal class Convener
+    internal class Convener : RoleBase
     {
         private static int Id => 643350;
         public static OptionItem CD;
         public static OptionItem Limit;
         public static OptionItem ConvenerAbilityUseGainWithEachTaskCompleted;
         public static OptionItem AbilityChargesWhenFinishedTasks;
-        public static readonly Dictionary<byte, float> UseLimit = [];
+
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Convener);
@@ -26,24 +24,41 @@ namespace TOHE.Roles.Crewmate
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Convener])
                 .SetValueFormat(OptionFormat.Times);
         }
-        public static void Init() => UseLimit.Clear();
-        public static void Add(byte playerId) => UseLimit[playerId] = Limit.GetInt();
-        public static void SendRPC(byte id)
+
+        public static bool On;
+        public override bool IsEnable => On;
+
+        public override void Add(byte playerId)
         {
-            var writer = Utils.CreateCustomRoleRPC(CustomRPC.SyncConvener);
-            writer.Write(id);
-            writer.Write(UseLimit[id]);
-            Utils.EndRPC(writer);
+            On = true;
+            playerId.SetAbilityUseLimit(Limit.GetInt());
         }
-        public static void ReceiveRPC(MessageReader reader)
+
+        public override void Init()
         {
-            byte id = reader.ReadByte();
-            float limit = reader.ReadSingle();
-            UseLimit[id] = limit;
+            On = false;
         }
-        public static void UseAbility(PlayerControl pc, int ventId = 0, bool isPet = false)
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (pc == null || !UseLimit.TryGetValue(pc.PlayerId, out var limit) || limit < 1f) return;
+            if (Options.UsePets.GetBool()) return;
+            AURoleOptions.EngineerCooldown = CD.GetFloat();
+            AURoleOptions.EngineerInVentMaxTime = 1f;
+        }
+
+        public override void OnPet(PlayerControl pc)
+        {
+            PullEveryone(pc, isPet: true);
+        }
+
+        public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+        {
+            PullEveryone(physics.myPlayer, ventId);
+        }
+
+        public static void PullEveryone(PlayerControl pc, int ventId = 0, bool isPet = false)
+        {
+            if (pc == null || pc.GetAbilityUseLimit() < 1f) return;
 
             if (isPet)
             {
@@ -55,9 +70,7 @@ namespace TOHE.Roles.Crewmate
                 _ = new LateTask(() => { Utils.TPAll(pc.Pos()); }, 1f, "Convener TP");
             }
 
-            UseLimit[pc.PlayerId]--;
-            SendRPC(pc.PlayerId);
+            pc.RpcRemoveAbilityUse();
         }
-        public static string GetProgressText(byte id) => UseLimit.TryGetValue(id, out var limit) ? $"<#777777>-</color> <#ff{(limit < 1f ? "0000" : "ffff")}>{Math.Round(limit, 1)}</color>" : string.Empty;
     }
 }

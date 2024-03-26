@@ -1,23 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using AmongUs.GameOptions;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
-    public static class Camouflager
+    public class Camouflager : RoleBase
     {
-        private static readonly int Id = 2500;
+        private const int Id = 2500;
 
-        private static OptionItem CamouflageCooldown;
+        public static OptionItem CamouflageCooldown;
         private static OptionItem CamouflageDuration;
         private static OptionItem CamoLimitOpt;
         public static OptionItem CamoAbilityUseGainWithEachKill;
+        public static OptionItem DoesntSpawnOnFungle;
 
         public static bool IsActive;
-        public static bool IsEnable;
-        public static Dictionary<byte, float> CamoLimit = [];
+        public static bool On;
 
         public static void SetupCustomOption()
         {
-            Options.SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Camouflager, 1);
+            Options.SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Camouflager);
             CamouflageCooldown = FloatOptionItem.Create(Id + 2, "CamouflageCooldown", new(1f, 60f, 1f), 25f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
                 .SetValueFormat(OptionFormat.Seconds);
             CamouflageDuration = FloatOptionItem.Create(Id + 3, "CamouflageDuration", new(1f, 30f, 1f), 12f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
@@ -27,38 +27,55 @@ namespace TOHE.Roles.Impostor
             CamoAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 5, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.3f, TabGroup.ImpostorRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
                 .SetValueFormat(OptionFormat.Times);
+            DoesntSpawnOnFungle = BooleanOptionItem.Create(Id + 6, "DoesntSpawnOnFungle", false, TabGroup.ImpostorRoles, false)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager]);
         }
-        public static void ApplyGameOptions()
+
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             AURoleOptions.ShapeshifterCooldown = CamouflageCooldown.GetFloat();
             AURoleOptions.ShapeshifterDuration = CamouflageDuration.GetFloat();
         }
-        public static void Init()
+
+        public override void Init()
         {
             IsActive = false;
-            CamoLimit = [];
-            IsEnable = false;
+            On = false;
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
-            CamoLimit.Add(playerId, CamoLimitOpt.GetInt());
-            IsEnable = true;
+            playerId.SetAbilityUseLimit(CamoLimitOpt.GetInt());
+            On = true;
         }
-        public static void OnShapeshift(PlayerControl pc, bool shapeshifting)
+
+        public override bool IsEnable => On;
+
+        public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
         {
-            if (shapeshifting && CamoLimit[pc.PlayerId] < 1)
+            if (shapeshifting && pc.GetAbilityUseLimit() < 1)
             {
                 pc.SetKillCooldown(CamouflageDuration.GetFloat() + 1f);
-            };
-            if (shapeshifting) CamoLimit[pc.PlayerId] -= 1;
+            }
+
+            if (shapeshifting) pc.RpcRemoveAbilityUse();
             IsActive = true;
             Camouflage.CheckCamouflage();
+
+            return true;
         }
-        public static void OnReportDeadBody()
+
+        public override void OnReportDeadBody()
+        {
+            Reset();
+        }
+
+        public static void Reset()
         {
             IsActive = false;
             Camouflage.CheckCamouflage();
         }
+
         public static void IsDead(PlayerControl target)
         {
             if (!target.Data.IsDead || GameStates.IsMeeting) return;

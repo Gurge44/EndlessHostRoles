@@ -1,7 +1,10 @@
-﻿using Rewired.Utils;
+﻿using EHR.Patches;
+using Rewired.Utils;
+using System;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
-namespace TOHE.Modules
+namespace EHR.Modules
 {
     internal class LoadingScreen
     {
@@ -14,15 +17,15 @@ namespace TOHE.Modules
                 if (!LoadingAnimation.IsNullOrDestroyed()) Object.Destroy(LoadingAnimation);
 
                 LoadingAnimation = Object.Instantiate(ModManager.Instance.ModStamp);
-                LoadingAnimation.sprite = Utils.LoadSprite("TOHE.Resources.Loading.png", 300f);
+                LoadingAnimation.sprite = Utils.LoadSprite("EHR.Resources.Loading.png", 300f);
 
                 var basePos = LoadingAnimation.transform.position;
                 var x = basePos.x - 9.5f;
                 var y = basePos.y - 3.5f;
                 var z = basePos.z;
-                LoadingAnimation.transform.position = new Vector3(x, y, z);
+                LoadingAnimation.transform.position = new(x, y, z);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Logger.Error(ex.ToString(), "LoadingScreen.UpdateLoadingAnimation");
             }
@@ -42,7 +45,8 @@ namespace TOHE.Modules
                     Object.Destroy(LoadingAnimation);
                     return;
                 }
-                else if (LoadingAnimation == null && visible)
+
+                if (LoadingAnimation == null && visible)
                 {
                     UpdateLoadingAnimation();
                     return;
@@ -58,12 +62,12 @@ namespace TOHE.Modules
                     var y = basePos.y - 3.5f;
                     var z = basePos.z;
 
-                    if (LoadingAnimation.transform.position != new Vector3(x, y, z)) LoadingAnimation.transform.position = new Vector3(x, y, z);
+                    if (LoadingAnimation.transform.position != new Vector3(x, y, z)) LoadingAnimation.transform.position = new(x, y, z);
 
                     LoadingAnimation.transform?.Rotate(Vector3.forward, 200f * Time.deltaTime);
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Logger.Error(ex.ToString(), "LoadingScreen.Update");
             }

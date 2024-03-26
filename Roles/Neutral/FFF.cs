@@ -1,14 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using AmongUs.GameOptions;
+using System.Collections.Generic;
 using System.Linq;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Neutral
+namespace EHR.Roles.Neutral
 {
-    public static class FFF
+    public class FFF : RoleBase
     {
-        private static readonly int Id = 11300;
+        private const int Id = 11300;
         public static List<byte> playerIdList = [];
-        public static bool IsEnable;
+        public static bool On;
 
         public static OptionItem CanVent;
         public static OptionItem ChooseConverted;
@@ -24,7 +25,8 @@ namespace TOHE.Roles.Neutral
         public static OptionItem CanKillContagious;
         public static OptionItem CanKillUndead;
 
-        public static bool isWon;
+        public bool isWon;
+
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.FFF, zeroOne: false);
@@ -41,24 +43,38 @@ namespace TOHE.Roles.Neutral
             CanKillUndead = BooleanOptionItem.Create(Id + 21, "FFFCanKillUndead", true, TabGroup.NeutralRoles, false).SetParent(ChooseConverted);
         }
 
-        public static void Init()
+        public override void Init()
         {
             playerIdList = [];
-            IsEnable = false;
+            On = false;
             isWon = false;
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            IsEnable = true;
+            On = true;
+            isWon = false;
 
             if (!AmongUsClient.Instance.AmHost) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        public override bool IsEnable => On;
+        public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
+
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return pc.IsAlive() && !isWon;
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            opt.SetVision(true);
+        }
+
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer == null || target == null) return false;
             if (killer.PlayerId == target.PlayerId) return true;
@@ -72,17 +88,18 @@ namespace TOHE.Roles.Neutral
                     Logger.Info($"{killer.GetRealName()} killed right target case 1", "FFF");
                     return false;
                 }
-                else if (
+
+                if (
                     ((target.Is(CustomRoles.Madmate) || target.Is(CustomRoles.Gangster)) && CanKillMadmate.GetBool())
                     || ((target.Is(CustomRoles.Charmed) || target.Is(CustomRoles.Succubus)) && CanKillCharmed.GetBool())
                     || ((target.Is(CustomRoles.Undead) || target.Is(CustomRoles.Necromancer) || target.Is(CustomRoles.Deathknight)) && CanKillUndead.GetBool())
                     || ((target.Is(CustomRoles.Lovers) || target.Is(CustomRoles.Ntr)) && CanKillLovers.GetBool())
                     || ((target.Is(CustomRoles.Romantic) || target.Is(CustomRoles.RuthlessRomantic) || target.Is(CustomRoles.VengefulRomantic)
-                        || Romantic.PartnerId == target.PlayerId) && CanKillLovers.GetBool())
+                         || Romantic.PartnerId == target.PlayerId) && CanKillLovers.GetBool())
                     || ((target.Is(CustomRoles.Sidekick) || target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.Recruit)) && CanKillSidekicks.GetBool())
                     || (target.Is(CustomRoles.Egoist) && CanKillEgoists.GetBool())
                     || ((target.Is(CustomRoles.Contagious) || target.Is(CustomRoles.Virus)) && CanKillContagious.GetBool())
-                    )
+                )
                 {
                     if (killer.RpcCheckAndMurder(target)) isWon = true;
                     Logger.Info($"{killer.GetRealName()} killed right target case 2", "FFF");

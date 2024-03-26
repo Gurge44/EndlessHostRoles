@@ -1,17 +1,16 @@
-﻿using Hazel;
+﻿using AmongUs.GameOptions;
 using System.Collections.Generic;
 using System.Linq;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+using UnityEngine;
+using static EHR.Options;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Crewmate
+namespace EHR.Roles.Crewmate
 {
-    internal class Analyzer
+    internal class Analyzer : RoleBase
     {
-        private static readonly int Id = 643100;
+        private const int Id = 643100;
         private static byte playerId = byte.MaxValue;
-        public static int UseLimit;
 
         private static OptionItem UseLimitOpt;
         private static OptionItem CD;
@@ -21,25 +20,25 @@ namespace TOHE.Roles.Crewmate
         private static OptionItem SeeRoleBasis;
         public static OptionItem UsePet;
 
-        private static readonly Dictionary<string, string> replacementDict = new() { { "Analyze", ColorString(GetRoleColor(CustomRoles.Analyzer), "Analyze") } };
+        private static readonly Dictionary<string, string> ReplacementDict = new() { { "Analyze", Utils.ColorString(Utils.GetRoleColor(CustomRoles.Analyzer), "Analyze") } };
 
         public static Dictionary<byte, int> VentCount = [];
-        public static (byte ID, long TIME) CurrentTarget = (byte.MaxValue, GetTimeStamp());
+        public (byte ID, long TIME) CurrentTarget = (byte.MaxValue, Utils.TimeStamp);
 
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Analyzer, 1);
+            SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Analyzer);
             UseLimitOpt = IntegerOptionItem.Create(Id + 10, "AbilityUseLimit", new(0, 30, 1), 3, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Analyzer])
                 .SetValueFormat(OptionFormat.Times);
             CD = FloatOptionItem.Create(Id + 11, "AnalyzeCD", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Analyzer])
                 .SetValueFormat(OptionFormat.Seconds);
-            CD.ReplacementDictionary = replacementDict;
+            CD.ReplacementDictionary = ReplacementDict;
             Duration = IntegerOptionItem.Create(Id + 12, "AnalyzeDur", new(1, 30, 1), 5, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Analyzer])
                 .SetValueFormat(OptionFormat.Seconds);
-            Duration.ReplacementDictionary = replacementDict;
+            Duration.ReplacementDictionary = ReplacementDict;
             SeeKillCount = BooleanOptionItem.Create(Id + 13, "AnalyzerSeeKillCount", true, TabGroup.CrewmateRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Analyzer]);
             SeeVentCount = BooleanOptionItem.Create(Id + 14, "AnalyzerSeeVentCount", true, TabGroup.CrewmateRoles, false)
@@ -49,113 +48,98 @@ namespace TOHE.Roles.Crewmate
             UsePet = CreatePetUseSetting(Id + 16, CustomRoles.Analyzer);
         }
 
-        public static bool CanUseKillButton => CurrentTarget.ID == byte.MaxValue && UseLimit > 0;
+        public override bool CanUseKillButton(PlayerControl pc) => CurrentTarget.ID == byte.MaxValue && pc.GetAbilityUseLimit() > 0;
+        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(false);
 
-        public static bool IsEnable => playerId != byte.MaxValue;
+        public override bool IsEnable => playerId != byte.MaxValue;
 
         private static string GetRoleBasis(CustomRoles role) =>
             SeeRoleBasis.GetBool()
-            ? role.GetDYRole() == AmongUs.GameOptions.RoleTypes.Impostor
-                ? ColorString(GetRoleColor(CustomRoles.Impostor), GetString("Impostor"))
-                : role.GetVNRole() switch
-                {
-                    CustomRoles.Impostor => ColorString(GetRoleColor(CustomRoles.Impostor), GetString("Impostor")),
-                    CustomRoles.Shapeshifter => ColorString(GetRoleColor(CustomRoles.Speedrunner), GetString("Shapeshifter")),
-                    CustomRoles.Crewmate => ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("Crewmate")),
-                    CustomRoles.Engineer => ColorString(GetRoleColor(CustomRoles.Autocrat), GetString("Engineer")),
-                    CustomRoles.Scientist => ColorString(GetRoleColor(CustomRoles.Doctor), GetString("Scientist")),
-                    _ => string.Empty
-                }
-            : string.Empty;
+                ? role.GetDYRole() == RoleTypes.Impostor
+                    ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("Impostor"))
+                    : role.GetVNRole() switch
+                    {
+                        CustomRoles.Impostor => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("Impostor")),
+                        CustomRoles.Shapeshifter => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Speedrunner), GetString("Shapeshifter")),
+                        CustomRoles.Crewmate => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Crewmate), GetString("Crewmate")),
+                        CustomRoles.Engineer => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Autocrat), GetString("Engineer")),
+                        CustomRoles.Scientist => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doctor), GetString("Scientist")),
+                        _ => string.Empty
+                    }
+                : string.Empty;
 
         private static int GetKillCount(byte id) => SeeKillCount.GetBool() ? Main.PlayerStates.Count(x => x.Value.GetRealKiller() == id) : 0;
 
-        private static int GetVentCount(byte id) => SeeVentCount.GetBool() ? VentCount.TryGetValue(id, out var count) ? count : 0 : 0;
+        private static int GetVentCount(byte id) => SeeVentCount.GetBool() ? VentCount.GetValueOrDefault(id, 0) : 0;
 
         private static string GetAnalyzeResult(PlayerControl pc) => string.Format(GetString("AnalyzerResult"), pc.GetRealName().RemoveHtmlTags(), GetKillCount(pc.PlayerId), GetVentCount(pc.PlayerId), GetRoleBasis(pc.GetCustomRole()));
 
-        public static void Init()
+        public override void Init()
         {
             playerId = byte.MaxValue;
-            UseLimit = 0;
             VentCount = [];
-            CurrentTarget = (byte.MaxValue, GetTimeStamp());
+            CurrentTarget = (byte.MaxValue, Utils.TimeStamp);
         }
 
-        public static void Add(byte id)
+        public override void Add(byte id)
         {
             playerId = id;
-            UseLimit = UseLimitOpt.GetInt();
+            id.SetAbilityUseLimit(UseLimitOpt.GetInt());
+            CurrentTarget = (byte.MaxValue, Utils.TimeStamp);
 
             if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
             if (!Main.ResetCamPlayerList.Contains(id))
                 Main.ResetCamPlayerList.Add(id);
         }
 
-        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = UseLimit > 0 ? CD.GetFloat() : 300f;
-
-        public static void SendRPC()
-        {
-            if (!IsEnable) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAnalyzer, SendOption.Reliable, -1);
-            writer.Write(UseLimit);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-
-        public static void ReceiveRPC(MessageReader reader)
-        {
-            if (!IsEnable) return;
-
-            UseLimit = reader.ReadInt32();
-        }
+        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = id.GetAbilityUseLimit() > 0 ? CD.GetFloat() : 300f;
 
         public static void OnAnyoneEnterVent(PlayerControl pc)
         {
-            if (!IsEnable || !AmongUsClient.Instance.AmHost) return;
-            if (VentCount.ContainsKey(pc.PlayerId)) VentCount[pc.PlayerId]++;
-            else VentCount[pc.PlayerId] = 1;
+            if (!AmongUsClient.Instance.AmHost) return;
+            if (!VentCount.TryAdd(pc.PlayerId, 1)) VentCount[pc.PlayerId]++;
         }
 
-        public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable) return;
-            if (killer == null || target == null) return;
-            if (UseLimit <= 0) return;
-            if (CurrentTarget.ID != byte.MaxValue) return;
+            if (!IsEnable) return false;
+            if (killer == null || target == null) return false;
+            if (killer.GetAbilityUseLimit() <= 0) return false;
+            if (CurrentTarget.ID != byte.MaxValue) return false;
 
-            CurrentTarget = (target.PlayerId, GetTimeStamp());
+            CurrentTarget = (target.PlayerId, Utils.TimeStamp);
             killer.SetKillCooldown(time: Duration.GetFloat());
-            NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+
+            return false;
         }
 
-        public static void OnFixedUpdate(PlayerControl pc)
+        public override void OnFixedUpdate(PlayerControl pc)
         {
             if (!IsEnable) return;
             if (pc == null) return;
             if (CurrentTarget.ID == byte.MaxValue) return;
 
-            PlayerControl target = GetPlayerById(CurrentTarget.ID);
+            PlayerControl target = Utils.GetPlayerById(CurrentTarget.ID);
             if (target == null) return;
 
-            if (UnityEngine.Vector2.Distance(target.Pos(), pc.Pos()) > (pc.Is(CustomRoles.Reach) ? 2.5f : 1.5f))
+            if (Vector2.Distance(target.Pos(), pc.Pos()) > (pc.Is(CustomRoles.Reach) ? 2.5f : 1.5f))
             {
                 CurrentTarget.ID = byte.MaxValue;
-                NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);
+                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);
                 return;
             }
 
-            if (CurrentTarget.TIME + Duration.GetInt() < GetTimeStamp())
+            if (CurrentTarget.TIME + Duration.GetInt() < Utils.TimeStamp)
             {
                 CurrentTarget.ID = byte.MaxValue;
-                UseLimit--;
+                pc.RpcRemoveAbilityUse();
                 pc.Notify(GetAnalyzeResult(target), 10f);
                 pc.SetKillCooldown();
             }
         }
 
-        public static string GetProgressText() => $" <color=#777777>-</color> <color=#{(UseLimit > 0 ? "ffffff" : "ff0000")}>{UseLimit}</color>";
-
-        public static void OnReportDeadBody()
+        public override void OnReportDeadBody()
         {
             if (!IsEnable) return;
             CurrentTarget.ID = byte.MaxValue;

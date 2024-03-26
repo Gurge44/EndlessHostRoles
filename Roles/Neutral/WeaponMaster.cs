@@ -1,15 +1,17 @@
 using AmongUs.GameOptions;
+using EHR.Modules;
+using EHR.Roles.Crewmate;
 using Hazel;
 using System.Collections.Generic;
 using UnityEngine;
-using static TOHE.Options;
-using static TOHE.Translator;
+using static EHR.Options;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Neutral;
+namespace EHR.Roles.Neutral;
 
-public static class WeaponMaster
+public class WeaponMaster : RoleBase
 {
-    private static readonly int Id = 641200;
+    private const int Id = 641200;
     public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
@@ -18,8 +20,9 @@ public static class WeaponMaster
     private static OptionItem Radius;
     private static OptionItem HighKCD;
 
-    private static byte Mode;
-    private static bool shieldUsed;
+    private byte Mode;
+    private bool shieldUsed;
+    private byte WMId;
 
     /*
      * 0 = Kill (Sword) ~ Normal Kill
@@ -30,7 +33,7 @@ public static class WeaponMaster
 
     public static void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.WeaponMaster, 1, zeroOne: false);
+        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.WeaponMaster);
         KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
             .SetValueFormat(OptionFormat.Seconds);
         CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster]);
@@ -40,38 +43,54 @@ public static class WeaponMaster
         HighKCD = FloatOptionItem.Create(Id + 14, "GamblerHighKCD", new(0f, 180f, 2.5f), 35f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
             .SetValueFormat(OptionFormat.Seconds);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
         Mode = 0;
         shieldUsed = false;
+        WMId = byte.MaxValue;
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
+        WMId = playerId;
+
+        Mode = 0;
+        shieldUsed = false;
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
-    public static void SendRPC(byte mode, bool shieldUsed)
+
+    public override bool IsEnable => playerIdList.Count > 0;
+
+    void SendRPC()
     {
-        if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetWeaponMasterMode, SendOption.Reliable, -1);
-        writer.Write(mode);
+        if (!Utils.DoRPC) return;
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetWeaponMasterMode, SendOption.Reliable);
+        writer.Write(WMId);
+        writer.Write(Mode);
         writer.Write(shieldUsed);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader)
     {
-        if (AmongUsClient.Instance.AmHost) return;
+        var id = reader.ReadByte();
+        if (Main.PlayerStates[id].Role is not WeaponMaster { IsEnable: true } wm) return;
 
-        Mode = reader.ReadByte();
-        shieldUsed = reader.ReadBoolean();
+        wm.Mode = reader.ReadByte();
+        wm.shieldUsed = reader.ReadBoolean();
     }
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-    public static void ApplyGameOptions(IGameOptions opt)
+
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+    public override bool CanUseSabotage(PlayerControl pc) => true;
+
+    public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         if (Mode == 2) opt.SetInt(Int32OptionNames.KillDistance, 2);
         else opt.SetInt(Int32OptionNames.KillDistance, 0);
@@ -79,8 +98,20 @@ public static class WeaponMaster
         opt.SetVision(HasImpostorVision.GetBool());
     }
 
-    public static bool CanKill() => Mode != 3;
-    public static void SwitchMode()
+    public override bool CanUseKillButton(PlayerControl pc) => Mode != 3;
+
+    public override void OnPet(PlayerControl pc)
+    {
+        SwitchMode();
+    }
+
+    public override bool OnSabotage(PlayerControl pc)
+    {
+        SwitchMode();
+        return false;
+    }
+
+    void SwitchMode()
     {
         var id = playerIdList[0];
         var WM = Utils.GetPlayerById(id);
@@ -103,10 +134,11 @@ public static class WeaponMaster
                 break;
         }
 
-        SendRPC(Mode, shieldUsed);
+        SendRPC();
         WM.MarkDirtySettings();
     }
-    public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer == null) return false;
         if (target == null) return false;
@@ -120,12 +152,13 @@ public static class WeaponMaster
                 {
                     foreach (PlayerControl player in Main.AllAlivePlayerControls)
                     {
-                        if (Pelican.IsEaten(player.PlayerId) || player == killer || player.Is(CustomRoles.Pestilence) || Main.VeteranInProtect.ContainsKey(target.PlayerId)) continue;
+                        if (Pelican.IsEaten(player.PlayerId) || player == killer || player.Is(CustomRoles.Pestilence) || Veteran.VeteranInProtect.ContainsKey(target.PlayerId)) continue;
                         if (Vector2.Distance(killer.transform.position, player.transform.position) <= Radius.GetFloat())
                         {
                             player.Suicide(PlayerState.DeathReason.Kill, killer);
                         }
                     }
+
                     killer.SetKillCooldown(time: HighKCD.GetFloat());
                 }, 0.1f, "Weapon Master Axe Kill");
                 return true;
@@ -135,6 +168,7 @@ public static class WeaponMaster
                     target.Suicide(PlayerState.DeathReason.Kill, killer);
                     killer.SetKillCooldown();
                 }
+
                 return false;
             case 3:
                 return false;
@@ -143,30 +177,37 @@ public static class WeaponMaster
                 return true;
         }
     }
-    public static bool OnAttack()
+
+    public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
     {
         if (Mode == 3 && !shieldUsed)
         {
             shieldUsed = true;
-            SendRPC(Mode, shieldUsed);
+            SendRPC();
             return true;
         }
-        else return false;
+
+        return false;
     }
-    public static void OnEnterVent(PlayerControl pc, int ventId)
+
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
         if (Mode == 2)
         {
-            _ = new LateTask(() =>
-            {
-                pc?.MyPhysics?.RpcBootFromVent(ventId);
-            }, 0.5f);
+            pc?.MyPhysics?.RpcBootFromVent(vent.Id);
         }
     }
-    public static string GetHudAndProgressText()
+
+    public override string GetProgressText(byte playerId, bool comms)
     {
-        return string.Format(GetString("WMMode"), ModeToText(Mode));
+        return !playerId.IsPlayerModClient() ? GetHudAndProgressText(playerId) : string.Empty;
     }
+
+    public static string GetHudAndProgressText(byte id)
+    {
+        return Main.PlayerStates[id].Role is not WeaponMaster { IsEnable: true } wm ? string.Empty : string.Format(GetString("WMMode"), ModeToText(wm.Mode));
+    }
+
     public static string ModeToText(byte mode)
     {
         return mode switch

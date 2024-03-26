@@ -1,25 +1,35 @@
-﻿using static TOHE.Options;
+﻿using AmongUs.GameOptions;
+using static EHR.Options;
 
-namespace TOHE.Roles.Crewmate
+namespace EHR.Roles.Crewmate
 {
-    internal class Mole
+    internal class Mole : RoleBase
     {
+        public static bool On;
+        public override bool IsEnable => On;
+
+        public override void Add(byte playerId)
+        {
+            On = true;
+        }
+
+        public override void Init()
+        {
+            On = false;
+        }
+
         private static int Id => 64400;
         public static void SetupCustomOption() => SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mole);
-        public static void OnCoEnterVent(PlayerPhysics physics)
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            var pc = physics.myPlayer;
-            if (pc == null || !pc.Is(CustomRoles.Mole)) return;
-            _ = new LateTask(() =>
-            {
-                var vents = UnityEngine.Object.FindObjectsOfType<Vent>();
-                var vent = vents[IRandom.Instance.Next(0, vents.Count)];
-                physics.RpcBootFromVent(vent.Id);
-                _ = new LateTask(() =>
-                {
-                    pc.TPtoRndVent();
-                }, 0.55f, "Mole TP");
-            }, 0.5f, "Mole BootFromVent");
+            AURoleOptions.EngineerInVentMaxTime = 1f;
+            AURoleOptions.EngineerCooldown = 5f;
+        }
+
+        public override void OnExitVent(PlayerControl pc, Vent vent)
+        {
+            _ = new LateTask(() => { pc.TPtoRndVent(); }, 0.5f, "Mole TP");
         }
     }
 }

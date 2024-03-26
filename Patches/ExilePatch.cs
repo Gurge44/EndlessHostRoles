@@ -1,21 +1,24 @@
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using EHR.Roles.AddOns.Crewmate;
+using EHR.Roles.AddOns.Impostor;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Impostor;
+using EHR.Roles.Neutral;
 using HarmonyLib;
 using System.Linq;
-using TOHE.Modules;
-using TOHE.Roles.AddOns.Crewmate;
-using TOHE.Roles.AddOns.Impostor;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Impostor;
-using TOHE.Roles.Neutral;
 
-namespace TOHE;
+namespace EHR.Patches;
 
 class ExileControllerWrapUpPatch
 {
     private static GameData.PlayerInfo antiBlackout_LastExiled;
 
-    public static GameData.PlayerInfo AntiBlackout_LastExiled { get => antiBlackout_LastExiled; set => antiBlackout_LastExiled = value; }
+    public static GameData.PlayerInfo AntiBlackout_LastExiled
+    {
+        get => antiBlackout_LastExiled;
+        set => antiBlackout_LastExiled = value;
+    }
 
     [HarmonyPatch(typeof(ExileController), nameof(ExileController.WrapUp))]
     class BaseExileControllerPatch
@@ -48,6 +51,7 @@ class ExileControllerWrapUpPatch
             }
         }
     }
+
     static void WrapUpPostfix(GameData.PlayerInfo exiled)
     {
         if (AntiBlackout.OverrideExiledPlayer)
@@ -56,11 +60,10 @@ class ExileControllerWrapUpPatch
         }
 
         bool DecidedWinner = false;
-        if (!AmongUsClient.Instance.AmHost) return; //ホスト以外はこれ以降の処理を実行しません
+        if (!AmongUsClient.Instance.AmHost) return;
         AntiBlackout.RestoreIsDead(doSend: false);
-        if (!Collector.CollectorWin(false) && exiled != null) //判断集票者胜利
+        if (!Collector.CollectorWin(false) && exiled != null)
         {
-            //霊界用暗転バグ対処
             if (!AntiBlackout.OverrideExiledPlayer && Main.ResetCamPlayerList.Contains(exiled.PlayerId))
                 exiled.Object?.ResetPlayerCam(1f);
 
@@ -68,7 +71,6 @@ class ExileControllerWrapUpPatch
             Main.PlayerStates[exiled.PlayerId].deathReason = PlayerState.DeathReason.Vote;
             var role = exiled.GetCustomRole();
 
-            //判断冤罪师胜利
             if (Main.AllPlayerControls.Any(x => x.Is(CustomRoles.Innocent) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == exiled.PlayerId))
             {
                 if (!Options.InnocentCanWinByImp.GetBool() && role.IsImpostor())
@@ -77,8 +79,7 @@ class ExileControllerWrapUpPatch
                 }
                 else
                 {
-                    if (DecidedWinner) CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Innocent);
-                    else CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Innocent);
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Innocent);
                     Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Innocent) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == exiled.PlayerId)
                         .Do(x => CustomWinnerHolder.WinnerIds.Add(x.PlayerId));
                     DecidedWinner = true;
@@ -93,6 +94,7 @@ class ExileControllerWrapUpPatch
             {
                 Stressed.OnCrewmateEjected();
             }
+
             if (role.Is(Team.Impostor))
             {
                 Damocles.OnImpostorEjected();
@@ -121,15 +123,15 @@ class ExileControllerWrapUpPatch
             }
 
             if (Executioner.CheckExileTarget(exiled, DecidedWinner)) DecidedWinner = true;
-            if (Lawyer.CheckExileTarget(exiled/*, DecidedWinner*/)) DecidedWinner = false;
+            if (Lawyer.CheckExileTarget(exiled /*, DecidedWinner*/)) DecidedWinner = false;
 
             if (CustomWinnerHolder.WinnerTeam != CustomWinner.Terrorist) Main.PlayerStates[exiled.PlayerId].SetDead();
         }
+
         if (AmongUsClient.Instance.AmHost && Main.IsFixedCooldown)
             Main.RefixCooldownDelay = Options.DefaultKillCooldown - 3f;
 
         Witch.RemoveSpelledPlayer();
-        HexMaster.RemoveHexedPlayer();
 
         NiceSwapper.OnExileFinish();
 
@@ -137,8 +139,8 @@ class ExileControllerWrapUpPatch
         {
             if (pc.Is(CustomRoles.Warlock))
             {
-                Main.CursedPlayers[pc.PlayerId] = null;
-                Main.isCurseAndKill[pc.PlayerId] = false;
+                Warlock.CursedPlayers[pc.PlayerId] = null;
+                Warlock.IsCurseAndKill[pc.PlayerId] = false;
                 //RPC.RpcSyncCurseAndKill();
             }
 
@@ -146,7 +148,8 @@ class ExileControllerWrapUpPatch
             pc.RpcResetAbilityCooldown();
             PetsPatch.RpcRemovePet(pc);
         }
-        if (Options.RandomSpawn.GetBool() || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato)
+
+        if (Options.RandomSpawn.GetBool() || Options.CurrentGameMode != CustomGameMode.Standard)
         {
             RandomSpawn.SpawnMap map = Main.NormalOptions.MapId switch
             {
@@ -160,13 +163,21 @@ class ExileControllerWrapUpPatch
             if (map != null) Main.AllAlivePlayerControls.Do(map.RandomTeleport);
         }
 
-        //if (Options.SpawnAdditionalRefugeeOnImpsDead.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.PlayerId != exiled.PlayerId && x.Is(CustomRoleTypes.Impostor)))
-        //{
-        //    var pc = Main.AllAlivePlayerControls.Shuffle(IRandom.Instance).FirstOrDefault(x => x.PlayerId != exiled.PlayerId && x.Is(CustomRoleTypes.Crewmate));
-        //    pc?.ChangeRoleBasis(RoleTypes.Impostor);
-        //    pc?.RpcSetCustomRole(CustomRoles.Refugee);
-        //    pc?.SetKillCooldown();
-        //}
+        if (exiled != null && Options.SpawnAdditionalRefugeeOnImpsDead.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.PlayerId != exiled.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.IsNeutralKiller() && Options.SpawnAdditionalRefugeeWhenNKAlive.GetBool()))))
+        {
+            PlayerControl[] ListToChooseFrom = Options.UsePets.GetBool() ? Main.AllAlivePlayerControls.Where(x => x.PlayerId != exiled.PlayerId && x.Is(CustomRoleTypes.Crewmate)).ToArray() : Main.AllAlivePlayerControls.Where(x => x.PlayerId != exiled.PlayerId && x.Is(CustomRoleTypes.Crewmate) && x.GetCustomRole().GetRoleTypes() == RoleTypes.Impostor).ToArray();
+
+            if (ListToChooseFrom.Length > 0)
+            {
+                var index = IRandom.Instance.Next(0, ListToChooseFrom.Length);
+                var pc = ListToChooseFrom[index];
+                pc.RpcSetCustomRole(CustomRoles.Refugee);
+                pc.ResetKillCooldown();
+                pc.SetKillCooldown();
+                Logger.Warn($"{pc.GetRealName()} is now a Refugee since all Impostors are dead", "Add Refugee");
+            }
+            else Logger.Msg("No Player to change to Refugee.", "Add Refugee");
+        }
 
         FallFromLadder.Reset();
         Utils.CountAlivePlayers(true);
@@ -208,7 +219,7 @@ class ExileControllerWrapUpPatch
                     Utils.AfterPlayerDeathTasks(player);
                 });
                 Main.AfterMeetingDeathPlayers.Clear();
-            }, 0.8f, "AfterMeetingDeathPlayers Task");
+            }, 0.9f, "AfterMeetingDeathPlayers Task");
         }
 
         GameStates.AlreadyDied |= !Utils.IsAllAlive;
@@ -225,7 +236,13 @@ class ExileControllerWrapUpPatch
                 var r = IRandom.Instance;
                 foreach (var pc in Main.AllAlivePlayerControls)
                 {
-                    pc?.Notify(text, r.Next(7, 13));
+                    string finalText = text;
+                    if (NameNotifyManager.Notice.TryGetValue(pc.PlayerId, out var notify))
+                    {
+                        finalText = $"\n{notify.TEXT}\n{finalText}";
+                    }
+
+                    pc.Notify(finalText, r.Next(7, 13));
                 }
             }, 0.5f, log: false);
         }

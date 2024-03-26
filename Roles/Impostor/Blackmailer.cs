@@ -1,39 +1,60 @@
-﻿using System.Collections.Generic;
-using static TOHE.Options;
+﻿using HarmonyLib;
+using System.Linq;
 
-namespace TOHE.Roles.Impostor;
-
-public static class Blackmailer
+namespace EHR.Roles.Impostor
 {
-    private static readonly int Id = 643050;
-    private static List<byte> playerIdList = [];
-    public static OptionItem SkillCooldown;
-    public static Dictionary<byte, int> BlackmailerMaxUp;
-    public static List<byte> ForBlackmailer = [];
-    public static bool IsEnable;
+    internal class Blackmailer : RoleBase
+    {
+        public static bool On;
+        public override bool IsEnable => On;
 
-    public static void SetupCustomOption()
-    {
-        SetupRoleOptions(Id, TabGroup.OtherRoles, CustomRoles.Blackmailer);
-        SkillCooldown = FloatOptionItem.Create(Id + 5, "BlackmailerSkillCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.OtherRoles, false)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Blackmailer])
-            .SetValueFormat(OptionFormat.Seconds);
-    }
-    public static void Init()
-    {
-        playerIdList = [];
-        BlackmailerMaxUp = [];
-        ForBlackmailer = [];
-        IsEnable = false;
-    }
-    public static void Add(byte playerId)
-    {
-        playerIdList.Add(playerId);
-        IsEnable = true;
-    }
-    public static void ApplyGameOptions()
-    {
-        AURoleOptions.ShapeshifterCooldown = SkillCooldown.GetFloat();
-        AURoleOptions.ShapeshifterDuration = 1f;
+        public byte BlackmailedPlayerId;
+
+        public static void SetupCustomOption() => Options.SetupSingleRoleOptions(12190, TabGroup.ImpostorRoles, CustomRoles.Blackmailer);
+
+        public override void Add(byte playerId)
+        {
+            On = true;
+            BlackmailedPlayerId = byte.MaxValue;
+        }
+
+        public override void Init()
+        {
+            On = false;
+        }
+
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        {
+            return killer.CheckDoubleTrigger(target, () =>
+            {
+                BlackmailedPlayerId = target.PlayerId;
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                killer.SetKillCooldown(3f);
+            });
+        }
+
+        public override void AfterMeetingTasks()
+        {
+            BlackmailedPlayerId = byte.MaxValue;
+        }
+
+        public static void OnCheckForEndVoting()
+        {
+            if (!On) return;
+            var bmState = Main.PlayerStates.FirstOrDefault(x => x.Value.MainRole == CustomRoles.Blackmailer);
+            if (bmState.Value.Role is not Blackmailer { IsEnable: true } bm || bm.BlackmailedPlayerId == byte.MaxValue) return;
+
+            var bmVotedForTemp = MeetingHud.Instance.playerStates.FirstOrDefault(x => x.TargetPlayerId == bmState.Key)?.VotedFor;
+            if (bmVotedForTemp == null) return;
+            var bmVotedFor = (byte)bmVotedForTemp;
+
+            MeetingHud.Instance.playerStates.DoIf(x => x.TargetPlayerId == bm.BlackmailedPlayerId, x =>
+            {
+                x.UnsetVote();
+                if (x.TargetPlayerId == 0) MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, bmVotedFor);
+                else MeetingHud.Instance.CastVote(x.TargetPlayerId, bmVotedFor);
+                x.VotedFor = bmVotedFor;
+            });
+        }
     }
 }

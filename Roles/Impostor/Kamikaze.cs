@@ -1,18 +1,18 @@
-﻿using Hazel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using static TOHE.Options;
-using static TOHE.Utils;
+using static EHR.Options;
+using static EHR.Utils;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
-    internal class Kamikaze
+    internal class Kamikaze : RoleBase
     {
         private static int Id => 643310;
-        public static bool IsEnable = false;
+        private static List<byte> PlayerIdList = [];
+        public static bool On;
 
-        public static readonly Dictionary<byte, List<byte>> MarkedPlayers = [];
-        public static readonly Dictionary<byte, float> MarkLimit = [];
+        public List<byte> MarkedPlayers = [];
+        private byte KamikazeId;
 
         private static OptionItem MarkCD;
         private static OptionItem KamikazeLimitOpt;
@@ -32,71 +32,59 @@ namespace TOHE.Roles.Impostor
                 .SetValueFormat(OptionFormat.Times);
         }
 
-        public static void Init()
+        public override void Init()
         {
+            PlayerIdList = [];
             MarkedPlayers.Clear();
-            MarkLimit.Clear();
-            IsEnable = false;
+            On = false;
+            KamikazeId = byte.MaxValue;
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
-            MarkedPlayers[playerId] = [];
-            MarkLimit[playerId] = KamikazeLimitOpt.GetInt();
-            IsEnable = true;
+            PlayerIdList.Add(playerId);
+            MarkedPlayers = [];
+            playerId.SetAbilityUseLimit(KamikazeLimitOpt.GetInt());
+            On = true;
+            KamikazeId = playerId;
         }
 
-        public static void SendRPCSyncLimit(byte playerId)
-        {
-            if (!IsEnable || !DoRPC || playerId == 0) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncKamikazeLimit, SendOption.Reliable, -1);
-            writer.Write(playerId);
-            writer.Write(MarkLimit[playerId]);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
+        public override bool IsEnable => On;
 
-        public static void ReceiveRPCSyncLimit(MessageReader reader)
-        {
-            byte playerId = reader.ReadByte();
-            float limit = reader.ReadSingle();
-            MarkLimit[playerId] = limit;
-        }
-
-        public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer == null || target == null) return false;
-            if (MarkLimit.TryGetValue(killer.PlayerId, out var limit) && limit < 1) return true;
+            if (killer.GetAbilityUseLimit() < 1) return true;
             return killer.CheckDoubleTrigger(target, () =>
             {
-                MarkedPlayers[killer.PlayerId].Add(target.PlayerId);
+                MarkedPlayers.Add(target.PlayerId);
                 killer.SetKillCooldown(MarkCD.GetFloat());
-                MarkLimit[killer.PlayerId]--;
-                SendRPCSyncLimit(killer.PlayerId);
+                killer.RpcRemoveAbilityUse();
             });
         }
 
-        public static void OnFixedUpdate()
+        public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
         {
-            if (!IsEnable) return;
+            if (lowLoad || !On) return;
 
-            foreach (var kvp in MarkedPlayers)
+            foreach (var kkId in PlayerIdList)
             {
-                var kamikazePc = GetPlayerById(kvp.Key);
-                if (kamikazePc.IsAlive()) continue;
-
-                foreach (var id in kvp.Value)
+                if (Main.PlayerStates[kkId].Role is Kamikaze { IsEnable: true } kk)
                 {
-                    var victim = GetPlayerById(id);
-                    if (victim == null || !victim.IsAlive()) continue;
-                    victim.Suicide(PlayerState.DeathReason.Kamikazed, kamikazePc);
-                }
+                    var kamikazePc = GetPlayerById(kk.KamikazeId);
+                    if (kamikazePc.IsAlive()) continue;
 
-                kvp.Value.Clear();
-                MarkedPlayers.Remove(kvp.Key);
-                Logger.Info($"Murder {kamikazePc.GetRealName()}'s targets: {string.Join(", ", kvp.Value.Select(x => GetPlayerById(x).GetNameWithRole()))}", "Kamikaze");
+                    foreach (var id in kk.MarkedPlayers)
+                    {
+                        var victim = GetPlayerById(id);
+                        if (victim == null || !victim.IsAlive()) continue;
+                        victim.Suicide(PlayerState.DeathReason.Kamikazed, kamikazePc);
+                    }
+
+                    kk.MarkedPlayers.Clear();
+                    Logger.Info($"Murder {kamikazePc.GetRealName()}'s targets: {string.Join(", ", kk.MarkedPlayers.Select(x => GetPlayerById(x).GetNameWithRole()))}", "Kamikaze");
+                }
             }
         }
-
-        public static string GetProgressText(byte playerId) => MarkLimit.TryGetValue(playerId, out var limit) ? $"<#777777>-</color> <#ffffff>{System.Math.Round(limit, 1)}</color>" : string.Empty;
     }
 }

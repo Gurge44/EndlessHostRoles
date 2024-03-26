@@ -1,0 +1,12 @@
+﻿namespace EHR.Roles.AddOns.Common
+{
+    internal class Reach : IAddon
+    {
+        public AddonTypes Type => AddonTypes.Helpful;
+
+        public void SetupCustomOption()
+        {
+            Options.SetupAdtRoleOptions(14600, CustomRoles.Reach, canSetNum: true);
+        }
+    }
+}

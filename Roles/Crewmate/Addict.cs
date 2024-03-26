@@ -1,22 +1,27 @@
-namespace TOHE.Roles.Crewmate
-{
-    using System.Collections.Generic;
-    using UnityEngine;
-    using static TOHE.Options;
+using AmongUs.GameOptions;
+using System;
+using System.Collections.Generic;
+using UnityEngine;
 
-    public static class Addict
+namespace EHR.Roles.Crewmate
+{
+    using static Options;
+
+    public class Addict : RoleBase
     {
-        private static readonly int Id = 5200;
+        private const int Id = 5200;
         private static List<byte> playerIdList = [];
 
         public static OptionItem VentCooldown;
         public static OptionItem TimeLimit;
+
         public static OptionItem ImmortalTimeAfterVent;
-        //     public static OptionItem SpeedWhileImmortal;
+
+        public static OptionItem SpeedWhileImmortal;
         public static OptionItem FreezeTimeAfterImmortal;
 
-        private static Dictionary<byte, float> SuicideTimer = [];
-        private static Dictionary<byte, float> ImmortalTimer = [];
+        private float SuicideTimer = -10f;
+        private float ImmortalTimer = 420f;
 
         private static float DefaultSpeed;
 
@@ -29,75 +34,89 @@ namespace TOHE.Roles.Crewmate
                 .SetValueFormat(OptionFormat.Seconds);
             ImmortalTimeAfterVent = FloatOptionItem.Create(Id + 13, "AddictInvulnerbilityTimeAfterVent", new(0f, 30f, 1f), 10f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Addict])
                 .SetValueFormat(OptionFormat.Seconds);
-            //     SpeedWhileImmortal = FloatOptionItem.Create(Id + 14, "AddictSpeedWhileInvulnerble", new(0.25f, 5f, 0.25f), 1.75f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Addict])
-            //       .SetValueFormat(OptionFormat.Multiplier);
+            SpeedWhileImmortal = FloatOptionItem.Create(Id + 14, "AddictSpeedWhileInvulnerble", new(0.25f, 5f, 0.25f), 1.75f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Addict])
+                .SetValueFormat(OptionFormat.Multiplier);
             FreezeTimeAfterImmortal = FloatOptionItem.Create(Id + 15, "AddictFreezeTimeAfterInvulnerbility", new(0f, 10f, 1f), 3f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Addict])
                 .SetValueFormat(OptionFormat.Seconds);
         }
-        public static void Init()
+
+        public override void Init()
         {
             playerIdList = [];
-            SuicideTimer = [];
-            ImmortalTimer = [];
+            SuicideTimer = -10f;
+            ImmortalTimer = 420f;
             DefaultSpeed = new();
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            SuicideTimer.TryAdd(playerId, -10f);
-            ImmortalTimer.TryAdd(playerId, 420f);
+            SuicideTimer = -10f;
+            ImmortalTimer = 420f;
             DefaultSpeed = Main.AllPlayerSpeed[playerId];
         }
-        public static bool IsEnable => playerIdList.Count > 0;
 
-        public static bool IsImmortal(PlayerControl player) => player.Is(CustomRoles.Addict) && ImmortalTimer[player.PlayerId] <= ImmortalTimeAfterVent.GetFloat();
+        public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void OnReportDeadBody()
+        bool IsImmortal(PlayerControl player) => player.Is(CustomRoles.Addict) && ImmortalTimer <= ImmortalTimeAfterVent.GetFloat();
+
+        public override void OnReportDeadBody()
         {
             foreach (byte player in playerIdList.ToArray())
             {
-                SuicideTimer[player] = -10f;
-                ImmortalTimer[player] = 420f;
+                SuicideTimer = -10f;
+                ImmortalTimer = 420f;
                 Main.AllPlayerSpeed[player] = DefaultSpeed;
             }
         }
 
-        public static void FixedUpdate(PlayerControl player)
+        public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {
-            if (!GameStates.IsInTask || !IsEnable || !SuicideTimer.ContainsKey(player.PlayerId) || !player.IsAlive()) return;
+            return !IsImmortal(target);
+        }
 
-            if (SuicideTimer[player.PlayerId] >= TimeLimit.GetFloat())
+        public override void OnFixedUpdate(PlayerControl player)
+        {
+            if (!GameStates.IsInTask || !IsEnable || Math.Abs(SuicideTimer - (-10f)) < 0.5f || !player.IsAlive()) return;
+
+            if (SuicideTimer >= TimeLimit.GetFloat())
             {
                 player.Suicide();
-                SuicideTimer.Remove(player.PlayerId);
+                SuicideTimer = -10f;
             }
             else
             {
-                SuicideTimer[player.PlayerId] += Time.fixedDeltaTime;
+                SuicideTimer += Time.fixedDeltaTime;
 
                 if (IsImmortal(player))
                 {
-                    ImmortalTimer[player.PlayerId] += Time.fixedDeltaTime;
+                    ImmortalTimer += Time.fixedDeltaTime;
                 }
                 else
                 {
-                    if (ImmortalTimer[player.PlayerId] != 420f && FreezeTimeAfterImmortal.GetFloat() > 0)
+                    if (Math.Abs(ImmortalTimer - 420f) > 0.5f && FreezeTimeAfterImmortal.GetFloat() > 0)
                     {
                         AddictGetDown(player);
-                        ImmortalTimer[player.PlayerId] = 420f;
+                        ImmortalTimer = 420f;
                     }
                 }
             }
         }
 
-        public static void OnEnterVent(PlayerControl pc, Vent vent)
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
+            AURoleOptions.EngineerInVentMaxTime = 1f;
+        }
+
+        public override void OnEnterVent(PlayerControl pc, Vent vent)
         {
             if (!pc.Is(CustomRoles.Addict)) return;
 
-            SuicideTimer[pc.PlayerId] = 0f;
-            ImmortalTimer[pc.PlayerId] = 0f;
+            SuicideTimer = 0f;
+            ImmortalTimer = 0f;
 
-            //   Main.AllPlayerSpeed[pc.PlayerId] = SpeedWhileImmortal.GetFloat();
+            Main.AllPlayerSpeed[pc.PlayerId] = SpeedWhileImmortal.GetFloat();
             pc.MarkDirtySettings();
         }
 

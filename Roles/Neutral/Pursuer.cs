@@ -1,17 +1,16 @@
-﻿using Hazel;
+﻿using EHR.Modules;
 using System.Collections.Generic;
-using TOHE.Modules;
-using UnityEngine;
 
-namespace TOHE.Roles.Neutral;
+namespace EHR.Roles.Neutral;
 
-public static class Pursuer
+public class Pursuer : RoleBase
 {
-    private static readonly int Id = 10200;
+    private const int Id = 10200;
     private static List<byte> playerIdList = [];
-    private static Dictionary<byte, List<byte>> clientList = [];
+
+    private List<byte> clientList = [];
     private static List<byte> notActiveList = [];
-    public static Dictionary<byte, int> SeelLimit = [];
+
     public static OptionItem PursuerSkillCooldown;
     public static OptionItem PursuerSkillLimitTimes;
     public static void SetupCustomOption()
@@ -22,62 +21,47 @@ public static class Pursuer
         PursuerSkillLimitTimes = IntegerOptionItem.Create(Id + 11, "PursuerSkillLimitTimes", new(1, 99, 1), 2, TabGroup.NeutralRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pursuer])
             .SetValueFormat(OptionFormat.Times);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
         clientList = [];
         notActiveList = [];
-        SeelLimit = [];
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        SeelLimit.Add(playerId, PursuerSkillLimitTimes.GetInt());
+        playerId.SetAbilityUseLimit(PursuerSkillLimitTimes.GetInt());
+        clientList = [];
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
-    private static void SendRPC(byte playerId)
+
+    public override bool IsEnable => playerIdList.Count > 0;
+
+    public override bool CanUseKillButton(PlayerControl pc)
+        => !Main.PlayerStates[pc.PlayerId].IsDead
+           && pc.GetAbilityUseLimit() >= 1;
+
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanUseKillButton(Utils.GetPlayerById(id)) ? PursuerSkillCooldown.GetFloat() : 0f;
+    bool CanBeClient(PlayerControl pc) => pc != null && pc.IsAlive() && !GameStates.IsMeeting && !clientList.Contains(pc.PlayerId);
+    static bool CanSeel(byte playerId) => playerIdList.Contains(playerId) && playerId.GetAbilityUseLimit() > 0;
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetPursuerSellLimit, SendOption.Reliable, -1);
-        writer.Write(playerId);
-        writer.Write(SeelLimit[playerId]);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-    public static void ReceiveRPC(MessageReader reader)
-    {
-        byte PlayerId = reader.ReadByte();
-        int Limit = reader.ReadInt32();
-        if (SeelLimit.ContainsKey(PlayerId))
-            SeelLimit[PlayerId] = Limit;
-        else
-            SeelLimit.Add(PlayerId, PursuerSkillLimitTimes.GetInt());
-    }
-    public static bool CanUseKillButton(byte playerId)
-        => !Main.PlayerStates[playerId].IsDead
-        && SeelLimit.TryGetValue(playerId, out var x) && x >= 1;
-    public static string GetSeelLimit(byte playerId) => Utils.ColorString(CanUseKillButton(playerId) ? Utils.GetRoleColor(CustomRoles.Pursuer) : Color.gray, SeelLimit.TryGetValue(playerId, out var x) ? $"({x})" : "Invalid");
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanUseKillButton(id) ? PursuerSkillCooldown.GetFloat() : 0f;
-    public static bool IsClient(byte playerId)
-    {
-        foreach (var pc in clientList)
-            if (pc.Value.Contains(playerId)) return true;
+        if (CanBeClient(target) && CanSeel(killer.PlayerId))
+            SeelToClient(killer, target);
         return false;
     }
-    public static bool IsClient(byte pc, byte tar) => clientList.TryGetValue(pc, out var x) && x.Contains(tar);
-    public static bool CanBeClient(PlayerControl pc) => pc != null && pc.IsAlive() && !GameStates.IsMeeting && !IsClient(pc.PlayerId);
-    public static bool CanSeel(byte playerId) => playerIdList.Contains(playerId) && SeelLimit.TryGetValue(playerId, out int x) && x > 0;
-    public static void SeelToClient(PlayerControl pc, PlayerControl target)
+
+    void SeelToClient(PlayerControl pc, PlayerControl target)
     {
         if (pc == null || target == null || !pc.Is(CustomRoles.Pursuer)) return;
-        SeelLimit[pc.PlayerId]--;
-        SendRPC(pc.PlayerId);
-        if (!clientList.ContainsKey(pc.PlayerId)) clientList.Add(pc.PlayerId, []);
-        clientList[pc.PlayerId].Add(target.PlayerId);
-        //pc.RpcGuardAndKill(pc);
+        pc.RpcRemoveAbilityUse();
+        clientList.Add(target.PlayerId);
         notActiveList.Add(pc.PlayerId);
         pc.SetKillCooldown();
         pc.RPCPlayCustomSound("Bet");
@@ -85,45 +69,28 @@ public static class Pursuer
     }
     public static bool OnClientMurder(PlayerControl pc)
     {
-        if (!IsClient(pc.PlayerId) || notActiveList.Contains(pc.PlayerId)) return false;
-        byte cfId = byte.MaxValue;
-        foreach (var cf in clientList)
-            if (cf.Value.Contains(pc.PlayerId)) cfId = cf.Key;
-        if (cfId == byte.MaxValue) return false;
-        var killer = Utils.GetPlayerById(cfId);
-        if (killer == null) return false;
+        foreach (var id in playerIdList)
+        {
+            if (!Main.PlayerStates.ContainsKey(id)) continue;
+            if (Main.PlayerStates[id].Role is not Pursuer { IsEnable: true } ps) continue;
+            if (!ps.clientList.Contains(pc.PlayerId) || notActiveList.Contains(pc.PlayerId)) continue;
 
-        // Get rid of this nonsense of killing the player for no reason
-        // Just reset their KCD instead
-        pc.SetKillCooldown();
+            // Get rid of this nonsense of killing the player for no reason
+            // Just reset their KCD instead
+            pc.SetKillCooldown();
 
-        pc.Notify(Translator.GetString("ShotBlank"));
-        clientList[cfId].Remove(pc.PlayerId);
-        notActiveList.Add(pc.PlayerId);
+            pc.Notify(Translator.GetString("ShotBlank"));
+            ps.clientList.Remove(pc.PlayerId);
+            notActiveList.Add(pc.PlayerId);
 
-        return true;
+            return true;
+        }
+
+        return false;
     }
-    public static void OnReportDeadBody()
+
+    public override void OnReportDeadBody()
     {
         notActiveList.Clear();
-        foreach (var cl in clientList)
-        {
-            foreach (byte pc in cl.Value.ToArray())
-            {
-                var target = Utils.GetPlayerById(pc);
-                if (target == null || !target.IsAlive()) continue;
-                var role = target.GetCustomRole();
-                if (
-                    (role.IsCrewmate() && !role.IsCK()) ||
-                    (role.IsNeutral() && !role.IsNK())
-                    )
-                {
-                    var killer = Utils.GetPlayerById(cl.Key);
-                    if (killer == null) continue;
-                    CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Misfire, target.PlayerId);
-                    target.SetRealKiller(Utils.GetPlayerById(pc));
-                }
-            }
-        }
     }
 }

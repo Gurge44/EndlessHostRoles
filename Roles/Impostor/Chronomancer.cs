@@ -1,25 +1,27 @@
-﻿using Hazel;
+﻿using EHR.Modules;
+using Hazel;
 using System.Collections.Generic;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
-    public static class Chronomancer
+    public class Chronomancer : RoleBase
     {
-        private static readonly int Id = 642100;
+        private const int Id = 642100;
         public static List<byte> playerIdList = [];
 
         private static OptionItem KCD;
         private static OptionItem ChargeInterval;
         private static OptionItem ChargeLossInterval;
 
-        private static bool isRampaging;
-        private static int chargePercent;
-        private static long lastUpdate;
+        private bool IsRampaging;
+        private int ChargePercent;
+        private long LastUpdate;
+        private byte ChronomancerId;
 
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Chronomancer, 1);
+            SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Chronomancer);
             KCD = FloatOptionItem.Create(Id + 11, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chronomancer])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -30,101 +32,122 @@ namespace TOHE.Roles.Impostor
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chronomancer])
                 .SetValueFormat(OptionFormat.Seconds);
         }
-        public static void SendRPC()
+
+        void SendRPC()
         {
-            if (!IsEnable || !Utils.DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncChronomancer, SendOption.Reliable, -1);
-            writer.Write(isRampaging);
-            writer.Write(chargePercent);
-            writer.Write(lastUpdate.ToString());
+            if (!Utils.DoRPC) return;
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncChronomancer, SendOption.Reliable);
+            writer.Write(ChronomancerId);
+            writer.Write(IsRampaging);
+            writer.Write(ChargePercent);
+            writer.Write(LastUpdate.ToString());
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
-        public static void ReceiveRPC(MessageReader reader)
+
+        public void ReceiveRPC(bool isRampaging, int chargePercent, long lastUpdate)
         {
-            isRampaging = reader.ReadBoolean();
-            chargePercent = reader.ReadInt32();
-            lastUpdate = long.Parse(reader.ReadString());
+            IsRampaging = isRampaging;
+            ChargePercent = chargePercent;
+            LastUpdate = lastUpdate;
         }
-        public static void Init()
+
+        public override void Init()
         {
             playerIdList = [];
-            isRampaging = false;
-            chargePercent = 0;
-            lastUpdate = Utils.GetTimeStamp() + 30;
+            IsRampaging = false;
+            ChargePercent = 0;
+            LastUpdate = Utils.TimeStamp + 30;
+            ChronomancerId = byte.MaxValue;
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            lastUpdate = Utils.GetTimeStamp() + 10;
+            IsRampaging = false;
+            ChargePercent = 0;
+            LastUpdate = Utils.TimeStamp + 10;
+            ChronomancerId = playerId;
         }
-        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = isRampaging ? 0.01f : KCD.GetFloat();
-        public static bool IsEnable => playerIdList.Count > 0;
-        public static bool IsRPCNecessary => Utils.DoRPC;
-        public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
+
+        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = IsRampaging ? 0.01f : KCD.GetFloat();
+        public override bool IsEnable => playerIdList.Count > 0;
+
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null) return;
-            if (target == null) return;
-            if (!killer.Is(CustomRoles.Chronomancer)) return;
+            if (ChargePercent <= 0) return base.OnCheckMurder(killer, target);
 
-            if (chargePercent <= 0) return;
-
-            if (!isRampaging)
+            if (!IsRampaging)
             {
-                isRampaging = true;
+                IsRampaging = true;
                 SendRPC();
                 killer.ResetKillCooldown();
                 killer.SyncSettings();
             }
+
+            return base.OnCheckMurder(killer, target);
         }
-        public static void OnFixedUpdate(PlayerControl pc)
+
+        public override void OnFixedUpdate(PlayerControl pc)
         {
             if (pc == null) return;
             if (!pc.Is(CustomRoles.Chronomancer)) return;
             if (!GameStates.IsInTask) return;
-            if (lastUpdate >= Utils.GetTimeStamp()) return;
+            if (LastUpdate >= Utils.TimeStamp) return;
 
-            lastUpdate = Utils.GetTimeStamp();
+            LastUpdate = Utils.TimeStamp;
 
             bool notify = false;
-            var beforeCharge = chargePercent;
+            var beforeCharge = ChargePercent;
 
-            if (isRampaging)
+            if (IsRampaging)
             {
-                chargePercent -= ChargeLossInterval.GetInt();
-                if (chargePercent <= 0)
+                ChargePercent -= ChargeLossInterval.GetInt();
+                if (ChargePercent <= 0)
                 {
-                    chargePercent = 0;
-                    isRampaging = false;
+                    ChargePercent = 0;
+                    IsRampaging = false;
                     pc.ResetKillCooldown();
                     pc.SyncSettings();
                     pc.SetKillCooldown();
                 }
+
                 notify = true;
             }
             else if (Main.KillTimers[pc.PlayerId] <= 0)
             {
-                chargePercent += ChargeInterval.GetInt();
-                if (chargePercent > 100) chargePercent = 100;
+                ChargePercent += ChargeInterval.GetInt();
+                if (ChargePercent > 100) ChargePercent = 100;
                 notify = true;
             }
 
             if (notify && !pc.IsModClient())
             {
-                pc.Notify(string.Format(Translator.GetString("ChronomancerPercent"), chargePercent), 300f);
+                pc.Notify(string.Format(Translator.GetString("ChronomancerPercent"), ChargePercent), 300f);
             }
 
-            if (beforeCharge != chargePercent && pc.IsModClient() && pc.PlayerId != 0)
+            if (beforeCharge != ChargePercent && pc.IsModClient() && pc.PlayerId != 0)
             {
                 SendRPC();
             }
         }
-        public static string GetHudText() => chargePercent > 0 ? string.Format(Translator.GetString("ChronomancerPercent"), chargePercent) : string.Empty;
-        public static void OnReportDeadBody()
+
+        public static string GetHudText(byte id)
         {
-            lastUpdate = Utils.GetTimeStamp();
-            chargePercent = 0;
-            isRampaging = false;
+            if (Main.PlayerStates[id].Role is not Chronomancer cm) return string.Empty;
+            return cm.ChargePercent > 0 ? string.Format(Translator.GetString("ChronomancerPercent"), cm.ChargePercent) : string.Empty;
+        }
+
+        public override void OnReportDeadBody()
+        {
+            LastUpdate = Utils.TimeStamp;
+            ChargePercent = 0;
+            IsRampaging = false;
             SendRPC();
+        }
+
+        public override void AfterMeetingTasks()
+        {
+            OnReportDeadBody();
         }
     }
 }

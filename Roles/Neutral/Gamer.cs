@@ -1,17 +1,19 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
 using Hazel;
 using System.Collections.Generic;
 using UnityEngine;
-using static TOHE.Options;
-namespace TOHE.Roles.Neutral;
+using static EHR.Options;
 
-public static class Gamer
+namespace EHR.Roles.Neutral;
+
+public class Gamer : RoleBase
 {
-    private static readonly int Id = 10600;
+    private const int Id = 10600;
     public static List<byte> playerIdList = [];
 
-    private static Dictionary<byte, int> PlayerHealth;
-    private static Dictionary<byte, int> GamerHealth;
+    private static Dictionary<byte, int> PlayerHealth = [];
+    private static Dictionary<byte, int> GamerHealth = [];
 
     private static OptionItem KillCooldown;
     public static OptionItem CanVent;
@@ -23,7 +25,7 @@ public static class Gamer
 
     public static void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Gamer, 1, zeroOne: false);
+        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Gamer);
         KillCooldown = FloatOptionItem.Create(Id + 10, "GamerKillCooldown", new(1f, 180f, 1f), 2f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Gamer])
             .SetValueFormat(OptionFormat.Seconds);
         CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Gamer]);
@@ -37,13 +39,15 @@ public static class Gamer
         SelfDamage = IntegerOptionItem.Create(Id + 18, "GamerSelfDamage", new(1, 100, 1), 35, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Gamer])
             .SetValueFormat(OptionFormat.Health);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
         GamerHealth = [];
         PlayerHealth = [];
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         GamerHealth.TryAdd(playerId, SelfHealthMax.GetInt());
@@ -56,20 +60,21 @@ public static class Gamer
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-    public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
-    private static void SendRPC(byte playerId)
+
+    public override bool IsEnable => playerIdList.Count > 0;
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+    public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+
+    void SendRPC(byte playerId)
     {
         if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGamerHealth, SendOption.Reliable, -1);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGamerHealth, SendOption.Reliable);
         writer.Write(playerId);
-        if (GamerHealth.ContainsKey(playerId))
-            writer.Write(GamerHealth[playerId]);
-        else
-            writer.Write(PlayerHealth[playerId]);
+        writer.Write(GamerHealth.TryGetValue(playerId, out int value) ? value : PlayerHealth[playerId]);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader)
     {
         byte PlayerId = reader.ReadByte();
@@ -79,9 +84,10 @@ public static class Gamer
         else
             PlayerHealth[PlayerId] = Health;
     }
-    public static bool CheckGamerMurder(PlayerControl killer, PlayerControl target)
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null || !killer.Is(CustomRoles.Gamer) || target.Is(CustomRoles.Gamer) || !PlayerHealth.ContainsKey(target.PlayerId)) return false;
+        if (killer == null || target == null || target.Is(CustomRoles.Gamer) || !PlayerHealth.ContainsKey(target.PlayerId)) return false;
         killer.SetKillCooldown();
 
         if (PlayerHealth[target.PlayerId] - Damage.GetInt() < 1)
@@ -100,9 +106,10 @@ public static class Gamer
         Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} 对玩家 {target.GetNameWithRole().RemoveHtmlTags()} 造成了 {Damage.GetInt()} 点伤害", "Gamer");
         return true;
     }
-    public static bool CheckMurder(PlayerControl killer, PlayerControl target)
+
+    public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null || !target.Is(CustomRoles.Gamer) || killer.Is(CustomRoles.Gamer)) return true;
+        if (killer == null || target == null || killer.Is(CustomRoles.Gamer)) return true;
 
         if (GamerHealth[target.PlayerId] - SelfDamage.GetInt() < 1)
         {
@@ -122,9 +129,10 @@ public static class Gamer
         Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} 对玩家 {target.GetNameWithRole().RemoveHtmlTags()} 造成了 {SelfDamage.GetInt()} 点伤害", "Gamer");
         return false;
     }
+
     public static string TargetMark(PlayerControl seer, PlayerControl target)
     {
-        if (!seer.Is(CustomRoles.Gamer) || !seer.IsAlive()) return string.Empty;
+        if (!seer.IsAlive()) return string.Empty;
         if (seer.PlayerId == target.PlayerId)
         {
             var GetValue = GamerHealth.TryGetValue(target.PlayerId, out var value);
@@ -136,11 +144,15 @@ public static class Gamer
             return GetValue && value > 0 ? Utils.ColorString(GetColor(value), $"【{value}/{HealthMax.GetInt()}】") : string.Empty;
         }
     }
+
     private static Color32 GetColor(float Health, bool self = false)
     {
         var x = (int)(Health / (self ? SelfHealthMax.GetInt() : HealthMax.GetInt()) * 10 * 50);
-        int R = 255; int G = 255; int B = 0;
-        if (x > 255) R -= x - 255; else G = x;
-        return new Color32((byte)R, (byte)G, (byte)B, byte.MaxValue);
+        int R = 255;
+        int G = 255;
+        int B = 0;
+        if (x > 255) R -= x - 255;
+        else G = x;
+        return new((byte)R, (byte)G, (byte)B, byte.MaxValue);
     }
 }

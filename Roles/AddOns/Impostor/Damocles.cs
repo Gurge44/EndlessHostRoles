@@ -1,16 +1,18 @@
-﻿using Hazel;
+﻿using EHR.Modules;
+using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+using static EHR.Options;
+using static EHR.Translator;
 
-namespace TOHE.Roles.AddOns.Impostor
+namespace EHR.Roles.AddOns.Impostor
 {
-    public static class Damocles
+    public class Damocles : IAddon
     {
-        private static readonly int Id = 14670;
+        public AddonTypes Type => AddonTypes.ImpOnly;
+
+        private const int Id = 14670;
 
         private static OptionItem DamoclesExtraTimeAfterKill;
         private static OptionItem DamoclesExtraTimeAfterMeeting;
@@ -27,16 +29,16 @@ namespace TOHE.Roles.AddOns.Impostor
 
         public static bool countRepairSabotage;
 
-        public static void SetupCustomOption()
+        public void SetupCustomOption()
         {
             SetupAdtRoleOptions(Id, CustomRoles.Damocles, canSetNum: true);
-            DamoclesExtraTimeAfterKill = IntegerOptionItem.Create(Id + 10, "DamoclesExtraTimeAfterKill", new(0, 60, 1), 30, TabGroup.Addons, false)
+            DamoclesExtraTimeAfterKill = IntegerOptionItem.Create(Id + 3, "DamoclesExtraTimeAfterKill", new(0, 60, 1), 30, TabGroup.Addons, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Damocles])
                 .SetValueFormat(OptionFormat.Seconds);
-            DamoclesExtraTimeAfterMeeting = IntegerOptionItem.Create(Id + 11, "DamoclesExtraTimeAfterMeeting", new(0, 60, 1), 30, TabGroup.Addons, false)
+            DamoclesExtraTimeAfterMeeting = IntegerOptionItem.Create(Id + 4, "DamoclesExtraTimeAfterMeeting", new(0, 60, 1), 30, TabGroup.Addons, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Damocles])
                 .SetValueFormat(OptionFormat.Seconds);
-            DamoclesStartingTime = IntegerOptionItem.Create(Id + 12, "DamoclesStartingTime", new(0, 60, 1), 30, TabGroup.Addons, false)
+            DamoclesStartingTime = IntegerOptionItem.Create(Id + 5, "DamoclesStartingTime", new(0, 60, 1), 30, TabGroup.Addons, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Damocles])
                 .SetValueFormat(OptionFormat.Seconds);
         }
@@ -56,13 +58,15 @@ namespace TOHE.Roles.AddOns.Impostor
         public static void Update(PlayerControl pc)
         {
             byte id = pc.PlayerId;
-            if ((lastUpdate.TryGetValue(id, out var ts) && ts >= GetTimeStamp()) || !GameStates.IsInTask || pc == null) return;
+            long now = Utils.TimeStamp;
+            if ((lastUpdate.TryGetValue(id, out var ts) && ts >= now) || !GameStates.IsInTask || pc == null) return;
             if (!pc.IsAlive())
             {
                 Main.PlayerStates[id].RemoveSubRole(CustomRoles.Damocles);
                 return;
             }
-            lastUpdate[id] = GetTimeStamp();
+
+            lastUpdate[id] = now;
             if (!Timer.ContainsKey(id)) Timer[id] = StartingTime + 8;
 
             Timer[id]--;
@@ -74,18 +78,20 @@ namespace TOHE.Roles.AddOns.Impostor
             }
 
             if (pc.IsNonHostModClient()) SendRPC(id);
-            if (!pc.IsModClient()) NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            if (!pc.IsModClient()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
         public static void SendRPC(byte playerId)
         {
-            if (!DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncDamoclesTimer, SendOption.Reliable, -1);
+            if (!Utils.DoRPC) return;
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncDamoclesTimer, SendOption.Reliable);
             writer.Write(playerId);
             writer.Write(Timer[playerId]);
             writer.Write(lastUpdate[playerId].ToString());
             writer.Write(PreviouslyEnteredVents[playerId].Count);
-            if (PreviouslyEnteredVents[playerId].Count > 0) foreach (var vent in PreviouslyEnteredVents[playerId].ToArray()) writer.Write(vent);
+            if (PreviouslyEnteredVents[playerId].Count > 0)
+                foreach (var vent in PreviouslyEnteredVents[playerId].ToArray())
+                    writer.Write(vent);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 
@@ -95,7 +101,9 @@ namespace TOHE.Roles.AddOns.Impostor
             Timer[playerId] = reader.ReadInt32();
             lastUpdate[playerId] = long.Parse(reader.ReadString());
             var elements = reader.ReadInt32();
-            if (elements > 0) for (int i = 0; i < elements; i++) PreviouslyEnteredVents[playerId].Add(reader.ReadInt32());
+            if (elements > 0)
+                for (int i = 0; i < elements; i++)
+                    PreviouslyEnteredVents[playerId].Add(reader.ReadInt32());
         }
 
         public static void OnMurder(byte id)
@@ -171,6 +179,6 @@ namespace TOHE.Roles.AddOns.Impostor
             }
         }
 
-        public static string GetProgressText(byte id) => string.Format(GetString("DamoclesTimeLeft"), Timer.TryGetValue(id, out var time) ? time : StartingTime);
+        public static string GetProgressText(byte id) => string.Format(GetString("DamoclesTimeLeft"), Timer.GetValueOrDefault(id, StartingTime));
     }
 }

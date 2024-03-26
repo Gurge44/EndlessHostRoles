@@ -1,17 +1,18 @@
 using AmongUs.GameOptions;
 using System.Collections.Generic;
 
-namespace TOHE.Roles.Neutral;
+namespace EHR.Roles.Neutral;
 
-public static class Sidekick
+public class Sidekick : RoleBase
 {
     public static List<byte> playerIdList = [];
 
-    public static void Init()
+    public override void Init()
     {
         playerIdList = [];
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
 
@@ -19,11 +20,11 @@ public static class Sidekick
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Jackal.KillCooldownSK.GetFloat();
-    public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(Jackal.HasImpostorVision.GetBool());
-    public static void SetHudActive(HudManager __instance, bool isActive)
-    {
-        __instance.SabotageButton.ToggleVisible(isActive && Jackal.CanUseSabotageSK.GetBool());
-    }
+
+    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => Jackal.CanVent.GetBool();
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Jackal.KillCooldownSK.GetFloat();
+    public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(Jackal.HasImpostorVision.GetBool());
+    public override void SetButtonTexts(HudManager __instance, byte id) => __instance.SabotageButton.ToggleVisible(Jackal.CanSabotageSK.GetBool());
+    public override bool CanUseSabotage(PlayerControl pc) => Jackal.CanSabotageSK.GetBool();
 }

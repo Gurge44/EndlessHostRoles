@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using UnityEngine;
 
-namespace TOHE;
+namespace EHR;
 
 [HarmonyPatch(typeof(AmongUsClient._CoStartGameHost_d__30), nameof(AmongUsClient._CoStartGameHost_d__30.MoveNext))]
 public static class DleksPatch
@@ -37,24 +37,13 @@ public static class DleksPatch
     }
 }
 
-[HarmonyPatch(typeof(KeyValueOption), nameof(KeyValueOption.OnEnable))]
-public static class AutoselectDleksPatch
-{
-    public static void Postfix(KeyValueOption __instance)
-    {
-        if (__instance.Title == StringNames.GameMapName)
-        {
-            // vanilla clamps this to not autoselect dleks
-            __instance.Selected = GameOptionsManager.Instance.CurrentGameOptions.MapId;
-        }
-    }
-}
 [HarmonyPatch(typeof(Vent), nameof(Vent.SetButtons))]
 public static class VentSetButtonsPatch
 {
-    public static bool ShowButtons = false;
+    public static bool ShowButtons;
+
     // Fix arrows buttons in vent on Dleks map and "Index was outside the bounds of the array" errors
-    private static bool Prefix(/*Vent __instance,*/ [HarmonyArgument(0)] ref bool enabled)
+    private static bool Prefix( /*Vent __instance,*/ [HarmonyArgument(0)] ref bool enabled)
     {
         if (Main.CurrentMap == MapNames.Dleks && Main.introDestroyed)
         {
@@ -62,8 +51,10 @@ public static class VentSetButtonsPatch
             if (GameStates.IsMeeting)
                 ShowButtons = false;
         }
+
         return true;
     }
+
     public static void Postfix(Vent __instance, [HarmonyArgument(0)] bool enabled)
     {
         if (Main.CurrentMap != MapNames.Dleks) return;
@@ -96,6 +87,7 @@ public static class VentSetButtonsPatch
         }
     }
 }
+
 [HarmonyPatch(typeof(Vent), nameof(Vent.TryMoveToVent))]
 class VentTryMoveToVentPatch
 {
@@ -109,6 +101,7 @@ class VentTryMoveToVentPatch
         VentSetButtonsPatch.ShowButtons = false;
     }
 }
+
 [HarmonyPatch(typeof(Vent), nameof(Vent.UpdateArrows))]
 class VentUpdateArrowsPatch
 {
@@ -116,5 +109,18 @@ class VentUpdateArrowsPatch
     private static bool Prefix()
     {
         return Main.CurrentMap != MapNames.Dleks;
+    }
+}
+
+[HarmonyPatch(typeof(KeyValueOption), nameof(KeyValueOption.OnEnable))]
+public static class AutoselectDleksPatch
+{
+    public static void Postfix(KeyValueOption __instance)
+    {
+        if (__instance.Title == StringNames.GameMapName)
+        {
+            // vanilla clamps this to not autoselect dleks
+            __instance.Selected = GameOptionsManager.Instance.CurrentGameOptions.MapId;
+        }
     }
 }

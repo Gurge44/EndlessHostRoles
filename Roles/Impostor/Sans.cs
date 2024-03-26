@@ -1,12 +1,14 @@
-﻿using System;
+﻿using AmongUs.GameOptions;
+using EHR.Roles.Neutral;
+using System;
 using System.Collections.Generic;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE;
+namespace EHR.Roles.Impostor;
 
-public static class Sans
+public class Sans : RoleBase
 {
-    private static readonly int Id = 600;
+    private const int Id = 600;
     public static List<byte> playerIdList = [];
 
     private static OptionItem DefaultKillCooldown;
@@ -14,7 +16,16 @@ public static class Sans
     private static OptionItem MinKillCooldown;
     public static OptionItem BardChance;
 
-    private static Dictionary<byte, float> NowCooldown;
+    private float DefaultKCD;
+    private float ReduceKCD;
+    private float MinKCD;
+    private bool ResetKCDOnMeeting;
+    private bool HasImpostorVision;
+    private bool CanVent;
+
+    private CustomRoles UsedRole;
+
+    private float NowCooldown;
 
     public static void SetupCustomOption()
     {
@@ -29,22 +40,77 @@ public static class Sans
             .SetParent(CustomRoleSpawnChances[CustomRoles.Sans])
             .SetValueFormat(OptionFormat.Percent);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
-        NowCooldown = [];
+        NowCooldown = DefaultKillCooldown.GetFloat();
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        NowCooldown.TryAdd(playerId, DefaultKillCooldown.GetFloat());
+        NowCooldown = DefaultKillCooldown.GetFloat();
+
+        UsedRole = Main.PlayerStates[playerId].MainRole;
+
+        switch (UsedRole)
+        {
+            case CustomRoles.Sans:
+                DefaultKCD = DefaultKillCooldown.GetFloat();
+                ReduceKCD = ReduceKillCooldown.GetFloat();
+                MinKCD = MinKillCooldown.GetFloat();
+                ResetKCDOnMeeting = false;
+                HasImpostorVision = true;
+                CanVent = true;
+                break;
+            case CustomRoles.Juggernaut:
+                DefaultKCD = Juggernaut.DefaultKillCooldown.GetFloat();
+                ReduceKCD = Juggernaut.ReduceKillCooldown.GetFloat();
+                MinKCD = Juggernaut.MinKillCooldown.GetFloat();
+                ResetKCDOnMeeting = false;
+                HasImpostorVision = Juggernaut.HasImpostorVision.GetBool();
+                CanVent = Juggernaut.CanVent.GetBool();
+                break;
+            case CustomRoles.Reckless:
+                DefaultKCD = Reckless.DefaultKillCooldown.GetFloat();
+                ReduceKCD = Reckless.ReduceKillCooldown.GetFloat();
+                MinKCD = Reckless.MinKillCooldown.GetFloat();
+                ResetKCDOnMeeting = true;
+                HasImpostorVision = Reckless.HasImpostorVision.GetBool();
+                CanVent = Reckless.CanVent.GetBool();
+                break;
+        }
+
+        if (!AmongUsClient.Instance.AmHost || UsedRole == CustomRoles.Sans) return;
+        if (!Main.ResetCamPlayerList.Contains(playerId))
+            Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable() => playerIdList.Count > 0;
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = NowCooldown[id];
-    public static void OnCheckMurder(PlayerControl killer)
+
+    public override bool IsEnable => playerIdList.Count > 0;
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = NowCooldown;
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
-        NowCooldown[killer.PlayerId] = Math.Clamp(NowCooldown[killer.PlayerId] - ReduceKillCooldown.GetFloat(), MinKillCooldown.GetFloat(), DefaultKillCooldown.GetFloat());
-        killer.ResetKillCooldown();
-        killer.SyncSettings();
+        opt.SetVision(HasImpostorVision);
+    }
+
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return CanVent;
+    }
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    {
+        NowCooldown = Math.Clamp(NowCooldown - ReduceKCD, MinKCD, DefaultKCD);
+        killer?.ResetKillCooldown();
+        killer?.SyncSettings();
+        return base.OnCheckMurder(killer, target);
+    }
+
+    public override void OnReportDeadBody()
+    {
+        if (!ResetKCDOnMeeting) return;
+        NowCooldown = DefaultKCD;
     }
 }

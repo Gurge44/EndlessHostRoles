@@ -1,25 +1,51 @@
 using AmongUs.Data;
+using EHR.Roles.Impostor;
 using HarmonyLib;
-using Hazel;
+using InnerNet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Roles.Impostor;
 using UnityEngine;
 
-namespace TOHE;
+namespace EHR;
 
 [HarmonyPatch(typeof(ChatController), nameof(ChatController.Update))]
 class ChatControllerUpdatePatch
 {
     public static int CurrentHistorySelection = -1;
-    public static void Prefix()
+
+    private static SpriteRenderer quickChatIcon;
+    private static SpriteRenderer openBanMenuIcon;
+    private static SpriteRenderer openKeyboardIcon;
+
+    public static void Prefix(ChatController __instance)
     {
-        if (AmongUsClient.Instance.AmHost && DataManager.Settings.Multiplayer.ChatMode == InnerNet.QuickChatModes.QuickChatOnly)
-            DataManager.Settings.Multiplayer.ChatMode = InnerNet.QuickChatModes.FreeChatOrQuickChat; //コマンドを打つためにホストのみ常時フリーチャット開放
+        if (AmongUsClient.Instance.AmHost && DataManager.Settings.Multiplayer.ChatMode == QuickChatModes.QuickChatOnly)
+            DataManager.Settings.Multiplayer.ChatMode = QuickChatModes.FreeChatOrQuickChat;
     }
+
     public static void Postfix(ChatController __instance)
     {
+        if (Main.DarkTheme.Value)
+        {
+            __instance.freeChatField.background.color = new Color32(40, 40, 40, byte.MaxValue);
+            __instance.freeChatField.textArea.compoText.Color(Color.white);
+            __instance.freeChatField.textArea.outputText.color = Color.white;
+
+            if (quickChatIcon == null) quickChatIcon = GameObject.Find("QuickChatIcon")?.transform?.GetComponent<SpriteRenderer>();
+            else quickChatIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkQuickChat.png", 100f);
+
+            if (openBanMenuIcon == null) openBanMenuIcon = GameObject.Find("OpenBanMenuIcon")?.transform?.GetComponent<SpriteRenderer>();
+            else openBanMenuIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkReport.png", 100f);
+
+            if (openKeyboardIcon == null) openKeyboardIcon = GameObject.Find("OpenKeyboardIcon")?.transform?.GetComponent<SpriteRenderer>();
+            else openKeyboardIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkKeyboard.png", 100f);
+        }
+        else
+        {
+            __instance.freeChatField.textArea.outputText.color = Color.black;
+        }
+
         if (!__instance.freeChatField.textArea.hasFocus) return;
         __instance.freeChatField.textArea.characterLimit = AmongUsClient.Instance.AmHost ? 2000 : 300;
 
@@ -32,17 +58,17 @@ class ChatControllerUpdatePatch
             ClipboardHelper.PutClipboardString(__instance.freeChatField.textArea.text);
             __instance.freeChatField.textArea.SetText("");
         }
+
         if (Input.GetKeyDown(KeyCode.UpArrow) && ChatCommands.ChatHistory.Count > 0)
         {
             CurrentHistorySelection = Mathf.Clamp(--CurrentHistorySelection, 0, ChatCommands.ChatHistory.Count - 1);
             __instance.freeChatField.textArea.SetText(ChatCommands.ChatHistory[CurrentHistorySelection]);
         }
+
         if (Input.GetKeyDown(KeyCode.DownArrow) && ChatCommands.ChatHistory.Count > 0)
         {
             CurrentHistorySelection++;
-            if (CurrentHistorySelection < ChatCommands.ChatHistory.Count)
-                __instance.freeChatField.textArea.SetText(ChatCommands.ChatHistory[CurrentHistorySelection]);
-            else __instance.freeChatField.textArea.SetText("");
+            __instance.freeChatField.textArea.SetText(CurrentHistorySelection < ChatCommands.ChatHistory.Count ? ChatCommands.ChatHistory[CurrentHistorySelection] : string.Empty);
         }
     }
 }
@@ -50,12 +76,14 @@ class ChatControllerUpdatePatch
 public static class ChatManager
 {
     public static bool cancel;
-    private static readonly List<string> chatHistory = [];
-    private const int maxHistorySize = 20;
+    private static readonly List<string> ChatHistory = [];
+    private const int MaxHistorySize = 20;
+
     public static void ResetHistory()
     {
-        chatHistory.Clear();
+        ChatHistory.Clear();
     }
+
     public static bool CheckCommand(ref string msg, string command, bool exact = true)
     {
         var comList = command.Split('|');
@@ -74,8 +102,10 @@ public static class ChatManager
                 }
             }
         }
+
         return false;
     }
+
     public static bool CheckName(ref string msg, string command, bool exact = true)
     {
         var comList = command.Split('|');
@@ -90,7 +120,7 @@ public static class ChatManager
             }
             else
             {
-                int index = msg.IndexOf(com);
+                int index = msg.IndexOf(com, StringComparison.Ordinal);
                 if (index != -1)
                 {
                     msg = msg.Remove(index, com.Length);
@@ -98,32 +128,35 @@ public static class ChatManager
                 }
             }
         }
+
         return false;
     }
+
     public static void SendMessage(PlayerControl player, string message)
     {
-        int operate;
         string playername = player.GetNameWithRole();
         message = message.ToLower().TrimStart().TrimEnd();
 
         if (!player.IsAlive() || !AmongUsClient.Instance.AmHost) return;
 
-        if (Blackmailer.ForBlackmailer.Contains(player.PlayerId) && player.IsAlive())
+        if (Silencer.ForSilencer.Contains(player.PlayerId) && player.IsAlive())
         {
             cancel = true;
             return;
         }
 
-        if (!GameStates.IsInGame) operate = 3;
-        else if (CheckCommand(ref message, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id|shoot|guess|bet|st|gs|bt|猜|赌|sp|jj|tl|trial|审判|判|审|xp|效颦|效|颦|sw|换票|换|swap", false) || CheckName(ref playername, "系统消息", false)) operate = 1;
-        else if (CheckCommand(ref message, "up", false)) operate = 2;
-        else if (CheckCommand(ref message, "r|role|m|myrole|n|now")) operate = 4;
-        else operate = 3;
+        int operate = message switch
+        {
+            { } str when CheckCommand(ref str, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id|shoot|guess|bet|st|gs|bt|猜|赌|sp|jj|tl|trial|审判|判|审|xp|效颦|效|颦|sw|换票|换|swap", false) || CheckName(ref playername, "系统消息", false) => 1,
+            { } str when CheckCommand(ref str, "up", false) => 2,
+            { } str when CheckCommand(ref str, "r|role|m|myrole|n|now") => 4,
+            _ => 3
+        };
 
         switch (operate)
         {
             case 1 when player.IsAlive(): // Guessing Command & Such
-                Logger.Info($"Special Command", "ChatManager");
+                Logger.Info("Special Command", "ChatManager");
                 cancel = true;
                 break;
             case 2: // /up
@@ -132,8 +165,8 @@ public static class ChatManager
                 break;
             case 3: // In Lobby & Evertything Else
                 string chatEntry = $"{player.PlayerId}: {message}";
-                chatHistory.Add(chatEntry);
-                if (chatHistory.Count > maxHistorySize) chatHistory.RemoveAt(0);
+                ChatHistory.Add(chatEntry);
+                if (ChatHistory.Count > MaxHistorySize) ChatHistory.RemoveAt(0);
                 cancel = false;
                 break;
             case 4: // /r, /n, /m
@@ -154,25 +187,26 @@ public static class ChatManager
     {
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsModHost) return;
         ChatUpdatePatch.DoBlockChat = true;
-        string msg = Utils.EmptyMessage();
-        List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x is not CustomRoles.KB_Normal and not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.Potato).ToList();
-        string[] specialTexts = ["bet", "bt", "guess", "gs", "shoot", "st", "赌", "猜", "审判", "tl", "判", "审", "trial"];
+        string msg = Utils.EmptyMessage;
         var totalAlive = Main.AllAlivePlayerControls.Length;
         var x = Main.AllAlivePlayerControls;
         var r = IRandom.Instance;
 
-        var filtered = chatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(((string[])a.Split(':'))[0].Trim())).IsAlive()).ToArray();
+        var filtered = ChatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(a.Split(':')[0].Trim())).IsAlive()).ToArray();
 
-        if (realMessagesOnly && filtered.Length < 5) return;
-
-        if (!realMessagesOnly)
+        switch (realMessagesOnly)
         {
-            for (int i = filtered.Length; i < 20; i++)
-            {
-                var player = x[r.Next(0, totalAlive)];
-                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
-                SendRPC(player, msg);
-            }
+            case true when filtered.Length < 5:
+                return;
+            case false:
+                for (int i = filtered.Length; i < 20; i++)
+                {
+                    var player = x[r.Next(0, totalAlive)];
+                    DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
+                    SendRPC(player, msg);
+                }
+
+                break;
         }
 
         foreach (string str in filtered)
@@ -194,10 +228,11 @@ public static class ChatManager
 
         ChatUpdatePatch.DoBlockChat = false;
     }
-    private static void SendRPC(PlayerControl senderPlayer, string senderMessage)
+
+    private static void SendRPC(InnerNetObject senderPlayer, string senderMessage)
     {
-        var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
-        writer.StartMessage(-1);
+        var writer = CustomRpcSender.Create("MessagesToSend");
+        writer.StartMessage();
         writer.StartRpc(senderPlayer.NetId, (byte)RpcCalls.SendChat)
             .Write(senderMessage)
             .EndRpc();

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace TOHE;
+namespace EHR;
 
 public static class DebugModeManager
 {

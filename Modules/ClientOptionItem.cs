@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace TOHE;
+namespace EHR;
 
 //来源：https://github.com/tukasa0001/TownOfHost/pull/1265
 public class ClientOptionItem
@@ -43,10 +43,7 @@ public class ClientOptionItem
                 closeButton.Background.color = Palette.DisabledGrey;
                 var closePassiveButton = closeButton.GetComponent<PassiveButton>();
                 closePassiveButton.OnClick = new();
-                closePassiveButton.OnClick.AddListener(new Action(() =>
-                {
-                    CustomBackground.gameObject.SetActive(false);
-                }));
+                closePassiveButton.OnClick.AddListener(new Action(() => { CustomBackground.gameObject.SetActive(false); }));
 
                 UiElement[] selectableButtons = optionsMenuBehaviour.ControllerSelectable.ToArray();
                 PassiveButton leaveButton = null;
@@ -61,6 +58,7 @@ public class ClientOptionItem
                     else if (button.name == "ReturnToGameButton")
                         returnButton = button.GetComponent<PassiveButton>();
                 }
+
                 var generalTab = mouseMoveToggle.transform.parent.parent.parent;
 
                 var modOptionsButton = Object.Instantiate(mouseMoveToggle, generalTab);
@@ -70,10 +68,7 @@ public class ClientOptionItem
                 modOptionsButton.Background.color = new Color32(255, 192, 203, byte.MaxValue);
                 var modOptionsPassiveButton = modOptionsButton.GetComponent<PassiveButton>();
                 modOptionsPassiveButton.OnClick = new();
-                modOptionsPassiveButton.OnClick.AddListener(new Action(() =>
-                {
-                    CustomBackground.gameObject.SetActive(true);
-                }));
+                modOptionsPassiveButton.OnClick.AddListener(new Action(() => { CustomBackground.gameObject.SetActive(true); }));
 
                 if (leaveButton != null)
                     leaveButton.transform.localPosition = new(-1.35f, -2.411f, -1f);
@@ -83,7 +78,7 @@ public class ClientOptionItem
 
             // ボタン生成
             ToggleButton = Object.Instantiate(mouseMoveToggle, CustomBackground.transform);
-            ToggleButton.transform.localPosition = new Vector3(
+            ToggleButton.transform.localPosition = new(
                 // 現在のオプション数を基に位置を計算
                 numOptions % 2 == 0 ? -1.3f : 1.3f,
                 2.2f - (0.5f * (numOptions / 2)),
@@ -100,7 +95,10 @@ public class ClientOptionItem
             }));
             UpdateToggle();
         }
-        finally { numOptions++; }
+        finally
+        {
+            numOptions++;
+        }
     }
 
     public static ClientOptionItem Create(
@@ -116,7 +114,7 @@ public class ClientOptionItem
     {
         if (ToggleButton == null) return;
 
-        var color = Config.Value ? new Color32(255, 192, 203, byte.MaxValue) : new Color32(77, 77, 77, byte.MaxValue);
+        var color = Config.Value ? new(255, 192, 203, byte.MaxValue) : new Color32(77, 77, 77, byte.MaxValue);
         ToggleButton.Background.color = color;
         ToggleButton.Rollover?.ChangeOutColor(color);
     }

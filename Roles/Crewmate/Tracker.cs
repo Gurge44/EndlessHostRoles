@@ -1,16 +1,16 @@
-﻿using Hazel;
+﻿using EHR.Modules;
+using Hazel;
 using System.Collections.Generic;
 using UnityEngine;
-using static TOHE.Options;
-using static TOHE.Translator;
+using static EHR.Options;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Crewmate
+namespace EHR.Roles.Crewmate
 {
-    public static class Tracker
+    public class Tracker : RoleBase
     {
-        private static readonly int Id = 8300;
+        private const int Id = 8300;
         private static List<byte> playerIdList = [];
-        public static bool IsEnable;
 
         private static OptionItem TrackLimitOpt;
         private static OptionItem OptionCanSeeLastRoomInMeeting;
@@ -22,9 +22,7 @@ namespace TOHE.Roles.Crewmate
 
         public static bool CanSeeLastRoomInMeeting;
 
-        public static Dictionary<byte, float> TrackLimit = [];
         public static Dictionary<byte, List<byte>> TrackerTarget = [];
-        public static Dictionary<byte, float> TempTrackLimit = [];
 
         public static void SetupCustomOption()
         {
@@ -44,47 +42,50 @@ namespace TOHE.Roles.Crewmate
                 .SetValueFormat(OptionFormat.Times);
             CancelVote = CreateVoteCancellingUseSetting(Id + 4, CustomRoles.Tracker, TabGroup.CrewmateRoles);
         }
-        public static void Init()
+
+        public override void Init()
         {
             playerIdList = [];
-            TrackLimit = [];
             TrackerTarget = [];
             CanSeeLastRoomInMeeting = OptionCanSeeLastRoomInMeeting.GetBool();
-            TempTrackLimit = [];
-            IsEnable = false;
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            TrackLimit.Add(playerId, TrackLimitOpt.GetInt());
+            playerId.SetAbilityUseLimit(TrackLimitOpt.GetInt());
             TrackerTarget.Add(playerId, []);
-            IsEnable = true;
         }
+
+        public override bool IsEnable => playerIdList.Count > 0;
+
         public static void SendRPC(byte trackerId = byte.MaxValue, byte targetId = byte.MaxValue)
         {
-            if (!IsEnable || !Utils.DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTrackerTarget, SendOption.Reliable, -1);
+            if (!Utils.DoRPC) return;
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTrackerTarget, SendOption.Reliable);
             writer.Write(trackerId);
             writer.Write(targetId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
+
         public static void ReceiveRPC(MessageReader reader)
         {
             byte trackerId = reader.ReadByte();
             byte targetId = reader.ReadByte();
 
-            TrackLimit[trackerId]--;
+            Utils.GetPlayerById(trackerId).RpcRemoveAbilityUse();
 
             TrackerTarget[trackerId].Add(targetId);
             TargetArrow.Add(trackerId, targetId);
         }
+
         public static string GetTargetMark(PlayerControl seer, PlayerControl target) => !(seer == null || target == null) && TrackerTarget.ContainsKey(seer.PlayerId) && TrackerTarget[seer.PlayerId].Contains(target.PlayerId) ? Utils.ColorString(seer.GetRoleColor(), "◀") : string.Empty;
 
         public static bool OnVote(PlayerControl player, PlayerControl target)
         {
-            if (player == null || target == null || TrackLimit[player.PlayerId] < 1 || player.PlayerId == target.PlayerId || TrackerTarget[player.PlayerId].Contains(target.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
+            if (player == null || target == null || player.GetAbilityUseLimit() < 1f || player.PlayerId == target.PlayerId || TrackerTarget[player.PlayerId].Contains(target.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
 
-            TrackLimit[player.PlayerId]--;
+            player.RpcRemoveAbilityUse();
 
             TrackerTarget[player.PlayerId].Add(target.PlayerId);
             TargetArrow.Add(player.PlayerId, target.PlayerId);
@@ -95,20 +96,9 @@ namespace TOHE.Roles.Crewmate
             return true;
         }
 
-        public static void OnReportDeadBody()
-        {
-            if (!IsEnable) return;
-
-            foreach (var trackerId in playerIdList)
-            {
-                TempTrackLimit[trackerId] = TrackLimit[trackerId];
-            }
-        }
-
         public static string GetTrackerArrow(PlayerControl seer, PlayerControl target = null)
         {
             if (seer == null) return string.Empty;
-            if (!seer.Is(CustomRoles.Tracker)) return string.Empty;
             if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
             if (!TrackerTarget.ContainsKey(seer.PlayerId)) return string.Empty;
             if (GameStates.IsMeeting) return string.Empty;
@@ -125,13 +115,14 @@ namespace TOHE.Roles.Crewmate
                 var arrow = TargetArrow.GetArrows(seer, trackTarget);
                 arrows += Utils.ColorString(CanGetColoredArrow.GetBool() ? Palette.PlayerColors[targetData.Data.DefaultOutfit.ColorId] : Color.white, arrow);
             }
+
             return arrows;
         }
 
         public static bool IsTrackTarget(PlayerControl seer, PlayerControl target)
             => seer.IsAlive() && playerIdList.Contains(seer.PlayerId)
-                && TrackerTarget[seer.PlayerId].Contains(target.PlayerId)
-                && target.IsAlive();
+                              && TrackerTarget[seer.PlayerId].Contains(target.PlayerId)
+                              && target.IsAlive();
 
         public static string GetArrowAndLastRoom(PlayerControl seer, PlayerControl target)
         {

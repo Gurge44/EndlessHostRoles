@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace TOHE;
+namespace EHR;
 
 [HarmonyPatch(typeof(FindAGameManager), nameof(FindAGameManager.Update))]
 public static class FindAGameManagerUpdatePatch
@@ -12,14 +12,17 @@ public static class FindAGameManagerUpdatePatch
     private static int buffer = 80;
     private static GameObject RefreshButton;
     private static GameObject InputDisplayGlyph;
+
     public static void Postfix(FindAGameManager __instance)
     {
         if ((RefreshButton = GameObject.Find("RefreshButton")) != null)
-            RefreshButton.transform.localPosition = new Vector3(100f, 100f, 100f);
+            RefreshButton.transform.localPosition = new(100f, 100f, 100f);
         if ((InputDisplayGlyph = GameObject.Find("InputDisplayGlyph")) != null)
-            InputDisplayGlyph.transform.localPosition = new Vector3(100f, 100f, 100f);
+            InputDisplayGlyph.transform.localPosition = new(100f, 100f, 100f);
 
-        buffer--; if (buffer > 0) return; buffer = 80;
+        buffer--;
+        if (buffer > 0) return;
+        buffer = 80;
         __instance.RefreshList();
     }
 }
@@ -27,7 +30,7 @@ public static class FindAGameManagerUpdatePatch
 [HarmonyPatch(typeof(FindAGameManager), nameof(FindAGameManager.HandleList))]
 public static class FindAGameManagerHandleListPatch
 {
-    public static void Prefix(FindAGameManager __instance, [HarmonyArgument(0)] InnerNetClient.TotalGameData totalGames, [HarmonyArgument(1)] ref List<GameListing> games)
+    public static void Prefix( /*FindAGameManager __instance,*/ /*[HarmonyArgument(0)] InnerNetClient.TotalGameData totalGames,*/ [HarmonyArgument(1)] ref List<GameListing> games)
     {
         List<GameListing> newList = [];
 
@@ -40,19 +43,19 @@ public static class FindAGameManagerHandleListPatch
             var color = game.Platform switch
             {
                 Platforms.StandaloneItch or
-                Platforms.StandaloneWin10 or
-                Platforms.StandaloneEpicPC or
-                Platforms.StandaloneSteamPC => "#00a4ff",
+                    Platforms.StandaloneWin10 or
+                    Platforms.StandaloneEpicPC or
+                    Platforms.StandaloneSteamPC => "#00a4ff",
 
                 Platforms.Xbox or
-                Platforms.Switch or
-                Platforms.Playstation => "#dd001b",
+                    Platforms.Switch or
+                    Platforms.Playstation => "#dd001b",
 
                 Platforms.IPhone or
-                Platforms.Android => "#68bc71",
+                    Platforms.Android => "#68bc71",
 
                 Platforms.Unknown or
-                _ => "#ffffff"
+                    _ => "#ffffff"
             };
 
             string str = Math.Abs(game.GameId).ToString();
@@ -63,6 +66,7 @@ public static class FindAGameManagerHandleListPatch
 
             newList.Add(game);
         }
+
         games = newList;
     }
 }

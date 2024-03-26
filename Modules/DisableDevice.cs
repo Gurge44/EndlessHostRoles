@@ -2,8 +2,9 @@ using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
-namespace TOHE;
+namespace EHR;
 
 //参考元 : https://github.com/ykundesu/SuperNewRoles/blob/master/SuperNewRoles/Mode/SuperHostRoles/BlockTool.cs
 class DisableDevice
@@ -11,6 +12,7 @@ class DisableDevice
     public static bool DoDisable => Options.DisableDevices.GetBool();
     private static readonly List<byte> DesyncComms = [];
     private static int frame;
+
     public static readonly Dictionary<string, Vector2> DevicePos = new()
     {
         ["SkeldAdmin"] = new(3.48f, -8.62f),
@@ -21,8 +23,8 @@ class DisableDevice
         ["PolusRightAdmin"] = new(24.66f, -21.52f),
         ["PolusCamera"] = new(2.96f, -12.74f),
         ["PolusVital"] = new(26.70f, -15.94f),
-        ["DleksAdmin"] = new Vector2(-3.48f, -8.62f),
-        ["DleksCamera"] = new Vector2(13.06f, -2.45f),
+        ["DleksAdmin"] = new(-3.48f, -8.62f),
+        ["DleksCamera"] = new(13.06f, -2.45f),
         ["AirshipCockpitAdmin"] = new(-22.32f, 0.91f),
         ["AirshipRecordsAdmin"] = new(19.89f, 12.60f),
         ["AirshipCamera"] = new(8.10f, -9.63f),
@@ -30,6 +32,7 @@ class DisableDevice
         ["FungleCamera"] = new(6.20f, 0.10f),
         ["FungleVital"] = new(-2.50f, -9.80f)
     };
+
     public static float UsableDistance()
     {
         return (MapNames)Main.NormalOptions.MapId switch
@@ -43,6 +46,7 @@ class DisableDevice
             _ => 0.0f
         };
     }
+
     public static void FixedUpdate()
     {
         frame = frame == 3 ? 0 : ++frame;
@@ -84,6 +88,7 @@ class DisableDevice
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["PolusLeftAdmin"]) <= UsableDistance();
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["PolusRightAdmin"]) <= UsableDistance();
                             }
+
                             if (Options.DisablePolusCamera.GetBool())
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["PolusCamera"]) <= UsableDistance();
                             if (Options.DisablePolusVital.GetBool())
@@ -113,6 +118,7 @@ class DisableDevice
                             break;
                     }
                 }
+
                 doComms &= !ignore;
                 if (doComms && !pc.inVent)
                 {
@@ -137,6 +143,7 @@ class DisableDevice
         }
     }
 }
+
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Start))]
 public class RemoveDisableDevicesPatch
 {
@@ -150,13 +157,13 @@ public class RemoveDisableDevicesPatch
     {
         var player = PlayerControl.LocalPlayer;
         bool ignore = player.Is(CustomRoles.GM) ||
-            !player.IsAlive() ||
-            (Options.DisableDevicesIgnoreImpostors.GetBool() && player.Is(CustomRoleTypes.Impostor)) ||
-            (Options.DisableDevicesIgnoreNeutrals.GetBool() && player.Is(CustomRoleTypes.Neutral)) ||
-            (Options.DisableDevicesIgnoreCrewmates.GetBool() && player.Is(CustomRoleTypes.Crewmate)) ||
-            (Options.DisableDevicesIgnoreAfterAnyoneDied.GetBool() && GameStates.AlreadyDied);
-        var admins = UnityEngine.Object.FindObjectsOfType<MapConsole>(true);
-        var consoles = UnityEngine.Object.FindObjectsOfType<SystemConsole>(true);
+                      !player.IsAlive() ||
+                      (Options.DisableDevicesIgnoreImpostors.GetBool() && player.Is(CustomRoleTypes.Impostor)) ||
+                      (Options.DisableDevicesIgnoreNeutrals.GetBool() && player.Is(CustomRoleTypes.Neutral)) ||
+                      (Options.DisableDevicesIgnoreCrewmates.GetBool() && player.Is(CustomRoleTypes.Crewmate)) ||
+                      (Options.DisableDevicesIgnoreAfterAnyoneDied.GetBool() && GameStates.AlreadyDied);
+        var admins = Object.FindObjectsOfType<MapConsole>(true);
+        var consoles = Object.FindObjectsOfType<SystemConsole>(true);
         if (admins == null || consoles == null) return;
         switch (Main.NormalOptions.MapId)
         {

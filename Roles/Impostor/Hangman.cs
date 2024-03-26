@@ -1,14 +1,14 @@
-﻿using System.Collections.Generic;
-using TOHE.Roles.Crewmate;
-using static TOHE.Options;
+﻿using AmongUs.GameOptions;
+using EHR.Roles.Crewmate;
+using System.Collections.Generic;
+using static EHR.Options;
 
-namespace TOHE.Roles.Impostor;
+namespace EHR.Roles.Impostor;
 
-public static class Hangman
+public class Hangman : RoleBase
 {
-    private static readonly int Id = 1400;
+    private const int Id = 1400;
     private static List<byte> playerIdList = [];
-    public static Dictionary<byte, float> HangLimit = [];
 
     private static OptionItem ShapeshiftCooldown;
     public static OptionItem ShapeshiftDuration;
@@ -31,41 +31,39 @@ public static class Hangman
             .SetParent(CustomRoleSpawnChances[CustomRoles.Hangman])
             .SetValueFormat(OptionFormat.Times);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
-        HangLimit = [];
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        HangLimit.Add(playerId, HangmanLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(HangmanLimitOpt.GetInt());
     }
-    public static bool IsEnable => playerIdList.Count > 0;
-    public static void ApplyGameOptions()
+
+    public override bool IsEnable => playerIdList.Count > 0;
+
+    public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
         AURoleOptions.ShapeshifterDuration = ShapeshiftDuration.GetFloat();
     }
-    public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        //    if (target.Is(CustomRoles.Bait)) return true;
         if (Medic.ProtectList.Contains(target.PlayerId)) return false;
 
-        //禁止内鬼刀叛徒
-        if (target.Is(CustomRoles.Madmate) && !ImpCanKillMadmate.GetBool())
-            return false;
+        if (target.Is(CustomRoles.Madmate) && !ImpCanKillMadmate.GetBool()) return false;
 
-        if (HangLimit[killer.PlayerId] < 1)
-        {
-            if (killer.IsShifted()) return false;
-        };
+        if (killer.GetAbilityUseLimit() < 1 && killer.IsShifted()) return false;
 
         if (killer.IsShifted())
         {
             if (target.Is(CustomRoles.Pestilence)) return false;
-            if (target.Is(CustomRoles.Veteran) && Main.VeteranInProtect.ContainsKey(target.PlayerId)) return false;
-            HangLimit[killer.PlayerId] -= 1;
+            if (target.Is(CustomRoles.Veteran) && Veteran.VeteranInProtect.ContainsKey(target.PlayerId)) return false;
+            killer.RpcRemoveAbilityUse();
             target.Data.IsDead = true;
             target.SetRealKiller(killer);
             Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.LossOfHead;
@@ -75,6 +73,7 @@ public static class Hangman
             killer.SetKillCooldown(time: KCD.GetFloat());
             return false;
         }
+
         return true;
     }
 }

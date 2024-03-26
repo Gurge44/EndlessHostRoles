@@ -1,15 +1,17 @@
-﻿using Hazel;
+﻿using EHR.Modules;
+using Hazel;
 using System.Collections.Generic;
 using System.Linq;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+using static EHR.Options;
+using static EHR.Translator;
 
-namespace TOHE.Roles.AddOns.Crewmate
+namespace EHR.Roles.AddOns.Crewmate
 {
-    public static class Stressed
+    public class Stressed : IAddon
     {
-        private static readonly int Id = 14685;
+        public AddonTypes Type => AddonTypes.Harmful;
+
+        private const int Id = 14685;
 
         private static OptionItem StressedExtraTimeAfterTaskComplete;
         private static OptionItem StressedExtraTimeAfterMeeting;
@@ -36,7 +38,7 @@ namespace TOHE.Roles.AddOns.Crewmate
 
         private static bool IsEnable => Timers.Count > 0;
 
-        public static void SetupCustomOption()
+        public void SetupCustomOption()
         {
             SetupAdtRoleOptions(Id, CustomRoles.Stressed, canSetNum: true);
             StressedExtraTimeAfterTaskComplete = IntegerOptionItem.Create(Id + 3, "StressedExtraTimeAfterTask", new(0, 60, 1), 30, TabGroup.Addons, false)
@@ -83,6 +85,8 @@ namespace TOHE.Roles.AddOns.Crewmate
 
         public static void Add()
         {
+            long now = Utils.TimeStamp;
+
             _ = new LateTask(() =>
             {
                 foreach (var pc in Main.AllAlivePlayerControls)
@@ -94,8 +98,9 @@ namespace TOHE.Roles.AddOns.Crewmate
                             Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Stressed);
                             continue;
                         }
+
                         Timers.Add(pc.PlayerId, StartingTime);
-                        LastUpdates.Add(pc.PlayerId, GetTimeStamp() + 1);
+                        LastUpdates.Add(pc.PlayerId, now + 1);
                     }
                 }
             }, 8f, "Add Stressed Timers");
@@ -103,8 +108,9 @@ namespace TOHE.Roles.AddOns.Crewmate
 
         public static void Update(PlayerControl pc)
         {
-            if (pc == null || !LastUpdates.TryGetValue(pc.PlayerId, out var x) || x >= GetTimeStamp() || !Timers.ContainsKey(pc.PlayerId) || !IsEnable || !GameStates.IsInTask || !pc.Is(CustomRoles.Stressed)) return;
-            LastUpdates[pc.PlayerId] = GetTimeStamp();
+            long now = Utils.TimeStamp;
+            if (pc == null || !LastUpdates.TryGetValue(pc.PlayerId, out var x) || x >= now || !Timers.ContainsKey(pc.PlayerId) || !IsEnable || !GameStates.IsInTask || !pc.Is(CustomRoles.Stressed)) return;
+            LastUpdates[pc.PlayerId] = now;
 
             if (pc.GetTaskState().IsTaskFinished || !pc.IsAlive())
             {
@@ -123,13 +129,13 @@ namespace TOHE.Roles.AddOns.Crewmate
             }
 
             if (pc.IsNonHostModClient()) SendRPC(pc.PlayerId, Timers[pc.PlayerId], LastUpdates[pc.PlayerId]);
-            if (!pc.IsModClient()) NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            if (!pc.IsModClient()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
         public static void SendRPC(byte id, int time, long lastUpdate)
         {
-            if (!DoRPC || !IsEnable) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncStressedTimer, SendOption.Reliable, -1);
+            if (!Utils.DoRPC || !IsEnable) return;
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncStressedTimer, SendOption.Reliable);
             writer.Write(id);
             writer.Write(time);
             writer.Write(lastUpdate.ToString());

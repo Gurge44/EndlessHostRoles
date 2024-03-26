@@ -1,18 +1,17 @@
 using HarmonyLib;
 using System;
 using TMPro;
-using TOHE.Modules;
 using UnityEngine;
-using static TOHE.Translator;
-using static UnityEngine.UI.Button;
+using static EHR.Translator;
 using Object = UnityEngine.Object;
 
-namespace TOHE;
+namespace EHR;
 
 [HarmonyPatch]
 public class MainMenuManagerPatch
 {
     public static GameObject template;
+
     //public static GameObject qqButton;
     //public static GameObject discordButton;
     public static GameObject updateButton;
@@ -28,7 +27,9 @@ public class MainMenuManagerPatch
             TitleLogoPatch.LoadingHint.SetActive(!Options.IsLoaded);
             TitleLogoPatch.LoadingHint.GetComponent<TextMeshPro>().text = string.Format(GetString("LoadingWithPercentage"), Options.LoadingPercentage, Options.MainLoadingText, Options.RoleLoadingText);
         }
-        catch { }
+        catch
+        {
+        }
     }
 
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPrefix]
@@ -96,7 +97,6 @@ public class MainMenuManagerPatch
         updateButton.gameObject.SetActive(ModUpdater.hasUpdate);
 
 #if RELEASE
-        //フリープレイの無効化
         var freeplayButton = GameObject.Find("/MainUI/FreePlayButton");
         if (freeplayButton != null)
         {
@@ -111,58 +111,13 @@ public class MainMenuManagerPatch
         var bottomTemplate = GameObject.Find("InventoryButton");
         if (bottomTemplate == null) return;
 
-        var HorseButton = Object.Instantiate(bottomTemplate, bottomTemplate.transform.parent);
-        var passiveHorseButton = HorseButton.GetComponent<PassiveButton>();
-        var spriteHorseButton = HorseButton.GetComponent<SpriteRenderer>();
-        if (HorseModePatch.isHorseMode) spriteHorseButton.transform.localScale *= -1;
-
-        spriteHorseButton.sprite = Utils.LoadSprite($"TOHE.Resources.Images.HorseButton.png", 75f);
-        passiveHorseButton.OnClick = new ButtonClickedEvent();
-        passiveHorseButton.OnClick.AddListener((Action)(() =>
-        {
-            RunLoginPatch.ClickCount++;
-            if (RunLoginPatch.ClickCount == 10) PlayerControl.LocalPlayer.RPCPlayCustomSound("Gunload", true);
-            if (RunLoginPatch.ClickCount == 20) PlayerControl.LocalPlayer.RPCPlayCustomSound("AWP", true);
-
-            spriteHorseButton.transform.localScale *= -1;
-            HorseModePatch.isHorseMode = !HorseModePatch.isHorseMode;
-            var particles = Object.FindObjectOfType<PlayerParticles>();
-            if (particles != null)
-            {
-                particles.pool.ReclaimAll();
-                particles.Start();
-            }
-        }));
-        //var DleksButton = Object.Instantiate(bottomTemplate, bottomTemplate.transform.parent);
-        //var passiveDleksButton = DleksButton.GetComponent<PassiveButton>();
-        //var spriteDleksButton = DleksButton.GetComponent<SpriteRenderer>();
-        //if (DleksPatch.isDleks) spriteDleksButton.transform.localScale *= -1;
-
-        //spriteDleksButton.sprite = Utils.LoadSprite($"TOHE.Resources.Images.DleksButton.png", 75f);
-        //passiveDleksButton.OnClick = new ButtonClickedEvent();
-        //passiveDleksButton.OnClick.AddListener((Action)(() =>
-        //{
-        //    RunLoginPatch.ClickCount++;
-        //    spriteDleksButton.transform.localScale *= -1;
-        //    DleksPatch.isDleks = !DleksPatch.isDleks;
-        //    var particles = Object.FindObjectOfType<PlayerParticles>();
-        //    if (particles != null)
-        //    {
-        //        particles.pool.ReclaimAll();
-        //        particles.Start();
-        //    }
-        //}));
-
         var CreditsButton = Object.Instantiate(bottomTemplate, bottomTemplate.transform.parent);
         var passiveCreditsButton = CreditsButton.GetComponent<PassiveButton>();
         var spriteCreditsButton = CreditsButton.GetComponent<SpriteRenderer>();
 
-        spriteCreditsButton.sprite = Utils.LoadSprite($"TOHE.Resources.Images.CreditsButton.png", 75f);
-        passiveCreditsButton.OnClick = new ButtonClickedEvent();
-        passiveCreditsButton.OnClick.AddListener((Action)(() =>
-        {
-            CredentialsPatch.LogoPatch.CreditsPopup?.SetActive(true);
-        }));
+        spriteCreditsButton.sprite = Utils.LoadSprite("EHR.Resources.Images.CreditsButton.png", 75f);
+        passiveCreditsButton.OnClick = new();
+        passiveCreditsButton.OnClick.AddListener((Action)(() => { CredentialsPatch.LogoPatch.CreditsPopup?.SetActive(true); }));
 
         Application.targetFrameRate = Main.UnlockFPS.Value ? 165 : 60;
     }

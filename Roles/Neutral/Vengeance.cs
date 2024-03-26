@@ -1,13 +1,13 @@
 using AmongUs.GameOptions;
 using System.Collections.Generic;
-using static TOHE.Options;
-using static TOHE.Translator;
+using static EHR.Options;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Neutral;
+namespace EHR.Roles.Neutral;
 
-public static class Vengeance
+public class Vengeance : RoleBase
 {
-    private static readonly int Id = 12820;
+    private const int Id = 12820;
     public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
@@ -15,15 +15,15 @@ public static class Vengeance
     private static OptionItem HasImpostorVision;
     private static OptionItem RevengeTime;
 
-    private static bool IsRevenge;
-    private static int Timer;
-    private static bool Success;
-    private static byte Killer;
-    private static float tempKillTimer;
+    private bool IsRevenge;
+    private int Timer;
+    private bool Success;
+    private byte Killer;
+    private float tempKillTimer;
 
     public static void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Vengeance, 1, zeroOne: false);
+        SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Vengeance);
         KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Vengeance])
             .SetValueFormat(OptionFormat.Seconds);
         RevengeTime = IntegerOptionItem.Create(Id + 11, "VengeanceRevengeTime", new(0, 30, 1), 15, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Vengeance])
@@ -31,7 +31,8 @@ public static class Vengeance
         CanVent = BooleanOptionItem.Create(Id + 12, "CanVent", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Vengeance]);
         HasImpostorVision = BooleanOptionItem.Create(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Vengeance]);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
         IsRevenge = false;
@@ -39,23 +40,31 @@ public static class Vengeance
         Killer = byte.MaxValue;
         tempKillTimer = 0;
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
+
         Timer = RevengeTime.GetInt();
+
+        IsRevenge = false;
+        Success = false;
+        Killer = byte.MaxValue;
+        tempKillTimer = 0;
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-    public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
-    public static bool OnKillAttempt(PlayerControl killer, PlayerControl target)
+
+    public override bool IsEnable => playerIdList.Count > 0;
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+    public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+
+    public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
     {
         if (killer.PlayerId == target.PlayerId) return true;
-        if (killer == null) return false;
-        if (target == null) return false;
         if (IsRevenge) return true;
 
         _ = new LateTask(() => { target.TPtoRndVent(); }, 0.01f);
@@ -70,7 +79,8 @@ public static class Vengeance
 
         return false;
     }
-    public static void Countdown(int seconds, PlayerControl player)
+
+    void Countdown(int seconds, PlayerControl player)
     {
         if (!player.IsAlive()) return;
 
@@ -81,19 +91,25 @@ public static class Vengeance
             return;
         }
 
-        if ((seconds <= 0 || GameStates.IsMeeting) && player.IsAlive()) { player.Kill(player); return; }
+        if ((seconds <= 0 || GameStates.IsMeeting) && player.IsAlive())
+        {
+            player.Kill(player);
+            return;
+        }
+
         player.Notify(string.Format(GetString("VengeanceRevenge"), seconds), 1.1f);
         Timer = seconds;
 
         _ = new LateTask(() => { Countdown(seconds - 1, player); }, 1.01f);
     }
-    public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer == null) return false;
         if (target == null) return false;
 
         if (!IsRevenge) return true;
-        else if (target.PlayerId == Killer)
+        if (target.PlayerId == Killer)
         {
             Success = true;
             killer.Notify(GetString("VengeanceSuccess"));
@@ -101,10 +117,8 @@ public static class Vengeance
             IsRevenge = false;
             return true;
         }
-        else
-        {
-            killer.Kill(killer);
-            return false;
-        }
+
+        killer.Kill(killer);
+        return false;
     }
 }

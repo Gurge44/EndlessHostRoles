@@ -1,15 +1,18 @@
-﻿using System;
+﻿using EHR.Modules;
+using EHR.Roles.Crewmate;
+using System;
 using System.Collections.Generic;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+using static EHR.Options;
+using static EHR.Translator;
+using static EHR.Utils;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
-    public static class Mastermind
+    public class Mastermind : RoleBase
     {
-        private static readonly int Id = 640600;
-        public static byte MastermindId = byte.MaxValue;
+        private const int Id = 640600;
+
+        private static List<byte> PlayerIdList = [];
 
         public static Dictionary<byte, long> ManipulatedPlayers = [];
         public static Dictionary<byte, long> ManipulateDelays = [];
@@ -21,7 +24,8 @@ namespace TOHE.Roles.Impostor
 
         public static float ManipulateCD;
 
-        private static PlayerControl Mastermind_ => GetPlayerById(MastermindId);
+        private PlayerControl Mastermind_ => GetPlayerById(MastermindId);
+        public byte MastermindId = byte.MaxValue;
 
         public static void SetupCustomOption()
         {
@@ -35,23 +39,30 @@ namespace TOHE.Roles.Impostor
                 .SetValueFormat(OptionFormat.Seconds);
         }
 
-        public static void Init()
+        public override void Init()
         {
             MastermindId = byte.MaxValue;
             ManipulatedPlayers = [];
             ManipulateDelays = [];
             TempKCDs = [];
+            PlayerIdList = [];
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             MastermindId = playerId;
             ManipulateCD = KillCooldown.GetFloat() + TimeLimit.GetFloat() + Delay.GetFloat();
+            PlayerIdList.Add(playerId);
         }
 
-        public static bool IsEnable => MastermindId != byte.MaxValue;
+        public override bool IsEnable => MastermindId != byte.MaxValue || Randomizer.Exists;
 
-        public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        }
+
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (!IsEnable) return false;
             if (killer == null) return false;
@@ -62,13 +73,13 @@ namespace TOHE.Roles.Impostor
                 killer.SetKillCooldown(time: ManipulateCD);
                 if (target.HasKillButton() || target.GetTaskState().hasTasks || UsePets.GetBool())
                 {
-                    ManipulateDelays.TryAdd(target.PlayerId, GetTimeStamp());
+                    ManipulateDelays.TryAdd(target.PlayerId, TimeStamp);
                     NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 }
             });
         }
 
-        public static void OnFixedUpdate()
+        public override void OnFixedUpdate(PlayerControl _)
         {
             if (!IsEnable || GameStates.IsMeeting || (ManipulatedPlayers.Count == 0 && ManipulateDelays.Count == 0)) return;
 
@@ -81,10 +92,11 @@ namespace TOHE.Roles.Impostor
                     ManipulateDelays.Remove(x.Key);
                     continue;
                 }
-                if (x.Value + Delay.GetInt() < GetTimeStamp())
+
+                if (x.Value + Delay.GetInt() < TimeStamp)
                 {
                     ManipulateDelays.Remove(x.Key);
-                    ManipulatedPlayers.TryAdd(x.Key, GetTimeStamp());
+                    ManipulatedPlayers.TryAdd(x.Key, TimeStamp);
 
                     if (!pc.GetTaskState().hasTasks || UsePets.GetBool())
                     {
@@ -106,7 +118,8 @@ namespace TOHE.Roles.Impostor
                     TempKCDs.Remove(x.Key);
                     continue;
                 }
-                if (x.Value + TimeLimit.GetInt() < GetTimeStamp())
+
+                if (x.Value + TimeLimit.GetInt() < TimeStamp)
                 {
                     ManipulatedPlayers.Remove(x.Key);
                     TempKCDs.Remove(x.Key);
@@ -114,13 +127,13 @@ namespace TOHE.Roles.Impostor
                     RPC.PlaySoundRPC(MastermindId, Sounds.KillSound);
                 }
 
-                var time = TimeLimit.GetInt() - (GetTimeStamp() - x.Value);
+                var time = TimeLimit.GetInt() - (TimeStamp - x.Value);
 
                 player.Notify(string.Format(GetString(UsePets.GetBool() ? "ManipulatePetNotify" : player.GetTaskState().hasTasks ? "ManipulateTaskNotify" : "ManipulateNotify"), time), 1.1f);
             }
         }
 
-        public static void OnReportDeadBody()
+        public override void OnReportDeadBody()
         {
             if (!IsEnable) return;
             foreach (var x in ManipulatedPlayers)
@@ -128,6 +141,7 @@ namespace TOHE.Roles.Impostor
                 var pc = GetPlayerById(x.Key);
                 if (pc.IsAlive()) pc.Suicide(realKiller: Mastermind_);
             }
+
             ManipulateDelays.Clear();
             ManipulatedPlayers.Clear();
             TempKCDs.Clear();
@@ -135,15 +149,17 @@ namespace TOHE.Roles.Impostor
 
         public static bool ForceKillForManipulatedPlayer(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable) return false;
             if (killer == null) return false;
             if (target == null) return false;
 
             ManipulatedPlayers.Remove(killer.PlayerId);
 
-            NotifyMastermindTargetSurvived();
+            foreach (var id in PlayerIdList)
+            {
+                (Main.PlayerStates[id].Role as Mastermind)?.NotifyMastermindTargetSurvived();
+            }
 
-            if (target.Is(CustomRoles.Pestilence) || Main.VeteranInProtect.ContainsKey(target.PlayerId) || target.Is(CustomRoles.Mastermind))
+            if (target.Is(CustomRoles.Pestilence) || Veteran.VeteranInProtect.ContainsKey(target.PlayerId) || target.Is(CustomRoles.Mastermind))
             {
                 Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Suicide;
                 Main.PlayerStates[killer.PlayerId].SetDead();
@@ -158,7 +174,7 @@ namespace TOHE.Roles.Impostor
 
             _ = new LateTask(() =>
             {
-                var kcd = TempKCDs.TryGetValue(killer.PlayerId, out var cd) ? cd : Main.AllPlayerKillCooldown.TryGetValue(killer.PlayerId, out var baseKCD) ? baseKCD : DefaultKillCooldown;
+                var kcd = TempKCDs.TryGetValue(killer.PlayerId, out var cd) ? cd : Main.AllPlayerKillCooldown.GetValueOrDefault(killer.PlayerId, DefaultKillCooldown);
                 killer.SetKillCooldown(time: kcd);
                 if (killer.GetCustomRole().PetActivatedAbility()) killer.AddAbilityCD((int)Math.Round(kcd));
                 TempKCDs.Remove(killer.PlayerId);
@@ -169,16 +185,18 @@ namespace TOHE.Roles.Impostor
 
         public static void OnManipulatedPlayerTaskComplete(PlayerControl pc)
         {
-            if (!IsEnable) return;
             ManipulatedPlayers.Remove(pc.PlayerId);
 
-            NotifyMastermindTargetSurvived();
+            foreach (var id in PlayerIdList)
+            {
+                (Main.PlayerStates[id].Role as Mastermind)?.NotifyMastermindTargetSurvived();
+            }
 
             pc.Notify(GetString("MastermindTargetSurvived"));
             TempKCDs.Remove(pc.PlayerId);
         }
 
-        private static void NotifyMastermindTargetSurvived()
+        private void NotifyMastermindTargetSurvived()
         {
             if (!IsEnable) return;
             Mastermind_.Notify(GetString("ManipulatedKilled"));

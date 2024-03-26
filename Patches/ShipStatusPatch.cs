@@ -1,21 +1,21 @@
+using BepInEx;
+using EHR.Patches;
+using EHR.Roles.AddOns.Crewmate;
+using EHR.Roles.AddOns.Impostor;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Neutral;
 using HarmonyLib;
 using Hazel;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Roles.AddOns.Crewmate;
-using TOHE.Roles.AddOns.Impostor;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Impostor;
-using TOHE.Roles.Neutral;
 using UnityEngine;
 
-namespace TOHE;
+namespace EHR;
 
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.FixedUpdate))]
 class ShipFixedUpdatePatch
 {
-    public static void Postfix(/*ShipStatus __instance*/)
+    public static void Postfix( /*ShipStatus __instance*/)
     {
         if (!AmongUsClient.Instance.AmHost) return;
         if (Main.IsFixedCooldown && Main.RefixCooldownDelay >= 0)
@@ -30,54 +30,72 @@ class ShipFixedUpdatePatch
         }
     }
 }
+
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(PlayerControl), typeof(MessageReader))]
 public static class MessageReaderUpdateSystemPatch
 {
     public static void Prefix(ShipStatus __instance, [HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] PlayerControl player, [HarmonyArgument(2)] MessageReader reader)
     {
-        try { RepairSystemPatch.Prefix(__instance, systemType, player, MessageReader.Get(reader).ReadByte()); } catch { }
+        try
+        {
+            RepairSystemPatch.Prefix(__instance, systemType, player, MessageReader.Get(reader).ReadByte());
+        }
+        catch
+        {
+        }
     }
-    public static void Postfix(/*ShipStatus __instance,*/ [HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] PlayerControl player, [HarmonyArgument(2)] MessageReader reader)
+
+    public static void Postfix( /*ShipStatus __instance,*/ [HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] PlayerControl player, [HarmonyArgument(2)] MessageReader reader)
     {
-        try { RepairSystemPatch.Postfix(/*__instance,*/ systemType, player, MessageReader.Get(reader).ReadByte()); } catch { }
+        try
+        {
+            RepairSystemPatch.Postfix( /*__instance,*/ systemType, player, MessageReader.Get(reader).ReadByte());
+        }
+        catch
+        {
+        }
     }
 }
+
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(PlayerControl), typeof(byte))]
 class RepairSystemPatch
 {
     public static bool IsComms;
+
     public static bool Prefix(ShipStatus __instance,
         [HarmonyArgument(0)] SystemTypes systemType,
         [HarmonyArgument(1)] PlayerControl player,
         [HarmonyArgument(2)] byte amount)
     {
-        Logger.Msg("SystemType: " + systemType.ToString() + ", PlayerName: " + player.GetNameWithRole().RemoveHtmlTags() + ", amount: " + amount, "RepairSystem");
+        Logger.Msg("SystemType: " + systemType + ", PlayerName: " + player.GetNameWithRole().RemoveHtmlTags() + ", amount: " + amount, "RepairSystem");
         if (RepairSender.enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
-            Logger.SendInGame("SystemType: " + systemType.ToString() + ", PlayerName: " + player.GetNameWithRole().RemoveHtmlTags() + ", amount: " + amount);
+            Logger.SendInGame("SystemType: " + systemType + ", PlayerName: " + player.GetNameWithRole().RemoveHtmlTags() + ", amount: " + amount);
 
         if (!AmongUsClient.Instance.AmHost) return true; //Execute the following only on the host
 
         IsComms = PlayerControl.LocalPlayer.myTasks.ToArray().Any(x => x.TaskType == TaskTypes.FixComms);
 
-        if ((Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato) && systemType == SystemTypes.Sabotage) return false;
+        if ((Options.CurrentGameMode != CustomGameMode.Standard) && systemType == SystemTypes.Sabotage) return false;
 
         if (Options.DisableSabotage.GetBool() && systemType == SystemTypes.Sabotage) return false;
 
         //Note: "SystemTypes.Laboratory" сauses bugs in the Host, it is better not to use
         if (player.Is(CustomRoles.Fool) &&
             (systemType is
-            SystemTypes.Comms or
-            SystemTypes.Electrical))
-        { return false; }
+                SystemTypes.Comms or
+                SystemTypes.Electrical))
+        {
+            return false;
+        }
 
         switch (player.GetCustomRole())
         {
             case CustomRoles.SabotageMaster:
-                SabotageMaster.RepairSystem(__instance, systemType, amount);
+                SabotageMaster.RepairSystem(player.PlayerId, __instance, systemType, amount);
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 break;
-            case CustomRoles.Alchemist when Alchemist.FixNextSabo:
-                Alchemist.RepairSystem(systemType, amount);
+            case CustomRoles.Alchemist when Main.PlayerStates[player.PlayerId].Role is Alchemist { IsEnable: true, FixNextSabo: true }:
+                Alchemist.RepairSystem(player, systemType, amount);
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 break;
         }
@@ -91,58 +109,33 @@ class RepairSystemPatch
                     player.Suicide();
                     return false;
                 }
+
                 break;
-            case SystemTypes.Electrical when 0 <= amount && amount <= 4 && Main.NormalOptions.MapId == 4:
+            case SystemTypes.Electrical when amount <= 4 && Main.NormalOptions.MapId == 4:
                 if (Options.DisableAirshipViewingDeckLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(-12.93f, -11.28f)) <= 2f) return false;
                 if (Options.DisableAirshipGapRoomLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(13.92f, 6.43f)) <= 2f) return false;
                 if (Options.DisableAirshipCargoLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(30.56f, 2.12f)) <= 2f) return false;
                 break;
             case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay:
-                if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato) return false;
-                if (Main.BlockSabo.Count > 0) return false;
+                if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
+                if (SecurityGuard.BlockSabo.Count > 0) return false;
                 if (Glitch.hackedIdList.ContainsKey(player.PlayerId))
                 {
                     player.Notify(string.Format(Translator.GetString("HackedByGlitch"), "Sabotage"));
                     return false;
                 }
-                if (player.Is(CustomRoles.Mafioso)) Mafioso.OnSabotage();
-                if (player.Is(CustomRoleTypes.Impostor) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool()) && !player.Is(CustomRoles.Minimalism)) return true;
-                switch (player.GetCustomRole())
+
+                if (player.Is(CustomRoleTypes.Impostor) && !player.IsAlive() && Options.DeadImpCantSabotage.GetBool()) return false;
+                if (player.Is(CustomRoleTypes.Impostor) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool()) && !player.Is(CustomRoles.Minimalism) && !player.Is(CustomRoles.Mafioso)) return true;
+                return player.GetCustomRole() switch
                 {
-                    case CustomRoles.Glitch:
-                        Glitch.Mimic(player);
-                        return false;
-                    case CustomRoles.Magician:
-                        Magician.UseCard(player);
-                        return false;
-                    case CustomRoles.WeaponMaster:
-                        WeaponMaster.SwitchMode();
-                        return false;
-                    case CustomRoles.Enderman:
-                        Enderman.MarkPosition();
-                        return false;
-                    case CustomRoles.Hookshot:
-                        Hookshot.ExecuteAction();
-                        return false;
-                    case CustomRoles.Mycologist when Mycologist.SpreadAction.GetValue() == 1 || (Mycologist.SpreadAction.GetValue() == 2 && !Options.UsePets.GetBool()):
-                        Mycologist.SpreadSpores();
-                        return false;
-                    case CustomRoles.Sprayer:
-                        Sprayer.PlaceTrap();
-                        return false;
-                    case CustomRoles.Jackal when Jackal.CanUseSabotage.GetBool():
-                        return true;
-                    case CustomRoles.Sidekick when Jackal.CanUseSabotageSK.GetBool():
-                        return true;
-                    case CustomRoles.Traitor when Traitor.CanUseSabotage.GetBool():
-                        return true;
-                    case CustomRoles.Parasite when player.IsAlive():
-                        return true;
-                    case CustomRoles.Refugee when player.IsAlive():
-                        return true;
-                    default:
-                        return false;
-                }
+                    CustomRoles.Jackal when Jackal.CanSabotage.GetBool() => true,
+                    CustomRoles.Sidekick when Jackal.CanSabotageSK.GetBool() => true,
+                    CustomRoles.Traitor when Traitor.CanSabotage.GetBool() => true,
+                    CustomRoles.Parasite when player.IsAlive() => true,
+                    CustomRoles.Refugee when player.IsAlive() => true,
+                    _ => Main.PlayerStates[player.PlayerId].Role.CanUseSabotage(player)
+                };
             case SystemTypes.Security when amount == 1:
                 var camerasDisabled = (MapNames)Main.NormalOptions.MapId switch
                 {
@@ -155,11 +148,14 @@ class RepairSystemPatch
                 {
                     player.Notify(Translator.GetString("CamerasDisabledNotify"), 15f);
                 }
+
                 return !camerasDisabled;
         }
+
         return true;
     }
-    public static void Postfix(/*ShipStatus __instance,*/
+
+    public static void Postfix( /*ShipStatus __instance,*/
         [HarmonyArgument(0)] SystemTypes systemType,
         [HarmonyArgument(1)] PlayerControl player,
         [HarmonyArgument(2)] byte amount)
@@ -168,32 +164,31 @@ class RepairSystemPatch
 
         switch (systemType)
         {
-            case SystemTypes.Electrical when 0 <= amount && amount <= 4:
+            case SystemTypes.Electrical when amount <= 4:
+                var SwitchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.Cast<SwitchSystem>();
+                if (SwitchSystem is { IsActive: true })
                 {
-                    var SwitchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.Cast<SwitchSystem>();
-                    if (SwitchSystem != null && SwitchSystem.IsActive)
+                    switch (player.GetCustomRole())
                     {
-                        switch (player.GetCustomRole())
-                        {
-                            case CustomRoles.SabotageMaster:
-                                Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
-                                SabotageMaster.SwitchSystemRepair(SwitchSystem, amount);
-                                Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
-                                break;
-                            case CustomRoles.Alchemist when Alchemist.FixNextSabo:
-                                Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
-                                SwitchSystem.ActualSwitches = 0;
-                                SwitchSystem.ExpectedSwitches = 0;
-                                Alchemist.FixNextSabo = false;
-                                Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
-                                break;
-                        }
-                        if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage) Damocles.OnRepairSabotage(player.PlayerId);
-                        if (player.Is(CustomRoles.Stressed) && Stressed.countRepairSabotage) Stressed.OnRepairSabotage(player);
+                        case CustomRoles.SabotageMaster:
+                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
+                            SabotageMaster.SwitchSystemRepair(player.PlayerId, SwitchSystem, amount);
+                            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                            break;
+                        case CustomRoles.Alchemist when Main.PlayerStates[player.PlayerId].Role is Alchemist { FixNextSabo: true } am:
+                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
+                            SwitchSystem.ActualSwitches = 0;
+                            SwitchSystem.ExpectedSwitches = 0;
+                            am.FixNextSabo = false;
+                            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                            break;
                     }
-                    break;
+
+                    if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage) Damocles.OnRepairSabotage(player.PlayerId);
+                    if (player.Is(CustomRoles.Stressed) && Stressed.countRepairSabotage) Stressed.OnRepairSabotage(player);
                 }
 
+                break;
             case SystemTypes.Reactor:
             case SystemTypes.LifeSupp:
             case SystemTypes.Comms:
@@ -205,6 +200,7 @@ class RepairSystemPatch
                 break;
         }
     }
+
     public static void CheckAndOpenDoorsRange(ShipStatus __instance, int amount, int min, int max)
     {
         var Ids = new List<int>();
@@ -212,8 +208,10 @@ class RepairSystemPatch
         {
             Ids.Add(i);
         }
+
         CheckAndOpenDoors(__instance, amount, [.. Ids]);
     }
+
     private static void CheckAndOpenDoors(ShipStatus __instance, int amount, params int[] DoorIds)
     {
         if (!DoorIds.Contains(amount)) return;
@@ -223,20 +221,22 @@ class RepairSystemPatch
         }
     }
 }
+
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.CloseDoorsOfType))]
 class CloseDoorsPatch
 {
-    public static bool Prefix(/*ShipStatus __instance, */[HarmonyArgument(0)] SystemTypes room)
+    public static bool Prefix( /*ShipStatus __instance, */ [HarmonyArgument(0)] SystemTypes room)
     {
         bool allow = !Options.DisableSabotage.GetBool() && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop;
 
-        if (Main.BlockSabo.Count > 0) allow = false;
+        if (SecurityGuard.BlockSabo.Count > 0) allow = false;
         if (Options.DisableCloseDoor.GetBool()) allow = false;
 
         Logger.Info($"({room}) => {(allow ? "Allowed" : "Blocked")}", "DoorClose");
         return allow;
     }
 }
+
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Start))]
 class StartPatch
 {
@@ -249,28 +249,30 @@ class StartPatch
 
         if (Options.AllowConsole.GetBool())
         {
-            if (!BepInEx.ConsoleManager.ConsoleActive && BepInEx.ConsoleManager.ConsoleEnabled)
-                BepInEx.ConsoleManager.CreateConsole();
+            if (!ConsoleManager.ConsoleActive && ConsoleManager.ConsoleEnabled)
+                ConsoleManager.CreateConsole();
         }
         else
         {
-            if (BepInEx.ConsoleManager.ConsoleActive && !DebugModeManager.AmDebugger)
+            if (ConsoleManager.ConsoleActive && !DebugModeManager.AmDebugger)
             {
-                BepInEx.ConsoleManager.DetachConsole();
+                ConsoleManager.DetachConsole();
                 Logger.SendInGame("Sorry, console use is prohibited in this room, so your console has been turned off");
             }
         }
     }
 }
+
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.StartMeeting))]
 class StartMeetingPatch
 {
-    public static void Prefix(/*ShipStatus __instance, PlayerControl reporter,*/ GameData.PlayerInfo target)
+    public static void Prefix( /*ShipStatus __instance, PlayerControl reporter,*/ GameData.PlayerInfo target)
     {
         MeetingStates.ReportTarget = target;
-        MeetingStates.DeadBodies = UnityEngine.Object.FindObjectsOfType<DeadBody>();
+        MeetingStates.DeadBodies = Object.FindObjectsOfType<DeadBody>();
     }
 }
+
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Begin))]
 class BeginPatch
 {
@@ -278,19 +280,37 @@ class BeginPatch
     {
         Logger.CurrentMethod();
 
-        //Should I initialize the host role here?
+        //Should I initialize the host role here? - no
     }
 }
+
 [HarmonyPatch(typeof(GameManager), nameof(GameManager.CheckTaskCompletion))]
 class CheckTaskCompletionPatch
 {
     public static bool Prefix(ref bool __result)
     {
-        if (Options.DisableTaskWin.GetBool() || Options.NoGameEnd.GetBool() || TaskState.InitialTotalTasks == 0 || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato)
+        if (Options.DisableTaskWin.GetBool() || Options.NoGameEnd.GetBool() || TaskState.InitialTotalTasks == 0 || (Options.DisableTaskWinIfAllCrewsAreDead.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoleTypes.Crewmate))) || Options.CurrentGameMode != CustomGameMode.Standard)
         {
             __result = false;
             return false;
         }
+
+        return true;
+    }
+}
+
+[HarmonyPatch(typeof(HauntMenuMinigame), nameof(HauntMenuMinigame.SetFilterText))]
+public static class HauntMenuMinigameSetFilterTextPatch
+{
+    public static bool Prefix(HauntMenuMinigame __instance)
+    {
+        if (__instance.HauntTarget != null && Options.GhostCanSeeOtherRoles.GetBool())
+        {
+            var id = __instance.HauntTarget.PlayerId;
+            __instance.FilterText.text = Utils.GetDisplayRoleName(id) + Utils.GetProgressText(id);
+            return false;
+        }
+
         return true;
     }
 }

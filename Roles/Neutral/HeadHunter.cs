@@ -1,14 +1,16 @@
 using AmongUs.GameOptions;
+using EHR.Modules;
 using Hazel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Neutral;
+namespace EHR.Roles.Neutral;
 
-public static class HeadHunter
+public class HeadHunter : RoleBase
 {
-    private static readonly int Id = 12870;
+    private const int Id = 12870;
     public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
@@ -20,12 +22,13 @@ public static class HeadHunter
     private static OptionItem MinKCD;
     private static OptionItem MaxKCD;
 
-    public static List<byte> Targets = [];
-    public static float KCD = 25;
+    public List<byte> Targets = [];
+    public float KCD = DefaultKillCooldown;
+    private byte HeadHunterId;
 
     public static void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.HeadHunter, 1, zeroOne: false);
+        SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.HeadHunter);
         KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 27.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
             .SetValueFormat(OptionFormat.Seconds);
         SuccessKillCooldown = FloatOptionItem.Create(Id + 11, "HHSuccessKCDDecrease", new(0f, 180f, 0.5f), 3f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
@@ -42,14 +45,19 @@ public static class HeadHunter
         MinKCD = FloatOptionItem.Create(Id + 17, "HHMinKCD", new(0f, 180f, 2.5f), 10f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
             .SetValueFormat(OptionFormat.Seconds);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
         Targets = [];
+        HeadHunterId = byte.MaxValue;
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
+        HeadHunterId = playerId;
+        Targets = [];
         _ = new LateTask(ResetTargets, 8f);
         KCD = KillCooldown.GetFloat();
 
@@ -57,44 +65,69 @@ public static class HeadHunter
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    private static void SendRPC()
+
+    void SendRPC()
     {
         var writer = Utils.CreateCustomRoleRPC(CustomRPC.SyncHeadHunter);
+        writer.Write(HeadHunterId);
         writer.Write(Targets.Count);
         foreach (var target in Targets.ToArray()) writer.Write(target);
         Utils.EndRPC(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader)
     {
-        Targets.Clear();
+        var playerId = reader.ReadByte();
+        if (Main.PlayerStates[playerId].Role is not HeadHunter hh) return;
+        hh.Targets.Clear();
         int count = reader.ReadInt32();
-        for (int i = 0; i < count; i++) Targets.Add(reader.ReadByte());
+        for (int i = 0; i < count; i++) hh.Targets.Add(reader.ReadByte());
     }
-    public static bool IsEnable => playerIdList.Count > 0;
-    public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
-    public static void OnReportDeadBody()
+
+    public override bool IsEnable => playerIdList.Count > 0;
+    public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+
+    public override void SetKillCooldown(byte id)
+    {
+        Main.AllPlayerKillCooldown[id] = KCD;
+    }
+
+    public override void OnReportDeadBody()
     {
         ResetTargets();
     }
-    public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         float tempkcd = KCD;
-        if (Targets.Contains(target.PlayerId)) System.Math.Clamp(KCD -= SuccessKillCooldown.GetFloat(), MinKCD.GetFloat(), MaxKCD.GetFloat());
-        else System.Math.Clamp(KCD += FailureKillCooldown.GetFloat(), MinKCD.GetFloat(), MaxKCD.GetFloat());
-        if (KCD != tempkcd)
+        if (Targets.Contains(target.PlayerId)) Math.Clamp(KCD -= SuccessKillCooldown.GetFloat(), MinKCD.GetFloat(), MaxKCD.GetFloat());
+        else Math.Clamp(KCD += FailureKillCooldown.GetFloat(), MinKCD.GetFloat(), MaxKCD.GetFloat());
+        if (Math.Abs(KCD - tempkcd) > 0.5f)
         {
             killer.ResetKillCooldown();
             killer.SyncSettings();
         }
+
+        return true;
     }
+
     public static string GetHudText(PlayerControl player)
     {
         var targetId = player.PlayerId;
         string output = string.Empty;
-        for (int i = 0; i < Targets.Count; i++) { byte playerId = Targets[i]; if (i != 0) output += ", "; output += Utils.GetPlayerById(playerId).GetRealName(); }
+        if (Main.PlayerStates[targetId].Role is not HeadHunter hh) return output;
+        for (int i = 0; i < hh.Targets.Count; i++)
+        {
+            byte playerId = hh.Targets[i];
+            if (i != 0) output += ", ";
+            output += Utils.GetPlayerById(playerId).GetRealName();
+        }
+
         return targetId != 0xff ? $"<color=#00ffa5>Targets:</color> <b>{output}</b>" : string.Empty;
     }
-    public static void ResetTargets()
+
+    void ResetTargets()
     {
         if (!AmongUsClient.Instance.AmHost) return;
         Targets.Clear();
@@ -103,18 +136,20 @@ public static class HeadHunter
             try
             {
                 var cTargets = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(pc => !Targets.Contains(pc.PlayerId) && pc.GetCustomRole() != CustomRoles.HeadHunter));
-                if (cTargets == null || cTargets.Count == 0) break;
+                if (cTargets.Count == 0) break;
                 var target = cTargets[IRandom.Instance.Next(0, cTargets.Count)];
                 Targets.Add(target.PlayerId);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Logger.Warn($"Not enough targets for Head Hunter could be assigned. This may be due to a low player count or the following error:\n\n{ex}", "HeadHunterAssignTargets");
+                SendRPC();
+                Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(HeadHunterId));
                 break;
             }
         }
 
         SendRPC();
-        Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(playerIdList[0]));
+        Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(HeadHunterId));
     }
 }

@@ -5,13 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using static TOHE.Translator;
+using static EHR.Translator;
 
-namespace TOHE;
+namespace EHR;
 
 public static class SpamManager
 {
-    private static readonly string BANEDWORDS_FILE_PATH = "./TOHE_DATA/BanWords.txt";
+    private static readonly string BANEDWORDS_FILE_PATH = "./EHR_DATA/BanWords.txt";
     public static List<string> BanWords = [];
     public static void Init()
     {
@@ -24,7 +24,7 @@ public static class SpamManager
         {
             try
             {
-                if (!Directory.Exists(@"TOHE_DATA")) Directory.CreateDirectory(@"TOHE_DATA");
+                if (!Directory.Exists(@"EHR_DATA")) Directory.CreateDirectory(@"EHR_DATA");
                 if (File.Exists(@"./BanWords.txt")) File.Move(@"./BanWords.txt", BANEDWORDS_FILE_PATH);
                 else
                 {
@@ -39,7 +39,7 @@ public static class SpamManager
                         };
                     else fileName = "English";
                     Logger.Warn($"创建新的 BanWords 文件：{fileName}", "SpamManager");
-                    File.WriteAllText(BANEDWORDS_FILE_PATH, GetResourcesTxt($"TOHE.Resources.Config.BanWords.{fileName}.txt"));
+                    File.WriteAllText(BANEDWORDS_FILE_PATH, GetResourcesTxt($"EHR.Resources.Config.BanWords.{fileName}.txt"));
                 }
             }
             catch (Exception ex)
@@ -76,18 +76,15 @@ public static class SpamManager
         {
             if (ContainsStart(text) && GameStates.IsLobby)
             {
-                msg = string.Format(GetString("Message.KickWhoSayStart"), name);
-                if (Options.AutoKickStart.GetBool())
+                if (!Main.SayStartTimes.ContainsKey(player.GetClientId())) Main.SayStartTimes.Add(player.GetClientId(), 0);
+                Main.SayStartTimes[player.GetClientId()]++;
+                msg = string.Format(GetString("Message.WarnWhoSayStart"), name, Main.SayStartTimes[player.GetClientId()]);
+                if (Main.SayStartTimes[player.GetClientId()] > Options.AutoKickStartTimes.GetInt())
                 {
-                    if (!Main.SayStartTimes.ContainsKey(player.GetClientId())) Main.SayStartTimes.Add(player.GetClientId(), 0);
-                    Main.SayStartTimes[player.GetClientId()]++;
-                    msg = string.Format(GetString("Message.WarnWhoSayStart"), name, Main.SayStartTimes[player.GetClientId()]);
-                    if (Main.SayStartTimes[player.GetClientId()] > Options.AutoKickStartTimes.GetInt())
-                    {
-                        msg = string.Format(GetString("Message.KickStartAfterWarn"), name, Main.SayStartTimes[player.GetClientId()]);
-                        kick = true;
-                    }
+                    msg = string.Format(GetString("Message.KickStartAfterWarn"), name, Main.SayStartTimes[player.GetClientId()]);
+                    kick = true;
                 }
+
                 if (msg != string.Empty && msg != "") Utils.SendMessage(msg);
                 if (kick) AmongUsClient.Instance.KickPlayer(player.GetClientId(), Options.AutoKickStartAsBan.GetBool());
                 return true;

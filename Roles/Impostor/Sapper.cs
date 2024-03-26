@@ -1,24 +1,25 @@
-﻿using System.Collections.Generic;
+﻿using AmongUs.GameOptions;
+using EHR.Roles.Neutral;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TOHE.Roles.Neutral;
 using UnityEngine;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+using static EHR.Options;
+using static EHR.Translator;
+using static EHR.Utils;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
-    public static class Sapper
+    public class Sapper : RoleBase
     {
-        private static readonly int Id = 643000;
+        private const int Id = 643000;
         public static List<byte> playerIdList = [];
 
         public static OptionItem ShapeshiftCooldown;
         private static OptionItem Delay;
         private static OptionItem Radius;
 
-        public static Dictionary<Vector2, long> Bombs;
+        public static Dictionary<Vector2, long> Bombs = [];
 
         public static void SetupCustomOption()
         {
@@ -31,40 +32,65 @@ namespace TOHE.Roles.Impostor
                 .SetValueFormat(OptionFormat.Multiplier);
         }
 
-        public static void Init()
+        public override void Init()
         {
             playerIdList = [];
             Bombs = [];
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
         }
 
-        public static void ApplyGameOptions()
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
             AURoleOptions.ShapeshifterDuration = 1f;
         }
 
-        public static bool IsEnable => playerIdList.Count > 0;
-
-        public static void OnShapeshift(PlayerControl pc, bool isPet = false)
+        public override void SetKillCooldown(byte id)
         {
-            if (pc == null) return;
-            if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return;
-
-            Bombs.TryAdd(pc.Pos(), GetTimeStamp());
-
-            //if (!isPet) _ = new LateTask(() => { pc.CmdCheckRevertShapeshift(false); }, 1.5f, "Sapper RpcRevertShapeshift");
+            Main.AllPlayerKillCooldown[id] = 300f;
         }
 
-        public static void OnFixedUpdate(PlayerControl pc)
-        {
-            if (pc == null || Bombs.Count == 0 || !GameStates.IsInTask || !pc.IsAlive() || !pc.Is(CustomRoles.Sapper)) return;
+        public override bool IsEnable => playerIdList.Count > 0;
 
-            foreach (var bomb in Bombs.Where(bomb => bomb.Value + Delay.GetInt() < GetTimeStamp()))
+        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+        {
+            return PlaceBomb(shapeshifter);
+        }
+
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        {
+            return false;
+        }
+
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return false;
+        }
+
+        public override void OnPet(PlayerControl pc)
+        {
+            PlaceBomb(pc);
+        }
+
+        public static bool PlaceBomb(PlayerControl pc)
+        {
+            if (pc == null) return false;
+            if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
+
+            Bombs.TryAdd(pc.Pos(), TimeStamp);
+
+            return false;
+        }
+
+        public override void OnFixedUpdate(PlayerControl pc)
+        {
+            if (pc == null || Bombs.Count == 0 || !GameStates.IsInTask || !pc.IsAlive()) return;
+
+            foreach (var bomb in Bombs.Where(bomb => bomb.Value + Delay.GetInt() < TimeStamp))
             {
                 bool b = false;
                 var players = GetPlayersInRadius(Radius.GetFloat(), bomb.Key);
@@ -75,29 +101,32 @@ namespace TOHE.Roles.Impostor
                         b = true;
                         continue;
                     }
+
                     tg.Suicide(PlayerState.DeathReason.Bombed, pc);
                 }
+
                 Bombs.Remove(bomb.Key);
                 pc.Notify(GetString("MagicianBombExploded"));
-                if (b) _ = new LateTask(() =>
-                {
-                    if (!GameStates.IsEnded)
+                if (b)
+                    _ = new LateTask(() =>
                     {
-                        pc.Suicide(PlayerState.DeathReason.Bombed);
-                    }
-                }, 0.5f, "Sapper Bomb Suicide");
+                        if (!GameStates.IsEnded)
+                        {
+                            pc.Suicide(PlayerState.DeathReason.Bombed);
+                        }
+                    }, 0.5f, "Sapper Bomb Suicide");
             }
 
             var sb = new StringBuilder();
-            long[] list = [.. Bombs.Values];
-            foreach (long x in list)
+            foreach (long x in Bombs.Values)
             {
-                sb.Append(string.Format(GetString("MagicianBombExlodesIn"), Delay.GetInt() - (GetTimeStamp() - x) + 1));
+                sb.Append(string.Format(GetString("MagicianBombExlodesIn"), Delay.GetInt() - (TimeStamp - x) + 1));
             }
+
             pc.Notify(sb.ToString());
         }
 
-        public static void OnReportDeadBody()
+        public override void OnReportDeadBody()
         {
             Bombs.Clear();
         }

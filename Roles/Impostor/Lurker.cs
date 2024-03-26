@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
-    public static class Lurker
+    public class Lurker : RoleBase
     {
-        private static readonly int Id = 2100;
+        private const int Id = 2100;
         public static List<byte> playerIdList = [];
 
         private static OptionItem DefaultKillCooldown;
@@ -19,19 +19,22 @@ namespace TOHE.Roles.Impostor
             ReduceKillCooldown = FloatOptionItem.Create(Id + 11, "SansReduceKillCooldown", new(0f, 10f, 1f), 1f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Lurker])
                 .SetValueFormat(OptionFormat.Seconds);
         }
-        public static void Init()
+
+        public override void Init()
         {
             playerIdList = [];
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
         }
-        public static bool IsEnable() => playerIdList.Count > 0;
 
-        public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = DefaultKillCooldown.GetFloat();
+        public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void OnEnterVent(PlayerControl pc)
+        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = DefaultKillCooldown.GetFloat();
+
+        public override void OnEnterVent(PlayerControl pc, Vent vent)
         {
             if (!pc.Is(CustomRoles.Lurker)) return;
 
@@ -45,7 +48,7 @@ namespace TOHE.Roles.Impostor
             pc.SyncSettings();
         }
 
-        public static bool OnCheckMurder(PlayerControl killer)
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             killer.ResetKillCooldown();
             killer.SyncSettings();

@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 
-namespace TOHE.Patches;
+namespace EHR.Patches;
 
 // https://github.com/tukasa0001/TownOfHost/blob/main/Patches/ActionButtonPatch.cs
 
@@ -11,7 +11,7 @@ public static class SabotageButtonDoClickPatch
     {
         if (!PlayerControl.LocalPlayer.inVent && GameManager.Instance.SabotagesEnabled())
         {
-            DestroyableSingleton<HudManager>.Instance.ToggleMapVisible(new MapOptions
+            DestroyableSingleton<HudManager>.Instance.ToggleMapVisible(new()
             {
                 Mode = MapOptions.Modes.Sabotage
             });

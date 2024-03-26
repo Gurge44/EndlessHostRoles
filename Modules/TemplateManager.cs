@@ -1,5 +1,6 @@
 using AmongUs.Data;
 using HarmonyLib;
+using InnerNet;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -8,18 +9,20 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using static TOHE.Translator;
+using UnityEngine;
+using static EHR.Translator;
 
-namespace TOHE;
+namespace EHR;
 
 public static class TemplateManager
 {
-    private static readonly string TEMPLATE_FILE_PATH = "./TOHE_DATA/template.txt";
+    private static readonly string TEMPLATE_FILE_PATH = "./EHR_DATA/template.txt";
+
     private static readonly Dictionary<string, Func<string>> _replaceDictionary = new()
     {
-        ["RoomCode"] = () => InnerNet.GameCode.IntToGameName(AmongUsClient.Instance.GameId),
+        ["RoomCode"] = () => GameCode.IntToGameName(AmongUsClient.Instance.GameId),
         ["PlayerName"] = () => DataManager.Player.Customization.Name,
-        ["AmongUsVersion"] = () => UnityEngine.Application.version,
+        ["AmongUsVersion"] = () => Application.version,
         ["InternalVersion"] = () => Main.PluginVersion,
         ["ModVersion"] = () => Main.PluginDisplayVersion,
         ["Map"] = () => Constants.MapNames[Main.NormalOptions.MapId],
@@ -36,7 +39,6 @@ public static class TemplateManager
         ["NumShortTasks"] = () => Main.NormalOptions.NumShortTasks.ToString(),
         ["Date"] = () => DateTime.Now.ToShortDateString(),
         ["Time"] = () => DateTime.Now.ToShortTimeString(),
-
     };
 
     public static void Init()
@@ -50,7 +52,7 @@ public static class TemplateManager
         {
             try
             {
-                if (!Directory.Exists(@"TOHE_DATA")) Directory.CreateDirectory(@"TOHE_DATA");
+                if (!Directory.Exists(@"EHR_DATA")) Directory.CreateDirectory(@"EHR_DATA");
                 if (File.Exists(@"./template.txt")) File.Move(@"./template.txt", TEMPLATE_FILE_PATH);
                 else
                 {
@@ -65,7 +67,7 @@ public static class TemplateManager
                         };
                     else fileName = "English";
                     Logger.Warn($"创建新的 Template 文件：{fileName}", "TemplateManager");
-                    File.WriteAllText(TEMPLATE_FILE_PATH, GetResourcesTxt($"TOHE.Resources.Config.template.{fileName}.txt"));
+                    File.WriteAllText(TEMPLATE_FILE_PATH, GetResourcesTxt($"EHR.Resources.Config.template.{fileName}.txt"));
                 }
             }
             catch (Exception ex)
@@ -92,26 +94,28 @@ public static class TemplateManager
     {
         CreateIfNotExists();
         using StreamReader sr = new(TEMPLATE_FILE_PATH, Encoding.GetEncoding("UTF-8"));
-        string text;
-        string[] tmp = [];
         List<string> sendList = [];
         HashSet<string> tags = [];
-        while ((text = sr.ReadLine()) != null)
+        while (sr.ReadLine() is { } text)
         {
-            tmp = text.Split(":");
+            string[] tmp = text.Split(":");
             if (tmp.Length > 1 && tmp[1] != "")
             {
                 tags.Add(tmp[0]);
-                if (tmp[0].ToLower() == str.ToLower()) sendList.Add(tmp.Skip(1).Join(delimiter: ":").Replace("\\n", "\n"));
+                if (string.Equals(tmp[0], str, StringComparison.CurrentCultureIgnoreCase))
+                    sendList.Add(tmp.Skip(1).Join(delimiter: ":").Replace("\\n", "\n"));
             }
         }
+
         if (sendList.Count == 0 && !noErr)
         {
             if (playerId == 0xff)
                 HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.TemplateNotFoundHost"), str, tags.Join(delimiter: ", ")));
             else Utils.SendMessage(string.Format(GetString("Message.TemplateNotFoundClient"), str), playerId);
         }
-        else foreach (string x in sendList.ToArray()) Utils.SendMessage(ApplyReplaceDictionary(x), playerId);
+        else
+            foreach (string x in sendList)
+                Utils.SendMessage(ApplyReplaceDictionary(x), playerId);
     }
 
     private static string ApplyReplaceDictionary(string text)
@@ -120,6 +124,7 @@ public static class TemplateManager
         {
             text = Regex.Replace(text, "{{" + kvp.Key + "}}", kvp.Value.Invoke() ?? "", RegexOptions.IgnoreCase);
         }
+
         return text;
     }
 }

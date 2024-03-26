@@ -1,19 +1,20 @@
+using AmongUs.GameOptions;
 using System.Collections.Generic;
-using UnityEngine;
 
-namespace TOHE.Roles.Crewmate;
+namespace EHR.Roles.Crewmate;
 
-public static class Crusader
+public class Crusader : RoleBase
 {
-    private static readonly int Id = 20050;
+    private const int Id = 20050;
     private static List<byte> playerIdList = [];
+
+    public static List<byte> ForCrusade = [];
 
     public static OptionItem SkillLimitOpt;
     public static OptionItem SkillCooldown;
     public static OptionItem UsePet;
 
-    public static Dictionary<byte, float> CurrentKillCooldown = [];
-    public static Dictionary<byte, int> CrusaderLimit = [];
+    public float CurrentKillCooldown;
 
     public static void SetupCustomOption()
     {
@@ -24,55 +25,42 @@ public static class Crusader
             .SetValueFormat(OptionFormat.Times);
         UsePet = Options.CreatePetUseSetting(Id + 12, CustomRoles.Crusader);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
-        CrusaderLimit = [];
+        CurrentKillCooldown = SkillCooldown.GetFloat();
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        CrusaderLimit.TryAdd(playerId, SkillLimitOpt.GetInt());
-        CurrentKillCooldown.Add(playerId, SkillCooldown.GetFloat());
+        playerId.SetAbilityUseLimit(SkillLimitOpt.GetInt());
+        CurrentKillCooldown = SkillCooldown.GetFloat();
 
         if (!AmongUsClient.Instance.AmHost || (Options.UsePets.GetBool() && UsePet.GetBool())) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public static void Remove(byte playerId)
-    {
-        playerIdList.Remove(playerId);
-        CrusaderLimit.Remove(playerId);
+    public override bool IsEnable => playerIdList.Count > 0;
 
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Remove(playerId);
-    }
-    public static bool IsEnable => playerIdList.Count > 0;
-    //public static void ReceiveRPC(MessageReader reader)
-    //{
-    //    byte PlayerId = reader.ReadByte();
-    //    int Limit = reader.ReadInt32();
-    //    if (CrusaderLimit.ContainsKey(PlayerId))
-    //        CrusaderLimit[PlayerId] = Limit;
-    //    else
-    //        CrusaderLimit.Add(PlayerId, SkillLimitOpt.GetInt());
-    //}
-    public static bool CanUseKillButton(byte playerId)
-        => !Main.PlayerStates[playerId].IsDead
-        && (CrusaderLimit.TryGetValue(playerId, out var x) ? x : 1) >= 1;
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanUseKillButton(id) ? CurrentKillCooldown[id] : 0f;
-    public static string GetSkillLimit(byte playerId) => Utils.ColorString(CanUseKillButton(playerId) ? Utils.GetRoleColor(CustomRoles.Crusader).ShadeColor(0.25f) : Color.gray, CrusaderLimit.TryGetValue(playerId, out var constableLimit) ? $"({constableLimit})" : "Invalid");
-    public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    public override bool CanUseKillButton(PlayerControl pc)
+        => !Main.PlayerStates[pc.PlayerId].IsDead
+           && (pc.GetAbilityUseLimit() >= 1);
+
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanUseKillButton(Utils.GetPlayerById(id)) ? CurrentKillCooldown : 15f;
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (CrusaderLimit[killer.PlayerId] <= 0) return false;
-        Main.ForCrusade.Remove(target.PlayerId);
-        Main.ForCrusade.Add(target.PlayerId);
-        CrusaderLimit[killer.PlayerId]--;
+        if (killer.GetAbilityUseLimit() <= 0) return false;
+        ForCrusade.Remove(target.PlayerId);
+        ForCrusade.Add(target.PlayerId);
+        killer.RpcRemoveAbilityUse();
         killer.ResetKillCooldown();
         killer.SetKillCooldown();
-        //killer.RpcGuardAndKill(target);
         target.RpcGuardAndKill(killer);
         return false;
     }

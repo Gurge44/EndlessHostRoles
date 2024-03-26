@@ -1,9 +1,8 @@
-namespace TOHE;
+#pragma warning disable CA1822
+namespace EHR;
 
 public class HashRandomWrapper : IRandom
 {
-    public HashRandomWrapper() { }
-
     public int Next(int minValue, int maxValue) => HashRandom.Next(minValue, maxValue);
     public int Next(int maxValue) => HashRandom.Next(maxValue);
     public uint Next() => HashRandom.Next();

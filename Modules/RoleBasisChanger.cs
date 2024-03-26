@@ -1,16 +1,17 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Roles.Neutral;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
-using TOHE.Roles.Neutral;
 using UnityEngine;
 
-namespace TOHE.Modules
+namespace EHR.Modules
 {
     // https://github.com/Rabek009/MoreGamemodes
     internal static class RoleBasisChanger
     {
-        public static bool IsChangeInProgress = false;
+        public static bool IsChangeInProgress;
+
         public static void ChangeRoleBasis(this PlayerControl player, RoleTypes targetVNRole)
         {
             if (!AmongUsClient.Instance.AmHost) return;
@@ -42,7 +43,7 @@ namespace TOHE.Modules
 
             player.TP(Pelican.GetBlackRoomPS());
             AmongUsClient.Instance.Despawn(player);
-            AmongUsClient.Instance.Spawn(newplayer, player.OwnerId, SpawnFlags.None);
+            AmongUsClient.Instance.Spawn(newplayer, player.OwnerId);
             pclient.Character = newplayer;
 
             newplayer.OwnerId = player.OwnerId;
@@ -60,6 +61,7 @@ namespace TOHE.Modules
             GameData.Instance.SetDirty();
             newplayer.ReactorFlash(0.2f);
             newplayer.TP(position);
+            newplayer.ResetPlayerCam();
 
             _ = new LateTask(() => { IsChangeInProgress = false; }, 5f, log: false);
         }
@@ -71,7 +73,7 @@ namespace TOHE.Modules
             {
                 if (!IsChangeInProgress) return true;
 
-                ownerId = ((ownerId == -3) ? __instance.ClientId : ownerId);
+                ownerId = (ownerId == -3) ? __instance.ClientId : ownerId;
                 MessageWriter messageWriter = __instance.Streams[0];
                 __instance.WriteSpawnMessage(netObjParent, ownerId, flags, messageWriter);
                 return false;

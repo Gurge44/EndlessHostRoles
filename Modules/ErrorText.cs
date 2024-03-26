@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
-using static TOHE.Translator;
+using static EHR.Translator;
 
-namespace TOHE;
+namespace EHR;
 
 public class ErrorText : MonoBehaviour
 {
     #region Singleton
+
     public static ErrorText Instance => _instance;
 
     private static ErrorText _instance;
@@ -26,8 +28,10 @@ public class ErrorText : MonoBehaviour
             DontDestroyOnLoad(this);
         }
     }
+
     #endregion
-    public static void Create(TMPro.TextMeshPro baseText)
+
+    public static void Create(TextMeshPro baseText)
     {
         var Text = Instantiate(baseText);
         var instance = Text.gameObject.AddComponent<ErrorText>();
@@ -38,13 +42,14 @@ public class ErrorText : MonoBehaviour
         Text.text = "NO ERROR";
         Text.color = Color.red;
         Text.outlineColor = Color.black;
-        Text.alignment = TMPro.TextAlignmentOptions.Top;
+        Text.alignment = TextAlignmentOptions.Top;
     }
 
-    public TMPro.TextMeshPro Text;
+    public TextMeshPro Text;
     public Camera Camera;
     public List<ErrorData> AllErrors = [];
     public Vector3 TextOffset = new(0, 0.3f, -1000f);
+
     public void Update()
     {
         AllErrors.ForEach(err => err.IncreaseTimer());
@@ -57,6 +62,7 @@ public class ErrorText : MonoBehaviour
                 Destroy(gameObject);
         }
     }
+
     public void LateUpdate()
     {
         if (!Text.enabled) return;
@@ -68,19 +74,21 @@ public class ErrorText : MonoBehaviour
             transform.position = AspectPosition.ComputeWorldPosition(Camera, AspectPosition.EdgeAlignments.Top, TextOffset);
         }
     }
+
     public void AddError(ErrorCode code)
     {
         var error = new ErrorData(code);
         if (0 < error.ErrorLevel)
-            Logger.Error($"エラー発生: {error}: {error.Message}", "ErrorText");
+            Logger.Error($"Error: {error}: {error.Message}", "ErrorText");
 
-        if (!AllErrors.Any(e => e.Code == code))
+        if (AllErrors.All(e => e.Code != code))
         {
-            //まだ出ていないエラー
             AllErrors.Add(error);
         }
+
         UpdateText();
     }
+
     public void UpdateText()
     {
         try
@@ -92,6 +100,7 @@ public class ErrorText : MonoBehaviour
                 text += $"{err}: {err.Message}\n";
                 if (maxLevel < err.ErrorLevel) maxLevel = err.ErrorLevel;
             }
+
             if (maxLevel == 0)
             {
                 Text.enabled = false;
@@ -104,16 +113,20 @@ public class ErrorText : MonoBehaviour
                     text = SBDetected ? GetString("EAC.CheatDetected.HighLevel") : GetString("EAC.CheatDetected.LowLevel");
                 Text.enabled = true;
             }
+
             if (GameStates.IsInGame && maxLevel != 3 && !CheatDetected)
                 text += $"\n{GetString("TerminateCommand")}: Shift+L+Enter";
             Text.text = text;
         }
-        catch (NullReferenceException) { }
+        catch (NullReferenceException)
+        {
+        }
         catch (Exception e)
         {
             Logger.Error(e.ToString(), "ErrorText.UpdateText");
         }
     }
+
     public void Clear()
     {
         AllErrors.RemoveAll(err => err.ErrorLevel != 3);
@@ -128,6 +141,7 @@ public class ErrorText : MonoBehaviour
         public readonly int ErrorLevel;
         public float Timer { get; private set; }
         public string Message => GetString(ToString());
+
         public ErrorData(ErrorCode code)
         {
             Code = code;
@@ -136,11 +150,13 @@ public class ErrorText : MonoBehaviour
             ErrorLevel = (int)code - (int)code / 10 * 10;
             Timer = 0f;
         }
+
         public override string ToString()
         {
             // ERR-xxx-yyy-z
             return $"ERR-{ErrorType1:000}-{ErrorType2:000}-{ErrorLevel:0}";
         }
+
         public void IncreaseTimer() => Timer += Time.deltaTime;
     }
 
@@ -148,6 +164,7 @@ public class ErrorText : MonoBehaviour
     public bool CheatDetected;
     public bool SBDetected;
 }
+
 public enum ErrorCode
 {
     //xxxyyyz: ERR-xxx-yyy-z
@@ -161,8 +178,10 @@ public enum ErrorCode
     // ==========
     // 001 Main
     Main_DictionaryError = 0010003, // 001-000-3 Main Dictionary Error
+
     // 002 Support related
-    UnsupportedVersion = 002_000_1,  // 002-000-1 AmongUs version is outdated
+    UnsupportedVersion = 002_000_1, // 002-000-1 AmongUs version is outdated
+
     // ==========
     // 000 Test
     NoError = 0000000, // 000-000-0 No Error

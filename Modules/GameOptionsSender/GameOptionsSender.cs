@@ -7,11 +7,12 @@ using System.Collections.Generic;
 using Array = Il2CppSystem.Array;
 using Buffer = Il2CppSystem.Buffer;
 
-namespace TOHE.Modules;
+namespace EHR.Modules;
 
 public abstract class GameOptionsSender
 {
     #region Static
+
     public readonly static List<GameOptionsSender> AllSenders = new(15) { new NormalGameOptionsSender() };
 
     public static void SendAllGameOptions()
@@ -36,7 +37,7 @@ public abstract class GameOptionsSender
         var opt = BuildGameOptions();
 
         // option => byte[]
-        MessageWriter writer = MessageWriter.Get(SendOption.None);
+        MessageWriter writer = MessageWriter.Get();
         writer.Write(opt.Version);
         writer.StartMessage(0);
         writer.Write((byte)opt.GameMode);
@@ -49,6 +50,7 @@ public abstract class GameOptionsSender
             writer.Recycle();
             Logger.Error("オプションのキャストに失敗しました", ToString());
         }
+
         writer.EndMessage();
 
         // 配列化&送信
@@ -59,6 +61,7 @@ public abstract class GameOptionsSender
         SendOptionsArray(byteArray);
         writer.Recycle();
     }
+
     public virtual void SendOptionsArray(Il2CppStructArray<byte> optionArray)
     {
         for (byte i = 0; i < GameManager.Instance.LogicComponents.Count; i++)
@@ -69,6 +72,7 @@ public abstract class GameOptionsSender
             }
         }
     }
+
     protected virtual void SendOptionsArray(Il2CppStructArray<byte> optionArray, byte LogicOptionsIndex, int targetClientId)
     {
         try
@@ -100,6 +104,7 @@ public abstract class GameOptionsSender
             Logger.Fatal(ex.ToString(), "GameOptionsSender.SendOptionsArray");
         }
     }
+
     public abstract IGameOptions BuildGameOptions();
 
     public virtual bool AmValid() => true;

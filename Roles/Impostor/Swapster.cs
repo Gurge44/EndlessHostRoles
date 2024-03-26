@@ -1,13 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using AmongUs.GameOptions;
+using System.Collections.Generic;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
-    internal class Swapster
+    internal class Swapster : RoleBase
     {
         private static int Id => 643320;
         public static OptionItem SSCD;
         public static readonly Dictionary<byte, byte> FirstSwapTarget = [];
-        public static void Init() => FirstSwapTarget.Clear();
+        public static bool On;
+        public override bool IsEnable => On;
+
+        public override void Init()
+        {
+            FirstSwapTarget.Clear();
+            On = false;
+        }
+
+        public override void Add(byte playerId) => On = true;
+
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Swapster);
@@ -15,9 +26,16 @@ namespace TOHE.Roles.Impostor
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Swapster])
                 .SetValueFormat(OptionFormat.Seconds);
         }
-        public static void OnShapeshift(PlayerControl swapster, PlayerControl target)
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (swapster == null || target == null || swapster == target) return;
+            AURoleOptions.ShapeshifterCooldown = SSCD.GetFloat();
+            AURoleOptions.ShapeshifterDuration = 1f;
+        }
+
+        public override bool OnShapeshift(PlayerControl swapster, PlayerControl target, bool shapeshifting)
+        {
+            if (swapster == null || target == null || swapster == target || !shapeshifting) return true;
             if (FirstSwapTarget.TryGetValue(swapster.PlayerId, out var firstTargetId))
             {
                 var firstTarget = Utils.GetPlayerById(firstTargetId);
@@ -30,6 +48,8 @@ namespace TOHE.Roles.Impostor
             {
                 FirstSwapTarget[swapster.PlayerId] = target.PlayerId;
             }
+
+            return false;
         }
     }
 }

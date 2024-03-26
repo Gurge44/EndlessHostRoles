@@ -1,51 +1,59 @@
-﻿using Hazel;
+﻿using EHR.Modules;
+using EHR.Patches;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Neutral;
+using Hazel;
 using System.Collections.Generic;
-using TOHE.Modules;
-using TOHE.Roles.Neutral;
 using UnityEngine;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Impostor;
+namespace EHR.Roles.Impostor;
 
-public static class BallLightning
+public class BallLightning : RoleBase
 {
-    private static readonly int Id = 16700;
+    private const int Id = 16700;
     public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
     private static OptionItem ConvertTime;
     private static OptionItem KillerConvertGhost;
 
-    private static List<byte> GhostPlayer;
-    private static Dictionary<byte, PlayerControl> RealKiller;
+    private static List<byte> GhostPlayer = [];
+    private static Dictionary<byte, PlayerControl> RealKiller = [];
+
     public static void SetupCustomOption()
     {
-        SetupRoleOptions(Id, TabGroup.OtherRoles, CustomRoles.BallLightning);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "BallLightningKillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.OtherRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning])
+        SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.BallLightning);
+        KillCooldown = FloatOptionItem.Create(Id + 10, "BallLightningKillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning])
             .SetValueFormat(OptionFormat.Seconds);
-        ConvertTime = FloatOptionItem.Create(Id + 12, "BallLightningConvertTime", new(0f, 180f, 2.5f), 10f, TabGroup.OtherRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning])
+        ConvertTime = FloatOptionItem.Create(Id + 12, "BallLightningConvertTime", new(0f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning])
             .SetValueFormat(OptionFormat.Seconds);
-        KillerConvertGhost = BooleanOptionItem.Create(Id + 14, "BallLightningKillerConvertGhost", true, TabGroup.OtherRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning]);
+        KillerConvertGhost = BooleanOptionItem.Create(Id + 14, "BallLightningKillerConvertGhost", true, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning]);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
         GhostPlayer = [];
         RealKiller = [];
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+
+    public override bool IsEnable => playerIdList.Count > 0 || Randomizer.Exists;
+
     private static void SendRPC(byte playerId)
     {
-        if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGhostPlayer, SendOption.Reliable, -1);
+        if (!Utils.DoRPC) return;
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGhostPlayer, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(IsGhost(playerId));
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader)
     {
         byte GhostId = reader.ReadByte();
@@ -55,6 +63,7 @@ public static class BallLightning
             GhostPlayer = [];
             return;
         }
+
         if (isGhost)
         {
             if (!GhostPlayer.Contains(GhostId))
@@ -66,19 +75,30 @@ public static class BallLightning
                 GhostPlayer.Remove(GhostId);
         }
     }
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public static bool IsGhost(PlayerControl player) => GhostPlayer.Contains(player.PlayerId);
     public static bool IsGhost(byte id) => GhostPlayer.Contains(id);
-    public static bool CheckMurder(PlayerControl target) => IsGhost(target);
-    public static bool CheckBallLightningMurder(PlayerControl killer, PlayerControl target)
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null || !killer.Is(CustomRoles.BallLightning)) return false;
+        return CheckBallLightningMurder(killer, target);
+    }
+
+    public static bool CheckBallLightningMurder(PlayerControl killer, PlayerControl target, bool force = false)
+    {
+        if (killer == null || target == null || (!killer.Is(CustomRoles.BallLightning) && !force)) return false;
         if (IsGhost(target)) return false;
-        killer.SetKillCooldown();
-        killer.RPCPlayCustomSound("Shield");
+        if (!force)
+        {
+            killer.SetKillCooldown();
+            killer.RPCPlayCustomSound("Shield");
+        }
+
         StartConvertCountDown(killer, target);
         return true;
     }
+
     private static void StartConvertCountDown(PlayerControl killer, PlayerControl target)
     {
         _ = new LateTask(() =>
@@ -91,10 +111,11 @@ public static class BallLightning
                 if (!killer.inVent) killer.SetKillCooldown();
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
-                Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} 转化为量子幽灵", "BallLightning");
+                Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} is now converted to a 'non-spherical lightning' XD", "BallLightning");
             }
         }, ConvertTime.GetFloat(), "BallLightning Convert Player To Ghost");
     }
+
     public static void MurderPlayer(PlayerControl killer, PlayerControl target)
     {
         if (killer == null || target == null || !target.Is(CustomRoles.BallLightning)) return;
@@ -102,18 +123,20 @@ public static class BallLightning
         RealKiller.TryAdd(killer.PlayerId, target);
         StartConvertCountDown(target, killer);
     }
-    public static void OnCheckPlayerPosition(PlayerControl pc)
+
+    public override void OnCheckPlayerPosition(PlayerControl pc)
     {
-        if (!IsEnable || !GameStates.IsInTask) return;
+        if (!GameStates.IsInTask) return;
         List<byte> deList = [];
         foreach (byte ghost in GhostPlayer.ToArray())
         {
             var gs = Utils.GetPlayerById(ghost);
             if (gs == null || !gs.IsAlive() || gs.Data.Disconnected)
             {
-                deList.Add(gs.PlayerId);
+                //deList.Add(gs.PlayerId); // This will always result in a null reference exception
                 continue;
             }
+
             if (pc.PlayerId != gs.PlayerId && pc.IsAlive() && !pc.Is(CustomRoles.BallLightning) && !IsGhost(pc) && !Pelican.IsEaten(pc.PlayerId))
             {
                 var pos = gs.transform.position;
@@ -123,10 +146,10 @@ public static class BallLightning
                 deList.Add(gs.PlayerId);
                 gs.Suicide(PlayerState.DeathReason.Quantization, RealKiller[gs.PlayerId]);
 
-                Logger.Info($"{gs.GetNameWithRole().RemoveHtmlTags()} 作为量子幽灵因碰撞而死", "BallLightning");
                 break;
             }
         }
+
         if (deList.Count > 0)
         {
             GhostPlayer.RemoveAll(deList.Contains);
@@ -137,7 +160,8 @@ public static class BallLightning
             }
         }
     }
-    public static void OnReportDeadBody()
+
+    public override void OnReportDeadBody()
     {
         if (!(IsEnable || CustomRoles.BallLightning.IsEnable())) return;
 
@@ -148,9 +172,9 @@ public static class BallLightning
                 continue;
             CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Quantization, gs.PlayerId);
             gs.SetRealKiller(RealKiller[gs.PlayerId]);
-            Logger.Info($"{gs.GetNameWithRole().RemoveHtmlTags()} 作为量子幽灵参与会议，将在会议后死亡", "BallLightning");
             Utils.NotifyRoles(SpecifySeer: gs);
         }
+
         GhostPlayer = [];
         SendRPC(byte.MaxValue);
     }

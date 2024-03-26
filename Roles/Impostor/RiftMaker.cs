@@ -1,48 +1,62 @@
-﻿using System.Collections.Generic;
-using TOHE.Roles.Neutral;
+﻿using AmongUs.GameOptions;
+using EHR.Roles.Neutral;
+using System.Collections.Generic;
 using UnityEngine;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+using static EHR.Options;
+using static EHR.Translator;
+using static EHR.Utils;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
-    public static class RiftMaker
+    public class RiftMaker : RoleBase
     {
-        private static readonly int Id = 640900;
+        private const int Id = 640900;
         public static List<byte> playerIdList = [];
 
-        public static List<Vector2> Marks = [];
+        public List<Vector2> Marks = [];
+        public long LastTP = TimeStamp;
 
         public static OptionItem KillCooldown;
         public static OptionItem ShapeshiftCooldown;
 
-        public static long LastTP = GetTimeStamp();
-
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.RiftMaker, 1);
+            SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.RiftMaker);
             KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.RiftMaker])
                 .SetValueFormat(OptionFormat.Seconds);
             ShapeshiftCooldown = FloatOptionItem.Create(Id + 11, "ShapeshiftCooldown", new(0f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.RiftMaker])
                 .SetValueFormat(OptionFormat.Seconds);
         }
 
-        public static void Init()
+        public override void Init()
         {
             playerIdList = [];
             Marks = [];
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            LastTP = GetTimeStamp();
+            LastTP = TimeStamp;
+            Marks = [];
         }
 
-        public static bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void OnFixedUpdate(PlayerControl player)
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            if (UsePets.GetBool()) return;
+            AURoleOptions.ShapeshifterDuration = 1f;
+            AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
+            AURoleOptions.ShapeshifterLeaveSkin = true;
+        }
+
+        public override void OnFixedUpdate(PlayerControl player)
         {
             if (!GameStates.IsInTask) return;
             if (Pelican.IsEaten(player.PlayerId) || player.Data.IsDead) return;
@@ -54,7 +68,8 @@ namespace TOHE.Roles.Impostor
                 Marks.Clear();
                 return;
             }
-            if (LastTP + 5 > GetTimeStamp()) return;
+
+            if (LastTP + 5 > TimeStamp) return;
 
             Vector2 position = player.transform.position;
 
@@ -72,14 +87,14 @@ namespace TOHE.Roles.Impostor
 
             if (isTP)
             {
-                LastTP = GetTimeStamp();
+                LastTP = TimeStamp;
                 if (from == Marks[0])
                 {
-                    TP(player.NetTransform, Marks[1]);
+                    player.TP(Marks[1]);
                 }
                 else if (from == Marks[1])
                 {
-                    TP(player.NetTransform, Marks[0]);
+                    player.TP(Marks[0]);
                 }
                 else
                 {
@@ -88,38 +103,32 @@ namespace TOHE.Roles.Impostor
             }
         }
 
-        public static void OnReportDeadBody()
+        public override void OnReportDeadBody()
         {
-            LastTP = GetTimeStamp();
+            LastTP = TimeStamp;
         }
 
-        public static void OnEnterVent(PlayerControl player, int ventId)
+        public override void OnEnterVent(PlayerControl player, Vent vent)
         {
             Marks.Clear();
             player.Notify(GetString("MarksCleared"));
 
-            _ = new LateTask(() =>
-            {
-                player.MyPhysics?.RpcBootFromVent(ventId);
-            }, 0.5f, "RiftMaker-ResetMarks.RpcBootFromVent");
+            player.MyPhysics?.RpcBootFromVent(vent.Id);
         }
 
-        public static void OnShapeshift(PlayerControl player, bool shapeshifting, bool isPet = false)
+        public override bool OnShapeshift(PlayerControl player, PlayerControl target, bool shapeshifting)
         {
-            if (player == null) return;
-            if (!shapeshifting) return;
-            if (Marks.Count >= 2) return;
+            if (player == null) return false;
+            if (!shapeshifting) return true;
+            if (Marks.Count >= 2) return false;
 
-            Marks.Add((Vector2)player.transform.position);
-            if (Marks.Count == 2) LastTP = GetTimeStamp();
+            Marks.Add(player.transform.position);
+            if (Marks.Count == 2) LastTP = TimeStamp;
             player.Notify(GetString("MarkDone"));
 
-            //if (!isPet) _ = new LateTask(() => { player.CmdCheckRevertShapeshift(false); }, 1.5f, "Rift Maker RpcRevertShapeshift");
+            return false;
         }
 
-        public static string GetProgressText()
-        {
-            return $" <color=#777777>-</color> {(Marks.Count == 2 ? "<color=#00ff00>" : "<color=#777777>")}{Marks.Count}/2</color>";
-        }
+        public override string GetProgressText(byte playerId, bool comms) => $" <color=#777777>-</color> {(Marks.Count == 2 ? "<color=#00ff00>" : "<color=#777777>")}{Marks.Count}/2</color>";
     }
 }

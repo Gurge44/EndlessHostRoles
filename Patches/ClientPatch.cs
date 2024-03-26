@@ -1,15 +1,16 @@
+using EHR.Modules;
 using HarmonyLib;
 using InnerNet;
-using TOHE.Modules;
+using TMPro;
 using UnityEngine;
-using static TOHE.Translator;
+using static EHR.Translator;
 
-namespace TOHE;
+namespace EHR;
 
 [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.MakePublic))]
 internal class MakePublicPatch
 {
-    public static bool Prefix(GameStartManager __instance)
+    public static bool Prefix(/*GameStartManager __instance*/)
     {
         // 定数設定による公開ルームブロック
         if (!Main.AllowPublicRoom)
@@ -35,16 +36,15 @@ internal class MakePublicPatch
 [HarmonyPatch(typeof(MMOnlineManager), nameof(MMOnlineManager.Start))]
 internal class MMOnlineManagerStartPatch
 {
-    public static void Postfix(MMOnlineManager __instance)
+    public static void Postfix()
     {
         if (!((ModUpdater.hasUpdate && ModUpdater.forceUpdate) || ModUpdater.isBroken)) return;
         var obj = GameObject.Find("FindGameButton");
         if (obj)
         {
             obj?.SetActive(false);
-            var parentObj = obj.transform.parent.gameObject;
-            var textObj = Object.Instantiate(obj.transform.FindChild("Text_TMP").GetComponent<TMPro.TextMeshPro>());
-            textObj.transform.position = new Vector3(1f, -0.3f, 0);
+            var textObj = Object.Instantiate(obj?.transform.FindChild("Text_TMP").GetComponent<TextMeshPro>());
+            textObj.transform.position = new(1f, -0.3f, 0);
             textObj.name = "CanNotJoinPublic";
             var message = ModUpdater.isBroken ? $"<size=2>{Utils.ColorString(Color.red, GetString("ModBrokenMessage"))}</size>"
                 : $"<size=2>{Utils.ColorString(Color.red, GetString("CanNotJoinPublicRoomNoLatest"))}</size>";
@@ -67,12 +67,21 @@ internal class SplashLogoAnimatorPatch
 [HarmonyPatch(typeof(EOSManager), nameof(EOSManager.IsAllowedOnline))]
 internal class RunLoginPatch
 {
-    public static int ClickCount;
+    public static int ClickCount = 0;
+
     public static void Prefix(ref bool canOnline)
     {
 #if DEBUG
-        if (ClickCount < 10) canOnline = true;
-        if (ClickCount >= 10) ModUpdater.forceUpdate = false;
+        switch (ClickCount)
+        {
+            case < 10:
+                canOnline = true;
+                break;
+            case >= 10:
+                ModUpdater.forceUpdate = false;
+                break;
+        }
+
 #endif
     }
 }
@@ -101,13 +110,13 @@ internal class InnerNetClientCanBanPatch
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.KickPlayer))]
 internal class KickPlayerPatch
 {
-    public static bool Prefix(InnerNetClient __instance, int clientId, bool ban)
+    public static bool Prefix(/*InnerNetClient __instance,*/ int clientId, bool ban)
     {
         if (!AmongUsClient.Instance.AmHost) return true;
 
         if (AmongUsClient.Instance.ClientId == clientId)
         {
-            Logger.SendInGame(string.Format("Game Attempting to {0} Host, Blocked the attempt.", ban ? "Ban" : "Kick"));
+            Logger.SendInGame($"Game Attempting to {(ban ? "Ban" : "Kick")} Host, Blocked the attempt.");
             Logger.Info("Game attempted to kick/ban host....", "KickPlayerPatch");
             return false;
         }

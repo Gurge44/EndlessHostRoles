@@ -1,14 +1,18 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
+using EHR.Roles.Crewmate;
 using Hazel;
 using System.Collections.Generic;
-using static TOHE.Translator;
+using System.Linq;
+using UnityEngine;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Neutral;
-public static class Agitater
+namespace EHR.Roles.Neutral;
+
+public class Agitater : RoleBase
 {
-    private static readonly int Id = 12420;
+    private const int Id = 12420;
     public static List<byte> playerIdList = [];
-    public static bool IsEnable;
 
     public static OptionItem BombExplodeCooldown;
     public static OptionItem PassCooldown;
@@ -17,12 +21,11 @@ public static class Agitater
     public static OptionItem AgitaterAutoReportBait;
     public static OptionItem HasImpostorVision;
 
-    public static byte CurrentBombedPlayer = byte.MaxValue;
-    public static byte LastBombedPlayer = byte.MaxValue;
-    public static bool AgitaterHasBombed;
-    public static long CurrentBombedPlayerTime;
-    public static long AgitaterBombedTime;
-
+    public byte CurrentBombedPlayer = byte.MaxValue;
+    public byte LastBombedPlayer = byte.MaxValue;
+    public bool AgitaterHasBombed;
+    public long CurrentBombedPlayerTime;
+    private byte AgitaterId;
 
     public static void SetupCustomOption()
     {
@@ -37,27 +40,35 @@ public static class Agitater
         AgitaterAutoReportBait = BooleanOptionItem.Create(Id + 14, "AgitaterAutoReportBait", false, TabGroup.NeutralRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Agitater]);
         HasImpostorVision = BooleanOptionItem.Create(Id + 15, "ImpostorVision", true, TabGroup.NeutralRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Agitater]);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
         CurrentBombedPlayer = byte.MaxValue;
         LastBombedPlayer = byte.MaxValue;
         AgitaterHasBombed = false;
         CurrentBombedPlayerTime = new();
-        IsEnable = false;
+        AgitaterId = byte.MaxValue;
     }
 
-    public static void Add(byte playerId)
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        IsEnable = true;
+        AgitaterId = playerId;
+
+        CurrentBombedPlayer = byte.MaxValue;
+        LastBombedPlayer = byte.MaxValue;
+        AgitaterHasBombed = false;
+        CurrentBombedPlayerTime = new();
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public static void ResetBomb()
+    public override bool IsEnable => playerIdList.Count > 0 || Randomizer.Exists;
+
+    void ResetBomb()
     {
         CurrentBombedPlayer = byte.MaxValue;
         CurrentBombedPlayerTime = new();
@@ -65,14 +76,15 @@ public static class Agitater
         AgitaterHasBombed = false;
         SendRPC(CurrentBombedPlayer, LastBombedPlayer);
     }
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = AgiTaterBombCooldown.GetFloat();
-    public static void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
 
-    public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = AgiTaterBombCooldown.GetFloat();
+    public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (!IsEnable) return false;
         if (AgitaterAutoReportBait.GetBool() && target.Is(CustomRoles.Bait)) return true;
-        if (target.Is(CustomRoles.Pestilence) || (target.Is(CustomRoles.Veteran) && Main.VeteranInProtect.ContainsKey(target.PlayerId)))
+        if (target.Is(CustomRoles.Pestilence) || (target.Is(CustomRoles.Veteran) && Veteran.VeteranInProtect.ContainsKey(target.PlayerId)))
         {
             target.Kill(killer);
             ResetBomb();
@@ -81,7 +93,7 @@ public static class Agitater
 
         CurrentBombedPlayer = target.PlayerId;
         LastBombedPlayer = killer.PlayerId;
-        CurrentBombedPlayerTime = Utils.GetTimeStamp();
+        CurrentBombedPlayerTime = Utils.TimeStamp;
         killer.RpcGuardAndKill(killer);
         killer.Notify(GetString("AgitaterPassNotify"));
         target.Notify(GetString("AgitaterTargetNotify"));
@@ -93,19 +105,19 @@ public static class Agitater
             if (CurrentBombedPlayer != byte.MaxValue && GameStates.IsInTask)
             {
                 var pc = Utils.GetPlayerById(CurrentBombedPlayer);
-                if (pc != null && pc.IsAlive() && killer != null)
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+                if (pc != null && pc.IsAlive() && killer != null) // Can be null since it's a late task
                 {
                     pc.Suicide(PlayerState.DeathReason.Bombed, Utils.GetPlayerById(playerIdList[0]));
                     Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} bombed {pc.GetNameWithRole().RemoveHtmlTags()}, bomb cd complete", "Agitater");
                     ResetBomb();
                 }
-
             }
         }, BombExplodeCooldown.GetFloat(), "AgitaterBombKill");
         return false;
     }
 
-    public static void OnReportDeadBody()
+    public override void OnReportDeadBody()
     {
         if (!IsEnable) return;
         if (CurrentBombedPlayer == byte.MaxValue) return;
@@ -121,24 +133,61 @@ public static class Agitater
         Logger.Info($"{killer.GetRealName()} bombed {target.GetRealName()} on report", "Agitater");
     }
 
-    public static void PassBomb(PlayerControl player, PlayerControl target/*, bool IsAgitater = false*/)
+    public override void OnGlobalFixedUpdate(PlayerControl player, bool lowLoad)
+    {
+        var playerId = player.PlayerId;
+
+        if (!lowLoad && GameStates.IsInTask && IsEnable && AgitaterHasBombed && CurrentBombedPlayer == playerId)
+        {
+            if (!player.IsAlive())
+            {
+                ResetBomb();
+            }
+            else
+            {
+                Vector2 agitaterPos = player.transform.position;
+                Dictionary<byte, float> targetDistance = [];
+                foreach (var target in PlayerControl.AllPlayerControls)
+                {
+                    if (!target.IsAlive()) continue;
+                    if (target.PlayerId != playerId && target.PlayerId != LastBombedPlayer && !target.Data.IsDead)
+                    {
+                        float dis = Vector2.Distance(agitaterPos, target.transform.position);
+                        targetDistance.Add(target.PlayerId, dis);
+                    }
+                }
+
+                if (targetDistance.Count > 0)
+                {
+                    var min = targetDistance.OrderBy(c => c.Value).FirstOrDefault();
+                    PlayerControl target = Utils.GetPlayerById(min.Key);
+                    var KillRange = GameOptionsData.KillDistances[Mathf.Clamp(GameOptionsManager.Instance.currentNormalGameOptions.KillDistance, 0, 2)];
+                    if (min.Value <= KillRange && player.CanMove && target.CanMove)
+                        PassBomb(player, target);
+                }
+            }
+        }
+    }
+
+    void PassBomb(PlayerControl player, PlayerControl target /*, bool IsAgitater = false*/)
     {
         if (!IsEnable) return;
         if (!AgitaterHasBombed) return;
         if (target.Data.IsDead) return;
 
-        var now = Utils.GetTimeStamp();
+        var now = Utils.TimeStamp;
         if (now - CurrentBombedPlayerTime < PassCooldown.GetFloat()) return;
         if (target.PlayerId == LastBombedPlayer) return;
         if (!AgitaterCanGetBombed.GetBool() && target.Is(CustomRoles.Agitater)) return;
 
 
-        if (target.Is(CustomRoles.Pestilence) || (target.Is(CustomRoles.Veteran) && Main.VeteranInProtect.ContainsKey(target.PlayerId)))
+        if (target.Is(CustomRoles.Pestilence) || (target.Is(CustomRoles.Veteran) && Veteran.VeteranInProtect.ContainsKey(target.PlayerId)))
         {
             target.Kill(player);
             ResetBomb();
             return;
         }
+
         LastBombedPlayer = CurrentBombedPlayer;
         CurrentBombedPlayer = target.PlayerId;
         CurrentBombedPlayerTime = now;
@@ -153,9 +202,10 @@ public static class Agitater
         Logger.Msg($"{player.GetNameWithRole().RemoveHtmlTags()} passed bomb to {target.GetNameWithRole().RemoveHtmlTags()}", "Agitater Pass");
     }
 
-    public static void SendRPC(byte newbomb, byte oldbomb)
+    void SendRPC(byte newbomb, byte oldbomb)
     {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RpcPassBomb, SendOption.Reliable, -1);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RpcPassBomb, SendOption.Reliable);
+        writer.Write(AgitaterId);
         writer.Write(newbomb);
         writer.Write(oldbomb);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -163,7 +213,10 @@ public static class Agitater
 
     public static void ReceiveRPC(MessageReader reader)
     {
-        CurrentBombedPlayer = reader.ReadByte();
-        LastBombedPlayer = reader.ReadByte();
+        byte agitaterId = reader.ReadByte();
+        if (Main.PlayerStates[agitaterId].Role is not Agitater at) return;
+
+        at.CurrentBombedPlayer = reader.ReadByte();
+        at.LastBombedPlayer = reader.ReadByte();
     }
 }

@@ -1,12 +1,12 @@
 using HarmonyLib;
-using static TOHE.Translator;
+using static EHR.Translator;
 
-namespace TOHE;
+namespace EHR;
 
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnDisconnected))]
 internal class OnDisconnectedPatch
 {
-    public static void Postfix(AmongUsClient __instance)
+    public static void Postfix(/*AmongUsClient __instance*/)
     {
         Main.VisibleTasksCount = false;
     }

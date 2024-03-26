@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using System.Linq;
 
-namespace TOHE.Roles.Impostor;
+namespace EHR.Roles.Impostor;
 
-public static class TimeThief
+public class TimeThief : RoleBase
 {
-    private static readonly int Id = 3300;
-    private static List<byte> playerIdList = [];
+    private const int Id = 3300;
+    public static List<byte> playerIdList = [];
     public static OptionItem KillCooldown;
     public static OptionItem DecreaseMeetingTime;
     public static OptionItem LowerLimitVotingTime;
@@ -21,16 +22,20 @@ public static class TimeThief
             .SetValueFormat(OptionFormat.Seconds);
         ReturnStolenTimeUponDeath = BooleanOptionItem.Create(Id + 13, "TimeThiefReturnStolenTimeUponDeath", true, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.TimeThief]);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+
+    public override bool IsEnable => playerIdList.Count > 0;
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+
     private static int StolenTime(byte id)
     {
         return playerIdList.Contains(id) && (Utils.GetPlayerById(id).IsAlive() || !ReturnStolenTimeUponDeath.GetBool())
@@ -39,15 +44,12 @@ public static class TimeThief
     }
     public static int TotalDecreasedMeetingTime()
     {
-        int sec = 0;
-        foreach (byte playerId in playerIdList.ToArray())
-        {
-            sec -= StolenTime(playerId);
-        }
+        int sec = playerIdList.ToArray().Aggregate(0, (current, playerId) => current - StolenTime(playerId));
 
-        Logger.Info($"{sec}second", "TimeThief.TotalDecreasedMeetingTime");
+        Logger.Info($"{sec} second", "TimeThief.TotalDecreasedMeetingTime");
         return sec;
     }
-    public static string GetProgressText(byte playerId)
+
+    public override string GetProgressText(byte playerId, bool comms)
         => StolenTime(playerId) > 0 ? Utils.ColorString(Palette.ImpostorRed.ShadeColor(0.5f), $"{-StolenTime(playerId)}s") : string.Empty;
 }

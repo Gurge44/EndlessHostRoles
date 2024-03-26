@@ -1,4 +1,4 @@
-namespace TOHE;
+namespace EHR;
 
 public class PresetOptionItem(int defaultValue, TabGroup tab) : OptionItem(0, "Preset", defaultValue, tab, true)
 {
@@ -7,7 +7,7 @@ public class PresetOptionItem(int defaultValue, TabGroup tab) : OptionItem(0, "P
 
     public static PresetOptionItem Create(int defaultValue, TabGroup tab)
     {
-        return new PresetOptionItem(defaultValue, tab);
+        return new(defaultValue, tab);
     }
 
     // Getter

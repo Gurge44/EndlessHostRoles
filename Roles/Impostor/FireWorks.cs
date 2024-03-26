@@ -1,14 +1,17 @@
+using EHR.Modules;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Neutral;
 using Hazel;
+using System;
 using System.Collections.Generic;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Neutral;
 using UnityEngine;
-using static TOHE.Translator;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Impostor;
+namespace EHR.Roles.Impostor;
 
-public static class FireWorks
+public class FireWorks : RoleBase
 {
+    [Flags]
     public enum FireWorksState
     {
         Initial = 1,
@@ -19,17 +22,17 @@ public static class FireWorks
         CanUseKill = Initial | FireEnd
     }
 
-    private static readonly int Id = 2800;
+    private const int Id = 2800;
     private static OptionItem FireWorksCount;
     private static OptionItem FireWorksRadius;
     public static OptionItem CanKill;
+    public static OptionItem CanIgniteBeforePlacingAllFireworks;
 
-    public static bool IsEnable;
+    public static bool On;
 
-    public static Dictionary<byte, int> nowFireWorksCount = [];
-    private static Dictionary<byte, List<Vector3>> fireWorksPosition = [];
-    private static Dictionary<byte, FireWorksState> state = [];
-    private static Dictionary<byte, int> fireWorksBombKill = [];
+    public int nowFireWorksCount;
+    private List<Vector3> fireWorksPosition = [];
+    private FireWorksState state;
     private static int fireWorksCount = 1;
     private static float fireWorksRadius = 1;
 
@@ -41,54 +44,53 @@ public static class FireWorks
         FireWorksRadius = FloatOptionItem.Create(Id + 11, "FireWorksRadius", new(0.5f, 5f, 0.5f), 2f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks])
             .SetValueFormat(OptionFormat.Multiplier);
         CanKill = BooleanOptionItem.Create(Id + 12, "CanKill", false, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks]);
+        CanIgniteBeforePlacingAllFireworks = BooleanOptionItem.Create(Id + 13, "CanIgniteBeforePlacingAllFireworks", false, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks]);
     }
 
-    public static void Init()
+    public override void Init()
     {
-        IsEnable = false;
-        nowFireWorksCount = [];
+        On = false;
+        nowFireWorksCount = 0;
         fireWorksPosition = [];
-        state = [];
-        fireWorksBombKill = [];
+        state = FireWorksState.Initial;
+    }
+
+    public override void Add(byte playerId)
+    {
+        On = true;
         fireWorksCount = FireWorksCount.GetInt();
         fireWorksRadius = FireWorksRadius.GetFloat();
+        nowFireWorksCount = fireWorksCount;
+        fireWorksPosition = [];
+        state = FireWorksState.Initial;
     }
 
-    public static void Add(byte playerId)
-    {
-        IsEnable = true;
-        nowFireWorksCount[playerId] = fireWorksCount;
-        fireWorksPosition[playerId] = [];
-        state[playerId] = FireWorksState.Initial;
-        fireWorksBombKill[playerId] = 0;
-    }
+    public override bool IsEnable => On;
 
-    public static void SendRPC(byte playerId)
+    void SendRPC(byte playerId)
     {
-        if (!IsEnable || !Utils.DoRPC) return;
+        if (!On || !Utils.DoRPC) return;
         Logger.Info($"Player{playerId}:SendRPC", "FireWorks");
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SendFireWorksState, SendOption.Reliable, -1);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SendFireWorksState, SendOption.Reliable);
         writer.Write(playerId);
-        writer.Write(nowFireWorksCount[playerId]);
-        writer.Write((int)state[playerId]);
+        writer.Write(nowFireWorksCount);
+        writer.Write((int)state);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
-    public static void ReceiveRPC(MessageReader msg)
+    public void ReceiveRPC(int count, FireWorksState newState)
     {
-        var playerId = msg.ReadByte();
-        nowFireWorksCount[playerId] = msg.ReadInt32();
-        state[playerId] = (FireWorksState)msg.ReadInt32();
-        Logger.Info($"Player{playerId}:ReceiveRPC", "FireWorks");
+        nowFireWorksCount = count;
+        state = newState;
     }
 
-    public static bool CanUseKillButton(PlayerControl pc)
+    public override bool CanUseKillButton(PlayerControl pc)
     {
         if (pc == null || pc.Data.IsDead) return false;
 
         try
         {
-            return CanKill.GetBool() || (state.TryGetValue(pc.PlayerId, out var fwState) && (fwState & FireWorksState.CanUseKill) != 0);
+            return CanKill.GetBool() || (state & FireWorksState.CanUseKill) != 0;
         }
         catch
         {
@@ -96,18 +98,29 @@ public static class FireWorks
         }
     }
 
-    public static void ShapeShiftState(PlayerControl pc, bool shapeshifting)
+    public override void OnPet(PlayerControl pc)
     {
-        Logger.Info($"FireWorks ShapeShift", "FireWorks");
-        if (pc == null || pc.Data.IsDead || !shapeshifting || Pelican.IsEaten(pc.PlayerId) || Medic.ProtectList.Contains(pc.PlayerId)) return;
-        switch (state[pc.PlayerId])
+        var beforeState = state;
+        if (CanIgniteBeforePlacingAllFireworks.GetBool()) state = FireWorksState.ReadyFire;
+
+        OnShapeshift(pc, null, true);
+
+        if (beforeState == FireWorksState.ReadyFire) return;
+        state = beforeState;
+    }
+
+    public override bool OnShapeshift(PlayerControl pc, PlayerControl _, bool shapeshifting)
+    {
+        Logger.Info("FireWorks ShapeShift", "FireWorks");
+        if (pc == null || pc.Data.IsDead || !shapeshifting || Pelican.IsEaten(pc.PlayerId) || Medic.ProtectList.Contains(pc.PlayerId)) return false;
+        switch (state)
         {
             case FireWorksState.Initial:
             case FireWorksState.SettingFireWorks:
                 Logger.Info("Install Firework", "FireWorks");
-                fireWorksPosition[pc.PlayerId].Add(pc.Pos());
-                nowFireWorksCount[pc.PlayerId]--;
-                state[pc.PlayerId] = nowFireWorksCount[pc.PlayerId] == 0
+                fireWorksPosition.Add(pc.Pos());
+                nowFireWorksCount--;
+                state = nowFireWorksCount == 0
                     ? Main.AliveImpostorCount <= 1 ? FireWorksState.ReadyFire : FireWorksState.WaitTime
                     : FireWorksState.SettingFireWorks;
                 break;
@@ -116,7 +129,7 @@ public static class FireWorks
                 bool suicide = false;
                 foreach (PlayerControl target in Main.AllAlivePlayerControls)
                 {
-                    foreach (Vector3 pos in fireWorksPosition[pc.PlayerId].ToArray())
+                    foreach (Vector3 pos in fireWorksPosition)
                     {
                         var dis = Vector2.Distance(pos, target.transform.position);
                         if (dis > fireWorksRadius) continue;
@@ -131,6 +144,7 @@ public static class FireWorks
                         }
                     }
                 }
+
                 if (suicide)
                 {
                     var totalAlive = Main.AllAlivePlayerControls.Length;
@@ -139,32 +153,36 @@ public static class FireWorks
                         pc.Suicide();
                     }
                 }
-                state[pc.PlayerId] = FireWorksState.FireEnd;
-                break;
-            default:
+
+                state = FireWorksState.FireEnd;
                 break;
         }
+
         SendRPC(pc.PlayerId);
         Utils.NotifyRoles(ForceLoop: true);
+
+        return false;
     }
 
-    public static string GetStateText(PlayerControl pc/*, bool isLocal = true*/)
+    public static string GetStateText(PlayerControl pc /*, bool isLocal = true*/)
     {
         string retText = string.Empty;
         if (pc == null || pc.Data.IsDead) return retText;
 
-        if (state[pc.PlayerId] == FireWorksState.WaitTime && Main.AliveImpostorCount <= 1)
+        if (Main.PlayerStates[pc.PlayerId].Role is not FireWorks fw) return retText;
+
+        if (fw.state == FireWorksState.WaitTime && Main.AliveImpostorCount <= 1)
         {
-            Logger.Info("爆破準備OK", "FireWorks");
-            state[pc.PlayerId] = FireWorksState.ReadyFire;
-            SendRPC(pc.PlayerId);
+            fw.state = FireWorksState.ReadyFire;
+            fw.SendRPC(pc.PlayerId);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
-        switch (state[pc.PlayerId])
+
+        switch (fw.state)
         {
             case FireWorksState.Initial:
             case FireWorksState.SettingFireWorks:
-                retText = string.Format(GetString("FireworksPutPhase"), nowFireWorksCount[pc.PlayerId]);
+                retText = string.Format(GetString("FireworksPutPhase"), fw.nowFireWorksCount);
                 break;
             case FireWorksState.WaitTime:
                 retText = GetString("FireworksWaitPhase");
@@ -175,6 +193,7 @@ public static class FireWorks
             case FireWorksState.FireEnd:
                 break;
         }
+
         return retText;
     }
 }

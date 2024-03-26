@@ -1,20 +1,23 @@
 using AmongUs.GameOptions;
+using EHR.Roles.AddOns.Crewmate;
+using EHR.Roles.Impostor;
 using HarmonyLib;
-using System.Collections.Generic;
-using TOHE.Roles.AddOns.Crewmate;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using Il2CppSystem.Collections.Generic;
+using UnityEngine;
 
-namespace TOHE;
+namespace EHR;
 
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.AddTasksFromList))]
 class AddTasksFromListPatch
 {
-    public static void Prefix(ShipStatus __instance,
-        [HarmonyArgument(4)] Il2CppSystem.Collections.Generic.List<NormalPlayerTask> unusedTasks)
+    public static void Prefix( /*ShipStatus __instance,*/
+        [HarmonyArgument(4)] List<NormalPlayerTask> unusedTasks)
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
         if (!Options.DisableShortTasks.GetBool() && !Options.DisableCommonTasks.GetBool() && !Options.DisableLongTasks.GetBool() && !Options.DisableOtherTasks.GetBool()) return;
-        List<NormalPlayerTask> disabledTasks = [];
+        System.Collections.Generic.List<NormalPlayerTask> disabledTasks = [];
         for (var i = 0; i < unusedTasks.Count; i++)
         {
             var task = unusedTasks[i];
@@ -95,14 +98,12 @@ class AddTasksFromListPatch
                 case TaskTypes.CollectShells when Options.DisableCollectShells.GetBool():
                     disabledTasks.Add(task);
                     break;
-                default:
-                    break;
             }
         }
-        for (int i = 0; i < disabledTasks.Count; i++)
+
+        foreach (var task in disabledTasks)
         {
-            NormalPlayerTask task = disabledTasks[i];
-            Logger.Msg("Deleted assigned task: " + task.TaskType.ToString(), "AddTask");
+            Logger.Msg("Deleted assigned task: " + task.TaskType, "AddTask");
             unusedTasks.Remove(task);
         }
     }
@@ -111,36 +112,36 @@ class AddTasksFromListPatch
 [HarmonyPatch(typeof(GameData), nameof(GameData.RpcSetTasks))]
 class RpcSetTasksPatch
 {
-    //タスクを割り当ててRPCを送る処理が行われる直前にタスクを上書きするPatch
-    //バニラのタスク割り当て処理自体には干渉しない
-    public static void Prefix(GameData __instance,
-    [HarmonyArgument(0)] byte playerId,
-    [HarmonyArgument(1)] ref Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray<byte> taskTypeIds)
+    // Patch that overwrites the task just before assigning the task and sending the RPC
+    // Do not interfere with vanilla task allocation process itself
+    public static void Prefix( /*GameData __instance,*/
+        [HarmonyArgument(0)] byte playerId,
+        [HarmonyArgument(1)] ref Il2CppStructArray<byte> taskTypeIds)
     {
-        //null対策
+        // Null measures
         if (Main.RealOptionsData == null)
         {
-            Logger.Warn("警告:RealOptionsDataがnullです。", "RpcSetTasksPatch");
+            Logger.Warn("Warning: RealOptionsData is null.", "RpcSetTasksPatch");
             return;
         }
 
         var pc = Utils.GetPlayerById(playerId);
-        CustomRoles? RoleNullable = pc?.GetCustomRole();
-        if (RoleNullable == null) return;
-        CustomRoles role = RoleNullable.Value;
+        if (pc == null) return;
+        CustomRoles role = pc.Is(CustomRoles.Specter) ? CustomRoles.Specter : pc.GetCustomRole();
 
-        //デフォルトのタスク数
+        // Default number of tasks
         bool hasCommonTasks = true;
         int NumLongTasks = Main.NormalOptions.NumLongTasks;
         int NumShortTasks = Main.NormalOptions.NumShortTasks;
 
-        if (Options.OverrideTasksData.AllData.TryGetValue(role, out var data) && data.doOverride.GetBool())
+        if (Options.OverrideTasksData.AllData.TryGetValue(role, out var data) && data.DoOverride.GetBool())
         {
-            hasCommonTasks = data.assignCommonTasks.GetBool(); // コモンタスク(通常タスク)を割り当てるかどうか
-                                                               // 割り当てる場合でも再割り当てはされず、他のクルーと同じコモンタスクが割り当てられる。
-            NumLongTasks = data.numLongTasks.GetInt(); // 割り当てるロングタスクの数
-            NumShortTasks = data.numShortTasks.GetInt(); // 割り当てるショートタスクの数
-                                                         // ロングとショートは常時再割り当てが行われる。
+            hasCommonTasks = data.AssignCommonTasks.GetBool(); // Whether to assign common tasks (regular tasks)
+            // Even if assigned, it will not be reassigned and will be assigned the same common tasks as other crews.
+            NumLongTasks = data.NumLongTasks.GetInt(); // Number of long tasks to allocate
+            NumShortTasks = data.NumShortTasks.GetInt(); // Number of short tasks to allocate
+            // Longs and shorts are constantly reallocated.
+            if (role == CustomRoles.Specter) Main.PlayerStates[pc.PlayerId].TaskState.AllTasksCount = NumLongTasks + NumShortTasks;
         }
 
         if (pc.Is(CustomRoles.Busy))
@@ -149,7 +150,7 @@ class RpcSetTasksPatch
             NumShortTasks += Options.BusyShortTasks.GetInt();
         }
 
-        //背叛告密的任务覆盖
+        // Mad Snitch mission coverage
         if (pc.Is(CustomRoles.Snitch) && pc.Is(CustomRoles.Madmate))
         {
             hasCommonTasks = false;
@@ -157,7 +158,7 @@ class RpcSetTasksPatch
             NumShortTasks = Options.MadSnitchTasks.GetInt();
         }
 
-        //管理员和摆烂人没有任务
+        // GM and Lazy have no tasks
         if (pc.Is(CustomRoles.GM) || pc.Is(CustomRoles.Needy) || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA || pc.Is(CustomRoles.Lazy))
         {
             hasCommonTasks = false;
@@ -165,57 +166,62 @@ class RpcSetTasksPatch
             NumLongTasks = 0;
         }
 
-        //加班狂加班咯~
+        // Overtime maniac, work overtime~
         if (pc.Is(CustomRoles.Workhorse))
             (hasCommonTasks, NumLongTasks, NumShortTasks) = Workhorse.TaskData;
 
-        //资本主义要祸害人咯~
-        if (Main.CapitalismAssignTask.ContainsKey(playerId))
+        // Capitalism is going to harm people~
+        if (Capitalism.CapitalismAssignTask.ContainsKey(playerId))
         {
-            NumShortTasks += Main.CapitalismAssignTask[playerId];
-            Main.CapitalismAssignTask.Remove(playerId);
+            NumShortTasks += Capitalism.CapitalismAssignTask[playerId];
+            Capitalism.CapitalismAssignTask.Remove(playerId);
         }
 
-        if (taskTypeIds.Length == 0) hasCommonTasks = false; //タスク再配布時はコモンを0に
-        if (!hasCommonTasks && NumLongTasks == 0 && NumShortTasks == 0) NumShortTasks = 1; //タスク0対策
-        if (hasCommonTasks && NumLongTasks == Main.NormalOptions.NumLongTasks && NumShortTasks == Main.NormalOptions.NumShortTasks) return; //変更点がない場合
-
-        //割り当て可能なタスクのIDが入ったリスト
-        //本来のRpcSetTasksの第二引数のクローン
-        Il2CppSystem.Collections.Generic.List<byte> TasksList = new();
-        for (int i1 = 0; i1 < taskTypeIds.Count; i1++)
+        if (taskTypeIds.Length == 0) hasCommonTasks = false; // Set common to 0 when redistributing tasks
+        switch (hasCommonTasks)
         {
-            byte num = taskTypeIds[i1];
+            case false when NumLongTasks == 0 && NumShortTasks == 0:
+                NumShortTasks = 1; // Task 0 measures
+                break;
+            case true when NumLongTasks == Main.NormalOptions.NumLongTasks && NumShortTasks == Main.NormalOptions.NumShortTasks:
+                return; // If there are no changes
+        }
+
+        // List containing IDs of assignable tasks
+        // Clone of the second argument of the original RpcSetTasks
+        List<byte> TasksList = new();
+        foreach (var num in taskTypeIds)
+        {
             TasksList.Add(num);
         }
 
-        //参考:ShipStatus.Begin
-        //不要な割り当て済みのタスクを削除する処理
-        //コモンタスクを割り当てる設定ならコモンタスク以外を削除
-        //コモンタスクを割り当てない設定ならリストを空にする
+        // Reference: ShipStatus.Begin
+        // Processing to delete unnecessary assigned tasks
+        // If the setting is to assign common tasks, delete all other than common tasks
+        // Empty the list if no common tasks are assigned
         int defaultCommonTasksNum = Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks);
         if (hasCommonTasks) TasksList.RemoveRange(defaultCommonTasksNum, TasksList.Count - defaultCommonTasksNum);
         else TasksList.Clear();
 
-        //割り当て済みのタスクが入れられるHashSet
-        //同じタスクが複数割り当てられるのを防ぐ
-        Il2CppSystem.Collections.Generic.HashSet<TaskTypes> usedTaskTypes = new();
+        // HashSet where assigned tasks will be placed
+        // Prevent multiple assignments of the same task
+        HashSet<TaskTypes> usedTaskTypes = new();
         int start2 = 0;
         int start3 = 0;
 
-        //割り当て可能なロングタスクのリスト
-        Il2CppSystem.Collections.Generic.List<NormalPlayerTask> LongTasks = new();
+        // List of assignable long tasks
+        List<NormalPlayerTask> LongTasks = new();
         foreach (var task in ShipStatus.Instance.LongTasks)
             LongTasks.Add(task);
         Shuffle(LongTasks);
 
-        //割り当て可能なショートタスクのリスト
-        Il2CppSystem.Collections.Generic.List<NormalPlayerTask> ShortTasks = new();
+        // List of assignable short tasks
+        List<NormalPlayerTask> ShortTasks = new();
         foreach (var task in ShipStatus.Instance.ShortTasks)
             ShortTasks.Add(task);
         Shuffle(ShortTasks);
 
-        //実際にAmong Us側で使われているタスクを割り当てる関数を使う。
+        // Use the task assignment function that is actually used on the Among Us side.
         ShipStatus.Instance.AddTasksFromList(
             ref start2,
             NumLongTasks,
@@ -231,20 +237,20 @@ class RpcSetTasksPatch
             ShortTasks
         );
 
-        //タスクのリストを配列(Il2CppStructArray)に変換する
-        taskTypeIds = new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray<byte>(TasksList.Count);
+        // Convert list of tasks to array (Il2CppStructArray)
+        taskTypeIds = new(TasksList.Count);
         for (int i = 0; i < TasksList.Count; i++)
         {
             taskTypeIds[i] = TasksList[i];
         }
-
     }
-    public static void Shuffle<T>(Il2CppSystem.Collections.Generic.List<T> list)
+
+    public static void Shuffle<T>(List<T> list)
     {
         for (int i = 0; i < list.Count - 1; i++)
         {
             T obj = list[i];
-            int rand = UnityEngine.Random.Range(i, list.Count);
+            int rand = Random.Range(i, list.Count);
             list[i] = list[rand];
             list[rand] = obj;
         }

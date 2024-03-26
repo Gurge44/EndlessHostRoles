@@ -1,19 +1,15 @@
-namespace TOHE.Roles.Crewmate
-{
-    using Hazel;
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
-    using TOHE.Modules;
-    using UnityEngine;
-    using static TOHE.Options;
-    using static TOHE.Utils;
+using AmongUs.GameOptions;
+using EHR.Modules;
+using System.Collections.Generic;
 
-    public static class Doormaster
+namespace EHR.Roles.Crewmate
+{
+    using static Options;
+
+    public class Doormaster : RoleBase
     {
-        private static readonly int Id = 640000;
+        private const int Id = 640000;
         private static List<byte> playerIdList = [];
-        public static Dictionary<byte, float> UseLimit = [];
 
         public static OptionItem VentCooldown;
         public static OptionItem UseLimitOpt;
@@ -34,69 +30,51 @@ namespace TOHE.Roles.Crewmate
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Doormaster])
                 .SetValueFormat(OptionFormat.Times);
         }
-        public static void Init()
+
+        public override void Init()
         {
             playerIdList = [];
-            UseLimit = [];
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            UseLimit.Add(playerId, UseLimitOpt.GetInt());
+            playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
         }
-        public static bool IsEnable => playerIdList.Count > 0;
-        public static void SendRPC(byte playerId)
-        {
-            if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDoormasterLimit, SendOption.Reliable, -1);
-            writer.Write(playerId);
-            writer.Write(UseLimit[playerId]);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-        public static void ReceiveRPC(MessageReader reader)
-        {
-            if (AmongUsClient.Instance.AmHost) return;
 
-            byte playerId = reader.ReadByte();
-            float uses = reader.ReadSingle();
-            UseLimit[playerId] = uses;
+        public override bool IsEnable => playerIdList.Count > 0;
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            if (UsePets.GetBool()) return;
+            AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
+            AURoleOptions.EngineerInVentMaxTime = 1f;
         }
-        public static void OnEnterVent(PlayerControl pc)
+
+        public override void OnPet(PlayerControl pc)
+        {
+            OpenDoors(pc);
+        }
+
+        public override void OnEnterVent(PlayerControl pc, Vent vent)
+        {
+            OpenDoors(pc);
+        }
+
+        static void OpenDoors(PlayerControl pc)
         {
             if (pc == null) return;
             if (!pc.Is(CustomRoles.Doormaster)) return;
 
-            if (UseLimit[pc.PlayerId] >= 1)
+            if (pc.GetAbilityUseLimit() >= 1)
             {
-                UseLimit[pc.PlayerId] -= 1;
-                SendRPC(pc.PlayerId);
+                pc.RpcRemoveAbilityUse();
                 DoorsReset.OpenAllDoors();
             }
             else
             {
                 if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
             }
-        }
-        public static string GetProgressText(byte playerId, bool comms)
-        {
-            var sb = new StringBuilder();
-
-            var taskState = Main.PlayerStates?[playerId].TaskState;
-            Color TextColor;
-            var TaskCompleteColor = Color.green;
-            var NonCompleteColor = Color.yellow;
-            var NormalColor = taskState.IsTaskFinished ? TaskCompleteColor : NonCompleteColor;
-            TextColor = comms ? Color.gray : NormalColor;
-            string Completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
-
-            Color TextColor1;
-            if (UseLimit[playerId] < 1) TextColor1 = Color.red;
-            else TextColor1 = Color.white;
-
-            sb.Append(ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
-            sb.Append(ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));
-
-            return sb.ToString();
         }
     }
 }

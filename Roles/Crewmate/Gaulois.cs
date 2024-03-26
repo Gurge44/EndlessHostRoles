@@ -1,14 +1,13 @@
-﻿using Hazel;
+﻿using AmongUs.GameOptions;
 using System.Collections.Generic;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Crewmate
+namespace EHR.Roles.Crewmate
 {
-    public static class Gaulois
+    public class Gaulois : RoleBase
     {
-        private static readonly int Id = 643070;
+        private const int Id = 643070;
         private static List<byte> playerIdList = [];
-        public static Dictionary<byte, int> UseLimit = [];
 
         private static OptionItem CD;
         private static OptionItem AdditionalSpeed;
@@ -32,65 +31,46 @@ namespace TOHE.Roles.Crewmate
             UsePet = CreatePetUseSetting(Id + 8, CustomRoles.Gaulois);
         }
 
-        public static void Init()
+        public override void Init()
         {
             playerIdList = [];
-            UseLimit = [];
             IncreasedSpeedPlayerList = [];
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            UseLimit.Add(playerId, UseLimitOpt.GetInt());
+            playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
 
             if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public static bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void SendRPC(byte playerId)
-        {
-            if (!IsEnable || !Utils.DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGauloisLimit, SendOption.Reliable, -1);
-            writer.Write(playerId);
-            writer.Write(UseLimit[playerId]);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-
-        public static void ReceiveRPC(MessageReader reader)
+        public override void SetKillCooldown(byte playerId)
         {
             if (!IsEnable) return;
-            byte playerId = reader.ReadByte();
-            int useLimit = reader.ReadInt32();
-            UseLimit[playerId] = useLimit;
+            Main.AllPlayerKillCooldown[playerId] = playerId.GetAbilityUseLimit() > 0 ? CD.GetFloat() : 300f;
         }
 
-        public static void SetKillCooldown(byte playerId)
-        {
-            if (!IsEnable) return;
-            Main.AllPlayerKillCooldown[playerId] = UseLimit[playerId] > 0 ? CD.GetFloat() : 300f;
-        }
+        public override bool CanUseKillButton(PlayerControl pc) => pc.GetAbilityUseLimit() >= 1;
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
 
-        public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable || killer == null || target == null || UseLimit[killer.PlayerId] <= 0) return;
+            if (!IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0) return false;
 
             Main.AllPlayerSpeed[target.PlayerId] += AdditionalSpeed.GetFloat();
             IncreasedSpeedPlayerList.Add(target.PlayerId);
-            UseLimit[killer.PlayerId]--;
 
+            killer.RpcRemoveAbilityUse();
             killer.SetKillCooldown();
-            SendRPC(killer.PlayerId);
-        }
 
-        public static string GetProgressText(byte playerId)
-        {
-            if (!IsEnable) return string.Empty;
-            if (!UseLimit.TryGetValue(playerId, out var limit)) return string.Empty;
-            return $" <color=#777777>-</color> <color=#ffffff>{limit}</color>";
+            target.MarkDirtySettings();
+
+            return false;
         }
     }
 }

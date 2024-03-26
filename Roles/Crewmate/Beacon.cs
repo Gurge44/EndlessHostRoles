@@ -1,18 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using UnityEngine;
 
-namespace TOHE.Roles.Crewmate
+namespace EHR.Roles.Crewmate
 {
-    internal class Beacon
+    internal class Beacon : RoleBase
     {
         private static int Id => 643480;
         private static OptionItem VisionIncrease;
         private static OptionItem Radius;
-        private static List<byte> AffectedPlayers;
-        private static Dictionary<byte, long> LastChange;
+        private static List<byte> AffectedPlayers = [];
+        private static Dictionary<byte, long> LastChange = [];
+
+        public static bool On;
+        public override bool IsEnable => On;
+
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Beacon);
@@ -23,37 +25,52 @@ namespace TOHE.Roles.Crewmate
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Beacon])
                 .SetValueFormat(OptionFormat.Multiplier);
         }
-        public static void Init()
+
+        public override void Init()
         {
             AffectedPlayers = [];
             LastChange = [];
+            On = false;
         }
+
+        public override void Add(byte playerId)
+        {
+            On = true;
+        }
+
         public static bool IsAffectedPlayer(byte id) => Utils.IsActive(SystemTypes.Electrical) && AffectedPlayers.Contains(id);
         public static float IncreasedVision => VisionIncrease.GetFloat();
-        public static void OnCheckPlayerPosition(PlayerControl pc)
+
+        public override void OnCheckPlayerPosition(PlayerControl pc)
         {
             if (!GameStates.IsInTask || pc == null) return;
 
-            long now = Utils.GetTimeStamp();
+            long now = Utils.TimeStamp;
             if (LastChange.TryGetValue(pc.PlayerId, out var ts) && ts == now) return;
 
-            bool isBeaconNearby = Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoles.Beacon) && UnityEngine.Vector2.Distance(x.Pos(), pc.Pos()) <= Radius.GetFloat());
+            bool isBeaconNearby = Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoles.Beacon) && Vector2.Distance(x.Pos(), pc.Pos()) <= Radius.GetFloat());
             bool isAffectedPlayer = AffectedPlayers.Contains(pc.PlayerId);
 
-            if (isAffectedPlayer && !isBeaconNearby)
+            switch (isAffectedPlayer)
             {
-                AffectedPlayers.Remove(pc.PlayerId);
-                if (Utils.IsActive(SystemTypes.Electrical)) pc.MarkDirtySettings();
-                LastChange[pc.PlayerId] = now;
-            }
-            else if (!isAffectedPlayer && isBeaconNearby)
-            {
-                AffectedPlayers.Add(pc.PlayerId);
-                if (Utils.IsActive(SystemTypes.Electrical)) pc.MarkDirtySettings();
-                LastChange[pc.PlayerId] = now;
+                case true when !isBeaconNearby:
+                {
+                    AffectedPlayers.Remove(pc.PlayerId);
+                    if (Utils.IsActive(SystemTypes.Electrical)) pc.MarkDirtySettings();
+                    LastChange[pc.PlayerId] = now;
+                    break;
+                }
+                case false when isBeaconNearby:
+                {
+                    AffectedPlayers.Add(pc.PlayerId);
+                    if (Utils.IsActive(SystemTypes.Electrical)) pc.MarkDirtySettings();
+                    LastChange[pc.PlayerId] = now;
+                    break;
+                }
             }
         }
-        public static void OnReportDeadBody()
+
+        public override void OnReportDeadBody()
         {
             AffectedPlayers.Clear();
             LastChange.Clear();

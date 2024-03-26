@@ -1,59 +1,65 @@
-﻿using System.Collections.Generic;
-using TOHE.Modules;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+﻿using AmongUs.GameOptions;
+using EHR.Modules;
+using static EHR.Options;
+using static EHR.Translator;
+using static EHR.Utils;
 
-namespace TOHE.Roles.Impostor;
+namespace EHR.Roles.Impostor;
 
-public static class Disperser
+public class Disperser : RoleBase
 {
-    private static readonly int Id = 17000;
+    private const int Id = 17000;
 
     public static OptionItem DisperserShapeshiftCooldown;
     private static OptionItem DisperserShapeshiftDuration;
     private static OptionItem DisperserLimitOpt;
     public static OptionItem DisperserAbilityUseGainWithEachKill;
 
-    public static Dictionary<byte, float> DisperserLimit = [];
+    public static bool On;
+    public override bool IsEnable => On;
 
     public static void SetupCustomOption()
     {
-        SetupRoleOptions(Id, TabGroup.OtherRoles, CustomRoles.Disperser);
-        DisperserShapeshiftCooldown = FloatOptionItem.Create(Id + 5, "ShapeshiftCooldown", new(1f, 60f, 1f), 20f, TabGroup.OtherRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
+        SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Disperser);
+        DisperserShapeshiftCooldown = FloatOptionItem.Create(Id + 5, "ShapeshiftCooldown", new(1f, 60f, 1f), 20f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
             .SetValueFormat(OptionFormat.Seconds);
-        DisperserShapeshiftDuration = FloatOptionItem.Create(Id + 6, "ShapeshiftDuration", new(1f, 30f, 1f), 1f, TabGroup.OtherRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
+        DisperserShapeshiftDuration = FloatOptionItem.Create(Id + 6, "ShapeshiftDuration", new(1f, 30f, 1f), 1f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
             .SetValueFormat(OptionFormat.Seconds);
-        DisperserLimitOpt = IntegerOptionItem.Create(Id + 7, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.OtherRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
+        DisperserLimitOpt = IntegerOptionItem.Create(Id + 7, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
             .SetValueFormat(OptionFormat.Times);
-        DisperserAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 8, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.3f, TabGroup.OtherRoles, false)
+        DisperserAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 8, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.3f, TabGroup.ImpostorRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
             .SetValueFormat(OptionFormat.Times);
     }
-    public static void Init()
+
+    public override void Init()
     {
-        DisperserLimit = [];
-        //  MurderLimitGame = new();
+        On = false;
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
-        DisperserLimit.Add(playerId, DisperserLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(DisperserLimitOpt.GetInt());
+        On = true;
     }
-    public static void ApplyGameOptions()
+
+    public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
+        if (UsePets.GetBool()) return;
         AURoleOptions.ShapeshifterCooldown = DisperserShapeshiftCooldown.GetFloat();
         AURoleOptions.ShapeshifterDuration = DisperserShapeshiftDuration.GetFloat();
     }
-    public static void DispersePlayers(PlayerControl shapeshifter)
+
+    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        if (shapeshifter == null) return;
-        if (DisperserLimit[shapeshifter.PlayerId] < 1)
+        if (shapeshifter == null || !shapeshifting) return false;
+        if (shapeshifter.GetAbilityUseLimit() < 1)
         {
             shapeshifter.SetKillCooldown(DisperserShapeshiftDuration.GetFloat() + 1f);
-            return;
+            return false;
         }
 
-        DisperserLimit[shapeshifter.PlayerId] -= 1;
+        shapeshifter.RpcRemoveAbilityUse();
 
         foreach (var pc in PlayerControl.AllPlayerControls)
         {
@@ -69,10 +75,13 @@ public static class Disperser
             pc.TPtoRndVent();
             pc.Notify(ColorString(GetRoleColor(CustomRoles.Disperser), string.Format(GetString("TeleportedInRndVentByDisperser"), pc.GetRealName())));
         }
+
+        return false;
     }
-    public static void GetAbilityButtonText(HudManager __instance, PlayerControl pc)
+
+    public override void SetButtonTexts(HudManager __instance, byte id)
     {
-        __instance.AbilityButton.ToggleVisible(pc.IsAlive());
+        __instance.AbilityButton.ToggleVisible(GetPlayerById(id).IsAlive());
         __instance.AbilityButton.OverrideText(GetString("DisperserVentButtonText"));
     }
 }

@@ -1,22 +1,24 @@
+using EHR.Modules;
+using EHR.Patches;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Neutral;
 using Hazel;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using TOHE.Modules;
-using TOHE.Roles.Crewmate;
-using static TOHE.Options;
-using static TOHE.Translator;
+using static EHR.Options;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Impostor;
+namespace EHR.Roles.Impostor;
 
-public static class Witch
+public class Witch : RoleBase
 {
     public enum SwitchTrigger
     {
         Kill,
         Vent,
         DoubleTrigger,
-    };
+    }
+
     public static readonly string[] SwitchTriggerText =
     [
         "TriggerKill",
@@ -24,143 +26,136 @@ public static class Witch
         "TriggerDouble"
     ];
 
-    private static readonly int Id = 2000;
+    private const int Id = 2000;
     public static List<byte> playerIdList = [];
 
-    public static Dictionary<byte, bool> SpellMode = [];
-    public static Dictionary<byte, List<byte>> SpelledPlayer = [];
+    public bool SpellMode;
+    public List<byte> SpelledPlayer = [];
 
     public static OptionItem ModeSwitchAction;
     public static SwitchTrigger NowSwitchTrigger;
+
+    private bool IsHM;
+
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Witch);
         ModeSwitchAction = StringOptionItem.Create(Id + 10, "WitchModeSwitchAction", SwitchTriggerText, 2, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Witch]);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
-        SpellMode = [];
+        SpellMode = false;
         SpelledPlayer = [];
+        IsHM = false;
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        SpellMode.Add(playerId, false);
-        SpelledPlayer.Add(playerId, []);
-        NowSwitchTrigger = (SwitchTrigger)ModeSwitchAction.GetValue();
-        var pc = Utils.GetPlayerById(playerId);
-        pc.AddDoubleTrigger();
+        SpellMode = false;
+        SpelledPlayer = [];
 
+        IsHM = Main.PlayerStates[playerId].MainRole == CustomRoles.HexMaster;
+        NowSwitchTrigger = IsHM ? (SwitchTrigger)HexMaster.ModeSwitchAction.GetValue() : (SwitchTrigger)ModeSwitchAction.GetValue();
+
+        if (!AmongUsClient.Instance.AmHost || !IsHM) return;
+        if (!Main.ResetCamPlayerList.Contains(playerId))
+            Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
-    private static void SendRPC(bool doSpell, byte witchId, byte target = 255)
+
+    public override bool IsEnable => playerIdList.Count > 0;
+
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
     {
-        if (!IsEnable || !Utils.DoRPC) return;
+        return true;
+    }
+
+    private static void SendRPC(bool doSpell, byte witchId, byte target = 255, bool spellMode = false)
+    {
+        if (!Utils.DoRPC) return;
         if (doSpell)
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DoSpell, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DoSpell, SendOption.Reliable);
             writer.Write(witchId);
             writer.Write(target);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         else
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetKillOrSpell, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetKillOrSpell, SendOption.Reliable);
             writer.Write(witchId);
-            writer.Write(SpellMode[witchId]);
+            writer.Write(spellMode);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
-
         }
     }
 
     public static void ReceiveRPC(MessageReader reader, bool doSpell)
     {
+        var witch = reader.ReadByte();
+        if (Main.PlayerStates[witch].Role is not Witch wc) return;
+
         if (doSpell)
         {
-            var witch = reader.ReadByte();
             var spelledId = reader.ReadByte();
             if (spelledId != 255)
             {
-                SpelledPlayer[witch].Add(spelledId);
+                wc.SpelledPlayer.Add(spelledId);
             }
             else
             {
-                SpelledPlayer[witch].Clear();
+                wc.SpelledPlayer.Clear();
             }
         }
         else
         {
-            byte playerId = reader.ReadByte();
-            SpellMode[playerId] = reader.ReadBoolean();
+            wc.SpellMode = reader.ReadBoolean();
         }
     }
-    public static bool IsSpellMode(byte playerId)
+
+    void SwitchSpellMode(byte playerId, bool kill)
     {
-        return SpellMode.ContainsKey(playerId) && SpellMode[playerId];
-    }
-    public static void SwitchSpellMode(byte playerId, bool kill)
-    {
-        bool needSwitch = false;
-        switch (NowSwitchTrigger)
+        bool needSwitch = NowSwitchTrigger switch
         {
-            case SwitchTrigger.Kill:
-                needSwitch = kill;
-                break;
-            case SwitchTrigger.Vent:
-                needSwitch = !kill;
-                break;
-        }
+            SwitchTrigger.Kill => kill,
+            SwitchTrigger.Vent => !kill,
+            _ => false
+        };
         if (needSwitch)
         {
-            SpellMode[playerId] = !SpellMode[playerId];
+            SpellMode = !SpellMode;
             SendRPC(false, playerId);
-            Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(playerId), SpecifyTarget: Utils.GetPlayerById(playerId));
+            var pc = Utils.GetPlayerById(playerId);
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
     }
-    public static bool HaveSpelledPlayer()
-    {
-        foreach (byte witch in playerIdList.ToArray())
-        {
-            if (SpelledPlayer[witch].Count > 0)
-            {
-                return true;
-            }
-        }
-        return false;
 
-    }
-    public static bool IsSpelled(byte target)
-    {
-        foreach (byte witch in playerIdList.ToArray())
-        {
-            if (SpelledPlayer[witch].Contains(target))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-    public static void SetSpelled(PlayerControl killer, PlayerControl target)
+    bool IsSpelled(byte target) => SpelledPlayer.Contains(target);
+
+    void SetSpelled(PlayerControl killer, PlayerControl target)
     {
         if (!IsSpelled(target.PlayerId))
         {
-            SpelledPlayer[killer.PlayerId].Add(target.PlayerId);
+            SpelledPlayer.Add(target.PlayerId);
             SendRPC(true, killer.PlayerId, target.PlayerId);
             killer.SetKillCooldown();
             killer.RPCPlayCustomSound("Curse");
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
         }
     }
+
     public static void RemoveSpelledPlayer()
     {
-        foreach (byte witch in playerIdList.ToArray())
+        foreach (byte witch in playerIdList)
         {
-            SpelledPlayer[witch].Clear();
+            if (Main.PlayerStates[witch].Role is not Witch wc) continue;
+            wc.SpelledPlayer.Clear();
             SendRPC(true, witch);
         }
     }
-    public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (Medic.ProtectList.Contains(target.PlayerId)) return false;
 
@@ -168,58 +163,71 @@ public static class Witch
         {
             return killer.CheckDoubleTrigger(target, () => { SetSpelled(killer, target); });
         }
-        if (!IsSpellMode(killer.PlayerId))
+
+        if (!SpellMode)
         {
             SwitchSpellMode(killer.PlayerId, true);
-            //キルモードなら通常処理に戻る
             return true;
         }
+
         SetSpelled(killer, target);
 
-        //スペルに失敗してもスイッチ判定
         SwitchSpellMode(killer.PlayerId, true);
-        //キル処理終了させる
+
         return false;
     }
+
     public static void OnCheckForEndVoting(PlayerState.DeathReason deathReason, params byte[] exileIds)
     {
-        if (!IsEnable || deathReason != PlayerState.DeathReason.Vote) return;
+        if (deathReason != PlayerState.DeathReason.Vote) return;
         foreach (byte id in exileIds)
         {
-            if (SpelledPlayer.ContainsKey(id))
-                SpelledPlayer[id].Clear();
+            if (playerIdList.Contains(id))
+            {
+                if (Main.PlayerStates[id].Role is not Witch wc) continue;
+                wc.SpelledPlayer.Clear();
+            }
         }
+
         var spelledIdList = new List<byte>();
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            var dic = SpelledPlayer.Where(x => x.Value.Contains(pc.PlayerId));
-            if (!dic.Any()) continue;
-            var whichId = dic.FirstOrDefault().Key;
-            var witch = Utils.GetPlayerById(whichId);
-            if (witch != null && witch.IsAlive())
+            foreach (var witchId in playerIdList)
             {
-                if (!Main.AfterMeetingDeathPlayers.ContainsKey(pc.PlayerId))
+                if (Main.AfterMeetingDeathPlayers.ContainsKey(pc.PlayerId)) continue;
+                if (Main.PlayerStates[witchId].Role is not Witch wc) continue;
+
+                var witch = Utils.GetPlayerById(witchId);
+                if (wc.SpelledPlayer.Contains(pc.PlayerId) && witch != null && witch.IsAlive())
                 {
                     pc.SetRealKiller(witch);
                     spelledIdList.Add(pc.PlayerId);
                 }
-            }
-            else
-            {
-                Main.AfterMeetingDeathPlayers.Remove(pc.PlayerId);
+                else
+                {
+                    Main.AfterMeetingDeathPlayers.Remove(pc.PlayerId);
+                }
             }
         }
+
         CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Spell, [.. spelledIdList]);
         RemoveSpelledPlayer();
     }
+
     public static string GetSpelledMark(byte target, bool isMeeting)
     {
-        if (isMeeting && IsEnable && IsSpelled(target))
+        if (!isMeeting) return string.Empty;
+        foreach (var id in playerIdList)
         {
-            return Utils.ColorString(Palette.ImpostorRed, "†");
+            if (Main.PlayerStates[id].Role is Witch { IsEnable: true } wc && wc.IsSpelled(target))
+            {
+                return Utils.ColorString(Palette.ImpostorRed, "†");
+            }
         }
+
         return string.Empty;
     }
+
     public static string GetSpellModeText(PlayerControl witch, bool hud, bool isMeeting = false)
     {
         if (witch == null || isMeeting) return string.Empty;
@@ -233,6 +241,7 @@ public static class Witch
         {
             str.Append($"{GetString("Mode")}: ");
         }
+
         if (NowSwitchTrigger == SwitchTrigger.DoubleTrigger)
         {
             str.Append(GetString("WitchModeDouble"));
@@ -241,8 +250,10 @@ public static class Witch
         {
             str.Append(IsSpellMode(witch.PlayerId) ? GetString("WitchModeSpell") : GetString("WitchModeKill"));
         }
+
         return str.ToString();
     }
+
     public static void GetAbilityButtonText(HudManager hud)
     {
         if (IsSpellMode(PlayerControl.LocalPlayer.PlayerId) && NowSwitchTrigger != SwitchTrigger.DoubleTrigger)
@@ -255,7 +266,9 @@ public static class Witch
         }
     }
 
-    public static void OnEnterVent(PlayerControl pc)
+    static bool IsSpellMode(byte id) => Main.PlayerStates[id].Role is Witch { IsEnable: true, SpellMode: true };
+
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
         if (!AmongUsClient.Instance.AmHost) return;
         if (playerIdList.Contains(pc.PlayerId))

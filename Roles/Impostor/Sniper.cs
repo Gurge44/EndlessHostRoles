@@ -1,36 +1,41 @@
+using AmongUs.GameOptions;
+using EHR.Modules;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Neutral;
 using Hazel;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Neutral;
 using UnityEngine;
-using static TOHE.Translator;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Impostor;
+namespace EHR.Roles.Impostor;
 
-public static class Sniper
+public class Sniper : RoleBase
 {
-    private static readonly int Id = 1900;
+    private const int Id = 1900;
     private static List<byte> PlayerIdList = [];
+
     private static OptionItem SniperBulletCount;
     private static OptionItem SniperPrecisionShooting;
     private static OptionItem SniperAimAssist;
     private static OptionItem SniperAimAssistOnshot;
     public static OptionItem ShapeshiftDuration;
     public static OptionItem CanKillWithBullets;
-    public static Dictionary<byte, byte> snipeTarget = [];
-    private static Dictionary<byte, Vector3> snipeBasePosition = [];
-    private static Dictionary<byte, Vector3> LastPosition = [];
-    public static Dictionary<byte, int> bulletCount = [];
-    private static Dictionary<byte, List<byte>> shotNotify = [];
-    public static Dictionary<byte, bool> IsAim = [];
-    private static Dictionary<byte, float> AimTime = [];
+
+    public byte snipeTarget;
+    private Vector3 snipeBasePosition;
+    private Vector3 LastPosition;
+    public int bulletCount;
+    private List<byte> shotNotify = [];
+    public bool IsAim;
+    private float AimTime;
+
     private static bool meetingReset;
     private static int maxBulletCount;
     private static bool precisionShooting;
     private static bool AimAssist;
     private static bool AimAssistOneshot;
+
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Sniper);
@@ -43,119 +48,111 @@ public static class Sniper
         ShapeshiftDuration = FloatOptionItem.Create(Id + 15, "ShapeshiftDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper])
             .SetValueFormat(OptionFormat.Seconds);
     }
-    public static void Init()
+
+    public override void Init()
     {
         Logger.Disable("Sniper");
 
         PlayerIdList = [];
-        IsEnable = false;
+        On = false;
 
-        snipeBasePosition = [];
-        LastPosition = [];
-        snipeTarget = [];
-        bulletCount = [];
+        snipeBasePosition = new();
+        LastPosition = new();
+        snipeTarget = 0x7F;
+        bulletCount = SniperBulletCount.GetInt();
         shotNotify = [];
-        IsAim = [];
-        AimTime = [];
+        IsAim = false;
+        AimTime = 0f;
         meetingReset = false;
+    }
+
+    public override void Add(byte playerId)
+    {
+        PlayerIdList.Add(playerId);
+        On = true;
 
         maxBulletCount = SniperBulletCount.GetInt();
         precisionShooting = SniperPrecisionShooting.GetBool();
         AimAssist = SniperAimAssist.GetBool();
         AimAssistOneshot = SniperAimAssistOnshot.GetBool();
-    }
-    public static void Add(byte playerId)
-    {
-        PlayerIdList.Add(playerId);
-        IsEnable = true;
 
-        snipeBasePosition[playerId] = new();
-        LastPosition[playerId] = new();
-        snipeTarget[playerId] = 0x7F;
-        bulletCount[playerId] = maxBulletCount;
-        shotNotify[playerId] = [];
-        IsAim[playerId] = false;
-        AimTime[playerId] = 0f;
+        snipeBasePosition = new();
+        LastPosition = new();
+        snipeTarget = 0x7F;
+        bulletCount = maxBulletCount;
+        shotNotify = [];
+        IsAim = false;
+        AimTime = 0f;
+        meetingReset = false;
     }
-    public static bool IsEnable;
+
+    public static bool On;
+    public override bool IsEnable => On;
     public static bool IsThisRole(byte playerId) => PlayerIdList.Contains(playerId);
-    public static void SendRPC(byte playerId)
+
+    void SendRPC(byte sniperId)
     {
-        if (!IsEnable || !Utils.DoRPC) return;
-        Logger.Info($"Player{playerId}:SendRPC", "Sniper");
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SniperSync, SendOption.Reliable, -1);
-        writer.Write(playerId);
-        var snList = shotNotify[playerId];
-        writer.Write(snList.Count);
-        foreach (byte sn in snList.ToArray())
+        if (!On || !Utils.DoRPC) return;
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SniperSync, SendOption.Reliable);
+        writer.Write(sniperId);
+        writer.Write(shotNotify.Count);
+        foreach (byte sn in shotNotify)
         {
             writer.Write(sn);
         }
+
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
-    public static void ReceiveRPC(MessageReader msg)
+    public void ReceiveRPC(MessageReader msg)
     {
-        var playerId = msg.ReadByte();
-        shotNotify[playerId].Clear();
+        shotNotify.Clear();
         var count = msg.ReadInt32();
         while (count > 0)
         {
-            shotNotify[playerId].Add(msg.ReadByte());
+            shotNotify.Add(msg.ReadByte());
             count--;
         }
-        Logger.Info($"Player{playerId}:ReceiveRPC", "Sniper");
     }
-    public static bool CanUseKillButton(PlayerControl pc)
+
+    public override bool CanUseKillButton(PlayerControl pc)
     {
         if (!pc.IsAlive()) return false;
         var canUse = false;
         if (pc.IsShifted()) return false;
-        if (!bulletCount.ContainsKey(pc.PlayerId))
-        {
-            Logger.Info($" Sniper not Init yet.", "Sniper");
-            return false;
-        }
-        if (bulletCount[pc.PlayerId] <= 0)
+        if (bulletCount <= 0)
         {
             canUse = true;
         }
+
         if (CanKillWithBullets.GetBool())
         {
             canUse = true;
         }
 
-        Logger.Info($" CanUseKillButton:{canUse}", "Sniper");
         return canUse;
     }
-    public static Dictionary<PlayerControl, float> GetSnipeTargets(PlayerControl sniper)
+
+    Dictionary<PlayerControl, float> GetSnipeTargets(PlayerControl sniper)
     {
         var targets = new Dictionary<PlayerControl, float>();
-        //変身開始地点→解除地点のベクトル
-        var snipeBasePos = snipeBasePosition[sniper.PlayerId];
+        var snipeBasePos = snipeBasePosition;
         var snipePos = sniper.transform.position;
         var dir = (snipePos - snipeBasePos).normalized;
 
-        //至近距離で外す対策に一歩後ろから判定を開始する
         snipePos -= dir;
 
         foreach (PlayerControl target in Main.AllAlivePlayerControls)
         {
-            if (target.PlayerId == sniper.PlayerId)
-                continue;
+            if (target.PlayerId == sniper.PlayerId) continue;
             var target_pos = target.transform.position - snipePos;
-            if (target_pos.magnitude < 1)
-                continue;
+            if (target_pos.magnitude < 1) continue;
             var target_dir = target_pos.normalized;
             var target_dot = Vector3.Dot(dir, target_dir);
-            Logger.Info($"{target?.Data?.PlayerName}:pos={target_pos} dir={target_dir}", "Sniper");
-            Logger.Info($"  Dot={target_dot}", "Sniper");
-            if (target_dot < 0.995)
-                continue;
+            if (target_dot < 0.995) continue;
             if (precisionShooting)
             {
                 var err = Vector3.Cross(dir, target_pos).magnitude;
-                Logger.Info($"  err={err}", "Sniper");
                 if (err < 0.5)
                 {
                     targets.Add(target, err);
@@ -164,59 +161,61 @@ public static class Sniper
             else
             {
                 var err = target_pos.magnitude;
-                Logger.Info($"  err={err}", "Sniper");
                 targets.Add(target, err);
             }
         }
+
         return targets;
-
     }
-    public static void OnShapeshift(PlayerControl pc, bool shapeshifting, bool isPet = false)
-    {
-        if (!IsThisRole(pc.PlayerId) || !pc.IsAlive()) return;
 
-        var sniper = pc;
+    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+    {
+        return Snipe(shapeshifter, shapeshifting);
+    }
+
+    public override void OnPet(PlayerControl pc)
+    {
+        Snipe(pc, !IsAim);
+    }
+
+    bool Snipe(PlayerControl sniper, bool shapeshifting, bool isPet = false)
+    {
+        if (!IsThisRole(sniper.PlayerId) || !sniper.IsAlive()) return true;
+
         var sniperId = sniper.PlayerId;
 
-        if (bulletCount[sniperId] <= 0)
+        if (bulletCount <= 0)
         {
             float CD = ShapeshiftDuration.GetFloat() + 1f;
             if (Main.KillTimers[sniper.PlayerId] < CD && !isPet) sniper.SetKillCooldown(time: CD);
-            return;
-        };
-
-        //スナイパーで弾が残ってたら
-        if (shapeshifting)
-        {
-            //Aim開始
-            meetingReset = false;
-
-            //スナイプ地点の登録
-            snipeBasePosition[sniperId] = sniper.transform.position;
-
-            LastPosition[sniperId] = sniper.transform.position;
-            IsAim[sniperId] = true;
-            AimTime[sniperId] = 0f;
-
-            return;
+            return false;
         }
 
-        //エイム終了
-        IsAim[sniperId] = false;
-        AimTime[sniperId] = 0f;
+        if (shapeshifting)
+        {
+            meetingReset = false;
 
-        //ミーティングによる変身解除なら射撃しない
+            snipeBasePosition = sniper.transform.position;
+
+            LastPosition = sniper.transform.position;
+            IsAim = true;
+            AimTime = 0f;
+
+            return false;
+        }
+
+        IsAim = false;
+        AimTime = 0f;
+
         if (meetingReset)
         {
             meetingReset = false;
-            return;
+            return false;
         }
 
-        //一発消費して
-        bulletCount[sniperId]--;
+        bulletCount--;
 
-        //命中判定はホストのみ行う
-        if (!AmongUsClient.Instance.AmHost || Pelican.IsEaten(pc.PlayerId) || Medic.ProtectList.Contains(pc.PlayerId)) return;
+        if (!AmongUsClient.Instance.AmHost || Pelican.IsEaten(sniperId) || Medic.ProtectList.Contains(sniperId)) return false;
 
         sniper.RPCPlayCustomSound("AWP");
 
@@ -224,96 +223,115 @@ public static class Sniper
 
         if (targets.Count > 0)
         {
-            //一番正確な対象がターゲット
-            var snipedTarget = targets.OrderBy(c => c.Value).First().Key;
-            snipeTarget[sniperId] = snipedTarget.PlayerId;
+            var snipedTarget = targets.MinBy(c => c.Value).Key;
+            snipeTarget = snipedTarget.PlayerId;
             snipedTarget.CheckMurder(snipedTarget);
-            //あたった通知
             sniper.SetKillCooldown();
-            snipeTarget[sniperId] = 0x7F;
+            snipeTarget = 0x7F;
 
-            //スナイプが起きたことを聞こえそうな対象に通知したい
             targets.Remove(snipedTarget);
-            var snList = shotNotify[sniperId];
+            var snList = shotNotify;
             snList.Clear();
             foreach (var otherPc in targets.Keys)
             {
                 snList.Add(otherPc.PlayerId);
                 Utils.NotifyRoles(SpecifySeer: otherPc);
             }
+
             SendRPC(sniperId);
-            _ = new LateTask(
-                () =>
+            _ = new LateTask(() =>
+            {
+                snList.Clear();
+                foreach (var otherPc in targets.Keys)
                 {
-                    snList.Clear();
-                    foreach (var otherPc in targets.Keys)
-                    {
-                        Utils.NotifyRoles(SpecifySeer: otherPc);
-                    }
-                    SendRPC(sniperId);
-                },
-                0.5f, "Sniper shot Notify"
-                );
+                    Utils.NotifyRoles(SpecifySeer: otherPc);
+                }
+
+                SendRPC(sniperId);
+            }, 0.5f, "Sniper shot Notify");
+        }
+
+        return false;
+    }
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        if (Options.UsePets.GetBool()) return;
+        try
+        {
+            if (bulletCount > 0)
+            {
+                AURoleOptions.ShapeshifterDuration = ShapeshiftDuration.GetFloat();
+            }
+            else
+            {
+                AURoleOptions.ShapeshifterDuration = 1f;
+                AURoleOptions.ShapeshifterCooldown = 255f;
+            }
+        }
+        catch
+        {
         }
     }
-    public static void OnFixedUpdate(PlayerControl pc)
+
+    public override void OnFixedUpdate(PlayerControl sniper)
     {
-        if (!IsThisRole(pc.PlayerId) || !pc.IsAlive()) return;
+        if (!IsThisRole(sniper.PlayerId) || !sniper.IsAlive()) return;
 
         if (!AimAssist) return;
 
-        var sniper = pc;
-        var sniperId = sniper.PlayerId;
-        if (!IsAim[sniperId]) return;
+        if (!IsAim) return;
 
         if (!GameStates.IsInTask)
         {
-            //エイム終了
-            IsAim[sniperId] = false;
-            AimTime[sniperId] = 0f;
+            IsAim = false;
+            AimTime = 0f;
             return;
         }
 
         var pos = sniper.transform.position;
-        if (pos != LastPosition[sniperId])
+        if (pos != LastPosition)
         {
-            AimTime[sniperId] = 0f;
-            LastPosition[sniperId] = pos;
+            AimTime = 0f;
+            LastPosition = pos;
         }
         else
         {
-            AimTime[sniperId] += Time.fixedDeltaTime;
+            AimTime += Time.fixedDeltaTime;
             Utils.NotifyRoles(SpecifySeer: sniper, SpecifyTarget: sniper);
         }
     }
-    public static void OnReportDeadBody()
+
+    public override void OnReportDeadBody()
     {
         meetingReset = true;
     }
-    public static string GetBulletCount(byte playerId)
-    {
-        return IsThisRole(playerId) ? Utils.ColorString(Color.yellow, $"({bulletCount[playerId]})") : string.Empty;
-    }
+
     public static bool TryGetSniper(byte targetId, ref PlayerControl sniper)
     {
-        foreach (var kvp in snipeTarget)
+        foreach (var state in Main.PlayerStates)
         {
-            if (kvp.Value == targetId)
+            if (state.Value.Role is Sniper { IsEnable: true } sp)
             {
-                sniper = Utils.GetPlayerById(kvp.Key);
-                return true;
+                if (sp.snipeTarget == targetId)
+                {
+                    sniper = Utils.GetPlayerById(state.Key);
+                    return true;
+                }
             }
         }
+
         return false;
     }
+
     public static string GetShotNotify(byte seerId)
     {
         if (AimAssist && IsThisRole(seerId))
         {
-            //エイムアシスト中のスナイパー
-            if (0.5f < AimTime[seerId] && (!AimAssistOneshot || AimTime[seerId] < 1.0f))
+            if (Main.PlayerStates[seerId].Role is not Sniper sp) return string.Empty;
+            if (0.5f < sp.AimTime && (!AimAssistOneshot || sp.AimTime < 1.0f))
             {
-                if (GetSnipeTargets(Utils.GetPlayerById(seerId)).Count > 0)
+                if (sp.GetSnipeTargets(Utils.GetPlayerById(seerId)).Count > 0)
                 {
                     return $"<size=200%>{Utils.ColorString(Palette.ImpostorRed, "◎")}</size>";
                 }
@@ -321,29 +339,31 @@ public static class Sniper
         }
         else
         {
-            //射撃音が聞こえるプレイヤー
-            foreach (byte sniperId in PlayerIdList.ToArray())
+            foreach (byte sniperId in PlayerIdList)
             {
-                var snList = shotNotify[sniperId];
+                if (Main.PlayerStates[sniperId].Role is not Sniper sp) continue;
+                var snList = sp.shotNotify;
                 if (snList.Count > 0 && snList.Contains(seerId))
                 {
                     return $"<size=200%>{Utils.ColorString(Palette.ImpostorRed, "!")}</size>";
                 }
             }
         }
+
         return string.Empty;
     }
-    public static void OverrideShapeText(byte id)
+
+    public override void SetButtonTexts(HudManager hud, byte id)
     {
         if (Options.UsePets.GetBool())
         {
-            HudManager.Instance.PetButton.OverrideText(GetString(bulletCount[id] <= 0 ? "DefaultShapeshiftText" : "SniperSnipeButtonText"));
+            hud.PetButton.OverrideText(GetString(bulletCount <= 0 ? "DefaultShapeshiftText" : "SniperSnipeButtonText"));
         }
         else
         {
             if (IsThisRole(id))
-                HudManager.Instance.AbilityButton.SetUsesRemaining(bulletCount[id]);
-            HudManager.Instance.AbilityButton.OverrideText(GetString(bulletCount[id] <= 0 ? "DefaultShapeshiftText" : "SniperSnipeButtonText"));
+                hud.AbilityButton.SetUsesRemaining(bulletCount);
+            hud.AbilityButton.OverrideText(GetString(bulletCount <= 0 ? "DefaultShapeshiftText" : "SniperSnipeButtonText"));
         }
     }
 }

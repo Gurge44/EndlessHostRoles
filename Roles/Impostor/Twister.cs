@@ -1,22 +1,21 @@
+using AmongUs.GameOptions;
+using EHR.Modules;
+using EHR.Roles.Neutral;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Modules;
-using TOHE.Roles.Neutral;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+using static EHR.Options;
+using static EHR.Translator;
+using static EHR.Utils;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
-    public static class Twister
+    public class Twister : RoleBase
     {
-        private static readonly int Id = 4400;
+        private const int Id = 4400;
 
         public static OptionItem ShapeshiftCooldown;
         private static OptionItem TwisterLimitOpt;
         public static OptionItem TwisterAbilityUseGainWithEachKill;
-        public static Dictionary<byte, float> TwistLimit = [];
-        //    private static OptionItem ShapeshiftDuration;
 
         public static void SetupCustomOption()
         {
@@ -28,46 +27,58 @@ namespace TOHE.Roles.Impostor
             TwisterAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 12, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.4f, TabGroup.ImpostorRoles, false)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
                 .SetValueFormat(OptionFormat.Times);
-            //    ShapeshiftDuration = FloatOptionItem.Create(Id + 13, "ShapeshiftDuration", new(1f, 999f, 1f), 15f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
-            //      .SetValueFormat(OptionFormat.Seconds);
         }
-        public static void Init()
+
+        public static bool On;
+        public override bool IsEnable => On;
+
+        public override void Init()
         {
-            TwistLimit = [];
+            On = false;
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
-            TwistLimit.Add(playerId, TwisterLimitOpt.GetInt());
+            playerId.SetAbilityUseLimit(TwisterLimitOpt.GetInt());
+            On = true;
         }
-        public static void ApplyGameOptions()
+
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
             AURoleOptions.ShapeshifterDuration = 1f;
         }
-        public static void TwistPlayers(PlayerControl shapeshifter, bool shapeshifting)
+
+        public override void OnPet(PlayerControl pc)
+        {
+            TwistPlayers(pc, true);
+        }
+
+        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+        {
+            TwistPlayers(shapeshifter, shapeshifting);
+
+            return false;
+        }
+
+        static void TwistPlayers(PlayerControl shapeshifter, bool shapeshifting)
         {
             if (shapeshifter == null) return;
-            if (TwistLimit[shapeshifter.PlayerId] < 1) return;
+            if (shapeshifter.GetAbilityUseLimit() < 1) return;
             if (!shapeshifting) return;
 
             List<byte> changePositionPlayers = [shapeshifter.PlayerId];
-            TwistLimit[shapeshifter.PlayerId] -= 1;
+            shapeshifter.RpcRemoveAbilityUse();
 
             var rd = IRandom.Instance;
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (changePositionPlayers.Contains(pc.PlayerId) || Pelican.IsEaten(pc.PlayerId) || !pc.IsAlive() || pc.onLadder || pc.inVent || GameStates.IsMeeting)
-                {
-                    continue;
-                }
+                if (changePositionPlayers.Contains(pc.PlayerId) || Pelican.IsEaten(pc.PlayerId) || pc.onLadder || pc.inVent || GameStates.IsMeeting) continue;
 
-                var filtered = Main.AllAlivePlayerControls.Where(a =>
-                    pc.IsAlive() && !Pelican.IsEaten(pc.PlayerId) && !pc.inVent && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
+                var filtered = Main.AllAlivePlayerControls.Where(a => !a.inVent && !Pelican.IsEaten(a.PlayerId) && !a.onLadder && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
                 if (filtered.Length == 0) break;
 
                 PlayerControl target = filtered[rd.Next(0, filtered.Length)];
-
-                if (pc.inVent || target.inVent) continue;
 
                 changePositionPlayers.Add(target.PlayerId);
                 changePositionPlayers.Add(pc.PlayerId);
@@ -75,8 +86,8 @@ namespace TOHE.Roles.Impostor
                 pc.RPCPlayCustomSound("Teleport");
 
                 var originPs = target.Pos();
-                TP(target.NetTransform, pc.Pos());
-                TP(pc.NetTransform, originPs);
+                target.TP(pc.Pos());
+                pc.TP(originPs);
 
                 target.Notify(ColorString(GetRoleColor(CustomRoles.Twister), string.Format(GetString("TeleportedByTwister"), pc.GetRealName())));
                 pc.Notify(ColorString(GetRoleColor(CustomRoles.Twister), string.Format(GetString("TeleportedByTwister"), target.GetRealName())));

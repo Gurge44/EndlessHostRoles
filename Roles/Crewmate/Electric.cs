@@ -1,10 +1,23 @@
 ﻿using System.Linq;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Crewmate
+namespace EHR.Roles.Crewmate
 {
-    internal class Electric
+    internal class Electric : RoleBase
     {
+        public static bool On;
+        public override bool IsEnable => On;
+
+        public override void Add(byte playerId)
+        {
+            On = true;
+        }
+
+        public override void Init()
+        {
+            On = false;
+        }
+
         private static int Id => 64410;
         private static OptionItem FreezeDuration;
         public static void SetupCustomOption()
@@ -14,7 +27,8 @@ namespace TOHE.Roles.Crewmate
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Electric])
                 .SetValueFormat(OptionFormat.Seconds);
         }
-        public static void OnTaskComplete(PlayerControl pc)
+
+        public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
         {
             if (pc == null) return;
             var Random = IRandom.Instance;

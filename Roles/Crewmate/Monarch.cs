@@ -1,67 +1,56 @@
-﻿using Hazel;
+﻿using AmongUs.GameOptions;
 using System.Collections.Generic;
-using UnityEngine;
-using static TOHE.Options;
-using static TOHE.Translator;
+using static EHR.Options;
+using static EHR.Translator;
 
-namespace TOHE.Roles.Crewmate;
+namespace EHR.Roles.Crewmate;
 
-public static class Monarch
+public class Monarch : RoleBase
 {
-    private static readonly int Id = 9600;
+    private const int Id = 9600;
     private static List<byte> playerIdList = [];
 
     public static OptionItem KnightCooldown;
     public static OptionItem KnightMax;
     public static OptionItem UsePet;
 
-    public static int KnightLimit;
-
     public static void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Monarch, 1);
+        SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Monarch);
         KnightCooldown = FloatOptionItem.Create(Id + 10, "MonarchKnightCooldown", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Monarch])
             .SetValueFormat(OptionFormat.Seconds);
         KnightMax = IntegerOptionItem.Create(Id + 12, "MonarchKnightMax", new(1, 15, 1), 2, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Monarch])
             .SetValueFormat(OptionFormat.Times);
         UsePet = CreatePetUseSetting(Id + 11, CustomRoles.Monarch);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
-        KnightLimit = new();
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        KnightLimit = KnightMax.GetInt();
+        playerId.SetAbilityUseLimit(KnightMax.GetInt());
 
         if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
 
-    public static void SendRPC()
+    public override bool IsEnable => playerIdList.Count > 0;
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KnightCooldown.GetFloat();
+    public override bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && player.GetAbilityUseLimit() >= 1;
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMonarchKnightLimit, SendOption.Reliable, -1);
-        writer.Write(KnightLimit);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-    public static void ReceiveRPC(MessageReader reader)
-    {
-        KnightLimit = reader.ReadInt32();
-    }
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KnightCooldown.GetFloat();
-    public static bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && KnightLimit >= 1;
-    public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
-    {
-        if (KnightLimit < 1) return false;
-        if (CanBeKnighted(target))
+        if (killer.GetAbilityUseLimit() < 1) return false;
+        if (target != null && !target.GetCustomRole().IsNotKnightable() && !target.Is(CustomRoles.Knighted) && !target.Is(CustomRoles.TicketsStealer))
         {
-            KnightLimit--;
-            SendRPC();
+            killer.RpcRemoveAbilityUse();
             target.RpcSetCustomRole(CustomRoles.Knighted);
 
             killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("MonarchKnightedPlayer")));
@@ -71,23 +60,15 @@ public static class Monarch
 
             killer.ResetKillCooldown();
             killer.SetKillCooldown();
-            //      killer.RpcGuardAndKill(target);
+
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 
-            Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.Knighted.ToString(), "Assign " + CustomRoles.Knighted.ToString());
-            if (KnightLimit < 0)
-                HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
-            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{KnightLimit}次招募机会", "Monarch");
-            return true;
+            Logger.Info("SetRole:" + target.Data?.PlayerName + " = " + target.GetCustomRole() + " + " + CustomRoles.Knighted, "Assign " + CustomRoles.Knighted);
+            return false;
         }
 
-        if (KnightLimit < 0)
-            HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("MonarchInvalidTarget")));
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{KnightLimit}次招募机会", "Monarch");
         return false;
     }
-    public static string GetKnightLimit() => Utils.ColorString(KnightLimit >= 1 ? Utils.GetRoleColor(CustomRoles.Monarch).ShadeColor(0.25f) : Color.gray, $"({KnightLimit})");
-    public static bool CanBeKnighted(this PlayerControl pc) => pc != null && !pc.GetCustomRole().IsNotKnightable() && !pc.Is(CustomRoles.Knighted) && !pc.Is(CustomRoles.TicketsStealer);
 }

@@ -1,12 +1,12 @@
 ﻿
 #Number:100068
-#Title:TOHE PLUS v1.3.0
+#Title:EHR PLUS v1.3.0
 #SubTitle:★★★★Bug Fixes and Major Improvements★★★★
-#ShortTitle:★TOHE+ v1.3.0
+#ShortTitle:★EHR v1.3.0
 #Date:2023-11-03T00:00:00Z
 #-----------------------------
 
-## Thank you for using TOHE+!
+## Thank you for using EHR!
 
 - Fixed Guess The Number minigame showing incorrect messages
 - Fixed wrong Preset settings loading

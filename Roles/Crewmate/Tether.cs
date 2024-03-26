@@ -1,19 +1,20 @@
-namespace TOHE.Roles.Crewmate
-{
-    using Hazel;
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
-    using UnityEngine;
-    using static TOHE.Options;
-    using static TOHE.Utils;
+using AmongUs.GameOptions;
+using EHR.Modules;
+using Hazel;
+using System.Collections.Generic;
+using System.Text;
 
-    public static class Tether
+namespace EHR.Roles.Crewmate
+{
+    using static Options;
+
+    public class Tether : RoleBase
     {
-        private static readonly int Id = 640300;
+        private const int Id = 640300;
         public static List<byte> playerIdList = [];
-        public static Dictionary<byte, float> UseLimit = [];
-        private static byte Target = byte.MaxValue;
+
+        private byte Target = byte.MaxValue;
+        private byte TetherId;
 
         public static OptionItem VentCooldown;
         public static OptionItem UseLimitOpt;
@@ -23,7 +24,7 @@ namespace TOHE.Roles.Crewmate
 
         public static void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Tether, 1);
+            SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Tether);
             VentCooldown = FloatOptionItem.Create(Id + 10, "VentCooldown", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Tether])
                 .SetValueFormat(OptionFormat.Seconds);
             UseLimitOpt = IntegerOptionItem.Create(Id + 11, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Tether])
@@ -36,51 +37,54 @@ namespace TOHE.Roles.Crewmate
                 .SetValueFormat(OptionFormat.Times);
             CancelVote = CreateVoteCancellingUseSetting(Id + 13, CustomRoles.Tether, TabGroup.CrewmateRoles);
         }
-        public static void Init()
+
+        public override void Init()
         {
             playerIdList = [];
-            UseLimit = [];
             Target = byte.MaxValue;
+            TetherId = byte.MaxValue;
         }
-        public static void Add(byte playerId)
+
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            UseLimit.Add(playerId, UseLimitOpt.GetInt());
+            playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
+            Target = byte.MaxValue;
+            TetherId = playerId;
         }
-        public static bool IsEnable => playerIdList.Count > 0;
-        public static void SendRPC(byte playerId)
-        {
-            if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTetherLimit, SendOption.Reliable, -1);
-            writer.Write(playerId);
-            writer.Write(UseLimit[playerId]);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-        public static void SendRPCSyncTarget(byte targetId)
-        {
-            if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTetherTarget, SendOption.Reliable, -1);
-            writer.Write(targetId);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-        public static void ReceiveRPC(MessageReader reader)
-        {
-            if (AmongUsClient.Instance.AmHost) return;
 
-            byte playerId = reader.ReadByte();
-            float uses = reader.ReadSingle();
-            UseLimit[playerId] = uses;
+        public override bool IsEnable => playerIdList.Count > 0;
+
+        void SendRPCSyncTarget()
+        {
+            if (!IsEnable || !Utils.DoRPC) return;
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTetherTarget, SendOption.Reliable);
+            writer.Write(TetherId);
+            writer.Write(Target);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
+
         public static void ReceiveRPCSyncTarget(MessageReader reader)
         {
-            if (AmongUsClient.Instance.AmHost) return;
+            byte id = reader.ReadByte();
+            if (Main.PlayerStates[id].Role is not Tether th) return;
 
-            Target = reader.ReadByte();
+            th.Target = reader.ReadByte();
         }
-        public static void OnEnterVent(PlayerControl pc, int ventId, bool isPet = false)
+
+        public override void OnPet(PlayerControl pc)
+        {
+            Teleport(pc, 0, true);
+        }
+
+        public override void OnEnterVent(PlayerControl pc, Vent vent)
+        {
+            Teleport(pc, vent.Id);
+        }
+
+        void Teleport(PlayerControl pc, int ventId, bool isPet = false)
         {
             if (pc == null) return;
-            if (!pc.Is(CustomRoles.Tether)) return;
 
             if (Target != byte.MaxValue)
             {
@@ -88,59 +92,55 @@ namespace TOHE.Roles.Crewmate
                 {
                     if (GameStates.IsInTask)
                     {
-                        TP(pc.NetTransform, GetPlayerById(Target).Pos());
+                        pc.TP(Utils.GetPlayerById(Target).Pos());
                     }
                 }, isPet ? 0.1f : 2f, "Tether TP");
             }
             else if (!isPet)
             {
-                _ = new LateTask(() =>
-                {
-                    pc.MyPhysics?.RpcBootFromVent(ventId);
-                }, 0.5f, "Tether No Target Boot From Vent");
+                _ = new LateTask(() => { pc.MyPhysics?.RpcBootFromVent(ventId); }, 0.5f, "Tether No Target Boot From Vent");
             }
         }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            if (UsePets.GetBool()) return;
+            AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
+            AURoleOptions.EngineerInVentMaxTime = 1f;
+        }
+
         public static bool OnVote(PlayerControl pc, PlayerControl target)
         {
-            if (pc == null || target == null || !pc.Is(CustomRoles.Tether) || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
+            if (pc == null || target == null || Main.PlayerStates[pc.PlayerId].Role is not Tether th || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
 
-            if (UseLimit[pc.PlayerId] >= 1)
+            if (pc.GetAbilityUseLimit() >= 1)
             {
-                UseLimit[pc.PlayerId] -= 1;
-                Target = target.PlayerId;
-                SendRPC(pc.PlayerId);
-                SendRPCSyncTarget(Target);
+                pc.RpcRemoveAbilityUse();
+                th.Target = target.PlayerId;
+                th.SendRPCSyncTarget();
                 Main.DontCancelVoteList.Add(pc.PlayerId);
                 return true;
             }
+
             return false;
         }
-        public static void OnReportDeadBody()
+
+        public override void OnReportDeadBody()
         {
             Target = byte.MaxValue;
-            SendRPCSyncTarget(Target);
+            SendRPCSyncTarget();
         }
-        public static string GetProgressText(byte playerId, bool comms)
+
+        public override string GetProgressText(byte playerId, bool comms)
         {
             var sb = new StringBuilder();
 
-            var taskState = Main.PlayerStates?[playerId].TaskState;
-            Color TextColor;
-            var TaskCompleteColor = Color.green;
-            var NonCompleteColor = Color.yellow;
-            var NormalColor = taskState.IsTaskFinished ? TaskCompleteColor : NonCompleteColor;
-            TextColor = comms ? Color.gray : NormalColor;
-            string Completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
-
-            Color TextColor1;
-            if (UseLimit[playerId] < 1) TextColor1 = Color.red;
-            else TextColor1 = Color.white;
-
-            sb.Append(ColorString(TextColor, $"<color=#777777>-</color> {Completed}/{taskState.AllTasksCount}"));
-            sb.Append(ColorString(TextColor1, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));
+            sb.Append(Utils.GetAbilityUseLimitDisplay(playerId, Target != byte.MaxValue));
+            sb.Append(Utils.GetTaskCount(playerId, comms));
 
             return sb.ToString();
         }
-        public static string TargetText => Target != byte.MaxValue ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{GetPlayerById(Target).GetRealName()}</color>" : string.Empty;
+
+        public static string TargetText(byte id) => Main.PlayerStates[id].Role is Tether th && th.Target != byte.MaxValue ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(th.Target).GetRealName()}</color>" : string.Empty;
     }
 }

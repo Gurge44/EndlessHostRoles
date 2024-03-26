@@ -1,17 +1,18 @@
-﻿using System;
+﻿using AmongUs.GameOptions;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Neutral;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using TOHE.Roles.Crewmate;
-using TOHE.Roles.Neutral;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+using static EHR.Options;
+using static EHR.Translator;
+using static EHR.Utils;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
-    public static class Gambler
+    public class Gambler : RoleBase
     {
-        private static readonly int Id = 640700;
+        private const int Id = 640700;
         public static List<byte> playerIdList = [];
 
         public static OptionItem KillCooldown;
@@ -33,8 +34,8 @@ namespace TOHE.Roles.Impostor
         public static OptionItem IgnorePestilence;
         public static OptionItem PositiveEffectChance;
 
-        public static Dictionary<byte, byte> EffectID = [];
-        public static Dictionary<byte, bool> isPositiveEffect = [];
+        public byte EffectID = byte.MaxValue;
+        public bool isPositiveEffect;
 
         public static Dictionary<byte, long> waitingDelayedKills = [];
         public static Dictionary<byte, long> isShielded = [];
@@ -78,47 +79,64 @@ namespace TOHE.Roles.Impostor
                 .SetValueFormat(OptionFormat.Percent);
         }
 
-        public static void Init()
+        public override void Init()
         {
             playerIdList = [];
-            EffectID = [];
+            EffectID = byte.MaxValue;
             waitingDelayedKills = [];
             isSpeedChange = [];
             isVisionChange = [];
-            isPositiveEffect = [];
+            isPositiveEffect = true;
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
+            EffectID = byte.MaxValue;
+            isPositiveEffect = true;
         }
 
-        public static bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => playerIdList.Count > 0;
 
-        public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            if (isVisionChange.ContainsKey(playerId))
+            {
+                opt.SetFloat(FloatOptionNames.CrewLightMod, LowVision.GetFloat());
+                opt.SetFloat(FloatOptionNames.ImpostorLightMod, LowVision.GetFloat());
+            }
+        }
+
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer == null) return false;
             if (target == null) return false;
 
-            if (EffectID.TryGetValue(killer.PlayerId, out var id) && id != byte.MaxValue)
+            if (EffectID != byte.MaxValue)
             {
                 return true;
             }
 
             var rd = IRandom.Instance;
-            isPositiveEffect[killer.PlayerId] = rd.Next(1, 101) <= PositiveEffectChance.GetInt();
-            if (isPositiveEffect[killer.PlayerId])
+            isPositiveEffect = rd.Next(1, 101) <= PositiveEffectChance.GetInt();
+
+            if (isPositiveEffect)
             {
-                EffectID[killer.PlayerId] = (byte)rd.Next(1, 8);
-                switch (EffectID[killer.PlayerId])
+                EffectID = (byte)rd.Next(1, 8);
+                switch (EffectID)
                 {
                     case 1: // Delayed kill
                         killer.Notify(string.Format(GetString("GamblerGet.DelayedKill"), KillDelay.GetInt()));
-                        waitingDelayedKills.TryAdd(target.PlayerId, GetTimeStamp());
+                        waitingDelayedKills.TryAdd(target.PlayerId, TimeStamp);
                         return false;
                     case 2: // Shield
                         killer.Notify(string.Format(GetString("GamblerGet.Shield"), ShieldDur.GetInt()));
-                        isShielded.TryAdd(killer.PlayerId, GetTimeStamp());
+                        isShielded.TryAdd(killer.PlayerId, TimeStamp);
                         break;
                     case 3: // No lunge (Swift kill)
                         killer.Notify(GetString("GamblerGet.NoLunge"));
@@ -138,35 +156,31 @@ namespace TOHE.Roles.Impostor
                     case 5: // Ignore defense
                         killer.Notify(GetString("GamblerGet.IgnoreDefense"));
                         if ((target.Is(CustomRoles.Pestilence) && IgnorePestilence.GetBool())
-                            || (Main.VeteranInProtect.ContainsKey(target.PlayerId) && IgnoreVeteranAlert.GetBool())
+                            || (Veteran.VeteranInProtect.ContainsKey(target.PlayerId) && IgnoreVeteranAlert.GetBool())
                             || (Medic.InProtect(target.PlayerId) && IgnoreMedicShield.GetBool())
                             || ((target.Is(CustomRoles.Jinx) || target.Is(CustomRoles.CursedWolf)) && IgnoreCursedWolfAndJinx.GetBool()))
                         {
                             killer.Kill(target);
                             return false;
                         }
-                        else if ((target.Is(CustomRoles.Pestilence) && !IgnorePestilence.GetBool())
-                                 || (Main.VeteranInProtect.ContainsKey(target.PlayerId) && !IgnoreVeteranAlert.GetBool())
-                                 || (Medic.InProtect(target.PlayerId) && !IgnoreMedicShield.GetBool())
-                                 || ((target.Is(CustomRoles.Jinx) || target.Is(CustomRoles.CursedWolf)) && !IgnoreCursedWolfAndJinx.GetBool()))
+
+                        if ((target.Is(CustomRoles.Pestilence) && !IgnorePestilence.GetBool())
+                            || (Veteran.VeteranInProtect.ContainsKey(target.PlayerId) && !IgnoreVeteranAlert.GetBool())
+                            || (Medic.InProtect(target.PlayerId) && !IgnoreMedicShield.GetBool())
+                            || ((target.Is(CustomRoles.Jinx) || target.Is(CustomRoles.CursedWolf)) && !IgnoreCursedWolfAndJinx.GetBool()))
                         {
                             break;
                         }
-                        else
-                        {
-                            killer.RpcCheckAndMurder(target);
-                            return false;
-                        }
+
+                        killer.RpcCheckAndMurder(target);
+                        return false;
                     case 6: // Low KCD
                         killer.Notify(string.Format(GetString("GamblerGet.LowKCD"), LowKCD.GetFloat()));
-                        _ = new LateTask(() =>
-                        {
-                            killer.SetKillCooldown(LowKCD.GetFloat());
-                        }, 0.1f, "Gambler SetLowKCD");
+                        _ = new LateTask(() => { killer.SetKillCooldown(LowKCD.GetFloat()); }, 0.1f, "Gambler SetLowKCD");
                         break;
                     case 7: // Speed
                         killer.Notify(string.Format(GetString("GamblerGet.Speedup"), SpeedDur.GetInt(), Speed.GetFloat()));
-                        isSpeedChange.TryAdd(killer.PlayerId, (Main.AllPlayerSpeed[killer.PlayerId], GetTimeStamp()));
+                        isSpeedChange.TryAdd(killer.PlayerId, (Main.AllPlayerSpeed[killer.PlayerId], TimeStamp));
                         Main.AllPlayerSpeed[killer.PlayerId] = Speed.GetFloat();
                         killer.MarkDirtySettings();
                         break;
@@ -177,8 +191,8 @@ namespace TOHE.Roles.Impostor
             }
             else
             {
-                EffectID[killer.PlayerId] = (byte)rd.Next(1, 5);
-                switch (EffectID[killer.PlayerId])
+                EffectID = (byte)rd.Next(1, 5);
+                switch (EffectID)
                 {
                     case 1: // BSR
                         var delay = Math.Max(0.15f, BSRDelay.GetFloat());
@@ -186,25 +200,26 @@ namespace TOHE.Roles.Impostor
                         {
                             killer.Notify(string.Format(GetString("GamblerGet.BSR"), BSRDelay.GetInt()));
                         }
-                        _ = new LateTask(() => { if (GameStates.IsInTask) killer.CmdReportDeadBody(target.Data); }, delay, "Gambler Self Report");
+
+                        _ = new LateTask(() =>
+                        {
+                            if (GameStates.IsInTask) killer.CmdReportDeadBody(target.Data);
+                        }, delay, "Gambler Self Report");
                         break;
                     case 2: // Freeze
                         killer.Notify(string.Format(GetString("GamblerGet.Freeze"), FreezeDur.GetInt()));
-                        isSpeedChange.TryAdd(killer.PlayerId, (Main.AllPlayerSpeed[killer.PlayerId], GetTimeStamp()));
+                        isSpeedChange.TryAdd(killer.PlayerId, (Main.AllPlayerSpeed[killer.PlayerId], TimeStamp));
                         Main.AllPlayerSpeed[killer.PlayerId] = Main.MinSpeed;
                         killer.MarkDirtySettings();
                         break;
                     case 3: // Low vision
                         killer.Notify(string.Format(GetString("GamblerGet.LowVision"), LowVisionDur.GetInt(), LowVision.GetFloat()));
-                        isVisionChange.TryAdd(killer.PlayerId, GetTimeStamp());
+                        isVisionChange.TryAdd(killer.PlayerId, TimeStamp);
                         killer.MarkDirtySettings();
                         break;
                     case 4: // High KCD
                         killer.Notify(string.Format(GetString("GamblerGet.HighKCD"), HighKCD.GetFloat()));
-                        _ = new LateTask(() =>
-                        {
-                            killer.SetKillCooldown(HighKCD.GetFloat());
-                        }, 0.1f, "Gambler SetHighKCD");
+                        _ = new LateTask(() => { killer.SetKillCooldown(HighKCD.GetFloat()); }, 0.1f, "Gambler SetHighKCD");
                         break;
                     default:
                         Logger.Error("Invalid Effect ID (negative)", "Gambler.OnCheckMurder");
@@ -212,12 +227,12 @@ namespace TOHE.Roles.Impostor
                 }
             }
 
-            EffectID[killer.PlayerId] = byte.MaxValue;
+            EffectID = byte.MaxValue;
 
             return true;
         }
 
-        public static void OnFixedUpdate(PlayerControl player)
+        public override void OnFixedUpdate(PlayerControl player)
         {
             if (!GameStates.IsInTask || player == null || !player.Is(CustomRoles.Gambler) || (waitingDelayedKills.Count == 0 && isSpeedChange.Count == 0 && isVisionChange.Count == 0 && isShielded.Count == 0)) return;
 
@@ -231,43 +246,49 @@ namespace TOHE.Roles.Impostor
                     waitingDelayedKills.Remove(x.Key);
                     continue;
                 }
-                if (x.Value + KillDelay.GetInt() < GetTimeStamp())
+
+                if (x.Value + KillDelay.GetInt() < TimeStamp)
                 {
                     pc.Suicide(PlayerState.DeathReason.Poison, player);
                     waitingDelayedKills.Remove(x.Key);
                 }
             }
 
-            if (isSpeedChange.TryGetValue(player.PlayerId, out var p) && p.Item2 + SpeedDur.GetInt() < GetTimeStamp())
+            if (isSpeedChange.TryGetValue(player.PlayerId, out var p) && p.Item2 + SpeedDur.GetInt() < TimeStamp)
             {
                 Main.AllPlayerSpeed[player.PlayerId] = p.Item1;
                 isSpeedChange.Remove(player.PlayerId);
                 sync = true;
             }
 
-            if (isVisionChange.TryGetValue(player.PlayerId, out var v) && v + LowVisionDur.GetInt() < GetTimeStamp())
+            if (isVisionChange.TryGetValue(player.PlayerId, out var v) && v + LowVisionDur.GetInt() < TimeStamp)
             {
                 isVisionChange.Remove(player.PlayerId);
                 sync = true;
             }
 
-            if (isShielded.TryGetValue(player.PlayerId, out var shielded) && shielded + ShieldDur.GetInt() < GetTimeStamp())
+            if (isShielded.TryGetValue(player.PlayerId, out var shielded) && shielded + ShieldDur.GetInt() < TimeStamp)
             {
                 isShielded.Remove(player.PlayerId);
             }
 
-            if (sync) { player.MarkDirtySettings(); }
+            if (sync)
+            {
+                player.MarkDirtySettings();
+            }
         }
 
-        public static void OnReportDeadBody()
+        public override void OnReportDeadBody()
         {
-            EffectID.Clear();
-            isPositiveEffect.Clear();
+            EffectID = byte.MaxValue;
+            isPositiveEffect = true;
+
             foreach (var playerId in waitingDelayedKills.Keys.ToArray())
             {
                 var pc = GetPlayerById(playerId);
                 if (pc.IsAlive()) pc.Kill(pc);
             }
+
             waitingDelayedKills.Clear();
             isShielded.Clear();
             isSpeedChange.Clear();

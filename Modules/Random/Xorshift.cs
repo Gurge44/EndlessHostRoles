@@ -1,6 +1,6 @@
 using System;
 
-namespace TOHE;
+namespace EHR;
 
 public class Xorshift(uint seed) : IRandom
 {
@@ -23,8 +23,8 @@ public class Xorshift(uint seed) : IRandom
     public int Next(int minValue, int maxValue)
     {
         if (minValue < 0 || maxValue < 0) throw new ArgumentOutOfRangeException("minValue and maxValue must be bigger than 0.");
-        else if (minValue > maxValue) throw new ArgumentException("maxValue must be bigger than minValue.");
-        else if (minValue == maxValue) return minValue;
+        if (minValue > maxValue) throw new ArgumentException("maxValue must be bigger than minValue.");
+        if (minValue == maxValue) return minValue;
 
         return (int)(minValue + (Next() % (maxValue - minValue)));
     }

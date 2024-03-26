@@ -1,12 +1,12 @@
 
 #Number:100065
-#Title:TOHE PLUS v1.1.0
+#Title:EHR PLUS v1.1.0
 #SubTitle:★★★★Major update★★★★
-#ShortTitle:★TOHE+ v1.1.0
+#ShortTitle:★EHR v1.1.0
 #Date:2023-10-11T00:00:00Z
 #-----------------------------
 
-## Thank you for using TOHE+!
+## Thank you for using EHR!
 
 ## Fixes
 - Fixed and updated incorrect and missing strings

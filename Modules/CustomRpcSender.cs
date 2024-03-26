@@ -3,7 +3,9 @@ using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
 using System;
-namespace TOHE;
+using System.Diagnostics.CodeAnalysis;
+
+namespace EHR;
 
 public class CustomRpcSender
 {
@@ -11,7 +13,9 @@ public class CustomRpcSender
     public readonly string name;
     public readonly SendOption sendOption;
     public bool isUnsafe;
+
     public delegate void onSendDelegateType();
+
     public onSendDelegateType onSendDelegate;
 
     public State CurrentState
@@ -23,6 +27,7 @@ public class CustomRpcSender
             else Logger.Warn("CurrentStateはisUnsafeがtrueの時のみ上書きできます", "CustomRpcSender");
         }
     }
+
     private State currentState = State.BeforeInit;
 
     //0~: targetClientId (GameDataTo)
@@ -30,7 +35,10 @@ public class CustomRpcSender
     //-2: 未設定
     private int currentRpcTarget;
 
-    private CustomRpcSender() { }
+    private CustomRpcSender()
+    {
+    }
+
     public CustomRpcSender(string name, SendOption sendOption, bool isUnsafe)
     {
         stream = MessageWriter.Get(sendOption);
@@ -44,12 +52,14 @@ public class CustomRpcSender
         currentState = State.Ready;
         Logger.Info($"\"{name}\" is ready", "CustomRpcSender");
     }
+
     public static CustomRpcSender Create(string name = "No Name Sender", SendOption sendOption = SendOption.None, bool isUnsafe = false)
     {
-        return new CustomRpcSender(name, sendOption, isUnsafe);
+        return new(name, sendOption, isUnsafe);
     }
 
     #region Start/End Message
+
     public CustomRpcSender StartMessage(int targetClientId = -1)
     {
         if (currentState != State.Ready)
@@ -83,6 +93,8 @@ public class CustomRpcSender
         currentState = State.InRootMessage;
         return this;
     }
+
+    [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "<Pending>")]
     public CustomRpcSender EndMessage(int targetClientId = -1)
     {
         if (currentState != State.InRootMessage)
@@ -97,16 +109,21 @@ public class CustomRpcSender
                 throw new InvalidOperationException(errorMsg);
             }
         }
+
         stream.EndMessage();
 
         currentRpcTarget = -2;
         currentState = State.Ready;
         return this;
     }
+
     #endregion
+
     #region Start/End Rpc
+
     public CustomRpcSender StartRpc(uint targetNetId, RpcCalls rpcCall)
         => StartRpc(targetNetId, (byte)rpcCall);
+
     public CustomRpcSender StartRpc(
         uint targetNetId,
         byte callId)
@@ -131,6 +148,7 @@ public class CustomRpcSender
         currentState = State.InRpc;
         return this;
     }
+
     public CustomRpcSender EndRpc()
     {
         if (currentState != State.InRpc)
@@ -150,7 +168,9 @@ public class CustomRpcSender
         currentState = State.InRootMessage;
         return this;
     }
+
     #endregion
+
     public CustomRpcSender AutoStartRpc(
         uint targetNetId,
         byte callId,
@@ -169,16 +189,19 @@ public class CustomRpcSender
                 throw new InvalidOperationException(errorMsg);
             }
         }
+
         if (currentRpcTarget != targetClientId)
         {
             //StartMessage処理
             if (currentState == State.InRootMessage) EndMessage();
             StartMessage(targetClientId);
         }
+
         StartRpc(targetNetId, callId);
 
         return this;
     }
+
     public void SendMessage()
     {
         if (currentState == State.InRootMessage) EndMessage();
@@ -203,7 +226,9 @@ public class CustomRpcSender
     }
 
     // Write
+
     #region PublicWriteMethods
+
     public CustomRpcSender Write(float val) => Write(w => w.Write(val));
     public CustomRpcSender Write(string val) => Write(w => w.Write(val));
     public CustomRpcSender Write(ulong val) => Write(w => w.Write(val));
@@ -219,6 +244,7 @@ public class CustomRpcSender
     public CustomRpcSender WritePacked(int val) => Write(w => w.WritePacked(val));
     public CustomRpcSender WritePacked(uint val) => Write(w => w.WritePacked(val));
     public CustomRpcSender WriteNetObject(InnerNetObject obj) => Write(w => w.WriteNetObject(obj));
+
     #endregion
 
     private CustomRpcSender Write(Action<MessageWriter> action)
@@ -235,6 +261,7 @@ public class CustomRpcSender
                 throw new InvalidOperationException(errorMsg);
             }
         }
+
         action(stream);
 
         return this;
@@ -258,6 +285,7 @@ public static class CustomRpcSenderExtensions
             .Write((ushort)role)
             .EndRpc();
     }
+
     public static void RpcMurderPlayerV3(this CustomRpcSender sender, PlayerControl player, PlayerControl target, int targetClientId = -1)
     {
         sender.AutoStartRpc(player.NetId, (byte)RpcCalls.MurderPlayer, targetClientId)

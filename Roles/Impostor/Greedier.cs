@@ -1,20 +1,30 @@
-﻿using Hazel;
+﻿using AmongUs.GameOptions;
+using EHR.Modules;
+using EHR.Roles.Neutral;
+using Hazel;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace TOHE;
+namespace EHR.Roles.Impostor;
 
 // 来源：https://github.com/Yumenopai/TownOfHost_Y
-public static class Greedier
+public class Greedier : RoleBase // Also used for Imitator as the NK version of this
 {
-    private static readonly int Id = 1300;
+    private const int Id = 1300;
     public static List<byte> playerIdList = [];
 
     private static OptionItem OddKillCooldown;
     private static OptionItem EvenKillCooldown;
     private static OptionItem AfterMeetingKillCooldown;
 
-    public static Dictionary<byte, bool> IsOdd = [];
+    private float OddKCD;
+    private float EvenKCD;
+    private float AfterMeetingKCD;
+    private bool HasImpVision;
+
+    private bool IsImitator;
+
+    public bool IsOdd = true;
 
     public static void SetupCustomOption()
     {
@@ -26,62 +36,94 @@ public static class Greedier
         AfterMeetingKillCooldown = FloatOptionItem.Create(Id + 12, "AfterMeetingKillCooldown", new(0f, 30f, 2.5f), 25f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Greedier])
             .SetValueFormat(OptionFormat.Seconds);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
-        IsOdd = [];
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        IsOdd.Add(playerId, true);
-    }
-    public static bool IsEnable() => playerIdList.Count > 0;
+        IsOdd = true;
 
-    private static void SendRPC(byte playerId)
+        IsImitator = Main.PlayerStates[playerId].MainRole == CustomRoles.Imitator;
+        if (IsImitator)
+        {
+            OddKCD = Imitator.OddKillCooldown.GetFloat();
+            EvenKCD = Imitator.EvenKillCooldown.GetFloat();
+            AfterMeetingKCD = Imitator.AfterMeetingKillCooldown.GetFloat();
+            HasImpVision = Imitator.HasImpostorVision.GetBool();
+        }
+        else
+        {
+            OddKCD = OddKillCooldown.GetFloat();
+            EvenKCD = EvenKillCooldown.GetFloat();
+            AfterMeetingKCD = AfterMeetingKillCooldown.GetFloat();
+            HasImpVision = true;
+        }
+
+        if (!AmongUsClient.Instance.AmHost) return;
+
+        if (!Main.ResetCamPlayerList.Contains(playerId) && IsImitator)
+        {
+            Main.ResetCamPlayerList.Add(playerId);
+        }
+    }
+
+    public override bool IsEnable => playerIdList.Count > 0;
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
-        if (!IsEnable() || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGreedierOE, SendOption.Reliable, -1);
+        opt.SetVision(HasImpVision);
+    }
+
+    void SendRPC(byte playerId)
+    {
+        if (!Utils.DoRPC) return;
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGreedierOE, SendOption.Reliable);
         writer.Write(playerId);
-        writer.Write(IsOdd[playerId]);
+        writer.Write(IsOdd);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
-    public static void ReceiveRPC(MessageReader reader)
+    public void ReceiveRPC(bool isOdd)
     {
-        byte playerId = reader.ReadByte();
-        IsOdd[playerId] = reader.ReadBoolean();
+        IsOdd = isOdd;
     }
 
-    public static void SetKillCooldown(byte id)
+    public override void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = OddKillCooldown.GetFloat();
+        Main.AllPlayerKillCooldown[id] = OddKCD;
     }
-    public static void OnReportDeadBody()
+
+    public override void OnReportDeadBody()
     {
-        foreach (var pc in Main.AllAlivePlayerControls.Where(x => playerIdList.Contains(x.PlayerId)).ToArray())
+        foreach (var pc in Main.AllAlivePlayerControls.Where(x => playerIdList.Contains(x.PlayerId)))
         {
-            IsOdd[pc.PlayerId] = true;
+            IsOdd = true;
             SendRPC(pc.PlayerId);
-            Main.AllPlayerKillCooldown[pc.PlayerId] = AfterMeetingKillCooldown.GetFloat();
+            Main.AllPlayerKillCooldown[pc.PlayerId] = AfterMeetingKCD;
         }
     }
-    public static void OnCheckMurder(PlayerControl killer)
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        switch (IsOdd[killer.PlayerId])
+        switch (IsOdd)
         {
             case true:
-                Logger.Info($"{killer?.Data?.PlayerName}:奇数击杀冷却", "Greedier");
-                Main.AllPlayerKillCooldown[killer.PlayerId] = EvenKillCooldown.GetFloat();
+                Logger.Info($"{killer.Data?.PlayerName}: Odd-Kill", "Greedier");
+                Main.AllPlayerKillCooldown[killer.PlayerId] = EvenKCD;
                 break;
             case false:
-                Logger.Info($"{killer?.Data?.PlayerName}:偶数击杀冷却", "Greedier");
-                Main.AllPlayerKillCooldown[killer.PlayerId] = OddKillCooldown.GetFloat();
+                Logger.Info($"{killer.Data?.PlayerName}: Even-Kill", "Greedier");
+                Main.AllPlayerKillCooldown[killer.PlayerId] = OddKCD;
                 break;
         }
-        IsOdd[killer.PlayerId] = !IsOdd[killer.PlayerId];
-        //RPCによる同期
+
+        IsOdd = !IsOdd;
         SendRPC(killer.PlayerId);
-        killer.SyncSettings();//キルクール処理を同期
+        killer.SyncSettings();
+        return base.OnCheckMurder(killer, target);
     }
 }

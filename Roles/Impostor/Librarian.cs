@@ -1,17 +1,21 @@
-﻿using Hazel;
+﻿using AmongUs.GameOptions;
+using EHR.Modules;
+using Hazel;
 using System.Collections.Generic;
-using System.Linq;
-using static TOHE.Options;
-using static TOHE.Translator;
-using static TOHE.Utils;
+using UnityEngine;
+using static EHR.Options;
+using static EHR.Translator;
+using static EHR.Utils;
 
-namespace TOHE.Roles.Impostor
+namespace EHR.Roles.Impostor
 {
-    public static class Librarian
+    public class Librarian : RoleBase
     {
-        private static readonly int Id = 643150;
+        private const int Id = 643150;
         private static List<byte> playerIdList = [];
-        private static Dictionary<byte, (bool SILENCING, long LAST_CHANGE)> isInSilencingMode = [];
+
+        private (bool SILENCING, long LAST_CHANGE) IsInSilencingMode = (false, 0);
+
         private static List<byte> sssh = [];
 
         private static OptionItem Radius;
@@ -42,24 +46,24 @@ namespace TOHE.Roles.Impostor
                 .SetValueFormat(OptionFormat.Seconds);
         }
 
-        public static void Init()
+        public override void Init()
         {
             playerIdList = [];
-            isInSilencingMode = [];
+            IsInSilencingMode = (false, 0);
             sssh = [];
         }
 
-        public static void Add(byte playerId)
+        public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-            isInSilencingMode.Add(playerId, (false, GetTimeStamp()));
+            IsInSilencingMode = (false, TimeStamp);
         }
 
-        public static bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => playerIdList.Count > 0;
 
-        public static bool CanUseKillButton(PlayerControl pc) => !pc.IsShifted() || CanKillWhileShifted.GetBool();
+        public override bool CanUseKillButton(PlayerControl pc) => !pc.IsShifted() || CanKillWhileShifted.GetBool();
 
-        public static void ApplyGameOptions()
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             AURoleOptions.ShapeshifterDuration = SSDur.GetFloat();
             AURoleOptions.ShapeshifterCooldown = SSCD.GetFloat();
@@ -67,8 +71,8 @@ namespace TOHE.Roles.Impostor
 
         private static void SendRPC(byte playerId, bool isInSilenceMode)
         {
-            if (!IsEnable || !DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetLibrarianMode, SendOption.Reliable, -1);
+            if (!DoRPC) return;
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetLibrarianMode, SendOption.Reliable);
             writer.Write(playerId);
             writer.Write(isInSilenceMode);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -76,26 +80,27 @@ namespace TOHE.Roles.Impostor
 
         public static void ReceiveRPC(MessageReader reader)
         {
-            if (!IsEnable) return;
             byte playerId = reader.ReadByte();
             bool isInSilenceMode = reader.ReadBoolean();
 
-            isInSilencingMode[playerId] = (isInSilenceMode, GetTimeStamp());
+            if (Main.PlayerStates[playerId].Role is not Librarian lr) return;
+            lr.IsInSilencingMode = (isInSilenceMode, TimeStamp);
         }
 
         public static bool OnAnyoneReport(PlayerControl reporter)
         {
-            if (!IsEnable) return true;
-            if (reporter == null) return true;
+            if (reporter == null || playerIdList.Count == 0) return true;
 
             PlayerControl librarian = null;
             float silenceRadius = Radius.GetFloat();
 
             foreach (var id in playerIdList.ToArray())
             {
-                if (!isInSilencingMode.TryGetValue(id, out var x) || !x.SILENCING) continue;
+                if (Main.PlayerStates[id].Role is not Librarian lr) continue;
+                if (!lr.IsInSilencingMode.SILENCING) continue;
+
                 var pc = GetPlayerById(id);
-                if (UnityEngine.Vector2.Distance(pc.Pos(), reporter.Pos()) <= silenceRadius)
+                if (Vector2.Distance(pc.Pos(), reporter.Pos()) <= silenceRadius)
                 {
                     librarian = pc;
                 }
@@ -107,61 +112,60 @@ namespace TOHE.Roles.Impostor
             if (librarian.RpcCheckAndMurder(reporter))
             {
                 sssh.Add(librarian.PlayerId);
-                _ = new LateTask(() =>
-                {
-                    sssh.Remove(librarian.PlayerId);
-                }, NameDuration.GetInt(), "Librarian sssh text");
+                _ = new LateTask(() => { sssh.Remove(librarian.PlayerId); }, NameDuration.GetInt(), "Librarian sssh text");
             }
 
             return false;
         }
 
-        public static bool OnShapeshift(PlayerControl pc, bool shapeshifting)
+        public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
         {
             if (!IsEnable) return false;
             if (pc == null) return false;
 
             byte id = pc.PlayerId;
 
-            isInSilencingMode[id] = (!isInSilencingMode[id].SILENCING, GetTimeStamp());
-            SendRPC(id, isInSilencingMode[id].SILENCING);
+            IsInSilencingMode = (!IsInSilencingMode.SILENCING, TimeStamp);
+            SendRPC(id, IsInSilencingMode.SILENCING);
 
             return !shapeshifting || ShowSSAnimation.GetBool();
         }
 
-        public static void OnFixedUpdate()
+        public override void OnFixedUpdate(PlayerControl pc)
         {
             if (!IsEnable) return;
             if (ShowSSAnimation.GetBool()) return;
 
-            foreach (var kvp in isInSilencingMode.Where(x => x.Value.SILENCING && x.Value.LAST_CHANGE + SSDur.GetInt() < GetTimeStamp()).ToArray())
+            if (IsInSilencingMode.SILENCING && IsInSilencingMode.LAST_CHANGE + SSDur.GetInt() < TimeStamp)
             {
-                var id = kvp.Key;
-                isInSilencingMode[id] = (!isInSilencingMode[id].SILENCING, GetTimeStamp());
-                SendRPC(id, isInSilencingMode[id].SILENCING);
+                var id = pc.PlayerId;
+                IsInSilencingMode = (!IsInSilencingMode.SILENCING, TimeStamp);
+                SendRPC(id, IsInSilencingMode.SILENCING);
             }
         }
 
-        public static void OnReportDeadBody()
+        public override void OnReportDeadBody()
         {
             if (!IsEnable) return;
-            foreach (var id in isInSilencingMode.Keys.ToArray())
-            {
-                isInSilencingMode[id] = (false, GetTimeStamp());
-            }
+            IsInSilencingMode = (false, TimeStamp);
             sssh.Clear();
         }
 
-        public static string GetNameTextForSuffix(byte playerId) => IsEnable && isInSilencingMode.TryGetValue(playerId, out var x) && x.SILENCING && sssh.Contains(playerId) && GameStates.IsInTask
+        public static string GetNameTextForSuffix(byte playerId)
+        {
+            if (Main.PlayerStates[playerId].Role is not Librarian lr) return string.Empty;
+
+            return lr.IsEnable && lr.IsInSilencingMode.SILENCING && sssh.Contains(playerId) && GameStates.IsInTask
                 ? GetString("LibrarianNameText")
                 : string.Empty;
+        }
 
-        public static string GetSelfSuffixAndHUDText(byte playerId)
+        public static string GetSelfSuffixAndHudText(byte playerId)
         {
-            if (!IsEnable || !GameStates.IsInTask) return string.Empty;
-            if (!isInSilencingMode.TryGetValue(playerId, out var x)) return string.Empty;
+            if (Main.PlayerStates[playerId].Role is not Librarian lr) return string.Empty;
+            if (!lr.IsEnable || !GameStates.IsInTask) return string.Empty;
 
-            return string.Format(GetString("LibrarianModeText"), x.SILENCING ? GetString("LibrarianSilenceMode") : GetString("LibrarianNormalMode"));
+            return string.Format(GetString("LibrarianModeText"), lr.IsInSilencingMode.SILENCING ? GetString("LibrarianSilenceMode") : GetString("LibrarianNormalMode"));
         }
     }
 }

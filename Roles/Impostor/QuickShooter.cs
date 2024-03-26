@@ -1,13 +1,15 @@
-﻿using Hazel;
+﻿using AmongUs.GameOptions;
+using EHR.Modules;
+using Hazel;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace TOHE.Roles.Impostor;
+namespace EHR.Roles.Impostor;
 
-internal static class QuickShooter
+internal class QuickShooter : RoleBase
 {
-    private static readonly int Id = 1800;
+    private const int Id = 1800;
     public static List<byte> playerIdList = [];
     private static OptionItem KillCooldown;
     private static OptionItem MeetingReserved;
@@ -25,25 +27,30 @@ internal static class QuickShooter
         MeetingReserved = IntegerOptionItem.Create(Id + 14, "MeetingReserved", new(0, 15, 1), 1, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.QuickShooter])
             .SetValueFormat(OptionFormat.Pieces);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
         ShotLimit = [];
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
         ShotLimit.TryAdd(playerId, 0);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
+
+    public override bool IsEnable => playerIdList.Count > 0;
+
     private static void SendRPC(byte playerId)
     {
-        if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetQuickShooterShotLimit, SendOption.Reliable, -1);
+        if (!Utils.DoRPC) return;
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetQuickShooterShotLimit, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(ShotLimit[playerId]);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+
     public static void ReceiveRPC(MessageReader reader)
     {
         byte QuickShooterId = reader.ReadByte();
@@ -51,7 +58,15 @@ internal static class QuickShooter
         ShotLimit.TryAdd(QuickShooterId, Limit);
         ShotLimit[QuickShooterId] = Limit;
     }
-    public static void OnShapeshift(PlayerControl pc, bool shapeshifting)
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        if (Options.UsePets.GetBool()) return;
+        AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
+        AURoleOptions.ShapeshifterDuration = 1f;
+    }
+
+    public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
     {
         if (Main.KillTimers[pc.PlayerId] <= 0 && shapeshifting)
         {
@@ -63,14 +78,16 @@ internal static class QuickShooter
             pc.Notify(Translator.GetString("QuickShooterStoraging"));
             Logger.Info($"{Utils.GetPlayerById(pc.PlayerId)?.GetNameWithRole().RemoveHtmlTags()} : Remaining: {ShotLimit[pc.PlayerId]} bullets", "QuickShooter");
         }
+
+        return false;
     }
-    //private static bool Storaging;
-    public static void SetKillCooldown(byte id)
+
+    public override void SetKillCooldown(byte id)
     {
         Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        //Storaging = false;
     }
-    public static void OnReportDeadBody()
+
+    public override void OnReportDeadBody()
     {
         Dictionary<byte, int> NewSL = [];
         foreach (var sl in ShotLimit)
@@ -81,13 +98,16 @@ internal static class QuickShooter
             SendRPC(sl.Key);
         }
     }
-    public static void QuickShooterKill(PlayerControl killer)
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         ShotLimit.TryAdd(killer.PlayerId, 0);
         if (ShotLimit[killer.PlayerId] > 0) _ = new LateTask(() => { killer.SetKillCooldown(0.01f); }, 0.01f, "QuickShooterKill: Set KCD to 0s");
         ShotLimit[killer.PlayerId]--;
         ShotLimit[killer.PlayerId] = Math.Max(ShotLimit[killer.PlayerId], 0);
         SendRPC(killer.PlayerId);
+        return true;
     }
-    public static string GetShotLimit(byte playerId) => Utils.ColorString(ShotLimit.ContainsKey(playerId) && ShotLimit[playerId] > 0 ? Utils.GetRoleColor(CustomRoles.QuickShooter).ShadeColor(0.25f) : Color.gray, ShotLimit.TryGetValue(playerId, out var shotLimit) ? $"({shotLimit})" : "Invalid");
+
+    public override string GetProgressText(byte playerId, bool comms) => Utils.ColorString(ShotLimit.ContainsKey(playerId) && ShotLimit[playerId] > 0 ? Utils.GetRoleColor(CustomRoles.QuickShooter).ShadeColor(0.25f) : Color.gray, ShotLimit.TryGetValue(playerId, out var shotLimit) ? $"({shotLimit})" : "Invalid");
 }

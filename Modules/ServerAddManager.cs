@@ -6,11 +6,12 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace TOHE;
+namespace EHR;
 
 public static class ServerAddManager
 {
     private static readonly ServerManager serverManager = DestroyableSingleton<ServerManager>.Instance;
+
     public static void Init()
     {
         if (CultureInfo.CurrentCulture.Name.StartsWith("zh") && serverManager.AvailableRegions.Count == 10) return;
@@ -40,6 +41,7 @@ public static class ServerAddManager
     private static class CastHelper<T> where T : Il2CppObjectBase
     {
         public static Func<IntPtr, T> Cast;
+
         static CastHelper()
         {
             var constructor = typeof(T).GetConstructor([typeof(IntPtr)]);
@@ -55,5 +57,4 @@ public static class ServerAddManager
         if (obj is T casted) return casted;
         return CastHelper<T>.Cast(obj.Pointer);
     }
-
 }

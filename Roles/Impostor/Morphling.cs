@@ -1,11 +1,12 @@
+using AmongUs.GameOptions;
 using System.Collections.Generic;
-using static TOHE.Options;
+using static EHR.Options;
 
-namespace TOHE.Roles.Impostor;
+namespace EHR.Roles.Impostor;
 
-public static class Morphling
+public class Morphling : RoleBase
 {
-    private static readonly int Id = 3000;
+    private const int Id = 3000;
     public static List<byte> playerIdList = [];
 
     public static OptionItem KillCooldown;
@@ -23,30 +24,25 @@ public static class Morphling
         ShapeshiftDur = FloatOptionItem.Create(Id + 16, "ShapeshiftDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Morphling])
             .SetValueFormat(OptionFormat.Seconds);
     }
-    public static void Init()
+
+    public override void Init()
     {
         playerIdList = [];
-
     }
-    public static void Add(byte playerId)
+
+    public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-
-
     }
-    public static bool CanUseKillButton(byte playerId)
-        => !Main.PlayerStates[playerId].IsDead
-        && playerId.IsPlayerShifted();
 
-    public static void ApplyGameOptions()
+    public override bool CanUseKillButton(PlayerControl pc) => !Main.PlayerStates[pc.PlayerId].IsDead && pc.IsShifted();
+
+    public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         AURoleOptions.ShapeshifterCooldown = ShapeshiftCD.GetFloat();
         AURoleOptions.ShapeshifterDuration = ShapeshiftDur.GetFloat();
     }
-    public static void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
 
-
-    public static bool IsEnable => playerIdList.Count > 0;
-
-
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+    public override bool IsEnable => playerIdList.Count > 0;
 }
