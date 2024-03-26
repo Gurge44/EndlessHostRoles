@@ -639,14 +639,14 @@ static class ExtendedPlayerControl
 
     public static bool IsDousedPlayer(this PlayerControl arsonist, PlayerControl target)
     {
-        if (arsonist == null || target == null || Arsonist.isDoused == null) return false;
-        Arsonist.isDoused.TryGetValue((arsonist.PlayerId, target.PlayerId), out bool isDoused);
+        if (arsonist == null || target == null || Arsonist.IsDoused == null) return false;
+        Arsonist.IsDoused.TryGetValue((arsonist.PlayerId, target.PlayerId), out bool isDoused);
         return isDoused;
     }
     public static bool IsDrawPlayer(this PlayerControl arsonist, PlayerControl target)
     {
-        if (arsonist == null || target == null || Revolutionist.isDraw == null) return false;
-        Revolutionist.isDraw.TryGetValue((arsonist.PlayerId, target.PlayerId), out bool isDraw);
+        if (arsonist == null || target == null || Revolutionist.IsDraw == null) return false;
+        Revolutionist.IsDraw.TryGetValue((arsonist.PlayerId, target.PlayerId), out bool isDraw);
         return isDraw;
     }
     public static bool IsRevealedPlayer(this PlayerControl player, PlayerControl target)

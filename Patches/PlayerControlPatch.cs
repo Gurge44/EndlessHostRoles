@@ -1341,8 +1341,8 @@ class FixedUpdatePatch
                             Mark.Append($"<color={GetRoleColorCode(CustomRoles.Arsonist)}>▲</color>");
                         }
                         else if (
-                            Arsonist.currentDousingTarget != byte.MaxValue &&
-                            Arsonist.currentDousingTarget == target.PlayerId
+                            Arsonist.CurrentDousingTarget != byte.MaxValue &&
+                            Arsonist.CurrentDousingTarget == target.PlayerId
                         )
                         {
                             Mark.Append($"<color={GetRoleColorCode(CustomRoles.Arsonist)}>△</color>");
@@ -1355,8 +1355,8 @@ class FixedUpdatePatch
                             Mark.Append($"<color={GetRoleColorCode(CustomRoles.Revolutionist)}>●</color>");
                         }
                         else if (
-                            Revolutionist.currentDrawTarget != byte.MaxValue &&
-                            Revolutionist.currentDrawTarget == target.PlayerId
+                            Revolutionist.CurrentDrawTarget != byte.MaxValue &&
+                            Revolutionist.CurrentDrawTarget == target.PlayerId
                         )
                         {
                             Mark.Append($"<color={GetRoleColorCode(CustomRoles.Revolutionist)}>○</color>");
@@ -1364,8 +1364,8 @@ class FixedUpdatePatch
 
                         break;
                     case CustomRoles.Farseer:
-                        if (Revolutionist.currentDrawTarget != byte.MaxValue &&
-                            Revolutionist.currentDrawTarget == target.PlayerId)
+                        if (Revolutionist.CurrentDrawTarget != byte.MaxValue &&
+                            Revolutionist.CurrentDrawTarget == target.PlayerId)
                         {
                             Mark.Append($"<color={GetRoleColorCode(CustomRoles.Farseer)}>○</color>");
                         }

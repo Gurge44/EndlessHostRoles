@@ -140,7 +140,7 @@ class ExileControllerWrapUpPatch
             if (pc.Is(CustomRoles.Warlock))
             {
                 Warlock.CursedPlayers[pc.PlayerId] = null;
-                Warlock.isCurseAndKill[pc.PlayerId] = false;
+                Warlock.IsCurseAndKill[pc.PlayerId] = false;
                 //RPC.RpcSyncCurseAndKill();
             }
 

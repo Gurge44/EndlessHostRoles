@@ -24,8 +24,8 @@ namespace EHR.Roles.Impostor
 
         public static Dictionary<byte, float> WarlockTimer = [];
         public static Dictionary<byte, PlayerControl> CursedPlayers = [];
-        public static Dictionary<byte, bool> isCurseAndKill = [];
-        public static bool isCursed;
+        public static Dictionary<byte, bool> IsCurseAndKill = [];
+        public static bool IsCursed;
 
         private float KCD;
         private float CurseCD;
@@ -55,7 +55,7 @@ namespace EHR.Roles.Impostor
         {
             On = true;
             CursedPlayers.Add(playerId, null);
-            isCurseAndKill.Add(playerId, false);
+            IsCurseAndKill.Add(playerId, false);
             KCD = KillCooldown.GetFloat();
             CurseCD = CurseCooldown.GetFloat();
             LastNotify = 0;
@@ -71,7 +71,7 @@ namespace EHR.Roles.Impostor
             if (UsePets.GetBool()) return;
             try
             {
-                AURoleOptions.ShapeshifterCooldown = isCursed ? 1f : DefaultKillCooldown;
+                AURoleOptions.ShapeshifterCooldown = IsCursed ? 1f : DefaultKillCooldown;
                 AURoleOptions.ShapeshifterDuration = 1f;
             }
             catch
@@ -86,7 +86,7 @@ namespace EHR.Roles.Impostor
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            bool curse = isCurseAndKill.TryGetValue(id, out bool wcs) && wcs;
+            bool curse = IsCurseAndKill.TryGetValue(id, out bool wcs) && wcs;
             bool shapeshifting = id.IsPlayerShifted();
             if (!shapeshifting && !curse)
                 hud.KillButton?.OverrideText(Translator.GetString("WarlockCurseButtonText"));
@@ -125,25 +125,25 @@ namespace EHR.Roles.Impostor
                 {
                     if (CurseCD > 0f) return;
 
-                    isCurseAndKill.TryAdd(killer.PlayerId, false);
+                    IsCurseAndKill.TryAdd(killer.PlayerId, false);
 
-                    if (!killer.IsShifted() && !isCurseAndKill[killer.PlayerId])
+                    if (!killer.IsShifted() && !IsCurseAndKill[killer.PlayerId])
                     {
                         if (target.Is(CustomRoles.Needy) || target.Is(CustomRoles.Lazy)) return;
-                        isCursed = true;
+                        IsCursed = true;
                         killer.SetKillCooldown();
                         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
                         killer.RPCPlayCustomSound("Line");
                         CursedPlayers[killer.PlayerId] = target;
                         WarlockTimer.Add(killer.PlayerId, 0f);
-                        isCurseAndKill[killer.PlayerId] = true;
+                        IsCurseAndKill[killer.PlayerId] = true;
 
                         ResetCooldowns(killCooldown: true, curseCooldown: true, warlock: killer);
 
                         return;
                     }
 
-                    if (isCurseAndKill[killer.PlayerId]) killer.RpcGuardAndKill(target);
+                    if (IsCurseAndKill[killer.PlayerId]) killer.RpcGuardAndKill(target);
                 }))
             {
                 if (KCD > 0f) return false;
@@ -172,7 +172,7 @@ namespace EHR.Roles.Impostor
 
         void Curse(PlayerControl pc)
         {
-            isCurseAndKill.TryAdd(pc.PlayerId, false);
+            IsCurseAndKill.TryAdd(pc.PlayerId, false);
             if (CursedPlayers[pc.PlayerId] != null)
             {
                 if (!CursedPlayers[pc.PlayerId].Data.IsDead)
@@ -226,7 +226,7 @@ namespace EHR.Roles.Impostor
                         pc.Notify(Translator.GetString("WarlockNoTarget"));
                     }
 
-                    isCurseAndKill[pc.PlayerId] = false;
+                    IsCurseAndKill[pc.PlayerId] = false;
                 }
 
                 CursedPlayers[pc.PlayerId] = null;
@@ -243,7 +243,7 @@ namespace EHR.Roles.Impostor
                     if (WarlockTimer[playerId] >= 1f)
                     {
                         player.RpcResetAbilityCooldown();
-                        isCursed = false;
+                        IsCursed = false;
                         player.MarkDirtySettings();
                         WarlockTimer.Remove(playerId);
                     }

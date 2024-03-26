@@ -51,8 +51,8 @@ internal class ChangeRoleSettings
             Main.AllPlayerSpeed = [];
             Main.KillTimers = [];
             Warlock.WarlockTimer = [];
-            Arsonist.isDoused = [];
-            Revolutionist.isDraw = [];
+            Arsonist.IsDoused = [];
+            Revolutionist.IsDraw = [];
             Farseer.IsRevealed = [];
             Arsonist.ArsonistTimer = [];
             Revolutionist.RevolutionistTimer = [];
@@ -64,8 +64,8 @@ internal class ChangeRoleSettings
             Farseer.FarseerTimer = [];
             Warlock.CursedPlayers = [];
             Mafia.MafiaRevenged = [];
-            Warlock.isCurseAndKill = [];
-            Warlock.isCursed = false;
+            Warlock.IsCurseAndKill = [];
+            Warlock.IsCursed = false;
             Detective.DetectiveNotify = [];
             Main.SleuthMsgs = [];
             Crusader.ForCrusade = [];
@@ -123,8 +123,8 @@ internal class ChangeRoleSettings
 
             Main.LastNotifyNames = [];
 
-            Arsonist.currentDousingTarget = byte.MaxValue;
-            Revolutionist.currentDrawTarget = byte.MaxValue;
+            Arsonist.CurrentDousingTarget = byte.MaxValue;
+            Revolutionist.CurrentDrawTarget = byte.MaxValue;
             Main.PlayerColors = [];
 
             RPC.SyncAllPlayerNames();

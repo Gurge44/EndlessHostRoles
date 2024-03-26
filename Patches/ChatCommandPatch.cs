@@ -285,6 +285,8 @@ internal class ChatCommands
                             sb.AppendLine();
                         }
 
+                        sb.Append("\n<b><u>Usage Format:</u></b>\n/combo [add/ban/remove/allow] [main role] [addon]");
+
                         Utils.SendMessage("\n", localPlayerId, sb.ToString());
                         break;
                     }
@@ -372,13 +374,13 @@ internal class ChatCommands
 
                 case "/tpout":
                     canceled = true;
-                    if (!GameStates.IsLobby) break;
+                    if (!GameStates.IsLobby || !Options.PlayerCanTPInAndOut.GetBool()) break;
                     PlayerControl.LocalPlayer.TP(new Vector2(0.1f, 3.8f));
                     break;
 
                 case "/tpin":
                     canceled = true;
-                    if (!GameStates.IsLobby) break;
+                    if (!GameStates.IsLobby || !Options.PlayerCanTPInAndOut.GetBool()) break;
                     PlayerControl.LocalPlayer.TP(new Vector2(-0.2f, 1.3f));
                     break;
 
@@ -425,26 +427,14 @@ internal class ChatCommands
                 case "/ask":
                     canceled = true;
                     if (args.Length < 3) break;
-                    try
-                    {
-                        Mathematician.Ask(PlayerControl.LocalPlayer, args[1], args[2]);
-                    }
-                    catch
-                    {
-                    }
-
+                    Mathematician.Ask(PlayerControl.LocalPlayer, args[1], args[2]);
                     break;
 
+                case "/ans":
                 case "/answer":
+                    canceled = true;
                     if (args.Length < 2) break;
-                    try
-                    {
-                        Mathematician.Reply(PlayerControl.LocalPlayer, args[1]);
-                    }
-                    catch
-                    {
-                    }
-
+                    Mathematician.Reply(PlayerControl.LocalPlayer, args[1]);
                     break;
 
                 case "/ban":
@@ -564,12 +554,6 @@ internal class ChatCommands
                     Utils.SendMessage(string.Format(GetString("Message.SetColor"), subArgs), localPlayerId);
                     break;
 
-                //case "/quit":
-                //case "/qt":
-                //    canceled = true;
-                //    Utils.SendMessage(GetString("Message.CanNotUseByHost"), localPlayerId);
-                //    break;
-
                 case "/xf":
                     canceled = true;
                     if (!GameStates.IsInGame)
@@ -671,7 +655,7 @@ internal class ChatCommands
                         break;
                     }
 
-                    if (guessedNo < 0 || guessedNo > 99)
+                    if (guessedNo is < 0 or > 99)
                     {
                         Utils.SendMessage(GetString("GNoCommandInfo"), localPlayerId);
                         break;
@@ -690,7 +674,6 @@ internal class ChatCommands
                     {
                         Main.GuessNumber[localPlayerId][0] = -1;
                         Main.GuessNumber[localPlayerId][1] = 7;
-                        //targetNumber = Main.GuessNumber[localPlayerId][0];
                         Utils.SendMessage(string.Format(GetString("GNoLost"), targetNumber), localPlayerId);
                         break;
                     }
@@ -1005,13 +988,7 @@ internal class ChatCommands
             return;
         }
 
-        if (Mediumshiper.MsMsg(player, text))
-        {
-            LastSentCommand[player.PlayerId] = now;
-            return;
-        }
-
-        if (Mafia.MafiaMsgCheck(player, text))
+        if (Mediumshiper.MsMsg(player, text) || Mafia.MafiaMsgCheck(player, text))
         {
             LastSentCommand[player.PlayerId] = now;
             return;
@@ -1150,7 +1127,7 @@ internal class ChatCommands
 
             case "/rename":
             case "/rn":
-                if (!Options.PlayerCanSetName.GetBool() || args.Length < 1) break;
+                if (!Options.PlayerCanSetName.GetBool() || args.Length < 2) break;
                 if (GameStates.IsInGame)
                 {
                     Utils.SendMessage(GetString("Message.OnlyCanUseInLobby"), player.PlayerId);
@@ -1164,6 +1141,7 @@ internal class ChatCommands
                     break;
                 }
 
+                player.RpcSetNameEx(name);
                 Main.AllPlayerNames[player.PlayerId] = name;
                 break;
 

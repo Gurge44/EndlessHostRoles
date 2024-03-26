@@ -2406,7 +2406,7 @@ public static class Utils
             CustomRoles.QuickShooter => QuickShooter.ShapeshiftCooldown.GetInt(),
             CustomRoles.Disperser => Disperser.DisperserShapeshiftCooldown.GetInt(),
             CustomRoles.Twister => Twister.ShapeshiftCooldown.GetInt(),
-            CustomRoles.Warlock => Warlock.isCursed ? -1 : (int)Options.DefaultKillCooldown,
+            CustomRoles.Warlock => Warlock.IsCursed ? -1 : (int)Options.DefaultKillCooldown,
             CustomRoles.Swiftclaw => Swiftclaw.DashCD.GetInt() + (includeDuration ? Swiftclaw.DashDuration.GetInt() : 0),
             CustomRoles.Tiger => Tiger.EnrageCooldown.GetInt() + (includeDuration ? Tiger.EnrageDuration.GetInt() : 0),
             _ => -1,
@@ -2646,7 +2646,7 @@ public static class Utils
             if (pc.PlayerId == playerId)
                 continue;
             all++;
-            if (Arsonist.isDoused.TryGetValue((playerId, pc.PlayerId), out var isDoused) && isDoused)
+            if (Arsonist.IsDoused.TryGetValue((playerId, pc.PlayerId), out var isDoused) && isDoused)
                 doused++;
         }
 
@@ -2661,7 +2661,7 @@ public static class Utils
         if (!Main.PlayerStates[playerId].IsDead) max--;
         winnerList = [];
         if (all > max) all = max;
-        foreach (var pc in Main.AllPlayerControls.Where(pc => Revolutionist.isDraw.TryGetValue((playerId, pc.PlayerId), out var isDraw) && isDraw).ToArray())
+        foreach (var pc in Main.AllPlayerControls.Where(pc => Revolutionist.IsDraw.TryGetValue((playerId, pc.PlayerId), out var isDraw) && isDraw).ToArray())
         {
             winnerList.Add(pc);
             draw++;

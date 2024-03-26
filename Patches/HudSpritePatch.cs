@@ -285,13 +285,13 @@ public static class HudSpritePatch
                     if (Options.UsePets.GetBool())
                     {
                         newKillButton = CustomButton.Get("Curse");
-                        if (Warlock.isCurseAndKill.TryGetValue(player.PlayerId, out bool curse) && curse)
+                        if (Warlock.IsCurseAndKill.TryGetValue(player.PlayerId, out bool curse) && curse)
                             newAbilityButton = CustomButton.Get("CurseKill");
                     }
                     else if (!shapeshifting)
                     {
                         newKillButton = CustomButton.Get("Curse");
-                        if (Warlock.isCurseAndKill.TryGetValue(player.PlayerId, out bool curse) && curse)
+                        if (Warlock.IsCurseAndKill.TryGetValue(player.PlayerId, out bool curse) && curse)
                             newAbilityButton = CustomButton.Get("CurseKill");
                     }
 

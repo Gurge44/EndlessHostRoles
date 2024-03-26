@@ -358,7 +358,7 @@ internal class RPCHandlerPatch
                 byte ArsonistId = reader.ReadByte();
                 byte dousedId = reader.ReadByte();
                 bool doused = reader.ReadBoolean();
-                Arsonist.isDoused[(ArsonistId, dousedId)] = doused;
+                Arsonist.IsDoused[(ArsonistId, dousedId)] = doused;
                 break;
             case CustomRPC.SetPlaguedPlayer:
                 PlagueBearer.ReceiveRPC(reader);
@@ -373,7 +373,7 @@ internal class RPCHandlerPatch
                 byte RevolutionistId = reader.ReadByte();
                 byte DrawId = reader.ReadByte();
                 bool drawed = reader.ReadBoolean();
-                Revolutionist.isDraw[(RevolutionistId, DrawId)] = drawed;
+                Revolutionist.IsDraw[(RevolutionistId, DrawId)] = drawed;
                 break;
             case CustomRPC.SetRevealedPlayer:
                 byte FarseerId = reader.ReadByte();
@@ -478,13 +478,13 @@ internal class RPCHandlerPatch
                 byte arsonistId = reader.ReadByte();
                 byte dousingTargetId = reader.ReadByte();
                 if (PlayerControl.LocalPlayer.PlayerId == arsonistId)
-                    Arsonist.currentDousingTarget = dousingTargetId;
+                    Arsonist.CurrentDousingTarget = dousingTargetId;
                 break;
             case CustomRPC.SetCurrentDrawTarget:
                 byte arsonistId1 = reader.ReadByte();
                 byte doTargetId = reader.ReadByte();
                 if (PlayerControl.LocalPlayer.PlayerId == arsonistId1)
-                    Revolutionist.currentDrawTarget = doTargetId;
+                    Revolutionist.CurrentDrawTarget = doTargetId;
                 break;
             case CustomRPC.SetEvilTrackerTarget:
                 EvilTracker.ReceiveRPC(reader);
@@ -1000,7 +1000,7 @@ internal static class RPC
     {
         if (PlayerControl.LocalPlayer.PlayerId == arsonistId)
         {
-            Arsonist.currentDousingTarget = targetId;
+            Arsonist.CurrentDousingTarget = targetId;
         }
         else
         {
@@ -1015,7 +1015,7 @@ internal static class RPC
     {
         if (PlayerControl.LocalPlayer.PlayerId == arsonistId)
         {
-            Revolutionist.currentDrawTarget = targetId;
+            Revolutionist.CurrentDrawTarget = targetId;
         }
         else
         {
@@ -1030,7 +1030,7 @@ internal static class RPC
     {
         if (PlayerControl.LocalPlayer.PlayerId == arsonistId)
         {
-            Revolutionist.currentDrawTarget = targetId;
+            Revolutionist.CurrentDrawTarget = targetId;
         }
         else
         {

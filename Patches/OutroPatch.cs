@@ -96,8 +96,8 @@ class EndGamePatch
             Main.winnerRolesList.Add(pc.GetCustomRole());
         }
 
-        Arsonist.isDoused = [];
-        Revolutionist.isDraw = [];
+        Arsonist.IsDoused = [];
+        Revolutionist.IsDraw = [];
         Farseer.IsRevealed = [];
 
         Main.VisibleTasksCount = false;
