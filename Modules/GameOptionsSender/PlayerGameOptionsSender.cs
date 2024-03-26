@@ -217,8 +217,8 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
             if (Minion.BlindPlayers.Contains(player.PlayerId))
             {
                 opt.SetVision(false);
-                opt.SetFloat(FloatOptionNames.CrewLightMod, 0.01f);
-                opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0.01f);
+                opt.SetFloat(FloatOptionNames.CrewLightMod, 0);
+                opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0);
             }
 
             if (Sentinel.IsPatrolling(player.PlayerId))
@@ -248,8 +248,8 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
             else if (Randomizer.IsBlind(player))
             {
                 opt.SetVision(false);
-                opt.SetFloat(FloatOptionNames.CrewLightMod, 0.01f);
-                opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0.01f);
+                opt.SetFloat(FloatOptionNames.CrewLightMod, 0);
+                opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0);
             }
 
             var array = Main.PlayerStates[player.PlayerId].SubRoles.ToArray();
@@ -320,8 +320,8 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
             if (Magician.BlindPPL.ContainsKey(player.PlayerId))
             {
                 opt.SetVision(false);
-                opt.SetFloat(FloatOptionNames.CrewLightMod, 0.01f);
-                opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0.01f);
+                opt.SetFloat(FloatOptionNames.CrewLightMod, 0);
+                opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0);
             }
 
             if (Changeling.ChangedRole.TryGetValue(player.PlayerId, out var changed) && changed && player.GetRoleTypes() != RoleTypes.Shapeshifter)

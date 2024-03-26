@@ -1141,8 +1141,8 @@ internal class ChatCommands
                     break;
                 }
 
-                player.RpcSetNameEx(name);
                 Main.AllPlayerNames[player.PlayerId] = name;
+                player.RpcSetName(name);
                 break;
 
             case "/id":

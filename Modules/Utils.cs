@@ -288,43 +288,6 @@ public static class Utils
         return seer.Is(CustomRoles.EvilTracker) && EvilTracker.KillFlashCheck(killer, target);
     }
 
-    public static void KillFlash(this PlayerControl player)
-    {
-        //Kill flash (blackout + reactor flash) processing
-
-        var systemtypes = (MapNames)Main.NormalOptions.MapId switch
-        {
-            MapNames.Polus => SystemTypes.Laboratory,
-            MapNames.Airship => SystemTypes.HeliSabotage,
-            _ => SystemTypes.Reactor,
-        };
-        bool ReactorCheck = IsActive(systemtypes); //Checking whether the reactor sabotage is active
-
-        var Duration = Options.KillFlashDuration.GetFloat();
-        if (ReactorCheck) Duration += 0.2f; // Extend blackout during reactor
-
-        // Execution
-        Main.PlayerStates[player.PlayerId].IsBlackOut = true; // Blackout
-        if (player.AmOwner)
-        {
-            FlashColor(new(1f, 0f, 0f, 0.3f));
-            if (Constants.ShouldPlaySfx()) RPC.PlaySound(player.PlayerId, Sounds.KillSound);
-        }
-        else if (player.IsModClient())
-        {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.KillFlash, SendOption.Reliable, player.GetClientId());
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-        else if (!ReactorCheck) player.ReactorFlash(); // Reactor flash
-
-        player.MarkDirtySettings();
-        _ = new LateTask(() =>
-        {
-            Main.PlayerStates[player.PlayerId].IsBlackOut = false; // Cancel blackout
-            player.MarkDirtySettings();
-        }, Duration, "RemoveKillFlash");
-    }
-
     public static void BlackOut(this IGameOptions opt, bool IsBlackOut)
     {
         opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultImpostorVision);

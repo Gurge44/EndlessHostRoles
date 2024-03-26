@@ -162,6 +162,45 @@ static class ExtendedPlayerControl
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
+    public static void KillFlash(this PlayerControl player)
+    {
+        if (GameStates.IsLobby) return;
+
+        //Kill flash (blackout + reactor flash) processing
+
+        var systemtypes = (MapNames)Main.NormalOptions.MapId switch
+        {
+            MapNames.Polus => SystemTypes.Laboratory,
+            MapNames.Airship => SystemTypes.HeliSabotage,
+            _ => SystemTypes.Reactor,
+        };
+        bool ReactorCheck = IsActive(systemtypes); //Checking whether the reactor sabotage is active
+
+        var Duration = Options.KillFlashDuration.GetFloat();
+        if (ReactorCheck) Duration += 0.2f; // Extend blackout during reactor
+
+        // Execution
+        Main.PlayerStates[player.PlayerId].IsBlackOut = true; // Blackout
+        if (player.AmOwner)
+        {
+            FlashColor(new(1f, 0f, 0f, 0.3f));
+            if (Constants.ShouldPlaySfx()) RPC.PlaySound(player.PlayerId, Sounds.KillSound);
+        }
+        else if (player.IsModClient())
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.KillFlash, SendOption.Reliable, player.GetClientId());
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        else if (!ReactorCheck) player.ReactorFlash(); // Reactor flash
+
+        player.MarkDirtySettings();
+        _ = new LateTask(() =>
+        {
+            Main.PlayerStates[player.PlayerId].IsBlackOut = false; // Cancel blackout
+            player.MarkDirtySettings();
+        }, Duration, "RemoveKillFlash");
+    }
+
     public static void RpcGuardAndKill(this PlayerControl killer, PlayerControl target = null, int colorId = 0, bool forObserver = false, bool fromSetKCD = false)
     {
         if (!AmongUsClient.Instance.AmHost)

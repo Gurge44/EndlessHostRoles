@@ -107,9 +107,11 @@ public class Vulture : RoleBase
 
     public override void AfterMeetingTasks()
     {
+        Clear();
         foreach (byte apc in playerIdList)
         {
             var player = Utils.GetPlayerById(apc);
+            if (player == null) continue;
             if (player.IsAlive())
             {
                 AbilityLeftInRound[apc] = MaxEaten.GetInt();
@@ -122,6 +124,7 @@ public class Vulture : RoleBase
                     }
                 }, VultureReportCD.GetFloat(), "Vulture CD");
                 SendRPC(apc, false);
+                Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
             }
         }
     }
