@@ -313,6 +313,9 @@ class CheckMurderPatch
         if (killer.Is(CustomRoles.Recruit) && target.Is(CustomRoles.Jackal) && !Options.SidekickCanKillJackal.GetBool())
             return false;
 
+        if (!Virus.ContagiousPlayersCanKillEachOther.GetBool() && target.Is(CustomRoles.Contagious) && killer.Is(CustomRoles.Contagious))
+            return false;
+
         if (killer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Madmate) && !Options.ImpCanKillMadmate.GetBool())
             return false;
 
@@ -733,6 +736,7 @@ class ReportDeadBodyPatch
         if (GameStates.IsMeeting) return false;
         if (Options.DisableMeeting.GetBool()) return false;
         if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
+        if (Options.DisableReportWhenCC.GetBool() && (Camouflager.IsActive || IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool())) return false;
         if (!CanReport[__instance.PlayerId])
         {
             WaitReport[__instance.PlayerId].Add(target);
@@ -1141,7 +1145,7 @@ class FixedUpdatePatch
                         Main.AbilityCD.Remove(playerId);
                     }
 
-                    if (!player.IsModClient()) NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                    if (!player.IsModClient() && timer.TOTALCD - (now - timer.START_TIMESTAMP) <= 60) NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                     LastUpdate[playerId] = now;
                 }
             }
@@ -1317,6 +1321,8 @@ class FixedUpdatePatch
                         break;
                 }
 
+                bool self = seer.PlayerId == target.PlayerId;
+
                 switch (seer.GetCustomRole())
                 {
                     case CustomRoles.Lookout:
@@ -1418,16 +1424,16 @@ class FixedUpdatePatch
                     case CustomRoles.Snitch:
                         Suffix.Append(Snitch.GetSnitchArrow(seer, target));
                         break;
-                    case CustomRoles.VengefulRomantic when seer.PlayerId == target.PlayerId:
+                    case CustomRoles.VengefulRomantic when self:
                         Suffix.Append(VengefulRomantic.GetTargetText(seer.PlayerId));
                         break;
-                    case CustomRoles.Romantic when seer.PlayerId == target.PlayerId:
+                    case CustomRoles.Romantic when self:
                         Suffix.Append(Romantic.GetTargetText(seer.PlayerId));
                         break;
-                    case CustomRoles.Ricochet when seer.PlayerId == target.PlayerId:
+                    case CustomRoles.Ricochet when self:
                         Suffix.Append(Ricochet.TargetText(seer.PlayerId));
                         break;
-                    case CustomRoles.Hitman when seer.PlayerId == target.PlayerId:
+                    case CustomRoles.Hitman when self:
                         Suffix.Append(Hitman.GetTargetText(seer.PlayerId));
                         break;
                     case CustomRoles.Penguin when target.PlayerId == seer.PlayerId:
@@ -1439,10 +1445,10 @@ class FixedUpdatePatch
                     case CustomRoles.Tiger when target.PlayerId == seer.PlayerId:
                         Suffix.Append(Tiger.GetSuffix(seer));
                         break;
-                    case CustomRoles.Predator when seer.PlayerId == target.PlayerId:
+                    case CustomRoles.Predator when self:
                         Suffix.Append(Predator.GetSuffixAndHudText(seer));
                         break;
-                    case CustomRoles.Warlock when seer.PlayerId == target.PlayerId:
+                    case CustomRoles.Warlock when self:
                         Suffix.Append(Warlock.GetSuffixAndHudText(seer));
                         break;
                 }
@@ -1456,23 +1462,7 @@ class FixedUpdatePatch
                 if (target.AmOwner) Mark.Append(Sniper.GetShotNotify(target.PlayerId));
                 if (BallLightning.IsGhost(target)) Mark.Append(ColorString(GetRoleColor(CustomRoles.BallLightning), "■"));
 
-                if (Medic.ProtectList.Count > 0)
-                {
-                    var shieldMark = $"<color={GetRoleColorCode(CustomRoles.Medic)}> ●</color>";
-
-                    bool seerIsMedic = seer.Is(CustomRoles.Medic);
-                    bool targetProtected = Medic.InProtect(target.PlayerId);
-
-                    if (seer.PlayerId == target.PlayerId && (Medic.InProtect(seer.PlayerId) || Medic.TempMarkProtectedList.Contains(seer.PlayerId)) && (Medic.WhoCanSeeProtect.GetInt() is 0 or 2))
-                        Mark.Append(shieldMark);
-
-                    else if (seerIsMedic && (targetProtected || Medic.TempMarkProtectedList.Contains(target.PlayerId)) && (Medic.WhoCanSeeProtect.GetInt() is 0 or 1))
-                        Mark.Append(shieldMark);
-
-                    else if (seer.Data.IsDead && targetProtected && !seerIsMedic)
-                        Mark.Append(shieldMark);
-                }
-
+                Mark.Append(Medic.GetMark(seer, target));
                 Mark.Append(Snitch.GetWarningArrow(seer, target));
                 Mark.Append(Snitch.GetWarningMark(seer, target));
 
@@ -1497,9 +1487,9 @@ class FixedUpdatePatch
                 Suffix.Append(Deathpact.GetDeathpactPlayerArrow(seer, target));
                 Suffix.Append(Deathpact.GetDeathpactMark(seer, target));
 
-                if (seer.PlayerId == target.PlayerId) Suffix.Append(AntiAdminer.GetSuffixText(seer));
+                if (self) Suffix.Append(AntiAdminer.GetSuffixText(seer));
 
-                if (seer.Is(CustomRoles.Asthmatic) && seer.PlayerId == target.PlayerId) Suffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
+                if (seer.Is(CustomRoles.Asthmatic) && self) Suffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
 
                 if (target.Is(CustomRoles.Librarian)) Suffix.Append(Librarian.GetNameTextForSuffix(target.PlayerId));
 
@@ -1509,12 +1499,12 @@ class FixedUpdatePatch
                 {
                     case CustomGameMode.FFA:
                         Suffix.Append(FFAManager.GetPlayerArrow(seer, target));
-                        if (seer.PlayerId == target.PlayerId && FFAManager.FFA_ChatDuringGame.GetBool()) Suffix.Append((Suffix.Length > 0 && FFAManager.LatestChatMessage != string.Empty ? "\n" : string.Empty) + FFAManager.LatestChatMessage);
+                        if (self && FFAManager.FFA_ChatDuringGame.GetBool()) Suffix.Append((Suffix.Length > 0 && FFAManager.LatestChatMessage != string.Empty ? "\n" : string.Empty) + FFAManager.LatestChatMessage);
                         break;
-                    case CustomGameMode.MoveAndStop when seer.PlayerId == target.PlayerId:
+                    case CustomGameMode.MoveAndStop when self:
                         Suffix.Append(MoveAndStopManager.GetSuffixText(seer));
                         break;
-                    case CustomGameMode.HotPotato when !seer.IsModClient() && seer.PlayerId == target.PlayerId && seer.IsAlive():
+                    case CustomGameMode.HotPotato when !seer.IsModClient() && self && seer.IsAlive():
                         Suffix.Append(HotPotatoManager.GetSuffixText(seer.PlayerId));
                         break;
                     case CustomGameMode.HideAndSeek:
@@ -1710,7 +1700,7 @@ class EnterVentPatch
 
         switch (pc.GetCustomRole())
         {
-            case CustomRoles.Mayor when !Options.UsePets.GetBool() && Mayor.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count2) && count2 < Options.MayorNumOfUseButton.GetInt():
+            case CustomRoles.Mayor when !Options.UsePets.GetBool() && Mayor.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count2) && count2 < Mayor.MayorNumOfUseButton.GetInt():
                 pc.MyPhysics?.RpcBootFromVent(__instance.Id);
                 pc.ReportDeadBody(null);
                 break;
@@ -1844,7 +1834,7 @@ class CoEnterVentPatch
         }
 
         if (((__instance.myPlayer.Data.Role.Role != RoleTypes.Engineer && !__instance.myPlayer.CanUseImpostorVentButton()) ||
-             (__instance.myPlayer.Is(CustomRoles.Mayor) && Mayor.MayorUsedButtonCount.TryGetValue(__instance.myPlayer.PlayerId, out var count) && count >= Options.MayorNumOfUseButton.GetInt()) ||
+             (__instance.myPlayer.Is(CustomRoles.Mayor) && Mayor.MayorUsedButtonCount.TryGetValue(__instance.myPlayer.PlayerId, out var count) && count >= Mayor.MayorNumOfUseButton.GetInt()) ||
              (__instance.myPlayer.Is(CustomRoles.Paranoia) && Paranoia.ParaUsedButtonCount.TryGetValue(__instance.myPlayer.PlayerId, out var count2) && count2 >= Options.ParanoiaNumOfUseButton.GetInt()))
             && !__instance.myPlayer.Is(CustomRoles.Nimble) && !__instance.myPlayer.Is(CustomRoles.Bloodlust))
         {

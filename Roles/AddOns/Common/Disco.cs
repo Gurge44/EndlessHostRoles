@@ -39,7 +39,7 @@ namespace EHR.Roles.AddOns.Common
         {
             if (!pc.Is(CustomRoles.Disco) || !GameStates.IsInTask) return;
             long now = Utils.TimeStamp;
-            if (LastChange.TryGetValue(pc.PlayerId, out var change) && change + Options.DiscoChangeInterval.GetInt() > now) return;
+            if (LastChange.TryGetValue(pc.PlayerId, out var change) && change + DiscoChangeInterval.GetInt() > now) return;
             ChangeColor(pc);
             LastChange[pc.PlayerId] = now;
         }

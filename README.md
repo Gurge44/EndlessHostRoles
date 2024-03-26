@@ -22,7 +22,7 @@
 
 </p>
 
-<p align="left" style="font-size: 10px"><i>Image by oCelestino on Discord</i></p>
+<p align="left" style="font-size: 10px"><i>Image by oCelestino & Seleneous on Discord</i></p>
 ---
 
 <br>
