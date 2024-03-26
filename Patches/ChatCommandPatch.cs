@@ -1138,35 +1138,38 @@ internal class ChatCommands
 
             case "/tpout":
                 canceled = true;
-                if (!GameStates.IsLobby) break;
+                if (!GameStates.IsLobby || !Options.PlayerCanTPInAndOut.GetBool()) break;
                 player.TP(new Vector2(0.1f, 3.8f));
                 break;
 
             case "/tpin":
                 canceled = true;
-                if (!GameStates.IsLobby) break;
+                if (!GameStates.IsLobby || !Options.PlayerCanTPInAndOut.GetBool()) break;
                 player.TP(new Vector2(-0.2f, 1.3f));
                 break;
 
-            //case "/quit":
-            //case "/qt":
-            //    subArgs = args.Length < 2 ? string.Empty : args[1];
-            //    var cid = player.PlayerId.ToString();
-            //    cid = cid.Length != 1 ? cid.Substring(1, 1) : cid;
-            //    if (subArgs.Equals(cid))
-            //    {
-            //        string name = player.GetRealName();
-            //        Utils.SendMessage(string.Format(GetString("Message.PlayerQuitForever"), name));
-            //        AmongUsClient.Instance.KickPlayer(player.GetClientId(), true);
-            //    }
-            //    else
-            //    {
-            //        Utils.SendMessage(string.Format(GetString("SureUse.quit"), cid), player.PlayerId);
-            //    }
-            //    break;
+            case "/rename":
+            case "/rn":
+                if (!Options.PlayerCanSetName.GetBool() || args.Length < 1) break;
+                if (GameStates.IsInGame)
+                {
+                    Utils.SendMessage(GetString("Message.OnlyCanUseInLobby"), player.PlayerId);
+                    break;
+                }
+
+                var name = args.Skip(1).Join(delimiter: " ");
+                if (name.Length is > 10 or < 1)
+                {
+                    Utils.SendMessage(GetString("Message.AllowNameLength"), player.PlayerId);
+                    break;
+                }
+
+                Main.AllPlayerNames[player.PlayerId] = name;
+                break;
+
             case "/id":
                 string msgText = GetString("PlayerIdList");
-                msgText = Main.AllPlayerControls.Aggregate(msgText, (current, pc) => current + "\n" + pc.PlayerId + " → " + Main.AllPlayerNames[pc.PlayerId]);
+                msgText = Main.AllPlayerControls.Aggregate(msgText, (current, pc) => $"{current}\n{pc.PlayerId} \u2192 {Main.AllPlayerNames[pc.PlayerId]}");
 
                 Utils.SendMessage(msgText, player.PlayerId);
                 break;
@@ -1179,24 +1182,13 @@ internal class ChatCommands
                 MeetingHud.Instance?.CastVote(player.PlayerId, voteId);
                 break;
             case "/ask":
-                try
-                {
-                    Mathematician.Ask(player, args[1], args[2]);
-                }
-                catch
-                {
-                }
-
+                if (args.Length < 3) break;
+                Mathematician.Ask(player, args[1], args[2]);
                 break;
+            case "/ans":
             case "/answer":
-                try
-                {
-                    Mathematician.Reply(player, args[1]);
-                }
-                catch
-                {
-                }
-
+                if (args.Length < 2) break;
+                Mathematician.Reply(player, args[1]);
                 break;
             case "/ban":
             case "/kick":

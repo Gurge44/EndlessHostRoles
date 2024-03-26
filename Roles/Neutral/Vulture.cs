@@ -58,7 +58,7 @@ public class Vulture : RoleBase
             {
                 Utils.GetPlayerById(playerId).Notify(GetString("VultureCooldownUp"));
             }
-        }, VultureReportCD.GetFloat() + 8f, "Vulture CD"); //for some reason that idk vulture cd completes 8s faster when the game starts, so I added 8f for now 
+        }, VultureReportCD.GetFloat() + 8f, "Vulture CD");
     }
 
     public override bool IsEnable => playerIdList.Count > 0;
@@ -118,7 +118,6 @@ public class Vulture : RoleBase
                 {
                     if (GameStates.IsInTask)
                     {
-                        //Utils.GetPlayerById(apc).RpcGuardAndKill(Utils.GetPlayerById(apc));
                         Utils.GetPlayerById(apc).Notify(GetString("VultureCooldownUp"));
                     }
                 }, VultureReportCD.GetFloat(), "Vulture CD");
@@ -131,29 +130,21 @@ public class Vulture : RoleBase
     {
         if (!ArrowsPointingToDeadBody.GetBool()) return;
 
-        var pos = target.Pos();
-        float minDis = float.MaxValue;
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-        {
-            if (pc.PlayerId == target.PlayerId) continue;
-            var dis = Vector2.Distance(pc.Pos(), pos);
-            if (dis < minDis && dis < 1.5f)
-            {
-                minDis = dis;
-            }
-        }
-
         foreach (byte pc in playerIdList)
         {
             var player = Utils.GetPlayerById(pc);
             if (player == null || !player.IsAlive()) continue;
             LocateArrow.Add(pc, target.transform.position);
             SendRPC(pc, true, target.transform.position);
+            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
         }
     }
 
     public override bool CheckReportDeadBody(PlayerControl pc, GameData.PlayerInfo target, PlayerControl killer)
     {
+        if (AbilityLeftInRound[pc.PlayerId] <= 0) return true;
+        if (Utils.TimeStamp - LastReport[pc.PlayerId] < VultureReportCD.GetFloat()) return true;
+
         BodyReportCount[pc.PlayerId]++;
         AbilityLeftInRound[pc.PlayerId]--;
         Logger.Msg($"target.object {target.Object}, is null? {target.Object == null}", "VultureNull");
@@ -169,7 +160,7 @@ public class Vulture : RoleBase
         pc.Notify(GetString("VultureBodyReported"));
         UnreportablePlayers.Remove(target.PlayerId);
         UnreportablePlayers.Add(target.PlayerId);
-        //playerIdList.Remove(target.PlayerId);
+
         return false;
     }
 

@@ -972,6 +972,8 @@
   "HideGameSettings": "Hide Game Settings",
   "DIYGameSettings": "Enable only custom /n messages",
   "PlayerCanSetColor": "Players can use the /color command",
+  "PlayerCanSetName": "Players can use the /rename command",
+  "PlayerCanTPInAndOut": "Players can use the /tpin & /tpout command",
   "KPDCamouflageMode": "Camouflage Appearance",
   "RoleOptions": "Role Options",
   "ModeOptions": "Mode Options",

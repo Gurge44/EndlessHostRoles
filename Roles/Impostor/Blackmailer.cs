@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using HarmonyLib;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HarmonyLib;
 
 namespace EHR.Roles.Impostor
 {
