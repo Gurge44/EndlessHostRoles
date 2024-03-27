@@ -261,3 +261,5 @@
 > - Provided role: Swapper
 > - Reference: Store message history
 > 
+
+> CTA app background image: [Designed by kjpargeter / Freepik](http://www.freepik.com)

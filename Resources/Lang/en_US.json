@@ -2067,6 +2067,7 @@
   "ComboRemove": "{0} and {1} will no longer spawn together.",
   "ComboBan": "{0} and {1} will never spawn together.",
   "ComboAllow": "{0} and {1} can now spawn together.",
+  "ComboUsage": "\n<b><u>Usage Format:</u></b>\n/combo [add/ban/remove/allow] [main role] [addon]",
   "ERR-000-000-0": "No Error",
   "ERR-000-900-0": "Test Error Lv.0",
   "ERR-000-910-1": "Test Error Lv.1",
