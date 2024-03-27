@@ -117,7 +117,7 @@
         </Style>
     </Page.Resources>
 
-    <Grid>
+    <Grid Name="MainGrid">
         <Grid.Background>
             <ImageBrush ImageSource="bg.jpg"/>
         </Grid.Background>
@@ -135,11 +135,11 @@
             <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
         <ScrollViewer Grid.RowSpan="7">
-            <ListBox Name="TeamListBox" d:ItemsSource="{d:SampleData ItemCount=20}"/>
+            <ListBox Name="TeamListBox" d:ItemsSource="{d:SampleData ItemCount=20}" SelectionChanged="ChangeSelection"/>
         </ScrollViewer>
         <Button Grid.Row="1" Grid.Column="1" Content="Add Team" Click="AddNewTeam"/>
-        <Button Grid.Row="2" Grid.Column="1" Content="Edit Team" Click="EditTeam" IsEnabled="False"/>
-        <Button Grid.Row="3" Grid.Column="1" Content="Delete Team" Click="DeleteTeam" IsEnabled="False"/>
+        <Button Grid.Row="2" Grid.Column="1" Content="Edit Team" Click="EditTeam" IsEnabled="False" Name="EditTeamButton"/>
+        <Button Grid.Row="3" Grid.Column="1" Content="Delete Team" Click="DeleteTeam" IsEnabled="False" Name="DeleteTeamButton"/>
         <Button Grid.Row="4" Grid.Column="1" Content="Save" Click="SavePlaySet"/>
         <Button Grid.Row="6" Grid.Column="1" Content="Go Back" Click="Back"/>
     </Grid>

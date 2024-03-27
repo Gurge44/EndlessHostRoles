@@ -1,5 +1,4 @@
-﻿
-namespace EHR;
+﻿namespace EHR;
 
 public enum CustomRoles
 {

@@ -8,7 +8,7 @@ using EHR;
 
 namespace CustomTeamAssigner
 {
-    internal class Team(string teamName)
+    public class Team(string teamName)
     {
         public string RoleRevealScreenTitle { get; set; } = "*";
 
@@ -70,6 +70,8 @@ namespace CustomTeamAssigner
             get
             {
                 StringBuilder sb = new();
+                sb.Append(TeamName);
+                sb.Append(';');
                 sb.Append(RoleRevealScreenTitle);
                 sb.Append(';');
                 sb.Append(RoleRevealScreenSubtitle);
@@ -79,6 +81,15 @@ namespace CustomTeamAssigner
                 sb.Append(string.Join(",", TeamMembers));
                 return sb.ToString();
             }
+        }
+
+        public void SetAllValuesToPreset()
+        {
+            TeamName = "Really Cool Team";
+            RoleRevealScreenTitle = "Teamed";
+            RoleRevealScreenSubtitle = "You're in a Custom Team!";
+            RoleRevealScreenBackgroundColor = "#00ffa5";
+            TeamMembers = [];
         }
     }
 }

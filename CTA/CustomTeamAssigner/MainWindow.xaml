@@ -63,10 +63,9 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
-        <!--Create a Frame for navigating between Pages-->
         <Frame Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Grid.RowSpan="10" Name="Navigator" NavigationUIVisibility="Hidden"/>
 
-        <Label Content="Custom Team Assigner" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Grid.RowSpan="2" FontSize="70" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="LightGray"/>
+        <Label Content="Custom Team Assigner" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Grid.RowSpan="2" FontSize="70" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="LightGray" Name="Title"/>
 
         <Button Content="Create New Play-Set" Grid.Column="1" Grid.Row="3" Click="CreateNewPlaySet"/>
         <Button Content="Import Play-Set" Grid.Column="1" Grid.Row="5" Click="ImportPlaySet"/>

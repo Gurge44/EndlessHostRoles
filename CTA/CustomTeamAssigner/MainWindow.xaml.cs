@@ -36,12 +36,15 @@ namespace CustomTeamAssigner
                 File.ReadAllLines(ofd.FileName).Do(line => new Team(line.Split(';')[0]).Import(line));
 
                 Navigator.NavigationService.Navigate(new PlaySetListerPage());
-                MainGrid.Visibility = Visibility.Collapsed;
+                Utils.SetMainWindowContents(Visibility.Collapsed);
             }
         }
 
         void CreateNewPlaySet(object sender, RoutedEventArgs e)
         {
+            Utils.Teams.Clear();
+            Navigator.NavigationService.Navigate(new PlaySetListerPage());
+            Utils.SetMainWindowContents(Visibility.Collapsed);
         }
 
         void Exit(object sender, RoutedEventArgs e) => Close();
