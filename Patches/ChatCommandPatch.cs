@@ -285,7 +285,7 @@ internal class ChatCommands
                             sb.AppendLine();
                         }
 
-                        sb.Append("\n<b><u>Usage Format:</u></b>\n/combo [add/ban/remove/allow] [main role] [addon]");
+                        sb.Append(GetString("ComboUsage"));
 
                         Utils.SendMessage("\n", localPlayerId, sb.ToString());
                         break;
