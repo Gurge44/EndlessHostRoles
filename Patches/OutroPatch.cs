@@ -83,17 +83,17 @@ class EndGamePatch
             winner.AddRange(Main.AllPlayerControls.Where(p => p.Is(team) && !winner.Contains(p)));
         }
 
-        Main.winnerNameList = [];
-        Main.winnerList = [];
-        Main.winnerRolesList = [];
+        Main.WinnerNameList = [];
+        Main.WinnerList = [];
+        Main.WinnerRolesList = [];
         foreach (PlayerControl pc in winner)
         {
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw && pc.Is(CustomRoles.GM)) continue;
 
             TempData.winners.Add(new(pc.Data));
-            Main.winnerList.Add(pc.PlayerId);
-            Main.winnerNameList.Add(pc.GetRealName());
-            Main.winnerRolesList.Add(pc.GetCustomRole());
+            Main.WinnerList.Add(pc.PlayerId);
+            Main.WinnerNameList.Add(pc.GetRealName());
+            Main.WinnerRolesList.Add(pc.GetCustomRole());
         }
 
         Arsonist.IsDoused = [];
@@ -126,7 +126,7 @@ class SetEverythingUpPatch
 
     public static void Postfix(EndGameManager __instance)
     {
-        if (!Main.playerVersion.ContainsKey(0)) return;
+        if (!Main.PlayerVersion.ContainsKey(0)) return;
         //#######################################
         //      ==Victory faction display==
         //#######################################
@@ -181,13 +181,13 @@ class SetEverythingUpPatch
 
                 Vector3 defaultPos = poolablePlayer.cosmetics.nameText.transform.localPosition;
 
-                for (int j = 0; j < Main.winnerList.Count; j++)
+                for (int j = 0; j < Main.WinnerList.Count; j++)
                 {
-                    byte id = Main.winnerList[j];
-                    if (Main.winnerNameList[j].RemoveHtmlTags() != data.PlayerName.RemoveHtmlTags()) continue;
+                    byte id = Main.WinnerList[j];
+                    if (Main.WinnerNameList[j].RemoveHtmlTags() != data.PlayerName.RemoveHtmlTags()) continue;
                     var role = Main.PlayerStates[id].MainRole;
 
-                    var color = Main.roleColors[role];
+                    var color = Main.RoleColors[role];
                     var rolename = Utils.GetRoleName(role);
 
                     poolablePlayer.cosmetics.nameText.text += $"\n<color={color}>{rolename}</color>";
@@ -251,6 +251,16 @@ class SetEverythingUpPatch
                 WinnerText.color = Main.PlayerColors[winnerId];
                 goto EndOfText;
             }
+        }
+
+        if (CustomWinnerHolder.WinnerTeam == CustomWinner.CustomTeam)
+        {
+            var team = CustomTeamManager.WinnerTeam;
+            CustomWinnerText = string.Format(GetString("CustomWinnerText"), team.TeamName);
+            CustomWinnerColor = team.RoleRevealScreenBackgroundColor == "*" ? Main.NeutralColor : team.RoleRevealScreenBackgroundColor;
+            __instance.BackgroundBar.material.color = ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out var color) ? color : Utils.GetRoleColor(CustomRoles.Sprayer);
+            AdditionalWinnerText = team.TeamMembers.Join(x => Utils.ColorString(Utils.GetRoleColor(x), GetString($"{x}"))) + GetString("Win");
+            goto Skip;
         }
 
         var winnerRole = (CustomRoles)CustomWinnerHolder.WinnerTeam;
@@ -333,6 +343,8 @@ class SetEverythingUpPatch
             AdditionalWinnerText += "\n" + Utils.ColorString(Utils.GetRoleColor(addWinnerRole), GetAdditionalWinnerRoleName(addWinnerRole));
         }
 
+        Skip:
+
         if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw and not CustomWinner.None and not CustomWinner.Error)
         {
             WinnerText.text = AdditionalWinnerText == string.Empty ? $"<size=100%><color={CustomWinnerColor}>{CustomWinnerText}</color></size>" : $"<size=100%><color={CustomWinnerColor}>{CustomWinnerText}</color></size><size=50%>{AdditionalWinnerText}</size>";
@@ -355,7 +367,7 @@ class SetEverythingUpPatch
 
         StringBuilder sb = new($"{GetString("RoleSummaryText")}\n<b>");
         List<byte> cloneRoles = [.. Main.PlayerStates.Keys];
-        foreach (byte id in Main.winnerList)
+        foreach (byte id in Main.WinnerList)
         {
             if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
             sb.Append('\n').Append(EndGamePatch.SummaryText[id]);

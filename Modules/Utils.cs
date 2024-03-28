@@ -315,9 +315,17 @@ public static class Utils
         if (Options.HideGameSettings.GetBool() && Main.AllPlayerControls.Length > 1)
             return string.Empty;
 
-        string mode = !role.IsAdditionRole()
-            ? GetString($"Rate{role.GetMode()}")
-            : GetString($"Rate{Options.CustomAdtRoleSpawnRate[role].GetInt()}");
+        string mode;
+        try
+        {
+            mode = !role.IsAdditionRole()
+                ? GetString($"Rate{role.GetMode()}")
+                : GetString($"Rate{Options.CustomAdtRoleSpawnRate[role].GetInt()}");
+        }
+        catch (KeyNotFoundException)
+        {
+            mode = GetString("Rate0");
+        }
 
         mode = mode.Replace("color=", string.Empty);
         return parentheses ? $"({mode})" : mode;
@@ -330,14 +338,14 @@ public static class Utils
 
     public static Color GetRoleColor(CustomRoles role)
     {
-        var hexColor = Main.roleColors.GetValueOrDefault(role, "#ffffff");
+        var hexColor = Main.RoleColors.GetValueOrDefault(role, "#ffffff");
         _ = ColorUtility.TryParseHtmlString(hexColor, out Color c);
         return c;
     }
 
     public static string GetRoleColorCode(CustomRoles role)
     {
-        var hexColor = Main.roleColors.GetValueOrDefault(role, "#ffffff");
+        var hexColor = Main.RoleColors.GetValueOrDefault(role, "#ffffff");
         return hexColor;
     }
 
@@ -716,6 +724,7 @@ public static class Utils
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool() ||
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() ||
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosImp.GetBool() ||
+               CustomTeamManager.AreInSameCustomTeam(__instance.PlayerId, PlayerControl.LocalPlayer.PlayerId) ||
                Totocalcio.KnowRole(PlayerControl.LocalPlayer, __instance) ||
                Romantic.KnowRole(PlayerControl.LocalPlayer, __instance) ||
                Lawyer.KnowRole(PlayerControl.LocalPlayer, __instance) ||
@@ -741,7 +750,7 @@ public static class Utils
 
     public static string GetProgressText(PlayerControl pc)
     {
-        if (!Main.playerVersion.ContainsKey(0)) return string.Empty; //ホストがMODを入れていなければ未記入を返す
+        if (!Main.PlayerVersion.ContainsKey(0)) return string.Empty; //ホストがMODを入れていなければ未記入を返す
         var taskState = pc.GetTaskState();
         var Comms = false;
         if (taskState.hasTasks)
@@ -756,7 +765,7 @@ public static class Utils
 
     public static string GetProgressText(byte playerId, bool comms = false)
     {
-        if (!Main.playerVersion.ContainsKey(0)) return string.Empty; //ホストがMODを入れていなければ未記入を返す
+        if (!Main.PlayerVersion.ContainsKey(0)) return string.Empty; //ホストがMODを入れていなければ未記入を返す
         if (Options.CurrentGameMode == CustomGameMode.MoveAndStop) return GetTaskCount(playerId, comms, moveAndStop: true);
         var ProgressText = new StringBuilder();
         PlayerControl pc = GetPlayerById(playerId);
@@ -940,9 +949,17 @@ public static class Utils
         {
             if (!role.Key.IsEnable()) continue;
 
-            string mode = !role.Key.IsAdditionRole()
-                ? GetString($"Rate{role.Key.GetMode()}")
-                : GetString($"Rate{Options.CustomAdtRoleSpawnRate[role.Key].GetInt()}");
+            string mode;
+            try
+            {
+                mode = !role.Key.IsAdditionRole()
+                    ? GetString($"Rate{role.Key.GetMode()}")
+                    : GetString($"Rate{Options.CustomAdtRoleSpawnRate[role.Key].GetInt()}");
+            }
+            catch (KeyNotFoundException)
+            {
+                continue;
+            }
 
             mode = mode.Replace("color=", string.Empty);
 
@@ -980,9 +997,17 @@ public static class Utils
         {
             if (!role.Key.IsEnable()) continue;
 
-            string mode = !role.Key.IsAdditionRole()
-                ? GetString($"Rate{role.Key.GetMode()}")
-                : GetString($"Rate{Options.CustomAdtRoleSpawnRate[role.Key].GetInt()}");
+            string mode;
+            try
+            {
+                mode = !role.Key.IsAdditionRole()
+                    ? GetString($"Rate{role.Key.GetMode()}")
+                    : GetString($"Rate{Options.CustomAdtRoleSpawnRate[role.Key].GetInt()}");
+            }
+            catch (KeyNotFoundException)
+            {
+                continue;
+            }
 
             mode = mode.Replace("color=", string.Empty);
 
@@ -1026,9 +1051,17 @@ public static class Utils
 
         foreach (var role in EnumHelper.GetAllValues<CustomRoles>())
         {
-            string mode = !role.IsAdditionRole()
-                ? GetString($"Rate{role.GetMode()}")
-                : GetString($"Rate{Options.CustomAdtRoleSpawnRate[role].GetInt()}");
+            string mode;
+            try
+            {
+                mode = !role.IsAdditionRole()
+                    ? GetString($"Rate{role.GetMode()}")
+                    : GetString($"Rate{Options.CustomAdtRoleSpawnRate[role].GetInt()}");
+            }
+            catch (KeyNotFoundException)
+            {
+                continue;
+            }
 
             mode = mode.Replace("color=", string.Empty);
 
@@ -1097,7 +1130,7 @@ public static class Utils
         sb.Append("<#ffffff><u>Role Summary:</u></color><size=70%>");
 
         List<byte> cloneRoles = [.. Main.PlayerStates.Keys];
-        foreach (byte id in Main.winnerList.ToArray())
+        foreach (byte id in Main.WinnerList.ToArray())
         {
             if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
             sb.Append("\n<#c4aa02>\u2605</color> ").Append(EndGamePatch.SummaryText[id] /*.RemoveHtmlTags()*/);
@@ -1576,11 +1609,11 @@ public static class Utils
         if (!AmongUsClient.Instance.AmHost || player == null) return;
         if (!(player.AmOwner || player.FriendCode.GetDevUser().HasTag())) return;
         string name = Main.AllPlayerNames.TryGetValue(player.PlayerId, out var n) ? n : string.Empty;
-        if (Main.nickName != string.Empty && player.AmOwner) name = Main.nickName;
+        if (Main.NickName != string.Empty && player.AmOwner) name = Main.NickName;
         if (name == string.Empty) return;
         if (AmongUsClient.Instance.IsGameStarted)
         {
-            if (Options.FormatNameMode.GetInt() == 1 && Main.nickName == string.Empty) name = Palette.GetColorName(player.Data.DefaultOutfit.ColorId);
+            if (Options.FormatNameMode.GetInt() == 1 && Main.NickName == string.Empty) name = Palette.GetColorName(player.Data.DefaultOutfit.ColorId);
         }
         else
         {
@@ -1900,7 +1933,7 @@ public static class Utils
                 {
                     case CustomGameMode.FFA:
                         SelfSuffix.Append(FFAManager.GetPlayerArrow(seer));
-                        if (FFAManager.FFA_ChatDuringGame.GetBool()) SelfSuffix.Append(SelfSuffix.Length > 0 && FFAManager.LatestChatMessage != string.Empty ? "\n" : string.Empty).Append(FFAManager.LatestChatMessage);
+                        if (FFAManager.FFAChatDuringGame.GetBool()) SelfSuffix.Append(SelfSuffix.Length > 0 && FFAManager.LatestChatMessage != string.Empty ? "\n" : string.Empty).Append(FFAManager.LatestChatMessage);
                         break;
                     case CustomGameMode.SoloKombat:
                         SelfSuffix.Append(SoloKombatManager.GetDisplayHealth(seer));
@@ -2108,6 +2141,7 @@ public static class Utils
                                 (target.Is(CustomRoles.Mayor) && Mayor.MayorRevealWhenDoneTasks.GetBool() && target.GetTaskState().IsTaskFinished) ||
                                 (seer.Is(CustomRoleTypes.Crewmate) && target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished) ||
                                 (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Vote && Options.SeeEjectedRolesInMeeting.GetBool()) ||
+                                CustomTeamManager.AreInSameCustomTeam(seer.PlayerId, target.PlayerId) ||
                                 Totocalcio.KnowRole(seer, target) ||
                                 Romantic.KnowRole(seer, target) ||
                                 Lawyer.KnowRole(seer, target) ||
@@ -2397,7 +2431,13 @@ public static class Utils
                     }, Options.TruantWaitingTime.GetFloat(), $"Truant Waiting: {pc.GetNameWithRole()}");
             }
 
-            if (!pc.IsModClient()) pc.ReactorFlash(0.2f); // This should fix black screens
+            if (Options.TryFixBlackScreen.GetBool() && !pc.IsModClient())
+            {
+                pc.ReactorFlash(0.2f); // This should fix black screens
+                var pos = pc.Pos();
+                pc.MyPhysics?.RpcBootFromVent(0);
+                _ = new LateTask(() => { pc.TP(pos); }, 0.5f, log: false);
+            }
 
             if (Options.UsePets.GetBool()) pc.AddAbilityCD(includeDuration: false);
 
@@ -2870,5 +2910,5 @@ public static class Utils
     public static bool IsAllAlive => Main.PlayerStates.Values.All(state => state.countTypes == CountTypes.OutOfGame || !state.IsDead);
     public static int PlayersCount(CountTypes countTypes) => Main.PlayerStates.Values.Count(state => state.countTypes == countTypes);
     public static int AlivePlayersCount(CountTypes countTypes) => Main.AllAlivePlayerControls.Count(pc => pc.Is(countTypes));
-    public static bool IsPlayerModClient(this byte id) => Main.playerVersion.ContainsKey(id);
+    public static bool IsPlayerModClient(this byte id) => Main.PlayerVersion.ContainsKey(id);
 }

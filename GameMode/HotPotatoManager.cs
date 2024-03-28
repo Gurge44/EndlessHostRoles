@@ -49,7 +49,7 @@ namespace EHR
 
             DefaultSpeed = Main.AllPlayerSpeed[0];
 
-            if (Chat.GetBool()) _ = new LateTask(Utils.SetChatVisible, 10f, "Set Chat Visible for Everyone");
+            if (Chat.GetBool()) _ = new LateTask(Utils.SetChatVisible, 12f, "Set Chat Visible for Everyone");
         }
 
         public static void OnGameStart()

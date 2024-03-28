@@ -139,10 +139,10 @@ public class GameStartManagerPatch
 
                 if (Main.AutoStart != null && Main.AutoStart.Value)
                 {
-                    Main.updateTime++;
-                    if (Main.updateTime >= 50)
+                    Main.UpdateTime++;
+                    if (Main.UpdateTime >= 50)
                     {
-                        Main.updateTime = 0;
+                        Main.UpdateTime = 0;
                         if (((GameData.Instance.PlayerCount >= minPlayer && timer <= minWait) || timer <= maxWait) && !GameStates.IsCountDown)
                         {
                             var invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId);
@@ -266,9 +266,9 @@ public class GameStartManagerPatch
 
         private static bool MatchVersions(byte playerId, bool acceptVanilla = false)
         {
-            if (!Main.playerVersion.TryGetValue(playerId, out var version)) return acceptVanilla;
+            if (!Main.PlayerVersion.TryGetValue(playerId, out var version)) return acceptVanilla;
             return Main.ForkId == version.forkId
-                   && Main.version.CompareTo(version.version) == 0
+                   && Main.Version.CompareTo(version.version) == 0
                    && version.tag == $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})";
         }
     }

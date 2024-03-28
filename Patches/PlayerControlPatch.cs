@@ -12,6 +12,7 @@ using HarmonyLib;
 using Hazel;
 using InnerNet;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -1213,11 +1214,11 @@ class FixedUpdatePatch
         {
             if (GameStates.IsLobby)
             {
-                if (Main.playerVersion.TryGetValue(playerId, out var ver))
+                if (Main.PlayerVersion.TryGetValue(playerId, out var ver))
                 {
                     if (Main.ForkId != ver.forkId)
                         __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.2>{ver.forkId}</size>\n{__instance?.name}</color>";
-                    else if (Main.version.CompareTo(ver.version) == 0)
+                    else if (Main.Version.CompareTo(ver.version) == 0)
                         __instance.cosmetics.nameText.text = ver.tag == $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" ? $"<color=#87cefa>{__instance.name}</color>" : $"<color=#ffff00><size=1.2>{ver.tag}</size>\n{__instance?.name}</color>";
                     else __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.2>v{ver.version}</size>\n{__instance?.name}</color>";
                 }
@@ -1499,7 +1500,7 @@ class FixedUpdatePatch
                 {
                     case CustomGameMode.FFA:
                         Suffix.Append(FFAManager.GetPlayerArrow(seer, target));
-                        if (self && FFAManager.FFA_ChatDuringGame.GetBool()) Suffix.Append((Suffix.Length > 0 && FFAManager.LatestChatMessage != string.Empty ? "\n" : string.Empty) + FFAManager.LatestChatMessage);
+                        if (self && FFAManager.FFAChatDuringGame.GetBool()) Suffix.Append((Suffix.Length > 0 && FFAManager.LatestChatMessage != string.Empty ? "\n" : string.Empty) + FFAManager.LatestChatMessage);
                         break;
                     case CustomGameMode.MoveAndStop when self:
                         Suffix.Append(MoveAndStopManager.GetSuffixText(seer));
@@ -1605,12 +1606,12 @@ class FixedUpdatePatch
     public static void LoversSuicide(byte deathId = 0x7f, bool isExiled = false)
     {
         if (Main.LoversPlayers.Count == 0) return;
-        if (Options.LoverSuicide.GetBool() && !Main.isLoversDead)
+        if (Options.LoverSuicide.GetBool() && !Main.IsLoversDead)
         {
             foreach (PlayerControl loversPlayer in Main.LoversPlayers)
             {
                 if (!loversPlayer.Data.IsDead && loversPlayer.PlayerId != deathId) continue;
-                Main.isLoversDead = true;
+                Main.IsLoversDead = true;
                 foreach (var partnerPlayer in Main.LoversPlayers)
                 {
                     if (loversPlayer.PlayerId == partnerPlayer.PlayerId) continue;
@@ -1747,7 +1748,7 @@ class CoEnterVentPatch
 
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.FFA when FFAManager.FFA_DisableVentingWhenTwoPlayersAlive.GetBool() && Main.AllAlivePlayerControls.Length <= 2:
+            case CustomGameMode.FFA when FFAManager.FFADisableVentingWhenTwoPlayersAlive.GetBool() && Main.AllAlivePlayerControls.Length <= 2:
                 var pc = __instance.myPlayer;
                 _ = new LateTask(() =>
                 {
@@ -1755,7 +1756,7 @@ class CoEnterVentPatch
                     pc?.MyPhysics?.RpcBootFromVent(id);
                 }, 0.5f);
                 return true;
-            case CustomGameMode.FFA when FFAManager.FFA_DisableVentingWhenKCDIsUp.GetBool() && Main.KillTimers[__instance.myPlayer.PlayerId] <= 0:
+            case CustomGameMode.FFA when FFAManager.FFADisableVentingWhenKcdIsUp.GetBool() && Main.KillTimers[__instance.myPlayer.PlayerId] <= 0:
                 _ = new LateTask(() =>
                 {
                     __instance.myPlayer?.Notify(GetString("FFA-NoVentingBecauseKCDIsUP"), 7f);

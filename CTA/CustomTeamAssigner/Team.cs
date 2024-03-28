@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using EHR;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using EHR;
 
 namespace CustomTeamAssigner
 {
@@ -45,17 +41,17 @@ namespace CustomTeamAssigner
                 switch (e)
                 {
                     case NullReferenceException:
-                        MessageBox.Show("The file is empty.", "Error while importing", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show($"The file is empty.\nAt line: {line}", "Error while importing", MessageBoxButton.OK, MessageBoxImage.Error);
                         break;
                     case InvalidOperationException:
                     case IndexOutOfRangeException:
-                        MessageBox.Show("The file is not formatted correctly.", "Error while importing", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show($"The file is not formatted correctly.\nAt line: {line}", "Error while importing", MessageBoxButton.OK, MessageBoxImage.Error);
                         break;
                     case ArgumentException:
-                        MessageBox.Show("A team member role could not be recognized from the given string.", "Error while importing", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show($"A team member role could not be recognized from the given string.\nAt line: {line}", "Error while importing", MessageBoxButton.OK, MessageBoxImage.Error);
                         break;
                     default:
-                        MessageBox.Show(e.Message, "Error while importing", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show($"{e.Message}\nAt line: {line}", "Error while importing", MessageBoxButton.OK, MessageBoxImage.Error);
                         break;
                 }
             }
@@ -91,5 +87,13 @@ namespace CustomTeamAssigner
             RoleRevealScreenBackgroundColor = "#00ffa5";
             TeamMembers = [];
         }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is not Team team) return false;
+            return TeamName == team.TeamName;
+        }
+
+        public override int GetHashCode() => TeamName.GetHashCode();
     }
 }

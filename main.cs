@@ -40,12 +40,12 @@ public class Main : BasePlugin
     public static readonly string SupportedAUVersion = "2024.3.5";
 
     public Harmony Harmony { get; } = new(PluginGuid);
-    public static Version version = Version.Parse(PluginVersion);
+    public static Version Version = Version.Parse(PluginVersion);
     public static ManualLogSource Logger;
-    public static bool hasArgumentException;
+    public static bool HasArgumentException;
     public static string ExceptionMessage;
     public static bool ExceptionMessageIsShown;
-    public static string credentialsText;
+    public static string CredentialsText;
 
     public static NormalGameOptionsV07 NormalOptions => GameOptionsManager.Instance.currentNormalGameOptions;
 
@@ -54,7 +54,7 @@ public class Main : BasePlugin
     public static ConfigEntry<string> HideColor { get; private set; }
     public static ConfigEntry<int> MessageWait { get; private set; }
     public static ConfigEntry<bool> GM { get; private set; }
-    public static ConfigEntry<bool> UnlockFPS { get; private set; }
+    public static ConfigEntry<bool> UnlockFps { get; private set; }
     public static ConfigEntry<bool> AutoStart { get; private set; }
     public static ConfigEntry<bool> ForceOwnLanguage { get; private set; }
     public static ConfigEntry<bool> ForceOwnLanguageRoleName { get; private set; }
@@ -65,7 +65,7 @@ public class Main : BasePlugin
     public static ConfigEntry<bool> GodMode { get; private set; }
     public static ConfigEntry<bool> DarkTheme { get; private set; }
 
-    public static Dictionary<byte, PlayerVersion> playerVersion = [];
+    public static Dictionary<byte, PlayerVersion> PlayerVersion = [];
 
     //Preset Name Options
     public static ConfigEntry<string> Preset1 { get; private set; }
@@ -76,8 +76,8 @@ public class Main : BasePlugin
     public static ConfigEntry<string> Preset5 { get; private set; }
 
     //Other Configs
-    public static ConfigEntry<string> WebhookURL { get; private set; }
-    public static ConfigEntry<string> BetaBuildURL { get; private set; }
+    public static ConfigEntry<string> WebhookUrl { get; private set; }
+    public static ConfigEntry<string> BetaBuildUrl { get; private set; }
     public static ConfigEntry<float> LastKillCooldown { get; private set; }
     public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
     public const string NeutralColor = "#ffab1b";
@@ -92,7 +92,7 @@ public class Main : BasePlugin
     public static Dictionary<(byte, byte), string> LastNotifyNames;
     public static Dictionary<byte, Color32> PlayerColors = [];
     public static Dictionary<byte, PlayerState.DeathReason> AfterMeetingDeathPlayers = [];
-    public static Dictionary<CustomRoles, string> roleColors;
+    public static Dictionary<CustomRoles, string> RoleColors;
     public static Dictionary<byte, CustomRoles> SetRoles = [];
     public static Dictionary<byte, List<CustomRoles>> SetAddOns = [];
     public static Dictionary<CustomRoles, CustomRoles> AlwaysSpawnTogetherCombos = [];
@@ -109,18 +109,18 @@ public class Main : BasePlugin
     public static byte PhysicistPlayer = byte.MaxValue;
     public static byte BloodlustPlayer = byte.MaxValue;
     public static List<byte> ResetCamPlayerList = [];
-    public static List<byte> winnerList = [];
-    public static List<CustomRoles> winnerRolesList = [];
-    public static List<string> winnerNameList = [];
-    public static List<int> clientIdList = [];
+    public static List<byte> WinnerList = [];
+    public static List<CustomRoles> WinnerRolesList = [];
+    public static List<string> WinnerNameList = [];
+    public static List<int> ClientIdList = [];
     public static Dictionary<byte, float> AllPlayerKillCooldown = [];
     public static Dictionary<byte, Vent> LastEnteredVent = [];
     public static Dictionary<byte, Vector2> LastEnteredVentLocation = [];
     public static List<(string MESSAGE, byte RECEIVER_ID, string TITLE)> MessagesToSend = [];
-    public static bool isChatCommand;
+    public static bool IsChatCommand;
     public static bool DoBlockNameChange;
-    public static int updateTime;
-    public static bool newLobby;
+    public static int UpdateTime;
+    public static bool NewLobby;
     public static Dictionary<int, int> SayStartTimes = [];
     public static Dictionary<int, int> SayBanwordsTimes = [];
     public static Dictionary<byte, float> AllPlayerSpeed = [];
@@ -131,8 +131,8 @@ public class Main : BasePlugin
     public static Dictionary<byte, bool> CheckShapeshift = [];
     public static Dictionary<byte, byte> ShapeshiftTarget = [];
     public static bool VisibleTasksCount;
-    public static string nickName = "";
-    public static bool introDestroyed;
+    public static string NickName = "";
+    public static bool IntroDestroyed;
     public static float DefaultCrewmateVision;
     public static float DefaultImpostorVision;
     public static bool IsAprilFools = DateTime.Now.Month == 4 && DateTime.Now.Day is 1;
@@ -141,7 +141,7 @@ public class Main : BasePlugin
     public static byte ShieldPlayer = byte.MaxValue;
 
     public static List<PlayerControl> LoversPlayers = [];
-    public static bool isLoversDead = true;
+    public static bool IsLoversDead = true;
     public static List<byte> CyberStarDead = [];
     public static List<byte> BaitAlive = [];
     public static Dictionary<byte, int> KilledDiseased = [];
@@ -189,13 +189,13 @@ public class Main : BasePlugin
 
     public static Dictionary<byte, List<int>> GuessNumber = [];
 
-    public static List<string> TName_Snacks_CN = ["冰激凌", "奶茶", "巧克力", "蛋糕", "甜甜圈", "可乐", "柠檬水", "冰糖葫芦", "果冻", "糖果", "牛奶", "抹茶", "烧仙草", "菠萝包", "布丁", "椰子冻", "曲奇", "红豆土司", "三彩团子", "艾草团子", "泡芙", "可丽饼", "桃酥", "麻薯", "鸡蛋仔", "马卡龙", "雪梅娘", "炒酸奶", "蛋挞", "松饼", "西米露", "奶冻", "奶酥", "可颂", "奶糖"];
+    public static List<string> NameSnacksCn = ["冰激凌", "奶茶", "巧克力", "蛋糕", "甜甜圈", "可乐", "柠檬水", "冰糖葫芦", "果冻", "糖果", "牛奶", "抹茶", "烧仙草", "菠萝包", "布丁", "椰子冻", "曲奇", "红豆土司", "三彩团子", "艾草团子", "泡芙", "可丽饼", "桃酥", "麻薯", "鸡蛋仔", "马卡龙", "雪梅娘", "炒酸奶", "蛋挞", "松饼", "西米露", "奶冻", "奶酥", "可颂", "奶糖"];
 
     // ReSharper disable once StringLiteralTypo
-    public static List<string> TName_Snacks_EN = ["Ice cream", "Milk tea", "Chocolate", "Cake", "Donut", "Coke", "Lemonade", "Candied haws", "Jelly", "Candy", "Milk", "Matcha", "Burning Grass Jelly", "Pineapple Bun", "Pudding", "Coconut Jelly", "Cookies", "Red Bean Toast", "Three Color Dumplings", "Wormwood Dumplings", "Puffs", "Can be Crepe", "Peach Crisp", "Mochi", "Egg Waffle", "Macaron", "Snow Plum Niang", "Fried Yogurt", "Egg Tart", "Muffin", "Sago Dew", "panna cotta", "soufflé", "croissant", "toffee"];
+    public static List<string> NameSnacksEn = ["Ice cream", "Milk tea", "Chocolate", "Cake", "Donut", "Coke", "Lemonade", "Candied haws", "Jelly", "Candy", "Milk", "Matcha", "Burning Grass Jelly", "Pineapple Bun", "Pudding", "Coconut Jelly", "Cookies", "Red Bean Toast", "Three Color Dumplings", "Wormwood Dumplings", "Puffs", "Can be Crepe", "Peach Crisp", "Mochi", "Egg Waffle", "Macaron", "Snow Plum Niang", "Fried Yogurt", "Egg Tart", "Muffin", "Sago Dew", "panna cotta", "soufflé", "croissant", "toffee"];
 
     // ReSharper disable once InconsistentNaming
-    public static string Get_TName_Snacks => TranslationController.Instance.currentLanguage.languageID is SupportedLangs.SChinese or SupportedLangs.TChinese ? TName_Snacks_CN[IRandom.Instance.Next(0, TName_Snacks_CN.Count)] : TName_Snacks_EN[IRandom.Instance.Next(0, TName_Snacks_EN.Count)];
+    public static string Get_TName_Snacks => TranslationController.Instance.currentLanguage.languageID is SupportedLangs.SChinese or SupportedLangs.TChinese ? NameSnacksCn[IRandom.Instance.Next(0, NameSnacksCn.Count)] : NameSnacksEn[IRandom.Instance.Next(0, NameSnacksEn.Count)];
 
     public static GameData.PlayerInfo LastVotedPlayerInfo { get; set; }
 
@@ -211,7 +211,7 @@ public class Main : BasePlugin
         DebugKeyInput = Config.Bind("Authentication", "Debug Key", string.Empty);
         AutoStart = Config.Bind("Client Options", "AutoStart", false);
         GM = Config.Bind("Client Options", "GM", false);
-        UnlockFPS = Config.Bind("Client Options", "UnlockFPS", false);
+        UnlockFps = Config.Bind("Client Options", "UnlockFPS", false);
         AutoStart = Config.Bind("Client Options", "AutoStart", false);
         ForceOwnLanguage = Config.Bind("Client Options", "ForceOwnLanguage", false);
         ForceOwnLanguageRoleName = Config.Bind("Client Options", "ForceOwnLanguageRoleName", false);
@@ -261,17 +261,17 @@ public class Main : BasePlugin
         Preset3 = Config.Bind("Preset Name Options", "Preset3", "Preset_3");
         Preset4 = Config.Bind("Preset Name Options", "Preset4", "Preset_4");
         Preset5 = Config.Bind("Preset Name Options", "Preset5", "Preset_5");
-        WebhookURL = Config.Bind("Other", "WebhookURL", "none");
-        BetaBuildURL = Config.Bind("Other", "BetaBuildURL", string.Empty);
+        WebhookUrl = Config.Bind("Other", "WebhookURL", "none");
+        BetaBuildUrl = Config.Bind("Other", "BetaBuildURL", string.Empty);
         MessageWait = Config.Bind("Other", "MessageWait", 0);
         LastKillCooldown = Config.Bind("Other", "LastKillCooldown", (float)30);
         LastShapeshifterCooldown = Config.Bind("Other", "LastShapeshifterCooldown", (float)30);
 
-        hasArgumentException = false;
+        HasArgumentException = false;
         ExceptionMessage = string.Empty;
         try
         {
-            roleColors = new()
+            RoleColors = new()
             {
                 // Vanilla
                 { CustomRoles.Crewmate, "#8cffff" },
@@ -553,13 +553,13 @@ public class Main : BasePlugin
                 { CustomRoles.Fox, "#00ff00" },
                 { CustomRoles.Troll, "#ff00ff" }
             };
-            Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => roleColors.TryAdd(x, "#ff1919"));
+            Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => RoleColors.TryAdd(x, "#ff1919"));
         }
         catch (ArgumentException ex)
         {
             EHR.Logger.Error("错误：字典出现重复项", "LoadDictionary");
             EHR.Logger.Exception(ex, "LoadDictionary");
-            hasArgumentException = true;
+            HasArgumentException = true;
             ExceptionMessage = ex.Message;
             ExceptionMessageIsShown = false;
         }
@@ -636,6 +636,9 @@ public enum CustomWinner
     None = -3,
     Error = -4,
     Neutrals = -5,
+
+    // CTA
+    CustomTeam = -6,
 
     // Hide And Seek
     Hider = CustomRoles.Hider,

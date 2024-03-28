@@ -4,6 +4,8 @@ using Il2CppSystem.Collections.Generic;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using EHR.Modules;
+using EHR.Roles.Neutral;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -111,7 +113,7 @@ class CoBeginPatch
             {
                 var text = pc.AmOwner ? "[*]" : "   ";
                 text += $"{pc.PlayerId,-2}:{pc.Data?.PlayerName?.PadRightV2(20)}:{pc.GetClient()?.PlatformData?.Platform.ToString().Replace("Standalone", string.Empty),-11}";
-                if (Main.playerVersion.TryGetValue(pc.PlayerId, out PlayerVersion pv))
+                if (Main.PlayerVersion.TryGetValue(pc.PlayerId, out PlayerVersion pv))
                     text += $":Mod({pv.forkId}/{pv.version}:{pv.tag})";
                 else
                     text += ":Vanilla";
@@ -150,34 +152,23 @@ class BeginCrewmatePatch
 {
     public static bool Prefix(IntroCutscene __instance, ref List<PlayerControl> teamToDisplay)
     {
-        if (PlayerControl.LocalPlayer.Is(CustomRoleTypes.Neutral) && !PlayerControl.LocalPlayer.Is(CustomRoles.Parasite))
+        if (PlayerControl.LocalPlayer.Is(CustomRoleTypes.Neutral) && !PlayerControl.LocalPlayer.GetCustomRole().IsMadmate())
         {
             teamToDisplay = new();
             teamToDisplay.Add(PlayerControl.LocalPlayer);
-        }
 
-        if (PlayerControl.LocalPlayer.Is(CustomRoleTypes.Neutral) && !PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor))
-        {
-            teamToDisplay = new();
-            teamToDisplay.Add(PlayerControl.LocalPlayer);
+            byte id = PlayerControl.LocalPlayer.PlayerId;
+            switch (Main.PlayerStates[id].Role)
+            {
+                case Lawyer:
+                    teamToDisplay.Add(Utils.GetPlayerById(Lawyer.Target[id]));
+                    break;
+                case Executioner:
+                    teamToDisplay.Add(Utils.GetPlayerById(Executioner.Target[id]));
+                    break;
+            }
         }
-        else if (PlayerControl.LocalPlayer.Is(CustomRoles.Madmate))
-        {
-            teamToDisplay = new();
-            teamToDisplay.Add(PlayerControl.LocalPlayer);
-            __instance.BeginImpostor(teamToDisplay);
-            __instance.overlayHandle.color = Palette.ImpostorRed;
-            return false;
-        }
-        else if (PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor))
-        {
-            teamToDisplay = new();
-            teamToDisplay.Add(PlayerControl.LocalPlayer);
-            __instance.BeginImpostor(teamToDisplay);
-            __instance.overlayHandle.color = Palette.ImpostorRed;
-            return false;
-        }
-        else if (PlayerControl.LocalPlayer.GetCustomRole().IsMadmate())
+        else if (PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) || PlayerControl.LocalPlayer.GetCustomRole().IsMadmate())
         {
             teamToDisplay = new();
             teamToDisplay.Add(PlayerControl.LocalPlayer);
@@ -400,6 +391,19 @@ class BeginCrewmatePatch
             __instance.ImpostorText.text = GetString("SubText.Madmate");
         }
 
+        if (CustomTeamManager.CustomTeams.Count > 0)
+        {
+            var team = CustomTeamManager.GetCustomTeam(PlayerControl.LocalPlayer.PlayerId);
+            if (team != null)
+            {
+                if (team.RoleRevealScreenTitle != "*") __instance.TeamTitle.text = team.RoleRevealScreenTitle;
+                if (team.RoleRevealScreenBackgroundColor != "*" && ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out var bgColor))
+                    __instance.TeamTitle.color = __instance.BackgroundBar.material.color = bgColor;
+                __instance.ImpostorText.gameObject.SetActive(team.RoleRevealScreenSubtitle != "*");
+                __instance.ImpostorText.text = team.RoleRevealScreenSubtitle;
+            }
+        }
+
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.SoloKombat:
@@ -538,7 +542,7 @@ class IntroCutsceneDestroyPatch
     public static void Postfix( /*IntroCutscene __instance*/)
     {
         if (!GameStates.IsInGame) return;
-        Main.introDestroyed = true;
+        Main.IntroDestroyed = true;
         if (AmongUsClient.Instance.AmHost)
         {
             if (Main.NormalOptions.MapId != 4)
@@ -550,7 +554,7 @@ class IntroCutsceneDestroyPatch
                     else pc.AddAbilityCD(includeDuration: false);
                 }
 
-                if (Options.StartingKillCooldown.GetInt() != 10 && Options.StartingKillCooldown.GetInt() > 0)
+                if (Options.StartingKillCooldown.GetInt() is not 10 and > 0)
                 {
                     _ = new LateTask(() =>
                     {

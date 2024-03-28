@@ -1,18 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using EHR;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using EHR;
 
 namespace CustomTeamAssigner
 {
@@ -28,6 +17,9 @@ namespace CustomTeamAssigner
             EditingTeamMembers = team.TeamMembers;
             InitializeMembersGrid();
             InitializeComboBox();
+            OverrideColorCheckBox.IsChecked = EditingTeam.RoleRevealScreenBackgroundColor != "*";
+            OverrideTitleCheckBox.IsChecked = EditingTeam.RoleRevealScreenTitle != "*";
+            OverrideSubTitleCheckBox.IsChecked = EditingTeam.RoleRevealScreenSubtitle != "*";
         }
 
         void InitializeMembersGrid()
@@ -51,8 +43,20 @@ namespace CustomTeamAssigner
             Utils.GetAllValidRoles().Do(role => MemberComboBox.Items.Add(Utils.GetActualRoleName(role)));
         }
 
+        void UpdateComboBox()
+        {
+            MemberComboBox.Items.Clear();
+            Utils.GetAllValidRoles().Except(EditingTeamMembers).Do(role => MemberComboBox.Items.Add(Utils.GetActualRoleName(role)));
+        }
+
         void Save(object sender, RoutedEventArgs e)
         {
+            if (Utils.Teams.Any(x => x.TeamName == TeamNameTextBox.Text) || string.IsNullOrWhiteSpace(TeamNameTextBox.Text) || EditingTeamMembers.Count == 0)
+            {
+                MessageBox.Show("The team name is already taken, or the team name is empty, or there are no team members.", "Invalid Team", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
             EditingTeam.TeamName = TeamNameTextBox.Text;
 
             EditingTeam.RoleRevealScreenTitle = OverrideTitleCheckBox.IsChecked == true ? TeamTitleTextBox.Text : "*";
@@ -88,6 +92,7 @@ namespace CustomTeamAssigner
 
             var role = Enum.Parse<CustomRoles>(((string)MemberComboBox.SelectedItem).GetInternalRoleName().ToString());
             EditingTeamMembers.Add(role);
+            MemberComboBox.Items.RemoveAt(MemberComboBox.SelectedIndex);
             AddMemberToGrid(role);
         }
 
@@ -102,6 +107,7 @@ namespace CustomTeamAssigner
                 Content = Utils.GetActualRoleName(role),
                 Background = Brushes.Black,
                 Foreground = new SolidColorBrush(Colors.LightGray),
+                FontSize = 20,
                 Margin = new(2),
                 Padding = new(2),
                 Tag = role
@@ -111,6 +117,7 @@ namespace CustomTeamAssigner
             {
                 Button element = (Button)sender;
                 EditingTeamMembers.Remove((CustomRoles)element.Tag);
+                UpdateComboBox();
                 int index = TeamMembersGrid.Children.IndexOf(element);
                 TeamMembersGrid.Children.Remove(element);
                 for (int i = index; i < TeamMembersGrid.Children.Count; i++)

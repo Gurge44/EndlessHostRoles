@@ -3036,6 +3036,8 @@
   "InvalidUndeadTarget": "Target cannot be recruited",
   "Undead-": "Undead ",
   "BypassShields": "Bypass Shields When Killing",
+  "CustomWinnerText": "{0} Wins!",
+  "TryFixBlackScreen": "Try Fixing Black Screen",
   "Impartial": "Impartial",
   "ImpartialInfo": "Kill Specified Number of Players in Each Team",
   "ImpartialInfoLong": "(Neutral):\\nAs the Impartial, you must kill a specified number of players from each team to win. You can see how many players you need to kill from each team next to your role name.",

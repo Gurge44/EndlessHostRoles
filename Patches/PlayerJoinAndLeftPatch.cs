@@ -19,7 +19,7 @@ class OnGameJoinedPatch
     {
         while (!Options.IsLoaded) Task.Delay(1);
         Logger.Info($"{__instance.GameId} joined lobby", "OnGameJoined");
-        Main.playerVersion = [];
+        Main.PlayerVersion = [];
         if (!Main.VersionCheat.Value) RPC.RpcVersionCheck();
         SoundManager.Instance?.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
 
@@ -34,7 +34,7 @@ class OnGameJoinedPatch
         {
             GameStartManagerPatch.GameStartManagerUpdatePatch.exitTimer = -1;
             Main.DoBlockNameChange = false;
-            Main.newLobby = true;
+            Main.NewLobby = true;
             EAC.DeNum = new();
             Main.AllPlayerNames = [];
 
@@ -137,7 +137,7 @@ class OnPlayerLeftPatch
                 {
                     foreach (var lovers in Main.LoversPlayers)
                     {
-                        Main.isLoversDead = true;
+                        Main.IsLoversDead = true;
                         Main.LoversPlayers.Remove(lovers);
                         Main.PlayerStates[lovers.PlayerId].RemoveSubRole(CustomRoles.Lovers);
                     }
@@ -238,7 +238,7 @@ class OnPlayerLeftPatch
             {
                 Main.SayStartTimes.Remove(__instance.ClientId);
                 Main.SayBanwordsTimes.Remove(__instance.ClientId);
-                Main.playerVersion.Remove(data?.Character?.PlayerId ?? byte.MaxValue);
+                Main.PlayerVersion.Remove(data?.Character?.PlayerId ?? byte.MaxValue);
             }
 
             Utils.CountAlivePlayers(true);
@@ -302,7 +302,7 @@ class CreatePlayerPatch
             if (Main.OverrideWelcomeMsg != string.Empty) Utils.SendMessage(Main.OverrideWelcomeMsg, client.Character.PlayerId);
             else TemplateManager.SendTemplate("welcome", client.Character.PlayerId, true);
         }, 3f, "Welcome Message");
-        if (Main.OverrideWelcomeMsg == string.Empty && Main.PlayerStates.Count > 0 && Main.clientIdList.Contains(client.Id))
+        if (Main.OverrideWelcomeMsg == string.Empty && Main.PlayerStates.Count > 0 && Main.ClientIdList.Contains(client.Id))
         {
             if (Options.AutoDisplayKillLog.GetBool())
             {
@@ -310,7 +310,7 @@ class CreatePlayerPatch
                 {
                     if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
                     {
-                        Main.isChatCommand = true;
+                        Main.IsChatCommand = true;
                         Utils.ShowKillLog(client.Character.PlayerId);
                     }
                 }, 1f, "DisplayKillLog");
@@ -322,7 +322,7 @@ class CreatePlayerPatch
                 {
                     if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
                     {
-                        Main.isChatCommand = true;
+                        Main.IsChatCommand = true;
                         Utils.ShowLastAddOns(client.Character.PlayerId);
                     }
                 }, 1.1f, "DisplayLastAddOns");
@@ -334,7 +334,7 @@ class CreatePlayerPatch
                 {
                     if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
                     {
-                        Main.isChatCommand = true;
+                        Main.IsChatCommand = true;
                         Utils.ShowLastRoles(client.Character.PlayerId);
                     }
                 }, 1.2f, "DisplayLastRoles");
@@ -346,7 +346,7 @@ class CreatePlayerPatch
                 {
                     if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
                     {
-                        Main.isChatCommand = true;
+                        Main.IsChatCommand = true;
                         Utils.ShowLastResult(client.Character.PlayerId);
                     }
                 }, 1.3f, "DisplayLastResult");
@@ -358,7 +358,7 @@ class CreatePlayerPatch
                 {
                     if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
                     {
-                        Main.isChatCommand = true;
+                        Main.IsChatCommand = true;
                         //     Utils.SendMessage($"{GetString("Message.YTPlanNotice")} {PlayerControl.LocalPlayer.FriendCode.GetDevUser().UpName}", client.Character.PlayerId);
                     }
                 }, 1.4f, "DisplayUpWarnning");

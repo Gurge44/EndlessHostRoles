@@ -350,6 +350,8 @@ public static class Options
     public static OptionItem SpeedrunnerNotifyAtXTasksLeft;
     public static OptionItem ReportBaitAtAllCost;
 
+    public static OptionItem TryFixBlackScreen;
+
     public static OptionItem SkeldChance;
     public static OptionItem MiraChance;
     public static OptionItem PolusChance;
@@ -357,7 +359,6 @@ public static class Options
     public static OptionItem AirshipChance;
     public static OptionItem FungleChance;
 
-    // UNDERDOG
     public static OptionItem UnderdogKillCooldown;
     public static OptionItem UnderdogMaximumPlayersNeededToKill;
     public static OptionItem UnderdogKillCooldownWithMorePlayersAlive;
@@ -2155,6 +2156,10 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
+        TryFixBlackScreen = BooleanOptionItem.Create(24451, "TryFixBlackScreen", false, TabGroup.GameSettings, false)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue));
+
         TextOptionItem.Create(100029, "MenuTitle.Ghost", TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(217, 218, 255, byte.MaxValue));
@@ -2195,10 +2200,6 @@ public static class Options
             .SetGameMode(customGameMode);
 
         CustomRoleCounts.Add(role, countOption);
-    }
-
-    private static void SetupLoversRoleOptionsToggle(int id, CustomGameMode customGameMode = CustomGameMode.Standard)
-    {
     }
 
     public static void SetupAdtRoleOptions(int id, CustomRoles role, CustomGameMode customGameMode = CustomGameMode.Standard, bool canSetNum = false, TabGroup tab = TabGroup.Addons, bool canSetChance = true)

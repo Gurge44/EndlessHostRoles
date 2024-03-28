@@ -128,8 +128,8 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     if (FFAManager.FFALowerVisionList.ContainsKey(player.PlayerId))
                     {
                         opt.SetVision(true);
-                        opt.SetFloat(FloatOptionNames.CrewLightMod, FFAManager.FFA_LowerVision.GetFloat());
-                        opt.SetFloat(FloatOptionNames.ImpostorLightMod, FFAManager.FFA_LowerVision.GetFloat());
+                        opt.SetFloat(FloatOptionNames.CrewLightMod, FFAManager.FFALowerVision.GetFloat());
+                        opt.SetFloat(FloatOptionNames.ImpostorLightMod, FFAManager.FFALowerVision.GetFloat());
                     }
                     else
                     {

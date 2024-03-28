@@ -46,7 +46,7 @@ internal class ChatCommands
         string[] args = text.Split(' ');
         var canceled = false;
         var cancelVal = string.Empty;
-        Main.isChatCommand = true;
+        Main.IsChatCommand = true;
 
         Logger.Info(text, "SendChat");
 
@@ -76,19 +76,19 @@ internal class ChatCommands
             case "/v":
             case "/version":
                 canceled = true;
-                string version_text = Main.playerVersion.OrderBy(pair => pair.Key).Aggregate(string.Empty, (current, kvp) => current + $"{kvp.Key}:{Main.AllPlayerNames[kvp.Key]}:{kvp.Value.forkId}/{kvp.Value.version}({kvp.Value.tag})\n");
+                string version_text = Main.PlayerVersion.OrderBy(pair => pair.Key).Aggregate(string.Empty, (current, kvp) => current + $"{kvp.Key}:{Main.AllPlayerNames[kvp.Key]}:{kvp.Value.forkId}/{kvp.Value.version}({kvp.Value.tag})\n");
 
                 if (version_text != string.Empty) HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, (PlayerControl.LocalPlayer.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + version_text);
                 break;
             default:
-                Main.isChatCommand = false;
+                Main.IsChatCommand = false;
                 break;
         }
 
         if (AmongUsClient.Instance.AmHost)
         {
             var localPlayerId = PlayerControl.LocalPlayer.PlayerId;
-            Main.isChatCommand = true;
+            Main.IsChatCommand = true;
             string subArgs;
             switch (args[0])
             {
@@ -96,8 +96,8 @@ internal class ChatCommands
                 case "/win":
                 case "/winner":
                     canceled = true;
-                    if (Main.winnerNameList.Count == 0) Utils.SendMessage(GetString("NoInfoExists"));
-                    else Utils.SendMessage("<b><u>Winners:</b></u>\n" + string.Join(", ", Main.winnerNameList));
+                    if (Main.WinnerNameList.Count == 0) Utils.SendMessage(GetString("NoInfoExists"));
+                    else Utils.SendMessage("<b><u>Winners:</b></u>\n" + string.Join(", ", Main.WinnerNameList));
                     break;
 
                 case "/l":
@@ -115,7 +115,7 @@ internal class ChatCommands
                     if (args.Length < 1) break;
                     if (args[1].Length is > 50 or < 1)
                         Utils.SendMessage(GetString("Message.AllowNameLength"), localPlayerId);
-                    else Main.nickName = args[1];
+                    else Main.NickName = args[1];
                     break;
 
                 case "/hn":
@@ -247,7 +247,7 @@ internal class ChatCommands
                     else Main.SetRoles[targetPc.PlayerId] = roleToSet;
 
                     var playername = $"<b>{Utils.ColorString(Main.PlayerColors.TryGetValue(resultId, out var textColor) ? textColor : Color.white, targetPc.GetRealName())}</b>";
-                    var rolename = $"<color={Main.roleColors[roleToSet]}> {GetString(roleToSet.ToString())} </color>";
+                    var rolename = $"<color={Main.RoleColors[roleToSet]}> {GetString(roleToSet.ToString())} </color>";
                     Utils.SendMessage("\n", localPlayerId, string.Format(GetString("RoleSelected"), playername, rolename));
 
                     break;
@@ -696,7 +696,7 @@ internal class ChatCommands
                     break;
 
                 default:
-                    Main.isChatCommand = false;
+                    Main.IsChatCommand = false;
                     break;
             }
         }
@@ -710,7 +710,7 @@ internal class ChatCommands
 
         goto Skip;
         Canceled:
-        Main.isChatCommand = false;
+        Main.IsChatCommand = false;
         canceled = true;
         Skip:
         if (canceled)
@@ -931,12 +931,12 @@ internal class ChatCommands
                 }
 
                 var sb = new StringBuilder();
-                var title = $"<{Main.roleColors[rl]}>{roleName}</color> {Utils.GetRoleMode(rl)}";
+                var title = $"<{Main.RoleColors[rl]}>{roleName}</color> {Utils.GetRoleMode(rl)}";
                 _ = sb.Append($"{GetString($"{rl}InfoLong")}");
                 var settings = new StringBuilder();
                 if (Options.CustomRoleSpawnChances.TryGetValue(rl, out StringOptionItem chance))
                 {
-                    settings.AppendLine($"<size=70%><u>{GetString("SettingsForRoleText")} <{Main.roleColors[rl]}>{roleName}</color>:</u>");
+                    settings.AppendLine($"<size=70%><u>{GetString("SettingsForRoleText")} <{Main.RoleColors[rl]}>{roleName}</color>:</u>");
                     Utils.ShowChildrenSettings(chance, ref settings, disableColor: false);
                     settings.Append("</size>");
                     var txt = $"<size=90%>{sb}</size>";
@@ -1082,7 +1082,7 @@ internal class ChatCommands
                 if (!GameStates.IsInGame || player.IsAlive()) break;
                 var killer = player.GetRealKiller();
                 if (killer == null) break;
-                Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathCommand"), Utils.ColorString(Main.PlayerColors.TryGetValue(killer.PlayerId, out var pcColor) ? pcColor : Color.white, killer.GetRealName()), $"<{Main.roleColors[killer.GetCustomRole()]}>{GetString(killer.GetCustomRole().ToString())}</color>"));
+                Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathCommand"), Utils.ColorString(Main.PlayerColors.TryGetValue(killer.PlayerId, out var pcColor) ? pcColor : Color.white, killer.GetRealName()), $"<{Main.RoleColors[killer.GetCustomRole()]}>{GetString(killer.GetCustomRole().ToString())}</color>"));
                 break;
 
             case "/colour":

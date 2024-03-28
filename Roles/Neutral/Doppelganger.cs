@@ -61,7 +61,7 @@ public class Doppelganger : RoleBase
         DGId = playerId;
         TotalSteals.Add(playerId, 0);
         var pc = Utils.GetPlayerById(playerId);
-        if (playerId == PlayerControl.LocalPlayer.PlayerId && Main.nickName.Length != 0) DoppelVictim[playerId] = Main.nickName;
+        if (playerId == PlayerControl.LocalPlayer.PlayerId && Main.NickName.Length != 0) DoppelVictim[playerId] = Main.NickName;
         else DoppelVictim[playerId] = pc.Data.PlayerName;
         DoppelDefaultSkin[playerId] = pc.CurrentOutfit;
         StealTimeStamp = 0;
@@ -171,10 +171,10 @@ public class Doppelganger : RoleBase
         dg.StealTimeStamp = Utils.TimeStamp;
 
         string kname;
-        if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId && Main.nickName.Length != 0) kname = Main.nickName;
+        if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId && Main.NickName.Length != 0) kname = Main.NickName;
         else kname = killer.Data.PlayerName;
         string tname;
-        if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId && Main.nickName.Length != 0) tname = Main.nickName;
+        if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId && Main.NickName.Length != 0) tname = Main.NickName;
         else tname = target.Data.PlayerName;
 
         var killerSkin = Set(new(), kname, killer.CurrentOutfit.ColorId, killer.CurrentOutfit.HatId, killer.CurrentOutfit.SkinId, killer.CurrentOutfit.VisorId, killer.CurrentOutfit.PetId, killer.CurrentOutfit.NamePlateId);

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using EHR;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using EHR;
 
 namespace CustomTeamAssigner
 {
@@ -57,7 +53,7 @@ namespace CustomTeamAssigner
             }
             catch
             {
-                return Color.FromRgb(200, 200, 200);
+                return Color.FromRgb(0, 0, 0);
             }
         }
 
@@ -69,11 +65,11 @@ namespace CustomTeamAssigner
             }
         }
 
-        public static IEnumerable<CustomRoles> GetAllValidRoles() => Enum.GetValues<CustomRoles>().Where(x => !x.ToString().Contains("TOHE") && x < CustomRoles.NotAssigned && x is not (CustomRoles.KB_Normal or CustomRoles.Killer or CustomRoles.Tasker or CustomRoles.Potato or CustomRoles.Hider or CustomRoles.Seeker or CustomRoles.Fox or CustomRoles.Troll or CustomRoles.GM or CustomRoles.Convict or CustomRoles.Impostor or CustomRoles.Shapeshifter or CustomRoles.Crewmate or CustomRoles.Engineer or CustomRoles.Scientist or CustomRoles.GuardianAngel));
+        public static IEnumerable<CustomRoles> GetAllValidRoles() => Enum.GetValues<CustomRoles>().Where(x => !Teams.Any(t => t.TeamMembers.Contains(x)) && !x.ToString().Contains("TOHE") && x < CustomRoles.NotAssigned && x is not (CustomRoles.KB_Normal or CustomRoles.Killer or CustomRoles.Tasker or CustomRoles.Potato or CustomRoles.Hider or CustomRoles.Seeker or CustomRoles.Fox or CustomRoles.Troll or CustomRoles.GM or CustomRoles.Convict or CustomRoles.Impostor or CustomRoles.Shapeshifter or CustomRoles.Crewmate or CustomRoles.Engineer or CustomRoles.Scientist or CustomRoles.GuardianAngel));
 
         public static string GetActualRoleName(CustomRoles role)
         {
-            if (RoleNames.TryGetValue(role, out string roleName))
+            if (RoleNames.TryGetValue(role, out var roleName))
             {
                 return roleName;
             }
@@ -88,13 +84,18 @@ namespace CustomTeamAssigner
                 }
             }
 
+            if (sb.ToString().EndsWith("Role"))
+            {
+                sb.Remove(sb.Length - 4, 4);
+            }
+
             return sb.ToString();
         }
 
         public static CustomRoles GetInternalRoleName(this string roleName)
         {
             var role = RoleNames.FirstOrDefault(x => x.Value == roleName).Key;
-            return role != default ? role : Enum.Parse<CustomRoles>(roleName.Replace(" ", ""));
+            return role != default ? role : Enum.Parse<CustomRoles>(roleName.Replace(" ", string.Empty));
         }
     }
 }

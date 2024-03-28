@@ -34,7 +34,7 @@ public static class FindAGameManagerHandleListPatch
     {
         List<GameListing> newList = [];
 
-        var nameList = TranslationController.Instance.currentLanguage.languageID is SupportedLangs.SChinese or SupportedLangs.TChinese ? Main.TName_Snacks_CN : Main.TName_Snacks_EN;
+        var nameList = TranslationController.Instance.currentLanguage.languageID is SupportedLangs.SChinese or SupportedLangs.TChinese ? Main.NameSnacksCn : Main.NameSnacksEn;
 
         foreach (var game in games)
         {

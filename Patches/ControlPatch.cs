@@ -148,13 +148,13 @@ internal class ControllerManagerUpdatePatch
 
         if (GetKeysDown(KeyCode.N, KeyCode.LeftShift, KeyCode.LeftControl))
         {
-            Main.isChatCommand = true;
+            Main.IsChatCommand = true;
             Utils.ShowActiveSettingsHelp();
         }
 
         if (GetKeysDown(KeyCode.N, KeyCode.LeftControl) && !Input.GetKey(KeyCode.LeftShift))
         {
-            Main.isChatCommand = true;
+            Main.IsChatCommand = true;
             Utils.ShowActiveSettings();
         }
 

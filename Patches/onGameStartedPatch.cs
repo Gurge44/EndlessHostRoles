@@ -84,7 +84,7 @@ internal class ChangeRoleSettings
 
             Main.AfterMeetingDeathPlayers = [];
             Main.ResetCamPlayerList = [];
-            Main.clientIdList = [];
+            Main.ClientIdList = [];
 
             Main.CheckShapeshift = [];
             Main.ShapeshiftTarget = [];
@@ -113,7 +113,7 @@ internal class ChangeRoleSettings
             if (Options.CurrentGameMode == CustomGameMode.MoveAndStop) GameOptionsManager.Instance.currentNormalGameOptions.NumImpostors = 0;
             Main.RealOptionsData = new(GameOptionsManager.Instance.CurrentGameOptions);
 
-            Main.introDestroyed = false;
+            Main.IntroDestroyed = false;
 
             RandomSpawn.CustomNetworkTransformPatch.NumOfTP = [];
 
@@ -163,7 +163,7 @@ internal class ChangeRoleSettings
                 RandomSpawn.CustomNetworkTransformPatch.NumOfTP.Add(pc.PlayerId, 0);
                 var outfit = pc.Data.DefaultOutfit;
                 Camouflage.PlayerSkins[pc.PlayerId] = new GameData.PlayerOutfit().Set(outfit.PlayerName, outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId, outfit.NamePlateId);
-                Main.clientIdList.Add(pc.GetClientId());
+                Main.ClientIdList.Add(pc.GetClientId());
             }
 
             Main.VisibleTasksCount = true;
@@ -211,6 +211,7 @@ internal class ChangeRoleSettings
             SabotageSystemTypeRepairDamagePatch.Initialize();
             DoorsReset.Initialize();
             GhostRolesManager.Initialize();
+            CustomTeamManager.LoadCustomTeams();
 
             IRandom.SetInstanceById(Options.RoleAssigningAlgorithm.GetValue());
 
@@ -473,7 +474,7 @@ internal class SelectRolesPatch
             if (Main.SetAddOns.Count(x => x.Value.Contains(CustomRoles.Lovers)) == 2)
             {
                 Main.LoversPlayers.Clear();
-                Main.isLoversDead = false;
+                Main.IsLoversDead = false;
                 overrideLovers = true;
                 Logger.Warn("Lovers overridden by host's pre-set add-ons", "CustomRoleSelector");
             }
@@ -720,7 +721,7 @@ internal class SelectRolesPatch
         if (CustomRoles.Lovers.IsEnable())
         {
             Main.LoversPlayers.Clear();
-            Main.isLoversDead = false;
+            Main.IsLoversDead = false;
             AssignLoversRoles();
         }
     }

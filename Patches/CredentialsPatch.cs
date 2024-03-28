@@ -28,7 +28,7 @@ internal class PingTrackerUpdatePatch
 
         Sb.Clear();
 
-        Sb.Append(Main.credentialsText);
+        Sb.Append(Main.CredentialsText);
 
         var ping = AmongUsClient.Instance.Ping;
         string color = ping switch
@@ -57,10 +57,10 @@ internal class VersionShowerStartPatch
 {
     private static void Postfix(VersionShower __instance)
     {
-        Main.credentialsText = $"<size=1.5><color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion} <color=#a54aff>by</color> <color=#ffff00>Gurge44</color>";
+        Main.CredentialsText = $"<size=1.5><color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion} <color=#a54aff>by</color> <color=#ffff00>Gurge44</color>";
         string menuText = $"\r\n<color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion}\r\n<color=#a54aff>By</color> <color=#ffff00>Gurge44</color>";
 
-        if (Main.IsAprilFools) Main.credentialsText = "<color=#00bfff>Endless Madness</color> v11.45.14 <color=#a54aff>by</color> <color=#ffff00>No one</color>";
+        if (Main.IsAprilFools) Main.CredentialsText = "<color=#00bfff>Endless Madness</color> v11.45.14 <color=#a54aff>by</color> <color=#ffff00>No one</color>";
 
         var credentials = Object.Instantiate(__instance.text);
         credentials.text = menuText;
@@ -69,7 +69,7 @@ internal class VersionShowerStartPatch
         credentials.fontSize = credentials.fontSizeMax = credentials.fontSizeMin = 2f;
 
         ErrorText.Create(__instance.text);
-        if (Main.hasArgumentException && ErrorText.Instance != null)
+        if (Main.HasArgumentException && ErrorText.Instance != null)
         {
             ErrorText.Instance.AddError(ErrorCode.Main_DictionaryError);
         }

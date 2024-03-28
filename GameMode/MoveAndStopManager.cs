@@ -53,7 +53,7 @@ public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, 
     }
 
     private static int TotalYellowTime => 3;
-    private static Color32 Orange => new(255, 165, 0, 255);
+    private static Color Orange => new(255, 165, 0, 255);
 
     public int Timer
     {
@@ -62,7 +62,7 @@ public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, 
 
     public string ColoredTimerString
     {
-        get => IsYellow ? Utils.ColorString(Color.black, "00") : Utils.ColorString(IsRed ? Color.red : Color.green, Timer < 10 ? $"0{Timer}" : Timer.ToString());
+        get => IsYellow ? Utils.ColorString(Color.clear, "00") : Utils.ColorString(IsRed ? Color.red : Color.green, Timer < 10 ? $"0{Timer}" : Timer.ToString());
     }
 
     public string ColoredArrow
@@ -74,20 +74,26 @@ public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, 
     {
         if (Timer <= 0)
         {
-            if (!IsRed && !IsYellow) // Change from green to yellow
+            switch (IsRed)
             {
-                IsYellow = true;
-            }
-            else if (IsRed && !IsYellow) // Change from red to green
-            {
-                TotalGreenTime = MoveAndStop ? MoveAndStopManager.RandomGreenTime(Symbol) : Asthmatic.RandomGreenTime();
-                IsRed = false;
-            }
-            else if (IsYellow && !IsRed) // Change from yellow to red
-            {
-                TotalRedTime = MoveAndStop ? MoveAndStopManager.RandomRedTime(Symbol) : Asthmatic.RandomRedTime();
-                IsYellow = false;
-                IsRed = true;
+                // Change from green to yellow
+                case false when !IsYellow:
+                    IsYellow = true;
+                    break;
+                // Change from red to green
+                case true when !IsYellow:
+                    TotalGreenTime = MoveAndStop ? MoveAndStopManager.RandomGreenTime(Symbol) : Asthmatic.RandomGreenTime();
+                    IsRed = false;
+                    break;
+                default:
+                    if (IsYellow && !IsRed) // Change from yellow to red
+                    {
+                        TotalRedTime = MoveAndStop ? MoveAndStopManager.RandomRedTime(Symbol) : Asthmatic.RandomRedTime();
+                        IsYellow = false;
+                        IsRed = true;
+                    }
+
+                    break;
             }
 
             StartTimeStamp = Utils.TimeStamp;
@@ -95,7 +101,7 @@ public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, 
     }
 }
 
-class MoveAndStopPlayerData(Counter leftCounter, Counter middleCounter, Counter rightCounter, float position_x, float position_y)
+class MoveAndStopPlayerData(Counter leftCounter, Counter middleCounter, Counter rightCounter, float positionX, float positionY)
 {
     public Counter LeftCounter
     {
@@ -115,16 +121,16 @@ class MoveAndStopPlayerData(Counter leftCounter, Counter middleCounter, Counter 
         set => rightCounter = value;
     }
 
-    public float Position_X
+    public float PositionX
     {
-        get => position_x;
-        set => position_x = value;
+        get => positionX;
+        set => positionX = value;
     }
 
-    public float Position_Y
+    public float PositionY
     {
-        get => position_y;
-        set => position_y = value;
+        get => positionY;
+        set => positionY = value;
     }
 
     public override string ToString()
@@ -152,13 +158,8 @@ internal class MoveAndStopManager
     private static Dictionary<byte, MoveAndStopPlayerData> AllPlayerTimers = [];
 
     private static IRandom Random => IRandom.Instance;
-    private static int roundTime;
 
-    public static int RoundTime
-    {
-        get => roundTime;
-        set => roundTime = value;
-    }
+    public static int RoundTime { get; set; }
 
     private static int StartingGreenTime => (MapNames)Main.NormalOptions.MapId == MapNames.Airship ? 25 : 20;
 
@@ -263,7 +264,6 @@ internal class MoveAndStopManager
         _ = new LateTask(() => { FixedUpdatePatch.DoChecks = true; }, 10f, log: false);
 
         long now = Utils.TimeStamp;
-        float limit;
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
@@ -273,11 +273,12 @@ internal class MoveAndStopManager
                 new(StartingGreenTime, RandomRedTime('→'), now, '→', false),
                 pc.Pos().x, pc.Pos().y));
 
+            float limit;
             try
             {
                 limit = pc.GetClient().PlatformData.Platform is Platforms.Unknown or Platforms.IPhone or Platforms.Android or Platforms.Switch or Platforms.Xbox or Platforms.Playstation
                     ? 2f // If the player has a joystick, the game is a lot harder
-                    : 0.5f; // On PC you have WASD, you can't mess up
+                    : 0.5f; // On PC, you have WASD, you can't mess up
             }
             catch
             {
@@ -322,12 +323,12 @@ internal class MoveAndStopManager
 
             if (AllPlayerTimers.TryGetValue(pc.PlayerId, out var data))
             {
-                Vector2 previousPosition = new(data.Position_X, data.Position_Y);
+                Vector2 previousPosition = new(data.PositionX, data.PositionY);
 
                 // Update the player's position
                 Vector2 currentPosition = pc.transform.position;
-                currentPosition.x += data.Position_X * Time.deltaTime;
-                currentPosition.y += data.Position_Y * Time.deltaTime;
+                currentPosition.x += data.PositionX * Time.deltaTime;
+                currentPosition.y += data.PositionY * Time.deltaTime;
 
                 // Calculate the direction of movement
                 Vector2 direction = currentPosition - previousPosition;
@@ -341,46 +342,55 @@ internal class MoveAndStopManager
 
                 float limit = Limit.GetValueOrDefault(pc.PlayerId, 2f);
 
-                // Now we can check the components of the direction vector to determine the movement direction
-                if (direction.x > 0) // Player is moving right
+                switch (direction.x)
                 {
-                    if (data.RightCounter.IsRed && distanceX > limit) // If: Right counter is red && player moved more than their limit
+                    // Now we can check the components of the direction vector to determine the movement direction
+                    // Player is moving right
+                    case > 0:
                     {
-                        pc.Suicide(); // Player suicides
-                        goto End; // Skip the upcoming checks, the player is already dead
-                    }
+                        switch (data.RightCounter.IsRed)
+                        {
+                            // If: Right counter is red && player moved more than their limit
+                            case true when distanceX > limit:
+                                pc.Suicide(); // Player suicides
+                                goto End; // Skip the upcoming checks, the player is already dead
+                            // Else If: Right counter is yellow or green
+                            case false:
+                                data.PositionX = currentPosition.x; // Update the player's last position regardless of the distance
+                                break;
+                        }
 
-                    if (!data.RightCounter.IsRed) // Else If: Right counter is yellow or green
-                    {
-                        data.Position_X = currentPosition.x; // Update the player's last position regardless of the distance
+                        break;
                     }
-                }
-
-                if (direction.x < 0) // Player is moving left
-                {
-                    if (data.LeftCounter.IsRed && distanceX < -limit) // The distance is negative here because it's the opposite direction as right
+                    // Player is moving left
+                    case < 0:
                     {
-                        pc.Suicide();
-                        goto End;
-                    }
+                        switch (data.LeftCounter.IsRed)
+                        {
+                            // The distance is negative here because it's the opposite direction as right
+                            case true when distanceX < -limit:
+                                pc.Suicide();
+                                goto End;
+                            case false:
+                                data.PositionX = currentPosition.x;
+                                break;
+                        }
 
-                    if (!data.LeftCounter.IsRed)
-                    {
-                        data.Position_X = currentPosition.x;
+                        break;
                     }
                 }
 
                 if (direction.y is > 0 or < 0) // y > 0 means the player is moving up, y < 0 means the player is moving down
                 {
-                    if (data.MiddleCounter.IsRed && (distanceY > limit || distanceY < -limit)) // The player dies if either they moved up OR down too far
+                    switch (data.MiddleCounter.IsRed)
                     {
-                        pc.Suicide();
-                        goto End;
-                    }
-
-                    if (!data.MiddleCounter.IsRed)
-                    {
-                        data.Position_Y = currentPosition.y;
+                        // The player dies if either they moved up OR down too far
+                        case true when (distanceY > limit || distanceY < -limit):
+                            pc.Suicide();
+                            goto End;
+                        case false:
+                            data.PositionY = currentPosition.y;
+                            break;
                     }
                 }
 

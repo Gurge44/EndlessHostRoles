@@ -730,7 +730,7 @@ static class ExtendedPlayerControl
         Main.AllPlayerKillCooldown[player.PlayerId] = player.GetCustomRole() switch
         {
             CustomRoles.KB_Normal => SoloKombatManager.KB_ATKCooldown.GetFloat(),
-            CustomRoles.Killer => FFAManager.FFA_KCD.GetFloat(),
+            CustomRoles.Killer => FFAManager.FFAKcd.GetFloat(),
             _ => Main.AllPlayerKillCooldown[player.PlayerId]
         };
         if (player.PlayerId == LastImpostor.currentId)
@@ -872,7 +872,8 @@ static class ExtendedPlayerControl
         DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
         reporter.RpcStartMeeting(target);
     }
-    public static bool IsModClient(this PlayerControl player) => Main.playerVersion.ContainsKey(player.PlayerId);
+
+    public static bool IsModClient(this PlayerControl player) => Main.PlayerVersion.ContainsKey(player.PlayerId);
 
     public static List<PlayerControl> GetPlayersInAbilityRangeSorted(this PlayerControl player, bool ignoreColliders = false) => GetPlayersInAbilityRangeSorted(player, _ => true, ignoreColliders);
 

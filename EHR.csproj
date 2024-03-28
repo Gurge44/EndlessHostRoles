@@ -50,10 +50,10 @@
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     </ItemGroup>
+	<Target Name="Roles" AfterTargets="Build">
+		<Copy SourceFiles="CustomRoles.cs" DestinationFolder="CTA/CustomTeamAssigner/" />
+	</Target>
     <Target Name="Copy" AfterTargets="Build" Condition="'$(AmongUs)' != ''">
         <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="$(AmongUs)/BepInEx/plugins/" />
     </Target>
-	<Target Name="Copy" AfterTargets="Build">
-		<Copy SourceFiles="CustomRoles.cs" DestinationFolder="CTA/CustomTeamAssigner/" />
-	</Target>
 </Project>

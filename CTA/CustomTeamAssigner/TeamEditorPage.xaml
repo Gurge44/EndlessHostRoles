@@ -4,7 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       mc:Ignorable="d"
-      d:DesignHeight="450" d:DesignWidth="800" FontSize="17"
+      d:DesignHeight="720" d:DesignWidth="1280" FontSize="24"
       Title="Team Editor">
 
     <Page.Resources>
@@ -111,7 +111,7 @@
 
         <!-- Team Name -->
         <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Content="Team Name" FontWeight="Bold"/>
-        <TextBox Grid.Row="0" Grid.Column="2" x:Name="TeamNameTextBox" Text="Really Cool Team" Width="500" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" MaxLines="1"/>
+        <TextBox Grid.Row="0" Grid.Column="2" x:Name="TeamNameTextBox" Text="Really Cool Team" Width="720" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" MaxLines="1"/>
 
         <!-- Team Color (with a CheckBox deciding whether to override this) -->
         <CheckBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" x:Name="OverrideColorCheckBox" Content=" Override Team Color" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" Checked="OverrideColorCheck" Unchecked="OverrideColorCheck"/>
@@ -119,15 +119,15 @@
 
         <!-- Team Display Title (with a CheckBox deciding whether to override this) -->
         <CheckBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" x:Name="OverrideTitleCheckBox" Content=" Override Team Display Title" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" Checked="OverrideTitleCheck" Unchecked="OverrideTitleCheck"/>
-        <TextBox Grid.Row="2" Grid.Column="2" x:Name="TeamTitleTextBox" Text="Teamed" Width="500" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" IsEnabled="False" MaxLines="1"/>
+        <TextBox Grid.Row="2" Grid.Column="2" x:Name="TeamTitleTextBox" Text="Teamed" Width="720" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" IsEnabled="False" MaxLines="1"/>
 
         <!-- Team Display SubTitle (with a CheckBox deciding whether to override this) -->
         <CheckBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" x:Name="OverrideSubTitleCheckBox" Content=" Override Team Display Subtitle" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" Checked="OverrideSubTitleCheck" Unchecked="OverrideSubTitleCheck"/>
-        <TextBox Grid.Row="3" Grid.Column="2" x:Name="TeamSubTitleTextBox" Text="You're in a Custom Team!" Width="500" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" IsEnabled="False" MaxLines="1"/>
+        <TextBox Grid.Row="3" Grid.Column="2" x:Name="TeamSubTitleTextBox" Text="You're in a Custom Team!" Width="720" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" IsEnabled="False" MaxLines="1"/>
 
         <!-- Left 2 columns: ListBox (for the members of the team), right side: "Members" label, ComboBox containing all values of the CustomRoles enum, and 2 buttons to add a member or remove one -->
         <Label Grid.Row="5" Grid.Column="2" Content="Team Members" FontWeight="Bold" Margin="0" VerticalContentAlignment="Top" VerticalAlignment="Top"/>
-        <Grid Grid.Row="5" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="2" x:Name="TeamMembersGridBase" Background="DarkGray" HorizontalAlignment="Left" VerticalAlignment="Center">
+        <Grid Grid.Row="5" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="2" x:Name="TeamMembersGridBase" Background="DarkGray" HorizontalAlignment="Left" VerticalAlignment="Top">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <Grid Name="TeamMembersGrid">
                     <Grid.ColumnDefinitions>
@@ -140,8 +140,8 @@
         </Grid>
         
         <StackPanel Grid.Row="6" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
-            <ComboBox x:Name="MemberComboBox" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" Width="250"/>
-            <Button Content=" Add Member " FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" Click="AddMember"/>
+            <ComboBox x:Name="MemberComboBox" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" Width="300"/>
+            <Button Content=" Add Member " FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center" Click="AddMember"/>
         </StackPanel>
         <!-- Add a label that tells the user to click on a member to remove it -->
         <Label Grid.Row="8" Grid.Column="2" Content="Click on a member to remove it" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>

@@ -8,7 +8,7 @@ class ChatBubbleSetRightPatch
 {
     public static void Postfix(ChatBubble __instance)
     {
-        if (Main.isChatCommand) __instance.SetLeft();
+        if (Main.IsChatCommand) __instance.SetLeft();
     }
 }
 [HarmonyPatch(typeof(ChatBubble), nameof(ChatBubble.SetName))]

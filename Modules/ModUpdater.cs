@@ -39,7 +39,7 @@ public class ModUpdater
         InfoPopup.TextAreaTMP.GetComponent<RectTransform>().sizeDelta = new(2.5f, 2f);
         if (!isChecked)
         {
-            bool done = CheckReleaseFromGithub(Main.BetaBuildURL.Value != "").GetAwaiter().GetResult();
+            bool done = CheckReleaseFromGithub(Main.BetaBuildUrl.Value != "").GetAwaiter().GetResult();
             Logger.Warn("done: " + done, "CheckRelease");
             Logger.Info("hasupdate: " + hasUpdate, "CheckRelease");
             Logger.Info("forceupdate: " + forceUpdate, "CheckRelease");
@@ -108,8 +108,8 @@ public class ModUpdater
                     }
                 }
 
-                hasUpdate = latestVersion.CompareTo(Main.version) > 0;
-                hasOutdate = latestVersion.CompareTo(Main.version) < 0;
+                hasUpdate = latestVersion.CompareTo(Main.Version) > 0;
+                hasOutdate = latestVersion.CompareTo(Main.Version) < 0;
             }
 
             Logger.Info("hasupdate: " + hasUpdate, "GitHub");
