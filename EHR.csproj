@@ -18,6 +18,12 @@
     </ItemGroup>
 	
     <ItemGroup>
+      <Compile Remove="CTA\**" />
+      <EmbeddedResource Remove="CTA\**" />
+      <None Remove="CTA\**" />
+    </ItemGroup>
+	
+    <ItemGroup>
     <None Remove="Modules\zqihthf4.eqf~" />
     <None Remove="resources\modnews\english\EHR.v1.2.0.txt" />
     <None Remove="resources\modnews\english\EHR.v1.3.0.txt" />
@@ -44,6 +50,9 @@
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     </ItemGroup>
+	<Target Name="Roles" AfterTargets="Build">
+		<Copy SourceFiles="CustomRoles.cs" DestinationFolder="CTA/CustomTeamAssigner/" />
+	</Target>
     <Target Name="Copy" AfterTargets="Build" Condition="'$(AmongUs)' != ''">
         <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="$(AmongUs)/BepInEx/plugins/" />
     </Target>

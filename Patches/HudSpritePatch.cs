@@ -26,7 +26,7 @@ public static class HudSpritePatch
         var player = PlayerControl.LocalPlayer;
         if (player == null || !GameStates.IsModHost) return;
         if (!SetHudActivePatch.IsActive || !player.IsAlive()) return;
-        if (!AmongUsClient.Instance.IsGameStarted || !Main.introDestroyed)
+        if (!AmongUsClient.Instance.IsGameStarted || !Main.IntroDestroyed)
         {
             Kill = null;
             Ability = null;
@@ -285,13 +285,13 @@ public static class HudSpritePatch
                     if (Options.UsePets.GetBool())
                     {
                         newKillButton = CustomButton.Get("Curse");
-                        if (Warlock.isCurseAndKill.TryGetValue(player.PlayerId, out bool curse) && curse)
+                        if (Warlock.IsCurseAndKill.TryGetValue(player.PlayerId, out bool curse) && curse)
                             newAbilityButton = CustomButton.Get("CurseKill");
                     }
                     else if (!shapeshifting)
                     {
                         newKillButton = CustomButton.Get("Curse");
-                        if (Warlock.isCurseAndKill.TryGetValue(player.PlayerId, out bool curse) && curse)
+                        if (Warlock.IsCurseAndKill.TryGetValue(player.PlayerId, out bool curse) && curse)
                             newAbilityButton = CustomButton.Get("CurseKill");
                     }
 

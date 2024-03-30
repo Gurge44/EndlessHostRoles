@@ -353,6 +353,8 @@ class GameEndChecker
 
             if (CustomRoles.Sunnyboy.RoleExist() && Main.AllAlivePlayerControls.Length > 1) return false;
 
+            if (CustomTeamManager.CheckCustomTeamGameEnd()) return true;
+
             if (Main.AllAlivePlayerControls.All(p => p.Is(CustomRoles.Lovers)))
             {
                 reason = GameOverReason.ImpostorByKill;

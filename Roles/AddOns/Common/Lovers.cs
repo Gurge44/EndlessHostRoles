@@ -17,10 +17,11 @@ namespace EHR.Roles.AddOns.Common
                 .SetHeader(true)
                 .SetGameMode(customGameMode) as StringOptionItem;
 
-            LoverSpawnChances = IntegerOptionItem.Create(id + 2, "LoverSpawnChances", new(0, 100, 5), 50, TabGroup.Addons, false)
+            var rateOption = IntegerOptionItem.Create(id + 2, "LoverSpawnChances", new(0, 100, 5), 50, TabGroup.Addons, false)
                 .SetParent(spawnOption)
                 .SetValueFormat(OptionFormat.Percent)
-                .SetGameMode(customGameMode);
+                .SetGameMode(customGameMode) as IntegerOptionItem;
+            LoverSpawnChances = rateOption;
 
             LoverKnowRoles = BooleanOptionItem.Create(id + 4, "LoverKnowRoles", true, TabGroup.Addons, false)
                 .SetParent(spawnOption)
@@ -50,6 +51,8 @@ namespace EHR.Roles.AddOns.Common
 
             CustomRoleSpawnChances.Add(role, spawnOption);
             CustomRoleCounts.Add(role, countOption);
+
+            CustomAdtRoleSpawnRate.Add(role, rateOption);
         }
     }
 }

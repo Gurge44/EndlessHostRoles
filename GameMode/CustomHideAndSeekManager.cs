@@ -116,7 +116,7 @@ namespace EHR
         {
             if (target.Is(CustomRoles.Seeker))
             {
-                color = Main.roleColors[CustomRoles.Seeker];
+                color = Main.RoleColors[CustomRoles.Seeker];
                 return true;
             }
 
@@ -140,7 +140,7 @@ namespace EHR
                 if (!isHUD && seer.IsModClient()) return string.Empty;
                 if (isHUD || TimeLeft <= 60)
                 {
-                    return $"<color={Main.roleColors[CustomRoles.Hider]}>{Translator.GetString("TimeLeft")}:</color> {TimeLeft}s";
+                    return $"<color={Main.RoleColors[CustomRoles.Hider]}>{Translator.GetString("TimeLeft")}:</color> {TimeLeft}s";
                 }
             }
 

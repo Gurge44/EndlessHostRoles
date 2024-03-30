@@ -162,6 +162,45 @@ static class ExtendedPlayerControl
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
+    public static void KillFlash(this PlayerControl player)
+    {
+        if (GameStates.IsLobby) return;
+
+        //Kill flash (blackout + reactor flash) processing
+
+        var systemtypes = (MapNames)Main.NormalOptions.MapId switch
+        {
+            MapNames.Polus => SystemTypes.Laboratory,
+            MapNames.Airship => SystemTypes.HeliSabotage,
+            _ => SystemTypes.Reactor,
+        };
+        bool ReactorCheck = IsActive(systemtypes); //Checking whether the reactor sabotage is active
+
+        var Duration = Options.KillFlashDuration.GetFloat();
+        if (ReactorCheck) Duration += 0.2f; // Extend blackout during reactor
+
+        // Execution
+        Main.PlayerStates[player.PlayerId].IsBlackOut = true; // Blackout
+        if (player.AmOwner)
+        {
+            FlashColor(new(1f, 0f, 0f, 0.3f));
+            if (Constants.ShouldPlaySfx()) RPC.PlaySound(player.PlayerId, Sounds.KillSound);
+        }
+        else if (player.IsModClient())
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.KillFlash, SendOption.Reliable, player.GetClientId());
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        else if (!ReactorCheck) player.ReactorFlash(); // Reactor flash
+
+        player.MarkDirtySettings();
+        _ = new LateTask(() =>
+        {
+            Main.PlayerStates[player.PlayerId].IsBlackOut = false; // Cancel blackout
+            player.MarkDirtySettings();
+        }, Duration, "RemoveKillFlash");
+    }
+
     public static void RpcGuardAndKill(this PlayerControl killer, PlayerControl target = null, int colorId = 0, bool forObserver = false, bool fromSetKCD = false)
     {
         if (!AmongUsClient.Instance.AmHost)
@@ -639,14 +678,14 @@ static class ExtendedPlayerControl
 
     public static bool IsDousedPlayer(this PlayerControl arsonist, PlayerControl target)
     {
-        if (arsonist == null || target == null || Arsonist.isDoused == null) return false;
-        Arsonist.isDoused.TryGetValue((arsonist.PlayerId, target.PlayerId), out bool isDoused);
+        if (arsonist == null || target == null || Arsonist.IsDoused == null) return false;
+        Arsonist.IsDoused.TryGetValue((arsonist.PlayerId, target.PlayerId), out bool isDoused);
         return isDoused;
     }
     public static bool IsDrawPlayer(this PlayerControl arsonist, PlayerControl target)
     {
-        if (arsonist == null || target == null || Revolutionist.isDraw == null) return false;
-        Revolutionist.isDraw.TryGetValue((arsonist.PlayerId, target.PlayerId), out bool isDraw);
+        if (arsonist == null || target == null || Revolutionist.IsDraw == null) return false;
+        Revolutionist.IsDraw.TryGetValue((arsonist.PlayerId, target.PlayerId), out bool isDraw);
         return isDraw;
     }
     public static bool IsRevealedPlayer(this PlayerControl player, PlayerControl target)
@@ -691,7 +730,7 @@ static class ExtendedPlayerControl
         Main.AllPlayerKillCooldown[player.PlayerId] = player.GetCustomRole() switch
         {
             CustomRoles.KB_Normal => SoloKombatManager.KB_ATKCooldown.GetFloat(),
-            CustomRoles.Killer => FFAManager.FFA_KCD.GetFloat(),
+            CustomRoles.Killer => FFAManager.FFAKcd.GetFloat(),
             _ => Main.AllPlayerKillCooldown[player.PlayerId]
         };
         if (player.PlayerId == LastImpostor.currentId)
@@ -833,7 +872,8 @@ static class ExtendedPlayerControl
         DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
         reporter.RpcStartMeeting(target);
     }
-    public static bool IsModClient(this PlayerControl player) => Main.playerVersion.ContainsKey(player.PlayerId);
+
+    public static bool IsModClient(this PlayerControl player) => Main.PlayerVersion.ContainsKey(player.PlayerId);
 
     public static List<PlayerControl> GetPlayersInAbilityRangeSorted(this PlayerControl player, bool ignoreColliders = false) => GetPlayersInAbilityRangeSorted(player, _ => true, ignoreColliders);
 

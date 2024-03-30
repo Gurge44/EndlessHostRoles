@@ -14,7 +14,7 @@ class Webhook
 {
     public static void Send(string text)
     {
-        if (Main.WebhookURL.Value == "none") return;
+        if (Main.WebhookUrl.Value == "none") return;
         HttpClient httpClient = new();
         Dictionary<string, string> strs = new()
         {
@@ -23,7 +23,7 @@ class Webhook
             { "avatar_url", "https://npm.elemecdn.com/hexo-static@1.0.1/img/avatar.webp" }
         };
         TaskAwaiter<HttpResponseMessage> awaiter = httpClient.PostAsync(
-            Main.WebhookURL.Value, new FormUrlEncodedContent(strs)).GetAwaiter();
+            Main.WebhookUrl.Value, new FormUrlEncodedContent(strs)).GetAwaiter();
         awaiter.GetResult();
     }
 }

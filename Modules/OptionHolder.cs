@@ -350,6 +350,8 @@ public static class Options
     public static OptionItem SpeedrunnerNotifyAtXTasksLeft;
     public static OptionItem ReportBaitAtAllCost;
 
+    public static OptionItem TryFixBlackScreen;
+
     public static OptionItem SkeldChance;
     public static OptionItem MiraChance;
     public static OptionItem PolusChance;
@@ -357,7 +359,6 @@ public static class Options
     public static OptionItem AirshipChance;
     public static OptionItem FungleChance;
 
-    // UNDERDOG
     public static OptionItem UnderdogKillCooldown;
     public static OptionItem UnderdogMaximumPlayersNeededToKill;
     public static OptionItem UnderdogKillCooldownWithMorePlayersAlive;
@@ -878,6 +879,8 @@ public static class Options
 
     public static OptionItem DIYGameSettings;
     public static OptionItem PlayerCanSetColor;
+    public static OptionItem PlayerCanSetName;
+    public static OptionItem PlayerCanTPInAndOut;
 
     //Add-Ons
     public static OptionItem NameDisplayAddons;
@@ -1314,6 +1317,8 @@ public static class Options
         HideGameSettings = BooleanOptionItem.Create(19400, "HideGameSettings", false, TabGroup.SystemSettings, false);
         DIYGameSettings = BooleanOptionItem.Create(19401, "DIYGameSettings", false, TabGroup.SystemSettings, false);
         PlayerCanSetColor = BooleanOptionItem.Create(19402, "PlayerCanSetColor", false, TabGroup.SystemSettings, false);
+        PlayerCanSetName = BooleanOptionItem.Create(19410, "PlayerCanSetName", false, TabGroup.SystemSettings, false);
+        PlayerCanTPInAndOut = BooleanOptionItem.Create(19411, "PlayerCanTPInAndOut", false, TabGroup.SystemSettings, false);
         FormatNameMode = StringOptionItem.Create(19403, "FormatNameMode", formatNameModes, 0, TabGroup.SystemSettings, false);
         DisableEmojiName = BooleanOptionItem.Create(19404, "DisableEmojiName", true, TabGroup.SystemSettings, false);
         ChangeNameToRoleInfo = BooleanOptionItem.Create(19405, "ChangeNameToRoleInfo", true, TabGroup.SystemSettings, false);
@@ -2151,6 +2156,10 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
+        TryFixBlackScreen = BooleanOptionItem.Create(24451, "TryFixBlackScreen", false, TabGroup.GameSettings, false)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue));
+
         TextOptionItem.Create(100029, "MenuTitle.Ghost", TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(217, 218, 255, byte.MaxValue));
@@ -2191,10 +2200,6 @@ public static class Options
             .SetGameMode(customGameMode);
 
         CustomRoleCounts.Add(role, countOption);
-    }
-
-    private static void SetupLoversRoleOptionsToggle(int id, CustomGameMode customGameMode = CustomGameMode.Standard)
-    {
     }
 
     public static void SetupAdtRoleOptions(int id, CustomRoles role, CustomGameMode customGameMode = CustomGameMode.Standard, bool canSetNum = false, TabGroup tab = TabGroup.Addons, bool canSetChance = true)
@@ -2255,32 +2260,32 @@ public static class Options
         public static Dictionary<CustomRoles, OverrideTasksData> AllData = [];
         public CustomRoles Role { get; private set; }
         public int IdStart { get; private set; }
-        public OptionItem doOverride;
-        public OptionItem assignCommonTasks;
-        public OptionItem numLongTasks;
-        public OptionItem numShortTasks;
+        public OptionItem DoOverride;
+        public OptionItem AssignCommonTasks;
+        public OptionItem NumLongTasks;
+        public OptionItem NumShortTasks;
 
         public OverrideTasksData(int idStart, TabGroup tab, CustomRoles role)
         {
             IdStart = idStart;
             Role = role;
             Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(Utils.GetRoleColor(role), Utils.GetRoleName(role)) } };
-            doOverride = BooleanOptionItem.Create(idStart++, "doOverride", false, tab, false)
+            DoOverride = BooleanOptionItem.Create(idStart++, "doOverride", false, tab, false)
                 .SetParent(CustomRoleSpawnChances[role])
                 .SetValueFormat(OptionFormat.None);
-            doOverride.ReplacementDictionary = replacementDic;
-            assignCommonTasks = BooleanOptionItem.Create(idStart++, "assignCommonTasks", true, tab, false)
-                .SetParent(doOverride)
+            DoOverride.ReplacementDictionary = replacementDic;
+            AssignCommonTasks = BooleanOptionItem.Create(idStart++, "assignCommonTasks", true, tab, false)
+                .SetParent(DoOverride)
                 .SetValueFormat(OptionFormat.None);
-            assignCommonTasks.ReplacementDictionary = replacementDic;
-            numLongTasks = IntegerOptionItem.Create(idStart++, "roleLongTasksNum", new(0, 99, 1), 3, tab, false)
-                .SetParent(doOverride)
+            AssignCommonTasks.ReplacementDictionary = replacementDic;
+            NumLongTasks = IntegerOptionItem.Create(idStart++, "roleLongTasksNum", new(0, 90, 1), 3, tab, false)
+                .SetParent(DoOverride)
                 .SetValueFormat(OptionFormat.Pieces);
-            numLongTasks.ReplacementDictionary = replacementDic;
-            numShortTasks = IntegerOptionItem.Create(idStart++, "roleShortTasksNum", new(0, 99, 1), 3, tab, false)
-                .SetParent(doOverride)
+            NumLongTasks.ReplacementDictionary = replacementDic;
+            NumShortTasks = IntegerOptionItem.Create(idStart, "roleShortTasksNum", new(0, 90, 1), 3, tab, false)
+                .SetParent(DoOverride)
                 .SetValueFormat(OptionFormat.Pieces);
-            numShortTasks.ReplacementDictionary = replacementDic;
+            NumShortTasks.ReplacementDictionary = replacementDic;
 
             if (!AllData.ContainsKey(role)) AllData.Add(role, this);
             else Logger.Warn("OverrideTasksData created for duplicate CustomRoles", "OverrideTasksData");

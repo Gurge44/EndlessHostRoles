@@ -1,4 +1,6 @@
-﻿namespace EHR.Roles.Crewmate
+﻿using System;
+
+namespace EHR.Roles.Crewmate
 {
     internal class Mathematician : RoleBase
     {
@@ -23,24 +25,38 @@
 
         public static void Ask(PlayerControl pc, string num1Str, string num2Str)
         {
-            if (pc == null || !pc.IsAlive() || !GameStates.IsMeeting || State.AskedQuestion || !int.TryParse(num1Str, out var num1) || !int.TryParse(num2Str, out var num2)) return;
+            try
+            {
+                if (pc == null || !pc.IsAlive() || !GameStates.IsMeeting || State.AskedQuestion || !int.TryParse(num1Str, out var num1) || !int.TryParse(num2Str, out var num2)) return;
 
-            State.AskedQuestion = true;
-            State.Answer = num1 + num2;
-            State.MathematicianPlayerId = pc.PlayerId;
+                State.AskedQuestion = true;
+                State.Answer = num1 + num2;
+                State.MathematicianPlayerId = pc.PlayerId;
 
-            string question = string.Format(Translator.GetString("MathematicianQuestionString"), num1, num2);
-            Utils.SendMessage(question, title: Translator.GetString("Mathematician"));
+                string question = string.Format(Translator.GetString("MathematicianQuestionString"), num1, num2);
+                Utils.SendMessage(question, title: Translator.GetString("Mathematician"));
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+            }
         }
         public static void Reply(PlayerControl pc, string answerStr)
         {
-            if (pc == null || !pc.IsAlive() || !GameStates.IsMeeting || !State.AskedQuestion || State.MathematicianPlayerId == pc.PlayerId || !int.TryParse(answerStr, out var answer)) return;
-
-            if (answer == State.Answer)
+            try
             {
-                State.ProtectedPlayerId = pc.PlayerId;
-                Utils.SendMessage(string.Format(Translator.GetString("MathematicianAnsweredString"), pc.GetRealName(), answer), title: Translator.GetString("Mathematician"));
-                State.AskedQuestion = false;
+                if (pc == null || !pc.IsAlive() || !GameStates.IsMeeting || !State.AskedQuestion || State.MathematicianPlayerId == pc.PlayerId || !int.TryParse(answerStr, out var answer)) return;
+
+                if (answer == State.Answer)
+                {
+                    State.ProtectedPlayerId = pc.PlayerId;
+                    Utils.SendMessage(string.Format(Translator.GetString("MathematicianAnsweredString"), pc.GetRealName(), answer), title: Translator.GetString("Mathematician"));
+                    State.AskedQuestion = false;
+                }
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
             }
         }
 

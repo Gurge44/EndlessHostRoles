@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using EHR.Roles.Impostor;
 using static EHR.Options;
 
 namespace EHR.Roles.AddOns.Common
@@ -37,7 +38,7 @@ namespace EHR.Roles.AddOns.Common
         }
         public static void OnFixedUpdate(PlayerControl pc)
         {
-            if (!pc.Is(CustomRoles.Disco) || !GameStates.IsInTask) return;
+            if (!pc.Is(CustomRoles.Disco) || !GameStates.IsInTask || pc.IsShifted() || Camouflager.IsActive || (Utils.IsActive(SystemTypes.Comms) && CommsCamouflage.GetBool())) return;
             long now = Utils.TimeStamp;
             if (LastChange.TryGetValue(pc.PlayerId, out var change) && change + DiscoChangeInterval.GetInt() > now) return;
             ChangeColor(pc);

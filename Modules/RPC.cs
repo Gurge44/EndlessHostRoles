@@ -247,12 +247,12 @@ internal class RPCHandlerPatch
                     Version version = Version.Parse(reader.ReadString());
                     string tag = reader.ReadString();
                     string forkId = reader.ReadString();
-                    Main.playerVersion[__instance.PlayerId] = new(version, tag, forkId);
+                    Main.PlayerVersion[__instance.PlayerId] = new(version, tag, forkId);
 
                     if (Main.VersionCheat.Value && __instance.PlayerId == 0) RPC.RpcVersionCheck();
 
                     if (Main.VersionCheat.Value && AmongUsClient.Instance.AmHost)
-                        Main.playerVersion[__instance.PlayerId] = Main.playerVersion[0];
+                        Main.PlayerVersion[__instance.PlayerId] = Main.PlayerVersion[0];
 
                     // Kick Unmached Player Start
                     if (AmongUsClient.Instance.AmHost && tag != $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})")
@@ -358,7 +358,7 @@ internal class RPCHandlerPatch
                 byte ArsonistId = reader.ReadByte();
                 byte dousedId = reader.ReadByte();
                 bool doused = reader.ReadBoolean();
-                Arsonist.isDoused[(ArsonistId, dousedId)] = doused;
+                Arsonist.IsDoused[(ArsonistId, dousedId)] = doused;
                 break;
             case CustomRPC.SetPlaguedPlayer:
                 PlagueBearer.ReceiveRPC(reader);
@@ -373,7 +373,7 @@ internal class RPCHandlerPatch
                 byte RevolutionistId = reader.ReadByte();
                 byte DrawId = reader.ReadByte();
                 bool drawed = reader.ReadBoolean();
-                Revolutionist.isDraw[(RevolutionistId, DrawId)] = drawed;
+                Revolutionist.IsDraw[(RevolutionistId, DrawId)] = drawed;
                 break;
             case CustomRPC.SetRevealedPlayer:
                 byte FarseerId = reader.ReadByte();
@@ -478,13 +478,13 @@ internal class RPCHandlerPatch
                 byte arsonistId = reader.ReadByte();
                 byte dousingTargetId = reader.ReadByte();
                 if (PlayerControl.LocalPlayer.PlayerId == arsonistId)
-                    Arsonist.currentDousingTarget = dousingTargetId;
+                    Arsonist.CurrentDousingTarget = dousingTargetId;
                 break;
             case CustomRPC.SetCurrentDrawTarget:
                 byte arsonistId1 = reader.ReadByte();
                 byte doTargetId = reader.ReadByte();
                 if (PlayerControl.LocalPlayer.PlayerId == arsonistId1)
-                    Revolutionist.currentDrawTarget = doTargetId;
+                    Revolutionist.CurrentDrawTarget = doTargetId;
                 break;
             case CustomRPC.SetEvilTrackerTarget:
                 EvilTracker.ReceiveRPC(reader);
@@ -717,7 +717,7 @@ internal static class RPC
         if (targetId != -1)
         {
             var client = Utils.GetClientById(targetId);
-            if (client == null || client.Character == null || !Main.playerVersion.ContainsKey(client.Character.PlayerId)) return;
+            if (client == null || client.Character == null || !Main.PlayerVersion.ContainsKey(client.Character.PlayerId)) return;
         }
 
         if (!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1 || (AmongUsClient.Instance.AmHost == false && PlayerControl.LocalPlayer == null)) return;
@@ -744,7 +744,7 @@ internal static class RPC
         if (targetId != -1)
         {
             var client = Utils.GetClientById(targetId);
-            if (client == null || client.Character == null || !Main.playerVersion.ContainsKey(client.Character.PlayerId))
+            if (client == null || client.Character == null || !Main.PlayerVersion.ContainsKey(client.Character.PlayerId))
             {
                 return;
             }
@@ -841,17 +841,17 @@ internal static class RPC
     public static async void RpcVersionCheck()
     {
         while (PlayerControl.LocalPlayer == null) await Task.Delay(500);
-        if (Main.playerVersion.ContainsKey(0) || !Main.VersionCheat.Value)
+        if (Main.PlayerVersion.ContainsKey(0) || !Main.VersionCheat.Value)
         {
             bool cheating = Main.VersionCheat.Value;
             MessageWriter writer = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.VersionCheck);
-            writer.Write(cheating ? Main.playerVersion[0].version.ToString() : Main.PluginVersion);
-            writer.Write(cheating ? Main.playerVersion[0].tag : $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})");
-            writer.Write(cheating ? Main.playerVersion[0].forkId : Main.ForkId);
+            writer.Write(cheating ? Main.PlayerVersion[0].version.ToString() : Main.PluginVersion);
+            writer.Write(cheating ? Main.PlayerVersion[0].tag : $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})");
+            writer.Write(cheating ? Main.PlayerVersion[0].forkId : Main.ForkId);
             writer.EndMessage();
         }
 
-        Main.playerVersion[PlayerControl.LocalPlayer.PlayerId] = new(Main.PluginVersion, $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})", Main.ForkId);
+        Main.PlayerVersion[PlayerControl.LocalPlayer.PlayerId] = new(Main.PluginVersion, $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})", Main.ForkId);
     }
 
     public static void SendDeathReason(byte playerId, PlayerState.DeathReason deathReason)
@@ -1000,7 +1000,7 @@ internal static class RPC
     {
         if (PlayerControl.LocalPlayer.PlayerId == arsonistId)
         {
-            Arsonist.currentDousingTarget = targetId;
+            Arsonist.CurrentDousingTarget = targetId;
         }
         else
         {
@@ -1015,7 +1015,7 @@ internal static class RPC
     {
         if (PlayerControl.LocalPlayer.PlayerId == arsonistId)
         {
-            Revolutionist.currentDrawTarget = targetId;
+            Revolutionist.CurrentDrawTarget = targetId;
         }
         else
         {
@@ -1030,7 +1030,7 @@ internal static class RPC
     {
         if (PlayerControl.LocalPlayer.PlayerId == arsonistId)
         {
-            Revolutionist.currentDrawTarget = targetId;
+            Revolutionist.CurrentDrawTarget = targetId;
         }
         else
         {

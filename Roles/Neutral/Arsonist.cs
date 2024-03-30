@@ -10,8 +10,8 @@ namespace EHR.Roles.Neutral
     internal class Arsonist : RoleBase
     {
         public static Dictionary<byte, (PlayerControl PLAYER, float TIMER)> ArsonistTimer = [];
-        public static Dictionary<(byte, byte), bool> isDoused = [];
-        public static byte currentDousingTarget = byte.MaxValue;
+        public static Dictionary<(byte, byte), bool> IsDoused = [];
+        public static byte CurrentDousingTarget = byte.MaxValue;
 
         public static bool On;
         public override bool IsEnable => On;
@@ -40,7 +40,7 @@ namespace EHR.Roles.Neutral
             On = true;
             foreach (PlayerControl ar in Main.AllPlayerControls)
             {
-                isDoused.Add((playerId, ar.PlayerId), false);
+                IsDoused.Add((playerId, ar.PlayerId), false);
             }
         }
 
@@ -78,7 +78,7 @@ namespace EHR.Roles.Neutral
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             killer.SetKillCooldown(ArsonistDouseTime.GetFloat());
-            if (!isDoused[(killer.PlayerId, target.PlayerId)] && !ArsonistTimer.ContainsKey(killer.PlayerId))
+            if (!IsDoused[(killer.PlayerId, target.PlayerId)] && !ArsonistTimer.ContainsKey(killer.PlayerId))
             {
                 ArsonistTimer.Add(killer.PlayerId, (target, 0f));
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
@@ -181,7 +181,7 @@ namespace EHR.Roles.Neutral
                     {
                         player.SetKillCooldown();
                         ArsonistTimer.Remove(playerId);
-                        isDoused[(playerId, ar_target.PlayerId)] = true;
+                        IsDoused[(playerId, ar_target.PlayerId)] = true;
                         player.RpcSetDousedPlayer(ar_target, true);
                         Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: arTarget, ForceLoop: true);
                         RPC.ResetCurrentDousingTarget(playerId);

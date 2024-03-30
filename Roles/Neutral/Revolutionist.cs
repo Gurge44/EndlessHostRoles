@@ -9,12 +9,12 @@ namespace EHR.Roles.Neutral
 {
     internal class Revolutionist : RoleBase
     {
-        public static Dictionary<(byte, byte), bool> isDraw = [];
+        public static Dictionary<(byte, byte), bool> IsDraw = [];
         public static Dictionary<byte, (PlayerControl PLAYER, float TIMER)> RevolutionistTimer = [];
         public static Dictionary<byte, long> RevolutionistStart = [];
         public static Dictionary<byte, long> RevolutionistLastTime = [];
         public static Dictionary<byte, int> RevolutionistCountdown = [];
-        public static byte currentDrawTarget = byte.MaxValue;
+        public static byte CurrentDrawTarget = byte.MaxValue;
 
         public static bool On;
         public override bool IsEnable => On;
@@ -45,7 +45,7 @@ namespace EHR.Roles.Neutral
             On = true;
             foreach (PlayerControl ar in Main.AllPlayerControls)
             {
-                isDraw.Add((playerId, ar.PlayerId), false);
+                IsDraw.Add((playerId, ar.PlayerId), false);
             }
         }
 
@@ -98,7 +98,7 @@ namespace EHR.Roles.Neutral
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             killer.SetKillCooldown(RevolutionistDrawTime.GetFloat());
-            if (!isDraw[(killer.PlayerId, target.PlayerId)] && !RevolutionistTimer.ContainsKey(killer.PlayerId))
+            if (!IsDraw[(killer.PlayerId, target.PlayerId)] && !RevolutionistTimer.ContainsKey(killer.PlayerId))
             {
                 RevolutionistTimer.TryAdd(killer.PlayerId, (target, 0f));
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
@@ -150,7 +150,7 @@ namespace EHR.Roles.Neutral
                     {
                         player.SetKillCooldown();
                         RevolutionistTimer.Remove(playerId);
-                        isDraw[(playerId, rv_target.PlayerId)] = true;
+                        IsDraw[(playerId, rv_target.PlayerId)] = true;
                         player.RpcSetDrawPlayer(rv_target, true);
                         Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: rv_target, ForceLoop: true);
                         RPC.ResetCurrentDrawTarget(playerId);

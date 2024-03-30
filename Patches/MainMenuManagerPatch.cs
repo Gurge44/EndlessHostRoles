@@ -119,6 +119,6 @@ public class MainMenuManagerPatch
         passiveCreditsButton.OnClick = new();
         passiveCreditsButton.OnClick.AddListener((Action)(() => { CredentialsPatch.LogoPatch.CreditsPopup?.SetActive(true); }));
 
-        Application.targetFrameRate = Main.UnlockFPS.Value ? 165 : 60;
+        Application.targetFrameRate = Main.UnlockFps.Value ? 165 : 60;
     }
 }

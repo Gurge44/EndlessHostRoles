@@ -23,66 +23,66 @@ internal static class FFAManager
     public static string LatestChatMessage = string.Empty;
 
     //Options
-    public static OptionItem FFA_GameTime;
-    public static OptionItem FFA_KCD;
-    public static OptionItem FFA_LowerVision;
-    public static OptionItem FFA_IncreasedSpeed;
-    public static OptionItem FFA_DecreasedSpeed;
-    public static OptionItem FFA_ShieldDuration;
-    public static OptionItem FFA_ModifiedVisionDuration;
-    public static OptionItem FFA_ModifiedSpeedDuration;
-    public static OptionItem FFA_DisableVentingWhenTwoPlayersAlive;
-    public static OptionItem FFA_DisableVentingWhenKCDIsUp;
-    public static OptionItem FFA_EnableRandomAbilities;
-    public static OptionItem FFA_EnableRandomTwists;
-    public static OptionItem FFA_ShieldIsOneTimeUse;
-    public static OptionItem FFA_ChatDuringGame;
+    public static OptionItem FFAGameTime;
+    public static OptionItem FFAKcd;
+    public static OptionItem FFALowerVision;
+    public static OptionItem FFAIncreasedSpeed;
+    public static OptionItem FFADecreasedSpeed;
+    public static OptionItem FFAShieldDuration;
+    public static OptionItem FFAModifiedVisionDuration;
+    public static OptionItem FFAModifiedSpeedDuration;
+    public static OptionItem FFADisableVentingWhenTwoPlayersAlive;
+    public static OptionItem FFADisableVentingWhenKcdIsUp;
+    public static OptionItem FFAEnableRandomAbilities;
+    public static OptionItem FFAEnableRandomTwists;
+    public static OptionItem FFAShieldIsOneTimeUse;
+    public static OptionItem FFAChatDuringGame;
 
     public static void SetupCustomOption()
     {
-        FFA_GameTime = IntegerOptionItem.Create(67_223_001, "FFA_GameTime", new(30, 600, 10), 300, TabGroup.GameSettings, false)
+        FFAGameTime = IntegerOptionItem.Create(67_223_001, "FFA_GameTime", new(30, 600, 10), 300, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.FFA)
             .SetColor(new Color32(0, 255, 165, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds)
             .SetHeader(true);
-        FFA_KCD = FloatOptionItem.Create(67_223_002, "FFA_KCD", new(1f, 60f, 1f), 10f, TabGroup.GameSettings, false)
+        FFAKcd = FloatOptionItem.Create(67_223_002, "FFA_KCD", new(1f, 60f, 1f), 10f, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.FFA)
             .SetColor(new Color32(0, 255, 165, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds);
-        FFA_DisableVentingWhenTwoPlayersAlive = BooleanOptionItem.Create(67_223_003, "FFA_DisableVentingWhenTwoPlayersAlive", true, TabGroup.GameSettings, false)
+        FFADisableVentingWhenTwoPlayersAlive = BooleanOptionItem.Create(67_223_003, "FFA_DisableVentingWhenTwoPlayersAlive", true, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.FFA)
             .SetColor(new Color32(0, 255, 165, byte.MaxValue));
-        FFA_DisableVentingWhenKCDIsUp = BooleanOptionItem.Create(67_223_004, "FFA_DisableVentingWhenKCDIsUp", true, TabGroup.GameSettings, false)
+        FFADisableVentingWhenKcdIsUp = BooleanOptionItem.Create(67_223_004, "FFA_DisableVentingWhenKCDIsUp", true, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.FFA)
             .SetColor(new Color32(0, 255, 165, byte.MaxValue));
-        FFA_EnableRandomAbilities = BooleanOptionItem.Create(67_223_005, "FFA_EnableRandomAbilities", true, TabGroup.GameSettings, false)
+        FFAEnableRandomAbilities = BooleanOptionItem.Create(67_223_005, "FFA_EnableRandomAbilities", true, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.FFA)
             .SetColor(new Color32(0, 255, 165, byte.MaxValue));
-        FFA_ShieldDuration = FloatOptionItem.Create(67_223_006, "FFA_ShieldDuration", new(1f, 70f, 1f), 7f, TabGroup.GameSettings, false)
+        FFAShieldDuration = FloatOptionItem.Create(67_223_006, "FFA_ShieldDuration", new(1f, 70f, 1f), 7f, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.FFA)
             .SetColor(new Color32(0, 255, 165, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds);
-        FFA_IncreasedSpeed = FloatOptionItem.Create(67_223_007, "FFA_IncreasedSpeed", new(0.1f, 5f, 0.1f), 1.5f, TabGroup.GameSettings, false)
-            .SetGameMode(CustomGameMode.FFA)
-            .SetColor(new Color32(0, 255, 165, byte.MaxValue))
-            .SetValueFormat(OptionFormat.Multiplier);
-        FFA_DecreasedSpeed = FloatOptionItem.Create(67_223_008, "FFA_DecreasedSpeed", new(0.1f, 5f, 0.1f), 1f, TabGroup.GameSettings, false)
+        FFAIncreasedSpeed = FloatOptionItem.Create(67_223_007, "FFA_IncreasedSpeed", new(0.1f, 5f, 0.1f), 1.5f, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.FFA)
             .SetColor(new Color32(0, 255, 165, byte.MaxValue))
             .SetValueFormat(OptionFormat.Multiplier);
-        FFA_ModifiedSpeedDuration = FloatOptionItem.Create(67_223_009, "FFA_ModifiedSpeedDuration", new(1f, 60f, 1f), 10f, TabGroup.GameSettings, false).SetGameMode(CustomGameMode.FFA).SetColor(new Color32(0, 255, 165, byte.MaxValue))
-            .SetValueFormat(OptionFormat.Seconds);
-        FFA_LowerVision = FloatOptionItem.Create(67_223_010, "FFA_LowerVision", new(0f, 1f, 0.05f), 0.5f, TabGroup.GameSettings, false).SetGameMode(CustomGameMode.FFA).SetColor(new Color32(0, 255, 165, byte.MaxValue))
+        FFADecreasedSpeed = FloatOptionItem.Create(67_223_008, "FFA_DecreasedSpeed", new(0.1f, 5f, 0.1f), 1f, TabGroup.GameSettings, false)
+            .SetGameMode(CustomGameMode.FFA)
+            .SetColor(new Color32(0, 255, 165, byte.MaxValue))
             .SetValueFormat(OptionFormat.Multiplier);
-        FFA_ModifiedVisionDuration = FloatOptionItem.Create(67_223_011, "FFA_ModifiedVisionDuration", new(1f, 70f, 1f), 5f, TabGroup.GameSettings, false).SetGameMode(CustomGameMode.FFA).SetColor(new Color32(0, 255, 165, byte.MaxValue))
+        FFAModifiedSpeedDuration = FloatOptionItem.Create(67_223_009, "FFA_ModifiedSpeedDuration", new(1f, 60f, 1f), 10f, TabGroup.GameSettings, false).SetGameMode(CustomGameMode.FFA).SetColor(new Color32(0, 255, 165, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds);
-        FFA_EnableRandomTwists = BooleanOptionItem.Create(67_223_012, "FFA_EnableRandomTwists", true, TabGroup.GameSettings, false)
+        FFALowerVision = FloatOptionItem.Create(67_223_010, "FFA_LowerVision", new(0f, 1f, 0.05f), 0.5f, TabGroup.GameSettings, false).SetGameMode(CustomGameMode.FFA).SetColor(new Color32(0, 255, 165, byte.MaxValue))
+            .SetValueFormat(OptionFormat.Multiplier);
+        FFAModifiedVisionDuration = FloatOptionItem.Create(67_223_011, "FFA_ModifiedVisionDuration", new(1f, 70f, 1f), 5f, TabGroup.GameSettings, false).SetGameMode(CustomGameMode.FFA).SetColor(new Color32(0, 255, 165, byte.MaxValue))
+            .SetValueFormat(OptionFormat.Seconds);
+        FFAEnableRandomTwists = BooleanOptionItem.Create(67_223_012, "FFA_EnableRandomTwists", true, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.FFA)
             .SetColor(new Color32(0, 255, 165, byte.MaxValue));
-        FFA_ShieldIsOneTimeUse = BooleanOptionItem.Create(67_223_013, "FFA_ShieldIsOneTimeUse", true, TabGroup.GameSettings, false)
+        FFAShieldIsOneTimeUse = BooleanOptionItem.Create(67_223_013, "FFA_ShieldIsOneTimeUse", true, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.FFA)
             .SetColor(new Color32(0, 255, 165, byte.MaxValue));
-        FFA_ChatDuringGame = BooleanOptionItem.Create(67_223_014, "FFA_ChatDuringGame", false, TabGroup.GameSettings, false)
+        FFAChatDuringGame = BooleanOptionItem.Create(67_223_014, "FFA_ChatDuringGame", false, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.FFA)
             .SetColor(new Color32(0, 255, 165, byte.MaxValue));
     }
@@ -98,14 +98,14 @@ internal static class FFAManager
 
         originalSpeed = [];
         KillCount = [];
-        RoundTime = FFA_GameTime.GetInt() + 8;
+        RoundTime = FFAGameTime.GetInt() + 8;
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
             KillCount[pc.PlayerId] = 0;
         }
 
-        if (FFA_ChatDuringGame.GetBool()) _ = new LateTask(Utils.SetChatVisible, 7f, "Set Chat Visible for Everyone");
+        if (FFAChatDuringGame.GetBool()) _ = new LateTask(Utils.SetChatVisible, 12f, "Set Chat Visible for Everyone");
     }
 
     private static void SendRPCSyncFFAPlayer(byte playerId)
@@ -193,8 +193,8 @@ internal static class FFAManager
         if (FFAShieldedList.TryGetValue(target.PlayerId, out var dur))
         {
             killer.Notify(GetString("FFA_TargetIsShielded"));
-            Logger.Info($"{killer.GetRealName().RemoveHtmlTags()} attacked shielded player {target.GetRealName().RemoveHtmlTags()}, their shield expires in {FFA_ShieldDuration.GetInt() - (Utils.TimeStamp - dur)}s", "FFA");
-            if (FFA_ShieldIsOneTimeUse.GetBool())
+            Logger.Info($"{killer.GetRealName().RemoveHtmlTags()} attacked shielded player {target.GetRealName().RemoveHtmlTags()}, their shield expires in {FFAShieldDuration.GetInt() - (Utils.TimeStamp - dur)}s", "FFA");
+            if (FFAShieldIsOneTimeUse.GetBool())
             {
                 FFAShieldedList.Remove(target.PlayerId);
                 target.Notify(GetString("FFA_ShieldBroken"));
@@ -221,7 +221,7 @@ internal static class FFAManager
             Logger.Info($"The last 2 players ({killer.GetRealName().RemoveHtmlTags()} & {otherPC?.GetRealName().RemoveHtmlTags()}) now have an arrow toward each other", "FFA");
         }
 
-        if (FFA_EnableRandomAbilities.GetBool())
+        if (FFAEnableRandomAbilities.GetBool())
         {
             bool sync = false;
             bool mark = false;
@@ -237,8 +237,8 @@ internal static class FFAManager
                 {
                     case 0:
                         FFAShieldedList.TryAdd(killer.PlayerId, Utils.TimeStamp);
-                        killer.Notify(GetString("FFA-Event-GetShield"), FFA_ShieldDuration.GetFloat());
-                        Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
+                        killer.Notify(GetString("FFA-Event-GetShield"), FFAShieldDuration.GetFloat());
+                        Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
                         break;
                     case 1:
                         if (FFAIncreasedSpeedList.ContainsKey(killer.PlayerId))
@@ -250,20 +250,20 @@ internal static class FFAManager
                         {
                             FFAIncreasedSpeedList.TryAdd(killer.PlayerId, Utils.TimeStamp);
                             originalSpeed.TryAdd(killer.PlayerId, Main.AllPlayerSpeed[killer.PlayerId]);
-                            Main.AllPlayerSpeed[killer.PlayerId] = FFA_IncreasedSpeed.GetFloat();
+                            Main.AllPlayerSpeed[killer.PlayerId] = FFAIncreasedSpeed.GetFloat();
                         }
 
-                        killer.Notify(GetString("FFA-Event-GetIncreasedSpeed"), FFA_ModifiedSpeedDuration.GetFloat());
-                        Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
+                        killer.Notify(GetString("FFA-Event-GetIncreasedSpeed"), FFAModifiedSpeedDuration.GetFloat());
+                        Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
                         mark = true;
                         break;
                     case 2:
-                        Main.AllPlayerKillCooldown[killer.PlayerId] = Math.Clamp(FFA_KCD.GetFloat() - 3f, 1f, 60f);
+                        Main.AllPlayerKillCooldown[killer.PlayerId] = Math.Clamp(FFAKcd.GetFloat() - 3f, 1f, 60f);
                         killer.Notify(GetString("FFA-Event-GetLowKCD"));
                         sync = true;
                         break;
                     default:
-                        Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
+                        Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
                         break;
                 }
             }
@@ -283,26 +283,26 @@ internal static class FFAManager
                         {
                             FFADecreasedSpeedList.TryAdd(killer.PlayerId, Utils.TimeStamp);
                             originalSpeed.TryAdd(killer.PlayerId, Main.AllPlayerSpeed[killer.PlayerId]);
-                            Main.AllPlayerSpeed[killer.PlayerId] = FFA_DecreasedSpeed.GetFloat();
+                            Main.AllPlayerSpeed[killer.PlayerId] = FFADecreasedSpeed.GetFloat();
                         }
 
-                        killer.Notify(GetString("FFA-Event-GetDecreasedSpeed"), FFA_ModifiedSpeedDuration.GetFloat());
-                        Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
+                        killer.Notify(GetString("FFA-Event-GetDecreasedSpeed"), FFAModifiedSpeedDuration.GetFloat());
+                        Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
                         mark = true;
                         break;
                     case 1:
-                        Main.AllPlayerKillCooldown[killer.PlayerId] = Math.Clamp(FFA_KCD.GetFloat() + 3f, 1f, 60f);
+                        Main.AllPlayerKillCooldown[killer.PlayerId] = Math.Clamp(FFAKcd.GetFloat() + 3f, 1f, 60f);
                         killer.Notify(GetString("FFA-Event-GetHighKCD"));
                         sync = true;
                         break;
                     case 2:
                         FFALowerVisionList.TryAdd(killer.PlayerId, Utils.TimeStamp);
-                        Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
+                        Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
                         killer.Notify(GetString("FFA-Event-GetLowVision"));
                         mark = true;
                         break;
                     default:
-                        Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
+                        Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
                         break;
                 }
             }
@@ -310,7 +310,7 @@ internal static class FFAManager
             {
                 _ = new LateTask(() => { killer.TPtoRndVent(); }, 0.5f, "FFA-Event-TP");
                 killer.Notify(GetString("FFA-Event-GetTP"));
-                Main.AllPlayerKillCooldown[killer.PlayerId] = FFA_KCD.GetFloat();
+                Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
             }
 
             if (sync || nowKCD != Main.AllPlayerKillCooldown[killer.PlayerId])
@@ -397,7 +397,7 @@ internal static class FFAManager
                 bool FFAdoTP = false;
                 if (FFAdoTPdecider == 0) FFAdoTP = true;
 
-                if (FFA_EnableRandomTwists.GetBool() && FFAdoTP)
+                if (FFAEnableRandomTwists.GetBool() && FFAdoTP)
                 {
                     Logger.Info("Swap everyone with someone", "FFA");
 
@@ -439,7 +439,7 @@ internal static class FFAManager
 
                     bool sync = false;
 
-                    if (FFADecreasedSpeedList.TryGetValue(pc.PlayerId, out var dstime) && dstime + FFA_ModifiedSpeedDuration.GetInt() < now)
+                    if (FFADecreasedSpeedList.TryGetValue(pc.PlayerId, out var dstime) && dstime + FFAModifiedSpeedDuration.GetInt() < now)
                     {
                         Logger.Info(pc.GetRealName() + "'s decreased speed expired", "FFA");
                         FFADecreasedSpeedList.Remove(pc.PlayerId);
@@ -448,7 +448,7 @@ internal static class FFAManager
                         sync = true;
                     }
 
-                    if (FFAIncreasedSpeedList.TryGetValue(pc.PlayerId, out var istime) && istime + FFA_ModifiedSpeedDuration.GetInt() < now)
+                    if (FFAIncreasedSpeedList.TryGetValue(pc.PlayerId, out var istime) && istime + FFAModifiedSpeedDuration.GetInt() < now)
                     {
                         Logger.Info(pc.GetRealName() + "'s increased speed expired", "FFA");
                         FFAIncreasedSpeedList.Remove(pc.PlayerId);
@@ -457,14 +457,14 @@ internal static class FFAManager
                         sync = true;
                     }
 
-                    if (FFALowerVisionList.TryGetValue(pc.PlayerId, out var lvtime) && lvtime + FFA_ModifiedSpeedDuration.GetInt() < now)
+                    if (FFALowerVisionList.TryGetValue(pc.PlayerId, out var lvtime) && lvtime + FFAModifiedSpeedDuration.GetInt() < now)
                     {
                         Logger.Info(pc.GetRealName() + "'s lower vision effect expired", "FFA");
                         FFALowerVisionList.Remove(pc.PlayerId);
                         sync = true;
                     }
 
-                    if (FFAShieldedList.TryGetValue(pc.PlayerId, out var stime) && stime + FFA_ShieldDuration.GetInt() < now)
+                    if (FFAShieldedList.TryGetValue(pc.PlayerId, out var stime) && stime + FFAShieldDuration.GetInt() < now)
                     {
                         Logger.Info(pc.GetRealName() + "'s shield expired", "FFA");
                         FFAShieldedList.Remove(pc.PlayerId);

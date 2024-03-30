@@ -46,7 +46,7 @@ internal class ChatCommands
         string[] args = text.Split(' ');
         var canceled = false;
         var cancelVal = string.Empty;
-        Main.isChatCommand = true;
+        Main.IsChatCommand = true;
 
         Logger.Info(text, "SendChat");
 
@@ -76,19 +76,19 @@ internal class ChatCommands
             case "/v":
             case "/version":
                 canceled = true;
-                string version_text = Main.playerVersion.OrderBy(pair => pair.Key).Aggregate(string.Empty, (current, kvp) => current + $"{kvp.Key}:{Main.AllPlayerNames[kvp.Key]}:{kvp.Value.forkId}/{kvp.Value.version}({kvp.Value.tag})\n");
+                string version_text = Main.PlayerVersion.OrderBy(pair => pair.Key).Aggregate(string.Empty, (current, kvp) => current + $"{kvp.Key}:{Main.AllPlayerNames[kvp.Key]}:{kvp.Value.forkId}/{kvp.Value.version}({kvp.Value.tag})\n");
 
                 if (version_text != string.Empty) HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, (PlayerControl.LocalPlayer.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + version_text);
                 break;
             default:
-                Main.isChatCommand = false;
+                Main.IsChatCommand = false;
                 break;
         }
 
         if (AmongUsClient.Instance.AmHost)
         {
             var localPlayerId = PlayerControl.LocalPlayer.PlayerId;
-            Main.isChatCommand = true;
+            Main.IsChatCommand = true;
             string subArgs;
             switch (args[0])
             {
@@ -96,8 +96,8 @@ internal class ChatCommands
                 case "/win":
                 case "/winner":
                     canceled = true;
-                    if (Main.winnerNameList.Count == 0) Utils.SendMessage(GetString("NoInfoExists"));
-                    else Utils.SendMessage("<b><u>Winners:</b></u>\n" + string.Join(", ", Main.winnerNameList));
+                    if (Main.WinnerNameList.Count == 0) Utils.SendMessage(GetString("NoInfoExists"));
+                    else Utils.SendMessage("<b><u>Winners:</b></u>\n" + string.Join(", ", Main.WinnerNameList));
                     break;
 
                 case "/l":
@@ -115,7 +115,7 @@ internal class ChatCommands
                     if (args.Length < 1) break;
                     if (args[1].Length is > 50 or < 1)
                         Utils.SendMessage(GetString("Message.AllowNameLength"), localPlayerId);
-                    else Main.nickName = args[1];
+                    else Main.NickName = args[1];
                     break;
 
                 case "/hn":
@@ -247,7 +247,7 @@ internal class ChatCommands
                     else Main.SetRoles[targetPc.PlayerId] = roleToSet;
 
                     var playername = $"<b>{Utils.ColorString(Main.PlayerColors.TryGetValue(resultId, out var textColor) ? textColor : Color.white, targetPc.GetRealName())}</b>";
-                    var rolename = $"<color={Main.roleColors[roleToSet]}> {GetString(roleToSet.ToString())} </color>";
+                    var rolename = $"<color={Main.RoleColors[roleToSet]}> {GetString(roleToSet.ToString())} </color>";
                     Utils.SendMessage("\n", localPlayerId, string.Format(GetString("RoleSelected"), playername, rolename));
 
                     break;
@@ -284,6 +284,8 @@ internal class ChatCommands
                             sb.AppendLine(Main.NeverSpawnTogetherCombos.Join(x => $"{Utils.ColorString(Utils.GetRoleColor(x.Key), GetString($"{x.Key}"))} \u2194 {Utils.ColorString(Utils.GetRoleColor(x.Value), GetString($"{x.Value}"))}", "\n"));
                             sb.AppendLine();
                         }
+
+                        sb.Append(GetString("ComboUsage"));
 
                         Utils.SendMessage("\n", localPlayerId, sb.ToString());
                         break;
@@ -368,13 +370,13 @@ internal class ChatCommands
 
                 case "/tpout":
                     canceled = true;
-                    if (!GameStates.IsLobby) break;
+                    if (!GameStates.IsLobby || !Options.PlayerCanTPInAndOut.GetBool()) break;
                     PlayerControl.LocalPlayer.TP(new Vector2(0.1f, 3.8f));
                     break;
 
                 case "/tpin":
                     canceled = true;
-                    if (!GameStates.IsLobby) break;
+                    if (!GameStates.IsLobby || !Options.PlayerCanTPInAndOut.GetBool()) break;
                     PlayerControl.LocalPlayer.TP(new Vector2(-0.2f, 1.3f));
                     break;
 
@@ -421,26 +423,14 @@ internal class ChatCommands
                 case "/ask":
                     canceled = true;
                     if (args.Length < 3) break;
-                    try
-                    {
-                        Mathematician.Ask(PlayerControl.LocalPlayer, args[1], args[2]);
-                    }
-                    catch
-                    {
-                    }
-
+                    Mathematician.Ask(PlayerControl.LocalPlayer, args[1], args[2]);
                     break;
 
+                case "/ans":
                 case "/answer":
+                    canceled = true;
                     if (args.Length < 2) break;
-                    try
-                    {
-                        Mathematician.Reply(PlayerControl.LocalPlayer, args[1]);
-                    }
-                    catch
-                    {
-                    }
-
+                    Mathematician.Reply(PlayerControl.LocalPlayer, args[1]);
                     break;
 
                 case "/ban":
@@ -560,12 +550,6 @@ internal class ChatCommands
                     Utils.SendMessage(string.Format(GetString("Message.SetColor"), subArgs), localPlayerId);
                     break;
 
-                //case "/quit":
-                //case "/qt":
-                //    canceled = true;
-                //    Utils.SendMessage(GetString("Message.CanNotUseByHost"), localPlayerId);
-                //    break;
-
                 case "/xf":
                     canceled = true;
                     if (!GameStates.IsInGame)
@@ -667,7 +651,7 @@ internal class ChatCommands
                         break;
                     }
 
-                    if (guessedNo < 0 || guessedNo > 99)
+                    if (guessedNo is < 0 or > 99)
                     {
                         Utils.SendMessage(GetString("GNoCommandInfo"), localPlayerId);
                         break;
@@ -686,7 +670,6 @@ internal class ChatCommands
                     {
                         Main.GuessNumber[localPlayerId][0] = -1;
                         Main.GuessNumber[localPlayerId][1] = 7;
-                        //targetNumber = Main.GuessNumber[localPlayerId][0];
                         Utils.SendMessage(string.Format(GetString("GNoLost"), targetNumber), localPlayerId);
                         break;
                     }
@@ -709,7 +692,7 @@ internal class ChatCommands
                     break;
 
                 default:
-                    Main.isChatCommand = false;
+                    Main.IsChatCommand = false;
                     break;
             }
         }
@@ -723,7 +706,7 @@ internal class ChatCommands
 
         goto Skip;
         Canceled:
-        Main.isChatCommand = false;
+        Main.IsChatCommand = false;
         canceled = true;
         Skip:
         if (canceled)
@@ -944,12 +927,12 @@ internal class ChatCommands
                 }
 
                 var sb = new StringBuilder();
-                var title = $"<{Main.roleColors[rl]}>{roleName}</color> {Utils.GetRoleMode(rl)}";
+                var title = $"<{Main.RoleColors[rl]}>{roleName}</color> {Utils.GetRoleMode(rl)}";
                 _ = sb.Append($"{GetString($"{rl}InfoLong")}");
                 var settings = new StringBuilder();
                 if (Options.CustomRoleSpawnChances.TryGetValue(rl, out StringOptionItem chance))
                 {
-                    settings.AppendLine($"<size=70%><u>{GetString("SettingsForRoleText")} <{Main.roleColors[rl]}>{roleName}</color>:</u>");
+                    settings.AppendLine($"<size=70%><u>{GetString("SettingsForRoleText")} <{Main.RoleColors[rl]}>{roleName}</color>:</u>");
                     Utils.ShowChildrenSettings(chance, ref settings, disableColor: false);
                     settings.Append("</size>");
                     var txt = $"<size=90%>{sb}</size>";
@@ -1001,13 +984,7 @@ internal class ChatCommands
             return;
         }
 
-        if (Mediumshiper.MsMsg(player, text))
-        {
-            LastSentCommand[player.PlayerId] = now;
-            return;
-        }
-
-        if (Mafia.MafiaMsgCheck(player, text))
+        if (Mediumshiper.MsMsg(player, text) || Mafia.MafiaMsgCheck(player, text))
         {
             LastSentCommand[player.PlayerId] = now;
             return;
@@ -1101,7 +1078,7 @@ internal class ChatCommands
                 if (!GameStates.IsInGame || player.IsAlive()) break;
                 var killer = player.GetRealKiller();
                 if (killer == null) break;
-                Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathCommand"), Utils.ColorString(Main.PlayerColors.TryGetValue(killer.PlayerId, out var pcColor) ? pcColor : Color.white, killer.GetRealName()), $"<{Main.roleColors[killer.GetCustomRole()]}>{GetString(killer.GetCustomRole().ToString())}</color>"));
+                Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathCommand"), Utils.ColorString(Main.PlayerColors.TryGetValue(killer.PlayerId, out var pcColor) ? pcColor : Color.white, killer.GetRealName()), $"<{Main.RoleColors[killer.GetCustomRole()]}>{GetString(killer.GetCustomRole().ToString())}</color>"));
                 break;
 
             case "/colour":
@@ -1134,35 +1111,39 @@ internal class ChatCommands
 
             case "/tpout":
                 canceled = true;
-                if (!GameStates.IsLobby) break;
+                if (!GameStates.IsLobby || !Options.PlayerCanTPInAndOut.GetBool()) break;
                 player.TP(new Vector2(0.1f, 3.8f));
                 break;
 
             case "/tpin":
                 canceled = true;
-                if (!GameStates.IsLobby) break;
+                if (!GameStates.IsLobby || !Options.PlayerCanTPInAndOut.GetBool()) break;
                 player.TP(new Vector2(-0.2f, 1.3f));
                 break;
 
-            //case "/quit":
-            //case "/qt":
-            //    subArgs = args.Length < 2 ? string.Empty : args[1];
-            //    var cid = player.PlayerId.ToString();
-            //    cid = cid.Length != 1 ? cid.Substring(1, 1) : cid;
-            //    if (subArgs.Equals(cid))
-            //    {
-            //        string name = player.GetRealName();
-            //        Utils.SendMessage(string.Format(GetString("Message.PlayerQuitForever"), name));
-            //        AmongUsClient.Instance.KickPlayer(player.GetClientId(), true);
-            //    }
-            //    else
-            //    {
-            //        Utils.SendMessage(string.Format(GetString("SureUse.quit"), cid), player.PlayerId);
-            //    }
-            //    break;
+            case "/rename":
+            case "/rn":
+                if (!Options.PlayerCanSetName.GetBool() || args.Length < 2) break;
+                if (GameStates.IsInGame)
+                {
+                    Utils.SendMessage(GetString("Message.OnlyCanUseInLobby"), player.PlayerId);
+                    break;
+                }
+
+                var name = args.Skip(1).Join(delimiter: " ");
+                if (name.Length is > 10 or < 1)
+                {
+                    Utils.SendMessage(GetString("Message.AllowNameLength"), player.PlayerId);
+                    break;
+                }
+
+                Main.AllPlayerNames[player.PlayerId] = name;
+                player.RpcSetName(name);
+                break;
+
             case "/id":
                 string msgText = GetString("PlayerIdList");
-                msgText = Main.AllPlayerControls.Aggregate(msgText, (current, pc) => current + "\n" + pc.PlayerId + " → " + Main.AllPlayerNames[pc.PlayerId]);
+                msgText = Main.AllPlayerControls.Aggregate(msgText, (current, pc) => $"{current}\n{pc.PlayerId} \u2192 {Main.AllPlayerNames[pc.PlayerId]}");
 
                 Utils.SendMessage(msgText, player.PlayerId);
                 break;
@@ -1175,24 +1156,13 @@ internal class ChatCommands
                 MeetingHud.Instance?.CastVote(player.PlayerId, voteId);
                 break;
             case "/ask":
-                try
-                {
-                    Mathematician.Ask(player, args[1], args[2]);
-                }
-                catch
-                {
-                }
-
+                if (args.Length < 3) break;
+                Mathematician.Ask(player, args[1], args[2]);
                 break;
+            case "/ans":
             case "/answer":
-                try
-                {
-                    Mathematician.Reply(player, args[1]);
-                }
-                catch
-                {
-                }
-
+                if (args.Length < 2) break;
+                Mathematician.Reply(player, args[1]);
                 break;
             case "/ban":
             case "/kick":

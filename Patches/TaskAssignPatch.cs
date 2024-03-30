@@ -121,27 +121,27 @@ class RpcSetTasksPatch
         // Null measures
         if (Main.RealOptionsData == null)
         {
-            Logger.Warn("警告:RealOptionsDataがnullです。", "RpcSetTasksPatch");
+            Logger.Warn("Warning: RealOptionsData is null.", "RpcSetTasksPatch");
             return;
         }
 
         var pc = Utils.GetPlayerById(playerId);
-        CustomRoles? RoleNullable = pc?.GetCustomRole();
-        if (RoleNullable == null) return;
-        CustomRoles role = RoleNullable.Value;
+        if (pc == null) return;
+        CustomRoles role = pc.Is(CustomRoles.Specter) ? CustomRoles.Specter : pc.GetCustomRole();
 
         // Default number of tasks
         bool hasCommonTasks = true;
         int NumLongTasks = Main.NormalOptions.NumLongTasks;
         int NumShortTasks = Main.NormalOptions.NumShortTasks;
 
-        if (Options.OverrideTasksData.AllData.TryGetValue(role, out var data) && data.doOverride.GetBool())
+        if (Options.OverrideTasksData.AllData.TryGetValue(role, out var data) && data.DoOverride.GetBool())
         {
-            hasCommonTasks = data.assignCommonTasks.GetBool(); // Whether to assign common tasks (regular tasks)
+            hasCommonTasks = data.AssignCommonTasks.GetBool(); // Whether to assign common tasks (regular tasks)
             // Even if assigned, it will not be reassigned and will be assigned the same common tasks as other crews.
-            NumLongTasks = data.numLongTasks.GetInt(); // Number of long tasks to allocate
-            NumShortTasks = data.numShortTasks.GetInt(); // Number of short tasks to allocate
+            NumLongTasks = data.NumLongTasks.GetInt(); // Number of long tasks to allocate
+            NumShortTasks = data.NumShortTasks.GetInt(); // Number of short tasks to allocate
             // Longs and shorts are constantly reallocated.
+            if (role == CustomRoles.Specter) Main.PlayerStates[pc.PlayerId].TaskState.AllTasksCount = NumLongTasks + NumShortTasks;
         }
 
         if (pc.Is(CustomRoles.Busy))
