@@ -324,10 +324,6 @@ internal class ChatCommands
 
                     break;
 
-                case "/xor":
-
-                    break;
-
                 case "/eff":
                 case "/effect":
                     canceled = true;

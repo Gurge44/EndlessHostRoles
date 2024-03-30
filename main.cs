@@ -1103,6 +1103,7 @@ public enum AdditionalWinners
 
     // -------------
     Lovers = CustomRoles.Lovers,
+    Executioner = CustomRoles.Executioner,
     Opportunist = CustomRoles.Opportunist,
     Lawyer = CustomRoles.Lawyer,
     FFF = CustomRoles.FFF,
@@ -1113,6 +1114,7 @@ public enum AdditionalWinners
     VengefulRomantic = CustomRoles.VengefulRomantic,
     Pursuer = CustomRoles.Pursuer,
     Phantom = CustomRoles.Phantom,
+    Sidekick = CustomRoles.Sidekick,
     Maverick = CustomRoles.Maverick,
     Postman = CustomRoles.Postman,
     Impartial = CustomRoles.Impartial,
