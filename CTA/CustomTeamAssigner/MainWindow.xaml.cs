@@ -24,6 +24,7 @@ namespace CustomTeamAssigner
 
             if (ofd.ShowDialog() == true)
             {
+                Utils.Teams.Clear();
                 File.ReadAllLines(ofd.FileName).Do(line => new Team(line.Split(';')[0]).Import(line));
 
                 Navigator.NavigationService.Navigate(new PlaySetListerPage());

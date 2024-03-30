@@ -94,6 +94,7 @@ namespace CustomTeamAssigner
 
         public static CustomRoles GetInternalRoleName(this string roleName)
         {
+            if (roleName == "Guess Manager") return CustomRoles.GuessManagerRole;
             var role = RoleNames.FirstOrDefault(x => x.Value == roleName).Key;
             return role != default ? role : Enum.Parse<CustomRoles>(roleName.Replace(" ", string.Empty));
         }

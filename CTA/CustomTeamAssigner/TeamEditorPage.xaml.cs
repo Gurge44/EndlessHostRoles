@@ -17,9 +17,20 @@ namespace CustomTeamAssigner
             EditingTeamMembers = team.TeamMembers;
             InitializeMembersGrid();
             InitializeComboBox();
+            InitializeEditorFields();
+        }
+
+        void InitializeEditorFields()
+        {
             OverrideColorCheckBox.IsChecked = EditingTeam.RoleRevealScreenBackgroundColor != "*";
             OverrideTitleCheckBox.IsChecked = EditingTeam.RoleRevealScreenTitle != "*";
             OverrideSubTitleCheckBox.IsChecked = EditingTeam.RoleRevealScreenSubtitle != "*";
+
+            TeamNameTextBox.Text = EditingTeam.TeamName;
+
+            if (OverrideColorCheckBox.IsChecked == true) TeamColorTextBox.Text = EditingTeam.RoleRevealScreenBackgroundColor;
+            if (OverrideTitleCheckBox.IsChecked == true) TeamTitleTextBox.Text = EditingTeam.RoleRevealScreenTitle;
+            if (OverrideSubTitleCheckBox.IsChecked == true) TeamSubTitleTextBox.Text = EditingTeam.RoleRevealScreenSubtitle;
         }
 
         void InitializeMembersGrid()
