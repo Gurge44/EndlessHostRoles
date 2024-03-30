@@ -8,13 +8,13 @@ namespace EHR.Roles.Impostor
 
         public void SetupCustomOption()
         {
-            SetupRoleOptions(300, Tab, CustomRoles.ImpostorTOHE);
-            SetupRoleOptions(400, Tab, CustomRoles.ShapeshifterTOHE);
+            SetupRoleOptions(300, Tab, CustomRoles.ImpostorEHR);
+            SetupRoleOptions(400, Tab, CustomRoles.ShapeshifterEHR);
             ShapeshiftCD = FloatOptionItem.Create(402, "ShapeshiftCooldown", new(1f, 180f, 1f), 30f, Tab, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.ShapeshifterTOHE])
+                .SetParent(CustomRoleSpawnChances[CustomRoles.ShapeshifterEHR])
                 .SetValueFormat(OptionFormat.Seconds);
             ShapeshiftDur = FloatOptionItem.Create(403, "ShapeshiftDuration", new(1f, 60f, 1f), 10f, Tab, false)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.ShapeshifterTOHE])
+                .SetParent(CustomRoleSpawnChances[CustomRoles.ShapeshifterEHR])
                 .SetValueFormat(OptionFormat.Seconds);
         }
     }

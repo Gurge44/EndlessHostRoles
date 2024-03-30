@@ -1,6 +1,6 @@
 
 <h1 align="center">Endless Host Roles</h1>
-<h4 align="center">Previously known as TOHE+</h4>
+<h4 align="center">Previously known as EHR+</h4>
 
 <br>
 
@@ -18,7 +18,7 @@
 
 <a href="https://sites.google.com/view/ehr-au" target="_blank"><img src="https://img.shields.io/badge/Website%20-%231DA1F2.svg?&style=for-the-badge&logo=vuedotjs&logoColor=white&color=3aa675"/></a>
 <a href="https://discord.gg/m3ayxfumC8" target="_blank"><img src="https://img.shields.io/badge/Discord%20-%231DA1F2.svg?&style=for-the-badge&logo=discord&logoColor=white&color=5662f6"/></a>
-<a href="https://github.com/Gurge44/TOHE_PLUS_/releases/latest" target="_blank"><img src="https://img.shields.io/badge/Latest Version%20-%231DA1F2.svg?&style=for-the-badge&logo=github&logoColor=white&color=181717"/></a>
+<a href="https://github.com/Gurge44/EHR_PLUS_/releases/latest" target="_blank"><img src="https://img.shields.io/badge/Latest Version%20-%231DA1F2.svg?&style=for-the-badge&logo=github&logoColor=white&color=181717"/></a>
 
 </p>
 
@@ -196,13 +196,13 @@
 <br>
 
 ## Credit to these mods and their developers for the code and help:
-### :star: [TOHEN](https://github.com/0xDrMoe/TownofHost-Enhanced) :
+### :star: [EHRN](https://github.com/0xDrMoe/TownofHost-Enhanced) :
 > 
-> - Our repo is forked from TOHEN
+> - Our repo is forked from EHRN
 > 
-### :star: [TOHE/TONX](https://github.com/KARPED1EM/TownOfHostEdited) :
+### :star: [EHR/TONX](https://github.com/KARPED1EM/TownOfHostEdited) :
 > 
-> - Our repo is a continuation of TOHE
+> - Our repo is a continuation of EHR
 > - TONX reference: Modify character limit for chat messages
 > 
 ### :star: [TOH](https://github.com/tukasa0001/TownOfHost) :
@@ -256,7 +256,7 @@
 > - Reference: Some custom button images
 > 
 
-### :star: [TOHEX](https://github.com/TOHEX-Official/TownOfHostEdited-Xi) :
+### :star: [EHRX](https://github.com/EHRX-Official/TownOfHostEdited-Xi) :
 >
 > - Provided role: Swapper
 > - Reference: Store message history

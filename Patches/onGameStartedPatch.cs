@@ -542,6 +542,8 @@ internal class SelectRolesPatch
             Asthmatic.Add();
             Circumvent.Add();
 
+            _ = new LateTask(CustomTeamManager.InitializeCustomTeamPlayers, 7f, log: false);
+
             if (overrideLovers) Logger.Msg(Main.LoversPlayers.Join(x => x?.GetRealName()), "Lovers");
 
             EndOfSelectRolePatch:

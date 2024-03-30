@@ -1601,6 +1601,7 @@ public static class Utils
         if (!AmongUsClient.Instance.AmHost) return;
         if (title == "") title = "<color=#aaaaff>" + GetString("DefaultSystemMessageTitle") + "</color>";
         text = text.Replace("color=", string.Empty);
+
         Main.MessagesToSend.Add((text.RemoveHtmlTagsTemplate(), sendTo, title));
     }
 
@@ -2374,6 +2375,7 @@ public static class Utils
 
         int CD = role switch
         {
+            CustomRoles.Mole => 5,
             CustomRoles.Doormaster => Doormaster.VentCooldown.GetInt(),
             CustomRoles.Tether => Tether.VentCooldown.GetInt(),
             CustomRoles.Mayor => (int)Math.Round(Options.DefaultKillCooldown),
@@ -2565,6 +2567,7 @@ public static class Utils
             Bloodhound.OnPlayerDead(target);
             Tracefinder.OnPlayerDead(target);
             Vulture.OnPlayerDead(target);
+            Tracker.OnPlayerDeath(target);
 
             FixedUpdatePatch.LoversSuicide(target.PlayerId, onMeeting);
         }

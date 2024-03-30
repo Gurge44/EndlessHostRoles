@@ -357,7 +357,6 @@ class GameEndChecker
 
             if (Main.AllAlivePlayerControls.All(p => p.Is(CustomRoles.Lovers)))
             {
-                reason = GameOverReason.ImpostorByKill;
                 ResetAndSetWinner(CustomWinner.Lovers);
                 return true;
             }

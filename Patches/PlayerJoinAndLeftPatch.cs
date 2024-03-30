@@ -30,7 +30,7 @@ class OnGameJoinedPatch
         GameStates.InGame = false;
         ErrorText.Instance?.Clear();
 
-        if (AmongUsClient.Instance.AmHost) //以下、ホストのみ実行
+        if (AmongUsClient.Instance.AmHost)
         {
             GameStartManagerPatch.GameStartManagerUpdatePatch.exitTimer = -1;
             Main.DoBlockNameChange = false;

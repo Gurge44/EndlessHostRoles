@@ -59,12 +59,14 @@ public static class OptionShower
                 ShowChildren(kvp.Value, ref sb, Utils.GetRoleColor(kvp.Key).ShadeColor(-0.5f), 1);
             }
 
-            foreach (var opt in OptionItem.AllOptions.Where(x => x.Id is >= 90000 and (< 600000 or > 700000) && !x.IsHiddenOn(Options.CurrentGameMode) && x.Parent == null && !x.IsText))
+            foreach (var opt in OptionItem.AllOptions)
             {
-                if (opt.IsHeader) sb.Append('\n');
-                sb.Append($"{opt.GetName()}: {opt.GetString()}\n");
-                if (opt.GetBool())
-                    ShowChildren(opt, ref sb, Color.white, 1);
+                if (opt.Id is >= 90000 and (< 600000 or > 700000) && !opt.IsHiddenOn(Options.CurrentGameMode) && opt.Parent == null && !opt.IsText)
+                {
+                    if (opt.IsHeader) sb.Append('\n');
+                    sb.Append($"{opt.GetName()}: {opt.GetString()}\n");
+                    if (opt.GetBool()) ShowChildren(opt, ref sb, Color.white, 1);
+                }
             }
         }
 

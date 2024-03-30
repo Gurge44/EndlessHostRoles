@@ -50,7 +50,7 @@ class EndGamePatch
 
             SummaryText[id] = Utils.SummaryTexts(id, disableColor: false);
             if (state.SubRoles.Count == 0) continue;
-            Main.LastAddOns[id] = $"<size=70%>{Utils.ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), Main.AllPlayerNames.GetValueOrDefault(id, $"ID {id}"))}: {state.SubRoles.Join(x => Utils.ColorString(Utils.GetRoleColor(x), GetString($"{x}")))}</size>";
+            Main.LastAddOns[id] = $"<size=70%>{Utils.ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), Main.AllPlayerNames.GetValueOrDefault(id, $"ID {id}"))}: {state.SubRoles.Join(x => x.ToColoredString())}</size>";
         }
 
         if (Options.DumpLogAfterGameEnd.GetBool())
@@ -259,7 +259,7 @@ class SetEverythingUpPatch
             CustomWinnerText = string.Format(GetString("CustomWinnerText"), team.TeamName);
             CustomWinnerColor = team.RoleRevealScreenBackgroundColor == "*" ? Main.NeutralColor : team.RoleRevealScreenBackgroundColor;
             __instance.BackgroundBar.material.color = ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out var color) ? color : Utils.GetRoleColor(CustomRoles.Sprayer);
-            AdditionalWinnerText = team.TeamMembers.Join(x => Utils.ColorString(Utils.GetRoleColor(x), GetString($"{x}"))) + GetString("Win");
+            AdditionalWinnerText = team.TeamMembers.Join(x => x.ToColoredString()) + GetString("Win");
             goto Skip;
         }
 

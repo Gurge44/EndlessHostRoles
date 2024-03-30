@@ -38,7 +38,7 @@ public class Lawyer : RoleBase
 
     public static readonly CustomRoles[] CRoleChangeRoles =
     [
-        CustomRoles.CrewmateTOHE,
+        CustomRoles.CrewmateEHR,
         CustomRoles.Jester,
         CustomRoles.Opportunist,
         CustomRoles.Convict,

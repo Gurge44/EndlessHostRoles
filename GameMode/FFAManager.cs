@@ -22,7 +22,6 @@ internal static class FFAManager
 
     public static string LatestChatMessage = string.Empty;
 
-    //Options
     public static OptionItem FFAGameTime;
     public static OptionItem FFAKcd;
     public static OptionItem FFALowerVision;
@@ -104,8 +103,6 @@ internal static class FFAManager
         {
             KillCount[pc.PlayerId] = 0;
         }
-
-        if (FFAChatDuringGame.GetBool()) _ = new LateTask(Utils.SetChatVisible, 12f, "Set Chat Visible for Everyone");
     }
 
     private static void SendRPCSyncFFAPlayer(byte playerId)
@@ -126,9 +123,7 @@ internal static class FFAManager
     {
         if (pc.AmOwner || !pc.IsModClient()) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncFFANameNotify, SendOption.Reliable, pc.GetClientId());
-        if (NameNotify.TryGetValue(pc.PlayerId, out (string TEXT, long TIMESTAMP) value))
-            writer.Write(value.TEXT);
-        else writer.Write(string.Empty);
+        writer.Write(NameNotify.TryGetValue(pc.PlayerId, out (string TEXT, long TIMESTAMP) value) ? value.TEXT : string.Empty);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
@@ -136,7 +131,7 @@ internal static class FFAManager
     {
         var name = reader.ReadString();
         NameNotify.Remove(PlayerControl.LocalPlayer.PlayerId);
-        if (name != null && name != string.Empty)
+        if (!string.IsNullOrEmpty(name))
             NameNotify.Add(PlayerControl.LocalPlayer.PlayerId, (name, 0));
     }
 
@@ -165,7 +160,7 @@ internal static class FFAManager
         try
         {
             int ms = KillCount[playerId];
-            int rank = 1 + KillCount.Values.Where(x => x > ms).Count();
+            int rank = 1 + KillCount.Values.Count(x => x > ms);
             rank += KillCount.Where(x => x.Value == ms).ToList().IndexOf(new(playerId, ms));
             return rank;
         }
@@ -313,7 +308,7 @@ internal static class FFAManager
                 Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
             }
 
-            if (sync || nowKCD != Main.AllPlayerKillCooldown[killer.PlayerId])
+            if (sync || Math.Abs(nowKCD - Main.AllPlayerKillCooldown[killer.PlayerId]) > 0.1f)
             {
                 mark = false;
                 killer.SyncSettings();
@@ -343,12 +338,7 @@ internal static class FFAManager
         if (Main.AllAlivePlayerControls.Length != 2) return string.Empty;
 
         string arrows = string.Empty;
-        PlayerControl otherPlayer = null;
-        foreach (var pc in Main.AllAlivePlayerControls.Where(pc => pc.IsAlive() && pc.PlayerId != seer.PlayerId).ToArray())
-        {
-            otherPlayer = pc;
-            break;
-        }
+        PlayerControl otherPlayer = Main.AllAlivePlayerControls.FirstOrDefault(pc => pc.IsAlive() && pc.PlayerId != seer.PlayerId);
 
         if (otherPlayer == null) return string.Empty;
 

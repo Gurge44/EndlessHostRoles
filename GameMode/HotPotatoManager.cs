@@ -19,6 +19,8 @@ namespace EHR
 
         public static (byte HolderID, byte LastHolderID, int TimeLeft, int RoundNum) GetState() => HotPotatoState;
 
+        public static bool IsChatDuringGame => Chat.GetBool();
+
         public static void SetupCustomOption()
         {
             Time = IntegerOptionItem.Create(69_213_001, "HotPotato_Time", new(1, 90, 1), 20, TabGroup.GameSettings, false)
@@ -48,8 +50,6 @@ namespace EHR
             foreach (var pc in Main.AllPlayerControls) SurvivalTimes[pc.PlayerId] = 0;
 
             DefaultSpeed = Main.AllPlayerSpeed[0];
-
-            if (Chat.GetBool()) _ = new LateTask(Utils.SetChatVisible, 12f, "Set Chat Visible for Everyone");
         }
 
         public static void OnGameStart()

@@ -128,7 +128,7 @@ public static class NameColorManager
             CustomRoles.Sidekick when target.Is(CustomRoles.Sidekick) && Options.SidekickKnowOtherSidekick.GetBool() => Main.RoleColors[CustomRoles.Jackal],
             CustomRoles.Sidekick when target.Is(CustomRoles.Recruit) && Options.SidekickKnowOtherSidekick.GetBool() => Main.RoleColors[CustomRoles.Jackal],
             CustomRoles.Jackal when target.Is(CustomRoles.Recruit) => Main.RoleColors[CustomRoles.Jackal],
-            CustomRoles.Refugee when target.Is(CustomRoleTypes.Impostor) => Main.RoleColors[CustomRoles.ImpostorTOHE],
+            CustomRoles.Refugee when target.Is(CustomRoleTypes.Impostor) => Main.RoleColors[CustomRoles.ImpostorEHR],
             CustomRoles.HeadHunter when ((HeadHunter)Main.PlayerStates[seer.PlayerId].Role).Targets.Contains(target.PlayerId) => "000000",
             CustomRoles.BountyHunter when (Main.PlayerStates[seer.PlayerId].Role as BountyHunter)?.GetTarget(seer) == target.PlayerId => "000000",
             CustomRoles.Pyromaniac when ((Pyromaniac)Main.PlayerStates[seer.PlayerId].Role).DousedList.Contains(target.PlayerId) => "#BA4A00",

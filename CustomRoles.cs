@@ -11,8 +11,8 @@ public enum CustomRoles
     Shapeshifter,
 
     // Vanilla Remakes
-    ImpostorTOHE,
-    ShapeshifterTOHE,
+    ImpostorEHR,
+    ShapeshifterEHR,
 
     //Impostors
 
@@ -106,10 +106,10 @@ public enum CustomRoles
     Scientist,
 
     // Vanilla Remakes
-    CrewmateTOHE,
-    EngineerTOHE,
-    GuardianAngelTOHE,
-    ScientistTOHE,
+    CrewmateEHR,
+    EngineerEHR,
+    GuardianAngelEHR,
+    ScientistEHR,
 
     // Crewmate
 

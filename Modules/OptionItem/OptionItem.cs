@@ -247,7 +247,7 @@ public abstract class OptionItem
     {
         CurrentPreset = Math.Clamp(newPreset, 0, NumPresets - 1);
 
-        foreach (OptionItem op in AllOptions.ToArray())
+        foreach (OptionItem op in AllOptions)
         {
             op.Refresh();
         }

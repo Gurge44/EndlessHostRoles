@@ -279,10 +279,10 @@ public class Main : BasePlugin
                 { CustomRoles.Scientist, "#8cffff" },
                 { CustomRoles.GuardianAngel, "#ffffff" },
                 // Vanilla Remakes
-                { CustomRoles.CrewmateTOHE, "#8cffff" },
-                { CustomRoles.EngineerTOHE, "#FF6A00" },
-                { CustomRoles.ScientistTOHE, "#8ee98e" },
-                { CustomRoles.GuardianAngelTOHE, "#77e6d1" },
+                { CustomRoles.CrewmateEHR, "#8cffff" },
+                { CustomRoles.EngineerEHR, "#FF6A00" },
+                { CustomRoles.ScientistEHR, "#8ee98e" },
+                { CustomRoles.GuardianAngelEHR, "#77e6d1" },
                 // Crewmates
                 { CustomRoles.Luckey, "#b8d7a3" },
                 { CustomRoles.Needy, "#a4dffe" },

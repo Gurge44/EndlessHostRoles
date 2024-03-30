@@ -7,7 +7,7 @@
     <Description>EHR</Description>
     <Authors>Gurge44</Authors>
     <langVersion>preview</langVersion>
-	    <AmongUs>E:\Program Files\AmongUs</AmongUs>
+	    <AmongUs>D:\Epic Games\AmongUs</AmongUs>
 	    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	    <Optimize>True</Optimize>
 	    <AssemblyName>$(MSBuildProjectName)</AssemblyName>

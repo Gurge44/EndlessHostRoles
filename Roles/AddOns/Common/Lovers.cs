@@ -12,7 +12,7 @@ namespace EHR.Roles.AddOns.Common
             const int id = 16200;
             const CustomGameMode customGameMode = CustomGameMode.Standard;
 
-            var spawnOption = StringOptionItem.Create(id, role.ToString(), ratesZeroOne, 0, TabGroup.Addons, false)
+            var spawnOption = StringOptionItem.Create(id, role.ToString(), RatesZeroOne, 0, TabGroup.Addons, false)
                 .SetColor(Utils.GetRoleColor(role))
                 .SetHeader(true)
                 .SetGameMode(customGameMode) as StringOptionItem;
