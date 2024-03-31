@@ -16,6 +16,8 @@ public static class OptionsMenuBehaviourStartPatch
     private static ClientOptionItem EnableCustomSoundEffect;
     private static ClientOptionItem SwitchVanilla;
     private static ClientOptionItem DarkTheme;
+    private static ClientOptionItem HorseMode;
+    private static ClientOptionItem LongMode;
 #if DEBUG
     private static ClientOptionItem VersionCheat;
     private static ClientOptionItem GodMode;
@@ -26,6 +28,7 @@ public static class OptionsMenuBehaviourStartPatch
         if (__instance.DisableMouseMovement == null) return;
 
         Main.SwitchVanilla.Value = false;
+
         if (Main.ResetOptions || !DebugModeManager.AmDebugger)
         {
             Main.ResetOptions = false;
@@ -48,9 +51,11 @@ public static class OptionsMenuBehaviourStartPatch
                 Logger.SendInGame(string.Format(Translator.GetString("FPSSetTo"), Application.targetFrameRate));
             }
         }
+
         if (AutoStart == null || AutoStart.ToggleButton == null)
         {
             AutoStart = ClientOptionItem.Create("AutoStart", Main.AutoStart, __instance, AutoStartButtonToggle);
+
             static void AutoStartButtonToggle()
             {
                 if (Main.AutoStart.Value == false && GameStates.IsCountDown)
@@ -60,35 +65,83 @@ public static class OptionsMenuBehaviourStartPatch
                 }
             }
         }
+
         if (ForceOwnLanguage == null || ForceOwnLanguage.ToggleButton == null)
         {
             ForceOwnLanguage = ClientOptionItem.Create("ForceOwnLanguage", Main.ForceOwnLanguage, __instance);
         }
+
         if (ForceOwnLanguageRoleName == null || ForceOwnLanguageRoleName.ToggleButton == null)
         {
             ForceOwnLanguageRoleName = ClientOptionItem.Create("ForceOwnLanguageRoleName", Main.ForceOwnLanguageRoleName, __instance);
         }
+
         if (EnableCustomButton == null || EnableCustomButton.ToggleButton == null)
         {
             EnableCustomButton = ClientOptionItem.Create("EnableCustomButton", Main.EnableCustomButton, __instance);
         }
+
         if (EnableCustomSoundEffect == null || EnableCustomSoundEffect.ToggleButton == null)
         {
             EnableCustomSoundEffect = ClientOptionItem.Create("EnableCustomSoundEffect", Main.EnableCustomSoundEffect, __instance);
         }
+
         if (SwitchVanilla == null || SwitchVanilla.ToggleButton == null)
         {
             SwitchVanilla = ClientOptionItem.Create("SwitchVanilla", Main.SwitchVanilla, __instance, SwitchVanillaButtonToggle);
+
             static void SwitchVanillaButtonToggle()
             {
                 Harmony.UnpatchAll();
                 Main.Instance.Unload();
             }
         }
+
         if (DarkTheme == null || DarkTheme.ToggleButton == null)
         {
             DarkTheme = ClientOptionItem.Create("EnableDarkTheme", Main.DarkTheme, __instance);
         }
+
+        if (HorseMode == null || HorseMode.ToggleButton == null)
+        {
+            HorseMode = ClientOptionItem.Create("HorseMode", Main.HorseMode, __instance, SwitchHorseMode);
+
+            static void SwitchHorseMode()
+            {
+                Main.LongMode.Value = false;
+                HorseMode.UpdateToggle();
+                LongMode.UpdateToggle();
+                foreach (var pc in Main.AllPlayerControls)
+                {
+                    pc.MyPhysics.SetBodyType(pc.BodyType);
+                    if (pc.BodyType == PlayerBodyTypes.Normal)
+                    {
+                        pc.cosmetics.currentBodySprite.BodySprite.transform.localScale = new(0.5f, 0.5f, 1f);
+                    }
+                }
+            }
+        }
+
+        if (LongMode == null || LongMode.ToggleButton == null)
+        {
+            LongMode = ClientOptionItem.Create("LongMode", Main.LongMode, __instance, SwitchLongMode);
+
+            static void SwitchLongMode()
+            {
+                Main.HorseMode.Value = false;
+                HorseMode.UpdateToggle();
+                LongMode.UpdateToggle();
+                foreach (var pc in Main.AllPlayerControls)
+                {
+                    pc.MyPhysics.SetBodyType(pc.BodyType);
+                    if (pc.BodyType == PlayerBodyTypes.Normal)
+                    {
+                        pc.cosmetics.currentBodySprite.BodySprite.transform.localScale = new(0.5f, 0.5f, 1f);
+                    }
+                }
+            }
+        }
+
 #if DEBUG
         if ((VersionCheat == null || VersionCheat.ToggleButton == null) && DebugModeManager.AmDebugger)
         {

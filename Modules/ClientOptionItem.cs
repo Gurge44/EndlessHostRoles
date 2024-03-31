@@ -26,7 +26,6 @@ public class ClientOptionItem
 
             var mouseMoveToggle = optionsMenuBehaviour.DisableMouseMovement;
 
-            // 1つ目のボタンの生成時に背景も生成
             if (CustomBackground == null)
             {
                 numOptions = 0;
@@ -48,15 +47,19 @@ public class ClientOptionItem
                 UiElement[] selectableButtons = optionsMenuBehaviour.ControllerSelectable.ToArray();
                 PassiveButton leaveButton = null;
                 PassiveButton returnButton = null;
-                for (int i = 0; i < selectableButtons.Length; i++)
+                foreach (var button in selectableButtons)
                 {
-                    var button = selectableButtons[i];
                     if (button == null) continue;
 
-                    if (button.name == "LeaveGameButton")
-                        leaveButton = button.GetComponent<PassiveButton>();
-                    else if (button.name == "ReturnToGameButton")
-                        returnButton = button.GetComponent<PassiveButton>();
+                    switch (button.name)
+                    {
+                        case "LeaveGameButton":
+                            leaveButton = button.GetComponent<PassiveButton>();
+                            break;
+                        case "ReturnToGameButton":
+                            returnButton = button.GetComponent<PassiveButton>();
+                            break;
+                    }
                 }
 
                 var generalTab = mouseMoveToggle.transform.parent.parent.parent;
@@ -70,8 +73,11 @@ public class ClientOptionItem
                 modOptionsPassiveButton.OnClick = new();
                 modOptionsPassiveButton.OnClick.AddListener(new Action(() => { CustomBackground.gameObject.SetActive(true); }));
 
-                if (leaveButton != null)
+                if (leaveButton != null && leaveButton.transform != null)
+                {
                     leaveButton.transform.localPosition = new(-1.35f, -2.411f, -1f);
+                }
+
                 if (returnButton != null)
                     returnButton.transform.localPosition = new(1.35f, -2.411f, -1f);
             }
@@ -89,7 +95,7 @@ public class ClientOptionItem
             passiveButton.OnClick = new();
             passiveButton.OnClick.AddListener(new Action(() =>
             {
-                config.Value = !config.Value;
+                if (config != null) config.Value = !config.Value;
                 UpdateToggle();
                 additionalOnClickAction?.Invoke();
             }));
@@ -114,7 +120,7 @@ public class ClientOptionItem
     {
         if (ToggleButton == null) return;
 
-        var color = Config.Value ? new(255, 192, 203, byte.MaxValue) : new Color32(77, 77, 77, byte.MaxValue);
+        var color = Config is { Value: true } ? new(255, 192, 203, byte.MaxValue) : new Color32(77, 77, 77, byte.MaxValue);
         ToggleButton.Background.color = color;
         ToggleButton.Rollover?.ChangeOutColor(color);
     }

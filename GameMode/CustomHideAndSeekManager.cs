@@ -37,9 +37,9 @@ namespace EHR
         public static void AssignRoles(ref Dictionary<PlayerControl, CustomRoles> result)
         {
             List<PlayerControl> allPlayers = [.. Main.AllAlivePlayerControls];
-            allPlayers.Shuffle(IRandom.Instance);
+            allPlayers = allPlayers.Shuffle(IRandom.Instance).ToList();
 
-            int seekerNum = Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors);
+            int seekerNum = Math.Min(Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors), 1);
 
             Dictionary<CustomRoles, int> roles = Assembly
                 .GetExecutingAssembly()

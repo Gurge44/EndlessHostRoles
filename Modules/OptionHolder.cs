@@ -740,6 +740,9 @@ public static class Options
 
     public static OptionItem SpawnAdditionalRefugeeOnImpsDead;
     public static OptionItem SpawnAdditionalRefugeeWhenNKAlive;
+    public static OptionItem SpawnAdditionalRefugeeMinAlivePlayers;
+
+    public static OptionItem AprilFoolsMode;
 
 
     // 投票モード
@@ -1733,6 +1736,15 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(Color.magenta)
             .SetParent(SpawnAdditionalRefugeeOnImpsDead);
+        SpawnAdditionalRefugeeMinAlivePlayers = IntegerOptionItem.Create(23859, "SpawnAdditionalRefugeeMinAlivePlayers", new(1, 14, 1), 7, TabGroup.TaskSettings, false)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(Color.magenta)
+            .SetParent(SpawnAdditionalRefugeeOnImpsDead);
+
+        AprilFoolsMode = BooleanOptionItem.Create(23860, "AprilFoolsMode", Main.IsAprilFools, TabGroup.TaskSettings, false)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetHeader(true)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
 
         //Disable Short Tasks

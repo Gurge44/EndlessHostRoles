@@ -64,6 +64,8 @@ public class Main : BasePlugin
     public static ConfigEntry<bool> VersionCheat { get; private set; }
     public static ConfigEntry<bool> GodMode { get; private set; }
     public static ConfigEntry<bool> DarkTheme { get; private set; }
+    public static ConfigEntry<bool> HorseMode { get; private set; }
+    public static ConfigEntry<bool> LongMode { get; private set; }
 
     public static Dictionary<byte, PlayerVersion> PlayerVersion = [];
 
@@ -221,6 +223,8 @@ public class Main : BasePlugin
         VersionCheat = Config.Bind("Client Options", "VersionCheat", false);
         GodMode = Config.Bind("Client Options", "GodMode", false);
         DarkTheme = Config.Bind("Client Options", "DarkTheme", false);
+        HorseMode = Config.Bind("Client Options", "HorseMode", false);
+        LongMode = Config.Bind("Client Options", "LongMode", false);
 
         Logger = BepInEx.Logging.Logger.CreateLogSource("EHR");
         EHR.Logger.Enable();

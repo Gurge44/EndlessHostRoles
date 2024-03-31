@@ -10,6 +10,7 @@ namespace EHR;
 
 /*
  * Roles that use the same code as another role:
+ *
  * Nuker = Bomber
  * Undertaker = Assassin
  * Chameleon = Swooper

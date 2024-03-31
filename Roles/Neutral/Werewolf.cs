@@ -99,19 +99,22 @@ public class Werewolf : RoleBase
 
         var now = Utils.TimeStamp;
 
-        if (lastTime != -10 && !player.IsModClient())
+        if (lastTime != -10)
         {
-            var cooldown = lastTime + (long)RampageCD.GetFloat() - now;
-            if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f);
-            CD = (int)cooldown;
-        }
+            if (!player.IsModClient())
+            {
+                var cooldown = lastTime + (long)RampageCD.GetFloat() - now;
+                if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f);
+                CD = (int)cooldown;
+            }
 
-        if (lastTime + (long)RampageCD.GetFloat() < now)
-        {
-            lastTime = -10;
-            if (!player.IsModClient()) player.Notify(GetString("WWCanRampage"));
-            SendRPC();
-            CD = 0;
+            if (lastTime + (long)RampageCD.GetFloat() < now)
+            {
+                lastTime = -10;
+                if (!player.IsModClient()) player.Notify(GetString("WWCanRampage"));
+                SendRPC();
+                CD = 0;
+            }
         }
 
         if (lastFixedTime != now && RampageTime != -10)

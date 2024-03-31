@@ -137,7 +137,7 @@ internal static class CustomRoleSelector
         foreach (var role in EnumHelper.GetAllValues<CustomRoles>())
         {
             int chance = role.GetMode();
-            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool())) continue;
+            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool()) || (role != CustomRoles.Randomizer && role.IsCrewmate() && Options.AprilFoolsMode.GetBool())) continue;
             switch (role)
             {
                 case CustomRoles.Commander when optImpNum <= 1 && Commander.CannotSpawnAsSoloImp.GetBool():
@@ -155,6 +155,13 @@ internal static class CustomRoleSelector
             }
 
             int count = role.GetCount();
+
+            if (role == CustomRoles.Randomizer && Options.AprilFoolsMode.GetBool())
+            {
+                chance = 100;
+                count = 15;
+            }
+
             RoleAssignInfo info = new(role, chance, count);
 
             if (role.IsImpostor()) Roles[RoleAssignType.Impostor].Add(info);
