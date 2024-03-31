@@ -26,7 +26,7 @@ public class WeaponMaster : RoleBase
 
     /*
      * 0 = Kill (Sword) ~ Normal Kill
-     * 1 = TOHEN Werewolf Kill / Higher KCD (Axe)
+     * 1 = EHRN Werewolf Kill / Higher KCD (Axe)
      * 2 = Reach + Swift / Can't Vent (Lance)
      * 3 = 1-Time Shield / Can't Kill (Shield)
      */

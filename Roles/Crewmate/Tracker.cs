@@ -1,6 +1,7 @@
 ﻿using EHR.Modules;
 using Hazel;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
@@ -103,20 +104,7 @@ namespace EHR.Roles.Crewmate
             if (!TrackerTarget.ContainsKey(seer.PlayerId)) return string.Empty;
             if (GameStates.IsMeeting) return string.Empty;
 
-            var arrows = string.Empty;
-            var targetList = TrackerTarget[seer.PlayerId];
-            foreach (var trackTarget in targetList)
-            {
-                if (!TrackerTarget[seer.PlayerId].Contains(trackTarget)) continue;
-
-                var targetData = Utils.GetPlayerById(trackTarget);
-                if (targetData == null) continue;
-
-                var arrow = TargetArrow.GetArrows(seer, trackTarget);
-                arrows += Utils.ColorString(CanGetColoredArrow.GetBool() ? Palette.PlayerColors[targetData.Data.DefaultOutfit.ColorId] : Color.white, arrow);
-            }
-
-            return arrows;
+            return TrackerTarget[seer.PlayerId].Aggregate(string.Empty, (current, trackTarget) => current + Utils.ColorString(CanGetColoredArrow.GetBool() ? Main.PlayerColors[trackTarget] : Color.white, TargetArrow.GetArrows(seer, trackTarget) + LocateArrow.GetArrows(seer)));
         }
 
         public static bool IsTrackTarget(PlayerControl seer, PlayerControl target)
@@ -127,11 +115,30 @@ namespace EHR.Roles.Crewmate
         public static string GetArrowAndLastRoom(PlayerControl seer, PlayerControl target)
         {
             if (seer == null || target == null) return string.Empty;
-            string text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Tracker), TargetArrow.GetArrows(seer, target.PlayerId));
+
+            var roleColor = Utils.GetRoleColor(CustomRoles.Tracker);
+            string text = Utils.ColorString(roleColor, TargetArrow.GetArrows(seer, target.PlayerId));
+            text += Utils.ColorString(roleColor, LocateArrow.GetArrows(seer));
+
             var room = Main.PlayerStates[target.PlayerId].LastRoom;
             if (room == null) text += Utils.ColorString(Color.gray, "@" + GetString("FailToTrack"));
-            else text += Utils.ColorString(Utils.GetRoleColor(CustomRoles.Tracker), "@" + GetString(room.RoomId.ToString()));
+            else text += Utils.ColorString(roleColor, "@" + GetString(room.RoomId.ToString()));
+
             return text;
+        }
+
+        public static void OnPlayerDeath(PlayerControl player)
+        {
+            if (player == null) return;
+            foreach (var kvp in TrackerTarget)
+            {
+                if (kvp.Value.Contains(player.PlayerId))
+                {
+                    kvp.Value.Remove(player.PlayerId);
+                    TargetArrow.Remove(kvp.Key, player.PlayerId);
+                    LocateArrow.Add(kvp.Key, player.Pos());
+                }
+            }
         }
     }
 }

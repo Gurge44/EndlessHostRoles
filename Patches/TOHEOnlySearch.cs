@@ -4,7 +4,7 @@ using HarmonyLib;
 namespace EHR;
 
 // ²Î¿¼£ºhttps://github.com/ykundesu/SuperNewRoles/blob/master/SuperNewRoles/Patches/SNROnlySearch.cs
-public static class TOHEOnlySearch
+public static class EHROnlySearch
 {
     public const string FilterText = "EHR";
     [HarmonyPatch(typeof(FilterTagManager), nameof(FilterTagManager.RefreshTags))]

@@ -31,5 +31,10 @@ namespace EHR.Roles.Crewmate
         {
             _ = new LateTask(() => { pc.TPtoRndVent(); }, 0.5f, "Mole TP");
         }
+
+        public override void OnPet(PlayerControl pc)
+        {
+            pc.TPtoRndVent();
+        }
     }
 }

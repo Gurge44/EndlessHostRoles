@@ -37,29 +37,32 @@ public static class GameOptionsMenuPatch
 {
     public static void Postfix(GameOptionsMenu __instance)
     {
-        foreach (OptionBehaviour ob in __instance.Children)
+        _ = new LateTask(() =>
         {
-            switch (ob.Title)
+            foreach (OptionBehaviour ob in __instance.Children)
             {
-                case StringNames.GameVotingTime:
-                    ob.Cast<NumberOption>().ValidRange = new(0, 600);
-                    break;
-                case StringNames.GameShortTasks:
-                case StringNames.GameLongTasks:
-                case StringNames.GameCommonTasks:
-                    ob.Cast<NumberOption>().ValidRange = new(0, 90);
-                    break;
-                case StringNames.GameKillCooldown:
-                    ob.Cast<NumberOption>().ValidRange = new(0, 180);
-                    ob.Cast<NumberOption>().Increment = 0.5f;
-                    break;
-                case StringNames.GamePlayerSpeed:
-                case StringNames.GameCrewLight:
-                case StringNames.GameImpostorLight:
-                    ob.Cast<NumberOption>().Increment = 0.05f;
-                    break;
+                switch (ob.Title)
+                {
+                    case StringNames.GameVotingTime:
+                        ob.Cast<NumberOption>().ValidRange = new(0, 600);
+                        break;
+                    case StringNames.GameShortTasks:
+                    case StringNames.GameLongTasks:
+                    case StringNames.GameCommonTasks:
+                        ob.Cast<NumberOption>().ValidRange = new(0, 90);
+                        break;
+                    case StringNames.GameKillCooldown:
+                        ob.Cast<NumberOption>().ValidRange = new(0, 180);
+                        ob.Cast<NumberOption>().Increment = 0.5f;
+                        break;
+                    case StringNames.GamePlayerSpeed:
+                    case StringNames.GameCrewLight:
+                    case StringNames.GameImpostorLight:
+                        ob.Cast<NumberOption>().Increment = 0.05f;
+                        break;
+                }
             }
-        }
+        }, 2f, log: false);
 
         var template = Object.FindObjectsOfType<StringOption>().FirstOrDefault();
         if (template == null) return;
@@ -81,7 +84,9 @@ public static class GameOptionsMenuPatch
         var gameTab = GameObject.Find("GameTab");
         System.Collections.Generic.List<GameObject> tabs = [gameTab, roleTab];
 
-        foreach (var tab in EnumHelper.GetAllValues<TabGroup>())
+        float delay = 0f;
+
+        foreach ((TabGroup tab, OptionItem[] optionItems) in Options.GroupedOptions)
         {
             var obj = gameSettings.transform.parent.Find(tab + "Tab");
             if (obj != null)
@@ -92,56 +97,72 @@ public static class GameOptionsMenuPatch
 
             var tohSettings = Object.Instantiate(gameSettings, gameSettings.transform.parent);
             tohSettings.name = tab + "Tab";
-            tohSettings.transform.FindChild("BackPanel").transform.localScale =
+            var backPanel = tohSettings.transform.FindChild("BackPanel");
+            backPanel.transform.localScale =
                 tohSettings.transform.FindChild("Bottom Gradient").transform.localScale = new(1.6f, 1f, 1f);
-            tohSettings.transform.FindChild("BackPanel").transform.localPosition += new Vector3(0.2f, 0f, 0f);
+            backPanel.transform.localPosition += new Vector3(0.2f, 0f, 0f);
             tohSettings.transform.FindChild("Bottom Gradient").transform.localPosition += new Vector3(0.2f, 0f, 0f);
             tohSettings.transform.FindChild("Background").transform.localScale = new(1.8f, 1f, 1f);
             tohSettings.transform.FindChild("UI_Scrollbar").transform.localPosition += new Vector3(1.4f, 0f, 0f);
             tohSettings.transform.FindChild("UI_ScrollbarTrack").transform.localPosition += new Vector3(1.4f, 0f, 0f);
             tohSettings.transform.FindChild("GameGroup/SliderInner").transform.localPosition += new Vector3(-0.3f, 0f, 0f);
+
             var tohMenu = tohSettings.transform.FindChild("GameGroup/SliderInner").GetComponent<GameOptionsMenu>();
 
-            tohMenu.GetComponentsInChildren<OptionBehaviour>().Do(x => Object.Destroy(x.gameObject));
-
             var scOptions = new System.Collections.Generic.List<OptionBehaviour>();
-            foreach (OptionItem option in OptionItem.AllOptions)
+
+            _ = new LateTask(() =>
             {
-                if (option.Tab != tab) continue;
-                if (option.OptionBehaviour == null)
+                tohMenu.GetComponentsInChildren<OptionBehaviour>().Do(x => Object.Destroy(x.gameObject));
+
+                foreach (OptionItem option in optionItems)
                 {
-                    float yoffset = option.IsText ? 100f : 0f;
-                    var stringOption = Object.Instantiate(template, tohMenu.transform);
-                    scOptions.Add(stringOption);
-                    stringOption.OnValueChanged = new Action<OptionBehaviour>(_ => { });
-                    stringOption.TitleText.text = option.Name;
-                    stringOption.Value = stringOption.oldValue = option.CurrentValue;
-                    stringOption.ValueText.text = option.GetString();
-                    stringOption.name = option.Name;
-                    var bg = stringOption.transform.FindChild("Background");
-                    bg.localScale = new(1.6f, 1f, 1f);
-                    if (Main.DarkTheme.Value) bg.GetComponent<SpriteRenderer>().color = new(0f, 0f, 0f, 1f);
-                    stringOption.transform.FindChild("Plus_TMP").localPosition += new Vector3(1.4f, yoffset, 0f);
-                    stringOption.transform.FindChild("Minus_TMP").localPosition += new Vector3(1.0f, yoffset, 0f);
-                    stringOption.transform.FindChild("Value_TMP").localPosition += new Vector3(1.2f, yoffset, 0f);
-                    stringOption.transform.FindChild("Value_TMP").GetComponent<RectTransform>().sizeDelta = new(1.6f, 0.26f);
-                    stringOption.transform.FindChild("Title_TMP").localPosition += new Vector3(option.IsText ? 0.25f : 0.1f, option.IsText ? -0.1f : 0f, 0f);
-                    stringOption.transform.FindChild("Title_TMP").GetComponent<RectTransform>().sizeDelta = new(5.5f, 0.37f);
+                    if (option.OptionBehaviour == null)
+                    {
+                        float yoffset = option.IsText ? 100f : 0f;
+                        var stringOption = Object.Instantiate(template, tohMenu.transform);
+                        scOptions.Add(stringOption);
 
-                    option.OptionBehaviour = stringOption;
+                        stringOption.OnValueChanged = new Action<OptionBehaviour>(_ => { });
+                        stringOption.TitleText.text = option.Name;
+                        stringOption.Value = stringOption.oldValue = option.CurrentValue;
+                        stringOption.ValueText.text = option.GetString();
+                        stringOption.name = option.Name;
+
+                        var bg = stringOption.transform.FindChild("Background");
+                        bg.localScale = new(1.6f, 1f, 1f);
+                        if (Main.DarkTheme.Value) bg.GetComponent<SpriteRenderer>().color = new(0f, 0f, 0f, 1f);
+
+                        stringOption.transform.FindChild("Plus_TMP").localPosition += new Vector3(1.4f, yoffset, 0f);
+                        stringOption.transform.FindChild("Minus_TMP").localPosition += new Vector3(1.0f, yoffset, 0f);
+
+                        var valueTMP = stringOption.transform.FindChild("Value_TMP");
+                        valueTMP.localPosition += new Vector3(1.2f, yoffset, 0f);
+                        valueTMP.GetComponent<RectTransform>().sizeDelta = new(1.6f, 0.26f);
+
+                        var titleTMP = stringOption.transform.FindChild("Title_TMP");
+                        titleTMP.localPosition += new Vector3(option.IsText ? 0.25f : 0.1f, option.IsText ? -0.1f : 0f, 0f);
+                        titleTMP.GetComponent<RectTransform>().sizeDelta = new(5.5f, 0.37f);
+
+                        option.OptionBehaviour = stringOption;
+                    }
+
+                    option.OptionBehaviour.gameObject.SetActive(true);
                 }
+            }, delay, log: false);
 
-                option.OptionBehaviour.gameObject.SetActive(true);
-            }
+            delay += 0.1f;
 
             tohMenu.Children = scOptions.ToArray();
+
             tohSettings.gameObject.SetActive(false);
             menus.Add(tohSettings.gameObject);
 
             var tohTab = Object.Instantiate(roleTab, roleTab.transform.parent);
-            tohTab.transform.FindChild("Hat Button").FindChild("Icon").GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite($"EHR.Resources.Images.TabIcon_{tab}.png", 100f);
+            var hatButton = tohTab.transform.FindChild("Hat Button");
+            hatButton.FindChild("Icon").GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite($"EHR.Resources.Images.TabIcon_{tab}.png", 100f);
             tabs.Add(tohTab);
-            var tohTabHighlight = tohTab.transform.FindChild("Hat Button").FindChild("Tab Background").GetComponent<SpriteRenderer>();
+            var tohTabHighlight = hatButton.FindChild("Tab Background").GetComponent<SpriteRenderer>();
             highlights.Add(tohTabHighlight);
         }
 
@@ -176,7 +197,8 @@ public class GameOptionsMenuUpdatePatch
     public static void Postfix(GameOptionsMenu __instance)
     {
         if (__instance.transform.parent.parent.name == "Game Settings") return;
-        foreach (var tab in EnumHelper.GetAllValues<TabGroup>())
+
+        foreach ((TabGroup tab, OptionItem[] optionItems) in Options.GroupedOptions)
         {
             string tabcolor = tab switch
             {
@@ -199,9 +221,8 @@ public class GameOptionsMenuUpdatePatch
 
             var offset = 2.7f;
 
-            foreach (OptionItem option in OptionItem.AllOptions)
+            foreach (OptionItem option in optionItems)
             {
-                if (tab != option.Tab) continue;
                 if (option.OptionBehaviour == null || option.OptionBehaviour.gameObject == null) continue;
 
                 var parent = option.Parent;

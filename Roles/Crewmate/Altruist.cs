@@ -11,7 +11,7 @@ namespace EHR.Roles.Crewmate
             if (killer == null) return;
             if (!killer.GetCustomRole().IsImpostor()) return;
 
-            killer.RpcSetCustomRole(killer.Is(RoleTypes.Shapeshifter) ? CustomRoles.ShapeshifterTOHE : CustomRoles.ImpostorTOHE);
+            killer.RpcSetCustomRole(killer.Is(RoleTypes.Shapeshifter) ? CustomRoles.ShapeshifterEHR : CustomRoles.ImpostorEHR);
         }
     }
 }

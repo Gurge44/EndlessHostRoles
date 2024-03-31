@@ -45,7 +45,7 @@ public static class OptionSaver
     {
         Dictionary<int, int> singleOptions = [];
         Dictionary<int, int[]> presetOptions = [];
-        foreach (OptionItem option in OptionItem.AllOptions.ToArray())
+        foreach (OptionItem option in OptionItem.AllOptions)
         {
             if (option.IsSingleValue)
             {

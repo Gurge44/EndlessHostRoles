@@ -180,7 +180,7 @@ class BeginCrewmatePatch
         return true;
     }
 
-    public static void Postfix(IntroCutscene __instance /*, ref Il2CppSystem.Collections.Generic.List<PlayerControl> teamToDisplay*/)
+    public static void Postfix(IntroCutscene __instance, ref List<PlayerControl> teamToDisplay)
     {
         CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
 
@@ -306,7 +306,7 @@ class BeginCrewmatePatch
 
                 CustomRoles.SabotageMaster or
                     CustomRoles.Engineer or
-                    CustomRoles.EngineerTOHE or
+                    CustomRoles.EngineerEHR or
                     CustomRoles.Inhibitor or
                     CustomRoles.Saboteur or
                     CustomRoles.SecurityGuard or
@@ -401,6 +401,14 @@ class BeginCrewmatePatch
                     __instance.TeamTitle.color = __instance.BackgroundBar.material.color = bgColor;
                 __instance.ImpostorText.gameObject.SetActive(team.RoleRevealScreenSubtitle != "*");
                 __instance.ImpostorText.text = team.RoleRevealScreenSubtitle;
+
+                foreach (var pc in Main.AllPlayerControls)
+                {
+                    if (CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, PlayerControl.LocalPlayer.PlayerId))
+                    {
+                        teamToDisplay.Add(pc);
+                    }
+                }
             }
         }
 
@@ -530,9 +538,9 @@ class BeginImpostorPatch
         return true;
     }
 
-    public static void Postfix(IntroCutscene __instance /*, ref Il2CppSystem.Collections.Generic.List<PlayerControl> yourTeam*/)
+    public static void Postfix(IntroCutscene __instance, ref List<PlayerControl> yourTeam)
     {
-        BeginCrewmatePatch.Postfix(__instance /*, ref yourTeam*/);
+        BeginCrewmatePatch.Postfix(__instance, ref yourTeam);
     }
 }
 
@@ -571,6 +579,14 @@ class IntroCutsceneDestroyPatch
                     }, 2f, "FixKillCooldownTask");
                 }
             }
+
+            bool chat = Options.CurrentGameMode switch
+            {
+                CustomGameMode.FFA => FFAManager.FFAChatDuringGame.GetBool(),
+                CustomGameMode.HotPotato => HotPotatoManager.IsChatDuringGame,
+                _ => false
+            };
+            if (chat) Utils.SetChatVisible();
 
             _ = new LateTask(() => Main.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
 

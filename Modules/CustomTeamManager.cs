@@ -51,6 +51,7 @@ namespace EHR.Modules
 
         public static HashSet<CustomTeam> CustomTeams = [];
         public static CustomTeam WinnerTeam;
+        public static Dictionary<CustomTeam, HashSet<byte>> CustomTeamPlayerIds = [];
 
         public static void LoadCustomTeams()
         {
@@ -70,23 +71,31 @@ namespace EHR.Modules
             }
         }
 
+        public static void InitializeCustomTeamPlayers()
+        {
+            if (CustomTeams.Count == 0) return;
+
+            CustomTeamPlayerIds = Main.PlayerStates
+                .IntersectBy(Main.AllAlivePlayerControls.Select(x => x.PlayerId), x => x.Key)
+                .GroupBy(x => CustomTeams.FirstOrDefault(t => t.TeamMembers.Contains(x.Value.MainRole)), x => x.Key)
+                .ToDictionary(x => x.Key, x => x.ToHashSet());
+        }
+
         public static bool CheckCustomTeamGameEnd()
         {
-            if (CustomTeams.Count == 0) return false;
+            if (CustomTeams.Count == 0 || CustomTeamPlayerIds.Count == 0) return false;
 
-            var alivePlayerRoles = Main.PlayerStates
-                .IntersectBy(Main.AllAlivePlayerControls.Select(x => x.PlayerId), x => x.Key)
-                .ToDictionary(x => x.Key, x => x.Value.MainRole);
-
-            var customTeams = alivePlayerRoles
-                .GroupBy(x => CustomTeams.FirstOrDefault(t => t.TeamMembers.Contains(alivePlayerRoles[x.Key])), x => x.Key)
-                .ToDictionary(x => x.Key, x => x.ToHashSet());
-
-            if (customTeams.Count == 1)
+            CustomTeamPlayerIds.Values.Do(x => x.RemoveWhere(p =>
             {
-                WinnerTeam = customTeams.Keys.First();
+                var pc = Utils.GetPlayerById(p);
+                return pc == null || !pc.IsAlive() || pc.Data.Disconnected;
+            }));
+
+            if (CustomTeamPlayerIds.Count == 1)
+            {
+                WinnerTeam = CustomTeamPlayerIds.Keys.First();
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CustomTeam);
-                CustomWinnerHolder.WinnerIds = customTeams.Values.First();
+                CustomWinnerHolder.WinnerIds = CustomTeamPlayerIds.Values.First();
                 return true;
             }
 

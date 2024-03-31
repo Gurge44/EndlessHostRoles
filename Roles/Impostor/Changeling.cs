@@ -44,11 +44,11 @@ namespace EHR.Roles.Impostor
             IEnumerable<CustomRoles> result = AvailableRoles.GetValue() switch
             {
                 0 => allRoles,
-                1 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Impostor or CustomRoles.ImpostorTOHE),
-                2 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterTOHE),
+                1 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Impostor or CustomRoles.ImpostorEHR),
+                2 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR),
                 3 => allRoles.Where(x => x.GetMode() != 0),
-                4 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Impostor or CustomRoles.ImpostorTOHE && x.GetMode() != 0),
-                5 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterTOHE && x.GetMode() != 0),
+                4 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Impostor or CustomRoles.ImpostorEHR && x.GetMode() != 0),
+                5 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR && x.GetMode() != 0),
                 _ => allRoles
             };
 
@@ -77,7 +77,7 @@ namespace EHR.Roles.Impostor
             catch (InvalidOperationException)
             {
                 Logger.Error("No roles for Changeling", "Changeling");
-                Utils.GetPlayerById(playerId).RpcSetCustomRole(CustomRoles.ImpostorTOHE);
+                Utils.GetPlayerById(playerId).RpcSetCustomRole(CustomRoles.ImpostorEHR);
             }
         }
 

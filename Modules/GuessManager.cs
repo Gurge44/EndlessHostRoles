@@ -1067,7 +1067,7 @@ public static class GuessManager
                     or CustomRoles.SuperStar
                     or CustomRoles.Konan
                     or CustomRoles.Oblivious
-                    or CustomRoles.GuardianAngelTOHE
+                    or CustomRoles.GuardianAngelEHR
                    ) continue;
 
                 if (!role.IsEnable() && !role.RoleExist(countDead: true) && !role.IsConverted()) continue;

@@ -166,11 +166,11 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 
             switch (role)
             {
-                case CustomRoles.ShapeshifterTOHE:
+                case CustomRoles.ShapeshifterEHR:
                     AURoleOptions.ShapeshifterCooldown = Options.ShapeshiftCD.GetFloat();
                     AURoleOptions.ShapeshifterDuration = Options.ShapeshiftDur.GetFloat();
                     break;
-                case CustomRoles.ScientistTOHE:
+                case CustomRoles.ScientistEHR:
                     AURoleOptions.ScientistCooldown = Options.ScientistCD.GetFloat();
                     AURoleOptions.ScientistBatteryCharge = Options.ScientistDur.GetFloat();
                     break;

@@ -1,20 +1,23 @@
+using System;
+using System.Linq;
+
 namespace EHR;
 
-public class StringOptionItem(int id, string name, int defaultValue, TabGroup tab, bool isSingleValue, string[] selections) : OptionItem(id, name, defaultValue, tab, isSingleValue)
+public class StringOptionItem(int id, string name, int defaultValue, TabGroup tab, bool isSingleValue, string[] selections, bool noTranslation = false) : OptionItem(id, name, defaultValue, tab, isSingleValue)
 {
-    // 必須情報
     public IntegerValueRule Rule = (0, selections.Length - 1, 1);
     public string[] Selections = selections;
 
-    public static StringOptionItem Create(int id, string name, string[] selections, int defaultIndex, TabGroup tab, bool isSingleValue)
-        => new(id, name, defaultIndex, tab, isSingleValue, selections);
+    public static StringOptionItem Create(int id, string name, string[] selections, int defaultIndex, TabGroup tab, bool isSingleValue, bool noTranslation = false)
+        => new(id, name, defaultIndex, tab, isSingleValue, selections, noTranslation);
 
     // Getter
     public override int GetInt() => Rule.GetValueByIndex(CurrentValue);
     public override float GetFloat() => Rule.GetValueByIndex(CurrentValue);
     public override string GetString()
     {
-        return Translator.GetString(Selections[Rule.GetValueByIndex(CurrentValue)]);
+        var str = Selections[Rule.GetValueByIndex(CurrentValue)];
+        return noTranslation ? str : Translator.GetString(str);
     }
     public int GetChance()
     {
@@ -25,7 +28,7 @@ public class StringOptionItem(int id, string name, int defaultValue, TabGroup ta
         if (Selections.Length == 3) return CurrentValue;
 
         //For 0% to 100% or 5% to 100%
-        var offset = Options.rates.Length - Selections.Length;
+        var offset = Options.Rates.Length - Selections.Length;
         var index = CurrentValue + offset;
         var rate = index * 5;
         return rate;

@@ -21,36 +21,19 @@ public class Executioner : RoleBase
     public static OptionItem KnowTargetRole;
     public static OptionItem ChangeRolesAfterTargetKilled;
 
-
-    /// <summary>
-    /// Key: エクスキューショナーのPlayerId, Value: ターゲットのPlayerId
-    /// </summary>
     public static Dictionary<byte, byte> Target = [];
-
-    public static readonly string[] ChangeRoles =
-    [
-        "Role.Crewmate",
-        "Role.Jester",
-        "Role.Opportunist",
-        "Role.Convict",
-        "Role.Celebrity",
-        "Role.Bodyguard",
-        "Role.Dictator",
-        "Role.Mayor",
-        "Role.Doctor",
-        //   CustomRoles.Crewmate.ToString(), CustomRoles.Jester.ToString(), CustomRoles.Opportunist.ToString(),
-    ];
 
     public static readonly CustomRoles[] CRoleChangeRoles =
     [
-        CustomRoles.CrewmateTOHE,
+        CustomRoles.Amnesiac,
+        CustomRoles.Maverick,
+        CustomRoles.CrewmateEHR,
         CustomRoles.Jester,
         CustomRoles.Opportunist,
         CustomRoles.Convict,
         CustomRoles.CyberStar,
         CustomRoles.Bodyguard,
         CustomRoles.Dictator,
-        CustomRoles.Mayor,
         CustomRoles.Doctor,
     ];
 
@@ -63,7 +46,7 @@ public class Executioner : RoleBase
         CanTargetNeutralEvil = BooleanOptionItem.Create(Id + 15, "CanTargetNeutralEvil", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Executioner]);
         CanTargetNeutralChaos = BooleanOptionItem.Create(Id + 16, "CanTargetNeutralChaos", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Executioner]);
         KnowTargetRole = BooleanOptionItem.Create(Id + 13, "KnowTargetRole", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Executioner]);
-        ChangeRolesAfterTargetKilled = StringOptionItem.Create(Id + 11, "ExecutionerChangeRolesAfterTargetKilled", ChangeRoles, 1, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Executioner]);
+        ChangeRolesAfterTargetKilled = StringOptionItem.Create(Id + 11, "ExecutionerChangeRolesAfterTargetKilled", CRoleChangeRoles.Select(x => x.ToColoredString()).ToArray(), 1, TabGroup.NeutralRoles, false, noTranslation: true).SetParent(CustomRoleSpawnChances[CustomRoles.Executioner]);
     }
 
     public override void Init()
@@ -76,7 +59,6 @@ public class Executioner : RoleBase
     {
         playerIdList.Add(playerId);
 
-        //ターゲット割り当て
         try
         {
             if (AmongUsClient.Instance.AmHost)
@@ -143,17 +125,13 @@ public class Executioner : RoleBase
 
     public static void ChangeRoleByTarget(PlayerControl target)
     {
-        byte Executioner = 0x73;
-        Target.Do(x =>
-        {
-            if (x.Value == target.PlayerId)
-                Executioner = x.Key;
-        });
-        Utils.GetPlayerById(Executioner).RpcSetCustomRole(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()]);
+        byte Executioner = Target.FirstOrDefault(x => x.Value == target.PlayerId).Key;
+        var ExePC = Utils.GetPlayerById(Executioner);
+        ExePC.RpcSetCustomRole(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()]);
         Target.Remove(Executioner);
         SendRPC(Executioner);
-        Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(Executioner), SpecifyTarget: target);
-        Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: Utils.GetPlayerById(Executioner));
+        Utils.NotifyRoles(SpecifySeer: ExePC, SpecifyTarget: target);
+        Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: ExePC);
     }
 
     public static void ChangeRole(PlayerControl executioner)
@@ -199,7 +177,6 @@ public class Executioner : RoleBase
         }
         else
         {
-            //CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Executioner);
             CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.Executioner);
             CustomWinnerHolder.WinnerIds.Add(playerId);
         }

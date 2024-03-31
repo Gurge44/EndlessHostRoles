@@ -730,15 +730,6 @@ internal static class RPC
         }
     }
 
-    /*
-        public static void SyncCustomSettingsRPCforOneOption(OptionItem option)
-        {
-            List<OptionItem> allOptions = new(OptionItem.AllOptions);
-            var placement = allOptions.IndexOf(option);
-            if (placement != -1)
-                SyncOptionsBetween(placement, placement, OptionItem.AllOptions.Count);
-        }
-    */
     static void SyncOptionsBetween(int startAmount, int lastAmount, int targetId = -1)
     {
         if (targetId != -1)

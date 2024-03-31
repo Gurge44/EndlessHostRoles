@@ -27,6 +27,7 @@ public enum CustomGameMode
 public static class Options
 {
     static Task taskOptionsLoad;
+    public static Dictionary<TabGroup, OptionItem[]> GroupedOptions = [];
 
     [HarmonyPatch(typeof(TranslationController), nameof(TranslationController.Initialize)), HarmonyPostfix]
     public static void OptionsLoadStart()
@@ -34,7 +35,19 @@ public static class Options
         Logger.Info("Options.Load Start", "Options");
         Main.LoadRoleClasses();
         taskOptionsLoad = Task.Run(Load);
-        taskOptionsLoad.ContinueWith(t => { Logger.Info("Options.Load End", "Load Options"); });
+        taskOptionsLoad.ContinueWith(_ =>
+        {
+            Logger.Info("Options.Load End", "Load Options");
+            GroupOptions();
+        });
+    }
+
+    public static void GroupOptions()
+    {
+        GroupedOptions = OptionItem.AllOptions
+            .GroupBy(x => x.Tab)
+            .OrderBy(x => (int)x.Key)
+            .ToDictionary(x => x.Key, x => x.ToArray());
     }
     //[HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPostfix]
     //public static void WaitOptionsLoad()
@@ -44,7 +57,6 @@ public static class Options
     //    //Logger.Info("Options.Load End", "Options");
     //}
 
-    // プリセット
     //private static readonly string[] presets =
     //[
     //    Main.Preset1.Value,
@@ -54,7 +66,6 @@ public static class Options
     //    Main.Preset5.Value
     //];
 
-    // ゲームモード
     public static OptionItem GameMode;
 
     public static CustomGameMode CurrentGameMode
@@ -68,7 +79,7 @@ public static class Options
             _ => CustomGameMode.Standard
         };
 
-    public static readonly string[] gameModes =
+    public static readonly string[] GameModes =
     [
         "Standard",
         "SoloKombat",
@@ -78,14 +89,13 @@ public static class Options
         "HideAndSeek"
     ];
 
-    // 役職数・確率
     public static Dictionary<CustomRoles, int> roleCounts;
     public static Dictionary<CustomRoles, float> roleSpawnChances;
     public static Dictionary<CustomRoles, OptionItem> CustomRoleCounts;
     public static Dictionary<CustomRoles, StringOptionItem> CustomRoleSpawnChances;
     public static Dictionary<CustomRoles, IntegerOptionItem> CustomAdtRoleSpawnRate;
 
-    public static readonly string[] rates =
+    public static readonly string[] Rates =
     [
         "Rate0",
         "Rate5",
@@ -110,7 +120,7 @@ public static class Options
         "Rate100",
     ];
 
-    public static readonly string[] ratesZeroOne =
+    public static readonly string[] RatesZeroOne =
     [
         "RoleOff", /*"Rate10", "Rate20", "Rate30", "Rate40", "Rate50",
         "Rate60", "Rate70", "Rate80", "Rate90", */
@@ -723,7 +733,7 @@ public static class Options
     public static OptionItem DisableAirshipGapRoomLightsPanel;
     public static OptionItem DisableAirshipCargoLightsPanel;
 
-    //Guesser Mode//
+    // Guesser Mode
     public static OptionItem GuesserMode;
     public static OptionItem CrewmatesCanGuess;
     public static OptionItem ImpostorsCanGuess;
@@ -745,7 +755,7 @@ public static class Options
     public static OptionItem AprilFoolsMode;
 
 
-    // 投票モード
+    // Voting Modes
     public static OptionItem VoteMode;
     public static OptionItem WhenSkipVote;
     public static OptionItem WhenSkipVoteIgnoreFirstMeeting;
@@ -754,7 +764,7 @@ public static class Options
     public static OptionItem WhenNonVote;
     public static OptionItem WhenTie;
 
-    public static readonly string[] voteModes =
+    public static readonly string[] VoteModes =
     [
         "Default",
         "Suicide",
@@ -762,7 +772,7 @@ public static class Options
         "Skip"
     ];
 
-    public static readonly string[] tieModes =
+    public static readonly string[] TieModes =
     [
         "TieMode.Default",
         "TieMode.All",
@@ -773,21 +783,21 @@ public static class Options
      {
          "GuesserMode.All", "GuesserMode.Harmful", "GuesserMode.Random"
      }; */
-    public static readonly string[] madmateSpawnMode =
+    public static readonly string[] MadmateSpawnModeStrings =
     [
         "MadmateSpawnMode.Assign",
         "MadmateSpawnMode.FirstKill",
         "MadmateSpawnMode.SelfVote",
     ];
 
-    public static readonly string[] madmateCountMode =
+    public static readonly string[] MadmateCountModeStrings =
     [
         "MadmateCountMode.None",
         "MadmateCountMode.Imp",
         "MadmateCountMode.Crew",
     ];
 
-    public static readonly string[] sidekickCountMode =
+    public static readonly string[] SidekickCountMode =
     [
         "SidekickCountMode.Jackal",
         "SidekickCountMode.None",
@@ -925,7 +935,7 @@ public static class Options
 
     public static OptionItem DumpLogAfterGameEnd;
 
-    public static readonly string[] suffixModes =
+    public static readonly string[] SuffixModes =
     [
         "SuffixMode.None",
         "SuffixMode.Version",
@@ -938,7 +948,7 @@ public static class Options
         "SuffixMode.AutoHost"
     ];
 
-    public static readonly string[] roleAssigningAlgorithms =
+    public static readonly string[] RoleAssigningAlgorithms =
     [
         "RoleAssigningAlgorithm.Default",
         "RoleAssigningAlgorithm.NetRandom",
@@ -947,7 +957,7 @@ public static class Options
         "RoleAssigningAlgorithm.MersenneTwister",
     ];
 
-    public static readonly string[] formatNameModes =
+    public static readonly string[] FormatNameModes =
     [
         "FormatNameModes.None",
         "FormatNameModes.Color",
@@ -1019,7 +1029,7 @@ public static class Options
             .SetColor(new Color32(255, 235, 4, byte.MaxValue))
             .SetHeader(true);
 
-        GameMode = StringOptionItem.Create(1, "GameMode", gameModes, 0, TabGroup.GameSettings, false)
+        GameMode = StringOptionItem.Create(1, "GameMode", GameModes, 0, TabGroup.GameSettings, false)
             .SetHeader(true);
 
         #region Settings
@@ -1236,17 +1246,13 @@ public static class Options
 
         #endregion
 
-        #region TOHESettings
+        #region EHRSettings
 
         MainLoadingText = "Building EHR settings";
 
         KickLowLevelPlayer = IntegerOptionItem.Create(19300, "KickLowLevelPlayer", new(0, 100, 1), 0, TabGroup.SystemSettings, false)
             .SetValueFormat(OptionFormat.Level)
             .SetHeader(true);
-        EnableKillerLeftCommand = BooleanOptionItem.Create(44428, "EnableKillerLeftCommand", true, TabGroup.SystemSettings, false)
-            .SetColor(Color.green);
-        SeeEjectedRolesInMeeting = BooleanOptionItem.Create(44429, "SeeEjectedRolesInMeeting", true, TabGroup.SystemSettings, false)
-            .SetColor(Color.green);
         KickAndroidPlayer = BooleanOptionItem.Create(19301, "KickAndroidPlayer", false, TabGroup.SystemSettings, false);
         KickPlayerFriendCodeNotExist = BooleanOptionItem.Create(19302, "KickPlayerFriendCodeNotExist", false, TabGroup.SystemSettings, true);
         ApplyDenyNameList = BooleanOptionItem.Create(19303, "ApplyDenyNameList", true, TabGroup.SystemSettings, true);
@@ -1315,14 +1321,14 @@ public static class Options
         AutoDisplayLastAddOns = BooleanOptionItem.Create(19328, "AutoDisplayLastAddOns", true, TabGroup.SystemSettings, false);
         AutoDisplayLastResult = BooleanOptionItem.Create(19323, "AutoDisplayLastResult", true, TabGroup.SystemSettings, false);
 
-        SuffixMode = StringOptionItem.Create(19324, "SuffixMode", suffixModes, 0, TabGroup.SystemSettings, true)
+        SuffixMode = StringOptionItem.Create(19324, "SuffixMode", SuffixModes, 0, TabGroup.SystemSettings, true)
             .SetHeader(true);
         HideGameSettings = BooleanOptionItem.Create(19400, "HideGameSettings", false, TabGroup.SystemSettings, false);
         DIYGameSettings = BooleanOptionItem.Create(19401, "DIYGameSettings", false, TabGroup.SystemSettings, false);
         PlayerCanSetColor = BooleanOptionItem.Create(19402, "PlayerCanSetColor", false, TabGroup.SystemSettings, false);
         PlayerCanSetName = BooleanOptionItem.Create(19410, "PlayerCanSetName", false, TabGroup.SystemSettings, false);
         PlayerCanTPInAndOut = BooleanOptionItem.Create(19411, "PlayerCanTPInAndOut", false, TabGroup.SystemSettings, false);
-        FormatNameMode = StringOptionItem.Create(19403, "FormatNameMode", formatNameModes, 0, TabGroup.SystemSettings, false);
+        FormatNameMode = StringOptionItem.Create(19403, "FormatNameMode", FormatNameModes, 0, TabGroup.SystemSettings, false);
         DisableEmojiName = BooleanOptionItem.Create(19404, "DisableEmojiName", true, TabGroup.SystemSettings, false);
         ChangeNameToRoleInfo = BooleanOptionItem.Create(19405, "ChangeNameToRoleInfo", true, TabGroup.SystemSettings, false);
         SendRoleDescriptionFirstMeeting = BooleanOptionItem.Create(19406, "SendRoleDescriptionFirstMeeting", true, TabGroup.SystemSettings, false);
@@ -1330,7 +1336,7 @@ public static class Options
             .SetColor(Color.red);
         AllowConsole = BooleanOptionItem.Create(19408, "AllowConsole", false, TabGroup.SystemSettings, false)
             .SetColor(Color.red);
-        RoleAssigningAlgorithm = StringOptionItem.Create(19409, "RoleAssigningAlgorithm", roleAssigningAlgorithms, 4, TabGroup.SystemSettings, true)
+        RoleAssigningAlgorithm = StringOptionItem.Create(19409, "RoleAssigningAlgorithm", RoleAssigningAlgorithms, 4, TabGroup.SystemSettings, true)
             .RegisterUpdateValueEvent((_, args) => IRandom.SetInstanceById(args.CurrentValue));
         KPDCamouflageMode = StringOptionItem.Create(19500, "KPDCamouflageMode", CamouflageMode, 0, TabGroup.SystemSettings, false)
             .SetHeader(true)
@@ -1999,7 +2005,7 @@ public static class Options
         LoadingPercentage = 89;
 
 
-        //Disable Divert Power, Weather Nodes and etc. situational Tasks
+        //Disable Divert Power, Weather Nodes etc. situational Tasks
         DisableOtherTasks = BooleanOptionItem.Create(23200, "DisableOtherTasks", false, TabGroup.TaskSettings, false)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(239, 89, 175, byte.MaxValue));
@@ -2091,6 +2097,12 @@ public static class Options
             .SetParent(AllAliveMeeting)
             .SetValueFormat(OptionFormat.Seconds);
 
+        EnableKillerLeftCommand = BooleanOptionItem.Create(44428, "EnableKillerLeftCommand", true, TabGroup.GameSettings, false)
+            .SetColor(new Color32(147, 241, 240, byte.MaxValue));
+
+        SeeEjectedRolesInMeeting = BooleanOptionItem.Create(44429, "SeeEjectedRolesInMeeting", true, TabGroup.GameSettings, false)
+            .SetColor(new Color32(147, 241, 240, byte.MaxValue));
+
         LoadingPercentage = 94;
 
 
@@ -2111,7 +2123,7 @@ public static class Options
         VoteMode = BooleanOptionItem.Create(23600, "VoteMode", false, TabGroup.GameSettings, false)
             .SetColor(new Color32(147, 241, 240, byte.MaxValue))
             .SetGameMode(CustomGameMode.Standard);
-        WhenSkipVote = StringOptionItem.Create(23610, "WhenSkipVote", voteModes[..3], 0, TabGroup.GameSettings, false)
+        WhenSkipVote = StringOptionItem.Create(23610, "WhenSkipVote", VoteModes[..3], 0, TabGroup.GameSettings, false)
             .SetParent(VoteMode)
             .SetGameMode(CustomGameMode.Standard);
         WhenSkipVoteIgnoreFirstMeeting = BooleanOptionItem.Create(23611, "WhenSkipVoteIgnoreFirstMeeting", false, TabGroup.GameSettings, false)
@@ -2123,10 +2135,10 @@ public static class Options
         WhenSkipVoteIgnoreEmergency = BooleanOptionItem.Create(23613, "WhenSkipVoteIgnoreEmergency", false, TabGroup.GameSettings, false)
             .SetParent(WhenSkipVote)
             .SetGameMode(CustomGameMode.Standard);
-        WhenNonVote = StringOptionItem.Create(23700, "WhenNonVote", voteModes, 0, TabGroup.GameSettings, false)
+        WhenNonVote = StringOptionItem.Create(23700, "WhenNonVote", VoteModes, 0, TabGroup.GameSettings, false)
             .SetParent(VoteMode)
             .SetGameMode(CustomGameMode.Standard);
-        WhenTie = StringOptionItem.Create(23750, "WhenTie", tieModes, 0, TabGroup.GameSettings, false)
+        WhenTie = StringOptionItem.Create(23750, "WhenTie", TieModes, 0, TabGroup.GameSettings, false)
             .SetParent(VoteMode)
             .SetGameMode(CustomGameMode.Standard);
 
@@ -2139,7 +2151,7 @@ public static class Options
 
         LadderDeath = BooleanOptionItem.Create(23800, "LadderDeath", false, TabGroup.GameSettings, false)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
-        LadderDeathChance = StringOptionItem.Create(23810, "LadderDeathChance", rates[1..], 0, TabGroup.GameSettings, false)
+        LadderDeathChance = StringOptionItem.Create(23810, "LadderDeathChance", Rates[1..], 0, TabGroup.GameSettings, false)
             .SetParent(LadderDeath);
 
         LoadingPercentage = 97;
@@ -2200,7 +2212,7 @@ public static class Options
 
     public static void SetupRoleOptions(int id, TabGroup tab, CustomRoles role, CustomGameMode customGameMode = CustomGameMode.Standard, bool zeroOne = false)
     {
-        var spawnOption = StringOptionItem.Create(id, role.ToString(), zeroOne ? ratesZeroOne : rates, 0, tab, false).SetColor(Utils.GetRoleColor(role))
+        var spawnOption = StringOptionItem.Create(id, role.ToString(), zeroOne ? RatesZeroOne : Rates, 0, tab, false).SetColor(Utils.GetRoleColor(role))
             .SetHeader(true)
             .SetGameMode(customGameMode) as StringOptionItem;
 
@@ -2216,7 +2228,7 @@ public static class Options
 
     public static void SetupAdtRoleOptions(int id, CustomRoles role, CustomGameMode customGameMode = CustomGameMode.Standard, bool canSetNum = false, TabGroup tab = TabGroup.Addons, bool canSetChance = true)
     {
-        var spawnOption = StringOptionItem.Create(id, role.ToString(), ratesZeroOne, 0, tab, false).SetColor(Utils.GetRoleColor(role))
+        var spawnOption = StringOptionItem.Create(id, role.ToString(), RatesZeroOne, 0, tab, false).SetColor(Utils.GetRoleColor(role))
             .SetHeader(true)
             .SetGameMode(customGameMode) as StringOptionItem;
 
@@ -2239,7 +2251,7 @@ public static class Options
 
     public static void SetupSingleRoleOptions(int id, TabGroup tab, CustomRoles role, int count = 1, CustomGameMode customGameMode = CustomGameMode.Standard, bool zeroOne = false, bool hideMaxSetting = true)
     {
-        var spawnOption = StringOptionItem.Create(id, role.ToString(), zeroOne ? ratesZeroOne : rates, 0, tab, false).SetColor(Utils.GetRoleColor(role))
+        var spawnOption = StringOptionItem.Create(id, role.ToString(), zeroOne ? RatesZeroOne : Rates, 0, tab, false).SetColor(Utils.GetRoleColor(role))
             .SetHeader(true)
             .SetGameMode(customGameMode) as StringOptionItem;
 

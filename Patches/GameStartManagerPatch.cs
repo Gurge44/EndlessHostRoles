@@ -65,7 +65,7 @@ public class GameStartManagerPatch
                 cancelButton.transform.localPosition = new(0f, -0.36f, 0f); //new(0f, 0.1f, 0f);
                 var buttonComponent = cancelButton.GetComponent<PassiveButton>();
                 buttonComponent.OnClick = new();
-                buttonComponent.OnClick.AddListener((Action)(() => __instance.ResetStartState()));
+                buttonComponent.OnClick.AddListener((Action)(__instance.ResetStartState));
                 cancelButton.gameObject.SetActive(false);
 
                 if (!AmongUsClient.Instance.AmHost) return;

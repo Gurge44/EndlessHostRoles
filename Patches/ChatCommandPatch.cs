@@ -274,14 +274,14 @@ internal class ChatCommands
                         if (Main.AlwaysSpawnTogetherCombos.Count > 0)
                         {
                             sb.AppendLine(GetString("AlwaysComboListTitle"));
-                            sb.AppendLine(Main.AlwaysSpawnTogetherCombos.Join(x => $"{Utils.ColorString(Utils.GetRoleColor(x.Key), GetString($"{x.Key}"))} \u00a7 {Utils.ColorString(Utils.GetRoleColor(x.Value), GetString($"{x.Value}"))}", "\n"));
+                            sb.AppendLine(Main.AlwaysSpawnTogetherCombos.Join(x => $"{x.Key.ToColoredString()} \u00a7 {x.Value.ToColoredString()}", "\n"));
                             sb.AppendLine();
                         }
 
                         if (Main.NeverSpawnTogetherCombos.Count > 0)
                         {
                             sb.AppendLine(GetString("NeverComboListTitle"));
-                            sb.AppendLine(Main.NeverSpawnTogetherCombos.Join(x => $"{Utils.ColorString(Utils.GetRoleColor(x.Key), GetString($"{x.Key}"))} \u2194 {Utils.ColorString(Utils.GetRoleColor(x.Value), GetString($"{x.Value}"))}", "\n"));
+                            sb.AppendLine(Main.NeverSpawnTogetherCombos.Join(x => $"{x.Key.ToColoredString()} \u2194 {x.Value.ToColoredString()}", "\n"));
                             sb.AppendLine();
                         }
 
@@ -323,10 +323,6 @@ internal class ChatCommands
 
                             break;
                     }
-
-                    break;
-
-                case "/xor":
 
                     break;
 
