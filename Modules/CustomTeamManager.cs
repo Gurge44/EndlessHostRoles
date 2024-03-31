@@ -78,6 +78,7 @@ namespace EHR.Modules
             CustomTeamPlayerIds = Main.PlayerStates
                 .IntersectBy(Main.AllAlivePlayerControls.Select(x => x.PlayerId), x => x.Key)
                 .GroupBy(x => CustomTeams.FirstOrDefault(t => t.TeamMembers.Contains(x.Value.MainRole)), x => x.Key)
+                .Where(x => x.Key != null)
                 .ToDictionary(x => x.Key, x => x.ToHashSet());
         }
 
@@ -91,9 +92,14 @@ namespace EHR.Modules
                 return pc == null || !pc.IsAlive() || pc.Data.Disconnected;
             }));
 
-            if (CustomTeamPlayerIds.Count == 1)
+            var team = CustomTeamPlayerIds.Keys.First();
+            if (CustomTeamPlayerIds.Count == 1 && Main.AllAlivePlayerControls.All(x =>
+                {
+                    var customTeam = GetCustomTeam(x.PlayerId);
+                    return customTeam != null && customTeam.Equals(team);
+                }))
             {
-                WinnerTeam = CustomTeamPlayerIds.Keys.First();
+                WinnerTeam = team;
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CustomTeam);
                 CustomWinnerHolder.WinnerIds = CustomTeamPlayerIds.Values.First();
                 return true;

@@ -177,6 +177,21 @@ class BeginCrewmatePatch
             return false;
         }
 
+        if (CustomTeamManager.CustomTeams.Count > 0)
+        {
+            var team = CustomTeamManager.GetCustomTeam(PlayerControl.LocalPlayer.PlayerId);
+            if (team != null)
+            {
+                foreach (var pc in Main.AllPlayerControls)
+                {
+                    if (CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, PlayerControl.LocalPlayer.PlayerId))
+                    {
+                        teamToDisplay.Add(pc);
+                    }
+                }
+            }
+        }
+
         return true;
     }
 

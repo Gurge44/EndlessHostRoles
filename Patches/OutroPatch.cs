@@ -259,7 +259,7 @@ class SetEverythingUpPatch
             CustomWinnerText = string.Format(GetString("CustomWinnerText"), team.TeamName);
             CustomWinnerColor = team.RoleRevealScreenBackgroundColor == "*" ? Main.NeutralColor : team.RoleRevealScreenBackgroundColor;
             __instance.BackgroundBar.material.color = ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out var color) ? color : Utils.GetRoleColor(CustomRoles.Sprayer);
-            AdditionalWinnerText = team.TeamMembers.Join(x => x.ToColoredString()) + GetString("Win");
+            AdditionalWinnerText = $"\n{team.TeamMembers.Where(r => Main.PlayerStates.Values.Any(x => x.MainRole == r)).Join(x => x.ToColoredString())}{GetString("Win")}";
             goto Skip;
         }
 
