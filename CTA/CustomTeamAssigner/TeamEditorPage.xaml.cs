@@ -62,7 +62,7 @@ namespace CustomTeamAssigner
 
         void Save(object sender, RoutedEventArgs e)
         {
-            if (Utils.Teams.Any(x => x.TeamName == TeamNameTextBox.Text) || string.IsNullOrWhiteSpace(TeamNameTextBox.Text) || EditingTeamMembers.Count == 0)
+            if (Utils.Teams.Any(x => x.TeamName == TeamNameTextBox.Text && x.TeamName != EditingTeam.TeamName) || string.IsNullOrWhiteSpace(TeamNameTextBox.Text) || EditingTeamMembers.Count == 0)
             {
                 MessageBox.Show("The team name is already taken, or the team name is empty, or there are no team members.", "Invalid Team", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;

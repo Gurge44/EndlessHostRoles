@@ -65,7 +65,7 @@ namespace CustomTeamAssigner
             }
         }
 
-        public static IEnumerable<CustomRoles> GetAllValidRoles() => Enum.GetValues<CustomRoles>().Where(x => !Teams.Any(t => t.TeamMembers.Contains(x)) && !x.ToString().Contains("TOHE") && x < CustomRoles.NotAssigned && x is not (CustomRoles.KB_Normal or CustomRoles.Killer or CustomRoles.Tasker or CustomRoles.Potato or CustomRoles.Hider or CustomRoles.Seeker or CustomRoles.Fox or CustomRoles.Troll or CustomRoles.GM or CustomRoles.Convict or CustomRoles.Impostor or CustomRoles.Shapeshifter or CustomRoles.Crewmate or CustomRoles.Engineer or CustomRoles.Scientist or CustomRoles.GuardianAngel));
+        public static IEnumerable<CustomRoles> GetAllValidRoles() => Enum.GetValues<CustomRoles>().Where(x => !Teams.Any(t => t.TeamMembers.Contains(x)) && !x.ToString().Contains("EHR") && x < CustomRoles.NotAssigned && x is not (CustomRoles.KB_Normal or CustomRoles.Killer or CustomRoles.Tasker or CustomRoles.Potato or CustomRoles.Hider or CustomRoles.Seeker or CustomRoles.Fox or CustomRoles.Troll or CustomRoles.GM or CustomRoles.Convict or CustomRoles.Impostor or CustomRoles.Shapeshifter or CustomRoles.Crewmate or CustomRoles.Engineer or CustomRoles.Scientist or CustomRoles.GuardianAngel));
 
         public static string GetActualRoleName(CustomRoles role)
         {
