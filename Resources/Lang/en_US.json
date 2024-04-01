@@ -818,7 +818,7 @@
   "KnightedInfoLong": "(Add-ons):\\nWhen a Monarch knights someone, they get an extra vote.",
   "AsthmaticInfoLong": "(Add-ons):\\nYou always have a symbol below your name with a timer that is red or green. You cannot move when the symbol/timer is red. The timer indicates when the color will change.",
   "UnreportableInfoLong": "(Add-ons):\\nWith the Disregarded add-on, your corpse cannot be reported.",
-  "HasteInfoLong": "(Add-ons):\\nWith the Disregarded add-on, your kill cooldown continues to go down at all times.",
+  "HasteInfoLong": "(Add-ons):\\nWith the Haste add-on, your kill cooldown continues to go down at all times.",
   "ContagiousInfoLong": "(Betrayal Add-ons):\\nWhen the Virus infects you, you become contagious.\\nContagious players are on the Virus team.\\n\\nWhether or not you die after a meeting depends on the settings for the Virus.",
   "RogueInfoLong": "(Betrayal Add-ons):\\nAs the Rogue, you work against your team and work with other Rogues.\\n\\nYou cannot win with your original team.",
   "LuckyInfoLong": "(Add-ons):\\nWith the Lucky add-on there is a probability for you to evade the kill, the specific probability is set by the host. When the evasion takes effect, the killer will see the shield-animation, but you not know anything.",

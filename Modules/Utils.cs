@@ -4,7 +4,6 @@ using EHR.Modules;
 using EHR.Patches;
 using EHR.Roles.AddOns.Common;
 using EHR.Roles.AddOns.Crewmate;
-using EHR.Roles.AddOns.GhostRoles;
 using EHR.Roles.AddOns.Impostor;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;

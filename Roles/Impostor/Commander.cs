@@ -1,7 +1,7 @@
-﻿using System;
+﻿using AmongUs.GameOptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using AmongUs.GameOptions;
 using UnityEngine;
 
 namespace EHR.Roles.Impostor

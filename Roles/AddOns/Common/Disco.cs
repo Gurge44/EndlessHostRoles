@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using EHR.Roles.Impostor;
+﻿using EHR.Roles.Impostor;
+using System.Collections.Generic;
 using static EHR.Options;
 
 namespace EHR.Roles.AddOns.Common
@@ -17,6 +17,7 @@ namespace EHR.Roles.AddOns.Common
         }
 
         private static readonly Dictionary<byte, long> LastChange = [];
+
         private static void ChangeColor(PlayerControl pc)
         {
             int colorId = IRandom.Instance.Next(0, 18);
@@ -36,6 +37,7 @@ namespace EHR.Roles.AddOns.Common
                 sender.SendMessage();
             }
         }
+
         public static void OnFixedUpdate(PlayerControl pc)
         {
             if (!pc.Is(CustomRoles.Disco) || !GameStates.IsInTask || pc.IsShifted() || Camouflager.IsActive || (Utils.IsActive(SystemTypes.Comms) && CommsCamouflage.GetBool())) return;

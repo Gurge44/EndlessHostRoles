@@ -1,3 +1,4 @@
+using EHR.Modules;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;
 using EHR.Roles.Neutral;
@@ -6,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using EHR.Modules;
 using UnityEngine;
 using static EHR.Translator;
 using Object = UnityEngine.Object;

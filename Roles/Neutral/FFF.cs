@@ -8,7 +8,7 @@ namespace EHR.Roles.Neutral
     public class FFF : RoleBase
     {
         private const int Id = 11300;
-        public static List<byte> playerIdList = [];
+        public static List<byte> PlayerIdList = [];
         public static bool On;
 
         public static OptionItem CanVent;
@@ -18,14 +18,13 @@ namespace EHR.Roles.Neutral
         public static OptionItem CanKillLovers;
         public static OptionItem CanKillMadmate;
         public static OptionItem CanKillCharmed;
-        public static OptionItem CanKillAdmired;
         public static OptionItem CanKillSidekicks;
         public static OptionItem CanKillEgoists;
         public static OptionItem CanKillInfected;
         public static OptionItem CanKillContagious;
         public static OptionItem CanKillUndead;
 
-        public bool isWon;
+        public bool IsWon;
 
         public static void SetupCustomOption()
         {
@@ -39,22 +38,21 @@ namespace EHR.Roles.Neutral
             CanKillEgoists = BooleanOptionItem.Create(Id + 17, "FFFCanKillEgoist", true, TabGroup.NeutralRoles, false).SetParent(ChooseConverted);
             CanKillInfected = BooleanOptionItem.Create(Id + 18, "FFFCanKillInfected", true, TabGroup.NeutralRoles, false).SetParent(ChooseConverted);
             CanKillContagious = BooleanOptionItem.Create(Id + 19, "FFFCanKillContagious", true, TabGroup.NeutralRoles, false).SetParent(ChooseConverted);
-            CanKillAdmired = BooleanOptionItem.Create(Id + 20, "FFFCanKillAdmired", true, TabGroup.NeutralRoles, false).SetParent(ChooseConverted);
             CanKillUndead = BooleanOptionItem.Create(Id + 21, "FFFCanKillUndead", true, TabGroup.NeutralRoles, false).SetParent(ChooseConverted);
         }
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             On = false;
-            isWon = false;
+            IsWon = false;
         }
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             On = true;
-            isWon = false;
+            IsWon = false;
 
             if (!AmongUsClient.Instance.AmHost) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))
@@ -66,7 +64,7 @@ namespace EHR.Roles.Neutral
 
         public override bool CanUseKillButton(PlayerControl pc)
         {
-            return pc.IsAlive() && !isWon;
+            return pc.IsAlive() && !IsWon;
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -84,7 +82,7 @@ namespace EHR.Roles.Neutral
             {
                 if (!ChooseConverted.GetBool())
                 {
-                    if (killer.RpcCheckAndMurder(target)) isWon = true;
+                    if (killer.RpcCheckAndMurder(target)) IsWon = true;
                     Logger.Info($"{killer.GetRealName()} killed right target case 1", "FFF");
                     return false;
                 }
@@ -101,7 +99,7 @@ namespace EHR.Roles.Neutral
                     || ((target.Is(CustomRoles.Contagious) || target.Is(CustomRoles.Virus)) && CanKillContagious.GetBool())
                 )
                 {
-                    if (killer.RpcCheckAndMurder(target)) isWon = true;
+                    if (killer.RpcCheckAndMurder(target)) IsWon = true;
                     Logger.Info($"{killer.GetRealName()} killed right target case 2", "FFF");
                     return false;
                 }

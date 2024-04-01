@@ -1,7 +1,5 @@
 ﻿using AmongUs.GameOptions;
-using EHR.Modules;
 using EHR.Patches;
-using Hazel;
 using System.Collections.Generic;
 using System.Linq;
 using static EHR.Options;

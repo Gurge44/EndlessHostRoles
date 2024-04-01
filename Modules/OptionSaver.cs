@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.Json;
 
 namespace EHR.Modules;
@@ -21,6 +20,7 @@ public static class OptionSaver
             string presetNmber = File.ReadAllText(DefaultPresetFileInfo.FullName);
             if (int.TryParse(presetNmber, out int number) && number >= 0 && number <= 4) return number;
         }
+
         return 0;
     }
 
@@ -31,10 +31,12 @@ public static class OptionSaver
             SaveDataDirectoryInfo.Create();
             SaveDataDirectoryInfo.Attributes |= FileAttributes.Hidden;
         }
+
         if (!OptionSaverFileInfo.Exists)
         {
             OptionSaverFileInfo.Create().Dispose();
         }
+
         if (!DefaultPresetFileInfo.Exists)
         {
             DefaultPresetFileInfo.Create().Dispose();
@@ -59,6 +61,7 @@ public static class OptionSaver
                 Logger.Warn($"Duplicate preset option ID: {option.Id}", "Options Load");
             }
         }
+
         DefaultPresetNumber = singleOptions[0];
         return new()
         {
@@ -76,6 +79,7 @@ public static class OptionSaver
             Save();
             return;
         }
+
         Dictionary<int, int> singleOptions = serializableOptionsData.SingleOptions;
         Dictionary<int, int[]> presetOptions = serializableOptionsData.PresetOptions;
         foreach ((int id, int value) in singleOptions)
@@ -114,6 +118,7 @@ public static class OptionSaver
             Save();
             return;
         }
+
         LoadOptionsData(JsonSerializer.Deserialize<SerializableOptionsData>(jsonString));
     }
 

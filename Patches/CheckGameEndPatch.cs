@@ -146,7 +146,7 @@ class GameEndChecker
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.Provocateur);
                             break;
-                        case CustomRoles.FFF when (Main.PlayerStates[pc.PlayerId].Role as FFF).isWon:
+                        case CustomRoles.FFF when (Main.PlayerStates[pc.PlayerId].Role as FFF).IsWon:
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.FFF);
                             break;
