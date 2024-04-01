@@ -1,6 +1,6 @@
 
 <h1 align="center">Endless Host Roles</h1>
-<h4 align="center">Previously known as EHR+</h4>
+<h4 align="center">Previously known as TOHE+</h4>
 
 <br>
 
@@ -196,11 +196,11 @@
 <br>
 
 ## Credit to these mods and their developers for the code and help:
-### :star: [EHRN](https://github.com/0xDrMoe/TownofHost-Enhanced) :
+### :star: [TOHER/TOHRE/TOHEN](https://github.com/0xDrMoe/TownofHost-Enhanced) :
 > 
-> - Our repo is forked from EHRN
+> - Our repo is forked from TOHEN
 > 
-### :star: [EHR/TONX](https://github.com/KARPED1EM/TownOfHostEdited) :
+### :star: [TOHE/TONX](https://github.com/KARPED1EM/TownOfHostEdited) :
 > 
 > - Our repo is a continuation of EHR
 > - TONX reference: Modify character limit for chat messages
@@ -256,10 +256,49 @@
 > - Reference: Some custom button images
 > 
 
-### :star: [EHRX](https://github.com/EHRX-Official/TownOfHostEdited-Xi) :
+### :star: [TOHEX/TONEX](https://github.com/TOHEX-Official/TownOfHostEdited-Xi) :
 >
 > - Provided role: Swapper
 > - Reference: Store message history
-> 
+>
 
-> CTA app background image: [Designed by kjpargeter / Freepik](http://www.freepik.com)
+### Endless Host Roles (EHR), with Endless Possibilities, brought to you by the Endless Network.
+- Contributors:
+- Gurge44 (main)
+- Dx
+- PH_Gaming
+
+
+# License for the Custom Team Assinger application
+
+Copyright (c) 2024, Gurge44
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. All advertising materials mentioning features or use of this software
+   must display the following acknowledgement:
+   This product includes software developed by the Endless Network.
+4. Neither the name of the Endless Network nor the
+   names of its contributors may be used to endorse or promote products
+   derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER ''AS IS'' AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE 
+USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+> CTA app
+background image: [Designed by kjpargeter / Freepik](http://www.freepik.com)
