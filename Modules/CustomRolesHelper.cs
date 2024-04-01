@@ -3,6 +3,7 @@ using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;
 using EHR.Roles.Neutral;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using UnityEngine;
 
@@ -867,7 +868,7 @@ internal static class CustomRolesHelper
         CustomRoles.Autopsy when pc.Is(CustomRoles.Doctor) || pc.Is(CustomRoles.Tracefinder) || pc.Is(CustomRoles.Scientist) || pc.Is(CustomRoles.ScientistEHR) || pc.Is(CustomRoles.Sunnyboy) => false,
         CustomRoles.Necroview when pc.Is(CustomRoles.Doctor) => false,
         CustomRoles.Lazy when pc.Is(CustomRoles.Speedrunner) => false,
-        CustomRoles.Mischievous when pc.Is(Team.Impostor) || pc.GetCustomRole().GetDYRole() != RoleTypes.Impostor || !pc.IsNeutralKiller() => false,
+        CustomRoles.Mischievous when pc.Is(Team.Impostor) || pc.GetCustomRole().GetDYRole() != RoleTypes.Impostor || !pc.IsNeutralKiller() || Main.PlayerStates[pc.PlayerId].Role.CanUseSabotage(pc) => false,
         CustomRoles.Loyal when pc.IsCrewmate() && !Options.CrewCanBeLoyal.GetBool() => false,
         CustomRoles.DualPersonality when pc.IsCrewmate() && !Options.CrewCanBeDualPersonality.GetBool() => false,
         CustomRoles.Lazy when pc.Is(CustomRoles.Needy) || pc.Is(CustomRoles.Snitch) || pc.Is(CustomRoles.Marshall) || pc.Is(CustomRoles.Transporter) || pc.Is(CustomRoles.Guardian) => false,
@@ -887,7 +888,8 @@ internal static class CustomRolesHelper
         CustomRoles.Egoist when !pc.GetCustomRole().IsImpostor() => false,
         CustomRoles.Damocles when pc.GetCustomRole() is CustomRoles.Bomber or CustomRoles.Nuker or CustomRoles.SerialKiller or CustomRoles.Cantankerous => false,
         CustomRoles.Damocles when !pc.CanUseKillButton() => false,
-        CustomRoles.Flashman when pc.Is(CustomRoles.Swiftclaw) => false,
+        CustomRoles.Flashman when pc.Is(CustomRoles.Swiftclaw) || pc.Is(CustomRoles.Giant) => false,
+        CustomRoles.Giant when pc.Is(CustomRoles.Flashman) => false,
         CustomRoles.Necroview when pc.Is(CustomRoles.Visionary) => false,
         CustomRoles.Mimic when pc.Is(CustomRoles.Mafia) => false,
         CustomRoles.Rascal when !pc.IsCrewmate() => false,
@@ -1230,6 +1232,9 @@ internal static class CustomRolesHelper
     public static string ToColoredString(this CustomRoles role) => Utils.ColorString(Utils.GetRoleColor(role), Translator.GetString($"{role}"));
 }
 
+#pragma warning disable IDE0079
+[SuppressMessage("ReSharper", "InconsistentNaming")]
+#pragma warning restore IDE0079
 public enum RoleOptionType
 {
     Impostor,

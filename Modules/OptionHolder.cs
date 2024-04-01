@@ -360,8 +360,6 @@ public static class Options
     public static OptionItem SpeedrunnerNotifyAtXTasksLeft;
     public static OptionItem ReportBaitAtAllCost;
 
-    public static OptionItem TryFixBlackScreen;
-
     public static OptionItem SkeldChance;
     public static OptionItem MiraChance;
     public static OptionItem PolusChance;
@@ -2180,9 +2178,6 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
-        TryFixBlackScreen = BooleanOptionItem.Create(24451, "TryFixBlackScreen", false, TabGroup.GameSettings, false)
-            .SetGameMode(CustomGameMode.Standard)
-            .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
         TextOptionItem.Create(100029, "MenuTitle.Ghost", TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)

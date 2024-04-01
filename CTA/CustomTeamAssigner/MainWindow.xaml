@@ -1,4 +1,12 @@
-﻿<Window x:Class="CustomTeamAssigner.MainWindow"
+﻿<!--
+Copyright (c) 2024, Gurge44
+All rights reserved.
+
+This source code is licensed under the BSD-style license found in the
+README file in the root directory of this source tree.
+-->
+    
+<Window x:Class="CustomTeamAssigner.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,7 +14,6 @@
         mc:Ignorable="d"
         Title="Custom Team Assigner" Height="720" Width="1280" FontSize="20" ResizeMode="CanMinimize" WindowStyle="None">
 
-    <!--Create a default style for the buttons (modern style)-->
     <Window.Resources>
         <Style TargetType="Button">
             <Setter Property="Background" Value="LightGray"/>

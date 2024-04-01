@@ -1,8 +1,10 @@
-﻿using AmongUs.GameOptions;
+﻿using System;
+using AmongUs.GameOptions;
 using EHR.Roles.AddOns.GhostRoles;
 using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace EHR.Modules
 {
@@ -14,7 +16,6 @@ namespace EHR.Modules
         public static void Initialize()
         {
             AssignedGhostRoles = [];
-            if (GhostRoles.Count > 0) return;
             GhostRoles = EnumHelper.GetAllValues<CustomRoles>().Where(x => x != CustomRoles.EvilSpirit && x.IsGhostRole() && x.IsEnable()).ToList();
 
             Logger.Msg($"Ghost roles: {GhostRoles.Join()}", "GhostRoles");
@@ -30,7 +31,7 @@ namespace EHR.Modules
 
             pc.RpcSetCustomRole(suitableRole);
             pc.RpcSetRole(RoleTypes.GuardianAngel);
-            IGhostRole instance = Utils.CreateGhostRoleInstance(suitableRole);
+            IGhostRole instance = CreateGhostRoleInstance(suitableRole);
             instance.OnAssign(pc);
             AssignedGhostRoles[pc.PlayerId] = (suitableRole, instance);
         }
@@ -42,7 +43,7 @@ namespace EHR.Modules
             var pc = Utils.GetPlayerById(id);
             if (set) pc.RpcSetRole(RoleTypes.GuardianAngel);
 
-            IGhostRole instance = Utils.CreateGhostRoleInstance(role);
+            IGhostRole instance = CreateGhostRoleInstance(role);
             instance.OnAssign(pc);
             AssignedGhostRoles[id] = (role, instance);
         }
@@ -56,7 +57,7 @@ namespace EHR.Modules
                 var suitableRole = GetSuitableGhostRole(pc);
                 return suitableRole.IsGhostRole() && !AssignedGhostRoles.Any(x => x.Key == pc.PlayerId || x.Value.Role == suitableRole);
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
                 Utils.ThrowException(e);
                 return false;
@@ -65,7 +66,27 @@ namespace EHR.Modules
 
         public static CustomRoles GetSuitableGhostRole(PlayerControl pc)
         {
-            return GhostRoles.FirstOrDefault(x => AssignedGhostRoles.All(r => r.Value.Role != x) && (Utils.CreateGhostRoleInstance(x)?.Team & pc.GetTeam()) != 0);
+            return GhostRoles.FirstOrDefault(x => AssignedGhostRoles.All(r => r.Value.Role != x) && (CreateGhostRoleInstance(x)?.Team & pc.GetTeam()) != 0);
+        }
+
+        public static IGhostRole CreateGhostRoleInstance(CustomRoles ghostRole)
+        {
+            try
+            {
+                var ghostRoleClass = Assembly.GetExecutingAssembly().GetTypes().First(x => typeof(IGhostRole).IsAssignableFrom(x) && !x.IsInterface && x.Name == $"{ghostRole}");
+                var ghostRoleInstance = (IGhostRole)Activator.CreateInstance(ghostRoleClass);
+                return ghostRoleInstance;
+            }
+            catch (InvalidOperationException)
+            {
+                Logger.Error($"Ghost role {ghostRole} not found", "CreateGhostRoleInstance");
+                return null;
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+                return null;
+            }
         }
     }
 }

@@ -218,6 +218,11 @@ class GameEndChecker
                         .Do(p => WinnerIds.Add(p.PlayerId));
                 }
 
+                if (WinnerTeam != CustomWinner.CustomTeam)
+                {
+                    WinnerIds.RemoveWhere(x => CustomTeamManager.GetCustomTeam(x) != null);
+                }
+
                 if (WinnerTeam == CustomWinner.Lovers || WinnerIds.Any(x => Main.PlayerStates[x].SubRoles.Contains(CustomRoles.Lovers)))
                 {
                     if (WinnerTeam != CustomWinner.Lovers) AdditionalWinnerTeams.Add(AdditionalWinners.Lovers);

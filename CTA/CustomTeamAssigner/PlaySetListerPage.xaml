@@ -1,4 +1,12 @@
-﻿<Page x:Class="CustomTeamAssigner.PlaySetListerPage"
+﻿<!--
+Copyright (c) 2024, Gurge44
+All rights reserved.
+
+This source code is licensed under the BSD-style license found in the
+README file in the root directory of this source tree.
+-->
+    
+<Page x:Class="CustomTeamAssigner.PlaySetListerPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 

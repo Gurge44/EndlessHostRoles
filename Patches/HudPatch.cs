@@ -164,7 +164,7 @@ class HudManagerPatch
                     bool usesPetInsteadOfKill = player.GetCustomRole().UsesPetInsteadOfKill();
                     if (usesPetInsteadOfKill)
                     {
-                        __instance.PetButton?.OverrideText("KillButtonText");
+                        __instance.PetButton?.OverrideText(GetString("KillButtonText"));
                     }
 
                     ActionButton usedButton = __instance.KillButton;

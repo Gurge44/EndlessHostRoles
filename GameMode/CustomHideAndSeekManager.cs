@@ -224,7 +224,7 @@ namespace EHR
 
         public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null || target == null || !killer.Is(CustomRoles.Seeker)) return;
+            if (killer == null || target == null || !killer.Is(CustomRoles.Seeker) || target.Is(CustomRoles.Seeker)) return;
 
             killer.Kill(target);
 

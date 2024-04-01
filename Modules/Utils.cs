@@ -649,26 +649,6 @@ public static class Utils
 
     public static int TotalTaskCount => Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumLongTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumShortTasks);
 
-    public static IGhostRole CreateGhostRoleInstance(CustomRoles ghostRole)
-    {
-        try
-        {
-            var ghostRoleClass = Assembly.GetExecutingAssembly().GetTypes().First(x => typeof(IGhostRole).IsAssignableFrom(x) && !x.IsInterface && x.Name == $"{ghostRole}");
-            var ghostRoleInstance = (IGhostRole)Activator.CreateInstance(ghostRoleClass);
-            return ghostRoleInstance;
-        }
-        catch (InvalidOperationException)
-        {
-            Logger.Error($"Ghost role {ghostRole} not found", "CreateGhostRoleInstance");
-            return null;
-        }
-        catch (Exception e)
-        {
-            ThrowException(e);
-            return null;
-        }
-    }
-
     public static bool CanBeMadmate(this PlayerControl pc)
     {
         return pc != null && pc.IsCrewmate() && !pc.Is(CustomRoles.Madmate)
@@ -1954,7 +1934,23 @@ public static class Utils
 
                 if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato)
                 {
-                    if (Options.CurrentGameMode == CustomGameMode.HideAndSeek)
+                    var team = CustomTeamManager.GetCustomTeam(seer.PlayerId);
+                    if (team != null)
+                    {
+                        SeerRealName = ColorString(
+                            team.RoleRevealScreenBackgroundColor == "*" || !ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out var teamColor)
+                                ? Color.yellow
+                                : teamColor,
+                            string.Format(
+                                GetString("CustomTeamHelp"),
+                                team.RoleRevealScreenTitle == "*"
+                                    ? team.TeamName
+                                    : team.RoleRevealScreenTitle,
+                                team.RoleRevealScreenSubtitle == "*"
+                                    ? string.Empty
+                                    : team.RoleRevealScreenSubtitle));
+                    }
+                    else if (Options.CurrentGameMode == CustomGameMode.HideAndSeek)
                     {
                         SeerRealName = CustomHideAndSeekManager.GetRoleInfoText(seer);
                     }
@@ -2431,14 +2427,6 @@ public static class Utils
                         Main.AllPlayerSpeed[pc.PlayerId] = beforeSpeed;
                         pc.MarkDirtySettings();
                     }, Options.TruantWaitingTime.GetFloat(), $"Truant Waiting: {pc.GetNameWithRole()}");
-            }
-
-            if (Options.TryFixBlackScreen.GetBool() && !pc.IsModClient())
-            {
-                pc.ReactorFlash(0.2f); // This should fix black screens
-                var pos = pc.Pos();
-                pc.MyPhysics?.RpcBootFromVent(0);
-                _ = new LateTask(() => { pc.TP(pos); }, 0.5f, log: false);
             }
 
             if (Options.UsePets.GetBool()) pc.AddAbilityCD(includeDuration: false);

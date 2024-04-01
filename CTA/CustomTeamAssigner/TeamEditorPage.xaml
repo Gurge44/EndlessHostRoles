@@ -1,4 +1,12 @@
-﻿<Page x:Class="CustomTeamAssigner.TeamEditorPage"
+﻿<!--
+Copyright (c) 2024, Gurge44
+All rights reserved.
+
+This source code is licensed under the BSD-style license found in the
+README file in the root directory of this source tree.
+-->
+    
+<Page x:Class="CustomTeamAssigner.TeamEditorPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -84,7 +92,7 @@
         </Style>
     </Page.Resources>
 
-    <Grid Name="MainGrid">
+    <Grid>
         <Grid.Background>
             <ImageBrush ImageSource="bg.jpg"/>
         </Grid.Background>
@@ -109,23 +117,18 @@
             <ColumnDefinition Width="3*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- Team Name -->
         <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Content="Team Name" FontWeight="Bold"/>
         <TextBox Grid.Row="0" Grid.Column="2" x:Name="TeamNameTextBox" Text="Really Cool Team" Width="720" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" MaxLines="1"/>
 
-        <!-- Team Color (with a CheckBox deciding whether to override this) -->
         <CheckBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" x:Name="OverrideColorCheckBox" Content=" Override Team Color" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" Checked="OverrideColorCheck" Unchecked="OverrideColorCheck"/>
         <TextBox Grid.Row="1" Grid.Column="2" x:Name="TeamColorTextBox" Text="#00ffa5" Width="128" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" IsEnabled="False" MaxLength="9" MaxLines="1" TextChanged="ColorTextChanged"/>
 
-        <!-- Team Display Title (with a CheckBox deciding whether to override this) -->
         <CheckBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" x:Name="OverrideTitleCheckBox" Content=" Override Team Display Title" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" Checked="OverrideTitleCheck" Unchecked="OverrideTitleCheck"/>
         <TextBox Grid.Row="2" Grid.Column="2" x:Name="TeamTitleTextBox" Text="Teamed" Width="720" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" IsEnabled="False" MaxLines="1"/>
 
-        <!-- Team Display SubTitle (with a CheckBox deciding whether to override this) -->
         <CheckBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" x:Name="OverrideSubTitleCheckBox" Content=" Override Team Display Subtitle" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" Checked="OverrideSubTitleCheck" Unchecked="OverrideSubTitleCheck"/>
         <TextBox Grid.Row="3" Grid.Column="2" x:Name="TeamSubTitleTextBox" Text="You're in a Custom Team!" Width="720" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" IsEnabled="False" MaxLines="1"/>
 
-        <!-- Left 2 columns: ListBox (for the members of the team), right side: "Members" label, ComboBox containing all values of the CustomRoles enum, and 2 buttons to add a member or remove one -->
         <Label Grid.Row="5" Grid.Column="2" Content="Team Members" FontWeight="Bold" Margin="0" VerticalContentAlignment="Top" VerticalAlignment="Top"/>
         <Grid Grid.Row="5" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="2" x:Name="TeamMembersGridBase" Background="DarkGray" HorizontalAlignment="Left" VerticalAlignment="Top">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -143,10 +146,8 @@
             <ComboBox x:Name="MemberComboBox" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" Width="300"/>
             <Button Content=" Add Member " FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center" Click="AddMember"/>
         </StackPanel>
-        <!-- Add a label that tells the user to click on a member to remove it -->
         <Label Grid.Row="8" Grid.Column="2" Content="Click on a member to remove it" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
 
-        <!-- Cancel, Delete and Save Buttons -->
         <Button Grid.Row="10" Grid.Column="0" Content=" Cancel " FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center" Click="Cancel"/>
         <Button Grid.Row="10" Grid.Column="1" Content=" Delete Team " FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center" Click="Delete"/>
         <Button Grid.Row="10" Grid.Column="2" Content=" Save " FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Center" Click="Save"/>

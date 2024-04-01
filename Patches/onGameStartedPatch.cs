@@ -720,7 +720,7 @@ internal class SelectRolesPatch
 
     private static void AssignLoversRolesFromList()
     {
-        if (CustomRoles.Lovers.IsEnable())
+        if (CustomRoles.Lovers.IsEnable() && !RoleResult.ContainsValue(CustomRoles.Romantic))
         {
             Main.LoversPlayers.Clear();
             Main.IsLoversDead = false;

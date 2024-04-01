@@ -2,6 +2,14 @@
 using System.Windows;
 using System.Windows.Controls;
 
+/*
+ * Copyright (c) 2024, Gurge44
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * README file in the root directory of this source tree.
+ */
+
 namespace CustomTeamAssigner
 {
     public partial class PlaySetListerPage : Page

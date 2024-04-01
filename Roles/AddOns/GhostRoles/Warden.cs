@@ -1,4 +1,6 @@
-﻿namespace EHR.Roles.AddOns.GhostRoles
+﻿using System;
+
+namespace EHR.Roles.AddOns.GhostRoles
 {
     internal class Warden : IGhostRole, ISettingHolder
     {
@@ -10,6 +12,7 @@
         public void OnProtect(PlayerControl pc, PlayerControl target)
         {
             float speed = Main.AllPlayerSpeed[target.PlayerId];
+            if (Math.Abs(speed - (speed + ExtraSpeed.GetFloat())) < 0.1f || speed > speed + ExtraSpeed.GetFloat()) return;
             Main.AllPlayerSpeed[target.PlayerId] += ExtraSpeed.GetFloat();
             target.MarkDirtySettings();
             target.Notify(Translator.GetString("WardenNotify"));
@@ -27,7 +30,7 @@
             ExtraSpeedDuration = IntegerOptionItem.Create(649202, "ExpressSpeedDur", new(1, 90, 1), 5, TabGroup.OtherRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Warden])
                 .SetValueFormat(OptionFormat.Seconds);
-            ExtraSpeed = FloatOptionItem.Create(649203, "ExpressSpeed", new(0.5f, 3f, 0.1f), 1.5f, TabGroup.OtherRoles, false)
+            ExtraSpeed = FloatOptionItem.Create(649203, "ExpressSpeed", new(0.5f, 3f, 0.1f), 0.25f, TabGroup.OtherRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Warden])
                 .SetValueFormat(OptionFormat.Multiplier);
         }

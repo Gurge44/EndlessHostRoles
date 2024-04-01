@@ -2895,6 +2895,7 @@
   "SpawnAdditionalRefugeeMinAlivePlayers": "Minimum Number of Alive Players to Spawn",
   "HorseMode": "Horse Mode",
   "LongMode": "Long Mode",
+  "CustomTeamHelp": "You are in the {0}!{1}\\nWork with your team members to win together!",
   "NoPetActionMsg1": "You just ate a cookie",
   "NoPetActionMsg2": "You look around",
   "NoPetActionMsg3": "You start wondering whether you are sus or not",

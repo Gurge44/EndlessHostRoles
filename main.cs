@@ -35,8 +35,8 @@ public class Main : BasePlugin
     public const string DebugKeySalt = "59687b";
     public static ConfigEntry<string> DebugKeyInput { get; private set; }
     public const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "3.1.0";
-    public const string PluginDisplayVersion = "3.1.0";
+    public const string PluginVersion = "3.1.1";
+    public const string PluginDisplayVersion = "3.1.1";
     public static readonly string SupportedAUVersion = "2024.3.5";
 
     public Harmony Harmony { get; } = new(PluginGuid);
