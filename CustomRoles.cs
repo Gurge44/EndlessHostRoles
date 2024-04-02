@@ -114,6 +114,7 @@ public enum CustomRoles
     // Crewmate
 
     Addict,
+    Adventurer,
     Aid,
     Alchemist,
     Altruist,

@@ -42,9 +42,9 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
 public static class Utils
 {
-    private static readonly DateTime timeStampStartTime = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-    public static long GetTimeStamp(DateTime? dateTime = null) => (long)((dateTime ?? DateTime.Now).ToUniversalTime() - timeStampStartTime).TotalSeconds;
-    public static long TimeStamp => GetTimeStamp();
+    private static readonly DateTime TimeStampStartTime = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+    public static long GetTimeStamp(DateTime? dateTime = null) => (long)((dateTime ?? DateTime.Now).ToUniversalTime() - TimeStampStartTime).TotalSeconds;
+    public static long TimeStamp => (long)(DateTime.Now.ToUniversalTime() - TimeStampStartTime).TotalSeconds;
 
     public static void ErrorEnd(string text)
     {
@@ -704,6 +704,7 @@ public static class Utils
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() ||
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosImp.GetBool() ||
                CustomTeamManager.AreInSameCustomTeam(__instance.PlayerId, PlayerControl.LocalPlayer.PlayerId) ||
+               Adventurer.KnowRole(PlayerControl.LocalPlayer, __instance) ||
                Totocalcio.KnowRole(PlayerControl.LocalPlayer, __instance) ||
                Romantic.KnowRole(PlayerControl.LocalPlayer, __instance) ||
                Lawyer.KnowRole(PlayerControl.LocalPlayer, __instance) ||
@@ -716,7 +717,6 @@ public static class Utils
                PlayerControl.LocalPlayer.IsRevealedPlayer(__instance) ||
                PlayerControl.LocalPlayer.Is(CustomRoles.God) ||
                PlayerControl.LocalPlayer.Is(CustomRoles.GM) ||
-               Totocalcio.KnowRole(PlayerControl.LocalPlayer, __instance) ||
                Lawyer.KnowRole(PlayerControl.LocalPlayer, __instance) ||
                EvilDiviner.IsShowTargetRole(PlayerControl.LocalPlayer, __instance) ||
                Executioner.KnowRole(PlayerControl.LocalPlayer, __instance) ||
@@ -1786,6 +1786,8 @@ public static class Utils
 
                 if (Options.CurrentGameMode != CustomGameMode.Standard) goto GameMode;
 
+                SelfSuffix.Append(Adventurer.GetSuffixAndHUDText(seer, isForMeeting: isForMeeting));
+
                 if (!isForMeeting)
                 {
                     if (Options.UsePets.GetBool() && Main.AbilityCD.TryGetValue(seer.PlayerId, out var time) && !seer.IsModClient())
@@ -2138,6 +2140,7 @@ public static class Utils
                                 (seer.Is(CustomRoleTypes.Crewmate) && target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished) ||
                                 (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Vote && Options.SeeEjectedRolesInMeeting.GetBool()) ||
                                 CustomTeamManager.AreInSameCustomTeam(seer.PlayerId, target.PlayerId) ||
+                                Adventurer.KnowRole(seer, target) ||
                                 Totocalcio.KnowRole(seer, target) ||
                                 Romantic.KnowRole(seer, target) ||
                                 Lawyer.KnowRole(seer, target) ||
@@ -2412,25 +2415,30 @@ public static class Utils
 
     public static void AfterMeetingTasks()
     {
-        foreach (var pc in Main.AllAlivePlayerControls)
+        foreach (var pc in Main.AllPlayerControls)
         {
-            pc.AddKillTimerToDict();
-
-            if (pc.Is(CustomRoles.Truant))
+            if (pc.IsAlive())
             {
-                float beforeSpeed = Main.AllPlayerSpeed[pc.PlayerId];
-                Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
-                pc.MarkDirtySettings();
-                _ = new LateTask(() =>
-                    {
-                        Main.AllPlayerSpeed[pc.PlayerId] = beforeSpeed;
-                        pc.MarkDirtySettings();
-                    }, Options.TruantWaitingTime.GetFloat(), $"Truant Waiting: {pc.GetNameWithRole()}");
+                pc.AddKillTimerToDict();
+
+                if (pc.Is(CustomRoles.Truant))
+                {
+                    float beforeSpeed = Main.AllPlayerSpeed[pc.PlayerId];
+                    Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
+                    pc.MarkDirtySettings();
+                    _ = new LateTask(() =>
+                        {
+                            Main.AllPlayerSpeed[pc.PlayerId] = beforeSpeed;
+                            pc.MarkDirtySettings();
+                        }, Options.TruantWaitingTime.GetFloat(), $"Truant Waiting: {pc.GetNameWithRole()}");
+                }
+
+                if (Options.UsePets.GetBool()) pc.AddAbilityCD(includeDuration: false);
+
+                Main.PlayerStates[pc.PlayerId].Role.AfterMeetingTasks();
             }
 
-            if (Options.UsePets.GetBool()) pc.AddAbilityCD(includeDuration: false);
-
-            Main.PlayerStates[pc.PlayerId].Role.AfterMeetingTasks();
+            if (pc.Is(CustomRoles.Specter) || pc.Is(CustomRoles.Haunter)) pc.RpcResetAbilityCooldown();
         }
 
         CopyCat.ResetRole();
@@ -2555,6 +2563,7 @@ public static class Utils
             Tracefinder.OnPlayerDead(target);
             Vulture.OnPlayerDead(target);
             Tracker.OnPlayerDeath(target);
+            Adventurer.OnAnyoneDead(target);
 
             FixedUpdatePatch.LoversSuicide(target.PlayerId, onMeeting);
         }

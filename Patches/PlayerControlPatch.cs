@@ -330,6 +330,8 @@ class CheckMurderPatch
 
         if (Penguin.IsVictim(killer)) return false;
 
+        if (!Adventurer.OnAnyoneCheckMurder(target)) return false;
+
         if (killer.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor)) return false;
 
         if (SoulHunter.IsSoulHunterTarget(killer.PlayerId) && target.Is(CustomRoles.SoulHunter))
@@ -660,7 +662,7 @@ class ShapeshiftPatch
 
         if (Main.CheckShapeshift.TryGetValue(shapeshifter.PlayerId, out var last) && last == shapeshifting)
         {
-            // Dunno how you would get here but ok
+            // Don't know how you would get here but ok
             return true;
         }
 
@@ -719,6 +721,11 @@ class ShapeshiftPatch
             if (pc.Is(CustomRoles.Shiftguard))
             {
                 pc.Notify(shapeshifting ? GetString("ShiftguardNotifySS") : "ShiftguardNotifyUnshift");
+            }
+
+            if (Main.PlayerStates[pc.PlayerId].Role is Adventurer { IsEnable: true } av)
+            {
+                Adventurer.OnAnyoneShapeshiftLoop(av, __instance);
             }
         }
     }
@@ -1554,20 +1561,9 @@ class FixedUpdatePatch
                         offset += 0.15f;
                     }
 
-                    if (!seer.IsAlive())
-                    {
-                        offset += 0.1f;
-                    }
-
-                    if (isProgressTextLong)
-                    {
-                        offset += 0.3f;
-                    }
-
-                    if (Options.CurrentGameMode == CustomGameMode.MoveAndStop)
-                    {
-                        offset += 0.2f;
-                    }
+                    if (!seer.IsAlive()) offset += 0.1f;
+                    if (isProgressTextLong) offset += 0.3f;
+                    if (Options.CurrentGameMode == CustomGameMode.MoveAndStop) offset += 0.2f;
 
                     RoleText.transform.SetLocalY(offset);
                 }

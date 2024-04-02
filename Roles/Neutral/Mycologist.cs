@@ -139,6 +139,6 @@ namespace EHR.Roles.Neutral
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target) => IsEnable && target != null && InfectedPlayers.Contains(target.PlayerId);
         public override void AfterMeetingTasks() => Mycologist_.AddAbilityCD(CD.GetInt());
         public override bool CanUseImpostorVentButton(PlayerControl pc) => true;
-        public override bool CanUseSabotage(PlayerControl pc) => SpreadAction.GetValue() == 1;
+        public override bool CanUseSabotage(PlayerControl pc) => SpreadAction.GetValue() == 1 && pc.IsAlive();
     }
 }

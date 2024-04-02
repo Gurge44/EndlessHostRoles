@@ -26,5 +26,5 @@ public class Sidekick : RoleBase
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Jackal.KillCooldownSK.GetFloat();
     public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(Jackal.HasImpostorVision.GetBool());
     public override void SetButtonTexts(HudManager __instance, byte id) => __instance.SabotageButton.ToggleVisible(Jackal.CanSabotageSK.GetBool());
-    public override bool CanUseSabotage(PlayerControl pc) => Jackal.CanSabotageSK.GetBool();
+    public override bool CanUseSabotage(PlayerControl pc) => Jackal.CanSabotageSK.GetBool() && pc.IsAlive();
 }

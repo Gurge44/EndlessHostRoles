@@ -353,7 +353,7 @@ internal class ChatCommands
                         settings.Append("</size>");
                         var txt = sb.ToString();
                         _ = sb.Clear().Append(txt.RemoveHtmlTags());
-                        if (role.PetActivatedAbility()) sb.Append("<size=50%>" + GetString("SupportsPetMessage").RemoveHtmlTags() + "</size>");
+                        if (role.PetActivatedAbility() && sb.Length < 1000) sb.Append("<size=50%>" + GetString("SupportsPetMessage").RemoveHtmlTags() + "</size>");
                         sb.Append("<size=70%>");
                         foreach (CustomRoles subRole in Main.PlayerStates[localPlayerId].SubRoles.ToArray())
                         {
@@ -939,7 +939,7 @@ internal class ChatCommands
                     _ = sb.Clear().Append(txt);
                 }
 
-                if (rl.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
+                if (rl.PetActivatedAbility() && sb.Length < 1000) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
                 Utils.SendMessage(text: "\n", sendTo: playerId, title: settings.ToString());
                 Utils.SendMessage(text: sb.ToString(), sendTo: playerId, title: title);
                 return;
@@ -968,8 +968,7 @@ internal class ChatCommands
 
         if (GuessManager.GuesserMsg(player, text))
         {
-            if (GuessManager.GuesserMsg(player, text) ||
-                Judge.TrialMsg(player, text) ||
+            if (Judge.TrialMsg(player, text) ||
                 NiceSwapper.SwapMsg(player, text) ||
                 ParityCop.ParityCheckMsg(player, text) ||
                 Councillor.MurderMsg(player, text))
@@ -1045,7 +1044,7 @@ internal class ChatCommands
                     settings.Append("</size>");
                     var txt = sb.ToString();
                     _ = sb.Clear().Append(txt.RemoveHtmlTags());
-                    if (role.PetActivatedAbility()) sb.Append("<size=50%>" + GetString("SupportsPetMessage").RemoveHtmlTags() + "</size>");
+                    if (role.PetActivatedAbility() && sb.Length < 1000) sb.Append("<size=50%>" + GetString("SupportsPetMessage").RemoveHtmlTags() + "</size>");
                     sb.Append("<size=70%>");
                     foreach (CustomRoles subRole in Main.PlayerStates[player.PlayerId].SubRoles.ToArray())
                     {

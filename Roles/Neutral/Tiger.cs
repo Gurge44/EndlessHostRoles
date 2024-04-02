@@ -60,7 +60,7 @@ namespace EHR.Roles.Neutral
 
         public override bool CanUseSabotage(PlayerControl pc)
         {
-            return true;
+            return pc.IsAlive();
         }
 
         public override bool OnSabotage(PlayerControl pc)

@@ -121,7 +121,7 @@ class CheckForEndVotingPatch
                 }
             }
 
-            if (__instance.playerStates.TakeWhile(_ => !shouldSkip).Any(ps => !(Main.PlayerStates[ps.TargetPlayerId].IsDead || ps.DidVote)))
+            if (!shouldSkip && !__instance.playerStates.All(ps => Main.PlayerStates[ps.TargetPlayerId].IsDead || ps.DidVote || Utils.GetPlayerById(ps.TargetPlayerId).Data.Disconnected))
             {
                 return false;
             }
@@ -132,7 +132,7 @@ class CheckForEndVotingPatch
             foreach (var ps in __instance.playerStates)
             {
                 if (ps == null) continue;
-                voteLog.Info($"{ps.TargetPlayerId,-2}{$"({Utils.GetVoteName(ps.TargetPlayerId)})".PadRightV2(40)}:{ps.VotedFor,-3}{$"({Utils.GetVoteName(ps.VotedFor)})"}");
+                voteLog.Info($"{ps.TargetPlayerId,-2}{$"({Utils.GetVoteName(ps.TargetPlayerId)})".PadRightV2(40)}:{ps.VotedFor,-3}({Utils.GetVoteName(ps.VotedFor)})");
                 var voter = Utils.GetPlayerById(ps.TargetPlayerId);
                 if (voter == null || voter.Data == null || voter.Data.Disconnected) continue;
                 if (Options.VoteMode.GetBool())
@@ -195,9 +195,6 @@ class CheckForEndVotingPatch
                     VotedForId = ps.VotedFor
                 });
 
-                Blackmailer.OnCheckForEndVoting();
-                NiceSwapper.OnCheckForEndVoting();
-
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Mayor) && !Mayor.MayorHideVote.GetBool()) //Mayorの投票数
                 {
                     for (var i2 = 0; i2 < Mayor.MayorAdditionalVote.GetFloat(); i2++)
@@ -221,7 +218,19 @@ class CheckForEndVotingPatch
                         });
                     }
                 }
+
+                if (Main.PlayerStates[ps.TargetPlayerId].Role is Adventurer { IsEnable: true } av && av.ActiveWeapons.Contains(Adventurer.Weapon.Proxy))
+                {
+                    statesList.Add(new()
+                    {
+                        VoterId = ps.TargetPlayerId,
+                        VotedForId = ps.VotedFor
+                    });
+                }
             }
+
+            Blackmailer.OnCheckForEndVoting();
+            NiceSwapper.OnCheckForEndVoting();
 
             states = [.. statesList];
 
@@ -387,7 +396,10 @@ class CheckForEndVotingPatch
                 if (Options.ShowTeamNextToRoleNameOnEject.GetBool())
                 {
                     name += " (";
-                    if (player.GetCustomRole().IsImpostor() || player.Is(CustomRoles.Madmate))
+                    var team = CustomTeamManager.GetCustomTeam(player.PlayerId);
+                    if (team != null)
+                        name += Utils.ColorString(team.RoleRevealScreenBackgroundColor == "*" || !ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out var color) ? Color.yellow : color, team.RoleRevealScreenTitle == "*" ? team.TeamName : team.RoleRevealScreenTitle);
+                    else if (player.GetCustomRole().IsImpostor() || player.Is(CustomRoles.Madmate))
                         name += Utils.ColorString(new(255, 25, 25, byte.MaxValue), GetString("TeamImpostor"));
                     else if (player.GetCustomRole().IsNeutral() || player.Is(CustomRoles.Charmed))
                         name += Utils.ColorString(new(255, 171, 27, byte.MaxValue), GetString("TeamNeutral"));
@@ -584,6 +596,11 @@ static class ExtendedMeetingHud
                        ) VoteNum += VoteNum;
                 }
 
+                if (Main.PlayerStates[ps.TargetPlayerId].Role is Adventurer { IsEnable: true } av && av.ActiveWeapons.Contains(Adventurer.Weapon.Proxy))
+                {
+                    VoteNum++;
+                }
+
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.TicketsStealer))
                 {
                     var ps1 = ps;
@@ -654,7 +671,7 @@ class MeetingHudStartPatch
             AddMsg(string.Format(GetString("WorkaholicAdviceAlive"), string.Join(separator, workaholicAliveList)), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Workaholic), GetString("WorkaholicAliveTitle")));
         }
 
-        //Bait Notify
+        // Bait Notify
         if (MeetingStates.FirstMeeting && CustomRoles.Bait.RoleExist() && Options.BaitNotification.GetBool())
         {
             foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Bait)).ToArray())
@@ -780,6 +797,7 @@ class MeetingHudStartPatch
                 (pc.Is(CustomRoles.Marshall) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && pc.GetTaskState().IsTaskFinished) ||
                 (Main.PlayerStates[pc.PlayerId].deathReason == PlayerState.DeathReason.Vote && Options.SeeEjectedRolesInMeeting.GetBool()) ||
                 CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, PlayerControl.LocalPlayer.PlayerId) ||
+                Adventurer.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Totocalcio.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Romantic.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 EvilDiviner.IsShowTargetRole(PlayerControl.LocalPlayer, pc) ||

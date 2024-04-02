@@ -83,12 +83,7 @@ static class LocateArrow
     /// <returns></returns>
     public static string GetArrows(PlayerControl seer)
     {
-        var arrows = string.Empty;
-        foreach (var arrowInfo in LocateArrows.Keys.Where(ai => ai.From == seer.PlayerId))
-        {
-            arrows += LocateArrows[arrowInfo];
-        }
-        return arrows;
+        return LocateArrows.Keys.Where(ai => ai.From == seer.PlayerId).Aggregate(string.Empty, (current, arrowInfo) => current + LocateArrows[arrowInfo]);
     }
     /// <summary>
     /// Check target arrow every FixedUpdate

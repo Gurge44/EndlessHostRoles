@@ -377,6 +377,7 @@ class HudManagerPatch
                             CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Chameleon => Swooper.GetHudText(player),
                             CustomRoles.HeadHunter => HeadHunter.GetHudText(player),
                             CustomRoles.Alchemist => Alchemist.GetHudText(player),
+                            CustomRoles.Adventurer => Adventurer.GetSuffixAndHUDText(player, hud: true),
                             CustomRoles.Werewolf => Werewolf.GetHudText(player),
                             CustomRoles.Glitch => Glitch.GetHudText(player),
                             CustomRoles.NiceHacker => NiceHacker.GetHudText(player),
@@ -773,7 +774,7 @@ class TaskPanelBehaviourPatch
                     List<(int, byte)> list3 = [];
                     foreach (var id in Main.PlayerStates.Keys) list3.Add((MoveAndStopManager.GetRankOfScore(id), id));
                     list3.Sort();
-                    list3 = [.. list3.OrderBy(x => Utils.GetPlayerById(x.Item2).IsAlive())];
+                    list3 = [.. list3.OrderBy(x => !Utils.GetPlayerById(x.Item2).IsAlive())];
                     foreach (var id in list3.Where(x => SummaryText3.ContainsKey(x.Item2)).ToArray())
                     {
                         bool alive = Utils.GetPlayerById(id.Item2).IsAlive();

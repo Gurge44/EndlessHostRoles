@@ -52,7 +52,7 @@ namespace EHR.Roles.Neutral
         public override bool IsEnable => HookshotId != byte.MaxValue;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
-        public override bool CanUseSabotage(PlayerControl pc) => true;
+        public override bool CanUseSabotage(PlayerControl pc) => pc.IsAlive();
         public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
 
         void SendRPC()

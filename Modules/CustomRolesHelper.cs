@@ -3,6 +3,7 @@ using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;
 using EHR.Roles.Neutral;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using UnityEngine;
@@ -148,6 +149,7 @@ internal static class CustomRolesHelper
             CustomRoles.Express => CustomRoles.Crewmate,
             CustomRoles.NiceEraser => CustomRoles.Crewmate,
             CustomRoles.TaskManager => CustomRoles.Crewmate,
+            CustomRoles.Adventurer => CustomRoles.Engineer,
             CustomRoles.Randomizer => CustomRoles.Crewmate,
             CustomRoles.Beacon => CustomRoles.Crewmate,
             CustomRoles.Rabbit => CustomRoles.Crewmate,
@@ -671,14 +673,15 @@ internal static class CustomRolesHelper
         _ => false,
     };
 
-    public static readonly CustomRoles[] OnlySpawnsWithPetsRoleList =
+    public static readonly List<CustomRoles> OnlySpawnsWithPetsRoleList =
     [
         CustomRoles.Tunneler,
         CustomRoles.Tornado,
         CustomRoles.Swiftclaw,
+        CustomRoles.Adventurer
     ];
 
-    public static bool OnlySpawnsWithPets(this CustomRoles role) => OnlySpawnsWithPetsRoleList.Any(x => x.ToString() == role.ToString());
+    public static bool OnlySpawnsWithPets(this CustomRoles role) => OnlySpawnsWithPetsRoleList.Contains(role);
 
     public static bool NeedUpdateOnLights(this CustomRoles role) => (!role.UsesPetInsteadOfKill()) && (role.GetDYRole() != RoleTypes.GuardianAngel || role is
         CustomRoles.Convict or

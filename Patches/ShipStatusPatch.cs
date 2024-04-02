@@ -71,7 +71,7 @@ class RepairSystemPatch
         if (RepairSender.enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
             Logger.SendInGame("SystemType: " + systemType + ", PlayerName: " + player.GetNameWithRole().RemoveHtmlTags() + ", amount: " + amount);
 
-        if (!AmongUsClient.Instance.AmHost) return true; //Execute the following only on the host
+        if (!AmongUsClient.Instance.AmHost) return true; // Execute the following only on the host
 
         IsComms = PlayerControl.LocalPlayer.myTasks.ToArray().Any(x => x.TaskType == TaskTypes.FixComms);
 
@@ -79,7 +79,7 @@ class RepairSystemPatch
 
         if (Options.DisableSabotage.GetBool() && systemType == SystemTypes.Sabotage) return false;
 
-        //Note: "SystemTypes.Laboratory" сauses bugs in the Host, it is better not to use
+        // Note: "SystemTypes.Laboratory" сauses bugs in the Host, it is better not to use
         if (player.Is(CustomRoles.Fool) &&
             (systemType is
                 SystemTypes.Comms or
@@ -168,18 +168,25 @@ class RepairSystemPatch
                 var SwitchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.Cast<SwitchSystem>();
                 if (SwitchSystem is { IsActive: true })
                 {
-                    switch (player.GetCustomRole())
+                    switch (Main.PlayerStates[player.PlayerId].Role)
                     {
-                        case CustomRoles.SabotageMaster:
+                        case SabotageMaster:
                             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
                             SabotageMaster.SwitchSystemRepair(player.PlayerId, SwitchSystem, amount);
                             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                             break;
-                        case CustomRoles.Alchemist when Main.PlayerStates[player.PlayerId].Role is Alchemist { FixNextSabo: true } am:
+                        case Alchemist { FixNextSabo: true } am:
                             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
                             SwitchSystem.ActualSwitches = 0;
                             SwitchSystem.ExpectedSwitches = 0;
                             am.FixNextSabo = false;
+                            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                            break;
+                        case Adventurer av:
+                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
+                            SwitchSystem.ActualSwitches = 0;
+                            SwitchSystem.ExpectedSwitches = 0;
+                            av.OnLightsFix();
                             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                             break;
                     }

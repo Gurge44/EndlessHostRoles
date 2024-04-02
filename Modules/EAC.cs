@@ -323,15 +323,21 @@ internal class EAC
                 if (amount is not 64 and not 65) goto YesCheat;
                 break;
             case SystemTypes.Comms:
-                if (amount == 0)
+                switch (amount)
                 {
-                    if (Mapid is 1 or 5) goto YesCheat;
+                    case 0:
+                    {
+                        if (Mapid is 1 or 5) goto YesCheat;
+                        break;
+                    }
+                    case 64 or 65 or 32 or 33 or 16 or 17:
+                    {
+                        if (Mapid is not (1 or 5)) goto YesCheat;
+                        break;
+                    }
+                    default:
+                        goto YesCheat;
                 }
-                else if (amount is 64 or 65 or 32 or 33 or 16 or 17)
-                {
-                    if (!(Mapid is 1 or 5)) goto YesCheat;
-                }
-                else goto YesCheat;
 
                 break;
             case SystemTypes.Electrical:

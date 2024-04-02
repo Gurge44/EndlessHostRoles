@@ -106,24 +106,18 @@ public static class GuessManager
             return true;
         }
 
-        if (!pc.Is(CustomRoles.NiceGuesser))
+        if (!pc.Is(CustomRoles.NiceGuesser) && pc.IsCrewmate() && !Options.CrewmatesCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Judge) && !pc.Is(CustomRoles.NiceSwapper))
         {
-            if (pc.IsCrewmate() && !Options.CrewmatesCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Judge) && !pc.Is(CustomRoles.NiceSwapper))
-            {
-                if (!isUI) Utils.SendMessage(GetString("GuessNotAllowed"), pc.PlayerId);
-                else pc.ShowPopUp(GetString("GuessNotAllowed"));
-                return true;
-            }
+            if (!isUI) Utils.SendMessage(GetString("GuessNotAllowed"), pc.PlayerId);
+            else pc.ShowPopUp(GetString("GuessNotAllowed"));
+            return true;
         }
 
-        if (!pc.Is(CustomRoles.EvilGuesser))
+        if (!pc.Is(CustomRoles.EvilGuesser) && pc.GetCustomRole().IsImpostor() && !Options.ImpostorsCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Councillor))
         {
-            if (pc.GetCustomRole().IsImpostor() && !Options.ImpostorsCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Councillor))
-            {
-                if (!isUI) Utils.SendMessage(GetString("GuessNotAllowed"), pc.PlayerId);
-                else pc.ShowPopUp(GetString("GuessNotAllowed"));
-                return true;
-            }
+            if (!isUI) Utils.SendMessage(GetString("GuessNotAllowed"), pc.PlayerId);
+            else pc.ShowPopUp(GetString("GuessNotAllowed"));
+            return true;
         }
 
         if (pc.IsNeutralKiller() && !Options.NeutralKillersCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser))
@@ -147,12 +141,11 @@ public static class GuessManager
                 return true;
             case 2:
             {
-                if (
-                    (pc.Is(CustomRoles.NiceGuesser) && Options.GGTryHideMsg.GetBool()) ||
+                if ((pc.Is(CustomRoles.NiceGuesser) && Options.GGTryHideMsg.GetBool()) ||
                     (pc.Is(CustomRoles.EvilGuesser) && Options.EGTryHideMsg.GetBool()) ||
                     (pc.Is(CustomRoles.Doomsayer) && Doomsayer.DoomsayerTryHideMsg.GetBool()) ||
-                    (pc.Is(CustomRoles.Guesser) && Options.GTryHideMsg.GetBool()) || (Options.GuesserMode.GetBool() && Options.HideGuesserCommands.GetBool())
-                ) /*TryHideMsg();*/ ChatManager.SendPreviousMessagesToAll();
+                    (pc.Is(CustomRoles.Guesser) && Options.GTryHideMsg.GetBool()) || (Options.GuesserMode.GetBool() && Options.HideGuesserCommands.GetBool()))
+                    ChatManager.SendPreviousMessagesToAll();
                 else if (pc.AmOwner && !isUI) Utils.SendMessage(originMsg, 255, pc.GetRealName());
 
                 if (!MsgToPlayerAndRole(msg, out byte targetId, out CustomRoles role, out string error))
@@ -960,7 +953,7 @@ public static class GuessManager
                     CustomRoleTypes.Impostor => new(255, 25, 25, byte.MaxValue),
                     CustomRoleTypes.Neutral => new(255, 171, 27, byte.MaxValue),
                     CustomRoleTypes.Addon => new Color32(255, 154, 206, byte.MaxValue),
-                    _ => throw new NotImplementedException(),
+                    _ => throw new NotImplementedException()
                 };
                 Logger.Info(Teamlabel.color.ToString(), ((CustomRoleTypes)index).ToString());
                 Teamlabel.text = GetString("Type" + ((CustomRoleTypes)index));
@@ -1026,7 +1019,7 @@ public static class GuessManager
                 Pagelabel.transform.localScale *= 1.6f;
                 Pagelabel.autoSizeTextContainer = true;
                 if (!IsNext && Page <= 1) Pagebutton.GetComponent<SpriteRenderer>().color = new(1, 1, 1, 0.1f);
-                Pagebutton.GetComponent<PassiveButton>().OnClick.AddListener((Action)(() => ClickEvent()));
+                Pagebutton.GetComponent<PassiveButton>().OnClick.AddListener((Action)(ClickEvent));
 
                 PageButtons.Add(Pagebutton.GetComponent<SpriteRenderer>());
                 return;

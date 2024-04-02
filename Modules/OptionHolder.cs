@@ -929,7 +929,6 @@ public static class Options
     public static OptionItem MinWaitAutoStart;
     public static OptionItem MaxWaitAutoStart;
     public static OptionItem PlayerAutoStart;
-    //public static OptionItem SidekickCountMode;
 
     public static OptionItem DumpLogAfterGameEnd;
 
@@ -1185,21 +1184,21 @@ public static class Options
 
                 var tab = roleClasses.Key.GetTabFromOptionType();
 
-                var categorySuffix = roleClasses.Key switch
-                {
-                    RoleOptionType.Neutral_Killing => "NK",
-                    RoleOptionType.Neutral_NonKilling => "NNK",
-                    _ => string.Empty
-                };
-                TextOptionItem.Create(titleId, $"ROT.Basic{categorySuffix}", tab)
-                    .SetGameMode(CustomGameMode.Standard)
-                    .SetColor(Color.gray)
-                    .SetHeader(true);
-                titleId += 10;
-
                 var key = roleClasses.Key.GetSimpleRoleOptionType();
-                if (simpleRoleClasses.TryGetValue(key, out ISettingHolder[] value))
+                if (simpleRoleClasses.TryGetValue(key, out ISettingHolder[] value) && value.Length > 0)
                 {
+                    var categorySuffix = roleClasses.Key switch
+                    {
+                        RoleOptionType.Neutral_Killing => "NK",
+                        RoleOptionType.Neutral_NonKilling => "NNK",
+                        _ => string.Empty
+                    };
+                    TextOptionItem.Create(titleId, $"ROT.Basic{categorySuffix}", tab)
+                        .SetGameMode(CustomGameMode.Standard)
+                        .SetColor(Color.gray)
+                        .SetHeader(true);
+                    titleId += 10;
+
                     foreach (ISettingHolder holder in value)
                     {
                         holder.SetupCustomOption();

@@ -96,7 +96,7 @@ public class Glitch : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
-    public override bool CanUseSabotage(PlayerControl pc) => true;
+    public override bool CanUseSabotage(PlayerControl pc) => pc.IsAlive();
 
     void SendRPCSyncTimers()
     {

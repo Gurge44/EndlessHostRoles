@@ -182,6 +182,7 @@ class BeginCrewmatePatch
             var team = CustomTeamManager.GetCustomTeam(PlayerControl.LocalPlayer.PlayerId);
             if (team != null)
             {
+                teamToDisplay = new();
                 foreach (var pc in Main.AllPlayerControls)
                 {
                     if (CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, PlayerControl.LocalPlayer.PlayerId))

@@ -16,41 +16,59 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 {
     public static void SetDirty(byte playerId)
     {
-        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().Where(sender => sender.player.PlayerId == playerId))
+        foreach (GameOptionsSender allSender in AllSenders)
         {
-            sender.SetDirty();
+            if (allSender is PlayerGameOptionsSender sender && sender.player.PlayerId == playerId)
+            {
+                sender.SetDirty();
+            }
         }
     }
 
     public static void SetDirtyToAll()
     {
-        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>())
+        foreach (GameOptionsSender allSender in AllSenders)
         {
-            sender.SetDirty();
+            if (allSender is PlayerGameOptionsSender sender)
+            {
+                sender.SetDirty();
+            }
         }
     }
 
+    // For lights call/fix
     public static void SetDirtyToAllV2()
     {
-        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().Where(sender => !sender.IsDirty && sender.player.IsAlive() && (sender.player.GetCustomRole().NeedUpdateOnLights() || sender.player.Is(CustomRoles.Torch) || sender.player.Is(CustomRoles.Mare))))
+        foreach (GameOptionsSender allSender in AllSenders)
         {
-            sender.SetDirty();
+            if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && (sender.player.GetCustomRole().NeedUpdateOnLights() || sender.player.Is(CustomRoles.Torch) || sender.player.Is(CustomRoles.Mare)))
+            {
+                sender.SetDirty();
+            }
         }
     }
 
+    // For Grenadier blidning/restoring
     public static void SetDirtyToAllV3()
     {
-        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().Where(sender => !sender.IsDirty && sender.player.IsAlive() && ((Grenadier.GrenadierBlinding.Count > 0 && (sender.player.GetCustomRole().IsImpostor() || (sender.player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))) || (Grenadier.MadGrenadierBlinding.Count > 0 && !sender.player.GetCustomRole().IsImpostorTeam() && !sender.player.Is(CustomRoles.Madmate)))))
+        foreach (GameOptionsSender allSender in AllSenders)
         {
-            sender.SetDirty();
+            if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && ((Grenadier.GrenadierBlinding.Count > 0 && (sender.player.GetCustomRole().IsImpostor() || (sender.player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))) || (Grenadier.MadGrenadierBlinding.Count > 0 && !sender.player.GetCustomRole().IsImpostorTeam() && !sender.player.Is(CustomRoles.Madmate))))
+            {
+                sender.SetDirty();
+            }
         }
     }
 
+    // For players with kill buttons
     public static void SetDirtyToAllV4()
     {
-        foreach (var sender in AllSenders.OfType<PlayerGameOptionsSender>().Where(sender => !sender.IsDirty && sender.player.IsAlive() && sender.player.CanUseKillButton()).ToArray())
+        foreach (GameOptionsSender allSender in AllSenders)
         {
-            sender.SetDirty();
+            if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && sender.player.CanUseKillButton())
+            {
+                sender.SetDirty();
+            }
         }
     }
 
@@ -322,6 +340,13 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 opt.SetVision(false);
                 opt.SetFloat(FloatOptionNames.CrewLightMod, 0);
                 opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0);
+            }
+
+            if (player.IsCrewmate() && Main.PlayerStates.Values.Any(s => s.Role is Adventurer { IsEnable: true } av && av.ActiveWeapons.Contains(Adventurer.Weapon.Lantern)))
+            {
+                opt.SetVision(true);
+                opt.SetFloat(FloatOptionNames.CrewLightMod, 1.5f);
+                opt.SetFloat(FloatOptionNames.ImpostorLightMod, 1.5f);
             }
 
             if (Changeling.ChangedRole.TryGetValue(player.PlayerId, out var changed) && changed && player.GetRoleTypes() != RoleTypes.Shapeshifter)

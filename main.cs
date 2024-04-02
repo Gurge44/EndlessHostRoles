@@ -35,8 +35,8 @@ public class Main : BasePlugin
     public const string DebugKeySalt = "59687b";
     public static ConfigEntry<string> DebugKeyInput { get; private set; }
     public const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "3.1.1";
-    public const string PluginDisplayVersion = "3.1.1";
+    public const string PluginVersion = "3.1.2";
+    public const string PluginDisplayVersion = "3.1.2";
     public static readonly string SupportedAUVersion = "2024.3.5";
 
     public Harmony Harmony { get; } = new(PluginGuid);
@@ -305,6 +305,7 @@ public class Main : BasePlugin
                 { CustomRoles.Express, "#00ffff" },
                 { CustomRoles.NiceEraser, "#00a5ff" },
                 { CustomRoles.TaskManager, "#00ffa5" },
+                { CustomRoles.Adventurer, "#fbbb04" },
                 { CustomRoles.Randomizer, "#fcba03" },
                 { CustomRoles.Beacon, "#a3fdff" },
                 { CustomRoles.Rabbit, "#88d2ff" },
