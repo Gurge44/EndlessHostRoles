@@ -231,7 +231,7 @@ class SetEverythingUpPatch
             {
                 var winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
                 __instance.BackgroundBar.material.color = new Color32(0, 255, 255, 255);
-                WinnerText.text = Main.AllPlayerNames[winnerId] + " wins!";
+                WinnerText.text = FFAManager.FFATeamMode.GetBool() ? string.Empty : Main.AllPlayerNames[winnerId] + " wins!";
                 WinnerText.color = Main.PlayerColors[winnerId];
                 goto EndOfText;
             }

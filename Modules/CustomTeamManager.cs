@@ -86,14 +86,17 @@ namespace EHR.Modules
         {
             if (CustomTeams.Count == 0 || CustomTeamPlayerIds.Count == 0) return false;
 
-            CustomTeamPlayerIds.Values.Do(x => x.RemoveWhere(p =>
+            CustomTeamPlayerIds.Do(x => x.Value.RemoveWhere(p =>
             {
                 var pc = Utils.GetPlayerById(p);
-                return pc == null || !pc.IsAlive() || pc.Data.Disconnected;
+                return pc == null || pc.Data.Disconnected;
             }));
 
-            var team = CustomTeamPlayerIds.Keys.First();
-            if (CustomTeamPlayerIds.Count == 1 && Main.AllAlivePlayerControls.All(x =>
+            var aliveTeamPlayers = CustomTeamPlayerIds.ToDictionary(x => x.Key, x => x.Value);
+            aliveTeamPlayers.Do(x => x.Value.RemoveWhere(p => !Utils.GetPlayerById(p).IsAlive()));
+
+            var team = aliveTeamPlayers.Keys.First();
+            if (aliveTeamPlayers.Count == 1 && Main.AllAlivePlayerControls.All(x =>
                 {
                     var customTeam = GetCustomTeam(x.PlayerId);
                     return customTeam != null && customTeam.Equals(team);
@@ -101,7 +104,7 @@ namespace EHR.Modules
             {
                 WinnerTeam = team;
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CustomTeam);
-                CustomWinnerHolder.WinnerIds = CustomTeamPlayerIds.Values.First();
+                CustomWinnerHolder.WinnerIds = aliveTeamPlayers.Values.First();
                 return true;
             }
 

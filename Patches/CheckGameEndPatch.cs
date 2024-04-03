@@ -515,21 +515,35 @@ class GameEndChecker
 
                 Logger.Warn($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "FFA");
 
-                WinnerIds =
-                [
-                    winnerId
-                ];
+                WinnerIds = [winnerId];
 
                 Main.DoBlockNameChange = true;
 
                 return true;
             }
 
+            if (FFAManager.FFATeamMode.GetBool())
+            {
+                var teams = FFAManager.PlayerTeams.GroupBy(x => x.Value, x => x.Key).Select(x => x.Where(p =>
+                {
+                    var pc = GetPlayerById(p);
+                    return pc != null && !pc.Data.Disconnected && pc.IsAlive();
+                }).ToHashSet()).Where(x => x.Count > 0).ToArray();
+
+                if (teams.Length == 1)
+                {
+                    WinnerIds = teams[0];
+
+                    Main.DoBlockNameChange = true;
+                    return true;
+                }
+            }
+
             switch (Main.AllAlivePlayerControls.Length)
             {
                 case 1:
                 {
-                    var winner = Main.AllAlivePlayerControls.First();
+                    var winner = Main.AllAlivePlayerControls[0];
 
                     Logger.Info($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "FFA");
 

@@ -3229,6 +3229,8 @@
   "FFA_LowerVision": "Lowered Vision",
   "FFA_ModifiedVisionDuration": "Lowered Vision Duration",
   "FFA_EnableRandomTwists": "Enable Random Swaps from time to time",
+  "FFA_TeamMode": "Enable Team Mode",
+  "FFA_TeamNumber": "Number of Teams",
   "FFA-Event-GetShield": "You have a temporary shield!",
   "FFA-Event-GetIncreasedSpeed": "You have a temporary speed boost!",
   "FFA-Event-GetLowKCD": "You got a lower kill cooldown!",

@@ -193,6 +193,18 @@ class BeginCrewmatePatch
             }
         }
 
+        if (Options.CurrentGameMode == CustomGameMode.FFA && FFAManager.FFATeamMode.GetBool() && FFAManager.PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var ffaTeam))
+        {
+            teamToDisplay = new();
+            foreach (var pc in Main.AllPlayerControls)
+            {
+                if (FFAManager.PlayerTeams.TryGetValue(pc.PlayerId, out var team) && team == ffaTeam)
+                {
+                    teamToDisplay.Add(pc);
+                }
+            }
+        }
+
         return true;
     }
 
@@ -442,33 +454,42 @@ class BeginCrewmatePatch
                 break;
             }
             case CustomGameMode.FFA:
+            {
                 __instance.TeamTitle.text = GetString("Killer");
-                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(0, 255, 255, byte.MaxValue);
+                var color = FFAManager.PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var team) && ColorUtility.TryParseHtmlString(FFAManager.TeamColors[team], out var teamColor) ? teamColor : new(0, 255, 255, byte.MaxValue);
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = color;
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("KillerInfo");
                 break;
+            }
             case CustomGameMode.MoveAndStop:
+            {
                 __instance.TeamTitle.text = GetString("MoveAndStop");
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(0, 255, 160, byte.MaxValue);
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("TaskerInfo");
                 break;
+            }
             case CustomGameMode.HotPotato:
+            {
                 __instance.TeamTitle.text = GetString("HotPotato");
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(232, 205, 70, byte.MaxValue);
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("PotatoInfo");
                 break;
+            }
             case CustomGameMode.HideAndSeek:
+            {
                 __instance.TeamTitle.text = GetString("HideAndSeek");
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(52, 94, 235, byte.MaxValue);
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Impostor);
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("SubText.HideAndSeek");
                 break;
+            }
         }
 
         if (Input.GetKey(KeyCode.RightShift))

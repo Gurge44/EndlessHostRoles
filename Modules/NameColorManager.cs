@@ -39,6 +39,10 @@ public static class NameColorManager
 
         switch (Options.CurrentGameMode)
         {
+            case CustomGameMode.FFA when FFAManager.FFATeamMode.GetBool():
+                if (FFAManager.PlayerTeams[seer.PlayerId] == FFAManager.PlayerTeams[target.PlayerId])
+                    color = FFAManager.TeamColors[FFAManager.PlayerTeams[seer.PlayerId]];
+                return true;
             case CustomGameMode.MoveAndStop:
                 color = "#ffffff";
                 return true;
