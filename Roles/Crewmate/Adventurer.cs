@@ -136,7 +136,7 @@ namespace EHR.Roles.Crewmate
                 case false when Ingredients[SelectedWeaponToCraft].All(x => x.Count <= ResourceCounts[x.Resource]):
                     var weapon = SelectedWeaponToCraft == Weapon.RNG ? EnabledWeapons[IRandom.Instance.Next(EnabledWeapons.Count)] : SelectedWeaponToCraft;
                     ActiveWeapons.Add(weapon);
-                    pc.Notify(string.Format(Translator.GetString("AdventurerWeaponCrafted"), $"{weapon}"));
+                    pc.Notify(string.Format(Translator.GetString("AdventurerWeaponCrafted"), Translator.GetString($"AdventurerGun.{weapon}")));
                     foreach ((Resource resource, int count) in Ingredients[weapon])
                     {
                         ResourceCounts[resource] -= count;
@@ -353,7 +353,7 @@ namespace EHR.Roles.Crewmate
             finalText += av.InCraftingMode
                 ? string.Format(
                     Translator.GetString("AdventurerIngredientsDisplay"),
-                    $"{av.SelectedWeaponToCraft}",
+                    Translator.GetString($"AdventurerGun.{av.SelectedWeaponToCraft}"),
                     string.Join(' ', Ingredients[av.SelectedWeaponToCraft]
                         .Select(x => $"{Utils.ColorString(ResourceDisplayData[x.Resource].Color, $"{ResourceDisplayData[x.Resource].Icon}")}" +
                                      $"{Utils.ColorString(x.Count > av.ResourceCounts[x.Resource] ? Color.red : Color.white, $"{x.Count}")}")))
