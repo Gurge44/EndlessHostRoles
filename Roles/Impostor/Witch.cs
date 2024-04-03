@@ -221,7 +221,7 @@ public class Witch : RoleBase
         {
             if (Main.PlayerStates[id].Role is Witch { IsEnable: true } wc && wc.IsSpelled(target))
             {
-                return Utils.ColorString(Palette.ImpostorRed, "†");
+                return Utils.ColorString(wc.IsHM ? Utils.GetRoleColor(CustomRoles.HexMaster) : Palette.ImpostorRed, "†");
             }
         }
 

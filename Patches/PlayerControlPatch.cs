@@ -1268,6 +1268,8 @@ class FixedUpdatePatch
                 var seer = PlayerControl.LocalPlayer;
                 var target = __instance;
 
+                bool self = seer.PlayerId == target.PlayerId;
+
                 Mark.Clear();
                 Suffix.Clear();
 
@@ -1326,8 +1328,6 @@ class FixedUpdatePatch
                         Suffix.Append(EvilTracker.GetTargetArrow(seer, target));
                         break;
                 }
-
-                bool self = seer.PlayerId == target.PlayerId;
 
                 switch (seer.GetCustomRole())
                 {

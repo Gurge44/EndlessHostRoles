@@ -137,7 +137,7 @@ internal static class FFAManager
             var teamNum = FFATeamNumber.GetInt();
             var playerNum = allPlayers.Length;
             int memberNum = (teamNum > 5 && playerNum == 15) || playerNum % teamNum == 0 ? playerNum / teamNum : playerNum / teamNum + 1;
-            var teamMembers = allPlayers.Select(x => x.PlayerId).Chunk(memberNum).ToList();
+            var teamMembers = allPlayers.Select(x => x.PlayerId).Shuffle(IRandom.Instance).Chunk(memberNum).ToList();
 
             for (int i = 0; i < teamMembers.Count; i++)
             {
