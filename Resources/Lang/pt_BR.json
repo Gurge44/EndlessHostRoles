@@ -3237,6 +3237,8 @@
   "FFA_LowerVision": "Visão Diminuída",
   "FFA_ModifiedVisionDuration": "Tempo de duração da Visão Diminuída",
   "FFA_EnableRandomTwists": "Habilitar trocas aleatórias de vez em quando",
+  "FFA_TeamMode": "Habilitar Modo de Equipes",
+  "FFA_TeamNumber": "Número de Equipes",
   "FFA-Event-GetShield": "Você tem um escudo temporário!",
   "FFA-Event-GetIncreasedSpeed": "Você tem um aumento temporário de velocidade!",
   "FFA-Event-GetLowKCD": "Você tem um tempo de espera menor para matar!",
