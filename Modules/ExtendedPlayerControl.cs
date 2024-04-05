@@ -631,13 +631,13 @@ static class ExtendedPlayerControl
 
         return pc.GetCustomRole() switch
         {
-            //SoloKombat
+            // SoloKombat
             CustomRoles.KB_Normal => true,
-            //FFA
+            // FFA
             CustomRoles.Killer => true,
-            //Move And Stop
+            // Move And Stop
             CustomRoles.Tasker => false,
-            //Hot Potato
+            // Hot Potato
             CustomRoles.Potato => false,
 
             _ => Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.Role.CanUseImpostorVentButton(pc),

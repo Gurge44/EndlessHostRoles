@@ -317,13 +317,13 @@ class CheckForEndVotingPatch
 
             exiledPlayer?.Object.SetRealKiller(null);
 
-            //RPC
+            // RPC
             if (AntiBlackout.OverrideExiledPlayer)
             {
                 __instance.RpcVotingComplete(states.ToArray(), null, true);
                 ExileControllerWrapUpPatch.AntiBlackout_LastExiled = exiledPlayer;
             }
-            else __instance.RpcVotingComplete(states.ToArray(), exiledPlayer, tie); //通常処理
+            else __instance.RpcVotingComplete(states.ToArray(), exiledPlayer, tie);
 
             CheckForDeathOnExile(PlayerState.DeathReason.Vote, exileId);
 
@@ -852,7 +852,7 @@ class MeetingHudStartPatch
 
         if (AmongUsClient.Instance.AmHost)
         {
-            _ = _ = new LateTask(() =>
+            _ = new LateTask(() =>
             {
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {

@@ -1587,7 +1587,7 @@ public static class Utils
     public static void ApplySuffix(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost || player == null) return;
-        if (!(player.AmOwner || player.FriendCode.GetDevUser().HasTag())) return;
+        if (!player.AmOwner && !player.FriendCode.GetDevUser().HasTag() && !ChatCommands.IsPlayerModerator(player.FriendCode)) return;
         string name = Main.AllPlayerNames.TryGetValue(player.PlayerId, out var n) ? n : string.Empty;
         if (Main.NickName != string.Empty && player.AmOwner) name = Main.NickName;
         if (name == string.Empty) return;
@@ -1915,7 +1915,6 @@ public static class Utils
                 {
                     case CustomGameMode.FFA:
                         SelfSuffix.Append(FFAManager.GetPlayerArrow(seer));
-                        if (FFAManager.FFAChatDuringGame.GetBool()) SelfSuffix.Append(SelfSuffix.Length > 0 && FFAManager.LatestChatMessage != string.Empty ? "\n" : string.Empty).Append(FFAManager.LatestChatMessage);
                         break;
                     case CustomGameMode.SoloKombat:
                         SelfSuffix.Append(SoloKombatManager.GetDisplayHealth(seer));
@@ -2036,8 +2035,6 @@ public static class Utils
                     {
                         if (target.PlayerId == seer.PlayerId) continue;
                         Logger.Info($"NotifyRoles-Loop2-{target.GetNameWithRole().RemoveHtmlTags()}:START", "NotifyRoles");
-
-                        ApplySuffix(target);
 
                         if ((IsActive(SystemTypes.MushroomMixupSabotage) || MushroomMixup) && target.IsAlive() && !seer.Is(CustomRoleTypes.Impostor) && Main.ResetCamPlayerList.Contains(seer.PlayerId))
                         {

@@ -146,6 +146,8 @@ internal static class FFAManager
                     PlayerTeams.Add(id, i);
                 }
             }
+
+            _ = new LateTask(() => { Utils.NotifyRoles(NoCache: true, ForceLoop: true); }, 10f, log: false);
         }
     }
 
@@ -403,7 +405,7 @@ internal static class FFAManager
         LatestChatMessage = string.Format(GetString("FFAChatMessageNotify"), playerName, message);
         foreach (var pc in Main.AllAlivePlayerControls)
         {
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            pc.Notify(LatestChatMessage);
         }
     }
 

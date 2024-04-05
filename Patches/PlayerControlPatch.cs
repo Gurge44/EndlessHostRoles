@@ -1505,7 +1505,6 @@ class FixedUpdatePatch
                 {
                     case CustomGameMode.FFA:
                         Suffix.Append(FFAManager.GetPlayerArrow(seer, target));
-                        if (self && FFAManager.FFAChatDuringGame.GetBool()) Suffix.Append((Suffix.Length > 0 && FFAManager.LatestChatMessage != string.Empty ? "\n" : string.Empty) + FFAManager.LatestChatMessage);
                         break;
                     case CustomGameMode.MoveAndStop when self:
                         Suffix.Append(MoveAndStopManager.GetSuffixText(seer));
@@ -1684,7 +1683,7 @@ class EnterVentPatch
     {
         Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "EnterVent");
 
-        if (pc.GetRoleTypes() != RoleTypes.Engineer && !Main.PlayerStates[pc.PlayerId].Role.CanUseImpostorVentButton(pc))
+        if (pc.GetRoleTypes() != RoleTypes.Engineer && !Main.PlayerStates[pc.PlayerId].Role.CanUseImpostorVentButton(pc) && Options.CurrentGameMode == CustomGameMode.Standard)
         {
             pc.MyPhysics?.RpcBootFromVent(__instance.Id);
             return;
@@ -1799,10 +1798,7 @@ class CoEnterVentPatch
         if (Ventguard.BlockedVents.Contains(id))
         {
             var pc = __instance.myPlayer;
-            if (Options.VentguardBlockDoesNotAffectCrew.GetBool() && pc.IsCrewmate())
-            {
-            }
-            else
+            if (!Options.VentguardBlockDoesNotAffectCrew.GetBool() || !pc.IsCrewmate())
             {
                 _ = new LateTask(() =>
                 {
@@ -1823,7 +1819,7 @@ class CoEnterVentPatch
             Circumvent.OnCoEnterVent(__instance, id);
         }
 
-        if (__instance.myPlayer.GetCustomRole().GetDYRole() == RoleTypes.Impostor && !Main.PlayerStates[__instance.myPlayer.PlayerId].Role.CanUseImpostorVentButton(__instance.myPlayer))
+        if (__instance.myPlayer.GetCustomRole().GetDYRole() == RoleTypes.Impostor && !Main.PlayerStates[__instance.myPlayer.PlayerId].Role.CanUseImpostorVentButton(__instance.myPlayer) && Options.CurrentGameMode == CustomGameMode.Standard)
         {
             _ = new LateTask(() => { __instance.RpcBootFromVent(id); }, 0.5f);
         }
@@ -1831,7 +1827,7 @@ class CoEnterVentPatch
         if (((__instance.myPlayer.Data.Role.Role != RoleTypes.Engineer && !__instance.myPlayer.CanUseImpostorVentButton()) ||
              (__instance.myPlayer.Is(CustomRoles.Mayor) && Mayor.MayorUsedButtonCount.TryGetValue(__instance.myPlayer.PlayerId, out var count) && count >= Mayor.MayorNumOfUseButton.GetInt()) ||
              (__instance.myPlayer.Is(CustomRoles.Paranoia) && Paranoia.ParaUsedButtonCount.TryGetValue(__instance.myPlayer.PlayerId, out var count2) && count2 >= Options.ParanoiaNumOfUseButton.GetInt()))
-            && !__instance.myPlayer.Is(CustomRoles.Nimble) && !__instance.myPlayer.Is(CustomRoles.Bloodlust))
+            && !__instance.myPlayer.Is(CustomRoles.Nimble) && !__instance.myPlayer.Is(CustomRoles.Bloodlust) && Options.CurrentGameMode == CustomGameMode.Standard)
         {
             try
             {

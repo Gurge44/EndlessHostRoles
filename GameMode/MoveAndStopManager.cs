@@ -62,7 +62,15 @@ public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, 
 
     public string ColoredTimerString
     {
-        get => IsYellow ? Utils.ColorString(Color.clear, "00") : Utils.ColorString(IsRed ? Color.red : Color.green, Timer < 10 ? $"0{Timer}" : Timer.ToString());
+        get
+        {
+            string result = IsYellow || (Timer == TotalGreenTime && !IsRed && !IsYellow) || (Timer == TotalRedTime && IsRed) ? Utils.ColorString(Color.clear, "00") : Utils.ColorString(IsRed ? Color.red : Color.green, Timer < 10 ? $"0{Timer}" : Timer.ToString());
+
+            if (Timer is <= 19 and >= 10 && !IsYellow) result = $" {result}";
+            if (Timer % 10 == 1 && !IsYellow) result = result.Insert(result.Length - 9, " ");
+
+            return $"<font=\"DIGITAL-7 SDF\"><size=130%>{result}</size></font>";
+        }
     }
 
     public string ColoredArrow
@@ -139,10 +147,10 @@ class MoveAndStopPlayerData(Counter leftCounter, Counter middleCounter, Counter 
         var middleTimer = MiddleCounter.ColoredTimerString;
         var rightTimer = RightCounter.ColoredTimerString;
 
-        var arrowRow = $"{LeftCounter.ColoredArrow.PadRightV2(4)}   {MiddleCounter.ColoredArrow.PadRightV2(4)}   {RightCounter.ColoredArrow.PadRightV2(4)}";
-        var counterRow = $"{leftTimer.PadRightV2(4)}  {middleTimer.PadRightV2(4)}  {rightTimer.PadRightV2(4)}";
+        var arrowRow = $"{LeftCounter.ColoredArrow}   {MiddleCounter.ColoredArrow}   {RightCounter.ColoredArrow}";
+        var counterRow = $"{leftTimer}  {middleTimer}  {rightTimer}";
 
-        return $"{arrowRow}\n{counterRow}";
+        return $"{counterRow}\n{arrowRow}";
     }
 
     public void UpdateCounters()
