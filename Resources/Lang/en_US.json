@@ -2622,6 +2622,8 @@
   "Sentry": "Sentry",
   "SentryInfo": "Monitor a Room",
   "SentryInfoLong": "(Crewmates):\\nAs the Sentry, you can monitor a room by petting your pet. When you pet your pet in the future, you get information from that room, including:<size=80%>\\n- The players currently in that room\\n- Who is dead in that room (if any)\\n- The players that used a vent in that room\\n- Whether someone shapeshifted in that room</size>\\n\\nDepending on the settings, players may know if a room is monitored, and you may not be able to view this info during Comms Sabotages.",
+  "Sentry.ShowInfoDuration": "Info is Visible for",
+  "Sentry.PlayersKnowAboutCamera": "Players Know if the Room is Monitored",
   "Sentry.Suffix.MonitoredRoom": "<size=80%>This room is monitored by the {0}</size>",
   "Sentry.Notify.Info": "<u>Info about your monitored room:</u>\\nPlayers: {0}\\nDead players: {1}\\nPlayers that used a vent: {2}\\nShapeshifters: {3}",
   "SchrodingersCat": "Schrödinger's Cat",

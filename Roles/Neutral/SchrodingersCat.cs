@@ -9,7 +9,7 @@
 
         public static void SetupCustomOption()
         {
-            const int id = 13900;
+            const int id = 13840;
             Options.SetupRoleOptions(id, TabGroup.NeutralRoles, CustomRoles.SchrodingersCat);
             WinsWithCrewIfNotAttacked = BooleanOptionItem.Create(id + 2, "SchrodingersCat.WinsWithCrewIfNotAttacked", true, TabGroup.NeutralRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SchrodingersCat]);

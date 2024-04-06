@@ -26,7 +26,7 @@ namespace EHR.Roles.Impostor
         {
             const int id = 11370;
             Options.SetupRoleOptions(id, TabGroup.CrewmateRoles, CustomRoles.Sentry);
-            ShowInfoCooldown = IntegerOptionItem.Create(id + 2, "Sentry.ShowInfoCooldown", new(1, 60, 1), 15, TabGroup.CrewmateRoles, false)
+            ShowInfoCooldown = IntegerOptionItem.Create(id + 2, "AbilityCooldown", new(1, 60, 1), 15, TabGroup.CrewmateRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry])
                 .SetValueFormat(OptionFormat.Seconds);
             ShowInfoDuration = IntegerOptionItem.Create(id + 3, "Sentry.ShowInfoDuration", new(1, 60, 1), 5, TabGroup.CrewmateRoles, false)
@@ -34,11 +34,11 @@ namespace EHR.Roles.Impostor
                 .SetValueFormat(OptionFormat.Seconds);
             PlayersKnowAboutCamera = BooleanOptionItem.Create(id + 4, "Sentry.PlayersKnowAboutCamera", true, TabGroup.CrewmateRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
-            AbilityUseLimit = IntegerOptionItem.Create(id + 5, "AbilityUseLimit", new(0, 20, 1), 5, TabGroup.CrewmateRoles, false)
+            AbilityUseLimit = IntegerOptionItem.Create(id + 5, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.CrewmateRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
             AbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(id + 6, "AbilityUseGainWithEachTaskCompleted", new(0.1f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
-            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(id + 7, "AbilityChargesWhenFinishedTasks", new(0.1f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles, false)
+            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(id + 7, "AbilityChargesWhenFinishedTasks", new(0.1f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
         }
 
