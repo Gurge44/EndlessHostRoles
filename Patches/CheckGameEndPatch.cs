@@ -183,6 +183,10 @@ class GameEndChecker
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.SoulHunter);
                             break;
+                        case CustomRoles.SchrodingersCat when SchrodingersCat.WinsWithCrewIfNotAttacked.GetBool():
+                            WinnerIds.Add(pc.PlayerId);
+                            AdditionalWinnerTeams.Add(AdditionalWinners.SchrodingersCat);
+                            break;
                     }
                 }
 

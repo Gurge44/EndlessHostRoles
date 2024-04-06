@@ -1,9 +1,6 @@
-﻿using System;
+﻿using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HarmonyLib;
 
 namespace EHR.Roles.Impostor
 {
@@ -16,8 +13,8 @@ namespace EHR.Roles.Impostor
         private static OptionItem ShowInfoDuration;
         private static OptionItem PlayersKnowAboutCamera;
         private static OptionItem AbilityUseLimit;
-        private static OptionItem AbilityUseGainWithEachTaskCompleted;
-        private static OptionItem AbilityChargesWhenFinishedTasks;
+        public static OptionItem AbilityUseGainWithEachTaskCompleted;
+        public static OptionItem AbilityChargesWhenFinishedTasks;
 
         private PlainShipRoom MonitoredRoom;
 
@@ -72,11 +69,14 @@ namespace EHR.Roles.Impostor
             pc.RpcRemoveAbilityUse();
 
             var players = Main.AllAlivePlayerControls.Where(IsInMonitoredRoom).Select(x => Utils.ColorString(Main.PlayerColors[x.PlayerId], x.GetRealName())).Join();
-            var bodies = DeadBodiesInRoom.Where(x => Utils.GetPlayerById(x) != null).Select(x => Utils.ColorString(Main.PlayerColors[x], Utils.GetPlayerById(x).GetRealName())).Join();
-            var vented = PlayersVentedInRoom.Where(x => Utils.GetPlayerById(x) != null).Select(x => Utils.ColorString(Main.PlayerColors[x], Utils.GetPlayerById(x).GetRealName())).Join();
-            var shifted = PlayersShiftedInRoom.Where(x => Utils.GetPlayerById(x) != null).Select(x => Utils.ColorString(Main.PlayerColors[x], Utils.GetPlayerById(x).GetRealName())).Join();
+            var bodies = GetColoredNames(DeadBodiesInRoom);
+            var vented = GetColoredNames(PlayersVentedInRoom);
+            var shifted = GetColoredNames(PlayersShiftedInRoom);
 
             pc.Notify(string.Format(Translator.GetString("Sentry.Notify.Info"), players, bodies, vented, shifted), ShowInfoDuration.GetInt());
+            return;
+
+            static string GetColoredNames(IEnumerable<byte> ids) => ids.Where(x => Utils.GetPlayerById(x) != null).Select(x => Utils.ColorString(Main.PlayerColors[x], Utils.GetPlayerById(x).GetRealName())).Join();
         }
 
         bool IsInMonitoredRoom(PlayerControl pc) => pc.GetPlainShipRoom().name == MonitoredRoom.name;

@@ -433,6 +433,7 @@ public class Main : BasePlugin
                 { CustomRoles.Sprayer, "#ffc038" },
                 { CustomRoles.PlagueDoctor, "#ff6633" },
                 { CustomRoles.Postman, "#00b893" },
+                { CustomRoles.SchrodingersCat, "#616161" },
                 { CustomRoles.Impartial, "#4287f5" },
                 { CustomRoles.Predator, "#c73906" },
                 { CustomRoles.Reckless, "#6e000d" },
@@ -447,6 +448,7 @@ public class Main : BasePlugin
                 { CustomRoles.Agitater, "#F4A460" },
                 { CustomRoles.BloodKnight, "#630000" },
                 { CustomRoles.Juggernaut, "#A41342" },
+                { CustomRoles.Cherokious, "#de4b9e" },
                 { CustomRoles.Parasite, "#ff1919" },
                 { CustomRoles.Crewpostor, "#ff1919" },
                 { CustomRoles.Refugee, "#ff1919" },
@@ -714,6 +716,7 @@ public enum CustomWinner
     RuthlessRomantic = CustomRoles.RuthlessRomantic,
     Doppelganger = CustomRoles.Doppelganger,
     Imitator = CustomRoles.Imitator,
+    Cherokious = CustomRoles.Cherokious,
 
     Bloodlust = CustomRoles.Bloodlust
 }
@@ -744,7 +747,8 @@ public enum AdditionalWinners
     Postman = CustomRoles.Postman,
     Impartial = CustomRoles.Impartial,
     Predator = CustomRoles.Predator,
-    SoulHunter = CustomRoles.SoulHunter
+    SoulHunter = CustomRoles.SoulHunter,
+    SchrodingersCat = CustomRoles.SchrodingersCat
 }
 
 public enum SuffixModes

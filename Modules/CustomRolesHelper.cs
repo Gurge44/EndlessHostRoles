@@ -232,6 +232,7 @@ internal static class CustomRolesHelper
             CustomRoles.Bard => CustomRoles.Impostor,
             CustomRoles.Swooper => CustomRoles.Impostor,
             CustomRoles.Crewpostor => CustomRoles.Engineer,
+            CustomRoles.Cherokious => CustomRoles.Engineer,
             CustomRoles.Observer => CustomRoles.Crewmate,
             CustomRoles.DovesOfNeace => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
             CustomRoles.Disperser => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
@@ -341,6 +342,7 @@ internal static class CustomRolesHelper
             CustomRoles.Sprayer => RoleTypes.Impostor,
             CustomRoles.PlagueDoctor => RoleTypes.Impostor,
             CustomRoles.Postman => RoleTypes.Impostor,
+            CustomRoles.SchrodingersCat => RoleTypes.Impostor,
             CustomRoles.Impartial => RoleTypes.Impostor,
             CustomRoles.Predator => RoleTypes.Impostor,
             CustomRoles.Reckless => RoleTypes.Impostor,
@@ -379,6 +381,7 @@ internal static class CustomRolesHelper
     public static bool IsNonNK(this CustomRoles role) => role is
         CustomRoles.Jester or
         CustomRoles.Postman or
+        CustomRoles.SchrodingersCat or
         CustomRoles.Impartial or
         CustomRoles.Predator or
         CustomRoles.SoulHunter or
@@ -415,6 +418,7 @@ internal static class CustomRolesHelper
         CustomRoles.Succubus or
         CustomRoles.Gamer or
         CustomRoles.Crewpostor or
+        CustomRoles.Cherokious or
         CustomRoles.Necromancer or
         CustomRoles.Agitater or
         CustomRoles.Wraith or
@@ -479,6 +483,7 @@ internal static class CustomRolesHelper
         CustomRoles.Amnesiac or
         CustomRoles.God or
         CustomRoles.Postman or
+        CustomRoles.SchrodingersCat or
         CustomRoles.Predator or
         CustomRoles.Pursuer or
         CustomRoles.FFF or
@@ -682,7 +687,8 @@ internal static class CustomRolesHelper
         CustomRoles.Tornado,
         CustomRoles.Swiftclaw,
         CustomRoles.Adventurer,
-        CustomRoles.Sentry
+        CustomRoles.Sentry,
+        CustomRoles.Cherokious
     ];
 
     public static bool OnlySpawnsWithPets(this CustomRoles role) => OnlySpawnsWithPetsRoleList.Contains(role);
@@ -1179,8 +1185,10 @@ internal static class CustomRolesHelper
             CustomRoles.Refugee => CountTypes.Impostor,
             CustomRoles.Glitch => CountTypes.Glitch,
             CustomRoles.Spiritcaller => CountTypes.Spiritcaller,
+            CustomRoles.Cherokious => CountTypes.Cherokious,
             CustomRoles.DarkHide => DarkHide.SnatchesWin.GetBool() ? CountTypes.Crew : CountTypes.DarkHide,
             CustomRoles.Arsonist => !Options.ArsonistCanIgniteAnytime.GetBool() ? CountTypes.Crew : CountTypes.Arsonist,
+            CustomRoles.SchrodingersCat => SchrodingersCat.WinsWithCrewIfNotAttacked.GetBool() ? CountTypes.Crew : CountTypes.OutOfGame,
 
             _ => role.Is(Team.Impostor) ? CountTypes.Impostor : CountTypes.Crew
         };
@@ -1329,5 +1337,6 @@ public enum CountTypes
     Pestilence,
     PlagueBearer,
     Glitch,
-    Arsonist
+    Arsonist,
+    Cherokious
 }

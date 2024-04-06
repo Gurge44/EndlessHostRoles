@@ -528,6 +528,7 @@ public static class Utils
             case CustomRoles.Doppelganger:
             case CustomRoles.PlagueDoctor:
             case CustomRoles.Postman:
+            case CustomRoles.SchrodingersCat:
             case CustomRoles.Impartial:
             case CustomRoles.Predator:
             case CustomRoles.Reckless:
@@ -606,6 +607,7 @@ public static class Utils
                 if (ForRecompute)
                     hasTasks = false;
                 break;
+            case CustomRoles.Cherokious:
             case CustomRoles.Crewpostor:
                 if (ForRecompute && !p.IsDead)
                     hasTasks = false;
@@ -805,8 +807,15 @@ public static class Utils
                 NonCompleteColor = Workhorse.RoleColor;
 
             var NormalColor = taskState.IsTaskFinished ? TaskCompleteColor : NonCompleteColor;
-            if (Main.PlayerStates.TryGetValue(playerId, out var ps) && ps.MainRole == CustomRoles.Crewpostor)
-                NormalColor = Color.red;
+            if (Main.PlayerStates.TryGetValue(playerId, out var ps))
+            {
+                NormalColor = ps.MainRole switch
+                {
+                    CustomRoles.Crewpostor => Color.red,
+                    CustomRoles.Cherokious => GetRoleColor(CustomRoles.Cherokious),
+                    _ => NormalColor
+                };
+            }
 
             Color TextColor = comms ? Color.gray : NormalColor;
             string Completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
@@ -2407,6 +2416,7 @@ public static class Utils
             CustomRoles.Warlock => Warlock.IsCursed ? -1 : (int)Options.DefaultKillCooldown,
             CustomRoles.Swiftclaw => Swiftclaw.DashCD.GetInt() + (includeDuration ? Swiftclaw.DashDuration.GetInt() : 0),
             CustomRoles.Tiger => Tiger.EnrageCooldown.GetInt() + (includeDuration ? Tiger.EnrageDuration.GetInt() : 0),
+            CustomRoles.Cherokious => Cherokious.KillCooldown.GetInt(),
             _ => -1,
         };
         if (CD == -1) return;
@@ -2693,8 +2703,15 @@ public static class Utils
                 NonCompleteColor = Workhorse.RoleColor;
 
             var NormalColor = taskState.IsTaskFinished ? TaskCompleteColor : NonCompleteColor;
-            if (Main.PlayerStates.TryGetValue(id, out var ps) && ps.MainRole == CustomRoles.Crewpostor)
-                NormalColor = Color.red;
+            if (Main.PlayerStates.TryGetValue(id, out var ps))
+            {
+                NormalColor = ps.MainRole switch
+                {
+                    CustomRoles.Crewpostor => Color.red,
+                    CustomRoles.Cherokious => GetRoleColor(CustomRoles.Cherokious),
+                    _ => NormalColor
+                };
+            }
 
             Color TextColor = NormalColor;
             string Completed = $"{taskState.CompletedTasksCount}";

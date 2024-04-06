@@ -86,26 +86,33 @@ namespace EHR.Modules
         {
             if (CustomTeams.Count == 0 || CustomTeamPlayerIds.Count == 0) return false;
 
-            CustomTeamPlayerIds.Do(x => x.Value.RemoveWhere(p =>
+            try
             {
-                var pc = Utils.GetPlayerById(p);
-                return pc == null || pc.Data.Disconnected;
-            }));
-
-            var aliveTeamPlayers = CustomTeamPlayerIds.ToDictionary(x => x.Key, x => x.Value);
-            aliveTeamPlayers.Do(x => x.Value.RemoveWhere(p => !Utils.GetPlayerById(p).IsAlive()));
-
-            var team = aliveTeamPlayers.Keys.First();
-            if (aliveTeamPlayers.Count == 1 && Main.AllAlivePlayerControls.All(x =>
+                CustomTeamPlayerIds.Do(x => x.Value.RemoveWhere(p =>
                 {
-                    var customTeam = GetCustomTeam(x.PlayerId);
-                    return customTeam != null && customTeam.Equals(team);
-                }))
+                    var pc = Utils.GetPlayerById(p);
+                    return pc == null || pc.Data.Disconnected;
+                }));
+
+                var aliveTeamPlayers = CustomTeamPlayerIds.ToDictionary(x => x.Key, x => x.Value);
+                aliveTeamPlayers.Do(x => x.Value.RemoveWhere(p => !Utils.GetPlayerById(p).IsAlive()));
+
+                var team = aliveTeamPlayers.Keys.First();
+                if (aliveTeamPlayers.Count == 1 && Main.AllAlivePlayerControls.All(x =>
+                    {
+                        var customTeam = GetCustomTeam(x.PlayerId);
+                        return customTeam != null && customTeam.Equals(team);
+                    }))
+                {
+                    WinnerTeam = team;
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CustomTeam);
+                    CustomWinnerHolder.WinnerIds = aliveTeamPlayers.Values.First();
+                    return true;
+                }
+            }
+            catch
             {
-                WinnerTeam = team;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CustomTeam);
-                CustomWinnerHolder.WinnerIds = aliveTeamPlayers.Values.First();
-                return true;
+                return false;
             }
 
             return false;

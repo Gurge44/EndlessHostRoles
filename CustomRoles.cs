@@ -3,10 +3,10 @@ namespace EHR;
 
 public enum CustomRoles
 {
-    //Default
+    // Default
     Crewmate = 0,
 
-    //Impostors (Vanilla)
+    // Impostors (Vanilla)
     Impostor,
     Shapeshifter,
 
@@ -14,7 +14,7 @@ public enum CustomRoles
     ImpostorEHR,
     ShapeshifterEHR,
 
-    //Impostors
+    // Impostors
 
     Hacker, // Anonymous
     AntiAdminer,
@@ -101,7 +101,7 @@ public enum CustomRoles
     YinYanger,
     Zombie,
 
-    //Crewmates (Vanilla)
+    // Crewmates (Vanilla)
     Engineer,
     GuardianAngel,
     Scientist,
@@ -112,7 +112,7 @@ public enum CustomRoles
     GuardianAngelEHR,
     ScientistEHR,
 
-    // Crewmate
+    // Crewmates
 
     Addict,
     Adventurer,
@@ -214,7 +214,7 @@ public enum CustomRoles
     SwordsMan, // Vigilante
     Witness,
 
-    //Neutrals
+    // Neutrals
 
     Agitater,
     Amnesiac,
@@ -222,6 +222,7 @@ public enum CustomRoles
     Bandit,
     BloodKnight,
     Bubble,
+    Cherokious,
     Collector,
     Deathknight,
     Gamer, // Demon
@@ -270,6 +271,7 @@ public enum CustomRoles
     Ritualist,
     Romantic,
     RuthlessRomantic,
+    SchrodingersCat,
     NSerialKiller, // Serial Killer
     Sidekick,
     SoulHunter,
@@ -290,25 +292,25 @@ public enum CustomRoles
     WeaponMaster,
     Workaholic,
 
-    //SoloKombat
+    // Solo Kombat
     KB_Normal,
 
-    //FFA
+    // FFA
     Killer,
 
-    //MoveAndStop
+    // Move And Stop
     Tasker,
 
-    //HotPotato
+    // Hot Potato
     Potato,
 
-    //H&S
+    // H&S
     Hider,
     Seeker,
     Fox,
     Troll,
 
-    //GM
+    // GM
     GM,
 
     // ????
