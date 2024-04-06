@@ -222,7 +222,7 @@ class GameEndChecker
                         .Do(p => WinnerIds.Add(p.PlayerId));
                 }
 
-                if (WinnerTeam != CustomWinner.CustomTeam)
+                if (WinnerTeam != CustomWinner.CustomTeam && !Options.CTAPlayersCanWinWithOriginalTeam.GetBool())
                 {
                     WinnerIds.RemoveWhere(x => CustomTeamManager.GetCustomTeam(x) != null);
                 }

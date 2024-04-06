@@ -506,11 +506,11 @@ class MurderPlayerPatch
 
         if (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.etc)
         {
-            //If the cause of death is not specified, it is determined as a normal kill.
+            // If the cause of death is not specified, it is determined as a normal kill.
             Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Kill;
         }
 
-        //Let’s see if Youtuber was stabbed first
+        // Let’s see if Youtuber was stabbed first
         if (Main.FirstDied == byte.MaxValue && target.Is(CustomRoles.Youtuber))
         {
             CustomSoundsManager.RPCPlayCustomSoundAll("Congrats");
@@ -518,7 +518,7 @@ class MurderPlayerPatch
             CustomWinnerHolder.WinnerIds.Add(target.PlayerId);
         }
 
-        //Record the first blow
+        // Record the first blow
         if (Main.FirstDied == byte.MaxValue)
             Main.FirstDied = target.PlayerId;
 
@@ -529,9 +529,6 @@ class MurderPlayerPatch
 
         if (target.Is(CustomRoles.Stained))
             Stained.OnDeath(target, killer);
-
-        //if ((Romantic.BetPlayer.TryGetValue(target.PlayerId, out var RomanticPartner) && target.PlayerId == RomanticPartner) && target.PlayerId != killer.PlayerId)
-        //    VengefulRomantic.PartnerKiller.Add(killer.PlayerId, 1);
 
         Witness.AllKillers.Remove(killer.PlayerId);
         Witness.AllKillers.Add(killer.PlayerId, TimeStamp);
@@ -694,6 +691,12 @@ class ShapeshiftPatch
             isSSneeded = false;
         }
 
+        bool shouldCancel = Options.DisableShapeshiftAnimations.GetBool();
+        bool shouldAlwaysCancel = shouldCancel && Options.DisableAllShapeshiftAnimations.GetBool();
+
+        isSSneeded &= !shouldAlwaysCancel;
+        forceCancel |= shouldAlwaysCancel;
+
         // Forced rewriting in case the name cannot be corrected due to the timing of canceling the transformation being off.
         if (!shapeshifting && !shapeshifter.Is(CustomRoles.Glitch) && isSSneeded)
         {
@@ -712,7 +715,7 @@ class ShapeshiftPatch
             NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: shapeshifter);
         }
 
-        return isSSneeded || (!Options.DisableShapeshiftAnimations.GetBool() && !forceCancel) || !shapeshifting;
+        return isSSneeded || (!shouldCancel && !forceCancel) || (!shapeshifting && !shouldAlwaysCancel);
     }
 
     // Tasks that should run when someone performs a shapeshift (with the egg animation) should be here.

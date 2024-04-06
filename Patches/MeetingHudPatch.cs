@@ -796,7 +796,7 @@ class MeetingHudStartPatch
                 (pc.Is(CustomRoles.Mayor) && Mayor.MayorRevealWhenDoneTasks.GetBool() && pc.GetTaskState().IsTaskFinished) ||
                 (pc.Is(CustomRoles.Marshall) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && pc.GetTaskState().IsTaskFinished) ||
                 (Main.PlayerStates[pc.PlayerId].deathReason == PlayerState.DeathReason.Vote && Options.SeeEjectedRolesInMeeting.GetBool()) ||
-                CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, PlayerControl.LocalPlayer.PlayerId) ||
+                CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, PlayerControl.LocalPlayer.PlayerId) && Options.CTAPlayersCanSeeEachOthersRoles.GetBool() ||
                 Adventurer.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Totocalcio.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Romantic.KnowRole(PlayerControl.LocalPlayer, pc) ||

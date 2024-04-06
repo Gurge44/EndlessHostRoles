@@ -217,6 +217,7 @@ public static class Options
     public static OptionItem DisableShieldAnimations;
     public static OptionItem DisableCrackedGlass;
     public static OptionItem DisableShapeshiftAnimations;
+    public static OptionItem DisableAllShapeshiftAnimations;
     public static OptionItem DisableKillAnimationOnGuess;
     public static OptionItem DisableVanillaRoles;
     public static OptionItem SabotageCooldownControl;
@@ -869,6 +870,9 @@ public static class Options
     public static OptionItem RoleAssigningAlgorithm;
     public static OptionItem EndWhenPlayerBug;
     public static OptionItem RemovePetsAtDeadPlayers;
+
+    public static OptionItem CTAPlayersCanWinWithOriginalTeam;
+    public static OptionItem CTAPlayersCanSeeEachOthersRoles;
 
     public static OptionItem UsePets;
     public static OptionItem PetToAssignToEveryone;
@@ -1618,6 +1622,10 @@ public static class Options
         DisableShapeshiftAnimations = BooleanOptionItem.Create(22604, "DisableShapeshiftAnimations", true, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+        DisableAllShapeshiftAnimations = BooleanOptionItem.Create(22605, "DisableAllShapeshiftAnimations", false, TabGroup.GameSettings, false)
+            .SetParent(DisableShapeshiftAnimations)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
         DisableVanillaRoles = BooleanOptionItem.Create(22600, "DisableVanillaRoles", true, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
@@ -1750,7 +1758,7 @@ public static class Options
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
 
-        //Disable Short Tasks
+        // Disable Short Tasks
         DisableShortTasks = BooleanOptionItem.Create(23000, "DisableShortTasks", false, TabGroup.TaskSettings, false)
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true)
@@ -1870,7 +1878,7 @@ public static class Options
         LoadingPercentage = 84;
 
 
-        //Disable Common Tasks
+        // Disable Common Tasks
         DisableCommonTasks = BooleanOptionItem.Create(23100, "DisableCommonTasks", false, TabGroup.TaskSettings, false)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(239, 89, 175, byte.MaxValue));
@@ -1913,7 +1921,7 @@ public static class Options
 
         LoadingPercentage = 85;
 
-        //Disable Long Tasks
+        // Disable Long Tasks
         DisableLongTasks = BooleanOptionItem.Create(23150, "DisableLongTasks", false, TabGroup.TaskSettings, false)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(239, 89, 175, byte.MaxValue));
@@ -2002,7 +2010,7 @@ public static class Options
         LoadingPercentage = 89;
 
 
-        //Disable Divert Power, Weather Nodes etc. situational Tasks
+        // Disable Divert Power, Weather Nodes etc. situational Tasks
         DisableOtherTasks = BooleanOptionItem.Create(23200, "DisableOtherTasks", false, TabGroup.TaskSettings, false)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(239, 89, 175, byte.MaxValue));
@@ -2074,12 +2082,25 @@ public static class Options
         MainLoadingText = "Building game settings";
 
 
+        TextOptionItem.Create(100027, "MenuTitle.CTA", TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetHeader(true)
+            .SetColor(new Color32(215, 227, 84, byte.MaxValue));
+
+        CTAPlayersCanWinWithOriginalTeam = BooleanOptionItem.Create(23550, "CTA.PlayersCanWinWithOriginalTeam", false, TabGroup.GameSettings, false)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(215, 227, 84, byte.MaxValue));
+        CTAPlayersCanSeeEachOthersRoles = BooleanOptionItem.Create(23551, "CTA.PlayersCanSeeEachOthersRoles", true, TabGroup.GameSettings, false)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(215, 227, 84, byte.MaxValue));
+
+
         TextOptionItem.Create(100027, "MenuTitle.Meeting", TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
+            .SetHeader(true)
             .SetColor(new Color32(147, 241, 240, byte.MaxValue));
 
         SyncButtonMode = BooleanOptionItem.Create(23300, "SyncButtonMode", false, TabGroup.GameSettings, false)
-            .SetHeader(true)
             .SetColor(new Color32(147, 241, 240, byte.MaxValue))
             .SetGameMode(CustomGameMode.Standard);
         SyncedButtonCount = IntegerOptionItem.Create(23310, "SyncedButtonCount", new(0, 100, 1), 10, TabGroup.GameSettings, false)

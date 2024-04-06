@@ -705,7 +705,7 @@ public static class Utils
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool() ||
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() ||
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosImp.GetBool() ||
-               CustomTeamManager.AreInSameCustomTeam(__instance.PlayerId, PlayerControl.LocalPlayer.PlayerId) ||
+               CustomTeamManager.AreInSameCustomTeam(__instance.PlayerId, PlayerControl.LocalPlayer.PlayerId) && Options.CTAPlayersCanSeeEachOthersRoles.GetBool() ||
                Adventurer.KnowRole(PlayerControl.LocalPlayer, __instance) ||
                Totocalcio.KnowRole(PlayerControl.LocalPlayer, __instance) ||
                Romantic.KnowRole(PlayerControl.LocalPlayer, __instance) ||
@@ -2148,7 +2148,7 @@ public static class Utils
                                 (target.Is(CustomRoles.Mayor) && Mayor.MayorRevealWhenDoneTasks.GetBool() && target.GetTaskState().IsTaskFinished) ||
                                 (seer.Is(CustomRoleTypes.Crewmate) && target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished) ||
                                 (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Vote && Options.SeeEjectedRolesInMeeting.GetBool()) ||
-                                CustomTeamManager.AreInSameCustomTeam(seer.PlayerId, target.PlayerId) ||
+                                CustomTeamManager.AreInSameCustomTeam(seer.PlayerId, target.PlayerId) && Options.CTAPlayersCanSeeEachOthersRoles.GetBool() ||
                                 Adventurer.KnowRole(seer, target) ||
                                 Totocalcio.KnowRole(seer, target) ||
                                 Romantic.KnowRole(seer, target) ||
