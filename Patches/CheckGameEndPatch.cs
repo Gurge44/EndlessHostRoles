@@ -524,25 +524,21 @@ class GameEndChecker
 
             if (FFAManager.FFATeamMode.GetBool())
             {
-                var firstTeam = FFAManager.PlayerTeams.GroupBy(x => x.Value, x => x.Key).Select(x => x.Where(p =>
+                var teams = FFAManager.PlayerTeams.GroupBy(x => x.Value, x => x.Key).Select(x => x.Where(p =>
                 {
                     var pc = GetPlayerById(p);
                     return pc != null && !pc.Data.Disconnected;
-                }).ToHashSet()).FirstOrDefault(x => x.Count > 0);
+                }).ToHashSet()).Where(x => x.Count > 0);
 
-                if (firstTeam == null)
+                foreach (var team in teams)
                 {
-                    FFAManager.RoundTime = 0;
-                    Logger.Warn("No players alive. Force ending the game", "FFA");
-                    return false;
-                }
+                    if (Main.AllAlivePlayerControls.All(x => team.Contains(x.PlayerId)))
+                    {
+                        WinnerIds = team;
 
-                if (Main.AllAlivePlayerControls.All(x => firstTeam.Contains(x.PlayerId)))
-                {
-                    WinnerIds = firstTeam;
-
-                    Main.DoBlockNameChange = true;
-                    return true;
+                        Main.DoBlockNameChange = true;
+                        return true;
+                    }
                 }
             }
 
