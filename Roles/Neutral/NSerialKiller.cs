@@ -1,5 +1,4 @@
 using AmongUs.GameOptions;
-using System.Collections.Generic;
 using static EHR.Options;
 
 namespace EHR.Roles.Neutral;

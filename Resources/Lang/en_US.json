@@ -2629,6 +2629,7 @@
   "SchrodingersCatInfoLong": "(Neutrals):\\nAs Schrödinger's Cat, if you get attacked, you turn into the same role as your killer.\\nIf you don't get attacked, you lose, or you can win with crewmates, depending on the settings.",
   "SchrodingersCat.WinsWithCrewIfNotAttacked": "Wins with crewmates if not attacked",
   "SchrodingersCat.Notify.KillerRecruited": "You have recruited the {1}! {0} now has the same role as you.",
+  "SchrodingersCat.Notify.RecruitedByKiller": "You have been recruited by the {1}! You now have the same role as {0}.",
   "Cherokious": "Cherokious",
   "CherokiousInfo": "Do tasks to get Bullets to Kill",
   "CherokiousInfoLong": "(Neutrals):\\nAs the Cherokious, you can get bullets by completing tasks. You can kill by petting your pet near someone. You can only kill if you have bullets.",
