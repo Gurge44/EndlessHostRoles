@@ -1629,6 +1629,7 @@ public static class Utils
             if (devUser.HasTag() || isMod)
             {
                 string tag = devUser.GetTag();
+                if (tag == "null") tag = string.Empty;
                 if (player.AmOwner || player.IsModClient())
                     name = tag + (isMod ? ("<size=1.4>" + GetString("ModeratorTag") + "\r\n</size>") : string.Empty) + name;
                 else name = tag.Replace("\r\n", " - ") + (isMod ? ("<size=1.4>" + GetString("ModeratorTag") + " - </size>") : string.Empty) + name;

@@ -28,6 +28,7 @@
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {
             var killerRole = killer.GetCustomRole();
+            if (Options.SingleRoles.Contains(killerRole)) killerRole = CustomRoles.Amnesiac;
 
             target.RpcSetCustomRole(killerRole);
 

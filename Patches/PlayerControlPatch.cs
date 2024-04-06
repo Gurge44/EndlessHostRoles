@@ -745,6 +745,15 @@ class ShapeshiftPatch
     }
 }
 
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcShapeshift))]
+class RpcShapeshiftPatch
+{
+    public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
+    {
+        Main.CheckShapeshift[__instance.PlayerId] = __instance.PlayerId != target.PlayerId;
+    }
+}
+
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ReportDeadBody))]
 class ReportDeadBodyPatch
 {

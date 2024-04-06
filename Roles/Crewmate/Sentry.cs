@@ -59,7 +59,7 @@ namespace EHR.Roles.Impostor
 
         public override void OnPet(PlayerControl pc)
         {
-            if (MonitoredRoom == null) MonitoredRoom = pc.GetPlainShipRoom();
+            if (MonitoredRoom == null || MonitoredRoom == default || MonitoredRoom == default(PlainShipRoom)) MonitoredRoom = pc.GetPlainShipRoom();
             else DisplayRoomInfo(pc);
         }
 
@@ -73,13 +73,19 @@ namespace EHR.Roles.Impostor
             var vented = GetColoredNames(PlayersVentedInRoom);
             var shifted = GetColoredNames(PlayersShiftedInRoom);
 
+            var noDataString = Translator.GetString("Sentry.Notify.Info.NoData");
+            if (players.Length == 0) players = noDataString;
+            if (bodies.Length == 0) bodies = noDataString;
+            if (vented.Length == 0) vented = noDataString;
+            if (shifted.Length == 0) shifted = noDataString;
+
             pc.Notify(string.Format(Translator.GetString("Sentry.Notify.Info"), players, bodies, vented, shifted), ShowInfoDuration.GetInt());
             return;
 
             static string GetColoredNames(IEnumerable<byte> ids) => ids.Where(x => Utils.GetPlayerById(x) != null).Select(x => Utils.ColorString(Main.PlayerColors[x], Utils.GetPlayerById(x).GetRealName())).Join();
         }
 
-        bool IsInMonitoredRoom(PlayerControl pc) => pc.GetPlainShipRoom().name == MonitoredRoom.name;
+        public bool IsInMonitoredRoom(PlayerControl pc) => MonitoredRoom != null && pc.GetPlainShipRoom() == MonitoredRoom;
 
         public void OnAnyoneShapeshiftLoop(PlayerControl shapeshifter)
         {
@@ -110,7 +116,41 @@ namespace EHR.Roles.Impostor
 
         public static string GetSuffix(PlayerControl seer)
         {
-            return !PlayersKnowAboutCamera.GetBool() ? string.Empty : string.Format(Translator.GetString("Sentry.Suffix.MonitoredRoom"), CustomRoles.Sentry.ToColoredString());
+            if (!PlayersKnowAboutCamera.GetBool()) return string.Empty;
+
+            if (Main.PlayerStates[seer.PlayerId].Role is Sentry s && s.MonitoredRoom != null) return string.Format(Translator.GetString("Sentry.Suffix.Self"), Translator.GetString($"{s.MonitoredRoom.RoomId}"));
+
+            foreach (var state in Main.PlayerStates.Values)
+            {
+                if (state.Role is Sentry st && st.IsInMonitoredRoom(seer))
+                {
+                    return string.Format(Translator.GetString("Sentry.Suffix.MonitoredRoom"), CustomRoles.Sentry.ToColoredString());
+                }
+            }
+
+            return string.Empty;
+        }
+
+        private readonly HashSet<byte> LastNotified = [];
+
+        public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
+        {
+            if (!GameStates.IsInTask || lowLoad) return;
+
+            bool nowInMonitoredRoom = IsInMonitoredRoom(pc);
+            bool wasInMonitoredRoom = LastNotified.Contains(pc.PlayerId);
+
+            switch (nowInMonitoredRoom)
+            {
+                case true when !wasInMonitoredRoom:
+                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                    LastNotified.Add(pc.PlayerId);
+                    break;
+                case false when wasInMonitoredRoom:
+                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                    LastNotified.Remove(pc.PlayerId);
+                    break;
+            }
         }
     }
 }

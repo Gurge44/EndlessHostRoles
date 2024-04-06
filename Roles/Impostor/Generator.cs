@@ -166,6 +166,8 @@ namespace EHR.Roles.Impostor
 
             public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
             {
+                if (!shapeshifting) return true;
+
                 int cost = ActionCosts[Action.Shapeshift];
 
                 if (Charges < cost)

@@ -2089,6 +2089,7 @@ public static class Options
 
         CTAPlayersCanWinWithOriginalTeam = BooleanOptionItem.Create(23550, "CTA.PlayersCanWinWithOriginalTeam", false, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.Standard)
+            .SetHeader(true)
             .SetColor(new Color32(215, 227, 84, byte.MaxValue));
         CTAPlayersCanSeeEachOthersRoles = BooleanOptionItem.Create(23551, "CTA.PlayersCanSeeEachOthersRoles", true, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.Standard)
@@ -2102,6 +2103,7 @@ public static class Options
 
         SyncButtonMode = BooleanOptionItem.Create(23300, "SyncButtonMode", false, TabGroup.GameSettings, false)
             .SetColor(new Color32(147, 241, 240, byte.MaxValue))
+            .SetHeader(true)
             .SetGameMode(CustomGameMode.Standard);
         SyncedButtonCount = IntegerOptionItem.Create(23310, "SyncedButtonCount", new(0, 100, 1), 10, TabGroup.GameSettings, false)
             .SetParent(SyncButtonMode)
@@ -2165,9 +2167,11 @@ public static class Options
 
         TextOptionItem.Create(100028, "MenuTitle.Other", TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
+            .SetHeader(true)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
         LadderDeath = BooleanOptionItem.Create(23800, "LadderDeath", false, TabGroup.GameSettings, false)
+            .SetHeader(true)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
         LadderDeathChance = StringOptionItem.Create(23810, "LadderDeathChance", Rates[1..], 0, TabGroup.GameSettings, false)
             .SetParent(LadderDeath);
@@ -2201,6 +2205,7 @@ public static class Options
 
         TextOptionItem.Create(100029, "MenuTitle.Ghost", TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
+            .SetHeader(true)
             .SetColor(new Color32(217, 218, 255, byte.MaxValue));
 
         LoadingPercentage = 99;
@@ -2208,6 +2213,7 @@ public static class Options
 
         GhostCanSeeOtherRoles = BooleanOptionItem.Create(24300, "GhostCanSeeOtherRoles", true, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.Standard)
+            .SetHeader(true)
             .SetColor(new Color32(217, 218, 255, byte.MaxValue));
         GhostCanSeeOtherVotes = BooleanOptionItem.Create(24400, "GhostCanSeeOtherVotes", true, TabGroup.GameSettings, false)
             .SetGameMode(CustomGameMode.Standard)
@@ -2264,6 +2270,8 @@ public static class Options
         CustomRoleCounts.Add(role, countOption);
     }
 
+    public static HashSet<CustomRoles> SingleRoles = [];
+
     public static void SetupSingleRoleOptions(int id, TabGroup tab, CustomRoles role, int count = 1, CustomGameMode customGameMode = CustomGameMode.Standard, bool zeroOne = false, bool hideMaxSetting = true)
     {
         var spawnOption = StringOptionItem.Create(id, role.ToString(), zeroOne ? RatesZeroOne : Rates, 0, tab, false).SetColor(Utils.GetRoleColor(role))
@@ -2277,6 +2285,7 @@ public static class Options
 
         CustomRoleSpawnChances.Add(role, spawnOption);
         CustomRoleCounts.Add(role, countOption);
+        SingleRoles.Add(role);
     }
 
     public static OptionItem CreateCDSetting(int id, TabGroup tab, CustomRoles role, bool isKCD = false) =>

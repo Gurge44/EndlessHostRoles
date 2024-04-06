@@ -51,7 +51,7 @@ namespace EHR
 
         public virtual bool CanUseSabotage(PlayerControl pc)
         {
-            return pc.Is(Team.Impostor) || (pc.Is(CustomRoles.Mischievous) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool()) && pc.IsAlive());
+            return pc.Is(Team.Impostor) || pc.Is(CustomRoles.Mischievous) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool()) && pc.IsAlive();
         }
 
         public virtual void ApplyGameOptions(IGameOptions opt, byte playerId)

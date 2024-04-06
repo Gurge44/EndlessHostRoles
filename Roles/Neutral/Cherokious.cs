@@ -42,5 +42,7 @@ namespace EHR.Roles.Impostor
             var target = ExternalRpcPetPatch.SelectKillButtonTarget(pc);
             if (target != null && pc.RpcCheckAndMurder(target)) pc.RpcRemoveAbilityUse();
         }
+
+        public override bool CanUseKillButton(PlayerControl pc) => false;
     }
 }

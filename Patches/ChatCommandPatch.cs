@@ -297,7 +297,7 @@ internal class ChatCommands
                         case "ban":
                             if (GetRoleByName(args[2], out CustomRoles mainRole) && GetRoleByName(args[3], out CustomRoles addOn))
                             {
-                                if (mainRole.IsAdditionRole() || !addOn.IsAdditionRole()) break;
+                                if (mainRole.IsAdditionRole() || !addOn.IsAdditionRole() || addOn == CustomRoles.Lovers) break;
                                 if (args[1] == "add") Main.AlwaysSpawnTogetherCombos[mainRole] = addOn;
                                 else Main.NeverSpawnTogetherCombos[mainRole] = addOn;
                                 Utils.SendMessage(string.Format(args[1] == "add" ? GetString("ComboAdd") : GetString("ComboBan"), GetString(mainRole.ToString()), GetString(addOn.ToString())), localPlayerId);
